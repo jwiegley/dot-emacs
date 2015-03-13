@@ -1,0 +1,7 @@
+#!/bin/bash
+style=$(echo $1 | sed 's/^--//')
+shift
+$EMACS -q $SITEFLAG -batch -l ../scripts/muse-build.el \
+    -l muse-regexps.el -l muse.el -l muse-publish.el \
+    -l muse-html.el -l muse-latex.el -l muse-texinfo.el \
+    -f muse-batch-publish-files $style --output-dir=. "$@"

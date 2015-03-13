@@ -1,0 +1,71 @@
+\documentclass<lisp>
+(or (and (muse-publishing-directive "latex-twocolumn")
+         "[twocolumn]")
+    "")
+</lisp>{<lisp>
+(or (muse-publishing-directive "latex-document-class")
+    "article")</lisp>}
+
+\usepackage[english]{babel}
+\usepackage{amsfonts, amsmath, amssymb}
+\usepackage{ucs}
+
+% I'd love to be able to use CB fonts for Greek letters instead, as
+% the ucs docs recommend, but i couldn't figure it out
+\SetUnicodeOption{mathletters}
+
+% define Unicode "middle dot" to be TeX \cdot
+\DeclareUnicodeCharacter{183}{\ensuremath{\cdot}}
+% declare Unicode "maplet" to be TeX \mapsto
+\DeclareUnicodeCharacter{8614}{\ensuremath{\mapsto}}
+% declare Unicode "leftwards arrow with hook" to be TeX \hookleftarrow
+\DeclareUnicodeCharacter{8617}{\ensuremath{\hookleftarrow}}
+% declare Unicode "downwards double arrow" to be TeX \Downarrow
+\DeclareUnicodeCharacter{8659}{\ensuremath{\Downarrow}}
+% define Unicode "white circle" to be TeX \circ
+\DeclareUnicodeCharacter{9675}{\ensuremath{\circ}}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage[pdftex]{graphicx}
+
+\def\museincludegraphics{%
+  \begingroup
+  \catcode`\|=0
+  \catcode`\\=12
+  \catcode`\#=12
+  \includegraphics[width=0.75\textwidth]
+}
+
+% One-inch margins
+\usepackage{fullpage}
+
+% A more PDF-friendly font
+\usepackage{lmodern}
+
+% An alternate, blockier font, should I ever want it
+% \renewcommand{\familydefault}{\sfdefault} \sf
+
+<lisp>(when (muse-publishing-directive "latex-block-paragraphs")
+"\\setlength{\\parindent}{0pt}
+\\setlength{\\parskip}{4pt}")
+</lisp>
+
+% For two-column documents, increase center margin to something readable
+\setlength{\columnsep}{.25in}
+
+\begin{document}
+
+<lisp>(unless (muse-publishing-directive "latex-omit-title")
+(concat "\\title{" (muse-publish-escape-specials-in-string
+  (muse-wiki-publish-pretty-title) 'document) "}
+\\author{" (muse-publishing-directive "author") "}
+\\date{" (muse-publishing-directive "date") "}
+
+\\maketitle"))
+</lisp>
+
+<lisp>(and muse-publish-generate-contents
+           "\\tableofcontents
+\\clearpage")</lisp>

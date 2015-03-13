@@ -1,0 +1,4247 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename muse.info
+@settitle Muse
+@c %**end of header
+
+@dircategory Emacs
+@direntry
+* Muse: (muse). Authoring and publishing environment for Emacs.
+@end direntry
+
+@syncodeindex fn cp
+
+@copying
+This manual is for Emacs Muse version 3.20.
+
+Copyright @copyright{} 2004, 2005, 2006, 2007,
+2008, 2009, 2010  Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover texts being ``A GNU
+Manual'', and with the Back-Cover Texts as in (a) below.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License'' in this manual.
+
+(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
+this GNU Manual, like GNU software.  Copies published by the Free
+Software Foundation raise funds for GNU development.''
+
+This document is part of a collection distributed under the GNU Free
+Documentation License.  If you want to distribute this document
+separately from the collection, you can do so by adding a copy of the
+license to the document, as described in section 6 of the license.
+
+All Emacs Lisp code contained in this document may be used, distributed,
+and modified without restriction.
+@end quotation
+@end copying
+
+@titlepage
+@title Muse manual
+@subtitle an authoring and publishing environment
+@subtitle for GNU Emacs and XEmacs
+
+@c The following two commands
+@c start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@c So the toc is printed at the start
+@contents
+
+@ifnottex
+@node Top, Preface, (dir), (dir)
+@comment  node-name,  next,  previous,  up
+@top Muse
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Preface::                     About the documentation.
+* Introduction::                What is Muse?
+* Obtaining Muse::              How to get Muse releases and development
+                                  changes.
+* Installation::                Compiling and installing Muse.
+* Getting Started::             Setting up Muse and editing files.
+* Projects::                    Creating and managing Muse projects.
+* Keystroke Summary::           Keys used in Muse mode.
+* Markup Rules::                Rules for using markup.
+* Publishing Styles::           Publishing various types of documents.
+* Extending Muse::              Making your own publishing styles.
+* Miscellaneous::               Miscellaneous add-ons, like a minor mode.
+* Getting Help and Reporting Bugs::  
+* History::                     History of this document.
+* Contributors::                Contributors to this documentation.
+* GNU Free Documentation License::  The license for this documentation.
+* Concept Index::               Search for terms.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+How to Get Muse Releases and Development Changes
+
+* Releases::                    Released versions of Muse.
+* Development::                 Latest unreleased development changes.
+
+Getting Started
+
+* Loading Muse::                How to load Muse.
+* Using Muse Mode::             How to edit files in Muse.
+* Publishing Files Overview::   Publishing a single file or project.
+* File Extensions::             Using a different file extension.
+
+Creating and Managing Muse Projects
+
+* Single Project::              A single-project example.
+* Multiple Projects::           A multiple-project example.
+* Projects and Subdirectories::  Publishing subdirectories in projects.
+* Options for Projects::        Listing of available options for projects.
+
+Rules for Using Markup
+
+* Paragraphs::                  Paragraphs: centering and quoting.
+* Headings::                    Levels of headings.
+* Directives::                  Directives at the beginning of a
+                                  document.
+* Emphasizing Text::            Bold, italicized, and underlined text.
+* Footnotes::                   Making notes to be shown at the end.
+* Verse::                       Indicating poetic stanzas.
+* Lists::                       Lists of items.
+* Tables::                      Generation of data tables.
+* Explicit Links::              Hyperlinks and email addresses with
+                                  descriptions.
+* Implicit Links::              Bare URLs, WikiNames, and InterWiki
+                                  links.
+* Images::                      Publishing and displaying images.
+* Horizontal Rules and Anchors::  Inserting a horizontal line or anchor.
+* Embedded Lisp::               Evaluating Emacs Lisp code in documents
+                                  for extensibility.
+* Citations::                   Support for citing other resources.
+* Comments::                    Lines to omit from published output.
+* Tag Summary::                 Tags that Muse recognizes.
+
+Publishing Various Types of Documents
+
+* Blosxom::                     Integrating Muse and pyblosxom.cgi.
+* Book::                        Publishing entries into a compilation.
+* ConTeXt::                     Publishing ConTeXt documents.
+* DocBook::                     Publishing in DocBook XML form.
+* HTML::                        Publishing in HTML or XHTML form.
+* Ikiwiki::                     Integrating with ikiwiki.
+* Journal::                     Keeping a journal or blog.
+* LaTeX::                       Publishing LaTeX documents.
+* Poem::                        Publish a poem to LaTeX or PDF.
+* Texinfo::                     Publish entries to Texinfo format or PDF.
+* XML::                         Publish entries to XML.
+
+Integrating Muse and pyblosxom.cgi
+
+* Blosxom Requirements::        Other tools needed for the Blosxom style.
+* Blosxom Entries::             Format of a Blosxom entry and automation.
+* Blosxom Options::             Blosxom styles and options provided.
+
+Making your own publishing styles
+
+* Markup Functions::            Specifying functions to mark up text.
+* Markup Regexps::              Markup rules for publishing.
+* Markup Strings::              Strings specific to a publishing style.
+* Markup Tags::                 Tag specifications for special markup.
+* Style Elements::              Parameters used for defining styles.
+* Deriving Styles::             Deriving a new style from an existing
+                                  one.
+
+Miscellaneous add-ons, like a minor mode
+
+* Muse List Edit Minor Mode::   Edit lists easily in other major modes.
+
+@end detailmenu
+@end menu
+
+@node Preface, Introduction, Top, Top
+@comment  node-name,  next,  previous,  up
+@chapter About the documentation
+
+This document describes Muse, which was written by John Wiegley and is
+now maintained by Michael Olson.  Several versions of this manual are
+available on-line.
+
+@itemize @bullet
+@item PDF: http://mwolson.org/static/doc/muse.pdf
+@item HTML (single file): http://mwolson.org/static/doc/muse.html
+@item HTML (multiple files): http://mwolson.org/static/doc/muse/
+@end itemize
+
+@node Introduction, Obtaining Muse, Preface, Top
+@comment  node-name,  next,  previous,  up
+@chapter What is Muse?
+
+Emacs Muse (also known as ``Muse'' or ``Emacs-Muse'') is an authoring
+and publishing environment for Emacs.  It simplifies the process of
+writing documents and publishing them to various output formats.
+
+Muse consists of two main parts: an enhanced text-mode for authoring
+documents and navigating within Muse projects, and a set of publishing
+styles for generating different kinds of output.
+
+What makes Muse distinct from other text-publishing systems is a modular
+environment, with a rather simple core, in which "styles" are derived
+from to create new styles.  Much of Muse's overall functionality is
+optional.  For example, you can use the publisher without the
+major-mode, or the mode without doing any publishing; or if you don't
+load the Texinfo or LaTeX modules, those styles won't be available.
+
+The Muse codebase is a departure from emacs-wiki.el version 2.44. The
+code has been restructured and rewritten, especially its publishing
+functions.  The focus in this revision is on the authoring and
+publishing aspects, and the "wikiness" has been removed as a default
+behavior (available in the optional @file{muse-wiki} module).  CamelCase
+words are no longer special by default.
+
+One of the principal aims in the development of Muse is to make it very
+easy to produce good-looking, standards-compliant documents.
+
+@node Obtaining Muse, Installation, Introduction, Top
+@comment  node-name,  next,  previous,  up
+@chapter How to Get Muse Releases and Development Changes
+
+@menu
+* Releases::                    Released versions of Muse.
+* Development::                 Latest unreleased development changes.
+@end menu
+
+@node Releases, Development, Obtaining Muse, Obtaining Muse
+@comment  node-name,  next,  previous,  up
+@section Released versions of Muse
+
+Choose to install a release if you want to minimize risk.
+
+Errors are corrected in development first.  User-visible changes will be
+announced on the @email{muse-el-discuss@@gna.org} mailing list.
+@xref{Getting Help and Reporting Bugs}.
+
+@cindex releases, Debian package
+@cindex Debian package for Muse
+Debian users can get Muse via apt-get.  The @file{muse-el} package is
+available both at Michael Olson's APT repository and the official Debian
+repository.  To make use of the former, add the following line to your
+@file{/etc/apt/sources.list} file and run @code{apt-get install muse}.
+
+@example
+deb http://mwolson.org/debian/ ./
+@end example
+
+@cindex releases, Ubuntu package
+@cindex Ubuntu package for Muse
+Ubuntu users can also get Muse via apt-get.  The @file{muse-el} package
+is available both at Michael Olson's APT repository and the official
+Ubuntu repository.  To make use of the former, add the following line to
+your @file{/etc/apt/sources.list} file and run @code{apt-get install
+muse}.
+
+@example
+deb http://mwolson.org/ubuntu/ ./
+@end example
+
+The reason for making separate Debian and Ubuntu packages is that this
+manual is under the GFDL, and Debian will not allow it to be distributed
+in its main repository.  Ubuntu, on the other hand, permits this manual
+to be included with the @file{muse-el} package.
+
+@cindex releases, from source
+Alternatively, you can download the latest release from
+@uref{http://download.gna.org/muse-el/} .
+
+@node Development,  , Releases, Obtaining Muse
+@comment  node-name,  next,  previous,  up
+@section Latest unreleased development changes
+@cindex development
+
+Choose the development version if you want to live on the bleeding edge
+of Muse development or try out new features before release.
+
+@cindex git version control system, using
+The git version control system allows you to keep up-to-date with the
+latest changes to the development version of Muse.  It also allows you
+to contribute changes (via commits, if you are have developer access to
+the repository, or via patches, otherwise).  If you would like to
+contribute to Muse development, it is highly recommended that you use
+git.
+
+If you are new to git, you might find this tutorial helpful:
+@uref{http://www.kernel.org/pub/software/scm/git/docs/tutorial.html}.
+
+Downloading the Muse module with git and staying up-to-date involves
+the following steps.
+
+@enumerate
+@item Install git.
+
+@itemize @bullet
+@item Debian and Ubuntu: @kbd{apt-get install git-core}.
+@item Windows: @uref{http://git.or.cz/gitwiki/WindowsInstall}.
+@item Other operating systems: download, compile, and install the source
+from @uref{http://www.kernel.org/pub/software/scm/git/}, or find a git
+package for your operating system.
+@end itemize
+
+@item Download the Muse development branch.
+
+If you have developer access to Muse, do:
+
+@example
+git clone ssh://repo.or.cz/srv/git/muse-el.git muse
+@end example
+
+otherwise, do:
+
+@example
+git clone git://repo.or.cz/muse-el.git muse
+@end example
+
+If you are behind a restrictive firewall, and do not have developer
+access, then do the following instead:
+
+@example
+git clone http://repo.or.cz/r/muse-el.git muse
+@end example
+
+@item List upstream changes that are missing from your local copy.
+Do this whenever you want to see whether new changes have been committed
+to Muse.  If you wish, you may skip this step and proceed directly to
+the ``update'' step.
+
+@example
+# Change to the source directory you are interested in.
+cd muse
+
+# Fetch new changes from the repository, but don't apply them yet
+git fetch origin
+
+# Display log messages for the new changes
+git log HEAD..origin
+@end example
+
+``origin'' is git's name for the location where you originally got Muse
+from.  You can change this location at any time by editing the
+@file{.git/config} file in the directory where the Muse source was
+placed.
+
+@cindex updating Muse with git
+@item Update to the latest version by pulling in any missing changes.
+
+@example
+cd muse
+git pull origin
+@end example
+
+git will show how many files changed, and will provide a visual display
+for how many lines were changed in each file.
+
+@end enumerate
+
+There are other ways to interact with the Muse repository.
+
+@itemize
+@item Browse git repo: @uref{http://repo.or.cz/w/muse-el.git}
+@item Latest development snapshot: @uref{http://mwolson.org/static/dist/muse-latest.tar.gz}
+@item Latest development snapshot (zip file): @uref{http://mwolson.org/static/dist/muse-latest.zip}
+@end itemize
+
+The latest development snapshot can lag behind the git repo by as much
+as 20 minutes, but never more than that.
+
+@subheading Becoming a Muse developer
+@cindex developer, becoming
+
+If you want commit access to the shared Muse repository, then register
+an account at @uref{http://repo.or.cz} (be sure to add an SSH key), and
+contact the current maintainer at @email{mwolson@@gnu.org}.  It would be
+best to send some patches to the @email{muse-el-discuss@@gna.org}
+mailing list first, so that he knows that you know what you are doing.
+@xref{Getting Help and Reporting Bugs}, for instructions on subscribing
+to the mailing list.
+
+You must also be willing to sign a copyright assignment for your changes
+to Muse, since Muse is a GNU project.  The current maintainer will
+assist you in this process if you contact him.
+
+For information on committing changes to Muse and performing
+development, please consult
+@uref{http://emacswiki.org/cgi-bin/wiki/MuseDevelopment}.
+
+@node Installation, Getting Started, Obtaining Muse, Top
+@comment  node-name,  next,  previous,  up
+@chapter Compiling and Installing Muse
+
+Muse may be compiled and installed on your machine.
+
+@subheading Compilation
+@cindex compiling Muse
+
+This is an optional step, since Emacs Lisp source code does not
+necessarily have to be byte-compiled.  Byte-compilation may yield a very
+slight speed increase.
+
+A working copy of Emacs or XEmacs is needed in order to compile Emacs
+Muse.  By default, the program that is installed with the name
+@command{emacs} will be used.
+
+If you want to use the @command{xemacs} binary to perform the
+compilation, you must copy @file{Makefile.defs.default} to
+@file{Makefile.defs} in the top-level directory, and then edit
+@file{Makefile.defs} as follows.  You can put either a full path to an
+Emacs or XEmacs binary or just the command name, as long as it is in the
+@env{PATH}.
+
+@example
+EMACS    = xemacs
+SITEFLAG = -no-site-file
+# Edit the section as necessary
+install_info = install-info --section "XEmacs 21.4" $(1).info \
+        $(INFODIR)/dir || :
+@end example
+
+Running @code{make} in the top-level directory should compile the Muse
+source files in the @file{lisp} directory, and generate an autoloads
+file in @file{lisp/muse-autoloads.el}.
+
+@subheading Installation
+@cindex installing Muse
+
+Muse may be installed into your file hierarchy by doing the following.
+
+Copy @file{Makefile.defs.default} to @file{Makefile.defs} in the
+top-level directory, if you haven't done so already.  Then edit the
+@file{Makefile.defs} file so that @env{ELISPDIR} points to where you
+want the source and compiled Muse files to be installed and
+@env{INFODIR} indicates where to put the Muse manual.  You may use a
+combination of @env{DESTDIR} and @env{PREFIX} to further determine where
+the installed files should be placed.  As mentioned earlier, you will
+want to edit @env{EMACS} and @env{SITEFLAG} as shown in the Compilation
+section if you are using XEmacs.
+
+If you are installing Muse on a Debian or Ubuntu system, you might want
+to change the value of @env{INSTALLINFO} as specified in
+@file{Makefile.defs}.
+
+If you wish to install Muse to different locations than the defaults
+specify, edit @file{Makefile.defs} accordingly.
+
+Run @code{make} as a normal user, if you haven't done so already.
+
+Run @code{make install} as the root user if you have chosen installation
+locations that require root permissions.
+
+@subheading ELPA
+@cindex ELPA package for Muse
+
+For those used to installing software packages, there will be a
+@code{muse} package available in the Emacs Lisp Package Archive
+(abbreviated ``ELPA'') as of the 3.10 release of Muse.  This package
+will be compiled and installed automatically in a user-specific
+location.  For more information on ELPA, see
+@uref{http://tromey.com/elpa/}.
+
+@node Getting Started, Projects, Installation, Top
+@comment  node-name,  next,  previous,  up
+@chapter Getting Started
+@cindex settings
+
+@menu
+* Loading Muse::                How to load Muse.
+* Using Muse Mode::             How to edit files in Muse.
+* Publishing Files Overview::   Publishing a single file or project.
+* File Extensions::             Using a different file extension.
+@end menu
+
+@node Loading Muse, Using Muse Mode, Getting Started, Getting Started
+@comment  node-name,  next,  previous,  up
+@section How to Load Muse
+@cindex settings, init file
+
+To use Muse, add the directory containing its files to your
+@code{load-path} variable, in your @file{.emacs} file.  Then, load in
+the authoring mode, and the styles you wish to publish to.  An example
+follows.
+
+@lisp
+(add-to-list 'load-path "<path to Muse>")
+
+(require 'muse-mode)     ; load authoring mode
+
+(require 'muse-html)     ; load publishing styles I use
+(require 'muse-latex)
+(require 'muse-texinfo)
+(require 'muse-docbook)
+
+(require 'muse-project)  ; publish files in projects
+@end lisp
+
+An easy way of seeing which settings are available and changing settings
+is to use the Muse customization interface.  To do this, type
+@kbd{M-x customize-group muse RET}.  Each of the options has its own
+documentation.  Options are grouped logically according to what effect
+they have.
+
+@node Using Muse Mode, Publishing Files Overview, Loading Muse, Getting Started
+@comment  node-name,  next,  previous,  up
+@section How to Edit Files in Muse
+@cindex editing Muse files
+
+Muse Mode should automatically be activated when you visit a file with a
+``.muse'' extension.  One such file is @file{QuickStart.muse}, which is
+available in the @file{examples} directory of the Muse distribution.
+You can tell that Muse Mode has been activated by checking for the text
+``Muse'' in your mode line.  If Muse Mode has not been activated, you
+may activate it by type @kbd{M-x muse-mode RET}.
+
+You will notice that Muse files are highlighted very simply.  Links are
+colored blue, headings are large and bold text, and @verb{|<example>|}
+tags are colored in grey.
+
+There are several different ways to edit things like links, which hide
+the underlying Muse markup.  One way is to toggle font-locking off by
+hitting @kbd{C-c C-l}, which is also @kbd{M-x font-lock-mode}, make
+changes, and then hit @kbd{C-c C-l} again to toggle font-locking back
+on.  Another way is just to move into the text and edit it.  Markup can
+also be removed by normal deletion methods, though some side effects
+might require a second deletion.
+
+For the particular case of editing links, it is easiest to move to the
+link and do @kbd{C-c C-e}, which is also @kbd{M-x
+muse-edit-link-at-point}.  This prompts you for the link and its
+description, using the previous contents of the link as initial values.
+A link to another Muse file may be created by hitting @kbd{C-c TAB l}.
+A link to a URL may be created by hitting @kbd{C-c TAB u}.  Links may be
+followed by hitting @kbd{RET} on them.
+
+If you want to add a new list item, this may by accomplished by hitting
+@kbd{M-RET}.  This will put a dash and some spaces on the screen.  The
+dash is the Muse markup that indicates a list item.  It is also possible
+to created ``nested'' lists with this command, by adjusting the number
+of spaces in front of the dashes.  If you have lists with long lines,
+you can move to a list item and hit @kbd{M-q} to wrap it onto multiple
+lines.
+
+@node Publishing Files Overview, File Extensions, Using Muse Mode, Getting Started
+@comment  node-name,  next,  previous,  up
+@section Publishing a Single File or Project
+@cindex editing Muse files
+
+The command @kbd{M-x muse-project-publish-this-file} will publish the
+current document to any available publishing style (a publishing style
+is an output format, like HTML or Docbook), placing the output in the
+current directory.  If you are in Muse Mode, this command will be bound
+to @kbd{C-c C-t}.  If the file has been published recently, and its
+contents have not changed, running @kbd{C-c C-t} again will not publish
+the file.  To force publishing in this case, do @kbd{C-u C-c C-t}.
+
+If you have set up projects and are visiting a file that is part of a
+project, then @kbd{C-c C-t} will restrict the output formats to those
+which are used by the project, and will automatically publish to the
+output directory defined by the project.  If you want to publish to a
+different directory or use a different format, then use @kbd{C-c M-C-t},
+which is also @kbd{M-x muse-publish-this-file}.
+
+If the currently opened file is part of a defined project in
+@code{muse-project-alist}, it (and the rest of the changed files in a
+project) may be published using @kbd{C-c C-p}.
+
+@node File Extensions, , Publishing Files Overview, Getting Started
+@comment  node-name,  next,  previous,  up
+@section Using a Different File Extension
+@cindex file extension, specifying
+
+By default, Muse expects all project files to have the file extension
+@file{.muse}. Files without this extension will not be associated with
+Muse mode and will not be considered part of any project, even if they
+are within a project directory.
+
+If you don't want to use @file{.muse}, you can customize the extension
+by setting the value of @code{muse-file-extension}.
+
+If you don't want to use any extension at all, and want Muse to
+autodetect project files based on their location, then add the following
+to your Muse settings file.
+
+@lisp
+(setq muse-file-extension nil
+      muse-mode-auto-p t)
+@end lisp
+
+Note that if you chose to have @code{muse-file-extension} set to
+@code{nil}, you may have trouble if your @file{.emacs} file or other
+init scripts attempt to visit a Muse file.  (A very common example of
+this is if you use Planner with Muse and run @code{(plan)} from your
+@file{.emacs}.)  If you wish to visit Muse files from your
+@file{.emacs}, be sure to also add the following additional code before
+any such visits happen:
+
+@lisp
+(add-hook 'find-file-hooks 'muse-mode-maybe)
+@end lisp
+
+
+@node Projects, Keystroke Summary, Getting Started, Top
+@comment  node-name,  next,  previous,  up
+@chapter Creating and Managing Muse Projects
+@cindex projects
+
+Often you will want to publish all the files within a directory to a
+particular set of output styles automatically.  To support, Muse
+allows for the creation of "projects".
+
+@menu
+* Single Project::              A single-project example.
+* Multiple Projects::           A multiple-project example.
+* Projects and Subdirectories::  Publishing subdirectories in projects.
+* Options for Projects::        Listing of available options for projects.
+@end menu
+
+@node Single Project, Multiple Projects, Projects, Projects
+@comment  node-name,  next,  previous,  up
+@section A Single-Project Example
+@cindex projects, single
+
+Here is a sample project, which may be defined in your @file{.emacs}
+file.
+
+@lisp
+(setq muse-project-alist
+      '(("Website" ("~/Pages" :default "index")
+         (:base "html" :path "~/public_html")
+         (:base "pdf" :path "~/public_html/pdf"))))
+@end lisp
+
+The above defines a project named "website", whose files are located
+in the directory @file{~/Pages}.  The default page to visit is
+@file{index}.  When this project is published, each page will be
+output as HTML to the directory @file{~/public_html}, and as PDF to
+the directory @file{~/public_html/pdf}.  Within any project page, you
+may create a link to other pages using the syntax @samp{[[pagename]]}.
+
+If you would like to include only some files from a directory in a Muse
+project, you may use a regexp in place of @file{~/Pages} in the example.
+
+@node Multiple Projects, Projects and Subdirectories, Single Project, Projects
+@comment  node-name,  next,  previous,  up
+@section A Multiple-Project Example
+@cindex projects, multiple
+
+It is possible to specify multiple projects.  Here is an example of
+three projects: a generic website, a projects area, and a day-planner
+(the day-planner part requires Planner Mode---see
+@uref{http://wjsullivan.net/PlannerMode.html} to get it).
+
+@lisp
+(setq muse-project-alist
+      '(("Website" ("~/Pages" :default "index")
+         (:base "html" :path "~/public_html"))
+        (("Projects" ("~/Projects" :default "index")
+         (:base "xhtml"
+                :path "~/public_html/projects"
+                :exclude "/TopSecret")
+         (:base "pdf"
+                :path "~/public_html/projects/pdf"
+                :exclude "/TopSecret")))
+        ("Plans" ("~/Plans"
+                  :default "TaskPool"
+                  :major-mode planner-mode
+                  :visit-link planner-visit-link)
+         (:base "planner-xhtml"
+                :path "~/public_html/plans"))))
+@end lisp
+
+The @option{:major-mode} attribute specifies which major to use when
+visiting files in this directory.
+
+The @option{:visit-link} attribute specifies the function to call when
+visiting links.
+
+The @option{:exclude} attribute has a regexp that matches files to never
+publish.
+
+@node Projects and Subdirectories, Options for Projects, Multiple Projects, Projects
+@comment  node-name,  next,  previous,  up
+@section Publishing Subdirectories in Projects
+@cindex projects, subdirectories
+
+If you want to publish a directory and all of its subdirectories, Muse
+provides two convenience functions that together generate the proper
+rules for you.  Note that we use the backtick to begin this
+muse-project-alist definition, rather than a single quote.
+
+@lisp
+(setq muse-project-alist
+      `(("Website" ("~/Pages" :default "index")
+         (:base "html" :path "~/public_html"))
+        ("Blog" (,@@(muse-project-alist-dirs "~/Blog")
+                 :default "index")
+         ;; Publish this directory and its subdirectories.  Arguments
+         ;; are as follows.  The above `muse-project-alist-dirs' part
+         ;; is also needed.
+         ;;   1. Source directory
+         ;;   2. Output directory
+         ;;   3. Publishing style
+         ;;   remainder: Other things to put in every generated style
+         ,@@(muse-project-alist-styles "~/Blog"
+                                      "~/public_html/blog"
+                                      "blosxom"))))
+@end lisp
+
+The @code{muse-project-alist-dirs} function takes a directory and
+returns it and all of its subdirectories in a list.
+
+The @code{muse-project-alist-styles} function is explained by the
+comments above.
+
+The ``blosxom'' text is the name of another publishing style, much like
+``html''.  @xref{Blosxom}, for further information about it.  You can
+use any publishing style you like for the third argument to
+@code{muse-project-alist-styles}.
+
+@node Options for Projects, , Projects and Subdirectories, Projects
+@comment  node-name,  next,  previous,  up
+@section Listing of Available Options for Projects
+@cindex projects, options
+@cindex muse-project-alist, reference
+
+This is a listing of all of the various options (or, more accurately:
+attributes) that may be specified in @code{muse-project-alist}.
+
+Each muse-project-alist entry looks like this:
+
+@example
+  (PROJECT-NAME (SOURCES)
+    OUTPUTS)
+@end example
+
+We refer to these names below.
+
+``Attributes'', which compose SOURCES and OUTPUTS, are a pair of values.
+The first value is a keyword, like @option{:default}.  The second part
+is the value associated with that keyword, such as the text ``index''.
+If you are familiar with Emacs Lisp property lists, the concept is
+similar to that, except that in the SOURCES section, single directories
+can be interspersed with two-value attributes.
+
+@subheading Project Name
+
+This is a string that indicates the name of the project.  It is
+primarily used for publishing interwiki links with the
+@file{muse-wiki.el} module.
+
+@subheading Sources
+
+This part of a muse-project-alist entry consists of two-value
+attributes, and also directory names.  If you are publishing a book, the
+order of directories and attributes is significant.
+
+The minimal content for the sources section is a list of directories.
+
+@table @option
+
+@item :book-chapter
+Indicates a new chapter of a book.  The text of the title of the chapter
+comes immediately after this keyword.
+
+@item :book-end
+Indicates the end of a book.  Directories listed after this one are
+ignored when publishing a book.  The value ``t'' (without quotes) should
+come immediately after this keyword.
+
+@item :book-funcall
+A function to call while publishing a book.  This is useful for doing
+something just after a particular chapter.
+
+@item :book-part
+Indicates the beginning of a new part of the book.  The text of the
+title should come immediately after this keyword.
+
+@item :book-style
+Indicate a particular publishing style to use for this part of the book.
+If this is specified, it should come just after a @option{:part}
+attribute.
+
+@item :default
+The default page to visit when browsing a project.  Also, if you are
+using the @file{muse-wiki.el} module, publishing a link to just a
+project's name will cause it to link to this default file.
+
+@item :force-publish
+This specifies a list of pages which should be published every time a
+project is published (by using @kbd{C-c C-p}, for example), regardless
+of whether their contents have changed.  This is useful for updating
+Index pages, pages that use the @verb{|<include>|} tag, and other pages
+that have dynamically-generated content.
+
+@item :major-mode
+This specifies the major mode to use when visiting files in this
+project.  The default is @code{muse-mode}.
+
+@item :nochapters
+This indicates that while publishing a book, do not automatically create
+chapters.  Values which may follow this are nil (the default, which
+means that we automatically create chapters), or non-nil, which means
+that we manually specify chapters with the @option{:book-chapter}
+attribute,
+
+@item :publish-project
+Indicates which function we should call when publishing a project.
+
+@item :set
+This specifies a list of variables and values to set when publishing a
+project.  The list should be a property list, which is in the form:
+
+@example
+(VAR1 VALUE1 VAR2 VALUE2 ...)
+@end example
+
+@item :visit-link
+Specifies the function to call when visiting a link.  The default is
+@code{muse-visit-link-default}.  The arguments for that function should
+be (1) the link and (2) whether to visit the link in a new window.
+
+@end table
+
+@subheading Outputs
+
+This part of a muse-project-alist entry is composed of lists of
+attributes.  Each list is called an ``output style''.
+
+The minimal content for an output style is a @option{:base} attribute
+and a @option{:path} attribute.
+
+@table @option
+
+@item :base
+Publishing style to use, such as ``html'', ``docbook'', or ``pdf''.
+
+@item :base-url
+An external URL which can be used to access published files.  This is
+mainly used by the @file{muse-wiki} module when publishing links between
+two separate projects, if the projects are served on different domains.
+
+It is also used by the @file{muse-journal} module to create the RSS or
+RDF output.
+
+@item :exclude
+Exclude items matching a regexp from being published.  The regexp should
+usually begin with "/".
+
+@item :include
+Only include items matching a regexp when publishing.  The regexp should
+usually begin with "/".
+
+@item :path
+The directory in which to store published files.
+
+@item :timestamps
+A file containing the timestamps (that is, time of creation) for files
+in this project.  It might eventually used by the @file{muse-blosxom}
+module, but this option is not currently in use by any Muse code.
+
+@end table
+
+
+@node Keystroke Summary, Markup Rules, Projects, Top
+@comment  node-name,  next,  previous,  up
+@chapter Keys Used in Muse Mode
+@cindex keystrokes
+
+This is a summary of keystrokes available in every Muse buffer.
+
+@table @kbd
+
+@item C-c C-a (`muse-index')
+Display an index of all known Muse pages.
+
+@item C-c C-b (`muse-find-backlinks')
+Find all pages that link to this page.
+
+@item C-c C-e (`muse-edit-link-at-point')
+Edit link at point.
+
+@item C-c C-f (`muse-project-find-file')
+Open another Muse page.  Prompt for the name.
+
+@item C-c C-i l, C-c TAB l (`muse-insert-relative-link-to-file')
+Insert a link to a file interactively.
+
+@item C-c C-i t, C-c TAB t (`muse-insert-tag')
+Insert a tag interactively.
+
+@item C-c C-i u, C-c TAB u (`muse-insert-url')
+Insert a URL interactively.
+
+@item C-c C-l (`font-lock-mode')
+Toggle font lock / highlighting for the current buffer.
+
+@item C-c C-p (`muse-project-publish')
+Publish any Muse pages that have changed.
+
+@item C-c C-s (`muse-search')
+Find text in all files of the current project.
+
+@item C-c C-t (`muse-project-publish-this-file')
+Publish the currently-visited file.  Prompt for the style if the current
+file can be published using more than one style.
+
+@item C-c C-S-t, or C-c C-M-t (`muse-publish-this-file')
+Publish the currently-visited file.  Prompt for both the style and
+output directory.
+
+@item C-c C-v (`muse-browse-result')
+Show the published result of this page.
+
+@item C-c = (`muse-what-changed')
+Diff this page against the last backup version.
+
+@item TAB
+Move to the next Wiki reference.
+
+@item S-TAB
+Move to the previous Wiki reference.
+
+@item M-TAB
+Complete the name of a page from the current project at point.
+
+@item M-RET
+Insert a new list item at point, indenting properly.
+
+@item C-<
+Decrease the indentation of the list item at point.
+
+@item C->
+Increase the indentation of the list item at point.
+
+@item M-x muse-colors-toggle-inline-images RET
+Toggle display of inlined images on/off.
+
+@item M-x muse-update-values RET
+Update various values that are automatically generated.
+
+Call this after changing @code{muse-project-alist}.
+@end table
+
+
+@node Markup Rules, Publishing Styles, Keystroke Summary, Top
+@comment  node-name,  next,  previous,  up
+@chapter Rules for Using Markup
+@cindex markup
+
+A Muse document uses special, contextual markup rules to determine how
+to format the output result.  For example, if a paragraph is indented,
+Muse assumes it should be quoted.
+
+There are not too many markup rules, and all of them strive to be as
+simple as possible so that you can focus on document creation, rather
+than formatting.
+
+@menu
+* Paragraphs::                  Paragraphs: centering and quoting.
+* Headings::                    Levels of headings.
+* Directives::                  Directives at the beginning of a
+                                  document.
+* Emphasizing Text::            Bold, italicized, and underlined text.
+* Footnotes::                   Making notes to be shown at the end.
+* Verse::                       Indicating poetic stanzas.
+* Lists::                       Lists of items.
+* Tables::                      Generation of data tables.
+* Explicit Links::              Hyperlinks and email addresses with
+                                  descriptions.
+* Implicit Links::              Bare URLs, WikiNames, and InterWiki
+                                  links.
+* Images::                      Publishing and displaying images.
+* Horizontal Rules and Anchors::  Inserting a horizontal line or anchor.
+* Embedded Lisp::               Evaluating Emacs Lisp code in documents
+                                  for extensibility.
+* Citations::                   Support for citing other resources.
+* Comments::                    Lines to omit from published output.
+* Tag Summary::                 Tags that Muse recognizes.
+@end menu
+
+@node Paragraphs, Headings, Markup Rules, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Paragraphs: centering and quoting
+@cindex paragraphs
+
+Paragraphs in Muse must be separated by a blank line.
+
+@cindex paragraphs, centered
+@subheading Centered paragraphs and quotations
+
+A line that begins with six or more columns of whitespace (either tabs
+or spaces) indicates a centered paragraph.  Alternatively, you can use
+the @verb{|<center>|} tag to surround regions that are to be published
+as centered paragraphs.
+
+@cindex paragraphs, quoted
+@cindex quotations
+But if a line begins with whitespace, though less than six columns, it
+indicates a quoted paragraph.  Alternatively, you can use the
+@verb{|<quote>|} tag to surround regions that are to be published as
+quoted paragraphs.
+
+@cindex examples
+@cindex monospace, rendering blocks
+@cindex HTML, rendering blocks in monospace
+@subheading Literal paragraphs
+
+The @verb{|<example>|} tag is used for examples, where whitespace should
+be preserved, the text rendered in monospace, and any characters special
+to the output style escaped.
+
+@cindex literal text
+@cindex HTML, inserting a raw block
+There is also the @verb{|<literal>|} tag, which causes a marked block to
+be entirely left alone.  This can be used for inserting a hand-coded
+HTML blocks into HTML output, for example.
+
+If you want some text to only be inserted when publishing to a
+particular publishing style, use the @option{style} attribute for the
+@verb{|<literal>|} tag.  An example follows.
+
+@example
+<literal style="latex">
+A LaTeX-based style was used in the publishing of this document.
+</literal>
+@end example
+
+This will leave the region alone if the current publishing style is
+``latex'' or based on ``latex'', such as ``pdf'', and delete the region
+otherwise.  It is also possible to leave the text alone only for one
+particular style, rather than its derivations, by adding
+@code{exact="t"} to the tag.
+
+@cindex line breaks
+@subheading Line breaks
+
+If you need a line break, then use the @samp{<br>} tag.  Most of the
+time this tag is unnecessary, because Muse will automatically detect
+paragraphs by means of blank lines.  If you want to preserve newlines in
+several lines of text, then use verse markup instead (@pxref{Verse}).
+
+@node Headings, Directives, Paragraphs, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Levels of headings
+@cindex headings
+
+A heading becomes a chapter or section in printed output -- depending on
+the style.  To indicate a heading, start a new paragraph with one or
+more asterices, followed by a space and the heading title.  Then begin
+another paragraph to enter the text for that section.
+
+All levels of headings will be published.  Most publishing styles only
+distinguish the between the first 4 levels, however.
+
+@example
+* First level
+
+** Second level
+
+*** Third level
+
+**** Fourth level
+@end example
+
+@node Directives, Emphasizing Text, Headings, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Directives at the beginning of a document
+@cindex directives
+
+Directives are lines beginning with the @samp{#} character that come
+before any paragraphs or sections in the document.  Directives are of
+the form ``#directive content of directive''.  You can use any
+combination of uppercase and lowercase letters for directives, even if
+the directive is not in the list below.
+
+The @code{muse-publishing-directive} function may be used in header and
+footer text to access directives.  For example, to access the
+@code{#title} directive, use @code{(muse-publishing-directive "title")}.
+
+The following is a list of directives that Muse uses.
+
+@table @code
+@cindex #author
+@item #author
+The author of this document.
+
+If this is not specified, Muse will attempt to figure it out from the
+@code{user-full-name} variable.
+
+@cindex #date
+@item #date
+The date that the document was last modified.
+
+This is used by publishing styles that are able to embed the date
+information.
+
+@cindex #desc
+@item #desc
+A short description of this document.
+
+This is used by the @code{journal} publishing style to embed information
+inside of an RSS/RDF feed.
+
+@cindex #title
+@item #title
+The title of this document.
+
+If this is not specified, the name of the file is used.
+
+@end table
+
+@node Emphasizing Text, Footnotes, Directives, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Bold, italicized, and underlined text
+@cindex emphasizing text
+@cindex underlining text
+@cindex italicizing text
+@cindex verbatim text
+@cindex monospace, rendering words
+
+To emphasize text, surround it with certain specially recognized
+characters.
+
+@example
+*emphasis*
+**strong emphasis**
+***very strong emphasis***
+_underlined_
+=verbatim and monospace=
+@end example
+
+@cindex WYSIWYG
+While editing a Muse document in Muse mode, these forms of emphasis will
+be highlighted in a WYSIWYG manner.  Each of these forms may span
+multiple lines.
+
+Verbatim text will be colored as gray by default.  To change this,
+customize @code{muse-verbatim-face}.
+
+You can also use the @verb{|<code>|} tag to indicate verbatim and
+monospace text.  This is handy for regions that have an ``='' in them.
+
+@node Footnotes, Verse, Emphasizing Text, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Making notes to be shown at the end
+@cindex footnotes
+
+A footnote reference is simply a number in square brackets.  To define
+the footnote, place this definition at the bottom of your file.
+@samp{footnote-mode} can be used to greatly facilitate the creation of
+these kinds of footnotes.
+
+Footnotes are defined by the same number in brackets occurring at the
+beginning of a line.  Use footnote-mode's @kbd{C-c ! a} command, to very
+easily insert footnotes while typing.  Use @kbd{C-x C-x} to return to
+the point of insertion.
+
+@node Verse, Lists, Footnotes, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Indicating poetic stanzas
+@cindex verses
+@cindex poetry
+
+Poetry requires that whitespace be preserved, but without resorting to
+monospace.  To indicate this, use the following markup, reminiscent of
+email quotations.
+
+@example
+> A line of Emacs verse;
+>   forgive its being so terse.
+@end example
+
+You can also use the @verb{|<verse>|} tag, if you prefer.
+
+@example
+<verse>
+A line of Emacs verse;
+  forgive its being so terse.
+</verse>
+@end example
+
+@cindex verses, multiple stanzas
+Multiple stanzas may be included in one set of @verb{|<verse>|} tags, as
+follows.
+
+@example
+<verse>
+A line of Emacs verse;
+  forgive its being so terse.
+
+In terms of terse verse,
+  you could do worse.
+</verse>
+@end example
+
+@node Lists, Tables, Verse, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Lists of items
+@cindex lists
+
+Lists are given using special characters at the beginning of a line.
+Whitespace must occur before bullets or numbered items, to distinguish
+from the possibility of those characters occurring in a real sentence.
+
+@cindex lists, bullets
+These are rendered as a bullet list.
+
+@example
+Normal text.
+
+ - bullet item one
+ - bullet item two
+@end example
+
+@cindex lists, enumerated
+An enumerated list follows.
+
+@example
+Normal text.
+
+ 1. Enum item one
+ 2. Enum item two
+@end example
+
+@cindex lists, definitions
+Here is a definition list.
+
+@example
+Term1 ::
+  This is a first definition
+  And it has two lines;
+  no, make that three.
+
+Term2 :: This is a second definition
+@end example
+
+@subheading Nested lists
+
+@cindex lists, nested
+It is possible to nest lists of the same or different kinds.  The
+``level'' of the list is determined by the amount of initial whitespace.
+
+@example
+Normal text.
+
+ - Level 1, bullet item one
+   1. Level 2, enum item one
+   2. Level 2, enum item two
+ - Level 1, bullet item two
+   1. Level 2, enum item three
+   2. Level 2, enum item four
+      term :: definition
+@end example
+
+@subheading Breaking list items
+
+@cindex lists, breaking lines
+If you want to break up a line within any list type, just put one blank
+line between the end of the previous line and the beginning of the next
+line, using the same amount of initial indentation.
+
+@example
+ - bullet item 1, line 1
+
+   bullet item 1, line 2
+
+   1. Enum line 1
+
+      Enum line 2
+
+ - bullet item 2, line 1
+
+   bullet item 2, line 2
+@end example
+
+@node Tables, Explicit Links, Lists, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Generation of data tables
+@cindex tables
+
+@cindex tables, simple
+Only very simple tables are supported.  The syntax is as follows.
+
+@example
+Double bars  || Separate header fields
+
+Single bars   | Separate body fields
+Here are more | body fields
+
+Triple bars ||| Separate footer fields
+@end example
+
+Some publishing styles require header fields to come first, then footer
+fields, and then the body fields.  You can use any order for these
+sections that you like, and Muse will re-order them for you at
+publish-time.
+
+If you wish to disable table generation for one Muse file, add the
+directive @samp{#disable-tables t} to the top of the file.
+
+@subheading Other table formats
+
+@cindex tables, orgtbl-mode style
+It is possible to publish very basic Orgtbl-mode style tables.
+
+@example
+| org  | style | table |
+|------+-------+-------|
+| one  |       | one   |
+| two  | two   |       |
+|      | three | three |
+|------+-------+-------|
+| more | stuff |       |
+@end example
+
+If you are used to the way that Org Mode publishes these tables, then
+customize `muse-html-table-attributes' to the following, in order to get
+a similar kind of output.
+
+@example
+border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"
+@end example
+
+@cindex tables, table.el style
+@file{table.el} style tables are also supported, as long as
+@file{table.el} itself supports outputting tables for a particular
+publishing style.  At the time of this writing, the ``html'', ``latex'',
+and ``docbook'' styles are supported by @file{table.el}.  Styles derived
+from these styles will also work.
+
+@example
++---+-----+---+
+|   | one | 1 |
++---+-----+---+
+| b | two |   |
++---+-----+---+
+| c |     | 3 |
++---+-----+---+
+@end example
+
+@node Explicit Links, Implicit Links, Tables, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Hyperlinks and email addresses with descriptions
+@cindex links, explicit
+
+A hyperlink can reference a URL, or another page within a Muse
+project.  In addition, descriptive text can be specified, which should
+be displayed rather than the link text in output styles that supports
+link descriptions.  The syntax is as follows.
+
+@example
+[[link target][link description]]
+[[link target without description]]
+@end example
+
+Thus, the current maintainer's homepage for Muse can be found
+@samp{[[http://mwolson.org/projects/EmacsMuse.html][here]]},
+or at @samp{[[http://mwolson.org/projects/EmacsMuse.html]]}.
+
+@node Implicit Links, Images, Explicit Links, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Bare URLs, WikiNames, and InterWiki links
+@cindex links, implicit
+@cindex links, raw
+
+@cindex URLs
+@cindex Email addresses
+
+A URL or email address encountered in the input text is published as a
+hyperlink.  These kind of links are called @dfn{implicit links} because
+they are not separated from the rest of the Muse document in any way.
+
+Some characters in URLs will prevent Muse from recognizing them as
+implicit links. If you want to link to a URL containing spaces or any of
+the characters ``][,"'`()<>^'', you will have to make the link
+explicit. The punctuation characters ``.,;:'' are also not recognized as
+part of a URL when they appear at its end. For information on how to
+make an explicit link, see @ref{Explicit Links,,Hyperlinks and email
+addresses with descriptions}.
+
+@cindex WikiNames
+If the @command{muse-wiki} module is loaded, another form of implicit
+link will be made available.  WikiNames, which are typed in CamelCase,
+are highlighted and published as links, provided that the file they
+refer to exists.
+
+Customization of WikiName recognition may be accomplished by editing the
+@code{muse-wiki-wikiword-regexp} option and subsequently running
+@code{(muse-configure-highlighting 'muse-colors-markupmuse-colors-markup)}.
+If you use the Customize interface, the latter will be done
+automatically.
+
+@cindex InterWiki links
+@cindex inter-project links
+The @command{muse-wiki} module also allows for InterWiki links.  These
+are similar to WikiWords, but they specify both the project and page of
+a file.  The names of your project entries in @code{muse-project-alist}
+will be used as InterWiki names by default.  Several examples follow.
+
+@example
+Blog::DocumentingMuse
+Projects#EmacsMuse
+Website
+@end example
+
+In the first case, the interwiki delimiter is @samp{::}, @samp{Blog} is
+the project name, and @samp{DocumentingMuse} is the page name.  In the
+second example, @samp{#} is the interwiki delimiter.  If the name of a
+project occurs by itself in text, like the third case, it will be
+colorized and published as a link to the default page of the given
+project.
+
+Customization of interwiki links may be accomplished by editing the
+@code{muse-wiki-interwiki-alist} option.
+
+It is also possible to link to an anchor in an interwiki document.  This
+is called a ``three-part link''.  Examples of this follow.
+
+@example
+Blog::DocumentingMuse#anchor1
+Projects#EmacsMuse#anchor2
+@end example
+
+@node Images, Horizontal Rules and Anchors, Implicit Links, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Publishing and displaying images
+@cindex images
+@cindex links, with images
+@subheading Image links
+
+Links to images may be used in either the target or the description, or
+both.  Thus, the following code will publish as a clickable image that
+points to @url{http://mwolson.org/}.
+
+@example
+[[http://mwolson.org/][/static/logos/site-logo.png]]
+@end example
+
+Normally, images in the link part will be inlined.
+
+If you want these images to be published as links instead, place the
+text ``URL:'' immediately in front of the link text.  An example
+follows.
+
+@example
+[[URL:http://mwolson.org/static/logos/site-logo.png]]
+@end example
+
+@cindex images, displaying
+@cindex images, local
+@subheading Displaying images in Muse mode
+If a link to a locally-available image is encountered in the link
+description, Muse mode will attempt to display it if your version of
+Emacs permits this.
+
+This behavior may be toggled with @kbd{C-c C-i}, or disabled permanently
+by setting the @code{muse-colors-inline-images} option to @code{nil}.
+
+The method for finding images may be altered by customizing the
+@code{muse-colors-inline-image-method} option.  One useful value for
+this option is @code{muse-colors-use-publishing-directory}, which tells
+Muse mode to look in the directory where the current file will be
+published.  The default is to look in the current directory.  Relative
+paths like @samp{../pics/} should work for either setting.
+
+Eventually, it is hoped that Muse will be able to copy images from the a
+``source'' directory to a publishing directory by customizing
+@code{muse-project-alist}, but this has not been implemented yet.
+
+@cindex images, without descriptions
+@cindex images, inlined
+@subheading Publishing simple images
+The following example will display correctly and publish correctly if a
+@acronym{PNG} file called @file{TestLogo.png} exists in the
+@file{../pics/} directory.  If text is on the same line as the picture,
+it will remain so in the output.
+
+@example
+[[../myimage.png]]
+@end example
+
+@cindex images, captions
+@subheading Publishing images with captions
+If you want to add a caption to an image, use the following syntax.
+This will center the image (if the output format supports it) and add a
+centered caption below the picture.  Formats that do not support
+centering the image will instead leave it against the left margin.
+
+@example
+[[../pics/mycat.png][My cat Dexter]]
+@end example
+
+Images with captions may only occur in their own paragraphs, with no
+text on the same line.  Otherwise, the published output will not be
+syntactically correct.
+
+@node Horizontal Rules and Anchors, Embedded Lisp, Images, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Inserting a horizontal line or anchor
+
+@cindex horizontal rules
+@cindex dashes
+@subheading Horizontal Rules
+
+Four or more dashes indicate a horizontal rule.  Be sure to put blank
+lines around it, or it will be considered part of the proceeding or
+following paragraph!
+
+@cindex anchors
+@cindex links, with target on same page
+@subheading Anchors
+
+If you begin a line with "#anchor" -- where "anchor" can be any word
+that doesn't contain whitespace -- it defines an anchor at that point
+into the document.  This point can be referenced using "page#anchor" as
+the target in a Muse link.
+
+@node Embedded Lisp, Citations, Horizontal Rules and Anchors, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Evaluating Emacs Lisp code in documents for extensibility
+@cindex lisp, embedded
+
+Arbitrary kinds of markup can be achieved using the @verb{|<lisp>|} tag.
+With the @verb{|<lisp>|} tag, you may generate whatever output text you
+wish.  The inserted output will get marked up if the @verb{|<lisp>|}
+tag appears within the main text of the document.
+
+@example
+<lisp>(concat "This form gets " "inserted")</lisp>
+@end example
+
+@cindex lisp, and insert command
+Note that you should not use the @code{insert} command within a set of
+@verb{|<lisp>|} tags, since the return value from the @verb{|<lisp>|}
+tags will be automatically inserted into the document.
+
+It is also possible to treat the output as if it were surrounded by the
+@verb{|<example>|}, @verb{|<src>|}, or @verb{|<verse>|} tags, by
+specifying ``example'', ``src'', or ``verse'' as the @option{markup}
+attribute of the @verb{|<lisp>|} tag.
+
+@example
+<lisp markup="example">
+(concat "Insert" " me")
+</lisp>
+@end example
+
+Other languages also have tags that cause source code to be evaluated.
+@xref{Tag Summary}, for details.
+
+@node Citations, Comments, Embedded Lisp, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Support for citing other resources
+@cindex citations
+@cindex tags, <cite>
+
+@subheading Example
+
+Here is an example of what citations look like in a Muse document.
+
+@example
+#bibsource REFDB
+
+* Title
+** Subtitle
+
+Some text before <cite>Miller1999</cite> and after the citation.
+
+This is an author-only citation <cite type="author">Miller1999</cite>.
+
+And this is a year-only citation <cite type="year">Miller1999</cite>.
+
+Finally, this is a multi-head citation
+<cite>Miller1999,Andrews2005</cite>.
+@end example
+
+@subheading Overview
+
+The @code{#bibsource} directive defines the source of the
+bibliographies.  The following sources are possible.
+
+@itemize @bullet
+@item DocBook + RefDB:
+the string "REFDB"
+
+@item LaTeX + bibtex:
+the name of an appropriate bibtex file
+
+@item LaTeX + RefDB:
+if the input file is called "foo.muse", then set this to "foo.bib"
+@end itemize
+
+Citations are encoded as @verb{|<cite>|} elements which enclose the
+citation keys as they are defined in the bibliography file or database.
+In multi-head citations, the citation keys have to be separated by
+colons or semicolons.  The @code{latex} and @code{docbook} styles
+translate these to the proper separator automatically.
+
+The @verb{|<cite>|} elements take an optional ``type'' attribute that
+defines how the citation is rendered.  If the attribute is missing,
+you'll get a regular citation according to the bibliography style,
+e.g.'' (Miller et al., 1999)''.  If the attribute is set to "author",
+only the name of the author(s) will be rendered.  Accordingly, "year"
+will cause the year to be printed.  This is useful to create citations
+like this:
+
+@example
+Miller et al. had already shown in a previous publication (1999) that
+this is not going to work.
+@end example
+
+Remember that refdb-mode (the Emacs interface to RefDB) can retrieve
+references by simply marking the citation key and running the
+@code{refdb-getref-by-field-on-region} command.  Later versions of
+@code{refdb-mode} will also allow to insert references as Muse citations
+(which is already implemented for DocBook, TEI, and LaTeX documents).
+
+You may have noticed that there is no element to indicate the position
+of the bibliography.  The latter is always created at a valid position
+close to the end of the document.  The functions
+@code{muse-docbook-bibliography} and @code{muse-latex-bibliography} are
+called in the header or footer to generate this content, so it is
+possible to change the exact position.
+
+@node Comments, Tag Summary, Citations, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Lines to omit from published output
+@cindex comments
+@cindex publishing, omitting lines
+
+Use the following syntax to indicate a comment.  Comments will not be
+published.
+
+@example
+; Comment text goes here.
+@end example
+
+That is, only a semi-colon at the beginning of a line, followed by a
+literal space, will cause that line to be treated as a comment.
+
+You can alternatively surround the region with the @verb{|<comment>|}
+tag.
+
+If you wish the comment to be published, but just commented out using
+the comment syntax of the output format, then set
+@option{muse-publish-comments-p} to non-nil.
+
+@node Tag Summary, , Comments, Markup Rules
+@comment  node-name,  next,  previous,  up
+@section Tags that Muse recognizes
+@cindex tags
+@cindex inserting files at publish time
+@cindex publishing, including markup in headers and footers
+@cindex publishing, inserting files
+
+Muse has several built-in tags that may prove useful during publishing.
+@xref{muse-publish-markup-tags}, to see how to customize the tags that
+Muse uses, as well as make your own tags.
+
+Only a small subset of these tags are available in header and footer
+text.  The @code{muse-publish-markup-header-footer-tags} option lists
+the tags that are allowed in headers and footers.
+
+@subheading Syntax
+
+If a tag takes arguments, it will look like this, where ``tagname'' is
+the name of the tag.
+
+@example
+<tagname arg1="string1" arg2="string2">
+@end example
+
+If you want the tag to look like it came straight from an XHTML
+document, you can alternatively do the following.
+
+@example
+<tagname arg1="string1" arg2="string2" />
+@end example
+
+If a tag surrounds some text, it will look like this.
+
+@example
+<tagname>Some text</tagname>
+@end example
+
+If a tag surrounds a large region, it will look like this.
+
+@example
+<tagname>
+Some text.
+Some more text.
+</tagname>
+@end example
+
+@subheading Tag listing
+
+This is the complete list of tags that Muse accepts, including those
+that were mentioned in previous sections.
+
+@table @samp
+
+@item <br>
+Insert a line break.
+
+Muse will automatically detect paragraphs when publishing by means of
+blank lines, so this tag is usually unnecessary.
+
+@item <cite>
+Insert a citation to another source.
+
+This takes the argument @option{type}, which indicates the type of
+citation.  The valid types are "author" and "year".  If this argument is
+omitted, include both author and year in the citation.
+
+The bibliography to use for the citation may be specified by the
+@option{#bibsource} directive.
+
+@xref{Citations}, for additional information.
+
+@item <class>
+If publishing to HTML, surround the given text with a @verb{|<span>|}
+tag.  It takes one argument called ``name'' that specifies the ``class''
+attribute of the @verb{|<span>|} tag.
+
+If publishing to a different format, do nothing extra to the text.
+
+@item <code>
+Treat the text surrounded by the tag as if they were enclosed in equal
+signs, that is, make it monospace.
+
+@item <command>
+Run a command on the region, replacing the region with the result of the
+command.  The command is specified with the ``interp'' argument.  If no
+value for ``interp'' is given, pass the entire region to the shell.
+
+The ``markup'' argument controls how this section is marked up.
+
+If it is omitted, publish the region with the normal Muse rules.
+
+If "nil", do not mark up the region at all, but prevent Muse from
+further interpreting it.
+
+If "example", treat the region as if it was surrounded by the
+@verb{|<example>|} tag.
+
+If "src", treat the included text as if it was surrounded by the
+@verb{|<src>|} tag.  You should also specify the ``lang'' attribute if
+doing this.
+
+If "verse", treat the region as if it was surrounded by the
+@verb{|<verse>|} tag, to preserve newlines.
+
+Otherwise, it should be the name of a function to call, with the buffer
+narrowed to the region.
+
+@item <comment>
+Treat the entire region as a comment.  If the option
+@var{muse-publish-comments-p} is nil, delete the region, otherwise
+publish it using the comment syntax of the current publishing style.
+
+@item <contents>
+Publish a Table of Contents.  This will either be inserted in-place or
+at the beginning of the document, depending on your publishing style.
+It does not have a delimiting tag.
+
+By default, only 2 levels of headings will be included in the generated
+Table of Contents.  To change this globally, customize the
+@var{muse-publish-contents-depth} option.  To change this only for the
+current tag, use the ``depth'' argument.
+
+@item <div>
+Insert a <div> tag into HTML documents, and do not insert anything
+special for other non-HTML publishing formats.
+
+If the ``style'' argument is provided, include it with the published
+@verb{|<div>|} tag.  Likewise for the ``id'' argument.
+
+@item <example>
+Publish the region in monospace, preserving the newlines in the region.
+This is useful for snippets of code.
+
+@item <include>
+Insert the given file at the current location during publishing.  The
+basic use of this tag is as follows, replacing ``included_file'' with
+the name of the file that you want to include.
+
+@example
+<include file="included_file">
+@end example
+
+The ``markup'' argument controls how this section is marked up.
+
+If it is omitted, publish the included text with the normal Muse
+rules.
+
+If "nil", do not mark up the included text at all.
+
+If "example", treat the included text as if it was surrounded by the
+@verb{|<example>|} tag.
+
+If "src", treat the included text as if it was surrounded by the
+@verb{|<src>|} tag.  You should also specify the ``lang'' attribute if
+doing this.
+
+If "verse", treat the included text as if it was surrounded by the
+@verb{|<verse>|} tag, to preserve newlines.
+
+Otherwise, it should be the name of a function to call after inserting
+the file with the buffer narrowed to the section inserted.
+
+@item <lisp>
+Evaluate the Emacs Lisp expressions between the initial and ending tags.
+The result is then inserted into the document, so you do not need to
+explicitly call @code{insert}.  All text properties are removed from the
+resulting text.
+
+This tag takes the ``markup'' argument.  See the description of
+@verb{|<command>|} for details.
+
+@item <literal>
+Make sure that the text enclosed by this tag is published without
+escaping it in any way.  This is useful for inserting markup directly
+into the published document, when Muse does not provide the desired
+functionality.
+
+@item <markup>
+Mark up the text between the initial and ending tags.  The markup
+command to use may be specified by the ``function'' argument.  The
+standard Muse markup routines are used by default if no ``function''
+argument is provided.
+
+This is useful for marking up regions in headers and footers.  One
+example that comes to mind is generating a published index of all of the
+files in the current project by doing the following.
+
+@example
+<markup><lisp>(muse-index-as-string t t)</lisp></markup>
+@end example
+
+@item <perl>
+Run the @command{perl} language interpreter on the region, replacing the
+region with the result of the command.
+
+This tag takes the ``markup'' argument.  See the description of
+@verb{|<command>|} for details.
+
+@item <python>
+Run the @command{python} language interpreter on the region, replacing
+the region with the result of the command.
+
+This tag takes the ``markup'' argument.  See the description of
+@verb{|<command>|} for details.
+
+@item <quote>
+Publish the region as a blockquote.  This will either be inserted
+in-place or at the beginning of the document, depending on your
+publishing style.  It does not have a delimiting tag.
+
+@item <ruby>
+Run the @command{ruby} language interpreter on the region, replacing the
+region with the result of the command.
+
+This tag takes the ``markup'' argument.  See the description of
+@verb{|<command>|} for details.
+
+@item <src>
+Publish the region using htmlize.
+The language to use may be specified by the ``lang'' attribute.
+
+Muse will look for a function named @var{lang}-mode, where @var{lang} is
+the value of the ``lang'' attribute.
+
+This tag requires htmlize 1.34 or later in order to work.  If this is
+not satisfied, or the current publishing style is not HTML-based, Muse
+will publish the region like an @verb{|<example>|} tag.
+
+@item <verbatim>
+This is used when you want to prevent Muse from trying to interpret some
+markup.  Surround the markup in @verb{|<verbatim>|} and
+@verb{|</verbatim>|}, and it will not be interpreted.
+
+This tag was used often in previous versions of Muse because they did
+not support whole-document escaping of specials.  Now, it will only be
+needed for other tags, and perhaps footnotes as well.
+
+@item <verse>
+Preserve the newlines in the region.  In formats like HTML, newlines are
+removed by default, hence the need for this tag.  In other publishing
+styles, this tag may cause the text to be indented slightly in a way
+that looks nice for poetry and prose.
+
+@end table
+
+@node Publishing Styles, Extending Muse, Markup Rules, Top
+@comment  node-name,  next,  previous,  up
+@chapter Publishing Various Types of Documents
+@cindex publishing styles
+
+One of the principle features of Muse is the ability to publish a simple
+input text to a variety of different output styles.  Muse also makes it
+easy to create new styles, or derive from an existing style.
+
+@menu
+* Blosxom::                     Integrating Muse and pyblosxom.cgi.
+* Book::                        Publishing entries into a compilation.
+* ConTeXt::                     Publishing ConTeXt documents.
+* DocBook::                     Publishing in DocBook XML form.
+* HTML::                        Publishing in HTML or XHTML form.
+* Ikiwiki::                     Integrating with ikiwiki.
+* Journal::                     Keeping a journal or blog.
+* LaTeX::                       Publishing LaTeX documents.
+* Poem::                        Publish a poem to LaTeX or PDF.
+* Texinfo::                     Publish entries to Texinfo format or PDF.
+* XML::                         Publish entries to XML.
+@end menu
+
+@node Blosxom, Book, Publishing Styles, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Integrating Muse and pyblosxom.cgi
+@cindex blog, one-file-per-entry style
+
+The Blosxom publishing style publishes a tree of categorised files to a
+mirrored tree of stories to be served by blosxom.cgi or pyblosxom.cgi.
+In other words, each blog entry corresponds with one file.
+
+@menu
+* Blosxom Requirements::        Other tools needed for the Blosxom style.
+* Blosxom Entries::             Format of a Blosxom entry and automation.
+* Blosxom Options::             Blosxom styles and options provided.
+@end menu
+
+@node Blosxom Requirements, Blosxom Entries, Blosxom, Blosxom
+@comment  node-name,  next,  previous,  up
+@subsection Other tools needed for the Blosxom style
+
+You will need to have @command{pyblosxom.cgi} or @command{blosxom.cgi}
+installed on a machine that you have upload access to.
+
+The major difficulty in both of these programs is specifying the date of
+the entries.  Both programs rely on the file modification time rather
+than any data contained in the entries themselves.  A plugin is needed
+in order for these programs to be able to get the correct date.
+
+@subheading PyBlosxom
+
+There are two different ways of accomplishing this in pyblosxom.  The
+first way involves gathering the timestamps (as specified by the
+@code{#date} directive) into one file and then sending that file along
+with published entries to the webserver.
+
+The second will read each file at render time and parse the
+@code{#postdate} directive.  Muse will translate the @code{#date}
+directive into @code{#postdate} at publish time, so you don't have to do
+any extra work.
+
+@subsubheading Placing timestamps in one file
+
+The following additional components are required in order to make the
+date of blog entries display as something sensible.
+
+@enumerate
+@item
+A script to gather date directives from the entire blog tree into a
+single file.  The file must associate a blog entry with a date.
+
+@item
+A plugin for (py)blosxom that reads this file.
+@end enumerate
+
+These 2 things are provided for @command{pyblosxom.cgi} in the
+@file{contrib/pyblosxom} subdirectory.  @file{getstamps.py} provides the
+former service, while @file{hardcodedates.py} provides the latter
+service.
+
+Here is a sample listing from my @file{timestamps} file, which maps
+each file to a date.  This can really be in any format, as long as your
+date-gathering script and your plugin can both understand it.
+
+@example
+2005-04-01-14-16 personal/paper_cranes
+2005-03-21 personal/spring_break_over
+2004-10-24 personal/finished_free_culture
+@end example
+
+The script @file{contrib/pyblosxom/make-blog} demonstrates how to call
+@file{getstamps.py}.  Note that you will need to set the current
+directory to where your Muse files are, execute @file{getstamps.py}, and
+then move the generated timestamps file to your publishing directory.
+
+@subsubheading Getting timestamp from entry while rendering
+
+Alternately, the pyblosxom metadate plugin may be used.  On the plus
+side, there is no need to run a script to gather the date.  On the
+downside, each entry is read twice rather than once when the page is
+rendered.  Set the value of @code{muse-blosxom-use-metadate} to non-nil
+to enable adding a @code{#postdate} directive to all published files.
+You can do this by:
+
+@example
+M-x customize-variable RET muse-blosxom-use-metadate RET
+@end example
+
+With the metadate plugin installed in pyblosxom, the date set in this
+directive will be used instead of the file's modification time.  The
+plugin is included with Muse at @file{contrib/pyblosxom/metadate.py}.
+
+@subheading Blosxom
+
+It is also possible to use Blosxom, which is written in Perl, to serve
+blog entries that were published with Muse.  The steps are as follows.
+
+@enumerate
+@item
+Download and install blosxom from @url{http://blosxom.sourceforge.net/}.
+
+@item
+Install the metadate plugin.  It is available in
+@file{contrib/blosxom/metadate_0_0_3}.
+
+@item
+Every time you make a new blog entry, change to the blosxom data
+directory and execute the @file{contrib/blosxom/getstamps.pl} script.
+This script has only recently been made, and may still have some bugs,
+so use with caution.
+
+@end enumerate
+
+@node Blosxom Entries, Blosxom Options, Blosxom Requirements, Blosxom
+@comment  node-name,  next,  previous,  up
+@subsection Format of a Blosxom entry and automation
+
+Each Blosxom file must include `#date yyyy-mm-dd', or optionally the
+longer `#date yyyy-mm-dd-hh-mm', a title (using the @code{#title}
+directive), plus whatever normal content is desired.
+
+The date directive is not used directly by @command{pyblosxom.cgi} or
+this program.  You need to have the two additional items from the former
+section to make use of this feature.
+
+There is a function called @code{muse-blosxom-new-entry} that will
+automate the process of making a new blog entry.  To make use of it, do
+the following.
+
+@itemize @bullet
+@item
+Customize @code{muse-blosxom-base-directory} to the location that your
+blog entries are stored.
+
+@item
+Assign the @code{muse-blosxom-new-entry} function to a key sequence.  I
+use the following code to assign this function to @kbd{C-c p l'}.
+
+@example
+(global-set-key "\C-cpl" 'muse-blosxom-new-entry)
+@end example
+
+@item
+You should create your directory structure ahead of time under your base
+directory.  These directories, which correspond with category names, may
+be nested.
+
+@item
+When you enter this key sequence, you will be prompted for the category
+of your entry and its title.  Upon entering this information, a new file
+will be created that corresponds with the title, but in lowercase
+letters and having special characters converted to underscores.  The
+title and date directives will be inserted automatically.
+@end itemize
+
+@node Blosxom Options, , Blosxom Entries, Blosxom
+@comment  node-name,  next,  previous,  up
+@subsection Blosxom styles and options provided
+
+The following styles and options are available in the Blosxom publishing
+style.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, blosxom-html
+@item blosxom-html
+Publish Blosxom entries in HTML form.
+
+@cindex publishing styles, blosxom-xhtml
+@item blosxom-xhtml
+Publish Blosxom entries in XHTML form.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-blosxom-extension
+Default file extension for publishing Blosxom files.
+
+@item muse-blosxom-header
+Header used for publishing Blosxom files.
+
+This may be text or a filename.
+
+@item muse-blosxom-footer
+Footer used for publishing Blosxom files.
+
+This may be text or a filename.
+
+@item muse-blosxom-base-directory
+Base directory of blog entries, used by @code{muse-blosxom-new-entry}.
+
+This is the top-level directory where your blog entries may be found
+locally.
+
+@end table
+
+@node Book, ConTeXt, Blosxom, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publishing entries into a compilation
+
+This publishing style is used to output ``books'' in LaTeX or PDF
+format.
+
+Each page will become a separate chapter in the book, unless the style
+keyword @option{:nochapters} is used, in which case they are all run
+together as if one giant chapter.
+
+One way of publishing a book is to make a project for it, add the
+project to @code{muse-project-alist}, and use the @code{book-pdf} style
+with a very specific @option{:include} value to specify some page whose
+contents will be checked for the values of @code{#title} and
+@code{#date}, and whose name will be used in the output file.  Then to
+publish the book, visit the aforementioned page and use @kbd{C-c C-t} or
+@kbd{C-c C-p} to trigger the publishing process.  An example
+@code{muse-project-alist} for this method follows.
+
+@example
+(setq muse-project-alist
+      '(("MyNotes" (:nochapters t  ; do automatically add chapters
+                    :book-chapter "Computer Science"
+                    "~/Notes/cs"
+                    :book-chapter "Mathematics"
+                    "~/Notes/math"
+                    :book-chapter "Emacs"
+                    "~/Notes/emacs"
+                    :book-end t ; the rest will not be placed in the book
+                    "~/Notes"   ; so we can find the notes-anthology page
+                    "~/Notes/private"
+                    :force-publish ("index")
+                    :default "index")
+         (:base "book-pdf"
+                :include "/notes-anthology[^/]*$"
+                :path "~/public_html/notes")
+         ;; other publishing styles for each directory go here,
+         ;; if desired
+         )))
+@end example
+
+In this example, there would be a file called
+@file{~/Notes/notes-anthology.muse}, which would contain just the
+following.  The resulting book would be published to
+@file{~/public_html/notes/notes-anthology.pdf}.
+
+@example
+#title My Technology Ramblings
+@end example
+
+Another way is to call the @code{muse-book-publish-project} function
+manually, with a custom project entry.  An example of this may be found
+in John Wiegley's configuration file at
+@file{examples/johnw/muse-init.el}, in the @code{muse-publish-my-books}
+function.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, book-latex
+@item book-latex
+Publish a book in LaTeX form.  The header and footer are different than
+the normal LaTeX publishing mode.
+
+@cindex publishing styles, book-pdf
+@item book-pdf
+Publish a book in PDF form.  The header and footer are different than
+the normal PDF publishing mode.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-book-before-publish-hook
+A hook run in the book buffer before it is marked up.
+
+@item muse-book-after-publish-hook
+A hook run in the book buffer after it is marked up.
+
+@item muse-book-latex-header
+Header used for publishing books to LaTeX.
+
+This may be text or a filename.
+
+@item muse-book-latex-footer
+Footer used for publishing books to LaTeX.
+
+This may be text or a filename.
+
+@end table
+@node ConTeXt, DocBook, Book, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publishing ConTeXt documents
+
+This publishing style is capable of producing ConTeXt or PDF documents.
+
+If you wish to publish PDF documents based on ConTeXt, you will need to
+have it installed.  For Debian and Ubuntu, this can be accomplished by
+installing the ``texlive'' package.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, context
+@item context
+Publish a ConTeXt document.
+
+@cindex publishing styles, context-pdf
+@item context-pdf
+Publish a PDF document, using an external ConTeXt document conversion
+tool.
+
+@cindex publishing styles, context-slides
+@item context-slides
+Produce slides from a ConTeXt document.
+
+Here is an example of a slide.
+
+@example
+* First Slide
+
+[[Some-sort-of-cute-image.png]]
+
+** A subheading
+
+ - A bullet point.
+ - Another bullet point.
+
+* Second Slide
+
+... and so on
+@end example
+
+@cindex publishing styles, context-slides-pdf
+@item context-slides-pdf
+Publish a PDF document of ConTeXt slides.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-context-extension
+Default file extension for publishing ConTeXt files.
+
+@item muse-context-pdf-extension
+Default file extension for publishing ConTeXt files to PDF.
+
+@item muse-context-pdf-program
+The program that is called to generate PDF content from ConTeXt content.
+
+@item muse-context-pdf-cruft
+Extensions of files to remove after generating PDF output successfully.
+
+@item muse-context-header
+Header used for publishing ConTeXt files.
+
+This may be text or a filename.
+
+@item muse-context-footer
+Footer used for publishing ConTeXt files.
+
+This may be text or a filename.
+
+@item muse-context-markup-regexps
+List of markup regexps for identifying regions in a Muse page.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-regexps}.
+
+@item muse-context-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-functions}.
+
+@item muse-context-markup-strings
+Strings used for marking up text.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-context-slides-header
+Header for publishing a presentation (slides) using ConTeXt.
+
+Any of the predefined modules, which are available in the
+tex/context/base directory, can be used by writing a "module" directive
+at the top of the Muse file; if no such directive is provided, module
+pre-01 is used.  Alternatively, you can use your own style ("mystyle",
+in this example) by replacing "\usemodule[]" with "\input mystyle".
+
+This may be text or a filename.
+
+@item muse-context-slides-markup-strings
+Strings used for marking up text in ConTeXt slides.
+
+@item muse-context-markup-specials-document
+A table of characters which must be represented specially.
+These are applied to the entire document, sans already-escaped
+regions.
+
+@item muse-context-markup-specials-example
+A table of characters which must be represented specially.
+These are applied to @verb{|example>|} regions.
+
+With the default interpretation of @verb{|<example>|} regions, no
+specials need to be escaped.
+
+@item muse-context-markup-specials-literal
+A table of characters which must be represented specially.
+This applies to =monospaced text= and @verb{|<code>|} regions.
+
+@item muse-context-markup-specials-url
+A table of characters which must be represented specially.
+These are applied to URLs.
+
+@item muse-context-markup-specials-image
+A table of characters which must be represented specially.
+These are applied to image filenames.
+
+@item muse-context-permit-contents-tag
+If nil, ignore @verb{|<contents>|} tags.  Otherwise, insert table of
+contents.
+
+Most of the time, it is best to have a table of contents on the
+first page, with a new page immediately following.  To make this
+work with documents published in both HTML and ConTeXt, we need to
+ignore the @verb{|<contents>|} tag.
+
+If you don't agree with this, then set this option to non-nil,
+and it will do what you expect.
+
+@end table
+
+@node DocBook, HTML, ConTeXt, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publishing in DocBook XML form
+
+This publishing style is used to generate DocBook XML files.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, docbook
+@item docbook
+Publish a file in Docbook form.
+
+@end table
+
+@subheading Options provided
+
+This publishing style uses the same options for markup up special
+characters as the ``xml'' publishing style.  @xref{XML}, for details.
+
+@table @code
+
+@item muse-docbook-extension
+Default file extension for publishing DocBook XML files.
+
+@item muse-docbook-header
+Header used for publishing DocBook XML files.
+
+This may be text or a filename.
+
+@item muse-docbook-footer
+Footer used for publishing DocBook XML files.
+
+This may be text or a filename.
+
+@item muse-docbook-markup-regexps
+List of markup rules for publishing a Muse page to DocBook XML.
+
+@item muse-docbook-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+@item muse-docbook-markup-strings
+Strings used for marking up text.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-docbook-encoding-default
+The default Emacs buffer encoding to use in published files.
+This will be used if no special characters are found.
+
+@item muse-docbook-charset-default
+The default DocBook XML charset to use if no translation is
+found in @code{muse-xml-encoding-map}.
+
+@end table
+
+@node HTML, Ikiwiki, DocBook, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publishing in HTML or XHTML form
+
+This publishing style is capable of producing HTML or XHTML documents.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, html
+@item html
+Supports publishing to HTML 4.0 and HTML 4.01, Strict or Transitional.
+
+@item xhtml
+Supports publishing to XHTML 1.0 and XHTML 1.1, Strict or Transitional.
+
+@end table
+
+@subheading Options provided
+
+If an HTML option does not have a corresponding XHTML option, it will
+be used for both of these publishing styles.
+
+These publishing styles use the same options for markup up special
+characters as the ``xml'' publishing style.  @xref{XML}, for details.
+
+@table @code
+
+@item muse-html-extension
+Default file extension for publishing HTML files.
+
+@item muse-xhtml-extension
+Default file extension for publishing XHTML files.
+
+@item muse-html-style-sheet
+Store your stylesheet definitions here.
+
+This is used in @code{muse-html-header}.  You can put raw CSS in here or
+a @verb{|<link>|} tag to an external stylesheet.  This text may contain
+@verb{|<lisp>|} markup tags.
+
+If you are publishing to XHTML, then customize the
+@code{muse-xhtml-style-sheet} option instead.
+
+@item muse-xhtml-style-sheet
+Store your stylesheet definitions here.
+
+This is used in @code{muse-xhtml-header}.  You can put raw CSS in here
+or a @verb{|<link>|} tag to an external stylesheet.  This text may
+contain @verb{|<lisp>|} markup tags.
+
+@item muse-html-header
+Header used for publishing HTML files.
+
+This may be text or a filename.
+
+@item muse-html-footer
+Footer used for publishing HTML files.
+
+This may be text or a filename.
+
+@item muse-xhtml-header
+Header used for publishing XHTML files.
+
+This may be text or a filename.
+
+@item muse-xhtml-footer
+Footer used for publishing XHTML files.
+
+This may be text or a filename.
+
+@item muse-html-anchor-on-word
+When true, anchors surround the closest word.
+
+This allows you to select them in a browser (i.e. for pasting), but has
+the side-effect of marking up headers in multiple colors if your header
+style is different from your link style.
+
+@item muse-html-table-attributes
+The attribute to be used with HTML @verb{|<table>|} tags.
+
+If you want to make more-complicated tables in HTML, surround the HTML
+with the @verb{|literal|} tag, so that it does not get escaped.
+
+@item muse-html-markup-regexps
+List of markup rules for publishing a Muse page to HTML.
+
+@item muse-html-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+@item muse-html-markup-strings
+Strings used for marking up text as HTML.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-xhtml-markup-strings
+Strings used for marking up text as XHTML.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-html-markup-tags
+A list of tag specifications, for specially marking up HTML.
+@xref{muse-publish-markup-tags}, for more information.
+
+@item muse-html-meta-http-equiv
+The http-equiv attribute used for the HTML @verb{|<meta>|} tag.
+
+@item muse-html-meta-content-type
+The content type used for the HTML @verb{|<meta>|} tag.
+
+If you are striving for XHTML 1.1 compliance, you may want to change
+this to ``application/xhtml+xml''.
+
+@item muse-html-meta-content-encoding
+The charset to append to the HTML @verb{|<meta>|} tag.
+
+If set to the symbol 'detect, use @code{muse-xml-encoding-map} to try
+and determine the HTML charset from emacs's coding.  If set to a string,
+this string will be used to force a particular charset.
+
+@item muse-html-charset-default
+The default HTML meta charset to use if no translation is found in
+@code{muse-xml-encoding-map}.
+
+@item muse-html-encoding-default
+The default Emacs buffer encoding to use in published files.
+This will be used if no special characters are found.
+
+@end table
+
+@node Ikiwiki, Journal, HTML, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Integrating with ikiwiki
+
+Note: Support for Ikiwiki is not yet complete.  Use at your own risk.
+
+Ikiwiki is a wiki compiler (@url{http://ikiwiki.info/}).  Emacs Muse can
+(not yet) be used as a source format for Ikiwiki pages with the plugin
+@file{IkiWiki::Plugin::muse}.
+
+The @file{lisp/muse-ikiwiki.el} file provides publishing functions and
+styles for Ikiwiki.  The plugin for Ikiwiki to recognize Muse files is
+provided by the @file{contrib/ikiwiki/IkiWiki/Plugin/muse.pm} file.  Two
+sample init files are available in the @file{examples/ikiwiki}
+directory.  Configure your @file{ikiwiki.setup} file so that the
+@code{muse_init} variable has the location of your Muse init file.
+
+If you are using CGI, The directory @file{contrib/ikiwiki/IkiWiki} must
+be copied to the same directory as the CGI script that Ikiwiki
+generates.  When publishing your wiki, the @var{PERL5LIB} environment
+variable must contain the path to the @file{contrib/ikiwiki/IkiWiki}
+directory.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, ikiwiki
+@item ikiwiki
+Supports publishing XHTML output that Ikiwiki can understand.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-ikiwiki-header
+Header used for publishing Ikiwiki output files.
+
+This may be text or a filename.
+
+@item muse-ikiwiki-footer
+Footer used for publishing Ikiwiki output files.
+
+This may be text or a filename.
+
+@end table
+
+@subheading Other relevant options
+
+@table @code
+
+@item muse-colors-evaluate-lisp-tags
+Specify whether to evaluate the contents of @verb{|<lisp>|} tags at
+display time.  If nil, don't evaluate them.  If non-nil, evaluate
+them.
+
+The actual contents of the buffer are not changed, only the
+displayed text.
+
+@item muse-html-src-allowed-modes
+Modes that we allow the @verb{|<src>|} tag to colorize.  If @code{t},
+permit the @verb{|<src>|} tag to colorize any mode.
+
+If a list of mode names, such as @code{'("html" "latex")}, and the lang
+argument to @verb{|<src>|} is not in the list, then use fundamental mode
+instead.
+
+@item muse-publish-enable-dangerous-tags
+If non-nil, publish tags like @verb{|<lisp>|} and @verb{|<command>|}
+that can call external programs or expose sensitive information.
+Otherwise, ignore tags like this.
+
+This is useful to set to @code{nil} when the file to publish is coming
+from an untrusted source.
+
+@end table
+
+@node Journal, LaTeX, Ikiwiki, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Keeping a journal or blog
+@cindex journal
+@cindex blog, journal style
+
+The module facilitates the keeping and publication of a journal.  When
+publishing to HTML, it assumes the form of a web log, or blog.
+
+The input format for each entry is as follows.
+
+@example
+* 20040317: Title of entry
+
+text for the entry.
+
+<qotd>
+"You know who you are. It comes down to a simple gut check: You
+either love what you do or you don't. Period." -- P. Bronson
+</qotd>
+@end example
+
+The "qotd", or Quote of the Day, is entirely optional.  When generated
+to HTML, this entry is rendered as the following.
+
+@example
+<div class="entry">
+  <div class="entry-qotd">
+    <h3>Quote of the Day:</h3>
+    <p>"You know who you are. It comes down to a simple gut
+      check: You either love what you do or you don't. Period."
+      -- P. Bronson</p>
+  </div>
+  <div class="entry-body">
+    <div class="entry-head">
+      <div class="entry-date">
+        <span class="date">March 17, 2004</span>
+      </div>
+      <div class="entry-title">
+        <h2>Title of entry</h2>
+      </div>
+    </div>
+    <div class="entry-text">
+      <p>Text for the entry.</p>
+    </div>
+  </div>
+</div>
+@end example
+
+The plurality of "div" tags makes it possible to display the entries in
+any form you wish, using a CSS style.
+
+Also, an .RDF file can be generated from your journal by publishing it
+with the "rdf" style.  It uses the first two sentences of the first
+paragraph of each entry as its "description", and auto-generates tags
+for linking to the various entries.
+
+@subheading muse-project-alist considerations
+
+If you wish to publish an RDF or RSS feed, it is important to include
+the @option{:base-url} attribute in your @code{muse-project-alist} entry
+for your Journal projects.  An example follows.
+
+@example
+(setq muse-project-alist
+      '(("Journal" ("~/Journal/"
+                    :default "journal")
+        (:base "journal-rss"
+               :base-url "http://example.org/journal/"
+               :path "~/public_html/journal"))))
+@end example
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, journal-html
+@item journal-html
+Publish journal entries as an HTML document.
+
+@cindex publishing styles, journal-xhtml
+@item journal-xhtml
+Publish journal entries as an XHTML document.
+
+@cindex publishing styles, journal-latex
+@item journal-latex
+Publish journal entries as a LaTeX document.
+
+@cindex publishing styles, journal-pdf
+@item journal-pdf
+Publish journal entries as a PDF document.
+
+@cindex publishing styles, journal-book-latex
+@item journal-book-latex
+Publish journal entries as a LaTeX book.
+
+@cindex publishing styles, journal-book-pdf
+@item journal-book-pdf
+Publish journal entries as a PDF book.
+
+@cindex publishing styles, journal-rdf
+@cindex publishing styles, RSS 1.0
+@item journal-rdf
+Publish journal entries as an RDF file (RSS 1.0).
+
+@cindex publishing styles, journal-rss
+@cindex publishing styles, RSS 2.0
+@item journal-rss
+Publish journal entries as an RSS file (RSS 2.0).
+
+@cindex publishing styles, journal-rss-entry
+@item journal-rss-entry
+Used internally by @code{journal-rss} and @code{journal-rdf} for
+publishing individual entries.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-journal-heading-regexp
+A regexp that matches a journal heading.
+
+Paren group 1 is the ISO date, group 2 is the optional category, and
+group 3 is the optional heading for the entry.
+
+@item muse-journal-date-format
+Date format to use for journal entries.
+
+@item muse-journal-html-heading-regexp
+A regexp that matches a journal heading from an HTML document.
+
+Paren group 1 is the ISO date, group 2 is the optional category, and
+group 3 is the optional heading for the entry.
+
+@item muse-journal-html-entry-template
+Template used to publish individual journal entries as HTML.
+
+This may be text or a filename.
+
+@item muse-journal-latex-section
+Template used to publish a LaTeX section.
+
+@item muse-journal-latex-subsection
+Template used to publish a LaTeX subsection.
+
+@item muse-journal-markup-tags
+A list of tag specifications, for specially marking up Journal entries.
+
+@xref{muse-publish-markup-tags}, for more information.
+
+This is used by @code{journal-latex} and its related styles, as well as
+the @code{journal-rss-entry} style, which both @code{journal-rdf} and
+@code{journal-rss} use.
+
+@item muse-journal-rdf-extension
+Default file extension for publishing RDF (RSS 1.0) files.
+
+@item muse-journal-rdf-base-url
+The base URL of the website referenced by the RDF file.
+
+@item muse-journal-rdf-header
+Header used for publishing RDF (RSS 1.0) files.
+
+This may be text or a filename.
+
+@item muse-journal-rdf-footer
+Footer used for publishing RDF (RSS 1.0) files.
+
+This may be text or a filename.
+
+@item muse-journal-rdf-date-format
+Date format to use for RDF entries.
+
+@item muse-journal-rdf-entry-template
+Template used to publish individual journal entries as RDF.
+
+This may be text or a filename.
+
+@item muse-journal-rdf-summarize-entries
+If non-nil, include only summaries in the RDF file, not the full data.
+
+The default is nil, because this annoys some subscribers.
+
+@item muse-journal-rss-heading-regexp
+A regexp that matches a journal heading from an HTML document.
+
+Paren group 1 is the ISO date, group 2 is the optional category,
+and group 3 is the optional heading for the entry.
+
+@item muse-journal-rss-extension
+Default file extension for publishing RSS 2.0 files.
+
+@item muse-journal-rss-base-url
+The base URL of the website referenced by the RSS file.
+
+@item muse-journal-rss-header
+Header used for publishing RSS 2.0 files.
+
+This may be text or a filename.
+
+@item muse-journal-rss-footer
+Footer used for publishing RSS 2.0 files.
+
+This may be text or a filename.
+
+@item muse-journal-rss-date-format
+Date format to use for RSS 2.0 entries.
+
+@item muse-journal-rss-entry-template
+Template used to publish individual journal entries as RSS 2.0.
+
+This may be text or a filename.
+
+@item muse-journal-rss-enclosure-types-alist
+File types that are accepted as RSS enclosures.
+
+This is an alist that maps file extension to content type.
+
+Useful for podcasting.
+
+@item muse-journal-rss-summarize-entries
+If non-nil, include only summaries in the RSS file, not the full data.
+
+The default is nil, because this annoys some subscribers.
+
+@item muse-journal-rss-markup-regexps
+List of markup rules for publishing a Muse journal page to RSS.
+
+For more information on the structure of this list,
+@xref{muse-publish-markup-regexps}.
+
+@item muse-journal-rss-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-functions}.
+
+@end table
+
+@node LaTeX, Poem, Journal, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publishing LaTeX documents
+
+This publishing style is capable of producing LaTeX or PDF documents.
+
+If you wish to publish PDF documents, you will need to have a good LaTeX
+installation.  For Debian and Ubuntu, this can be accomplished by
+installing the ``tetex-bin'' and ``tetex-extra'' packages.  TeX fonts
+are also a must.
+
+If your LaTeX installation has the file @file{grffile.sty}, which may be
+found in the @file{texlive-latex-recommended} package for Debian and
+Ubuntu, then consider using it by adding the following to your header
+file.  This allows spaces in filenames to work.
+
+@example
+\usepackage@{grffile@}
+@end example
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, latex
+@item latex
+Publish a LaTeX document.
+
+@cindex publishing styles, pdf
+@item pdf
+Publish a PDF document, using an external LaTeX document conversion
+tool.
+
+@cindex publishing styles, latexcjk
+@item latexcjk
+Publish a LaTeX document with CJK (Chinese) encodings.
+
+@cindex publishing styles, pdfcjk
+@item pdfcjk
+Publish a PDF document with CJK (Chinese) encodings, using an external
+LaTeX document conversion tool.
+
+@cindex publishing styles, slides
+@item slides
+Publish a LaTeX document that uses the Beamer extension.  This is
+suitable for producing slides.
+
+Here is an example of a slide.
+
+@example
+<slide title="First Slide">
+Everything between the slide tags composes this slide.
+
+[[Some-sort-of-cute-image.png]]
+
+ - A bullet point.
+ - Another bullet point.
+</slide>
+@end example
+
+@cindex publishing styles, slides-pdf
+@item slides-pdf
+Publish a PDF document of slides, using the Beamer extension.
+
+@cindex publishing styles, lecture-notes
+@item lecture-notes
+Publish a LaTeX document that uses the Beamer extension.  This is
+suitable for producing lecture notes.
+
+This can also use the @verb{|<slide>|} tag.
+
+@cindex publishing styles, lecture-notes-pdf
+@item lecture-notes-pdf
+Publish a PDF document of lecture notes, using the Beamer extension.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-latex-extension
+Default file extension for publishing LaTeX files.
+
+@item muse-latex-pdf-extension
+Default file extension for publishing LaTeX files to PDF.
+
+@item muse-latex-pdf-browser
+The program to use when browsing a published PDF file.
+
+This should be a format string.
+
+@item muse-latex-pdf-program
+The program that is called to generate PDF content from LaTeX content.
+
+@item muse-latex-pdf-cruft
+Extensions of files to remove after generating PDF output successfully.
+
+@item muse-latex-header
+Header used for publishing LaTeX files.
+
+This may be text or a filename.
+
+@item muse-latex-footer
+Footer used for publishing LaTeX files.
+
+This may be text or a filename.
+
+@item muse-latexcjk-header
+Header used for publishing LaTeX files (CJK).
+
+This may be text or a filename.
+
+@item muse-latexcjk-footer
+Footer used for publishing LaTeX files (CJK).
+
+This may be text or a filename.
+
+@item muse-latex-slides-header
+Header for publishing of slides using LaTeX.
+
+This may be text or a filename.
+
+You must have the Beamer extension for LaTeX installed for this to work.
+
+@item muse-latex-lecture-notes-header
+Header publishing of lecture notes using LaTeX.
+
+This may be text or a filename.
+
+You must have the Beamer extension for LaTeX installed for this to work.
+
+@item muse-latex-markup-regexps
+List of markup regexps for identifying regions in a Muse page.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-regexps}.
+
+@item muse-latex-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-functions}.
+
+@item muse-latex-markup-strings
+Strings used for marking up text.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-latex-slides-markup-tags
+A list of tag specifications, for specially marking up LaTeX slides.
+
+@item muse-latexcjk-encoding-map
+An alist mapping emacs coding systems to appropriate CJK codings.
+Use the base name of the coding system (ie, without the -unix).
+
+@item muse-latexcjk-encoding-default
+The default Emacs buffer encoding to use in published files.
+
+This will be used if no special characters are found.
+
+@item muse-latex-markup-specials-document
+A table of characters which must be represented specially.
+These are applied to the entire document, sans already-escaped
+regions.
+
+@item muse-latex-markup-specials-example
+A table of characters which must be represented specially.
+These are applied to @verb{|example>|} regions.
+
+With the default interpretation of @verb{|<example>|} regions, no
+specials need to be escaped.
+
+@item muse-latex-markup-specials-literal
+A table of characters which must be represented specially.
+This applies to =monospaced text= and @verb{|<code>|} regions.
+
+@item muse-latex-markup-specials-url
+A table of characters which must be represented specially.
+These are applied to URLs.
+
+@item muse-latex-markup-specials-image
+A table of characters which must be represented specially.
+These are applied to image filenames.
+
+@item muse-latex-permit-contents-tag
+If nil, ignore @verb{|<contents>|} tags.  Otherwise, insert table of
+contents.
+
+Most of the time, it is best to have a table of contents on the
+first page, with a new page immediately following.  To make this
+work with documents published in both HTML and LaTeX, we need to
+ignore the @verb{|<contents>|} tag.
+
+If you don't agree with this, then set this option to non-nil,
+and it will do what you expect.
+
+@end table
+
+@node Poem, Texinfo, LaTeX, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publish a poem to LaTeX or PDF
+
+The @code{muse-poem} module makes it easy to attractively publish and
+reference poems in the following format, using the "memoir" module for
+LaTeX publishing.  It will also markup poems for every other output
+style, though none are nearly as pretty.
+
+@example
+Title
+
+
+Body of poem
+
+
+Annotations, history, notes, etc.
+@end example
+
+Once a poem is written in this format, just publish it to PDF using the
+@code{poem-pdf} style.  To make an inlined reference to a poem that
+you've written -- for example, from a blog page -- there is a "poem" tag
+defined by this module.
+
+@example
+<poem title="name.of.poem.page">
+@end example
+
+Let's assume the template above was called @file{name.of.poem.page};
+then the above tag would result in this inclusion.
+
+@example
+** Title
+
+> Body of poem
+@end example
+
+John Wiegley uses this module for publishing all of the poems on his
+website, which are at
+@uref{http://www.newartisans.com/johnw/poems.html}.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, poem-latex
+@item poem-latex
+Publish a poem in LaTeX form.
+
+@cindex publishing styles, poem-pdf
+@item poem-pdf
+Publish a poem to a PDF document.
+
+@cindex publishing styles, chapbook-latex
+@item chapbook-latex
+Publish a book of poems in LaTeX form.
+
+@cindex publishing styles, chapbook-pdf
+@item chapbook-pdf
+Publish a book of poems to a PDF document.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-poem-latex-header
+Header used for publishing LaTeX poems.
+
+This may be text or a filename.
+
+@item muse-poem-latex-footer
+Footer used for publishing LaTeX files.
+
+This may be text or a filename.
+
+@item muse-poem-markup-strings
+Strings used for marking up poems.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-chapbook-latex-header
+Header used for publishing a book of poems in LaTeX form.
+
+This may be text or a filename.
+
+@item muse-chapbook-latex-footer
+Footer used for publishing a book of poems in LaTeX form.
+
+This may be text or a filename.
+
+@item muse-poem-chapbook-strings
+Strings used for marking up books of poems.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@end table
+
+@node Texinfo, XML, Poem, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publish entries to Texinfo format or PDF
+
+Rules for publishing a Muse file as a Texinfo article.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, texi
+@item texi
+Publish a file in Texinfo form.
+
+@cindex publishing styles, texi
+@item info
+Generate an Info file from a Muse file.
+
+@cindex publishing styles, info-pdf
+@item info-pdf
+Publish a file in PDF form.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@item muse-texinfo-process-natively
+If non-nil, use the Emacs `texinfmt' module to make Info files.
+
+@item muse-texinfo-extension
+Default file extension for publishing Texinfo files.
+
+@item muse-texinfo-info-extension
+Default file extension for publishing Info files.
+
+@item muse-texinfo-pdf-extension
+Default file extension for publishing PDF files.
+
+@item muse-texinfo-header
+Text to prepend to a Muse page being published as Texinfo.
+
+This may be text or a filename.
+It may contain @verb{|<lisp>|} markup tags.
+
+@item muse-texinfo-footer
+Text to append to a Muse page being published as Texinfo.
+
+This may be text or a filename.
+It may contain @verb{|<lisp>|} markup tags.
+
+@item muse-texinfo-markup-regexps
+List of markup rules for publishing a Muse page to Texinfo.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-regexps}.
+
+@item muse-texinfo-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-functions}.
+
+@item muse-texinfo-markup-strings
+Strings used for marking up text.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-texinfo-markup-specials
+A table of characters which must be represented specially.
+
+@item muse-texinfo-markup-specials
+A table of characters which must be represented specially.
+These are applied to URLs.
+
+@end table
+
+@node XML, , Texinfo, Publishing Styles
+@comment  node-name,  next,  previous,  up
+@section Publish entries to XML
+
+Muse is capable of publishing XML documents, with the help of the
+@file{muse-xml.el} module.
+
+A RelaxNG schema is available as part of the Muse distribution in the
+@file{etc/muse.rnc} file.
+
+@subheading Styles provided
+
+@table @code
+
+@cindex publishing styles, xml
+@item xml
+Publish a file in XML form.
+
+@end table
+
+@subheading Options provided
+
+@table @code
+
+@cindex muse-xml-encoding-map
+@item muse-xml-encoding-map
+An alist mapping Emacs coding systems to appropriate XML charsets.
+Use the base name of the coding system (i.e. without the -unix).
+
+@item muse-xml-markup-specials
+A table of characters which must be represented specially in all
+XML-like markup formats.
+
+@item muse-xml-markup-specials-url-extra
+A table of characters which must be represented specially in all
+XML-like markup formats.
+
+These are extra characters that are escaped within URLs.
+
+@item muse-xml-extension
+Default file extension used for publishing XML files.
+
+@item muse-xml-header
+Header used for publishing XML files.
+
+This may be text or a filename.
+
+@item muse-xml-footer
+Footer used for publishing XML files.
+
+This may be text or a filename.
+
+@item muse-xml-markup-regexps
+List of markup rules for publishing a Muse page to XML.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-regexps}.
+
+@item muse-xml-markup-functions
+An alist of style types to custom functions for that kind of text.
+
+For more on the structure of this list,
+@xref{muse-publish-markup-functions}.
+
+@item muse-xml-markup-strings
+Strings used for marking up text.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item muse-xml-encoding-default
+The default Emacs buffer encoding to use in published files.
+
+This will be used if no special characters are found.
+
+@item muse-xml-charset-default
+The default XML charset to use if no translation is found in
+@code{muse-xml-encoding-map}.
+
+@end table
+
+
+@node Extending Muse, Miscellaneous, Publishing Styles, Top
+@comment  node-name,  next,  previous,  up
+@chapter Making your own publishing styles
+
+@menu
+* Markup Functions::            Specifying functions to mark up text.
+* Markup Regexps::              Markup rules for publishing.
+* Markup Strings::              Strings specific to a publishing style.
+* Markup Tags::                 Tag specifications for special markup.
+* Style Elements::              Parameters used for defining styles.
+* Deriving Styles::             Deriving a new style from an existing
+                                  one.
+@end menu
+
+@node Markup Functions, Markup Regexps, , Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Specifying functions to mark up text
+@cindex publishing, markup functions
+
+@anchor{muse-publish-markup-functions}
+@code{muse-publish-markup-functions}
+
+An alist of style types to custom functions for that kind of text.
+
+This is used by publishing styles to attempt to minimize the amount of
+custom regexps that each has to define.  @file{muse-publish} provides
+rules for the most common types of markup.
+
+Each member of the list is of the following form.
+
+@example
+(SYMBOL FUNCTION)
+@end example
+
+@itemize @bullet
+@item SYMBOL
+Describes the type of text to associate with this rule.
+@code{muse-publish-markup-regexps} maps regexps to these symbols.
+
+@item FUNCTION
+Function to use to mark up this kind of rule if no suitable function is
+found through the @option{:functions} tag of the current style.
+@end itemize
+
+@node Markup Regexps, Markup Strings, Markup Functions, Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Markup rules for publishing
+@cindex publishing, markup regexps
+@cindex publishing, rules
+
+@anchor{muse-publish-markup-regexps}
+@code{muse-publish-markup-regexps}
+
+List of markup rules for publishing a page with Muse.
+
+The rules given in this variable are invoked first, followed by whatever
+rules are specified by the current style.
+
+Each member of the list is either a function, or a list of the following
+form.
+
+@example
+(REGEXP/SYMBOL TEXT-BEGIN-GROUP REPLACEMENT-TEXT/FUNCTION/SYMBOL)
+@end example
+
+@itemize @bullet
+@item REGEXP
+A regular expression, or symbol whose value is a regular expression,
+which is searched for using `re-search-forward'.
+
+@item TEXT-BEGIN-GROUP
+The matching group within that regexp which denotes the beginning of the
+actual text to be marked up.
+
+@item REPLACEMENT-TEXT
+A string that will be passed to `replace-match'.
+
+If it is not a string, but a function, it will be called to determine
+what the replacement text should be (it must return a string).  If it is
+a symbol, the value of that symbol should be a string.
+@end itemize
+
+The replacements are done in order, one rule at a time.  Writing
+the regular expressions can be a tricky business.  Note that case
+is never ignored.  `case-fold-search' is always bound to nil
+while processing the markup rules.
+
+@subheading Publishing order
+
+This is the order that the publishing rules are consulted, by default.
+This may be changed by customizing @code{muse-publish-markup-regexps}.
+
+@table @code
+
+@item trailing and leading whitespace
+Remove trailing and leading whitespace from a file.
+
+@item directive
+@samp{#directive}
+
+This is only recognized at the beginning of a file.
+
+@item comment
+@samp{; a commented line}
+
+@item tag
+@samp{<tag>}
+
+@item comment
+@samp{; comment}
+
+@item explicit links
+Prevent emphasis characters in explicit links from being marked up.
+
+Don't actually publish them here, just add a special no-emphasis text
+property.
+
+@item word
+Whitespace-delimited word, possibly with emphasis characters
+
+This function is responsible for marking up emphasis and escaping some
+specials.
+
+@item heading
+@samp{** Heading}
+
+Outline-mode style headings.
+
+@item enddots
+@samp{....}
+
+These are ellipses with a dot at end.
+
+@item dots
+@samp{...}
+
+Ellipses.
+
+@item rule
+@samp{----}
+
+Horizontal rule or section separator.
+
+@item no-break-space
+@samp{~~}
+
+Prevent lines from being split before or after these characters.
+
+@item line-break
+@samp{<br>}
+
+Break a line at point.
+
+@item fn-sep
+@samp{Footnotes:}
+
+Beginning of footnotes section.
+
+@item footnote
+@samp{[1]}
+
+Footnote definition or reference.  If at beginning of line, it is a
+definition.
+
+@item list
+@itemize @bullet
+@item
+@samp{ 1. }
+
+@item
+@samp{ - }
+
+@item
+@samp{term :: }
+@end itemize
+
+Numbered list, item list, or term definition list.
+
+@item table-el
+
+@file{table.el} style tables
+
+@item table
+@samp{table | cells}
+
+Muse tables or orgtbl-mode style tables.
+
+@item quote
+spaces before beginning of text
+
+Blockquotes.
+
+@item emdash
+@samp{--}
+
+2-wide dash
+
+@item verse
+@samp{> verse text}
+
+@item anchor
+@samp{#anchor}
+
+@item link
+@samp{[[explicit][links]]}
+
+@item url
+@samp{http://example.com/}
+
+@item email
+@samp{bare-email@@example.com}
+
+@end table
+
+@node Markup Strings, Markup Tags, Markup Regexps, Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Strings specific to a publishing style
+@cindex publishing, markup strings
+
+@dfn{Markup strings} are strings used for marking up text for a
+particular style.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@subheading Available markup strings
+
+@table @code
+
+@item image-with-desc
+An image and a description.
+
+Argument 1: image without extension.  Argument 2: image extension.
+Argument 3: description.
+
+@item image
+An inlined image.
+
+Argument 1: image without extension.  Argument 2: image extension.
+
+@item image-link
+An image with a link around it.
+
+Argument 1: link.  Argument 2: image without extension.
+Argument 3: image extension.
+
+@item anchor-ref
+A reference to an anchor on the current page.
+
+Argument 1: anchor name.  Argument 2: description if one exists, or the
+original link otherwise.
+
+@item url
+A URL without a description.
+
+Argument 1: URL.
+
+@item link
+A link to a Muse page with a description.
+
+Argument 1: link.  Argument 2: description if one exists, or the
+original link otherwise.
+
+@item link-and-anchor
+A link to a Muse page with an anchor, and a description.
+
+Argument 1: link.  Argument 2: anchor name.
+Argument 3: description if one exists, or the original link otherwise.
+Argument 4: link without an extension.
+
+@item email-addr
+A link to an email address.
+
+Argument 1: email address.  Argument 2: email address.
+
+@item anchor
+An anchor.
+
+Argument 1: name of anchor.
+
+@item emdash
+A 2-length dash.
+
+Argument 1: Initial whitespace.  Argument 2: Terminating whitespace.
+
+@item comment-begin
+Beginning of a comment.
+
+@item comment-end
+End of a comment.
+
+@item rule
+A horizontal line or space.
+
+@item no-break-space
+A space that separates two words which are not to be separated.
+
+@item footnote
+Beginning of footnote.
+
+@item footnote-end
+End of footnote.
+
+@item footnotemark
+Mark a reference for the current footnote.
+
+Argument 1: number of this footnote.
+
+@item footnotemark-end
+End of a reference for the current footnote.
+
+@item footnotetext
+Indicate the text of the current footnote.
+
+Argument 1: number of this footnote.
+
+@item footnotetext-end
+End of a footnote text line.
+
+@item fn-sep
+Text used to replace ``Footnotes:'' line.
+
+@item dots
+3 dots.
+
+@item enddots
+4 dots.
+
+@item part
+Beginning of a part indicator line.  This is used by book publishing.
+
+@item part-end
+End of a part indicator line.  This is used by book publishing.
+
+@item chapter
+Beginning of a chapter indicator line.  This is used by book publishing.
+
+@item chapter-end
+End of a chapter indicator line.  This is used by book publishing.
+
+@item section
+Beginning of level 1 section indicator line.
+
+Argument 1: level of section; always 1.
+
+@item section-end
+End of level 1 section indicator line.
+
+Argument 1: level of section; always 1.
+
+@item subsection
+Beginning of level 2 section indicator line.
+
+Argument 1: level of section; always 2.
+
+@item subsection-end
+End of level 2 section indicator line.
+
+Argument 1: level of section; always 2.
+
+@item subsubsection
+Beginning of level 3 section indicator line.
+
+Argument 1: level of section; always 3.
+
+@item subsubsection-end
+End of level 3 section indicator line.
+
+Argument 1: level of section; always 3.
+
+@item section-other
+Beginning of section indicator line, where level is greater than 3.
+
+Argument 1: level of section.
+
+@item section-other-end
+End of section indicator line, where level is greater than 3.
+
+Argument 1: level of section.
+
+@item begin-underline
+Beginning of underlined text.
+
+@item end-underline
+End of underlined text.
+
+@item begin-literal
+Beginning of verbatim text.  This includes @verb{|<code>|} tags and
+=teletype text=.
+
+@item end-literal
+End of verbatim text.  This includes @verb{|<code>|} tags and =teletype
+text=.
+
+@item begin-emph
+Beginning of the first level of emphasized text.
+
+@item end-emph
+End of the first level of emphasized text.
+
+@item begin-more-emph
+Beginning of the second level of emphasized text.
+
+@item end-more-emph
+End of the second level of emphasized text.
+
+@item begin-most-emph
+Beginning of the third (and final) level of emphasized text.
+
+@item end-most-emph
+End of the third (and final) level of emphasized text.
+
+@item begin-verse
+Beginning of verse text.
+
+@item verse-space
+String used to each space that is further indented than the beginning of
+the verse.
+
+@item begin-verse-line
+Beginning of a line of verse.
+
+@item empty-verse-line
+End of a line of verse.
+
+@item begin-last-stanza-line
+Beginning of the last line of a verse stanza.
+
+@item end-last-stanza-line
+End of the last line of a verse stanza.
+
+@item end-verse
+End of verse text.
+
+@item begin-example
+Beginning of an example region.  To make use of this, an
+@samp{<example>} tag is needed.
+
+@item end-example
+End of an example region.  To make use of this, an @samp{</example>} tag
+is needed.
+
+@item begin-center
+Begin a centered line.
+
+@item end-center
+End a centered line.
+
+@item begin-quote
+Begin a quoted region.
+
+@item end-quote
+End a quoted region.
+
+@item begin-quote-item
+Begin a quote paragraph.
+
+@item end-quote-item
+End a quote paragraph.
+
+@item begin-uli
+Begin an unordered list.
+
+@item end-uli
+End an unordered list.
+
+@item begin-uli-item
+Begin an unordered list item.
+
+@item end-uli-item
+End an unordered list item.
+
+@item begin-oli
+Begin an ordered list.
+
+@item end-oli
+End an ordered list.
+
+@item begin-oli-item
+Begin an ordered list item.
+
+@item end-oli-item
+End an ordered list item.
+
+@item begin-dl
+Begin a definition list.
+
+@item end-dl
+End a definition list.
+
+@item begin-dl-item
+Begin a definition list item.
+
+@item end-dl-item
+End a definition list item.
+
+@item begin-ddt
+Begin a definition list term.
+
+@item end-ddt
+End a definition list term.
+
+@item begin-dde
+Begin a definition list entry.
+
+@item end-dde
+End a definition list entry.
+
+@item begin-table
+Begin a table.
+
+@item end-table
+End a table.
+
+@item begin-table-group
+Begin a table grouping.
+
+@item end-table-group
+End a table grouping.
+
+@item begin-table-row
+Begin a table row.
+
+@item end-table-row
+End a table row.
+
+@item begin-table-entry
+Begin a table entry.
+
+@item end-table-entry
+End a table entry.
+
+@end table
+
+@node Markup Tags, Style Elements, Markup Strings, Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Tag specifications for special markup
+@cindex publishing, markup tags
+
+@anchor{muse-publish-markup-tags}
+@code{muse-publish-markup-tags}
+
+A list of tag specifications, for specially marking up text.
+
+XML-style tags are the best way to add custom markup to Muse.  This is
+easily accomplished by customizing this list of markup tags.
+
+For each entry, the name of the tag is given, whether it expects a
+closing tag and/or an optional set of attributes, whether it is
+nestable, and a function that performs whatever action is desired within
+the delimited region.
+
+The tags themselves are deleted during publishing, before the function
+is called.  The function is called with three arguments, the beginning
+and end of the region surrounded by the tags.  If properties are
+allowed, they are passed as a third argument in the form of an alist.
+The `end' argument to the function is always a marker.
+
+Point is always at the beginning of the region within the tags, when the
+function is called.  Wherever point is when the function finishes is
+where tag markup will resume.
+
+These tag rules are processed once at the beginning of markup, and once
+at the end, to catch any tags which may have been inserted in-between.
+
+@node Style Elements, Deriving Styles, Markup Tags, Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Parameters used for defining styles
+@cindex publishing, style elements
+
+Style elements are tags that define a style.  Use either
+@code{muse-define-style} or @code{muse-derive-style}
+(@pxref{Deriving Styles}) to create a new style.
+
+@defun muse-define-style name &rest elements
+@end defun
+
+@subheading Usable elements
+
+@table @option
+
+@item :suffix
+File extension to use for publishing files with this style.
+
+@item :link-suffix
+File extension to use for publishing links to Muse files with this
+style.
+
+@item :osuffix
+File extension to use for publishing second-stage files with this style.
+
+For example, PDF publishing generates a LaTeX file first, then a PDF
+from that LaTeX file.
+
+@item :regexps
+List of markup rules for publishing a page with Muse.
+@xref{muse-publish-markup-regexps}.
+
+@item :functions
+An alist of style types to custom functions for that kind of text.
+@xref{muse-publish-markup-functions}.
+
+@item :strings
+Strings used for marking up text with this style.
+
+These cover the most basic kinds of markup, the handling of which
+differs little between the various styles.
+
+@item :tags
+A list of tag specifications, used for handling extra tags.
+@xref{muse-publish-markup-tags}.
+
+@item :specials
+A table of characters which must be represented specially.
+
+@item :before
+A function that is to be executed on the newly-created publishing buffer
+(or the current region) before any publishing occurs.
+
+This is used to set extra parameters that direct the publishing process.
+
+@item :before-end
+A function that is to be executed on the publishing buffer (or the
+current region) immediately after applying all of the markup regexps.
+
+This is used to fix the order of table elements (header, footer, body)
+in XML-ish styles.
+
+@item :after
+A function that is to be executed on the publishing buffer after
+:before-end, and immediately after inserting the header and footer.
+
+This is used for generating the table of contents as well as setting the
+file coding system.
+
+@item :final
+A function that is to be executed after saving the published file, but
+while still in its buffer.
+
+This is used for generating second-stage documents like PDF files from
+just-published LaTeX files.
+
+The function must accept three arguments: the name of the muse source
+file, the name of the just-published file, and the name of the
+second-stage target file.  The name of the second-stage target file is
+the same as that of the just-published file if no second-stage
+publishing is required.
+
+@item :header
+Header used for publishing files of this style.
+
+This may be a variable, text, or a filename.  It is inserted at the
+beginning of a file, after evaluating the publishing markup.
+
+@item :footer
+Footer used for publishing files of this style.
+
+This may be a variable, text, or a filename.  It is inserted at the end
+of a file, after evaluating the publishing markup.
+
+@item :style-sheet
+Style sheet used for publishing files of this style.
+
+This may be a variable or text.  It is used in the header of HTML and
+XHTML based publishing styles.
+
+@item :browser
+The function used to browse the published result of files of this style.
+
+@end table
+
+@node Deriving Styles, , Style Elements, Extending Muse
+@comment  node-name,  next,  previous,  up
+@section Deriving a new style from an existing one
+@cindex publishing styles, deriving
+
+To create a new style from an existing one, use @code{muse-derive-style}
+as follows.  This is a good way to fix something you don't like about a
+particular publishing style, or to personalize it.
+
+@defun muse-derive-style new-name base-name &rest elements
+@end defun
+
+The derived name is a string defining the new style, such as "my-html".
+The base name must identify an existing style, such as "html" -- if you
+have loaded @file{muse-html}.  The style parameters are the same as
+those used to create a style, except that they override whatever
+definitions exist in the base style.  However, some definitions only
+partially override.  The following parameters support partial
+overriding.
+
+@xref{Style Elements}, for a complete list of all parameters.
+
+@table @option
+
+@item :functions
+If a markup function is not found in the derived style's function list,
+the base style's function list will be queried.
+
+@item :regexps
+All regexps in the current style and the base style(s) will be used.
+
+@item :strings
+If a markup string is not found in the derived style's string list, the
+base style's string list will be queried.
+
+@end table
+
+@node Miscellaneous, Getting Help and Reporting Bugs, Extending Muse, Top
+@comment  node-name,  next,  previous,  up
+@chapter Miscellaneous add-ons, like a minor mode
+
+@menu
+* Muse List Edit Minor Mode::   Edit lists easily in other major modes.
+@end menu
+
+@node Muse List Edit Minor Mode, , , Miscellaneous
+@comment  node-name,  next,  previous,  up
+@section Edit lists easily in other major modes
+@cindex muse-list-edit-minor-mode
+
+@code{muse-list-edit-minor-mode} is meant to be used with other major
+modes, such as Message (for composing email) and debian-changelog-mode
+(for editing debian/changelog files).
+
+It implements practically perfect support for editing and filling lists.
+It can even handle nested lists.  In addition to Muse-specific list
+items ("-", numbers, definition lists, footnotes), it can also handle
+items that begin with "*" or "+".  Filling list items behaves in the
+same way that it does in Muse, regardless of whether filladapt is also
+enabled, which is the primary reason to use this tool.
+
+@subheading Installation
+
+To use it, add ``(require 'muse-mode)'' to your Emacs customization file
+and add the function @code{turn-on-muse-list-edit-minor-mode} to any
+mode hooks where you wish to enable this minor mode.
+
+@subheading Keybindings
+
+@code{muse-list-edit-minor-mode} uses the following keybindings.
+
+@table @kbd
+
+@item M-RET (`muse-l-e-m-m-insert-list-item')
+Insert a new list item at point, using the indentation level of the
+current list item.
+
+@item C-< (`muse-l-e-m-m-decrease-list-item-indent')
+Decrease indentation of the current list item.
+
+@item C-> (`muse-l-e-m-m-increase-list-item-indent')
+Increase indentation of the current list item.
+
+@end table
+
+@subheading Functions
+
+@defun muse-list-edit-minor-mode
+This is a global minor mode for editing files with lists.
+It is meant to be used with other major modes, and not with Muse mode.
+
+Interactively, with no prefix argument, toggle the mode.
+With universal prefix @var{arg} turn mode on.
+With zero or negative @var{arg} turn mode off.
+
+This minor mode provides the Muse keybindings for editing lists,
+and support for filling lists properly.
+
+It recognizes not only Muse-style lists, which use the "-"
+character or numbers, but also lists that use asterisks or plus
+signs.  This should make the minor mode generally useful.
+
+Definition lists and footnotes are also recognized.
+
+Note that list items may omit leading spaces, for compatibility
+with modes that set @code{left-margin}, such as
+@code{debian-changelog-mode}.
+@end defun
+
+@defun turn-on-muse-list-edit-minor-mode
+Unconditionally turn on Muse list edit minor mode.
+@end defun
+
+@defun turn-off-muse-list-edit-minor-mode
+Unconditionally turn off Muse list edit minor mode.
+@end defun
+
+@node Getting Help and Reporting Bugs, History, Miscellaneous, Top
+@comment  node-name,  next,  previous,  up
+@chapter Getting Help and Reporting Bugs
+@cindex help, getting
+@cindex bugs, reporting
+
+After you have read this guide, if you still have questions about
+Muse, or if you have bugs to report, there are several places you can
+go.
+
+@itemize @bullet
+
+@item
+@uref{http://www.emacswiki.org/cgi-bin/wiki/EmacsMuse} is the
+emacswiki.org page, and anyone may add tips, hints, or bug descriptions
+to it.
+
+@item
+@uref{http://mwolson.org/projects/EmacsMuse.html} is the web page
+that Michael Olson (the current maintainer) made for Muse.
+
+@item
+Muse has several different mailing lists.
+
+@table @samp
+
+@item muse-el-announce
+Low-traffic list for Muse-related announcements.
+
+You can join this mailing list (@email{muse-el-announce@@gna.org})
+using the subscription form at
+@url{http://mail.gna.org/listinfo/muse-el-announce/}.  This
+mailing list is also available via Gmane (@url{http://gmane.org/}). The
+group is called @samp{gmane.emacs.muse.announce}.
+
+@item muse-el-discuss
+Discussion, bugfixes, suggestions, tips, and the like for Muse.
+This mailing list also includes the content of muse-el-announce.
+
+You can join this mailing list (@email{muse-el-discuss@@gna.org})
+using the subscription form at
+@url{http://mail.gna.org/listinfo/muse-el-discuss/}.  This mailing
+list is also available via Gmane with the identifier
+@samp{gmane.emacs.muse.general}.
+
+@item muse-el-logs
+Log messages for commits made to Muse.
+
+You can join this mailing list (@email{muse-el-logs@@gna.org}) using
+the subscription form at
+@url{http://mail.gna.org/listinfo/muse-el-logs/}.  This mailing list
+is also available via Gmane with the identifier
+@samp{gmane.emacs.muse.scm}.
+
+@item muse-el-commits
+Generated bug reports for Emacs Muse.  If you use our bug-tracker at
+@url{https://gna.org/bugs/?group=muse-el}, the bug reports will be
+sent to this list automatically.
+
+You can join this mailing list (@email{muse-el-commits@@gna.org}) using
+the subscription form at
+@url{http://mail.gna.org/listinfo/muse-el-commits/}.  This mailing list
+is also available via Gmane with the identifier
+@samp{gmane.emacs.muse.cvs}.
+
+@item muse-el-internationalization
+Discussion of translation of the Muse website and documentation into
+many languages.
+
+You can join this mailing list
+(@email{muse-el-internationalization@@gna.org}) using the subscription
+form at @url{http://mail.gna.org/listinfo/internationalization/}.  This
+mailing list is also available via Gmane with the identifier
+@samp{gmane.emacs.muse.internationalization}.
+
+@end table
+
+@item
+You can visit the IRC Freenode channel @samp{#emacs}. Many of the
+contributors are frequently around and willing to answer your
+questions.  The @samp{#muse} channel is also available for
+Muse-specific help, and its current maintainer hangs out there.
+
+@item
+The maintainer of Emacs Muse, Michael Olson, may be contacted at
+@email{mwolson@@gnu.org}.  He can be rather slow at answering email, so
+it is often better to use the muse-el-discuss mailing list.
+
+@end itemize
+
+@node History, Contributors, Getting Help and Reporting Bugs, Top
+@comment  node-name,  next,  previous,  up
+@chapter History of This Document
+@cindex history, of Muse
+
+@itemize
+@item 2004
+John Wiegley started Muse upon realizing that EmacsWiki had some serious
+limitations. Around February 2004, he started making "emacs-wiki version
+3.00 APLHA", which eventually became known as Muse.
+
+Most of those who frequent the emacs-wiki mailing list continued to use
+emacs-wiki, mainly because Planner hasn't been ported over to it.
+
+As of 2004-12-01, Michael Olson became the maintainer of Muse, as per
+John Wiegley's request.
+
+@item 2005
+Michael Olson overhauled this document and added many new sections in
+preparation for the first release of Muse (3.01).
+
+@end itemize
+
+@node Contributors, GNU Free Documentation License, History, Top
+@comment  node-name,  next,  previous,  up
+@chapter Contributors to This Documentation
+@cindex contributors
+
+The first draft of this document was taken from the emacs-wiki texinfo
+manual.  Michael Olson adapted it for Muse and added most of its
+content.
+
+John Sullivan did a majority of the work on the emacs-wiki texinfo
+manual.
+
+While Sacha Chua maintained emacs-wiki, she worked quite a bit on the
+emacs-wiki texinfo manual.
+
+
+@node GNU Free Documentation License, Concept Index, Contributors, Top
+@appendix GNU Free Documentation License
+@include doclicense.texi
+
+
+@node Concept Index,  , GNU Free Documentation License, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Index
+
+@printindex cp
+
+@bye

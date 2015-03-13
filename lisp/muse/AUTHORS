@@ -1,0 +1,167 @@
+Muse
+====
+
+This is a listing of those who have made contributions of code or
+documentation to Muse.
+
+John Wiegley: Original author
+
+Michael Olson: Current maintainer
+
+Adrian Aichner: Contributor:
+                 - muse-publish.el: 2 lines changes
+
+Florian Beck: Contributor:
+               - muse-regexps.el: 1 line changed
+
+Karl Berry: Contributor:
+             - muse-latex.el: 5 lines changed
+
+Jean Magnan de Bornier: Author of muse-context.el,
+                        Contributor
+                        (assigned past and future changes)
+
+Trent Buck: Contributor:
+             - muse-latex.el: 4 lines changed
+
+Sacha Chua: Contributor -- documentation
+            (assigned past and future changes)
+
+Brad Collins: Author of:
+               - muse-protocols.el
+               - examples/muse.rnc schema
+              Contributor
+              (assigned past and future changes)
+
+Li Daobing: Author of muse-mathml.el,
+            Contributor
+            (assigned past and future changes)
+
+Wang Diancheng: Contributor:
+                 - muse-publish.el: 1 line changed
+                 - muse-regexps.el: 6 lines changed
+
+Clinton Ebadi: Contributor:
+                - muse-html.el: 4 lines changed
+                - muse-latex2png: 3 lines changed
+
+Bastien Guerry: Contributor
+                (assigned past and future changes)
+
+Magnus Henoch: Contributor:
+                - muse.el: 1 line changed
+
+Yann Hodique: Author of muse-wiki.el,
+              Contributor
+              (assigned past and future changes)
+
+Markus Hoenicka: Contributor
+                 (assigned past and future changes)
+
+Andrew J. Korty: Author of muse-groff.el
+                 (assigned past and future changes)
+
+Sasha Kovar: Contributor
+              - muse-blosxom.el: >15 lines changed
+
+Bradley M. Kuhn: Contributor -- documentation
+                  - muse.texi: 9 lines changed
+
+Peter K. Lee: Contributor
+              (assigned past and future changes)
+
+Na Li:       Contributor:
+              - muse-latex2png.el: 1 line changed
+
+Phillip Lord: Author of:
+               - muse-split.el
+               - muse-protocol-iw.el
+              Contributor
+              (assigned past and future changes)
+
+Chris Lowis: Contributor:
+              - muse-latex2png.el: 1 line changed
+
+Deus Max: Contributor:
+           - muse-publish.el: 2 lines changed
+
+Evan Monroig: Contributor:
+               - muse.el: 2 lines changed
+
+Alex Ott: Contributor:
+           - muse-html.el: 13 lines changed
+           - muse-publish.el: 2 lines changed
+
+Jim Ottaway: Author of muse-backlink.el,
+             Contributor
+             (assigned past and future changes)
+
+Elena Pomohaci: Author of:
+                 - muse-import-docbook.el
+                 - muse-import-xml.el
+                (assigned past and future changes)
+
+Andrea Riciputi: Idea taken from code, but re-implemented
+
+Stefan Schlee: Contributor
+                - muse-mode: >15 lines changed
+                - muse-protocols.el: 1 line changed
+                - muse.texi: 7 lines changed
+              (assigned past and future changes)
+
+Per B. Sederberg: Contributor
+                  (assigned past and future changes)
+
+René Stadler: Contributor:
+               - muse-journal.el: 1 line changed
+               - muse-project.el: 1 line changed
+
+Dale P. Smith: Contributor
+               (disclaimed changes to Emacs)
+
+John Sullivan: Contributor -- documentation
+               (assigned past and future changes)
+
+Ganesh Swami: Original author of latex2png.el, which was the basis for
+              muse-latex2png.el.  It has since been extensively
+              rewritten, so we no longer need an assignment.
+
+G. J. Teale: Contributor:
+              - muse-project.el: 2 lines changed
+
+Sebastian Tennant: Contributor -- documentation
+                    - muse.texi: 4 lines changed
+
+Gary Vaughan: Original author of emacs-wiki-blosxom.el, which was the
+              basis for muse-blosxom.el
+              (assigned past and future changes)
+
+Sergey Vlasov: Contributor:
+                - muse-colors.el: 3 lines changed
+
+Valery V. Vorotyntsev: Contributor:
+                        - muse-protocols.el: 7 lines changed
+
+Charles Wang: Contributor:
+               - muse-html.el: 4 lines changed
+              (assigned past and future changes)
+
+Lan Yufeng: Contributor:
+             - muse-colors.el: 1 line changed
+
+
+Contributed software
+====================
+
+This is a listing of authors of software in the `contrib' directory.
+
+Nathan Kent Bullock: pyblosxom/getstamps.py, pyblosxom/hardcodedates.py
+
+Cameron Desautels: pyblosxom/metadate.py
+
+Mark Ivey: blosxom/metadate_0_0_3
+
+Eric Marsden: cgi.el, httpd.el
+  (assigned past and future changes to FSF)
+
+Michael Welle: blosxom/getstamps.pl

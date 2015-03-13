@@ -1,0 +1,93 @@
+<!-- Page published by Emacs Muse ends here -->
+    <div class="navfoot"><lisp>
+      (when (muse-publishing-directive "related")
+        (concat
+          "\n<p><strong>Related:</strong>\n        "
+          (mapconcat
+            (lambda (page)
+              (concat "<a href=\"../bookmarks/"
+                      page "\">" page "</a>"))
+            (split-string
+              (muse-publishing-directive "related"))
+            "\n        ")
+          "\n      </p>"))
+      </lisp>
+      <hr />
+      <table width="100%" summary="Footer navigation">
+        <col width="50%" /><col width="50%" />
+        <tr>
+          <td align="center" class="iconbox">
+            <a href="http://www.gnu.org/software/emacs/emacs.html"
+               style="text-decoration: none;">
+              <img alt="Emacs"
+                   src="/static/logos/gnu_emacs_icon_grey.png" />
+            </a>
+            <a href="http://www.mwolson.org/projects/EmacsMuse.html"
+               style="text-decoration: none;">
+              <img alt="Emacs Muse" src="/static/logos/muse-made-with.png" />
+            </a>
+            <a href="http://member.fsf.org/join?referrer=652"
+               style="text-decoration: none;">
+              <img alt="[FSF Associate Member]"
+                   src="/static/logos/fsf-member.png" />
+            </a>
+            <a href="http://www.fsf.org/resources/formats/playogg"
+               style="text-decoration: none;">
+              <img alt="Play Ogg"
+                   src="/static/logos/play_ogg_medium.png" />
+            </a>
+            <a href="http://www.ubuntulinux.org/"
+               style="text-decoration: none;">
+              <img alt="Ubuntu" src="/static/logos/ubuntu.png" />
+            </a>
+            <a href="http://www.emacswiki.org/"
+               style="text-decoration: none;">
+              <img alt="Emacswiki.org"
+                   src="/static/logos/emacswiki.png" />
+            </a>
+            <a href="http://www.catb.org/hacker-emblem/"
+               style="text-decoration: none;">
+              <img alt="Hacker emblem" src="/static/logos/glider.png" />
+            </a>
+            <a href="http://hcoop.net/"
+               style="text-decoration: none;">
+              <img alt="hcoop" src="/static/logos/hcoop_member.png" />
+            </a>
+          </td>
+          <td align="right" style="line-height: 175%">
+            <a href="http://validator.w3.org/check?uri=referer"
+               style="text-decoration: none;">
+              <img src="http://www.w3.org/Icons/valid-xhtml10-blue"
+                   alt="Valid XHTML 1.0!" height="31" width="88" />
+            </a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer"
+               style="text-decoration: none;">
+              <img style="border:0;width:88px;height:31px"
+                   src="http://www.w3.org/Icons/valid-css-blue.png"
+                   alt="Valid CSS!" />
+            </a>
+            <br />
+            <lisp>
+              (concat
+                "[ <a href=\""
+                (muse-wiki-resolve-project-page)
+                "\">Front</a> | <a href=\""
+                (muse-wiki-resolve-project-page (muse-project))
+                "\">" (car (muse-project)) "</a>"
+                " | <a href=\""
+                (muse-wiki-resolve-project-page (muse-project) "WikiIndex")
+                "\">Index</a> | <a href=\""
+                "./wikisource/" (muse-page-name) "." muse-file-extension
+                "\">Source</a>"
+                " ]")
+            </lisp>
+            <br />
+            <span class="footdate">
+            Last updated <lisp>(muse-publishing-directive "date")</lisp>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

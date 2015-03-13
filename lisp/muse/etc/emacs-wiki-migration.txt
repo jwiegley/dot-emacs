@@ -1,0 +1,179 @@
+
+This document describes the process of migrating from emacs-wiki to Muse.
+
+Features
+========
+
+Muse only
+---------
+
+Features that exist in Muse, but not emacs-wiki:
+
+ - Nested lists.
+
+ - Publishing to multiple other formats, such as LaTeX and Docbook.
+
+ - Escaping special characters automatically throughout the entire
+   document, so that you don't have to.
+
+ - Ability to use a different header and footer in different projects,
+   by creating your own publishing style.
+
+ - Ability to surround some Muse markup with the <verbatim> tag, which
+   causes is to not be treated as markup.  This is useful for
+   publishing the "|" character as-is, without turning the current
+   line into a table.
+
+ - Improved detection of paragraphs, which results in HTML that meets
+   various W3C standards.
+
+ - Journalling mode that is capable of publishing to RSS 2.0 or RSS
+   1.0 (RDF).
+
+ - Embedding LaTeX code into a document by turning it into an image.
+   This is in muse-latex2png.el.
+
+emacs-wiki only
+---------------
+
+The reason that most of these have not been implemented is lack of
+demand.  If you want to see these features implemented, please send an
+email to the muse-el-discuss mailing list, describing a good use case
+for them.
+
+ - Publishing bookmarks in XBEL format.  The bk2site program --
+   available separately -- does an adequate job, so this was not
+   implemented for Muse.
+
+ - Macros, i.e. keywords like %this%, that expand to some text upon
+   publishing.
+
+ - Global IDs.
+
+ - Menu generation.
+
+ - PGP encryption of regions with the <gpg> and <gpge> tags.
+
+ - The <redirect> tag.
+
+ - Publishing of ChangeLog files.
+
+ - The keybinding `C-c C-r': rename wiki link at point.
+
+ - The keybinding `C-c C-D': delete wiki link at point.
+
+ - The #style directive.
+
+ - Using the title of the page in a generated index page, rather than
+   the filename of the page.
+
+Specifying Projects
+===================
+
+Here is an example emacs-wiki-projects setting.
+
+(setq emacs-wiki-projects
+      '(("WebWiki" .
+         ((emacs-wiki-directories . ("~/WebWiki"))
+          (emacs-wiki-project-server-prefix . "/web/")
+          (emacs-wiki-publishing-directory
+           . "~/public_html/web")))
+        ("ProjectsWiki" .
+         ((emacs-wiki-directories . ("~/ProjectsWiki"))
+          (emacs-wiki-project-server-prefix . "/projects/")
+          (emacs-wiki-publishing-directory
+           . "~/public_html/projects")))))
+
+And here is the corresponding muse-project-alist setting.
+
+(setq muse-project-alist
+      '(("Website" ("~/WebWiki"
+                    :default "WelcomePage")
+         (:base "html"
+                :path "~/public_html/web"))
+        ("Projects" ("~/ProjectsWiki"
+                     :default "WelcomePage")
+         (:base "html"
+                :path "~/public_html/projects"))))
+
+Note that there is no need to specify a prefix.  Muse will
+automatically figure out what the relative paths in links to Muse
+files should be.
+
+If you want to be able to link to another project entry that is on a
+different domain, then you must use :base-url in every project entry.
+An example of this follows.
+
+(setq muse-project-alist
+      '(("Website" ("~/WebWiki"
+                    :default "WelcomePage")
+         (:base "html"
+                :base-url "http://web.example.org/web"
+                :path "~/public_html_1/web"))
+        ("Projects" ("~/ProjectsWiki"
+                     :default "WelcomePage")
+         (:base "html"
+                :base-url "http://projects.example.org/projects"
+                :path "~/public_html_2/projects"))))
+
+Special Topics
+==============
+
+Including multiple directories
+------------------------------
+
+With emacs-wiki, this was done by setting the
+`emacs-wiki-recurse-directories' option to non-nil.
+
+With Muse, this can be accomplished by including an entry in your
+muse-project-alist setting that causes entries for a directory and all
+subdirectories to be created.  This does not work when using the
+customize interface to set `muse-project-alist'.
+
+Here is an example:
+
+    ("Blog" (,@(muse-project-alist-dirs "~/Blog")
+             :default "index")
+
+     ;; Publish this directory and its subdirectories.  Arguments
+     ;; are as follows.  The above `muse-project-alist-dirs' part
+     ;; is also needed, using Argument 1.
+     ;;
+     ;;  1. Source directory
+     ;;  2. Output directory
+     ;;  3. Publishing style
+     ;;  remainder: Other things to put in every generated style
+     ,@(muse-project-alist-styles "~/Blog"
+                                  "~/public_html/blog"
+                                  "blosxom"))
+
+Generating an Index page
+------------------------
+
+In emacs-wiki, the page specified by `emacs-wiki-index-page' is an
+automatically generated index page.
+
+Muse does not automatically create this file.  If you want an
+automatic index file to be generated, then create a file and place the
+following contents (between the lines of underscores) in it.
+
+_____
+#title Index
+
+<lisp>(muse-index-as-string t t t)</lisp>
+_____
+
+Then, add a :force-publish tag to the paths part of the project entry
+in muse-project-alist.  Example:
+
+    ("Website" ("~/Web/"
+                :force-publish ("WikiIndex")
+                :default "WelcomePage")
+     (:base "xhtml"
+            :base-url "http://mydomain.org/"
+            :path "~/public_html"))
+
+License
+=======
+
+This file may be used, distributed, and modified without restriction.

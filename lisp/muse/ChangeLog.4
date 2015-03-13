@@ -1,0 +1,2406 @@
+2007-12-13  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-wiki.el ("muse-publish"): Interpret <nop> tags when
+	publishing.
+
+2007-12-05  Magnus Henoch  <mange@freemail.hu>
+
+	* lisp/muse.el (muse-escape-specials-in-string): Move
+	save-match-data outside of with-temp-buffer, because apparently
+	some implementations of with-temp-buffer can mangle the match
+	data.
+
+2007-11-28  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-page-file): If page argument
+	is nil, then choose the first directory in the project.
+
+	* lisp/muse-wiki.el (muse-wiki-resolve-project-page): Style fix.
+
+2007-11-07  Adrian Aichner  <adrian@xemacs.org>
+
+	* lisp/muse-publish.el (muse-publish-classify-url): Wrap call of
+	`muse-publish-link-page' in `save-match-data', so that correct
+	match data gets restored for subsequent use by `match-end'.
+
+2007-10-29  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-regexps.el (muse-tag-regexp): Permit tag attributes to
+	span more than one line.  Thanks to Florian Beck for the fix.
+
+2007-10-24  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-markup-regexps): Recognize
+	"---" as a valid mdash.  Before, it was doing mdash followed by a
+	single dash.  Thanks to jordanb for the suggestion.
+
+2007-10-12  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-mode.el (muse-insert-url-initial-input): New option
+	that specifies the initial text to use when reading a URL.  Thanks
+	to Seweryn Kokot for the suggestion.
+	(muse-insert-url): Use it.
+	(muse-mode-fill-paragraph): Take into account any indentation that
+	is already in front of the term.
+
+	* lisp/muse-project.el (muse-project-determine-last-mod): New
+	function split from muse-project-file-alist.
+	(muse-project-file-alist): Improve docstring.
+	(muse-project-add-to-alist): New function that ensures that the
+	current file is added the its project file-alist.
+	(muse-project-after-save-hook): Call muse-project-add-to-alist
+	instead of muse-project-file-alist.  This fixes an issue where if
+	several files were being saved at once, only the first would make
+	it into the project file-alist.
+
+2007-10-11  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-markup-specials-literal): Escape
+	backslash as "\textbackslash{}".  Thanks to Joost Kremers for the
+	report.
+
+2007-10-08  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-mode.el (muse-mode): Set fill-paragraph-function.
+	(muse-mode-fill-paragraph): New function that fills the paragraph
+	at point.  If a definition list term is on the same line, then
+	prefix subsequent lines with two spaces when filling.  Otherwise,
+	return nil, so that normal filling can take place.
+
+2007-10-03  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-unhighlight-region): Remove
+	muse-no-implicit link property.
+	(muse-colors-implicit-link): Check for muse-no-implicit-link
+	property.
+
+	* lisp/muse-wiki.el (muse-wiki-colors-nop-tag): Add the
+	muse-no-implicit-link property.  This makes colorization of <nop>
+	work.  Add docstring.
+
+2007-09-24  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): Fix bug
+	introduced by recent change.  Thanks to Darlan Cavalcante Moreira
+	for the report.
+
+2007-09-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-context.el (muse-context-pdf-generate): Change
+	default-directory instead of calling "cd" in the command.
+
+	* lisp/muse-latex.el (muse-latex-pdf-generate): Change
+	default-directory instead of calling "cd" in the command.  This
+	should fix a bug with Windows.  Thanks to Jia Ye for the report.
+
+2007-09-22  Michael Olson  <mwolson@gnu.org>
+
+	* AUTHORS: Bookkeeping.
+
+	* NEWS: Add entry for the LaTeX image filename escaping changes.
+
+	* examples/mwolson/templates/header.tex: Update for recent
+	changes.
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): Detect whether
+	the tag ends at the end of a line.  If not, do not use "$$" to
+	publish it.  Thanks to Darlan Cavalcante Moreira for the
+	suggestion.
+
+	* lisp/muse-latex.el (muse-latex-header, muse-latexcjk-header)
+	(muse-latex-slides-header, muse-latex-lecture-notes-header):
+	Escape specials in the title.  Define a museincludegraphics
+	command, which is able to handle escaped special characters in
+	image filenames.  Thanks to Karl Berry for providing this.
+	(muse-latex-markup-strings): Use museincludegraphics instead of
+	includegraphics in all image-related markup.  Move the width
+	specification over to the museincludegraphics command, rather than
+	specifying it explicitly.  This allows people to change this
+	information in their headers.
+	(muse-latex-markup-specials-image): Escape backslashes, "#", and
+	pipe characters in image filenames.
+
+	* lisp/muse-wiki.el (muse-wiki-project-files-with-spaces): Fix
+	byte-compiler warning.
+
+	* lisp/muse.el (muse-update-values): Fix byte-compiler warning.
+	Also, update the value of muse-current-project for all Muse
+	buffers, even if they are new.  This should be more intuitive.  I
+	don't think there are any cases where developers will want this
+	value to be nil.
+	(muse-replace-regexp-in-string): Fix byte-compiler warning.
+
+	* texi/muse.texi (LaTeX): Mention grffile.sty.  Thanks to Karl
+	Berry for the tip.
+
+2007-09-19  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-replace-regexp-in-string): Remove fallback
+	code, since it is not needed in any version of Emacs we support,
+	and it also has a couple of bugs that I don't want to waste time
+	fixing.
+
+2007-09-18  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-mode.el (muse-mode): Fix bug involving filling and
+	paragraphs next to headings.  Thanks to Gregory Collins for the
+	initial patch, which I modified.
+
+2007-09-17  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-colors-toggle-inline-images): Display
+	message about how images are now displayed.
+
+2007-09-10  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (elpa): Use texi/dir-template rather than echoing lines
+	to the ELPA dir file for Muse.
+
+	* texi/dir-template: New file containing template to use when
+	making ELPA dir files.  This fixes a corrupt dir file bug for the
+	Muse ELPA package.  Thanks to Tom Tromey for the report.
+
+2007-09-06  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-class-tag): Fix bug where nested
+	class tags were not working.  We move to just after the beginning
+	of the first class tag, so that we can detect any remaining class
+	tags.  Thanks to Florian Beck for the report.  Fix error that
+	occurred when class tag has no name element.  Thanks to Peter
+	Baranyi for the report.  The correct behavior in this case is to
+	not publish the tag at all.
+
+	* lisp/muse.el (muse-goto-tag-end): Fix bug where nested tags with
+	arguments were not being detected properly.
+
+2007-09-05  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-context.el (muse-context-decide-specials): Add
+	footnote.
+
+	* lisp/muse-latex.el (muse-latex-decide-specials): Add footnote.
+
+	* lisp/muse-publish.el (muse-publish-escape-specials): Mention
+	'footnote in docstring.
+	(muse-publish-markup-footnote): Minor docstring fix.  Escape
+	footnote text properly.  Thanks to Jean Magnan de Bornier for
+	noticing.
+	(muse-publish-url): When checking to see if this is just a plain
+	URL without a description, compare the strings as they were before
+	doing escaping.  This fixes a bug where plain URLs could sometimes
+	be published as if they were URLs with descriptions.
+
+	* lisp/muse-texinfo.el (muse-texinfo-decide-specials): Add
+	footnote.
+
+2007-08-29  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-update-values): Reset the value of
+	muse-current-project in all Muse buffers.  This updates the rules
+	in case you want to publish a file after changing its associated
+	muse-project-alist entry.
+
+2007-08-27  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-update-values): New function that the user
+	can call after changing muse-project-alist, in order to update
+	various autogenerated values.
+
+	* texi/muse.texi (Keystroke Summary): Document it.
+
+2007-08-25  Michael Olson  <mwolson@gnu.org>
+
+	* examples/QuickStart.muse: Fix typo in first paragraph.  Thanks
+	to Karl Berry for reporting this.
+
+	* lisp/muse-mode.el (muse-visit-link-default): Fix bug with
+	browsing anchors that come after a link to them.
+
+	* texi/muse.texi (Poem): Fix typo in spelling of LaTeX.  Thanks to
+	Karl Berry for reporting this.
+
+2007-08-24  Michael Olson  <mwolson@gnu.org>
+
+	* Release Emacs Muse 3.11.
+
+	* AUTHORS: Add new authors for contrib files.
+
+	* NEWS: Add entries for Muse 3.11.
+
+	* README: Mention that contents of contrib/blosxom and
+	contrib/pyblosxom have different licenses than the rest of Muse.
+
+	* contrib/blosxom/getstamps.pl: New file that implements fetching
+	timestamps from published Muse files and placing them in a single
+	timestamps file.  That file can then be used by blosxom's metadate
+	plugin.  Thanks to Michael Welle for providing this file, as well
+	as instructions on how to use Muse with Blosxom.
+
+	* contrib/blosxom/metadate_0_0_3: New file implementing the
+	metadate plugin for blosxom.
+
+	* contrib/pyblosxom/getstamps.py: Add license text.  It seems safe
+	to assume that the original author wanted this to be distributed
+	with Pyblosxom, and hence use the MIT license like the rest of
+	Pyblosxom.
+
+	* contrib/pyblosxom/hardcodedates.py: Add license text.
+
+	* contrib/pyblosxom/make-blog: Change license text to be "This
+	file may be used, distributed, and modified without restriction."
+
+	* contrib/pyblosxom/metadate.py: New file that implements the
+	PyBlosxom metadate plugin.  Since this can no longer be found at
+	the original author's website, I have included it with Muse.
+
+	* lisp/muse-blosxom.el: Update location of metadate plugin in
+	header.
+
+	* lisp/muse-wiki.el (muse-wiki-project-file-regexp): Fix typo in
+	docstring.
+
+	* texi/muse.texi (Blosxom Requirements): Organize information by
+	subheading and subsubheading, and document how to use the metadate
+	plugin.  Briefly document using Blosxom to serve Muse entries.
+
+2007-08-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-insert-contents): Escape heading
+	title just before extracting it.
+
+	* lisp/muse-latex.el (muse-latex-fixup-headings): New function
+	that removes footnotes from headers, since they are invalid in
+	LaTeX.
+	(muse-latex-munge-buffer): Call it.
+
+	* lisp/muse-publish.el (muse-publish-markup-heading): Don't escape
+	specials here.  This fixes a bug involving links in headings.
+
+	* lisp/muse.el (muse-update-file-extension): Simplify, and handle
+	some edge cases.
+	(muse-update-file-extension-after-init): Temporarily bind
+	muse-file-extension to "muse", so that muse-update-file-extension
+	knows what the old value was.  This should fix a bug reported by
+	Jean Magnan de Bornier.
+
+2007-08-21  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-texinfo.el (muse-texinfo-markup-strings): Try to make
+	url, link, and link-and-anchor look better in texi2html output.
+	Thanks to thorne for the report.
+
+2007-08-20  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-journal.el (muse-journal-anchorize-title): Revamp to
+	escape characters rather than discard them.  Use muse-regexp-alnum
+	rather than listing out the characters and numbers.  Thanks to
+	Shunsuke OKANO for the report.
+	(muse-journal-rss-munge-buffer): Make sure that <![CDATA[ stuff is
+	used when generating a summary.
+
+2007-08-19  Michael Olson  <mwolson@gnu.org>
+
+	* examples/mwolson: Update my example settings.
+
+	* lisp/muse-colors.el (muse-colors-region): Bind
+	muse-colors-region-end to the end of the last line.  This avoids a
+	bug where lines that had emphasis would suddenly become
+	unhighlighted when moving around the buffer.
+
+	* lisp/muse-docbook.el (muse-docbook-markup-paragraph): Fix bug
+	involving paragraphs after literallayout markup, which is used in
+	<verse> tags.  Thanks to Shunsuke OKANO for the report.
+
+	* lisp/muse-html.el (muse-html-src-tag): Use
+	muse-delete-and-extract-region.
+
+	* lisp/muse-import-xml.el: Add require statement.
+	(muse-import-xml-parse-node): Use muse-replace-regexp-in-string.
+
+	* lisp/muse-protocols.el (muse-browse-url-man): Add require
+	statement.
+	(muse-browse-url-woman): Add require statement.
+
+	* lisp/muse-publish.el (muse-publish-surround-text): Fix serious
+	bug in definition list publishing.  We were skipping past the
+	initial indented line, and that was causing an erroneous
+	blockquote to be inserted.  This alone merits a new release.
+
+	* lisp/muse-texinfo.el (muse-texinfo-info-generate): Fix bug with
+	XEmacs' return value for shell-command.
+
+	* lisp/muse.el (muse-delete-and-extract-region): New compatibility
+	function to deal with XEmacs' lack of the
+	delete-and-extract-region function.
+
+2007-08-18  Michael Olson  <mwolson@gnu.org>
+
+	* AUTHORS: Update.
+
+	* lisp/muse-publish.el (muse-publish-include-tag): Switch from
+	copy-tree to copy-alist, since Emacs21 does not have the former,
+	and the latter does what we want.
+
+	* lisp/muse.el: Force-require 'derived, since Emacs21 does not
+	have derived-mode-p in subr.el like Emacs22 does.
+
+2007-08-17  Michael Olson  <mwolson@gnu.org>
+
+	* etc/muse.rnc: Add the <cite> tag.
+
+	* lisp/muse-context.el (muse-context-slides-header): Clarify what
+	"mystyle" is.
+
+	* lisp/muse-xml.el (muse-xml-markup-strings): Mark up citations as
+	<cite type="something">.  We'll leave it to the post processing
+	tools to interpret that.
+
+	* texi/muse.texi (Directives, Blosxom Entries): Use @code{} for
+	directives.
+	(Citations): New section that explains further how to use the
+	<cite> tag.  The text was taken from Marcus Hoenicka's
+	documentation at http://refdb.sourceforge.net/muse.html and
+	modified.
+	(Tag Summary): Link to the Citations section in the entry for
+	<cite>.
+	(ConTeXt): Update the documentation for
+	muse-context-slides-header.
+
+2007-08-17  Jean Magnan de Bornier  <jean@bornier.net>
+
+	* lisp/muse-context.el (muse-context-slides-header): Use #module
+	directive, if it is provided.
+	(muse-context-slides-header): Mention how to use #module.
+
+2007-08-16  Michael Olson  <mwolson@gnu.org>
+
+	* Release Emacs Muse 3.10.
+
+	* Makefile (dist, debprepare): Pass HEAD argument to git-archive.
+	(upload): Don't depend on release rule.
+
+	* NEWS: Document remaining changes.
+
+2007-08-15  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Document items through 2007-08-12.
+
+	* lisp/muse-colors.el: Split the muse-directive-or-comment
+	property into two separate properties that are muse-directive and
+	muse-comment.
+	(muse-colors-region-end): Make buffer-local.
+	(muse-colors-delayed-commands): New variable that contains a list
+	of commands to run immediately after highlighting.  This is meant
+	to allow highlighting functions to delay code until later.
+	(muse-colors-region): Apply commands in
+	muse-colors-delayed-commands.
+	(muse-colors-inhibit-tags-in-directives): New variable that
+	determines whether tags are allowed in directives.
+	(muse-colors-custom-tags): Take
+	muse-colors-inhibit-tags-in-directives into account.
+	(muse-unhighlight-region): Remove muse-directive and muse-comment
+	properties.
+	(muse-colors-title): Modify muse-colors-delayed-commands.
+	(muse-colors-title-lisp): New command that gets called after
+	highlighting other things.  This interprets <lisp> tags, and is
+	passed arguments specifying the beginning and end of the region.
+	Thanks to Junichi Uekawa for the report.  The reason we want to do
+	things this way is because this is the behavior we get already
+	when publishing the page.
+
+	* lisp/muse.el (muse-goto-tag-end): Change to use muse-comment
+	property rather than muse-directive-or-comment.
+
+2007-08-14  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el: Document all functions and variables.
+	(muse-colors-emphasized, muse-colors-underlined)
+	(muse-colors-verbatim, muse-colors-custom-tags)
+	(muse-colors-explicit-link, muse-colors-implicit-link): Don't trod
+	on comments or the #title directive.
+	(muse-colors-markup): Add comment rule.
+	(muse-colors-implicit-link): Only remove flyspell overlay after we
+	decide whether this is an implicit link, rather than before.
+	(muse-colors-title): Add the muse-directive-or-comment property.
+	(muse-colors-comment): New function that colorizes comments using
+	font-lock-comment-face.
+	(muse-colors-region-end): New variable indicating the end of the
+	region that is currently being font-locked.  This removes the need
+	for an ugly "defvar end" hack.
+	(muse-colors-emphasized, muse-colors-underlined)
+	(muse-colors-verbatim): Use it.
+	(muse-colors-region): Let-bind it.
+
+	* lisp/muse-mode.el (muse-list-edit-minor-mode): Grammar fix in
+	docstring.
+
+	* lisp/muse-publish.el (muse-publish-markup-heading): Escape
+	specials in heading now, rather than waiting on the whole-document
+	pass later on.  This lets <contents> generation work without
+	validation errors.  Thanks to Reid van Melle for the report.
+
+	* texi/muse.texi (Tag Summary): Document <cite> tag.
+	(Miscellaneous): New chapter containing "Muse List Edit Minor
+	Mode" section.
+	(Muse List Edit Minor Mode): New section that documents
+	muse-list-edit-minor-mode.
+	(Development): Mention the MuseDevlopment page on emacswiki.org.
+
+	* lisp/muse.el (muse-goto-tag-end): Deal with case where we are
+	font-locking and the end or beginning of a tag is in a comment or
+	directive.
+
+2007-08-12  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-strip-links): New function that
+	strips HTML links from a string.
+	(muse-html-insert-contents): Use it, instead of
+	muse-publish-strip-tags.  This fixes a bug reported by Xin Shi
+	involving the use of <sup> in section titles.
+
+	* lisp/muse-project.el (muse-project-resolve-directory): New
+	function that figures out the directory part of the path that
+	provides a link to a page.
+	(muse-project-resolve-link): Expand docstring.  Use the new
+	function.  Don't call muse-publish-link-file, because that does
+	the wrong thing when we have muse-file-extension set to nil.
+	Thanks to Sebastian Obermanns for the report.
+	(muse-project-publish-this-file): Let-bind muse-current-project.
+	Also, if the file is not associated with a project, fall back to
+	muse-publish-this-file.
+	(muse-project-set-variables): Add this to
+	muse-before-publish-hook, so that it gets called.  This fixes a
+	bug where project-specific variables were being used in Muse mode,
+	but ignored when publishing.
+
+	* lisp/muse-publish.el (muse-publish-link-name)
+	(muse-publish-link-file, muse-publish-link-page): Add docstrings
+	so that I can remember what each of these things do.
+	(muse-publish-strip-tags): Remove, since it is no longer used.
+	(muse-publish-cite-tag): Don't let-bind
+	muse-publishing-directives, because there is no need to do so.
+	Fix code indentation.
+	(muse-publish-markup-attribute): Avoid multiple evaluation of
+	attrs argument, in case it is list value instead of a symbol.  Use
+	sexp instead of form in the edebug-form-spec.
+	(muse-publish-include-tag): Make a full copy of
+	muse-publishing-directives, since it can be modified with setcdr.
+	This fixes a bug where #title and some other directives were
+	leaking out of an included region.
+	(muse-publish-mark-up-tag): Don't let-bind
+	muse-publishing-directives, because there is no need to do so.
+
+	* lisp/muse.el (muse-page-name): Improve docstring.
+
+	* texi/muse.texi (Development): Mention the http method for
+	anonymous git access to the shared repo.
+
+2007-08-10  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (dist, debprepare): Use git instead of tla.
+
+	* contrib/httpd.el (httpd-send-file): Use insert-file-contents.
+
+	* examples/mwolson/muse-init.el (my-muse-prepare-entry-for-xanga):
+	Use muse-insert-file-contents.
+
+	* experimental/muse-split.el (muse-publish-file)
+	(muse-publish-presplit-publish, muse-publish-no-split-function)
+	(muse-journal-split-by-entry, muse-journal-split-by-month): Use
+	muse-insert-file-contents.
+
+	* lisp/muse-book.el (muse-book-publish-chapter)
+	(muse-book-get-directives): Use muse-insert-file-contents.
+
+	* lisp/muse-http.el (muse-http-render-page): Use
+	muse-insert-file-contents.
+
+	* lisp/muse-poem.el (muse-poem-markup-tag): Use
+	muse-insert-file-contents.
+
+	* lisp/muse-publish.el (muse-insert-file-or-string)
+	(muse-publish-file, muse-publish-include-tag)
+	(muse-published-contents): Use muse-insert-file-contents.
+
+	* lisp/muse.el (muse-insert-file-contents): New function that
+	inserts a file with character code conversion, but none of the
+	other frivolities.  Since insert-file-contents-literally does not
+	do character code conversion, it is not suitable for us.
+	(muse-with-temp-buffer): Mention muse-insert-file-contents rather
+	than insert-file-contents-literally.
+
+2007-08-09  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-write-file): Pay attention to
+	coding-system-for-write and save-buffer-coding-system.  This
+	should fix a recently-introduced bug with writing Muse pages in
+	different coding systems.
+
+2007-08-08  Michael Olson  <mwolson@gnu.org>
+
+	* README (Prerequisites): Fix typo.
+	(Compilation, Installation): Update.
+	(Documentation, Further Documentation): Update URLs.
+	(Further Documentation): Add quick blurb on how to participate in
+	Muse development or track changes.
+
+	* texi/muse.texi (Releases): Use gna.org URL for downloading the
+	latest release, rather than my website.
+	(Development): Change instructions to use git instead of
+	Arch. Mention where to get a Windows binary for git.  Improve the
+	look of the listing.  Add section with instructions for Becoming a
+	Muse developer.
+	(Installation): Update instructions for Makefile.defs.default and
+	XEmacs.  Add index entries.  Add section for ELPA, since Muse
+	ought to be distributed in ELPA after the 3.10 release.  Fix typo
+	and clarify wording.
+
+2007-08-06  Michael Olson  <mwolson@gnu.org>
+
+	* texi/muse.texi: Make sure that attributes are marked up with
+	@option{} rather than @code{} or @samp{} for consistency.
+	(Journal): Add "muse-project-alist-considerations" subheading,
+	along with a mention of :base-url.
+
+2007-08-05  Michael Olson  <mwolson@gnu.org>
+
+	* .gitignore: Add texi/muse.html and the DVC log edit file.
+
+	* Makefile.defs.default (install_info): Rename from INSTALLINFO.
+	Turn this into something that can be called like a command, due to
+	needing to deal with XEmacs, which has different argument order.
+	Thanks to Terrence Brannon for the report.
+
+	* lisp/muse-project.el (muse-project-of-file): Simplify by using
+	catch, throw, and dolist.  Look for exact matches before
+	considering any subdirectories.  If no exact matches are found,
+	then pick the longest match.
+
+	* lisp/muse.el (muse-sort-by-rating): Mention default test in
+	documentation.
+
+	* scripts/muse-build.el: Avoid interference from VC.el in the
+	build process.
+
+	* texi/Makefile (install): Call install_info.
+
+2007-08-03  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-applicable-styles): Remove
+	useless argument ignore-regexp.  Use saner logic.  This fixes a
+	bug where a file could potentially not exist but still appear in
+	the used-styles list.  Thanks to John Wiegley for the fix.
+	(muse-project-publish-file): Don't take ignore-reegxp argument.
+
+2007-08-02  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-batch-publish-files): Don't activate
+	VC when publishing files in batch.  This avoids some annoying
+	messages when building QuickStart in the examples directory.
+
+	* lisp/muse-mode.el (muse-mode): Don't try to indent line before
+	inserting a comment.
+
+2007-07-31  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/Makefile: Add dependencies between Emacs Lisp files, so
+	that Muse can be recompiled without running "make clean" after an
+	update.
+
+	* lisp/muse-publish.el (muse-publish-verse-tag): Unconditionally
+	delete forward one character, since we are guaranteed to be on a
+	blank line.  Don't delete all initial whitespace of the first
+	line.  This fixes an issue where the output from the verse tag did
+	not match the output from Muse's verse syntax.
+
+2007-07-29  Michael Olson  <mwolson@gnu.org>
+
+	* Relicense to GPLv3.
+
+	* Makefile.defs.default: Rename from Makefile.defs.  This allows
+	people to copy this file to Makefile.defs and make changes,
+	without having the changes be accidentally committed.  If
+	Makefile.defs does not exist, this file is read instead, in order
+	to minimize inconvenience to the casual user.
+
+	* Makefile, contrib/Makefile, examples/Makefile,
+	experimental/Makefile, lisp/Makefile, texi/Makefile: Use either
+	Makefile.defs.default or Makefile.defs.
+
+	* lisp/muse-mode.el (muse-list-edit-minor-mode-map): Use new
+	function names.
+	(muse-l-e-m-m-insert-list-item): Add real documentation.
+	(muse-l-e-m-m-increase-list-item-indent)
+	(muse-l-e-m-m-decrease-list-item-indent): Rename for clarity.  Add
+	real documentation.
+	(muse-list-edit-minor-mode): Improve documentation.
+
+	* texi/doclicense.texi (GNU Free Documentation License): Use
+	pristine copy from Emacs source tree.
+
+	* texi/muse.texi (Contributors): Move node and appendix indicators
+	here, rather than doclicense.texi.
+
+2007-07-29  Jean Magnan de Bornier  <jean@bornier.net>
+
+	* lisp/muse-latex.el (muse-latex-markup-strings): Change rule
+	command which did not work correctly
+
+	* lisp/muse-context.el (muse-context-markup-strings): Change rule
+	command which did not work correctly; defined verse commands
+	(muse-context-markup-specials-literal): Eliminate all unuseful entries
+
+2007-07-29  Michael Olson  <mwolson@gnu.org>
+
+	* contrib/httpd.el (httpd-send-file): Use
+	insert-file-contents-literally instead of insert-file-contents.
+
+	* examples/mwolson/muse-init.el (my-muse-prepare-entry-for-xanga):
+	Use insert-file-contents-literally instead of
+	insert-file-contents.
+
+	* experimental/muse-split.el (muse-publish-file)
+	(muse-publish-presplit-publish, muse-publish-no-split-function)
+	(muse-journal-split-by-entry, muse-journal-split-by-month): Use
+	insert-file-contents-literally instead of insert-file-contents.
+
+	* lisp/muse-book.el (muse-book-publish-chapter)
+	(muse-book-get-directives): Use insert-file-contents-literally
+	instead of insert-file-contents.
+
+	* lisp/muse-http.el (muse-http-render-page): Use
+	insert-file-contents-literally instead of insert-file-contents.
+
+	* lisp/muse-import-latex.el (muse-import-latex): Set marker to
+	nowhere when done, since they can slow things down.
+
+	* lisp/muse-journal.el (muse-journal-html-munge-buffer): Set
+	marker to nowhere when done, since they can slow things down.
+
+	* lisp/muse-poem.el (muse-poem-markup-tag): Set marker to nowhere
+	when done, since they can slow things down.  Use
+	insert-file-contents-literally instead of insert-file-contents.
+
+	* lisp/muse-publish.el (muse-publish-markup-tag)
+	(muse-publish-markup-word, muse-publish-markup-footnote)
+	(muse-publish-call-tag-on-buffer): Set markers to nowhere when
+	done, since they can slow things down.
+	(muse-insert-file-or-string, muse-publish-file)
+	(muse-publish-include-tag, muse-published-contents): Use
+	insert-file-contents-literally instead of insert-file-contents.
+	(muse-publish-surround-dl): Remove unused variable.  Track whether
+	a term has been found, and handle that case well.
+	(muse-publish-ensure-blank-line): Use a marker, so that we don't
+	lose our place when adding a newline.  This really fixes the
+	definition list item bug.
+	(muse-publish-markup-list): Since people do seem to want
+	definition lists with no terms, allow this.
+	(muse-batch-publish-files): Set muse-current-output-style.
+
+	* lisp/muse.el (muse-with-temp-buffer): Mention
+	`insert-file-contents-literally'.
+
+2007-07-28  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-mode.el (muse-browse-result): Set
+	muse-current-output-style.
+	(muse-mode): Don't duplicate the paragraph-start regexp
+	unnecessarily.
+	(muse-list-edit-minor-mode-map): New variable containing the
+	keymap for Muse list edit minor mode.
+	(muse-l-e-m-m-list-item-regexp): New variable that matches list
+	items for Muse list edit minor mode.
+	(muse-l-e-m-m-insert-list-item,
+	muse-l-e-m-m-i-list-item-indentation)
+	(muse-l-e-m-m-d-list-item-indentation): Variants of existing list
+	item functions that change the list item regexp before calling the
+	existing function.
+	(muse-l-e-m-m-data): New variable that keeps track of the fill
+	data that we overwrite when activating Muse list edit minor mode,
+	so that we can restore it if the minor mode is toggled off.
+	(muse-list-edit-minor-mode): New minor mode that is useful for
+	editing lists in other major modes.
+	(turn-on-muse-list-edit-minor-mode)
+	(turn-off-muse-list-edit-minor-mode): New interactive functions
+	that turn Muse list edit minor mode on and off, respectively.
+	(muse-on-blank-line, muse-get-paragraph-start): Simplify some
+	regexps.
+
+	* lisp/muse-project.el (muse-project-publish-this-file): Set
+	muse-current-output-style.  This fixes a bug when publishing to a
+	style that is not first in the list of styles.  Thanks to Jean
+	Magnan de Bornier for the report.
+
+	* lisp/muse-publish.el (muse-publish-ensure-blank-line): New
+	function that ensures that a blank line exists in the line before
+	point.
+	(muse-publish-markup-list): Use it, rather than
+	`muse-publish-ensure-block'.  This fixes a bug with definition
+	list publishing.  Thanks to meandtheshell for reporting this.
+
+	* lisp/muse-wiki.el (muse-wiki-resolve-project-page): If the
+	project argument is nil, default to the current project instead of
+	the first project entry in muse-project-alist.  This seems much
+	more sane to me.
+
+	* lisp/muse.el (muse-forward-list-item): Only check the 'face
+	property if we are in Muse mode or one of its derivatives.  This
+	allows movement on nested lists to work in other modes, and fixes
+	an issue with altering list indentation in
+	muse-list-edit-minor-mode.
+
+2007-07-27  Michael Olson  <mwolson@gnu.org>
+
+	* AUTHORS: Add new authors.
+
+	* README: Permit Muse to be called "Emacs-Muse".
+
+	* etc/IDEAS.muse: Remove now-implemented ideas and duplicate idea.
+
+	* lisp/muse-publish.el (muse-publish-surround-text): Fix bug
+	involving list items that have an extra blank line in front.
+
+	* texi/muse.texi (Introduction): Mention that Emacs Muse, Muse,
+	and Emacs-Muse are the same thing.
+
+2007-07-27  Jean Magnan de Bornier  <jean@bornier.net>
+
+	* lisp/muse-context.el (muse-context-header): Put
+	starttext after the modules who must be in preamble.
+	(muse-context-markup-strings): Fixed mistake in begin-example and
+	end-example.
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): Replaced the
+	math environment in ConTeXt when centered: "$$ $$" has to be
+	"\startformula \stopformula".
+
+2007-07-26  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-xml-common.el (muse-xml-escape-url): Do not escape
+	parentheses in URLs.
+
+2007-07-24  Michael Olson  <mwolson@gnu.org>
+
+	* examples/QuickStart.muse (Images): Fix typo where some text
+	existed in the output but not in the example region.
+	(Source Code): Fix another typo.  Explain that publishing from
+	console or X can make a difference.
+
+	* lisp/muse-context.el (muse-context-pdf-program): New option that
+	determines the program to use for generating PDF files for
+	ConTeXt.
+	(muse-context-pdf-cruft): New option that specifies the extensions
+	of files to remove after generating PDF output successfully.
+	(muse-context-slides-header): Docfix.
+	(muse-context-pdf-generate): Use new options.
+
+	* lisp/muse-publish.el (muse-publish-lisp-tag): Add missing
+	save-restriction call.  This was causing a world of hurt when
+	using <lisp> inside of <include>.
+
+	* texi/muse.texi (ConTeXt): New section that documents how to use
+	the ConTeXt publishing styles.
+
+2007-07-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-context.el: New file that provides support for
+	publishing documents to the ConTeXt format.  Thanks to Jean Magnan
+	de Bornier for his work on this.
+
+	* lisp/muse-docbook.el (muse-docbook-entities)
+	(muse-docbook-bibliography): Remove unneeded save-restriction use.
+
+	* lisp/muse-latex2png.el (muse-publish-latex-tag):
+	s/contex/context/.
+
+	* lisp/muse-latex.el (muse-latex-fixup-citations): Add docstring.
+	(muse-latex-bibliography): Remove call to `widen', since it is not
+	needed anymore.  Remove unneeded save-restriction use.
+	("slides", "slides-pdf"): Indent elements uniformly.
+
+2007-07-22  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-blosxom.el (muse-blosxom-new-entry):
+	* lisp/muse-mode.el (muse-insert-tag):
+	* lisp/muse-project.el (muse-read-project)
+	(muse-read-project-file):
+	* lisp/muse-publish.el (muse-publish-get-style): Use
+	muse-completing-read-function.
+
+	* lisp/muse-latex2png.el (muse-publish-latex-tag)
+	(muse-publish-math-tag): Allow the context style -- which I plan
+	to include soon -- to work with these tags.
+
+	* lisp/muse.el (muse-completing-read-function): New option that
+	determines which function to call when doing a completing-read.
+
+2007-07-15  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-journal.el (muse-journal-html-entry-template)
+	(muse-journal-rdf-entry-template)
+	(muse-journal-rss-entry-template): Mention that this can be text
+	or a filename.
+	(muse-journal-rdf-entry-template, muse-journal-rss-header)
+	(muse-journal-rss-footer, muse-journal-rss-entry-template): Add
+	newlines to make the output look nicer.
+	(muse-journal-html-munge-buffer, muse-journal-rss-munge-buffer):
+	Use muse-insert-file-or-string for the entry templates, rather
+	than muse-insert-markup.  This allows <lisp> and <markup> tags to
+	be acted on.  Thanks to Scott Hyde for the report.
+	(muse-journal-html-munge-buffer): Escape quote of the day using
+	entire-document specials before snarfing it.  Mark entire template
+	as read-only -- this fixes an incorrect escaping bug.  Remove
+	read-only properties before replacing template matches so that
+	they can still be escaped with entire-document specials later on.
+	(muse-journal-rss-munge-buffer): Make sure that title is escaped
+	properly.
+	(muse-journal-markup-tags): Rename from
+	muse-journal-latex-markup-tags, because we will use it for
+	journal-rss-entry as well.
+	(muse-journal-qotd-tag): Move higher.  Use begin-quote-item and
+	end-quote-item.
+	(muse-journal-rss-munge-buffer): Use journal-rss-entry rather than
+	html.
+	("journal-latex", "journal-pdf", "journal-book-latex")
+	("journal-book-pdf"): Use muse-journal-markup-tags rather than
+	muse-journal-latex-markup-tags.
+	("journal-rss-entry"): New style that is used by journal-rss and
+	journal-rdf to mark up individual entries.  It is needed so that
+	we can do something meaningful with the qotd tag.
+	(muse-journal-rdf-summarize-entries): Set this to nil by default,
+	because it is annoying.  Update docs to mention this.
+	(muse-journal-rss-summarize-entries): Docfix.
+
+	* lisp/muse-publish.el (muse-insert-file-or-string): Use
+	muse-publish-markup-header-footer-tags.  I'm not quite sure how
+	this change got reverted.
+	(muse-markup-tag-info): Make into a function.  Move common code
+	here, rather than duplicating it in two places.  Deal with case
+	where muse-publish-use-header-footer-tags is non-nil.
+	(muse-publish-markup-specials, muse-publish-inhibit-style-hooks)
+	(muse-inhibit-style-tags): Move higher to avoid byte-compiler
+	warning.
+	(muse-publish-use-header-footer-tags): New variable that indicates
+	whether we should use just the header and footer tags, rather than
+	the full set.
+	(muse-insert-file-or-string): Bind
+	muse-publish-use-header-footer-tags to t.
+	(muse-publish-markup-tag, muse-publish-call-tag-on-buffer):
+	Simplify call to muse-markup-tag-info.
+	(muse-publish-mark-up-tag): Bind
+	muse-publish-use-header-footer-tags to nil.
+
+	* texi/muse.texi (Journal): Update for recent changes.
+
+2007-07-14  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-journal.el (muse-journal-rss-munge-buffer): Don't
+	delete the remainder of the buffer, since this causes the
+	resulting RDF to have invalid syntax.  Thanks to Phillip Lord for
+	the report and the suggested fix.
+
+	* lisp/muse-publish.el (muse-publish-markup-regexps): Add "^" to
+	beginning of table-el regexp.  This fixes a bug where Muse stalls
+	when trying to publish a malformed table.  Thanks to Ye Wenbin for
+	the report and the suggested fix.
+
+2007-07-12  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-wiki.el (muse-wiki-interwiki-regexp): Set to nil by
+	default, rather than the empty string.  This really fixes the bug
+	that occurred when using Muse with muse-project-alist set to nil.
+	Thanks to Jonathan Underwood for the report.
+	(muse-wiki-update-interwiki-regexp): Set
+	muse-wiki-interwiki-regexp to nil if muse-project-alist is not
+	defined.
+	(muse-wiki-handle-implicit-interwiki)
+	(muse-wiki-handle-explicit-interwiki): Handle case where
+	muse-wiki-interwiki-regexp is nil.
+
+2007-07-10  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-mode.el (muse-grep): Abort search if the current
+	project contains no directories.
+
+	* lisp/muse-project.el (muse-project-file-alist): If
+	muse-project-alist is not defined, or project is nil, return nil
+	right away.  This ought to fix a bug that occurred when using Muse
+	with muse-project-alist set to nil.
+	(muse-project-of-file): Make sure muse-project-alist is not nil.
+	(muse-project-save-buffers): Make sure project is not nil.
+
+	* lisp/muse-wiki.el (muse-wiki-resolve-project-page): Deal with
+	case where muse-project-alist is nil.
+
+	* lisp/muse.el (muse-replace-regexp-in-string): Explicitly check
+	for XEmacs, since color-theme.el is poorly behaved, and defines
+	its own replace-in-string.  Bad color-theme.el -- no cookie for
+	you.
+
+2007-07-01  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (.PHONY): Update for new debian package rules.
+
+	* lisp/muse-book.el (muse-book-latex-footer): Wrap long line.
+
+	* lisp/muse-docbook.el (muse-docbook-fixup-citations): Re-indent.
+	Use save-restriction properly.
+	(muse-docbook-entities, muse-docbook-bibliography): : Re-indent.
+
+	* lisp/muse-latex.el (muse-latex-footer): Wrap long line.
+	(muse-latex-fixup-citations): Re-indent.  Use save-restriction
+	properly.
+	(muse-latex-bibliography): Re-indent.
+
+	* lisp/muse-publish.el (muse-publish-get-and-delete-attr): Move
+	higher.  This fixes an error at startup with some versions of
+	Emacs.
+	(muse-publish-cite-tag): Re-indent.
+
+	* lisp/muse-wiki.el (muse-wiki-handle-explicit-interwiki): Narrow
+	to the end of the link part, so as to exclude the description from
+	the match.  This fixes a bug with three-part links that have
+	descriptions.  Thanks to everyone who pointed it out.
+
+2007-06-18  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-markup-strings): Add anchor.
+	(muse-xhtml1.1-markup-strings): New option that specifies XHTML
+	1.1 specific markup strings.
+	(muse-html-insert-anchor): Use 'anchor string, rather than
+	hard-coding it.  Thanks to Chris Corsair for the suggestion.
+	("xhtml1.0"): New style that is an alias for the xhtml style.
+	("xhtml1.1"): New style that publishes XHTML 1.1 compliant output.
+
+2007-06-17  Michael Olson  <mwolson@gnu.org>
+
+	* examples/QuickStart.muse: Make images local so that the Info
+	version of this document works.  Add <example> for the Literal
+	paragraphs chapter, so that it is clear what is happening.
+
+	* Makefile: Add elpa target, which is used for building an ELPA
+	package for Muse.
+
+	* Makefile.defs (ELPADIR, ELPADESC): New variables used for
+	building ELPA packages.
+
+	* examples/Makefile (%.html, %.pdf, %.info): Add message to
+	indicate what we are publishing.
+	(realclean distclean fullclean): Remove all TeX crud.
+
+	* examples/emacs-muse.png, examples/muse-made-with.png: Include so
+	that the Info version of QuickStart can publish correctly.
+
+	* lisp/muse-latex.el (muse-latex-slides-header)
+	(muse-latex-lecture-notes-header): Docfix.
+
+	* lisp/muse-project.el (muse-project-ignore-regexp): Add .git to
+	the list of things to ignore.
+
+	* lisp/muse-publish.el (muse-publish-markup-list): Remove unused
+	variable.
+
+	* lisp/muse-texinfo.el (muse-texinfo-process-natively): Set
+	default to nil, since texinfmt.el is a serious nuisance.
+	(muse-texinfo-markup-strings): Add newlines to begin-example and
+	end-example.
+	(muse-texinfo-decide-specials): Also escape URL-type specials in a
+	whole slew of other contexts.
+
+	* lisp/muse-xml-common.el (muse-xml-encoding-map): Change group to
+	muse-xml.
+
+	* lisp/muse-xml.el (muse-xml-footer): Docfix.
+
+	* lisp/muse.el (muse-version): Release Emacs Muse version 3.03.
+
+2007-06-16  Michael Olson  <mwolson@gnu.org>
+
+	* etc/IDEAS.muse: Add some ideas from David D. Smith.
+
+	* examples/QuickStart.muse: Overhaul.
+
+	* lisp/muse-project.el (muse-project): Call the last part of a
+	muse-project-alist entry "Output styles" rather than "styles".
+
+	* lisp/muse-publish.el (muse-publish-table-fields): Handle case
+	where we have a pipe character at the beginning of line.
+
+	* lisp/muse-xml-common.el (muse-xml-sort-table): Fix typo that was
+	causing tables to not be sorted at all.
+
+	* texi/muse.texi: Overhaul.  It would be too time-consuming to
+	list all of the changes here.  The "Getting Started" and
+	"Projects" chapters, in particular, were heavily revised.
+
+2007-06-15  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update.
+
+	* examples/QuickStart.muse: Mention new features.
+
+	* lisp/muse-colors.el (muse-colors-toggle-inline-images): Docfix.
+	Remove C-c C-i keybinding, since it conflicts with C-c TAB in the
+	terminal, and C-c TAB is more important.  Most people will not
+	want to toggle images on and off that often.
+
+	* lisp/muse-mode.el (muse-mode-map): Bind muse-insert-thing to C-c
+	C-i as well, so that it works in the terminal.
+
+	* lisp/muse-publish.el (muse-publish-literal-tag): Make the output
+	look a bit tidier when removing the region.
+
+	* lisp/muse-regexps.el (muse-list-item-regexp): Put definition
+	list regexp part before other parts.
+	(muse-ol-item-regexp): New regexp that specifies how to match an
+	ordered list item.
+	(muse-ul-item-regexp): New regexp that specifies how to match an
+	unordered list item.
+	(muse-table-field-regexp): New regexp that specifies how to match
+	a definition list entry.
+
+	* lisp/muse-texinfo.el (muse-texinfo-info-generate): Work around
+	lack of support for @headitem in texinfmt.el.
+
+	* lisp/muse.el: Wrap muse-line-beginning-position and
+	muse-line-end-position in `eval-and-compile', since they are now
+	used in muse.el.
+	(muse-list-item-type): Use a simpler algorithm for detecting which
+	kind of list item we have.  This fixes a bug where a number in a
+	definition list term was being detected incorrectly as an ordered
+	list item.  Fixes bug #6250.
+	(muse-forward-list-item): Get the entire line with the list item.
+	For some reason, Emacs 21 was not populating match 2 correctly,
+	unlike Emacs 22, so this workaround was needed.
+
+	* texi/muse.texi: (Keystroke Summary): Remove C-c
+	C-i (`muse-insert-tag') documentation, and mention C-c C-i as an
+	alternative keybinding to the C-c TAB stuff.  Mention
+	muse-colors-toggle-inline-images.
+
+2007-06-14  Michael Olson  <mwolson@gnu.org>
+
+	* README: Mention that RelaxNG schema is in etc/ directory.
+
+	* etc/emacs-wiki-migration.txt: New document that explains how to
+	migrate from emacs-wiki to Muse.
+
+	* etc/muse.rnc: Increment version number to 1.0.  Fix several
+	nested emphasis and nested lists edge cases.  Move here from
+	examples/.
+
+	* lisp/muse-mode.el (muse-mode-map): Permit C-c C-M-t to do the
+	same thing as C-c C-S-t, since the former works better in the
+	console.  Thanks to Leo for the suggestion.
+
+	* lisp/muse-publish.el (muse-publish-markup-table)
+	(muse-publish-markup-table-el): Include a newline in the return
+	string, so that paragraph detection does not get confused.
+
+	* lisp/muse.el (muse-with-temp-buffer): Docfix.
+
+	* texi/muse.texi (Keystroke Summary): Document the C-c C-M-t
+	keybinding.
+
+2007-06-13  Michael Olson  <mwolson@gnu.org>
+
+	* etc/IDEAS.muse: Mark three-part-links item as done.
+
+	* experimental/muse-message.el: Remove guard for muse-define-style
+	calls.
+
+	* lisp/muse-colors.el (muse-configure-highlighting): Fix bug where
+	markup rules were being interpreted in reverse order.  This should
+	make implicit interwiki links work properly again.
+	(muse-link-face): Strip anchor from end of a path, so that this
+	works with anchors in interwiki links.
+	(muse-colors-insert-image): Catch error that occurs in Emacs 21
+	when an image does not exist.
+
+	* lisp/muse-wiki.el (muse-wiki-update-interwiki-regexp): Permit
+	anchors.
+	(muse-wiki-handle-implicit-interwiki): Docfix.  Make anchors in
+	interwiki links work.  Thanks to Jim Ottaway for the initial
+	implementation.
+	(muse-wiki-handle-explicit-interwiki): Make anchors in interwiki
+	links work.
+
+	* lisp/muse.el (muse-handle-implicit-link): Docfix: only care
+	about match 0.
+	(muse-handle-explicit-link): Docfix: this does not modify the
+	match data.
+	(muse-file-remote-p): In Emacs 21, ange-ftp-name-format is a list
+	that has the regexp in its car.
+
+2007-06-12  Michael Olson  <mwolson@gnu.org>
+
+	* README: Document new etc/ directory.
+
+	* etc/IDEAS.muse: Install things from new contributors just after
+	the 3.03 release, since I won't have time to review the code
+	before the release.  Move to new etc/ directory.  Slides
+	publishing has been installed.
+
+	* lisp/muse-latex.el (muse-latex-slides-header): New option that
+	determines the header to use for publishing slides.
+	(muse-latex-lecture-notes-header): New option that determines the
+	header to use for publishing lecture notes.
+	(muse-latex-slides-markup-tags): New option containing tags to use
+	when publishing slides.
+	(muse-latex-permit-contents-tag): Move higher in file.
+	(muse-latex-slide-tag): New function to publish the <slide> tag.
+	("slides", "slides-pdf"): New publishing styles that create slides
+	using Beamer.
+	("lecture-notes", "lecture-notes-pdf"): New publishing styles that
+	create lecture notes using Beamer.
+
+	* lisp/muse.el: Re-add the auto-mode-alist part to top-level,
+	since otherwise Planner is not happy when `plan' is called during
+	init.  Remove stray quote from autoload snippet.
+
+2007-06-11  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el: Make the add-to-list 'auto-mode-alist part an
+	autoload, rather than having it exist at top-level.  Thanks to Leo
+	for the suggestion.
+	(muse-update-file-extension): Docfix.
+
+2007-06-10  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-strip-URL): Fix bug where
+	URLs were being removed during publishing.  Thanks to everyone who
+	reported this.
+
+2007-06-09  Markus Hoenicka  <markus.hoenicka@mhoenicka.de>
+
+	* lisp/muse-book.el
+	* lisp/muse-docbook.el
+	* lisp/muse-latex.el
+	* lisp/muse-publish.el: added support for <cite> element which
+	denotes in-text citations
+
+	* lisp/muse-html.el
+	* lisp/muse-groff.el
+	* lisp/muse-texinfo.el
+	* lisp/muse-xml.el: added support for <cite> element (stub)
+
+2007-06-06  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-regexps.el (muse-table-line-regexp)
+	(muse-table-hline-regexp, muse-table-el-border-regexp): Fix
+	regexps so that they work with XEmacs 21.  Thanks to Adrian
+	Tritschler for the report.
+
+	* texi/muse.texi: Update copyright years.
+	(HTML): Document muse-xhtml-style-sheet.  Thanks
+	to thorne for noticing.
+	(Development): Change archive year to 2006.  Thanks to Adrian
+	Tritschler for noticing.  So *that's* why some people had the 2005
+	version ....
+
+2007-06-05  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (install-info): Remove $(MANUAL).info part, since this
+	is taken care of already by texi/Makefile.  Thanks to Leo for the
+	report.
+
+	* lisp/muse-journal.el (muse-journal-html-munge-buffer): Add
+	read-only properties to qotd contents, so that they don't get
+	double-escaped.  Thanks to Leo for the report.
+
+2007-06-04  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-link-face): If the link is to a remote
+	-- that is, Tramp or ange-ftp -- file, then do not call
+	file-exists-p on it.  Thanks to Jim Ottaway for the suggestion.
+	Fixes bug #5115.
+
+	* lisp/muse-html.el (muse-html-insert-contents): Add
+	documentation.  Handle case where heading is read-only, but has
+	muse-contents property.  Remove the muse-contents property for any
+	heading we come across so as to avoid double-including an item in
+	an outer table of contents.
+	(muse-html-denote-headings): New function that denotes whether a
+	heading is not read-only by adding the muse-contents property to
+	it.
+	(muse-html-munge-buffer): If we are not to generate contents,
+	still denote headings, in case some outer layer wants to generate
+	contents for our headings.  This should fix a bug with table of
+	contents and the <include> tag.  Thanks to thorne for the report.
+
+	* lisp/muse-publish.el (muse-publish-markup-region): Let-bind
+	muse-publish-generate-contents and set it to nil.  This should
+	do the right thing when using <include> tags.
+
+2007-06-02  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update for non-inlined image change and support for
+	table.el style tables.
+
+	* examples/Makefile (clean): Clean backup files.
+
+	* examples/QuickStart.muse (Images): New section that describes
+	how to inline and not inline images.
+
+	* lisp/muse-colors.el (muse-colors-resolve-image-file): Don't
+	touch images that have "URL:" in front of them.
+
+	* lisp/muse-protocols.el (muse-url-protocols): Add handler for
+	"URL:".  Use the identity function to resolve, since we don't want
+	to rip "URL:" out while publishing, due to some magic that depends
+	on that text.
+	(muse-browse-url-url): New function that browses URLs that have
+	"URL:" in front of them, by removing the "URL:" part and
+	reprocessing the remainder.
+
+	* lisp/muse-publish.el (muse-publish-classify-url): Docfix.
+	(muse-publish-url): Recognize images in the description before
+	images in the link.  Fixes bug #5112.  Thanks to Thomas Kappler
+	for the suggested workaround.
+	(muse-publish-desc-transforms): Add `muse-publish-strip-URL' as a
+	default value.
+	(muse-publish-classify-url): If target begins with "URL:" return
+	type url.
+	(muse-publish-strip-URL): New function that strips "URL:" from the
+	beginning of a string.  This is used to remove URL: from the link
+	description.  * texi/muse.texi (Markup Strings): Clarify the
+	meanings of image-link, link, and link-and-anchor.
+	(muse-publish-markup-regexps): Move normal table rule to 2350.
+	Rule 2300 is now a regexp that matches table.el-style tables.
+	(muse-publish-markup-functions): Add table-el entry.
+	(muse-publish-table-el-table): New function that given a variant,
+	publishes a table.el-style table using the table in the matched
+	region.
+	(muse-publish-markup-table-el): New function that determines
+	whether the table.el-style table can be published, and what
+	variant to use.
+
+	* lisp/muse-regexps.el (muse-tag-regexp): New regexp that matches
+	the borders of table.el-style tables.
+
+	* lisp/muse-xml-common.el (muse-xml-markup-table): Make sure that
+	the table has sufficient whitespace in front of it.
+
+	* texi/muse.texi (Images): Update for new non-inlined image
+	ability and provide example.
+
+2007-05-31  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Add example for setting `muse-html-table-attributes'.
+
+	* lisp/muse-xml-common.el (muse-xml-markup-table): Add docstring.
+	Publish multiple tbody tags if there is a horizontal separator
+	after the heading, because that is valid HTML after all.
+
+2007-05-30  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update.
+
+	* lisp/muse-latex.el (muse-latex-markup-table): Deal with
+	horizontal separators in tables.
+
+	* lisp/muse-publish.el (muse-publish-markup-regexps): Recognize
+	horizontal separators in tables.
+	(muse-publish-trim-table): New function to remove initial and
+	final blank columns from a table.
+	(muse-publish-table-fields): Call `muse-publish-trim-table'.  Deal
+	with horizontal separators, aka "hlines".
+
+	* lisp/muse-regexps.el (muse-table-hline-regexp): New regexp that
+	defines the syntax of a horizontal separator in a table.
+
+	* lisp/muse-texinfo.el (muse-texinfo-markup-table): Deal with
+	horizontal separators.  Publish header lines correctly.
+
+	* lisp/muse-xml-common.el (muse-xml-sort-table): Deal with case
+	where we have nonnumbers as a row type.  This ignores sorting for
+	hlines.
+	(muse-xml-markup-table): Deal with horizontal separators.  If the
+	markup supports table groups, make hlines separate table groups.
+	Otherwise, ignore them, since they cannot be marked up.  Together,
+	these changes allow us to support orgtbl-mode tables.  Thanks to
+	Carsten Dominik for the suggestion.
+
+2007-05-26  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-alist-styles): Allow for
+	other things to be added to each generated style as well.  For
+	example, this permits me to add
+	:base-url "http://blog.mwolson.org/"
+	for my blog.
+
+2007-05-25  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (debclean, debprepare, debbuild, debinstall, deb): New
+	way of building Debian packages that preserves the original
+	release tarball and is more modular.
+	(debrevision, debrelease): Remove.
+	(dist): No need to remove the debian/ directory, since it is now
+	in its own branch.
+	(debprepare): Copy over debian/ directory properly.
+
+	* NEWS: Update.
+
+	* examples/Makefile (clean): Remove QuickStart.texi, in case
+	something went wrong during the build.
+	(%.pdf): Publish the example using the normal pdf style, rather
+	than info-pdf.
+
+	* examples/QuickStart.muse: Add myself to the authors list.
+
+	* lisp/muse-html.el (muse-html-src-tag): Ensure that we have
+	sufficient blank lines before the tag.
+
+	* lisp/muse-journal.el (muse-journal-latex-qotd-tag): Ensure that
+	we have sufficient blank lines before the tag.
+
+	* lisp/muse-latex.el (muse-latex-pdf-program): New option that
+	specifies the program to call in order to generate PDF content
+	from LaTeX content.
+	(muse-latex-pdf-cruft): New option that specifies the extensions
+	of files to remove after generating PDF output successfully.
+	(muse-latex-pdf-generate): Use these new options.  Work around the
+	annoying edge case where a tilde character exists in the filename
+	or directory path -- now this can only error out when the relative
+	path from the output file to the source file contains a tilde,
+	which is far less likely.
+
+	* lisp/muse-publish.el (muse-publish-markup-attribute): Don't use
+	muse-publish-ensure-block here after all, because <lisp> et al may
+	occur inline as part of other things.
+
+	* lisp/muse-texinfo.el ("texi"): Make muse-texinfo-munge-buffer
+	occur after full-document escaping, rather than before.  This
+	prevents automatically-inserted Texinfo code from being escaped.
+	(muse-texinfo-pdf-generate): Rewrite to call
+	`muse-latex-pdf-generate' with pdftex as the generating binary,
+	because texi2pdf suffers irredeemably from the tilde edge case
+	mentioned above.
+
+2007-05-24  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Drop vague entries and position interesting entries closer
+	to the top of each section.  Update for new changes.
+
+	* lisp/muse-project.el (muse-project-ignore-regexp): Add Mercurial
+	and bzr metadata directories to the list of things to ignore.
+
+	* lisp/muse-publish.el (muse-publish-ensure-block): Rename from
+	`muse-publish-ensure-block-tag', since we will use it for more
+	than just tags.
+	(muse-publish-markup-list, muse-publish-verse-tag)
+	(muse-publish-quote-tag, muse-publish-example-tag)
+	(muse-publish-markup-attribute): Use it.  This fixes a bug that
+	can occur when these types of markup occur immediately after a
+	paragraph.  It's good to have defined behavior!
+
+	* texi/muse.texi (Markup Strings): Mention new argument for
+	link-and-anchor.
+
+2007-05-19  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-markup-footnote): Add class tags to
+	published footnotes and footnote references.  Thanks to Scott
+	Jaderholm for the idea.
+
+	* lisp/muse-latex.el (muse-latex-markup-strings): Revert change to
+	link-and-anchor, on the recommendation of the original submitter.
+
+2007-05-14  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-markup-strings): Use better
+	link-and-anchor markup.  Thanks to Jean Magnan de Bornier for the
+	suggestion.
+
+	* lisp/muse-publish.el (muse-publish-url): Pass the url without a
+	file extension as the fourth argument.
+
+	* README, texi/muse.texi (Getting Help and Reporting Bugs):
+	Mention the new muse-el-logs mailing list.
+
+2007-05-13  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-protocols.el (muse-resolve-url): Don't concatenate
+	"\`" here.  This fixes a problem with publishing custom URLs.
+
+2007-05-12  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-blosxom.el (muse-blosxom-update-page-date-alist): Only
+	update the list if the current buffer is associated with a file.
+	This fixes a bug with M-x muse-publish-region in a temporary
+	buffer.
+
+2007-05-01  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-region): Remove read-only
+	properties from the published buffer, so that the results can be
+	manually tweaked.
+
+2007-04-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-markup-footnote): If we can't
+	find the footnote that goes with a reference, leave the reference
+	as-is.  This fixes an error where control characters could be
+	placed in a published document.
+
+2007-04-22  Michael Olson  <mwolson@gnu.org>
+
+	* IDEAS.muse: Add muse-slides.el to list of things to include
+	before release.
+
+	* lisp/muse-protocols.el (muse-url-protocols): Remove stray quote
+	character.
+	(muse-protocol-find): Find protocols correctly.  Rewrite to use
+	catch/throw.
+	(muse-browse-url): Don't concatenate "\`" here.  Together, this
+	fixes a bug with browsing woman:// links.
+
+	* lisp/muse-project.el (muse-project-alist-styles): Deal with case
+	where entry-dir has a trailing backslash.
+	(muse-project-publish-file): If a style is malformed, skip it and
+	display a warning message.  This should help people figure out
+	where the problem is.
+
+2007-04-21  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): If using the
+	yet-to-be-included "contex" publishing style, use "$$" rather
+	than "\[" and "\]".  Thanks to Jean Magnan de Bornier for pointing
+	this out.
+
+2007-04-20  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-inhibit-style-hooks): New
+	variable that causes the :before and :before-end hooks to be
+	ignored when non-nil.
+	(muse-publish-markup-region): Use it.  Also, guarantee that point
+	is at end of region after publishing.
+	(muse-publish-mark-up-tag): Simplify, taking advantage of the new
+	variable.
+
+2007-04-19  Michael Olson  <mwolson@gnu.org>
+
+	* IDEAS.muse: New file containing a list of ideas we have for new
+	features, or patches that have yet to be applied.
+
+	* README: Call it "Emacs Muse", not "the Emacs Muse".  No need to
+	be so confusing.
+
+	* lisp/muse-html.el (muse-html-table-attributes): Fix typo in
+	docstring.
+
+	* lisp/muse-publish.el (muse-publish-markup-tags): Handle
+	<literal> tags with muse-publish-literal-tag, rather than
+	muse-publish-mark-read-only.
+	(muse-publish-literal-tag): New function that publishes the
+	<literal> tag.  It adds the ability to add the optional "style"
+	and "exact" elements, which cause text to only be included if the
+	current publishing style matches some criteria.  The text will be
+	removed otherwise.  Thanks to Jim Ottaway for the implementation.
+	(muse-publish-mark-up-tag): Let the <markup> tag take the
+	additional optional elements "style" and "exact", with much the
+	same effect as the <literal> improvements, but after calling
+	"function" or publishing the region first.  Make it possible to
+	put <content> tags in <markup> regions in HTML publishing.
+
+2007-04-12  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-markup-heading): Make sure
+	that a blank line always exists after a heading.  This fixes a bug
+	in Docbook paragraph detection.  Thanks to Jean Magnan de Bornier
+	for the report.
+
+	* lisp/muse-xml.el (muse-xml-markup-regexps): Update paragraph
+	detection regexp to that which is used in Docbook and HTML
+	publishing styles.
+
+2007-04-02  Michael Olson  <mwolson@gnu.org>
+
+	* README (muse-el-announce): Make a listing of mailing lists,
+	rather than pointing to the old EmacsWikiMailingList page.  Thanks
+	to Andreas Roehler for noticing.
+
+2007-04-01  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-date-format): Add
+`	customization type and group.
+	(muse-publish-region): New interactive function that publishes a
+	region to a new buffer.
+
+	* texi/muse.texi: Use "document" rather than "manual".
+
+2007-03-31  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-style-derived-p): Fix bug where the
+	expression (muse-style-derived-p "latex" (muse-style "latex"))
+	yielded nil.  It now yields t, as expected.  Thanks to Jim Ottaway
+	for the catch.
+
+2007-02-25  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-date-format): New option that
+	specifies how to format the date when publishing Muse pages.
+	Thanks to Thomas Gehrlein for the suggestion.
+	(muse-publish-markup-buffer): Use it.
+
+2007-02-23  Michael Olson  <mwolson@gnu.org>
+
+	* README: Add Prerequisites section to mention which versions of
+	Emacs work with Muse.  Thanks to Exal de Jesus Garcia Carrillo for
+	the suggestion.  Update link destination for Muse's page on
+	emacswiki.org.
+
+2007-02-15  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-goto-tag-end): Modify regexp to allow tags to
+	be not just at beginning of line.  This fixes an error with the
+	<class> tag.  Thanks to Jim Pivarski for the report.
+
+2007-02-14  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-classify-url): Check to see
+	whether something is an image before checking to see if it is a
+	URL.  Thanks to ITSUMI ken-ichi for the report.
+
+2007-02-13  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-markup-regexps): Handle
+	comments that have no text better.  Thanks to fang.lungang for the
+	report.
+	(muse-publish-markup-comment): Deal with case where no comment
+	text is provided.
+
+2007-01-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-ensure-block-tag): New macro
+	that ensures that at least one blank line exists at the given
+	position.  This is used to avoid paragraph detection problems when
+	block-level tags like <example> immediately follow a paragraph.
+	Thanks to Hans Ekbrand for the report.
+	(muse-publish-example-tag): Use it.
+
+2007-01-19  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): Only remove the
+	previous blank line if we are publishing in Latex.  Otherwise,
+	that wouldn't be the right thing, so leave it be.
+
+2007-01-17  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el (muse-publish-math-tag): Don't put
+	multiple centered math lines on the same line; keep them on
+	different lines.  Use \[ math-text \] instead of $$math-text$$,
+	since the latter seems to be deprecated.  Thanks to Jody Klymak
+	for the pointer.
+
+2007-01-15  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el (muse-publish-latex-tag)
+	(muse-publish-math-tag): Publish region read-only when current
+	style is Latex-derived, so that Muse does not escape it.
+	(muse-publish-math-tag): If 6 or more spaces come before the tag,
+	surround the region with "$$" rather than "$".  This is the Muse
+	syntax for something centered, so it should be a good fit.
+
+2007-01-15  Valery V. Vorotyntsev  <valery.vv@gmail.com>
+
+	* lisp/muse-protocols.el (muse-url-protocols): Add "woman://"
+	protocol.
+	(muse-browse-url-man): Change man page URL format.  The code is
+	simpler when the section is left inside parentheses.
+	(muse-browse-url-woman): New function.
+
+2007-01-14  Michael Olson  <mwolson@gnu.org>
+
+	* AUTHORS: Bookkeeping.
+
+	* lisp/muse-latex2png.el: Associate <math> tag with
+	muse-publish-math-tag, not muse-publish-latex-tag.  Thanks to Jody
+	Klymak for the report.
+	(muse-publish-math-tag): Use muse-insert-markup for the "$"
+	characters, so they don't get escaped.
+
+	* lisp/muse-publish.el (muse-style-derived-p-1): New function to
+	make muse-style-derived-p easier to implement.
+	(muse-style-derived-p): If the style is not provided, fetch it and
+	check to see if the car is a string.  This should fix the other
+	problem that was reported.
+
+	* texi/muse.texi (Projects): Apply patch from Bradley M. Kuhn that
+	explains a case where setting muse-file-extension to nil can cause
+	unexpected behavior.
+
+2007-01-09  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-markup-regexps): Make
+	comments higher priority than tags.  Thanks to Stefan van der Walt
+	for the report.
+
+2007-01-08  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-markup-tag-info): Use the given
+	argument rather than calling match-string.  Thanks to Stefan van
+	der Walt for the report.  This should fix a bug with publishing
+	<include file="..." markup="example">.
+
+2007-01-06  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (debclean): New rule split from debrevision and
+	debrelease.
+	(debbuild): Take distributor into account.
+
+	* Makefile.defs (DISTRIBUTOR): New field that tracks what
+	vendor/distributor we are building for.
+
+2007-01-04  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-src-tag): Remove initial blank
+	line.
+
+	* lisp/muse-publish.el (muse-publish-markup-tags): Make "src"
+	point to muse-publish-src-tag by default, since <src> and
+	<example> have different parameters.
+	(muse-publish-src-tag): New barebones publishing function for
+	<src>, which is superseded when publishing in an HTML-based style.
+
+2007-01-03  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-src-tag): Document.
+
+	* lisp/muse-publish.el (muse-publish-call-tag-on-buffer): New
+	command that calls a given tag on the current buffer.  Attributes
+	may be passed.
+	(muse-publish-examplify-buffer, muse-publish-versify-buffer): Use
+	it.
+	(muse-publish-srcify-buffer): New function that allows
+	markup="src" in the <include> tag.
+	(muse-publish-get-and-delete-attr): New macro that gets an
+	attribute from a list and removes the first instance of that
+	attribute from said list.
+	(muse-publish-markup-attribute): Handle markup="src".
+	(muse-publish-command-tag, muse-publish-include-tag): Use
+	muse-publish-get-and-delete-attr.  This allows the remaining
+	attributes to be passed.
+
+	* texi/muse.texi (Tag Summary): Update for new <src> tag as well
+	as changes to <command> and <include>.
+
+2006-12-30  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update.
+
+	* experimental/muse-mathml.el (muse-publish-mathml-tag): Rename
+	from muse-publish-math-tag to avoid conflict with
+	muse-latex2png.el.
+
+2006-12-23  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex2png.el: Update header, since this has been
+	rewritten sufficiently to not need an assignment from the original
+	author.
+	(muse-latex2png-use-xhtml): Remove, since we now autodetect this.
+	(muse-latex2png): Use two underscores to separate prefix and hash.
+	(muse-latex2png-region): New function split from
+	muse-publish-latex-tag that can be used easily by other code.
+	Detect whether we are using an HTML-based publishing style, and
+	insert a simpler markup if we are not.  If we are using a
+	Latex-based publishing style, do not generate an image, and leave
+	the region alone.  Return the path of the generated image, in case
+	other functions want to use this programmatically.
+	(muse-publish-latex-tag): Set a default prefix based on the name
+	of the current file.
+	(muse-publish-math-tag): New tag that surrounds the region with
+	"$" characters, so that it becomes a Latex math region, and then
+	publishes it.
+
+	* lisp/muse-publish.el (muse-style-derived-p): New function that
+	returns non-nil if a given style, or the current style if omitted,
+	is equal to or derived from the given base style.  This is useful
+	in <lisp> tags, because it allows the user to specify markup that
+	is only to be inserted for one particular style.
+
+2006-12-22  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-markup-tags): Add <src> tag.
+	(muse-html-src-tag): New function which publishes the <src> tag.
+	Thanks to Clinton Ebadi and Charles Wang for the initial
+	implementations.
+
+	* lisp/muse-publish.el (muse-publish-markup-tags): Add <src> tag.
+
+2006-12-21  Michael Olson  <mwolson@gnu.org>
+
+	* examples/johnw/muse-johnw.el: Update for preferred
+	muse-derive-style usage.  Rename to muse-init.el.
+
+	* examples/mwolson/muse-init.el: Update.
+
+	* lisp/muse-book.el (muse-book-publish): New function split from
+	muse-book-publish-project.  This is used in the definitions for
+	the book-latex and book-pdf styles.
+	(muse-book-publish-p): New function split from muse-book-publish.
+	(muse-book-get-directives): New function that retrieves the
+	publishing directives from the given file.
+	(muse-book-publish): Use muse-book-get-directives to set the title
+	if no title was specified.
+
+	* lisp/muse-project.el (muse-project): Add :publish-project entry
+	to widget.
+	(muse-read-project, muse-project-find-file): Message fix.
+	(muse-project-publish-file-default): New function split from
+	muse-project-publish-file.
+	(muse-project-publish-file): Allow file-level publishing function
+	to be specified by the :publish element.  The default is
+	muse-project-publish-file-default.
+	(muse-project-publish-default): New function split from
+	muse-project-publish.
+	(muse-project-publish): Allow project-level publishing function to
+	be specified by :publish-project element.  The default is
+	muse-project-publish-default.
+
+	* lisp/muse-publish.el (muse-publish-file): Message fix.
+
+	* texi/muse.texi (Book): Mention new way to publish books and
+	provide an example, since the process may be non-obvious.
+
+2006-12-20  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-docbook.el (muse-docbook-munge-buffer): Split out
+	content-modifying code from the rest of
+	muse-docbook-finalize-buffer.
+
+	* lisp/muse-groff.el (muse-groff-munge-buffer): Rename from
+	muse-groff-finalize-buffer, since it adds content to the buffer.
+
+	* lisp/muse-html.el (muse-html-munge-buffer): Split out
+	content-modifying code from the rest of muse-html-finalize-buffer.
+	This fixes a bug when using <include> with <content> tags.
+
+	* lisp/muse-journal.el (muse-journal-html-munge-buffer)
+	(muse-journal-latex-munge-buffer)
+	(muse-journal-rss-munge-buffer): Rename, since they add content to
+	the buffer.
+
+	* lisp/muse-latex.el (muse-latex-munge-buffer): Rename from
+	muse-latex-finalize-buffer, since it adds content to the buffer.
+
+	* lisp/muse-mode.el:
+	* lisp/muse-project.el:
+	* lisp/muse-publish.el:
+	* lisp/muse.el: Fix recursive load error.
+
+	* lisp/muse-texinfo.el (muse-texinfo-munge-buffer): Rename from
+	muse-texinfo-finalize-buffer, since it adds content to the buffer.
+
+	* lisp/muse-wiki.el: Comment cleanup.
+
+	* lisp/muse-xml.el (muse-xml-charset-default): Docfix.
+
+2006-12-17  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-header, muse-latexcjk-header):
+	Remove the definition of \comment, since Latex already has comment
+	syntax.
+	(muse-latex-markup-strings): Use the Latex comment syntax, rather
+	than our own.  Thanks to Ryan Stutsman for pointing this out.
+
+2006-12-02  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-insert-contents): Tweak regexp so
+	that this can generate a proper table of contents for Planner HTML
+	publishing.
+
+2006-12-01  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-replace-regexp-in-string): In case someone is
+	using a very old Emacs, avoid an infinite loop that could occur
+	when the regexp is an empty string.
+
+2006-11-26  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Bring up to date.
+
+	* lisp/muse-docbook.el (muse-docbook-markup-paragraph): Fix nested
+	list issues and multiple-stanza verse issues.  This takes care of
+	all of the markup issues I was worried about.
+
+	* lisp/muse-project.el (muse-project-ignore-regexp): Minor docfix.
+	(muse-project-publish-private-files): New option that indicates
+	whether files with private filesystem permissions should be
+	published.  The default is to publish them, since it avoids
+	confusion in new users.
+	(muse-project-private-p): Use it.
+
+2006-11-19  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-resolve-link): If no remote
+	style is found, which means that the link is not a Muse page, do
+	not add a suffix or prefix to it.  This should fix the
+	"[[thing.owl]]" bug that Phillip Lord reported.
+
+	* lisp/muse-publish.el (muse-publish-link-file): Simplify by
+	removing unused 2nd argument.
+
+2006-11-17  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-surround-text): Fix bug in
+	latex publishing where nested enumerated lists would be squashed
+	together at the end.
+
+2006-11-16  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-latex.el (muse-latex-markup-strings): Make an ordered
+	list embedded in a definition list look right.  This also allows
+	for definitions to be separated from their terms, much like the
+	way HTML does it by default, if the user puts a blank line or a
+	line break between the term and the definition.  If the term and
+	definition are on the same line, they will be that way in the
+	output as well.
+
+2006-11-11  Michael Olson  <mwolson@gnu.org>
+
+	* muse.texi (Markup Strings): Fix typo.  Thanks to Haiyong Zheng
+	for the report.
+	(Getting Help and Reporting Bugs): Fix emacswiki.org page URL.
+
+2006-11-07  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el (muse-version): Make Emacs Muse 3.02.93, the third
+	release candidate for Muse 3.03, available.
+
+	* NEWS: Update.
+
+2006-11-06  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-find-file): Fix bug when
+	following a relative link worked even when the path was incorrect.
+
+2006-11-04  John Sullivan  <john@wjsullivan.net>
+
+	* lisp/muse-mode.el (muse-mode-map): Remove C-c C-c binding for
+	muse-follow-name-at-point to reduce collisions with other
+	modes (Planner).
+
+	* muse.texi (Keystroke Summary): Remove C-c C-c binding.
+
+2006-11-04  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-wiki.el (muse-wiki-update-interwiki-regexp): Make page
+	optional, and make interwiki delimiter a regular rather than shy
+	group.
+	(muse-wiki-handle-implicit-interwiki): Rename from
+	muse-wiki-handle-interwiki.  Use match group 3 to get the page.
+	(muse-wiki-handle-explicit-interwiki): New function that is
+	smarter about where an explicit link ends in a buffer.  This
+	allows you to refer to page names with invalid Wiki characters,
+	such as underscores and dashes, merely by enclosing them in double
+	brackets.  Also, a bug with recognizing project names too loosely
+	has been fixed.
+
+2006-11-03  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-page-file): Make relative
+	links work as expected, hopefully.
+
+	* lisp/muse-publish.el (muse-publish-this-file): Set the current
+	output style manually, since it will differ from anything in the
+	publishing style list.
+
+2006-10-30  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-colors-markup): Remove note about
+	grouping elements, since that no longer applies.
+	(muse-colors-custom-tags): Explicitly match against
+	muse-tag-regexp to get the match-data set the way we want.  This
+	really fixes the <example> highlighting bug that Stefan reported.
+	(muse-configure-highlighting): Set the original value to the
+	symbol, not the modified value.  Re-use modified rules properly.
+
+	* lisp/muse-wiki.el (muse-wiki-update-interwiki-regexp): Fix bug
+	introduced yesterday.
+
+2006-10-29  Michael Olson  <mwolson@gnu.org>
+
+	* examples/mwolson: Update my example configuration.
+
+	* NEWS: Update.
+
+	* lisp/muse-colors.el (muse-configure-highlighting): Remove rules
+	without a regexp in the first position before iterating through
+	them to build muse-colors-vector.  This fixes a bug with the
+	display of <example> tags.  Thanks to Stefan Reichör for the
+	report.
+
+	* lisp/muse-project.el (muse-project-find-file): Permit non-Muse
+	files in projects to be linked to.
+
+	* lisp/muse-publish.el (muse-publish-url): Allow the original link
+	to serve as a description for a URL, as long as it differs from
+	the destination URL.  This fixes the description of WikPage links
+	in PDF output.
+	(muse-publish-link-file): Check to see whether the given link
+	points at a valid file.  If so, return it.  Otherwise, apply other
+	transforms like prefix and link suffix.
+
+	* lisp/muse-regexps.el (muse-file-regexp): If something ends in
+	"/", it is a file or directory, not a Muse page.  Thanks to
+	Phillip Lord for the suggestion.
+
+	* lisp/muse-wiki.el (muse-wiki-resolve-project-page): Use the path
+	of the current page as the local path, instead of duplicating the
+	remote file's path.  This probably fixes at least one reported
+	bug. since it's quite major.
+	(muse-wiki-update-project-file-regexp)
+	(muse-wiki-update-interwiki-regexp): Ensure that nil is never
+	passed to regexp-opt, since that can cause Emacs 21 to throw an
+	"maximum binding depth exceeded" error.  Thanks to xs32 AT cornell
+	DOT edu for the report.
+	(muse-wiki-handle-wikiword): Avoid a potential stringp error.
+
+2006-10-28  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-choose-style-by-link-suffix)
+	(muse-project-resolve-link): If the given style does not have a
+	link-suffix, default to suffix.  This fixes a bug I was noticing
+	when linking to a file that was published in both PDF and HTML
+	form.
+
+	* lisp/muse-publish.el (muse-publish-determine-dl-indent): New
+	function that is used as a callback to determine the initial
+	amount of indentation that the current dl item has.
+	(muse-publish-surround-dl): Use it.  Pass the initial indent value
+	and the post-indent value, instead of trying to determine them
+	both.
+	(muse-publish-strip-list-indentation): New function stripped from
+	`muse-publish-surround-text' for readability.
+	(muse-publish-surround-text): Instead of taking a determine-indent
+	value, take a determine-indent-func function, which is called just
+	after finding the next list item.  If we are asked to determine
+	the amount of indentation, concatenate indent and post-indent the
+	first time around.  This effectively fixes all known definition
+	list issues.
+
+2006-10-16  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse.el: Provide the 'muse-nested-tags feature so that
+	other software -- namely, Planner -- can detect whether they are
+	using a version of Muse that supports nested tags.
+	(muse-goto-tag-end): Moved from muse-publish.el and renamed from
+	muse-publish-goto-tag-end.
+
+	* lisp/muse-colors.el (muse-colors-tags, muse-colors-custom-tags):
+	Adapt for nested tags.
+
+	* lisp/muse-html.el (muse-html-markup-tags): Indicate that the
+	<class> tag is nestable.  Thanks to Phillip Lord for noticing
+	this.
+
+	* lisp/muse-publish.el (muse-publish-markup-tag)
+	(muse-publish-quote-tag): Use muse-goto-tag-end.
+
+	* lisp/muse-wiki.el ("muse-colors"): Adapt for nested tags.
+
+2006-10-15  Michael Olson  <mwolson@gnu.org>
+
+	* AUTHORS: Bookkeeping.
+
+	* lisp/muse-blosxom.el (muse-blosxom-header): Indent code in lisp
+	tag.
+
+	* lisp/muse-groff.el (muse-groff-markup-tags): Adapt for nested
+	tags.
+
+	* lisp/muse-html.el (muse-html-markup-tags): Ditto.
+
+	* lisp/muse-import-docbook.el (muse-import-docbook)
+	(muse-import-docbook-files): Docfix.
+	(muse-import-docbook-get-title): Remove cl.el-ism.
+
+	* lisp/muse-import-xml.el (muse-import-xml): Fix compiler warning.
+
+	* lisp/muse-journal.el (muse-journal-latex-markup-tags): Ditto.
+
+	* lisp/muse-latex2png.el (muse-publish-markup-tags): Ditto.
+
+	* lisp/muse-mode.el (muse-previous-reference): Minor docfix.
+	(muse-next-reference, muse-previous-reference): Minor whitespace
+	changes.
+	(muse-mode-choose-mode): Add autoload cookie.  Thanks to Leo for
+	the suggestion.
+
+	* lisp/muse-poem.el (muse-poem-tag): Ditto.
+
+	* lisp/muse-publish.el (muse-publish-markup-tags)
+	(muse-publish-markup-header-footer-tags): Shift 4th element to 5th
+	element and make 4th element determine whether tags are nestable.
+	(muse-publish-goto-tag-end): New function that moves to the end of
+	a tag.  Handle nested tags when NESTED is non-nil.
+	(muse-publish-markup-tag): Call muse-publish-goto-tag-end.  Use
+	5th element for function.
+	(muse-publish-quote-tag): Handle nested quote tags.  I've tested
+	this on several scenarios, and it seems to work.
+	(muse-publish-surround-text): Accept new optional argument
+	LIST-ITEM which determines the regexp to use for list items.  The
+	default is to use muse-list-item-regexp.
+
+	* muse.texi (Markup Tags): Mention nestable tags.
+
+	* NEWS: Mention new files.
+
+2006-10-15  Elena Pomohaci  <e.pomohaci@gmail.com>
+
+	* lisp/muse-import-docbook.el: New file that converts Docbook XML
+	into Muse format.
+
+	* lisp/muse-import-xml.el: New file that provides helper routines
+	for converting XML-ish files to Muse format.
+
+2006-10-10  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update for 3.02.7 bugfix release.
+
+2006-10-06  Sasha Kovar  <sasha@arcocene.org>
+
+	* lisp/muse-blosxom.el (muse-blosxom-header): Insert the date
+	using the value in the muse #date directive.
+	(muse-blosxom-use-metadate): New option that determines whether or
+	not to use the #postdate directive.
+	(muse-blosxom-format-date): Convert a date string to PyBlosxom
+	metadate plugin format.
+
+2006-09-30  Stefan Schlee  <stefan_schlee@yahoo.com>
+
+	* lisp/muse-protocols.el: Fix bug #6741: Exclude colon in
+	recognised URLs.
+
+	* muse.texi: Clarify handling of implicit links by mentioning
+	which characters can prevent Muse from recognizing something as an
+	implicit link.
+
+2006-09-26  Stefan Schlee  <stefan_schlee@yahoo.com>
+
+	* lisp/muse-mode.el (muse-next-reference)
+	(muse-previous-reference): Fix bug #6367 by moving point to the
+	beginning of the link.
+
+2006-09-26  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-use-font-lock): Don't quote
+	beginning-of-line.  This should fix a bug that was noticed in
+	recent Emacs 22 builds.
+
+	* lisp/muse-backlink.el: Wrap muse-backlink-split-string in an
+	eval-and-compile block to avoid a compiler warning.
+
+2006-09-25  Jim Ottaway  <j.ottaway@lse.ac.uk>
+
+	* lisp/muse-backlink.el (muse-backlink-split-string):
+	Compatibility with Emacs versions < 22
+	(muse-backlink-pending): New internal variable
+	(muse-backlink-get-mode-hook): Find the major mode hook to use, so
+	that backlinks are inserted at the right time.
+	(muse-backlink-insert-hook-func): Remove unwind-protection; check
+	for pending backlink, and that this is the targe page.
+	(muse-backlink-handle-link): Don’t handle the link if we are
+	already handling one. Return the link as well as the parent links.
+
+2006-09-25  Sasha Kovar  <sasha@arcocene.org>
+
+	* lisp/muse-blosxom.el (muse-blosxom-new-entry): : Fix for bug
+	#6942 - muse-blosxom-new-entry fails when using tags.
+
+2006-09-14  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-texinfo.el (muse-texinfo-protect-wikiwords): Silence
+	compiler warning.
+
+2006-09-14  Jim Ottaway  <j.ottaway@lse.ac.uk>
+
+	* lisp/muse-texinfo.el (muse-texinfo-protect-wikiwords): New
+	function: Protect all wikiwords from START to END from further
+	processing.
+	(muse-texinfo-markup-heading): Use muse-texinfo-protect-wikiwords.
+
+2006-09-13  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-texinfo.el (muse-texinfo-markup-heading): New function
+	adopted from Jim Ottaway's patch.  It removes links from the
+	heading, and then marks the region read-only to inhibit WikiWord
+	detection.
+
+2006-09-13  Jim Ottaway  <j.ottaway@lse.ac.uk>
+
+	* lisp/muse-texinfo.el (muse-texinfo-markup-functions): Add
+	special handling for headings.
+	(muse-texinfo-remove-links): New function that removes explicit
+	links from the given strings, replacing them with a description.
+
+2006-09-11  Michael Olson  <mwolson@gnu.org>
+
+	* muse.texi (Getting Help and Reporting Bugs): Mention the
+	muse-el-internationalization mailing list.
+
+	* lisp/muse.el (muse-path-sans-extension): New function that acts
+	like file-name-sans-extension, but guarantees to never modify the
+	directory part of the path.  Thanks to Evan Monroig for
+	investigating this.
+
+	* lisp/muse-book.el (muse-book-publish-project): Use
+	muse-path-sans-extension instead of file-name-sans-extension.
+
+	* lisp/muse-publish.el (muse-publish-file, muse-publish-url):
+	Ditto.
+
+2006-08-30  Michael Olson  <mwolson@gnu.org>
+
+	* muse.texi (Blosxom Requirements): Fix typo.
+
+	* contrib/pyblosxom/getstamps.py (recurse): Ignore metadata
+	directories for bzr and darcs.
+
+	* contrib/pyblosxom/make-blog, contrib/pyblosxom/hardcodedates.py:
+	contrib/pyblosxom/getstamps.py: Update version and headers.
+
+2006-08-27  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-configure-highlighting): Prune out any
+	nil values before they get to mapconcat.  This fixes a lockup when
+	muse-wiki-match-all-project-files is nil.
+
+	* lisp/muse-wiki.el (muse-wiki-match-all-project-files)
+	(muse-wiki-ignore-implicit-links-to-current-page)
+	(muse-wiki-interwiki-regexp, muse-wiki-interwiki-alist)
+	(muse-wiki-resolve-project-page, muse-wiki-handle-interwiki)
+	(muse-wiki-publish-small-title-words)
+	(muse-wiki-publish-pretty-title): Docfix.
+	(muse-wiki-update-local-wikiword-regexp): Rename from
+	muse-wiki-update-local-wikiword-regexp.  Set
+	muse-wiki-project-file-regexp instead of
+	muse-wiki-wikiword-regexp, as suggested by Per Sederberg.  Don't
+	take muse-wiki-use-wikiword into account, since this is a
+	different concept now.
+	(muse-wiki-update-wikiword-regexp): Remove.
+	(muse-wiki-wikiword-regexp): In-line the :set function.
+	(muse-wiki-handle-wikiword): Use muse-wiki-project-file-regexp.
+
+2006-08-26  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-publish.el (muse-publish-surround-text): When looking
+	for indented list items, ignore blank lines.
+
+	* lisp/muse-wiki.el (muse-wiki-update-local-wikiword-regexp)
+	(muse-wiki-update-interwiki-regexp): Use regexp-opt instead of
+	mapconcat.  This should hopefully fix a problem with large amounts
+	of files with spaces in their name.  Thanks to Greg Detre for the
+	report.
+
+2006-08-24  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-blosxom.el (muse-blosxom-new-entry): Remove the
+	numbers from the argument to format-time-string.  This fixes an
+	XEmacs bug.  Thanks to Michael Welle for the report and analysis.
+
+2006-08-18  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-project.el (muse-project-file-entries): Since we are
+	given a full path, match against the filename as well.  This fixes
+	an issue where backup files were being added to the file alist.
+
+	* lisp/muse-docbook.el (muse-docbook-markup-regexps): Apply a fix
+	from muse-html.el.
+
+2006-08-12  Michael Olson  <mwolson@gnu.org>
+
+	* Makefile (.PHONY): Don't use line continuations.
+	(realclean fullclean): Call realclean in subdirs, not distclean.
+	(distclean): Don't call realclean, since this would wipe out our
+	autoloads file.
+	(dist): Use correct path to autoloads file.
+
+	* NEWS: Catch up with the latest changes.
+
+	* experimental/Makefile (.PHONY): Wrap long line.
+
+	* lisp/Makefile (distclean): Do the same thing as "clean", not
+	"realclean".
+
+	* lisp/muse-project.el (muse-project-get-applicable-style):
+	Indentation tweak.
+	(muse-project-ignore-regexp, muse-project-recurse-directory):
+	Docfix.
+	(muse-project-of-file): Try the ignored files regexp against the
+	base filename as well as the entire path.
+
+	* lisp/muse-publish.el (muse-publish-this-file): Display message
+	if the buffer is not associated with any file, so that we avoid
+	errors later on.
+	(muse-publish-url-desc): New function taken from muse-publish-url
+	that causes a URL description to be transformed.
+	(muse-publish-url): Call muse-publish-url-desc on either the
+	description or the original URL if it will be used as a
+	description.  Accept the original URL as an argument, in case it
+	was transformed earlier.
+	(muse-publish-insert-url): Pass original URL as an argument.
+	(muse-publish-markup-link): Make this somewhat easier to follow.
+	Pass original URL as argument.
+	(muse-publish-get-style): If the same style is used to publish to
+	two different directories, prompt the user for which directory to
+	use.
+	(muse-publish-markup-header-footer-tags): Sync lisp tag with the
+	latest changes.
+	(muse-publish-markup-url): Pass original URL as an argument.  This
+	fixes the "nil" description for bare URLs that was in 3.02.91.
+	Nothing like finding a bug just after completing the announcement
+	of a release.
+
+	* lisp/muse.el: Use defalias whenever convenient.
+	(muse-version): Set version to 3.02.92 (3.03 RC2).
+
+2006-08-10  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-html.el (muse-html-finalize-buffer): Since the html
+	style does not derive from any other class, return `t' here.
+	This, along with the corresponding change to muse-publish.el,
+	fixes a problem with the table of contents getting inserted
+	multiple times for custom html-based styles.
+	(muse-html-markup-strings, muse-xhtml-markup-strings): Use a
+	smarter method for table centering that works with XHTML.
+
+	* lisp/muse-latex2png.el Rename all functions to have a
+	"muse-latex2png" prefix.  Turn all variables into customizable
+	options in the muse-latex2png group.
+	(muse-latex2png-img-dest): New option specifying where to place
+	the images.
+	(muse-latex2png-template): New option containing the template to
+	use for the surrounding LaTeX code.
+	(muse-latex2png-use-xhtml): New option that toggles strict XHTML
+	compliance.
+	(muse-latex2png-move2pubdir): Avoid multiple redundant error
+	messages when something else goes wrong.  Create the image
+	subdirectory if it doesn't exist already -- thanks to Christian
+	Straßer for the report.  Expand the filename properly.
+	(muse-publish-latex-tag, muse-latex2png): Ditto on error messages
+	and filename expansion.
+	(muse-latex2png): Use the "muse-latex2png" prefix by default.  Set
+	the default directory properly.
+
+	* lisp/muse-publish.el (muse-style-run-hooks): Make sure that we
+	do not run the same function twice.
+
+2006-08-08  Michael Olson  <mwolson@gnu.org>
+
+	* lisp/muse-colors.el (muse-colors-explicit-link): Fix recently
+	introduced wrong-type-argument error.
+
+	* lisp/muse-html.el (muse-html-markup-strings)
+	(muse-xhtml-markup-string): Cause table definition that contains
+	image to be center-aligned.  This should fix an issue with images
+	not being centered when captions are very long.
+
+	* lisp/muse-publish.el (muse-publish-table-fields): Trim
+	whitespace from fields once we have split them up.
+
+	* lisp/muse.el (muse-trim-whitespace): New function that strips
+	leading and trailing whitespace from a string.
+
+2006-08-07  Michael Olson  <mwolson@gnu.org>
+
+	* NEWS: Update through patch-95.
+
+	* lisp/muse-colors.el (muse-colors-lisp-tag): Use a simpler regexp
+	to match the tags.
+	(muse-colors-explicit-link): Show images in link descriptions if
+	inlined images are enabled.
+
+	* lisp/muse-docbook.el (muse-docbook-markup-strings): Add
+	definitions for 'image-with-desc, 'image, and 'image-link.
+	(muse-docbook-markup-paragraph): If an inlined image begins a
+	paragraph, insert <para> before it.
+	(muse-docbook-fixup-images): New function that upper-cases the
+	"format" attribute of the <imagedata> tag.
+	(muse-docbook-finalize-buffer): Call it.
+
+	* lisp/muse-html.el (muse-html-markup-strings): Publish images
+	with descriptions as centered tables, with a centered caption
+	underneath.  The resulting look is consistent with the way that
+	they are published in the LaTeX style.  Thanks to Jody Klymak for
+	the suggestion.
+	(muse-xhtml-markup-strings): Ditto, but XHTML apparently has no
+	valid way to center a table.
+	(muse-html-markup-paragraph): Use class="image" instead of
+	"image-link" for paragraphs that start with an embedded image.
+
+	* lisp/muse-latex.el (muse-latex-markup-specials-url): Use
+	\textbackslash{} for "\".  Thanks to Jim Ottaway for the
+	suggestion.
+	(muse-latex-markup-specials-image): New option that enables
+	escaping of specials in images.  This was split from the URL
+	specials.
+	(muse-latex-decide-specials): Handle 'image context.
+	(muse-latex-fixup-dquotes): Go to beginning of document, instead
+	of relying on caller to do this for us.
+
+	* lisp/muse-publish.el (muse-publish-escape-specials): Document
+	'image context.
+	(muse-publish-url): Use 'image context for images.  Use 'image
+	instead of 'image-link and 'image-link in place of
+	'url-with-image.  Separate the image file from its extension so
+	that docbook and texinfo can publish images correctly.
+	(muse-publish-markup-link): Don't force a description if one is
+	not given.  This fixes a bug where images without descriptions
+	were being published as 'image-with-desc instead of 'image.
+
+	* lisp/muse-texinfo.el (muse-texinfo-decide-specials): Treat
+	images the same as URLs.
+	(muse-texinfo-markup-strings): Improve image markup to achieve an
+	effect similar to that of the LaTeX publishing style.  Simplify
+	'url string.
+
+	* lisp/muse-xml-common.el (muse-xml-decide-specials): Ditto.
+
+	* lisp/muse.el (muse-replace-regexp-in-string): Save match data
+	when we have to use the custom version of this function.
+
+	* muse.texi (Images): Explain how to toggle inlining of images and
+	give better examples.  Mention captions and that captioned images
+	should not be used inside of text paragraphs.
+	(Markup Strings): Bring up-to-date with the changes made since
+	3.02.
+
+2006-08-06  Michael Olson  <mwolson@gnu.org>
+
+	* ChangeLog.1: Rename from ChangeLog.2004 to comply with standards
+	in the Emacs source tree.
+
+	* ChangeLog.2: Rename from ChangeLog.2005 to comply with standards
+	in the Emacs source tree.
+
+	* ChangeLog.3: New file created from the old ChangeLog.
+
+	* Makefile.defs (VERSION): Set to 3.02.91.
+
+	* NEWS: Update through patch-84.
+
+	* lisp/muse.el (muse-version): Set to 3.02.91.
+
+	* lisp/muse-colors.el (muse-colors-tags): Allow <lisp> to take
+	attributes.
+	(muse-colors-lisp-tag): Figure out where the <lisp> tag and its
+	delimiter are instead of hard-coding it.
+
+	* lisp/muse-mode.el (muse-insert-thing): Qualify "tag".
+	(muse-mode): Make filling definition lists work better.  This
+	should fix #5359.
+
+	* lisp/muse-publish.el (muse-style-run-hooks): Use
+	`muse-style-element' instead of `muse-get-keyword' here.  This
+	should fix #6399.
+
+	* muse.texi: Set version to 3.02.91 (3.02 RC2).
+
+
+See ChangeLog.3 for earlier changes.
+
+;; Local Variables:
+;; coding: utf-8
+;; End:

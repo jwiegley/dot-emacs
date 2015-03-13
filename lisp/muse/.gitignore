@@ -1,0 +1,12 @@
+# Files that we ignore when using git.
+
+*~
+/++xgit-log-edit
+*.elc
+/Makefile.defs
+/examples/QuickStart.html
+/examples/QuickStart.info
+/examples/QuickStart.pdf
+/lisp/muse-autoloads.el
+/texi/muse.info
+/texi/muse.html

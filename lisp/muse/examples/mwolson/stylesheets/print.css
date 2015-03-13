@@ -1,0 +1,60 @@
+/* Michael Olson's tweaked Muse stylesheet
+
+   Elements used when printing.
+
+   License: Modification and propagation of this document is
+            permitted.  Attribution of credit to me is optional.
+*/
+
+html {
+  font-family: Times, serif;
+  font-size: 12pt;
+}
+
+body {
+  margin-left: 1.5cm;
+  margin-right: 1.5cm;
+  margin-top: 1.5cm;
+  margin-bottom: 1.5cm;
+}
+
+.menu, .menuitem, .navfoot, #tooltip, #tooltipbox {
+  display: none;
+}
+
+a, a:visited, a.nonexistent, a.badinterwiki {
+  color: black;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+dd {
+  line-height: 2em;
+}
+
+h1 {
+  border-right: 0;
+}
+
+h2 {
+  border-right: 0;
+}
+
+h3 {
+  border-right: 0;
+}
+
+h4 {
+  border-right: 0;
+}
+
+img {
+  display: none;
+}
+
+p {
+  line-height: 2em;
+}

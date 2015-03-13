@@ -1,0 +1,199 @@
+/* Michael Olson's tweaked pyblosxom stylesheet
+
+   Elements for my blog.
+
+   License: Modification and propagation of this document is
+            permitted.  Attribution of credit to me is optional.
+*/
+
+td {
+}
+
+th {
+}
+
+li.spaced {
+}
+
+.update {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.header {
+  font-size: 9pt;
+  text-align: center;
+  font-weight: bold;
+}
+
+.data {
+  font-size: 9pt;
+}
+
+.keyword {
+  color: #0000ff;
+  font-weight: bold;
+}
+.number {
+  color: #ff00ff;
+}
+.string {
+  color: #ff0000;
+}
+.comment {
+  color: #000088;
+}
+.symbol {
+}
+.normal {
+}
+.function {
+  font-weight: bold;
+}
+
+.input {
+  color: #0000ff;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.path {
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.rightMenu {
+  font-size: 10pt;
+  font-weight: bold;
+  color: black; /*#336699;*/
+}
+
+/* Blosxom registry stuff */
+
+.blosxomRegistryHeader {
+  border: 1px solid #999;
+  margin: 0px;
+  padding: 0px;
+  font-weight: bold;
+}
+
+/* Blosxom calendar stuff */
+
+.blosxomCalendar {
+  border: 1px solid #999;
+  margin: 0px;
+  padding: 0px;
+}
+.blosxomCalendarBlogged {
+  background: #bbbbff;
+  text-align: center;
+  color: #000000;
+}
+.blosxomCalendarCell {
+  background: #ddddff;
+  text-align: center;
+  color: #000000;
+}
+.blosxomCalendarToday {
+  background: #ffffcc;
+  color: #000000;
+}
+.blosxomCalendarSpecificDay {
+  background: #ffffcc;
+  text-align: center;
+  color: #000000;
+}
+
+/* Blosxom stuff */
+
+.blosxomDayDiv {
+  float: left;
+  width: 100%;
+}
+
+.blosxomEntry {
+  width: 100%;
+  margin-top: 1em;
+  margin-bottom: 2em;
+  padding: 0;
+}	
+
+.blosxomEntrySummary {
+  width: 100%;
+  /* margin-top: 1em; */
+  /* margin-bottom: 2em; */
+  padding: 0;
+}
+
+.blosxomBody {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.blosxomStoryLinks {
+  /* background: #eeeeee; */
+  /* text-align: right; */
+}
+
+.blosxomComments {
+  margin-top: 2em;
+  border-top: 1px dashed #444444;
+}
+
+.blosxomCommentForm {
+  clear: right;
+}
+
+.blosxomTitle {
+  /* font-size: 13pt; */
+  font-weight: bold;
+  color: #000000;
+}
+.blosxomDate {
+  border-bottom: 1px solid #888888;
+  font-size: 11pt;
+  font-weight: bold;
+  color: #336699;
+} 
+
+.blosxomEntryDate {
+  font-weight: bold;
+  font-size: 100%;
+  color: #aaaaaa;
+} 
+
+.blosxomTime { 
+  text-decoration: italicize;
+  color: #336699;
+}
+
+/* Blosxom comment stuff */
+
+.blosxomComment {
+  background: #eeeeee;
+  border-top: dashed 1px #444444;
+  padding: 0.2em;
+  padding-bottom: 1em;
+}
+
+.blosxomCommentInfo {
+  font-size: smaller;
+}
+
+.blosxomCommentBody {
+  margin-left: 0.5em;
+}
+
+.blosxomCommentForm {
+  margin-top: 1em;
+}
+
+#blosxomCommentStatus {
+  font-size: larger;
+  color: blue;
+  margin-left: 0.5em;
+  font-weight: bold;
+}

@@ -1,0 +1,45 @@
+# -*- Makefile -*-
+#
+# If you wish to modify this file, first copy it to a file called
+# Makefile.defs.  The resulting Makefile.defs file may then be
+# modified.
+
+# Emacs options
+EMACS    = emacs
+SITEFLAG = --no-site-file
+
+# XEmacs users will probably want the following settings.
+#EMACS    = xemacs
+#SITEFLAG = -no-site-file
+
+# Installation options
+# PREFIX is only used here.
+DESTDIR  =
+PREFIX   = /usr/local
+ELISPDIR = $(DESTDIR)$(PREFIX)/share/emacs/site-lisp/muse
+INFODIR  = $(DESTDIR)$(PREFIX)/share/info
+
+# Command to use to install the Info dir entry
+install_info = install-info --info-dir=$(INFODIR) $(1) || :
+
+# If you're using Debian or Ubuntu, uncomment the following rule and
+# comment out the previous rule.
+#
+#install_info = install-info --section "Emacs" "emacs" --info-dir=$(INFODIR) \
+#	$(INFODIR)/$(1) || :
+
+# If you're using XEmacs, use something like the following instead of
+# the above two rules.
+#
+#install_info = install-info --section "XEmacs 21.4" $(1).info \
+#	$(INFODIR)/dir || :
+
+# Useful only for the maintainer
+PROJECT     = muse
+VERSION     = 3.20
+MANUAL      = muse
+
+# Location of Emacs Lisp Package Archive entries
+ELPADIR  = ../../elpa
+# Description of ELPA package
+ELPADESC = Authoring and publishing tool

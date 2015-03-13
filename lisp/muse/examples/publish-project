@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# This is an example script that shows how to publish a project from
+# the commandline.
+#
+# Make sure that you have a file named `muse-init.el' that contains
+# your custom Muse settings.  It should add Muse to the load path.
+
+emacs -q -batch -l muse-init.el -f muse-project-batch-publish "$@"
