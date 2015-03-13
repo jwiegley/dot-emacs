@@ -1,0 +1,131 @@
+Revision history for helm-ag.el
+
+Revision 0.35 2015/03/05 syohex
+    - Add ignore pattern parameter for 3rd party such as helm-projectile
+
+Revision 0.34 2015/02/23 syohex
+    - Improve helm header name
+    - Error occurs when input string is empty
+    - Add open other window command
+    - Implement editing search result feature
+    - Improve displaying message
+    - Implement help command
+
+Revision 0.33 2015/02/01 syohex
+    - Fix persistent action of helm-do-ag(Reported by duerrp)
+
+Revision 0.32 2015/01/29 syohex
+    - helm-do-ag works like helm-do-grep
+    - 'C--' prefix for setting ag option
+    - Support fuzzy matching
+    - Add flag for using ignore pattern emacs grep
+    - Implement searhing parent directory by 'C-l'
+
+Revision 0.31 2014/11/11 syohex
+    - Improve for remote execution such as tramp
+
+Revision 0.30 2014/10/22 syohex
+    - Fix directory select issue of 'helm-ag'
+    - Support change directory feature for 'helm-do-ag'
+      Thanks mariusk
+
+Revision 0.29 2014/10/16 syohex
+    - Use customizable variables instead of string literal for helm-do-ag
+      Thanks mash
+
+Revision 0.28 2014/10/09 syohex
+    - Fix case that using only helm-ag source
+      Thanks manateelazycat
+
+Revision 0.27 2014/09/14 syohex
+    - Support tramp
+
+Revision 0.26 2014/08/20 syohex
+    - Improve error check for newer ag
+    - Fix highlighting query which is quoted
+
+Revision 0.25 2014/07/31 syohex
+    - Fix setting default-directory for helm-do-ag(Thanks nkpart)
+
+Revision 0.24 2014/07/25 syohex
+    - Improve helm-do-ag(Thanks arejensen)
+
+Revision 0.23 2014/06/15 syohex
+    - Implement helm-do-ag
+
+Revision 0.22 2014/06/11 syohex
+    - Strip thing at cursor
+    - Refactoring for helm actions
+
+Revision 0.21 2014/05/27 syohex
+    - Fix 'Args out of range' issue
+
+Revision 0.20 2014/05/26 syohex
+    - Fix input issue
+
+Revision 0.19 2014/05/03 syohex
+    - Improve popup context stack
+      Show error message if the buffer is already killed
+
+Revision 0.18 2014/05/03 syohex
+    - Improve helm-ag
+      We can use it as function now
+    - Improve popup context stack
+
+Revision 0.17 2014/05/02 syohex
+    - Fix for helm error
+      My code was not good with newer helm.
+
+Revision 0.16 2014/03/28 syohex
+    - Improve highlighting candidate
+
+Revision 0.15 2014/03/08 syohex
+    - Enable lexical binding
+
+Revision 0.14 2014/02/27 syohex
+    - Fix byte-compile warnings
+
+Revision 0.13 2014/02/26 syohex
+    - Fix invalid highlighting issue.
+      Invalid highlighting is occurred if line has colons
+
+Revision 0.12 2014/02/26 syohex
+    - Support highlighting candidate(file and line number)
+
+Revision 0.11 2014/02/25 syohex
+    - Use cl-lib.el
+
+Revision 0.10 2013/11/26 syohex
+    - Add highlight line feature at persistent action
+
+Revision 0.09 2013/10/27 syohex
+    - Add highlight line feature at persistent action
+
+Revision 0.08 2013/10/15 syohex
+    - Add style "file-line"
+
+Revision 0.07 2013/07/31 syohex
+    - fix encoding problem
+
+Revision 0.06 2013/05/16 syohex
+    - remove extra spaces
+
+Revision 0.05 2013/04/18 syohex
+    [IMCOMPATIBLE CHANGE]
+    - remove eshell dendency
+      - https://github.com/ggreer/the_silver_searcher/pull/166
+
+    Please update lasted The silver searcher
+
+Revision 0.04 2013/04/01 syohex
+    - Fix bug that helm-ag does not work with helm-resume.
+    - remove needless import
+
+Revision 0.03 2013/03/21 syohex
+    - Fix for insert-at-point
+
+Revision 0.02 2013/03/16 syohex
+    - Implement inserting search pattern at cursor
+
+Revision 0.01 2013/03/06 syohex
+    - Initial Release
