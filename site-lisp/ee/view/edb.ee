@@ -1,0 +1,30 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ()))
+ [((type . view)
+   (name . "by Category")
+   (c-path-finder . (lambda (r)
+    (list (list (aref (link-record (ee-field 'edb-record r)) 0)))))
+   (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (r-calculator . (lambda (r a-level r-level children-p result) (- 1 result)))
+   (c-sorter . (lambda (a-level c-level s-level attr-alist)
+    (lambda (c1 c2) (string< (car c1) (car c2)))))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point)))
+      (insert (format
+               (concat "%s- %s (%s)")
+               (make-string (1- (+ c-level s-level)) ?\040)
+               header
+               (or (cadr (assq 'counter attr-alist)) "0")))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (dbs-insert-link-summary (ee-field 'edb-record r) nil)
+    (cond ((ee-field 'mark r)
+           (add-text-properties (line-beginning-position) (+ (line-beginning-position) 1) (list 'face 'ee-marked))))))
+   (post-generate . (lambda ()
+    ;; (dbs-move-to-proper-record) ; go to proper line
+    ))
+   (r-select . ee-edb-switch-to-buffer)
+   (r-execute . ee-edb-execute))]]

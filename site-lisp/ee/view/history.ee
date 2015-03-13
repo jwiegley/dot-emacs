@@ -1,0 +1,43 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ()))
+ [((type . view)
+   (name . "by Recency")
+   (default . t)
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (let ((b (point)))
+      (insert (format
+               ;; TODO: use ee-history-type somehow
+               (if (equal (buffer-name) (format "*%s/command*" ee-history-mode-name))
+                   "%s %S"
+                 "%s %s")
+               (or (car (ee-field 'mark r)) " ")
+               (ee-field 'name r)))
+      (cond
+       ((ee-field 'mark r)
+        (add-text-properties (line-beginning-position) (+ (line-beginning-position) 1) (list 'face 'ee-marked)))))))
+   (post-generate . (lambda () (if (eq ee-history-type 'command) (progn (set-syntax-table emacs-lisp-mode-syntax-table) (font-lock-mode 1))) (goto-char (point-max)) (forward-line -1)))
+   (r-select . ee-history-select)
+   (r-execute . ee-history-execute))]
+ [((type . view)
+   (name . "by Name")
+   (r-sorter . (lambda (a-level r-level attr-alist)
+    (lambda (ri1 ri2)
+      (string< (format "%S" (ee-field 'name (aref ee-data ri1)))
+               (format "%S" (ee-field 'name (aref ee-data ri2)))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (let ((b (point)))
+      (insert (format
+               ;; TODO: use ee-history-type somehow
+               (if (equal (buffer-name) (format "*%s/command*" ee-history-mode-name))
+                   "%s %S"
+                 "%s %s")
+               (or (car (ee-field 'mark r)) " ")
+               (ee-field 'name r)))
+      (cond
+       ((ee-field 'mark r)
+        (add-text-properties (line-beginning-position) (+ (line-beginning-position) 1) (list 'face 'ee-marked)))))))
+   (post-generate . (lambda () (if (eq ee-history-type 'command) (progn (set-syntax-table emacs-lisp-mode-syntax-table) (font-lock-mode 1))) (goto-char (point-max)) (forward-line -1)))
+   (r-select . ee-history-select)
+   (r-execute . ee-history-execute))]]

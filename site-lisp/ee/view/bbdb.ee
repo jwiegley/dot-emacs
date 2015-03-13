@@ -1,0 +1,44 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ()))
+ [((type . view)
+   (name . "by first letter of last word of name")
+   (default . t)
+   (c-path-finder . (lambda (r)
+    ;; uppercase first letter of lastname
+    ;;        (list (upcase (substring (or (bbdb-record-lastname
+    ;;                                      (ee-field 'bbdb-record r))
+    ;;                                     "?") 0 1)))
+    ;; get first letter of last word of name
+    (list (let ((name (or (and r (bbdb-record-name (ee-field 'bbdb-record r))) "?")))
+            (if (and name (string-match "\\([^ ]\\)[^ ]+$" name))
+                (match-string 1 name)
+              "?")))))
+   (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (r-calculator . (lambda (r a-level r-level children-p result) (- 1 result)))
+   (c-sorter . (lambda (a-level c-level s-level attr-alist)
+    (lambda (c1 c2) (string< (car c1) (car c2)))))
+   (r-sorter . (lambda (a-level r-level attr-alist)
+    (lambda (ri1 ri2)
+      (string< (bbdb-record-lastname (ee-field 'bbdb-record (aref ee-data ri1)))
+               (bbdb-record-lastname (ee-field 'bbdb-record (aref ee-data ri2)))))))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point)))
+      (insert (format
+               (concat "%s- %s (%s)")
+               (make-string (1- (+ c-level s-level)) ?\040)
+               header
+               (or (cadr (assq 'counter attr-alist)) "0")))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (insert (format "%s %s %s"
+                    (or (car (ee-field 'mark r)) " ")
+                    (or (bbdb-record-name (ee-field 'bbdb-record r)) "(NAME_UNKNOWN)")
+                    (or (bbdb-record-net (ee-field 'bbdb-record r)) "(NET_ADDRESS_UNKNOWN)")))
+    (cond ((ee-field 'mark r)
+           (add-text-properties (line-beginning-position) (+ (line-beginning-position) 1) (list 'face 'ee-marked))))))
+   ;; (post-generate . (lambda () (or ee-hidden-expansions (ee-view-expansion-hide-all))))
+   (r-select)
+   (r-execute . ee-bbdb-execute))]]
