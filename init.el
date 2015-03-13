@@ -2974,13 +2974,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :init (persp-mode)
   :config
   (progn
-    (use-package persp-projectile)
-    (use-package helm-projectile
-      :demand t
-      :init
-      (progn
-        (setq projectile-completion-system 'helm)
-        (helm-projectile-on)))))
+    (use-package persp-projectile)))
 
 ;;;_ , popup-ruler
 
@@ -3077,7 +3071,12 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :diminish projectile-mode
   :init (projectile-global-mode)
   :config
-  (use-package helm-projectile))
+  (use-package helm-projectile
+    :demand t
+    :init
+    (progn
+      (setq projectile-completion-system 'helm)
+      (helm-projectile-on))))
 
 ;;;_ , proofgeneral
 
