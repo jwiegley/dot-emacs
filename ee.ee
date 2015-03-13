@@ -1,0 +1,39 @@
+;; -*- ee-datafile -*-
+;; Please (require 'ee-autoloads) and then visit this file again in Emacs.
+[(meta
+  (format-version . "0.0.1")
+  (database-version . "0.0.1")
+  (data-version . "0.0.1")
+  (view-data-file . "view/links.ee")
+  (fields title description command categories ())
+  (key-fields title))
+ ["ee-views" "display, edit and switch views" ee-views ("ee/internal") ((url . "http://www.jurta.org/emacs/ee/views.en.html") (contact . "juri@jurta.org"))]
+ ["ee-fields" "display and edit fields of the current record" ee-fields ("ee/internal") ((url . "http://www.jurta.org/emacs/ee/fields.en.html") (contact . "juri@jurta.org"))]
+ ["ee-buffers" "display and manipulate Emacs buffers" ee-buffers ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/buffers.en.html") (contact . "juri@jurta.org"))]
+ ["ee-windows" "display and switch Emacs window configurations" ee-windows ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/windows.en.html") (contact . "juri@jurta.org"))]
+ ["ee-menubar" "categorized access to Emacs menu-bar" ee-menubar ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/menubar.en.html") (contact . "juri@jurta.org"))]
+ ["ee-commands" "categorized menu of Emacs commands" ee-commands ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/commands.en.html") (contact . "juri@jurta.org"))]
+ ["ee-variables" "categorized menu of Emacs variables" ee-variables ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/variables.en.html") (contact . "juri@jurta.org"))]
+ ["ee-processes" "display and manipulate Emacs processes" ee-processes ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/processes.en.html") (contact . "juri@jurta.org"))]
+ ["ee-customize" "browse Emacs customization groups" ee-customize ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/customize.en.html") (contact . "juri@jurta.org"))]
+ ["ee-info" "browse Info documentation" ee-info ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/info.en.html") (contact . "juri@jurta.org"))]
+ ["ee-finder" "keyword-based Emacs code finder" ee-finder ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/finder.en.html") (contact . "juri@jurta.org"))]
+ ["ee-tags" "etags facility" ee-tags ("ee/emacs") ((url . "http://www.jurta.org/emacs/ee/tags.en.html") (contact . "juri@jurta.org"))]
+ ["ee-imenu" "categorized mode-specific buffer indexes" ee-imenu ("ee/emacs/buffer") ((url . "http://www.jurta.org/emacs/ee/imenu.en.html") (contact . "juri@jurta.org"))]
+ ["ee-outline" "manipulate outlines collected from outline-mode" ee-outline ("ee/emacs/buffer") ((url . "http://www.jurta.org/emacs/ee/outline.en.html") (contact . "juri@jurta.org"))]
+ ["ee-marks" "display and go to marked lines in the current Emacs buffer" ee-marks ("ee/emacs/buffer") ((url . "http://www.jurta.org/emacs/ee/marks.en.html") (contact . "juri@jurta.org"))]
+ ["ee-history-command" "display list from Emacs variable command-history" ee-history-command ("ee/emacs/history") ((url . "http://www.jurta.org/emacs/ee/commands.en.html") (contact . "juri@jurta.org"))]
+ ["ee-history-extended-command" "display list from Emacs variable extended-command-history" ee-history-extended-command ("ee/emacs/history") ((url . "http://www.jurta.org/emacs/ee/commands.en.html") (contact . "juri@jurta.org"))]
+ ["ee-history-shell-command" "display list from Emacs variable shell-command-history" ee-history-shell-command ("ee/emacs/history") ((url . "http://www.jurta.org/emacs/ee/commands.en.html") (contact . "juri@jurta.org"))]
+ ["ee-gnus" "summary and topic mode for Gnus" ee-gnus ("ee/emacs/packages") ((url . "http://www.jurta.org/emacs/ee/gnus.en.html") (contact . "juri@jurta.org"))]
+ ["ee-bbdb" "summary mode for BBDB" ee-bbdb ("ee/emacs/packages") ((url . "http://www.jurta.org/emacs/ee/bbdb.en.html") (contact . "juri@jurta.org"))]
+ ["ee-edb" "summary mode for EDB" ee-edb ("ee/emacs/packages") ((url . "http://www.jurta.org/emacs/ee/edb.en.html") (contact . "juri@jurta.org"))]
+ ["ee-ps" "display CPU processes" ee-ps ("ee/external") ((url . "http://www.jurta.org/emacs/ee/ps.en.html") (contact . "juri@jurta.org"))]
+ ["ee-dired" "categorized directory listings" ee-dired ("ee/external") ((url . "http://www.jurta.org/emacs/ee/dired.en.html") (contact . "juri@jurta.org"))]
+ ["ee-programs" "categorized program menu" ee-programs ("ee/external") ((url . "http://www.jurta.org/emacs/ee/programs.en.html") (contact . "juri@jurta.org"))]
+ ["ee-dselect" "Debian package handling frontend" ee-dselect ("ee/external") ((url . "http://www.jurta.org/emacs/ee/dselect.en.html") (contact . "juri@jurta.org"))]
+ ["ee-ell" "browse the categorized Emacs Lisp List" ee-ell ("ee/external") ((url . "http://www.jurta.org/emacs/ee/ell.en.html") (contact . "juri@jurta.org"))]
+ ["ee-textfile-changelog" "organize information from ChangeLog files" ee-textfile-changelog ("ee/textfile") ((url . "http://www.jurta.org/emacs/ee/textfile/changelog.en.html") (contact . "juri@jurta.org"))]
+ ["ee-textfile-apachelog" "organize information from Apache log files" ee-textfile-apachelog ("ee/textfile") ((url . "http://www.jurta.org/emacs/ee/textfile/apachelog.en.html") (contact . "juri@jurta.org"))]
+ ["ee-example" "accompanying example for demonstration of ee capabilities" ee-example ("ee/internal") ((url . "http://www.jurta.org/emacs/ee/example.en.html") (contact . "juri@jurta.org"))]
+ ]
