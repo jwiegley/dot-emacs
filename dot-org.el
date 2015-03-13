@@ -9,7 +9,7 @@
 (require 'org-bbdb)
 (require 'org-devonthink)
 (require 'org-mac-link)
-(require 'org-magit)
+;; (require 'org-magit)
 (require 'org-velocity)
 (require 'ob-python)
 (require 'ob-ruby)

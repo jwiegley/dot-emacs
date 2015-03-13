@@ -10,7 +10,7 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (require 'use-package)
-;;;(setq use-package-verbose t)
+(setq use-package-verbose t)
 
 ;;;_ , Utility macros and functions
 
@@ -2707,6 +2707,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :config
   (progn
     (setenv "GIT_PAGER" "")
+
+    (use-package magit-backup
+      :diminish magit-backup-mode)
 
     (use-package magit-review
       :disabled t
