@@ -1,0 +1,127 @@
+
+* suggestions
+** How about going from "hello world" on?
+*** Start with that,
+*** and then, move on to publishing a static file,
+*** then a buffer,
+**** with calling functions to manipulate the buffer and re-present it?
+** That'd save me a fair bit of tinkering :)
+
+* installing
+** use elpa/marmalade
+* what elnode gives you by default
+** require elnode
+*** elnode-init
+**** starts a server
+***** on port 8000
+
+
+* hello world
+** install elnode with marmalade
+** open a new emacs buffer C-x C-f my-elnode-hello-world.el
+** make a handler
+(defun my-elnode-hello-world-handler (httpcon)
+   (elnode-http-start httpcon 200 '("Content-Type" . "text/html"))
+   (elnode-http-return 
+       httpcon 
+       "<html><body><h1>Hello World</h1></body></html>"))
+(elnode-start my-elnode-hello-world-handler 8028 "localhost")
+** now evaluate that with M-x eval-buffer
+** now open localhost:8028 in your browser
+
+* publish some files
+** elnode provides a webserver, more accurately a fileserver
+** the webserver is turned on by default
+** open localhost:8000 and you should see ~/public_html
+*** if you don't have ~/public_html then make one?
+*** or configure elnode-webserver-docroot
+** make a new webserver
+*** make a new docroot
+**** mkdir ~/myspecialdocroot
+*** put an html file in there
+cat <<EOF > ~/myspecialdocroot/saybum.html
+<html>
+<h1>BUM!</h1>
+</html>
+*** open a new emacs buffer
+*** put the following lisp in
+(defvar my-elnode-webserver-handler 
+   (elnode-webserver-handler-maker "~/myspecialdocroot"))
+(elnode-start my-elnode-webserver-handler 8001 "localhost")
+*** now evaluate that with M-x eval-buffer
+*** now open localhost:8001/saybum.html
+*** now open localhost:8001
+**** you should see an automatic index
+
+* stopping a server
+** stop 8028
+** stop 8001
+
+* add a binding to the standard server
+** we can add bindings to the standard elnode server
+** go back to hello world - C-x b my-elnode-hello-world.el
+** remove the server-start and add this:
+(add-to-list 'elnode-hostpath-default-table '("/helloworld/" . my-elnode-hello-world-handler))
+** so now it should be:
+(defun my-elnode-hello-world-handler (httpcon)
+   (elnode-http-start httpcon 200 '("Content-Type" . "text/html"))
+   (elnode-http-return 
+       httpcon 
+       "<html><body><h1>Hello World</h1></body></html>"))
+(add-to-list 'elnode-hostpath-default-table '("/helloworld/" . my-elnode-hello-world-handler))
+** now eval the buffer with M-x eval-buffer
+** now open localhost:8000/helloworld/ in your browser
+** just to prove the webserver is still there, open localhost:8000/
+*** check it's still the directory ~/public_html
+** check the variable elnode-hostpath-default-table with C-h v elnode-hostpath-default-table
+Its value is (("/helloworld/" . my-elnode-hello-world-handler)
+ ("[^/]+/.*" . elnode-webserver))
+** elnode-hostpath-default-table can also be customized
+*** but any handler will have to be loaded so you probably need to package and load your elnode module
+
+* publishing something else?
+** let's try and make an online editor
+** make a new file my-elnode-editor.el
+(defvar my-elnode-editor-buffer (get-buffer-create "*my-elnode-editor-buffer*"))
+
+(defun my-elnode-editor-handler (httpcon)
+  (elnode-http-start httpcon 200 '("Content-Type" . "text/plain"))
+  (elnode-http-return 
+   httpcon 
+   (with-current-buffer my-elnode-editor-buffer
+     (buffer-substring-no-properties (point-min) (point-max)))))
+** eval that
+** go type some data in *my-elnode-editor-buffer*
+** then M-x elnode-start my-elnode-editor-handler 8002 localhost
+** try and hit localhost:8002
+** go update the buffer
+** refresh the webpage
+** but what about someone else updating the buffer?
+** make another handler to handle updates
+(defun my-elnode-editor-update-handler (httpcon)
+  (let ((change-text (elnode-http-param httpcon "change")))
+    (with-current-buffer my-elnode-editor-buffer
+      (goto-char (point-max))
+      (insert (if (stringp change-text)
+                  change-text
+                ""))))
+  (elnode-http-start httpcon 302 '("Location" . "/"))
+  (elnode-http-return httpcon))
+** now we need to map these two handlers
+*** one to / and the other to /update/
+** make a new variable
+(defvar my-elnode-editor-urls
+  `(
+    ("$" . my-elnode-editor-handler)
+    ("update/.*$" . my-elnode-editor-update-handler)))
+** and make a dispatcher handler for the urls
+(defun my-elnode-editor-dispatcher-handler (httpcon)
+  (elnode-dispatcher httpcon my-elnode-editor-urls))
+*** a dispatcher handler is a handler that accepts requests and dispatches them to further handlers.
+*** moar about dispatcher handlers.
+** now stop the old server
+** M-x elnode-stop 8002
+** Now start the new server with the dispatcher handler
+** then M-x elnode-start my-elnode-editor-dispatcher-handler 8002 localhost
+** now visit localhost:8002 and see the buffer
+** now visit localhost:8002/update/?change=lah+dee+dah%0d and see the updated buffer
