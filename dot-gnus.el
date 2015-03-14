@@ -1,5 +1,10 @@
 ;;;_ , Gnus
 
+(require 'use-package)
+(require 'ido)
+(eval-when-compile
+  (require 'cl))
+
 (load "gnus-settings")
 
 (require 'gnus)
@@ -65,6 +70,9 @@
 (defvar switch-to-gnus-unplugged nil)
 (defvar switch-to-gnus-run nil)
 
+(eval-when-compile
+  (defvar ido-default-buffer-method))
+
 (defun switch-to-gnus (&optional arg)
   (interactive "P")
   (let* ((alist '("\\`\\*unsent" "\\`\\*Summary" "\\`\\*Group"))
@@ -88,24 +96,24 @@
         (setq switch-to-gnus-run t)))))
 
 (use-package fetchmail-ctl
-  :init
-  (progn
-    (defun maybe-start-fetchmail-and-news ()
-      (interactive)
-      (when (and (not switch-to-gnus-unplugged)
-                 (quickping "imap.gmail.com"))
-        ;; (do-applescript "tell application \"Notify\" to run")
-        (switch-to-fetchmail)))
+  :functions switch-to-fetchmail
+  :config
+  (defun maybe-start-fetchmail-and-news ()
+    (interactive)
+    (when (and (not switch-to-gnus-unplugged)
+               (quickping "imap.gmail.com"))
+      ;; (do-applescript "tell application \"Notify\" to run")
+      (switch-to-fetchmail)))
 
-    (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
+  (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
 
-    (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
-      (async-start
-       (lambda ()
-         (call-process (expand-file-name "~/Messages/manage-mail/stop-mail")))
-       (lambda (ret)
-         ;; (do-applescript "tell application \"Notify\" to quit")
-         )))))
+  (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
+    (async-start
+     (lambda ()
+       (call-process (expand-file-name "~/Messages/manage-mail/stop-mail")))
+     (lambda (ret)
+       ;; (do-applescript "tell application \"Notify\" to quit")
+       ))))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
@@ -138,6 +146,9 @@
 
 (bind-key "X m" 'my-gnus-summary-save-parts gnus-summary-mode-map)
 
+(eval-when-compile
+  (defvar gnus-agent-queue-mail))
+
 (defun queue-message-if-not-connected ()
   (set (make-local-variable 'gnus-agent-queue-mail)
        (if (quickping "smtp.gmail.com") t 'always)))
@@ -162,25 +173,25 @@
 
 (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
+(defun switch-in-other-buffer (buf)
+  (when buf
+    (split-window-vertically)
+    (balance-windows)
+    (switch-to-buffer-other-window buf)))
+
 (defun open-mail-logs ()
   (interactive)
-  (flet ((switch-in-other-buffer
-          (buf)
-          (when buf
-            (split-window-vertically)
-            (balance-windows)
-            (switch-to-buffer-other-window buf))))
-    (loop initially (delete-other-windows)
-          with first = t
-          for log in (directory-files "~/Messages/" t "\\.log\\'")
-          for buf = (find-file-noselect log)
-          do (if first
-                 (progn
-                   (switch-to-buffer buf)
-                   (setf first nil))
-               (switch-in-other-buffer buf))
-          (with-current-buffer buf
-            (goto-char (point-max))))))
+  (loop initially (delete-other-windows)
+        with first = t
+        for log in (directory-files "~/Messages/" t "\\.log\\'")
+        for buf = (find-file-noselect log)
+        do (if first
+               (progn
+                 (switch-to-buffer buf)
+                 (setf first nil))
+             (switch-in-other-buffer buf))
+        (with-current-buffer buf
+          (goto-char (point-max)))))
 
 (defun my-gnus-trash-article (arg)
   (interactive "P")
@@ -336,16 +347,16 @@ is:
   (add-hook 'dired-mode-hook 'gnus-dired-mode))
 
 (use-package my-gnus-score
+  :functions my-gnus-score-groups
   :init
-  (progn
-    (defun gnus-group-get-all-new-news ()
-      (interactive)
-      (gnus-group-get-new-news 5)
-      (gnus-group-list-groups 4)
-      (my-gnus-score-groups)
-      (gnus-group-list-groups 4))
+  (defun gnus-group-get-all-new-news ()
+    (interactive)
+    (gnus-group-get-new-news 5)
+    (gnus-group-list-groups 4)
+    (my-gnus-score-groups)
+    (gnus-group-list-groups 4))
 
-    (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news)))
+  (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
 
 (use-package gnus-demon
   :init
@@ -375,66 +386,66 @@ is:
     (gnus-demon-add-handler 'save-gnus-newsrc nil 1)
     (gnus-demon-add-handler 'gnus-demon-close-connections nil 3)))
 
+(defun activate-gnus ()
+  (unless (get-buffer "*Group*") (gnus)))
+
 (use-package nnir
   :init
-  (progn
-    (defun activate-gnus ()
-      (unless (get-buffer "*Group*") (gnus)))
+  (defun gnus-goto-article (message-id)
+    (activate-gnus)
+    (gnus-summary-read-group "INBOX" 15 t)
+    (let ((nnir-imap-default-search-key "imap")
+          (nnir-ignored-newsgroups
+           (concat "\\(\\(list\\.wg21\\|archive\\)\\.\\|"
+                   "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)")))
+      (gnus-summary-refer-article message-id)))
 
-    (defun gnus-goto-article (message-id)
-      (activate-gnus)
-      (gnus-summary-read-group "INBOX" 15 t)
-      (let ((nnir-imap-default-search-key "imap")
-            (nnir-ignored-newsgroups
-             (concat "\\(\\(list\\.wg21\\|archive\\)\\.\\|"
-                     "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)")))
-        (gnus-summary-refer-article message-id)))
+  (defvar gnus-query-history nil)
 
-    (defvar gnus-query-history nil)
+  (defun gnus-query (query &optional arg)
+    (interactive
+     (list (read-string (format "IMAP Query %s: "
+                                (if current-prefix-arg "All" "Mail"))
+                        (format-time-string "SENTSINCE %d-%b-%Y "
+                                            (time-subtract (current-time)
+                                                           (days-to-time 90)))
+                        'gnus-query-history)
+           current-prefix-arg))
+    (activate-gnus)
+    (let ((nnir-imap-default-search-key "imap")
+          (nnir-ignored-newsgroups
+           (if arg
+               (concat (regexp-opt
+                        '("archive"
+                          "archive.emacs"
+                          "list"
+                          "list.bahai"
+                          "list.boost"
+                          "list.clang"
+                          "list.emacs"
+                          "list.isocpp"
+                          "list.ledger"
+                          "list.llvm"
+                          "list.wg21"
+                          "mail"
+                          "mail.save"
+                          "Drafts"
+                          "Sent Messages"))
+                       "\\'")
+             (concat "\\(\\(list\\|archive\\)\\.\\|"
+                     "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)"))))
+      (gnus-group-make-nnir-group
+       nil (list (cons 'nnir-query-spec
+                       (list (cons 'query query)
+                             (cons 'criteria "")))
+                 (cons 'nnir-group-spec
+                       (list (list "nnimap:Local")))))))
 
-    (defun gnus-query (query &optional arg)
-      (interactive
-       (list (read-string (format "IMAP Query %s: "
-                                  (if current-prefix-arg "All" "Mail"))
-                          (format-time-string "SENTSINCE %d-%b-%Y "
-                                              (time-subtract (current-time)
-                                                             (days-to-time 90)))
-                          'gnus-query-history)
-             current-prefix-arg))
-      (activate-gnus)
-      (let ((nnir-imap-default-search-key "imap")
-            (nnir-ignored-newsgroups
-             (if arg
-                 (concat (regexp-opt
-                          '("archive"
-                            "archive.emacs"
-                            "list"
-                            "list.bahai"
-                            "list.boost"
-                            "list.clang"
-                            "list.emacs"
-                            "list.isocpp"
-                            "list.ledger"
-                            "list.llvm"
-                            "list.wg21"
-                            "mail"
-                            "mail.save"
-                            "Drafts"
-                            "Sent Messages"))
-                         "\\'")
-               (concat "\\(\\(list\\|archive\\)\\.\\|"
-                       "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)"))))
-        (gnus-group-make-nnir-group
-         nil (list (cons 'nnir-query-spec
-                         (list (cons 'query query)
-                               (cons 'criteria "")))
-                   (cons 'nnir-group-spec
-                         (list (list "nnimap:Local")))))))
-
-    (define-key global-map [(alt meta ?f)] 'gnus-query)))
+  (define-key global-map [(alt meta ?f)] 'gnus-query))
 
 (use-package gnus-harvest
-  :init
+  :functions gnus-harvest-install
+  :config
   (if (featurep 'message-x)
       (gnus-harvest-install 'message-x)
     (gnus-harvest-install)))
@@ -453,14 +464,17 @@ is:
 
     (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)))
 
-(use-package rs-gnus-summary
-  :init
-  (progn
-    (defalias 'gnus-user-format-function-size
-      'rs-gnus-summary-line-message-size)
+(eval-when-compile
+  (defvar gnus-balloon-face-0)
+  (defvar gnus-balloon-face-1))
 
-    (setq gnus-balloon-face-0 'rs-gnus-balloon-0)
-    (setq gnus-balloon-face-1 'rs-gnus-balloon-1)))
+(use-package rs-gnus-summary
+  :config
+  (defalias 'gnus-user-format-function-size
+    'rs-gnus-summary-line-message-size)
+
+  (setq gnus-balloon-face-0 'rs-gnus-balloon-0)
+  (setq gnus-balloon-face-1 'rs-gnus-balloon-1))
 
 (use-package supercite
   :commands sc-cite-original
@@ -502,67 +516,66 @@ variables.  This is useful for a regi `begin' frame-entry."
                   sc-fill-begin (line-beginning-position)))))
     nil))
 
+(defun gnus-article-get-urls-region (min max)
+  "Return a list of urls found in the region between MIN and MAX"
+  (let (url-list)
+    (save-excursion
+      (save-restriction
+        (narrow-to-region min max)
+        (goto-char (point-min))
+        (while (re-search-forward gnus-button-url-regexp nil t)
+          (let ((match-string (match-string-no-properties 0)))
+            (if (and (not (equal (substring match-string 0 4) "file"))
+                     (not (member match-string url-list)))
+                (setq url-list (cons match-string url-list)))))))
+    url-list))
+
+(defun gnus-article-get-current-urls ()
+  "Return a list of the urls found in the current `gnus-article-buffer'"
+  (let (url-list)
+    (with-current-buffer gnus-article-buffer
+      (setq url-list
+            (gnus-article-get-urls-region (point-min) (point-max))))
+    url-list))
+
+(defun gnus-article-browse-urls ()
+  "Visit a URL from the `gnus-article-buffer' by showing a
+buffer with the list of URLs found with the `gnus-button-url-regexp'."
+  (interactive)
+  (gnus-configure-windows 'article)
+  (gnus-summary-select-article nil nil 'pseudo)
+  (let ((temp-buffer (generate-new-buffer " *Article URLS*"))
+        (urls (gnus-article-get-current-urls))
+        (this-window (selected-window))
+        (browse-window (get-buffer-window gnus-article-buffer))
+        (count 0))
+    (save-excursion
+      (save-window-excursion
+        (with-current-buffer temp-buffer
+          (mapc (lambda (string)
+                  (insert (format "\t%d: %s\n" count string))
+                  (setq count (1+ count))) urls)
+          (not-modified)
+          (pop-to-buffer temp-buffer)
+          (setq count
+                (string-to-number
+                 (char-to-string (if (fboundp
+                                      'read-char-exclusive)
+                                     (read-char-exclusive)
+                                   (read-char)))))
+          (kill-buffer temp-buffer)))
+      (if browse-window
+          (progn (select-window browse-window)
+                 (browse-url (nth count urls)))))
+    (select-window this-window)))
+
 (use-package browse-url
   :commands browse-url
-  :init
-  (progn
-    (defun gnus-article-get-urls-region (min max)
-      "Return a list of urls found in the region between MIN and MAX"
-      (let (url-list)
-        (save-excursion
-          (save-restriction
-            (narrow-to-region min max)
-            (goto-char (point-min))
-            (while (re-search-forward gnus-button-url-regexp nil t)
-              (let ((match-string (match-string-no-properties 0)))
-                (if (and (not (equal (substring match-string 0 4) "file"))
-                         (not (member match-string url-list)))
-                    (setq url-list (cons match-string url-list)))))))
-        url-list))
-
-    (defun gnus-article-get-current-urls ()
-      "Return a list of the urls found in the current `gnus-article-buffer'"
-      (let (url-list)
-        (with-current-buffer gnus-article-buffer
-          (setq url-list
-                (gnus-article-get-urls-region (point-min) (point-max))))
-        url-list))
-
-    (defun gnus-article-browse-urls ()
-      "Visit a URL from the `gnus-article-buffer' by showing a
-buffer with the list of URLs found with the `gnus-button-url-regexp'."
-      (interactive)
-      (gnus-configure-windows 'article)
-      (gnus-summary-select-article nil nil 'pseudo)
-      (let ((temp-buffer (generate-new-buffer " *Article URLS*"))
-            (urls (gnus-article-get-current-urls))
-            (this-window (selected-window))
-            (browse-window (get-buffer-window gnus-article-buffer))
-            (count 0))
-        (save-excursion
-          (save-window-excursion
-            (with-current-buffer temp-buffer
-              (mapc (lambda (string)
-                      (insert (format "\t%d: %s\n" count string))
-                      (setq count (1+ count))) urls)
-              (not-modified)
-              (pop-to-buffer temp-buffer)
-              (setq count
-                    (string-to-number
-                     (char-to-string (if (fboundp
-                                          'read-char-exclusive)
-                                         (read-char-exclusive)
-                                       (read-char)))))
-              (kill-buffer temp-buffer)))
-          (if browse-window
-              (progn (select-window browse-window)
-                     (browse-url (nth count urls)))))
-        (select-window this-window)))
-
-    (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
-      'gnus-article-browse-urls)
-    (define-key gnus-article-mode-map [(control ?c) (control ?o)]
-      'gnus-article-browse-urls)))
+  :config
+  (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
+    'gnus-article-browse-urls)
+  (define-key gnus-article-mode-map [(control ?c) (control ?o)]
+    'gnus-article-browse-urls))
 
 (provide 'dot-gnus)
 

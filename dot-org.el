@@ -1,5 +1,7 @@
 ;;;_ , Org-mode
 
+(require 'use-package)
+
 (load "org-settings")
 
 (require 'org)
@@ -19,6 +21,21 @@
 (require 'ox-md)
 (require 'ox-opml)
 
+(declare-function cfw:open-calendar-buffer "calfw")
+(declare-function cfw:org-create-source "calfw-org")
+(declare-function cfw:cal-create-source "calfw-cal")
+
+(defun my-calendar ()
+  (interactive)
+  (let ((buf (get-buffer "*cfw-calendar*")))
+    (if buf
+        (pop-to-buffer buf nil)
+      (cfw:open-calendar-buffer
+       :contents-sources
+       (list (cfw:org-create-source "Dark Blue")
+             (cfw:cal-create-source "Dark Orange"))
+       :view 'two-weeks))))
+
 (use-package calfw
   :bind ("C-c A" . my-calendar)
   :init
@@ -27,18 +44,7 @@
     (use-package calfw-org)
 
     (bind-key "M-n" 'cfw:navi-next-month-command cfw:calendar-mode-map)
-    (bind-key "M-p" 'cfw:navi-previous-month-command cfw:calendar-mode-map)
-
-    (defun my-calendar ()
-      (interactive)
-      (let ((buf (get-buffer "*cfw-calendar*")))
-        (if buf
-            (pop-to-buffer buf nil)
-          (cfw:open-calendar-buffer
-           :contents-sources
-           (list (cfw:org-create-source "Dark Blue")
-                 (cfw:cal-create-source "Dark Orange"))
-           :view 'two-weeks)))))
+    (bind-key "M-p" 'cfw:navi-previous-month-command cfw:calendar-mode-map))
 
   :config
   (progn
@@ -419,7 +425,6 @@ This can be 0 for immediate, or a floating point value.")
       (insert ":OUTPUT:\n"))))
 
 (defun org-get-message-link (&optional title)
-  (assert (get-buffer "*Group*"))
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
       (setq message-id (substring (message-field-value "message-id") 1 -1)
@@ -437,7 +442,6 @@ This can be 0 for immediate, or a floating point value.")
   (org-set-property "Message" (org-get-message-link)))
 
 (defun org-get-message-sender ()
-  (assert (get-buffer "*Group*"))
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
       (message-field-value "from"))))

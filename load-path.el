@@ -60,6 +60,12 @@
 ;; (require 'autoloads nil t)
 (require 'cus-load nil t)
 
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+
+(defun slowping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W5000" "-q" host)))
+
 (provide 'load-path)
 
 ;;; load-path.el ends here

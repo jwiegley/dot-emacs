@@ -40,29 +40,11 @@
   :group 'erc-alert)
 
 (defcustom erc-growl-noise-regexp
-  "\\(Logging in:\\|Signing off\\|You're now away\\|Welcome back\\|Setting automatically away\\)"
+  (concat "\\(Logging in:\\|Signing off\\|You're now away"
+          "\\|Welcome back\\|Setting automatically away\\)")
   "This regexp matches unwanted noise."
   :type 'regexp
   :group 'erc-alert)
-
-;; Unless the user has recently typed in the ERC buffer, highlight the fringe
-(alert-add-rule :status   '(buried visible idle)
-                :severity '(moderate high urgent)
-                :mode     'erc-mode
-                :predicate
-                #'(lambda (info)
-                    (string-match (concat "\\`[^&]" erc-priority-people-regexp
-                                          "@BitlBee\\'")
-                                  (erc-format-target-and/or-network)))
-                :persistent
-                #'(lambda (info)
-                    ;; If the buffer is buried, or the user has been idle for
-                    ;; `alert-reveal-idle-time' seconds, make this alert
-                    ;; persistent.  Normally, alerts become persistent after
-                    ;; `alert-persist-idle-time' seconds.
-                    (memq (plist-get info :status) '(buried idle)))
-                :style 'fringe
-                :continue t)
 
 (defun erc-alert-important-p (info)
   (let ((message (plist-get info :message))
@@ -71,28 +53,6 @@
          (not (or (string-match "^\\** *Users on #" message)
                   (string-match erc-growl-noise-regexp
                                 message))))))
-
-;; If the ERC buffer is not visible, tell the user through Growl
-(alert-add-rule :status 'buried
-                :mode   'erc-mode
-                :predicate #'erc-alert-important-p
-                :style (if (file-executable-p alert-notifier-command)
-                           'notifier
-                         'growl)
-                :append t)
-
-(alert-add-rule :status 'buried
-                :mode   'erc-mode
-                :predicate #'erc-alert-important-p
-                :style 'message
-                :append t)
-
-(alert-add-rule :mode 'erc-mode
-                :predicate #'erc-alert-important-p
-                :style 'log
-                :append t)
-
-(alert-add-rule :mode 'erc-mode :style 'ignore :append t)
 
 (defun my-erc-hook (&optional match-type nick message)
   "Shows a growl notification, when user's nick was mentioned.
@@ -105,6 +65,54 @@ If the buffer is currently not visible, makes it sticky."
 
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
+
+(defun my-erc-define-alerts ()
+  ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
+  (alert-add-rule
+   :status   '(buried visible idle)
+   :severity '(moderate high urgent)
+   :mode     'erc-mode
+   :predicate
+   #'(lambda (info)
+       (string-match (concat "\\`[^&]" erc-priority-people-regexp
+                             "@BitlBee\\'")
+                     (erc-format-target-and/or-network)))
+   :persistent
+   #'(lambda (info)
+       ;; If the buffer is buried, or the user has been idle for
+       ;; `alert-reveal-idle-time' seconds, make this alert
+       ;; persistent.  Normally, alerts become persistent after
+       ;; `alert-persist-idle-time' seconds.
+       (memq (plist-get info :status) '(buried idle)))
+   :style 'fringe
+   :continue t)
+
+  ;; If the ERC buffer is not visible, tell the user through Growl
+  (alert-add-rule
+   :status 'buried
+   :mode   'erc-mode
+   :predicate #'erc-alert-important-p
+   :style (if (file-executable-p alert-notifier-command)
+              'notifier
+            'growl)
+   :append t)
+
+  (alert-add-rule
+   :status 'buried
+   :mode   'erc-mode
+   :predicate #'erc-alert-important-p
+   :style 'message
+   :append t)
+
+  (alert-add-rule
+   :mode 'erc-mode
+   :predicate #'erc-alert-important-p
+   :style 'log
+   :append t)
+
+  (alert-add-rule :mode 'erc-mode :style 'ignore :append t))
+
+(add-hook 'erc-connect-pre-hook 'my-erc-define-alerts)
 
 (provide 'erc-alert)
 
