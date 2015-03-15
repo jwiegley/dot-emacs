@@ -2821,7 +2821,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , pabbrev
 
 (use-package pabbrev
-  :disabled t
   :commands pabbrev-mode
   :diminish pabbrev-mode)
 
