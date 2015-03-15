@@ -66,7 +66,7 @@ If the buffer is currently not visible, makes it sticky."
 (add-hook 'erc-text-matched-hook 'my-erc-hook)
 (add-hook 'erc-insert-modify-hook 'my-erc-hook)
 
-(defun my-erc-define-alerts ()
+(defun my-erc-define-alerts (&rest ignore)
   ;; Unless the user has recently typed in the ERC buffer, highlight the fringe
   (alert-add-rule
    :status   '(buried visible idle)
