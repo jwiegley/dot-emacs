@@ -687,6 +687,7 @@
  '(ledger-file "~/Documents/Accounts/ledger.dat")
  '(ledger-post-use-ido t)
  '(line-number-mode t)
+ '(load-prefer-newer t)
  '(mac-option-modifier (quote alt))
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
