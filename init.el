@@ -175,7 +175,7 @@
       (align beg end-mark))))
 
 (bind-key "M-[" 'align-code)
-;;;(bind-key "M-`" 'other-frame)
+(bind-key "M-`" 'other-frame)
 
 (bind-key "M-j" 'delete-indentation-forward)
 (bind-key "M-J" 'delete-indentation)
@@ -2204,8 +2204,8 @@
 
 (use-package iflipb
   :commands (iflipb-next-buffer iflipb-previous-buffer)
-  :bind (("M-`"   . my-iflipb-next-buffer)
-         ("M-S-`" . my-iflipb-previous-buffer))
+  ;; :bind (("M-`"   . my-iflipb-next-buffer)
+  ;;        ("M-S-`" . my-iflipb-previous-buffer))
   :config
   (setq iflipb-always-ignore-buffers
         "\\`\\( \\|diary\\|ipa\\|\\.newsrc-dribble\\'\\)"
