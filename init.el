@@ -1401,8 +1401,7 @@
 
 (use-package company
   :diminish company-mode
-  :config
-  (global-company-mode t))
+  :commands company-mode)
 
 ;;;_ , copy-code
 
