@@ -426,7 +426,7 @@
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
-  (set-frame-font (emacs-min-font))
+  (set-frame-font emacs-min-font)
 
   (when running-alternate-emacs
     (set-background-color "grey85")
