@@ -1899,6 +1899,11 @@
 (use-package git-blame
   :commands git-blame-mode)
 
+;;;_ , git-messenger
+
+(use-package git-messenger
+  :bind ("C-x v m" . git-messenger:popup-message))
+
 ;;;_ , git-wip
 
 (use-package git-wip-mode
