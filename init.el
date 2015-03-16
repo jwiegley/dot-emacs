@@ -973,6 +973,7 @@
 ;;;_ , ace-isearch
 
 (use-package ace-isearch
+  :disabled t
   :config
   (global-ace-isearch-mode 1))
 
@@ -1383,8 +1384,8 @@
 ;;;_ , company-mode
 
 (use-package company
-  :disabled t
-  :commands company-mode)
+  :config
+  (global-company-mode t))
 
 ;;;_ , copy-code
 
@@ -1556,6 +1557,20 @@
 (use-package doxymacs
   :disabled t
   :load-path "site-lisp/doxymacs/lisp/")
+
+;;;_ , eclim
+
+(use-package eclim
+  :defer t
+  :config
+  (global-eclim-mode)
+  (use-package company-emacs-eclim
+    :requires company
+    :config
+    (company-emacs-eclim-setup)))
+
+(use-package eclimd
+  :commands start-eclimd)
 
 ;;;_ , ediff
 
