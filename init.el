@@ -1031,6 +1031,10 @@
 (char-mapping "A-~" " ≅ ")
 (char-mapping "A-=" " ≡ ")
 
+;;;_ , alert
+
+(use-package alert)
+
 ;;;_ , allout
 
 (use-package allout
@@ -1371,9 +1375,15 @@
   ;;             (ghc-project-filename) 2 3)
   ;;       compilation-error-regexp-alist-alist)
 
+  (eval-when-compile
+    (defvar exit-status))
   (add-hook 'compilation-finish-functions
             (lambda (buf why)
-              (display-buffer buf))))
+              (display-buffer buf)
+              (if (> exit-status 0)
+                  (alert "Compilation finished with errors"
+                         :buffer buf :severity 'high)
+                (alert "Compilation finished" :buffer buf)))))
 
 ;;;_ , color-moccur
 
