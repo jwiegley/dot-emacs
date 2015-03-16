@@ -1,5 +1,16 @@
 # History of user-visible changes
 
+## Next
+
+* `company-ropemacs` was removed. `ropemacs` supports completion via
+  `completion-at-point-functions` starting with version 0.8.
+* `company-pysmell` was removed.
+* `company-select-next`, `company-select-previous`,
+  `company-select-next-or-abort`, `company-select-previous-or-abort` and
+  `company-complete-common-or-cycle` accept a numeric argument.
+* The documentation buffer window can be scrolled with the mouse wheel.
+* New command `company-diag`. Use it in bug reports.
+
 ## 2015-02-02 (0.8.10)
 
 * New variable `company-lighter-base`.
