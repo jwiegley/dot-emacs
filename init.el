@@ -2591,8 +2591,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                         (match-string 1 (buffer-name)))))
       (or (get-buffer name)
           (let ((buf (get-buffer-create name)))
-            (start-process "*git-monitor*" buf "git-monitor"
-                           "-d" (expand-file-name default-directory))
+            (ignore-errors
+              (start-process "*git-monitor*" buf "git-monitor"
+                             "-d" (expand-file-name default-directory)))
             buf)))))
 
 (use-package magit
