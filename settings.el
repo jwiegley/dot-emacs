@@ -996,6 +996,7 @@
  '(magit-diff-removed-highlight ((t (:background "#eecccc"))))
  '(magit-item-highlight ((t (:weight normal))))
  '(match ((t (:background "light cyan"))))
+ '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight light))))
  '(powerline-active2 ((t (:inherit mode-line :background "grey60"))))
  '(powerline-inactive1 ((t (:inherit mode-line-inactive :background "grey89"))))
  '(powerline-inactive2 ((t (:inherit mode-line-inactive :background "grey80"))))
