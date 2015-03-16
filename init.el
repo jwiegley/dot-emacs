@@ -2654,6 +2654,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
+  (unbind-key "M-m" magit-mode-map)
 
   (add-hook 'magit-log-edit-mode-hook
             #'(lambda ()
