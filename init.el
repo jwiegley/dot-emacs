@@ -3049,7 +3049,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :load-path (lambda () (nix-lisp-path "ProofGeneral/generic"))
   :init
   (defvar coq-compile-parallel-in-background nil)
-  (eval-when-compile (require 'coq))
+  (eval-when-compile
+    (require 'coq nil t))
 
   :config
   (use-package coq
