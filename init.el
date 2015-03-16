@@ -1746,6 +1746,9 @@
   :defer t
   :init
   (add-hook 'erc-mode-hook 'setup-irc-environment)
+  (add-to-list
+   'erc-mode-hook
+   #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
   (add-hook 'after-init-hook 'irc)
 
   :config
