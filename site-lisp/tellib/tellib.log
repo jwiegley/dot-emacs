@@ -1,0 +1,115 @@
+2003-03-01  Thomas Link  <samul at web.de>
+
+	* tellib.el: Use `mapc' instead of `doloop'
+	(tellib-andmap): reimplemented as macro
+	(tellib-filter-list): reimplement as macro
+	(tellib-andmap-1): reimplement as macro
+	(tellib-set-optional-args): removed
+	(tellib-set-optional-args*): removed
+	(tellib-with-key-arguments): removed
+
+2003-02-26  Thomas Link  <samul at web.de>
+
+	* tellib.el (tellib-update-local-variable-def): New key: :val-set
+
+2003-01-12  Thomas Link  <samul at web.de>
+
+	* tellib.el (tellib-member): Reimplemented tellib-member as macro.
+
+2002-12-22  Thomas Link  <samul at web.de>
+
+	* tellib-define-provide-hook: Run hooks after providing a feature.
+
+2002-12-08  Thomas Link  <samul at web.de>
+
+	* tellib-overlay-restore: Catch errors.
+
+2002-11-23  Thomas Link  <samul at web.de>
+
+	* tellib-read-file: Read FILENAME and return its contents as
+	string.
+
+	* tellib-plist-mapkeys: Map FUNCTION on the KEYS in PLISTS and
+	append the values to a list.
+
+2002-11-17  Thomas Link  <samul at web.de>
+
+	* tellib-install: Needed after require.
+
+2002-11-12  Thomas Link  <samul at web.de>
+
+	* tellib-plist-merge: *new* Insert PLIST 1 into PLIST2.
+
+2002-11-09  Thomas Link  <samul at web.de>
+
+	* tellib-set-optional-args*, tellib-set-optional-args: *new* set
+	key arguments
+
+	* tellib-andmap-1: *new* like `tellib-andmap' but for lists with
+	different length
+
+	* tellib-version-check-p: fixed bug & can now deal with version
+	numbers of different "accuracy"
+
+	* tellib-update-local-variable-def: keyed optional arguments:
+	:dont-replace, :if-different, :set-var, :ignore-read-only,
+	:no-error-if-read-only
+
+	* tellib-string-wrap: *new* Fill STRING using `fill-region'.
+
+2002-11-05  Thomas Link  <samul at web.de>
+
+	* tellib-remove-redundant-path-separators: *new* Remove multiples
+	'/' (or whatever) in filename.
+
+	* tellib-overlay-move, tellib-overlay-change-size: *new*
+	manipulate overlays.
+
+2002-11-02  Thomas Link  <samul at web.de>
+
+	* tellib-mappend: *new* Map TELLIB-FN (returning lists) on
+	TELLIB-LIST and append results.
+
+2002-11-01  Thomas Link  <samul at web.de>
+
+	* tellib-del-from-list: *new* Delete ELEMENT from LIST-VAR.
+
+	* tellib-edit-in-buffer: *new* Edit TEXT in a temporary buffer.
+
+	* tellib-overlay-restore: *new* Restore all overlays in
+	OVERLAY-LIST -- as returned by `tellib-overlay-collect'.
+
+	* tellib-overlay-collect: *new* Collect (return list of) all
+	overlay with one of SYMBOLS defined in BUFFER.
+
+2002-10-19  Thomas Link  <samul at web.de>
+
+	* tellib-log, tellib-define-logged-messages: *NEW* Log messages
+	depending on debug class and level
+
+2002-10-16  Thomas Link  <samul at web.de>
+
+	* tellib-with-message-buffer: *NEW* Display a buffer with MESSAGE
+	and evaluate BODY
+
+2002-10-13  Thomas Link  <samul at web.de>
+
+	* tellib-some: reimplemented as macro
+
+	* tellib-with-result: *new* Eval RESULT and BODY, and return
+	RESULT's value.
+
+	* tellib-update-local-variable-def: fixed moving cursor bug
+
+	* tellib-set-file-variable: Interactive command
+
+2002-09-08  Thomas Link  <samul at web.de>
+
+	* tellib-version-check-with-name: use the package name for
+	determining the package's version.
+
+	* tellib-test-flag: Compile-time testing has to be enabled by
+	setting this variable to non-nil.
+
+	* tellib-ormap: Re-implemented as macro
+

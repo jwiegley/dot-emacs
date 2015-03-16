@@ -1,0 +1,4 @@
+2002-11-17  Thomas Link  <samul at web.de>
+
+	* attic.el: Use `attic-install'.
+

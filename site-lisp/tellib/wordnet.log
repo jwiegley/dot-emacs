@@ -1,0 +1,32 @@
+2003-04-18  Thomas Link  <samul at web.de>
+
+	* wordnet.el (wordnet-lookup-word): *new*
+	(wordnet-lookup-selection): *new*
+	(wordnet-kill-frame): *new*
+
+2003-01-02  Thomas Link  <samul at web.de>
+
+	* `wordnet-command-line': :nullmatch REGEXP ... If the result
+	matches this regexp, it is considered as non-valid.
+
+2002-10-13  Thomas Link  <samul at web.de>
+
+	* `wordnet-command-line': three different ways to "run" a command
+	line: `shell-command-to-string' (the default),
+	`start-process-shell-command', `eval'
+
+	* `wordnet-popmenu-at-mouse': pop-up menu in WordNet buffer.
+
+	* wordnet-command-line: replace %{Width} with `window-width'; new
+	:mode option (see below `wordnet-mode-vars')
+
+	* `wordnet-mode-vars': make command selection sensible to the
+	buffers' mode
+
+2002-10-09  Thomas Link  <samul at web.de>
+
+	* wordnet-command-line: replace "%l" with `ispell-local-dictionary'
+
+	* wordnet-lookup-mode, wordnet-volatile-lookup-modes: a buffer
+	local variable -- remember or force a specific default lookup mode
+	

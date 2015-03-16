@@ -1,0 +1,99 @@
+2003-04-14  Thomas Link  <samul at web.de>
+
+	* filesets2.el (filesets-build-submenu): Take care of mangled file
+	names when sorting a :files type of submenu.
+	(filesets-mangled-or-file-name): *new*
+
+2003-04-06  Thomas Link  <samul at web.de>
+
+	* filesets2.el: fixed stupid bug (infinite loop) that crashed
+	XEmacs; replaced some `append's with `nconc'. Changed the
+	installation routine: instead of (require 'filesets2) one has to
+	insert (require 'filesets-tellib) or (require 'filesets-emacs). 
+	filesets-suppl.el is loaded automatically if needed.
+
+2003-03-27  Thomas Link  <samul at web.de>
+
+	* filesets2.el: removed most "hard-wired" tellib dependencies
+	(filesets-new-fileset-tree): Make a new :tree type fileset
+	(filesets-dired-new-tree-fileset): Make a new :tree type fileset
+	from the directory at line
+	(filesets-key-new-tree-fileset): default key binding for the above
+
+2003-03-15  Thomas Link  <samul at web.de>
+
+	* filesets2.el (filesets-add-abbreviated-file-names-flag):
+	`filesets-add-buffer' adds an abbreviated (incl. hack-homedir)
+	file-name.
+	(filesets-support-ibuffer): new function
+	(filesets-support-dired): new function
+	(filesets-key-add-to-fileset): new user option
+	(filesets-key-do-add-to-fileset): new user option
+	(filesets-key-find-or-display): new user option
+	(filesets-add-file): Can create new filesets
+	(filesets-select-fileset-name): new function
+
+2003-03-10  Thomas Link  <samul at web.de>
+
+	* filesets2.el (filesets-ps-viewer, filesets-pdf-viewer,
+	filesets-dvi-viewer, filesets-word-viewer, filesets-grf-viewer):
+	new parameters
+
+2003-03-08  Thomas Link  <samul at web.de>
+
+	* filesets2.el (filesets-cache-save-often-flag): Non-nil can be
+	'save-cache or 'save-cache+custom.
+	(filesets-menu-cache-file-save-maybe): The optional argument was
+	changed in order to reflect the change to
+	`filesets-cache-save-often-flag'
+	(filesets-has-changed-flag): renamed to `filesets-have-changed-flag'
+	(tellib-running-xemacs): replaced with (featurep 'xemacs)
+
+2003-01-12  Thomas Link  <samul at web.de>
+
+	* filesets2.el: Put some functions into filesets-emacs.el and
+	re-implemented them as macro if necessary.
+
+2002-12-22  Thomas Link  <samul at web.de>
+
+	* filesets-install, filesets-uninstall: Compatibility with
+	`tellib-installer'.
+
+2002-10-13  Thomas Link  <samul at web.de>
+
+	* filesets-run-cmd: works again
+
+2002-09-29  Thomas Link  <samul at web.de>
+
+	* Several changes to how commands are run in order to support
+	igrep.
+
+2002-09-14  Thomas Link  <samul at web.de>
+
+	* filesets-ingroup-collect-hook: Hooks to be run after opening a
+	file on collecting an ingroup's files.
+
+	* filesets-ingroup-stop: A file local variable. Non-nil means don't
+	rescan the current buffer for further ingroups.
+
+2002-09-06  Thomas Link  <samul at web.de>
+
+	* Allow mangled filenames for ":files"-type filesets (see
+	`filesets-data')
+
+2002-09-01  Thomas Link  <samul at web.de>
+
+	* filesets-find-file: fix use of `file-name-history'
+
+2002-08-18  Thomas Link  <samul at web.de>
+
+	* tree and pattern filesets now have "New Subdir" and "New File"
+	entries
+
+2002-07-25  Thomas Link  <samul at web.de>
+	
+	* filesets-use-file-name-history-flag:
+	filesets-use-file-name-history-flag now has three states:
+	explicit, always, nil (never)
+
+	* filesets.el: Integration with tellib.el (working copy is filesets2.el).

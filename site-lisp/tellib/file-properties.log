@@ -1,0 +1,78 @@
+2003-03-20  Thomas Link  <samul at web.de>
+
+	* file-properties.el (file-properties-get-file-desc): Save the
+	abbreviated file name instead of the full one.
+
+2003-03-09  Thomas Link  <samul at web.de>
+
+	* file-properties.el (file-properties-location): New strategy
+	:with-id ... If the buffer has a unique ID (defined using
+	`file-properties-define-unique-id'), the properties file is stored
+	in `file-properties-uniquedir'.
+
+2003-03-08  Thomas Link  <samul at web.de>
+
+	* file-properties.el (file-properties-read): Mark buffer with
+	`file-properties-dirty-flag' if the file-properties were outdated.
+	(file-properties-list): made it customizable; changed extended
+	(list) format to (SYMBOL . ALIST), where ALIST can include the
+	keys :predicate and :filter.
+	(file-properties-get-properties-list): Modifation to reflect the
+	change in `file-properties-list'.
+
+2003-02-26  Thomas Link  <samul at web.de>
+
+	* file-properties.el (file-properties-dirty-flag): Mark buffer
+	that it needs saving of file-properties.
+	
+	* file-properties.el (file-properties-minor-mode): Use :val-flag key.
+
+2002-12-08  Thomas Link  <samul at web.de>
+
+	* file-properties-read: Catch errors.
+
+2002-12-01  Thomas Link  <samul at web.de>
+
+	* file-properties-get-file-desc, file-properties-verify-file-desc:
+	Check if the file has changed and if the properties file is out of
+	sync.
+
+2002-11-24  Thomas Link  <samul at web.de>
+
+	* file-properties-do-nothing: If non-nil, file properties won't be
+	read or written.
+
+	* Renamed "properties" to "file-properties".
+
+2002-11-23  Thomas Link  <samul at web.de>
+
+	* properties-add-dirprop, properties-remove-dirprop): Add and
+	remove directory specific properties -- only `properties-etc' type
+	of entries are supported.
+
+2002-11-21  Thomas Link  <samul at web.de>
+
+	* properties-add-special, properties-remove-special: Add something
+	being defined in `properties-categories' to `properties-etc'.
+	Version 3 of properties file.
+
+2002-11-17  Thomas Link  <samul at web.de>
+
+	* properties-install: Needed after reuqire.
+
+2002-11-09  Thomas Link  <samul at web.de>
+
+	* properties-flag: *new* Non-nil means, warn user if the file's
+	properties can't be loaded.
+
+2002-11-04  Thomas Link  <samul at web.de>
+
+	* properties-location: *new* A more flexible way of determining
+	where to save properties files. If a file's directory is not
+	writeable, we put the properties file where the user init file is.
+
+2002-11-01  Thomas Link  <samul at web.de>
+
+	* Overlays: store overlays in property files -- see
+	`properties-overlay'
+

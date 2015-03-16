@@ -1,0 +1,7 @@
+2003-01-03  Thomas Link  <samul at web.de>
+
+	* textcoding-shorten-replacements: Simplify shortened text markes.
+
+	* `textcoding-get-short-marker', `textcoding-shorten-marker-flag':
+	Option to shorten text marks.
+
