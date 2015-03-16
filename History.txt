@@ -1,0 +1,35 @@
+== In Git
+
+=== New Features
+ * organize imports
+ * browsing with the class hierarchy
+ * override / implement methods
+ * display problems
+ * run Ant targets
+ * run Maven phases and goals
+ * automatic refresh of the problems buffer
+ * file-filter for the problems buffer
+ * interface improvements for the problems buffer
+ * improved mechanisms for calling the eclim server
+ * rename/refactor in java code works as expected
+ * functions for find declarations and refrences of java methods and members
+ * Error highlighting in code
+ * Support for auto-complete-mode
+ * eclimd module to start/stop eclimd from emacs
+ * Generation of getter and setter methods.
+ 
+=== Bugfixes
+ * removed extra parentheses around function
+ * fixed a problem on startup when the eclimd server was not started
+ * bugfix in call to eclim-call-process
+ * Added a new directory for eclipse (may only be Arch linux specific)
+ * Changed eclim--project-name to get the project name out of eclipse
+   than futz with matching dir names to workspace names.
+ * Added eclim-eclipse-dirs which can be used if eclipse is not
+   installed in the standard location
+ * Changed eclim--project-name to get the project name out of
+   project_by_resource command, and eclim--project-current-file to use
+   project_link_resource command, so that external source files not in the
+   eclipse working directory are correctly handled.
+ * fixed a problem with highlighting when files are in directories that are symbolic links
+ * Make the project major modes adhere to emacs major mode conventions
