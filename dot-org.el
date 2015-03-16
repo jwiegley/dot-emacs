@@ -1,6 +1,6 @@
 ;;;_ , Org-mode
 
-(require 'use-package)
+(eval-when-compile (require 'use-package))
 
 (load "org-settings")
 

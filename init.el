@@ -11,9 +11,12 @@
 
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
-(eval-and-compile
-  (defvar use-package-verbose t))
-(require 'use-package)
+(eval-when-compile
+  ;; (defvar use-package-verbose t)
+  ;; (defvar use-package-expand-minimally t)
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
 
 ;;;_ , Utility macros and functions
 
@@ -30,23 +33,23 @@
          (/ (float (string-to-number (match-string 1)))
             1000000000.0))))
 
-(defun cleanup-term-log ()
-  "Do not show ^M in files containing mixed UNIX and DOS line endings."
-  (interactive)
-  (require 'ansi-color)
-  (ansi-color-apply-on-region (point-min) (point-max))
-  (goto-char (point-min))
-  (while (re-search-forward "\\(.\\|$\\|P.+\\\\\n\\)" nil t)
-    (overlay-put (make-overlay (match-beginning 0) (match-end 0))
-                 'invisible t))
-  (set-buffer-modified-p nil))
+;; (defun cleanup-term-log ()
+;;   "Do not show ^M in files containing mixed UNIX and DOS line endings."
+;;   (interactive)
+;;   (require 'ansi-color)
+;;   (ansi-color-apply-on-region (point-min) (point-max))
+;;   (goto-char (point-min))
+;;   (while (re-search-forward "\\(.\\|$\\|P.+\\\\\n\\)" nil t)
+;;     (overlay-put (make-overlay (match-beginning 0) (match-end 0))
+;;                  'invisible t))
+;;   (set-buffer-modified-p nil))
 
-(add-hook 'find-file-hooks
-          (function
-           (lambda ()
-             (if (string-match "/\\.iTerm/.*\\.log\\'"
-                               (buffer-file-name))
-                 (cleanup-term-log)))))
+;; (add-hook 'find-file-hooks
+;;           (function
+;;            (lambda ()
+;;              (if (string-match "/\\.iTerm/.*\\.log\\'"
+;;                                (buffer-file-name))
+;;                  (cleanup-term-log)))))
 
 ;;;_ , Read system environment
 
@@ -991,16 +994,17 @@
 
 (eval-and-compile
   (defun agda-site-lisp ()
-    (let ((agda (nth 1 (split-string
-                        (shell-command-to-string "load-env-agda which agda")
-                        "\n"))))
+    (let ((agda
+           (nth 1 (split-string
+                   (shell-command-to-string "load-env-agda which agda")
+                   "\n"))))
       (and agda
            (expand-file-name
             "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.2/emacs-mode"
             (file-name-directory agda))))))
 
 (use-package agda2-mode
-  ;; :mode ("\\.agda\\'" . agda2-mode)
+  :mode "\\.agda\\'"
   :load-path (lambda () (list (agda-site-lisp)))
   :defines agda2-mode-map
   :init
@@ -1821,13 +1825,13 @@
 
 ;;;_ , eww
 
-(use-package eww
-  :bind ("A-M-g" . eww)
-  :config
-  (use-package eww-lnum
-    :config
-    (bind-key "f" 'eww-lnum-follow eww-mode-map)
-    (bind-key "F" 'eww-lnum-universal eww-mode-map)))
+;; (use-package eww
+;;   :bind ("A-M-g" . eww)
+;;   :config
+;;   (use-package eww-lnum
+;;     :config
+;;     (bind-key "f" 'eww-lnum-follow eww-mode-map)
+;;     (bind-key "F" 'eww-lnum-universal eww-mode-map)))
 
 ;;;_ , fetchmail-mode
 
@@ -2009,24 +2013,9 @@
 
 ;;;_ , helm
 
-(defun my-helm-do-grep ()
-  (interactive)
-  (helm-do-grep-1 (list default-directory)))
-
-(defun my-helm-do-grep-r ()
-  (interactive)
-  (helm-do-grep-1 (list default-directory) t))
-
-(defun my-helm-find ()
-  (interactive)
-  (helm-find nil))
-
-(defvar helm-swoop-last-prefix-number)
-
 (use-package helm-config
   :demand t
-  :commands (helm-do-grep-1 helm-find
-             helm-completing-read-with-cands-in-buffer)
+  :commands (helm-do-grep-1 helm-find helm--completing-read-default)
   :bind (("C-c h"   . helm-command-prefix)
          ("C-h a"   . helm-apropos)
          ("C-h e a" . my-helm-apropos)
@@ -2040,6 +2029,21 @@
          ("M-s o"   . helm-swoop)
          ("M-s /"   . helm-multi-swoop))
 
+  :preface
+  (defun my-helm-do-grep ()
+    (interactive)
+    (helm-do-grep-1 (list default-directory)))
+
+  (defun my-helm-do-grep-r ()
+    (interactive)
+    (helm-do-grep-1 (list default-directory) t))
+
+  (defun my-helm-find ()
+    (interactive)
+    (helm-find nil))
+
+  (defvar helm-swoop-last-prefix-number)
+
   :config
   (use-package helm-commands)
   (use-package helm-files)
@@ -2048,7 +2052,7 @@
   (use-package helm-ls-git)
   (use-package helm-match-plugin)
   (use-package helm-swoop)
-  (use-package helm-mode)
+  ;; (use-package helm-mode)
 
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)
@@ -2085,8 +2089,7 @@
 
 (use-package hl-line
   :commands hl-line-mode
-  :bind (("M-o h" . hl-line-mode)
-         ([?\C-o ?b] . foo))
+  :bind (("M-o h" . hl-line-mode))
   :config
   (use-package hl-line+))
 
@@ -2598,22 +2601,22 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , magit
 
-(defun magit-monitor (&optional no-display)
-  "Start git-monitor in the current directory."
-  (interactive)
-  (when (string-match "\\*magit: \\(.+?\\)\\*" (buffer-name))
-    (let ((name (format "*git-monitor: %s*"
-                        (match-string 1 (buffer-name)))))
-      (or (get-buffer name)
-          (let ((buf (get-buffer-create name)))
-            (ignore-errors
-              (start-process "*git-monitor*" buf "git-monitor"
-                             "-d" (expand-file-name default-directory)))
-            buf)))))
-
 (use-package magit
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
+  :preface
+  (defun magit-monitor (&optional no-display)
+    "Start git-monitor in the current directory."
+    (interactive)
+    (when (string-match "\\*magit: \\(.+?\\)\\*" (buffer-name))
+      (let ((name (format "*git-monitor: %s*"
+                          (match-string 1 (buffer-name)))))
+        (or (get-buffer name)
+            (let ((buf (get-buffer-create name)))
+              (ignore-errors
+                (start-process "*git-monitor*" buf "git-monitor"
+                               "-d" (expand-file-name default-directory)))
+              buf)))))
   :init
   (defun magit-status-with-prefix ()
     (interactive)
@@ -2829,7 +2832,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("C-c l" . org-insert-link)
          ("C-. n" . org-velocity-read))
   :init
-  (when (and (not running-alternate-emacs)
+  (when (and nil
+             (not running-alternate-emacs)
              ;; (quickping "192.168.9.133")
              )
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
@@ -3063,16 +3067,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                     (kill-local-variable 'mode-line-format)))))))))))
 
 (use-package proof-site
-  :load-path (lambda () (nix-lisp-path "ProofGeneral/generic"))
-  :init
-  (defvar coq-compile-parallel-in-background nil)
-  (eval-when-compile
-    (require 'coq nil t))
-
+  :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic"
   :config
   (use-package coq
     :mode ("\\.v\\'" . coq-mode)
-    :load-path (lambda () (nix-lisp-path "ProofGeneral/coq"))
+    :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/coq"
     :functions (proof-layout-windows proof-prf holes-mode)
     :config
     (add-hook

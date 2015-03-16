@@ -1,8 +1,7 @@
 ;;;_ , Gnus
 
-(require 'use-package)
-(require 'ido)
 (eval-when-compile
+  (require 'use-package)
   (require 'cl))
 
 (load "gnus-settings")
