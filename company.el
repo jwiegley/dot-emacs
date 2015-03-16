@@ -300,8 +300,6 @@ This doesn't include the margins and the scroll bar."
     (company-keywords . "Programming language keywords")
     (company-nxml . "nxml")
     (company-oddmuse . "Oddmuse")
-    (company-pysmell . "PySmell")
-    (company-ropemacs . "ropemacs")
     (company-semantic . "Semantic")
     (company-tempo . "Tempo templates")
     (company-xcode . "Xcode")))
@@ -315,12 +313,12 @@ This doesn't include the margins and the scroll bar."
                         (assq backend company-safe-backends))
                 (cl-return t))))))
 
-(defcustom company-backends `(,@(unless (version< "24.3.50" emacs-version)
+(defcustom company-backends `(,@(unless (version< "24.3.51" emacs-version)
                                   (list 'company-elisp))
                               company-bbdb
                               company-nxml company-css
                               company-eclim company-semantic company-clang
-                              company-xcode company-ropemacs company-cmake
+                              company-xcode company-cmake
                               company-capf
                               (company-dabbrev-code company-gtags company-etags
                                company-keywords)
@@ -934,26 +932,26 @@ means that `company-mode' is always turned on except in `message-mode' buffers."
       (cons
        :async
        (lambda (callback)
-         (let* (lst pending
+         (let* (lst
+                (pending (mapcar #'car pairs))
                 (finisher (lambda ()
                             (unless pending
                               (funcall callback
                                        (funcall merger
                                                 (nreverse lst)))))))
            (dolist (pair pairs)
-             (let ((val (car pair))
-                   (mapper (cdr pair)))
+             (push nil lst)
+             (let* ((cell lst)
+                    (val (car pair))
+                    (mapper (cdr pair))
+                    (this-finisher (lambda (res)
+                                     (setq pending (delq val pending))
+                                     (setcar cell (funcall mapper res))
+                                     (funcall finisher))))
                (if (not (eq :async (car-safe val)))
-                   (push (funcall mapper val) lst)
-                 (push nil lst)
-                 (let ((cell lst)
-                       (fetcher (cdr val)))
-                   (push fetcher pending)
-                   (funcall fetcher
-                            (lambda (res)
-                              (setq pending (delq fetcher pending))
-                              (setcar cell (funcall mapper res))
-                              (funcall finisher)))))))))))))
+                   (funcall this-finisher val)
+                 (let ((fetcher (cdr val)))
+                   (funcall fetcher this-finisher)))))))))))
 
 (defun company--prefix-str (prefix)
   (or (car-safe prefix) prefix))
@@ -1805,33 +1803,40 @@ followed by `company-search-toggle-filtering'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun company-select-next ()
-  "Select the next candidate in the list."
-  (interactive)
-  (when (company-manual-begin)
-    (company-set-selection (1+ company-selection))))
+(defun company-select-next (&optional arg)
+  "Select the next candidate in the list.
 
-(defun company-select-previous ()
-  "Select the previous candidate in the list."
-  (interactive)
+With ARG, move by that many elements."
+  (interactive "p")
   (when (company-manual-begin)
-    (company-set-selection (1- company-selection))))
+    (company-set-selection (+ (or arg 1) company-selection))))
 
-(defun company-select-next-or-abort ()
+(defun company-select-previous (&optional arg)
+  "Select the previous candidate in the list.
+
+With ARG, move by that many elements."
+  (interactive "p")
+  (company-select-next (if arg (- arg) -1)))
+
+(defun company-select-next-or-abort (&optional arg)
   "Select the next candidate if more than one, else abort
-and invoke the normal binding."
-  (interactive)
+and invoke the normal binding.
+
+With ARG, move by that many elements."
+  (interactive "p")
   (if (> company-candidates-length 1)
-      (company-select-next)
+      (company-select-next arg)
     (company-abort)
     (company--unread-last-input)))
 
-(defun company-select-previous-or-abort ()
+(defun company-select-previous-or-abort (&optional arg)
   "Select the previous candidate if more than one, else abort
-and invoke the normal binding."
-  (interactive)
+and invoke the normal binding.
+
+With ARG, move by that many elements."
+  (interactive "p")
   (if (> company-candidates-length 1)
-      (company-select-previous)
+      (company-select-previous arg)
     (company-abort)
     (company--unread-last-input)))
 
@@ -1919,14 +1924,17 @@ and invoke the normal binding."
       (when company-common
         (company--insert-candidate company-common)))))
 
-(defun company-complete-common-or-cycle ()
-  "Insert the common part of all candidates, or select the next one."
-  (interactive)
+(defun company-complete-common-or-cycle (&optional arg)
+  "Insert the common part of all candidates, or select the next one.
+
+With ARG, move by that many elements."
+  (interactive "p")
   (when (company-manual-begin)
     (let ((tick (buffer-chars-modified-tick)))
       (call-interactively 'company-complete-common)
       (when (eq tick (buffer-chars-modified-tick))
-        (let ((company-selection-wrap-around t))
+        (let ((company-selection-wrap-around t)
+              (current-prefix-arg arg))
           (call-interactively 'company-select-next))))))
 
 (defun company-complete ()
@@ -2015,7 +2023,7 @@ character, stripping the modifiers.  That character must be a digit."
     (current-buffer)))
 
 (defvar company--electric-commands
-  '(scroll-other-window scroll-other-window-down)
+  '(scroll-other-window scroll-other-window-down mwheel-scroll)
   "List of Commands that won't break out of electric commands.")
 
 (defmacro company--electric-do (&rest body)
@@ -2029,9 +2037,12 @@ character, stripping the modifiers.  That character must be a digit."
          (and (< (window-height) height)
               (< (- (window-height) row 2) company-tooltip-limit)
               (recenter (- (window-height) row 2)))
-         (while (memq (setq cmd (key-binding (vector (list (read-event)))))
+         (while (memq (setq cmd (key-binding (read-key-sequence-vector nil)))
                       company--electric-commands)
-           (call-interactively cmd))
+           (condition-case err
+               (call-interactively cmd)
+             ((beginning-of-buffer end-of-buffer)
+              (message (error-message-string err)))))
          (company--unread-last-input)))))
 
 (defun company--unread-last-input ()
@@ -2042,32 +2053,36 @@ character, stripping the modifiers.  That character must be a digit."
 (defun company-show-doc-buffer ()
   "Temporarily show the documentation buffer for the selection."
   (interactive)
-  (company--electric-do
-    (let* ((selected (nth company-selection company-candidates))
-           (doc-buffer (or (company-call-backend 'doc-buffer selected)
-                           (error "No documentation available"))))
-      (with-current-buffer doc-buffer
-        (goto-char (point-min)))
-      (display-buffer doc-buffer t))))
+  (let (other-window-scroll-buffer)
+    (company--electric-do
+      (let* ((selected (nth company-selection company-candidates))
+             (doc-buffer (or (company-call-backend 'doc-buffer selected)
+                             (error "No documentation available"))))
+        (setq other-window-scroll-buffer (get-buffer doc-buffer))
+        (with-current-buffer doc-buffer
+          (goto-char (point-min)))
+        (display-buffer doc-buffer t)))))
 (put 'company-show-doc-buffer 'company-keep t)
 
 (defun company-show-location ()
   "Temporarily display a buffer showing the selected candidate in context."
   (interactive)
-  (company--electric-do
-    (let* ((selected (nth company-selection company-candidates))
-           (location (company-call-backend 'location selected))
-           (pos (or (cdr location) (error "No location available")))
-           (buffer (or (and (bufferp (car location)) (car location))
-                       (find-file-noselect (car location) t))))
-      (with-selected-window (display-buffer buffer t)
-        (save-restriction
-          (widen)
-          (if (bufferp (car location))
-              (goto-char pos)
-            (goto-char (point-min))
-            (forward-line (1- pos))))
-        (set-window-start nil (point))))))
+  (let (other-window-scroll-buffer)
+    (company--electric-do
+      (let* ((selected (nth company-selection company-candidates))
+             (location (company-call-backend 'location selected))
+             (pos (or (cdr location) (error "No location available")))
+             (buffer (or (and (bufferp (car location)) (car location))
+                         (find-file-noselect (car location) t))))
+        (setq other-window-scroll-buffer (get-buffer buffer))
+        (with-selected-window (display-buffer buffer t)
+          (save-restriction
+            (widen)
+            (if (bufferp (car location))
+                (goto-char pos)
+              (goto-char (point-min))
+              (forward-line (1- pos))))
+          (set-window-start nil (point)))))))
 (put 'company-show-location 'company-keep t)
 
 ;;; package functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2130,6 +2145,46 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
     (if show-version
         (message "Company version: %s" (lm-version))
       (lm-version))))
+
+(defun company-diag ()
+  (interactive)
+  "Pop a buffer with information about completions at point."
+  (let* ((bb company-backends)
+         backend
+         (prefix (cl-loop for b in bb
+                          thereis (let ((company-backend b))
+                                    (setq backend b)
+                                    (company-call-backend 'prefix))))
+         cc annotations)
+    (when (stringp prefix)
+      (let ((company-backend backend))
+        (setq cc (company-call-backend 'candidates prefix)
+              annotations
+              (mapcar
+               (lambda (c) (cons c (company-call-backend 'annotation c)))
+               cc))))
+    (pop-to-buffer (get-buffer-create "*company-diag*"))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (insert (format "Emacs %s (%s) of %s on %s"
+                    emacs-version system-configuration
+                    (format-time-string "%Y-%m-%d" emacs-build-time)
+                    emacs-build-system))
+    (insert "\nCompany " (company-version) "\n\n")
+    (insert "company-backends: " (pp-to-string bb))
+    (insert "\n")
+    (insert "Used backend: " (pp-to-string backend))
+    (insert "\n")
+    (insert "Prefix: " (pp-to-string prefix))
+    (insert "\n")
+    (insert (message  "Completions:"))
+    (unless cc (insert " none"))
+    (save-excursion
+      (dolist (c annotations)
+        (insert "\n  " (prin1-to-string (car c)))
+        (when (cdr c)
+          (insert " " (prin1-to-string (cdr c))))))
+    (special-mode)))
 
 ;;; pseudo-tooltip ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
