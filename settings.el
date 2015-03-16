@@ -173,6 +173,7 @@
  '(ac-ignore-case nil)
  '(ac-trigger-key "<tab>")
  '(ac-use-fuzzy nil)
+ '(ace-isearch-submode (quote ace-jump-char-mode))
  '(after-save-hook
    (quote
     (executable-make-buffer-file-executable-if-script-p)))

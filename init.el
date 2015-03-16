@@ -979,6 +979,12 @@
           ace-jump-word-mode
           ace-jump-line-mode)))
 
+;;;_ , ace-isearch
+
+(use-package ace-isearch
+  :config
+  (global-ace-isearch-mode 1))
+
 ;;;_ , ag
 
 (use-package ag
