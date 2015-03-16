@@ -2041,31 +2041,30 @@
          ("M-s /"   . helm-multi-swoop))
 
   :config
-  (progn
-    (use-package helm-commands)
-    (use-package helm-files)
-    (use-package helm-buffers)
-    (use-package helm-grep)
-    (use-package helm-ls-git)
-    (use-package helm-match-plugin)
-    (use-package helm-swoop)
-    (use-package helm-mode)
+  (use-package helm-commands)
+  (use-package helm-files)
+  (use-package helm-buffers)
+  (use-package helm-grep)
+  (use-package helm-ls-git)
+  (use-package helm-match-plugin)
+  (use-package helm-swoop)
+  (use-package helm-mode)
 
-    (use-package helm-descbinds
-      :bind ("C-h b" . helm-descbinds)
-      :init
-      (fset 'describe-bindings 'helm-descbinds))
+  (use-package helm-descbinds
+    :bind ("C-h b" . helm-descbinds)
+    :init
+    (fset 'describe-bindings 'helm-descbinds))
 
-    (helm-match-plugin-mode t)
-    (helm-autoresize-mode t)
+  (helm-match-plugin-mode t)
+  (helm-autoresize-mode t)
 
-    (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
-    (bind-key "C-i" 'helm-execute-persistent-action helm-map)
-    (bind-key "C-z" 'helm-select-action helm-map)
-    (bind-key "A-v" 'helm-previous-page helm-map)
+  (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
+  (bind-key "C-i" 'helm-execute-persistent-action helm-map)
+  (bind-key "C-z" 'helm-select-action helm-map)
+  (bind-key "A-v" 'helm-previous-page helm-map)
 
-    (when (executable-find "curl")
-      (setq helm-google-suggest-use-curl-p t))))
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t)))
 
 ;; (use-package helm-ls-git
 ;;   :bind ("C-x f" . helm-ls-git-ls))
@@ -2086,7 +2085,8 @@
 
 (use-package hl-line
   :commands hl-line-mode
-  :bind ("M-o h" . hl-line-mode)
+  :bind (("M-o h" . hl-line-mode)
+         ([?\C-o ?b] . foo))
   :config
   (use-package hl-line+))
 
