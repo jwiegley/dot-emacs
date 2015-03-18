@@ -3737,6 +3737,13 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package tiny
   :bind ("C-. N" . tiny-expand))
 
+;;;_ , tramp
+
+(use-package tramp-sh
+  :defer t
+  :config
+  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
+
 ;;;_ , twittering-mode
 
 (use-package twittering-mode
