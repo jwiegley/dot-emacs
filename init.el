@@ -1019,8 +1019,7 @@
   :mode "\\.agda\\'"
   :load-path (lambda () (list (agda-site-lisp)))
   :defines agda2-mode-map
-  :config
-  (use-package agda-input)
+  :preface
   (defun agda2-insert-helper-function (&optional prefix)
     (interactive "P")
     (let ((func-def (with-current-buffer "*Agda information*"
@@ -1030,6 +1029,8 @@
         (let ((name (car (split-string func-def " "))))
           (insert "  where\n    " func-def "    " name " x = ?\n")))))
 
+  :config
+  (use-package agda-input)
   (bind-key "C-c C-i" 'agda2-insert-helper-function agda2-mode-map))
 
 (defun char-mapping (key char)
@@ -1486,7 +1487,9 @@
       ;; (use-package dired-async)
       ;; (use-package dired-sort-map)
       ;; (use-package runner)
-      (use-package dired+)
+      (use-package dired+
+        :config
+        (unbind-key "M-s f" dired-mode-map))
 
       (bind-key "l" 'dired-up-directory dired-mode-map)
 
@@ -1500,7 +1503,6 @@
 
       (bind-key "M-!" 'async-shell-command dired-mode-map)
       (unbind-key "M-G" dired-mode-map)
-      (unbind-key "M-s f" dired-mode-map)
 
       (defadvice dired-omit-startup (after diminish-dired-omit activate)
         "Make sure to remove \"Omit\" from the modeline."
@@ -1773,7 +1775,9 @@
         erc-fill-column 88
         erc-insert-timestamp-function 'erc-insert-timestamp-left)
 
-  (set-input-method "Agda")
+  (use-package agda-input
+    :config
+    (set-input-method "Agda"))
 
   (defun reset-erc-track-mode ()
     (interactive)
@@ -1983,8 +1987,8 @@
 (use-package grep
   :disabled t
   :bind (("M-s d" . find-grep-dired)
-         ;; ("M-s f" . find-grep)
-         ("M-s g" . grep)
+         ("M-s F" . find-grep)
+         ("M-s G" . grep)
          ("M-s p" . find-grep-in-project))
   :init
   (defun find-grep-in-project (command-args)
@@ -1996,13 +2000,13 @@
                                        (+ 24 (length default)))
                                  'grep-find-history))))
     (if command-args
-        (let ((null-device nil))      ; see grep
+        (let ((null-device nil))        ; see grep
           (grep command-args))))
 
   :config
   (use-package grep-ed)
   (grep-apply-setting 'grep-command "egrep -nH -e ")
-  (if t
+  (if nil
       (progn
         (setq-default grep-first-column 1)
         (grep-apply-setting
@@ -2011,8 +2015,7 @@
            . 61)))
     (grep-apply-setting
      'grep-find-command
-     '("find . -name '*.hs' -type f -print0 | xargs -P4 -0 egrep -nH "
-       . 62))))
+     '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))))
 
 ;;;_ , gtags
 
@@ -2744,6 +2747,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
   (unbind-key "M-m" magit-mode-map)
+
+  (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
+  (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
 
   (add-hook 'magit-log-edit-mode-hook
             #'(lambda ()
