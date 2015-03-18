@@ -174,6 +174,7 @@
  '(ac-trigger-key "<tab>")
  '(ac-use-fuzzy nil)
  '(ace-isearch-submode (quote ace-jump-char-mode))
+ '(ad-redefinition-action (quote accept))
  '(after-save-hook
    (quote
     (executable-make-buffer-file-executable-if-script-p)))

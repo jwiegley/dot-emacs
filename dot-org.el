@@ -22,8 +22,15 @@
 (require 'ox-opml)
 
 (declare-function cfw:open-calendar-buffer "calfw")
+(declare-function cfw:refresh-calendar-buffer "calfw")
 (declare-function cfw:org-create-source "calfw-org")
 (declare-function cfw:cal-create-source "calfw-cal")
+
+(defun org-fit-agenda-window ()
+  "Fit the window to the buffer size."
+  (and (memq org-agenda-window-setup '(reorganize-frame))
+       (fboundp 'fit-window-to-buffer)
+       (fit-window-to-buffer)))
 
 (defun my-org-startup ()
   (org-agenda-list)
@@ -780,12 +787,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   (define-key org-todo-state-map "z" 'make-bug-link))
 
 (unbind-key "M-m" org-agenda-keymap)
-
-(defun org-fit-agenda-window ()
-  "Fit the window to the buffer size."
-  (and (memq org-agenda-window-setup '(reorganize-frame))
-       (fboundp 'fit-window-to-buffer)
-       (fit-window-to-buffer)))
 
 (defadvice org-agenda-redo (after fit-windows-for-agenda-redo activate)
   "Fit the Org Agenda to its buffer."

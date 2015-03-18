@@ -455,14 +455,13 @@ is:
              gnus-alias-message-x-completion
              gnus-alias-select-identity)
   :init
-  (progn
-    (add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+  (add-hook 'message-setup-hook 'gnus-alias-determine-identity)
 
-    (if (featurep 'message-x)
-        (add-hook 'message-x-after-completion-functions
-                  'gnus-alias-message-x-completion))
+  (if (featurep 'message-x)
+      (add-hook 'message-x-after-completion-functions
+                'gnus-alias-message-x-completion))
 
-    (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)))
+  (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity))
 
 (eval-when-compile
   (defvar gnus-balloon-face-0)

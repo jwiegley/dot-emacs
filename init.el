@@ -12,6 +12,9 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (defvar use-package-verbose t)
+(eval-when-compile
+  (eval-after-load 'advice
+    `(setq ad-redefinition-action 'accept)))
 (require 'use-package)
 
 ;;;_ , Utility macros and functions
@@ -394,21 +397,20 @@
     (cond ((= width 2560) 'retina-imac)
           ((= width 1440) 'retina-macbook-pro))))
 
-(if running-alternate-emacs
-    (progn
-      (defun emacs-min-top () 22)
-      (defun emacs-min-left () 5)
-      (defvar emacs-min-height 57)
-      (defvar emacs-min-width 90))
+(defvar emacs-min-top 23)
+(defvar emacs-min-left
+  (cond ((eq display-name 'retina-imac) 975)
+        (t 521)))
+(defvar emacs-min-height
+  (cond ((eq display-name 'retina-imac) 55)
+        (t 44)))
+(defvar emacs-min-width 100)
 
-  (defun emacs-min-top () 23)
-  (defun emacs-min-left ()
-    (cond ((eq display-name 'retina-imac) 975)
-          (t 521)))
-  (defvar emacs-min-height
-    (cond ((eq display-name 'retina-imac) 55)
-          (t 44)))
-  (defvar emacs-min-width 100))
+(if running-alternate-emacs
+    (setq emacs-min-top 22
+          emacs-min-left 5
+          emacs-min-height 57
+          emacs-min-width 90))
 
 (defvar emacs-min-font
   (cond
@@ -422,11 +424,11 @@
       "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
 
 (let ((frame-alist
-       (list (cons 'top (emacs-min-top))
-             (cons 'left (emacs-min-left))
+       (list (cons 'top    emacs-min-top)
+             (cons 'left   emacs-min-left)
              (cons 'height emacs-min-height)
-             (cons 'width emacs-min-width)
-             (cons 'font emacs-min-font))))
+             (cons 'width  emacs-min-width)
+             (cons 'font   emacs-min-font))))
   (setq initial-frame-alist frame-alist))
 
 (defun emacs-min ()
@@ -436,8 +438,8 @@
   (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
   (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
 
-  (set-frame-parameter (selected-frame) 'top (emacs-min-top))
-  (set-frame-parameter (selected-frame) 'left (emacs-min-left))
+  (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  (set-frame-parameter (selected-frame) 'left emacs-min-left)
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
@@ -1082,7 +1084,8 @@
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
   :commands ascii-on
-  :init
+  :functions ascii-off
+  :preface
   (defun ascii-toggle ()
     (interactive)
     (if ascii-display
@@ -1399,15 +1402,14 @@
 
 ;;;_ , color-moccur
 
-(let ((ad-redefinition-action 'accept))
-  (use-package color-moccur
-    :commands (isearch-moccur isearch-all)
-    :bind ("M-s O" . moccur)
-    :init
-    (bind-key "M-o" 'isearch-moccur isearch-mode-map)
-    (bind-key "M-O" 'isearch-moccur-all isearch-mode-map)
-    :config
-    (use-package moccur-edit)))
+(use-package color-moccur
+  :commands (isearch-moccur isearch-all)
+  :bind ("M-s O" . moccur)
+  :init
+  (bind-key "M-o" 'isearch-moccur isearch-mode-map)
+  (bind-key "M-O" 'isearch-moccur-all isearch-mode-map)
+  :config
+  (use-package moccur-edit))
 
 ;;;_ , company-mode
 
@@ -1479,11 +1481,11 @@
 
   :config
   (defun dired-package-initialize ()
-    (unless (featurep 'runner)
+    (unless (featurep 'dired-x)
       (use-package dired-x)
       ;; (use-package dired-async)
       ;; (use-package dired-sort-map)
-      (use-package runner)
+      ;; (use-package runner)
       (use-package dired+)
 
       (bind-key "l" 'dired-up-directory dired-mode-map)
@@ -2102,6 +2104,10 @@
     (interactive)
     (helm-do-grep-1 (list default-directory) t)))
 
+(use-package helm-swoop
+  :bind (("M-s o" . helm-swoop)
+         ("M-s /" . helm-multi-swoop)))
+
 (use-package helm-config
   :defer 10
   :bind (("C-c h"   . helm-command-prefix)
@@ -2112,8 +2118,7 @@
          ("M-s F"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         ("M-s o"   . helm-swoop)
-         ("M-s /"   . helm-multi-swoop))
+         )
 
   :preface
   (defun my-helm-find ()
@@ -2126,7 +2131,6 @@
   (use-package helm-buffers)
   (use-package helm-ls-git)
   (use-package helm-match-plugin)
-  (use-package helm-swoop)
 
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)
@@ -2390,7 +2394,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :load-path "~/src/ledger/lisp/"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
-  :init
+  :preface
   (defun my-ledger-start-entry (&optional arg)
     (interactive "p")
     (find-file-other-window "~/Documents/Accounts/ledger.dat")
@@ -2698,7 +2702,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                 (start-process "*git-monitor*" buf "git-monitor"
                                "-d" (expand-file-name default-directory)))
               buf)))))
-  :init
+
   (defun magit-status-with-prefix ()
     (interactive)
     (let ((current-prefix-arg '(4)))
@@ -2723,6 +2727,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                 "*git"
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
+  :init
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
   :config
@@ -3621,7 +3626,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("C-c C-j" . sunrise-cd))
   :commands sunrise
   :defines sr-tabs-mode-map
-  :init
+  :preface
   (defun my-activate-sunrise ()
     (interactive)
     (let ((sunrise-exists
@@ -3765,7 +3770,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package vkill
   :commands vkill
   :bind ("C-x L" . vkill-and-helm-occur)
-  :init
+  :preface
   (defun vkill-and-helm-occur ()
     (interactive)
     (vkill)
@@ -4000,7 +4005,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 (use-package yasnippet
   :diminish yas-minor-mode
   :commands yas-minor-mode
-  :defines yas-guessed-modes
+  :functions (yas-guess-snippet-directories yas-table-name)
+  :defines (yas-guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :bind (("C-c y TAB" . yas-expand)
          ("C-c y n"   . yas-new-snippet)
