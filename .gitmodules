@@ -7,3 +7,6 @@
 [submodule "lisp/alert"]
 	path = lisp/alert
 	url = git://github.com/jwiegley/alert
+[submodule "lisp/initsplit"]
+	path = lisp/initsplit
+	url = git://github.com/jwiegley/initsplit
