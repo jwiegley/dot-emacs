@@ -226,7 +226,6 @@
 
 ;;;_  . C-x
 
-(bind-key "C-x B" 'ido-switch-buffer-other-window)
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
@@ -2213,18 +2212,20 @@
     (exit-minibuffer)))
 
 (use-package ido
+  :defer 5
   :defines (ido-cur-item
             ido-require-match
             ido-selected
             ido-final-text
             ido-show-confirm-message)
+  :bind (("C-x b" . ido-switch-buffer)
+         ("C-x B" . ido-switch-buffer-other-window))
   :config
   (ido-mode 'buffer)
 
   (use-package ido-hacks
     :config
     (ido-hacks-mode 1))
-
   (use-package flx-ido
     :disabled t
     :config
@@ -3284,10 +3285,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , recentf
 
 (use-package recentf
-  :if (not noninteractive)
-  :config
-  (recentf-mode 1)
-
+  :defer 10
+  :commands (recentf-mode recentf-add-dired-directory)
+  :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
              (file-directory-p dired-directory)
@@ -3297,8 +3297,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
            (if (= ?/ (aref dired-directory last-idx))
                (substring dired-directory 0 last-idx)
              dired-directory)))))
-
-  (add-hook 'dired-mode-hook 'recentf-add-dired-directory))
+  :init
+  (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
+  :config
+  (recentf-mode 1))
 
 ;;;_ , repeat-insert
 
