@@ -25,6 +25,28 @@
 (declare-function cfw:org-create-source "calfw-org")
 (declare-function cfw:cal-create-source "calfw-cal")
 
+(defun my-org-startup ()
+  (org-agenda-list)
+  (org-fit-agenda-window)
+  (org-agenda-to-appt)
+  (other-window 1)
+  (my-calendar)
+  (run-with-idle-timer
+   0.1 nil
+   (lambda ()
+     (let ((wind (get-buffer-window "*Org Agenda*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'org-agenda-redo)))
+     (let ((wind (get-buffer-window "*cfw-calendar*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'cfw:refresh-calendar-buffer)))
+     (let ((wind (get-buffer-window "*Org Agenda*")))
+       (when wind
+         (set-frame-selected-window nil wind)
+         (call-interactively #'org-resolve-clocks))))))
+
 (defun my-calendar ()
   (interactive)
   (let ((buf (get-buffer "*cfw-calendar*")))

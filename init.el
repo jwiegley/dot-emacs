@@ -11,12 +11,8 @@
 
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
-(eval-when-compile
-  ;; (defvar use-package-verbose t)
-  ;; (defvar use-package-expand-minimally t)
-  (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
+(defvar use-package-verbose t)
+(require 'use-package)
 
 ;;;_ , Utility macros and functions
 
@@ -234,6 +230,21 @@
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
 (bind-key "C-x t" 'toggle-truncate-lines)
+
+(defun delete-current-buffer-file ()
+  "Delete the current buffer and the file connected with it"
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (kill-buffer buffer)
+      (when (yes-or-no-p "Are you sure, want to remove this file? ")
+        (delete-file filename)
+        (kill-buffer buffer)
+        (message "File '%s' successfully removed" filename)))))
+
+(bind-key "C-x K" 'delete-current-buffer-file)
 
 ;;;_  . C-x C-
 
@@ -1007,9 +1018,8 @@
   :mode "\\.agda\\'"
   :load-path (lambda () (list (agda-site-lisp)))
   :defines agda2-mode-map
-  :init
-  (use-package agda-input)
   :config
+  (use-package agda-input)
   (defun agda2-insert-helper-function (&optional prefix)
     (interactive "P")
     (let ((func-def (with-current-buffer "*Agda information*"
@@ -1033,7 +1043,8 @@
 
 ;;;_ , alert
 
-(use-package alert)
+(use-package alert
+  :commands alert)
 
 ;;;_ , allout
 
@@ -1305,12 +1316,15 @@
 ;;;_ , bookmark
 
 (use-package bookmark
+  :defer 10
   :config
   (use-package bookmark+))
 
 ;;;_ , browse-kill-ring+
 
-(use-package browse-kill-ring+)
+(use-package browse-kill-ring+
+  :defer 10
+  :commands browse-kill-ring)
 
 ;;;_ , cmake-mode
 
@@ -1341,6 +1355,7 @@
 
 (use-package compile
   :defer t
+  :defines exit-status
   :config
   (defun cmake-project-filename ()
     (let ((filename (match-string-no-properties 1)))
@@ -1375,8 +1390,6 @@
   ;;             (ghc-project-filename) 2 3)
   ;;       compilation-error-regexp-alist-alist)
 
-  (eval-when-compile
-    (defvar exit-status))
   (add-hook 'compilation-finish-functions
             #'(lambda (buf why)
                 (display-buffer buf)
@@ -1422,6 +1435,8 @@
 ;;;_ , cursor-chg
 
 (use-package cursor-chg
+  :defer 10
+  :commands change-cursor-mode
   :config
   (change-cursor-mode 1)
   (toggle-cursor-type-when-idle 1))
@@ -1587,6 +1602,45 @@
 
 (use-package eclimd
   :commands start-eclimd)
+
+;;;_ , edebug
+
+(use-package edebug
+  :defer t
+  :config
+  (defvar modi/fns-in-edebug nil
+    "List of functions for which `edebug' is instrumented.")
+
+  (defconst modi/fns-regexp
+    (concat "(\\s-*"
+            "\\(defun\\|defmacro\\)\\s-+"
+            "\\(?1:\\(\\w\\|\\s_\\)+\\)\\_>") ; word or symbol char
+    "Regexp to find defun or defmacro definition.")
+
+  (defun modi/toggle-edebug-defun ()
+    (interactive)
+    (let (fn)
+      (save-excursion
+        (search-backward-regexp modi/fns-regexp)
+        (setq fn (match-string 1))
+        (mark-sexp)
+        (narrow-to-region (point) (mark))
+        (if (member fn modi/fns-in-edebug)
+            ;; If the function is already being edebugged, uninstrument it
+            (progn
+              (setq modi/fns-in-edebug (delete fn modi/fns-in-edebug))
+              (eval-region (point) (mark))
+              (setq-default eval-expression-print-length 12)
+              (setq-default eval-expression-print-level  4)
+              (message "Edebug disabled: %s" fn))
+          ;; If the function is not being edebugged, instrument it
+          (progn
+            (add-to-list 'modi/fns-in-edebug fn)
+            (setq-default eval-expression-print-length nil)
+            (setq-default eval-expression-print-level  nil)
+            (edebug-defun)
+            (message "Edebug: %s" fn)))
+        (widen)))))
 
 ;;;_ , ediff
 
@@ -1776,18 +1830,18 @@
 (defvar eshell-isearch-map
   (let ((map (copy-keymap isearch-mode-map)))
     (define-key map [(control ?m)] 'eshell-isearch-return)
-    (define-key map [return] 'eshell-isearch-return)
+    (define-key map [return]       'eshell-isearch-return)
     (define-key map [(control ?r)] 'eshell-isearch-repeat-backward)
     (define-key map [(control ?s)] 'eshell-isearch-repeat-forward)
     (define-key map [(control ?g)] 'eshell-isearch-abort)
-    (define-key map [backspace] 'eshell-isearch-delete-char)
-    (define-key map [delete] 'eshell-isearch-delete-char)
+    (define-key map [backspace]    'eshell-isearch-delete-char)
+    (define-key map [delete]       'eshell-isearch-delete-char)
     map)
   "Keymap used in isearch in Eshell.")
 
 (use-package eshell
   :commands (eshell eshell-command)
-  :config
+  :preface
   (defun eshell-initialize ()
     (defun eshell-spawn-external-command (beg end)
       "Parse and expand any history references in current input."
@@ -1808,11 +1862,10 @@
       '(progn
          (unintern 'eshell/su nil)
          (unintern 'eshell/sudo nil))))
-
+  :init
   (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
 
 (use-package esh-toggle
-  :requires eshell
   :bind ("C-x C-z" . eshell-toggle))
 
 ;;;_ , ess
@@ -1853,6 +1906,7 @@
 ;;;_ , flycheck
 
 (use-package flycheck
+  :defer 5
   :config
   (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
   ;; :init
@@ -1889,7 +1943,7 @@
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
   :config
-  (define-key flyspell-mode-map [(control ?.)] nil))
+  (unbind-key "C-." flyspell-mode-map))
 
 ;;;_ , gist
 
@@ -2009,6 +2063,8 @@
 
 (use-package guide-key
   :diminish guide-key-mode
+  :commands guide-key-mode
+  :defer 10
   :config
   (setq guide-key/guide-key-sequence
         '("C-x r" "C-x 4" "C-x 5" "C-h e" "C-." "M-s" "M-o"))
@@ -2030,22 +2086,14 @@
 
 ;;;_ , helm
 
-(use-package helm-config
-  :demand t
-  :commands (helm-do-grep-1 helm-find helm--completing-read-default)
-  :bind (("C-c h"   . helm-command-prefix)
-         ("C-h a"   . helm-apropos)
-         ("C-h e a" . my-helm-apropos)
-         ("C-x f"   . helm-multi-files)
-         ;; ("C-x C-f" . helm-find-files)
-         ("M-s F"   . helm-for-files)
-         ("M-s b"   . helm-occur)
-         ("M-s f"   . my-helm-do-grep-r)
-         ("M-s g"   . my-helm-do-grep)
-         ("M-s n"   . my-helm-find)
-         ("M-s o"   . helm-swoop)
-         ("M-s /"   . helm-multi-swoop))
+(use-package helm-mode
+  :defer 15
+  :commands helm--completing-read-default)
 
+(use-package helm-grep
+  :commands helm-do-grep-1
+  :bind (("M-s f"   . my-helm-do-grep-r)
+         ("M-s g"   . my-helm-do-grep))
   :preface
   (defun my-helm-do-grep ()
     (interactive)
@@ -2053,23 +2101,33 @@
 
   (defun my-helm-do-grep-r ()
     (interactive)
-    (helm-do-grep-1 (list default-directory) t))
+    (helm-do-grep-1 (list default-directory) t)))
 
+(use-package helm-config
+  :defer 10
+  :bind (("C-c h"   . helm-command-prefix)
+         ("C-h a"   . helm-apropos)
+         ("C-h e a" . my-helm-apropos)
+         ("C-x f"   . helm-multi-files)
+         ;; ("C-x C-f" . helm-find-files)
+         ("M-s F"   . helm-for-files)
+         ("M-s b"   . helm-occur)
+         ("M-s n"   . my-helm-find)
+         ("M-s o"   . helm-swoop)
+         ("M-s /"   . helm-multi-swoop))
+
+  :preface
   (defun my-helm-find ()
     (interactive)
     (helm-find nil))
-
-  (defvar helm-swoop-last-prefix-number)
 
   :config
   (use-package helm-commands)
   (use-package helm-files)
   (use-package helm-buffers)
-  (use-package helm-grep)
   (use-package helm-ls-git)
   (use-package helm-match-plugin)
   (use-package helm-swoop)
-  ;; (use-package helm-mode)
 
   (use-package helm-descbinds
     :bind ("C-h b" . helm-descbinds)
@@ -2288,7 +2346,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , initsplit
 
-(use-package initsplit)
+(use-package cus-edit
+  :defer 5
+  :config
+  (use-package initsplit))
 
 ;;;_ , ipa
 
@@ -2387,7 +2448,8 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package lisp-mode
   ;; :load-path "site-lisp/slime/contrib/"
-  :init
+  :defer t
+  :preface
   (defface esk-paren-face
     '((((class color) (background dark))
        (:foreground "grey50"))
@@ -2395,21 +2457,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
        (:foreground "grey55")))
     "Face used to dim parentheses."
     :group 'starter-kit-faces)
-
-  ;; Change lambda to an actual lambda symbol
-  (mapc (lambda (major-mode)
-          (font-lock-add-keywords
-           major-mode
-           '(("(\\(lambda\\)\\>"
-              (0 (ignore
-                  (compose-region (match-beginning 1)
-                                  (match-end 1) ?λ))))
-             ("(\\|)" . 'esk-paren-face)
-             ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
-              (1 font-lock-keyword-face)
-              (2 font-lock-function-name-face
-                 nil t)))))
-        lisp-modes)
 
   (defvar slime-mode nil)
   (defvar lisp-mode-initialized nil)
@@ -2525,6 +2572,22 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
     (autoload 'yas-minor-mode "yasnippet")
     (yas-minor-mode 1))
+
+  ;; Change lambda to an actual lambda symbol
+  :init
+  (mapc (lambda (major-mode)
+          (font-lock-add-keywords
+           major-mode
+           '(("(\\(lambda\\)\\>"
+              (0 (ignore
+                  (compose-region (match-beginning 1)
+                                  (match-end 1) ?λ))))
+             ("(\\|)" . 'esk-paren-face)
+             ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
+              (1 font-lock-keyword-face)
+              (2 font-lock-function-name-face
+                 nil t)))))
+        lisp-modes)
 
   (hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
 
@@ -2817,30 +2880,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , org-mode
 
 (use-package dot-org
-  :preface
-  (defun my-org-startup ()
-    (org-agenda-list)
-    (org-fit-agenda-window)
-    (org-agenda-to-appt)
-    (other-window 1)
-    (my-calendar)
-    (run-with-idle-timer
-     0.1 nil
-     (lambda ()
-       (let ((wind (get-buffer-window "*Org Agenda*")))
-         (when wind
-           (set-frame-selected-window nil wind)
-           (call-interactively #'org-agenda-redo)))
-       (let ((wind (get-buffer-window "*cfw-calendar*")))
-         (when wind
-           (set-frame-selected-window nil wind)
-           (call-interactively #'cfw:refresh-calendar-buffer)))
-       (let ((wind (get-buffer-window "*Org Agenda*")))
-         (when wind
-           (set-frame-selected-window nil wind)
-           (call-interactively #'org-resolve-clocks))))))
-
-  :commands org-agenda-list
+  :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
          ("M-M"   . org-inline-note)
@@ -2848,13 +2888,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
          ("C-c S" . org-store-link)
          ("C-c l" . org-insert-link)
          ("C-. n" . org-velocity-read))
-  :init
-  (when (and nil
-             (not running-alternate-emacs)
-             ;; (quickping "192.168.9.133")
-             )
+  :defer 30
+  :config
+  (when (not running-alternate-emacs)
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (add-hook 'after-init-hook #'my-org-startup)))
+    (my-org-startup)))
 
 ;;;_ , pabbrev
 
@@ -2900,16 +2938,20 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 ;;;_ , paren
 
-(unless (use-package mic-paren
-          :config
-          (paren-activate))
-  (use-package paren
-    :config
-    (show-paren-mode 1)))
+(or (use-package mic-paren
+      :defer 5
+      :config
+      (paren-activate))
+    (use-package paren
+      :defer 5
+      :config
+      (show-paren-mode 1)))
 
 ;;;_ , per-window-point
 
 (use-package per-window-point
+  :commands pwp-mode
+  :defer 5
   :config
   (pwp-mode 1))
 
@@ -3018,13 +3060,16 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , pp-c-l
 
 (use-package pp-c-l
-  :config
-  (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
+  :commands pretty-control-l-mode
+  :init
+  (add-hook 'prog-mode-hook 'pretty-control-l-mode))
 
 ;;;_ , projectile
 
 (use-package projectile
   :diminish projectile-mode
+  :commands projectile-global-mode
+  :defer 5
   :config
   (use-package helm-projectile
     :config
@@ -3088,7 +3133,9 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :config
   (use-package coq
     :mode ("\\.v\\'" . coq-mode)
+    :no-require t
     :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/coq"
+    :defines coq-mode-map
     :functions (proof-layout-windows proof-prf holes-mode)
     :config
     (add-hook
@@ -3548,8 +3595,10 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , smartparens
 
 (use-package smartparens
+  :disabled t
   :commands (smartparens-mode show-smartparens-mode)
-  :config (require 'smartparens-config))
+  :config
+  (use-package smartparens-config))
 
 ;;;_ , smerge-mode
 
@@ -3846,12 +3895,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
   :commands (whitespace-buffer
              whitespace-cleanup
              whitespace-mode)
-  :demand t
-  :init
-  (hook-into-modes 'whitespace-mode
-                   '(prog-mode-hook
-                     c-mode-common-hook))
-
+  :preface
   (defun normalize-file ()
     (interactive)
     (save-excursion
@@ -3889,10 +3933,11 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
                  (not (and buffer-file-name
                            (string-match "\\.texi\\'" buffer-file-name))))
         (add-hook 'write-contents-hooks
-                  #'(lambda ()
-                      (ignore (whitespace-cleanup))) nil t)
+                  #'(lambda () (ignore (whitespace-cleanup))) nil t)
         (whitespace-cleanup))))
 
+  :init
+  (hook-into-modes 'whitespace-mode '(prog-mode-hook c-mode-common-hook))
   (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
   :config
@@ -3902,7 +3947,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , winner
 
 (use-package winner
-  ;; :diminish winner-mode
   :if (not noninteractive)
   :bind (("M-N" . winner-redo)
          ("M-P" . winner-undo))
@@ -3914,8 +3958,7 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 
 (use-package workgroups
   :diminish workgroups-mode
-  :if (not noninteractive)
-  :demand t
+  :bind-keymap ("C-\\" . wg-map)
   :config
   (workgroups-mode 1)
 
@@ -3946,7 +3989,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , yasnippet
 
 (use-package yasnippet
-  :if (not noninteractive)
   :diminish yas-minor-mode
   :commands yas-minor-mode
   :defines yas-guessed-modes

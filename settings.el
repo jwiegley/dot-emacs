@@ -696,7 +696,7 @@
  '(mac-wheel-button-is-mouse-2 nil)
  '(magit-auto-revert-mode nil)
  '(magit-backup-mode t)
- '(magit-completing-read-function (quote helm-completing-read-with-cands-in-buffer))
+ '(magit-completing-read-function (quote helm--completing-read-default))
  '(magit-diff-options nil)
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
