@@ -70,7 +70,8 @@
 (defvar switch-to-gnus-run nil)
 
 (eval-when-compile
-  (defvar ido-default-buffer-method))
+  (defvar ido-default-buffer-method)
+  (declare-function ido-visit-buffer "ido"))
 
 (defun switch-to-gnus (&optional arg)
   (interactive "P")
