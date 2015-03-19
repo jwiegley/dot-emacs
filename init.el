@@ -2068,6 +2068,11 @@
   :bind (("M-s o" . helm-swoop)
          ("M-s /" . helm-multi-swoop)))
 
+(use-package helm-descbinds
+  :bind ("C-h b" . helm-descbinds)
+  :init
+  (fset 'describe-bindings 'helm-descbinds))
+
 (use-package helm-config
   :defer 10
   :bind (("C-c h"   . helm-command-prefix)
@@ -2091,11 +2096,6 @@
   (use-package helm-buffers)
   (use-package helm-ls-git)
   (use-package helm-match-plugin)
-
-  (use-package helm-descbinds
-    :bind ("C-h b" . helm-descbinds)
-    :init
-    (fset 'describe-bindings 'helm-descbinds))
 
   (helm-match-plugin-mode t)
   (helm-autoresize-mode t)
@@ -3258,7 +3258,9 @@
 
 (use-package recentf
   :defer 10
-  :commands (recentf-mode recentf-add-dired-directory)
+  :commands (recentf-mode
+             recentf-add-dired-directory
+             recentf-apply-filename-handlers)
   :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
