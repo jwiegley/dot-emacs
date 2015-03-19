@@ -338,6 +338,20 @@
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
  '(display-time-mail-function (lambda nil (= 0 (call-process "~/bin/newmail"))))
  '(display-time-mode t)
+ '(display-time-string-forms
+   (quote
+    ((format-time-string "%k:%M %p" now)
+     " "
+     (let
+         ((str
+           (shell-command-to-string "jobhours")))
+       (require
+        (quote ansi-color))
+       (ansi-color-apply
+        (substring str 0
+                   (1-
+                    (length str)))))
+     " ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(ediff-combination-pattern
