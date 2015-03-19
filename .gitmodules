@@ -10,3 +10,6 @@
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
 	url = git://github.com/jwiegley/initsplit
+[submodule "lisp/emacs-pl"]
+	path = lisp/emacs-pl
+	url = git://github.com/jwiegley/emacs-pl.git
