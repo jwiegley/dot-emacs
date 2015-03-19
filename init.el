@@ -1431,7 +1431,7 @@
 ;;;_ , dedicated
 
 (use-package dedicated
-  :bind ("C-. d" . dedicated-mode))
+  :bind ("C-. D" . dedicated-mode))
 
 ;;;_ , diff-mode
 
@@ -1562,6 +1562,19 @@
 
   :config
   (add-hook 'dired-mode-hook 'dired-package-initialize))
+
+;;;_ , dired-toggle
+
+(use-package dired-toggle
+  :bind ("C-. d" . dired-toggle)
+  :preface
+  (defun my-dired-toggle-mode-hook ()
+    (interactive)
+    (visual-line-mode 1)
+    (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
+    (setq-local word-wrap nil))
+  :config
+  (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
 
 ;;;_ , doxymacs
 
@@ -2899,7 +2912,7 @@
   (unbind-key "M-r" paredit-mode-map)
   (unbind-key "M-s" paredit-mode-map)
 
-  (bind-key "C-. d" 'paredit-forward-down paredit-mode-map)
+  (bind-key "C-. D" 'paredit-forward-down paredit-mode-map)
   (bind-key "C-. B" 'paredit-splice-sexp-killing-backward paredit-mode-map)
   (bind-key "C-. C" 'paredit-convolute-sexp paredit-mode-map)
   (bind-key "C-. F" 'paredit-splice-sexp-killing-forward paredit-mode-map)
