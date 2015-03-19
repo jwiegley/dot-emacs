@@ -342,8 +342,6 @@
        (error "Current window is the only window in its frame")
      (delete-other-windows))))
 
-(bind-key "C-c c" 'compile)
-
 (defun delete-current-line (&optional arg)
   (interactive "p")
   (let ((here (point)))
@@ -656,6 +654,28 @@
 (bind-key "C-h e V" 'apropos-value)
 
 ;;;_. Packages
+
+;;;_ , gtags
+
+(use-package gtags
+  :commands gtags-mode
+  :diminish gtags-mode
+  :config
+  (bind-key "C-c t ." 'gtags-find-rtag)
+  (bind-key "C-c t f" 'gtags-find-file)
+  (bind-key "C-c t p" 'gtags-parse-file)
+  (bind-key "C-c t g" 'gtags-find-with-grep)
+  (bind-key "C-c t i" 'gtags-find-with-idutils)
+  (bind-key "C-c t s" 'gtags-find-symbol)
+  (bind-key "C-c t r" 'gtags-find-rtag)
+  (bind-key "C-c t v" 'gtags-visit-rootdir)
+
+  (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
+
+  (use-package helm-gtags
+    :bind ("M-T" . helm-gtags-select)
+    :config
+    (bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
 ;;;_ , cc-mode
 
@@ -1335,72 +1355,6 @@
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
          ("\\.cmake\\'"         . cmake-mode)))
 
-;;;_ , compile
-
-(defun find-directory (dir name)
-  (catch 'file
-    (let ((files
-           (delete
-            nil
-            (mapcar
-             (lambda (entry)
-               (and (not (string-match
-                          "\\`\\." (file-name-nondirectory entry)))
-                    (file-directory-p entry)
-                    entry))
-             (directory-files dir t)))))
-      (dolist (file files)
-        (if (string= (file-name-nondirectory file) name)
-            (throw 'file file)))
-      (dolist (file files)
-        (let ((result (find-directory file name)))
-          (if result (throw 'file result)))))))
-
-(use-package compile
-  :defer t
-  :defines exit-status
-  :config
-  (defun cmake-project-filename ()
-    (let ((filename (match-string-no-properties 1)))
-      (save-match-data
-        (with-temp-buffer
-          (insert-file-contents-literally "cmake_install.cmake")
-          (goto-char (point-min))
-          (re-search-forward "Install script for directory: \\(.+\\)")
-          (cons filename (match-string-no-properties 1))))))
-
-  (push 'cmake compilation-error-regexp-alist)
-
-  (push '(cmake "^CMake Error at \\(.+?\\):\\([0-9]+\\)"
-                (cmake-project-filename) 2 2 2)
-        compilation-error-regexp-alist-alist)
-
-  (push '(cmake "^\\(?:CMake Error at \\|  \\)\\(.+?\\):\\([0-9]+\\) ([A-Za-z_][A-Za-z0-9_]*)"
-                (cmake-project-filename) 2)
-        compilation-error-regexp-alist-alist)
-
-  (defun ghc-project-filename ()
-    (let ((filename (match-string-no-properties 1)))
-      (save-excursion
-        (goto-char (point-min))
-        (if (re-search-forward "^Building \\(.+?\\)-[0-9]" nil t)
-            (cons filename (find-directory default-directory
-                                           (match-string 1)))))))
-
-  ;; (push 'ghc compilation-error-regexp-alist)
-
-  ;; (push '(ghc "^\\(.+?\\.hs\\):\\([0-9]+\\):\\([0-9]+\\):"
-  ;;             (ghc-project-filename) 2 3)
-  ;;       compilation-error-regexp-alist-alist)
-
-  (add-hook 'compilation-finish-functions
-            #'(lambda (buf why)
-                (display-buffer buf)
-                (if (> exit-status 0)
-                    (alert "Compilation finished with errors"
-                           :buffer buf :severity 'high)
-                  (alert "Compilation finished" :buffer buf)))))
-
 ;;;_ , color-moccur
 
 (use-package color-moccur
@@ -1421,7 +1375,8 @@
 ;;;_ , compile
 
 (use-package compile
-  :bind ("M-O" . show-compilation)
+  :bind (("C-c c" . compile)
+         ("M-O"   . show-compilation))
   :preface
   (defun show-compilation ()
     (interactive)
@@ -1434,12 +1389,12 @@
           (switch-to-buffer-other-window compile-buf)
         (call-interactively 'compile))))
 
-  :config
   (defun compilation-ansi-color-process-output ()
     (ansi-color-process-output nil)
     (set (make-local-variable 'comint-last-output-start)
          (point-marker)))
 
+  :config
   (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
 
 ;;;_ , copy-code
@@ -1488,8 +1443,8 @@
 ;;;_ , dired
 
 (use-package dired
-  :defer t
-  :init
+  :bind ("C-c J" . dired-double-jump)
+  :preface
   (defvar mark-files-cache (make-hash-table :test #'equal))
 
   (defun mark-similar-versions (name)
@@ -1504,7 +1459,6 @@
     (setq mark-files-cache (make-hash-table :test #'equal))
     (dired-mark-sexp '(mark-similar-versions name)))
 
-  :config
   (defun dired-package-initialize ()
     (unless (featurep 'dired-x)
       (use-package dired-x)
@@ -1595,8 +1549,6 @@
                    "\\)")))
             (funcall dired-omit-regexp-orig))))))
 
-  (add-hook 'dired-mode-hook 'dired-package-initialize)
-
   (defun dired-double-jump (first-dir second-dir)
     (interactive
      (list (ido-read-directory-name "First directory: "
@@ -1608,7 +1560,8 @@
     (dired first-dir)
     (dired-other-window second-dir))
 
-  (bind-key "C-c J" 'dired-double-jump))
+  :config
+  (add-hook 'dired-mode-hook 'dired-package-initialize))
 
 ;;;_ , doxymacs
 
@@ -1618,23 +1571,23 @@
 
 ;;;_ , eclim
 
-(use-package eclim
-  :defer t
-  :config
-  (global-eclim-mode)
-  (use-package company-emacs-eclim
-    :requires company
-    :config
-    (company-emacs-eclim-setup)))
-
 (use-package eclimd
-  :commands start-eclimd)
+  :commands start-eclimd
+  :config
+  (use-package eclim
+    :defer t
+    :config
+    (global-eclim-mode)
+    (use-package company-emacs-eclim
+      :requires company
+      :config
+      (company-emacs-eclim-setup))))
 
 ;;;_ , edebug
 
 (use-package edebug
   :defer t
-  :config
+  :preface
   (defvar modi/fns-in-edebug nil
     "List of functions for which `edebug' is instrumented.")
 
@@ -1712,13 +1665,13 @@
 ;;;_ , emms
 
 (use-package emms-setup
-  :disabled t
   :load-path "site-lisp/emms/lisp"
-  :defines emms-info-functions
+  :defines (emms-info-functions emms-player-simple-process-name)
   :commands (emms-all emms-devel)
   :bind ("C-. M" . my-emms)
-  :init
+  :preface
   (defvar emms-initialized nil)
+  (declare-function emms-smart-browse "emms-browser")
 
   (defun my-emms ()
     (interactive)
@@ -1726,8 +1679,8 @@
       (emms-devel)
       (emms-default-players)
       (require 'emms-info-libtag)
-      (setq emms-info-functions '(emms-info-libtag))
-      (setq emms-initialized t))
+      (setq emms-info-functions '(emms-info-libtag)
+            emms-initialized t))
     (call-interactively #'emms-smart-browse))
 
   :config
@@ -1739,93 +1692,91 @@
   (defun emms-player-mplayer-volume-up ()
     "Depends on mplayer’s -slave mode."
     (interactive)
-    (process-send-string
-     emms-player-simple-process-name "volume 1\n"))
+    (process-send-string emms-player-simple-process-name "volume 1\n"))
 
   (defun emms-player-mplayer-volume-down ()
     "Depends on mplayer’s -slave mode."
     (interactive)
-    (process-send-string
-     emms-player-simple-process-name "volume -1\n"))
+    (process-send-string emms-player-simple-process-name "volume -1\n"))
 
   (bind-key "C-. C--" 'emms-player-mplayer-volume-down)
   (bind-key "C-. C-=" 'emms-player-mplayer-volume-up))
 
 ;;;_ , erc
 
-(defun lookup-password (host user port)
-  (require 'auth-source)
-  (funcall (plist-get
-            (car (auth-source-search
-                  :host host
-                  :user user
-                  :type 'netrc
-                  :port port))
-            :secret)))
-
-(defun irc ()
-  (interactive)
-  (if (slowping "192.168.9.133")
-      (progn
-        (erc :server "192.168.9.133"
-             :port 6697
-             :nick "johnw"
-             :password (lookup-password "192.168.9.133" "johnw/freenode" 6697))
-        (erc :server "192.168.9.133"
-             :port 6697
-             :nick "johnw"
-             :password (lookup-password "192.168.9.133" "johnw/bitlbee" 6697)))
-
-    (erc-tls :server "irc.freenode.net"
-             :port 6697
-             :nick "johnw"
-             :password (lookup-password "irc.freenode.net" "johnw" 6667))))
-
-(eval-when-compile
-  (defvar erc-timestamp-only-if-changed-flag)
-  (defvar erc-timestamp-format)
-  (defvar erc-fill-prefix)
-  (defvar erc-fill-column)
-  (defvar erc-insert-timestamp-function)
-  (defvar erc-modified-channels-alist))
-
-(defun setup-irc-environment ()
-  (custom-set-faces
-   '(erc-timestamp-face ((t (:foreground "dark violet")))))
-
-  (setq erc-timestamp-only-if-changed-flag nil
-        erc-timestamp-format "%H:%M "
-        erc-fill-prefix "          "
-        erc-fill-column 88
-        erc-insert-timestamp-function 'erc-insert-timestamp-left)
-
-  (use-package agda-input
-    :config
-    (set-input-method "Agda"))
-
-  (defun reset-erc-track-mode ()
-    (interactive)
-    (setq erc-modified-channels-alist nil)
-    (erc-modified-channels-update)
-    (erc-modified-channels-display)
-    (force-mode-line-update))
-
-  (bind-key "C-c r" 'reset-erc-track-mode))
-
-(defcustom erc-foolish-content '()
-  "Regular expressions to identify foolish content.
-    Usually what happens is that you add the bots to
-    `erc-ignore-list' and the bot commands to this list."
-  :group 'erc
-  :type '(repeat regexp))
-
-(defun erc-foolish-content (msg)
-  "Check whether MSG is foolish."
-  (erc-list-match erc-foolish-content msg))
-
 (use-package erc
   :if running-alternate-emacs
-  :defer t
+  :defines (erc-timestamp-only-if-changed-flag
+            erc-timestamp-format
+            erc-fill-prefix
+            erc-fill-column
+            erc-insert-timestamp-function
+            erc-modified-channels-alist)
+  :preface
+  (defun lookup-password (host user port)
+    (require 'auth-source)
+    (funcall (plist-get
+              (car (auth-source-search
+                    :host host
+                    :user user
+                    :type 'netrc
+                    :port port))
+              :secret)))
+
+  (defun irc ()
+    (interactive)
+    (if (slowping "192.168.9.133")
+        (progn
+          (erc :server "192.168.9.133"
+               :port 6697
+               :nick "johnw"
+               :password (lookup-password "192.168.9.133"
+                                          "johnw/freenode" 6697))
+          (erc :server "192.168.9.133"
+               :port 6697
+               :nick "johnw"
+               :password (lookup-password "192.168.9.133"
+                                          "johnw/bitlbee" 6697)))
+
+      (erc-tls :server "irc.freenode.net"
+               :port 6697
+               :nick "johnw"
+               :password (lookup-password "irc.freenode.net" "johnw" 6667))))
+
+  (defun setup-irc-environment ()
+    (custom-set-faces
+     '(erc-timestamp-face ((t (:foreground "dark violet")))))
+
+    (setq erc-timestamp-only-if-changed-flag nil
+          erc-timestamp-format "%H:%M "
+          erc-fill-prefix "          "
+          erc-fill-column 88
+          erc-insert-timestamp-function 'erc-insert-timestamp-left)
+
+    (use-package agda-input
+      :config
+      (set-input-method "Agda"))
+
+    (defun reset-erc-track-mode ()
+      (interactive)
+      (setq erc-modified-channels-alist nil)
+      (erc-modified-channels-update)
+      (erc-modified-channels-display)
+      (force-mode-line-update))
+
+    (bind-key "C-c r" 'reset-erc-track-mode))
+
+  (defcustom erc-foolish-content '()
+    "Regular expressions to identify foolish content.
+    Usually what happens is that you add the bots to
+    `erc-ignore-list' and the bot commands to this list."
+    :group 'erc
+    :type '(repeat regexp))
+
+  (defun erc-foolish-content (msg)
+    "Check whether MSG is foolish."
+    (erc-list-match erc-foolish-content msg))
+
   :init
   (add-hook 'erc-mode-hook 'setup-irc-environment)
   (add-to-list
@@ -1843,7 +1794,7 @@
   (use-package erc-macros)
 
   (use-package erc-yank
-    :init
+    :config
     (bind-key "C-y" 'erc-yank erc-mode-map))
 
   (use-package wtf
@@ -1856,21 +1807,21 @@
 
 ;;;_ , eshell
 
-(defvar eshell-isearch-map
-  (let ((map (copy-keymap isearch-mode-map)))
-    (define-key map [(control ?m)] 'eshell-isearch-return)
-    (define-key map [return]       'eshell-isearch-return)
-    (define-key map [(control ?r)] 'eshell-isearch-repeat-backward)
-    (define-key map [(control ?s)] 'eshell-isearch-repeat-forward)
-    (define-key map [(control ?g)] 'eshell-isearch-abort)
-    (define-key map [backspace]    'eshell-isearch-delete-char)
-    (define-key map [delete]       'eshell-isearch-delete-char)
-    map)
-  "Keymap used in isearch in Eshell.")
-
 (use-package eshell
   :commands (eshell eshell-command)
   :preface
+  (defvar eshell-isearch-map
+    (let ((map (copy-keymap isearch-mode-map)))
+      (define-key map [(control ?m)] 'eshell-isearch-return)
+      (define-key map [return]       'eshell-isearch-return)
+      (define-key map [(control ?r)] 'eshell-isearch-repeat-backward)
+      (define-key map [(control ?s)] 'eshell-isearch-repeat-forward)
+      (define-key map [(control ?g)] 'eshell-isearch-abort)
+      (define-key map [backspace]    'eshell-isearch-delete-char)
+      (define-key map [delete]       'eshell-isearch-delete-char)
+      map)
+    "Keymap used in isearch in Eshell.")
+
   (defun eshell-initialize ()
     (defun eshell-spawn-external-command (beg end)
       "Parse and expand any history references in current input."
@@ -1892,10 +1843,10 @@
          (unintern 'eshell/su nil)
          (unintern 'eshell/sudo nil))))
   :init
-  (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
+  (add-hook 'eshell-first-time-mode-hook 'eshell-initialize)
 
-(use-package esh-toggle
-  :bind ("C-x C-z" . eshell-toggle))
+  (use-package esh-toggle
+    :bind ("C-x C-z" . eshell-toggle)))
 
 ;;;_ , ess
 
@@ -1961,16 +1912,16 @@
 
 ;;;_ , flyspell
 
-(use-package ispell
-  :bind (("C-c i c" . ispell-comments-and-strings)
-         ("C-c i d" . ispell-change-dictionary)
-         ("C-c i k" . ispell-kill-ispell)
-         ("C-c i m" . ispell-message)
-         ("C-c i r" . ispell-region)))
-
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
+  :init
+  (use-package ispell
+    :bind (("C-c i c" . ispell-comments-and-strings)
+           ("C-c i d" . ispell-change-dictionary)
+           ("C-c i k" . ispell-kill-ispell)
+           ("C-c i m" . ispell-message)
+           ("C-c i r" . ispell-region)))
   :config
   (unbind-key "C-." flyspell-mode-map))
 
@@ -1992,10 +1943,9 @@
 ;;;_ , git-wip
 
 (use-package git-wip-mode
-  :disabled t
   :load-path "site-lisp/git-wip/emacs/"
-  :demand t
-  :diminish git-wip-mode)
+  :diminish git-wip-mode
+  :config (git-wip-mode 1))
 
 ;;;_ , gnus
 
@@ -2009,7 +1959,6 @@
 ;;;_ , grep
 
 (use-package grep
-  :disabled t
   :bind (("M-s d" . find-grep-dired)
          ("M-s F" . find-grep)
          ("M-s G" . grep)
@@ -2040,28 +1989,6 @@
     (grep-apply-setting
      'grep-find-command
      '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))))
-
-;;;_ , gtags
-
-(use-package gtags
-  :commands gtags-mode
-  :diminish gtags-mode
-  :config
-  (bind-key "C-c t ." 'gtags-find-rtag)
-  (bind-key "C-c t f" 'gtags-find-file)
-  (bind-key "C-c t p" 'gtags-parse-file)
-  (bind-key "C-c t g" 'gtags-find-with-grep)
-  (bind-key "C-c t i" 'gtags-find-with-idutils)
-  (bind-key "C-c t s" 'gtags-find-symbol)
-  (bind-key "C-c t r" 'gtags-find-rtag)
-  (bind-key "C-c t v" 'gtags-visit-rootdir)
-
-  (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
-
-  (use-package helm-gtags
-    :bind ("M-T" . helm-gtags-select)
-    :config
-    (bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
 
 ;;;_ , gud
 
@@ -2095,22 +2022,28 @@
   :defer 10
   :config
   (setq guide-key/guide-key-sequence
-        '("C-x r" "C-x 4" "C-x 5" "C-h e" "C-." "M-s" "M-o"))
+        '("C-."
+          "C-h e"
+          "C-x 4"
+          "C-x 5"
+          "C-x r"
+          "M-o"
+          "M-s"))
   (guide-key-mode 1))
 
 ;;;_ , haskell-mode
 
 (use-package haskell-config
-  :mode ("\\.l?hs\\'" . haskell-mode))
-
-(defun snippet (name)
-  (interactive "sName: ")
-  (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
-  (haskell-mode)
-  (goto-char (point-min))
-  (when (eobp)
-    (insert "hdr")
-    (yas-expand)))
+  :mode ("\\.l?hs\\'" . haskell-mode)
+  :preface
+  (defun snippet (name)
+    (interactive "sName: ")
+    (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
+    (haskell-mode)
+    (goto-char (point-min))
+    (when (eobp)
+      (insert "hdr")
+      (yas-expand))))
 
 ;;;_ , helm
 
@@ -2209,39 +2142,6 @@
 
 ;;;_ , ido
 
-(eval-when-compile
-  (defvar ido-require-match)
-  (defvar ido-cur-item)
-  (defvar ido-show-confirm-message)
-  (defvar ido-selected)
-  (defvar ido-final-text))
-
-(defun ido-smart-select-text ()
-  "Select the current completed item.  Do NOT descend into directories."
-  (interactive)
-  (when (and (or (not ido-require-match)
-                 (if (memq ido-require-match
-                           '(confirm confirm-after-completion))
-                     (if (or (eq ido-cur-item 'dir)
-                             (eq last-command this-command))
-                         t
-                       (setq ido-show-confirm-message t)
-                       nil))
-                 (ido-existing-item-p))
-             (not ido-incomplete-regexp))
-    (when ido-current-directory
-      (setq ido-exit 'takeprompt)
-      (unless (and ido-text (= 0 (length ido-text)))
-        (let ((match (ido-name (car ido-matches))))
-          (throw 'ido
-                 (setq ido-selected
-                       (if match
-                           (replace-regexp-in-string "/\\'" "" match)
-                         ido-text)
-                       ido-text ido-selected
-                       ido-final-text ido-text)))))
-    (exit-minibuffer)))
-
 (use-package ido
   :defer 5
   :defines (ido-cur-item
@@ -2251,6 +2151,40 @@
             ido-show-confirm-message)
   :bind (("C-x b" . ido-switch-buffer)
          ("C-x B" . ido-switch-buffer-other-window))
+  :preface
+  (eval-when-compile
+    (defvar ido-require-match)
+    (defvar ido-cur-item)
+    (defvar ido-show-confirm-message)
+    (defvar ido-selected)
+    (defvar ido-final-text))
+
+  (defun ido-smart-select-text ()
+    "Select the current completed item.  Do NOT descend into directories."
+    (interactive)
+    (when (and (or (not ido-require-match)
+                   (if (memq ido-require-match
+                             '(confirm confirm-after-completion))
+                       (if (or (eq ido-cur-item 'dir)
+                               (eq last-command this-command))
+                           t
+                         (setq ido-show-confirm-message t)
+                         nil))
+                   (ido-existing-item-p))
+               (not ido-incomplete-regexp))
+      (when ido-current-directory
+        (setq ido-exit 'takeprompt)
+        (unless (and ido-text (= 0 (length ido-text)))
+          (let ((match (ido-name (car ido-matches))))
+            (throw 'ido
+                   (setq ido-selected
+                         (if match
+                             (replace-regexp-in-string "/\\'" "" match)
+                           ido-text)
+                         ido-text ido-selected
+                         ido-final-text ido-text)))))
+      (exit-minibuffer)))
+
   :config
   (ido-mode 'buffer)
 
@@ -2305,43 +2239,42 @@
 
 ;;;_ , iflipb
 
-(defvar my-iflipb-auto-off-timeout-sec 2)
-(defvar my-iflipb-auto-off-timer-canceler-internal nil)
-(defvar my-iflipb-ing-internal nil)
-
-(defun my-iflipb-auto-off ()
-  (message nil)
-  (setq my-iflipb-auto-off-timer-canceler-internal nil
-        my-iflipb-ing-internal nil))
-
-(defun my-iflipb-next-buffer (arg)
-  (interactive "P")
-  (iflipb-next-buffer arg)
-  (if my-iflipb-auto-off-timer-canceler-internal
-      (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-  (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-  (setq my-iflipb-ing-internal t))
-
-(defun my-iflipb-previous-buffer ()
-  (interactive)
-  (iflipb-previous-buffer)
-  (if my-iflipb-auto-off-timer-canceler-internal
-      (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-  (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-  (setq my-iflipb-ing-internal t))
-
 (use-package iflipb
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   ;; :bind (("M-`"   . my-iflipb-next-buffer)
   ;;        ("M-S-`" . my-iflipb-previous-buffer))
+  :preface
+  (defvar my-iflipb-auto-off-timeout-sec 2)
+  (defvar my-iflipb-auto-off-timer-canceler-internal nil)
+  (defvar my-iflipb-ing-internal nil)
+
+  (defun my-iflipb-auto-off ()
+    (message nil)
+    (setq my-iflipb-auto-off-timer-canceler-internal nil
+          my-iflipb-ing-internal nil))
+
+  (defun my-iflipb-next-buffer (arg)
+    (interactive "P")
+    (iflipb-next-buffer arg)
+    (if my-iflipb-auto-off-timer-canceler-internal
+        (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
+    (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
+    (setq my-iflipb-ing-internal t))
+
+  (defun my-iflipb-previous-buffer ()
+    (interactive)
+    (iflipb-previous-buffer)
+    (if my-iflipb-auto-off-timer-canceler-internal
+        (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
+    (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
+    (setq my-iflipb-ing-internal t))
+
   :config
   (setq iflipb-always-ignore-buffers
         "\\`\\( \\|diary\\|ipa\\|\\.newsrc-dribble\\'\\)"
         iflipb-wrap-around t)
 
   (defun iflipb-first-iflipb-buffer-switch-command ()
-    "Determines whether this is the first invocation of
-iflipb-next-buffer or iflipb-previous-buffer this round."
     (not (and (or (eq last-command 'my-iflipb-next-buffer)
                   (eq last-command 'my-iflipb-previous-buffer))
               my-iflipb-ing-internal))))
@@ -2349,7 +2282,6 @@ iflipb-next-buffer or iflipb-previous-buffer this round."
 ;;;_ , image-file
 
 (use-package image-file
-  :disabled t
   :config
   (auto-image-file-mode 1))
 
