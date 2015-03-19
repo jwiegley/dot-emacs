@@ -2345,7 +2345,12 @@
 ;;;_ , js2-mode
 
 (use-package js2-mode
-  :mode ("\\.js\\'" . js2-mode))
+  :mode "\\.js\\'")
+
+;;;_ , json-mode
+
+(use-package json-mode
+  :mode "\\.json\\'")
 
 ;;;_ , ledger
 
