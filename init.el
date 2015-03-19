@@ -1665,9 +1665,10 @@
 ;;;_ , emms
 
 (use-package emms-setup
+  :disabled t
   :load-path "site-lisp/emms/lisp"
   :defines (emms-info-functions emms-player-simple-process-name)
-  :commands (emms-all emms-devel)
+  :commands (emms-standard emms-devel)
   :bind ("C-. M" . my-emms)
   :preface
   (defvar emms-initialized nil)
@@ -1676,7 +1677,7 @@
   (defun my-emms ()
     (interactive)
     (unless emms-initialized
-      (emms-devel)
+      (emms-standard)
       (emms-default-players)
       (require 'emms-info-libtag)
       (setq emms-info-functions '(emms-info-libtag)
@@ -1854,6 +1855,11 @@
   :disabled t
   :load-path "site-lisp/ess/lisp/"
   :commands R)
+
+;;;_ , etags
+
+(use-package etags
+  :bind ("M-T" . tags-search))
 
 ;;;_ , eval-expr
 
