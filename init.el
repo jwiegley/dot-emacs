@@ -11,8 +11,8 @@
 
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
-(defvar use-package-verbose t)
 (eval-when-compile
+  (defvar use-package-verbose t)
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept)))
 (require 'use-package)
@@ -70,7 +70,8 @@
 
 (unless (string-match "/nix/store" (getenv "PATH"))
   (read-system-environment)
-  (add-hook 'after-init-hook 'read-system-environment))
+  ;; (add-hook 'after-init-hook 'read-system-environment)
+  )
 
 ;;;_ , Load customization settings
 
@@ -739,7 +740,7 @@
     (diminish 'hs-minor-mode)
     (diminish 'hide-ifdef-mode)
 
-    (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
+    ;; (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
 
     ;; (setq ac-sources (list 'ac-source-gtags))
     ;; (bind-key "<A-tab>" 'ac-complete c-mode-base-map)
@@ -1796,6 +1797,7 @@
   (add-to-list
    'erc-mode-hook
    #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
+
   (add-hook 'after-init-hook 'irc)
 
   :config
@@ -1964,7 +1966,8 @@
 (use-package git-wip-mode
   :load-path "site-lisp/git-wip/emacs/"
   :diminish git-wip-mode
-  :config (git-wip-mode 1))
+  :commands git-wip-mode
+  :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
 
 ;;;_ , gnus
 
@@ -1996,7 +1999,8 @@
           (grep command-args))))
 
   :config
-  (use-package grep-ed)
+  (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
+
   (grep-apply-setting 'grep-command "egrep -nH -e ")
   (if nil
       (progn
@@ -2301,6 +2305,7 @@
 ;;;_ , image-file
 
 (use-package image-file
+  :disabled t
   :config
   (auto-image-file-mode 1))
 
@@ -2762,7 +2767,7 @@
   (defvar x-select-request-type))
 
 (use-package mule
-  :init
+  :config
   (prefer-coding-system 'utf-8)
   (set-terminal-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
@@ -2866,6 +2871,7 @@
 ;;;_ , on-screen
 
 (use-package on-screen
+  :defer 5
   :config
   (on-screen-global-mode 1))
 
@@ -3062,6 +3068,7 @@
   :diminish projectile-mode
   :commands projectile-global-mode
   :defer 5
+  :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (use-package helm-projectile
     :config
@@ -3122,11 +3129,10 @@
 
 (use-package proof-site
   :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic"
+  :mode ("\\.v\\'" . coq-mode)
   :config
   (use-package coq
-    :mode ("\\.v\\'" . coq-mode)
     :no-require t
-    :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/coq"
     :defines coq-mode-map
     :functions (proof-layout-windows proof-prf holes-mode)
     :config
@@ -3152,50 +3158,6 @@
                           (proof-prf)) coq-mode-map)
     (bind-key "C-c C-a C-s" 'coq-SearchConstant coq-mode-map)
     (unbind-key "C-c h" coq-mode-map)
-
-    (use-package coq-seq-compile
-      :disabled t
-      :defer t
-      :config
-      (defun my-coq-seq-get-library-dependencies
-          (lib-src-file &optional command-intro)
-        (let ((coqdep-arguments
-               (nconc (coq-include-options lib-src-file coq-load-path)
-                      (list lib-src-file)))
-              coqdep-status coqdep-output)
-          (if coq-debug-auto-compilation
-              (message "call coqdep arg list: %s" coqdep-arguments))
-          (with-temp-buffer
-            (setq coqdep-status
-                  (apply 'call-process
-                         coq-dependency-analyzer nil (current-buffer) nil
-                         coqdep-arguments))
-            (setq coqdep-output (buffer-string)))
-          (if coq-debug-auto-compilation
-              (message "coqdep status %s, output on %s: %s"
-                       coqdep-status lib-src-file coqdep-output))
-          (if (string-match coq-coqdep-error-regexp coqdep-output)
-              ()
-            (if (eq coqdep-status 0)
-                (if (string-match ": \\(.*\\)$" coqdep-output)
-                    (cdr-safe (split-string (match-string 1 coqdep-output)))
-                  ())
-              (let* ((this-command (cons coq-dependency-analyzer
-                                         coqdep-arguments))
-                     (full-command (if command-intro
-                                       (cons command-intro this-command)
-                                     this-command)))
-                ;; display the error
-                (coq-init-compile-response-buffer
-                 (mapconcat 'identity full-command " "))
-                (let ((inhibit-read-only t))
-                  (with-current-buffer coq-compile-response-buffer
-                    (insert coqdep-output)))
-                (coq-display-compile-response-buffer)
-                "unsatisfied dependencies")))))
-
-      (defalias 'coq-seq-get-library-dependencies
-        'my-coq-seq-get-library-dependencies))
 
     (use-package pg-user
       :defer t
@@ -3408,9 +3370,7 @@
 (use-package session
   :if (not noninteractive)
   :load-path "site-lisp/session/lisp/"
-  :config
-  (session-initialize)
-
+  :preface
   (defun remove-session-use-package-from-settings ()
     (when (string= (file-name-nondirectory (buffer-file-name))
                    "settings.el")
@@ -3419,8 +3379,6 @@
         (when (re-search-forward "^ '(session-use-package " nil t)
           (delete-region (line-beginning-position)
                          (1+ (line-end-position)))))))
-
-  (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
 
   ;; expanded folded secitons as required
   (defun le::maybe-reveal ()
@@ -3431,8 +3389,6 @@
       (if (eq major-mode 'org-mode)
           (org-reveal)
         (show-subtree))))
-
-  (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
 
   (defvar server-process nil)
 
@@ -3450,10 +3406,11 @@
                        (eq 'listen (process-status server-process))))
         (server-start))))
 
+  :config
+  (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+  (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
   (run-with-idle-timer 60 t 'save-information)
-
-  (if window-system
-      (add-hook 'after-init-hook 'session-initialize t)))
+  (add-hook 'after-init-hook 'session-initialize t))
 
 ;;;_ , sh-script
 
@@ -3930,9 +3887,9 @@
 
 (use-package winner
   :if (not noninteractive)
+  :defer 5
   :bind (("M-N" . winner-redo)
          ("M-P" . winner-undo))
-  :demand t
   :config
   (winner-mode 1))
 

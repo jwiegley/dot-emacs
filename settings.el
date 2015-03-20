@@ -340,7 +340,7 @@
  '(display-time-mode t)
  '(display-time-string-forms
    (quote
-    ((format-time-string "%k:%M %p" now)
+    ((format-time-string "%l:%M %p" now)
      " "
      (let
          ((str
@@ -436,7 +436,6 @@
  '(eshell-modules-list
    (quote
     (eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra)))
- '(eshell-prefer-to-shell t nil (eshell))
  '(eshell-prompt-function
    (lambda nil
      (concat
