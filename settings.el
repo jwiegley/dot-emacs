@@ -751,6 +751,7 @@
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string
    "                                                                              ")
+ '(projectile-cache-file "/Users/johnw/.emacs.d/data/projectile.cache")
  '(projectile-enable-caching t)
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-switch-project-action (quote helm-projectile))
