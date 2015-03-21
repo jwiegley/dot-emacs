@@ -145,20 +145,20 @@
 (autoload 'hippie-expand "hippie-exp" nil t)
 (autoload 'indent-according-to-mode "indent" nil t)
 
-(defun smart-tab (&optional arg)
-  (interactive "P")
-  (cond
-   ((looking-back "^[-+* \t]*")
-    (if (eq major-mode 'org-mode)
-        (org-cycle arg)
-      (indent-according-to-mode)))
-   (t
-    ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
-    ;; `hippie-expand-try-functions-list'.
-    (hippie-expand arg))))
+;; (defun smart-tab (&optional arg)
+;;   (interactive "P")
+;;   (cond
+;;    ((looking-back "^[-+* \t]*")
+;;     (if (eq major-mode 'org-mode)
+;;         (org-cycle arg)
+;;       (indent-according-to-mode)))
+;;    (t
+;;     ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
+;;     ;; `hippie-expand-try-functions-list'.
+;;     (hippie-expand arg))))
 
-(bind-key "TAB" 'smart-tab)
-(bind-key "<tab>" 'smart-tab)
+;; (bind-key "TAB" 'smart-tab)
+;; (bind-key "<tab>" 'smart-tab)
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
@@ -1382,7 +1382,15 @@
   :diminish company-mode
   :commands company-mode
   :config
-  (global-company-mode 1))
+  ;; From https://github.com/company-mode/company-mode/issues/87
+  ;; See also https://github.com/company-mode/company-mode/issues/123
+  (defadvice company-pseudo-tooltip-unless-just-one-frontend
+      (around only-show-tooltip-when-invoked activate)
+    (when (company-explicit-action-p)
+      ad-do-it))
+
+  (use-package helm-company
+    :disabled t))
 
 ;;;_ , compile
 
@@ -2176,8 +2184,8 @@
           (last-command last-command)
           (buffer-modified (buffer-modified-p))
           (hippie-expand-function (or hippie-expand-function 'hippie-expand)))
-      (cl-flet ((ding)) ; avoid the (ding) when hippie-expand exhausts its
-                        ; options.
+      (flet ((ding))        ; avoid the (ding) when hippie-expand exhausts its
+                            ; options.
         (while (progn
                  (funcall hippie-expand-function nil)
                  (setq last-command 'my-hippie-expand-completions)
@@ -2206,9 +2214,34 @@
     (interactive)
     (my-ido-hippie-expand-with 'hippie-expand))
 
+  (defun my-try-expand-company (old)
+    (require 'company)
+    (unless company-candidates
+      (company-auto-begin))
+    (if (not old)
+        (progn
+          (he-init-string (he-lisp-symbol-beg) (point))
+          (if (not (he-string-member he-search-string he-tried-table))
+              (setq he-tried-table (cons he-search-string he-tried-table)))
+          (setq he-expand-list
+                (and (not (equal he-search-string ""))
+                     company-candidates))))
+    (while (and he-expand-list
+                (he-string-member (car he-expand-list) he-tried-table))
+      (setq he-expand-list (cdr he-expand-list)))
+    (if (null he-expand-list)
+        (progn
+          (if old (he-reset-string))
+          ())
+      (progn
+	(he-substitute-string (car he-expand-list))
+	(setq he-expand-list (cdr he-expand-list))
+	t)))
+
   :config
   (setq hippie-expand-try-functions-list
         '(my-yas-hippie-try-expand
+          my-try-expand-company
           try-expand-dabbrev-visible
           try-expand-dabbrev
           try-expand-dabbrev-all-buffers
@@ -2293,9 +2326,12 @@
   (use-package ido-hacks
     :config
     (ido-hacks-mode 1))
+
   (use-package ido-vertical-mode
+    :disabled t
     :config
     (ido-vertical-mode 1))
+
   (use-package flx-ido
     :disabled t
     :config
@@ -2966,7 +3002,8 @@
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup))
 
-  (bind-key "<tab>" 'smart-tab org-mode-map))
+  ;; (bind-key "<tab>" 'smart-tab org-mode-map)
+  )
 
 ;;;_ , pabbrev
 
