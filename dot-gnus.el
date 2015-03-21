@@ -1,8 +1,8 @@
 ;;;_ , Gnus
 
 (eval-when-compile
-  (require 'use-package)
   (require 'cl))
+(require 'use-package)
 
 (load "gnus-settings")
 
@@ -96,8 +96,8 @@
         (setq switch-to-gnus-run t)))))
 
 (use-package fetchmail-ctl
-  :functions switch-to-fetchmail
-  :config
+  :commands switch-to-fetchmail
+  :init
   (defun maybe-start-fetchmail-and-news ()
     (interactive)
     (when (and (not switch-to-gnus-unplugged)
@@ -105,6 +105,7 @@
       ;; (do-applescript "tell application \"Notify\" to run")
       (switch-to-fetchmail)))
 
+  :config
   (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
 
   (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
@@ -347,7 +348,7 @@ is:
   (add-hook 'dired-mode-hook 'gnus-dired-mode))
 
 (use-package my-gnus-score
-  :functions my-gnus-score-groups
+  :commands my-gnus-score-groups
   :init
   (defun gnus-group-get-all-new-news ()
     (interactive)
@@ -444,7 +445,8 @@ is:
   (define-key global-map [(alt meta ?f)] 'gnus-query))
 
 (use-package gnus-harvest
-  :functions gnus-harvest-install
+  :commands gnus-harvest-install
+  :demand t
   :config
   (if (featurep 'message-x)
       (gnus-harvest-install 'message-x)

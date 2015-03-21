@@ -2,7 +2,7 @@
 
 (defun indirect-buffer ()
   "Edit stuff in this buffer in an indirect buffer.
- The indirect buffer can have another major mode."
+The indirect buffer can have another major mode."
   (interactive)
   (let ((buffer-name (generate-new-buffer-name "*indirect*")))
     (pop-to-buffer (make-indirect-buffer (current-buffer) buffer-name))))
@@ -13,9 +13,9 @@
 
 (defun indirect-region (start end)
   "Edit the current region in another buffer.
- If the buffer-local variable `indirect-mode-name' is not set, prompt
- for mode name to choose for the indirect buffer interactively.
- Otherwise, use the value of said variable as argument to a funcall."
+If the buffer-local variable `indirect-mode-name' is not set, prompt
+for mode name to choose for the indirect buffer interactively.
+Otherwise, use the value of said variable as argument to a funcall."
   (interactive "r")
   (let ((buffer-name (generate-new-buffer-name "*indirect*"))
         (mode

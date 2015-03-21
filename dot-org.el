@@ -1,6 +1,6 @@
 ;;;_ , Org-mode
 
-(eval-when-compile (require 'use-package))
+(require 'use-package)
 
 (load "org-settings")
 
@@ -746,22 +746,6 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 (org-defkey org-mode-map [return] 'org-return-indent)
 (org-defkey org-mode-map [(control ?c) (control ?x) ?@] 'visible-mode)
 (org-defkey org-mode-map [(control ?c) (meta ?m)] 'my-org-wrap-region)
-
-(eval-when-compile
-  (defvar yas/trigger-key)
-  (defvar yas/keymap)
-  (autoload 'yas/expand "yasnippet"))
-
-(defun yas/org-very-safe-expand ()
-  (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
-
-(defun yas/org-setup-keybinding ()
-  (require 'yasnippet)
-  (set (make-local-variable 'yas/trigger-key) [tab])
-  (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-  (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand))
-
-(add-hook 'org-mode-hook 'yas/org-setup-keybinding)
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 

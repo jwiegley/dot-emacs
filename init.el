@@ -13,6 +13,7 @@
 
 (eval-when-compile
   (defvar use-package-verbose t)
+  ;; (defvar use-package-expand-minimally t)
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept)))
 (require 'use-package)
@@ -140,6 +141,27 @@
 
 ;;;_ , global-map
 
+(autoload 'org-cycle "org" nil t)
+(autoload 'hippie-expand "hippie-exp" nil t)
+(autoload 'indent-according-to-mode "indent" nil t)
+
+(defun smart-tab (&optional arg)
+  (interactive "P")
+  (cond
+   ((looking-back "^[-+* \t]*")
+    (if (eq major-mode 'org-mode)
+        (org-cycle arg)
+      (indent-according-to-mode)))
+   (t
+    ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
+    ;; `hippie-expand-try-functions-list'.
+    (hippie-expand arg))))
+
+(bind-key "TAB" 'smart-tab)
+(bind-key "<tab>" 'smart-tab)
+
+(define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
+
 ;;;_  . C-
 
 (defvar ctl-period-map)
@@ -167,7 +189,6 @@
                 (rename-uniquely)))))))
 
 (bind-key "M-!" 'async-shell-command)
-(bind-key "M-/" 'dabbrev-expand)
 (bind-key "M-'" 'insert-pair)
 (bind-key "M-\"" 'insert-pair)
 
@@ -221,10 +242,6 @@
 ;;;_  . M-C-
 
 (bind-key "<C-M-backspace>" 'backward-kill-sexp)
-
-;;;_  . A-
-
-(define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
 ;;;_ , ctl-x-map
 
@@ -352,23 +369,24 @@
 
 (bind-key "C-c d" 'delete-current-line)
 
-(bind-key "C-c e E" 'elint-current-buffer)
-
 (defun do-eval-buffer ()
   (interactive)
   (call-interactively 'eval-buffer)
   (message "Buffer has been evaluated"))
 
-(bind-key "C-c e b" 'do-eval-buffer)
-(bind-key "C-c e c" 'cancel-debug-on-entry)
-(bind-key "C-c e d" 'debug-on-entry)
-(bind-key "C-c e e" 'toggle-debug-on-error)
-(bind-key "C-c e f" 'emacs-lisp-byte-compile-and-load)
-(bind-key "C-c e j" 'emacs-lisp-mode)
-(bind-key "C-c e l" 'find-library)
-(bind-key "C-c e r" 'eval-region)
-(bind-key "C-c e s" 'scratch)
-(bind-key "C-c e z" 'byte-recompile-directory)
+(bind-keys :prefix-map my-lisp-devel-map
+           :prefix "C-c e"
+           ("E" . elint-current-buffer)
+           ("b" . do-eval-buffer)
+           ("c" . cancel-debug-on-entry)
+           ("d" . debug-on-entry)
+           ("e" . toggle-debug-on-error)
+           ("f" . emacs-lisp-byte-compile-and-load)
+           ("j" . emacs-lisp-mode)
+           ("l" . find-library)
+           ("r" . eval-region)
+           ("s" . scratch)
+           ("z" . byte-recompile-directory))
 
 (bind-key "C-c f" 'flush-lines)
 
@@ -680,9 +698,6 @@
 
 ;;;_ , cc-mode
 
-(eval-when-compile
-  (defvar yas-fallback-behavior))
-
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'"                   . c-mode)
@@ -733,7 +748,6 @@
     (whitespace-mode 1)
     (which-function-mode 1)
     ;; (auto-complete-mode 1)
-    (yas-minor-mode 1)
     (bug-reference-prog-mode 1)
 
     (diminish 'gtags-mode)
@@ -749,10 +763,6 @@
     ;;(doxymacs-font-lock)
 
     (bind-key "<return>" 'newline-and-indent c-mode-base-map)
-
-    ;; (set (make-local-variable 'yas-fallback-behavior)
-    ;;      '(apply my-c-indent-or-complete . nil))
-    ;; (bind-key "<tab>" 'yas-expand-from-trigger-key c-mode-base-map)
 
     (unbind-key "M-j" c-mode-base-map)
     (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
@@ -1169,7 +1179,6 @@
   (ac-config-default)
 
   :config
-  ;;(ac-set-trigger-key "TAB")
   (ac-set-trigger-key "<backtab>")
   (setq ac-use-menu-map t)
 
@@ -2076,8 +2085,8 @@
 
 (use-package helm-grep
   :commands helm-do-grep-1
-  :bind (("M-s f"   . my-helm-do-grep-r)
-         ("M-s g"   . my-helm-do-grep))
+  :bind (("M-s f" . my-helm-do-grep-r)
+         ("M-s g" . my-helm-do-grep))
   :preface
   (defun my-helm-do-grep ()
     (interactive)
@@ -2094,7 +2103,9 @@
 (use-package helm-descbinds
   :bind ("C-h b" . helm-descbinds)
   :init
-  (fset 'describe-bindings 'helm-descbinds))
+  (fset 'describe-bindings 'helm-descbinds)
+  :config
+  (require 'helm-config))
 
 (use-package helm-config
   :defer 10
@@ -2146,6 +2157,34 @@
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
 
+;;;_ , hippie-exp
+
+(use-package hippie-exp
+  :bind ("M-/" . hippie-expand)
+  :preface
+  (autoload 'yas-expand "yasnippet" nil t)
+  (defun my-yas-hippie-try-expand (first-time)
+    (if (not first-time)
+        (let ((yas-fallback-behavior 'return-nil))
+          (yas-expand))
+      (undo 1)
+      nil))
+  :config
+  (setq hippie-expand-try-functions-list
+        '(my-yas-hippie-try-expand
+          try-expand-dabbrev-visible
+          try-expand-dabbrev
+          try-expand-dabbrev-all-buffers
+          try-expand-dabbrev-from-kill
+          try-complete-file-name-partially
+          try-complete-file-name
+          try-expand-all-abbrevs
+          try-expand-list
+          try-expand-line
+          try-expand-line-all-buffers
+          try-complete-lisp-symbol-partially
+          try-complete-lisp-symbol)))
+
 ;;;_ , hl-line
 
 (use-package hl-line
@@ -2173,7 +2212,8 @@
             ido-final-text
             ido-show-confirm-message)
   :bind (("C-x b" . ido-switch-buffer)
-         ("C-x B" . ido-switch-buffer-other-window))
+         ("C-x B" . ido-switch-buffer-other-window)
+         ("M-x"   . ido-hacks-execute-extended-command))
   :preface
   (eval-when-compile
     (defvar ido-require-match)
@@ -2552,19 +2592,11 @@
 
     (add-hook 'after-save-hook 'check-parens nil t)
 
-    (if (memq major-mode
-              '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-        (progn
-          (bind-key "<M-return>" 'outline-insert-heading emacs-lisp-mode-map)
-          (bind-key "<tab>" 'my-elisp-indent-or-complete emacs-lisp-mode-map))
+    (unless (memq major-mode
+                  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
       (turn-on-cldoc-mode)
-
-      (bind-key "<tab>" 'my-lisp-indent-or-complete lisp-mode-map)
       (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
-      (bind-key "M-l" 'slime-selector lisp-mode-map))
-
-    (autoload 'yas-minor-mode "yasnippet")
-    (yas-minor-mode 1))
+      (bind-key "M-l" 'slime-selector lisp-mode-map)))
 
   ;; Change lambda to an actual lambda symbol
   :init
@@ -2890,7 +2922,9 @@
   :config
   (when (not running-alternate-emacs)
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup)))
+    (my-org-startup))
+
+  (bind-key "<tab>" 'smart-tab org-mode-map))
 
 ;;;_ , pabbrev
 
@@ -3140,7 +3174,6 @@
      'coq-mode-hook
      (lambda ()
        (holes-mode -1)
-       (yas-minor-mode 1)
        (whitespace-mode 1)
        ;; (set-input-method "Agda")
        (add-hook 'proof-shell-extend-queue-hook
@@ -3151,7 +3184,6 @@
 
     (bind-key "M-RET" 'proof-goto-point coq-mode-map)
     (bind-key "RET" 'newline-and-indent coq-mode-map)
-    (bind-key "<tab>" 'yas-expand-from-trigger-key coq-mode-map)
     (bind-key "C-c C-p" (lambda ()
                           (interactive)
                           (proof-layout-windows)
@@ -3298,13 +3330,8 @@
   (defun my-ruby-mode-hook ()
     (require 'inf-ruby)
     (inf-ruby-keys)
-
     (bind-key "<return>" 'my-ruby-smart-return ruby-mode-map)
-    (bind-key "C-h C-i" 'helm-yari ruby-mode-map)
-
-    (set (make-local-variable 'yas-fallback-behavior)
-         '(apply ruby-indent-command . nil))
-    (bind-key "<tab>" 'yas-expand-from-trigger-key ruby-mode-map))
+    (bind-key "C-h C-i" 'helm-yari ruby-mode-map))
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
@@ -3834,6 +3861,9 @@
   :commands (whitespace-buffer
              whitespace-cleanup
              whitespace-mode)
+  :defines (whitespace-auto-cleanup
+            whitespace-rescan-timer-time
+            whitespace-silent)
   :preface
   (defun normalize-file ()
     (interactive)
@@ -3881,7 +3911,15 @@
 
   :config
   (remove-hook 'find-file-hooks 'whitespace-buffer)
-  (remove-hook 'kill-buffer-hook 'whitespace-buffer))
+  (remove-hook 'kill-buffer-hook 'whitespace-buffer)
+
+  ;; For some reason, having these in settings.el gets ignored if whitespace
+  ;; loads lazily.
+  (setq whitespace-auto-cleanup t
+        whitespace-line-column 80
+        whitespace-rescan-timer-time nil
+        whitespace-silent t
+        whitespace-style '(face trailing lines space-before-tab empty)))
 
 ;;;_ , winner
 
@@ -3929,24 +3967,14 @@
 
 (use-package yasnippet
   :diminish yas-minor-mode
-  :commands yas-minor-mode
+  :commands (yas-expand yas-minor-mode)
   :functions (yas-guess-snippet-directories yas-table-name)
   :defines (yas-guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :bind (("C-c y TAB" . yas-expand)
+         ("C-c y s"   . yas-insert-snippet)
          ("C-c y n"   . yas-new-snippet)
-         ("C-c y f"   . yas-find-snippets)
-         ("C-c y r"   . yas-reload-all)
          ("C-c y v"   . yas-visit-snippet-file))
-  :init
-  (hook-into-modes #'(lambda () (yas-minor-mode 1))
-                   '(haskell-mode-hook
-                     coq-mode-hook
-                     org-mode-hook
-                     ruby-mode-hook
-                     message-mode-hook
-                     gud-mode-hook
-                     erc-mode-hook))
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
 
