@@ -145,17 +145,17 @@
 (autoload 'hippie-expand "hippie-exp" nil t)
 (autoload 'indent-according-to-mode "indent" nil t)
 
-;; (defun smart-tab (&optional arg)
-;;   (interactive "P")
-;;   (cond
-;;    ((looking-back "^[-+* \t]*")
-;;     (if (eq major-mode 'org-mode)
-;;         (org-cycle arg)
-;;       (indent-according-to-mode)))
-;;    (t
-;;     ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
-;;     ;; `hippie-expand-try-functions-list'.
-;;     (hippie-expand arg))))
+(defun smart-tab (&optional arg)
+  (interactive "P")
+  (cond
+   ((looking-back "^[-+* \t]*")
+    (if (eq major-mode 'org-mode)
+        (org-cycle arg)
+      (indent-according-to-mode)))
+   (t
+    ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
+    ;; `hippie-expand-try-functions-list'.
+    (hippie-expand arg))))
 
 ;; (bind-key "TAB" 'smart-tab)
 ;; (bind-key "<tab>" 'smart-tab)
@@ -3002,8 +3002,7 @@
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup))
 
-  ;; (bind-key "<tab>" 'smart-tab org-mode-map)
-  )
+  (bind-key "<tab>" 'smart-tab org-mode-map))
 
 ;;;_ , pabbrev
 
