@@ -1,6 +1,7 @@
 ;;;_. Initialization
 
-(eval-when-compile (require 'cl))
+(eval-when-compile
+  (require 'cl))
 
 (setq message-log-max 16384)
 
