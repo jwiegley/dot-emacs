@@ -677,6 +677,7 @@
 ;;;_ , gtags
 
 (use-package gtags
+  :disabled t
   :commands gtags-mode
   :diminish gtags-mode
   :config
@@ -742,7 +743,7 @@
 
   (defun my-c-mode-common-hook ()
     (abbrev-mode 1)
-    (gtags-mode 1)
+    ;; (gtags-mode 1)
     (hs-minor-mode 1)
     (hide-ifdef-mode 1)
     (whitespace-mode 1)
@@ -750,7 +751,7 @@
     ;; (auto-complete-mode 1)
     (bug-reference-prog-mode 1)
 
-    (diminish 'gtags-mode)
+    ;; (diminish 'gtags-mode)
     (diminish 'hs-minor-mode)
     (diminish 'hide-ifdef-mode)
 
