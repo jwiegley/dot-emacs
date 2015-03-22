@@ -105,9 +105,9 @@
       ;; (do-applescript "tell application \"Notify\" to run")
       (switch-to-fetchmail)))
 
-  :config
   (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
 
+  :config
   (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
     (async-start
      (lambda ()
@@ -348,7 +348,7 @@ is:
   (add-hook 'dired-mode-hook 'gnus-dired-mode))
 
 (use-package my-gnus-score
-  :commands my-gnus-score-groups
+  :commands (my-gnus-score-groups my-gnus-score-followup)
   :init
   (defun gnus-group-get-all-new-news ()
     (interactive)

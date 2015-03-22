@@ -29,6 +29,9 @@
 ;; simple control of Fetchmail and Leafnode's fetchnews behind a 'v' keymap
 ;; in the Gnus *Group* buffer.
 
+(eval-when-compile
+  (require 'cl))
+
 (defgroup fetchmail-ctl nil
   "Simple code for controlling Fetchmail."
   :group 'gnus)

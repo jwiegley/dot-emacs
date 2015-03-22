@@ -12,7 +12,7 @@
 (load (expand-file-name "load-path" (file-name-directory load-file-name)))
 
 (eval-when-compile
-  (defvar use-package-verbose t)
+  ;; (defvar use-package-verbose t)
   ;; (defvar use-package-expand-minimally t)
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept)))
@@ -2185,7 +2185,7 @@
           (buffer-modified (buffer-modified-p))
           (hippie-expand-function (or hippie-expand-function 'hippie-expand)))
       (flet ((ding))        ; avoid the (ding) when hippie-expand exhausts its
-                            ; options.
+                                        ; options.
         (while (progn
                  (funcall hippie-expand-function nil)
                  (setq last-command 'my-hippie-expand-completions)
@@ -2238,14 +2238,133 @@
 	(setq he-expand-list (cdr he-expand-list))
 	t)))
 
+  (defun he-tag-beg ()
+    (save-excursion
+      (backward-word 1)
+      (point)))
+
+  (defun tags-complete-tag (string predicate what)
+    (save-excursion
+      ;; If we need to ask for the tag table, allow that.
+      (if (eq what t)
+          (all-completions string (tags-completion-table) predicate)
+        (try-completion string (tags-completion-table) predicate))))
+
+  (defun try-expand-tag (old)
+    (when tags-table-list
+      (unless old
+        (he-init-string (he-tag-beg) (point))
+        (setq he-expand-list
+              (sort (all-completions he-search-string 'tags-complete-tag)
+                    'string-lessp)))
+      (while (and he-expand-list
+                  (he-string-member (car he-expand-list) he-tried-table))
+        (setq he-expand-list (cdr he-expand-list)))
+      (if (null he-expand-list)
+          (progn
+            (when old (he-reset-string))
+            ())
+        (he-substitute-string (car he-expand-list))
+        (setq he-expand-list (cdr he-expand-list))
+        t)))
+
+  (defun my-dabbrev-substring-search (pattern &optional reverse limit)
+    (let ((result ())
+          (regpat (cond ((not hippie-expand-dabbrev-as-symbol)
+                         (concat (regexp-quote pattern) "\\sw+"))
+                        ((eq (char-syntax (aref pattern 0)) ?_)
+                         (concat (regexp-quote pattern) "\\(\\sw\\|\\s_\\)+"))
+                        (t
+                         (concat (regexp-quote pattern)
+                                 "\\(\\sw\\|\\s_\\)+")))))
+      (while (and (not result)
+                  (if reverse
+                      (re-search-backward regpat limit t)
+                    (re-search-forward regpat limit t)))
+        (setq result (buffer-substring-no-properties
+                      (save-excursion
+                        (goto-char (match-beginning 0))
+                        (skip-syntax-backward "w_")
+                        (point))
+                      (match-end 0)))
+        (if (he-string-member result he-tried-table t)
+            (setq result nil)))     ; ignore if bad prefix or already in table
+      result))
+
+  (defun try-my-dabbrev-substring (old)
+    (let ((old-fun (symbol-function 'he-dabbrev-search)))
+      (fset 'he-dabbrev-search (symbol-function 'my-dabbrev-substring-search))
+      (unwind-protect
+          (try-expand-dabbrev old)
+        (fset 'he-dabbrev-search old-fun))))
+
+  (defun try-expand-flexible-abbrev (old)
+    "Try to complete word using flexible matching.
+
+  Flexible matching works by taking the search string and then
+  interspersing it with a regexp for any character. So, if you try
+  to do a flexible match for `foo' it will match the word
+  `findOtherOtter' but also `fixTheBoringOrange' and
+  `ifthisisboringstopreadingnow'.
+
+  The argument OLD has to be nil the first call of this function, and t
+  for subsequent calls (for further possible completions of the same
+  string).  It returns t if a new completion is found, nil otherwise."
+    (if (not old)
+        (progn
+          (he-init-string (he-lisp-symbol-beg) (point))
+          (if (not (he-string-member he-search-string he-tried-table))
+              (setq he-tried-table (cons he-search-string he-tried-table)))
+          (setq he-expand-list
+                (and (not (equal he-search-string ""))
+                     (he-flexible-abbrev-collect he-search-string)))))
+    (while (and he-expand-list
+                (he-string-member (car he-expand-list) he-tried-table))
+      (setq he-expand-list (cdr he-expand-list)))
+    (if (null he-expand-list)
+        (progn
+          (if old (he-reset-string))
+          ())
+      (progn
+	(he-substitute-string (car he-expand-list))
+	(setq he-expand-list (cdr he-expand-list))
+	t)))
+
+  (defun he-flexible-abbrev-collect (str)
+    "Find and collect all words that flex-matches STR.
+  See docstring for `try-expand-flexible-abbrev' for information
+  about what flexible matching means in this context."
+    (let ((collection nil)
+          (regexp (he-flexible-abbrev-create-regexp str)))
+      (save-excursion
+        (goto-char (point-min))
+        (while (search-forward-regexp regexp nil t)
+          ;; Is there a better or quicker way than using
+          ;; `thing-at-point' here?
+          (setq collection (cons (thing-at-point 'word) collection))))
+      collection))
+
+  (defun he-flexible-abbrev-create-regexp (str)
+    "Generate regexp for flexible matching of STR.
+  See docstring for `try-expand-flexible-abbrev' for information
+  about what flexible matching means in this context."
+    (concat "\\b" (mapconcat (lambda (x) (concat "\\w*" (list x))) str "")
+            "\\w*" "\\b"))
+
+  (defun my-try-expand-dabbrev-visible (old)
+    (save-excursion (try-expand-dabbrev-visible old)))
+
   :config
   (setq hippie-expand-try-functions-list
         '(my-yas-hippie-try-expand
           my-try-expand-company
-          try-expand-dabbrev-visible
+          try-my-dabbrev-substring
+          my-try-expand-dabbrev-visible
           try-expand-dabbrev
           try-expand-dabbrev-all-buffers
           try-expand-dabbrev-from-kill
+          try-expand-tag
+          try-expand-flexible-abbrev
           try-complete-file-name-partially
           try-complete-file-name
           try-expand-all-abbrevs
@@ -2255,7 +2374,12 @@
           try-complete-lisp-symbol-partially
           try-complete-lisp-symbol))
 
-  (bind-key "M-i" 'my-ido-hippie-expand))
+  (bind-key "M-i" 'my-ido-hippie-expand)
+
+  (defadvice he-substitute-string (after he-paredit-fix)
+    "remove extra paren when expanding line in paredit"
+    (if (and paredit-mode (equal (substring str -1) ")"))
+        (progn (backward-delete-char 1) (forward-char)))))
 
 ;;;_ , hl-line
 
@@ -2277,7 +2401,8 @@
 ;;;_ , ido
 
 (use-package ido
-  :defer 5
+  ;; :defer 5
+  :demand t
   :defines (ido-cur-item
             ido-require-match
             ido-selected
@@ -2837,7 +2962,12 @@
   (use-package magit-review
     :disabled t
     :commands magit-review
-    :config (require 'json))
+    :config
+    (use-package json))
+
+  (use-package magit-commit
+    :config
+    (remove-hook 'server-switch-hook 'magit-commit-diff))
 
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
