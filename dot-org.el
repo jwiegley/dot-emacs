@@ -1,7 +1,6 @@
 ;;;_ , Org-mode
 
-(eval-when-compile
-  (require 'cl))
+(require 'cl)
 (require 'use-package)
 
 (load "org-settings")
