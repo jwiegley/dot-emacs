@@ -975,6 +975,8 @@ It is used:
                                         ;         (list 0 font-lock-type-face)
                                         ;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
                                         ;               (list 0 font-lock-variable-name-face)))
+
+   (list "[?][a-zA-Z0-9]+" 0 'proof-eager-annotation-face)
    ;; parenthesized binders
    (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
    (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
