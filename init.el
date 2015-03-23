@@ -3380,6 +3380,7 @@
   :config
   (use-package coq
     :defer t
+    :defines coq-mode-map
     :config
     (add-hook
      'coq-mode-hook
