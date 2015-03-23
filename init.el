@@ -2089,7 +2089,7 @@
 
 (use-package helm-mode
   :defer 15
-  :commands helm--completing-read-default)
+  :commands (helm--completing-read-default helm-comp-read))
 
 (use-package helm-grep
   :commands helm-do-grep-1
@@ -3326,59 +3326,60 @@
   (defun nix-lisp-path (part)
     (list (expand-file-name part nix-site-lisp-directory))))
 
-(eval-when-compile
-  (defvar proof-auto-raise-buffers)
-  (defvar proof-three-window-enable)
-  (defvar proof-shrink-windows-tofit)
-
-  (declare-function proof-get-window-for-buffer "proof-utils")
-  (declare-function proof-resize-window-tofit "proof-utils")
-  (declare-function window-bottom-p "proof-compat"))
-
-(defun my-proof-display-and-keep-buffer (buffer &optional pos force)
-  (when (or force proof-auto-raise-buffers)
-    (save-excursion
-      (save-selected-window
-        (let ((window (proof-get-window-for-buffer buffer)))
-          (when (window-live-p window) ;; [fails sometimes?]
-            (if proof-three-window-enable
-                (set-window-dedicated-p window nil))
-            (select-window window)
-            (if proof-shrink-windows-tofit
-                (proof-resize-window-tofit)
-              ;; If we're not shrinking to fit, allow the size of
-              ;; this window to change.  [NB: might be nicer to
-              ;; fix the size based on user choice]
-              (setq window-size-fixed nil))
-            ;; For various reasons, point may get moved around in
-            ;; response buffer.  Attempt to normalise its position.
-            (goto-char (or pos (point-max)))
-            (if pos
-                (beginning-of-line)
-              (skip-chars-backward "\n\t "))
-            ;; Ensure point visible.  Again, window may have died
-            ;; inside shrink to fit, for some reason
-            (when (window-live-p window)
-              (unless (pos-visible-in-window-p (point) window)
-                (recenter -1))
-              (with-current-buffer buffer
-                (if (window-bottom-p window)
-                    (unless (local-variable-p 'mode-line-format)
-                      ;; Don't show any mode line.
-                      (set (make-local-variable 'mode-line-format) nil))
-                  (unless mode-line-format
-                    ;; If the buffer gets displayed elsewhere, re-add
-                    ;; the modeline.
-                    (kill-local-variable 'mode-line-format)))))))))))
-
 (use-package proof-site
-  :load-path "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic"
+  :load-path ("~/.nix-profile/share/emacs/site-lisp/ProofGeneral/generic"
+              "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/lib"
+              "~/.nix-profile/share/emacs/site-lisp/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
+  :preface
+  (eval-when-compile
+    (defvar proof-auto-raise-buffers)
+    (defvar proof-three-window-enable)
+    (defvar proof-shrink-windows-tofit)
+
+    (declare-function proof-get-window-for-buffer "proof-utils")
+    (declare-function proof-resize-window-tofit "proof-utils")
+    (declare-function window-bottom-p "proof-compat"))
+
+  (defun my-proof-display-and-keep-buffer (buffer &optional pos force)
+    (when (or force proof-auto-raise-buffers)
+      (save-excursion
+        (save-selected-window
+          (let ((window (proof-get-window-for-buffer buffer)))
+            (when (window-live-p window) ;; [fails sometimes?]
+              (if proof-three-window-enable
+                  (set-window-dedicated-p window nil))
+              (select-window window)
+              (if proof-shrink-windows-tofit
+                  (proof-resize-window-tofit)
+                ;; If we're not shrinking to fit, allow the size of
+                ;; this window to change.  [NB: might be nicer to
+                ;; fix the size based on user choice]
+                (setq window-size-fixed nil))
+              ;; For various reasons, point may get moved around in
+              ;; response buffer.  Attempt to normalise its position.
+              (goto-char (or pos (point-max)))
+              (if pos
+                  (beginning-of-line)
+                (skip-chars-backward "\n\t "))
+              ;; Ensure point visible.  Again, window may have died
+              ;; inside shrink to fit, for some reason
+              (when (window-live-p window)
+                (unless (pos-visible-in-window-p (point) window)
+                  (recenter -1))
+                (with-current-buffer buffer
+                  (if (window-bottom-p window)
+                      (unless (local-variable-p 'mode-line-format)
+                        ;; Don't show any mode line.
+                        (set (make-local-variable 'mode-line-format) nil))
+                    (unless mode-line-format
+                      ;; If the buffer gets displayed elsewhere, re-add
+                      ;; the modeline.
+                      (kill-local-variable 'mode-line-format)))))))))))
+
   :config
   (use-package coq
-    :no-require t
-    :defines coq-mode-map
-    :functions (proof-layout-windows proof-prf holes-mode)
+    :defer t
     :config
     (add-hook
      'coq-mode-hook
@@ -3392,22 +3393,22 @@
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)))
 
-    (bind-key "M-RET" 'proof-goto-point coq-mode-map)
-    (bind-key "RET" 'newline-and-indent coq-mode-map)
-    (bind-key "C-c C-p" (lambda ()
-                          (interactive)
-                          (proof-layout-windows)
-                          (proof-prf)) coq-mode-map)
-    (bind-key "C-c C-a C-s" 'coq-SearchConstant coq-mode-map)
-    (unbind-key "C-c h" coq-mode-map)
+    (bind-key "M-RET" #'proof-goto-point coq-mode-map)
+    (bind-key "RET" #'newline-and-indent coq-mode-map)
+    (bind-key "C-c C-p" #'(lambda ()
+                            (interactive)
+                            (proof-layout-windows)
+                            (proof-prf)) coq-mode-map)
+    (bind-key "C-c C-a C-s" #'coq-SearchConstant coq-mode-map)
+    (unbind-key "C-c h" coq-mode-map))
 
-    (use-package pg-user
-      :defer t
-      :config
-      (defadvice proof-retract-buffer
-          (around my-proof-retract-buffer activate)
-        (condition-case err ad-do-it
-          (error (shell-command "killall ssrcoq")))))))
+  (use-package pg-user
+    :defer t
+    :config
+    (defadvice proof-retract-buffer
+        (around my-proof-retract-buffer activate)
+      (condition-case err ad-do-it
+        (error (shell-command "killall ssrcoq"))))))
 
 ;;;_ , ps-print
 
