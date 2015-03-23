@@ -225,10 +225,12 @@ so for the following reasons:
      ("inversion_clear" "invcl" "inversion_clear" t "inversion_clear")
      ("lapply" "lap" "lapply" t "lapply")
      ("lazy" "lazy" "lazy beta [#] delta iota zeta" t "lazy")
+     ("lazymatch with" "m" "lazymatch # with\n| # => #\nend")
      ("left" "left" "left" t "left")
      ("linear" "lin" "linear" t "linear")
      ("load" "load" "load" t "load")
      ("move after" "mov" "move # after #" t "move")
+     ("multimatch with" "m" "multimatch # with\n| # => #\nend")
      ("now_show" nil "now_show" t "now_show")     
      ("omega" "o" "omega" t "omega")
      ("pattern" "pat" "pattern" t "pattern")
@@ -875,6 +877,7 @@ It is used:
    coq-user-reserved-db
    '(
      "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
+     "lazymatch" "multimatch"
      "return" "struct" "else" "end" "if" "in" "into" "let" "then"
      "using" "with" "beta" "delta" "iota" "zeta" "after" "until"
      "at" "Sort" "Time" "dest" "where"

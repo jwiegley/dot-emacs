@@ -88,9 +88,9 @@ End Y.
 
 Function div2 (n : nat) {struct n}: nat :=
   match n with
-    | 0 => 0
-    | 1 => 0
-    | S (S n') => S (div2 n')
+  | 0 => 0
+  | 1 => 0
+  | S (S n') => S (div2 n')
   end.
 
 
@@ -257,9 +257,25 @@ Module X.
           |}.
         (* ltac *)
         match goal with
-          | _:rec |- ?a /\ ?b => split
-          | _ => fail
+        | _:rec |- ?a /\ ?b => split
+        | _ => fail
         end.
+
+        match goal with
+          _:rec |- ?a /\ ?b => split
+        | _ => fail
+        end.
+
+        lazymatch goal with
+          _:rec |- ?a /\ ?b => split
+        | _ => fail
+        end.
+
+        multimatch goal with
+          _:rec |- ?a /\ ?b => split
+        | _ => fail
+        end.
+
         { simpl. auto. }
         { simpl. auto. }}}
   Qed.
@@ -285,8 +301,8 @@ Module TC.
   
   Program Fixpoint f (x:nat) {struct x} : nat :=
     match x with
-      | 0 => 0
-      | S y => S (f y)
+    | 0 => 0
+    | S y => S (f y)
     end.
   
   Program Instance all_iff_morphism {A : Type} :
@@ -321,26 +337,26 @@ Section SET.
   Fixpoint setVecProd (T : Type) (n : nat) (v1:Vector.t (set T) n) {struct v1}:
     (Vector.t T n) ->  Prop :=
     match v1 with
-        Vector.nil =>
-        fun v2 =>
-          match v2 with 
-              Vector.nil => True
-            | _ => False
-          end
-      | (Vector.cons x n' v1') =>
-        fun v2 =>
-          (* indentation of dependen "match" clause. *)
-          match v2
-                as
-                X
-                in
-                Vector.t _ n''
-                return
-                (Vector.t T (pred n'') -> Prop) -> Prop
-          with 
-            | Vector.nil => fun _ => False 
-            | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
-          end (setVecProd T n' v1')
+      Vector.nil =>
+      fun v2 =>
+        match v2 with 
+          Vector.nil => True
+        | _ => False
+        end
+    | (Vector.cons x n' v1') =>
+      fun v2 =>
+        (* indentation of dependen "match" clause. *)
+        match v2
+              as
+              X
+              in
+              Vector.t _ n''
+              return
+              (Vector.t T (pred n'') -> Prop) -> Prop
+        with 
+        | Vector.nil => fun _ => False 
+        | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
+        end (setVecProd T n' v1')
     end.
   
 End SET.

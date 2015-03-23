@@ -136,14 +136,15 @@ the token of \".\" is simply \".\"."
 
 
 (defun coq-smie-find-unclosed-match-backward ()
-  (let ((tok (coq-smie-search-token-backward '("with" "match" "."))))
+  (let ((tok (coq-smie-search-token-backward '("with" "match" "lazymatch" "multimatch" "."))))
     (cond
      ((null tok) nil)
      ((equal tok ".") nil)
-     ((equal tok "match") t)
      ((equal tok "with")
       (coq-smie-find-unclosed-match-backward)
-      (coq-smie-find-unclosed-match-backward)))))
+      (coq-smie-find-unclosed-match-backward))
+     (t t) ;; all variants of match
+     )))
 
 ;; point supposed to be at start of the "with"
 (defun coq-smie-with-deambiguate()
@@ -436,7 +437,7 @@ The point should be at the beginning of the command name."
      ((equal tok ",")
       (save-excursion
 	(let ((backtok (coq-smie-search-token-backward
-			'("forall" "∀" "∃" "exists" "|" "match" "."))))
+			'("forall" "∀" "∃" "exists" "|" "match" "lazymatch" "multimatch" "."))))
 	  (cond
 	   ((member backtok '("forall" "∀" "∃")) ", quantif")
 	   ((equal backtok "exists") ; there is a tactic called exists
@@ -474,6 +475,8 @@ The point should be at the beginning of the command name."
 	;(coq-find-real-start)
 	(coq-smie-module-deambiguate)))
 
+     ((member tok '("lazymatch" "multimatch")) "match")
+
      ;; rhaaa... Some peolple use "End" as a id...
      ((equal tok "End")
       (if (coq-is-at-command-real-start) "end module" tok))
@@ -499,8 +502,8 @@ The point should be at the beginning of the command name."
      ((equal tok "=>")
       (save-excursion
 	(let ((corresp (coq-smie-search-token-backward
-			'("|" "match" "fun" ".")
-			nil '(("match" . "end") ("fun" . "=>")))))
+			'("|" "match" "lazymatch" "multimatch" "fun" ".")
+			nil '((("match" "lazymatch" "multimatch") . "end") ("fun" . "=>")))))
 	  (cond
 	   ((member corresp '("fun")) "=> fun") ; fun
 	   (t tok)))))
@@ -550,12 +553,12 @@ The point should be at the beginning of the command name."
       (save-excursion
 	(let ((prev-interesting
 	       (coq-smie-search-token-backward
-		'("match" "Morphism" "Relation" "." ". proofstart"
+		'("match" "lazymatch" "multimatch" "Morphism" "Relation" "." ". proofstart"
 		  "{ subproof" "} subproof" "as")
 		nil
-		'((("match" "let") . "with") ("with" . "signature")))))
+		'((("match" "lazymatch" "multimatch" "let") . "with") ("with" . "signature")))))
 	  (cond
-	   ((equal prev-interesting "match") "as match")
+	   ((member prev-interesting '("match" "lazymatch" "multimatch")) "as match")
 	   ((member prev-interesting '("Morphism" "Relation")) "as morphism")
 	   (t tok)))))
 
@@ -581,9 +584,9 @@ The point should be at the beginning of the command name."
       (save-excursion
 	(let ((prev-interesting
 	       (coq-smie-search-token-backward
-		'("let" "match" ;"eval" should be "eval in" but this is not supported by search-token-backward
+		'("let" "match" "lazymatch" "multimatch" ;"eval" should be "eval in" but this is not supported by search-token-backward
 		  "." ) nil
-		'(("match" . "with") (("let" ;"eval"
+		'((("match" "lazymatch" "multimatch") . "with") (("let" ;"eval"
 				       ) . "in")))))
 	  (cond
 	   ((member prev-interesting '("." nil)) "in tactic")
