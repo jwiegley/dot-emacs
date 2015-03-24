@@ -3,6 +3,11 @@
 (require 'cl)
 (require 'use-package)
 
+(eval-and-compile
+  (push (expand-file-name "override/org-mode/contrib/lisp"
+                          user-emacs-directory)
+        load-path))
+
 (load "org-settings")
 
 (require 'org)
@@ -20,7 +25,7 @@
 (require 'ob-haskell)
 (require 'ob-sh)
 (require 'ox-md)
-(require 'ox-opml)
+;; (require 'ox-opml)
 
 (declare-function cfw:open-calendar-buffer "calfw")
 (declare-function cfw:refresh-calendar-buffer "calfw")
@@ -67,6 +72,7 @@
        :view 'two-weeks))))
 
 (use-package calfw
+  :load-path "site-lisp/emacs-calfw"
   :bind ("C-c A" . my-calendar)
   :init
   (progn
@@ -239,6 +245,9 @@ To use this function, add it to `org-agenda-finalize-hook':
   (defvar org-clock-current-task)
   (defvar org-mobile-directory)
   (defvar org-mobile-capture-file))
+
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 (defun org-my-auto-exclude-function (tag)
   (and (cond

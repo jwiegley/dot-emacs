@@ -95,6 +95,9 @@
         (gnus-group-list-groups gnus-activate-level)
         (setq switch-to-gnus-run t)))))
 
+(defun quickping (host)
+  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+
 (use-package fetchmail-ctl
   :commands switch-to-fetchmail
   :init
@@ -445,6 +448,7 @@ is:
   (define-key global-map [(alt meta ?f)] 'gnus-query))
 
 (use-package gnus-harvest
+  :load-path "lisp/gnus-harvest"
   :commands gnus-harvest-install
   :demand t
   :config
