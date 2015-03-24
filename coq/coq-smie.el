@@ -477,6 +477,8 @@ The point should be at the beginning of the command name."
 
      ((member tok '("lazymatch" "multimatch")) "match")
 
+     ((equal tok "tryif") "if")
+
      ;; rhaaa... Some peolple use "End" as a id...
      ((equal tok "End")
       (if (coq-is-at-command-real-start) "end module" tok))
