@@ -158,8 +158,10 @@
     ;; `hippie-expand-try-functions-list'.
     (hippie-expand arg))))
 
-;; (bind-key "TAB" 'smart-tab)
-;; (bind-key "<tab>" 'smart-tab)
+;; (add-hook 'prog-mode-hook
+;;           #'(lambda ()
+;;               (bind-key "TAB" 'smart-tab)
+;;               (bind-key "<tab>" 'smart-tab)))
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
@@ -3379,8 +3381,10 @@
 
   :config
   (use-package coq
+    :no-require t
     :defer t
     :defines coq-mode-map
+    :functions (proof-layout-windows coq-SearchConstant)
     :config
     (add-hook
      'coq-mode-hook

@@ -740,6 +740,7 @@
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(offlineimap-command "offlineimap -u machineui")
+ '(olivetti-hide-mode-line t)
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
    (quote
