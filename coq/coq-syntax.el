@@ -328,7 +328,7 @@ so for the following reasons:
      ("fourier" "four" "fourier" t "fourier")
      ("fail" "fa" "fail" nil)
      ("field" "field" "field" t "field")
-     ("gfail" "fa" "gfail" nil)
+     ("gfail" "gfa" "gfail" nil "gfail")
      ("omega" "o" "omega" t "omega")
      ("reflexivity" "refl" "reflexivity #" t "reflexivity")
      ("ring" "ring" "ring #" t "ring")
