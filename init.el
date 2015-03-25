@@ -1379,7 +1379,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package bbdb-com
-  :load-path "override/bbdb"
+  :load-path "override/bbdb/lisp"
   :commands bbdb-create
   :bind ("M-B" . bbdb))
 
