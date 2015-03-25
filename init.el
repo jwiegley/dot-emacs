@@ -3053,7 +3053,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup))
 
-  (bind-key "<tab>" 'smart-tab org-mode-map))
+  (add-hook 'org-mode-hook  #'yas-minor-mode))
 
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"
@@ -4014,12 +4014,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
 
-  (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
-
-  (hook-into-modes #'yas-minor-mode
-                   'prog-mode-hook
-                   'org-mode-hook
-                   'message-mode-hook))
+  (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
