@@ -1745,8 +1745,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-. C--" 'emms-player-mplayer-volume-down)
   (bind-key "C-. C-=" 'emms-player-mplayer-volume-up))
 
+(use-package gist
+  :load-path "site-lisp/gist"
+  :bind ("C-c G" . gist-region-or-buffer))
+
 (use-package erc
-  :if running-alternate-emacs
   :defines (erc-timestamp-only-if-changed-flag
             erc-timestamp-format
             erc-fill-prefix
@@ -1827,7 +1830,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    'erc-mode-hook
    #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
 
-  (add-hook 'after-init-hook 'irc)
+  (if running-alternate-emacs
+      (add-hook 'after-init-hook 'irc))
 
   :config
   (erc-track-minor-mode 1)
@@ -1964,10 +1968,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("C-c i r" . ispell-region)))
   :config
   (unbind-key "C-." flyspell-mode-map))
-
-(use-package gist
-  :load-path "site-lisp/gist"
-  :bind ("C-c G" . gist-region-or-buffer))
 
 (use-package git-messenger
   :load-path "site-lisp/emacs-git-messenger"
