@@ -377,6 +377,11 @@
   (call-interactively 'eval-buffer)
   (message "Buffer has been evaluated"))
 
+(defun do-eval-region ()
+  (interactive)
+  (call-interactively 'eval-region)
+  (message "Region has been evaluated"))
+
 (bind-keys :prefix-map my-lisp-devel-map
            :prefix "C-c e"
            ("E" . elint-current-buffer)
@@ -387,7 +392,7 @@
            ("f" . emacs-lisp-byte-compile-and-load)
            ("j" . emacs-lisp-mode)
            ("l" . find-library)
-           ("r" . eval-region)
+           ("r" . do-eval-region)
            ("s" . scratch)
            ("z" . byte-recompile-directory))
 
@@ -4043,11 +4048,7 @@
          ("C-c y s"   . yas-insert-snippet)
          ("C-c y n"   . yas-new-snippet)
          ("C-c y v"   . yas-visit-snippet-file))
-  :config
-  (yas-load-directory "~/.emacs.d/snippets/")
-
-  (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
-
+  :preface
   (defun yas-new-snippet (&optional choose-instead-of-guess)
     (interactive "P")
     (let ((guessed-directories (yas-guess-snippet-directories)))
@@ -4066,7 +4067,17 @@
                  "# -*- mode: snippet -*-\n"
                  "# name: $1\n"
                  "# --\n"
-                 "$0\n"))))))
+                 "$0\n")))))
+
+  :config
+  (yas-load-directory "~/.emacs.d/snippets/")
+
+  (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap)
+
+  (hook-into-modes #'yas-minor-mode
+                   'prog-mode-hook
+                   'org-mode-hook
+                   'message-mode-hook))
 
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)

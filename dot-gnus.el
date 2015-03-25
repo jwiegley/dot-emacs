@@ -4,18 +4,24 @@
   (require 'cl))
 (require 'use-package)
 
+(eval-and-compile
+  (push (expand-file-name "override/bbdb/lisp" user-emacs-directory)
+        load-path))
+
 (load "gnus-settings")
 
 (require 'gnus)
 (require 'starttls)
-(require 'nnmairix)
+;; (require 'nnmairix)
 (require 'message)
 (require 'spam)
 (require 'spam-report)
 (require 'bbdb)
 (require 'bbdb-gnus)
 (require 'bbdb-message)
-(require 'async)
+
+(use-package async
+  :load-path "lisp/emacs-async")
 
 ;; (gnus-compile)
 (gnus-delay-initialize)
