@@ -5715,10 +5715,6 @@ The files to be deleted are those that are marked in the current Dired
 buffer, or all files in the directory if none are marked.  Marked
 subdirectories are handled recursively in the same way."
   (interactive (progn (diredp-get-confirmation-recursive) (list current-prefix-arg)))
-  (unless arg
-    (ding)
-    (message "NOTE: Deletion of files marked `%c' (not those flagged `%c')."
-             dired-marker-char dired-del-marker))
   (let* ((files     (diredp-get-files nil nil nil nil 'ONLY-MARKED-P))
          (count     (length files))
          (trashing  (and (boundp 'delete-by-moving-to-trash)  delete-by-moving-to-trash))
@@ -8340,12 +8336,6 @@ If arg NO-MSG is non-nil, no message is displayed.
 User option `dired-recursive-deletes' controls whether deletion of
 non-empty directories is allowed."
   (interactive)
-  (unless no-msg
-    (ding)
-    (message "NOTE: Deletion of files flagged `%c' (not those marked `%c')"
-             dired-del-marker dired-marker-char)
-    ;; Too slow/annoying, but without it the message is never seen: (sit-for 2)
-    )
   (let* ((dired-marker-char  dired-del-marker)
          (regexp             (dired-marker-regexp))
          (case-fold-search   nil))
@@ -8374,10 +8364,6 @@ non-empty directories is allowed."
   ;; `dired-do-flagged-delete'.  But it can be confusing to the user,
   ;; especially since this is usually bound to `D', which is also the
   ;; `dired-del-marker'.  So offer this warning message:
-  (unless arg
-    (ding)
-    (message "NOTE: Deletion of files marked `%c' (not those flagged `%c')."
-             dired-marker-char dired-del-marker))
   (diredp-internal-do-deletions
    ;; This can move point if ARG is an integer.
    (dired-map-over-marks (cons (dired-get-filename) (point)) arg)

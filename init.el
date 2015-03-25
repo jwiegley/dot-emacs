@@ -229,7 +229,6 @@
 
 (bind-key "M-S" 'mark-sentence)
 (bind-key "M-X" 'mark-sexp)
-(bind-key "M-H" 'mark-paragraph)
 (bind-key "M-D" 'mark-defun)
 
 (bind-key "M-g c" 'goto-char)
@@ -2127,7 +2126,7 @@
          ("M-s F"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         )
+         ("M-H"     . helm-resume))
 
   :preface
   (defun my-helm-find ()
