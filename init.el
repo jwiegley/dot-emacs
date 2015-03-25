@@ -1,5 +1,3 @@
-;;;_. Initialization
-
 (defconst emacs-start-time (current-time))
 (unless noninteractive
   (message "Loading %s..." load-file-name))
@@ -36,7 +34,7 @@
 (require 'bind-key)
 (require 'diminish nil t)
 
-;;;_ , Utility macros and functions
+;;; Utility macros and functions
 
 ;; support textexpander (jww (2015-03-24): check if it's running)
 (bind-key "A-v" 'scroll-down)
@@ -45,7 +43,7 @@
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
 
-;;;_ , Load customization settings
+;;; Load customization settings
 
 (defvar running-alternate-emacs nil)
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
@@ -74,7 +72,7 @@
                       (replace-regexp-in-string regexp replace value)))))
       (eval settings))))
 
-;;;_ , Enable disabled commands
+;;; Enable disabled commands
 
 (put 'downcase-region  'disabled nil)   ; Let downcasing work
 (put 'erase-buffer     'disabled nil)
@@ -84,7 +82,7 @@
 (put 'set-goal-column  'disabled nil)
 (put 'upcase-region    'disabled nil)   ; Let upcasing work
 
-;;;_ , Configure libraries
+;;; Configure libraries
 
 (eval-and-compile
   (push (expand-file-name "lib" user-emacs-directory) load-path))
@@ -114,7 +112,7 @@
 (use-package working        :defer t)
 (use-package xml-rpc        :defer t)
 
-;;;_. Keybindings
+;;; Keybindings
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jww (2015-03-24): Move all of these into use-package declarations        ;;
@@ -140,7 +138,7 @@
 ;;   C- ,'";:?<>|!#$%^&*`~ <tab>
 ;;   M- ?#
 
-;;;_ , global-map
+;;; global-map
 
 (autoload 'org-cycle "org" nil t)
 (autoload 'hippie-expand "hippie-exp" nil t)
@@ -158,14 +156,9 @@
     ;; `hippie-expand-try-functions-list'.
     (hippie-expand arg))))
 
-;; (add-hook 'prog-mode-hook
-;;           #'(lambda ()
-;;               (bind-key "TAB" 'smart-tab)
-;;               (bind-key "<tab>" 'smart-tab)))
-
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
-;;;_  . C-
+;;; C-
 
 (defvar ctl-period-map)
 (define-prefix-command 'ctl-period-map)
@@ -181,7 +174,7 @@
 
 (bind-key "C-z" 'delete-other-windows)
 
-;;;_  . M-
+;;; M-
 
 (defadvice async-shell-command (before uniqify-running-shell-command activate)
   (let ((buf (get-buffer "*Async Shell Command*")))
@@ -238,16 +231,13 @@
   (interactive)
   (delete-indentation t))
 
-;;;(bind-key "M-s n" 'find-name-dired)
-;;;(bind-key "M-s o" 'occur)
-
-;;;_  . M-C-
+;;; M-C-
 
 (bind-key "<C-M-backspace>" 'backward-kill-sexp)
 
-;;;_ , ctl-x-map
+;;; ctl-x-map
 
-;;;_  . C-x
+;;; C-x
 
 (bind-key "C-x d" 'delete-whitespace-rectangle)
 (bind-key "C-x F" 'set-fill-column)
@@ -268,7 +258,7 @@
 
 (bind-key "C-x K" 'delete-current-buffer-file)
 
-;;;_  . C-x C-
+;;; C-x C-
 
 (defun duplicate-line ()
   "Duplicate the line containing point."
@@ -295,7 +285,7 @@
 
 (bind-key "C-x C-v" 'find-alternate-file-with-sudo)
 
-;;;_  . C-x M-
+;;; C-x M-
 
 (bind-key "C-x M-n" 'set-goal-column)
 
@@ -334,19 +324,19 @@
 
 (bind-key "C-x M-q" 'refill-paragraph)
 
-;;;_ , mode-specific-map
+;;; mode-specific-map
 
-;;;_  . C-c
+;;; C-c
 
 (bind-key "C-c <tab>" 'ff-find-other-file)
 (bind-key "C-c SPC" 'just-one-space)
 
-;; inspired by Erik Naggum's `recursive-edit-with-single-window'
 (defmacro recursive-edit-preserving-window-config (body)
   "*Return a command that enters a recursive edit after executing BODY.
- Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
- or \\[abort-recursive-edit] (abort)), restore window configuration
- in current frame."
+Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
+or \\[abort-recursive-edit] (abort)), restore window configuration
+in current frame.
+Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   `(lambda ()
      "See the documentation for `recursive-edit-preserving-window-config'."
      (interactive)
@@ -541,7 +531,7 @@
 (bind-key "C-c =" 'count-matches)
 (bind-key "C-c ;" 'comment-or-uncomment-region)
 
-;;;_  . C-c C-
+;;; C-c C-
 
 (defun delete-to-end-of-buffer ()
   (interactive)
@@ -549,7 +539,7 @@
 
 (bind-key "C-c C-z" 'delete-to-end-of-buffer)
 
-;;;_  . C-c M-
+;;; C-c M-
 
 (defun unfill-paragraph (arg)
   (interactive "*p")
@@ -584,22 +574,22 @@
       (unfill-paragraph 1)
       (forward-paragraph))))
 
-;;;_ , ctl-period-map
+;;; ctl-period-map
 
-;;;_  . C-.
+;;; C-.
 
 (bind-key "C-. m" 'kmacro-keymap)
 
 (bind-key "C-. C-i" 'indent-rigidly)
 
-;;;_ , help-map
+;;; help-map
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 
 (bind-key "C-h e" 'lisp-find-map)
 
-;;;_  . C-h e
+;;; C-h e
 
 (bind-key "C-h e c" 'finder-commentary)
 (bind-key "C-h e e" 'view-echo-area-messages)
@@ -683,7 +673,7 @@
 ;; jww (2015-03-24): Move all of the above into use-package declarations    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;_. Packages
+;;; Packages
 
 ;; jww (2015-03-24): All of these are presently unconfigured
 ;; :load-path "lisp/chess"
@@ -1532,9 +1522,6 @@
 
   :config
   (use-package dired-x)
-  ;; (use-package dired-async)
-  ;; (use-package dired-sort-map)
-  ;; (use-package runner)
   (use-package dired+
     :config
     (unbind-key "M-s f" dired-mode-map))
@@ -2122,7 +2109,6 @@
          ("C-h a"   . helm-apropos)
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
-         ;; ("C-x C-f" . helm-find-files)
          ("M-s F"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
@@ -2334,8 +2320,8 @@
       (save-excursion
         (goto-char (point-min))
         (while (search-forward-regexp regexp nil t)
-          ;; Is there a better or quicker way than using
-          ;; `thing-at-point' here?
+          ;; Is there a better or quicker way than using `thing-at-point'
+          ;; here?
           (setq collection (cons (thing-at-point 'word) collection))))
       collection))
 
@@ -2390,7 +2376,6 @@
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ido
-  ;; :defer 5
   :demand t
   :defines (ido-cur-item
             ido-require-match
@@ -2494,8 +2479,6 @@
 (use-package iflipb
   :load-path "site-lisp/iflipb"
   :commands (iflipb-next-buffer iflipb-previous-buffer)
-  ;; :bind (("M-`"   . my-iflipb-next-buffer)
-  ;;        ("M-S-`" . my-iflipb-previous-buffer))
   :preface
   (defvar my-iflipb-auto-off-timeout-sec 2)
   (defvar my-iflipb-auto-off-timer-canceler-internal nil)
@@ -2542,9 +2525,6 @@
   :init
   (remove-hook 'menu-bar-update-hook 'mac-setup-help-topics)
   :config
-  ;; (defadvice info-setup (after load-info+ activate)
-  ;;   (use-package info+))
-
   (defadvice Info-exit (after remove-info-window activate)
     "When info mode is quit, remove the window."
     (if (> (length (window-list)) 1)
@@ -2647,7 +2627,6 @@
         (forward-line)))))
 
 (use-package lisp-mode
-  ;; :load-path "site-lisp/slime/contrib/"
   :defer t
   :preface
   (defface esk-paren-face
@@ -2735,7 +2714,6 @@
         (save-excursion
           (byte-recompile-file buffer-file-name)))
 
-      ;; Register Info manuals related to Lisp
       (use-package info-lookmore
         :load-path "site-lisp/info-lookmore"
         :config
@@ -2769,19 +2747,20 @@
 
   ;; Change lambda to an actual lambda symbol
   :init
-  (mapc (lambda (major-mode)
-          (font-lock-add-keywords
-           major-mode
-           '(("(\\(lambda\\)\\>"
-              (0 (ignore
-                  (compose-region (match-beginning 1)
-                                  (match-end 1) ?λ))))
-             ("(\\|)" . 'esk-paren-face)
-             ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
-              (1 font-lock-keyword-face)
-              (2 font-lock-function-name-face
-                 nil t)))))
-        lisp-modes)
+  (mapc
+   (lambda (major-mode)
+     (font-lock-add-keywords
+      major-mode
+      '(("(\\(lambda\\)\\>"
+         (0 (ignore
+             (compose-region (match-beginning 1)
+                             (match-end 1) ?λ))))
+        ("(\\|)" . 'esk-paren-face)
+        ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
+         (1 font-lock-keyword-face)
+         (2 font-lock-function-name-face
+            nil t)))))
+   lisp-modes)
 
   (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
 
@@ -3093,7 +3072,6 @@
   (bind-key "M-)" 'paredit-close-round paredit-mode-map)
 
   (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
-  ;; (bind-key "M-h" 'mark-containing-sexp paredit-mode-map)
   (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
 
   (unbind-key "M-r" paredit-mode-map)
@@ -3106,14 +3084,7 @@
   (bind-key "C-. a" 'paredit-add-to-next-list paredit-mode-map)
   (bind-key "C-. A" 'paredit-add-to-previous-list paredit-mode-map)
   (bind-key "C-. j" 'paredit-join-with-next-list paredit-mode-map)
-  (bind-key "C-. J" 'paredit-join-with-previous-list paredit-mode-map)
-
-  ;; (add-hook 'allout-mode-hook
-  ;;           #'(lambda ()
-  ;;               (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
-  ;;               ;; (bind-key "M-h" 'mark-containing-sexp allout-mode-map)
-  ;;               ))
-  )
+  (bind-key "C-. J" 'paredit-join-with-previous-list paredit-mode-map))
 
 
 (or (use-package mic-paren
@@ -3177,48 +3148,20 @@
                             (cdr powerline-default-separator-dir))))
            (lhs
             (list
-             ;; (powerline-raw "%*" nil 'l)
-             ;; (powerline-buffer-size nil 'l)
-             ;; (powerline-raw mode-line-mule-info nil 'l)
              (powerline-raw " ")
-             ;; (powerline-buffer-id nil 'l)
              (powerline-buffer-id nil 'l)
-             ;; (when (and (boundp 'which-func-mode) which-func-mode)
-             ;;   (powerline-raw which-func-format nil 'l))
              (powerline-raw " ")
-             (funcall separator-left mode-line face2)
-             ;; (when (boundp 'erc-modified-channels-object)
-             ;;   (powerline-raw erc-modified-channels-object face1 'l))
-             ;; (powerline-major-mode face1 'l)
-             ;; (powerline-process face1)
-             ;; (powerline-minor-modes face1 'l)
-             ;; (powerline-narrow face1 'l)
-             ;; (powerline-raw " " face1)
-             ;; (funcall separator-left face1 face2)
-             ;; (powerline-vc face2 'r)
-             ))
+             (funcall separator-left mode-line face2)))
            (rhs
             (append
              (list)
              (if (and active (org-clocking-p))
                  (list
-                  ;; (powerline-raw " " 'my-powerline-time-face)
                   (powerline-raw
                    (format "  %s  "
                            (org-minutes-to-clocksum-string
                             (org-clock-get-clocked-time)))
-                   'my-powerline-time-face)
-                  ;; (powerline-raw " " 'my-powerline-time-face 'l)
-                  ;; (powerline-raw global-mode-string face2 'r)
-                  ;; (funcall separator-right face2 face1)
-                  ;; (powerline-raw "%4l" face1 'l)
-                  ;; (powerline-raw ":" face1 'l)
-                  ;; (powerline-raw "%3c" face1 'r)
-                  ;; (funcall separator-right face1 mode-line)
-                  ;; (powerline-raw " ")
-                  ;; (powerline-raw "%6p" nil 'r)
-                  ;; (powerline-hud face2 face1)
-                  )
+                   'my-powerline-time-face))
                (list)))))
         (concat (powerline-render lhs)
                 (powerline-fill face2 (powerline-width rhs))
@@ -4098,7 +4041,7 @@
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" 'zencoding-expand-line zencoding-mode-keymap))
 
-;;;_. Post initialization
+;;; Post initialization
 
 (when window-system
   (let ((elapsed (float-time (time-subtract (current-time)
@@ -4112,10 +4055,5 @@
                  (message "Loading %s...done (%.3fs) [after-init]"
                           ,load-file-name elapsed)))
             t))
-
-;; Local Variables:
-;;   mode: emacs-lisp
-;;   outline-regexp: "^;;;_\\([,. ]+\\)"
-;; End:
 
 ;;; init.el ends here
