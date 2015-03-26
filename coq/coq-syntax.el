@@ -1078,7 +1078,7 @@ It is used:
      (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
      ;; ", " is for multiple hypothesis diplayed in v8.5.
-     (cons "^  \\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (cons "^ \\{0,2\\}\\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
      (list "^\\([^ \n]+\\) \\(is defined\\)"
            (list 1 'font-lock-function-name-face t)))))
 
@@ -1086,7 +1086,7 @@ It is used:
    (append
     coq-font-lock-terms
     (list
-     (cons "^ *\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (cons "^ \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
 
