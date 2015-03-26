@@ -672,37 +672,38 @@ does not begin with '.'."
 
 (defun lusty-refresh-matches-buffer (&optional use-previous-matrix-p)
   "Refresh *Lusty-Matches*."
-  (assert (minibufferp))
-  (let* ((minibuffer-text (if lusty--wrapping-ido-p
-                              ido-text
-                            (minibuffer-contents-no-properties))))
+  (ignore-errors
+    (assert (minibufferp))
+    (let* ((minibuffer-text (if lusty--wrapping-ido-p
+                                ido-text
+                              (minibuffer-contents-no-properties))))
 
-    (unless use-previous-matrix-p
-      ;; Refresh the matches and layout matrix
-      (let ((matches
-             (ecase lusty--active-mode
-               (:file-explorer
-                (lusty-file-explorer-matches minibuffer-text))
-               (:buffer-explorer
-                (lusty-buffer-explorer-matches minibuffer-text)))))
-        (lusty--compute-layout-matrix matches)))
+      (unless use-previous-matrix-p
+        ;; Refresh the matches and layout matrix
+        (let ((matches
+               (ecase lusty--active-mode
+                 (:file-explorer
+                  (lusty-file-explorer-matches minibuffer-text))
+                 (:buffer-explorer
+                  (lusty-buffer-explorer-matches minibuffer-text)))))
+          (lusty--compute-layout-matrix matches)))
 
-    ;; Update the matches window.
-    (let ((lusty-buffer (get-buffer-create lusty-buffer-name)))
-      (with-current-buffer lusty-buffer
-        (setq buffer-read-only t)
-        (let ((buffer-read-only nil))
-          (erase-buffer)
-          (lusty--display-matches)
-          (goto-char (point-min))))
+      ;; Update the matches window.
+      (let ((lusty-buffer (get-buffer-create lusty-buffer-name)))
+        (with-current-buffer lusty-buffer
+          (setq buffer-read-only t)
+          (let ((buffer-read-only nil))
+            (erase-buffer)
+            (lusty--display-matches)
+            (goto-char (point-min))))
 
-      ;; If only our matches window is open,
-      (when (one-window-p t)
-        ;; Restore original window configuration before fitting the
-        ;; window so the minibuffer won't grow and look silly.
-        (set-window-configuration lusty--initial-window-config))
-      (fit-window-to-buffer (display-buffer lusty-buffer))
-      (set-buffer-modified-p nil))))
+        ;; If only our matches window is open,
+        (when (one-window-p t)
+          ;; Restore original window configuration before fitting the
+          ;; window so the minibuffer won't grow and look silly.
+          (set-window-configuration lusty--initial-window-config))
+        (fit-window-to-buffer (display-buffer lusty-buffer))
+        (set-buffer-modified-p nil)))))
 
 (defun lusty-buffer-list ()
   "Return a list of buffers ordered with those currently visible at the end."
