@@ -457,11 +457,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (set-frame-parameter (selected-frame) 'height emacs-min-height)
   (set-frame-parameter (selected-frame) 'width emacs-min-width)
 
-  (set-frame-font emacs-min-font)
-
-  (when running-alternate-emacs
-    (set-background-color "grey85")
-    (set-face-background 'fringe "gray80")))
+  (set-frame-font emacs-min-font))
 
 (if window-system
     (add-hook 'after-init-hook 'emacs-min))
@@ -1791,9 +1787,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                :password (lookup-password "irc.freenode.net" "johnw" 6667))))
 
   (defun setup-irc-environment ()
-    (custom-set-faces
-     '(erc-timestamp-face ((t (:foreground "dark violet")))))
-
     (setq erc-timestamp-only-if-changed-flag nil
           erc-timestamp-format "%H:%M "
           erc-fill-prefix "          "
@@ -2093,7 +2086,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package helm-swoop
   :load-path "site-lisp/helm-swoop"
   :bind (("M-s o" . helm-swoop)
-         ("M-s /" . helm-multi-swoop)))
+         ("M-s /" . helm-multi-swoop))
+  :config
+  (use-package helm-match-plugin
+    :config
+    (helm-match-plugin-mode 1)))
 
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
@@ -2123,12 +2120,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-commands)
   (use-package helm-files)
   (use-package helm-buffers)
+
   (use-package helm-ls-git
     :load-path "site-lisp/helm-ls-git")
-  (use-package helm-match-plugin)
 
-  (helm-match-plugin-mode t)
-  (helm-autoresize-mode t)
+  (use-package helm-match-plugin
+    :config
+    (helm-match-plugin-mode 1))
+
+  (helm-autoresize-mode 1)
 
   (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
   (bind-key "C-i" 'helm-execute-persistent-action helm-map)
@@ -3119,53 +3119,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package popup-ruler
   :bind (("C-. r" . popup-ruler)
          ("C-. R" . popup-ruler-vertical)))
-
-(use-package powerline
-  :disabled t
-  :init
-  (defface my-powerline-time-face
-    '((t (:background "#ffff99" :inherit mode-line)))
-    "Powerline face for displaying clocked time."
-    :group 'powerline)
-
-  :config
-  (setq-default
-   mode-line-format
-   '("%e"
-     (:eval
-      (let*
-          ((active (powerline-selected-window-active))
-           (mode-line (if active 'mode-line 'mode-line-inactive))
-           (face1 (if active 'powerline-active1 'powerline-inactive1))
-           (face2 (if active 'powerline-active2 'powerline-inactive2))
-           (separator-left
-            (intern (format "powerline-%s-%s"
-                            powerline-default-separator
-                            (car powerline-default-separator-dir))))
-           (separator-right
-            (intern (format "powerline-%s-%s"
-                            powerline-default-separator
-                            (cdr powerline-default-separator-dir))))
-           (lhs
-            (list
-             (powerline-raw " ")
-             (powerline-buffer-id nil 'l)
-             (powerline-raw " ")
-             (funcall separator-left mode-line face2)))
-           (rhs
-            (append
-             (list)
-             (if (and active (org-clocking-p))
-                 (list
-                  (powerline-raw
-                   (format "  %s  "
-                           (org-minutes-to-clocksum-string
-                            (org-clock-get-clocked-time)))
-                   'my-powerline-time-face))
-               (list)))))
-        (concat (powerline-render lhs)
-                (powerline-fill face2 (powerline-width rhs))
-                (powerline-render rhs)))))))
 
 (use-package pp-c-l
   :commands pretty-control-l-mode
