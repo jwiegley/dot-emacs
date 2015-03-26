@@ -1221,7 +1221,8 @@ alreadyopen is t if buffer already existed."
 ;; match-string 1 must contain the string to add to coqtop command line, so we
 ;; ignore -arg, we use numbered subregexpr.
 (defconst coq-prog-args-regexp
-  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:space:]]+\\(?1:[^ \t\n#]+\\)\\)?")
+  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:space:]]+\\(?1:[^\t\n#]+\\)\\)?")
+
 
 (defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
   "look for occurrences of regexp in buffer projectbuffer and collect subexps.

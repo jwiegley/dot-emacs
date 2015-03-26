@@ -4325,6 +4325,10 @@ parsed by ProofGeneral to guess the command line option. In this example
 the command line built by Proofgeneral will be @code{coqtop -foo3 -R foo
 bar -I foo2}.
 
+@emph{Remarque:} @code{-arg} must be followed by one and only one option
+to pass to coqtop/coqc, use several @code{-arg} to issue several
+options. One per line (limitation of proofgeneral).
+
 This is the recommended way of configuring coqtop options for coq
 compilation, CoqIde and Proofgeneral. Its main advantage is that it
 avoids duplicating informations between these three tools.
