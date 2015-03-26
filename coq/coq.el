@@ -1091,6 +1091,22 @@ flag Printing All set."
   (coq-ask-do-show-all "Show goal number" "Show" t))
 
 
+(defun coq-adapt-printing-width ()
+  "Sends a Set Printing Width command to coq to fit the response window's width.
+A Show command is also issued, so that the goal is redisplayed."
+  (interactive)
+  (let* ((goals-wins (get-buffer-window-list proof-goals-buffer))
+        (dummy (if (not (eq 1 (length goals-wins)))
+                   (error "Zero or more than one goals window")))
+        (goal-win (car goals-wins))
+        (wdth
+         (save-selected-window
+           (select-window goal-win)
+           (window-width))))
+    (proof-shell-invisible-command (format "Set Printing Width %S." (- wdth 1)) t)
+    (proof-shell-invisible-command (format "Show.") t)))
+
+
 (proof-definvisible coq-PrintHint "Print Hint. ")
 
 ;; Items on show menu
@@ -1111,6 +1127,8 @@ flag Printing All set."
 ; Takes an argument
 ;(proof-definvisible coq-set-printing-printing-depth "Set Printing Printing Depth . ")
 ;(proof-definvisible coq-unset-printing-printing-depth "Unset Printing Printing Depth . ")
+
+
 
 (defun coq-Compile ()
   "Compiles current buffer."
@@ -2150,7 +2168,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [?h] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
-
+(define-key coq-keymap [(control ?w)] 'coq-adapt-printing-width)
 ;(proof-eval-when-ready-for-assistant
 ; (define-key ??? [(control c) (control a)] (proof-ass keymap)))
 
@@ -2168,6 +2186,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
 
 
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
@@ -2180,6 +2199,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
 
 (when coq-remap-mouse-1
   (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)

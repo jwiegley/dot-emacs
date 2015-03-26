@@ -116,6 +116,11 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Experimental: colorize hypothesis names and some parts of error
     and warning messages. For readability.
 
+*** Set Printing Width adapted to goals window size
+
+    (coq-adapt-printing-width) sets the coq printing width to the
+    width of goals window. Default binding: C-c C-a C-w.
+
 *** Coq Querying facilities
 
 **** Minibuffer interactive queries
