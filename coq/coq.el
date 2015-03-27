@@ -722,7 +722,7 @@ the *goals* buffer."
 (defun coq-remove-trailing-dot (s)
   "Return the string S without its trailing \".\" if any.
 Return nil if S is nil."
-  (if (and s (string-match "\\.\\>" s))
+  (if (and s (string-match "\\.\\'" s))
       (substring s 0 (- (length s) 1))
     s))
 
