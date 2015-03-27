@@ -449,11 +449,11 @@ The point should be at the beginning of the command name."
      ; Same for ";" : record field separator, tactic combinator, etc
      ((equal tok ";")
       (save-excursion
-	(let ((backtok (coq-smie-search-token-backward '("." "[" "{"))))
+	(let ((backtok (coq-smie-search-token-backward '("." "[" "{" "Ltac"))))
 	  (cond
 	   ((equal backtok ".") "; tactic")
 	   ((equal backtok nil)
-	    (if (or (looking-back "\\[")
+	    (if (or (looking-back "(") (looking-back "\\[")
 		    (and (looking-back "{")
 			 (equal (coq-smie-backward-token) "{ subproof"))) ;; recursive call
 		"; tactic"
