@@ -788,54 +788,56 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer."
-  (let ((notes (directory-files
-                "~/Dropbox/Apps/Drafts/" t "[0-9].*\\.txt\\'" nil)))
-    (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
-      (save-excursion
-        (goto-char (point-min))
-        (re-search-forward "^\\* Inbox$")
-        (re-search-forward "^:END:")
-        (forward-line 1)
-        (dolist (note notes)
-          (insert
-           "** TODO "
-           (with-temp-buffer
-             (insert-file-contents note)
-             (goto-char (point-min))
-             (forward-line)
-             (unless (bolp))
-             (insert ?\n)
-             (insert (format "SCHEDULED: %s\n"
-                             (format-time-string (org-time-stamp-format))))
-             (goto-char (point-max))
-             (unless (bolp)
-               (insert ?\n))
-             (let ((uuid (substring (shell-command-to-string "uuidgen") 0 -1))
-                   (file (file-name-nondirectory note)))
-               (insert (format (concat ":PROPERTIES:\n:ID:       %s\n"
-                                       ":CREATED:  ") uuid))
-               (string-match
-                (concat "\\`\\([0-9]\\{4\\}\\)"
-                        "-\\([0-9]\\{2\\}\\)"
-                        "-\\([0-9]\\{2\\}\\)"
-                        "-\\([0-9]\\{2\\}\\)"
-                        "-\\([0-9]\\{2\\}\\)"
-                        "-\\([0-9]\\{2\\}\\)"
-                        "\\.txt\\'") file)
-               (let ((year (string-to-number (match-string 1 file)))
-                     (mon (string-to-number (match-string 2 file)))
-                     (day (string-to-number (match-string 3 file)))
-                     (hour (string-to-number (match-string 4 file)))
-                     (min (string-to-number (match-string 5 file)))
-                     (sec (string-to-number (match-string 6 file))))
-                 (insert (format "[%04d-%02d-%02d %s %02d:%02d]\n:END:\n"
-                                 year mon day
-                                 (calendar-day-name (list mon day year) t)
-                                 hour min))))
-             (buffer-string)))
-          (delete-file note t)))
-      (when (buffer-modified-p)
-        (save-buffer))))
+  (let ((notes (ignore-errors
+                 (directory-files
+                  "~/Dropbox/Apps/Drafts/" t "[0-9].*\\.txt\\'" nil))))
+    (when notes
+      (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
+        (save-excursion
+          (goto-char (point-min))
+          (re-search-forward "^\\* Inbox$")
+          (re-search-forward "^:END:")
+          (forward-line 1)
+          (dolist (note notes)
+            (insert
+             "** TODO "
+             (with-temp-buffer
+               (insert-file-contents note)
+               (goto-char (point-min))
+               (forward-line)
+               (unless (bolp))
+               (insert ?\n)
+               (insert (format "SCHEDULED: %s\n"
+                               (format-time-string (org-time-stamp-format))))
+               (goto-char (point-max))
+               (unless (bolp)
+                 (insert ?\n))
+               (let ((uuid (substring (shell-command-to-string "uuidgen") 0 -1))
+                     (file (file-name-nondirectory note)))
+                 (insert (format (concat ":PROPERTIES:\n:ID:       %s\n"
+                                         ":CREATED:  ") uuid))
+                 (string-match
+                  (concat "\\`\\([0-9]\\{4\\}\\)"
+                          "-\\([0-9]\\{2\\}\\)"
+                          "-\\([0-9]\\{2\\}\\)"
+                          "-\\([0-9]\\{2\\}\\)"
+                          "-\\([0-9]\\{2\\}\\)"
+                          "-\\([0-9]\\{2\\}\\)"
+                          "\\.txt\\'") file)
+                 (let ((year (string-to-number (match-string 1 file)))
+                       (mon (string-to-number (match-string 2 file)))
+                       (day (string-to-number (match-string 3 file)))
+                       (hour (string-to-number (match-string 4 file)))
+                       (min (string-to-number (match-string 5 file)))
+                       (sec (string-to-number (match-string 6 file))))
+                   (insert (format "[%04d-%02d-%02d %s %02d:%02d]\n:END:\n"
+                                   year mon day
+                                   (calendar-day-name (list mon day year) t)
+                                   hour min))))
+               (buffer-string)))
+            (delete-file note t)))
+        (when (buffer-modified-p)
+          (save-buffer)))))
   ad-do-it
   (org-fit-agenda-window))
 
