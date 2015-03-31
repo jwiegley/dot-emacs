@@ -429,6 +429,7 @@ The point should be at the beginning of the command name."
      (t ":=")))) ; a parenthesis stopped the search
 
 
+
 (defun coq-smie-backward-token ()
   (let ((tok (smie-default-backward-token)))
     (cond
@@ -451,7 +452,7 @@ The point should be at the beginning of the command name."
       (save-excursion
 	(let ((backtok (coq-smie-search-token-backward '("." "[" "{" "Ltac"))))
 	  (cond
-	   ((equal backtok ".") "; tactic")
+	   ((member backtok '("." "Ltac")) "; tactic")
 	   ((equal backtok nil)
 	    (if (or (looking-back "(") (looking-back "\\[")
 		    (and (looking-back "{")
@@ -682,7 +683,7 @@ Typical values are 2 or 4."
       '((exp
 	 (exp ":= def" exp)
 	 (exp ":=" exp) (exp ":= inductive" exp)
-	 (exp "|" exp) (exp "=>" exp)
+	 (exp "||" exp) (exp "|" exp) (exp "=>" exp)
 	 (exp "xxx provedby" exp) (exp "as morphism" exp)
 	 (exp "with signature" exp)
 	 ("match" matchexp "with match" exp "end");expssss
@@ -774,6 +775,7 @@ Typical values are 2 or 4."
 	(assoc "&") (assoc "/\\") (assoc "\\/")
 	(assoc "==") (assoc "=") (assoc "<" ">" "<=" ">=" "<>")
 	(assoc "=?") (assoc "<=?") (assoc "<?") (assoc "^")
+	(assoc "||") ;; FIXME: detecting "+ tactic" and "|| tactic" seems impossible
 	(assoc "+") (assoc "-") (assoc "*")
 	(assoc ": ltacconstr") (assoc ". selector"))
       '((assoc ":" ":<")  (assoc "<"))
