@@ -1,0 +1,5 @@
+tramp-loaddefs.el
+trampver.el
+format-spec.el
+password.el
+*.elc
