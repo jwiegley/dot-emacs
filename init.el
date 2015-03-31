@@ -3697,7 +3697,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (whitespace-cleanup))))
 
   :init
-  (hook-into-modes 'whitespace-mode 'prog-mode-hook 'c-mode-common-hook)
   (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
 
   :config
