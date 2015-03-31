@@ -23,8 +23,8 @@
             "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.2/emacs-mode"
             (file-name-directory agda))))))
 
-(eval-when-compile
-  ;; (defvar use-package-verbose t)
+(eval-and-compile
+  (defvar use-package-verbose t)
   ;; (defvar use-package-expand-minimally t)
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept))
@@ -671,120 +671,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 ;;; Packages
 
-;; jww (2015-03-24): All of these are presently unconfigured
-;; :load-path "lisp/chess"
-;; :load-path "lisp/emacs-async"
-;; :load-path "lisp/emacs-edg"
-;; :load-path "lisp/emacs-pl"
-;; :load-path "lisp/git-annex-el"
-;; :load-path "lisp/muse"
-;; :load-path "lisp/regex-tool"
-;; :load-path "lisp/springboard"
-;; :load-path "site-lisp/ace-link"
-;; :load-path "site-lisp/ace-window"
-;; :load-path "site-lisp/backup-walker"
-;; :load-path "site-lisp/bbdb-vcard"
-;; :load-path "site-lisp/bdo"
-;; :load-path "site-lisp/boxquote"
-;; :load-path "site-lisp/bug-reference-github"
-;; :load-path "site-lisp/butler"
-;; :load-path "site-lisp/cmake-font-lock"
-;; :load-path "site-lisp/command-log-mode"
-;; :load-path "site-lisp/company-auctex"
-;; :load-path "site-lisp/company-cabal"
-;; :load-path "site-lisp/company-ghc"
-;; :load-path "site-lisp/company-quickhelp"
-;; :load-path "site-lisp/deft"
-;; :load-path "site-lisp/dircmp-mode"
-;; :load-path "site-lisp/dired-hacks"
-;; :load-path "site-lisp/dired-sync"
-;; :load-path "site-lisp/discover"
-;; :load-path "site-lisp/ee"
-;; :load-path "site-lisp/el-mock"
-;; :load-path "site-lisp/elisp-depend"
-;; :load-path "site-lisp/elnode"
-;; :load-path "site-lisp/elpy"
-;; :load-path "site-lisp/emacros"
-;; :load-path "site-lisp/emacs-edbi"
-;; :load-path "site-lisp/esup"
-;; :load-path "site-lisp/expand-region-el"
-;; :load-path "site-lisp/fancy-narrow"
-;; :load-path "site-lisp/fold-this-el"
-;; :load-path "site-lisp/fringe-helper-el"
-;; :load-path "site-lisp/git-gutter-fringe-plus"
-;; :load-path "site-lisp/git-gutter-plus"
-;; :load-path "site-lisp/git-modes"
-;; :load-path "site-lisp/git-timemachine"
-;; :load-path "site-lisp/git-wip"
-;; :load-path "site-lisp/github-issues-el"
-;; :load-path "site-lisp/guess-style"
-;; :load-path "site-lisp/HaRe"
-;; :load-path "site-lisp/hdevtools-emacs"
-;; :load-path "site-lisp/helm-c-yasnippet"
-;; :load-path "site-lisp/helm-cmd-t"
-;; :load-path "site-lisp/helm-emms"
-;; :load-path "site-lisp/helm-gist"
-;; :load-path "site-lisp/helm-github-issues"
-;; :load-path "site-lisp/helm-google"
-;; :load-path "site-lisp/helm-ipython"
-;; :load-path "site-lisp/helm-ls-hg"
-;; :load-path "site-lisp/helm-slime"
-;; :load-path "site-lisp/hsenv"
-;; :load-path "site-lisp/hydra"
-;; :load-path "site-lisp/interaction-log"
-;; :load-path "site-lisp/irony-mode"
-;; :load-path "site-lisp/liquid-types-el"
-;; :load-path "site-lisp/monky"
-;; :load-path "site-lisp/multifiles-el"
-;; :load-path "site-lisp/olivetti"
-;; :load-path "site-lisp/org-download"
-;; :load-path "site-lisp/org-magit"
-;; :load-path "site-lisp/org-merge-driver"
-;; :load-path "site-lisp/org-opml"
-;; :load-path "site-lisp/org-present"
-;; :load-path "site-lisp/orgaggregate"
-;; :load-path "site-lisp/osx-bbdb"
-;; :load-path "site-lisp/page-break-lines"
-;; :load-path "site-lisp/pandoc-mode"
-;; :load-path "site-lisp/persistent-soft"
-;; :load-path "site-lisp/perspective"
-;; :load-path "site-lisp/powerline"
-;; :load-path "site-lisp/prodigy"
-;; :load-path "site-lisp/smart-forward-el"
-;; :load-path "site-lisp/swank-js"
-;; :load-path "site-lisp/tbx2org"
-;; :load-path "site-lisp/tellib"
-;; :load-path "site-lisp/visual-regexp"
-;; :load-path "site-lisp/web-mode"
-;; :load-path "site-lisp/ztree"
-
-(use-package gtags
-  :disabled t
-  :commands gtags-mode
-  :diminish gtags-mode
-  :config
-  (bind-key "C-c t ." 'gtags-find-rtag)
-  (bind-key "C-c t f" 'gtags-find-file)
-  (bind-key "C-c t p" 'gtags-parse-file)
-  (bind-key "C-c t g" 'gtags-find-with-grep)
-  (bind-key "C-c t i" 'gtags-find-with-idutils)
-  (bind-key "C-c t s" 'gtags-find-symbol)
-  (bind-key "C-c t r" 'gtags-find-rtag)
-  (bind-key "C-c t v" 'gtags-visit-rootdir)
-
-  (bind-key "<mouse-2>" 'gtags-find-tag-from-here gtags-mode-map)
-
-  (use-package helm-gtags
-    :bind ("M-T" . helm-gtags-select)
-    :config
-    (bind-key "M-," 'helm-gtags-resume gtags-mode-map)))
+(use-package ggtags
+  :load-path "site-lisp/ggtags"
+  :commands ggtags-mode
+  :diminish ggtags-mode)
 
 (use-package cc-mode
   :load-path "override/cc-mode"
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'"                   . c-mode)
          ("\\.mm\\'"                  . c++-mode))
-  :init
+  :preface
   (defun my-paste-as-check ()
     (interactive)
     (save-excursion
@@ -824,22 +721,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun my-c-mode-common-hook ()
     (abbrev-mode 1)
-    ;; (gtags-mode 1)
+    (ggtags-mode 1)
+    (eldoc-mode 1)
     (hs-minor-mode 1)
     (hide-ifdef-mode 1)
     (whitespace-mode 1)
     (which-function-mode 1)
-    ;; (auto-complete-mode 1)
+    (company-mode 1)
     (bug-reference-prog-mode 1)
 
-    ;; (diminish 'gtags-mode)
     (diminish 'hs-minor-mode)
     (diminish 'hide-ifdef-mode)
 
     ;; (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
-
-    ;; (setq ac-sources (list 'ac-source-gtags))
-    ;; (bind-key "<A-tab>" 'ac-complete c-mode-base-map)
 
     ;;(doxymacs-mode 1)
     ;;(doxymacs-font-lock)
@@ -874,9 +768,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
                                          1 font-lock-warning-face t))))
 
+  :config
   (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
-  :config
   (setq c-syntactic-indentation nil)
 
   (bind-key "#" 'self-insert-command c-mode-base-map)
@@ -1507,12 +1401,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun dired-double-jump (first-dir second-dir)
     (interactive
-     (list (ido-read-directory-name "First directory: "
-                                    (expand-file-name "~")
-                                    nil nil "dl/")
-           (ido-read-directory-name "Second directory: "
-                                    (expand-file-name "~")
-                                    nil nil "Archives/")))
+     (list (read-directory-name "First directory: "
+                                (expand-file-name "~")
+                                nil nil "dl/")
+           (read-directory-name "Second directory: "
+                                (expand-file-name "~")
+                                nil nil "Archives/")))
     (dired first-dir)
     (dired-other-window second-dir))
 
@@ -2065,11 +1959,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (insert "hdr")
       (yas-expand))))
 
-(use-package helm-mode
-  :load-path "site-lisp/helm"
-  :defer 15
-  :commands (helm--completing-read-default helm-comp-read))
-
 (use-package helm-grep
   :commands helm-do-grep-1
   :bind (("M-s f" . my-helm-do-grep-r)
@@ -2101,15 +1990,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'helm-config))
 
 (use-package helm-config
-  :defer 10
+  :demand t
+  :load-path "site-lisp/helm"
   :bind (("C-c h"   . helm-command-prefix)
          ("C-h a"   . helm-apropos)
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
-         ("M-s F"   . helm-for-files)
+         ("M-s f"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         ("M-H"     . helm-resume))
+         ("M-h"     . helm-resume))
 
   :preface
   (defun my-helm-find ()
@@ -2120,6 +2010,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-commands)
   (use-package helm-files)
   (use-package helm-buffers)
+  (use-package helm-mode
+    :diminish helm-mode
+    :init
+    (helm-mode 1))
 
   (use-package helm-ls-git
     :load-path "site-lisp/helm-ls-git")
@@ -2185,7 +2079,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (interactive
          (let ((options (my-hippie-expand-completions ,hippie-expand-function)))
            (if options
-               (list (ido-completing-read "Completions: " options)))))
+               (list
+                ;; (ido-completing-read "Completions: " options)
+                (completing-read "Completions: " options)
+                ))))
         (if selection
             (he-substitute-string selection t)
           (message "No expansion found")))))
@@ -2383,8 +2280,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             ido-final-text
             ido-show-confirm-message)
   :bind (("C-x b" . ido-switch-buffer)
-         ("C-x B" . ido-switch-buffer-other-window)
-         ("M-x"   . ido-hacks-execute-extended-command))
+         ("C-x B" . ido-switch-buffer-other-window))
   :preface
   (eval-when-compile
     (defvar ido-require-match)
@@ -2423,9 +2319,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (ido-mode 'buffer)
 
   (use-package ido-hacks
+    :demand t
     :load-path "site-lisp/ido-hacks"
+    :bind ("M-x" . my-ido-hacks-execute-extended-command)
     :config
-    (ido-hacks-mode 1))
+    (ido-hacks-mode 1)
+
+    (defvar ido-hacks-completing-read (symbol-function 'completing-read))
+    (fset 'completing-read ido-hacks-orgin-completing-read-function)
+    (defun my-ido-hacks-execute-extended-command (&optional arg)
+      (interactive "P")
+      (flet ((completing-read
+              (prompt collection &optional predicate require-match
+                      initial-input hist def inherit-input-method)
+              (funcall ido-hacks-completing-read
+                       prompt collection predicate require-match
+                       initial-input hist def inherit-input-method)))
+        (ido-hacks-execute-extended-command arg))))
 
   (use-package ido-vertical-mode
     :disabled t
@@ -2773,8 +2683,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :interpreter ("lua" . lua-mode))
 
 (use-package lusty-explorer
+  :demand t
   :load-path "site-lisp/lusty-emacs"
-  :bind ("C-x C-f" . lusty-file-explorer)
+  :bind ("C-x C-f" . my-lusty-file-explorer)
   :preface
   (defun lusty-read-directory ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2792,6 +2703,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun lusty-read-file-name ()
     "Launch the file/directory mode of LustyExplorer."
     (interactive)
+    (require 'lusty-explorer)
     (let ((lusty--active-mode :file-explorer))
       (lusty--define-mode-map)
       (let* ((lusty--ignored-extensions-regex
@@ -2800,6 +2712,34 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              (minibuffer-local-filename-completion-map lusty-mode-map)
              (lusty-only-directories nil))
         (lusty--run 'read-file-name default-directory ""))))
+
+  (defun my-lusty-file-explorer ()
+    "Launch the file/directory mode of LustyExplorer."
+    (interactive)
+    (require 'lusty-explorer)
+    (let ((lusty--active-mode :file-explorer)
+          (helm-mode-prev helm-mode))
+      (helm-mode -1)
+      (unwind-protect
+          (progn
+            (lusty--define-mode-map)
+            (let* ((lusty--ignored-extensions-regex
+                    (concat "\\(?:" (regexp-opt
+                                     completion-ignored-extensions) "\\)$"))
+                   (minibuffer-local-filename-completion-map lusty-mode-map)
+                   (file
+                    ;; read-file-name is silly in that if the result is equal
+                    ;; to the dir argument, it gets converted to the
+                    ;; default-filename argument.  Set it explicitly to "" so
+                    ;; if lusty-launch-dired is called in the directory we
+                    ;; start at, the result is that directory instead of the
+                    ;; name of the current buffer.
+                    (lusty--run 'read-file-name default-directory "")))
+              (when file
+                (switch-to-buffer
+                 (find-file-noselect
+                  (expand-file-name file))))))
+        (helm-mode (if helm-mode-prev 1 -1)))))
 
   :config
   (defun my-lusty-setup-hook ()
@@ -2928,6 +2868,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode)))
+
+(use-package midnight
+  :defer 10)
 
 (use-package mudel
   :disabled t

@@ -98,6 +98,7 @@
     ("~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt" "~/Documents/IL-05/IL-05.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
+ '(org-agenda-inhibit-startup t)
  '(org-agenda-log-mode-items (quote (closed clock state)))
  '(org-agenda-ndays 1)
  '(org-agenda-persistent-filter t)
