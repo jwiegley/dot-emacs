@@ -3132,6 +3132,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      (lambda ()
        (holes-mode -1)
        (whitespace-mode 1)
+       (ggtags-mode 1)
        ;; (set-input-method "Agda")
        (add-hook 'proof-shell-extend-queue-hook
                  (lambda ()
