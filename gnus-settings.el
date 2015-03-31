@@ -89,10 +89,13 @@ John Wiegley, Chairperson"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.haskell\\.ghc"
+    (("list\\.haskell\\.ghc$"
       (to-address . "glasgow-haskell-users@haskell.org")
       (to-list . "glasgow-haskell-users@haskell.org")
       (list-identifier . "\\[Haskell\\]"))
+     ("list\\.haskell\\.ghc-linker"
+      (to-address . "ghc-linker@googlegroups.com")
+      (to-list . "ghc-linker@googlegroups.com"))
      ("list\\.nix\\.devel"
       (to-address . "nix-dev@lists.science.uu.nl")
       (to-list . "nix-dev@lists.science.uu.nl")
