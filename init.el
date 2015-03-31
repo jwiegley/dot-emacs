@@ -115,7 +115,7 @@
 ;;; Keybindings
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; jww (2015-03-24): Move all of these into use-package declarations        ;;
+;; jww (2015-03-24): Move all of these into declarations                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Main keymaps for personal bindings are:
@@ -666,7 +666,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-h e V" 'apropos-value)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; jww (2015-03-24): Move all of the above into use-package declarations    ;;
+;; jww (2015-03-24): Move all of the above into declarations                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Packages
@@ -2839,12 +2839,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package magit-backup
     :diminish magit-backup-mode)
 
-  (use-package magit-review
-    :disabled t
-    :commands magit-review
-    :config
-    (use-package json))
-
   (use-package magit-commit
     :config
     (remove-hook 'server-switch-hook 'magit-commit-diff))
@@ -3627,12 +3621,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer t
   :config
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
-
-(use-package twittering-mode
-  :disabled t
-  :commands twit
-  :config
-  (setq twittering-use-master-password t))
 
 (use-package undo-tree
   :disabled t
