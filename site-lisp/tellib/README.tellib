@@ -1,0 +1,45 @@
+All the elisp files in this archive are made available under the GPL2:
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+A copy of the GNU General Public License can be obtained from this
+program's author or from the Free Software Foundation, Inc., 675 Mass
+Ave, Cambridge, MA 02139, USA.
+
+
+INSTALLATION
+============
+
+- Extract the archive to DIRECTORY.
+	cd DIRECTORY
+	tar xzf tellib.tar.gz
+
+- In (X)Emacs: Add the following lines to your user init file:
+	(add-to-list 'load-path DIRECTORY)
+
+- In (X)Emacs: Evaluate: (byte-recompile-directory DIRECTORY 0)
+or type at the shell prompt:
+	${EMACS} -batch -q -f batch-byte-compile DIRECTORY/*.el
+
+The dokumentation (some kind of) can be found at
+	http://members.a1.net/t.link/software.html
+or type: M-x tellib-info PACKAGE-NAME
+
+
+Send feedback to: t DOT link AT gmx DOT at
+
+
+
+CHANGES (ALSO SEE THE CHANGE LOGS)
+==================================
+
+021126: Renamed properties.el to file-properties.el.
+
