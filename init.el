@@ -2337,12 +2337,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                        initial-input hist def inherit-input-method)))
         (ido-hacks-execute-extended-command arg))))
 
-  (use-package ido-vertical-mode
-    :disabled t
-    :load-path "site-lisp/ido-vertical-mode"
-    :config
-    (ido-vertical-mode 1))
-
   (use-package flx-ido
     :disabled t
     :load-path "site-lisp/flx"
@@ -3621,13 +3615,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer t
   :config
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
-
-(use-package undo-tree
-  :disabled t
-  :load-path "site-lisp/undo-tree"
-  :commands undo-tree-mode
-  :config
-  (add-hook 'find-file-hook (lambda () (undo-tree-mode 1))))
 
 (use-package vkill
   :commands vkill
