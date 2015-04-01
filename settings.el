@@ -168,7 +168,7 @@
  '(abbrev-file-name "~/.emacs.d/abbrevs")
  '(ac-auto-show-menu 1.0)
  '(ac-auto-start 3)
- '(ac-comphist-file "/Users/johnw/.emacs.d/data/ac-comphist.dat")
+ '(ac-comphist-file "~/.emacs.d/data/ac-comphist.dat")
  '(ac-dwim nil)
  '(ac-ignore-case nil)
  '(ac-trigger-key "<tab>")
@@ -180,7 +180,7 @@
     (executable-make-buffer-file-executable-if-script-p)))
  '(agda2-include-dirs
    (quote
-    ("." "/Users/johnw/.nix-profile/share/agda-prelude" "/Users/johnw/.nix-profile/share/agda")))
+    ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
  '(alert-default-style (quote fringe))
  '(alert-notifier-command
    "/Applications/Misc/terminal-notifier.app/Contents/MacOS/terminal-notifier")
@@ -299,17 +299,17 @@
  '(compilation-scroll-output (quote first-error))
  '(compilation-search-path
    (quote
-    (nil "/Users/johnw/src/gitlib" "/Users/johnw/src/gitlib/gitlib" "/Users/johnw/src/gitlib/gitlib-libgit2" "/Users/johnw/src/gitlib/gitlib-s3" "/Users/johnw/src/gitlib/gitlib-test" "/Users/johnw/src/gitlib/git-monitor" "/Users/johnw/src/c2hsc")))
+    (nil "~/src/gitlib" "~/src/gitlib/gitlib" "~/src/gitlib/gitlib-libgit2" "~/src/gitlib/gitlib-s3" "~/src/gitlib/gitlib-test" "~/src/gitlib/git-monitor" "~/src/c2hsc")))
  '(compilation-skip-threshold 2)
  '(compilation-window-height 100)
  '(coq-compile-before-require t)
  '(coq-holes-minor-mode nil)
  '(coq-one-command-per-line nil)
  '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
- '(coq-prog-name "/Users/johnw/.nix-profile/bin/ssrcoq")
+ '(coq-prog-name "~/.nix-profile/bin/ssrcoq")
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
- '(custom-file "/Users/johnw/.emacs.d/settings.el")
+ '(custom-file "~/.emacs.d/settings.el")
  '(custom-raised-buttons nil)
  '(default-frame-alist
     (quote
@@ -318,7 +318,7 @@
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote text-mode) t)
  '(deft-auto-save-interval 0.0)
- '(deft-directory "/Users/johnw/Documents/notes")
+ '(deft-directory "~/Documents/notes")
  '(deft-text-mode (quote org-mode))
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
@@ -756,7 +756,7 @@
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string
    "                                                                              ")
- '(projectile-cache-file "/Users/johnw/.emacs.d/data/projectile.cache")
+ '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
  '(projectile-enable-caching t)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
@@ -783,6 +783,9 @@
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
  '(regex-tool-backend (quote perl))
+ '(rng-schema-locating-files
+   (quote
+    ("schemas.xml" "~/src/schemas.xml" "~/.nix-profile/share/emacs/24.4/etc/schema/schemas.xml")))
  '(runner-init-file "~/.emacs.d/data/runner-conf.el")
  '(safe-local-variable-values
    (quote
@@ -935,7 +938,7 @@
  '(undo-tree-mode-lighter "")
  '(undo-tree-visualizer-timestamps t)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
- '(url-cache-directory "/Users/johnw/.emacs.d/data/url/cache")
+ '(url-cache-directory "~/.emacs.d/data/url/cache")
  '(url-configuration-directory "~/.emacs.d/data/url/")
  '(url-irc-function (quote url-irc-erc))
  '(user-full-name "John Wiegley")
