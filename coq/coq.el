@@ -1432,6 +1432,47 @@ Warning:
 ;        (current-column))))))
 ;
 
+(defun coq-get-comment-region (pt)
+  "Return a list of the forme (beg end) where beg,end is the comment region arount position PT.
+Return nil if PT is not inside a comment"
+  (save-excursion
+    (goto-char pt)
+    `(,(save-excursion (coq-find-comment-start))
+      ,(save-excursion (coq-find-comment-end)))))
+
+(defun coq-near-comment-region ()
+  "Return a list of the forme (beg end) where beg,end is the comment region near position PT.
+Return nil if PT is not near a comment.
+Near here means PT is either inside or just aside of a comment."
+  (save-excursion
+    (cond
+     ((coq-looking-at-comment)
+      (coq-get-comment-region (point)))
+     ((and (looking-back proof-script-comment-end)
+           (save-excursion (forward-char -1) (coq-looking-at-comment)))
+      (coq-get-comment-region (- (point) 1)))
+     ((and (looking-at proof-script-comment-start)
+           (save-excursion (forward-char) (coq-looking-at-comment)))
+      (coq-get-comment-region (+ (point) 1))))))
+
+(defun coq-fill-paragraph-function (n)
+  "Coq mode specific fill-paragraph function. Fills only comment at point."
+  (let ((reg (coq-near-comment-region)))
+    (when reg
+      (fill-region (car reg) (cadr reg))))
+  t);; true to not fallback to standard fill function
+
+;; TODO (but only for paragraphs in comments)
+;; Should recognize coqdoc bullets, stars etc... Unplugged for now.
+(defun coq-adaptive-fill-function ()
+  (let ((reg (coq-near-comment-region)))
+    (save-excursion
+      (goto-char (car reg))
+      (re-search-forward "\\((\\*+ ?\\)\\( *\\)")
+      (let* ((cm-start (match-string 1))
+             (cm-prefix (match-string 2)))
+        (concat (make-string (length cm-start) ? ) cm-prefix)))))
+
 (defun coq-mode-config ()
   ;; SMIE needs this.
   (set (make-local-variable 'parse-sexp-ignore-comments) t)
@@ -1439,6 +1480,18 @@ Warning:
   (set (make-local-variable 'indent-tabs-mode) nil)
   ;; Coq defninition never start by a parenthesis
   (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
+  ;; do not break lines in code when filling
+  (set (make-local-variable 'fill-nobreak-predicate)
+       (lambda ()
+         (not (eq (get-text-property (point) 'face) 'font-lock-comment-face))))
+  ;; coq mode specific indentation function
+  (set (make-local-variable 'fill-paragraph-function) 'coq-fill-paragraph-function)
+
+  ;; TODO (but only for paragraphs in comments)
+  ;; (set (make-local-variable 'paragraph-start)  "[ 	]*\\((\\**\\|$\\)")
+  ;; (set (make-local-variable 'paragraph-separate) "\\**) *$\\|$")
+  ;; (set (make-local-variable 'adaptive-fill-function) 'coq-adaptive-fill-function)
+
   ;; coq-mode colorize errors better than the generic mechanism
   (setq proof-script-color-error-messages nil)
   (setq proof-terminal-string ".")
@@ -1447,10 +1500,8 @@ Warning:
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
   (setq proof-script-insert-newlines nil)
-  (set (make-local-variable 'comment-start-skip)
-       (regexp-quote (if (string-equal "" proof-script-comment-start)
-                         "\n" ;; end-of-line terminated comments
-                       proof-script-comment-start)))
+  (set (make-local-variable 'comment-start-skip)  "(\\*+ *")
+  (set (make-local-variable 'comment-end-skip) " *\\*+)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)
