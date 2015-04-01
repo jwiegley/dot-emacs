@@ -2983,7 +2983,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-. n" . org-velocity-read))
   :defer 30
   :config
-  (when (not running-alternate-emacs)
+  (when (and (not running-alternate-emacs)
+             (quickping "192.168.9.133"))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup))
 
