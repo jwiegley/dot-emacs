@@ -758,6 +758,7 @@
    "                                                                              ")
  '(projectile-cache-file "/Users/johnw/.emacs.d/data/projectile.cache")
  '(projectile-enable-caching t)
+ '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-switch-project-action (quote helm-projectile))
  '(proof-auto-action-when-deactivating-scripting (quote retract))
