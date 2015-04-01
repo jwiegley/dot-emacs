@@ -725,7 +725,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (eldoc-mode 1)
     (hs-minor-mode 1)
     (hide-ifdef-mode 1)
-    (whitespace-mode 1)
+    ;; (whitespace-mode 1)
     (which-function-mode 1)
     (company-mode 1)
     (bug-reference-prog-mode 1)
