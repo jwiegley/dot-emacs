@@ -1996,7 +1996,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-h a"   . helm-apropos)
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
-         ("M-s f"   . helm-for-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
          ("M-h"     . helm-resume))
