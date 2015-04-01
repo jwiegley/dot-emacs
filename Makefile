@@ -39,5 +39,11 @@ dot-gnus.elc: dot-gnus.el
 
 clean:
 	rm -f *.elc
+	find . -name '*.elc' | while read file ; do \
+	    if ! test -f $$(echo $$file | sed 's/\.elc$$/.el/'); then \
+		echo Removing old file: $$file ; \
+		rm $$file ; \
+	    fi ; \
+	done
 
 ### Makefile ends here
