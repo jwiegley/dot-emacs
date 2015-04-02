@@ -996,4 +996,4 @@
  '(diff-header ((((background dark)) (:foreground "Cyan")) (t (:foreground "Red"))))
  '(diff-index ((((background dark)) (:foreground "Magenta")) (t (:foreground "Green"))))
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) (t (:foreground "DarkBlue"))))
- '(mode-line-inactive ((t (:inherit mode-line :background "grey30" :foreground "grey80" :weight normal)))))
+ '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight normal)))))
