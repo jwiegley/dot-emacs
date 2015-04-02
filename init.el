@@ -1360,7 +1360,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("M-o c" . crosshairs-mode))
 
 (use-package css-mode
-  :mode ("\\.css\\'" . css-mode))
+  :mode "\\.css\\'")
 
 (use-package cursor-chg
   :defer 10
@@ -1640,6 +1640,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-c G" . gist-region-or-buffer))
 
 (use-package erc
+  :defer t
   :defines (erc-timestamp-only-if-changed-flag
             erc-timestamp-format
             erc-fill-prefix
@@ -1662,6 +1663,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun irc ()
     (interactive)
+    (require 'erc)
     (if (slowping "192.168.9.133")
         (progn
           (erc :server "192.168.9.133"
@@ -2558,7 +2560,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
       (use-package eldoc
         :diminish eldoc-mode
-        :defer t
+        :commands eldoc-mode
         :config
         (use-package eldoc-extension
           :disabled t
@@ -2570,15 +2572,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                            'paredit-close-round))
 
       (use-package cldoc
+        :commands cldoc-mode
         :diminish cldoc-mode)
 
       (use-package ert
-        :commands ert-run-tests-interactively
         :bind ("C-c e t" . ert-run-tests-interactively))
 
       (use-package elint
         :commands 'elint-initialize
-        :init
+        :preface
         (defun elint-current-buffer ()
           (interactive)
           (elint-initialize)
@@ -2668,11 +2670,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
 
 (use-package llvm-mode
-  :mode ("\\.ll\\'" . llvm-mode))
+  :mode "\\.ll\\'")
 
 (use-package lua-mode
   :load-path "site-lisp/lua-mode"
-  :mode ("\\.lua\\'" . lua-mode)
+  :mode "\\.lua\\'"
   :interpreter ("lua" . lua-mode))
 
 (use-package lusty-explorer
@@ -2920,7 +2922,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
 
 (use-package nix-mode
-  :mode ("\\.nix\\'" . nix-mode))
+  :mode "\\.nix\\'")
 
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
