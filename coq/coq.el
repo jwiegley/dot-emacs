@@ -1106,6 +1106,25 @@ A Show command is also issued, so that the goal is redisplayed."
     (proof-shell-invisible-command (format "Set Printing Width %S." (- wdth 1)) t)
     (proof-shell-invisible-command (format "Show.") t)))
 
+(defvar coq-highlight-id-last-regexp nil)
+
+(defun coq-highlight-id-in-goals (re)
+  (with-current-buffer proof-goals-buffer
+    (highlight-regexp re 'lazy-highlight)))
+
+(defun coq-unhighlight-id-in-goals (re)
+  (with-current-buffer proof-goals-buffer
+    (unhighlight-regexp re)))
+
+(defun coq-highlight-id-at-pt-in-goals ()
+  (interactive)
+  (let* ((id (coq-id-or-notation-at-point))
+         (re (regexp-quote (or id ""))))
+    (when coq-highlight-id-last-regexp
+      (coq-unhighlight-id-in-goals coq-highlight-id-last-regexp))
+    (when id 
+      (coq-highlight-id-in-goals re)
+      (setq coq-highlight-id-last-regexp re))))
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
 
