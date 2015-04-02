@@ -1661,7 +1661,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               :secret)))
 
   (defun slowping (host)
-    (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W5000" "-q" host)))
+    (= 0 (call-process "ping" nil nil nil "-c1" "-W5000" "-q" host)))
 
   (defun irc ()
     (interactive)

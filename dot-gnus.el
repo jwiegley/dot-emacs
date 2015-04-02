@@ -102,7 +102,7 @@
         (setq switch-to-gnus-run t)))))
 
 (defun quickping (host)
-  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 (use-package fetchmail-ctl
   :commands switch-to-fetchmail

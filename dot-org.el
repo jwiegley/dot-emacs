@@ -247,7 +247,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   (defvar org-mobile-capture-file))
 
 (defun quickping (host)
-  (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
+  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 (defun org-my-auto-exclude-function (tag)
   (and (cond
@@ -259,9 +259,9 @@ To use this function, add it to `org-agenda-finalize-hook':
            (or (< hour 12) (> hour 17))))
         ((or (string= tag "home") (string= tag "nasim"))
          (with-temp-buffer
-           (call-process "/sbin/ifconfig" nil t nil "en0" "inet")
-           (call-process "/sbin/ifconfig" nil t nil "en1" "inet")
-           (call-process "/sbin/ifconfig" nil t nil "bond0" "inet")
+           (call-process "ifconfig" nil t nil "en0" "inet")
+           (call-process "ifconfig" nil t nil "en1" "inet")
+           (call-process "ifconfig" nil t nil "bond0" "inet")
            (goto-char (point-min))
            (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
         ((string= tag "net")
