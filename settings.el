@@ -551,6 +551,7 @@
  '(gc-cons-threshold 3500000)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
+ '(ggtags-oversize-limit 1048576)
  '(ggtags-use-sqlite3 t)
  '(git-commit-mode-hook
    (quote
