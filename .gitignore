@@ -1,0 +1,8 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+
+# Backups
+*~
