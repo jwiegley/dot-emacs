@@ -1994,6 +1994,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'helm-config))
 
 (use-package helm-config
+  :if (not running-alternate-emacs)
   :demand t
   :load-path "site-lisp/helm"
   :bind (("C-c h"   . helm-command-prefix)
@@ -2715,8 +2716,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (require 'lusty-explorer)
     (let ((lusty--active-mode :file-explorer)
-          (helm-mode-prev helm-mode))
-      (helm-mode -1)
+          (helm-mode-prev (and (boundp 'helm-mode) helm-mode)))
+      (if (fboundp 'helm-mode)
+          (helm-mode -1))
       (unwind-protect
           (progn
             (lusty--define-mode-map)
@@ -2736,7 +2738,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (switch-to-buffer
                  (find-file-noselect
                   (expand-file-name file))))))
-        (helm-mode (if helm-mode-prev 1 -1)))))
+        (if (fboundp 'helm-mode)
+            (helm-mode (if helm-mode-prev 1 -1))))))
 
   :config
   (defun my-lusty-setup-hook ()
