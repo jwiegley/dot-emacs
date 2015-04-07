@@ -290,6 +290,8 @@ See `coq-syntax-db' for DB structure."
   :group 'proof-faces)
 
 ;;A new face for cheating tactics 
+;; FIXMe: the background color disappear when locked region overrides it.
+;; this is hard to fix without re-colorizing afterward.
 (defface coq-cheat-face
   (proof-face-specs
    (:background "red") ; pour les fonds clairs
