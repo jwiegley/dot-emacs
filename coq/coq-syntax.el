@@ -951,11 +951,11 @@ It is used:
 (defvar coq-shell-eager-annotation-start
    "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>")
 
-(defvar coq-id proof-id)
-(defvar coq-id-shy "@?\\(?:\\w\\|\\s_\\)+")
+(defvar coq-id "\\(@\\|_\\|\\w\\)\\(\\w\\|\\s_\\)*") ;; Coq ca start an id with @ or _
+(defvar coq-id-shy "\\(?:@\\|_\\|\\w\\)\\(?:\\w\\|\\s_\\)*")
 
 ; do not use proof-ids with a space separator! 
-(defvar coq-ids (concat proof-id "\\(" "\\s-+" proof-id "\\)*"))
+(defvar coq-ids (concat coq-id "\\(" "\\s-+" coq-id "\\)*"))
 
 (defun coq-first-abstr-regexp (paren end)
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" end))
@@ -1036,7 +1036,7 @@ It is used:
 ;;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
 
 ;; (defconst coq-require-command-regexp
-;;   (concat "Require\\s-+\\(" proof-id "\\)")
+;;   (concat "Require\\s-+\\(" coq-id "\\)")
 ;;   "Regular expression matching Require commands in Coq.
 ;; Group number 1 matches the name of the library which is required.")
 
@@ -1076,7 +1076,7 @@ It is used:
      (cons coq-error-regexp 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
-     (list (concat "[?]" proof-id) 0 'proof-eager-annotation-face);; highlight evars
+     (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
      ;; ", " is for multiple hypothesis diplayed in v8.5.
      (cons "^ \\{0,2\\}\\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
      (list "^\\([^ \n]+\\) \\(is defined\\)" (list 1 'font-lock-function-name-face t)))))
@@ -1085,7 +1085,7 @@ It is used:
    (append
     coq-font-lock-terms
     (list
-     (list (concat "[?]" proof-id) 0 'proof-eager-annotation-face);; highlight evars
+     (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
      (cons "^ \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
