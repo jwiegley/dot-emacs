@@ -965,14 +965,17 @@ It is used:
   :type 'boolean
   :group 'coq)
 
+(defconst coq-lambda-regexp "\\<\\(?:fun\\|λ\\)\\>")
+
+(defconst coq-forall-regexp "\\(?:\\<forall\\>\\|∀\\)")
 
 (defvar coq-font-lock-terms
   (if coq-variable-highlight-enable
   (list
    ;; lambda binders
-   (list (coq-first-abstr-regexp "\\<fun\\>" "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
    ;; forall binder
-   (list (coq-first-abstr-regexp "\\<forall\\>" "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
                                         ;   (list "\\<forall\\>"
                                         ;         (list 0 font-lock-type-face)
                                         ;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
