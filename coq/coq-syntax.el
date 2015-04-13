@@ -887,8 +887,9 @@ It is used:
      "is" "nosimpl" "of"))
   "Reserved keywords of Coq.")
 
-(defvar coq-reserved-regexp 
-  (concat "\\<with\\s-+signature\\>\\|"
+;; FIXME: ∀ and ∃ should be followed by a space in coq syntax.
+(defvar coq-reserved-regexp
+  (concat "\\<with\\s-+signature\\>\\|\\_<∀\\_>\\|\\_<∃\\_>\\|\\_<λ\\_>\\|"
    (proof-ids-to-regexp coq-reserved) ))
 
 (defvar coq-state-changing-tactics
@@ -965,17 +966,19 @@ It is used:
   :type 'boolean
   :group 'coq)
 
-(defconst coq-lambda-regexp "\\<\\(?:fun\\|λ\\)\\>")
+(defconst coq-lambda-regexp "\\(?:\\<fun\\>\\|\\_<λ\\_>\\)")
 
-(defconst coq-forall-regexp "\\(?:\\<forall\\>\\|∀\\)")
+(defconst coq-forall-regexp "\\(?:\\<forall\\>\\|\\_<∀\\_>\\)")
+(defconst coq-exists-regexp "\\(?:\\<exists\\>\\|\\_<∃\\_>\\)")
 
 (defvar coq-font-lock-terms
   (if coq-variable-highlight-enable
   (list
    ;; lambda binders
-   (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\|,\\)") 1 'font-lock-variable-name-face)
    ;; forall binder
    (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+   (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
                                         ;   (list "\\<forall\\>"
                                         ;         (list 0 font-lock-type-face)
                                         ;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
@@ -1109,6 +1112,9 @@ It is used:
   (modify-syntax-entry ?\& ".")
   (modify-syntax-entry ?_  "_")
   (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?∀ "_")
+  (modify-syntax-entry ?∃ "_")
+  (modify-syntax-entry ?λ "_") ;; maybe a bad idea... lambda is a letter
   (modify-syntax-entry ?\| ".")
 
   ;; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug
