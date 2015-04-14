@@ -726,10 +726,13 @@ Return nil if S is nil."
       (substring s 0 (- (length s) 1))
     s))
 
+(defun coq-is-symbol-or-punct (c)
+  (or (equal (char-syntax c) ?\.) (equal (char-syntax c) ?\_)))
+
 (defun coq-grab-punctuation-left (pos)
   (let ((res nil)
         (currpos pos))
-    (while (equal (char-syntax (char-before currpos)) ?\.)
+    (while (coq-is-symbol-or-punct (char-before currpos)(char-before currpos))
       (setq res (concat (char-to-string (char-before currpos)) res))
       (setq currpos (- currpos 1)))
     res))
@@ -738,7 +741,7 @@ Return nil if S is nil."
 (defun coq-grab-punctuation-right (pos)
   (let ((res nil)
         (currpos pos))
-    (while (equal (char-syntax (char-after currpos)) ?\.)
+    (while (coq-is-symbol-or-punct (char-after currpos))
       (setq res (concat res (char-to-string (char-after currpos))))
       (setq currpos (+ currpos 1)))
     res))
@@ -751,6 +754,8 @@ Support dot.notation.of.modules."
      (concat (coq-grab-punctuation-left pos)
              (coq-grab-punctuation-right pos)))))
 
+(defun coq-string-starts-with-symbol (s)
+  (eq 0 (string-match "\\s_" symbclean)))
 
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
@@ -761,10 +766,12 @@ Support dot.notation.of.modules."
                  ((fboundp 'symbol-near-point) (symbol-near-point))
                  ((fboundp 'symbol-at-point) (symbol-at-point))))
           (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
-     (when (and symb (not (zerop (length symbclean)))) symbclean))))
+     (when (and symb (not (zerop (length symbclean)))
+                (not (coq-string-starts-with-symbol symb)))
+       symbclean))))
 
 (defun coq-id-or-notation-at-point ()
-  (or (coq-id-at-point) (coq-notation-at-position (point))))
+  (or (coq-id-at-point) (concat "\"" (coq-notation-at-position (point)) "\"")))
 
 
 (defcustom coq-remap-mouse-1 nil
@@ -814,6 +821,7 @@ Otherwise propose identifier at point if any."
            ((use-region-p)
             (buffer-substring-no-properties (region-beginning) (region-end)))
            (t (coq-id-or-notation-at-point)))))
+    (message "YOUHOU: %S" guess) 
     (read-string
      (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
@@ -888,7 +896,7 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
   (concat "[ " s " ]"))
 
 (defsubst coq-put-into-double-quote-if-notation (s)
-  (if (equal (char-syntax (string-to-char s)) ?\.)
+  (if (coq-is-symbol-or-punct (string-to-char s))
       (concat "\"" s "\"")
     s))
 
@@ -904,12 +912,6 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
 (defun coq-build-removed-patterns (l)
   (mapcar 'coq-build-removed-pattern l))
 
-(defsubst coq-put-into-double-quote-if-notation-remove-ind (s)
-  (let ((removed (coq-build-removed-patterns coq-removed-patterns-when-search)))
-    (if (equal (char-syntax (string-to-char s)) ?\.)
-        (apply 'concat (cons "\"" (cons s (cons "\"" removed))))
-      (apply 'concat (cons s removed)))))
-
 (defsubst coq-put-into-quotes (s)
   (concat "\"" s "\""))
 
@@ -923,7 +925,7 @@ This is specific to `coq-mode'."
 
 (defun coq-SearchConstant ()
   (interactive)
-  (coq-ask-do "Search constant" "Search" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do "Search constant" "Search"))
 
 (defun coq-SearchRewrite ()
   (interactive)
@@ -934,60 +936,60 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout" nil 'coq-put-into-double-quote-if-notation-remove-ind)
+   "SearchAbout")
   (message "use `coq-SearchAbout-all' to see constants ending with \"_ind\", \"_rec\", etc"))
 
 (defun coq-SearchAbout-all ()
   (interactive)
   (coq-ask-do
    "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout" nil 'coq-put-into-double-quote-if-notation))
+   "SearchAbout"))
 
 (defun coq-Print (withprintingall)
   "Ask for an ident and print the corresponding term.
 With flag Printing All if some prefix arg is given (C-u)."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "Print" "Print" nil 'coq-put-into-double-quote-if-notation)
-    (coq-ask-do "Print" "Print" nil 'coq-put-into-double-quote-if-notation)))
+      (coq-ask-do-show-all "Print" "Print")
+    (coq-ask-do "Print" "Print")))
 
 (defun coq-Print-with-implicits ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do-show-implicits "Print" "Print" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-implicits "Print" "Print"))
 
 (defun coq-Print-with-all ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do-show-all "Print" "Print" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-all "Print" "Print"))
 
 (defun coq-About (withprintingall)
   "Ask for an ident and print information on it."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "About" "About" nil 'coq-put-into-double-quote-if-notation)
-    (coq-ask-do "About" "About" nil 'coq-put-into-double-quote-if-notation)))
+      (coq-ask-do-show-all "About" "About")
+    (coq-ask-do "About" "About")))
 
 (defun coq-About-with-implicits ()
   "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do-show-implicits "About" "About" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-implicits "About" "About"))
 
 (defun coq-About-with-all ()
   "Ask for an ident and print information on it."
   (interactive)
-  (coq-ask-do-show-all "About" "About" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-all "About" "About"))
 
 
 (defun coq-LocateConstant ()
   "Locate a constant."
   (interactive)
-  (coq-ask-do "Locate" "Locate" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do "Locate" "Locate"))
 
 (defun coq-LocateLibrary ()
   "Locate a library."
   (interactive)
-  (coq-ask-do "Locate Library" "Locate Library" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do "Locate Library" "Locate Library"))
 
 (defun coq-LocateNotation ()
   "Locate a notation.  Put it automatically into quotes.
@@ -995,7 +997,7 @@ This is specific to `coq-mode'."
   (interactive)
   (coq-ask-do
    "Locate notation (ex: \'exists\' _ , _)" "Locate"
-   nil 'coq-put-into-double-quote-if-notation))
+   ))
 
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s . " undos)))
@@ -1016,25 +1018,25 @@ This is specific to `coq-mode'."
 (defun coq-Print-implicit ()
   "Ask for an ident and print the corresponding term."
   (interactive)
-  (coq-ask-do "Print Implicit" "Print Implicit" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do "Print Implicit" "Print Implicit"))
 
 (defun coq-Check (withprintingall)
   "Ask for a term and print its type.
 With flag Printing All if some prefix arg is given (C-u)."
   (interactive "P")
   (if withprintingall
-      (coq-ask-do-show-all "Check" "Check" nil 'coq-put-into-double-quote-if-notation)
-    (coq-ask-do "Check" "Check" nil 'coq-put-into-double-quote-if-notation)))
+      (coq-ask-do-show-all "Check" "Check")
+    (coq-ask-do "Check" "Check")))
 
 (defun coq-Check-show-implicits ()
   "Ask for a term and print its type."
   (interactive)
-  (coq-ask-do-show-implicits "Check" "Check" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-implicits "Check" "Check"))
 
 (defun coq-Check-show-all ()
   "Ask for a term and print its type."
   (interactive)
-  (coq-ask-do-show-all "Check" "Check" nil 'coq-put-into-double-quote-if-notation))
+  (coq-ask-do-show-all "Check" "Check"))
 
 (defun coq-get-response-string-at (&optional pt)
   "Go forward from PT until reaching a 'response property, and return it.
@@ -2257,6 +2259,8 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?l)] 'coq-LocateConstant)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?n)] 'coq-LocateNotation)
 
 
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?c)] 'coq-Check)
@@ -2270,6 +2274,8 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?l)] 'coq-LocateConstant)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?n)] 'coq-LocateNotation)
 
 (when coq-remap-mouse-1
   (define-key proof-mode-map [(control down-mouse-1)] 'coq-id-under-mouse-query)

@@ -183,6 +183,7 @@ so for the following reasons:
      ("eauto with" "eaw" "eauto with @{db}" t)
      ("eauto" "ea" "eauto" t "eauto")
      ("econstructor" "econs" "econstructor" t "econstructor")
+     ("edestruct" "edes" "edestruct " t  "edestruct")
      ("eexists" "eex" "eexists" t "eexists")
      ("eleft" "eleft" "eleft" t "eleft")
      ("elim using" "elu" "elim # using #" t)
@@ -563,6 +564,7 @@ so for the following reasons:
      ("Add Setoid" nil "Add Setoid #." t "Add\\s-+Setoid")
      ("Admit Obligations" "oblsadmit" "Admit Obligations." nil "Admit\\s-+Obligations")
      ("Arguments Scope" "argsc" "Arguments Scope @{id} [ @{_} ]" t "Arguments\\s-+Scope")
+     ("Arguments" "args" "Arguments @{id} : @{rule}" t "Arguments")
      ("Bind Scope" "bndsc" "Bind Scope @{scope} with @{type}" t "Bind\\s-+Scope")
      ("Canonical Structure" nil "Canonical Structure #." t "Canonical\\s-+Structure")
      ("Cd" nil "Cd #." nil "Cd")
@@ -872,6 +874,8 @@ It is used:
   (coq-build-regexp-list-from-db coq-tacticals-db)
   "Keywords for tacticals in a Coq script.")
 
+(defvar coq-symbol-binders "\\_<∀\\_>\\|\\_<∃\\_>\\|\\_<λ\\_>")
+
 
  ;; From JF Monin:
 (defvar coq-reserved
@@ -888,9 +892,11 @@ It is used:
   "Reserved keywords of Coq.")
 
 ;; FIXME: ∀ and ∃ should be followed by a space in coq syntax.
+;; FIXME: actually these are not exactly reserved keywords, find
+;; another classification of keywords.
 (defvar coq-reserved-regexp
-  (concat "\\<with\\s-+signature\\>\\|\\_<∀\\_>\\|\\_<∃\\_>\\|\\_<λ\\_>\\|"
-   (proof-ids-to-regexp coq-reserved) ))
+  (concat "\\<with\\s-+signature\\>\\|"
+   (proof-ids-to-regexp coq-reserved)))
 
 (defvar coq-state-changing-tactics
   (coq-build-regexp-list-from-db coq-tactics-db 'filter-state-changing))
@@ -972,22 +978,23 @@ It is used:
 (defconst coq-exists-regexp "\\(?:\\<exists\\>\\|\\_<∃\\_>\\)")
 
 (defvar coq-font-lock-terms
-  (if coq-variable-highlight-enable
-  (list
-   ;; lambda binders
-   (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\|,\\)") 1 'font-lock-variable-name-face)
-   ;; forall binder
-   (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
-   (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+  (cons
+   (cons coq-symbol-binders 'coq-symbol-binder-face)
+   (if coq-variable-highlight-enable
+       (list
+        ;; lambda binders
+        (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\|,\\)") 1 'font-lock-variable-name-face)
+        ;; forall binder
+        (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+        (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
                                         ;   (list "\\<forall\\>"
                                         ;         (list 0 font-lock-type-face)
                                         ;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
                                         ;               (list 0 font-lock-variable-name-face)))
-
-   ;; parenthesized binders
-   (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
-   (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
-   ))
+        ;; parenthesized binders
+        (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
+        (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
+        )))
   "*Font-lock table for Coq terms.")
 
 
@@ -1077,6 +1084,7 @@ It is used:
    (append
     coq-font-lock-terms
     (list
+     (cons coq-reserved-regexp 'font-lock-type-face)
      (cons coq-keywords-regexp 'font-lock-keyword-face)
      (cons coq-shell-eager-annotation-start 'proof-warning-face)
      (cons coq-error-regexp 'proof-error-face)
@@ -1091,6 +1099,7 @@ It is used:
    (append
     coq-font-lock-terms
     (list
+     (cons coq-reserved-regexp 'font-lock-type-face)
      (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
      (cons "^ \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))

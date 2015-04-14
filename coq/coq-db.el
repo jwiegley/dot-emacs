@@ -300,13 +300,22 @@ See `coq-syntax-db' for DB structure."
   "Face for names of cheating tactics in proof scripts."
   :group 'proof-faces)
 
+(defface coq-symbol-binder-face
+  '((t :inherit font-lock-type-face :bold coq-bold-unicode-binders))
+  "Face for unicode binders, by default a bold version of `font-lock-type-face'."
+  :group 'proof-faces)
+
 (defconst coq-solve-tactics-face 'coq-solve-tactics-face
   "Expression that evaluates to a face.
-Required so that 'proof-solve-tactics-face is a proper facename")
+Required so that 'coq-solve-tactics-face is a proper facename")
 
 (defconst coq-cheat-face 'coq-cheat-face
   "Expression that evaluates to a face.
-Required so that 'proof-solve-tactics-face is a proper facename")
+Required so that 'coq-cheat-face is a proper facename")
+
+(defconst coq-symbol-binder-face 'coq-symbol-binder-face
+  "Expression that evaluates to a face.
+Required so that 'coq-symbol-binder-face is a proper facename")
 
 
 
