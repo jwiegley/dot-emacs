@@ -727,18 +727,23 @@ Return nil if S is nil."
     s))
 
 (defun coq-is-symbol-or-punct (c)
-  (or (equal (char-syntax c) ?\.) (equal (char-syntax c) ?\_)))
+  "Return non nil if character C is a punctuation or a symbol constituent.
+If C is nil, return nil."
+  (when c
+    (or (equal (char-syntax c) ?\.) (equal (char-syntax c) ?\_))))
 
 (defun coq-grab-punctuation-left (pos)
+  "Return a string made of punctuations chars found immediately before position POS."
   (let ((res nil)
         (currpos pos))
-    (while (and (coq-is-symbol-or-punct (char-before currpos)))
+    (while (coq-is-symbol-or-punct (char-before currpos))
       (setq res (concat (char-to-string (char-before currpos)) res))
       (setq currpos (- currpos 1)))
     res))
 
 
 (defun coq-grab-punctuation-right (pos)
+  "Return a string made of punctuations chars found immediately after position POS."
   (let ((res nil)
         (currpos pos))
     (while (coq-is-symbol-or-punct (char-after currpos))
