@@ -732,7 +732,7 @@ Return nil if S is nil."
 (defun coq-grab-punctuation-left (pos)
   (let ((res nil)
         (currpos pos))
-    (while (coq-is-symbol-or-punct (char-before currpos)(char-before currpos))
+    (while (and (coq-is-symbol-or-punct (char-before currpos)))
       (setq res (concat (char-to-string (char-before currpos)) res))
       (setq currpos (- currpos 1)))
     res))
