@@ -398,7 +398,11 @@ The point should be at the beginning of the command name."
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Obligation")) "Proof")
      ((coq-dot-friend-p tok) ".")
-     (tok))))
+     ;; Try to rely on backward-token for non empty tokens: bugs (hangs)
+     ;; ((not (zerop (length tok))) (save-excursion (coq-smie-backward-token)))
+     ;; return it.
+     (tok)
+     )))
 
 
 
@@ -461,6 +465,26 @@ The point should be at the beginning of the command name."
 			 (equal (coq-smie-backward-token) "{ subproof"))) ;; recursive call
 		"; tactic"
 	      "; record"))))))
+
+     ;; trying to discriminate between bollean operator || and tactical ||.
+     ((equal tok "||")
+      (save-excursion
+	(let ((backtok (coq-smie-search-token-backward '("." ";" "Ltac" "(" "[" "{"))))
+	  (cond
+	   ((member backtok '("." "Ltac")) "|| tactic")
+	   ((and (equal backtok ";")
+		 (or (forward-char) t)
+		 (equal (coq-smie-backward-token) "; tactic")) ;; recursive
+	    "|| tactic")
+	   ;; this is wrong half of the time but should not harm indentation
+	   ((and (equal backtok nil) (looking-back "(")) "||") 
+	   ((equal backtok nil)
+	    (if (or (looking-back "\\[")
+		    (and (looking-back "{")
+			 (equal (coq-smie-backward-token) "{ subproof"))) ;; recursive call
+		"|| tactic"
+	      "||"))))))
+
 
      ; Same for "->" : rewrite or intro arg or term's implication
      ; FIXME: user defined arrows will be considered a term
@@ -770,6 +794,7 @@ Typical values are 2 or 4."
 	(assoc "as morphism") (assoc "with signature") (assoc "with match")
 	(assoc "in let")
 	(assoc "in eval") (assoc "=> fun") (assoc "then") (assoc ", quantif")
+	(assoc "|| tactic") ;; FIXME: detecting "+ tactic" and "|| tactic" seems impossible
 	(assoc "; tactic") (assoc "in tactic") (assoc "as" "by") (assoc "with")
 	(assoc "|-") (assoc ":" ":<") (assoc ",")
         (assoc "else")
