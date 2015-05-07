@@ -751,29 +751,29 @@ so for the following reasons:
 (defun coq-module-opening-p (str)
   "Decide whether STR is a module or section opening or not.
 Used by `coq-goal-command-p'"
-  (let* ((match (coq-count-match "\\<match\\>" str))
-         (with (coq-count-match "\\<with\\>" str))
-         (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+  (let* ((match (coq-count-match "\\_<match\\_>" str))
+         (with (coq-count-match "\\_<with\\_>" str))
+         (letwith (+ (coq-count-match "\\_<let\\_>" str) (- with match)))
          (affect (coq-count-match ":=" str)))
-    (and (proof-string-match "\\`\\(Module\\)\\>" str)
+    (and (proof-string-match "\\`\\(Module\\)\\_>" str)
          (= letwith affect))))
 
 (defun coq-section-command-p (str)
-  (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
+  (proof-string-match "\\`\\(Section\\|Chapter\\)\\_>" str))
 
 ;; unused anymore (for good)
 (defun coq-goal-command-str-p (str)
   "Decide syntactically whether STR is a goal start or not. Use
 `coq-goal-command-p' on a span instead if possible."
   (let* ((match (coq-count-match "\\_<match\\_>" str))
-         (with (- (coq-count-match "\\_<with\\_>" str) (coq-count-match "\\<with\\s-+signature\\>" str)))
+         (with (- (coq-count-match "\\_<with\\_>" str) (coq-count-match "\\_<with\\s-+signature\\_>" str)))
          (letwith (+ (coq-count-match "\\_<let\\_>" str) (- with match)))
          (affect (coq-count-match ":=" str)))
     (and (proof-string-match coq-goal-command-regexp str)
          (not
           (and
            (proof-string-match
-            (concat "\\`\\(Local\\|Definition\\|Lemma\\|Theorem\\|Fact\\|Add\\|Let\\|Program\\|Module\\|Class\\|Instance\\)\\>")
+            (concat "\\`\\(Local\\|Definition\\|Lemma\\|Theorem\\|Fact\\|Add\\|Let\\|Program\\|Module\\|Class\\|Instance\\)\\_>")
             str)
            (not (= letwith affect))))
          (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:"
@@ -813,8 +813,8 @@ It is used:
 (defun coq-save-command-p (span str)
   "Decide whether argument is a Save command or not"
   (or (proof-string-match coq-save-command-regexp-strict str)
-      (and (proof-string-match "\\`Proof\\>" str)
-           (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\|using\\)" str)))))
+      (and (proof-string-match "\\`Proof\\_>" str)
+           (not (proof-string-match "\\`Proof\\s-*\\(\\.\\|\\_<with\\_>\\|\\_<using\\_>\\)" str)))))
 
 
 ;; ----- keywords for font-lock.
@@ -896,7 +896,7 @@ It is used:
 ;; FIXME: actually these are not exactly reserved keywords, find
 ;; another classification of keywords.
 (defvar coq-reserved-regexp
-  (concat "\\<with\\s-+signature\\>\\|"
+  (concat "\\_<with\\s-+signature\\_>\\|"
    (proof-ids-to-regexp coq-reserved)))
 
 (defvar coq-state-changing-tactics
@@ -973,10 +973,10 @@ It is used:
   :type 'boolean
   :group 'coq)
 
-(defconst coq-lambda-regexp "\\(?:\\<fun\\>\\|\\_<λ\\_>\\)")
+(defconst coq-lambda-regexp "\\(?:\\_<fun\\_>\\|\\_<λ\\_>\\)")
 
-(defconst coq-forall-regexp "\\(?:\\<forall\\>\\|\\_<∀\\_>\\)")
-(defconst coq-exists-regexp "\\(?:\\<exists\\>\\|\\_<∃\\_>\\)")
+(defconst coq-forall-regexp "\\(?:\\_<forall\\_>\\|\\_<∀\\_>\\)")
+(defconst coq-exists-regexp "\\(?:\\_<exists\\_>\\|\\_<∃\\_>\\)")
 
 (defvar coq-font-lock-terms
   (cons
