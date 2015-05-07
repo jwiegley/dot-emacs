@@ -400,6 +400,7 @@ so for the following reasons:
     ("Hint Rewrite <-" "hrw" "Hint Rewrite <- @{t1,t2...} using @{tac} : @{db}." t )
     ("Hint Unfold" "hu" "Hint Unfold # : #." t "Hint\\s-+Unfold")
     ("Existing Instance" nil "Existing Instance " t "Existing\\s-+Instance")
+    ("Existing Instances" nil "Existing Instances " t "Existing\\s-+Instances")
     ("Hypothesis" "hyp" "Hypothesis #: #" t "Hypothesis")
     ("Hypotheses" "hyp" "Hypotheses #: #" t "Hypotheses")
     ("Parameter" "par" "Parameter #: #" t "Parameter")
