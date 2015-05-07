@@ -681,6 +681,24 @@ Lemma foo: forall n,
   :type 'integer
   :group 'coq)
 
+(defcustom coq-smie-after-bolp-indentation 2
+  "Number of spaces used to indent after a quantifier *not* on its own line.
+
+the number of space is meant \"from the column on which the quantifier
+would be if it were on its own line\".
+for example, if set to 0 the indentation is as follows:
+
+   Lemma foo: forall x:nat,
+     x <= 0 -> x = 0.
+
+If it is set to 2 (default) it is as follows:
+
+   Lemma foo: forall x:nat,
+       x <= 0 -> x = 0.
+"
+  :type 'integer
+  :group 'coq)
+
 (defcustom coq-match-indent 2
   "Number of space used to indent cases of a match expression.
 If the \"|\" separator is used, indentation will be reduced by 2.
@@ -952,7 +970,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((and (member token '("forall" "quantif exists"))
 	     (not coq-indent-box-style)
 	     (not (smie-rule-bolp)))
-	(smie-rule-parent 2))
+	(smie-rule-parent coq-smie-after-bolp-indentation))
 
        ;; trying to indent "{" at the end of line for records, but the
        ;; parent is not what I think.
