@@ -1895,11 +1895,15 @@ This is the Coq incarnation of `proof-tree-find-undo-position'."
 ;; Pre-processing of input string
 ;;
 
+
+(defconst coq--time-prefix "Time "
+  "Coq command prefix for displaying timing information.")
+
 ;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
 (defun coq-preprocessing ()
   (if coq-time-commands
       (with-no-warnings  ;; NB: dynamic scoping of `string'
-        (setq string (concat "Time " string)))))
+        (setq string (concat coq--time-prefix string)))))
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
 
@@ -2392,9 +2396,10 @@ buffer."
           (coq-find-real-start)
           
           ;; utf8 adaptation is made in coq-get-last-error-location above
-          (goto-char (+ (point) pos))
-          (span-make-self-removing-span (point) (+ (point) lgth)
-                                        'face 'proof-warning-face))))))
+          (let ((time-offset (if coq-time-commands (length coq--time-prefix) 0)))
+            (goto-char (+ (point) pos))
+            (span-make-self-removing-span (point) (+ (point) (- lgth time-offset))
+                                          'face 'proof-warning-face)))))))
 
 (defun coq-highlight-error-hook ()
   (coq-highlight-error t t))
