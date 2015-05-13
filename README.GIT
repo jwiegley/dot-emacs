@@ -1,0 +1,37 @@
+Organization of the repository
+******************************
+
+This repository has currently three branches:
+
+   * 'master': the main branch of development of AUCTeX;
+
+   * 'simplify-TeX-parse-error': a feature branch for improving parsing
+      of TeX logs;
+
+   * 'gendocspatch': keeps a patch to build on-line manuals and is
+     intended to be used only by AUCTeX maintainers.  Unless you are one
+     of them and know how to handle it, you really do not want to pull
+     this branch as it will be rebased frequently.
+
+Installation information
+************************
+
+If you retrieved AUCTeX via Git instead of as a regular release, there
+are some files that need to be generated from their respective source
+files before you can continue reasonably with the instructions
+detailed in the README and INSTALL files (which will not be present
+otherwise).
+
+Run the shell script
+
+    ./autogen.sh
+
+in order to do that.  This will also generate the respective files for
+the preview subsystem.
+
+You will need to have a working and rather current copy of `makeinfo',
+`autoconf' and of `perl'.
+
+Running ./autogen.sh on a fresh clone of the Git repository will give
+you the state of the distribution tarball, except that Git-specific
+files are not removed.
