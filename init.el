@@ -2003,7 +2003,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-x f"   . helm-multi-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         ("M-h"     . helm-resume))
+         ("M-H"     . helm-resume))
 
   :preface
   (defun my-helm-find ()
@@ -2045,7 +2045,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
-  :bind ("M-/" . hippie-expand)
+  :bind (("M-/" . dabbrev-expand)
+         ("M-?" . hippie-expand))
   :preface
   (autoload 'yas-expand "yasnippet" nil t)
 
@@ -2575,7 +2576,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                            'paredit-close-round))
 
       (use-package cldoc
-        :commands cldoc-mode
+        :commands (cldoc-mode turn-on-cldoc-mode)
         :diminish cldoc-mode)
 
       (use-package ert
@@ -2629,6 +2630,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (info-lookmore-elisp-userlast)
         (info-lookmore-elisp-gnus)
         (info-lookmore-apropos-elisp))
+
+      (use-package testcover
+        :commands testcover-this-defun)
 
       (mapc (lambda (mode)
               (info-lookup-add-help
@@ -2837,7 +2841,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setenv "GIT_PAGER" "")
 
   (use-package magit-backup
-    :diminish magit-backup-mode)
+    :commands magit-backup-mode
+    :config
+    (magit-backup-mode -1))
 
   (use-package magit-commit
     :config
@@ -2991,7 +2997,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup))
 
-  (add-hook 'org-mode-hook  #'yas-minor-mode))
+  (add-hook 'org-mode-hook #'(lambda () (yas-minor-mode 1))))
 
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"

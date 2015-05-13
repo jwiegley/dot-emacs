@@ -532,6 +532,7 @@ See URL `https://github.com/bitc/hdevtools'."
   (whitespace-mode 1)
   (bug-reference-prog-mode 1)
   ;; (flyparse-mode 1)
+  (require 'flycheck)
   (flycheck-mode 1)
   (define-haskell-checkers)
   (flycheck-select-checker 'haskell-hdevtools)
@@ -743,7 +744,7 @@ See URL `https://github.com/bitc/hdevtools'."
   :init
   (progn
     (use-package ghc
-      :pre-init (add-to-list 'load-path (ghc-mod-site-lisp))
+      :load-path (lambda () (list (ghc-mod-site-lisp)))
       :commands ghc-init
       :config
       (require 'ghc-check)

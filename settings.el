@@ -306,7 +306,7 @@
  '(coq-holes-minor-mode nil)
  '(coq-one-command-per-line nil)
  '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
- '(coq-prog-name "~/.nix-profile/bin/ssrcoq")
+ '(coq-prog-name "ssrcoq")
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "~/.emacs.d/settings.el")
@@ -391,7 +391,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode"))))
+    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content (quote ("MichaelSnoyman" "BrendanHay")))

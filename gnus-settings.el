@@ -139,8 +139,8 @@ John Wiegley, Chairperson"))))
       (to-list . "ledger-cli@googlegroups.com")
       (gcc-self . t))
      ("list\\.bahai\\.tarjuman"
-      (to-address . "TARJUMAN-LIST@listserv.buffalo.edu")
-      (to-list . "TARJUMAN-LIST@listserv.buffalo.edu"))
+      (to-address . "tarjuman@bahai-library.com")
+      (to-list . "tarjuman@bahai-library.com"))
      ("list\\.emacs\\.devel"
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
@@ -258,6 +258,14 @@ John Wiegley, Chairperson"))))
       (to-address . "ssreflect@msr-inria.inria.fr")
       (to-list . "ssreflect@msr-inria.inria.fr")
       (list-identifier . "\\[ssreflect\\]"))
+     ("list\\.bae\\.brass\\.proposal"
+      (to-address . "brass-proposal@lists.brass-tacks.org")
+      (to-list . "brass-proposal@lists.brass-tacks.org")
+      (list-identifier . "\\[Brass-proposal\\]"))
+     ("list\\.bae\\.brass\\.commits"
+      (to-address . "bae-brass-commits@googlegroups.com")
+      (to-list . "bae-brass-commits@googlegroups.com")
+      (list-identifier . "\\[bae-brass-commits\\]\\( \\[bae-brass/brass-proposal\\]\\)? [0-9a-f]+?:"))
      ("list\\.hott"
       (to-address . "hott-cafe@googlegroups.com")
       (to-list . "hott-cafe@googlegroups.com")
