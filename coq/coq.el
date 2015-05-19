@@ -112,8 +112,8 @@ Set to t if you want this feature."
   :group 'coq)
 
 (defconst coq-shell-init-cmd
-  (format "Set Undo %s . " coq-default-undo-limit)
-  "Command to initialize the Coq Proof Assistant.")
+  `(,(format "Set Undo %s . " coq-default-undo-limit) "Set Printing Width 75.") 
+ "Command to initialize the Coq Proof Assistant.")
 
 (require 'coq-syntax)
 ;; FIXME: Even if we don't use coq-indent for indentation, we still need it for
@@ -775,6 +775,7 @@ Support dot.notation.of.modules."
                 (not (coq-string-starts-with-symbol symb)))
        symbclean))))
 
+
 (defun coq-id-or-notation-at-point ()
   (or (coq-id-at-point) (concat "\"" (coq-notation-at-position (point)) "\"")))
 
@@ -1128,10 +1129,11 @@ A Show command is also issued, so that the goal is redisplayed."
   (let* ((id (coq-id-or-notation-at-point))
          (re (regexp-quote (or id ""))))
     (when coq-highlight-id-last-regexp
-      (coq-unhighlight-id-in-goals coq-highlight-id-last-regexp))
-    (when id 
-      (coq-highlight-id-in-goals re)
-      (setq coq-highlight-id-last-regexp re))))
+      (coq-unhighlight-id-in-goals coq-highlight-id-last-regexp)
+      (if (equal id coq-highlight-id-last-regexp)
+        (setq coq-highlight-id-last-regexp "")
+        (coq-highlight-id-in-goals re)
+      (setq coq-highlight-id-last-regexp re)))))
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
 
@@ -1378,11 +1380,14 @@ Warning:
 ;; need to make this hook local.
 ;; hack-local-variables-hook seems to hack local and dir local vars.
 (add-hook 'coq-mode-hook
-          '(lambda () (add-hook 'hack-local-variables-hook
-                                'coq-load-project-file
-                                nil t)))
+          '(lambda ()
+             (add-hook 'hack-local-variables-hook
+                       'coq-load-project-file
+                       nil t)))
 
-
+;; smie's parenthesis blinking is too slow, let us have the default one back
+(add-hook 'coq-mode-hook
+          '(lambda () (setq show-paren-data-function 'show-paren--default)))
 
 (defun coq-toggle-use-project-file ()
   (interactive)
