@@ -1387,7 +1387,10 @@ Warning:
 
 ;; smie's parenthesis blinking is too slow, let us have the default one back
 (add-hook 'coq-mode-hook
-          '(lambda () (setq show-paren-data-function 'show-paren--default)))
+          '(lambda ()
+             (when (and (fboundp 'show-paren--default)
+                        (boundp 'show-paren-data-function))
+               (setq show-paren-data-function 'show-paren--default))))
 
 (defun coq-toggle-use-project-file ()
   (interactive)
@@ -1678,7 +1681,7 @@ Near here means PT is either inside or just aside of a comment."
    proof-no-fully-processed-buffer t
 
    ;; Coq has no global settings?
-   ;; (proof-assistant-settings-cmd))
+   ;; (proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd coq-shell-restart-cmd
    pg-subterm-anns-use-stack t)
