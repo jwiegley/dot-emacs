@@ -3589,6 +3589,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-history-push default-directory)
         (sr-beginning-of-buffer)))))
 
+(use-package swiper
+  :load-path "site-lisp/swiper"
+  :bind ("C-. r" . swiper))
+
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
 
