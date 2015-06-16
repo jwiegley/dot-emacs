@@ -35,7 +35,7 @@
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}&CATEGORY<>{Chess\\|Ledger\\|Assembly\\|Eshell}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}&CATEGORY<>{Assembly}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
@@ -95,7 +95,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt" "~/Documents/IL-05/IL-05.txt")))
+    ("~/Contracts/BAE/Projects/brass-proposal/proposal/gold/brass.bib" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt" "~/Documents/IL-05/IL-05.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)

@@ -20,7 +20,7 @@
                    "\n"))))
       (and agda
            (expand-file-name
-            "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.2/emacs-mode"
+            "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.3/emacs-mode"
             (file-name-directory agda))))))
 
 (eval-and-compile
@@ -1079,10 +1079,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (ascii-on))))
 
 (use-package tex-site
-  :disabled t
-  :load-path "site-lisp/auctex/preview/"
+  :load-path "~/.nix-profile/share/emacs/site-lisp/elpa/auctex-11.87.7/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
+  :init
+  (load "auctex-autoloads")
+
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -1103,23 +1105,22 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package latex-mode
     :defer t
     :config
-    (progn
-      (use-package preview)
-      (use-package ac-math)
+    (use-package preview)
+    (use-package ac-math)
 
-      (defun ac-latex-mode-setup ()
-        (nconc ac-sources
-               '(ac-source-math-unicode ac-source-math-latex
-                                        ac-source-latex-commands)))
+    (defun ac-latex-mode-setup ()
+      (nconc ac-sources
+             '(ac-source-math-unicode ac-source-math-latex
+                                      ac-source-latex-commands)))
 
-      (add-to-list 'ac-modes 'latex-mode)
-      (add-hook 'latex-mode-hook 'ac-latex-mode-setup)
+    (add-to-list 'ac-modes 'latex-mode)
+    (add-hook 'latex-mode-hook 'ac-latex-mode-setup)
 
-      (info-lookup-add-help :mode 'latex-mode
-                            :regexp ".*"
-                            :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                            :doc-spec '(("(latex2e)Concept Index" )
-                                        ("(latex2e)Command Index"))))))
+    (info-lookup-add-help :mode 'latex-mode
+                          :regexp ".*"
+                          :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                          :doc-spec '(("(latex2e)Concept Index" )
+                                      ("(latex2e)Command Index")))))
 
 (use-package auto-complete-config
   :disabled t
@@ -2853,8 +2854,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-s" magit-mode-map)
   (unbind-key "M-m" magit-mode-map)
 
-  (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
-  (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
+  ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
+  ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
+  (bind-key "U" #'magit-unstage-all magit-mode-map)
 
   (add-hook 'magit-log-edit-mode-hook
             #'(lambda ()
@@ -3147,6 +3149,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (whitespace-mode 1)
        (ggtags-mode 1)
        ;; (set-input-method "Agda")
+       ;; (proof-unicode-tokens-enable 1)
        (add-hook 'proof-shell-extend-queue-hook
                  (lambda ()
                    (set-window-dedicated-p (selected-window) t)))

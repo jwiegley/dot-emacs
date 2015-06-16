@@ -278,57 +278,58 @@
 ;;       :modes haskell-mode
 ;;       :next-checkers ((warnings-only . haskell-hlint))))
 
-  (eval
-   `(flycheck-define-checker haskell-hdevtools
-      "A Haskell syntax and type checker using hdevtools.
+  ;; (eval
+;;    `(flycheck-define-checker haskell-hdevtools
+;;       "A Haskell syntax and type checker using hdevtools.
 
-See URL `https://github.com/bitc/hdevtools'."
-      :command
-      ("hdevtools" "check"
-       "-g" "-i."
-       "-g" "-i.."
-       "-g" "-i../.."
-       "-g" "-i../../.."
-       "-g" "-i../../../.."
-       "-g" "-i/Users/johnw/crash/isa/tools/safe-isa"
-       ,@(apply #'append (mapcar (lambda (x) (list "-g" x)) ghc-extensions))
-       ,@(let ((hdevtools-path (executable-find "hdevtools")))
-           (if (and hdevtools-path
-                    (string-match "\\`\\(.+/\\.hsenv/\\)"
-                                  hdevtools-path))
-               (let* ((path-prefix (match-string 1 hdevtools-path))
-                      (ghc-version
-                       (with-temp-buffer
-                         (shell-command "ghc --version" t)
-                         (goto-char (point-min))
-                         (re-search-forward "version \\(.+\\)")
-                         (match-string 1))))
-                 (list "-g" (concat "-package-conf="
-                                    (expand-file-name
-                                     (concat "ghc/lib/ghc-"
-                                             ghc-version
-                                             "/package.conf.d")
-                                     path-prefix))))))
-       source-inplace)
-      :error-patterns
-      ((warning line-start (file-name) ":" line ":" column ":"
-                (or " " "\n    ") "Warning:" (optional "\n")
-                (one-or-more " ")
-                (message (one-or-more not-newline)
-                         (zero-or-more "\n"
-                                       (one-or-more " ")
-                                       (one-or-more not-newline)))
-                line-end)
-       (error line-start (file-name) ":" line ":" column ":"
-              (or (message (one-or-more not-newline))
-                  (and "\n" (one-or-more " ")
-                       (message (one-or-more not-newline)
-                                (zero-or-more "\n"
-                                              (one-or-more " ")
-                                              (one-or-more not-newline)))))
-              line-end))
-      :modes haskell-mode
-      :next-checkers ((warnings-only . haskell-hlint)))))
+;; See URL `https://github.com/bitc/hdevtools'."
+;;       :command
+;;       ("hdevtools" "check"
+;;        "-g" "-i."
+;;        "-g" "-i.."
+;;        "-g" "-i../.."
+;;        "-g" "-i../../.."
+;;        "-g" "-i../../../.."
+;;        "-g" "-i/Users/johnw/crash/isa/tools/safe-isa"
+;;        ,@(apply #'append (mapcar (lambda (x) (list "-g" x)) ghc-extensions))
+;;        ,@(let ((hdevtools-path (executable-find "hdevtools")))
+;;            (if (and hdevtools-path
+;;                     (string-match "\\`\\(.+/\\.hsenv/\\)"
+;;                                   hdevtools-path))
+;;                (let* ((path-prefix (match-string 1 hdevtools-path))
+;;                       (ghc-version
+;;                        (with-temp-buffer
+;;                          (shell-command "ghc --version" t)
+;;                          (goto-char (point-min))
+;;                          (re-search-forward "version \\(.+\\)")
+;;                          (match-string 1))))
+;;                  (list "-g" (concat "-package-conf="
+;;                                     (expand-file-name
+;;                                      (concat "ghc/lib/ghc-"
+;;                                              ghc-version
+;;                                              "/package.conf.d")
+;;                                      path-prefix))))))
+;;        source-inplace)
+;;       :error-patterns
+;;       ((warning line-start (file-name) ":" line ":" column ":"
+;;                 (or " " "\n    ") "Warning:" (optional "\n")
+;;                 (one-or-more " ")
+;;                 (message (one-or-more not-newline)
+;;                          (zero-or-more "\n"
+;;                                        (one-or-more " ")
+;;                                        (one-or-more not-newline)))
+;;                 line-end)
+;;        (error line-start (file-name) ":" line ":" column ":"
+;;               (or (message (one-or-more not-newline))
+;;                   (and "\n" (one-or-more " ")
+;;                        (message (one-or-more not-newline)
+;;                                 (zero-or-more "\n"
+;;                                               (one-or-more " ")
+;;                                               (one-or-more not-newline)))))
+;;               line-end))
+;;       :modes haskell-mode
+;;       :next-checkers ((warnings-only . haskell-hlint))))
+  )
 
 (defun hoogle-local (query)
   (interactive
@@ -535,7 +536,8 @@ See URL `https://github.com/bitc/hdevtools'."
   (require 'flycheck)
   (flycheck-mode 1)
   (define-haskell-checkers)
-  (flycheck-select-checker 'haskell-hdevtools)
+  ;; (flycheck-select-checker 'haskell-hdevtools)
+  (flycheck-select-checker 'haskell-ghc)
 
   ;; (add-hook 'after-change-functions 'adjust-counting-putStrLn t)
 
@@ -638,9 +640,9 @@ See URL `https://github.com/bitc/hdevtools'."
                         (insert "undefined"))
             haskell-mode-map)
 
-  (defun killall-hdevtools (&optional arg)
+  (defun reflycheck (&optional arg)
     (interactive "P")
-    (shell-command "killall .hdevtools-wrapped")
+    ;; (shell-command "killall .hdevtools-wrapped")
     ;; (flyparse-buffer)
     (when arg
       (define-haskell-checkers-no-implicit-prelude))
@@ -654,7 +656,7 @@ See URL `https://github.com/bitc/hdevtools'."
   (bind-key "C-c C-r" 'inferior-haskell-load-and-run haskell-mode-map)
   ;; (bind-key "C-c C-c" 'flyparse-buffer haskell-mode-map)
   (bind-key "C-c C-c" 'flycheck-buffer haskell-mode-map)
-  (bind-key "C-c C" 'killall-hdevtools haskell-mode-map)
+  (bind-key "C-c C" 'reflycheck haskell-mode-map)
 
   (use-package structured-haskell-mode
     :load-path "site-lisp/shm/elisp/"
@@ -683,13 +685,13 @@ See URL `https://github.com/bitc/hdevtools'."
     (bind-key "C-c C-z" 'haskell-interactive-switch haskell-mode-map))
 
   ;; Use C-u C-c C-t to auto-insert a function's type above it
-  (use-package hdevtools)
-  (if t
-      (progn
-        (bind-key "C-c C-t" 'hdevtools/show-type-info haskell-mode-map)
-        (bind-key "C-c C-i" 'ghc-show-info haskell-mode-map))
-    (bind-key "C-c C-t" 'my-inferior-haskell-type haskell-mode-map)
-    (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map))
+  ;; (use-package hdevtools)
+  ;; (if t
+  ;;     (progn
+  ;;       (bind-key "C-c C-t" 'hdevtools/show-type-info haskell-mode-map)
+  ;;       (bind-key "C-c C-i" 'ghc-show-info haskell-mode-map))
+  ;;   (bind-key "C-c C-t" 'my-inferior-haskell-type haskell-mode-map)
+  ;;   (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map))
 
   ;; (bind-key "M-." 'my-inferior-haskell-find-definition haskell-mode-map)
   (bind-key "M-." 'find-tag haskell-mode-map)

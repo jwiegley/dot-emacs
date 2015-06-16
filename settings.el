@@ -304,6 +304,7 @@
  '(compilation-window-height 100)
  '(coq-compile-before-require t)
  '(coq-holes-minor-mode nil)
+ '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
  '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
  '(coq-prog-name "ssrcoq")
@@ -357,6 +358,8 @@
      " ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
+ '(eclim-executable
+   "/Applications/Misc/ACL2s/plugins/org.eclim_2.4.1/bin/eclim")
  '(ediff-combination-pattern
    (quote
     ("<<<<<<< A: HEAD" A "||||||| Ancestor" Ancestor "=======" B ">>>>>>> B: Incoming")))
@@ -551,6 +554,7 @@
  '(gc-cons-threshold 3500000)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
+ '(ggtags-enable-navigation-keys nil)
  '(ggtags-oversize-limit 1048576)
  '(ggtags-use-sqlite3 t)
  '(git-commit-mode-hook
