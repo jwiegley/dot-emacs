@@ -3591,7 +3591,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package swiper
   :load-path "site-lisp/swiper"
-  :bind ("C-. r" . swiper))
+  :bind ("C-. C-s" . swiper))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
