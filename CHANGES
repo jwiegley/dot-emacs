@@ -72,10 +72,16 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
        Lemma foo: forall x y,
            x = 0 -> ... .
+
     instead of:
+
        Lemma foo: forall x y,
                     x = 0 -> ... .
-    do this: (setq coq-indent-box-style t) to bring the box style back.
+    (do this: (setq coq-indent-box-style t) to bring the box style back).
+
+    Use (setq coq-smie-after-bolp-indentation 0) for a smaller indentation:
+       Lemma foo: forall x y,
+         x = 0 -> ... .
 
 *** Default indentation cases of "match with" are now indented by 2 instead of 4.
      "|" is indented by zero:
