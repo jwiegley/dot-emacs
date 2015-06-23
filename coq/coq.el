@@ -1266,8 +1266,13 @@ alreadyopen is t if buffer already existed."
 
 ;; match-string 1 must contain the string to add to coqtop command line, so we
 ;; ignore -arg, we use numbered subregexpr.
+
+;; FIXME: if several options are given (within "") in a single -arg line, then
+;; they are glued and passed as a single argument to coqtop. this is bad and
+;; not conforming to coq_makefile. HOWEVER: this is probably a bad feature of
+;; coq_makefile to allow several arguments in a single - arg "xxx yyy".
 (defconst coq-prog-args-regexp
-  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg\\(?:[[:space:]]+\\(?1:[^\t\n#]+\\)\\)?")
+  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg[[:space:]]+\\(?:\\(?1:[^\"\t\n#]+\\)\\|\"\\(?1:[^\"]+\\)\"\\)")
 
 
 (defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
@@ -1285,9 +1290,9 @@ allows to call coqtop from a subdirectory of the project."
         (goto-char (point-min))
         (while (re-search-forward regexp nil t)
           (let* ((firstfname (match-string 1))
-                (second (match-string 2))
-                (first (if (null dirprefix) firstfname
-                         (expand-file-name firstfname dirprefix))))
+                 (second (match-string 2))
+                 (first (if (null dirprefix) firstfname
+                          (expand-file-name firstfname dirprefix))))
             (if second ; if second arg is "" (two doublequotes), it means empty string
                 (let ((sec (if (string-equal second "\"\"") "" second)))
                   (if (string-match coq-load-path--R-regexp (match-string 0))
