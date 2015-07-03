@@ -19,11 +19,11 @@ If you want the function combinators, then also:
 
 Add this to the big comment block at the top:
 
-    ;; Package-Requires: ((dash "2.10.0"))
+    ;; Package-Requires: ((dash "2.11.0"))
 
 To get function combinators:
 
-    ;; Package-Requires: ((dash "2.10.0") (dash-functional "1.2.0") (emacs "24"))
+    ;; Package-Requires: ((dash "2.11.0") (dash-functional "1.2.0") (emacs "24"))
 
 ## Syntax highlighting of dash functions
 
@@ -33,6 +33,31 @@ Include this in your emacs settings to get syntax highlighting:
     (eval-after-load "dash" '(dash-enable-font-lock))
 
 ## Functions
+
+All functions and constructs in the library are prefixed with a dash (-).
+
+There are also anaphoric versions of functions where that makes sense,
+prefixed with two dashes instead of one.
+
+While `-map` takes a function to map over the list, you can also use
+the anaphoric form with double dashes - which will then be executed
+with `it` exposed as the list item. Here's an example:
+
+```el
+(-map (lambda (n) (* n n)) '(1 2 3 4)) ;; normal version
+
+(--map (* it it) '(1 2 3 4)) ;; anaphoric version
+```
+
+of course the original can also be written like
+
+```el
+(defun square (n) (* n n))
+
+(-map 'square '(1 2 3 4))
+```
+
+which demonstrates the usefulness of both versions.
 
 
 ### Maps
@@ -45,6 +70,8 @@ new list.
 
 * [-map](#-map-fn-list) `(fn list)`
 * [-map-when](#-map-when-pred-rep-list) `(pred rep list)`
+* [-map-first](#-map-first-pred-rep-list) `(pred rep list)`
+* [-map-last](#-map-last-pred-rep-list) `(pred rep list)`
 * [-map-indexed](#-map-indexed-fn-list) `(fn list)`
 * [-annotate](#-annotate-fn-list) `(fn list)`
 * [-splice](#-splice-pred-fun-list) `(pred fun list)`
@@ -59,6 +86,9 @@ Functions returning a sublist of the original list.
 
 * [-filter](#-filter-pred-list) `(pred list)`
 * [-remove](#-remove-pred-list) `(pred list)`
+* [-remove-first](#-remove-first-pred-list) `(pred list)`
+* [-remove-last](#-remove-last-pred-list) `(pred list)`
+* [-remove-item](#-remove-item-item-list) `(item list)`
 * [-non-nil](#-non-nil-list) `(list)`
 * [-slice](#-slice-list-from-optional-to-step) `(list from &optional to step)`
 * [-take](#-take-n-list) `(n list)`
@@ -77,6 +107,8 @@ Bag of various functions which modify input list.
 * [-flatten](#-flatten-l) `(l)`
 * [-flatten-n](#-flatten-n-num-list) `(num list)`
 * [-replace](#-replace-old-new-list) `(old new list)`
+* [-replace-first](#-replace-first-old-new-list) `(old new list)`
+* [-replace-last](#-replace-last-old-new-list) `(old new list)`
 * [-insert-at](#-insert-at-n-x-list) `(n x list)`
 * [-replace-at](#-replace-at-n-x-list) `(n x list)`
 * [-update-at](#-update-at-n-func-list) `(n func list)`
@@ -206,7 +238,7 @@ Functions pretending lists are trees.
 ### Threading macros
 
 * [->](#--x-optional-form-rest-more) `(x &optional form &rest more)`
-* [->>](#--x-form-rest-more) `(x form &rest more)`
+* [->>](#--x-optional-form-rest-more) `(x &optional form &rest more)`
 * [-->](#---x-form-rest-more) `(x form &rest more)`
 
 ### Binding
@@ -257,31 +289,6 @@ These combinators require Emacs 24 for its lexical scope. So they are offered in
 * [-fixfn](#-fixfn-fn-optional-equal-test-halt-test) `(fn &optional equal-test halt-test)`
 * [-prodfn](#-prodfn-rest-fns) `(&rest fns)`
 
-## Anaphoric functions
-
-There are also anaphoric versions of functions where that makes sense,
-prefixed with two dashes instead of one.
-
-While `-map` takes a function to map over the list, you can also use
-the anaphoric form with double dashes - which will then be executed
-with `it` exposed as the list item. Here's an example:
-
-```el
-(-map (lambda (n) (* n n)) '(1 2 3 4)) ;; normal version
-
-(--map (* it it) '(1 2 3 4)) ;; anaphoric version
-```
-
-of course the original can also be written like
-
-```el
-(defun square (n) (* n n))
-
-(-map 'square '(1 2 3 4))
-```
-
-which demonstrates the usefulness of both versions.
-
 
 ## Maps
 
@@ -315,6 +322,30 @@ See also: [`-update-at`](#-update-at-n-func-list)
 (-map-when 'even? 'square '(1 2 3 4)) ;; => '(1 4 3 16)
 (--map-when (> it 2) (* it it) '(1 2 3 4)) ;; => '(1 2 9 16)
 (--map-when (= it 2) 17 '(1 2 3 4)) ;; => '(1 17 3 4)
+```
+
+#### -map-first `(pred rep list)`
+
+Replace first item in `list` satisfying `pred` with result of `rep` called on this item.
+
+See also: [`-map-when`](#-map-when-pred-rep-list), [`-replace-first`](#-replace-first-old-new-list)
+
+```el
+(-map-first 'even? 'square '(1 2 3 4)) ;; => '(1 4 3 4)
+(--map-first (> it 2) (* it it) '(1 2 3 4)) ;; => '(1 2 9 4)
+(--map-first (= it 2) 17 '(1 2 3 2)) ;; => '(1 17 3 2)
+```
+
+#### -map-last `(pred rep list)`
+
+Replace first item in `list` satisfying `pred` with result of `rep` called on this item.
+
+See also: [`-map-when`](#-map-when-pred-rep-list), [`-replace-last`](#-replace-last-old-new-list)
+
+```el
+(-map-last 'even? 'square '(1 2 3 4)) ;; => '(1 2 3 16)
+(--map-last (> it 2) (* it it) '(1 2 3 4)) ;; => '(1 2 3 16)
+(--map-last (= it 2) 17 '(1 2 3 2)) ;; => '(1 2 3 17)
 ```
 
 #### -map-indexed `(fn list)`
@@ -366,6 +397,7 @@ See also: [`-splice`](#-splice-pred-fun-list), [`-insert-at`](#-insert-at-n-x-li
 ```el
 (-splice-list 'keywordp '(a b c) '(1 :foo 2)) ;; => '(1 a b c 2)
 (-splice-list 'keywordp nil '(1 :foo 2)) ;; => '(1 2)
+(--splice-list (keywordp it) '(a b c) '(1 :foo 2)) ;; => '(1 a b c 2)
 ```
 
 #### -mapcat `(fn list)`
@@ -416,6 +448,46 @@ Alias: `-reject`
 (-remove (lambda (num) (= 0 (% num 2))) '(1 2 3 4)) ;; => '(1 3)
 (-remove 'even? '(1 2 3 4)) ;; => '(1 3)
 (--remove (= 0 (% it 2)) '(1 2 3 4)) ;; => '(1 3)
+```
+
+#### -remove-first `(pred list)`
+
+Return a new list with the first item matching `pred` removed.
+
+Alias: `-reject-first`
+
+See also: [`-remove`](#-remove-pred-list), [`-map-first`](#-map-first-pred-rep-list)
+
+```el
+(-remove-first 'even? '(1 3 5 4 7 8 10)) ;; => '(1 3 5 7 8 10)
+(-remove-first 'stringp '(1 2 "first" "second" "third")) ;; => '(1 2 "second" "third")
+(--remove-first (> it 3) '(1 2 3 4 5 6 7 8 9 10)) ;; => '(1 2 3 5 6 7 8 9 10)
+```
+
+#### -remove-last `(pred list)`
+
+Return a new list with the last item matching `pred` removed.
+
+Alias: `-reject-last`
+
+See also: [`-remove`](#-remove-pred-list), [`-map-last`](#-map-last-pred-rep-list)
+
+```el
+(-remove-last 'even? '(1 3 5 4 7 8 10 11)) ;; => '(1 3 5 4 7 8 11)
+(-remove-last 'stringp '(1 2 "last" "second" "third")) ;; => '(1 2 "last" "second")
+(--remove-last (> it 3) '(1 2 3 4 5 6 7 8 9 10)) ;; => '(1 2 3 4 5 6 7 8 9)
+```
+
+#### -remove-item `(item list)`
+
+Remove all occurences of `item` from `list`.
+
+Comparison is done with `equal`.
+
+```el
+(-remove-item 3 '(1 2 3 2 3 4 5 3)) ;; => '(1 2 2 4 5)
+(-remove-item 'foo '(foo bar baz foo)) ;; => '(bar baz)
+(-remove-item "bob" '("alice" "bob" "eve" "bob" "dave")) ;; => '("alice" "eve" "dave")
 ```
 
 #### -non-nil `(list)`
@@ -501,6 +573,8 @@ Bag of various functions which modify input list.
 
 Return a new list of the non-nil results of applying `fn` to the items in `list`.
 
+If you want to select the original items satisfying a predicate use [`-filter`](#-filter-pred-list).
+
 ```el
 (-keep 'cdr '((1 2 3) (4 5) (6))) ;; => '((2 3) (5))
 (-keep (lambda (num) (when (> num 3) (* 10 num))) '(1 2 3 4 5 6)) ;; => '(40 50 60)
@@ -553,6 +627,34 @@ See also: [`-replace-at`](#-replace-at-n-x-list)
 (-replace 1 "1" '(1 2 3 4 3 2 1)) ;; => '("1" 2 3 4 3 2 "1")
 (-replace "foo" "bar" '("a" "nice" "foo" "sentence" "about" "foo")) ;; => '("a" "nice" "bar" "sentence" "about" "bar")
 (-replace 1 2 nil) ;; => nil
+```
+
+#### -replace-first `(old new list)`
+
+Replace the first occurence of `old` with `new` in `list`.
+
+Elements are compared using `equal`.
+
+See also: [`-map-first`](#-map-first-pred-rep-list)
+
+```el
+(-replace-first 1 "1" '(1 2 3 4 3 2 1)) ;; => '("1" 2 3 4 3 2 1)
+(-replace-first "foo" "bar" '("a" "nice" "foo" "sentence" "about" "foo")) ;; => '("a" "nice" "bar" "sentence" "about" "foo")
+(-replace-first 1 2 nil) ;; => nil
+```
+
+#### -replace-last `(old new list)`
+
+Replace the last occurence of `old` with `new` in `list`.
+
+Elements are compared using `equal`.
+
+See also: [`-map-last`](#-map-last-pred-rep-list)
+
+```el
+(-replace-last 1 "1" '(1 2 3 4 3 2 1)) ;; => '(1 2 3 4 3 2 "1")
+(-replace-last "foo" "bar" '("a" "nice" "foo" "sentence" "about" "foo")) ;; => '("a" "nice" "foo" "sentence" "about" "bar")
+(-replace-last 1 2 nil) ;; => nil
 ```
 
 #### -insert-at `(n x list)`
@@ -1640,7 +1742,7 @@ second item in second form, etc.
 (-> '(2 3 5) (append '(8 13)) (-slice 1 -1)) ;; => '(3 5 8)
 ```
 
-#### ->> `(x form &rest more)`
+#### ->> `(x &optional form &rest more)`
 
 Thread the expr through the forms. Insert `x` as the last item
 in the first form, making a list of it if it is not a list
@@ -1813,6 +1915,46 @@ plist-like key-value pairs, similarly to &keys keyword of
 
 This binds `n` values from the list to a1 ... aN, then interprets
 the cdr as a plist (see key/value matching above).
+
+You can name the source using the syntax `symbol` &as `pattern`.
+This syntax works with lists (proper or improper), vectors and
+all types of maps.
+
+    (list &as a b c) (list 1 2 3)
+
+binds `a` to 1, `b` to 2, `c` to 3 and `list` to (1 2 3).
+
+Similarly:
+
+    (bounds &as beg . end) (cons 1 2)
+
+binds `beg` to 1, `end` to 2 and `bounds` to (1 . 2).
+
+    (items &as first . rest) (list 1 2 3)
+
+binds `first` to 1, `rest` to (2 3) and `items` to (1 2 3)
+
+    [vect &as _ b c] [1 2 3]
+
+binds `b` to 2, `c` to 3 and `vect` to [1 2 3] (_ avoids binding as usual).
+
+    (plist &as &plist :b b) (list :a 1 :b 2 :c 3)
+
+binds `b` to 2 and `plist` to (:a 1 :b 2 :c 3).  Same for &alist and &hash.
+
+This is especially useful when we want to capture the result of a
+computation and destructure at the same time.  Consider the
+form (function-returning-complex-structure) returning a list of
+two vectors with two items each.  We want to capture this entire
+result and pass it to another computation, but at the same time
+we want to get the second item from each vector.  We can achieve
+it with pattern
+
+    (result &as [_ a] [_ b]) (function-returning-complex-structure)
+
+Note: Clojure programmers may know this feature as the ":as
+binding".  The difference is that we put the &as at the front
+because we need to support improper list binding.
 
 ```el
 (-let (([a (b c) d] [1 (2 3) 4])) (list a b c d)) ;; => '(1 2 3 4)
@@ -2178,6 +2320,10 @@ Oh, and don't edit `README.md` directly, it is auto-generated.
 Change `readme-template.md` or `examples-to-docs.el` instead.
 
 ## Changelist
+
+### From 2.10 to 2.11
+
+- Lots of clean up wrt byte compilation, debug macros and tests
 
 ### From 2.9 to 2.10
 
