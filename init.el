@@ -2794,7 +2794,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-c e m" . macrostep-expand))
 
 (use-package magit
-  :load-path "site-lisp/magit"
+  :load-path "site-lisp/magit/lisp"
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :preface
