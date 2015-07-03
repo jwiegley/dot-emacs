@@ -201,6 +201,10 @@ John Wiegley, Chairperson"))))
       (to-address . "nix-dev@lists.science.uu.nl")
       (to-list . "nix-dev@lists.science.uu.nl")
       (list-identifier . "\\[Nix-dev\\]"))
+     ("list\\.haskell\\.pipes"
+      (to-address . "haskell-pipes@googlegroups.com")
+      (to-list . "haskell-pipes@googlegroups.com")
+      (list-identifier . "\\[haskell-pipes\\]"))
      ("list\\.haskell\\.cafe"
       (to-address . "haskell-cafe@haskell.org")
       (to-list . "haskell-cafe@haskell.org")
