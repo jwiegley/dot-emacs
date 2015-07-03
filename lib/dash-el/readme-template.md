@@ -19,11 +19,11 @@ If you want the function combinators, then also:
 
 Add this to the big comment block at the top:
 
-    ;; Package-Requires: ((dash "2.10.0"))
+    ;; Package-Requires: ((dash "2.11.0"))
 
 To get function combinators:
 
-    ;; Package-Requires: ((dash "2.10.0") (dash-functional "1.2.0") (emacs "24"))
+    ;; Package-Requires: ((dash "2.11.0") (dash-functional "1.2.0") (emacs "24"))
 
 ## Syntax highlighting of dash functions
 
@@ -34,9 +34,7 @@ Include this in your emacs settings to get syntax highlighting:
 
 ## Functions
 
-[[ function-list ]]
-
-## Anaphoric functions
+All functions and constructs in the library are prefixed with a dash (-).
 
 There are also anaphoric versions of functions where that makes sense,
 prefixed with two dashes instead of one.
@@ -60,6 +58,8 @@ of course the original can also be written like
 ```
 
 which demonstrates the usefulness of both versions.
+
+[[ function-list ]]
 
 [[ function-docs ]]
 
@@ -90,6 +90,10 @@ Oh, and don't edit `README.md` directly, it is auto-generated.
 Change `readme-template.md` or `examples-to-docs.el` instead.
 
 ## Changelist
+
+### From 2.10 to 2.11
+
+- Lots of clean up wrt byte compilation, debug macros and tests
 
 ### From 2.9 to 2.10
 
