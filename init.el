@@ -2853,6 +2853,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
   (unbind-key "M-m" magit-mode-map)
+  (unbind-key "M-w" magit-mode-map)
 
   ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
   ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
