@@ -1882,35 +1882,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
          ("M-s F" . find-grep)
-         ("M-s G" . grep)
-         ("M-s p" . find-grep-in-project))
-  :preface
-  (defun find-grep-in-project (command-args)
-    (interactive
-     (let ((default (thing-at-point 'symbol)))
-       (list (read-shell-command "Run find (like this): "
-                                 (cons (concat "git --no-pager grep -n "
-                                               default)
-                                       (+ 24 (length default)))
-                                 'grep-find-history))))
-    (if command-args
-        (let ((null-device nil))        ; see grep
-          (grep command-args))))
-
+         ("M-s G" . grep))
   :config
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
 
   (grep-apply-setting 'grep-command "egrep -nH -e ")
-  (if nil
-      (progn
-        (setq-default grep-first-column 1)
-        (grep-apply-setting
-         'grep-find-command
-         '("ag --noheading --nocolor --smart-case --nogroup --column -- "
-           . 61)))
-    (grep-apply-setting
-     'grep-find-command
-     '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))))
+  (grep-apply-setting
+   'grep-find-command
+   '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49)))
 
 (use-package gud
   :disabled t

@@ -547,7 +547,7 @@
   ;; (add-hook 'after-save-hook 'check-parens nil t)
 
   ;; (require 'company)
-  (ghc-init)
+  ;; (ghc-init)
   ;; (add-to-list 'company-backends 'company-ghc)
   ;; (company-mode)
 
@@ -746,6 +746,7 @@
   :init
   (progn
     (use-package ghc
+      :disabled t
       :load-path (lambda () (list (ghc-mod-site-lisp)))
       :commands ghc-init
       :config
