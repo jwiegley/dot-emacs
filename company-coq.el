@@ -1,5 +1,4 @@
-;;; -*- lexical-binding: t -*-
-;;; company-coq.el --- Company-mode backend for Proof General's coq-mode
+;;; company-coq.el --- Company-mode backend for Proof General's coq-mode -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015  Clément Pit--Claudel
 ;; Author: Clément Pit--Claudel <clement.pitclaudel@live.com>
@@ -24,7 +23,8 @@
 ;; many useful extensions to Proof-General.
 ;;
 ;; See https://github.com/cpitclaudel/company-coq/ for a full description,
-;; including screenshots and documentation.
+;; including screenshots and documentation. After installing, you may want to
+;; use M-x company-coq-tutorial to open the tutorial.
 ;;
 
 ;;; Code:
@@ -65,6 +65,7 @@
 (require 'paren)        ;; Find matching block start
 (require 'smie)         ;; Move around the source code
 (require 'diff-mode)    ;; Browsing through large error messages
+(require 'dash)         ;; -when-let and -if-let ;; FIXME: Require only on compilation
 
 (require 'company-coq-abbrev) ;; Tactics from the manual
 (require 'company-coq-tg)     ;; Parsing code for tactic notations
@@ -84,8 +85,9 @@
                                          "Chapter ${1:ChapterName}.\n$0\nEnd $1." ;; Commented out in RefMan-ext.v
                                          "Module ${1:ModuleName}.\n$0\nEnd $1."
                                          "Module Type ${1:ModuleTypeName}.\n$0\nEnd $1."
-                                         "match ${ident} with")
-  "Custom YAS snippets")
+                                         "match ${ident} with"
+                                         "match goal with\n$0\nend")
+  "Custom YAS snippets") ;; FIXME add to tutorial
 
 (defcustom company-coq-dynamic-autocompletion nil
   "Autocomplete theorem and tactic names by periodically querying coq about defined identifiers. This is an experimental feature. It requires a patched version of Coq to work properly; it will be very slow otherwise."
@@ -158,10 +160,6 @@ same prefix."
 
 (defvar company-coq-tactics-reload-needed nil
   "Indicates whether a reload of all tactics might be needed. This variable is
-  set from places where immediate reloading is impossible, for example in proof-shell-insert-hook")
-
-(defvar company-coq-notations-reload-needed nil
-  "Indicates whether a reload of all tactic notations might be needed. This variable is
   set from places where immediate reloading is impossible, for example in proof-shell-insert-hook")
 
 (defvar company-coq-modules-reload-needed nil
@@ -265,7 +263,7 @@ This is mostly useful of company-coq-dynamic-autocompletion is nil.")
 (defconst company-coq-all-symbols-cmd "SearchPattern _"
   "Command used to list all symbols.")
 
-(defconst company-coq-all-ltacs-cmd "Print Ltacs"
+(defconst company-coq-all-ltacs-cmd "Print Ltac Signatures"
   "Command used to list all tactics.")
 
 (defconst company-coq-all-notations-cmd "Print Grammar tactic"
@@ -275,7 +273,7 @@ This is mostly useful of company-coq-dynamic-autocompletion is nil.")
   "Command used to list more symbols ([SearchPattern _] doesn't search inside modules in 8.4).")
 
 (defconst company-coq-all-symbols-coda (cons company-coq-search-blacklist-rem-cmd
-                                          '("Unset Search Output Name Only"))
+                                             '("Unset Search Output Name Only"))
   "Command to run after listing all symbols, using a patched version of Coq")
 
 (defconst company-coq-doc-cmd "About %s"
@@ -283,6 +281,9 @@ This is mostly useful of company-coq-dynamic-autocompletion is nil.")
 
 (defconst company-coq-def-cmd "Print %s"
   "Command used to retrieve the definition of a symbol.")
+
+(defconst company-coq-type-cmd "Check %s"
+  "Command used to retrieve the type of a symbol.")
 
 (defconst company-coq-tactic-def-cmd "Print Ltac %s"
   "Command used to retrieve the documentation of a symbol.")
@@ -326,9 +327,6 @@ about shorter names, and other matches")
                                       "\\`Toplevel input, characters"
                                       "\\`No Ltac definition is referred to by")
   "Regexp used to detect invalid output")
-
-(defconst company-coq-abort-proof-regexp "Current goals? aborted"
-  "Regexp used to detect signs that new definitions have been added to the context")
 
 (defconst company-coq-import-regexp (regexp-opt '("From" "Require" "Import" "Export"))
   "Regexp used to detect signs that new definitions will be added to the context")
@@ -392,11 +390,20 @@ about shorter names, and other matches")
                                                 ("*" . ?×) ("++" . ?⧺) ("nat" . ?𝓝)
                                                 ("Z" . ?ℤ) ("N" . ?ℕ) ("Q" . ?ℚ)
                                                 ("Real" . ?ℝ) ("bool" . ?𝔹) ("Prop" . ?𝓟))
-  "An alist of symbols to prettify. Assigned to `prettify-symbols-alist' in emacs >= 24.4"
+  "An alist of symbols to prettify.
+Assigned to `prettify-symbols-alist' in emacs >= 24.4"
   :group 'company-coq
   :type 'alist)
 
-(defconst company-coq-numeric-hypothesis-regexp "  .*[^0-9]\\([0-9]+\\) :"
+(defcustom company-coq-local-symbols nil
+  "An alist of file-specific symbols to prettify.
+Combined with `company-coq-prettify-symbols-alist'. Most useful
+as a file or dir-local variable."
+  :group 'company-coq
+  :type 'alist
+  :safe 'listp)
+
+(defconst company-coq-numeric-hypothesis-regexp "\\(?:^  \\|, \\)[A-Za-zΑ-Ωα-ω]\\([0-9]+\\)\\b"
   "Regexp used to detect hypotheses of the form Hyp25 and change them into Hyp_25")
 
 (defconst company-coq-lemma-introduction-forms
@@ -447,10 +454,11 @@ dependent]).")
                "\\(?1:absurd_hyp\\_>\\) [A-Za-z]")
              "\\|"))
 
-(defconst company-coq-deprecated-re (concat "^[[:blank:]]*"
+(defconst company-coq-deprecated-re (concat "^[[:blank:]]*\\(?:"
                                             "\\(?:" company-coq-deprecated-options-re "\\)\\|"
                                             "\\(?:" company-coq-deprecated-vernacs-re "\\)\\|"
-                                            "\\(?:" company-coq-deprecated-man-re "\\)")
+                                            "\\(?:" company-coq-deprecated-man-re "\\)"
+                                            "\\)")
   "Deprecated forms.")
 
 (defconst company-coq-script-full-path load-file-name
@@ -499,6 +507,12 @@ dependent]).")
   "Print a message if company-coq-debug is non-nil"
   `(when company-coq-debug
      (message (concat "company-coq: " ,format) ,@args)))
+
+(defmacro company-coq-suppress-warnings (&rest body)
+  (declare (indent 0))
+  (if (and (= emacs-major-version 24) (< emacs-minor-version 4))
+      `(with-no-warnings ,@body)
+    `(progn ,@body)))
 
 ;; FIXME: This should happen at the PG level. Introduced to fix #8.
 (defmacro company-coq-with-window-start (window &rest body)
@@ -549,9 +563,6 @@ dependent]).")
       (goto-char limit)
       (re-search-forward (concat "\\(?:" regexp "\\)\\'") nil t))))
 
-(defun company-coq-join-lines (lines sep &optional trans)
-  (if lines (mapconcat (or trans 'identity) lines sep)))
-
 (defun company-coq-text-width (from to)
   (interactive "r")
   ;; TODO: Is this faster? (string-width (buffer-substring (point-at-bol) (point-at-eol)))
@@ -588,7 +599,8 @@ dependent]).")
     (let* ((from  (point))
            (to    (progn (insert "\n") (point)))
            (color (or (face-attribute 'highlight :background) "black")))
-      (add-face-text-property from to `(:height 1 :background ,color)))))
+      (when (fboundp 'add-face-text-property)
+        (company-coq-suppress-warnings (add-face-text-property from to `(:height 1 :background ,color)))))))
 
 (defun company-coq-get-header (str)
   (save-match-data
@@ -718,11 +730,11 @@ line if empty). Calls `indent-region' on the inserted lines."
     tactics))
 
 (defun company-coq-get-all-notations ()
-   "Load all tactic notations by parsing the output of
+  "Load all tactic notations by parsing the output of
 `company-coq-all-notations-cmd'. Do not call if proof process is
 busy."
-   (let ((output (company-coq-ask-prover-swallow-errors company-coq-all-notations-cmd)))
-     (and output (company-coq-tg--extract-notations output))))
+  (let ((output (company-coq-ask-prover-swallow-errors company-coq-all-notations-cmd)))
+    (and output (company-coq-tg--extract-notations output))))
 
 (defun company-coq-get-notations ()
   "Load tactic notations, filtering out notations listed in
@@ -766,12 +778,12 @@ proof process is busy."
 
 (defun company-coq-find-all (re beg end)
   (when (< beg end) ;; point-at-bol may be before unproc-beg
-  (let ((case-fold-search nil)
-        (matches          nil))
-    (save-excursion
-      (goto-char beg)
-      (while (search-forward-regexp re end t)
-        (push (match-string-no-properties 2) matches)))
+    (let ((case-fold-search nil)
+          (matches          nil))
+      (save-excursion
+        (goto-char beg)
+        (while (search-forward-regexp re end t)
+          (push (match-string-no-properties 2) matches)))
       matches)))
 
 (defun company-coq-reload-buffer-defuns ()
@@ -1013,14 +1025,14 @@ pairs of paths in the form (LOGICAL . PHYSICAL)"
              if (string-match prefix-re completion)
              collect (company-coq-propertize-match completion (match-beginning 0) (match-end 0)))))
 
-(defun company-coq-complete-prefix (prefix completions &optional ignore-case)
-  "List elements of COMPLETIONS starting with PREFIX"
-  (company-coq-dbg "company-coq-complete-prefix: Completing for prefix %s (%s symbols)" prefix (length completions))
-  (let ((completion-ignore-case ignore-case)
-        (prefix-len             (length prefix)))
-    (mapcar
-     (lambda (completion) (company-coq-propertize-match completion 0 prefix-len))
-     (all-completions prefix completions))))
+;; (defun company-coq-complete-prefix (prefix completions &optional ignore-case)
+;;   "List elements of COMPLETIONS starting with PREFIX"
+;;   (company-coq-dbg "company-coq-complete-prefix: Completing for prefix %s (%s symbols)" prefix (length completions))
+;;   (let ((completion-ignore-case ignore-case)
+;;         (prefix-len             (length prefix)))
+;;     (mapcar
+;;      (lambda (completion) (company-coq-propertize-match completion 0 prefix-len))
+;;      (all-completions prefix completions))))
 
 (defun company-coq-complete-sub-re (prefix candidates)
   (let* ((chars (string-to-list prefix)) ;; The regexp says: skip stuff before beginning a new word, or skip nothing
@@ -1050,7 +1062,7 @@ cases:
   (pcase (company-coq-chomp module-atoms path-atoms)
     (`(,mod .  nil) (let ((subdirectory-atoms (butlast mod)))
                       (unless (member "" subdirectory-atoms) ;; We don't support skipping over subdirectories
-                       (cons (append path-atoms subdirectory-atoms) (cons mod nil)))))
+                        (cons (append path-atoms subdirectory-atoms) (cons mod nil)))))
     (`(nil  . ,pth) (cons path-atoms (cons nil pth)))
     (_              nil)))
 
@@ -1088,8 +1100,8 @@ extension." ;; TODO format directories properly
                             'match-end match-end))
               mod-names))))
 
-(defun company-coq-complete-module-qualified (qualid-atoms search-atoms physical-path
-                                              fully-matched-count part-matched-len)
+(defun company-coq-complete-module-qualified
+    (qualid-atoms search-atoms physical-path fully-matched-count part-matched-len)
   "Find qualified module names in PHYSICAL-PATH that match SEARCH-ATOMS."
   ;; (message "> [%s] [%s] [%s]" (prin1-to-string qualid-atoms) (prin1-to-string search-atoms) physical-path)
   (let* ((kwd           (car-safe (last search-atoms)))
@@ -1148,10 +1160,6 @@ search term and a qualifier."
   "Checks whether the output of the last command matches company-coq-end-of-def-regexp"
   (company-coq-boundp-string-match company-coq-end-of-def-regexp 'proof-shell-last-output))
 
-(defun company-coq-shell-output-proof-aborted ()
-  "Checks whether the output of the last command matches company-coq-end-of-def-regexp"
-  (company-coq-boundp-string-match company-coq-abort-proof-regexp 'proof-shell-last-output))
-
 (defun company-coq-shell-output-is-end-of-proof ()
   "Checks whether proof-general signaled a finished proof"
   (company-coq-value-or-nil 'proof-shell-proof-completed))
@@ -1192,17 +1200,19 @@ search term and a qualifier."
          (push (propertize name 'meta type) ,context)))))
 
 (defun company-coq-extract-context (goal-lines)
- (cl-loop for     line
-          in      goal-lines
-          with    context  = nil
-          with    current-hyp = `(nil . nil)
-          while   (not (string-match-p company-coq-goal-separator-line-regexp line))
-          if      (string-match company-coq-goals-hyp-regexp line)
-          do      (company-coq-remember-hyp current-hyp context)
-          and do  (setq current-hyp `(,(match-string 1 line) . ,(list (match-string 2 line))))
-          else do (push line (cdr current-hyp))
-          finally (company-coq-remember-hyp current-hyp context)
-          finally return context))
+  ;; FIXME: This does not properly deal with "a, b: nat", which was introduced in 8.5
+  ;; It doesn't matter too much though, because 8.5 lists hypotheses in search results.
+  (cl-loop for     line
+           in      goal-lines
+           with    context  = nil
+           with    current-hyp = `(nil . nil)
+           while   (not (string-match-p company-coq-goal-separator-line-regexp line))
+           if      (string-match company-coq-goals-hyp-regexp line)
+           do      (company-coq-remember-hyp current-hyp context)
+           and do  (setq current-hyp `(,(match-string 1 line) . ,(list (match-string 2 line))))
+           else do (push line (cdr current-hyp))
+           finally (company-coq-remember-hyp current-hyp context)
+           finally return context))
 
 (defun company-coq-extract-goal (goal-lines)
   (while (and goal-lines (not (string-match-p company-coq-goal-separator-line-regexp (car goal-lines))))
@@ -1213,13 +1223,12 @@ search term and a qualifier."
            collect line))
 
 (defun company-coq-run-and-parse-context (command)
-  (let ((output (company-coq-ask-prover-swallow-errors command)))
-    (if (not output)
-        (error (format "company-coq-parse-context: failed with message %s" output))
+  (-if-let* ((output (company-coq-ask-prover-swallow-errors command)))
       (let* ((lines   (company-coq-split-lines output))
              (context (company-coq-extract-context lines))
              (goal    (company-coq-extract-goal lines)))
-        (cons context goal)))))
+        (cons context goal))
+    (error (format "company-coq-parse-context: failed with message %s" output))))
 
 (defun company-coq-maybe-reload-context (&optional end-of-proof)
   "Updates company-coq-current-context."
@@ -1244,16 +1253,13 @@ if output mentions new symbol, then calls
   (company-coq-dbg "company-coq-maybe-proof-output-reload-things: Called")
   (unless company-coq-asking-question
     (let ((is-error         (company-coq-shell-output-is-error))
-          (is-aborted       (company-coq-shell-output-proof-aborted))
           (is-end-of-def    (company-coq-shell-output-is-end-of-def))
           (is-end-of-proof  (company-coq-shell-output-is-end-of-proof)))
       (when is-end-of-proof (company-coq-dbg "company-coq-maybe-proof-output-reload-things: At end of proof"))
       (when is-end-of-def   (company-coq-dbg "company-coq-maybe-proof-output-reload-things: At end of definition"))
-      (when is-aborted      (company-coq-dbg "company-coq-maybe-proof-output-reload-things: Proof aborted"))
-      ;; (message "[%s] [%s] [%s]" company-coq-symbols-reload-needed is-end-of-def is-end-of-proof)
       (setq company-coq-symbols-reload-needed (or company-coq-symbols-reload-needed is-end-of-def is-end-of-proof))
       (setq company-coq-tactics-reload-needed (or company-coq-tactics-reload-needed is-end-of-def))
-      (company-coq-maybe-reload-context (or is-end-of-def is-end-of-proof is-aborted))
+      (company-coq-maybe-reload-context (or is-end-of-def is-end-of-proof))
       (if is-error (company-coq-dbg "Last output was an error; not reloading")
         ;; Delay call until after we have returned to the command loop
         (company-coq-dbg "This could be a good time to reload things?")
@@ -1284,17 +1290,14 @@ if output mentions new symbol, then calls
     (setq company-coq-goals-window (company-coq-get-goals-window)))
 
   ;; Hide the docs and redisplay the goals buffer
-  (let* ((doc-buf   (get-buffer "*company-documentation*"))
-         (goals-buf (company-coq-get-goals-buffer))
-         (goals-win (company-coq-get-goals-window)))
-    (when doc-buf
-      (bury-buffer doc-buf))
-    (when (and goals-buf goals-win)
-      (set-window-buffer goals-win goals-buf))))
+  (-when-let* ((doc-buf   (get-buffer "*company-documentation*")))
+    (bury-buffer doc-buf))
+  (-when-let* ((goals-buf (company-coq-get-goals-buffer))
+               (goals-win (company-coq-get-goals-window)))
+    (set-window-buffer goals-win goals-buf)))
 
-(defun company-coq-in-coq-mode (&optional silent)
-  (or (derived-mode-p 'coq-mode)
-      (ignore (or silent (company-coq-dbg "Not in Coq mode")))))
+(defun company-coq-coq-mode-p ()
+  (derived-mode-p 'coq-mode))
 
 (defun company-coq-grab-prefix ()
   ;; Only one grab function; otherwise the first backend in the list of backend shadows the others
@@ -1319,7 +1322,7 @@ if output mentions new symbol, then calls
 (defun company-coq-prefix-simple ()
   (interactive)
   (company-coq-dbg "company-coq-prefix-simple: Called")
-  (when (company-coq-in-coq-mode)
+  (when (company-coq-coq-mode-p)
     (company-coq-grab-prefix)))
 
 (defun company-coq-trim (str)
@@ -1334,11 +1337,10 @@ if output mentions new symbol, then calls
 
 (defun company-coq-meta-symbol (name)
   (company-coq-dbg "company-coq-meta-symbol: Called for name %s" name)
-  (let ((output (company-coq-ask-prover-swallow-errors
-                 (format company-coq-symbols-meta-cmd name))))
-    (when output
-      (company-coq-truncate-to-minibuf
-       (replace-regexp-in-string "\\s-+" " " (company-coq-trim output))))))
+  (-when-let* ((output (company-coq-ask-prover-swallow-errors
+                        (format company-coq-symbols-meta-cmd name))))
+    (company-coq-truncate-to-minibuf
+     (replace-regexp-in-string "\\s-+" " " (company-coq-trim output)))))
 
 (defun company-coq-meta-keyword (name)
   (company-coq-dbg "company-coq-meta-keyword: Called for name %s" name)
@@ -1366,11 +1368,11 @@ if output mentions new symbol, then calls
   ;; fixes this, except when it yields an out of memory exception (eg. for the
   ;; mutually co-inductive records error documentation)
   (company-coq-dbg "Called company-coq-display-in-pg-buffer with %s %s" buffer alist)
-  (let ((pg-window (company-coq-get-goals-window)))
-    (when pg-window
-      (set-window-dedicated-p pg-window nil)
-      (set-window-buffer pg-window buffer))
-    (or pg-window (display-buffer buffer))))
+  (-if-let* ((pg-window (company-coq-get-goals-window)))
+      (progn (set-window-dedicated-p pg-window nil)
+             (set-window-buffer pg-window buffer)
+             pg-window)
+    (display-buffer buffer)))
 
 (defmacro company-coq-with-clean-doc-buffer (&rest body)
   (declare (indent defun)
@@ -1407,9 +1409,9 @@ inside a comment, at the beginning of the comment."
                (company-coq-make-title-line 'company-coq-doc-header-face-source t)
                (forward-line -2)
                (or (and (functionp 'coq-looking-at-comment)
-                        (coq-looking-at-comment)
+                        (company-coq-suppress-warnings (coq-looking-at-comment))
                         (functionp 'coq-get-comment-region)
-                        (car (coq-get-comment-region (point))))
+                        (car (company-coq-suppress-warnings (coq-get-comment-region (point)))))
                    (point))))
         0)))
 
@@ -1419,12 +1421,12 @@ inside a comment, at the beginning of the comment."
          (is-buffer       (and fname-or-buffer (bufferp fname-or-buffer)))
          (is-fname        (and fname-or-buffer (stringp fname-or-buffer) (file-exists-p fname-or-buffer))))
     (if (or is-buffer is-fname)
-      (company-coq-with-clean-doc-buffer
-        (cond (is-buffer (insert-buffer-substring fname-or-buffer))
-              (is-fname  (insert-file-contents fname-or-buffer nil nil nil t)))
-        (company-coq-setup-temp-coq-buffer)
-        (cons (current-buffer)
-              (set-window-start nil (goto-char (company-coq-search-then-scroll-up target)))))
+        (company-coq-with-clean-doc-buffer
+          (cond (is-buffer (insert-buffer-substring fname-or-buffer))
+                (is-fname  (insert-file-contents fname-or-buffer nil nil nil t)))
+          (company-coq-setup-temp-coq-buffer)
+          (cons (current-buffer)
+                (set-window-start nil (goto-char (company-coq-search-then-scroll-up target)))))
       (when interactive
         (error "No location found for %s" name)))))
 
@@ -1440,11 +1442,10 @@ corresponding (logical name . real name) pair."
            finally return longest))
 
 (defun company-coq-fully-qualified-name-simple (name cmd)
-  (let ((output (company-coq-ask-prover-swallow-errors (format cmd name))))
-    (when output
-      (save-match-data
-        (when (string-match company-coq-locate-output-format output)
-          (match-string-no-properties 1 output))))))
+  (-when-let* ((output (company-coq-ask-prover-swallow-errors (format cmd name))))
+    (save-match-data
+      (when (string-match company-coq-locate-output-format output)
+        (match-string-no-properties 1 output)))))
 
 (defun company-coq-fully-qualified-name (name cmds)
   "Finds the fully qualified name of NAME, successively issuing
@@ -1459,7 +1460,7 @@ is nil, both of `company-coq-locate-tactic-cmd' and
 of (concat LIB-PATH MOD-NAME), or a buffer visiting that
 file. FALLBACK-SPEC is a module path specification to be used if
 [Locate Library] points to a non-existent file (for an example of
-such a case, try [Locate Library Peano] in 8.4pl3)."
+                                                    such a case, try [Locate Library Peano] in 8.4pl3)."
   (if (and (equal lib-path "") (equal mod-name "Top"))
       (current-buffer)
     (let* ((lib-name (concat lib-path mod-name))
@@ -1474,9 +1475,7 @@ such a case, try [Locate Library Peano] in 8.4pl3)."
 context. LOCATE-CMDS is a list of queries to use to guess the
 fully qualified name of NAME."
   (company-coq-dbg "company-coq-location-source: Called for [%s]" name)
-  (let* ((qname (company-coq-fully-qualified-name name locate-cmds)))
-    (company-coq-dbg "company-coq-location-source: qname is [%s]" qname)
-    (if qname
+  (-if-let* ((qname (company-coq-fully-qualified-name name locate-cmds)))
       (let* ((spec       (company-coq-longest-matching-path-spec qname))
              (logical    (if spec (concat (car spec) ".") ""))
              (short-name (replace-regexp-in-string "\\`.*\\." "" qname))
@@ -1485,7 +1484,7 @@ fully qualified name of NAME."
              (target     (concat (company-coq-make-headers-regexp company-coq-named-outline-kwds)
                                  "\\s-*" (regexp-quote short-name) "\\_>")))
         (company-coq-location-simple (propertize name 'location fname) target interactive))
-      (when interactive (error "No location found for %s" name)))))
+    (when interactive (error "No location found for %s" name))))
 
 (defvar company-coq-location-history nil
   "Keeps track of manual location queries")
@@ -1545,27 +1544,27 @@ fully qualified name of NAME."
 (defun company-coq-annotation-tactic (arg)
   (concat "<" (or (symbol-name (get-text-property 0 'source arg)) "") ">"))
 
-(defun company-coq-doc-buffer-collect-outputs (name templates)
-  (cl-loop for template in templates
-           for cmd = (format template name)
-           for output = (company-coq-ask-prover-swallow-errors cmd)
-           when output collect output))
+(defun company-coq-doc-buffer-collect-outputs (name templates &optional fallbacks)
+  (or (cl-loop for template in templates
+               for cmd = (format template name)
+               for output = (company-coq-ask-prover-swallow-errors cmd)
+               when output collect output)
+      (and fallbacks (company-coq-doc-buffer-collect-outputs name fallbacks))))
 
 (defun company-coq-doc-buffer-generic (name cmds)
   (company-coq-dbg "company-coq-doc-buffer-generic: Called for name %s" name)
-  (let ((chapters (company-coq-doc-buffer-collect-outputs name cmds)))
-    (when chapters
-      (let* ((fontized-name (propertize name 'font-lock-face 'company-coq-doc-i-face))
-             (doc-tagline   (format company-coq-doc-tagline fontized-name))
-             (doc-body      (mapconcat #'identity chapters company-coq-doc-def-sep))
-             (doc-full      (concat doc-tagline "\n\n" doc-body)))
-        (company-coq-with-clean-doc-buffer
-          (insert doc-full)
-          (when (fboundp 'coq-response-mode)
-            (coq-response-mode))
-          (goto-char (point-min))
-          (company-coq-make-title-line 'company-coq-doc-header-face-docs)
-          (current-buffer))))))
+  (-when-let* ((chapters (company-coq-doc-buffer-collect-outputs name cmds)))
+    (let* ((fontized-name (propertize name 'font-lock-face 'company-coq-doc-i-face))
+           (doc-tagline   (format company-coq-doc-tagline fontized-name))
+           (doc-body      (mapconcat #'identity chapters company-coq-doc-def-sep))
+           (doc-full      (concat doc-tagline "\n\n" doc-body)))
+      (company-coq-with-clean-doc-buffer
+        (insert doc-full)
+        (when (fboundp 'coq-response-mode)
+          (coq-response-mode))
+        (goto-char (point-min))
+        (company-coq-make-title-line 'company-coq-doc-header-face-docs)
+        (current-buffer)))))
 
 (defun company-coq-doc-buffer-symbol (name)
   (company-coq-doc-buffer-generic name (list company-coq-doc-cmd
@@ -1675,16 +1674,15 @@ fully qualified name of NAME."
       ;; Find matching delimiter
       (when (re-search-backward company-coq-block-end-regexp)
         (goto-char (+ 1 (match-beginning 1)))
-        (let ((delim-info (funcall show-paren-data-function)))
-          (when delim-info
-            (cl-destructuring-bind (_hb _he _tb there-end mismatch) delim-info
-                (when (and (not mismatch) there-end)
-                  (goto-char there-end)
-                  (re-search-backward company-coq-section-regexp nil t)
-                  (let ((nearest-section-name (match-string-no-properties 2)))
-                    (when (and nearest-section-name
-                               (equal prefix (substring nearest-section-name 0 (length prefix))))
-                      (list nearest-section-name)))))))))))
+        (-when-let* ((delim-info (funcall show-paren-data-function)))
+          (cl-destructuring-bind (_hb _he _tb there-end mismatch) delim-info
+            (when (and (not mismatch) there-end)
+              (goto-char there-end)
+              (re-search-backward company-coq-section-regexp nil t)
+              (let ((nearest-section-name (match-string-no-properties 2)))
+                (when (and nearest-section-name
+                           (equal prefix (substring nearest-section-name 0 (length prefix))))
+                  (list nearest-section-name))))))))))
 
 (defun company-coq-candidates-reserved (prefix)
   (interactive)
@@ -1718,12 +1716,12 @@ output size is cached in `company-coq-last-search-scan-size'."
   (get-text-property 0 'match-end completion))
 
 (defun company-coq-dabbrev-to-yas-format-one (match)
-  (let* ((identifier (or (match-string 1 match)
-                         (and company-coq-explicit-placeholders "_") "")))
+  (let ((identifier (or (match-string 1 match)
+                        (and company-coq-explicit-placeholders "_") "")))
     (concat  "${" identifier "}")))
 
 (defun company-coq-yasnippet-choicify-one (match)
-  (let* ((choices (save-match-data (split-string (match-string 1 match) "|"))))
+  (let ((choices (save-match-data (split-string (match-string 1 match) "|"))))
     (concat "${$$" (prin1-to-string `(company-coq-choose-value (list ,@choices))) "}")))
 
 (defun company-coq-dabbrev-to-yas (abbrev)
@@ -1745,9 +1743,9 @@ output size is cached in `company-coq-last-search-scan-size'."
 
 (defun company-coq-abbrev-to-yas (abbrev source)
   (company-coq-dbg "company-coq-abbrev-to-yas: Transforming %s" abbrev)
-  (let ((transform (cdr-safe (assq source company-coq-abbrevs-transforms-alist))))
-    (if transform (funcall transform abbrev)
-      abbrev)))
+  (-if-let* ((transform (cdr-safe (assq source company-coq-abbrevs-transforms-alist))))
+      (funcall transform abbrev)
+    abbrev))
 
 (defun company-coq-get-snippet (candidate)
   (let* ((abbrev  (get-text-property 0 'insert candidate))
@@ -1756,17 +1754,16 @@ output size is cached in `company-coq-last-search-scan-size'."
     snippet))
 
 (defun company-coq-post-completion-keyword (kwd)
-  (let* ((found   (search-backward kwd))
-         (start   (match-beginning 0))
-         (end     (match-end 0))
-         (snippet (company-coq-get-snippet kwd)))
-    (when (and found start end snippet)
-      (let ((insert-fun (get-text-property 0 'insert-fun kwd)))
-        (if insert-fun
-            (progn
-              (delete-region start end)
-              (funcall insert-fun))
-          (yas-expand-snippet snippet start end))))))
+  (-when-let* ((found   (search-backward kwd))
+               (start   (match-beginning 0))
+               (end     (match-end 0))
+               (snippet (company-coq-get-snippet kwd)))
+    (let ((insert-fun (get-text-property 0 'insert-fun kwd)))
+      (if insert-fun
+          (progn
+            (delete-region start end)
+            (funcall insert-fun))
+        (yas-expand-snippet snippet start end)))))
 
 (defun company-coq-goto-occurence (&optional _event)
   (interactive)
@@ -2116,6 +2113,7 @@ proceed."
     (define-key cc-map (kbd "C-<return>")       #'company-manual-begin)
     (define-key cc-map (kbd "C-c C-a C-e")      #'company-coq-document-error)
     (define-key cc-map (kbd "C-c C-a C-x")      #'company-coq-lemma-from-goal)
+    (define-key cc-map (kbd "C-c C-a RET")      #'company-coq-insert-match-construct)
     (define-key cc-map (kbd "<M-return>")       #'company-coq-insert-match-rule-simple)
     (define-key cc-map (kbd "<M-S-return>")     #'company-coq-insert-match-rule-complex)
     (define-key cc-map (kbd "SPC")              #'company-coq-maybe-exit-snippet)
@@ -2155,6 +2153,9 @@ proceed."
       (yas-exit-snippet snippet))
     (if original-func (call-interactively original-func)
       (self-insert-command arg))))
+
+;; Needed for delete-selection-mode to work properly
+(put 'company-coq-maybe-exit-snippet 'delete-selection t)
 
 (defun company-coq-proof-goto-point (&rest args)
   (interactive)
@@ -2221,7 +2222,7 @@ proceed."
         (candidates (cons "" (car-safe (company-coq-run-and-parse-context "Show")))))
     (while (string-equal lemma-name "")
       (setq lemma-name (read-string "Lemma name? ")))
-    (while candidates
+    (while candidates ;; TODO consider completing-read-multiple
       (let ((hyp (completing-read "Hypothesis to keep? " candidates nil t)))
         (if (string-equal hyp "")
             (setq candidates nil)
@@ -2233,6 +2234,7 @@ proceed."
   "Inserts a new lemma into the buffer, called LEMMA-NAME, with
 hypotheses HYPS, and everything that they depend on."
   (interactive (company-coq-lemma-from-goal-interact))
+  (proof-shell-ready-prover)
   (let* ((gen-cmds  (mapcar (lambda (hyp) (concat "generalize dependent " hyp)) hyps))
          (full-cmd  (mapconcat 'identity (nconc gen-cmds company-coq-lemma-introduction-forms) ";"))
          (ctx-goal  (company-coq-run-and-parse-context full-cmd))
@@ -2244,6 +2246,22 @@ hypotheses HYPS, and everything that they depend on."
            ,@(mapconcat #'identity lemma "\n")
            ".\nProof.\n"))
       (error "Lemma extraction failed"))))
+
+(defun company-coq-insert-match-construct-interact ()
+  (list (read-from-minibuffer "Type of the matched expression (e.g. nat, bool, list, ...): ")))
+
+(defun company-coq-insert-match-construct (type)
+  "Insert a match expression.
+Similar to `coq-insert-match', but using YAS."
+  (interactive (company-coq-insert-match-construct-interact))
+  (proof-shell-ready-prover)
+  (let* ((question (concat "Show Match " type))
+         (response (company-coq-ask-prover question)))
+    (if (company-coq-unless-error response)
+        (let* ((cleaned (replace-regexp-in-string "\\s-+\\'" "" response))
+               (snippet (replace-regexp-in-string "=>$" "=> #" cleaned)))
+          (yas-expand-snippet (company-coq-dabbrev-to-yas snippet)))
+      (error response))))
 
 (defun company-coq-normalize-error (msg)
   (let* ((truncated (replace-regexp-in-string "\\(?:.\\|[\n]\\)*Error:\\s-" "" msg))
@@ -2303,12 +2321,11 @@ tactics in older versions of Coq: use [idtac \"!!!\" message] to
 print [message] to output, and `company-coq-search-in-coq-buffer'
 to locate lines starting with \"^!!!\"."
   (interactive "MRegexp search in *coq* buffer: ")
-  (let ((coq-buffer (get-buffer-create "*coq*"))
-        (same-window-buffer-names '("*Occur*")))
-    (if coq-buffer
-        (with-current-buffer coq-buffer
-          (occur regexp))
-      (error "*coq* buffer not found"))))
+  (-if-let* ((coq-buffer (get-buffer-create "*coq*"))
+             (same-window-buffer-names '("*Occur*")))
+      (with-current-buffer coq-buffer
+        (occur regexp))
+    (error "*coq* buffer not found")))
 
 (defun company-coq--prepare-for-definition-overlay (strs offset &optional max-lines)
   (let* ((line-width (window-body-width))
@@ -2322,10 +2339,13 @@ to locate lines starting with \"^!!!\"."
              (real-offset (max 0 (min offset (- line-width block-width)))))
         (company-coq-prefix-all-lines (propertize " " 'display `(space . (:width ,real-offset)))))
       (coq-mode)
-      (font-lock-ensure)
-      ;; (add-face-text-property (point-min) (point-max) '(:height 0.9) t)
+      (with-no-warnings
+        (if (company-coq-is-old-emacs)
+            (font-lock-fontify-buffer)
+          (font-lock-ensure)))
       ;; Prevent text from inheriting properties of neighbouring characters
-      (add-face-text-property (point-min) (point-max) 'default t)
+      (when (fboundp 'add-face-text-property)
+        (company-coq-suppress-warnings (add-face-text-property (point-min) (point-max) 'default t)))
       (company-coq-insert-spacer (point-min))
       (company-coq-insert-spacer (point-max))
       (buffer-string))))
@@ -2347,22 +2367,23 @@ to locate lines starting with \"^!!!\"."
          (docs    (and ins-pos (company-coq-doc-buffer-collect-outputs
                                 (car sb-pos) (list company-coq-doc-cmd
                                                    company-coq-tactic-def-cmd
-                                                   company-coq-def-cmd))))
-         (offset  (company-coq-text-width (point-at-bol) (cdr sb-pos)))
+                                                   company-coq-def-cmd)
+                                (list company-coq-type-cmd))))
          (max-h   (max 4 (min 16 (- (company-coq--count-lines-under-point) 3)))))
     (cond
-     (docs (let ((ins-str (company-coq--prepare-for-definition-overlay docs offset max-h)))
+     (docs (let* ((offset  (company-coq-text-width (point-at-bol) (cdr sb-pos)))
+                  (ins-str (company-coq--prepare-for-definition-overlay docs offset max-h)))
              (setq company-coq-definition-overlay (make-overlay ins-pos ins-pos))
              (overlay-put company-coq-definition-overlay 'after-string ins-str)))
      (ins-pos (error "No information found for %s" (car sb-pos)))
      (sb-pos  (error "No newline at end of file"))
      (t       (error "No symbol here")))))
 
-(defcustom company-coq-keyboard-repeat-delay 0.5
+(defcustom company-coq-keyboard-repeat-delay 0.75
   "Duration before a key starts repeating. Increase if the inline definition showed by pressing <menu> flickers."
   :group 'company-coq)
 
-(defcustom company-coq-keyboard-repeat-interval 0.1
+(defcustom company-coq-keyboard-repeat-interval 0.2
   "Duration between two repeats of the same key. Increase if the inline definition showed by pressing <menu> flickers."
   :group 'company-coq)
 
@@ -2376,13 +2397,15 @@ is released."
   ;; is also being displayed.
   (interactive)
   (if company-coq-definition-overlay
-      ;; Already displayed. Keypress is going to fire again soon, just wait for a tiny bit
+      ;; Already displayed. Keypress is going to fire again soon, just wait for
+      ;; a tiny bit. This will be called again if it does, and otherwise the
+      ;; company-coq-clear-definition-overlay timer will fire
       (sit-for company-coq-keyboard-repeat-interval)
     ;; First key press. Show the overlay
     (company-coq--show-definition-overlay-at-point)
     ;; ... then start a timer
     (run-with-idle-timer 0 nil #'company-coq-clear-definition-overlay)
-    ;; ... and prevent it from firing while we wait for the next key repeat
+    ;; ... but prevent it from firing while we wait for the next key repeat
     (sit-for company-coq-keyboard-repeat-delay)))
 
 (defun company-coq-show-definition-overlay-under-pointer (event)
@@ -2390,9 +2413,9 @@ is released."
   (let* ((window  (posn-window (event-start event)))
          (buffer  (and window (window-buffer window))))
     (if buffer
-        (save-excursion
-          (with-current-buffer buffer
-            (when (eq major-mode 'coq-mode)
+        (with-current-buffer buffer
+          (when (eq major-mode 'coq-mode)
+            (save-excursion
               (mouse-set-point event)
               (company-coq-clear-definition-overlay)
               (company-coq--show-definition-overlay-at-point))))
@@ -2442,7 +2465,9 @@ if it is already open."
   (add-hook 'coq-goals-mode-hook #'company-coq-setup-goals-buffer)
   (add-hook 'coq-response-mode-hook #'company-coq-setup-response-buffer)
   ;; Yasnippet
-  (add-hook 'yas-after-exit-snippet-hook #'company-coq-forget-choices))
+  (add-hook 'yas-after-exit-snippet-hook #'company-coq-forget-choices)
+  ;; Prettify
+  (add-hook 'hack-local-variables-hook #'company-coq-update-local-symbols))
 
 (defun company-coq-setup-optional-backends ()
   (when company-coq-autocomplete-context
@@ -2460,8 +2485,8 @@ if it is already open."
   (when company-coq-autocomplete-block-end
     (add-to-list 'company-coq-backends #'company-coq-block-end t))
 
- (when company-coq-autocomplete-search-results
-   (add-to-list 'company-coq-backends #'company-coq-search-results t)))
+  (when company-coq-autocomplete-search-results
+    (add-to-list 'company-coq-backends #'company-coq-search-results t)))
 
 (defun company-coq-setup-company ()
   (company-mode 1)
@@ -2484,23 +2509,36 @@ if it is already open."
   (when (and (display-graphic-p)
              (fboundp #'prettify-symbols-mode)
              company-coq-prettify-symbols)
-    (set (make-local-variable 'prettify-symbols-alist)
-         (append prettify-symbols-alist company-coq-prettify-symbols-alist))
-    (prettify-symbols-mode 1)))
+    (company-coq-suppress-warnings
+     (set (make-local-variable 'prettify-symbols-alist)
+          (append prettify-symbols-alist company-coq-prettify-symbols-alist company-coq-local-symbols))
+     (prettify-symbols-mode))))
+
+(defun company-coq-update-local-symbols ()
+  (when (assoc 'company-coq-local-symbols file-local-variables-alist)
+    (company-coq-setup-prettify)))
+
+(defun company-coq-get-comment-opener (comment-string-start)
+  (ignore-errors
+    (when comment-string-start
+      (save-excursion
+        (goto-char comment-string-start)
+        (buffer-substring (point) (progn (skip-chars-forward "(*!+" (+ 5 (point))) (1+ (point))))))))
 
 (defun company-coq-syntactic-face-function-aux (_depth _innermost-start _last-complete-start
                                                 in-string comment-depth _after-quote _min-paren-depth
                                                 _comment-style comment-string-start _continuation)
   (cond
-   (in-string
-    font-lock-string-face)
+   (in-string font-lock-string-face)
    ((or comment-depth (numberp comment-depth))
-    (if (and comment-string-start
-             (ignore-errors (save-excursion
-                              (goto-char comment-string-start)
-                              (looking-at-p (regexp-quote "(**")))))
-        font-lock-doc-face
-      font-lock-comment-face))))
+    (let* ((comment-opener (company-coq-get-comment-opener comment-string-start))
+           (matches        (lambda (pattern) (string-match-p (concat "\\`" (regexp-quote pattern)) comment-opener))))
+      (cond
+        ((funcall matches "(*!")   '(:inherit font-lock-doc-face :height 1.2))
+        ((funcall matches "(*+")   '(:inherit font-lock-doc-face :height 1.8))
+        ((funcall matches "(*** ") '(:inherit font-lock-doc-face :height 2.5))
+        ((funcall matches "(**")   font-lock-doc-face)
+        (t        font-lock-comment-face))))))
 
 (defun company-coq-syntactic-face-function (args)
   (apply #'company-coq-syntactic-face-function-aux args))
@@ -2542,7 +2580,7 @@ if it is already open."
 ;;;###autoload
 (defun company-coq-initialize () ;; TODO this could be a minor mode
   (interactive)
-  (when (not (company-coq-in-coq-mode))
+  (when (not (company-coq-coq-mode-p))
     (error "company-coq only works with coq-mode."))
 
   ;; Setup backends and relevant minor modes
@@ -2575,6 +2613,7 @@ if it is already open."
   (remove-hook 'coq-response-mode-hook #'company-coq-setup-response-buffer)
 
   (remove-hook 'yas-after-exit-snippet-hook #'company-coq-forget-choices)
+  (remove-hook 'hack-local-variables-hook #'company-coq-update-local-symbols)
 
   (setq font-lock-syntactic-face-function (default-value 'font-lock-syntactic-face-function))
   (help-at-pt-cancel-timer)
@@ -2585,11 +2624,12 @@ if it is already open."
 
   (cl-loop for buffer in (buffer-list)
            do (with-current-buffer buffer
-                (when (company-coq-in-coq-mode t)
+                (when (company-coq-coq-mode-p)
                   (company-mode -1)
                   (yas-minor-mode -1)
                   (outline-minor-mode -1)
-                  (prettify-symbols-mode -1)
+                  (when (fboundp 'prettify-symbols-mode)
+                    (company-coq-suppress-warnings (prettify-symbols-mode -1)))
                   (company-coq--keybindings-minor-mode -1))))
 
   nil)

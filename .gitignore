@@ -3,3 +3,8 @@
 
 # Packaging
 .cask
+/tactics
+/experiments/
+/build/
+/sandbox/
+/TODO.org

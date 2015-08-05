@@ -11,7 +11,7 @@ Ltac SimpleLtac a b cde := idtac.
 
 Goal True = False -> False.
   intros.
-  rewrite <- ?H. (* Is this variable properly colored? Ideally it should not be colored at all *)
+  rewrite <- ?H. (* Is this colored? Ideally it should not be colored at all *)
   apply I.
 Qed.
 
@@ -34,7 +34,13 @@ Definition PrettySymbols : (nat -> nat -> Prop) :=
   (fun (n m: nat) =>
      forall p, p <> n -> p >= m -> True \/ False).
 
-(** Is this comment highlighted differently? Does it properly fill (try pressing M-q (fill-paragraph)) *)
+(** Is this comment highlighted differently? Does it fill? (try pressing M-q (fill-paragraph)) *)
+
+(*+++++++++++++++++++++++++++*)
+(*! Is this comment bigger? +*)
+(*+ what about this one? +*)
+(*** And this one? **)
+(******** but not this one? *)
 
 (* AAABBB and BBBCCC should autocomplete without starting the prover, and appear in the outline (C-c C-,) *)
 
@@ -65,11 +71,16 @@ Proof.
 Qed.
 
 Lemma TestSubscripts :
-  forall x: True, True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> nat.
+  forall x: True, True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> True -> nat -> nat.
 Proof.
   intros.
   (* Are subscripts displaying properly? *)
   constructor.
+Qed.
+
+Goal 1 = 1.
+  (* Are the two numbers displaying properly? *)
+  reflexivity.
 Qed.
 
 Print TestSubscripts.
@@ -98,6 +109,12 @@ Proof.
   (* C-x n d here should single this proof out (C-x n w to exit) *)
 Qed.
 
+Definition plus1 (n: nat) :=
+  match n with (* C-c C-a RET *)
+  | O => 1
+  | S x => S x + 1
+  end.
+
 Example NameContaining_with_ : True. (* Dummy Example to add a name containing "with" to the context *)
 apply I.
 Qed.
@@ -114,6 +131,8 @@ with TestCo l :=
   | cons h t => cons h (TestFixpoint t)
   end.
 
+(* Try typing miw and mgw *)
+
 (* TestFixpoin and TestCo should autocomplete here. C-h should show their
 types. C-w should work, too *)
 
@@ -129,7 +148,7 @@ Section TestSectionName.
     Lemma t: True -> 1 + 1 = 2.
     Proof.
       intros.
-      (* Try lemma-from-goal here *)
+      (* Try lemma-from-goal C-c C-a C-x here *)
     Abort.
 
   End OtherSection. (* These names should autocomplete *)

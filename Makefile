@@ -14,11 +14,11 @@ test24: elc24
 
 elc:
 	emacs -L . --batch --eval '(setq byte-compile-error-on-warn t)' \
-		 --script ~/.emacs -f batch-byte-compile *.el
+		 --script ~/.emacs.d/init.el -f batch-byte-compile *.el
 
 elc24:
 	emacs24 -L . --batch --eval '(setq byte-compile-error-on-warn t)' \
-		 --script ~/.emacs -f batch-byte-compile *.el
+		 --script ~/.emacs.d/init.el -f batch-byte-compile *.el
 
 clean-elc:
 	rm -rf *.elc
