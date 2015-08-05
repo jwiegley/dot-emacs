@@ -3116,6 +3116,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                       (kill-local-variable 'mode-line-format)))))))))))
 
   :config
+  (use-package company-coq
+    :commands company-coq-initialize
+    :config
+    (unbind-key "M-<return>" company-coq-map))
+
   (use-package coq
     :no-require t
     :defer t
@@ -3134,7 +3139,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                  (lambda ()
                    (set-window-dedicated-p (selected-window) t)))
        (defalias 'proof-display-and-keep-buffer
-         'my-proof-display-and-keep-buffer)))
+         'my-proof-display-and-keep-buffer)
+
+       ;; (company-coq-initialize)
+       ))
 
     (bind-key "M-RET" #'proof-goto-point coq-mode-map)
     (bind-key "RET" #'newline-and-indent coq-mode-map)

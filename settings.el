@@ -397,7 +397,7 @@
     (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
- '(erc-foolish-content (quote ("MichaelSnoyman" "BrendanHay")))
+ '(erc-foolish-content (quote ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
