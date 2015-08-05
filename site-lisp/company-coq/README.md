@@ -1,7 +1,6 @@
 # company-coq
 
-Company backend for Proof-General's Coq mode. Setup should be pretty straightforward, although the
-most advanced features require a patched version of coqtop.
+IDE extensions for Proof-General's Coq mode. See features below or jump to [Setup](#setup). After setting-up, try the tutorial with `M-x company-coq-tutorial`.
 
 ## Features
 
@@ -45,7 +44,7 @@ most advanced features require a patched version of coqtop.
 
 * Occur in `*coq*` buffer (`company-coq-search-in-coq-buffer`).
 
-* Limited form of source view for same-buffer definitions, or using `company-coq-location-defun` (needs `.v` files).
+* Source view for same-buffer definitions.
 
 ### Advanced features
 
@@ -53,7 +52,83 @@ most advanced features require a patched version of coqtop.
 
 * Auto-completion of all known [types and theorems](img/symbol-completion.png) with [annotations](img/symbol-completion-doc.png), and of all [user-defined tactics](ltac-completion.png) and [tactic notations](img/tactic-notation-completion.png).
 
-* [Source view](img/source-view.png) for auto-completed symbols and [user-defined tactics](img/source-view-ltac.png) (needs `.v` files). Works to a limited with an unpatched `coqtop`.
+* [Source view](img/source-view.png) for auto-completed symbols and [user-defined tactics](img/source-view-ltac.png) (needs `.v` files). Works to a limited extent with an unpatched `coqtop`.
+
+
+## Setup
+
+Note: You need a version of Emacs ≥ 24 for this to work properly. You can check which version you are running with <kbd>M-x emacs-version RET</kbd>. Note that some features, like beautification of symbols or syntax highlighting in the manual, only work with emacs ≥ 24.4.
+
+### Proof-General
+
+```bash
+sudo apt-get install proof-general
+```
+
+(or [from source](http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-4.2.tgz))
+
+### company-coq
+
+`company-coq` is on [MELPA](http://melpa.org/#/getting-started). First add the following to your `.emacs` and restart emacs.
+
+```elisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
+```
+
+Then type `M-x package-refresh-contents RET` followed by `M-x package-install RET company-coq RET` to install and byte-compile `company-coq` and its dependencies. Some of them will produce a few warnings. That's ok.
+
+## Configuration
+
+Add the following to your `.emacs`
+
+```elisp
+(package-initialize)
+
+;; Open .v files with Proof-General's coq-mode
+(require 'proof-site)
+
+;; Load company-coq when opening Coq files
+(add-hook 'coq-mode-hook #'company-coq-initialize)
+```
+
+## Quick start guide
+
+*You can check out the interactive tutorial by pressing `M-x company-coq-tutorial`.*
+
+`company-coq` should be pretty transparent. Completion windows will pop up when `company-coq` has suggestions to make. By default, this would be when you start writing a tactic name or a command. You can also launch manual completion by using <kbd>C-RET</kbd> (or whatever was originally assigned to `proof-script-complete` in Coq mode).
+
+Once auto-completion has started, the following key bindings are available:
+
+* <kbd>RET</kbd> selects a completion
+* <kbd>C-g</kbd> interrupts completion.
+* <kbd>C-h</kbd> and <kbd>&lt;f1></kbd> display documentation for the currently highlighted keyword or identifier.
+* <kbd>C-M-v</kbd> scrolls down in the documentation window.
+* <kbd>C-w</kbd> opens the full documentation, scrolled to the current keyword. For symbols, <kbd>C-w</kbd> opens source view.
+
+Selecting a completion often inserts a snippet with holes at the current point (`company-coq` uses `yasnippet` as the snippet backend). You can move between holes by using <kbd>&lt;tab></kbd> and <kbd>S-&lt;tab></kbd>. Some snippets (like Print Instances) include multiple choices.
+
+Loading `company-coq` also binds the following keys:
+
+* <kbd>M-RET</kbd> inserts a new `match` case (`| _ => _`).
+* <kbd>M-S-RET</kbd> inserts a new `match goal` rule (`| [ H: _ |- _ ] => _`).
+* <kbd>C-c C-a C-x</kbd> extracts the current goal into a separate lemma.
+* <kbd>C-c C-a C-e</kbd> tries to match the last output to a documented error message, and displays the relevant section of the manual if it finds one.
+* <kbd>C-down-mouse-1</kbd> (i.e. <kbd>C-click</kbd>) shows an inline quick help box for the symbol under point. The box disappears when the mouse is released. Pressing the <kbd>&lt;menu></kbd> key also works.
+* <kbd>C-c C-,</kbd> opens an outline of the code in a separate buffer (using `occur`).
+* <kbd>C-c C-/</kbd> folds the current code block, or all blocs in the file if repeated.
+* <kbd>C-c C-\\</kbd> unfolds the current code block, or all blocs in the file if repeated.
+* <kbd>C-c C-&</kbd> looks up (grep) the current word in files in the current directory subtree.
+* <kbd>M-x company-coq-diff-unification-error</kbd> parses the last unification error, and shows a diff of the two types that can't unify.
+
+## Tips
+
+* Module completion is fuzzy: you can type `Require Import C.N..Ab.ZPa` and press <kbd>RET</kbd> to insert `Coq.Numbers.Integer.Abstract.ZParity`.
+* Tactics completion is fuzzy too: typing `setrewin` and pressing <kbd>RET</kbd> is enough to insert <code>setoid_rewrite <i>term</i> in <i>ident</i></code>. You can (and must) omit spaces: `SLD` will insert `Set Ltac Debug` (of course `SetLtDeb` will also work), and `ULD` will insert `Unset Ltac Debug`.
+* Using <kdb>M-S-RET</kbd> to insert new cases in a `match goal` saves a lot of time (and finger contortions).
+* The point-and-click feature (quick help) also works in non-graphic mode, if you enable `xterm-mouse-mode`.
+* `company-coq` improves on some of Proof-General's features. Try <kbd>C-c C-a RET nat RET</kbd>.
 
 ## Screenshots
 
@@ -140,80 +215,6 @@ Currently works for symbols and user-defined tactics (prover must be started)
 <img src="img/source-view.png" alt="Source view" />
 
 <img src="img/source-view-ltac.png" alt="Source view on tactics" />
-
-## Setup
-
-Note: You need a version of Emacs ≥ 24 for this to work properly. You can check which version you are running with <kbd>M-x emacs-version RET</kbd>. Note that some features, like beautification of symbols or syntax highlighting in the manual, only work with emacs ≥ 24.4.
-
-### Proof-General
-
-```bash
-sudo apt-get install proof-general
-```
-
-(or [from source](http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-4.2.tgz))
-
-### company-coq
-
-`company-coq` is on [MELPA](http://melpa.org/#/getting-started). First add the following to your `.emacs` and restart emacs.
-
-```elisp
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize)
-```
-
-Then type `M-x package-refresh-contents RET` followed by `M-x package-install RET company-coq RET` to install and byte-compile `company-coq` and its dependencies. Some of them will produce a few warnings. That's ok.
-
-## Configuration
-
-Add the following to your `.emacs`
-
-```elisp
-(package-initialize)
-
-;; Open .v files with Proof-General's coq-mode
-(require 'proof-site)
-
-;; Load company-coq when opening Coq files
-(add-hook 'coq-mode-hook #'company-coq-initialize)
-```
-
-## Quick start guide
-
-*You can check out the interactive tutorial by pressing `M-x company-coq-tutorial`.*
-
-`company-coq` should be pretty transparent. Completion windows will pop up when `company-coq` has suggestions to make. By default, this would be when you start writing a tactic name or a command. You can also launch manual completion by using <kbd>C-RET</kbd> (or whatever was originally assigned to `proof-script-complete` in Coq mode).
-
-Once auto-completion has started, the following key bindings are available:
-
-* <kbd>RET</kbd> selects a completion
-* <kbd>C-g</kbd> interrupts completion.
-* <kbd>C-h</kbd> and <kbd>&lt;f1></kbd> display documentation for the currently highlighted keyword or identifier.
-* <kbd>C-M-v</kbd> scrolls down in the documentation window.
-* <kbd>C-w</kbd> opens the full documentation, scrolled to the current keyword. For symbols, <kbd>C-w</kbd> opens source view.
-
-Selecting a completion often inserts a snippet with holes at the current point (`company-coq` uses `yasnippet` as the snippet backend). You can move between holes by using <kbd>&lt;tab></kbd> and <kbd>S-&lt;tab></kbd>. Some snippets (like Print Instances) include multiple choices.
-
-Loading `company-coq` also binds the following keys:
-
-* <kbd>M-RET</kbd> inserts a new `match` case (`| _ => _`).
-* <kbd>M-S-RET</kbd> inserts a new `match goal` rule (`| [ H: _ |- _ ] => _`).
-* <kbd>C-c C-a C-x</kbd> extracts the current goal into a separate lemma.
-* <kbd>C-c C-a C-e</kbd> tries to match the last output to a documented error message, and displays the relevant section of the manual if it finds one.
-* <kbd>C-down-mouse-1</kbd> (i.e. <kbd>C-click</kbd>) shows an inline quick help box for the symbol under point. The box disappears when the mouse is released. Pressing the <kbd>&lt;menu></kbd> key also works.
-* <kbd>C-c C-,</kbd> opens an outline of the code in a separate buffer (using `occur`).
-* <kbd>C-c C-/</kbd> folds the current code block, or all blocs in the file if repeated.
-* <kbd>C-c C-\\</kbd> unfolds the current code block, or all blocs in the file if repeated.
-* <kbd>C-c C-&</kbd> looks up (grep) the current word in files in the current directory subtree.
-* <kbd>M-x company-coq-diff-unification-error</kbd> parses the last unification error, and shows a diff of the two types that can't unify.
-
-## Tips
-
-* Module completion is fuzzy: you can type `Require Import C.N..Ab.ZPa` and press <kbd>RET</kbd> to insert `Coq.Numbers.Integer.Abstract.ZParity`.
-* Tactics completion is fuzzy too: typing `setrewin` and pressing <kbd>RET</kbd> is enough to insert <code>setoid_rewrite <i>term</i> in <i>ident</i></code>. You can (and must) omit spaces: `SLD` will insert `Set Ltac Debug` (of course `SetLtDeb` will also work), and `ULD` will insert `Unset Ltac Debug`.
-* Using <kdb>M-S-RET</kbd> to insert new cases in a `match goal` saves a lot of time (and finger contortions).
-* The point-and-click feature (quick help) also works in non-graphic mode, if you enable `xterm-mouse-mode`.
 
 ## Troubleshooting
 
