@@ -731,6 +731,7 @@
  '(magit-backup-mode t)
  '(magit-completing-read-function (quote helm--completing-read-default))
  '(magit-diff-options nil)
+ '(magit-fetch-arguments nil)
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
  '(magit-process-popup-time 15)
