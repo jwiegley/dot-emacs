@@ -1,5 +1,5 @@
 ;;; restclient.el --- An interactive HTTP client for Emacs
-
+;;
 ;; Public domain.
 
 ;; Author: Pavel Kurnosov <pashky@gmail.com>
@@ -10,7 +10,14 @@
 ;; This file is not part of GNU Emacs.
 ;; This file is public domain software. Do what you want.
 
+;;; Commentary:
+;;
+;; This is a tool to manually explore and test HTTP REST
+;; webservices.  Runs queries from a plain-text query sheet, displays
+;; results as a pretty-printed XML, JSON and even images.
+
 ;;; Code:
+;;
 (require 'url)
 (require 'json)
 
@@ -19,22 +26,22 @@
   :group 'tools)
 
 (defcustom restclient-log-request t
-  "Log restclient requests to *Messages*"
+  "Log restclient requests to *Messages*."
   :group 'restclient
   :type 'boolean)
 
 (defcustom restclient-same-buffer-response t
-  "Re-use same buffer for responses or create a new one each time"
+  "Re-use same buffer for responses or create a new one each time."
   :group 'restclient
   :type 'boolean)
 
 (defcustom restclient-same-buffer-response-name "*HTTP Response*"
-  "Name for response buffer"
+  "Name for response buffer."
   :group 'restclient
   :type 'string)
 
 (defcustom restclient-inhibit-cookies nil
-  "Inhibit restclient from sending cookies implicitly"
+  "Inhibit restclient from sending cookies implicitly."
   :group 'restclient
   :type 'boolean)
 
@@ -45,6 +52,9 @@
 
 (defvar restclient-response-loaded-hook nil
   "Hook run after response buffer created and data loaded.")
+
+(defvar restclient-http-do-hook nil
+  "Hook to run before making request.")
 
 ;; The following disables the interactive request for user name and
 ;; password should an API call encounter a permission-denied response.
@@ -76,7 +86,7 @@
   (setq url-personal-mail-address nil))
 
 (defun restclient-http-do (method url headers entity &rest handle-args)
-  "Send ARGS to URL as a POST request."
+  "Send ENTITY and HEADERS to URL as a METHOD request."
   (if restclient-log-request
       (message "HTTP %s %s Headers:[%s] Body:[%s]" method url headers entity))
   (let ((url-request-method method)
@@ -100,6 +110,7 @@
 
     (setq restclient-within-call t)
     (setq restclient-request-time-start (current-time))
+    (run-hooks 'restclient-http-do-hook)
     (url-retrieve url 'restclient-http-handle-response
                   (append (list method url (if restclient-same-buffer-response
                             restclient-same-buffer-response-name
@@ -176,22 +187,22 @@
 (defun restclient-prettify-json-unicode ()
   (save-excursion
     (goto-char (point-min))
-    (while (re-search-forward "\\\\[Uu]\\([0-9a-fA-F]\\{4\\}+\\)" nil t)
+    (while (re-search-forward "\\\\[Uu]\\([0-9a-fA-F]\\{4\\}\\)" nil t)
       (replace-match (char-to-string (decode-char 'ucs (string-to-number (match-string 1) 16))) t nil))))
 
 (defun restclient-http-handle-response (status method url bufname raw stay-in-window)
   "Switch to the buffer returned by `url-retreive'.
-    The buffer contains the raw HTTP response sent by the server."
+The buffer contains the raw HTTP response sent by the server."
   (setq restclient-within-call nil)
   (setq restclient-request-time-end (current-time))
   (if (= (point-min) (point-max))
       (signal (car (plist-get status :error)) (cdr (plist-get status :error)))
     (restclient-restore-header-variables)
-    (if restclient-same-buffer-response
-        (if (get-buffer restclient-same-buffer-response-name)
-            (kill-buffer restclient-same-buffer-response-name)))
     (when (buffer-live-p (current-buffer))
-      (with-current-buffer (restclient-decode-response (current-buffer) bufname)
+      (with-current-buffer (restclient-decode-response
+                            (current-buffer)
+                            bufname
+                            restclient-same-buffer-response)
         (unless raw
           (restclient-prettify-response method url))
         (buffer-enable-undo)
@@ -200,9 +211,8 @@
             (display-buffer (current-buffer) t)
           (switch-to-buffer-other-window (current-buffer)))))))
 
-(defun restclient-decode-response (raw-http-response-buffer target-buffer-name)
-  "Decode the HTTP response using the charset (encoding) specified in the
-   Content-Type header. If no charset is specified, default to UTF-8."
+(defun restclient-decode-response (raw-http-response-buffer target-buffer-name same-name)
+  "Decode the HTTP response using the charset (encoding) specified in the Content-Type header. If no charset is specified, default to UTF-8."
   (let* ((charset-regexp "Content-Type.*charset=\\([-A-Za-z0-9]+\\)")
          (image? (save-excursion
                    (search-forward-regexp "Content-Type.*[Ii]mage" nil t)))
@@ -219,11 +229,13 @@
       ;; Else, switch to the new, empty buffer that will contain the decoded HTTP
       ;; response. Set its encoding, copy the content from the unencoded
       ;; HTTP response buffer and decode.
-      (let ((decoded-http-response-buffer (get-buffer-create
-                                           (generate-new-buffer-name target-buffer-name))))
+      (let ((decoded-http-response-buffer
+             (get-buffer-create
+              (if same-name target-buffer-name (generate-new-buffer-name target-buffer-name)))))
         (with-current-buffer decoded-http-response-buffer
           (setq buffer-file-coding-system encoding)
           (save-excursion
+            (erase-buffer)
             (insert-buffer-substring raw-http-response-buffer))
           (kill-buffer raw-http-response-buffer)
           (condition-case nil
@@ -265,7 +277,7 @@
   (if replacements
       (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
                                 (lambda (key) (cdr (assoc key replacements)))
-                                s)
+                                s nil t)
     s))
 
 (defun restclient-replace-all-in-header (replacements header)
@@ -305,7 +317,8 @@
           (forward-line))
         (when (looking-at "^\\s-*$")
           (forward-line))
-        (let* ((entity (buffer-substring (point) (restclient-current-max)))
+        (let* ((cmax (restclient-current-max))
+               (entity (buffer-substring (min (point) cmax) cmax))
                (vars (restclient-find-vars-before-point))
                (url (restclient-replace-all-in-string vars url))
                (headers (restclient-replace-all-in-headers vars headers))
@@ -313,7 +326,7 @@
           (apply func method url headers entity args))))))
 
 (defun restclient-copy-curl-command ()
-  "formats the request as a curl command and copies the command to the clipboard"
+  "Formats the request as a curl command and copies the command to the clipboard."
   (interactive)
   (restclient-http-parse-current-and-do
    '(lambda (method url headers entity)
@@ -326,20 +339,26 @@
 
 ;;;###autoload
 (defun restclient-http-send-current (&optional raw stay-in-window)
+  "Sends current request.
+Optional argument RAW don't reformat response if t.
+Optional argument STAY-IN-WINDOW do not move focus to response buffer if t."
   (interactive)
   (restclient-http-parse-current-and-do 'restclient-http-do raw stay-in-window))
 
 ;;;###autoload
 (defun restclient-http-send-current-raw ()
+  "Sends current request and get raw result (no reformatting or syntax highlight of XML, JSON or images)."
   (interactive)
   (restclient-http-send-current t))
 
 ;;;###autoload
 (defun restclient-http-send-current-stay-in-window ()
+  "Send current request and keep focus in request window."
   (interactive)
   (restclient-http-send-current nil t))
 
 (defun restclient-jump-next ()
+  "Jump to next request in buffer."
   (interactive)
   (let ((last-min nil))
     (while (not (eq last-min (goto-char (restclient-current-min))))
@@ -349,6 +368,7 @@
   (goto-char (restclient-current-min)))
 
 (defun restclient-jump-prev ()
+  "Jump to previous request in buffer."
   (interactive)
   (let* ((current-min (restclient-current-min))
          (end-of-entity
@@ -365,6 +385,7 @@
       (goto-char (restclient-current-min)))))
 
 (defun restclient-mark-current ()
+  "Mark current request."
   (interactive)
   (goto-char (restclient-current-min))
   (set-mark-command nil)
@@ -387,6 +408,7 @@
 
 ;;;###autoload
 (define-derived-mode restclient-mode fundamental-mode "REST Client"
+  "Turn on restclient mode."
   (local-set-key (kbd "C-c C-c") 'restclient-http-send-current)
   (local-set-key (kbd "C-c C-r") 'restclient-http-send-current-raw)
   (local-set-key (kbd "C-c C-v") 'restclient-http-send-current-stay-in-window)
