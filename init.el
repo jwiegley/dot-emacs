@@ -2977,9 +2977,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (when (and (not running-alternate-emacs)
              (quickping "192.168.9.133"))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup))
-
-  (add-hook 'org-mode-hook #'(lambda () (yas-minor-mode 1))))
+    (my-org-startup)))
 
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"
