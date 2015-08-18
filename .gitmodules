@@ -13,3 +13,6 @@
 [submodule "lisp/emacs-pl"]
 	path = lisp/emacs-pl
 	url = git://github.com/jwiegley/emacs-pl.git
+[submodule "override/org-mode"]
+	path = override/org-mode
+	url = git://orgmode.org/org-mode.git
