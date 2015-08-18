@@ -1,0 +1,4 @@
+
+Local Variables:
+lentic-init: (lentic-default-init lentic-default-init)
+End:
