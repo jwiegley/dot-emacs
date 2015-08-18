@@ -1,0 +1,43 @@
+
+* 0.9 indirect-buffer replacement
+
+Lentic can serve as a reasoanble replacements for indirect-buffers now that it
+runs efficiently. For 0.9 there will be a "make-lentic-buffer" function that
+is a direct replacement for "make-indirect-buffer".
+
+Going to try updating polymode, minimap or sublimity-mode to use these as my
+test cases.
+
+** Minor
+
+*** Point in views
+
+Currently, when sync-point is false (as is the case for a "view"), point can
+jump around the buffer. This happens when lentic falls back to a full buffer
+replace -- as all of the contents of the buffer is deleted point has to move.
+
+The fix to this is to put a marker in this-buffer for the location of
+that-buffer before the change, and then move the location for point to in
+that-buffer to the same location after the change; as a fall back (when for
+instance the location of point in that buffer is deleted, we can move to the
+start of the region deleted.
+
+*** lentic-mode-insert-file-local cleanup.
+
+https://github.com/phillord/lentic/issues/15
+
+
+* 0.10 Improved el->org, orgel->org
+
+Currently, the orgel->org is not very good, so I want to improve this. In
+particular, I want to support :tags: because lots of people want them. The
+block detection improvement needs changing to support many different source
+blocks types in the same buffer. Finally, the export for orgel->org is not
+ideal. At least it needs to hide "Header" (without having to use :noexport:
+everytime).
+
+
+* 0.11 Headerline
+
+I think that the headerline could be nice to show when lentic mode is invalid
+in some way.
