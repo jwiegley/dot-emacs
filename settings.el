@@ -394,14 +394,17 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "#wigfam" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
+    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
- '(erc-foolish-content (quote ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone")))
+ '(erc-foolish-content
+   (quote
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
+ '(erc-ignore-list (quote ("lensbot")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
  '(erc-log-write-after-send t)
