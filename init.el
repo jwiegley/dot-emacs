@@ -1308,7 +1308,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("\\.cmake\\'"         . cmake-mode)))
 
 (use-package color-moccur
-  :commands (isearch-moccur isearch-all)
+  :commands (isearch-moccur isearch-all isearch-moccur-all)
   :bind ("M-s O" . moccur)
   :init
   (bind-key "M-o" 'isearch-moccur isearch-mode-map)
