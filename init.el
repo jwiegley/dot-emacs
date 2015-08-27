@@ -671,6 +671,34 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;; jww (2015-03-24): Move all of the above into declarations                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Delayed configuration
+
+(use-package dot-org
+  :load-path ("override/org-mode/contrib/lisp"
+              "override/org-mode/lisp")
+  :commands my-org-startup
+  :bind (("M-C"   . jump-to-org-agenda)
+         ("M-m"   . org-smart-capture)
+         ("M-M"   . org-inline-note)
+         ("C-c a" . org-agenda)
+         ("C-c S" . org-store-link)
+         ("C-c l" . org-insert-link)
+         ("C-. n" . org-velocity-read))
+  :defer 30
+  :config
+  (when (and (not running-alternate-emacs)
+             (quickping "192.168.9.133"))
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (my-org-startup)))
+
+(use-package dot-gnus
+  :load-path "override/gnus"
+  :bind (("M-G"   . switch-to-gnus)
+         ("C-x m" . compose-mail))
+  :init
+  (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
+        gnus-home-directory "~/Messages/Gnus/"))
+
 ;;; Packages
 
 (use-package ggtags
@@ -1079,12 +1107,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (ascii-on))))
 
 (use-package tex-site
-  :load-path "~/.nix-profile/share/emacs/site-lisp/elpa/auctex-11.87.7/"
+  :load-path "~/.nix-profile/share/emacs/site-lisp/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :init
-  (load "auctex-autoloads")
-
+  (setq reftex-plug-into-AUCTeX t)
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -1115,6 +1142,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (add-to-list 'ac-modes 'latex-mode)
     (add-hook 'latex-mode-hook 'ac-latex-mode-setup)
+    (add-hook 'latex-mode-hook 'reftex-mode)
 
     (info-lookup-add-help :mode 'latex-mode
                           :regexp ".*"
@@ -1733,6 +1761,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package erc-highlight-nicknames)
   (use-package erc-patch)
   (use-package erc-macros)
+  (use-package erc-image
+    :disabled t
+    :load-path "site-lisp/erc-image"
+    :commands (erc-image-show-url-image)
+    :init
+    (define-erc-module image nil
+      "Display inlined images in ERC buffer"
+      ((add-hook 'erc-insert-modify-hook 'erc-image-show-url-image t)
+       (add-hook 'erc-send-modify-hook 'erc-image-show-url-image t))
+      ((remove-hook 'erc-insert-modify-hook 'erc-image-show-url-image)
+       (remove-hook 'erc-send-modify-hook 'erc-image-show-url-image))
+      t))
 
   (use-package erc-yank
     :load-path "lisp/erc-yank"
@@ -1870,14 +1910,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :diminish git-wip-mode
   :commands git-wip-mode
   :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
-
-(use-package dot-gnus
-  :load-path "override/gnus"
-  :bind (("M-G"   . switch-to-gnus)
-         ("C-x m" . compose-mail))
-  :init
-  (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
-        gnus-home-directory "~/Messages/Gnus/"))
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
@@ -2961,23 +2993,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 5
   :config
   (on-screen-global-mode 1))
-
-(use-package dot-org
-  :load-path "override/org-mode"
-  :commands my-org-startup
-  :bind (("M-C"   . jump-to-org-agenda)
-         ("M-m"   . org-smart-capture)
-         ("M-M"   . org-inline-note)
-         ("C-c a" . org-agenda)
-         ("C-c S" . org-store-link)
-         ("C-c l" . org-insert-link)
-         ("C-. n" . org-velocity-read))
-  :defer 30
-  :config
-  (when (and (not running-alternate-emacs)
-             (quickping "192.168.9.133"))
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup)))
 
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"

@@ -270,18 +270,6 @@
       (".hxx" ".hh" ".h"))
      ("\\.hxx\\'"
       (".cxx")))))
- '(cfw:read-date-command
-   (lambda nil
-     (interactive)
-     (let
-         ((xs
-           (decode-time
-            (org-time-string-to-time
-             (org-read-date)))))
-       (list
-        (nth 4 xs)
-        (nth 3 xs)
-        (nth 5 xs)))))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
     ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "&bitlbee")))
@@ -318,9 +306,6 @@
       (cursor-color . "#b247ee"))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote text-mode) t)
- '(deft-auto-save-interval 0.0)
- '(deft-directory "~/Documents/notes")
- '(deft-text-mode (quote org-mode))
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
  '(diary-file "~/Documents/diary")
@@ -394,7 +379,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
+    (("freenode.net" "#haskell" "#gsoc" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
@@ -714,7 +699,7 @@
  '(initsplit-customizations-alist
    (quote
     (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil)
-     ("\\`\\(org-\\)" "~/.emacs.d/org-settings.el" nil nil))))
+     ("\\`\\(org-\\|deft-\\|cfw:\\)" "~/.emacs.d/org-settings.el" nil nil))))
  '(ipa-file "~/Documents/ipa")
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
