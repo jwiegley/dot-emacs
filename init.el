@@ -1129,6 +1129,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-to-list 'latex-help-cmd-alist (cons key value))))))
     latex-help-cmd-alist)
 
+  (use-package ebib
+    :load-path "site-lisp/ebib")
+
   (use-package latex-mode
     :defer t
     :config
