@@ -1130,7 +1130,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     latex-help-cmd-alist)
 
   (use-package ebib
-    :load-path "site-lisp/ebib")
+    :load-path "site-lisp/ebib"
+    :preface
+    (use-package parsebib :load-path "site-lisp/parsebib"))
 
   (use-package latex-mode
     :defer t
