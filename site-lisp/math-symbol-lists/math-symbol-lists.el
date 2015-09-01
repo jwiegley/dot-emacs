@@ -1,6 +1,6 @@
-;;; math-symbol-lists.el --- Lists of Unicode mathematical symbols and latex commands
+;;; math-symbol-lists.el --- Lists of Unicode math symbols and latex commands
 ;;
-;; Copyright (C) 2014, Vitalie Spinu
+;; Copyright (C) 2014 Free Software Foundation, Inc.
 ;; Author: Vitalie Spinu
 ;; URL: https://github.com/vspinu/math-symbol-lists
 ;; Keywords: Unicode, symbols, mathematics
@@ -8,7 +8,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; This file is *NOT* part of GNU Emacs.
+;; This file is part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
