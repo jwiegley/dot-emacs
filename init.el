@@ -431,13 +431,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ((eq display-name 'retina-imac)
     (if running-alternate-emacs
         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"))
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
+      ))
    ((string= system-name "ubuntu")
-    "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")
+    ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+    "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
+    )
    (t
     (if running-alternate-emacs
         "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
-      "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"))))
+      ;; "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
+      ))))
 
 (let ((frame-alist
        (list (cons 'top    emacs-min-top)
