@@ -1,0 +1,4 @@
+RemoveIrrefPatsBaseStruct.hs: -fallow-undecidable-instances
+RemoveListComp.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+Substitute.hs: -fno-monomorphism-restriction
+SubstituteBaseStruct.hs: -fallow-undecidable-instances -fno-monomorphism-restriction

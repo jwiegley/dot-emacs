@@ -1,0 +1,25 @@
+;; -*- ee-datafile -*-
+;; Please (require 'ee-autoloads) and then visit this file again in Emacs.
+[(meta
+  (format-version . "0.0.1")
+  (database-version . "0.0.1")
+  (view-data-file . "view/NEWS.ee")
+  (fields version categories title ())
+  (key-fields title))
+ ["0.0.1" () "Released 2003-07-21" ()]
+ ["0.0.2" ("ee-textfile.el") "Added custom variables for ee-textfile-apachelog" ()]
+ ["0.0.2" ("view/NEWS.ee") "Improved views \"by Version/by Category\", \"by Category/by Version\"" ()]
+ ["0.0.2" ("view/apachelog.ee") "Added views \"by Reversed Hostname\", \"by Request\", \"by Referer\",\n                \"by User Agent\", \"by Date\", \"by Size\", \"by Status\"" ()]
+ ["0.0.2" ("view/buffers.ee") "Added view \"by Coding\"" ()]
+ ["0.0.2" ("Makefile") "Removed all compiled *.elc files from the package" ()]
+ ["0.0.2" () "Released 2003-08-09" ()]
+ ["0.1.0" ("ee.el") "Add some compatibility functions" ()]
+ ["0.1.0" ("ee.el") "Use new faces" ()]
+ ["0.1.0" ("ee-ell.el") "New ee extension for browsing the Emacs Lisp List\n   (later this could be developed into a Emacs package manager)" ()]
+ ["0.1.0" ("ee-variables.el") "New ee extension for browsing Emacs variables" ()]
+ ["0.1.0" ("ee-info.el") "Fixed to work with GNU Emacs 21.3 and later" ()]
+ ["0.1.0" ("ee-buffers.el") "Added key `,' to cycle buffers" ()]
+ ["0.1.0" ("ee-windows.el") "Improved useability" ()]
+ ["0.1.0" () "Released 2010-01-19" ()]
+
+]

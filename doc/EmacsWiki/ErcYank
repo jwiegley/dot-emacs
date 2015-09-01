@@ -1,0 +1,25 @@
+When people flooded EmacsChannel with code or debug messages instead of using
+[[lisppaste]], pjb mentioned his function `erc-yank', which is part of
+[http://darcs.informatimago.com/local/darcs/public/emacs/pjb-erc.el pjb-erc.el].
+
+`erc-yank' automatically adds pastes to http://paste.lisp.org/ if the text
+you want to yank is more than a certain number of lines long.
+
+Note that you'll need to use some of his personal libraries, available
+at http://darcs.informatimago.com/darcs/public/emacs/.  [[w3]] is required as
+well.
+
+This file seems to have been developed using a somewhat older version of
+ERC than the latest release (it requires `erc-nets' which was renamed
+`erc-networks').  Changing the ##(require 'erc-nets)## to 
+##(require 'erc-networks)## and ##(require 'erc-nickserv)## to
+##(require 'erc-services)## should fix that.
+
+----
+
+I wrote a different, much simpler (16 line function) version of this that uses
+[https://github.com/defunkt/gist.el gist.el], available at
+https://github.com/jwiegley/erc-yank. -- JohnWiegley
+
+----
+[[ERC]]

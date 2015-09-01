@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# This script assist in creating a new PFE project and adding source files to
+# it.
+
+defaultPROGRAMATICA="/home/projects/pacsoft/tools/lib/Programatica/libs"
+
+PFE="${PFE-pfe}"
+PROGRAMATICA="${PROGRAMATICA-$defaultPROGRAMATICA}"
+PFE_LIBS=${PFE_LIBS-$PROGRAMATICA/libs}
+
+[ -r HuMakefile ] && . HuMakefile # Reuse the list of source directories!
+
+flags=""
+libs=""
+prelude=yes
+hierarchical=no
+
+while
+  case "$1" in
+    prelude)
+      prelude=yes
+      flags="$flags $1"
+      shift
+      ;;
+    noprelude)
+      prelude=no
+      flags="$flags $1"
+      shift
+      ;;
+    plogic|noplogic|nocpp|cpp|cpp=*)
+      flags="$flags $1"
+      shift
+      ;;
+    -[PIi])
+      shift
+      libs="$libs $1"
+      shift
+      ;;
+    -[PIi]*)
+      libs="$libs ${1#-[PIi]}"
+      shift
+      ;;
+    +h|hierarchical)
+      hierarchical=yes
+      shift
+      ;;
+    -h|nohierarchical)
+      hierarchical=no
+      shift
+      ;;
+    *)
+    false
+  esac
+do
+:
+done
+
+L="hi/libs"
+extralibs="$L/GhcLibraries $L/HbcLibraries"
+pfelibs="$L/HaskellLibraries $extralibs"
+hugslibs="$L/HugsLibraries $extralibs"
+
+case "$prelude" in
+  yes)
+    if [ -d "$PFE_LIBS" ]; then
+      case "$hierarchical" in
+        yes) libs="$libs $hugslibs" ;;
+	*) libs="$libs $pfelibs"
+      esac
+    else
+      echo "$PFE_LIBS is missing."
+      echo "The Prelude and standard libraries will not be included automatically."
+      echo "Perhaps you need to set PROGRAMATICA to point where you installed it."
+    fi
+    ;;
+esac
+
+rm -rf hi/options
+#rm -rf hi # Is it better to clean away all old stuff?
+
+echo $PFE $flags new -quiet "$*"
+$PFE $flags new -quiet "$@" && {
+  case "$PFE_LIBS" in
+    /*) ln -s "$PFE_LIBS" hi/libs;; #Absolute path
+    *) ln -s "../$PFE_LIBS" hi/libs # Relative path, adjust it!
+  esac
+  echo "$PFE $flags chase `echo ${SRC_DIRS-.} $libs | sed  's/:/ /g'`"
+  $PFE $flags chase `echo ${SRC_DIRS-.} $libs | sed  's/:/ /g'`
+}

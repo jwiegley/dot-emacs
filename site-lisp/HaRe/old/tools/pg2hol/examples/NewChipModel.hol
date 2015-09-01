@@ -1,0 +1,242 @@
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* Not supported: import declaration *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:12,14 : *)
+Hol_datatype `Channel = int`
+handle e => (print "Type synonym Channel failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:13,14 : *)
+Hol_datatype `Packet = Channel # Data`
+handle e => (print "Type synonym Packet failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:14,14 : *)
+Hol_datatype `Data = (Word) list`
+handle e => (print "Type synonym Data failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:16,14 : *)
+Hol_datatype `Algs = (Alg) (Channel) FM`
+handle e => (print "Type synonym Algs failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:17,14 : *)
+Hol_datatype `Regs = (RegFile) (Channel) FM`
+handle e => (print "Type synonym Regs failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:19,13 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:21,2 : *)
+val onePacket_def = Define `onePacket algs (chan, ws) =
+				(* Not supported: do notation *)`
+handle e => (print "Function onePacket failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:36,10 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:37,11 : *)
+val maxChan_def = Define `maxChan = 8`
+handle e => (print "CAF maxChan failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:39,10 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:40,11 : *)
+val initRegs_def = Define `initRegs =
+			       foldr (\ f . \ x . f x) emptyFM
+				   (* Not supported: list comprehension *)`
+handle e => (print "CAF initRegs failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:42,10 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:43,11 : *)
+val chip_def = Define `chip algs =
+			   catMaybes o loop (onePacket algs) (initMem, initRegs)`
+handle e => (print "Function chip failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:60,6 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:61,6 : *)
+val alg0_def = Define `alg0 =
+			   \ a . \ rf . Write 0 99 (Done ((77, \ a -> undefined)))`
+handle e => (print "CAF alg0 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:63,6 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:64,6 : *)
+val alg1_def = Define `alg1 =
+			   \ a . \ rf . Write a 101 (Done ((88, \ a -> undefined)))`
+handle e => (print "CAF alg1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:66,10 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:67,10 : *)
+val programs_def = Define `programs =
+			       extend 0 alg0 (extend 1 alg1 [])`
+handle e => (print "CAF programs failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:69,7 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:70,7 : *)
+val input_def = Define `input =
+			    : (1, [1, 2, 3, 4]) (: (0, [5, 6]) [])`
+handle e => (print "CAF input failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:72,8 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:73,8 : *)
+val input'_def = Define `input' = (: (0, [5, 6]) [])`
+handle e => (print "CAF input' failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:75,10 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:76,10 : *)
+val onlyZero_def = Define `onlyZero = \ ch . ch = 0`
+handle e => (print "CAF onlyZero failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:78,8 : *)
+val before_def = Define `before =
+			     \ algs . \ ch . \ ps . chip algs (filter (ch o fst) ps)`
+handle e => (print "CAF before failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:80,7 : *)
+val after_def = Define `after =
+			    \ algs . \ ch . \ ps . filter (ch o fst) (chip algs ps)`
+handle e => (print "CAF after failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:100,8 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:101,14 : *)
+val towire_def = Define `towire p phi =
+			     >>= phi \ outpackets . return (: p outpackets)`
+handle e => (print "Function towire failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:103,8 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:106,16 : *)
+val driver_def = Define `(driver proc [] = return []) /\
+			 driver proc (p : ps) =
+			     >>= proc p
+				 \ resultpkt .
+				     case resultpkt of
+				       Just p' => towire p' (driver proc ps)
+				     | Nothing => driver proc ps`
+handle e => (print "Function driver failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:112,15 : *)
+val initRegisters_def = Define `initRegisters =
+				    inSnd (setState initRegs)`
+handle e => (print "CAF initRegisters failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:113,12 : *)
+val initShared_def = Define `initShared = inFst (setState initMem)`
+handle e => (print "CAF initShared failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:115,7 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:116,17 : *)
+val start_def = Define `start algs pkts =
+			    let proc = onePacket algs
+			    in  >> >> initRegisters initShared driver proc pkts`
+handle e => (print "Function start failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:122,9 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:123,16 : *)
+val channel_def = Define `channel i pkts =
+			      filter (\ (x, y) . x = i) pkts`
+handle e => (print "Function channel failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/NewChipModel.hs:125,7 *)
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:126,16 : *)
+val reify_def = Define `reify (ST phi) =
+			    fst (phi (undefined, undefined))`
+handle e => (print "Function reify failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:131,11 : *)
+val regmask_def = Define `regmask i =
+			      inSnd
+				  (>>= readState \ regs . setState (extend i (at regs i) emptyFM))`
+handle e => (print "Function regmask failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:135,5 : *)
+val bef_def = Define `bef =
+			  \ algs . \ ps . \ i . reify (start algs (channel i ps))`
+handle e => (print "CAF bef failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/NewChipModel.hs:137,5 : *)
+val aft_def = Define `aft =
+			  \ algs .
+			      \ ps .
+				  \ i .
+				      reify
+					  (>>= start algs ps
+					       \ theta . >> regmask i return (channel i theta))`
+handle e => (print "CAF aft failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

@@ -1,0 +1,21 @@
+--#include "Prelude.alfa"
+
+--#include "Alfa/Propositions.alfa"
+
+open Prelude  use  Unit,  Char,  List,  undefined
+
+open Propositions
+ use  Prop,  Absurdity,  AbsurdityElim,  Triviality,  TrivialityIntro,  Pred
+
+listInd (A::Set)
+        (P::Pred (List A))
+        (xs::List A)
+        (n::P Nil@_)
+        (c::(x::A) -> (xs::List A) -> (pxs::P xs) -> P ((:)@_ x xs))
+  :: P xs
+  = case xs of {
+      (Nil) -> n;
+      (x : xs') -> c x xs' (listInd A P xs' n c);}
+{-# Alfa hiding on
+var "listInd" hide 3
+ #-}

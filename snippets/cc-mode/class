@@ -1,0 +1,71 @@
+#name : class ... { ... }
+# --
+/**
+ * @brief Summary
+ *
+ * Description.
+ */
+class $1
+{
+  $0
+
+public:
+  /** @name Construction and Destruction
+      @{ */
+
+  $1() noexcept? {
+    TRACE_CTOR($1, "");
+  }
+
+#if defined(DEBUG_MODE)
+  virtual? ~$1() {
+    try {
+      TRACE_DTOR($1);
+    }
+    catch (...) {
+      std::terminate();
+    }
+  }
+#else
+  ~$1() = default|delete;
+#endif
+
+  /*@}*/
+
+  /** @name Assignment, Copy and Move
+      @{*/
+
+#if defined(DEBUG_MODE)
+  $1(const $1& rhs) noexcept? {
+    TRACE_CTOR($1, "copy");
+    *this = rhs;
+  }
+#else
+  $1(const $1&) = default|delete;
+#endif
+
+  $1& operator=(const $1&) = default|delete;
+  $1& operator=(const $1& rhs) noexcept? {
+    //if (this != &rhs) {
+    //}
+    return *this;
+  }
+
+#if defined(DEBUG_MODE)
+  $1($1&&r rhs) noexcept? {
+    TRACE_CTOR($1, "move");
+    *this = rhs;
+  }
+#else
+  $1($1&&r) = default|delete;
+#endif
+
+  $1& operator=($1&&r) = default|delete;
+  $1& operator=($1&&r rhs) noexcept? {
+    //if (this != &rhs) {
+    //}
+    return *this;
+  }
+
+  /*@}*/
+}; // class $1

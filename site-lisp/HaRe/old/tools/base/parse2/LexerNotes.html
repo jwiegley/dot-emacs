@@ -1,0 +1,85 @@
+<link rel="alternate stylesheet" type="text/css" HREF="/~hallgren/src2.css" title="Midnight Hacker">
+<link rel="stylesheet" type="text/css" HREF="/~hallgren/src.css" title="Normal">
+
+Some useful notes by
+<a href="http://www.cse.ogi.edu/~diatchki/">Iavor S. Diatchki</a>.
+<small>(Converted to HTML by
+<a href="http://www.cse.ogi.edu/~hallgren/">Thomas Hallgren</a>)</small>
+<h2>The Lexer</h2>
+
+We use <code class=code>LexerGen/HsLexerGen</code> to generate
+<a href="Lexer/HsLex.hs"><code class=code>Lexer/HsLex.hs</code></a> which is the
+basic lexer.  Its main goal is to define:
+<pre class=code>
+haskellLex :: String -> [(Token,String)]
+</pre>
+<code class=code>Token</code> is defined in
+<a href="Lexer/HsTokens.hs"><code class=code>Lexer/HsTokens.hs</code></a>,
+and it is basically the
+different types of token we have.  The string is the value of the
+token.
+
+<hr>
+
+Next comes
+<a href="Lexer/HsLexerPass1.hs"><code class=code>Lexer/HsLexerPass1.hs</code></a>
+which makes use of the basic lexer
+<code class=code>haskellLex</code>.  Its main goal is to define:
+<pre class=code>
+lexerPass0 :: String -> [(Token,(Pos,String))]
+lexerPass1Only :: [(Token,(Pos,String))] -> [(Token,(Pos,String))]
+</pre>
+<code class=code>lexerPass0</code> uses haskellLex to separate the input into tokens, and
+then annotates them with their positions.  <code class=code>lexerPass1Only</code> removes
+whitespace tokens from the input.
+<p>
+At this stage <code class=code>Pos</code> is simply a pair of Int (defined in
+<code class=code>Lexer/HsLexerPass1.hs</code>).  The format is (rows,cols).  Positions start
+at (1,1).
+
+<hr>
+
+Finally the file
+<a href="Lexer/HsLexer.hs"><code class=code>Lexer/HsLexer.hs</code></a> contains the
+real lexer that can
+interact with the Happy grammar.  It defines <code class=code>lexer</code>
+<pre class=code>
+lexer :: ((Token,(SrcLoc,String)) -> PM a) -> PM a
+</pre>
+Here <CODE CLASS=CODE>PM</CODE> is the parsing monad, located in
+<a href="ParseMonad.hs"><code class=code>ParseMonad.hs</code></a>
+The lexer expects the parsing monad to have a state component of type:
+<pre class=code>
+type State = ([(Token,(SrcPos,String)],[Int])
+</pre>
+The first component of the state is the list of remaining tokens.
+The second component is the layout context, i.e. a stack keeping track
+of indentations of blocks of declarations.
+<p>
+The lexer accesses the state with the aid of three functions:
+<pre class=code>
+get         :: PM State
+set         :: State -> PM ()
+setreturn   :: a -> State -> PM a
+fail        :: String -> PM a
+</pre>
+(setreturn is simply an optiomization (is it wortherd?),
+setreturn x s = set s >> return x
+)
+
+<p>
+Currently the file <code class=code>ParseMonad.hs</code> also defines:
+
+<pre class=code>
+eoftoken = (GotEOF,(eof,""))
+eof = SrcLoc "?" (-1) (-1) -- hmm
+(this is also used in HsLexer.hs)
+</pre>
+
+<p>
+<code class=code>SrcLoc</code>
+is a type defined in
+<a href="../AST/SrcLoc.hs"><code class=code>../AST/SrcLoc.hs</code></a>
+and is positions with file
+names in them.  The conversion from <code class=code>Pos</code> to <code class=code>SrcLoc</code>
+happens in a function parseTokens defined in <code class=code>ParseMonad.hs</code>.

@@ -1,0 +1,245 @@
+Code to export your BBDB to other formats.
+
+CategoryBbdb
+
+== bbdb2html ==
+
+Perl script to generate a html file.  You can also use it as a cgi script with searching functionality.
+
+* http://valente.de/aldo/bbdb/
+
+== Writing an LDIF file ==
+
+Perl script to export BBDB to LDFI:
+
+* http://www.geekfarm.org/twiki/bin/view/Main/BbdbToLdap
+
+LDAP based tools and many address books understand LDIF format.
+
+* http://www.diku.dk/~elgaard/lib/emacs/bbdb-ldif.el
+
+This file seems ancient; I am not sure how well it supports current BBDB.
+
+== Writing various CSV files ==
+
+Includes code for KDE 3.1 German address book, Outlook, Outlook German, gmx.de, and web.de.
+Written by RobertFenk, one of the BBDB hackers.
+
+* http://www.robf.de/Hacking/elisp/bbdb-rf.el
+
+Another option: in the bits directory of the CVS distribution of BBDB one will find bbdb-to-outlook.el which exports to a comma separated value (CSV) file suitable for import to Outlook.
+
+== Writing XML files ==
+
+Norman Walsh published [http://www.mail-archive.com/bbdb-info@lists.sourceforge.net/msg03608.html bbdb2xml.pl] in 2003.
+
+Toby Speight and others have written http://www.cs.utah.edu/~karra/ps94/bbdb-xml-print.el (last update May 24 2005) .
+
+
+== vCard Export == [:VcardExport]
+
+=== With bbdb-vcard.el === 
+
+[http://github.com/trebb/bbdb-vcard bbdb-vcard.el] exports BBDB records of (almost) arbitrary content into vCards version 3.0.
+
+In buffer %%*BBDB*%%, press %%v%% to export the record under point. Press %%* v%%
+to export all records in buffer into one vCard file.  Press %%* C-u v%% to
+export them into one file each.
+
+To put one or all vCard(s) into the kill ring, press %%V%% or %%* V%% respectively.
+
+Cf. [[BbdbImporters#VcardImport]] for the import functionality of [http://github.com/trebb/bbdb-vcard bbdb-vcard.el].
+
+
+=== Writing a directory full of vCards ===
+
+Use Lisp:bbdb-vcard-export.el to write your entire BBDB into a directory, one entry per line.
+Per default `M-x bbdb-vcard-export-update-all' writes the data encoded in UTF-16, because
+that's what the Apple Addressbook in OSX seems to expect.  If you want to specify a different
+encoding, just use a prefix argument: `C-u M-x bbdb-vcard-export-update-all' and you will
+be asked for another encoding.  The default BBDB file encoding , ISO 2022 JP is probably not
+what you want.
+
+[new]
+I've [https://github.com/jwiegley/dot-emacs/blob/master/site-lisp/bbdb-vcard-export.el ported this module to BBDB 3]. -- JohnWiegley
+
+== Writing a .mailrc from BBDB ==
+
+The following will export a very primitive version of your BBDB information into a .mailrc file which is used for normal mail(1) and Emacs Rmail.
+
+Usually the main problem when exporting BBDB to other formats is the creation of an ALIAS name. In my example below I just use LASTNAME. The following function tries to write your BBDB into a .mailrc file, like this:
+
+    alias LASTNAME "FULL_NAME <NETADDRESS>"
+
+mail-groups defined via the mail-alias field are not supported, but see Matt McClure's code further down the page for an example on how to do this.
+
+I used the same code as bbdb-print for the file-name. Unfortunately this very simple code must have a bug somewhere. It only occurs if you test it a lot: When you are prompted for a file-name, "~/bbdb.tex" or "~/.mailrc" is the default. Press RET. Sometimes this will find-file the correct file, and sometimes you will overwrite your selected buffer instead. I haven't looked into this, however. :(
+
+    (defvar bbdb-mailrc-file-name ".mailrc"
+      "Filename to write mail aliases to.")
+    
+    (defun bbdb-write-mailrc (visible-records to-file)
+      (interactive (list (bbdb-do-all-records-p)
+			 (read-file-name "Export To File: " bbdb-mailrc-file-name)))
+      (setq bbdb-mailrc-file-name (expand-file-name to-file))
+      ;; `good' are people with netaddresses, `bad' are people without.  The
+      ;; people are taken of the list records and put on either the good or
+      ;; the bad list.
+      (let ((good '()) (bad '())
+	    (records (if (not visible-records)
+			 (bbdb-records)
+		       (set-buffer bbdb-buffer-name)
+		       (mapcar 'car bbdb-records))))
+	;; Open .mailrc file
+	(find-file bbdb-mailrc-file-name)
+	(widen) 
+	(erase-buffer)
+	;; Loop through records to print.
+	(while records
+	  (if (bbdb-record-net (car records))
+	      (setq good (cons (car records) good))
+	    (setq bad (cons (car records) bad)))
+	  (setq records (cdr records)))
+	;; write all net-addresses into .mailrc
+	(insert (mapconcat (function (lambda (x)
+				       (let ((name (bbdb-dwim-net-address x))
+					     (alias (bbdb-record-lastname x)))
+					 (concat "alias "
+						 alias 
+						 " \""
+						 (if (string-match "\"\\(.*\\)\"\\(.*\\)" name)
+						     (format "%s%s" (match-string 1 name)
+							     (match-string 2 name))
+						   name)
+						 "\""))))
+			   (nreverse good)
+			   "\n"))
+	;; Mail groups
+        
+	;;   not implemented, yet
+        
+	;; Feedback on the output quality.
+	(if bad
+	    (message "There were %d people with bad or missing net addresses."
+		     (length bad))
+	  (message "Done."))))
+
+== Writing a Pine addressbook from BBDB, by Matt McClure ==
+
+    From: Matt McClure <matthew.mcclure.es.99@aya.yale.edu>
+    Subject: Re: conversion to pine addressbook?
+    Date: Wed, 25 Aug 1999 10:12:50 -0400 (EDT)
+
+It isn't pretty, but this will create a pine addressbook.  
+It also supports the mail-alias field (inefficiently, but it works).
+I don't think it should be too difficult to modify to create mailrc
+files instead.
+
+Thanks to Alex for the start.
+
+Matt
+
+    (defvar bbdb-mailrc-file-name "~/.addressbook"
+      "Filename to write mail aliases to.")
+    
+    (defun bbdb-write-dot-addressbook (to-file)
+      (interactive (list (read-file-name "Export To File: " "" nil nil bbdb-mailrc-file-name)))
+      (setq bbdb-mailrc-file-name (expand-file-name to-file))
+      ;; `good' are people with netaddresses, `bad' are people without.  The
+      ;; people are taken of the list records and put on either the good or
+      ;; the bad list.
+      (let ((good '()) (bad '())
+	    (records (bbdb-records))
+	    (grouped-good '()) (grouped-bad '())
+	    (grouped-records (bbdb-records))
+	    (mail-groups-alist '()))
+	;; Open .mailrc file
+	(find-file bbdb-mailrc-file-name)
+	(widen) 
+	(erase-buffer)
+	;; Loop through records to print.
+	(while records
+	  (if (bbdb-record-net (car records))
+	      (setq good (cons (car records) good))
+	    (setq bad (cons (car records) bad)))
+	  (setq records (cdr records)))
+	;; write all net-addresses into .mailrc
+	(insert (mapconcat 
+		 (function (lambda (x)
+			     (let ((alias (concat (bbdb-record-firstname x)
+						  " "
+						  (bbdb-record-lastname x)))
+				   (name (concat (bbdb-record-lastname x)
+						 ", "
+						 (bbdb-record-firstname x)))
+				   (email (car (bbdb-record-net x)))
+				   )
+			       (concat alias 
+				       "\t"
+				       name
+				       "\t"
+				       email
+				       )
+			       )))
+		 (nreverse good)
+		 "\n"))
+	;; Mail groups
+	;; get the mail-aliases
+	(while grouped-records
+	  (if (and
+	       (bbdb-record-net (car grouped-records))
+	       (assoc 'mail-alias (bbdb-record-raw-notes (car grouped-records))))
+	       (setq grouped-good (cons (car grouped-records) grouped-good))
+	    (setq grouped-bad (cons (car grouped-records) grouped-bad)))
+	  (setq grouped-records (cdr grouped-records)))
+    
+	(while grouped-good
+	  (let ((aliases (split-string
+			  (cdr (assoc 'mail-alias 
+				      (bbdb-record-raw-notes (car grouped-good))))
+			  "[, \f\t\n\r\v]+")))
+	    (while aliases
+	      ;; store the name associated with alias somehow
+	      (setq mail-groups-alist 
+		    (cons (cons (car aliases)
+				(concat "\""
+					(bbdb-record-firstname (car grouped-good))
+					" "
+					(bbdb-record-lastname (car grouped-good))
+					"\""))
+			  mail-groups-alist))
+	      (setq aliases (cdr aliases))))
+	  (setq grouped-good (cdr grouped-good)))
+    
+	(setq mail-groups-alist (sort mail-groups-alist
+				      (lambda (x y)
+					(string< (car x) (car y)))))
+    
+	;; put each name from mail-groups-alist into the appropriate mail aliases
+	(setq assn '("" . ""))
+	(while mail-groups-alist
+	  (let ((assn-new (car mail-groups-alist)))
+	    (if (string= (car assn) "")
+		(insert (concat "\n" (car assn-new) "\t\t("))
+	      (if (not (string= (car assn) (car assn-new)))
+		  (insert (concat ")\n" (car assn-new) "\t\t("))))
+	    (insert (concat (cdr assn-new) ","))
+	    (setq mail-groups-alist (cdr mail-groups-alist))
+	    (setq assn assn-new)))
+    
+	(if (not (string= (car assn) ""))
+	    (insert ")\n"))
+    
+	;; Feedback on the output quality.
+	(if bad
+	    (message "There were %d people with bad or missing net addresses."
+		     (length bad))
+	  (message "Done."))))
+
+== Writing a SpamAssassin whitelist ==
+
+You can use this Elisp file to export all of your BBDB entries as a SpamAssassin 
+whitelist:
+
+http://slack.net/~evenson/bbdb-spamassassin/bbdb-export-whitelist.el
+

@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Script to validate Alfa certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA", "$certsDir" and "$SERVERDIR" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=Plover
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # defines $module, $conc, etc
+
+### Auxiliary functions ########################################################
+
+plovercheck() {
+  [ -d tmp ] || { mkdir -p tmp && rmtmpdir=yes; }
+  echo '"'"$assertion"'"' | Plover 2>&1 | tee "$output"
+  grep -q "^True$" "$output"
+}
+
+validate() {
+  #if pfe stratego $module > $module.ast ; then # old
+  case "$untyped" in
+    True) pfeflags="-untyped" ;;
+    *) pfeflags=""
+  esac
+  if pfe strategoslice $pfeflags $assertion > $module.ast 2>"$output"; then
+    if plovercheck; then 
+      markvalid
+    else 
+      markinvalid
+    fi
+    status=$?
+    # Remove tmp/ automatically, if it was created automatically.
+    [ "${rmtmpdir-no}" = "yes" ] && rm -r tmp
+    return $status
+  else
+    cat "$output"
+    markinvalid
+  fi
+}
+
+### Here we go... ##############################################################
+
+untyped="`getattr Untyped "$attr"`"
+validate

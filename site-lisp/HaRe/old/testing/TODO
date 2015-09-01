@@ -1,0 +1,117 @@
+2012-08-01 Notes
+
+
+Test directories
+----------------
+
+Not tested
+----------
+  introDeepSeq
+
+Passes
+------
+
+addField - passes, and works in emacs
+addOneParameter - passes, and works in emacs
+addToExport - passes 8 of 8
+cleanImports : passes 4 of 4
+foldDef : passes
+foldPatterns : passes 6 of 6
+  - The SimpleIn1_TokOut.hs expected result file seems wrong 
+    - on closer inspection the input file is wrong, modified to make sense
+generativeFold: passes
+instantiate : passes
+introCase : passes 33 of 33
+  - was a bug in hint-0.3.3.4 which diasables ImplicitPrelude when
+   extensions are set. Logged.
+introNewDef : passes 15 of 15
+introPattern : passes
+mkImpExplicit : passes 5 of 5
+moveDefBtwMods : passes 9 of 9
+removeCon : passes 20 of 20
+removeDef : passes 17 of 17 
+removeField : passes 17 of 17
+renaming : passes 28 of 28
+rmFromExport : passes 3 of 3
+rmOneParameter : passes 10 of 10
+simplifyExpr : passes 30 of 30
+subIntroPattern : passes 25 of 25
+whereToLet : passes 10 of 10
+
+Needs own test runner:
+introThreshold : passes 10 of 10
+merging : passes 18 of 18
+evalAddEvalMon : pases 20 of 20
+
+-------------------------
+
+refacFunDef : fails 1 of 20
+  - Test20.hs input file is not well formed, GHC complains
+
+fromConcreteToAbstract : fails 1 of 1
+  - compound refactoring, must come back to it
+
+duplication : fails 1 of 12
+  - side condition test faulty, the refactoring should not be
+   attempted.
+   If it is done, results in GHC complaining about duplicate def for h
+   and t
+
+
+asPatterns : fails 2 of 27
+  - A6: parentheses arranged differently in result.
+        Note: file is not a valid haskell module
+  - E3: HaRe is given the target site, not definition. Does not
+        introduce it at the right point
+
+generaliseDef : fails 2 of 17
+  Sum2: replaces (+) with (c) instead of c
+  FunIn7: side condition testing fails, should not attempt refactor
+
+
+refacDataNewType : failed 2 of 5
+  - seems to be unimplemented, or partially implemented
+    Getting an "Unrecognised arguments" exception from the refactorer
+
+unfoldDef : fails 2 of 19
+  - Seems to be an error in the complex patterns
+
+unfoldAsPatterns : fails 7 of 35
+  - seems to be a parsing error, does not recognise as pattern
+
+refacRedunDec : passes 17 of 17
+  - Note: I am sure Test1_tokOut.hs is wrong, the meaning is changed
+
+letToWhere : fails 7 of 15
+  - MultiMatchesIn4: invalid initial file
+  - MultiMatchesIn5: invalid initial file
+  - MultiMatchesIn6: invalid initial file
+
+refacSlicing : fails 1 of 23
+  - Test11 produces incorrect result
+
+liftOneLevel : fails 1 of 14
+  - fails to test precondition properly and does refactor it should not
+
+addCon - fails 4 of 12
+  - Case1 fails with compile error during refactor
+    - trying to ascertain the type of a variable in a where clause
+  - Case2 fails with compile error during refactor
+  - Tuple1,Tuple2 fail with different results to expected
+
+liftToToplevel : fails 2 of 14
+  - PatBindIn1: tup@(h,t) problem as well
+  - PatBindIn2: should fail but does not
+
+pointwiseToPointfree : failed 7 of 7
+  - Seems to be an error in parsing arguments to the refactorer
+
+---
+
+demote : fails 7 of 16
+
+-- Parallel stuff?
+evalMonad : fails 14 of 19 - seems to need a cache
+evalAddEvalMonCache: fails : Prelude.read: no parse
+  - seems to be an experiment?
+

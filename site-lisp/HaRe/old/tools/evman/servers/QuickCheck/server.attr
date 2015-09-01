@@ -1,0 +1,14 @@
+name: QuickCheck (under construction)
+version: 0.02
+release: 09 April 2003
+src: http://www.cse.ogi.edu/~hallgren/Programatica/
+description: Tests run with the QuickCheck tool
+abbrev: Qc
+
+# Some ideas...
+attribute: name=conc, type=string/assertion, label=Conclusion, required
+attribute: name=maxTest, type=nat, default=100
+attribute: name=maxFail, type=nat, default=1000
+attribute: name=verbose, type=bool, default=False
+attribute: name=generators, type=string/file
+attribute: name=Comment, type=string

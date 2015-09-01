@@ -1,0 +1,1 @@
+run -I../../exec/arm -Imc2_headers --check_misra=all,-5.3 --c mc2_$0.c

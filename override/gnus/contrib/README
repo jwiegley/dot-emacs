@@ -1,0 +1,36 @@
+The files in this directory are not (yet) part of the Gnus distribution proper.
+They may later become part of the distribution, or they may disappear
+altogether.
+
+Please note that it is NOT good to just add this directory to `load-path': a
+number of files in this directory will become part of more recent Emacs
+versions, so that you might be running obsolete libraries with all kinds of ill
+effects (cf. `list-load-path-shadows').
+
+The suggested method for installation is to copy those files that you need to a
+directory which is in `load-path'.
+
+Here is an overview of the files:
+
+compface.el
+
+	Provides the ELisp-based uncompface program.  It is excellent and
+	practical (actually you can replace lisp/compface.el with it), however
+	the author is missing and the copyright has not been assigned yet.
+
+gnus-namazu.el
+
+	This file defines the command to search mails and persistent articles
+	with Namazu, which is a full-text search engine distributed at
+	<http://namazu.org>, and to browse its results with Gnus.
+
+gnus-kill-to-score.el
+
+	Convert kill files to score files.  See (info "(gnus)Converting Kill
+	Files").
+
+vcard.el
+
+;; Local Variables:
+;; fill-column: 79
+;; End:

@@ -1,0 +1,23 @@
+**** NOTE Status Report for `(with-temp-buffer (org-insert-time-stamp (current-time) nil t))`
+:PROPERTIES:
+:ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+:END:
+***** Planned and implemented
+
+- 
+
+***** Not planned but implemented
+
+- 
+
+***** Planned but not implemented
+
+- 
+
+***** Planned for next week
+
+- 
+
+***** Questions and concerns
+
+- None this week.

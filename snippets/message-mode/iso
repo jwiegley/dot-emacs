@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# expand-env: ((yas/indent-line 'fixed))
+# --
+Hi $0,
+
+We don't have an installer at this time, but we are currently working on it.
+In the meantime, the Boost build instructions can be found here:
+
+  http://www.boost.org/doc/libs/1_49_0/more/getting_started/windows.html
+
+It's possible you might find what you're looking for here, but BoostPro cannot
+vouch for its correctness in any way:
+
+  http://boost.teeks99.com/
+
+--
+  John Wiegley
+  BoostPro Computing
+  http://www.boostpro.com

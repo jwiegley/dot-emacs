@@ -1,0 +1,39 @@
+<title>Extensible Haskell front-end for the Programatica projects -
+        directory base/parse2</title>
+
+<h1>Extensible Haskell front-end for the Programatica projects</h1>
+
+<h2>What is in this directory (base/lib)</h2>
+
+<p>
+This directory contains modules containing general utilities and data
+structures, most of which has nothing to do with the implementation of
+a Haskell front-end. One exception is the module <b class=mod>Unlit</b>.
+
+<table>
+<tr><th>Module
+    <th>Purpose
+<tr><td><b class=mod>MUtils</b>
+    <td>Thomas' misc utilities, defines some essential combinators, sadly
+        missing from the Haskell 98 libraries
+<tr><td><b class=mod>Lists</b>
+    <td>List functions missing from the Haskell 98 <b class=mod>List</b>
+        module.
+<tr><td><b class=mod>NewSCC</b>
+    <td>A function computing strongly connected components.
+        (It is used in the module system and the type checker.)
+<tr><td><b class=mod>UTF8</b>
+    <td>Functions for dealing with the UTF-8 encoding of Unicode text,
+        borrowed from HBC.
+        Current Haskell implementations do not support Unicode very well...
+<tr><td><b class=mod>UTF8Util</b>
+    <td>Additional UTF-8 utilities.
+<tr><td><b class=mod>AbstractIO</b>
+    <td>Classes to abstract away from the monolithic <b class=tcon>IO</b>
+        monad.
+<tr><td><b class=mod>Unlit</b>
+    <td>Implements the translation from literate style Haskell to normal
+        Haskell source code.
+<tr><td>...
+    <td>...
+</table>

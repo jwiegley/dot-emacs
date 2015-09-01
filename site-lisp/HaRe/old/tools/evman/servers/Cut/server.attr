@@ -1,0 +1,14 @@
+name: Cut
+version: 0.02
+release: January 5, 2005
+src: http://www.cse.ogi.edu/~hallgren/Programatica/
+description: Proof by cut elimination
+
+# Some ideas on how to specify what attributes certificates have,
+# to allow generic tools (pfebrowser in particular) to create and
+# manipulate certificates.
+attribute: name=conc, type=string/assertion, label=Conclusion, required
+attribute: name=hyp, type=string, label="Assumptions", optional
+attribute: name=left, type=string/cert, label=Left, required
+attribute: name=right, type=string/cert, label=Right, required
+attribute: name=Comment, type=string

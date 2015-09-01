@@ -1,0 +1,83 @@
+Servers
+=======
+
+Because the Chrome(ium) security model doesn't allow for extensions
+spawning processes we can't just exec() the editor process. Instead we
+have to implement an "edit server" which listens to XmlHttp requests
+on port 9292 (default) and then sends a response when the edit is
+complete. We include a couple here:
+
+* pycl.py - Original version, only edit one file at a time
+* edit_server.el - An native Emacs Lisp implementation
+
+There is another project called TextAid which does a similar thing to
+Edit with Emacs. It's edit server is implemented in perl and be found
+at:
+
+* http://opencoder.net/edit-server
+
+As the edit server concept is fairly simple we will try and keep them
+compatible with each other.
+
+Customizing the look of Emacs
+=============================
+
+By default, Emacs opens up a new frame upon an edit request. All the
+UI elements are removed to better mimic a bare text box. You can
+customize the default behavior by `M-x customize-group [RET]
+edit-server [RET]`. Or you can set the variables' values directly in
+your ~/.emacs.
+
+
+Hooks
+=====
+
+edit-server.el provides two hooks for customising behaviour when edit
+requests are being made. These are:
+
+* edit-server-start-hook - called when editing starts
+* edit-server-done-hook - called when just before the text returned
+
+For an example of what can be achieved please see Roland McGrath's
+excellent edit-server-htmlize.el [1] which provides some example
+functions which can be added to these hooks to deal with a popular web
+based email client which sends HTML even in plain text mode.
+
+[1] https://github.com/frobtech/edit-server-htmlize
+
+How it works
+============
+
+The browser sends a request to the edit server of the form:
+
+http://${HOSTNAME}:${HOSTPORT}/${CMD}
+
+HOSTNAME is usually localhost, i.e. 127.0.0.1
+HOSTPORT is the server port, in our case defaults to 9292
+CMD is the command to the edit server, it may be one of the following:
+
+* edit
+
+The edit command is sent as an HTTP POST request. After the headers
+the data is the current contents of the text area.
+
+Once the edit is complete the server sends an HTTP 200 (OK) response
+with the data containing the new text area text. Any other response
+will result in the text area not being updated.
+
+The extension also sets some headers which may be used by the edit
+servers to create more identifiable names for the buffers/temp files
+to help the user keep track.
+
+x-url: The URL of the source page
+x-id: The unique (on the page) ID of the text area
+
+* status
+
+The status command is sent as an HTTP GET request. The intention is to
+use it as a simple test for the status of Edit Server and to be used
+as a "Are you there?" test.
+
+The response is basically a text string describing the state of the
+edit server.
+

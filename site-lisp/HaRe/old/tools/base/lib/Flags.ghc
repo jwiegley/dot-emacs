@@ -1,0 +1,4 @@
+FileUtils.hs: -fno-monomorphism-restriction
+DirUtils.hs: -fno-monomorphism-restriction
+AbstractIO.hs: -fno-monomorphism-restriction -fallow-undecidable-instances
+Sets.hs: -cpp

@@ -1,0 +1,153 @@
+\section{Introduction}
+\label{intro}
+Many programming languages claim some kind of {\em module system}
+as part of their definition.  In each case, the module system is
+intended to provide support for modular construction of software
+systems, but the precise interpretation of the term can vary quite
+significantly from
+one language to the next.  In some languages, the module system
+provides a powerful mechanism for creating, using, and reusing
+{\em programming abstractions}.  Standard ML, for example,
+has one of the most powerful module systems of this kind \cite{ML97}.
+In other languages, the main purpose of the module system is
+to support {\em separate compilation}, motivated by pragmatic
+issues that arise during the development of large programs.
+In yet other languages, the module system serves primarily
+as a mechanism for {\em namespace management}, allowing
+programmers to control the visibility of defined 
+names, either to hide implementation-specific details or to
+access parts of the program that would otherwise be out of scope.
+Of course, this classification is somewhat subjective, often
+depending on emphasis and the issues that are most directly
+targeted; some programming language module systems make a good
+attempt to serve several of these (or other) goals simultaneously.
+
+The goal of this paper is to provide a formal description for
+the module system of Haskell 98, which falls most directly into
+the namespace management category that was described above.
+Although many aspects of Haskell have been studied previously,
+we are not aware of any other attempts to formalize its module
+system.   Moreover, as readers of the Haskell mailing list
+may confirm, the module system is one of the least understood
+aspects of the language, and one in which some of the greatest
+variations between different implementations can be found.
+
+In the spirit of the type system specification of Jones \cite{thih},
+this paper is a typeset version of a literate Haskell script,
+which is an executable specification of the module system.
+The number of lines of code in the specification is about 200.
+
+In writing the specification, we have focused more on clarity and
+readability than efficiency. Nevertheless, the code presented in this
+paper has been developed in the context of a full-scale front-end for
+Haskell that works well in practice. For example, we have used the
+front-end to parse and process the complete source for the Alfa proof
+editor \cite{hallgren:alfa-homepage}
+(comprising on the order of 50,000 lines in 500 modules) in
+approximately 90 seconds (on a 1.9GHz Pentium 4).
+
+\subsection{Haskell Modules}
+\label{HaskMods}
+
+%As described in Section 5 of the Haskell 98 Report \cite{Haskell98},
+A Haskell program is a collection of {\em modules}.
+A typical module defines a number of {\em entities} (functions, data types,
+classes, etc.), imports entities defined in other modules,
+and export some of the locally available entities for use by other modules.
+Mutual dependencies between modules are allowed.
+
+\subsubsection*{Environments}
+
+Within the context of a particular Haskell module---or,
+indeed, at the prompt of an interpreter---there are top-level
+{\em environments} (also known as {\em symbol tables}) that
+associate names with the entities to which they refer.
+One of the main goals of this paper is to
+specify and describe how these environments are constructed.
+Following conventional wisdom, we might be tempted to use finite
+maps as the representation for environments.  For the semantics
+of Haskell, however, {\em finite relations} are more appropriate
+because they allow us to capture the possibility that a name
+has zero, one, or multiple interpretations.  More specifically,
+a name $n$ with zero or multiple interpretations causes an error only 
+if it is actually used in the scope of the environment. Of course, the type
+of error that is reported will be different in each case: if
+there are no interpretations for the name, then a reference to $n$
+indicates a reference to an unbound name; if there are multiple
+interpretations, then it indicates an ambiguous reference.  
+In our specification we shall often refer to the relation modeling
+the symbol table of a module as its {\em in-scope relation}.
+
+By using relations, we could also give a semantics for the renaming
+imports found in earlier versions of Haskell. Because we focus on
+Haskell 98, we do not pursue this idea further here.
+
+\subsubsection*{Interfaces}
+
+Another important aspect of a module is its {\em interface}.
+It defines a set of names (with corresponding entities), which
+are made available for other modules to use.  
+The main use of this feature is to avoid cluttering other modules 
+with spurious names.
+It also provides a simple abstraction mechanism: by controlling
+what names are available to other modules, a programmer can enforce 
+abstractions.
+Because the module interface is essentially a subset of the symbol table
+of a module, we also model it as a relation.  We often refer to this
+relation as the {\em export relation} of the module.  
+
+
+\subsection{Scope and contributions of this paper}
+
+The formal semantics given in this paper captures the semantics of the
+Haskell 98 module system in the following sense: given a collection of
+Haskell modules, the semantics
+
+\begin{itemize}
+
+\item computes the in-scope and export relations of each module.
+
+\item checks the correctness of all import and export specifications in
+      the modules.
+
+\end{itemize}
+
+By using the computed in-scope relations, one can determine
+for each name that occurs in the body of a module which
+entities (zero, one or more) it refers to.
+The local scoping rules within module bodies are
+{\em not} part of the presented semantics, however, so it does not
+tell you how to detect references to unbound or ambiguous names occurring
+in module bodies. That check can be done one module at a time, without further
+reference to the module system semantics.
+
+The specification can thus be seen as partitioning the semantics of
+Haskell 98 programs into a {\em module system specific part}, and a
+{\em module system independent part}.  But apart from determining what
+names are in scope, module boundaries affect the meaning of Haskell
+programs in two other ways: the scope of a {\iden default} declaration
+is limited to the module it occurs in, and type ambiguities caused by
+the monomorphism restriction\footnote{More correctly referred to
+    as the {\em annoying} monomorphism restriction :-)}
+are resolved locally within each module.
+
+The starting point for our work was the original Haskell 98 report
+\cite{Haskell98old}.  It has since, in part as a result of
+our work, been revised, and the semantics presented in this paper is
+intended to be consistent with the current version of section 5 of the
+report \cite{Haskell98}.  One feature that is not yet covered by our
+semantics, is the visibility of instances, as described in Section 5.4
+of the report.
+
+\subsection{Outline of the paper}
+The rest of paper is organized as follows:
+Section~\ref{sec-relations} introduces relations and operations on them; 
+Section~\ref{NameEnt} gives definitions dealing with names and entities; 
+Section~\ref{AbsSyn} presents an abstract syntax for the module system; 
+Section~\ref{Sem} describes the semantics of Haskell modules, i.e., the
+meaning of import and export declarations; 
+Section~\ref{Err} states criteria for the detection of invalid modules.
+Section~\ref{SemProg} glues everything together and discusses some practical
+issues, such as separate compilation.
+Related work is discussed briefly in Section~\ref{related}.
+Conclusions and further discussion appear in Section~\ref{conclusions}.

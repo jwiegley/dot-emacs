@@ -1,0 +1,462 @@
+This is ee.info, produced by makeinfo version 4.11 from ee.texi.
+
+INFO-DIR-SECTION Emacs
+START-INFO-DIR-ENTRY
+* Ee: (ee).		Emacs information manager.
+END-INFO-DIR-ENTRY
+
+   This document describes the Ee, Emacs information manager.
+
+   This is edition $Revision$ $Date$ of the `Ee User Manual' for `ee'
+Version 0.1.0.
+
+   Copyright (C) 2002, 2003, 2004, 2010  Juri Linkov <juri@jurta.org>
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: ee.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
+
+   This document describes the `ee' version 0.1.0, Emacs information
+manager.
+
+   PLEASE NOTE THAT THIS MANUAL IS NOT FINISHED, BECAUSE THIS PACKAGE
+IS UNDER DEVELOPMENT, AND ALL DETAILS DESCRIBED HERE CAN BE CHANGED.
+
+* Menu:
+
+* Introduction::                Introduction.
+* Data-Flow Diagram::           Data-Flow Diagram.
+* Data Structures::             Explanations of data structures.
+* View Description::            Explanations of view data.
+* View Generation::             Process of view buffer generation.
+* View Buffer::                 Explanations of view buffer parts.
+* Visibility::                  Commands to control what is visible.
+* Navigation::                  Special motion commands.
+* Marking and Deletion::        Marking and deleting displayed items.
+* Writing Extensions::          How to write new extensions.
+
+Appendices:
+* Installation::                Installation.
+* Reporting Bugs::              How to report a bug in ee.
+
+* Terminology::                 Terminology.
+* Concept Index::               Concept Index.
+* Command Index::               Command Index.
+* Key Index::                   Key Index.
+* Variable Index::              Variable Index.
+
+
+File: ee.info,  Node: Introduction,  Next: Data-Flow Diagram,  Prev: Top,  Up: Top
+
+1 Introduction
+**************
+
+
+Ee is the categorizing information manager for Emacs.
+It works by collecting information from different
+sources and converting information to a relational or
+associative database.  It uses the fields of database
+table records to build the category trees, which are
+displayed in the Emacs view buffer.  The rules for
+creating the views are also specified by similar data
+structures and include the rules for building category
+paths, sorting records and categories, calculating
+the totals of category fields, filtering records, and
+printing category tree and record lines.
+
+
+File: ee.info,  Node: Data-Flow Diagram,  Next: Data Structures,  Prev: Introduction,  Up: Top
+
+2 Data-Flow Diagram
+*******************
+
+     +----------------+    +----------------+
+     | data           |<---| data           |
+     | file buffer    |    | file           |
+     +----------------+    +----------------+
+             |
+             v
+     +----------------+    +----------------+
+     | data           |<---| alternative    |
+     | ee view buffer |    | data source    |
+     +----------------+    +----------------+
+             ^
+             |
+     +----------------+    +----------------+
+     | view data      |<---| view data      |
+     | file buffer    |    | file           |
+     +----------------+    +----------------+
+             |
+             v
+     +----------------+
+     | view data      |
+     | ee view buffer |
+     +----------------+
+             ^
+             |
+     +----------------+    +----------------+
+     | view view data |<---| view view data |
+     | file buffer    |    | file           |
+     +----------------+    +----------------+
+           |   |
+           v   v
+     +----------------+
+     | view view data |
+     | ee view buffer |
+     +----------------+
+
+
+File: ee.info,  Node: Data Structures,  Next: View Description,  Prev: Data-Flow Diagram,  Up: Top
+
+3 Data Structures
+*****************
+
+`data-file'
+     Name of the file that contains data.
+
+`view-data-file'
+     Name of the data file that contains the view descriptions.
+
+`collector'
+     Function that collects data from source other than data file, and
+     sets the variable `ee-data'.
+
+   Example of data structure:
+     [(meta
+       (format-version . "0.0.1")
+       (database-version . "0.0.1")
+       (data-version . "0.0.1")
+       (data-file . "example.ee")
+       (view-data-file . "view/example.ee")
+       (collector . ee-example-data-collect)
+       (fields
+        (field (name name))
+        (field (name category-1))
+        (field (name category-2))
+        (field (name category-3))
+        (field (name (parent children)))
+        (field (name ())))
+       (key-fields name)
+       (mark-field mark))
+      ["ri-101" "c-1" nil "c-4" () ((price . 3.15) (amount . 9))]
+      ["ri-102" "c-1/s-1" "c-2/s-2" "c-4" () ((price . 3) (amount . 5))]
+      ["ri-103" "c-1" "c-3" "c-4" ((children "ri-104" "ri-105")) ()]
+      ["ri-104" nil nil nil ((parent . "ri-103")) ()]
+      ["ri-105" nil nil nil ((parent . "ri-104")) ()]]
+
+
+File: ee.info,  Node: View Description,  Next: View Generation,  Prev: Data Structures,  Up: Top
+
+4 View Description
+******************
+
+Views are described by data structures.
+
+   Currently some fields are functions, where record fields are
+accessed by function `ee-field', e.g. (ee-field 'field-name record).
+
+   Current fields of view description data structure (functions that
+begin with 'c-' prefix operate on categories, functions that begin with
+'r-' prefix operate on records):
+
+`name'
+     Unique view name.
+
+`r-filter'
+     Function that selects the displayed records.
+
+`c-path-finder'
+     Function that converts every record to a list of category paths,
+     which is used to build a category tree.
+
+`c-sorter'
+     Function that sorts the categories. Arguments are a-level (all
+     levels), c-level (category-level), s-level (subcategory level),
+     attr-alist (attributes list).
+
+`r-sorter'
+     Function that sorts the records. Arguments are a-level (all
+     levels), r-level (record-level), attr-alist (attributes list).
+
+`c-calculator'
+     Function that calculates the category totals.
+
+`r-calculator'
+     Function that calculates the record totals.
+
+`c-printer'
+     Function that prints the category lines.
+
+`r-printer'
+     Function that prints the record lines.
+
+`r-select'
+     Function called after typing RET on a record line.
+
+   Example of view description data structure:
+     [(meta
+       (format-version . "0.0.1")
+       (view-data-file . "view/views.ee")
+       (fields ()))
+      [((type . view)
+        (name . "by Category")
+        (default . t)
+        (r-filter . (lambda (r)
+         (not (ee-field 'parent r))))
+        (c-path-finder . (lambda (r)
+         (list
+          (append
+           (ee-split-string (ee-field 'category-1 r) "/")
+           (ee-split-string (ee-field 'category-2 r) "/"))
+          (list (ee-field 'category-3 r)))))
+        (r-child-parent-key-fields name parent)
+        (c-sorter . (lambda (a-level c-level s-level attr-alist)
+                      (lambda (c1 c2) (string< (car c1) (car c2)))))
+        (r-calculator . (lambda (r a-level r-level children-p result)
+         (- (if (vectorp r)
+             (* (or (ee-field 'price r) 0) (or (ee-field 'amount r) 0))
+           result) result)))
+        (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+        (r-counter . (lambda (r a-level r-level children-p result) 1))
+        (c-title-printer)
+        (r-title-printer . (lambda () ))
+        (c-printer . (lambda (a-level c-level s-level header attr-alist)
+         (let ((b (point)))
+           (insert (format
+                    (concat "%s- %s (%s, %.2f)")
+                    (make-string (1- a-level) ?\040)
+                    header
+                    (or (cadr (assq 'counter attr-alist)) "0")
+                    (or (cadr (assq 'result attr-alist)) "0"))))))
+        (r-printer . (lambda (r a-level r-level children-p attr-alist)
+         (insert (format "%s%s%s%s %s %.2f * %s = %.2f"
+                         (or (car (ee-field 'mark r)) " ")
+                         (make-string r-level ?\040)
+                         (if children-p "- " "  ")
+                         (ee-field 'name r)
+                         (make-string (- 9 r-level) ?\040)
+                         (or (ee-field 'price r) 0)
+                         (or (ee-field 'amount r) 0)
+                         (* (ee-field 'price r) (ee-field 'amount r))))))
+        (r-select . ee-example-select)
+        (r-execute . ee-example-execute))]]
+
+
+File: ee.info,  Node: View Generation,  Next: View Buffer,  Prev: View Description,  Up: Top
+
+5 View Generation
+*****************
+
+Data:
+     [c-1 field-1 field-2 field-3]
+     [c-2 field-1 field-2 field-3]
+
+   View category paths (returned by c-path-finder):
+     '((c-1 c-1.1 | sc-1.1 | sc-1.2 ) 101)
+     '((c-1 c-1.2 ) 102)
+     '((c-2) 101)
+     '((c-2) 104)
+
+   Internal structure `view-atree':
+     (root
+      (~
+       (_r 101))
+      (c-1
+       (_s
+        (sc-1.1
+         (_s
+          (sc-1.2
+           (_r 102)
+           (_a (hide t) (result 1 0))))))))
+
+   Generated view buffer:
+     - c-1
+      - c-1.1
+               r-101
+      - c-1.2
+               r-102
+       - sc-1
+               r-103
+     - c-2
+               r-101
+             - r-107
+              - r-108
+               - r-109
+
+
+File: ee.info,  Node: View Buffer,  Next: Visibility,  Prev: View Generation,  Up: Top
+
+6 View Buffer
+*************
+
+Expansion division: ee-expansion
+
+   category, c-line: text-properties: ee-path, ee-level, ee-expansion
+
+   record, r-line: text-properties: ee-ri text-properties: ee-ri,
+ee-level, ee-expansion
+
+   Record division: ee-path ee-ri
+
+   c-number means category name sc-number means subcategory name
+ri-number means record index
+
+     - c-1             ee-path=(c-1) ee-level=1 ee-expansion=o(77,555)
+      - c-1.1          ee-path=(c-1.1) ee-level=2 ee-expansion=o(77,555)
+              ri-101   ee-ri=101
+       - sc-1          ee-path=(c-1 c-1.1 | sc-1) ee-level=3 ee-expansion=o(77,555)
+              ri-103   ee-ri=103
+       - c-1.1.1       ee-path=(c-1 c-1.1 c-1.1.1) ee-level=3 ee-expansion=o(77,555)
+              ri-104   ee-ri=104
+      - c-1.2          ee-path=(c-1.2) ee-level=2 ee-expansion=o(77,555)
+              ri-102   ee-ri=102
+     - c-2             ee-path=(c-2) ee-level=1 ee-expansion=o(77,555)
+              ri-101   ee-ri=101
+            - ri-107   ee-ri=107 ee-level=2 ee-expansion=o(77,555)
+             - ri-108  ee-ri=108 ee-level=3 ee-expansion=o(77,555)
+                ri-109 ee-ri=109
+
+
+File: ee.info,  Node: Visibility,  Next: Navigation,  Prev: View Buffer,  Up: Top
+
+7 Visibility
+************
+
+show/hide = expand/collase
+
+   One-click mouse gesture expansion tree navigation
+
+
+File: ee.info,  Node: Navigation,  Next: Marking and Deletion,  Prev: Visibility,  Up: Top
+
+8 Navigation
+************
+
+
+File: ee.info,  Node: Marking and Deletion,  Next: Writing Extensions,  Prev: Navigation,  Up: Top
+
+9 Marking and Deletion
+**********************
+
+Marking and deleting viewed items.
+
+   If some record appears under different categories, then it is marked
+in all categories.
+
+   If marking key is typed, when point is on category line, then the
+whole category is marked, i.e. every record under this category is
+marked.
+
+
+File: ee.info,  Node: Writing Extensions,  Next: Installation,  Prev: Marking and Deletion,  Up: Top
+
+10 Writing Extensions
+*********************
+
+You can write new ee extensions.
+
+   To do it, follow the next steps:
+
+  1. Create new file.
+     Give it the name beginning with prefix `ee-'.
+
+  2. Add default data description.
+
+  3. Add default view data description.
+
+   For list of currently available extensions see
+`http://www.jurta.org/emacs/ee/'.
+
+
+File: ee.info,  Node: Installation,  Next: Reporting Bugs,  Prev: Writing Extensions,  Up: Top
+
+11 Installation
+***************
+
+See the file README or `http://www.jurta.org/emacs/ee/'
+
+
+File: ee.info,  Node: Reporting Bugs,  Next: Terminology,  Prev: Installation,  Up: Top
+
+12 Reporting Bugs
+*****************
+
+Please report bugs, make suggestions and contributions to
+<juri@jurta.org> or on the Web pages at
+`http://www.jurta.org/emacs/ee/'.
+
+
+File: ee.info,  Node: Terminology,  Next: Concept Index,  Prev: Reporting Bugs,  Up: Top
+
+13 Terminology
+**************
+
+`category'
+
+`expansion'
+
+`path-finder'
+
+
+File: ee.info,  Node: Concept Index,  Next: Command Index,  Prev: Terminology,  Up: Top
+
+Concept Index
+*************
+
+ [index ]
+* Menu:
+
+* Extensions:                            Writing Extensions.   (line  6)
+* file flags:                            View Description.     (line 15)
+* Introduction:                          Introduction.         (line  6)
+
+
+File: ee.info,  Node: Command Index,  Next: Key Index,  Prev: Concept Index,  Up: Top
+
+Command Index
+*************
+
+ [index ]
+* Menu:
+
+File: ee.info,  Node: Key Index,  Next: Variable Index,  Prev: Command Index,  Up: Top
+
+Key Index
+*********
+
+ [index ]
+* Menu:
+
+File: ee.info,  Node: Variable Index,  Prev: Key Index,  Up: Top
+
+Variable Index
+**************
+
+ [index ]
+* Menu:
+
+
+Tag Table:
+Node: Top556
+Node: Introduction1822
+Node: Data-Flow Diagram2512
+Node: Data Structures3734
+Node: View Description4977
+Node: View Generation8507
+Node: View Buffer9322
+Node: Visibility10556
+Node: Navigation10750
+Node: Marking and Deletion10871
+Node: Writing Extensions11293
+Node: Installation11749
+Node: Reporting Bugs11937
+Node: Terminology12198
+Node: Concept Index12361
+Node: Command Index12722
+Node: Key Index12860
+Node: Variable Index12991
+
+End Tag Table

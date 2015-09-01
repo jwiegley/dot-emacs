@@ -1,0 +1,12 @@
+TestCases{refactorCmd="addOneParameter",
+positive=[(["D3.hs","A3.hs"],["y","7","1"]),
+          (["D1.hs","C1.hs","A1.hs"],["f","10","1"]),
+          (["D2.hs","C2.hs","A2.hs"],["f","11","1"]),
+          (["PatIn1.hs"],["x","7","1"]),
+          (["FunIn1.hs"],["y","7","1"]),
+          (["FunIn2.hs"],["y","10","18"]),
+          (["FunIn3.hs"],["y","9","11"]),
+          (["FunIn4.hs"],["y","8","22"])],
+negative=[(["PatIn2.hs"],["x","7","20"]),
+         (["FunIn5.hs"],["h","8","1"])]
+}

@@ -1,0 +1,36 @@
+
+
+BASE=${BASE-.}
+B=$BASE
+
+OLD_PARSE_DIRS=$B/parse:$B/parse/extras
+NEW_PARSE_DIRS=$B/parse2:$B/parse2/Lexer
+NEW_BPARSE_DIRS=$B/parse2/Parser
+
+# PARSE_DIRS=$OLD_PARSE_DIRS
+PARSE_DIRS=$NEW_PARSE_DIRS
+BPARSE_DIRS=$NEW_BPARSE_DIRS
+
+# Reusable source directories (refer to these defs in other HuMakefiles!):
+BASE_DIRS=$B/pretty:$B/AST:$B/syntax:$B/lib:$B/lib/Monads:$B/Modules:$B/defs:$B/TI:$B/defs/tests:$B/transforms:$B/transforms/Deriving
+MODSRC_DIRS=$PARSE_DIRS:$BASE_DIRS
+ #:$B/tests/HbcLibraries
+
+HS2HTML_DIR=${HS2HTML_DIR-$B/../hs2html}
+
+# All sources needed to compile the test programs in this directory:
+SRC_DIRS=$B:$MODSRC_DIRS:$BPARSE_DIRS:$HS2HTML_DIR
+
+#GHCFLAGS="-fno-allow-overlapping-instances -fglasgow-exts -package lang -package data -package text"
+GHCFLAGS="-fglasgow-exts -XNoOverlappingInstances" # -fno-th
+
+### Other useful GHC flags:
+# -Wall
+# -fwarn-incomplete-patterns
+# -fwarn-unused-imports.
+# -fmax-simplifier-iterations5
+# -no-recomp # recomp check is buggy, e.g. if you switch -O on and off
+# -optl -static # Static linking, to avoid problems shared lib versions
+
+# Note: GHC flags for use when compiling specific modules are put in files
+# called Flags.ghc in the respective directories.

@@ -1,0 +1,13 @@
+changeset = "{file_mods}{file_adds}{file_dels}"
+
+start_file_adds = ''
+file_add = 'A {file_add}\n'
+end_file_adds = ''
+
+start_file_dels = ''
+file_del = 'R {file_del}\n'
+end_file_dels = ''
+
+start_file_mods = ''
+file_mod = 'M {file_mod}\n'
+end_file_mods = ''

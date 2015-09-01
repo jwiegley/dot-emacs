@@ -1,0 +1,115 @@
+(Main.main = System.IO.putStrLn "foo"
+ Main.baz = 3 GHC.Num.+ Foo.Bar.baz,
+ [import (implicit) Prelude, import qualified Foo.Bar as B],
+ Just [Main.main],
+ Nothing)
+
+----------------------
+
+
+((,,,) 
+ (HsGroup 
+  (ValBindsOut 
+   [
+    ((,) 
+     (NonRecursive) {Bag(Located (HsBind Name)): 
+     [
+      (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:1-15} 
+       (FunBind 
+        (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:1-3} {Name: Main.baz}) 
+        (False) 
+        (MatchGroup 
+         [
+          (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:1-15} 
+           (Match 
+            [] 
+            (Nothing) 
+            (GRHSs 
+             [
+              (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:7-15} 
+               (GRHS 
+                [] 
+                (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:7-15} 
+                 (OpApp 
+                  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:7} 
+                   (HsOverLit 
+                    (OverLit 
+                     (HsIntegral 
+                      (3)) 
+                     (False) 
+                     (HsVar {Name: GHC.Num.fromInteger}) {!type placeholder here?!}))) 
+                  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:9} 
+                   (HsVar {Name: GHC.Num.+})) {Fixity: infixl 6} 
+                  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:7:11-15} 
+                   (HsVar {Name: Foo.Bar.baz}))))))] 
+             (EmptyLocalBinds))))] {!type placeholder here?!}) 
+        (WpHole) {NameSet: 
+        []} 
+        (Nothing)))]}),
+    ((,) 
+     (NonRecursive) {Bag(Located (HsBind Name)): 
+     [
+      (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:1-21} 
+       (FunBind 
+        (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:1-4} {Name: Main.main}) 
+        (False) 
+        (MatchGroup 
+         [
+          (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:1-21} 
+           (Match 
+            [] 
+            (Nothing) 
+            (GRHSs 
+             [
+              (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:8-21} 
+               (GRHS 
+                [] 
+                (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:8-21} 
+                 (HsApp 
+                  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:8-15} 
+                   (HsVar {Name: System.IO.putStrLn})) 
+                  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:5:17-21} 
+                   (HsLit 
+                    (HsString {FastString: "foo"})))))))] 
+             (EmptyLocalBinds))))] {!type placeholder here?!}) 
+        (WpHole) {NameSet: 
+        []} 
+        (Nothing)))]})] 
+   []) 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  [] 
+  []) 
+ [
+  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:1:1} 
+   (ImportDecl 
+    (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:1:1} {ModuleName: Prelude}) 
+    (Nothing) 
+    (False) 
+    (False) 
+    (False) 
+    (True) 
+    (Nothing) 
+    (Nothing))),
+  (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:3:1-29} 
+   (ImportDecl 
+    (L {/home/alanz/mysrc/github/alanz/HaRe/test/testdata/cabal/cabal3/src/main1.hs:3:18-24} {ModuleName: Foo.Bar}) 
+    (Nothing) 
+    (False) 
+    (False) 
+    (True) 
+    (False) 
+    (Just {ModuleName: B}) 
+    (Nothing)))] 
+ (Just 
+  [
+   (L {<no location info>} 
+    (IEVar {Name: Main.main}))]) 
+ (Nothing))

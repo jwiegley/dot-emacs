@@ -1,0 +1,24 @@
+1.3
+===
+
+* Fixed problem when buffer name contains "%".
+
+
+1.2
+===
+
+* Added "iflipb.el ends here" comment last in the file to please package.el's
+  package-buffer-info function.
+
+
+1.1
+===
+
+* Added customization of public iflipb variables (patch by Dmitry Gutov).
+* Added iflipb-permissive-flip-back setting (patch by Dmitry Gutov).
+
+
+1.0
+===
+
+* First tagged version.

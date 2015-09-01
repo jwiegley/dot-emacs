@@ -1,0 +1,123 @@
+Comparison of the hackage 0.6.0.2 version with this repo
+
+1. editors directory removed
+
+2. misc directory added
+
+3. testing directory (still here :) )
+
+4. Annotated the differences in ./refactorer
+
+5. TODO: check StrategyLib and tools directories
+
+-------------------------
+
+Seems Language.Haskell.Interpreter will return an error if there are any warnings when loading a module.
+Will modify tests to avoid warnings, for now, but must address in future.
+
+
+Original tests (with good results) are here
+  https://github.com/alanz/HaRe/tree/71f80d2a59058acd6088c98d9748999f90ab0195/testing
+
+Original data structures are here
+http://www.cs.kent.ac.uk/projects/refactor-fp/hare/API_Doc/HsModule.html
+
+-------------------------------------
+
+Requirements for interface to GHC data structures
+-------------------------------------------------
+
+1. Allow generic queries via SYB etc.
+
+2. Allow generic transformations via SYB etc.
+
+3. Maintain tokens with AST fragment. In particular
+   a. If a fragment is duplicated, its tokens are duplicated.
+   b. If a fragment is removed, its tokens are removed.
+   c. If a partial refactor has been done, the token and AST manipulations remain sane
+      e.g. The new AST SrcLocs can be tied up to the new token stream.
+
+4. Do not obscure existing AST (Renamed or TypeChecked)
+   i.e. allow matching on structures from AST.
+
+5. Allow converting the structure back into a source file accurately
+   reflecting only the required changes (via Token stream)
+
+Options
+
+  1. As is, but re-order everything. Problem comes with re-sequencing
+     source locations in AST.
+
+  2. As is, but put new interface on tokens only, to somehow tie them up to the AST.
+     Q: How to mark changed AST elements, and keep them indexed into the tokens structure.
+     Q: How to manage reconstructing the source file?
+
+  3. Some kind of virtual zipper, with the hole element being an AST
+     fragment and its associated tokens.
+     Q: how would traversals work?
+     Q: how would the structure be dumped at the end.
+
+  4. Variation on 2: Some kind of annotated token stream, with markers
+     on it to indicated tokens added to the original stream, removed
+     from it, or replacing others. This could be something like a list
+     of edit commands for an editor, and could be presented as such
+     (perhaps).
+
+Observations
+
+  1. The tie-up between the AST and the tokens is via SrcLoc.Located
+
+     The rich token stream is [(Located Token, String)]
+     Each AST element is located.
+
+  2. We currently have fetchOrigToks in the RefactGhc monad to get
+     original tokens for an AST element
+
+  3. At the moment, the Located part of the AST is not updated as
+     re-arrangements are made. I suspect that the complexity of doing
+     this will not be worth the result.
+
+  4. The final output happens via the token stream.
+
+  5. The only leeway with the RealSrcLoc is the Int pairs pertaining
+     to the start and end line/col pairs. Perhaps use either -ve
+     values, or add an offset. Max value of an int is guaranteed to be
+     at least 2^29-1 or 536,870,911. Anything above 1M will do.
+
+  6. The bind SrcLoc does not tie up directly with the token SrcLoc
+     due to surrounding comments
+
+  7. The surrounding indent can perhaps be managed within this
+     structure.
+
+  8. The GHC ParsedSource is in linear order, the RenamedSource is not
+
+
+Further thoughts on Token/AST tie up
+------------------------------------
+
+Layout is the biggest problem, in terms of knock-on effect of layout changes.
+
+This is a solved problem, in the pretty-print world.
+
+So, try and represent the token tree as a representation of the layout
+elements of the original AST.
+
+To do this, must identify the critical layout points, REQUIRED by haskell.
+
+
+Even further thoughts
+---------------------
+
+Consider using dual-tree as in diagrams. The theory is explained here
+http://www.cis.upenn.edu/~byorgey/pub/monoid-pearl.pdf.
+
+In this case the u annotation would be the token start and end.
+
+The d actions would be
+  Delete a span
+  Add a span
+
+
+
+

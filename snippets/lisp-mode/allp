@@ -1,0 +1,12 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# key: all
+# name: allp
+# --
+(defunc all_Hotel_$1sp (srcObjs MddContext)
+  :input-contract (and (objListp srcObjs) (MddContext-typep MddContext))
+  :output-contract (booleanp (all_Hotel_$1sp srcObjs MddContext))
+  (if (endp srcObjs)
+      t
+      (and (Hotel_$1p (getFromHeap (car srcObjs) MddContext))
+           (all_Hotel_$1sp (cdr srcObjs) MddContext))))
+$0

@@ -1,0 +1,100 @@
+#!/bin/sh
+
+## Note: The Makefile automatically invokes this script if necessary.
+
+## This configure script does two things at the moment:
+##
+##   1. Checks that GHC is available (should also check for version >=5)
+##
+##   2. Picks a make tool. Humake is preferred if available
+##      (except under Darwin), ghc --make is used otherwise.
+##
+## The result is recorded as links to scripts in the script/ subdirectory.
+## Various Makefiles refer to these scripts.
+
+### Auxiliary functions ########################################################
+giveup() {
+  echo "$@"
+  echo "Giving up."
+  exit 1
+}
+
+qwhich() {
+  which "$@" 2>/dev/null
+}
+
+### Check that GHC is available ################################################
+GHC=${GHC-ghc}
+ghc=`${GHC} --numeric-version`
+
+[ -n "$ghc" ] || giveup "${GHC} doesn't seem to work."
+# Check that the version number is >=5...
+
+echo "Using GHC version $ghc (the command is ${GHC})"
+
+### Check which make tools are available #######################################
+
+ghcxmake=`qwhich ghcxmake`
+
+if [ "${USE_HUMAKE-yes}" != "yes" ] ; then
+  echo "Not using Humake"
+elif [ `uname` = Darwin ]; then
+  echo "Humake is broken under Darwin (Mac OS X), skipping test."
+else
+  humake=`qwhich humake`
+fi
+[ -n "$humake" ] && ghumake=`qwhich ghumake`
+[ -n "$ghumake" ] && ghuxmake=`qwhich ghuxmake`
+
+
+### Pick make scripts ##########################################################
+
+echo -n "Compiling plain Haskell programs with: "
+if [ -n "$ghumake" ] ; then
+  hsmake=myghumake
+  echo "ghumake (Humake)"
+else
+  hsmake=myghc--make
+  echo "ghc --make"
+fi
+
+echo -n "Compiling Haskell programs that use Fudgets with: "
+
+if [ -n "$ghuxmake" ] ; then
+  hsfudmake=myghuxmake
+  echo "ghuxmake (Humake)"
+elif [ -n "$ghcxmake" ] ; then
+  hsfudmake=myghcxmake
+  echo "ghcxmake (ghc --make)"
+else
+  echo "found no suitable tool!"
+  #giveup ...
+fi
+
+### Checking for InternetLib ###################################################
+
+I=InternetLib
+B=pfe/Browser
+L=/usr/local/lib
+P=package.conf
+[ -r "$B/$I/$P" ] || {
+  if [ -r "$L/$I/$P" ] ; then
+    echo "Using InternetLib found in $L"
+    ln -s $L/$I $B/$I
+  else
+    echo "Didn't find InternetLib (in $L)."
+    echo "Manually install it (in $L) or create a link to it in $B"
+  fi
+}
+
+### Creating links to scripts ##################################################
+cd scripts
+
+rm -f hsmake.sh
+ln -s "$hsmake" hsmake.sh
+
+[ -n "$hsfudmake" ] && {
+  rm -f hsfudmake.sh
+  ln -s "$hsfudmake" hsfudmake.sh
+}
+### Done! ######################################################################

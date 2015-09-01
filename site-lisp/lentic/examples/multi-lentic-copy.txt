@@ -1,0 +1,4 @@
+hello here we are and here and ehre
+Local Variables:
+lentic-init: (lentic-default-init lentic-default-init)
+End:

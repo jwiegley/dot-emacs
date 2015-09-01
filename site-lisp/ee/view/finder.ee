@@ -1,0 +1,67 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ()))
+ [((type . view)
+   (name . "by Keyword")
+   (default . t)
+   (c-path-finder . (lambda (r)
+    (if (ee-field 'keywords r)
+        (mapcar (lambda (kw)
+                  ;; Place unknown keywords into separate category
+                  (if (assq kw finder-known-keywords)
+                      kw
+                    (list "(Unknown keywords)" ee-mark-subcategory-tree kw)))
+                (ee-field 'keywords r))
+      (list "(Uncategorized)"))))
+   (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (c-sorter . (lambda (a-level c-level s-level attr-alist)
+    (lambda (c1 c2) (string< (car c1) (car c2)))))
+   (r-sorter . (lambda (a-level r-level attr-alist)
+    (lambda (ri1 ri2)
+      (string< (ee-field 'file (aref ee-data ri1))
+               (ee-field 'file (aref ee-data ri2))))))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point))
+          (known-keyword (cdr (assq header finder-known-keywords))))
+      (insert (format "%s- %s%s (%s)"
+                      (make-string (1- (+ c-level s-level)) ? )
+                      header
+                      (if known-keyword
+                          (concat " - " known-keyword)
+                        "")
+                      (or (cadr (assq 'counter attr-alist)) "0")))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (insert (format "%s %s"
+                    (or (car (ee-field 'mark r)) " ")
+                    (ee-field 'file r)))
+    (if (ee-field 'mark r)
+        (add-text-properties (line-beginning-position) (1+ (line-beginning-position)) (list 'face 'font-lock-warning-face)))
+    (if (ee-field 'synopsis r)
+        (progn
+          (setq p (point))
+          (insert " " (ee-field 'synopsis r))
+          (add-text-properties p (point) (list 'face 'ee-shadow))))))
+   (post-generate . (lambda () (or ee-hidden-expansions (ee-view-expansion-hide-all))))
+   (r-select . ee-finder-select))]
+ [((type . view)
+   (name . "Alphabetical")
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (r-sorter . (lambda (a-level r-level attr-alist)
+    (lambda (ri1 ri2)
+      (string< (ee-field 'file (aref ee-data ri1))
+               (ee-field 'file (aref ee-data ri2))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (insert (format "%s %s"
+                    (or (car (ee-field 'mark r)) " ")
+                    (ee-field 'file r)))
+    (if (ee-field 'mark r)
+        (add-text-properties (line-beginning-position) (1+ (line-beginning-position)) (list 'face 'font-lock-warning-face)))
+    (if (ee-field 'synopsis r)
+        (progn
+          (setq p (point))
+          (insert " " (ee-field 'synopsis r))
+          (add-text-properties p (point) (list 'face 'ee-shadow))))))
+   (r-select . ee-finder-select))]]

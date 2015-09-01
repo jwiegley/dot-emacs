@@ -1,0 +1,19 @@
+One can use MakeMake.hs to create the makefile.
+e.g. runhugs MakeMake.hs > Makefile
+
+To make the most recent versions of the files
+type "make".
+
+IMPORTANT NOTES:
+    
+    * there needs to be a directory named "tmp" in the current directory.
+    * might need to make the DVI file twice, to get the references right.
+    * the binaries in this directory were made for Mandrake 8.1
+      (will probably work on RedHat 7.2 as well, haven't tried)
+        * they don't work on turing as there seems to be a missing library
+        * a vesrion compiled on turing, which seems to work is available
+          at /disk/hopper/users/students/diatchki/bin/Hack
+          
+          the Makefile has to be changed to make use of it.
+
+

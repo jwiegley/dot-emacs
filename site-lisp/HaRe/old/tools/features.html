@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Programatica Haskell Tools - Features</title>
+<link rel=parent href="./" title="Programatica Tools">
+<link rel=author href="/~hallgren/" title="Thomas Hallgren">
+<link rel="alternate stylesheet" type="text/css" HREF="/~hallgren/src2.css" title="Midnight Hacker">
+<link rel="stylesheet" type="text/css" HREF="/~hallgren/src.css" title="Normal">
+<link rel=icon type="image/gif" href="web/icon1.png">
+</head>
+<body>
+<h1><img align=right src="web/icon1.png" alt="">
+Features of the Programatica Haskell Tools</h1>
+
+<p>
+This page summarizes the features of the
+<cite>Programatica Haskell Toolkit</cite>, which is
+
+<ul>
+<li>A Haskell front-end, with functionality similar to what you find in a
+    compiler front-end for Haskell, implemented in Haskell.
+<li>some command line tools and a graphical Haskell browser, built on top of
+    the Haskell front-end.
+</ul>
+
+<p>
+See the <a href="usage.html">Usage</a> page for how to use the tools.
+<p>
+It should also be possible for Haskell programmers to reuse our Haskell
+front-end in their own Haskell programs, but at the moment
+there is very little documentation to support this, unfortunately.
+(But it has been used in
+<a href="http://www.cs.kent.ac.uk/projects/refactor-fp/hare.html">HaRe
+ -- the Haskell refactorer</a> tool from the
+University of Kent.)
+
+<h2>Summary of functionality</h2>
+
+<ul>
+<li>Lexical analysis, parsing (including operator fixity),
+    scoping, pretty printing.
+<li>Module-level dependency analysis, to support built-in make(1)-like
+    module processing.
+<li>Type checking, removing overloading by the dictionary translation,
+    generating code for derived instances.
+<li>Program transformations: pattern binding removal,
+    pattern match simplification, function binding simplification,
+    list comprehension removal.
+<li>Definition-level dependency analysis, dead-code detection, slicing.
+<li>Translation to Alfa/Agda (roughly Cayenne).
+<li>Rendering of Haskell source code as HTML with
+    accurate syntax highlighting and hyperlinks from uses to definitions.
+    (See <a href="/~hallgren/h2h.html">notes on the HTML conversion</a>.)
+<li>Find definitions of a particular identifier.
+<li>Find all uses of a particular entity.
+<li>...
+</ul>
+
+<h2>Supported language</h2>
+<div>
+<p>
+The tools support <strong>Haskell 98</strong> as described in the
+<a href="http://www.haskell.org/definition/"><cite>Haskell 98
+Language and Libraries: the Revised Report</cite></a>. It also supports
+a number of <strong>extensions</strong> to varying degree.
+<!--<em>n+k</em> patterns are not supported.-->
+
+<h3>Unusually well-supported standard language features</h3>
+
+<ul>
+<li>Mutually recursive modules (without the need for hi-boot files).
+(See our <a href="/~diatchki/hsmod/">formal module system specification</a>
+from the Haskell Workshop in 2002.)
+<li>A lexer that complies with the Haskell report.
+    (See the <a href="/~hallgren/Talks/LHiH/">Lexer for Haskell in Haskell</a>
+     page.)
+</ul>
+
+<h3>Common Haskell Language extensions</h3>
+
+
+<table>
+<caption>
+Available functionality: P=lexing/parsing/scoping, T=type checking
+<br>Y=supported, y=partially supported, n=not supported (yet), blank=n/a.
+</caption>
+<tr><th>P<th>T<th>Feature
+<tr><td>Y<td>
+    <td>Hierarchical module names (i.e. "<code>.</code>" in module names)
+<tr><td>Y<td>y
+    <td>Haskell Hierachical Libraries
+<tr><td>y<td>
+     <td>Foreign Function Interface
+<tr><td>Y<td>Y
+    <td>Multi-parameter classes
+<tr><td>Y<td>Y
+    <td>Overlapping instances (as in Hugs)
+<tr><td>Y<td>y
+    <td>Functional dependencies (see
+	<a href="http://www.cse.ogi.edu/~mpj/pubs/fundeps.html"><cite>Type
+	Classes	with Functional Dependencies</cite></a>)
+<tr><td>Y<td>n
+    <td>Rank-n polymorphism
+    (use of the <code>forall</code> keywords in type expression)
+<tr><td>Y<td>n
+    <td>Existentially quantified types
+    (use of the <code>forall</code> keyword in data constructor specifications)
+<tr><td>Y<td>Y
+    <td>The horrible n+k patterns
+<tr><td>n<td>n
+    <td>Pattern guards
+<tr><td>n<td>n
+    <td>Infix type constructors  
+<tr><td>n<td>n
+    <td>Type signatures in patterns, scoped type variables
+<tr><td>y<td>n
+    <td>Generalised derived instances for newtypes
+<tr><td>n<td>n
+    <td>Generalised Algebraic Data Types
+<tr><td>n<td>n
+    <td><code>mdo</code>
+</table>
+<br>
+
+<h3>Programatica specific language extensions</h3>
+
+<ul>
+<li>Predicate definitions, using the <code>property</code> keyword.
+<li>Property assertions, using the <code>assert</code> keyword.
+<li>P-logic formulas (appear in predicate definitions and property assertions).
+</ul>
+</div>
+
+<h2>Supported Libraries</h2>
+
+<p>
+The Programatica Haskell Tools are packaged with two sets of libraries:
+
+<ul>
+<li>the plain Haskell 98 libraries, as specified in the
+    <a href="http://www.haskell.org/onlinereport/">Haskell 98 Report</a>.
+<li>a version of the <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/index.html">Haskell
+    Hierarchical Libraries</a>
+   (adapted from the libraries supplied with Hugs).
+</ul>
+
+<p>
+The command <a href="usage.html#pfesetup"><code>pfesetup</code></a>
+sets up a project using the Haskell 98 libraries by default.
+By supplying the flag <code>+h</code> or <code>hierarchical</code> a project
+using the hierarchical libraries is created instead.
+
+<h2>Limitations</h2>
+
+<p>
+The tools currently don't implement exhaustive checking for static errors
+and might let things like duplicate definitions or repeated variables in
+patterns slip through silently.
+(Implementing this has been given low priority,
+ since it has been assumed that the tools will be used as a complement to
+other Haskell compilers/interpreters, rather than a replacement.)
+
+</body>
+</html>

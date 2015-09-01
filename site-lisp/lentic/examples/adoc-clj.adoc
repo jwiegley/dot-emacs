@@ -1,0 +1,29 @@
+Clojure and Asciidoc Interaction
+================================
+
+This document shows the transformation between asciidoc and clojure, which is
+a slightly more complex transformation that the usual block transform.
+Source blocks are distinguish as follows:
+
+[source,lisp]
+----
+(println "Hello")
+----
+
+In asciidoc, the "----" lines are actually optional for a single block, but
+not for lentic where they are required.
+
+[source,lisp]
+----
+(println "hello")
+----
+
+And finally, we finish with the local variables. In this case, the "main" file
+is the asciidoc form, which we transform to Clojure.
+
+
+//
+// Local Variables:
+// lentic-init: lentic-asciidoc-clojure-init
+// End: 
+//

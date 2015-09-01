@@ -1,0 +1,10 @@
+name: I say so
+version: 0.02
+release: June 18, 2003
+src: http://www.cse.ogi.edu/~hallgren/Programatica/
+description: A person certifies the validity of an assertion
+abbrev: ISay
+
+attribute: name=conc, type=string/assertion, label=Conclusion, required
+attribute: name=Comment, type=string
+#attribute: name=hyp, type=string, label="Assumptions", optional

@@ -1,0 +1,1 @@
+run --abi=eabi --advice:power=all --remarks --c -I.. ulp_$0.c

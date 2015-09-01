@@ -1,0 +1,333 @@
+\newcommand{\ldbrack}{[\![}
+\newcommand{\rdbrack}{]\!]}
+\newcommand{\rdbrackPS}{]\!]_{ps}}
+\newcommand{\minus}{{\tt neg}}
+\newcommand{\update}{{\tt update}}
+\newcommand{\updateSto}{{\tt updateSto}}
+\newcommand{\updateA}{{\tt updateA}}
+%\newcommand{\rdAddr}{{\tt rdAddr}}
+\newcommand{\rdSto}{{\tt rdSto}}
+\newcommand{\getSto}{{\tt getSto}}
+\newcommand{\getSBRS}{{\tt getSBRS}}
+\newcommand{\setSto}{{\tt setSto}}
+\newcommand{\rdLabel}{{\tt rdLabel}}
+\newcommand{\rdCode}{{\tt rdCode}}
+\newcommand{\getCode}{{\tt getCode}}
+\newcommand{\callcc}{{\tt callcc}\;}
+\newcommand{\call}{{\tt call}}
+\newcommand{\acall}{{\tt acall}}
+\newcommand{\readIt}{{\tt read}}
+\newcommand{\bool}{{\bf bool}}
+
+
+\newcommand{\getDisplay}{{\tt getDisplay}}
+\newcommand{\updateDisplay}{{\tt updateDisplay}}
+%\newcommand{\MachLang}{\textsf{\textbf{MachLang}}\/}
+\newcommand{\MachLang}{\ensuremath{\mathbf{\mathsf{MachLang}\/}}}
+\newcommand{\Rhs}{\ensuremath{\mathbf{\mathsf{Rhs}\/}}}
+\newcommand{\TargetLang}{\ensuremath{\mathbf{\mathsf{TargetLang}\/}}}
+\newcommand{\IntProducer}{\ensuremath{\mathbf{\mathsf{IntProducer}\/}}}
+
+\newcommand{\letclosed}{{\bf letclosed}}
+\newcommand{\letopen}{{\bf letopen}}
+\newcommand{\letrec}{{\bf letrec}}
+\newcommand{\funcall}{{\bf funcall}}
+\newcommand{\apply}{\mathsf{apply}}
+\newcommand{\Dynam}{\mathsf{Dynam}}
+\newcommand{\Static}{\mathsf{Static}}
+\newcommand{\Dmonad}{\mathsf{D}}
+\newcommand{\Smonad}{\mathsf{S}}
+\newcommand{\DynamOf}[1]{\mathsf{Dynam}(#1)}
+\newcommand{\StaticOf}[1]{\mathsf{Static}(#1)}
+\newcommand{\compile}{\ensuremath{\mathsf{compile}}}
+%\newcommand{\compile}{\textsf{compile}}
+\newcommand{\Monad}{\mathsf{M}}
+\newcommand{\St}{\mathsf{St}}
+\newcommand{\STtwo}{\mathsf{St2}}
+\newcommand{\EnvSt}{\mathsf{EnvSt}}
+\newcommand{\CPS}{\mathsf{CPS}}
+\newcommand{\Id}{\mathsf{Id}}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\ALLOC}{{\tt ALLOC}}
+\newcommand{\NOP}{{\tt NOP}}
+\newcommand{\DEALLOC}{{\tt DEALLOC}}
+\newcommand{\BRLEQ}{{\tt BRLEQ}}
+%\newcommand{\then}{\,\mbox{{\bf{\tt \large{;}}}}\, }
+\newcommand{\then}{\,\mbox{{\bf{\tt ;}}}\, }
+
+
+
+\newcommand{\Interp}{\mathsf{Dynam}}
+\newcommand{\Comp}{\mathsf{Static}}
+
+\newcommand{\updateL}{{\tt updateL}}
+\newcommand{\updateLabel}{{\tt updateLabel}}
+\newcommand{\getLabel}{{\tt getLabel}}
+\newcommand{\getIt}{{\tt get}}
+\newcommand{\setIt}{{\tt set}}
+\newcommand{\contents}{{\tt read}}
+\newcommand{\add}{{\tt add}}
+\newcommand{\NN}{N}
+\newcommand{\Mach}{[\![ - ]\!]_{Mach}}
+
+%\newcommand{\IntProd}{{\tiny \mathbf{MachLang}\times \mathbf{Rhs}}}
+\newcommand{\IntProd}{\mathit{IntProd}}
+
+\newcommand{\getSP}{{\tt getSP}}
+\newcommand{\setSBRS}{{\tt setSBRS}}
+\newcommand{\rdLoc}{{\tt rdLoc}}
+
+\newcommand{\jump}{{\tt jump}\,}
+\newcommand{\JUMP}{{\tt JUMP}}
+\newcommand{\SEGM}{{\tt SEGM}}
+\newcommand{\SEGMENT}{{\tt SEGMENT}}
+\newcommand{\LABEL}{{\tt LABEL}}
+\newcommand{\ENDLABEL}{{\tt ENDLABEL}}
+\newcommand{\Mono}{{\cal M}\!{\it ono}}
+
+%\newcommand{\UnitType}{\,{\tt void}}
+\newcommand{\Void}{{\tt void}}
+%\newcommand{\bindI}{\;\;{\bf bindE}\;\;}
+\newcommand{\bindD}{\;\star_{D}\;}
+\newcommand{\unitD}{{\bf unit}_D}
+
+
+%\newcommand{\bind}{\;\;{\bf bind}\;\;}
+\newcommand{\bind}{\;\star\;}
+\newcommand{\bindid}{\;\star_{Id}\;}
+\newcommand{\bindul}{\;\;\bigcirc\hspace{-1.25mm}\!\!\!\!\star\;\;\,\;}
+
+\newcommand{\unit}{{\bf unit}}
+\newcommand{\CreateTemp}{{\tt CreateTemp}}
+\newcommand{\newloc}{{\tt newloc}}
+\newcommand{\newLabel}{{\tt newlabel}}
+\newcommand{\rdloc}{{\tt rdloc}}
+\newcommand{\newAddr}{{\tt newAddr}}
+\newcommand{\newSegment}{{\tt newSegment}}
+\newcommand{\newSegments}{{\tt newSegments}}
+\newcommand{\updateloc}{{\tt updateloc}}
+\newcommand{\lift}{{\tt lift}}
+\newcommand{\updateC}{{\tt updateC}}
+\newcommand{\updateCode}{{\tt updateCode}}
+\newcommand{\storeC}{{\tt storeC}}
+\newcommand{\store}{{\tt store}}
+
+\newcommand{\StateT}{{\mathcal T}_{\!\mathsf{St}}}
+\newcommand{\EnvT}{{\mathcal T}_{\!\mathsf{Env}}}
+\newcommand{\ContT}{{\mathcal T}_{\!\mathsf{CPS}}}
+
+%\newcommand{\StateT}{{\mathcal T}_{\! St}}
+%\newcommand{\EnvT}{{\mathcal T}_{\! Env}}
+
+\newcommand{\CodeStore}{Code}
+
+\newcommand{\rdAddr}{{\tt rdAddr}}
+\newcommand{\inAddr}{{\tt inAddr}}
+\newcommand{\Thread}{{\tt Thread}}
+\newcommand{\C}{{\cal C}}
+%\newcommand{\bindC}{\;{\bf bindC}\;}
+\newcommand{\bindS}{\;\star_{S}\;}
+\newcommand{\unitS}{{\bf unit}_S}
+\newcommand{\BINDS}[2]{#1\bindS \lambda #2.}
+\newcommand{\BIND}[2]{#1\bind \lambda #2.}
+\newcommand{\BINDD}[2]{#1\bindD \lambda #2.}
+\newcommand{\BINDM}[2]{#1\bindM \lambda #2.}
+\newcommand{\MS}[1]{\ensuremath{\M\ldbrack #1 \rdbrack}}
+\newcommand{\CS}[1]{\ensuremath{\C\ldbrack #1 \rdbrack}}
+\newcommand{\standard}[1]{\ensuremath{\ldbrack #1 \rdbrack}}
+
+\newcommand{\rdSeg}{{\tt rdSeg}}
+\newcommand{\rdSD}{{\tt rdSD}}
+\newcommand{\inSD}{{\tt inSD}}
+
+\newcommand{\orLog}{\,{\bf or}\,}
+\newcommand{\notLog}{{\bf not}\,}
+\newcommand{\true}{{\tt true}}
+\newcommand{\false}{{\tt false}}
+\newcommand{\currentFrame}{{\tt currentFrame}}
+\newcommand{\mkCall}{{\tt mkCall}}
+\newcommand{\return}{{\tt return}}
+\newcommand{\intexp}{{\bf intexp}}
+\newcommand{\boolexp}{{\bf boolexp}}
+\newcommand{\comm}{{\bf comm}}
+%\newcommand{\prop}{{\bf prop}}
+\newcommand{\mkcall}{{\tt mkcall}}
+\newcommand{\mkargcall}{{\tt mkargcall}}
+\newcommand{\mksubr}{{\tt mksubr}}
+\newcommand{\initCS}{{\tt init}_{CS}}
+\newcommand{\lookup}{{\tt lookup}}
+\newcommand{\Assign}{\mathsf{Assign}}
+\newcommand{\Negate}{\ensuremath{\mathsf{Negate}}}
+\newcommand{\Add}{\mathsf{Add}}
+\newcommand{\Arrow}{\mathsf{Lambda}}
+\newcommand{\IfThen}{\ensuremath{\mathsf{IfThen}}}
+\newcommand{\IfThenPS}{\ensuremath{\mathsf{IfThenPS}}}
+\newcommand{\IfThenElsePS}{\ensuremath{\mathsf{IfThenElsePS}}}
+\newcommand{\IfThenOf}[4]{\mathsf{IfThen}(#1,#2,#3,#4)}
+\newcommand{\WhilePS}{\mathsf{WhilePS}}
+\newcommand{\Or}{\mathsf{Or}}
+\newcommand{\Not}{\mathsf{Not}}
+\newcommand{\Lteq}{\mathsf{Lteq}}
+%\newcommand{\Fresh}{\mathsf{Fresh}}
+\newcommand{\New}{\mathsf{New}}
+\newcommand{\Observe}{\mathsf{Obs}}
+%\newcommand{\If}{\mathsf{If}}
+\newcommand{\If}[2]{#1 \;\mbox{\raisebox{-0.4ex}{{\huge $\triangleright$}}}\; #2}
+\newcommand{\guard}{\;\mbox{\raisebox{-0.4ex}{{\huge $\triangleright$}}}\;}
+\newcommand{\NotEqual}{\mathsf{NotEqual}}
+\newcommand{\And}{\mathsf{And}}
+\newcommand{\NotInRHS}{\mathsf{NotInRHS}}
+\newcommand{\DisplayUnchanged}{\mathsf{DisplayUnchanged}}
+\newcommand{\savereg}{\mathsf{savereg}}
+\newcommand{\rhs}{\mathit{rhs}}
+\newcommand{\tmps}{\mathit{tmps}}
+\newcommand{\pop}{\mathsf{pop}}
+
+\newcommand{\Alloc}{{\tt Alloc}}
+\newcommand{\deAlloc}{{\tt deAlloc}}
+
+\newcommand{\rdEnv}{{\tt rdEnv}}
+\newcommand{\rdgen}{{\tt rd}}
+\newcommand{\ingen}{{\tt in}}
+\newcommand{\inEnv}{{\tt inEnv}}
+\newcommand{\allocLoc}{{\tt allocLoc}}
+
+\newlength{\bracket}
+\settowidth{\bracket}{[}
+\newsavebox{\leftdoublebracket}
+\newsavebox{\rightdoublebracket}
+\sbox{\leftdoublebracket}{[\hspace{-.5\bracket}[}
+\sbox{\rightdoublebracket}{]\hspace{-.5\bracket}]}
+\newcommand{\ldbra}{\usebox{\leftdoublebracket}}
+\newcommand{\rdbra}{\usebox{\rightdoublebracket}}
+\newsavebox{\leftbraced}
+\newsavebox{\rightbraced} 
+\sbox{\leftbraced}{\{\hspace{-.5\bracket}|}
+\sbox{\rightbraced}{|\hspace{-.5\bracket}\}}
+\newcommand{\lbrac}{\usebox{\leftbraced}}
+\newcommand{\rbrac}{\usebox{\rightbraced}}
+\makeatother
+%\include{psinput}
+%\include{psfig}
+
+\newcommand{\segment}[3]{{\tt (SEGM}( #1,#2) \then #3{\tt )}}
+\newcommand{\EndLabel}[2]{{\tt (ENDLABEL}\;#1\;\;#2{\tt )}}
+\newcommand{\Lexit}{\ensuremath{L_{{\mathrm exit}}}}
+
+\newcommand{\IfThenElse}[3]
+	{\ensuremath
+	{\begin{array}{lcl} 
+		\mbox{if   }\; #1\; \mbox{ then}\\
+		\hspace{4ex} #2\\ 
+		\mbox{else }\; #3 \end{array}}}
+
+\newcommand{\RCBB}{RCBB}
+\newcommand{\Exp}{\ensuremath{Exp}}
+
+\newcommand{\alloc}[1]{\ensuremath{\mathtt{ALLOC}(#1)}}
+\newcommand{\dealloc}[1]{\ensuremath{\mathtt{DEALLOC}(#1)}}
+\newcommand{\Obs}[3]{\ensuremath{\mathsf{Obs}(#1,#2,#3)}}
+%\newcommand{\Obs}[3]{\mathbf{[}#1\; 
+% \;\mbox{\raisebox{-0.4ex}{{\huge $\triangleright$}}}\;
+% #2\; \| \;#3\mathbf{]}}
+\newcommand{\IP}[3]{\ensuremath{\langle #1,#2,#3\rangle}}
+
+\newcommand{\pbang}{\mathsf{p!}}
+
+%\newcommand{\staged}[1]{\ensuremath{\mathsf{staged}\ldbrack #1 \rdbrack}}
+\newcommand{\staged}[1]{\ensuremath{\mathcal{S}\ldbrack #1 \rdbrack}}
+\newcommand{\unquote}{{\tt unquote}}
+
+\newcommand{\bindM}{\;\star_{M}\;}
+\newcommand{\unitM}{{\bf unit}_M}
+\newcommand{\highlight}[1]{\begin{center} \fbox{#1} \end{center}}
+\newcommand{\reason}[1]{\vspace{3ex}\noindent\fbox{{#1}}}
+\newcommand{\dynwhile}{\ensuremath{\mathsf{dynwhile}}}
+\newcommand{\whilePS}{\ensuremath{\mathsf{whilePS}}}
+\newcommand{\FreshLabels}{\mathsf{FreshLabels}}
+\newcommand{\FreshLabel}{\mathsf{FreshLabel}}
+\newcommand{\FreshLoc}{\mathsf{FreshLoc}}
+
+%\newcommand{\qed}{\noindent\(\sqcap\!\!\!\!\sqcup\)}
+\newcommand{\NewIn}[2]{\mathsf{NewIn}(#1,#2)}
+\newcommand{\dom}[1]{\ensuremath{\mathsf{dom}(#1)}}
+
+
+%\newcommand{\assign}{\mbox{{\bf{\tt \large{:=}}}}}
+%\newcommand{\assign}{\large{\mathbf{:=}}}
+\newcommand{\assign}{\mathbf{:=}}
+
+\newcommand{\restate}[5]{\label{#2-appendix}\noindent{\bf #1~\ref{#2} (#3)} {\em #4} #5}
+\newcommand{\restateBlank}[5]{\label{#2-appendix}\noindent{\bf #1~\ref{#2} #3} {\em #4} #5}
+\newcommand{\CF}[1]{\ensuremath{\mathsf{CF}\ldbrack #1 \rdbrack}}
+
+\newcommand{\constexp}[1]{\ensuremath{\mathsf{constexp}(#1)}}
+\newcommand{\AND}{\;\mathsf{AND}\;}
+
+%\newcommand{\ObsArray}[3]
+%{\ensuremath
+%{\left[\begin{array}{lcl} 
+%		 #1\;\mbox{\raisebox{-0.4ex}{{\huge $\triangleright$}}} \\
+%\hspace{6ex} #2 \mbox{\raisebox{-0.25ex}{{\Large $\;\|$}}} \\ 
+%		\hspace{12ex} #3 \end{array}\right] }}
+
+\newcommand{\ObsArray}[3]
+{\ensuremath
+{(\mathsf{Obs}\left(\begin{array}{lcl} 
+		 #1,\\
+\hspace{6ex} #2,  \\ 
+		\hspace{12ex} #3 \end{array}\right)) }}
+
+\newcommand{\ObsArrayNP}[3]
+{\ensuremath
+{\mathsf{Obs}\left(\begin{array}{lcl} 
+		 #1,\\
+\hspace{6ex} #2,  \\ 
+		\hspace{12ex} #3 \end{array}\right) }}
+
+\newcommand{\ObsArrayNew}[3]
+{\ensuremath
+{\mathsf{Obs}\left(\begin{array}{lcl} 
+		#1,\\
+                \hspace{2ex}#2,  \\ 
+		\hspace{2ex}#3 \end{array}\right) }}
+
+\newcommand{\Pre}{\ensuremath{\mathsf{Pre}}}
+\newcommand{\ifcmd}[2]{\ensuremath{\mbox{{\rm {\bf if }}} #1 \mbox{ {\rm {\bf then}} } #2}}
+\newcommand{\whilecmd}[2]{\ensuremath{\mbox{{\rm {\bf while }}} #1 \mbox{ {\rm {\bf do}} } #2}}
+\newcommand{\ifthenelsecmd}[3]{\ensuremath{\mbox{{\rm {\bf if }}} #1 \mbox{
+{\rm {\bf then}} } #2 \mbox{ {\rm {\bf else}} } #3}} 
+
+\newcommand{\LEQ}{\ensuremath{\;\mathsf{leq}\;}}
+\newcommand{\srcleq}{\ensuremath{\mathsf{leq}}}
+\newcommand{\boost}{\ensuremath{\mathsf{boost}}}
+\newcommand{\W}[1]{\ensuremath{\mathcal{W}#1}}
+\newcommand{\I}[1]{\ensuremath{\mathcal{I}#1}}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\ajump}{{\tt ajump}}
+%\newcommand{\equaldef}{=^{\hspace{-1.6ex}{\tiny\mbox{\raisebox{0.2ex}{$\triangle$}}}}}
+
+\newcommand{\equaldef}{\stackrel{\triangle}{=}}
+
+\newcommand{\nop}{\ensuremath{\mathtt{NOP}}}
+
+\hyphenation{me-ta-com-put-ation me-ta-com-put-a-tion-based me-ta-com-put-ation---the}
+
+\hyphenation{rep-res-ent-a-tion-al-ly-ind-ep-end-ent}
+
+\newcommand{\Src}{\ensuremath{\mathsf{Src}\/}}
+
+%\newarrow{Corresponds}{<}{-}{-}{-}{>}
+
+\newcommand{\comment}[1]{}
+%\newcommand{\comment}[1]{{\tiny {\rm {\bf (#1)}}}}
+
+\newcommand{\invisible}[1]{}
+%\newcommand{\invisible}[1]{#1}
+
+\newcommand{\Value}{\ensuremath{\mathit Value}}
+
+\newcommand{\implies}{\supset}
+\newcommand{\F}{\ensuremath{\mathcal{F}}}
+\newcommand{\typeMT}[2]{#1_{\mathsf{#2}}}

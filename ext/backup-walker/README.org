@@ -1,0 +1,44 @@
+* Purpose
+** Motivation
+
+I use version-ed backups in Emacs.  Theoretically, I go to the backup directory
+occasionally and clean out old backups with dired.  In reality, backups are
+never cleaned out.  A GB of storage costs fractions of a penny, and my text
+files are tiny.
+** Why not use VCS (version control system)
+I do.  And you should.  Whenever possible.
+
+But not all your edits and saves will be ready to be checked into VCS, but it
+can be inconvenient if you lose them.  That's where version-ed backups come in.
+
+If I only worked on one machine, then my backups are a crude super-set of the
+VCS content.
+* The problem with version-ed backups
+** File-names are long
+I don't try to solve this.  :(
+** There is no easy way to traverse them
+This is what "backup-walker" does.
+** What about [[https://github.com/chadbraunduin/backups-mode][backups-mode]]?
+I didn't find Chad Braun-Duin's backups-mode until after I made backup-walker.
+Although they seem to serve different purposes.
+
+"backup-walker" does not modify the Emacs backup system.  It's just a way to
+quickly traverse the backups you already have.  And the emphasis is on
+traversing backups.  There is never a listing of all the backups. (although if
+you're interested, you can jump to the backup directory with =dired-jump=
+while traversing)
+* Features
+** traverse incremental diffs between backup versions
+- [X] open backup in traversal mode if the diff seems interesting
+** traverse backups
+- [X] Once a backup is opened, traversing amongst backups is easy using the same keys.
+- [X] the point kept the same as much as possible while traversing backups as
+  much as possible by parsing diff output on the fly.
+** blame
+- [X] find the version of backup where a line disappeared.
+  + Of course this works best if you have comprehensive backup history.
+** cleanup
+- [X] optionally kill all open backups when quiting
+* Requires
+
+Emacs 23+

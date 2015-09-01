@@ -1,0 +1,20 @@
+* Helm Descbinds
+** What's this?
+   Helm Descbinds provides an interface to emacs' =describe-bindings= making the
+   currently active key bindings interactively searchable with helm.
+
+   Additionally you have the following actions
+   - Execute the command
+   - Describe the command
+   - Find the command
+
+   And =C-z= will give you a persistent description of the current command.
+
+** Installation
+   Add followings on your .emacs.
+#+BEGIN_SRC elisp
+  (require 'helm-descbinds)
+  (helm-descbinds-mode)
+  ;; prior to emacs24
+  (helm-descbinds-mode 1)
+#+END_SRC

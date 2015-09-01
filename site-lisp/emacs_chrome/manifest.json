@@ -1,0 +1,52 @@
+{
+	"name": "Edit with Emacs",
+	"version": "1.14",
+        "manifest_version": 2,
+	"description": "Allow user to edit web-page textareas with Emacs (and other editors).",
+	"browser_action": {
+		"default_icon": "icons/emacs23-16x16.png"
+	},
+        "background": {
+	    "page": "html/background.html"
+	},
+	"permissions": [
+		"tabs",
+		"contextMenus",
+	        "notifications",
+		"http://127.0.0.1/edit/*",
+		"clipboardRead"
+	],
+	"icons":
+	{
+		"128" : "icons/emacs.png"
+	},
+	"options_page": "fancy-settings/source/index.html",
+        "web_accessible_resources": [
+	    "icons/gumdrop.png",
+	    "icons/emacs23-16x16-red.png"
+	],
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*", "file://*/*"],
+			"css": ["css/textareas.css"],
+			"js": [
+			    "javascript/textareas.js",
+			    "lib/jquery-1.7.min.js",
+			    "lib/jquery.color.min.js",
+			    "lib/mutation_summary.js"
+			],
+			"run_at": "document_idle",
+			"all_frames": true
+		}
+	],
+        "commands": {
+	        "activate-emacs": {
+		    "suggested_key": {
+			"default": "Ctrl+Shift+E",
+			"linux": "Ctrl+Shift+E",
+			"mac": "Command+E"
+		    },
+		    "description": "Activate Emacs with contents of clipboard"
+		}
+	}
+}

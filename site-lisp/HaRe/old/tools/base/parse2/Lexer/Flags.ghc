@@ -1,0 +1,2 @@
+HsLexUtils.hs: -O -cpp
+HsLex.hs: -O

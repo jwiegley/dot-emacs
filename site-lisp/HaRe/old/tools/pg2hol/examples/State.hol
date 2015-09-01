@@ -1,0 +1,76 @@
+(* From ../../examples/ChannelSeparation/State.hs:6,9 : *)
+Hol_datatype `State = ST of 's -> 'a # 's`
+handle e => (print "Newtype State failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: instance declaration from ../../examples/ChannelSeparation/State.hs:8,10 *)
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:14,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:15,17 : *)
+val runState_def = Define `runState (ST c) = c`
+handle e => (print "Function runState failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:17,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:18,17 : *)
+val readState_def = Define `readState = ST (\ s . (s, s))`
+handle e => (print "CAF readState failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:20,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:21,17 : *)
+val setState_def = Define `setState s = ST (\ s' . ((), s))`
+handle e => (print "Function setState failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:23,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:24,17 : *)
+val inFst_def = Define `inFst (ST c) =
+			    ST (\ (s, s') . let (x, t') = c s in  (x, (t', s')))`
+handle e => (print "Function inFst failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:26,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:27,17 : *)
+val inSnd_def = Define `inSnd (ST c) =
+			    ST (\ (s', s) . let (x, t') = c s in  (x, (s', t')))`
+handle e => (print "Function inSnd failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:29,16 *)
+(* From ../../examples/ChannelSeparation/State.hs:30,17 : *)
+val loop_def = Define `(loop f s [] = []) /\
+		       loop f s (p : ps) =
+			   let (q, s') = runState (f p) s in  : q loop f s' ps`
+handle e => (print "Function loop failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* From ../../examples/ChannelSeparation/State.hs:38,9 : *)
+Hol_datatype `StateE = SE of 'e -> 's -> ('a) Maybe # 's`
+handle e => (print "Newtype StateE failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 
+(* Not supported: instance declaration from ../../examples/ChannelSeparation/State.hs:40,10 *)
+(* Not supported: type signature declaration from ../../examples/ChannelSeparation/State.hs:48,19 *)
+(* From ../../examples/ChannelSeparation/State.hs:49,20 : *)
+val runStateE_def = Define `runStateE e (SE c) = ST (\ s . c e s)`
+handle e => (print "Function runStateE failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyThm)
+;
+ 

@@ -1,0 +1,36 @@
+This category is about regular expressions.  See also CategorySearchAndReplace.
+
+
+== Understanding Regular Expressions ==
+
+* RegularExpression -- what are regular expressions, anyway?
+* RegularExpressionHelp -- typical errors and frequently asked questions
+* RegexpReferences -- where to look for more information
+* CaseFoldSearch -- controlling case sensitivity when searching
+* MultilineRegexp -- how to match multiline content
+* NonAsciiRegexps -- dealing with non-ASCII characters
+* NonGreedyRegexp -- how to write <code>.*?</code> in old emacsen
+
+== Using Regular Expressions Interactively ==
+
+* '''[[IncrementalSearch#RegexpSearches]]''' -- Using regexps with Isearch -- a good way to ''learn to use'' regexps
+* [[Icicles]] -- Another good way to ''learn to use'' regexps -- lots of different uses, including:
+** [[Completion]] and cycling of completion candidates through regexp matching
+** a new kind of incremental search: use multiple simple regexps, instead of struggling with a complex regexp; and regexp subgroups are highlighted individually
+* GrepMode -- `M-x grep' searches files for matches
+* OccurBuffer -- `M-x occur' works on buffers like `M-x grep' does on files
+* SearchBuffers -- Search *all* buffers
+* SearchAndReplaceDelimitedStrings -- Replace the prefix and suffix of a pattern while leaving the middle alone
+* GrepList -- search a list of strings for a regexp, recursing into sublists
+* OverlappingRegexps -- overlap regular expressions in a replace command
+* RecursiveGrep -- various commands that recursively search a file system
+
+
+
+== Programming with Regular Expressions ==
+
+* ReBuilder -- build a regexp string and watch what it matches as you type
+* Regex-tool -- similar to ReBuilder, found at http://github.com/jwiegley/regex-tool. See article [[http://www.newartisans.com/2007/10/a-regular-expression-ide-for-emacs.html|A regular expression IDE for Emacs]] by JohnWiegley 
+* SymbolicRegexp -- for programmers who want to write readable regular expressions
+* [[rx]] -- macro that generates regexps from SymbolicRegexp
+

@@ -1,0 +1,71 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ()))
+ [((type . view)
+   (name . "by Prefix")
+   (default . t)
+   (c-path-finder . (lambda (r)
+    (list (car (ee-split-string (ee-field 'name r) "-")))))
+   (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point)))
+      (insert (format
+               (concat "%s- %s (%s)")
+               (make-string (1- (+ c-level s-level)) ?\040)
+               header
+               (or (cadr (assq 'counter attr-alist)) "0")))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (let ((b (point)))
+      (insert (format "%s%s %s"
+                      (or (car (ee-field 'mark r)) " ")
+                      (make-string (1- a-level) ?\040)
+                      (ee-field 'name r)))
+      (cond
+       ((ee-field 'read r)
+        (add-text-properties b (point) (list 'face 'ee-link-visited))))
+      (if (ee-field 'documentation r)
+          (progn
+            (setq p (point))
+            (insert " " (ee-field 'documentation r))
+            (add-text-properties p (point) (list 'face 'ee-shadow)))))))
+   (r-select . ee-variables-call-interactively))]
+ [((type . view)
+   (name . "by Suffix")
+   (default)
+   (c-path-finder . (lambda (r)
+    (list (car (nreverse (ee-split-string (ee-field 'name r) "-"))))))
+   (c-counter . (lambda (a-level c-level s-level header attr-alist) 0))
+   (r-counter . (lambda (r a-level r-level children-p result) 1))
+   (c-sorter . (lambda (a-level c-level s-level attr-alist)
+    (lambda (c1 c2)
+      (let ((cnt1 (or (cadr (assq 'counter (assq ee-mark-attr-alist c1))) 0))
+            (cnt2 (or (cadr (assq 'counter (assq ee-mark-attr-alist c2))) 0)))
+        (if (= cnt1 cnt2)
+            (string< (car c1) (car c2))
+          (> cnt1 cnt2))))))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point)))
+      (insert (format
+               (concat "%s- %s (%s)")
+               (make-string (1- (+ c-level s-level)) ?\040)
+               header
+               (or (cadr (assq 'counter attr-alist)) "0")))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (let ((b (point)))
+      (insert (format "%s%s %s"
+                      (or (car (ee-field 'mark r)) " ")
+                      (make-string (1- a-level) ?\040)
+                      (ee-field 'name r)))
+      (cond
+       ((ee-field 'read r)
+        (add-text-properties b (point) (list 'face 'ee-link-visited))))
+      (if (ee-field 'documentation r)
+          (progn
+            (setq p (point))
+            (insert " " (ee-field 'documentation r))
+            (add-text-properties p (point) (list 'face 'ee-shadow)))))))
+   (r-select . ee-variables-call-interactively))]]

@@ -1,0 +1,90 @@
+
+--------------------- How to add a refactoring to the editor interface -----------------
+
+After having built a refactoring, in order to invoke the refactoring from the editor interface, 
+you only need to modify the file:'GenEditorInterfaces.hs' from the 'editors' directory.
+
+Next, we take the two refactorings :'swapping arguments' and "from if-then-else to Case" as examples 
+to explain where and how to modify. Assume you are now ready to edit the 'GenEditorInterfaces.hs'. 
+
+1) Swapping arguments. This refactoring is implemented in the module 'RefacSwapArgs' in file
+   'RefacSwapArgs.hs'. The refactoring name is 'swapArgs', and is the only name exported by this
+   module. 
+
+Step 1. Find the definition of 'pfeRefactoringCmds'. In the right hand side, you can find a 
+        do statement like: putStrLn $ unlines [ ... ]. Add ',"import RefacSwapArgs"  right 
+        after the second-last element in the list. 
+
+Step 2. Find the definition of 'cmds' which defines the menu structure. Add an entry for swapping
+        arguments in an proper sub-menu, say 'Definitions' in this case, like this:
+
+           editParameters "Swap Arguments" "swapArgs" 
+           swapArgs $ fileName $ positionPar $ 
+           comment "Swap the first two arguments of a function"
+
+        where, "Swap Arguments" is what will appear in the menu menu, "swapArgs" again is the
+        refactoring  name. This refactoring takes a file name and a position (lines number and
+        column number) as parameters ('Par' means parameter).
+
+Step 3. Add a top-level function named as 'swapArgs' (same as the refactoring name) including its 
+        type signature to this module. This function just prints out some information about the 
+        parameters. In the case for 'swapArgs', it can be like:
+
+          swapArgs :: String -> Int -> Int -> IO ()
+          swapArgs f l c = putStrLn $ ">swapArgs filename: " ++f++" line: "++show l ++" column: " ++ show c
+
+Step 4. Go to the root directory of HaRe , say HaRe_19112004, and run: make.
+
+
+Step 5. Reload the interface file for your editor (In emacs : M-x load-file editors/haskell-refac.el), you
+        should be able to see the newly added entry in the Definitions sub-menu in the Refactor menu.
+
+2). From If-then-else to Case.
+
+    Follow the same steps as for swapping arguments. The only differences are in step 2 and 3.
+ 
+    In step 2, when adding an entry to 'cmds', use 'regionPar' other than 'positionPar', as this 
+    refactoring needs the user to highlight an area in the program source. So in the definition of 
+    'cmds' you need to add:
+
+        editParameters "From if to case" "ifToCase"
+          ifToCase $ fileNamePar $ regionPar $
+          comment "From it to case"
+
+
+    In step 3, Corresponding to step 2, add the following function to the module. This function 
+    takes four Int parameters which represent the start and end position of the highlighted area.
+
+      ifToCase :: String ->Int -> Int -> Int -> Int -> IO ()
+      ifToCase f ls cs le ce = putStrLn $
+           ">from if to case: "++f
+           ++" line: "++show ls++" column: "++show cs
+           ++" line: "++show le++" column: "++show ce
+
+Note: All the above code actually is already there, just has been commented out.
+
+
+
+
+
+    
+ 
+        
+
+
+       
+
+        
+
+     
+       
+         
+
+   
+       
+ 
+   
+    
+ 
+
+ 

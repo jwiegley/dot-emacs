@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# This script should be invoked from cert
+# It expects "$PROGRAMATICA", "$SERVERDIR" and "$certsDir" to be set
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/functions.sh"
+[ -n "$certsDir" ] || abort 'Bug: $certsDir is not set'
+
+type=Alfa
+
+usage() { abort "Usage: cert new $type <module/cert> <conc> [<hyp>]"; }
+
+createcert() {
+  mkdir -p "$1"
+  cat >"$1/cert.attr" <<EOF
+type: $type
+version: `getserverattr version`
+conc: $2
+hyp: $3
+who: $USER
+date: `LANG=C date`
+EOF
+}
+
+checkhyps() {
+  oldIFS="$IFS"
+  IFS=", "
+  err=0
+  for h in $* ; do
+    [ "$h" = ".." ] || checkassertion "$h" || { err=1; echo "$h ??"; }
+  done
+  IFS="$oldIFS"
+  return $err
+}
+
+[ -n "$1" ] || usage
+cert="$1"
+
+[ -n "$2" ] || usage
+conc="$2"
+shift;shift;
+#[ -n "$*" ] && usage # Hypotheses are not supported (yet).
+hyp="$*"
+[ -n "$hyp" ] || hyp=".."
+
+checkproject
+
+module="${cert%/*}"
+certname="${cert##*/}"
+#checkcertannot "$module" "$certname"
+certpath="$module/$certname"
+[ -d "$certsDir$certpath" ] && abort "$cert already exists"
+checkassertion "$module.$conc" ||
+  abort "Error: $conc is not a named assertion in module $module"
+checkhyps "$hyp" || abort "Error: malformed hypothesis"
+
+createcert "$certsDir$certpath" "$conc" "$hyp"

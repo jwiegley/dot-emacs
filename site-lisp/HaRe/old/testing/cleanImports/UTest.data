@@ -1,0 +1,10 @@
+TestCases{refactorCmd="cleanImports",
+
+positive=[(["A1.hs"],[]),
+          (["B1.hs"],[]),
+          (["B2.hs"],[]),
+          (["B3.hs"],[])],
+        
+   
+negative=[]
+}

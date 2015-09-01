@@ -1,0 +1,4 @@
+INFO-DIR-SECTION Emacs
+START-INFO-DIR-ENTRY
+* Pandoc-mode: (pandoc-mode).        Minor mode for interacting with Pandoc.
+END-INFO-DIR-ENTRY

@@ -1,0 +1,11 @@
+// release history with features and fixed and open bugs
+
+0.2.1
+* removed dependency on astview-utils
+
+0.2
+* splitted up state data type
+* extended parsers to languages 
+
+0.1.5
+* a particular attribute for parsers to specify syntax hightlighting

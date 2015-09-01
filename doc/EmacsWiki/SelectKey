@@ -1,0 +1,89 @@
+Martin Cracauer wrote some code which emulates the SELECT key from a Symbolics Lisp machine.  EdwardOConnor adapted that some, and here's my adaptation of that along with some keybindings that I commonly use.
+
+<pre>
+;; stesla-f8-prefix-map is a sparse keymap defined earlier in my .emacs
+;;(defvar stesla-select-prefix-map stesla-f8-prefix-map)
+
+;; updated 7/30/07 now works with 22.1
+(define-prefix-command 'stesla-select-prefix-map)
+(global-set-key [f8] stesla-select-prefix-map)
+
+(global-set-key [menu] stesla-select-prefix-map)
+(global-set-key [apps] stesla-select-prefix-map)
+
+(defun stesla-display-select-bindings ()
+  (interactive)
+  (describe-bindings [f8]))
+
+(define-key stesla-select-prefix-map "?" 'stesla-display-select-bindings)
+
+(defmacro stesla-define-select-key (fname-base key &optional buf-form else-form)
+  "Define a select-key function FNAME-BASE bound on KEY.
+
+If provided, BUF-FORM should be a form which will attempt to return
+a buffer to switch to.  If it returns nil, ELSE-FORM is evaluated."
+  (let ((fname (intern (concat "stesla-select-" (symbol-name fname-base)))))
+    `(progn
+       (defun ,fname (arg)
+         (interactive "P")
+         (let ((buf ,buf-form))
+           (if buf
+               (switch-to-buffer buf)
+             ,else-form)))
+       (define-key stesla-select-prefix-map ,key ',fname))))
+
+(put 'stesla-define-select-key 'lisp-indent-function 2)
+
+(defmacro stesla-define-select-key-class (fname-base key extension &optional default-dir)
+  `(stesla-define-select-key ,(intern (concat (symbol-name fname-base) "-file")) ,key
+     (let ((buffers (buffer-list))
+           (buffer t))
+       (while (and buffers
+                   (listp buffers))
+         (setq buffer (car buffers))
+         (setq buffers (cdr buffers))
+         (if (string-match ,extension (buffer-name buffer))
+             (setq buffers nil)
+           (setq buffer nil)))
+       buffer)
+     (find-file
+      (read-file-name ,(concat "Find " (symbol-name fname-base) " file: ")
+                      ,default-dir))))
+
+;; These are the file types I use at least semi-regularly.
+
+(stesla-define-select-key-class C          "c" "\\.c$")
+(stesla-define-select-key-class Emacs-Lisp "e" "\\.el$"     "~/.elisp/")
+(stesla-define-select-key-class HTML       "h" "\\.s?html$" "~/www/")
+(stesla-define-select-key-class Lisp       "l" "\\.\\(lisp\\|lsp\\)$")
+(stesla-define-select-key-class LaTeX      "t" "\\.tex$")
+(stesla-define-select-key-class Makefile   "M" "\\(GNU\\)?[Mm]akefile")
+(stesla-define-select-key-class m4         "4" "\\.m4$")
+
+;; For easy access to a few commonly accessed files/buffers.
+
+(stesla-define-select-key dotemacs-file "."
+  (find-buffer-visiting stesla-dotemacs-file)
+  (find-file stesla-dotemacs-file))
+
+(stesla-define-select-key home-directory "~"
+  (find-buffer-visiting "~")
+  (dired "~"))
+;; That ~ key is impossible to type...
+(define-key stesla-select-prefix-map "`" 'stesla-select-home-directory)
+
+(stesla-define-select-key info "i"
+  (find-buffer-visiting "*info*")
+  (info))
+
+(stesla-define-select-key shell "!"
+  (find-buffer-visiting "*eshell*")
+  (eshell))
+
+(stesla-define-select-key gnus "g"
+  (gnus))
+</pre>
+
+----
+
+I've updated this module to be a bit more modern: you can repeat the selection key to cycle through buffers matching the same type.  The newer version is at Lisp:selectkey.el. -- JohnWiegley

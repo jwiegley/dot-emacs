@@ -1,0 +1,26 @@
+#name : MISRA-C:2004 rule commit description
+#expand-env : ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+Summary: MISRA-C:2004 - Rule $1 ($2)
+
+Type                 : new
+ISA                  : TSM470
+Feature              : MISRA-C:2004 Project
+Impacts Compatability: no
+Impacts Documentation: no
+Impacts Performance  : no
+Impacts readme       : no
+Impacts Tool Speed   : no
+
+Technical Description:
+  ANSI/error_msg.txt:
+  ANSI/misra.c:
+
+  Implemented MISRA-C:2004 $2 rule $1 which states:
+
+    $3.
+
+  ANSI/$0.c:
+
+  :
+    .

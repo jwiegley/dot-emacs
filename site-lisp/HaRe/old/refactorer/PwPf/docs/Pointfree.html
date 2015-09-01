@@ -1,0 +1,600 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--Rendered using the Haskell Html Library v0.2-->
+<HTML
+><HEAD
+  ><TITLE
+    >Pointfree</TITLE
+    ><LINK HREF = "haddock.css" REL = "stylesheet" TYPE = "text/css"
+    ></HEAD
+  ><BODY
+  ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+    ><TR
+      ><TD CLASS = "topbar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><IMG SRC = "haskell_icon.gif" WIDTH = "16" HEIGHT = "16" ALT = " "
+		></TD
+	      ><TD CLASS = "title"
+	      ></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "index.html"
+		>Contents</A
+		></TD
+	      ><TD CLASS = "topbut"
+	      ><A HREF = "doc-index.html"
+		>Index</A
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "modulebar"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD
+	      ><FONT SIZE = "6"
+		>Pointfree</FONT
+		></TD
+	      ><TD ALIGN = "right"
+	      ><TABLE CLASS = "narrow" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "infohead"
+		    >Portability</TD
+		    ><TD CLASS = "infoval"
+		    >  portable</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Stability</TD
+		    ><TD CLASS = "infoval"
+		    >  experimental</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "infohead"
+		    >Maintainer</TD
+		    ><TD CLASS = "infoval"
+		    >  jproenca@di.uminho.pt</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      ><B
+		>Contents</B
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD
+	      ><DL
+		><DT
+		  ><A HREF = "#1"
+		    >Data Type</A
+		    ></DT
+		  ><DT
+		  ><A HREF = "#2"
+		    >Conversion of a <A HREF = "PFTerm.html"
+		      >PFTerm</A
+		      > to an haskell expression</A
+		    ></DT
+		  ></DL
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Description</TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	>A syntax of a general pointfree language.
+</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	>Synopsis</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "decl"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><SPAN CLASS = "keyword"
+		      >data</SPAN
+		      > <A HREF = "#t%3APFTerm"
+		      >PFTerm</A
+		      > </TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "body"
+		    ><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+		      ><TR
+			><TD CLASS = "decl"
+			  >= <A HREF = "#v%3ABANG"
+			    >BANG</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AID"
+			    >ID</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AAPP"
+			    >APP</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ACurry"
+			    >Curry</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A.%3A"
+			    >(:.:)</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%5C%2F%3A"
+			    >(:\/:)</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3A%3A%2F%5C%3A"
+			    >(:/\:)</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    > <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AFST"
+			    >FST</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3ASND"
+			    >SND</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AINL"
+			    >INL</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AINR"
+			    >INR</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AIN"
+			    >IN</A
+			    > HsExpP</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AOUT"
+			    >OUT</A
+			    > HsExpP</TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3APARA"
+			    >PARA</A
+			    > HsExpP <A HREF = "Pointfree.html#t%3APFTerm"
+			    >PFTerm</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AFIX"
+			    >FIX</A
+			    ></TD
+			  ></TR
+			><TR
+			><TD CLASS = "decl"
+			  >| <A HREF = "#v%3AMacro"
+			    >Macro</A
+			    > String</TD
+			  ></TR
+			></TABLE
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "s8"
+	      ></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "decl"
+	      ><A HREF = "#v%3Apf2Exp"
+		>pf2Exp</A
+		> :: <A HREF = "Pointfree.html#t%3APFTerm"
+		>PFTerm</A
+		> -&gt; HsExpI PNT</TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "1"
+	  >Data Type</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	><P
+	  >Represents a pointfree language where:
+</P
+	  ><OL
+	  ><LI
+	    > products and sums are treated
+</LI
+	    ><LI
+	    > base types are obtained and decomposed by the use of the <EM
+	      >IN</EM
+	      > and
+<EM
+	      >OUT</EM
+	      > constructors
+</LI
+	    ><LI
+	    > recursion can be expressed by the point-fix function or by a paramorphism
+</LI
+	    ><LI
+	    > free variables are called macros and represent known pointfree expressions
+</LI
+	    ></OL
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><SPAN CLASS = "keyword"
+	  >data</SPAN
+	  > <A NAME = "t%3APFTerm"
+	  ></A
+	  ><B
+	  >PFTerm</B
+	  > </TD
+	></TR
+      ><TR
+      ><TD CLASS = "body"
+	><TABLE CLASS = "vanilla" CELLSPACING = "0" CELLPADDING = "0"
+	  ><TR
+	    ><TD CLASS = "section4"
+	      >Constructors</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ABANG"
+		      ></A
+		      ><B
+		      >BANG</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Constant function that returns Unit</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AID"
+		      ></A
+		      ><B
+		      >ID</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Identity</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AAPP"
+		      ></A
+		      ><B
+		      >APP</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Apply</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ACurry"
+		      ></A
+		      ><B
+		      >Curry</B
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Curry</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A.%3A"
+		      ></A
+		      ><B
+		      >(:.:)</B
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Composition</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%5C%2F%3A"
+		      ></A
+		      ><B
+		      >(:\/:)</B
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Either</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3A%3A%2F%5C%3A"
+		      ></A
+		      ><B
+		      >(:/\:)</B
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      > <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Split</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AFST"
+		      ></A
+		      ><B
+		      >FST</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-free first</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3ASND"
+		      ></A
+		      ><B
+		      >SND</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-free second</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AINL"
+		      ></A
+		      ><B
+		      >INL</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-free left injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AINR"
+		      ></A
+		      ><B
+		      >INR</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Point-free right injection</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AIN"
+		      ></A
+		      ><B
+		      >IN</B
+		      > HsExpP</TD
+		    ><TD CLASS = "rdoc"
+		    >Injection on a specified type</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AOUT"
+		      ></A
+		      ><B
+		      >OUT</B
+		      > HsExpP</TD
+		    ><TD CLASS = "rdoc"
+		    >Gets the functor</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3APARA"
+		      ></A
+		      ><B
+		      >PARA</B
+		      > HsExpP <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Paramorphism</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AFIX"
+		      ></A
+		      ><B
+		      >FIX</B
+		      ></TD
+		    ><TD CLASS = "rdoc"
+		    >Fixed point function</TD
+		    ></TR
+		  ><TR
+		  ><TD CLASS = "decl"
+		    ><A NAME = "v%3AMacro"
+		      ></A
+		      ><B
+		      >Macro</B
+		      > String</TD
+		    ><TD CLASS = "rdoc"
+		    >Macros of frequently used pointfree terms</TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "section4"
+	      >Instances</TD
+	      ></TR
+	    ><TR
+	    ><TD CLASS = "body"
+	      ><TABLE CLASS = "vanilla" CELLSPACING = "1" CELLPADDING = "0"
+		><TR
+		  ><TD CLASS = "decl"
+		    >Show <A HREF = "Pointfree.html#t%3APFTerm"
+		      >PFTerm</A
+		      ></TD
+		    ></TR
+		  ></TABLE
+		></TD
+	      ></TR
+	    ></TABLE
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "section1"
+	><A NAME = "2"
+	  >Conversion of a <A HREF = "PFTerm.html"
+	    >PFTerm</A
+	    > to an haskell expression</A
+	  ></TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "decl"
+	><A NAME = "v%3Apf2Exp"
+	  ></A
+	  ><B
+	  >pf2Exp</B
+	  > :: <A HREF = "Pointfree.html#t%3APFTerm"
+	  >PFTerm</A
+	  > -&gt; HsExpI PNT</TD
+	></TR
+      ><TR
+      ><TD CLASS = "doc"
+	>Applies a tranformation from a <TT
+	  ><A HREF = "Pointfree.html#t%3APFTerm"
+	    >PFTerm</A
+	    ></TT
+	  > to an expression of programatica's
+abstract tree. Note that the type information inside the <EM
+	  >IN</EM
+	  >, <EM
+	  >OUT</EM
+	  > and <EM
+	  >PARA</EM
+	  >
+terms is represented as a programatica's expression <TT
+	  >L::type</TT
+	  >, where the <TT
+	  >type</TT
+	  >
+is the real type information.
+</TD
+	></TR
+      ><TR
+      ><TD CLASS = "s15"
+	></TD
+	></TR
+      ><TR
+      ><TD CLASS = "botbar"
+	>Produced by <A HREF = "http://www.haskell.org/haddock/"
+	  >Haddock</A
+	  > version 0.6</TD
+	></TR
+      ></TABLE
+    ></BODY
+  ></HTML
+>

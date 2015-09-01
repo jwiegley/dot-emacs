@@ -1,0 +1,8 @@
+FudgetIOMonad.hs: -fno-monomorphism-restriction
+PfeBrowserF.hs: -fno-monomorphism-restriction
+PfeBrowserGUI.hs: -fno-monomorphism-restriction
+PfeBrowserMonad.hs: -fno-monomorphism-restriction
+IdInfo.hs: -fno-monomorphism-restriction
+HistoryButtonsF.hs: -fno-monomorphism-restriction
+AuxWindowsF.hs: -fno-monomorphism-restriction
+PfeBrowserMenu.hs: -fno-monomorphism-restriction

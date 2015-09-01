@@ -1,0 +1,67 @@
+#+TITLE: Emacs Modules written by John Wiegley
+#+STARTUP: content
+
+This directory contains Lisp modules I've written, or maintain, and which are
+still actively used.  For older modules, see the ../retired directory.
+
+* Modules
+
+** c-includes.el
+   Perform a regex search through a C/C++ file, and also every file causes to
+   be included.  Displays the output in outline-mode so you can see the
+   structure of how things are included.  It includes a simple preprocessor
+   and colorizes the results according to whether the matched would be included
+   in the compilation or not (this part needs a bit more work though).
+
+** cl-info.el
+   Perform a quick HyperSpec lookup in Emacs, using the Info pages.  This is
+   *incredibly* helpful if you've forgotten the exactly syntax to `loop', for
+   example.  Oh wait, I just forgot it again, looking it up in cl-info...
+   
+** org-devonthink.el
+   Code for obtaining a URL to the currently selected database item in
+   DEVONthink, a database program on Mac OS X (and one of my favorite programs
+   of all time!).  You can then use `org-insert-link' to insert the link into
+   any Org file.
+
+* Packages
+
+** chess
+   A complete chess client and library (but with only a minimal chess AI).
+   The main use to play against Crafty, or GnuChess, or online at
+   freechess.org.  It can also be used for working through puzzles, annotating
+   games, visualizing a PGN file, playing against an Emacs Chess friend on
+   IRC, and much, much more.
+
+** eshell
+   An operating system shell written entirely in Emacs Lisp.  It's main
+   selling points are excellent integration with Lisp, and the fact that it
+   works the same on all operating systems that run Emacs, as most are the
+   core commands (cp, rm, ls, etc.) are in Lisp too.
+
+** gnus-harvest
+   Observe the e-mail addresses that you see while reading and writing e-mail,
+   and record them all in an SQLite database, along with weighting values and
+   a time stamp.  Then, when you write a message, you can complete against the
+   most likely candidates for a given substring.
+
+** initsplit
+   Split up your Emacs customizations across multiple files.
+
+** muse
+   An authoring and publishing tool for Emacs.  Write in a simplified markup
+   format -- similar, but not identical to, Markdown -- and then publish to
+   multiple output formats: HTML, LaTeX, DocBook, and more.  Support projects,
+   the creation of websites, and easy integration of additional backends.
+
+** regex-tool
+   A regular expression workshop for programmers, supporting both Perl and
+   Emacs Lisp regexp syntax.  Basically it creates a new frame with three
+   windows: one where you type the target data, another where you type the
+   regexp, and a third that shows the matching groups.  The target data gets
+   color-highlighted as you type, so you can easily find problems in really
+   complex regexps.
+
+
+#+LINK: gmane http://mid.gmane.org/
+#+LINK: emacswiki http://www.emacswiki.org/emacs/

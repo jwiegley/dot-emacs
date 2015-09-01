@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# Script to validate I_say_so certificates.
+# This script should be invoked from cert.
+# It expects "$PROGRAMATICA" and "$certsDir" to be set.
+# It also expects the name of a certificate on the command line.
+
+type=I_say_so
+
+[ -n "$PROGRAMATICA" ] || { echo >&2 'Bug: $PROGRAMATICA is not set'; exit 1;}
+. "$PROGRAMATICA/validation.sh" # Sets assertion, attr, conc, deps, module
+
+
+### Auxiliary functions ########################################################
+
+validate() {
+  echo "Sequent: $hyp |- $conc"
+  echo "Do you want to mark the $type certificate $cert valid [no]?"
+  if user_confirmation ; then
+    markvalid
+  else
+    #echo "Since you didn't answer yes, the certificate remains invalid."
+    markinvalid
+  fi
+}
+
+validatenew() {
+  echo "The certificate $cert for assertion $conc has not previously"
+  echo "been validated. Here the are names of the entities it might depend on:"
+  echo ""
+  pfe needed "$assertion"
+  echo ""
+  validate
+}
+
+revalidate() {
+  if [ -s "$tmpdiff" ] ; then
+    echo "The following changes might affect the validity of"
+    echo "the $type certificate $cert:"
+    echo ""
+    cat "$tmpdiff"
+    echo ""
+    validate
+  else
+    echo "There has been no changes affecting the validity of"
+    echo "the $type certificate $cert. Marking it as still valid."
+    datestamp valid $certpath $module
+  fi
+}
+
+### Here we go... ##############################################################
+
+tmpdiff="$certsDir/diff$$"
+
+if [ -r "$deps" ] && pfe tadiff "$deps" "$assertion" >"$tmpdiff" ; then
+  revalidate
+else
+  validatenew
+fi
+status=$?
+rm -f "$tmpdiff"
+exit $status

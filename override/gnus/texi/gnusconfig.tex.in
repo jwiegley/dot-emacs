@@ -1,0 +1,11 @@
+@WITH_FONTS_bembo@\usepackage{bembo}
+@WITH_FONTS_pfu@\newcommand{\gnusselectttfont}{\fontfamily{pfu}\fontsize{10pt}{10}\selectfont}
+@WITH_FONTS_bcr@\def\verbatim@font{\fontfamily{bcr}\fontsize{10pt}{10}\selectfont}
+@WITHOUT_FONTS_pfu@\newcommand{\gnusselectttfont}{\fontfamily{cmss}\fontsize{10pt}{10}\selectfont\hyphenchar\font45}
+
+\newcommand{\gnususefonts}{@USE_FONTS@}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

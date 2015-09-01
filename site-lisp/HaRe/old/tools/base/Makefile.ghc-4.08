@@ -1,0 +1,115 @@
+# $Id: Makefile.ghc-4.08,v 1.3 2001/04/28 01:02:18 moran Exp $
+
+HC = ghc
+HC_LOCAL_LIB = ${HOME}/lib
+HC_INC = . parse parse/util parse/token pretty lib AST SA TC ${HC_LOCAL_LIB} \
+         syntax
+
+HC_DEP = ${HC} -M
+HC_INCI = ${addprefix -i,${HC_INC}}
+HC_PKGI = ${addprefix -package,${HC_PKG}}
+HC_LIBI = ${addprefix -l,${HC_LIBS}}
+HC_OPTS = ${$*_HC_OPTS} ${HC_XOPTS} ${HC_INCI} ${HC_PKGI} \
+          -recomp -fwarn-incomplete-patterns -H55M \
+          -fglasgow-exts -fmax-simplifier-iterations5 \
+          -package lang -package concurrent #-Wall 
+
+DEP_OPTS = ${HC_INCI}
+HC_LDOPTS = ${HC_OPTS} ${addprefix -L,${HC_INC}} ${HC_LIBI}
+
+HAPPY      = happy
+HAPPYFLAGS = # --ghc makes parser unusable for Hugs
+RUNTIMEFLAGS = # +RTS -H75M
+PRINTER    = lj8
+ENSCRIPT   = enscript
+
+RM         = rm -f
+
+HAPPYSRC = parse/HsParser.y
+AST_COMMON_SRC = AST/SrcLoc.hs AST/HsLiteral.hs AST/HsName.hs AST/HsModule.hs \
+           AST/HsGuards.hs AST/HsExpStruct.hs AST/HsPatStruct.hs \
+           AST/HsDeclStruct.hs AST/HsTypeStruct.hs AST/HsAssoc.hs \
+	   AST/ListUtil.hs AST/HsConstants.hs AST/BaseSyntaxStruct.hs
+PP_SRC   = pretty/PrettyPrint.hs pretty/Pretty.lhs pretty/PrettyM.hs \
+	   pretty/PrettyUtil.hs 
+BASE_AST_SRC = syntax/BaseSyntaxUtil.hs syntax/Rewrite.hs \
+           syntax/Syntax.hs syntax/SyntaxStruct.hs syntax/SyntaxRec.hs \
+           syntax/SyntaxUtil.hs syntax/Rewrite.hs
+PARSE_SRC = parse/Lexer.hs parse/LexUtil.hs parse/ParseMonad.lhs \
+            parse/util/ParseUtil.hs parse/token/Token.hs
+SA_SRC   = SA/Scope.hs SA/Scope2.hs SA/SCC.hs
+TC_SRC   = TC/InferenceMonad.hs TC/TypeGenerics.hs TC/TypeCheck.hs \
+	   TC/TypeCheckTest.hs TC/Components.hs
+OBS_SRC  = ${HC_LOCAL_LIB}/Observe.lhs
+OPT_SRC  = lib/GetOpt.hs 
+HC_SRC   = ${AST_COMMON_SRC} ${PP_SRC} ${BASE_AST_SRC} ${PARSE_SRC} \
+	   ${SA_SRC} ${TC_SRC} ${OBS_SRC} \
+	   Syntax.hs SyntaxStruct.hs SyntaxRec.hs SyntaxUtil.hs Rewrite.hs \
+	   $(HAPPYSRC:.y=.hs) \
+	   ${OPT_SRC} Main.hs
+
+HC_INT1  = $(HC_SRC:.hs=.hi)
+HC_INT   = $(HC_INT1:.lhs=.hi)
+HC_OBJ   = $(HC_INT:.hi=.o)
+
+MAIN     = hsparse
+
+# trick  :-)
+ifeq (.depend,$(wildcard .depend))
+all: $(MAIN)
+include .depend
+else
+all: depend $(MAIN)
+endif
+
+%.hs: %.y
+	$(HAPPY) $(HAPPYFLAGS) $< --info $(RUNTIMEFLAGS) -o $(HAPPYSRC:.y=.hs)
+
+%.o : %.lhs
+	${HC} ${HC_OPTS} -c $< -o $@
+
+%.o : %.hs
+	${HC} ${HC_OPTS} -c $< -o $@
+
+%.hi : %.o
+	@if [ ! -f $@ ] ; then \
+	    echo Panic! $< exists, but $@ does not. \
+	    exit 1; \
+	else exit 0; \
+	fi                                                      
+
+%.ps : %.hs
+	${ENSCRIPT} -1 -o $@ -G $<
+
+%.ps : %.lhs 
+	${ENSCRIPT} -1 -o $@ -G $<
+
+
+$(MAIN): ${HC_OBJ}
+	${HC} -o $@ ${HC_OPTS} ${HC_OBJ}
+
+$(HAPPYSRC:.y=.o): $(HAPPYSRC:.y=.hs)
+	$(RM) $@
+	${HC} ${HC_OPTS} -H95M -c $< -o $@
+
+Main.o: Main.hs
+	$(RM) $@
+	${HC} ${HC_OPTS} -c $< -o $@
+
+clean:
+	$(RM) ${HC_OBJ} ${HC_INT} $(MAIN).aux $(MAIN).hp $(MAIN).prof core \
+           $(MAIN).ps profile.* *~ .depend* $(HAPPYSRC:.y=.info) 
+
+printsource:
+	$(ENSCRIPT) -1 -d $(PRINTER) -G $(HC_SRC)
+
+veryclean: clean
+	$(RM) $(MAIN) TAGS $(HAPPYSRC:.y=.hs)
+
+depend: .depend
+
+.depend: ${HC_SRC}
+	${HC_DEP} -optdep-f -optdep.depend ${HC_OPTS} ${HC_SRC}
+
+TAGS: ${HC_SRC}
+	hstags ${HC_SRC}

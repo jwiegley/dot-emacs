@@ -1,0 +1,17 @@
+TestCases{refactorCmd="liftToTopLevel",
+positive=[(["D1.hs","C1.hs","A1.hs"],["8","6"]),
+          (["D2.hs","C2.hs","A2.hs"],["8","6"]),
+          (["D3.hs","C3.hs","A3.hs"],["8","6"]),
+          (["WhereIn1.hs"],["12","18"]),
+          (["WhereIn6.hs"],["13","29"]),
+          (["WhereIn7.hs"],["12","14"]),
+          (["LetIn1.hs"],["11","22"]),
+          (["LetIn2.hs"],["10","22"]),
+          (["LetIn3.hs"],["10","27"]),
+          (["PatBindIn1.hs"],["18","7"]),
+          (["PatBindIn3.hs"],["11","15"]),
+          (["CaseIn1.hs"],["10","28"])],
+negative=[(["PatBindIn2.hs"],["17","7"]),
+          (["WhereIn2.hs"],["11","18"])
+         ]
+}

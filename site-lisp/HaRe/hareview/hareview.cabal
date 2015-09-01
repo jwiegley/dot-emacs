@@ -1,0 +1,73 @@
+Name:            hareview
+Version:         0.0.1
+License:         BSD4
+License-File:    LICENSE
+Author:          
+                 Pascal Hof <pascal.hof@udo.edu>, 
+                 Sebastian Menge <sebastian.menge@udo.edu>
+Maintainer:      Sebastian Menge <sebastian.menge@udo.edu>
+Synopsis:        A GTK-based abstract syntax tree viewer for custom 
+                 languages and parsers
+Description:     
+                 Astview is a graphical viewer for abstract 
+                 syntax trees. It is implemented on the basis 
+                 of scrap-your-boilerplate (i.e. data2tree) 
+                 and works with all parsers that generate trees 
+                 that are instances of the Data.Data class. 
+                 Custom parsers can be dynamically loaded 
+                 (via package hint) at startup.
+                 .
+                 For installation you need gtk2hs and hscolour before. 
+                 The latter will not be automatically installed by 
+                 cabal since it is used by Setup.hs.
+
+Category:        Language
+
+Cabal-Version:   >= 1.2
+Build-Type:      Custom
+Data-Files:
+                 data/astview.glade
+                 data/Langs/Haskell.hs
+                 data/Langs/Csv.hs
+                 data/Langs/Expr.hs 
+                 data/Langs/Languages.hs
+                 data/astview.html
+                 data/astview-tmpl.html
+                 data/style.css
+                 data/LICENSE.unwrapped
+                 data/EX1.hs.txt
+                 data/EX2.hs.txt
+                 data/EX3.hs.txt
+                 data/EX4.hs.txt
+Library
+  Hs-Source-Dirs:  src
+  Exposed-Modules: Language.Hareview.Language
+                   Language.Hareview.DataTree
+
+Executable         hareview
+  Hs-Source-Dirs:  src
+  Main-is:         Main.hs
+  Other-Modules:   Language.Hareview.GUI,
+                   Language.Hareview.Registry
+
+  Build-Depends:   base>=4 && <5
+                   , filepath
+                   , bytestring
+                   -- , Glob
+                   , containers
+                   , syb
+                   , hint
+                   , glib
+                   , gtk
+                   , glade
+                   , gtksourceview2
+                   , directory
+                   , mtl
+                   , process
+                   , multirec
+                   , hscolour
+                   -- , haskell-src-exts >= 1.9.0
+                   , parsec
+                   , ghc-paths
+                   , ghc
+                   , ghc-syb-utils

@@ -1,0 +1,58 @@
+--#include "alfa/Test0.alfa"
+
+open Logic  use  cong
+
+open Module_Prelude  use  List,  id,  map
+
+open Module_Test0  use  Id1,  MapId1,  IF
+
+proofId1 ::Id1
+  =  \(t21::Star) ->  \(x::t21) -> Ref@_
+
+proofMapId1 ::MapId1
+  =  \(a::Star) ->
+     \(xs::Module_Prelude.List a) ->
+    case xs of {
+      (Nil) -> Ref@_;
+      (Cons x xs') ->
+        cong
+        (List a)
+        (List a)
+        (map a a (id a) xs')
+        xs'
+        ( \(h::PreludeFromAlfa.List a) -> Cons@_ x h)
+        (proofMapId1 a xs');}
+
+proofIF ::IF
+  =  \(t83::Star) ->
+    AndIntro ((f::t83 -> t83) ->
+              (g::t83 -> t83) ->
+              (===) (t83 -> t83) (Module_Prelude.id (t83 -> t83) (Module_Prelude.(..)
+                                                                  t83
+                                                                  t83
+                                                                  t83
+                                                                  f
+                                                                  g)) (Module_Prelude.(..)
+                                                                       t83
+                                                                       t83
+                                                                       t83
+                                                                       (Module_Prelude.id (t83 ->
+                                                                                           t83) f)
+                                                                       (Module_Prelude.id (t83 ->
+                                                                                           t83) g))) ((===) (t83 ->
+                                                                                                             t83) (Module_Prelude.id (t83 ->
+                                                                                                                                      t83) (Module_Prelude.id
+                                                                                                                                            t83)) (Module_Prelude.id
+                                                                                                                                                   t83)) ( \(f::t83 ->
+                                                                                                                                                                t83) ->
+                                                                                                                                                           \(g::t83 ->
+                                                                                                                                                                t83) ->
+                                                                                                                                                          Ref@_) Ref@_
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots on
+wide
+
+nd
+hiding on
+ #-}

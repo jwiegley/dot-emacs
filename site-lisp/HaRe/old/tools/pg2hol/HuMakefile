@@ -1,0 +1,4 @@
+B=../base
+P=../property
+SRC_DIRS=$B/parse:$B/pretty:$B/AST:$B/SA:$B/TC:$B/lib:$P/AST:$P/parse/extras:$P/syntax:$P/command:.
+GHCFLAGS="-fglasgow-exts -package lang"

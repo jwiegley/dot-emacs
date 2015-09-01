@@ -1,0 +1,5 @@
+induction $1 as [| $1'].
+    SCase "$1 = 0".
+      reflexivity.
+    SCase "$1 = S $1'".
+      $0

@@ -1,0 +1,67 @@
+This describes how the different features (a.k.a transformers) interact with each other.
+If two features are orthogonal (i.e. they are independent of each other),
+we say that they commute.  The motivation for this terminology is that
+it does not matter in what order they are added to the system, as they
+won't affect each other.
+
+The identity monad transformer does not do anything, and so it is orthogonal to
+everything.
+
+The "plumbing" features: environment, state, and output are all orthogonal to each other.
+In fact environment is also orthogonal to the all control features, but continuations.
+
+The "control" features: exceptions, non-determinism, and continuations,
+are in general not orthogonal to any other features.
+
+
+For non-orthogonal features, the rule of thumb is:
+  Earlier features of the system have precedence.
+
+This should become clearer in the following sections.
+
+
+
+Exceptions
+==========
+
+To illustrate the behaviour of the exception transformation, 
+we show its interaction with state:
+
+WithState s (WithExcept x m)  = s -> m (Either x (a,s))
+  -- rising an exception loses the state, i.e. changes to the state are not preserved
+                                    
+WithExcept x (WithState s m)  = s -> m (Either x a, s)
+  -- raising an exception only affects the result, and not the state
+
+One way to think of the above is:  
+
+  Adding state to a system that already knew about exceptions will not preserve the state. 
+  That is, in order to preserve the state, the system would have to do
+  something special, but it was designed before there was a notion of state.
+
+  Raising exceptions that were added after state does not affect the state.
+  The reason for this is that if the state is to be undone, something special
+  has to happen when writing (or reading), but that was not a design goal in the original system.
+
+
+One can also have a system where some of the state is preserved, and some is not:
+
+  WithState volatile 
+( WithExcept x
+( WithState static m ))
+
+
+Exceptions interact in a simillar fashion with other transformers:
+if exceptions were added after output, raising an exception will not delete 
+the output.  However, adding output to a system with exceptions
+will produce a system, where rising an exception will forget what was outputed.
+
+
+
+
+
+
+
+
+
+  

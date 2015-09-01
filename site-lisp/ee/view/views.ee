@@ -1,0 +1,38 @@
+[(meta
+  (format-version . "0.0.1")
+  (view-data-file . "view/views.ee")
+  (fields ;(type name category default r-filter c-tree-builder r-tree-builder c-path-finder c-sorter r-sorter c-calculator r-calculator c-title-printer r-title-printer c-printer r-printer post-generate post-update r-select r-execute)
+          ()))
+ [((type . view)
+   (name . "by Category")
+   (default . t)
+   (r-filter . nil)
+   (c-path-finder . (lambda (r)
+    (let ((name (ee-field 'name r))
+          (category (ee-field 'category r)))
+      (list (cond (category (ee-split-string category "/"))
+                  (name (butlast (ee-split-string name "/"))))))))
+   (c-sorter . (lambda (a-level c-level s-level attr-alist)
+    (lambda (c1 c2) (string< (car c1) (car c2)))))
+   ;; (r-sorter . (lambda (a-level r-level attr-alist) (lambda (r1 r2) t)))
+   (c-title-printer . nil)
+   (r-title-printer . (lambda () (setq header-line-format "  View Name")))
+   (c-printer . (lambda (a-level c-level s-level header attr-alist)
+    (let ((b (point)))
+      (insert (format "%s- %s"
+                      (make-string (1- (+ c-level s-level)) ? )
+                      header))
+      (add-text-properties b (point) (list 'face (ee-c-face c-level))))))
+   (r-printer . (lambda (r a-level r-level children-p attr-alist)
+    (insert (format "%s %s"
+                    (or (car (ee-field 'mark r)) " ")
+                    (car (last (split-string (ee-field 'name r) "/")))))))
+   (post-generate . (lambda ()
+    (set (make-local-variable 'ee-data-file-save-format) 'pp)
+    (ee-view-record-by-key
+     (ee-data-field-get
+      (car (ee-data-meta-field-get ee-data 'key-fields))
+      (car (ee-data-records-find ee-data '(default . t)))
+      (ee-data-meta-getters-get-set ee-data)))))
+   (r-select . ee-views-switch-to-buffer)
+   (r-execute))]]

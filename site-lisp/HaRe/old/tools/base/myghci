@@ -1,0 +1,6 @@
+#!/bin/sh
+
+. HuMakefile
+
+ghci -fno-monomorphism-restriction $GHCFLAGS -i${SRC_DIRS} $*
+

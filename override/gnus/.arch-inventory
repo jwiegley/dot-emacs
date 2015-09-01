@@ -1,0 +1,4 @@
+# Generated files
+precious ^(configure|config\.status|config\.cache)$
+
+# arch-tag: 62f59105-7e14-4869-a14d-1030bd187a09

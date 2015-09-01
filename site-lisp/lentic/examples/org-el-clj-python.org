@@ -1,0 +1,34 @@
+
+* Introduction
+
+This file shows hello world in several languages
+
+
+
+
+* Emacs Lisp
+
+#+begin_src emacs-lisp
+(message "hello world")
+#+end_src
+
+* Clojure
+
+#+begin_src clojure
+(print "hello world")
+#+end_src
+
+* Python
+
+#+begin_src python
+print( "hello world" )
+#+end_src
+
+* Footer
+
+
+# Local Variables:
+# lentic-init: (lentic-org-el-init lentic-org-clojure-init lentic-org-python-init)
+# End:
+
+

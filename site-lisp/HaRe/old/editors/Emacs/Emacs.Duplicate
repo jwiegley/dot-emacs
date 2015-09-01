@@ -1,0 +1,52 @@
+(defun haskell-refac-goDup ( start1 end1)
+  "clonesExtraction"
+  (interactive "r")
+  (progn 
+   (let (modified)
+     (dolist (b (buffer-list) modified)
+       (let* ((n (buffer-name b)) (n1 (substring n 0 1)))
+        (if (and (not (or (string= " " n1) (string= "*" n1))) (buffer-modified-p b))
+          (setq modified (cons (buffer-name b) modified)))))
+     (if modified (message-box (format "there are modified buffers: %s" modified))
+       (process-send-string "haskell-refac-process" 
+         (concat
+         
+         "refacIdentify " (mapconcat 'identity (append 
+		(list (if (buffer-file-name) (buffer-file-name) "<missing filename>"))
+		(list (number-to-string (line-no-pos start1))
+		(number-to-string (+ 1 (current-column-pos start1)))
+		(number-to-string (line-no-pos end1))
+		(number-to-string (+ 1 (current-column-pos end1))))) " ")
+         "\n"))
+
+     )
+  )
+  (haskell-refac-parseAnswers2)
+  
+) )
+
+(defun haskell-refac-parseAnswers2 ()
+  "parseAnswers2"
+  (interactive "") 
+  (progn
+    (process-send-string "haskell-refac-process" (concat
+         "parseAnswers " (mapconcat 'identity (append 
+		
+		(list "")) " ")
+         "\n"))
+    (let ((F (read-from-minibuffer "Would you like to extract this expression?"))    )  
+    (if (equal F  "q") 
+         (process-send-string "haskell-refac-process" (concat
+          "refacDupTrans " (mapconcat 'identity (append 
+		  (list "")) " ")
+         "\n"))
+         (progn
+          (process-send-string "haskell-refac-process" (concat
+           "parseAnswers " (mapconcat 'identity (append 
+		
+		   (list F)) " ")
+           "\n"))
+           (haskell-refac-parseAnswers2)
+           "\n")))
+  )
+) 

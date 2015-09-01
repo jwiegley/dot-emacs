@@ -1,0 +1,71 @@
+\section{Conclusions and discussion}
+\label{conclusions}
+
+We have provided a formal specification of the Haskell 98 module system,
+based on the Haskell 98 language report.
+The process of writing the specification was valuable as we
+identified a number of areas of the report, which were unclear, or 
+underspecified, and as a result the report has been improved.  In particular, 
+while the report mentions that mutually recursive modules are 
+allowed, there is no mention of how they should work.   
+Our specification provides a clear semantics for
+mutually recursive modules, and as far as we are aware, is the only
+implementation of the Haskell module system that supports this feature.
+It is possible to compile programs with mutually recursive modules 
+using GHC \cite[Section 4.9.7]{GHC-ref-man}, but the programmer
+has to provide a special interface file, essentially implementing
+this aspect of the module system manually. 
+
+
+The Haskell module system aims at simplicity and has a clear goal---to manage
+name uses in a program.  Its design has largely been driven by practical
+concerns, which has both positive and negative consequences.  It works in 
+practice and most of the time it does not place large cognitive
+overhead on the programmer.  Our specification is not too complicated,
+and the few thorny parts of it point to possibilities for improvements
+in the design of the module system.
+
+One of the complications is caused by the
+special rules used to distinguish between type and value constructors in 
+import/export lists. These seem somewhat ad-hoc and are a source of
+unnecessary complexity.  Many of the 
+difficulties arise from the choice of meaning for capitalized names
+in import/export lists: 
+\begin{itemize}
+    \item in export lists and ``normal'' imports they refer to types or classes
+    \item in ``hiding'' imports they refer to types, classes, or 
+        value-constructors 
+\end{itemize}
+An alternative choice is to make them always refer to value-constructors.
+The presence or absence of a subordinate list may be used to 
+distinguish types and classes, from value-constructors. Here is a table 
+summarizing the difference between the current and the alternative 
+interpretation:
+
+\begin{tabular}{lcc}
+what to name: &            current   &  alternative \\
+just type or class:     & T or T()   &   T()       \\
+just constructor:       & -          &   T 
+\end{tabular}
+
+As we see, currently there are two different ways to name just a type
+or a class, and no way at all to just name a value-constructor.
+With our alternative interpretation,
+the meaning of an entry does not vary depending on the context (i.e., 
+no need for special cases for ``hiding'' imports).  This seems like an
+attractive idea, but unfortunately it changes the meaning of many Haskell
+programs.  As such it is not feasible to introduce in Haskell 98, but
+perhaps it can be considered in future revisions of the language.
+
+Haskell turned out to be a very suitable language for writing 
+executable specifications.  We found its clear syntax to be particularly 
+valuable, providing a high-level of abstraction.  
+The ability to type-check and execute the
+specification not only improved our confidence in its correctness, but
+also enabled us to compare it against the behaviors of a number of 
+implementations such as Hugs and GHC.
+
+\section{Acknowledgments}
+We would like to thank the participants on the Haskell mailing list,
+and in particular Simon Peyton Jones, Simon Marlow, and Malcom Wallace,
+for valuable clarifications and discussions.   

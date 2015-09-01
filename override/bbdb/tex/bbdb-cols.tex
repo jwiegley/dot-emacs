@@ -1,0 +1,234 @@
+%%% bbdb-cols.tex  -  multiple columns per page, multiple pages per sheet.
+
+%%% Authors: Luigi Semenzato <luigi@paris.cs.berkeley.edu>
+%%%          Boris Goldowsky <boris@cs.rochester.edu>
+%%% Copyright (C) 1993 Boris Goldowsky
+%%% Version: 3.92; 5Jan95
+
+%%% Commentary:
+%%%
+%%% Put  \input bbdb-cols.tex 
+%%% at the beginning of your TeX file.
+%%% Then \twocol, \threecol, or \fourcol for multi-column output
+%%% or \gridformat (4x3 grid of small credit-card-sized pages)
+%%% or \quadformat{xsize}{ysize} for four 2-column pages per sheet.
+%%% In any case you will need to put \endcol at the end of the
+%%% document, before \bye.
+
+%%% For instructions on using this format file with BBDB, see bbdb-print.el
+%%% which should have come bundled with this file.  The complete bbdb-print
+%%% package is also available via anonymous ftp at:
+%%% /cs.rochester.edu:/pub/u/boris/bbdb-print.tar.gz
+
+%%% This file is part of the bbdb-print extensions to the Insidious
+%%% Big Brother Database, which is for use with GNU Emacs.
+%%%
+%%% This program is free software; you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation; either version 1, or
+%%% (at your option) any later version.
+%%%
+%%% This program is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%%% General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with GNU Emacs; see the file COPYING.  If not, write to
+%%% the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+\newdimen\colshsize      \colshsize=\hsize
+\newdimen\columngutter   \columngutter=.2in     % space between columns
+
+\newbox\columnA  \newbox\columnB  \newbox\columnC
+
+\newdimen\FULLHSIZE
+\newdimen\FULLVSIZE  
+\newbox\quadrantbox
+\newbox\firstquadrant \newbox\secondquadrant
+\newbox\thirdquadrant \newbox\fourthquadrant
+\newbox\row \newbox\page
+
+\def\columnbox{\leftline{\pagebody}}
+
+\def\colsline{\hbox to \colshsize}
+
+\newcount\NROW \NROW=3          % for grid format. are these really variables
+\newcount\NCOL \NCOL=4          % that can be changed?  should they be set
+                                % from lisp?  I'm not sure.
+\newcount\rowindex \newcount\colindex
+
+\def\onecol  % for consistency---or maybe one could use it for switching back.
+{
+  \output={\shipout\vbox{\makeheadline\colsline{\columnbox}\makefootline}
+            \advancepageno \ifnum\outputpenalty>-20000 \else\dosupereject\fi}
+  \def\endcol{}
+}% end onecol
+
+\def\twocol 
+{
+  \advance\hsize by -\columngutter
+  \divide\hsize 2
+  \let\column=A
+  \output={\if A\column
+              \global\setbox\columnA=\columnbox \global\let\column=B
+          \else
+              \shipout\vbox{\makeheadline
+                            \colsline{\box\columnA\hfil\columnbox}
+                            \makefootline}
+              \advancepageno \global\let\column=A
+          \fi
+          \ifnum\outputpenalty>-20000 \else\dosupereject\fi}
+ 
+  \def\endcol
+  {
+    \vfill\supereject\if A\column \else\null\vfill\eject\fi
+  }
+
+} % end twocol
+
+\def\threecol
+{
+  \advance\hsize -\columngutter
+  \advance\hsize -\columngutter
+  \divide\hsize 3
+  \let\column=A
+  \output={\if A\column 
+                  \global\setbox\columnA=\columnbox \global\let\column=B
+          \else \if B\column
+                  \global\setbox\columnB=\columnbox \global\let\column=C
+          \else
+                \shipout\vbox{\makeheadline
+                              \colsline{\box\columnA\hfil\box\columnB
+                                        \hfil\columnbox}
+                              \makefootline}
+                  \advancepageno \global\let\column=A
+          \fi\fi
+          \ifnum\outputpenalty>-20000 \else\dosupereject\fi}
+
+  \def\endcol
+  {
+    \if A\column
+      \null\vfill\eject\null\vfill\eject
+    \else\if B\column
+      \null\vfill\eject
+    \fi\fi
+    \vfill\supereject
+  }
+
+} % end threecol
+
+\def\fourcol
+{
+  \advance\hsize -3\columngutter
+  \divide\hsize 4
+  \let\column=A
+  \output={\if A\column
+                  \global\setbox\columnA=\columnbox \global\let\column=B
+          \else \if B\column
+                  \global\setbox\columnB=\columnbox \global\let\column=C
+          \else \if C\column
+                  \global\setbox\columnC=\columnbox \global\let\column=D
+          \else
+             \shipout\vbox 
+             { \makeheadline 
+               \colsline{\box\columnA\hfil\box\columnB\hfil
+                         \box\columnC\hfil\columnbox}
+               \makefootline}
+             \advancepageno\global\let\column=A
+          \fi\fi\fi
+          \ifnum\outputpenalty>-20000 \else\dosupereject\fi
+  }
+
+  \def\endcol
+  {
+    \vfill\supereject
+    \if A\column \else\null\vfill\eject\fi
+    \if B\column \else\null\vfill\eject\fi
+    \if C\column \else\null\vfill\eject\fi
+  }
+
+} % end fourcol
+
+\def\quadformat#1#2
+{
+  \FULLHSIZE=\hsize
+  \FULLVSIZE=\vsize
+
+  \colshsize=#1
+  \vsize=#2
+
+  \hsize=\colshsize   \advance\hsize by -.15in   \divide\hsize 2
+
+  \let\lr=L 
+  \let\quadrant=A 
+  \output={\if L\lr
+                  \global\setbox\columnA=\columnbox \global\let\lr=R
+          \else
+                  \global\setbox\quadrantbox=\vbox{\colsline
+                  {\box\columnA\hfil\columnbox}} \global\let\lr=L
+                  \quadrantformat
+          \fi
+          \ifnum\outputpenalty>-20000 \else\dosupereject\fi}
+
+  \def\quadrantformat
+          {\if A\quadrant
+                  \global\setbox\firstquadrant=\box\quadrantbox
+                  \global\let\quadrant=B
+          \else \if B\quadrant
+                  \global\setbox\secondquadrant=\box\quadrantbox
+                  \global\let\quadrant=C
+          \else \if C\quadrant
+                  \global\setbox\thirdquadrant=\box\quadrantbox
+                  \global\let\quadrant=D
+          \else
+                  {\shipout
+                  \vbox to \FULLVSIZE
+                       {\FULLLINE{\box\firstquadrant\hfil\box\secondquadrant}
+                        \vfill
+                        \FULLLINE{\box\thirdquadrant\hfil\box\quadrantbox}}}
+                  \global\let\quadrant=A
+                  \advancepageno
+          \fi\fi\fi}
+
+  \def\FULLLINE{\hbox to \FULLHSIZE}
+
+  \def\endcol{\supereject\if R\lr \null\vfill\eject\fi}
+} % end of quadformat
+
+\def\grid
+{
+  \def\rowspace{\vbox to 0.2in{}}
+  \def\colspace{\hbox to 0.2in{}}
+
+  \hsize=1.5in
+  \vsize=2.9in
+
+  \rowindex=0 \colindex=0
+
+  \setbox\row=\null \setbox\page=\null
+
+  \output={\global\advance\colindex by 1
+           \ifnum\colindex>\NCOL
+                  \global\colindex=1
+                  \global\setbox\page=\vbox{\box\page\rowspace\box\row}
+                  \global\setbox\row=\null
+                  \global\advance\rowindex by 1
+                  \ifnum\rowindex=\NROW
+                          \global\rowindex=1
+                          \shipout\box\page
+                          \global\setbox\page=\null
+                          \advancepageno
+                  \fi
+          \fi
+          \global\setbox\row=\hbox{\box\row\colspace\columnbox}}
+
+  \def\columnbox{\leftline{\pagebody}}
+
+  \def\endcol{\vfill\supereject
+              \ifnum\colindex=1\null\vfill\eject\fi}
+} % end of grid.
+
+%%% bbdb-cols.tex ends here.
+

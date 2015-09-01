@@ -1,0 +1,57 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# key: link
+# name: link
+# --
+(in-theory (enable unlink_Hotel_A$1))
+(defthm unlink_Hotel_A$1-ctxsetvar-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (not (memptyp (mget :csstack MddContext)))
+    (stringp varName))
+   (equal (UNLINK_HOTEL_A$1 part1 part2 (ctxsetvar varName value MddContext))
+          (ctxsetvar varName value (UNLINK_HOTEL_A$1 part1 part2 MddContext)))))
+
+(defthm unlink_Hotel_A$1-ctxpush-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (stringp varName))
+   (equal (UNLINK_HOTEL_A$1 part1 part2 (ctxpush varName MddContext))
+          (ctxpush varName (UNLINK_HOTEL_A$1 part1 part2 MddContext)))))
+
+(defthm unlink_Hotel_A$1-not-mempty-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (not (memptyp (mget :csstack MddContext))))
+   (not (memptyp (mget :csstack (UNLINK_HOTEL_A$1 part1 part2 MddContext))))))
+(in-theory (disable unlink_Hotel_A$1))
+
+(in-theory (enable link_Hotel_A$1 unlink_Hotel_A$1 readAttr getFromHeap))
+(defthm link_Hotel_A$1-ctxsetvar-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (not (memptyp (mget :csstack MddContext)))
+    (stringp varName))
+   (equal (LINK_HOTEL_A$1 part1 part2 (ctxsetvar varName value MddContext))
+          (ctxsetvar varName value (LINK_HOTEL_A$1 part1 part2 MddContext)))))
+
+(defthm link_Hotel_A$1-ctxpush-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (stringp varName))
+   (equal (LINK_HOTEL_A$1 part1 part2 (ctxpush varName MddContext))
+          (ctxpush varName (LINK_HOTEL_A$1 part1 part2 MddContext)))))
+
+(defthm link_Hotel_A$1-not-mempty-rule
+  (implies
+   (and
+    (MddContext-typep MddContext)
+    (not (memptyp (mget :csstack MddContext))))
+   (not (memptyp (mget :csstack (LINK_HOTEL_A$1 part1 part2 MddContext))))))
+(in-theory (disable link_Hotel_A$1 unlink_Hotel_A$1 readAttr getFromHeap))
+
+$0

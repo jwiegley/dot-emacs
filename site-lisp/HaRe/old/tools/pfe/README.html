@@ -1,0 +1,104 @@
+<h1>Extensible Haskell front-end for the Programatica project</h1>
+
+<h2>What is in this directory (pfe)</h2>
+
+This directory contains modules implementing PFE, the Preliminary Front-End.
+
+<p>
+PFE provides the infrastructure to work with Haskell programs consisting of
+a number of interdependent modules, stored in files. We use the term
+<em>project</em> to denote a collection of Haskell modules that are to be
+processed together by PFE.
+
+<p>
+PFE has built-in make(1)-like functionality: it
+automatically processes files in the right order, and caches results between
+runs to avoid reparsing and reanalyzing files that haven't changed.
+
+<h3>Functionality</h3>
+PFE provides the following functionality, which is available both in the
+form of command line tools and as Haskell functions:
+
+<dl>
+  <dt>Level 0
+  <dd>Project management: creating a project, adding/removing files to
+      a project. Computing the module dependency graph. Various module level
+      queries.
+  <dt>Level 1
+  <dd>Computing some module properties that can be determined locally and that
+      does not require proper parsing.
+  <dt>Level 2
+  <dd>Analysis of import/export specifications, to determine what is in scope
+      on the top level of each module. This is based on the code decribed
+      in our paper
+      <a href="http://www.cse.ogi.edu/~diatchki/hsmod/">A Formal Specification
+      for the Haskell 98 Module System</a>.
+  <dt>Level 3
+  <dd>Proper parsing of Haskell modules, taking fixity declarations into
+      account. The identifiers in the output of the proper parser are
+      decorated so that they are unique and you can tell what original entity
+      they refer to.
+  <dt>Level 4
+  <dd>Type checking. The type checker can output a syntax tree decorated with
+      type annotations. It can also perform the dictionary translation.
+  <dt>Level 5
+  <dd>Function level dependency graph. This is done after type checking, to
+      properly account for dependencies involving instance declarations.
+      (The module is called <code>PFEdeps</code>.)
+  <dt>Chase (built on top of level 0)
+  <dd>Import chasing. Searches for source files containing needed modules in
+      specified directories. This function assumes that a module <code>M</code>
+      is stored in a file called <code>M.hs</code> or <code>M.lhs</code>.
+      (This is the only function of PFE that assumes a relation between file
+      names and module names.)
+  <dt>HTML (built on top of level 3)
+  <dd>Conversion to HTML, with highlighting and cross references.
+</dl>
+
+
+<h3>Extensibility</h3>
+
+PFE is designed to be extensible in several dimensions:
+
+<dl>
+  <dt>Functionality
+  <dd>It should be ease to create new command line tools that
+      inherits and extends the provided functionality.
+  <dt>Language extensions. 
+  <dd>PFE is parameterized over the source language parser, so the source
+      language is not hardwired in PFE, but there are some restrictions:
+      <ul>
+        <li>The type of the lexer is fixed and the parser is expected to
+	    cooperate with the lexer to implement Haskell's layout conventions.
+	    (See module <a href="pfe.cgi?ParseMonad"><code>ParseMonad</code></a>.)
+        <li>The source file parser is expected to return something of
+	    type <code>HsModuleI</code> <var>i</var> <var>ds</var>,
+	    for <em>some</em> types <var>i</var> and <var>ds</var>.
+	    (See module <a href="pfe.cgi?HsModule"><code>HsModule</code></a>.)
+	<li>The types returned by the parser are required to be instances
+	    of a number of classes: a small number of instances are required
+	    for level 0 functionality, more instances are required
+	    for higher levels.
+      </ul>
+      See <a href="../property/"><code>../property</code></a> for an example
+      of reusing PFE in an extended language.
+  <dt>Monadic abstraction
+  <dd><ul>
+	<li>The PFE functions are operations in a monad, but the exact monad
+	    type is left open. Code providing new functionality can use an
+	    extended monad. The monad is constructed using
+	    <a href="http://www.cse.ogi.edu/~diatchki/MonadTransformers/">monad
+            transformers</a>.
+        <li>Although various forms of IO are used by PFE, there are no
+	    hardwired dependencies on the <code>IO</code> monad. Instead
+	    we have defined classes of <em>abstract IO operations</em>
+	    (see module <a href="pfe.cgi?AbstractIO"><code>AbstractIO</code></a>.)
+	    and provide instances for the ordinary <code>IO</code> monad and
+	    some monad transformers. It should be possible to use PFE in
+            contexts where the standard monadic IO system is not directly
+            available (e.g., inside a Fudget).
+     </ul>
+</dl>
+<hr>
+<address>Authors: TH</address>
+<address>Contact: <a href="http://www.cse.ogi.edu/~hallgren/">TH</address>

@@ -1,0 +1,1 @@
+--load lentic.el lentic-chunk.el lentic-latex-code.el lentic-asciidoc.el lentic-org.el lentic-doc.el lentic-mode.el lentic-rot13.el test/lentic-test.el

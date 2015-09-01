@@ -1,0 +1,64 @@
+# $Id: Makefile.old,v 1.1 2002/01/30 07:25:23 hallgren Exp $
+
+HC = ghc
+HC_LOCAL_LIB = ${HOME}/lib
+HC_INC = . parse parse/extras pretty lib AST SA TC ${HC_LOCAL_LIB} syntax 
+HEAP = -H128M
+
+HC_DEP = ${HC} -M
+HC_INCI = ${addprefix -i,${HC_INC}}
+HC_PKGI = ${addprefix -package,${HC_PKG}}
+HC_LIBI = ${addprefix -l,${HC_LIBS}}
+HC_OPTS = ${$*_HC_OPTS} ${HC_XOPTS} ${HC_INCI} ${HC_PKGI} \
+          -recomp -fwarn-incomplete-patterns ${HEAP} \
+          -fglasgow-exts -fmax-simplifier-iterations5 \
+          -package lang -package concurrent -package util #-Wall 
+#          -fno-monomorphism-restriction \
+
+DEP_OPTS = ${HC_INCI}
+HC_LDOPTS = ${HC_OPTS} ${addprefix -L,${HC_INC}} ${HC_LIBI}
+
+HAPPY      = happy
+HAPPYFLAGS = # --ghc makes parser unusable for Hugs
+RUNTIMEFLAGS = # +RTS -H75M
+PRINTER    = lj8
+ENSCRIPT   = enscript
+
+HAPPYSRC = parse/extras/HsParser.y
+
+RM         = rm -f
+
+MAIN       = hsparse
+
+%.hs: %.y
+	$(HAPPY) $(HAPPYFLAGS) $< --info $(RUNTIMEFLAGS) -o $(HAPPYSRC:.y=.hs)
+
+$(MAIN): $(HAPPYSRC:.y=.hs)
+	${HC} --make Parse.hs -o $@ ${HC_OPTS}
+
+parser: parse/extras/HsParser.hs
+
+tstModules: $(HAPPYSRC:.y=.hs)
+	${HC} --make tstModules.hs -o $@ ${HC_OPTS} -idefs -iModules
+
+tstTI: $(HAPPYSRC:.y=.hs)
+	${HC} --make tstTI.hs -o $@ -iparse -iparse/extras -ipretty -iAST -isyntax -ilib -iTI -H80M -fglasgow-exts -fmax-simplifier-iterations5 -package lang -fallow-undecidable-instances
+# -package concurrent -package util
+# -fwarn-incomplete-patterns -fno-monomorphism-restriction
+
+tidy:
+	$(RM) parse/Lexer.hi
+clean:
+	$(RM) ${HC_OBJ} $(MAIN).aux $(MAIN).hp $(MAIN).prof core \
+           $(MAIN).ps profile.* *~ .depend* $(HAPPYSRC:.y=.info) 
+	find . '(' -name '*.o' -o -name '*.hi' ')' -exec $(RM) '{}' ';'
+
+printsource:
+	$(ENSCRIPT) -1 -d $(PRINTER) -G $(HC_SRC)
+
+veryclean: clean
+	$(RM) $(MAIN) TAGS $(HAPPYSRC:.y=.hs)
+
+TAGS: ${HC_SRC}
+	hstags ${HC_SRC}
+

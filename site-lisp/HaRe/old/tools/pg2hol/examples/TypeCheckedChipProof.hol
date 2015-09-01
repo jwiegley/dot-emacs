@@ -1,0 +1,788 @@
+(* Not supported: import declaration *)
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:20,10 : *)
+(* Property: SeparateChannels *)
+val prop_SeparateChannels =
+    (``! algs i packets .
+	   (>>= start algs (channel i packets)
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= start algs packets
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property SeparateChannels failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:77,10 : *)
+(* Property: MLICS1 *)
+val prop_MLICS1 =
+    (``! algs i packets .
+	   (>>= start algs (channel i packets)
+		\ opkt . >> regmask i return opkt)
+	   =   (>>=
+		>> >> initRegisters initShared
+		    driver (onePacket algs) (channel i packets)
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLICS1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:88,10 : *)
+(* Property: MLICS2 *)
+val prop_MLICS2 =
+    (``! algs i packets .
+	   (>>= start algs (channel i packets)
+		\ opkt . >> regmask i return opkt)
+	   =   (>>=
+		>> >> initRegisters initShared driver (onePacket algs) packets
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLICS2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:96,10 : *)
+(* Property: MLICS3 *)
+val prop_MLICS3 =
+    (``! algs i packets .
+	   (>>= >> >> initRegisters initShared driver (onePacket algs) packets
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= start algs packets
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLICS3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:107,10 : *)
+(* Property: MainLemma *)
+val prop_MainLemma =
+    (``! algs i pkts .
+	   (>>= >> initShared driver (onePacket algs) (channel i pkts)
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) pkts
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MainLemma failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:119,10 : *)
+(* Property: MLproof1 *)
+val prop_MLproof1 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) (channel i [])
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) []
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:125,10 : *)
+(* Property: MLproof2 *)
+val prop_MLproof2 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) []
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) (channel i [])
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:131,10 : *)
+(* Property: MLproof3 *)
+val prop_MLproof3 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) (channel i [])
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) (channel i [])
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:137,10 : *)
+(* Property: MLproof4 *)
+val prop_MLproof4 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) (channel i [])
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) []
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof4 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:148,10 : *)
+(* Property: MLproof5 *)
+val prop_MLproof5 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) []
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) []
+		    \ opkt . >> regmask i return [])``)
+handle e => (print "Property MLproof5 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:155,10 : *)
+(* Property: MLproof6 *)
+val prop_MLproof6 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) []
+		\ opkt . >> regmask i return [])
+	   =   (>>= >> initShared driver (onePacket algs) []
+		    \ opkt . >> regmask i return (channel i []))``)
+handle e => (print "Property MLproof6 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:164,10 : *)
+(* Property: MLproof7 *)
+val prop_MLproof7 =
+    (``! algs i .
+	   (>>= >> initShared driver (onePacket algs) []
+		\ opkt . >> regmask i return (channel i []))
+	   =   (>>= >> initShared driver (onePacket algs) []
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLproof7 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:177,10 : *)
+(* Property: MLproof8 *)
+val prop_MLproof8 =
+    (``! algs i p ps .
+	   (>>= >> initShared driver (onePacket algs) (channel i (: p ps))
+		\ opkt . >> regmask i return opkt)
+	   =   (>>=
+		>> initShared
+		    (>>= (onePacket algs) p
+			 \ resultpkt .
+			     case resultpkt of
+			       Just p' => (towire p' (driver (onePacket algs) (channel i ps)))
+			     | Nothing => driver (onePacket algs) (channel i ps))
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof8 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:192,10 : *)
+(* Property: MLproof9 *)
+val prop_MLproof9 =
+    (``! algs i p ps .
+	   (>>=
+	    >> initShared
+		(>>= (onePacket algs) p
+		     \ resultpkt .
+			 case resultpkt of
+			   Just p' => (towire p' (driver (onePacket algs) (channel i ps)))
+			 | Nothing => driver (onePacket algs) (channel i ps))
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			>>=
+			(case resultpkt of
+			   Just p' => towire p' (driver (onePacket algs) (channel i ps))
+			 | Nothing => driver (onePacket algs) (channel i ps))
+			    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof9 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:213,10 : *)
+(* Property: MLproof10 *)
+val prop_MLproof10 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    >>=
+		    (case resultpkt of
+		       Just p' => towire p' (driver (onePacket algs) (channel i ps))
+		     | Nothing => driver (onePacket algs) (channel i ps))
+			\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			>>=
+			>> initShared
+			    (case resultpkt of
+			       Just p' => towire p' (driver (onePacket algs) (channel i ps))
+			     | Nothing => driver (onePacket algs) (channel i ps))
+			    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof10 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:238,10 : *)
+(* Property: MLproof11 *)
+val prop_MLproof11 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    >>=
+		    >> initShared
+			(case resultpkt of
+			   Just p' => towire p' (driver (onePacket algs) (channel i ps))
+			 | Nothing => driver (onePacket algs) (channel i ps))
+			\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			>>=
+			(case resultpkt of
+			   Just p' =>
+			   >> initShared towire p' (driver (onePacket algs) (channel i ps))
+			 | Nothing => >> initShared driver (onePacket algs) (channel i ps))
+			    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof11 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:264,10 : *)
+(* Property: MLproof12 *)
+val prop_MLproof12 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    >>=
+		    (case resultpkt of
+		       Just p' =>
+		       >> initShared towire p' (driver (onePacket algs) (channel i ps))
+		     | Nothing => >> initShared driver (onePacket algs) (channel i ps))
+			\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			>>=
+			(case resultpkt of
+			   Just p' =>
+			   towire p' (>> initShared (driver (onePacket algs) (channel i ps)))
+			 | Nothing => >> initShared driver (onePacket algs) (channel i ps))
+			    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof12 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:292,10 : *)
+(* Property: MLproof13 *)
+val prop_MLproof13 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    >>=
+		    (case resultpkt of
+		       Just p' =>
+		       towire p' (>> initShared (driver (onePacket algs) (channel i ps)))
+		     | Nothing => >> initShared driver (onePacket algs) (channel i ps))
+			\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			(case resultpkt of
+			   Just p' =>
+			   >>=
+			   (towire p'
+				(>> initShared (driver (onePacket algs) (channel i ps))))
+			       \ opkt . >> regmask i return opkt
+			 | Nothing =>
+			   >>= >> initShared driver (onePacket algs) (channel i ps)
+			       \ opkt . >> regmask i return opkt))``)
+handle e => (print "Property MLproof13 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:324,10 : *)
+(* Property: MLproof14 *)
+val prop_MLproof14 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    (case resultpkt of
+		       Just p' =>
+		       >>=
+		       (towire p'
+			    (>> initShared (driver (onePacket algs) (channel i ps))))
+			   \ opkt . >> regmask i return opkt
+		     | Nothing =>
+		       >>= >> initShared driver (onePacket algs) (channel i ps)
+			   \ opkt . >> regmask i return opkt))
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			(case resultpkt of
+			   Just p' =>
+			   towire p'
+			       (>>= >> initShared driver (onePacket algs) (channel i ps)
+				    \ opkt . >> regmask i return opkt)
+			 | Nothing =>
+			   >>= >> initShared driver (onePacket algs) (channel i ps)
+			       \ opkt . >> regmask i return opkt))``)
+handle e => (print "Property MLproof14 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:359,10 : *)
+(* Property: MLproof15 *)
+val prop_MLproof15 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    (case resultpkt of
+		       Just p' =>
+		       towire p'
+			   (>>= >> initShared driver (onePacket algs) (channel i ps)
+				\ opkt . >> regmask i return opkt)
+		     | Nothing =>
+		       >>= >> initShared driver (onePacket algs) (channel i ps)
+			   \ opkt . >> regmask i return opkt))
+	   =   (>>= >> initShared (onePacket algs) p
+		    \ resultpkt .
+			(case resultpkt of
+			   Just p' =>
+			   towire p'
+			       (>>= >> initShared driver (onePacket algs) ps
+				    \ opkt . >> regmask i return (channel i opkt))
+			 | Nothing =>
+			   >>= >> initShared driver (onePacket algs) ps
+			       \ opkt . >> regmask i return (channel i opkt)))``)
+handle e => (print "Property MLproof15 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:395,10 : *)
+(* Property: MLproof16 *)
+val prop_MLproof16 =
+    (``! algs i p ps .
+	   (>>= >> initShared (onePacket algs) p
+		\ resultpkt .
+		    (case resultpkt of
+		       Just p' =>
+		       towire p'
+			   (>>= >> initShared driver (onePacket algs) ps
+				\ opkt . >> regmask i return (channel i opkt))
+		     | Nothing =>
+		       >>= >> initShared driver (onePacket algs) ps
+			   \ opkt . >> regmask i return (channel i opkt)))
+	   =   (>>= >> initShared driver (onePacket algs) (: p ps)
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLproof16 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:427,10 : *)
+(* Property: MLproof17 *)
+val prop_MLproof17 =
+    (``! algs i p ps .
+	   (>>= >> initShared driver (onePacket algs) (: p ps)
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>=
+		>> initShared
+		    (>>= ((onePacket algs) p)
+			 \ res .
+			     (case res of
+				Just p' => towire p' (driver (onePacket algs) ps)
+			      | Nothing => driver (onePacket algs) ps))
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLproof17 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:447,10 : *)
+(* Property: MLproof18 *)
+val prop_MLproof18 =
+    (``! algs i p ps .
+	   (>>=
+	    >> initShared
+		(>>= ((onePacket algs) p)
+		     \ res .
+			 (case res of
+			    Just p' => towire p' (driver (onePacket algs) ps)
+			  | Nothing => driver (onePacket algs) ps))
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= >> initShared ((onePacket algs) p)
+		    \ res .
+			(case res of
+			   Just p' =>
+			   >>= towire p' (driver (onePacket algs) ps)
+			       \ opkt . >> regmask i return (channel i opkt)
+			 | Nothing =>
+			   >>= driver (onePacket algs) ps
+			       \ opkt . >> regmask i return (channel i opkt)))``)
+handle e => (print "Property MLproof18 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:474,10 : *)
+(* Property: MLproof19 *)
+val prop_MLproof19 =
+    (``! algs i p ps .
+	   (>>= >> initShared ((onePacket algs) p)
+		\ res .
+		    (case res of
+		       Just p' =>
+		       >>= towire p' (driver (onePacket algs) ps)
+			   \ opkt . >> regmask i return (channel i opkt)
+		     | Nothing =>
+		       >>= driver (onePacket algs) ps
+			   \ opkt . >> regmask i return (channel i opkt)))
+	   =   (>>= >> initShared ((onePacket algs) p)
+		    \ res .
+			(case res of
+			   Just p' =>
+			   >>= (driver (onePacket algs) ps)
+			       \ opkt . >> regmask i return (channel i opkt)
+			 | Nothing =>
+			   >>= driver (onePacket algs) ps
+			       \ opkt . >> regmask i return (channel i opkt)))``)
+handle e => (print "Property MLproof19 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:502,10 : *)
+(* Property: MLproof20 *)
+val prop_MLproof20 =
+    (``! algs i p ps .
+	   (>>= >> initShared ((onePacket algs) p)
+		\ res .
+		    (case res of
+		       Just p' =>
+		       >>= (driver (onePacket algs) ps)
+			   \ opkt . >> regmask i return (channel i opkt)
+		     | Nothing =>
+		       >>= driver (onePacket algs) ps
+			   \ opkt . >> regmask i return (channel i opkt)))
+	   =   (>>=
+		>> initShared
+		    (>>= (onePacket algs) p
+			 \ res .
+			     case res of
+			       Just p' => driver (onePacket algs) ps
+			     | Nothing => driver (onePacket algs) ps)
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLproof20 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:528,10 : *)
+(* Property: MLproof21 *)
+val prop_MLproof21 =
+    (``! algs i p ps .
+	   (>>=
+	    >> initShared
+		(>>= (onePacket algs) p
+		     \ res .
+			 case res of
+			   Just p' => driver (onePacket algs) ps
+			 | Nothing => driver (onePacket algs) ps)
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= >> initShared driver (onePacket algs) ps
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property MLproof21 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:546,10 : *)
+(* Property: MLproof22 *)
+val prop_MLproof22 =
+    (``! algs i p ps .
+	   (>>= >> initShared driver (onePacket algs) ps
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= >> initShared driver (onePacket algs) (channel i ps)
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof22 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:558,10 : *)
+(* Property: MLproof23 *)
+val prop_MLproof23 =
+    (``! algs i p ps .
+	   (>>= >> initShared driver (onePacket algs) (channel i ps)
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= >> initShared driver (onePacket algs) (channel i (: p ps))
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property MLproof23 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:577,10 : *)
+(* Property: Lemma1 *)
+val prop_Lemma1 =
+    (``! algs p .
+	   (>> initShared onePacket algs p) =
+	       (>>= >> initShared onePacket algs p
+		    \ opkt . >> initShared return opkt)``)
+handle e => (print "Property Lemma1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:588,10 : *)
+(* Property: Lemma2 *)
+val prop_Lemma2 =
+    (``! x p .
+	   (>> initShared towire p x) = (towire p (>> initShared x))``)
+handle e => (print "Property Lemma2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:596,10 : *)
+(* Property: Lemma2_proof1 *)
+val prop_Lemma2_proof1 =
+    (``! x p .
+	   (>> initShared towire p x) =
+	       (>>= >> initShared x \ opkts . return (: p opkts))``)
+handle e => (print "Property Lemma2_proof1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:602,10 : *)
+(* Property: Lemma2_proof2 *)
+val prop_Lemma2_proof2 =
+    (``! x p .
+	   (>>= >> initShared x \ opkts . return (: p opkts)) =
+	       (>>= (>> initShared x) \ opkts . return (: p opkts))``)
+handle e => (print "Property Lemma2_proof2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:608,10 : *)
+(* Property: Lemma2_proof3 *)
+val prop_Lemma2_proof3 =
+    (``! x p .
+	   (>>= (>> initShared x) \ opkts . return (: p opkts)) =
+	       (towire p (>> initShared x))``)
+handle e => (print "Property Lemma2_proof3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:617,10 : *)
+(* Property: Lemma3 *)
+val prop_Lemma3 =
+    (``! x p i .
+	   (>>= (towire p x) \ opkt . >> regmask i return opkt) =
+	       (towire p (>>= x \ opkt . >> regmask i return opkt))``)
+handle e => (print "Property Lemma3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:628,10 : *)
+(* Property: Lemma3_proof1 *)
+val prop_Lemma3_proof1 =
+    (``! x p i .
+	   (>>= (towire p x) \ opkt . >> regmask i return opkt) =
+	       (>>= (>>= x \ theta . return (: p theta))
+		    \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property Lemma3_proof1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:636,10 : *)
+(* Property: Lemma3_proof2 *)
+val prop_Lemma3_proof2 =
+    (``! x p i .
+	   (>>= (>>= x \ theta . return (: p theta))
+		\ opkt . >> regmask i return opkt)
+	   =   (>>= x
+		    \ theta .
+			>>= return (: p theta) \ opkt . >> regmask i return opkt)``)
+handle e => (print "Property Lemma3_proof2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:645,10 : *)
+(* Property: Lemma3_proof3 *)
+val prop_Lemma3_proof3 =
+    (``! x p i .
+	   (>>= x
+		\ theta . >>= return (: p theta) \ opkt . >> regmask i return opkt)
+	   = (>>= x \ theta . >> regmask i return (: p theta))``)
+handle e => (print "Property Lemma3_proof3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:653,10 : *)
+(* Property: Lemma3_proof4 *)
+val prop_Lemma3_proof4 =
+    (``! x p i .
+	   (>>= x \ theta . >> regmask i return (: p theta)) =
+	       (>>= (>>= x \ theta . >> regmask i return (theta))
+		    \ opkt . return (: p opkt))``)
+handle e => (print "Property Lemma3_proof4 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:661,10 : *)
+(* Property: Lemma3_proof5 *)
+val prop_Lemma3_proof5 =
+    (``! x p i .
+	   (>>= (>>= x \ theta . >> regmask i return (theta))
+		\ opkt . return (: p opkt))
+	   = (towire p (>>= x \ opkt . >> regmask i return opkt))``)
+handle e => (print "Property Lemma3_proof5 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:672,10 : *)
+(* Property: Lemma4 *)
+val prop_Lemma4 =
+    (``! phi ws i j .
+	   ((=/= i j) ==>
+		(>>= towire (j, ws) phi
+		     \ opkt . >> regmask i return (channel i opkt))
+	    = (>>= phi \ opkt . >> regmask i return (channel i opkt)))``)
+handle e => (print "Property Lemma4 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:684,10 : *)
+(* Property: Lemma4_proof1 *)
+val prop_Lemma4_proof1 =
+    (``! phi ws i j .
+	   (>>= towire (j, ws) phi
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= (>>= phi \ out . return (: (j, ws) out))
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property Lemma4_proof1 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:693,10 : *)
+(* Property: Lemma4_proof2 *)
+val prop_Lemma4_proof2 =
+    (``! phi ws i j .
+	   (>>= (>>= phi \ out . return (: (j, ws) out))
+		\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= phi
+		    \ out .
+			>>= return (: (j, ws) out)
+			    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property Lemma4_proof2 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:703,10 : *)
+(* Property: Lemma4_proof3 *)
+val prop_Lemma4_proof3 =
+    (``! phi ws i j .
+	   (>>= phi
+		\ out .
+		    >>= return (: (j, ws) out)
+			\ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= phi
+		    \ out .
+			>>= return (: (j, ws) out)
+			    \ opkt . >> regmask i return (channel i (: (j, ws) out)))``)
+handle e => (print "Property Lemma4_proof3 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:713,10 : *)
+(* Property: Lemma4_proof4 *)
+val prop_Lemma4_proof4 =
+    (``! phi ws i j .
+	   (>>= phi
+		\ out .
+		    >>= return (: (j, ws) out)
+			\ opkt . >> regmask i return (channel i (: (j, ws) out)))
+	   =   (>>= phi
+		    \ out .
+			>>= return (: (j, ws) out)
+			    \ opkt . >> regmask i return (channel i out))``)
+handle e => (print "Property Lemma4_proof4 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:728,10 : *)
+(* Property: Lemma4_proof5 *)
+val prop_Lemma4_proof5 =
+    (``! phi ws i j .
+	   (>>= phi
+		\ out .
+		    >>= return (: (j, ws) out)
+			\ opkt . >> regmask i return (channel i out))
+	   =   (>>= phi
+		    \ out .
+			>>= return (out) \ opkt . >> regmask i return (channel i out))``)
+handle e => (print "Property Lemma4_proof5 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:739,10 : *)
+(* Property: Lemma4_proof6 *)
+val prop_Lemma4_proof6 =
+    (``! phi ws i j .
+	   (>>= phi
+		\ out .
+		    >>= return (out) \ opkt . >> regmask i return (channel i out))
+	   =   (>>= phi
+		    \ out .
+			>>= return (out) \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property Lemma4_proof6 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:752,10 : *)
+(* Property: Lemma4_proof7 *)
+val prop_Lemma4_proof7 =
+    (``! phi ws i j .
+	   (>>= phi
+		\ out .
+		    >>= return (out) \ opkt . >> regmask i return (channel i opkt))
+	   =   (>>= (>>= phi \ out . return (out))
+		    \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property Lemma4_proof7 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 
+(* From ../../examples/ChannelSeparation/TypeCheckedChipProof.hs:766,10 : *)
+(* Property: Lemma4_proof8 *)
+val prop_Lemma4_proof8 =
+    (``! phi ws i j .
+	   (>>= (>>= phi \ out . return (out))
+		\ opkt . >> regmask i return (channel i opkt))
+	   = (>>= phi \ opkt . >> regmask i return (channel i opkt))``)
+handle e => (print "Property Lemma4_proof8 failed with exception";
+	     Exception.print_HOL_ERR e;
+	     dummyTerm)
+;
+ 

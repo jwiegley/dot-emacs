@@ -1,0 +1,18 @@
+This directory contains some files which are not part of Tramp but
+are used by it.  Often, you don't need these files at all, because
+your Emacs otherwise provides the necessary functionality.
+
+format-spec.el
+        This file is originally from Gnus.  So if your Emacs contains
+        a sufficiently recent Gnus, you do not need this.
+
+password.el
+        An implementation of password caching, which has appeared
+        first time in Gnus.  Tramp doesn't need it mandatory, it could
+        live without.
+
+socks.el
+        An implementation of socks 5 server.  Taken from the Emacs 22.
+
+Kai Grossjohann <kai.grossjohann@gmx.net>
+Michael Albinus <michael.albinus@gmx.de>

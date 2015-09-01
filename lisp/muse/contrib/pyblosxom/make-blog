@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Author: Michael Olson <http://www.mwolson.org>
+#
+# License: This file may be used, distributed, and modified without
+# restriction.
+#
+# This is a sample script that shows how to update the timestamps
+# file.  Note that you have to run the getstamps.py program in your
+# source directory, and then move the generated timestamps file to the
+# directory where your published entries are kept.
+
+# Blog entries in Muse format
+SRC_DIR=/stuff/proj/wiki/blog
+
+# Published blog entries
+DEST_DIR=$PWD/site/blog
+
+# Path to the getstamps.py script
+GETSTAMPS=$PWD/scripts/getstamps.py
+
+# Update timestamps for blog
+(cd $SRC_DIR && python $GETSTAMPS && mv timestamps $DEST_DIR/timestamps)

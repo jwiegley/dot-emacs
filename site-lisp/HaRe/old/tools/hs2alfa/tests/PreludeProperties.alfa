@@ -1,0 +1,80 @@
+--#include "Prelude.alfa"
+
+--#include "Alfa/PropositionalCalculus.alfa"
+
+package PreludeProperties where
+  open Module_Prelude  use  List,  Bool,  Ord,  (<=)
+  open Propositional
+   use  Prop,  Absurdity,  Triviality,  TrivialityIntro,  Pred,  And,
+        ImpliesIntro,  Not
+  IsTrue (b::Bool) :: Prop
+    = case b of {
+        (False) -> Absurdity;
+        (True) -> Triviality;}
+  IsLte (A::Star)(ordA::Ord A)(x::A)(y::A) :: Prop
+    = IsTrue ((<=) A ordA x y)
+  AllElems (A::Star)(P::Pred A)(xs::List A) :: Prop
+    = case xs of {
+        (Nil) -> Triviality;
+        (Cons x1 x2) -> And (P x1) (AllElems A P x2);}
+  TotalOrder (A::Star)(ordA::Ord A) :: Prop
+    = sig {refl :: (a::A) -> IsLte A ordA a a;
+           asym ::
+             (a1::A) ->
+             (a2::A) ->
+             Not (IsLte A ordA a1 a2) -> IsLte A ordA a2 a1;
+           trans ::
+             (a1::A) ->
+             (a2::A) ->
+             (a3::A) ->
+             IsLte A ordA a1 a2 -> IsLte A ordA a2 a3 -> IsLte A ordA a1 a3;}
+  trans (A::Star)(ordA::Ord A)(totord::TotalOrder A ordA)
+    :: (x::A) ->
+       (y::A) ->
+       (z::A) ->
+       (xy::IsLte A ordA x y) ->
+       (yz::IsLte A ordA y z) ->
+       IsLte A ordA x z
+    = totord.trans
+  antisym (A::Star)(ordA::Ord A)(totord::TotalOrder A ordA)
+    :: (x::A) ->
+       (y::A) ->
+       (xy::Not (IsLte A ordA x y)) ->
+       IsLte A ordA y x
+    = totord.asym
+  ifProp (A::Star)
+         (cnd::Bool)
+         (thn::A)
+         (els::A)
+         (P::Pred A)
+         (pt::IsTrue cnd -> P thn)
+         (pf::Not (IsTrue cnd) -> P els)
+    :: P (if A cnd thn els)
+    = case cnd of {
+        (False) ->
+          let ndgoal :: P (if A False@_ thn els)
+                = pf
+                    (let ndgoal :: Not (IsTrue False@_)
+                           = ImpliesIntro (IsTrue False@_)
+                               Propositions.Absurdity
+                               (\(hyp::IsTrue False@_) ->
+                                let ndgoal :: Absurdity
+                                      = hyp
+                                in  ndgoal)
+                     in  ndgoal)
+          in  ndgoal;
+        (True) ->
+          let ndgoal :: P (if A True@_ thn els)
+                = pt
+                    (let ndgoal :: IsTrue True@_
+                           = TrivialityIntro
+                     in  ndgoal)
+          in  ndgoal;}
+{-# Alfa hiding on
+var "AllElems" hide 1
+var "TotalOrder" hide 1
+var "ifProp" hide 5
+var "IsLte" hide 2 infix 4 as "£" with symbolfont
+var "trans" hide 6
+var "antisym" hide 5
+ #-}

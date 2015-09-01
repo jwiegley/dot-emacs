@@ -1,0 +1,75 @@
+BODY { color: black; background: #c9d6df }
+.code {
+  background-color: #efe6d9;
+}
+
+DIV.code {
+  margin-left: 0; margin-right: 0;
+  border-width: 0.1px; /* NS 4.x trick */
+}
+
+.sc { font-variant: small-caps; }
+
+.code B { color: #662200; }
+B.con { color: #007744; }
+B.conop { color: #007744; }
+B.tcon { color: #000099; }
+.code VAR { font-style: normal; }
+VAR.var { color: black; font-style: normal; }
+VAR.varop { color: #dd0000; font-style: normal; }
+VAR.tvar { color: #000099; font-style: italic; }
+SPAN.lit { color: #880088; }
+
+/*code { font-weight: bold; }*/
+
+DIV { padding-left: 1em; }
+
+DIV.page { border-width: 2px;
+	   border-style: solid;
+	   border-color: #191970;
+           margin: 20px;
+	   /* margin-bottom: 20px; */
+	   padding: 5px;
+	   page-break-before: always;
+	   page-break-inside: avoid;
+           /*align: center;*/ }
+
+UL,OL { margin-right: 4em; }
+/*LI { margin-top: 1ex; margin-bottom: 1ex; }*/
+
+.cmnt { color: #191970;
+	background-color: #c9d6df; 
+}
+
+H1, H2, H3, H4, TH {
+  font-family: sans-serif;
+  color: #191970;
+}
+
+H1, H2, H3 {
+      text-align: center;
+      background-color: #b7c8e8;
+      padding: 0.5ex;
+
+      margin-top:0;
+      margin-bottom: 1ex;
+/**/
+ }
+
+TABLE.borderless { border-width: 0; }
+TABLE.borderless TR TD { border-width: 0; }
+TABLE.borderless TR TH { border-width: 0; }
+
+TH,TD { text-align: left; vertical-align: top; }
+TH,TD,TABLE { border: 1px solid #171770 }
+TABLE { border-collapse: collapse; }
+/*TH, TD { padding: 3px; }*/ /* Problem in NS 4.x */
+TH { background-color: #efe6d9; }
+TD { background-color: #d9e6ef; }
+
+IMG.border0 { border-width: 0; }
+DIV.right { text-align: right; }
+IMG.right { float: right; margin: 0; padding: 0; }
+.clear { clear: both; }
+
+DT { margin-top: 1ex; }

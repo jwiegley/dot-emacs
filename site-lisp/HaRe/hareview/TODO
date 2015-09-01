@@ -1,0 +1,27 @@
+user-interface bugs:
+  * shortcut Ctrl-P visible in Menu (pending)
+  * open all subtrees
+
+code improvements:
+  * Add module descriptions (haddock)
+  * GTK dialogs with response 
+  * make use of a string substitution package in Setup.hs
+    to create documentations (e.g. Text.Template)
+
+feature requests:
+  * Split function (String -> Tree String) in two functions:
+      - parse :: String -> a
+      - toTree :: a -> Tree String
+  * support jumping to a node in tree by cursor position for
+    all languages
+  * srcloc :: Maybe (Either ParsedFile ParsedError-> (Int,Int))
+  * load additional parsers at runtime (user-triggered, open file)
+  * show subtree when subtree is collapsed
+  * generate and load bnfc-parser at runtime
+  * generate pdf/png graphs from trees or terms
+  * define/parse/toTree generically (using generic read)
+
+misc:
+  * adjust readme and html documentation to new data types
+
+bugs:

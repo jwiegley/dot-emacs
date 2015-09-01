@@ -1,0 +1,6 @@
+#!/bin/sh
+match='M-x |(Group)|(Summary)|(Article)|(Server)|(Browse)|(Post)|(Mail)|(Score)|(Binary)|(Topic)|(Pick)'
+fun='\{gnus-|\{nn.*-|\{grouplens-'
+egrep "$match" gnus.idx > gnus.kidx
+egrep "$fun" gnus.idx > gnus.gidx
+egrep -v "$match|$fun" gnus.idx > gnus.cidx

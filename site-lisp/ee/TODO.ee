@@ -1,0 +1,63 @@
+;; -*- ee-datafile -*-
+;; Please (require 'ee-autoloads) and then visit this file again in Emacs.
+[(meta
+  (format-version . "0.0.1")
+  (database-version . "0.0.1")
+  (view-data-file . "view/TODO.ee")
+  (fields categories priority title ())
+  (key-fields title))
+
+ [("ee") 5 "Improve documentation, docstrings and comments" ()]
+
+ [("ee/view") 1 "Better view description (separate columns descriptions)" ()]
+ [("ee/view") 1 "Better error processing" ((comments . "When errors were encountered during buffer generating then delete the view buffer"))]
+ [("ee/view") 2 "Redraw only a part of view buffer where data were changed" ()]
+ [("ee/view") 3 "Generate tree structure directly in buffer using text properties" ()]
+ [("ee/data") 3 "Improve security of dynamic function evaluations" ()]
+ [("ee/data") 2 "More transparent usage of data getters/setters" ()]
+ [("ee/data") 5 "Compile .ee files to .eec" ()]
+
+ [("ee-bbdb") 3 "Make all used variables buffer-local in the bbdb-mode, see buffer-local-variables in bbdb-records" ()]
+ [("ee-bbdb") 3 "Invoke send-mail on the category line to send mail to all (or every) category members" ()]
+
+ [("ee-commands") 3 "Make submenu of recently called commands" ()]
+ [("ee-commands") 3 "Get command category name from Info documentation" ()]
+ [("ee-commands") 3 "Make separate view for functions, variables, options" ()]
+
+ [("ee-customize" "ee/view") 3 "Make hook for ee-view-expansion-show to load dependent options and update view buffer" ()]
+
+ [("ee-dired") 3 "Make hook for ee-view-expansion-show to read subdirectories and update view buffer" ()]
+
+ [("ee-dselect") 5 "Use apt-cache" ()]
+ [("ee-dselect") 9 "Rename ee-dselect to ee-dpkg or make alias" ()]
+
+ [("ee-edb") 3 "Make all used variables buffer-local in the edb-mode" ()]
+
+ [("ee-gnus") 3 "Provide better integration with Gnus" ()]
+ [("ee-gnus") 3 "Implement summary mode for articles" ()]
+
+ [("ee-imenu") 2 "Distinguish functions, variables and types with the same names" ()]
+
+ [("ee-info") 2 "Update persistent ee data files when content of `dir' changes" ()]
+ [("ee-info") 2 "Add index info node names to ee view tree" ()]
+ [("ee-info") 3 "Make index of references in info files" ()]
+ [("ee-info") 3 "Maintain history (of selected actions) in ee-info buffer, like Info-history" ((comments . "Implement in ee.el, because useful for other ee modes (e.g. for menu), cycle history by e.g. \",\"(prev) \".\"(next) \"/\"(top)"))]
+ [("ee-info") 3 "Create separate *info* buffer for every visited info file." ((comments . "Own buffer for every info file is very good thing. Low-priority because info file index already in own buffer"))]
+
+ [("ee-textfile") 3 "Use collector field to specify text parser function" ()]
+ [("ee-textfile") 3 "Make assoc list that depending on file name, type or other conditions calls the different ee-textfile submodes" ()]
+
+ [("ee-textfile/changelog") 3 "Add function names, conditionals, acknowledgments and texts of change desciptions" ()]
+
+ [("ee-menubar") 3 "Show keybindings in the ee view" ()]
+ [("ee-menubar") 3 "Use :enable, :visible and other keywords" ()]
+
+ [("ee-outline") 3 "Edit parent buffer by operating on the ee view buffer: moving subtrees, promotion/demotion" ()]
+
+ [("ee-programs") 3 "Rename to ee-startmenu or ee-start-menu" ((comments . "But better make common ee-programs for both GNU/Linux and Windows on Linux define what system is used, and use Debian or RedHat or KDE program lists"))]
+ [("ee-programs") 9 "Make alias for ee-debian-menu for Debian Program menu" ()]
+ [("ee-programs") 9 "Make alias for ee-start-menu for Window$ Start-menu" ()]
+ [("ee-programs") 9 "Make alias for ee-shortcuts for Window$ Start-menu, i.e. ee-shortcuts.el --- Micro$oft Window$ Start-menu replacement" ()]
+
+ [("ee-views") 3 "Add view name to buffer name, e.g.: \"ee-views/*ee-buffers*/By Name\"" ()]
+]

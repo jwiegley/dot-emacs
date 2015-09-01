@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: export
+# expand-env: ((yas/indent-line 'fixed))
+# --
+The Boost Libraries do not have an ECCN because they are not covered
+by the EAR (Export Administration Regulations).  The reason they are
+not covered by the EAR is that they are legally considered “published”
+software.  Software is “published” when it becomes generally
+accessible to the interested public for free or at a price that does
+not exceed the cost of reproduction and distribution.
+
+Thank you,
+  John Wiegley
+  BoostPro Computing
+  http://www.boostpro.com

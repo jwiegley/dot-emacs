@@ -1,0 +1,31 @@
+TestCases{refactorCmd="introPattern",
+positive=[(["SubPatternIn1.hs"],["11","13"]),
+          (["SubPatternIn2.hs"],["11","9"]),
+          (["SubPatternIn3.hs"],["14","9"]),
+          (["InfixIn1.hs"],["9","9"]),
+          (["InfixIn2.hs"],["9","4"]),
+          (["InfixIn3.hs"],["13","9"]),
+          (["InfixIn4.hs"],["9","4"]),
+          (["MainIn1.hs"],["11","9"]),
+          (["MultiModuleIn1.hs"],["6","8"]),
+          (["InfixIn5.hs"],["8","6"]),
+          (["InfixIn6.hs"],["8","4"]),
+          (["SubSubPatternIn1.hs"],["6","12"]),
+          (["SubSubPatternIn2.hs"],["16","6"]),
+          (["PolymorphicIn1.hs"],["5","6"]),
+          (["PolymorphicIn2.hs"],["5","4"]),
+          (["B1.hs","A1.hs"],["6","7"]),
+          (["TreeIn1.hs"],["7","16"]),
+          (["TreeIn2.hs"],["7","21"]),
+          (["TreeIn3.hs"],["9","39"]),
+          (["TreeIn4.hs"],["7","33"]),
+          (["TupleIn1.hs"],["5","7"]),
+          (["AsPatIn1.hs"],["5","3"]),
+          (["AsPatIn2.hs"],["5","3"]),
+          (["WhereIn1.hs"],["10","32"]),
+          (["LetIn1.hs"],["9","38"])
+
+],
+negative=[
+]
+}

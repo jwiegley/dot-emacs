@@ -1,0 +1,15 @@
+name: Alfa
+version: 0.05
+release: January 5, 2005
+src: http://www.cse.ogi.edu/~hallgren/Programatica/
+description: Formal proof by shallow embedding of Haskell in Alfa
+
+# Some ideas on how to specify what attributes certificates have,
+# to allow generic tools (pfebrowser in particular) to create and
+# manipulate certificates.
+attribute: name=conc, type=string/assertion, label=Conclusion, required
+attribute: name=hyp, type=string, label="Depends on", optional
+attribute: name=file/proof, type=string/file, required
+attribute: name=proof, type=string/identifier, required
+attribute: name=Comment, type=string
+attribute: name=SimplePatterns, type=bool, label="Simple Patterns"

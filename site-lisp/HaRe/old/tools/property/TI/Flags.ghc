@@ -1,0 +1,4 @@
+TiPropStruct.hs: -fallow-undecidable-instances -fno-monomorphism-restriction
+TiProp.hs: -fallow-undecidable-instances
+TiPropDecorate.hs: -fallow-undecidable-instances
+TiPropInstances.hs: -fallow-undecidable-instances

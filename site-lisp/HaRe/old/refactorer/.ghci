@@ -1,0 +1,56 @@
+-- Startup file for ghci
+
+:set -hide-package MonadCatchIO-transformers
+:set -hide-package monads-tf
+
+:set -i./StrategyLib-4.0-beta/models/deriving
+:set -i./StrategyLib-4.0-beta/library
+:set -i./dist/build/autogen/
+:set -i./refactorer/
+:set -i./tools/base/
+:set -i./tools/base/AST/
+:set -i./tools/base/Modules/
+:set -i./tools/base/Modules/
+:set -i./tools/base/TI/
+:set -i./tools/base/defs/
+:set -i./tools/base/lib/
+:set -i./tools/base/lib/Monads/
+:set -i./tools/base/parse2/
+:set -i./tools/base/parse2/Lexer
+:set -i./tools/base/parse2/Parser/
+:set -i./tools/base/pretty/
+:set -i./tools/base/syntax/
+:set -i./tools/base/transforms
+:set -i./tools/base/transforms/Deriving
+:set -i./tools/hs2html/
+:set -i./tools/pfe/
+
+:set -i../StrategyLib-4.0-beta/library
+:set -i../StrategyLib-4.0-beta/models/deriving
+:set -i../dist/build/autogen/
+:set -i../refactorer/
+:set -i../tools/base/
+:set -i../tools/base/AST/
+:set -i../tools/base/Modules/
+:set -i../tools/base/TI/
+:set -i../tools/base/defs/
+:set -i../tools/base/lib/
+:set -i../tools/base/lib/Monads/
+:set -i../tools/base/parse2/
+:set -i../tools/base/parse2/Lexer
+:set -i../tools/base/parse2/Parser/
+:set -i../tools/base/pretty/
+:set -i../tools/base/syntax/
+:set -i../tools/base/transforms
+:set -i../tools/base/transforms/Deriving
+:set -i../tools/hs2html/
+:set -i../tools/pfe/
+
+:set -package ghc
+:set -fglasgow-exts 
+:set -XMultiParamTypeClasses
+:set -XOverlappingInstances
+:set -XUndecidableInstances
+:set -XFunctionalDependencies
+:set -XNoMonomorphismRestriction
+

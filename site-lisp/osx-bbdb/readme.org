@@ -1,0 +1,40 @@
+#+TITLE: OS X bbdb importer
+#+AUTHOR: Chris Barrett
+
+* Description
+
+Provides a command, =import-osx-contacts-to-bbdb=, that will copy contacts from
+your OS X Address Book into BBDB. It also uses a timer to periodically add new contacts.
+
+Requires Emacs 24+, tested on OS X 10.8.
+
+* Installation
+#+BEGIN_SRC
+brew install contacts
+#+END_SRC
+
+then paste the code below into an elisp buffer, then =M-x eval-buffer=.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  ;; Ensure melpa repository is added.
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+  (package-initialize)
+  ;; Install directly from github.
+  (with-current-buffer (url-retrieve-synchronously
+                        "https://raw.github.com/chrisbarrett/osx-bbdb/master/osx-bbdb.el")
+    (call-interactively 'package-install-from-buffer))
+#+END_SRC
+
+This utility requires a few additional packages, which will be automatically
+downloaded by Emacs' package manager.
+
+Once you've installed the package, add the following to your /init.el/:
+
+#+BEGIN_SRC emacs-lisp
+  (when (equal system-type 'darwin)
+    (require 'osx-bbdb))
+#+END_SRC
+
+* Contributing
+- TODO Merge fields for existing contacts, instead of skipping.

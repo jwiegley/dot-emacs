@@ -1,0 +1,29 @@
+
+BASE=${BASE-../base}
+PFE_DIR=${PFE_DIR-../pfe}
+PROP=${PROP-../property}
+HS2HTML_DIR=${HS2HTML_DIR-../hs2html}
+HS2ALFA_DIR=${HS2ALFA_DIR-.}
+A=$HS2ALFA_DIR
+
+#Alfa source directories:
+#AS=AlfaSource:AlfaSource/../IAgda:AlfaSource/../Graphic
+#AS=AlfaSource:AlfaSource/../Graphic
+AS=$A/AlfaSource
+
+case ${TARGET-x} in # TARGET is defined by Makefile
+  apfe|tstProp2Alfa)
+    . $PROP/HuMakefile
+    APFE_DIRS=$A:$AS:$SRC_DIRS
+    SRC_DIRS=$APFE_DIRS
+    ;;
+  tstHs2Alfa)
+    . $BASE/HuMakefile
+    SRC_DIRS=$A:$AS:$B:$MODSRC_DIRS	# For tstHs2alfa
+    ;;
+  *)
+     echo "Unknown target $TARGET (see HuMakefile)"
+     exit 1
+esac
+
+GHCFLAGS="$GHCFLAGS -cpp"

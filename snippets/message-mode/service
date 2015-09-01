@@ -1,0 +1,38 @@
+# -*- mode: snippet -*-
+# expand-env: ((yas/indent-line 'fixed))
+# --
+Our standard Boost support is $2999 per platform* yearly.
+
+- 5 issues
+- 1 year of Boost updates for your platform
+- Point releases for critical updates
+- Downloadable ISO (hard media available to US customers by request)
+- Initial testing report detailing expected and unexpected failures on your
+  platform
+
+Additional Standard 1-year issue packs:
+
+- 5 issues: $1999
+- 10 issues: $2999
+- 20 issues: $4999
+
+BoostPro Enterprise Support
+
+Our Enterprise Support package offers the same services as the Standard
+package plus 24-hour phone support, at $9999.
+
+Additional Enterprise issue packs:
+
+- 5 issues: $9999
+- 10 issues: $14999
+- 20 issues: $24999
+
+Additional Services
+
+Our training, consulting, and development services are always available to our
+support customers as their needs expand.
+
+Thank you,
+  John Wiegley
+  BoostPro Computing
+  http://www.boostpro.com

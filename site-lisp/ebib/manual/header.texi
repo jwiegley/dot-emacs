@@ -1,0 +1,25 @@
+\input texinfo  @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename ebib.info
+@settitle Ebib manual
+@c %** end of header
+
+@documentencoding utf-8
+
+@iftex
+@finalout
+@end iftex
+
+@titlepage
+@title Ebib manual
+@author Joost Kremers
+@end titlepage
+
+
+
+@dircategory Emacs
+@direntry
+     * Ebib: (ebib).           A BibTeX database manager.
+@end direntry
+

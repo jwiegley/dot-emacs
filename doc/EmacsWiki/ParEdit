@@ -1,0 +1,240 @@
+'''ParEdit''' (##paredit.el##) is a minor mode for performing structured editing of S-expression data. The typical example of this would be Lisp or Scheme source code.
+
+%%ParEdit%% helps __**keep parentheses balanced**__ and adds many keys for moving S-expressions and moving around in S-expressions.
+
+Skeleton like matching paren insertion is a small part of ParEdit's functionality; its true genius won't be obvious until you code in some list oriented language.
+
+
+'''The latest stable version is available at <tt>[http://mumble.net/~campbell/emacs/paredit.el paredit.el]</tt>.''' See also the [http://mumble.net/~campbell/emacs/paredit.html Reference Table], the [http://mumble.net/~campbell/emacs/paredit.release Release Notes] and the PareditCheatsheet.
+
+The latest ''development'' version is available at <tt>[http://mumble.net/~campbell/emacs/paredit-beta.el paredit-beta.el]</tt> ([http://mumble.net/~campbell/emacs/paredit-beta.html Reference Table]).
+
+A spinoff of %%ParEdit%% (by the same author) is also now available in the current CVS version of EdWin, MIT Scheme's Emacs clone. Type ##M-x paredit-mode RET## to enable it, or add the following code to your ##.edwin## file to enable it automatically in the Scheme mode:
+
+    (add-event-receiver! (ref-variable scheme-mode-hook)
+      (lambda (buffer)
+        (enable-buffer-minor-mode! buffer (ref-mode-object paredit))))
+
+(You can substitute other modes for ##scheme-mode## also.)
+
+== Activate it automatically ==
+
+To use %%ParEdit%% with Emacs' Lisp modes, add the following to <tt>[InitFile .emacs]</tt>:
+
+    (autoload 'paredit-mode "paredit"
+      "Minor mode for pseudo-structurally editing Lisp code." t)
+    (add-hook 'emacs-lisp-mode-hook       (lambda () (paredit-mode +1)))
+    (add-hook 'lisp-mode-hook             (lambda () (paredit-mode +1)))
+    (add-hook 'lisp-interaction-mode-hook (lambda () (paredit-mode +1)))
+    (add-hook 'scheme-mode-hook           (lambda () (paredit-mode +1)))
+
+
+== ParEdit and ElDoc ==
+
+To use %%ParEdit%% with ElDoc, you should make !ElDoc aware of %%ParEdit%%'s most used commands:
+
+    (require 'eldoc) ; if not already loaded
+    (eldoc-add-command
+     'paredit-backward-delete
+     'paredit-close-round)
+
+Whenever the listed commands are used, !ElDoc will automatically refresh the minibuffer.
+
+== ParEdit and SLIME REPL == 
+
+   (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))
+
+SLIME's REPL has the very annoying habit of grabbing DEL which interferes with
+paredit's normal operation. To alleviate this problem use the following code:
+
+          ;; Stop SLIME's REPL from grabbing DEL,
+          ;; which is annoying when backspacing over a '('
+          (defun override-slime-repl-bindings-with-paredit ()
+            (define-key slime-repl-mode-map
+                (read-kbd-macro paredit-backward-delete-key) nil))
+          (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+
+== ParEdit and "Electric RETURN" ==
+
+ParEdit works particularly well with an "electric" ##RETURN## function. 
+
+If ##RETURN## is pressed when the cursor is before a closing paren, the following code will add an extra newline.  The extra newlines are re-gathered by ##paredit-close-round##, which ParEdit binds to "##)##" by default.
+
+The code is loosely based on code on the AutoPairs page:
+
+  (defvar electrify-return-match
+    "[\]}\)\"]"
+    "If this regexp matches the text after the cursor, do an \"electric\"
+  return.")
+
+  (defun electrify-return-if-match (arg)
+    "If the text after the cursor matches `electrify-return-match' then
+  open and indent an empty line between the cursor and the text.  Move the
+  cursor to the new line."
+    (interactive "P")
+    (let ((case-fold-search nil))
+      (if (looking-at electrify-return-match)
+	  (save-excursion (newline-and-indent)))
+      (newline arg)
+      (indent-according-to-mode)))
+
+  ;; Using local-set-key in a mode-hook is a better idea.
+  (global-set-key (kbd "RET") 'electrify-return-if-match)
+
+== ParEdit, ElDoc, Show-Paren and "Electric RETURN" ==
+
+Here's a '''[http://img8.imageshack.us/img8/9479/openparen.gif short video demonstration]'''
+of %%ParEdit%% working with %%ElDoc%% and %%Show-Paren%% minor modes along with the electric ##RETURN## function defined above.
+
+Off-topic question: what font are you using? It looks like Monaco, but it has a different "a". Thanks.
+
+Adding this code to your <tt>[InitFile .emacs]</tt> will set the modes as in the video: 
+
+  (add-hook 'emacs-lisp-mode-hook
+	    (lambda ()
+	      (paredit-mode t)
+
+	      (turn-on-eldoc-mode)
+	      (eldoc-add-command
+	       'paredit-backward-delete
+	       'paredit-close-round)
+
+	      (local-set-key (kbd "RET") 'electrify-return-if-match)
+	      (eldoc-add-command 'electrify-return-if-match)
+
+	      (show-paren-mode t)))
+
+== ParEdit, and extreme barfarge and slurpage ==
+
+There are times when I'm in a list like '''(a b| c d e f g)''', and I know
+that want to barf out everything following point from the current form.  Since
+##C-}## doesn't take a prefix argument, there's really no quick way to do this
+with the standard paredit.el mode.
+
+To solve this problem I've written some extreme barfage and slurpage commands,
+so that ##C-M-}## will do what I described and yield '''(a b) c d e f g'''.
+Evaluate the following after paredit is loaded:
+
+  (defun paredit-barf-all-the-way-backward ()
+    (interactive)
+    (paredit-split-sexp)
+    (paredit-backward-down)
+    (paredit-splice-sexp))
+
+  (defun paredit-barf-all-the-way-forward ()
+    (interactive)
+    (paredit-split-sexp)
+    (paredit-forward-down)
+    (paredit-splice-sexp)
+    (if (eolp) (delete-horizontal-space)))
+
+  (defun paredit-slurp-all-the-way-backward ()
+    (interactive)
+    (catch 'done
+      (while (not (bobp))
+        (save-excursion
+          (paredit-backward-up)
+          (if (eq (char-before) ?\()
+              (throw 'done t)))
+        (paredit-backward-slurp-sexp))))
+
+  (defun paredit-slurp-all-the-way-forward ()
+    (interactive)
+    (catch 'done
+      (while (not (eobp))
+        (save-excursion
+          (paredit-forward-up)
+          (if (eq (char-after) ?\))
+              (throw 'done t)))
+        (paredit-forward-slurp-sexp))))
+
+  (nconc paredit-commands
+         '("Extreme Barfage & Slurpage"
+           (("C-M-)")
+                        paredit-slurp-all-the-way-forward
+                        ("(foo (bar |baz) quux zot)"
+                         "(foo (bar |baz quux zot))")
+                        ("(a b ((c| d)) e f)"
+                         "(a b ((c| d)) e f)"))
+           (("C-M-}" "M-F")
+                        paredit-barf-all-the-way-forward
+                        ("(foo (bar |baz quux) zot)"
+                         "(foo (bar|) baz quux zot)"))
+           (("C-M-(")
+                        paredit-slurp-all-the-way-backward
+                        ("(foo bar (baz| quux) zot)"
+                         "((foo bar baz| quux) zot)")
+                        ("(a b ((c| d)) e f)"
+                         "(a b ((c| d)) e f)"))
+           (("C-M-{" "M-B")
+                        paredit-barf-all-the-way-backward
+                        ("(foo (bar baz |quux) zot)"
+                         "(foo bar baz (|quux) zot)"))))
+
+  (paredit-define-keys)
+  (paredit-annotate-mode-with-examples)
+  (paredit-annotate-functions-with-examples)
+
+-- JohnWiegley
+
+== Discussion ==
+
+I downloaded %%ParEdit%% a long time ago, but I did not succeed in using it daily. I have two questions here:
+
+1. What is really ''useful'' with %%ParEdit%% that we can't get with standard skeletons?
+
+[new]
+
+:[new:LeWang:2010-12-27 02:46 UTC] On the surface it looks like both ParEdit and skeleton are inserting matching parenthesis.  However, a skeleton insertion is the end of the story.  Think of a ParEdit insertion is just an indicator to show *you* the context.  You can move past ")" to use it or just completely pretend it's not there.  The insertion is just a side-effect of ParEdit's true purpose -- *clarify context while coding*. -- LeWang
+
+: Check out the %%ParEdit%% reference table mentioned above, especially the parts "Depth-Changing Commands" and "Barfage & Slurpage". Skeletons are like templates, they're static. %%ParEdit%% can modify the structure of Lisp code. So basically, they have different purposes. -- PeterBarabas
+
+[new]
+
+2. How do you delete a parenthesis? I often end up with unbalanced parentheses when coding something (without paredit), and activating %%ParEdit%% prevents me from deleting the leading parenthesis.
+
+[new]
+
+: It takes a bit of getting used to, but after that you'll never end up with unbalanced parentheses. Just use %%ParEdit%%'s commands, e.g., ##paredit-open-parenthesis##, ##paredit-wrap-sexp## instead of manually typing/editing parentheses. %%ParEdit%% really makes transforming Lisp code easy. -- PeterBarabas
+
+[new]
+
+: Expression validity isn't enforced with ##C-w##; I find that's the easiest way to make a quick fix that %%ParEdit%% won't like.
+
+[new]
+
+: ##C-u DEL## falls back to `backward-delete-char'. Similarly, you can insert single parentheses with ##C-q (## and ##C-q )##. -- YannHodique
+
+[new]
+
+: Works like a charm! -- XavierMaillard
+
+[new]
+3. I'm working on a mode for a syntax where m#foo is a legal symbol but otherwise, # comments out the line (like in shell scripts). For some reason, putting (paredit-mode 1) in a run-hook for this mode, or in sh-mode-hook, makes it complain on a line like (foo m#bar) with ''condition-case: Unmatched bracket or quote''. But, if I turn on paredit-mode _after_ doing ##M-x sh-mode##, it works fine, and I can edit around parens just as if they said (foo bar). Anyone know why this happens?
+
+[new]
+
+4. I'll bite.  Can anyone tell me what's going on in the "Short video demonstration" video above?  I turn on %%ParEdit%% and I don't get
+newlines after my parens and I don't get it showing me what comes next after typing "defun".  If these are other major/minor modes
+then the caption should be replaced with "Here's a demonstration of %%ParEdit%% playing nice with secret-mode.el and fun-minor-mode-that-were-keeping-secret-from-dale.el.
+
+: -- DaleWiles
+
+[new]
+
+It is implicit by the context, the two features you are seeing are "eldoc" and "electric RET" which has a snippet of code just under the video link for you to try it :) -- GlauberPrado
+
+[new]
+
+5. Older version of Paredit managed newlines differently to the current beta version. I would like to suggest newline insertion context-based. It should
+add a newline after, for example, of close the right parenthesis of a last of arguments in defun. Many examples can be thought. I am aware it could be instrusive and some paredit users reject this feature. Although it could be an optional feature. What do you think?
+
+[new:stepnem:2010-07-17 12:57 UTC]
+: I really see no need for this kind of complexity -- I imagine it would be
+hard to implement and impossible to satisfy the varying users' needs.
+Currently you have both `paredit-close-round' and
+`paredit-close-round-and-newline'. You can bind these to any keys you like
+(##)## and ##M-)## by default). I find manually choosing the right behaviour
+much more useful than some kind of "AI" in this regard. -- stepnem
+----
+CategoryCode CategoryEditing CategoryParentheses.

@@ -1,0 +1,1 @@
+run --advice:power=all --diag_suppress=163 --ulp_standalone_mode=iar -D__IAR_SYSTEMS_ICC__ -D__TID__=11008 -D__intrinsic= -D__no_init= -D__persistent= --c iar.c

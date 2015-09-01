@@ -1,0 +1,63 @@
+--#include "alfa/Test1.alfa"
+
+open Module_Prelude  use  List,  map,  id,  Bool,  (..),  not,  Int
+
+open Module_Test1
+ use  f,  IsId,  IdIsId,  g,  Id_g,  MapIdIsId,  NotNotIsId,
+      Reflexive,  EqReflBool,  AllBools,  h,  tr,  fa,  T,  F,
+      ExcludedMiddle
+
+open Identity  use  Identical,  refl,  cong
+
+proofIdIsId ::IdIsId
+  =  \(t5::Star) ->
+     \(x::t5) ->
+    let ndgoal ::Identical t5 (id t5 x) x
+          = refl t5 (id t5 x)
+    in  ndgoal
+
+proofMapIdIsId ::MapIdIsId
+  =  \(t11::Star) ->
+     \(x::Module_Prelude.List t11) ->
+    let lemma (xs::List t11) ::
+          Identical (Module_Prelude.List t11) (map t11 t11 (id t11) xs) xs
+          = case xs of {
+              (Nil) -> Ref@_;
+              (Cons x' xs') ->
+                cong
+                (List t11)
+                (Module_Prelude.List t11)
+                (map t11 t11 (id t11) xs')
+                xs'
+                ( \(h::List t11) -> Cons@_ x' h)
+                (lemma xs');}
+    in  lemma x
+
+proofId_g ::Id_g
+  =  \(t16::Star) -> refl t16
+
+proofNotNotIsId ::NotNotIsId
+  =  \(x::Module_Prelude.Bool) ->
+    case x of {
+      (False) -> Ref@_;
+      (True) -> Ref@_;}
+
+proofEqReflBool ::EqReflBool
+  =  \(x::Module_Prelude.Bool) ->
+    case x of {
+      (False) -> Ref@_;
+      (True) -> Ref@_;}
+
+proofExcludedMiddle ::ExcludedMiddle
+  =  \(b::Module_Prelude.Bool) ->
+    case b of {
+      (False) -> orI1@_ Ref@_;
+      (True) -> orI2@_ Ref@_;}
+{-# Alfa unfoldgoals off
+brief on
+hidetypeannots on
+wide
+
+nd
+hiding on
+ #-}
