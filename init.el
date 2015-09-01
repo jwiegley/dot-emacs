@@ -1028,8 +1028,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           ace-jump-line-mode)))
 
 (use-package ace-isearch
-  :load-path "site-lisp/ace-isearch"
   :disabled t
+  :load-path "site-lisp/ace-isearch"
   :config
   (global-ace-isearch-mode 1))
 
@@ -1368,8 +1368,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ad-do-it))
 
   (use-package helm-company
-    :load-path "site-lisp/helm-company"
-    :disabled t))
+    :disabled t
+    :load-path "site-lisp/helm-company"))
 
 (use-package compile
   :bind (("C-c c" . compile)
@@ -1405,6 +1405,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode "\\.css\\'")
 
 (use-package cursor-chg
+  :disabled t
   :defer 10
   :commands change-cursor-mode
   :config
@@ -1957,6 +1958,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "S-<f11>" 'gud-finish)))
 
 (use-package guide-key
+  :disabled t
   :load-path "site-lisp/guide-key"
   :diminish guide-key-mode
   :commands guide-key-mode
@@ -3000,6 +3002,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-c M-h" 'tidy-xml-buffer nxml-mode-map))
 
 (use-package on-screen
+  :disabled t
   :load-path "site-lisp/on-screen"
   :defer 5
   :config

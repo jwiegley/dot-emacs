@@ -1000,4 +1000,6 @@
  '(diff-header ((((background dark)) (:foreground "Cyan")) (t (:foreground "Red"))))
  '(diff-index ((((background dark)) (:foreground "Magenta")) (t (:foreground "Green"))))
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) (t (:foreground "DarkBlue"))))
- '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight normal)))))
+ '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight normal))))
+ '(proof-script-sticky-error-face ((t (:background "yellow"))))
+ '(whitespace-line ((t (:background "#fff7d5")))))
