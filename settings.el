@@ -343,6 +343,7 @@
      " ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
+ '(ebib-autogenerate-keys t)
  '(eclim-executable
    "/Applications/Misc/ACL2s/plugins/org.eclim_2.4.1/bin/eclim")
  '(ediff-combination-pattern
