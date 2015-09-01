@@ -575,8 +575,10 @@ Emacs dired can't find files."
     (let ((tmpfile (tramp-compat-make-temp-file filename)))
       (with-tramp-progress-reporter
 	  v 3 (format "Fetching %s to tmp file %s" filename tmpfile)
-	(when (tramp-adb-execute-adb-command v "pull" localname tmpfile)
-	  (delete-file tmpfile)
+	;; "adb pull ..." does not always return an error code.
+	(when (or (tramp-adb-execute-adb-command v "pull" localname tmpfile)
+		  (not (file-exists-p tmpfile)))
+	  (ignore-errors (delete-file tmpfile))
 	  (tramp-error
 	   v 'file-error "Cannot make local copy of file `%s'" filename))
 	(set-file-modes
@@ -850,9 +852,9 @@ PRESERVE-UID-GID and PRESERVE-EXTENDED-ATTRIBUTES are completely ignored."
       (when tmpinput (delete-file tmpinput))
 
       ;; `process-file-side-effects' has been introduced with GNU
-      ;; Emacs 23.2.  If set to `nil', no remote file will be changed
+      ;; Emacs 23.2.  If set to nil, no remote file will be changed
       ;; by `program'.  If it doesn't exist, we assume its default
-      ;; value 't'.
+      ;; value t.
       (unless (and (boundp 'process-file-side-effects)
 		   (not (symbol-value 'process-file-side-effects)))
         (tramp-flush-directory-property v ""))

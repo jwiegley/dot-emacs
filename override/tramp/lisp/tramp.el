@@ -147,9 +147,11 @@ policy for local files."
 
 (defcustom tramp-auto-save-directory nil
   "Put auto-save files in this directory, if set.
-The idea is to use a local directory so that auto-saving is faster."
+The idea is to use a local directory so that auto-saving is faster.
+This setting has precedence over `auto-save-file-name-transforms'."
   :group 'tramp
-  :type '(choice (const nil) string))
+  :type '(choice (const :tag "Use default" nil)
+		 (directory :tag "Auto save directory name")))
 
 (defcustom tramp-encoding-shell
   (if (memq system-type '(windows-nt))
@@ -300,8 +302,8 @@ are fit for gateways must have `tramp-default-port' at least.
 
 Notes:
 
-When using `su' or `sudo' the phrase `open connection to a remote
-host' sounds strange, but it is used nevertheless, for consistency.
+When using `su' or `sudo' the phrase \"open connection to a remote
+host\" sounds strange, but it is used nevertheless, for consistency.
 No connection is opened to a remote host, but `su' or `sudo' is
 started on the local host.  You should specify a remote host
 `localhost' or the name of the local host.  Another host name is
@@ -1034,7 +1036,7 @@ The timeout does not include the time reading a password."
 This is necessary as self defense mechanism, in order to avoid
 yo-yo connection attempts when the remote host is unavailable.
 
-A value of 0 or `nil' suppresses this check.  This might be
+A value of 0 or nil suppresses this check.  This might be
 necessary, when several out-of-order copy operations are
 performed, or when several asynchronous processes will be started
 in a short time frame.  In those cases it is recommended to
@@ -1049,8 +1051,8 @@ A remote directory might have changed its contents.  In order to
 make it visible during file name completion in the minibuffer,
 Tramp flushes its cache and rereads the directory contents when
 more than `tramp-completion-reread-directory-timeout' seconds
-have been gone since last remote command execution.  A value of `t'
-would require an immediate reread during filename completion, `nil'
+have been gone since last remote command execution.  A value of t
+would require an immediate reread during filename completion, nil
 means to use always cached values for the directory contents."
   :group 'tramp
   :type '(choice (const nil) (const t) integer))
@@ -1431,7 +1433,12 @@ ARGUMENTS to actually emit the message (if applicable)."
        (format
 	";; %sEmacs: %s Tramp: %s -*- mode: outline; -*-"
 	(if (featurep 'sxemacs) "SX" (if (featurep 'xemacs) "X" "GNU "))
-	emacs-version tramp-version)))
+	emacs-version tramp-version))
+      (when (>= tramp-verbose 10)
+	(insert
+	 (format
+	  "\n;; Location: %s Git: %s"
+	  (locate-library "tramp") (tramp-repository-get-version)))))
     (unless (bolp)
       (insert "\n"))
     ;; Timestamp.
@@ -1523,6 +1530,12 @@ applicable)."
 	    (let ((tramp-verbose 0))
 	      (setq vec-or-proc
 		    (tramp-get-connection-property vec-or-proc "vector" nil))))
+	  ;; Append connection buffer for error messages.
+	  (when (= level 1)
+	    (let ((tramp-verbose 0))
+	      (with-current-buffer (tramp-get-connection-buffer vec-or-proc)
+		(setq fmt-string (concat fmt-string "\n%s")
+		      arguments (append arguments (list (buffer-string)))))))
 	  ;; Do it.
 	  (when (vectorp vec-or-proc)
 	    (apply 'tramp-debug-message
@@ -3103,9 +3116,10 @@ User is always nil."
 		      (setq tramp-temp-buffer-file-name nil beg nil end nil))
 
 		    ;; `insert-file-contents-literally' takes care to
-		    ;; avoid calling jka-compr.  By let-binding
-		    ;; `inhibit-file-name-operation', we propagate that
-		    ;; care to the `file-local-copy' operation.
+		    ;; avoid calling jka-compr.el and epa.el.  By
+		    ;; let-binding `inhibit-file-name-operation', we
+		    ;; propagate that care to the `file-local-copy'
+		    ;; operation.
 		    (setq local-copy
 			  (let ((inhibit-file-name-operation
 				 (when (eq inhibit-file-name-operation
@@ -3314,7 +3328,7 @@ User is always nil."
 
 (defun tramp-handle-unhandled-file-name-directory (_filename)
   "Like `unhandled-file-name-directory' for Tramp files."
-  ;; Starting with Emacs 23, we must simply return `nil'.  But we must
+  ;; Starting with Emacs 23, we must simply return nil.  But we must
   ;; keep backward compatibility, also with XEmacs.  "~/" cannot be
   ;; returned, because there might be machines without a HOME
   ;; directory (like hydra).
@@ -3737,7 +3751,7 @@ Example:
 
   (tramp-equal-remote \"/ssh::/etc\" \"/<your host name>:/home\")
 
-would yield `t'.  On the other hand, the following check results in nil:
+would yield t.  On the other hand, the following check results in nil:
 
   (tramp-equal-remote \"/sudo::/etc\" \"/su::/etc\")"
   (and (tramp-tramp-file-p file1)
@@ -4005,35 +4019,31 @@ Return the local name of the temporary file."
 
 (defun tramp-handle-make-auto-save-file-name ()
   "Like `make-auto-save-file-name' for Tramp files.
-Returns a file name in `tramp-auto-save-directory' for autosaving this file."
-  (let ((tramp-auto-save-directory tramp-auto-save-directory)
+Returns a file name in `tramp-auto-save-directory' for autosaving
+this file, if that variable is non-nil."
+  ;; Create directory.
+  (unless (or (null tramp-auto-save-directory)
+	      (file-exists-p tramp-auto-save-directory))
+    (make-directory tramp-auto-save-directory t))
+
+  (let ((system-type 'not-windows)
+	(auto-save-file-name-transforms
+	 (if (and (null tramp-auto-save-directory)
+		  (boundp 'auto-save-file-name-transforms))
+	     (symbol-value 'auto-save-file-name-transforms)))
 	(buffer-file-name
-	 (tramp-subst-strs-in-string
-	  '(("_" . "|")
-	    ("/" . "_a")
-	    (":" . "_b")
-	    ("|" . "__")
-	    ("[" . "_l")
-	    ("]" . "_r"))
-	  (buffer-file-name))))
-    ;; File name must be unique.  This is ensured with Emacs 22 (see
-    ;; UNIQUIFY element of `auto-save-file-name-transforms'); but for
-    ;; all other cases we must do it ourselves.
-    (when (boundp 'auto-save-file-name-transforms)
-      (mapc
-       (lambda (x)
-	 (when (and (string-match (car x) buffer-file-name)
-		    (not (car (cddr x))))
-	   (setq tramp-auto-save-directory
-		 (or tramp-auto-save-directory
-		     (tramp-compat-temporary-file-directory)))))
-       (symbol-value 'auto-save-file-name-transforms)))
-    ;; Create directory.
-    (when tramp-auto-save-directory
-      (setq buffer-file-name
-	    (expand-file-name buffer-file-name tramp-auto-save-directory))
-      (unless (file-exists-p tramp-auto-save-directory)
-	(make-directory tramp-auto-save-directory t)))
+	 (if (null tramp-auto-save-directory)
+	     buffer-file-name
+	   (expand-file-name
+	    (tramp-subst-strs-in-string
+	     '(("_" . "|")
+	       ("/" . "_a")
+	       (":" . "_b")
+	       ("|" . "__")
+	       ("[" . "_l")
+	       ("]" . "_r"))
+	     (buffer-file-name))
+	    tramp-auto-save-directory))))
     ;; Run plain `make-auto-save-file-name'.  There might be an advice when
     ;; it is not a magic file name operation (since Emacs 22).
     ;; We must deactivate it temporarily.
@@ -4042,8 +4052,8 @@ Returns a file name in `tramp-auto-save-directory' for autosaving this file."
       ;; else
       (ad-deactivate 'make-auto-save-file-name)
       (prog1
-       (tramp-run-real-handler 'make-auto-save-file-name nil)
-       (ad-activate 'make-auto-save-file-name)))))
+	  (tramp-run-real-handler 'make-auto-save-file-name nil)
+	(ad-activate 'make-auto-save-file-name)))))
 
 (unless (tramp-exists-file-name-handler 'make-auto-save-file-name)
   (defadvice make-auto-save-file-name
@@ -4130,6 +4140,38 @@ are written with verbosity of 6."
 	  (with-current-buffer
 	      (if (bufferp destination) destination (current-buffer))
 	    (tramp-message v 6 "%d\n%s" result (buffer-string))))
+      (error
+       (setq result 1)
+       (tramp-message v 6 "%d\n%s" result (error-message-string err))))
+    result))
+
+(defun tramp-call-process-region
+  (vec start end program &optional delete buffer display &rest args)
+  "Calls `call-process-region' on the local host.
+It always returns a return code.  The Lisp error raised when
+PROGRAM is nil is trapped also, returning 1.  Furthermore, traces
+are written with verbosity of 6."
+  (let ((v (or vec
+	       (vector tramp-current-method tramp-current-user
+		       tramp-current-host nil nil)))
+	(buffer (if (eq buffer t) (current-buffer) buffer))
+	result)
+    (tramp-message
+     v 6 "`%s %s' %s %s %s %s"
+     program (mapconcat 'identity args " ") start end delete buffer)
+    (condition-case err
+	(progn
+	  (setq result
+		(apply
+		 'call-process-region
+		 start end program delete buffer display args))
+	  ;; `result' could also be an error string.
+	  (when (stringp result)
+	    (signal 'file-error (list result)))
+	  (with-current-buffer (if (bufferp buffer) buffer (current-buffer))
+            (if (zerop result)
+                (tramp-message v 6 "%d" result)
+              (tramp-message v 6 "%d\n%s" result (buffer-string)))))
       (error
        (setq result 1)
        (tramp-message v 6 "%d\n%s" result (error-message-string err))))

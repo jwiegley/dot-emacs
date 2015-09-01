@@ -622,6 +622,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 		(tramp-inline-compress-start-size 2))
 	    (delete-file tmp-name2)
 	    (should (setq tmp-name2 (file-local-copy tmp-name1)))))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-file tmp-name1)
 	(delete-file tmp-name2)))))
@@ -645,6 +647,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	    ;; Replace.
 	    (insert-file-contents tmp-name nil nil nil 'replace)
 	    (should (string-equal (buffer-string) "foo"))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test10-write-region ()
@@ -679,6 +683,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (with-temp-buffer
 	    (insert-file-contents tmp-name)
 	    (should (string-equal (buffer-string) "34"))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test11-copy-file ()
@@ -707,6 +713,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name1) tmp-name3))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name2))
       (ignore-errors (delete-directory tmp-name3 'recursive)))
@@ -727,6 +735,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name1) tmp-name5))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name4))
       (ignore-errors (delete-directory tmp-name5 'recursive)))
@@ -747,6 +757,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name4) tmp-name3))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name4))
       (ignore-errors (delete-directory tmp-name3 'recursive)))))
@@ -782,6 +794,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name1) tmp-name3))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name2))
       (ignore-errors (delete-directory tmp-name3 'recursive)))
@@ -807,6 +821,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name1) tmp-name5))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name4))
       (ignore-errors (delete-directory tmp-name5 'recursive)))
@@ -832,6 +848,8 @@ This checks also `file-name-as-directory', `file-name-directory',
 	  (should
 	   (file-exists-p
 	    (expand-file-name (file-name-nondirectory tmp-name4) tmp-name3))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name1))
       (ignore-errors (delete-file tmp-name4))
       (ignore-errors (delete-directory tmp-name3 'recursive)))))
@@ -854,7 +872,9 @@ This tests also `file-directory-p' and `file-accessible-directory-p'."
 	  (should (file-directory-p (expand-file-name "foo/bar" tmp-name)))
 	  (should
 	   (file-accessible-directory-p (expand-file-name "foo/bar" tmp-name))))
-      (ignore-errors (delete-directory tmp-name)))))
+
+      ;; Cleanup.
+      (ignore-errors (delete-directory tmp-name 'recursive)))))
 
 (ert-deftest tramp-test14-delete-directory ()
   "Check `delete-directory'."
@@ -903,6 +923,8 @@ This tests also `file-directory-p' and `file-accessible-directory-p'."
 	  (copy-directory tmp-name1 tmp-name2)
 	  (should (file-directory-p tmp-name3))
 	  (should (file-exists-p tmp-name6)))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-directory tmp-name1 'recursive)
 	(delete-directory tmp-name2 'recursive)))))
@@ -933,6 +955,8 @@ This tests also `file-directory-p' and `file-accessible-directory-p'."
 	  (should (equal (directory-files
 			  tmp-name1 'full directory-files-no-dot-files-regexp)
 			 `(,tmp-name2 ,tmp-name3))))
+
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name1 'recursive)))))
 
 (ert-deftest tramp-test17-insert-directory ()
@@ -974,6 +998,8 @@ This tests also `file-directory-p' and `file-accessible-directory-p'."
 	       "\\(total.+[[:digit:]]+\n\\)?"
 	       ;; We don't know in which order ".", ".." and "foo" appear.
 	       "\\(.+ \\(\\.?\\.\\|foo\\)\n\\)\\{3\\}")))))
+
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name1 'recursive)))))
 
 (ert-deftest tramp-test18-file-attributes ()
@@ -981,9 +1007,14 @@ This tests also `file-directory-p' and `file-accessible-directory-p'."
 This tests also `file-readable-p' and `file-regular-p'."
   (skip-unless (tramp--test-enabled))
 
-  (let ((tmp-name1 (tramp--test-make-temp-name))
-	(tmp-name2 (tramp--test-make-temp-name))
-	attr)
+  ;; We must use `file-truename' for the temporary directory, because
+  ;; it could be located on a symlinked directory.  This would let the
+  ;; test fail.
+  (let* ((tramp-test-temporary-file-directory
+	  (file-truename tramp-test-temporary-file-directory))
+	 (tmp-name1 (tramp--test-make-temp-name))
+	 (tmp-name2 (tramp--test-make-temp-name))
+	 attr)
     (unwind-protect
 	(progn
 	  (write-region "foo" nil tmp-name1)
@@ -1033,6 +1064,7 @@ This tests also `file-readable-p' and `file-regular-p'."
 	  (setq attr (file-attributes tmp-name1))
 	  (should (eq (car attr) t)))
 
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name1)))))
 
 (ert-deftest tramp-test19-directory-files-and-attributes ()
@@ -1074,6 +1106,8 @@ This tests also `file-readable-p' and `file-regular-p'."
 	       (equal (file-attributes (car elt)) (cdr elt)))))
 	  (setq attr (directory-files-and-attributes tmp-name2 nil "^b"))
 	  (should (equal (mapcar 'car attr) '("bar" "boz"))))
+
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name1 'recursive)))))
 
 (ert-deftest tramp-test20-file-modes ()
@@ -1103,6 +1137,8 @@ This tests also `file-executable-p', `file-writable-p' and `set-file-modes'."
 	  ;; A file is always writable for user "root".
 	  (unless (zerop (nth 2 (file-attributes tmp-name)))
 	    (should-not (file-writable-p tmp-name))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test21-file-links ()
@@ -1137,6 +1173,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should (file-symlink-p tmp-name2))
 	  ;; `tmp-name3' is a local file name.
 	  (should-error (make-symbolic-link tmp-name1 tmp-name3)))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-file tmp-name1)
 	(delete-file tmp-name2)))
@@ -1152,6 +1190,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should-not (file-symlink-p tmp-name2))
 	  ;; `tmp-name3' is a local file name.
 	  (should-error (add-name-to-file tmp-name1 tmp-name3)))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-file tmp-name1)
 	(delete-file tmp-name2)))
@@ -1209,6 +1249,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    ;; `tmp-name3' does not exist.
 	    (should (file-newer-than-file-p tmp-name2 tmp-name3))
 	    (should-not (file-newer-than-file-p tmp-name3 tmp-name1))))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-file tmp-name1)
 	(delete-file tmp-name2)))))
@@ -1228,6 +1270,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    (set-visited-file-modtime '(0 1))
 	    (should (verify-visited-file-modtime))
 	    (should (equal (visited-file-modtime) '(0 1 0 0)))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test24-file-name-completion ()
@@ -1250,6 +1294,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should
 	   (equal (sort (file-name-all-completions "b" tmp-name) 'string-lessp)
 		  '("bold" "boz/"))))
+
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name 'recursive)))))
 
 (ert-deftest tramp-test25-load ()
@@ -1266,6 +1312,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  ;(should-error (load tmp-name nil 'nomessage 'nosuffix 'must-suffix))
 	  (load tmp-name nil 'nomessage 'nosuffix)
 	  (should (featurep 'tramp-test-load)))
+
+      ;; Cleanup.
       (ignore-errors
 	(and (featurep 'tramp-test-load) (unload-feature 'tramp-test-load))
 	(delete-file tmp-name)))))
@@ -1312,6 +1360,7 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    ;; A non-nil DISPLAY must not raise the buffer.
 	    (should-not (get-buffer-window (current-buffer) t))))
 
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test27-start-file-process ()
@@ -1340,6 +1389,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    (while (< (- (point-max) (point-min)) (length "foo"))
 	      (accept-process-output proc 1)))
 	  (should (string-equal (buffer-string) "foo")))
+
+      ;; Cleanup.
       (ignore-errors (delete-process proc)))
 
     (unwind-protect
@@ -1356,6 +1407,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    (while (< (- (point-max) (point-min)) (length "foo"))
 	      (accept-process-output proc 1)))
 	  (should (string-equal (buffer-string) "foo")))
+
+      ;; Cleanup.
       (ignore-errors
 	(delete-process proc)
 	(delete-file tmp-name)))
@@ -1375,6 +1428,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	    (while (< (- (point-max) (point-min)) (length "foo"))
 	      (accept-process-output proc 1)))
 	  (should (string-equal (buffer-string) "foo")))
+
+      ;; Cleanup.
       (ignore-errors (delete-process proc)))))
 
 (ert-deftest tramp-test28-shell-command ()
@@ -1404,6 +1459,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should
 	   (string-equal
 	    (format "%s\n" (file-name-nondirectory tmp-name)) (buffer-string))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))
 
     (unwind-protect
@@ -1429,6 +1486,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should
 	   (string-equal
 	    (format "%s\n" (file-name-nondirectory tmp-name)) (buffer-string))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))
 
     (unwind-protect
@@ -1456,6 +1515,8 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 	  (should
 	   (string-equal
 	    (format "%s\n" (file-name-nondirectory tmp-name)) (buffer-string))))
+
+      ;; Cleanup.
       (ignore-errors (delete-file tmp-name)))))
 
 (ert-deftest tramp-test29-vc-registered ()
@@ -1516,7 +1577,92 @@ This tests also `make-symbolic-link', `file-truename' and `add-name-to-file'."
 			  (list (file-name-nondirectory tmp-name2)))))))
 	  (should (vc-registered tmp-name2)))
 
-	(ignore-errors (delete-directory tmp-name1 'recursive)))))
+      ;; Cleanup.
+      (ignore-errors (delete-directory tmp-name1 'recursive)))))
+
+(ert-deftest tramp-test30-make-auto-save-file-name ()
+  "Check `make-auto-save-file-name'."
+  (skip-unless (tramp--test-enabled))
+
+  (let ((tmp-name1 (tramp--test-make-temp-name))
+	(tmp-name2 (tramp--test-make-temp-name)))
+
+    (unwind-protect
+	(progn
+	  ;; Use default `auto-save-file-name-transforms' mechanism.
+	  (let (tramp-auto-save-directory)
+	    (with-temp-buffer
+	      (setq buffer-file-name tmp-name1)
+	      (should
+	       (string-equal
+		(make-auto-save-file-name)
+		;; This is taken from original `make-auto-save-file-name'.
+		(expand-file-name
+		 (format
+		  "#%s#"
+		  (subst-char-in-string
+		   ?/ ?! (replace-regexp-in-string "!" "!!" tmp-name1)))
+		 temporary-file-directory)))))
+
+	  ;; No mapping.
+	  (let (tramp-auto-save-directory auto-save-file-name-transforms)
+	    (with-temp-buffer
+	      (setq buffer-file-name tmp-name1)
+	      (should
+	       (string-equal
+		(make-auto-save-file-name)
+		(expand-file-name
+		 (format "#%s#" (file-name-nondirectory tmp-name1))
+		 tramp-test-temporary-file-directory)))))
+
+	  ;; Use default `tramp-auto-save-directory' mechanism.
+	  (let ((tramp-auto-save-directory tmp-name2))
+	    (with-temp-buffer
+	      (setq buffer-file-name tmp-name1)
+	      (should
+	       (string-equal
+		(make-auto-save-file-name)
+		;; This is taken from Tramp.
+		(expand-file-name
+		 (format
+		  "#%s#"
+		  (tramp-subst-strs-in-string
+		   '(("_" . "|")
+		     ("/" . "_a")
+		     (":" . "_b")
+		     ("|" . "__")
+		     ("[" . "_l")
+		     ("]" . "_r"))
+		   tmp-name1))
+		 tmp-name2)))
+	      (should (file-directory-p tmp-name2))))
+
+	  ;; Relative file names shall work, too.
+	  (let ((tramp-auto-save-directory "."))
+	    (with-temp-buffer
+	      (setq buffer-file-name tmp-name1
+		    default-directory tmp-name2)
+	      (should
+	       (string-equal
+		(make-auto-save-file-name)
+		;; This is taken from Tramp.
+		(expand-file-name
+		 (format
+		  "#%s#"
+		  (tramp-subst-strs-in-string
+		   '(("_" . "|")
+		     ("/" . "_a")
+		     (":" . "_b")
+		     ("|" . "__")
+		     ("[" . "_l")
+		     ("]" . "_r"))
+		   tmp-name1))
+		 tmp-name2)))
+	      (should (file-directory-p tmp-name2)))))
+
+      ;; Cleanup.
+      (ignore-errors (delete-file tmp-name1))
+      (ignore-errors (delete-directory tmp-name2 'recursive)))))
 
 (defun tramp--test-adb-p ()
   "Check, whether the remote host runs Android.
@@ -1535,9 +1681,14 @@ This requires restrictions of file name syntax."
 
 (defun tramp--test-check-files (&rest files)
   "Run a simple but comprehensive test over every file in FILES."
-  (let ((tmp-name1 (tramp--test-make-temp-name))
-	(tmp-name2 (tramp--test-make-temp-name 'local))
-	(files (delq nil files)))
+  ;; We must use `file-truename' for the temporary directory, because
+  ;; it could be located on a symlinked directory.  This would let the
+  ;; test fail.
+  (let* ((tramp-test-temporary-file-directory
+	  (file-truename tramp-test-temporary-file-directory))
+	 (tmp-name1 (tramp--test-make-temp-name))
+	 (tmp-name2 (tramp--test-make-temp-name 'local))
+	 (files (delq nil files)))
     (unwind-protect
 	(progn
 	  (make-directory tmp-name1)
@@ -1659,6 +1810,7 @@ This requires restrictions of file name syntax."
 	      (delete-directory file1)
 	      (should-not (file-exists-p file1)))))
 
+      ;; Cleanup.
       (ignore-errors (delete-directory tmp-name1 'recursive))
       (ignore-errors (delete-directory tmp-name2 'recursive)))))
 
@@ -1691,13 +1843,13 @@ This requires restrictions of file name syntax."
    "{foo}bar{baz}"))
 
 ;; These tests are inspired by Bug#17238.
-(ert-deftest tramp-test30-special-characters ()
+(ert-deftest tramp-test31-special-characters ()
   "Check special characters in file names."
   (skip-unless (tramp--test-enabled))
 
   (tramp--test-special-characters))
 
-(ert-deftest tramp-test30-special-characters-with-stat ()
+(ert-deftest tramp-test31-special-characters-with-stat ()
   "Check special characters in file names.
 Use the `stat' command."
   (skip-unless (tramp--test-enabled))
@@ -1712,11 +1864,12 @@ Use the `stat' command."
       (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
 	(tramp-set-connection-property v "perl" nil)
 	(tramp--test-special-characters))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "perl" 'undef))))
 
-(ert-deftest tramp-test30-special-characters-with-perl ()
+(ert-deftest tramp-test31-special-characters-with-perl ()
   "Check special characters in file names.
 Use the `perl' command."
   (skip-unless (tramp--test-enabled))
@@ -1731,11 +1884,12 @@ Use the `perl' command."
       (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
 	(tramp-set-connection-property v "stat" nil)
 	(tramp--test-special-characters))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "stat" 'undef))))
 
-(ert-deftest tramp-test30-special-characters-with-ls ()
+(ert-deftest tramp-test31-special-characters-with-ls ()
   "Check special characters in file names.
 Use the `ls' command."
   (skip-unless (tramp--test-enabled))
@@ -1749,6 +1903,7 @@ Use the `ls' command."
 	(tramp-set-connection-property v "stat" nil)
 	(tramp-set-connection-property v "perl" nil)
 	(tramp--test-special-characters))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "stat" 'undef)
@@ -1765,13 +1920,13 @@ Use the `ls' command."
      "银河系漫游指南系列"
      "Автостопом по гала́ктике")))
 
-(ert-deftest tramp-test31-utf8 ()
+(ert-deftest tramp-test32-utf8 ()
   "Check UTF8 encoding in file names and file contents."
   (skip-unless (tramp--test-enabled))
 
   (tramp--test-utf8))
 
-(ert-deftest tramp-test31-utf8-with-stat ()
+(ert-deftest tramp-test32-utf8-with-stat ()
   "Check UTF8 encoding in file names and file contents.
 Use the `stat' command."
   (skip-unless (tramp--test-enabled))
@@ -1786,11 +1941,12 @@ Use the `stat' command."
       (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
 	(tramp-set-connection-property v "perl" nil)
 	(tramp--test-utf8))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "perl" 'undef))))
 
-(ert-deftest tramp-test31-utf8-with-perl ()
+(ert-deftest tramp-test32-utf8-with-perl ()
   "Check UTF8 encoding in file names and file contents.
 Use the `perl' command."
   (skip-unless (tramp--test-enabled))
@@ -1805,11 +1961,12 @@ Use the `perl' command."
       (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
 	(tramp-set-connection-property v "stat" nil)
 	(tramp--test-utf8))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "stat" 'undef))))
 
-(ert-deftest tramp-test31-utf8-with-ls ()
+(ert-deftest tramp-test32-utf8-with-ls ()
   "Check UTF8 encoding in file names and file contents.
 Use the `ls' command."
   (skip-unless (tramp--test-enabled))
@@ -1823,13 +1980,14 @@ Use the `ls' command."
 	(tramp-set-connection-property v "stat" nil)
 	(tramp-set-connection-property v "perl" nil)
 	(tramp--test-utf8))
+
     ;; Reset suppressed properties.
     (with-parsed-tramp-file-name tramp-test-temporary-file-directory nil
       (tramp-set-connection-property v "stat" 'undef)
       (tramp-set-connection-property v "perl" 'undef))))
 
 ;; This test is inspired by Bug#16928.
-(ert-deftest tramp-test32-asynchronous-requests ()
+(ert-deftest tramp-test33-asynchronous-requests ()
   "Check parallel asynchronous requests.
 Such requests could arrive from timers, process filters and
 process sentinels.  They shall not disturb each other."
@@ -1918,7 +2076,7 @@ process sentinels.  They shall not disturb each other."
       (dolist (buf buffers)
 	(ignore-errors (kill-buffer buf)))))))
 
-(ert-deftest tramp-test33-recursive-load ()
+(ert-deftest tramp-test34-recursive-load ()
   "Check that Tramp does not fail due to recursive load."
   (skip-unless (tramp--test-enabled))
 
@@ -1941,7 +2099,7 @@ process sentinels.  They shall not disturb each other."
 	(mapconcat 'shell-quote-argument load-path " -L ")
 	(shell-quote-argument code)))))))
 
-(ert-deftest tramp-test34-unload ()
+(ert-deftest tramp-test35-unload ()
   "Check that Tramp and its subpackages unload completely.
 Since it unloads Tramp, it shall be the last test to run."
   ;; Mark as failed until all symbols are unbound.
@@ -1981,7 +2139,6 @@ Since it unloads Tramp, it shall be the last test to run."
 ;; * file-ownership-preserved-p
 ;; * file-selinux-context
 ;; * find-backup-file-name
-;; * make-auto-save-file-name
 ;; * set-file-acl
 ;; * set-file-selinux-context
 

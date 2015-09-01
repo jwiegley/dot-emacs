@@ -1,3 +1,9 @@
+2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.12 released.
+
+	* configure.ac: Bump version.
+
 2015-02-01  Michael Albinus  <michael.albinus@gmx.de>
 
 	* configure.ac: Bump version (to 2.2.12-pre).  Update merge

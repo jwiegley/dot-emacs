@@ -1,6 +1,6 @@
 # -*- coding: utf-8; -*-
 # Emacs Makefile for TRAMP
-# @configure_input@
+# texi/Makefile.  Generated from Makefile.in by configure.
 
 # Copyright (C) 1998-2015 Free Software Foundation, Inc.
 
@@ -25,32 +25,32 @@
 # insufficient version of makeinfo, autoconf refuses to generate
 # Makefile.  Problems of texi2dvi or install-info result in a warning.
 
-EMACS		= @EMACS@
-EMACS_GVFS	= $(if $(findstring yes, @EMACS_GVFS@), emacsgvfs, noemacsgvfs)
-EMACS_GW	= $(if $(findstring yes, @EMACS_GW@), emacsgw, noemacsgw)
-EMACS_INFO	= @EMACS_INFO@
-INSTALL_CHAPTER	= $(if $(findstring yes, @INSTALL_CHAPTER@), \
+EMACS		= emacs
+EMACS_GVFS	= $(if $(findstring yes, no), emacsgvfs, noemacsgvfs)
+EMACS_GW	= $(if $(findstring yes, yes), emacsgw, noemacsgw)
+EMACS_INFO	= emacs
+INSTALL_CHAPTER	= $(if $(findstring yes, yes), \
 			installchapter, noinstallchapter)
-MAKEINFO	= @MAKEINFO@ --no-split
-TEXI2DVI	= @TEXI2DVI@
+MAKEINFO	= makeinfo --no-split
+TEXI2DVI	= texi2dvi
 INSTALL		= install -m644
-INSTALL_INFO	= @INSTALL_INFO@ --quiet
+INSTALL_INFO	= install-info --quiet
 CP		= cp
 MKDIR		= @mkdir -p
 RM		= -rm -f
 
-prefix		= @prefix@
-datarootdir	= @datarootdir@
-datadir		= @datadir@
-infodir		= @infodir@
+prefix		= /usr/local
+datarootdir	= ${prefix}/share
+datadir		= ${datarootdir}
+infodir		= ${prefix}/share/info
 localinfodir	= ../info
 DESTDIR		=
 
 TEXI_FILES	= tramp.texi trampver.texi doclicense.texi docstyle.texi \
-		  $(if $(findstring yes, @INSTALL_CHAPTER@), trampinst.texi)
+		  $(if $(findstring yes, yes), trampinst.texi)
 INFO_FILES	= $(localinfodir)/tramp
 INSTALL_FILES	= $(DESTDIR)$(infodir)/tramp
-CLEAN_FILES	= @TRAMP_CLEAN_FILES@ $(wildcard $(localinfodir)/*)
+CLEAN_FILES	= .\\\#* \\\#* .*~ *~ *.aux *.cp *.cps *.diff *.dvi *.elc *.fn *.fns *.html *.info *.ky *.log *.pg *.tmp *.toc *.tp *.vr *.vrs $(wildcard $(localinfodir)/*)
 
 # To be used by maintainer only
 NONGNU		= ../../tramp-web

@@ -1,5 +1,5 @@
 ;;; trampver.el --- Transparent Remote Access, Multiple Protocol
-;;; @configure_input@
+;;; lisp/trampver.el.  Generated from trampver.el.in by configure.
 
 ;; Copyright (C) 2003-2015 Free Software Foundation, Inc.
 
@@ -31,11 +31,11 @@
 ;; should be changed only there.
 
 ;;;###tramp-autoload
-(defconst tramp-version "@PACKAGE_VERSION@"
+(defconst tramp-version "2.2.12"
   "This version of Tramp.")
 
 ;;;###tramp-autoload
-(defconst tramp-bug-report-address "@PACKAGE_BUGREPORT@"
+(defconst tramp-bug-report-address "tramp-devel@gnu.org"
   "Email address to send bug reports to.")
 
 (defun tramp-repository-get-version ()
@@ -53,7 +53,14 @@
 		 (replace-regexp-in-string "\n" "" (buffer-string)))))))))
 
 ;; Check for (X)Emacs version.
-(let ((x @TRAMP_EMACS_VERSION_CHECK@))
+(let ((x (if (or (>= emacs-major-version 22)
+		 (and (featurep 'xemacs)
+		      (= emacs-major-version 21)
+		      (>= emacs-minor-version 4)))
+	     "ok"
+	   (format "Tramp 2.2.12 is not fit for %s"
+		   (when (string-match "^.*$" (emacs-version))
+		     (match-string 0 (emacs-version)))))))
   (unless (string-match "\\`ok\\'" x) (error "%s" x)))
 
 (add-hook 'tramp-unload-hook

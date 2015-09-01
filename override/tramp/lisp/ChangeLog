@@ -1,3 +1,96 @@
+2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.12 released.
+
+2015-06-21  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-adb.el (tramp-adb-handle-file-local-copy): Improve error
+	handling.
+
+2015-06-01  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-handle-make-auto-save-file-name):
+	Wrap `auto-save-file-name-transforms' by `symbol-value', it
+	doesn't exist in XEmacs.
+
+	* tramp-sh.el (tramp-set-file-uid-gid): Add a timeout for the
+	local case, because "chown" might fail on w32.
+
+	* trampver.el.in (tramp-repository-get-version): Don't run for XEmacs.
+
+2015-05-31  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-message): Dump connection buffer for error messages.
+	(tramp-handle-make-auto-save-file-name): When calling
+	`make-auto-save-file-name' internally, make sure it uses Unix-like
+	behavior, not Windows-like behavior.
+
+	* tramp-sh.el (tramp-histfile-override): Use ".tramp_history" as
+	default.  (Bug#20446)
+
+2015-05-30  Michael Albinus  <michael.albinus@gmx.de>
+
+	* trampver.el.in (tramp-repository-get-version): New defun.
+
+	* tramp.el (tramp-debug-message): Use it.
+
+2015-05-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-call-process-region): New defun.
+
+	* tramp-sh.el (tramp-get-inline-coding): Use it.
+
+2015-05-27  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-auto-save-directory): Add :tags.
+	(tramp-handle-make-auto-save-file-name): Let native
+	`make-auto-save-file-name' use `auto-save-file-name-transforms',
+	if `tramp-auto-save-directory' is not set.
+
+2015-05-26  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-set-auto-save): Remove it.  There are major
+	modes which set `auto-save-mode' on their own rules; Tramp shall
+	not overwrite such settings.  (Bug#20621)
+
+2015-05-25  Orivej Desh  <orivej@gmx.fr>  (tiny change)
+
+	* tramp-sh.el (tramp-make-copy-program-file-name): Add sqare
+	brackets around host name.
+
+2015-05-25  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-do-copy-or-rename-file-via-buffer)
+	(tramp-sh-handle-insert-file-contents-literally): Inhibit also
+	`epa-file-handler'.  (Bug#20634)
+
+2015-05-20  Paul Eggert  <eggert@cs.ucla.edu>
+
+	* tramp.el (tramp-methods):
+	Use double-quotes rather than TeX markup in doc strings.
+
+	* tramp-cmds.el: Fix minor quoting problems.
+
+2015-04-09  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* tramp-sh.el (tramp-remote-process-environment): Don't set EMACS
+	envvar.  (Bug#20202)
+
+2015-04-08  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-cache.el (tramp-flush-file-property): Fix nasty scoping bug.
+
+2015-04-04  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-cache.el (tramp-flush-directory-property): Quote directory
+	name when used in regexp.
+
+2015-04-03  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-cache.el (tramp-flush-file-property)
+	(tramp-flush-directory-property): Use `directory-file-name' of the
+	truename.  (Bug#20249)
+
 2015-03-24  Michael Albinus  <michael.albinus@gmx.de>
 
 	* tramp-sh.el (tramp-do-file-attributes-with-ls)
@@ -1151,6 +1244,7 @@
 2013-08-29  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	Misc changes to reduce use of `(lambda...); and other cleanups.
+
 	* tramp.el (with-tramp-progress-reporter): Avoid setq.
 
 2013-08-26  Michael Albinus  <michael.albinus@gmx.de>

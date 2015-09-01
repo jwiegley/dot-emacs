@@ -1,3 +1,25 @@
+2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.12 released.
+
+	* tramp-tests.el (tramp-test13-make-directory): Fix cleanup.
+
+2015-05-27  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test30-make-auto-save-file-name): New test.
+	(tramp-test31-special-characters)
+	(tramp-test31-special-characters-with-stat)
+	(tramp-test31-special-characters-with-perl)
+	(tramp-test31-special-characters-with-ls, tramp-test32-utf8)
+	(tramp-test32-utf8-with-stat, tramp-test32-utf8-with-perl)
+	(tramp-test32-utf8-with-ls, tramp-test33-asynchronous-requests)
+	(tramp-test34-recursive-load, tramp-test35-unload): Rename.
+
+2015-04-10  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test18-file-attributes)
+	(tramp--test-check-files): Use `file-truename' for directories.
+
 2015-03-24  Michael Albinus  <michael.albinus@gmx.de>
 
 	* tramp-tests.el (tramp-test18-file-attributes)

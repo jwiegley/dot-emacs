@@ -67,7 +67,7 @@ files conditionalize this setup based on the TERM environment variable."
   :type 'string)
 
 ;;;###tramp-autoload
-(defcustom tramp-histfile-override t
+(defcustom tramp-histfile-override ".tramp_history"
   "When invoking a shell, override the HISTFILE with this value.
 When setting to a string, it redirects the shell history to that
 file.  Be careful when setting to \"/dev/null\"; this might
@@ -496,7 +496,6 @@ as given in your `~/.profile'."
 (defcustom tramp-remote-process-environment
   `("TMOUT=0" "LC_CTYPE=''"
     ,(format "TERM=%s" tramp-terminal-type)
-    "EMACS=t" ;; Deprecated.
     ,(format "INSIDE_EMACS='%s,tramp:%s'" emacs-version tramp-version)
     "CDPATH=" "HISTORY=" "MAIL=" "MAILCHECK=" "MAILPATH=" "PAGER=cat"
     "autocorrect=" "correct=")
@@ -1460,12 +1459,14 @@ be non-negative integers."
 		  (tramp-shell-quote-argument localname))))))
 
       ;; We handle also the local part, because there doesn't exist
-      ;; `set-file-uid-gid'.  On W32 "chown" might not work.
-      (let ((uid (or (and (natnump uid) uid) (tramp-get-local-uid 'integer)))
-	    (gid (or (and (natnump gid) gid) (tramp-get-local-gid 'integer))))
-	(tramp-call-process
-	 nil "chown" nil nil nil
-         (format "%d:%d" uid gid) (tramp-shell-quote-argument filename))))))
+      ;; `set-file-uid-gid'.  On W32 "chown" might not work.  We add a
+      ;; timeout for this.
+      (with-timeout (5 nil)
+	(let ((uid (or (and (natnump uid) uid) (tramp-get-local-uid 'integer)))
+	      (gid (or (and (natnump gid) gid) (tramp-get-local-gid 'integer))))
+	  (tramp-call-process
+	   nil "chown" nil nil nil
+	   (format "%d:%d" uid gid) (tramp-shell-quote-argument filename)))))))
 
 (defun tramp-remote-selinux-p (vec)
   "Check, whether SELINUX is enabled on the remote host."
@@ -1559,7 +1560,7 @@ be non-negative integers."
 	(progn
 	  (tramp-set-file-property v localname "file-acl" acl-string)
 	  t)
-      ;; In case of errors, we return `nil'.
+      ;; In case of errors, we return nil.
       (tramp-set-file-property v localname "file-acl-string" 'undef)
       nil)))
 
@@ -2123,15 +2124,17 @@ FILENAME is the source file, NEWNAME the target file.
 KEEP-DATE is non-nil if NEWNAME should have the same timestamp as FILENAME."
   ;; We must disable multibyte, because binary data shall not be
   ;; converted.  We don't want the target file to be compressed, so we
-  ;; let-bind `jka-compr-inhibit' to t.
-  ;; We remove `tramp-file-name-handler' from
+  ;; let-bind `jka-compr-inhibit' to t.  `epa-file-handler' shall not
+  ;; be called either.  We remove `tramp-file-name-handler' from
   ;; `inhibit-file-name-handlers'; otherwise the file name handler for
   ;; `insert-file-contents' might be deactivated in some corner cases.
   (let ((coding-system-for-read 'binary)
 	(coding-system-for-write 'binary)
 	(jka-compr-inhibit t)
+	(inhibit-file-name-operation 'write-region)
 	(inhibit-file-name-handlers
-	 (remq 'tramp-file-name-handler inhibit-file-name-handlers)))
+	 (cons 'epa-file-handler
+	       (remq 'tramp-file-name-handler inhibit-file-name-handlers))))
     (with-temp-file newname
       (set-buffer-multibyte nil)
       (insert-file-contents-literally filename)))
@@ -3104,9 +3107,9 @@ the result will be a local, non-Tramp, file name."
       (when tmpinput (delete-file tmpinput))
 
       ;; `process-file-side-effects' has been introduced with GNU
-      ;; Emacs 23.2.  If set to `nil', no remote file will be changed
+      ;; Emacs 23.2.  If set to nil, no remote file will be changed
       ;; by `program'.  If it doesn't exist, we assume its default
-      ;; value `t'.
+      ;; value t.
       (unless (and (boundp 'process-file-side-effects)
 		   (not (symbol-value 'process-file-side-effects)))
         (tramp-flush-directory-property v ""))
@@ -3206,7 +3209,8 @@ the result will be a local, non-Tramp, file name."
 	 (if (fboundp 'find-buffer-file-type)
 	     (symbol-function 'find-buffer-file-type)
 	   nil))
-	(inhibit-file-name-handlers '(jka-compr-handler image-file-handler))
+	(inhibit-file-name-handlers
+	 '(epa-file-handler image-file-handler jka-compr-handler))
 	(inhibit-file-name-operation 'insert-file-contents))
     (unwind-protect
 	(progn
@@ -3751,17 +3755,6 @@ Only send the definition if it has not already been done."
 	 "Script %s sending failed" name)
 	(tramp-set-connection-property
 	 (tramp-get-connection-process vec) "scripts" (cons name scripts))))))
-
-(defun tramp-set-auto-save ()
-  (when (and ;; ange-ftp has its own auto-save mechanism
-	     (eq (tramp-find-foreign-file-name-handler (buffer-file-name))
-		 'tramp-sh-file-name-handler)
-             auto-save-default)
-    (auto-save-mode 1)))
-(add-hook 'find-file-hooks 'tramp-set-auto-save t)
-(add-hook 'tramp-unload-hook
-	  (lambda ()
-	    (remove-hook 'find-file-hooks 'tramp-set-auto-save)))
 
 (defun tramp-run-test (switch filename)
   "Run `test' on the remote system, given a SWITCH and a FILENAME.
@@ -4974,8 +4967,8 @@ function waits for output unless NOOUTPUT is set."
   (vec command &optional subshell dont-suppress-err)
   "Run COMMAND and check its exit status.
 Sends `echo $?' along with the COMMAND for checking the exit status.
-If COMMAND is nil, just sends `echo $?'.  Returns `t' if the exit
-status is 0, and `nil' otherwise.
+If COMMAND is nil, just sends `echo $?'.  Returns t if the exit
+status is 0, and nil otherwise.
 
 If the optional argument SUBSHELL is non-nil, the command is
 executed in a subshell, ie surrounded by parentheses.  If
@@ -5124,12 +5117,14 @@ Return ATTR."
    ""))
 
 (defun tramp-make-copy-program-file-name (vec)
-  "Create a file name suitable to be passed to `scp' or `nc' and workalikes."
+  "Create a file name suitable for `scp', `pscp', or `nc' and workalikes."
   (let ((method (tramp-file-name-method vec))
 	(user (tramp-file-name-user vec))
 	(host (tramp-file-name-real-host vec))
 	(localname (tramp-shell-quote-argument
 		    (tramp-file-name-localname vec))))
+    (when (string-match tramp-ipv6-regexp host)
+      (setq host (format "[%s]" host)))
     (cond
      ((tramp-get-method-parameter method 'tramp-remote-copy-program)
       localname)
@@ -5552,7 +5547,7 @@ If no corresponding command is found, nil is returned.
 Otherwise, either a string is returned which contains a `%s' mark
 to be used for the respective input or output file; or a Lisp
 function cell is returned to be applied on a buffer."
-  ;; We must catch the errors, because we want to return `nil', when
+  ;; We must catch the errors, because we want to return nil, when
   ;; no inline coding is found.
   (ignore-errors
     (let ((coding
@@ -5586,7 +5581,7 @@ function cell is returned to be applied on a buffer."
 		       (default-directory
 			 (tramp-compat-temporary-file-directory)))
 		   (apply
-		    'call-process-region (point-min) (point-max)
+		    'tramp-call-process-region ,vec (point-min) (point-max)
 		    (car (split-string ,compress)) t t nil
 		    (cdr (split-string ,compress)))))
 	    `(lambda (beg end)
@@ -5595,7 +5590,7 @@ function cell is returned to be applied on a buffer."
 		     (default-directory
 		       (tramp-compat-temporary-file-directory)))
 		 (apply
-		  'call-process-region beg end
+		  'tramp-call-process-region ,vec beg end
 		  (car (split-string ,compress)) t t nil
 		  (cdr (split-string ,compress))))
 	       (,coding (point-min) (point-max)))))
