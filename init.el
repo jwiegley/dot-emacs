@@ -3144,7 +3144,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (use-package company-coq
+    :load-path "site-lisp/company-coq"
     :commands company-coq-initialize
+    :preface
+    (use-package company-math
+      :load-path "site-lisp/company-math"
+      :preface
+      (use-package math-symbols-list
+      :load-path "site-lisp/math-symbol-list"))
     :config
     (unbind-key "M-<return>" company-coq-map))
 
@@ -3168,7 +3175,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
-       ;; (company-coq-initialize)
+       (company-coq-initialize)
        ))
 
     (bind-key "M-RET" #'proof-goto-point coq-mode-map)
@@ -3844,3 +3851,4 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             t))
 
 ;;; init.el ends here
+(put 'company-coq-fold 'disabled nil)
