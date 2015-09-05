@@ -5,7 +5,8 @@
 
 (files
  "flycheck-haskell.el"
+ "get-flags.hs"
  "get-cabal-configuration.hs")
 
 (development
- (depends-on "cl-lib"))
+ (depends-on "cl-lib" "dash"))
