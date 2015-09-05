@@ -250,87 +250,6 @@
 	  (kill-region (match-beginning 0) (match-end 0))
 	(error "No SCC at point")))))
 
-(defun define-haskell-checkers ()
-;;   (eval
-;;    `(flycheck-define-checker haskell-ghc
-;;       "A Haskell syntax and type checker using ghc.
-
-;; See URL `http://www.haskell.org/ghc/'."
-;;       :command ("ghc" "-i." "-i.." "-i../.." "-i../../.." "-i../../../.." "-v0"
-;;                 ,@ghc-extensions source-inplace)
-;;       :error-patterns
-;;       ((warning line-start (file-name) ":" line ":" column ":"
-;;                 (or " " "\n    ") "Warning:" (optional "\n")
-;;                 (one-or-more " ")
-;;                 (message (one-or-more not-newline)
-;;                          (zero-or-more "\n"
-;;                                        (one-or-more " ")
-;;                                        (one-or-more not-newline)))
-;;                 line-end)
-;;        (error line-start (file-name) ":" line ":" column ":"
-;;               (or (message (one-or-more not-newline))
-;;                   (and "\n" (one-or-more " ")
-;;                        (message (one-or-more not-newline)
-;;                                 (zero-or-more "\n"
-;;                                               (one-or-more " ")
-;;                                               (one-or-more not-newline)))))
-;;               line-end))
-;;       :modes haskell-mode
-;;       :next-checkers ((warnings-only . haskell-hlint))))
-
-  ;; (eval
-;;    `(flycheck-define-checker haskell-hdevtools
-;;       "A Haskell syntax and type checker using hdevtools.
-
-;; See URL `https://github.com/bitc/hdevtools'."
-;;       :command
-;;       ("hdevtools" "check"
-;;        "-g" "-i."
-;;        "-g" "-i.."
-;;        "-g" "-i../.."
-;;        "-g" "-i../../.."
-;;        "-g" "-i../../../.."
-;;        "-g" "-i/Users/johnw/crash/isa/tools/safe-isa"
-;;        ,@(apply #'append (mapcar (lambda (x) (list "-g" x)) ghc-extensions))
-;;        ,@(let ((hdevtools-path (executable-find "hdevtools")))
-;;            (if (and hdevtools-path
-;;                     (string-match "\\`\\(.+/\\.hsenv/\\)"
-;;                                   hdevtools-path))
-;;                (let* ((path-prefix (match-string 1 hdevtools-path))
-;;                       (ghc-version
-;;                        (with-temp-buffer
-;;                          (shell-command "ghc --version" t)
-;;                          (goto-char (point-min))
-;;                          (re-search-forward "version \\(.+\\)")
-;;                          (match-string 1))))
-;;                  (list "-g" (concat "-package-conf="
-;;                                     (expand-file-name
-;;                                      (concat "ghc/lib/ghc-"
-;;                                              ghc-version
-;;                                              "/package.conf.d")
-;;                                      path-prefix))))))
-;;        source-inplace)
-;;       :error-patterns
-;;       ((warning line-start (file-name) ":" line ":" column ":"
-;;                 (or " " "\n    ") "Warning:" (optional "\n")
-;;                 (one-or-more " ")
-;;                 (message (one-or-more not-newline)
-;;                          (zero-or-more "\n"
-;;                                        (one-or-more " ")
-;;                                        (one-or-more not-newline)))
-;;                 line-end)
-;;        (error line-start (file-name) ":" line ":" column ":"
-;;               (or (message (one-or-more not-newline))
-;;                   (and "\n" (one-or-more " ")
-;;                        (message (one-or-more not-newline)
-;;                                 (zero-or-more "\n"
-;;                                               (one-or-more " ")
-;;                                               (one-or-more not-newline)))))
-;;               line-end))
-;;       :modes haskell-mode
-;;       :next-checkers ((warnings-only . haskell-hlint))))
-  )
-
 (defun hoogle-local (query)
   (interactive
    (let ((def (haskell-ident-at-point)))
@@ -354,7 +273,7 @@
   (format "liftIO $ putStrLn $ \"%s %s:%d..\""
           put-prefix
           (file-name-nondirectory (buffer-file-name))
-          (line-number-at-pos)))
+          (line-number-at-ops)))
 
 (defun adjust-counting-putStrLn (&rest ignore)
   (interactive)
@@ -463,125 +382,23 @@
     (call-process "pointfree" nil t nil str)
     (delete-char -1)))
 
-(defun haskell-chris ()
-  (require 'haskell-session)
-  (require 'haskell-move-nested)
-  (require 'haskell-interactive-mode)
-
-  ;; Load the current file (and make a session if not already made).
-  (bind-key "C-. C-l" 'haskell-process-load-or-reload haskell-mode-map)
-
-  ;; Switch to the REPL.
-  (bind-key "C-. C-z" 'haskell-interactive-bring haskell-mode-map)
-  (bind-key "C-. C-k" 'haskell-interactive-mode-clear haskell-mode-map)
-
-  ;; Get the type and info of the symbol at point, print it in the
-  ;; message buffer.
-  (bind-key "C-. C-t" 'haskell-process-do-type haskell-mode-map)
-
-  ;; Contextually do clever things on the space key, in particular:
-  ;;   1. Complete imports, letting you choose the module name.
-  ;;   2. Show the type of the symbol after the space.
-  (bind-key "C-. SPC" 'haskell-mode-contextual-space haskell-mode-map)
-
-  ;; Jump to the imports. Keep tapping to jump between import
-  ;; groups. C-u f8 to jump back again.
-  (bind-key "C-. C-m" 'haskell-navigate-imports haskell-mode-map)
-
-  ;; Jump to the definition of the current symbol.
-  (bind-key "C-. M-." 'haskell-mode-tag-find haskell-mode-map)
-
-  (bind-key "C-. C-M-k" 'haskell-kill-nested haskell-mode-map)
-  ;; (bind-key "M-{" 'haskell-nested-return haskell-mode-map)
-
-  ;; Visit the latest error
-  (bind-key "<f9>" 'haskell-interactive-mode-visit-error haskell-mode-map)
-
-  (bind-key "C-. M-," 'haskell-who-calls haskell-mode-map))
-
-(defun define-haskell-checkers-no-implicit-prelude ()
-  (interactive)
-  (let ((ghc-extensions
-         (append ghc-extensions
-                 '("-XNoImplicitPrelude"
-                   ))))
-    (define-haskell-checkers)))
-
-(defun define-haskell-checkers-with-implicit-prelude ()
-  (interactive)
-  (define-haskell-checkers))
-
 (defun my-haskell-mode-hook ()
-  ;; (hack-local-variables)
-
-  ;; (when nix-package-name
-  ;;   (message "Reading Nix environment for %s" nix-package-name)
-  ;;   (let ((name nix-package-name))
-  ;;     (set (make-local-variable 'process-environment)
-  ;;          (with-temp-buffer
-  ;;            (call-process "nix-env" nil t nil nixpkgs-directory name)
-  ;;            (split-string (buffer-string) "\0" t))))
-
-  ;;   ;; Configure exec-path based on the new PATH
-  ;;   (set (make-local-variable 'exec-path) nil)
-  ;;   (mapc (apply-partially #'add-to-list 'exec-path)
-  ;;         (nreverse
-  ;;          (split-string (getenv-internal "PATH" process-environment) ":")))
-
-  ;;   (add-to-list 'load-path (ghc-mod-site-lisp)))
-
   (whitespace-mode 1)
   (bug-reference-prog-mode 1)
-  ;; (flyparse-mode 1)
   (use-package flycheck
     :init (flycheck-mode 1))
   (use-package flycheck-haskell
     :init (flycheck-haskell-setup))
-  (define-haskell-checkers)
-  ;; (flycheck-select-checker 'haskell-hdevtools)
   (flycheck-select-checker 'haskell-ghc)
-
-  ;; (add-hook 'after-change-functions 'adjust-counting-putStrLn t)
 
   (set (make-local-variable 'comint-prompt-regexp) "^>>> *")
   (setq compilation-first-column 1)
-
-  ;; (add-hook 'after-save-hook 'check-parens nil t)
-
-  ;; (require 'company)
-  ;; (ghc-init)
-  ;; (add-to-list 'company-backends 'company-ghc)
-  ;; (company-mode)
 
   (defalias 'ghc-save-buffer 'save-buffer)
 
   (turn-on-haskell-indentation)
   (turn-on-font-lock)
   (turn-on-haskell-decl-scan)
-
-  ;; (smartparens-mode 1)
-  ;; (smartparens-strict-mode 1)
-  ;; (show-smartparens-mode 1)
-
-  ;; (setq sp-pair-list
-  ;;       '(("\\\"" . "\\\"")
-  ;;         ("{-" . "-}")
-  ;;         ("\"" . "\"")
-  ;;         ("(" . ")")
-  ;;         ("[" . "]")
-  ;;         ("{" . "}")
-  ;;         ("`" . "`")))
-
-  ;; (let ((this-directory default-directory))
-  ;;   (while (not (string= this-directory ""))
-  ;;     (let ((hsenv (expand-file-name ".hsenv" this-directory)))
-  ;;       (if (file-exists-p hsenv)
-  ;;           (set (make-local-variable 'exec-path)
-  ;;                (cons (expand-file-name "cabal/bin" hsenv)
-  ;;                      (cons (expand-file-name "bin" hsenv) exec-path)))))
-  ;;     (setq this-directory
-  ;;           (file-name-directory
-  ;;            (file-name-nondirectory exec-path)))))
 
   (require 'align)
   (add-to-list 'align-rules-list
@@ -601,51 +418,11 @@
                  (regexp . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+")
                  (modes quote (haskell-mode literate-haskell-mode))))
 
-  ;; (defun smart-hyphen (n)
-  ;;   "Capitalize the next word, or behave as the usual '-'."
-  ;;   (interactive "p")
-  ;;   (if (memq (get-text-property (point) 'face)
-  ;;             '(font-lock-doc-face
-  ;;               font-lock-comment-face
-  ;;               font-lock-string-face))
-  ;;       (self-insert-command n)
-  ;;     (insert ?-)
-  ;;     (insert (let ((next (read-char)))
-  ;;               (if (eq ?w (char-syntax next))
-  ;;                   (progn
-  ;;                     (delete-char -1)
-  ;;                     (upcase next))
-  ;;                 next)))))
-
-  ;; (bind-key "-" 'smart-hyphen haskell-mode-map)
-
-  (bind-key "C-<left>" (lambda ()
-                         (interactive)
-                         (haskell-move-nested -4))
-            haskell-mode-map)
-  (bind-key "S-<left>" (lambda ()
-                         (interactive)
-                         (haskell-move-nested -1))
-            haskell-mode-map)
-
-  (bind-key "C-<right>" (lambda ()
-                          (interactive)
-                          (haskell-move-nested 4))
-            haskell-mode-map)
-  (bind-key "S-<right>" (lambda ()
-                          (interactive)
-                          (haskell-move-nested 1))
-            haskell-mode-map)
-
-  (bind-key "C-c C-u" (lambda ()
-                        (interactive)
-                        (insert "undefined"))
-            haskell-mode-map)
+  (bind-key "C-c C-u" (lambda () (interactive)
+                        (insert "undefined")) haskell-mode-map)
 
   (defun reflycheck (&optional arg)
     (interactive "P")
-    ;; (shell-command "killall .hdevtools-wrapped")
-    ;; (flyparse-buffer)
     (when arg
       (define-haskell-checkers-no-implicit-prelude))
     (flycheck-buffer))
@@ -656,46 +433,12 @@
   (bind-key "C-c C-d" 'ghc-browse-document haskell-mode-map)
   (bind-key "C-c C-k" 'inferior-haskell-kind haskell-mode-map)
   (bind-key "C-c C-r" 'inferior-haskell-load-and-run haskell-mode-map)
-  ;; (bind-key "C-c C-c" 'flyparse-buffer haskell-mode-map)
   (bind-key "C-c C-c" 'flycheck-buffer haskell-mode-map)
   (bind-key "C-c C" 'reflycheck haskell-mode-map)
-
-  (use-package structured-haskell-mode
-    :load-path "site-lisp/shm/elisp/"
-    :disabled t
-    :config
-    (progn
-      (bind-key "C-k" 'shm/kill-line haskell-mode-map)
-      (bind-key "M-(" 'shm/wrap-parens haskell-mode-map)
-      ;; (bind-key "(" 'shm/open-paren haskell-mode-map)
-      (bind-key "C-M-u" 'shm/goto-parent haskell-mode-map)
-      (bind-key "C-M-k" 'shm/kill haskell-mode-map)
-      ;; (bind-key "C-M-f" 'shm/forward-node haskell-mode-map)
-      ;; (bind-key "C-M-b" 'shm/backward-node haskell-mode-map)
-      ;; (bind-key "M-}" 'shm-forward-paragraph haskell-mode-map)
-      ;; (bind-key "M-{" 'shm-backward-paragraph haskell-mode-map)
-      ))
 
   (use-package haskell-edit)
   (bind-key "C-c M-q" 'haskell-edit-reformat haskell-mode-map)
 
-  (when nil
-    (unbind-key "C-c C-l" haskell-mode-map)
-    (unbind-key "C-c C-z" haskell-mode-map)
-    ;; (bind-key "SPC" 'haskell-mode-contextual-space haskell-mode-map)
-    (bind-key "C-c C-l" 'haskell-process-load-file haskell-mode-map)
-    (bind-key "C-c C-z" 'haskell-interactive-switch haskell-mode-map))
-
-  ;; Use C-u C-c C-t to auto-insert a function's type above it
-  ;; (use-package hdevtools)
-  ;; (if t
-  ;;     (progn
-  ;;       (bind-key "C-c C-t" 'hdevtools/show-type-info haskell-mode-map)
-  ;;       (bind-key "C-c C-i" 'ghc-show-info haskell-mode-map))
-  ;;   (bind-key "C-c C-t" 'my-inferior-haskell-type haskell-mode-map)
-  ;;   (bind-key "C-c C-i" 'inferior-haskell-info haskell-mode-map))
-
-  ;; (bind-key "M-." 'my-inferior-haskell-find-definition haskell-mode-map)
   (bind-key "M-." 'find-tag haskell-mode-map)
   (bind-key "M-n" 'flycheck-next-error haskell-mode-map)
   (bind-key "M-p" 'flycheck-previous-error haskell-mode-map)
@@ -705,18 +448,6 @@
   (bind-key "C-. y" 'insert-counting-putStrLn haskell-mode-map)
   (bind-key "C-. C-y" 'insert-counting-putStrLn haskell-mode-map)
 
-  ;; (ac-define-source ghc-mod
-  ;;   '((depends ghc)
-  ;;     (candidates . (ghc-select-completion-symbol))
-  ;;     (symbol . "s")
-  ;;     (document . haskell-doc-sym-doc)
-  ;;     (cache)))
-
-  ;; (use-package auto-complete-etags)
-
-  ;; (setq ac-sources (list 'ac-source-etags
-  ;;                        ;; 'ac-source-ghc-mod
-  ;;                        'ac-source-words-in-same-mode-buffers))
   (set (make-local-variable 'yas-fallback-behavior)
        '(apply indent-according-to-mode . nil))
   (bind-key "C-i" 'yas-expand-from-trigger-key haskell-mode-map)
@@ -728,71 +459,29 @@
   (bind-key "C-c C-h" 'my-haskell-hoogle haskell-mode-map)
   (bind-key "A-M-h" 'my-haskell-hoogle haskell-mode-map)
   (bind-key "C-M-x" 'inferior-haskell-send-decl haskell-mode-map)
-  (unbind-key "C-x C-d" haskell-mode-map)
-
-  ;; (haskell-chris)
-  )
+  (unbind-key "C-x C-d" haskell-mode-map))
 
 (use-package haskell-cabal
   :mode ("\\.cabal\\'" . haskell-cabal-mode))
-
-(defun ghc-mod-site-lisp ()
-  (let ((ghc-mod (executable-find "ghc-mod")))
-    (and ghc-mod
-         (expand-file-name "../share/emacs/site-lisp"
-                           (file-name-directory ghc-mod)))))
 
 (use-package haskell-mode
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode))
   :init
-  (progn
-    (use-package ghc
-      :disabled t
-      :load-path (lambda () (list (ghc-mod-site-lisp)))
-      :commands ghc-init
-      :config
-      (require 'ghc-check)
-      ;; (defun ghc-insert-template ()
-      ;;   (interactive)
-      ;;   (cond
-      ;;    ((bobp)
-      ;;     (ghc-insert-module-template))
-      ;;    ((flycheck-has-current-errors-p)
-      ;;     (flet ((ghc-flymake-err-list
-      ;;             () (mapcar
-      ;;                 (lambda (err)
-      ;;                   (concat (replace-regexp-in-string
-      ;;                            "  +" " "
-      ;;                            (replace-regexp-in-string
-      ;;                             "\n" "" (flycheck-error-message err)))
-      ;;                           "\0"))
-      ;;                 flycheck-current-errors)))
-      ;;       (ghc-flymake-insert-from-warning)
-      ;;       (while (or (eq ?  (char-syntax (char-after))) (eolp))
-      ;;         (delete-char 1))))
-      ;;    ((ghc-flymake-have-errs-p)
-      ;;     (ghc-flymake-insert-from-warning))
-      ;;    (t
-      ;;     (message "Nothing to be done"))))
-      )
-
-    (if haskell-config-use-unicode-symbols
-        (haskell-setup-unicode-conversions)))
-
+  (if haskell-config-use-unicode-symbols
+      (haskell-setup-unicode-conversions))
   :config
-  (progn
-    (setq ghc-hoogle-command hoogle-binary-path)
+  (setq ghc-hoogle-command hoogle-binary-path)
 
-    (use-package inf-haskell
-      :config
-      (add-hook 'inferior-haskell-mode-hook
-                (lambda ()
-                  (set (make-local-variable 'comint-prompt-regexp) "^>>> *"))))
+  (use-package inf-haskell
+    :config
+    (add-hook 'inferior-haskell-mode-hook
+              (lambda ()
+                (set (make-local-variable 'comint-prompt-regexp) "^>>> *"))))
 
-    (use-package haskell-bot :commands haskell-bot-show-bot-buffer)
-    (use-package hpaste :commands (hpaste-paste-buffer hpaste-paste-region))
-    (use-package helm-hoogle :commands helm-hoogle)))
+  (use-package haskell-bot :commands haskell-bot-show-bot-buffer)
+  (use-package hpaste :commands (hpaste-paste-buffer hpaste-paste-region))
+  (use-package helm-hoogle :commands helm-hoogle))
 
 (defun my-haskell-hoogle (query &optional arg)
   "Do a Hoogle search for QUERY."
