@@ -3144,6 +3144,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (use-package company-coq
+    :disabled t
     :load-path "site-lisp/company-coq"
     :commands company-coq-initialize
     :preface
@@ -3175,7 +3176,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
-       (company-coq-initialize)
+       ;; (company-coq-initialize)
        ))
 
     (bind-key "M-RET" #'proof-goto-point coq-mode-map)
