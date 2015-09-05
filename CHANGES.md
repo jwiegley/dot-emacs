@@ -1,6 +1,26 @@
 master (in development)
 =======================
 
+- Remove `flycheck-haskell-runhaskell` in favour of `flycheck-haskell-runghc`
+- Use `stack runghc` by default
+
+0.7.2 (Jun 02, 2015)
+====================
+
+- Don’t choke when a configuration key is missing [GH-37]
+
+0.7.1 (May 30, 2015)
+====================
+
+- Don’t choke when sandbox no is present [GH-35]
+- Don’t change GHC executable when compiler is not configured
+
+0.7 (May 28, 2015)
+==================
+
+- Extract compiler from `cabal.config` [GH-28] [GH-29]
+- Handle Cabal conditionals [GH-31]
+
 0.6 (Apr 04, 2015)
 ==================
 

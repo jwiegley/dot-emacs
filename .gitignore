@@ -1,6 +1,7 @@
 *.elc
 
 /get-cabal-configuration
+/get-flags
 
 /.cask/
 /dist/

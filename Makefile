@@ -13,7 +13,7 @@ export EMACS
 HS_BUILDDIR = build/hs
 EL_SRCS = flycheck-haskell.el
 EL_OBJS = $(EL_SRCS:.el=.elc)
-HS_SRCS = get-cabal-configuration.hs
+HS_SRCS = get-flags.hs get-cabal-configuration.hs
 HS_OBJS = $(HS_SRCS:.hs=)
 PACKAGE = flycheck-haskell-$(VERSION).tar
 
@@ -31,8 +31,8 @@ dist :
 	$(CASK) package
 
 # Test targets
-lint :
-	$(HLINT) $(HLINTFLAGS) $(HS_SRCS)
+lint : get-flags
+	$(HLINT) $(HLINTFLAGS) $(shell ./get-flags hlint) $(HS_SRCS)
 
 test : $(EL_OBJS)
 	$(CASK) exec $(EMACSBATCH) -l flycheck-haskell.elc \
@@ -62,6 +62,9 @@ clean-deps :
 
 %: %.hs
 	$(GHC) $(GHCFLAGS) -outputdir $(HS_BUILDDIR) -o $@ $<
+
+get-cabal-configuration: GHCFLAGS += $(shell ./get-flags)
+get-cabal-configuration: get-flags
 
 $(PKGDIR) : Cask
 	$(CASK) install
