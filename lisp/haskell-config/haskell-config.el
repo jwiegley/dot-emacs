@@ -385,10 +385,14 @@
 (defun my-haskell-mode-hook ()
   (whitespace-mode 1)
   (bug-reference-prog-mode 1)
+
   (use-package flycheck
     :init (flycheck-mode 1))
+
   (use-package flycheck-haskell
-    :init (flycheck-haskell-setup))
+    :load-path "site-lisp/flycheck-haskell"
+    :config (flycheck-haskell-setup))
+
   (flycheck-select-checker 'haskell-ghc)
 
   (set (make-local-variable 'comint-prompt-regexp) "^>>> *")
@@ -421,20 +425,13 @@
   (bind-key "C-c C-u" (lambda () (interactive)
                         (insert "undefined")) haskell-mode-map)
 
-  (defun reflycheck (&optional arg)
-    (interactive "P")
-    (when arg
-      (define-haskell-checkers-no-implicit-prelude))
-    (flycheck-buffer))
-
   (bind-key "C-x SPC" 'my-inferior-haskell-break haskell-mode-map)
   (bind-key "C-h C-i" 'my-inferior-haskell-find-haddock haskell-mode-map)
   (bind-key "C-c C-b" 'haskell-bot-show-bot-buffer haskell-mode-map)
   (bind-key "C-c C-d" 'ghc-browse-document haskell-mode-map)
   (bind-key "C-c C-k" 'inferior-haskell-kind haskell-mode-map)
   (bind-key "C-c C-r" 'inferior-haskell-load-and-run haskell-mode-map)
-  (bind-key "C-c C-c" 'flycheck-buffer haskell-mode-map)
-  (bind-key "C-c C" 'reflycheck haskell-mode-map)
+  (bind-key "C-c C" 'flycheck-buffer haskell-mode-map)
 
   (use-package haskell-edit)
   (bind-key "C-c M-q" 'haskell-edit-reformat haskell-mode-map)
@@ -445,6 +442,7 @@
 
   (bind-key "C-c C-s" 'ghc-insert-template haskell-mode-map)
   (bind-key "C-c C-p" 'my-haskell-pointfree haskell-mode-map)
+
   (bind-key "C-. y" 'insert-counting-putStrLn haskell-mode-map)
   (bind-key "C-. C-y" 'insert-counting-putStrLn haskell-mode-map)
 
@@ -457,7 +455,6 @@
   (unbind-key "M-t" haskell-mode-map)
 
   (bind-key "C-c C-h" 'my-haskell-hoogle haskell-mode-map)
-  (bind-key "A-M-h" 'my-haskell-hoogle haskell-mode-map)
   (bind-key "C-M-x" 'inferior-haskell-send-decl haskell-mode-map)
   (unbind-key "C-x C-d" haskell-mode-map))
 
@@ -480,8 +477,10 @@
                 (set (make-local-variable 'comint-prompt-regexp) "^>>> *"))))
 
   (use-package haskell-bot :commands haskell-bot-show-bot-buffer)
-  (use-package hpaste :commands (hpaste-paste-buffer hpaste-paste-region))
-  (use-package helm-hoogle :commands helm-hoogle))
+
+  (use-package helm-hoogle
+    :commands helm-hoogle
+    :init (bind-key "A-M-h" 'helm-hoogle haskell-mode-map)))
 
 (defun my-haskell-hoogle (query &optional arg)
   "Do a Hoogle search for QUERY."
