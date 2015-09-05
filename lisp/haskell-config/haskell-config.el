@@ -533,8 +533,10 @@
   (whitespace-mode 1)
   (bug-reference-prog-mode 1)
   ;; (flyparse-mode 1)
-  (require 'flycheck)
-  (flycheck-mode 1)
+  (use-package flycheck
+    :init (flycheck-mode 1))
+  (use-package flycheck-haskell
+    :init (flycheck-haskell-setup))
   (define-haskell-checkers)
   ;; (flycheck-select-checker 'haskell-hdevtools)
   (flycheck-select-checker 'haskell-ghc)
