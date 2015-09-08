@@ -432,7 +432,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if running-alternate-emacs
         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
       ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
       ))
    ((string= system-name "ubuntu")
     ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
