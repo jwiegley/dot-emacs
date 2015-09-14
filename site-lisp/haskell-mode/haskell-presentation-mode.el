@@ -42,6 +42,8 @@ SESSION as the current haskell-session."
          (buffer (get-buffer-create name)))
     (with-current-buffer buffer
       (haskell-presentation-mode)
+      (if (boundp 'shm-display-quarantine)
+          (set (make-local-variable 'shm-display-quarantine) nil))
       (let ((buffer-read-only nil))
         (erase-buffer)
         (insert (propertize "-- Hit `q' to close this window.\n\n"
