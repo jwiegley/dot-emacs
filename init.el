@@ -416,7 +416,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (cond ((eq display-name 'retina-imac) 975)
         (t 521)))
 (defvar emacs-min-height
-  (cond ((eq display-name 'retina-imac) 55)
+  (cond ((eq display-name 'retina-imac) 57)
         (t 44)))
 (defvar emacs-min-width 100)
 
