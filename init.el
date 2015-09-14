@@ -1140,22 +1140,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :preface
     (use-package parsebib :load-path "site-lisp/parsebib"))
 
-  (use-package latex-mode
+  (use-package latex
     :defer t
     :config
     (use-package preview)
-    (use-package ac-math)
+    (use-package ac-math
+      :disabled t
+      :config
+      (defun ac-latex-mode-setup ()
+        (nconc ac-sources
+               '(ac-source-math-unicode ac-source-math-latex
+                                        ac-source-latex-commands)))
 
-    (defun ac-latex-mode-setup ()
-      (nconc ac-sources
-             '(ac-source-math-unicode ac-source-math-latex
-                                      ac-source-latex-commands)))
+      (add-to-list 'ac-modes 'latex-mode)
+      (add-hook 'latex-mode-hook 'ac-latex-mode-setup))
 
-    (add-to-list 'ac-modes 'latex-mode)
-    (add-hook 'latex-mode-hook 'ac-latex-mode-setup)
-    (add-hook 'latex-mode-hook 'reftex-mode)
+    (add-hook 'LaTeX-mode-hook 'reftex-mode)
 
-    (info-lookup-add-help :mode 'latex-mode
+    (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
                           :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
                           :doc-spec '(("(latex2e)Concept Index" )
@@ -1975,6 +1977,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (guide-key-mode 1))
 
 (use-package haskell-config
+  :disabled t
   :load-path ("lisp/haskell-config"
               "site-lisp/haskell-mode")
   :mode ("\\.l?hs\\'" . haskell-mode)
@@ -1987,6 +1990,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (when (eobp)
       (insert "hdr")
       (yas-expand))))
+
+(use-package haskell-mode
+  :load-path "site-lisp/haskell-mode"
+  :mode ("\\.l?hs\\'" . haskell-mode)
+  :preface
+  (defun snippet (name)
+    (interactive "sName: ")
+    (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
+    (haskell-mode)
+    (goto-char (point-min))
+    (when (eobp)
+      (insert "hdr")
+      (yas-expand)))
+  :config
+  (defun my-haskell-mode-hook ()
+    (haskell-indentation-mode))
+
+  (add-hook 'haskell-mode-hook))
 
 (use-package helm-grep
   :commands helm-do-grep-1
