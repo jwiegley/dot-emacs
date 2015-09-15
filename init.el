@@ -187,16 +187,6 @@
 (bind-key "M-!" 'async-shell-command)
 (bind-key "M-'" 'insert-pair)
 (bind-key "M-\"" 'insert-pair)
-
-(defun align-code (beg end &optional arg)
-  (interactive "rP")
-  (if (null arg)
-      (align beg end)
-    (let ((end-mark (copy-marker end)))
-      (indent-region beg end-mark nil)
-      (align beg end-mark))))
-
-(bind-key "M-[" 'align-code)
 (bind-key "M-`" 'other-frame)
 
 (bind-key "M-j" 'delete-indentation-forward)
@@ -531,7 +521,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-c V" 'view-clipboard)
 (bind-key "C-c z" 'clean-buffer-list)
 
-(bind-key "C-c [" 'align-regexp)
 (bind-key "C-c =" 'count-matches)
 (bind-key "C-c ;" 'comment-or-uncomment-region)
 
@@ -1072,6 +1061,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package alert
   :load-path "lisp/alert"
   :commands alert)
+
+(use-package align
+  :bind (("M-["   . align-code)
+         ("C-c [" . align-regexp))
+  :commands align
+  :preface
+  (defun align-code (beg end &optional arg)
+    (interactive "rP")
+    (if (null arg)
+        (align beg end)
+      (let ((end-mark (copy-marker end)))
+        (indent-region beg end-mark nil)
+        (align beg end-mark)))))
 
 (use-package allout
   :disabled t
@@ -1976,24 +1978,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           "M-s"))
   (guide-key-mode 1))
 
-(use-package haskell-config
-  :disabled t
-  :load-path ("lisp/haskell-config"
-              "site-lisp/haskell-mode")
-  :mode ("\\.l?hs\\'" . haskell-mode)
-  :preface
-  (defun snippet (name)
-    (interactive "sName: ")
-    (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
-    (haskell-mode)
-    (goto-char (point-min))
-    (when (eobp)
-      (insert "hdr")
-      (yas-expand))))
-
-(use-package haskell-mode
+(use-package haskell-mode-autoloads
   :load-path "site-lisp/haskell-mode"
-  :mode ("\\.l?hs\\'" . haskell-mode)
+  :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
+         ("\\.lhs\\'" . literate-haskell-mode)
+         ("\\.cabal\\'" . haskell-cabal-mode))
   :preface
   (defun snippet (name)
     (interactive "sName: ")
@@ -2003,11 +1992,140 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (when (eobp)
       (insert "hdr")
       (yas-expand)))
-  :config
-  (defun my-haskell-mode-hook ()
-    (haskell-indentation-mode))
 
-  (add-hook 'haskell-mode-hook))
+  (defvar hoogle-server-process nil)
+  (defun my-haskell-hoogle (query &optional arg)
+    "Do a Hoogle search for QUERY."
+    (interactive
+     (let ((def (haskell-ident-at-point)))
+       (if (and def (symbolp def)) (setq def (symbol-name def)))
+       (list (read-string (if def
+                              (format "Hoogle query (default %s): " def)
+                            "Hoogle query: ")
+                          nil nil def)
+             current-prefix-arg)))
+    (unless (and hoogle-server-process
+                 (process-live-p hoogle-server-process))
+      (message "Starting local Hoogle server on port 8687...")
+      (with-current-buffer (get-buffer-create " *hoogle-web*")
+        (cd temporary-file-directory)
+        (setq hoogle-server-process
+              (start-process "hoogle-web" (current-buffer) "hoogle"
+                             "server" "--local" "--port=8687")))
+      (sleep-for 0 500)
+      (message "Starting local Hoogle server on port 8687...done"))
+    (browse-url
+     (format "http://localhost:8687/?hoogle=%s"
+             (replace-regexp-in-string
+              " " "+" (replace-regexp-in-string "\\+" "%2B" query)))))
+
+  (defun insert-scc-at-point ()
+    "Insert an SCC annotation at point."
+    (interactive)
+    (if (or (looking-at "\\b\\|[ \t]\\|$") (and (not (bolp))
+                                                (save-excursion
+                                                  (forward-char -1)
+                                                  (looking-at "\\b\\|[ \t]"))))
+        (let ((space-at-point (looking-at "[ \t]")))
+          (unless (and (not (bolp)) (save-excursion
+                                      (forward-char -1)
+                                      (looking-at "[ \t]")))
+            (insert " "))
+          (insert "{-# SCC \"\" #-}")
+          (unless space-at-point
+            (insert " "))
+          (forward-char (if space-at-point -5 -6)))
+      (error "Not over an area of whitespace")))
+
+  (defun kill-scc-at-point ()
+    "Kill the SCC annotation at point."
+    (interactive)
+    (save-excursion
+      (let ((old-point (point))
+            (scc "\\({-#[ \t]*SCC \"[^\"]*\"[ \t]*#-}\\)[ \t]*"))
+        (while (not (or (looking-at scc) (bolp)))
+          (forward-char -1))
+        (if (and (looking-at scc)
+                 (<= (match-beginning 1) old-point)
+                 (> (match-end 1) old-point))
+            (kill-region (match-beginning 0) (match-end 0))
+          (error "No SCC at point")))))
+
+  (defvar haskell-prettify-symbols-alist
+    '(("::"     . ?∷)
+      ("forall" . ?∀)
+      ("exists" . ?∃)
+      ("->"     . ?→)
+      ("<-"     . ?←)
+      ("=>"     . ?⇒)
+      ("~>"     . ?⇝)
+      ("<~"     . ?⇜)
+      ("."      . ?∘)
+      ("<>"     . ?⨂)
+      ("msum"   . ?⨁)
+      ("\\"     . ?λ)
+      ("not"    . ?¬)
+      ("&&"     . ?∧)
+      ("||"     . ?∨)
+      ("/="     . ?≠)
+      ("<="     . ?≤)
+      (">="     . ?≥)
+      ("<<<"    . ?⋘)
+      (">>>"    . ?⋙)
+
+      ("elem"             . ?∈)
+      ("notElem"          . ?∉)
+      ("member"           . ?∈)
+      ("notMember"        . ?∉)
+      ("union"            . ?∪)
+      ("intersection"     . ?∩)
+      ("isSubsetOf"       . ?⊆)
+      ("isProperSubsetOf" . ?⊂)
+      ("undefined"        . ?⊥)))
+
+  :config
+  (bind-key "C-c C-u" (lambda () (interactive) (insert "undefined")) haskell-mode-map)
+
+  (unbind-key "M-s" haskell-mode-map)
+  (unbind-key "M-t" haskell-mode-map)
+
+  (bind-key "C-c C-h" 'my-haskell-hoogle haskell-mode-map)
+  
+  (defun my-haskell-mode-hook ()
+    (haskell-indentation-mode)
+    (flycheck-mode)
+    (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+    (prettify-symbols-mode)
+    (bug-reference-prog-mode 1)
+    (whitespace-mode 1))
+  (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
+
+  (use-package flycheck-haskell
+    :load-path "site-lisp/flycheck-haskell"
+    :config
+    (flycheck-haskell-setup)
+    (bind-key "M-n" 'flycheck-next-error haskell-mode-map)
+    (bind-key "M-p" 'flycheck-previous-error haskell-mode-map))
+
+  (use-package haskell-edit
+    :load-path "lisp/haskell-config"
+    :config (bind-key "C-c M-q" 'haskell-edit-reformat haskell-mode-map))
+
+  (use-package helm-hoogle
+    :load-path "lisp/haskell-config"
+    :commands helm-hoogle
+    :config (bind-key "A-M-h" 'helm-hoogle haskell-mode-map))
+
+  (eval-after-load 'align
+    '(nconc
+      align-rules-list
+      (mapcar (lambda (x) `(,(car x)
+                       (regexp . ,(cdr x))
+                       (modes quote (haskell-mode literate-haskell-mode))))
+              '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
+                (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
+                (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
+                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
 (use-package helm-grep
   :commands helm-do-grep-1

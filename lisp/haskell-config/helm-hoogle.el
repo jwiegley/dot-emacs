@@ -39,9 +39,8 @@
 (defvar helm-c-source-hoogle
   '((name . "Hoogle")
     (candidates . helm-c-hoogle-set-candidates)
-    (action . (("Lookup Entry" . browse-url)))
-    (filtered-candidate-transformer . (lambda (candidates source)
-                                        candidates))
+    (action . (("Lookup Entry" . eww-browse-url)))
+    (filtered-candidate-transformer . (lambda (candidates source) candidates))
     (volatile)
     (delayed)))
 
@@ -56,7 +55,7 @@
             pattern))
          (lim helm-candidate-number-limit)
          (args (append (list "search" "-l")
-                       (and nil lim (list "-n" (int-to-string lim)))
+                       (and lim (list "-n" (int-to-string lim)))
                        (list short-pattern))))
     (let (candidates)
       (with-temp-buffer

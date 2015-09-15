@@ -227,7 +227,10 @@
  '(bmkp-crosshairs-flag nil)
  '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
  '(bookmark-default-file "~/Documents/bookmarks")
- '(browse-url-browser-function (quote ((".*" . browse-url-default-macosx-browser))))
+ '(browse-url-browser-function
+   (quote
+    (("osx-ghc" . eww-browse-url)
+     (".*" . browse-url-default-macosx-browser))))
  '(byte-compile-verbose nil)
  '(c-default-style
    (quote
@@ -592,19 +595,7 @@
  '(global-font-lock-mode t nil (font-lock))
  '(global-undo-tree-mode t)
  '(grep-find-command (quote ("ag --noheading --column --ignore branches " . 43)))
- '(haskell-check-command "hlintall")
- '(haskell-config-use-unicode-symbols t)
- '(haskell-doc-use-inf-haskell t)
- '(haskell-hoogle-command nil)
  '(haskell-indent-spaces 4)
- '(haskell-indentation-ifte-offset 4)
- '(haskell-indentation-layout-offset 4)
- '(haskell-indentation-left-offset 4)
- '(haskell-process-args-ghci (quote nil))
- '(haskell-process-suggest-remove-import-lines t)
- '(haskell-process-type (quote ghci))
- '(haskell-program-name "ghci")
- '(haskell-saved-check-command "~/.cabal/bin/hlint" t)
  '(helm-adaptive-history-file "~/.emacs.d/data/helm-adaptive-history")
  '(helm-buffers-fuzzy-matching t)
  '(helm-completing-read-handlers-alist
