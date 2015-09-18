@@ -2093,6 +2093,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
+    (interactive-haskell-mode)
     (flycheck-mode)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode)
@@ -2114,7 +2115,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-hoogle
     :load-path "lisp/haskell-config"
     :commands helm-hoogle
-    :config (bind-key "A-M-h" 'helm-hoogle haskell-mode-map))
+    :init (bind-key "A-M-h" 'helm-hoogle haskell-mode-map))
 
   (eval-after-load 'align
     '(nconc
@@ -3920,6 +3921,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
+  :demand t
   :diminish yas-minor-mode
   :commands (yas-expand yas-minor-mode)
   :functions (yas-guess-snippet-directories yas-table-name)
@@ -3952,6 +3954,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
+  (yas-global-mode 1)
 
   (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap))
 
