@@ -67,6 +67,10 @@
              (cfw:cal-create-source "Dark Orange"))
        :view 'two-weeks))))
 
+(use-package org-autolist
+  :load-path "site-lisp/org-autolist"
+  :commands org-autolist-mode)
+
 (use-package calfw
   :load-path "site-lisp/emacs-calfw"
   :bind ("C-c A" . my-calendar)
