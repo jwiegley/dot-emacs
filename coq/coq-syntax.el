@@ -1093,7 +1093,7 @@ It is used:
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
      (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
      ;; ", " is for multiple hypothesis diplayed in v8.5.
-     (cons "^ \\{0,2\\}\\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (cons "^ \\{0,1,2\\}\\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
      (list "^\\([^ \n]+\\) \\(is defined\\)" (list 1 'font-lock-function-name-face t)))))
 
 (defvar coq-goals-font-lock-keywords
@@ -1102,7 +1102,7 @@ It is used:
     (list
      (cons coq-reserved-regexp 'font-lock-type-face)
      (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
-     (cons "^ \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (cons "\\(^\\| *§\\)? \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
 
