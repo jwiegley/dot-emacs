@@ -1,36 +1,31 @@
-# git-gutter+.el
+git-gutter+.el
+==============
 
 View, stage and revert Git changes straight from the buffer.
 
-(`git-gutter+.el` is inspired by the [GitGutter](https://github.com/jisaacks/GitGutter)
-plugin for Sublime Text.)
+(This package is inspired by the [GitGutter](https://github.com/jisaacks/GitGutter)
+plugin for Sublime Text. It contains patches that haven't yet been added
+to [Git-Gutter](https://github.com/syohex/emacs-git-gutter).)
 
-![git-gutter](images/git-gutter-main.png)
+![git-gutter](images/stage-and-commit-animation.gif)
 
-## Changes since [Git-Gutter](https://github.com/syohex/emacs-git-gutter) 0.42
+[Changelog](#changelog-1)
+-----------
+Jump to [Changelog](#changelog-1).
 
-This package contains patches that haven't yet been added to [Git-Gutter](https://github.com/syohex/emacs-git-gutter).
-- Improved performance
-- Staging and committing hunks
-- A bug-free `git-gutter-fringe.el` and other fixes
-- The following interactive commands have been removed.
-  They are superseded by `git-gutter+-mode`.
-  - git-gutter
-  - git-gutter:toggle
-  - git-gutter:clear
-- Removed mode-on/off-hook variables
-- Renamed `git-gutter:diff-option` to `git-gutter:diff-options`
+Get Started
+-----------
 
-## Get Started
+Use the predefined [use-package setup](#use-package-setup) or follow these steps:
 
 * Install with package.el
 
-  Add [Marmalade](http://marmalade-repo.org) as a package source.
+  Add [MELPA](https://melpa.org/#/getting-started) as a package source.
   Run `M-x package-install git-gutter+`
 
 * Add the following to your .emacs file
 
-        (global-git-gutter+-mode t)
+        (global-git-gutter+-mode)
 
   If you want to disable git-gutter+ for some modes, set the variable
   `git-gutter+-disabled-modes`.
@@ -43,23 +38,29 @@ This package contains patches that haven't yet been added to [Git-Gutter](https:
 
 * Add keybindings
 
-        ;;; Jump between hunks
-        (global-set-key (kbd "C-x n") 'git-gutter+-next-hunk)
-        (global-set-key (kbd "C-x p") 'git-gutter+-previous-hunk)
-
-        ;;; Act on hunks
-        (global-set-key (kbd "C-x v =") 'git-gutter+-popup-hunk) ; Show detailed diff
-        (global-set-key (kbd "C-x r") 'git-gutter+-revert-hunk)
-        ;; Stage hunk at point.
-        ;; If region is active, stage all hunk lines within the region.
-        (global-set-key (kbd "C-x t") 'git-gutter+-stage-hunks)
-        (global-set-key (kbd "C-x c") 'git-gutter+-commit) ; Commit with Magit
-        (global-set-key (kbd "C-x C") 'git-gutter+-stage-and-commit)
-
         (global-set-key (kbd "C-x g") 'git-gutter+-mode) ; Turn on/off in the current buffer
         (global-set-key (kbd "C-x G") 'global-git-gutter+-mode) ; Turn on/off globally
 
-## [git-gutter-fringe+.el](https://github.com/nonsequitur/git-gutter-fringe-plus)
+        (eval-after-load 'git-gutter+
+          '(progn
+             ;;; Jump between hunks
+             (define-key git-gutter+-mode-map (kbd "C-x n") 'git-gutter+-next-hunk)
+             (define-key git-gutter+-mode-map (kbd "C-x p") 'git-gutter+-previous-hunk)
+
+             ;;; Act on hunks
+             (define-key git-gutter+-mode-map (kbd "C-x v =") 'git-gutter+-show-hunk)
+             (define-key git-gutter+-mode-map (kbd "C-x r") 'git-gutter+-revert-hunks)
+             ;; Stage hunk at point.
+             ;; If region is active, stage all hunk lines within the region.
+             (define-key git-gutter+-mode-map (kbd "C-x t") 'git-gutter+-stage-hunks)
+             (define-key git-gutter+-mode-map (kbd "C-x c") 'git-gutter+-commit)
+             (define-key git-gutter+-mode-map (kbd "C-x C") 'git-gutter+-stage-and-commit)
+             (define-key git-gutter+-mode-map (kbd "C-x C-y") 'git-gutter+-stage-and-commit-whole-buffer)
+             (define-key git-gutter+-mode-map (kbd "C-x U") 'git-gutter+-unstage-whole-buffer)))
+
+
+[git-gutter-fringe+.el](https://github.com/nonsequitur/git-gutter-fringe-plus)
+-----------------------
 
 ![git-gutter-fringe-minimal](https://raw.github.com/nonsequitur/git-gutter-fringe-plus/master/images/git-gutter-fringe-minimal.png)
 
@@ -79,12 +80,16 @@ These are the differences to the default margin display mode in git-gutter+:
 Enable git-gutter-fringe+ like this:
 
     M-x package-install git-gutter-fringe+
-    (require git-gutter-fringe+)
+    (require 'git-gutter-fringe+)
 
     ;; Optional: Activate minimal skin
     (git-gutter-fr+-minimal)
 
-## Commands
+To interactively disable/enable the fringe display mode, run
+`M-x git-gutter+-toggle-fringe`.
+
+Commands
+--------
 
 #### `git-gutter+-mode`
 Enable/disable git-gutter+ in the current buffer.
@@ -100,16 +105,22 @@ Jump to the next hunk.
 
 Jump to the previous hunk.
 
-#### `git-gutter+-popup-hunk`
+#### `git-gutter+-show-hunk`
 
 Show detailed diff for the hunk at point.
 
 The hunk info is updated when you call
 `git-gutter+-next-hunk` and `git-gutter+-previous-hunk`.
 
-#### `git-gutter+-revert-hunk`
+#### `git-gutter+-show-hunk-inline-at-point`
 
-Revert hunk at point.
+An alternative to `git-gutter+-show-hunk`.
+Shows the diff by expanding it at point, without opening a new buffer.
+
+#### `git-gutter+-revert-hunks`
+
+Revert hunk at point. If region is active, revert all hunks
+within the region.
 
 #### `git-gutter+-stage-hunks`
 
@@ -118,22 +129,132 @@ lines within the region.
 
 #### `git-gutter+-commit`
 
-Commit staged changes with Magit.
+Commit staged changes.
+If nothing is staged, ask to stage the current buffer.
 
 #### `git-gutter+-stage-and-commit`
 
 Calls `git-gutter+-stage-hunks` followed by `git-gutter+-commit`.
 
-## Requirements
+#### `git-gutter+-stage-and-commit-whole-buffer`
+
+Stages and commits the whole buffer.
+
+#### `git-gutter+-unstage-whole-buffer`
+
+Unstages all changes in the current buffer.
+Use this to undo any effects caused by `git-gutter+-stage-hunks`.
+
+Committing
+----------
+
+The commit message buffer is based on
+[git-commit](https://github.com/magit/magit/blob/master/lisp/git-commit.el).
+Besides the default `git-commit-mode` bindings, the following bindings
+are provided:
+
+* `C-c C-a` toggles the option to amend the previous commit.
+
+* `C-c C-e` toggles the option to allow an empty commit that
+  includes no changes.
+
+* `C-c C-u` toggles the option to edit the commit author.
+
+* `C-c C-d` toggles the option to edit the commit date.
+
+* `M-p`/`M-n` insert previous/next history commit message.
+
+`git-commit-ack` is re-bound to `C-c C-b`.
+
+Changelog
+---------
+### 0.4
+  * 2 enhancements:
+    * Added `git-gutter+-show-hunk-inline-at-point`
+    * The Readme now contains a `use-package` quick-start setup
+  * 2 fixes:
+    * Fixed `git-gutter+-unstage-whole-buffer` to only unstage changes from the current buffer
+    * Various code cleanups
+
+### 0.3
+  * 3 fixes:
+    * Fixed staging and committing with Tramp
+    * Fixed errors with symlinked files
+    * Support the latest version of `git-commit'
+
+### 0.2
+  * 2 enhancements:
+    * New interactive functions `git-gutter+-stage-and-commit-whole-buffer` and
+      `git-gutter+-unstage-whole-buffer`
+    * Refresh gutter when a buffer is staged or unstaged in Magit
+  * 4 fixes:
+    * `M-p` is now guaranteed to insert the message of the previous commit
+    * Fixed compatibility with current versions of `git-commit-mode`
+    * `git-gutter+-diff-args` is now properly handled as a list of strings
+    * Fixed extraneous window splits that occured when displaying staged changes
+      before committing
+
+### 0.1
+  * New commit interface based on git-commit-mode.
+    See section 'Committing' to learn more.
+  * Added `git-gutter+-mode-map`.
+    Consider migrating some of your global git-gutter+ bindings to the local
+    keymap.
+    See section 'Add keybindings' for an example.
+  * Properly support narrowed buffers
+  * Revert hunks within region (or hunk at point) with `git-gutter+-revert-hunks`
+    Please update your key binding.
+    (The old name 'git-gutter+-revert-hunk' is still accessible by an alias.)
+  * Renamed `git-gutter+-popup-hunk` to `git-gutter+-show-hunk`
+    Please update your key binding.
+    (The old name is still accessible by an alias.)
+  * Added customizable variable 'git-gutter+-git-executable'
+  * Package git-gutter-fringe+:
+    Added `git-gutter+-toggle-fringe` to enable/disable the fringe display mode.
+
+### 0.02 (Changes since [Git-Gutter](https://github.com/syohex/emacs-git-gutter) 0.42)
+  * Improved performance
+  * Staging and committing hunks
+  * A bug-free `git-gutter-fringe.el` and other fixes
+  * The following interactive commands have been removed.
+    They are superseded by `git-gutter+-mode`.
+    * git-gutter
+    * git-gutter-toggle
+    * git-gutter-clear
+  * Removed mode-on/off-hook variables
+  * Renamed `git-gutter-diff-option` to `git-gutter-diff-options`
+
+Requirements
+------------
 
 * Emacs 23 or higher
-* Magit, if you use the committing features.
 * [Git](http://git-scm.com/) 1.7.0 or higher
 
-## Tramp
+Tramp
+-----
+
 Git-Gutter supports TRAMP for remote file support.
 
-# This section of the manual hasn't yet been cleaned up.
+Use-Package Setup
+-----------------------
+
+    (use-package git-gutter+
+      :ensure t
+      :init (global-git-gutter+-mode)
+      :config (progn
+                (define-key git-gutter+-mode-map (kbd "C-x n") 'git-gutter+-next-hunk)
+                (define-key git-gutter+-mode-map (kbd "C-x p") 'git-gutter+-previous-hunk)
+                (define-key git-gutter+-mode-map (kbd "C-x v =") 'git-gutter+-show-hunk)
+                (define-key git-gutter+-mode-map (kbd "C-x r") 'git-gutter+-revert-hunks)
+                (define-key git-gutter+-mode-map (kbd "C-x t") 'git-gutter+-stage-hunks)
+                (define-key git-gutter+-mode-map (kbd "C-x c") 'git-gutter+-commit)
+                (define-key git-gutter+-mode-map (kbd "C-x C") 'git-gutter+-stage-and-commit)
+                (define-key git-gutter+-mode-map (kbd "C-x C-y") 'git-gutter+-stage-and-commit-whole-buffer)
+                (define-key git-gutter+-mode-map (kbd "C-x U") 'git-gutter+-unstage-whole-buffer))
+      :diminish (git-gutter+-mode . "gg"))
+
+This section of the manual hasn't yet been cleaned up. (But it's factually correct.)
+------------------------------------------------------------------------------------
 
 ## Customize
 

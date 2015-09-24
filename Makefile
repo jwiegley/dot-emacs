@@ -1,6 +1,21 @@
-.PHONY : test
-
 EMACS ?= emacs
+CASK ?= cask
 
-test:
-	$(EMACS) -Q -batch -L . -l test-git-gutter+.el -f ert-run-tests-batch-and-exit
+all: test
+
+test: clean-elc
+	${MAKE} unittest
+	${MAKE} compile
+	${MAKE} unittest
+	${MAKE} clean-elc
+
+unittest:
+	${CASK} exec ert-runner
+
+compile:
+	${CASK} build
+
+clean-elc:
+	rm -f *.elc
+
+.PHONY:	all test unittest compile
