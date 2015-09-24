@@ -4,8 +4,8 @@
 
 ;; Author: Syohei YOSHIDA <syohex@gmail.com> and contributors
 ;; URL: https://github.com/nonsequitur/git-gutter-fringe-plus
-;; Version: 0.01
-;; Package-Requires: ((git-gutter+ "0.01") (fringe-helper "20130519.1641"))
+;; Version: 0.0.2
+;; Package-Requires: ((git-gutter+ "0.1") (fringe-helper "1.0.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,17 +31,17 @@
 (require 'fringe-helper)
 
 (defface git-gutter-fr+-modified
-    '((t (:foreground "magenta" :weight bold)))
+    '((t (:inherit git-gutter+-modified)))
   "Face of modified"
   :group 'git-gutter+)
 
 (defface git-gutter-fr+-added
-    '((t (:foreground "green" :weight bold)))
+    '((t (:inherit git-gutter+-added)))
   "Face of added"
   :group 'git-gutter+)
 
 (defface git-gutter-fr+-deleted
-    '((t (:foreground "red" :weight bold)))
+    '((t (:inherit git-gutter+-deleted)))
   "Face of deleted"
   :group 'git-gutter+)
 
@@ -125,10 +125,6 @@
   (mapc 'git-gutter-fr+-clear-overlay git-gutter-fr+-bitmap-references)
   (setq git-gutter-fr+-bitmap-references nil))
 
-(setq git-gutter+-view-diff-function 'git-gutter-fr+-view-diff-infos
-      git-gutter+-clear-function 'git-gutter-fr+-clear
-      git-gutter+-window-config-change-function nil)
-
 (defun git-gutter-fr+-minimal ()
   (fringe-helper-define 'git-gutter-fr+-added nil
     "........"
@@ -167,6 +163,32 @@
   (set-face-attribute 'git-gutter-fr+-added    nil :foreground "grey50")
   (set-face-attribute 'git-gutter-fr+-deleted  nil :foreground "grey50")
   (set-face-attribute 'git-gutter-fr+-modified nil :foreground "grey50"))
+
+(defun git-gutter+-enable-fringe-display-mode ()
+  (setq git-gutter+-view-diff-function 'git-gutter-fr+-view-diff-infos
+        git-gutter+-clear-function     'git-gutter-fr+-clear
+        git-gutter+-window-config-change-function nil))
+
+(defun git-gutter+-toggle-fringe ()
+  (interactive)
+  (let ((old-clear-fn git-gutter+-clear-function))
+    (if (eq old-clear-fn 'git-gutter-fr+-clear)
+        (git-gutter+-enable-default-display-mode)
+      (git-gutter+-enable-fringe-display-mode))
+
+    (git-gutter+-in-all-buffers
+     (when git-gutter+-mode
+       (git-gutter+-set-window-margin 0)
+       (remove-hook 'window-configuration-change-hook 'git-gutter+-show-gutter t)
+
+       (funcall old-clear-fn)
+       (funcall git-gutter+-view-diff-function git-gutter+-diffinfos)
+
+       (if git-gutter+-window-config-change-function
+           (add-hook 'window-configuration-change-hook
+                     git-gutter+-window-config-change-function nil t))))))
+
+(git-gutter+-enable-fringe-display-mode)
 
 (provide 'git-gutter-fringe+)
 

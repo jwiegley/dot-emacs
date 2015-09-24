@@ -23,7 +23,13 @@ It uses the buffer fringe instead of the buffer margin.
 
 * Add this to your .emacs file:
 
-        (require git-gutter-fringe+)
+        (require 'git-gutter-fringe+)
+
+ The fringe display mode is automatically activated.
+
+## Disabling/Enabling
+
+Run `M-x git-gutter+-toggle-fringe` to disable/enable the fringe display mode.
 
 ## Minimal skin
 
@@ -39,8 +45,17 @@ Features smaller, greyscale diff symbols. Activate it with
 
 ![git-gutter-fringe-customize](images/git-gutter-fringe-customize.png)
 
-You can change faces like following.
+You can customize the colors of modified, added, and deleted fringe marks either by
+modifying the faces from git-gutter+ or directly using the git-gutter-fr+ faces.
 
+Using the fact git-gutter-fr+ faces are inherited from git-gutter+:
+```elisp
+(set-face-foreground 'git-gutter+-modified "yellow")
+(set-face-foreground 'git-gutter+-added    "blue")
+(set-face-foreground 'git-gutter+-deleted  "white")
+```
+
+Or directly, to allow different colors for git-gutter-fr+ and git-gutter+:
 ```elisp
 (set-face-foreground 'git-gutter-fr+-modified "yellow")
 (set-face-foreground 'git-gutter-fr+-added    "blue")
