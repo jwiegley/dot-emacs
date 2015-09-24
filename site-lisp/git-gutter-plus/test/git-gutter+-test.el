@@ -1,4 +1,4 @@
-;;; test-git-gutter+.el --- Test for git-gutter+.el
+;;; test-git-gutter+.el --- Test for git-gutter+.el -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013 by Syohei YOSHIDA
 
@@ -33,10 +33,6 @@
     (let ((expected (expand-file-name default-directory))
           (got (git-gutter+-root-directory file)))
       (should (string= expected got)))
-
-    ;; temporary directory maybe be version-controled
-    (let ((default-directory temporary-file-directory))
-      (should (null (git-gutter+-root-directory file))))
 
     ;; Files in .git/ directory are not version-controled
     (let ((default-directory (concat default-directory ".git/")))
