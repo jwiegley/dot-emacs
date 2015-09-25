@@ -2463,8 +2463,9 @@ First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
   (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting the good frame
-    (with-selected-frame pg-frame
-      (let ((goal-win (get-buffer-window proof-goals-buffer)))
+    (with-selected-frame (or pg-frame (window-frame))
+      ;; prefer current frame
+      (let ((goal-win (or (get-buffer-window proof-goals-buffer) (get-buffer-window proof-goals-buffer t))))
         (if goal-win
             (with-selected-window goal-win
               ;; find snd goal or buffer end
@@ -2538,6 +2539,7 @@ number of hypothesis displayed, without hiding the goal"
 (defun coq-optimise-resp-windows ()
   "Resize response buffer to optimal size.
 Only when three-buffer-mode is enabled."
+  ;; If there is no frame with goql+response then do nothing
   (when (and proof-three-window-enable (coq-find-threeb-frames))    
     (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting one adequat frame
       (with-selected-frame pg-frame
