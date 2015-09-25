@@ -491,7 +491,7 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
     ;; frames (NB: loses if user has switched buffer in special frame)
     (if (and proof-multiple-frames-enable
 	     proof-shell-fiddle-frames)
-	(proof-delete-other-frames))
+	(proof-delete-all-associated-windows))
 
     ;; Kill associated buffer
     (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks

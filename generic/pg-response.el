@@ -184,6 +184,18 @@ Following POLICY, which can be one of 'smart, 'horizontal,
        proof-script-buffer proof-goals-buffer proof-response-buffer
        policy))))
 
+
+(defun proof-delete-all-associated-windows ()
+  "Delete windows (and maybe frames) showing associated buffers.
+Delete a frame if it displays only associated buffers, unless it
+is the only frame (try to bury buffers then)."
+  (mapc (lambda (w)
+	  ;; try to delete window, or frame, or only bury buffer
+	  (if (not (frame-root-window-p w)) (delete-window w)
+	    (if (< 1 (length (frame-list))) (delete-frame (window-frame w))
+	      (window--display-buffer (other-buffer) w 'window))))
+	(proof-find-all-associated-windows)))
+
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")
 
@@ -250,7 +262,7 @@ dragging the separating bars.
    (proof-three-window-enable ; single frame
     ;; If we are coming from multiple frame mode, delete associated
     ;; frames (and only them).
-    (proof-delete-other-frames)
+    (proof-delete-all-associated-windows)
     (set-window-dedicated-p (selected-window) nil)
     (proof-display-three-b proof-three-window-mode-policy))
    ;; Two-of-three window mode.
@@ -258,9 +270,8 @@ dragging the separating bars.
    (t
     ;; If we are coming from multiple frame mode, delete associated
     ;; frames (and only them).
-    (proof-delete-other-frames)
+    (proof-delete-all-associated-windows)
     (set-window-dedicated-p (selected-window) nil)
-    (delete-other-windows)
     (if (buffer-live-p proof-response-buffer)
 	(proof-display-and-keep-buffer proof-response-buffer nil 'force))))
   (pg-hint (pg-response-buffers-hint)))

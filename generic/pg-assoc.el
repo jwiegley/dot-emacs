@@ -52,5 +52,22 @@ Dead or nil buffers are not represented in the list."
       (setq bufs (cdr bufs)))
     wins))
 
+
+(defun proof-associated-buffer-p (b) (member b (proof-associated-buffers)))
+
+
+(defun proof-filter-associated-windows (lw)
+  "Remove windows of LW not displaying at least one associated buffer."
+  (remove-if-not (lambda (w) (proof-associated-buffer-p (window-buffer w))) lw))
+
+(defun proof-find-all-associated-windows ()
+  "Return the list of windows displaying an associated buffer."
+  (proof-filter-associated-windows (window-list-1 nil nil t)))
+
+(defun proof-find-all-associated-frames ()
+  "Return the list of frames displaying at least one associated buffer."
+  (remove-if-not (lambda (f) (proof-filter-associated-windows (window-list f)))
+		 (frame-list)))
+
 (provide 'pg-assoc)
 ;;; pg-assoc.el ends here
