@@ -349,6 +349,16 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 ;; Auxiliary code for Coq modes
 ;;
 
+;; finding the main frame of pg.
+(defun coq-find-threeb-frames ()
+  "Return a list of frames displaying both response and goals buffers."
+  (let* ((wins-resp (get-buffer-window-list proof-response-buffer nil t))
+         (wins-gls (get-buffer-window-list proof-goals-buffer nil t))
+         (frame-resp (cl-mapcar 'window-frame wins-resp))
+         (frame-gls (cl-mapcar 'window-frame wins-gls)))
+    (filtered-frame-list (lambda (x) (and (member x frame-resp) (member x frame-gls))))))
+
+
 (defun coq-remove-trailing-blanks (s)
   (let ((pos (string-match "\\s-*\\'" s)))
     (substring s 0 pos)))
@@ -2452,16 +2462,18 @@ buffer."
 First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
-  (let ((goal-win (get-buffer-window proof-goals-buffer)))
-    (if goal-win
-        (with-selected-window goal-win
-          ;; find snd goal or buffer end
-          (search-forward-regexp "subgoal 2\\|\\'")
-          (beginning-of-line)
-          ;; find something else than a space
-          (ignore-errors (search-backward-regexp "\\S-"))
-          (recenter (- 1)) ; put it at bottom og window
-          (beginning-of-line)))))
+  (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting the good frame
+    (with-selected-frame pg-frame
+      (let ((goal-win (get-buffer-window proof-goals-buffer)))
+        (if goal-win
+            (with-selected-window goal-win
+              ;; find snd goal or buffer end
+              (search-forward-regexp "subgoal 2\\|\\'")
+              (beginning-of-line)
+              ;; find something else than a space
+              (ignore-errors (search-backward-regexp "\\S-"))
+              (recenter (- 1)) ; put it at bottom og window
+              (beginning-of-line)))))))
 
 (defvar coq-modeline-string2 ")")
 (defvar coq-modeline-string1 ")")
@@ -2515,35 +2527,38 @@ number of hypothesis displayed, without hiding the goal"
 ;; three window mode needs to be called when starting the script
 (add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
 
+
 ;; *Experimental* auto shrink response buffer in three windows mode. Things get
 ;; a bit messed up if the response buffer is not at the right place (below
 ;; goals buffer) TODO: Have this linked to proof-resize-window-tofit in
 ;; proof-utils.el + customized by the "shrink to fit" menu entry
 ;;  + have it on by default when in three windows mode.
+;; The philosophy is that if goals and response are on the same column, their
+;; cumulated size should not change.
 (defun coq-optimise-resp-windows ()
   "Resize response buffer to optimal size.
 Only when three-buffer-mode is enabled."
-  (when (and proof-three-window-enable
-             (> (frame-height) 10)
-             (get-buffer-window proof-response-buffer)
-             (and proof-script-buffer (get-buffer-window proof-script-buffer)))
-    (let (;; maxhgth is the max height of both resp and goals buffers to avoid
-          ;; make the other disappear
-          (maxhgth (with-selected-window (get-buffer-window proof-script-buffer)
-                       (- (window-text-height) window-min-height)))
-          hgt-resp nline-resp)
-      (with-selected-window (get-buffer-window proof-response-buffer)
-        (setq hgt-resp (window-text-height))
-        (with-current-buffer proof-response-buffer
-          (setq nline-resp ; number of lines we want for response buffer
-                (min maxhgth (max window-min-height ; + 1 for comfort
-                                  (+ 1 (count-lines (point-max) (point-min)))))))
-        (unless (is-not-split-vertic (selected-window))
-          (shrink-window (- hgt-resp nline-resp)))
-        (with-current-buffer proof-response-buffer
-          (goto-char (point-min))
-          (recenter))
-        ))))
+  (when (and proof-three-window-enable (coq-find-threeb-frames))    
+    (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting one adequat frame
+      (with-selected-frame pg-frame
+        (when (and (> (frame-height) 10)
+                   (get-buffer-window proof-response-buffer))
+          (let ((maxhgth
+                 (- (+ (with-selected-window (get-buffer-window proof-goals-buffer t) (window-text-height))
+                       (with-selected-window (get-buffer-window proof-response-buffer t) (window-text-height)))
+                    window-min-height))
+                hgt-resp nline-resp)
+            (with-selected-window (get-buffer-window proof-response-buffer)
+              (setq hgt-resp (window-text-height))
+              (with-current-buffer proof-response-buffer
+                (setq nline-resp ; number of lines we want for response buffer
+                      (min maxhgth (max window-min-height ; + 1 for comfort
+                                        (+ 1 (count-lines (point-max) (point-min)))))))
+              (unless (is-not-split-vertic (selected-window))
+                (shrink-window (- hgt-resp nline-resp)))
+              (with-current-buffer proof-response-buffer
+                (goto-char (point-min))
+                (recenter)))))))))
 
 
 
