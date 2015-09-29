@@ -2065,12 +2065,14 @@ mouse activation."
 Based on idea mentioned in Coq reference manual."
   (interactive)
   (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
-         (intros (replace-regexp-in-string "^\\([^\n]+\\)\n"  "intros \\1." shints t)))
+         ;; insert a dot before the trailing \n and put intros at begining
+         (intros (concat "intros " (substring shints 0 (- (length shints) 1)) ".\n")))
     (if (or (< (length shints) 2);; empty response is just NL
             (string-match coq-error-regexp shints))
         (error "Don't know what to intro")
-      (insert intros)
-      (indent-according-to-mode))))
+      (let ((pt (point)))
+        (insert intros)
+        (indent-region pt (point))))))
 
 
 (defvar coq-commands-accepting-as (regexp-opt '("induction" "destruct" "inversion" "injection")))
