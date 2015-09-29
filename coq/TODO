@@ -7,47 +7,36 @@ eval x in y        : commande
 unfold x in y      : tactique
 
 
-** important: Have an option for indenting style:
+** important: fix indention of definitions:
 
 Current behavior:
 
-Lemma foo: forall x,
-            f x = 0.
+function foo bar1 bar2
+    	 bar3
 
-and: 
+Should be
 
-functionfoo bar1 bar2
-    	    bar3
+function foo bar1 bar2
+  <>bar3
+(<> length parameterized by coq-smie-after-bolp-indentation)
+or
 
+function foo bar1 bar2
+             bar3
 
-Commonly used behavior:
+depending on an option (coq-indent-box-style).
 
-Lemma foo: forall x,
-  f x = 0.
+** Fix indentation of ;
 
-and
+Current behavior:
 
-functionfoo bar1 bar2
-  bar3
+idtac ;
+  idtac.
 
+but:
 
-** (less important) Indent correctly this:
-
-Proof with auto.
-           intro.
-
-instead of:
-
-Proof with auto.
-  intro.
-
-
-Workaroud for the moment, write the script like this:
-
-Proof with
-  auto.
-  intro.
-
+idtac; idtac;
+idtac.
 
 ** dealing with several project files.
 
