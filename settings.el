@@ -596,6 +596,12 @@
  '(global-undo-tree-mode t)
  '(grep-find-command (quote ("ag --noheading --column --ignore branches " . 43)))
  '(haskell-indent-spaces 4)
+ '(haskell-indentation-ifte-offset 4)
+ '(haskell-indentation-layout-offset 4)
+ '(haskell-indentation-left-offset 4)
+ '(haskell-indentation-starter-offset 4)
+ '(haskell-indentation-where-post-offset 4)
+ '(haskell-indentation-where-pre-offset 4)
  '(helm-adaptive-history-file "~/.emacs.d/data/helm-adaptive-history")
  '(helm-buffers-fuzzy-matching t)
  '(helm-completing-read-handlers-alist

@@ -2068,7 +2068,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ("=>"     . ?⇒)
       ("~>"     . ?⇝)
       ("<~"     . ?⇜)
-      ("."      . ?∘)
+      ;; ("."      . ?∘)
       ("<>"     . ?⨂)
       ("msum"   . ?⨁)
       ("\\"     . ?λ)
@@ -2092,6 +2092,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ("undefined"        . ?⊥)))
 
   :config
+  (require 'haskell-mode)
+  (require 'haskell-font-lock)
+
   (bind-key "C-c C-u" (lambda () (interactive) (insert "undefined")) haskell-mode-map)
 
   (unbind-key "M-s" haskell-mode-map)
