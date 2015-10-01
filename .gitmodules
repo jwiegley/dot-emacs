@@ -19,3 +19,6 @@
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config
+[submodule "site-lisp/haskell-mode"]
+	path = site-lisp/haskell-mode
+	url = git://github.com/haskell/haskell-mode.git
