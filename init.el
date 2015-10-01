@@ -37,8 +37,8 @@
 ;;; Utility macros and functions
 
 ;; support textexpander (jww (2015-03-24): check if it's running)
-(bind-key "A-v" 'scroll-down)
-(bind-key "M-v" 'yank)
+(bind-key "A-v" #'scroll-down)
+(bind-key "M-v" #'yank)
 
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
@@ -162,9 +162,9 @@
 
 (defvar ctl-period-map)
 (define-prefix-command 'ctl-period-map)
-(bind-key "C-." 'ctl-period-map)
+(bind-key "C-." #'ctl-period-map)
 
-(bind-key* "<C-return>" 'other-window)
+(bind-key* "<C-return>" #'other-window)
 
 (defun collapse-or-expand ()
   (interactive)
@@ -172,7 +172,7 @@
       (delete-other-windows)
     (bury-buffer)))
 
-(bind-key "C-z" 'delete-other-windows)
+(bind-key "C-z" #'delete-other-windows)
 
 ;;; M-
 
@@ -184,15 +184,15 @@
               (with-current-buffer buf
                 (rename-uniquely)))))))
 
-(bind-key "M-!" 'async-shell-command)
-(bind-key "M-'" 'insert-pair)
-(bind-key "M-\"" 'insert-pair)
-(bind-key "M-`" 'other-frame)
+(bind-key "M-!" #'async-shell-command)
+(bind-key "M-'" #'insert-pair)
+(bind-key "M-\"" #'insert-pair)
+(bind-key "M-`" #'other-frame)
 
-(bind-key "M-j" 'delete-indentation-forward)
-(bind-key "M-J" 'delete-indentation)
+(bind-key "M-j" #'delete-indentation-forward)
+(bind-key "M-J" #'delete-indentation)
 
-(bind-key "M-W" 'mark-word)
+(bind-key "M-W" #'mark-word)
 
 (defun mark-line (&optional arg)
   (interactive "p")
@@ -203,19 +203,19 @@
     (set-mark (point))
     (goto-char here)))
 
-(bind-key "M-L" 'mark-line)
+(bind-key "M-L" #'mark-line)
 
 (defun mark-sentence (&optional arg)
   (interactive "P")
   (backward-sentence)
   (mark-end-of-sentence arg))
 
-(bind-key "M-S" 'mark-sentence)
-(bind-key "M-X" 'mark-sexp)
-(bind-key "M-D" 'mark-defun)
+(bind-key "M-S" #'mark-sentence)
+(bind-key "M-X" #'mark-sexp)
+(bind-key "M-D" #'mark-defun)
 
-(bind-key "M-g c" 'goto-char)
-(bind-key "M-g l" 'goto-line)
+(bind-key "M-g c" #'goto-char)
+(bind-key "M-g l" #'goto-line)
 
 (defun delete-indentation-forward ()
   (interactive)
@@ -223,15 +223,15 @@
 
 ;;; M-C-
 
-(bind-key "<C-M-backspace>" 'backward-kill-sexp)
+(bind-key "<C-M-backspace>" #'backward-kill-sexp)
 
 ;;; ctl-x-map
 
 ;;; C-x
 
-(bind-key "C-x d" 'delete-whitespace-rectangle)
-(bind-key "C-x F" 'set-fill-column)
-(bind-key "C-x t" 'toggle-truncate-lines)
+(bind-key "C-x d" #'delete-whitespace-rectangle)
+(bind-key "C-x F" #'set-fill-column)
+(bind-key "C-x t" #'toggle-truncate-lines)
 
 (defun delete-current-buffer-file ()
   "Delete the current buffer and the file connected with it"
@@ -246,7 +246,7 @@
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
-(bind-key "C-x K" 'delete-current-buffer-file)
+(bind-key "C-x K" #'delete-current-buffer-file)
 
 ;;; C-x C-
 
@@ -265,19 +265,19 @@
       (open-line 1)
       (insert line-text))))
 
-(bind-key "C-x C-d" 'duplicate-line)
-(bind-key "C-x C-e" 'pp-eval-last-sexp)
-(bind-key "C-x C-n" 'next-line)
+(bind-key "C-x C-d" #'duplicate-line)
+(bind-key "C-x C-e" #'pp-eval-last-sexp)
+(bind-key "C-x C-n" #'next-line)
 
 (defun find-alternate-file-with-sudo ()
   (interactive)
   (find-alternate-file (concat "/sudo::" (buffer-file-name))))
 
-(bind-key "C-x C-v" 'find-alternate-file-with-sudo)
+(bind-key "C-x C-v" #'find-alternate-file-with-sudo)
 
 ;;; C-x M-
 
-(bind-key "C-x M-n" 'set-goal-column)
+(bind-key "C-x M-n" #'set-goal-column)
 
 (defun refill-paragraph (arg)
   (interactive "*P")
@@ -312,14 +312,14 @@
       (funcall fun nil))
     (goto-char (+ end 2))))
 
-(bind-key "C-x M-q" 'refill-paragraph)
+(bind-key "C-x M-q" #'refill-paragraph)
 
 ;;; mode-specific-map
 
 ;;; C-c
 
-(bind-key "C-c <tab>" 'ff-find-other-file)
-(bind-key "C-c SPC" 'just-one-space)
+(bind-key "C-c <tab>" #'ff-find-other-file)
+(bind-key "C-c SPC" #'just-one-space)
 
 (defmacro recursive-edit-preserving-window-config (body)
   "*Return a command that enters a recursive edit after executing BODY.
@@ -349,7 +349,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (kill-line arg)
     (goto-char here)))
 
-(bind-key "C-c d" 'delete-current-line)
+(bind-key "C-c d" #'delete-current-line)
 
 (defun do-eval-buffer ()
   (interactive)
@@ -375,7 +375,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("s" . scratch)
            ("z" . byte-recompile-directory))
 
-(bind-key "C-c f" 'flush-lines)
+(bind-key "C-c f" #'flush-lines)
 
 (defun goto-line-with-feedback ()
   "Show line numbers temporarily, while prompting for the line number input"
@@ -387,10 +387,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (forward-line (read-number "Goto line: ")))
     (linum-mode -1)))
 
-(bind-key "C-c g" 'goto-line)
+(bind-key "C-c g" #'goto-line)
 (global-set-key [remap goto-line] 'goto-line-with-feedback)
 
-(bind-key "C-c k" 'keep-lines)
+(bind-key "C-c k" #'keep-lines)
 
 (eval-when-compile
   (defvar emacs-min-height)
@@ -472,7 +472,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (emacs-min)
     (emacs-max)))
 
-(bind-key "C-c m" 'emacs-toggle-size)
+(bind-key "C-c m" #'emacs-toggle-size)
 
 (defcustom user-initials nil
   "*Initials of this user."
@@ -497,17 +497,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (insert (format "%s (%s): " user-initials
                   (format-time-string "%Y-%m-%d" (current-time)))))
 
-(bind-key "C-c n" 'insert-user-timestamp)
-(bind-key "C-c o" 'customize-option)
-(bind-key "C-c O" 'customize-group)
-(bind-key "C-c F" 'customize-face)
+(bind-key "C-c n" #'insert-user-timestamp)
+(bind-key "C-c o" #'customize-option)
+(bind-key "C-c O" #'customize-group)
+(bind-key "C-c F" #'customize-face)
 
-(bind-key "C-c q" 'fill-region)
-(bind-key "C-c r" 'replace-regexp)
-(bind-key "C-c s" 'replace-string)
-(bind-key "C-c u" 'rename-uniquely)
+(bind-key "C-c q" #'fill-region)
+(bind-key "C-c r" #'replace-regexp)
+(bind-key "C-c s" #'replace-string)
+(bind-key "C-c u" #'rename-uniquely)
 
-(bind-key "C-c v" 'ffap)
+(bind-key "C-c v" #'ffap)
 
 (defun view-clipboard ()
   (interactive)
@@ -518,11 +518,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (clipboard-yank)
     (goto-char (point-min))))
 
-(bind-key "C-c V" 'view-clipboard)
-(bind-key "C-c z" 'clean-buffer-list)
+(bind-key "C-c V" #'view-clipboard)
+(bind-key "C-c z" #'clean-buffer-list)
 
-(bind-key "C-c =" 'count-matches)
-(bind-key "C-c ;" 'comment-or-uncomment-region)
+(bind-key "C-c =" #'count-matches)
+(bind-key "C-c ;" #'comment-or-uncomment-region)
 
 ;;; C-c C-
 
@@ -530,7 +530,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (interactive)
   (kill-region (point) (point-max)))
 
-(bind-key "C-c C-z" 'delete-to-end-of-buffer)
+(bind-key "C-c C-z" #'delete-to-end-of-buffer)
+
+(defun copy-current-buffer-name ()
+  (interactive)
+  (let ((name (buffer-file-name)))
+    (kill-new name)
+    (message name)))
+
+(bind-key "C-c C-0" #'copy-current-buffer-name)
 
 ;;; C-c M-
 
@@ -556,7 +564,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
           (replace-match " " nil nil nil 1))))))
 
-(bind-key "C-c M-q" 'unfill-paragraph)
+(bind-key "C-c M-q" #'unfill-paragraph)
 
 (defun unfill-region (beg end)
   (interactive "r")
@@ -571,23 +579,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 ;;; C-.
 
-(bind-key "C-. m" 'kmacro-keymap)
+(bind-key "C-. m" #'kmacro-keymap)
 
-(bind-key "C-. C-i" 'indent-rigidly)
+(bind-key "C-. C-i" #'indent-rigidly)
 
 ;;; help-map
 
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 
-(bind-key "C-h e" 'lisp-find-map)
+(bind-key "C-h e" #'lisp-find-map)
 
 ;;; C-h e
 
-(bind-key "C-h e c" 'finder-commentary)
-(bind-key "C-h e e" 'view-echo-area-messages)
-(bind-key "C-h e f" 'find-function)
-(bind-key "C-h e F" 'find-face-definition)
+(bind-key "C-h e c" #'finder-commentary)
+(bind-key "C-h e e" #'view-echo-area-messages)
+(bind-key "C-h e f" #'find-function)
+(bind-key "C-h e F" #'find-face-definition)
 
 (defun my-switch-in-other-buffer (buf)
   (when buf
@@ -626,10 +634,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ;;(switch-in-other-buffer cust-buf)
     (balance-windows)))
 
-(bind-key "C-h e d" 'my-describe-symbol)
-(bind-key "C-h e i" 'info-apropos)
-(bind-key "C-h e k" 'find-function-on-key)
-(bind-key "C-h e l" 'find-library)
+(bind-key "C-h e d" #'my-describe-symbol)
+(bind-key "C-h e i" #'info-apropos)
+(bind-key "C-h e k" #'find-function-on-key)
+(bind-key "C-h e l" #'find-library)
 
 (defvar lisp-modes '(emacs-lisp-mode
                      inferior-emacs-lisp-mode
@@ -658,9 +666,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
-(bind-key "C-h e s" 'scratch)
-(bind-key "C-h e v" 'find-variable)
-(bind-key "C-h e V" 'apropos-value)
+(bind-key "C-h e s" #'scratch)
+(bind-key "C-h e v" #'find-variable)
+(bind-key "C-h e V" #'apropos-value)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; jww (2015-03-24): Move all of the above into declarations                ;;
@@ -763,17 +771,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ;;(doxymacs-mode 1)
     ;;(doxymacs-font-lock)
 
-    (bind-key "<return>" 'newline-and-indent c-mode-base-map)
+    (bind-key "<return>" #'newline-and-indent c-mode-base-map)
 
     (unbind-key "M-j" c-mode-base-map)
-    (bind-key "C-c C-i" 'c-includes-current-file c-mode-base-map)
-    (bind-key "C-c C-y" 'my-paste-as-check c-mode-base-map)
+    (bind-key "C-c C-i" #'c-includes-current-file c-mode-base-map)
+    (bind-key "C-c C-y" #'my-paste-as-check c-mode-base-map)
 
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indicate-empty-lines t)
     (setq fill-column 72)
 
-    (bind-key "M-q" 'c-fill-paragraph c-mode-base-map)
+    (bind-key "M-q" #'c-fill-paragraph c-mode-base-map)
 
     (let ((bufname (buffer-file-name)))
       (when bufname
@@ -784,7 +792,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (c-set-style "ti")
           (substitute-key-definition 'fill-paragraph 'ti-refill-comment
                                      c-mode-base-map global-map)
-          (bind-key "M-q" 'ti-refill-comment c-mode-base-map))
+          (bind-key "M-q" #'ti-refill-comment c-mode-base-map))
          ((string-match "/edg/" bufname)
           (c-set-style "edg"))
          (t
@@ -798,18 +806,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (setq c-syntactic-indentation nil)
 
-  (bind-key "#" 'self-insert-command c-mode-base-map)
-  (bind-key "{" 'self-insert-command c-mode-base-map)
-  (bind-key "}" 'self-insert-command c-mode-base-map)
-  (bind-key "/" 'self-insert-command c-mode-base-map)
-  (bind-key "*" 'self-insert-command c-mode-base-map)
-  (bind-key ";" 'self-insert-command c-mode-base-map)
-  (bind-key "," 'self-insert-command c-mode-base-map)
-  (bind-key ":" 'self-insert-command c-mode-base-map)
-  (bind-key "(" 'self-insert-command c-mode-base-map)
-  (bind-key ")" 'self-insert-command c-mode-base-map)
-  (bind-key "<" 'self-insert-command c++-mode-map)
-  (bind-key ">" 'self-insert-command c++-mode-map)
+  (bind-key "#" #'self-insert-command c-mode-base-map)
+  (bind-key "{" #'self-insert-command c-mode-base-map)
+  (bind-key "}" #'self-insert-command c-mode-base-map)
+  (bind-key "/" #'self-insert-command c-mode-base-map)
+  (bind-key "*" #'self-insert-command c-mode-base-map)
+  (bind-key ";" #'self-insert-command c-mode-base-map)
+  (bind-key "," #'self-insert-command c-mode-base-map)
+  (bind-key ":" #'self-insert-command c-mode-base-map)
+  (bind-key "(" #'self-insert-command c-mode-base-map)
+  (bind-key ")" #'self-insert-command c-mode-base-map)
+  (bind-key "<" #'self-insert-command c++-mode-map)
+  (bind-key ">" #'self-insert-command c++-mode-map)
 
   (add-to-list 'c-style-alist
                '("ti"
@@ -1046,7 +1054,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (use-package agda-input)
-  (bind-key "C-c C-i" 'agda2-insert-helper-function agda2-mode-map)
+  (bind-key "C-c C-i" #'agda2-insert-helper-function agda2-mode-map)
 
   (defun char-mapping (key char)
     (bind-key key `(lambda () (interactive) (insert ,char))))
@@ -1177,7 +1185,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (ac-set-trigger-key "<backtab>")
   (setq ac-use-menu-map t)
 
-  (bind-key "A-M-?" 'ac-last-help)
+  (bind-key "A-M-?" #'ac-last-help)
   (unbind-key "C-s" ac-completing-map))
 
 (use-package autopair
@@ -1290,7 +1298,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (move-marker (process-mark proc) 1 (current-buffer)))
         (setq mode-line-process '(":%s")))))
 
-  (bind-key "C-x ~" 'show-backups)
+  (bind-key "C-x ~" #'show-backups)
 
   :init
   (defun my-make-backup-file-name (file)
@@ -1325,7 +1333,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (defvar ctl-period-breadcrumb-map)
   (define-prefix-command 'ctl-period-breadcrumb-map)
-  (bind-key "C-. c" 'ctl-period-breadcrumb-map)
+  (bind-key "C-. c" #'ctl-period-breadcrumb-map)
 
   :bind (("C-. c b" . bm-last-in-previous-buffer)
          ("C-. c f" . bm-first-in-next-buffer)
@@ -1354,8 +1362,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (isearch-moccur isearch-all isearch-moccur-all)
   :bind ("M-s O" . moccur)
   :init
-  (bind-key "M-o" 'isearch-moccur isearch-mode-map)
-  (bind-key "M-O" 'isearch-moccur-all isearch-mode-map)
+  (bind-key "M-o" #'isearch-moccur isearch-mode-map)
+  (bind-key "M-O" #'isearch-moccur-all isearch-mode-map)
   :config
   (use-package moccur-edit))
 
@@ -1463,7 +1471,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config
     (unbind-key "M-s f" dired-mode-map))
 
-  (bind-key "l" 'dired-up-directory dired-mode-map)
+  (bind-key "l" #'dired-up-directory dired-mode-map)
 
   (defun my-dired-switch-window ()
     (interactive)
@@ -1471,9 +1479,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (call-interactively #'sr-change-window)
       (call-interactively #'other-window)))
 
-  (bind-key "<tab>" 'my-dired-switch-window dired-mode-map)
+  (bind-key "<tab>" #'my-dired-switch-window dired-mode-map)
 
-  (bind-key "M-!" 'async-shell-command dired-mode-map)
+  (bind-key "M-!" #'async-shell-command dired-mode-map)
   (unbind-key "M-G" dired-mode-map)
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
@@ -1613,7 +1621,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (defvar ctl-period-equals-map)
   (define-prefix-command 'ctl-period-equals-map)
-  (bind-key "C-. =" 'ctl-period-equals-map)
+  (bind-key "C-. =" #'ctl-period-equals-map)
 
   :bind (("C-. = b" . ediff-buffers)
          ("C-. = B" . ediff-buffers3)
@@ -1664,10 +1672,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (call-interactively #'emms-smart-browse))
 
   :config
-  (bind-key "S-<f7>" 'emms-previous)
-  (bind-key "S-<f8>" 'emms-pause)
-  (bind-key "S-<f9>" 'emms-next)
-  (bind-key "S-<f10>" 'emms-stop)
+  (bind-key "S-<f7>" #'emms-previous)
+  (bind-key "S-<f8>" #'emms-pause)
+  (bind-key "S-<f9>" #'emms-next)
+  (bind-key "S-<f10>" #'emms-stop)
 
   (defun emms-player-mplayer-volume-up ()
     "Depends on mplayer’s -slave mode."
@@ -1679,8 +1687,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (process-send-string emms-player-simple-process-name "volume -1\n"))
 
-  (bind-key "C-. C--" 'emms-player-mplayer-volume-down)
-  (bind-key "C-. C-=" 'emms-player-mplayer-volume-up))
+  (bind-key "C-. C--" #'emms-player-mplayer-volume-down)
+  (bind-key "C-. C-=" #'emms-player-mplayer-volume-up))
 
 (use-package gist
   :load-path "site-lisp/gist"
@@ -1747,7 +1755,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (erc-modified-channels-display)
       (force-mode-line-update))
 
-    (bind-key "C-c r" 'reset-erc-track-mode))
+    (bind-key "C-c r" #'reset-erc-track-mode))
 
   (defcustom erc-foolish-content '()
     "Regular expressions to identify foolish content.
@@ -1793,7 +1801,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package erc-yank
     :load-path "lisp/erc-yank"
     :config
-    (bind-key "C-y" 'erc-yank erc-mode-map))
+    (bind-key "C-y" #'erc-yank erc-mode-map))
 
   (use-package wtf
     :commands wtf-is)
@@ -1872,8 +1880,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package eww-lnum
     :load-path "site-lisp/eww-lnum"
     :config
-    (bind-key "f" 'eww-lnum-follow eww-mode-map)
-    (bind-key "F" 'eww-lnum-universal eww-mode-map)))
+    (bind-key "f" #'eww-lnum-follow eww-mode-map)
+    (bind-key "F" #'eww-lnum-universal eww-mode-map)))
 
 (use-package fetchmail-mode
   :commands fetchmail-mode)
@@ -1956,10 +1964,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (call-interactively 'gud-gdb))))
   :config
   (progn
-    (bind-key "<f9>" 'gud-cont)
-    (bind-key "<f10>" 'gud-next)
-    (bind-key "<f11>" 'gud-step)
-    (bind-key "S-<f11>" 'gud-finish)))
+    (bind-key "<f9>" #'gud-cont)
+    (bind-key "<f10>" #'gud-next)
+    (bind-key "<f11>" #'gud-step)
+    (bind-key "S-<f11>" #'gud-finish)))
 
 (use-package guide-key
   :disabled t
@@ -2089,7 +2097,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-s" haskell-mode-map)
   (unbind-key "M-t" haskell-mode-map)
 
-  (bind-key "C-c C-h" 'my-haskell-hoogle haskell-mode-map)
+  (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
   
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -2105,17 +2113,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "site-lisp/flycheck-haskell"
     :config
     (flycheck-haskell-setup)
-    (bind-key "M-n" 'flycheck-next-error haskell-mode-map)
-    (bind-key "M-p" 'flycheck-previous-error haskell-mode-map))
+    (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
+    (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
 
   (use-package haskell-edit
     :load-path "lisp/haskell-config"
-    :config (bind-key "C-c M-q" 'haskell-edit-reformat haskell-mode-map))
+    :config (bind-key "C-c M-q" #'haskell-edit-reformat haskell-mode-map))
 
   (use-package helm-hoogle
     :load-path "lisp/haskell-config"
     :commands helm-hoogle
-    :init (bind-key "A-M-h" 'helm-hoogle haskell-mode-map))
+    :init (bind-key "A-M-h" #'helm-hoogle haskell-mode-map))
 
   (eval-after-load 'align
     '(nconc
@@ -2193,10 +2201,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (helm-autoresize-mode 1)
 
-  (bind-key "<tab>" 'helm-execute-persistent-action helm-map)
-  (bind-key "C-i" 'helm-execute-persistent-action helm-map)
-  (bind-key "C-z" 'helm-select-action helm-map)
-  (bind-key "A-v" 'helm-previous-page helm-map)
+  (bind-key "<tab>" #'helm-execute-persistent-action helm-map)
+  (bind-key "C-i" #'helm-execute-persistent-action helm-map)
+  (bind-key "C-z" #'helm-select-action helm-map)
+  (bind-key "A-v" #'helm-previous-page helm-map)
 
   (when (executable-find "curl")
     (setq helm-google-suggest-use-curl-p t)))
@@ -2422,7 +2430,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           try-complete-lisp-symbol-partially
           try-complete-lisp-symbol))
 
-  (bind-key "M-i" 'my-ido-hippie-expand)
+  (bind-key "M-i" #'my-ido-hippie-expand)
 
   (defadvice he-substitute-string (after he-paredit-fix)
     "remove extra paren when expanding line in paredit"
@@ -2515,7 +2523,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'ido-minibuffer-setup-hook
             #'(lambda ()
-                (bind-key "<return>" 'ido-smart-select-text
+                (bind-key "<return>" #'ido-smart-select-text
                           ido-file-completion-map))))
 
 (use-package idris-mode
@@ -2547,7 +2555,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'ielm-mode-hook
             (function
              (lambda ()
-               (bind-key "<return>" 'my-ielm-return ielm-map)))
+               (bind-key "<return>" #'my-ielm-return ielm-map)))
             t))
 
 (use-package iflipb
@@ -2638,10 +2646,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (call-interactively 'isearch-forward))
 
   :config
-  (bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
-  (bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
-  (bind-key "C-^" 'isearch-edit-string isearch-mode-map)
-  (bind-key "C-i" 'isearch-complete isearch-mode-map))
+  (bind-key "C-c" #'isearch-toggle-case-fold isearch-mode-map)
+  (bind-key "C-t" #'isearch-toggle-regexp isearch-mode-map)
+  (bind-key "C-^" #'isearch-edit-string isearch-mode-map)
+  (bind-key "C-i" #'isearch-complete isearch-mode-map))
 
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
@@ -2819,8 +2827,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (unless (memq major-mode
                   '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
       (turn-on-cldoc-mode)
-      (bind-key "M-q" 'slime-reindent-defun lisp-mode-map)
-      (bind-key "M-l" 'slime-selector lisp-mode-map)))
+      (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
+      (bind-key "M-l" #'slime-selector lisp-mode-map)))
 
   ;; Change lambda to an actual lambda symbol
   :init
@@ -2912,8 +2920,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (defun my-lusty-setup-hook ()
-    (bind-key "SPC" 'lusty-select-match lusty-mode-map)
-    (bind-key "C-d" 'exit-minibuffer lusty-mode-map))
+    (bind-key "SPC" #'lusty-select-match lusty-mode-map)
+    (bind-key "C-d" #'exit-minibuffer lusty-mode-map))
 
   (add-hook 'lusty-setup-hook 'my-lusty-setup-hook)
 
@@ -3129,7 +3137,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defalias 'xml-mode 'nxml-mode)
   :config
   (defun my-nxml-mode-hook ()
-    (bind-key "<return>" 'newline-and-indent nxml-mode-map))
+    (bind-key "<return>" #'newline-and-indent nxml-mode-map))
 
   (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
 
@@ -3139,7 +3147,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (call-process-region (point-min) (point-max) "tidy" t t nil
                            "-xml" "-i" "-wrap" "0" "-omit" "-q" "-utf8")))
 
-  (bind-key "C-c M-h" 'tidy-xml-buffer nxml-mode-map))
+  (bind-key "C-c M-h" #'tidy-xml-buffer nxml-mode-map))
 
 (use-package on-screen
   :disabled t
@@ -3159,25 +3167,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package paredit-ext)
 
-  (bind-key "C-M-l" 'paredit-recentre-on-sexp paredit-mode-map)
+  (bind-key "C-M-l" #'paredit-recentre-on-sexp paredit-mode-map)
 
-  (bind-key ")" 'paredit-close-round-and-newline paredit-mode-map)
-  (bind-key "M-)" 'paredit-close-round paredit-mode-map)
+  (bind-key ")" #'paredit-close-round-and-newline paredit-mode-map)
+  (bind-key "M-)" #'paredit-close-round paredit-mode-map)
 
-  (bind-key "M-k" 'paredit-raise-sexp paredit-mode-map)
-  (bind-key "M-I" 'paredit-splice-sexp paredit-mode-map)
+  (bind-key "M-k" #'paredit-raise-sexp paredit-mode-map)
+  (bind-key "M-I" #'paredit-splice-sexp paredit-mode-map)
 
   (unbind-key "M-r" paredit-mode-map)
   (unbind-key "M-s" paredit-mode-map)
 
-  (bind-key "C-. D" 'paredit-forward-down paredit-mode-map)
-  (bind-key "C-. B" 'paredit-splice-sexp-killing-backward paredit-mode-map)
-  (bind-key "C-. C" 'paredit-convolute-sexp paredit-mode-map)
-  (bind-key "C-. F" 'paredit-splice-sexp-killing-forward paredit-mode-map)
-  (bind-key "C-. a" 'paredit-add-to-next-list paredit-mode-map)
-  (bind-key "C-. A" 'paredit-add-to-previous-list paredit-mode-map)
-  (bind-key "C-. j" 'paredit-join-with-next-list paredit-mode-map)
-  (bind-key "C-. J" 'paredit-join-with-previous-list paredit-mode-map))
+  (bind-key "C-. D" #'paredit-forward-down paredit-mode-map)
+  (bind-key "C-. B" #'paredit-splice-sexp-killing-backward paredit-mode-map)
+  (bind-key "C-. C" #'paredit-convolute-sexp paredit-mode-map)
+  (bind-key "C-. F" #'paredit-splice-sexp-killing-forward paredit-mode-map)
+  (bind-key "C-. a" #'paredit-add-to-next-list paredit-mode-map)
+  (bind-key "C-. A" #'paredit-add-to-previous-list paredit-mode-map)
+  (bind-key "C-. j" #'paredit-join-with-next-list paredit-mode-map)
+  (bind-key "C-. J" #'paredit-join-with-previous-list paredit-mode-map))
 
 
 (or (use-package mic-paren
@@ -3383,7 +3391,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indent-tabs-mode nil)
 
-    (bind-key "C-c C-z" 'python-shell python-mode-map)
+    (bind-key "C-c C-z" #'python-shell python-mode-map)
     (unbind-key "C-c c" python-mode-map))
 
   (add-hook 'python-mode-hook 'my-python-mode-hook))
@@ -3455,8 +3463,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun my-ruby-mode-hook ()
     (require 'inf-ruby)
     (inf-ruby-keys)
-    (bind-key "<return>" 'my-ruby-smart-return ruby-mode-map)
-    (bind-key "C-h C-i" 'helm-yari ruby-mode-map))
+    (bind-key "<return>" #'my-ruby-smart-return ruby-mode-map)
+    (bind-key "C-h C-i" #'helm-yari ruby-mode-map))
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
@@ -3501,7 +3509,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                  process-environment))))
           ad-do-it))))
 
-  (bind-key "C-c Z" 'sage))
+  (bind-key "C-c Z" #'sage))
 
 (use-package selectkey
   :disabled t
@@ -3700,20 +3708,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'sunrise-x-tree)
   (require 'sunrise-x-tabs)
 
-  (bind-key "/" 'sr-sticky-isearch-forward sr-mode-map)
-  (bind-key "<backspace>" 'sr-scroll-quick-view-down sr-mode-map)
-  (bind-key "C-x t" 'sr-toggle-truncate-lines sr-mode-map)
+  (bind-key "/" #'sr-sticky-isearch-forward sr-mode-map)
+  (bind-key "<backspace>" #'sr-scroll-quick-view-down sr-mode-map)
+  (bind-key "C-x t" #'sr-toggle-truncate-lines sr-mode-map)
 
-  (bind-key "q" 'sr-history-prev sr-mode-map)
-  (bind-key "z" 'sr-quit sr-mode-map)
+  (bind-key "q" #'sr-history-prev sr-mode-map)
+  (bind-key "z" #'sr-quit sr-mode-map)
 
   (unbind-key "C-e" sr-mode-map)
   (unbind-key "C-p" sr-tabs-mode-map)
   (unbind-key "C-n" sr-tabs-mode-map)
   (unbind-key "M-<backspace>" sr-term-line-minor-mode-map)
 
-  (bind-key "M-[" 'sr-tabs-prev sr-tabs-mode-map)
-  (bind-key "M-]" 'sr-tabs-next sr-tabs-mode-map)
+  (bind-key "M-[" #'sr-tabs-prev sr-tabs-mode-map)
+  (bind-key "M-]" #'sr-tabs-next sr-tabs-mode-map)
 
   (defun sr-browse-file (&optional file)
     "Display the selected file with the default appication."
@@ -3901,8 +3909,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (file-readable-p workgroups-file)
         (wg-load workgroups-file)))
 
-  (bind-key "C-\\" 'wg-switch-to-previous-workgroup wg-map)
-  (bind-key "\\" 'toggle-input-method wg-map))
+  (bind-key "C-\\" #'wg-switch-to-previous-workgroup wg-map)
+  (bind-key "\\" #'toggle-input-method wg-map))
 
 (use-package wrap-region
   :load-path "site-lisp/wrap-region"
@@ -3956,7 +3964,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
 
-  (bind-key "C-i" 'yas-next-field-or-maybe-expand yas-keymap))
+  (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
@@ -3972,11 +3980,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'html-mode-hook 'zencoding-mode)
   (add-hook 'html-mode-hook
             #'(lambda ()
-                (bind-key "<return>" 'newline-and-indent html-mode-map)))
+                (bind-key "<return>" #'newline-and-indent html-mode-map)))
 
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
-  (bind-key "C-c C-c" 'zencoding-expand-line zencoding-mode-keymap))
+  (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
 
 ;;; Post initialization
 
