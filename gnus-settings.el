@@ -145,7 +145,7 @@ John Wiegley, Chairperson"))))
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
       (total-expire . t)
-      (expiry-wait . 90)
+      (expiry-wait . 1000)
       (expiry-target . "archive.emacs.devel"))
      ("list\\.emacs\\.help"
       (to-address . "help-gnu-emacs@gnu.org")
