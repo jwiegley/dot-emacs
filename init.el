@@ -382,10 +382,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (interactive)
   (unwind-protect
       (progn
-        (linum-mode 1)
+        (nlinum-mode 1)
         (goto-char (point-min))
         (forward-line (read-number "Goto line: ")))
-    (linum-mode -1)))
+    (nlinum-mode -1)))
 
 (bind-key "C-c g" #'goto-line)
 (global-set-key [remap goto-line] 'goto-line-with-feedback)
