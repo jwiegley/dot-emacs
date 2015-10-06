@@ -1522,6 +1522,40 @@ Near here means PT is either inside or just aside of a comment."
              (cm-prefix (match-string 2)))
         (concat (make-string (length cm-start) ? ) cm-prefix)))))
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;attempt to deal with debug mode ;;;;;;;;;;;;;;;;
+
+;; tries to extract the last debug goal and display it in goals buffer
+(defun coq-display-debug-goal ()
+  (interactive)
+  (with-current-buffer proof-shell-buffer
+    (let ((pt (progn (save-excursion (forward-line -1) (point)))))
+      (message "DERIVE: %S %S" (point) pt)
+      (save-excursion
+        (re-search-backward "^TcDebug" pt t)
+        (re-search-backward "<infomsg>\\|^TcDebug\\|^</prompt>" nil t)
+        (when (looking-at "<infomsg>")
+          (let ((pt2 (point)))
+            (re-search-backward "Goal:\\|^TcDebug\\|^</prompt>" nil t)
+            (when (looking-at "Goal")
+              (pg-goals-display (buffer-substring (point) pt2) nil))))))))
+
+;; overwrite the generic one, interactive prompt is Debug mode;; try to display
+;; the debug goal in the goals buffer.
+(defun proof-shell-process-interactive-prompt-regexp ()
+  "Action taken when `proof-shell-interactive-prompt-regexp' is observed."
+  (when (and (proof-shell-live-buffer)
+	     ; not already visible
+	     t)
+    (switch-to-buffer proof-shell-buffer)
+    (coq-display-debug-goal)
+    (message "Prover expects input in %s buffer (if debug mode: h<return> for help))" proof-shell-buffer)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun coq-mode-config ()
   ;; SMIE needs this.
   (set (make-local-variable 'parse-sexp-ignore-comments) t)

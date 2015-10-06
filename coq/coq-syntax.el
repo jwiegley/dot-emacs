@@ -1079,6 +1079,14 @@ It is used:
     ;; Remove spurious variable and function faces on commas.
     '(proof-zap-commas))))
 
+
+;; ", " is for multiple hypothesis diplayed in v8.5. If more than
+;; 1 space this is a hypothesis displayed in the middle of a line (> v8.5)
+;; "^    " is for goals in debug mode.
+(defvar coq-hyp-name-in-goal-or-response-regexp
+    "\\(^\\|^  \\|^    \\|[^^ ] ?  \\)\\(\\(?:[^\n :(),=]\\|, \\|,$\\)+ *\\(?:: \\|,$\\)\\)"
+  "regexp matching hypothesis names in goal or response buffer")
+
 ;; We define a slightly different set of keywords for response buffer.
 
 (defvar coq-response-font-lock-keywords
@@ -1092,9 +1100,7 @@ It is used:
      (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
      (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
-     ;; ", " is for multiple hypothesis diplayed in v8.5. If more than
-     ;; 1 space this is a hypothesis displayed in the middle of a line (> v8.5)
-     (cons "\\(^\\| \\) \\{0,1,2\\}\\([^\n :(),]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
      (list "^\\([^ \n]+\\) \\(is defined\\)" (list 1 'font-lock-function-name-face t)))))
 
 (defvar coq-goals-font-lock-keywords
@@ -1103,7 +1109,7 @@ It is used:
     (list
      (cons coq-reserved-regexp 'font-lock-type-face)
      (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
-     (cons "\\(^\\| \\) \\{0,2\\}\\([^ \n:()=]\\|, \\)+ *:" 'proof-declaration-name-face)
+     (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
      (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
 
