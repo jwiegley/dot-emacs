@@ -110,7 +110,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Contracts/BAE/Projects/brass-proposal/proposal/gold/brass.bib" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt" "~/Documents/BAE.txt" "~/Documents/assembly.txt" "~/Documents/IL-05/IL-05.txt")))
+    ("~/Documents/BAE.txt" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
