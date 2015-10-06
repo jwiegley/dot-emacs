@@ -376,20 +376,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("z" . byte-recompile-directory))
 
 (bind-key "C-c f" #'flush-lines)
-
-(defun goto-line-with-feedback ()
-  "Show line numbers temporarily, while prompting for the line number input"
-  (interactive)
-  (unwind-protect
-      (progn
-        (nlinum-mode 1)
-        (goto-char (point-min))
-        (forward-line (read-number "Goto line: ")))
-    (nlinum-mode -1)))
-
-(bind-key "C-c g" #'goto-line)
-(global-set-key [remap goto-line] 'goto-line-with-feedback)
-
 (bind-key "C-c k" #'keep-lines)
 
 (eval-when-compile
@@ -3115,6 +3101,22 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
+
+(use-package nlinum
+  :preface
+  (defun goto-line-with-feedback ()
+    "Show line numbers temporarily, while prompting for the line number input"
+    (interactive)
+    (unwind-protect
+        (progn
+          (nlinum-mode 1)
+          (goto-char (point-min))
+          (forward-line (read-number "Goto line: ")))
+      (nlinum-mode -1)))
+
+  :init
+  (bind-key "C-c g" #'goto-line)
+  (global-set-key [remap goto-line] 'goto-line-with-feedback))
 
 (use-package nroff-mode
   :commands nroff-mode
