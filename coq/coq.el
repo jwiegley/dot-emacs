@@ -2720,6 +2720,8 @@ are non-nil at the same time, this gives priority to the former."
     ;; otherwise call this, which checks proof-electric-terminator-enable
     (proof-electric-terminator count)))
 
+(put 'coq-terminator-insert 'delete-selection t)
+
 ;; Setting the new mapping for terminator, overrides the following in proof-script:
 ;; (define-key proof-mode-map (vector (aref proof-terminal-string 0)) 'proof-electric-terminator)
 
