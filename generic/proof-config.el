@@ -1534,9 +1534,12 @@ This setting is used inside the function `proof-format-filename'."
   :type '(list (cons string string))
   :group 'proof-shell)
 
-(defcustom proof-shell-process-connection-type (if (= emacs-major-version 24) nil t)
+(defcustom proof-shell-process-connection-type (if (>= emacs-major-version 24) nil t)
   "The value of `process-connection-type' for the proof shell.
-Set non-nil for ptys, nil for pipes."
+Set non-nil for ptys, nil for pipes.
+
+NOTE: In emacs >= 24 (checked for 24 and 25.0.50.1), t is not a
+good choice: input is cut after 4095 chars, which hangs pg."
   :type 'boolean
   :group 'proof-shell)
 
