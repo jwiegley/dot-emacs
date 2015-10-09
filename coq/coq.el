@@ -2499,7 +2499,7 @@ First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
   (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting the good frame
-    (with-selected-frame (or pg-frame (window-frame))
+    (with-selected-frame (or pg-frame (window-frame (selected-window)))
       ;; prefer current frame
       (let ((goal-win (or (get-buffer-window proof-goals-buffer) (get-buffer-window proof-goals-buffer t))))
         (if goal-win
