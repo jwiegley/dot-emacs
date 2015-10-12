@@ -1912,6 +1912,7 @@ Assumes that point is at the end of a command."
 	(setq semis (cdr semis)))
     (if (null semis) ; maybe inside a string or something.
 	(error "I can't find any complete commands to process!"))
+    (run-hooks 'proof-assert-command-hook) ;; sneak commands (real ones with a prompt)
     (proof-assert-semis semis displayflags)))
 
 (defun proof-assert-electric-terminator ()

@@ -172,7 +172,7 @@
      ["UnSet Printing All" coq-unset-printing-all t]
      ["Set Implicit Argument" coq-set-implicit-arguments t]
      ["Unset Implicit Argument" coq-unset-implicit-arguments t]
-     ["Adapt Printing Width" coq-adapt-printing-width t]
+     ["Set Printing Width" coq-ask-adapt-printing-width-and-show t]
      ["Set Printing Synth" coq-set-printing-synth t]
      ["Unset Printing Synth" coq-unset-printing-synth t]
      ["Set Printing Coercions" coq-set-printing-coercions t]

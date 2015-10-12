@@ -111,8 +111,17 @@ Set to t if you want this feature."
   :type 'number
   :group 'coq)
 
+(defcustom coq-user-init-cmd nil
+  "user defined init commands for Coq.
+These are appended at the end of `coq-shell-init-cmd'."
+  :type '(repeat (cons (string :tag "command")))
+  :group 'coq)
+
+
+;TODO: remove Set Undo xx. It is obsolete since coq-8.5 at least.
+;;`(,(format "Set Undo %s . " coq-default-undo-limit) "Set Printing Width 75.")
 (defconst coq-shell-init-cmd
-  `(,(format "Set Undo %s . " coq-default-undo-limit) "Set Printing Width 75.") 
+  (append nil coq-user-init-cmd)
  "Command to initialize the Coq Proof Assistant.")
 
 (require 'coq-syntax)
@@ -770,7 +779,7 @@ Support dot.notation.of.modules."
              (coq-grab-punctuation-right pos)))))
 
 (defun coq-string-starts-with-symbol (s)
-  (eq 0 (string-match "\\s_" symbclean)))
+  (eq 0 (string-match "\\s_" s)))
 
 ;; remove trailing dot if any.
 (defun coq-id-at-point ()
@@ -837,7 +846,6 @@ Otherwise propose identifier at point if any."
            ((use-region-p)
             (buffer-substring-no-properties (region-beginning) (region-end)))
            (t (coq-id-or-notation-at-point)))))
-    (message "YOUHOU: %S" guess) 
     (read-string
      (if guess (concat s " (default " guess "): ") (concat s ": "))
      nil 'proof-minibuffer-history guess)))
@@ -1108,21 +1116,66 @@ flag Printing All set."
   (interactive)
   (coq-ask-do-show-all "Show goal number" "Show" t))
 
+;; Check
+(eval-when (compile)
+  (defvar coq-auto-adapt-printing-width nil)); defpacustom
 
-(defun coq-adapt-printing-width ()
+(defun coq-auto-adapt-printing-width-switch ()
+  "Function called when toggling `auto-adapt-printing-width'"
+  (if coq-auto-adapt-printing-width
+      (add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
+    (remove-hook 'proof-assert-command-hook 'coq-adapt-printing-width)))
+
+(add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
+
+(defpacustom auto-adapt-printing-width t
+  "If non-nil, adapt automatically printing width of goals window.
+Each timme the user sends abunch of commands to Coq, check if the
+width of the goals window changed, and adapt coq printing width.
+WARNING: If several windows are displaying the goals buffer, one
+is chosen randomly. WARNING 2: when backtracking the printing
+width is synchronized by coq (?!)."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'coq
+  :eval (coq-auto-adapt-printing-width-switch))
+
+(defvar coq-shell-current-line-width nil
+  "Current line width of the Coq printing width.
+Its value will be updated whenever a command is sent if
+necessary.")
+
+(defun coq-goals-window-width ()
+  (let*
+      ((goals-wins (get-buffer-window-list proof-goals-buffer))
+       (dummy (if (not (eq 1 (length goals-wins)))
+                  (message "Zero or more than one goals window, guessing window width.")))
+       (goal-win (car goals-wins)))
+    (window-width goal-win)))
+
+(defun coq-adapt-printing-width (&optional show width)
   "Sends a Set Printing Width command to coq to fit the response window's width.
-A Show command is also issued, so that the goal is redisplayed."
+A Show command is also issued if SHOW is non-nil, so that the
+goal is redisplayed."
   (interactive)
-  (let* ((goals-wins (get-buffer-window-list proof-goals-buffer))
-        (dummy (if (not (eq 1 (length goals-wins)))
-                   (error "Zero or more than one goals window")))
-        (goal-win (car goals-wins))
-        (wdth
-         (save-selected-window
-           (select-window goal-win)
-           (window-width))))
-    (proof-shell-invisible-command (format "Set Printing Width %S." (- wdth 1)) t)
-    (proof-shell-invisible-command (format "Show.") t)))
+  (let ((wdth (or width (coq-goals-window-width))))
+    (when (not (equal wdth coq-shell-current-line-width))
+      (proof-shell-invisible-command (format "Set Printing Width %S." (- wdth 1)) t)
+      (setq coq-shell-current-line-width wdth)
+      ;; Show iff show non nil and some proof is under way
+      (when (and show (not (null (caddr (coq-last-prompt-info-safe)))))
+        (proof-shell-invisible-command (format "Show.") t nil 'no-error-display)))))
+
+(defun coq-adapt-printing-width-and-show(&optional show width)
+  (interactive)
+  (coq-adapt-printing-width t width))
+
+(defun coq-ask-adapt-printing-width-and-show ()
+  (interactive)
+  (let* ((deflt (coq-goals-window-width))
+         (rd (read-number (format "Width (%S): " deflt) deflt)))
+    (coq-adapt-printing-width t rd)))
+
 
 (defvar coq-highlight-id-last-regexp nil)
 
@@ -1406,6 +1459,8 @@ Warning:
              (when (and (fboundp 'show-paren--default)
                         (boundp 'show-paren-data-function))
                (setq show-paren-data-function 'show-paren--default))))
+
+
 
 (defun coq-toggle-use-project-file ()
   (interactive)
@@ -1964,7 +2019,6 @@ This is the Coq incarnation of `proof-tree-find-undo-position'."
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Subterm markup -- it was added to Coq by Healf, but got removed.
@@ -2308,7 +2362,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [?h] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
-(define-key coq-keymap [(control ?w)] 'coq-adapt-printing-width)
+(define-key coq-keymap [(control ?w)] 'coq-ask-adapt-printing-width-and-show)
 ;(proof-eval-when-ready-for-assistant
 ; (define-key ??? [(control c) (control a)] (proof-ass keymap)))
 
@@ -2326,7 +2380,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
-(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
+(define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-ask-adapt-printing-width-and-show)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?l)] 'coq-LocateConstant)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?n)] 'coq-LocateNotation)
 
@@ -2341,7 +2395,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?g)] 'proof-store-goals-win)
 (define-key coq-response-mode-map [(control ?c)(control ?a)?h] 'coq-PrintHint)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?q)] 'coq-query)
-(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-adapt-printing-width)
+(define-key coq-response-mode-map [(control ?c)(control ?a)(control ?w)] 'coq-ask-adapt-printing-width-and-show)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?l)] 'coq-LocateConstant)
 (define-key coq-response-mode-map [(control ?c)(control ?a)(control ?n)] 'coq-LocateNotation)
 

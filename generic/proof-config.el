@@ -1616,6 +1616,19 @@ it is added to the queue of commands."
   :type '(repeat function)
   :group 'proof-shell)
 
+(defcustom proof-assert-command-hook nil
+  "Hooks run before asserting a command (or a set of commands).
+Can be used to insert commands before any (set of) input sent
+by the user. It is run by `proof-assert-until-point'.
+
+WARNING: don't call `proof-assert-until-point' in this hook, you
+would loop forever.
+
+Example of use: Insert a command to adapt printing width. Note
+that `proof-shell-insert-hook' may be use instead (see lego mode)
+if no more prompt will be displayed (see
+`proof-shell-insert-hook' for details).")
+
 (defcustom proof-script-preprocess nil
   "Function to pre-process (SPAN STRING) taken from proof script."
   :type 'function
