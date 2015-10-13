@@ -2238,7 +2238,9 @@ query saves here."
 	  (backward-char)
 	  (setq span (span-at (point) 'type)))
 	(if span
-	    (proof-retract-target span undo-action displayflags)
+	    (progn
+	      (run-hooks 'proof-retract-command-hook) ;; sneak commands (real ones with a prompt)
+	      (proof-retract-target span undo-action displayflags))
 	  ;; something wrong
 	  (proof-debug
 	   "proof-retract-until-point: couldn't find a span!"))))))

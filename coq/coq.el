@@ -1120,13 +1120,22 @@ flag Printing All set."
 (eval-when (compile)
   (defvar coq-auto-adapt-printing-width nil)); defpacustom
 
+;; Since Printing Width is a synchronized option in coq (?) it is retored
+;; silently to a previous value when retracting. So we reset the stored width
+;; when retracting, so that it will be auto-adapted at the next command. Not
+;; perfect: we have to forward one step to see the effect.
+
+;; FIXME: hopefully this will eventually become a non synchronized option and
+;; we can remove this.
 (defun coq-auto-adapt-printing-width-switch ()
   "Function called when toggling `auto-adapt-printing-width'"
   (if coq-auto-adapt-printing-width
-      (add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
-    (remove-hook 'proof-assert-command-hook 'coq-adapt-printing-width)))
+      (progn
+        (add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
+        (add-hook 'proof-retract-command-hook 'coq-reset-printing-width))
+    (remove-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
+    (remove-hook 'proof-retract-command-hook 'coq-reset-printing-width)))
 
-(add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
 
 (defpacustom auto-adapt-printing-width t
   "If non-nil, adapt automatically printing width of goals window.
@@ -1140,10 +1149,20 @@ width is synchronized by coq (?!)."
   :group 'coq
   :eval (coq-auto-adapt-printing-width-switch))
 
+;; this initiates aut adapt printing width at start, by reading the config var.
+;; Let us put this at the end of hooks to have a chance to read local variables
+;; first.
+(add-hook 'coq-mode-hook 'coq-auto-adapt-printing-width-switch t)
+
 (defvar coq-shell-current-line-width nil
   "Current line width of the Coq printing width.
 Its value will be updated whenever a command is sent if
 necessary.")
+
+;; Resetting the known printing width (for when we don't know it, for example
+;; when retracting.
+(defun coq-reset-printing-width ()
+  (setq coq-shell-current-line-width nil))
 
 (defun coq-goals-window-width ()
   (let*

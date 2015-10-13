@@ -1627,7 +1627,24 @@ would loop forever.
 Example of use: Insert a command to adapt printing width. Note
 that `proof-shell-insert-hook' may be use instead (see lego mode)
 if no more prompt will be displayed (see
-`proof-shell-insert-hook' for details).")
+`proof-shell-insert-hook' for details)."
+  :type '(repeat function)
+  :group 'proof-shell)
+
+(defcustom proof-retract-command-hook nil
+  "Hooks run before retracting a command (or a set of commands).
+Can be used to insert commands. It is run by
+`proof-retract-until-point'.
+
+WARNING: don't call `proof-retract-until-point' in this hook, you
+would loop forever.
+
+Example of use: Insert a command to adapt printing width. Note
+that `proof-shell-insert-hook' may be use instead (see lego mode)
+if no more prompt will be displayed (see
+`proof-shell-insert-hook' for details)."
+  :type '(repeat function)
+  :group 'proof-shell)
 
 (defcustom proof-script-preprocess nil
   "Function to pre-process (SPAN STRING) taken from proof script."
