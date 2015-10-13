@@ -791,7 +791,7 @@ Support dot.notation.of.modules."
                  ((fboundp 'symbol-at-point) (symbol-at-point))))
           (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
      (when (and symb (not (zerop (length symbclean)))
-                (not (coq-string-starts-with-symbol symb)))
+                (not (coq-string-starts-with-symbol symbclean)))
        symbclean))))
 
 
