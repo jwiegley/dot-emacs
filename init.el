@@ -20,7 +20,7 @@
                    "\n"))))
       (and agda
            (expand-file-name
-            "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.3/emacs-mode"
+            "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.4/emacs-mode"
             (file-name-directory agda))))))
 
 (eval-and-compile
@@ -2091,6 +2091,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
+    (unbind-key "C-c c" interactive-haskell-mode-map)
     (flycheck-mode)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode)

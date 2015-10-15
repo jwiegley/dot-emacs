@@ -48,22 +48,45 @@ John Wiegley, Chairperson"))))
  '(gnus-completing-read-function (quote gnus-ido-completing-read))
  '(gnus-default-adaptive-score-alist
    (quote
-    ((gnus-dormant-mark
-      (from 20)
-      (subject 100))
+    ((gnus-saved-mark
+      (subject 250)
+      (from 50))
+     (gnus-dormant-mark
+      (subject 150)
+      (from 50))
+     (gnus-forwarded-mark
+      (subject 100)
+      (from 25))
+     (gnus-replied-mark
+      (subject 75)
+      (from 15))
      (gnus-ticked-mark
-      (subject 30))
+      (subject 0)
+      (from 0))
      (gnus-read-mark
-      (subject 30))
+      (subject 30)
+      (from 5))
      (gnus-del-mark
-      (subject -150))
-     (gnus-catchup-mark
-      (subject -150))
+      (subject 5)
+      (from 0))
+     (gnus-recent-mark
+      (subject 0)
+      (from 0))
      (gnus-killed-mark
-      (subject -1000))
+      (subject -5)
+      (from -5))
+     (gnus-catchup-mark
+      (subject -150)
+      (from 0))
+     (gnus-duplicate-mark
+      (subject -150)
+      (from 0))
      (gnus-expirable-mark
-      (from -1000)
-      (subject -1000)))))
+      (subject -250)
+      (from 0))
+     (gnus-spam-mark
+      (subject -10)
+      (from -150)))))
  '(gnus-default-article-saver (quote gnus-summary-save-in-mail))
  '(gnus-gcc-mark-as-read t)
  '(gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
@@ -145,8 +168,8 @@ John Wiegley, Chairperson"))))
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
       (total-expire . t)
-      (expiry-wait . 1000)
-      (expiry-target . "archive.emacs.devel"))
+      (expiry-wait . 90)
+      (expiry-target . "list.emacs.devel.archive"))
      ("list\\.emacs\\.help"
       (to-address . "help-gnu-emacs@gnu.org")
       (to-list . "help-gnu-emacs@gnu.org"))
@@ -157,7 +180,8 @@ John Wiegley, Chairperson"))))
       (to-list . "emacs-diffs@gnu.org"))
      ("list\\.emacs\\.elpa\\.diffs"
       (to-address . "emacs-elpa-diffs@gnu.org")
-      (to-list . "emacs-diffs@gnu.org"))
+      (to-list . "emacs-elpa-diffs@gnu.org")
+      (list-identifier . "\\[elpa\\]"))
      ("list\\.emacs\\.buildstatus"
       (to-address . "emacs-buildstatus@gnu.org")
       (to-list . "emacs-buildstatus@gnu.org"))
@@ -246,6 +270,10 @@ John Wiegley, Chairperson"))))
       (to-address . "coq-club@inria.fr")
       (to-list . "coq-club@inria.fr")
       (list-identifier . "\\[Coq-Club\\]"))
+     ("list\\.coq-devs$"
+      (to-address . "coqdev@inria.fr")
+      (to-list . "coqdev@inria.fr")
+      (list-identifier . "\\[coqdev\\]"))
      ("list\\.agda\\.devel$"
       (to-address . "agda@lists.chalmers.se")
       (to-list . "agda@lists.chalmers.se")

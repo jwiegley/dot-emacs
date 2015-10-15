@@ -125,6 +125,11 @@
        ;; (do-applescript "tell application \"Notify\" to quit")
        ))))
 
+(use-package gnus-sum
+  :config
+  (bind-key "r" #'gnus-summary-wide-reply-with-original
+            gnus-summary-mode-map))
+
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
 

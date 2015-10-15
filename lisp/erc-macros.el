@@ -44,6 +44,15 @@
   (sleep-for 0 250)
   (erc-cmd-DEOPME))
 
+(defun erc-cmd-QUIET (nick)
+  (erc-cmd-OPME)
+  (sleep-for 0 250)
+  (erc-send-command (format "QUIET %s %s"
+                            (erc-default-target)
+                            nick))
+  (sleep-for 0 250)
+  (erc-cmd-DEOPME))
+
 (defun erc-cmd-KICKBANIP (nick &rest reason)
   (setq reason (mapconcat #'identity reason " "))
   (and (string= reason "")
