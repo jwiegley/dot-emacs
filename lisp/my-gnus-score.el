@@ -134,19 +134,31 @@
 
 ;;; Customization variable overrides:
 
-;; These "overrides" specify the defaults that I have found useful over the
-;; past 12 years.  I've had little reason to change them in all that time.
+;; Previously, and for the longest time, this list was a bit simpler:
+;;  '((gnus-dormant-mark   (from 20)
+;;                         (subject 100))
+;;    (gnus-ticked-mark    (subject 30))
+;;    (gnus-read-mark      (subject 30))
+;;    (gnus-del-mark       (subject -150))
+;;    (gnus-catchup-mark   (subject -150))
+;;    (gnus-killed-mark    (subject -1000))
+;;    (gnus-expirable-mark (from -1000)
+;;                         (subject -1000)))
 
 (my-gnus-score-defcustom gnus-default-adaptive-score-alist
-  '((gnus-dormant-mark   (from 20)
-                         (subject 100))
-    (gnus-ticked-mark    (subject 30))
-    (gnus-read-mark      (subject 30))
-    (gnus-del-mark       (subject -150))
-    (gnus-catchup-mark   (subject -150))
-    (gnus-killed-mark    (subject -1000))
-    (gnus-expirable-mark (from -1000)
-                         (subject -1000))))
+  '((gnus-saved-mark     (subject 250)  (from 50))
+    (gnus-dormant-mark   (subject 150)  (from 50))
+    (gnus-forwarded-mark (subject 100)  (from 25))
+    (gnus-replied-mark   (subject 75)   (from 15))
+    (gnus-ticked-mark    (subject 0)    (from 0))
+    (gnus-read-mark      (subject 30)   (from 5))
+    (gnus-del-mark       (subject 5)    (from 0))
+    (gnus-recent-mark    (subject 0)    (from 0))
+    (gnus-killed-mark    (subject -5)   (from -5))
+    (gnus-catchup-mark   (subject -150) (from 0))
+    (gnus-duplicate-mark (subject -150) (from 0))
+    (gnus-expirable-mark (subject -250) (from 0))
+    (gnus-spam-mark      (subject -10)  (from -150))))
 
 (my-gnus-score-defcustom gnus-score-default-duration  'p)
 (my-gnus-score-defcustom gnus-score-expiry-days 30)
