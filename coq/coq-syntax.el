@@ -1084,7 +1084,7 @@ It is used:
 ;; 1 space this is a hypothesis displayed in the middle of a line (> v8.5)
 ;; "^    " is for goals in debug mode.
 (defvar coq-hyp-name-in-goal-or-response-regexp
-    "\\(^\\|^  \\|^    \\|[^^ ] ?  \\)\\(\\(?:[^\n :(),=]\\|, \\|,$\\)+ *\\(?:: \\|,$\\)\\)"
+    "\\(^\\|^  \\|^    \\|[^^ ] ?  \\)\\(\\(?:[^\n :(),=]\\|, \\)+ *\\(?::[ \n]\\|,$\\)\\)"
   "regexp matching hypothesis names in goal or response buffer")
 
 ;; We define a slightly different set of keywords for response buffer.
