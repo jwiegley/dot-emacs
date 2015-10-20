@@ -1605,7 +1605,6 @@ Near here means PT is either inside or just aside of a comment."
   (interactive)
   (with-current-buffer proof-shell-buffer
     (let ((pt (progn (save-excursion (forward-line -1) (point)))))
-      (message "DERIVE: %S %S" (point) pt)
       (save-excursion
         (re-search-backward "^TcDebug" pt t)
         (re-search-backward "<infomsg>\\|^TcDebug\\|^</prompt>" nil t)
@@ -2182,96 +2181,68 @@ Based on idea mentioned in Coq reference manual."
         (indent-region pt (point))))))
 
 
-(defvar coq-commands-accepting-as (regexp-opt '("induction" "destruct" "inversion" "injection")))
+(defvar coq-keywords-accepting-as-regex (regexp-opt '("induction" "destruct" "inversion" "injection")))
 
-(defvar coq-last-input-action nil
-  "For internal use only.
-This variable contains the last action kind that has been issued
-to coq shell, it is set to nil each time it is used by
-`coq-insert-as'. See there why. ")
+;; destruct foo., where foo is a name.
+(defvar coq-auto-as-hack-hyp-name-regex 
+  (concat "\\(" "induction\\|destruct" "\\)\\s-+\\(" coq-id-shy "\\)\\s-*\\.")
+  "Regexp of commands needing a hack to generate correct \"as\" close.
+tacitcs like destruct and induction reuse hypothesis names by
+default, which makes the detection of new hypothesis incorrect.
+the hack consists in adding the \"!\" modifier on the argument
+destructed, so that it is left in the goal and the name cannot be
+reused. We also had a \"clear\" at the end of the tactic so that
+the whole tactic behaves correctly.
+Warning: this makes the error messages (and location) wrong.")
 
-(defun coq-insert-infoH ()
-  "Insert the tactical into variable `string' if applicable.
-This function is intended to be added to
-`proof-shell-insert-hook', `string' is the command about to be
-issued to Coq. If `string' matches `coq-commands-accepting-as'
-and we are advancing in the script, then script is modified to
-add the info_hyps tactical. This is used for automatic \"as\"
-insertion using another hook."
-  (setq coq-last-input-action action)
-  (if (and (eq action 'proof-done-advancing)
-           (string-match coq-commands-accepting-as string))
-      (with-no-warnings  ;; NB: dynamic scoping of `string'
-        (setq string (concat "infoH " string)))))
-
-(defun coq-auto-insert-as ()
-  "This function is called whenever the `auto-insert-as' is set.
-It adds or remove hooks accordingly."
-  (if coq-auto-insert-as
-      (progn
-        (add-hook 'proof-shell-insert-hook 'coq-insert-infoH)
-        (add-hook 'proof-state-change-hook 'coq-insert-as))
-    (remove-hook 'proof-shell-insert-hook 'coq-insert-infoH)
-    (remove-hook 'proof-state-change-hook 'coq-insert-as)))
-
-(defpacustom auto-insert-as nil
-  "Insert \"as [ ... | ... ] \" after (compatible) tactics."
-  :type 'boolean)
-
+(defun coq-hack-cmd-for-infoH (s)
+  "return the tactic S hacked with infoH tactical."
+  (cond
+   ((string-match ";" s) s) ;; composed tactic cannot be treated 
+   ((string-match coq-auto-as-hack-hyp-name-regex s)
+    (concat "infoH " (match-string 1 s) " !" (match-string 2 s) "."))
+   ((string-match coq-keywords-accepting-as-regex s)
+    (concat "infoH " s))
+   (t (concat "infoH " s))))
 
 ;; Point supposed to be at the end of locked region, that is
 ;; (proof-assert-next-command-interactive) has just finished
-(defun coq-tactic-already-has-an-as-close()
+(defun coq-tactic-already-has-an-as-close(s)
   "Return t if the last tactic of locked region contains an \"as\" close."
-  (save-excursion
-    (coq-script-parse-cmdend-backward)
-    (let ((endpos (point))
-          (startpos (coq-find-real-start)))
-      (string-match "\\<as\\>" (buffer-substring startpos endpos)))))
+  (save-excursion (string-match "\\<as\\>" s)))
 
 
-;; da: FIXME untested with new generic hybrid code: hope this still works ;;
-;; pc: seems ok, some hack was needed below because when backtracking the
-;; coq-state-change-hook is called first with a 'advancing action (issuing the
-;; backtrack command??) and then a second time with the 'retracting action.
-;; Therefore we have to set coq-last-input-action to nil explicitely to avoid
-;; this function to do something wrong with a previous value.
-(defun coq-insert-as ()
-  "Assert next command and insert \"as\" suffix to it.
-Only if there is not already an as close. Names given by
-\"infoH\" tactical. Based on idea mentioned in Coq reference
-manual. oint is supposed to be at the end of locked region.
-Typically after a proof-assert-next-command.
-
-* Warning: infoH tactical is implemented in coq versions later
-  than 8.4. More precisely: coq trunk on Oct 1st, 2012 (coq svn
-  revision 15839)."
+(defun coq-insert-as-in-next-command ()
   (interactive)
-  (when (and (eq coq-last-input-action 'proof-done-advancing) proof-shell-last-output)
-    (let*
-        ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
-                            ;; proof-shell-last-response-output would be
-                            ;; smaller/faster but since this message is output
-                            ;; *before* resulting goals, it is not detected as
-                            ;; a response message.
-                            proof-shell-last-output))
-         (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))
-         ;; emptysubstr = t if substr is empty or contains only spaces and |
-         (emptysubstr (and (string-match "\\(\\s-\\||\\)*" substr)
-                           (eq (length substr) (length (match-string 0 substr)))))) ; idem
-      (unless (or emptysubstr (coq-tactic-already-has-an-as-close))
-        (save-excursion
-          ;; TODO: look for eqn:XX and go before it.
-          ;; Go just before the last "."
-          (goto-char (proof-unprocessed-begin))
-          (coq-script-parse-cmdend-backward)
-          (let ((inhibit-read-only t))
-            (insert (concat " as [" substr "]")))))))
-  ;; HACKY: The hook proof-state-change-hook is called too many times (when
-  ;; backtracking in particular), so once we have inserted the as close (or we
-  ;; have decide not to do so) we erase the action so that the next call to
-  ;; this hook will do nothing until infoH is inserted again.
-  (setq coq-last-input-action nil))
+  (save-excursion
+    (goto-char (proof-unprocessed-begin))
+    (coq-find-real-start)
+    (let* ((pt (point))
+           (dummy (coq-script-parse-cmdend-forward))
+           (cmd (buffer-substring pt (point)))
+           (newcmd (if (coq-tactic-already-has-an-as-close cmd)
+                       nil
+                     (coq-hack-cmd-for-infoH cmd))))
+      (when newcmd ; FIXME: we stop if as already there, replace it instead?
+        (proof-shell-invisible-command newcmd t)
+        (let* ((str (string-match "<infoH>\\([^<]*\\)</infoH>"
+                                  ;; proof-shell-last-response-output would be
+                                  ;; smaller/faster but since this message is output
+                                  ;; *before* resulting goals, it is not detected as
+                                  ;; a response message.
+                                  proof-shell-last-output))
+               (substr  (or (and str (match-string 1 proof-shell-last-output)) ""))
+               ;; emptysubstr = t if substr is empty or contains only spaces and |
+               (emptysubstr (and (string-match "\\(\\s-\\||\\)*" substr)
+                                 (eq (length substr) (length (match-string 0 substr)))))) ; idem
+          (unless (or emptysubstr (coq-tactic-already-has-an-as-close newcmd)) ;; FIXME
+            (save-excursion
+              ;; TODO: look for eqn:XX and go before it.
+              ;; Go just before the last "."
+              (goto-char (proof-unprocessed-begin))
+              (coq-script-parse-cmdend-forward)
+              (coq-script-parse-cmdend-backward)
+              (insert (concat " as [" substr "]")))))))))
 
 ;; Trying to propose insertion of "as" for a whole region. But iterating
 ;; proof-assert-next-command-interactive is probably wrong if some error occur
