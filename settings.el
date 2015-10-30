@@ -446,9 +446,7 @@
  '(erc-services-mode t)
  '(erc-text-matched-hook (quote (erc-hide-fools my-erc-hook)))
  '(erc-track-enable-keybindings t)
- '(erc-track-exclude
-   (quote
-    ("#idris" "#emacs" "#ghc" "#haskell-emacs" "#agda" "#twitter_jwiegley")))
+ '(erc-track-exclude (quote ("#idris" "#agda" "#twitter_jwiegley")))
  '(erc-track-exclude-types
    (quote
     ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
