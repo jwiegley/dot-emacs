@@ -118,7 +118,7 @@
            (lambda ()
              (let ((process-environment (copy-alist process-environment)))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
-               (start-fetchmail "*fetchmail-lists*" nil
+               (start-fetchmail "*fetchmail-lists*" nil "--idle"
                                 "-f" (expand-file-name
                                       "~/Messages/fetchmailrc.lists")))))))
         ;; (fetchmail-spam-buf

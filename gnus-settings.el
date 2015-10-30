@@ -168,16 +168,22 @@ John Wiegley, Chairperson"))))
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
       (total-expire . t)
-      (expiry-wait . 90)
+      (expiry-wait . 365)
       (expiry-target . "list.emacs.devel.archive"))
      ("list\\.emacs\\.help"
       (to-address . "help-gnu-emacs@gnu.org")
       (to-list . "help-gnu-emacs@gnu.org"))
-     ("list\\.emacs\\.bugs"
-      (to-list . "bug-gnu-emacs@gnu.org"))
+     ("list\\.emacs\\.bugs$"
+      (to-list . "bug-gnu-emacs@gnu.org")
+      (total-expire . t)
+      (expiry-wait . 365)
+      (expiry-target . "list.emacs.bugs.archive"))
+     ("list\\.emacs\\.bugs\\.tracker"
+      (list-identifier . "\\[debbugs-tracker\\]"))
      ("list\\.emacs\\.diffs"
       (to-address . "emacs-diffs@gnu.org")
-      (to-list . "emacs-diffs@gnu.org"))
+      (to-list . "emacs-diffs@gnu.org")
+      (list-identifier . "\\[Emacs-diffs\\]"))
      ("list\\.emacs\\.elpa\\.diffs"
       (to-address . "emacs-elpa-diffs@gnu.org")
       (to-list . "emacs-elpa-diffs@gnu.org")
@@ -192,8 +198,6 @@ John Wiegley, Chairperson"))))
       (to-address . "emacs-orgmode@gnu.org")
       (to-list . "emacs-orgmode@gnu.org")
       (list-identifier . "\\[O\\]"))
-     ("list\\.emacs\\.diffs"
-      (list-identifier . "\\[Emacs-diffs\\]"))
      ("list\\.boost\\.cppnow"
       (to-address . "boostcon-plan@googlegroups.com")
       (to-list . "boostcon-plan@googlegroups.com"))
