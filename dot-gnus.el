@@ -127,8 +127,10 @@
 
 (use-package gnus-sum
   :config
-  (bind-key "r" #'gnus-summary-wide-reply-with-original
-            gnus-summary-mode-map))
+  (bind-key "F" #'gnus-summary-wide-reply-with-original
+            gnus-summary-mode-map)
+  (bind-key "F" #'gnus-article-wide-reply-with-original
+            gnus-article-mode-map))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
