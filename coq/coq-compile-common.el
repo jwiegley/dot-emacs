@@ -30,7 +30,7 @@
 
 (defun get-coq-library-directory ()
   (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
-    (if (string-match c "not found")
+    (if (string-match "not found" c)
         "/usr/local/lib/coq"
       c)))
 
@@ -111,6 +111,10 @@ Must be used together with `coq-par-enable'."
                (eq (car entry) 'recnoimport)
                (every 'stringp (cdr entry))
                (equal (length entry) 3))
+          (and (listp entry)
+               (eq (car entry) 'ocamlimport)
+               (every 'stringp (cdr entry))
+               (equal (length entry) 2))
           (and (listp entry)
                (every 'stringp entry)
                (equal (length entry) 2))))
@@ -264,31 +268,36 @@ that contains the \"Require\".")
   "Non-standard coq library load path.
 This list specifies the LoadPath extension for coqdep, coqc and
 coqtop. Usually, the elements of this list are strings (for
-\"-I\") or lists of two strings (for \"-R\" dir \"-as\" path).
+\"-I\") or lists of two strings (for \"-R\" dir path and
+\"-Q\" dir path).
 
-The possible forms of elements of this list correspond to the 3
-forms of include options ('-I' and '-R'). An element can be
+The possible forms of elements of this list correspond to the 4
+forms of include options ('-I' '-Q' and '-R'). An element can be
 
-  - A string, specifying a directory to be mapped to the empty
-    logical path ('-I').
+  - A list of the form '(ocamlimport dir)', specifying a
+    directory to be added to ocaml path ('-I').
   - A list of the form '(rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
-    logical path 'path' ('-R dir -as path').
+    logical path 'path' ('-R dir path').
   - A list of the form '(recnoimport dir path)' (where dir and
     path are strings) specifying a directory to be recursively
     mapped to the logical path 'path' ('-Q dir path'), but not
     imported (modules accessible for import with qualified names
     only).
-  - A list of the form '(norec dir path)', specifying a directory
-    to be mapped to the logical path 'path' ('-I dir -as path').
+  - A list of the form '(norec dir)', specifying a directory
+    to be mapped to the empty logical path ('-Q dir \"\"').
 
 For convenience the symbol 'rec' can be omitted and entries of
 the form '(dir path)' are interpreted as '(rec dir path)'.
 
 Under normal circumstances this list does not need to
 contain the coq standard library or \".\" for the current
-directory (see `coq-load-path-include-current')."
-  :type '(repeat (choice (string :tag "simple directory without path (-I)")
+directory (see `coq-load-path-include-current').
+
+WARNING: if you use coq <= 8.4, the meaning of these options is
+not the same (-I is for coq path).
+"
+  :type '(repeat (choice (string :tag "simple directory without path (-Q \"\")") ; is this really useful?
                          (list :tag
                                "recursive directory with path (-R ... -as ...)"
                                (const rec)
@@ -300,8 +309,13 @@ directory (see `coq-load-path-include-current')."
                                (string :tag "directory")
                                (string :tag "log path"))
                          (list :tag
-                               "simple directory with path (-I ... -as ...)"
+                               "directory with empty logical path (-Q ... "" in coq>=8.5, -I ... in coq<=8.4)"
                                (const nonrec)
+                               (string :tag "directory")
+                               (string :tag "log path"))
+                         (list :tag
+                               "ocaml path (-I ...)"
+                               (const ocamlimport)
                                (string :tag "directory")
                                (string :tag "log path"))))
   :safe 'coq-load-path-safep
@@ -354,7 +368,7 @@ This option can be set/reset via menu
 
 (defcustom coq-load-path-include-current t
   "If `t' let coqdep search the current directory too.
-Should be `t' for normal users. If `t' pass \"-I dir\" to coqdep when
+Should be `t' for normal users. If `t' pass -Q dir \"\" to coqdep when
 processing files in directory \"dir\" in addition to any entries
 in `coq-load-path'."
   :type 'boolean
@@ -467,16 +481,23 @@ DEP-MOD-TIMES is empty it returns nil."
 See `coq-load-path' for the possible forms of entry and to which
 options they are translated."
   (cond
-   ((stringp entry)
+   ((and coq-pre-v85 (stringp entry))
     (list "-I" (expand-file-name entry)))
-   ((eq (car entry) 'nonrec)
+   ((and (not coq-pre-v85) (stringp entry))
+    (list "-Q" (expand-file-name entry) ""))
+   ((and coq-pre-v85 (eq (car entry) 'nonrec))
     (list "-I" (expand-file-name (nth 1 entry)) "-as" (nth 2 entry)))
-   ((eq (car entry) 'recnoimport)
+   ((and (not coq-pre-v85) (eq (car entry) 'nonrec)) ;; N/A?
+    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
+   ((eq (car entry) 'recnoimport) ;; only for >=8.5
     (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
    (t
     (if (eq (car entry) 'rec)
         (setq entry (cdr entry)))
-    (list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry)))))
+    (if coq-pre-v85 ;; -as obsolete in 8.5
+	(list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry))
+      (list "-R" (expand-file-name (car entry)) (nth 1 entry))))))
+
 
 (defun coq-include-options (file coq-load-path)
   "Build the list of include options for coqc, coqdep and coqtop.
@@ -499,12 +520,14 @@ FILE should be an absolute file name. It can be nil if
         (nconc result (coq-option-of-load-path-entry entry))))
     (if coq-load-path-include-current
         (setq result
-              (cons "-I" (cons (file-name-directory file) result))))
+              (if coq-pre-v85
+		  (cons "-I" (cons (file-name-directory file) result))
+		(cons "-Q" (cons (file-name-directory file) (cons "" result))))))
     result))
 
 (defun coq-prog-args ()
   ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -I options.
+  ;; include it in the -Q options. This is not true for coqdep.
   (let ((coq-load-path-include-current nil))
     (append coq-prog-args (coq-include-options nil coq-load-path))))
 

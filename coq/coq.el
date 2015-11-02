@@ -59,6 +59,13 @@
     (defvar prettify-symbols-alist nil)))
 
 
+(defun get-coq-version ()
+  (let ((c (shell-command-to-string "coqtop -v")))
+    (if (string-match "version \\([^ ]+\\)\\s-" c)
+	(match-string 1 c)
+      c)))
+
+
 ;; ----- coq-shell configuration options
 
 ;;; Code:
@@ -87,6 +94,13 @@ See also `coq-prog-env' to adjust the environment."
 
 (defcustom coq-translate-to-v8 nil
   "Whether to use -translate argument to Coq."
+  :type 'boolean
+  :group 'coq)
+
+(defcustom coq-pre-v85 nil
+  "Whether to use <= coq-8.4 config (nil by default).
+Mainly to deal with command line options that changed between 8.4
+and 8.5 (-Q foo bar replace -I foo)."
   :type 'boolean
   :group 'coq)
 
@@ -959,6 +973,8 @@ This is specific to `coq-mode'."
 (defun coq-SearchAbout ()
   (interactive)
   (coq-ask-do
+   ;; TODO: use [Add Search Blacklist "foo"] to exclude optionaly some patterns:
+   ;;  "_ind" "_rec" "R_" "_equation"
    "SearchAbout (ex: \"eq_\" eq -bool)"
    "SearchAbout")
   (message "use `coq-SearchAbout-all' to see constants ending with \"_ind\", \"_rec\", etc"))

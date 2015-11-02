@@ -77,7 +77,7 @@ break."
 		(list lib-src-file)))
         coqdep-status coqdep-output)
     (if coq-debug-auto-compilation
-        (message "call coqdep arg list: %s" coqdep-arguments))
+        (message "call coqdep arg list: %S" coqdep-arguments))
     (with-temp-buffer
       (setq coqdep-status
             (apply 'call-process
