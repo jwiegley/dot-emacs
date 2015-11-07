@@ -17,7 +17,8 @@
  '(gnus-alias-default-identity "Gmail")
  '(gnus-alias-identity-alist
    (quote
-    (("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+    (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "")
+     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "")
      ("Assembly" "" "\"John Wiegley\" <jwiegley@gmail.com>" "Spiritual Assembly of the Bahá'ís of Peoria" nil "" "Spiritual Assembly of the Bahá'ís of Peoria
 John Wiegley, Chairperson"))))
@@ -28,15 +29,15 @@ John Wiegley, Chairperson"))))
       "NewArtisans")
      ("Emacs Mailing Lists"
       ("To" "emacs" current)
-      "NewArtisans")
+      "Gnu")
      ("Emacs Newsgroups"
       ("Newsgroups" "emacs" current)
-      "NewArtisans")
+      "Gnu")
      ("Haskell Groups"
-      ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\)" current)
+      ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
       "NewArtisans")
      ("Haskell Mailing Lists"
-      ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\)" current)
+      ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
       "NewArtisans"))))
  '(gnus-alias-override-user-mail-address t)
  '(gnus-alias-unknown-identity-rule (quote error))
@@ -164,13 +165,13 @@ John Wiegley, Chairperson"))))
      ("list\\.bahai\\.tarjuman"
       (to-address . "tarjuman@bahai-library.com")
       (to-list . "tarjuman@bahai-library.com"))
-     ("list\\.emacs\\.devel"
+     ("list\\.emacs\\.devel$"
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
       (total-expire . t)
       (expiry-wait . 365)
       (expiry-target . "list.emacs.devel.archive"))
-     ("list\\.emacs\\.help"
+     ("list\\.emacs\\.help$"
       (to-address . "help-gnu-emacs@gnu.org")
       (to-list . "help-gnu-emacs@gnu.org"))
      ("list\\.emacs\\.bugs$"
@@ -324,7 +325,6 @@ John Wiegley, Chairperson"))))
      (nntp "Eternal September"
            (nntp-address "news.eternal-september.org")
            (nntp-authinfo-user "jwiegley")))))
- '(gnus-refer-thread-use-nnir t)
  '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
  '(gnus-save-killed-list nil)
  '(gnus-save-newsrc-file nil)

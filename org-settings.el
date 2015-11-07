@@ -110,7 +110,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/BAE.txt" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/OSS.txt")))
+    ("~/Documents/BAE.txt" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/Emacs.txt" "~/Documents/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -278,12 +278,14 @@ SCHEDULED: %t
  '(org-refile-targets
 (quote
  (("~/Documents/todo.txt" :level . 1)
+  ("~/Documents/Emacs.txt" :level . 1)
   ("~/Documents/OSS.txt" :level . 1)
   ("~/Documents/BAE.txt" :level . 1)
   ("~/Documents/assembly.txt" :level . 1)
   (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
+ '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
  '(org-tags-column -97)

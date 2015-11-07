@@ -1411,7 +1411,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (toggle-cursor-type-when-idle 1))
 
 (use-package debbugs-gnu
-  :disabled t
   :load-path "site-lisp/debbugs"
   :commands (debbugs-gnu debbugs-gnu-search))
 

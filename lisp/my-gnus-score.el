@@ -169,9 +169,9 @@
     (gnus-del-mark       (subject 5))
     ;;(gnus-recent-mark    (subject 0)    (from 0))
     (gnus-killed-mark    (subject -5)   (from -2))
-    (gnus-catchup-mark   (subject -250))
+    (gnus-catchup-mark   (subject -1000))
     (gnus-duplicate-mark (subject -250))
-    (gnus-expirable-mark (subject -250))
+    (gnus-expirable-mark (subject -9000))
     (gnus-spam-mark      (from -150))))
 
 (my-gnus-score-defcustom gnus-score-default-duration  'p)
