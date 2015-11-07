@@ -25,3 +25,6 @@
 [submodule "devel"]
 	path = devel
 	url = johnw@git.sv.gnu.org:/srv/git/emacs.git
+[submodule "elpa"]
+	path = elpa
+	url = johnw@git.sv.gnu.org:/srv/git/emacs/elpa.git
