@@ -1,3 +1,5 @@
+/devel/
+/elpa/
 *.elc
 *~
 autoloads.el
