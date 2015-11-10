@@ -113,7 +113,11 @@ John Wiegley, Chairperson"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.haskell\\.ghc$"
+    (("list\\.gsoc\\.mentors$"
+      (to-address . "google-summer-of-code-mentors-list@googlegroups.com")
+      (to-list . "google-summer-of-code-mentors-list@googlegroups.com")
+      (list-identifier . "\\[GSoC Mentors\\]"))
+     ("list\\.haskell\\.ghc$"
       (to-address . "glasgow-haskell-users@haskell.org")
       (to-list . "glasgow-haskell-users@haskell.org")
       (list-identifier . "\\[Haskell\\]"))
