@@ -430,7 +430,7 @@
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
- '(erc-ignore-list (quote ("lensbot")))
+ '(erc-ignore-list (quote ("lensbot" "rudybot")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
  '(erc-log-write-after-send t)
