@@ -175,6 +175,9 @@ John Wiegley, Chairperson"))))
       (total-expire . t)
       (expiry-wait . 365)
       (expiry-target . "list.emacs.devel.archive"))
+     ("list\\.emacs\\.tangents$"
+      (to-address . "emacs-tangents@gnu.org")
+      (to-list . "emacs-tangents@gnu.org"))
      ("list\\.emacs\\.help$"
       (to-address . "help-gnu-emacs@gnu.org")
       (to-list . "help-gnu-emacs@gnu.org"))
