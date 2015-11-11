@@ -1,4 +1,4 @@
-;;; yaoddmuse.el --- Yet another oddmuse for Emacs
+;;; yaoddmuse.el --- Major mode for EmacsWiki and other Oddmuse wikis
 
 ;; Filename: yaoddmuse.el
 ;; Description: Yet another oddmuse for Emacs
@@ -7,16 +7,20 @@
 ;; Copyright (C) 2009, Andy Stewart, all rights reserved.
 ;; Copyright (C) 2009, 2010 rubikitch, all rights reserved.
 ;; Created: 2009-01-06 12:41:17
-;; Version: 0.1.1
-;; Last-Updated: 2010/03/20 20:53
-;;           By: rubikitch
+;; Version: 0.1.2
+;; Package-Version: 20150521.1841
+;; Last-Updated: 2015/21/05 2:40
+;;           By: Michael Abrahams
 ;; URL: http://www.emacswiki.org/emacs/download/yaoddmuse.el
 ;; Keywords: yaoddmuse, oddmuse
 ;; Compatibility: GNU Emacs 22 ~ 23
 ;;
 ;; Features that might be required by this library:
 ;;
-;; `url' `cl' `sgml-mode' `skeleton'
+;;   `dired', `find-func', `mail-prsvr', `mailcap', `mm-util',
+;;   `sgml-mode', `skeleton', `thingatpt', `timer', `timezone',
+;;   `url', `url-cookie', `url-expand', `url-history', `url-methods',
+;;   `url-parse', `url-privacy', `url-proxy', `url-util', `url-vars'.
 ;;
 
 ;;; This file is NOT part of GNU Emacs
@@ -240,7 +244,7 @@
 ;;    default = t
 ;;  `yaoddmuse-wikis'
 ;;    Alist mapping wiki names to URLs.
-;;    default = (quote (("TestWiki" "http://www.emacswiki.org/cgi-bin/test" utf-8 "uihnscuskc=1;") ("EmacsWiki" "http://www.emacswiki.org/cgi-bin/emacs" utf-8 "uihnscuskc=1;") ("CommunityWiki" "http://www.communitywiki.org/cw" utf-8 "uihnscuskc=1;") ("RatpoisonWiki" "http://ratpoison.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;") ("StumpwmWiki" "http://stumpwm.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;") ...))
+;;    default = (quote (("TestWiki" "http://www.emacswiki.org/test" utf-8 "uihnscuskc=1;") ("EmacsWiki" "http://www.emacswiki.org/emacs" utf-8 "uihnscuskc=1;") ("CommunityWiki" "http://www.communitywiki.org/cw" utf-8 "uihnscuskc=1;") ("RatpoisonWiki" "http://ratpoison.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;") ("StumpwmWiki" "http://stumpwm.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;") ...))
 ;;  `yaoddmuse-default-wiki'
 ;;    The default wiki name for edit.
 ;;    default = "EmacsWiki"
@@ -395,9 +399,15 @@
 ;;  # If you are a Japanese, please write in Japanese:-)
 
 ;;; Change log:
+;; 2014/03/06     Andy Stewart
+;;      * `yaoddmuse-post-dired': add sit-for 5 for emacswiki to void upload files failed.
+;;
+;; 25-Feb-2013    ChristianGiménez
+;;      * Tildes recognition in links.
+;;
 ;; 2010/05/04
 ;;      * Bug report command: `yaoddmuse-send-bug-report'
-;;      
+;;
 ;; 2010/03/20
 ;;      * Add Emacswiki-specific commands for convenience:
 ;;        `emacswiki'
@@ -596,11 +606,9 @@ Default is t."
   :group 'yaoddmuse)
 
 (defcustom yaoddmuse-wikis
-  '(("TestWiki" "http://www.emacswiki.org/cgi-bin/test" utf-8 "uihnscuskc=1;")
-    ("EmacsWiki" "http://www.emacswiki.org/cgi-bin/emacs" utf-8 "uihnscuskc=1;")
+  '(("EmacsWiki" "http://www.emacswiki.org/emacs" utf-8 "uihnscuskc=1;")
     ("CommunityWiki" "http://www.communitywiki.org/cw" utf-8 "uihnscuskc=1;")
-    ("RatpoisonWiki" "http://ratpoison.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;")
-    ("StumpwmWiki" "http://stumpwm.antidesktop.net/cgi-bin/wiki" utf-8 "uihnscuskc=1;")
+    ("RatpoisonWiki" "http://ratpoison.wxcvbn.org/cgi-bin/wiki.pl" utf-8 "uihnscuskc=1;")
     ("OddmuseWiki" "http://www.oddmuse.org/cgi-bin/oddmuse" utf-8 "uihnscuskc=1;"))
   "Alist mapping wiki names to URLs.
 First argument is Wiki name.
@@ -716,17 +724,20 @@ Default is t."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Faces ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defface yaoddmuse-tag
-  '((t (:foreground "Gold")))
+  '((t (:inherit 'font-lock-preprocessor-face))
+    (((background dark)) (:foreground "Gold")))
   "Highlight tag."
   :group 'yaoddmuse)
 
 (defface yaoddmuse-link
-  '((t (:foreground "Khaki")))
+  '((((background dark)) (:foreground "Khaki"))
+    (t (:inherit 'link)))
   "Highlight link."
   :group 'yaoddmuse)
 
 (defface yaoddmuse-url
-  '((t (:foreground "Grey20")))
+  '((((background dark)) (:foreground "Grey20"))
+    (t (:inherit 'link :foreground unspecified :underline nil)))
   "Highlight link."
   :group 'yaoddmuse)
 
@@ -751,7 +762,8 @@ Default is t."
   :group 'yaoddmuse)
 
 (defface yaoddmuse-source-code
-  '((t (:foreground "Yellow")))
+  '((t (:inherit 'fixed-pitch))
+    (((background dark)) (:foreground "Yellow")))
   "Highlight source-code."
   :group 'yaoddmuse)
 
@@ -908,7 +920,7 @@ It must print the page to stdout.
   "An alist of file extensions and corresponding MIME content-types.")
 
 (defvar yaoddmuse-imenu-regexp "^\\(=+\\)\\s-*\\(.*?\\)\\s-*\\1"
- "A regular expression for headings to be added to an index menu.")
+  "A regular expression for headings to be added to an index menu.")
 
 
 (defvar yaoddmuse-mode-map
@@ -961,9 +973,11 @@ It must print the page to stdout.
      ("^=\\{2,\\}\\([^=]+\\)=\\{2,\\}" 1 'yaoddmuse-heading)
      ("\\[\\[\\(image:\\)\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]\\]" 1 'yaoddmuse-image-link)
      ("\\[\\[\\(image:\\)\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]\\]" 2 'yaoddmuse-image-link-name)
-     ("\\[\\(\\([^\\[]\\|[^\\]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 1 'yaoddmuse-url)
-     ("\\[\\(\\([^\\[]\\|[^\\]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 3 'yaoddmuse-url-name)
-     ("\\<[A-Z\xc0-\xde]+[a-z\xdf-\xff]+\\([A-Z\xc0-\xde]+[a-z\xdf-\xff]*\\)+\\>" . 'yaoddmuse-link)
+     ("\\[\\(\\([^\\[[:blank:]]\\|[^\\][:blank:]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 1 'yaoddmuse-url)
+     ("\\[\\(\\([^\\[[:blank:]]\\|[^\\][:blank:]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 3 'yaoddmuse-url-name)
+     ;; ("\\[\\(\\([^\\[]\\|[^\\]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 1 'yaoddmuse-url)
+     ;; ("\\[\\(\\([^\\[]\\|[^\\]]\\)+\\)[[:blank:]]\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]" 3 'yaoddmuse-url-name)     
+     ("\\<[A-Z\xc0-\xdeÀÈÌÒÙÁÉÍÓÚÖÜ]+[àèìòùáéíóúüöa-z\xdf-\xff]+\\([ÀÈÌÒÙÁÉÍÓÚÖÜA-Z\xc0-\xde]+[àèìòùáéíóúüöa-z\xdf-\xff]*\\)+\\>" . 'yaoddmuse-link)
      ("\\[\\[\\(\\([^\\[]\\|[^\\]]\\)+\\)\\]\\]" 1 'yaoddmuse-link)
      ("\\b\\(Lisp:\\)\\([^ ]+\\.el\\)\\b" 1 'yaoddmuse-lisp-keyword)
      ("\\b\\(Lisp:\\)\\([^ ]+\\.el\\)\\b" 2 'yaoddmuse-lisp-file)
@@ -1024,6 +1038,7 @@ It must print the page to stdout.
 
 ;;; Edit.
 
+;;;###autoload
 (defun yaoddmuse-edit (&optional wikiname pagename prefix)
   "Edit a page on a wiki.
 WIKINAME is the name of the wiki as defined in `yaoddmuse-wikis',
@@ -1040,6 +1055,7 @@ Use a PREFIX argument to force a reload of the page."
                               'yaoddmuse-handle-get
                             'yaoddmuse-handle-get-or-display)))
 
+;;;###autoload
 (defun yaoddmuse-edit-default (prefix)
   "Edit a page with default wiki `yaoddmuse-default-wiki'.
 Use a PREFIX argument to force a reload of the page."
@@ -1063,6 +1079,7 @@ page name when can't find page name around point."
 
 ;;; Post
 
+;;;###autoload
 (defun yaoddmuse-post-buffer (&optional post-buffer summary prefix)
   "Post the BUFFER to the current wiki.
 The current wiki is taken from `yaoddmuse-wiki'.
@@ -1087,6 +1104,7 @@ If PREFIX is non-nil, will view page after post successful."
                   summary
                   prefix))
 
+;;;###autoload
 (defun yaoddmuse-post-current-buffer (prefix)
   "Post current buffer to current wiki.
 The current wiki is taken from `yaoddmuse-wiki'.
@@ -1094,6 +1112,7 @@ Use a PREFIX argument to browse page after post successful."
   (interactive "P")
   (yaoddmuse-post-buffer (current-buffer) nil prefix))
 
+;;;###autoload
 (defun yaoddmuse-post-file (&optional filename wikiname pagename summary prefix)
   "Post file to current wiki.
 The current wiki is taken from `yaoddmuse-wiki'.
@@ -1119,12 +1138,14 @@ If PREFIX is non-nil, will view page after post successful."
     ;; Error when invalid file name.
     (message "Invalid file name %s" filename)))
 
+;;;###autoload
 (defun yaoddmuse-post-file-default (prefix)
   "Post file to default wiki.
 If PREFIX is non-nil, will view page after post successful."
   (interactive "P")
   (yaoddmuse-post-file nil yaoddmuse-default-wiki nil nil prefix))
 
+;;;###autoload
 (defun yaoddmuse-post-library (&optional library wikiname pagename summary prefix)
   "Post library to current wiki.
 The current wiki is taken from `yaoddmuse-wikis'.
@@ -1140,6 +1161,7 @@ If PREFIX is non-nil, will view page after post successful."
   (let ((filename (find-library-name library)))
     (yaoddmuse-post-file filename wikiname pagename summary prefix)))
 
+;;;###autoload
 (defun yaoddmuse-post-library-default (prefix)
   "Post library to default wiki.
 Use a PREFIX argument to browse page after post successful."
@@ -1150,6 +1172,7 @@ Use a PREFIX argument to browse page after post successful."
     ;; Post library to default wiki.
     (yaoddmuse-post-file filename yaoddmuse-default-wiki pagename nil prefix)))
 
+;;;###autoload
 (defun yaoddmuse-post-dired (&optional wikiname summary prefix)
   "Post dired marked files to current wiki.
 The current wiki is taken from `yaoddmuse-wikis'.
@@ -1168,12 +1191,14 @@ If PREFIX is non-nil, will view page after post successful."
               (yaoddmuse-post-file filename wikiname pagename summary prefix))))
     (message "This command in only for `dired-mode'.")))
 
+;;;###autoload
 (defun yaoddmuse-post-dired-default (prefix)
   "Post dired marked files to default wiki.
 Use a PREFIX argument to browse page after post successful."
   (interactive "P")
   (yaoddmuse-post-dired yaoddmuse-default-wiki nil prefix))
 
+;;;###autoload
 (defun yaoddmuse-post-screenshot (&optional wikiname summary prefix)
   "Post screenshot to current wiki.
 The current wiki is taken from `yaoddmuse-wikis'.
@@ -1191,6 +1216,7 @@ If PREFIX is non-nil, will view page after post successful."
         (yaoddmuse-post-file yaoddmuse-screenshot-filename wikiname nil "Screenshot by yaoddmuse.el" prefix))
     (message "Please make sure have install program '%s'." yaoddmuse-screenshot-program)))
 
+;;;###autoload
 (defun yaoddmuse-post-screenshot-default (prefix)
   "Post screenshot to default wiki.
 Use a PREFIX argument to browse page after post successful."
@@ -1204,6 +1230,7 @@ Use a PREFIX argument to browse page after post successful."
   (interactive)
   (yaoddmuse-get-page yaoddmuse-wikiname yaoddmuse-pagename))
 
+;;;###autoload
 (defun yaoddmuse-browse-page (&optional wikiname pagename)
   "Browse special page in wiki.
 WIKINAME is the name of the wiki as defined in `yaoddmuse-wikis',
@@ -1211,11 +1238,13 @@ PAGENAME is the pagename of the page you want to edit."
   (interactive)
   (yaoddmuse-get-pagename wikiname pagename 'yaoddmuse-handle-browse))
 
+;;;###autoload
 (defun yaoddmuse-browse-page-default ()
   "Brose special page with `yaoddmuse-default-wiki'."
   (interactive)
   (yaoddmuse-browse-page yaoddmuse-default-wiki))
 
+;;;###autoload
 (defun yaoddmuse-browse-page-diff (&optional wikiname pagename)
   "Browse special page diff in wiki.
 WIKINAME is the name of the wiki as defined in `yaoddmuse-wikis',
@@ -1223,8 +1252,9 @@ PAGENAME is the pagename of the page you want to edit."
   (interactive)
   (yaoddmuse-get-pagename wikiname pagename 'yaoddmuse-handle-browse-diff))
 
+;;;###autoload
 (defun yaoddmuse-browse-page-default-diff ()
-  "Brose special page with `yaoddmuse-default-wiki'."
+  "Browse special page with `yaoddmuse-default-wiki'."
   (interactive)
   (yaoddmuse-browse-page-diff yaoddmuse-default-wiki))
 
@@ -1345,6 +1375,7 @@ such as picture or compress."
         (insert data)
         (write-file (read-file-name (format "File: (Suffix: %s) " suffix)))))))
 
+;;;###autoload
 (defun emacswiki (&optional pagename prefix)
   "Edit a page on the EmacsWiki.
 PAGENAME is the pagename of the page you want to edit.
