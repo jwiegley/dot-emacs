@@ -593,7 +593,14 @@ If locked span already has a state number, then do nothing. Also updates
       ;; infos = promt infos of the very last prompt
       ;; sp = last locked span, which we want to fill with prompt infos
       (let ((sp    (if proof-script-buffer (proof-last-locked-span)))
-            (infos (or (coq-last-prompt-info-safe) '(0 0 nil nil))))
+            (infos (or (coq-last-prompt-info-safe)
+                       ;; the line above seems to return nil sometimes, let us
+                       ;; issue a warning when this happens, so that we
+                       ;; understand why.
+                       (and (display-warning
+                             'proof-general
+                             "oops nothing returned by (coq-last-prompt-info-safe)!!!" :debug) nil)
+                       '(0 0 nil nil))))
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
         (setq coq-last-but-one-statenum (car infos))
