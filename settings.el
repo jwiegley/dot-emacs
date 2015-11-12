@@ -1010,7 +1010,6 @@
  '(workgroups-mode nil)
  '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
- '(yaoddmuse-browse-function (quote w3m-browse-url))
  '(yaoddmuse-directory "~/.emacs.d/doc")
  '(yas-prompt-functions
    (quote

@@ -1,0 +1,6 @@
+This page contains links to semi-formal proposals concerning improvements to
+the Emacs editor or its packages in ELPA. This is intended for public comment
+and discussion, and ease of author revision.
+
+* [[Isearch-prompt-proposal|Discoverability of isearch options]]
+* [[Framework extending window functions for Follow Mode (etc.)]]

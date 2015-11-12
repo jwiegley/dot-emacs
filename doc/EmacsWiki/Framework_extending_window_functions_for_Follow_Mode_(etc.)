@@ -1,0 +1,33 @@
+The goal of this proposal is to make it possible and easy for Emacs Lisp code
+to be compatible with Follow Mode. For this, a new framework will be
+developed.
+
+[h3]Requirements[/h3]
+
+* The framework will be non-intrusive: it will neither affect working code, nor force it to be amended.
+* The framework will not be tightly coupled with Follow Mode:  Any future replacement for Follow Mode will slot into the framework readily.
+* Code will work in a uniform manner regardless of whether or not Follow Mode is active.
+* Adapting code for this framework will be trivial or easy.
+
+[h3]Analysis[/h3]
+What prevents smooth working with Follow Mode is the use by lisp code of certain primitives which directly access window features.  These primitives include (but may not be limited to):
+* window-start
+* window-end
+* set-window-start
+* recenter
+* pos-visible-in-window-p
+* move-to-window-line
+
+[h3]The proposal[/h3]
+The idea is to add an optional argument to each of the above primitives.  If non-nil, the argument means "should Follow Mode be active, please operate on the entire Follow Mode group of windows as if it were a single window; otherwise, please operate on the single window only".  If the argument is nil, it means "please operate on the single window supplied, even if Follow Mode is active".  The new argument will be called "group".
+
+In addition to the above, functionality is occasionally needed to give access to all the Follow Mode windows as a list (or a single window in a list).  This function will be called
+* selected-window-group
+
+[h3]The mechanism[/h3]
+For each of the seven functions identified above, a permanent local buffer local variable will be created; this will be nil except when Follow Mode is active, when it will hold a function to execute instead of the standard functionality.  These variables will be named "window-start-group-function", etc.  Each of the seven functions will recognise that Follow Mode is active by testing whether its ...-group-function variable is a function.  If so, it will call that function and return its result.  Typically, this function will call the original primitive recursively.
+
+When Follow Mode is started, these buffer local variables will get set to Follow Mode functions which perform the desired actions on the whole group of windows.  When Follow Mode is terminated, these variables become nil again.
+
+[h3]Documentation[/h3]
+The necessary amenements to the Emacs Lisp manual will be mainly in the "Windows" section.  In "Basic Windows" the concept "group of windows" will be defined, together with the documentaition of the new function selected-window-group.  In the documentation of each of the pertinent seven functions, the extra argument "group" will be described, together with the use of the new variable "...-group-function".
