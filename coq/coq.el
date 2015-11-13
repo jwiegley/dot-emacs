@@ -1187,21 +1187,60 @@ necessary.")
 (defun coq-reset-printing-width ()
   (setq coq-shell-current-line-width nil))
 
-(defun coq-goals-window-width ()
+(defun coq-buffer-window-width (buffer)
+  "Return the width of a window currently displaying BUFFER."
   (let*
-      ((goals-wins (get-buffer-window-list proof-goals-buffer nil t))
-       (dummy (if (not (eq 1 (length goals-wins)))
-                  (message "Zero or more than one goals window, guessing window width.")))
-       (goal-win (car goals-wins)))
-    (window-width goal-win)))
+      ((buf-wins (get-buffer-window-list buffer nil t))
+       (dummy (if (not (eq 1 (length buf-wins)))
+                  (display-warning
+                   'proof-general
+                   "Zero or more than one goals window, guessing window width."
+                   :debug)))
+       (buf-win (car buf-wins)));; TODO return the widest one instead of the first?
+    ;; return nil if no goal buffer found
+    (and buf-win (window-width buf-win))))
+
+
+(defun coq-goals-window-width ()
+  (coq-buffer-window-width proof-goals-buffer))
+(defun coq-response-window-width ()
+  (coq-buffer-window-width proof-response-buffer))
+ 
+(defun coq-guess-goal-buffer-at-next-command ()
+  "Return the probable width of goals buffer if it pops up now.
+This is a guess based on the current width of goals buffer if
+present, current pg display mode and current geometry otherwise."
+  (let (pol (proof-guess-3win-display-policy proof-three-window-mode-policy))
+    (cond
+     ;; goals buffer is visible, bingo
+     ((coq-goals-window-width))
+     ;; Below is the heuristic to guess the good width for goals
+     ;; 2 windows mode, response-buffer visible, use this width
+     ((and (not proof-three-window-enable) (coq-response-window-width)))
+     ;; 2 windows mode, response buffer not visible, give up
+     ((not proof-three-window-enable) nil)
+     ;; 3 windows mode, one frame, and vertical policy
+     ((and proof-three-window-enable (not proof-multiple-frames-enable)
+           (eq pol 'vertical))
+      (window-width))
+     ;; 3 windows mode, one frame, other policies, give up
+     ((and proof-three-window-enable (not proof-multiple-frames-enable))
+      nil)
+     ;; multiple frames. If goals buffer pops up it will have frame default
+     ;; size. Falling back to X default window size if not specified.
+     ;; This is hard to mimick, let us give up
+     (proofproof-multiple-frames-enable nil)
+     (t nil) ;; assert false?
+     )))
 
 (defun coq-adapt-printing-width (&optional show width)
   "Sends a Set Printing Width command to coq to fit the response window's width.
 A Show command is also issued if SHOW is non-nil, so that the
 goal is redisplayed."
   (interactive)
-  (let ((wdth (or width (coq-goals-window-width))))
-    (when (not (equal wdth coq-shell-current-line-width))
+  (let ((wdth (or width (coq-guess-goal-buffer-at-next-command))))
+    ;; if no available width, or unchanged, do nothing
+    (when (and wdth (not (equal wdth coq-shell-current-line-width)))
       (proof-shell-invisible-command (format "Set Printing Width %S." (- wdth 1)) t)
       (setq coq-shell-current-line-width wdth)
       ;; Show iff show non nil and some proof is under way
