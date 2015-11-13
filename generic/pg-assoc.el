@@ -40,15 +40,17 @@ Some may be dead/nil."
 
 
 ;;;###autoload
-(defun proof-associated-windows ()
+(defun proof-associated-windows (&optional all-frames)
   "Return a list of the associated buffers windows.
-Dead or nil buffers are not represented in the list."
+Dead or nil buffers are not represented in the list. Optional
+argument ALL-FRAMES has the same meaning than for
+`get-buffer-window'."
   (let ((bufs (proof-associated-buffers))
 	buf wins)
     (while bufs
       (setq buf (car bufs))
-      (if (and buf (get-buffer-window buf))
-	  (setq wins (cons (get-buffer-window buf) wins)))
+      (if (and buf (get-buffer-window-list buf nil all-frames))
+	  (setq wins (append (get-buffer-window-list buf nil all-frames) wins)))
       (setq bufs (cdr bufs)))
     wins))
 
@@ -60,11 +62,9 @@ Dead or nil buffers are not represented in the list."
   "Remove windows of LW not displaying at least one associated buffer."
   (remove-if-not (lambda (w) (proof-associated-buffer-p (window-buffer w))) lw))
 
-(defun proof-find-all-associated-windows ()
-  "Return the list of windows displaying an associated buffer."
-  (proof-filter-associated-windows (window-list-1 nil nil t)))
 
-(defun proof-find-all-associated-frames ()
+;;;###autoload
+(defun proof-associated-frames ()
   "Return the list of frames displaying at least one associated buffer."
   (remove-if-not (lambda (f) (proof-filter-associated-windows (window-list f)))
 		 (frame-list)))

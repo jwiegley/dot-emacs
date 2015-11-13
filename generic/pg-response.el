@@ -188,7 +188,8 @@ Following POLICY, which can be one of 'smart, 'horizontal,
        proof-script-buffer proof-goals-buffer proof-response-buffer
        policy))))
 
-
+;; this is a canidate for replacing proof-delete-other-frames below, less brutal.
+;; For the moment we experiment this locall on coq mode.
 (defun proof-delete-all-associated-windows ()
   "Delete windows (and maybe frames) showing associated buffers.
 Delete a frame if it displays only associated buffers, unless it
@@ -198,7 +199,7 @@ is the only frame (try to bury buffers then)."
 	  (if (not (frame-root-window-p w)) (delete-window w)
 	    (if (< 1 (length (frame-list))) (delete-frame (window-frame w))
 	      (window--display-buffer (other-buffer) w 'window))))
-	(proof-find-all-associated-windows)))
+	(proof-associated-windows t)))
 
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")

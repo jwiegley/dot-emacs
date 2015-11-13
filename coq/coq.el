@@ -1233,7 +1233,7 @@ present, current pg display mode and current geometry otherwise."
      ;; multiple frames. If goals buffer pops up it will have frame default
      ;; size. Falling back to X default window size if not specified.
      ;; This is hard to mimick, let us give up
-     (proofproof-multiple-frames-enable nil)
+     (proof-multiple-frames-enable nil)
      (t nil) ;; assert false?
      )))
 
@@ -2854,6 +2854,12 @@ are non-nil at the same time, this gives priority to the former."
 (add-hook 'proof-deactivate-scripting-hook
           'coq-switch-buffer-kill-proof-shell ;; this function is in coq-compile-common
           t)
+
+
+;; overwriting the default behavior, this is an experiment, *frames* will be
+;; deleted only if only displaying associated buffers. If this is OK the
+;; function itself will replace the other in generic.
+(defun proof-delete-other-frames () (proof-delete-all-associated-windows))
 
 (provide 'coq)
 
