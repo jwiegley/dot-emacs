@@ -1189,7 +1189,7 @@ necessary.")
 
 (defun coq-goals-window-width ()
   (let*
-      ((goals-wins (get-buffer-window-list proof-goals-buffer))
+      ((goals-wins (get-buffer-window-list proof-goals-buffer nil t))
        (dummy (if (not (eq 1 (length goals-wins)))
                   (message "Zero or more than one goals window, guessing window width.")))
        (goal-win (car goals-wins)))
