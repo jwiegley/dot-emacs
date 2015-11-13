@@ -1150,8 +1150,9 @@ flag Printing All set."
 
 ;; FIXME: hopefully this will eventually become a non synchronized option and
 ;; we can remove this.
-(defun coq-auto-adapt-printing-width-switch ()
-  "Function called when toggling `auto-adapt-printing-width'"
+(defun coq-set-auto-adapt-printing-width (&optional symb val); args are for :set compatibility
+  "Function called when setting `auto-adapt-printing-width'"
+  (setq symb val)
   (if coq-auto-adapt-printing-width
       (progn
         (add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
@@ -1170,7 +1171,10 @@ width is synchronized by coq (?!)."
   :type 'boolean
   :safe 'booleanp
   :group 'coq
-  :eval (coq-auto-adapt-printing-width-switch))
+  :eval (coq-set-auto-adapt-printing-width))
+
+;; defpacustom fails to call :eval during inititialization, see trac #456
+(coq-set-auto-adapt-printing-width)
 
 ;; this initiates aut adapt printing width at start, by reading the config var.
 ;; Let us put this at the end of hooks to have a chance to read local variables
