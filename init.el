@@ -45,6 +45,8 @@
 
 ;;; Load customization settings
 
+(defconst titan-ip "192.168.9.133")
+
 (defvar running-alternate-emacs nil)
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
@@ -676,7 +678,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 30
   :config
   (when (and (not running-alternate-emacs)
-             (quickping "192.168.1.133"))
+             (quickping titan-ip))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
 
@@ -1704,18 +1706,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun irc ()
     (interactive)
     (require 'erc)
-    (if (slowping "192.168.1.133")
+    (if (slowping titan-ip)
         (progn
-          (erc :server "192.168.1.133"
+          (erc :server titan-ip
                :port 6697
                :nick "johnw"
-               :password (lookup-password "192.168.1.133"
+               :password (lookup-password titan-ip
+                                          "johnw/bitlbee" 6697))
+          (erc :server titan-ip
+               :port 6697
+               :nick "johnw"
+               :password (lookup-password titan-ip
                                           "johnw/freenode" 6697))
-          (erc :server "192.168.1.133"
+          (erc :server titan-ip
                :port 6697
                :nick "johnw"
-               :password (lookup-password "192.168.1.133"
-                                          "johnw/bitlbee" 6697)))
+               :password "johnw/oftc:rej9shoc"
+               ;;(lookup-password titan-ip "johnw/oftc" 6697)
+               ))
 
       (erc-tls :server "irc.freenode.net"
                :port 6697
