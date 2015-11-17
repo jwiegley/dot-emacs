@@ -3112,6 +3112,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands nf-procmail-mode)
 
 (use-package nlinum
+  :disabled t
   :preface
   (defun goto-line-with-feedback ()
     "Show line numbers temporarily, while prompting for the line number input"
@@ -3119,8 +3120,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (unwind-protect
         (progn
           (nlinum-mode 1)
-          (goto-char (point-min))
-          (forward-line (read-number "Goto line: ")))
+          (let ((num (read-number "Goto line: ")))
+            (goto-char (point-min))
+            (forward-line (1- num))))
       (nlinum-mode -1)))
 
   :init
