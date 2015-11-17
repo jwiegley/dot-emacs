@@ -963,7 +963,6 @@
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
  '(tramp-auto-save-directory "~/.backups")
- '(tramp-default-method "ssh")
  '(tramp-default-method-alist
    (quote
     (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
