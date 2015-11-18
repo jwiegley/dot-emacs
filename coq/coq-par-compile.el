@@ -612,12 +612,14 @@ function returns () if MODULE-ID comes from the standard library."
 (defun coq-par-unlock-ancestors-on-error ()
   "Unlock ancestors which are not in an asserted span.
 Used for unlocking ancestors on compilation errors."
-  (maphash
-   (lambda (ancestor state)
-     (when (eq state 'locked)
-       (coq-unlock-ancestor ancestor)
-       (puthash ancestor nil coq-par-ancestor-files)))
-   coq-par-ancestor-files))
+  (when coq-par-ancestor-files
+    ;; nil e.g. when enabling on-the-fly compilation after processing imports.
+    (maphash
+     (lambda (ancestor state)
+       (when (eq state 'locked)
+         (coq-unlock-ancestor ancestor)
+         (puthash ancestor nil coq-par-ancestor-files)))
+     coq-par-ancestor-files)))
 
 (defun coq-par-emergency-cleanup ()
   "Emergency cleanup for parallel background compilation.
