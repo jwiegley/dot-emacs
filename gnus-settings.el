@@ -113,7 +113,11 @@ John Wiegley, Chairperson"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.gsoc\\.mentors$"
+    (("list\\.risc-v\\.sw-dev$"
+      (to-address . "sw-dev@lists.riscv.org")
+      (to-list . "sw-dev@lists.riscv.org")
+      (list-identifier . "\\[riscv-sw\\]"))
+     ("list\\.gsoc\\.mentors$"
       (to-address . "google-summer-of-code-mentors-list@googlegroups.com")
       (to-list . "google-summer-of-code-mentors-list@googlegroups.com")
       (list-identifier . "\\[GSoC Mentors\\]"))
