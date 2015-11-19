@@ -48,18 +48,24 @@
 (defconst titan-ip "192.168.9.133")
 
 (defvar running-alternate-emacs nil)
+(defvar running-development-emacs nil)
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
-(if (not (string-match (concat "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
-                       invocation-directory))
-    (load (expand-file-name "settings" user-emacs-directory))
+(cond
+ ((or (string-match (concat "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
+                    invocation-directory)
+      (string-match (concat "\\(nextstep\\)/Emacs.app/Contents/MacOS/")
+                    invocation-directory))
   (let ((settings (with-temp-buffer
                     (insert-file-contents
                      (expand-file-name "settings.el" user-emacs-directory))
                     (goto-char (point-min))
                     (read (current-buffer))))
         (suffix (downcase (match-string 1 invocation-directory))))
-    (setq running-alternate-emacs t
+    (if (string= suffix "nextstep")
+        (setq suffix "ns"))
+    (setq running-development-emacs (string= suffix "ns")
+          running-alternate-emacs (not running-development-emacs)
           user-data-directory
           (replace-regexp-in-string "/data/" (format "/data-%s/" suffix)
                                     user-data-directory))
@@ -73,6 +79,7 @@
               (setcar (nthcdr 1 (nth 1 setting))
                       (replace-regexp-in-string regexp replace value)))))
       (eval settings))))
+ (t (load (expand-file-name "settings" user-emacs-directory))))
 
 ;;; Enable disabled commands
 
@@ -678,6 +685,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 30
   :config
   (when (and (not running-alternate-emacs)
+             (not running-development-emacs)
              (quickping titan-ip))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
@@ -1629,6 +1637,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :if (and window-system
            (not running-alternate-emacs)
+           (not running-development-emacs)
            (not noninteractive))
   :load-path "site-lisp/emacs_chrome/servers/"
   :init
@@ -3224,7 +3233,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package persistent-scratch
   :disabled t
-  :if (and window-system (not running-alternate-emacs)
+  :if (and window-system
+           (not running-alternate-emacs)
+           (not running-development-emacs)
            (not noninteractive)))
 
 (use-package perspective
@@ -3572,6 +3583,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
       (unless (or noninteractive
                   running-alternate-emacs
+                  running-development-emacs
                   (and server-process
                        (eq 'listen (process-status server-process))))
         (server-start))))
