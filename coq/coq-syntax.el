@@ -1090,27 +1090,27 @@ It is used:
 ;; We define a slightly different set of keywords for response buffer.
 
 (defvar coq-response-font-lock-keywords
-   (append
-    coq-font-lock-terms
-    (list
-     (cons coq-reserved-regexp 'font-lock-type-face)
-     (cons coq-keywords-regexp 'font-lock-keyword-face)
-     (cons coq-shell-eager-annotation-start 'proof-warning-face)
-     (cons coq-error-regexp 'proof-error-face)
-     (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
-     (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
-     (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
-     (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
-     (list "^\\([^ \n]+\\) \\(is defined\\)" (list 1 'font-lock-function-name-face t)))))
+  (append
+   coq-font-lock-terms
+   (list
+    (cons coq-reserved-regexp 'font-lock-type-face)
+    (cons coq-keywords-regexp 'font-lock-keyword-face)
+    (cons coq-shell-eager-annotation-start 'proof-warning-face)
+    (cons coq-error-regexp 'proof-error-face)
+    (cons (proof-regexp-alt-list-symb (list "In environment" "The term" "has type")) 'proof-error-face)
+    (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
+    (list (concat "[?]" coq-id) 0 'coq-question-mark-face) ;; highlight evars and Ltac variables
+    (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
+    (list "^\\([^ \n]+\\) \\(is defined\\)" (list 1 'font-lock-function-name-face t)))))
 
 (defvar coq-goals-font-lock-keywords
-   (append
-    coq-font-lock-terms
-    (list
-     (cons coq-reserved-regexp 'font-lock-type-face)
-     (list (concat "[?]" coq-id) 0 'proof-eager-annotation-face);; highlight evars
-     (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
-     (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
+  (append
+   coq-font-lock-terms
+   (list
+    (cons coq-reserved-regexp 'font-lock-type-face)
+    (list (concat "[?]" coq-id) 0 'coq-question-mark-face) ;; highlight evars and Ltac variables
+    (list coq-hyp-name-in-goal-or-response-regexp 2 'proof-declaration-name-face)
+    (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face))))
 
 
 
