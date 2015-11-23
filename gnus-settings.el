@@ -28,7 +28,10 @@ John Wiegley, Chairperson"))))
       ("To" "ledger-cli@googlegroups\\.com" current)
       "NewArtisans")
      ("Emacs Mailing Lists"
-      ("To" "emacs" current)
+      ("Cc" "\\(emacs\\|debbugs\\)" current)
+      "Gnu")
+     ("Emacs Mailing Lists"
+      ("To" "\\(emacs\\|debbugs\\)" current)
       "Gnu")
      ("Emacs Newsgroups"
       ("Newsgroups" "emacs" current)

@@ -51,35 +51,38 @@
 (defvar running-development-emacs nil)
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
-(cond
- ((or (string-match (concat "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
-                    invocation-directory)
-      (string-match (concat "\\(nextstep\\)/Emacs.app/Contents/MacOS/")
-                    invocation-directory))
-  (let ((settings (with-temp-buffer
-                    (insert-file-contents
-                     (expand-file-name "settings.el" user-emacs-directory))
-                    (goto-char (point-min))
-                    (read (current-buffer))))
-        (suffix (downcase (match-string 1 invocation-directory))))
-    (if (string= suffix "nextstep")
-        (setq suffix "ns"))
-    (setq running-development-emacs (string= suffix "ns")
-          running-alternate-emacs (not running-development-emacs)
-          user-data-directory
-          (replace-regexp-in-string "/data/" (format "/data-%s/" suffix)
-                                    user-data-directory))
-    (let* ((regexp "/\\.emacs\\.d/data/")
-           (replace (format "/.emacs.d/data-%s/" suffix)))
-      (dolist (setting settings)
-        (let ((value (and (listp setting)
-                          (nth 1 (nth 1 setting)))))
-          (if (and (stringp value)
-                   (string-match regexp value))
-              (setcar (nthcdr 1 (nth 1 setting))
-                      (replace-regexp-in-string regexp replace value)))))
-      (eval settings))))
- (t (load (expand-file-name "settings" user-emacs-directory))))
+(let ((suffix (or (and (string-match "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/"
+                                     invocation-directory)
+                       (downcase (match-string 1 invocation-directory)))
+                  (and (string-match "\\(nextstep\\)/Emacs.app/Contents/MacOS/"
+                                     invocation-directory)
+                       (downcase (match-string 1 invocation-directory))))))
+  (message "Suffix is... (%s)" suffix)
+  (cond
+   (suffix
+    (let ((settings (with-temp-buffer
+                      (insert-file-contents
+                       (expand-file-name "settings.el" user-emacs-directory))
+                      (goto-char (point-min))
+                      (read (current-buffer)))))
+      (if (string= suffix "nextstep")
+          (setq suffix "ns"))
+      (setq running-development-emacs (string= suffix "ns")
+            running-alternate-emacs (not running-development-emacs)
+            user-data-directory
+            (replace-regexp-in-string "/data" (format "/data-%s" suffix)
+                                      user-data-directory))
+      (let ((regexp "/\\.emacs\\.d/data")
+             (replace (format "/.emacs.d/data-%s" suffix)))
+        (dolist (setting settings)
+          (let ((value (and (listp setting)
+                            (nth 1 (nth 1 setting)))))
+            (if (and (stringp value)
+                     (string-match regexp value))
+                (setcar (nthcdr 1 (nth 1 setting))
+                        (replace-regexp-in-string regexp replace value)))))
+        (eval settings))))
+   (t (load (expand-file-name "settings" user-emacs-directory)))))
 
 ;;; Enable disabled commands
 
@@ -359,6 +362,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (goto-char here)))
 
 (bind-key "C-c d" #'delete-current-line)
+(bind-key "C-c g" #'goto-line)
 
 (defun do-eval-buffer ()
   (interactive)
