@@ -764,6 +764,7 @@
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
  '(menu-bar-mode nil)
+ '(mml-default-sign-method "pgp")
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
