@@ -406,6 +406,26 @@ is:
 (defun activate-gnus ()
   (unless (get-buffer "*Group*") (gnus)))
 
+(use-package epa
+  :defer t
+  :config
+  (defun epa--key-widget-value-create (widget)
+    (let* ((key (widget-get widget :value))
+           (primary-sub-key (car (last (epg-key-sub-key-list key))))
+           (primary-user-id (car (epg-key-user-id-list key))))
+      (insert (format "%c "
+                      (if (epg-sub-key-validity primary-sub-key)
+                          (car (rassq (epg-sub-key-validity primary-sub-key)
+                                      epg-key-validity-alist))
+                        ? ))
+              (epg-sub-key-id primary-sub-key)
+              " "
+              (if primary-user-id
+                  (if (stringp (epg-user-id-string primary-user-id))
+                      (epg-user-id-string primary-user-id)
+                    (epg-decode-dn (epg-user-id-string primary-user-id)))
+                "")))))
+
 (use-package nnir
   :init
   (defun gnus-goto-article (message-id)
