@@ -2313,14 +2313,15 @@ Warning: this makes the error messages (and location) wrong.")
 ;; Trying to propose insertion of "as" for a whole region. But iterating
 ;; proof-assert-next-command-interactive is probably wrong if some error occur
 ;; during scripting.
-(defun coq-insert-as-in-region (&optional beg end)
-  (interactive "r")
-  (let ((beg (or beg (point-min)))
-        (end (or end (point-max))))
-    (goto-char beg)
-    (while (< (point) end)
-      (coq-script-parse-cmdend-forward)
-      (proof-assert-next-command-interactive))))
+;; (defun coq-insert-as-in-region (&optional beg end)
+;;   (interactive "r")
+;;   (let ((beg (or beg (point-min)))
+;;         (end (or end (point-max))))
+;;     (goto-char beg)
+;;     (while (< (point) end)
+;;       (coq-script-parse-cmdend-forward)
+;;       (coq-insert-as-in-next-command)
+;;       (proof-assert-next-command-interactive))))
 
 
 
@@ -2404,6 +2405,9 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control return)] 'coq-insert-command)
 (define-key coq-keymap [(control ?q)] 'coq-query)
 (define-key coq-keymap [(control ?r)] 'coq-insert-requires)
+; [ for "as [xxx]" is easy to remember, ccontrol-[ would be better but hard to type on french keyboards
+; anyway company-coq should provide an "as!<TAB>". 
+(define-key coq-keymap [(?\[)] 'coq-insert-as-in-next-command) ;; not for goal/response buffer?
 
 ; Query commands
 (define-key coq-keymap [(control ?s)] 'coq-Show)
@@ -2419,6 +2423,7 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
 (define-key coq-keymap [(control ?n)] 'coq-LocateNotation)
 (define-key coq-keymap [(control ?w)] 'coq-ask-adapt-printing-width-and-show)
+
 ;(proof-eval-when-ready-for-assistant
 ; (define-key ??? [(control c) (control a)] (proof-ass keymap)))
 
