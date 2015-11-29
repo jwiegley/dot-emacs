@@ -179,7 +179,7 @@
 
 (my-gnus-score-defcustom gnus-thread-sort-functions
   '(gnus-thread-sort-by-most-recent-number
-    gnus-thread-sort-by-score))
+    gnus-thread-sort-by-total-score))
 
 (my-gnus-score-defcustom gnus-use-adaptive-scoring '(line))
 (my-gnus-score-defcustom gnus-summary-expunge-below -100)

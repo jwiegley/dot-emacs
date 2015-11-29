@@ -2678,7 +2678,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :preface
   (defun my-ledger-start-entry (&optional arg)
     (interactive "p")
-    (find-file-other-window "~/Documents/Accounts/ledger.dat")
+    (find-file-other-window "/Volumes/Files/Accounts/ledger.dat")
     (goto-char (point-max))
     (skip-syntax-backward " ")
     (if (looking-at "\n\n")

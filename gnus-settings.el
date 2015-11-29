@@ -46,6 +46,9 @@ John Wiegley, Chairperson"))))
  '(gnus-alias-unknown-identity-rule (quote error))
  '(gnus-always-read-dribble-file t)
  '(gnus-article-date-lapsed-new-header t)
+ '(gnus-article-sort-functions
+   (quote
+    (gnus-article-sort-by-score gnus-article-sort-by-number)))
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
  '(gnus-check-new-newsgroups nil)
@@ -381,7 +384,7 @@ John Wiegley, Chairperson"))))
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-sort-functions
    (quote
-    (gnus-thread-sort-by-most-recent-number gnus-thread-sort-by-score)))
+    (gnus-thread-sort-by-total-score gnus-thread-sort-by-most-recent-number)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")

@@ -16,7 +16,7 @@
         (nth 3 xs)
         (nth 5 xs)))))
  '(deft-auto-save-interval 0.0)
- '(deft-directory "~/Documents/notes")
+ '(deft-directory "~/doc/notes")
  '(deft-text-mode (quote org-mode))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-adapt-indentation nil)
@@ -66,7 +66,7 @@
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-files
         (quote
-         ("~/Documents/todo.txt")))
+         ("~/doc/tasks/todo.txt")))
        (org-agenda-overriding-header "Deferred tasks:")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")))
@@ -74,7 +74,7 @@
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/BAE.txt")))
+         ("~/doc/tasks/BAE.txt")))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))
@@ -87,7 +87,7 @@
      ("S" "Assembly Action Items" tags-todo "TODO<>\"PROJECT\""
       ((org-agenda-files
         (quote
-         ("~/Documents/assembly.txt")))
+         ("~/doc/tasks/assembly.txt")))
        (org-agenda-overriding-header "Assembly Action Items")
        (org-agenda-sorting-strategy
         (quote
@@ -110,7 +110,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/BAE.txt" "~/Documents/todo.txt" "~/Documents/habits.txt" "~/Documents/Emacs.txt" "~/Documents/OSS.txt")))
+    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -155,27 +155,27 @@
  '(org-capture-templates
    (quote
     (("a" "Add Task" entry
-      (file+headline "~/Documents/todo.txt" "Inbox")
+      (file+headline "~/doc/tasks/todo.txt" "Inbox")
       "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("n" "Note" entry
-      (file "~/Documents/notes.txt")
+      (file "~/doc/tasks/notes.txt")
       "* NOTE %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("c" "Calendar" entry
-      (file+headline "~/Documents/todo.txt" "Inbox")
+      (file+headline "~/doc/tasks/todo.txt" "Inbox")
       "* APPT %?
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("t" "Add Task" entry
-      (file+headline "~/Documents/todo.txt" "Inbox")
+      (file+headline "~/doc/tasks/todo.txt" "Inbox")
       "* TODO %?
 SCHEDULED: %t
 :PROPERTIES:
@@ -199,8 +199,8 @@ SCHEDULED: %t
  '(org-crypt-disable-auto-save nil)
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/todo.txt")
- '(org-directory "~/Documents/")
+ '(org-default-notes-file "~/doc/tasks/todo.txt")
+ '(org-directory "~/doc/tasks/")
  '(org-ditaa-jar-path "~/bin/DitaaEps/DitaaEps.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
@@ -267,9 +267,9 @@ SCHEDULED: %t
   "\\tolerance=1000")))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files (quote ("~/Documents/todo.txt")))
+ '(org-mobile-files (quote ("~/doc/tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
  '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
  '(org-priority-faces
 (quote
@@ -277,11 +277,11 @@ SCHEDULED: %t
   (67 :foreground "dark gray" :slant italic))))
  '(org-refile-targets
 (quote
- (("~/Documents/todo.txt" :level . 1)
-  ("~/Documents/Emacs.txt" :level . 1)
-  ("~/Documents/OSS.txt" :level . 1)
-  ("~/Documents/BAE.txt" :level . 1)
-  ("~/Documents/assembly.txt" :level . 1)
+ (("~/doc/tasks/todo.txt" :level . 1)
+  ("~/doc/tasks/Emacs.txt" :level . 1)
+  ("~/doc/tasks/OSS.txt" :level . 1)
+  ("~/doc/tasks/BAE.txt" :level . 1)
+  ("~/doc/tasks/assembly.txt" :level . 1)
   (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
@@ -306,11 +306,11 @@ SCHEDULED: %t
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
  '(org-velocity-always-use-bucket t)
- '(org-velocity-bucket "~/Documents/notes.txt")
+ '(org-velocity-bucket "~/doc/tasks/notes.txt")
  '(org-velocity-capture-templates
 (quote
  (("v" "Velocity" entry
-   (file "~/Documents/notes.txt")
+   (file "~/doc/tasks/notes.txt")
    "* NOTE %:search
 %i%?
 :PROPERTIES:

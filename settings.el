@@ -225,8 +225,8 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
- '(bookmark-default-file "~/Documents/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/doc/tasks/bookmarks")
+ '(bookmark-default-file "~/doc/tasks/bookmarks")
  '(browse-url-browser-function
    (quote
     (("osx-ghc" . eww-browse-url)
@@ -348,7 +348,7 @@
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
- '(diary-file "~/Documents/diary")
+ '(diary-file "~/doc/tasks/diary")
  '(diff-mode-hook
    (quote
     (diff-delete-empty-files diff-make-unified smerge-mode)))
@@ -740,7 +740,7 @@
  '(kill-do-not-save-duplicates t)
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
- '(ledger-file "~/Documents/Accounts/ledger.dat")
+ '(ledger-file "/Volumes/Files/Accounts/ledger.dat")
  '(ledger-post-use-ido t)
  '(line-number-mode t)
  '(load-prefer-newer t)
@@ -764,7 +764,6 @@
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
  '(menu-bar-mode nil)
- '(mml-default-sign-method "pgp")
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
@@ -772,6 +771,9 @@
  '(multi-term-program "/usr/bin/screen")
  '(multi-term-program-switches "-DR")
  '(multi-term-scroll-show-maximum-output t)
+ '(my-gnus-thread-sort-functions
+   (quote
+    (gnus-thread-sort-by-most-recent-number gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))

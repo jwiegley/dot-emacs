@@ -239,7 +239,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
+  (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -309,7 +309,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
+        (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -793,7 +793,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
                  (directory-files
                   "~/Dropbox/Apps/Drafts/" t "[0-9].*\\.txt\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/Documents/todo.txt")
+      (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
