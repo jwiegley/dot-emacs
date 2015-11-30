@@ -1,10 +1,16 @@
 -*- outline -*-  
 
 This is a summary of main changes.  For details, please see
-the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
-
+the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 * Changes of Proof General 4.3 from Proof General 4.2
+
+** ProofGeneral has moved to github!
+
+   https://github.com/ProofGeneral/PG.
+
+   Please submit new bugs there, old bugs may stay in good old PG trac
+   for a while though: http://proofgeneral.inf.ed.ac.uk/trac.
 
 ** Prooftree changes
 
@@ -120,11 +126,12 @@ the CVS ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Colors in response and goals buffers
 
     Experimental: colorize hypothesis names and some parts of error
-    and warning messages. For readability.
+    and warning messages, and also evars. For readability.
 
 *** Auto adjusting of printing width
 
-    On by default. To disable: Coq/Settings/Auto Adapt Printing Width. 
+    On by default. To disable: Coq/Settings/Auto Adapt Printing Width
+    or (setq coq-auto-adapt-printing-width nil).
 
 *** Coq Querying facilities
 
