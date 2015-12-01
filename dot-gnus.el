@@ -411,7 +411,7 @@ is:
   :config
   (defun epa--key-widget-value-create (widget)
     (let* ((key (widget-get widget :value))
-           (primary-sub-key (car (last (epg-key-sub-key-list key) 2)))
+           (primary-sub-key (car (last (epg-key-sub-key-list key) 3)))
            (primary-user-id (car (epg-key-user-id-list key))))
       (insert (format "%c "
                       (if (epg-sub-key-validity primary-sub-key)

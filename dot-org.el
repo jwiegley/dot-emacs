@@ -429,7 +429,7 @@ This can be 0 for immediate, or a floating point value.")
       (goto-char (match-beginning 0))
       (condition-case err
           (progn
-            (org-sort-entries t ?a)
+            ;; (org-sort-entries t ?a)
             (org-sort-entries t ?p)
             (org-sort-entries t ?o))
         (error nil))
@@ -438,7 +438,7 @@ This can be 0 for immediate, or a floating point value.")
     (while (re-search-forward "\* PROJECT " nil t)
       (goto-char (line-beginning-position))
       (ignore-errors
-        (org-sort-entries t ?a)
+        ;; (org-sort-entries t ?a)
         (org-sort-entries t ?p)
         (org-sort-entries t ?o))
       (forward-line))))
