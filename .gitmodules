@@ -22,3 +22,6 @@
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = git://github.com/haskell/haskell-mode.git
+[submodule "override/gnus"]
+	path = override/gnus
+	url = http://git.gnus.org/gnus.git
