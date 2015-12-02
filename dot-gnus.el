@@ -616,6 +616,30 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
   (define-key gnus-article-mode-map [(control ?c) (control ?o)]
     'gnus-article-browse-urls))
 
+(use-package mml
+  :defer t
+  :config
+  (defvar mml-signing-attachment nil)
+
+  (defun mml-sign-attached-file (file &optional type description disposition)
+    (unless (or mml-signing-attachment
+                (null current-prefix-arg))
+      (let ((signature
+             (expand-file-name (concat (file-name-nondirectory file) ".sig")
+                               temporary-file-directory))
+            (mml-signing-attachment t))
+        (message "Signing %s..." file)
+        (if t
+            (call-process epg-gpg-program file nil nil
+                          "--output" signature "--detach-sign" file)
+          (with-temp-file signature
+            (setq buffer-file-coding-system 'raw-text-unix)
+            (call-process epg-gpg-program file t nil "--detach-sign")))
+        (message "Signing %s...done" file)
+        (mml-attach-file signature))))
+
+  (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
+
 (provide 'dot-gnus)
 
 ;; Local Variables:

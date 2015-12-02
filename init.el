@@ -699,7 +699,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (my-org-startup)))
 
 (use-package dot-gnus
-  :load-path "override/gnus"
+  :load-path ("override/gnus/lisp" "override/gnus/contrib")
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
@@ -4005,7 +4005,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
          ("C-c w e" . yaoddmuse-edit-default)
-         ("C-c w p" . yaoddmuse-post-library-default)))
+         ("C-c w p" . yaoddmuse-post-library-default))
+  :config
+  (use-package helm-yaoddmuse))
 
 (use-package zencoding-mode
   :disabled t
