@@ -56,7 +56,10 @@
                        (downcase (match-string 1 invocation-directory)))
                   (and (string-match "\\(nextstep\\)/Emacs.app/Contents/MacOS/"
                                      invocation-directory)
-                       (downcase (match-string 1 invocation-directory))))))
+                       (downcase (match-string 1 invocation-directory)))
+                  (and (string-match "\\.emacs.d/devel/result"
+                                     invocation-directory)
+                       "dev"))))
   (message "Suffix is... (%s)" suffix)
   (cond
    (suffix
@@ -67,8 +70,9 @@
                       (read (current-buffer)))))
       (if (string= suffix "nextstep")
           (setq suffix "ns"))
-      (setq running-development-emacs (string= suffix "ns")
-            running-alternate-emacs (not running-development-emacs)
+      (setq running-development-emacs (or (string= suffix "ns")
+                                          (string= suffix "dev"))
+            running-alternate-emacs (string= suffix "alt")
             user-data-directory
             (replace-regexp-in-string "/data" (format "/data-%s" suffix)
                                       user-data-directory))

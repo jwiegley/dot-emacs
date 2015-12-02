@@ -982,7 +982,7 @@
  '(url-irc-function (quote url-irc-erc))
  '(user-full-name "John Wiegley")
  '(user-initials "jww")
- '(user-mail-address "jwiegley@gmail.com")
+ '(user-mail-address "johnw@newartisans.com")
  '(vc-command-messages t)
  '(vc-follow-symlinks t)
  '(vc-git-diff-switches (quote ("-w" "-U3")))

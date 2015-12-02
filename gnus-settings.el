@@ -17,11 +17,14 @@
  '(gnus-alias-default-identity "Gmail")
  '(gnus-alias-identity-alist
    (quote
-    (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "")
-     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
-     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "")
-     ("Assembly" "" "\"John Wiegley\" <jwiegley@gmail.com>" "Spiritual Assembly of the Bahá'ís of Peoria" nil "" "Spiritual Assembly of the Bahá'ís of Peoria
-John Wiegley, Chairperson"))))
+    (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
+BAE Systems"))))
  '(gnus-alias-identity-rules
    (quote
     (("Ledger Mailing List"
@@ -509,7 +512,7 @@ John Wiegley, Chairperson"))))
    (quote
     (("mail.johnwiegley.com" 587 nil nil)
      ("smtp.gmail.com" 587 nil nil))))
- '(smtpmail-stream-type (quote starttls))
+ '(smtpmail-stream-type (quote ssl))
  '(spam-assassin-program "/opt/local/bin/spamc-5.12")
  '(spam-report-gmane-use-article-number nil)
  '(spam-sa-learn-program "/opt/local/bin/sa-learn-5.12")
