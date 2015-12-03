@@ -1736,11 +1736,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (erc :server titan-ip
                :port 6697
                :nick "johnw"
-               :password (lookup-password titan-ip "johnw/oftc" 6697))
-          (erc :server titan-ip
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password titan-ip "johnw/gnu" 6697)))
+               :password (lookup-password titan-ip "johnw/oftc" 6697)))
 
       (erc-tls :server "irc.freenode.net"
                :port 6697
