@@ -358,6 +358,21 @@ is:
 
 (use-package message-x)
 
+(use-package message
+  :defer t
+  :config
+  (defun adjust-body-goto-location ()
+    (if (looking-at "^--")
+        (save-excursion (insert ?\n ?\n))
+      (when (re-search-forward "^-- $" nil t)
+        (goto-char (match-beginning 0))
+        (if (looking-back "\n\n\n")
+            (forward-line -2)
+          (save-excursion (insert ?\n ?\n ?\n))
+          (forward-line 1)))))
+
+  (advice-add 'message-goto-body :after #'adjust-body-goto-location))
+
 (use-package gnus-dired
   :commands gnus-dired-mode
   :init
