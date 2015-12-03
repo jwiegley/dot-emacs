@@ -121,7 +121,7 @@ BAE Systems"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.risc-v\\.sw-dev$"
+    (("list\\.riscv\\.devel$"
       (to-address . "sw-dev@lists.riscv.org")
       (to-list . "sw-dev@lists.riscv.org")
       (list-identifier . "\\[riscv-sw\\]"))
@@ -294,7 +294,7 @@ BAE Systems"))))
       (to-address . "coq-club@inria.fr")
       (to-list . "coq-club@inria.fr")
       (list-identifier . "\\[Coq-Club\\]"))
-     ("list\\.coq-devs$"
+     ("list\\.coq\\.devel$"
       (to-address . "coqdev@inria.fr")
       (to-list . "coqdev@inria.fr")
       (list-identifier . "\\[coqdev\\]"))

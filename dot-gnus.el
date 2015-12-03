@@ -386,7 +386,8 @@ is:
     (gnus-group-get-new-news 5)
     (gnus-group-list-groups 4)
     (my-gnus-score-groups)
-    (gnus-group-list-groups 4))
+    (gnus-group-list-groups 4)
+    (gnus-group-save-newsrc t))
 
   (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
 
