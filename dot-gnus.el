@@ -366,7 +366,7 @@ is:
         (save-excursion (insert ?\n ?\n))
       (when (re-search-forward "^-- $" nil t)
         (goto-char (match-beginning 0))
-        (if (looking-back "\n\n\n")
+        (if (looking-back "\n\n")
             (forward-line -2)
           (save-excursion (insert ?\n ?\n ?\n))
           (forward-line 1)))))

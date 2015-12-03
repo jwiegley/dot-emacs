@@ -773,7 +773,7 @@
  '(multi-term-scroll-show-maximum-output t)
  '(my-gnus-thread-sort-functions
    (quote
-    (gnus-thread-sort-by-most-recent-number gnus-thread-sort-by-total-score)))
+    (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))

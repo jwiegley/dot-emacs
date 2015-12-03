@@ -148,43 +148,34 @@
 
 ;;; Customization variable overrides:
 
-;; Previously, and for the longest time, this list was a bit simpler:
-;;  '((gnus-dormant-mark   (from 20)
-;;                         (subject 100))
-;;    (gnus-ticked-mark    (subject 30))
-;;    (gnus-read-mark      (subject 30))
-;;    (gnus-del-mark       (subject -150))
-;;    (gnus-catchup-mark   (subject -150))
-;;    (gnus-killed-mark    (subject -1000))
-;;    (gnus-expirable-mark (from -1000)
-;;                         (subject -1000)))
-
 (my-gnus-score-defcustom gnus-default-adaptive-score-alist
-  '((gnus-saved-mark     (subject 10)   (from 10))
-    (gnus-dormant-mark   (subject 10)   (from 10))
-    (gnus-forwarded-mark (subject 10)   (from 10))
-    (gnus-replied-mark   (subject 10)   (from 5))
+  '((gnus-saved-mark     (subject 2)   (from 2))
+    ;;(gnus-dormant-mark   (subject 2)   (from 2))
+    (gnus-forwarded-mark (subject 2)   (from 2))
+    (gnus-replied-mark   (subject 2)   (from 1))
     ;;(gnus-ticked-mark    (subject 0)    (from 0))
     (gnus-read-mark      (subject 1))
     (gnus-del-mark       (subject 1))
     ;;(gnus-recent-mark    (subject 0)    (from 0))
-    (gnus-killed-mark    (subject -1000))
-    (gnus-catchup-mark   (subject -1000))
-    (gnus-duplicate-mark (subject -250))
-    (gnus-expirable-mark (subject -9000))
-    (gnus-spam-mark                      (from -150))))
+    (gnus-killed-mark    (subject -10))
+    (gnus-catchup-mark   (subject -10))
+    (gnus-duplicate-mark (subject -5))
+    (gnus-expirable-mark (subject -100))
+    (gnus-spam-mark                    (from -50))))
 
-(my-gnus-score-defcustom gnus-score-default-duration  'p)
+(my-gnus-score-defcustom gnus-score-default-duration 'p)
 (my-gnus-score-defcustom gnus-score-expiry-days 30)
 
 (my-gnus-score-defcustom gnus-thread-sort-functions
-  '(gnus-thread-sort-by-most-recent-number
+  '(gnus-thread-sort-by-most-recent-date
     gnus-thread-sort-by-total-score))
 
 (my-gnus-score-defcustom gnus-use-adaptive-scoring '(line))
-(my-gnus-score-defcustom gnus-summary-expunge-below -100)
-(my-gnus-score-defcustom gnus-thread-expunge-below -1000)
+(my-gnus-score-defcustom gnus-score-interactive-default-score 10)
+(my-gnus-score-defcustom gnus-summary-expunge-below -10)
+(my-gnus-score-defcustom gnus-thread-expunge-below -100)
 (my-gnus-score-defcustom gnus-score-thread-simplify nil)
+(my-gnus-score-defcustom gnus-summary-default-high-score 50)
 (my-gnus-score-defcustom gnus-decay-scores "\\.ADAPT\\'")
 
 ;;; Functions:
