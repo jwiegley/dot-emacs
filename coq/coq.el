@@ -1176,10 +1176,10 @@ width is synchronized by coq (?!)."
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-set-auto-adapt-printing-width)
 
-;; this initiates aut adapt printing width at start, by reading the config var.
-;; Let us put this at the end of hooks to have a chance to read local variables
-;; first.
-(add-hook 'coq-mode-hook 'coq-auto-adapt-printing-width-switch t)
+;; this initiates auto adapt printing width at start, by reading the config
+;; var. Let us put this at the end of hooks to have a chance to read local
+;; variables first.
+(add-hook 'coq-mode-hook 'coq-auto-adapt-printing-width t)
 
 (defvar coq-shell-current-line-width nil
   "Current line width of the Coq printing width.
