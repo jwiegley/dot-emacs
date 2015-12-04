@@ -206,7 +206,7 @@
      (".*" . "~/.backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bbdb-default-country "")
- '(bbdb-file "~/doc/tasks/bbdb")
+ '(bbdb-file "~/doc/tasks/bbdb.gpg")
  '(bbdb-message-caching-enabled nil)
  '(bbdb-no-duplicates t)
  '(bbdb-offer-save (quote savenoprompt))

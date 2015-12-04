@@ -172,8 +172,8 @@
 
 (my-gnus-score-defcustom gnus-use-adaptive-scoring '(line))
 (my-gnus-score-defcustom gnus-score-interactive-default-score 10)
-(my-gnus-score-defcustom gnus-summary-expunge-below -10)
-(my-gnus-score-defcustom gnus-thread-expunge-below -100)
+(my-gnus-score-defcustom gnus-summary-expunge-below -9)
+(my-gnus-score-defcustom gnus-thread-expunge-below -99)
 (my-gnus-score-defcustom gnus-score-thread-simplify nil)
 (my-gnus-score-defcustom gnus-summary-default-high-score 50)
 (my-gnus-score-defcustom gnus-decay-scores "\\.ADAPT\\'")
@@ -253,7 +253,7 @@ instead."
   (if (my-gnus-score-group-p)
       ad-do-it))
 
-(add-hook 'message-sent-hook 'my-gnus-score-followup)
+;; (add-hook 'message-sent-hook 'my-gnus-score-followup)
 
 (eval-after-load "gnus-group"
   '(define-key gnus-group-score-map [?s] 'my-gnus-score-groups))

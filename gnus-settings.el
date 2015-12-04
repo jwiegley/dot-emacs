@@ -121,7 +121,9 @@ BAE Systems"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.riscv\\.devel$"
+    (("list\\.gnu\\.prog\\.discuss$"
+      (list-identifier . "\\[gnu-prog-discuss\\]"))
+     ("list\\.riscv\\.devel$"
       (to-address . "sw-dev@lists.riscv.org")
       (to-list . "sw-dev@lists.riscv.org")
       (list-identifier . "\\[riscv-sw\\]"))
@@ -349,7 +351,7 @@ BAE Systems"))))
  '(gnus-save-newsrc-file nil)
  '(gnus-score-default-duration (quote p))
  '(gnus-score-expiry-days 30)
- '(gnus-score-interactive-default-score 1000)
+ '(gnus-score-interactive-default-score 10)
  '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
  '(gnus-select-method
    (quote

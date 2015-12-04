@@ -110,7 +110,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Emacs.txt" "~/doc/tasks/OSS.txt")))
+    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -278,7 +278,7 @@ SCHEDULED: %t
  '(org-refile-targets
 (quote
  (("~/doc/tasks/todo.txt" :level . 1)
-  ("~/doc/tasks/Emacs.txt" :level . 1)
+  ("~/doc/tasks/emacs.txt" :level . 1)
   ("~/doc/tasks/OSS.txt" :level . 1)
   ("~/doc/tasks/BAE.txt" :level . 1)
   ("~/doc/tasks/assembly.txt" :level . 1)

@@ -104,26 +104,16 @@
 (defun quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
-(use-package fetchmail-ctl
-  :commands switch-to-fetchmail
-  :init
-  (defun maybe-start-fetchmail-and-news ()
-    (interactive)
-    (when (and (not switch-to-gnus-unplugged)
-               (quickping "imap.gmail.com"))
-      ;; (do-applescript "tell application \"Notify\" to run")
-      (switch-to-fetchmail)))
-
-  (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)
-
+(use-package gnus-group
+  :defer t
   :config
-  (defadvice shutdown-fetchmail (after stop-mail-after-fetchmail activate)
-    (async-start
-     (lambda ()
-       (call-process (expand-file-name "~/Messages/manage-mail/stop-mail")))
-     (lambda (ret)
-       ;; (do-applescript "tell application \"Notify\" to quit")
-       ))))
+  (use-package fetchmail-ctl
+    :config
+    (bind-key "v b" #'switch-to-fetchmail gnus-group-mode-map)
+    (bind-key "v o" #'start-fetchmail gnus-group-mode-map)
+    (bind-key "v d" #'shutdown-fetchmail gnus-group-mode-map)
+    (bind-key "v k" #'kick-fetchmail gnus-group-mode-map)
+    (bind-key "v p" #'fetchnews-post gnus-group-mode-map)))
 
 (use-package gnus-sum
   :config
@@ -358,20 +348,20 @@ is:
 
 (use-package message-x)
 
-(use-package message
-  :defer t
-  :config
-  (defun adjust-body-goto-location ()
-    (if (looking-at "^--")
-        (save-excursion (insert ?\n ?\n))
-      (when (re-search-forward "^-- $" nil t)
-        (goto-char (match-beginning 0))
-        (if (looking-back "\n\n")
-            (forward-line -2)
-          (save-excursion (insert ?\n ?\n ?\n))
-          (forward-line 1)))))
+;; (use-package message
+;;   :defer t
+;;   :config
+;;   (defun adjust-body-goto-location ()
+;;     (if (looking-at "^--")
+;;         (save-excursion (insert ?\n ?\n))
+;;       (when (re-search-forward "^-- $" nil t)
+;;         (goto-char (match-beginning 0))
+;;         (if (looking-back "\n\n")
+;;             (forward-line -2)
+;;           (save-excursion (insert ?\n ?\n ?\n))
+;;           (forward-line 1)))))
 
-  (advice-add 'message-goto-body :after #'adjust-body-goto-location))
+;;   (advice-add 'message-goto-body :after #'adjust-body-goto-location))
 
 (use-package gnus-dired
   :commands gnus-dired-mode

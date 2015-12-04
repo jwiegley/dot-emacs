@@ -166,14 +166,6 @@
    (format "fetchnews -F %s -vv -n -P"
            (expand-file-name "~/Messages/leafnode/config"))))
 
-(eval-after-load "gnus-group"
-  '(progn
-     (define-key gnus-group-mode-map [?v ?b] 'switch-to-fetchmail)
-     (define-key gnus-group-mode-map [?v ?o] 'start-fetchmail)
-     (define-key gnus-group-mode-map [?v ?d] 'shutdown-fetchmail)
-     (define-key gnus-group-mode-map [?v ?k] 'kick-fetchmail)
-     (define-key gnus-group-mode-map [?v ?p] 'fetchnews-post)))
-
 (provide 'fetchmail-ctl)
 
 ;;; fetchmail-ctl.el ends here
