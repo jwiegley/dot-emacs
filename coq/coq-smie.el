@@ -35,11 +35,12 @@
 (require 'coq-indent)
 (require 'smie nil 'noerror)
 
-(defmacro measure-time (&rest body)
-  "Measure the time it takes to evaluate BODY."
-  `(let ((time (current-time)))
-     ,@body
-     (message "%.06f" (float-time (time-since time)))))
+; debugging
+;(defmacro measure-time (&rest body)
+;  "Measure the time it takes to evaluate BODY."
+;  `(let ((time (current-time)))
+;     ,@body
+;     (message "%.06f" (float-time (time-since time)))))
 
 
 (defun coq-string-suffix-p (str1 str2 &optional ignore-case)
@@ -209,7 +210,8 @@ command (and inside parenthesis)."
 			   (equal (char-syntax ?\)) (char-syntax (char-after)))))
 		  (throw 'found nil))
 		 ((zerop (length next)) ;; capture other characters than closing parent
-		  (let ((forward-sexp-function nil)) (forward-sexp -1)))
+		  ;; don't use smmie-forward-sexp here
+		  (let ((forward-sexp-function nil)) (forward-sexp 1)))
 		 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
@@ -256,7 +258,9 @@ command (and inside parenthesis). "
 			 (or (equal (point) (point-min)) ; protecting char-before next line
 			     (equal (char-syntax ?\() (char-syntax (char-before)))))
 		    (throw 'found nil))
-		   ((zerop (length next)) (let ((forward-sexp-function nil)) (forward-sexp -1)))
+		   ((zerop (length next))
+		    ;; don't use smmie-forward-sexp here
+		    (let ((forward-sexp-function nil)) (forward-sexp -1)))
 		   ((member next tokens) (throw 'found next))))))))
       (scan-error nil)))
 

@@ -14,6 +14,13 @@
 
 (require 'coq-syntax)
 
+;; debugging
+;(defmacro measure-time (&rest body)
+;  "Measure the time it takes to evaluate BODY."
+;  `(let ((time (current-time)))
+;     ,@body
+;     (message "%.06f" (float-time (time-since time)))))
+
 (eval-when-compile
   (defvar coq-script-indent nil))
 
@@ -112,18 +119,21 @@ detect if they start something or not."
 ;(defconst coq-bullet-end-command
 ;  "\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)")
 ;; Allowing - -- --- and + ++ +++ ...
-(defconst coq-bullet-end-command
+(defconst coq-bullet-end-command-old
   "\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
 (defconst coq-bullet-regexp-nospace
   "\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
+;TODO: add curly brackets
+(defconst coq-bullet-end-command
+  "\\(?2:\\(?:[^.]\\|\\=\\|\\.\\.\\)\\(?:\\.\\)\\s-+\\(?:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)*\\)\\s-+\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)\\)")
 
-
+;; order matter here, since bullet regexp contains period regexp
 (defconst coq-end-command-regexp
-  (concat coq-period-end-command "\\|"
-          coq-curlybracket-end-command  "\\|"
-          coq-bullet-end-command)
+  (concat coq-bullet-end-command "\\|"
+          coq-period-end-command "\\|"
+          coq-curlybracket-end-command)
 ;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
 * number 1 is the real coq ending string,
@@ -304,16 +314,15 @@ command end regexp."
     ;; Handle non-comments: assumed to be commands
     (if (< (coq-is-on-ending-context) 0)
         (ignore-errors (forward-char (coq-is-on-ending-context))))
-    (let (foundend next-pos)
+    (let (foundend)
       ;; Find end of command
       (while (and (setq foundend
                         (and
-                         (re-search-forward proof-script-command-end-regexp limit t)
+                         (re-search-forward coq-end-command-regexp limit t)
                          (match-end 1)))
-                  (setq next-pos (+ 1 (match-beginning 0)))
                   (or
-                      (if (not (or (string-equal (match-string 1) ".")
-                                   (string-equal (match-string 1) "...")))
+                   (and (not (or (string-equal (match-string 1) ".")
+                                 (string-equal (match-string 1) "...")))
                           ; command-end that are not a dot are + ++ -
                           ; -- etc or { or } to ensure this is really
                           ; a bullet (and not one of the numerous
@@ -322,19 +331,17 @@ command end regexp."
                           ; empty. example:
                           ; destruct x.
                           ; - (* - here ends an empty command*)
-                          (save-excursion
-                            (goto-char (match-beginning 1))
-                            (not (coq-empty-command-p)))
-                        nil)
-                      (and
-                       (goto-char foundend)
-                       (proof-buffer-syntactic-context))))
-        ;; go back as far as possible before the start of the current
-        ;; matching string, this way we will match consecutive endings
-        ;; like ine "}."
-        (ignore-errors (goto-char next-pos))
-;        (ignore-errors (forward-char -1))
-        )
+                        (save-excursion
+                          (goto-char (match-beginning 1))
+                          (not (coq-empty-command-p))))
+                   (and
+                    (goto-char foundend)
+                    (proof-buffer-syntactic-context))))
+        ;; Given the form of coq-end-command-regexp
+        ;; match-end 1 is the right place to start again
+        ;; to search backward, next time we start from just
+        ;; there
+        (ignore-errors (goto-char foundend)))
       (if (and foundend
                (goto-char foundend) ; move to command end
                (not (proof-buffer-syntactic-context)))
@@ -360,23 +367,26 @@ and return nil."
     ;; first shift if we are in the middle of a ending pattern
     (if (> (coq-is-on-ending-context) 0)
         (ignore-errors(forward-char (coq-is-on-ending-context))))
-    (let (foundbeg next-pos)
+    (let (foundbeg)
       ;; Find end of command
       (while (and (setq foundbeg
                         (and
-                         (re-search-backward proof-script-command-end-regexp limit 'dummy)
+                         (re-search-backward coq-end-command-regexp limit 'dummy)
                          (match-beginning 1)))
-                  (setq next-pos (- (match-end 0) 1))
-                  (or (if (not (or (string-equal (match-string 1) ".")
-                                   (string-equal (match-string 1) "...")))
-                          (save-excursion
-                            (goto-char (match-beginning 1))
-                            (not (coq-empty-command-p)))
-                        nil)
+                  ;; Given the form of coq-end-command-regexp
+                  ;; match-beginning 1 is the right place to start again
+                  ;; to search backward, next time we start from just
+                  ;; there
+                  (goto-char foundbeg)
+                  (or (and (not (or (string-equal (match-string 1) ".")
+                                    (string-equal (match-string 1) "...")))
+                           (save-excursion
+                             (goto-char (match-beginning 1))
+                             (not (coq-empty-command-p))))
                       (and
                        (goto-char foundbeg)
                        (proof-buffer-syntactic-context))))
-        (ignore-errors (goto-char next-pos)))
+        (ignore-errors (goto-char foundbeg)))
       (if (and foundbeg
                (goto-char foundbeg) ; move to command end
                (not (proof-buffer-syntactic-context)))
