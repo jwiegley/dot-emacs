@@ -100,13 +100,13 @@ detect if they start something or not."
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-period-end-command
-  "\\(?2:[^.]\\|\\=\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)")
+  "\\(?:\\(?2:[^.]\\|\\=\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\)")
 
 ;; matches curly bracket but not {| and |} WARNING this matches more
 ;; than the script parenthesizing '{' and '}' as curly bracket may
 ;; match this when used in regular expressions
 (defconst coq-curlybracket-end-command
-  "\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\|\\=\\)\\(?1:}\\)")
+  "\\(?:\\(?1:{\\)\\(?3:[^|]\\)\\|\\(?2:[^|]\\|\\=\\)\\(?1:}\\)\\)")
 
 
 
@@ -119,24 +119,23 @@ detect if they start something or not."
 ;(defconst coq-bullet-end-command
 ;  "\\(?2:\\s-\\|\\=\\)\\(?:\\(?1:-\\)\\|\\(?1:+\\)\\|\\(?1:\\*\\)\\)")
 ;; Allowing - -- --- and + ++ +++ ...
-(defconst coq-bullet-end-command-old
-  "\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
-
-(defconst coq-bullet-regexp-nospace
-  "\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
 ;; captures a lot of false bullets, need to check that the commaand is
 ;; empty. When searching forward (typically when splitting the buffer
 ;; into commands commands) we can't do better than that.
 ;; For backward searching see `coq-bullet-end-command-backward' below.
 (defconst coq-bullet-end-command
-   "\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
+   "\\(?:\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)\\)")
+
+(defconst coq-bullet-regexp-nospace
+  "\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
 ;; Trying to capture precisely bullets when search backward (forward
 ;; is harder since we need to look backward if a dot is eventually
 ;; there)
 (defconst coq-bullet-end-command-backward
-  "\\(?2:\\(?:[^.]\\|\\=\\|\\.\\.\\)\\(?:\\.\\)\\(?:\\s-\\)\\(?:\\s-+\\|{\\|}\\|\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)*\\)\\(?:\\s-\\)+\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
+"\\(?:\\(?2:\\(?:[^.]\\|\\=\\|\\.\\.\\)\\(?:\\.\\)\\(?:\\s-\\)\\(?:\\s-\\|{\\|}\\|-\\|+\\|\\*\\)*\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)\\)"
+)
 
 ;; order matter here, since bullet regexp contains period regexp
 (defconst coq-end-command-regexp
