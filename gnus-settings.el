@@ -53,6 +53,7 @@ BAE Systems"))))
     (gnus-article-sort-by-score gnus-article-sort-by-number)))
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
+ '(gnus-buttonized-mime-types (quote ("\\`multipart/signed\\'")))
  '(gnus-check-new-newsgroups nil)
  '(gnus-completing-read-function (quote gnus-ido-completing-read))
  '(gnus-default-adaptive-score-alist
@@ -205,7 +206,7 @@ BAE Systems"))))
      ("list\\.emacs\\.diffs"
       (to-address . "emacs-diffs@gnu.org")
       (to-list . "emacs-diffs@gnu.org")
-      (list-identifier . "\\[Emacs-diffs\\]"))
+      (list-identifier . "\\[Emacs-diffs\\] \\(.+?\\) [0-9a-f]\\{7\\}: "))
      ("list\\.emacs\\.elpa\\.diffs"
       (to-address . "emacs-elpa-diffs@gnu.org")
       (to-list . "emacs-elpa-diffs@gnu.org")
@@ -387,6 +388,8 @@ BAE Systems"))))
  '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
  '(gnus-thread-expunge-below -1000)
  '(gnus-thread-hide-subtree t)
+ '(gnus-thread-ignore-subject nil)
+ '(gnus-thread-score-function (quote max))
  '(gnus-thread-sort-functions
    (quote
     (gnus-thread-sort-by-total-score gnus-thread-sort-by-most-recent-number)))
