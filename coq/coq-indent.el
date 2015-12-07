@@ -125,14 +125,23 @@ detect if they start something or not."
 (defconst coq-bullet-regexp-nospace
   "\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
-;TODO: add curly brackets
+;; captures a lot of false bullets, need to check that the commaand is
+;; empty. When searching forward (typically when splitting the buffer
+;; into commands commands) we can't do better than that.
+;; For backward searching see `coq-bullet-end-command-backward' below.
 (defconst coq-bullet-end-command
-  "\\(?2:\\(?:[^.]\\|\\=\\|\\.\\.\\)\\(?:\\.\\)\\s-+\\(?:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)*\\)\\s-+\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)\\)")
+   "\\(?2:\\s-\\|\\=\\)\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
+
+;; Trying to capture precisely bullets when search backward (forward
+;; is harder since we need to look backward if a dot is eventually
+;; there)
+(defconst coq-bullet-end-command-backward
+  "\\(?2:\\(?:[^.]\\|\\=\\|\\.\\.\\)\\(?:\\.\\)\\(?:\\s-\\)\\(?:\\s-+\\|{\\|}\\|\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)*\\)\\(?:\\s-\\)+\\(?1:\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+\\)")
 
 ;; order matter here, since bullet regexp contains period regexp
 (defconst coq-end-command-regexp
-  (concat coq-bullet-end-command "\\|"
-          coq-period-end-command "\\|"
+  (concat coq-period-end-command "\\|"
+          coq-bullet-end-command "\\|"
           coq-curlybracket-end-command)
 ;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
   "Regexp matching end of a command. There are 3 substrings:
@@ -147,6 +156,19 @@ distinguish between the different uses of this characters.
 Currently bullets are always ending an empty command, so we just
 need to check that the command ended by the bullet-like regexp is empty.
 This is done below and also in coq-smie.el.")
+
+(defconst coq-end-command-regexp-backward
+  (concat coq-bullet-end-command-backward "\\|"
+          coq-period-end-command "\\|"
+          coq-curlybracket-end-command)
+;  "\\(?2:[^.]\\|\\.\\.\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)"
+  "Regexp matching end of a command. There are 3 substrings:
+* number 1 is the real coq ending string,
+* number 2 is the left context matched that is not part of the ending string
+* number 3 is the right context matched that is not part of the ending string
+
+This regexp is much more precise than `coq-end-command-regexp' but only
+works when searching backward.")
 
 
 (defun coq-search-comment-delimiter-forward ()
@@ -323,14 +345,15 @@ command end regexp."
                   (or
                    (and (not (or (string-equal (match-string 1) ".")
                                  (string-equal (match-string 1) "...")))
-                          ; command-end that are not a dot are + ++ -
-                          ; -- etc or { or } to ensure this is really
-                          ; a bullet (and not one of the numerous
-                          ; other possible uses of those tokens) we
-                          ; check that the command ended by it is
-                          ; empty. example:
-                          ; destruct x.
-                          ; - (* - here ends an empty command*)
+                        ;; Checking that this is really a bullet
+                        ;; command-end that are not a dot are + ++ -
+                        ;; -- etc or { or }. To ensure this is really
+                        ;; a bullet (and not one of the numerous
+                        ;; other possible uses of those tokens) we
+                        ;; check that the command ended by it is
+                        ;; empty. example:
+                        ;; destruct x.
+                        ;; - (* - here ends an empty command*)
                         (save-excursion
                           (goto-char (match-beginning 1))
                           (not (coq-empty-command-p))))
@@ -371,21 +394,26 @@ and return nil."
       ;; Find end of command
       (while (and (setq foundbeg
                         (and
-                         (re-search-backward coq-end-command-regexp limit 'dummy)
+                         (re-search-backward coq-end-command-regexp-backward limit 'dummy)
                          (match-beginning 1)))
-                  ;; Given the form of coq-end-command-regexp
-                  ;; match-beginning 1 is the right place to start again
-                  ;; to search backward, next time we start from just
-                  ;; there
+                  ;; Given the form of coq-end-command-regexp-backward
+                  ;; - bullets should be correctly detected
+                  ;; - match-beginning 1 is the right place to start again
+                  ;;   to search backward, next time we start from just
+                  ;;   there, unless we are in a comment
                   (goto-char foundbeg)
-                  (or (and (not (or (string-equal (match-string 1) ".")
-                                    (string-equal (match-string 1) "...")))
-                           (save-excursion
-                             (goto-char (match-beginning 1))
-                             (not (coq-empty-command-p))))
-                      (and
-                       (goto-char foundbeg)
-                       (proof-buffer-syntactic-context))))
+                  (let ((context (proof-buffer-syntactic-context)))
+                    (and context ; if nil, just exit the while
+                         ;;otherwise see what kind of syntactic
+                         (cond
+                          ;; jump directly out of a comment
+                          ((eq context 'comment)
+                           ;; is there something faster that this function?
+                           ;; parse-partial-sexp seems slower
+                           (setq foundbeg (coq-skip-until-one-comment-backward)))
+                          ((eq context 'string) t)
+                          ;; nil captured before entering the cond
+                          (t (message "assert false"))))))
         (ignore-errors (goto-char foundbeg)))
       (if (and foundbeg
                (goto-char foundbeg) ; move to command end
