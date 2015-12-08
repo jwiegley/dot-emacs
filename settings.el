@@ -330,7 +330,6 @@
     (nil "~/src/gitlib" "~/src/gitlib/gitlib" "~/src/gitlib/gitlib-libgit2" "~/src/gitlib/gitlib-s3" "~/src/gitlib/gitlib-test" "~/src/gitlib/git-monitor" "~/src/c2hsc")))
  '(compilation-skip-threshold 2)
  '(compilation-window-height 100)
- '(coq-compile-before-require t)
  '(coq-holes-minor-mode nil)
  '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
