@@ -132,11 +132,23 @@ These are appended at the end of `coq-shell-init-cmd'."
   :group 'coq)
 
 
+;; Default coq is only Private_ and _subproof
+(defcustom coq-search-blacklist-string ; add this? \"_ind\" \"_rect\" \"_rec\" 
+ "\"Private_\" \"_subproof\""
+  "String for blacklisting strings from requests to coq environment."
+  :type 'string
+  :group 'coq)
+
+;; this remembers the previous value of coq-search-blacklist-string, so that we
+;; can cook a remove+add blacklist command each time the variable is changed.
+(setq coq-search-blacklist-string-prev coq-search-blacklist-string)
+
 ;TODO: remove Set Undo xx. It is obsolete since coq-8.5 at least.
 ;;`(,(format "Set Undo %s . " coq-default-undo-limit) "Set Printing Width 75.")
 (defconst coq-shell-init-cmd
-  (append nil coq-user-init-cmd)
+  (append `(,(format "Add Search Blacklist %s. " coq-search-blacklist-string)) coq-user-init-cmd)
  "Command to initialize the Coq Proof Assistant.")
+
 
 (require 'coq-syntax)
 ;; FIXME: Even if we don't use coq-indent for indentation, we still need it for
@@ -945,11 +957,6 @@ More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
       (concat "\"" s "\"")
     s))
 
-(defcustom coq-removed-patterns-when-search
-  '("_ind" "_rect" "_rec")
-  "String list to remove from search request to coq environment."
-  :type '(repeat string)
-  :group 'coq)
 
 (defun coq-build-removed-pattern (s)
   (concat " -\"" s "\""))
@@ -984,13 +991,9 @@ This is specific to `coq-mode'."
    ;;  "_ind" "_rec" "R_" "_equation"
    "SearchAbout (ex: \"eq_\" eq -bool)"
    "SearchAbout")
-  (message "use `coq-SearchAbout-all' to see constants ending with \"_ind\", \"_rec\", etc"))
+  (message "use [Coq/Settings/Search Blacklist] to change blacklisting."))
 
-(defun coq-SearchAbout-all ()
-  (interactive)
-  (coq-ask-do
-   "SearchAbout (ex: \"eq_\" eq -bool)"
-   "SearchAbout"))
+
 
 (defun coq-Print (withprintingall)
   "Ask for an ident and print the corresponding term.
@@ -1976,10 +1979,29 @@ Near here means PT is either inside or just aside of a comment."
   :type 'integer
   :setting "Set Undo %i . ")
 
+(defun coq-set-search-blacklist (s)
+  (let ((res (format "Remove Search Blacklist %s. \nAdd Search Blacklist %s. "
+          coq-search-blacklist-string-prev s)))
+    (setq coq-search-blacklist-string-prev coq-search-blacklist-string)
+    res))
+
+
+(defun coq-get-search-blacklist (s)
+  coq-search-blacklist-string)
+
+
+(defpacustom search-blacklist coq-search-blacklist-string
+  "Strings to blacklist in requests to coq environment."
+  :type 'string
+  :get coq-search-blacklist-string
+  :setting coq-set-search-blacklist)
+
+
 (defpacustom time-commands nil
   "Whether to display timing information for each command."
   :type 'boolean
   :eval (coq-time-commands-switch))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2417,7 +2439,6 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?a)] 'coq-SearchAbout)
-(define-key coq-keymap [(control shift ?a)] 'coq-SearchAbout-all)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [?h] 'coq-PrintHint)
 (define-key coq-keymap [(control ?l)] 'coq-LocateConstant)
@@ -2435,7 +2456,6 @@ Completion is on a quasi-exhaustive list of Coq tacticals."
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?o)] 'coq-SearchIsos)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?b)] 'coq-About)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?a)] 'coq-SearchAbout)
-(define-key coq-goals-mode-map [(control ?c)(control ?a)(control shift ?a)] 'coq-SearchAbout-all)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)(control ?s)] 'coq-Show)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?r] 'proof-store-response-win)
 (define-key coq-goals-mode-map [(control ?c)(control ?a)?g] 'proof-store-goals-win)

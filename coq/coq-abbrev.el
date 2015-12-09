@@ -75,6 +75,26 @@
   (coq-install-abbrevs))
 ;;;;;
 
+; Redefining this macro to change the way a string option is asked to
+; the user: we pre fill the answer with current value of the option;
+(defun proof-defstringset-fn (var &optional othername)
+  "Define a function <VAR>-toggle for setting an integer customize setting VAR.
+Args as for the macro `proof-defstringset', except will be evaluated."
+  (eval
+   `(defun ,(if othername othername
+	      (intern (concat (symbol-name var) "-stringset"))) (arg)
+	      ,(concat "Set `" (symbol-name var) "' to ARG.
+This function simply uses customize-set-variable to set the variable.
+It was constructed with `proof-defstringset-fn'.")
+;	      (interactive ,(format "sValue for %s (a string, currenly %s): "
+;				    (symbol-name var) (symbol-value var)))
+	      (interactive (list
+			    (read-string
+			     (format "Value for %s (float): "
+				     (symbol-name (quote ,var))
+				     (symbol-value (quote ,var)))
+			     (symbol-value (quote ,var)))))
+	      (customize-set-variable (quote ,var) arg))))
 
 ;; The coq menu partly built from tables
 
