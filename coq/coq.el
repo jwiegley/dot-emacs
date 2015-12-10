@@ -131,7 +131,6 @@ These are appended at the end of `coq-shell-init-cmd'."
   :type '(repeat (cons (string :tag "command")))
   :group 'coq)
 
-
 ;; Default coq is only Private_ and _subproof
 (defcustom coq-search-blacklist-string ; add this? \"_ind\" \"_rect\" \"_rec\" 
  "\"Private_\" \"_subproof\""
@@ -139,9 +138,11 @@ These are appended at the end of `coq-shell-init-cmd'."
   :type 'string
   :group 'coq)
 
+
 ;; this remembers the previous value of coq-search-blacklist-string, so that we
 ;; can cook a remove+add blacklist command each time the variable is changed.
-(setq coq-search-blacklist-string-prev coq-search-blacklist-string)
+;; initially we put it at current value of coq-search-blacklist-string.
+(defvar coq-search-blacklist-string-prev coq-search-blacklist-string)
 
 ;TODO: remove Set Undo xx. It is obsolete since coq-8.5 at least.
 ;;`(,(format "Set Undo %s . " coq-default-undo-limit) "Set Printing Width 75.")
