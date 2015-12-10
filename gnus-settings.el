@@ -317,14 +317,16 @@ BAE Systems"))))
       (to-address . "ssreflect@msr-inria.inria.fr")
       (to-list . "ssreflect@msr-inria.inria.fr")
       (list-identifier . "\\[ssreflect\\]"))
-     ("list\\.bae\\.brass\\.proposal"
+     ("list\\.brass\\.proposal"
       (to-address . "brass-proposal@lists.brass-tacks.org")
       (to-list . "brass-proposal@lists.brass-tacks.org")
       (list-identifier . "\\[Brass-proposal\\]"))
-     ("list\\.bae\\.brass\\.commits"
+     ("list\\.brass\\.commits"
       (to-address . "bae-brass-commits@googlegroups.com")
       (to-list . "bae-brass-commits@googlegroups.com")
       (list-identifier . "\\[bae-brass-commits\\]\\( \\[bae-brass/brass-proposal\\]\\)? [0-9a-f]+?:"))
+     ("list\\.brass\\.rings$"
+      (list-identifier . "\\[rings-all\\]"))
      ("list\\.hott"
       (to-address . "hott-cafe@googlegroups.com")
       (to-list . "hott-cafe@googlegroups.com")
