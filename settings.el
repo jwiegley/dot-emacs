@@ -370,15 +370,7 @@
    (quote
     ((format-time-string "%l:%M %p" now)
      " "
-     (let
-         ((str
-           (shell-command-to-string "jobhours")))
-       (require
-        (quote ansi-color))
-       (ansi-color-apply
-        (substring str 0
-                   (1-
-                    (length str)))))
+     (get-jobhours-string)
      " ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
@@ -419,7 +411,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "#haskell-sac" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell-lens" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org" "#gnu" "#fsf" "#savannah" "#erc" "#emacs-beginners" "#emacsconf" "#emacs" "#wigfam"))))
+    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#org-mode" "#haskell.org" "#savannah" "#erc" "#emacsconf" "#emacs" "#wigfam" "#haskell-lens"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
@@ -440,6 +432,7 @@
  '(erc-port 6667)
  '(erc-priority-people-regexp "\\`[^#].+")
  '(erc-prompt-for-nickserv-password nil)
+ '(erc-rename-buffers t)
  '(erc-replace-alist (quote (("</?FONT>" . ""))))
  '(erc-server "irc.freenode.net")
  '(erc-services-mode t)
