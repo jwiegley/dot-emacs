@@ -27,12 +27,6 @@
 (declare-function cfw:org-create-source "calfw-org")
 (declare-function cfw:cal-create-source "calfw-cal")
 
-(defun get-jobhours-string ()
-  (with-current-buffer (get-buffer "*scratch*")
-   (let ((str (shell-command-to-string "jobhours")))
-     (require 'ansi-color)
-     (ansi-color-apply (substring str 0 (1- (length str)))))))
-
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
   (and (memq org-agenda-window-setup '(reorganize-frame))

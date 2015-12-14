@@ -43,6 +43,12 @@
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
 
+(defun get-jobhours-string ()
+  (with-current-buffer (get-buffer "*scratch*")
+   (let ((str (shell-command-to-string "jobhours")))
+     (require 'ansi-color)
+     (ansi-color-apply (substring str 0 (1- (length str)))))))
+
 ;;; Load customization settings
 
 (defconst titan-ip "192.168.9.133")

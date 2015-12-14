@@ -55,7 +55,6 @@ BAE Systems"))))
     (gnus-article-sort-by-score gnus-article-sort-by-number)))
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
- '(gnus-buttonized-mime-types (quote ("\\`multipart/signed\\'")))
  '(gnus-check-new-newsgroups nil)
  '(gnus-completing-read-function (quote gnus-ido-completing-read))
  '(gnus-default-adaptive-score-alist
