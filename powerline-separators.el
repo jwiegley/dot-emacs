@@ -34,7 +34,8 @@ COLOR1 and COLOR2 must be supplied as hex strings with a leading #."
 
 (defun pl/hex-color (color)
   "Get the hexadecimal value of COLOR."
-  (apply 'color-rgb-to-hex (color-name-to-rgb color)))
+  (when color
+    (apply 'color-rgb-to-hex (color-name-to-rgb color))))
 
 (defun pl/pattern (lst)
   "Turn LST into an infinite pattern."
@@ -92,11 +93,19 @@ destination color, and 2 is the interpolated color between 0 and 1."
                    `((pattern-height (max (- height ,reserve) 0))
                      (second-pattern-height (/ pattern-height 2))
                      (pattern-height ,(if second-pattern '(ceiling pattern-height 2) 'pattern-height)))
-                   `((mapconcat 'identity ',header "")
-                     (mapconcat 'identity (cl-subseq ',pattern 0 pattern-height) "")
-                     (mapconcat 'identity ',center "")
-                     (mapconcat 'identity (cl-subseq ',second-pattern 0 second-pattern-height) "")
-                     (mapconcat 'identity ',footer "")))))
+                   (list (when header `(mapconcat 'identity ',header ""))
+                         `(mapconcat 'identity (cl-subseq ',pattern 0 pattern-height) "")
+                         (when center `(mapconcat 'identity ',center ""))
+                         (when second-pattern `(mapconcat 'identity (cl-subseq ',second-pattern 0 second-pattern-height) ""))
+                         (when footer `(mapconcat 'identity ',footer ""))))))
+
+(defun pl/background-color (face)
+  (face-attribute face
+                  (if (face-attribute face :inverse-video nil 'default)
+                      :foreground
+                    :background)
+                  nil
+                  'default))
 
 (defun pl/wrap-defun (name dir width let-vars body)
   "Generate a powerline function of NAME in DIR with WIDTH using LET-VARS and BODY."
@@ -105,12 +114,11 @@ destination color, and 2 is the interpolated color between 0 and 1."
     `(defun ,(intern (format "powerline-%s-%s" name (symbol-name dir)))
        (face1 face2 &optional height)
        (when window-system
-         (unless height
-           (setq height (pl/separator-height)))
+         (unless height (setq height (pl/separator-height)))
          (let* ,(append `((color1 (when ,src-face
-                                    (pl/hex-color (face-attribute ,src-face :background))))
+                                    (pl/hex-color (pl/background-color ,src-face))))
                           (color2 (when ,dst-face
-                                    (pl/hex-color (face-attribute ,dst-face :background))))
+                                    (pl/hex-color (pl/background-color ,dst-face))))
                           (colori (when (and color1 color2) (pl/interpolate color1 color2)))
                           (color1 (or color1 "None"))
                           (color2 (or color2 "None"))
@@ -312,6 +320,20 @@ destination color, and 2 is the interpolated color between 0 and 1."
   `(defun ,(intern (format "powerline-nil-%s" (symbol-name dir)))
      (face1 face2 &optional height)
      nil))
+
+(defmacro pl/utf-8 (dir)
+  "Generate function that returns raw utf-8 symbols."
+  (let ((dir-name (symbol-name dir))
+	(src-face (if (eq dir 'left) 'face1 'face2))
+	(dst-face (if (eq dir 'left) 'face2 'face1)))
+    `(defun ,(intern (format "powerline-utf-8-%s" dir-name))
+       (face1 face2 &optional height)
+       (powerline-raw
+	(char-to-string ,(intern (format "powerline-utf-8-separator-%s"
+					 dir-name)))
+        (list :foreground (pl/background-color ,src-face)
+              :background (pl/background-color ,dst-face)
+              :inverse-video nil)))))
 
 
 (provide 'powerline-separators)
