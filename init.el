@@ -3263,6 +3263,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (add-hook 'prog-mode-hook 'pretty-control-l-mode))
 
+(use-package powerline
+  :disabled t
+  :load-path "site-lisp/powerline"
+  :config
+  (powerline-default-theme))
+
 (use-package projectile
   :load-path "site-lisp/projectile"
   :diminish projectile-mode
