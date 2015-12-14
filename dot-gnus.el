@@ -156,8 +156,6 @@
 (eval-when-compile
   (defvar gnus-agent-queue-mail))
 
-(add-hook 'message-send-hook 'mml-secure-message-sign-pgpmime)
-
 (defun queue-message-if-not-connected ()
   (set (make-local-variable 'gnus-agent-queue-mail)
        (if (quickping "smtp.gmail.com") t 'always)))
