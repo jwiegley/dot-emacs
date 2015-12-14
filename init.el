@@ -1981,23 +1981,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "<f11>" #'gud-step)
     (bind-key "S-<f11>" #'gud-finish)))
 
-(use-package guide-key
-  :disabled t
-  :load-path "site-lisp/guide-key"
-  :diminish guide-key-mode
-  :commands guide-key-mode
-  :defer 10
-  :config
-  (setq guide-key/guide-key-sequence
-        '("C-."
-          "C-h e"
-          "C-x 4"
-          "C-x 5"
-          "C-x r"
-          "M-o"
-          "M-s"))
-  (guide-key-mode 1))
-
 (use-package haskell-mode-autoloads
   :load-path "site-lisp/haskell-mode"
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
@@ -3867,6 +3850,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package wcount
   :disabled t
   :commands wcount-mode)
+
+(use-package which-key
+  :load-path "site-lisp/which-key"
+  :diminish which-key-mode
+  :commands which-key-mode
+  :defer 10
+  :config
+  (which-key-mode 1))
 
 (use-package whitespace
   :diminish (global-whitespace-mode
