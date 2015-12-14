@@ -504,8 +504,7 @@ options they are translated."
   "Build the list of include options for coqc, coqdep and coqtop.
 The options list includes all entries from argument COQ-LOAD-PATH
 \(which should be `coq-load-path' of the buffer that invoked the
-compilation)
-prefixed with suitable options and, if
+compilation) prefixed with suitable options and (for coq<8.5), if
 `coq-load-path-include-current' is enabled, the directory base of
 FILE. The resulting list is fresh for every call, callers can
 append more arguments with `nconc'.
@@ -523,35 +522,35 @@ FILE should be an absolute file name. It can be nil if
         (setq result
               (if coq-pre-v85
 		  (cons "-I" (cons (file-name-directory file) result))
-		(cons "-Q" (cons (file-name-directory file) (cons "" result))))))
+		;; from coq-8.5 beta3 cpqdep does not needthis anymore
+		;; and actually it can clash with -Q . foo written in
+		;; _CoqProject
+		;; (cons "-Q" (cons (file-name-directory file) (cons "" result)))
+		result)))
     result))
 
-(defun coq-coqc-prog-args (&optional src-file coq-load-path-opt)
-  ;; coqtop always adds the current directory to the LoadPath, so
-  ;; don't include it in the -Q options. This is not true for coqdep
-  ;; until late 8.5 betas.
-  (let* ((coq-loadpath (or coq-load-path-opt coq-load-path))
-	 (coq-load-path-include-current nil)
-	 )
-    ;; delete is safe here since coq-include-optionsbuilds a fresh list
-    ;; TODO: replace remove by delete?
-    (remove "-emacs"
-	    (remove "-emacs-U"
-		    (append coq-prog-args (coq-include-options src-file coq-loadpath))))))
 
-;; FIXME: this function seems to have a strange influence on pg. Is it
-;; interfering with defpgcustom prog-args in pg-custom.el?
-(defun coq-prog-args (&optional src-file loadpath)
-  ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -Q options. This is not true for coqdep.
-  (let ((loadpath (or loadpath coq-load-path))
-	(coq-load-path-include-current nil))
-    (append coq-prog-args (coq-include-options src-file loadpath))))
+(defun coq-coqdep-prog-args (&optional src-file loadpath)
+  (let ((loadpath (or loadpath coq-load-path)))
+    (coq-include-options src-file loadpath)))
 
 (defun coq-coqc-prog-args (&optional src-file loadpath)
   ;; coqtop always adds the current directory to the LoadPath, so don't
+  ;; include it in the -Q options.
+  (let ((coqdep-args
+	 (let ((coq-load-path-include-current nil)) ; obsolete >=8.5beta3
+	   (append coq-prog-args (coq-coqdep-prog-args src-file loadpath)))))
+    (remove "-emacs" (remove "-emacs-U" coqdep-args))))
+
+(defun coq-coqtop-prog-args (&optional src-file loadpath)
+  ;; coqtop always adds the current directory to the LoadPath, so don't
   ;; include it in the -Q options. This is not true for coqdep.
-  (remove "-emacs" (remove "-emacs-U" (coq-prog-args src-file loadpath))))
+  (cons "-emacs" (coq-coqc-prog-args src-file loadpath)))
+
+;; FIXME: we seem to need this function with this exact name,
+;; otherwise coqtop command is not generated with the good load-path
+;; (??). Is it interfering with defpgcustom's in pg-custom.el?
+(defun coq-prog-args () (coq-coqtop-prog-args))
 
 
 

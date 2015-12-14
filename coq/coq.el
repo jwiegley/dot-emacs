@@ -71,6 +71,7 @@
 ;;; Code:
 ;; debugging functions
 ;; (defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+(defvar coq-debug nil)
 ;; End debugging
 
 (defcustom coq-prog-name
@@ -103,16 +104,6 @@ Mainly to deal with command line options that changed between 8.4
 and 8.5 (-Q foo bar replace -I foo)."
   :type 'boolean
   :group 'coq)
-
-(defun coq-build-prog-args ()
-  "Adjusts default `coq-prog-args'.  May be overridden by file variables."
-  (delete "-emacs" coq-prog-args)
-  (add-to-list 'coq-prog-args "-emacs-U")
-  (if coq-translate-to-v8 
-      (add-to-list 'coq-prog-args "-translate")))
-
-(unless noninteractive   ;; compiling
-  (coq-build-prog-args))
 
 (defcustom coq-use-makefile nil
   "Whether to look for a Makefile to attempt to guess the command line.
@@ -1493,6 +1484,9 @@ allows to call coqtop from a subdirectory of the project."
          (if (or avoidpath avoidargs)
              (concat "\n(" msg " overridden by dir/file local values)")
            "")))
+      (when coq-debug
+        (message "coq-prog-args: %S" coq-prog-args)
+        (message "coq-load-path: %S" coq-load-path))
       (unless no-kill (kill-buffer projectbuffer)))))
 
 
@@ -1560,7 +1554,6 @@ Warning:
   ;; again is useless. Let us do nothing.
   ;;(setq coq-load-path nil)
   ;;(setq coq-prog-args nil)
-  ;;(coq-build-prog-args)
   )
 
 

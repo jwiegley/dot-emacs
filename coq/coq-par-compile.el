@@ -452,13 +452,23 @@ belonging to the circle."
 
 ;;; map coq module names to files, using synchronously running coqdep 
 
-(defun coq-par-coq-arguments (lib-src-file coq-load-path)
+(defun coq-par-coqdep-arguments (lib-src-file coq-load-path)
   "Compute the command line arguments for invoking coqdep on LIB-SRC-FILE.
 Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
 that triggered the compilation, in order to provide correct
 load-path options to coqdep."
-  (nconc (coq-include-options lib-src-file coq-load-path)
-	 (list lib-src-file)))
+  (nconc ;(coq-include-options lib-src-file coq-load-path)
+   (coq-coqdep-prog-args lib-src-file coq-load-path)
+   (list lib-src-file)))
+
+(defun coq-par-coqc-arguments (lib-src-file coq-load-path)
+  "Compute the command line arguments for invoking coqdep on LIB-SRC-FILE.
+Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
+that triggered the compilation, in order to provide correct
+load-path options to coqdep."
+  (nconc ;(coq-include-options lib-src-file coq-load-path)
+   (coq-coqc-prog-args lib-src-file coq-load-path)
+   (list lib-src-file)))
 
 (defun coq-par-analyse-coq-dep-exit (status output command)
   "Analyse output OUTPUT of coqdep command COMMAND with exit status STATUS.
@@ -504,7 +514,7 @@ dependencies are absolute too and the simplified treatment of
 `coq-load-path-include-current' in `coq-include-options' won't
 break."
   (let* ((coqdep-arguments
-	  (coq-par-coq-arguments lib-src-file coq-load-path))
+	  (coq-par-coqdep-arguments lib-src-file coq-load-path))
 	 (this-command (cons coq-dependency-analyzer coqdep-arguments))
 	 (full-command (if command-intro
 			   (cons command-intro this-command)
@@ -978,7 +988,7 @@ locked, registered in the 'ancestor-files property of JOB and in
 	(puthash true-src 'locked coq-par-ancestor-files)))
     (coq-par-start-process
      coq-dependency-analyzer
-     (coq-par-coq-arguments (get job 'src-file) (get job 'load-path))
+     (coq-par-coqdep-arguments (get job 'src-file) (get job 'load-path))
      'coq-par-process-coqdep-result
      job)))
 
@@ -994,7 +1004,7 @@ coqdep or coqc are started for it."
       (message "Recompile %s" (get job 'src-file))
       (coq-par-start-process
        coq-compiler
-       (coq-par-coq-arguments (get job 'src-file) (get job 'load-path))
+       (coq-par-coqc-arguments (get job 'src-file) (get job 'load-path))
        'coq-par-coqc-continuation
        job)))))
 
