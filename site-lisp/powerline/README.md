@@ -5,6 +5,9 @@ Emacs version of the Vim powerline.
 
 This is a proposed version 2.0 of the original [Emacs Powerline](http://www.emacswiki.org/emacs/PowerLine) which is a fork of [vim-powerline](https://github.com/Lokaltog/vim-powerline).  
 
+This version has utf-8 support enabled. The `utf-8` separators will display a unicode character properly under mintty for example - as long as you have [patched fonts](https://github.com/Lokaltog/powerline-fonts) installed.
+
+By default, any terminal mode emacs will use the `utf-8` separators.
 
 ## Installation
 
@@ -13,7 +16,12 @@ This is a proposed version 2.0 of the original [Emacs Powerline](http://www.emac
     
 The second line customizes `mode-line-format` according to the default theme.
 
-There are two builtin themes: `powerline-default-theme` and `powerline-center-theme`.
+There are five builtin themes: 
+- `powerline-default-theme`
+- `powerline-center-theme`
+- `powerline-center-evil-theme`
+- `powerline-vim-theme`
+- `powerline-nano-theme`
 
 You can revert back to the original value of `mode-line-format` that was being used when powerline was loaded using `powerline-revert`.
 
@@ -24,7 +32,7 @@ The faces that powerline uses for the builtin themes are `powerline-active1` and
 
 ## Custom Themes
 
-Please look over the `powerline-default-theme` and `powerline-center-theme` in [`powerline.el`](https://github.com/milkypostman/powerline/blob/master/powerline.el) for examples of themes that involve different justifications of modeline text.
+Please look over the `powerline-default-theme` and `powerline-center-theme` in [`powerline-themes.el`](https://github.com/milkypostman/powerline/blob/master/powerline-themes.el) for examples of themes that involve different justifications of modeline text.
 
 You can write your own powerline theme by simply setting your own `mode-line-format` to be an evaluation (`:eval`) of the powerline functions. Notice in `powerline-default-theme` the `let*` defines two lists: `lhs` and `rhs` which are exactly the lists that define what goes on the left and right sides of the modeline. The `powerline-center-theme` demonstrates how to *center* justify part of the modeline and defines an additional `center` list which is exactly the modeline components to be displayed in the middle section. 
 
