@@ -526,11 +526,33 @@ FILE should be an absolute file name. It can be nil if
 		(cons "-Q" (cons (file-name-directory file) (cons "" result))))))
     result))
 
-(defun coq-prog-args ()
+(defun coq-coqc-prog-args (&optional src-file coq-load-path-opt)
+  ;; coqtop always adds the current directory to the LoadPath, so
+  ;; don't include it in the -Q options. This is not true for coqdep
+  ;; until late 8.5 betas.
+  (let* ((coq-loadpath (or coq-load-path-opt coq-load-path))
+	 (coq-load-path-include-current nil)
+	 )
+    ;; delete is safe here since coq-include-optionsbuilds a fresh list
+    ;; TODO: replace remove by delete?
+    (remove "-emacs"
+	    (remove "-emacs-U"
+		    (append coq-prog-args (coq-include-options src-file coq-loadpath))))))
+
+;; FIXME: this function seems to have a strange influence on pg. Is it
+;; interfering with defpgcustom prog-args in pg-custom.el?
+(defun coq-prog-args (&optional src-file loadpath)
   ;; coqtop always adds the current directory to the LoadPath, so don't
   ;; include it in the -Q options. This is not true for coqdep.
-  (let ((coq-load-path-include-current nil))
-    (append coq-prog-args (coq-include-options nil coq-load-path))))
+  (let ((loadpath (or loadpath coq-load-path))
+	(coq-load-path-include-current nil))
+    (append coq-prog-args (coq-include-options src-file loadpath))))
+
+(defun coq-coqc-prog-args (&optional src-file loadpath)
+  ;; coqtop always adds the current directory to the LoadPath, so don't
+  ;; include it in the -Q options. This is not true for coqdep.
+  (remove "-emacs" (remove "-emacs-U" (coq-prog-args src-file loadpath))))
+
 
 
 ;;; ignore library files

@@ -111,7 +111,9 @@ break."
 Display errors in buffer `coq-compile-response-buffer'."
   (message "Recompile %s" src-file)
   (let ((coqc-arguments
-         (nconc (coq-include-options src-file coq-load-path) (list src-file)))
+         (nconc ;(coq-include-options src-file coq-load-path)
+	  (coq-coqc-prog-args src-file coq-load-path)
+	  (list src-file)))
         coqc-status)
     (coq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
