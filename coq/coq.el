@@ -32,9 +32,10 @@
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 (require 'proof)
-(require 'coq-syntax)                   ; sets coq-prog-name
-(require 'coq-local-vars)               ;
-(require 'coq-abbrev)                   ; coq specific menu
+(require 'coq-system)                   ; load path, option, project file etc.
+(require 'coq-syntax)
+(require 'coq-local-vars)               
+(require 'coq-abbrev)                   ; abbrev and  coq specific menu
 (require 'coq-seq-compile)              ; sequential compilation
 (require 'coq-par-compile)              ; parallel compilation
 
@@ -59,13 +60,6 @@
     (defvar prettify-symbols-alist nil)))
 
 
-(defun get-coq-version ()
-  (let ((c (shell-command-to-string "coqtop -v")))
-    (if (string-match "version \\([^ ]+\\)\\s-" c)
-	(match-string 1 c)
-      c)))
-
-
 ;; ----- coq-shell configuration options
 
 ;;; Code:
@@ -74,47 +68,11 @@
 (defvar coq-debug nil)
 ;; End debugging
 
-(defcustom coq-prog-name
-  (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
-   "*Name of program to run as Coq. See `proof-prog-name', set from this.
-On Windows with latest Coq package you might need something like:
-   C:/Program Files/Coq/bin/coqtop.opt.exe
-instead of just \"coqtop\".
-This must be a single program name with no arguments; see `coq-prog-args'
-to manually adjust the arguments to the Coq process.
-See also `coq-prog-env' to adjust the environment."
-   :type 'string
-   :group 'coq)
-
-;; coq-prog-args is the user-set list of arguments to pass to Coq process,
-;; see 'defpacustom prog-args' in pg-custom.el for documentation.
-
-;; For Coq, this should contain -emacs.
-;; -translate will be added automatically to this list if `coq-translate-to-v8'
-;; is set.  The list is not altered if the user has set this herself.
-
-(defcustom coq-translate-to-v8 nil
-  "Whether to use -translate argument to Coq."
-  :type 'boolean
-  :group 'coq)
-
-(defcustom coq-pre-v85 nil
-  "Whether to use <= coq-8.4 config (nil by default).
-Mainly to deal with command line options that changed between 8.4
-and 8.5 (-Q foo bar replace -I foo)."
-  :type 'boolean
-  :group 'coq)
-
-(defcustom coq-use-makefile nil
-  "Whether to look for a Makefile to attempt to guess the command line.
-Set to t if you want this feature."
-  :type 'string
-  :group 'coq)
-
-(defcustom coq-default-undo-limit 500
-  "Maximum number of Undo's possible when doing a proof."
-  :type 'number
-  :group 'coq)
+;; Obsolete
+;;(defcustom coq-default-undo-limit 500
+;;  "Maximum number of Undo's possible when doing a proof."
+;;  :type 'number
+;;  :group 'coq)
 
 (defcustom coq-user-init-cmd nil
   "user defined init commands for Coq.
@@ -147,12 +105,6 @@ These are appended at the end of `coq-shell-init-cmd'."
 ;; coq-script-parse-cmdend-forward/backward and coq-find-real-start.
 (require 'coq-indent)
 
-(defcustom coq-prog-env nil
-  "List of environment settings d to pass to Coq process.
-On Windows you might need something like:
-  (setq coq-prog-env '(\"HOME=C:\\Program Files\\Coq\\\"))"
-  :group 'coq)
-
 
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd "Reset Initial.\n ")
@@ -176,18 +128,8 @@ On Windows you might need something like:
   "\\(============================\\)\\|\\(subgoal [0-9]+\\)\n")
 
 
-(defcustom coq-tags (concat coq-library-directory "/theories/TAGS")
-  "The default TAGS table for the Coq library."
-  :type 'string
-  :group 'coq)
-
 (defconst coq-interrupt-regexp "User Interrupt."
   "Regexp corresponding to an interrupt.")
-
-(defcustom coq-www-home-page "http://coq.inria.fr/"
-  "Coq home page URL."
-  :type 'string
-  :group 'coq)
 
 (defcustom coq-end-goals-regexp-show-subgoals "\n(dependent evars:"
   "Regexp for `proof-shell-end-goals-regexp' when showing all subgoals.
@@ -1309,252 +1251,7 @@ goal is redisplayed."
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;    To guess the command line options   ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun coq-guess-command-line (filename)
-  "Guess the right command line options to compile FILENAME using `make -n'.
-This function is obsolete, the recommended way of setting the
-coqtop options is to use a _Coqproject file as described in coq
-documentation. ProofGeneral reads this file and sets compilation
-options according to its contents. See `coq-project-filename'. Per file configuration may
-then be set using local file variables."
-  (if (local-variable-p 'coq-prog-name (current-buffer))
-      coq-prog-name
-    (let* ((dir (or (file-name-directory filename) "."))
-           (makedir
-           (cond
-            ((file-exists-p (concat dir "Makefile")) ".")
-            ;; ((file-exists-p (concat dir "../Makefile")) "..")
-            ;; ((file-exists-p (concat dir "../../Makefile")) "../..")
-            (t nil))))
-      (if (and coq-use-makefile makedir)
-          (let*
-              ;;TODO, add dir name when makefile is in .. or ../..
-              ;;
-              ;; da: FIXME: this code causes problems if the make
-              ;; command fails.  It should not be used by default
-              ;; and should be made more robust.
-              ;;
-              ((compiled-file (concat (substring
-                                       filename 0
-                                       (string-match ".v$" filename)) ".vo"))
-               (command (shell-command-to-string
-                         (concat  "cd " dir ";"
-                                  "make -n -W " filename " " compiled-file
-                                  "| sed s/coqc/coqtop/"))))
-            (message command)
-            (setq coq-prog-args nil)
-            (concat
-             (substring command 0 (string-match " [^ ]*$" command))
-             "-emacs-U"))
-        coq-prog-name))))
-
-
-(defcustom coq-use-project-file t
-  "If t, when opening a coq file read the dominating _CoqProject.
-If t when a coq file is opened, proofgeneral will look for a
-project file (see `coq-project-filename') somewhere in the
-current directory or its parents directory. If there is one, its
-content is read and used to determine the arguments that must be
-given to coqtop. In particular it sets the load path (including
-the -R lib options) (see `coq-load-path') ."
-  :type 'boolean
-  :group 'coq)
-
-(defcustom coq-project-filename "_CoqProject"
-  "The name of coq project file.
-The coq project file of a coq developpement (Cf Coq documentation
-on \"makefile generation\") should contain the arguments given to
-coq_makefile. In particular it contains the -I and -R
-options (one per line). If `coq-use-coqproject' is t (default)
-the content of this file will be used by proofgeneral to infer
-the `coq-load-path' and the `coq-prog-args' variables that set
-the coqtop invocation by proofgeneral. This is now the
-recommended way of configuring the coqtop invocation. Local file
-variables may still be used to override the coq project file's
-configuration. .dir-locals.el files also work and override
-project file settings."
-  :type 'string)
-
-
-(defun coq-find-project-file ()
-  "Return '(buf alreadyopen) where buf is the buffer visiting coq project file.
-alreadyopen is t if buffer already existed."
-  (let* (
-         (projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
-    (when projectfiledir
-      (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
-             ;; we store this intermediate result to know if we have to kill
-             ;; the coq project buffer at the end
-             (projectbufferalreadyopen (find-buffer-visiting projectfile))
-             (projectbuffer (or projectbufferalreadyopen
-                                (find-file-noselect projectfile t t))))
-        (list projectbuffer projectbufferalreadyopen)))))
-
-;; No "." no "-" in coq module file names, but we do not check
-;; TODO: look exactly at what characters are allowed.
-(defconst coq-load-path--R-regexp
-  "\\_<-R\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
-
-(defconst coq-load-path--Q-regexp
-  "\\_<-Q\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
-
-;; second arg of -I is optional (and should become obsolete one day)
-(defconst coq-load-path--I-regexp
-  "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)\\(?:[:space:]+\\(?2:[^[:space:]]+\\)\\)?")
-
-;(defconst coq-load-path--I-regexp "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)")
-
-;; match-string 1 must contain the string to add to coqtop command line, so we
-;; ignore -arg, we use numbered subregexpr.
-
-;; FIXME: if several options are given (within "") in a single -arg line, then
-;; they are glued and passed as a single argument to coqtop. this is bad and
-;; not conforming to coq_makefile. HOWEVER: this is probably a bad feature of
-;; coq_makefile to allow several arguments in a single - arg "xxx yyy".
-(defconst coq-prog-args-regexp
-  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg[[:space:]]+\\(?:\\(?1:[^\"\t\n#]+\\)\\|\"\\(?1:[^\"]+\\)\"\\)")
-
-
-(defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
-  "look for occurrences of regexp in buffer projectbuffer and collect subexps.
-The returned sub-regexp are the one numbered 1 and 2 (other ones
-should be unnumbered). If there is only subexp 1 then it is added
-as is to the final list, if there are 1 and 2 then a list
-containing both is added to the final list. If optional DIRPREFIX
-is non nil, then options ar considered as directory or file names
-and will be made absolute from directory named DIRPREFIX. This
-allows to call coqtop from a subdirectory of the project."
-  (let ((opt nil))
-    (when projectbuffer
-      (with-current-buffer projectbuffer
-        (goto-char (point-min))
-        (while (re-search-forward regexp nil t)
-          (let* ((firstfname (match-string 1))
-                 (second (match-string 2))
-                 (first (if (null dirprefix) firstfname
-                          (expand-file-name firstfname dirprefix))))
-            (if second ; if second arg is "" (two doublequotes), it means empty string
-                (let ((sec (if (string-equal second "\"\"") "" second)))
-                  (if (string-match coq-load-path--R-regexp (match-string 0))
-                      (setq opt (cons (list first sec) opt))
-                    (setq opt (cons (list 'recnoimport first sec) opt))))
-              (setq opt (cons first opt))))))
-      (reverse opt))))
-
-;; Look for -R and -I options in the project buffer
-;; add the default "." too
-(defun coq-search-load-path (projectbuffer)
-  "Read project buffer and retrurn a value for `coq-load-path'."
-;;  no automatic insertion of "." here because some people want to do "-R . foo" so
-;;  let us avoid conflicts.
-  (coq-read-option-from-project-file
-   projectbuffer
-   (concat coq-load-path--R-regexp "\\|" coq-load-path--Q-regexp "\\|" coq-load-path--I-regexp)
-   (file-name-directory (buffer-file-name projectbuffer))))
-
-;; Look for other options (like -opt, -arg foo etc) in the project buffer
-;; adds the -emacs option too
-(defun coq-search-prog-args (projectbuffer)
-  "Read project buffer and retrurn a value for `coq-prog-args'"
-  (cons
-   "-emacs"
-   (coq-read-option-from-project-file projectbuffer coq-prog-args-regexp)))
-
-
-;; optional args allow to implement the precedence of dir/file local vars
-(defun coq-load-project-file-with-avoid (&optional avoidargs avoidpath)
-  (let* ((projectbuffer-aux (coq-find-project-file))
-         (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
-         (no-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
-    (if (not projectbuffer-aux)
-        (message "Coq project file not detected.")
-      (unless avoidargs (setq coq-prog-args (coq-search-prog-args projectbuffer)))
-      (unless avoidpath (setq coq-load-path (coq-search-load-path projectbuffer)))
-      (let ((msg
-             (cond
-              ((and avoidpath avoidargs) "Coqtop args and load path")
-              (avoidpath "Coqtop load path")
-              (avoidargs "Coqtop args")
-              (t ""))))
-        (message
-         "Coq project file detected: %s%s." (buffer-file-name projectbuffer)
-         (if (or avoidpath avoidargs)
-             (concat "\n(" msg " overridden by dir/file local values)")
-           "")))
-      (when coq-debug
-        (message "coq-prog-args: %S" coq-prog-args)
-        (message "coq-load-path: %S" coq-load-path))
-      (unless no-kill (kill-buffer projectbuffer)))))
-
-
-
-(defun coq-load-project-file ()
-  "Set `coq-prog-args' and `coq-load-path' according to _CoqProject file.
-Obeys `coq-use-project-file'. Note that if a variable is already
-set by dir/file local variables, this function will not override
-its value.
-See `coq-project-filename' to change the name of the
-project file, and `coq-use-project-file' to disable this
-feature."
-  (when coq-use-project-file
-    ;; Let us reread dir/file local vars, in case the user mmodified them
-    (let* ((oldargs (assoc 'coq-prog-args file-local-variables-alist))
-           (oldpath (assoc 'coq-load-path file-local-variables-alist)))
-      (coq-load-project-file-with-avoid oldargs oldpath))))
-
-
-(defun coq-load-project-file-rehack ()
-  "Reread file/dir local vars and call `coq-load-project-file'.
-Does nothing if `coq-use-project-file' is nil.
-Warning: 
-"
-  (when coq-use-project-file
-    ;; Let us reread dir/file local vars, in case the user mmodified them
-    (hack-local-variables)
-    ;; Useless since coq-load-project-file is in hack-local-variables-hook:
-    ;;(coq-load-project-file)
-    ))
-
-
-;; Since coq-project-filename can be set via .dir-locals.el or file variable,
-;; we need to call coq-load-coq-project-file only *after* local variables are
-;; set. But coq-mode-hook is called BEFORE local variables are read. Therefore
-;; coq-load-coq-project-file is added to hack-local-variables-hook instead. To
-;; avoid adding for other modes , the setting is performed inside
-;; coq-mode-hook. This is described in www.emacswiki.org/emacs/LocalVariables
-
-;; TODO: also read COQBIN somewhere?
-;; Note: this does not need to be at a particular place in the hook, but we
-;; need to make this hook local.
-;; hack-local-variables-hook seems to hack local and dir local vars.
-(add-hook 'coq-mode-hook
-          '(lambda ()
-             (add-hook 'hack-local-variables-hook
-                       'coq-load-project-file
-                       nil t)))
-
-;; smie's parenthesis blinking is too slow, let us have the default one back
-(add-hook 'coq-mode-hook
-          '(lambda ()
-             (when (and (fboundp 'show-paren--default)
-                        (boundp 'show-paren-data-function))
-               (setq show-paren-data-function 'show-paren--default))))
-
-
-
-(defun coq-toggle-use-project-file ()
-  (interactive)
-  (setq coq-use-project-file (not coq-use-project-file))
-  (when coq-use-project-file (coq-load-project-file-rehack))
-  ;; FIXME What should we do when disabling project file? since
-  ;; local variables override project file anyway, reading them
-  ;; again is useless. Let us do nothing.
-  ;;(setq coq-load-path nil)
-  ;;(setq coq-prog-args nil)
-  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1600,23 +1297,6 @@ Warning:
     ("::"	. ?∷)
     ))
 
-
-;
-;(defun coq-is-at-cmd-first-line-p ()
-;  (save-excursion
-;    (let ((l1 (line-number-at-pos)))
-;      (coq-find-real-start)
-;      (equal l1 (line-number-at-pos)))))
-;
-
-;
-;(defun coq-indent-command ()
-;  (save-excursion
-;    (when (coq-is-at-cmd-first-line-p)
-;      (let ((kind (coq-back-to-indentation-prevline)))
-;        (if 
-;        (current-column))))))
-;
 
 (defun coq-get-comment-region (pt)
   "Return a list of the forme (beg end) where beg,end is the comment region arount position PT.
@@ -1968,10 +1648,11 @@ Near here means PT is either inside or just aside of a comment."
   :type 'integer
   :setting "Set Printing Depth %i . ")
 
-(defpacustom undo-depth coq-default-undo-limit
-  "Depth of undo history.  Undo behaviour will break beyond this size."
-  :type 'integer
-  :setting "Set Undo %i . ")
+;;; Obsolete:
+;;(defpacustom undo-depth coq-default-undo-limit
+;;  "Depth of undo history.  Undo behaviour will break beyond this size."
+;;  :type 'integer
+;;  :setting "Set Undo %i . ")
 
 (defun coq-set-search-blacklist (s)
   (let ((res (format "Remove Search Blacklist %s. \nAdd Search Blacklist %s. "

@@ -14,9 +14,10 @@
 
 
 (require 'proof-shell)
+(require 'coq-system)
 
 (eval-when (compile)
-  (defvar coq-pre-v85 nil)
+  ;;(defvar coq-pre-v85 nil)
   (defvar coq-confirm-external-compilation nil); defpacustom
   (defvar coq-compile-parallel-in-background nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
@@ -26,30 +27,6 @@
 ;;
 ;; Multiple file handling -- sequential compilation of required modules
 ;;
-
-;; constants
-
-(defun get-coq-library-directory ()
-  (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
-    (if (string-match "not found" c)
-        "/usr/local/lib/coq"
-      c)))
-
-(defconst coq-library-directory (get-coq-library-directory)
-  "The coq library directory, as reported by \"coqtop -where\".")
-
-(defcustom coq-dependency-analyzer
-  (proof-locate-executable "coqdep" t nil)
-  "Command to invoke coqdep."
-  :type 'string
-  :group 'coq)
-
-(defcustom coq-compiler
-  (proof-locate-executable "coqc" t nil)
-  "Command to invoke the coq compiler."
-  :type 'string
-  :group 'coq)
-
 
 ;;; enable / disable parallel / sequential compilation
 ;; I would rather put these functions into coq-seq-compile and
@@ -91,35 +68,6 @@ Must be used together with `coq-par-enable'."
 	       'coq-seq-preprocess-require-commands))
 
 
-;;; utility functions for variables
-
-(defun coq-load-path-safep (path)
-  "Check if PATH is a safe value for `coq-load-path'."
-  (and
-   (listp path)
-   (every
-    (lambda (entry)
-      (or (stringp entry)
-          (and (listp entry)
-               (eq (car entry) 'rec)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 3))
-          (and (listp entry)
-               (eq (car entry) 'nonrec)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 3))
-          (and (listp entry)
-               (eq (car entry) 'recnoimport)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 3))
-          (and (listp entry)
-               (eq (car entry) 'ocamlimport)
-               (every 'stringp (cdr entry))
-               (equal (length entry) 2))
-          (and (listp entry)
-               (every 'stringp entry)
-               (equal (length entry) 2))))
-    path)))
 
 (defun coq-switch-compilation-method ()
   "Set function for coq-compile-parallel-in-background."
@@ -265,64 +213,6 @@ directory containing the source file, the Coq object file in
 identifier that occurs in the \"Require\" command, and the file
 that contains the \"Require\".")
 
-(defcustom coq-load-path nil
-  "Non-standard coq library load path.
-This list specifies the LoadPath extension for coqdep, coqc and
-coqtop. Usually, the elements of this list are strings (for
-\"-I\") or lists of two strings (for \"-R\" dir path and
-\"-Q\" dir path).
-
-The possible forms of elements of this list correspond to the 4
-forms of include options ('-I' '-Q' and '-R'). An element can be
-
-  - A list of the form '(ocamlimport dir)', specifying a
-    directory to be added to ocaml path ('-I').
-  - A list of the form '(rec dir path)' (where dir and path are
-    strings) specifying a directory to be recursively mapped to the
-    logical path 'path' ('-R dir path').
-  - A list of the form '(recnoimport dir path)' (where dir and
-    path are strings) specifying a directory to be recursively
-    mapped to the logical path 'path' ('-Q dir path'), but not
-    imported (modules accessible for import with qualified names
-    only).
-  - A list of the form '(norec dir)', specifying a directory
-    to be mapped to the empty logical path ('-Q dir \"\"').
-
-For convenience the symbol 'rec' can be omitted and entries of
-the form '(dir path)' are interpreted as '(rec dir path)'.
-
-Under normal circumstances this list does not need to
-contain the coq standard library or \".\" for the current
-directory (see `coq-load-path-include-current').
-
-WARNING: if you use coq <= 8.4, the meaning of these options is
-not the same (-I is for coq path).
-"
-  :type '(repeat (choice (string :tag "simple directory without path (-Q \"\")") ; is this really useful?
-                         (list :tag
-                               "recursive directory with path (-R ... -as ...)"
-                               (const rec)
-                               (string :tag "directory")
-                               (string :tag "log path"))
-			 (list :tag
-                               "recursive directory without recursive inport with path (-Q ... ...)"
-                               (const recnoimport)
-                               (string :tag "directory")
-                               (string :tag "log path"))
-                         (list :tag
-                               "directory with empty logical path (-Q ... "" in coq>=8.5, -I ... in coq<=8.4)"
-                               (const nonrec)
-                               (string :tag "directory")
-                               (string :tag "log path"))
-                         (list :tag
-                               "ocaml path (-I ...)"
-                               (const ocamlimport)
-                               (string :tag "directory")
-                               (string :tag "log path"))))
-  :safe 'coq-load-path-safep
-  :group 'coq-auto-compile)
-
-(make-variable-buffer-local 'coq-load-path)
 
 (defcustom coq-compile-auto-save 'ask-coq
   "Buffers to save before checking dependencies for compilation.
@@ -367,14 +257,6 @@ This option can be set/reset via menu
   :type 'boolean
   :group 'coq-auto-compile)
 
-(defcustom coq-load-path-include-current t
-  "If `t' let coqdep search the current directory too.
-Should be `t' for normal users. If `t' pass -Q dir \"\" to coqdep when
-processing files in directory \"dir\" in addition to any entries
-in `coq-load-path'."
-  :type 'boolean
-  :safe 'booleanp
-  :group 'coq-auto-compile)
 
 (defcustom coq-compile-ignored-directories nil
   "Directories in which ProofGeneral should not compile modules.
@@ -477,80 +359,7 @@ DEP-MOD-TIMES is empty it returns nil."
 
 ;;; Compute command line for starting coqtop
 
-(defun coq-option-of-load-path-entry (entry)
-  "Translate a single element from `coq-load-path' into options.
-See `coq-load-path' for the possible forms of entry and to which
-options they are translated."
-  (cond
-   ((and coq-pre-v85 (stringp entry))
-    (list "-I" (expand-file-name entry)))
-   ((and (not coq-pre-v85) (stringp entry))
-    (list "-Q" (expand-file-name entry) ""))
-   ((and coq-pre-v85 (eq (car entry) 'nonrec))
-    (list "-I" (expand-file-name (nth 1 entry)) "-as" (nth 2 entry)))
-   ((and (not coq-pre-v85) (eq (car entry) 'nonrec)) ;; N/A?
-    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
-   ((eq (car entry) 'recnoimport) ;; only for >=8.5
-    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
-   (t
-    (if (eq (car entry) 'rec)
-        (setq entry (cdr entry)))
-    (if coq-pre-v85 ;; -as obsolete in 8.5
-	(list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry))
-      (list "-R" (expand-file-name (car entry)) (nth 1 entry))))))
 
-
-(defun coq-include-options (file coq-load-path)
-  "Build the list of include options for coqc, coqdep and coqtop.
-The options list includes all entries from argument COQ-LOAD-PATH
-\(which should be `coq-load-path' of the buffer that invoked the
-compilation) prefixed with suitable options and (for coq<8.5), if
-`coq-load-path-include-current' is enabled, the directory base of
-FILE. The resulting list is fresh for every call, callers can
-append more arguments with `nconc'.
-
-FILE should be an absolute file name. It can be nil if
-`coq-load-path-include-current' is nil."
-  (let ((result nil))
-    (unless (coq-load-path-safep coq-load-path)
-      (error "Invalid value in coq-load-path"))
-    (when coq-load-path
-      (setq result (coq-option-of-load-path-entry (car coq-load-path)))
-      (dolist (entry (cdr coq-load-path))
-        (nconc result (coq-option-of-load-path-entry entry))))
-    (if coq-load-path-include-current
-        (setq result
-              (if coq-pre-v85
-		  (cons "-I" (cons (file-name-directory file) result))
-		;; from coq-8.5 beta3 cpqdep does not needthis anymore
-		;; and actually it can clash with -Q . foo written in
-		;; _CoqProject
-		;; (cons "-Q" (cons (file-name-directory file) (cons "" result)))
-		result)))
-    result))
-
-
-(defun coq-coqdep-prog-args (&optional src-file loadpath)
-  (let ((loadpath (or loadpath coq-load-path)))
-    (coq-include-options src-file loadpath)))
-
-(defun coq-coqc-prog-args (&optional src-file loadpath)
-  ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -Q options.
-  (let ((coqdep-args
-	 (let ((coq-load-path-include-current nil)) ; obsolete >=8.5beta3
-	   (append coq-prog-args (coq-coqdep-prog-args src-file loadpath)))))
-    (remove "-emacs" (remove "-emacs-U" coqdep-args))))
-
-(defun coq-coqtop-prog-args (&optional src-file loadpath)
-  ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -Q options. This is not true for coqdep.
-  (cons "-emacs" (coq-coqc-prog-args src-file loadpath)))
-
-;; FIXME: we seem to need this function with this exact name,
-;; otherwise coqtop command is not generated with the good load-path
-;; (??). Is it interfering with defpgcustom's in pg-custom.el?
-(defun coq-prog-args () (coq-coqtop-prog-args))
 
 
 
