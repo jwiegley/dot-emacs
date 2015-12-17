@@ -2191,12 +2191,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :init
     (helm-mode 1))
 
-  (use-package helm-ls-git
-    :load-path "site-lisp/helm-ls-git")
-
-  (use-package helm-match-plugin
-    :config
-    (helm-match-plugin-mode 1))
+  (use-package helm-multi-match)
 
   (helm-autoresize-mode 1)
 
