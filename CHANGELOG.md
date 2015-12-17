@@ -4,6 +4,49 @@
 
 ### New features
 
+* Add [boot-clj](https://github.com/boot-clj/boot) project type.
+* Add support for projects using gradlew script.
+* Prefer Haskell stack projects over cabal projects.
+* Add ability to use elisp functions for test, compile and run commands.
+
+## 0.13.0 (10/21/2015)
+
+### New features
+
+* Add `projectile-before-switch-project-hook`.
+* Add the ability to specify the project type via `.dir-locals.el`.
+* Add support for projects using Midje.
+* Add the ability to create missing tests automatically (controlled via the `projectile-create-missing-test-files` defcustom).
+* Add the ability to dynamically decide if a project should be added to `projectile-known-projects` (via new `projectile-ignored-project-function` defcustom).
+* Add the ability to register new project types dynamically with `projectile-register-project-type`.
+* Add the ability to specify a project compilation and test commands via `.dir-locals.el`.
+This is done via the variables `projectile-project-compilation-cmd` and `projectile-project-test-cmd`.
+* [#489](https://github.com/bbatsov/projectile/issues/489): New interactive command `projectile-run-project`.
+* Optionally run [monky](http://ananthakumaran.in/monky/) on Mercurial projects.
+* Add the ability to specify a project compilation directory relative to the root directory via `.dir-locals.el` with the variable `projectile-project-compilation-dir`.
+* When there is a selected region, projectile-ag, projectile-grep, projectile-replace and projectile-find-tag uses it's content as a search term instead of symbol at point.
+
+### Changes
+
+* Rename `projectile-switch-project-hook` to `projectile-after-switch-project-hook`.
+* `projectile-compile-project` now offers appropriate completion
+  targets even when called from a subdirectory.
+* Add an argument specifying the regexp to search to `projectile-grep`.
+* Use `help-projectile-grep` instead of `helm-find-file` when selecting a project.
+* Omit current buffer from `projectile-switch-to-buffer` and `projectile-switch-to-buffer-other-window` choices.
+
+### Bugs fixed
+
+* [#721](https://github.com/bbatsov/projectile/issues/721#issuecomment-100830507): Remove current buffer from `helm-projectile-switch-project`.
+* [#667](https://github.com/bbatsov/projectile/issues/667) Use `file-truename` when caching filenames to prevent duplicate/symlinked filepaths from appearing when opening a project file.
+* [#625](https://github.com/bbatsov/projectile/issues/625): Ensure the directory has a trailing slash while searching for it.
+* [#763](https://github.com/bbatsov/projectile/issues/763): Check for `projectile-use-git-grep` in `helm-projectile-grep`
+* Fix `projectile-parse-dirconfig-file` to parse non-ASCII characters properly.
+
+## 0.12.0 (03/29/2015)
+
+### New features
+
 * Replace Helm equivalent commands in `projectile-commander` when using Helm.
 * Add replacement commands projectile-grep, projectile-ack and projectile-ag with its Helm version.
 * Add virtual directory manager that allows to create/update (add or delete files) a Dired buffer based on Projectile files.
