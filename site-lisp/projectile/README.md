@@ -2,7 +2,6 @@
 [![MELPA](http://melpa.org/packages/projectile-badge.svg)](http://melpa.org/#/projectile)
 [![MELPA Stable](http://stable.melpa.org/packages/projectile-badge.svg)](http://stable.melpa.org/#/projectile)
 [![Build Status](https://travis-ci.org/bbatsov/projectile.png?branch=master)](https://travis-ci.org/bbatsov/projectile)
-[![Gratipay](http://img.shields.io/gratipay/bbatsov.svg)](https://www.gratipay.com/bbatsov/)
 
 ## Synopsis
 
@@ -34,7 +33,7 @@ it. Some of Projectile's features:
 * jump to a project buffer
 * jump to a test in project
 * toggle between files with same names but different extensions (e.g. `.h` <-> `.c/.cpp`, `Gemfile` <-> `Gemfile.lock`)
-* toggle between code and its test
+* toggle between code and its test (e.g. `main.service.js` <-> `main.service.spec.js`)
 * jump to recently visited files in the project
 * switch between projects you have worked on
 * kill all project buffers
@@ -49,9 +48,7 @@ Here's a glimpse of Projectile in action:
 
 ![Projectile Screenshot](screenshots/projectile.png)
 
-You can support my work on Projectile and [all my other projects](https://github.com/bbatsov) via [gratipay](https://www.gratipay.com/bbatsov).
-
-[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/bbatsov)
+You can support my work on Projectile via [Salt](https://salt.bountysource.com/teams/projectile).
 
 ## Installation
 
@@ -159,7 +156,7 @@ entire directory with `M-x projectile-purge-dir-from-cache`.
 
 ##### File exists cache
 
-Projectile does many file existence checks since that is how it identifies an
+Projectile does many file existence checks since that is how it identifies a
 project root. Normally this is fine, however in some situations the file system
 speed is much slower than usual and can make emacs "freeze" for extended
 periods of time when opening files and browsing directories.
@@ -278,7 +275,7 @@ top-level directory.
 
 ##### Ido
 
-By default Projectile uses `ido` as it completion system. `ido` is
+By default Projectile uses `ido` as its completion system. `ido` is
 extremely popular and it is built into Emacs.
 
 As already noted above if you're going to use the `ido` completion it's
@@ -336,7 +333,7 @@ ships with Emacs distribution.
 
 ### Interactive Commands
 
-Here's a list of the interactive Emacs Lisp functions, provided by projectile:
+Here's a list of the interactive Emacs Lisp functions, provided by Projectile:
 
 Keybinding         | Description
 -------------------|------------------------------------------------------------
@@ -376,7 +373,7 @@ Keybinding         | Description
 <kbd>C-c p p</kbd> | Display a list of known projects you can switch to.
 <kbd>C-c p S</kbd> | Save all project buffers.
 <kbd>C-c p m</kbd> | Run the commander (an interface to run commands with a single key).
-<kbd>C-c p ESC</kbd> | Switch to the most recently selected projectile buffer.
+<kbd>C-c p ESC</kbd> | Switch to the most recently selected Projectile buffer.
 
 If you ever forget any of Projectile's keybindings just do a:
 
@@ -394,8 +391,12 @@ It is also possible to add additional commands to
 commands. Here's an example that adds `super-p` as the extra prefix:
 
 ```el
-(define-key some-keymap (kbd "s-p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 ```
+
+You can also bind the `projectile-command-map` to any other map you'd
+like (including the global keymap).  Prelude does this for its
+[prelude-mode-map](https://github.com/bbatsov/prelude/blob/master/core/prelude-mode.el#L68).
 
 For some common commands you might want to take a little shortcut and
 leverage the fairly unused `Super` key (by default `Command` on Mac
@@ -418,7 +419,7 @@ If you'd like to instruct Projectile to ignore certain files in a
 project, when indexing it you can do so in the `.projectile` file by
 adding each path to ignore, where the paths all are relative to the
 root directory and start with a slash. Everything ignored should be
-preceded with a - sign. Alternatively, not having any prefix at all
+preceded with a `-` sign. Alternatively, not having any prefix at all
 also means to ignore the directory or file pattern that follows.
 Here's an example for a typical Rails application:
 
@@ -525,40 +526,22 @@ the files in you repository, you could do:
 ((nil . ((projectile-git-command . "/path/to/other/git ls-files -zco --exclude-standard"))))
 ```
 
-#### Configure Project's Compilation Command
+#### Configure a Project's Compilation, Test and Run commands
 
-Overriding pieces of Projectile might require some hacking on your
-part -- reading the source, advising functions, etc.
+There are a few variables that are intended to be customized via `.dir-locals.el`.
 
-For example, by reading Projectile's source, you could discover that
-a project's compilation command can be specified with this code:
+* for compilation - `projectile-project-compilation-cmd`
+* for testing - `projectile-project-test-cmd`
+* for running - `projectile-project-run-cmd`
 
-```
-((nil . ((eval . (progn
-                   ;; require projectile; the following code will fail
-                   ;; without it.
-                   (require 'projectile)
-                   ;; provide a fake "recent" compilation cmd
-                   ;; which will be returned by the function
-                   ;; `projectile-compilation-command`
-                   (puthash (projectile-project-root)
-                            "./command-to-compile-your-project.sh"
-                            projectile-compilation-cmd-map))))))
-```
-
-#### Configure Project's Test Command
-
-Altering the test command works in the same way as altering the
-compilation command. Comments are left out in this example for
-brevity and clarity:
+They're all set to `nil` by default, but by setting them you'll override the
+default commands per each supported project type.
+These variables can be strings to run external commands or Emacs Lisp functions:
 
 ```
-((nil . ((eval . (progn
-                   (require 'projectile)
-                   (puthash (projectile-project-root)
-                            "./test-project.sh"
-                            projectile-test-cmd-map))))))
+(setq projectile-test-cmd #'custom-test-function)
 ```
+
 
 ### Helm Integration
 
@@ -587,7 +570,7 @@ vc-dir or magit", "Switch to Eshell" and "Grep project files". We will add more
 and more actions in the future.
 
 `helm-projectile` is capable of opening multiple files by marking the files with
-<kbd>C-SPC</kbd> or mark all files with <kdb>M-a</kbd>. Then, press <kdb>RET</kbd>,
+<kbd>C-SPC</kbd> or mark all files with <kbd>M-a</kbd>. Then, press <kbd>RET</kbd>,
 all the selected files will be opened.
 
 Note that the helm grep is different from `projectile-grep` because the helm
@@ -660,7 +643,7 @@ When I switch to a different project, I get a clean 'perspective'.
 
 ![Persp-Projectile Screenshot 2](screenshots/persp-projectile2.png)
 
-To integrate perspective with projectile, first of all, you need to
+To integrate perspective with Projectile, first of all, you need to
 install perspective. You can install it by:
 
 ```
@@ -760,9 +743,7 @@ Run all tests with:
 $ make test
 ```
 
-You can also support my work on Projectile and [all my other projects](https://github.com/bbatsov) via [gratipay](https://www.gratipay.com/bbatsov).
-
-[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.1.3/dist/gratipay.png)](https://gratipay.com/bbatsov)
+You can also support my work on Projectile via [Salt](https://salt.bountysource.com/teams/projectile).
 
 ## Changelog
 

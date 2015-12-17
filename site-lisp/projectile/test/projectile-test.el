@@ -5,7 +5,7 @@
 
 (defmacro projectile-test-with-sandbox (&rest body)
   "Evaluate BODY in an empty temporary directory."
-  (declare (indent 0))
+  (declare (indent 0) (debug (&rest form)))
   `(let ((sandbox
           (--if-let (bound-and-true-p projectile-test-path)
               (file-name-as-directory (expand-file-name "sandbox" it))
@@ -19,7 +19,7 @@
        ,@body)))
 
 (defmacro projectile-test-with-files (files &rest body)
-  (declare (indent 1))
+  (declare (indent 1) (debug (sexp &rest form)))
   `(progn ,@(mapcar (lambda (file)
                       (if (string-suffix-p "/" file)
                           `(make-directory ,file t)
@@ -127,7 +127,7 @@
 (ert-deftest projectile-test-parse-dirconfig-file ()
   (noflet ((file-exists-p (filename) t)
            (file-truename (filename) filename)
-           (insert-file-contents-literally
+           (insert-file-contents
             (filename)
             (save-excursion
               (insert
@@ -203,7 +203,7 @@
           (mkdir deep-directory t)
           (with-temp-file root-file)
           (with-temp-file project-file)
-          (with-current-buffer (find-file-noselect project-file)
+          (with-current-buffer (find-file-noselect project-file t)
             (should (file-name-absolute-p (projectile-project-root)))))
       (ignore-errors (delete-directory root-directory t)))))
 
@@ -230,13 +230,13 @@
          "projectA/src/framework/lib/"
          "projectA/src/framework.conf"
          "projectA/src/html/index.html")
-      (should (equal "projectA/src/"
+      (should (equal (expand-file-name "projectA/src/")
                      (projectile-root-top-down "projectA/src/framework/lib"
                                                '("framework.conf" ".git"))))
-      (should (equal "projectA/src/"
+      (should (equal (expand-file-name "projectA/src/")
                      (projectile-root-top-down "projectA/src/framework/lib"
                                                '(".git" "framework.conf"))))
-      (should (equal "projectA/src/html/"
+      (should (equal (expand-file-name "projectA/src/html/")
                      (projectile-root-top-down "projectA/src/html/"
                                                '(".svn")))))))
 
@@ -252,11 +252,11 @@
          "projectA/src/framework/framework.conf"
          "projectA/src/html/index.html"
          ".projectile")
-      (should (equal "projectA/"
+      (should (equal (expand-file-name "projectA/")
                      (projectile-root-top-down-recurring
                       "projectA/src/html/"
                       '("something" ".svn" ".git"))))
-      (should (equal "projectA/"
+      (should (equal (expand-file-name "projectA/")
                      (projectile-root-top-down-recurring
                       "projectA/src/html/"
                       '(".git"))))
@@ -276,16 +276,16 @@
          "projectA/src/framework/framework.conf"
          "projectA/src/html/index.html"
          "projectA/.projectile")
-      (should (equal "projectA/"
+      (should (equal (expand-file-name "projectA/")
                      (projectile-root-bottom-up "projectA/src/framework/lib"
                                                 '(".git" ".svn"))))
-      (should (equal "projectA/"
+      (should (equal (expand-file-name "projectA/")
                      (projectile-root-bottom-up "projectA/src/html"
                                                 '(".git" ".svn"))))
-      (should (equal "projectA/src/html/"
+      (should (equal (expand-file-name "projectA/src/html/")
                      (projectile-root-bottom-up "projectA/src/html"
                                                 '(".svn" ".git"))))
-      (should (equal "projectA/"
+      (should (equal (expand-file-name "projectA/")
                      (projectile-root-bottom-up "projectA/src/html"
                                                 '(".projectile" "index.html")))))))
 
@@ -437,17 +437,17 @@
                  projectile-projects-cache)
         (noflet ((projectile-project-root () (file-truename default-directory))
                  (projectile-project-vcs () 'none))
-          (with-current-buffer (find-file-noselect  "file2.el")
+          (with-current-buffer (find-file-noselect  "file2.el" t)
             (projectile-cache-current-file)
             (dolist (f '("file1.el" "file2.el"))
               (should (member f (gethash (projectile-project-root)
                                          projectile-projects-cache)))))
-          (with-current-buffer (find-file-noselect "file3.el")
+          (with-current-buffer (find-file-noselect "file3.el" t)
             (projectile-cache-current-file)
             (dolist (f '("file1.el" "file2.el" "file3.el"))
               (should (member f (gethash (projectile-project-root)
                                          projectile-projects-cache)))))
-          (with-current-buffer (find-file-noselect "file4.el")
+          (with-current-buffer (find-file-noselect "file4.el" t)
             (projectile-cache-current-file)
             (dolist (f '("file1.el" "file2.el" "file3.el" "file4.el"))
               (should (member f (gethash (projectile-project-root)
@@ -478,10 +478,10 @@
 				(progn (should (equal sym regexp))
 				       (should (equal (car (last test)) files))
 				       (should (equal (projectile-project-root) dir)))))
-            (with-current-buffer (find-file-noselect (car test))
+            (with-current-buffer (find-file-noselect (car test) t)
 	      (save-excursion
 		(re-search-forward sym)
-		(projectile-grep ?-)))))))))
+		(projectile-grep nil ?-)))))))))
 
 ;;;;;;;;; fresh tests
 
@@ -496,9 +496,9 @@
 
 (ert-deftest projectile-ignored-buffer-p-by-name ()
   (let ((projectile-globally-ignored-buffers '("*nrepl messages*" "*something*")))
-    (should (projectile-ignored-buffer-p (generate-new-buffer "*nrepl messages*")))
-    (should (projectile-ignored-buffer-p (generate-new-buffer "*something*")))
-    (should-not (projectile-ignored-buffer-p (generate-new-buffer "test")))))
+    (should (projectile-ignored-buffer-p (get-buffer-create "*nrepl messages*")))
+    (should (projectile-ignored-buffer-p (get-buffer-create "*something*")))
+    (should-not (projectile-ignored-buffer-p (get-buffer-create "test")))))
 
 (ert-deftest projectile-test-get-other-files ()
   (let ((projectile-other-file-alist '(;; handle C/C++ extensions
@@ -523,6 +523,10 @@
                                        (nil . ("lock" "gpg"))
                                        ("lock" . (""))
                                        ("gpg" . (""))
+
+                                       ;; handle files with nested extensions
+                                       ("service.js" . ("service.spec.js"))
+                                       ("js" . ("js"))
                                        ))
         (source-tree '("src/test1.c"
                        "src/test2.c"
@@ -540,7 +544,15 @@
                        "include2/some_module/same_name.h"
                        "include2/test1.h"
                        "include2/test2.h"
-                       "include2/test2.hpp")))
+                       "include2/test2.hpp"
+
+                       "src/test1.service.js"
+                       "src/test2.service.spec.js"
+                       "include1/test1.service.spec.js"
+                       "include2/test1.service.spec.js"
+                       "include1/test2.js"
+                       "include2/test2.js")))
+    
     (should (equal '("include1/test1.h" "include2/test1.h")
                    (projectile-get-other-files "src/test1.c" source-tree)))
     (should (equal '("include1/test1.h" "include2/test1.h" "include1/test1.hpp")
@@ -559,8 +571,24 @@
                    (projectile-get-other-files "Makefile.lock" source-tree)))
     (should (equal '("src/some_module/same_name.c" "src/same_name.c")
                    (projectile-get-other-files "include2/some_module/same_name.h" source-tree)))
+    ;; nested extensions
+    (should (equal '("include1/test1.service.spec.js" "include2/test1.service.spec.js")
+                   (projectile-get-other-files "src/test1.service.js" source-tree)))
+    ;; fallback to outer extensions if no rule for nested extension defined
+    (should (equal '("include1/test2.js" "include2/test2.js")
+                   (projectile-get-other-files "src/test2.service.spec.js" source-tree)))
     ))
 
+(ert-deftest projectile-test-compilation-directory ()
+  (defun helper (project-root rel-dir)
+    (noflet ((projectile-project-root () project-root))
+            (let ((projectile-project-compilation-dir rel-dir))
+              (projectile-compilation-dir))))
+
+  (should (equal "/root/build/" (helper "/root/" "build")))
+  (should (equal "/root/build/" (helper "/root/" "build/")))
+  (should (equal "/root/build/" (helper "/root/" "./build")))
+  (should (equal "/root/local/build/" (helper "/root/" "local/build"))))
 
 (ert-deftest projectile-test-dirname-matching-count ()
   (should (equal 2

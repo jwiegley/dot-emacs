@@ -1,7 +1,6 @@
 EMACS ?= emacs
 EMACSFLAGS =
 CASK = cask
-VAGRANT = vagrant
 
 OBJECTS = projectile.elc
 
@@ -13,16 +12,20 @@ elpa:
 .PHONY: build
 build : elpa $(OBJECTS)
 
+.PHONY: byte-compile-strict
+byte-compile-strict : elpa
+	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
+		--directory "."                          \
+		$(EMACSFLAGS)                            \
+		--eval "(progn                           \
+			(setq byte-compile-error-on-warn t)  \
+			(batch-byte-compile))" projectile.el helm-projectile.el
+
 .PHONY: test
-test : build
+test : byte-compile-strict
 	$(CASK) exec $(EMACS) --no-site-file --no-site-lisp --batch \
 		$(EMACSFLAGS) \
 		-l test/run-tests
-
-.PHONY: virtual-test
-virtual-test :
-	$(VAGRANT) up
-	$(VAGRANT) ssh -c "make -C /vagrant EMACS=$(EMACS) clean test"
 
 .PHONY: clean
 clean :
