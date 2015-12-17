@@ -1,6 +1,6 @@
 ;;; helm-org.el --- Helm for org headlines and keywords completion -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,7 +18,10 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-utils)
 (require 'org)
+
+(declare-function org-agenda-switch-to "org-agenda.el")
 
 (defgroup helm-org nil
   "Org related functions for helm."
@@ -30,6 +33,9 @@ This reflect fontification in helm-buffer when non--nil.
 NOTE: This will be slow on large org buffers."
   :group 'helm-org
   :type 'boolean)
+
+;; Internal
+(defvar helm-org-headings--nofilename nil)
 
 ;;; Org capture templates
 ;;
@@ -52,9 +58,10 @@ NOTE: This will be slow on large org buffers."
   (org-show-entry))
 
 (cl-defun helm-source-org-headings-for-files (filenames
-                                              &optional (min-depth 1) (max-depth 8))
+                                              &optional (min-depth 1) (max-depth 8) (parents nil))
   (helm-build-sync-source "Org Headings"
-    :candidates (helm-org-get-candidates filenames min-depth max-depth)
+    :candidates (helm-org-get-candidates filenames min-depth max-depth parents)
+    :candidate-transformer (and parents 'reverse)
     :action '(("Go to line" . helm-org-goto-marker)
               ("Refile to this heading" . helm-org-heading-refile)
               ("Insert link to this heading"
@@ -70,36 +77,60 @@ NOTE: This will be slow on large org buffers."
          file-name (concat "file:" file-name "::*" heading-name))))))
 
 (defun helm-org-heading-refile (marker)
-  (with-helm-current-buffer
-    (org-cut-subtree))
-  (let ((target-level (with-current-buffer (marker-buffer marker)
-                       (goto-char (marker-position marker))
-                       (org-current-level))))
-    (helm-org-goto-marker marker)
-    (org-end-of-subtree t t)
-    (org-paste-subtree (+ target-level 1))))
+  (save-selected-window
+    (when (eq major-mode 'org-agenda-mode)
+      (org-agenda-switch-to))
+    (org-cut-subtree)
+    (let ((target-level (with-current-buffer (marker-buffer marker)
+                          (goto-char (marker-position marker))
+                          (org-current-level))))
+      (helm-org-goto-marker marker)
+      (org-end-of-subtree t t)
+      (org-paste-subtree (+ target-level 1)))))
 
-(defun helm-org-get-candidates (filenames min-depth max-depth)
+(cl-defun helm-org-get-candidates (filenames min-depth max-depth &optional (parents nil))
   (apply #'append
-   (mapcar (lambda (filename)
-             (helm-get-org-candidates-in-file
-              filename min-depth max-depth helm-org-headings-fontify))
-           filenames)))
+         (mapcar (lambda (filename)
+                   (helm-get-org-candidates-in-file
+                    filename min-depth max-depth
+                    helm-org-headings-fontify
+                    (if parents t helm-org-headings--nofilename)
+                    parents))
+                 filenames)))
 
 (defun helm-get-org-candidates-in-file (filename min-depth max-depth
-                                        &optional fontify)
-  (with-current-buffer (find-file-noselect filename)
+                                                 &optional fontify nofname parents)
+  (with-current-buffer (pcase filename
+                         ((pred bufferp) filename)
+                         ((pred stringp) (find-file-noselect filename)))
     (and fontify (jit-lock-fontify-now))
-    (let ((match-fn (if fontify 'match-string 'match-string-no-properties)))
+    (let ((match-fn (if fontify 'match-string 'match-string-no-properties))
+          (search-fn (if parents
+                         '(lambda () (and (org-up-heading-safe) (re-search-forward org-complex-heading-regexp nil t)))
+                       '(lambda () (re-search-forward org-complex-heading-regexp nil t))))
+          (get-outline-path-fn (if parents
+                                   '(lambda (&rest _) (org-get-outline-path))
+                                 'org-get-outline-path)))
       (save-excursion
-        (goto-char (point-min))
-        (cl-loop while (re-search-forward org-complex-heading-regexp nil t)
-              if (let ((num-stars (length (match-string-no-properties 1))))
-                   (and (>= num-stars min-depth) (<= num-stars max-depth)))
-              collect `(,(funcall match-fn 0) . ,(point-marker)))))))
+        (save-restriction
+          (widen)
+          (unless parents (goto-char (point-min)))
+          (cl-loop with width = (window-width)
+                   while (funcall search-fn)
+                   if (let ((num-stars (length (match-string-no-properties 1))))
+                        (and (>= num-stars min-depth) (<= num-stars max-depth)))
+                   collect `(,(let ((heading (funcall match-fn 4))
+                                    (file (unless nofname
+                                            (concat (helm-basename filename) ":")))
+                                    (level (length (match-string-no-properties 1))))
+                                (org-format-outline-path
+                                 (append (funcall get-outline-path-fn t level heading)
+                                         (list heading)) width file))
+                             . ,(point-marker))))))))
 
 ;;;###autoload
 (defun helm-org-agenda-files-headings ()
+  "Preconfigured helm for org files headings."
   (interactive)
   (helm :sources (helm-source-org-headings-for-files (org-agenda-files))
         :candidate-number-limit 99999
@@ -107,14 +138,29 @@ NOTE: This will be slow on large org buffers."
 
 ;;;###autoload
 (defun helm-org-in-buffer-headings ()
+  "Preconfigured helm for org buffer headings."
+  (interactive)
+  (let ((helm-org-headings--nofilename t))
+    (helm :sources (helm-source-org-headings-for-files
+                    (list (current-buffer)))
+          :candidate-number-limit 99999
+          :buffer "*helm org inbuffer*")))
+
+;;;###autoload
+(defun helm-org-parent-headings ()
+  "Preconfigured helm for org headings that are parents of the
+current heading."
   (interactive)
   (helm :sources (helm-source-org-headings-for-files
-                  (list (buffer-file-name (current-buffer))))
+                  (list (current-buffer))
+                  1 50 t)  ; Use a large max-depth to ensure all parents are displayed
+        :preselect (org-format-outline-path (org-get-outline-path))
         :candidate-number-limit 99999
-        :buffer "*helm org inbuffer*"))
+        :buffer "*helm org parent headings*"))
 
 ;;;###autoload
 (defun helm-org-capture-templates ()
+  "Preconfigured helm for org templates."
   (interactive)
   (helm :sources (helm-source-org-capture-templates)
         :candidate-number-limit 99999

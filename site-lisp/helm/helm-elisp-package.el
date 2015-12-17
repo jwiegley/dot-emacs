@@ -1,6 +1,6 @@
 ;;; helm-elisp-package.el --- helm interface for package.el -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,7 +18,21 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-help)
 (require 'package)
+
+(defgroup helm-el-package nil
+  "helm elisp packages."
+  :group 'helm)
+
+(defcustom helm-el-package-initial-filter 'all
+  "Show only installed, upgraded or all packages at startup."
+  :group 'helm-el-package
+  :type '(radio :tag "Initial filter for elisp packages"
+          (const :tag "Show all packages" all)
+          (const :tag "Show installed packages" installed)
+          (const :tag "Show not installed packages" uninstalled)
+          (const :tag "Show upgradable packages" upgrade)))
 
 ;; internals vars
 (defvar helm-el-package--show-only 'all)
@@ -44,8 +58,13 @@
       (buffer-string)))
   (setq helm-el-package--upgrades (helm-el-package-menu--find-upgrades))
   (if helm-force-updating-p
-      (message "Refreshing packages list done")
-    (setq helm-el-package--show-only 'all))
+      (if helm-el-package--upgrades
+          (message "%d package(s) can be upgraded, Refreshing packages list done"
+                   (length helm-el-package--upgrades))
+          (message "Refreshing packages list done, no upgrades available"))
+      (setq helm-el-package--show-only (if helm-el-package--upgrades
+                                           'upgrade
+                                           helm-el-package-initial-filter)))
   (kill-buffer "*Packages*"))
 
 (defun helm-el-package-describe (candidate)
@@ -53,6 +72,24 @@
     (describe-package (if (fboundp 'package-desc-name)
                           (package-desc-name id)
                         (car id)))))
+
+(defun helm-el-package-visit-homepage (candidate)
+  (let* ((id (get-text-property 0 'tabulated-list-id candidate))
+         (pkg (if (fboundp 'package-desc-name) (package-desc-name id)
+                (car id)))
+         (desc (cadr (assoc pkg package-archive-contents)))
+         (extras (package-desc-extras desc))
+         (url (and (listp extras) (cdr-safe (assoc :url extras)))))
+    (if (stringp url)
+        (browse-url url)
+      (message "Package %s has no homepage"
+               (propertize (symbol-name pkg)
+                           'face 'font-lock-keyword-face)))))
+
+(defun helm-el-run-visit-homepage ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-visit-homepage)))
 
 (defun helm-el-package-install-1 (pkg-list)
   (cl-loop with mkd = pkg-list
@@ -83,6 +120,11 @@
 
 (defun helm-el-package-install (_candidate)
   (helm-el-package-install-1 (helm-marked-candidates)))
+
+(defun helm-el-run-package-install ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-install)))
 
 (defun helm-el-package-uninstall-1 (pkg-list)
   (cl-loop with mkd = pkg-list
@@ -126,6 +168,11 @@
 
 (defun helm-el-package-uninstall (_candidate)
   (helm-el-package-uninstall-1 (helm-marked-candidates)))
+
+(defun helm-el-run-package-uninstall ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-uninstall)))
 
 (defun helm-el-package-menu--find-upgrades ()
   (cl-loop for entry in helm-el-package--tabulated-list
@@ -172,6 +219,11 @@
             if (member (symbol-name (package-desc-name pkg)) pkgs)
             collect p)))
 
+(defun helm-el-run-package-upgrade ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-upgrade)))
+
 (defun helm-el-package-upgrade-all ()
   (if helm-el-package--upgrades
       (with-helm-display-marked-candidates
@@ -183,6 +235,11 @@
 
 (defun helm-el-package-upgrade-all-action (_candidate)
   (helm-el-package-upgrade-all))
+
+(defun helm-el-run-package-upgrade-all ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-upgrade-all-action)))
 
 (defun helm-el-package--transformer (candidates _source)
   (cl-loop for c in candidates
@@ -237,10 +294,16 @@
 (defvar helm-el-package-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-map)
-    (define-key map (kbd "M-I") 'helm-el-package-show-installed)
-    (define-key map (kbd "M-U") 'helm-el-package-show-upgrade)
-    (define-key map (kbd "M-A") 'helm-el-package-show-all)
-    (define-key map (kbd "C-c ?") 'helm-el-package-help)
+    (define-key map (kbd "M-I")   'helm-el-package-show-installed)
+    (define-key map (kbd "M-O")   'helm-el-package-show-uninstalled)
+    (define-key map (kbd "M-U")   'helm-el-package-show-upgrade)
+    (define-key map (kbd "M-A")   'helm-el-package-show-all)
+    (define-key map (kbd "C-c i") 'helm-el-run-package-install)
+    (define-key map (kbd "C-c r") 'helm-el-run-package-reinstall)
+    (define-key map (kbd "C-c d") 'helm-el-run-package-uninstall)
+    (define-key map (kbd "C-c u") 'helm-el-run-package-upgrade)
+    (define-key map (kbd "C-c U") 'helm-el-run-package-upgrade-all)
+    (define-key map (kbd "C-c @") 'helm-el-run-visit-homepage)
     map))
 
 (defvar helm-source-list-el-package nil)
@@ -257,18 +320,24 @@
                       (append actions '(("Upgrade all packages"
                                          . helm-el-package-upgrade-all-action)))
                       actions)))
-        (cond ((cdr (assq (package-desc-name pkg-desc)
+        (cond ((and (package-installed-p (package-desc-name pkg-desc))
+                    (cdr (assq (package-desc-name pkg-desc)
+                          helm-el-package--upgrades)))
+               (append '(("Upgrade package(s)" . helm-el-package-upgrade)
+                         ("Uninstall package(s)" . helm-el-package-uninstall)) acts))
+              ((cdr (assq (package-desc-name pkg-desc)
                           helm-el-package--upgrades))
-               (append '(("Upgrade package" . helm-el-package-upgrade)) acts))
+               (append '(("Upgrade package(s)" . helm-el-package-upgrade)) acts))
               ((package-installed-p (package-desc-name pkg-desc))
-               (append acts '(("Reinstall package" . helm-el-package-reinstall)
-                              ("Uninstall" . helm-el-package-uninstall))))
-              (t (append acts '(("Install" . helm-el-package-install))))))))
-   (mode-line :initform helm-el-package-mode-line)
+               (append acts '(("Reinstall package(s)" . helm-el-package-reinstall)
+                              ("Uninstall package(s)" . helm-el-package-uninstall))))
+              (t (append acts '(("Install packages(s)" . helm-el-package-install))))))))
+   (help-message :initform 'helm-el-package-help-message)
    (keymap :initform helm-el-package-map)
    (update :initform 'helm-el-package--update)
    (candidate-number-limit :initform 9999)
-   (action :initform '(("Describe" . helm-el-package-describe)))))
+   (action :initform '(("Describe package" . helm-el-package-describe)
+                       ("Visit homepage" . helm-el-package-visit-homepage)))))
 
 (defun helm-el-package--update ()
   (setq helm-el-package--initialized-p nil))
@@ -282,8 +351,14 @@
                   (package-delete pkg-desc)
                   (package-install name))))
 
+(defun helm-el-run-package-reinstall ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-el-package-reinstall)))
+
 ;;;###autoload
 (defun helm-list-elisp-packages (arg)
+  "Preconfigured helm for listing and handling emacs packages."
   (interactive "P")
   (when arg (setq helm-el-package--initialized-p nil))
   (unless helm-source-list-el-package
@@ -291,6 +366,14 @@
           (helm-make-source "list packages" 'helm-list-el-package-source)))
   (helm :sources 'helm-source-list-el-package
         :buffer "*helm list packages*"))
+
+;;;###autoload
+(defun helm-list-elisp-packages-no-fetch ()
+  "Preconfigured helm for emacs packages.
+Same as `helm-list-elisp-packages' but don't fetch packages on remote."
+  (interactive)
+  (let ((helm-el-package--initialized-p t))
+    (helm-list-elisp-packages nil)))
 
 (provide 'helm-elisp-package)
 
