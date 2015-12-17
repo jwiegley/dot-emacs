@@ -170,6 +170,7 @@
                      "/usr/libexec/postfix/master" "-e" "60")))
 
 (add-hook 'message-sent-hook 'kick-postfix-if-needed)
+(add-hook 'message-sent-hook 'gnus-score-followup-thread)
 
 (defun exit-gnus-on-exit ()
   (if (and (fboundp 'gnus-group-exit)

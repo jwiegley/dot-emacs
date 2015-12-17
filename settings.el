@@ -654,19 +654,18 @@
         (mode . eshell-mode)
         (mode . term-mode)
         (mode . compilation-mode)))
-      ("Helm"
-       (mode . helm-mode))
-      ("Magit"
-       (or
-        (mode . magit-status-mode)
-        (mode . magit-log-mode)))
       ("Haskell"
        (or
         (mode . haskell-mode)
         (mode . haskell-cabal-mode)
         (mode . literate-haskell-mode)))
       ("Coq"
-       (mode . coq-mode))
+       (or
+        (mode . coq-mode)
+        (name . "^\\*\\(coq\\|goals\\|response\\)\\*")
+        (name . "_CoqProject")))
+      ("Nix"
+       (mode . nix-mode))
       ("C++"
        (or
         (mode . c-mode)
@@ -682,16 +681,32 @@
         (mode . gnus-group-mode)
         (mode . gnus-summary-mode)
         (mode . gnus-article-mode)
-        (name . "^\\.newsrc-dribble")))
+        (name . "^\\.newsrc-dribble")
+        (name . "^\\*\\(sent\\|unsent\\|fetch\\)")
+        (name . "^ \\*\\(nnimap\\|nntp\\|nnmail\\|gnus\\|server\\)")))
       ("Org"
        (or
         (name . "^\\*Calendar\\*$")
+        (name . "^\\*Org Agenda")
+        (name . "^ \\*Agenda")
         (name . "^diary$")
         (mode . org-mode)))
+      ("Helm"
+       (or
+        (mode . helm-mode)
+        (name . "\\<helm\\>")))
+      ("Magit"
+       (or
+        (mode . magit-status-mode)
+        (mode . magit-log-mode)
+        (name . "^\\*magit")
+        (name . "git-monitor")))
       ("Emacs"
        (or
         (name . "^\\*scratch\\*$")
-        (name . "^\\*Messages\\*$")))))))
+        (name . "^\\*Messages\\*$")
+        (name . "^\\*\\(Customize\\|Help\\)")
+        (name . "\\*\\(Echo\\|Minibuf\\)")))))))
  '(ibuffer-show-empty-filter-groups nil)
  '(ibuffer-shrink-to-minimum-size t t)
  '(ibuffer-use-other-window t)
@@ -776,9 +791,9 @@
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
    (quote
-    (("gnu" . "http://elpa.gnu.org/packages/")
-     ("ELPA" . "http://tromey.com/elpa/")
-     ("Marmalade" . "http://marmalade-repo.org/packages/"))))
+    (("gnu" . "https://elpa.gnu.org/packages/")
+     ("MELPA" . "https://melpa.org/packages/")
+     ("Marmalade" . "https://marmalade-repo.org/packages/"))))
  '(page-break-lines-modes
    (quote
     (emacs-lisp-mode compilation-mode outline-mode prog-mode haskell-mode)))
@@ -953,6 +968,7 @@
        (ignore-errors
          (diminish
           (quote auto-fill-function)))))))
+ '(tls-checktrust t)
  '(tls-program
    (quote
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
