@@ -3,7 +3,7 @@
 ;; Original Author: Tamas Patrovics
 
 ;; Copyright (C) 2007 Tamas Patrovics
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -52,8 +52,9 @@ Format: ((SOURCE-NAME (SELECTED-CANDIDATE (PATTERN . NUMBER-OF-USE) ...) ...) ..
 (defun helm-adaptive-done-reset ()
   (setq helm-adaptive-done nil))
 
+;;;###autoload
 (define-minor-mode helm-adaptive-mode
-    "Toggle adaptive sorting in all sources."
+  "Toggle adaptive sorting in all sources."
   :group 'helm-adapt
   :require 'helm-adaptive
   :global t

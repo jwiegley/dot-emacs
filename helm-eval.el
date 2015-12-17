@@ -1,6 +1,6 @@
 ;;; helm-eval.el --- eval expressions from helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,7 +18,9 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-help)
 (require 'eldoc)
+(require 'edebug)
 
 
 (defgroup helm-eval nil
@@ -38,10 +40,26 @@ Should take one arg: the string to display."
   :group 'helm-eval)
 
 
-(declare-function eldoc-current-symbol "eldoc")
-(declare-function eldoc-get-fnsym-args-string "eldoc" (sym &optional index))
-(declare-function eldoc-get-var-docstring "eldoc" (sym))
-(declare-function eldoc-fnsym-in-current-sexp "eldoc")
+;;; Eldoc compatibility between emacs-24 and emacs-25
+;;
+(if (require 'elisp-mode nil t)    ; emacs-25
+    ;; Maybe the eldoc functions have been
+    ;; already aliased by eldoc-eval.
+    (cl-loop for (f . a) in '((eldoc-current-symbol .
+                               elisp--current-symbol)
+                              (eldoc-fnsym-in-current-sexp .
+                               elisp--fnsym-in-current-sexp) 
+                              (eldoc-get-fnsym-args-string .
+                               elisp-get-fnsym-args-string) 
+                              (eldoc-get-var-docstring .
+                               elisp-get-var-docstring))
+             unless (fboundp f)
+             do (defalias f a))
+    ;; Emacs-24.
+    (declare-function eldoc-current-symbol "eldoc")
+    (declare-function eldoc-get-fnsym-args-string "eldoc" (sym &optional index))
+    (declare-function eldoc-get-var-docstring "eldoc" (sym))
+    (declare-function eldoc-fnsym-in-current-sexp "eldoc"))
 
 ;;; Evaluation Result
 ;;
@@ -63,28 +81,29 @@ Should take one arg: the string to display."
     (define-key map (kbd "<left>")     'backward-char)
     map))
 
-(defvar helm-source-evaluation-result
-  '((name . "Evaluation Result")
-    (init . (lambda () (require 'edebug)))
-    (dummy)
-    (multiline)
-    (mode-line . "C-RET: nl-and-indent, tab: reindent, C-tab:complete, C-p/n: next/prec-line.")
-    (filtered-candidate-transformer . (lambda (candidates _source)
-                                        (list
-                                         (condition-case nil
-                                             (with-helm-current-buffer
-                                               (pp-to-string
-                                                (if edebug-active
-                                                    (edebug-eval-expression
-                                                     (read helm-pattern))
+(defun helm-build-evaluation-result-source ()
+  (helm-build-dummy-source "Evaluation Result"
+    :multiline t
+    :mode-line "C-RET: nl-and-indent, M-tab: reindent, C-tab:complete, C-p/n: next/prec-line."
+    :filtered-candidate-transformer (lambda (_candidates _source)
+                                      (list
+                                       (condition-case nil
+                                           (with-helm-current-buffer
+                                             (pp-to-string
+                                              (if edebug-active
+                                                  (edebug-eval-expression
+                                                   (read helm-pattern))
                                                   (eval (read helm-pattern)))))
-                                           (error "Error")))))
-    (action . (("Copy result to kill-ring" . (lambda (candidate)
-                                               (kill-new
-                                                (replace-regexp-in-string
-                                                 "\n" "" candidate))))
-               ("copy sexp to kill-ring" . (lambda (candidate)
-                                             (kill-new helm-input)))))))
+                                         (error "Error"))))
+    :nohighlight t
+    :action '(("Copy result to kill-ring" . (lambda (candidate)
+                                              (kill-new
+                                               (replace-regexp-in-string
+                                                "\n" "" candidate))
+                                              (message "Result copied to kill-ring")))
+              ("copy sexp to kill-ring" . (lambda (_candidate)
+                                            (kill-new helm-input)
+                                            (message "Sexp copied to kill-ring"))))))
 
 (defun helm-eval-new-line-and-indent ()
   (interactive)
@@ -102,7 +121,7 @@ Should take one arg: the string to display."
         (when (member buf helm-eldoc-active-minibuffers-list)
           (with-current-buffer buf
             (let* ((sym     (save-excursion
-                              (unless (looking-back ")\\|\"")
+                              (unless (looking-back ")\\|\"" (1- (point)))
                                 (forward-char -1))
                               (eldoc-current-symbol)))
                    (info-fn (eldoc-fnsym-in-current-sexp))
@@ -125,22 +144,29 @@ Should take one arg: the string to display."
 ;;
 ;;
 (defvar helm-source-calculation-result
-  '((name . "Calculation Result")
-    (dummy)
-    (filtered-candidate-transformer . (lambda (candidates _source)
-                                        (list
-                                         (condition-case nil
-                                             (calc-eval helm-pattern)
-                                           (error "error")))))
-    (action ("Copy result to kill-ring" . kill-new))))
+  (helm-build-dummy-source "Calculation Result"
+    :filtered-candidate-transformer (lambda (_candidates _source)
+                                      (list
+                                       (condition-case nil
+                                           (calc-eval helm-pattern)
+                                         (error "error"))))
+    :nohighlight t
+    :action '(("Copy result to kill-ring" . (lambda (candidate)
+                                              (kill-new candidate)
+                                              (message "Result \"%s\" copied to kill-ring"
+                                                       candidate)))
+              ("Copy operation to kill-ring" . (lambda (_candidate)
+                                                 (kill-new helm-input)
+                                                 (message "Calculation copied to kill-ring"))))))
 
 ;;;###autoload
 (defun helm-eval-expression (arg)
   "Preconfigured helm for `helm-source-evaluation-result'."
   (interactive "P")
-  (helm :sources 'helm-source-evaluation-result
+  (helm :sources (helm-build-evaluation-result-source)
         :input (when arg (thing-at-point 'sexp))
         :buffer "*helm eval*"
+        :echo-input-in-header-line nil
         :history 'read-expression-history
         :keymap helm-eval-expression-map))
 
@@ -164,7 +190,8 @@ Should take one arg: the string to display."
 (defun helm-calcul-expression ()
   "Preconfigured helm for `helm-source-calculation-result'."
   (interactive)
-  (helm-other-buffer 'helm-source-calculation-result "*helm calcul*"))
+  (helm :sources 'helm-source-calculation-result
+        :buffer "*helm calcul*"))
 
 (provide 'helm-eval)
 

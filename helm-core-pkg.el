@@ -1,11 +1,10 @@
 ;;; helm-pkg.el --- define helm for package.el
 
-(define-package "helm" "1.9.0"
-  "Helm is an Emacs incremental and narrowing framework"
+(define-package "helm-core" "1.9.0"
+  "Development files for Helm"
   '((emacs "24")
     (cl-lib "0.5")
-    (async "1.6")
-    (helm-core "1.9.0"))
+    (async "1.6"))
   :url "https://emacs-helm.github.io/helm/")
 
 ;; Local Variables:

@@ -1,6 +1,6 @@
 ;;; helm-info.el --- Browse info index with helm -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,48 +20,91 @@
 (require 'cl-lib)
 (require 'helm)
 (require 'helm-plugin)
-(require 'helm-net)
 
 (declare-function Info-index-nodes "info" (&optional file))
 (declare-function Info-goto-node "info" (&optional fork))
 (declare-function Info-find-node "info.el" (filename nodename &optional no-going-back))
+(defvar Info-history)
 
 
 (defgroup helm-info nil
   "Info related Applications and libraries for Helm."
   :group 'helm)
 
-;;; Build info-index sources with info-index plug-in.
+;;; Build info-index sources with `helm-info-source' class.
 ;;
 ;;
+(cl-defun helm-info-init (&optional (file (helm-attr 'info-file)))
+  ;; Allow reinit candidate buffer when using edebug.
+  (helm-aif (and debug-on-error
+                 (helm-candidate-buffer))
+      (kill-buffer it))
+  (unless (helm-candidate-buffer)
+    (save-window-excursion
+      (info file)
+      (let ((tobuf (helm-candidate-buffer 'global))
+            (infobuf (current-buffer))
+            Info-history
+            start end)
+        (cl-dolist (node (Info-index-nodes))
+          (Info-goto-node node)
+          (goto-char (point-min))
+          (while (search-forward "\n* " nil t)
+            (unless (search-forward "Menu:\n" (1+ (point-at-eol)) t)
+              (setq start (point-at-bol)
+                    end (point-at-eol))
+              (with-current-buffer tobuf
+                (insert-buffer-substring infobuf start end)
+                (insert "\n")))))))))
+
+(defun helm-info-goto (node-line)
+  (Info-goto-node (car node-line))
+  (helm-goto-line (cdr node-line)))
+
+(defun helm-info-display-to-real (line)
+  (and (string-match
+        ;; This regexp is stolen from Info-apropos-matches
+        "\\* +\\([^\n]*.+[^\n]*\\):[ \t]+\\([^\n]*\\)\\.\\(?:[ \t\n]*(line +\\([0-9]+\\))\\)?" line)
+       (cons (format "(%s)%s" (helm-attr 'info-file) (match-string 2 line))
+             (string-to-number (or (match-string 3 line) "1")))))
+
+(defclass helm-info-source (helm-source-in-buffer)
+  ((info-file :initarg :info-file
+              :initform nil
+              :custom 'string)
+   (init :initform #'helm-info-init)
+   (display-to-real :initform #'helm-info-display-to-real)
+   (get-line :initform #'buffer-substring)
+   (action :initform '(("Goto node" . helm-info-goto)))))
+
+(defmacro helm-build-info-source (fname &rest args)
+  `(helm-make-source (concat "Info Index: " ,fname) 'helm-info-source
+     :info-file ,fname ,@args))
+
 (defun helm-build-info-index-command (name doc source buffer)
   "Define an helm command NAME with documentation DOC.
 Arg SOURCE will be an existing helm source named
 `helm-source-info-<NAME>' and BUFFER a string buffer name."
-  (eval (list 'defun name nil doc
-              (list 'interactive)
-              (list 'helm
-                    :sources source
-                    :buffer buffer
-                    :candidate-number-limit 1000))))
+  (defalias (intern (concat "helm-info-" name))
+      (lambda ()
+        (interactive)
+        (helm :sources source
+              :buffer buffer
+              :candidate-number-limit 1000))
+    doc))
 
 (defun helm-define-info-index-sources (var-value &optional commands)
   "Define helm sources named helm-source-info-<NAME>.
 Sources are generated for all entries of `helm-default-info-index-list'.
 If COMMANDS arg is non--nil build also commands named `helm-info<NAME>'.
 Where NAME is one of `helm-default-info-index-list'."
-  (cl-loop with symbols = (cl-loop for str in var-value
-                                collect
-                                (intern (concat "helm-source-info-" str)))
-        for sym in symbols
-        for str in var-value
-        do (set sym (list (cons 'name (format "Info index: %s" str))
-                          (cons 'info-index str)))
-        when commands
-        do (let ((com (intern (concat "helm-info-" str))))
-             (helm-build-info-index-command
-              com (format "Predefined helm for %s info." str)
-              sym (format "*helm info %s*" str)))))
+  (cl-loop for str in var-value
+           for sym = (intern (concat "helm-source-info-" str))
+           do (set sym (helm-build-info-source str))
+           when commands
+           do (helm-build-info-index-command
+               str (format "Predefined helm for %s info." str)
+               sym (format "*helm info %s*" str))))
 
 (defun helm-info-index-set (var value)
   (set var value)
@@ -94,15 +137,13 @@ Where NAME is one of `helm-default-info-index-list'."
 
 
 ;;; Info pages
-(defvar helm-info-pages nil
-  "All info pages on system.
-Will be calculated the first time you invoke helm with this
-source.")
+(defvar helm-info--pages-cache nil
+  "Cache for all info pages on system.")
 
 (defun helm-info-pages-init ()
   "Collect candidates for initial Info node Top."
-  (if helm-info-pages
-      helm-info-pages
+  (if helm-info--pages-cache
+      helm-info--pages-cache
     (let ((info-topic-regexp "\\* +\\([^:]+: ([^)]+)[^.]*\\)\\.")
           topics)
       (require 'info)
@@ -112,26 +153,24 @@ source.")
         (while (re-search-forward info-topic-regexp nil t)
           (push (match-string-no-properties 1) topics))
         (kill-buffer))
-      (setq helm-info-pages topics))))
+      (setq helm-info--pages-cache topics))))
 
 (defvar helm-source-info-pages
-  `((name . "Info Pages")
-    (init . helm-info-pages-init)
-    (candidates . helm-info-pages)
-    (action . (("Show with Info" .(lambda (node-str)
-                                    (info (replace-regexp-in-string
-                                           "^[^:]+: " "" node-str))))))
-    (requires-pattern . 2)))
+  (helm-build-sync-source "Info Pages"
+    :init #'helm-info-pages-init
+    :candidates (lambda () helm-info--pages-cache)
+    :action '(("Show with Info" .(lambda (node-str)
+                                  (info (replace-regexp-in-string
+                                         "^[^:]+: " "" node-str)))))
+    :requires-pattern 2))
 
 ;;;###autoload
 (defun helm-info-at-point ()
   "Preconfigured `helm' for searching info at point.
 With a prefix-arg insert symbol at point."
   (interactive)
-  (let ((helm-google-suggest-default-function
-         'helm-google-suggest-emacs-lisp))
-    (helm :sources helm-info-default-sources
-          :buffer "*helm info*")))
+  (helm :sources helm-info-default-sources
+        :buffer "*helm info*"))
 
 (provide 'helm-info)
 

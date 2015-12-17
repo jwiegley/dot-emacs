@@ -1,6 +1,6 @@
 ;;; helm-utils.el --- Utilities Functions for helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,10 +19,12 @@
 
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-help)
 (require 'compile) ; Fixme: Is this needed?
 (require 'dired)
 
 (declare-function helm-find-files-1 "helm-files.el" (fname &optional preselect))
+(defvar winner-boring-buffers)
 
 
 (defgroup helm-utils nil
@@ -34,136 +36,54 @@
   :type 'string
   :group 'helm-utils)
 
-(defcustom helm-yank-symbol-first nil
-  "`helm-yank-text-at-point' yanks symbol at point on first
-invocation if this is non-nil."
-  :type  'boolean
-  :group 'helm-utils)
-
 (defcustom helm-default-kbsize 1024.0
   "Default Kbsize to use for showing files size.
 It is a float, usually 1024.0 but could be 1000.0 on some systems."
   :group 'helm-utils
   :type 'float)
 
+(defcustom helm-highlight-number-lines-around-point 15
+  "Number of lines around point where matched items are highlighted."
+  :group 'helm-utils
+  :type 'integer)
+
+(defcustom helm-buffers-to-resize-on-pa nil
+  "A list of helm buffers where the helm-window should be reduced on persistent actions."
+  :group 'helm-utils
+  :type '(repeat (choice string)))
+
+(defcustom helm-resize-on-pa-text-height 12
+  "The size of the helm-window when resizing on persistent action."
+  :group 'helm-utils
+  :type 'integer)
+
+
 (defvar helm-goto-line-before-hook '(helm-save-current-pos-to-mark-ring)
   "Run before jumping to line.
 This hook run when jumping from `helm-goto-line', `helm-etags-default-action',
-and `helm-imenu-default-action'.")
+and `helm-imenu-default-action'.
+This allow you to retrieve a previous position after using the different helm
+tools for searching (etags, grep, gid, (m)occur etc...).
+By default positions are added to `mark-ring' you can also add to register
+by using instead (or adding) `helm-save-pos-to-register-before-jump'.
+In this case last position is added to the register
+`helm-save-pos-before-jump-register'.")
 
 (defvar helm-save-pos-before-jump-register ?_
   "The register where `helm-save-pos-to-register-before-jump' save position.")
 
-(defface helm-selection-line
-    '((t (:background "IndianRed4" :underline t)))
-  "Face used in the `helm-current-buffer' when jumping to candidate."
-  :group 'helm-utils)
-
 
-;;; compatibility
+;;; Faces.
 ;;
-;;
-(unless (fboundp 'window-system)
-  (defun window-system (&optional _arg)
-    window-system))
+(defface helm-selection-line
+    '((t (:inherit highlight :distant-foreground "black")))
+  "Face used in the `helm-current-buffer' when jumping to candidate."
+  :group 'helm-faces)
 
-(unless (fboundp 'make-composed-keymap)
-  (defun make-composed-keymap (maps &optional parent)
-    "Construct a new keymap composed of MAPS and inheriting from PARENT.
-When looking up a key in the returned map, the key is looked in each
-keymap of MAPS in turn until a binding is found.
-If no binding is found in MAPS, the lookup continues in PARENT, if non-nil.
-As always with keymap inheritance, a nil binding in MAPS overrides
-any corresponding binding in PARENT, but it does not override corresponding
-bindings in other keymaps of MAPS.
-MAPS can be a list of keymaps or a single keymap.
-PARENT if non-nil should be a keymap."
-    `(keymap
-      ,@(if (keymapp maps) (list maps) maps)
-      ,@parent)))
-
-(unless (fboundp 'assoc-default)
-  (defun assoc-default (key alist &optional test default)
-    "Find object KEY in a pseudo-alist ALIST.
-ALIST is a list of conses or objects.  Each element (or the element's car,
-if it is a cons) is compared with KEY by evaluating (TEST (car elt) KEY).
-If that is non-nil, the element matches;
-then `assoc-default' returns the element's cdr, if it is a cons,
-or DEFAULT if the element is not a cons.
-
-If no element matches, the value is nil.
-If TEST is omitted or nil, `equal' is used."
-    (let (found (tail alist) value)
-      (while (and tail (not found))
-        (let ((elt (car tail)))
-          (when (funcall (or test 'equal) (if (consp elt) (car elt) elt) key)
-            (setq found t value (if (consp elt) (cdr elt) default))))
-        (setq tail (cdr tail)))
-      value)))
-
-;; Function not available in XEmacs,
-(unless (fboundp 'minibuffer-contents)
-  (defun minibuffer-contents ()
-    "Return the user input in a minbuffer as a string.
-The current buffer must be a minibuffer."
-    (field-string (point-max)))
-
-  (defun delete-minibuffer-contents  ()
-    "Delete all user input in a minibuffer.
-The current buffer must be a minibuffer."
-    (delete-field (point-max))))
-
-;; Function not available in older Emacs (<= 22.1).
-(unless (fboundp 'buffer-chars-modified-tick)
-  (defun buffer-chars-modified-tick (&optional buffer)
-    "Return BUFFER's character-change tick counter.
-Each buffer has a character-change tick counter, which is set to the
-value of the buffer's tick counter (see `buffer-modified-tick'), each
-time text in that buffer is inserted or deleted.  By comparing the
-values returned by two individual calls of `buffer-chars-modified-tick',
-you can tell whether a character change occurred in that buffer in
-between these calls.  No argument or nil as argument means use current
-buffer as BUFFER."
-    (with-current-buffer (or buffer (current-buffer))
-      (if (listp buffer-undo-list)
-          (length buffer-undo-list)
-        (buffer-modified-tick)))))
-
-;; Functions not available in versions < emacs-24.
-;; Allow using helm-async.el in Emacs-23 among other things.
-(unless (and (fboundp 'file-equal-p)
-             (fboundp 'file-in-directory-p))
-  (defun file-equal-p (file1 file2)
-    "Return non-nil if files FILE1 and FILE2 name the same file.
-If FILE1 or FILE2 does not exist, the return value is unspecified."
-    (let ((handler (or (find-file-name-handler file1 'file-equal-p)
-                       (find-file-name-handler file2 'file-equal-p))))
-      (if handler
-          (funcall handler 'file-equal-p file1 file2)
-        (let (f1-attr f2-attr)
-          (and (setq f1-attr (file-attributes (file-truename file1)))
-               (setq f2-attr (file-attributes (file-truename file2)))
-               (equal f1-attr f2-attr))))))
-
-  ;; This is the original loop version, more readable, not the one of 24.1+.
-  (defun file-in-directory-p (file dir)
-    "Return non-nil if FILE is in DIR or a subdirectory of DIR.
-A directory is considered to be \"in\" itself.
-Return nil if DIR is not an existing directory."
-    (let ((handler (or (find-file-name-handler file 'file-in-directory-p)
-                       (find-file-name-handler dir 'file-in-directory-p))))
-      (if handler
-          (funcall handler 'file-in-directory-p file dir)
-        (when (file-directory-p dir)
-          (cl-loop with f1 = (file-truename file)
-                with f2 = (file-truename dir)
-                with ls1 = (or (split-string f1 "/" t) (list "/"))
-                with ls2 = (or (split-string f2 "/" t) (list "/"))
-                for p = (string-match "^/" f1)
-                for i in ls1 for j in ls2
-                when (string= i j)
-                concat (if p (concat "/" i) (concat i "/")) into root
-                finally return (file-equal-p (file-truename root) f2)))))))
+(defface helm-match-item
+    '((t (:inherit isearch)))
+  "Face used to highlight item matched in a selected line."
+  :group 'helm-faces)
 
 
 ;; CUA workaround
@@ -179,17 +99,6 @@ Return nil if DIR is not an existing directory."
 ;;; Utils functions
 ;;
 ;;
-(defun helm-ff-find-printers ()
-  "Return a list of available printers on Unix systems."
-  (when (executable-find "lpstat")
-    (let ((printer-list (with-temp-buffer
-                          (call-process "lpstat" nil t nil "-a")
-                          (split-string (buffer-string) "\n"))))
-      (cl-loop for p in printer-list
-            for printer = (car (split-string p))
-            when printer
-            collect printer))))
-
 (defun helm-switch-to-buffers (buffer-or-name &optional other-window)
   "Switch to buffer BUFFER-OR-NAME.
 If more than one buffer marked switch to these buffers in separate windows.
@@ -218,53 +127,6 @@ in separate windows."
 See `helm-switch-to-buffers' for switching to marked buffers."
   (helm-switch-to-buffers buffer-or-name t))
 
-(cl-defmacro helm-position (item seq &key (test 'eq) all)
-  "A simple and faster replacement of CL `position'.
-Return position of first occurence of ITEM found in SEQ.
-Argument SEQ can be a string, in this case ITEM have to be a char.
-Argument ALL, if non--nil specify to return a list of positions of
-all ITEM found in SEQ."
-  (let ((key (if (stringp seq) 'across 'in)))
-    `(cl-loop for c ,key ,seq
-           for index from 0
-           when (funcall ,test c ,item)
-           if ,all collect index into ls
-           else return index
-           finally return ls)))
-
-(defun helm-substring (str width)
-  "Return the substring of string STR from 0 to WIDTH.
-Handle multibyte characters by moving by columns."
-  (with-temp-buffer
-    (save-excursion
-      (insert str))
-    (move-to-column width)
-    (buffer-substring (point-at-bol) (point))))
-
-(cl-defun helm-substring-by-width (str width &optional (endstr "..."))
-  "Truncate string STR to end at column WIDTH.
-Similar to `truncate-string-to-width'.
-Add ENDSTR (default \"...\") at end of truncated STR.
-Add spaces at end if needed to reach WIDTH when STR is shorter than WIDTH."
-  (cl-loop for ini-str = str
-        then (substring ini-str 0 (1- (length ini-str)))
-        for sw = (string-width ini-str)
-        when (<= sw width) return
-        (concat ini-str endstr (make-string (- width sw) ? ))))
-
-(defun helm-string-multibyte-p (str)
-  "Check if string STR contains multibyte characters."
-  (cl-loop for c across str
-        thereis (> (char-width c) 1)))
-
-(defun helm-get-pid-from-process-name (process-name)
-  "Get pid from running process PROCESS-NAME."
-  (cl-loop with process-list = (list-system-processes)
-        for pid in process-list
-        for process = (assoc-default 'comm (process-attributes pid))
-        when (and process (string-match process-name process))
-        return pid))
-
 (cl-defun helm-current-buffer-narrowed-p (&optional
                                             (buffer helm-current-buffer))
   "Check if BUFFER is narrowed.
@@ -274,9 +136,6 @@ Default is `helm-current-buffer'."
           (end (point-max))
           (total (buffer-size)))
       (or (/= beg 1) (/= end (1+ total))))))
-
-(defun helm-region-active-p ()
-  (and transient-mark-mode mark-active (/= (mark) (point))))
 
 (defun helm-goto-char (loc)
   "Go to char, revealing if necessary."
@@ -317,7 +176,7 @@ To use this add it to `helm-goto-line-before-hook'."
 With a numeric prefix arg show only the ARG number of candidates."
   (interactive "p")
   (with-helm-window
-    (with-helm-default-directory helm-default-directory
+    (with-helm-default-directory (helm-default-directory)
         (let ((helm-candidate-number-limit (and (> arg 1) arg)))
           (helm-set-source-filter
            (list (assoc-default 'name (helm-get-current-source))))))))
@@ -338,59 +197,13 @@ With a numeric prefix arg show only the ARG number of candidates."
           collect (buffer-substring-no-properties (point-at-bol)(point-at-eol))
           do (forward-line 1))))
 
-(defun helm-skip-entries (seq regexp-list)
-  "Remove entries which matches one of REGEXP-LIST from SEQ."
-  (cl-loop for i in seq
-        unless (cl-loop for regexp in regexp-list
-                     thereis (and (stringp i)
-                                  (string-match regexp i)))
-        collect i))
-
-(defun helm-shadow-entries (seq regexp-list)
-  "Put shadow property on entries in SEQ matching a regexp in REGEXP-LIST."
-  (let ((face 'italic))
-    (cl-loop for i in seq
-          if (cl-loop for regexp in regexp-list
-                   thereis (and (stringp i)
-                                (string-match regexp i)))
-          collect (propertize i 'face face)
-          else collect i)))
-
-(defun helm-describe-function (func)
-  "FUNC is symbol or string."
-  (describe-function (helm-symbolify func))
-  (message nil))
-
-(defun helm-describe-variable (var)
-  "VAR is symbol or string."
-  (describe-variable (helm-symbolify var))
-  (message nil))
-
-(defun helm-find-function (func)
-  "FUNC is symbol or string."
-  (find-function (helm-symbolify func)))
-
-(defun helm-find-variable (var)
-  "VAR is symbol or string."
-  (find-variable (helm-symbolify var)))
-
-(defun helm-kill-new (candidate &optional replace)
-  "CANDIDATE is symbol or string.
-See `kill-new' for argument REPLACE."
-  (kill-new (helm-stringify candidate) replace))
-
-(cl-defun helm-fast-remove-dups (seq &key (test 'eq))
-  "Remove duplicates elements in list SEQ.
-This is same as `remove-duplicates' but with memoisation.
-It is much faster, especially in large lists.
-A test function can be provided with TEST argument key.
-Default is `eq'."
-  (cl-loop with cont = (make-hash-table :test test)
-        for elm in seq
-        unless (gethash elm cont)
-        do (puthash elm elm cont)
-        finally return
-        (cl-loop for i being the hash-values in cont collect i)))
+(defun helm-handle-winner-boring-buffers ()
+  "Add `helm-buffer' to `winner-boring-buffers' when quitting/exiting helm.
+Add this function to `helm-cleanup-hook' when you don't want to see helm buffers
+after running winner-undo/redo."
+  (require 'winner)
+  (cl-pushnew helm-buffer winner-boring-buffers :test 'equal))
+(add-hook 'helm-cleanup-hook #'helm-handle-winner-boring-buffers)
 
 ;;;###autoload
 (defun helm-quit-and-find-file ()
@@ -399,148 +212,88 @@ If current selection is a buffer or a file, `helm-find-files'
 from its directory."
   (interactive)
   (require 'helm-grep)
-  (helm-run-after-quit
+  (helm-run-after-exit
    (lambda (f)
      (if (file-exists-p f)
          (helm-find-files-1 (file-name-directory f)
-                            (regexp-quote
-                             (if helm-ff-transformer-show-only-basename
-                                 (helm-basename f) f)))
+                            (concat
+                             "^"
+                             (regexp-quote
+                              (if helm-ff-transformer-show-only-basename
+                                  (helm-basename f) f))))
        (helm-find-files-1 f)))
    (let* ((sel       (helm-get-selection))
           (grep-line (and (stringp sel)
                           (helm-grep-split-line sel)))
           (bmk-name  (and (stringp sel)
+                          (not grep-line)
                           (replace-regexp-in-string "\\`\\*" "" sel)))
           (bmk       (and bmk-name (assoc bmk-name bookmark-alist)))
+          (buf       (helm-aif (and (bufferp sel) (get-buffer sel))
+                         (buffer-name it)))
           (default-preselection (or (buffer-file-name helm-current-buffer)
                                     default-directory)))
-     (if (stringp sel)
-         (helm-aif (get-buffer (or (get-text-property
-                                    (1- (length sel)) 'buffer-name sel)
-                                   sel))
-             (or (buffer-file-name it)
-                 (car (rassoc it dired-buffers))
-                 (and (with-current-buffer it
-                        (eq major-mode 'org-agenda-mode))
-                      org-directory
-                      (expand-file-name org-directory))
-                 (with-current-buffer it default-directory))
-           (cond (bmk (helm-aif (bookmark-get-filename bmk)
-                          (if (and ffap-url-regexp
-                                   (string-match ffap-url-regexp it))
-                              it (expand-file-name it))
-                        default-directory))
-                 ((or (file-remote-p sel)
-                      (file-exists-p sel))
-                  (expand-file-name sel))
-                 ((and grep-line (file-exists-p (car grep-line)))
-                  (expand-file-name (car grep-line)))
-                 ((and ffap-url-regexp (string-match ffap-url-regexp sel)) sel)
-                 (t default-preselection)))
-       default-preselection))))
-
-;; Same as `vc-directory-exclusion-list'.
-(defvar helm-walk-ignore-directories
-  '("SCCS" "RCS" "CVS" "MCVS" ".svn" ".git" ".hg" ".bzr"
-    "_MTN" "_darcs" "{arch}" ".gvfs"))
-
-(cl-defun helm-walk-directory (directory &key (path 'basename)
-                                           (directories t)
-                                           match skip-subdirs)
-  "Walk through DIRECTORY tree.
-Argument PATH can be one of basename, relative, full, or a function
-called on file name, default to basename.
-Argument DIRECTORIES when non--nil (default) return also directories names,
-otherwise skip directories names.
-Argument MATCH can be a predicate or a regexp.
-Argument SKIP-SUBDIRS when non--nil will skip `helm-walk-ignore-directories'
-unless it is given as a list of directories, in this case this list will be used
-instead of `helm-walk-ignore-directories'."
-  (let* ((result '())
-         (fn (cl-case path
-               (basename 'file-name-nondirectory)
-               (relative 'file-relative-name)
-               (full     'identity)
-               (t        path))))
-    (cl-labels ((ls-rec (dir)
-                  (unless (and skip-subdirs
-                               (member (helm-basename dir)
-                                       (if (listp skip-subdirs)
-                                           skip-subdirs
-                                         helm-walk-ignore-directories)))
-                    (cl-loop with ls = (sort (file-name-all-completions "" dir)
-                                             'string-lessp)
-                          for f in ls
-                          ;; Use `directory-file-name' to remove the final slash.
-                          ;; Needed to avoid infloop on symlinks symlinking
-                          ;; a directory inside it [1].
-                          for file = (directory-file-name
-                                      (expand-file-name f dir))
-                          unless (member f '("./" "../"))
-                          ;; A directory.
-                          if (char-equal (aref f (1- (length f))) ?/)
-                          do (progn (when directories
-                                      (push (funcall fn file) result))
-                                    ;; Don't recurse in symlinks.
-                                    ;; `file-symlink-p' have to be called
-                                    ;; on the directory with its final
-                                    ;; slash removed [1].
-                                    (and (not (file-symlink-p file))
-                                         (ls-rec file)))
-                          else do
-                          (if match
-                              (and (if (functionp match)
-                                       (funcall match f)
-                                     (and (stringp match)
-                                          (string-match match f)))
-                                   (push (funcall fn file) result))
-                            (push (funcall fn file) result))))))
-      (ls-rec directory)
-      (nreverse result))))
+     (cond
+       ;; Buffer.
+       (buf (or (buffer-file-name sel)
+                (car (rassoc buf dired-buffers))
+                (and (with-current-buffer buf
+                       (eq major-mode 'org-agenda-mode))
+                     org-directory
+                     (expand-file-name org-directory))
+                (with-current-buffer buf default-directory)))
+       ;; Bookmark.
+       (bmk (helm-aif (bookmark-get-filename bmk)
+                (if (and ffap-url-regexp
+                         (string-match ffap-url-regexp it))
+                    it (expand-file-name it))
+              default-directory))
+       ((or (file-remote-p sel)
+            (file-exists-p sel))
+        (expand-file-name sel))
+       ;; Grep.
+       ((and grep-line (file-exists-p (car grep-line)))
+        (expand-file-name (car grep-line)))
+       ;; Occur.
+       (grep-line
+        (with-current-buffer (get-buffer (car grep-line))
+          (or (buffer-file-name) default-directory)))
+       ;; Url.
+       ((and ffap-url-regexp (string-match ffap-url-regexp sel)) sel)
+       ;; Default.
+       (t default-preselection)))))
 
 (defun helm-generic-sort-fn (s1 s2)
   "Sort predicate function for helm candidates.
 Args S1 and S2 can be single or \(display . real\) candidates,
 that is sorting is done against real value of candidate."
-  (let* ((reg1  (concat "\\_<" helm-pattern "\\_>"))
-         (reg2  (concat "\\_<" helm-pattern))
-         (split (split-string helm-pattern))
+  (let* ((pattern (regexp-quote helm-pattern))
+         (reg1  (concat "\\_<" pattern "\\_>"))
+         (reg2  (concat "\\_<" pattern))
+         (reg3  helm-pattern)
+         (split (split-string pattern))
          (str1  (if (consp s1) (cdr s1) s1))
          (str2  (if (consp s2) (cdr s2) s2))
-         (score #'(lambda (str r1 r2 lst)
-                    (cond ((string-match r1 str) 4)
-                          ((and (string-match " " helm-pattern)
-                                (string-match (concat "\\_<" (car lst)) str)
-                                (cl-loop for r in (cdr lst)
-                                      always (string-match r str))) 3)
-                          ((and (string-match " " helm-pattern)
-                                (cl-loop for r in lst always (string-match r str))) 2)
-                          ((string-match r2 str) 1)
-                          (t 0))))
-         (sc1 (funcall score str1 reg1 reg2 split))
-         (sc2 (funcall score str2 reg1 reg2 split)))
-    (cond ((or (zerop (string-width helm-pattern))
+         (score (lambda (str r1 r2 r3 lst)
+                    (+ (if (string-match (concat "\\`" pattern) str) 1 0)
+                       (cond ((string-match r1 str) 5)
+                             ((and (string-match " " pattern)
+                                   (string-match (concat "\\_<" (car lst)) str)
+                                   (cl-loop for r in (cdr lst)
+                                            always (string-match r str))) 4)
+                             ((and (string-match " " pattern)
+                                   (cl-loop for r in lst always (string-match r str))) 3)
+                             ((string-match r2 str) 2)
+                             ((string-match r3 str) 1)
+                             (t 0)))))
+         (sc1 (funcall score str1 reg1 reg2 reg3 split))
+         (sc2 (funcall score str2 reg1 reg2 reg3 split)))
+    (cond ((or (zerop (string-width pattern))
                (and (zerop sc1) (zerop sc2)))
            (string-lessp str1 str2))
           ((= sc1 sc2)
            (< (length str1) (length str2)))
           (t (> sc1 sc2)))))
-
-(defun helm-basename (fname &optional ext)
-  "Print FNAME  with any  leading directory  components removed.
-If specified, also remove filename extension EXT."
-  (let ((non-essential t))
-    (if (and ext (or (string= (file-name-extension fname) ext)
-                     (string= (file-name-extension fname t) ext))
-             (not (file-directory-p fname)))
-        (file-name-sans-extension (file-name-nondirectory fname))
-      (file-name-nondirectory (directory-file-name fname)))))
-
-(defun helm-basedir (fname)
-  "Return the base directory of filename."
-  (helm-aif (and fname (file-name-directory fname))
-      (file-name-as-directory it)))
 
 (defun helm-ff-get-host-from-tramp-invalid-fname (fname)
   "Extract hostname from an incomplete tramp file name.
@@ -676,13 +429,6 @@ If STRING is non--nil return instead a space separated string."
             (mapconcat 'identity (list type user group other) " ")
           (list :mode-type type :user user :group group :other other))))
 
-(defun helm-current-directory ()
-  "Return current-directory name at point.
-Useful in dired buffers when there is inserted subdirs."
-  (if (eq major-mode 'dired-mode)
-      (dired-current-directory)
-    default-directory))
-
 (defmacro with-helm-display-marked-candidates (buffer-or-name candidates &rest body)
   (declare (indent 0) (debug t))
   (helm-with-gensyms (buffer window)
@@ -704,17 +450,51 @@ Useful in dired buffers when there is inserted subdirs."
 ;;
 ;; Internal
 (defvar helm-match-line-overlay nil)
+(defvar helm--match-item-overlays nil)
 
 (defun helm-highlight-current-line (&optional start end buf face pulse)
   "Highlight and underline current position"
   (let* ((start (or start (line-beginning-position)))
          (end (or end (1+ (line-end-position))))
+         (start-match (if (or (zerop helm-highlight-number-lines-around-point)
+                              (null helm-highlight-number-lines-around-point))
+                          start
+                          (save-excursion
+                            (forward-line
+                             (- helm-highlight-number-lines-around-point))
+                            (point-at-bol))))
+         (end-match   (if (or (zerop helm-highlight-number-lines-around-point)
+                              (null helm-highlight-number-lines-around-point))
+                          end
+                          (save-excursion
+                            (forward-line
+                             helm-highlight-number-lines-around-point)
+                            (point-at-eol))))
          (args (list start end buf)))
     (if (not helm-match-line-overlay)
         (setq helm-match-line-overlay (apply 'make-overlay args))
       (apply 'move-overlay helm-match-line-overlay args))
     (overlay-put helm-match-line-overlay
                  'face (or face 'helm-selection-line))
+    (catch 'empty-line
+      (cl-loop with ov
+               for r in (helm-remove-if-match
+                         "\\`!" (split-string helm-input))
+               do (save-excursion
+                    (goto-char start-match)
+                    (while (condition-case _err
+                               (if helm-migemo-mode
+                                   (helm-mm-migemo-forward r end-match t)
+                                   (re-search-forward r end-match t))
+                             (invalid-regexp nil))
+                      (let ((s (match-beginning 0))
+                            (e (match-end 0)))
+                        (if (= s e)
+                            (throw 'empty-line nil)
+                            (push (setq ov (make-overlay s e))
+                                  helm--match-item-overlays)
+                            (overlay-put ov 'face 'helm-match-item)
+                            (overlay-put ov 'priority 1)))))))
     (recenter)
     (when pulse
       (sit-for 0.3)
@@ -723,29 +503,24 @@ Useful in dired buffers when there is inserted subdirs."
 (defun helm-match-line-cleanup ()
   (when helm-match-line-overlay
     (delete-overlay helm-match-line-overlay)
-    (setq helm-match-line-overlay nil)))
+    (setq helm-match-line-overlay nil))
+  (when helm--match-item-overlays
+    (mapc 'delete-overlay helm--match-item-overlays)))
 
 (defun helm-match-line-update ()
   (when helm-match-line-overlay
     (delete-overlay helm-match-line-overlay)
     (helm-highlight-current-line)))
 
+(defun helm-persistent-autoresize-hook ()
+  (when (and helm-buffers-to-resize-on-pa
+             (member helm-buffer helm-buffers-to-resize-on-pa)
+             (eq helm-split-window-state 'vertical))
+    (set-window-text-height (helm-window) helm-resize-on-pa-text-height)))
+
+(add-hook 'helm-after-persistent-action-hook 'helm-persistent-autoresize-hook)
 (add-hook 'helm-cleanup-hook 'helm-match-line-cleanup)
 (add-hook 'helm-after-persistent-action-hook 'helm-match-line-update)
-
-(defun helm-w32-prepare-filename (file)
-  "Convert filename FILE to something usable by external w32 executables."
-  (replace-regexp-in-string ; For UNC paths
-   "/" "\\"
-   (replace-regexp-in-string ; Strip cygdrive paths
-    "/cygdrive/\\(.\\)" "\\1:"
-    file nil nil) nil t))
-
-;;;###autoload
-(defun helm-w32-shell-execute-open-file (file)
-  (interactive "fOpen file:")
-  (with-no-warnings
-    (w32-shell-execute "open" (helm-w32-prepare-filename file))))
 
 (defun helm-open-file-with-default-tool (file)
   "Open FILE with the default tool on this platform."
@@ -769,61 +544,9 @@ directory, open this directory."
     (dired (file-name-directory file))
     (dired-goto-file file)))
 
-(defun helm-action-line-goto (lineno-and-content)
-  (apply #'helm-goto-file-line
-         (append lineno-and-content
-                 (list (helm-interpret-value (helm-attr 'target-file))
-                       (if (and (helm-attr-defined 'target-file)
-                                (not helm-in-persistent-action))
-                           'find-file-other-window
-                         'find-file)))))
-
-(cl-defun helm-action-file-line-goto (file-line-content)
-  (apply #'helm-goto-file-line
-         (if (stringp file-line-content)
-             ;; Case: filtered-candidate-transformer is skipped
-             (cdr (helm-filtered-candidate-transformer-file-line-1
-                   file-line-content))
-           file-line-content)))
-
 (defun helm-require-or-error (feature function)
   (or (require feature nil t)
       (error "Need %s to use `%s'." feature function)))
-
-(defun helm-filtered-candidate-transformer-file-line (candidates _source)
-  (delq nil (mapcar 'helm-filtered-candidate-transformer-file-line-1
-                    candidates)))
-
-(defun helm-filtered-candidate-transformer-file-line-1 (candidate)
-  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
-    (let ((filename (match-string 1 candidate))
-          (lineno (match-string 2 candidate))
-          (content (match-string 3 candidate)))
-      (cons (format "%s:%s\n %s"
-                    (propertize filename 'face compilation-info-face)
-                    (propertize lineno 'face compilation-line-face)
-                    content)
-            (list (string-to-number lineno) content
-                  (expand-file-name
-                   filename
-                   (or (helm-interpret-value (helm-attr 'default-directory))
-                       (and (helm-candidate-buffer)
-                            (buffer-local-value
-                             'default-directory (helm-candidate-buffer))))))))))
-
-(cl-defun helm-goto-file-line (lineno &optional content file (find-file-function #'find-file))
-  (helm-aif (helm-attr 'before-jump-hook)
-      (funcall it))
-  (when file (funcall find-file-function file))
-  (if (helm-attr-defined 'adjust)
-      (helm-goto-line-with-adjustment lineno content)
-    (helm-goto-line lineno))
-  (unless (helm-attr-defined 'recenter)
-    (set-window-start (get-buffer-window helm-current-buffer) (point)))
-  (helm-aif (helm-attr 'after-jump-hook)
-      (funcall it))
-  (when helm-in-persistent-action
-    (helm-highlight-current-line)))
 
 (defun helm-find-file-as-root (candidate)
   (let* ((buf (helm-basename candidate))
@@ -846,77 +569,6 @@ directory, open this directory."
   (let ((helm--reading-passwd-or-string t))
     (mapc 'find-file (helm-marked-candidates))))
 
-(defun helm-goto-line-with-adjustment (line line-content)
-  (let ((startpos)
-        offset found pat)
-    ;; This constant is 1/2 the initial search window.
-    ;; There is no sense in making it too small,
-    ;; since just going around the loop once probably
-    ;; costs about as much as searching 2000 chars.
-    (setq offset 1000
-          found nil
-          pat (concat (if (eq selective-display t)
-                          "\\(^\\|\^m\\) *" "^ *") ;allow indent
-                      (regexp-quote line-content)))
-    ;; If no char pos was given, try the given line number.
-    (setq startpos (progn (helm-goto-line line) (point)))
-    (or startpos (setq startpos (point-min)))
-    ;; First see if the tag is right at the specified location.
-    (goto-char startpos)
-    (setq found (looking-at pat))
-    (while (and (not found)
-                (progn
-                  (goto-char (- startpos offset))
-                  (not (bobp))))
-      (setq found
-            (re-search-forward pat (+ startpos offset) t)
-            offset (* 3 offset)))       ; expand search window
-    (or found
-        (re-search-forward pat nil t)
-        (error "not found")))
-  ;; Position point at the right place
-  ;; if the search string matched an extra Ctrl-m at the beginning.
-  (and (eq selective-display t)
-       (looking-at "\^m")
-       (forward-char 1))
-  (forward-line 0))
-
-(defun helm-quit-and-execute-action (action)
-  "Quit current helm session and execute ACTION."
-  (setq helm-saved-action action)
-  (helm-exit-minibuffer))
-
-;; Yank text at point.
-;;
-;;
-;; Internal
-(defvar helm-yank-point nil)
-
-;;;###autoload
-(defun helm-yank-text-at-point ()
-  "Yank text at point in `helm-current-buffer' into minibuffer.
-If `helm-yank-symbol-first' is non--nil the first yank
-grabs the entire symbol."
-  (interactive)
-  (with-helm-current-buffer
-    (let ((fwd-fn (if helm-yank-symbol-first
-                      'forward-symbol 'forward-word)))
-      ;; Start to initial point if C-w have never been hit.
-      (unless helm-yank-point (setq helm-yank-point (point)))
-      (save-excursion
-        (goto-char helm-yank-point)
-        (funcall fwd-fn 1)
-        (helm-set-pattern
-         (concat
-          helm-pattern (replace-regexp-in-string
-                        "\\`\n" ""
-                        (buffer-substring-no-properties
-                         helm-yank-point (point)))))
-        (setq helm-yank-point (point))))))
-
-(defun helm-reset-yank-point ()
-  (setq helm-yank-point nil))
-
 (defun helm-read-repeat-string (prompt &optional count)
   "Prompt as many time PROMPT is not empty.
 If COUNT is non--nil add a number after each prompt."
@@ -927,15 +579,6 @@ If COUNT is non--nil add a number after each prompt."
              (setq prompt (concat prompt (int-to-string n) ": ")))
         collect (setq elm (helm-read-string prompt)) into lis
         finally return (remove "" lis)))
-
-;; FIXME why do we run this after PA?
-;; Seems it is not needed, thus it create a bug
-;; when we want to hit repetitively C-w and follow-mode is enabled,
-;; or if we run a PA between to hits on C-w.
-;; Keep this commented for now.
-;(add-hook 'helm-after-persistent-action-hook 'helm-reset-yank-point)
-(add-hook 'helm-cleanup-hook 'helm-reset-yank-point)
-(add-hook 'helm-after-initialize-hook 'helm-reset-yank-point)
 
 (defun helm-html-bookmarks-to-alist (file url-regexp bmk-regexp)
   "Parse html bookmark FILE and return an alist with (title . url) as elements."

@@ -1,6 +1,6 @@
 ;;; helm-external.el --- Run Externals commands within Emacs with helm completion. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2014 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-help)
+(require 'helm-net)
 
 
 (defgroup helm-external nil
@@ -103,7 +105,7 @@ In this case EXE must be provided as \"EXE %s\"."
           (start-process-shell-command proc nil real-com))
         (set-process-sentinel
          (get-process proc)
-         #'(lambda (process event)
+         (lambda (process event)
              (when (and (string= event "finished\n")
                         helm-raise-command
                         (not (helm-get-pid-from-process-name real-com)))
