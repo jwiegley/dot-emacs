@@ -715,6 +715,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;;; Packages
 
 (use-package ggtags
+  :disabled t
   :load-path "site-lisp/ggtags"
   :commands ggtags-mode
   :diminish ggtags-mode)
@@ -764,7 +765,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun my-c-mode-common-hook ()
     (abbrev-mode 1)
-    (ggtags-mode 1)
+    ;; (ggtags-mode 1)
     (eldoc-mode 1)
     (hs-minor-mode 1)
     (hide-ifdef-mode 1)
@@ -1132,7 +1133,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (ascii-off)
       (ascii-on))))
 
-(use-package tex-site
+(use-package avy
+  :demand t
+  :load-path "site-lisp/avy"
+  :bind ("M-h" . avy-goto-char)
+  :config
+  (avy-setup-default))
+
+(use-package tex-site                   ; auctex
   :load-path "~/.nix-profile/share/emacs/site-lisp/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
@@ -3336,7 +3344,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      (lambda ()
        (holes-mode -1)
        (whitespace-mode 1)
-       (ggtags-mode 1)
+       ;; (ggtags-mode 1)
        ;; (set-input-method "Agda")
        ;; (proof-unicode-tokens-enable 1)
        (add-hook 'proof-shell-extend-queue-hook
@@ -3363,7 +3371,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (defadvice proof-retract-buffer
         (around my-proof-retract-buffer activate)
       (condition-case err ad-do-it
-        (error (shell-command "killall ssrcoq"))))))
+        (error (shell-command "killall coqtop"))))))
 
 (use-package ps-print
   :defer t
