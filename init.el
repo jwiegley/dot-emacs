@@ -3275,7 +3275,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package poporg
   :load-path "site-lisp/poporg"
-  :bind ("C-c e o" . poporg-dwin))
+  :bind ("C-c e o" . poporg-dwim))
 
 (use-package powerline
   :disabled t
