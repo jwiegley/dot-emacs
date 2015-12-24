@@ -3189,13 +3189,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package outshine
   :load-path ("site-lisp/outshine"
-              "site-lisp/outorg"
               "site-lisp/navi")
   :commands outshine-hook-function
-  :init
-  (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+  ;; :init
+  ;; (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   :config
   (use-package navi-mode))
+
+(use-package outorg
+  :load-path "site-lisp/outorg"
+  :bind ("C-c '" . outorg-edit-as-org)
+  :config
+  (require 'outshine))
 
 (use-package osx-bbdb
   :load-path "site-lisp/osx-bbdb"
