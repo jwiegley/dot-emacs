@@ -423,6 +423,8 @@ BAE Systems"))))
  '(message-alternative-emails
    "\\(johnw?\\|jwiegley\\)@\\(\\(gmail\\|newartisans\\|fpcomplete\\|boostpro\\|yahoo\\|hotmail\\)\\.com\\|gnu\\.org\\)")
  '(message-directory "~/Messages/Gnus/Mail/")
+ '(message-dont-reply-to-names
+   "\\(jwiegley\\|johnw\\|john\\.wiegley\\)@\\(\\(gmail\\|newartisans\\|baesystems\\)\\.com\\|gnu\\.org\\)")
  '(message-fill-column 78)
  '(message-interactive t)
  '(message-mail-alias-type nil)
