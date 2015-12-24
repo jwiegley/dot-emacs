@@ -411,7 +411,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#haskell-emacs" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))))
+    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
