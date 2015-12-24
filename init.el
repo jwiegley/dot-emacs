@@ -3180,6 +3180,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (on-screen-global-mode 1))
 
+(use-package outline
+  :commands outline-minor-mode
+  :init
+  (hook-into-modes #'outline-minor-mode
+                   'emacs-lisp-mode-hook
+                   'LaTeX-mode-hook))
+
+(use-package outshine
+  :load-path ("site-lisp/outshine"
+              "site-lisp/outorg"
+              "site-lisp/navi")
+  :commands outshine-hook-function
+  :init
+  (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+  :config
+  (use-package navi-mode))
+
 (use-package osx-bbdb
   :load-path "site-lisp/osx-bbdb"
   :commands import-osx-contacts-to-bbdb)
@@ -3255,6 +3272,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands pretty-control-l-mode
   :init
   (add-hook 'prog-mode-hook 'pretty-control-l-mode))
+
+(use-package poporg
+  :load-path "site-lisp/poporg"
+  :bind ("C-c e o" . poporg-dwin))
 
 (use-package powerline
   :disabled t
