@@ -8,6 +8,8 @@
     ("~/.nix-profile/share/info" "~/.nix-profile/share/texmf-dist/doc/info")))
  '(Info-fit-frame-flag nil)
  '(TeX-PDF-mode t)
+ '(TeX-auto-save t)
+ '(TeX-auto-untabify t)
  '(TeX-electric-escape t)
  '(TeX-engine (quote xetex))
  '(TeX-expand-list
@@ -156,6 +158,7 @@
          (funcall file
                   (TeX-output-extension)
                   t)))))))
+ '(TeX-parse-self t)
  '(TeX-view-program-list
    (quote
     (("Skim"

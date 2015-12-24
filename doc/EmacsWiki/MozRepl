@@ -1,0 +1,144 @@
+Remote read-eval-print-loop to access and modify Mozilla and Firefox apps from the inside.  Comes with a minor mode for Emacs integration.
+
+* MozRepl: http://wiki.github.com/bard/mozrepl
+* Movie: http://www.youtube.com/watch?v=5RSnHN6S52c
+* Emacs Integration: http://wiki.github.com/bard/mozrepl/emacs-integration
+** NOTE: instructions link to 2.0 Beta 8 (from Dec 2006) version of javascript.el; we're up to at least  2.2.1 as of Dec, 2008
+* Main project: http://hyperstruct.net/projects/mozlab
+
+== Live-Preview: Mirror buffer changes instantly in the browser ==
+moz-reload-mode: http://gist.github.com/442376
+
+[NxhtmlMode nXhtml] also features a MozRepl powered live preview of the edited buffer.
+This includes also a possibility to display in the browser point where you are in the editing buffer.
+
+New since some months in nXhtml are the ability to see search matches from isearch and re-builder too. (But this is yet only in the Launchpad repositories for nXhtml and you will need the updated re-builder there.)
+
+This support in nXhtml can however probably be made much better and faster by someone who knows more about javascript. If someone would like to do that it would be very nice.
+
+== Automatically Refresh Browser After Saving HTML/CSS files ==
+
+This snippet triggers a browser refresh every time an .html or .css file is saved in emacs. It uses the emacs MozRepl integration linked to above.
+
+Notes: There is a one-second delay before refreshing the browser. That is set in the: setTimeout(BrowserReload(), "1000"... line. You can change it; it is specified in milliseconds - 1000=1s. 
+
+Also, if you have multiple tabs/windows open it might initially pick the wrong window to refresh - just create a new tab, load the page there and it should start refreshing that tab instead.
+
+<pre>
+(defun auto-reload-firefox-on-after-save-hook ()         
+          (add-hook 'after-save-hook
+                       '(lambda ()
+                          (interactive)
+                          (comint-send-string (inferior-moz-process)
+                                              "setTimeout(BrowserReload, \"1000\");"))
+                       'append 'local)) ; buffer-local
+
+;; Example - you may want to add hooks for your own modes.
+;; I also add this to python-mode when doing django development.
+(add-hook 'html-mode-hook 'auto-reload-firefox-on-after-save-hook)
+(add-hook 'css-mode-hook 'auto-reload-firefox-on-after-save-hook)
+</pre>
+
+I suggest using below code,
+<pre>
+(comint-send-string (inferior-moz-process)
+                                           "setTimeout(function(){content.document.location.reload(true);}, '500');")
+</pre>
+instead of BrowserReload. The difference is this solution won't cache the user input after web page refreshed. 
+
+I got irritated by having the currently focused tab being reloaded so to just reload all tabs that start with the url http://localhost:3000/:
+<pre>
+ (comint-send-string (inferior-moz-process) "
+var num = gBrowser.browsers.length;
+for (var i = 0; i < num; ++i) {
+  var browser = gBrowser.getBrowserAtIndex(i);
+  if (browser.currentURI.spec.substr(0, 21)  == 'http://localhost:3000')
+  {
+    browser.reload();
+  }
+}")
+</pre>
+Change the substr(0, 21) to the length of the new string when changing the url.
+
+[new]
+Nice, but if you are going to experiment with this it might be good to use a named function in the hook instead of a lambda.
+That way you can change it and you can also delete it from the hook if you want to.
+
+== Live-Preview: auto-refresh the browser, improved version==
+Make the auto-refresh browser smarter, using below code, which is all you need,
+<pre>
+(defun my-moz-refresh-browser-condition (current-file)
+  "Should return a boolean javascript expression or nil"
+  (let (rlt)
+    (cond
+     ((string-match "\\(beeta\\|cb_tutorial\\)" current-file)
+      (setq rlt "content.document.location.href.indexOf(':8001')!==-1"))
+     (t
+      (setq rlt nil)))
+    rlt))
+
+;; {{ mozrepl auto-refresh browser
+(defun moz-reload-browser ()
+  (interactive)
+  (let (js-cond cmd)
+    (if (fboundp 'my-moz-refresh-browser-condition)
+        (setq js-cond (funcall 'my-moz-refresh-browser-condition (buffer-file-name))))
+    (cond
+     (js-cond
+      (setq cmd (concat "if(" js-cond "){setTimeout(function(){content.document.location.reload(true);}, '500');}")))
+     (t
+      (setq cmd "setTimeout(function(){content.document.location.reload(true);}, '500');")))
+    (comint-send-string (inferior-moz-process) cmd)
+    ))
+
+(defun moz-after-save ()
+  (interactive)
+  (when (memq major-mode '(web-mode html-mode nxml-mode nxhml-mode php-mode))
+    (moz-reload-browser)))
+
+(add-hook 'after-save-hook
+              'moz-after-save
+              'append 'local)
+;; }}
+</pre>
+
+
+== Read/Write DOM element in web page==
+* Read http://blog.binchen.org/?p=987 to understand why. there is sample js code there.
+* Install latest addon and firefox if possible
+* Copy/paste below code into ~/.emacs, then you just need "M-x moz-load-js-file-and-send-it" and select the js file you need execute:
+<pre>
+(defun moz-goto-content-and-run-cmd (cmd)
+  (comint-send-string (inferior-moz-process)
+                      (concat "repl.enter(content);"
+                              cmd
+                              "repl.back();")))
+
+(setq moz-repl-js-dir (expand-file-name "~/moz-repl-js-dir"))
+
+(defun moz--read-file (js-file)
+  (with-temp-buffer
+    (insert-file-contents js-file)
+    (buffer-string)))
+
+(defun moz-load-js-file-and-send-it ()
+  "load js file from specific directory and send it to mozrepl"
+  (interactive)
+  (let (cmd js-file)
+    (setq js-file (read-file-name "js file:" moz-repl-js-dir))
+    (when (file-exists-p js-file)
+      ;; flush mozrepl at first
+      (moz-goto-content-and-run-cmd "console.log('hello');")
+      ;; read the content of js-file
+      (setq cmd (moz--read-file js-file))
+      (moz-goto-content-and-run-cmd cmd))
+    ))
+
+</pre>
+
+== See Also ==
+
+JavaScriptMode
+
+----
+CategoryProgramming

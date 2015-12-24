@@ -96,13 +96,16 @@
 
 ;;; Enable disabled commands
 
-(put 'downcase-region  'disabled nil)   ; Let downcasing work
-(put 'erase-buffer     'disabled nil)
-(put 'eval-expression  'disabled nil)   ; Let ESC-ESC work
-(put 'narrow-to-page   'disabled nil)   ; Let narrowing work
-(put 'narrow-to-region 'disabled nil)   ; Let narrowing work
-(put 'set-goal-column  'disabled nil)
-(put 'upcase-region    'disabled nil)   ; Let upcasing work
+(put 'downcase-region             'disabled nil)   ; Let downcasing work
+(put 'erase-buffer                'disabled nil)
+(put 'eval-expression             'disabled nil)   ; Let ESC-ESC work
+(put 'narrow-to-page              'disabled nil)   ; Let narrowing work
+(put 'narrow-to-region            'disabled nil)   ; Let narrowing work
+(put 'set-goal-column             'disabled nil)
+(put 'upcase-region               'disabled nil)   ; Let upcasing work
+(put 'company-coq-fold            'disabled nil)
+(put 'TeX-narrow-to-group         'disabled nil)
+(put 'LaTeX-narrow-to-environment 'disabled nil)
 
 ;;; Configure libraries
 
@@ -3177,6 +3180,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (on-screen-global-mode 1))
 
+(use-package osx-bbdb
+  :load-path "site-lisp/osx-bbdb"
+  :commands import-osx-contacts-to-bbdb)
+
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"
   :commands pabbrev-mode
@@ -4042,4 +4049,3 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             t))
 
 ;;; init.el ends here
-(put 'company-coq-fold 'disabled nil)
