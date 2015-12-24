@@ -1,0 +1,4 @@
+\newglossaryentry{$1}{
+  name={$1},
+  description={$0}
+}
