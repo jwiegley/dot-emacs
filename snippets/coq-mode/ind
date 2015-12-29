@@ -1,5 +1,3 @@
-induction $1 as [| $1'].
-  Case "$1 = 0".
-    reflexivity.
-  Case "$1 = S $1'".
-    $0
+# expand-env: ((yas-indent-line 'auto) (yas-wrap-around-region t))
+# --
+induction $1 as ${1:$(coq-insert-induction yas-text (point))}$0
