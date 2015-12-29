@@ -20,7 +20,7 @@
                    "\n"))))
       (and agda
            (expand-file-name
-            "../share/x86_64-osx-ghc-7.8.4/Agda-2.4.2.4/emacs-mode"
+            "../share/x86_64-osx-ghc-7.10.2/Agda-2.4.2.4/emacs-mode"
             (file-name-directory agda))))))
 
 (eval-and-compile
