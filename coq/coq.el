@@ -33,11 +33,12 @@
 
 (require 'proof)
 (require 'coq-system)                   ; load path, option, project file etc.
-(require 'coq-syntax)
-(require 'coq-local-vars)               
-(require 'coq-abbrev)                   ; abbrev and  coq specific menu
-(require 'coq-seq-compile)              ; sequential compilation
-(require 'coq-par-compile)              ; parallel compilation
+(require 'coq-syntax)                   ; font-lock, syntax categories (tactics, commands etc)
+(require 'coq-local-vars)               ; setting coq args via file variables 
+                                        ;   (prefer _CoqProject file instead)
+(require 'coq-abbrev)                   ; abbrev and coq specific menu
+(require 'coq-seq-compile)              ; sequential compilation of Requires
+(require 'coq-par-compile)              ; parallel compilation of Requires
 
 
 ;; for compilation in Emacs < 23.3 (NB: declare function only works at top level)
