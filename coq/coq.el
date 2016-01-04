@@ -338,6 +338,71 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
   (substring s (match-end 0) (length s)))
 
 
+;; Messages dispalyed by "Time" are always following or preceding the real
+;; result, if it follows we want it to be non urgent, otherwise the result
+;; would not be shown in response buffer. If it is before, then there is no
+;; harm in having it non urgent.
+(defvar coq-eager-no-urgent-regex "Finished "
+  "Regexp of commands matching proof-shell-eager-annotation-start
+  that must not be classified as urgent messages.")
+
+;; Looking for eager annotation which does not match coq-eager-no-urgent-regex
+(defun coq-search-urgent-message ()
+  (let ((again t) (start nil))
+    (while again
+      (setq start (re-search-forward proof-shell-eager-annotation-start
+                                     nil 'limit))
+      (unless (looking-at coq-eager-no-urgent-regex)
+        (setq again nil)))
+    start))
+
+;; This is a modified version of the same function in generic/proof-shell.el.
+;; Using function coq-search-urgent-message instead of regex
+;; proof-shell-eager-annotation-start, in order to let non urgent message as
+;; such. i.e. "Time" messages. 
+(defun proof-shell-process-urgent-messages ()
+  "Scan the shell buffer for urgent messages.
+Scanning starts from `proof-shell-urgent-message-scanner' or
+`scomint-last-input-end', which ever is later.  We deal with strings
+between regexps `proof-shell-eager-annotation-start' and
+`proof-shell-eager-annotation-end'.
+
+We update `proof-shell-urgent-message-marker' to point to last message found.
+
+This is a subroutine of `proof-shell-filter'."
+  (let ((pt (point)) (end t)
+	lastend laststart
+	(initstart (max  (marker-position proof-shell-urgent-message-scanner)
+			 (marker-position scomint-last-input-end))))
+    (goto-char initstart)
+    (while (and end
+                (coq-search-urgent-message)
+                ; replacing the following line
+		;(re-search-forward proof-shell-eager-annotation-start nil 'limit)
+                )
+      (setq laststart (match-beginning 0))
+      (if (setq end
+		(re-search-forward proof-shell-eager-annotation-end nil t))
+	  (save-excursion
+	    (setq lastend end)
+	    ;; Process the region including the annotations
+	    (proof-shell-process-urgent-message laststart lastend))))
+
+    (set-marker
+     proof-shell-urgent-message-scanner
+     (if end ;; couldn't find message start; move forward to avoid rescanning
+	 (max initstart
+	      (- (point)
+		 (1+ proof-shell-eager-annotation-start-length)))
+       ;; incomplete message; leave marker at start of message
+       laststart))
+
+    ;; Set position of last urgent message found
+    (if lastend
+	(set-marker proof-shell-urgent-message-marker lastend))
+	
+    (goto-char pt)))
+
 ;; Due to the architecture of proofgeneral, informative message put *before*
 ;; the goal disappear unless marked as "urgent", i.e. being enclosed with
 ;; "eager-annotation" syntax. Since we don't want the Warning color to be used
