@@ -338,6 +338,7 @@
  '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
  '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
+ '(coq-prog-name "coqtop.opt")
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "~/.emacs.d/settings.el")
