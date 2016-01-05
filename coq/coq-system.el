@@ -41,15 +41,15 @@ On Windows you might need something like:
 
 (defcustom coq-prog-name
   (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
-   "*Name of program to run as Coq. See `proof-prog-name', set from this.
+  "*Name of program to run as Coq. See `proof-prog-name', set from this.
 On Windows with latest Coq package you might need something like:
    C:/Program Files/Coq/bin/coqtop.opt.exe
 instead of just \"coqtop\".
 This must be a single program name with no arguments; see `coq-prog-args'
 to manually adjust the arguments to the Coq process.
 See also `coq-prog-env' to adjust the environment."
-   :type 'string
-   :group 'coq)
+  :type 'string
+  :group 'coq)
 
 (defcustom coq-dependency-analyzer
   (proof-locate-executable "coqdep" t '("C:/Program Files/Coq/bin"))
@@ -77,16 +77,15 @@ See also `coq-prog-env' to adjust the environment."
   :type 'string
   :group 'coq)
 
-(defcustom coq-pre-v85 nil
-  "Whether to use <= coq-8.4 config (nil by default).
-Mainly to deal with command line options that changed between 8.4
-and 8.5 (-Q foo bar replace -I foo)."
+(defcustom coq--pre-v85 nil
+  "Internal setting.
+Tracks whether the current compiler was auto-detected as older than v8.5."
   :type 'boolean
   :group 'coq)
 
 (defcustom coq-use-makefile nil
   "Whether to look for a Makefile to attempt to guess the command line.
-Set to t if you want this feature."
+Set to t if you want this feature, but note that it is deprecated."
   :type 'string
   :group 'coq)
 
@@ -101,27 +100,27 @@ Set to t if you want this feature."
   "Check if PATH is a safe value for `coq-load-path'."
   (and
    (listp path)
-   (every
+   (cl-every
     (lambda (entry)
       (or (stringp entry)
           (and (listp entry)
                (eq (car entry) 'rec)
-               (every 'stringp (cdr entry))
+               (cl-every 'stringp (cdr entry))
                (equal (length entry) 3))
           (and (listp entry)
                (eq (car entry) 'nonrec)
-               (every 'stringp (cdr entry))
+               (cl-every 'stringp (cdr entry))
                (equal (length entry) 3))
           (and (listp entry)
                (eq (car entry) 'recnoimport)
-               (every 'stringp (cdr entry))
+               (cl-every 'stringp (cdr entry))
                (equal (length entry) 3))
           (and (listp entry)
                (eq (car entry) 'ocamlimport)
-               (every 'stringp (cdr entry))
+               (cl-every 'stringp (cdr entry))
                (equal (length entry) 2))
           (and (listp entry)
-               (every 'stringp entry)
+               (cl-every 'stringp entry)
                (equal (length entry) 2))))
     path)))
 
@@ -133,44 +132,45 @@ coqtop. Usually, the elements of this list are strings (for
 \"-Q\" dir path).
 
 The possible forms of elements of this list correspond to the 4
-forms of include options ('-I' '-Q' and '-R'). An element can be
+forms of include options (`-I' `-Q' and `-R'). An element can be
 
-  - A list of the form '(ocamlimport dir)', specifying a
-    directory to be added to ocaml path ('-I').
-  - A list of the form '(rec dir path)' (where dir and path are
+  - A list of the form `(\\='ocamlimport dir)', specifying a
+    directory to be added to ocaml path (`-I').
+  - A list of the form `(\\='rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
-    logical path 'path' ('-R dir path').
-  - A list of the form '(recnoimport dir path)' (where dir and
+    logical path `path' (`-R dir path').
+  - A list of the form `(\\='recnoimport dir path)' (where dir and
     path are strings) specifying a directory to be recursively
-    mapped to the logical path 'path' ('-Q dir path'), but not
+    mapped to the logical path `path' (`-Q dir path'), but not
     imported (modules accessible for import with qualified names
     only).
-  - A list of the form '(norec dir)', specifying a directory
-    to be mapped to the empty logical path ('-Q dir \"\"').
+  - A list of the form (8.4 only) `(\\='nonrec dir path)', specifying a
+    directory to be mapped to the logical path 'path' ('-I dir -as path').
 
-For convenience the symbol 'rec' can be omitted and entries of
-the form '(dir path)' are interpreted as '(rec dir path)'.
+For convenience the symbol `rec' can be omitted and entries of
+the form `(dir path)' are interpreted as `(rec dir path)'.
+
+A plain string maps to -Q ... \"\" in 8.5, and -I ... in 8.4.
 
 Under normal circumstances this list does not need to
 contain the coq standard library or \".\" for the current
 directory (see `coq-load-path-include-current').
 
 WARNING: if you use coq <= 8.4, the meaning of these options is
-not the same (-I is for coq path).
-"
-  :type '(repeat (choice (string :tag "simple directory without path (-Q \"\")") ; is this really useful?
+not the same (-I is for coq path)."
+  :type '(repeat (choice (string :tag "simple directory without path (-Q \"\") in 8.5, -I in 8.4")
                          (list :tag
-                               "recursive directory with path (-R ... -as ...)"
+                               "recursive directory with path (-R ... ...)"
                                (const rec)
                                (string :tag "directory")
                                (string :tag "log path"))
-			 (list :tag
-                               "recursive directory without recursive inport with path (-Q ... ...)"
+                         (list :tag
+                               "recursive directory without recursive import with path (-Q ... ...)"
                                (const recnoimport)
                                (string :tag "directory")
                                (string :tag "log path"))
                          (list :tag
-                               "directory with empty logical path (-Q ... "" in coq>=8.5, -I ... in coq<=8.4)"
+                               "compatibility for of -I (-I ... -as ... in coq<=8.4)"
                                (const nonrec)
                                (string :tag "directory")
                                (string :tag "log path"))
@@ -188,103 +188,131 @@ not the same (-I is for coq path).
   "If `t' let coqdep search the current directory too.
 Should be `t' for normal users. If `t' pass -Q dir \"\" to coqdep when
 processing files in directory \"dir\" in addition to any entries
-in `coq-load-path'."
+in `coq-load-path'.
+
+This setting is only relevant with Coq < 8.5."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
 
-(defun coq-option-of-load-path-entry (entry)
-  "Translate a single element from `coq-load-path' into options.
-See `coq-load-path' for the possible forms of entry and to which
-options they are translated."
-  (cond
-   ((and coq-pre-v85 (stringp entry))
-    (list "-I" (expand-file-name entry)))
-   ((and (not coq-pre-v85) (stringp entry))
-    (list "-Q" (expand-file-name entry) ""))
-   ((and coq-pre-v85 (eq (car entry) 'nonrec))
-    (list "-I" (expand-file-name (nth 1 entry)) "-as" (nth 2 entry)))
-   ((and (not coq-pre-v85) (eq (car entry) 'nonrec)) ;; N/A?
-    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
-   ((eq (car entry) 'recnoimport) ;; only for >=8.5
-    (list "-Q" (expand-file-name (nth 1 entry)) (nth 2 entry)))
-   (t
-    (if (eq (car entry) 'rec)
-        (setq entry (cdr entry)))
-    (if coq-pre-v85 ;; -as obsolete in 8.5
-	(list "-R" (expand-file-name (car entry)) "-as" (nth 1 entry))
-      (list "-R" (expand-file-name (car entry)) (nth 1 entry))))))
+(defun coq-option-of-load-path-entry (entry &optional pre-v85)
+  "Translate a single ENTRY from `coq-load-path' into options.
+See `coq-load-path' for the possible forms of ENTRY and to which
+options they are translated.  Use a non-nil PRE-V85 flag to
+request compatibility handling of flags."
+  (if pre-v85 ;; !!! Which base directory do we expand against? Should the entries of load-path just always be absolute?
+      ;; Note that we don't handle 'recnoimport in 8.4, and we don't handle
+      ;; 'nonrec in 8.5.
+      (pcase entry
+        ((or (and (pred stringp) dir) `(ocamlimport ,dir))
+         (list "-I" (expand-file-name dir)))
+        (`(nonrec ,dir ,alias)
+         (list "-I" (expand-file-name dir) "-as" alias))
+        ((or `(rec ,dir ,alias) `(,dir ,alias))
+         (list "-R" (expand-file-name dir) alias)))
+    (pcase entry
+      ((and (pred stringp) dir)
+       (list "-Q" (expand-file-name dir) ""))
+      (`(ocamlimport ,dir)
+       (list "-I" (expand-file-name dir)))
+      (`(recnoimport ,dir ,alias)
+       (list "-Q" (expand-file-name dir) alias))
+      ((or `(rec ,dir ,alias) `(,dir ,alias))
+       (list "-R" (expand-file-name dir) alias)))))
 
-(defun coq-include-options (file coq-load-path)
-  "Build the list of include options for coqc, coqdep and coqtop.
-The options list includes all entries from argument COQ-LOAD-PATH
+(defun coq-include-options (load-path &optional current-directory pre-v85)
+  "Build the base list of include options for coqc, coqdep and coqtop.
+The options list includes all entries from argument LOAD-PATH
 \(which should be `coq-load-path' of the buffer that invoked the
 compilation) prefixed with suitable options and (for coq<8.5), if
 `coq-load-path-include-current' is enabled, the directory base of
-FILE. The resulting list is fresh for every call, callers can
+FILE.  The resulting list is fresh for every call, callers can
 append more arguments with `nconc'.
 
-FILE should be an absolute file name. It can be nil if
-`coq-load-path-include-current' is nil."
-  (let ((result nil))
-    (unless (coq-load-path-safep coq-load-path)
-      (error "Invalid value in coq-load-path"))
-    (when coq-load-path
-      (setq result (coq-option-of-load-path-entry (car coq-load-path)))
-      (dolist (entry (cdr coq-load-path))
-        (nconc result (coq-option-of-load-path-entry entry))))
-    (if coq-load-path-include-current
-        (setq result
-              (if coq-pre-v85
-		  (cons "-I" (cons (file-name-directory file) result))
-		;; from coq-8.5 beta3 cpqdep does not needthis anymore
-		;; and actually it can clash with -Q . foo written in
-		;; _CoqProject
-		;; (cons "-Q" (cons (file-name-directory file) (cons "" result)))
-		result)))
-    result))
+CURRENT-DIRECTORY should be an absolute directory name.  It can be nil if
+`coq-load-path-include-current' is nil.
 
+A non-nil PRE-V85 flag requests compatibility handling of flags."
+  (unless (coq-load-path-safep load-path)
+    (error "Invalid value in coq-load-path"))
+  (when (and pre-v85 coq-load-path-include-current)
+    (cl-assert current-directory)
+    (push current-directory load-path))
+  (cl-loop for entry in load-path
+           append (coq-option-of-load-path-entry entry pre-v85)))
 
+(defun coq--options-test-roundtrip-1 (coq-project parsed pre-v85)
+  "Run a sanity check on COQ-PROJECT's PARSED options.
+If PRE-V85 is non-nil, use compatibility mode."
+  (let* ((concatenated (apply #'append parsed))
+         (coq-load-path-include-current nil)
+         (extracted (coq--extract-load-path parsed nil))
+         (roundtrip (coq-include-options extracted nil pre-v85)))
+    (princ (format "[%s] with compatibility flag set to %S: " coq-project pre-v85))
+    (if (equal concatenated roundtrip)
+        (princ "OK\n")
+      (princ (format "Failed.\n:: Original:  %S\n:: LoadPath: %S\n:: Roundtrip: %S\n"
+                     concatenated extracted roundtrip)))))
 
-(defun coq-coqdep-prog-args (&optional src-file loadpath)
-  (let ((loadpath (or loadpath coq-load-path)))
-    (coq-include-options src-file loadpath)))
+(defun coq--options-test-roundtrip (coq-project &optional v85-only)
+  "Run a sanity check on COQ-PROJECT.
+If V85-ONLY is non-nil, do not check the compatibility code."
+  (let ((parsed (coq--read-options-from-project-file coq-project)))
+    (coq--options-test-roundtrip-1 coq-project parsed nil)
+    (unless v85-only
+      (coq--options-test-roundtrip-1 coq-project parsed t))))
 
-(defun coq-coqc-prog-args (&optional src-file loadpath)
+(defun coq--options-test-roundtrips ()
+  "Run sanity tests on coq-project parsing code.
+More precisely, check that parsing and reprinting the include
+options of a few coq-project files does the right thing."
+  (with-output-to-temp-buffer "*tests*"
+    (coq--options-test-roundtrip "-Q /test Test")
+    (coq--options-test-roundtrip "-Q /test \"\"")
+    (coq--options-test-roundtrip "-R /test Test")
+    (coq--options-test-roundtrip "-I /test")))
+
+(defun coq-coqdep-prog-args (load-path &optional current-directory pre-v85)
+  "Build a list of options for coqdep.
+LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
+  (coq-include-options load-path current-directory pre-v85))
+
+;;; !!! Fixme handle proof-prog-name-ask
+
+(defun coq-coqc-prog-args (load-path &optional current-directory pre-v85)
+  "Build a list of options for coqc.
+LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -Q options.
-  (let ((coqdep-args
-	 (let ((coq-load-path-include-current nil)) ; obsolete >=8.5beta3
-	   ;; by the time this function is called, coq-prog-args should be set 
-	   (append coq-prog-args
-		   (coq-coqdep-prog-args src-file loadpath)))))
-    (remove "-emacs" (remove "-emacs-U" coqdep-args))))
+  ;; include it in the -Q options. ;; !!! Check this comment
+  ;; by the time this function is called, coq-prog-args should be set
+  (append (remove "-emacs" (remove "-emacs-U" coq-prog-args))
+          (let ((coq-load-path-include-current nil)) ; Not needed in >=8.5beta3
+            (coq-coqdep-prog-args coq-load-path current-directory pre-v85))))
 
 ;;XXXXXXXXXXXXXX
 ;; coq-coqtop-prog-args is the user-set list of arguments to pass to
 ;; Coq process, see 'defpacustom prog-args' in pg-custom.el for
 ;; documentation.
 
-(defun coq-coqtop-prog-args (&optional src-file loadpath)
-  ;; coqtop always adds the current directory to the LoadPath, so don't
+(defun coq-coqtop-prog-args (load-path &optional current-directory pre-v85)
+  ;; coqtop always adds the current directory to the LoadPath, so don't ;; !!! Check this comment
   ;; include it in the -Q options. This is not true for coqdep.
-  (cons "-emacs" (coq-coqc-prog-args src-file loadpath)))
+  "Build a list of options for coqc.
+LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-coqc-prog-args'."
+  (cons "-emacs" (coq-coqc-prog-args load-path current-directory pre-v85)))
 
-;; FIXME: we seem to need this function with this exact name,
-;; otherwise coqtop command is not generated with the good load-path
-;; (??). Is it interfering with defpgcustom's in pg-custom.el?
-(defun coq-prog-args () (coq-coqtop-prog-args))
-
-
+(defun coq-prog-args ()
+  "Wrapper around `coq-coqtop-prog-args' with good defaults."
+  (coq-coqtop-prog-args coq-load-path))
 
 (defcustom coq-use-project-file t
   "If t, when opening a coq file read the dominating _CoqProject.
-If t when a coq file is opened, proofgeneral will look for a
+If t, when a coq file is opened, Proof General will look for a
 project file (see `coq-project-filename') somewhere in the
-current directory or its parents directory. If there is one, its
-content is read and used to determine the arguments that must be
-given to coqtop. In particular it sets the load path (including
-the -R lib options) (see `coq-load-path') ."
+current directory or its parent directories.  If there is one,
+its contents are read and used to determine the arguments that
+must be given to coqtop.  In particular it sets the load
+path (including the -R lib options) (see `coq-load-path') ."
   :type 'boolean
   :group 'coq)
 
@@ -293,10 +321,10 @@ the -R lib options) (see `coq-load-path') ."
 The coq project file of a coq developpement (Cf Coq documentation
 on \"makefile generation\") should contain the arguments given to
 coq_makefile. In particular it contains the -I and -R
-options (one per line). If `coq-use-coqproject' is t (default)
-the content of this file will be used by proofgeneral to infer
-the `coq-load-path' and the `coq-prog-args' variables that set
-the coqtop invocation by proofgeneral. This is now the
+options (preferably one per line). If `coq-use-coqproject' is
+t (default) the content of this file will be used by proofgeneral
+to infer the `coq-load-path' and the `coq-prog-args' variables
+that set the coqtop invocation by proofgeneral. This is now the
 recommended way of configuring the coqtop invocation. Local file
 variables may still be used to override the coq project file's
 configuration. .dir-locals.el files also work and override
@@ -304,118 +332,117 @@ project file settings."
   :type 'string
   :group 'coq)
 
-
 (defun coq-find-project-file ()
   "Return '(buf alreadyopen) where buf is the buffer visiting coq project file.
 alreadyopen is t if buffer already existed."
-  (let* (
-         (projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
-    (when projectfiledir
-      (let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
-             ;; we store this intermediate result to know if we have to kill
-             ;; the coq project buffer at the end
-             (projectbufferalreadyopen (find-buffer-visiting projectfile))
-             (projectbuffer (or projectbufferalreadyopen
-                                (find-file-noselect projectfile t t))))
-        (list projectbuffer projectbufferalreadyopen)))))
+  (when buffer-file-name
+    (let* ((projectfiledir (locate-dominating-file buffer-file-name coq-project-filename)))
+      (when projectfiledir
+	(let* ((projectfile (expand-file-name coq-project-filename projectfiledir))
+	       ;; we store this intermediate result to know if we have to kill
+	       ;; the coq project buffer at the end
+	       (projectbufferalreadyopen (find-buffer-visiting projectfile))
+	       (projectbuffer (or projectbufferalreadyopen
+				  (find-file-noselect projectfile t t))))
+	  (list projectbuffer projectbufferalreadyopen))))))
 
-;; No "." no "-" in coq module file names, but we do not check
-;; TODO: look exactly at what characters are allowed.
-(defconst coq-load-path--R-regexp
-  "\\_<-R\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
+(defconst coq--project-file-separator "[\r\n[:space:]]+")
 
-(defconst coq-load-path--Q-regexp
-  "\\_<-Q\\s-+\\(?1:[^[:space:]]+\\)\\s-+\\(?2:[^[:space:]]+\\)")
+(defconst coq--makefile-switch-arities
+  '(("-R" . 2)
+    ("-Q" . 2)
+    ("-I" . 1)
+    ("-arg" . 1)
+    ("-opt" . 0)
+    ("-byte" . 0)))
 
-;; second arg of -I is optional (and should become obsolete one day)
-(defconst coq-load-path--I-regexp
-  "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)\\(?:[:space:]+\\(?2:[^[:space:]]+\\)\\)?")
+(defun coq--read-one-option-from-project-file (switch arity raw-args)
+  "Cons SWITCH with ARITY arguments from RAW-ARGS.
+If ARITY is nil, return SWITCH."
+  (if arity
+      (let ((arguments
+             (condition-case-unless-debug nil
+                 (cl-subseq raw-args 0 arity)
+               (warn "Invalid _CoqProject: not enough arguments for %S" switch))))
+        (cons switch arguments))
+    switch))
 
-;(defconst coq-load-path--I-regexp "\\_<-I\\s-+\\(?1:[^[:space:]]+\\)")
+(defun coq--read-options-from-project-file (contents)
+  "Read options from CONTENTS of _CoqProject.
+Returns a mixed list of option-value pairs and strings."
+  (let ((raw-args (split-string-and-unquote contents coq--project-file-separator))
+        (options nil))
+    (while raw-args
+      (let* ((switch (pop raw-args))
+             (arity (cdr (assoc switch coq--makefile-switch-arities))))
+        (push (coq--read-one-option-from-project-file switch arity raw-args) options)
+        (setq raw-args (nthcdr (or arity 0) raw-args))))
+    options))
 
-;; match-string 1 must contain the string to add to coqtop command line, so we
-;; ignore -arg, we use numbered subregexpr.
+(defun coq--extract-prog-args (options)
+  "Extract coqtop arguments from _CoqProject options OPTIONS.
+OPTIONS is a list or conses (switch . argument) and strings.
+Note that the semantics of the -arg flags in coq project files
+are weird: -arg \"a b\" means pass a and b, separately, to
+coqtop."
+  (let ((args nil))
+    (dolist (opt options)
+      (pcase opt
+        ((or "-byte" "-op")
+         (push opt args))
+        (`("-arg" ,concatenated-args)
+         (setq args
+               (append (split-string (cadr opt) coq--project-file-separator)
+                       args)))))
+    (cons "-emacs" args)))
 
-;; FIXME: if several options are given (within "") in a single -arg line, then
-;; they are glued and passed as a single argument to coqtop. this is bad and
-;; not conforming to coq_makefile. HOWEVER: this is probably a bad feature of
-;; coq_makefile to allow several arguments in a single - arg "xxx yyy".
-(defconst coq-prog-args-regexp
-  "\\_<\\(?1:-opt\\|-byte\\)\\|-arg[[:space:]]+\\(?:\\(?1:[^\"\t\n#]+\\)\\|\"\\(?1:[^\"]+\\)\"\\)")
+(defun coq--extract-load-path-1 (option base-directory)
+  "Convert one _CoqProject OPTION, relative to BASE-DIRECTORY."
+  (pcase option
+    (`("-I" ,path)
+     (list 'ocamlimport (expand-file-name path base-directory)))
+    (`("-R" ,path ,alias)
+     (list 'rec (expand-file-name path base-directory) alias))
+    (`("-Q" ,path ,alias)
+     (list 'recnoimport (expand-file-name path base-directory) alias))))
 
-
-(defun coq-read-option-from-project-file (projectbuffer regexp &optional dirprefix)
-  "look for occurrences of regexp in buffer projectbuffer and collect subexps.
-The returned sub-regexp are the one numbered 1 and 2 (other ones
-should be unnumbered). If there is only subexp 1 then it is added
-as is to the final list, if there are 1 and 2 then a list
-containing both is added to the final list. If optional DIRPREFIX
-is non nil, then options ar considered as directory or file names
-and will be made absolute from directory named DIRPREFIX. This
-allows to call coqtop from a subdirectory of the project."
-  (let ((opt nil))
-    (when projectbuffer
-      (with-current-buffer projectbuffer
-        (goto-char (point-min))
-        (while (re-search-forward regexp nil t)
-          (let* ((firstfname (match-string 1))
-                 (second (match-string 2))
-                 (first (if (null dirprefix) firstfname
-                          (expand-file-name firstfname dirprefix))))
-            (if second ; if second arg is "" (two doublequotes), it means empty string
-                (let ((sec (if (string-equal second "\"\"") "" second)))
-                  (if (string-match coq-load-path--R-regexp (match-string 0))
-                      (setq opt (cons (list first sec) opt))
-                    (setq opt (cons (list 'recnoimport first sec) opt))))
-              (setq opt (cons first opt))))))
-      (reverse opt))))
-
-;; Look for -R and -I options in the project buffer
-;; add the default "." too
-(defun coq-search-load-path (projectbuffer)
-  "Read project buffer and retrurn a value for `coq-load-path'."
-;;  no automatic insertion of "." here because some people want to do "-R . foo" so
-;;  let us avoid conflicts.
-  (coq-read-option-from-project-file
-   projectbuffer
-   (concat coq-load-path--R-regexp "\\|" coq-load-path--Q-regexp "\\|" coq-load-path--I-regexp)
-   (file-name-directory (buffer-file-name projectbuffer))))
-
-;; Look for other options (like -opt, -arg foo etc) in the project buffer
-;; adds the -emacs option too
-(defun coq-search-prog-args (projectbuffer)
-  "Read project buffer and retrurn a value for `coq-prog-args'"
-  (cons
-   "-emacs"
-   (coq-read-option-from-project-file projectbuffer coq-prog-args-regexp)))
-
+(defun coq--extract-load-path (options base-directory)
+  "Extract loadpath from _CoqProject options OPTIONS.
+OPTIONS is a list or conses (switch . arguments) and strings.
+Paths are taken relative to BASE-DIRECTORY."
+  (cl-loop for opt in options
+           for extracted = (coq--extract-load-path-1 opt base-directory)
+           when extracted collect extracted))
 
 ;; optional args allow to implement the precedence of dir/file local vars
 (defun coq-load-project-file-with-avoid (&optional avoidargs avoidpath)
-  (let* ((projectbuffer-aux (coq-find-project-file))
-         (projectbuffer (and projectbuffer-aux (car projectbuffer-aux)))
-         (no-kill (and projectbuffer-aux (car (cdr projectbuffer-aux)))))
-    (if (not projectbuffer-aux)
+  "Set `coq-prog-args' and `coq-load-path' from _CoqProject.
+If AVOIDARGS or AVOIDPATH is set, do not set the corresponding
+variable."
+  (pcase-let* ((`(,proj-file-buf ,no-kill) (coq-find-project-file)))
+    (if (not proj-file-buf)
         (message "Coq project file not detected.")
-      (unless avoidargs (setq coq-prog-args (coq-search-prog-args projectbuffer)))
-      (unless avoidpath (setq coq-load-path (coq-search-load-path projectbuffer)))
-      (let ((msg
-             (cond
-              ((and avoidpath avoidargs) "Coqtop args and load path")
-              (avoidpath "Coqtop load path")
-              (avoidargs "Coqtop args")
-              (t ""))))
-        (message
-         "Coq project file detected: %s%s." (buffer-file-name projectbuffer)
-         (if (or avoidpath avoidargs)
-             (concat "\n(" msg " overridden by dir/file local values)")
-           "")))
-      (when coq-debug
-        (message "coq-prog-args: %S" coq-prog-args)
-        (message "coq-load-path: %S" coq-load-path))
-      (unless no-kill (kill-buffer projectbuffer)))))
-
-
+      (let* ((contents (with-current-buffer proj-file-buf (buffer-string)))
+             (options (coq--read-options-from-project-file contents))
+             (proj-file-name (buffer-file-name proj-file-buf))
+             (proj-file-dir (file-name-directory proj-file-name)))
+        (unless avoidargs (setq coq-prog-args (coq--extract-prog-args options)))
+        (unless avoidpath (setq coq-load-path (coq--extract-load-path options proj-file-dir)))
+        (let ((msg
+               (cond
+                ((and avoidpath avoidargs) "Coqtop args and load path")
+                (avoidpath "Coqtop load path")
+                (avoidargs "Coqtop args")
+                (t ""))))
+          (message
+           "Coq project file detected: %s%s." proj-file-name
+           (if (or avoidpath avoidargs)
+               (concat "\n(" msg " overridden by dir/file local values)")
+             "")))
+        (when coq-debug
+          (message "coq-prog-args: %S" coq-prog-args)
+          (message "coq-load-path: %S" coq-load-path))
+        (unless no-kill (kill-buffer proj-file-buf))))))
 
 (defun coq-load-project-file ()
   "Set `coq-prog-args' and `coq-load-path' according to _CoqProject file.
@@ -502,11 +529,11 @@ then be set using local file variables."
       coq-prog-name
     (let* ((dir (or (file-name-directory filename) "."))
            (makedir
-           (cond
-            ((file-exists-p (concat dir "Makefile")) ".")
-            ;; ((file-exists-p (concat dir "../Makefile")) "..")
-            ;; ((file-exists-p (concat dir "../../Makefile")) "../..")
-            (t nil))))
+            (cond
+             ((file-exists-p (concat dir "Makefile")) ".")
+             ;; ((file-exists-p (concat dir "../Makefile")) "..")
+             ;; ((file-exists-p (concat dir "../../Makefile")) "../..")
+             (t nil))))
       (if (and coq-use-makefile makedir)
           (let*
               ;;TODO, add dir name when makefile is in .. or ../..

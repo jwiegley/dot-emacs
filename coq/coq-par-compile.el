@@ -19,7 +19,9 @@
 ;; - add option coq-par-keep-compilation-going
 ;; - check what happens if coq-par-coq-arguments gets a bad load path
 ;; - on error, try to put location info into the error message
-;; 
+;;
+;; Note that all argument computations inherit coq--pre-v85: when changing
+;; compilers, all compilation jobs must be terminated.
 
 (eval-when-compile
   (require 'proof-compat))
@@ -450,25 +452,23 @@ belonging to the circle."
     (nreverse result)))
 
 
-;;; map coq module names to files, using synchronously running coqdep 
+;;; map coq module names to files, using synchronously running coqdep
 
 (defun coq-par-coqdep-arguments (lib-src-file coq-load-path)
   "Compute the command line arguments for invoking coqdep on LIB-SRC-FILE.
 Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
 that triggered the compilation, in order to provide correct
 load-path options to coqdep."
-  (nconc ;(coq-include-options lib-src-file coq-load-path)
-   (coq-coqdep-prog-args lib-src-file coq-load-path)
-   (list lib-src-file)))
+  (nconc (coq-coqdep-prog-args coq-load-path (file-name-directory lib-src-file) coq--pre-v85)
+         (list lib-src-file)))
 
 (defun coq-par-coqc-arguments (lib-src-file coq-load-path)
   "Compute the command line arguments for invoking coqdep on LIB-SRC-FILE.
 Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
 that triggered the compilation, in order to provide correct
 load-path options to coqdep."
-  (nconc ;(coq-include-options lib-src-file coq-load-path)
-   (coq-coqc-prog-args lib-src-file coq-load-path)
-   (list lib-src-file)))
+  (nconc (coq-coqc-prog-args coq-load-path (file-name-directory lib-src-file) coq--pre-v85)
+         (list lib-src-file)))
 
 (defun coq-par-analyse-coq-dep-exit (status output command)
   "Analyse output OUTPUT of coqdep command COMMAND with exit status STATUS.
