@@ -1,23 +1,66 @@
 [![Build Status](https://travis-ci.org/abo-abo/hydra.svg?branch=master)](https://travis-ci.org/abo-abo/hydra)
 
-This is a package for GNU Emacs that can be used to tie related
-commands into a family of short bindings with a common prefix - a
-Hydra.
+This is a package for GNU Emacs that can be used to tie related commands into a family of short
+bindings with a common prefix - a Hydra.
 
-![hydra](http://oremacs.com/download/Hydra.png)
+![hydra](http://oremacs.com/download/Hydra.jpg)
 
-Once you summon the Hydra through the prefixed binding (the body + any
-one head), all heads can be called in succession with only a short
-extension.
+## Description for Poets
 
-The Hydra is vanquished once Hercules, any binding that isn't the
-Hydra's head, arrives.  Note that Hercules, besides vanquishing the
-Hydra, will still serve his orignal purpose, calling his proper
-command.  This makes the Hydra very seamless, it's like a minor mode
-that disables itself auto-magically.
+Once you summon the Hydra through the prefixed binding (the body + any one head), all heads can be
+called in succession with only a short extension.
 
-## Sample global Hydras
-### Zoom
+The Hydra is vanquished once Hercules, any binding that isn't the Hydra's head, arrives.  Note that
+Hercules, besides vanquishing the Hydra, will still serve his original purpose, calling his proper
+command.  This makes the Hydra very seamless, it's like a minor mode that disables itself
+auto-magically.
+
+## Description for Pragmatics
+
+Imagine that you have bound <kbd>C-c j</kbd> and <kbd>C-c k</kbd> in your
+config.  You want to call <kbd>C-c j</kbd> and <kbd>C-c k</kbd> in some
+(arbitrary) sequence. Hydra allows you to:
+
+- Bind your functions in a way that pressing <kbd>C-c jjkk3j5k</kbd> is
+equivalent to pressing <kbd>C-c j C-c j C-c k C-c k M-3 C-c j M-5 C-c
+k</kbd>. Any key other than <kbd>j</kbd> or <kbd>k</kbd> exits this state.
+
+- Assign a custom hint to this group of functions, so that you know immediately
+after pressing <kbd>C-c</kbd> that you can follow up with <kbd>j</kbd> or
+<kbd>k</kbd>.
+
+If you want to quickly understand the concept, see [the video demo](https://www.youtube.com/watch?v=_qZliI1BKzI).
+
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
+**Table of Contents**
+
+- [Sample Hydras](#sample-hydras)
+    - [The one with the least amount of code](#the-one-with-the-least-amount-of-code)
+    - [The impressive-looking one](#the-impressive-looking-one)
+- [Community wiki](#community-wiki)
+- [The Rules of Hydra-tics](#the-rules-of-hydra-tics)
+    - [`hydra-awesome`](#hydra-awesome)
+    - [`awesome-map` and `awesome-binding`](#awesome-map-and-awesome-binding)
+    - [`awesome-plist`](#awesome-plist)
+        - [`:pre` and `:post`](#pre-and-post)
+        - [`:exit`](#exit)
+        - [`:foreign-keys`](#foreign-keys)
+        - [`:color`](#color)
+        - [`:timeout`](#timeout)
+        - [`:hint`](#hint)
+        - [`:bind`](#bind)
+    - [`awesome-docstring`](#awesome-docstring)
+    - [`awesome-head-1`](#awesome-head-1)
+        - [`head-binding`](#head-binding)
+        - [`head-command`](#head-command)
+        - [`head-hint`](#head-hint)
+        - [`head-plist`](#head-plist)
+
+<!-- markdown-toc end -->
+
+# Sample Hydras
+
+## The one with the least amount of code
 
 ```cl
 (defhydra hydra-zoom (global-map "<f2>")
@@ -26,235 +69,321 @@ that disables itself auto-magically.
   ("l" text-scale-decrease "out"))
 ```
 
-### Goto-error
+With this simple code, you can:
+
+- Start zooming in with <kbd>&lt;f2&gt; g</kbd>.
+- Continue to zoom in with <kbd>g</kbd>.
+- Or zoom out with <kbd>l</kbd>.
+- Zoom in five times at once with <kbd>5g</kbd>.
+- Stop zooming with *any* key that isn't <kbd>g</kbd> or <kbd>l</kbd>.
+
+For any Hydra:
+
+- `digit-argument` can be called with <kbd>0</kbd>-<kbd>9</kbd>.
+- `negative-argument` can be called with <kbd>-</kbd>.
+- `universal-argument` can be called with <kbd>C-u</kbd>.
+
+## The impressive-looking one
+
+Here's the result of pressing <kbd>.</kbd> in the good-old Buffer menu:
+
+![hydra-buffer-menu](http://oremacs.com/download/hydra-buffer-menu.png)
+
+The code is large but very simple:
 
 ```cl
-(defhydra hydra-error (global-map "M-g")
-  "goto-error"
-  ("h" first-error "first")
-  ("j" next-error "next")
-  ("k" previous-error "prev")
-  ("v" recenter-top-bottom "recenter")
-  ("q" nil "quit"))
+(defhydra hydra-buffer-menu (:color pink
+                             :hint nil)
+  "
+^Mark^             ^Unmark^           ^Actions^          ^Search
+^^^^^^^^-----------------------------------------------------------------
+_m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
+_s_: save          _U_: unmark up     _b_: bury          _I_: isearch
+_d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
+_D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
+_~_: modified
+"
+  ("m" Buffer-menu-mark)
+  ("u" Buffer-menu-unmark)
+  ("U" Buffer-menu-backup-unmark)
+  ("d" Buffer-menu-delete)
+  ("D" Buffer-menu-delete-backwards)
+  ("s" Buffer-menu-save)
+  ("~" Buffer-menu-not-modified)
+  ("x" Buffer-menu-execute)
+  ("b" Buffer-menu-bury)
+  ("g" revert-buffer)
+  ("T" Buffer-menu-toggle-files-only)
+  ("O" Buffer-menu-multi-occur :color blue)
+  ("I" Buffer-menu-isearch-buffers :color blue)
+  ("R" Buffer-menu-isearch-buffers-regexp :color blue)
+  ("c" nil "cancel")
+  ("v" Buffer-menu-select "select" :color blue)
+  ("o" Buffer-menu-other-window "other-window" :color blue)
+  ("q" quit-window "quit" :color blue))
+
+(define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 ```
 
-### Splitter
+Looking at the code, you can see `hydra-buffer-menu` as sort of a namespace construct that wraps
+each function that it's given in code that shows that hint and makes it easy to call the related
+functions. One additional function is created and returned as the result of `defhydra` -
+`hydra-buffer-menu/body`.  This function does nothing except setting up the hint and the keymap, and
+is usually the entry point to complex hydras.
 
-```cl
-(require 'hydra-examples)
-(defhydra hydra-splitter (global-map "C-M-s")
-  "splitter"
-  ("h" hydra-move-splitter-left)
-  ("j" hydra-move-splitter-down)
-  ("k" hydra-move-splitter-up)
-  ("l" hydra-move-splitter-right))
+To write your own hydras, you can:
+
+- Either modify an existing hydra to do what you want to do.
+- Or read [the rules](#the-rules-of-hydra-tics),
+  [the examples](https://github.com/abo-abo/hydra/blob/master/hydra-examples.el),
+  the docstrings and comments in the source.
+
+# Community wiki
+
+You can find some user created hydras and more documentation in the project's
+[community wiki](https://github.com/abo-abo/hydra/wiki/). Feel free to add your
+own or edit the existing ones.
+
+# The Rules of Hydra-tics
+
+Each hydra (take `awesome` as a prefix to make it more specific) looks like this:
+
+```
+(defhydra hydra-awesome (awesome-map awesome-binding awesome-plist)
+  awesome-docstring
+  awesome-head-1
+  awesome-head-2
+  awesome-head-3
+  ...)
 ```
 
-## Using the functions generated by `defhydra`
+## `hydra-awesome`
 
-With the example above, you can e.g.:
+Each hydra needs a name, and this one is named `hydra-awesome`. You can name your hydras as you wish,
+but I prefer to start each one with `hydra-`, because it acts as an additional namespace layer, for example:
+`hydra-zoom`, `hydra-helm`, `hydra-apropos` etc.
+
+If you name your hydra `hydra-awesome`, the return result of `defhydra` will be `hydra-awesome/body`.
+
+Here's what `hydra-zoom/body` looks like, if you're interested:
 
 ```cl
-(key-chord-define-global "tt" 'hydra-zoom/body)
+(defun hydra-zoom/body nil
+  "Create a hydra with a \"<f2>\" body and the heads:
+
+\"g\":    `text-scale-increase',
+\"l\":    `text-scale-decrease'
+
+The body can be accessed via `hydra-zoom/body'."
+  (interactive)
+  (hydra-default-pre)
+  (when hydra-is-helpful
+    (if hydra-lv
+        (lv-message
+         (eval hydra-zoom/hint))
+      (message
+       (eval hydra-zoom/hint))))
+  (hydra-set-transient-map
+   hydra-zoom/keymap
+   (lambda nil
+     (hydra-keyboard-quit)
+     nil)
+   nil)
+  (setq prefix-arg
+        current-prefix-arg))
 ```
 
-In fact, since `defhydra` returns the body symbol, you can even write
-it like this:
+## `awesome-map` and `awesome-binding`
+
+This can be any keymap, for instance, `global-map` or `isearch-mode-map`.
+
+For this example:
 
 ```cl
-(key-chord-define-global
- "tt"
- (defhydra hydra-zoom (global-map "<f2>")
+(defhydra hydra-zoom (global-map "<f2>")
   "zoom"
   ("g" text-scale-increase "in")
-  ("l" text-scale-decrease "out")))
+  ("l" text-scale-decrease "out"))
 ```
 
-If you like key chords so much that you don't want to touch the global
-map at all, you can e.g.:
+- `awesome-map` is `global-map`
+- `awesome-binding` is `"<f2>"`
 
-```
-(key-chord-define-global
- "hh"
- (defhydra hydra-error ()
-   "goto-error"
-   ("h" first-error "first")
-   ("j" next-error "next")
-   ("k" previous-error "prev")))
-```
-
-You can also substitute `global-map` with any other keymap, like
-`c++-mode-map` or `yas-minor-mode-map`.
-
-See the [introductory blog post](http://oremacs.com/2015/01/20/introducing-hydra/) for more information.
-
-## Using Hydra for major-mode or minor-mode bindings
-
-Here's an example:
+And here's the relevant generated code:
 
 ```cl
-(defhydra lispy-vi (lispy-mode-map "C-z")
+(unless (keymapp (lookup-key global-map (kbd "<f2>")))
+  (define-key global-map (kbd "<f2>") nil))
+(define-key global-map [f2 103]
+  (function hydra-zoom/text-scale-increase))
+(define-key global-map [f2 108]
+  (function hydra-zoom/text-scale-decrease))
+```
+
+As you see, `"<f2>"` is used as a prefix for <kbd>g</kbd> (char value 103) and <kbd>l</kbd>
+(char value 108).
+
+If you don't want to use a map right now, you can skip it like this:
+
+```cl
+(defhydra hydra-zoom (nil nil)
+  "zoom"
+  ("g" text-scale-increase "in")
+  ("l" text-scale-decrease "out"))
+```
+
+Or even simpler:
+
+```cl
+(defhydra hydra-zoom ()
+  "zoom"
+  ("g" text-scale-increase "in")
+  ("l" text-scale-decrease "out"))
+```
+
+But then you would have to bind `hydra-zoom/text-scale-increase` and
+`hydra-zoom/text-scale-decrease` yourself.
+
+## `awesome-plist`
+
+You can read up on what a plist is in
+[the Elisp manual](https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html).
+
+You can use `awesome-plist` to modify the behavior of each head in some way.
+Below is a list of each key.
+
+### `:pre` and `:post`
+
+You can specify code that will be called before each head, and after the body. For example:
+
+```cl
+(defhydra hydra-vi (:pre (set-cursor-color "#40e0d0")
+                    :post (progn
+                            (set-cursor-color "#ffffff")
+                            (message
+                             "Thank you, come again.")))
   "vi"
   ("l" forward-char)
   ("h" backward-char)
   ("j" next-line)
-  ("k" previous-line))
+  ("k" previous-line)
+  ("q" nil "quit"))
 ```
 
-## Can Hydras can be helpful?
+Thanks to `:pre`, each time any head is called, the cursor color is changed.
+And when the hydra quits, the cursor color will be made black again with `:post`.
 
-They can, if
+### `:exit`
+
+The `:exit` key is inherited by every head (they can override it) and influences what will happen
+after executing head's command:
+
+- `:exit nil` (the default) means that the hydra state will continue - you'll still see the hint and be able to use short bindings.
+- `:exit t` means that the hydra state will stop.
+
+### `:foreign-keys`
+
+The `:foreign-keys` key belongs to the body and decides what to do when a key is pressed that doesn't
+belong to any head:
+
+- `:foreign-keys nil` (the default) means that the hydra state will stop and the foreign key will
+do whatever it was supposed to do if there was no hydra state.
+- `:foreign-keys warn` will not stop the hydra state, but instead will issue a warning without
+running the foreign key.
+- `:foreign-keys run` will not stop the hydra state, and try to run the foreign key.
+
+### `:color`
+
+The `:color` key is a shortcut. It aggregates `:exit` and `:foreign-keys` key in the following way:
+
+    | color    | toggle                     |
+    |----------+----------------------------|
+    | red      |                            |
+    | blue     | :exit t                    |
+    | amaranth | :foreign-keys warn         |
+    | teal     | :foreign-keys warn :exit t |
+    | pink     | :foreign-keys run          |
+
+It's also a trick to make you instantly aware of the current hydra keys that you're about to press:
+the keys will be highlighted with the appropriate color.
+
+### `:timeout`
+
+The `:timeout` key starts a timer for the corresponding amount of seconds that disables the hydra.
+Calling any head will refresh the timer.
+
+### `:hint`
+
+The `:hint` key will be inherited by each head. Each head is allowed to override it, of course.
+One value that makes sense is `:hint nil`. See below for an explanation of head hint.
+
+### `:bind`
+
+The `:bind` key provides a lambda to be used to bind each head.  This is quite advanced and rarely
+used, you're not likely to need it.  But if you would like to bind your heads with e.g. `bind-key`
+instead of `define-key` you can use this option.
+
+The `:bind` key can be overridden by each head. This is useful if you want to have a few heads that
+are not bound outside the hydra.
+
+## `awesome-docstring`
+
+This can be a simple string used to build the final hydra hint.  However, if you start it with a
+newline, the key-highlighting and Ruby-style string interpolation becomes enabled, as you can see in
+`hydra-buffer-menu` above.
+
+To highlight a key, just wrap it in underscores. Note that the key must belong to one of the heads.
+The key will be highlighted with the color that is appropriate to the behavior of the key, i.e.  if
+the key will make the hydra exit, the color will be blue.
+
+To insert an empty character, use `^`. The only use of this is to have your code aligned as
+nicely as the result.
+
+To insert a dynamic Elisp variable, use `%`&#96; followed by the variable. Each time the variable
+changes due to a head, the docstring will be updated. `format`-style width specifiers can be used.
+
+To insert a dynamic Elisp expression, use e.g. `%(length (dired-get-marked-files))`.  If a head will
+change the amount of marked files, for example, it will be appropriately updated.
+
+If the result of the Elisp expression is a string and you don't want to quote it, use this form:
+`%s(shell-command-to-string "du -hs")`.
+
+## `awesome-head-1`
+
+Each head looks like this:
 
 ```cl
-(setq hydra-is-helpful t)
+(head-binding head-command head-hint head-plist)
 ```
 
-This is the default setting. In this case, you'll get a hint in the
-echo area consisting of current Hydra's base comment and heads.  You
-can even add comments to the heads like this:
+For the head `("g" text-scale-increase "in")`:
 
-```
-(defhydra hydra-zoom (global-map "<f2>")
-  "zoom"
-  ("g" text-scale-increase "in")
-  ("l" text-scale-decrease "out"))
-```
+- `head-binding` is `"g"`.
+- `head-command` is `text-scale-increase`.
+- `head-hint` is `"in"`.
+- `head-plist` is `nil`.
 
-With this, you'll see `zoom: [g]: in, [l]: out.` in your echo area,
-once the zoom Hydra becomes active.
+### `head-binding`
 
-## Colorful Hydras
+The `head-binding` is a string that can be passed to `kbd`.
 
-Since version `0.5.0`, Hydra's heads all have a color associated with them:
+### `head-command`
 
-- *red* (default) means the calling this head will not vanquish the Hydra
-- *blue* means that the Hydra will be vanquished after calling this head
+The `head-command` can be:
 
-In all the older examples, all heads are red by default. You can specify blue heads like this:
+- command name, like `text-scale-increase`.
+- a lambda, like
 
-```cl
-(global-set-key
- (kbd "C-c C-v")
- (defhydra toggle ()
-   "toggle"
-   ("a" abbrev-mode "abbrev" :color blue)
-   ("d" toggle-debug-on-error "debug" :color blue)
-   ("f" auto-fill-mode "fill" :color blue)
-   ("t" toggle-truncate-lines "truncate" :color blue)
-   ("w" whitespace-mode "whitespace" :color blue)
-   ("q" nil "cancel")))
-```
+        ("g" (lambda ()
+               (interactive)
+               (let ((current-prefix-arg 4))
+                 (call-interactively #'magit-status)))
+             "git")
 
-Or, since the heads can inherit the color from the body, the following is equivalent:
+- nil, which exits the hydra.
+- a single sexp, which will be wrapped in an interactive lambda.
 
-```cl
-(global-set-key
- (kbd "C-c C-v")
- (defhydra toggle (:color blue)
-   "toggle"
-   ("a" abbrev-mode "abbrev")
-   ("d" toggle-debug-on-error "debug")
-   ("f" auto-fill-mode "fill")
-   ("t" toggle-truncate-lines "truncate")
-   ("w" whitespace-mode "whitespace")
-   ("q" nil "cancel")))
-```
-
-The above Hydra is very similar to this code:
-
-```cl
-(global-set-key (kbd "C-c C-v t") 'toggle-truncate-lines)
-(global-set-key (kbd "C-c C-v f") 'auto-fill-mode)
-(global-set-key (kbd "C-c C-v a") 'abbrev-mode)
-```
-
-However, there are two important differences:
-
-- you get a hint like this right after <kbd>C-c C-v</kbd>:
-
-        toggle: [t]: truncate, [f]: fill, [a]: abbrev, [q]: cancel.
-
-- you can cancel <kbd>C-c C-v</kbd> with a command while executing that command, instead of e.g.
-getting an error `C-c C-v C-n is undefined` for <kbd>C-c C-v C-n</kbd>.
-
-## Hydras and numeric arguments
-
-Since version `0.6.0`, for any Hydra:
-
-- `digit-argment` can be called with <kbd>0</kbd>-<kbd>9</kbd>.
-- `negative-argument` can be called with <kbd>-</kbd>
-- `universal-argument` can be called with <kbd>C-u</kbd>
-
-## Hydras can have `:pre` and `:post` statements
-
-Since version `0.7.0`, you can specify code that will be called before each head, and
-after the body. For example:
-
-```cl
-(global-set-key
- (kbd "C-z")
- (defhydra hydra-vi
-     (:pre
-      (set-cursor-color "#40e0d0")
-      :post
-      (progn
-        (set-cursor-color "#ffffff")
-        (message
-         "Thank you, come again.")))
-   "vi"
-   ("l" forward-char)
-   ("h" backward-char)
-   ("j" next-line)
-   ("k" previous-line)
-   ("q" nil "quit")))
-```
-
-## New Hydra color: amaranth
-
-Since version `0.8.0`, a new color - amaranth, in addition to the previous red and blue, is
-available for the Hydra body.
-
-According to [Wikipedia](http://en.wikipedia.org/wiki/Amaranth):
-
-> The word amaranth comes from the Greek word amaranton, meaning "unwilting" (from the
-> verb marainesthai, meaning "wilt").  The word was applied to amaranth because it did not
-> soon fade and so symbolized immortality.
-
-Hydras with amaranth body are impossible to quit with any binding *except* a blue head.
-A check for at least one blue head exists in `defhydra`, so that you don't get stuck by accident.
-
-Here's an example of an amaranth Hydra:
-
-```cl
-(global-set-key
- (kbd "C-z")
- (defhydra hydra-vi
-     (:pre
-      (set-cursor-color "#40e0d0")
-      :post
-      (set-cursor-color "#ffffff")
-      :color amaranth)
-   "vi"
-   ("l" forward-char)
-   ("h" backward-char)
-   ("j" next-line)
-   ("k" previous-line)
-   ("q" nil "quit")))
-```
-
-The only way to exit it, is to press <kbd>q</kbd>. No other methods will work.  You can
-use an amaranth Hydra instead of a red one, if for you the cost of being able to exit only
-though certain bindings is less than the cost of accidentally exiting a red Hydra by
-pressing the wrong prefix.
-
-Note that it does not make sense to define a single amaranth head, so this color can only
-be assigned to the body. An amaranth body will always have some amaranth heads and some
-blue heads (otherwise, it's impossible to exit), no reds.
-
-## Generate simple lambdas in-place:
-
-Since version `0.9.0` it's possible to pass a single sexp instead of a function name or a lambda
-to a head. This sexp will be wrapped in an interactive lambda. Here's an example:
+Here's an example of the last option:
 
 ```cl
 (defhydra hydra-launcher (:color blue)
@@ -266,3 +395,28 @@ to a head. This sexp will be wrapped in an interactive lambda. Here's an example
    ("q" nil "cancel"))
 (global-set-key (kbd "C-c r") 'hydra-launcher/body)
 ```
+
+### `head-hint`
+
+In case of a large body docstring, you usually don't want the head hint to show up, since
+you've already documented it the the body docstring.
+You can set the head hint to `nil` to do this.
+
+Example:
+
+```cl
+(defhydra hydra-zoom (global-map "<f2>")
+  "
+Press _g_ to zoom in.
+"
+  ("g" text-scale-increase nil)
+  ("l" text-scale-decrease "out"))
+```
+
+### `head-plist`
+
+Here's a list of body keys that can be overridden in each head:
+
+- `:exit`
+- `:color`
+- `:bind`
