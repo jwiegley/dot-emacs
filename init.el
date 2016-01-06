@@ -279,6 +279,36 @@
 
 ;;; C-x
 
+(defvar edit-rectangle-origin)
+(defvar edit-rectangle-saved-window-config)
+
+(defun edit-rectangle (&optional start end)
+  (interactive "r")
+  (let ((strs (delete-extract-rectangle start end))
+        (mode major-mode)
+        (here (copy-marker (min (mark) (point)) t))
+        (config (current-window-configuration)))
+    (with-current-buffer (generate-new-buffer "*Rectangle*")
+      (funcall mode)
+      (set (make-local-variable 'edit-rectangle-origin) here)
+      (set (make-local-variable 'edit-rectangle-saved-window-config) config)
+      (local-set-key (kbd "C-c C-c") #'restore-rectangle)
+      (mapc #'(lambda (x) (insert x ?\n)) strs)
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
+(defun restore-rectangle ()
+  (interactive)
+  (let ((content (split-string (buffer-string) "\n"))
+        (origin edit-rectangle-origin)
+        (config edit-rectangle-saved-window-config))
+    (with-current-buffer (marker-buffer origin)
+      (goto-char origin)
+      (insert-rectangle content))
+    (kill-buffer (current-buffer))
+    (set-window-configuration config)))
+
+(bind-key "C-x D" #'edit-rectangle)
 (bind-key "C-x d" #'delete-whitespace-rectangle)
 (bind-key "C-x F" #'set-fill-column)
 (bind-key "C-x t" #'toggle-truncate-lines)
