@@ -23,7 +23,12 @@
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
  '(org-agenda-custom-commands
    (quote
-    (("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\""
+    (("e" "Emacs Tasks" tags "TODO<>\"PROJECT\"&LEVEL<>1"
+      ((org-agenda-overriding-header "Emacs Tasks")
+       (org-agenda-files
+        (quote
+         ("~/doc/tasks/emacs.txt")))))
+     ("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\""
       ((org-agenda-overriding-header "Current Hotlist")))
      ("H" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
       ((org-agenda-overriding-header "Non-Hot Projects")))

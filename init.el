@@ -4,25 +4,53 @@
 
 (setq message-log-max 16384)
 
+(defconst emacs-environment
+  (let ((emacs (nth 0 (split-string (shell-command-to-string "which emacs")
+                                    "\n"))))
+    (cond ((string-match "emacs-24" emacs) "emacs24")
+          (t "emacsHEAD"))))
+
 (eval-and-compile
   (mapc
    #'(lambda (path)
        (push (expand-file-name path user-emacs-directory) load-path))
    '("site-lisp" "override" "lisp" "lisp/use-package" ""))
 
-  (defsubst nix-lisp-path (part)
-    (expand-file-name part "~/.nix-profile/share/emacs/site-lisp"))
+  (defun nix-read-environment (name)
+    (let ((script
+           (nth 0 (split-string
+                   (shell-command-to-string (concat "which load-env-" name))
+                   "\n"))))
+      (with-temp-buffer
+        (insert-file-contents-literally script)
+        (when (re-search-forward "^source \\(.+\\)$" nil t)
+          (let ((script2 (match-string 1)))
+            (with-temp-buffer
+              (insert-file-contents-literally script2)
+              (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+                (let ((inputs (split-string (match-string 1))))
+                  inputs))))))))
+
+  (defun nix-site-lisp (&optional query)
+    (catch 'result
+      (ignore
+       (dolist (path (nix-read-environment emacs-environment))
+         (let ((share (expand-file-name
+                       query
+                       (expand-file-name "share/emacs/site-lisp" path))))
+           (if (file-directory-p share)
+               (throw 'result share)))))))
 
   (defun agda-site-lisp ()
-    (let ((agda
-           (nth 1 (split-string
-                   (shell-command-to-string "load-env-agda which agda")
-                   "\n"))))
-      (and agda
-           (expand-file-name
-            "../share/x86_64-osx-ghc-7.10.2/Agda-2.4.2.4/emacs-mode"
-            (file-name-directory agda))))))
-
+    (catch 'result
+      (ignore
+       (dolist (path (nix-read-environment "agda"))
+         (let ((share (expand-file-name "share" path)))
+           (if (file-directory-p share)
+               (dolist (ghc-dir (directory-files share t "-ghc-"))
+                 (dolist (Agda-dir (directory-files ghc-dir t "^Agda"))
+                   (if (file-directory-p (expand-file-name "emacs-mode" Agda-dir))
+                       (throw 'result path)))))))))))
 (eval-and-compile
   (defvar use-package-verbose t)
   ;; (defvar use-package-expand-minimally t)
@@ -802,11 +830,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (cond
          ((string-match "/ledger/" bufname)
           (c-set-style "ledger"))
-         ((string-match "/ansi/" bufname)
-          (c-set-style "ti")
-          (substitute-key-definition 'fill-paragraph 'ti-refill-comment
-                                     c-mode-base-map global-map)
-          (bind-key "M-q" #'ti-refill-comment c-mode-base-map))
          ((string-match "/edg/" bufname)
           (c-set-style "edg"))
          (t
@@ -832,33 +855,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key ")" #'self-insert-command c-mode-base-map)
   (bind-key "<" #'self-insert-command c++-mode-map)
   (bind-key ">" #'self-insert-command c++-mode-map)
-
-  (add-to-list 'c-style-alist
-               '("ti"
-                 (indent-tabs-mode . nil)
-                 (c-basic-offset . 3)
-                 (c-comment-only-line-offset . (0 . 0))
-                 (c-hanging-braces-alist
-                  . ((substatement-open before after)
-                     (arglist-cont-nonempty)))
-                 (c-offsets-alist
-                  . ((statement-block-intro . +)
-                     (knr-argdecl-intro . 5)
-                     (substatement-open . 0)
-                     (substatement-label . 0)
-                     (label . 0)
-                     (case-label . +)
-                     (statement-case-open . 0)
-                     (statement-cont . +)
-                     (arglist-intro . c-lineup-arglist-intro-after-paren)
-                     (arglist-close . c-lineup-arglist)
-                     (inline-open . 0)
-                     (brace-list-open . 0)
-                     (topmost-intro-cont
-                      . (first c-lineup-topmost-intro-cont
-                               c-lineup-gnu-DEFUN-intro-cont))))
-                 (c-special-indent-hook . c-gnu-impose-minimum)
-                 (c-block-comment-prefix . "")))
 
   (add-to-list 'c-style-alist
                '("edg"
@@ -939,79 +935,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                       . (first c-lineup-topmost-intro-cont
                                c-lineup-gnu-DEFUN-intro-cont))))
                  (c-special-indent-hook . c-gnu-impose-minimum)
-                 (c-block-comment-prefix . "")))
-
-  (defun opencl ()
-    (interactive)
-    (find-file "~/src/ansi/opencl.c")
-    (find-file-noselect "~/Contracts/TI/bugslayer/cl_0603/cl_0603.c")
-    (find-file-noselect "~/Contracts/TI/bugslayer")
-    (magit-status "~/src/ansi")
-    (gud-gdb "gdb --fullname ~/Contracts/TI/bin/c60/acpia6x"))
-
-  (defun ti-refill-comment ()
-    (interactive)
-    (let ((here (point)))
-      (goto-char (line-beginning-position))
-      (let ((begin (point)) end
-            (marker ?-) (marker-re "\\(-----\\|\\*\\*\\*\\*\\*\\)")
-            (leader-width 0))
-        (unless (looking-at "[ \t]*/\\*[-* ]")
-          (search-backward "/*")
-          (goto-char (line-beginning-position)))
-        (unless (looking-at "[ \t]*/\\*[-* ]")
-          (error "Not in a comment"))
-        (while (and (looking-at "\\([ \t]*\\)/\\* ")
-                    (setq leader-width (length (match-string 1)))
-                    (not (looking-at (concat "[ \t]*/\\*" marker-re))))
-          (forward-line -1)
-          (setq begin (point)))
-        (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
-          (setq marker (if (string= (match-string 1) "-----") ?- ?*))
-          (forward-line))
-        (while (and (looking-at "[^\n]+?\\*/[ \t]*$")
-                    (not (looking-at (concat "[^\n]+?" marker-re
-                                             "\\*/[ \t]*$"))))
-          (forward-line))
-        (when (looking-at (concat "[^\n]+?" marker-re "\\*/[ \t]*$"))
-          (forward-line))
-        (setq end (point))
-        (let ((comment (buffer-substring-no-properties begin end)))
-          (with-temp-buffer
-            (insert comment)
-            (goto-char (point-min))
-            (flush-lines (concat "^[ \t]*/\\*" marker-re "[-*]+\\*/[ \t]*$"))
-            (goto-char (point-min))
-            (while (re-search-forward "^[ \t]*/\\* ?" nil t)
-              (goto-char (match-beginning 0))
-              (delete-region (match-beginning 0) (match-end 0)))
-            (goto-char (point-min))
-            (while (re-search-forward "[ \t]*\\*/[ \t]*$" nil t)
-              (goto-char (match-beginning 0))
-              (delete-region (match-beginning 0) (match-end 0)))
-            (goto-char (point-min)) (delete-trailing-whitespace)
-            (goto-char (point-min)) (flush-lines "^$")
-            (set-fill-column (- 80      ; width of the text
-                                6       ; width of "/*  */"
-                                leader-width))
-            (goto-char (point-min)) (fill-paragraph nil)
-            (goto-char (point-min))
-            (while (not (eobp))
-              (insert (make-string leader-width ? ) "/* ")
-              (goto-char (line-end-position))
-              (insert (make-string (- 80 3 (current-column)) ? ) " */")
-              (forward-line))
-            (goto-char (point-min))
-            (insert (make-string leader-width ? )
-                    "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
-            (goto-char (point-max))
-            (insert (make-string leader-width ? )
-                    "/*" (make-string (- 80 4 leader-width) marker) "*/\n")
-            (setq comment (buffer-string)))
-          (goto-char begin)
-          (delete-region begin end)
-          (insert comment)))
-      (goto-char here))))
+                 (c-block-comment-prefix . ""))))
 
 (use-package abbrev
   :disabled t
@@ -1144,7 +1068,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (avy-setup-default))
 
 (use-package tex-site                   ; auctex
-  :load-path "~/.nix-profile/share/emacs/site-lisp/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :init
@@ -3302,9 +3225,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path (lambda () (list (nix-lisp-path "ProofGeneral/generic")
-                         (nix-lisp-path "ProofGeneral/lib")
-                         (nix-lisp-path "ProofGeneral/coq")))
+  :load-path (lambda () (list (nix-site-lisp "ProofGeneral/generic")
+                         (nix-site-lisp "ProofGeneral/lib")
+                         (nix-site-lisp "ProofGeneral/coq")))
   :mode ("\\.v\\'" . coq-mode)
   :preface
   (eval-when-compile
