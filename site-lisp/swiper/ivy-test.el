@@ -59,16 +59,33 @@
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
                      "z C-m")
-           "z")))
+           "z"))
+  (should (equal
+           (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
+                     "y <backspace> C-m")
+           "blue"))
+  (should (equal
+           (ivy-with '(let ((ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
+                       (ivy-read "pattern: " '("package-list-packages" "something-else")))
+                     "plp C-m")
+           "package-list-packages"))
+  (should (equal
+           (ivy-with '(ivy-read "test" '("aaab" "aaac"))
+                     "a C-n <tab> C-m")
+           "aaac"))
+  (should (equal
+           (ivy-with '(ivy-read "pattern: " '("can do" "can" "can't do"))
+                     "can C-m")
+           "can")))
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
   (should (string= (swiper--re-builder "^")
                    "."))
   (should (string= (swiper--re-builder "^a")
-                   "^[0-9][0-9 ]\\{4\\}\\(a\\)"))
+                   "^ ?\\(a\\)"))
   (should (string= (swiper--re-builder "^a b")
-                   "^[0-9][0-9 ]\\{4\\}\\(a\\).*?\\(b\\)")))
+                   "^ \\(a\\).*?\\(b\\)")))
 
 (ert-deftest ivy--split ()
   (should (equal (ivy--split "King of the who?")
@@ -84,11 +101,11 @@
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
-                   "t.*m.*u.*x"))
+                   "\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux")
-                   "^t.*m.*u.*x"))
+                   "^\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux$")
-                   "^t.*m.*u.*x$"))
+                   "^\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)$"))
   (should (string= (ivy--regex-fuzzy "")
                    ""))
   (should (string= (ivy--regex-fuzzy "^")
@@ -98,7 +115,7 @@
 
 (ert-deftest ivy--format ()
   (should (string= (let ((ivy--index 10)
-                         (ivy-format-function (lambda (x) (mapconcat #'identity x "\n")))
+                         (ivy-format-function (lambda (x) (mapconcat (lambda (y) (car y)) x "\n")))
                          (cands '("NAME"
                                   "SYNOPSIS"
                                   "DESCRIPTION"
@@ -114,3 +131,10 @@
                    #("\nDESCRIPTION\nFUNCTION LETTERS\nSWITCHES\nDIAGNOSTICS\nEXAMPLE 1\nEXAMPLE 2\nEXAMPLE 3\nSEE ALSO\nAUTHOR"
                      0 90 (read-only nil)
                      90 96 (face ivy-current-match read-only nil)))))
+
+(ert-deftest ivy--filter ()
+  (setq ivy-last (make-ivy-state))
+  (should (equal (ivy--filter "the" '("foo" "the" "The"))
+                 '("the" "The")))
+  (should (equal (ivy--filter "The" '("foo" "the" "The"))
+                 '("The"))))
