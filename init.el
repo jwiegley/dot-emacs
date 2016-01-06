@@ -29,6 +29,13 @@
                   (let ((inputs (split-string (match-string 1))))
                     inputs)))))))))
 
+  (mapc
+   #'(lambda (path)
+       (let ((share (expand-file-name "share/emacs/site-lisp" path)))
+         (if (file-directory-p share)
+             (push share load-path))))
+   (nix-read-environment emacs-environment))
+
   (defun nix-site-lisp (&optional query)
     (catch 'result
       (ignore
