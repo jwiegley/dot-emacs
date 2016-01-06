@@ -340,21 +340,42 @@ SMIE is a navigation and indentation framework available in Emacs >= 23.3."
 
 ;; Messages dispalyed by "Time" are always following or preceding the real
 ;; result, if it follows we want it to be non urgent, otherwise the result
-;; would not be shown in response buffer. If it is before, then there is no
-;; harm in having it non urgent.
-(defvar coq-eager-no-urgent-regex "Finished "
+;; would not be shown in response buffer. If it is before, then we want it
+;; urgent so that it is displayed.
+(defvar coq-eager-no-urgent-regex "\\s-*Finished "
   "Regexp of commands matching proof-shell-eager-annotation-start
-  that must not be classified as urgent messages.")
+  that should maybe not be classified as urgent messages.")
+
+;; return the end position if found, nil otherwise
+(defun coq-non-urgent-eager-annotation ()
+  (save-excursion
+    (when (and (looking-at coq-eager-no-urgent-regex)
+               (re-search-forward proof-shell-eager-annotation-end nil t))
+      (let ((res (match-end 0))); robustify
+        ;; if there is something else than a prompt here then this eager
+        ;; annotation is left urgent (return nil), otherwise it is not urgent
+        ;; (return position of the end of the annotation)
+        (when (looking-at (concat "\\s-*" proof-shell-annotated-prompt-regexp))
+          res)))))
 
 ;; Looking for eager annotation which does not match coq-eager-no-urgent-regex
 (defun coq-search-urgent-message ()
-  (let ((again t) (start nil))
+  "Find forward the next really urgent message.
+Return the position of the beginning of the message (after the
+annotation-start) if found."
+  (let ((again t) (found nil) (start-start nil) (end-end nil)
+        (eager proof-shell-eager-annotation-start))
     (while again
-      (setq start (re-search-forward proof-shell-eager-annotation-start
-                                     nil 'limit))
-      (unless (looking-at coq-eager-no-urgent-regex)
-        (setq again nil)))
-    start))
+      (setq start-start (and (re-search-forward eager nil 'limit)
+                             (match-beginning 0)))
+      (setq end-end (and start-start (coq-non-urgent-eager-annotation)))
+      (unless end-end
+        (setq again nil) ; exit while
+        ;; display message (this prints the message once now but it will be
+        ;; reprinted as a normal output, bad?)
+        ;;(proof-shell-process-urgent-message start-start end-end)
+        ))
+    (and start-start (goto-char start-start))))
 
 ;; This is a modified version of the same function in generic/proof-shell.el.
 ;; Using function coq-search-urgent-message instead of regex
@@ -375,12 +396,9 @@ This is a subroutine of `proof-shell-filter'."
 	(initstart (max  (marker-position proof-shell-urgent-message-scanner)
 			 (marker-position scomint-last-input-end))))
     (goto-char initstart)
-    (while (and end
-                (coq-search-urgent-message)
-                ; replacing the following line
-		;(re-search-forward proof-shell-eager-annotation-start nil 'limit)
+    (while (and end (setq laststart (coq-search-urgent-message))
                 )
-      (setq laststart (match-beginning 0))
+;      (setq laststart (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
 	  (save-excursion
