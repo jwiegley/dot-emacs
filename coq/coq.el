@@ -2452,12 +2452,8 @@ number of hypothesis displayed, without hiding the goal"
 (defun is-not-split-vertic (selected-window)
   (<= (- (frame-height) (window-height)) 2))
 
-;; three window mode needs to be called when starting the script
-(add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
-
-;; three window mode needs to be called when starting the script
-(add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
-
+;; bug fixed in generic ocde, useless now:
+;(add-hook 'proof-activate-scripting-hook '(lambda () (when proof-three-window-enable (proof-layout-windows))))
 
 ;; *Experimental* auto shrink response buffer in three windows mode. Things get
 ;; a bit messed up if the response buffer is not at the right place (below

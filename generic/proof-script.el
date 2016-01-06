@@ -1240,11 +1240,12 @@ activation is considered to have failed and an error is given."
       (assert (null proof-script-buffer)
 	      "Bug in proof-activate-scripting: deactivate failed.")
 
+      ;; Set the active scripting buffer, and initialise regions
+      (setq proof-script-buffer (current-buffer))
+
       ;; Fire up the prover (or check it's going the right way).
       (proof-shell-ready-prover queuemode)
 
-      ;; Set the active scripting buffer, and initialise regions
-      (setq proof-script-buffer (current-buffer))
       (if (proof-locked-region-empty-p) ; leave alone if non-empty
 	  (proof-init-segmentation))
 
