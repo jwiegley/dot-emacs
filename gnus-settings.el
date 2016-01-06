@@ -327,7 +327,9 @@ BAE Systems"))))
       (to-list . "bae-brass-commits@googlegroups.com")
       (list-identifier . "\\[bae-brass-commits\\]\\( \\[bae-brass/brass-proposal\\]\\)? [0-9a-f]+?:"))
      ("list\\.brass\\.rings$"
-      (list-identifier . "\\[rings-all\\]"))
+      (list-identifier . "\\[rings-all\\]")
+      (to-address . "rings-all@googlegroups.com")
+      (to-list . "rings-all@googlegroups.com"))
      ("list\\.hott"
       (to-address . "hott-cafe@googlegroups.com")
       (to-list . "hott-cafe@googlegroups.com")
