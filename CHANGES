@@ -65,6 +65,16 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
       | S n => ...
     end    
 
+*** indentation of ";" tactical:
+    by default the indentation is like this:
+    tac1;
+      tac2;
+      tac3.
+    do this: (setq coq-indent-semicolon-tactical 0) to have this:
+    tac1;
+    tac2;
+    tac3.
+
 *** indentation now supports { at end of line:
     example:
 
