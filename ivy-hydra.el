@@ -30,7 +30,7 @@
 (require 'ivy)
 
 (eval-when-compile
-  (unless (package-installed-p 'hydra)
+  (unless (or (featurep 'hydra) (package-installed-p 'hydra))
     (defmacro defhydra (name &rest _)
       "This is a stub for the uninstalled `hydra' package."
       `(defun ,(intern (format "%S/body" name)) ()
@@ -44,14 +44,20 @@
                    (byte-compile-file (buffer-file-name) t)))
              (error "Please install `hydra' and recompile/reinstall `ivy-hydra'")))))))
 
+(defun ivy--matcher-desc ()
+  (if (eq ivy--regex-function
+          'ivy--regex-fuzzy)
+      "fuzzy"
+    "ivy"))
+
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
-^^^^^^          ^Yes^     ^No^     ^Maybe^
-^^^^^^^^^^^^^^---------------------------------------
-^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")
-_h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
-^ ^ _j_ ^ ^
+^^^^^^          ^Yes^    ^^      ^No^     ^Maybe^            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Action^               ^
+^^^^^^^^^^^^^^^----------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------------------
+^ ^ _k_ ^ ^     _f_ollow occ_u_r _i_nsert _c_: calling %-5s(if ivy-calling \"on\" \"off\") _w_/_s_/_a_: %-14s(ivy-action-name)
+_h_ ^+^ _l_     _d_one      ^ ^  _o_ops   _m_: matcher %-5s(ivy--matcher-desc)^^^^^^^^^^^^ _C_ase-fold: %-10`ivy-case-fold-search
+^ ^ _j_ ^ ^     _g_o        ^ ^  ^ ^      _<_/_>_: shrink/grow^^^^^^^^^^^^^^^^^^^^^^^^^^^^ _t_runcate: %-11`truncate-lines
 "
   ;; arrows
   ("h" ivy-beginning-of-buffer)
@@ -60,13 +66,24 @@ _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'i
   ("l" ivy-end-of-buffer)
   ;; actions
   ("o" keyboard-escape-quit :exit t)
+  ("C-g" keyboard-escape-quit :exit t)
   ("i" nil)
+  ("C-o" nil)
   ("f" ivy-alt-done :exit nil)
   ("C-j" ivy-alt-done :exit nil)
   ("d" ivy-done :exit t)
+  ("g" ivy-call)
   ("C-m" ivy-done :exit t)
   ("c" ivy-toggle-calling)
-  ("m" ivy-toggle-fuzzy))
+  ("m" ivy-toggle-fuzzy)
+  (">" ivy-minibuffer-grow)
+  ("<" ivy-minibuffer-shrink)
+  ("w" ivy-prev-action)
+  ("s" ivy-next-action)
+  ("a" ivy-read-action)
+  ("t" (setq truncate-lines (not truncate-lines)))
+  ("C" ivy-toggle-case-fold)
+  ("u" ivy-occur :exit t))
 
 (provide 'ivy-hydra)
 
