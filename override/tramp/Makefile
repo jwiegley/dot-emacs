@@ -40,8 +40,8 @@ CONFIG_FILES	= Makefile contrib/Makefile lisp/Makefile lisp/trampver.el test/Mak
 CLEAN_FILES	= .\\\#* \\\#* .*~ *~ *.aux *.cp *.cps *.diff *.dvi *.elc *.fn *.fns *.html *.info *.ky *.log *.pg *.tmp *.toc *.tp *.vr *.vrs
 
 # To be used by maintainer only.
-VERSION		= $(subst .,-,2.2.12)
-TARNAME		= tramp-2.2.12
+VERSION		= $(subst .,-,2.2.13)
+TARNAME		= tramp-2.2.13
 EMACS_TARGET	= ../emacs
 XEMACS_TARGET	= ../xemacs/packages/xemacs-packages/tramp
 
@@ -70,8 +70,8 @@ XEMACS_FILES = lisp/ChangeLog lisp/tramp-adb.el lisp/tramp-cache.el	\
 		lisp/tramp.el texi/ChangeLog texi/tramp.texi 		\
 		texi/doclicense.texi
 
-TRAMP_EMACS_MERGE_VERSION = 2.2.11
-TRAMP_EMACS_MERGE_TAG = $(subst .,-,V-2.2.11)
+TRAMP_EMACS_MERGE_VERSION = 2.2.12
+TRAMP_EMACS_MERGE_TAG = $(subst .,-,V-2.2.12)
 
 # ftp upload program to be used.
 ifeq (no, yes)
@@ -82,6 +82,9 @@ else
   # Kais flavor.
   FTP_UPLOAD = ftp -u ftp://ftp-upload.gnu.org/incoming/ftp
 endif
+
+# Tramp test arguments.
+TRAMP_TEST_ARGS	=
 
 # Decrease noise.
 .SILENT: all lisp info install clean
@@ -110,7 +113,8 @@ info: $(CONFIG_FILES)
 check test: $(CONFIG_FILES) lisp
 	$(MAKE) -C test					\
 	    "EMACS=$(EMACS)" "EMACS_INFO=$(EMACS_INFO)"	\
-	    "DESTDIR=$(DESTDIR)" all
+	    "DESTDIR=$(DESTDIR)" 			\
+	    "TRAMP_TEST_ARGS=$(TRAMP_TEST_ARGS)" all
 
 clean:
 	$(RM) $(CLEAN_FILES)
@@ -218,6 +222,6 @@ cl-release:
 	    emacs -nw $$cl --eval \
 	    "(progn (add-change-log-entry nil nil nil t) \
 	    (backward-delete-char 2) \
-	    (insert \"Version 2.2.12 released.\") \
+	    (insert \"Version 2.2.13 released.\") \
 	    (save-buffer) (kill-emacs))" ; \
 	done

@@ -52,7 +52,7 @@ INFO_FILES	= $(localinfodir)/tramp
 INSTALL_FILES	= $(DESTDIR)$(infodir)/tramp
 CLEAN_FILES	= .\\\#* \\\#* .*~ *~ *.aux *.cp *.cps *.diff *.dvi *.elc *.fn *.fns *.html *.info *.ky *.log *.pg *.tmp *.toc *.tp *.vr *.vrs $(wildcard $(localinfodir)/*)
 
-# To be used by maintainer only
+# To be used by maintainer only.
 NONGNU		= ../../tramp-web
 
 .PHONY: all install clean distclean tramp dvi html savannah \
@@ -78,7 +78,7 @@ $(DESTDIR)$(infodir)/tramp:
 	$(MKDIR) $(dir $@)
 	$(INSTALL) $(INFO_FILES) $(DESTDIR)$(infodir)
 
-# don't call install-info if it failed in configure
+# Don't call install-info if it failed in configure.
 $(localinfodir)/dir $(DESTDIR)$(infodir)/dir: $(INFO_FILES)
 	$(MKDIR) $(dir $@)
 	$(if $(findstring dir, $(shell find $(dir $@) -name dir)),, \
@@ -87,11 +87,11 @@ $(localinfodir)/dir $(DESTDIR)$(infodir)/dir: $(INFO_FILES)
 		$(foreach file, $(INFO_FILES), \
 			$(if $(shell grep -q -s "($(notdir $(file)))\." $@),, \
 			    $(INSTALL_INFO) --info-dir=$(dir $@) \
-				$(subst $(dir $(file)), $(dir $@), $(file);))))
+				$(subst $(dir $(file)), $(dir $@), $(file)))))
 
 dvi: tramp.dvi
 
-# don't call texi2dvi if it failed in configure
+# Don't call texi2dvi if it failed in configure.
 %.dvi: $(TEXI_FILES)
 	$(if $(findstring no, $(TEXI2DVI)),, \
 		$(TEXI2DVI) -b -c \
@@ -108,7 +108,7 @@ tramp-%.html: $(TEXI_FILES)
 	$(MAKEINFO) --html -D $* -D $(EMACS_GVFS) -D $(EMACS_GW) \
 		-D $(INSTALL_CHAPTER) -o $@ $<
 
-# Maintainer targets
+# Maintainer targets.
 
 savannah: html
 	cp tramp*emacs.html $(NONGNU)

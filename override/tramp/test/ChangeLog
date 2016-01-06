@@ -1,3 +1,72 @@
+2015-12-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.13 released.
+
+2015-12-25  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test29-vc-registered): Move `bzr' case down.
+	Skip test when `vc-create-repo' fails.
+
+2015-12-20  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp--test-darwin-p): New defun.
+	(tramp--test-utf8): Use it.
+
+2015-12-06  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test31-special-characters-with-perl)
+	(tramp-test31-special-characters-with-ls)
+	(tramp-test32-utf8-with-perl, tramp-test32-utf8-with-ls):
+	Suppress also readlink.
+
+2015-08-30  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test18-file-attributes): Adapt test.
+
+2015-08-22  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test18-file-attributes): Handle the case
+	"ln -s" fails.
+
+2015-08-21  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test18-file-attributes): Handle symlinks
+	with "//" in the file name.
+
+2015-07-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	* Makefile.in (check test): Tune calls.
+
+	* tramp-tests.el (tramp-test02-file-name-dissect): Add hop tests.
+
+2015-07-24  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-test31-*, tramp-test32-*): Implement using
+	the documented interface `tramp-connection-properties', rather
+	than with internal functions.
+
+2015-07-23  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp-persistency-file-name): Set to nil.
+	(tramp--test-hpux-p): New defun.
+	(tramp--test-utf8): Use it.
+
+2015-07-19  Michael Albinus  <michael.albinus@gmx.de>
+
+	* Makefile.in (TRAMP_TEST_ARGS): New variable.
+	(check, test): Use it.
+
+2015-07-18  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-tests.el (tramp--instrument-test-case):
+	Add "^make-symbolic-link not supported$" to `debug-ignored-errors'.
+	(tramp-test13-make-directory, tramp--test-adb-p)
+	(tramp--test-smb-or-windows-nt-p): Simplify.
+	(tramp--test-ftp-p, tramp--test-gvfs-p): New defuns.
+	(tramp--test-special-characters): Fix docstring.  Add gvfs and ftp
+	tests.
+	(tramp--test-utf8): Fix docstring.
+
 2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
 
 	Version 2.2.12 released.

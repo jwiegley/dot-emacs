@@ -42,7 +42,6 @@
 ./test.makefile
 ./configure
 ./test/Makefile.in
-./test/url-handlers-tests.el
 ./test/ChangeLog
 ./test/tramp-tests.el
 ./test/tramp-time.el

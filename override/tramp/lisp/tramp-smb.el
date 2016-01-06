@@ -232,10 +232,10 @@ See `tramp-actions-before-shell' for more info.")
     (file-acl . tramp-smb-handle-file-acl)
     (file-attributes . tramp-smb-handle-file-attributes)
     (file-directory-p .  tramp-smb-handle-file-directory-p)
-    ;; `file-equal-p' performed by default handler.
+    (file-file-equal-p . tramp-handle-file-equal-p)
     (file-executable-p . tramp-handle-file-exists-p)
     (file-exists-p . tramp-handle-file-exists-p)
-    ;; `file-in-directory-p' performed by default handler.
+    (file-in-directory-p . tramp-handle-file-in-directory-p)
     (file-local-copy . tramp-smb-handle-file-local-copy)
     (file-modes . tramp-handle-file-modes)
     (file-name-all-completions . tramp-smb-handle-file-name-all-completions)
@@ -247,6 +247,7 @@ See `tramp-actions-before-shell' for more info.")
     (file-newer-than-file-p . tramp-handle-file-newer-than-file-p)
     (file-notify-add-watch . tramp-handle-file-notify-add-watch)
     (file-notify-rm-watch . tramp-handle-file-notify-rm-watch)
+    (file-notify-valid-p . tramp-handle-file-notify-valid-p)
     (file-ownership-preserved-p . ignore)
     (file-readable-p . tramp-handle-file-exists-p)
     (file-regular-p . tramp-handle-file-regular-p)
@@ -648,8 +649,7 @@ PRESERVE-UID-GID and PRESERVE-EXTENDED-ATTRIBUTES are completely ignored."
   (directory &optional full match nosort)
   "Like `directory-files' for Tramp files."
   (let ((result (mapcar 'directory-file-name
-			(file-name-all-completions "" directory)))
-	res)
+			(file-name-all-completions "" directory))))
     ;; Discriminate with regexp.
     (when match
       (setq result
@@ -665,8 +665,7 @@ PRESERVE-UID-GID and PRESERVE-EXTENDED-ATTRIBUTES are completely ignored."
     ;; Sort them if necessary.
     (unless nosort (setq result (sort result 'string-lessp)))
     ;; Remove double entries.
-    (dolist (elt result res)
-      (add-to-list 'res elt 'append))))
+    (tramp-compat-delete-dups result)))
 
 (defun tramp-smb-handle-expand-file-name (name &optional dir)
   "Like `expand-file-name' for Tramp files."

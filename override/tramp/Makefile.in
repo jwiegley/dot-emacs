@@ -83,6 +83,9 @@ else
   FTP_UPLOAD = ftp -u ftp://ftp-upload.gnu.org/incoming/ftp
 endif
 
+# Tramp test arguments.
+TRAMP_TEST_ARGS	=
+
 # Decrease noise.
 .SILENT: all lisp info install clean
 
@@ -110,7 +113,8 @@ info: $(CONFIG_FILES)
 check test: $(CONFIG_FILES) lisp
 	$(MAKE) -C test					\
 	    "EMACS=$(EMACS)" "EMACS_INFO=$(EMACS_INFO)"	\
-	    "DESTDIR=$(DESTDIR)" all
+	    "DESTDIR=$(DESTDIR)" 			\
+	    "TRAMP_TEST_ARGS=$(TRAMP_TEST_ARGS)" all
 
 clean:
 	$(RM) $(CLEAN_FILES)

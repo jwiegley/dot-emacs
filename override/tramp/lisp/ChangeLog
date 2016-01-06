@@ -1,3 +1,468 @@
+2015-12-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.13 released.
+
+	* tramp-compat.el (tramp-compat-delete-dups):
+	Use `tramp-compat-funcall'.
+
+	* tramp-gvfs.el (tramp-gvfs-parse-device-names):
+	Make `split-string' call compatible with older Emacsen.
+
+2015-12-19  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-dissect-file-name): Fix docstring.
+
+	* tramp-sh.el (tramp-do-file-attributes-with-ls): Reorder ls arguments.
+	(tramp-get-ls-command-with-w-option): Improve check.
+
+	* trampver.el.in: Add Version: keyword.
+
+2015-12-15  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-open-connection-setup-interactive-shell):
+	Move up uname check.  Handle Mac OS X eol encoding.  Set utf8
+	encoding with stty.
+
+2015-12-09  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-perl-file-truename): Do not raise an error if
+	file doesn't exist.
+
+2015-12-07  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-open-connection-setup-interactive-shell):
+	Make lax check for utf8.
+	(tramp-get-remote-locale): Add "en_US.UTF-8" as candidate.
+
+2015-12-06  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-perl-file-truename): Do not append trailing
+	slash.  Quote apostrophes.
+	(tramp-sh-handle-file-truename): Do not append trailing slash in
+	the "ls" case.
+	(tramp-get-ls-command-with-w-option): New defun.
+	(tramp-do-file-attributes-with-ls)
+	(tramp-do-directory-files-and-attributes-with-stat): Use it.
+
+2015-12-03  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-open-connection-setup-interactive-shell):
+	Suppress error messages for "mesg" and "biff" calls.
+	(tramp-get-remote-path): Ignore errors when expanding
+	`tramp-own-remote-path'.  Raise a warning instead.
+
+2015-11-18  Paul Eggert  <eggert@cs.ucla.edu>
+
+	* tramp.el (tramp-syntax): Fix docstring quoting problem with ‘ '’.
+
+2015-11-11  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-handle-file-equal-p)
+	(tramp-handle-file-in-directory-p): New defuns.  Suggested by
+	Harvey Chapman <hchapman@3gfp.com>
+
+	* tramp-adb.el (tramp-adb-file-name-handler-alist)
+	* tramp-gvfs.el (tramp-gvfs-file-name-handler-alist)
+	* tramp-sh.el (tramp-sh-file-name-handler-alist)
+	* tramp-smb.el (tramp-smb-file-name-handler-alist)
+	<file-equal-p, file-in-directory-p>: Add handler.
+
+2015-11-01  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-set-completion-function): The argument could
+	also be a zeroconf service type.
+
+	* tramp-gvfs.el (tramp-zeroconf-parse-device-names): Renamed from
+	`tramp-zeroconf-parse-service-device-names'.
+	(tramp-zeroconf-parse-webdav-device-names): Removed.  Code merged
+	with `tramp-zeroconf-parse-device-names'.
+	(tramp-gvfs-parse-device-names): New defun.
+	(top): Use it when `tramp-zeroconf-parse-device-names' is not
+	applicable.
+
+2015-10-30  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-gvfs.el (tramp-gvfs-handle-file-attributes): An attribute
+	returned by gvfs-info might be empty.  In case of undetermined uid
+	or gid, return "UNKNOWN" or -1, respectively.
+	(tramp-zeroconf-parse-service-device-names): New defun.
+	Derived from `tramp-zeroconf-parse-workstation-device-names'.
+	(top): Add completion functions for "afp" and "smb" methods.
+
+2015-10-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-gvfs.el (tramp-gvfs-methods): Add "afp" method.
+	(tramp-gvfs-handle-expand-file-name)
+	(tramp-gvfs-handler-mounted-unmounted)
+	(tramp-gvfs-connection-mounted-p, tramp-gvfs-mount-spec)
+	(tramp-gvfs-maybe-open-connection): Support also "afp".
+	(tramp-gvfs-handle-file-attributes): Handle the case of empty
+	"owner::user" and "owner::group" entries.
+
+2015-10-28  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-compat.el (tramp-compat-delete-dups): New defun.
+	* tramp-smb.el (tramp-smb-handle-directory-files): Use it.
+
+2015-10-28  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* tramp.el (auto-save-file-name-transforms): Declare.
+
+2015-10-21  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-gvfs.el (tramp-gvfs-handle-file-attributes): Just suppress
+	LC_MESSAGES locale category settings.
+
+2015-10-18  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-handle-make-auto-save-file-name):
+	Expand `tramp-auto-save-directory'.
+
+	* tramp-adb.el (directory-listing-before-filename-regexp):
+	Declare it.
+
+	* tramp-compat.el (directory-listing-before-filename-regexp):
+	Remove declaration.
+
+2015-10-16  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-gvfs.el (tramp-gvfs-handle-file-attributes): Handle
+	symlink targets containing spaces.
+
+2015-10-13  Noah Friedman  <friedman@splode.com>
+
+	* tramp-sh.el (tramp-open-connection-setup-interactive-shell):
+	Send -onlcr as well.
+
+2015-10-12  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-gvfs.el (tramp-gvfs-handle-file-attributes): Suppress
+	localized settings in order to proper parse gfvs output.
+
+2015-10-12  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-completion-function-alist): Fix docstring.
+
+	* tramp-gvfs.el: "customer option" -> "custom option".
+
+2015-10-12  Warren Lynn  <wrn.lynn@gmail.com>  (tiny change)
+
+	* tramp-sh.el (tramp-do-copy-or-rename-file-out-of-band):
+	Quote argument in proper order.  (Bug#21562)
+
+2015-10-04  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-get-remote-tmpdir): Don't use
+	`file-remote-p' (due to XEmacs compatibility).
+
+	* tramp-compat.el (directory-listing-before-filename-regexp):
+	Declare if it doesn't exist.
+	(file-remote-p): Remove defalias, which was necessary for GNU Emacs 21.
+	(redisplay): Make it an alias if it doesn't exist.
+
+	* trampver.el.in (locate-dominating-file)
+	(tramp-compat-replace-regexp-in-string): Autoload.
+	(tramp-repository-get-version): Do not dupe byte-compiler.
+
+2015-10-03  Michael Albinus  <michael.albinus@gmx.de>
+
+	* trampver.el.in (tramp-repository-get-version): Suppress compiler
+	warnings.
+
+2015-09-20  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-handle-file-notify-rm-watch): Use `delete-process'
+	(tramp-handle-file-notify-valid-p): Check also, that file or
+	directory to be watched still exists.
+
+	* tramp-gvfs.el (tramp-gvfs-handle-file-notify-add-watch):
+	Improve implementation.
+	(tramp-gvfs-monitor-file-process-filter): Rename from
+	`tramp-gvfs-file-gvfs-monitor-file-process-filter'.  Delete
+	process if appropriate.
+
+	* tramp-sh.el (tramp-sh-handle-file-notify-add-watch):
+	Improve implementation.
+	(tramp-sh-gvfs-monitor-dir-process-filter): Rename from
+	`tramp-sh-file-gvfs-monitor-dir-process-filter'.  Delete process
+	if appropriate.
+	(tramp-sh-inotifywait-process-filter): Rename from
+	`tramp-sh-file-inotifywait-process-filter'.  Delete process if
+	appropriate.
+
+2015-09-13  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-file-name-for-operation): Add `file-notify-valid-p'.
+	(tramp-handle-file-notify-valid-p): New defun.
+
+	* tramp-adb.el (tramp-adb-file-name-handler-alist)
+	* tramp-gvfs.el (tramp-gvfs-file-name-handler-alist)
+	* tramp-sh.el (tramp-sh-file-name-handler-alist)
+	* tramp-smb.el (tramp-smb-file-name-handler-alist)
+	<file-notify-valid-p>: Add handler.
+
+2015-09-11  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-sh-handle-file-notify-add-watch): Set proper
+	events to watch for.
+	(tramp-sh-file-gvfs-monitor-dir-process-filter): Report only
+	watched events.
+
+2015-09-04  Paul Eggert  <eggert@cs.ucla.edu>
+
+	* tramp.el (tramp-chunksize): Substitute quotes before putting
+	them in the help buffer.
+
+2015-09-02  Paul Eggert  <eggert@cs.ucla.edu>
+
+	* tramp.el (tramp-set-completion-function): Escape ' in doc.
+
+2015-09-01  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-clear-passwd): Clear also the passwords of the hops.
+
+	* tramp-sh.el (tramp-methods) <sudo>: Mask "Password:" template.
+	Otherwise, it could be interpreted as password prompt if the
+	remote host echoes the command.
+	(tramp-remote-coding-commands): Add "openssl enc -base64".
+
+2015-08-30  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-convert-file-attributes): Revert patch from
+	2015-08-24.  Tramp shall behave like for local files.
+
+2015-08-26  Paul Eggert  <eggert@cs.ucla.edu>
+
+	Go back to grave quoting in Tramp
+
+	* tramp-adb.el:
+	* tramp-cache.el:
+	* tramp-compat.el:
+	* tramp-gvfs.el:
+	* tramp-gw.el:
+	* tramp-sh.el:
+	* tramp-smb.el:
+	* tramp.el:
+	Stick with grave quoting in diagnostics strings.  This is more
+	portable to older Emacs, desirable for Tramp.
+	* tramp-compat.el (format-message):
+	Fall back on simple ‘format’, since that’s good enough now.
+
+2015-08-25  Paul Eggert  <eggert@cs.ucla.edu>
+
+	Tramp diagnostics as per ‘text-quoting-style’
+
+	* tramp-adb.el (tramp-adb-handle-file-truename)
+	(tramp-adb-get-ls-command, tramp-adb-handle-make-directory)
+	(tramp-adb-handle-delete-directory)
+	(tramp-adb-handle-delete-file)
+	(tramp-adb-handle-file-local-copy)
+	(tramp-adb-handle-write-region, tramp-adb-handle-copy-file)
+	(tramp-adb-send-command-and-check, tramp-adb-wait-for-output)
+	(tramp-adb-maybe-open-connection):
+	* tramp-cache.el:
+	* tramp-compat.el (tramp-compat-temporary-file-directory)
+	(tramp-compat-octal-to-decimal)
+	(tramp-compat-coding-system-change-eol-conversion):
+	* tramp-gvfs.el (tramp-gvfs-file-name-handler)
+	(tramp-gvfs-do-copy-or-rename-file)
+	(tramp-gvfs-handle-delete-directory)
+	(tramp-gvfs-handle-delete-file)
+	(tramp-gvfs-handle-expand-file-name)
+	(tramp-gvfs-handle-file-local-copy)
+	(tramp-gvfs-handle-file-notify-add-watch)
+	(tramp-gvfs-handle-make-directory)
+	(tramp-gvfs-handle-write-region, tramp-gvfs-url-file-name):
+	* tramp-gw.el (tramp-gw-gw-proc-sentinel)
+	(tramp-gw-aux-proc-sentinel, tramp-gw-open-connection):
+	* tramp-sh.el (tramp-sh-handle-file-truename)
+	(tramp-sh-handle-set-visited-file-modtime)
+	(tramp-sh-handle-set-file-modes)
+	(tramp-sh-handle-file-name-all-completions)
+	(tramp-sh-handle-add-name-to-file, tramp-do-copy-or-rename-file)
+	(tramp-do-copy-or-rename-file-directly)
+	(tramp-do-copy-or-rename-file-out-of-band)
+	(tramp-sh-handle-make-directory)
+	(tramp-sh-handle-delete-directory, tramp-sh-handle-delete-file)
+	(tramp-sh-handle-insert-directory, tramp-process-sentinel)
+	(tramp-sh-handle-start-file-process)
+	(tramp-sh-handle-file-local-copy)
+	(tramp-sh-handle-write-region, tramp-sh-handle-vc-registered)
+	(tramp-sh-handle-file-notify-add-watch, tramp-maybe-send-script)
+	(tramp-find-file-exists-command, tramp-open-shell)
+	(tramp-find-shell)
+	(tramp-open-connection-setup-interactive-shell)
+	(tramp-find-inline-encoding, tramp-find-inline-compress)
+	(tramp-compute-multi-hops, tramp-maybe-open-connection)
+	(tramp-wait-for-output, tramp-send-command-and-check)
+	(tramp-send-command-and-read, tramp-get-remote-path)
+	(tramp-get-ls-command, tramp-get-ls-command-with-dired)
+	(tramp-get-ls-command-with-quoting-style)
+	(tramp-get-test-command, tramp-get-remote-ln)
+	(tramp-get-remote-perl, tramp-get-remote-stat)
+	(tramp-get-remote-readlink, tramp-get-remote-trash)
+	(tramp-get-remote-touch, tramp-get-remote-gvfs-monitor-dir)
+	(tramp-get-remote-inotifywait, tramp-get-remote-id)
+	(tramp-get-remote-python):
+	* tramp-smb.el (tramp-smb-errors)
+	(tramp-smb-handle-add-name-to-file, tramp-smb-handle-copy-file)
+	(tramp-smb-handle-delete-directory)
+	(tramp-smb-handle-delete-file)
+	(tramp-smb-handle-file-local-copy)
+	(tramp-smb-handle-make-directory)
+	(tramp-smb-handle-make-directory-internal)
+	(tramp-smb-handle-make-symbolic-link)
+	(tramp-smb-handle-rename-file, tramp-smb-handle-set-file-acl)
+	(tramp-smb-handle-set-file-modes)
+	(tramp-smb-handle-write-region, tramp-smb-get-file-entries):
+	* tramp.el (tramp-debug-message, tramp-error)
+	(tramp-process-actions):
+	Generate diagnostics according to ‘text-quoting-style’, by
+	using curved quotes in format strings and ‘format-message’
+	when appropriate.
+	* tramp-compat.el (format-message):
+	Define a replacement, if it’s an older version of Emacs
+	that doesn’t have it already.
+
+2015-08-25  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-awk-encode, tramp-awk-decode)
+	(tramp-awk-coding-test): New defconsts.
+	(tramp-remote-coding-commands): Use them.
+	(tramp-find-inline-encoding): Check for Perl only if necessary.
+
+2015-08-24  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-stat-marker, tramp-stat-quoted-marker):
+	New defconsts.
+	(tramp-do-file-attributes-with-stat)
+	(tramp-do-directory-files-and-attributes-with-stat): Use them.
+	(tramp-convert-file-attributes): Remove double slashes in symlinks.
+
+2015-08-22  Paul Eggert  <eggert@cs.ucla.edu>
+
+	* tramp.el (tramp-process-actions):
+	Prefer (substitute-command-keys "`\\[foo-command]'") to
+	"`M-x foo-command'" in docstrings and the like.
+
+2015-08-18  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-get-method-parameter):
+	* tramp-adb.el (tramp-adb-parse-device-names)
+	(tramp-adb-get-device):
+	* trampver.el.in (tramp-repository-get-version):
+	Use `tramp-compat-replace-regexp-in-string'.
+
+2015-08-18  Pierre Téchoueyres  <pierre.techoueyres@free.fr>  (tiny change)
+
+	* tramp-cmds.el (tramp-reporter-dump-variable): Encode/decode string.
+
+2015-08-15  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-sh.el (tramp-sh-handle-set-file-selinux-context): Do not
+	cache SELinux context if not all context components are given.
+
+2015-08-14  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-sh.el (tramp-remote-selinux-p): Use "selinuxenabled"
+	rather than "getenforce".
+
+2015-08-14  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-adb.el (tramp-adb-handle-set-file-modes)
+	(tramp-adb-handle-set-file-times):
+	* tramp-sh.el (tramp-sh-handle-set-file-modes)
+	(tramp-sh-handle-set-file-times): Use `tramp-flush-file-property'
+	rather than `tramp-flush-directory-property'.
+	(tramp-sh-handle-file-acl): Do not redirect stderr to /dev/null,
+	this is done in `tramp-send-command-and-check'.
+
+2015-08-14  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-sh.el (tramp-sh-handle-set-file-modes)
+	(tramp-sh-handle-set-file-times):
+	* tramp-adb.el (tramp-adb-handle-set-file-modes)
+	(tramp-adb-handle-set-file-times): Flush the file properties of
+	the directory.
+
+2015-08-13  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-adb.el (tramp-adb-handle-directory-files-and-attributes):
+	Make a copy of result to prevent modification of the tramp-cache
+	by side effects.  Use the correct cache key.
+
+2015-08-10  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-adb.el (tramp-adb-prompt): Match leading escape sequence.
+	Recent adb version send initial escape sequences, even when
+	terminal type is set to TERM=dumb.
+
+2015-08-07  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-adb.el (tramp-adb-ls-output-name-less-p): Improve error
+	checking.  "ls -l" on Android in Enforcing mode can print "lstat
+	'./FILENAME failed: Permission denied".
+
+2015-08-03  Jürgen Hötzel  <juergen@archlinux.org>
+
+	* tramp-cache.el (tramp-set-file-property): Fix code typo.
+
+2015-07-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-handle-file-name-as-directory)
+	(tramp-handle-file-name-directory, tramp-handle-file-remote-p):
+	Keep hop in result.
+
+	* tramp-cache.el (tramp-get-file-property)
+	(tramp-set-file-property, tramp-flush-file-property)
+	(tramp-get-connection-property, tramp-set-connection-property)
+	(tramp-flush-connection-property): Remove hop from vector.
+
+	* tramp-gw.el (tramp-gw-process-filter): Ignore errors.
+
+	* tramp-sh.el (tramp-methods) <nc>: Separate STDERR.
+	(tramp-do-copy-or-rename-file-out-of-band): Increase timeout of
+	netstat to 60".
+	(tramp-sh-handle-start-file-process): Do not show hops in prompt.
+
+2015-07-23  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-open-connection-setup-interactive-shell):
+	Add "tab0" to stty call.
+
+2015-07-22  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-sh.el (tramp-ssh-controlmaster-options): Use 0.0.0.1 as
+	test host.
+
+2015-07-19  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.el (tramp-methods): Adapt docstring.
+	(tramp-get-method-parameter): Replace argument METHOD by VEC.
+	Check also for hits in `tramp-connection-properties'.  Adapt docstring.
+	(tramp-get-remote-tmpdir): Cache only the local name of tmpdir.
+	(all): Adapt `tramp-get-method-parameter' calls.
+
+	* tramp-cache.el (tramp-connection-properties): Adapt docstring.
+
+	* tramp-gvfs.el (tramp-gvfs-maybe-open-connection):
+	Adapt `tramp-get-method-parameter' call.
+
+	* tramp-sh.el (tramp-methods): Add `tramp-remote-shell-login'
+	parameter where it fits.
+	(tramp-get-remote-path): Use it.
+	(all): Adapt `tramp-get-method-parameter' calls.
+
+2015-07-18  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp-gvfs.el (tramp-gvfs-do-copy-or-rename-file): New defun.
+	(tramp-gvfs-handle-copy-file, tramp-gvfs-handle-rename-file): Use it.
+	(tramp-gvfs-handle-make-directory): Reimplement PARENTS handling,
+	"gvfs-mkdir -p ..." does not work robust.
+
+	* tramp-sh.el (tramp-make-copy-program-file-name): Fix quoting for
+	"psftp" method.
+
 2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
 
 	Version 2.2.12 released.
@@ -1070,7 +1535,7 @@
 
 2013-10-16  Michael Albinus  <michael.albinus@gmx.de>
 
-	* tramp-smb.el (tramp-smb-acl-program): New customer option.
+	* tramp-smb.el (tramp-smb-acl-program): New custom option.
 	(tramp-smb-errors): Add error messages.
 	(tramp-smb-actions-with-acl): New defconst.
 	(tramp-smb-file-name-handler-alist) <set-file-acl>: Add handler.
@@ -1382,7 +1847,7 @@
 
 2013-07-29  Michael Albinus  <michael.albinus@gmx.de>
 
-	* tramp.el (tramp-use-ssh-controlmaster-options): New customer option.
+	* tramp.el (tramp-use-ssh-controlmaster-options): New custom option.
 
 	* tramp-sh.el (tramp-do-copy-or-rename-file-out-of-band)
 	(tramp-maybe-open-connection): Use it.
@@ -1738,7 +2203,7 @@
 
 2013-02-16  Michael Albinus  <michael.albinus@gmx.de>
 
-	* tramp-cache.el (tramp-connection-properties): New customer option.
+	* tramp-cache.el (tramp-connection-properties): New custom option.
 	(tramp-get-connection-property): Use it.
 
 	* tramp-compat.el (top): Require 'trampver.
@@ -11449,7 +11914,7 @@
 
 	Version 2.0.1 released.
 
-	* lisp/tramp.el (tramp-version): New version 2.0.1.
+	* tramp.el (tramp-version): New version 2.0.1.
 
 2002-06-24  Kai Großjohann  <Kai.Grossjohann@CS.Uni-Dortmund.DE>
 

@@ -146,13 +146,25 @@ in @file{~/info}, you would type:
 ./configure --with-lispdir=$HOME/elisp --infodir=$HOME/info
 @end example
 
-On MS Windows, given Emacs is installed at @w{@file{C:/Program
-Files/Emacs}}, you should apply
+On MS Windows, given @value{emacsname} is installed at
+@w{@file{C:/Program Files/Emacs}}, you should apply
 
 @example
-./configure --with-lispdir='C:/Program Files/Emacs/site-lisp' \
-            --infodir='C:/Program Files/Emacs/info'
+./configure \
+    --with-lispdir='C:/Program Files/Emacs/share/emacs/site-lisp' \
+    --infodir='C:/Program Files/Emacs/share/info'
 @end example
+
+@ifset emacs
+@noindent
+or in @value{emacsname} versions prior 24.4
+
+@example
+./configure \
+    --with-lispdir='C:/Program Files/Emacs/site-lisp' \
+    --infodir='C:/Program Files/Emacs/info'
+@end example
+@end ifset
 
 @command{make} supports the @option{DESTDIR} variable for staged
 installation; @inforef{Command Variables, ,standards}:
@@ -203,6 +215,13 @@ env REMOTE_TEMPORARY_FILE_DIRECTORY=@file{@trampfn{sudo, , , /tmp}} make check
 
 If you are using MS Windows, the mock-up trick does not work, and you
 must change the default anyway.
+
+The makefile contains a variable @env{TRAMP_TEST_ARGS}, which could be
+used for changing connection properties:
+
+@example
+make TRAMP_TEST_ARGS=--eval\ \\\"\(add-to-list\ \'tramp-connection-properties\ \(list\ nil\ \\\\\\\"remote-shell\\\\\\\"\ \\\\\\\"/bin/bash\\\\\\\"\)\)\\\" check
+@end example
 
 If there are errors in that test suite you could not cover yourself,
 you might send a @ref{Bug Reports, bug report}.

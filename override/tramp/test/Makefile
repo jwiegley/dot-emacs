@@ -9,6 +9,7 @@
 
 EMACS		= emacs
 CLEAN_FILES	= .\\\#* \\\#* .*~ *~ *.aux *.cp *.cps *.diff *.dvi *.elc *.fn *.fns *.html *.info *.ky *.log *.pg *.tmp *.toc *.tp *.vr *.vrs
+TRAMP_TEST_ARGS =
 
 EM = $(EMACS) -Q -batch -L `pwd`/../lisp
 
@@ -19,7 +20,8 @@ EM = $(EMACS) -Q -batch -L `pwd`/../lisp
 all: check
 
 check test: tramp-tests.elc
-	$(EM) -L `pwd` -l tramp-tests -f ert-run-tests-batch-and-exit
+	$(EM) -L `pwd` -l tramp $(TRAMP_TEST_ARGS) -l tramp-tests	\
+	-f ert-run-tests-batch-and-exit
 
 %.elc: %.el
 	$(EM) -l bytecomp -f batch-byte-compile $?

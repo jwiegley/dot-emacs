@@ -122,16 +122,6 @@
   ;; `tramp-handle-*' functions, because this would bypass the locking
   ;; mechanism.
 
-  ;; `file-remote-p' has been introduced with Emacs 22.  The version
-  ;; of XEmacs is not a magic file name function (yet).
-  (unless (fboundp 'file-remote-p)
-    (defalias 'file-remote-p
-      (lambda (file &optional identification connected)
-	(when (tramp-tramp-file-p file)
-	  (tramp-compat-funcall
-	   'tramp-file-name-handler
-	   'file-remote-p file identification connected)))))
-
   ;; `process-file' does not exist in XEmacs.
   (unless (fboundp 'process-file)
     (defalias 'process-file
@@ -187,7 +177,11 @@
      (lambda ()
        (ad-remove-advice
 	'file-expand-wildcards 'around 'tramp-advice-file-expand-wildcards)
-       (ad-activate 'file-expand-wildcards)))))
+       (ad-activate 'file-expand-wildcards))))
+
+  ;; `redisplay' does not exist in XEmacs.
+  (unless (fboundp 'redisplay)
+    (defalias 'redisplay 'ignore)))
 
 ;; `with-temp-message' does not exist in XEmacs.
 (if (fboundp 'with-temp-message)
@@ -533,10 +527,9 @@ EOL-TYPE can be one of `dos', `unix', or `mac'."
 	  (cond ((eq eol-type 'dos) 'crlf)
 		((eq eol-type 'unix) 'lf)
 		((eq eol-type 'mac) 'cr)
-		(t
-		 (error "Unknown EOL-TYPE `%s', must be %s"
-			eol-type
-			"`dos', `unix', or `mac'")))))
+		(t (error
+		    "Unknown EOL-TYPE `%s', must be `dos', `unix', or `mac'"
+		    eol-type)))))
         (t (error "Can't change EOL conversion -- is MULE missing?"))))
 
 ;; `replace-regexp-in-string' does not exist in XEmacs.
@@ -594,6 +587,21 @@ and replace a sub-expression, e.g.
 ;; `default-toplevel-value' has been declared in Emacs 24.
 (unless (fboundp 'default-toplevel-value)
   (defalias 'default-toplevel-value 'symbol-value))
+
+;; `format-message' is new in Emacs 25, and does not exist in XEmacs.
+(unless (fboundp 'format-message)
+  (defalias 'format-message 'format))
+
+;; `delete-dups' does not exist in XEmacs 21.4.
+(if (fboundp 'delete-dups)
+    (defalias 'tramp-compat-delete-dups 'delete-dups)
+  (defun tramp-compat-delete-dups (list)
+  "Destructively remove `equal' duplicates from LIST.
+Store the result in LIST and return it.  LIST must be a proper list.
+Of several `equal' occurrences of an element in LIST, the first
+one is kept."
+  (tramp-compat-funcall
+   'cl-delete-duplicates list '(:test equal :from-end) nil)))
 
 (add-hook 'tramp-unload-hook
 	  (lambda ()

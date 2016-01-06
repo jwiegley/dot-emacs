@@ -103,8 +103,15 @@ in `$HOME/info', you would type:
 On MS Windows, given Emacs is installed at `C:/Program Files/Emacs',
 you should apply
 
-	./configure --with-lispdir='C:/Program Files/Emacs/site-lisp' \
-		    --infodir='C:/Program Files/Emacs/info'
+	./configure \
+	    --with-lispdir='C:/Program Files/Emacs/share/emacs/site-lisp' \
+	    --infodir='C:/Program Files/Emacs/share/info'
+
+or in Emacs versions prior 24.4
+
+	./configure \
+	    --with-lispdir='C:/Program Files/Emacs/site-lisp' \
+	    --infodir='C:/Program Files/Emacs/info'
 
 `make' supports the `DESTDIR' variable for staged installation:
 

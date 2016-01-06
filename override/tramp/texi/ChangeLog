@@ -1,3 +1,70 @@
+2015-12-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	Version 2.2.13 released.
+
+2015-12-15  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi: Proofreading.
+
+2015-12-15  Lambda Coder  <sjLambda@gmail.com>
+
+	* tramp.texi: Editorial revisions to the manual, completed.
+
+2015-12-14  Lambda Coder  <sjLambda@gmail.com>
+
+	* tramp.texi: Editorial revisions to the manual.
+
+2015-10-29  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi (GVFS based methods): Describe `afp' method.
+
+2015-10-18  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi (Obtaining Tramp): Add http git cloning.
+
+2015-10-12  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi: "customer option" -> "custom option".
+
+2015-09-26  Eli Zaretskii  <eliz@gnu.org>
+
+	* tramp.texi: Add 'coding' cookies -- this file uses Unicode
+	characters and should be decoded as UTF-8.
+
+2015-09-04  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi (Frequently Asked Questions): New item for ad-hoc
+	multi-hop files.
+
+2015-08-18  Glenn Morris  <rgm@gnu.org>
+
+	* tramp.texi (Configuration): Reword to avoid warning from
+	makeinfo about spurious "Note:" cross-reference, and for grammar.
+
+2015-07-25  Michael Albinus  <michael.albinus@gmx.de>
+
+	* Makefile.in ($(localinfodir)/dir $(DESTDIR)$(infodir)/dir):
+	Remove superfluous ";", which is in the way on MS Windows.
+
+	* tramp.texi (Remote programs): Remove superfluous comment.
+
+	* trampinst.texi (Installation parameters): Adapt "configure" call
+	on MS-Windows to the new directory layout of Emacs 24.4.
+	Reported by Nikolay Kudryavtsev <nikolay.kudryavtsev@gmail.com>.
+
+2015-07-19  Michael Albinus  <michael.albinus@gmx.de>
+
+	* tramp.texi (Configuration): Note, that Tramp must be required
+	prior changing its configuration.
+	(Connection caching, Predefined connection information)
+	(Remote shell setup): Fix typos.
+	(Predefined connection information): Describe, how to overwrite
+	parameters of `tramp-methods'.
+	(Remote programs, Remote processes, Traces and Profiles):
+	Simplify example.
+
+	* trampinst.texi (Testing): Add environment variable TRAMP_TEST_ARGS.
+
 2015-06-28  Michael Albinus  <michael.albinus@gmx.de>
 
 	Version 2.2.12 released.
