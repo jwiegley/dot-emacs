@@ -767,6 +767,7 @@
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
  '(magit-process-popup-time 15)
+ '(magit-push-always-verify nil)
  '(magit-stage-all-confirm nil)
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)

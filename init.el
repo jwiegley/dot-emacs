@@ -4,11 +4,7 @@
 
 (setq message-log-max 16384)
 
-(defconst emacs-environment
-  (let ((emacs (nth 0 (split-string (shell-command-to-string "which emacs")
-                                    "\n"))))
-    (cond ((string-match "emacs-24" emacs) "emacs24")
-          (t "emacsHEAD"))))
+(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
 (eval-and-compile
   (mapc
@@ -21,15 +17,17 @@
            (nth 0 (split-string
                    (shell-command-to-string (concat "which load-env-" name))
                    "\n"))))
-      (with-temp-buffer
-        (insert-file-contents-literally script)
-        (when (re-search-forward "^source \\(.+\\)$" nil t)
-          (let ((script2 (match-string 1)))
-            (with-temp-buffer
-              (insert-file-contents-literally script2)
-              (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\"" nil t)
-                (let ((inputs (split-string (match-string 1))))
-                  inputs))))))))
+      (if (string= script "")
+          (error "Could not find environment %s" name)
+        (with-temp-buffer
+          (insert-file-contents-literally script)
+          (when (re-search-forward "^source \\(.+\\)$" nil t)
+            (let ((script2 (match-string 1)))
+              (with-temp-buffer
+                (insert-file-contents-literally script2)
+                (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+                  (let ((inputs (split-string (match-string 1))))
+                    inputs)))))))))
 
   (defun nix-site-lisp (&optional query)
     (catch 'result
@@ -83,44 +81,36 @@
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
-(defvar user-data-directory (expand-file-name "data" user-emacs-directory))
+(defvar user-data-directory
+  (expand-file-name "data" user-emacs-directory))
 
-(let ((suffix (or (and (string-match "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/"
-                                     invocation-directory)
-                       (downcase (match-string 1 invocation-directory)))
-                  (and (string-match "\\(nextstep\\)/Emacs.app/Contents/MacOS/"
-                                     invocation-directory)
-                       (downcase (match-string 1 invocation-directory)))
-                  (and (string-match "\\.emacs.d/devel/result"
-                                     invocation-directory)
-                       "dev"))))
-  (message "Suffix is... (%s)" suffix)
-  (cond
-   (suffix
-    (let ((settings (with-temp-buffer
-                      (insert-file-contents
-                       (expand-file-name "settings.el" user-emacs-directory))
-                      (goto-char (point-min))
-                      (read (current-buffer)))))
-      (if (string= suffix "nextstep")
-          (setq suffix "ns"))
-      (setq running-development-emacs (or (string= suffix "ns")
-                                          (string= suffix "dev"))
-            running-alternate-emacs (string= suffix "alt")
-            user-data-directory
-            (replace-regexp-in-string "/data" (format "/data-%s" suffix)
-                                      user-data-directory))
-      (let ((regexp "/\\.emacs\\.d/data")
-             (replace (format "/.emacs.d/data-%s" suffix)))
-        (dolist (setting settings)
-          (let ((value (and (listp setting)
-                            (nth 1 (nth 1 setting)))))
-            (if (and (stringp value)
-                     (string-match regexp value))
-                (setcar (nthcdr 1 (nth 1 setting))
-                        (replace-regexp-in-string regexp replace value)))))
-        (eval settings))))
-   (t (load (expand-file-name "settings" user-emacs-directory)))))
+(if (string= "emacs24" emacs-environment)
+    (load (expand-file-name "settings" user-emacs-directory))
+  (let ((settings
+         (with-temp-buffer
+           (insert-file-contents
+            (expand-file-name "settings.el" user-emacs-directory))
+           (goto-char (point-min))
+           (read (current-buffer))))
+        (suffix (cond ((string= "emacs24alt" emacs-environment) "alt")
+                      ((string= "emacsHEAD" emacs-environment) "dev")
+                      (t "other"))))
+    (setq running-development-emacs (string= suffix "dev")
+          running-alternate-emacs (string= suffix "alt")
+          user-data-directory
+          (replace-regexp-in-string "/data" (format "/data-%s" suffix)
+                                    user-data-directory))
+    (dolist (setting settings)
+      (let ((value (and (listp setting)
+                        (nth 1 (nth 1 setting)))))
+        (if (and (stringp value)
+                 (string-match "/\\.emacs\\.d/data" value))
+            (setcar (nthcdr 1 (nth 1 setting))
+                    (replace-regexp-in-string
+                     "/\\.emacs\\.d/data"
+                     (format "/.emacs.d/data-%s" suffix)
+                     value)))))
+    (eval settings)))
 
 ;;; Enable disabled commands
 
