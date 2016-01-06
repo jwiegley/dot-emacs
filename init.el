@@ -2370,7 +2370,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package hydra
   :load-path "site-lisp/hydra"
-  :init
+  :defer 10
+  :config
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
     ("g" text-scale-increase "in")
@@ -3230,9 +3231,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path (lambda () (list (nix-site-lisp "ProofGeneral/generic")
-                         (nix-site-lisp "ProofGeneral/lib")
-                         (nix-site-lisp "ProofGeneral/coq")))
+  :load-path (lambda () (when (nix-site-lisp "ProofGeneral/generic")
+                     (list (nix-site-lisp "ProofGeneral/generic")
+                           (nix-site-lisp "ProofGeneral/lib")
+                           (nix-site-lisp "ProofGeneral/coq"))))
   :mode ("\\.v\\'" . coq-mode)
   :preface
   (eval-when-compile
@@ -3290,7 +3292,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       :load-path "site-lisp/company-math"
       :preface
       (use-package math-symbols-list
-      :load-path "site-lisp/math-symbol-list"))
+        :load-path "site-lisp/math-symbol-list"))
     :config
     (unbind-key "M-<return>" company-coq-map))
 
