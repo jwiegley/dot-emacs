@@ -1658,6 +1658,14 @@ i.e., 'goals or 'response."
     ;; indicate that (only) a response output has been given
     'response))
   
+  ;; FIXME (CPC 2015-12-31): The documentation of this hook suggests that it
+  ;; only gets run after new output has been displayed, but this isn't true at
+  ;; the moment: indeed, it gets run even for invisible commands.
+  ;;
+  ;; This causes issues in company-coq, where completion uses invisible
+  ;; commands to display the types of completion candidates; this causes the
+  ;; goals and response buffers to scroll. I fixed it by adding checks to
+  ;; coq-mode's hooks, but maybe we should do more.
   (run-hooks 'proof-shell-handle-delayed-output-hook)))
 
 

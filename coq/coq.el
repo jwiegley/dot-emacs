@@ -2392,19 +2392,24 @@ buffer."
 First goal is displayed on the bottom of its window, maximizing the
 number of hypothesis displayed, without hiding the goal"
   (interactive)
-  (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting the good frame
-    (with-selected-frame (or pg-frame (window-frame (selected-window)))
-      ;; prefer current frame
-      (let ((goal-win (or (get-buffer-window proof-goals-buffer) (get-buffer-window proof-goals-buffer t))))
-        (if goal-win
-            (with-selected-window goal-win
-              ;; find snd goal or buffer end
-              (search-forward-regexp "subgoal 2\\|\\'")
-              (beginning-of-line)
-              ;; find something else than a space
-              (ignore-errors (search-backward-regexp "\\S-"))
-              (recenter (- 1)) ; put it at bottom og window
-              (beginning-of-line)))))))
+  ;; CPC 2015-12-31: Added the check below: if the command that caused this
+  ;; call was silent, we shouldn't touch the goals buffer.  See GitHub issues
+  ;; https://github.com/cpitclaudel/company-coq/issues/32 and
+  ;; https://github.com/cpitclaudel/company-coq/issues/8.
+  (unless (memq 'no-goals-display proof-shell-delayed-output-flags)
+    (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting the good frame
+      (with-selected-frame (or pg-frame (window-frame (selected-window)))
+        ;; prefer current frame
+        (let ((goal-win (or (get-buffer-window proof-goals-buffer) (get-buffer-window proof-goals-buffer t))))
+          (if goal-win
+              (with-selected-window goal-win
+                ;; find snd goal or buffer end
+                (search-forward-regexp "subgoal 2\\|\\'")
+                (beginning-of-line)
+                ;; find something else than a space
+                (ignore-errors (search-backward-regexp "\\S-"))
+                (recenter (- 1)) ; put it at bottom og window
+                (beginning-of-line))))))))
 
 (defvar coq-modeline-string2 ")")
 (defvar coq-modeline-string1 ")")
@@ -2465,30 +2470,33 @@ number of hypothesis displayed, without hiding the goal"
 (defun coq-optimise-resp-windows ()
   "Resize response buffer to optimal size.
 Only when three-buffer-mode is enabled."
-  ;; If there is no frame with goql+response then do nothing
-  (when (and proof-three-window-enable (coq-find-threeb-frames))    
-    (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting one adequat frame
-      (with-selected-frame pg-frame
-        (when (and (> (frame-height) 10)
-                   (get-buffer-window proof-response-buffer))
-          (let ((maxhgth
-                 (- (+ (with-selected-window (get-buffer-window proof-goals-buffer t) (window-text-height))
-                       (with-selected-window (get-buffer-window proof-response-buffer t) (window-text-height)))
-                    window-min-height))
-                hgt-resp nline-resp)
-            (with-selected-window (get-buffer-window proof-response-buffer)
-              (setq hgt-resp (window-text-height))
-              (with-current-buffer proof-response-buffer
-                (setq nline-resp ; number of lines we want for response buffer
-                      (min maxhgth (max window-min-height ; + 1 for comfort
-                                        (+ 1 (count-lines (point-max) (point-min)))))))
-              (unless (is-not-split-vertic (selected-window))
-                (shrink-window (- hgt-resp nline-resp)))
-              (with-current-buffer proof-response-buffer
-                (goto-char (point-min))
-                (recenter)))))))))
-
-
+  ;; CPC 2015-12-31: Added the check below: if the command that caused this
+  ;; call was silent, we shouldn't touch the response buffer.  See GitHub
+  ;; issues https://github.com/cpitclaudel/company-coq/issues/32 and
+  ;; https://github.com/cpitclaudel/company-coq/issues/8.
+  (unless (memq 'no-response-display proof-shell-delayed-output-flags)
+    ;; If there is no frame with goql+response then do nothing
+    (when (and proof-three-window-enable (coq-find-threeb-frames))
+      (let ((pg-frame (car (coq-find-threeb-frames)))) ; selecting one adequat frame
+        (with-selected-frame pg-frame
+          (when (and (> (frame-height) 10)
+                     (get-buffer-window proof-response-buffer))
+            (let ((maxhgth
+                   (- (+ (with-selected-window (get-buffer-window proof-goals-buffer t) (window-text-height))
+                         (with-selected-window (get-buffer-window proof-response-buffer t) (window-text-height)))
+                      window-min-height))
+                  hgt-resp nline-resp)
+              (with-selected-window (get-buffer-window proof-response-buffer)
+                (setq hgt-resp (window-text-height))
+                (with-current-buffer proof-response-buffer
+                  (setq nline-resp ; number of lines we want for response buffer
+                        (min maxhgth (max window-min-height ; + 1 for comfort
+                                          (+ 1 (count-lines (point-max) (point-min)))))))
+                (unless (is-not-split-vertic (selected-window))
+                  (shrink-window (- hgt-resp nline-resp)))
+                (with-current-buffer proof-response-buffer
+                  (goto-char (point-min))
+                  (recenter))))))))))
 
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
 ;; Careful: coq-optimise-resp-windows must be called BEFORE proof-show-first-goal,
