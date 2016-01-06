@@ -687,6 +687,23 @@ Lemma foo: forall n,
   :type 'integer
   :group 'coq)
 
+(defcustom coq-indent-semicolon-tactical 2
+  "Number of spaces used to indent after the first tactical semi colon of a serie.
+  If set to 0, indetation is as follows:
+   tac1;
+   tac2;
+   tac3;
+   tac4.
+
+   if set to 2 (default):
+
+   tac1;
+     tac2;
+     tac3;
+     tac4."
+  :type 'integer
+  :group 'coq)
+
 (defcustom coq-indent-modulestart 2
   "Number of spaces used to indent after a module or section start."
   :type 'integer
@@ -905,7 +922,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "; tactic")
 	(cond
 	 ((smie-rule-parent-p "; tactic") (smie-rule-separator kind))
-	 (t (smie-rule-parent 2))))
+	 (t (smie-rule-parent coq-indent-semicolon-tactical))))
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
