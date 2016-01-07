@@ -922,7 +922,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((equal token "; tactic")
 	(cond
 	 ((smie-rule-parent-p "; tactic") (smie-rule-separator kind))
-	 (t (smie-rule-parent coq-indent-semicolon-tactical))))
+	 (t coq-indent-semicolon-tactical)))
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
