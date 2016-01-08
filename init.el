@@ -1,16 +1,16 @@
 (defconst emacs-start-time (current-time))
+(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+
 (unless noninteractive
   (message "Loading %s..." load-file-name))
 
 (setq message-log-max 16384)
 
-(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
-
 (eval-and-compile
-  (mapc
-   #'(lambda (path)
-       (push (expand-file-name path user-emacs-directory) load-path))
-   '("site-lisp" "override" "lisp" "lisp/use-package" ""))
+  (mapc #'(lambda (path)
+            (add-to-list 'load-path
+                         (expand-file-name path user-emacs-directory)))
+        '("site-lisp" "override" "lisp" "lisp/use-package" ""))
 
   (defun nix-read-environment (name)
     (let ((script
@@ -25,18 +25,18 @@
             (let ((script2 (match-string 1)))
               (with-temp-buffer
                 (insert-file-contents-literally script2)
-                (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+                (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\""
+                                         nil t)
                   (let ((inputs (split-string (match-string 1))))
                     inputs)))))))))
 
-  (mapc
-   #'(lambda (path)
-       (let ((share (expand-file-name "share/emacs/site-lisp" path)))
-         (if (file-directory-p share)
-             (push share load-path))))
-   (nix-read-environment emacs-environment))
+  (mapc #'(lambda (path)
+            (let ((share (expand-file-name "share/emacs/site-lisp" path)))
+              (if (file-directory-p share)
+                  (add-to-list 'load-path share))))
+        (nix-read-environment emacs-environment))
 
-  (defun nix-site-lisp (&optional query)
+  (defun nix-site-lisp (query)
     (catch 'result
       (ignore
        (dolist (path (nix-read-environment emacs-environment))
@@ -54,14 +54,17 @@
            (if (file-directory-p share)
                (dolist (ghc-dir (directory-files share t "-ghc-"))
                  (dolist (Agda-dir (directory-files ghc-dir t "^Agda"))
-                   (if (file-directory-p (expand-file-name "emacs-mode" Agda-dir))
-                       (throw 'result path)))))))))))
-(eval-and-compile
-  (defvar use-package-verbose t)
-  ;; (defvar use-package-expand-minimally t)
+                   (if (file-directory-p
+                        (expand-file-name "emacs-mode" Agda-dir))
+                       (throw 'result path))))))))))
+
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept))
+
   (require 'cl)
+
+  (defvar use-package-verbose t)
+  ;;(defvar use-package-expand-minimally t)
   (require 'use-package))
 
 (require 'bind-key)
@@ -135,7 +138,7 @@
 ;;; Configure libraries
 
 (eval-and-compile
-  (push (expand-file-name "lib" user-emacs-directory) load-path))
+  (add-to-list 'load-path (expand-file-name "lib" user-emacs-directory)))
 
 (use-package anaphora       :defer t :load-path "lib/anaphora")
 (use-package button-lock    :defer t :load-path "lib/button-lock")
