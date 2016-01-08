@@ -500,15 +500,46 @@ is:
 (use-package gnus-alias
   :commands (gnus-alias-determine-identity
              gnus-alias-message-x-completion
-             gnus-alias-select-identity)
+             gnus-alias-select-identity
+             gnus-alias-use-identity)
   :init
-  (add-hook 'message-setup-hook 'gnus-alias-determine-identity)
-
   (if (featurep 'message-x)
       (add-hook 'message-x-after-completion-functions
                 'gnus-alias-message-x-completion))
 
-  (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity))
+  (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)
+
+  (defsubst match-in-strings (re strs)
+    (cl-some (apply-partially #'string-match re) strs))
+
+  (defun my-gnus-alias-determine-identity ()
+    (let ((addrs
+           (ignore-errors
+             (with-current-buffer (gnus-copy-article-buffer)
+               (apply #'nconc
+                      (mapcar
+                       #'(lambda (x)
+                           (split-string (or (gnus-fetch-field x) "") ","))
+                       '("To" "Cc" "From" "Reply-To")))))))
+      (cond
+       ((or (match-in-strings "johnw@gnu\\.org" addrs)
+            (match-in-strings "emacs-.*@gnu" addrs)
+            (string-match "\\(gnu\\|emacs\\)" gnus-newsgroup-name))
+        (gnus-alias-use-identity "Gnu"))
+       ((or (match-in-strings "jwiegley@gmail.com" addrs)
+            (match-in-strings "@baesystems\\.com" addrs)
+            (string-match "\\(brass\\|safe\\|riscv\\)" gnus-newsgroup-name))
+        (gnus-alias-use-identity "Gmail"))
+       ((or (match-in-strings "johnw@newartisans\\.com" addrs)
+            (string-match "\\(haskell\\|coq\\|agda\\|idris\\|acl2\\)"
+                          gnus-newsgroup-name))
+        (gnus-alias-use-identity "NewArtisans"))
+       ((match-in-strings "john\\.wiegley@baesystems\\.com" addrs)
+        (gnus-alias-use-identity "BAE"))
+       (t
+        (gnus-alias-determine-identity)))))
+
+  (add-hook 'message-setup-hook #'my-gnus-alias-determine-identity))
 
 (eval-when-compile
   (defvar gnus-balloon-face-0)

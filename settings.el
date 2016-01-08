@@ -835,6 +835,7 @@
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
+ '(reftex-trust-label-prefix t)
  '(regex-tool-backend (quote perl))
  '(rng-schema-locating-files
    (quote

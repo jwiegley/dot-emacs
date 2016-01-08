@@ -54,9 +54,9 @@
            (if (file-directory-p share)
                (dolist (ghc-dir (directory-files share t "-ghc-"))
                  (dolist (Agda-dir (directory-files ghc-dir t "^Agda"))
-                   (if (file-directory-p
-                        (expand-file-name "emacs-mode" Agda-dir))
-                       (throw 'result path))))))))))
+                   (let ((mode-dir (expand-file-name "emacs-mode" Agda-dir)))
+                     (if (file-directory-p mode-dir)
+                         (throw 'result mode-dir)))))))))))
 
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept))
@@ -1020,8 +1020,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (let ((name (car (split-string func-def " "))))
           (insert "  where\n    " func-def "    " name " x = ?\n")))))
 
-  :config
+  :init
   (use-package agda-input)
+  :config
   (bind-key "C-c C-i" #'agda2-insert-helper-function agda2-mode-map)
 
   (defun char-mapping (key char)
