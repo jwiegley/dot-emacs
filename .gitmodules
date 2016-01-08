@@ -25,3 +25,6 @@
 [submodule "override/gnus"]
 	path = override/gnus
 	url = http://git.gnus.org/gnus.git
+[submodule "lisp/emacs-async"]
+	path = lisp/emacs-async
+	url = git://github.com/jwiegley/emacs-async.git
