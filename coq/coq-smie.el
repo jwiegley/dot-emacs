@@ -94,7 +94,7 @@ attention to case differences."
   (let ((case-fold-search nil))
     (save-excursion       
       (coq-find-real-start)
-      (looking-at "Ltac\\s-"))))
+      (looking-at "\\(\\(Local\\|Global\\)\\s-+\\)?\\(Ltac\\|Tactic\\s-+Notation\\)\\s-"))))
 
 (defun coq-smie-is-inside-parenthesized-tactic ()
   (and (coq-smie-is-tactic) ;; fragile (uppercase test only)
