@@ -931,7 +931,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ((and (equal token "; tactic") (not (coq-smie-is-ltacdef))
 	     (not (smie-rule-parent-p "; tactic")))
         	;; Let us find either a dot of Ltac definition start.
-	(smie-rule-parent coq-indent-semicolon-tactical))
+	coq-indent-semicolon-tactical)
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
