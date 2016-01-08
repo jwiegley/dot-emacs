@@ -96,8 +96,19 @@ attention to case differences."
       (coq-find-real-start)
       (looking-at "Ltac\\s-"))))
 
-
-
+(defun coq-smie-is-inside-parenthesized-tactic ()
+  (and (coq-smie-is-tactic) ;; fragile (uppercase test only)
+       (save-excursion
+	 (let ((pt (point))
+	       ;; we need to go one character forwardto avoid the
+	       ;; coq-smie-search-token-backward below to fail on "{"
+	       (strt (and (coq-script-parse-cmdend-backward)
+			  (+ 1 (point)))))
+	   (goto-char pt)
+	   ;; looking for a dummy token to see if we fail before reaching
+	   ;; strt, which means that we were in a prenthesized expression.
+	   (coq-smie-search-token-backward "#dummy#" strt)
+	   (> (point) strt)))))
 
 (defun coq-smie-.-deambiguate ()
   "Return the token of the command terminator of the current command.
@@ -893,6 +904,11 @@ Typical values are 2 or 4."
        (or (back-to-indentation) t)
        (looking-at "Lemma\\|Defintion\\|Theorem\\|Corollary")))))
 
+;; copied from elixir-smie.el
+(defun coq-smie--same-line-as-parent (parent-pos child-pos)
+  "Return non-nil if `child-pos' is on same line as `parent-pos'."
+  (= (line-number-at-pos parent-pos) (line-number-at-pos child-pos)))
+
 (defun coq-smie-rules (kind token)
   "Indentation rules for Coq.  See `smie-rules-function'.
 KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
@@ -924,14 +940,34 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ((equal token "with match") coq-match-indent)
 
-       ;; ; is a usual operator, with no indentation, except for the
-       ;; ; first ; of a sequence and if not already inside an ltacdef
-       ;; ; (Ltac stuff or parenthesized tactic).
-       ;; coq-indent-semicolon-tactical determine the size of the indentation.
-       ((and (equal token "; tactic") (not (coq-smie-is-ltacdef))
-	     (not (smie-rule-parent-p "; tactic")))
-        	;; Let us find either a dot of Ltac definition start.
-	coq-indent-semicolon-tactical)
+
+       ;;; the ";" tactical ;;;
+       ;; ";" is a usual operator, with no indentation
+       ;; it would be like this;
+       ;;  foo.
+       ;;  foo ;
+       ;;  bar ;
+       ;;  bar.
+       ;;  foo.
+       ;; which is confusing. So we indent the first ";" of a sequence
+       ;; if not already inside an ltacdef of parenthesized tactic:
+       ;; foo ;
+       ;;   tac ; <--- indented
+       ;;   tac ; <--- no indent
+       ;;   [ tac2 ;
+       ;;     tac1 ; <-- no indentation here
+       ;;     now ( tac3 ;  <- neither here
+       ;;           tac5) ;
+       ((and (equal token "; tactic")
+	     coq-indent-semicolon-tactical
+	     (not (coq-smie-is-ltacdef))
+	     (not (coq-smie-is-inside-parenthesized-tactic)))
+	(if (or (not (smie-rule-parent-p "; tactic"))
+		(and smie--parent
+		   (coq-smie--same-line-as-parent
+		    (nth 1 smie--parent) (point))))
+	    coq-indent-semicolon-tactical
+	  nil))
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
