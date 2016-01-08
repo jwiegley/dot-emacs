@@ -83,15 +83,20 @@ attention to case differences."
 
 
 
-
+;; Fragile: users can define tactics with uppercases...
 (defun coq-smie-is-tactic ()
   (save-excursion
     (coq-find-real-start)
-    (let ((cfs case-fold-search))
-      (setq case-fold-search nil)
-      (let ((res (looking-at "[[:upper:]]")))
-	(setq case-fold-search cfs)
-	(not res)))))
+    (let ((case-fold-search nil))
+      (not (looking-at "[[:upper:]]")))))
+
+(defun coq-smie-is-ltacdef ()
+  (let ((case-fold-search nil))
+    (save-excursion       
+      (coq-find-real-start)
+      (looking-at "Ltac\\s-"))))
+
+
 
 
 (defun coq-smie-.-deambiguate ()
@@ -552,7 +557,7 @@ The point should be at the beginning of the command name."
      ; for "unfold in *|-*."
      ((member tok '("*." "-*." "|-*." "*|-*.")) (forward-char 1) ".")
      ; for "unfold in *|-*;"
-     ((member tok '("*;" "-*;" "|-*;" "*|-*;")) (forward-char 1) "; tactic")
+     ((member tok '("*;" "-*;" "|-*;" "*|-*;")) (forward-char 1) "; tactic") ;; FIXME; can be "; ltac" too
      ((and (string-match coq-bullet-regexp-nospace tok)
 	   (save-excursion (coq-empty-command-p)))
       (concat tok " bullet"))
@@ -919,10 +924,14 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ((equal token "with match") coq-match-indent)
 
-       ((equal token "; tactic")
-	(cond
-	 ((smie-rule-parent-p "; tactic") (smie-rule-separator kind))
-	 (t coq-indent-semicolon-tactical)))
+       ;; ; is a usual operator, with no indentation, except for the
+       ;; ; first ; of a sequence and if not already inside an ltacdef
+       ;; ; (Ltac stuff or parenthesized tactic).
+       ;; coq-indent-semicolon-tactical determine the size of the indentation.
+       ((and (equal token "; tactic") (not (coq-smie-is-ltacdef))
+	     (not (smie-rule-parent-p "; tactic")))
+        	;; Let us find either a dot of Ltac definition start.
+	(smie-rule-parent coq-indent-semicolon-tactical))
 
        ; "as" tactical is not idented correctly
        ((equal token "in let") (smie-rule-parent))
