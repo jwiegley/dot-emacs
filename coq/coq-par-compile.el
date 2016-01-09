@@ -20,8 +20,9 @@
 ;; - check what happens if coq-par-coq-arguments gets a bad load path
 ;; - on error, try to put location info into the error message
 ;;
-;; Note that all argument computations inherit coq--pre-v85: when changing
-;; compilers, all compilation jobs must be terminated.
+;; Note that all argument computations inherit `coq-autodetected-version': when
+;; changing compilers, all compilation jobs must be terminated.  This is
+;; consistent with the fact that the _CoqProject file is not reparsed.
 
 (eval-when-compile
   (require 'proof-compat))
@@ -459,7 +460,7 @@ belonging to the circle."
 Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
 that triggered the compilation, in order to provide correct
 load-path options to coqdep."
-  (nconc (coq-coqdep-prog-args coq-load-path (file-name-directory lib-src-file) coq--pre-v85)
+  (nconc (coq-coqdep-prog-args coq-load-path (file-name-directory lib-src-file) (coq--pre-v85))
          (list lib-src-file)))
 
 (defun coq-par-coqc-arguments (lib-src-file coq-load-path)
@@ -467,7 +468,7 @@ load-path options to coqdep."
 Argument COQ-LOAD-PATH must be `coq-load-path' from the buffer
 that triggered the compilation, in order to provide correct
 load-path options to coqdep."
-  (nconc (coq-coqc-prog-args coq-load-path (file-name-directory lib-src-file) coq--pre-v85)
+  (nconc (coq-coqc-prog-args coq-load-path (file-name-directory lib-src-file) (coq--pre-v85))
          (list lib-src-file)))
 
 (defun coq-par-analyse-coq-dep-exit (status output command)

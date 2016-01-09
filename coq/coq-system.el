@@ -23,16 +23,6 @@
   (defvar coq-prog-args nil)
   (defvar coq-debug nil))
 
-(eval-when (compile)
-  (defvar coq-pre-v85 nil))
-
-(defun get-coq-version ()
-  (let ((c (shell-command-to-string "coqtop -v")))
-    (if (string-match "version \\([^ ]+\\)\\s-" c)
-	(match-string 1 c)
-      c)))
-
-
 (defcustom coq-prog-env nil
   "List of environment settings d to pass to Coq process.
 On Windows you might need something like:
@@ -69,7 +59,7 @@ See also `coq-prog-env' to adjust the environment."
         "/usr/local/lib/coq"
       c)))
 
-(defconst coq-library-directory (get-coq-library-directory)
+(defconst coq-library-directory (get-coq-library-directory) ;; FIXME Should be refreshed more often
   "The coq library directory, as reported by \"coqtop -where\".")
 
 (defcustom coq-tags (concat coq-library-directory "/theories/TAGS")
@@ -77,11 +67,61 @@ See also `coq-prog-env' to adjust the environment."
   :type 'string
   :group 'coq)
 
-(defcustom coq--pre-v85 nil
-  "Internal setting.
-Tracks whether the current compiler was auto-detected as older than v8.5."
+(defcustom coq-pinned-version nil
+  "Which version of Coq you are using.
+There should be no need to set this value; Proof General can
+adjust to various releases of Coq automatically."
+  :type 'string
+  :group 'coq)
+
+(defvar coq-autodetected-version nil
+  "Version of Coq, as autodetected by `coq-autodetect-version'.")
+
+(defun coq-version (&optional may-recompute)
+  "Return the precomputed version of the current Coq toolchain.
+With MAY-RECOMPUTE, try auto-detecting it if it isn't available."
+  (or coq-pinned-version
+      coq-autodetected-version
+      (when may-recompute
+        (coq-autodetect-version))))
+
+(defun coq-show-version ()
+  "Show the version of Coq currently in use.
+If it doesn't look right, try `coq-autodetect-version'."
+  (interactive)
+  (let ((version (coq-version nil)))
+    (if version
+        (message "Using Coq v%s" coq-autodetected-version)
+      (message "Coq version unknown at this time. Use `coq-autodetect-version' to autodetect."))))
+
+(defun coq-autodetect-version (&optional interactive-p)
+  "Detect and record the version of Coq currently in use.
+Interactively (with INTERACTIVE-P), show that number."
+  (interactive '(t))
+  (setq coq-autodetected-version nil)
+  (let ((version-string (car (process-lines "coqtop" "-v"))))
+    (when (and version-string (string-match "version \\([^ ]+\\)" version-string))
+      (setq coq-autodetected-version (match-string 1 version-string))))
+  (when interactive-p
+    (coq-show-version))
+  coq-autodetected-version)
+
+(defun coq--version< (v1 v2) ;; !!! Check availability in 24.3
+  "Compare Coq versions V1 and V2."
+  (let ((version-regexp-alist  (cons '("^pl$" . 0) version-regexp-alist)))
+    (version< v1 v2)))
+
+(defcustom coq-pre-v85 nil ;; !!! Mark deprecated
+  "Deprecated.
+Use `coq-pinned-version' if you want to bypass the
+version detection that Proof General does automatically."
   :type 'boolean
   :group 'coq)
+
+(defun coq--pre-v85 ()
+  "Return non-nil if the auto-detected version of Coq is < 8.5.
+Returns nil if the version can't be detected."
+  (coq--version< (or (coq-version t) "8.5") "8.5snapshot"))
 
 (defcustom coq-use-makefile nil
   "Whether to look for a Makefile to attempt to guess the command line.
@@ -284,7 +324,6 @@ LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   ;; coqtop always adds the current directory to the LoadPath, so don't
   ;; include it in the -Q options. ;; !!! Check this comment
-  ;; by the time this function is called, coq-prog-args should be set
   (append (remove "-emacs" (remove "-emacs-U" coq-prog-args))
           (let ((coq-load-path-include-current nil)) ; Not needed in >=8.5beta3
             (coq-coqdep-prog-args coq-load-path current-directory pre-v85))))
@@ -302,7 +341,9 @@ LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-coqc-prog-args'."
   (cons "-emacs" (coq-coqc-prog-args load-path current-directory pre-v85)))
 
 (defun coq-prog-args ()
-  "Wrapper around `coq-coqtop-prog-args' with good defaults."
+  "Recompute `coq-load-path' before calling `coq-coqtop-prog-args'."
+  (coq-load-project-file)
+  (coq-autodetect-version)
   (coq-coqtop-prog-args coq-load-path))
 
 (defcustom coq-use-project-file t
@@ -446,7 +487,7 @@ variable."
 
 (defun coq-load-project-file ()
   "Set `coq-prog-args' and `coq-load-path' according to _CoqProject file.
-Obeys `coq-use-project-file'. Note that if a variable is already
+Obeys `coq-use-project-file'.  Note that if a variable is already
 set by dir/file local variables, this function will not override
 its value.
 See `coq-project-filename' to change the name of the
@@ -461,9 +502,7 @@ feature."
 
 (defun coq-load-project-file-rehack ()
   "Reread file/dir local vars and call `coq-load-project-file'.
-Does nothing if `coq-use-project-file' is nil.
-Warning: 
-"
+Does nothing if `coq-use-project-file' is nil."
   (when coq-use-project-file
     ;; Let us reread dir/file local vars, in case the user mmodified them
     (hack-local-variables)

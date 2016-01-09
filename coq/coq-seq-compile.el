@@ -74,7 +74,7 @@ dependencies are absolute too and the simplified treatment of
 break."
   (let ((coqdep-arguments
          ;; FIXME should this use coq-coqdep-prog-args?
-         (nconc (coq-include-options coq-load-path (file-name-directory lib-src-file) coq--pre-v85)
+         (nconc (coq-include-options coq-load-path (file-name-directory lib-src-file) (coq--pre-v85))
 		(list lib-src-file)))
         coqdep-status coqdep-output)
     (if coq-debug-auto-compilation
@@ -113,7 +113,7 @@ Display errors in buffer `coq-compile-response-buffer'."
   (message "Recompile %s" src-file)
   (let ((coqc-arguments
          (nconc
-          (coq-coqc-prog-args coq-load-path (file-name-directory src-file) coq--pre-v85)
+          (coq-coqc-prog-args coq-load-path (file-name-directory src-file) (coq--pre-v85))
 	  (list src-file)))
         coqc-status)
     (coq-init-compile-response-buffer
@@ -122,7 +122,7 @@ Display errors in buffer `coq-compile-response-buffer'."
         (message "call coqc arg list: %s" coqc-arguments))
     (setq coqc-status
           (apply 'call-process
-           coq-compiler nil coq-compile-response-buffer t coqc-arguments))
+                 coq-compiler nil coq-compile-response-buffer t coqc-arguments))
     (if coq-debug-auto-compilation
         (message "compilation %s exited with %s, output |%s|"
                  src-file coqc-status
