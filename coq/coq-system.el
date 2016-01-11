@@ -235,30 +235,32 @@ This setting is only relevant with Coq < 8.5."
   :safe 'booleanp
   :group 'coq-auto-compile)
 
-(defun coq-option-of-load-path-entry (entry &optional pre-v85)
-  "Translate a single ENTRY from `coq-load-path' into options.
+(make-obsolete-variable 'coq-load-path-include-current "Coq 8.5 does not need it" "4.3")
+
+ (defun coq-option-of-load-path-entry (entry &optional pre-v85)
+   "Translate a single ENTRY from `coq-load-path' into options.
 See `coq-load-path' for the possible forms of ENTRY and to which
 options they are translated.  Use a non-nil PRE-V85 flag to
 request compatibility handling of flags."
-  (if pre-v85 ;; !!! Which base directory do we expand against? Should the entries of load-path just always be absolute?
-      ;; Note that we don't handle 'recnoimport in 8.4, and we don't handle
-      ;; 'nonrec in 8.5.
-      (pcase entry
-        ((or (and (pred stringp) dir) `(ocamlimport ,dir))
-         (list "-I" (expand-file-name dir)))
-        (`(nonrec ,dir ,alias)
-         (list "-I" (expand-file-name dir) "-as" alias))
-        ((or `(rec ,dir ,alias) `(,dir ,alias))
-         (list "-R" (expand-file-name dir) alias)))
-    (pcase entry
-      ((and (pred stringp) dir)
-       (list "-Q" (expand-file-name dir) ""))
-      (`(ocamlimport ,dir)
-       (list "-I" (expand-file-name dir)))
-      (`(recnoimport ,dir ,alias)
-       (list "-Q" (expand-file-name dir) alias))
-      ((or `(rec ,dir ,alias) `(,dir ,alias))
-       (list "-R" (expand-file-name dir) alias)))))
+   (if pre-v85 ;; !!! Which base directory do we expand against? Should the entries of load-path just always be absolute?
+       ;; Note that we don't handle 'recnoimport in 8.4, and we don't handle
+       ;; 'nonrec in 8.5.
+       (pcase entry
+         ((or (and (pred stringp) dir) `(ocamlimport ,dir))
+          (list "-I" (expand-file-name dir)))
+         (`(nonrec ,dir ,alias)
+          (list "-I" (expand-file-name dir) "-as" alias))
+         ((or `(rec ,dir ,alias) `(,dir ,alias))
+          (list "-R" (expand-file-name dir) alias)))
+     (pcase entry
+       ((and (pred stringp) dir)
+        (list "-Q" (expand-file-name dir) ""))
+       (`(ocamlimport ,dir)
+        (list "-I" (expand-file-name dir)))
+       (`(recnoimport ,dir ,alias)
+        (list "-Q" (expand-file-name dir) alias))
+       ((or `(rec ,dir ,alias) `(,dir ,alias))
+        (list "-R" (expand-file-name dir) alias)))))
 
 (defun coq-include-options (load-path &optional current-directory pre-v85)
   "Build the base list of include options for coqc, coqdep and coqtop.
