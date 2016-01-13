@@ -174,7 +174,7 @@ coqtop. Usually, the elements of this list are strings (for
 The possible forms of elements of this list correspond to the 4
 forms of include options (`-I' `-Q' and `-R'). An element can be
 
-  - A list of the form `(\\='ocamlimport dir)', specifying a
+  - A list of the form `(\\='ocamlimport dir)', specifying (in 8.5) a
     directory to be added to ocaml path (`-I').
   - A list of the form `(\\='rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
@@ -183,7 +183,7 @@ forms of include options (`-I' `-Q' and `-R'). An element can be
     path are strings) specifying a directory to be recursively
     mapped to the logical path `path' (`-Q dir path'), but not
     imported (modules accessible for import with qualified names
-    only).
+    only).  Note that -Q dir \"\" has a special, nonrecursive meaning.
   - A list of the form (8.4 only) `(\\='nonrec dir path)', specifying a
     directory to be mapped to the logical path 'path' ('-I dir -as path').
 
