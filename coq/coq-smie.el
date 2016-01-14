@@ -958,6 +958,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;;     tac1 ; <-- no indentation here
        ;;     now ( tac3 ;  <- neither here
        ;;           tac5) ;
+       ;;   ]
        ((and (equal token "; tactic")
 	     coq-indent-semicolon-tactical
 	     (not (coq-smie-is-ltacdef))
@@ -974,13 +975,19 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 
        ((equal token "} subproof") (smie-rule-parent))
 
-       ; using user customized variable to set indentation of modules,
-       ; section and proofs.
+       ;; proofstart is a special hack, since "." should be used as a
+       ;; separator between commands, here it is recognized as an open
+       ;; parenthesis, hence the current command (C) ending with "."
+       ;; is not recognized as correctly terminated. The "parent"
+       ;; computed by smie is therefore wrong and default indetation
+       ;; is broken. We fix this by indenting from the real-start of
+       ;; the command terminated by ". proofstart".
        ((equal token ". proofstart")
-	(smie-rule-parent coq-indent-proofstart))
+	(save-excursion (forward-char -1) (coq-find-real-start)
+			`(column . ,(+ coq-indent-modulestart (current-column)))))
        ((equal token ". modulestart")
-	(smie-rule-parent coq-indent-modulestart))
-       ))
+	(save-excursion (forward-char -1) (coq-find-real-start)
+			`(column . ,(+ coq-indent-modulestart (current-column)))))))
 
      (:before
       (cond
