@@ -75,14 +75,6 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     tac2;
     tac3.
 
-*** indentation now supports { at end of line:
-    example:
-
-    assert (h:n = k). {
-      apply foo.
-      reflexivity. }
-    apply h.
-
 *** Default indentation of forall and exists is not boxed anymore
     For instance, this is now indented like this:
 
@@ -98,20 +90,6 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Use (setq coq-smie-after-bolp-indentation 0) for a smaller indentation:
        Lemma foo: forall x y,
          x = 0 -> ... .
-
-*** Default indentation cases of "match with" are now indented by 2 instead of 4.
-     "|" is indented by zero:
-
-        match n with                   
-          0 => ...	     
-        | S n => ...                   
-        end                            
-     instead of: 
-        match n with  
-            0 => ...       
-          | S n => ...
-        end
-     do this: (setq coq-match-indent 4) to bring old behaviour back.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
