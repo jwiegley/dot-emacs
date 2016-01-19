@@ -189,6 +189,7 @@ so for the following reasons:
      ("elim using" "elu" "elim # using #" t)
      ("elim" "e" "elim #" t "elim")
      ("elimtype" "elt" "elimtype" "elimtype")
+     ("erewrite" "er" "erewrite #" t "erewrite")
      ("eright" "erig" "eright" "eright")
      ("esplit" "esp" "esplit" t "esplit")
      ;;     ("exact" "exa" "exact" t "exact")
