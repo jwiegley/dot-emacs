@@ -399,6 +399,8 @@ Qed." holes-abbrev-complete 0)
 
 (define-abbrev-table 'coq-shell-mode-abbrev-table '())
 
+(define-abbrev-table 'debugger-mode-abbrev-table '())
+
 (define-abbrev-table 'diary-fancy-display-mode-abbrev-table '())
 
 (define-abbrev-table 'diary-mode-abbrev-table '())
@@ -409,11 +411,21 @@ Qed." holes-abbrev-complete 0)
 
 (define-abbrev-table 'display-time-world-mode-abbrev-table '())
 
+(define-abbrev-table 'doctex-mode-abbrev-table '())
+
 (define-abbrev-table 'dvc-info-buffer-mode-abbrev-table '())
 
 (define-abbrev-table 'dvc-log-buffer-mode-abbrev-table '())
 
 (define-abbrev-table 'dvc-process-buffer-mode-abbrev-table '())
+
+(define-abbrev-table 'ebib-entry-mode-abbrev-table '())
+
+(define-abbrev-table 'ebib-index-mode-abbrev-table '())
+
+(define-abbrev-table 'ebib-log-mode-abbrev-table '())
+
+(define-abbrev-table 'ebib-strings-mode-abbrev-table '())
 
 (define-abbrev-table 'edebug-eval-mode-abbrev-table '())
 
@@ -422,6 +434,12 @@ Qed." holes-abbrev-complete 0)
 (define-abbrev-table 'emacs-lisp-byte-code-mode-abbrev-table '())
 
 (define-abbrev-table 'emacs-lisp-mode-abbrev-table '())
+
+(define-abbrev-table 'epa-info-mode-abbrev-table '())
+
+(define-abbrev-table 'epa-key-list-mode-abbrev-table '())
+
+(define-abbrev-table 'epa-key-mode-abbrev-table '())
 
 (define-abbrev-table 'erc-dcc-chat-mode-abbrev-table '())
 
@@ -441,6 +459,8 @@ Qed." holes-abbrev-complete 0)
 (define-abbrev-table 'gist-list-mode-abbrev-table '())
 
 (define-abbrev-table 'git-rebase-mode-abbrev-table '())
+
+(define-abbrev-table 'gitmerge-mode-abbrev-table '())
 
 (define-abbrev-table 'global-abbrev-table
   '(
@@ -473,6 +493,14 @@ Qed." holes-abbrev-complete 0)
 
 (define-abbrev-table 'grep-mode-abbrev-table '())
 
+(define-abbrev-table 'haskell-c-mode-abbrev-table '())
+
+(define-abbrev-table 'haskell-cabal-mode-abbrev-table '())
+
+(define-abbrev-table 'haskell-mode-abbrev-table '())
+
+(define-abbrev-table 'haskell-presentation-mode-abbrev-table '())
+
 (define-abbrev-table 'helm-grep-mode-abbrev-table '())
 
 (define-abbrev-table 'helm-moccur-mode-abbrev-table '())
@@ -487,7 +515,14 @@ Qed." holes-abbrev-complete 0)
 
 (define-abbrev-table 'ipa-mode-abbrev-table '())
 
+(define-abbrev-table 'latex-mode-abbrev-table
+  '(
+    ("adt" "\\gls{adt}" nil 2)
+   ))
+
 (define-abbrev-table 'lisp-mode-abbrev-table '())
+
+(define-abbrev-table 'literate-haskell-mode-abbrev-table '())
 
 (define-abbrev-table 'log-edit-mode-abbrev-table '())
 
@@ -504,6 +539,8 @@ Qed." holes-abbrev-complete 0)
 (define-abbrev-table 'magit-log-mode-abbrev-table '())
 
 (define-abbrev-table 'magit-log-select-mode-abbrev-table '())
+
+(define-abbrev-table 'magit-merge-preview-mode-abbrev-table '())
 
 (define-abbrev-table 'magit-mode-abbrev-table '())
 
@@ -527,7 +564,10 @@ Qed." holes-abbrev-complete 0)
 
 (define-abbrev-table 'magit-wazzup-mode-abbrev-table '())
 
-(define-abbrev-table 'message-mode-abbrev-table '())
+(define-abbrev-table 'message-mode-abbrev-table
+  '(
+    ("linux" "GNU/Linux" nil 3)
+   ))
 
 (define-abbrev-table 'messages-buffer-mode-abbrev-table '())
 
@@ -560,6 +600,10 @@ Qed." holes-abbrev-complete 0)
 (define-abbrev-table 'proof-universal-keys-only-mode-abbrev-table '())
 
 (define-abbrev-table 'rebase-mode-abbrev-table '())
+
+(define-abbrev-table 'reftex-select-bib-mode-abbrev-table '())
+
+(define-abbrev-table 'reftex-select-label-mode-abbrev-table '())
 
 (define-abbrev-table 'scomint-mode-abbrev-table '())
 
