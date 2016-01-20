@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# key: code
+# expand-env: ((yas-indent-line 'fixed))
+# --
+\begin{listing}[!ht]
+  \begin{minted}[frame=single,gobble=4]{coq}
+    $0
+  \end{minted}
+  \caption{$1}
+\end{listing}
