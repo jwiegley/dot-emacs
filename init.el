@@ -825,7 +825,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (forward-line))
 
   (defun my-c-mode-common-hook ()
-    (abbrev-mode 1)
     ;; (ggtags-mode 1)
     (eldoc-mode 1)
     (hs-minor-mode 1)
@@ -972,7 +971,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands abbrev-mode
   :diminish abbrev-mode
   :init
-  (hook-into-modes #'abbrev-mode 'text-mode-hook)
+  (hook-into-modes #'abbrev-mode
+                   'text-mode-hook
+                   'prog-mode-hook
+                   'LaTeX-mode-hook)
 
   :config
   (if (file-exists-p abbrev-file-name)

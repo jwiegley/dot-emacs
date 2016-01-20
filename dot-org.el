@@ -199,7 +199,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
 
-(autoload 'gnus-goto-article ".gnus")
+(autoload 'gnus-goto-article "dot-gnus")
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
 (defun gnus-summary-mark-read-and-unread-as-read (&optional new-mark)
