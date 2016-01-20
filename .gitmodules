@@ -28,3 +28,6 @@
 [submodule "lisp/emacs-async"]
 	path = lisp/emacs-async
 	url = git://github.com/jwiegley/emacs-async.git
+[submodule "site-lisp/company-coq"]
+	path = site-lisp/company-coq
+	url = git://github.com/cpitclaudel/company-coq
