@@ -2047,7 +2047,7 @@ Warning: this makes the error messages (and location) wrong.")
   (cond
    ((string-match ";" s) s) ;; composed tactic cannot be treated 
    ((string-match coq-auto-as-hack-hyp-name-regex s)
-    (concat "infoH " (match-string 1 s) " !" (match-string 2 s) "."))
+    (concat "infoH " (match-string 1 s) " (" (match-string 2 s) ")."))
    ((string-match coq-keywords-accepting-as-regex s)
     (concat "infoH " s))
    (t (concat "infoH " s))))
