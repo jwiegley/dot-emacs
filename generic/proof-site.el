@@ -40,6 +40,7 @@
       (isar "Isabelle" "thy")
       (coq "Coq" "v" nil (".vo" ".glob"))
       (phox "PhoX" "phx")
+      (easycrypt "EasyCrypt" "ec" ".*\\.eca?")
 
       ;; Obscure instances or conflict with other Emacs modes.
 
