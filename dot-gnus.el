@@ -20,9 +20,6 @@
 (require 'bbdb-gnus)
 (require 'bbdb-message)
 
-(use-package async
-  :load-path "lisp/emacs-async")
-
 ;; (gnus-compile)
 (gnus-delay-initialize)
 (spam-initialize)

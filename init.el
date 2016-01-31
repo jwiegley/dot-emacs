@@ -1093,6 +1093,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (ascii-off)
       (ascii-on))))
 
+(use-package async
+  :load-path "elpa/packages/async")
+
 (use-package avy
   :demand t
   :load-path "site-lisp/avy"
@@ -1402,7 +1405,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (toggle-cursor-type-when-idle 1))
 
 (use-package debbugs-gnu
-  :load-path "site-lisp/debbugs"
+  :load-path "elpa/packages/debbugs"
   :commands (debbugs-gnu debbugs-gnu-search))
 
 (use-package dedicated
@@ -3136,7 +3139,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (call-process-region (point-min) (point-max) "tidy" t t nil
                            "-xml" "-i" "-wrap" "0" "-omit" "-q" "-utf8")))
 
-  (bind-key "C-c M-h" #'tidy-xml-buffer nxml-mode-map))
+  (bind-key "C-c M-h" #'tidy-xml-buffer nxml-mode-map)
+
+  (require 'hideshow)
+  (require 'sgml-mode)
+
+  (add-to-list 'hs-special-modes-alist
+               '(nxml-mode
+                 "<!--\\|<[^/>]*[^/]>"
+                 "-->\\|</[^/>]*[^/]>"
+
+                 "<!--"
+                 sgml-skip-tag-forward
+                 nil))
+
+  (add-hook 'nxml-mode-hook 'hs-minor-mode)
+
+  ;; optional key bindings, easier than hs defaults
+  (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
 
 (use-package on-screen
   :disabled t
@@ -3322,13 +3342,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package company-coq
     :disabled t
     :load-path "site-lisp/company-coq"
-    :commands company-coq-initialize
+    :commands company-coq-mode
     :preface
     (use-package company-math
       :load-path "site-lisp/company-math"
       :preface
-      (use-package math-symbols-list
-        :load-path "site-lisp/math-symbol-list"))
+      (use-package math-symbols-lists
+        :load-path "site-lisp/math-symbol-lists"))
     :config
     (unbind-key "M-<return>" company-coq-map))
 
@@ -3352,7 +3372,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
-       ;; (company-coq-initialize)
+       ;; (company-coq-mode 1)
        ))
 
     (bind-key "M-RET" #'proof-goto-point coq-mode-map)
