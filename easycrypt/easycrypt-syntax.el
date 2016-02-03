@@ -1,3 +1,10 @@
+;; --------------------------------------------------------------------
+;; Copyright (c) - 2012--2016 - IMDEA Software Institute
+;; Copyright (c) - 2012--2016 - Inria
+;;
+;; Distributed under the terms of the GPL-v3 license
+;; --------------------------------------------------------------------
+
 (require 'proof-syntax)
 (require 'easycrypt-keywords)
 (require 'easycrypt-hooks)
