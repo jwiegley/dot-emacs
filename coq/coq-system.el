@@ -99,7 +99,7 @@ If it doesn't look right, try `coq-autodetect-version'."
 Interactively (with INTERACTIVE-P), show that number."
   (interactive '(t))
   (setq coq-autodetected-version nil)
-  (let ((version-string (car (process-lines "coqtop" "-v"))))
+  (let ((version-string (car (process-lines (or coq-prog-name "coqtop") "-v"))))
     (when (and version-string (string-match "version \\([^ ]+\\)" version-string))
       (setq coq-autodetected-version (match-string 1 version-string))))
   (when interactive-p
