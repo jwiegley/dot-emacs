@@ -106,12 +106,15 @@ Interactively (with INTERACTIVE-P), show that number."
     (coq-show-version))
   coq-autodetected-version)
 
-(defun coq--version< (v1 v2) ;; !!! Check availability in 24.3
+(defun coq--version< (v1 v2)
   "Compare Coq versions V1 and V2."
-  (let ((version-regexp-alist  (cons '("^pl$" . 0) version-regexp-alist)))
+  ;; -snapshot is only supported by Emacs 24.5, not 24.3
+  (let ((version-regexp-alist `(("^[-_+ ]?snapshot$" . -4)
+                                ("^pl$" . 0)
+                                ,@version-regexp-alist)))
     (version< v1 v2)))
 
-(defcustom coq-pre-v85 nil ;; !!! Mark deprecated
+(defcustom coq-pre-v85 nil
   "Deprecated.
 Use `coq-pinned-version' if you want to bypass the
 version detection that Proof General does automatically."
@@ -237,30 +240,32 @@ This setting is only relevant with Coq < 8.5."
 
 (make-obsolete-variable 'coq-load-path-include-current "Coq 8.5 does not need it" "4.3")
 
- (defun coq-option-of-load-path-entry (entry &optional pre-v85)
-   "Translate a single ENTRY from `coq-load-path' into options.
+(defun coq-option-of-load-path-entry (entry &optional pre-v85)
+  "Translate a single ENTRY from `coq-load-path' into options.
 See `coq-load-path' for the possible forms of ENTRY and to which
 options they are translated.  Use a non-nil PRE-V85 flag to
 request compatibility handling of flags."
-   (if pre-v85 ;; !!! Which base directory do we expand against? Should the entries of load-path just always be absolute?
-       ;; Note that we don't handle 'recnoimport in 8.4, and we don't handle
-       ;; 'nonrec in 8.5.
-       (pcase entry
-         ((or (and (pred stringp) dir) `(ocamlimport ,dir))
-          (list "-I" (expand-file-name dir)))
-         (`(nonrec ,dir ,alias)
-          (list "-I" (expand-file-name dir) "-as" alias))
-         ((or `(rec ,dir ,alias) `(,dir ,alias))
-          (list "-R" (expand-file-name dir) alias)))
-     (pcase entry
-       ((and (pred stringp) dir)
-        (list "-Q" (expand-file-name dir) ""))
-       (`(ocamlimport ,dir)
-        (list "-I" (expand-file-name dir)))
-       (`(recnoimport ,dir ,alias)
-        (list "-Q" (expand-file-name dir) alias))
-       ((or `(rec ,dir ,alias) `(,dir ,alias))
-        (list "-R" (expand-file-name dir) alias)))))
+  (if pre-v85
+      ;; FIXME Which base directory do we expand against? Should the entries of
+      ;; load-path just always be absolute?
+      ;; NOTE we don't handle 'recnoimport in 8.4, and we don't handle 'nonrec
+      ;; in 8.5.
+      (pcase entry
+        ((or (and (pred stringp) dir) `(ocamlimport ,dir))
+         (list "-I" (expand-file-name dir)))
+        (`(nonrec ,dir ,alias)
+         (list "-I" (expand-file-name dir) "-as" alias))
+        ((or `(rec ,dir ,alias) `(,dir ,alias))
+         (list "-R" (expand-file-name dir) alias)))
+    (pcase entry
+      ((and (pred stringp) dir)
+       (list "-Q" (expand-file-name dir) ""))
+      (`(ocamlimport ,dir)
+       (list "-I" (expand-file-name dir)))
+      (`(recnoimport ,dir ,alias)
+       (list "-Q" (expand-file-name dir) alias))
+      ((or `(rec ,dir ,alias) `(,dir ,alias))
+       (list "-R" (expand-file-name dir) alias)))))
 
 (defun coq-include-options (load-path &optional current-directory pre-v85)
   "Build the base list of include options for coqc, coqdep and coqtop.
@@ -325,7 +330,7 @@ LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   "Build a list of options for coqc.
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   ;; coqtop always adds the current directory to the LoadPath, so don't
-  ;; include it in the -Q options. ;; !!! Check this comment
+  ;; include it in the -Q options.
   (append (remove "-emacs" (remove "-emacs-U" coq-prog-args))
           (let ((coq-load-path-include-current nil)) ; Not needed in >=8.5beta3
             (coq-coqdep-prog-args coq-load-path current-directory pre-v85))))
@@ -336,7 +341,7 @@ LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
 ;; documentation.
 
 (defun coq-coqtop-prog-args (load-path &optional current-directory pre-v85)
-  ;; coqtop always adds the current directory to the LoadPath, so don't ;; !!! Check this comment
+  ;; coqtop always adds the current directory to the LoadPath, so don't
   ;; include it in the -Q options. This is not true for coqdep.
   "Build a list of options for coqc.
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-coqc-prog-args'."
