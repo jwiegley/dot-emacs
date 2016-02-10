@@ -48,12 +48,3 @@ proofs written for Freek Wiedijk's challenge in his comparison of
 different theorem provers, see http://www.cs.kun.nl/~freek/comparison/.  
 Those proof scripts are copyright by their named authors.  
 (NB: most of these have rusted)
-
-Check BUGS files for some static problems and issues.  Please report
-new bugs on the Trac site at http://proofgeneral.inf.ed.ac.uk/trac.
-
-For the latest news and downloads, visit Proof General on the web 
-at: http://proofgeneral.inf.ed.ac.uk
-
-David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-October 2011.
