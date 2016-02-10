@@ -1,16 +1,28 @@
-	    Proof General --- Organize your proofs! 
+# Proof General — Organize your proofs! 
 
 Proof General is a generic Emacs interface for proof assistants.
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
 
-This is version 4.2 (prerelease) of Proof General.  See About for exact version.
-It is built for Emacs 23.3.
+This is version 4.4 of Proof General.
 
-The code *may* also work with previous emacs versions, back as far as
-Emacs 22.3.  But you will need to regenerated the byte-compiled files
-with "make clean; make compile".  Backward compatibility cannot be
-guaranteed.
+## Setup
+
+Download and install Proof General from GitHub:
+
+```
+git clone https://github.com/ProofGeneral/PG ~/.emacs.d/lisp/PG
+make -C ~/.emacs.d/lisp/PG
+```
+
+Then add the following to your .emacs:
+
+```
+;; Open .v files with Proof General's Coq mode
+(require 'proof-site "~/.emacs.d/lisp/PG/generic/proof-site")
+```
+
+## More info
 
 See
     INSTALL	     for installation details.
@@ -18,12 +30,11 @@ See
     COMPATIBILITY    for version compatibility information.
     REGISTER	     for registration information (please register).
     FAQ, doc/	     for documentation of Proof General.
- 
+
     <prover>/README  for additional prover-specific notes
 
 Links:
 
-    Bug/feature reports:  http://proofgeneral.inf.ed.ac.uk/trac 
     Wiki:		  http://proofgeneral.inf.ed.ac.uk/wiki
     Lists:		  http://proofgeneral.inf.ed.ac.uk/mailinglist
 

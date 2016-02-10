@@ -1,3 +1,18 @@
+From GitHub
+===========
+
+Download and install Proof General from GitHub:
+
+  git clone https://github.com/ProofGeneral/PG ~/.emacs.d/lisp/PG
+  make -C ~/.emacs.d/lisp/PG
+
+Then add the following to your .emacs:
+
+  ;; Open .v files with Proof General's Coq mode
+  (require 'proof-site "~/.emacs.d/lisp/PG/generic/proof-site")
+
+This should be enough. Instructions for previous releases are below.
+
 Short Instructions for installing Proof General (details below)
 ===============================================================
 
