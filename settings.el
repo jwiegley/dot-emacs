@@ -287,6 +287,9 @@
     ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
+ '(company-coq-disabled-features
+   (quote
+    (hello unicode-math-backend refman-tactic-abbrevs-backend refman-vernac-abbrevs-backend dynamic-symbols-backend)))
  '(company-coq-prettify-symbols-alist
    (quote
     (("|-" . 8866)

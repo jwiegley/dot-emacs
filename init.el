@@ -2939,7 +2939,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-c e m" . macrostep-expand))
 
 (use-package magit
-  :load-path "site-lisp/magit/lisp"
+  :load-path ("site-lisp/magit/lisp"
+              "site-lisp/with-editor")
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :preface
@@ -3340,15 +3341,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (use-package company-coq
-    :disabled t
     :load-path "site-lisp/company-coq"
     :commands company-coq-mode
     :preface
     (use-package company-math
       :load-path "site-lisp/company-math"
+      :defer t
       :preface
       (use-package math-symbols-lists
-        :load-path "site-lisp/math-symbol-lists"))
+        :load-path "site-lisp/math-symbol-lists"
+        :defer t))
     :config
     (unbind-key "M-<return>" company-coq-map))
 
@@ -3364,7 +3366,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (holes-mode -1)
        (whitespace-mode 1)
        ;; (ggtags-mode 1)
-       ;; (set-input-method "Agda")
+       (set-input-method "Agda")
        ;; (proof-unicode-tokens-enable 1)
        (add-hook 'proof-shell-extend-queue-hook
                  (lambda ()
@@ -3381,6 +3383,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                             (interactive)
                             (proof-layout-windows)
                             (proof-prf)) coq-mode-map)
+    (bind-key "C-c C-a C-r" #'coq-SearchRewrite coq-mode-map)
     (bind-key "C-c C-a C-s" #'coq-SearchConstant coq-mode-map)
     (unbind-key "C-c h" coq-mode-map))
 

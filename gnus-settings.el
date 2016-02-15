@@ -136,6 +136,10 @@ BAE Systems"))))
       (to-address . "sw-dev@lists.riscv.org")
       (to-list . "sw-dev@lists.riscv.org")
       (list-identifier . "\\[riscv-sw\\]"))
+     ("list\\.coq\\.fiat$ "
+      (to-address . "fiat@lists.csail.mit.edu")
+      (to-list . "fiat@lists.csail.mit.edu")
+      (list-identifier . "\\[Fiat\\]"))
      ("list\\.gsoc\\.mentors$"
       (to-address . "google-summer-of-code-mentors-list@googlegroups.com")
       (to-list . "google-summer-of-code-mentors-list@googlegroups.com")
@@ -191,7 +195,8 @@ BAE Systems"))))
       (gcc-self . t))
      ("list\\.bahai\\.tarjuman"
       (to-address . "tarjuman@bahai-library.com")
-      (to-list . "tarjuman@bahai-library.com"))
+      (to-list . "tarjuman@bahai-library.com")
+      (list-identifier . "\\[tj\\]"))
      ("list\\.emacs\\.devel$"
       (to-address . "emacs-devel@gnu.org")
       (to-list . "emacs-devel@gnu.org")
