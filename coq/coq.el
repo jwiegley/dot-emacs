@@ -169,13 +169,14 @@ See also `coq-hide-additional-subgoals'."
 
 (defcustom coq-navigation-command-regexp
   (concat "^\\(\\(Focus\\)\\|\\(Unfocus\\)\\|"
+          "\\(all\\s-*:\\s-*\\(cycle\\|swap\\|revgoals\\)\\)\\|"
           "\\(\\+\\)\\|\\(-\\)\\|\\(\\*\\)\\|\\({\\)\\|\\(}\\)\\)")
   "Regexp for `proof-tree-navigation-command-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
 
 (defcustom coq-proof-tree-cheating-regexp
-  "admit"
+  "\\(?:admit\\)\\|\\(?:give_up\\)"
   "Regexp for `proof-tree-cheating-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
@@ -187,8 +188,9 @@ See also `coq-hide-additional-subgoals'."
   :group 'coq-proof-tree)
 
 (defcustom coq-proof-tree-current-goal-regexp
-  (concat "^[0-9]+ \\(?:focused \\)?subgoal\\(?:s\\)?"
-          "\\(?: (unfocused: [-0-9]+)\\)?\\(?:\\s-*, subgoal 1\\)? "
+  (concat "^[0-9]+ \\(?:focused \\)?subgoal\\(?:s\\)?\\s-*"
+          "\\(?:(\\(?:unfocused: [-0-9]+\\)?,?"
+          "\\s-*\\(?:shelved: [-0-9]+\\)?)\\)?\\(?:\\s-*, subgoal 1\\)? "
           "(ID \\([0-9]+\\))\n\\s-*\n\\(\\(?: .*\n\\)+\\)\\(?:\n\\|$\\)")
   "Regexp for `proof-tree-current-goal-regexp'."
   :type 'regexp
@@ -229,13 +231,26 @@ See also `coq-hide-additional-subgoals'."
   :type 'regexp
   :group 'coq-proof-tree)
 
-;; pc: <infomsg> now has a newline (better output indentation)
+;; 8.4:
+;; <infomsg>This subproof is complete, but there are still unfocused goals.</infomsg>
+;;
+;; 8.5:
+;; <infomsg>
+;; This subproof is complete, but there are some unfocused goals.
+;; Focus next goal with bullet *.
+;; </infomsg>
+;;
+;; <infomsg>No more subgoals, but there are some goals you gave up:</infomsg>
+;;
+;; <infomsg>All the remaining goals are on the shelf.</infomsg>
 (defcustom coq-proof-tree-branch-finished-regexp
-  (concat "^\\(\\(?:Proof completed\\.\\)\\|\\(?:No more subgoals\\.\\)\\|"
+  (concat "^\\(\\(?:Proof completed\\.\\)\\|"
+          "\\(?:\\(?:<infomsg>\\)?No more subgoals\\)\\|"
           "\\(No more subgoals but non-instantiated "
           "existential variables:\\)\\|"
+          "\\(?:<infomsg>All the remaining goals are on the shelf\\)\\|"
           "\\(<infomsg>\\s-*This subproof is complete, but there are "
-          "still unfocused goals.\\s-*</infomsg>\\)\\)")
+          "\\(?:still\\|some\\) unfocused goals.\\)\\)")
   "Regexp for `proof-tree-branch-finished-regexp'."
   :type 'regexp
   :group 'coq-proof-tree)
@@ -1810,6 +1825,11 @@ processing, the sequent text is send to prooftree as a sequent
 update (see `proof-tree-update-sequent') and the ID of the
 sequent is registered as known in `proof-tree-sequent-hash'.
 
+Searching for new subgoals must only be done when the proof is
+not finished, because Coq 8.5 lists open existential variables
+as (new) open subgoals. For this test we assume that
+`proof-marker' has not yet been moved.
+
 The not yet delayed output is in the region
 \[proof-shell-delayed-output-start, proof-shell-delayed-output-end]."
   ;; (message "CPTGNS start %s end %s"
@@ -1818,19 +1838,27 @@ The not yet delayed output is in the region
   (with-current-buffer proof-shell-buffer
     (let ((start proof-shell-delayed-output-start)
           (end proof-shell-delayed-output-end))
-      (goto-char start)
-      (while (proof-re-search-forward
-              coq-proof-tree-additional-subgoal-ID-regexp end t)
-        (let ((subgoal-id (match-string-no-properties 1)))
-          (unless (gethash subgoal-id proof-tree-sequent-hash)
-            (setq proof-action-list
-                  (cons (proof-shell-action-list-item
-                         (coq-show-sequent-command subgoal-id)
-                         (proof-tree-make-show-goal-callback (car proof-info))
-                         '(no-goals-display
-                           no-response-display
-                           proof-tree-show-subgoal))
-                        proof-action-list))))))))
+      ;; The message "All the remaining goals are on the shelf" is processed as
+      ;; urgent message and is therefore before
+      ;; proof-shell-delayed-output-start. We therefore need to go back to
+      ;; proof-marker.
+      (goto-char proof-marker)
+      (unless (proof-re-search-forward
+               coq-proof-tree-branch-finished-regexp end t)
+        (goto-char start)
+        (while (proof-re-search-forward
+                coq-proof-tree-additional-subgoal-ID-regexp end t)
+          (let ((subgoal-id (match-string-no-properties 1)))
+            (unless (gethash subgoal-id proof-tree-sequent-hash)
+              (message "CPTGNS new sequent %s found" subgoal-id)
+              (setq proof-action-list
+                    (cons (proof-shell-action-list-item
+                           (coq-show-sequent-command subgoal-id)
+                           (proof-tree-make-show-goal-callback (car proof-info))
+                           '(no-goals-display
+                             no-response-display
+                             proof-tree-show-subgoal))
+                          proof-action-list)))))))))
   
 (add-hook 'proof-tree-urgent-action-hook 'coq-proof-tree-get-new-subgoals)
 
