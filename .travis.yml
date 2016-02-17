@@ -1,0 +1,18 @@
+language: emacs-lisp
+sudo: false
+
+env:
+  - EMACS_TARGET=emacs-24.3
+  - EMACS_TARGET=emacs-24.4
+  - EMACS_TARGET=emacs-24.5
+  - EMACS_TARGET=emacs-git
+
+before_install:
+  - make -f Makefile.travis before_install
+
+install:
+  - make -f Makefile.travis install
+
+script:
+  - emacs --version
+  - make -f Makefile.travis script
