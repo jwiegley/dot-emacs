@@ -54,10 +54,10 @@ See also `coq-prog-env' to adjust the environment."
   :group 'coq)
 
 (defun get-coq-library-directory ()
-  (let ((c (substring (shell-command-to-string (concat coq-prog-name " -where")) 0 -1 )))
-    (if (string-match "not found" c)
-        "/usr/local/lib/coq"
-      c)))
+  ;; NOTE: This code runs when the library is loaded, so failing here causes a
+  ;; file mode specification error; hence the (ignore-errors ...) wrapper
+  (or (ignore-errors (car (process-lines coq-prog-name "-where")))
+      "/usr/local/lib/coq"))
 
 (defconst coq-library-directory (get-coq-library-directory) ;; FIXME Should be refreshed more often
   "The coq library directory, as reported by \"coqtop -where\".")
