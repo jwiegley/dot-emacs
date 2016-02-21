@@ -20,7 +20,7 @@ Then add the following to your `.emacs`:
 
 ```
 ;; Open .v files with Proof General's Coq mode
-(require 'proof-site "~/.emacs.d/lisp/PG/generic/proof-site")
+(load "~/.emacs.d/lisp/PG/generic/proof-site")
 ```
 
 If Proof General complains about a version mismatch, make sure that the shell's `emacs` is indeed your usual Emacs. If not, run the Makefile again with an explicit path to Emacs. On Mac in particular you'll probably need something like
