@@ -350,6 +350,7 @@ so for the following reasons:
   "Coq tactic(al)s that solve a subgoal."
   )
 
+;; FIXME is this needed?
 (defvar develock-coq-font-lock-keywords
   '((develock-find-long-lines
      (1 'develock-long-line-1 t)
@@ -1264,33 +1265,35 @@ It is used:
 ;;   "Regular expression matching Require commands in Coq.
 ;; Group number 1 matches the name of the library which is required.")
 
+(defconst coq-context-marker-regexp
+  (concat (regexp-opt '("ltac" "constr" "uconstr") 'symbols) ":"))
+
 ;;
 ;; font-lock
 ;;
 (defvar coq-font-lock-keywords-1
-   (append
-    coq-font-lock-terms
-    (list
-    (cons coq-solve-tactics-regexp 'coq-solve-tactics-face)
-    (cons coq-solve-cheat-tactics-regexp 'coq-cheat-face)
-    (cons coq-keywords-regexp 'font-lock-keyword-face)
-    (cons coq-reserved-regexp 'font-lock-type-face)
-    (cons coq-tactics-regexp 'proof-tactics-name-face)
-    (cons (proof-regexp-alt-list coq-tacticals) 'proof-tacticals-name-face)
-    (cons (proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) 'font-lock-type-face)
-    (cons "============================" 'font-lock-keyword-face)
-    (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face))
-    (if coq-variable-highlight-enable
-        (list (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
-    (list
-    (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
-    (list coq-with-with-hole-regexp 2 'font-lock-function-name-face)
-    (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
-    ;; Remove spurious variable and function faces on commas.
-    '(proof-zap-commas))))
+  (append
+   coq-font-lock-terms
+   `((,coq-solve-tactics-regexp . 'coq-solve-tactics-face)
+     (,coq-solve-cheat-tactics-regexp . 'coq-cheat-face)
+     (,coq-keywords-regexp . 'font-lock-keyword-face)
+     (,coq-reserved-regexp . 'font-lock-type-face)
+     (,coq-tactics-regexp . 'proof-tactics-name-face)
+     (,(proof-regexp-alt-list coq-tacticals) . 'proof-tacticals-name-face)
+     (,(proof-regexp-alt-list-symb (list "Set" "Type" "Prop")) . 'font-lock-type-face)
+     ("============================" . 'font-lock-keyword-face)
+     (,coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
+     (,coq-context-marker-regexp 1 'coq-context-qualifier-face))
+   (if coq-variable-highlight-enable
+       `((,coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)))
+   `((,coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
+     (,coq-with-with-hole-regexp 2 'font-lock-function-name-face)
+     (,coq-save-with-hole-regexp 2 'font-lock-function-name-face)
+     ;; Remove spurious variable and function faces on commas.
+     (proof-zap-commas))))
 
 
-;; ", " is for multiple hypothesis diplayed in v8.5. If more than
+;; ", " is for multiple hypothesis displayed in v8.5. If more than
 ;; 1 space this is a hypothesis displayed in the middle of a line (> v8.5)
 ;; "^    " is for goals in debug mode.
 (defvar coq-hyp-name-in-goal-or-response-regexp

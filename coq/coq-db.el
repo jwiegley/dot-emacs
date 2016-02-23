@@ -310,6 +310,11 @@ See `coq-syntax-db' for DB structure."
   "Face for Ltac binders and evars."
   :group 'proof-faces)
 
+(defface coq-context-qualifier-face
+  '((t :inherit font-lock-preprocessor-face :weight bold))
+  "Face used for `ltac:', `constr:', and `uconstr:' headers."
+  :group 'proof-faces)
+
 (defconst coq-solve-tactics-face 'coq-solve-tactics-face
   "Expression that evaluates to a face.
 Required so that 'coq-solve-tactics-face is a proper facename")
