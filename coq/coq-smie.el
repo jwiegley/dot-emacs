@@ -548,7 +548,7 @@ The point should be at the beginning of the command name."
       (forward-char -1)
       (if (looking-at "{") "{ subproof" "} subproof"))
 
-     ((and (equal tok ":") (looking-back "\\<\\(constr\\|ltac\\)"))
+     ((and (equal tok ":") (looking-back "\\<\\(constr\\|ltac\\|uconstr\\)"))
       ": ltacconstr")
 
      ((equal tok ":=")
