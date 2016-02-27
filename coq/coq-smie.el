@@ -993,7 +993,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;; the command terminated by ". proofstart".
        ((equal token ". proofstart")
 	(save-excursion (forward-char -1) (coq-find-real-start)
-			`(column . ,(+ coq-indent-modulestart (current-column)))))
+			`(column . ,(+ coq-indent-proofstart (current-column)))))
        ((equal token ". modulestart")
 	(save-excursion (forward-char -1) (coq-find-real-start)
 			`(column . ,(+ coq-indent-modulestart (current-column)))))))
