@@ -698,10 +698,14 @@ Lemma foo: forall n,
   :type 'boolean
   :group 'coq)
 
+(defun coq-indent-safep (indent)
+  (>= indent 0))
+
 (defcustom coq-indent-proofstart 2
   "Number of spaces used to indent after a proof start."
   :type 'integer
-  :group 'coq)
+  :group 'coq
+  :safe #'coq-indent-safep)
 
 (defcustom coq-indent-semicolon-tactical 2
   "Number of spaces used to indent after the first tactical semi colon of a serie.
@@ -718,12 +722,14 @@ Lemma foo: forall n,
      tac3;
      tac4."
   :type 'integer
-  :group 'coq)
+  :group 'coq
+  :safe #'coq-indent-safep)
 
 (defcustom coq-indent-modulestart 2
   "Number of spaces used to indent after a module or section start."
   :type 'integer
-  :group 'coq)
+  :group 'coq
+  :safe #'coq-indent-safep)
 
 (defcustom coq-smie-after-bolp-indentation 2
   "Number of spaces used to indent after a quantifier *not* on its own line.
@@ -741,7 +747,8 @@ If it is set to 2 (default) it is as follows:
        x <= 0 -> x = 0.
 "
   :type 'integer
-  :group 'coq)
+  :group 'coq
+  :safe #'coq-indent-safep)
 
 (defcustom coq-match-indent 2
   "Number of space used to indent cases of a match expression.
@@ -754,7 +761,9 @@ match n with
 end
 
 Typical values are 2 or 4."
-  :type 'integer :group 'coq)
+  :type 'integer
+  :group 'coq
+  :safe #'coq-indent-safep)
 
 ;; - TODO: remove tokens "{ subproof" and "} subproof" but they are
 ;;         needed by the lexers at a lot of places.
