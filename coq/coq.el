@@ -1906,9 +1906,11 @@ This is the Coq incarnation of `proof-tree-find-undo-position'."
 
 ;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
 (defun coq-preprocessing ()
-  (if coq-time-commands
+  (when coq-time-commands
+    ;; Don't add the prefix if this is a command sent internally
+    (unless (memq 'no-response-display proof-shell-delayed-output-flags)
       (with-no-warnings  ;; NB: dynamic scoping of `string'
-        (setq string (concat coq--time-prefix string)))))
+        (setq string (concat coq--time-prefix string))))))
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
 
