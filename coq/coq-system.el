@@ -324,8 +324,6 @@ options of a few coq-project files does the right thing."
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   (coq-include-options load-path current-directory pre-v85))
 
-;;; !!! Fixme handle proof-prog-name-ask
-
 (defun coq-coqc-prog-args (load-path &optional current-directory pre-v85)
   "Build a list of options for coqc.
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
