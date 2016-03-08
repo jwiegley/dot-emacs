@@ -1904,12 +1904,16 @@ This is the Coq incarnation of `proof-tree-find-undo-position'."
 (defconst coq--time-prefix "Time "
   "Coq command prefix for displaying timing information.")
 
+(defun coq-bullet-p (s)
+  (string-match coq-bullet-regexp-nospace s))
+
 ;; Remark: `action' and `string' are known by `proof-shell-insert-hook'
 (defun coq-preprocessing ()
   (when coq-time-commands
     (with-no-warnings  ;; NB: dynamic scoping of `string' and `action'
       ;; Don't add the prefix if this is a command sent internally
-      (unless (eq action 'proof-done-invisible)
+      (unless (or (eq action 'proof-done-invisible)
+                  (coq-bullet-p string)) ;; coq does not accept "Time -".
         (setq string (concat coq--time-prefix string))))))
 
 (add-hook 'proof-shell-insert-hook 'coq-preprocessing)
