@@ -259,7 +259,7 @@ request compatibility handling of flags."
          (list "-R" (expand-file-name dir) alias)))
     (pcase entry
       ((and (pred stringp) dir)
-       (list "-Q" (expand-file-name dir) ""))
+       (list "-Q" (expand-file-name dir) "\"\""))
       (`(ocamlimport ,dir)
        (list "-I" (expand-file-name dir)))
       (`(recnoimport ,dir ,alias)
