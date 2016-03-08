@@ -464,7 +464,8 @@ The point should be at the beginning of the command name."
 (defun coq-smie-backward-token ()
   (let* ((tok (smie-default-backward-token))
 	 (start (save-excursion (coq-find-real-start) (point)))
-	 (is-tactic (coq-smie-is-tactic)))
+	 ;(is-tactic (coq-smie-is-tactic)) ; useless and morevoer expensive if at each call
+         )
     (cond
      ;; Distinguish between "," from quantification and other uses of
      ;; "," (tuples, tactic arguments)
