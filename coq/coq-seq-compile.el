@@ -284,7 +284,7 @@ therefore the customizations for `compile' do not apply."
        span
        (coq-library-src-of-obj-file absolute-module-obj-file)))))
 
-(defun coq-seq-map-module-id-to-obj-file (module-id span)
+(defun coq-seq-map-module-id-to-obj-file (module-id span &optional from)
   "Map MODULE-ID to the appropriate coq object file.
 The mapping depends of course on `coq-load-path'. The current
 implementation invokes coqdep with a one-line require command.
@@ -301,7 +301,7 @@ function returns () if MODULE-ID comes from the standard library."
            coq-load-path))
         (coq-load-path-include-current nil)
         (temp-require-file (make-temp-file "ProofGeneral-coq" nil ".v"))
-        (coq-string (concat "Require " module-id "."))
+        (coq-string (concat (if from (concat "From " from " ") "") "Require " module-id "."))
         result)
     (unwind-protect
         (progn
@@ -337,7 +337,7 @@ function returns () if MODULE-ID comes from the standard library."
             "Internal error in coq-seq-map-module-id-to-obj-file")
     (car-safe result)))
 
-(defun coq-seq-check-module (coq-object-local-hash-symbol span module-id)
+(defun coq-seq-check-module (coq-object-local-hash-symbol span module-id &optional from)
   "Locate MODULE-ID and compile if necessary.
 If `coq-compile-command' is not nil the whole task of checking which
 modules need compilation and the compilation itself is done by an external
@@ -354,7 +354,7 @@ the coq-obj-hash, which is used during internal
 compilation (see `coq-seq-make-lib-up-to-date'). This way one hash
 will be used for all \"Require\" commands added at once to the
 queue."
-  (let ((module-obj-file (coq-seq-map-module-id-to-obj-file module-id span)))
+  (let ((module-obj-file (coq-seq-map-module-id-to-obj-file module-id span from)))
     ;; coq-seq-map-module-id-to-obj-file currently returns () for
     ;; standard library modules!
     (when module-obj-file
@@ -382,7 +382,8 @@ compilation (if necessary) of the dependencies."
             (when (and string
                        (string-match coq-require-command-regexp string))
               (let ((span (car item))
-                    (start (match-end 0)))
+                    (start (match-end 0))
+                    (prefix (match-string 1 string)))
                 (span-add-delete-action
                  span
                  `(lambda ()
@@ -392,7 +393,7 @@ compilation (if necessary) of the dependencies."
                 (while (string-match coq-require-id-regexp string start)
                   (setq start (match-end 0))
                   (coq-seq-check-module 'coq-object-hash-symbol span
-                                    (match-string 1 string))))))))))
+                                    (match-string 1 string) prefix)))))))))
 
 
 (provide 'coq-seq-compile)

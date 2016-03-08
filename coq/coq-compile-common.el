@@ -300,12 +300,6 @@ the latter condition into an error, then set this variable to
   :safe 'stringp
   :group 'coq-auto-compile)
 
-(defconst coq-require-command-regexp
-  "^Require[ \t\n]+\\(Import\\|Export\\)?[ \t\n]*"
-  "Regular expression matching Require commands in Coq.
-Should match \"Require\" with its import and export variants up to (but not
-including) the first character of the first required module. The required
-modules are matched separately with `coq-require-id-regexp'")
 
 (defconst coq-require-id-regexp
   "[ \t\n]*\\([A-Za-z0-9_']+\\(\\.[A-Za-z0-9_']+\\)*\\)[ \t\n]*"
@@ -314,6 +308,13 @@ Should match precisely one complete module identifier and surrounding
 white space. The module identifier must be matched with group number 1.
 Note that the trailing dot in \"Require A.\" is not part of the module
 identifier and should therefore not be matched by this regexp.")
+
+(defconst coq-require-command-regexp
+  "\\(?:^From[ \t\n]+\\(?1:[A-Za-z0-9_']+\\(?:\\.[A-Za-z0-9_']+\\)*\\)[ \t\n]*\\)?\\(?2:Require[ \t\n]+\\(?:Import\\|Export\\)?\\)[ \t\n]*"
+  "Regular expression matching Require commands in Coq.
+Should match \"Require\" with its import and export variants up to (but not
+including) the first character of the first required module. The required
+modules are matched separately with `coq-require-id-regexp'")
 
 (defvar coq-compile-history nil
   "History of external Coq compilation commands.")

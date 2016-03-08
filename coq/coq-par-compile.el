@@ -534,7 +534,7 @@ break."
     ;;              coqdep-status lib-src-file coqdep-output))
     (coq-par-analyse-coq-dep-exit coqdep-status coqdep-output full-command)))
 
-(defun coq-par-map-module-id-to-obj-file (module-id coq-load-path)
+(defun coq-par-map-module-id-to-obj-file (module-id coq-load-path &optional from)
   "Map MODULE-ID to the appropriate coq object file.
 The mapping depends of course on `coq-load-path'. The current
 implementation invokes coqdep with a one-line require command.
@@ -553,7 +553,8 @@ function returns () if MODULE-ID comes from the standard library."
            coq-load-path))
         (coq-load-path-include-current nil)
         (temp-require-file (make-temp-file "ProofGeneral-coq" nil ".v"))
-        (coq-string (concat "Require " module-id "."))
+        (coq-string (concat (if from (concat "From " from " ") "")
+                            "Require " module-id "."))
         result)
     (unwind-protect
         (progn
@@ -1184,7 +1185,7 @@ PROCESS."
 
 ;;; handle Require commands when queue is extended
 
-(defun coq-par-handle-module (module-id span)
+(defun coq-par-handle-module (module-id span &optional from)
   "Handle compilation of module MODULE-ID.
 This function translates MODULE-ID to a file name. If compilation
 for this file is not ignored, a new top-level compilation job is
@@ -1195,7 +1196,7 @@ This function must be evaluated with the buffer that triggered
 the compilation as current, otherwise a wrong `coq-load-path'
 might be used."
   (let ((module-obj-file
-	 (coq-par-map-module-id-to-obj-file module-id coq-load-path))
+	 (coq-par-map-module-id-to-obj-file module-id coq-load-path from))
 	module-job)
     (if coq-debug-auto-compilation
         (message "check compilation for module %s from object file %s"
@@ -1231,11 +1232,12 @@ there is no last compilation job."
   (let* ((item (car require-items))
 	 (string (mapconcat 'identity (nth 1 item) " "))
 	 (span (car item))
-	 start)
+         prefix start)
     ;; We know there is a require in string. But we have to match it
     ;; again in order to get the end position.
     (string-match coq-require-command-regexp string)
     (setq start (match-end 0))
+    (setq prefix (match-string 1 string))
     (span-add-delete-action
      span
      `(lambda ()
@@ -1243,7 +1245,7 @@ there is no last compilation job."
     ;; add a compilation job for all required modules
     (while (string-match coq-require-id-regexp string start)
       (setq start (match-end 0))
-      (coq-par-handle-module (match-string 1 string) span))
+      (coq-par-handle-module (match-string 1 string) span prefix))
     ;; add the asserted items to the last compilation job
     (if coq-last-compilation-job
 	(progn
