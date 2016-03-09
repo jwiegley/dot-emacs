@@ -391,6 +391,7 @@ so for the following reasons:
 
 (defvar coq-decl-db
   '(
+    ("Local Axiom" nil "Local Axiom # : #" t "Local\\s-+Axiom")
     ("Axiom" "ax" "Axiom # : #" t "Axiom")
     ("Global Variable" "gv" "Global Variable #: #." t "Global\\s-+Variable")
     ("Global Variables" "gvs" "Global Variables # , #: #." t "Global\\s-+Variables")
@@ -410,6 +411,7 @@ so for the following reasons:
     ("Conjecture" "conj" "Conjecture #: #." t "Conjecture")
     ("Variable" "v" "Variable #: #." t "Variable")
     ("Variables" "vs" "Variables # , #: #." t "Variables")
+    ("Local Coercion" nil "Local Coercion @{id} : @{typ1} >-> @{typ2}." t "Local\\s-+Coercion")
     ("Coercion" "coerc" "Coercion @{id} : @{typ1} >-> @{typ2}." t "Coercion")
     )
   "Coq declaration keywords information list. See `coq-syntax-db' for syntax."
@@ -426,6 +428,7 @@ so for the following reasons:
     ("Declare Module Import <: :=" "dmi2" "Declare Module # <: # := #." t);; careful
     ("Declare Module Export : :=" "dme" "Declare Module # : # := #." t)
     ("Declare Module Export <: :=" "dme2" "Declare Module # <: # := #." t);; careful
+    ("Local Definition" nil "Local Definition #:# := #." t "Local\\s-+Definition");; careful
     ("Definition" "def" "Definition #:# := #." t "Definition");; careful
     ("Definition (2 args)" "def2" "Definition # (# : #) (# : #):# := #." t)
     ("Definition (3 args)" "def3" "Definition # (# : #) (# : #) (# : #):# := #." t)
@@ -456,6 +459,7 @@ so for the following reasons:
     ("Instance" nil "Instance #:#.\nProof.\n#Defined." t "Instance")
     ("Program Instance" "pinstance" "Program Instance [ # ] => # where \n# := #;\n# := #." t "Program\\s-+Instance")
     ("Let" "Let" "Let # : # := #." t "Let")
+    ("Local Ltac" nil "Local Ltac # := #" t "Local\\s-+Ltac")
     ("Ltac" "ltac" "Ltac # := #" t "Ltac")
     ("Module :=" "mo" "Module # : # := #." t ) ; careful
     ("Module <: :=" "mo2" "Module # <: # := #." t ) ; careful
@@ -562,6 +566,7 @@ so for the following reasons:
     ("Add Setoid" nil "Add Setoid #." t "Add\\s-+Setoid")
     ("Admit Obligations" "oblsadmit" "Admit Obligations." nil "Admit\\s-+Obligations")
     ("Arguments Scope" "argsc" "Arguments Scope @{id} [ @{_} ]" t "Arguments\\s-+Scope")
+    ("Local Arguments" nil "Local Arguments @{id} : @{rule}" t "Local\\s-+Arguments")
     ("Arguments" "args" "Arguments @{id} : @{rule}" t "Arguments")
     ("Bind Scope" "bndsc" "Bind Scope @{scope} with @{type}" t "Bind\\s-+Scope")
     ("Canonical Structure" nil "Canonical Structure #." t "Canonical\\s-+Structure")
@@ -740,6 +745,8 @@ so for the following reasons:
     ("Set Printing Record" nil "Set Printing Record" t "Set Printing\\s-+Record")
     ("Set Printing Constructor" nil "Set Printing Constructor" t "Set Printing\\s-+Constructor")
     ("Solve Obligations" "oblssolve" "Solve Obligations using #." t "Solve\\s-+Obligations")
+    ("Local Strategy" nil "Local Strategy # [#]." t "Local\\s-+Strategy")
+    ("Strategy" nil "Strategy # [#]." t "Strategy")
     ("Tactic Notation" nil "Tactic Notation # := #." t "Tactic\\s-+Notation")
     ("Transparent" nil "Transparent #." nil "Transparent")
 
