@@ -966,14 +966,15 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
        ;;     now ( tac3 ;  <- neither here
        ;;           tac5) ;
        ;;   ]
-       ((and (equal token "; tactic")
-	     coq-indent-semicolon-tactical
-	     (not (coq-smie-is-ltacdef))
-	     (not (coq-smie-is-inside-parenthesized-tactic)))
-	(if (or (not (smie-rule-parent-p "; tactic"))
-		(and smie--parent
-		   (coq-smie--same-line-as-parent
-		    (nth 1 smie--parent) (point))))
+       ((equal token "; tactic")
+	(if (and (smie-rule-hanging-p)
+		 coq-indent-semicolon-tactical
+		 (not (coq-smie-is-ltacdef))
+		 (not (coq-smie-is-inside-parenthesized-tactic))
+		 (or (not (smie-rule-parent-p "; tactic"))
+		     (and smie--parent
+			  (coq-smie--same-line-as-parent
+			   (nth 1 smie--parent) (point)))))
 	    coq-indent-semicolon-tactical
 	  nil))
 
