@@ -1480,7 +1480,7 @@ Near here means PT is either inside or just aside of a comment."
   (set (make-local-variable 'open-paren-in-column-0-is-defun-start) nil)
   ;; do not break lines in code when filling
   (set (make-local-variable 'fill-nobreak-predicate)
-       (lambda () (not (syntax-ppss))))
+       (lambda () (not (nth 4 (syntax-ppss)))))
   ;; coq mode specific indentation function
   (set (make-local-variable 'fill-paragraph-function) 'coq-fill-paragraph-function)
 
