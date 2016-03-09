@@ -379,6 +379,9 @@ The point should be at the beginning of the command name."
       ;; we can.
       (save-excursion (coq-smie-backward-token)))
 
+     ;; easier to return directly than calling coq-smie-backward-token
+     ((member tok '("lazymatch" "multimatch")) "match")
+
      ;; detect "with signature", otherwies use coq-smie-backward-token
      ((equal tok "with")
       (let ((p (point)))
