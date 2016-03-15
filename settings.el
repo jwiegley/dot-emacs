@@ -422,7 +422,7 @@
  '(erc-fill-static-center 12)
  '(erc-foolish-content
    (quote
-    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:")))
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:" "\\<stack\\>" "\\<cabal\\>")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
@@ -758,7 +758,6 @@
  '(ledger-post-use-ido t)
  '(line-number-mode t)
  '(load-prefer-newer t)
- '(mac-option-modifier (quote alt))
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
  '(mac-wheel-button-is-mouse-2 nil)
@@ -793,6 +792,8 @@
  '(next-line-add-newlines nil)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
+ '(ns-right-alternate-modifier (quote super))
+ '(ns-right-control-modifier (quote hyper))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(offlineimap-command "offlineimap -u machineui")
@@ -867,6 +868,7 @@
  '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
  '(scroll-bar-mode nil)
+ '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
  '(sentence-end-double-space nil)
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
@@ -1028,7 +1030,6 @@
  '(whitespace-silent t t)
  '(whitespace-style (quote (face trailing lines space-before-tab empty)))
  '(workgroups-mode nil)
- '(x-select-enable-clipboard t)
  '(x-stretch-cursor t)
  '(yaoddmuse-directory "~/.emacs.d/doc")
  '(yas-prompt-functions
@@ -1052,5 +1053,6 @@
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) (t (:foreground "DarkBlue"))))
  '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight normal))))
  '(proof-script-sticky-error-face ((t (:background "yellow"))))
+ '(variable-pitch ((t (:height 1.2 :family "Myriad Pro"))))
  '(whitespace-line ((t (:background "#fff7d5"))))
  '(yas-field-highlight-face ((t (:background "#e4edfc")))))

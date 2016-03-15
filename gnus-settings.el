@@ -18,20 +18,12 @@
  '(gnus-alias-default-identity "NewArtisans")
  '(gnus-alias-identity-alist
    (quote
-    (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" ""
-      (("Reply-To" . "\"John Wiegley\" <johnw@gnu.org>"))
-      "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+    (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" ""
-      (("Reply-To" . "\"John Wiegley\" <jwiegley@gmail.com>"))
-      "" "")
-     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC"
-      (("Reply-To" . "\"John Wiegley\" <johnw@newartisans.com>"))
-      "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems"
-      (("Reply-To" . "\"John Wiegley\" <john.wiegley@baesystems.com>"))
-      "" "John Wiegley
+     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
 BAE Systems"))))
  '(gnus-alias-identity-rules
    (quote
@@ -219,7 +211,7 @@ BAE Systems"))))
      ("list\\.emacs\\.diffs"
       (to-address . "emacs-diffs@gnu.org")
       (to-list . "emacs-diffs@gnu.org")
-      (list-identifier . "\\[Emacs-diffs\\] \\(.+?\\) [0-9a-f]\\{7\\}: "))
+      (list-identifier . "\\[Emacs-diffs\\]"))
      ("list\\.emacs\\.elpa\\.diffs"
       (to-address . "emacs-elpa-diffs@gnu.org")
       (to-list . "emacs-elpa-diffs@gnu.org")
@@ -342,6 +334,8 @@ BAE Systems"))))
       (list-identifier . "\\[rings-all\\]")
       (to-address . "rings-all@googlegroups.com")
       (to-list . "rings-all@googlegroups.com"))
+     ("list\\.brass\\.smedl$"
+      (list-identifier . "\\[smedl\\]"))
      ("list\\.hott"
       (to-address . "hott-cafe@googlegroups.com")
       (to-list . "hott-cafe@googlegroups.com")

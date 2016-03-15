@@ -3375,14 +3375,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          'my-proof-display-and-keep-buffer)
 
        ;; (company-coq-mode 1)
-       ))
+
+       (set (make-local-variable 'fill-nobreak-predicate)
+            (lambda ()
+              (pcase (get-text-property (point) 'face)
+                ('font-lock-comment-face nil)
+                ((pred (lambda (x)
+                         (and (listp x)
+                              (memq 'font-lock-comment-face x)))) nil)
+                (_ t))))))
 
     (bind-key "M-RET" #'proof-goto-point coq-mode-map)
     (bind-key "RET" #'newline-and-indent coq-mode-map)
-    (bind-key "C-c C-p" #'(lambda ()
-                            (interactive)
-                            (proof-layout-windows)
-                            (proof-prf)) coq-mode-map)
+    (bind-key "C-c C-p"
+              #'(lambda ()
+                  (interactive)
+                  (proof-layout-windows)
+                  (proof-prf)) coq-mode-map)
     (bind-key "C-c C-a C-r" #'coq-SearchRewrite coq-mode-map)
     (bind-key "C-c C-a C-s" #'coq-SearchConstant coq-mode-map)
     (unbind-key "C-c h" coq-mode-map))
