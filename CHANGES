@@ -111,6 +111,16 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support for prettify-symbols-mode.
 
+*** Option to disable the auto resizing of response buffer:
+
+    By default when the response buffer is on the same column than
+    goals buffer, pg changes its size dynamically to optimize goals
+    displaying.
+
+    To disable this feature use:
+    (setq coq-optimise-resp-windows-enable nil)
+    
+
 *** Colors in response and goals buffers
 
     Experimental: colorize hypothesis names and some parts of error
