@@ -81,6 +81,11 @@ These are appended at the end of `coq-shell-init-cmd'."
   :type '(repeat (cons (string :tag "command")))
   :group 'coq)
 
+(defcustom coq-optimise-resp-windows-enable t
+  "If non-nil (default) resize vertically response windw after each command."
+  :type 'boolean
+  :group 'coq)
+
 ;; Default coq is only Private_ and _subproof
 (defcustom coq-search-blacklist-string ; add this? \"_ind\" \"_rect\" \"_rec\" 
  "\"Private_\" \"_subproof\""
@@ -1208,6 +1213,7 @@ width is synchronized by coq (?!)."
   :safe 'booleanp
   :group 'coq
   :eval (coq-set-auto-adapt-printing-width))
+
 
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-set-auto-adapt-printing-width)
@@ -2531,14 +2537,18 @@ Only when three-buffer-mode is enabled."
                   (goto-char (point-min))
                   (recenter))))))))))
 
+;; TODO: remove/add hook instead? 
+(defun coq-optimise-resp-windows-if-option ()
+  (when coq-optimise-resp-windows-enable (coq-optimise-resp-windows)))
+
 ;; TODO: I would rather have a response-insert-hook thant this two hooks
 ;; Careful: coq-optimise-resp-windows must be called BEFORE proof-show-first-goal,
 ;; i.e. added in hook AFTER it.
 
 ;; Adapt when displaying a normal message
-(add-hook 'proof-shell-handle-delayed-output-hook 'coq-optimise-resp-windows)
+(add-hook 'proof-shell-handle-delayed-output-hook 'coq-optimise-resp-windows-if-option)
 ;; Adapt when displaying an error or interrupt
-(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-optimise-resp-windows)
+(add-hook 'proof-shell-handle-error-or-interrupt-hook 'coq-optimise-resp-windows-if-option)
 
 ;;; DOUBLE HIT ELECTRIC TERMINATOR
 ;; Trying to have double hit on colon behave like electric terminator. The "."
