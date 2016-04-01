@@ -1709,10 +1709,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                :port 6697
                :nick "johnw"
                :password (lookup-password titan-ip "johnw/freenode" 6697))
-          (erc :server titan-ip
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password titan-ip "johnw/oftc" 6697)))
+          ;; (erc :server titan-ip
+          ;;      :port 6697
+          ;;      :nick "johnw"
+          ;;      :password (lookup-password titan-ip "johnw/oftc" 6697))
+          )
 
       (erc-tls :server "irc.freenode.net"
                :port 6697
@@ -3586,8 +3587,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/session/lisp/"
   :preface
   (defun remove-session-use-package-from-settings ()
-    (when (string= (file-name-nondirectory (buffer-file-name))
-                   "settings.el")
+    (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
       (save-excursion
         (goto-char (point-min))
         (when (re-search-forward "^ '(session-use-package " nil t)
@@ -3887,6 +3887,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands wcount-mode)
 
 (use-package which-key
+  :disabled t
   :load-path "site-lisp/which-key"
   :diminish which-key-mode
   :commands which-key-mode

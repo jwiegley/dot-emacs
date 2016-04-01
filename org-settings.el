@@ -275,7 +275,7 @@ SCHEDULED: %t
  '(org-mobile-files (quote ("~/doc/tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
  '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
- '(org-modules (quote (org-gnus org-id org-info org-habit org-depend)))
+ '(org-modules (quote (org-gnus org-habit org-info org-depend)))
  '(org-priority-faces
 (quote
  ((65 :foreground "ForestGreen" :weight bold)

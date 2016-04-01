@@ -461,7 +461,7 @@ BAE Systems"))))
    (quote
     ("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*")))
  '(mm-decrypt-option (quote always))
- '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext")))
+ '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext" "text/html")))
  '(mm-inline-text-html-with-images nil)
  '(mm-verify-option (quote always))
  '(mm-w3m-safe-url-regexp nil)
