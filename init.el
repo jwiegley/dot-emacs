@@ -25,7 +25,7 @@
             (let ((script2 (match-string 1)))
               (with-temp-buffer
                 (insert-file-contents-literally script2)
-                (when (re-search-forward "nativeBuildInputs=\"\\(.+?\\)\""
+                (when (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\""
                                          nil t)
                   (let ((inputs (split-string (match-string 1))))
                     inputs)))))))))
@@ -94,7 +94,7 @@
 (defvar user-data-directory
   (expand-file-name "data" user-emacs-directory))
 
-(if (string= "emacs24" emacs-environment)
+(if (string= "emacsHEAD" emacs-environment)
     (load (expand-file-name "settings" user-emacs-directory))
   (let ((settings
          (with-temp-buffer
@@ -103,6 +103,7 @@
            (goto-char (point-min))
            (read (current-buffer))))
         (suffix (cond ((string= "emacs24alt" emacs-environment) "alt")
+                      ((string= "emacsHEADalt" emacs-environment) "alt")
                       ((string= "emacsHEAD" emacs-environment) "dev")
                       (t "other"))))
     (setq running-development-emacs (string= suffix "dev")
@@ -2948,7 +2949,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun magit-monitor (&optional no-display)
     "Start git-monitor in the current directory."
     (interactive)
-    (when (string-match "\\*magit: \\(.+?\\)\\*" (buffer-name))
+    (when (string-match "\\*magit: \\(.+\\)" (buffer-name))
       (let ((name (format "*git-monitor: %s*"
                           (match-string 1 (buffer-name)))))
         (or (get-buffer name)
@@ -3002,6 +3003,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-s" magit-mode-map)
   (unbind-key "M-m" magit-mode-map)
   (unbind-key "M-w" magit-mode-map)
+  (unbind-key "<C-return>" magit-file-section-map)
 
   ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
   ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
@@ -3393,8 +3395,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                   (interactive)
                   (proof-layout-windows)
                   (proof-prf)) coq-mode-map)
+    (defalias 'coq-Search #'coq-SearchConstant)
+    (defalias 'coq-SearchPattern #'coq-SearchIsos)
+    (bind-key "C-c C-a C-s" #'coq-Search coq-mode-map)
+    (bind-key "C-c C-a C-o" #'coq-SearchPattern coq-mode-map)
+    (bind-key "C-c C-a C-a" #'coq-SearchAbout coq-mode-map)
     (bind-key "C-c C-a C-r" #'coq-SearchRewrite coq-mode-map)
-    (bind-key "C-c C-a C-s" #'coq-SearchConstant coq-mode-map)
     (unbind-key "C-c h" coq-mode-map))
 
   (use-package pg-user
