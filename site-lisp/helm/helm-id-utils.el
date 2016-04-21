@@ -1,6 +1,6 @@
 ;;; helm-id-utils.el --- Helm interface for id-utils. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2015 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -39,11 +39,18 @@ MacPorts to install id-utils, it should be `gid32'."
   :type 'string)
 
 (defun helm-gid-candidates-process ()
-  (let ((proc (start-process
-               "gid" nil helm-gid-program
-               "-r" helm-pattern)))
-    (set (make-local-variable 'helm-grep-last-cmd-line)
-         (format "%s -r %s" helm-gid-program helm-pattern))
+  (let* ((patterns (split-string helm-pattern))
+         (default-com (format "%s -r %s" helm-gid-program
+                              (shell-quote-argument (car patterns))))
+         (cmd (helm-aif (cdr patterns)
+                  (concat default-com
+                          (cl-loop for p in it
+                                   concat (format " | grep --color=always %s"
+                                                  (shell-quote-argument p))))
+                default-com))
+         (proc (start-process-shell-command
+                "gid" helm-buffer cmd)))
+    (set (make-local-variable 'helm-grep-last-cmd-line) cmd)
     (prog1 proc
       (set-process-sentinel
        proc (lambda (_process event)
@@ -113,7 +120,7 @@ See <https://www.gnu.org/software/idutils/>."
                      :db-dir db)
           :buffer "*helm gid*"
           :keymap helm-grep-map
-          :truncate-lines t)))
+          :truncate-lines helm-grep-truncate-lines)))
 
 (provide 'helm-id-utils)
 

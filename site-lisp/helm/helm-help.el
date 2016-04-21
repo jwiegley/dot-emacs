@@ -1,6 +1,6 @@
 ;;; helm-help.el --- Help messages for Helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -263,12 +263,17 @@ If you are already in `default-directory' this will move cursor on top.
 
 **** Enter `../' at end of pattern will reach upper directory, moving cursor on top
 
-NOTE: This is different to using `C-l' in that `C-l' don't move cursor on top but stay on previous
+NOTE: This is different from using `C-l' in that `C-l' doesn't move cursor on top but stays on previous
 subdir name.
 
 **** Enter any environment var (e.g. `$HOME') at end of pattern, it will be expanded
 
 **** You can yank any valid filename after pattern, it will be expanded
+
+**** Special case with url's at point
+
+This have no effect at end of an url, you have first to kill pattern (`C-k')
+before entering one of these quick expansions patterns.
 
 *** Helm find files is fuzzy matching (start on third char entered)
 
@@ -350,6 +355,10 @@ and then run your copy action.
 You can do the same but with \"**.el\" (note the two stars),
 this will select recursively all \".el\" files under current directory.
 
+Note that when copying recursively files, you may have files with same name
+dispatched in the different directories, so when copying them in the same directory
+they would be overwrited.
+
 NOTE: When using an action that involve an external backend (e.g. grep), using \"**\"
 is not advised (even if it works fine) because it will be slower to select all your files,
 you have better time letting the backend doing it, it will be faster.
@@ -358,6 +367,41 @@ also using not recursive wilcard (e.g. \"*.el\") is perfectly fine for this.
 
 This feature (\"**\") is activated by default with the option `helm-file-globstar'.
 The directory selection with \"**foo/\" like bash shopt globstar option is not supported yet.
+
+*** Query replace regexp on filenames
+
+You can rename your files by replacing only part of filenames matching
+a regexp.
+
+e.g Rename recursively all files with \".JPG\" extension to \".jpg\":
+Use the helm-file-globstar feature described in previous section by
+entering at end of helm-find-files pattern \"**.JPG\", then hit `M-%`,
+at first prompt enter \"JPG\", at second \"jpg\" and hit `RET`.
+
+Shortcut for basename without extension, only extension or all are available:
+
+- Basename without extension => \"%.\"
+- Only extension             => \".%\"
+- All                        => \"%\"
+
+If you want to rename a serie of files from number 001 to 00x use \\# inside the replacement
+string when you will be prompted for it.
+
+e.g To rename the files \"foo.jpg\" \"bar.jpg\" and \"baz.jpg\"
+    to \"foo-001.jpg\" \"foo-002.jpg\" \"foo-003.jpg\"
+
+Use as replace regexp \"%.\" and as replacement string \"foo-\\#\".
+Where \"%.\" is same as regexp \".*\\.jpg\".
+
+Note: You can do this with the serial renames actions you will find in the action menu
+      for more sophisticated renaming, but using query replace regexp on filenames
+      is a fast way for most common serial replacements.
+
+Note also that unlike the serial renames action the renamed files stay in their initial directory
+and are not renamed to current directory, IOW use this to rename files inside current directory.
+
+In the second prompt (replace regexp with) shortcut for `upcase', `downcase' and `capitalize'
+are available, respectively `%u', `%d' and `%c'.
 
 *** Copying renaming asynchronously
 
@@ -579,6 +623,8 @@ than 1 megabyte:
 ** Tips
 
 *** You can start grep with a prefix arg to recurse in subdirectories
+However now that helm support git-grep and AG, you have better time
+using one of those for your recursives search.
 
 *** You can use wild card when selecting files (e.g. *.el)
 
@@ -586,7 +632,11 @@ than 1 megabyte:
 
 *** You can save your results in a `helm-grep-mode' buffer, see commands below
 
-Once in this buffer you can use emacs-wgrep to edit your changes.
+Once in this buffer you can use emacs-wgrep (external package not bundled with helm)
+to edit your changes.
+
+*** Helm grep is supporting multi matching starting from version 1.9.4.
+Just add a space between each pattern like in most helm commands.
 
 *** Important
 
@@ -610,6 +660,9 @@ Helm Gid use the symbol at point as default-input.
 You have access to this command also from `helm-find-files' which allow you to
 navigate to another directory to consult its database.
 
+NOTE: Helm gid support multi matches but only the last pattern entered will be
+highlighted due to the lack of ~--color~ support in GID itself.
+
 * Helm AG
 
 ** Tips
@@ -621,6 +674,19 @@ or global when placed in home directory (See AG man page for more infos).
 This file supports same entries as what you will find in `helm-grep-ignored-files' and
 `helm-grep-ignored-directories'.
 As always you can access helm AG from `helm-find-files'.
+
+Starting at version 0.30 AG allow providing one or more TYPE argument on its command line.
+Helm provide completion on these TYPES arguments when available with your AG version,
+Use a prefix argument when starting helm ag session to get this completion.
+NOTE: You can mark several types to match in your ag query, however on the first versions of
+AG providing this, only one type was allowed, so in this case the last marked will take effect.
+
+* Helm git-grep
+
+Helm git-grep is searching from current directory
+(i.e default-directory or the directory currently browsed by helm-find-files).
+If this current directory is a subdirectory of project and you want to match
+also upper directories (i.e the whole project) use a prefix arg.
 
 ** Commands
 \\<helm-grep-map>
@@ -1199,12 +1265,6 @@ HELM-ATTRIBUTE should be a symbol."
   Functions should return transformed `helm-pattern'.
 
   It is useful to change interpretation of `helm-pattern'.")
-
-(helm-document-attribute 'delayed "optional"
-  "  Candidates from the source are shown only if the user stops
-  typing and is idle for `helm-idle-delay' seconds.
-  If a value is given to delayed attr, this value is used instead only
-  if it is > to `helm-idle-delay'.")
 
 (helm-document-attribute 'volatile "optional"
   "  Indicates the source assembles the candidate list dynamically,

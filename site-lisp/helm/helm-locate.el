@@ -1,6 +1,6 @@
 ;;; helm-locate.el --- helm interface for locate. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -48,12 +48,12 @@ Note that this happen only when locate is launched with a prefix arg."
 
 (defcustom helm-locate-command nil
   "A list of arguments for locate program.
-Normally you should not have to modify this yourself.
+Normally the default value should work on any system.
 
 If nil it will be calculated when `helm-locate' startup
 with these default values for different systems:
 
-Gnu/linux: \"locate %s -e -r %s\"
+Gnu/linux: \"locate %s -e --regex %s\"
 berkeley-unix: \"locate %s %s\"
 windows-nt: \"es %s %s\"
 Others: \"locate %s %s\"
@@ -216,7 +216,7 @@ See `helm-locate-with-db' and `helm-locate'."
   (unless helm-locate-command
     (setq helm-locate-command
           (cl-case system-type
-            (gnu/linux "locate %s -e -r %s")
+            (gnu/linux "locate %s -e --regex %s")
             (berkeley-unix "locate %s %s")
             (windows-nt "es %s %s")
             (t "locate %s %s")))))
@@ -284,30 +284,37 @@ See also `helm-locate'."
          cmd)
       (set-process-sentinel
        (get-buffer-process helm-buffer)
-       (lambda (_process event)
-           (if (string= event "finished\n")
-               (with-helm-window
-                 (setq mode-line-format
-                       '(" " mode-line-buffer-identification " "
-                         (:eval (format "L%s" (helm-candidate-number-at-point))) " "
-                         (:eval (propertize
-                                 (format "[Locate process finished - (%s results)]"
-                                         (max (1- (count-lines
-                                                   (point-min) (point-max)))
-                                              0))
-                                 'face 'helm-locate-finish))))
-                 (force-mode-line-update))
-             (helm-log "Error: Locate %s"
-                       (replace-regexp-in-string "\n" "" event))))))))
+       (lambda (process event)
+         (let* ((err (process-exit-status process))
+                (noresult (= err 1)))
+           (cond (noresult
+                  (with-helm-buffer
+                    (unless (cdr helm-sources)
+                      (insert (concat "* Exit with code 1, no result found,"
+                                      " command line was:\n\n "
+                                      cmd)))))
+                 ((string= event "finished\n")
+                  (with-helm-window
+                    (setq mode-line-format
+                          '(" " mode-line-buffer-identification " "
+                            (:eval (format "L%s" (helm-candidate-number-at-point))) " "
+                            (:eval (propertize
+                                    (format "[Locate process finished - (%s results)]"
+                                            (max (1- (count-lines
+                                                      (point-min) (point-max)))
+                                                 0))
+                                    'face 'helm-locate-finish))))
+                    (force-mode-line-update)))
+                 (t
+                  (helm-log "Error: Locate %s"
+                            (replace-regexp-in-string "\n" "" event))))))))))
 
 (defclass helm-locate-source (helm-source-async helm-type-file)
   ((init :initform 'helm-locate-set-command)
    (candidates-process :initform 'helm-locate-init)
    (requires-pattern :initform 3)
    (history :initform 'helm-file-name-history)
-   (keymap :initform helm-generic-files-map)
    (persistent-action :initform 'helm-ff-kill-or-find-buffer-fname)
-   (help-message :initform 'helm-generic-file-help-message)
    (candidate-number-limit :initform 9999)))
 
 (defvar helm-source-locate
@@ -354,25 +361,6 @@ With a prefix arg refresh the database in each project."
     (if dbs
         (helm-locate-with-db dbs)
         (user-error "No projects found, please setup `helm-locate-project-list'"))))
-
-;;;###autoload
-(defun helm-locate-read-file-name (prompt)
-  (let* ((src `((name . "Locate read fname")
-                (init . helm-locate-set-command)
-                (candidates-process . helm-locate-init)
-                (action . identity)
-                (requires-pattern . 3)
-                (history . ,'helm-file-name-history)
-                (candidate-transformer . (helm-skip-boring-files
-                                          helm-highlight-files))
-                (candidate-number-limit . 9999)
-                (no-matchplugin))))
-    (or (helm :sources src
-              :ff-transformer-show-only-basename nil
-              :prompt prompt
-              :buffer "*helm locate read fname*"
-              :resume 'noresume)
-        (keyboard-quit))))
 
 ;;;###autoload
 (defun helm-locate (arg)

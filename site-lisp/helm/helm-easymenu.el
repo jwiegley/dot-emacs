@@ -1,6 +1,6 @@
 ;;; helm-easymenu.el --- Helm easymenu definitions. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2015 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -45,14 +45,13 @@
     ["Gnus Manual index" helm-info-gnus t]
     ["Helm documentation" helm-documentation t])
    ("Org"
-    ["Org keywords" helm-org-keywords t]
-    ["Org headlines" helm-org-headlines t])
+    ["Org headlines in org agenda files" helm-org-agenda-files-headings t]
+    ["Org headlines in buffer" helm-org-in-buffer-headings t])
    ("Elpa"
     ["Elisp packages" helm-list-elisp-packages t]
     ["Elisp packages no fetch" helm-list-elisp-packages-no-fetch t])
    ("Tools"
     ["Occur" helm-occur t]
-    ["Grep" helm-do-grep t]
     ["Grep current directory with AG" helm-do-grep-ag t]
     ["Gid"  helm-gid t]
     ["Etags" helm-etags-select t]
