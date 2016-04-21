@@ -1,3 +1,5 @@
+[![melpa badge][melpa-badge]][melpa-link] [![melpa stable badge][melpa-stable-badge]][melpa-stable-link]
+
 List match lines to another buffer, which is able to squeeze by any words you input. At the same time, the original buffer's cursor is jumping line to line according to moving up and down the line list.
 
 ![helm-swoop](https://raw.githubusercontent.com/ShingoFukuyama/images/master/helm-swoop.gif)
@@ -23,6 +25,8 @@ List match lines to another buffer, which is able to squeeze by any words you in
 * `M-x helm-multi-swoop` multi-occur like feature
 * `M-x helm-multi-swoop-all` apply all buffers
 * `C-u M-x helm-multi-swoop` apply last selected buffers from the second time
+* `M-x helm-multi-swoop-org` apply to all org-mode buffers
+* `M-x helm-multi-swoop-current-mode` apply to all buffers with the same major-mode as the current buffer
 * `M-x helm-swoop-same-face-at-point` list lines have the same face at the cursor is on
 * During isearch `M-i` to hand the word over to helm-swoop
 * During helm-swoop `M-i` to hand the word over to helm-multi-swoop-all
@@ -49,6 +53,11 @@ Skip select phase and apply all buffers.
 ##### `C-u M-x helm-multi-swoop`
 Skip select phase and apply last selected buffers, if you have done helm-multi-swoop before.
 
+#### `M-x helm-multi-swoop-org`
+Skip the select phase and apply to all org-mode buffers
+
+#### `M-x helm-multi-swoop-current-mode`
+Skip the select phase and apply to all buffers with the same major mode as the current buffer
 
 #### Multiline behavior 
 `M-4 M-x helm-swoop` or `C-u 4 M-x helm-swoop`
@@ -78,6 +87,9 @@ Skip select phase and apply last selected buffers, if you have done helm-multi-s
 ;; When doing evil-search, hand the word over to helm-swoop
 ;; (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search)
 
+;; Instead of helm-multi-swoop-all, you can also use helm-multi-swoop-current-mode
+(define-key helm-swoop-map (kbd "M-m") 'helm-multi-swoop-current-mode-from-helm-swoop)
+
 ;; Move up and down like isearch
 (define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
 (define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
@@ -103,6 +115,11 @@ Skip select phase and apply last selected buffers, if you have done helm-multi-s
 ;; Face name is `helm-swoop-line-number-face`
 (setq helm-swoop-use-line-number-face t)
 
+;; If you prefer fuzzy matching
+(setq helm-swoop-use-fuzzy-match t)
+
+;; If you would like to use migemo, enable helm's migemo feature
+(helm-migemo-mode 1)
 ```
 
 #### Configure pre-input search query
@@ -113,15 +130,16 @@ You can configure this behavior by setting `helm-swoop-pre-input-function` on yo
 i.e.
 
 ```elisp
-;; use search query at the cursor  (default)
+;; Use search query at the cursor  (default)
 (setq helm-swoop-pre-input-function
       (lambda () (thing-at-point 'symbol)))
 
-;; disable pre-input
+;; Disable pre-input
 (setq helm-swoop-pre-input-function
       (lambda () ""))
+;; Or, just use M-x helm-swoop-without-pre-input
 
-;; match only for symbol
+;; Match only for symbol
 (setq helm-swoop-pre-input-function
       (lambda () (format "\\_<%s\\_> " (thing-at-point 'symbol))))
 
@@ -142,3 +160,10 @@ i.e.
 ### Require
 
 [helm.el](https://github.com/emacs-helm/helm)
+
+
+
+[melpa-link]: http://melpa.org/#/helm-swoop
+[melpa-stable-link]: http://stable.melpa.org/#/helm-swoop
+[melpa-badge]: http://melpa.org/packages/helm-swoop-badge.svg
+[melpa-stable-badge]: http://stable.melpa.org/packages/helm-swoop-badge.svg
