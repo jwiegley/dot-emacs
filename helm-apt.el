@@ -1,6 +1,6 @@
 ;;; helm-apt.el --- Helm interface for Debian/Ubuntu packages (apt-*) -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -134,27 +134,31 @@ If nil default `helm-apt-cache-show-1' will be used."
 
 (defun helm-apt-show-only-installed ()
   (interactive)
-  (when helm-alive-p
+  (with-helm-alive-p
     (setq helm-apt-show-only 'installed)
     (helm-update)))
+(put 'helm-apt-show-only-installed 'helm-only t)
 
 (defun helm-apt-show-only-not-installed ()
   (interactive)
-  (when helm-alive-p
+  (with-helm-alive-p
     (setq helm-apt-show-only 'noinstalled)
     (helm-update)))
+(put 'helm-apt-show-only-not-installed 'helm-only t)
 
 (defun helm-apt-show-only-deinstalled ()
   (interactive)
-  (when helm-alive-p
+  (with-helm-alive-p
     (setq helm-apt-show-only 'deinstalled)
     (helm-update)))
+(put 'helm-apt-show-only-deinstalled 'helm-only t)
 
 (defun helm-apt-show-all ()
   (interactive)
-  (when helm-alive-p
+  (with-helm-alive-p
     (setq helm-apt-show-only 'all)
     (helm-update)))
+(put 'helm-apt-show-all 'helm-only t)
 
 (defun helm-apt-init ()
   "Initialize list of debian packages."

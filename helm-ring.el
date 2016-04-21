@@ -1,6 +1,6 @@
 ;;; helm-ring.el --- kill-ring, mark-ring, and register browsers for helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -368,7 +368,7 @@ the `global-mark-ring' after each new visit."
            (lambda (c) (increment-register
                         helm-current-prefix-arg (car c))))
           (undo-tree-restore-state-from-register
-           "Restore Undo-tree register"
+           "Restore Undo-tree register" .
            (lambda (c) (and (fboundp 'undo-tree-restore-state-from-register)
                             (undo-tree-restore-state-from-register (car c))))))
         for func in (cdr register-and-functions)

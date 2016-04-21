@@ -1,6 +1,6 @@
 ;;; helm-types.el --- Helm types classes and methods. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015  Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2015 ~ 2016  Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; URL: http://github.com/emacs-helm/helm
@@ -71,14 +71,20 @@
 (defmethod helm--setup-source :primary ((_source helm-type-file)))
 
 (defmethod helm--setup-source :before ((source helm-type-file))
-  (set-slot-value source 'action 'helm-type-file-actions)
-  (set-slot-value source 'persistent-help "Show this file")
-  (set-slot-value source 'action-transformer '(helm-transform-file-load-el
-                                               helm-transform-file-browse-url
-                                               helm-transform-file-cache))
-  (set-slot-value source 'candidate-transformer '(helm-skip-boring-files
-                                                  helm-highlight-files
-                                                  helm-w32-pathname-transformer)))
+  (setf (slot-value source 'action) 'helm-type-file-actions)
+  (setf (slot-value source 'persistent-help) "Show this file")
+  (setf (slot-value source 'action-transformer)
+        '(helm-transform-file-load-el
+          helm-transform-file-browse-url
+          helm-transform-file-cache))
+  (setf (slot-value source 'candidate-transformer)
+        '(helm-skip-boring-files
+          helm-highlight-files
+          helm-w32-pathname-transformer))
+  (setf (slot-value source 'help-message) 'helm-generic-file-help-message)
+  (setf (slot-value source 'mode-line) (list "File(s)" helm-mode-line-string))
+  (setf (slot-value source 'keymap) helm-generic-files-map))
+
 
 ;; Bookmarks
 (defclass helm-type-bookmark (helm-source) ()
@@ -105,10 +111,11 @@
 (defmethod helm--setup-source :primary ((_source helm-type-bookmark)))
 
 (defmethod helm--setup-source :before ((source helm-type-bookmark))
-  (set-slot-value source 'action 'helm-type-bookmark-actions)
-  (set-slot-value source 'keymap helm-bookmark-map)
-  (set-slot-value source 'help-message 'helm-bookmark-help-message)
-  (set-slot-value source 'migemo t))
+  (setf (slot-value source 'action) 'helm-type-bookmark-actions)
+  (setf (slot-value source 'keymap) helm-bookmark-map)
+  (setf (slot-value source 'mode-line) (list "Bookmark(s)" helm-mode-line-string))
+  (setf (slot-value source 'help-message) 'helm-bookmark-help-message)
+  (setf (slot-value source 'migemo) t))
 
 
 ;; Buffers
@@ -154,13 +161,13 @@
 (defmethod helm--setup-source :primary ((_source helm-type-buffer)))
 
 (defmethod helm--setup-source :before ((source helm-type-buffer))
-  (set-slot-value source 'action 'helm-type-buffer-actions)
-  (set-slot-value source 'persistent-help "Show this buffer")
-  (set-slot-value
-   source 'filtered-candidate-transformer
-   '(helm-skip-boring-buffers
-     helm-buffers-sort-transformer
-     helm-highlight-buffers)))
+  (setf (slot-value source 'action) 'helm-type-buffer-actions)
+  (setf (slot-value source 'persistent-help) "Show this buffer")
+  (setf (slot-value source 'mode-line) (list "Buffer(s)" helm-mode-line-string))
+  (setf (slot-value source 'filtered-candidate-transformer)
+        '(helm-skip-boring-buffers
+          helm-buffers-sort-transformer
+          helm-highlight-buffers)))
 
 ;; Functions
 (defclass helm-type-function (helm-source) ()
@@ -191,12 +198,12 @@
 (defmethod helm--setup-source :primary ((_source helm-type-function)))
 
 (defmethod helm--setup-source :before ((source helm-type-function))
-  (set-slot-value source 'action 'helm-type-function-actions)
-  (set-slot-value source 'action-transformer
-                  'helm-transform-function-call-interactively)
-  (set-slot-value source 'candidate-transformer
-                  'helm-mark-interactive-functions)
-  (set-slot-value source 'coerce 'helm-symbolify))
+  (setf (slot-value source 'action) 'helm-type-function-actions)
+  (setf (slot-value source 'action-transformer)
+        'helm-transform-function-call-interactively)
+  (setf (slot-value source 'candidate-transformer)
+        'helm-mark-interactive-functions)
+  (setf (slot-value source 'coerce) 'helm-symbolify))
 
 
 ;; Commands
@@ -219,10 +226,9 @@
 (defmethod helm--setup-source :primary ((_source helm-type-command)))
 
 (defmethod helm--setup-source :before ((source helm-type-command))
-  (set-slot-value
-   source 'action 'helm-type-command-actions)
-  (set-slot-value source 'coerce 'helm-symbolify)
-  (set-slot-value source 'persistent-action 'describe-function))
+  (setf (slot-value source 'action) 'helm-type-command-actions)
+  (setf (slot-value source 'coerce) 'helm-symbolify)
+  (setf (slot-value source 'persistent-action) 'describe-function))
 
 ;; Timers
 (defclass helm-type-timers (helm-source) ()
@@ -247,11 +253,11 @@
 (defmethod helm--setup-source :primary ((_source helm-type-timers)))
 
 (defmethod helm--setup-source :before ((source helm-type-timers))
-  (set-slot-value source 'action 'helm-type-timers-actions)
-  (set-slot-value source 'persistent-action
-                  (lambda (tm)
-                    (describe-function (timer--function tm))))
-  (set-slot-value source 'persistent-help "Describe Function"))
+  (setf (slot-value source 'action) 'helm-type-timers-actions)
+  (setf (slot-value source 'persistent-action)
+        (lambda (tm)
+          (describe-function (timer--function tm))))
+  (setf (slot-value source 'persistent-help) "Describe Function"))
 
 ;; Builders.
 (defun helm-build-type-file ()

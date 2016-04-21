@@ -1,6 +1,6 @@
 ;;; helm-imenu.el --- Helm interface for Imenu -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -241,6 +241,7 @@
         (helm-execute-action-at-once-if-one
          helm-imenu-execute-action-at-once-if-one))
     (helm :sources 'helm-source-imenu
+          :default (list (concat "\\_<" str "\\_>") str)
           :preselect str
           :buffer "*helm imenu*")))
 

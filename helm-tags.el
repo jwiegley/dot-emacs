@@ -1,6 +1,6 @@
 ;;; helm-tags.el --- Helm for Etags. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -43,12 +43,10 @@ Don't search tag file deeply if outside this value."
   "Allow choosing the tag part of CANDIDATE in `helm-source-etags-select'.
 A tag looks like this:
     filename: \(defun foo
-You can choose matching against only end part of tag (i.e \"foo\"),
-against only the tag part (i.e \"(defun foo\"),
-or against the whole candidate (i.e \"(filename: (defun foo\")."
+You can choose matching against the tag part (i.e \"(defun foo\"),
+or against the whole candidate (i.e \"(filename:5:(defun foo\")."
   :type '(choice
           (const :tag "Match only tag" tag)
-          (const :tag "Match last part of tag" endtag)
           (const :tag "Match all file+tag" all))
   :group 'helm-tags)
 
@@ -82,6 +80,7 @@ one match."
     (helm-exit-and-execute-action
      (lambda (c)
        (helm-etags-action-goto 'find-file-other-window c)))))
+(put 'helm-etags-run-switch-other-window 'helm-only t)
 
 (defun helm-etags-run-switch-other-frame ()
   "Run switch to other frame action from `helm-source-etags-select'."
@@ -90,6 +89,7 @@ one match."
     (helm-exit-and-execute-action
      (lambda (c)
        (helm-etags-action-goto 'find-file-other-frame c)))))
+(put 'helm-etags-run-switch-other-frame 'helm-only t)
 
 (defvar helm-etags-map
   (let ((map (make-sparse-keymap)))
@@ -159,13 +159,12 @@ If not found in CURRENT-DIR search in upper directory."
 
 (defun helm-etags-create-buffer (file)
   "Create the `helm-buffer' based on contents of etags tag FILE."
-  (let* ((tag-fname file)
-         max
-         (split (with-current-buffer (find-file-noselect tag-fname)
+  (let* (max
+         (split (with-temp-buffer
+                  (insert-file-contents file)
                   (prog1
                       (split-string (buffer-string) "\n" 'omit-nulls)
-                    (setq max (line-number-at-pos (point-max)))
-                    (kill-buffer))))
+                    (setq max (line-number-at-pos (point-max))))))
          (progress-reporter (make-progress-reporter "Loading tag file..." 0 max)))
     (cl-loop
           with fname
@@ -219,11 +218,10 @@ If no entry in cache, create one."
     :match-part (lambda (candidate)
                   ;; Match only the tag part of CANDIDATE
                   ;; and not the filename.
-                  (cl-ecase helm-etags-match-part-only
-                      (endtag (cadr (split-string
-                                     (cl-caddr (helm-grep-split-line candidate)))))
-                      (tag    (cl-caddr (helm-grep-split-line candidate)))
-                      (all    candidate)))
+                  (cl-case helm-etags-match-part-only
+                      (tag (cl-caddr (helm-grep-split-line candidate)))
+                      (t   candidate)))
+    :fuzzy-match helm-etags-fuzzy-match
     :help-message 'helm-etags-help-message
     :keymap helm-etags-map
     :action '(("Go to tag" . (lambda (c)
@@ -240,6 +238,15 @@ If no entry in cache, create one."
     :persistent-action (lambda (candidate)
                          (helm-etags-action-goto 'find-file candidate)
                          (helm-highlight-current-line))))
+
+(defcustom helm-etags-fuzzy-match nil
+  "Use fuzzy matching in `helm-etags-select'."
+  :group 'helm-tags
+  :type 'boolean
+  :set (lambda (var val)
+         (set var val)
+         (setq helm-source-etags-select
+                (helm-etags-build-source))))
 
 (defvar find-tag-marker-ring)
 
@@ -318,7 +325,9 @@ Create with etags shell command, or visit with `find-tag' or `visit-tags-table'.
                 (helm-etags-build-source)))
         (helm :sources 'helm-source-etags-select
               :keymap helm-etags-map
-              :default (list (concat "\\_<" str "\\_>") str)
+              :default (if helm-etags-fuzzy-match
+                           str
+                           (list (concat "\\_<" str "\\_>") str))
               :buffer "*helm etags*"))))
 
 (provide 'helm-tags)

@@ -1,6 +1,6 @@
 ;;; helm-elisp.el --- Elisp symbols completion for helm. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 (declare-function 'helm-describe-face "helm-lib")
 
 
+;;; Customizable values
+
 (defgroup helm-elisp nil
   "Elisp related Applications and libraries for Helm."
   :group 'helm)
@@ -41,7 +43,7 @@
   :type  'boolean)
 
 (defcustom helm-show-completion-use-special-display t
-  "A special display will be used in lisp completion if non--nil.
+  "A special display will be used in Lisp completion if non--nil.
 All functions that are wrapped in macro `with-helm-show-completion'
 will be affected."
   :group 'helm-elisp
@@ -115,7 +117,7 @@ fuzzy completion is not available in `completion-at-point'."
 
 (defcustom helm-elisp-help-function
   'helm-elisp-show-help
-  "Function for displaying help for lisp symbols."
+  "Function for displaying help for Lisp symbols."
   :group 'helm-elisp
   :type '(choice (function :tag "Open help for the symbol."
                   helm-elisp-show-help)
@@ -171,13 +173,18 @@ If `helm-turn-on-show-completion' is nil just do nothing."
   `(let ((helm-move-selection-after-hook
           (and helm-turn-on-show-completion
                (append (list 'helm-show-completion)
-                       helm-move-selection-after-hook))))
-     (with-helm-temp-hook 'helm-after-initialize-hook
-       (with-helm-buffer
-         (set (make-local-variable 'helm-display-function)
-              (if helm-show-completion-use-special-display
-                  'helm-show-completion-display-function
-                'helm-default-display-buffer))))
+                       helm-move-selection-after-hook)))
+         (helm-always-two-windows t)
+         (helm-split-window-default-side
+          (if (eq helm-split-window-default-side 'same)
+              'below helm-split-window-default-side))
+         helm-split-window-in-side-p
+         helm-reuse-last-window-split-state)
+     (helm-set-local-variable
+      'helm-display-function
+      (if helm-show-completion-use-special-display
+          'helm-show-completion-display-function
+          'helm-default-display-buffer))
      (unwind-protect
           (progn
             (helm-show-completion-init-overlay ,beg ,end)
@@ -336,7 +343,7 @@ in other window according to the value of `helm-elisp-help-function'."
            ;; When there is no way to know what to describe
            ;; prefer describe-function.
            (helm-describe-function sym)))
-      (fboundp  (helm-describe-function sym))
+      (fbound  (helm-describe-function sym))
       (bound    (helm-describe-variable sym))
       (face     (helm-describe-face sym)))))
 
@@ -346,7 +353,7 @@ Arg NAME specify the name of the top level function
 calling helm generic completion (e.g \"describe-function\")."
   (helm-elisp--persistent-help
    candidate 'helm-elisp--show-help-1 name))
-  
+
 (defun helm-elisp-show-doc-modeline (candidate &optional name)
   "Show brief documentation for the function in modeline."
   (let ((cursor-in-echo-area t)
@@ -497,10 +504,10 @@ Filename completion happen if string start after or between a double quote."
                          (helm-elisp--persistent-help
                           candidate 'helm-describe-variable))
     :persistent-help "Describe variable"
-    :action '(("Describe Variable" . helm-describe-variable)
-              ("Find Variable" . helm-find-variable)
+    :action '(("Describe variable" . helm-describe-variable)
+              ("Find variable" . helm-find-variable)
               ("Info lookup" . helm-info-lookup-symbol)
-              ("Set Variable" . helm-set-variable))
+              ("Set variable" . helm-set-variable))
     :action-transformer
     (lambda (actions candidate)
       (let ((sym (helm-symbolify candidate)))
@@ -513,12 +520,14 @@ Filename completion happen if string start after or between a double quote."
                     ,(lambda (candidate)
                        (let ((sym (helm-symbolify candidate)))
                          (set sym standard-value)))))))
-             '(("Customize Variable" .
+             '(("Customize variable" .
                 (lambda (candidate)
                   (customize-option (helm-symbolify candidate))))))
           actions)))))
 
 (defun helm-def-source--emacs-faces (&optional default)
+  "Create `helm' source for faces to be displayed with
+`helm-apropos'."
   (helm-build-in-buffer-source "Faces"
     :init (lambda () (helm-apropos-init-faces default))
     :fuzzy-match helm-apropos-fuzzy-match
@@ -534,7 +543,10 @@ Filename completion happen if string start after or between a double quote."
                           candidate 'helm-describe-face))
     :persistent-help "Describe face"
     :nomark t
-    :action 'helm-describe-face))
+    :action '(("Describe face" . helm-describe-face)
+              ("Find face" . helm-find-face-definition)
+              ("Customize face" . (lambda (candidate)
+                                    (customize-face (helm-symbolify candidate)))))))
 
 (defun helm-def-source--helm-attributes (&optional _default)
   (let ((def-act (lambda (candidate)
@@ -566,8 +578,8 @@ Filename completion happen if string start after or between a double quote."
                          (helm-elisp--persistent-help
                           candidate 'helm-describe-function))
     :persistent-help "Describe command"
-    :action '(("Describe Function" . helm-describe-function)
-              ("Find Function" . helm-find-function)
+    :action '(("Describe function" . helm-describe-function)
+              ("Find function" . helm-find-function)
               ("Info lookup" . helm-info-lookup-symbol))))
 
 (defun helm-def-source--emacs-functions (&optional default)
@@ -587,8 +599,8 @@ Filename completion happen if string start after or between a double quote."
                           candidate 'helm-describe-function))
     :persistent-help "Describe function"
     :nomark t
-    :action '(("Describe Function" . helm-describe-function)
-              ("Find Function" . helm-find-function)
+    :action '(("Describe function" . helm-describe-function)
+              ("Find function" . helm-find-function)
               ("Info lookup" . helm-info-lookup-symbol))))
 
 (defun helm-def-source--eieio-classes (&optional default)
@@ -605,8 +617,8 @@ Filename completion happen if string start after or between a double quote."
                          (helm-elisp--persistent-help
                           candidate 'helm-describe-function))
     :persistent-help "Describe class"
-    :action '(("Describe Function" . helm-describe-function)
-              ("Find Function" . helm-find-function)
+    :action '(("Describe function" . helm-describe-function)
+              ("Find function" . helm-find-function)
               ("Info lookup" . helm-info-lookup-symbol))))
 
 (defun helm-def-source--eieio-generic (&optional default)
@@ -623,8 +635,8 @@ Filename completion happen if string start after or between a double quote."
                          (helm-elisp--persistent-help
                           candidate 'helm-describe-function))
     :persistent-help "Describe generic function"
-    :action '(("Describe Function" . helm-describe-function)
-              ("Find Function" . helm-find-function)
+    :action '(("Describe function" . helm-describe-function)
+              ("Find function" . helm-find-function)
               ("Info lookup" . helm-info-lookup-symbol))))
 
 (defun helm-info-lookup-symbol-1 (c)
@@ -660,16 +672,17 @@ Filename completion happen if string start after or between a double quote."
     (helm-attrset 'help-current-symbol candidate)))
 
 ;;;###autoload
-(defun helm-apropos ()
-  "Preconfigured helm to describe commands, functions, variables and faces."
-  (interactive)
-  (let ((default (thing-at-point 'symbol)))
+(defun helm-apropos (default)
+  "Preconfigured helm to describe commands, functions, variables and faces.
+In non interactives calls DEFAULT argument should be provided as a string,
+i.e the `symbol-name' of any existing symbol."
+  (interactive (list (thing-at-point 'symbol)))
     (helm :sources
           (mapcar (lambda (func)
                     (funcall func default))
                   helm-apropos-function-list)
           :buffer "*helm apropos*"
-          :preselect (and default (concat "\\_<" (regexp-quote default) "\\_>")))))
+          :preselect (and default (concat "\\_<" (regexp-quote default) "\\_>"))))
 
 
 ;;; Advices
@@ -873,13 +886,14 @@ Filename completion happen if string start after or between a double quote."
              "Eval" (lambda (candidate)
                       (and (boundp 'helm-sexp--last-sexp)
                            (setq helm-sexp--last-sexp candidate))
+                      (let ((command (read candidate)))
+                        (unless (equal command (car command-history))
+                          (setq command-history (cons command command-history))))
                       (run-with-timer 0.1 nil #'helm-sexp-eval candidate))
-             "Edit and eval"
-             (lambda (cand)
-               (minibuffer-with-setup-hook
-                   (lambda () (insert cand))
-                 (call-interactively #'eval-expression))))
-    :persistent-action #'helm-sexp-eval))
+             "Edit and eval" (lambda (candidate)
+                               (edit-and-eval-command "Eval: " (read candidate))))
+    :persistent-action #'helm-sexp-eval
+    :multiline t))
 
 ;;;###autoload
 (defun helm-complex-command-history ()

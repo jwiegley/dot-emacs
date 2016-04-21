@@ -1,6 +1,6 @@
 ;;; helm-bookmark.el --- Helm for Emacs regular Bookmarks. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2015 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -167,8 +167,7 @@
                       (helm-init-candidates-in-buffer
                           'global
                         (bookmark-all-names))))
-    (filtered-candidate-transformer :initform 'helm-bookmark-transformer)
-    (search :initform 'helm-bookmark-search-fn)))
+    (filtered-candidate-transformer :initform 'helm-bookmark-transformer)))
 
 (defvar helm-source-bookmarks
   (helm-make-source "Bookmarks" 'helm-source-basic-bookmarks)
@@ -195,12 +194,12 @@
                     real))
          (loc (bookmark-location real)))
     (setq helm-bookmark-show-location (not helm-bookmark-show-location))
-    (helm-force-update (if helm-bookmark-show-location
+    (helm-update (if helm-bookmark-show-location
                            (concat (regexp-quote trunc)
                                    " +"
                                    (regexp-quote
                                     (if (listp loc) (car loc) loc)))
-                           real))))
+                           (regexp-quote real)))))
 
 (defun helm-bookmark-toggle-filename ()
   "Toggle bookmark location visibility."
@@ -209,6 +208,7 @@
     (helm-attrset 'toggle-filename
                   '(helm-bookmark-toggle-filename-1 . never-split))
     (helm-execute-persistent-action 'toggle-filename)))
+(put 'helm-bookmark-toggle-filename 'helm-only t)
 
 (defun helm-bookmark-jump (candidate)
   "Jump to bookmark from keyboard."
@@ -235,25 +235,6 @@
                                       (message "No bookmark name given for record")
                                       (bookmark-set candidate))))))
   "See (info \"(emacs)Bookmarks\").")
-
-
-;;; Search and match-part fns.
-;;
-(defun helm-bookmark-search-fn (pattern)
-    "Search function for bookmark sources using `helm-source-in-buffer'."
-  (if helm-bookmark-show-location
-      (helm-aif (next-single-property-change (point) 'location)
-          (goto-char it))
-    (re-search-forward pattern nil t)))
-
-(defun helm-bookmark-match-part-fn (candidate)
-  "Match part function for bookmark sources using `helm-source-in-buffer'."
-  (helm-aif (and helm-bookmark-show-location
-                 (bookmark-location candidate))
-      ;; Match against bookmark-name and location.
-      (concat candidate " " it)
-    ;; Match against bookmark-name.
-    candidate))
 
 
 ;;; Predicates
@@ -387,9 +368,7 @@ than `w3m-browse-url' use it."
 ;;
 ;;
 (defclass helm-source-filtered-bookmarks (helm-source-in-buffer helm-type-bookmark)
-  ((search :initform #'helm-bookmark-search-fn)
-   (match-part :initform #'helm-bookmark-match-part-fn)
-   (filtered-candidate-transformer
+  ((filtered-candidate-transformer
     :initform '(helm-adaptive-sort
                 helm-highlight-bookmark))))
 
@@ -509,14 +488,13 @@ than `w3m-browse-url' use it."
                      (helm-init-candidates-in-buffer
                          'global
                        (helm-bookmark-addressbook-setup-alist))))
-   (search :initform #'helm-bookmark-search-fn)
-   (match-part :initform #'helm-bookmark-match-part-fn)
    (persistent-action :initform
                       (lambda (candidate)
                         (let ((bmk (helm-bookmark-get-bookmark-from-name
                                     candidate)))
                           (bookmark--jump-via bmk 'switch-to-buffer))))
    (persistent-help :initform "Show contact - Prefix with C-u to append")
+   (mode-line :initform (list "Contact(s)" helm-mode-line-string))
    (filtered-candidate-transformer :initform
                                    '(helm-adaptive-sort
                                      helm-highlight-bookmark))
@@ -546,8 +524,7 @@ than `w3m-browse-url' use it."
 ;;
 
 (defun helm-highlight-bookmark (bookmarks _source)
-  "Used as `filtered-candidate-transformer' to colorize bookmarks.
-Work both with standard Emacs bookmarks and bookmark-extensions.el."
+  "Used as `filtered-candidate-transformer' to colorize bookmarks."
   (let ((non-essential t))
     (cl-loop for i in bookmarks
           for isfile        = (bookmark-get-filename i)
@@ -699,6 +676,7 @@ words from the buffer into the new bookmark name."
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action 'helm-bookmark-edit-bookmark)))
+(put 'helm-bookmark-run-edit 'helm-only t)
 
 
 (defun helm-bookmark-run-jump-other-window ()
@@ -706,6 +684,7 @@ words from the buffer into the new bookmark name."
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action 'bookmark-jump-other-window)))
+(put 'helm-bookmark-run-jump-other-window 'helm-only t)
 
 (defun helm-bookmark-run-delete ()
   "Delete bookmark from keyboard."
@@ -713,6 +692,7 @@ words from the buffer into the new bookmark name."
   (with-helm-alive-p
     (when (y-or-n-p "Delete bookmark(s)?")
       (helm-exit-and-execute-action 'helm-delete-marked-bookmarks))))
+(put 'helm-bookmark-run-delete 'helm-only t)
 
 (defun helm-bookmark-get-bookmark-from-name (bmk)
   "Return bookmark name even if it is a bookmark with annotation.
