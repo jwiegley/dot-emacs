@@ -15,7 +15,7 @@
 	url = git://github.com/jwiegley/emacs-pl.git
 [submodule "override/org-mode"]
 	path = override/org-mode
-	url = git://orgmode.org/org-mode.git
+	url = git://github.com/jwiegley/org-mode.git
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config
