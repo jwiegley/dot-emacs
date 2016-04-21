@@ -9,7 +9,7 @@
 
 **Projectile** is a project interaction library for Emacs. Its goal is to
 provide a nice set of features operating on a project level without
-introducing external dependencies(when feasible). For instance -
+introducing external dependencies (when feasible). For instance -
 finding project files has a portable implementation written in pure
 Emacs Lisp without the use of GNU `find` (but for performance sake an
 indexing mechanism backed by external commands exists as well).
@@ -79,17 +79,23 @@ Projectile is naturally part of the
 user - Projectile is already properly configured and ready for
 action.
 
+### Debian and Ubuntu
+
+Users of Debian 9 or later or Ubuntu 16.10 or later may simply
+`apt-get install elpa-projectile`.
+
 ## Usage
 
 ### Basic setup
 
-You can enable Projectile globally like this:
+To add a project to Projectile, open a file in the project and enable `projectile-mode` in that buffer.  
+
+To make Projectile automatically remember projects that you access files in, enable Projectile globally:
 
 ```el
 (projectile-global-mode)
 ```
-
-To enable Projectile only in select modes:
+To enable Projectile only in certain modes, add `projectile-mode` to the major mode's hook, like this:
 
 ```el
 (add-hook 'ruby-mode-hook 'projectile-mode)
@@ -128,7 +134,7 @@ you can always use native indexing mode.
 
 #### Caching
 
-#### Project files
+##### Project files
 
 Since indexing a big project is not exactly quick (especially in Emacs
 Lisp), Projectile supports caching of the project's files. The caching
@@ -285,7 +291,7 @@ more powerful alternative to `ido`'s built-in `flex` matching.
 
 ##### Grizzl
 
-Another completion option is [grizzl](https://github.com/d11wtq/grizzl):
+Another completion option is [grizzl](https://github.com/grizzl/grizzl):
 
 ```el
 (setq projectile-completion-system 'grizzl)
@@ -362,6 +368,7 @@ Keybinding         | Description
 <kbd>C-c p k</kbd> | Kills all project buffers.
 <kbd>C-c p D</kbd> | Opens the root of the project in `dired`.
 <kbd>C-c p e</kbd> | Shows a list of recently visited project files.
+<kbd>C-c p E</kbd> | Opens the `.dirs-local.el` file of the project.
 <kbd>C-c p s s</kbd> | Runs `ag` on the project. Requires the presence of `ag.el`.
 <kbd>C-c p !</kbd> | Runs `shell-command` in the root directory of the project.
 <kbd>C-c p &</kbd> | Runs `async-shell-command` in the root directory of the project.
@@ -459,6 +466,19 @@ If both directories to keep and ignore are specified, the directories
 to keep first apply, restricting what files are considered. The paths
 and patterns to ignore are then applied to that set.
 
+Finally, you can override ignored files. This is especially useful
+when some files ignored by your VCS should be considered as part of
+your project by projectile:
+
+```
+!/src/foo
+!*.yml
+```
+
+When a path is overridden, its contents are still subject to ignore
+patterns. To override those files as well, specify their full path
+with a bang prefix.
+
 ### Customizing project root files
 
 You can set the values of `projectile-project-root-files`,
@@ -472,6 +492,14 @@ To customize project root files settings:
 ```
 M-x customize-group RET projectile RET
 ```
+
+#### File-local project root definitions
+
+If you want to override the projectile project root for a specific
+file, you can set the file-local variable `projectile-project-root`. This
+can be useful if you have files within one project that are related to
+a different project (for instance, Org files in one git repo that
+correspond to other projects).
 
 ### Storing project settings
 
@@ -497,6 +525,9 @@ The top-level alist member referenced with the key `nil` applies to the
 entire project. A key with the name `eval` will evaluate its
 arguments. In the example above, this is used to create a function. It
 could also be used to e.g. add such a function to a key map.
+
+You can also quickly visit the the `.dir-locals.el` file with <kbd>C-c
+p E</kbd> (<kbd>M-x projectile-edit-dir-locals RET</kbd>).
 
 Here are a few examples of how to use this feature with Projectile.
 
@@ -526,6 +557,13 @@ the files in you repository, you could do:
 ((nil . ((projectile-git-command . "/path/to/other/git ls-files -zco --exclude-standard"))))
 ```
 
+If you want to use a different project name than how Projectile named
+your project, you could customize it with the following:
+
+```
+((nil . ((projectile-project-name . "your-project-name-here"))))
+```
+
 #### Configure a Project's Compilation, Test and Run commands
 
 There are a few variables that are intended to be customized via `.dir-locals.el`.
@@ -540,135 +578,6 @@ These variables can be strings to run external commands or Emacs Lisp functions:
 
 ```
 (setq projectile-test-cmd #'custom-test-function)
-```
-
-
-### Helm Integration
-
-Projectile can be integrated with [Helm](https://github.com/emacs-helm/helm) via
-`helm-source-projectile-projects`, `helm-source-projectile-files-list`,
-`helm-source-projectile-buffers-list` and `helm-source-projectile-recentf-list`
-sources (available in `helm-projectile.el`). There is also an example function
-for calling Helm with the Projectile file source. You can call it like this:
-
-```
-M-x helm-projectile
-```
-
-or even better - invoke the key binding <kbd>C-c p h</kbd>.
-
-For those who prefer helm to ido, the command `helm-projectile-switch-project`
-can be used to replace `projectile-switch-project` to switch project. Please
-note that this is different from simply setting `projectile-completion-system`
-to `helm`, which just enables projectile to use the Helm completion to complete
-a project name. The benefit of using `helm-projectile-switch-project` is that on
-any selected project we can fire many actions, not limited to just the "switch
-to project" action, as in the case of using helm completion by setting
-`projectile-completion-system` to `helm`. Currently, there are five actions:
-"Switch to project", "Open Dired in project's directory", "Open project root in
-vc-dir or magit", "Switch to Eshell" and "Grep project files". We will add more
-and more actions in the future.
-
-`helm-projectile` is capable of opening multiple files by marking the files with
-<kbd>C-SPC</kbd> or mark all files with <kbd>M-a</kbd>. Then, press <kbd>RET</kbd>,
-all the selected files will be opened.
-
-Note that the helm grep is different from `projectile-grep` because the helm
-grep is incremental. To use it, select your projects (select multiple projects
-by pressing C-SPC), press "C-s" (or "C-u C-s" for recursive grep), and type your
-regexp. As you type the regexp in the mini buffer, the live grep results are
-displayed incrementally.
-
-`helm-projectile` also provides Helm versions of common Projectile commands. Currently,
-these are the supported commands:
-
-* `helm-projectile-switch-project`
-* `helm-projectile-find-file`
-* `helm-projectile-find-file-in-known-projects`
-* `helm-projectile-find-file-dwim`
-* `helm-projectile-find-dir`
-* `helm-projectile-recentf`
-* `helm-projectile-switch-to-buffer`
-* `helm-projectile-grep` (can be used for both grep or ack)
-* `helm-projectile-ag`
-* Replace Helm equivalent commands in `projectile-commander`
-* A virtual directory manager that is unique to Helm Projectile
-
-Why should you use these commands compared with the normal Projectile commands, even
-if the normal commands use `helm` as `projectile-completion-system`? The answer is,
-Helm specific commands give more useful features. For example, `helm-projectile-switch-project`
-allows opening a project in Dired, Magit or Eshell. `helm-projectile-find-file` reuses actions in
-`helm-find-files` (which is plenty) and able to open multiple files. Another reason is that in a large
-source tree, helm-projectile could be slow because it has to open all available sources.
-
-If you want to use these commands, you have to activate it to replace the normal Projectile
-commands:
-
-```lisp
-;; (setq helm-projectile-fuzzy-match nil)
-(require 'helm-projectile)
-(helm-projectile-on)
-```
-
-If you already activate helm-projectile key bindings and you don't like it, you can turn it off
-and use the normal Projectile bindings with command `helm-projectile-off`. Similarly, if you want to
-disable fuzzy matching in Helm Projectile (it is enabled by default), you must set `helm-projectile-fuzzy-match`
-to nil before loading `helm-projectile`.
-
-To fully learn Helm Projectile and see what it is capable of, you should refer to this guide:
-[Exploring large projects with Projectile and Helm Projectile](http://tuhdo.github.io/helm-projectile.html).
-
-Obviously you need to have Helm installed for this to work :-)
-
-![Helm-Projectile Screenshot](screenshots/helm-projectile.png)
-
-### Work with Perspective Mode
-
-[Perspective](https://github.com/nex3/perspective-el) is a minor mode
-that provides the ability to manage different workspaces. If you need
-to open many projects at the same time, perspective can help you keep
-each project related buffers and windows setting separate from other
-projects, similar to multiple spaces on MacOS, which allows you to
-focus on the files of the current active project.
-
-A picture says a thousand words. See below screenshot to get a concrete idea.
-
-Only current project related files showing in minibuffer when I call
-`ido-switch-buffer`, and an indicator in mode line tells me which
-project that I'm in.
-
-![Persp-Projectile Screenshot 1](screenshots/persp-projectile1.png)
-
-When I switch to a different project, I get a clean 'perspective'.
-
-![Persp-Projectile Screenshot 2](screenshots/persp-projectile2.png)
-
-To integrate perspective with Projectile, first of all, you need to
-install perspective. You can install it by:
-
-```
-M-x package-install
-```
-
-Then type `perspective` in the minibuffer, as below:
-
-```
-Install package: perspective
-```
-
-Secondly, make sure `persp-projectile.el` is in your Emacs load path. Then require it in your init file.
-
-```el
-(persp-mode)
-(require 'persp-projectile)
-```
-
-You're ready to go! Try the interactive command
-`projectile-persp-switch-project`, or you may also bind it to some
-handy keybinding.
-
-```el
-(define-key projectile-mode-map (kbd "s-s") 'projectile-persp-switch-project)
 ```
 
 ### Idle Timer
@@ -695,21 +604,24 @@ additional functions to the hook using `add-hook`:
 By default the minor mode indicator of Projectile appears in the form
 " Projectile[ProjectName]". This is configurable via the custom variable
 `projectile-mode-line`, which expects a sexp like
-`'(:eval (format " Proj[%s]" (projectile-project-name)))`
+`'(:eval (format " Proj[%s]" (projectile-project-name)))`.
+
+The project name will not appear by default when editing remote files
+(via TRAMP), as recalculating the project name (this is done on every
+keystroke) is a fairly slow operation there.
+
+## Extensions
+
+There are a number of packages that built on top of the basic functionality provided by Projectile:
+
+* [helm-projectile](https://github.com/bbatsov/helm-projectile) provides Helm integration
+* [persp-projectile](https://github.com/bbatsov/persp-projectile) provides perspective.el integration
+* [projectile-rails](https://github.com/asok/projectile-rails) provides extra functionality for Ruby on Rails projects
 
 ## Caveats
 
-* Traversing the project directory programmatically (instead of using
-  something like GNU find) is not very fast. On the other hand - it's
-  portable. Unlike
-  [find-file-in-project](https://github.com/bbatsov/find-file-in-project),
-  projectile's jump-to-file will work on any OS.
-* Some operations like search(grep) depend (presently) on external
+* Some operations like search (grep) depend (presently) on external
   utilities such as `find`.
-
-## Would you like to know more?
-
-Check out the [Projectile's project page](http://batsov.com/projectile).
 
 ## Known issues
 
@@ -729,7 +641,7 @@ All contributions are welcome, as long as they don't break anything
 :-) To make sure you didn't introduce any regressions it's a good idea
 to run the tests first.
 
-Install [cask](https://github.com/rejeep/cask.el) if you haven't
+Install [cask](https://github.com/cask/cask) if you haven't
 already, then:
 
 ```bash
