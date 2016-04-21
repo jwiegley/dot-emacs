@@ -3,7 +3,7 @@
 	url = git://github.com/jwiegley/use-package.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
-	url = git://github.com/magit/magit.git
+	url = git://github.com/jwiegley/magit.git
 [submodule "lisp/alert"]
 	path = lisp/alert
 	url = git://github.com/jwiegley/alert
