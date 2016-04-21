@@ -370,7 +370,7 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
- '(display-time-mail-function (lambda nil (= 0 (call-process "~/bin/newmail"))))
+ '(display-time-mail-function (lambda nil (= 0 (call-process "~/Messages/manage-mail/newmail"))))
  '(display-time-mode t)
  '(display-time-string-forms
    (quote
@@ -669,7 +669,7 @@
       ("Coq"
        (or
         (mode . coq-mode)
-        (name . "^\\*\\(coq\\|goals\\|response\\)\\*")
+        (name . "^\\*\\(coq\\(-.*\\)?\\|goals\\|response\\)\\*")
         (name . "_CoqProject")))
       ("Nix"
        (mode . nix-mode))
@@ -796,8 +796,6 @@
  '(ns-right-control-modifier (quote hyper))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
- '(offlineimap-command "offlineimap -u machineui")
- '(olivetti-hide-mode-line t)
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
    (quote
