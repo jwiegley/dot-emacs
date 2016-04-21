@@ -31,3 +31,6 @@
 [submodule "site-lisp/company-coq"]
 	path = site-lisp/company-coq
 	url = git://github.com/cpitclaudel/company-coq
+[submodule "site-lisp/yasnippet"]
+	path = site-lisp/yasnippet
+	url = https://github.com/capitaomorte/yasmate.git
