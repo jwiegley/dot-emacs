@@ -3498,6 +3498,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              insert-patterned-3
              insert-patterned-4))
 
+(use-package restclient
+  :load-path "site-lisp/restclient"
+  :mode ("\\.rest\\'" . restclient-mode))
+
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
   :mode ("\\.rb\\'" . ruby-mode)
