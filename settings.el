@@ -202,6 +202,7 @@
  '(auto-save-interval 64)
  '(auto-save-list-file-prefix "~/.emacs.d/data/auto-save-list/.saves-")
  '(auto-save-timeout 2)
+ '(avy-case-fold-search nil)
  '(backup-directory-alist
    (quote
     (("/Volumes/Files/" . "/Volumes/Files/.backups")
@@ -370,7 +371,10 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
- '(display-time-mail-function (lambda nil (= 0 (call-process "~/Messages/manage-mail/newmail"))))
+ '(display-time-mail-function
+   (lambda nil
+     (= 0
+        (call-process "~/Messages/manage-mail/newmail"))))
  '(display-time-mode t)
  '(display-time-string-forms
    (quote
@@ -410,8 +414,6 @@
        (local-set-key
         [(control 109)]
         (quote newline-and-indent))))))
- '(emms-player-mplayer-parameters (quote ("-slave" "-quiet" "-really-quiet" "-volume" "15")))
- '(emms-source-file-default-directory "/Volumes/Data/Music/iTunes/iTunes Media/")
  '(enable-recursive-minibuffers t)
  '(erc-auto-query (quote window-noselect))
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")

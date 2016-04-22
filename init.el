@@ -986,21 +986,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
-(use-package ace-jump-mode
-  :load-path "site-lisp/ace-jump-mode"
-  :bind ("M-h" . ace-jump-mode)
-  :config
-  (setq ace-jump-mode-submode-list
-        '(ace-jump-char-mode
-          ace-jump-word-mode
-          ace-jump-line-mode)))
-
-(use-package ace-isearch
-  :disabled t
-  :load-path "site-lisp/ace-isearch"
-  :config
-  (global-ace-isearch-mode 1))
-
 (use-package ag
   :load-path "site-lisp/ag-el"
   :commands (ag ag-regexp)
@@ -1078,10 +1063,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (unbind-key "C-k" allout-mode-map)))
 
   (add-hook 'allout-mode-hook 'my-allout-mode-hook))
-
-(use-package archive-region
-  :disabled t
-  :bind ("C-w" . kill-region-or-archive-region))
 
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
@@ -1168,19 +1149,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (bind-key "A-M-?" #'ac-last-help)
   (unbind-key "C-s" ac-completing-map))
-
-(use-package autopair
-  :disabled t
-  :load-path "site-lisp/autopair"
-  :commands autopair-mode
-  :diminish autopair-mode
-  :init
-  (hook-into-modes #'autopair-mode
-                   'c-mode-common-hook
-                   'text-mode-hook
-                   'ruby-mode-hook
-                   'python-mode-hook
-                   'sh-mode-hook))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -1308,23 +1276,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands bbdb-create
   :bind ("M-B" . bbdb))
 
-(use-package bm
-  :disabled t
-  :load-path "site-lisp/bm"
-  :init
-  (defvar ctl-period-breadcrumb-map)
-  (define-prefix-command 'ctl-period-breadcrumb-map)
-  (bind-key "C-. c" #'ctl-period-breadcrumb-map)
-
-  :bind (("C-. c b" . bm-last-in-previous-buffer)
-         ("C-. c f" . bm-first-in-next-buffer)
-         ("C-. c g" . bm-previous)
-         ("C-. c l" . bm-show-all)
-         ("C-. c c" . bm-toggle)
-         ("C-. c m" . bm-toggle)
-         ("C-. c n" . bm-next)
-         ("C-. c p" . bm-previous)))
-
 (use-package bookmark
   :load-path "site-lisp/bookmark-plus"
   :defer 10
@@ -1334,6 +1285,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package browse-kill-ring+
   :defer 10
   :commands browse-kill-ring)
+
+(use-package bug-reference-github
+  :load-path "site-lisp/bug-reference-github"
+  :defer 10
+  :config
+  (bug-reference-github-set-url-format))
 
 (use-package cmake-mode
   :mode (("CMakeLists\\.txt\\'" . cmake-mode)
@@ -1632,45 +1589,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
 
-(use-package emms-setup
-  :disabled t
-  :load-path "site-lisp/emms/lisp"
-  :defines (emms-info-functions emms-player-simple-process-name)
-  :commands (emms-standard emms-devel)
-  :bind ("C-. M" . my-emms)
-  :preface
-  (defvar emms-initialized nil)
-  (declare-function emms-smart-browse "emms-browser")
-
-  (defun my-emms ()
-    (interactive)
-    (unless emms-initialized
-      (emms-standard)
-      (emms-default-players)
-      (require 'emms-info-libtag)
-      (setq emms-info-functions '(emms-info-libtag)
-            emms-initialized t))
-    (call-interactively #'emms-smart-browse))
-
-  :config
-  (bind-key "S-<f7>" #'emms-previous)
-  (bind-key "S-<f8>" #'emms-pause)
-  (bind-key "S-<f9>" #'emms-next)
-  (bind-key "S-<f10>" #'emms-stop)
-
-  (defun emms-player-mplayer-volume-up ()
-    "Depends on mplayer’s -slave mode."
-    (interactive)
-    (process-send-string emms-player-simple-process-name "volume 1\n"))
-
-  (defun emms-player-mplayer-volume-down ()
-    "Depends on mplayer’s -slave mode."
-    (interactive)
-    (process-send-string emms-player-simple-process-name "volume -1\n"))
-
-  (bind-key "C-. C--" #'emms-player-mplayer-volume-down)
-  (bind-key "C-. C-=" #'emms-player-mplayer-volume-up))
-
 (use-package gist
   :load-path "site-lisp/gist"
   :bind ("C-c G" . gist-region-or-buffer))
@@ -1769,19 +1687,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package erc-highlight-nicknames)
   (use-package erc-patch)
   (use-package erc-macros)
-  (use-package erc-image
-    :disabled t
-    :load-path "site-lisp/erc-image"
-    :commands (erc-image-show-url-image)
-    :init
-    (define-erc-module image nil
-      "Display inlined images in ERC buffer"
-      ((add-hook 'erc-insert-modify-hook 'erc-image-show-url-image t)
-       (add-hook 'erc-send-modify-hook 'erc-image-show-url-image t))
-      ((remove-hook 'erc-insert-modify-hook 'erc-image-show-url-image)
-       (remove-hook 'erc-send-modify-hook 'erc-image-show-url-image))
-      t))
-
   (use-package erc-yank
     :load-path "lisp/erc-yank"
     :config
@@ -3462,11 +3367,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (unbind-key "C-c c" python-mode-map))
 
   (add-hook 'python-mode-hook 'my-python-mode-hook))
-
-(use-package quickrun
-  :disabled t
-  :load-path "site-lisp/emacs-quickrun"
-  :bind ("C-c C-r" . quickrun))
 
 (use-package rainbow-mode
   :commands rainbow-mode)

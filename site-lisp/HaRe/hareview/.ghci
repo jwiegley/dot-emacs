@@ -1,9 +1,0 @@
--- ghci startup file
-
-:set -package ghc
-:set -hide-package monads-tf
-
-:set -i./astview
-:set -i./src
-:set -i./dist/build/autogen
-
