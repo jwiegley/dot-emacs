@@ -632,6 +632,7 @@
     (yas-hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
  '(history-delete-duplicates t)
  '(history-length 200)
+ '(holiday-bahai-holidays nil)
  '(hoogle-binary-path "hoogle")
  '(hpaste-announce (quote always))
  '(hpaste-blank-title nil)

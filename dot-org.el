@@ -851,6 +851,104 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     (if taskcode (org-entry-put (point) "TASKCODE" taskcode))
     (if project (org-entry-put (point) "PROJECT" project))))
 
+(defconst first-year-in-list 172)
+
+(defconst naw-ruz
+  '((3 21 2015)
+    (3 20 2016)
+    (3 20 2017)
+    (3 21 2018)
+    (3 21 2019)
+    (3 20 2020)
+    (3 20 2021)
+    (3 21 2022)
+    (3 21 2023)
+    (3 20 2024)
+    (3 20 2025)
+    (3 21 2026)
+    (3 21 2027)
+    (3 20 2028)
+    (3 20 2029)
+    (3 20 2030)
+    (3 21 2031)
+    (3 20 2032)
+    (3 20 2033)
+    (3 20 2034)
+    (3 21 2035)
+    (3 20 2036)
+    (3 20 2037)
+    (3 20 2038)
+    (3 21 2039)
+    (3 20 2040)
+    (3 20 2041)
+    (3 20 2042)
+    (3 21 2043)
+    (3 20 2044)
+    (3 20 2045)
+    (3 20 2046)
+    (3 21 2047)
+    (3 20 2048)
+    (3 20 2049)
+    (3 20 2050)
+    (3 21 2051)
+    (3 20 2052)
+    (3 20 2053)
+    (3 20 2054)
+    (3 21 2055)
+    (3 20 2056)
+    (3 20 2057)
+    (3 20 2058)
+    (3 20 2059)
+    (3 20 2060)
+    (3 20 2061)
+    (3 20 2062)
+    (3 20 2063)
+    (3 20 2064))
+  "The days when Naw-Rúz begins, for the next fifty years.")
+
+(defconst days-of-há
+  '(4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4 4 4 5 4
+    4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4)
+  "The days when Naw-Rúz begins, for the next fifty years.")
+
+(defconst bahai-months
+  '("Bahá"      ; 1
+    "Jalál"     ; 2
+    "Jamál"     ; 3
+    "‘Aẓamat"   ; 4
+    "Núr"       ; 5
+    "Raḥmat"    ; 6
+    "Kalimát"   ; 7
+    "Kamál"     ; 8
+    "Asmá’"     ; 9
+    "‘Izzat"    ; 10
+    "Mashíyyat" ; 11
+    "‘Ilm"      ; 12
+    "Qudrat"    ; 13
+    "Qawl"      ; 14
+    "Masá’il"   ; 15
+    "Sharaf"    ; 16
+    "Sulṭán"    ; 17
+    "Mulk"      ; 18
+    "‘Alá’"     ; 19
+    ))
+
+(defun bahai-date (month day &optional bahai-year)
+  (let* ((greg-year (if bahai-year
+                        (+ 1844 (1- bahai-year))
+                      (nth 2 (calendar-current-date))))
+         (year (1+ (- greg-year 1844)))
+         (first-day (find-if #'(lambda (x) (= greg-year (nth 2 x)))
+                             naw-ruz))
+         (greg-base (calendar-julian-to-absolute first-day))
+         (hdays (nth (- year first-year-in-list) days-of-há))
+         (offset (+ (1- day) (* 19 (1- month))
+                    (if (= month 19)
+                        hdays
+                      0)))
+         (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
+    (apply #'diary-date greg-date)))
+
 (provide 'dot-org)
 
 ;; Local Variables:
