@@ -122,7 +122,9 @@ BAE Systems"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("list\\.gnu\\.prog\\.discuss$"
+    (("^haskell$"
+      (display all))
+     ("list\\.gnu\\.prog\\.discuss$"
       (list-identifier . "\\[gnu-prog-discuss\\]"))
      ("list\\.riscv\\.devel$"
       (to-address . "sw-dev@lists.riscv.org")
@@ -288,6 +290,10 @@ BAE Systems"))))
       (to-address . "haskell-infrastructure@community.galois.com")
       (to-list . "haskell-infrastructure@community.galois.com")
       (list-identifier . "\\[Haskell-infrastructure\\]"))
+     ("list\\.haskell\\.community"
+      (to-address . "haskell-community@haskell.org")
+      (to-list . "haskell-community@haskell.org")
+      (list-identifier . "\\[Haskell-community\\]"))
      ("list\\.haskell\\.announce"
       (to-address . "haskell@haskell.org")
       (to-list . "haskell@haskell.org")
