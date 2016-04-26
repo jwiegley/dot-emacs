@@ -675,6 +675,9 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 
   (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
 
+(use-package nnreddit
+  :load-path "site-lisp/nnreddit")
+
 (provide 'dot-gnus)
 
 ;; Local Variables:
