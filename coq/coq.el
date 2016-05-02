@@ -2061,20 +2061,28 @@ mouse activation."
           (progn (end-of-line) (point)))))))
       (insert (concat "End" section)))))
 
+(defun coq--format-intros (output)
+  "Create an “intros” form from the OUTPUT of “Show Intros”."
+  (let* ((shints (replace-regexp-in-string "[\r\n ]*\\'" "" output)))
+    (if (or (string= "" shints)
+            (string-match coq-error-regexp shints))
+        (error "Don't know what to intro")
+      (format "intros %s" shints))))
+
 (defun coq-insert-intros ()
   "Insert an intros command with names given by Show Intros.
 Based on idea mentioned in Coq reference manual."
   (interactive)
-  (let* ((shints (proof-shell-invisible-cmd-get-result "Show Intros."))
-         ;; insert a dot before the trailing \n and put intros at begining
-         (intros (concat "intros " (substring shints 0 (- (length shints) 1)) ".\n")))
-    (if (or (< (length shints) 2);; empty response is just NL
-            (string-match coq-error-regexp shints))
-        (error "Don't know what to intro")
-      (let ((pt (point)))
-        (insert intros)
-        (indent-region pt (point))))))
-
+  (let* ((output (proof-shell-invisible-cmd-get-result "Show Intros.")))
+    (indent-region (point)
+                   (progn (insert (coq--format-intros output))
+                          (save-excursion
+                            (insert (if coq-one-command-per-line "\n" " "))
+                            (point))))
+    ;; `proof-electric-terminator' moves the point in all sorts of strange
+    ;; ways, so we run it last
+    (let ((last-command-event ?.)) ;; Insert a dot
+      (proof-electric-terminator))))
 
 (defvar coq-keywords-accepting-as-regex (regexp-opt '("induction" "destruct" "inversion" "injection")))
 
