@@ -816,6 +816,16 @@ Return nil if S is nil."
       (substring s 0 (- (length s) 1))
     s))
 
+(defun coq-remove-heading-quote (s)
+  "Return the string S without its heading \"\'\" if any.
+Return nil if S is nil."
+  (if (and s (string-match "\\`'" s))
+      (substring s 1 (length s))
+    s))
+
+(defun coq-clean-id-at-point (s)
+  (coq-remove-heading-quote (coq-remove-trailing-dot s)))
+
 (defun coq-is-symbol-or-punct (c)
   "Return non nil if character C is a punctuation or a symbol constituent.
 If C is nil, return nil."
@@ -860,9 +870,8 @@ Support dot.notation.of.modules."
    (let* ((symb (cond
                  ((fboundp 'symbol-near-point) (symbol-near-point))
                  ((fboundp 'symbol-at-point) (symbol-at-point))))
-          (symbclean (when symb (coq-remove-trailing-dot (symbol-name symb)))))
-     (when (and symb (not (zerop (length symbclean)))
-                (not (coq-string-starts-with-symbol symbclean)))
+          (symbclean (when symb (coq-clean-id-at-point (symbol-name symb)))))
+     (when (and symb (not (zerop (length symbclean))))
        symbclean))))
 
 

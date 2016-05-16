@@ -1347,14 +1347,15 @@ It is used:
   (modify-syntax-entry ?<  ".")
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?∀ "_")
-  (modify-syntax-entry ?∃ "_")
-  (modify-syntax-entry ?λ "_") ;; maybe a bad idea... lambda is a letter
+  (modify-syntax-entry ?_  "_") ; beware: word consituent EXCEPT in head position
+  (modify-syntax-entry ?\' "_") ; always word constituent
+  (modify-syntax-entry ?∀ ".")
+  (modify-syntax-entry ?∃ ".")
+  (modify-syntax-entry ?λ ".") ;; maybe a bad idea... lambda is a letter
   (modify-syntax-entry ?\| ".")
 
   ;; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug
+  ;; Hence the coq-with-altered-syntax-table below to put "." into "_" class temporarily
   (modify-syntax-entry ?\. ".")
 
   (modify-syntax-entry ?\* ". 23n")
