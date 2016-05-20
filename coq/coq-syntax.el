@@ -1367,6 +1367,7 @@ It is used:
 ;; constituent (better behavior for thing-at and maybe font-lock too,
 ;; for indentation we use ad hoc smie lexers).
 (defmacro coq-with-altered-syntax-table (&rest code)
+  (declare (debug t))
   (let ((res (make-symbol "res")))
     `(unwind-protect
 	 (progn (modify-syntax-entry ?\. "_")

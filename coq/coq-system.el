@@ -99,9 +99,20 @@ If it doesn't look right, try `coq-autodetect-version'."
 Interactively (with INTERACTIVE-P), show that number."
   (interactive '(t))
   (setq coq-autodetected-version nil)
-  (let ((version-string (car (process-lines (or coq-prog-name "coqtop") "-v"))))
-    (when (and version-string (string-match "version \\([^ ]+\\)" version-string))
-      (setq coq-autodetected-version (match-string 1 version-string))))
+  (with-temp-buffer
+    ;; Use `shell-command' via `find-file-name-handler' instead of
+    ;; `process-line': when the buffer is running TRAMP, PG uses
+    ;; `start-file-process', loading the binary from the remote server.
+    (let* ((coq-command (shell-quote-argument (or coq-prog-name "coqtop")))
+           (shell-command-str (format "%s -v" coq-command))
+           (fh (find-file-name-handler default-directory 'shell-command))
+           (retv (if fh (funcall fh 'shell-command shell-command-str (current-buffer))
+                   (shell-command shell-command-str (current-buffer)))))
+      (when (equal 0 retv)
+        ;; Fail silently (in that case we'll just assume Coq 8.5)
+        (goto-char (point-min))
+        (when (re-search-forward "version \\([^ ]+\\)" nil t)
+          (setq coq-autodetected-version (match-string 1))))))
   (when interactive-p
     (coq-show-version))
   coq-autodetected-version)

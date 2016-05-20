@@ -876,8 +876,9 @@ Support dot.notation.of.modules."
 
 
 (defun coq-id-or-notation-at-point ()
-  (or (coq-id-at-point) (concat "\"" (coq-notation-at-position (point)) "\"")))
-
+  (or (coq-id-at-point)
+      (let ((notation (coq-notation-at-position (point))))
+        (if notation (concat "\"" notation "\"") ""))))
 
 (defcustom coq-remap-mouse-1 nil
   "Wether coq mode should remap mouse button 1 to coq queries.
