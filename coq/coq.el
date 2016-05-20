@@ -1328,11 +1328,10 @@ goal is redisplayed."
   (let* ((id (coq-id-or-notation-at-point))
          (re (regexp-quote (or id ""))))
     (when coq-highlight-id-last-regexp
-      (coq-unhighlight-id-in-goals coq-highlight-id-last-regexp)
-      (if (equal id coq-highlight-id-last-regexp)
-        (setq coq-highlight-id-last-regexp "")
-        (coq-highlight-id-in-goals re)
-      (setq coq-highlight-id-last-regexp re)))))
+      (coq-unhighlight-id-in-goals coq-highlight-id-last-regexp))
+    (coq-highlight-id-in-goals re)
+    (setq coq-highlight-id-last-regexp re)))
+
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
 

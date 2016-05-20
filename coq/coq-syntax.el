@@ -119,10 +119,9 @@ so for the following reasons:
   :group 'coq)
 
 
-
+;; user shortcuts are prioritized by being put at the end
 (defvar coq-tactics-db
   (append
-   coq-user-tactics-db
    '(
      ("absurd " "abs" "absurd " t "absurd")
      ("apply" "ap" "apply " t "apply")
@@ -189,6 +188,7 @@ so for the following reasons:
      ("elim using" "elu" "elim # using #" t)
      ("elim" "e" "elim #" t "elim")
      ("elimtype" "elt" "elimtype" "elimtype")
+     ("enough" "eng" "enough (#: #).\n{ #\n}" "elimtype")
      ("erewrite" "er" "erewrite #" t "erewrite")
      ("eright" "erig" "eright" "eright")
      ("esplit" "esp" "esplit" t "esplit")
@@ -308,13 +308,14 @@ so for the following reasons:
      ("unlock" "unlock" "unlock #" t "unlock")
      ("suffices" "suffices" "suffices # : #" t "suffices")
      ("suff" "suff" "suff # : #" t "suff")
-     ))
+     )
+   coq-user-tactics-db)
   "Coq tactics information list. See `coq-syntax-db' for syntax. "
   )
 
+;; user shortcuts are prioritized by being put at the end
 (defvar coq-solve-tactics-db
   (append
-   coq-user-solve-tactics-db
    '(
      ("assumption" "as" "assumption" t "assumption")
      ("eassumption" "eas" "eassumption" t "eassumption")
@@ -338,15 +339,16 @@ so for the following reasons:
      ("tauto" "ta" "tauto" t "tauto")
      ;; SSReflect solving tactics.
      ("done" nil "done" nil "done")
-     ))
+     )
+   coq-user-solve-tactics-db)
   "Coq tactic(al)s that solve a subgoal."
   )
 
 (defvar coq-solve-cheat-tactics-db
   (append
-   coq-user-cheat-tactics-db
    '(("admit" nil "admit" t "admit")
-     ("Admitted" nil "Admitted" t "Admitted")))
+     ("Admitted" nil "Admitted" t "Admitted"))
+   coq-user-cheat-tactics-db)
   "Coq tactic(al)s that solve a subgoal."
   )
 
@@ -364,7 +366,6 @@ so for the following reasons:
 
 (defvar coq-tacticals-db
   (append
-   coq-user-tacticals-db
    '(
      ("info" nil "info #" nil "info")
      ("first" nil "first [ # | # ]" nil "first")
@@ -383,7 +384,8 @@ so for the following reasons:
      ("||" nil "# || #" nil)
      ;; SSReflect tacticals.
      ("last" "lst" nil t "last")
-     ))
+     )
+   coq-user-tacticals-db)
   "Coq tacticals information list.  See `coq-syntax-db' for syntax.")
 
 
@@ -547,10 +549,8 @@ so for the following reasons:
 (defvar coq-other-commands-db
   '(
     ("Add Parametric Relation" nil "Add Parametric Relation : " t "Add\\s-+Parametric\\s-+Relation")
-    ("BeginSubproof" "bs" "BeginSubproof.\n#\nEndSubproof." t "BeginSubproof")
-    ("EndSubproof" "es" "EndSubproof.#" t "EndSubproof")
     ;; ("Abort" nil "Abort." t "Abort" nil nil);don't appear in menu
-                                        ;     ("Add" nil "Add #." nil "Add" nil t)
+    ;; ("Add" nil "Add #." nil "Add" nil t)
     ("Add Abstract Ring" nil "Add Abstract Ring #." t "Add\\s-+Abstract\\s-+Ring")
     ("Add Abstract Semi Ring" nil "Add Abstract Semi Ring #." t "Add\\s-+Abstract\\s-+Semi\\s-+Ring")
     ("Add Field" nil "Add Field #." t "Add\\s-+Field")
@@ -596,6 +596,7 @@ so for the following reasons:
     ("Implicit Arguments" nil "Implicit Arguments # [#]." t "Implicit\\s-+Arguments")
     ("Implicit Types" nil "Implicit Types # : #." t "Implicit\\s-+Types")
     ("Import" nil "Import #." t "Import")
+    ("Include" nil "Include #." t "Include")
     ("Infix" "inf" "Infix \"#\" := # (at level #) : @{scope}." t "Infix")
     ("Notation (assoc)" "notas" "Notation \"#\" := # (at level #, # associativity)." t)
     ("Notation (at assoc)" "notassc" "Notation \"#\" := # (at level #, # associativity) : @{scope}." t)
@@ -1099,7 +1100,6 @@ It is used:
  ;; From JF Monin:
 (defvar coq-reserved
   (append
-   coq-user-reserved-db
    '(
      "False" "True" "after" "as" "cofix" "fix" "forall" "fun" "match"
      "lazymatch" "multimatch"
@@ -1107,7 +1107,8 @@ It is used:
      "using" "with" "beta" "delta" "iota" "zeta" "after" "until"
      "at" "Sort" "Time" "dest" "where"
      ;; SSReflect user reserved.
-     "is" "nosimpl" "of"))
+     "is" "nosimpl" "of")
+   coq-user-reserved-db)
   "Reserved keywords of Coq.")
 
 ;; FIXME: ∀ and ∃ should be followed by a space in coq syntax.
