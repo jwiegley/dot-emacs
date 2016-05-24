@@ -123,7 +123,7 @@ BAE Systems"))))
  '(gnus-parameters
    (quote
     (("^haskell$"
-      (display all))
+      (display . all))
      ("list\\.gnu\\.prog\\.discuss$"
       (list-identifier . "\\[gnu-prog-discuss\\]"))
      ("list\\.riscv\\.devel$"

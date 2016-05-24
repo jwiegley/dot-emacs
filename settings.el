@@ -424,7 +424,7 @@
  '(erc-fill-static-center 12)
  '(erc-foolish-content
    (quote
-    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:" "\\<stack\\(age\\)?\\>" "\\<cabal\\>")))
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
@@ -579,6 +579,7 @@
         (assq
          (quote height)
          (frame-parameters))))))) t)
+ '(garbage-collection-messages t)
  '(gc-cons-threshold 3500000)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
@@ -767,6 +768,7 @@
  '(magit-auto-revert-mode nil)
  '(magit-completing-read-function (quote helm--completing-read-default))
  '(magit-diff-options nil)
+ '(magit-ediff-dwim-show-on-hunks t)
  '(magit-fetch-arguments nil)
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
@@ -943,6 +945,7 @@
  '(sr-windows-default-ratio 80)
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
+ '(switch-to-buffer-preserve-window-point t)
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
  '(tail-max-size 25)
@@ -976,11 +979,13 @@
  '(term-scroll-show-maximum-output t)
  '(text-mode-hook
    (quote
-    (turn-on-auto-fill
-     (lambda nil
-       (ignore-errors
-         (diminish
-          (quote auto-fill-function)))))))
+    (turn-on-flyspell turn-on-auto-fill
+                      (lambda nil
+                        (ignore-errors
+                          (diminish
+                           (quote auto-fill-function))))
+                      (lambda nil
+                        (abbrev-mode 1)))))
  '(tls-checktrust t)
  '(tls-program
    (quote

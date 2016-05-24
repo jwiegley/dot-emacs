@@ -115,7 +115,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
+    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -145,7 +145,7 @@
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-start-with-log-mode nil)
  '(org-agenda-tags-column -100)
- '(org-agenda-text-search-extra-files (quote (agenda-archives)))
+ '(org-agenda-text-search-extra-files (quote (agenda-archives "~/doc/notes/notes.txt")))
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
@@ -283,6 +283,7 @@ SCHEDULED: %t
  '(org-refile-targets
 (quote
  (("~/doc/tasks/todo.txt" :level . 1)
+  ("~/doc/tasks/Bahai.txt" :level . 1)
   ("~/doc/tasks/emacs.txt" :level . 1)
   ("~/doc/tasks/OSS.txt" :level . 1)
   ("~/doc/tasks/BAE.txt" :level . 1)

@@ -369,12 +369,12 @@ is:
 (use-package my-gnus-score
   :commands (my-gnus-score-groups my-gnus-score-followup)
   :init
-  (defun gnus-group-get-all-new-news ()
-    (interactive)
+  (defun gnus-group-get-all-new-news (&optional arg)
+    (interactive "P")
     (gnus-group-get-new-news 5)
-    (gnus-group-list-groups 4)
+    (gnus-group-list-groups (or arg 4))
     (my-gnus-score-groups)
-    (gnus-group-list-groups 4)
+    (gnus-group-list-groups (or arg 4))
     (gnus-group-save-newsrc t))
 
   (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
