@@ -46,38 +46,35 @@ Proof General."
 
 (defcustom proof-splash-contents
   '(list
-    nil
-    (proof-get-image "pg-text" t)
-    nil
-    (proof-get-image "ProofGeneral-image")
+    (proof-get-image "ProofGeneral-splash.png")
     nil
     "Welcome to"
     (concat proof-assistant " Proof General!")
     nil
     (concat "Version " proof-general-short-version ".")
     nil
-    (concat "(C) LFCS, University of Edinburgh " proof-general-version-year)
+    (concat "© LFCS, University of Edinburgh & contributors " proof-general-version-year)
     nil
     nil
     :link '("    Read the "
 	    "Proof General documentation"
-	   (lambda (button) (info "ProofGeneral")))
-    :link '("    Please report problems at "
-	    "Proof General trac"
-	   (lambda (button)
-	     (browse-url "http://proofgeneral.inf.ed.ac.uk/trac"))
-	   "Report bugs at http://proofgeneral.inf.ed.ac.uk/trac")
-    :link '("Visit the " "Proof General wiki"
-	   (lambda (button)
-	     (browse-url "http://proofgeneral.inf.ed.ac.uk/wiki"))
-	   "Write lots of helpful things at http://proofgeneral.inf.ed.ac.uk/wiki")
+            (lambda (button) (info "ProofGeneral")))
+    :link '("    Please report problems on the "
+            "Github issue tracker"
+            (lambda (button)
+              (browse-url "https://github.com/ProofGeneral/PG/issues"))
+            "Report bugs at https://github.com/ProofGeneral/PG")
+    :link '("Visit the " "Proof General Github page"
+            (lambda (button)
+              (browse-url "https://github.com/ProofGeneral/PG"))
+            "PG is on Github at https://github.com/ProofGeneral/PG")
     :link '("or the " "homepage"
-	   (lambda (button)
-	     (browse-url "http://proofgeneral.inf.ed.ac.uk/"))
-	   "Browse http://proofgeneral.inf.ed.ac.uk/")
+            (lambda (button)
+              (browse-url "http://proofgeneral.inf.ed.ac.uk/"))
+            "Browse http://proofgeneral.inf.ed.ac.uk/")
     nil
-     :link '("Find out about Emacs on the Help menu -- start with the "
-	     "Emacs Tutorial" (lambda (button) (help-with-tutorial)))
+    :link '("Find out about Emacs on the Help menu -- start with the "
+            "Emacs Tutorial" (lambda (button) (help-with-tutorial)))
     nil
     "See this screen again with Proof-General -> About"
     )
@@ -117,27 +114,12 @@ If it is nil, a new line is inserted."
   (and (listp img) (eq (car img) 'image)))
 
 
-(defun proof-get-image (name &optional nojpeg default)
-  "Construct an image instantiator for an image, or string failing that.
-Different formats are chosen from according to what can be displayed.
-Unless NOJPEG is set, try jpeg first. Then try gif, then xpm.
-Gif filename depends on colour depth of display.
-DEFAULT gives return value in case image not valid."
-  (let ((jpg (vector 'jpeg :file
-		     (concat proof-images-directory name ".jpg")))
-	(gif (vector 'gif :file
-		     (concat proof-images-directory ".gif")))
-	img)
-  (cond
-   (window-system
-    (find-image
-     (list
-      (list :type 'jpeg
-	    :file (concat proof-images-directory name ".jpg"))
-      (list :type 'gif
-	    :file (concat proof-images-directory name ".gif")))))
-   (t
-    (or default (concat "[ image " name " ]"))))))
+(defun proof-get-image (name)
+  "Load a PNG image NAME, or string on TTYs."
+  (if (display-graphic-p)
+      (find-image
+       `((:type png :file ,(expand-file-name name proof-images-directory))))
+    (concat "[ image " name " ]")))
 
 (defvar proof-splash-timeout-conf nil
   "Holds timeout ID and previous window config for proof splash screen.")
