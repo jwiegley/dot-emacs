@@ -355,6 +355,9 @@ for patches and suggestions, to Makarius for many bug reports and help
 with Isabelle support and to Pierre Courtieu for providing new
 features for Coq support.
 
+Proof General 4.4's new icons were contributed by Yoshihiro Imai
+(@uref{http://proofcafe.org/wiki/Generaltan) under CC-BY-SA 3.0}
+(@uref{https://creativecommons.org/licenses/by-sa/3.0/})
 
 @c FIXME: watch contributors here!
 During the development of Proof General 3.x and 4.x releases, 
