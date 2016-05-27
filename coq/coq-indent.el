@@ -96,8 +96,8 @@ detect if they start something or not."
                (not (proof-string-match "{\\s-*\\(wf\\|measure\\)" str)))))))
 
 
-(defconst coq-simple-cmd-ender-regexp "[^.]\\|\\=\\|\\.\\."
-  "Used internally. Matches the allow prefix of the coq \".\" command ending.")
+(defconst coq-simple-cmd-ender-prefix-regexp "[^.]\\|\\=\\|\\.\\."
+  "Used internally. Matches the allowed prefixes of coq \".\" command ending.")
 
 (defconst coq-bullet-regexp-nospace "\\(-\\)+\\|\\(+\\)+\\|\\(\\*\\)+"
   "Matches single bullet, WARNING: Lots of false positive.
@@ -109,14 +109,14 @@ No context checking.")
 ;; bullets and curlys and spaces). This is used when search backward.
 ;; This variable is the regexp of possible prefixes
 (defconst coq-bullet-prefix-regexp
-  (concat "\\(?:\\(?:" coq-simple-cmd-ender-regexp "\\)"
+  (concat "\\(?:\\(?:" coq-simple-cmd-ender-prefix-regexp "\\)"
           "\\(?:\\.\\)\\(?:\\s-\\)\\(?:\\s-\\|{\\|}\\|-\\|+\\|\\*\\)*\\)"))
 
 ;; matches regular command end (. and ... followed by a space or buffer end)
 ;; ". " and "... " are command endings, ".. " is not, same as in
 ;; proof-script-command-end-regexp in coq.el
 (defconst coq-period-end-command
-  (concat "\\(?:\\(?2:" coq-simple-cmd-ender-regexp "\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\)")
+  (concat "\\(?:\\(?2:" coq-simple-cmd-ender-prefix-regexp "\\)\\(?1:\\.\\)\\(?3:\\s-\\|\\'\\)\\)")
   "Matches coq regular syntax for ending a command (except bullets and curlies).
 
 This should match EXACTLY command ending syntax. No false
@@ -194,10 +194,14 @@ command ended by the bullet-like regexp is empty. This is done in
 coq-smie.el, and see `coq-end-command-regexp-backward' for a more
 precise regexp (but only when searching backward).")
 
+; Order here is significant, when two pattern match with the same
+; starting position, the first regexp is preferred. period-command is
+; the shorter one so let us have it at the end, but what about cury vs
+; bullets?
 (defconst coq-end-command-regexp-backward
   (concat coq-bullet-end-command-backward "\\|"
-          coq-period-end-command "\\|"
-          coq-curlybracket-end-command-backward)
+          coq-curlybracket-end-command-backward "\\|"
+          coq-period-end-command)
   "Matches end of commands, including bullets and curlies.
 
 There are 3 substrings (2 and 3 may be nil):
