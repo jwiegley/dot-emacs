@@ -135,7 +135,7 @@ so for the following reasons:
      ("autorewrite with in" "arwi" "autorewrite with @{db,db...} in @{hyp}" t)
      ("autorewrite with using" "arwu" "autorewrite with @{db,db...} using @{tac}" t)
      ("autorewrite with" "ar" "autorewrite with @{db,db...}" t "autorewrite")
-     ("case" "c" "case " t "case")
+     ("case" nil "case " t "case")
      ("case_eq" "ceq" "case_eq " t "case_eq")
      ("case_type" "cty" "case_type " t "case_type")
      ("cbn" "c" "cbn" t "cbn")
