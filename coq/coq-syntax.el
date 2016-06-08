@@ -138,7 +138,9 @@ so for the following reasons:
      ("case" "c" "case " t "case")
      ("case_eq" "ceq" "case_eq " t "case_eq")
      ("case_type" "cty" "case_type " t "case_type")
-     ("cbv" "cbv" "cbv beta [#] delta iota zeta" t "cbv")
+     ("cbn" "c" "cbn" t "cbn")
+     ("cbn (with flags)" "cbn" "cbn beta delta [#] iota zeta" t "cbn")
+     ("cbv" "cbv" "cbv beta delta [#] iota zeta" t "cbv")
      ("change in" "chi" "change # in #" t)
      ("change with in" "chwi" "change # with # in #" t)
      ("change with" "chw" "change # with" t)
@@ -226,7 +228,7 @@ so for the following reasons:
      ("inversion using in" "invui" "inversion # using # in #" t)
      ("inversion_clear" "invcl" "inversion_clear" t "inversion_clear")
      ("lapply" "lap" "lapply" t "lapply")
-     ("lazy" "lazy" "lazy beta [#] delta iota zeta" t "lazy")
+     ("lazy" "lazy" "lazy beta delta [#] iota zeta" t "lazy")
      ("lazymatch with" "m" "lazymatch # with\n| # => #\nend")
      ("left" "left" "left" t "left")
      ("linear" "lin" "linear" t "linear")
@@ -268,7 +270,8 @@ so for the following reasons:
      ("setoid_rewrite" "strew" "setoid_rewrite #" t "setoid_rewrite")
      ("setoid rewrite" "strew" "setoid rewrite #" t "setoid\\s-+rewrite")
      ("simpl" "s" "simpl" t "simpl")
-     ("simpl" "sa" "simpl # at #" t)
+     ("simpl at" "sa" "simpl # at #" t)
+     ("simpl (all flags)" "simpl" "simpl beta delta [#] iota zeta" t)
      ("simple destruct" "sdes" "simple destruct" t "simple\\s-+destruct")
      ("simple inversion" "sinv" "simple inversion" t "simple\\s-+inversion")
      ("simple induction" "sind" "simple induction" t "simple\\s-+induction")
@@ -1094,7 +1097,7 @@ It is used:
   (coq-build-regexp-list-from-db coq-tacticals-db)
   "Keywords for tacticals in a Coq script.")
 
-(defvar coq-symbol-binders "\\_<∀\\_>\\|\\_<∃\\_>\\|\\_<λ\\_>")
+(defvar coq-symbol-binders "∀\\|∃\\|λ")
 
 
  ;; From JF Monin:
@@ -1192,10 +1195,10 @@ It is used:
   :type 'boolean
   :group 'coq)
 
-(defconst coq-lambda-regexp "\\(?:\\_<fun\\_>\\|\\_<λ\\_>\\)")
+(defconst coq-lambda-regexp "\\(?:\\_<fun\\_>\\|λ\\)")
 
-(defconst coq-forall-regexp "\\(?:\\_<forall\\_>\\|\\_<∀\\_>\\)")
-(defconst coq-exists-regexp "\\(?:\\_<exists\\_>\\|\\_<∃\\_>\\)")
+(defconst coq-forall-regexp "\\(?:\\_<forall\\_>\\|∀\\)")
+(defconst coq-exists-regexp "\\(?:\\_<exists\\_>\\|∃\\)")
 
 (defvar coq-font-lock-terms
   (cons
@@ -1207,10 +1210,10 @@ It is used:
         ;; forall binder
         (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
         (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
-                                        ;   (list "\\<forall\\>"
-                                        ;         (list 0 font-lock-type-face)
-                                        ;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
-                                        ;               (list 0 font-lock-variable-name-face)))
+        ;;   (list "\\<forall\\>"
+        ;;         (list 0 font-lock-type-face)
+        ;;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
+        ;;               (list 0 font-lock-variable-name-face)))
         ;; parenthesized binders
         (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
         (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
