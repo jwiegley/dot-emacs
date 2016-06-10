@@ -379,7 +379,10 @@ process command."
 	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
 	(unless (proof-shell-live-buffer)
-	  ;; Give error now if shell buffer isn't live (process exited)
+	  ;; Give error now if shell buffer isn't live (process exited). We also
+	  ;; set the process filter to nil to avoid processing error messages
+	  ;; related to the process exit.
+	  (set-process-filter (get-buffer-process proof-shell-buffer) nil)
 	  (setq proof-shell-buffer nil)
 	  (error "Starting process: %s..failed" prog-command-line)))
       
