@@ -486,9 +486,10 @@ this buffer visible and returns a string."
 	  (with-current-buffer coq-compile-response-buffer (insert output)))
 	(coq-display-compile-response-buffer)
 	"unsatisfied dependencies")
-    (if (string-match ": \\(.*\\)$" output)
-	(cdr-safe (split-string (match-string 1 output)))
-      ())))
+    (when (string-match "\\`.*: " output)
+      (cl-remove-if-not
+       (lambda (f) (string-match-p "\\.vo?\\'" f))
+       (cdr-safe (split-string (substring output (match-end 0))))))))
 
 (defun coq-par-get-library-dependencies (lib-src-file coq-load-path
 						      &optional command-intro)
