@@ -4718,7 +4718,7 @@ forms of include options ('-I' and @code{'-R'}). An element can be
   - A list of the form '(rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
     logical path @code{'path'} ('-R dir -as path').
-  - A list of the form '(norec dir path)', specifying a directory
+  - A list of the form '(nonrec dir path)', specifying a directory
     to be mapped to the logical path @code{'path'} ('-I dir -as path').
 @end lisp
 For convenience the symbol @code{'rec'} can be omitted and entries of
