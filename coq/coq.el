@@ -93,6 +93,11 @@ These are appended at the end of `coq-shell-init-cmd'."
   :type 'string
   :group 'coq)
 
+(defcustom coq-prefer-top-of-conclusion nil
+  "prefer start of the conclusion over its end when displaying goals
+that do not fit in the goals window."
+  :type 'boolean
+  :group 'coq)
 
 ;; this remembers the previous value of coq-search-blacklist-string, so that we
 ;; can cook a remove+add blacklist command each time the variable is changed.
@@ -2443,6 +2448,7 @@ buffer."
           (buffer-substring p (point)))))))
 
 
+
 (defun coq-show-first-goal ()
   "Scroll the goal buffer so that the first goal is visible.
 First goal is displayed on the bottom of its window, maximizing the
@@ -2459,12 +2465,21 @@ number of hypothesis displayed, without hiding the goal"
         (let ((goal-win (or (get-buffer-window proof-goals-buffer) (get-buffer-window proof-goals-buffer t))))
           (if goal-win
               (with-selected-window goal-win
-                ;; find snd goal or buffer end
+                ;; find snd goal or buffer end, if not found this goes to the
+                ;; end of buffer
                 (search-forward-regexp "subgoal 2\\|\\'")
                 (beginning-of-line)
-                ;; find something else than a space
+                ;; find something backward else than a space: bottom of concl
                 (ignore-errors (search-backward-regexp "\\S-"))
-                (recenter (- 1)) ; put it at bottom og window
+                (recenter (- 1)) ; put bot of concl at bottom of window
+                (beginning-of-line)
+                ;; if the top of concl is hidden we may want to show it instead
+                ;; of bottom of concl
+                (when (and coq-prefer-top-of-conclusion
+                         ;; return nil if === is not visible
+                         (not (save-excursion (re-search-backward "========" (window-start) t))))
+                  (re-search-backward "========" nil t)
+                  (recenter 0))
                 (beginning-of-line))))))))
 
 (defvar coq-modeline-string2 ")")
