@@ -107,7 +107,7 @@ attention to case differences."
 	   (goto-char pt)
 	   ;; looking for a dummy token to see if we fail before reaching
 	   ;; strt, which means that we were in a prenthesized expression.
-	   (coq-smie-search-token-backward "#dummy#" strt)
+	   (coq-smie-search-token-backward '("#dummy#") strt)
 	   (> (point) strt)))))
 
 (defun coq-smie-.-deambiguate ()
