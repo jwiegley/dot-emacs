@@ -120,6 +120,12 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     To disable this feature use:
     (setq coq-optimise-resp-windows-enable nil)
     
+*** Option to prefer top of conclusion instead of bottom
+
+    When display goals that do not fit in the goals window, PG prefers
+    to display the bottom of the goal (where lies it own conclusion.
+    You can make it prefer the top of the conclusion by setting this:
+    (setq coq-prefer-top-of-conclusion t)
 
 *** Colors in response and goals buffers
 
