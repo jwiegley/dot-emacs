@@ -1053,7 +1053,7 @@ If the new job is a clone job, its state is
   a queue dependency QUEUE-DEP (which cannot be ready yet)
 - 'ready otherwise
 
-If the new job is a 'file job it's state is 'enqueued-coqdep. If
+If the new job is a 'file job its state is 'enqueued-coqdep. If
 there is space, coqdep is started immediately, otherwise the new
 job is put into the compilation queue.
 
