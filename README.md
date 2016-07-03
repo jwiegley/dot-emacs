@@ -1,5 +1,7 @@
 # Proof General — Organize your proofs! 
 
+[![Build Status](https://travis-ci.org/ProofGeneral/PG.svg?branch=master)](https://travis-ci.org/ProofGeneral/PG)
+
 Proof General is a generic Emacs interface for proof assistants.
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
