@@ -11,7 +11,7 @@ $(STABLE_TARGETS):
 	mv /tmp/emacs-tmp/* "/tmp/emacs" || (ls /tmp/*; exit 1)
 
 prepare-emacs-git:
-	git clone --depth=1 'http://git.sv.gnu.org/r/emacs.git' /tmp/emacs
+	git clone --depth=1 'git://git.savannah.gnu.org/emacs.git' --branch emacs-25 /tmp/emacs
 	cd /tmp/emacs && ./autogen.sh
 
 prepare-emacs: prepare-$(EMACS_TARGET)
