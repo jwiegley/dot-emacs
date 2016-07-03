@@ -421,6 +421,7 @@ so for the following reasons:
     ("Hint Rewrite ->" "hrw" "Hint Rewrite -> @{t1,t2...} using @{tac} : @{db}." t "Hint\\s-+Rewrite")
     ("Hint Rewrite <-" "hrw" "Hint Rewrite <- @{t1,t2...} using @{tac} : @{db}." t )
     ("Hint Unfold" "hu" "Hint Unfold # : #." t "Hint\\s-+Unfold")
+    ("Existing Class" nil "Existing Class " t "Existing\\s-+Class")
     ("Existing Instance" nil "Existing Instance " t "Existing\\s-+Instance")
     ("Existing Instances" nil "Existing Instances " t "Existing\\s-+Instances")
     ("Hypothesis" "hyp" "Hypothesis #: #" t "Hypothesis")
