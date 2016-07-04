@@ -1273,7 +1273,11 @@ assuming the undo-in-region behavior will apply if ARG is non-nil."
 		     buffer-undo-list)))		 ; can be nil
     (if (or (null undo-list) (equal undo-list (list nil)))
 	nil				; there is clearly no undo elt
-      (while (eq (car undo-list) nil)
+      (while (and undo-list             ; to ensure it will terminate
+                  (let ((elt (car undo-list)))
+                    (not (and (consp elt)
+                              (or (stringp (car elt))
+                                  (integerp (car elt)))))))
 	(setq undo-list (cdr undo-list))) ; get the last undo record
       (if (and (eq last-command 'undo)
 	       (or (eq pending-undo-list t)
