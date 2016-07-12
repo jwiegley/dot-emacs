@@ -1,0 +1,31 @@
+Your wish has been granted. You can commit to Emacs and GNU ELPA. Feel free to
+use this power, but please try to be extra careful and prove yourself worthy
+of this privilege:
+
+- Send your patches for review before installing them.
+- Only install changes whose code follows the usual coding conventions. Some
+  of those conventions are documented in http://www.gnu.org/prep/standards;
+  you'll discover others during code review.
+- Always provide a good commit message (copied into or from the ChangeLog for
+  emacs.git), following the GNU coding standards (e.g. using the
+  present/imperative tense, and syntax described at
+  http://www.gnu.org/prep/standards/html_node/Change-Logs.html), and properly
+  labelling the author of the code.
+- If the change is a new feature or a change in behavior, don't forget to
+  mention it in the etc/NEWS file and to update the Texinfo doc accordingly.
+- Be sure your change is accepted as being for the better by the package's
+  maintainer. As a general rule send your patch for review before installing
+  it, unless you're absolutely positively 200% sure that everyone will be
+  pleased with the content and the form of the patch.
+
+Last but not least:
+
+- And make extra sure that all the code you install has the proper copyright:
+  if it is not your own code, make sure the author has signed the relevant
+  copyright papers (for non-trivial contributions), and indicate the author
+  correctly in the commit (and the ChangeLog if applicable).
+
+If you have the slightest doubt about any of those points, send your question
+or your patch to emacs-devel@gnu.org (or bug-gnu-emacs@gnu.org).
+
+Thank you very much for your contribution to Emacs,

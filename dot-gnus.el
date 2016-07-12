@@ -553,16 +553,23 @@ is:
 (use-package supercite
   :commands sc-cite-original
   :init
-  (progn
-    (add-hook 'mail-citation-hook 'sc-cite-original)
+  (add-hook 'mail-citation-hook 'sc-cite-original)
 
-    (defun sc-remove-existing-signature ()
-      (save-excursion
-        (goto-char (region-beginning))
-        (when (re-search-forward message-signature-separator (region-end) t)
-          (delete-region (match-beginning 0) (region-end)))))
+  (defun sc-remove-existing-signature ()
+    (save-excursion
+      (goto-char (region-beginning))
+      (when (re-search-forward message-signature-separator (region-end) t)
+        (delete-region (match-beginning 0) (region-end)))))
 
-    (add-hook 'mail-citation-hook 'sc-remove-existing-signature))
+  (add-hook 'mail-citation-hook 'sc-remove-existing-signature)
+
+  (defun sc-remove-if-not-mailing-list ()
+    (unless (assoc "list-id" sc-mail-info)
+      (setq attribution sc-default-attribution
+            citation (concat sc-citation-delimiter
+                             sc-citation-separator))))
+
+  (add-hook 'sc-attribs-postselect-hook 'sc-remove-if-not-mailing-list)
 
   :config
   (defun sc-fill-if-different (&optional prefix)

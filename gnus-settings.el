@@ -21,6 +21,10 @@
     (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("ATC" "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
+      (("BCC" . "sarv9mithaq@gmail.com, jwiegley@gmail.com"))
+      "" "John Wiegley
+ATC Secretary")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
@@ -122,7 +126,9 @@ BAE Systems"))))
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
-    (("^haskell$"
+    (("brass\\.smedl"
+      (list-identifier . "\\[brass-rings/smedl\\]"))
+     ("^haskell$"
       (display . all))
      ("list\\.gnu\\.prog\\.discuss$"
       (list-identifier . "\\[gnu-prog-discuss\\]"))
@@ -523,7 +529,7 @@ BAE Systems"))))
       (sc-cite-line))
      (end
       (sc-fill-if-different "")))))
- '(sc-preferred-attribution-list nil)
+ '(sc-preferred-attribution-list (quote ("initials")))
  '(sc-use-only-preference-p t)
  '(send-mail-function (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "smtp.gmail.com")

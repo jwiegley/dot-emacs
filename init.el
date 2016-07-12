@@ -330,6 +330,7 @@
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
+(bind-key "C-x v H" #'vc-region-history)
 (bind-key "C-x K" #'delete-current-buffer-file)
 
 ;;; C-x C-
@@ -397,6 +398,19 @@
     (goto-char (+ end 2))))
 
 (bind-key "C-x M-q" #'refill-paragraph)
+
+(defun endless/fill-or-unfill ()
+  "Like `fill-paragraph', but unfill if used twice."
+  (interactive)
+  (let ((fill-column
+         (if (eq last-command 'endless/fill-or-unfill)
+             (progn (setq this-command nil)
+                    (point-max))
+           fill-column)))
+    (call-interactively #'fill-paragraph)))
+
+(global-set-key [remap fill-paragraph]
+                #'endless/fill-or-unfill)
 
 ;;; mode-specific-map
 
@@ -1292,9 +1306,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (bug-reference-github-set-url-format))
 
-(use-package cmake-mode
-  :mode (("CMakeLists\\.txt\\'" . cmake-mode)
-         ("\\.cmake\\'"         . cmake-mode)))
+`(use-package cmake-mode
+   :mode ((,(rx "CMakeLists.txt") . cmake-mode)
+          ("\\.cmake\\'"         . cmake-mode)))
 
 (use-package color-moccur
   :commands (isearch-moccur isearch-all isearch-moccur-all)

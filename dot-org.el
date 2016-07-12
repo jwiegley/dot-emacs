@@ -934,6 +934,7 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
     ))
 
 (defun bahai-date (month day &optional bahai-year)
+  (require 'cal-julian)
   (let* ((greg-year (if bahai-year
                         (+ 1844 (1- bahai-year))
                       (nth 2 (calendar-current-date))))

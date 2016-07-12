@@ -241,12 +241,12 @@
     ((java-mode . "gnu")
      (awk-mode . "awk")
      (other . "gnu"))))
- '(calendar-daylight-time-zone-name "CDT")
- '(calendar-latitude 40.73471)
- '(calendar-longitude -89.554659)
+ '(calendar-daylight-time-zone-name "PDT")
+ '(calendar-latitude 38.547795)
+ '(calendar-longitude -121.524102)
  '(calendar-mark-holidays-flag t)
- '(calendar-standard-time-zone-name "CST")
- '(calendar-time-zone -420)
+ '(calendar-standard-time-zone-name "PST")
+ '(calendar-time-zone -480)
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
  '(cc-other-file-alist
    (quote
@@ -341,6 +341,7 @@
  '(coq-holes-minor-mode nil)
  '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
+ '(coq-prefer-top-of-conclusion t)
  '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
@@ -419,12 +420,12 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))))
+    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))) t)
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
    (quote
-    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:")))
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:" "\\<stack\\(age\\)?\\>" "\\<cabal\\>")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
