@@ -1,0 +1,3 @@
+*.elc
+.dir-locals.el
+.cask
