@@ -163,6 +163,7 @@
 (use-package popwin         :defer t :load-path "lib/popwin-el")
 (use-package pos-tip        :defer t :load-path "lib/pos-tip")
 (use-package s              :defer t :load-path "lib/s-el")
+(use-package tablist        :defer t :load-path "lib/tablist")
 (use-package working        :defer t)
 (use-package xml-rpc        :defer t)
 
@@ -1513,6 +1514,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (setq-local word-wrap nil))
   :config
   (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
+
+(use-package docker-images
+  :commands docker-images
+  :load-path "site-lisp/docker-el/")
 
 (use-package dockerfile-mode
   :mode ("\\`Dockerfile\\'" . dockerfile-mode)
