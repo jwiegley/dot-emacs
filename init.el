@@ -1520,7 +1520,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/docker-el/")
 
 (use-package dockerfile-mode
-  :mode ("\\`Dockerfile\\'" . dockerfile-mode)
+  :mode ("Dockerfile\\'" . dockerfile-mode)
   :load-path "site-lisp/dockerfile-mode/")
 
 (use-package doxymacs
