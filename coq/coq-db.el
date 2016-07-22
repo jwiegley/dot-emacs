@@ -305,6 +305,11 @@ See `coq-syntax-db' for DB structure."
   "Face for unicode binders, by default a bold version of `font-lock-type-face'."
   :group 'proof-faces)
 
+(defface coq-symbol-face
+  '((t :inherit default-face :bold coq-bold-unicode-binders))
+  "Face for unicode binders, by default a bold version of `font-lock-type-face'."
+  :group 'proof-faces)
+
 (defface coq-question-mark-face
   '((t :inherit font-lock-variable-name-face))
   "Face for Ltac binders and evars."
@@ -324,6 +329,10 @@ Required so that 'coq-solve-tactics-face is a proper facename")
 Required so that 'coq-cheat-face is a proper facename")
 
 (defconst coq-symbol-binder-face 'coq-symbol-binder-face
+  "Expression that evaluates to a face.
+Required so that 'coq-symbol-binder-face is a proper facename")
+
+(defconst coq-symbol-face 'coq-symbol-face
   "Expression that evaluates to a face.
 Required so that 'coq-symbol-binder-face is a proper facename")
 

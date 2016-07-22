@@ -1115,6 +1115,7 @@ It is used:
 (defvar coq-symbol-binders "∀\\|∃\\|λ")
 
 
+
  ;; From JF Monin:
 (defvar coq-reserved
   (append
@@ -1186,8 +1187,16 @@ It is used:
     "++>"
     "@"
     "->"
-    ".")
+    "."
+    "∧"
+    "∨"
+    "→"
+    "\\/"
+    "/\\"
+    "->")
   "Punctuation Symbols used by Coq.")
+
+(defvar coq-symbols-regexp (regexp-opt coq-symbols))
 
 ;; ----- regular expressions
 (defvar coq-error-regexp "^\\(Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
@@ -1210,29 +1219,37 @@ It is used:
   :type 'boolean
   :group 'coq)
 
+(defcustom coq-symbol-highlight-enable nil
+  "Activates partial bound variable highlighting"
+  :type 'boolean
+  :group 'coq)
+
 (defconst coq-lambda-regexp "\\(?:\\_<fun\\_>\\|λ\\)")
 
 (defconst coq-forall-regexp "\\(?:\\_<forall\\_>\\|∀\\)")
 (defconst coq-exists-regexp "\\(?:\\_<exists\\_>\\|∃\\)")
 
 (defvar coq-font-lock-terms
-  (cons
-   (cons coq-symbol-binders 'coq-symbol-binder-face)
-   (if coq-variable-highlight-enable
-       (list
-        ;; lambda binders
-        (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\|,\\)") 1 'font-lock-variable-name-face)
-        ;; forall binder
-        (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
-        (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
-        ;;   (list "\\<forall\\>"
-        ;;         (list 0 font-lock-type-face)
-        ;;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
-        ;;               (list 0 font-lock-variable-name-face)))
-        ;; parenthesized binders
-        (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
-        (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
-        )))
+  (append   
+   (list ;; flattened by append above
+    (cons coq-symbol-binders 'coq-symbol-binder-face))
+   (when coq-symbol-highlight-enable
+     (list (cons coq-symbols-regexp 'coq-symbol-face)))
+   (when coq-variable-highlight-enable
+     (list
+      ;; lambda binders
+      (list (coq-first-abstr-regexp coq-lambda-regexp "\\(?:=>\\|:\\|,\\)") 1 'font-lock-variable-name-face)
+      ;; forall binder
+      (list (coq-first-abstr-regexp coq-forall-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+      (list (coq-first-abstr-regexp coq-exists-regexp "\\(?:,\\|:\\)") 1 'font-lock-variable-name-face)
+      ;;   (list "\\<forall\\>"
+      ;;         (list 0 font-lock-type-face)
+      ;;         (list (concat "[^ :]\\s-*\\(" coq-ids "\\)\\s-*") nil nil
+      ;;               (list 0 font-lock-variable-name-face)))
+      ;; parenthesized binders
+      (list (coq-first-abstr-regexp "(" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
+      (list (coq-first-abstr-regexp "{" ":[ a-zA-Z]") 1 'font-lock-variable-name-face)
+      )))
   "*Font-lock table for Coq terms.")
 
 

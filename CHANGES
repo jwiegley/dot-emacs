@@ -142,8 +142,9 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 *** Removed the Set Undo 500 at start.
     This is obsolete. To recover: (setq coq-user-init-cmd `("Set Undo 500."))
 
-
-
+*** Option to highlight usual symbols
+    Off by default, enable using:
+    (setq coq-symbol-highlight-enable t)
 
 **** Minibuffer interactive queries
 
