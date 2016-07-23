@@ -8,6 +8,24 @@ Please also check the BUGS file.
 
 -----------------------------------------------------------------
 
+Q. I use ProofGeneral with custom installations of Coq, depending
+   on the project I am working on. How can I change coq-prog-name
+   accordingly?
+
+A. The recommended way to set coq-prog-name is to create a file
+   .dir-locals.el in the top-level folder of your Coq project (or
+   if applicable, in the sub-folder containing the Coq source files)
+   with content:
+
+      ((coq-mode . ((coq-prog-name . ".../path/to/coqtop"))))
+
+   Then restart Emacs
+   (or just run: M-x proof-shell-exit RET yes RET, M-x normal-mode RET
+   in the Coq buffer before restarting the Coq process) in order
+   to take this change into account.
+
+-----------------------------------------------------------------
+
 Q. The prover process produces some useful output I'd like to
    keep a note of, how do I do that?
 

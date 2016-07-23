@@ -4028,11 +4028,17 @@ when a file is loaded. File variables and their values
 are written as a list at the end of
 the file.
 
-@emph{Remarque 1:} The examples in the following are for Coq but the
+@emph{Remark 1:} The examples in the following are for Coq but the
 trick is applicable to other provers. 
 
-@emph{Remarque 2:} For Coq specifically there is a recommended other way
-of configuring coq options: project files (@ref{Using the Coq project file}).
+@emph{Remark 2:} For Coq specifically, there is a recommended other way
+of configuring Coq options:
+project files (@ref{Using the Coq project file}).
+Actually, project files are intended to be included in the
+distribution of a library (and included in its repository), so the Coq
+options specified in project files are supposed to work for all users.
+In contrast, user-defined options such as @code{coq-prog-name} should
+preferably be specified in a directory-local-variables file (see below).
 
 For example, in Coq projects involving multiple directories, it is necessary
 to set the variable @code{coq-load-path} 
@@ -4097,6 +4103,19 @@ into the file @code{.dir-locals.el} in one of the parent directories.
 The value in this file must be an alist that maps mode names to alists,
 where these latter alists map variables to values. You can aso put
 arbitrary code in this file @inforef{Directory Variables, ,emacs}.
+
+Regarding the configuration of the @code{coq-prog-name} variable, the
+@code{.dir-locals.el} file should contain something like:
+
+@lisp
+((coq-mode . ((coq-prog-name . ".../path/to/coqtop"))))
+@end lisp
+
+@emph{Note:} if you add such content to the @code{.dir-locals.el} file
+you should restart Emacs to take this change into account (or
+just run @kbd{M-x proof-shell-exit RET yes RET}
+and @kbd{M-x normal-mode RET} in the Coq buffer
+before restarting the Coq process).
 
 
 
