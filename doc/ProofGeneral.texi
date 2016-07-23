@@ -4708,34 +4708,47 @@ path of @code{coqdep}.
 Non-standard coq library load path.@*
 This list specifies the LoadPath extension for coqdep, coqc and
 coqtop. Usually, the elements of this list are strings (for
-"-I") or lists of two strings (for "-R" dir "-as" path).
+"-I") or lists of two strings (for "-R" dir path and
+"-Q" dir path).
 
-The possible forms of elements of this list correspond to the 3
-forms of include options ('-I' and @code{'-R'}). An element can be
+The possible forms of elements of this list correspond to the 4
+forms of include options (@samp{-I} @samp{-Q} and @samp{-R}). An element can be
 @lisp
-  - A string, specifying a directory to be mapped to the empty
-    logical path ('-I').
-  - A list of the form '(rec dir path)' (where dir and path are
+  - A list of the form @samp{(}ocamlimport dir)', specifying (in 8.5) a
+    directory to be added to ocaml path (@samp{-I}).
+  - A list of the form @samp{(}rec dir path)' (where dir and path are
     strings) specifying a directory to be recursively mapped to the
-    logical path @code{'path'} ('-R dir -as path').
-  - A list of the form '(nonrec dir path)', specifying a directory
-    to be mapped to the logical path @code{'path'} ('-I dir -as path').
+    logical path @samp{path} (@samp{-R dir path}).
+  - A list of the form @samp{(}recnoimport dir path)' (where dir and
+    path are strings) specifying a directory to be recursively
+    mapped to the logical path @samp{path} (@samp{-Q dir path}), but not
+    imported (modules accessible for import with qualified names
+    only).  Note that -Q dir "" has a special, nonrecursive meaning.
+  - A list of the form (8.4 only) @samp{(}nonrec dir path)', specifying a
+    directory to be mapped to the logical path @code{'path'} ('-I dir -as path').
 @end lisp
-For convenience the symbol @code{'rec'} can be omitted and entries of
-the form '(dir path)' are interpreted as '(rec dir path)'.
+For convenience the symbol @samp{rec} can be omitted and entries of
+the form @samp{(dir path)} are interpreted as @samp{(rec dir path)}.
+
+A plain string maps to -Q ... "" in 8.5, and -I ... in 8.4.
 
 Under normal circumstances this list does not need to
 contain the coq standard library or "." for the current
 directory (see @samp{@code{coq-load-path-include-current}}).
+
+@var{warning}: if you use coq <= 8.4, the meaning of these options is
+not the same (-I is for coq path).
 @end defvar
 
 
 @c TEXI DOCSTRING MAGIC: coq-load-path-include-current
 @defvar coq-load-path-include-current 
 If @samp{t} let coqdep search the current directory too.@*
-Should be @samp{t} for normal users. If @samp{t} pass "-I dir" to coqdep when
+Should be @samp{t} for normal users. If @samp{t} pass -Q dir "" to coqdep when
 processing files in directory "dir" in addition to any entries
 in @samp{@code{coq-load-path}}.
+
+This setting is only relevant with Coq < 8.5.
 @end defvar
 
 

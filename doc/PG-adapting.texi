@@ -1970,6 +1970,9 @@ This setting is used inside the function @samp{@code{proof-format-filename}}.
 @defvar proof-shell-process-connection-type 
 The value of @samp{@code{process-connection-type}} for the proof shell.@*
 Set non-nil for ptys, nil for pipes.
+
+@var{note}: In emacs >= 24 (checked for 24 and 25.0.50.1), t is not a
+good choice: input is cut after @var{4095} chars, which hangs pg.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
