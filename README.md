@@ -38,7 +38,7 @@ See:
 * [INSTALL](INSTALL) for installation details
 * [COPYING](COPYING) for license details
 * [COMPATIBILITY](COMPATIBILITY) for version compatibility information
-* [FAQ](FAQ) for frequently asked questions
+* [FAQ.md](FAQ.md) for frequently asked questions
 * [coq/README](coq/README) for additional notes specific to the Coq prover
 
 Links:
