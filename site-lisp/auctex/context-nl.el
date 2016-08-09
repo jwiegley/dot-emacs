@@ -120,17 +120,20 @@
 ;; the level is used to find the section name, so the alternative
 ;; names are never found. Have to start using the section name instead
 ;; of the number.
-(defvar ConTeXt-section-list-nl
+(defvar ConTeXt-numbered-section-list-nl
   '(("deel" 0)
     ("hoofdstuk" 1)
     ("paragraaf" 2)
     ("subparagraaf" 3)
     ("subsubparagraaf" 4))
-  ;; ("title" 1)
-  ;; ("subject" 2)
-  ;; ("subsubject" 3)
-  ;; ("subsubsubject" 4)
-  "List of the names of ConTeXt sections for its nl interface.")
+  "List of the names of ConTeXt numbered sections for its nl interface.")
+
+(defvar ConTeXt-unnumbered-section-list-nl
+  '(("titel" 1)
+    ("onderwerp" 2)
+    ("subonderwerp" 3)
+    ("subsubsubsubject" 4))
+  "List of the names of ConTeXt unnumbered sections for its nl interface.")
 
 (defvar ConTeXt-text-nl "tekst"
   "The ConTeXt nl interface body text group.")

@@ -114,45 +114,47 @@ If nil, none is specified."
   :type 'hook
   :group 'TeX-misc)
 
-;; This is the major configuration variable.  Most sites will only
-;; need to change the second string in each entry, which is the name
-;; of a command to send to the shell.  If you use other formatters
-;; like AMSLaTeX or AMSTeX, you can add those to the list.  See
-;; TeX-expand-list for a description of the % escapes
+;; This is the major configuration variable.  Most sites will only need to
+;; change the second string in each entry, which is the name of a command to
+;; send to the shell.  If you use other formatters like AMSLaTeX or AMSTeX, you
+;; can add those to the list.  See `TeX-expand-list' and
+;; `TeX-expand-list-builtin' for a description of the % escapes
 
 (defcustom TeX-command-list
-  `(("TeX" "%(PDF)%(tex) %(file-line-error) %(extraopts) %`%S%(PDFout)%(mode)%' %t"
+  '(("TeX" "%(PDF)%(tex) %(file-line-error) %(extraopts) %`%S%(PDFout)%(mode)%' %t"
      TeX-run-TeX nil
      (plain-tex-mode ams-tex-mode texinfo-mode) :help "Run plain TeX")
     ("LaTeX" "%`%l%(mode)%' %t"
      TeX-run-TeX nil
      (latex-mode doctex-mode) :help "Run LaTeX")
-	;; Not part of standard TeX.
+    ;; Not part of standard TeX.
     ("Makeinfo" "makeinfo %(extraopts) %t" TeX-run-compile nil
      (texinfo-mode) :help "Run Makeinfo with Info output")
     ("Makeinfo HTML" "makeinfo %(extraopts) --html %t" TeX-run-compile nil
      (texinfo-mode) :help "Run Makeinfo with HTML output")
-    ("AmSTeX" "%(PDF)amstex %(extraopts) %`%S%(PDFout)%(mode)%' %t"
+    ("AmSTeX" "amstex %(PDFout) %(extraopts) %`%S%(mode)%' %t"
      TeX-run-TeX nil (ams-tex-mode) :help "Run AMSTeX")
     ;; support for ConTeXt  --pg
     ;; first version of ConTeXt to support nonstopmode: 2003.2.10
-    ("ConTeXt" "texexec --once --texutil %(extraopts) %(execopts)%t"
+    ("ConTeXt" "%(cntxcom) --once --texutil %(extraopts) %(execopts)%t"
      TeX-run-TeX nil (context-mode) :help "Run ConTeXt once")
-    ("ConTeXt Full" "texexec %(extraopts) %(execopts)%t"
+    ("ConTeXt Full" "%(cntxcom) %(extraopts) %(execopts)%t"
      TeX-run-TeX nil
      (context-mode) :help "Run ConTeXt until completion")
     ("BibTeX" "bibtex %s" TeX-run-BibTeX nil t :help "Run BibTeX")
     ("Biber" "biber %s" TeX-run-Biber nil t :help "Run Biber")
-    ,(if (or window-system (getenv "DISPLAY"))
-	'("View" "%V" TeX-run-discard-or-function t t :help "Run Viewer")
-       '("View" "dvi2tty -q -w 132 %s" TeX-run-command t t
-	 :help "Run Text viewer"))
+    ("View" "%V" TeX-run-discard-or-function t t :help "Run Viewer")
     ("Print" "%p" TeX-run-command t t :help "Print the file")
     ("Queue" "%q" TeX-run-background nil t :help "View the printer queue"
      :visible TeX-queue-command)
-    ("File" "%(o?)dvips %d -o %f " TeX-run-command t t
+    ("File" "%(o?)dvips %d -o %f " TeX-run-dvips t t
      :help "Generate PostScript file")
-    ("Index" "makeindex %s" TeX-run-command nil t :help "Create index file")
+    ("Dvips" "%(o?)dvips %d -o %f " TeX-run-dvips nil t
+     :help "Convert DVI file to PostScript")
+    ("Ps2pdf" "ps2pdf %f" TeX-run-ps2pdf nil t
+     :help "Convert PostScript file to PDF")
+    ("Index" "makeindex %s" TeX-run-index nil t
+     :help "Run makeindex to create index file")
     ("Xindy" "texindy %s" TeX-run-command nil t
      :help "Run xindy to create index file")
     ("Check" "lacheck %s" TeX-run-compile nil (latex-mode)
@@ -264,8 +266,8 @@ Any additional elements get just transferred to the respective menu entries."
 
 (defcustom TeX-command-output-list
   '(
-; Add the following line if you want to use htlatex (tex4ht)
-;    ("\\`htlatex" ("html"))
+					; Add the following line if you want to use htlatex (tex4ht)
+					;    ("\\`htlatex" ("html"))
     )
   "List of regexps and file extensions.
 
@@ -426,9 +428,8 @@ string."
 ;; TeX-command-list.  Not likely to be changed, but you may e.g. want
 ;; to handle .ps files.
 
-(defcustom TeX-expand-list
-  '(("%p" TeX-printer-query)		;%p must be the first entry
-    ("%q" (lambda ()
+(defvar TeX-expand-list-builtin
+  '(("%q" (lambda ()
 	    (TeX-printer-query t)))
     ("%V" (lambda ()
 	    (TeX-source-correlate-start-server-maybe)
@@ -445,12 +446,17 @@ string."
 	    (TeX-style-check LaTeX-command-style)))
     ("%(PDF)" (lambda ()
 		(if (and (eq TeX-engine 'default)
-			 (or TeX-PDF-mode
-			     TeX-DVI-via-PDFTeX))
+			 (if TeX-PDF-mode
+			     (not TeX-PDF-via-dvips-ps2pdf)
+			   TeX-DVI-via-PDFTeX))
 		    "pdf"
 		  "")))
     ("%(PDFout)" (lambda ()
-		   (cond ((and (eq TeX-engine 'xetex)
+		   (cond ((eq major-mode 'ams-tex-mode)
+			  (if TeX-PDF-mode
+			      " -output-format=pdf"
+			    " -output-format=dvi"))
+			 ((and (eq TeX-engine 'xetex)
 			       (not TeX-PDF-mode))
 			  " -no-pdf")
 			 ((and (eq TeX-engine 'luatex)
@@ -470,6 +476,7 @@ string."
     ("%(o?)" (lambda () (if (eq TeX-engine 'omega) "o" "")))
     ("%(tex)" (lambda () (eval (nth 2 (assq TeX-engine (TeX-engine-alist))))))
     ("%(latex)" (lambda () (eval (nth 3 (assq TeX-engine (TeX-engine-alist))))))
+    ("%(cntxcom)" ConTeXt-expand-command)
     ("%(execopts)" ConTeXt-expand-options)
     ("%(extraopts)" (lambda () TeX-command-extra-options))
     ("%S" TeX-source-correlate-expand-options)
@@ -539,13 +546,31 @@ string."
     ("%a" (lambda nil (prin1-to-string (expand-file-name (buffer-file-name)))))
     ;; the following is for preview-latex.
     ("%m" preview-create-subdirectory))
-  "List of expansion strings for TeX command names.
+  "List of built-in expansion strings for TeX command names.
 
-Each entry is a list with two or more elements.  The first element is
-the string to be expanded.  The second element is the name of a
-function returning the expanded string when called with the remaining
-elements as arguments.  The special value `file' will be expanded to
-the name of the file being processed, with an optional extension."
+This should not be changed by the user who can use
+`TeX-expand-list' variable.  The latter variable also contains a
+description of the data format.
+
+Programs should not use these variables directly but the function
+`TeX-expand-list'.")
+
+(defcustom TeX-expand-list nil
+  "List of expansion strings for TeX command names defined by the user.
+
+Each entry is a list with two or more elements.  The first
+element is the string to be expanded.  The second element is the
+name of a function returning the expanded string when called with
+the remaining elements as arguments.  The special value `file'
+will be expanded to the name of the file being processed, with an
+optional extension.
+
+Built-in expansions provided in `TeX-expand-list-builtin' can be
+overwritten by defining expansions strings with the same
+expander.  Only \"%p\" expander cannot be overwritten.
+
+Programs should not use these variables directly but the function
+`TeX-expand-list'."
   :group 'TeX-command
   :type '(repeat (group (string :tag "Key")
 			(sexp :tag "Expander")
@@ -553,6 +578,16 @@ the name of the file being processed, with an optional extension."
 				:tag "Arguments"
 				(sexp :format "%v")))))
 
+(defun TeX-expand-list ()
+  "Complete list of expansion strings for TeX command names.
+
+Concatenate `TeX-expand-list' and `TeX-expand-list-bultin' making
+sure \"%p\" is the first entry."
+  (append
+   ;; %p must be the first entry, see `TeX-print-command'.
+   '(("%p" TeX-printer-query))
+   TeX-expand-list
+   TeX-expand-list-builtin))
 
 ;; The following dependencies are not done with autoload cookies since
 ;; they are only useful when tex.el is loaded, anyway.  tex-buf.el
@@ -566,6 +601,10 @@ the name of the file being processed, with an optional extension."
 (autoload 'TeX-command-region "tex-buf" nil t)
 (autoload 'TeX-command-buffer "tex-buf" nil t)
 (autoload 'TeX-command-master "tex-buf" nil t)
+(autoload 'LaTeX-command-section "tex-buf" nil t)
+(autoload 'TeX-command-run-all "tex-buf" nil t)
+(autoload 'TeX-command-run-all-region "tex-buf" nil t)
+(autoload 'LaTeX-command-run-all-section "tex-buf" nil t)
 (autoload 'TeX-command "tex-buf" nil nil)
 (autoload 'TeX-kill-job "tex-buf" nil t)
 (autoload 'TeX-recenter-output-buffer "tex-buf" nil t)
@@ -577,6 +616,26 @@ the name of the file being processed, with an optional extension."
 (autoload 'TeX-view "tex-buf" nil t)
 
 ;;; Portability.
+
+(defmacro TeX--if-macro-fboundp (name then &rest else)
+  "Execute THEN if macro NAME is bound and ELSE otherwise.
+Essentially,
+
+  (TeX--if-macro-fboundp name then else...)
+
+is equivalent to
+
+  (if (fboundp 'name) then else...)
+
+but takes care of byte-compilation issues where the byte-code for
+the latter could signal an error if it has been compiled with
+emacs 24.1 and is then later run by emacs 24.5."
+  (declare (indent 2) (debug (symbolp form)))
+  (if (fboundp name)            ;If macro exists at compile-time, just use it.
+      then
+    `(if (fboundp ',name)       ;Else, check if it exists at run-time.
+	 (eval ',then)          ;If it does, then run the then code.
+       ,@else)))                ;Otherwise, run the else code.
 
 (require 'easymenu)
 
@@ -716,18 +775,57 @@ overlays."
 edit-utils >= 2.32 for XEmacs.")))
 
 (if (fboundp 'completing-read-multiple)
-    (defun TeX-completing-read-multiple
-	(prompt table &optional predicate require-match initial-input
-		hist def inherit-input-method)
-      "Like `completing-read-multiple' which see.
+    (if (or (and (= emacs-major-version 24) (>= emacs-minor-version 4))
+	    (>= emacs-major-version 25))
+	;; For GNU Emacs 24.4 or later, based on `completing-read-multiple' of
+	;; git commit b14abca9476cba2f500b5eda89441d593dd0f12b
+	;;   2013-01-10  * lisp/emacs-lisp/crm.el: Allow any regexp for separators.
+	(defun TeX-completing-read-multiple
+	    (prompt table &optional predicate require-match initial-input
+		    hist def inherit-input-method)
+	  "Like `completing-read-multiple' which see.
+Retain zero-length substrings but ensure that empty input results
+in nil across different emacs versions."
+	  (unwind-protect
+	      (progn
+		(add-hook 'choose-completion-string-functions
+			  'crm--choose-completion-string)
+		(let* ((minibuffer-completion-table #'crm--collection-fn)
+		       (minibuffer-completion-predicate predicate)
+		       ;; see completing_read in src/minibuf.c
+		       (minibuffer-completion-confirm
+			(unless (eq require-match t) require-match))
+		       (crm-completion-table table)
+		       (map (if require-match
+				crm-local-must-match-map
+			      crm-local-completion-map))
+		       ;; If the user enters empty input, `read-from-minibuffer'
+		       ;; returns the empty string, not DEF.
+		       (input (read-from-minibuffer
+			       prompt initial-input map
+			       nil hist def inherit-input-method))
+		       result)
+		  (and def (string-equal input "") (setq input def))
+		  (if (equal (setq result (split-string input crm-separator))
+			     '(""))
+		      nil
+		    result)))
+	    (remove-hook 'choose-completion-string-functions
+			 'crm--choose-completion-string)))
+      ;; For GNU Emacs <= 24.3.
+      (defun TeX-completing-read-multiple
+	  (prompt table &optional predicate require-match initial-input
+		  hist def inherit-input-method)
+	"Like `completing-read-multiple' which see.
 Ensures that empty input results in nil across different emacs versions."
-      (let ((result (completing-read-multiple prompt table predicate
-					      require-match initial-input
-					      hist def inherit-input-method)))
-	(if (equal result '("")) nil result)))
+	(let ((result (completing-read-multiple prompt table predicate
+						require-match initial-input
+						hist def inherit-input-method)))
+	  (if (equal result '("")) nil result))))
+  ;; For XEmacs.
   (defun TeX-completing-read-multiple
-    (prompt table &optional predicate require-match initial-input
-	    hist def inherit-input-method)
+      (prompt table &optional predicate require-match initial-input
+	      hist def inherit-input-method)
     "Poor mans implementation of Emacs' `completing-read-multiple' for XEmacs.
 The XEmacs package edit-utils-2.32 includes `crm.el'."
     (multi-prompt (if (boundp 'crm-separator) crm-separator ",") nil prompt
@@ -763,7 +861,19 @@ If POS is nil, use current buffer location."
 
   (defun TeX-activate-region ()
     (setq deactivate-mark nil)
-    (activate-mark))
+    (if (fboundp 'activate-mark)
+	(activate-mark)
+      ;; COMPATIBILITY for Emacs <= 22
+      ;; This part is adopted from `activate-mark' of Emacs 24.5.
+      (when (mark t)
+	(unless (and transient-mark-mode mark-active
+		 (mark))
+	  (force-mode-line-update) ;Refresh toolbar (bug#16382).
+	  (setq mark-active t)
+	  (unless transient-mark-mode
+	    (setq transient-mark-mode 'lambda))
+	  (if (boundp 'activate-mark-hook)
+	      (run-hooks 'activate-mark-hook))))))
 
   (defun TeX-overlay-prioritize (start end)
     "Calculate a priority for an overlay extending from START to END.
@@ -1006,6 +1116,12 @@ all the regular expressions must match for the element to apply."
      (string-match "pdf" (TeX-output-extension)))
     (output-html
      (string-match "html" (TeX-output-extension)))
+    (has-no-display-manager
+     ;; Compatibility for Emacs <= 22: older Emacsen don't have FRAME argument
+     ;; to `getenv', later versions have the `display-graphic-p' function.
+     (not (if (< emacs-major-version 23)
+	      (or window-system (getenv "DISPLAY"))
+	    (display-graphic-p))))
     (style-pstricks
      (TeX-match-style "^pstricks$\\|^pst-\\|^psfrag$"))
     (engine-omega
@@ -1073,28 +1189,29 @@ given, only the minimal requirements needed by backward search
 are checked.  If OPTIONS include `:forward', which is currently
 the only option, then additional requirements needed by forward
 search are checked, too."
-  (and (featurep 'dbusbind)
-       (require 'dbus nil :no-error)
-       (dbus-ignore-errors (dbus-get-unique-name :session))
-       (dbus-ping :session "org.gnome.evince.Daemon")
-       (executable-find "evince")
-       (or (not (memq :forward options))
-	   (let ((spec (dbus-introspect-get-method
-			:session "org.gnome.evince.Daemon"
-			"/org/gnome/evince/Daemon"
-			"org.gnome.evince.Daemon"
-			"FindDocument")))
-	     ;; FindDocument must exist, and its signature must be (String,
-	     ;; Boolean, String).  Evince versions between 2.30 and 2.91.x
-	     ;; didn't have the Boolean spawn argument we need to start evince
-	     ;; initially.
-	     (and spec
-		  (equal '("s" "b" "s")
-			 (delq nil (mapcar (lambda (elem)
-					     (when (and (listp elem)
-							(eq (car elem) 'arg))
-					       (cdr (caar (cdr elem)))))
-					   spec))))))))
+  (let ((dbus-debug nil))
+    (and (featurep 'dbusbind)
+	 (require 'dbus nil :no-error)
+	 (dbus-ignore-errors (dbus-get-unique-name :session))
+	 (dbus-ping :session "org.gnome.evince.Daemon")
+	 (executable-find "evince")
+	 (or (not (memq :forward options))
+	     (let ((spec (dbus-introspect-get-method
+			  :session "org.gnome.evince.Daemon"
+			  "/org/gnome/evince/Daemon"
+			  "org.gnome.evince.Daemon"
+			  "FindDocument")))
+	       ;; FindDocument must exist, and its signature must be (String,
+	       ;; Boolean, String).  Evince versions between 2.30 and 2.91.x
+	       ;; didn't have the Boolean spawn argument we need to start evince
+	       ;; initially.
+	       (and spec
+		    (equal '("s" "b" "s")
+			   (delq nil (mapcar (lambda (elem)
+					       (when (and (listp elem)
+							  (eq (car elem) 'arg))
+						 (cdr (caar (cdr elem)))))
+					     spec)))))))))
 
 (defun TeX-pdf-tools-sync-view ()
   "Focus the focused page/paragraph in `pdf-view-mode'.
@@ -1161,7 +1278,8 @@ the requirements are met."
       ("displayline" "displayline %n %o %b" "displayline")
       ("open" "open %o" "open")))
    (t
-    `(("xdvi" ("%(o?)xdvi"
+    `(("dvi2tty" ("dvi2tty -q -w 132 %o"))
+      ("xdvi" ("%(o?)xdvi"
 	       (mode-io-correlate " -sourceposition \"%n %b\" -editor \"%cS\"")
 	       ((paper-a4 paper-portrait) " -paper a4")
 	       ((paper-a4 paper-landscape) " -paper a4r")
@@ -1263,13 +1381,6 @@ restarting Emacs."
 	     (repeat :tag "List of executables" (string :tag "Name"))
 	     (const :tag "No executable" nil)))))
 
-;; XXX: Regarding a possibility to (manually) run an update command,
-;; one could support this through `TeX-view' by letting it temporarily
-;; set a variable which is checked with a predicate in the viewer
-;; selection.  If the check is positive, the update command is run
-;; instead of the normal viewer command.  Direct support through the
-;; View command would require a predicate which knows when an update
-;; has to be done.
 (defcustom TeX-view-program-selection
   (cond
    ((eq system-type 'windows-nt)
@@ -1282,7 +1393,8 @@ restarting Emacs."
       (output-pdf "open")
       (output-html "open")))
    (t
-    '(((output-dvi style-pstricks) "dvips and gv")
+    '(((output-dvi has-no-display-manager) "dvi2tty")
+      ((output-dvi style-pstricks) "dvips and gv")
       (output-dvi "xdvi")
       (output-pdf "Evince")
       (output-html "xdg-open"))))
@@ -1917,6 +2029,20 @@ already established, don't do anything."
   :group 'TeX-command
   :type 'boolean)
 
+(defcustom TeX-PDF-via-dvips-ps2pdf nil
+  "Whether to produce PDF output through the (La)TeX - dvips - ps2pdf sequence."
+  :group 'TeX-command
+  :type 'boolean)
+(make-variable-buffer-local 'TeX-PDF-via-dvips-ps2pdf)
+(put 'TeX-PDF-via-dvips-ps2pdf 'safe-local-variable 'booleanp)
+
+(defun TeX-toggle-PDF-via-dvips-ps2pdf ()
+  "Toggle `TeX-PDF-via-dvips-ps2pdf'."
+  (interactive)
+  (setq TeX-PDF-via-dvips-ps2pdf (not TeX-PDF-via-dvips-ps2pdf))
+  (message (concat "TeX-PDF-via-dvips-ps2pdf: "
+		   (if TeX-PDF-via-dvips-ps2pdf "on" "off"))))
+
 (define-minor-mode TeX-interactive-mode
   "Minor mode for interactive runs of TeX."
   nil nil nil
@@ -2036,7 +2162,6 @@ output files."
 	  (dolist (file files)
 	    (delete-file (concat master-dir file))))
       (message "No files to be deleted"))))
-
 
 ;;; Master File
 
@@ -3349,7 +3474,7 @@ The algorithm is as follows:
 		       (regexp-quote TeX-esc)
 		       "\\)*\\)\\(%+ *\\)"))
 		     (entry TeX-format-list)
-		     answer)
+		     answer case-fold-search)
 		 (while (and entry (not answer))
 		   (if (re-search-forward (nth 2 (car entry))
 					  10000 t)
@@ -3359,6 +3484,15 @@ The algorithm is as follows:
 		 (if answer
 		     answer
 		   TeX-default-mode))))))
+
+(when (and (boundp 'tex--prettify-symbols-alist)
+	   (boundp 'prettify-symbols-compose-predicate))
+  (defun TeX--prettify-symbols-compose-p (start end match)
+    (and (tex--prettify-symbols-compose-p start end match)
+	 (not (let ((face (get-text-property end 'face)))
+		(if (consp face)
+		    (memq 'font-latex-verbatim-face face)
+		  (eq face 'font-latex-verbatim-face)))))))
 
 (defun VirTeX-common-initialization ()
   "Perform basic initialization."
@@ -3424,6 +3558,15 @@ The algorithm is as follows:
   ;; Minor modes
   (when TeX-source-correlate-mode
     (TeX-source-correlate-mode 1))
+
+  ;; Prettify Symbols mode
+  (when (fboundp 'TeX--prettify-symbols-compose-p)
+    (set (make-local-variable 'prettify-symbols-alist) tex--prettify-symbols-alist)
+    (TeX--if-macro-fboundp add-function
+	(add-function :override (local 'prettify-symbols-compose-predicate)
+		      #'TeX--prettify-symbols-compose-p)
+      (set (make-local-variable 'prettify-symbols-compose-predicate)
+	   #'TeX--prettify-symbols-compose-p)))
 
   ;; Let `TeX-master-file' be called after a new file was opened and
   ;; call `TeX-update-style' on any file opened.  (The addition to the
@@ -4177,10 +4320,11 @@ non-nil, remove file extension."
 		   (if (string-match ";" dirs) ";" ":")))
 	   (unless TeX-kpathsea-path-delimiter
 	     (throw 'no-kpathsea nil))
-	   (setq dirs (delete "" (split-string
-				  dirs (concat "[\n\r"
-					       TeX-kpathsea-path-delimiter
-					       "]+"))))
+	   (setq dirs (TeX-delete-duplicate-strings
+		       (delete "" (split-string
+				   dirs (concat "[\n\r"
+						TeX-kpathsea-path-delimiter
+						"]+")))))
 	   (if (eq scope 'global)
 	       (delete "." dirs))
 	   (setq extensions (concat "\\." (regexp-opt extensions t) "\\'")
@@ -4482,7 +4626,7 @@ element to ALIST-VAR."
   (modify-syntax-entry ?'  "w"  TeX-mode-syntax-table)
   (modify-syntax-entry ?«  "."  TeX-mode-syntax-table)
   (modify-syntax-entry ?»  "."  TeX-mode-syntax-table)
-  (modify-syntax-entry ?|  "$"  TeX-mode-syntax-table))
+  (modify-syntax-entry ?|  "."  TeX-mode-syntax-table))
 
 ;;; Menu Support
 
@@ -4644,6 +4788,7 @@ Brace insertion is only done if point is in a math construct and
     (define-key map "\C-c\C-r" 'TeX-command-region)
     (define-key map "\C-c\C-b" 'TeX-command-buffer)
     (define-key map "\C-c\C-c" 'TeX-command-master)
+    (define-key map "\C-c\C-a" 'TeX-command-run-all)
     (define-key map "\C-c\C-k" 'TeX-kill-job)
     (define-key map "\C-c\C-l" 'TeX-recenter-output-buffer)
     (define-key map "\C-c^" 'TeX-home-buffer)
@@ -4729,6 +4874,10 @@ Brace insertion is only done if point is in a math construct and
 	 :style toggle :selected TeX-PDF-mode
 	 :active (not (eq TeX-engine 'omega))
 	 :help "Use PDFTeX to generate PDF instead of DVI"]
+       [ "PDF via dvips + ps2pdf" TeX-toggle-PDF-via-dvips-ps2pdf
+	 :style toggle :selected TeX-PDF-via-dvips-ps2pdf
+	 :visible TeX-PDF-mode
+	 :help "Compile with (La)TeX and convert to PDF with dvips + ps2pdf"]
        [ "Run Interactively" TeX-interactive-mode
 	 :style toggle :selected TeX-interactive-mode :keys "C-c C-t C-i"
 	 :help "Stop on errors in a TeX run"]
@@ -4740,7 +4889,9 @@ Brace insertion is only done if point is in a math construct and
 	:help "Make \"Next Error\" show overfull and underfull boxes"]
        ["Debug Warnings" TeX-toggle-debug-warnings
 	:style toggle :selected TeX-debug-warnings
-	:help "Make \"Next Error\" show warnings"])))
+	:help "Make \"Next Error\" show warnings"])
+      ["Compile and view" TeX-command-run-all
+       :help "Compile the document until it is ready and open the viewer"]))
    (let ((file 'TeX-command-on-current)) ;; is this actually needed?
      (TeX-maybe-remove-help
       (delq nil
@@ -6050,13 +6201,12 @@ NAME may be a package, a command, or a document."
 	  (dolist (elt docs)
 	    (setq completions (nconc (mapcar 'list (car elt)) completions)))
 	  ;; Query user.
-	  (setq doc (completing-read
-		     (if contained
-			 (format "Package, command, or document (default %s): "
-				 symbol)
-		       "Package, command, or document: ")
-		     completions))
-	  (setq name (if (string= doc "") symbol doc))))
+	  (setq name (completing-read
+		      (if contained
+			  (format "Package, command, or document (default %s): "
+				  symbol)
+			"Package, command, or document: ")
+		      completions nil nil nil nil symbol))))
       (if (not name)
 	  (message "No documentation specified")
 	;; XXX: Provide way to choose in case a symbol can be found in

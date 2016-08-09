@@ -1,0 +1,344 @@
+Future Development of AUCTeX
+****************************
+
+The following sections describe future development of AUCTeX.  Besides
+mid-term goals, bug reports and requests we cannot fix or honor right
+away are being gathered here.  If you have some time for Emacs Lisp
+hacking, you are encouraged to try to provide a solution to one of the
+following problems.  If you don't know Lisp, you may help us to improve
+the documentation.  It might be a good idea to discuss proposed changes
+on the mailing list of AUCTeX first.
+
+1 Mid-term Goals
+****************
+
+   * Integration of preview-latex into AUCTeX
+
+     As of AUCTeX 11.81 preview-latex is a part of AUCTeX in the sense
+     that the installation routines were merged and preview-latex is
+     being packaged with AUCTeX.
+
+     Further integration will happen at the backend.  This involves
+     folding of error parsing and task management of both packages which
+     will ease development efforts and avoid redundant work.
+
+   * Error help catalogs
+
+     Currently, the help for errors is more or less hardwired into
+     'tex.el'.  For supporting error help in other languages, it would
+     be sensible to instead arrange error messages in language-specific
+     files, make a common info file from all such catalogs in a given
+     language and look the error texts up in an appropriate index.  The
+     user would then specify a preference list of languages, and the
+     errors would be looked up in the catalogs in sequence until they
+     were identified.
+
+   * Combining 'docTeX' with RefTeX
+
+     Macro cross references should also be usable for document
+     navigation using RefTeX.
+
+2 Wishlist
+**********
+
+   * Documentation lookup for macros
+
+     A parser could gather information about which macros are defined in
+     which LaTeX packages and store the information in a hashtable which
+     can be used in a backend for 'TeX-doc' in order to open the
+     matching documentation for a given macro.  The information could
+     also be used to insert an appropriate '\usepackage' statement if
+     the user tries to insert a macro for which the respective package
+     has not been requested yet.
+
+   * Spell checking of macros
+
+     A special ispell dictionary for macros could be nice to have.
+
+   * Improvements to error reporting
+
+     Fringe indicators for errors in the main text would be nice.
+
+   * A math entry grid
+
+     A separate frame with a table of math character graphics to click
+     on in order to insert the respective sequence into the buffer (cf.
+     the "grid" of x-symbol).
+
+   * Crossreferencing support
+
+     It would be nice if you could index process your favorite
+     collection of '.dtx' files (such as the LaTeX source), just call a
+     command on arbitrary control sequence, and get either the DVI
+     viewer opened right at the definition of that macro (using Source
+     Specials), or the source code of the '.dtx' file.
+
+   * Better plain TeX support
+
+     For starters, 'LaTeX-math-mode' is not very LaTeX-specific in the
+     first place, and similar holds for indentation and formatting.
+
+   * Page count when compiling should (optionally) go to modeline of the
+     window where the compilation command was invoked, instead of the
+     output window.  Suggested by Karsten Tinnefeld
+     <tinnefeld@irb.informatik.uni-dortmund.de>.
+
+   * Command to insert a macrodefinition in the preamble, without moving
+     point from the current location.  Suggested by "Jeffrey C. Ely"
+     <ely@nwu.edu>.
+
+   * A database of all commands defined in all stylefiles.  When a
+     command or environment gets entered that is provided in one of the
+     styles, insert the appropriate '\usepackage' in the preamble.
+
+   * A way to add and overwrite math mode entries in style files, and to
+     decide where they should be.  Suggested by Remo Badii
+     <Remo.Badii@psi.ch>.
+
+   * Create template for (first) line of tabular environment.
+
+   * I think prompting for the master is the intended behaviour.  It
+     corresponds to a 'shared' value for TeX-master.
+
+     There should probably be a 'none' value which wouldn't query for
+     the master, but instead disable all features that relies on
+     TeX-master.
+
+     This default value for TeX-master could then be controled with
+     mapping based on the extension.
+
+   * Use index files (when available) to speed up 'C-c C-m include
+     <RET>'.
+
+   * Option not to calculate very slow completions like for 'C-c C-m
+     include <RET>'.
+
+   * Font menu should be created from 'TeX-font-list'.
+
+   * Installation procedure written purely in emacs lisp.
+
+   * Included PostScript files should also be counted as part of the
+     document.
+
+   * A nice hierarchical by-topic organization of all officially
+     documented LaTeX macros, available from the menu bar.
+
+   * 'TeX-command-default' should be set from the master file, if not
+     set locally.  Suggested by Peter Whaite '<peta@cim.mcgill.ca>'.
+
+   * Make AUCTeX work with 'crypt++'.  Suggested by Chris Moore
+     '<Chris.Moore@src.bae.co.uk>'.
+
+   * Make AUCTeX work with 'longlines'.  This would also apply to
+     preview-latex, though it might make sense to unify error processing
+     before attempting this.
+
+   * The 'Spell' command should apply to all files in a document.  Maybe
+     it could try to restrict to files that have been modified since
+     last spell check?  Suggested by Ravinder Bhumbla
+     '<rbhumbla@ucsd.edu>'.
+
+   * Make <.> check for abbreviations and sentences ending with capital
+     letters.
+
+   * Use Emacs 19 minibuffer history to choose between previewers, and
+     other stuff.  Suggested by John Interrante
+     '<interran@uluru.Stanford.EDU>'.
+
+   * Documentation of variables that can be set in a style hook.
+
+     We need a list of what can safely be done in an ordinary style
+     hook.  You can not set a variable that AUCTeX depends on, unless
+     AUCTeX knows that it has to run the style hooks first.
+
+     Here is the start of such a list.
+
+     'LaTeX-add-environments'
+
+     'TeX-add-symbols'
+
+     'LaTeX-add-labels'
+
+     'LaTeX-add-bibliographies'
+
+     'LaTeX-largest-level'
+
+   * Outline should be (better) supported in TeX mode.
+
+     At least, support headers, trailers, as well as TeX-outline-extra.
+
+   * 'TeX-header-start' and 'TeX-trailer-end'.
+
+     We might want these, just for fun (and outlines)
+
+   * Plain TeX and LaTeX specific header and trailer expressions.
+
+     We should have a way to globally specify the default value of the
+     header and trailer regexps.
+
+   * Get closer to original 'TeX-mode' keybindings.
+
+     A third initialization file ('tex-mode.el') containing an emulator
+     of the standard 'TeX-mode' would help convince some people to
+     change to AUCTeX.
+
+   * Use markers in 'TeX-error-list' to remember buffer positions in
+     order to be more robust with regard to line numbers and changed
+     files.
+
+   * Finish the Texinfo mode.  For one thing, many Texinfo mode commands
+     do not accept braces around their arguments.
+
+   * Hook up the letter environment with 'bbdb.el'.
+
+3 Bugs
+******
+
+   * The style hooks automatically generated by parsing files for
+     'example.dtx', 'example.sty', 'example.drv' and 'example.bib' all
+     clash.  Bad.  Clash with hand-written style hooks should be removed
+     by dialect discrimination -- to be checked.
+
+   * 'C-c `' should always stay in the current window, also when it
+     finds a new file.
+
+   * Do not overwrite emacs warnings about existing auto-save files when
+     loading a new file.
+
+   * Maybe the regexp for matching a TeX symbol during parsing should be
+     '"\\\\\\([a-zA-Z]+\\|.\\)"' --
+     '<thiemann@informatik.uni-tuebingen.de>' Peter Thiemann.
+
+   * AUCTeX should not parse verbatim environments.
+
+   * Make '`' check for math context in 'LaTeX-math-mode'.  and simply
+     self insert if not in a math context.
+
+   * Make 'TeX-insert-dollar' more robust.  Currently it can be fooled
+     by '\mbox''es and escaped double dollar for example.
+
+   * Correct indentation for tabular, tabbing, table, math, and array
+     environments.
+
+   * No syntactic font locking of verbatim macros and environments.
+     (XEmacs only)
+
+   * Font locking inside of verbatim macros and environments is not
+     inhibited.  This may result in syntax highlighting of unbalanced
+     dollar signs and the like spilling out of the verbatim content.
+     (XEmacs only)
+
+   * Folding of LaTeX constructs spanning more than one line may result
+     in overfull lines.  (XEmacs only)
+
+Future Development of preview-latex
+***********************************
+
+   * Support other formats than just LaTeX
+
+     plain TeX users and ConTeXt users should not have to feel left out.
+     While ConTeXt is not supported yet by released versions of AUCTeX,
+     at least supporting plain would help people, and be a start for
+     ConTeXt as well.  There are plain-based formats like MusiXTeX that
+     could benefit a lot from preview-latex.  The main part of the
+     difficulties here is to adapt 'preview.dtx' to produce stuff not
+     requiring LaTeX.
+
+   * Support nested snippets
+
+     Currently you can't have both a footnote (which gets displayed as
+     just its footnote number) and math inside of a footnote rendered as
+     an image: such nesting might be achieved by rerunning preview-latex
+     on the footnote contents when one opens the footnote for editing.
+
+   * Support other text properties than just images
+
+     Macros like '\textit' can be rendered as images, but the resulting
+     humungous blob is not suitable for editing, in particular since the
+     line filling from LaTeX does not coincide with that of Emacs.  It
+     would be much more useful if text properties just switched the
+     relevant font to italics rather than replacing the whole text with
+     an image.  It would also make editing quite easier.  Then there are
+     things like footnotes that are currently just replaced by their
+     footnote number.  While editing is not a concern here (the number
+     is not in the original text, anyway), it would save a lot of
+     conversion time if no images were generated, but Emacs just
+     displayed a properly fontified version of the footnote number.
+     Also, this might make preview-latex useful even on text terminals.
+
+   * Find a way to facilitate Source Specials
+
+     Probably in connection with adding appropriate support to 'dvipng',
+     it would be nice if clicking on an image from a larger piece of
+     source code would place the cursor at the respective source code
+     location.
+
+   * Make 'preview.dtx' look reasonable in AUCTeX
+
+     It is a bit embarrassing that 'preview.dtx' is written in a manner
+     that will not give either good syntax highlighting or good
+     indentation when employing AUCTeX.
+
+   * Web page work
+
+     Currently, preview-latex's web page is not structured at all.
+     Better navigation would be desirable, as well as separate News and
+     Errata eye catchers.
+
+   * Manual improvements
+
+        - Pepper the manual with screen shots and graphics
+
+          This will be of interest for the HTML and TeX renditions of
+          the texinfo manual.  Since Texinfo now supports images as
+          well, this could well be nice to have.
+
+        - Fix duplicates
+
+          Various stuff appears several times.
+
+   * Implement rendering pipelines for Emacs
+
+     The current 'gs.el' interface is fundamentally flawed, not only
+     because of a broken implementation.  A general batchable and
+     daemonizable rendering infrastructure that can work on all kinds of
+     preview images for embedding into buffers is warranted.  The
+     current implementation has a rather adhoc flavor and is not easily
+     extended.  It will not work outside of AUCTeX, either.
+
+   * Integrate into RefTeX
+
+     When referencing to equations and the like, the preview-images of
+     the source rather than plain text should be displayed.  If the
+     preview in question covers labels, those should appear in the
+     bubble help and/or a context menu.  Apropos:
+
+   * Implement LaTeX error indicators
+
+     Previews on erroneous LaTeX passages might gain a red border or
+     similar.
+
+   * Pop up relevant online documentation for frequent errors
+
+     A lot of errors are of the "badly configured" variety.  Perhaps the
+     relevant info pages should be delivered in addition to the error
+     message.
+
+   * Implement a table editing mode where every table cell gets output
+     as a separate preview.  Alternatively, output the complete table
+     metrics in a way that lets people click on individual cells for
+     editing purposes.
+
+   * Benchmark and kill Emacs inefficiencies
+
+     Both the LaTeX run under Emacs control as well as actual image
+     insertion in Emacs could be faster.  CVS Emacs has improved in that
+     respect, but it still is slower than desirable.
+
+   * Improve image support under Emacs
+
+     The general image and color handling in Emacs is inefficient and
+     partly defective.  This is still the case in CVS. One option would
+     be to replace the whole color and image handling with GDK routines
+     when this library is available, since it has been optimized for it.
+

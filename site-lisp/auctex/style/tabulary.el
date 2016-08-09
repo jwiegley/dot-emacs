@@ -52,7 +52,11 @@
     '("tabulary" LaTeX-env-tabular*))
 
    ;; `tabulary' requires the array package
-   (TeX-run-style-hooks "array"))
+   (TeX-run-style-hooks "array")
+
+   ;; `tabulary.sty' adds some new column specification letters.
+   (set (make-local-variable 'LaTeX-array-column-letters)
+	(concat LaTeX-array-column-letters "L" "C" "R" "J")))
  LaTeX-dialect)
 
 ;;; tabulary.el ends here

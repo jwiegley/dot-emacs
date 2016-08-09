@@ -1,6 +1,6 @@
 ;;; wrapfig.el --- AUCTeX style for `wrapfig.sty' version v3.6
 
-;; Copyright (C) 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2014, 2015 Free Software Foundation, Inc.
 
 ;; Author: Arash Esbati <esbati'at'gmx.de>
 ;; Maintainer: auctex-devel@gnu.org
@@ -78,11 +78,22 @@
 	    (format "{%s}" width))))))
     ;;
     ;; \begin{wrapfloat}{<Type>}[No.lines]{Placement}[Overhang]{Width} ... \end{wrapfloat}
+    ;;
+    ;; <Type> can be a new floating environment defined with
+    ;; "\DeclareFloatingEnvironment" from newfloat.el.  We check if
+    ;; the function `LaTeX-newfloat-DeclareFloatingEnvironment-list'
+    ;; is bound and returns non-nil before offering environment for
+    ;; completion.  Otherwise, just ask user without completion.
     '("wrapfloat"
       (lambda (env &rest ignore)
 	(LaTeX-insert-environment
 	 env
-	 (let ((floattype (TeX-read-string "Float type: "))
+	 (let ((floattype (if (and (fboundp 'LaTeX-newfloat-DeclareFloatingEnvironment-list)
+				   (LaTeX-newfloat-DeclareFloatingEnvironment-list))
+			      (completing-read
+			       "Float type: "
+			       (mapcar 'car (LaTeX-newfloat-DeclareFloatingEnvironment-list)))
+			    (TeX-read-string "Float type: ")))
 	       (narrow    (TeX-read-string "(Optional) Number of narrow lines: "))
 	       (placement (completing-read
 			   "Placement: " '(("r") ("R")

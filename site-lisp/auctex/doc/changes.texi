@@ -1,5 +1,5 @@
 @c This is part of the AUCTeX manual.
-@c Copyright (C) 1994-2002, 2004-2010, 2012-2014 Free Software
+@c Copyright (C) 1994-2002, 2004-2010, 2012-2015 Free Software
 @c Foundation, Inc.
 @c See file auctex.texi for copying conditions.
 @include macros.texi
@@ -8,21 +8,36 @@
 
 @end ifset
 
-@heading News since 11.88
+@heading News in 11.89
 
 @itemize @bullet
+@item
+You can now run all commands needed to compile a document and then open
+the viewer with a single command: @code{TeX-command-run-all}, bound to
+@kbd{C-c C-a}.
+
 @item
 Commands such as LaTeX and View can now be executed conveniently on the
 current section (or part, chapter, subsection, etc).  See
 @code{LaTeX-command-section} and
 @code{LaTeX-command-section-change-level}.
 @ifclear rawfile
-Also see the documentation at @xref{Starting a Command}.
+@xref{Starting a Command}, for details.
 @end ifclear
 
 @item
 Forward and backward search with Evince now also work when only a region
 of the document is compiled/viewed.
+
+@item
+To open the PDF output file you can now use also PDF Tools, a document
+viewer for Emacs.  With it, as a plus, forward and backward search is
+accurate at word level.
+
+@item
+With new option @code{TeX-PDF-via-dvips-ps2pdf} it is possible to
+compile a document to @acronym{DVI} and then convert it to @acronym{PDF}
+using @command{dvips}--@command{ps2pdf} before viewing it.
 
 @item
 New option @code{TeX-file-line-error} allows to select file:line:error
@@ -32,8 +47,39 @@ style for error messages.
 Indent @samp{\[...\]} math mode as a regular environment by default.
 
 @item
+Now @AUCTeX{} suggests to run @command{makeindex} when appropriate.
+
+@item
 @code{TeX-view-program-list} can contain, as third optional element of
 each item, the name of the executable(s) needed to open the viewer.
+
+@item
+@code{TeX-expand-list} variable has been split into
+@code{TeX-expand-list} and @code{TeX-expand-list-builtin}.  Only the
+former is intended to be customized by the user, the latter contains
+built-in expanders.  You might want to keep in @code{TeX-expand-list}
+only new expansion strings.
+
+@item
+Before running commands like @TeX{} and @LaTeX{}, now @AUCTeX{} performs
+some checks.  If @code{TeX-check-TeX} is non-nil, it will test whether a
+working @TeX{} distribution is actually present in the system and
+available to Emacs.  Instead, when @code{TeX-check-engine} is non-nil,
+before running @LaTeX{} commands @AUCTeX{} will check whether the
+correct engine has been set, based upon known restrictions posed by
+@LaTeX{} packages.
+
+@item
+Basic support to @ConTeXt{} Mark IV has been added.  Users can now
+select the Mark version to be used with new option
+@code{ConTeXt-Mark-version}, and @AUCTeX{} is able to catch error
+messages in the output log of a Mark IV document.
+
+@item
+Support for tons of @LaTeX{} packages has been addedd.
+
+@item
+Numbers of bugs have been fixed, many minor features have been addedd.
 @end itemize
 
 @heading News in 11.88
@@ -167,7 +213,7 @@ in the right context.
 There have been lots of bug fixes and feature additions.
 @end itemize
 
-@heading News since 11.87
+@heading News in 11.87
 
 @itemize @bullet
 @item

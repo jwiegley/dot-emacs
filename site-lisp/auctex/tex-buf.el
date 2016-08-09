@@ -1,6 +1,6 @@
 ;;; tex-buf.el --- External commands for AUCTeX.
 
-;; Copyright (C) 1991-1999, 2001-2014 Free Software Foundation, Inc.
+;; Copyright (C) 1991-1999, 2001-2015 Free Software Foundation, Inc.
 
 ;; Maintainer: auctex-devel@gnu.org
 ;; Keywords: tex, wp
@@ -142,6 +142,21 @@ pinned region will get unpinned and vice versa."
     (setq TeX-command-region-end nil)
     (message "TeX region unpinned.")))
 
+(defun TeX-region-update ()
+  "Update the TeX-region file."
+  ;; Note that TeX-command-region-begin is not a marker when called
+  ;; from TeX-command-buffer.
+  (and (or (null TeX-command-region-begin)
+	   (markerp TeX-command-region-begin))
+       (TeX-active-mark)
+       (TeX-pin-region (region-beginning) (region-end)))
+  (let ((begin (or TeX-command-region-begin (region-beginning)))
+	(end (or TeX-command-region-end (region-end))))
+    (TeX-region-create (TeX-region-file TeX-default-extension)
+		       (buffer-substring begin end)
+		       (file-name-nondirectory (buffer-file-name))
+		       (TeX-current-offset begin))))
+
 (defun TeX-command-region (&optional override-confirm)
   "Run TeX on the current region.
 
@@ -163,18 +178,7 @@ If the master file for the document has a trailer, it is written to
 the temporary file before the region itself.  The document's trailer is
 all text after `TeX-trailer-start'."
   (interactive "P")
-  ;; Note that TeX-command-region-begin is not a marker when called
-  ;; from TeX-command-buffer.
-  (and (or (null TeX-command-region-begin)
-	   (markerp TeX-command-region-begin))
-       (TeX-active-mark)
-       (TeX-pin-region (region-beginning) (region-end)))
-  (let ((begin (or TeX-command-region-begin (region-beginning)))
-	(end (or TeX-command-region-end (region-end))))
-    (TeX-region-create (TeX-region-file TeX-default-extension)
-		       (buffer-substring begin end)
-		       (file-name-nondirectory (buffer-file-name))
-		       (TeX-current-offset begin)))
+  (TeX-region-update)
   (TeX-command (TeX-command-query (TeX-region-file nil t)) 'TeX-region-file
 	       override-confirm))
 
@@ -322,7 +326,7 @@ This works only with TeX commands and if the
 	  (TeX-parse-TeX (- arg) nil)
 	;; XXX: moving backward in the errors hasn't yet been implemented for
 	;; other parsing functions.
-	(error "Jumping to previous error not supported.")))))
+	(error "Jumping to previous error not supported")))))
 
 ;;; Command Query
 
@@ -331,6 +335,117 @@ This works only with TeX commands and if the
 
 (defconst TeX-error-overview-buffer-name "*TeX errors*"
   "Name of the buffer in which to show error list.")
+
+(defvar LaTeX-idx-md5-alist nil
+  "Alist of MD5 hashes of idx file.
+
+Car is the idx file, cdr is its md5 hash.")
+
+(defvar LaTeX-idx-changed-alist nil
+  "Whether the idx files changed.
+
+Car is the idx file, cdr is whether idx changed after LaTeX
+run.")
+
+(defcustom TeX-check-engine t
+  "Whether AUCTeX should check the correct engine has been set before running LaTeX commands."
+  :group 'TeX-command
+  :type 'boolean)
+
+(defvar TeX-check-engine-list '(default luatex omega xetex)
+  "List of engines required by the loaded TeX packages.
+
+Do not set this variable directly, use
+`TeX-check-engine-add-engines' to specify required engines.")
+(make-variable-buffer-local 'TeX-check-engine-list)
+
+(defun TeX-check-engine-add-engines (&rest engines)
+  "Add ENGINES to list of required engines.
+
+Set `TeX-check-engine-list' to the intersection between the list
+itself and the list of provided engines.
+
+See for example style/fontspec.el"
+  (let ((list TeX-check-engine-list)
+	(res nil))
+    (setq TeX-check-engine-list
+	  ;; The following is based on the definition of `cl-intersection' of
+	  ;; GNU Emacs.
+	  (and list engines
+	       (if (equal list engines) list
+		 (or (>= (length list) (length engines))
+		     (setq list (prog1 engines (setq engines list))))
+		 (while engines
+		   (if (memq (car engines) list)
+		       (push (car engines) res))
+		   (pop engines))
+		 res)))))
+
+(defun TeX-check-engine (name)
+  "Check the correct engine has been set.
+
+Look into `TeX-check-engine-list' for the required engines.
+
+NAME is the command to be run.  Actually do the check only if the
+variable `TeX-check-engine' is non-nil and LaTeX is the command
+to be run."
+  (and
+   (string= name "LaTeX")
+   TeX-check-engine
+   TeX-check-engine-list
+   (null (memq TeX-engine TeX-check-engine-list))
+   (memq TeX-engine '(default luatex omega xetex))
+   ;; The set engine is not listed in `TeX-check-engine-list'.  We check only
+   ;; builtin engines because we can't take care of custom ones.  Do nothing if
+   ;; there is no allowed engine, we don't know what to do in that case.
+   (let ((length (length TeX-check-engine-list))
+	 (name-alist '((default . "TeX")
+		       (luatex  . "LuaTeX")
+		       (omega   . "Omega")
+		       (xetex   . "XeTeX")))
+	 (completion-ignore-case t)
+	 (engine nil))
+     (when
+	 (cond
+	  ;; There is exactly one allowed engine.
+	  ((= length 1)
+	   (setq engine (car TeX-check-engine-list))
+	   (y-or-n-p (format "%s is required to build this document.
+Do you want to use this engine?" (cdr (assoc engine name-alist)))))
+	  ;; More than one engine is allowed.
+	  ((> length 1)
+	   (if (y-or-n-p (format "%s are required to build this document.
+Do you want to select one of these engines?"
+				 (mapconcat
+				  (lambda (elt) (cdr (assoc elt name-alist)))
+				  TeX-check-engine-list ", ")))
+	       (setq engine
+		     (car (rassoc
+			   (completing-read
+			    (format
+			     "Choose between %s: "
+			     (mapconcat
+			      (lambda (elt) (cdr (assoc elt name-alist)))
+			      TeX-check-engine-list ", "))
+			    (mapcar
+			     (lambda (elt) (cdr (assoc elt name-alist)))
+			     TeX-check-engine-list))
+			   name-alist))))))
+       (TeX-engine-set engine)
+       (when (and (fboundp 'add-file-local-variable)
+		  (y-or-n-p "Do you want to remember the choice?"))
+	 (add-file-local-variable 'TeX-engine engine)
+	 (save-buffer))))))
+
+(defcustom TeX-check-TeX t
+  "Whether AUCTeX should check if a working TeX distribution is present."
+  :group 'TeX-command
+  :type 'boolean)
+
+(defcustom TeX-check-TeX-command-not-found 127
+  "Numerical code returned by shell for a command not found error."
+  :group 'TeX-command
+  :type 'integer)
 
 (defun TeX-command (name file &optional override-confirm)
   "Run command NAME on the file returned by calling FILE.
@@ -343,7 +458,12 @@ Use the information in `TeX-command-list' to determine how to run
 the command.
 
 If OVERRIDE-CONFIRM is a prefix argument, confirmation will be
-asked if it is positive, and suppressed if it is not."
+asked if it is positive, and suppressed if it is not.
+
+Run function `TeX-check-engine' to check the correct engine has
+been set."
+  (TeX-check-engine name)
+
   (cond ((eq file 'TeX-region-file)
 	 (setq TeX-current-process-region-p t))
 	((eq file 'TeX-master-file)
@@ -369,6 +489,21 @@ asked if it is positive, and suppressed if it is not."
       (if (get-buffer TeX-error-overview-buffer-name)
 	  (kill-buffer TeX-error-overview-buffer-name)))
 
+    ;; Before running some commands, check that AUCTeX is able to find "tex"
+    ;; program.
+    (and TeX-check-TeX
+         (member name '("TeX" "LaTeX" "AmSTeX" "ConTeXt" "ConTeXt Full"))
+	 (= TeX-check-TeX-command-not-found
+            (call-process TeX-shell nil nil nil
+                          TeX-shell-command-option TeX-command))
+	 (error (format "ERROR: AUCTeX cannot find a working TeX distribution.
+Make sure you have one and that TeX binaries are in PATH environment variable%s"
+			(if (eq system-type 'darwin)
+			    ".
+If you are using OS X El Capitan or later
+remember to add /Library/TeX/texbin/ to your PATH"
+			  ""))))
+
     ;; Now start the process
     (setq file (funcall file))
     (TeX-process-set-variable file 'TeX-command-next TeX-command-Show)
@@ -392,7 +527,7 @@ without further expansion."
 		(list "%%" (lambda nil
 			     (setq pos (1+ pos))
 			     "%"))
-		(or list TeX-expand-list))
+		(or list (TeX-expand-list)))
 	  pat (regexp-opt (mapcar #'car list)))
     (while (setq pos (string-match pat command pos))
       (setq string (match-string 0 command)
@@ -416,7 +551,7 @@ without further expansion."
                               ;; Advance past the file name in order to
                               ;; prevent expanding any substring of it.
                               (setq pos (+ pos (length expansion-res))))
-                              expansion-res)
+			    expansion-res)
 			   (t
 			    (error "Nonexpansion %s" expansion)))))
       (if (stringp string)
@@ -427,8 +562,8 @@ without further expansion."
 (defun TeX-check-files (derived originals extensions)
   "Check if DERIVED is newer than any of the ORIGINALS.
 Try each original with each member of EXTENSIONS, in all directories
-in `TeX-check-path'. Returns true if any of the ORIGINALS with any of the
-EXTENSIONS are newer than DERIVED. Will prompt to save the buffer of any
+in `TeX-check-path'.  Returns true if any of the ORIGINALS with any of the
+EXTENSIONS are newer than DERIVED.  Will prompt to save the buffer of any
 ORIGINALS which are modified but not saved yet."
   (let (existingoriginals
         found
@@ -460,6 +595,126 @@ ORIGINALS which are modified but not saved yet."
           (setq found t)))
     found))
 
+(defcustom TeX-command-sequence-max-runs-same-command 4
+  "Maximum number of runs of the same command."
+  :type 'integer
+  :group 'TeX-command)
+
+(defcustom TeX-command-sequence-max-runs 12
+  "Maximum number of total runs."
+  :type 'integer
+  :group 'TeX-command)
+
+(defvar TeX-command-sequence-count-same-command 1
+  "Counter for the runs of the same command in `TeX-command-sequence'.")
+
+(defvar TeX-command-sequence-count 1
+  "Counter for the total runs of `TeX-command-sequence'.")
+
+(defvar TeX-command-sequence-last-command nil
+  "Last command run in `TeX-command-sequence'.")
+
+(defvar TeX-command-sequence-sentinel nil
+  "Sentinel for `TeX-command-sequence'.")
+
+(defvar TeX-command-sequence-file-function nil
+  "File function for `TeX-command-sequence'.")
+
+(defvar TeX-command-sequence-command nil
+  "Command argument for `TeX-command-sequence'.
+
+It is set in `TeX-command-sequence' and used in
+`TeX-command-sequence-sentinel' to call again
+`TeX-command-sequence' with the appropriate command argument.")
+
+(defun TeX-command-sequence (command &optional reset file-fn)
+  "Run a sequence of TeX commands defined by COMMAND.
+
+The COMMAND argument may be
+
+  * nil: no command will be run in this case
+
+  * a string with a command from `TeX-command-list'
+
+  * a non-nil list of strings, which are commands from
+    `TeX-command-list'; the car of the list is used as command to
+    be executed in the first run of `TeX-command-sequence', the
+    cdr of the list will be passed to the function in the next
+    run, etc.
+
+  * a function name, returning a string which is command from
+    `TeX-command-list'; it will be funcall'd (without arguments!)
+    and used again in the next run of `TeX-command-sequence'.
+
+  * with any other value the function `TeX-command-default' is
+    used to determine the command to run, until a stopping
+    condition is met.
+
+This function runs at most
+`TeX-command-sequence-max-runs-same-command' times the same
+command in a row, and `TeX-command-sequence-max-runs' times in
+total in any case.  It ends when `TeX-command-Show' is the
+command to be run.
+
+A non-nil value for the optional argument RESET means this is the
+first run of the function and some variables need to be reset.
+
+FILE-FN is a function of zero arguments returning the current
+filename.  Valid choices are `TeX-master-file' (default if
+omitted) and `TeX-region-file'."
+  (setq TeX-command-sequence-file-function (or file-fn #'TeX-master-file))
+  (if (null command)
+      (message "No command to run.")
+    (let (cmd process)
+      (cond
+       ((stringp command)
+	(setq cmd command
+	      TeX-command-sequence-command nil))
+       ((listp command)
+	(setq cmd (pop command)
+	      TeX-command-sequence-command command))
+       ((functionp command)
+	(setq cmd (funcall command)
+	      TeX-command-sequence-command command))
+       (t
+	(setq cmd (TeX-command-default
+		   ;; File function should be called with nil `nondirectory'
+		   ;; argument, otherwise `TeX-command-sequence' won't work in
+		   ;; included files not placed in `TeX-master-directory'.
+		   (funcall TeX-command-sequence-file-function))
+	      TeX-command-sequence-command t)))
+      (TeX-command cmd TeX-command-sequence-file-function 0)
+      (when reset
+	(setq TeX-command-sequence-count-same-command 1
+	      TeX-command-sequence-count 1
+	      TeX-command-sequence-last-command nil))
+      (cond
+       ;; Stop when the same command has been run
+       ;; `TeX-command-sequence-max-runs-same-command' times in a row.
+       ((>= TeX-command-sequence-count-same-command
+	    TeX-command-sequence-max-runs-same-command)
+	(message "Stopping after running %S %d times in a row."
+		 TeX-command-sequence-last-command
+		 TeX-command-sequence-count-same-command))
+       ;; Stop when there have been `TeX-command-sequence-max-runs' total
+       ;; compilations.
+       ((>= TeX-command-sequence-count TeX-command-sequence-max-runs)
+	(message "Stopping after %d compilations." TeX-command-sequence-count))
+       ;; The command just run is `TeX-command-Show'.
+       ((equal command TeX-command-Show))
+       ;; In any other case continue: increase counters (when needed), update
+       ;; `TeX-command-sequence-last-command' and run the sentinel.
+       (t
+	(if (equal cmd TeX-command-sequence-last-command)
+	    (setq TeX-command-sequence-count-same-command
+		  (1+ TeX-command-sequence-count-same-command))
+	  (setq TeX-command-sequence-count-same-command 1))
+	(setq TeX-command-sequence-count (1+ TeX-command-sequence-count)
+	      TeX-command-sequence-last-command cmd)
+	(and (setq process (get-buffer-process (current-buffer)))
+	     (setq TeX-command-sequence-sentinel (process-sentinel process))
+	     (set-process-sentinel process 'TeX-command-sequence-sentinel)))))))
+
 (defcustom TeX-save-query t
   "*If non-nil, ask user for permission to save files before starting TeX."
   :group 'TeX-command
@@ -467,29 +722,56 @@ ORIGINALS which are modified but not saved yet."
 
 (defvar TeX-command-history nil)
 
+(defun TeX-command-default (name)
+  "Guess the next command to be run on NAME."
+  (let ((command-next nil))
+    (cond (;; name might be absolute or relative, so expand it for
+	   ;; comparison.
+	   (if (string-equal (expand-file-name name)
+			     (expand-file-name TeX-region))
+	       (TeX-check-files (concat name "." (TeX-output-extension))
+				;; Each original will be checked for all dirs
+				;; in `TeX-check-path' so this needs to be just
+				;; a filename without directory.
+				(list (file-name-nondirectory name))
+				TeX-file-extensions)
+	     (TeX-save-document (TeX-master-file)))
+	   TeX-command-default)
+	  ((and (memq major-mode '(doctex-mode latex-mode))
+		;; Want to know if bib file is newer than .bbl
+		;; We don't care whether the bib files are open in emacs
+		(TeX-check-files (concat name ".bbl")
+				 (mapcar 'car
+					 (LaTeX-bibliography-list))
+				 (append BibTeX-file-extensions
+					 TeX-Biber-file-extensions)))
+	   ;; We should check for bst files here as well.
+	   (if LaTeX-using-Biber TeX-command-Biber TeX-command-BibTeX))
+	  ((and
+	    ;; Rational: makeindex should be run when final document is almost
+	    ;; complete (see
+	    ;; http://tex.blogoverflow.com/2012/09/dont-forget-to-run-makeindex/),
+	    ;; otherwise, after following latex runs, index pages may change due
+	    ;; to changes in final document, resulting in extra makeindex and
+	    ;; latex runs.
+	    (member
+	     (setq command-next
+		   (TeX-process-get-variable
+		    name
+		    'TeX-command-next
+		    (if (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode)
+			"Dvips"
+		      TeX-command-Show)))
+	     (list "Dvips" TeX-command-Show))
+	    (cdr (assoc (expand-file-name (concat name ".idx"))
+			LaTeX-idx-changed-alist)))
+	   "Index")
+	  (command-next)
+	  (TeX-command-Show))))
+
 (defun TeX-command-query (name)
   "Query the user for what TeX command to use."
-  (let* ((default
-	   (cond ((if (string-equal name TeX-region)
-		      (TeX-check-files (concat name "." (TeX-output-extension))
-				       (list name)
-				       TeX-file-extensions)
-		    (TeX-save-document (TeX-master-file)))
-		  TeX-command-default)
-		 ((and (memq major-mode '(doctex-mode latex-mode))
-		       ;; Want to know if bib file is newer than .bbl
-		       ;; We don't care whether the bib files are open in emacs
-		       (TeX-check-files (concat name ".bbl")
-					(mapcar 'car
-						(LaTeX-bibliography-list))
-					(append BibTeX-file-extensions
-						TeX-Biber-file-extensions)))
-		  ;; We should check for bst files here as well.
-		  (if LaTeX-using-Biber TeX-command-Biber TeX-command-BibTeX))
-		 ((TeX-process-get-variable name
-					    'TeX-command-next
-					    TeX-command-Show))
-		 (TeX-command-Show)))
+  (let* ((default (TeX-command-default name))
          (completion-ignore-case t)
          (answer (or TeX-command-force
                      (completing-read
@@ -607,7 +889,24 @@ the current style options."
   "Hook being run after TeX/LaTeX finished successfully.
 The functions in this hook are run with the DVI/PDF output file
 given as argument.  Using this hook can be useful for updating
-the viewer automatically after re-compilation of the document.")
+the viewer automatically after re-compilation of the document.
+
+If you use an emacs-internal viewer such as `doc-view-mode' or
+`pdf-view-mode', add `TeX-revert-document-buffer' to this hook.")
+
+(defun TeX-revert-document-buffer (file)
+  "Revert the buffer visiting FILE.
+This function is intended to be used in
+`TeX-after-TeX-LaTeX-command-finished-hook' for users that view
+their compiled document with an emacs viewer such as
+`doc-view-mode' or `pdf-view-mode'.  (Note that this function
+just calls `revert-buffer' in the respective buffer and thus
+requires that the corresponding mode defines a sensible
+`revert-buffer-function'.)"
+  (let ((buf (find-buffer-visiting file)))
+    (when buf
+      (with-current-buffer buf
+	(revert-buffer nil t t)))))
 
 (defvar TeX-after-start-process-function nil
   "Hooks to run after starting an asynchronous process.
@@ -667,7 +966,8 @@ Return the new process."
 (defun TeX-run-set-command (name command)
   "Remember TeX command to use to NAME and set corresponding output extension."
   (setq TeX-command-default name
-	TeX-output-extension (if TeX-PDF-mode "pdf" "dvi"))
+	TeX-output-extension
+	(if (and (null TeX-PDF-via-dvips-ps2pdf) TeX-PDF-mode) "pdf" "dvi"))
   (let ((case-fold-search t)
 	(lst TeX-command-output-list))
     (while lst
@@ -706,7 +1006,8 @@ run of `TeX-run-TeX', use
   ;; Save information in TeX-error-report-switches
   ;; Initialize error to nil (no error) for current master.
   ;; Presence of error is reported inside `TeX-TeX-sentinel-check'
-  (let ((current-master (TeX-master-file)))
+  (let ((current-master (TeX-master-file))
+	(idx-file nil) (element nil))
     ;; the current master file is saved because error routines are
     ;; parsed in other buffers;
     (setq TeX-error-report-switches
@@ -715,7 +1016,22 @@ run of `TeX-run-TeX', use
     ;; reset error to nil (no error)
     (setq TeX-error-report-switches
 	  (plist-put TeX-error-report-switches
-		     (intern current-master) nil)))
+		     (intern current-master) nil))
+
+    ;; Store md5 hash of the index file before running LaTeX.
+    (and (memq major-mode '(doctex-mode latex-mode))
+	 (prog1 (file-exists-p
+		 (setq idx-file (expand-file-name (concat file ".idx"))))
+	   ;; In order to avoid confusion and pollution of
+	   ;; `LaTeX-idx-md5-alist', remove from this alist all md5 hashes of
+	   ;; the current index file.  Note `assq-delete-all' doesn't work with
+	   ;; string keys and has problems with non-list elements in Emacs 21
+	   ;; (see file tex-site.el).
+	   (while (setq element (assoc idx-file LaTeX-idx-md5-alist))
+	     (setq LaTeX-idx-md5-alist (delq element LaTeX-idx-md5-alist))))
+	 (with-temp-buffer
+	   (insert-file-contents idx-file)
+	   (push (cons idx-file (md5 (current-buffer))) LaTeX-idx-md5-alist))))
 
   ;; can we assume that TeX-sentinel-function will not be changed
   ;; during (TeX-run-format ..)? --pg
@@ -747,6 +1063,41 @@ run of `TeX-run-TeX', use
   "Create a process for NAME using COMMAND to format FILE with Biber."
   (let ((process (TeX-run-command name command file)))
     (setq TeX-sentinel-function 'TeX-Biber-sentinel)
+    (if TeX-process-asynchronous
+        process
+      (TeX-synchronous-sentinel name file process))))
+
+(defun TeX-run-dvips (name command file)
+  "Create a process for NAME using COMMAND to convert FILE with dvips."
+  (let ((process (TeX-run-command name command file)))
+    (setq TeX-sentinel-function 'TeX-dvips-sentinel)
+    (if TeX-process-asynchronous
+        process
+      (TeX-synchronous-sentinel name file process))))
+
+(defun TeX-run-ps2pdf (name command file)
+  "Create a process for NAME using COMMAND to convert FILE with ps2pdf."
+  (let ((process (TeX-run-command name command file)))
+    (setq TeX-sentinel-function 'TeX-ps2pdf-sentinel)
+    (if TeX-process-asynchronous
+        process
+      (TeX-synchronous-sentinel name file process))))
+
+(defun TeX-run-index (name command file)
+  "Create a process for NAME using COMMAND to compile the index file."
+  (let ((process (TeX-run-command name command file))
+	(element nil))
+    (setq TeX-sentinel-function 'TeX-index-sentinel)
+    ;; Same cleaning as that for `LaTeX-idx-md5-alist' in `TeX-run-TeX'.
+    (while (setq element
+		 ;; `file' has been determined in `TeX-command-buffer', while
+		 ;; this function has `TeX-master-directory' as
+		 ;; `default-directory', then we have to expand `file' file-name
+		 ;; in the same directory of `TeX-command-buffer'.
+		 (assoc (with-current-buffer TeX-command-buffer
+			    (expand-file-name (concat file ".idx")))
+			LaTeX-idx-changed-alist))
+      (setq LaTeX-idx-changed-alist (delq element LaTeX-idx-changed-alist)))
     (if TeX-process-asynchronous
         process
       (TeX-synchronous-sentinel name file process))))
@@ -958,13 +1309,16 @@ Open the error overview if
 `TeX-error-overview-open-after-TeX-run' is non-nil and there are
 errors or warnings to show."
   (if (TeX-TeX-sentinel-check process name)
-      ()
+      (progn
+	(if TeX-parse-all-errors
+	    (TeX-parse-all-errors))
+	(if (and TeX-error-overview-open-after-TeX-run TeX-error-list)
+	    (TeX-error-overview)))
     (message (concat name ": formatted " (TeX-current-pages)))
-    (if TeX-parse-all-errors
-	(TeX-parse-all-errors))
-    (if (and TeX-error-overview-open-after-TeX-run TeX-error-list)
-	(TeX-error-overview))
-    (setq TeX-command-next TeX-command-Show)))
+    (if (with-current-buffer TeX-command-buffer
+	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	(setq TeX-command-next "Dvips")
+      (setq TeX-command-next TeX-command-Show))))
 
 (defun TeX-current-pages ()
   "Return string indicating the number of pages formatted."
@@ -980,17 +1334,33 @@ errors or warnings to show."
 Return nil ifs no errors were found."
   (save-excursion
     (goto-char (point-max))
-    (if (re-search-backward "^Output written on \\(.*?\\) (\\([0-9]+\\) page"
-			    nil t)
+    (cond
+     ((and (string-match "ConTeXt" name)
+	   (with-current-buffer TeX-command-buffer
+	     (string= ConTeXt-Mark-version "IV")))
+      (when (re-search-backward " > result saved in file: \\(.*?\\), " nil t)
 	(let ((output-file (TeX-match-buffer 1)))
-	  (setq TeX-current-page (concat "{" (TeX-match-buffer 2) "}"))
 	  ;; Shave off quotation marks if present.
 	  (when (string-match "\\`\"\\(.*\\)\"\\'" output-file)
 	    (setq output-file (match-string 1 output-file)))
 	  (setq TeX-output-extension
 		(if (string-match "\\.\\([^.]*\\)$" output-file)
 		    (match-string 1 output-file)
-		  "dvi")))))
+		  "dvi")))
+	(if (re-search-forward ", \\([0-9]+\\) shipped pages, " nil t)
+	    (setq TeX-current-page (concat "{" (TeX-match-buffer 1) "}")))))
+     (t
+      (if (re-search-backward "^Output written on \\(.*?\\) (\\([0-9]+\\) page"
+			      nil t)
+	  (let ((output-file (TeX-match-buffer 1)))
+	    (setq TeX-current-page (concat "{" (TeX-match-buffer 2) "}"))
+	    ;; Shave off quotation marks if present.
+	    (when (string-match "\\`\"\\(.*\\)\"\\'" output-file)
+	      (setq output-file (match-string 1 output-file)))
+	    (setq TeX-output-extension
+		  (if (string-match "\\.\\([^.]*\\)$" output-file)
+		      (match-string 1 output-file)
+		    "dvi")))))))
   (if process (TeX-format-mode-line process))
   (if (re-search-forward "^\\(!\\|.*:[0-9]+:\\) " nil t)
       (progn
@@ -1005,7 +1375,10 @@ Return nil ifs no errors were found."
 					    'TeX-current-master))
 			 t))
 	t)
-    (setq TeX-command-next TeX-command-Show)
+    (if (with-current-buffer TeX-command-buffer
+	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	(setq TeX-command-next "Dvips")
+      (setq TeX-command-next TeX-command-Show))
     nil))
 
 (defun TeX-LaTeX-sentinel-has-warnings ()
@@ -1014,7 +1387,7 @@ Warnings can be indicated by LaTeX or packages."
   (save-excursion
     (goto-char (point-min))
     (re-search-forward
-     "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z]+ \\)Warning:" nil t)))
+     "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z0-9]+ \\)Warning:" nil t)))
 
 (defun TeX-LaTeX-sentinel-has-bad-boxes ()
   "Return non-nil, if LaTeX output indicates overfull or underfull boxes."
@@ -1087,16 +1460,27 @@ Rerun to get outlines right" nil t)
 	((re-search-forward "^LaTeX Warning: Reference" nil t)
 	 (message "%s%s%s" name ": there were unresolved references, "
 		  (TeX-current-pages))
-	 (setq TeX-command-next TeX-command-Show))
+	 (if (with-current-buffer TeX-command-buffer
+	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	     (setq TeX-command-next "Dvips")
+	   (setq TeX-command-next TeX-command-Show)))
 	((re-search-forward "^\\(?:LaTeX Warning: Citation\\|\
 Package natbib Warning:.*undefined citations\\)" nil t)
 	 (message "%s%s%s" name ": there were unresolved citations, "
 		  (TeX-current-pages))
-	 (setq TeX-command-next TeX-command-Show))
+	 (if (with-current-buffer TeX-command-buffer
+	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	     (setq TeX-command-next "Dvips")
+	   (setq TeX-command-next TeX-command-Show)))
 	((re-search-forward "Package longtable Warning: Table widths have \
 changed\\. Rerun LaTeX\\." nil t)
 	 (message
 	  "%s" "You should run LaTeX again to get table formatting right")
+	 (setq TeX-command-next TeX-command-default))
+	((re-search-forward "^hf-TikZ Warning: Mark '.*' changed\\. \
+Rerun to get mark in right position\\." nil t)
+	 (message
+	  "%s" "You should run LaTeX again to get TikZ marks in right position")
 	 (setq TeX-command-next TeX-command-default))
 	((re-search-forward
 	  "^\\(\\*\\* \\)?J?I?p?\\(La\\|Sli\\)TeX\\(2e\\)? \
@@ -1113,10 +1497,34 @@ changed\\. Rerun LaTeX\\." nil t)
 				    ")"))))
 	   (message "%s" (concat name ": successfully formatted "
 				 (TeX-current-pages) add-info)))
-	 (setq TeX-command-next TeX-command-Show))
+	 (if (with-current-buffer TeX-command-buffer
+	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	     (setq TeX-command-next "Dvips")
+	   (setq TeX-command-next TeX-command-Show)))
 	(t
 	 (message "%s%s%s" name ": problems after " (TeX-current-pages))
 	 (setq TeX-command-next TeX-command-default)))
+
+  ;; Check whether the idx file changed.
+  (let ((idx-file nil) (master nil))
+    (and (file-exists-p
+	  (setq idx-file
+		(concat
+		 (setq master
+		       (with-current-buffer TeX-command-buffer
+			 (expand-file-name (TeX-active-master)))) ".idx")))
+	 ;; imakeidx package automatically runs makeindex, thus, we need to be
+	 ;; sure .ind file isn't newer than .idx.
+	 (TeX-check-files (concat master ".ind")
+			  (list (file-name-nondirectory master)) '("idx"))
+	 (with-temp-buffer
+	   (insert-file-contents idx-file)
+	   (not (equal
+		 ;; Compare old md5 hash of the idx file with the new one.
+		 (cdr (assoc idx-file LaTeX-idx-md5-alist))
+		 (md5 (current-buffer)))))
+	 (push (cons idx-file t) LaTeX-idx-changed-alist)))
+
   (unless TeX-error-list
     (run-hook-with-args 'TeX-after-TeX-LaTeX-command-finished-hook
 			(with-current-buffer TeX-command-buffer
@@ -1167,6 +1575,66 @@ changed\\. Rerun LaTeX\\." nil t)
     (message (concat "Biber finished successfully. "
                      "Run LaTeX again to get citations right."))
     (setq TeX-command-next TeX-command-default))))
+
+(defun TeX-dvips-sentinel (_process _name)
+  "Cleanup TeX output buffer after running dvips."
+  (goto-char (point-max))
+  (cond
+   ((search-backward "TeX Output exited abnormally" nil t)
+    (message "Dvips failed.  Type `%s' to display output."
+	     (substitute-command-keys
+              "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
+   (t
+    (if (with-current-buffer TeX-command-buffer
+	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	(setq TeX-output-extension "ps"
+	      TeX-command-next "Ps2pdf"))
+    (message "Dvips finished successfully. "))))
+
+(defun TeX-ps2pdf-sentinel (_process _name)
+  "Cleanup TeX output buffer after running ps2pdf."
+  (goto-char (point-max))
+  (cond
+   ((search-backward "TeX Output exited abnormally" nil t)
+    (message "ps2pdf failed.  Type `%s' to display output."
+	     (substitute-command-keys
+              "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
+   (t
+    (if (with-current-buffer TeX-command-buffer
+	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	(setq TeX-command-next TeX-command-Show
+	      TeX-output-extension "pdf"))
+    (message "ps2pdf finished successfully. "))))
+
+(defun TeX-index-sentinel (_process _name)
+  "Cleanup TeX output buffer after compiling index."
+  (goto-char (point-max))
+  (cond
+   ((search-backward "TeX Output exited abnormally" nil t)
+    (message "Index failed.  Type `%s' to display output."
+	     (substitute-command-keys
+              "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
+   (t
+    (setq TeX-command-next TeX-command-default)
+    (message (concat "Index finished successfully. "
+		     "Run LaTeX again to get index right.")))))
+
+(defun TeX-command-sequence-sentinel (process string)
+  "Call the appropriate sentinel for the current process.
+
+If there are no errors, call back `TeX-command-sequence' using
+`TeX-command-sequence-command' as command argument, unless this
+variable is nil."
+  (with-current-buffer (process-buffer process)
+    (funcall TeX-command-sequence-sentinel process string)
+    (if (string-match "\\(finished\\|exited\\)" string)
+	(with-current-buffer TeX-command-buffer
+	  (unless
+	      (or
+	       (plist-get TeX-error-report-switches (intern (TeX-master-file)))
+	       (null TeX-command-sequence-command))
+	    (TeX-command-sequence TeX-command-sequence-command nil
+				  TeX-command-sequence-file-function))))))
 
 ;;; Process Control
 
@@ -1300,7 +1768,7 @@ command."
 
 (defvar TeX-parse-function nil
   "Function to call to parse content of TeX output buffer.")
- (make-variable-buffer-local 'TeX-parse-function)
+(make-variable-buffer-local 'TeX-parse-function)
 
 (defun TeX-background-filter (process string)
   "Filter to process background output."
@@ -1568,6 +2036,27 @@ levels are defined by `LaTeX-section-list'."
 		 old-level (car (rassoc (list LaTeX-command-section-level)
 					LaTeX-section-list)))))))
 
+(defun LaTeX-command-section-boundaries ()
+  "Return the boundaries of the current section as (start . end).
+The section is determined by `LaTeX-command-section-level'."
+  (let* ((case-fold-search nil)
+	 (rx (concat "\\\\" (regexp-opt
+			     (mapcar
+			      (lambda (level)
+				(car (rassoc (list level) LaTeX-section-list)))
+			      (let (r)
+				(dotimes (i (1+ (LaTeX-command-section-level)))
+				  (push i r))
+				r)))
+		     "{")))
+    (cons (save-excursion
+	    (re-search-backward rx nil t)
+	    (point))
+	  (save-excursion
+	    (re-search-forward (concat rx "\\|\\\\end{document}") nil t)
+	    (forward-line 0)
+	    (point)))))
+
 (defun LaTeX-command-section (&optional override-confirm)
   "Run a command on the current section.
 
@@ -1583,24 +2072,43 @@ If a prefix argument OVERRIDE-CONFIRM is given, confirmation will
 depend on it being positive instead of the entry in
 `TeX-command-list'."
   (interactive "P")
-  (let* ((case-fold-search t)
-	 (rx (concat "\\\\" (regexp-opt
-			     (mapcar
-			      (lambda (level)
-				(car (rassoc (list level) LaTeX-section-list)))
-			      (let (r)
-				(dotimes (i (1+ (LaTeX-command-section-level)))
-				  (push i r))
-				r)))
-		     "{"))
-	 (TeX-command-region-begin (save-excursion
-				     (re-search-backward rx nil t)
-				     (point)))
-	 (TeX-command-region-end (save-excursion
-				   (re-search-forward rx nil t)
-				   (forward-line 0)
-				   (point))))
-    (TeX-command-region override-confirm)))
+  (if (eq major-mode 'latex-mode)
+      (let* ((bounds (LaTeX-command-section-boundaries))
+	     (TeX-command-region-begin (car bounds))
+	     (TeX-command-region-end (cdr bounds)))
+	(TeX-command-region override-confirm))
+    (error "LaTeX-command-section can only be run on LaTeX documents")))
+
+(defun TeX-command-run-all-region ()
+  "Compile the current region until an error occurs or it is finished."
+  (interactive)
+  (TeX-region-update)
+  (TeX-command-sequence t t #'TeX-region-file))
+
+(defun LaTeX-command-run-all-section ()
+  "Compile the current section until an error occurs or it is finished."
+  (interactive)
+  (if (eq major-mode 'latex-mode)
+      (let* ((bounds (LaTeX-command-section-boundaries))
+	     (TeX-command-region-begin (car bounds))
+	     (TeX-command-region-end (cdr bounds)))
+	(TeX-region-update)
+	(TeX-command-sequence t t #'TeX-region-file))
+    (error "LaTeX-command-run-all-section can only be run on LaTeX documents")))
+
+(defun TeX-command-run-all (arg)
+  "Compile the current document until an error occurs or it is finished.
+With a prefix ARG (`\\[universal-argument] \\[TeX-command-run-all]'),
+compile the current region instead, e.g, call
+`TeX-command-run-all-region'.  With multiple prefix
+arguments (`\\[universal-argument] \\[universal-argument] \\[TeX-command-run-all]'),
+compile the current section instead, e.g. call
+`LaTeX-command-run-all-section'."
+  (interactive "P")
+  (cond
+   ((null arg)       (TeX-command-sequence t t))
+   ((= 4 (car arg))  (TeX-command-run-all-region))
+   (t                (LaTeX-command-run-all-section))))
 
 ;;; Parsing
 
@@ -1609,17 +2117,17 @@ depend on it being positive instead of the entry in
 (defvar TeX-error-point nil
   "How far we have parsed until now.")
 
- (make-variable-buffer-local 'TeX-error-point)
+(make-variable-buffer-local 'TeX-error-point)
 
 (defvar TeX-error-file nil
   "Stack of files in which errors have occurred.")
 
- (make-variable-buffer-local 'TeX-error-file)
+(make-variable-buffer-local 'TeX-error-file)
 
 (defvar TeX-error-offset nil
   "Add this to any line numbers from TeX.  Stack like `TeX-error-file'.")
 
- (make-variable-buffer-local 'TeX-error-offset)
+(make-variable-buffer-local 'TeX-error-offset)
 
 (defun TeX-parse-reset (&optional reparse)
   "Reset all variables used for parsing TeX output.
@@ -1638,7 +2146,7 @@ If optional argument REPARSE is non-nil, reparse the output log."
 ;; be ignored, because `TeX-next-error' can call any of these functions.
 (defun TeX-parse-command (arg reparse)
   "We can't parse anything but TeX."
-  (error "I cannot parse %s output, sorry."
+  (error "I cannot parse %s output, sorry"
 	 (if (TeX-active-process)
 	     (process-name (TeX-active-process))
 	   "this")))
@@ -1748,7 +2256,7 @@ Return non-nil if an error or warning is found."
 	  "^\\(\\(?:Overfull\\|Underfull\\|Tight\\|Loose\\)\
  \\\\.*?[0-9]+--[0-9]+\\)\\|"
 	  ;; LaTeX warning
-	  "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z]+ \\)Warning:.*"))
+	  "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z0-9]+ \\)Warning:.*"))
 	(error-found nil))
     (while
 	(cond
@@ -2128,40 +2636,40 @@ a bad box."
 
 (defcustom TeX-error-description-list
   '(("\\(?:Package Preview Error\\|Preview\\):.*" .
-"The `auctex' option to `preview' should not be applied manually.
+     "The `auctex' option to `preview' should not be applied manually.
 If you see this error message outside of a preview run, either
 you did something too clever, or AUCTeX something too stupid.")
 
     ("Bad \\\\line or \\\\vector argument.*" .
-"The first argument of a \\line or \\vector command, which specifies the
+     "The first argument of a \\line or \\vector command, which specifies the
 slope, is illegal\.")
 
     ("Bad math environment delimiter.*" .
-"TeX has found either a math-mode-starting command such as \\[ or \\(
+     "TeX has found either a math-mode-starting command such as \\[ or \\(
 when it is already in math mode, or else a math-mode-ending command
 such as \\) or \\] while in LR or paragraph mode.  The problem is caused
 by either unmatched math mode delimiters or unbalanced braces\.")
 
     ("Bad use of \\\\\\\\.*" .
-"A \\\\ command appears between paragraphs, where it makes no sense. This
+     "A \\\\ command appears between paragraphs, where it makes no sense. This
 error message occurs when the \\\\ is used in a centering or flushing
 environment or else in the scope of a centering or flushing
 declaration.")
 
     ("\\\\begin{[^ ]*} ended by \\\\end{[^ ]*}." .
-"LaTeX has found an \\end command that doesn't match the corresponding
+     "LaTeX has found an \\end command that doesn't match the corresponding
 \\begin command. You probably misspelled the environment name in the
 \\end command, have an extra \\begin, or else forgot an \\end.")
 
     ("Can be used only in preamble." .
-"LaTeX has encountered, after the \\begin{document}, one of the
+     "LaTeX has encountered, after the \\begin{document}, one of the
 following commands that should appear only in the preamble:
 \\documentclass, \\nofiles, \\includeonly, \\makeindex, or
 \\makeglossary.  The error is also caused by an extra \\begin{document}
 command.")
 
     ("Command name [^ ]* already used.*" .
-"You are using \\newcommand, \\newenvironment, \\newlength, \\newsavebox,
+     "You are using \\newcommand, \\newenvironment, \\newlength, \\newsavebox,
 or \\newtheorem to define a command or environment name that is
 already defined, or \\newcounter to define a counter that already
 exists. (Defining an environment named gnu automatically defines the
@@ -2169,7 +2677,7 @@ command \\gnu.) You'll have to choose a new name or, in the case of
 \\newcommand or \\newenvironment, switch to the \\renew ...  command.")
 
     ("Counter too large." .
-"1. Some object that is numbered with letters, probably an item in a
+     "1. Some object that is numbered with letters, probably an item in a
 enumerated list, has received a number greater than 26. Either you're
 making a very long list or you've been resetting counter values.
 
@@ -2178,11 +2686,11 @@ and LaTeX has run out of letters or symbols. This is probably caused
 by too many \\thanks commands.")
 
     ("Environment [^ ]* undefined." .
-"LaTeX has encountered a \\begin command for a nonexistent environment.
+     "LaTeX has encountered a \\begin command for a nonexistent environment.
 You probably misspelled the environment name. ")
 
     ("Float(s) lost." .
-"You put a figure or table environment or a \\marginpar command inside a
+     "You put a figure or table environment or a \\marginpar command inside a
 parbox---either one made with a minipage environment or \\parbox
 command, or one constructed by LaTeX in making a footnote, figure,
 etc. This is an outputting error, and the offending environment or
@@ -2191,70 +2699,70 @@ the problem. One or more figures, tables, and/or marginal notes have
 been lost, but not necessarily the one that caused the error.")
 
     ("Illegal character in array arg." .
-"There is an illegal character in the argument of an array or tabular
+     "There is an illegal character in the argument of an array or tabular
 environment, or in the second argument of a \\multicolumn command.")
 
     ("Missing \\\\begin{document}." .
-"LaTeX produced printed output before encountering a \\begin{document}
+     "LaTeX produced printed output before encountering a \\begin{document}
 command. Either you forgot the \\begin{document} command or there is
 something wrong in the preamble. The problem may be a stray character
 or an error in a declaration---for example, omitting the braces around
 an argument or forgetting the \\ in a command name.")
 
     ("Missing p-arg in array arg.*" .
-"There is a p that is not followed by an expression in braces in the
+     "There is a p that is not followed by an expression in braces in the
 argument of an array or tabular environment, or in the second argument
 of a \\multicolumn command.")
 
     ("Missing @-exp in array arg." .
-"There is an @ character not followed by an @-expression in the
+     "There is an @ character not followed by an @-expression in the
 argument of an array or tabular environment, or in the second argument
 of a \\multicolumn command.")
 
     ("No such counter." .
-"You have specified a nonexistent counter in a \\setcounter or
+     "You have specified a nonexistent counter in a \\setcounter or
 \\addtocounter command. This is probably caused by a simple typing
 error.  However, if the error occurred while a file with the extension
 aux is being read, then you probably used a \\newcounter command
 outside the preamble.")
 
     ("Not in outer par mode." .
-"You had a figure or table environment or a \\marginpar command in math
+     "You had a figure or table environment or a \\marginpar command in math
 mode or inside a parbox.")
 
     ("\\\\pushtabs and \\\\poptabs don't match." .
-"LaTeX found a \\poptabs with no matching \\pushtabs, or has come to the
+     "LaTeX found a \\poptabs with no matching \\pushtabs, or has come to the
 \\end{tabbing} command with one or more unmatched \\pushtabs commands.")
 
     ("Something's wrong--perhaps a missing \\\\item." .
-"The most probable cause is an omitted \\item command in a list-making
+     "The most probable cause is an omitted \\item command in a list-making
 environment. It is also caused by forgetting the argument of a
 thebibliography environment.")
 
     ("Tab overflow." .
-"A \\= command has exceeded the maximum number of tab stops that LaTeX
+     "A \\= command has exceeded the maximum number of tab stops that LaTeX
 permits.")
 
     ("There's no line here to end." .
-"A \\newline or \\\\ command appears between paragraphs, where it makes no
+     "A \\newline or \\\\ command appears between paragraphs, where it makes no
 sense. If you're trying to ``leave a blank line'', use a \\vspace
 command.")
 
     ("This may be a LaTeX bug." .
-"LaTeX has become thoroughly confused. This is probably due to a
+     "LaTeX has become thoroughly confused. This is probably due to a
 previously detected error, but it is possible that you have found an
 error in LaTeX itself. If this is the first error message produced by
 the input file and you can't find anything wrong, save the file and
 contact the person listed in your Local Guide.")
 
     ("Too deeply nested." .
-"There are too many list-making environments nested within one another.
+     "There are too many list-making environments nested within one another.
 How many levels of nesting are permitted may depend upon what computer
 you are using, but at least four levels are provided, which should be
 enough.")
 
     ("Too many unprocessed floats." .
-"While this error can result from having too many \\marginpar commands
+     "While this error can result from having too many \\marginpar commands
 on a page, a more likely cause is forcing LaTeX to save more figures
 and tables than it has room for.  When typesetting its continuous
 scroll, LaTeX saves figures and tables separately and inserts them as
@@ -2270,38 +2778,38 @@ argument says it must go. This is likely to happen if the argument
 does not contain a p option.")
 
     ("Undefined tab position." .
-"A \\>, \\+, \\-, or \\< command is trying to go to a nonexistent tab
+     "A \\>, \\+, \\-, or \\< command is trying to go to a nonexistent tab
 position---one not defined by a \\= command.")
 
     ("\\\\< in mid line." .
-"A \\< command appears in the middle of a line in a tabbing environment.
+     "A \\< command appears in the middle of a line in a tabbing environment.
 This command should come only at the beginning of a line.")
 
     ("Double subscript." .
-"There are two subscripts in a row in a mathematical
+     "There are two subscripts in a row in a mathematical
 formula---something like x_{2}_{3}, which makes no sense.")
 
     ("Double superscript." .
-"There are two superscripts in a row in a mathematical
+     "There are two superscripts in a row in a mathematical
 formula---something like x^{2}^{3}, which makes no sense.")
 
     ("Extra alignment tab has been changed to \\\\cr." .
-"There are too many separate items (column entries) in a single row of
+     "There are too many separate items (column entries) in a single row of
 an array or tabular environment. In other words, there were too many &
 's before the end of the row. You probably forgot the \\\\ at the end of
 the preceding row.")
 
     ("Extra \\}, or forgotten \\$." .
-"The braces or math mode delimiters don't match properly. You probably
+     "The braces or math mode delimiters don't match properly. You probably
 forgot a {, \\[, \\(, or $.")
 
     ("Font [^ ]* not loaded: Not enough room left." .
-"The document uses more fonts than TeX has room for. If different parts
+     "The document uses more fonts than TeX has room for. If different parts
 of the document use different fonts, then you can get around the
 problem by processing it in parts.")
 
     ("I can't find file `.*'." .
-"TeX can't find a file that it needs. If the name of the missing file
+     "TeX can't find a file that it needs. If the name of the missing file
 has the extension tex, then it is looking for an input file that you
 specified---either your main file or another file inserted with an
 \\input or \\include command. If the missing file has the extension sty
@@ -2309,7 +2817,7 @@ specified---either your main file or another file inserted with an
 option.")
 
     ("Illegal parameter number in definition of .*" .
-"This is probably caused by a \\newcommand, \\renewcommand,
+     "This is probably caused by a \\newcommand, \\renewcommand,
 \\newenvironment, or \\renewenvironment command in which a # is used
 incorrectly.  A # character, except as part of the command name \\#,
 can be used only to indicate an argument parameter, as in #2, which
@@ -2319,7 +2827,7 @@ like #2 in the last argument of a \\newenvironment or \\renewenvironment
 command.")
 
     ("Illegal unit of measure ([^ ]* inserted)." .
-"If you just got a
+     "If you just got a
 
       ! Missing number, treated as zero.
 
@@ -2331,16 +2839,16 @@ should result in correct output. However, the error can also be caused
 by omitting a command argument.")
 
     ("Misplaced alignment tab character \\&." .
-"The special character &, which should be used only to separate items
+     "The special character &, which should be used only to separate items
 in an array or tabular environment, appeared in ordinary text. You
 probably meant to type \\&.")
 
     ("Missing control sequence inserted." .
-"This is probably caused by a \\newcommand, \\renewcommand, \\newlength,
+     "This is probably caused by a \\newcommand, \\renewcommand, \\newlength,
 or \\newsavebox command whose first argument is not a command name.")
 
     ("Missing number, treated as zero." .
-"This is usually caused by a LaTeX command expecting but not finding
+     "This is usually caused by a LaTeX command expecting but not finding
 either a number or a length as an argument. You may have omitted an
 argument, or a square bracket in the text may have been mistaken for
 the beginning of an optional argument. This error is also caused by
@@ -2348,11 +2856,11 @@ putting \\protect in front of either a length command or a command such
 as \\value that produces a number.")
 
     ("Missing [{}] inserted." .
-"TeX has become confused. The position indicated by the error locator
+     "TeX has become confused. The position indicated by the error locator
 is probably beyond the point where the incorrect input is.")
 
     ("Missing \\$ inserted." .
-"TeX probably found a command that can be used only in math mode when
+     "TeX probably found a command that can be used only in math mode when
 it wasn't in math mode.  Remember that unless stated otherwise, all
 all the commands of Section 3.3 in LaTeX Book (Lamport) can be used
 only in math mode. TeX is not in math mode when it begins processing
@@ -2361,28 +2869,28 @@ math environment. This error also occurs if TeX encounters a blank
 line when it is in math mode.")
 
     ("Not a letter." .
-"Something appears in the argument of a \\hyphenation command that
+     "Something appears in the argument of a \\hyphenation command that
 doesn't belong there.")
 
     ("Paragraph ended before [^ ]* was complete." .
-"A blank line occurred in a command argument that shouldn't contain
+     "A blank line occurred in a command argument that shouldn't contain
 one. You probably forgot the right brace at the end of an argument.")
 
     ("\\\\[^ ]*font [^ ]* is undefined .*" .
-"These errors occur when an uncommon font is used in math mode---for
+     "These errors occur when an uncommon font is used in math mode---for
 example, if you use a \\sc command in a formula inside a footnote,
 calling for a footnote-sized small caps font.  This problem is solved
 by using a \\load command.")
 
     ("Font .* not found." .
-"You requested a family/series/shape/size combination that is totally
+     "You requested a family/series/shape/size combination that is totally
 unknown.  There are two cases in which this error can occur:
   1) You used the \\size macro to select a size that is not available.
   2) If you did not do that, go to your local `wizard' and
      complain fiercely that the font selection tables are corrupted!")
 
     ("TeX capacity exceeded, sorry .*" .
-"TeX has just run out of space and aborted its execution. Before you
+     "TeX has just run out of space and aborted its execution. Before you
 panic, remember that the least likely cause of this error is TeX not
 having the capacity to process your document.  It was probably an
 error in your input file that caused TeX to run out of room. The
@@ -2483,14 +2991,14 @@ turn has a \\footnotesize declaration whose scope contains a \\multiput
 command containing a ....")
 
     ("Text line contains an invalid character." .
-"The input contains some strange character that it shouldn't. A mistake
+     "The input contains some strange character that it shouldn't. A mistake
 when creating the file probably caused your text editor to insert this
 character. Exactly what could have happened depends upon what text
 editor you used. If examining the input file doesn't reveal the
 offending character, consult the Local Guide for suggestions.")
 
     ("Undefined control sequence."   .
-"TeX encountered an unknown command name. You probably misspelled the
+     "TeX encountered an unknown command name. You probably misspelled the
 name. If this message occurs when a LaTeX command is being processed,
 the command is probably in the wrong place---for example, the error
 can be produced by an \\item command that's not inside a list-making
@@ -2498,43 +3006,43 @@ environment. The error can also be caused by a missing \\documentclass
 command.")
 
     ("Use of [^ ]* doesn't match its definition." .
-"It's probably one of the picture-drawing commands, and you have used
+     "It's probably one of the picture-drawing commands, and you have used
 the wrong syntax for specifying an argument. If it's \\@array that
 doesn't match its definition, then there is something wrong in an
 @-expression in the argument of an array or tabular
 environment---perhaps a fragile command that is not \\protect'ed.")
 
     ("You can't use `macro parameter character \\#' in [^ ]* mode." .
-"The special character # has appeared in ordinary text. You probably
+     "The special character # has appeared in ordinary text. You probably
 meant to type \\#.")
 
     ("Overfull \\\\hbox .*" .
-"Because it couldn't find a good place for a line break, TeX put more
+     "Because it couldn't find a good place for a line break, TeX put more
 on this line than it should.")
 
     ("Overfull \\\\vbox .*" .
-"Because it couldn't find a good place for a page break, TeX put more
+     "Because it couldn't find a good place for a page break, TeX put more
 on the page than it should. ")
 
     ("Underfull \\\\hbox .*" .
-"Check your output for extra vertical space.  If you find some, it was
+     "Check your output for extra vertical space.  If you find some, it was
 probably caused by a problem with a \\\\ or \\newline command---for
 example, two \\\\ commands in succession. This warning can also be
 caused by using the sloppypar environment or \\sloppy declaration, or
 by inserting a \\linebreak command.")
 
     ("Underfull \\\\vbox .*" .
-"TeX could not find a good place to break the page, so it produced a
+     "TeX could not find a good place to break the page, so it produced a
 page without enough text on it. ")
 
-;; New list items should be placed here
-;;
-;; ("err-regexp" . "context")
-;;
-;; the err-regexp item should match anything
+    ;; New list items should be placed here
+    ;;
+    ;; ("err-regexp" . "context")
+    ;;
+    ;; the err-regexp item should match anything
 
     (".*" . "No help available"))	; end definition
-"A list of the form (\"err-regexp\" . \"context\") used by function
+  "A list of the form (\"err-regexp\" . \"context\") used by function
 `TeX-help-error' to display help-text on an error message or warning.
 err-regexp should be a regular expression matching the error message
 given from TeX/LaTeX, and context should be some lines describing that
@@ -2696,6 +3204,21 @@ forward, if negative)."
   (interactive "p")
   (TeX-error-overview-next-error (- arg)))
 
+(defun TeX-error-overview-jump-to-source ()
+  "Display the help and move point to the error source."
+  (interactive)
+  (TeX-error-overview-goto-source)
+  (pop-to-buffer
+   (save-window-excursion
+     (select-window TeX-error-overview-orig-window)
+     (current-buffer))))
+
+(defun TeX-error-overview-goto-log ()
+  "Display the current error in log buffer."
+  (interactive)
+  (let ((TeX-display-help 'expert))
+    (TeX-error-overview-goto-source)))
+
 (defun TeX-error-overview-quit ()
   "Delete the window or the frame of the error overview."
   (interactive)
@@ -2707,6 +3230,8 @@ forward, if negative)."
 (defvar TeX-error-overview-mode-map
   (let ((map (make-sparse-keymap))
 	(menu-map (make-sparse-keymap)))
+    (define-key map "j"    'TeX-error-overview-jump-to-source)
+    (define-key map "l"    'TeX-error-overview-goto-log)
     (define-key map "n"    'TeX-error-overview-next-error)
     (define-key map "p"    'TeX-error-overview-previous-error)
     (define-key map "q"    'TeX-error-overview-quit)
@@ -2714,11 +3239,29 @@ forward, if negative)."
     map)
   "Local keymap for `TeX-error-overview-mode' buffers.")
 
+(easy-menu-define TeX-error-overview-menu
+  TeX-error-overview-mode-map
+  "Menu used in TeX error overview mode."
+  (TeX-menu-with-help
+   '("TeX errors"
+     ["Next error" TeX-error-overview-next-error
+      :help "Jump to the next error"]
+     ["Previous error" TeX-error-overview-previous-error
+      :help "Jump to the previous error"]
+     ["Go to source" TeX-error-overview-goto-source
+      :help "Show the error in the source"]
+     ["Jump to source" TeX-error-overview-jump-to-source
+      :help "Move point to the error in the source"]
+     ["Go to log" TeX-error-overview-goto-log
+      :help "Show the error in the log buffer"]
+     ["Quit" TeX-error-overview-quit
+      :help "Quit"])))
+
 (defvar TeX-error-overview-list-entries nil
   "List of errors to be used in the error overview.")
 
 (define-derived-mode TeX-error-overview-mode tabulated-list-mode
-  "TeX errors"
+		     "TeX errors"
   "Major mode for listing TeX errors."
   (setq tabulated-list-format [("File" 25 nil)
                                ("Line" 4 nil :right-align t)
@@ -2727,7 +3270,8 @@ forward, if negative)."
         tabulated-list-padding 1
         tabulated-list-entries TeX-error-overview-list-entries)
   (tabulated-list-init-header)
-  (tabulated-list-print))
+  (tabulated-list-print)
+  (easy-menu-add TeX-error-overview-menu TeX-error-overview-mode-map))
 
 (defcustom TeX-error-overview-frame-parameters
   '((name . "TeX errors")
@@ -2799,7 +3343,7 @@ forward, if negative)."
 					   TeX-error-overview-buffer-name)
 			(set-window-dedicated-p (selected-window) t))
 		    (TeX-pop-to-buffer TeX-error-overview-buffer-name))))
-	    (error "No errror or warning to show"))
+	    (error "No error or warning to show"))
 	(error "No process for this document"))
     (error "Error overview is available only in Emacs 24 or later")))
 
@@ -2853,13 +3397,13 @@ forward, if negative)."
   "Keymap for `TeX-output-mode'.")
 
 (define-derived-mode TeX-output-mode TeX-special-mode "TeX Output"
-    "Major mode for viewing TeX output.
+  "Major mode for viewing TeX output.
 \\{TeX-output-mode-map} "
-    :syntax-table nil
-    (set (make-local-variable 'revert-buffer-function)
-	 #'TeX-output-revert-buffer)
-    ;; special-mode makes it read-only which prevents input from TeX.
-    (setq buffer-read-only nil))
+  :syntax-table nil
+  (set (make-local-variable 'revert-buffer-function)
+       #'TeX-output-revert-buffer)
+  ;; special-mode makes it read-only which prevents input from TeX.
+  (setq buffer-read-only nil))
 
 (defun TeX-output-revert-buffer (ignore-auto noconfirm)
   "Rerun the TeX command which of which this buffer was the output."
@@ -2872,7 +3416,7 @@ forward, if negative)."
           (TeX-command name (if (string-match "_region_" file)
                                 'TeX-region-file
                               'TeX-master-file))))
-    (error "Unable to find what command to run.")))
+    (error "Unable to find what command to run")))
 
 (provide 'tex-buf)
 

@@ -1,0 +1,488 @@
+The main purpose of this package is the extraction of certain
+environments (most notably displayed formulas) from @LaTeX{} sources
+as graphics.  This works with @acronym{DVI} files postprocessed by either
+Dvips and Ghostscript or dvipng, but it also works when you are
+using PDF@TeX{} for generating PDF files (usually also postprocessed
+by Ghostscript).
+
+Current uses of the package include the @previewlatex{} package for
+WYSIWYG functionality in the @AUCTeX{} editing environment,
+generation of previews in LyX, as part of the operation of the
+ps4pdf package, the tbook XML system and some other tools.
+
+Producing @acronym{EPS} files with Dvips and its derivatives using the
+@option{-E} option is not a good alternative: People make do by
+fiddling around with @code{\thispagestyle@{empty@}} and hoping for the best
+(namely, that the specified contents will indeed fit on single
+pages), and then trying to guess the baseline of the resulting code
+and stuff, but this is at best dissatisfactory.  The preview package
+provides an easy way to ensure that exactly one page per request
+gets shipped, with a well-defined baseline and no page decorations.
+While you still can use the preview package with the `classic'
+
+@example
+dvips -E -i
+@end example
+
+@noindent
+invocation, there are better ways available that don't rely on Dvips
+not getting confused by PostScript specials.
+
+For most applications, you'll want to make use of the @code{tightpage}
+option.  This will embed the page dimensions into the PostScript or
+PDF code, obliterating the need to use the @code{-E -i} options to Dvips.
+You can then produce all image files with a single run of
+Ghostscript from a single PDF or PostScript (as opposed to @acronym{EPS})
+file.
+
+Various options exist that will pass @TeX{} dimensions and other
+information about the respective shipped out material (including
+descender size) into the log file, where external applications might
+make use of it.
+
+The possibility for generating a whole set of graphics with a single
+run of Ghostscript (whether from @LaTeX{} or PDF@LaTeX{}) increases
+both speed and robustness of applications.  It is also feasible to
+use dvipng on a @acronym{DVI} file with the options
+
+@example
+-picky -noghostscript
+@end example
+
+@noindent
+to omit generating any image file that requires Ghostscript, then
+let a script generate all missing files using Dvips/Ghostscript.
+This will usually speed up the process significantly.
+
+@menu
+* Package options::
+* Provided commands::
+@end menu
+
+@node Package options, Provided commands, The LaTeX style file, The LaTeX style file
+@subsection Package options
+The package is included with the customary
+
+@example
+\usepackage[@var{options}]@{preview@}
+@end example
+
+@noindent
+You should usually load this package as the last one, since it
+redefines several things that other packages may also provide.
+
+The following options are available:
+
+@table @w
+@item @code{active}
+is the most essential option.  If this option is not
+specified, the @code{preview} package will be inactive and the document
+will be typeset as if the @code{preview} package were not loaded,
+except that all declarations and environments defined by the
+package are still legal but have no effect.  This allows defining
+previewing characteristics in your document, and only activating
+them by calling @LaTeX{} as
+
+@example
+latex '\PassOptionsToPackage@{active@}@{preview@} \input@{@var{filename}@}'
+@end example
+
+@item @code{noconfig}
+Usually the file @file{prdefault.cfg} gets loaded
+whenever the @code{preview} package gets activated.  @file{prdefault.cfg} is
+supposed to contain definitions that can cater for otherwise bad
+results, for example, if a certain document class would otherwise
+lead to trouble.  It also can be used to override any settings
+made in this package, since it is loaded at the very end of it.
+In addition, there may be configuration files specific for certain
+@code{preview} options like @code{auctex} which have more immediate needs.
+The @code{noconfig} option suppresses loading of those option files,
+too.
+@item @code{psfixbb}
+Dvips determines the bounding boxes from the
+material in the @acronym{DVI} file it understands.  Lots of PostScript
+specials are not part of that.  Since the @TeX{} boxes do not make
+it into the @acronym{DVI} file, but merely characters, rules and specials
+do, Dvips might include far too small areas.  The option @code{psfixbb}
+will include @file{/dev/null} as a graphic file in the ultimate upper
+left and lower right corner of the previewed box.  This will make
+Dvips generate an appropriate bounding box.
+@item @code{dvips}
+If this option is specified as a class option or to
+other packages, several packages pass things like page size
+information to Dvips, or cause crop marks or draft messages
+written on pages.  This seriously hampers the usability of
+previews.  If this option is specified, the changes will be undone
+if possible.
+@item @code{pdftex}
+If this option is set, PDF@TeX{} is assumed as the
+output driver.  This mainly affects the @code{tightpage} option.
+@item @code{xetex}
+If this option is set, Xe@TeX{} is assumed as the
+output driver.  This mainly affects the @code{tightpage} option.
+@item @code{displaymath}
+will make all displayed math environments
+subject to preview processing.  This will typically be the most
+desired option.
+@item @code{floats}
+will make all float objects subject to preview
+processing.  If you want to be more selective about what floats to
+pass through to a preview, you should instead use the
+@code{\PreviewSnarfEnvironment} command on the floats you want to
+have previewed.
+@item @code{textmath}
+will make all text math subject to previews.
+Since math mode is used throughly inside of @LaTeX{} even for other
+purposes, this works by redefining @code{\(}, @code{\)}
+and @code{$} and the @code{math} environment (apparently some people use
+that).  Only occurences of these text math delimiters in later
+loaded packages and in the main document will thus be affected.
+@item @code{graphics}
+will subject all @code{\includegraphics} commands
+to a preview.
+@item @code{sections}
+will subject all section headers to a preview.
+@item @code{delayed}
+will delay all activations and redefinitions the
+@code{preview} package makes until @code{\}@code{begin@{document@}}.  The purpose
+of this is to cater for documents which should be subjected to the
+@code{preview} package without having been prepared for it.  You can
+process such documents with
+
+@example
+latex '\RequirePackage[active,delayed,@var{options}]@{preview@}
+\input@{@var{filename}@}'
+@end example
+
+@noindent
+This relaxes the requirement to be loading the @code{preview} package
+as last package.
+@item @var{driver}
+loads a special driver file
+@file{pr@var{driver}.def}.  The remaining options are implemented
+through the use of driver files.
+@item @code{auctex}
+This driver will produce fake error messages at the
+start and end of every preview environment that enable the Emacs
+package @previewlatex{} in connection with @AUCTeX{} to pinpoint
+the exact source location where the previews have originated.
+Unfortunately, there is no other reliable means of passing the
+current @TeX{} input position @emph{in} a line to external
+programs.  In order to make the parsing more robust, this option
+also switches off quite a few diagnostics that could be
+misinterpreted.
+
+You should not specify this option manually, since it will only be
+needed by automated runs that want to parse the pseudo error
+messages.  Those runs will then use @code{\PassOptionsToPackage} in
+order to effect the desired behaviour.  In addition,
+@file{prauctex.cfg} will get loaded unless inhibited by the @code{noconfig}
+option.  This caters for the most frequently encountered
+problematic commands.
+@item @code{showlabels}
+During the editing process, some people like to
+see the label names in their equations, figures and the like.  Now
+if you are using Emacs for editing, and in particular
+@previewlatex{}, I'd strongly recommend that you check out the
+Ref@TeX{} package which pretty much obliterates the need for this
+kind of functionality.  If you still want it, standard @LaTeX{}
+provides it with the @code{showkeys} package, and there is also the
+less encompassing @code{showlabels} package.  Unfortunately, since
+those go to some pain not to change the page layout and spacing,
+they also don't change @code{preview}'s idea of the @TeX{} dimensions of
+the involved boxes.  So if you are using @code{preview} for determing
+bounding boxes, those packages are mostly useless.  The option
+@code{showlabels} offers a substitute for them.
+@item @code{tightpage}
+It is not uncommon to want to use the results of
+@code{preview} as graphic images for some other application.  One
+possibility is to generate a flurry of @acronym{EPS} files with
+
+@example
+dvips -E -i -Pwww -o @var{outputfile}.000 @var{inputfile}
+@end example
+
+@noindent
+However, in case those are to be processed further into graphic
+image files by Ghostscript, this process is inefficient since all
+of those files need to be processed one by one.  In addition, it
+is necessary to extract the bounding box comments from the @acronym{EPS}
+files and convert them into page dimension parameters for
+Ghostscript in order to avoid full-page graphics.  This is not
+even possible if you wanted to use Ghostscript in a@w{ }@emph{single}
+run for generating the files from a single PostScript file, since
+Dvips will in that case leave no bounding box information
+anywhere.
+
+The solution is to use the @code{tightpage} option.  That way a single
+command line like
+
+@example
+@option{gs -sDEVICE=png16m -dTextAlphaBits=4 -r300
+-dGraphicsAlphaBits=4 -dSAFER -q -dNOPAUSE
+-sOutputFile=@var{outputfile}%d.png @var{inputfile}.ps}
+@end example
+
+@noindent
+will be able to produce tight graphics from a single PostScript
+file generated with Dvips @emph{without} use of the options
+@code{-E -i}, in a single run.
+
+The @code{tightpage} option actually also works when using the @code{pdftex}
+option and generating PDF files with PDF@TeX{}.  The resulting PDF
+file has separate page dimensions for every page and can directly
+be converted with one run of Ghostscript into image files.
+
+If neither @code{dvips} or @code{pdftex} have been specified, the
+corresponding option will get autodetected and invoked.
+
+If you need this in a batch environment where you don't want to
+use @code{preview}'s automatic extraction facilities, no problem: just
+don't use any of the extraction options, and wrap everything to be
+previewed into @code{preview} environments.  This is how LyX does its
+math previews.
+
+If the pages under the @code{tightpage} option are just too tight, you
+can adjust by setting the length @code{\PreviewBorder} to a different
+value by using @code{\setlength}.  The default value is
+@file{0.50001bp}, which is half of a usual PostScript point, rounded
+up.  If you go below this value, the resulting page size may drop
+below @code{1bp}, and Ghostscript does not seem to like that.  If you
+need finer control, you can adjust the bounding box dimensions
+individually by changing the macro @code{\PreviewBbAdjust} with the
+help of @code{\renewcommand}.  Its default value is
+
+@example
+\newcommand \PreviewBbAdjust
+@{-\PreviewBorder -\PreviewBorder
+\PreviewBorder  \PreviewBorder@}
+@end example
+
+@noindent
+This adjusts the left, lower, right and upper borders by the given
+amount.  The macro must contain 4@w{ }@TeX{} dimensions after another,
+and you may not omit the units if you specify them explicitly
+instead of by register.  PostScript points have the unit@w{ }@code{bp}.
+@item @code{lyx}
+This option is for the sake of LyX developers.  It will
+output a few diagnostics relevant for the sake of LyX' preview
+functionality (at the time of writing, mostly implemented for math
+insets, in versions of LyX starting with 1.3.0).
+@item @code{counters}
+This writes out diagnostics at the start and the
+end of previews.  Only the counters changed since the last output
+get written, and if no counters changed, nothing gets written at
+all.  The list consists of counter name and value, both enclosed
+in @code{@{@}} braces, followed by a space.  The last such pair is
+followed by a colon (@code{:}) if it is at the start of the preview
+snippet, and by a period (@file{.}) if it is at the end.  The order of
+different diagnostics like this being issued depends on the order
+of the specification of the options when calling the package.
+
+Systems like @previewlatex{} use this for keeping counters accurate
+when single previews are regenerated.
+@item @code{footnotes}
+This makes footnotes render as previews, and only
+as their footnote symbol.  A convenient editing feature inside of
+Emacs.
+@end table
+
+The following options are just for debugging purposes of the package
+and similar to the corresponding @TeX{} commands they allude to:
+
+@table @w
+@item @code{tracingall}
+causes lots of diagnostic output to appear in
+the log file during the preview collecting phases of @TeX{}'s
+operation.  In contrast to the similarly named @TeX{} command, it
+will not switch to @code{\errorstopmode}, nor will it change the
+setting of @code{\tracingonline}.
+@item @code{showbox}
+This option will show the contents of the boxes
+shipped out to the @acronym{DVI} files.  It also sets @code{\showboxbreadth} and
+@code{\showboxdepth} to their maximum values at the end of loading this
+package, but you may reset them if you don't like that.
+@end table
+
+@node Provided commands, ,Package options, The LaTeX style file
+@subsection Provided commands
+
+@table @code
+@item \begin@{preview@}@dots{}\end@{preview@}
+The @code{preview} environment causes its contents
+to be set as a single preview image.  Insertions like figures and
+footnotes (except those included in minipages) will typically lead
+to error messages or be lost.  In case the @code{preview} package has not
+been activated, the contents of this environment will be typeset
+normally.
+
+@item \begin@{nopreview@}@dots{}\end@{nopreview@}
+The @code{nopreview} environment will cause its
+contents not to undergo any special treatment by the @code{preview}
+package.  When @code{preview} is active, the contents will be discarded
+like all main text that does not trigger the @code{preview} hooks.  When
+@code{preview} is not active, the contents will be typeset just like the
+main text.
+
+Note that both of these environments typeset things as usual when
+preview is not active.  If you need something typeset conditionally,
+use the @code{\ifPreview} conditional for it.
+
+@item \PreviewMacro
+If you want to make a macro like
+@findex \PreviewMacro
+@code{\includegraphics} (actually, this is what is done by the
+@code{graphics} option to @code{preview}) produce a preview image, you put a
+declaration like
+
+@example
+\PreviewMacro[*[[!]@{\includegraphics@}
+@end example
+
+@noindent
+or, more readable,
+
+@example
+\PreviewMacro[@{*[][]@{@}@}]@{\includegraphics@}
+@end example
+
+@noindent
+into your preamble.  The optional argument to @code{\PreviewMacro}
+specifies the arguments @code{\includegraphics} accepts, since this
+is necessary information for properly ending the preview box.  Note
+that if you are using the more readable form, you have to enclose
+the argument in a @code{[@{} and @code{@}]} pair.  The inner braces are
+necessary to stop any included @code{[]} pairs from prematurely ending
+the optional argument, and to make a single @code{@{@}}
+denoting an optional argument not get stripped away by @TeX{}'s
+argument parsing.
+
+The letters simply mean
+
+@table @w
+@item @code{*}
+indicates an optional @code{*} modifier, as in
+@code{\includegraphics*}.
+@item @code{[}
+^^A]
+indicates an optional argument in brackets.  This syntax
+is somewhat baroque, but brief.
+@item @code{[]}
+also indicates an optional argument in brackets.  Be
+sure to have encluded the entire optional argument specification
+in an additional pair of braces as described above.
+@item @code{!}
+indicates a mandatory argument.
+@item @code{@{@}}
+indicates the same.  Again, be sure to have
+that additional level of braces around the whole argument
+specification.
+@item @code{?}@var{delimiter}@{@var{true case}@}@{@var{false case}@}
+is a
+conditional.  The next character is checked against being equal to
+@var{delimiter}.  If it is, the specification @var{true case} is
+used for the further parsing, otherwise @var{false case} will be
+employed.  In neither case is something consumed from the input,
+so @{@var{true case}@} will still have to deal with the upcoming
+delimiter.
+@item @code{@@}@{@var{literal sequence}@}
+will insert the given sequence
+literally into the executed call of the command.
+@item @code{-}
+will just drop the next token.  It will probably be most
+often used in the true branch of a @code{?} specification.
+@item @code{#}@{@var{argument}@}@{@var{replacement}@}
+is a transformation
+rule that calls a macro with the given argument and replacement
+text on the rest of the argument list.  The replacement is used in
+the executed call of the command.  This can be used for parsing
+arbitrary constructs.  For example, the @code{[]} option could manually
+be implemented with the option string @code{?[@{#@{[#1]@}@{[@{#1@}]@}@}@{@}}.
+PStricks users might enjoy this sort of flexibility.
+@item @code{:}@{@var{argument}@}@{@var{replacement}@}
+is again a
+transformation rule.  As opposed to @code{#}, however, the result of
+the transformation is parsed again.  You'll rarely need this.
+@end table
+
+
+There is a second optional argument in brackets that can be used to
+declare any default action to be taken instead.  This is mostly for
+the sake of macros that influence numbering: you would want to keep
+their effects in that respect.  The default action should use @code{#1}
+for referring to the original (not the patched) command with the
+parsed options appended.  Not specifying a second optional argument
+here is equivalent to specifying@w{ }@code{[#1]}.
+
+@item \PreviewMacro*
+A similar invocation
+@code{\PreviewMacro*} simply throws the macro and all of its
+arguments declared in the manner above away.  This is mostly useful
+for having things like @code{\footnote} not do their magic on their
+arguments.  More often than not, you don't want to declare any
+arguments to scan to @code{\PreviewMacro*} since you would want the
+remaining arguments to be treated as usual text and typeset in that
+manner instead of being thrown away.  An exception might be, say,
+sort keys for @code{\cite}.
+
+A second optional argument in brackets can be used to declare any
+default action to be taken instead.  This is for the sake of macros
+that influence numbering: you would want to keep their effects in
+that respect.  The default action might use @code{#1} for referring to
+the original (not the patched) command with the parsed options
+appended.  Not specifying a second optional argument here is
+equivalent to specifying@w{ }@code{[]} since the command usually gets thrown
+away.
+
+As an example for using this argument, you might want to specify
+
+@example
+\PreviewMacro*\footnote[@{[]@}][#1@{@}]
+@end example
+
+@noindent
+This will replace a footnote by an empty footnote, but taking any
+optional parameter into account, since an optional paramter changes
+the numbering scheme.  That way the real argument for the footnote
+remains for processing by @previewlatex{}.
+
+@item \PreviewEnvironment
+The macro
+@findex \PreviewEnvironment
+@code{\PreviewEnvironment} works just as @code{\PreviewMacro} does,
+only for environments.  @item \PreviewEnvironment*
+And the
+same goes for @code{\PreviewEnvironment*} as compared to
+@code{\PreviewMacro*}.
+
+@item \PreviewSnarfEnvironment
+This macro does not typeset
+the original environment inside of a preview box, but instead
+typesets just the contents of the original environment inside of the
+preview box, leaving nothing for the original environment.  This has
+to be used for figures, for example, since they would
+
+@enumerate
+@item produce insertion material that cannot be extracted to the
+preview properly,
+@item complain with an error message about not being in outer par
+mode.
+@end enumerate
+
+
+@item \PreviewOpen
+@item \PreviewClose
+Those Macros form a matched preview pair.  This is for macros that
+behave similar as @code{\begin} and @code{\end} of an environment.  It
+is essential for the operation of @code{\PreviewOpen} that the macro
+treated with it will open an additional group even when the preview
+falls inside of another preview or inside of a @code{nopreview}
+environment.  Similarly, the macro treated with @code{PreviewClose}
+will close an environment even when inactive.
+
+@item \ifPreview
+In case you need to know whether
+@code{preview} is active, you can use the conditional @code{\ifPreview}
+together with @code{\else} and @code{\fi}.
+
+@end table

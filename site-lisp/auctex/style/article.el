@@ -14,7 +14,8 @@
    (LaTeX-largest-level-set "section")
    (LaTeX-add-counters "part" "section" "subsection" "subsubsection" "paragraph"
 		       "subparagraph" "figure" "table")
-   (LaTeX-add-pagestyles "headings" "myheadings"))
+   (LaTeX-add-pagestyles "headings" "myheadings")
+   (LaTeX-add-environments "abstract"))
  LaTeX-dialect)
 
 ;;; article.el ends here

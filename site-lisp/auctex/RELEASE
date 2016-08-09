@@ -1,4 +1,4 @@
-Release notes for AUCTeX 11.88 with preview-latex
+Release notes for AUCTeX 11.89 with preview-latex
 =================================================
 
 AUCTeX provides by far the most wide-spread and sophisticated
@@ -25,91 +25,54 @@ sleuth work, testing.
 New features and fixed bugs in this release
 -------------------------------------------
 
-'TeX-PDF-mode' is now enabled by default.
+You can now run all commands needed to compile a document and then
+open the viewer with a single command: 'TeX-command-run-all', bound
+to 'C-c C-a'.
 
-Now 'TeX-previous-error' works with TeX commands if the new option
-'TeX-parse-all-errors' is non-nil, which is the default.  When this
-option is non-nil, an overview of errors and warnings reported by the
-TeX compiler can be opened with 'M-x TeX-error-overview <RET>'.
+Commands such as LaTeX and View can now be executed conveniently on
+the current section (or part, chapter, subsection, etc).  See
+'LaTeX-command-section' and 'LaTeX-command-section-change-level'.
 
-Style file authors are encouraged to distinguish common from expert
-macros and environments, and mark the latter using
-'TeX-declare-expert-macros' and 'LaTeX-declare-expert-environments'.
-Users can then restrict completion using
-'TeX-complete-expert-commands'.
+Forward and backward search with Evince now also work when only a
+region of the document is compiled/viewed.
 
-Management of LaTeX package options in the parser was improved.  You
-might need to reparse your documents, especially if you loaded the
-'babel' package with language options.
+To open the PDF output file you can now use also PDF Tools, a
+document viewer for Emacs.  With it, as a plus, forward and
+backward search is accurate at word level.
 
-Now you can insert '$...$' or '\(...\)' by typing a single '$'.  To do
-this, customize the new option 'TeX-electric-math'.
-'TeX-math-close-double-dollar' was removed.
+With new option 'TeX-PDF-via-dvips-ps2pdf' it is possible to
+compile a document to DVI and then convert it to PDF using
+'dvips'-'ps2pdf' before viewing it.
 
-'C-c <RET> documentclass <RET>' completes with all available LaTeX
-classes, if the 'TeX-arg-input-file-search' variable is non-nil.
-Completion for class options of the standard LaTeX classes is provided
-as well.
+New option 'TeX-file-line-error' allows to select file:line:error
+style for error messages.
 
-New user options 'LaTeX-default-author',
-'LaTeX-fontspec-arg-font-search', 'LaTeX-fontspec-font-list-default',
-'TeX-date-format', and 'TeX-insert-braces-alist'.  A new possible value
-('show-all-optional-args') for 'TeX-insert-macro-default-style' was
-added.  The default value of 'TeX-source-correlate-method' has been
-changed.
+Indent '\[...\]' math mode as a regular environment by default.
 
-'biblatex' support was greatly expanded.  If parsing is enabled, AUCTeX
-looks at 'backend' option to decide whether to use Biber or BibTeX. The
-'LaTeX-biblatex-use-Biber' variable was changed to be file local only
-and is no more customizable.
+Now AUCTeX suggests to run 'makeindex' when appropriate.
 
-With some LaTeX classes, the default environment suggested by
-'LaTeX-environment' ('C-c C-e') when the current environment is
-'document' was changed.  With 'beamer' class the default environment is
-'frame', with 'letter' it is 'letter', with 'slides' it is 'slide'.
+'TeX-view-program-list' can contain, as third optional element of
+each item, the name of the executable(s) needed to open the viewer.
 
-Brace pairing feature was enhanced in LaTeX documents.  Support for
-'\bigl', '\Bigl', '\biggl' and '\Biggl', the same as the one for
-'\left', was added to 'TeX-insert-macro'.  For example, 'C-c <RET> bigl
-<RET> ( <RET>' inserts '\bigl(\bigr)'.
+'TeX-expand-list' variable has been split into 'TeX-expand-list'
+and 'TeX-expand-list-builtin'.  Only the former is intended to be
+customized by the user, the latter contains built-in expanders.
+You might want to keep in 'TeX-expand-list' only new expansion
+strings.
 
-You can insert brace pair '()', '{}' and '[]' by typing a single left
-brace if the new user option 'LaTeX-electric-left-right-brace' is
-enabled.
+When new option 'TeX-check-engine' is non-nil, before running LaTeX
+commands AUCTeX will check whether the correct engine has been set,
+based upon known restrictions posed by LaTeX packages.
 
-Macros '\langle', '\lfloor' and '\lceil', which produce the left part
-of the paired braces, are treated similarly as '(', '{' and '[' during
-the course of 'TeX-insert-macro'.
+Basic support to ConTeXt Mark IV has been added.  Users can now
+select the Mark version to be used with new option
+'ConTeXt-Mark-version', and AUCTeX is able to catch error messages
+in the output log of a Mark IV document.
 
-Support for dozens of LaTeX packages was added.
+Support for tons of LaTeX packages has been addedd.
 
-Tabular-like environments (tabular, tabular*, tabularx, tabulary,
-array, align, ...)  are indented in a nicer and more informative way
-when the column values of a table line are written across multiple
-lines in the tex file.
-
-The suitable number of ampersands are inserted when you insert array,
-tabular and tabular* environments with 'C-c C-e'.  Similar experience
-is obtained if you terminate rows in these environments with 'C-c
-<LFD>'.  It supplies line break macro '\\' and inserts the suitable
-number of ampersands on the next line.  Similar supports are provided
-for various amsmath environments.
-
-Commands for narrowing to a group ('TeX-narrow-to-group') and to LaTeX
-environments ('LaTeX-narrow-to-environment') were added.
-
-Now arbitrary options can be passed to the TeX processor on a per file
-basis using the 'TeX-command-extra-options' option.
-
-Now 'C-c C-e document <RET>', in an empty document, prompts for
-'\usepackage' macros in addition to '\documentclass'.
-
-'TeX-add-style-hook' has now a third argument to tell AUCTeX for which
-dialect (LaTeX, Texinfo or BibTeX) the style hook is registers.
-Labelling style hook by dialect will avoid applying them not in the
-right context.
-
-There have been lots of bug fixes and feature additions.
+Numbers of bugs have been fixed, many minor features have been
+addedd.
 
 Requirements
 ------------
@@ -179,16 +142,16 @@ remains the most effective way of helping AUCTeX development.
 The following people contributed to this release series (in
 alphabetical order): Ivan Andrus, Ralf Angeli, Masayuki Ataka, Fabrice
 Ben Hamouda, Thomas Baumann, Vincent Belaïche, Berend de Boer, Ken
-Brown, Joshua Buhl, Patrice Dumas, Werner Fink, Miguel Frasson, Peter
-S. Galbraith, Mosè Giordano, Patrick Gundlach, Jobst Hoffmann, Tassilo
-Horn, Yvon Hevel, Mads Jensen, Arne Jørgensen, David Kastrup, Ikumi
-Keita, Philip Kime, Oleh Krehel, Joost Kremers, Frank Küster, Jan-Åke
-Larsson, Matthew Leach, Antoine Levitt, Leo Liu, Vladimir Lomov, Stefan
-Monnier, Dan Nicolaescu, Piet van Oostrum, Nicolas Richard, Augusto
-Ritter Stoffel, Florent Rougon, Davide G. M. Salvetti, Rüdiger
-Sonderfeld, Holger Sparr, Mike Sperber, Reiner Steib, Christian
-Schlauer, Shiro Takeda, Mark Trettin (Please accept our apologies if we
-forgot somebody.)
+Brown, Joshua Buhl, Patrice Dumas, Arash Esbati, Werner Fink, Miguel
+Frasson, Peter S. Galbraith, Mosè Giordano, Patrick Gundlach, Jobst
+Hoffmann, Tassilo Horn, Yvon Hevel, Orlando Iovino, Mads Jensen, Arne
+Jørgensen, David Kastrup, Ikumi Keita, Philip Kime, Oleh Krehel, Joost
+Kremers, Frank Küster, Jan-Åke Larsson, Matthew Leach, Antoine Levitt,
+Leo Liu, Vladimir Lomov, Stefan Monnier, Dan Nicolaescu, Piet van
+Oostrum, Nicolas Richard, Augusto Ritter Stoffel, Florent Rougon,
+Santiago Saavedra, Davide G. M. Salvetti, Rüdiger Sonderfeld, Holger
+Sparr, Mike Sperber, Reiner Steib, Christian Schlauer, Shiro Takeda,
+Mark Trettin (Please accept our apologies if we forgot somebody.)
 
 Footnotes: 
 

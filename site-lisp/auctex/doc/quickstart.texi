@@ -228,6 +228,12 @@ When no processor invocation is necessary anymore, @AUCTeX{} will
 suggest to run a viewer, or you can chose to create a PostScript file
 using @command{dvips}, or to directly print it.
 
+Actually, there is another command which comes in handy to compile
+documents: type @kbd{C-c C-a} (@code{TeX-command-run-all}) and @AUCTeX{}
+will compile the document for you until it is ready and then run the
+viewer.  This is the same as issuing repeatedly @kbd{C-c C-c} and
+letting @AUCTeX{} guess the next command to run.
+
 At this place, a warning needs to be given: First, although @AUCTeX{} is
 really good in detecting the standard situations when an additional
 @command{latex} run is necessary, it cannot detect it always.  Second,
@@ -262,6 +268,14 @@ toggles usage of Omega/lambda.
 
 @end table
 
+There is also another possibility: compile the document with
+@command{tex} (or @command{latex}) and then convert the resulting
+@acronym{DVI} file to @acronym{PDF} using
+@command{dvips}--@command{ps2pdf} sequence.  If you want to go by this
+route, when @code{TeX-PDF-via-dvips-ps2pdf} variable is non-nil,
+@AUCTeX{} will suggest you to run the appropriate command when you type
+@kbd{C-C C-c}.  For details, see @ref{Processor Options}.
+
 @subsection Debugging @LaTeX{}
 
 When @AUCTeX{} runs a program, it creates an output buffer in which it
@@ -277,6 +291,10 @@ may be repeated until all errors have been dealt with.  By pressing
 @kbd{C-c C-w} (@code{TeX-toggle-debug-boxes}) you can toggle whether
 @AUCTeX{} should notify you of overfull and underfull boxes in addition
 to regular errors.
+
+If you have a recent version of GNU Emacs (24 or later), issue @kbd{M-x
+TeX-error-overview RET} to see a nicely formatted list of all errors and
+warnings reported by the compiler.
 
 If a command got stuck in a seemingly infinite loop, or you want to stop
 execution for other reasons, you can use @kbd{C-c C-k} (for ``kill'').

@@ -21,7 +21,7 @@ dnl along with AUCTeX; see the file COPYING.  If not, write to the Free
 dnl Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 dnl MA 02110-1301, USA.
 
-AC_INIT(auctex,11.88,bug-auctex@gnu.org)
+AC_INIT(auctex,11.89,bug-auctex@gnu.org)
 
 AC_CHECK_PROGS_REQUIRED(MAKECMD, make, [make not found, aborting!])
 AC_PROG_MAKE_SET

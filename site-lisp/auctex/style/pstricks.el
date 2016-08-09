@@ -776,7 +776,8 @@ comma separated list. Point has to be within the sexp to modify."
 (TeX-add-style-hook
  "pstricks"
  (lambda ()
-   (unless (member "pst-pdf" TeX-active-styles)
+   (unless (or (member "pst-pdf" TeX-active-styles)
+	       (eq TeX-engine 'xetex))
      (TeX-PDF-mode-off))
    (mapc 'TeX-auto-add-regexp LaTeX-auto-pstricks-regexp-list)
    (LaTeX-add-environments

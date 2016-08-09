@@ -116,11 +116,6 @@ plus available through `enumitem' package.")
   "List of description like environments defined by command
 `\\newlist' from `enumitem' package.")
 
-(defvar LaTeX-enumitem-newlist-list-item-arg-local nil
-  "Local list of all description like environments defined by command
-`\\newlist' plus available through `enumitem' package.")
-(make-variable-buffer-local 'LaTeX-enumitem-newlist-list-item-arg-local)
-
 (defvar LaTeX-auto-enumitem-newlist nil
   "Temporary for parsing the arguments of `\\newlist' from
 `enumitem' package.")
@@ -183,7 +178,16 @@ package.")
       (when (or (string-equal type "description")
 		(string-equal type "description*"))
 	(add-to-list 'LaTeX-enumitem-newlist-list-item-arg
-		     (list env))))))
+		     (list env)))))
+  ;; Now add the parsed env's to the local list.
+  (when LaTeX-enumitem-newlist-list
+    (setq LaTeX-enumitem-newlist-list-local
+	  (append LaTeX-enumitem-newlist-list
+		  LaTeX-enumitem-newlist-list-local)))
+  ;; Tell AUCTeX about parsed description like environments.
+  (when LaTeX-enumitem-newlist-list-item-arg
+    (dolist (env LaTeX-enumitem-newlist-list-item-arg)
+      (add-to-list 'LaTeX-item-list `(,(car env) . LaTeX-item-argument)))))
 
 (add-hook 'TeX-auto-prepare-hook #'LaTeX-enumitem-auto-prepare t)
 (add-hook 'TeX-auto-cleanup-hook #'LaTeX-enumitem-auto-cleanup t)
@@ -221,7 +225,7 @@ key-val and the first item."
 		(current-fill-column)))
     (LaTeX-fill-paragraph nil)))
 
-(defun LaTeX-arg-SetEnumitemKey (optional &optional prompt)
+(defun LaTeX-arg-SetEnumitemKey (optional)
   "Ask for a new key to be defined and add it to
 `LaTeX-enumitem-key-val-options-local'."
   (LaTeX-enumitem-update-key-val-options)
@@ -239,7 +243,7 @@ key-val and the first item."
 ;; the elements and pass the result to
 ;; `LaTeX-add-enumitem-SetEnumitemValues'.  It will vanish upon next
 ;; invocation of `C-c C-n'.
-(defun LaTeX-arg-SetEnumitemValue (optional &optional prompt)
+(defun LaTeX-arg-SetEnumitemValue (optional)
   "Ask for a new value added to an existing key incl. the final
 replacement of the value."
   (LaTeX-enumitem-update-key-val-options)
@@ -301,19 +305,6 @@ in `enumitem'-completions."
      (setq LaTeX-enumitem-newlist-list-local
 	   (append '(("itemize*") ("enumerate*") ("description*"))
 		   LaTeX-enumitem-newlist-list-local)))
-
-   ;; Now add the parsed env's to the local list.
-   (setq LaTeX-enumitem-newlist-list-local
-	 (append LaTeX-enumitem-newlist-list
-		 LaTeX-enumitem-newlist-list-local))
-
-   ;; Move parsed description like env's into a local variable.
-   (setq LaTeX-enumitem-newlist-list-item-arg-local
-	 LaTeX-enumitem-newlist-list-item-arg)
-
-   ;; Tell AUCTeX about special items parsed
-   (dolist (env LaTeX-enumitem-newlist-list-item-arg-local)
-    (add-to-list 'LaTeX-item-list `(,(car env) . LaTeX-item-argument)))
 
    ;; Standard env's take key-val as optional argument.
    (LaTeX-add-environments
@@ -403,6 +394,7 @@ in `enumitem'-completions."
 
     ;; Just add the braces and let the user do the rest.
     '("AddEnumerateCounter" 3)
+    '("AddEnumerateCounter*" 3)
 
     ;; This command only makes sense for enumerate type environments.
     ;; Currently, we offer all defined env's -- to be improved
@@ -431,7 +423,7 @@ in `enumitem'-completions."
      (font-latex-add-keywords '(("newlist"             "{{{")
 				("renewlist"           "{{{")
 				("setlist"             "*[{")
-				("AddEnumerateCounter" "{{{")
+				("AddEnumerateCounter" "*{{{")
 				("SetEnumitemKey"      "{{" )
 				("SetEnumitemValue"    "{{{"))
 			      'function)

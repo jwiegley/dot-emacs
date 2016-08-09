@@ -1,6 +1,6 @@
 ;;; ragged2e.el --- AUCTeX style for `ragged2e.sty'
 
-;; Copyright (C) 2011 Free Software Foundation, Inc.
+;; Copyright (C) 2011, 2015 Free Software Foundation, Inc.
 
 ;; Author: Mads Jensen <mje@inducks.org>
 ;; Created: 2011-04-16
@@ -33,28 +33,26 @@
  "ragged2e"
  (lambda ()
    (TeX-add-symbols
-    "CenteringLeftskip"
-    "RaggedLeftLeftskip"
-    "RaggedRightLeftskip"
-    "CenteringRightskip"
-    "RaggedLeftRightskip"
-    "RaggedRightRightskip"
-    "CenteringParfillskip"
-    "RaggedLeftParfillskip"
-    "RaggedRightParfillskip"
-    "CenteringParindent"
-    "RaggedLeftParindent"
-    "RaggedRightParindent"
-    "JustifyingParfillskip"
-    "JustifyingParindent"
-    "ttraggedright"
     "Centering"
     "justifying"
     "RaggedRight"
     "RaggedLeft")
 
-   (LaTeX-add-environments 
+   (LaTeX-add-environments
     "FlushLeft" "FlushRight" "Center" "justify")
+
+   (LaTeX-add-lengths
+    ;; \Centering
+    "CenteringLeftskip"     "CenteringRightskip"
+    "CenteringParfillskip"  "CenteringParindent"
+    ;; \RaggedLeft
+    "RaggedLeftLeftskip"    "RaggedLeftRightskip"
+    "RaggedLeftParfillskip" "RaggedLeftParindent"
+    ;; \RaggedRight
+    "RaggedRightLeftskip"   "RaggedRightRightskip"
+    "RaggedRightParindent"  "RaggedRightParfillskip"
+    ;; \justifying
+    "JustifyingParfillskip" "JustifyingParindent")
 
    (TeX-run-style-hooks "footmisc" "everysel"))
  LaTeX-dialect)

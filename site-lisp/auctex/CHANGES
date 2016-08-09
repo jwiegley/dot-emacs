@@ -1,0 +1,739 @@
+Changes and New Features in AUCTeX
+**********************************
+
+News in 11.89
+=============
+
+   * You can now run all commands needed to compile a document and then
+     open the viewer with a single command: 'TeX-command-run-all', bound
+     to 'C-c C-a'.
+
+   * Commands such as LaTeX and View can now be executed conveniently on
+     the current section (or part, chapter, subsection, etc).  See
+     'LaTeX-command-section' and 'LaTeX-command-section-change-level'.
+
+   * Forward and backward search with Evince now also work when only a
+     region of the document is compiled/viewed.
+
+   * To open the PDF output file you can now use also PDF Tools, a
+     document viewer for Emacs.  With it, as a plus, forward and
+     backward search is accurate at word level.
+
+   * With new option 'TeX-PDF-via-dvips-ps2pdf' it is possible to
+     compile a document to DVI and then convert it to PDF using
+     'dvips'-'ps2pdf' before viewing it.
+
+   * New option 'TeX-file-line-error' allows to select file:line:error
+     style for error messages.
+
+   * Indent '\[...\]' math mode as a regular environment by default.
+
+   * Now AUCTeX suggests to run 'makeindex' when appropriate.
+
+   * 'TeX-view-program-list' can contain, as third optional element of
+     each item, the name of the executable(s) needed to open the viewer.
+
+   * 'TeX-expand-list' variable has been split into 'TeX-expand-list'
+     and 'TeX-expand-list-builtin'.  Only the former is intended to be
+     customized by the user, the latter contains built-in expanders.
+     You might want to keep in 'TeX-expand-list' only new expansion
+     strings.
+
+   * Before running commands like TeX and LaTeX, now AUCTeX performs
+     some checks.  If 'TeX-check-TeX' is non-nil, it will test whether a
+     working TeX distribution is actually present in the system and
+     available to Emacs.  Instead, when 'TeX-check-engine' is non-nil,
+     before running LaTeX commands AUCTeX will check whether the correct
+     engine has been set, based upon known restrictions posed by LaTeX
+     packages.
+
+   * Basic support to ConTeXt Mark IV has been added.  Users can now
+     select the Mark version to be used with new option
+     'ConTeXt-Mark-version', and AUCTeX is able to catch error messages
+     in the output log of a Mark IV document.
+
+   * Support for tons of LaTeX packages has been addedd.
+
+   * Numbers of bugs have been fixed, many minor features have been
+     addedd.
+
+News in 11.88
+=============
+
+   * 'TeX-PDF-mode' is now enabled by default.
+
+   * Now 'TeX-previous-error' works with TeX commands if the new option
+     'TeX-parse-all-errors' is non-nil, which is the default.  When this
+     option is non-nil, an overview of errors and warnings reported by
+     the TeX compiler can be opened with 'M-x TeX-error-overview <RET>'.
+
+   * Style file authors are encouraged to distinguish common from expert
+     macros and environments, and mark the latter using
+     'TeX-declare-expert-macros' and
+     'LaTeX-declare-expert-environments'.
+
+     Users can then restrict completion using
+     'TeX-complete-expert-commands'.
+
+   * Management of LaTeX package options in the parser was improved.
+     You might need to reparse your documents, especially if you loaded
+     the 'babel' package with language options.
+
+   * Now you can insert '$...$' or '\(...\)' by typing a single '$'.  To
+     do this, customize the new option 'TeX-electric-math'.
+     'TeX-math-close-double-dollar' was removed.
+
+   * 'C-c <RET> documentclass <RET>' completes with all available LaTeX
+     classes, if the 'TeX-arg-input-file-search' variable is non-nil.
+     Completion for class options of the standard LaTeX classes is
+     provided as well.
+
+   * New user options 'LaTeX-default-author',
+     'LaTeX-fontspec-arg-font-search',
+     'LaTeX-fontspec-font-list-default', 'TeX-date-format', and
+     'TeX-insert-braces-alist'.  A new possible value
+     ('show-all-optional-args') for 'TeX-insert-macro-default-style' was
+     added.  The default value of 'TeX-source-correlate-method' has been
+     changed.
+
+   * 'biblatex' support was greatly expanded.  If parsing is enabled,
+     AUCTeX looks at 'backend' option to decide whether to use Biber or
+     BibTeX. The 'LaTeX-biblatex-use-Biber' variable was changed to be
+     file local only and is no more customizable.
+
+   * With some LaTeX classes, the default environment suggested by
+     'LaTeX-environment' ('C-c C-e') when the current environment is
+     'document' was changed.  With 'beamer' class the default
+     environment is 'frame', with 'letter' it is 'letter', with 'slides'
+     it is 'slide'.
+
+   * Brace pairing feature was enhanced in LaTeX documents.  Support for
+     '\bigl', '\Bigl', '\biggl' and '\Biggl', the same as the one for
+     '\left', was added to 'TeX-insert-macro'.  For example, 'C-c <RET>
+     bigl <RET> ( <RET>' inserts '\bigl(\bigr)'.
+
+     You can insert brace pair '()', '{}' and '[]' by typing a single
+     left brace if the new user option 'LaTeX-electric-left-right-brace'
+     is enabled.
+
+     Macros '\langle', '\lfloor' and '\lceil', which produce the left
+     part of the paired braces, are treated similarly as '(', '{' and
+     '[' during the course of 'TeX-insert-macro'.
+
+   * Support for dozens of LaTeX packages was added.
+
+   * Tabular-like environments (tabular, tabular*, tabularx, tabulary,
+     array, align, ...)  are indented in a nicer and more informative
+     way when the column values of a table line are written across
+     multiple lines in the tex file.
+
+   * The suitable number of ampersands are inserted when you insert
+     array, tabular and tabular* environments with 'C-c C-e'.  Similar
+     experience is obtained if you terminate rows in these environments
+     with 'C-c <LFD>'.  It supplies line break macro '\\' and inserts
+     the suitable number of ampersands on the next line.
+
+     Similar supports are provided for various amsmath environments.
+
+   * Commands for narrowing to a group ('TeX-narrow-to-group') and to
+     LaTeX environments ('LaTeX-narrow-to-environment') were added.
+
+   * Now arbitrary options can be passed to the TeX processor on a per
+     file basis using the 'TeX-command-extra-options' option.
+
+   * Now 'C-c C-e document <RET>', in an empty document, prompts for
+     '\usepackage' macros in addition to '\documentclass'.
+
+   * 'TeX-add-style-hook' has now a third argument to tell AUCTeX for
+     which dialect (LaTeX, Texinfo or BibTeX) the style hook is
+     registers.  Labelling style hook by dialect will avoid applying
+     them not in the right context.
+
+   * There have been lots of bug fixes and feature additions.
+
+News in 11.87
+=============
+
+   * AUCTeX now supports Biber in conjunction with biblatex in addition
+     to BibTeX.
+
+   * Each AUCTeX mode now has its own abbrev table.  On Emacsen which
+     provide the possibility to inherit abbrevs from other tables, the
+     abbrevs from the Text mode abbrev table are available as well.
+     Newly defined abbrevs are written to the mode-specific tables,
+     though.
+
+   * The file 'tex-fptex.el' was removed.
+
+   * Forward/backward search for Evince has been improved.  If Emacs is
+     compiled with DBUS support and a recent Evince version (3.x) is
+     installed, the communication goes over the desktop bus instead of
+     the command line, resulting in more accurate positioning of point
+     in Emacs and highlighting of the target paragraph in Evince.
+
+   * A problem where Ghostscript threw an /invalidfileaccess error when
+     running preview-latex was fixed.
+
+   * A lot of smaller fixes and additions have been made.
+
+News in 11.86
+=============
+
+   * Parsing of LaTeX output was improved.  It is now less likely that
+     AUCTeX opens a non-existent file upon calling 'TeX-next-error'; a
+     problem for example encountered when using MiKTeX 2.8.  In addition
+     quoted file names as emitted by MiKTeX are now supported.
+
+   * A new framework for the definition and selection of viewers was
+     implemented.  If you have customizations regarding viewers you will
+     have to redo them in this new framework or reenable the old one.
+     See the section on viewers in the manual for details.
+
+   * Comprehensive editing support for PSTricks was added.
+
+   * Support for various LaTeX packages was added, e.g.  'tabularx',
+     'CJK', and 'hyperref'.
+
+   * An easy way to switch between TeX engines (PDFTeX, LuaTeX, XeTeX,
+     Omega) was added.
+
+   * Support for SyncTeX was added.  This involves the command line
+     options for LaTeX and the viewer.
+
+   * Folding can now be customized to use macro arguments as replacement
+     text.
+
+   * 'preview.sty' now works with XeTeX.
+
+   * A lot of smaller and larger bugs have been squashed.
+
+News in 11.85
+=============
+
+   * Font locking has been improved significantly.  It is now less prone
+     to color bleeding which could lead to high resource usage.  In
+     addition it now includes information about LaTeX macro syntax and
+     can indicate syntactically incorrect macros in LaTeX mode.
+
+   * The license was updated to GPLv3.
+
+   * Support for the nomencl, flashcards and comment LaTeX packages as
+     well as the Icelandic language option of babel were added.
+
+   * Support for folding of math macros was added.
+
+   * Lots of minor bugs in features and documentation fixed.
+
+News in 11.84
+=============
+
+   * There have been problems with the '-without-texmf-dir' option to
+     'configure' when the value of '-with-kpathsea-sep' was set or
+     determined for an installation system with a default different from
+     that of the runtime system.  'with-kpathsea-sep' has been removed;
+     the setting is now usually determined at runtime.
+
+     Due to this and other problems, preview-latex in the released
+     XEmacs package failed under Windows or with anything except recent
+     21.5 XEmacsen.
+
+   * AUCTeX and preview-latex have been changed in order to accommodate
+     file names containing spaces.  preview-latex now tolerates bad
+     PostScript code polluting the stack (like some Omega fonts).
+
+   * 'preview.sty' had in some cases failed to emit PostScript header
+     specials.
+
+   * Support for folding of comments was added.
+
+   * The 'polish' language option of the babel LaTeX package as well as
+     the polski LaTeX package are now supported.  Most notably this
+     means that AUCTeX will help to insert quotation marks as defined by
+     polish.sty ('"`..."'') and polski.sty (',,...''').
+
+   * The TeX tool bar is now available and enabled by default in plain
+     TeX mode.
+
+   * Bug fix in the display of math subscripts and superscripts.
+
+   * Bug fix 'TeX-doc' for Emacs 21.
+
+   * There has been quite a number of other bug fixes to various
+     features and documentation across the board.
+
+News in 11.83
+=============
+
+   * The new function 'TeX-doc' provides easy access to documentation
+     about commands and packages or information related to TeX and
+     friends in general.  It is accessible with the key binding 'C-c ?'
+     or the 'Find Documentation...' entry in the mode menus.
+
+   * You can now get rid of generated intermediate and output files by
+     means of the new 'Clean' and 'Clean All' entries in
+     'TeX-command-list' accessible with 'C-c C-c' or the Command menu.
+
+   * Support for forward search with PDF files was added.  That means
+     you can jump to a place in the output file corresponding to the
+     position in the source file.  Currently this only works if you use
+     the pdfsync LaTeX package and xpdf as your PDF viewer.  The
+     accuracy is in the range of +/-1 page.
+
+     Adding support for this feature required the default value of the
+     variable 'TeX-output-view-style' to be changed.  Please make sure
+     you either remove any customizations overriding the new default or
+     incorporate the changes into your customizations if you want to use
+     this feature.
+
+   * TeX error messages of the '-file-line-error' kind are now
+     understood in AUCTeX and preview-latex (parsers are still
+     separate).
+
+   * Bug fix in XyMTeX support.
+
+   * The LaTeX tool bar is now enabled by default.
+
+News in 11.82
+=============
+
+   * Support for the MinionPro LaTeX package was added.
+
+   * Warnings and underfull/overfull boxes are now being indicated in
+     the echo area after a LaTeX run, if the respective debugging
+     options are activated with 'TeX-toggle-debug-warnings' ('C-c C-t
+     C-w') or 'TeX-toggle-debug-bad-boxes' ('C-c C-t C-b').  In this
+     case 'TeX-next-error' will find these warnings in addition to
+     normal errors.
+
+     The key binding 'C-c C-w' for 'TeX-toggle-debug-bad-boxes' (which
+     was renamed from 'TeX-toggle-debug-boxes') now is deprecated.
+
+   * AUCTeX now can automatically insert a pair of braces after typing
+     <_> or <^> in math constructs if the new variable
+     'TeX-electric-sub-and-superscript' is set to a non-nil value.
+
+   * Some language-specific support for French was added.  There now is
+     completion support for the commands provided by the 'frenchb' (and
+     'francais') options of the babel LaTeX package and easier input of
+     French quotation marks ('\\og ...\\fg') which can now be inserted
+     by typing <">.
+
+   * Completion support for options of some LaTeX packages was added.
+
+   * Already in version 11.81 the way to activate AUCTeX changed
+     substantially.  This should now be done with '(load "auctex.el" nil
+     t t)' instead of the former '(require 'tex-site)'.  Related to this
+     change 'tex-mik.el' does not load 'tex-site.el' anymore.  That
+     means if you used only '(require 'tex-mik)' in order to activate
+     AUCTeX, you have to add '(load "auctex.el" nil t t)' before the
+     latter statement.  More detailed information can be found in the
+     installation instructions (file INSTALL).
+
+   * Handling of verbatim constructs was consolidated across AUCTeX.
+     This resulted in the font-latex-specific variables
+     'font-latex-verb-like-commands', 'font-latex-verbatim-macros', and
+     'font-latex-verbatim-environments' being removed and the more
+     general variables 'LaTeX-verbatim-macros-with-delims',
+     'LaTeX-verbatim-macros-with-braces', and
+     'LaTeX-verbatim-environments' being added.
+
+   * The output of a BibTeX run is now checked for warnings and errors,
+     which are reported in the echo area.
+
+   * The aliases for 'font-latex-title-fontify' were removed.  Use
+     'font-latex-fontify-sectioning' instead.
+
+   * The problem that Japanese macros where broken across lines was
+     fixed.
+
+   * Various bug fixes.
+
+News in 11.81
+=============
+
+   * 'LaTeX-mark-section' now marks subsections of a given section as
+     well.  The former behavior is available via the prefix argument.
+
+   * preview-latex which was previously available separately became a
+     subsystem of AUCTeX.  There is no documented provision for building
+     or installing preview-latex separately.  It is still possible to
+     use and install AUCTeX without preview-latex, however.
+
+   * The installation procedures have been overhauled and now also
+     install startup files as part of the process (those had to be
+     copied manually previously).  You are advised to remove previous
+     installations of AUCTeX and preview-latex before starting the
+     installation procedure.  A standard installation from an unmodified
+     tarball no longer requires Makeinfo or Perl.
+
+     Also note that the way AUCTeX is supposed to be activated changed.
+     Instead of '(require 'tex-site)' you should now use '(load
+     "auctex.el" nil t t)'.  While the former method may still work, the
+     new method has the advantage that you can deactivate a preactivated
+     AUCTeX with the statement '(unload-feature 'tex-site)' before any
+     of its modes have been used.  This may be important especially for
+     site-wide installations.
+
+   * Support for the babel LaTeX package was added.
+
+   * Folding a buffer now ensures that the whole buffer is fontified
+     before the actual folding is carried out.  If this results in
+     unbearably long execution times, you can fall back to the old
+     behavior of relying on stealth font locking to do this job in the
+     background by customizing the variable 'TeX-fold-force-fontify'.
+
+   * Folded content now reveals part of its original text in a tooltip
+     or the echo area when hovering with the mouse pointer over it.
+
+   * The language-specific insertion of quotation marks was generalized.
+     The variables 'LaTeX-german-open-quote',
+     'LaTeX-german-close-quote', 'LaTeX-german-quote-after-quote',
+     'LaTeX-italian-open-quote', 'LaTeX-italian-close-quote', and
+     'LaTeX-italian-quote-after-quote' are now obsolete.  If you are not
+     satisfied with the default settings, you should customize
+     'TeX-quote-language-alist' instead.
+
+   * Similar to language-specific quote insertion, AUCTeX now helps you
+     with hyphens in different languages as well.
+
+   * Fill problems in Japanese text introduced in AUCTeX 11.55 were
+     fixed.  AUCTeX tries not to break lines between 1-byte and 2-byte
+     chars.  These features will work in Chinese text, too.
+
+   * The scaling factor of the fontification of sectioning commands can
+     now be customized using the variable
+     'font-latex-fontify-sectioning'.  This variable was previously
+     called 'font-latex-title-fontify'; In this release we provide an
+     alias but this will disappear in one of the the next releases.  The
+     faces for the sectioning commands are now called
+     'font-latex-sectioning-N-face' (N=0...5) instead of
+     'font-latex-title-N-face' (N=1...4).  Analogously the names of the
+     variables holding the related keyword lists were changed from
+     'font-latex-title-N-keywords' to
+     'font-latex-sectioning-N-keywords'.  Make sure to adjust your
+     customizations.
+
+   * Titles in beamer slides marked by the "\frametitle" command are
+     know displayed with the new face 'font-latex-slide-title-face'.
+     You can add macros to be highlighted with this face to
+     'font-latex-match-slide-title-keywords'.
+
+   * Of course a lot of bugs have been fixed.
+
+News in 11.55
+=============
+
+   * A bug was fixed which lead to the insertion of trailing whitespace
+     during filling.  In particular extra spaces were added to sentence
+     endings at the end of lines.  You can make this whitespace visible
+     by setting the variable 'show-trailing-whitespace' to 't'.  If you
+     want to delete all trailing whitespace in a buffer, type 'M-x
+     delete-trailing-whitespace RET'.
+
+   * A bug was fixed which lead to a '*Compile-Log*' buffer popping up
+     when the first LaTeX file was loaded in an Emacs session.
+
+   * On some systems the presence of an outdated Emacspeak package lead
+     to the error message 'File mode specification error: (error
+     "Variable binding depth exceeds max-specpdl-size")'.  Precautions
+     were added which prevent this error from happening.  But
+     nevertheless, it is advised to upgrade or uninstall the outdated
+     Emacspeak package.
+
+   * The value of 'TeX-macro-global' is not determined during
+     configuration anymore but at load time of AUCTeX.  Consequently the
+     associated configuration option '--with-tex-input-dirs' was
+     removed.
+
+   * Support for the LaTeX Japanese classes 'jsarticle' and 'jsbook' was
+     added.
+
+News in 11.54
+=============
+
+   * The parser (used e.g.  for 'TeX-auto-generate-global') was extended
+     to recognize keywords common in LaTeX packages and classes, like
+     "\DeclareRobustCommand" or "\RequirePackage".  Additionally a bug
+     was fixed which led to duplicate entries in AUCTeX style files.
+
+   * Folding can now be done for paragraphs and regions besides single
+     constructs and the whole buffer.  With the new 'TeX-fold-dwim'
+     command content can both be hidden and shown with a single key
+     binding.  In course of these changes new key bindings for unfolding
+     commands where introduced.  The old bindings are still present but
+     will be phased out in future releases.
+
+   * Info files of the manual now have a .info extension.
+
+   * There is an experimental tool bar support now.  It is not activated
+     by default.  If you want to use it, add
+          (add-hook 'LaTeX-mode-hook 'LaTeX-install-toolbar)
+     to your init file.
+
+   * The manual now contains a new chapter "Quick Start".  It explains
+     the main features and how to use them, and should be enough for a
+     new user to start using AUCTeX.
+
+   * A new section "Font Locking" was added to the manual which explains
+     syntax highlighting in AUCTeX and its customization.  Together with
+     the sections related to folding and outlining, the section is part
+     of the new chapter "Display".
+
+   * Keywords for syntax highlighting of LaTeX constructs to be typeset
+     in bold, italic or typewriter fonts may now be customized.  Besides
+     the built-in classes, new keyword classes may be added by
+     customizing the variable 'font-latex-user-keyword-classes'.  The
+     customization options can be found in the customization group
+     'font-latex-keywords'.
+
+   * Verbatim content is now displayed with the 'fixed-pitch' face.
+     (GNU Emacs only)
+
+   * Syntax highlighting should not spill out of verbatim content
+     anymore.  (GNU Emacs only)
+
+   * Verbatim commands like '\verb|...|' will not be broken anymore
+     during filling.
+
+   * You can customize the completion for graphic files with
+     'LaTeX-includegraphics-read-file'.
+
+   * Support for the LaTeX packages 'url', 'listings', 'jurabib' and
+     'csquotes' was added with regard to command completion and syntax
+     highlighting.
+
+   * Performance of fontification and filling was improved.
+
+   * Insertion of nodes in Texinfo mode now supports completion of
+     existing node names.
+
+   * Setting the variable 'LaTeX-float' to 'nil' now means that you will
+     not be prompted for the float position of figures and tables.  You
+     can get the old behaviour of 'nil' by setting the variable to '""',
+     i.e.  an empty string.
+
+   * The XEmacs-specific bug concerning 'overlays-at' was fixed.
+
+   * Lots of bug fixes.
+
+News in 11.53
+=============
+
+   * The LaTeX math menu can include Unicode characters if your Emacs
+     built supports it.  See the variable 'LaTeX-math-menu-unicode'.
+
+   * Bug fixes for XEmacs.
+
+   * Completion for graphic files in the TeX search path has been added.
+
+   * 'start' is used for the viewer for MiKTeX and fpTeX.
+
+   * The variable 'TeX-fold-preserve-comments' can now be customized to
+     deactivate folding in comments.
+
+News in 11.52
+=============
+
+   * Installation and menus under XEmacs work again (maybe for the first
+     time).
+
+   * Fontification of subscripts and superscripts is now disabled when
+     the fontification engine is not able to support it properly.
+
+   * Bug fixes in the build process.
+
+News in 11.51
+=============
+
+   * PDFTeX and Source Special support did not work with ConTeXt, this
+     has been fixed.  Similar for Source Special support under Windows.
+
+   * Omega support has been added.
+
+   * Bug fixes in the build process.
+
+   * 'TeX-fold' now supports folding of environments in Texinfo mode.
+
+News in 11.50
+=============
+
+   * The use of source specials when processing or viewing the document
+     can now be controlled with the new 'TeX-source-specials' minor mode
+     which can be toggled via an entry in the Command menu or the key
+     binding 'C-c C-t C-s'.  If you have customized the variable
+     'TeX-command-list', you have to re-initialize it for this to work.
+     This means to open a customization buffer for the variable by
+     typing 'M-x customize-variable RET TeX-command-list RET', selecting
+     "Erase Customization" and do your customization again with the new
+     default.
+
+   * The content of the command menu now depends on the mode (plain TeX,
+     LaTeX, ConTeXt etc.).  Any former customization of the variable
+     'TeX-command-list' has to be erased.  Otherwise the command menu
+     and the customization will not work correctly.
+
+   * Support for hiding and auto-revealing macros, e.g.  footnotes or
+     citations, and environments in a buffer was added.
+
+   * You can now control if indentation is done upon typing <RET> by
+     customizing the variable 'TeX-newline-function'.
+
+   * Limited support for 'doc.sty' and 'ltxdoc.cls' ('dtx' files) was
+     added.  The new docTeX mode provides functionality for editing
+     documentation parts.  This includes formatting (indenting and
+     filling), adding and completion of macros and environments while
+     staying in comments as well as syntax highlighting.  (Please note
+     that the mode is not finished yet.  For example syntax highlighting
+     does not work yet in XEmacs.)
+
+   * For macro completion in docTeX mode the AUCTeX style files
+     'doc.el', 'ltxdoc.el' and 'ltx-base.el' were included.  The latter
+     provides general support for low-level LaTeX macros and may be used
+     with LaTeX class and style files as well.  It is currently not
+     loaded automatically for those files.
+
+   * Support for ConTeXt with a separate ConTeXt mode is now included.
+     Macro definitions for completion are available in Dutch and
+     English.
+
+   * The filling and indentation code was overhauled and is now able to
+     format commented parts of the source syntactically correct.  Newly
+     available functionality and customization options are explained in
+     the manual.
+
+   * Filling and indentation in XEmacs with preview-latex and activated
+     previews lead to the insertion of whitespace before multi-line
+     previews.  AUCTeX now contains facilities to prevent this problem.
+
+   * If 'TeX-master' is set to 't', AUCTeX will now query for a master
+     file only when a new file is opened.  Existing files will be left
+     alone.  The new function 'TeX-master-file-ask' (bound to 'C-c _' is
+     provided for adding the variable manually.
+
+   * Sectioning commands are now shown in a larger font on display
+     devices which support such fontification.  The variable
+     'font-latex-title-fontify' can be customized to restore the old
+     appearance, i.e.  the usage of a different color instead of a
+     change in size.
+
+   * Support for 'alphanum.sty', 'beamer.cls', 'booktabs.sty',
+     'captcont.sty', 'emp.sty', 'paralist.sty', 'subfigure.sty' and
+     'units.sty'/'nicefrac.sty' was added.  Credits go to the authors
+     mentioned in the respective AUCTeX style files.
+
+   * Inserting graphics with 'C-c RET \includegraphics RET' was
+     improved.  See the variable 'LaTeX-includegraphics-options-alist'.
+
+   * If 'LaTeX-default-position' is 'nil', don't prompt for position
+     arguments in Tabular-like environments.
+
+   * Completion for available packages when using 'C-c RET \usepackage
+     RET' was improved on systems using the kpathsea library.
+
+   * The commenting functionality was fixed.  The separate functions for
+     commenting and uncommenting were unified in one function for
+     paragraphs and regions respectively which do both.
+
+   * Syntax highlighting can be customized to fontify quotes delimited
+     by either >>German<< or <<French>> quotation marks by changing the
+     variable 'font-latex-quotes'.
+
+   * Certain TeX/LaTeX keywords for functions, references, variables and
+     warnings will now be fontified specially.  You may add your own
+     keywords by customizing the variables
+     'font-latex-match-function-keywords',
+     'font-latex-match-reference-keywords',
+     'font-latex-match-variable-keywords' and
+     'font-latex-match-warning-keywords'.
+
+   * If you include the style files 'german' or 'ngerman' in a document
+     (directly or via the 'babel' package), you should now customize
+     'LaTeX-german-open-quote', 'LaTeX-german-close-quote' and
+     'LaTeX-german-quote-after-quote' instead of 'TeX-open-quote',
+     'TeX-close-quote' and 'TeX-quote-after-quote' if you want to
+     influence the type of quote insertion.
+
+   * Upon viewing an output file, the right viewer and command line
+     options for it are now determined automatically by looking at the
+     extension of the output file and certain options used in the source
+     file.  The behavior can be adapted or extended respectively by
+     customizing the variable 'TeX-output-view-style'.
+
+   * You can control whether 'TeX-insert-macro' ('C-c RET') ask for all
+     optional arguments by customizing the variable
+     'TeX-insert-macro-default-style'.
+
+   * 'TeX-run-discard' is now able to completely detach a process that
+     it started.
+
+   * The build process was enhanced and is now based on 'autoconf'
+     making installing AUCTeX a mostly automatic process.  See the files
+     'INSTALL' and 'INSTALL.windows' for details.
+
+News in 11.14
+=============
+
+   * Many more LaTeX and LaTeX2e commands are supported.  Done by
+     Masayuki Ataka <ataka@milk.freemail.ne.jp>
+
+News in 11.12
+=============
+
+   * Support for the KOMA-Script classes.  Contributed by Mark Trettin
+     <Mark.Trettin@gmx.de>.
+
+News in 11.11
+=============
+
+   * Support for 'prosper.sty', see <http://prosper.sourceforge.net/>.
+     Contributed by Phillip Lord <p.lord@russet.org.uk>.
+
+News in 11.10
+=============
+
+   * 'comment-region' now inserts %% by default.  Suggested by "Davide
+     G. M. Salvetti" <salve@debian.org>.
+
+News in 11.06
+=============
+
+   * You can now switch between using the 'font-latex' (all emacsen),
+     the 'tex-font' (Emacs 21 only) or no special package for font
+     locking.  Customize 'TeX-install-font-lock' for this.
+
+News in 11.04
+=============
+
+   * Now use -t landscape by default when landscape option appears.
+     Suggested by Erik Frisk <frisk@isy.liu.se>.
+
+News in 11.03
+=============
+
+   * Use 'tex-fptex.el' for fpTeX support.  Contributed by Fabrice
+     Popineau <Fabrice.Popineau@supelec.fr>.
+
+News in 11.02
+=============
+
+   * New user option 'LaTeX-top-caption-list' specifies environments
+     where the caption should go at top.  Contributed by
+     ataka@milk.freemail.ne.jp (Masayuki Ataka).
+
+   * Allow explicit dimensions in 'graphicx.sty'.  Contributed by
+     ataka@milk.freemail.ne.jp (Masayuki Ataka).
+
+   * Limited support for 'verbatim.sty'.  Contributed by
+     ataka@milk.freemail.ne.jp (Masayuki Ataka).
+
+   * Better support for asmmath items.  Patch by
+     ataka@milk.freemail.ne.jp (Masayuki Ataka).
+
+   * More accurate error parsing.  Added by David Kastrup
+     <David.Kastrup@t-online.de>.
+
+News in 11.01
+=============
+
+   * Bug fixes.
+

@@ -1,0 +1,145 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdftex 2015.10.16)  13 NOV 2015 09:57
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**tex-ref.tex
+(./tex-ref.tex
+\columnsperpage=\count27
+\intercolumnskip=\dimen16
+\columna=\box16
+\columnb=\box17
+ [3 columns per page]
+\keyindent=\dimen17
+\metaxbox=\box18
+\metaxwidth=\dimen18
+
+Underfull \vbox (badness 10000) detected at line 399
+
+\vbox(161.80061+2.0)x104.068
+.\hbox(6.80002+2.0)x104.068, glue set 17.8531fil
+..\glue(\tabskip) 0.0
+..\hbox(6.80002+2.0)x64.11172, glue set 8.50012fil
+...\rule(6.80002+*)x0.0
+...\hbox(4.30554+0.0)x20.66666, glue set 14.23262fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.80002+2.0)x4.25006
+...\eighttt a
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.\glue(\baselineskip) 0.6556
+.\hbox(6.94444+2.0)x104.068, glue set 17.8531fil
+..\glue(\tabskip) 0.0
+..\hbox(6.94444+2.0)x64.11172, glue set 12.75018fil
+...\hbox(6.94444+1.94444)x20.66666, glue set 14.48264fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...\eighttt b
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.94444+2.0)x4.25006
+...\eighttt b
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.\glue(\baselineskip) 1.60004
+.\hbox(6.0+2.0)x104.068, glue set 17.8531fil
+..\glue(\tabskip) 0.0
+..\hbox(6.0+2.0)x64.11172, glue set 8.50012fil
+...\hbox(4.30554+1.94444)x20.66666, glue set 14.9338fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...\eighttt g
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.0+2.0)x4.25006
+...\eighttt g
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.etc.
+
+
+Underfull \vbox (badness 10000) detected at line 440
+
+\vbox(181.00069+2.0)x104.068
+.\hbox(6.80002+2.0)x104.068, glue set 7.22795fil
+..\glue(\tabskip) 0.0
+..\hbox(6.80002+2.0)x76.86191
+...\rule(6.80002+*)x0.0
+...\hbox(3.0239+0.0)x20.66666, glue set 12.16653fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.80002+2.0)x12.75018
+...\eighttt C
+...\eighttt -
+...\eighttt f
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.\glue(\baselineskip) 1.60004
+.\hbox(6.0+2.0)x104.068, glue set 7.22795fil
+..\glue(\tabskip) 0.0
+..\hbox(6.0+2.0)x76.86191, glue set 4.25006fil
+...\hbox(3.0239+0.0)x20.66666, glue set 12.16653fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...\eighttt l
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.0+2.0)x12.75018
+...\eighttt C
+...\eighttt -
+...\eighttt b
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.\glue(\baselineskip) 1.60004
+.\hbox(6.0+2.0)x104.068, glue set 7.22795fil
+..\glue(\tabskip) 0.0
+..\hbox(6.0+2.0)x76.86191, glue set 12.75018fil
+...\hbox(5.55556+1.55554)x20.66666, glue set 16.4166fill []
+...\glue 2.83337 plus 1.41669 minus 0.94446
+...\eightrm (
+...\eighttt \
+...\eighttt u
+...etc.
+..\glue(\tabskip) 0.0 plus 1.0fil
+..\hbox(6.0+2.0)x12.75018
+...\eighttt C
+...\eighttt -
+...\eighttt p
+...\hbox(0.0+0.0)x0.0
+...\glue 0.0 plus 1.0fil
+..\glue(\tabskip) 0.0 plus 1.0fil
+.etc.
+
+[1{/opt/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] )</opt/
+texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/texlive
+/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></opt/texlive/2015/te
+xmf-dist/fonts/type1/public/amsfonts/cmextra/cmcsc8.pfb></opt/texlive/2015/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></opt/texlive/2015/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmr6.pfb></opt/texlive/2015/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr7.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr8.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmsl8.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
+6.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></
+opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></opt/texl
+ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on tex-ref.pdf (2 pages, 153763 bytes).
+PDF statistics:
+ 59 PDF objects out of 1000 (max. 8388607)
+ 42 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

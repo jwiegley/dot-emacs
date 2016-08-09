@@ -1,4 +1,4 @@
-% Reference Card for AUCTeX version 11.88
+% Reference Card for AUCTeX version 11.89
 %**start of header
 \newcount\columnsperpage
 
@@ -29,7 +29,7 @@
 % compile-command: "tex tex-ref" or "pdftex tex-ref"
 %
 % Original author of Auc-TeX Reference Card:
-%                                  
+%
 %       Terrence Brannon, PO Box 5027, Bethlehem, PA 18015 , USA
 %  internet: tb06@pl118f.cc.lehigh.edu  (215) 758-1720 (215) 758-2104
 %
@@ -42,9 +42,9 @@
 % Paul Rubin, Bob Chassell, Len Tower, and Richard Mlynarik
 % for creating the GNU Emacs Reference Card from which this was mutated
 
-\def\versionnumber{11.88}
-\def\year{2014}
-\def\version{October \year\ v\versionnumber}
+\def\versionnumber{11.89}
+\def\year{2015}
+\def\version{November \year\ v\versionnumber}
 
 \def\shortcopyrightnotice{\vskip 1ex plus 2 fill
   \centerline{\small \copyright\ \year\ Free Software Foundation, Inc.
@@ -52,8 +52,8 @@
 
 \def\copyrightnotice{%
 \vskip 1ex plus 2 fill\begingroup\small
-\centerline{Copyright \copyright\ 1987, 1992, 1993, 2004, 2005, 2008,}
-\centerline{2010, 2012, 2014 Free Software Foundation, Inc.}
+\centerline{Copyright \copyright\ 1987, 1992-1994, 2004-2006, 2008, 2010,}
+\centerline{2012, 2014, 2015 Free Software Foundation, Inc.}
 \centerline{for AUC\TeX\ version \versionnumber}
 
 Permission is granted to make and distribute copies of
@@ -73,7 +73,7 @@ are preserved on all copies.
 
 \edef\ncolumns{\the\columnsperpage}
 
-\message{[\ncolumns\space 
+\message{[\ncolumns\space
   column\if 1\ncolumns\else s\fi\space per page]}
 
 \def\scaledmag#1{ scaled \magstep #1}
@@ -155,7 +155,7 @@ are preserved on all copies.
   \def\bye{\par\vfill\supereject
     \if a\abc \else\null\vfill\eject\fi
     \if a\abc \else\null\vfill\eject\fi
-    \end}  
+    \end}
 \fi
 
 % we won't be using math mode much, so redefine some of the characters
@@ -245,6 +245,7 @@ are preserved on all copies.
 \key{Toggle debug of bad boxes}{C-c C-t C-b}
 \key{Toggle debug of warnings}{C-c C-t C-w}
 \key{View output file}{C-c C-v}
+\key{Compile all and view output file}{C-c C-a}
 
 Commands you can run on the master file (with \kbd{C-c C-c}) or the
 region (with \kbd{C-c C-r}) include the following (starred versions
@@ -302,7 +303,7 @@ indicated in the mode line.
 \key{Complete \TeX\ macro}{M-TAB}
 \key{Smart ``quote''}{"}
 \key{Smart ``dollar''}{\$}
-  
+
 \section{Font Selection}
 
 \key{Insert {\bf bold\/} text}{C-c C-f C-b}
@@ -674,7 +675,7 @@ $\sp1$ An argument of \kbd{C-u} triggers a document scan first.
 
 \bye
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: plain-TeX
 %%% TeX-master: t
-%%% End: 
+%%% End:

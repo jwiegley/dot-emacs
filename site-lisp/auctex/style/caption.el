@@ -1,4 +1,4 @@
-;;; caption.el --- AUCTeX style for `caption.sty' (v3.3-89)
+;;; caption.el --- AUCTeX style for `caption.sty' (v3.3-111)
 
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
 
@@ -26,7 +26,7 @@
 
 ;;; Commentary:
 
-;; This file adds support for `caption.sty' (v3.3-89) from 2013/05/02.
+;; This file adds support for `caption.sty' (v3.3-111) from 2015/09/17.
 ;; `caption.sty' is part of TeXLive.
 
 ;; If things do not work or when in doubt, press `C-c C-n'.  Comments
@@ -53,7 +53,7 @@
 	       "stretch" "normalcolor" "color" "normal"))
     ("format" ("plain" "hang"))
     ("hangindent")
-    ("hypcap")
+    ("hypcap" ("false" "no" "off" "0" "true" "yes" "on" "1"))
     ("hypcapspace")
     ("indention")
     ("justification" ("justified" "centering" "centerlast" "centerfirst"
@@ -151,18 +151,33 @@ in `caption'-completions."
 		       (downcase (substring (nth 1 keyvals) 0 8)))
 		      (t (downcase (nth 1 keyvals)))))
 	   (val (nth 2 keyvals))
-	   ;; (key-match (car (assoc key LaTeX-caption-key-val-options-local)))
 	   (val-match (cdr (assoc key LaTeX-caption-key-val-options-local)))
-	   (temp  (copy-alist LaTeX-caption-key-val-options-local))
-	   (opts (assq-delete-all (car (assoc key temp)) temp)))
+	   (temp (copy-alist LaTeX-caption-key-val-options-local))
+	   ;; If `subcaption.el' is loaded, delete and update also the
+	   ;; entry for `subrefformat' when processing the `labelformat'.
+	   (opts (progn
+		   (when (and (string-equal key "labelformat")
+			      (boundp 'LaTeX-subcaption-key-val-options))
+		     (setq temp
+			   (assq-delete-all
+			    (car (assoc (caar LaTeX-subcaption-key-val-options) temp))
+			    temp)))
+		   (assq-delete-all (car (assoc key temp)) temp))))
       ;; For `\DeclareCaptionOption', only add the value
       ;; (remember:      key=^^^^^^, val="defined key")
       (if (string-equal key "option")
 	  (pushnew (list val) opts :test #'equal)
-	;; For anything but `\DeclareCaptionOption', do the standard procedure
+	;; For anything but `\DeclareCaptionOption', do the standard
+	;; procedure.  Again, take care of `subrefformat' for `subcaption.el'.
 	(if val-match
-	    (pushnew (list key (delete-dups (apply 'append (list val) val-match)))
-		     opts :test #'equal)
+	    (progn
+	      (when (and (string-equal key "labelformat")
+			 (boundp 'LaTeX-subcaption-key-val-options))
+		(pushnew (list "subrefformat"
+			       (delete-dups (apply 'append (list val) val-match)))
+			 opts :test #'equal))
+	      (pushnew (list key (delete-dups (apply 'append (list val) val-match)))
+		       opts :test #'equal))
 	  (pushnew (list key (list val)) opts :test #'equal)))
       (setq LaTeX-caption-key-val-options-local (copy-alist opts)))))
 
@@ -189,6 +204,47 @@ suffix of the command."
      (list (concat "\\DeclareCaption" format "{" name "}")
 	   format name))
     (TeX-argument-insert name optional)))
+
+;; Support for an undocumented feature of caption.sty:
+;; `\captionbox' sets the width of the caption equal to the width of
+;; the contents (a feature provided e.g. by `threeparttable.sty').
+;; The starred version typesets the caption without label and without
+;; entry to the list of figures or tables.
+
+;; The first mandatory argument {<heading>} contains the caption text
+;; and the label.  We use `TeX-insert-macro' to do the job. (Thanks to
+;; M. Giordano for his valuable comments on this!)
+
+;; Syntax:
+;; \captionbox[<list entry>]{<heading>}[<width>][<inner-pos>]{<contents>}
+;; \captionbox*{<heading>}[<width>][<inner-pos>]{<contents>}
+
+(defun LaTeX-arg-caption-captionbox (optional &optional star prompt)
+  "Query for the arguments of `\\captionbox' incl. a label and
+insert them.  If STAR is non-nil, then do not query for a `\\label' and
+insert only a caption."
+  (let ((caption (TeX-read-string
+		  (TeX-argument-prompt optional prompt "Caption"))))
+    (LaTeX-indent-line)
+    (insert TeX-grop caption)
+    (unless star (TeX-insert-macro "label"))
+    (insert TeX-grcl))
+  (let* ((width (completing-read (TeX-argument-prompt t prompt "Width")
+				 (mapcar (lambda(elt) (concat TeX-esc (car elt)))
+					 (LaTeX-length-list))))
+	 (inpos (when (and width (not (string-equal width "")))
+		  (completing-read (TeX-argument-prompt t prompt "Inner position")
+				   '("c" "l" "r" "s")))))
+    (cond (;; 2 optional args
+	   (and width (not (string-equal width ""))
+		inpos (not (string-equal inpos "")))
+	   (insert (format "[%s][%s]" width inpos)))
+	  (;; 1st opt. arg, 2nd empty opt. arg
+	   (and width (not (string-equal width ""))
+		(string-equal inpos ""))
+	   (insert (format "[%s]" width)))
+	  (t ; Do nothing if both empty
+	   (ignore)))))
 
 (TeX-add-style-hook
  "caption"
@@ -240,7 +296,15 @@ suffix of the command."
       (TeX-arg-eval completing-read (TeX-argument-prompt nil nil "Float type")
 		    LaTeX-caption-supported-float-types))
 
+    '("captionbox"  ["List entry"] (LaTeX-arg-caption-captionbox) t)
+
+    '("captionbox*" (LaTeX-arg-caption-captionbox t) t)
+
     '("ContinuedFloat" 0)
+    '("ContinuedFloat*" 0)
+
+    '("continuedfloat" 0)
+    '("continuedfloat*" 0)
 
     '("DeclareCaptionFont"
       (LaTeX-arg-caption-DeclareCaption "Font") t)
@@ -286,7 +350,8 @@ suffix of the command."
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("caption"           "*[{")
 				("captionlistentry"  "[{")
-				("captionof"         "*[{"))
+				("captionof"         "*{[{")
+				("captionbox"        "*[{[[{"))
 			      'textual)
      (font-latex-add-keywords '(("captionsetup"                  "*[{")
 				("clearcaptionsetup"             "*[{")

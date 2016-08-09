@@ -178,6 +178,7 @@
    (when (and (featurep 'font-latex)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("title" "[{")
+				("subtitle" "[{")
 				("author" "[{")
 				("date" "[{")
 				("frametitle" "<[{")) 'slide-title)

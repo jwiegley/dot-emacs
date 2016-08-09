@@ -166,6 +166,7 @@ to retrieve the list of fonts."
 (TeX-add-style-hook
  "fontspec"
  (lambda ()
+   (TeX-check-engine-add-engines 'luatex 'xetex)
    (TeX-run-style-hooks "expl3" "xparse")
    (TeX-add-symbols
     ;; Font selection

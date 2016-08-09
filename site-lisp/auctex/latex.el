@@ -1,6 +1,6 @@
 ;;; latex.el --- Support for LaTeX documents.
 
-;; Copyright (C) 1991, 1993-2014 Free Software Foundation, Inc.
+;; Copyright (C) 1991, 1993-2015 Free Software Foundation, Inc.
 
 ;; Maintainer: auctex-devel@gnu.org
 ;; Keywords: tex
@@ -993,35 +993,36 @@ you will be always prompted for a label, with an empty default
 prefix.
 
 If `LaTeX-label-function' is a valid function, LaTeX label will
-transfer the job to this function."
-  (let ((prefix (cond
-		 ((eq type 'environment)
-		  (cdr (assoc name LaTeX-label-alist)))
-		 ((eq type 'section)
-		  (if (assoc name LaTeX-section-list)
-		      (if (stringp LaTeX-section-label)
-			  LaTeX-section-label
-			(and (listp LaTeX-section-label)
-			     (cdr (assoc name LaTeX-section-label))))
-		    ""))
-		 ((null type)
-		  "")
-		 (t
-		  nil)))
+transfer the job to this function.
+
+The inserted label is returned, nil if it is empty."
+  (let ((TeX-read-label-prefix
+	 (cond
+	  ((eq type 'environment)
+	   (cdr (assoc name LaTeX-label-alist)))
+	  ((eq type 'section)
+	   (if (assoc name LaTeX-section-list)
+	       (if (stringp LaTeX-section-label)
+		   LaTeX-section-label
+		 (and (listp LaTeX-section-label)
+		      (cdr (assoc name LaTeX-section-label))))
+	     ""))
+	  ((null type)
+	   "")
+	  (t
+	   nil)))
 	label)
-    (when (symbolp prefix)
-      (setq prefix (symbol-value prefix)))
-    (when prefix
+    (when (symbolp TeX-read-label-prefix)
+      (setq TeX-read-label-prefix (symbol-value TeX-read-label-prefix)))
+    (when TeX-read-label-prefix
       (if (and (boundp 'LaTeX-label-function)
 	       LaTeX-label-function
 	       (fboundp LaTeX-label-function))
 	  (setq label (funcall LaTeX-label-function name))
 	;; Use completing-read as we do with `C-c C-m \label RET'
-	(setq label (completing-read
-		     (TeX-argument-prompt t nil "What label")
-		     (LaTeX-label-list) nil nil prefix))
+	(setq label (TeX-read-label t "What label" t))
 	;; No label or empty string entered?
-	(if (or (string= prefix label)
+	(if (or (string= TeX-read-label-prefix label)
 		(string= "" label))
 	    (setq label nil)
 	  (insert TeX-esc "label" TeX-grop label TeX-grcl))
@@ -1370,6 +1371,7 @@ right number."
 (defvar LaTeX-auto-arguments nil)
 (defvar LaTeX-auto-optional nil)
 (defvar LaTeX-auto-env-args nil)
+(defvar LaTeX-auto-env-args-with-opt nil)
 
 (TeX-auto-add-type "label" "LaTeX")
 (TeX-auto-add-type "bibitem" "LaTeX")
@@ -1463,7 +1465,7 @@ This is necessary since index entries may contain commands and stuff.")
        (,(concat "\\\\\\(?:new\\|provide\\)command\\*?{?\\\\\\(" token "+\\)}?")
 	1 TeX-auto-symbol)
        (,(concat "\\\\newenvironment\\*?{?\\(" token "+\\)}?\\[\\([0-9]+\\)\\]\\[")
-	1 LaTeX-auto-environment)
+	(1 2) LaTeX-auto-env-args-with-opt)
        (,(concat "\\\\newenvironment\\*?{?\\(" token "+\\)}?\\[\\([0-9]+\\)\\]")
 	(1 2) LaTeX-auto-env-args)
        (,(concat "\\\\newenvironment\\*?{?\\(" token "+\\)}?")
@@ -1690,6 +1692,12 @@ The value is actually the tail of the list of options given to PACKAGE."
 		       (list (nth 0 entry)
 			     (string-to-number (nth 1 entry)))))
 	LaTeX-auto-env-args)
+  ;; Ditto for environments with an optional arg
+  (mapc (lambda (entry)
+	  (add-to-list 'LaTeX-auto-environment
+		       (list (nth 0 entry) 'LaTeX-env-args (vector "argument")
+			     (1- (string-to-number (nth 1 entry))))))
+	LaTeX-auto-env-args-with-opt)
 
   ;; Cleanup use of def to add environments
   ;; NOTE: This uses an O(N^2) algorithm, while an O(N log N)
@@ -1766,17 +1774,32 @@ If OPTIONAL is non-nil, insert the resulting value as an optional
 argument, otherwise as a mandatory one."
   (TeX-argument-insert (eval args) optional))
 
+(defvar TeX-read-label-prefix nil
+  "Initial input for the label in `TeX-read-label.'")
+
+(defun TeX-read-label (optional &optional prompt definition)
+  "Prompt for a label completing with known labels and return it.
+If OPTIONAL is non-nil, insert the resulting value as an optional
+argument, otherwise as a mandatory one.  Use PROMPT as the prompt
+string.  If DEFINITION is non-nil, add the chosen label to the
+list of defined labels.  `TeX-read-label-prefix' is used as
+initial input for the label."
+  (let ((label (completing-read
+		(TeX-argument-prompt optional prompt "Key")
+		(LaTeX-label-list) nil nil TeX-read-label-prefix)))
+    (if (and definition (not (string-equal "" label)))
+	(LaTeX-add-labels label))
+    label))
+
 (defun TeX-arg-label (optional &optional prompt definition)
   "Prompt for a label completing with known labels.
 If OPTIONAL is non-nil, insert the resulting value as an optional
 argument, otherwise as a mandatory one.  Use PROMPT as the prompt
 string.  If DEFINITION is non-nil, add the chosen label to the
-list of defined labels."
-  (let ((label (completing-read (TeX-argument-prompt optional prompt "Key")
-				(LaTeX-label-list))))
-    (if (and definition (not (string-equal "" label)))
-	(LaTeX-add-labels label))
-    (TeX-argument-insert label optional optional)))
+list of defined labels.  `TeX-read-label-prefix' is used as
+initial input for the label."
+  (TeX-argument-insert
+   (TeX-read-label optional prompt definition) optional optional))
 
 (defvar reftex-ref-macro-prompt)
 
@@ -1941,7 +1964,8 @@ string."
   "Prompt for a label completing with known labels.
 If OPTIONAL is non-nil, insert the resulting value as an optional
 argument, otherwise as a mandatory one.  Use PROMPT as the prompt
-string."
+string.  `TeX-read-label-prefix' is used as initial input for the
+label."
   (TeX-arg-label optional prompt t))
 
 (defun TeX-arg-define-macro (optional &optional prompt)
@@ -2028,14 +2052,14 @@ OPTIONAL and IGNORE are ignored."
 	 (crm-separator ",")
 	 style var options)
     (unless LaTeX-global-class-files
-      (if (if (eq TeX-arg-input-file-search 'ask)
-	      (not (y-or-n-p "Find class yourself? "))
-	    TeX-arg-input-file-search)
-	  (progn
-	    (message "Searching for LaTeX classes...")
-	    (setq LaTeX-global-class-files
-		  (mapcar 'identity (TeX-search-files-by-type 'texinputs 'global t t))))
-	LaTeX-style-list))
+      (setq LaTeX-global-class-files
+	    (if (if (eq TeX-arg-input-file-search 'ask)
+		    (not (y-or-n-p "Find class yourself? "))
+		  TeX-arg-input-file-search)
+		(progn
+		  (message "Searching for LaTeX classes...")
+		  (mapcar 'identity (TeX-search-files-by-type 'texinputs 'global t t)))
+	      LaTeX-style-list)))
     (setq style (completing-read
 		 (concat "Document class: (default " LaTeX-default-style ") ")
 		 LaTeX-global-class-files nil nil nil nil LaTeX-default-style))
@@ -3333,7 +3357,9 @@ recognized."
 
 ;;; Filling
 
-(defcustom LaTeX-fill-break-at-separators '(\\\( \\\) \\\[ \\\])
+;; The default value should try not to break formulae across lines (this is
+;; useful for preview-latex) and give a meaningful filling.
+(defcustom LaTeX-fill-break-at-separators '(\\\( \\\[)
   "List of separators before or after which respectively a line
 break will be inserted if they do not fit into one line."
   :group 'LaTeX
@@ -3911,8 +3937,8 @@ space does not end a sentence, so don't break a line there."
 		     (if (member match-string '("$" "$$"))
 			 (save-excursion
 			   (skip-chars-backward "$")
-			   (not (TeX-search-backward-unescaped
-				 match-string (line-beginning-position) t)))
+			   (TeX-search-backward-unescaped
+			    match-string (line-beginning-position) t))
 		       (texmathp-match-switch (line-beginning-position)))))
 	      (save-excursion
 		(skip-chars-forward "^ \n")
@@ -4174,13 +4200,14 @@ environment in commented regions with the same comment prefix."
 	 (in-comment (TeX-in-commented-line))
 	 (comment-prefix (and in-comment (TeX-comment-prefix)))
 	 (case-fold-search nil))
-    (save-excursion
+    (let ((pt (point)))
       (skip-chars-backward (concat "a-zA-Z \t" (regexp-quote TeX-grop)))
       (unless (bolp)
 	(backward-char 1)
-	(and (looking-at regexp)
-	     (char-equal (char-after (1+ (match-beginning 0))) ?e)
-	     (setq level 0))))
+	(if (and (looking-at regexp)
+		 (char-equal (char-after (1+ (match-beginning 0))) ?e))
+	    (setq level 0)
+	  (goto-char pt))))
     (while (and (> level 0) (re-search-forward regexp nil t))
       (when (or (and LaTeX-syntactic-comments
 		     (eq in-comment (TeX-in-commented-line))
@@ -4475,10 +4502,7 @@ If COUNT is non-nil, do it COUNT times."
 						"[@A-Za-z]+\\|[ \t]*\\($\\|"
 						TeX-comment-start-regexp "\\)"))
 			    (progn
-			      (when (string= (buffer-substring-no-properties
-					      (point) (+ (point)
-							 (length TeX-esc)))
-					     TeX-esc)
+			      (when (looking-at (regexp-quote TeX-esc))
 				(goto-char (TeX-find-macro-end)))
 			      (forward-line 1)
 			      (when (< (point) start)
@@ -5738,6 +5762,9 @@ This happens when \\left is inserted."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.hva\\'" . latex-mode))
 
+(when (fboundp 'declare-function)
+  (declare-function LaTeX-preview-setup "preview"))
+
 ;;;###autoload
 (defun TeX-latex-mode ()
   "Major mode in AUCTeX for editing LaTeX files.
@@ -5769,6 +5796,8 @@ of `LaTeX-mode-hook'."
 	      (if (local-variable-p 'LaTeX-biblatex-use-Biber (current-buffer))
 		  (setq LaTeX-using-Biber LaTeX-biblatex-use-Biber))) nil t)
   (TeX-run-mode-hooks 'text-mode-hook 'TeX-mode-hook 'LaTeX-mode-hook)
+  (when (fboundp 'LaTeX-preview-setup)
+    (LaTeX-preview-setup))
   (TeX-set-mode-name)
   ;; Defeat filladapt
   (if (and (boundp 'filladapt-mode)
@@ -5922,7 +5951,7 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
 		  ("\\\\renewenvironment\\*?{\\([A-Za-z]*\\)"
 		   1 LaTeX-environment-list-filtered "}")
                   ("\\\\\\(this\\)?pagestyle{\\([A-Za-z]*\\)"
-		   1 LaTeX-pagestyle-list "}"))
+		   2 LaTeX-pagestyle-list "}"))
 		TeX-complete-list))
 
   (LaTeX-add-environments
@@ -5944,7 +5973,7 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
 
    "sloppypar" "picture" "tabbing" "verbatim" "verbatim*"
    "flushright" "flushleft" "displaymath" "math" "quote" "quotation"
-   "abstract" "center" "titlepage" "verse" "eqnarray*"
+   "center" "titlepage" "verse" "eqnarray*"
 
    ;; The following are not defined in latex.el, but in a number of
    ;; other style files.  I'm to lazy to copy them to all the
@@ -6223,6 +6252,10 @@ i.e. you do _not_ have to cater for this yourself by adding \\\\' or $."
        [ "Number of arguments" ] [ "Default value for first argument" ] t)
      '("renewcommand*" TeX-arg-macro
        [ "Number of arguments" ] [ "Default value for first argument" ] t)
+     '("newenvironment" TeX-arg-define-environment
+       [ "Number of arguments" ] [ "Default value for first argument" ] t t)
+     '("renewenvironment" TeX-arg-environment
+       [ "Number of arguments" ] [ "Default value for first argument" ] t t)
      '("usepackage" LaTeX-arg-usepackage)
      '("RequirePackage" LaTeX-arg-usepackage)
      '("ProvidesPackage" (TeX-arg-file-name-sans-extension "Package name")

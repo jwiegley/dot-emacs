@@ -1,6 +1,6 @@
 ;;; context.el --- Support for ConTeXt documents.
 
-;; Copyright (C) 2003-2006, 2008, 2010, 2012, 2014
+;; Copyright (C) 2003-2006, 2008, 2010, 2012, 2014, 2015
 ;;   Free Software Foundation, Inc.
 
 ;; Maintainer: Berend de Boer <berend@pobox.com>
@@ -564,28 +564,43 @@ inserted after the sectioning command."
 ;; Various
 (defun TeX-ConTeXt-sentinel (process name)
   "Cleanup TeX output buffer after running ConTeXt."
-  (cond ((TeX-TeX-sentinel-check process name))
-	((save-excursion
-	   ;; in a full ConTeXt run there will multiple texutil
-	   ;; outputs. Just looking for "another run needed" would
-	   ;; find the first occurence
-	   (goto-char (point-max))
-	   (re-search-backward "TeXUtil " nil t)
-	   (re-search-forward "another run needed" nil t))
-	 (message (concat "You should run ConTeXt again "
-			  "to get references right, "
-			  (TeX-current-pages)))
-	 (setq TeX-command-next TeX-command-default))
-	((re-search-forward "removed files :" nil t)
-	 (message "sucessfully cleaned up"))
-	((re-search-forward "^ ?TeX\\(Exec\\|Util\\)" nil t) ;; strange regexp --pg
-	 (message (concat name ": successfully formatted "
-			  (TeX-current-pages)))
-	 (setq TeX-command-next TeX-command-Show))
-	(t
-	 (message (concat name ": problems after "
-			  (TeX-current-pages)))
-	 (setq TeX-command-next TeX-command-default))))
+  (cond
+   ;; Mark IV
+   ((with-current-buffer TeX-command-buffer
+      (string= ConTeXt-Mark-version "IV"))
+    (cond ((TeX-TeX-sentinel-check process name))
+	  ((re-search-forward "fatal error: " nil t)
+	   (message (concat name ": problems after "
+			    (TeX-current-pages)))
+	   (setq TeX-command-next TeX-command-default))
+	  (t
+	   (message (concat name ": successfully formatted "
+			    (TeX-current-pages)))
+	   (setq TeX-command-next TeX-command-Show))))
+   ;; Mark II
+   (t
+    (cond ((TeX-TeX-sentinel-check process name))
+	  ((save-excursion
+	     ;; in a full ConTeXt run there will multiple texutil
+	     ;; outputs. Just looking for "another run needed" would
+	     ;; find the first occurence
+	     (goto-char (point-max))
+	     (re-search-backward "TeXUtil " nil t)
+	     (re-search-forward "another run needed" nil t))
+	   (message (concat "You should run ConTeXt again "
+			    "to get references right, "
+			    (TeX-current-pages)))
+	   (setq TeX-command-next TeX-command-default))
+	  ((re-search-forward "removed files :" nil t)
+	   (message "sucessfully cleaned up"))
+	  ((re-search-forward "^ ?TeX\\(Exec\\|Util\\)" nil t) ;; strange regexp --pg
+	   (message (concat name ": successfully formatted "
+			    (TeX-current-pages)))
+	   (setq TeX-command-next TeX-command-Show))
+	  (t
+	   (message (concat name ": problems after "
+			    (TeX-current-pages)))
+	   (setq TeX-command-next TeX-command-default))))))
 
 
 ;;; Environments
@@ -1576,24 +1591,51 @@ else.  There might be text before point."
 
 ;;; Option expander
 
+(defcustom ConTeXt-Mark-version "II"
+  "ConTeXt Mark version used for running ConTeXt."
+  :type "string"
+  :group 'TeX-command)
+(make-variable-buffer-local 'ConTeXt-Mark-version)
+(put 'ConTeXt-Mark-version 'safe-local-variable 'stringp)
+
 (defvar ConTeXt-texexec-option-nonstop "--nonstop "
   "Command line option for texexec to use nonstopmode.")
 
+(defun ConTeXt-expand-command ()
+  "Expand ConTeXt command.
+Use `ConTeXt-Mark-version' to choose the command."
+  (cond
+   ((string= ConTeXt-Mark-version "IV")
+    "context")
+   ;; In any other case fall back on Mark II.
+   (t
+    "texexec")))
+
 (defun ConTeXt-expand-options ()
   "Expand options for context command."
-  (concat
-   (let ((engine (eval (nth 4 (assq TeX-engine (TeX-engine-alist))))))
-     (when engine
-       (format "--engine=%s " engine)))
-   (unless (eq ConTeXt-current-interface "en")
-     (format "--interface=%s " ConTeXt-current-interface))
-   (when TeX-source-correlate-mode
-     (format "--passon=\"%s\" "
-	     (if (eq (TeX-source-correlate-method-active) 'synctex)
-		 TeX-synctex-tex-flags
-	       TeX-source-specials-tex-flags)))
-   (unless TeX-interactive-mode
-     ConTeXt-texexec-option-nonstop)))
+  (cond
+   ;; Mark IV
+   ((string= ConTeXt-Mark-version "IV")
+    (concat
+     (if TeX-source-correlate-mode
+	 "--synctex=1 ")
+     (unless TeX-interactive-mode
+       ConTeXt-texexec-option-nonstop)))
+   ;; In any other case fall back on Mark II.
+   (t
+    (concat
+     (let ((engine (eval (nth 4 (assq TeX-engine (TeX-engine-alist))))))
+       (when engine
+	 (format "--engine=%s " engine)))
+     (unless (eq ConTeXt-current-interface "en")
+       (format "--interface=%s " ConTeXt-current-interface))
+     (when TeX-source-correlate-mode
+       (format "--passon=\"%s\" "
+	       (if (eq (TeX-source-correlate-method-active) 'synctex)
+		   TeX-synctex-tex-flags
+		 TeX-source-specials-tex-flags)))
+     (unless TeX-interactive-mode
+       ConTeXt-texexec-option-nonstop)))))
 
 ;;; Mode
 

@@ -72,9 +72,8 @@
     "gridSetup" "LenToUnit"))
  LaTeX-dialect)
 
-(defvar LaTeX-eso-pic-package-options
-  '(;;
-    ("pscoord"      ("true" "false"))
+(defvar LaTeX-eso-pic-package-options-list
+  '(("pscoord"      ("true" "false"))
     ("texcoord"     ("true" "false"))
     ("grid"         ("true" "false"))
     ("gridunit"     ("mm" "in" "bp" "pt"))
@@ -86,6 +85,6 @@
 
 (defun LaTeX-eso-pic-package-options nil
   "Prompt for package options for the eso-pic package."
-  (TeX-read-key-val t LaTeX-eso-pic-package-options))
+  (TeX-read-key-val t LaTeX-eso-pic-package-options-list))
 
 ;;; eso-pic.el ends here

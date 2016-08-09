@@ -1,6 +1,6 @@
 ;;; nameref.el --- AUCTeX style for `nameref.sty'
 
-;; Copyright (C) 2013 Free Software Foundation, Inc.
+;; Copyright (C) 2013, 2015 Free Software Foundation, Inc.
 
 ;; Author: Mads Jensen <mje@inducks.org>
 ;; Maintainer: auctex-devel@gnu.org
@@ -33,17 +33,22 @@
  "nameref"
  (lambda ()
    (TeX-add-symbols
-    '("nameref" TeX-arg-ref))
-   
+    '("nameref" TeX-arg-ref)
+    '("nameref*" TeX-arg-ref)
+    '("Nameref" TeX-arg-ref))
+
    (setq TeX-complete-list
-         (append '(("\\\\nameref{\\([^{}\n\r\\%,]*\\)" 1 LaTeX-label-list "}"))
-                 TeX-complete-list))
-   
+	 (append
+	  '(("\\\\\\(?:N\\|n\\)ameref\\*?{\\([^{}\n\r\\%,]*\\)" 1 LaTeX-label-list "}"))
+	  TeX-complete-list))
+
    ;, Fontification
    (when (and (fboundp 'font-latex-add-keywords)
 	      (fboundp 'font-latex-set-syntactic-keywords)
 	      (eq TeX-install-font-lock 'font-latex-setup))
-     (font-latex-add-keywords '(("nameref" "{")) 'reference)))
+     (font-latex-add-keywords '(("nameref" "*{")
+				("Nameref" "{"))
+			      'reference)))
  LaTeX-dialect)
 
 (defvar LaTeX-nameref-package-options nil

@@ -43,6 +43,7 @@
     '("setpartpreamble" [ TeX-arg-KOMA-setpreamble ] [ "Width" ] t)
     '("setchapterpreamble" [ TeX-arg-KOMA-setpreamble ] [ "Width" ] t)
     '("dictum" [ "Author" ] t))
+   (LaTeX-add-environments "abstract")
    (LaTeX-section-list-add-locally '("addchap" 1))
    (make-local-variable 'LaTeX-section-label)
    (setq LaTeX-section-label (append

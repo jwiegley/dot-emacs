@@ -147,7 +147,13 @@ STYLESRC = style/prosper.el \
 	   style/tcolorbox.el style/color.el	 style/expl3.el \
 	   style/bidibeamer.el style/enumitem.el style/caption.el \
 	   style/geometry.el  style/ltablex.el   style/ltxtable.el \
-	   style/mn2e.el      style/colortbl.el  style/attachfile.el
+	   style/mn2e.el      style/colortbl.el  style/attachfile.el \
+	   style/newpxtext.el style/newpxmath.el style/pdfpages.el \
+	   style/mnras.el     style/environ.el   style/polyglossia.el \
+	   style/vwcol.el     style/textpos.el   style/transparent.el \
+	   style/fontenc.el   style/Alegreya.el  style/gloss-italian.el \
+	   style/newfloat.el  style/subcaption.el style/AlegreyaSans.el \
+	   style/hologo.el
 
 STYLEELC = $(STYLESRC:.el=.elc)
 
@@ -339,11 +345,7 @@ install-auto:
 install-metadata:
 	test "x$(packagedir)" = xno || { \
 	  $(MKINSTALLDIRS) $(DESTDIR)$(packagedir)/pkginfo || : ; \
-	  if test "x$(preview_enabled)" = xyes; then \
-	    $(ELCC) -l prv-install -f preview-make-package $(DESTDIR)$(packagedir) "$(PACKAGE)" \"`echo $(AUCTEXDATE)|sed 's/\(.*\)-\(.*\)-\(.*\)/\1.\2\3/'`\" \"$(AUCTEXVERSION)\" tex-site.el auto.el; \
-	  else \
-	    $(ELCC) -l prv-install -f preview-make-package $(DESTDIR)$(packagedir) "$(PACKAGE)" \"`echo $(AUCTEXDATE)|sed 's/\(.*\)-\(.*\)-\(.*\)/\1.\2\3/'`\" \"$(AUCTEXVERSION)\" tex-site.el; \
-	  fi && \
+	  $(ELCC) -l prv-install -f preview-make-package $(DESTDIR)$(packagedir) "$(PACKAGE)" \"`echo $(AUCTEXDATE)|sed 's/\(.*\)-\(.*\)-\(.*\)/\1.\2\3/'`\" \"$(AUCTEXVERSION)\" tex-site.el && \
 	  cd $(DESTDIR)$(packagedir) && \
 	  find "etc/$(PACKAGE)" "lisp/$(PACKAGE)" -print >"pkginfo/MANIFEST.$(PACKAGE)" && \
 	  for i in $(PACKAGE_INFO); do \
@@ -428,7 +430,7 @@ wc:
 # 6) release-upload
 #    Upload files to GNU FTP server.
 #
-# 7) www-doc TAG=<tag> GENDOCSPATCH=<patch-file>
+# 7) www-doc TAG=<tag>
 #    Create documentation for AUCTeX home page.
 #
 # 8) preview-ball TAG=<tag>
@@ -503,7 +505,7 @@ xemacs-package: check-tag
 	$(CP_A) auctex-$(TAG) $(XEMACS_BUILD_DIR)
 	cd $(XEMACS_BUILD_DIR) \
 	&& ./configure INSTALL_INFO=: TEXHASH=: --with-xemacs --with-packagedir=`pwd`/xemacs-package --without-texmf-dir --with-auto-dir=etc/auctex/auto \
-	&& make all install-man install && cd xemacs-package && tar -cf - --owner=root --group=root . | gzip --best > $(FTPDIR)/auctex-$(TAG)-pkg.tar.gz
+	&& $(MAKE) all install-man install && cd xemacs-package && tar -cf - --owner=root --group=root . | gzip --best > $(FTPDIR)/auctex-$(TAG)-pkg.tar.gz
 
 # Pre-compiled AUCTeX package for Emacs on Windows
 WBUILDDIR=$(PWD)/windows-package
@@ -520,7 +522,16 @@ ifeq ($(shell echo "$(WEMACSVER)" | grep '\(2[2-3].[1-4]\|24.[1-3]\)' -),$(WEMAC
 else
 	WEMACSDATAROOTDIR="share/"
 	WEMACSEXTRACTDIR="emacs-$(WEMACSVER)"
-	WEMACSPACKAGE="emacs-$(WEMACSVER)-bin-i686-pc-mingw32.zip"
+# And just to add more complexity, the package name changed again with Emacs
+# 24.5.  Actually, we don't really need to keep track of all these changes as we
+# should support only the latest Emacs version, but unless something else
+# changes again again in the near future we can keep them (and it's useful to
+# reproduce old AUCTeX packages!).
+	ifeq (24.4,$(WEMACSVER))
+		WEMACSPACKAGE="emacs-$(WEMACSVER)-bin-i686-pc-mingw32.zip"
+	else
+		WEMACSPACKAGE="emacs-$(WEMACSVER)-bin-i686-mingw32.zip"
+	endif
 	WEMACSSITELISP="$(WEMACSDATAROOTDIR)/emacs/site-lisp"
 endif
 WPACKAGEFILES=$(WEMACSSITELISP)/auctex $(WEMACSSITELISP)/site-start.d \
@@ -563,9 +574,9 @@ windows-package: check-tag
 	  --without-texmf-dir --with-emacs=$(WEMACS) \
 	  --with-lispdir=$(WBUILDDIR)/emacs-$(WEMACSVER)/$(WEMACSSITELISP) \
 	  --datarootdir=$(WBUILDDIR)/emacs-$(WEMACSVER)/$(WEMACSDATAROOTDIR) \
-	&& make \
+	&& $(MAKE) \
 	&& sed -i -e 's/"\/[^\n]\+/(expand-file-name "..\/var\/auctex" (file-name-directory load-file-name))/' tex-site.el \
-	&& make install
+	&& $(MAKE) install
 # Create the package
 	test -d $(FTPDIR) || mkdir -p $(FTPDIR)
 	rm -f $(FTPDIR)/$(WPACKAGE)
@@ -603,7 +614,8 @@ www-doc: check-tag
 	$(CP) auctex-$(TAG)/doc/*.texi $(WWWDIR)/manual
 	cd $(WWWDIR)/manual \
 	&& wget -O gendocs.sh 'http://cvs.savannah.gnu.org/viewvc/%2acheckout%2a/texinfo/texinfo/util/gendocs.sh' \
-	&& patch <$(GENDOCSPATCH) \
+	&& wget -O gendocs.sh.patch 'http://git.savannah.gnu.org/gitweb/?p=auctex.git;a=blob_plain;f=gendocs.sh.patch;hb=gendocspatch' \
+	&& patch <gendocs.sh.patch \
 	&& chmod u+x gendocs.sh \
 	&& wget -O gendocs_template 'http://cvs.savannah.gnu.org/viewvc/%2acheckout%2a/texinfo/texinfo/util/gendocs_template' \
 	&& sed -i -e 's/html_node\/index\.html/%%PACKAGE%%\/index.html/' gendocs_template \
@@ -620,7 +632,7 @@ preview-ball: check-tag
 # Use TAG_EXPORT if set (for snapshots)
 	git archive $${TAG_EXPORT:=`echo release_$(TAG) | sed 's/[.]/_/g'`} \
 	  latex/ | tar -xC $(PREVIEW_BUILD_DIR) --strip-components=1
-	cd $(PREVIEW_BUILD_DIR) && make -f ../latex/Makefile preview.ins preview.pdf
+	cd $(PREVIEW_BUILD_DIR) && $(MAKE) -f ../latex/Makefile preview.ins preview.pdf
 	chmod -R go-w+rX $(PREVIEW_BUILD_DIR)
 	test -d $(CTANDIR) || mkdir -p $(CTANDIR)
 # CTAN requires a top level directory "preview/" for the archive.

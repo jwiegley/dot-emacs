@@ -1,6 +1,6 @@
 ;;; hyperref.el --- AUCTeX style for `hyperref.sty' v6.83m
 
-;; Copyright (C) 2008, 2013, 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2008, 2013--2015 Free Software Foundation, Inc.
 
 ;; Author: Ralf Angeli <angeli@caeruleus.net>
 ;; Maintainer: auctex-devel@gnu.org
@@ -230,6 +230,7 @@
     '("hypertarget" "Name" "Text")
     '("phantomsection" 0)
     '("autoref" TeX-arg-ref)
+    '("autoref*" TeX-arg-ref)
     '("ref*" TeX-arg-ref)
     '("pageref*" TeX-arg-ref)
     '("autopageref" TeX-arg-ref)
@@ -266,6 +267,11 @@
    (LaTeX-add-environments
     '("Form"))
 
+   ;; Do not indent the content of the "Form"-env; it is odd if the
+   ;; whole document is indented.
+   (make-local-variable 'LaTeX-indent-environment-list)
+   (add-to-list 'LaTeX-indent-environment-list '("Form" current-indentation))
+
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
@@ -283,11 +289,13 @@
 				("hyperref" "{{{{")
 				("hyperlink" "{{")
 				("hypertarget" "{{")
-				("autoref" "{")
+				("autoref" "*{")
 				("ref" "*{")
 				("pageref" "*{")
 				("autopageref" "*{"))
 			      'reference)
+     (font-latex-add-keywords '(("hypersetup" "{"))
+			      'function)
      ;; For syntactic fontification, e.g. verbatim constructs.
      (font-latex-set-syntactic-keywords))
 

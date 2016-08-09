@@ -1,3 +1,7 @@
+2015-11-13  Mosè Giordano  <mose@gnu.org>
+
+	* Version 11.89 released.
+
 2014-11-28  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	* preview.el.in: Cleanup compiler warnings.  Mark unused arguments.

@@ -1,0 +1,460 @@
+Frequently Asked Questions about AUCTeX
+***************************************
+
+  1. Something is not working correctly.  What should I do?
+
+     Well, you might have guessed it, the first place to look is in the
+     available documentation packaged with AUCTeX.  This could be the
+     release notes (in the 'RELEASE' file) or the news section of the
+     manual in case you are experiencing problems after an upgrade, the
+     'INSTALL' file in case you are having problems with the
+     installation, the section about bugs in the manual in case you
+     encountered a bug or the relevant sections in the manual for other
+     related problems.
+
+     If this did not help, you can send a bug report to the AUCTeX bug
+     reporting list by using the command 'M-x TeX-submit-bug-report
+     RET'.  But before you do this, you can try to get more information
+     about the problem at hand which might also help you locate the
+     cause of the error yourself.
+
+     First, you can try to generate a so-called backtrace which shows
+     the functions involved in a program error.  In order to do this,
+     start Emacs with the command line 'emacs --debug-init' and/or put
+     the line
+
+          (setq debug-on-error t)
+
+     as the first line into your init file.  XEmacs users might want to
+     add '(setq stack-trace-on-error t)' as well.  After Emacs has
+     started, you can load a file which triggers the error and a new
+     window should pop up showing the backtrace.  If you get such a
+     backtrace, please include it in the bug report.
+
+     Second, you can try to figure out if something in your personal or
+     site configuration triggers the error by starting Emacs without
+     such customizations.  You can do this by invoking Emacs with the
+     command line 'emacs -q -no-site-file -l auctex'.  The '-l' option
+     'auctex.el' which you normally do in your init file.  After you
+     have started Emacs like this, you can load the file triggering the
+     error.  If everything is working now, you know that you have to
+     search either in the site configuration file or your personal init
+     file for statements related to the problem.
+
+  2. What versions of Emacs and XEmacs are supported?
+
+     AUCTeX was tested with Emacs 21 and XEmacs 21.4.15.  Older versions
+     may work but are unsupported.  Older versions of XEmacs might
+     possibly made to work by updating the 'xemacs-base' package through
+     the XEmacs package system.  If you are looking for a
+     recommendation, it would appear that the smoothest working platform
+     on all operating systems at the current point of time would be
+     Emacs 22 or higher.
+
+     Our success with XEmacs has been less than convincing.  Code for
+     core functionality like formatting and syntax highlighting tends to
+     be different and often older than even Emacs 21.4, and Unicode
+     support as delivered is problematic at best, missing on Windows.
+     Both AUCTeX and XEmacs developers don't hear much from active users
+     of the combination.  Partly for that reason, problems tend to go
+     unnoticed for long amounts of time and are often found, if at all,
+     after releases.  No experiences or recommendations can be given for
+     beta or developer versions of XEmacs.
+
+  3. What should I do when './configure' does not find programs like
+     latex?
+
+     This is problem often encountered on Windows.  Make sure that the
+     'PATH' environment variable includes the directories containing the
+     relevant programs, as described in the file 'INSTALL.windows'
+
+  4. Why doesn't the completion, style file, or multi-file stuff work?
+
+     It must be enabled first, insert this in your init file:
+
+          (setq-default TeX-master nil)
+          (setq TeX-parse-self t)
+          (setq TeX-auto-save t)
+
+     Read also the chapters about parsing and multifile documents in the
+     manual.
+
+  5. Why doesn't 'TeX-save-document' work?
+
+     'TeX-check-path' has to contain "./" somewhere.
+
+  6. Why is the information in 'foo.tex' forgotten when I save
+     'foo.bib'?
+
+     For various reasons, AUCTeX ignores the extension when it stores
+     information about a file, so you should use unique base names for
+     your files.  E.g.  rename 'foo.bib' to 'foob.bib'.
+
+  7. Why doesn't AUCTeX signal when processing a document is done?
+
+     If the message in the minibuffer stays "Type 'C-c C-l' to display
+     results of compilation.", you probably have a misconfiguration in
+     your init file ('.emacs', 'init.el' or similar).  To track this
+     down either search in the '*Messages*' buffer for an error message
+     or put '(setq debug-on-error t)' as the first line into your init
+     file, restart Emacs and open a LaTeX file.  Emacs will complain
+     loudly by opening a debugging buffer as soon as an error occurs.
+     The information in the debugging buffer can help you find the cause
+     of the error in your init file.
+
+  8. Why does 'TeX-next-error' ('C-c `') fail?
+
+     If 'TeX-file-line-error' is set to nil (not the default), these
+     sort of failures might be related to the the fact that when writing
+     the log file, TeX puts information related to a file, including
+     error messages, between a pair of parentheses.  In this scenario
+     AUCTeX determines the file where the error happened by parsing the
+     log file and counting the parentheses.  This can fail when there
+     are other, unbalanced parentheses present.
+
+     Activating so-called file:line:error messages for the log file
+     usually solves this issue, as these kind of messages are are easier
+     to parse; however, they may lack some details.  Activation can be
+     done either in the configuration of your TeX system (consult its
+     manual to see where this is) or by simply keeping the variable
+     'TeX-file-line-error' to the default value of non-nil.
+
+  9. What does AUC stand for?
+
+     AUCTeX came into being at Aalborg University in Denmark.  Back then
+     the Danish name of the university was Aalborg Universitetscenter;
+     AUC for short.
+
+Frequently Asked Questions about preview-latex
+**********************************************
+
+Frequently Asked Questions about preview-latex
+1 Introduction
+  1.1 How can I contribute to the FAQ?
+2 Requirements
+  2.1 Which version of (X)Emacs is needed?
+  2.2 Which versions of Ghostscript and AUCTeX are needed?
+  2.3 I have trouble with the display format...
+  2.4 For which OS does preview work?
+3 Installation Trouble
+  3.1 I just get 'LaTeX found no preview images'.
+  3.2 I have problems with the XEmacs installation
+4 Customization
+  4.1 Why don't I get balloon help like in the screen shots?
+  4.2 How to include additional environments like 'enumerate'
+  4.3 What if I don't want to change the document?
+  4.4 Suddenly I get gazillions of ridiculous pages?!?
+  4.5 Does preview-latex work with presentation classes?
+5 Troubleshooting
+  5.1 Preview causes all sort of strange error messages
+  5.2 Why do my DVI and PDF output files vanish?
+  5.3 My output file suddenly only contains preview images?!
+6 preview-latex when not using LaTeX
+  6.1 Does preview-latex work with PDFLaTeX?
+  6.2 Does preview-latex work with 'elatex'?
+  6.3 Does preview-latex work with ConTeXt?
+  6.4 Does preview-latex work with plain TeX?
+1 Introduction
+**************
+
+1.1 How can I contribute to the FAQ?
+====================================
+
+Send an email with the subject:
+     Preview FAQ
+   to <auctex-devel@gnu.org>.
+
+2 Requirements
+**************
+
+2.1 Which version of (X)Emacs is needed?
+========================================
+
+See also the table at the end of the section.
+
+   preview-latex nominally requires GNU Emacs with a version of at least
+21.1.  However, Emacs 22 (currently under development) offers superior
+performance and wider platform support, and is even now the recommended
+platform to use.
+
+   While recent versions of XEmacs 21.4 are supported, doing this in a
+satisfactory manner has proven to be difficult due to technical
+shortcomings and differing API's which are hard to come by.  If
+preview-latex is an important part of your editing workflow, you are
+likely to get better results and support by switching to Emacs.  Of
+course, you can improve support for your favorite editor by giving
+feedback in case you encounter bugs.
+
+2.2 Which versions of Ghostscript and AUCTeX are needed?
+========================================================
+
+We recommend to use GNU or AFPL Ghostscript with a version of at least
+7.07.
+
+   preview-latex has been distributed as part of AUCTeX since version
+11.80.  If your version of AUCTeX is older than that, or if it does not
+contain a working copy of preview-latex, complain to wherever you got it
+from.
+
+2.3 I have trouble with the display format...
+=============================================
+
+We recommend keeping the variable 'preview-image-type' set to 'dvipng'
+(if you have it installed) or 'png'.  This is the default and can be set
+via the Preview/Customize menu.
+
+   All other formats are known to have inconveniences, either in file
+size or quality.  There are some Emacs versions around not supporting
+PNG; the proper way to deal with that is to complain to your Emacs
+provider.  Short of that, checking out PNM or JPEG formats might be a
+good way to find out whether the lack of PNG format support might be the
+only problem with your Emacs.
+
+2.4 For which OS does preview work?
+===================================
+
+It is known to work under the X Window System for Linux and for several
+flavors of Unix: we have reports for HP and Solaris.
+
+   There are several development versions of Emacs around for native
+MacOS Carbon, and preview-latex is working with them, too.
+
+   With Windows, Cygwin and native ports of XEmacs should work.
+preview-latex will not work with any native version 21 of Emacs under
+Windows: you need to get a hold of Emacs 22 which is at the time of this
+writing not released but available as a developer snapshot.
+
+   The entry "X11/Unix" currently means Linux, Solaris or HP/UX, as well
+as the X-specific version for Mac/OSX.
+
+OS             Emacs version   XEmacs version
+X11/Unix       21.1            21.4.9
+Win9x cygwin   21.3.50?        21.4.8
+Win9x native   22.1            21.4.8
+MacOSX         22.1            -
+native
+
+3 Installation Trouble
+**********************
+
+3.1 I just get 'LaTeX found no preview images'.
+===============================================
+
+The reason for this is that LaTeX found no preview images in the
+document in question.
+
+   One reason might be that there are no previews to be seen.  If you
+have not used preview-latex before, you might not know its manner of
+operation.  One sure-fire way to test if you just have a document where
+no previews are to be found is to use the provided example document
+'circ.tex' (you will have to copy it to some directory where you have
+write permissions).  If the symptom persists, you have a problem, and
+the problem is most likely a LaTeX problem.  Here are possible reasons:
+
+Filename database not updated
+     Various TeX distributions have their own ways of knowing where the
+     files are without actually searching directories.  The normal
+     preview-latex installation should detect common tools for that
+     purpose and use them.  If this goes wrong, or if the files get
+     installed into a place where they are not looked for, the LaTeX run
+     will fail.
+
+An incomplete manual installation
+     This should not happen if you followed installation instructions.
+     Unfortunately, people know better all the time.  If only
+     'preview.sty' gets installed without a set of supplementary files
+     also in the 'latex' subdirectory, preview-latex runs will not
+     generate any errors, but they will not produce any previews,
+     either.
+
+An outdated 'preview' installation
+     The 'preview.sty' package is useful for more than just
+     preview-latex.  For example, it is part of TeXlive.  So you have to
+     make sure that preview-latex does not get to work with outdated
+     style and configuration files: some newer features will not work
+     with older TeX style files, and really old files will make
+     preview-latex fail completely.  There usual is a local 'texmf'
+     tree, or even a user-specific tree that are searched before the
+     default tree.  Make sure that the first version of those files that
+     gets found is the correct one.
+
+3.2 I have problems with the XEmacs installation
+================================================
+
+Please note that the XEmacs installation is different, since XEmacs has
+a package system that gets used here.  Please make sure that you read
+and follow the installation instructions for XEmacs.
+
+4 Customization
+***************
+
+4.1 Why don't I get balloon help like in the screen shots?
+==========================================================
+
+Some users have reported problems with their XEmacs version, so balloon
+help is no longer switched on by default.  Use the Preview/Customize
+menu or '<M-x> customize-variable' in order to customize
+'preview-use-balloon-help' to 'On'.  This only concerns XEmacs: tooltips
+under GNU Emacs are enabled by default and unproblematic.
+
+4.2 How to include additional environments like 'enumerate'
+===========================================================
+
+By default, preview-latex is intended mainly for displaying mathematical
+formulas, so environments like 'enumerate' or 'tabular' (except where
+contained in a float) are not included.  You can include them however
+manually by adding the lines:
+
+     \usepackage[displaymath,textmath,sections,graphics,floats]{preview}
+     \PreviewEnvironment{enumerate}
+
+   in your document header, that is before
+
+     \begin{document}
+In general, 'preview' should be loaded as the last thing before the
+start of document.
+
+   Be aware that
+
+     \PreviewEnvironment{...}
+
+   does not accept a comma separated list!  Also note that by putting
+more and more
+
+     \PreviewEnvironment{...}
+
+   in your document, it will look more and more like a DVI file preview
+when running preview-latex.  Since each preview is treated as one large
+monolithic block by Emacs, one should really restrict previews to those
+elements where the improvement in visual representation more than makes
+up for the decreased editability.
+
+4.3 What if I don't want to change the document?
+================================================
+
+The easiest way is to generate a configuration file in the current
+directory.  You can basically either create 'prdefault.cfg' which is
+used for any use of the 'preview' package, or you can use 'prauctex.cfg'
+which only applies to the use from with Emacs.  Let us assume you use
+the latter.  In that case you should write something like
+
+     \InputIfFileExists{preview/prauctex.cfg}{}{}
+     \PreviewEnvironment{enumerate}
+
+   in it.  The first line inputs the system-wide default configuration
+(the file name should match that, but not your own 'prauctex.cfg'), then
+you add your own stuff.
+
+4.4 Suddenly I get gazillions of ridiculous pages?!?
+====================================================
+
+When preview-latex works on extracting its stuff, it typesets each
+single preview on a page of its own.  This only happens when actual
+previews get generated.  Now if you want to configure preview-latex in
+your document, you need to add your own '\usepackage' call to 'preview'
+so that it will be able to interpret its various definition commands.
+It is an error to add the 'active' option to this invocation: you don't
+want the package to be active unless preview-latex itself enables the
+previewing operation (which it will).
+
+4.5 Does preview-latex work with presentation classes?
+======================================================
+
+preview-latex should work with most presentation classes.  However,
+since those classes often have macros or pseudo environments
+encompassing a complete slide, you will need to use the customization
+facilities of 'preview.sty' to tell it how to resolve this, whether you
+want no previews, previews of whole slides or previews of inner
+material.
+
+5 Troubleshooting
+*****************
+
+5.1 Preview causes all sort of strange error messages
+=====================================================
+
+When running preview-latex and taking a look at either log file or
+terminal output, lots of messages like
+
+     ! Preview: Snippet 3 started.
+     <-><->
+
+     l.52 \item Sie lassen sich als Funktion $
+                                              y = f(x)$ darstellen.
+     ! Preview: Snippet 3 ended.(491520+163840x2494310).
+     <-><->
+
+     l.52 \item Sie lassen sich als Funktion $y = f(x)$
+                                                        darstellen.
+
+   appear (previous versions generated messages looking even more like
+errors).  Those are not real errors (as will be noted in the log file).
+Or rather, while they *are* really TeX error messages, they are
+intentional.  This currently is the only reliable way to pass the
+information from the LaTeX run of preview-latex to its Emacs part about
+where the previews originated in the source text.  Since they are actual
+errors, you will also get AUCTeX to state
+     Preview-LaTeX exited as expected with code 1 at Wed Sep  4 17:03:30
+   after the LaTeX run in the run buffer.  This merely indicates that
+errors were present, and errors will always be present when
+preview-latex is operating.  There might be also real errors, so in case
+of doubt, look for them explicitly in either run buffer or the resulting
+'.log' file.
+
+5.2 Why do my DVI and PDF output files vanish?
+==============================================
+
+In order to produce the preview images preview-latex runs LaTeX on the
+master or region file.  The resulting DVI or PDF file can happen to have
+the same name as the output file of a regular LaTeX run.  So the regular
+output file gets overwritten and is subsequently deleted by
+preview-latex.
+
+5.3 My output file suddenly only contains preview images?!
+==========================================================
+
+As mentioned in the previews FAQ entry, preview-latex might use the file
+name of the original output file for the creation of preview images.  If
+the original output file is being displayed with a viewer when this
+happens, you might see strange effects depending on the viewer, e.g.  a
+message about the file being corrupted or the display of all the preview
+images instead of your typeset document.  (Also *Note Customization::.)
+
+6 preview-latex when not using LaTeX
+************************************
+
+6.1 Does preview-latex work with PDFLaTeX?
+==========================================
+
+Yes, as long as you use AUCTeX's own PDFLaTeX mode and have not messed
+with 'TeX-command-list'.
+
+6.2 Does preview-latex work with 'elatex'?
+==========================================
+
+No problem here.  If you configure your AUCTeX to use 'elatex', or
+simply have 'latex' point to 'elatex', this will work fine.  Modern TeX
+distributions use eTeX for LaTeX, anyway.
+
+6.3 Does preview-latex work with ConTeXt?
+=========================================
+
+In short, no.  The 'preview' package is LaTeX-dependent.  Adding support
+for other formats requires volunteers.
+
+6.4 Does preview-latex work with plain TeX?
+===========================================
+
+Again, no.  Restructuring the 'preview' package for 'plain' operation
+would be required.  Volunteers welcome.
+
+   In some cases you might get around by making a wrapper pseudo-Master
+file looking like the following:
+
+     \documentclass{article}
+     \usepackage{plain}
+     \begin{document}
+     \begin{plain}
+     \input myplainfile
+     \end{plain}
+     \end{document}

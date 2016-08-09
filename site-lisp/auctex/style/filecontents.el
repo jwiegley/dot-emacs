@@ -1,6 +1,6 @@
 ;;; filecontents.el --- AUCTeX style for `filecontents.sty'
 
-;; Copyright (C) 2013, 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2013--2015 Free Software Foundation, Inc.
 
 ;; Author: Mads Jensen <mje@inducks.org>
 ;; Maintainer: auctex-devel@gnu.org
@@ -38,7 +38,13 @@
  (lambda ()
    (LaTeX-add-environments
     '("filecontents" LaTeX-env-filecontents)
-    '("filecontents*" LaTeX-env-filecontents)))
+    '("filecontents*" LaTeX-env-filecontents))
+
+   (make-local-variable 'LaTeX-indent-environment-list)
+   (add-to-list 'LaTeX-indent-environment-list
+		'("filecontents" current-indentation))
+   (add-to-list 'LaTeX-indent-environment-list
+		'("filecontents*" current-indentation)))
  LaTeX-dialect)
 
 (defun LaTeX-env-filecontents (environment)

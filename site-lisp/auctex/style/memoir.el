@@ -65,6 +65,8 @@
 
     "leadpagetoclevel")
 
+   (LaTeX-add-environments "abstract")
+
    ;; Emulated packages.  The `memoir' class contains a list of files
    ;; emulated at the end of the class-file
    (TeX-run-style-hooks

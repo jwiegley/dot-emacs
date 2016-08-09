@@ -11,11 +11,12 @@
 
 (TeX-add-style-hook
  "report"
- (lambda () 
+ (lambda ()
    (LaTeX-largest-level-set "chapter")
    (LaTeX-add-counters "part" "chapter" "section" "subsection" "subsubsection"
 		       "paragraph" "subparagraph" "figure" "table")
-   (LaTeX-add-pagestyles "headings" "myheadings"))
+   (LaTeX-add-pagestyles "headings" "myheadings")
+   (LaTeX-add-environments "abstract"))
  LaTeX-dialect)
 
 ;;; report.el ends here

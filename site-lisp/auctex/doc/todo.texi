@@ -1,5 +1,5 @@
 @c This is part of the AUCTeX Manual.
-@c Copyright (C) 2004-2006, 2008, 2009, 2013, 2014 Free Software
+@c Copyright (C) 2004-2006, 2008, 2009, 2013-2015 Free Software
 @c Foundation, Inc.
 @c See the file auctex.texi for copying conditions.
 @ifset rawfile
@@ -138,9 +138,6 @@ This default value for TeX-master could then be controled with mapping
 based on the extension.
 
 @item
-Suggest @samp{makeindex} when appropriate.
-
-@item
 Use index files (when available) to speed up @kbd{C-c C-m include
 @key{RET}}.
 
@@ -188,17 +185,6 @@ letters.
 Use Emacs 19 minibuffer history to choose between previewers, and other
 stuff.  Suggested by John Interrante
 @samp{<interran@@uluru.Stanford.EDU>}.
-
-@item
-Make features.
-
-A new command @code{TeX-update} (@kbd{C-c C-u}) could be used to create
-an up-to-date dvi file by repeatedly running Bib@TeX{}, MakeIndex and
-(La)@TeX{}, until an error occurs or we are done.
-
-An alternative is to have an @samp{Update} command that ensures the
-@samp{dvi} file is up to date.  This could be called before printing and
-previewing.
 
 @item
 Documentation of variables that can be set in a style hook.

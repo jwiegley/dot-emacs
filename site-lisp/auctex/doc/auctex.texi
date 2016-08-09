@@ -12,7 +12,7 @@ This manual is for @AUCTeX{}
 (version @value{VERSION} from @value{UPDATED}),
 a sophisticated TeX environment for Emacs.
 
-Copyright @copyright{} 1992-1995, 2001, 2002, 2004-2014
+Copyright @copyright{} 1992-1995, 2001, 2002, 2004-2015
 Free Software Foundation, Inc.
 
 @quotation
@@ -187,6 +187,10 @@ Viewing the Formatted Output
 
 * Starting Viewers::            Starting viewers
 * I/O Correlation::             Forward and inverse search
+
+Catching the errors
+
+* Error overview::              List of all errors and warnings
 
 Customization and Extension
 
@@ -2696,6 +2700,18 @@ master file.  The command is then actually run on the region file.  See
 @code{TeX-command-region} for details.
 @end deffn
 
+It is also possible to compile automatically the whole document until it
+is ready with a single command: @code{TeX-command-run-all}.
+
+@deffn Command TeX-command-run-all
+@kindex C-c C-a
+(@kbd{C-c C-a}) Compile the current document until an error occurs or it
+is finished.  If compilation finishes successfully, run the viewer at
+the end.
+@end deffn
+
+Here are some relevant variables.
+
 @defopt TeX-region
 The name of the file for temporarily storing the text when formatting
 the current region.
@@ -2891,6 +2907,33 @@ In particular, fine-tuning the page breaks should be done with source
 specials switched off.
 @end deffn
 
+Sometimes you are requested, by journal rules or packages, to compile
+the document into @acronym{DVI} output.  Thus, if you want a
+@acronym{PDF} document in the end you can either use Xe@TeX{} engine,
+see below for information about how to set engines, or compile the
+document with @command{tex} and then convert to @acronym{PDF} with
+@command{dvips}--@command{ps2pdf} before viewing it.  The latter can be
+done automatically in @AUCTeX{} by setting the
+@code{TeX-PDF-via-dvips-ps2pdf} variable to a non-nil value.
+
+@defopt TeX-PDF-via-dvips-ps2pdf
+With @code{TeX-PDF-mode} set to non-nil, if
+@code{TeX-PDF-via-dvips-ps2pdf} is non-nil too, the document is compiled
+with @command{tex} (or @command{latex}) instead of @command{pdftex} (or
+@command{pdflatex}).  When the document is ready, @kbd{C-c C-c} will
+suggest to run @command{dvips} and then @command{ps2pdf} in order to
+convert the @acronym{DVI} file to @acronym{PDF}.  When the @acronym{PDF}
+file is finally ready, the next suggested command will be to open the
+viewer.
+
+This option can also be set as a file local variable, in order to use
+the sequence @command{tex}--@command{dvips}--@command{ps2pdf} on a
+per-document basis.
+
+Recall the whole sequence of @kbd{C-c C-c} commands can be replace by
+the single @kbd{C-c C-a}.
+@end defopt
+
 @AUCTeX{} also allows you to easily select different @TeX{} engines for
 processing, either by using the entries in the @samp{TeXing Options}
 submenu below the @samp{Command} menu or by calling the function
@@ -2946,6 +2989,37 @@ command can either be a variable or a string.  An empty string or nil
 means there is no command available.
 @end defopt
 
+In some systems, Emacs cannot inherit the PATH environment variable from
+the shell and thus @AUCTeX{} may not be able to run @TeX{} commands.
+Before running them, @AUCTeX{} checks if it able to find those commands
+and will warn you in case it fails.  You can skip this test by changing
+the option @code{TeX-check-TeX}.
+
+@defopt TeX-check-TeX
+@vindex TeX-command
+@vindex TeX-check-TeX-command-not-found
+If non-nil, @AUCTeX{} will check if it is able to find a working @TeX{}
+distribution before running @TeX{}, @LaTeX{}, @ConTeXt{}, etc.  It
+actually checks if can run @code{TeX-command} command or the shell
+returns a command not found error.  The error code returned by the shell
+in this case can be set in @code{TeX-check-TeX-command-not-found}
+option.
+@end defopt
+
+Some @LaTeX{} packages requires the document to be compiled with a
+specific engine.  Notable examples are fontspec and polyglossia
+packages, which require Lua@TeX{} and Xe@TeX{} engines.  If you try to
+compile a document which loads one of such packages and the set engine
+is not one of those allowed you will be asked to select a different
+engine before running the @LaTeX{} command.  If you do not want to be
+warned by @AUCTeX{} in these cases, customize the option
+@code{TeX-check-engine}.
+
+@defopt TeX-check-engine
+This boolean option controls whether @AUCTeX{} should check the correct
+engine has been set before running @LaTeX{} commands.
+@end defopt
+
 As shown above, @AUCTeX{} handles in a special way most of the main
 options that can be given to the @TeX{} processors.  When you need to
 pass to the @TeX{} processor arbitrary options not handled by @AUCTeX{},
@@ -2975,6 +3049,16 @@ file:line:error which is similar to the way many compilers format them.
 
 @defopt TeX-file-line-error
 If non-nil, @TeX{} will produce file:line:error style error messages.
+@end defopt
+
+@ConTeXt{} users can choose between Mark II and Mark IV versions.  This
+is controlled by @code{ConTeXt-Mark-version} option.
+
+@defopt ConTeXt-Mark-version
+This variables specifies which version of Mark should be used.  Values
+currently supported are @code{"II"}, the default, and @code{"IV"}.  It
+can be set globally using customization interface or on a per-file
+basis, by specifying it as a file variable.
 @end defopt
 
 @node Viewing
@@ -3067,14 +3151,15 @@ conditionalized by prefixing them with predicates from
 @code{TeX-view-predicate-list} or
 @code{TeX-view-predicate-list-builtin}.  (See the doc string for the
 exact format to use.)  The command line can also contain placeholders as
-defined in @code{TeX-expand-list} which are expanded before the viewer
-is called.
+defined in @code{TeX-expand-list} and @code{TeX-expand-list-builtin}
+which are expanded before the viewer is called.
 
 The third element of each item is a string, or a list of strings, with
 the name of the executable, or executables, needed to open the output
-file in the viewer.  Placeholders defined in @code{TeX-expand-list} can
-be used here.  This element is optional and is used to check whether the
-viewer is actually available on the system.
+file in the viewer.  Placeholders defined in @code{TeX-expand-list} and
+@code{TeX-expand-list-builtin} can be used here.  This element is
+optional and is used to check whether the viewer is actually available
+on the system.
 
 A built-in viewer spec from @code{TeX-view-program-list-builtin} can be
 overwritten by defining a new viewer spec with the same name.
@@ -3082,10 +3167,10 @@ overwritten by defining a new viewer spec with the same name.
 
 Note that the viewer selection and invocation as described above will
 only work if certain default settings in @AUCTeX{} are intact.  For one,
-the whole viewer selection machinery will only be triggered if the
-@samp{%V} expander in @code{TeX-expand-list} is unchanged.  So if you
-have trouble with the viewer invocation you might check if there is an
-older customization of the variable in place.  In addition, the use of a
+the whole viewer selection machinery will only be triggered if there is
+no @samp{%V} expander in @code{TeX-expand-list}.  So if you have trouble
+with the viewer invocation you might check if there is an older
+customization of the variable in place.  In addition, the use of a
 function in @code{TeX-view-program-list} only works if the View command
 in @code{TeX-command-list} makes use of the hook
 @code{TeX-run-discard-or-function}.
@@ -3210,7 +3295,9 @@ to do exactly.  In xdvi you normally have to use @kbd{C-down-mouse-1}.
 @cindex Underfull boxes
 
 Once you've formatted your document you may `debug' it, i.e. browse
-through the errors (La)@TeX{} reported.
+through the errors (La)@TeX{} reported.  If you have GNU Emacs 24 or
+later, you may also have a look at a nicely formatted list of all errors
+and warnings reported by the compiler.
 
 @deffn Command TeX-next-error @var{arg} @var{reparse}
 @kindex C-c `
@@ -3277,6 +3364,13 @@ terse information about the error is displayed in the echo area.  If
 @TeX{} output.
 @end defopt
 
+@menu
+* Error overview::            List of all errors and warnings
+@end menu
+
+@node Error overview
+@subsection List of all errors and warnings
+
 When the option @code{TeX-parse-all-errors} is non-nil, you will be also
 able to open an overview of all errors and warnings reported by the TeX
 compiler.  This feature requires @code{tabulated-list-mode}, shipped
@@ -3290,7 +3384,9 @@ In this window you can visit the error on which point is on by pressing
 @key{RET}, and visit the next or previous issue by pressing @key{n} or
 @key{p} respectively.  A prefix argument to these keys specifies how
 many errors to move forward or backward.  You can visit an error also by
-clicking on its message.  Press @key{q} to quit the overview.
+clicking on its message.  Jump to error point in the source code with
+@key{j}, and use @key{l} see the error in the log buffer.  Press @key{q}
+to quit the overview.
 @end deffn
 
 @defopt TeX-error-overview-open-after-TeX-run
@@ -3503,9 +3599,11 @@ the compiled output document as its argument.
 
 This is useful for automatically refreshing the viewer after
 re-compilation especially when using Emacs viewers such as DocView or
-PDF Tools.
+PDF Tools.  The function @code{TeX-revert-document-buffer} can be added
+to the hook for this purpose.
 @end defvr
 @vindex TeX-after-TeX-LaTeX-command-finished-hook
+@findex TeX-revert-document-buffer
 
 @node Multifile
 @section Multifile Documents
@@ -3576,6 +3674,9 @@ file itself.
 
 If the variable is @code{shared}, then @AUCTeX{} will query for the name,
 but will not change the file.
+
+If the variable is @code{dwim}, @AUCTeX{} will try to avoid querying by
+attempting to ``do what I mean''; and then change the file.
 @end defopt
 
 @defopt TeX-one-master
