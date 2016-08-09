@@ -796,7 +796,7 @@
    (quote
     (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
- '(ns-alternate-modifier (quote alt))
+ '(ns-alternate-modifier (quote none))
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
  '(ns-right-control-modifier (quote hyper))
