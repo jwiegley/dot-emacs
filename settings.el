@@ -420,12 +420,12 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#ledger" "#ChicagoHaskell" "#haskell-ops" "#nixos" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))) t)
+    (("freenode.net" "#haskell" "##categorytheory" "#agda" "#coq" "#idris" "#gitlib" "#ledger" "#ChicagoHaskell" "#haskell-ops" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#savannah" "#wigfam" "#haskell-lens"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
    (quote
-    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:" "\\<stack\\(age\\)?\\>" "\\<cabal\\>")))
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
