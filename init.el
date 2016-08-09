@@ -87,7 +87,7 @@
 
 ;;; Load customization settings
 
-(defconst titan-ip "192.168.9.133")
+(defconst titan-ip "127.0.0.1")
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
@@ -776,8 +776,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 30
   :config
   (when (and (not running-alternate-emacs)
-             (not running-development-emacs)
-             (quickping titan-ip))
+             (not running-development-emacs))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
 
@@ -1101,10 +1100,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (avy-setup-default))
 
 (use-package tex-site                   ; auctex
+  :load-path "site-lisp/auctex/"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :init
   (setq reftex-plug-into-AUCTeX t)
+  (setenv "PATH" (concat "/Library/TeX/texbin:"
+                         (getenv "PATH")))
+  (add-to-list 'exec-path "/Library/TeX/texbin")
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -1643,10 +1646,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (require 'erc)
     (if (slowping titan-ip)
         (progn
-          (erc :server titan-ip
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password titan-ip "johnw/bitlbee" 6697))
+          ;; (erc :server titan-ip
+          ;;      :port 6697
+          ;;      :nick "johnw"
+          ;;      :password (lookup-password titan-ip "johnw/bitlbee" 6697))
           (erc :server titan-ip
                :port 6697
                :nick "johnw"
