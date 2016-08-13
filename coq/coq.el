@@ -1346,8 +1346,8 @@ goal is redisplayed."
 (proof-definvisible coq-show-proof "Show Proof.")
 (proof-definvisible coq-show-conjectures "Show Conjectures.")
 (proof-definvisible coq-show-intros "Show Intros.") ; see coq-insert-intros below
-(proof-definvisible coq-set-implicit-arguments "Set Implicit Arguments.")
-(proof-definvisible coq-unset-implicit-arguments "Unset Implicit Arguments.")
+(proof-definvisible coq-set-printing-implicit "Set Printing Implicit.")
+(proof-definvisible coq-unset-printing-implicit "Unset Printing Implicit.")
 (proof-definvisible coq-set-printing-all "Set Printing All.")
 (proof-definvisible coq-unset-printing-all "Unset Printing All.")
 (proof-definvisible coq-set-printing-synth "Set Printing Synth.")

@@ -190,8 +190,8 @@ It was constructed with `proof-defstringset-fn'.")
     ("OPTIONS"
      ["Set Printing All" coq-set-printing-all t]
      ["UnSet Printing All" coq-unset-printing-all t]
-     ["Set Implicit Argument" coq-set-implicit-arguments t]
-     ["Unset Implicit Argument" coq-unset-implicit-arguments t]
+     ["Set Printing Implicit" coq-set-printing-implicit t]
+     ["Unset Printing Implicit" coq-unset-printing-implicit t]
      ["Set Printing Width" coq-ask-adapt-printing-width-and-show t]
      ["Set Printing Synth" coq-set-printing-synth t]
      ["Unset Printing Synth" coq-unset-printing-synth t]
