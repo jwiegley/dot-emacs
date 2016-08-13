@@ -642,6 +642,7 @@ so for the following reasons:
     ("Require Export" nil "Require Export #." t "Require\\s-+Export")
     ("Require Import" nil "Require Import #." t "Require\\s-+Import")
     ("Require" nil "Require #." t "Require")
+    ("Reserved Infix" nil "Reserved Infix" nil "Reserved\\s-+Infix")
     ("Reserved Notation" nil "Reserved Notation" nil "Reserved\\s-+Notation")
     ("Reset Extraction Inline" nil "Reset Extraction Inline." t "Reset\\s-+Extraction\\s-+Inline")
     ("Save" nil "Save." t "Save")
@@ -1230,7 +1231,7 @@ It is used:
 (defconst coq-exists-regexp "\\(?:\\_<exists\\_>\\|∃\\)")
 
 (defvar coq-font-lock-terms
-  (append   
+  (append
    (list ;; flattened by append above
     (cons coq-symbol-binders 'coq-symbol-binder-face))
    (when coq-symbol-highlight-enable
