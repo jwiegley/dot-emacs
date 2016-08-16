@@ -1354,6 +1354,8 @@ goal is redisplayed."
 (proof-definvisible coq-unset-printing-synth "Unset Printing Synth.")
 (proof-definvisible coq-set-printing-coercions "Set Printing Coercions.")
 (proof-definvisible coq-unset-printing-coercions "Unset Printing Coercions.")
+(proof-definvisible coq-set-printing-universes "Set Printing Universes.")
+(proof-definvisible coq-unset-printing-universes "Unset Printing Universes.")
 (proof-definvisible coq-set-printing-wildcards "Set Printing Wildcard.")
 (proof-definvisible coq-unset-printing-wildcards "Unset Printing Wildcard.")
 ; Takes an argument
