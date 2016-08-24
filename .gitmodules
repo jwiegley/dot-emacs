@@ -34,3 +34,6 @@
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = https://github.com/capitaomorte/yasmate.git
+[submodule "site-lisp/ProofGeneral"]
+	path = site-lisp/ProofGeneral
+	url = git://github.com/ProofGeneral/PG.git
