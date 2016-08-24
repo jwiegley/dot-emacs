@@ -46,18 +46,6 @@
            (if (file-directory-p share)
                (throw 'result share)))))))
 
-  (defun agda-site-lisp ()
-    (catch 'result
-      (ignore
-       (dolist (path (nix-read-environment "agda"))
-         (let ((share (expand-file-name "share" path)))
-           (if (file-directory-p share)
-               (dolist (ghc-dir (directory-files share t "-ghc-"))
-                 (dolist (Agda-dir (directory-files ghc-dir t "^Agda"))
-                   (let ((mode-dir (expand-file-name "emacs-mode" Agda-dir)))
-                     (if (file-directory-p mode-dir)
-                         (throw 'result mode-dir)))))))))))
-
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept))
 
@@ -1010,7 +998,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
-  :load-path (lambda () (list (agda-site-lisp)))
+  :load-path "site-lisp/agda/src/data/emacs-mode"
   :defines agda2-mode-map
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
@@ -3222,10 +3210,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path (lambda () (when (nix-site-lisp "ProofGeneral/generic")
-                     (list (nix-site-lisp "ProofGeneral/generic")
-                           (nix-site-lisp "ProofGeneral/lib")
-                           (nix-site-lisp "ProofGeneral/coq"))))
+  :load-path ("site-lisp/ProofGeneral/generic"
+              "site-lisp/ProofGeneral/lib"
+              "site-lisp/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
   :preface
   (eval-when-compile
@@ -3300,11 +3287,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (holes-mode -1)
        (whitespace-mode 1)
        ;; (ggtags-mode 1)
-       (set-input-method "Agda")
+       ;; (set-input-method "Agda")
        ;; (proof-unicode-tokens-enable 1)
        (add-hook 'proof-shell-extend-queue-hook
-                 (lambda ()
-                   (set-window-dedicated-p (selected-window) t)))
+                 (lambda () (set-window-dedicated-p (selected-window) t)))
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
