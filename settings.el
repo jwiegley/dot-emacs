@@ -848,6 +848,49 @@
    (quote
     ("schemas.xml" "~/src/schemas.xml" "~/.nix-profile/share/emacs/24.4/etc/schema/schemas.xml")))
  '(runner-init-file "~/.emacs.d/data/runner-conf.el")
+ '(safe-local-eval-forms
+   (quote
+    ((add-hook
+      (quote write-file-hooks)
+      (quote time-stamp))
+     (add-hook
+      (quote write-file-functions)
+      (quote time-stamp))
+     (add-hook
+      (quote before-save-hook)
+      (quote time-stamp)
+      nil t)
+     (add-hook
+      (quote before-save-hook)
+      (quote delete-trailing-whitespace)
+      nil t)
+     (progn
+       (let
+           ((coq-root-directory
+             (when buffer-file-name
+               (locate-dominating-file buffer-file-name ".dir-locals.el")))
+            (coq-project-find-file
+             (and
+              (boundp
+               (quote coq-project-find-file))
+              coq-project-find-file)))
+         (set
+          (make-local-variable
+           (quote tags-file-name))
+          (concat coq-root-directory "TAGS"))
+         (setq camldebug-command-name
+               (concat coq-root-directory "dev/ocamldebug-coq"))
+         (unless coq-project-find-file
+           (set
+            (make-local-variable
+             (quote compile-command))
+            (concat "make -C " coq-root-directory))
+           (set
+            (make-local-variable
+             (quote compilation-search-path))
+            (cons coq-root-directory nil)))
+         (when coq-project-find-file
+           (setq default-directory coq-root-directory)))))))
  '(safe-local-variable-values
    (quote
     ((nix-package-name . "pkgs.haskellPackages_ghc782.newartisans")
