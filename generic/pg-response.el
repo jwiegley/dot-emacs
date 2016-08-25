@@ -393,23 +393,23 @@ Returns non-nil if response buffer was cleared."
    (t
     (let (start end)
       (with-current-buffer proof-response-buffer
-	(setq buffer-read-only nil)
-	;; da: I've moved newline before the string itself, to match
-	;; the other cases when messages are inserted and to cope
-	;; with warnings after delayed output (non newline terminated).
-	(goto-char (point-max))
-	;; insert a newline before the new message unless the
-	;; buffer is empty or proof-script-insert-newlines is nil
-	(unless (or (not proof-script-insert-newlines)
-		    (eq (point-min) (point-max)))
-	  (newline))
-	(setq start (point))
-	(insert str)
-	(unless (bolp) (newline))
-	(when face
-	  (overlay-put
-	   (make-overlay start (point-max))
-	   'face face))
+        (setq buffer-read-only nil)
+        ;; da: I've moved newline before the string itself, to match
+        ;; the other cases when messages are inserted and to cope
+        ;; with warnings after delayed output (non newline terminated).
+        (goto-char (point-max))
+        ;; insert a newline before the new message unless the
+        ;; buffer is empty or proof-script-insert-newlines is nil
+        (unless (or (not proof-script-insert-newlines)
+                    (eq (point-min) (point-max)))
+          (newline))
+        (setq start (point))
+        (insert str)
+        (unless (bolp) (newline))
+        (when face
+          (overlay-put
+           (span-make start (point-max))
+           'face face))
 
 	(setq buffer-read-only t)
 	(set-buffer-modified-p nil))))))
