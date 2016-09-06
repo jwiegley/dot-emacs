@@ -22,6 +22,13 @@
 (require 'ox-md)
 ;; (require 'ox-opml)
 
+(defconst my-org-soft-red    "#fcebeb")
+(defconst my-org-soft-orange "#fcf5eb")
+(defconst my-org-soft-yellow "#fcfceb")
+(defconst my-org-soft-green  "#e9f9e8")
+(defconst my-org-soft-blue   "#e8eff9")
+(defconst my-org-soft-purple "#f3e8f9")
+
 (declare-function cfw:open-calendar-buffer "calfw")
 (declare-function cfw:refresh-calendar-buffer "calfw")
 (declare-function cfw:org-create-source "calfw-org")
