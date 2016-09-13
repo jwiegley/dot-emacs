@@ -27,6 +27,7 @@ List match lines to another buffer, which is able to squeeze by any words you in
 * `C-u M-x helm-multi-swoop` apply last selected buffers from the second time
 * `M-x helm-multi-swoop-org` apply to all org-mode buffers
 * `M-x helm-multi-swoop-current-mode` apply to all buffers with the same major-mode as the current buffer
+* `M-x helm-multi-swoop-projectile` Apply to all opened buffers of the current project
 * `M-x helm-swoop-same-face-at-point` list lines have the same face at the cursor is on
 * During isearch `M-i` to hand the word over to helm-swoop
 * During helm-swoop `M-i` to hand the word over to helm-multi-swoop-all
@@ -58,6 +59,13 @@ Skip the select phase and apply to all org-mode buffers
 
 #### `M-x helm-multi-swoop-current-mode`
 Skip the select phase and apply to all buffers with the same major mode as the current buffer
+
+#### `M-x helm-multi-swoop-projectile`
+Skip the select phase and apply to all opened buffers of the current project.
+It requires projectile to be installed.
+You may specify a filter that will be used for buffers
+by setting variable `helm-multi-swoop-projectile-buffers-filter`.
+By default its value is `projectile-buffers-with-file-or-process`.
 
 #### Multiline behavior 
 `M-4 M-x helm-swoop` or `C-u 4 M-x helm-swoop`
