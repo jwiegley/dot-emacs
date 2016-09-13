@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp -*-
 
 ;; pandoc-mode settings settings file
-;; saved on 2013.09.25 19:47
+;; saved on 2013.09.25 19:40
 
 ((html-q-tags)
  (no-tex-ligatures)
@@ -26,7 +26,7 @@
  (normalize)
  (strict)
  (preserve-tabs)
- (standalone . t)
+ (standalone)
  (read . "markdown")
  (read-lhs)
  (read-extensions
@@ -78,7 +78,7 @@
   ("tex_math_double_backslash")
   ("tex_math_single_backslash")
   ("yaml_metadata_block"))
- (write . "texinfo")
+ (write . "markdown_github")
  (write-lhs)
  (write-extensions
   ("abbreviations")
@@ -129,7 +129,7 @@
   ("tex_math_double_backslash")
   ("tex_math_single_backslash")
   ("yaml_metadata_block"))
- (output . t)
+ (output . "pandoc-mode.md")
  (data-dir)
  (output-dir)
  (template)
@@ -142,7 +142,7 @@
  (csl)
  (citation-abbreviations)
  (include-in-header)
- (include-before-body . "~/src/pandoc-mode/manual/texi-before-body")
+ (include-before-body)
  (include-after-body)
  (epub-embed-font)
  (filter)
