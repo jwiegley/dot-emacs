@@ -6,7 +6,7 @@
 
 ;; Author: Donald Ephraim Curtis <dcurtis@milkbox.net>
 ;; URL: http://github.com/milkypostman/powerline/
-;; Version: 2.3
+;; Version: 2.4
 ;; Keywords: mode-line
 ;; Package-Requires: ((cl-lib "0.2"))
 
@@ -39,6 +39,11 @@
 (defface powerline-inactive2
   '((t (:background "grey20" :inherit mode-line-inactive)))
   "Powerline face 2."
+  :group 'powerline)
+
+(defface mode-line-buffer-id-inactive
+  '((t (:inherit mode-line-buffer-id)))
+  "Powerline mode-line face"
   :group 'powerline)
 
 (defcustom powerline-default-separator 'arrow
@@ -104,6 +109,11 @@ This is needed to make sure that text is properly aligned."
 
 (defcustom powerline-buffer-size-suffix t
   "Display the buffer size suffix."
+  :group 'powerline
+  :type 'boolean)
+
+(defcustom powerline-gui-use-vcs-glyph nil
+  "Display a unicode character to represent a version control system. Not always supported in GUI."
   :group 'powerline
   :type 'boolean)
 
@@ -440,13 +450,11 @@ static char * %s[] = {
 ;;;###autoload (autoload 'powerline-vc "powerline")
 (defpowerline powerline-vc
   (when (and (buffer-file-name (current-buffer)) vc-mode)
-    (if window-system
+    (if (and window-system (not powerline-gui-use-vcs-glyph))
 	(format-mode-line '(vc-mode vc-mode))
-      (let ((backend (vc-backend (buffer-file-name (current-buffer)))))
-	(when backend
-	  (format " %s %s"
-		  (char-to-string #xe0a0)
-		  (vc-working-revision (buffer-file-name (current-buffer)) backend)))))))
+      (format " %s%s"
+	      (char-to-string #xe0a0)
+	      (format-mode-line '(vc-mode vc-mode))))))
 
 ;;;###autoload (autoload 'powerline-buffer-size "powerline")
 (defpowerline powerline-buffer-size
@@ -461,15 +469,20 @@ static char * %s[] = {
                                 (not powerline-buffer-size-suffix))
                           (force-mode-line-update)))))
 
-(defsubst powerline-trim (s)
-  "Remove whitespace at the beginning and the end of string S."
-  (replace-regexp-in-string
-   "\\`[ \t\n\r]+" ""
-   (replace-regexp-in-string "[ \t\n\r]+\\'" "" s)))
-
 ;;;###autoload (autoload 'powerline-buffer-id "powerline")
-(defpowerline powerline-buffer-id
-    (powerline-trim (format-mode-line mode-line-buffer-identification)))
+(defun powerline-buffer-id (&optional face pad)
+  (powerline-raw
+   (format-mode-line
+    (concat " " (propertize
+		 "%b"
+		 'face face
+		 'mouse-face 'mode-line-highlight
+		 'help-echo "Buffer name\n\ mouse-1: Previous buffer\n\ mouse-3: Next buffer"
+		 'local-map (let ((map (make-sparse-keymap)))
+			      (define-key map [mode-line mouse-1] 'mode-line-previous-buffer)
+			      (define-key map [mode-line mouse-3] 'mode-line-next-buffer)
+			      map))))
+   face pad))
 
 ;;;###autoload (autoload 'powerline-process "powerline")
 (defpowerline powerline-process
@@ -505,9 +518,25 @@ static char * %s[] = {
   (when (not (minibuffer-window-active-p (frame-selected-window)))
     (setq powerline-selected-window (frame-selected-window))))
 
+(defun powerline-unset-selected-window ()
+  "Unsets the variable `powerline-selected-window` and updates the modeline"
+  (setq powerline-selected-window nil)
+  (force-mode-line-update))
+
 (add-hook 'window-configuration-change-hook 'powerline-set-selected-window)
+
+;; focus-in-hook was introduced in emacs v24.4.
+;; Gets evaluated in the last frame's environment.
 (add-hook 'focus-in-hook 'powerline-set-selected-window)
-(add-hook 'focus-out-hook 'powerline-set-selected-window)
+
+;; focus-out-hook was introduced in emacs v24.4.
+(add-hook 'focus-out-hook 'powerline-unset-selected-window)
+
+;; Executes after the window manager requests that the user's events
+;; be directed to a different frame.
+(defadvice handle-switch-frame
+    (after powerline-set-selected-window-after-switch-frame activate)
+  (powerline-set-selected-window))
 
 (defadvice select-window (after powerline-select-window activate)
   "makes powerline aware of window changes"
@@ -540,7 +569,7 @@ static char * %s[] = {
   (if values
       (let ((val (car values)))
         (+ (cond
-            ((stringp val) (length (format-mode-line val)))
+            ((stringp val) (string-width (format-mode-line val)))
             ((and (listp val) (eq 'image (car val)))
              (car (image-size val)))
             (t 0))
