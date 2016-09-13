@@ -2,6 +2,10 @@
        (lambda ()
          (add-hook 'wrap-region-hook 'erase-buffer)))
 
+(Given "^I add the mode hook \"\\(.+\\)\" that erases buffer$"
+       (lambda (mode-hook)
+         (add-hook (intern mode-hook) 'erase-buffer)))
+
 (And "I add an after wrap hook that replaces \"\\(.+\\)\" with \"\\(.+\\)\""
      (lambda (from to)
        (add-hook 'wrap-region-after-wrap-hook

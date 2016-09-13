@@ -1,12 +1,13 @@
 ;;; wrap-region.el --- Wrap text with punctation or tag
 
-;; Copyright (C) 2008-2010 Johan Andersson
+;; Copyright (C) 2008-2012 Johan Andersson
 
 ;; Author: Johan Andersson <johan.rejeep@gmail.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
-;; Version: 0.4.0
+;; Version: 0.7.3
 ;; Keywords: speed, convenience
 ;; URL: http://github.com/rejeep/wrap-region
+;; Package-Requires: ((dash "1.0.3"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -75,11 +76,65 @@
 
 ;;; Code:
 
+(require 'edmacro)
+(require 'dash)
 (eval-when-compile
   (require 'cl))
 
-
 (defstruct wrap-region-wrapper key left right modes)
+
+(defgroup wrap-region nil
+  "Wrap region with delimiters."
+  :group 'editing
+  :link '(url-link :tag "Github" "https://github.com/rejeep/wrap-region"))
+
+(defcustom wrap-region-except-modes '(calc-mode dired-mode)
+  "Major modes which should not use `wrap-region-mode'."
+  :group 'wrap-region
+  :type '(repeat (symbol :tag "Major mode")))
+
+(defcustom wrap-region-tag-active-modes
+  '(html-mode sgml-mode rhtml-mode nxml-mode nxhtml-mode handlebars-mode web-mode)
+  "Major modes that use tags."
+  :group 'wrap-region
+  :type '(repeat (symbol :tag "Major mode")))
+
+(define-obsolete-variable-alias 'wrap-region-hook 'wrap-region-mode-hook "0.8")
+(defcustom wrap-region-mode-hook nil
+  "Functions to run after `wrap-region-mode' is enabled.
+
+This variable is a normal hook."
+  :group 'wrap-region
+  :type 'hook)
+
+(defcustom wrap-region-before-wrap-hook nil
+  "Functions to run before wrapping.
+
+This variable is a normal hook."
+  :group 'wrap-region
+  :type 'hook)
+
+(defcustom wrap-region-after-wrap-hook nil
+  "Functions to run after wrapping.
+
+This variable is a normal hook."
+  :group 'wrap-region
+  :type 'hook)
+
+(defcustom wrap-region-only-with-negative-prefix nil
+  "If non-nil only wrap with negative prefix.
+
+If this variable is not nil, only wrap the region if the trigger
+key is given a negative prefix argument.  Otherwise do not wrap.
+
+If nil, always wrap the region."
+  :group 'wrap-region
+  :type 'boolean)
+
+(defcustom wrap-region-keep-mark nil
+  "If non-nil, keep the wrapped region active."
+  :group 'wrap-region
+  :type 'boolean)
 
 (defvar wrap-region-mode-map (make-sparse-keymap)
   "Keymap for `wrap-region-mode'.")
@@ -87,28 +142,12 @@
 (defvar wrap-region-table (make-hash-table :test 'equal)
   "Table with wrapper pairs.")
 
-(defvar wrap-region-tag-active-modes '(html-mode sgml-mode rhtml-mode)
-  "List of modes that uses tags.")
-
-(defvar wrap-region-except-modes '(calc-mode dired-mode)
-  "A list of modes in which `wrap-region-mode' should not be activated.")
-
-(defvar wrap-region-hook nil
-  "Called when `wrap-region-mode' is turned on.")
-
-(defvar wrap-region-before-wrap-hook nil
-  "Called before wrapping.")
-
-(defvar wrap-region-after-wrap-hook nil
-  "Called after wrapping.")
-
-
-(defun wrap-region-trigger ()
+(defun wrap-region-trigger (arg key)
   "Called when trigger key is pressed."
-  (interactive)
-  (let* ((key (char-to-string last-input-event))
-         (wrapper (wrap-region-find key)))
-    (if (and (region-active-p) wrapper)
+  (let* ((wrapper (wrap-region-find key)))
+    (if (and wrapper
+             (region-active-p)
+             (if wrap-region-only-with-negative-prefix (< arg 0) t))
         (if (wrap-region-insert-tag-p key)
             (wrap-region-with-tag)
           (wrap-region-with-punctuations
@@ -117,20 +156,20 @@
       (wrap-region-fallback key))))
 
 (defun wrap-region-find (key)
-  "Finds first wrapper with trigger KEY that should be active in MAJOR-MODE."
+  "Find first wrapper with trigger KEY that should be active in MAJOR-MODE."
   (let ((wrappers (gethash key wrap-region-table)))
     (or
-     (find-if
+     (-first
       (lambda (wrapper)
         (member major-mode (wrap-region-wrapper-modes wrapper)))
       wrappers)
-     (find-if
+     (-first
       (lambda (wrapper)
         (not (wrap-region-wrapper-modes wrapper)))
       wrappers))))
 
 (defun wrap-region-insert-tag-p (key)
-  "Checks if tag should be inserted or not."
+  "Check if tag should be inserted or not."
   (and
    (equal key "<")
    (member major-mode wrap-region-tag-active-modes)))
@@ -151,20 +190,29 @@
 (defun wrap-region-with (left right)
   "Wraps region with LEFT and RIGHT."
   (run-hooks 'wrap-region-before-wrap-hook)
-  (let ((beg (region-beginning)) (end (region-end)))
+  (let ((beg (region-beginning))
+        (end (region-end))
+        (pos (point))
+        (deactivate-mark nil))
     (save-excursion
       (goto-char beg)
       (insert left)
       (goto-char (+ end (length left)))
-      (insert right)))
+      (insert right))
+    (if (= pos end) (forward-char 1))
+    (if wrap-region-keep-mark
+        (let* ((beg-p (eq beg pos))
+               (beg* (+ beg (length left)))
+               (end* (+ end (length left))))
+          (push-mark (if beg-p end* beg*) nil t)
+          (goto-char (if beg-p beg* end*)))
+      (deactivate-mark)))
   (run-hooks 'wrap-region-after-wrap-hook))
 
 (defun wrap-region-fallback (key)
-  "Executes function that KEY was bound to before `wrap-region-mode'."
+  "Execute function that KEY was bound to before `wrap-region-mode'."
   (let ((wrap-region-mode nil))
-    (call-interactively
-     (key-binding
-      (read-kbd-macro key)))))
+    (call-interactively (key-binding key))))
 
 (defun wrap-region-add-wrappers (wrappers)
   "Add WRAPPERS by calling `wrap-region-add-wrapper' for each one."
@@ -187,7 +235,7 @@ mode or multiple modes that the wrapper should trigger in."
                (list mode-or-modes)))))
     (if wrappers
         (let ((wrapper-exactly-same
-               (find-if
+               (-first
                 (lambda (wrapper)
                   (and
                    (equal (wrap-region-wrapper-key wrapper) key)
@@ -199,19 +247,19 @@ mode or multiple modes that the wrapper should trigger in."
                 (if modes
                     (setf
                      (wrap-region-wrapper-modes wrapper-exactly-same)
-                     (union modes (wrap-region-wrapper-modes wrapper-exactly-same)))
+                     (-union modes (wrap-region-wrapper-modes wrapper-exactly-same)))
                   (let ((new-wrapper (make-wrap-region-wrapper :key key :left left :right right)))
                     (puthash key (cons new-wrapper wrappers) wrap-region-table))))
             (let* ((new-wrapper (make-wrap-region-wrapper :key key :left left :right right :modes modes))
                    (wrapper-same-trigger
-                    (find-if
+                    (-first
                      (lambda (wrapper)
                        (equal (wrap-region-wrapper-key wrapper) key))
                      wrappers))
                    (wrapper-same-trigger-modes
                     (wrap-region-wrapper-modes wrapper-same-trigger)))
               (when (and wrapper-same-trigger wrapper-same-trigger-modes)
-                (let ((new-modes (nset-difference (wrap-region-wrapper-modes wrapper-same-trigger) modes)))
+                (let ((new-modes (-difference (wrap-region-wrapper-modes wrapper-same-trigger) modes)))
                   (if new-modes
                       (setf (wrap-region-wrapper-modes wrapper-same-trigger) new-modes)
                     (setq wrappers (delete wrapper-same-trigger wrappers)))))
@@ -234,7 +282,7 @@ If MODE-OR-MODES is not present, all wrappers for KEY are removed."
         (mapc
          (lambda (mode)
            (let ((wrapper-including-mode
-                  (find-if
+                  (-first
                    (lambda (wrapper)
                      (member mode (wrap-region-wrapper-modes wrapper)))
                    wrappers)))
@@ -247,7 +295,7 @@ If MODE-OR-MODES is not present, all wrappers for KEY are removed."
     (wrap-region-destroy-wrapper key)))
 
 (defun wrap-region-destroy-wrapper (key)
-  "Removes the wrapper bound to KEY, no questions asked."
+  "Remove the wrapper bound to KEY, no questions asked."
   (remhash key wrap-region-table)
   (wrap-region-unset-key key))
 
@@ -265,7 +313,11 @@ If MODE-OR-MODES is not present, all wrappers for KEY are removed."
 
 (defun wrap-region-define-trigger (key)
   "Defines KEY as wrapper."
-  (wrap-region-define-key key 'wrap-region-trigger))
+  (wrap-region-define-key
+   key
+   `(lambda (arg)
+      (interactive "p")
+      (wrap-region-trigger arg ,key))))
 
 (defun wrap-region-unset-key (key)
   "Remove KEY from `wrap-region-mode-map'."
@@ -282,28 +334,35 @@ If MODE-OR-MODES is not present, all wrappers for KEY are removed."
   :init-value nil
   :lighter " wr"
   :keymap wrap-region-mode-map
+  :group 'wrap-region
+  :require 'wrap-region
   (when wrap-region-mode
-    (wrap-region-define-wrappers)
-    (run-hooks 'wrap-region-hook)))
+    (wrap-region-define-wrappers)))
 
 ;;;###autoload
 (defun turn-on-wrap-region-mode ()
-  "Turn on `wrap-region-mode'"
+  "Turn on `wrap-region-mode'."
   (interactive)
   (unless (member major-mode wrap-region-except-modes)
     (wrap-region-mode +1)))
 
 ;;;###autoload
 (defun turn-off-wrap-region-mode ()
-  "Turn off `wrap-region-mode'"
+  "Turn off `wrap-region-mode'."
   (interactive)
   (wrap-region-mode -1))
 
 ;;;###autoload
 (define-globalized-minor-mode wrap-region-global-mode
   wrap-region-mode
-  turn-on-wrap-region-mode)
+  turn-on-wrap-region-mode
+  :group 'wrap-region
+  :require 'wrap-region)
 
 (provide 'wrap-region)
+
+;; Local Variables:
+;; byte-compile-warnings: (not cl-functions)
+;; End:
 
 ;;; wrap-region.el ends here

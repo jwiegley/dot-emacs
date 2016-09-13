@@ -1,16 +1,14 @@
-(let* ((current-directory (file-name-directory load-file-name))
-       (features-directory (expand-file-name ".." current-directory))
-       (project-directory (expand-file-name ".." features-directory)))
-  (setq wrap-region-root-path project-directory)
-  (setq wrap-region-util-path (expand-file-name "util" project-directory)))
+(require 'f)
 
-(add-to-list 'load-path wrap-region-root-path)
-(add-to-list 'load-path (expand-file-name "espuds" wrap-region-util-path))
-(add-to-list 'load-path (expand-file-name "emacs-lisp" (expand-file-name "lisp" (expand-file-name "ert" wrap-region-util-path))))
+(let* ((this-directory (f-dirname load-file-name))
+       (wrap-region-root-path (f-parent (f-parent this-directory)))
+       (wrap-region-vendor-path (f-expand "vendor" wrap-region-root-path)))
+  (add-to-list 'load-path wrap-region-root-path)
+  (unless (require 'ert nil 'noerror)
+    (require 'ert (f-expand "ert" wrap-region-vendor-path))))
 
 (require 'wrap-region)
 (require 'espuds)
-(require 'ert)
 
 (setq default-except-modes wrap-region-except-modes)
 
@@ -30,10 +28,19 @@
  (setq wrap-region-hook nil)
  (setq wrap-region-before-wrap-hook nil)
  (setq wrap-region-after-wrap-hook nil)
- 
+
  ;; Disable wrap-region-mode
  (wrap-region-mode -1)
  (wrap-region-global-mode -1)
 
  ;; Reset all except modes
- (setq wrap-region-except-modes default-except-modes))
+ (setq wrap-region-except-modes default-except-modes)
+
+ ;; Do not require negative prefix arg
+ (setq wrap-region-only-with-negative-prefix nil)
+
+ ;; Do not keep the wrapped region active
+ (setq wrap-region-keep-mark nil)
+
+ ;; Disable delete-selection-mode
+ (delete-selection-mode -1))

@@ -3,11 +3,16 @@ Feature: Hooks
   As a wrap region user
   I want to hook it up
 
-  Scenario: Mode hook
-    Given I add a mode hook that erases buffer
+  Scenario Outline: Mode hook
+    Given I add the mode hook "<mode-hook>" that erases buffer
     And I insert "This is some text"
     When I turn on wrap-region
     Then the buffer should be empty
+
+    Examples:
+      | mode-hook             |
+      | wrap-region-hook      |
+      | wrap-region-mode-hook |
 
   Scenario: Before wrap hook
     Given I add a before wrap hook that replaces "is some" with "some is"
