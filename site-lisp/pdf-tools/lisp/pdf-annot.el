@@ -1084,7 +1084,7 @@ Return the new annotation."
   (interactive
    (list (pdf-view-active-region t)
          (let ((type (completing-read "Markup type (default highlight): "
-                                      '(squiggly highlight underline strike-out)
+                                      '("squiggly" "highlight" "underline" "strike-out")
                                       nil t)))
            (if (equal type "") 'highlight (intern type)))
          (pdf-annot-read-color)))
@@ -1225,7 +1225,7 @@ property."
              (format "File attachment `%s' of %s"
                      (or (cdr (assq 'filename att)) "unnamed")
                      (if (cdr (assq 'size att))
-                         (format "size %d" (file-size-human-readable
+                         (format "size %s" (file-size-human-readable
                                             (cdr (assq 'size att))))
                        "unknown size"))))
           (t
