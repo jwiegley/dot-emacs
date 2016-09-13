@@ -2,7 +2,11 @@
 
 ;; Copyright (C) 2015  Free Software Foundation, Inc.
 
-;; Author: Oleh Krehel
+;; Author: Oleh Krehel <ohwoeowho@gmail.com>
+;; URL: https://github.com/abo-abo/swiper
+;; Version: 0.8.0
+;; Package-Requires: ((emacs "24.1") (ivy "0.8.0") (hydra "0.13.4"))
+;; Keywords: completion, matching, bindings
 
 ;; This file is part of GNU Emacs.
 
@@ -26,23 +30,8 @@
 ;; shorter than usual, using mostly unprefixed keys.
 
 ;;; Code:
-(require 'hydra nil t)
 (require 'ivy)
-
-(eval-when-compile
-  (unless (or (featurep 'hydra) (package-installed-p 'hydra))
-    (defmacro defhydra (name &rest _)
-      "This is a stub for the uninstalled `hydra' package."
-      `(defun ,(intern (format "%S/body" name)) ()
-         (interactive)
-         (let ((enable-recursive-minibuffers t))
-           (if (yes-or-no-p "Package `hydra' not installed. Install?")
-               (progn
-                 (package-install 'hydra)
-                 (save-window-excursion
-                   (find-library "ivy-hydra")
-                   (byte-compile-file (buffer-file-name) t)))
-             (error "Please install `hydra' and recompile/reinstall `ivy-hydra'")))))))
+(require 'hydra)
 
 (defun ivy--matcher-desc ()
   (if (eq ivy--regex-function
