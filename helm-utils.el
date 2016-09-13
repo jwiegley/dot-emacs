@@ -212,16 +212,6 @@ In this case last position is added to the register
   :group 'helm-faces)
 
 
-;; CUA workaround
-(defadvice cua-delete-region (around helm-avoid-cua activate)
-  (ignore-errors ad-do-it))
-
-(defadvice copy-region-as-kill (around helm-avoid-cua activate)
-  (if cua-mode
-      (ignore-errors ad-do-it)
-    ad-do-it))
-
-
 ;;; Utils functions
 ;;
 ;;
@@ -384,8 +374,8 @@ from its directory."
                            (string-match ffap-url-regexp it))
                       it (expand-file-name it))
                 default-directory))
-         ((or (file-remote-p sel)
-              (file-exists-p sel))
+         ((and (stringp sel) (or (file-remote-p sel)
+                                 (file-exists-p sel)))
           (expand-file-name sel))
          ;; Grep.
          ((and grep-line (file-exists-p (car grep-line)))
@@ -395,7 +385,7 @@ from its directory."
           (with-current-buffer (get-buffer (car grep-line))
             (or (buffer-file-name) default-directory)))
          ;; Url.
-         ((and ffap-url-regexp (string-match ffap-url-regexp sel)) sel)
+         ((and (stringp sel) ffap-url-regexp (string-match ffap-url-regexp sel)) sel)
          ;; Default.
          (t default-preselection))))))
 (put 'helm-quit-and-find-file 'helm-only t)
@@ -404,28 +394,30 @@ from its directory."
   "Sort predicate function for helm candidates.
 Args S1 and S2 can be single or \(display . real\) candidates,
 that is sorting is done against real value of candidate."
-  (let* ((pattern (regexp-quote helm-pattern))
-         (reg1  (concat "\\_<" pattern "\\_>"))
-         (reg2  (concat "\\_<" pattern))
+  (let* ((qpattern (regexp-quote helm-pattern))
+         (reg1  (concat "\\_<" qpattern "\\_>"))
+         (reg2  (concat "\\_<" qpattern))
          (reg3  helm-pattern)
-         (split (split-string pattern))
+         (split (split-string helm-pattern))
          (str1  (if (consp s1) (cdr s1) s1))
          (str2  (if (consp s2) (cdr s2) s2))
          (score (lambda (str r1 r2 r3 lst)
-                    (+ (if (string-match (concat "\\`" pattern) str) 1 0)
+                    (+ (if (string-match (concat "\\`" qpattern) str) 1 0)
                        (cond ((string-match r1 str) 5)
-                             ((and (string-match " " pattern)
-                                   (string-match (concat "\\_<" (car lst)) str)
+                             ((and (string-match " " qpattern)
+                                   (string-match
+                                    (concat "\\_<" (regexp-quote (car lst))) str)
                                    (cl-loop for r in (cdr lst)
                                             always (string-match r str))) 4)
-                             ((and (string-match " " pattern)
-                                   (cl-loop for r in lst always (string-match r str))) 3)
+                             ((and (string-match " " qpattern)
+                                   (cl-loop for r in lst
+                                            always (string-match r str))) 3)
                              ((string-match r2 str) 2)
                              ((string-match r3 str) 1)
                              (t 0)))))
          (sc1 (funcall score str1 reg1 reg2 reg3 split))
          (sc2 (funcall score str2 reg1 reg2 reg3 split)))
-    (cond ((or (zerop (string-width pattern))
+    (cond ((or (zerop (string-width qpattern))
                (and (zerop sc1) (zerop sc2)))
            (string-lessp str1 str2))
           ((= sc1 sc2)
@@ -515,34 +507,34 @@ you have in `file-attributes'."
                       :inode       inode
                       :device-num  device-num)))
          (modes (helm-split-mode-file-attributes (cl-getf all :mode))))
-    (cond (type (cl-getf all :type))
-          (links (cl-getf all :links))
-          (uid   (cl-getf all :uid))
-          (gid   (cl-getf all :gid))
+    (cond (type        (cl-getf all :type))
+          (links       (cl-getf all :links))
+          (uid         (cl-getf all :uid))
+          (gid         (cl-getf all :gid))
           (access-time (cl-getf all :access-time))
-          (modif-time (cl-getf all :modif-time))
-          (status (cl-getf all :status))
-          (size (cl-getf all :size))
-          (mode (cl-getf all :mode))
-          (gid-change (cl-getf all :gid-change))
-          (inode (cl-getf all :inode))
-          (device-num (cl-getf all :device-num))
-          (dired
-           (concat
-            (helm-split-mode-file-attributes (cl-getf all :mode) t) " "
-            (number-to-string (cl-getf all :links)) " "
-            (cl-getf all :uid) ":"
-            (cl-getf all :gid) " "
-            (if human-size
-                (helm-file-human-size (cl-getf all :size))
-              (int-to-string (cl-getf all :size))) " "
-              (cl-getf all :modif-time)))
+          (modif-time  (cl-getf all :modif-time))
+          (status      (cl-getf all :status))
+          (size        (cl-getf all :size))
+          (mode        (cl-getf all :mode))
+          (gid-change  (cl-getf all :gid-change))
+          (inode       (cl-getf all :inode))
+          (device-num  (cl-getf all :device-num))
+          (dired       (concat
+                        (helm-split-mode-file-attributes
+                         (cl-getf all :mode) t) " "
+                        (number-to-string (cl-getf all :links)) " "
+                        (cl-getf all :uid) ":"
+                        (cl-getf all :gid) " "
+                        (if human-size
+                            (helm-file-human-size (cl-getf all :size))
+                            (int-to-string (cl-getf all :size))) " "
+                        (cl-getf all :modif-time)))
           (human-size (helm-file-human-size (cl-getf all :size)))
-          (mode-type (cl-getf modes :mode-type))
+          (mode-type  (cl-getf modes :mode-type))
           (mode-owner (cl-getf modes :user))
           (mode-group (cl-getf modes :group))
           (mode-other (cl-getf modes :other))
-          (t (append all modes)))))
+          (t          (append all modes)))))
 
 (defun helm-split-mode-file-attributes (str &optional string)
   "Split mode file attributes STR into a proplist.
@@ -678,15 +670,16 @@ If STRING is non--nil return instead a space separated string."
              (member (assoc-default 'name (helm-get-current-source))
                      helm-sources-using-help-echo-popup))
     (setq helm--show-help-echo-timer
-          (run-with-idle-timer
+          (run-with-timer
            1 nil
            (lambda ()
-             (with-helm-window
-               (helm-aif (get-text-property (point-at-bol) 'help-echo)
-                   (popup-tip (concat " " (abbreviate-file-name it))
-                              :around nil
-                              :point (save-excursion
-                                       (end-of-visual-line) (point))))))))))
+             (save-selected-window
+               (with-helm-window
+                 (helm-aif (get-text-property (point-at-bol) 'help-echo)
+                     (popup-tip (concat " " (abbreviate-file-name it))
+                                :around nil
+                                :point (save-excursion
+                                         (end-of-visual-line) (point)))))))))))
 
 ;;;###autoload
 (define-minor-mode helm-popup-tip-mode
@@ -695,10 +688,10 @@ If STRING is non--nil return instead a space separated string."
   (require 'popup)
   (if helm-popup-tip-mode
       (progn
-        (add-hook 'helm-update-hook 'helm-show-help-echo) ; Needed for async sources.
+        (add-hook 'helm-after-update-hook 'helm-show-help-echo) ; Needed for async sources.
         (add-hook 'helm-move-selection-after-hook 'helm-show-help-echo)
         (add-hook 'helm-cleanup-hook 'helm-cancel-help-echo-timer))
-      (remove-hook 'helm-update-hook 'helm-show-help-echo)
+      (remove-hook 'helm-after-update-hook 'helm-show-help-echo)
       (remove-hook 'helm-move-selection-after-hook 'helm-show-help-echo)
       (remove-hook 'helm-cleanup-hook 'helm-cancel-help-echo-timer)))
 

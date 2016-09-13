@@ -65,6 +65,8 @@ Show all candidates on startup when 0 (default)."
 
 
 (defvar helm-M-x-input-history nil)
+(defvar helm-M-x-prefix-argument nil
+  "Prefix argument before calling `helm-M-x'.")
 
 
 (cl-defun helm-M-x-get-major-mode-command-alist (mode-map)
@@ -158,6 +160,28 @@ fuzzy matching is running its own sort function with a different algorithm."
           (push (substring (helm-cmd--get-current-function-name) 1) results))))
     results))
 
+(defvar helm-M-x-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-comp-read-map)
+    (define-key map (kbd "C-u") nil)
+    (define-key map (kbd "C-u") 'helm-M-x-universal-argument)
+    map))
+
+(defun helm-M-x-universal-argument ()
+  "Same as `universal-argument' but for `helm-M-x'."
+  (interactive)
+  (if helm-M-x-prefix-argument
+      (progn (setq helm-M-x-prefix-argument nil)
+             (let ((inhibit-read-only t))
+               (with-selected-window (minibuffer-window)
+                 (save-excursion
+                   (goto-char (point-min))
+                   (delete-char (- (minibuffer-prompt-width) (length "M-x "))))))
+             (message "Initial prefix arg disabled"))
+    (setq prefix-arg (list 4))
+    (universal-argument--mode)))
+(put 'helm-M-x-universal-argument 'helm-only t)
+
 (defun helm-M-x-read-extended-command (&optional collection history)
   "Read command name to invoke in `helm-M-x'.
 Helm completion is not provided when executing or defining
@@ -187,16 +211,20 @@ than the default which is OBARRAY."
                        do (set-text-properties 0 (length c) nil c)
                        and collect c))
         (unwind-protect
-             (let ((msg "Error: Specifying a prefix arg before calling `helm-M-x'"))
-               (when current-prefix-arg
-                 (ding)
-                 (message "%s" msg)
-                 (while (not (sit-for 1))
-                   (discard-input))
-                 (user-error msg))
+             (progn
                (setq current-prefix-arg nil)
                (helm-comp-read
-                "M-x " (or collection obarray)
+                (concat (cond
+                         ((eq helm-M-x-prefix-argument '-) "- ")
+                         ((and (consp helm-M-x-prefix-argument)
+                               (eq (car helm-M-x-prefix-argument) 4)) "C-u ")
+                         ((and (consp helm-M-x-prefix-argument)
+                               (integerp (car helm-M-x-prefix-argument)))
+                          (format "%d " (car helm-M-x-prefix-argument)))
+                         ((integerp helm-M-x-prefix-argument)
+                          (format "%d " helm-M-x-prefix-argument)))
+                        "M-x ")
+                (or collection obarray)
                 :test 'commandp
                 :requires-pattern helm-M-x-requires-pattern
                 :name "Emacs Commands"
@@ -210,7 +238,9 @@ than the default which is OBARRAY."
                 :input-history 'helm-M-x-input-history
                 :del-input nil
                 :help-message 'helm-M-x-help-message
+                :keymap helm-M-x-map
                 :must-match t
+                :match-part (lambda (c) (car (split-string c)))
                 :fuzzy helm-M-x-fuzzy-match
                 :nomark t
                 :candidates-in-buffer t
@@ -220,15 +250,20 @@ than the default which is OBARRAY."
           (setq helm--mode-line-display-prefarg nil)))))
 
 ;;;###autoload
-(defun helm-M-x (arg &optional command-name)
+(defun helm-M-x (_arg &optional command-name)
   "Preconfigured `helm' for Emacs commands.
 It is `helm' replacement of regular `M-x' `execute-extended-command'.
 
 Unlike regular `M-x' emacs vanilla `execute-extended-command' command,
-the prefix args if needed, are passed AFTER starting `helm-M-x'.
+the prefix args if needed, can be passed AFTER starting `helm-M-x'.
+When a prefix arg is passed BEFORE starting `helm-M-x', the first `C-u'
+while in `helm-M-x' session will disable it.
 
 You can get help on each command by persistent action."
-  (interactive (list current-prefix-arg (helm-M-x-read-extended-command)))
+  (interactive
+   (progn
+     (setq helm-M-x-prefix-argument current-prefix-arg)
+     (list current-prefix-arg (helm-M-x-read-extended-command))))
   (let ((sym-com (and (stringp command-name) (intern-soft command-name))))
     (when sym-com
       ;; Avoid having `this-command' set to *exit-minibuffer.
@@ -237,7 +272,7 @@ You can get help on each command by persistent action."
             real-this-command sym-com)
       ;; If helm-M-x is called with regular emacs completion (kmacro)
       ;; use the value of arg otherwise use helm-current-prefix-arg.
-      (let ((prefix-arg (or helm-current-prefix-arg arg)))
+      (let ((prefix-arg (or helm-current-prefix-arg helm-M-x-prefix-argument)))
         ;; This ugly construct is to save history even on error.
         (unless helm-M-x-always-save-history
           (command-execute sym-com 'record))
@@ -246,7 +281,7 @@ You can get help on each command by persistent action."
                     (delete command-name extended-command-history)))
         (when helm-M-x-always-save-history
           (command-execute sym-com 'record))))))
-
+(put 'helm-M-x 'interactive-only 'command-execute)
 
 (provide 'helm-command)
 

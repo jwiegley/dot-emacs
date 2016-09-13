@@ -22,6 +22,7 @@
 (require 'org)
 
 (declare-function org-agenda-switch-to "org-agenda.el")
+(declare-function org-previous-visible-heading "org.el")
 
 (defgroup helm-org nil
   "Org related functions for helm."
@@ -57,9 +58,9 @@ Note this have no effect in `helm-org-in-buffer-headings'."
 
 (defcustom helm-org-headings-actions
   '(("Go to heading" . helm-org-goto-marker)
-    ("Open in indirect buffer `C-RET'" . helm-org--open-heading-in-indirect-buffer)
-    ("Refile to this heading `C-w`''" . helm-org-heading-refile)
-    ("Insert link to this heading `C-l`''" . helm-org-insert-link-to-heading-at-marker))
+    ("Open in indirect buffer `C-c i'" . helm-org--open-heading-in-indirect-buffer)
+    ("Refile to this heading `C-c r`" . helm-org-heading-refile)
+    ("Insert link to this heading `C-c l`" . helm-org-insert-link-to-heading-at-marker))
   "Default actions alist for
   `helm-source-org-headings-for-files'."
   :group 'helm-org
@@ -100,19 +101,19 @@ Note this have no effect in `helm-org-in-buffer-headings'."
   (set-window-prev-buffers nil (append (cdr (window-prev-buffers))
                                        (car (window-prev-buffers)))))
 
-(defun helm-org--run-open-heading-in-indirect-buffer ()
+(defun helm-org-run-open-heading-in-indirect-buffer ()
   "Open selected Org heading in an indirect buffer."
   (interactive)
   (with-helm-alive-p
     (helm-exit-and-execute-action #'helm-org--open-heading-in-indirect-buffer)))
-(put 'helm-org--run-open-heading-in-indirect-buffer 'helm-only t)
+(put 'helm-org-run-open-heading-in-indirect-buffer 'helm-only t)
 
 (defvar helm-org-headings-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-map)
-    (define-key map (kbd "<C-return>") 'helm-org--run-open-heading-in-indirect-buffer)
-    (define-key map (kbd "C-w") 'helm-org-heading-refile)
-    (define-key map (kbd "C-l") 'helm-org-insert-link-to-heading-at-marker)
+    (define-key map (kbd "<C-c i>") 'helm-org-run-open-heading-in-indirect-buffer)
+    (define-key map (kbd "C-c r")   'helm-org-run-heading-refile)
+    (define-key map (kbd "C-c l")   'helm-org-run-insert-link-to-heading-at-marker)
     map)
   "Keymap for `helm-source-org-headings-for-files'.")
 
@@ -218,6 +219,12 @@ Note this have no effect in `helm-org-in-buffer-headings'."
         (org-insert-link
          file-name (concat "file:" file-name "::*" heading-name))))))
 
+(defun helm-org-run-insert-link-to-heading-at-marker ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action
+     'helm-org-insert-link-to-heading-at-marker)))
+
 (defun helm-org-heading-refile (marker)
   (save-selected-window
     (when (eq major-mode 'org-agenda-mode)
@@ -229,6 +236,19 @@ Note this have no effect in `helm-org-in-buffer-headings'."
       (helm-org-goto-marker marker)
       (org-end-of-subtree t t)
       (org-paste-subtree (+ target-level 1)))))
+
+(defun helm-org-in-buffer-preselect ()
+  (if (org-on-heading-p)
+      (buffer-substring-no-properties (point-at-bol) (point-at-eol))
+      (save-excursion
+        (org-previous-visible-heading 1)
+        (buffer-substring-no-properties (point-at-bol) (point-at-eol)))))
+
+(defun helm-org-run-heading-refile ()
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-org-heading-refile)))
+(put 'helm-org-run-heading-refile 'helm-only t)
 
 ;;;###autoload
 (defun helm-org-agenda-files-headings ()
@@ -243,10 +263,11 @@ Note this have no effect in `helm-org-in-buffer-headings'."
 (defun helm-org-in-buffer-headings ()
   "Preconfigured helm for org buffer headings."
   (interactive)
-  (let ((helm-org-show-filename nil))
+  (let (helm-org-show-filename helm-org-format-outline-path)
     (helm :sources (helm-source-org-headings-for-files
                     (list (current-buffer)))
           :candidate-number-limit 99999
+          :preselect (helm-org-in-buffer-preselect)
           :truncate-lines helm-org-truncate-lines
           :buffer "*helm org inbuffer*")))
 

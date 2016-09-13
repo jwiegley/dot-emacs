@@ -23,6 +23,9 @@
 
 (declare-function display-time-world-display "time.el")
 (defvar display-time-world-list)
+(declare-function LaTeX-math-mode "ext:latex.el")
+(declare-function jabber-chat-with "ext:jabber.el")
+(declare-function jabber-read-account "ext:jabber.el")
 
 
 (defgroup helm-misc nil
@@ -70,14 +73,14 @@
         append elm))
 
 (defvar helm-source-latex-math
-  '((name . "Latex Math Menu")
-    (init . (lambda ()
-              (with-helm-current-buffer
-                (LaTeX-math-mode 1))))
-    (candidate-number-limit . 9999)
-    (candidates . helm-latex-math-candidates)
-    (action . (lambda (candidate)
-                (call-interactively candidate)))))
+  (helm-build-sync-source "Latex Math Menu"
+    :init (lambda ()
+            (with-helm-current-buffer
+              (LaTeX-math-mode 1)))
+    :candidate-number-limit 9999
+    :candidates 'helm-latex-math-candidates
+    :action (lambda (candidate)
+              (call-interactively candidate))))
 
 
 ;;; Jabber Contacts (jabber.el)
@@ -92,14 +95,14 @@
             (cons (symbol-name item) item)))))
 
 (defvar helm-source-jabber-contacts
-  '((name . "Jabber Contacts")
-    (init . (lambda () (require 'jabber)))
-    (candidates . (lambda () (mapcar 'car (helm-jabber-online-contacts))))
-    (action . (lambda (x)
-                (jabber-chat-with
-                 (jabber-read-account)
-                 (symbol-name
-                  (cdr (assoc x (helm-jabber-online-contacts)))))))))
+  (helm-build-sync-source "Jabber Contacts"
+    :init (lambda () (require 'jabber))
+    :candidates (lambda () (mapcar 'car (helm-jabber-online-contacts)))
+    :action (lambda (x)
+              (jabber-chat-with
+               (jabber-read-account)
+               (symbol-name
+                (cdr (assoc x (helm-jabber-online-contacts))))))))
 
 ;;; World time
 ;;
@@ -152,8 +155,13 @@ Optional argument MAPS is a list specifying which keymaps to use: it
 can contain the symbols `local', `global', and `minor', mean the
 current local map, current global map, and all current minor maps."
   (with-helm-current-buffer
-    ;; FIXME: do we still need to remove possible '(nil) candidates.
-    (lacarte-get-overall-menu-item-alist maps)))
+    ;; When a keymap doesn't have a [menu-bar] entry
+    ;; the filtered map returned and passed to
+    ;; `lacarte-get-a-menu-item-alist-22+' is nil, which
+    ;; fails because this code is not protected for such case.
+    (condition-case nil
+        (lacarte-get-overall-menu-item-alist maps)
+      (error nil))))
 
 ;;;###autoload
 (defun helm-browse-menubar ()
@@ -162,7 +170,9 @@ current local map, current global map, and all current minor maps."
   (require 'lacarte)
   (helm :sources (mapcar 
                   (lambda (spec) (helm-make-source (car spec) 'helm-lacarte
-                              :candidates (lambda () (helm-lacarte-get-candidates (cdr spec)))))
+                                   :candidates
+                                   (lambda ()
+                                     (helm-lacarte-get-candidates (cdr spec)))))
                   '(("Major Mode"  . (local))
                     ("Minor Modes" . (minor))
                     ("Global Map"  . (global))))
@@ -213,11 +223,11 @@ It is added to `extended-command-history'.
     (insert candidate)))
 
 (defvar helm-source-comint-input-ring
-  '((name . "Comint history")
-    (candidates . (lambda ()
-                    (with-helm-current-buffer
-                      (ring-elements comint-input-ring))))
-    (action . helm-comint-input-ring-action))
+  (helm-build-sync-source "Comint history"
+    :candidates (lambda ()
+                  (with-helm-current-buffer
+                    (ring-elements comint-input-ring)))
+    :action 'helm-comint-input-ring-action)
   "Source that provide helm completion against `comint-input-ring'.")
 
 
@@ -225,12 +235,12 @@ It is added to `extended-command-history'.
 ;;
 ;;
 (defvar helm-source-ratpoison-commands
-  '((name . "Ratpoison Commands")
-    (init . helm-ratpoison-commands-init)
-    (candidates-in-buffer)
-    (action ("Execute the command" . helm-ratpoison-commands-execute))
-    (display-to-real . helm-ratpoison-commands-display-to-real)
-    (candidate-number-limit)))
+  (helm-build-in-buffer-source "Ratpoison Commands"
+    :init 'helm-ratpoison-commands-init
+    :action (helm-make-actions
+             "Execute the command" 'helm-ratpoison-commands-execute)
+    :display-to-real 'helm-ratpoison-commands-display-to-real
+    :candidate-number-limit 999999))
 
 (defun helm-ratpoison-commands-init ()
   (unless (helm-candidate-buffer)
@@ -258,11 +268,11 @@ It is added to `extended-command-history'.
 ;;
 ;;
 (defvar helm-source-stumpwm-commands
-  '((name . "Stumpwm Commands")
-    (init . helm-stumpwm-commands-init)
-    (candidates-in-buffer)
-    (action ("Execute the command" . helm-stumpwm-commands-execute))
-    (candidate-number-limit)))
+  (helm-build-in-buffer-source "Stumpwm Commands"
+    :init 'helm-stumpwm-commands-init
+    :action (helm-make-actions
+             "Execute the command" 'helm-stumpwm-commands-execute)
+    :candidate-number-limit 999999))
 
 (defun helm-stumpwm-commands-init ()
   (with-current-buffer (helm-candidate-buffer 'global)
