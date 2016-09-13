@@ -65,9 +65,9 @@ Only the background color is significant."
                     (let ((ignore-window-parameters t))
                       (split-window
                        (frame-root-window) -1 'below))))
-        (if (setq buf (get-buffer "*LV*"))
+        (if (setq buf (get-buffer " *LV*"))
             (switch-to-buffer buf)
-          (switch-to-buffer "*LV*")
+          (switch-to-buffer " *LV*")
           (set-window-hscroll lv-wnd 0)
           (setq window-size-fixed t)
           (setq mode-line-format nil)
@@ -98,7 +98,7 @@ Only the background color is significant."
           (insert
            (propertize "__" 'face 'lv-separator 'display '(space :height (1)))
            (propertize "\n" 'face 'lv-separator 'line-height t)))
-        (setq-local window-min-height n-lines)
+        (set (make-local-variable 'window-min-height) n-lines)
         (setq truncate-lines (> n-lines 1))
         (let ((window-resize-pixelwise t)
               (window-size-fixed nil))
