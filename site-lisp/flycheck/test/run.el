@@ -1,10 +1,10 @@
-;;; run.el --- Flycheck: Test runner    -*- lexical-binding: t; -*-
+#!/bin/bash
+":"; exec ${EMACS:-emacs} -Q --script "$0" -- "${@}" # -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; run.el --- Flycheck: Test runner
 
-;; Copyright (C) 2014-2016 Sebastian Wiesner and Flycheck contributors
+;; Copyright (C) 2014-2015  Sebastian Wiesner <swiesner@lunaryorn.com>
 
 ;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
-;; Maintainer: Sebastian Wiesner <swiesner@lunaryorn.com>
-;; URL: https://www.flycheck.org
 
 ;; This file is not part of GNU Emacs.
 
@@ -24,8 +24,12 @@
 ;;; Commentary:
 
 ;; Flycheck test runner.
+;;
+;; See URL `http://stackoverflow.com/a/6259330/355252' for the shebang.
 
 ;;; Code:
+
+(require 'thingatpt)                    ; For `read-from-whole-string'
 
 (defun flycheck-run-check-selector (selector)
   "Check SELECTOR if it fails loading."
@@ -52,24 +56,9 @@ This function adds the following custom selectors:
      (list 'tag (intern (concat "language-" (symbol-name language)))))
     (`(checker ,(and checker (pred symbolp)))
      (list 'tag (intern (concat "checker-" (symbol-name checker)))))
-    (`(new-checker-for ,(and language (pred symbolp)))
-     ;; For a new checker for a language we need to run the documentation and
-     ;; style tests, and all tests for the corresponding language, in order to
-     ;; make sure that all chaining still works, and that the order of checkers
-     ;; is still correct.
-     (flycheck-transform-selector `(or (tag documentation)
-                                       (tag style)
-                                       (language ,language))))
     (`(,group . ,body)
      (cons group (mapcar #'flycheck-transform-selector body)))
     (simple simple)))
-
-(defun flycheck-read-whole-string (str)
-  "Read from whole STR."
-  (pcase-let ((`(,obj . ,index) (read-from-string str)))
-    (if (/= index (length str))
-        (error "Can't read whole string")
-      obj)))
 
 (defun flycheck-run-tests-batch-and-exit ()
   "Run test cases matching tags in `argv' and exit.
@@ -86,46 +75,42 @@ Node `(ert)Test Selectors' for information about test selectors."
       ;; from trying to parse them.
       (message "WARNING: Unused trailing arguments: %S" argv)
       (setq argv nil))
-    (setq selector
-          `(and "flycheck-"
-                ,(cond
-                  ((not selector) t)
-                  ((= (length selector) 0)
-                   (message "Warning: Empty test selector, defaulting to t")
-                   t)
-                  (t (condition-case nil
-                         (flycheck-read-whole-string selector)
-                       (error
-                        (flycheck-run-check-selector selector)
-                        (kill-emacs 1)))))))
+    (setq selector (cond
+                    ((not selector) t)
+                    ((= (length selector) 0)
+                     (message "Warning: Empty test selector, defaulting to t")
+                     t)
+                    (t (condition-case nil
+                           (read-from-whole-string selector)
+                         (error
+                          (flycheck-run-check-selector selector)
+                          (kill-emacs 1))))))
     (ert-run-tests-batch-and-exit (flycheck-transform-selector selector))))
 
-(defvar flycheck-runner-file
-  (if load-in-progress load-file-name (buffer-file-name)))
+(defun flycheck-runs-this-script-p ()
+  "Whether this file is executed as script."
+  t)
 
 (defun flycheck-run-tests-main ()
   "Main entry point of the test runner."
   (let* ((load-prefer-newer t)
-         (source-directory (locate-dominating-file flycheck-runner-file "Cask"))
+         (current-file (if load-in-progress load-file-name (buffer-file-name)))
+         (source-directory (locate-dominating-file current-file "Cask"))
          (pkg-rel-dir (format ".cask/%s/elpa" emacs-version)))
-
-    ;; standardise on the C locale so we can be sure that none of
-    ;; gcc, ghc and gfortran will output smartquotes
-    (setenv "LC_ALL" "C")
-
     (setq package-user-dir (expand-file-name pkg-rel-dir source-directory))
     (package-initialize)
 
     (message "Running tests on Emacs %s, built at %s"
              emacs-version (format-time-string "%F" emacs-build-time))
-
-    (let ((debug-on-error t))
-      (load (expand-file-name "flycheck" source-directory))
-      (load (expand-file-name "flycheck-ert" source-directory))
-      (load (expand-file-name "flycheck-test"
-                              (file-name-directory flycheck-runner-file)))))
+    (load (expand-file-name "flycheck" source-directory))
+    (load (expand-file-name "flycheck-ert" source-directory))
+    (load (expand-file-name "flycheck-test"
+                            (file-name-directory current-file))))
 
   (let ((debug-on-error t))
     (flycheck-run-tests-batch-and-exit)))
+
+(when (and noninteractive (flycheck-runs-this-script-p))
+  (flycheck-run-tests-main))
 
 ;;; run.el ends here

@@ -1,0 +1,12 @@
+- name: Install Zsh and Dash
+  apt: name={{item}} state=latest install_recommends=false
+  with_items:
+    - dash
+    - zsh
+  sudo: true
+- name: Install ShellCheck
+  command: 'cabal install --global ShellCheck'
+  sudo: true
+  ignore_errors: true
+  tags:
+    - cabal
