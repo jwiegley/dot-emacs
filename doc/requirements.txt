@@ -1,3 +1,10 @@
-Sphinx>=1.2.1
-pillow>=2.3
-sphinxcontrib-emacs>=0.3.1
+# Sphinx
+Sphinx>=1.4
+# Automatically build documentation on changes
+sphinx-autobuild
+# Sphinx theme
+alabaster>=0.7.8
+# Syntax highlighting
+Pygments>=2.1
+# Network access
+requests>=2.9
