@@ -3672,6 +3672,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setq smerge-command-prefix (kbd "C-. C-.")))
 
+(use-package sort-words
+  :load-path "site-lisp/sort-words"
+  :commands sort-words)
+
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
 
