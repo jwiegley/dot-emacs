@@ -4,16 +4,16 @@
 ;; Description: Bookmark+: extensions to standard library `bookmark.el'.
 ;; Author: Drew Adams, Thierry Volpiatto
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2000-2015, Drew Adams, all rights reserved.
+;; Copyright (C) 2000-2016, Drew Adams, all rights reserved.
 ;; Copyright (C) 2009, Thierry Volpiatto, all rights reserved.
 ;; Created: Fri Sep 15 07:58:41 2000
-;; Version: 2015.01.04
-;; Last-Updated: Sun Jan  4 13:17:22 2015 (-0800)
+;; Version: 2015.04.03
+;; Last-Updated: Thu Dec 31 12:25:13 2015 (-0800)
 ;;           By: dradams
-;;     Update #: 15024
+;;     Update #: 15032
 ;; URL: http://www.emacswiki.org/bookmark+.el
 ;; Doc URL: http://www.emacswiki.org/BookmarkPlus
-;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, w3m, gnus
+;; Keywords: bookmarks, bookmark+, projects, placeholders, annotations, search, info, url, w3m, gnus
 ;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
@@ -54,7 +54,7 @@
 ;;       Web'.
 ;;
 ;;    2. From the Emacs-Wiki Web site:
-;;       http://www.emacswiki.org/cgi-bin/wiki/BookmarkPlus.
+;;       http://www.emacswiki.org/BookmarkPlus.
 ;;
 ;;    3. From the Bookmark+ group customization buffer:
 ;;       `M-x customize-group bookmark-plus', then click link
@@ -104,7 +104,7 @@
 ;;         Bookmark+ features.
 ;;
 ;;      2. In your default bookmark file, `bookmark-default-file'
-;;         (`.emacs.bmk'), and in any other bookmark files you might
+;;         (`~/.emacs.bmk'), and in any other bookmark files you might
 ;;         have.
 ;;
 ;;      3. In your `*Bookmark List*' state file,
