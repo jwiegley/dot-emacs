@@ -19,6 +19,7 @@
 
 (require 'cl-lib)
 (require 'helm)
+(require 'helm-lib)
 (require 'imenu)
 (require 'helm-utils)
 (require 'helm-help)
@@ -44,6 +45,14 @@
   :group 'helm-imenu
   :type  'boolean)
 
+(defcustom helm-imenu-all-buffer-assoc nil
+  "Major mode association alist for `helm-imenu-in-all-buffers'.
+Allow `helm-imenu-in-all-buffers' searching in these associated buffers
+even if they are not derived from each other.
+The alist is bidirectional, i.e no need to add '((foo . bar) (bar . foo))
+only '((foo . bar)) is needed."
+  :type '(alist :key-type symbol :value-type symbol)
+  :group 'helm-imenu)
 
 ;;; keymap
 (defvar helm-imenu-map
@@ -168,12 +177,12 @@
     (prog1
         (cl-loop for b in lst
                  for count from 1
-                 for mm = (with-current-buffer b major-mode)
-                 for cmm = (with-helm-current-buffer major-mode)
-                 when (or (with-helm-current-buffer
-                            (derived-mode-p mm))
-                          (with-current-buffer b
-                            (derived-mode-p cmm)))
+                 when
+                 (and (with-current-buffer b
+                        (derived-mode-p 'prog-mode))
+                      (with-current-buffer b
+                        (helm-same-major-mode-p helm-current-buffer
+                                                helm-imenu-all-buffer-assoc)))
                  do (progress-reporter-update progress-reporter count)
                  and
                  append (with-current-buffer b
@@ -247,7 +256,9 @@
 
 ;;;###autoload
 (defun helm-imenu-in-all-buffers ()
-  "Preconfigured helm for fetching imenu entries of all buffers."
+  "Preconfigured helm for fetching imenu entries in all buffers with similar mode as current.
+A mode is similar as current if it is the same, it is derived i.e `derived-mode-p'
+or it have an association in `helm-imenu-all-buffer-assoc'."
   (interactive)
   (unless helm-source-imenu-all
     (setq helm-source-imenu-all

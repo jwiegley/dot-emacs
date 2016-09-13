@@ -21,7 +21,6 @@
 (require 'helm)
 (require 'helm-help)
 (require 'helm-utils)
-(require 'helm-plugin)
 
 (declare-function helm-mm-split-pattern "helm-multi-match")
 
@@ -140,7 +139,7 @@ i.e Don't replace inside a word, regexp is surrounded with \\bregexp\\b."
     :persistent-action #'helm-regexp-persistent-action
     :persistent-help "Show this line"
     :multiline t
-    :matchplugin nil
+    :multimatch nil
     :requires-pattern 2
     :mode-line "Press TAB to select action."
     :action '(("Kill Regexp as sexp" . helm-kill-regexp-as-sexp)
@@ -165,7 +164,7 @@ i.e Don't replace inside a word, regexp is surrounded with \\bregexp\\b."
   (helm-highlight-current-line))
 
 (defun helm-regexp-kill-new (input)
-  (kill-new input)
+  (kill-new (substring-no-properties input))
   (message "Killed: %s" input))
 
 

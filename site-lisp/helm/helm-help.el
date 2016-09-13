@@ -185,6 +185,7 @@ Italic     => A non--file buffer.
 \\[helm-buffers-run-multi-occur]\t\tMulti Occur buffer or marked buffers. (C-u toggle force searching current-buffer).
 \\[helm-buffer-switch-other-window]\t\tSwitch other window.
 \\[helm-buffer-switch-other-frame]\t\tSwitch other frame.
+\\[helm-buffers-run-browse-project]\t\tBrowse Project from buffer.
 \\[helm-buffer-run-query-replace-regexp]\t\tQuery replace regexp in marked buffers.
 \\[helm-buffer-run-query-replace]\t\tQuery replace in marked buffers.
 \\[helm-buffer-run-ediff]\t\tEdiff current buffer with candidate.  If two marked buffers ediff those buffers.
@@ -266,6 +267,9 @@ If you are already in `default-directory' this will move cursor on top.
 NOTE: This is different from using `C-l' in that `C-l' doesn't move cursor on top but stays on previous
 subdir name.
 
+**** Enter `..name/' at end of pattern start a recursive search of directories matching name under
+your current directory, see below the \"Recursive completion on subdirectories\" section for more infos.
+
 **** Enter any environment var (e.g. `$HOME') at end of pattern, it will be expanded
 
 **** You can yank any valid filename after pattern, it will be expanded
@@ -325,11 +329,31 @@ e.g. You can create \"~/new/newnew/newnewnew/my_newfile.txt\".
 - With two prefix args
   same but the cache will be refreshed.
 
-**** You can start a recursive search with Locate of Find (See commands below)
+**** You can start a recursive search with Locate or Find (See commands below)
 
 With Locate you can use a local db with a prefix arg. If the localdb doesn't already
 exists, you will be prompted for its creation, if it exists and you want to refresh it,
 give two prefix args.
+
+Note that when using locate the helm-buffer is empty until you type something,
+but helm use by default the basename of pattern entered in your helm-find-files session,
+hitting M-n should just kick in the locate search with this pattern.
+If you want to automatically do this add the `helm-source-locate'
+to `helm-sources-using-default-as-input'.
+
+**** Recursive completion on subdirectories
+
+Starting from the current directory you are browsing, it is possible
+to have completion of all directories under here.
+So if you are at \"/home/you/foo/\" and you want to go to \"/home/you/foo/bar/baz/somewhere/else\"
+just type \"/home/you/foo/..else\" and hit `C-j' or enter the final \"/\", helm will show you all
+possibles directories under \"foo\" matching \"else\".
+\(Note that entering two spaces before \"else\" instead of two dots works also).
+
+NOTE: Completion on subdirectories use locate as backend, you can configure
+the command with `helm-locate-recursive-dirs-command'.
+Because this completion use an index, you may not have all the recent additions
+of directories until you update your index (with `updatedb' for locate).
 
 *** Insert filename at point or complete filename at point
 
@@ -356,8 +380,13 @@ You can do the same but with \"**.el\" (note the two stars),
 this will select recursively all \".el\" files under current directory.
 
 Note that when copying recursively files, you may have files with same name
-dispatched in the different directories, so when copying them in the same directory
-they would be overwrited.
+dispatched in the different subdirectories, so when copying them in the same directory
+they would be overwrited. To avoid this helm have a special action called \"backup files\"
+that have the same behavior as the command line \"cp --backup=numbered\", it allows you
+copying for example many *.jpg files with the same name from different
+subdirectories in one directory.
+Files with same name are renamed like this: \"foo.txt.~1~\".
+NOTE: This command is available only when `dired-async-mode' is used.
 
 NOTE: When using an action that involve an external backend (e.g. grep), using \"**\"
 is not advised (even if it works fine) because it will be slower to select all your files,
@@ -366,7 +395,10 @@ However, if you know you have not many files it is reasonable to use this,
 also using not recursive wilcard (e.g. \"*.el\") is perfectly fine for this.
 
 This feature (\"**\") is activated by default with the option `helm-file-globstar'.
-The directory selection with \"**foo/\" like bash shopt globstar option is not supported yet.
+It is different than the bash shopt globstar feature in that to list files with a named extension
+recursively you just have to specify e.g \"**.el\" whereas in bash you have to specify \"**/*.el\"
+which is not convenient as \"**.el\".
+The directory selection with \"**/\" like bash shopt globstar option is not supported yet.
 
 *** Query replace regexp on filenames
 
@@ -384,6 +416,11 @@ Shortcut for basename without extension, only extension or all are available:
 - Only extension             => \".%\"
 - All                        => \"%\"
 
+So in the example above you could do instead:
+At first prompt enter \".%\", at second \"jpg\" and hit `RET`.
+Note that when using this instead of using \"JPG\" at first prompt, all extensions
+will be renamed to \"jpg\" even if the extension of one of the files is e.g \"png\".
+
 If you want to rename a serie of files from number 001 to 00x use \\# inside the replacement
 string when you will be prompted for it.
 
@@ -397,8 +434,8 @@ Note: You can do this with the serial renames actions you will find in the actio
       for more sophisticated renaming, but using query replace regexp on filenames
       is a fast way for most common serial replacements.
 
-Note also that unlike the serial renames action the renamed files stay in their initial directory
-and are not renamed to current directory, IOW use this to rename files inside current directory.
+Note also that unlike the serial rename actions the renamed files stay in their initial directory
+and are not renamed to current directory, IOW use this (\\#) to rename files inside current directory.
 
 In the second prompt (replace regexp with) shortcut for `upcase', `downcase' and `capitalize'
 are available, respectively `%u', `%d' and `%c'.
@@ -953,6 +990,7 @@ This feature is only available with emacs-25.
 \\[helm-el-package-show-installed]\t\tShow installed packages only.
 \\[helm-el-package-show-uninstalled]\t\tShow not installed packages only.
 \\[helm-el-package-show-upgrade]\t\tShow upgradable packages only.
+\\[helm-el-package-show-built-in]\t\tShow built-in packages only.
 \\[helm-el-run-package-install]\t\tInstall package(s).
 \\[helm-el-run-package-reinstall]\t\tReinstall package(s).
 \\[helm-el-run-package-uninstall]\t\tUninstall package(s).
@@ -972,11 +1010,12 @@ This feature is only available with emacs-25.
 
 *** Prefix Args
 
-All the prefix args passed BEFORE running `helm-M-x' are ignored,
-you should get an error message if you do so.
-When you want to pass prefix args, pass them AFTER starting `helm-M-x',
+When you want pass prefix args, you should pass prefix args AFTER starting `helm-M-x',
 you will see a prefix arg counter appearing in mode-line notifying you
-the number of prefix args entered.")
+the number of prefix args entered.
+
+If you pass prefix args before running `helm-M-x', it will be displayed in prompt,
+then the first C-u after `helm-M-x' will be used to clear that prefix args.")
 
 ;;; helm-imenu
 ;;
@@ -1073,414 +1112,6 @@ f1/f2/f-n:NthAct \
 f1/f2/f-n:NthAct \
 \\[helm-toggle-suspend-update]:Tog.suspend")
 
-
-;;; Attribute Documentation
-;;
-;;
-;;;###autoload
-(defun helm-describe-helm-attribute (helm-attribute)
-  "Display the full documentation of HELM-ATTRIBUTE.
-HELM-ATTRIBUTE should be a symbol."
-  (interactive (list (intern
-                      (completing-read
-                       "Describe helm attribute: "
-                       (mapcar 'symbol-name helm-attributes)
-                       nil t))))
-  (with-output-to-temp-buffer "*Help*"
-    (princ (get helm-attribute 'helm-attrdoc))))
-
-(helm-document-attribute 'name "mandatory"
-  "  The name of the source. It is also the heading which appears
-  above the list of matches from the source. Must be unique.")
-
-(helm-document-attribute 'header-name "optional"
-  "  A function returning the display string of the header. Its
-  argument is the name of the source. This attribute is useful to
-  add an additional information with the source name.")
-
-(helm-document-attribute 'candidates "mandatory if candidates-in-buffer attribute is not provided"
-  "  Specifies how to retrieve candidates from the source. It can
-  either be a variable name, a function called with no parameters
-  or the actual list of candidates.
-
-  The list must be a list whose members are strings, symbols
-  or (DISPLAY . REAL) pairs.
-
-  In case of (DISPLAY . REAL) pairs, the DISPLAY string is shown
-  in the Helm buffer, but the REAL one is used as action
-  argument when the candidate is selected. This allows a more
-  readable presentation for candidates which would otherwise be,
-  for example, too long or have a common part shared with other
-  candidates which can be safely replaced with an abbreviated
-  string for display purposes.
-
-  Note that if the (DISPLAY . REAL) form is used then pattern
-  matching is done on the displayed string, not on the real
-  value.
-
-  If the candidates have to be retrieved asynchronously (for
-  example, by an external command which takes a while to run)
-  then the function should start the external command
-  asynchronously and return the associated process object.
-  Helm will take care of managing the process (receiving the
-  output from it, killing it if necessary, etc.). The process
-  should return candidates matching the current pattern (see
-  variable `helm-pattern'.)
-  You should use instead `candidates-process' attribute for
-  async processes, a warning will popup when using async process
-  in a `candidates' attribute.
-
-  Note that currently results from asynchronous sources appear
-  last in the helm buffer regardless of their position in
-  `helm-sources'.")
-
-(helm-document-attribute 'candidates-process
-    "Same as `candidates' attributes but for process function."
-  "  You should use this attribute when using a function involving
-  an async process instead of `candidates'.")
-
-(helm-document-attribute 'action "mandatory if type attribute is not provided"
-  "  It is a list of (DISPLAY . FUNCTION) pairs or FUNCTION.
-  FUNCTION is called with one parameter: the selected candidate.
-
-  An action other than the default can be chosen from this list
-  of actions for the currently selected candidate (by default
-  with TAB). The DISPLAY string is shown in the completions
-  buffer and the FUNCTION is invoked when an action is
-  selected. The first action of the list is the default.")
-
-(helm-document-attribute 'coerce "optional"
-  "  It's a function called with one argument: the selected
-  candidate.
-
-  This function is intended for type convertion. In normal case,
-  the selected candidate (string) is passed to action
-  function. If coerce function is specified, it is called just
-  before action function.
-
-  Example: converting string to symbol
-    (coerce . intern)")
-
-(helm-document-attribute 'type "optional if action attribute is provided"
-  "  Indicates the type of the items the source returns.
-
-  Merge attributes not specified in the source itself from
-  `helm-type-attributes'.
-
-  This attribute is implemented by plug-in.")
-
-(helm-document-attribute 'init "optional"
-  "  Function called with no parameters when helm is started. It
-  is useful for collecting current state information which can be
-  used to create the list of candidates later.
-
-  For example, if a source needs to work with the current
-  directory then it can store its value here, because later
-  helm does its job in the minibuffer and in the
-  `helm-buffer' and the current directory can be different
-  there.")
-
-(helm-document-attribute 'match "optional"
-  "  List of functions called with one parameter: a candidate. The
-  function should return non-nil if the candidate matches the
-  current pattern (see variable `helm-pattern').
-
-  This attribute allows the source to override the default
-  pattern matching based on `string-match'. It can be used, for
-  example, to implement a source for file names and do the
-  pattern matching on the basename of files, since it's more
-  likely one is typing part of the basename when searching for a
-  file, instead of some string anywhere else in its path.
-
-  If the list contains more than one function then the list of
-  matching candidates from the source is constructed by appending
-  the results after invoking the first function on all the
-  potential candidates, then the next function, and so on. The
-  matching candidates supplied by the first function appear first
-  in the list of results and then results from the other
-  functions, respectively.
-
-  This attribute has no effect for asynchronous sources (see
-  attribute `candidates'), since they perform pattern matching
-  themselves.")
-
-(helm-document-attribute 'candidate-transformer "optional"
-  "  It's a function or a list of functions called with one argument
-  when the completion list from the source is built. The argument
-  is the list of candidates retrieved from the source. The
-  function should return a transformed list of candidates which
-  will be used for the actual completion.  If it is a list of
-  functions, it calls each function sequentially.
-
-  This can be used to transform or remove items from the list of
-  candidates.
-
-  Note that `candidates' is run already, so the given transformer
-  function should also be able to handle candidates with (DISPLAY
-  . REAL) format.")
-
-(helm-document-attribute 'filtered-candidate-transformer "optional"
-  "  It has the same format as `candidate-transformer', except the
-  function is called with two parameters: the candidate list and
-  the source.
-
-  This transformer is run on the candidate list which is already
-  filtered by the current pattern. While `candidate-transformer'
-  is run only once, it is run every time the input pattern is
-  changed.
-
-  It can be used to transform the candidate list dynamically, for
-  example, based on the current pattern.
-
-  In some cases it may also be more efficent to perform candidate
-  transformation here, instead of with `candidate-transformer'
-  even if this transformation is done every time the pattern is
-  changed.  For example, if a candidate set is very large then
-  `candidate-transformer' transforms every candidate while only
-  some of them will actually be dislpayed due to the limit
-  imposed by `helm-candidate-number-limit'.
-
-  Note that `candidates' and `candidate-transformer' is run
-  already, so the given transformer function should also be able
-  to handle candidates with (DISPLAY . REAL) format.
-
-  This option has no effect for asynchronous sources. (Not yet,
-  at least.")
-
-(helm-document-attribute 'action-transformer "optional"
-  "  It's a function or a list of functions called with two
-  arguments when the action list from the source is
-  assembled. The first argument is the list of actions, the
-  second is the current selection.  If it is a list of functions,
-  it calls each function sequentially.
-
-  The function should return a transformed action list.
-
-  This can be used to customize the list of actions based on the
-  currently selected candidate.")
-
-(helm-document-attribute 'pattern-transformer "optional"
-  "  It's a function or a list of functions called with one argument
-  before computing matches. Its argument is `helm-pattern'.
-  Functions should return transformed `helm-pattern'.
-
-  It is useful to change interpretation of `helm-pattern'.")
-
-(helm-document-attribute 'volatile "optional"
-  "  Indicates the source assembles the candidate list dynamically,
-  so it shouldn't be cached within a single Helm
-  invocation. It is only applicable to synchronous sources,
-  because asynchronous sources are not cached.")
-
-(helm-document-attribute 'requires-pattern "optional"
-  "  If present matches from the source are shown only if the
-  pattern is not empty. Optionally, it can have an integer
-  parameter specifying the required length of input which is
-  useful in case of sources with lots of candidates.")
-
-(helm-document-attribute 'persistent-action "optional"
-  "  Can be a either a Function called with one parameter (the
-  selected candidate) or a cons cell where first element is this
-  same function and second element a symbol (e.g. never-split)
-  that inform `helm-execute-persistent-action'to not split his
-  window to execute this persistent action.")
-
-(helm-document-attribute 'candidates-in-buffer "optional"
-  "  Shortcut attribute for making and narrowing candidates using
-  buffers.  This newly-introduced attribute prevents us from
-  forgetting to add volatile and match attributes.
-
-  See docstring of `helm-candidates-in-buffer'.
-
-  (candidates-in-buffer) is equivalent of three attributes:
-    (candidates . helm-candidates-in-buffer)
-    (volatile)
-    (match identity)
-
-  (candidates-in-buffer . candidates-function) is equivalent of:
-    (candidates . candidates-function)
-    (volatile)
-    (match identity)
-
-  This attribute is implemented by plug-in.")
-
-(helm-document-attribute 'search "optional"
-  "  List of functions like `re-search-forward' or `search-forward'.
-  Buffer search function used by `helm-candidates-in-buffer'.
-  By default, `helm-candidates-in-buffer' uses
-  `re-search-forward'. This attribute is meant to be used with
-  (candidates . helm-candidates-in-buffer) or
-  (candidates-in-buffer) in short.")
-
-(helm-document-attribute 'get-line "optional"
-  "  A function like `buffer-substring-no-properties' or `buffer-substring'.
-  This function converts point of line-beginning and point of line-end,
-  which represents a candidate computed by `helm-candidates-in-buffer'.
-  By default, `helm-candidates-in-buffer' uses
-  `buffer-substring-no-properties'.")
-
-(helm-document-attribute 'display-to-real "optional"
-  "  Function called with one parameter; the selected candidate.
-
-  The function transforms the selected candidate, and the result
-  is passed to the action function.  The display-to-real
-  attribute provides another way to pass other string than one
-  shown in Helm buffer.
-
-  Traditionally, it is possible to make candidates,
-  candidate-transformer or filtered-candidate-transformer
-  function return a list with (DISPLAY . REAL) pairs. But if REAL
-  can be generated from DISPLAY, display-to-real is more
-  convenient and faster.")
-
-(helm-document-attribute 'real-to-display "optional"
-  "  Function called with one parameter; the selected candidate.
-
-  The inverse of display-to-real attribute.
-
-  The function transforms the selected candidate, which is passed
-  to the action function, for display.  The real-to-display
-  attribute provides the other way to pass other string than one
-  shown in Helm buffer.
-
-  Traditionally, it is possible to make candidates,
-  candidate-transformer or filtered-candidate-transformer
-  function return a list with (DISPLAY . REAL) pairs. But if
-  DISPLAY can be generated from REAL, real-to-display is more
-  convenient.
-
-  Note that DISPLAY parts returned from candidates /
-  candidate-transformer are IGNORED as the name `display-to-real'
-  says.")
-
-(helm-document-attribute 'cleanup "optional"
-  "  Function called with no parameters when *helm* buffer is
-  closed. It is useful for killing unneeded candidates buffer.
-
-  Note that the function is executed BEFORE performing action.")
-
-(helm-document-attribute 'candidate-number-limit "optional"
-  "  Override `helm-candidate-number-limit' only for this source.")
-
-(helm-document-attribute 'accept-empty "optional"
-  "  Pass empty string \"\" to action function.")
-
-(helm-document-attribute 'dummy "optional"
-  "  Set `helm-pattern' to candidate. If this attribute is
-  specified, The candidates attribute is ignored.
-
-  This attribute is implemented by plug-in.")
-
-(helm-document-attribute 'multiline "optional"
-  "  Enable to selection multiline candidates.")
-
-(helm-document-attribute 'update "optional"
-  (substitute-command-keys
-   "  Function called with no parameters at before \"init\" function when \
-\\<helm-map>\\[helm-force-update] is pressed."))
-
-(helm-document-attribute 'mode-line "optional"
-  "  Source local `helm-mode-line-string' (included in
-  `mode-line-format'). It accepts also variable/function name.")
-
-(helm-document-attribute 'header-line "optional"
-  "  Source local `header-line-format'.
-  It accepts also variable/function name. ")
-
-(helm-document-attribute
-    'resume "optional"
-  "  Function called with no parameters at end of initialization
-  when `helm-resume' is started.
-  If this function try to do something against `helm-buffer', \(e.g. updating,
-  searching etc...\) probably you should run it in a timer to ensure
-  `helm-buffer' is ready.")
-
-(helm-document-attribute 'keymap "optional"
-  "  Specific keymap for this source.
-  It is useful to have a keymap per source when using more than
-  one source.  Otherwise, a keymap can be set per command with
-  `helm' argument KEYMAP.  NOTE: when a source have `helm-map' as
-  keymap attr, the global value of `helm-map' will override the
-  actual local one.")
-
-(helm-document-attribute 'help-message "optional"
-  "  Help message for this source.
-  If not present, `helm-help-message' value will be used.")
-
-(helm-document-attribute 'match-part "optional"
-  "  Allow matching candidate in the line with `candidates-in-buffer'.
-  In candidates-in-buffer sources, match is done with
-  `re-search-forward' which allow matching only a regexp on the
-  `helm-buffer'; when this search is done, match-part allow
-  matching only a specific part of the current line e.g. with a
-  line like this:
-
-  filename:candidate-containing-the-word-filename
-
-  What you want is to ignore \"filename\" part and match only
-  \"candidate-containing-the-word-filename\"
-
-  So give a function matching only the part of candidate after \":\"
-
-  If source contain match-part attribute, match is computed only
-  on part of candidate returned by the call of function provided
-  by this attribute. The function should have one arg, candidate,
-  and return only a specific part of candidate.
-
-  NOTE: This have effect only on sources using
-  `candidates-in-buffer'.")
-
-(helm-document-attribute 'match-strict "optional"
-  "  When specifying a match function within a source and
-  helm-multi-match is enabled, the result of all matching
-  functions will be concatened, which in some cases is not what
-  is wanted. When using `match-strict' only this or these
-  functions will be used. You can specify those functions as a
-  list of functions or a single symbol function. For anonymous
-  function don't add the dot, e.g:
-
-  \(match-strict (lambda () (foo))).")
-
-(helm-document-attribute 'nohighlight "optional"
-  "  Disable highlight match in this source.")
-
-(helm-document-attribute 'no-matchplugin "optional"
-  "  Disable matchplugin for this source.")
-
-(helm-document-attribute 'history "optional"
-  "  Allow passing history variable to helm from source.
-  It should be a quoted symbol evaluated from source, i.e:
-  (history . ,'history-var)")
-
-(helm-document-attribute 'follow "optional"
-  "  Enable `helm-follow-mode' for this source only.
-  You must give it a value of 1 or -1, though giving a -1 value
-  is surely not what you want, e.g: (follow . 1)
-
-  See `helm-follow-mode' for more infos")
-
-(helm-document-attribute 'follow-delay "optional"
-  "  `helm-follow-mode' will execute persistent-action after this delay.
-  Otherwise value of `helm-follow-input-idle-delay' is used if non--nil,
-  If none of these are found fallback to `helm-input-idle-delay'.")
-
-(helm-document-attribute 'allow-dups "optional"
-  "  Allow helm collecting duplicates candidates.")
-
-(helm-document-attribute 'filter-one-by-one "optional"
-  "  A transformer function that treat candidates one by one.
-  It is called with one arg the candidate.
-  It is faster than `filtered-candidate-transformer' or `candidates-transformer',
-  but should be used only in sources that recompute constantly their candidates,
-  e.g. `helm-source-find-files'.
-  Filtering happen early and candidates are treated
-  one by one instead of re-looping on the whole list.
-  If used with `filtered-candidate-transformer' or `candidates-transformer'
-  these functions should treat the candidates transformed by the `filter-one-by-one'
-  function in consequence.")
-
-(helm-document-attribute 'nomark "optional"
-  "  Don't allow marking candidates when this attribute is present.")
 
 (provide 'helm-help)
 

@@ -268,29 +268,31 @@
     :initform nil
     :custom function
     :documentation
-    "  Function called with one parameter; the selected candidate.
+    "  Transform the selected candidate when passing it to action.
 
-  The function transforms the selected candidate, and the result
-  is passed to the action function.  The display-to-real
-  attribute provides another way to pass to action other string than
-  the one shown in Helm buffer.
+  Function called with one parameter, the selected candidate.
 
-  Traditionally, it is possible to make candidates,
-  candidate-transformer or filtered-candidate-transformer
-  function return a list with (DISPLAY . REAL) pairs. But if REAL
-  can be generated from DISPLAY, display-to-real is more
-  convenient and faster.
+  Avoid recomputing all candidates with candidate-transformer
+  or filtered-candidate-transformer to give a new value to REAL,
+  instead the selected candidate is transformed only when passing it
+  to action.
 
-  NOTE: This is deprecated and you have better time using `filter-one-by-one'.")
+  Note that this is NOT a transformer,
+  so the display will not be modified by this function.")
 
    (real-to-display
     :initarg :real-to-display
     :initform nil
     :custom function
     :documentation
-    "  Function called with one parameter; the selected candidate.
+    "  Recompute all candidates computed previously with other transformers.
+
+  Function called with one parameter, the selected candidate.
+
   The real value of candidates will be shown in display.
-  See `display-to-real'.")
+  Note: This have nothing to do with display-to-real.
+  It is unuseful as the same can be performed by using more than
+  one function in transformers, it is kept only for backward compatibility.")
 
    (action-transformer
     :initarg :action-transformer
@@ -467,9 +469,7 @@
     :custom integer
     :documentation
     "  Enable `helm-follow-mode' for this source only.
-  You must give it a value of 1 or -1, though giving a -1 value
-  is surely not what you want, e.g: (follow . 1)
-
+With a value of 1 enable, a value of -1 or nil disable the mode.
   See `helm-follow-mode' for more infos.")
 
    (follow-delay
@@ -481,17 +481,18 @@
   Otherwise value of `helm-follow-input-idle-delay' is used if non--nil,
   If none of these are found fallback to `helm-input-idle-delay'.")
 
-   (dont-plug
-    :initarg :dont-plug
-    :initform '(helm-compile-source--persistent-help)
-    :custom list
-    :documentation
-    "  A list of compile functions plugin to ignore.")
-
-   (matchplugin
-    :initarg :matchplugin
+   (multimatch
+    :initarg :multimatch
     :initform t
-    :custom boolean)
+    :custom boolean
+    :documentation
+    "  Use the multi-match algorithm when non-nil.
+  I.e Allow specifying multiple patterns separated by spaces.
+  When a pattern is prefixed by \"!\" the negation of this pattern is used,
+  i.e match anything but this pattern.
+  It is the standard way of matching in helm and is enabled by default.
+  It can be used with fuzzy-matching enabled, but as soon helm detect a space,
+  each pattern will match by regexp and will not be fuzzy.")
 
    (match-part
     :initarg :match-part
@@ -543,13 +544,6 @@
   ((candidates
     :initform '("ERROR: You must specify the `candidates' slot, either with a list or a function"))
 
-   (dont-plug
-    :initform '(helm-compile-source--multi-match
-                helm-compile-source--persistent-help
-                ;; Ensure this will not be plugged
-                ;; if user have somewhere old helm-migemo.el.
-                helm-compile-source--migemo))
-
    (migemo
     :initarg :migemo
     :initform nil
@@ -575,7 +569,7 @@
   functions will be used. You can specify those functions as a
   list of functions or a single symbol function.
 
-  NOTE: This have the same effect as using :MATCHPLUGIN nil."))
+  NOTE: This have the same effect as using :MULTIMATCH nil."))
 
   "Use this class to make helm sources using a list of candidates.
 This list should be given as a normal list, a variable handling a list
@@ -597,9 +591,7 @@ Matching is done basically with `string-match' against each candidate.")
   The process buffer should be nil, otherwise, if you use
   `helm-buffer' give to the process a sentinel.")
 
-   (matchplugin :initform nil)
-   (dont-plug :initform '(helm-compile-source--multi-match
-                          helm-compile-source--persistent-help)))
+   (multimatch :initform nil))
 
   "Use this class to define a helm source calling an external process.
 The :candidates slot is not allowed even if described because this class
@@ -618,12 +610,6 @@ inherit from `helm-source'.")
   This data will be passed in a function added to the init slot and
   the buffer will be build with `helm-init-candidates-in-buffer'.
   This is an easy and fast method to build a `candidates-in-buffer' source.")
-
-   (dont-plug
-    :initform '(helm-compile-source--candidates-in-buffer
-                helm-compile-source--multi-match
-                helm-compile-source--persistent-help
-                helm-compile-source--migemo))
 
    (migemo
     :initarg :migemo
@@ -667,7 +653,7 @@ inherit from `helm-source'.")
   Buffer search function used by `helm-candidates-in-buffer'.
   By default, `helm-candidates-in-buffer' uses `re-search-forward'.
   The function should take one arg PATTERN.
-  If your search function needs to handle negation like matchplugin,
+  If your search function needs to handle negation like multimatch,
   this function should returns in such case a cons cell of two integers defining
   the beg and end positions to match in the line previously matched by
   `re-search-forward' or similar, and move point to next line
@@ -688,20 +674,21 @@ inherit from `helm-source'.")
   list of functions or a single symbol function.
 
   NOTE: This have the same effect as using a nil value for
-        :MATCHPLUGIN slot."))
+        :MULTIMATCH slot."))
 
   "Use this source to make helm sources storing candidates inside a buffer.
 Contrarily to `helm-source-sync' candidates are matched using a function
-like `re-search-forward', see below documentation of :search slot.")
+like `re-search-forward', see below documentation of :search slot.
+See `helm-candidates-in-buffer' for more infos.")
 
 (defclass helm-source-dummy (helm-source)
   ((candidates
     :initform '("dummy"))
 
    (filtered-candidate-transformer
-    :initform 'helm-dummy-candidate)
+    :initform (lambda (_candidates _source) (list helm-pattern)))
 
-   (matchplugin
+   (multimatch
     :initform nil)
 
    (accept-empty
@@ -813,11 +800,11 @@ an eieio class."
   (let* ((actions     (slot-value source 'action))
          (action-transformers (slot-value source 'action-transformer))
          (new-action  (list (cons name fn)))
-         (transformer `(lambda (actions candidate)
-                         (cond ((funcall (quote ,predicate) candidate)
-                                (helm-append-at-nth
-                                 actions (quote ,new-action) ,index))
-                               (t actions)))))
+         (transformer (lambda (actions candidate)
+                        (cond ((funcall predicate candidate)
+                               (helm-append-at-nth
+                                actions new-action index))
+                              (t actions)))))
     (if (functionp actions)
         (setf (slot-value source 'action) (list (cons "Default action" actions)))
         (setf (slot-value source 'action) (helm-interpret-value actions source)))
@@ -903,10 +890,10 @@ an eieio class."
               (append (helm-mklist it)
                       (list helm-fuzzy-match-fn)))
       (setf (slot-value source 'match) helm-fuzzy-match-fn)))
-  (when (slot-value source 'matchplugin)
+  (when (slot-value source 'multimatch)
     (setf (slot-value source 'match)
           (helm-source-mm-get-search-or-match-fns source 'match)))
-  (helm-aif (and (null (slot-value source 'matchplugin))
+  (helm-aif (and (null (slot-value source 'multimatch))
                  (slot-value source 'migemo))
       (unless (eq it 'nomultimatch) ; Use own migemo fn.
         (setf (slot-value source 'match)
@@ -933,10 +920,10 @@ an eieio class."
               (append (helm-mklist it)
                       (list helm-fuzzy-search-fn)))
       (setf (slot-value source 'search) (list helm-fuzzy-search-fn))))
-  (when (slot-value source 'matchplugin)
+  (when (slot-value source 'multimatch)
     (setf (slot-value source 'search)
           (helm-source-mm-get-search-or-match-fns source 'search)))
-  (helm-aif (and (null (slot-value source 'matchplugin))
+  (helm-aif (and (null (slot-value source 'multimatch))
                  (slot-value source 'migemo))
       (unless (eq it 'nomultimatch)
         (setf (slot-value source 'search)
@@ -952,8 +939,8 @@ an eieio class."
 (defmethod helm--setup-source ((source helm-source-async))
   (cl-assert (null (slot-value source 'candidates))
              nil "Incorrect use of `candidates' use `candidates-process' instead")
-  (cl-assert (null (slot-value source 'matchplugin))
-             nil "`matchplugin' not allowed in async sources."))
+  (cl-assert (null (slot-value source 'multimatch))
+             nil "`multimatch' not allowed in async sources."))
 
 (defmethod helm--setup-source ((source helm-source-dummy))
   (let ((mtc (slot-value source 'match)))

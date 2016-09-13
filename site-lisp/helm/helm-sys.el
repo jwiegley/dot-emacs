@@ -33,26 +33,62 @@
   :group 'helm-sys)
 
 
-(defun helm-top-command-set-fn (var _value)
-  (set var
-       (cl-case system-type
-         (darwin "env COLUMNS=%s ps -axo pid,user,pri,nice,ucomm,tty,start,vsz,%%cpu,%%mem,etime,command")
-         (t      "env COLUMNS=%s top -b -n 1"))))
-
-(defcustom helm-top-command "env COLUMNS=%s top -b -n 1"
+(defcustom helm-top-command
+  (cl-case system-type
+    (darwin "env COLUMNS=%s ps -axo pid,user,pri,nice,ucomm,tty,start_time,vsz,%%cpu,%%mem,etime,command")
+    (t      "env COLUMNS=%s top -b -n 1"))
   "Top command used to display output of top.
-To use top command, a version supporting batch mode (-b option) is needed.
-On Mac OSX top command doesn't support this, so ps command
-is used by default instead.
-If you modify this the number and order of elements displayed
-should be the same as top command to have the sort commands
-working properly, that is 12 elements with the 2 first being
-PID and USER and the last 4 being %CPU, %MEM, TIME and COMMAND.
-A format string where %s will be replaced with `frame-width'."
-  :group 'helm-sys
-  :type 'string
-  :set  'helm-top-command-set-fn)
+A format string where %s will be replaced with `frame-width'.
 
+To use 'top' command, a version supporting batch mode (-b option) is needed.
+On Mac OSX 'top' command doesn't support this, so ps command
+is used instead by default.
+Normally 'top' command output have 12 columns, but in some versions you may
+have less than this, so you can either customize top to use 12 columns with the
+interactives 'f' and 'W' commands of top, or modify
+`helm-top-sort-colums-alist' to fit with the number of columns
+your 'top' command is using.
+
+If you modify 'ps' command be sure that 'pid' comes in first
+and \"env COLUMNS=%s\" is specified at beginning of command.
+Ensure also that no elements contain spaces (e.g use start_time and not start).
+Same as for 'top' you can customize `helm-top-sort-colums-alist' to make sort commands
+working properly according to your settings."
+  :group 'helm-sys
+  :type 'string)
+
+(defcustom helm-top-sort-colums-alist '((com . 11)
+                                        (mem . 9)
+                                        (cpu . 8)
+                                        (user . 1))
+  "Allow defining which column to use when sorting output of top/ps command.
+Only com, mem, cpu and user are sorted, so no need to put something else there,
+it will have no effect.
+Note that column numbers are counted from zero, i.e column 1 is the nth 0 column."
+  :group 'helm-sys
+  :type '(alist :key-type symbol :value-type (integer :tag "Column number")))
+
+(defcustom helm-top-poll-delay 1.5
+  "Helm top poll after this delay when `helm-top-poll-mode' is enabled.
+The minimal delay allowed is 1.5, if less than this helm-top will use 1.5."
+  :group 'helm-sys
+  :type  'float)
+
+(defcustom helm-top-poll-delay-post-command 1.0
+  "Helm top stop polling during this delay.
+This delay is additioned to `helm-top-poll-delay' after emacs stop
+being idle."
+  :group 'helm-sys
+  :type 'float)
+
+(defcustom helm-top-poll-preselection 'linum
+  "Stay on same line or follow candidate when `helm-top-poll' update display.
+Possible values are 'candidate or 'linum.
+This affect also sorting functions in the same way."
+  :group'helm-sys
+  :type '(radio :tag "Preferred preselection action for helm-top"
+          (const :tag "Follow candidate" candidate)
+          (const :tag "Stay on same line" linum)))
 
 ;;; Top (process)
 ;;
@@ -67,15 +103,88 @@ A format string where %s will be replaced with `frame-width'."
     (define-key map (kbd "M-U")   'helm-top-run-sort-by-user)
     map))
 
+(defvar helm-top-after-init-hook nil
+  "Local hook for helm-top.")
+
+(defvar helm-top--poll-timer nil)
+
+(defun helm-top-poll (&optional no-update delay)
+  (when helm-top--poll-timer
+    (cancel-timer helm-top--poll-timer))
+  (condition-case nil
+      (progn
+        (when (and (helm-alive-p) (null no-update))
+          ;; Fix quitting while process is running
+          ;; by binding `with-local-quit' in init function
+          ;; Issue #1521.
+          (helm-force-update
+           (cl-ecase helm-top-poll-preselection
+             (candidate (replace-regexp-in-string
+                         "[0-9]+" "[0-9]+"
+                         (regexp-quote (helm-get-selection nil t))))
+             (linum `(lambda ()
+                       (goto-char (point-min))
+                       (forward-line ,(helm-candidate-number-at-point)))))))
+        (setq helm-top--poll-timer
+              (run-with-idle-timer
+               (helm-aif (current-idle-time)
+                   (time-add it (seconds-to-time
+                                 (or delay (helm-top--poll-delay))))
+                 (or delay (helm-top--poll-delay)))
+               nil
+               'helm-top-poll)))
+    (quit (cancel-timer helm-top--poll-timer))))
+
+(defun helm-top--poll-delay ()
+  (max 1.5 helm-top-poll-delay))
+
+(defun helm-top-poll-no-update ()
+  (helm-top-poll t (+ (helm-top--poll-delay)
+                      helm-top-poll-delay-post-command)))
+
+(defun helm-top-initialize-poll-hooks ()
+  ;; When emacs is idle during say 20s
+  ;; the idle timer will run in 20+1.5 s.
+  ;; This is fine when emacs stays idle, because the next timer
+  ;; will run at 21.5+1.5 etc... so the display will be updated
+  ;; at every 1.5 seconds.
+  ;; But as soon as emacs looses its idleness, the next update
+  ;; will occur at say 21+1.5 s, so we have to reinitialize
+  ;; the timer at 0+1.5.
+  (add-hook 'post-command-hook 'helm-top-poll-no-update)
+  (add-hook 'focus-in-hook 'helm-top-poll-no-update))
+
+;;;###autoload
+(define-minor-mode helm-top-poll-mode
+    "Refresh automatically helm top buffer once enabled."
+  :group 'helm-top
+  :global t
+  (if helm-top-poll-mode
+      (progn
+        (add-hook 'helm-top-after-init-hook 'helm-top-poll-no-update)
+        (add-hook 'helm-top-after-init-hook 'helm-top-initialize-poll-hooks))
+      (remove-hook 'helm-top-after-init-hook 'helm-top-poll-no-update)
+      (remove-hook 'helm-top-after-init-hook 'helm-top-initialize-poll-hooks)))
+
 (defvar helm-source-top
   (helm-build-in-buffer-source "Top"
-    :header-name (lambda (name) (concat name " (Press C-c C-u to refresh)"))
+    :header-name (lambda (name)
+                   (concat name (if helm-top-poll-mode
+                                    " (auto updating)"
+                                    " (Press C-c C-u to refresh)")))
     :init #'helm-top-init
+    :after-init-hook 'helm-top-after-init-hook
+    :cleanup (lambda ()
+               (when helm-top--poll-timer
+                 (cancel-timer helm-top--poll-timer))
+               (remove-hook 'post-command-hook 'helm-top-poll-no-update)
+               (remove-hook 'focus-in-hook 'helm-top-poll-no-update))
     :nomark t
     :display-to-real #'helm-top-display-to-real
     :persistent-action #'helm-top-sh-persistent-action
     :persistent-help "SIGTERM"
     :help-message 'helm-top-help-message
+    :mode-line 'helm-top-mode-line
     :follow 'never
     :keymap helm-top-map
     :filtered-candidate-transformer #'helm-top-sort-transformer
@@ -95,10 +204,11 @@ Return empty string for non--valid candidates."
                            (cons helm-top--line lst))))
 
 (defun helm-top--skip-top-line ()
-  (let ((src-name (assoc-default 'name (helm-get-current-source))))
+  (let* ((src (helm-get-current-source))
+         (src-name (assoc-default 'name src)))
     (helm-aif (and (stringp src-name)
                    (string= src-name "Top")
-                   (helm-get-selection nil t))
+                   (helm-get-selection nil t src))
         (when (string-match-p "^ *PID" it)
           (helm-next-line)))))
 
@@ -136,11 +246,12 @@ Show actions only on line starting by a PID."
 
 (defun helm-top-init ()
   "Insert output of top command in candidate buffer."
-  (unless helm-top-sort-fn (helm-top-set-mode-line "CPU"))
-  (with-current-buffer (helm-candidate-buffer 'global)
-    (call-process-shell-command
-     (format helm-top-command (frame-width))
-     nil (current-buffer))))
+  (with-local-quit
+    (unless helm-top-sort-fn (helm-top-set-mode-line "CPU"))
+    (with-current-buffer (helm-candidate-buffer 'global)
+      (call-process-shell-command
+       (format helm-top-command (frame-width))
+       nil (current-buffer)))))
 
 (defun helm-top-display-to-real (line)
   "Return pid only from LINE."
@@ -169,47 +280,69 @@ Show actions only on line starting by a PID."
 (defun helm-top-sort-by-com (s1 s2)
   (let* ((split-1 (split-string s1))
          (split-2 (split-string s2))
-         (com-1 (nth 11 split-1))
-         (com-2 (nth 11 split-2)))
+         (col (cdr (assq 'com helm-top-sort-colums-alist)))
+         (com-1 (nth col split-1))
+         (com-2 (nth col split-2)))
     (string< com-1 com-2)))
 
 (defun helm-top-sort-by-mem (s1 s2)
   (let* ((split-1 (split-string s1))
          (split-2 (split-string s2))
-         (mem-1 (string-to-number (nth 9 split-1)))
-         (mem-2 (string-to-number (nth 9 split-2))))
+         (col (cdr (assq 'mem helm-top-sort-colums-alist)))
+         (mem-1 (string-to-number (nth col split-1)))
+         (mem-2 (string-to-number (nth col split-2))))
     (> mem-1 mem-2)))
+
+(defun helm-top-sort-by-cpu (s1 s2)
+  (let* ((split-1 (split-string s1))
+         (split-2 (split-string s2))
+         (col (cdr (assq 'cpu helm-top-sort-colums-alist)))
+         (cpu-1 (string-to-number (nth col split-1)))
+         (cpu-2 (string-to-number (nth col split-2))))
+    (> cpu-1 cpu-2)))
 
 (defun helm-top-sort-by-user (s1 s2)
   (let* ((split-1 (split-string s1))
          (split-2 (split-string s2))
-         (user-1 (nth 1 split-1))
-         (user-2 (nth 1 split-2)))
+         (col (cdr (assq 'user helm-top-sort-colums-alist)))
+         (user-1 (nth col split-1))
+         (user-2 (nth col split-2)))
     (string< user-1 user-2)))
+
+(defun helm-top--preselect-fn ()
+  (if (eq helm-top-poll-preselection 'linum)
+      `(lambda ()
+         (goto-char (point-min))
+         (forward-line ,(helm-candidate-number-at-point)))
+      (replace-regexp-in-string
+       "[0-9]+" "[0-9]+"
+       (regexp-quote (helm-get-selection nil t)))))
 
 (defun helm-top-run-sort-by-com ()
   (interactive)
   (helm-top-set-mode-line "COM")
   (setq helm-top-sort-fn 'helm-top-sort-by-com)
-  (helm-force-update))
+  (helm-update (helm-top--preselect-fn)))
 
 (defun helm-top-run-sort-by-cpu ()
   (interactive)
-  (helm-top-set-mode-line "CPU")
-  (setq helm-top-sort-fn nil)
-  (helm-force-update))
+  (let ((com (nth 2 (split-string helm-top-command))))
+    (helm-top-set-mode-line "CPU")
+    (setq helm-top-sort-fn (and (null (string= com "top"))
+                                'helm-top-sort-by-cpu))
+    (helm-update (helm-top--preselect-fn))))
 
 (defun helm-top-run-sort-by-mem ()
   (interactive)
   (helm-top-set-mode-line "MEM")
   (setq helm-top-sort-fn 'helm-top-sort-by-mem)
-  (helm-force-update))
+  (helm-update (helm-top--preselect-fn)))
 
 (defun helm-top-run-sort-by-user ()
   (interactive)
   (helm-top-set-mode-line "USER")
   (setq helm-top-sort-fn 'helm-top-sort-by-user)
-  (helm-force-update))
+  (helm-update (helm-top--preselect-fn)))
 
 
 ;;; X RandR resolution change
@@ -240,41 +373,41 @@ Show actions only on line starting by a PID."
   (cadr (helm-xrandr-info)))
 
 (defvar helm-source-xrandr-change-resolution
-  '((name . "Change Resolution")
-    (candidates
-     . (lambda ()
-         (with-temp-buffer
-           (call-process "xrandr" nil (current-buffer) nil
-                         "--screen" (helm-xrandr-screen) "-q")
-           (goto-char 1)
-           (cl-loop with modes = nil
-                 while (re-search-forward "   \\([0-9]+x[0-9]+\\)" nil t)
+  (helm-build-sync-source "Change Resolution"
+    :candidates
+    (lambda ()
+      (with-temp-buffer
+        (call-process "xrandr" nil (current-buffer) nil
+                      "--screen" (helm-xrandr-screen) "-q")
+        (goto-char 1)
+        (cl-loop while (re-search-forward "   \\([0-9]+x[0-9]+\\)" nil t)
                  for mode = (match-string 1)
                  unless (member mode modes)
                  collect mode into modes
-                 finally return modes))))
-    (action
-     ("Change Resolution"
-      . (lambda (mode)
-          (call-process "xrandr" nil nil nil
-                        "--screen" (helm-xrandr-screen)
-                        "--output" (helm-xrandr-output)
-                        "--mode" mode))))))
+                 finally return modes)))
+    :action
+    (helm-make-actions "Change Resolution"
+                       (lambda (mode)
+                         (call-process "xrandr" nil nil nil
+                                       "--screen" (helm-xrandr-screen)
+                                       "--output" (helm-xrandr-output)
+                                       "--mode" mode)))))
 
 
 ;;; Emacs process
 ;;
 ;;
 (defvar helm-source-emacs-process
-  '((name . "Emacs Process")
-    (init . (lambda () (list-processes--refresh)))
-    (candidates . (lambda () (mapcar #'process-name (process-list))))
-    (persistent-action . (lambda (elm)
-                           (delete-process (get-process elm))
-                           (helm-delete-current-selection)))
-    (persistent-help . "Kill Process")
-    (action ("Kill Process" . (lambda (elm)
-                                (delete-process (get-process elm)))))))
+  (helm-build-sync-source "Emacs Process"
+    :init (lambda () (list-processes--refresh))
+    :candidates (lambda () (mapcar #'process-name (process-list)))
+    :persistent-action (lambda (elm)
+                         (delete-process (get-process elm))
+                         (helm-delete-current-selection))
+    :persistent-help "Kill Process"
+    :action (helm-make-actions "Kill Process"
+                               (lambda (elm)
+                                 (delete-process (get-process elm))))))
 
 
 ;;;###autoload

@@ -41,7 +41,7 @@
 ;;;###autoload
 (defun helm-define-multi-key (keymap key functions &optional delay)
   "In KEYMAP, define key sequence KEY for function list FUNCTIONS.
-Each function runs sequentially for each KEY press. 
+Each function runs sequentially for each KEY press.
 If DELAY is specified, switch back to initial function of FUNCTIONS list
 after DELAY seconds.
 The functions in FUNCTIONS list take no args.
@@ -55,8 +55,8 @@ e.g
 
 \(helm-define-multi-key global-map \"<f5> q\" '(foo bar baz) 2)
 
-Each time \"<f5> q\" is pressed, the next function is executed. Waiting 
-more than 2 seconds between key presses switches back to executing the first 
+Each time \"<f5> q\" is pressed, the next function is executed. Waiting
+more than 2 seconds between key presses switches back to executing the first
 function on the next hit."
   (define-key keymap key (helm-make-multi-command functions delay)))
 
@@ -94,8 +94,8 @@ Run each function in the FUNCTIONS list in turn when called within DELAY seconds
       (set iterator (helm-iter-list (funcall fn)))
       (setq next (helm-iter-next (symbol-value iterator))))
     (and next (symbol-value iterator) (call-interactively (nth (1- next) functions)))
-    (when delay (run-with-idle-timer delay nil `(lambda ()
-                                                  (setq ,iterator nil))))))
+    (when delay (run-with-idle-timer delay nil (lambda ()
+                                                 (setq iterator nil))))))
 
 (helm-multi-key-defun helm-toggle-resplit-and-swap-windows
     "Multi key command to re-split and swap helm window.
@@ -116,26 +116,25 @@ Arg MAP is the keymap to use, SUBKEY is the initial short key-binding to
 call COMMAND.
 
 Arg OTHER-SUBKEYS is an alist specifying other short key-bindings
-to use once started.
-e.g:
+to use once started e.g:
 
-\(helm-define-key-with-subkeys global-map
-   \(kbd \"C-x v n\") ?n 'git-gutter:next-hunk '((?p . git-gutter:previous-hunk))\)
+    \(helm-define-key-with-subkeys global-map
+       \(kbd \"C-x v n\") ?n 'git-gutter:next-hunk '((?p . git-gutter:previous-hunk))\)
 
 
 In this example, `C-x v n' will run `git-gutter:next-hunk'
 subsequent \"n\"'s run this command again
 and subsequent \"p\"'s run `git-gutter:previous-hunk'.
 
-Arg MENU is a string displayed in minibuffer that 
+Arg MENU is a string displayed in minibuffer that
 describes SUBKEY and OTHER-SUBKEYS.
 Arg EXIT-FN specifies a function to run on exit.
 
 For any other keys pressed, run their assigned command as defined
 in MAP and then exit the loop running EXIT-FN, if specified.
 
-NOTE: SUBKEY and OTHER-SUBKEYS bindings support char syntax only 
-(e.g ?n), so don't use strings or vectors to define them."
+NOTE: SUBKEY and OTHER-SUBKEYS bindings support char syntax only
+\(e.g ?n), so don't use strings or vectors to define them."
   (declare (indent 1))
   (define-key map key
     (lambda ()
@@ -162,7 +161,6 @@ NOTE: SUBKEY and OTHER-SUBKEYS bindings support char syntax only
                                       unread-command-events)))
                        nil)))))
         (and exit-fn (funcall exit-fn))))))
-
 
 ;;; Keymap
 ;;
@@ -342,11 +340,6 @@ the default has changed now to avoid flickering."
   :group 'helm
   :type 'sexp)
 
-(defcustom helm-persistent-action-use-special-display nil
-  "If non-`nil', use `special-display-function' in persistent action."
-  :group 'helm
-  :type 'boolean)
-
 (defcustom helm-display-function 'helm-default-display-buffer
   "Function to display *helm* buffer.
 By default, it is `helm-default-display-buffer', which affects
@@ -357,7 +350,7 @@ By default, it is `helm-default-display-buffer', which affects
 (defcustom helm-case-fold-search 'smart
   "Adds 'smart' option to `case-fold-search'.
 Smart option ignores case for searches as long as there are no
-upper case characters in the pattern. 
+upper case characters in the pattern.
 
 Use nil or t to turn off smart behavior and use
 `case-fold-search' behavior.
@@ -417,11 +410,23 @@ NOTE: this have no effect if `helm-split-window-preferred-function' is not
   :group 'helm
   :type 'symbol)
 
-(defcustom helm-display-buffer-default-size nil
+(defcustom helm-display-buffer-default-height nil
   "Initial height of `helm-buffer', specified as an integer or a function.
+
 The function should take one arg and the responsibility for
-re-sizing the window; function's return value is ignored. See
-`display-buffer' for more info."
+re-sizing the window; function's return value is ignored.
+Note that this have no effect when the split is vertical.
+See `display-buffer' for more info."
+  :group 'helm
+  :type '(choice integer function))
+
+(defcustom helm-display-buffer-default-width nil
+  "Initial width of `helm-buffer', specified as an integer or a function.
+
+The function should take one arg and the responsibility for
+re-sizing the window; function's return value is ignored.
+Note that this have no effect when the split is horizontal.
+See `display-buffer' for more info."
   :group 'helm
   :type '(choice integer function))
 
@@ -458,7 +463,10 @@ set to `other'."
                                                  helm-source-etags-select
                                                  helm-source-man-pages
                                                  helm-source-occur
-                                                 helm-source-moccur)
+                                                 helm-source-moccur
+                                                 helm-source-grep-ag
+                                                 helm-source-grep-git
+                                                 helm-source-grep)
   "List of helm sources that need to use `helm--maybe-use-default-as-input'.
 When a source is a member of this list, default `thing-at-point'
 will be used as input."
@@ -473,11 +481,28 @@ See documentation for  `helm-delete-minibuffer-contents'."
   :type 'boolean)
 
 (defcustom helm-follow-mode-persistent nil
-  "When non-`nil', use last state of `helm-follow-mode' for the next helm session.
-To make this behavior persistent across emacs sessions, set the
-`follow' attribute explicitly in the source."
+  "When non-`nil', save last state of `helm-follow-mode' for the next emacs sessions.
+
+Each time you turn on or off `helm-follow-mode', the current source name will be stored
+or removed from `helm-source-names-using-follow'.
+
+Note that this may be disabled in some places where it is unsafe to use
+because persistent action is changing according to context."
   :group 'helm
   :type 'boolean)
+
+(defcustom helm-source-names-using-follow nil
+  "A list of source names to have follow enabled.
+This list of source names will be used only
+when `helm-follow-mode-persistent' is non-nil.
+
+You don't have to customize this yourself unless you really want and
+know what you are doing, instead just set
+`helm-follow-mode-persistent' to non-nil and as soon you turn on or
+off `helm-follow-mode' (C-c C-f) in a source, helm will save or remove
+source name in this variable."
+  :group 'helm
+  :type '(repeat (choice string)))
 
 (defcustom helm-prevent-escaping-from-minibuffer t
   "Prevent escape from minibuffer during the helm session."
@@ -485,7 +510,7 @@ To make this behavior persistent across emacs sessions, set the
   :type 'boolean)
 
 (defcustom helm-move-to-line-cycle-in-source nil
-  "Cycle to the beginning or end of the list after reaching the bottom or top. 
+  "Cycle to the beginning or end of the list after reaching the bottom or top.
 This applies when using `helm-next/previous-line'."
   :group 'helm
   :type 'boolean)
@@ -502,7 +527,7 @@ This applies when using `helm-next/previous-line'."
 
 (defcustom helm-fuzzy-sort-fn 'helm-fuzzy-matching-default-sort-fn
   "The sort transformer function used in fuzzy matching.
-When nil, sorting is not done." 
+When nil, sorting is not done."
   :group 'helm
   :type 'function)
 
@@ -530,7 +555,7 @@ See `fit-window-to-buffer' for details."
 (defcustom helm-input-method-verbose-flag nil
   "The default value for `input-method-verbose-flag' used in helm minibuffer.
 It is nil by default, which does not turn off input method. Helm
-updates and exits without interruption -- necessary for complex methods. 
+updates and exits without interruption -- necessary for complex methods.
 
 If set to any other value as per `input-method-verbose-flag',
 then use `C-\\' to disable the `current-input-method' to exit or update helm"
@@ -568,6 +593,16 @@ by hitting \\<helm-map> `\\[helm-toggle-suspend-update]'.
 Only async sources than use a sentinel calling
 `helm-process-deferred-sentinel-hook' are affected by this."
   :type 'integer
+  :group 'helm)
+
+(defcustom helm-debug-root-directory nil
+  "When non-`nil', saves helm log messages to a file in this directory.
+When `nil' log messages are saved to a buffer instead.
+Log message are saved only when `helm-debug' is non-nil, so setting this
+doesn't enable debugging by itself.
+
+See `helm-log-save-maybe' for more info."
+  :type 'string
   :group 'helm)
 
 
@@ -654,16 +689,6 @@ Only async sources than use a sentinel calling
 ;;; Variables.
 ;;
 ;;
-(defvar helm-type-attributes nil
-  "It's a list of \(TYPE ATTRIBUTES ...\).
-ATTRIBUTES are the same as attributes for `helm-sources'. TYPE
-connects the value to the appropriate sources. Don't set this
-directly, use `define-helm-type-attribute' instead.
-
-This alist is for specifying common attributes for multiple
-sources. For example, sources which provide files can specify
-common attributes with a `file' type.")
-
 (defvar helm-source-filter nil
   "A list of source names to be displayed.
 Other sources won't appear in the search results.
@@ -688,11 +713,8 @@ before creation of `helm-buffer'. Set local variables for
 This hook runs after `helm-buffer' is created but not from
 `helm-buffer'. The hook needs to specify in which buffer to run.")
 
-(defvar helm-update-hook nil
-  "Run after the helm buffer is updated.
-This hook runs at the beginning of buffer. The first candidate is
-selected after running this hook. See also
-`helm-after-update-hook'.")
+(defvaralias 'helm-update-hook 'helm-after-update-hook)
+(make-obsolete-variable 'helm-update-hook 'helm-after-update-hook "1.9.9")
 
 (defvar helm-after-update-hook nil
   "Runs after updating the helm buffer with the new input pattern.
@@ -748,9 +770,11 @@ minibuffer abnormally (e.g. via `helm-keyboard-quit').")
   "Variables restored after an `helm' invocation.")
 
 (defvar helm-execute-action-at-once-if-one nil
-  "With the only remaining candidate, executes the default action and then exits.
-This variable accepts a function with no args and returns a boolean
-value.")
+  "When non--nil executes the default action and then exits if only one candidate.
+If symbol 'current-source is given as value exit if only one candidate
+in current source.
+This variable accepts a function with no args that should returns a boolean
+value or 'current-source.")
 
 (defvar helm-quit-if-no-candidate nil
   "When non-`nil', quits if there are no candidates.
@@ -767,12 +791,6 @@ If `nil', `helm-debug-output' includes only variables with
   "If non-`nil', write log message to `helm-debug-buffer'.
 Default is `nil', which disables writing log messages because the
 size of `helm-debug-buffer' grows quickly.")
-
-(defvar helm-compile-source-functions
-  '(helm-compile-source--type
-    helm-compile-source--dummy
-    helm-compile-source--candidates-in-buffer)
-  "Functions to compile elements of `helm-sources' (plug-in).")
 
 (defvar helm-mode-line-string "\
 \\<helm-map>\
@@ -849,10 +867,20 @@ navigation keys. Also note that Helm candidates list by default
 do not display line numbers. Line numbers can be enabled with the
 linum-relative package.
 
-** Visible Marks
+** Marked candidates
 
-Visible marks are displayed next to selected candidates, if any.
-Some Helm actions operate on marked candidates.
+You can mark candidates to execute an action on them instead
+of the current selected candidate only (See binding below).
+Most Helm actions operate on marked candidates unless marking candidates
+is prevented explicitely for a specific source.
+
+** Follow candidates
+
+You can execute automatically an action specified in the source as persistent-action
+while moving up and down in helm-window or while updating the list of candidates by
+turning on `helm-follow-mode' while in helm.
+The follow behavior will be saved and used in next emacs sessions when `helm-follow-mode-persistent'
+is non-nil.
 
 ** Frequently Used Commands
 
@@ -872,6 +900,24 @@ Some Helm actions operate on marked candidates.
 Very useful for resuming previous Helm. Binding a key to this
 command will greatly improve `helm' interactivity especially
 after an accidental exit.
+
+** Debugging helm
+
+helm have a special variable called `helm-debug', setting it to non-nil
+will allow helm logging in a special outline-mode buffer.
+Helm is resetting the variable to nil at end of each session.
+
+A convenient command is bound to \\<helm-map>\\[helm-enable-or-switch-to-debug]
+and allow turning debugging to this session only.
+To avoid accumulating log while you are typing your pattern, you can use
+\\<helm-map>\\[helm-toggle-suspend-update] to turn off updating, then when you
+are ready turn it on again to start updating.
+
+Once you exit your helm session you can access the debug buffer with `helm-debug-open-last-log'.
+It is possible to save logs to dated files when `helm-debug-root-directory'
+is set to a valid directory.
+
+NOTE: Be aware that helm log buffers grow really fast, so use `helm-debug' only when needed.
 
 ** Helm Map
 \\{helm-map}"
@@ -910,16 +956,10 @@ It also accepts function or variable symbol.")
   "Internal, store locally `helm-pattern' value for later use in `helm-resume'.")
 (defvar helm-source-name nil)
 (defvar helm-current-source nil)
-(defvar helm-candidate-buffer-alist nil)
 (defvar helm-tick-hash (make-hash-table :test 'equal))
 (defvar helm-issued-errors nil)
-(defvar helm-debug-root-directory nil
-  "When non-`nil', saves helm log messages to `helm-last-log-file'.
-Use only for debugging purposes because of the size of the log files.
-See `helm-log-save-maybe' for more info.")
-(defvar helm-last-log-file nil
+(defvar helm--last-log-file nil
   "The name of the log file of the last helm session.")
-(defvar helm-follow-mode nil)
 (defvar helm--local-variables nil)
 (defvar helm-split-window-state nil)
 (defvar helm--window-side-state nil)
@@ -928,17 +968,17 @@ See `helm-log-save-maybe' for more info.")
 (defvar helm-visible-mark-overlays nil)
 (defvar helm-update-blacklist-regexps '("^" "^ *" "$" "!" " " "\\b"
                                         "\\<" "\\>" "\\_<" "\\_>" ".*"))
-(defvar helm-force-updating-p nil)
+(defvar helm--force-updating-p nil
+  "[INTERNAL] Don't use this in your programs.")
 (defvar helm-exit-status 0
   "Flag to inform if helm did exit or quit.
 0 means helm did exit when executing an action.
 1 means helm did quit with \\[keyboard-quit]
-Knowing this exit-status could help restore a window config when helm aborts 
+Knowing this exit-status could help restore a window config when helm aborts
 in some special circumstances.
 See `helm-exit-minibuffer' and `helm-keyboard-quit'.")
 (defvar helm-minibuffer-confirm-state nil)
 (defvar helm-quit nil)
-(defvar helm-attributes nil "List of all `helm' attributes.")
 (defvar helm-buffers nil
   "Helm buffers listed in order of most recently used.")
 (defvar helm-current-position nil
@@ -974,11 +1014,15 @@ precedence on :default.")
   '("Find Files" "Read File Name" "Read File Name History")
   "Sources that use the *find-files mechanism can be added here.
 Sources generated by `helm-mode' don't need to be added here
-because they are automatically added. 
+because they are automatically added.
 
 You should not modify this yourself unless you know what you are doing.")
 ;; Same as `ffap-url-regexp' but keep it here to ensure `ffap-url-regexp' is not nil.
 (defvar helm--url-regexp "\\(news\\(post\\)?:\\|mailto:\\|file:\\|\\(ftp\\|https?\\|telnet\\|gopher\\|www\\|wais\\)://\\)")
+(defvar helm--ignore-errors nil
+  "Flag to prevent helm popping up errors in candidates functions.
+Should be set in candidates functions if needed, will be restored
+at end of session.")
 
 ;; Utility: logging
 (defun helm-log (format-string &rest args)
@@ -1027,13 +1071,11 @@ e.g (helm-log-error \"Error %s: %s\" (car err) (cdr err))."
   (apply 'helm-log (concat "ERROR: " (car args)) (cdr args))
   (let ((msg (apply 'format args)))
     (unless (member msg helm-issued-errors)
-      (add-to-list 'helm-issued-errors msg))))
+      (cl-pushnew msg helm-issued-errors :test 'equal))))
 
 (defun helm-log-save-maybe ()
-  "May be save log buffer to `helm-last-log-file'.
-If `helm-debug-root-directory' is non-`nil' then a valid
-directory, 'helm-debug-<date of today>', is created and messages
-logged to a file named with todays date and time."
+  "Save log buffer if `helm-debug-root-directory' is set to a valid directory.
+Messages are logged to a file named with todays date and time in this directory."
   (when (and (stringp helm-debug-root-directory)
              (file-directory-p helm-debug-root-directory)
              helm-debug)
@@ -1043,20 +1085,22 @@ logged to a file named with todays date and time."
       (make-directory logdir t)
       (with-current-buffer (get-buffer-create helm-debug-buffer)
         (write-region (point-min) (point-max)
-                      (setq helm-last-log-file
+                      (setq helm--last-log-file
                             (expand-file-name
                              (format-time-string "%Y%m%d-%H%M%S")
                              logdir))
                       nil 'silent)
-        (kill-buffer)))))
+        (kill-buffer))))
+  (setq helm-debug nil))
 
 ;;;###autoload
 (defun helm-debug-open-last-log ()
-  "Open helm log file of last helm session.
-If `helm-last-log-file' is nil, switch to `helm-debug-buffer' ."
+  "Open helm log file or buffer of last helm session."
   (interactive)
-  (if helm-last-log-file
-      (view-file helm-last-log-file)
+  (if helm--last-log-file
+      (progn
+        (find-file helm--last-log-file)
+        (outline-mode) (view-mode 1) (visual-line-mode 1))
     (switch-to-buffer helm-debug-buffer)
     (view-mode 1) (visual-line-mode 1)))
 
@@ -1065,33 +1109,6 @@ If `helm-last-log-file' is nil, switch to `helm-debug-buffer' ."
   (and helm-issued-errors
        (message "Helm issued errors: %s"
                 (mapconcat 'identity (reverse helm-issued-errors) "\n"))))
-
-
-;; Programming Tools
-
-(defun helm-this-command ()
-  "Returns the actual command in action.
-Like `this-command' but return the real command,
-and not `exit-minibuffer' or other unwanted functions."
-  (cl-loop with bl = '(helm-maybe-exit-minibuffer
-                       helm-confirm-and-exit-minibuffer
-                       helm-exit-minibuffer
-                       exit-minibuffer)
-           for count from 1 to 50
-           for btf = (backtrace-frame count)
-           for fn = (cl-second btf)
-           if (and
-               ;; In some case we may have in the way an
-               ;; advice compiled resulting in byte-code,
-               ;; ignore it (Issue #691).
-               (symbolp fn)
-               (commandp fn)
-               (not (memq fn bl)))
-           return fn
-           else
-           if (and (eq fn 'call-interactively)
-                   (> (length btf) 2))
-           return (cadr (cdr btf))))
 
 
 ;; Test tools
@@ -1161,17 +1178,18 @@ and not `exit-minibuffer' or other unwanted functions."
          (progn ,@body)
        (error "Running helm command outside of context"))))
 
+
+;;; helm-attributes
+;;
 (defun helm-attr (attribute-name &optional source compute)
   "Get the value of ATTRIBUTE-NAME of SRC.
 If SRC is omitted, use current source.
 If COMPUTE is non-`nil' compute value of ATTRIBUTE-NAME
 with `helm-interpret-value'.  COMPUTE can have also 'ignorefn as
 value, in this case `helm-interpret-value' will return a function
-as value unchanged, but will eval a symbol which is bound
-(i.e a variable)."
+as value unchanged, but will eval a symbol which is bound."
   (let ((src (or source (helm-get-current-source))))
-    (helm-aif (or (assq attribute-name src)
-                  (helm-get-attribute-from-source-type attribute-name src))
+    (helm-aif (assq attribute-name src)
         (if compute
             (helm-interpret-value (cdr it) src compute)
             (cdr it)))))
@@ -1184,59 +1202,17 @@ if SRC is omitted, use current source."
 
 (cl-defun helm-attrset (attribute-name value
                                        &optional
-                                       (src (helm-get-current-source))
-                                       alter-type)
+                                       (src (helm-get-current-source)))
   "Set the value of ATTRIBUTE-NAME of source SRC to VALUE.
-If ATTRIBUTE-NAME doesn't exists in source it is created with value VALUE.
-If ALTER-TYPE is non-`nil' alter the value of ATTRIBUTE-NAME in `helm-attributes'
-if it exists.
+If ATTRIBUTE-NAME doesn't exists in source it is created with value VALUE..
 If SRC is omitted, use current source.
 If operation succeed, return value, otherwise nil."
-  (let ((from-type (helm-get-attribute-from-source-type attribute-name src))
-        done)
-    (helm-aif (or (assq attribute-name src)
-                  (and alter-type from-type))
+  (let (done)
+    (helm-aif (assq attribute-name src)
         (prog1 (setcdr it value) (setq done t))
-      (unless from-type
-        (setcdr src (cons (cons attribute-name value) (cdr src)))
-        (setq done t)))
+      (setcdr src (cons (cons attribute-name value) (cdr src)))
+      (setq done t))
     (and done value)))
-
-(defun helm-get-attribute-from-source-type (attribute source)
-  "Get ATTRIBUTE from type attribute of SOURCE."
-  (when (assq 'type source)
-    (assq attribute
-          (assq (cdr (assq 'type source))
-                helm-type-attributes))))
-
-(defun helm-get-attribute-from-type (attribute type)
-  "Get ATTRIBUTE from TYPE.
-arg TYPE is an existing type defined in `helm-type-attributes'."
-  (assq attribute (assq type helm-type-attributes)))
-
-(defun helm-get-actions-from-type (source)
-  "Get actions list from type attribute of SOURCE."
-  (when (assq 'type source)
-    (helm-get-attribute-from-source-type 'action source)))
-
-(defun helm-inherit-attribute-from-source (attribute source)
-  "Get the ATTRIBUTE of SOURCE."
-  (helm-aif (assq attribute source)
-      it
-    (helm-get-attribute-from-source-type attribute source)))
-
-(defun helm-append-at-nth (seq elm index)
-  "Append ELM at INDEX in SEQ."
-  (let ((len (length seq)))
-    (cond ((> index len) (setq index len))
-          ((< index 0) (setq index 0)))
-    (if (zerop index)
-        (append elm seq)
-      (cl-loop for i in seq
-               for count from 1 collect i
-               when (= count index)
-               if (listp elm) append elm
-               else collect elm))))
 
 (defun helm-add-action-to-source (name fn source &optional index)
   "Add new action NAME linked to function FN to SOURCE.
@@ -1293,11 +1269,11 @@ only when predicate helm-ff-candidates-lisp-p return non-`nil':
   (let* ((actions     (helm-attr 'action source 'ignorefn))
          (action-transformers (helm-attr 'action-transformer source))
          (new-action  (list (cons name fn)))
-         (transformer `(lambda (actions candidate)
-                         (cond ((funcall (quote ,predicate) candidate)
-                                (helm-append-at-nth
-                                 actions (quote ,new-action) ,index))
-                               (t actions)))))
+         (transformer (lambda (actions candidate)
+                        (cond ((funcall predicate candidate)
+                               (helm-append-at-nth
+                                actions new-action index))
+                              (t actions)))))
     (when (functionp actions)
       (helm-attrset 'action (list (cons "Default action" actions)) source))
     (when (or (symbolp action-transformers) (functionp action-transformers))
@@ -1310,6 +1286,9 @@ only when predicate helm-ff-candidates-lisp-p return non-`nil':
                      :test 'equal)
                     source))))
 
+
+;;; Source filter
+;;
 (defun helm-set-source-filter (sources)
   "Set the value of `helm-source-filter' to SOURCES and update.
 
@@ -1367,29 +1346,22 @@ If NO-UPDATE is non-`nil', skip executing `helm-update'."
   (unless no-update (helm-update)))
 
 (defun helm-get-sources ()
-  "Return compiled `helm-sources', which is memoized.
-
-Attributes:
-
-- type
-  `helm-type-attributes' are merged in.
-- candidates-buffer
-  candidates, volatile and match attribute are created."
+  "Return compiled `helm-sources', which is memoized."
   (cond
     ;; action
-    ((helm-action-window)
-     helm-sources)
+    ((helm-action-window) helm-sources)
     ;; memoized
     (helm-compiled-sources)
     ;; first time
     (t
      (prog1
          (setq helm-compiled-sources
-               (helm-compile-sources
-                helm-sources helm-compile-source-functions))
+               (mapcar (lambda (source)
+                         (if (listp source) source (symbol-value source)))
+                       helm-sources))
        (helm-log "helm-compiled-sources = %S" helm-compiled-sources)))))
 
-(defun helm-get-selection (&optional buffer force-display-part)
+(defun helm-get-selection (&optional buffer force-display-part source)
   "Return the currently selected item or nil.
 if BUFFER is nil or unspecified, use helm-buffer as default value.
 If FORCE-DISPLAY-PART is non-`nil', return the display string.
@@ -1413,67 +1385,64 @@ with its properties."
                                disp-fn
                                (overlay-start helm-selection-overlay)
                                (1- (overlay-end helm-selection-overlay))))
-                        (source (helm-get-current-source)))
+                        (src (or source (helm-get-current-source))))
                     (helm-aif (and (not force-display-part)
-                                   (assoc-default 'display-to-real source))
+                                   (assoc-default 'display-to-real src))
                         (helm-funcall-with-source source it disp)
                       disp)))))
         (unless (equal selection "")
           (helm-log "selection = %S" selection)
           selection)))))
 
-(defun helm-get-actions-from-current-source ()
+(defun helm-get-actions-from-current-source (&optional source)
   "Return the associated action for the selected candidate.
 It is a function symbol \(sole action\) or list
 of \(action-display . function\)."
   (unless (helm-empty-buffer-p (helm-buffer-get))
-    (helm-aif (helm-attr 'action-transformer)
-        (helm-funcall-with-source
-         (helm-get-current-source) it
-         (helm-attr 'action nil 'ignorefn)
-         ;; Check if the first given transformer
-         ;; returns the same set of actions for each
-         ;; candidate in marked candidates.
-         ;; If so use the car of marked to determine
-         ;; the set of actions, otherwise use the selection.
-         (if (cl-loop with marked = (helm-marked-candidates)
-                      with act = (car (helm-mklist it))
-                      with acts = (funcall act nil (car marked))
-                      for c in marked
-                      always (equal (funcall act nil c) acts))
-             (car (helm-marked-candidates))
-             (helm-get-selection)))
-      (helm-attr 'action nil 'ignorefn))))
+    (let ((src (helm-get-current-source)))
+      (helm-aif (helm-attr 'action-transformer)
+          (helm-funcall-with-source
+           (or source src) it
+           (helm-attr 'action nil 'ignorefn)
+           ;; Check if the first given transformer
+           ;; returns the same set of actions for each
+           ;; candidate in marked candidates.
+           ;; If so use the car of marked to determine
+           ;; the set of actions, otherwise use the selection.
+           (if (cl-loop with marked = (helm-marked-candidates)
+                        with act = (car (helm-mklist it))
+                        with acts = (funcall act nil (car marked))
+                        for c in marked
+                        always (equal (funcall act nil c) acts))
+               (car (helm-marked-candidates))
+               (helm-get-selection nil nil src)))
+        (helm-attr 'action nil 'ignorefn)))))
 
 (defun helm-get-current-source ()
   "Return the source for the current selection.
-Allow also checking if helm-buffer contain candidates."
+Return nil when `helm-buffer' is empty."
   (or helm-current-source
       (with-helm-buffer
-        ;; Return nil when no--candidates.
-        (cl-block exit
-          ;; This goto-char shouldn't be necessary, but point is moved to
-          ;; point-min somewhere else which shouldn't happen.
-          (goto-char (overlay-start helm-selection-overlay))
-          (let* ((header-pos (or (helm-get-previous-header-pos)
-                                 (helm-get-next-header-pos)))
-                 (source-name
-                  (save-excursion
-                    (unless header-pos
-                      (cl-return-from exit nil))
-                    (goto-char header-pos)
-                    (helm-current-line-contents))))
-            (cl-loop for source in (helm-get-sources) thereis
+        ;; This is needed to not loose selection.
+        (goto-char (overlay-start helm-selection-overlay))
+        (let ((header-pos (or (helm-get-previous-header-pos)
+                              (helm-get-next-header-pos))))
+          ;; Return nil when no--candidates.
+          (when header-pos
+            (cl-loop with source-name = (save-excursion
+                                          (goto-char header-pos)
+                                          (helm-current-line-contents))
+                     for source in (helm-get-sources) thereis
                      (and (equal (assoc-default 'name source) source-name)
                           source)))))))
 
 (defun helm-buffer-is-modified (buffer)
   "Return non-`nil' when BUFFER is modified since `helm' was invoked."
-  (let* ((b (get-buffer buffer))
-         (key (concat (buffer-name b) "/" (helm-attr 'name)))
+  (let* ((buf         (get-buffer buffer))
+         (key         (concat (buffer-name buf) "/" (helm-attr 'name)))
          (source-tick (or (gethash key helm-tick-hash) 0))
-         (buffer-tick (buffer-chars-modified-tick b))
-         (modifiedp (/= source-tick buffer-tick)))
+         (buffer-tick (buffer-chars-modified-tick buf))
+         (modifiedp   (/= source-tick buffer-tick)))
     (puthash key buffer-tick helm-tick-hash)
     (helm-log "buffer = %S" buffer)
     (helm-log "modifiedp = %S" modifiedp)
@@ -1508,7 +1477,7 @@ Use this on commands invoked from key-bindings, but not
 on action functions invoked as action from the action menu,
 i.e functions called with RET."
   (setq helm-saved-action action)
-  (setq helm-saved-selection (helm-get-selection))
+  (setq helm-saved-selection (or (helm-get-selection) ""))
   (helm-exit-minibuffer))
 
 (defalias 'helm-run-after-quit 'helm-run-after-exit)
@@ -1550,7 +1519,7 @@ Just like `setq' except that the vars are not set sequentially.
 IOW Don't use VALUE of previous VAR to set the VALUE of next VAR.
 
 \(fn VAR VALUE ...)"
-  (if helm-force-updating-p
+  (if helm--force-updating-p
       (with-helm-buffer
         (cl-loop for i on args by #'cddr
                  do (set (make-local-variable (car i)) (cadr i))))
@@ -1570,15 +1539,16 @@ Default value for BUFFER is `helm-buffer'."
   "Check if current source contains candidates.
 This could happen when for example the last element of a source
 was deleted and the candidates list not updated."
-  (with-helm-window
-    (or (helm-empty-buffer-p)
-        (and (helm-end-of-source-p)
-             (eq (point-at-bol) (point-at-eol))
-             (or
-              (save-excursion
-                (forward-line -1)
-                (helm-pos-header-line-p))
-              (bobp))))))
+  (when (helm-window)
+    (with-helm-window
+      (or (helm-empty-buffer-p)
+          (and (helm-end-of-source-p)
+               (eq (point-at-bol) (point-at-eol))
+               (or
+                (save-excursion
+                  (forward-line -1)
+                  (helm-pos-header-line-p))
+                (bobp)))))))
 
 
 ;; Core: tools
@@ -1846,13 +1816,14 @@ example, :candidate-number-limit is bound to
   "The internal helm function called by `helm'.
 For ANY-SOURCES ANY-INPUT ANY-PROMPT ANY-RESUME ANY-PRESELECT ANY-BUFFER and
 ANY-KEYMAP ANY-DEFAULT ANY-HISTORY See `helm'."
-  ;; Activate the advice for `tramp-read-passwd'.
-  (if (fboundp 'advice-add)
-      (progn
-        (advice-add 'tramp-read-passwd :around #'helm--advice-tramp-read-passwd)
-        (advice-add 'ange-ftp-get-passwd :around #'helm--advice-ange-ftp-get-passwd))
-      (ad-activate 'tramp-read-passwd)
-      (ad-activate 'ange-ftp-get-passwd))
+  ;; Activate the advice for `tramp-read-passwd' and cua.
+  ;; Advices will be available only in >=emacs-24.4, but
+  ;; allow compiling without errors on lower emacs.
+  (when (fboundp 'advice-add)
+    (advice-add 'tramp-read-passwd :around #'helm--advice-tramp-read-passwd)
+    (advice-add 'ange-ftp-get-passwd :around #'helm--advice-ange-ftp-get-passwd)
+    (advice-add 'cua-delete-region :around #'cua-delete-region--advice)
+    (advice-add 'copy-region-as-kill :around #'copy-region-as-kill--advice))
   (helm-log (concat "[Start session] " (make-string 41 ?+)))
   (helm-log "any-prompt = %S" any-prompt)
   (helm-log "any-preselect = %S" any-preselect)
@@ -1862,7 +1833,11 @@ ANY-KEYMAP ANY-DEFAULT ANY-HISTORY See `helm'."
   (helm-log "any-history = %S" any-history)
   (setq helm--prompt (or any-prompt "pattern: "))
   (let ((non-essential t)
+        ;; Prevent mouse jumping to the upper-right
+        ;; hand corner of the frame (#1538).
+        mouse-autoselect-window
         mode-line-in-non-selected-windows
+        focus-follows-mouse
         (input-method-verbose-flag helm-input-method-verbose-flag)
         (old--cua cua-mode)
         (helm--maybe-use-default-as-input
@@ -1886,6 +1861,7 @@ ANY-KEYMAP ANY-DEFAULT ANY-HISTORY See `helm'."
                  (helm-initialize
                   any-resume any-input any-default any-sources)
                  (helm-display-buffer helm-buffer)
+                 (select-window (helm-window))
                  ;; We are now in helm-buffer.
                  (when helm-prevent-escaping-from-minibuffer
                    (helm--remap-mouse-mode 1)) ; Disable mouse bindings.
@@ -1904,20 +1880,18 @@ ANY-KEYMAP ANY-DEFAULT ANY-HISTORY See `helm'."
             (helm-restore-position-on-quit)
             (helm-log (concat "[End session (quit)] " (make-string 34 ?-)))
             nil))
-      (if (fboundp 'advice-add)
-          (progn
-            (advice-remove 'tramp-read-passwd
-                           #'helm--advice-tramp-read-passwd)
-            (advice-remove 'ange-ftp-get-passwd
-                           #'helm--advice-ange-ftp-get-passwd))
-          (ad-deactivate 'tramp-read-passwd)
-          (ad-deactivate 'ange-ftp-get-passwd))
+      (when (fboundp 'advice-remove)
+        (advice-remove 'tramp-read-passwd #'helm--advice-tramp-read-passwd)
+        (advice-remove 'ange-ftp-get-passwd #'helm--advice-ange-ftp-get-passwd)
+        (advice-remove 'cua-delete-region #'cua-delete-region--advice)
+        (advice-remove 'copy-region-as-kill #'copy-region-as-kill--advice))
       (helm-log "helm-alive-p = %S" (setq helm-alive-p nil))
       (helm--remap-mouse-mode -1)       ; Reenable mouse bindings.
       (setq helm-alive-p nil)
       ;; Reset helm-pattern so that lambda's using it
       ;; before running helm will not start with its old value.
       (setq helm-pattern "")
+      (setq helm--ignore-errors nil)
       (and old--cua (cua-mode 1))
       (helm-log-save-maybe))))
 
@@ -1931,7 +1905,9 @@ Call with a prefix arg to choose among existing helm
 buffers (sessions). When calling from lisp, specify a buffer-name
 as a string with ARG."
   (interactive "P")
-  (let (any-buffer helm-full-frame cur-dir)
+  (let (any-buffer
+        cur-dir
+        (helm-full-frame (default-value 'helm-full-frame)))
     (if arg
         (if (and (stringp arg) (bufferp (get-buffer arg)))
             (setq any-buffer arg)
@@ -1968,7 +1944,7 @@ as a string with ARG."
   (interactive "p")
   (with-helm-alive-p
     (if (> (length helm-buffers) arg)
-        (helm-run-after-exit `(lambda () (helm-resume (nth ,arg helm-buffers))))
+        (helm-run-after-exit (lambda () (helm-resume (nth arg helm-buffers))))
       (message "No previous helm sessions available for resuming!"))))
 (put 'helm-resume-previous-session-after-quit 'helm-only t)
 
@@ -2192,7 +2168,9 @@ value of `helm-full-frame' or `helm-split-window-default-side'."
                (not helm-split-window-in-side-p))
       (delete-other-windows))
     (display-buffer
-     buffer `(nil . ((window-height . ,helm-display-buffer-default-size))))))
+     buffer `(nil . ((window-height . ,helm-display-buffer-default-height)
+                     (window-width  . ,helm-display-buffer-default-width))))
+    (helm-log-run-hook 'helm-window-configuration-hook)))
 
 
 ;;; Core: initialize
@@ -2351,16 +2329,15 @@ Unuseful when used outside helm, don't use it.")
   "Create and setup `helm-buffer'."
   (let ((root-dir default-directory))
     (with-current-buffer (get-buffer-create helm-buffer)
-      (helm-major-mode)
       (helm-log "Enabling major-mode %S" major-mode)
       (helm-log "kill local variables: %S" (buffer-local-variables))
       (kill-all-local-variables)
+      (helm-major-mode)
       (set (make-local-variable 'inhibit-read-only) t)
       (buffer-disable-undo)
       (erase-buffer)
       (set (make-local-variable 'helm-map) helm-map)
       (make-local-variable 'helm-sources)
-      (set (make-local-variable 'helm-follow-mode) nil)
       (set (make-local-variable 'helm-display-function) helm-display-function)
       (set (make-local-variable 'helm-selection-point) nil)
       (set (make-local-variable 'scroll-margin)
@@ -2427,6 +2404,8 @@ For ANY-PRESELECT ANY-RESUME ANY-KEYMAP ANY-DEFAULT ANY-HISTORY, See `helm'."
       (helm-log "helm-execute-action-at-once-if-one = %S"
                 helm-execute-action-at-once-if-one)
       (helm-log "helm-quit-if-no-candidate = %S" helm-quit-if-no-candidate)
+      (when (and src (helm-resume-p any-resume))
+        (helm-display-mode-line src))
       ;; Reset `helm-pattern' and update
       ;; display if no result found with precedent value of `helm-pattern'
       ;; unless `helm-quit-if-no-candidate' is non-`nil', in this case
@@ -2454,7 +2433,8 @@ For ANY-PRESELECT ANY-RESUME ANY-KEYMAP ANY-DEFAULT ANY-HISTORY, See `helm'."
       (cond ((and (if (functionp helm-execute-action-at-once-if-one)
                       (funcall helm-execute-action-at-once-if-one)
                     helm-execute-action-at-once-if-one)
-                  (= (helm-get-candidate-number) 1))
+                  (= (helm-get-candidate-number
+                      (eq helm-execute-action-at-once-if-one 'current-source)) 1))
              (ignore))              ; Don't enter the minibuffer loop.
             ((and helm-quit-if-no-candidate
                   (= (helm-get-candidate-number) 0))
@@ -2513,20 +2493,6 @@ This can be useful for example for quietly writing a complex regexp."
                "Helm update re-enabled!"))))
 (put 'helm-toggle-suspend-update 'helm-only t)
 
-(defadvice tramp-read-passwd (around disable-helm-update)
-  ;; Suspend update when prompting for a tramp password.
-  (setq helm-suspend-update-flag t)
-  (setq overriding-terminal-local-map nil)
-  (setq helm--reading-passwd-or-string t)
-  (let (stimers)
-    (unwind-protect
-         (progn
-           (setq stimers (with-timeout-suspend))
-           ad-do-it)
-      (with-timeout-unsuspend stimers)
-      (setq helm--reading-passwd-or-string nil)
-      (setq helm-suspend-update-flag nil))))
-
 (defun helm--advice-tramp-read-passwd (old--fn &rest args)
   ;; Suspend update when prompting for a tramp password.
   (setq helm-suspend-update-flag t)
@@ -2549,15 +2515,15 @@ This can be useful for example for quietly writing a complex regexp."
     (setq helm--reading-passwd-or-string nil)
     (setq helm-suspend-update-flag nil)))
 
-(defadvice ange-ftp-get-passwd (around disable-helm-update)
-  ;; Suspend update when prompting for a ange password.
-  (setq helm-suspend-update-flag t)
-  (setq overriding-terminal-local-map nil)
-  (setq helm--reading-passwd-or-string t)
-  (unwind-protect
-       ad-do-it
-    (setq helm--reading-passwd-or-string nil)
-    (setq helm-suspend-update-flag nil)))
+;; CUA workaround
+(defun cua-delete-region--advice (old--fn &rest args)
+  (ignore-errors
+    (apply old--fn args)))
+
+(defun copy-region-as-kill--advice (old--fn &rest args)
+  (if cua-mode
+      (ignore-errors (apply old--fn args))
+      (apply old--fn args)))
 
 (defun helm--maybe-update-keymap (&optional map)
   "Handle different keymaps in multiples sources.
@@ -2588,7 +2554,7 @@ map)."
                         [drag-mouse-1] [drag-mouse-2] [drag-mouse-3]
                         [double-mouse-1] [double-mouse-2] [double-mouse-3]
                         [triple-mouse-1] [triple-mouse-2] [triple-mouse-3])
-             do (define-key map k 'undefined))
+             do (define-key map k 'ignore))
     map))
 
 (define-minor-mode helm--remap-mouse-mode
@@ -2609,6 +2575,7 @@ WARNING: Do not use this mode yourself, it is internal to helm."
   "Clean up the mess when helm exit or quit."
   (helm-log "start cleanup")
   (with-current-buffer helm-buffer
+    (setq cursor-type t)
     ;; bury-buffer from this window.
     (bury-buffer) ;[1]
     (remove-hook 'post-command-hook 'helm--maybe-update-keymap)
@@ -2634,7 +2601,6 @@ WARNING: Do not use this mode yourself, it is internal to helm."
   ;; be a helm buffer.
   (replace-buffer-in-windows helm-buffer)
   (setq helm-alive-p nil)
-  (setq helm-debug nil)
   ;; This is needed in some cases where last input
   ;; is yielded infinitely in minibuffer after helm session.
   (helm-clean-up-minibuffer))
@@ -2678,24 +2644,6 @@ WARNING: Do not use this mode yourself, it is internal to helm."
 (add-hook 'helm-after-update-hook #'helm--reset-update-flag)
 
 
-;;; Core: source compiler
-;;
-;;
-(defun helm-compile-sources (sources funcs)
-  "Compile SOURCES with FUNCS.
-See `helm-compile-source-functions'.
-Helm plug-ins are realized by this function."
-  (mapcar
-   (lambda (source)
-     (cl-loop with src = (if (listp source) source (symbol-value source))
-              for noplug = (assoc 'dont-plug src)
-              for f in funcs
-              unless (and noplug (memq f (cdr noplug)))
-              do (setq src (funcall f src))
-              finally (cl-return src)))
-   sources))
-
-
 ;; Core: all candidates
 
 (defun helm-get-candidates (source)
@@ -2729,7 +2677,8 @@ Helm plug-ins are realized by this function."
            ;; Candidates will be filtered later in process filter.
            candidates)
           ;; An error occured in candidates function.
-          (cfn-error (funcall notify-error cfn-error))
+          (cfn-error (unless helm--ignore-errors
+                       (funcall notify-error cfn-error)))
           ;; Candidates function returns no candidates.
           ((or (null candidates)
                ;; Can happen when the output of a process
@@ -2748,8 +2697,7 @@ Helm plug-ins are realized by this function."
 (defmacro helm-while-no-input (&rest body)
   "Same as `while-no-input' but without the `input-pending-p' test."
   (declare (debug t) (indent 0))
-  (let ((catch-sym (make-symbol "input"))
-        inhibit-quit)
+  (let ((catch-sym (make-symbol "input")))
     `(with-local-quit
        (catch ',catch-sym
          (let ((throw-on-input ',catch-sym))
@@ -2826,11 +2774,11 @@ functions if some, otherwise return CANDIDATES."
   (helm-aif (assoc-default 'real-to-display source)
       (setq candidates (helm-funcall-with-source
                         source 'mapcar
-                        (lambda (cand_)
-                          (if (consp cand_)
+                        (lambda (cand)
+                          (if (consp cand)
                               ;; override DISPLAY from candidate-transformer
-                              (cons (funcall it (cdr cand_)) (cdr cand_))
-                            (cons (funcall it cand_) cand_)))
+                              (cons (funcall it (cdr cand)) (cdr cand))
+                            (cons (funcall it cand) cand)))
                         candidates))
     candidates))
 
@@ -3061,30 +3009,30 @@ to the matching method in use."
               ;; Try first matching against whole pattern.
               (while (re-search-forward regex nil t)
                 (cl-incf count)
-                (add-text-properties
-                 (match-beginning 0) (match-end 0) '(face helm-match)))
+                (helm-add-face-text-properties
+                 (match-beginning 0) (match-end 0) 'helm-match))
               ;; If no matches start matching against multiples or fuzzy matches.
               (when (zerop count)
                 (cl-loop with multi-match = (string-match-p " " helm-pattern)
                          with patterns = (if multi-match
-                                             (split-string helm-pattern)
+                                             (mapcar #'helm--maybe-get-migemo-pattern
+                                                     (split-string helm-pattern))
                                              (split-string helm-pattern "" t))
                          for p in patterns
-                         for re = (helm--maybe-get-migemo-pattern p)
                          ;; Multi matches (regexps patterns).
                          if multi-match do
                          (progn
-                           (while (re-search-forward re nil t)
-                             (add-text-properties
+                           (while (re-search-forward p nil t)
+                             (helm-add-face-text-properties
                               (match-beginning 0) (match-end 0)
-                              '(face helm-match)))
+                              'helm-match))
                            (goto-char (point-min)))
                          ;; Fuzzy matches (literal patterns).
                          else do
-                         (when (search-forward re nil t)
-                           (add-text-properties
+                         (when (search-forward p nil t)
+                           (helm-add-face-text-properties
                             (match-beginning 0) (match-end 0)
-                            '(face helm-match))))))
+                            'helm-match)))))
           (invalid-regexp nil))
         ;; Now replace the original match-part with the part
         ;; with face properties added.
@@ -3290,21 +3238,21 @@ to a particular place after finishing update."
              (cl-loop for src in sources
                       for mtc in matches
                       do (helm-render-source src mtc))))
-      (helm-update-move-first-line)
-      (unless (assoc 'candidates-process source)
-        (helm-display-mode-line (helm-get-current-source))
-        (helm-log-run-hook 'helm-after-update-hook))
+      (helm--update-move-first-line)
+      (let ((src (or source (helm-get-current-source))))
+        (unless (assoc 'candidates-process src)
+          (helm-display-mode-line src)
+          (helm-log-run-hook 'helm-after-update-hook)))
       (when preselect
         (helm-log "Update preselect candidate %s" preselect)
         (helm-preselect preselect source))
-      (setq helm-force-updating-p nil))
+      (setq helm--force-updating-p nil))
     (helm-log "end update")))
 
 (defun helm-update-source-p (source)
   "Whether SOURCE need updating or not."
   (let ((len (string-width
-              (if (or (assoc 'matchplugin source)
-                      (null (assoc 'no-matchplugin source)))
+              (if (assoc 'multimatch source)
                   ;; Don't count spaces entered when using
                   ;; multi-match.
                   (replace-regexp-in-string " " "" helm-pattern)
@@ -3319,12 +3267,12 @@ to a particular place after finishing update."
          (not (member (replace-regexp-in-string "\\s\\ " " " helm-pattern)
                       helm-update-blacklist-regexps)))))
 
-(defun helm-update-move-first-line (&optional without-hook)
+(defun helm--update-move-first-line ()
   "Goto first line of `helm-buffer'."
   (goto-char (point-min))
-  (unless without-hook
-    (save-excursion (helm-log-run-hook 'helm-update-hook)))
-  (helm-next-line))
+  (helm-move-selection-common :where 'line
+                              :direction 'next
+                              :follow t))
 
 (defun helm-force-update (&optional preselect)
   "Force recalculation and update of candidates.
@@ -3336,9 +3284,11 @@ pattern has changed.
 
 Selection is preserved to current candidate or moved to
 PRESELECT, if specified."
-  (let ((source    (helm-get-current-source))
-        (selection (helm-get-selection nil t)))
-    (setq helm-force-updating-p t)
+  (let* ((source    (helm-get-current-source))
+         (selection (helm-aif (helm-get-selection nil t source)
+                        (regexp-quote it)
+                      it)))
+    (setq helm--force-updating-p t)
     (when source
       (mapc 'helm-force-update--reinit
             (helm-get-sources)))
@@ -3493,14 +3443,14 @@ this additional info after the source name by overlay."
             finally do (setcdr incomplete-line-info newline))))
 
 (defun helm-output-filter--post-process ()
-  (let ((src (helm-get-current-source)))
-    (helm-log-run-hook 'helm-update-hook)
-    (helm-aif (get-buffer-window helm-buffer 'visible)
-        (with-selected-window it
-          (helm-skip-noncandidate-line 'next)
-          (helm-mark-current-line)
-          (helm-display-mode-line src)
-          (helm-log-run-hook 'helm-after-update-hook)))))
+  (helm-aif (get-buffer-window helm-buffer 'visible)
+      (with-selected-window it
+        (helm-skip-noncandidate-line 'next)
+        (helm-mark-current-line)
+        ;; FIXME Don't hardcode follow delay.
+        (helm-follow-execute-persistent-action-maybe 0.5)
+        (helm-display-mode-line (helm-get-current-source))
+        (helm-log-run-hook 'helm-after-update-hook))))
 
 (defun helm-process-deferred-sentinel-hook (process event file)
   "Defer remote processes in sentinels.
@@ -3574,7 +3524,7 @@ If PRESERVE-SAVED-ACTION is non-`nil', then save the action."
     (setq selection (helm-coerce-selection
                      (or selection
                          helm-saved-selection
-                         (helm-get-selection)
+                         (helm-get-selection nil nil source)
                          (and (assoc 'accept-empty source) ""))
                      source))
     (unless preserve-saved-action (setq helm-saved-action nil))
@@ -3598,29 +3548,34 @@ Coerce source with coerce function."
 If action buffer is selected, back to the helm buffer."
   (interactive)
   (with-helm-alive-p
-    (helm-log-run-hook 'helm-select-action-hook)
-    (setq helm-saved-selection (helm-get-selection))
-    (with-selected-frame (with-helm-window (selected-frame))
-      (prog1
-          (cond ((get-buffer-window helm-action-buffer 'visible)
-                 (set-window-buffer (get-buffer-window helm-action-buffer)
-                                    helm-buffer)
-                 (kill-buffer helm-action-buffer)
-                 (helm-set-pattern helm-input 'noupdate))
-                (helm-saved-selection
-                 (setq helm-saved-current-source (helm-get-current-source))
-                 (let ((actions (helm-get-actions-from-current-source)))
-                   (if (functionp actions)
-                       (message "Sole action: %s" actions)
-                       (helm-show-action-buffer actions)
-                       ;; Be sure the minibuffer is entirely deleted (#907).
-                       (helm--delete-minibuffer-contents-from "")
-                       ;; Make `helm-pattern' differs from the previous value.
-                       (setq helm-pattern 'dummy)
-                       (helm-check-minibuffer-input))))
-                (t (message "No Actions available")))
-        (helm-display-mode-line (helm-get-current-source))
-        (run-hooks 'helm-window-configuration-hook)))))
+    (let ((src (helm-get-current-source)))
+      (helm-log-run-hook 'helm-select-action-hook)
+      (setq helm-saved-selection (helm-get-selection nil nil src))
+      (with-selected-frame (with-helm-window (selected-frame))
+        (prog1
+            (cond ((get-buffer-window helm-action-buffer 'visible)
+                   (set-window-buffer (get-buffer-window helm-action-buffer)
+                                      helm-buffer)
+                   (kill-buffer helm-action-buffer)
+                   (setq helm-saved-selection nil)
+                   (helm-set-pattern helm-input 'noupdate))
+                  (helm-saved-selection
+                   (setq helm-saved-current-source src)
+                   (let ((actions (helm-get-actions-from-current-source src)))
+                     (if (functionp actions)
+                         (message "Sole action: %s"
+                                  (if (or (consp actions)
+                                          (byte-code-function-p actions))
+                                      "Anonymous" actions))
+                         (helm-show-action-buffer actions)
+                         ;; Be sure the minibuffer is entirely deleted (#907).
+                         (helm--delete-minibuffer-contents-from "")
+                         ;; Make `helm-pattern' differs from the previous value.
+                         (setq helm-pattern 'dummy)
+                         (helm-check-minibuffer-input))))
+                  (t (message "No Actions available")))
+          (helm-display-mode-line src)
+          (run-hooks 'helm-window-configuration-hook))))))
 (put 'helm-select-action 'helm-only t)
 
 (defun helm-show-action-buffer (actions)
@@ -3686,13 +3641,22 @@ DIRECTION is either 'next or 'previous."
                         -1 1)))))
 
 (defun helm-display-mode-line (source &optional force)
-  "Setup mode-line and header-line for `helm-buffer'."
+  "Set up mode line and header line for `helm-buffer'.
+
+SOURCE is a Helm source object.
+
+Optional argument FORCE forces redisplay of the Helm buffer's
+mode and header lines."
   (set (make-local-variable 'helm-mode-line-string)
        (helm-interpret-value (or (and (listp source) ; Check if source is empty.
                                       (assoc-default 'mode-line source))
                                  (default-value 'helm-mode-line-string))
                              source))
-  (let ((follow (and (eq (cdr (assq 'follow source)) 1) " (HF)"))
+  (let ((follow (and (or (helm-follow-mode-p source)
+                         (and helm-follow-mode-persistent
+                              (member (assoc-default 'name source)
+                                      helm-source-names-using-follow)))
+                     " (HF)"))
         (marked (and helm-marked-candidates
                      (cl-loop with cur-name = (assoc-default 'name source)
                               for c in helm-marked-candidates
@@ -3702,25 +3666,36 @@ DIRECTION is either 'next or 'previous."
     ;; Setup mode-line.
     (if helm-mode-line-string
         (setq mode-line-format
-              `(" " mode-line-buffer-identification " "
-                    (:eval (format "L%-3d" (helm-candidate-number-at-point)))
-                    ,follow
-                    (:eval ,(and marked
-                                 (concat
-                                  " "
+              `(:propertize
+                (" " mode-line-buffer-identification " "
+                     (:eval (format "L%-3d" (helm-candidate-number-at-point)))
+                     ,follow
+                     " "
+                     (:eval ,(and marked
                                   (propertize
                                    (format "M%d" (length marked))
-                                   'face 'helm-visible-mark))))
-                    (:eval (when ,helm--mode-line-display-prefarg
-                             (let ((arg (prefix-numeric-value
-                                         (or prefix-arg current-prefix-arg))))
-                               (unless (= arg 1)
-                                 (propertize (format " [prefarg:%s]" arg)
-                                             'face 'helm-prefarg)))))
-                    " "
-                    (:eval (helm-show-candidate-number
-                            (car-safe helm-mode-line-string)))
-                    " " helm--mode-line-string-real " " mode-line-end-spaces)
+                                   'face 'helm-visible-mark)))
+                     (:eval (when ,helm--mode-line-display-prefarg
+                              (let ((arg (prefix-numeric-value
+                                          (or prefix-arg current-prefix-arg))))
+                                (unless (= arg 1)
+                                  (propertize (format " [prefarg:%s]" arg)
+                                              'face 'helm-prefarg)))))
+                     " "
+                     (:eval (helm-show-candidate-number
+                             (car-safe helm-mode-line-string)))
+                     " " helm--mode-line-string-real " "
+                     (:eval (make-string (window-width) ? )))
+                keymap (keymap (mode-line keymap
+                                          (mouse-1 . ignore)
+                                          (down-mouse-1 . ignore)
+                                          (drag-mouse-1 . ignore)
+                                          (mouse-2 . ignore)
+                                          (down-mouse-2 . ignore)
+                                          (drag-mouse-2 . ignore)
+                                          (mouse-3 . ignore)
+                                          (down-mouse-3 . ignore)
+                                          (drag-mouse-3 . ignore))))
               helm--mode-line-string-real
               (substitute-command-keys (if (listp helm-mode-line-string)
                                            (cadr helm-mode-line-string)
@@ -3800,7 +3775,7 @@ it is \"Candidate\(s\)\" by default."
                          cand-name))
          'face 'helm-candidate-number)))))
 
-(cl-defun helm-move-selection-common (&key where direction)
+(cl-defun helm-move-selection-common (&key where direction (follow t))
   "Move the selection marker to a new position.
 Position is determined by WHERE and DIRECTION.
 Key arg WHERE can be one of:
@@ -3837,8 +3812,9 @@ Key arg DIRECTION can be one of:
         (when (helm-pos-multiline-p)
           (helm-move--beginning-of-multiline-candidate))
         (helm-display-source-at-screen-top-maybe where)
-        (when (helm-get-previous-header-pos)
-          (helm-mark-current-line))
+        (helm-mark-current-line)
+        (when follow
+          (helm-follow-execute-persistent-action-maybe))
         (helm-display-mode-line (helm-get-current-source))
         (helm-log-run-hook 'helm-move-selection-after-hook)))))
 
@@ -3937,16 +3913,21 @@ Key arg DIRECTION can be one of:
 
 (defun helm-move--goto-source-fn (source-or-name)
   (goto-char (point-min))
-  (let ((name (if (stringp source-or-name) source-or-name
-                (assoc-default 'name source-or-name))))
-    (condition-case err
-        (while (not (string= name (helm-current-line-contents)))
-          (goto-char (helm-get-next-header-pos)))
-      (error (helm-log "%S" err)))))
+  (let ((name (if (stringp source-or-name)
+                  source-or-name
+                  (assoc-default 'name source-or-name))))
+    (if (string= name "")
+        (forward-line 1)
+        (condition-case err
+            (while (not (string= name (helm-current-line-contents)))
+              (goto-char (helm-get-next-header-pos)))
+          (error (helm-log "%S" err))))))
 
 (defun helm-candidate-number-at-point ()
-  (with-helm-buffer
-    (or (get-text-property (point) 'helm-cand-num) 1)))
+  (if helm-alive-p
+      (with-helm-buffer
+        (or (get-text-property (point) 'helm-cand-num) 1))
+      (or (get-text-property (point) 'helm-cand-num) 1)))
 
 (defun helm--next-or-previous-line (direction &optional arg)
   ;; Be sure to not use this in non--interactives calls.
@@ -4034,8 +4015,12 @@ next source)."
               (eq last-command 'helm-follow-action-backward)
               (eq last-command 'helm-execute-persistent-action))
       (if (> arg 0)
-          (helm-next-line 1)
-        (helm-previous-line 1)))
+          (helm-move-selection-common :where 'line
+                                      :direction 'next
+                                      :follow nil)
+          (helm-move-selection-common :where 'line
+                                      :direction 'previous
+                                      :follow nil)))
     (helm-execute-persistent-action)))
 
 (defun helm-follow-action-forward ()
@@ -4069,8 +4054,7 @@ candidates."
                header-pos
                (point-max)))
        (1+ (point-at-eol))))
-    (setq helm-selection-point (overlay-start helm-selection-overlay)))
-  (helm-follow-execute-persistent-action-maybe))
+    (setq helm-selection-point (overlay-start helm-selection-overlay))))
 
 (defun helm-confirm-and-exit-minibuffer ()
   "Maybe ask for confirmation when exiting helm.
@@ -4085,13 +4069,14 @@ don't exit and send message 'no match'."
              (null helm--reading-passwd-or-string))
         (progn (message "[Display not ready]")
                (sit-for 0.5) (message nil))
-      (let* ((empty-buffer-p (with-current-buffer helm-buffer
+      (let* ((src (helm-get-current-source))
+             (empty-buffer-p (with-current-buffer helm-buffer
                                (eq (point-min) (point-max))))
-             (sel (helm-get-selection))
+             (sel (helm-get-selection nil nil src))
              (unknown (and (not empty-buffer-p)
                            (string= (get-text-property
                                      0 'display
-                                     (helm-get-selection nil 'withprop))
+                                     (helm-get-selection nil 'withprop src))
                                     "[?]"))))
         (cond ((and (or empty-buffer-p unknown)
                     (eq minibuffer-completion-confirm 'confirm))
@@ -4264,31 +4249,42 @@ to a list of forms.\n\n")
 (add-hook 'kill-buffer-hook 'helm-kill-buffer-hook)
 
 (defun helm-preselect (candidate-or-regexp &optional source)
-  "Move `helm-selection-overlay' to CANDIDATE-OR-REGEXP on startup.
-Arg CANDIDATE-OR-REGEXP can be a string or a cons cell of two
-strings. When cons cell, helm tries jumping to first element of
-cons cell and then to the second, and so on. This allows finer
-preselection if there are duplicates before the candidate we
-want to preselect."
+  "Move selection to CANDIDATE-OR-REGEXP on Helm start.
+
+CANDIDATE-OR-REGEXP can be a:
+
+- String
+- Cons cell of two strings
+- Nullary function, which moves to a candidate
+
+When CANDIDATE-OR-REGEXP is a cons cell, tries moving to first
+element of the cons cell, then the second, and so on. This allows
+selection of duplicate candidates after the first.
+
+Optional argument SOURCE is a Helm source object."
   (with-helm-window
     (when candidate-or-regexp
-      (if (and helm-force-updating-p source)
+      (if source
           (helm-goto-source source)
-        (goto-char (point-min))
-        (forward-line 1))
-      (let ((start (point)))
-        (or
-         (if (consp candidate-or-regexp)
-             (and (re-search-forward (car candidate-or-regexp) nil t)
-                  (re-search-forward (cdr candidate-or-regexp) nil t))
-           (re-search-forward candidate-or-regexp nil t))
-         (goto-char start))))
+          (goto-char (point-min))
+          (forward-line 1))
+      (if (functionp candidate-or-regexp)
+          (funcall candidate-or-regexp)
+          (let ((start (point)) mp)
+            (helm-awhile (if (consp candidate-or-regexp)
+                             (and (re-search-forward (car candidate-or-regexp) nil t)
+                                  (re-search-forward (cdr candidate-or-regexp) nil t))
+                             (re-search-forward candidate-or-regexp nil t))
+              ;; If search fall on an header line continue loop
+              ;; until it match or fail (Issue #1509).
+              (unless (helm-pos-header-line-p) (cl-return (setq mp it))))
+            (goto-char (or mp start)))))
     (forward-line 0) ; Avoid scrolling right on long lines.
     (when (helm-pos-multiline-p)
       (helm-move--beginning-of-multiline-candidate))
     (when (helm-pos-header-line-p) (forward-line 1))
     (helm-mark-current-line)
-    (helm-display-mode-line (helm-get-current-source))
+    (helm-display-mode-line (or source (helm-get-current-source)))
     (helm-log-run-hook 'helm-after-preselection-hook)))
 
 (defun helm-delete-current-selection ()
@@ -4383,111 +4379,14 @@ When at the end of minibuffer, deletes all."
     (helm--delete-minibuffer-contents-from str)))
 
 
-;;; Plugins (Deprecated in favor of helm-types)
+;;; helm-source-in-buffer.
 ;;
-;; i.e Inherit instead of helm-type-* classes in your own classes.
-
-;; [DEPRECATED] Enable multi-match by default in old sources.
-;; This is deprecated and will not run in sources
-;; created by helm-source.
-;; Keep it for backward compatibility with old sources.
-(defun helm-compile-source--multi-match (source)
-  (if (assoc 'no-matchplugin source)
-      source
-    (let* ((searchers        helm-mm-default-search-functions)
-           (defmatch         (helm-aif (assoc-default 'match source)
-                                 (helm-mklist it)))
-           (defmatch-strict  (helm-aif (assoc-default 'match-strict source)
-                                 (helm-mklist it)))
-           (defsearch        (helm-aif (assoc-default 'search source)
-                                 (helm-mklist it)))
-           (defsearch-strict (helm-aif (assoc-default 'search-strict source)
-                                 (helm-mklist it)))
-           (matchfns         (cond (defmatch-strict)
-                                   (defmatch
-                                    (append helm-mm-default-match-functions defmatch))
-                                   (t helm-mm-default-match-functions)))
-           (searchfns        (cond (defsearch-strict)
-                                   (defsearch
-                                    (append searchers defsearch))
-                                   (t searchers))))
-      `(,(if (assoc 'candidates-in-buffer source)
-             `(search ,@searchfns) `(match ,@matchfns))
-         ,@source))))
-
-(add-to-list 'helm-compile-source-functions 'helm-compile-source--multi-match)
-
-(defun helm-compile-source--type (source)
-  (helm-aif (assoc-default 'type source)
-      (append source (assoc-default it helm-type-attributes) nil)
-    source))
-
-(defun define-helm-type-attribute (type definition &optional doc)
-  "Register type attribute of TYPE as DEFINITION with DOC.
-DOC is displayed in `helm-type-attributes' docstring.
-
-Using this function is better than setting `helm-type-attributes'
-directly."
-  (cl-loop for i in definition do
-       ;; without `ignore-errors', error at emacs22
-       (ignore-errors (setf i (delete nil i))))
-  (helm-add-type-attribute type definition)
-  (and doc (helm-document-type-attribute type doc))
-  nil)
-
-(defun helm-document-attribute (attribute short-doc &optional long-doc)
-  "Register ATTRIBUTE documentation introduced by plug-in.
-SHORT-DOC is displayed beside attribute name.
-LONG-DOC is displayed below attribute name and short documentation."
-  (declare (indent 2))
-  (if long-doc
-      (setq short-doc (concat "(" short-doc ")"))
-    (setq long-doc short-doc
-          short-doc ""))
-  (add-to-list 'helm-attributes attribute t)
-  (put attribute 'helm-attrdoc
-       (concat "- " (symbol-name attribute)
-               " " short-doc "\n\n" long-doc "\n")))
-
-(defun helm-add-type-attribute (type definition)
-  (helm-aif (assq type helm-type-attributes)
-      (setq helm-type-attributes (delete it helm-type-attributes)))
-  (push (cons type definition) helm-type-attributes))
-
-(defun helm-document-type-attribute (type doc)
-  (add-to-list 'helm-types type t)
-  (put type 'helm-typeattrdoc
-       (concat "- " (symbol-name type) "\n\n" doc "\n")))
-
-;; Built-in plug-in: dummy
-(defun helm-dummy-candidate (_candidate _source)
-  "Use `helm-pattern' as CANDIDATE in SOURCE."
-  ;; `source' is defined in filtered-candidate-transformer
-  (list helm-pattern))
-
-(defun helm-compile-source--dummy (source)
-  (if (assoc 'dummy source)
-      (progn
-        (unless (helm-attr-defined
-                 'filtered-candidate-transformer source)
-          (helm-attrset 'filtered-candidate-transformer
-                        'helm-dummy-candidate source))
-        (append source
-                '((candidates "dummy")
-                  (accept-empty)
-                  (match identity)
-                  (volatile))))
-    source))
-
-;; Built-in plug-in: candidates-in-buffer
 (defun helm-candidates-in-buffer (&optional source)
-  "The top level function used to store candidates in `helm-source-in-buffer'.
+  "The top level function used to store candidates with `helm-source-in-buffer'.
 
-Candidates are stored in a buffer generated internally by
-`helm-candidate-buffer' function. Each candidate must be placed
-in one line. This function is meant to be used in
-candidates-in-buffer or candidates attribute of an helm source.
-It is especially fast for many (1000+) candidates.
+Candidates are stored in a buffer generated internally
+by `helm-candidate-buffer' function.
+Each candidate must be placed in one line.
 
 The buffer is created and fed in the init attribute function of helm.
 
@@ -4503,18 +4402,13 @@ A shortcut can be used to simplify:
      (helm-build-in-buffer-source \"test\"
        :data '(foo foa fob bar baz))
 
-`candidates-in-buffer' is now deprecated in favor of
-`helm-source-in-buffer' class.
-
-Description provided here for backward compatibility.
-
 By default, `helm' makes candidates by evaluating the
 candidates function, then narrows them by `string-match' for each
 candidate.
 
 But this is slow for large number of candidates. The new way is
-to store all candidates in a buffer and then narrow with
-`re-search-forward'. Search function is customizable by search
+to store all candidates in a buffer and then narrow
+with `re-search-forward'. Search function is customizable by search
 attribute. The important point is that buffer processing is MUCH
 FASTER than string list processing and is the Emacs way.
 
@@ -4523,25 +4417,17 @@ candidate buffer.  The candidates buffer is created or specified
 by `helm-candidate-buffer'.  Candidates are stored in a line.
 
 The candidates function narrows all candidates, IOW creates a
-subset of candidates dynamically. It is the task of
-`helm-candidates-in-buffer'.  As long as
-`helm-candidate-buffer' is used,`(candidates-in-buffer)' is
-sufficient in most cases.
+subset of candidates dynamically.
 
-Note that `(candidates-in-buffer)' is shortcut of three attributes:
-  (candidates . helm-candidates-in-buffer)
-  (volatile)
-  (match identity)
-And `(candidates-in-buffer . func)' is shortcut of three attributes:
-  (candidates . func)
-  (volatile)
-  (match identity)
-The expansion is performed in `helm-get-sources'.
+Class `helm-source-in-buffer' is implemented with three attributes:
 
-The `candidates-in-buffer' attribute implies the volatile attribute.
+    (candidates . helm-candidates-in-buffer)
+    (volatile)
+    (match identity)
+
 The volatile attribute is needed because `helm-candidates-in-buffer'
-creates candidates dynamically and need to be called every time
-`helm-pattern' changes.
+creates candidates dynamically and need to be called every
+time `helm-pattern' changes.
 
 Because `helm-candidates-in-buffer' plays the role of `match' attribute
 function, specifying `(match identity)' makes the source slightly faster.
@@ -4551,8 +4437,8 @@ on part of candidate returned by the call of function provided by this attribute
 The function should have one arg, candidate, and return only
 a specific part of candidate.
 
-To customize `helm-candidates-in-buffer' behavior, use `search',
-`get-line' and `match-part' attributes."
+To customize `helm-candidates-in-buffer' behavior,
+use `search', `get-line' and `match-part' attributes."
   (let ((src (or source (helm-get-current-source))))
     (helm-candidates-in-buffer-1
      (helm-candidate-buffer)
@@ -4717,6 +4603,7 @@ Acceptable values of CREATE-OR-BUFFER:
          (local-bname (format " *helm candidates:%s*%s"
                               helm-source-name
                               (buffer-name helm-current-buffer)))
+         helm-candidate-buffer-alist
          (register-func
           (lambda ()
             (setq helm-candidate-buffer-alist
@@ -4776,15 +4663,6 @@ Returns the resulting buffer."
                              data "\n"))
         (and (stringp data) (insert data))))
     buf))
-
-(defun helm-compile-source--candidates-in-buffer (source)
-  (helm-aif (assoc 'candidates-in-buffer source)
-      (append source
-              `((candidates . ,(or (cdr it)
-                                   (lambda ()
-                                     (helm-candidates-in-buffer source))))
-                (volatile) (match identity)))
-    source))
 
 
 ;;; Resplit helm window
@@ -4913,16 +4791,17 @@ Possible values are 'left 'right 'below or 'above."
 ;; Utility: select another action by key
 (defun helm-select-nth-action (n)
   "Select the N nth action for the currently selected candidate."
-  (setq helm-saved-selection (helm-get-selection))
-  (unless helm-saved-selection
-    (error "Nothing is selected"))
-  (setq helm-saved-action
-        (helm-get-nth-action
-         n
-         (if (get-buffer-window helm-action-buffer 'visible)
-             (assoc-default 'candidates (helm-get-current-source))
-             (helm-get-actions-from-current-source))))
-  (helm-maybe-exit-minibuffer))
+  (let ((src (helm-get-current-source)))
+    (setq helm-saved-selection (helm-get-selection nil nil src))
+    (unless helm-saved-selection
+      (error "Nothing is selected"))
+    (setq helm-saved-action
+          (helm-get-nth-action
+           n
+           (if (get-buffer-window helm-action-buffer 'visible)
+               (assoc-default 'candidates src)
+               (helm-get-actions-from-current-source src))))
+    (helm-maybe-exit-minibuffer)))
 
 (defun helm-get-nth-action (n action)
   (cond ((and (zerop n) (functionp action))
@@ -4943,15 +4822,9 @@ Possible values are 'left 'right 'below or 'above."
         (helm-previous-line (lognot (1- linum))))
     (setq current-prefix-arg prefarg)
     (helm-exit-minibuffer)))
-
-;; Utility: Persistent Action
-(defmacro with-helm-display-same-window (&rest body)
-  "Execute BODY in the window used for persistent action.
-Make `pop-to-buffer' and `display-buffer' display in the same window."
-  (declare (indent 0) (debug t))
-  `(let ((display-buffer-function 'helm-persistent-action-display-buffer))
-     ,@body))
-
+
+;;; Persistent Action
+;;
 (defun helm-initialize-persistent-action ()
   (set (make-local-variable 'helm-persistent-action-display-window) nil))
 
@@ -4968,7 +4841,9 @@ window to maintain visibility."
   (interactive)
   (with-helm-alive-p
     (helm-log "executing persistent-action")
-    (let* ((attr-val (assoc-default attr (helm-get-current-source)))
+    (let* ((source (helm-get-current-source))
+           (selection (and source (helm-get-selection nil nil source)))
+           (attr-val (assoc-default attr source))
            ;; If attr value is a cons, use its car as persistent function
            ;; and its car to decide if helm window should be splitted.
            (fn       (if (and (consp attr-val)
@@ -4977,18 +4852,23 @@ window to maintain visibility."
                          (car attr-val) attr-val))
            (no-split (and (consp attr-val)
                           (not (functionp attr-val))
-                          (cdr attr-val))))
-      (with-helm-window
-        (save-selected-window
-          (if no-split
-              (helm-select-persistent-action-window)
-            (helm-select-persistent-action-window
-             (or split-onewindow helm-onewindow-p)))
-          (helm-log "current-buffer = %S" (current-buffer))
-          (let ((helm-in-persistent-action t))
-            (with-helm-display-same-window
+                          (cdr attr-val)))
+           (cursor-in-echo-area t)
+           mode-line-in-non-selected-windows)
+      (when source
+        (with-helm-window
+          (save-selected-window
+            (if no-split
+                (helm-select-persistent-action-window)
+                (helm-select-persistent-action-window
+                 (or split-onewindow helm-onewindow-p)))
+            (helm-log "current-buffer = %S" (current-buffer))
+            (let ((helm-in-persistent-action t)
+                  (same-window-regexps '("."))
+                  display-buffer-function pop-up-windows pop-up-frames
+                  special-display-regexps special-display-buffer-names)
               (helm-execute-selection-action-1
-               nil (or fn (helm-get-actions-from-current-source)) t)
+               selection (or fn (helm-get-actions-from-current-source source)) t)
               (helm-log-run-hook 'helm-after-persistent-action-hook))
             ;; A typical case is when a persistent action delete
             ;; the buffer already displayed in
@@ -5024,44 +4904,6 @@ See `helm-persistent-action-display-window' for how to use SPLIT-ONEWINDOW."
   (select-window
    (setq minibuffer-scroll-window
          (helm-persistent-action-display-window split-onewindow))))
-
-(defun helm-persistent-action-display-buffer (buf &optional  action)
-  "Make `pop-to-buffer' and `display-buffer' display in the same window.
-If `helm-persistent-action-use-special-display' is non-`nil' and
-BUF is to be displayed by `special-display-function', use it.
-Otherwise ignore `special-display-buffer-names' and `special-display-regexps'.
-Argument ACTION, when present, is used as second argument of `display-buffer'."
-  (let* ((name (buffer-name buf))
-         display-buffer-function pop-up-windows pop-up-frames
-         ;; Disable `special-display-regexps' and `special-display-buffer-names'
-         ;; unless `helm-persistent-action-use-special-display' is non-`nil'.
-         (special-display-buffer-names
-          (and helm-persistent-action-use-special-display
-               special-display-buffer-names))
-         (special-display-regexps
-          (and helm-persistent-action-use-special-display
-               special-display-regexps))
-         (same-window-regexps
-          (unless (and helm-persistent-action-use-special-display
-                       (or (member name
-                                   (mapcar (lambda (x) (or (car-safe x) x))
-                                           special-display-buffer-names))
-                           (cl-loop for x in special-display-regexps
-                                 thereis (string-match (or (car-safe x) x)
-                                                       name))))
-            '("."))))
-    ;; Don't loose minibuffer when displaying persistent window in
-    ;; another frame.
-    ;; This happen when the displayed persistent buffer-name is one of
-    ;; `special-display-buffer-names' or match `special-display-regexps'
-    ;; and `helm-persistent-action-use-special-display' is enabled.
-    (with-selected-window (if (or special-display-regexps
-                                  special-display-buffer-names)
-                              (minibuffer-window)
-                            (selected-window))
-      ;; Be sure window of BUF is not dedicated.
-      (set-window-dedicated-p (get-buffer-window buf) nil)
-      (display-buffer buf action))))
 
 ;; scroll-other-window(-down)? for persistent-action
 (defun helm-other-window-base (command &optional scroll-amount)
@@ -5104,33 +4946,36 @@ Argument ACTION, when present, is used as second argument of `display-buffer'."
     (set (make-local-variable 'helm-visible-mark-overlays) nil)))
 
 (defun helm-this-visible-mark ()
-  (cl-loop for o in helm-visible-mark-overlays
-        when (equal (point-at-bol) (overlay-start o))
-        return o))
+  (cl-loop for o in (overlays-at (point))
+           when (overlay-get o 'visible-mark)
+           return o))
 
 (defun helm-delete-visible-mark (overlay)
-  (setq helm-marked-candidates
-        (remove
-         (cons (helm-get-current-source) (helm-get-selection))
-         helm-marked-candidates))
-  (delete-overlay overlay)
-  (setq helm-visible-mark-overlays
-        (delq overlay helm-visible-mark-overlays)))
+  (let ((src (helm-get-current-source)))
+    (setq helm-marked-candidates
+          (remove
+           (cons src (helm-get-selection nil nil src))
+           helm-marked-candidates))
+    (delete-overlay overlay)
+    (setq helm-visible-mark-overlays
+          (delq overlay helm-visible-mark-overlays))))
 
-(defun helm-make-visible-mark ()
-  (let ((o (make-overlay (point-at-bol)
+(defun helm-make-visible-mark (&optional src selection)
+  (let* ((source (or src  (helm-get-current-source)))
+         (sel    (or selection (helm-get-selection nil nil src)))
+         (o (make-overlay (point-at-bol)
                           (if (helm-pos-multiline-p)
                               (or (helm-get-next-candidate-separator-pos)
                                   (point-max))
-                            (1+ (point-at-eol))))))
+                              (1+ (point-at-eol))))))
     (overlay-put o 'priority 0)
     (overlay-put o 'face   'helm-visible-mark)
-    (overlay-put o 'source (assoc-default 'name (helm-get-current-source)))
+    (overlay-put o 'source (assoc-default 'name source))
     (overlay-put o 'string (buffer-substring (overlay-start o) (overlay-end o)))
-    (overlay-put o 'real   (helm-get-selection))
-    (add-to-list 'helm-visible-mark-overlays o))
-  (push (cons (helm-get-current-source) (helm-get-selection))
-        helm-marked-candidates))
+    (overlay-put o 'real sel)
+    (overlay-put o 'visible-mark t)
+    (cl-pushnew o helm-visible-mark-overlays)
+    (push (cons source sel) helm-marked-candidates)))
 
 (defun helm-toggle-visible-mark ()
   "Toggle helm visible mark at point."
@@ -5148,10 +4993,11 @@ Argument ACTION, when present, is used as second argument of `display-buffer'."
                 (helm-next-line)))))))
 (put 'helm-toggle-visible-mark 'helm-only t)
 
-(defun helm-file-completion-source-p ()
+(defun helm-file-completion-source-p (&optional source)
   "Return non-`nil' if current source is a file completion source."
   (or minibuffer-completing-file-name
-      (let ((cur-source (cdr (assoc 'name (helm-get-current-source)))))
+      (let ((cur-source (cdr (assoc 'name
+                                    (or source (helm-get-current-source))))))
         (cl-loop for i in helm--file-completion-sources
                  thereis (string= cur-source i)))))
 
@@ -5160,56 +5006,54 @@ Argument ACTION, when present, is used as second argument of `display-buffer'."
   (interactive)
   (with-helm-alive-p
     (with-helm-window
-      (let ((nomark (assq 'nomark (helm-get-current-source)))
-            (follow (if helm-follow-mode 1 -1)))
-        (helm-follow-mode -1)
-        (unwind-protect
-             (if nomark
-                 (message "Marking not allowed in this source")
-                 (save-excursion
-                   (goto-char (helm-get-previous-header-pos))
-                   (helm-next-line)
-                   (let* ((next-head (helm-get-next-header-pos))
-                          (end       (and next-head
-                                          (save-excursion
-                                            (goto-char next-head)
-                                            (forward-line -1)
-                                            (point))))
-                          (maxpoint  (or end (point-max))))
-                     (while (< (point) maxpoint)
-                       (helm-mark-current-line)
-                       (let* ((prefix (get-text-property (point-at-bol) 'display))
-                              (cand   (helm-get-selection))
-                              (bn     (and (helm-file-completion-source-p)
-                                           (helm-basename cand)))
-                              (src-name    (assoc-default 'name
-                                                          (helm-get-current-source))))
-                         (when (and (not (helm-this-visible-mark))
-                                    (not (or (string= prefix "[?]")
-                                             (string= prefix "[@]"))))
+      (let* ((src        (helm-get-current-source))
+             (follow     (if (helm-follow-mode-p src) 1 -1))
+             (nomark     (assq 'nomark src))
+             (src-name   (assoc-default 'name src))
+             (filecomp-p (or (helm-file-completion-source-p src)
+                             (string= src-name "Files from Current Directory")))
+             (remote-p (and filecomp-p (file-remote-p helm-pattern))))
+        (cl-letf (((symbol-function 'message) #'ignore))
+          (helm-follow-mode -1)
+          (unwind-protect
+               (if nomark
+                   (message "Marking not allowed in this source")
+                   (save-excursion
+                     (goto-char (helm-get-previous-header-pos))
+                     (forward-line 1)
+                     (let* ((next-head (helm-get-next-header-pos))
+                            (end       (and next-head
+                                            (save-excursion
+                                              (goto-char next-head)
+                                              (forward-line -1)
+                                              (point))))
+                            (maxpoint  (or end (point-max))))
+                       (while (< (point) maxpoint)
+                         (helm-mark-current-line)
+                         (let* ((prefix (get-text-property (point-at-bol) 'display))
+                                (cand   (helm-get-selection nil nil src))
+                                (bn     (and filecomp-p (helm-basename cand))))
                            ;; Don't mark possibles directories ending with . or ..
                            ;; autosave files/links and non--existent file.
                            (unless
-                               (and (or (helm-file-completion-source-p)
-                                        (string=
-                                         src-name "Files from Current Directory"))
-                                    (or (string-match
-                                         "^[.]?#.*#?$\\|[^#]*[.]\\{1,2\\}$" bn)
-                                        ;; We need to test here when not using
-                                        ;; a transformer that tag prefix
-                                        ;; (i.e on tramp).
-                                        (not (file-exists-p cand))))
-                             (helm-make-visible-mark))))
-                       (if (helm-pos-multiline-p)
-                           (progn
-                             (goto-char
-                              (or (helm-get-next-candidate-separator-pos)
-                                  (point-max)))
-                             (forward-line 1))
-                           (forward-line 1))
-                       (end-of-line))))
-                 (helm-mark-current-line))
-          (helm-follow-mode follow) (message nil))))))
+                               (or (helm-this-visible-mark)
+                                   (string= prefix "[?]")   ; doesn't match
+                                   (and filecomp-p
+                                        (or (string-match-p ; autosave or dot files
+                                             "^[.]?#.*#?$\\|[^#]*[.]\\{1,2\\}$" bn)
+                                            ;; We need to test here when not using
+                                            ;; a transformer that put a prefix tag
+                                            ;; before candidate.
+                                            ;; (i.e no [?] prefix on tramp).
+                                            (and remote-p (not (file-exists-p cand))))))
+                             (helm-make-visible-mark src cand)))
+                         (when (helm-pos-multiline-p)
+                           (goto-char
+                            (or (helm-get-next-candidate-separator-pos)
+                                (point-max))))
+                         (forward-line 1))))
+                   (helm-mark-current-line))
+            (helm-follow-mode follow)))))))
 (put 'helm-mark-all 'helm-only t)
 
 (defun helm-unmark-all ()
@@ -5237,7 +5081,7 @@ visible or invisible in all sources of current helm session"
           (helm-mark-all)))))
 (put 'helm-toggle-all-marks 'helm-only t)
 
-(defun helm--compute-marked (real source wildcard)
+(defun helm--compute-marked (real source &optional wildcard)
   (let* ((coerced (helm-coerce-selection real source))
          (wilds   (and wildcard
                        (condition-case nil
@@ -5263,17 +5107,26 @@ selection. When key WITH-WILDCARD is specified, expand it."
     (let ((candidates
            (cl-loop with current-src = (helm-get-current-source)
                     for (source . real) in (reverse helm-marked-candidates)
+                    for use-wc = (and with-wildcard (string-match-p "\\*" real))
                     when (equal (assq 'name source) (assq 'name current-src))
-                    append (helm--compute-marked real source with-wildcard)
+                    append (helm--compute-marked real source use-wc)
                     into cands
                     finally return (or cands
                                        (append
                                         (helm--compute-marked
-                                         (helm-get-selection) current-src
+                                         (helm-get-selection nil nil current-src)
+                                         current-src
                                          with-wildcard)
                                         cands)))))
       (helm-log "Marked candidates = %S" candidates)
       candidates)))
+
+(defun helm--remove-marked-and-update-mode-line (elm)
+  (with-helm-buffer
+    (setq helm-marked-candidates
+          (delete (rassoc elm helm-marked-candidates)
+                  helm-marked-candidates))
+    (helm-display-mode-line (helm-get-current-source))))
 
 (defun helm-current-source-name= (name)
   (save-excursion
@@ -5309,7 +5162,7 @@ selection. When key WITH-WILDCARD is specified, expand it."
                        (move-overlay o beg end))
                   (and (equal o-str (buffer-substring beg end))
                        (move-overlay o beg end))))))))))
-(add-hook 'helm-update-hook 'helm-revive-visible-mark)
+(add-hook 'helm-after-update-hook 'helm-revive-visible-mark)
 
 (defun helm-next-point-in-list (curpos points &optional prev)
   (cond
@@ -5400,6 +5253,11 @@ display values."
 ;;; Follow-mode: Automatic execution of persistent-action
 ;;
 ;;
+(defvar helm-follow-input-idle-delay nil
+  "`helm-follow-mode' will execute its persistent action after this delay.
+Note that if the `follow-delay' attr is present in source,
+it will take precedence over this.")
+
 (defun helm-follow-mode (&optional arg)
   "Execute persistent action every time the cursor is moved.
 
@@ -5408,28 +5266,22 @@ This mode is source local, i.e It apply on current source only.
 This mode can be enabled or disabled interactively at anytime during
 a helm session with \\[helm-follow-mode].
 
-It can also be enabled specifically for a source by adding the
-`follow' attribute to the source.
-Value of this attribute can be -1, 1, or 'never.
-If the source is defined with its own class,
-you can use `helm-setup-user-source' e.g:
-
-    (defmethod helm-setup-user-source ((source helm-grep-class))
-      (setf (slot-value source 'follow) 1))
-
-Otherwise, use `helm-attrset' to setup the `follow' attribute of the existing source,
-which see.
-
-Even with `follow' attribute, a source can be interactively disabled or enabled
-unless `follow' attribute value is 'never.
 When enabling interactively `helm-follow-mode' in a source, you can keep it enabled
-for next helm sessions by setting `helm-follow-mode-persistent' to a non-nil value.
+for next emacs sessions by setting `helm-follow-mode-persistent' to a non-nil value.
+
+When `helm-follow-mode' is called with a prefix arg and `helm-follow-mode-persistent'
+is non-nil `helm-follow-mode' will be persistent only for this emacs session,
+but not for next emacs sessions, i.e the current source will not be saved
+to `helm-source-names-using-follow'.
+A prefix arg with `helm-follow-mode' already enabled will have no effect.
 
 Note that you can use instead of this mode the commands `helm-follow-action-forward'
 and `helm-follow-action-backward' at anytime in all helm sessions.
 
 They are bound by default to \\[helm-follow-action-forward] and \\[helm-follow-action-backward]."
-  (interactive "p")
+  (interactive (list (helm-aif (and current-prefix-arg
+                                    (prefix-numeric-value current-prefix-arg))
+                         (unless (helm-follow-mode-p) it))))
   (with-helm-alive-p
     (with-current-buffer helm-buffer
       (let* ((src      (helm-get-current-source))
@@ -5440,22 +5292,37 @@ They are bound by default to \\[helm-follow-action-forward] and \\[helm-follow-a
                                                   'name (symbol-value s)))
                                 thereis (and sname (string= sname name) s)))
              (fol-attr (assq 'follow src))
-             (enabled  (or
-                        ;; If `helm-follow-mode' is called with a negative
-                        ;; ARG, assume follow is already enabled.
-                        ;; i.e turn it off now.
-                        (< arg 0)
-                        (eq (cdr fol-attr) 1)
-                        helm-follow-mode)))
+             (enabled  (or (helm-follow-mode-p src)
+                           (and helm-follow-mode-persistent
+                                (member (assoc-default 'name src)
+                                        helm-source-names-using-follow)))))
         (if src
             (progn
               (if (eq (cdr fol-attr) 'never)
                   (message "helm-follow-mode not allowed in this source")
                   ;; Make follow attr persistent for this emacs session.
-                  (helm-attrset 'follow (if enabled -1 1) src)
-                  (setq helm-follow-mode (not enabled))
+                  (helm-follow-mode-set-source
+                   (if (or enabled (and (numberp arg) (< arg 0))) -1 1)
+                   src)
+                  ;; When arg is nil assume the call is interactive.
+                  ;; However if user call helm-follow-mode with a prefix arg,
+                  ;; the call will be considered non--interactive and
+                  ;; src-name will NOT be saved to helm-source-names-using-follow.
+                  ;; When called from lisp (non--interactive) src-name
+                  ;; will never be saved.
+                  (when (and helm-follow-mode-persistent (null arg))
+                    (if (null enabled)
+                        (unless (member name helm-source-names-using-follow)
+                          (push name helm-source-names-using-follow)
+                          (customize-save-variable 'helm-source-names-using-follow
+                                                   helm-source-names-using-follow))
+                        (when (member name helm-source-names-using-follow)
+                          (setq helm-source-names-using-follow
+                                (delete name helm-source-names-using-follow))
+                          (customize-save-variable 'helm-source-names-using-follow
+                                                   helm-source-names-using-follow))))
                   (message "helm-follow-mode is %s"
-                           (if helm-follow-mode
+                           (if (helm-follow-mode-p src)
                                "enabled" "disabled"))
                   (helm-display-mode-line src t))
               (unless helm-follow-mode-persistent
@@ -5463,25 +5330,37 @@ They are bound by default to \\[helm-follow-action-forward] and \\[helm-follow-a
             (message "Not enough candidates for helm-follow-mode"))))))
 (put 'helm-follow-mode 'helm-only t)
 
-(defvar helm-follow-input-idle-delay nil
-  "`helm-follow-mode' will execute its persistent action after this delay.
-Note that if the `follow-delay' attr is present in source,
-it will take precedence over this.")
-(defun helm-follow-execute-persistent-action-maybe ()
+(defun helm-follow-execute-persistent-action-maybe (&optional delay)
   "Execute persistent action in mode `helm-follow-mode'.
-This happen after `helm-input-idle-delay' secs."
-  (let ((src (helm-get-current-source)))
-    (and (not (get-buffer-window helm-action-buffer 'visible))
-         (eq (assoc-default 'follow src) 1)
-         (sit-for (or (assoc-default 'follow-delay src)
-                      helm-follow-input-idle-delay
-                      (and helm-input-idle-delay
-                           (max helm-input-idle-delay 0.01))))
-         (helm-window)
-         (helm-get-selection)
-         (save-excursion
-           (helm-execute-persistent-action)))))
 
+This happen after: DELAY or the 'follow-attr value of current source
+or `helm-follow-input-idle-delay' or `helm-input-idle-delay' secs."
+  (let* ((src (helm-get-current-source))
+         (at (or delay
+                 (assoc-default 'follow-delay src)
+                 helm-follow-input-idle-delay
+                 (or (and helm-input-idle-delay
+                          (max helm-input-idle-delay 0.01))
+                     0.01))))
+    (when (and (not (get-buffer-window helm-action-buffer 'visible))
+               (not (helm-pos-header-line-p))
+               (or (helm-follow-mode-p src)
+                   (and helm-follow-mode-persistent
+                        (member (assoc-default 'name src)
+                                helm-source-names-using-follow)))
+               (null (eq (assoc-default 'follow src) 'never))
+               (helm-window)
+               (helm-get-selection nil nil src))
+      (helm-follow-mode-set-source 1 src)
+      (run-with-idle-timer at nil #'helm-execute-persistent-action))))
+
+(defun helm-follow-mode-p (&optional source)
+  (with-helm-buffer
+    (eq (helm-attr 'follow (or source (helm-get-current-source))) 1)))
+
+(defun helm-follow-mode-set-source (value &optional source)
+  (with-helm-buffer
+    (helm-attrset 'follow value (or source (helm-get-current-source)))))
 
 ;;; Auto-resize mode
 ;;
