@@ -3,12 +3,12 @@
 ;; Copyright (C) 2008, 2009, 2010  Taiki SUGAWARA <buzz.taiki@gmail.com>
 ;; Copyright (C) 2012, 2013  Michael Markert <markert.michael@googlemail.com>
 ;; Copyright (C) 2013 Daniel Hackney <dan@haxney.org>
-;; Copyright (C) 2015 Michael Heerdegen <michael_heerdegen@web.de>
+;; Copyright (C) 2015, 2016 Michael Heerdegen <michael_heerdegen@web.de>
 
 ;; Author: Taiki SUGAWARA <buzz.taiki@gmail.com>
 ;; URL: https://github.com/emacs-helm/helm-descbinds
 ;; Keywords: helm, help
-;; Version: 1.10
+;; Version: 1.12
 ;; Package-Requires: ((helm "1.5"))
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 ;; This package is a replacement of `describe-bindings' for Helm.
 
 ;; Usage:
-;; 
+;;
 ;; You can use this package independently from Helm - in particular,
 ;; you don't need to turn on `helm-mode' to be able to use this.  Helm
 ;; just needs to be installed.
@@ -218,23 +218,21 @@ This function will be called with two arguments KEY and BINDING."
            return n))
 
 (defun helm-descbinds-transform-candidates (candidates)
-  (mapcar
-   (lambda (pair)
-     (let ((key (car pair))
-           (command (cdr pair)))
-       (cons (funcall helm-descbinds-candidate-formatter key command)
-             (cons key (or (intern-soft command) command)))))
-   candidates))
+  (cl-loop for (key . command) in candidates
+           for sym = (intern-soft command)
+           collect
+           (cons (funcall helm-descbinds-candidate-formatter key command)
+                 (cons key (if (commandp sym) sym command)))))
 
 (defun helm-descbinds-action-transformer (actions cand)
   "Default action transformer for `helm-descbinds'.
 Provide a useful behavior for prefix commands."
-  (if (equal (cdr-safe cand) "Prefix Command")
-      `(("helm-descbinds this prefix" . ,(lambda (cand) (interactive)
-                                           (run-with-timer
-                                            0 nil
-                                            #'describe-bindings (kbd (car cand))))))
-    actions))
+  (if (stringp (cdr cand))
+      (helm-make-actions
+       "helm-descbinds this prefix"
+       (lambda (cand)
+         (describe-bindings (kbd (car cand)))))
+      actions))
 
 (defun helm-descbinds-sources (buffer &optional prefix menus)
   (mapcar
@@ -247,9 +245,9 @@ Provide a useful behavior for prefix commands."
          (helm-descbinds-order-section b))))))
 
 (defun helm-descbinds-source (name candidates)
-  `((name . ,name)
-    (candidates . ,candidates)
-    ,@helm-descbinds-source-template))
+  (append (helm-build-sync-source name
+              :candidates candidates)
+            helm-descbinds-source-template))
 
 ;;;###autoload
 (defun helm-descbinds (&optional prefix buffer)
