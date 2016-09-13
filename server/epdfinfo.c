@@ -18,7 +18,9 @@
 #include <config.h>
 
 #include <assert.h>
-#include <err.h>
+#ifdef HAVE_ERR_H
+#  include <err.h>
+#endif
 #ifdef HAVE_ERROR_H
 #  include <error.h>
 #endif
@@ -44,6 +46,86 @@
 /* ================================================================== *
  * Helper Functions
  * ================================================================== */
+
+#ifndef HAVE_ERR_H
+/**
+ * Print error message and quit.
+ *
+ * @param eval Return code
+ * @param fmt Formatting string
+ */
+static void
+err(int eval, const char *fmt, ...)
+{
+  va_list args;
+
+  fprintf (stderr, "epdfinfo: ");
+  if (fmt != NULL)
+    {
+      va_start (args, fmt);
+      vfprintf (stderr, fmt, args);
+      va_end (args);
+      fprintf (stderr, ": %s\n", strerror(errno));
+    }
+  else
+    {
+      fprintf (stderr, "\n");
+    }
+
+  fflush (stderr);
+  exit (eval);
+}
+#endif
+
+#ifndef HAVE_GETLINE
+/**
+ * Read one line from a file.
+ *
+ * @param lineptr Pointer to malloc() allocated buffer
+ * @param n Pointer to size of buffer
+ * @param stream File pointer to read from
+ */
+static ssize_t
+getline(char **lineptr, size_t *n, FILE *stream)
+{
+  size_t len = 0;
+  int ch;
+
+  if ((lineptr == NULL) || (n == NULL))
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
+  if (*lineptr == NULL)
+    {
+      *lineptr = malloc (128);
+      *n = 128;
+    }
+
+  while ((ch = fgetc (stream)) != EOF)
+    {
+      (*lineptr)[len] = ch;
+
+      if (++len >= *n)
+        {
+          *n += 128;
+          *lineptr = realloc (*lineptr, *n);
+        }
+
+      if (ch == '\n')
+        break;
+    }
+  (*lineptr)[len] = '\0';
+
+  if (!len)
+    {
+      len = -1;
+    }
+
+  return len;
+}
+#endif
 
 /**
  * Free a list of command arguments.
@@ -1227,6 +1309,25 @@ annotation_get_by_key (document_t *doc, const gchar *key)
 }
 
 #ifdef HAVE_POPPLER_ANNOT_MARKUP
+void
+annotation_translate_quadrilateral (PopplerPage *page, PopplerQuadrilateral *q, gboolean inverse)
+{
+  PopplerRectangle cbox;
+  gdouble xs, ys;
+
+  poppler_page_get_crop_box (page, &cbox);
+  xs = MIN (cbox.x1, cbox.x2);
+  ys = MIN (cbox.y1, cbox.y2);
+  
+  if (inverse)
+    {
+      xs = -xs; ys = -ys;
+    }
+
+  q->p1.x -= xs, q->p2.x -= xs; q->p3.x -= xs; q->p4.x -= xs;
+  q->p1.y -= ys, q->p2.y -= ys; q->p3.y -= ys; q->p4.y -= ys;
+}
+
 static cairo_region_t*
 annotation_markup_get_text_regions (PopplerPage *page, PopplerAnnotTextMarkup *a)
 {
@@ -1242,6 +1343,7 @@ annotation_markup_get_text_regions (PopplerPage *page, PopplerAnnotTextMarkup *a
       PopplerQuadrilateral *q = &g_array_index (quads, PopplerQuadrilateral, i);
       cairo_rectangle_int_t r;
 
+      annotation_translate_quadrilateral (page, q, FALSE);
       q->p1.y = height - q->p1.y;
       q->p2.y = height - q->p2.y;
       q->p3.y = height - q->p3.y;
@@ -1296,6 +1398,7 @@ annotation_markup_append_text_region (PopplerPage *page, PopplerRectangle *regio
       q.p3.x = r->x1;
       q.p3.y = height - r->y2;
 
+      annotation_translate_quadrilateral (page, &q, TRUE);
       g_array_append_val (garray, q);
     }
   g_list_free (regions);
@@ -1599,7 +1702,10 @@ annotation_print (const annotation_t *annot, /* const */ PopplerPage *page)
     }
 #endif
   putchar ('\n');
- theend: error:
+ theend:
+#ifdef HAVE_POPPLER_ANNOT_MARKUP
+ error:
+#endif
   if (region) cairo_region_destroy (region);
 }
 
@@ -3526,6 +3632,12 @@ int main(int argc, char **argv)
   ssize_t read;
   size_t line_size;
   const char *error_log = "/dev/null";
+
+#ifdef __MINGW32__
+  error_log = "NUL";
+  _setmode(_fileno(stdin), _O_BINARY);
+  _setmode(_fileno(stdout), _O_BINARY);
+#endif
 
   if (argc > 2)
     {

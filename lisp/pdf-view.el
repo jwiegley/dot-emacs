@@ -611,7 +611,7 @@ at the top edge of the page moves to the previous page."
 (defun pdf-view-goto-label (label)
   "Goto the page corresponding to LABEL.
 
-Usually the label of a document's page is the same as it's
+Usually the label of a document's page is the same as its
 displayed page number."
   (interactive
    (list (let ((labels (pdf-info-pagelabels)))
@@ -927,12 +927,12 @@ If WINDOW is t, redisplay pages in all windows."
          (setq scale height-scale))
         (t
          (setq scale width-scale))))
-    (setq width (floor (* (car pagesize) scale))
-          height (floor (* (cdr pagesize) scale)))
-    (when (> width (max 1 (or pdf-view-max-image-width width)))
-      (setq width pdf-view-max-image-width
-            height (* height (/ (float pdf-view-max-image-width) width))))
-    (cons (max 1 width) (max 1 height))))
+    (let ((width (floor (* (car pagesize) scale)))
+	  (height (floor (* (cdr pagesize) scale))))
+      (when (> width (max 1 (or pdf-view-max-image-width width)))
+	(setq width pdf-view-max-image-width
+	      height (* height (/ (float pdf-view-max-image-width) width))))
+      (cons (max 1 width) (max 1 height)))))
 
 (defun pdf-view-text-regions-hotspots-function (page size)
   "Return a list of hotspots for text regions on PAGE using SIZE.
@@ -1077,16 +1077,16 @@ Deactivate the region if DEACTIVATE-P is non-nil."
     (pdf-view-redisplay t)))
 
 (defun pdf-view-mouse-set-region (event &optional allow-extend-p
-                                        render-rectangle-p)
+                                        rectangle-p)
   "Selects a region of text using the mouse.
 
 Allow for stacking of regions, if ALLOW-EXTEND-P is non-nil.
-Highlight the region with a rectangle if RENDER-RECTANGLE-P
-is non-nil, otherwise highlight text only.
+
+Create a rectangular region, if RECTANGLE-P is non-nil.
 
 Stores the region in `pdf-view-active-region'."
   (interactive "@e")
-  (setq pdf-view--have-rectangle-region render-rectangle-p)
+  (setq pdf-view--have-rectangle-region rectangle-p)
   (unless (and (eventp event)
                (mouse-event-p event))
     (signal 'wrong-type-argument (list 'mouse-event-p event)))
@@ -1146,15 +1146,18 @@ Stores the region in `pdf-view-active-region'."
                                                 (+ (car begin) (car dxy))))
                                     (max 0 (min (cdr size)
                                                 (+ (cdr begin) (cdr dxy)))))))))
-                (let ((iregion (list (min (car begin) (car end))
-                                     (min (cdr begin) (cdr end))
-                                     (max (car begin) (car end))
-                                     (max (cdr begin) (cdr end)))))
+                (let ((iregion (if rectangle-p
+				   (list (min (car begin) (car end))
+					 (min (cdr begin) (cdr end))
+					 (max (car begin) (car end))
+					 (max (cdr begin) (cdr end)))
+				 (list (car begin) (cdr begin)
+				       (car end) (cdr end)))))
                   (setq region
                         (pdf-util-scale-pixel-to-relative iregion))
                   (pdf-view-display-region
                    (cons region pdf-view-active-region)
-                   render-rectangle-p)
+                   rectangle-p)
                   (pdf-util-scroll-to-edges iregion)))))
       (setq pdf-view-active-region
             (append pdf-view-active-region
