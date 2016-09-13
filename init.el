@@ -1898,18 +1898,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                             "Hoogle query: ")
                           nil nil def)
              current-prefix-arg)))
-    (unless (and hoogle-server-process
-                 (process-live-p hoogle-server-process))
-      (message "Starting local Hoogle server on port 8687...")
-      (with-current-buffer (get-buffer-create " *hoogle-web*")
-        (cd temporary-file-directory)
-        (setq hoogle-server-process
-              (start-process "hoogle-web" (current-buffer) "hoogle"
-                             "server" "--local" "--port=8687")))
-      (sleep-for 0 500)
-      (message "Starting local Hoogle server on port 8687...done"))
+    ;; (unless (and hoogle-server-process
+    ;;              (process-live-p hoogle-server-process))
+    ;;   (message "Starting local Hoogle server on port 8687...")
+    ;;   (with-current-buffer (get-buffer-create " *hoogle-web*")
+    ;;     (cd temporary-file-directory)
+    ;;     (setq hoogle-server-process
+    ;;           ;; (start-process "hoogle-web" (current-buffer) "hoogle"
+    ;;           ;;                "server" "--local" "--port=8687")
+    ;;           (start-process "hoogle-web" (current-buffer) "docker"
+    ;;                          "run" "-p" "8687:8687" "-ti" "jwiegley/hoogle-local")))
+    ;;   (sleep-for 2 0)
+    ;;   (with-current-buffer (get-buffer-create " *hoogle-ssh*")
+    ;;     (start-process "hoogle-ssh" (current-buffer) "docker-machine"
+    ;;                    "ssh" "default" "-NT" "-L" "8687:127.0.0.1:8687"))
+    ;;   (sleep-for 2 0)
+    ;;   (message "Starting local Hoogle server on port 8687...done"))
     (browse-url
-     (format "http://localhost:8687/?hoogle=%s"
+     (format "http://127.0.0.1:8687/?hoogle=%s"
              (replace-regexp-in-string
               " " "+" (replace-regexp-in-string "\\+" "%2B" query)))))
 
@@ -2019,8 +2025,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                       (regexp . ,(cdr x))
-                       (modes quote (haskell-mode literate-haskell-mode))))
+                            (regexp . ,(cdr x))
+                            (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -3287,7 +3293,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (holes-mode -1)
        (whitespace-mode 1)
        ;; (ggtags-mode 1)
-       ;; (set-input-method "Agda")
+       (set-input-method "Agda")
        ;; (proof-unicode-tokens-enable 1)
        (add-hook 'proof-shell-extend-queue-hook
                  (lambda () (set-window-dedicated-p (selected-window) t)))

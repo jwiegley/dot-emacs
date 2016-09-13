@@ -184,6 +184,12 @@
  '(after-save-hook
    (quote
     (executable-make-buffer-file-executable-if-script-p)))
+ '(agda-input-tweak-all
+   (quote
+    (agda-input-compose
+     (agda-input-prepend "^")
+     (agda-input-nonempty))))
+ '(agda-input-user-translations (quote (("^" "^"))))
  '(agda2-include-dirs
    (quote
     ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
@@ -1075,7 +1081,7 @@
  '(wg-query-for-save-on-emacs-exit nil)
  '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(whitespace-auto-cleanup t t)
- '(whitespace-line-column 80)
+ '(whitespace-line-column 95)
  '(whitespace-rescan-timer-time nil t)
  '(whitespace-silent t t)
  '(whitespace-style (quote (face trailing lines space-before-tab empty)))
