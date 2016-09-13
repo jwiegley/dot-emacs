@@ -4,11 +4,11 @@
 ;; Description: Bookmark highlighting for Bookmark+.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2010-2015, Drew Adams, all rights reserved.
+;; Copyright (C) 2010-2016, Drew Adams, all rights reserved.
 ;; Created: Wed Jun 23 07:49:32 2010 (-0700)
-;; Last-Updated: Thu Jan  1 10:24:58 2015 (-0800)
+;; Last-Updated: Sat Jun 18 16:17:37 2016 (-0700)
 ;;           By: dradams
-;;     Update #: 890
+;;     Update #: 908
 ;; URL: http://www.emacswiki.org/bookmark+-lit.el
 ;; Doc URL: http://www.emacswiki.org/BookmarkPlus
 ;; Keywords: bookmarks, highlighting, bookmark+
@@ -50,7 +50,7 @@
 ;;       Web'.
 ;;
 ;;    2. From the Emacs-Wiki Web site:
-;;       http://www.emacswiki.org/cgi-bin/wiki/BookmarkPlus.
+;;       http://www.emacswiki.org/BookmarkPlus.
 ;;
 ;;    3. From the Bookmark+ group customization buffer:
 ;;       `M-x customize-group bookmark-plus', then click link
@@ -90,7 +90,7 @@
 ;;
 ;;    `bmkp-bmenu-light', `bmkp-bmenu-light-marked',
 ;;    `bmkp-bmenu-set-lighting', `bmkp-bmenu-set-lighting-for-marked',
-;;    `bmkp-bmenu-show-only-lighted', `bmkp-bmenu-unlight',
+;;    `bmkp-bmenu-show-only-lighted-bookmarks', `bmkp-bmenu-unlight',
 ;;    `bmkp-bmenu-unlight-marked', `bmkp-bookmarks-lighted-at-point',
 ;;    `bmkp-cycle-lighted-this-buffer',
 ;;    `bmkp-cycle-lighted-this-buffer-other-window',
@@ -182,11 +182,9 @@
 (eval-when-compile (require 'cl)) ;; case (plus, for Emacs 20: push)
 
 (require 'bookmark)
-;; bookmark-alist, bookmark-bmenu-bookmark, bookmark-completing-read,
-;; bookmark-get-bookmark, bookmark-get-position,
-;; bookmark-handle-bookmark, bookmark-maybe-load-default-file,
-;; bookmark-name-from-full-record, bookmark-name-from-record, bookmark-prop-get,
-;; bookmark-prop-set
+;; bookmark-alist, bookmark-bmenu-bookmark, bookmark-completing-read, bookmark-get-bookmark,
+;; bookmark-get-position, bookmark-handle-bookmark, bookmark-maybe-load-default-file,
+;; bookmark-name-from-full-record, bookmark-name-from-record, bookmark-prop-get, bookmark-prop-set
 
 
 ;; Some general Renamings.
@@ -203,6 +201,14 @@
 ;;
 (defalias 'bmkp-bookmark-data-from-record 'bookmark-get-bookmark-record)
 (defalias 'bmkp-bookmark-name-from-record 'bookmark-name-from-full-record)
+
+
+(eval-when-compile
+ (or (condition-case nil
+         (load-library "bookmark+-mac") ; Use load-library to ensure latest .elc.
+       (error nil))
+     (require 'bookmark+-mac)))         ; Require, so can load separately if not on `load-path'.
+;; bmkp-define-show-only-command
 
 
 ;; (eval-when-compile (require 'bookmark+-bmu))
@@ -325,18 +331,18 @@ will be the buffer before jumping."
 (defcustom bmkp-light-priorities '((bmkp-autonamed-overlays        . 160)
                                    (bmkp-non-autonamed-overlays    . 150))
   "*Priorities of bookmark highlighting overlay types.
-As an idea, `ediff' uses 100+, `isearch' uses 1001."
+As an idea, `isearch' uses 1000 and 1001."
   :group 'bookmark-plus :type '(alist :key-type symbol :value-type integer))
 
-;; Not used for Emacs 20-21.
-(when (fboundp 'fringe-columns)
+;; Not used for Emacs 20-21 or Emacs built without fringe support.
+(when (and (fboundp 'fringe-columns)  (boundp 'fringe-bitmaps))
   (defcustom bmkp-light-left-fringe-bitmap 'left-triangle
     "*Symbol for the left fringe bitmap to use to highlight a bookmark.
 This option is not used for Emacs versions before Emacs 22."
     :type (cons 'choice (mapcar (lambda (bb) (list 'const bb)) fringe-bitmaps))
     :group 'bookmark-plus)
 
-  ;; Not used for Emacs 20-21.
+  ;; Not used for Emacs 20-21 or Emacs built without fringe support.
   (defcustom bmkp-light-right-fringe-bitmap 'right-triangle
     "*Symbol for the right fringe bitmap to use to highlight a bookmark.
 This option is not used for Emacs versions before Emacs 22."
@@ -396,18 +402,9 @@ This option is not used for Emacs versions before Emacs 22."
 ;;(@* "Menu-List (`*-bmenu-*') Commands")
 ;;  *** Menu-List (`*-bmenu-*') Commands ***
 
-;;;###autoload (autoload 'bmkp-bmenu-show-only-lighted "bookmark+")
-(defun bmkp-bmenu-show-only-lighted () ; `H S' in bookmark list
-  "Display a list of highlighted bookmarks (only)."
-  (interactive)
-  (bmkp-bmenu-barf-if-not-in-menu-list)
-  (setq bmkp-bmenu-filter-function  'bmkp-lighted-alist-only
-        bmkp-bmenu-title            "Highlighted Bookmarks")
-  (let ((bookmark-alist  (funcall bmkp-bmenu-filter-function)))
-    (setq bmkp-latest-bookmark-alist  bookmark-alist)
-    (bookmark-bmenu-list 'filteredp))
-  (when (interactive-p)
-    (bmkp-msg-about-sort-order (bmkp-current-sort-order) "Only highlighted bookmarks are shown")))
+;;;###autoload (autoload 'bmkp-bmenu-show-only-lighted-bookmarks "bookmark+")
+(bmkp-define-show-only-command lighted "Display (only) the highlighted bookmarks." ; `H S' in bookmark list
+                               bmkp-lighted-alist-only)
 
 ;;;###autoload (autoload 'bmkp-bmenu-light "bookmark+")
 (defun bmkp-bmenu-light ()              ; `H H' in bookmark list
@@ -473,12 +470,11 @@ You are prompted for the highlight style, face, and condition (when)."
         (curr-bmk  (bookmark-bmenu-bookmark)))
     (unless marked (error "No marked bookmarks"))
     (dolist (bmk  marked)
-      (if (or face  style  when)
-          (bookmark-prop-set bmk 'lighting
-                             `(,@(and face   (not (eq face 'auto))   `(:face ,face))
-                               ,@(and style  (not (eq style 'none))  `(:style ,style))
-                               ,@(and when   (not (eq when 'auto))   `(:when ,when))))
-        (bookmark-prop-set bmk 'lighting nil)))
+      (bookmark-prop-set bmk 'lighting (if (or face  style  when)
+                                           `(,@(and face   (not (eq face 'auto))   `(:face ,face))
+                                             ,@(and style  (not (eq style 'none))  `(:style ,style))
+                                             ,@(and when   (not (eq when 'auto))   `(:when ,when)))
+                                         ())))
     (when (get-buffer-create "*Bookmark List*") (bmkp-refresh-menu-list curr-bmk)))
   (when msgp (message "Setting highlighting...done")))
 
@@ -691,12 +687,11 @@ Non-nil LIGHT-NOW-P means apply the highlighting now."
               (and bmk-when   (format "%S" bmk-when)))
              (list 'MSGP (not current-prefix-arg)))))
   (when msgp (message "Setting highlighting..."))
-  (if (or face  style  when)
-      (bookmark-prop-set bookmark-name
-                         'lighting `(,@(and face   (not (eq face 'auto))   `(:face ,face))
-                                     ,@(and style  (not (eq style 'none))  `(:style ,style))
-                                     ,@(and when   (not (eq when 'auto))   `(:when ,when))))
-    (bookmark-prop-set bookmark-name 'lighting nil))
+  (bookmark-prop-set bookmark-name 'lighting (if (or face  style  when)
+                                                 `(,@(and face   (not (eq face 'auto))   `(:face ,face))
+                                                   ,@(and style  (not (eq style 'none))  `(:style ,style))
+                                                   ,@(and when   (not (eq when 'auto))   `(:when ,when)))
+                                               ()))
   (when (get-buffer-create "*Bookmark List*") (bmkp-refresh-menu-list bookmark-name))
   (when msgp (message "Setting highlighting...done"))
   (when light-now-p (bmkp-light-bookmark bookmark-name nil nil msgp))) ; This msg is more informative.
