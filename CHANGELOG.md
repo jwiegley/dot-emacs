@@ -2,10 +2,29 @@
 
 ## master (unreleased)
 
+### New Features
+
+* Consider Ensime configuration file as root marker, `.ensime`.
+
+### Changes
+
+* Ignore backup files in `projectile-get-other-files`.
+* Ignore Ensime cache directory, `.ensime_cache`.
+
+### Bugs fixed
+
+* [#1024](https://github.com/bbatsov/projectile/issues/1024): Do not cache ignored project files.
+* [#1022](https://github.com/bbatsov/projectile/issues/1022): Scan for Fossil's checkout DB, not its config DB.
+* [#1007](https://github.com/bbatsov/projectile/issues/1007): Make use of `projectile-go-function`.
+
+## 0.14.0 (2016-07-08)
+
 ### New features
 
+* Add [elixir](http://elixir-lang.org) project type.
 * Add [emacs-cask](https://github.com/cask/cask) project type.
 * Add [boot-clj](https://github.com/boot-clj/boot) project type.
+* Add [racket](http://racket-lang.org) project type.
 * Add support for projects using gradlew script.
 * Prefer Haskell stack projects over cabal projects.
 * Add ability to use elisp functions for test, compile and run commands.
@@ -23,11 +42,13 @@
 * New command `projectile-run-eshell` (<kbd>C-c p x e</kbd>).
 * New command `projectile-run-term` (<kbd>C-c p x t</kbd>).
 * Let user unignore files in `.projectile` with the ! prefix.
+* Add a command to add all projects in a directory to the cache (`projectile-discover-projects-in-directory`).
 
 ### Changes
 
 * Prefer ag's internal .gitignore parsing.
-* Always use external find-tag implementations.
+* Added variable to control use of external find-tag implementations.
+* Specify `--with-keep.source` argument when installing R projects
 
 ### Bugs fixed
 
@@ -38,6 +59,7 @@
 * [#576](https://github.com/bbatsov/projectile/issues/576): `projectile-replace` stomps regular expressions.
 * [#957](https://github.com/bbatsov/projectile/pull/957): When opening a specified file from the terminal, do not error inside of `projectile-cache-current-file`.
 * [#984](https://github.com/bbatsov/projectile/pull/984): Error when a project is a symlink that changes target.
+* [#1013](https://github.com/bbatsov/projectile/issues/1013): projectile-project-buffer-p may return incorrect result on Windows.
 
 ## 0.13.0 (2015-10-21)
 
