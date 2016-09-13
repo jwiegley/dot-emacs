@@ -15,7 +15,8 @@ perspective only its buffers are available by default.
 
 It's recommended that you install perspective.el from [Marmalade][] using `M-x
 package-install`. Alternately, you may put it in your load path and run
-`(require 'perspective)`.
+`(require 'perspective)`.  Users of Debian 9 or later or Ubuntu 16.04
+or later may simply `apt-get install elpa-perspective`.
 
 [Marmalade]: http://marmalade-repo.org/
 
@@ -30,7 +31,7 @@ Commands are all prefixed by `C-x x`. Here are the main commands:
 - `k`  --  `persp-remove-buffer`: Query a buffer to remove from current perspective
 - `c`  --  `persp-kill` : Query a perspective to kill
 - `r`  --  `persp-rename`: Rename current perspective
-- `a`  --  `persp-add-buffer`: Querry an open buffer to add to current perspective
+- `a`  --  `persp-add-buffer`: Query an open buffer to add to current perspective
 - `A`  --  `persp-set-buffer`: Add buffer to current perspective and remove it from all others
 - `i`  --  `persp-import`: Import a given perspective from another frame.
 - `n`, `<right>`  --  `persp-next` : Switch to next perspective
