@@ -143,7 +143,7 @@
   "^\\(:[^: ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
 
 (defconst restclient-file-regexp
-  "^\\s-*<[ \t]*\\(.*\\)")
+  "^<[ \t]*\\([^<>]+\\)[ \t]*$")
 
 (defconst restclient-content-type-regexp
   "^Content-[Tt]ype: \\(\\w+\\)/\\(?:[^\\+\r\n]*\\+\\)*\\([^;\r\n]+\\)")
@@ -154,13 +154,12 @@
 ;; and password.
 (defadvice url-http-handle-authentication (around restclient-fix)
   (if restclient-within-call
-      (setq success t ad-return-value t)
+      (setq ad-return-value t)
     ad-do-it))
 (ad-activate 'url-http-handle-authentication)
 
 (defadvice url-cache-extract (around restclient-fix-2)
-  (if restclient-within-call
-      (setq success t)
+  (unless restclient-within-call
     ad-do-it))
 (ad-activate 'url-cache-extract)
 
@@ -355,7 +354,8 @@ The buffer contains the raw HTTP response sent by the server."
   (save-excursion
     (if (re-search-forward restclient-comment-start-regexp (point-max) t)
         (max (- (point-at-bol) 1) 1)
-      (point-max))))
+      (progn (goto-char (point-max))
+             (if (looking-at "^$") (- (point) 1) (point))))))
 
 (defun restclient-replace-all-in-string (replacements string)
   (if replacements
@@ -368,7 +368,7 @@ The buffer contains the raw HTTP response sent by the server."
                                                   (lambda (key)
                                                     (setq continue t)
                                                     (cdr (assoc key replacements)))
-                                                  current nil t)))
+                                                  current t t)))
         current)
     string))
 
@@ -412,7 +412,7 @@ The buffer contains the raw HTTP response sent by the server."
     (buffer-string)))
 
 (defun restclient-parse-body (entity vars)
-  (if (string-match restclient-file-regexp entity)
+  (if (= 0 (or (string-match restclient-file-regexp entity) 1))
       (restclient-read-file (match-string 1 entity))
     (restclient-replace-all-in-string vars entity)))
   
@@ -506,6 +506,11 @@ Optional argument STAY-IN-WINDOW do not move focus to response buffer if t."
   (backward-char 1)
   (setq deactivate-mark nil))
 
+(defun restclient-narrow-to-current ()
+  "Narrow to region of current request"
+  (interactive)
+  (narrow-to-region (restclient-current-min) (restclient-current-max)))
+
 (defconst restclient-mode-keywords
   (list (list restclient-method-url-regexp '(1 'restclient-method-face) '(2 'restclient-url-face))
         (list restclient-svar-regexp '(1 'restclient-variable-name-face) '(2 'restclient-variable-string-face))
@@ -532,6 +537,7 @@ Optional argument STAY-IN-WINDOW do not move focus to response buffer if t."
   (local-set-key (kbd "C-c C-p") 'restclient-jump-prev)
   (local-set-key (kbd "C-c C-.") 'restclient-mark-current)
   (local-set-key (kbd "C-c C-u") 'restclient-copy-curl-command)
+  (local-set-key (kbd "C-c n n") 'restclient-narrow-to-current)
   (set (make-local-variable 'comment-start) "# ")
   (set (make-local-variable 'comment-start-skip) "# *")
   (set (make-local-variable 'comment-column) 48)
