@@ -1,119 +1,295 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2015 Sebastian Wiesner <swiesner@lunaryorn.com>
+# Copyright (C) 2016 Sebastian Wiesner and Flycheck contributors
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# This file is not part of GNU Emacs.
 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import os
 import sys
+import os
+from pathlib import Path
+from docutils import nodes
+from docutils.statemachine import ViewList
+from docutils.transforms import Transform
+from docutils.parsers.rst import Directive, directives
+from sphinx import addnodes
+from sphinx.util.nodes import set_source_info, process_index_entry
 
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(SOURCE_DIR)
+sys.path.append(str(Path(__file__).parent))
 
-# Whether we are building on ReadTheDocs or not
 ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
 
-needs_sphinx = '1.2'
+needs_sphinx = '1.3'
+extensions = [
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.extlinks',
+    'sphinx.ext.todo',
+    # Domain for Emacs Lisp
+    'elisp',
+    # Cross-references to info nodes
+    'info'
+]
 
-extensions = ['sphinx.ext.extlinks', 'sphinxcontrib.emacs',
-              'flycheck', 'issues']
-default_role = 'code'
-primary_domain = 'el'
+# Project metadata
+project = 'Flycheck'
+copyright = ' 2014-2016, Sebastian Wiesner and Flycheck contributors'
+author = 'Sebastian Wiesner'
 
+
+def read_version():
+    """Extract version number from ``flycheck.el`` and return it as string."""
+    version_pattern = re.compile(r'^;;\s*Version:\s+(\d.+)$', re.MULTILINE)
+    flycheck = Path(__file__).resolve().parent.parent.joinpath('flycheck.el')
+    with flycheck.open(encoding='utf-8') as source:
+        match = version_pattern.search(source.read())
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError('Failed to parse Flycheck version from '
+                             'Version: of flycheck.el')
+
+
+def read_minimum_emacs_version():
+    """Extract minimum Emacs version from ``flycheck.el``."""
+    version_pattern = re.compile(
+        r'^;; Package-Requires:.*\(emacs\s*"([^"]+)"\).*$', re.MULTILINE)
+    flycheck = Path(__file__).resolve().parent.parent.joinpath('flycheck.el')
+    with flycheck.open(encoding='utf-8') as source:
+        match = version_pattern.search(source.read())
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError('Vailed to parse minimum Emacs version from '
+                             'Package-Requires of flycheck.el!')
+
+
+release = read_version()
+version = '.'.join(release.split('.')[:2])
+
+# Source settings
 source_suffix = '.rst'
 master_doc = 'index'
 
-def flycheck_version():
-    version_re = re.compile('^;; Version: (?P<version>.*)$')
-    flycheck = os.path.join(SOURCE_DIR, os.pardir, 'flycheck.el')
-    with open(flycheck) as source:
-        for line in source:
-            match = version_re.match(line)
-            if match:
-                return match.group('version')
-    raise ValueError('Failed to extract the version')
+rst_prolog = """\
+.. role:: elisp(code)
+   :language: elisp
 
-project = u'Flycheck'
-copyright = u'2014-2015 Sebastian Wiesner'
-release = flycheck_version()
-version = release.split('-')[0]
+.. |min-emacs| replace:: {emacs_version}
+""".format(emacs_version=read_minimum_emacs_version())
 
-pygments_style = 'emacs'
+# Build settings
+exclude_patterns = ['_build']
+default_role = 'any'
+primary_domain = 'el'
+templates_path = ['_templates']
 
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = 'sphinx'
+
+# Warn about all undefined references, but exclude references to built-in
+# symbols which we don't document here.
+# TODO: Resolve built-in symbols to the Emacs Lisp references?
 nitpicky = True
-# Do not warn about missing references to built-in Emacs functions
-nitpick_ignore =[
-    ('el:function', 'symbolp'),
-    ('el:function', 'stringp'),
-    ('el:function', 'numberp'),
-    ('el:function', 'integerp'),
-    ('el:function', 'booleanp'),
-    ('el:option', 'icomplete-mode'),
-    ('el:macro', 'ert-deftest'),
-    # These are markup artifacts
-    ('el:variable', 'flycheck-SYMBOL-executable'),
+nitpick_ignore = [
+    ('any', 'default-directory'),
+    ('any', 'package-initialize'),
+    ('any', 'package-archives'),
+    ('any', 'user-init-file'),
+    ('any', 'user-emacs-directory'),
 ]
 
-linkcheck_ignore = [
-    r'^https://help.github.com/.*$', # Gives 404 for some strange reason
-    r'^http://www.erlang.org/$',     # Gives 500 during linkcheck
-    # We know that our issue references are correct, so don't waste time on
-    # checking them
-    r'^https://github.com/flycheck/flycheck/issues/.*$',
-]
+# HTML settings
+html_theme = 'alabaster'
+html_theme_options = {
+    'logo': 'logo.png',
+    'logo_name': False,
+    'description': 'Syntax checking for GNU Emacs',
+    'github_user': 'flycheck',
+    'github_repo': 'flycheck',
+    'github_type': 'star',
+    'github_banner': True,
+    'travis_button': False,
+    # Google Analytics ID for our documentation.  On ReadTheDocs it's set via
+    # the Admin interface so we'll skip it here.
+    'analytics_id': 'UA-71100672-2' if not ON_RTD else None,
+}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+    ]
+}
+html_static_path = ['_static']
+html_favicon = '_static/favicon.ico'
 
-html_title = '{0} {1}'.format(project, release)
-html_logo = 'images/logo.png'
-html_favicon = 'images/favicon.ico'
+# Ignore localhost when checking links
+linkcheck_ignore = [r'http://localhost:\d+/?']
 
-texinfo_documents = [
-  ('index', 'flycheck', 'Flycheck', u'Sebastian Wiesner',
-   'flycheck', 'On the fly syntax checking for GNU Emacs',
-   'Emacs', True),
-]
+# Cross-reference remote Sphinx sites
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3.5', None)
+}
 
-# Restore standard formatting of emphasis, as by
-# http://sphinx-doc.org/faq.html#notes
-texinfo_elements = {
-    'preamble': """
-@definfoenclose strong,*,*
-@definfoenclose emph,_,_
-""",
-    'copying': """\
-This manual is for Flycheck version {release}.
+extlinks = {
+    'gh': ('https://github.com/%s', ''),
+    'flyc': ('https://github.com/flycheck/%s', '')
+}
 
-Copyright @copyright{{}} {copyright}
+# While still have work to do :)
+# FIXME: Remove when the old Texinfo manual is completed ported
+todo_include_todos = True
 
-@quotation
-Permission is granted to copy, distribute and/or modify this documentation under
-the terms of the GNU Free Documentation License, Version 1.3 or any later
-version published by the Free Software Foundation; with no Invariant Sections,
-no Front-Cover Texts, and no Back-Cover Texts.  A copy of the license is
-included in the section entitled ``GNU Free Documentation License.''.
 
-Alternatively, you may copy, distribute and/or modify this documentation under
-the terms of the Creative Commons Attribution-ShareAlike 4.0 International
-Public License.  A copy of the license can be obtained at
-@uref{{https://creativecommons.org/licenses/by-sa/4.0/legalcode}}.
-@end quotation
-""".format(release=release, copyright=copyright)}
+class SupportedLanguage(Directive):
 
-emacs_lisp_load_path = [os.path.abspath(os.path.join(SOURCE_DIR, os.pardir))]
+    required_arguments = 1
+    final_argument_whitespace = True
+    has_content = True
+    option_spec = {
+        'index_as': directives.unchanged
+    }
 
-info_xref = {'ert': 'http://www.gnu.org/software/emacs/manual/html_node/ert/'}
+    def run(self):
+        language = self.arguments[0]
+
+        indexed_languages = self.options.get('index_as') or language
+        index_specs = ['pair: {}; language'.format(l)
+                       for l in indexed_languages.splitlines()]
+
+        name = nodes.fully_normalize_name(language)
+        target = 'language-{}'.format(name)
+        targetnode = nodes.target('', '', ids=[target])
+        self.state.document.note_explicit_target(targetnode)
+
+        indexnode = addnodes.index()
+        indexnode['entries'] = []
+        indexnode['inline'] = False
+        set_source_info(self, indexnode)
+        for spec in index_specs:
+            indexnode['entries'].extend(process_index_entry(spec, target))
+
+        sectionnode = nodes.section()
+        sectionnode['names'].append(name)
+
+        title, messages = self.state.inline_text(language, self.lineno)
+        titlenode = nodes.title(language, '', *title)
+
+        sectionnode += titlenode
+        sectionnode += messages
+        self.state.document.note_implicit_target(sectionnode, sectionnode)
+
+        self.state.nested_parse(self.content, self.content_offset, sectionnode)
+
+        return [indexnode, targetnode, sectionnode]
+
+
+class SyntaxCheckerConfigurationFile(Directive):
+
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        option = self.arguments[0]
+
+        wrapper = nodes.paragraph()
+        docname = self.state.document.settings.env.docname
+        template = ViewList("""\
+.. index:: single: Configuration file; {0}
+
+.. el:defcustom:: {0}
+
+   Configuration file for this syntax checker.  See
+   :ref:`flycheck-config-files`.
+""".format(option).splitlines(), docname)
+        self.state.nested_parse(template, self.content_offset, wrapper)
+
+        return wrapper.children.copy()
+
+
+class IssueReferences(Transform):
+
+    ISSUE_PATTERN = re.compile(r'\[GH-(\d+)\]')
+    ISSUE_URL_TEMPLATE = 'https://github.com/flycheck/flycheck/issues/{}'
+
+    default_priority = 999
+
+    def apply(self):
+        docname = self.document.settings.env.docname
+        if docname != 'changes':
+            # Only transform issue references in changelo
+            return
+
+        for node in self.document.traverse(nodes.Text):
+            parent = node.parent
+            new_nodes = []
+            last_issue_ref_end = 0
+            text = str(node)
+            for match in self.ISSUE_PATTERN.finditer(text):
+                # Extract the text between the last issue reference and the
+                # current issue reference and put it into a new text node
+                head = text[last_issue_ref_end:match.start()]
+                if head:
+                    new_nodes.append(nodes.Text(head))
+                # Adjust the position of the last issue reference in the
+                # text
+                last_issue_ref_end = match.end()
+                # Extract the issue text and the issue numer
+                issuetext = match.group(0)
+                issue_id = match.group(1)
+                # Turn the issue into a proper reference
+                refnode = nodes.reference()
+                refnode['refuri'] = self.ISSUE_URL_TEMPLATE.format(issue_id)
+                refnode.append(nodes.inline(
+                    issuetext, issuetext, classes=['xref', 'issue']))
+                new_nodes.append(refnode)
+
+            # No issue references were found, move on to the next node
+            if not new_nodes:
+                continue
+            # Extract the remaining text after the last issue reference
+            tail = text[last_issue_ref_end:]
+            if tail:
+                new_nodes.append(nodes.Text(tail))
+            parent.replace(node, new_nodes)
+
+
+def build_offline_html(app):
+    from sphinx.builders.html import StandaloneHTMLBuilder
+    build_standalone = isinstance(app.builder, StandaloneHTMLBuilder)
+    if app.config.flycheck_offline_html and build_standalone:
+        app.info('Building offline documentation without external resources!')
+        app.builder.theme_options['github_banner'] = 'false'
+        app.builder.theme_options['github_button'] = 'false'
+        app.builder.theme_options['analytics_id'] = None
+
+
+def add_offline_to_context(app, _pagename, _templatename, context, _doctree):
+    # Expose offline setting in HTML context
+    context['flycheck_offline_html'] = app.config.flycheck_offline_html
+
+
+def setup(app):
+    app.add_object_type('syntax-checker', 'checker',
+                        'pair: %s; Syntax checker')
+    app.add_directive('supported-language', SupportedLanguage)
+    app.add_directive('syntax-checker-config-file',
+                      SyntaxCheckerConfigurationFile)
+    app.add_transform(IssueReferences)
+    # Build offline HTML that loads no external resources, for use in 3rd party
+    # packages, see https://github.com/flycheck/flycheck/issues/999
+    app.add_config_value('flycheck_offline_html', False, 'html')
+    app.connect('builder-inited', build_offline_html)
+    app.connect('html-page-context', add_offline_to_context)
