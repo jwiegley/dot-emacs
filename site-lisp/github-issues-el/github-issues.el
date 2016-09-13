@@ -1,4 +1,4 @@
-;;; github-issues.el --- Emacs utility functions and modes for managing GitHub projects' issues
+;;; github-issues.el --- Functions and modes for managing GitHub projects' issues
 
 ;; Copyright (C) 2012 Leandro M. López (inkel) <inkel.ar@gmail.com>
 
@@ -6,6 +6,7 @@
 ;; Created: April 19, 2012
 ;; Version: 0.0.1
 ;; Keywords: GitHub Issues
+;; Package-Requires: ((emacs "24"))
 ;; URL: http://inkel.github.com/github-issues.el/
 
 ;; This file is not part of GNU Emacs.
@@ -35,18 +36,26 @@
 
 ;; For more information, please refer to <http://unlicense.org/>
 
+;;; Commentary:
+
 ;;; Installation
 
-;; Make sure to place `github-issues.el` somewhere in the load-path and add the following lines to your `.emacs` file:
+;; Make sure to place `github-issues.el` somewhere in the load-path
+;; and add the following lines to your `.emacs` file:
 ;;
 ;;    (require 'github-issues)
 ;;
 
+;;; Code:
+
 (require 'tabulated-list)
 (require 'url)
 (require 'font-lock)
+(require 'json)
+(require 'url-http)
+(eval-when-compile (require 'cl)) ; for flet
 
-(defun github-parse-response (buffer)
+(defun github-issues-parse-response (buffer)
   "Parses the JSON response from a GitHub API call."
   (let ((json-object-type 'plist))
     (unwind-protect
@@ -58,15 +67,28 @@
             (json-read)))
       (kill-buffer buffer))))
 
+(defvar github-issues-current-user nil
+  "Current github user.")
+(make-variable-buffer-local 'github-issues-current-user)
+
+(defvar github-issues-current-repo nil
+  "Current github repo.")
+(make-variable-buffer-local 'github-issues-current-repo)
+
+(defvar github-issues-current-issue nil
+  "Current github issue.")
+(make-variable-buffer-local 'github-issues-current-issue)
+
+
 (defun github-api-repository-issues (user repo)
   "Returns a list of issues in `plist` format."
   (let ((url (format "https://api.github.com/repos/%s/%s/issues" user repo)))
-    (github-parse-response (url-retrieve-synchronously url))))
+    (github-issues-parse-response (url-retrieve-synchronously url))))
 
 (defun github-api-repository-issue (user repo number)
   "Return an issue data in `plist` format."
   (let ((url (format "https://api.github.com/repos/%s/%s/issues/%s" user repo number)))
-    (github-parse-response (url-retrieve-synchronously url))))
+    (github-issues-parse-response (url-retrieve-synchronously url))))
 
 (defun github-issues-buffer (user repo)
   "Creates or return the buffer for the given user and repository."
@@ -77,16 +99,16 @@
   (get-buffer-create (format "*GitHub Issue: #%s on %s/%s*" number user repo)))
 
 (defun github-issue-entry-show (&optional button)
-  (if button
-      (let* ((issue (button-get button 'issue))
-             (user github-current-user)
-             (repo github-current-repo)
-             (buffer (github-issue-buffer user repo (plist-get issue :number))))
-        (github-issue-populate buffer issue)
-        (with-current-buffer buffer
-          (setq github-current-user user)
-          (setq github-current-repo repo)
-          (setq github-current-issue issue)))))
+  (when button
+    (let* ((issue (button-get button 'issue))
+           (user github-issues-current-user)
+           (repo github-issues-current-repo)
+           (buffer (github-issue-buffer user repo (plist-get issue :number))))
+      (github-issue-populate buffer issue)
+      (with-current-buffer buffer
+        (setq github-issues-current-user user)
+        (setq github-issues-current-repo repo)
+        (setq github-issues-current-issue issue)))))
 
 (defun github-tabulated-issue (issue)
   "Formats an issue data to populate the issue list."
@@ -144,28 +166,28 @@
                           'url (plist-get (pget :user) :html_url)
                           'action 'github--browse-url)
       (insert "\n")
-      (if (> (length (pget :labels)) 0)
-          (progn
-            (insert "Labels: ")
-            (dolist (label (mapcar 'github-issue-colorize-label (pget :labels)))
-              (insert "[" label "]"))
-            (insert "\n")))
+      (when (> (length (pget :labels)) 0)
+        (insert "Labels: ")
+        (dolist (label (mapcar 'github-issue-colorize-label (pget :labels)))
+          (insert "[" label "]"))
+        (insert "\n"))
       (let ((beg (point)))
         (insert "\n" (pget :body))
         (replace-string "" "" nil beg (point)))
       (github-issue-mode)
       (github-switch-to-buffer buffer))))
 
+;;;###autoload
 (defun github-issues (user repo)
   "Display a list of issues list for a GitHub repository."
   (interactive
    (list (read-string "GitHub username: " nil 'github-username-history t)
          (read-string "Repository: " nil 'github-repository-history t)))
-  (if (and user repo)
-      (with-current-buffer (github-issues-buffer user repo)
-        (if (boundp 'github-current-user)
-            (github-switch-to-buffer (current-buffer))
-          (github-issues-refresh user repo)))))
+  (when (and user repo)
+    (with-current-buffer (github-issues-buffer user repo)
+      (if github-issues-current-user
+          (github-switch-to-buffer (current-buffer))
+        (github-issues-refresh user repo)))))
 
 (defun github-switch-to-buffer (buffer)
   (let ((window (get-buffer-window buffer)))
@@ -176,48 +198,43 @@
 (defun github-issues-refresh (&optional user repo)
   "Refresh GitHub issues list."
   (interactive)
-  (if (not user)
-    (setq user github-current-user))
-  (if (not repo)
-    (setq repo github-current-repo))
-  (github-issues-populate (github-issues-buffer user repo)
-                          (github-api-repository-issues user repo))
-  (setq github-current-user user)
-  (setq github-current-repo repo))
+  (let ((user (or user github-issues-current-user))
+        (repo (or repo github-issues-current-repo)))
+    (github-issues-populate (github-issues-buffer user repo)
+                            (github-api-repository-issues user repo))
+    (setq github-issues-current-user user)
+    (setq github-issues-current-repo repo)))
 
 (defun github-issue-refresh (&optional user repo number)
   "Refresh GitHub issue data."
   (interactive)
-  (if (not user)
-      (setq user github-current-user))
-  (if (not repo)
-      (setq repo github-current-repo))
-  (if (not number)
-      (setq number (plist-get github-current-issue :number)))
-  (github-issue-populate (github-issue-buffer user repo number)
-                         (github-api-repository-issue user repo number))
-  (setq github-current-user user)
-  (setq github-current-repo repo)
-  (setq github-current-issue github-current-issue))
+  (let ((user (or user github-issues-current-user))
+        (repo (or repo github-issues-current-repo))
+        (number (plist-get github-issues-current-issue :number)))
+    (github-issue-populate (github-issue-buffer user repo number)
+                           (github-api-repository-issue user repo number))
+    (setq github-issues-current-user user)
+    (setq github-issues-current-repo repo)
+    (setq github-issues-current-issue github-issues-current-issue)))
 
 (defun github-issue-browse ()
   "Open the current issue in a web browser."
   (interactive)
-  (if (boundp 'github-current-issue)
-      (browse-url (plist-get github-current-issue :html_url))
+  (if github-issues-current-issue
+      (browse-url (plist-get github-issues-current-issue :html_url))
     (message "No current issue selected")))
 
 (defun github-issue-browse-author ()
   "Open the current issue's author profile in a web browser."
   (interactive)
-  (if (boundp 'github-current-issue)
+  (if github-issues-current-issue
       (browse-url (format "https://github.com/%s"
-                          (plist-get (plist-get github-current-issue :user) :login)))
+                          (plist-get (plist-get github-issues-current-issue :user) :login)))
     (message "No current issue selected")))
 
 (defvar github-issues-mode-map
-  (let ((map (make-keymap)))
-    (define-key map "\C-cr" 'github-issues-refresh)
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" 'github-issues-refresh)
     map)
   "Keymap for GitHub Issues major mode.")
 
@@ -229,25 +246,21 @@
                                ("Title" 60 github-issue-sort-by-title)])
   (setq tabulated-list-padding 2)
   (setq tabulated-list-sort-key (cons "Issue" nil))
-  (make-local-variable 'github-current-user)
-  (make-local-variable 'github-current-repo)
   (tabulated-list-init-header))
 
 (defvar github-issue-mode-map
-  (let ((map (make-keymap)))
-    (define-key map "\C-cr" 'github-issue-refresh)
-    (define-key map "\C-co" 'github-issue-browse)
-    (define-key map "\C-ca" 'github-issue-browse-author)
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" 'github-issue-refresh)
+    (define-key map "b" 'github-issue-browse)
+    (define-key map "a" 'github-issue-browse-author)
     map)
   "Keymap for GitHub Issue major mode.")
 
-(define-derived-mode github-issue-mode font-lock-mode "GitHub Issue"
+(define-derived-mode github-issue-mode special-mode "GitHub Issue"
   "Major mode for display a GitHub issue data.
 
-\\{github-issue-mode-map}"
-  (make-local-variable 'github-current-user)
-  (make-local-variable 'github-current-repo)
-  (make-local-variable 'github-current-issue)
-  (toggle-read-only t))
+\\{github-issue-mode-map}")
 
 (provide 'github-issues)
+
+;;; github-issues.el ends here
