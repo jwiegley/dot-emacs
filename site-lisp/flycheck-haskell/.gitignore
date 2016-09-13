@@ -7,4 +7,4 @@
 /dist/
 /build/
 
-/.stack-work/
+.dir-locals.el

@@ -51,7 +51,7 @@ clean-hs:
 	rm -rf $(HS_OBJS) $(HS_BUILDDIR)
 
 clean-dist :
-	rm -rf dist/
+	rm -rf $(DISTDIR)
 
 clean-deps :
 	rm -rf $(PKGDIR)

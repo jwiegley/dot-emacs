@@ -31,18 +31,21 @@ legacyFlags :: Mode -> [String]
 legacyFlags mode = [define mode "USE_COMPILER_ID"]
 
 isLegacyCabal :: Bool
-isLegacyCabal = cabalVersion < Version [1, 22] []
+isLegacyCabal = cabalVersion < Version [1,22] []
 
 getMode :: [String] -> Mode
 getMode ("hlint":_) = HLint
 getMode _ = GHC
 
 main :: IO ()
-main = do
-    args <- getArgs
-    mapM_ putStrLn (flags (getMode args))
-  where
-    flags mode =
-        if isLegacyCabal
-            then legacyFlags mode
-            else []
+main =
+  do args <- getArgs
+     mapM_ putStrLn (flags (getMode args))
+  where flags mode =
+          if isLegacyCabal
+             then legacyFlags mode
+             else []
+
+-- Local Variables:
+-- hindent-style: "chris-done"
+-- End:

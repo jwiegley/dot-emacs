@@ -1,8 +1,6 @@
-;;; flycheck-haskell.el --- Flycheck: Automatic Haskell configuration -*- lexical-binding: t; -*-
+;;; flycheck-haskell.el --- Flycheck: Cabal projects and sandboxes -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014-2016 Sebastian Wiesner <swiesner@lunaryorn.com>
-;; Copyright (C) 2016 Danny Navarro
-;; Copyright (C) 2015 Mark Karpov <markkarpov@opmbx.org>
+;; Copyright (C) 2014, 2015 Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; Copyright (C) 2015 Michael Alan Dorman <mdorman@ironicdesign.com>
 ;; Copyright (C) 2015 Alex Rozenshteyn <rpglover64@gmail.com>
 ;; Copyright (C) 2014 Gracjan Polak <gracjanpolak@gmail.com>
@@ -10,8 +8,8 @@
 ;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; URL: https://github.com/flycheck/flycheck-haskell
 ;; Keywords: tools, convenience
-;; Version: 0.9-cvs
-;; Package-Requires: ((emacs "24.3") (flycheck "0.25") (haskell-mode "13.7") (dash "2.4.0") (seq "1.11") (let-alist "1.0.1"))
+;; Version: 0.8-cvs
+;; Package-Requires: ((emacs "24.1") (flycheck "0.22") (haskell-mode "13.7") (dash "2.4.0") (let-alist "1.0.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -30,12 +28,20 @@
 
 ;;; Commentary:
 
-;; Automatically configure Flycheck for Haskell.
+;; Configure Haskell syntax checking by Flycheck.
 
 ;;;; Cabal support
 
-;; Try to find a Cabal file for the current Haskell buffer, and configure syntax
-;; checking according to the Cabal project settings.
+;; Try to find Cabal project files for Haskell buffers, and configure the
+;; Haskell syntax checkers in Flycheck according to the contents of the Cabal
+;; file:
+;;
+;; - Add all source directories to the GHC search path
+;; - Add build directories from Cabal to the GHC search path to speed up
+;;   checking and support non-Haskell modules such as hsc files
+;; - Add auto-generated files from Cabal to the GHC search path
+;; - Set the language from Cabal
+;; - Enable language extensions from Cabal
 
 ;;;; Cabal sandboxes
 
@@ -53,7 +59,6 @@
   (require 'rx)
   (require 'let-alist))
 
-(require 'seq)
 (require 'haskell-cabal)
 (require 'flycheck)
 (require 'dash)
@@ -69,7 +74,7 @@
 
 (defcustom flycheck-haskell-runghc-command
   (if (executable-find "stack")
-      '("stack" "--verbosity" "silent" "runghc" "--no-ghc-package-path" "--")
+      '("stack" "--verbosity" "silent" "runghc")
     '("runghc"))
   "Command for `runghc'.
 
@@ -105,10 +110,9 @@ Take the base command from `flycheck-haskell-runghc-command'."
 
 (defun flycheck-haskell--get-flags ()
   "Get GHC flags to run the Cabal helper."
-  (ignore-errors
-    (apply #'process-lines
-           (flycheck-haskell-runghc-command
-            (list flycheck-haskell-flags-helper)))))
+  (apply #'process-lines
+         (flycheck-haskell-runghc-command
+          (list flycheck-haskell-flags-helper))))
 
 (defun flycheck-haskell-read-cabal-configuration (cabal-file)
   "Read the Cabal configuration from CABAL-FILE."
@@ -116,12 +120,11 @@ Take the base command from `flycheck-haskell-runghc-command'."
                        (list flycheck-haskell-helper cabal-file)))
          (command (flycheck-haskell-runghc-command args)))
     (with-temp-buffer
-      (pcase (apply 'call-process (car command) nil t nil (cdr command))
-        (0 (goto-char (point-min))
-           (read (current-buffer)))
-        (retcode (message "Reading Haskell configuration failed with exit code %s and output:\n%s"
-                          retcode (buffer-string))
-                 nil)))))
+      (let ((result (apply 'call-process (car command)
+                           nil t nil (cdr command))))
+        (when (= result 0)
+          (goto-char (point-min))
+          (read (current-buffer)))))))
 
 
 ;;; Cabal configuration caching
@@ -201,7 +204,7 @@ KEY is a symbol denoting the key whose value to get.  Return
 a `(KEY . VALUE)' cons cell."
   (save-excursion
     (goto-char (point-min))
-    (-when-let (setting (haskell-cabal--get-field (symbol-name key)))
+    (-when-let (setting (haskell-cabal-get-setting (symbol-name key)))
       (cons key (substring-no-properties setting)))))
 
 (defun flycheck-haskell-parse-config-file (keys config-file)
@@ -252,18 +255,7 @@ buffer."
                 (append .extensions .languages
                         flycheck-ghc-language-extensions))
     (setq-local flycheck-ghc-args
-                (append .other-options
-                        (seq-map (apply-partially #'concat "-I")
-                                 .autogen-directories)
-                        '("-optP-include" "-optPcabal_macros.h")
-                        (cons "-hide-all-packages"
-                              (seq-mapcat (apply-partially #'list "-package")
-                                          .dependencies))
-                        flycheck-ghc-args))
-    (setq-local flycheck-hlint-args
-                (append (seq-mapcat (apply-partially #'list "--cpp-include")
-                                    .autogen-directories)
-                        '("--cpp-file" "cabal_macros.h")))))
+                (append .other-options flycheck-ghc-args))))
 
 (defun flycheck-haskell-configure ()
   "Set paths and package database for the current project."

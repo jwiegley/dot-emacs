@@ -27,7 +27,6 @@
 
 (require 'flycheck-haskell)
 
-(require 'let-alist)
 (require 'cl-lib)
 (require 'dash)
 (require 'ert)
@@ -64,6 +63,10 @@
   `(unwind-protect (progn ,@body)
      (flycheck-haskell-clear-config-cache)))
 
+(defun flycheck-haskell-compare-sets (actual expected)
+  "Compare ACTUAL and EXPECTED ignoring ordering."
+  (should (equal '() (-difference actual expected))))
+
 (defmacro flycheck-haskell-test-with-fake-file (&rest body)
   "Run BODY with a fake file buffer."
   (declare (indent 0))
@@ -75,38 +78,33 @@
 
 ;;; Cabal support
 (ert-deftest flycheck-haskell-read-cabal-configuration/has-all-extensions ()
-  (let-alist (flycheck-haskell-read-test-config)
-    (should-not (seq-difference .extensions '("OverloadedStrings"
-                                              "YouDontKnowThisOne"
-                                              "GeneralizedNewtypeDeriving")))))
+  (flycheck-haskell-compare-sets (assq 'extensions (flycheck-haskell-read-test-config))
+                                  '(extensions "OverloadedStrings"
+                                               "YouDontKnowThisOne"
+                                               "GeneralizedNewtypeDeriving")))
 
 (ert-deftest flycheck-haskell-read-cabal-configuration/has-all-languages ()
-  (let-alist (flycheck-haskell-read-test-config)
-    (should-not (seq-difference .languages '("Haskell98"
-                                             "SpamLanguage"
-                                             "Haskell2010")))))
+  (flycheck-haskell-compare-sets (assq 'languages (flycheck-haskell-read-test-config))
+                                  '(languages "Haskell98" "SpamLanguage" "Haskell2010")))
 
 (ert-deftest flycheck-haskell-read-cabal-configuration/source-dirs ()
-  (let-alist (flycheck-haskell-read-test-config)
-    (should-not (seq-difference
-                 .source-directories
-                 (seq-map (lambda (fn)
-                            (file-name-as-directory
-                             (expand-file-name fn flycheck-haskell-test-dir)))
-                          '("lib/" "." "src/"))))))
+  (let* ((builddirs '("lib/" "." "src/"))
+         (expanddir (lambda (fn)
+                      (file-name-as-directory
+                       (expand-file-name fn flycheck-haskell-test-dir)))))
+    (flycheck-haskell-compare-sets
+     (assq 'source-directories (flycheck-haskell-read-test-config))
+     (cons 'source-directories (-map expanddir builddirs)))))
 
 (ert-deftest flycheck-haskell-read-cabal-configuration/build-dirs ()
-  (let* ((builddirs '("build" "build/autogen"
-                      "build/flycheck-haskell-unknown-stuff/flycheck-haskell-unknown-stuff-tmp"
-                      "build/flycheck-haskell-test/flycheck-haskell-test-tmp")))
-    (let-alist (flycheck-haskell-read-test-config)
-      (dolist (dir builddirs)
-        (let ((stack-re (format "\\.stack-work/.*/%s\\'" (regexp-quote dir)))
-              (cabal-re (format "dist/%s\\'" (regexp-quote dir))))
-          (should (seq-find (apply-partially #'string-match-p stack-re)
-                            .build-directories))
-          (should (seq-find (apply-partially #'string-match-p cabal-re)
-                            .build-directories)))))))
+  (let* ((distdir (expand-file-name "dist/" flycheck-haskell-test-dir))
+         (expanddir (lambda (fn) (expand-file-name fn distdir)))
+         (builddirs '("build" "build/autogen"
+                 "build/flycheck-haskell-unknown-stuff/flycheck-haskell-unknown-stuff-tmp"
+                 "build/flycheck-haskell-test/flycheck-haskell-test-tmp")))
+    (flycheck-haskell-compare-sets
+     (assq 'build-directories (flycheck-haskell-read-test-config))
+     (cons 'build-directories (-map expanddir builddirs)))))
 
 (ert-deftest flycheck-haskell-get-configuration/no-cache-entry ()
   (let* ((cabal-file flycheck-haskell-test-cabal-file))
@@ -214,44 +212,31 @@
 (ert-deftest flycheck-haskell-process-configuration/language-extensions ()
   (with-temp-buffer                     ; To scope the variables
     (flycheck-haskell-process-configuration (flycheck-haskell-read-test-config))
-    (should-not (seq-difference flycheck-ghc-language-extensions
-                                '("OverloadedStrings"
-                                  "YouDontKnowThisOne"
-                                  "GeneralizedNewtypeDeriving"
-                                  "Haskell98"
-                                  "SpamLanguage"
-                                  "Haskell2010")))
+    (flycheck-haskell-compare-sets
+     flycheck-ghc-language-extensions
+     '("OverloadedStrings"
+       "YouDontKnowThisOne"
+       "GeneralizedNewtypeDeriving"
+       "Haskell98"
+       "SpamLanguage"
+       "Haskell2010"))
     (should (local-variable-p 'flycheck-ghc-language-extensions))))
 
 (ert-deftest flycheck-haskell-process-configuration/search-path ()
-  (let* ((config (flycheck-haskell-read-test-config))
-         (sourcedirs (seq-map
-                      (lambda (d)
-                        (file-name-as-directory
-                         (expand-file-name d flycheck-haskell-test-dir)))
-                      '("lib/" "." "src/"))))
-    (let-alist config
-      (with-temp-buffer
-        (flycheck-haskell-process-configuration config)
-        (should (local-variable-p 'flycheck-ghc-search-path))
-        (should (cl-subsetp sourcedirs flycheck-ghc-search-path :test #'equal))
-        (should (cl-subsetp .build-directories flycheck-ghc-search-path
-                            :test #'equal))))))
-
-(ert-deftest flycheck-haskell-process-configuration/hides-all-packages ()
-  (with-temp-buffer
-    (flycheck-haskell-process-configuration (flycheck-haskell-read-test-config))
-    (should (member "-hide-all-packages" flycheck-ghc-args))
-    (should (local-variable-p 'flycheck-ghc-args))))
-
-(ert-deftest flycheck-haskell-process-configuration/includes-dependenty-packages ()
-  (with-temp-buffer
-    (flycheck-haskell-process-configuration (flycheck-haskell-read-test-config))
-    (should (cl-search '("-package" "bytestring") flycheck-ghc-args
-                       :test #'equal))
-    (should (cl-search '("-package" "base") flycheck-ghc-args
-                       :test #'equal))
-    (should (local-variable-p 'flycheck-ghc-args))))
+  (let* ((distdir (expand-file-name "dist/" flycheck-haskell-test-dir))
+         (builddir (lambda (fn) (expand-file-name fn distdir)))
+         (builddirs '("build" "build/autogen"
+                      "build/flycheck-haskell-unknown-stuff/flycheck-haskell-unknown-stuff-tmp"
+                      "build/flycheck-haskell-test/flycheck-haskell-test-tmp"))
+         (sourcedir (lambda (fn) (file-name-as-directory
+                                  (expand-file-name fn flycheck-haskell-test-dir))))
+         (sourcedirs '("lib/" "." "src/"))
+         (computed-path (append (-map builddir builddirs)
+                                (-map sourcedir sourcedirs))))
+    (with-temp-buffer
+      (flycheck-haskell-process-configuration (flycheck-haskell-read-test-config))
+      (flycheck-haskell-compare-sets flycheck-ghc-search-path computed-path)
+      (should (local-variable-p 'flycheck-ghc-search-path)))))
 
 (ert-deftest flycheck-haskell-configure/ghc-executable ()
   (flycheck-haskell-test-with-fake-file
