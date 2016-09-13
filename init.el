@@ -2017,16 +2017,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config (bind-key "C-c M-q" #'haskell-edit-reformat haskell-mode-map))
 
   (use-package helm-hoogle
-    :load-path "lisp/haskell-config"
+    :load-path "lisp/helm-hoogle"
     :commands helm-hoogle
-    :init (bind-key "A-M-h" #'helm-hoogle haskell-mode-map))
+    :init (bind-key "A-M-h" #'helm-hoogle haskell-mode-map)
+    :config
+    (add-hook
+     'helm-c-hoogle-transform-hook
+     #'(lambda ()
+         (goto-char (point-min))
+         (while (re-search-forward "file:///nix/store" nil t)
+           (replace-match "http://127.0.0.1:8687/file//nix/store" t t)))))
 
   (eval-after-load 'align
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                            (regexp . ,(cdr x))
-                            (modes quote (haskell-mode literate-haskell-mode))))
+                       (regexp . ,(cdr x))
+                       (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
