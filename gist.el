@@ -1,16 +1,16 @@
 ;;; gist.el --- Emacs integration for gist.github.com
 
 ;; Author: Yann Hodique <yann.hodique@gmail.com>
-;; Original author: Christian Neukirchen <purl.org/net/chneukirchen>
-;; Contributors:
-;; Chris Wanstrath <chris@ozmm.org>
-;; Will Farrington <wcfarrington@gmail.com>
-;; Michael Ivey
-;; Phil Hagelberg
-;; Dan McKinley
-;; Version: 1.2.1
-;; Keywords: gist git github paste pastie pastebin
-;; Package-Requires: ((eieio "1.4") (gh "0.8.1") (tabulated-list "0"))
+;; Original Author: Christian Neukirchen <chneukirchen@gmail.com>
+;; Contributors: Chris Wanstrath <chris@ozmm.org>
+;;               Will Farrington <wcfarrington@gmail.com>
+;;               Michael Ivey
+;;               Phil Hagelberg
+;;               Dan McKinley
+;; Version: 1.3.1
+;; Package-Requires: ((emacs "24.1") (gh "0.9.2"))
+;; Keywords: tools
+;; Homepage: https://github.com/defunkt/gist.el
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -42,13 +42,14 @@
 (require 'eieio-base)
 (require 'timezone)
 
+(require 'gh-api)
 (require 'gh-gist)
 (require 'gh-profile)
 
 (require 'tabulated-list)
 
 (defgroup gist nil
-  "Gist"
+  "Interface to GitHub's Gist."
   :group 'applications)
 
 (defcustom gist-list-format '((id "Id" 10 nil identity)
@@ -58,7 +59,7 @@
                                             (or (and public "public")
                                                 "private")))
                               (description "Description" 0 nil identity))
-  "Format for gist list"
+  "Format for gist list."
   :type '(alist :key-type
           (choice
            (const :tag "Id" id)
@@ -77,51 +78,73 @@
   :group 'gist)
 
 (defcustom gist-view-gist nil
-  "If non-nil, automatically use `browse-url' to view gists after
-they're posted.")
+  "If non-nil, view gists with `browse-url' after posting."
+  :type 'boolean
+  :group 'gist)
 
 (defcustom gist-multiple-files-mark "+"
-  "Symbol to use to indicate multiple-files gist")
+  "Symbol to use to indicate gists with multiple files."
+  :type 'string
+  :group 'gist)
 
 (defcustom gist-ask-for-description nil
-  "If non-nil, ask for a description before submitting
-  the gist.")
+  "If non-nil, prompt for description before submitting gist."
+  :type 'boolean
+  :group 'gist)
 
-(defvar gist-supported-modes-alist '((action-script-mode . "as")
-                                     (c-mode . "c")
-                                     (c++-mode . "cpp")
-                                     (clojure-mode . "clj")
-                                     (common-lisp-mode . "lisp")
-                                     (css-mode . "css")
-                                     (diff-mode . "diff")
-                                     (emacs-lisp-mode . "el")
-                                     (lisp-interaction-mode . "el")
-                                     (erlang-mode . "erl")
-                                     (haskell-mode . "hs")
-                                     (html-mode . "html")
-                                     (io-mode . "io")
-                                     (java-mode . "java")
-                                     (javascript-mode . "js")
-                                     (jde-mode . "java")
-                                     (js2-mode . "js")
-                                     (lua-mode . "lua")
-                                     (ocaml-mode . "ml")
-                                     (objective-c-mode . "m")
-                                     (perl-mode . "pl")
-                                     (php-mode . "php")
-                                     (python-mode . "py")
-                                     (ruby-mode . "rb")
-                                     (text-mode . "txt")
-                                     (scala-mode . "scala")
-                                     (sql-mode . "sql")
-                                     (scheme-mode . "scm")
-                                     (smalltalk-mode . "st")
-                                     (sh-mode . "sh")
-                                     (tcl-mode . "tcl")
-                                     (tex-mode . "tex")
-                                     (xml-mode . "xml")))
+(defcustom gist-created-fmt "Paste created: %s"
+  "Format for the message that gets shown upon successful gist
+creation.  Must contain a single %s for the location of the newly
+created gist."
+  :type 'string
+  :group 'gist)
+
+(defcustom gist-supported-modes-alist '((action-script-mode . "as")
+                                        (c-mode . "c")
+                                        (c++-mode . "cpp")
+                                        (clojure-mode . "clj")
+                                        (common-lisp-mode . "lisp")
+                                        (css-mode . "css")
+                                        (diff-mode . "diff")
+                                        (emacs-lisp-mode . "el")
+                                        (lisp-interaction-mode . "el")
+                                        (erlang-mode . "erl")
+                                        (haskell-mode . "hs")
+                                        (html-mode . "html")
+                                        (io-mode . "io")
+                                        (java-mode . "java")
+                                        (javascript-mode . "js")
+                                        (jde-mode . "java")
+                                        (js2-mode . "js")
+                                        (lua-mode . "lua")
+                                        (ocaml-mode . "ml")
+                                        (objective-c-mode . "m")
+                                        (perl-mode . "pl")
+                                        (php-mode . "php")
+                                        (python-mode . "py")
+                                        (ruby-mode . "rb")
+                                        (text-mode . "txt")
+                                        (scala-mode . "scala")
+                                        (sql-mode . "sql")
+                                        (scheme-mode . "scm")
+                                        (smalltalk-mode . "st")
+                                        (sh-mode . "sh")
+                                        (tcl-mode . "tcl")
+                                        (tex-mode . "tex")
+                                        (xml-mode . "xml"))
+  "Mapping between major-modes and file extensions.
+Used to generate filenames for created gists, and to select
+appropriate modes from fetched gist files (based on filenames)."
+  :type '(alist :key-type   (symbol :tag "Mode")
+                :value-type (string :tag "Extension")))
 
 (defvar gist-list-db nil)
+(unless (hash-table-p gist-list-db)
+  (setq gist-list-db (make-hash-table :test 'equal)))
+
+(defvar gist-list-db-by-user nil)
+(unless (hash-table-p gist-list-db-by-user)
+  (setq gist-list-db-by-user (make-hash-table :test 'equal)))
 
 (defvar gist-id nil)
 (make-variable-buffer-local 'gist-id)
@@ -129,17 +152,23 @@ they're posted.")
 (defvar gist-filename nil)
 (make-variable-buffer-local 'gist-filename)
 
+(defvar gist-user-history nil "History list for gist-list-user.")
+
+(defvar gist-list-buffer-user nil "Username for this gist buffer.")
+(make-variable-buffer-local 'gist-list-buffer-user)
+(put 'gist-list-buffer-user 'permanent-local t)
+
 (defun gist-get-api (&optional sync)
   (let ((gh-profile-current-profile
          (or gh-profile-current-profile (gh-profile-completing-read))))
-    (gh-gist-api "api" :sync sync :cache t :num-retries 1)))
+    (make-instance 'gh-gist-api :sync sync :cache t :num-retries 1)))
 
 (defun gist-internal-new (files &optional private description callback)
   (let* ((api (gist-get-api))
-         (gist (gh-gist-gist-stub "gist"
-                                  :public (or (not private) json-false)
-                                  :description (or description "")
-                                  :files files))
+         (gist (make-instance 'gh-gist-gist-stub
+                              :public (or (not private) json-false)
+                              :description (or description "")
+                              :files files))
          (resp (gh-gist-new api gist)))
     (gh-url-add-response-callback
      resp
@@ -167,9 +196,9 @@ With a prefix argument, makes a private paste."
                   "txt"))
          (fname (concat (file-name-sans-extension name) "." ext))
          (files (list
-                 (gh-gist-gist-file "file"
-                                    :filename fname
-                                    :content (buffer-substring begin end)))))
+                 (make-instance 'gh-gist-gist-file
+                                :filename fname
+                                :content (buffer-substring begin end)))))
     (gist-internal-new files private
                        (gist-ask-for-description-maybe) callback)))
 
@@ -179,15 +208,15 @@ With a prefix argument, makes a private paste."
       (with-temp-buffer
         (insert-file-contents f)
         (let ((name (file-name-nondirectory f)))
-          (push (gh-gist-gist-file name :filename name :content (buffer-string))
+          (push (make-instance 'gh-gist-gist-file :filename name :content (buffer-string))
                 files))))
     (gist-internal-new files private
                        (gist-ask-for-description-maybe) callback)))
 
 (defun gist-created-callback (gist)
   (let ((location (oref gist :html-url)))
-    (gist-list-reload t)
-    (message "Paste created: %s" location)
+    (gist-list-reload 'current-user t)
+    (message gist-created-fmt location)
     (when gist-view-gist
       (browse-url location))
     (kill-new location)))
@@ -224,9 +253,9 @@ Copies the URL into the kill ring.
 
 With a prefix argument, makes a private paste."
   (interactive "P")
-  (condition-case nil
+  (if (region-active-p)
       (gist-region (point) (mark) private)
-    (mark-inactive (gist-buffer private))))
+    (gist-buffer private)))
 
 ;;;###autoload
 (defun gist-region-or-buffer-private ()
@@ -235,29 +264,52 @@ With a prefix argument, makes a private paste."
 
 Copies the URL into the kill ring."
   (interactive)
-  (condition-case nil
+  (if (region-active-p)
       (gist-region-private (point) (mark))
-    (mark-inactive (gist-buffer-private))))
+    (gist-buffer-private)))
 
 ;;;###autoload
-(defun gist-list (&optional force-reload background)
-  "Displays a list of all of the current user's gists in a new buffer."
-  (interactive "P")
+(defun gist-list-user (username &optional force-reload background)
+  "Displays a list of a user's gists in a new buffer.  When called from
+  a program, pass 'current-user as the username to view the user's own
+  gists, or nil for the username and a non-nil value for force-reload to
+  reload the gists for the current buffer."
+  (interactive
+   (let ((username (read-from-minibuffer "GitHub user: " nil nil nil
+                                          'gist-user-history))
+         (force-reload (equal current-prefix-arg '(4))))
+     (list username force-reload)))
   ;; if buffer exists, it contains the current gh profile
   (let* ((gh-profile-current-profile (or gh-profile-current-profile
                                          (gh-profile-completing-read)))
-         (bufname (format "*%s:gists*" gh-profile-current-profile))
-         (api (gist-get-api nil)))
+         (bufname (if (null username)
+                      (if (not (equal major-mode 'gist-list-mode))
+                          (error "Current buffer isn't a gist-list-mode buffer")
+                        (buffer-name))
+                    (format "*%s:%sgists*"
+                            gh-profile-current-profile
+                            (if (or (equal "" username)
+                                    (eq 'current-user username))
+                                ""
+                              (format "%s's-" username)))))
+         (api (gist-get-api nil))
+         (username (or (and (null username) gist-list-buffer-user)
+                       (and (not (or (null username)
+                                     (equal "" username)
+                                     (eq 'current-user username)))
+                            username)
+                       (gh-api-get-username api))))
     (when force-reload
       (pcache-clear (oref api :cache))
-      (or background (message "Retrieving list of your gists...")))
+      (or background (message "Retrieving list of gists...")))
     (unless (and background (not (get-buffer bufname)))
-      (let ((resp (gh-gist-list api)))
+      (let ((resp (gh-gist-list api username)))
         (gh-url-add-response-callback
          resp
          (lexical-let ((buffer bufname))
            (lambda (gists)
              (with-current-buffer (get-buffer-create buffer)
+               (setq gist-list-buffer-user username)
                (gist-lists-retrieved-callback gists background)))))
         (gh-url-add-response-callback
          resp
@@ -267,9 +319,15 @@ Copies the URL into the kill ring."
              (with-current-buffer buffer
                (setq gh-profile-current-profile profile)))))))))
 
-(defun gist-list-reload (&optional background)
+;;;###autoload
+(defun gist-list (&optional force-reload background)
+  "Displays a list of all of the current user's gists in a new buffer."
+  (interactive "P")
+  (gist-list-user 'current-user force-reload background))
+
+(defun gist-list-reload (&optional username background)
   (interactive)
-  (gist-list t background))
+  (gist-list-user username t background))
 
 (defun gist-tabulated-entry (gist)
   (let* ((data (gist-parse-gist gist))
@@ -279,8 +337,13 @@ Copies the URL into the kill ring."
 (defun gist-lists-retrieved-callback (gists &optional background)
   "Called when the list of gists has been retrieved. Displays
 the list."
-  (setq gist-list-db gists)
-  (gist-list-render background))
+  (dolist (g (gethash gist-list-buffer-user gist-list-db-by-user))
+    (remhash (oref g :id) gist-list-db))
+  (dolist (g gists)
+    (puthash (oref g :id) g gist-list-db))
+  (puthash gist-list-buffer-user gists gist-list-db-by-user)
+  (gist-list-render (gethash gist-list-buffer-user gist-list-db-by-user)
+                    background))
 
 (defun gist--get-time (gist)
   (let* ((date (timezone-parse-date (oref gist :date)))
@@ -321,7 +384,7 @@ for the gist."
   (interactive "sGist ID: ")
   (let ((gist nil)
         (multi nil)
-        (prefix (format "*gist %s*" id))
+        (prefix (format "*gist-%s*" id))
         (result nil)
         (profile (gh-profile-current-profile)))
     (setq gist (gist-list-db-get-gist id))
@@ -329,7 +392,10 @@ for the gist."
       (cond ((null gist)
              ;; fetch it
              (setq gist (oref (gh-gist-get api id) :data))
-             (add-to-list 'gist-list-db gist))
+             (puthash (oref gist :id) gist gist-list-db)
+             (let* ((user (oref gist :user))
+                    (gists (push gist (gethash user gist-list-db-by-user))))
+               (puthash user gists gist-list-db-by-user)))
             ((not (gh-gist-gist-has-files gist))
              (gh-gist-get api gist))))
     (let ((files (oref gist :files)))
@@ -377,16 +443,24 @@ for the gist."
     (gist-fetch-current)
     (select-window win)))
 
+(defun gist--check-perms-and-get-api (gist errormsg apiflg)
+  (let* ((api (gist-get-api apiflg))
+         (username (gh-api-get-username api))
+         (gs (gethash username gist-list-db-by-user)))
+    (if (not (memq gist gs))
+        (user-error errormsg)
+      api)))
+
 (defun gist-edit-current-description ()
   (interactive)
   (let* ((id (tabulated-list-get-id))
          (gist (gist-list-db-get-gist id))
-         (old-descr (oref gist :description))
-         (new-descr (read-from-minibuffer "Description: " old-descr)))
-    (let* ((g (clone gist
-                     :files nil
+         (api (gist--check-perms-and-get-api
+               gist "Can't edit a gist that doesn't belong to you" t)))
+    (let* ((old-descr (oref gist :description))
+           (new-descr (read-from-minibuffer "Description: " old-descr))
+           (g (clone gist
                      :description new-descr))
-           (api (gist-get-api t))
            (resp (gh-gist-edit api g)))
       (gh-url-add-response-callback resp
                                     (lambda (gist)
@@ -397,18 +471,20 @@ for the gist."
   (let* ((buffer (get-buffer buffer))
          (id (tabulated-list-get-id))
          (gist (gist-list-db-get-gist id))
-         (fname (file-name-nondirectory (or (buffer-file-name buffer) (buffer-name buffer)))))
-    (let* ((g (clone gist :files
-                     (list
-                      (gh-gist-gist-file "file"
-                                         :filename fname
-                                         :content (with-current-buffer buffer
-                                                    (buffer-string ))))))
-           (api (gist-get-api t))
-           (resp (gh-gist-edit api g)))
-      (gh-url-add-response-callback resp
-                                    (lambda (gist)
-                                      (gist-list-reload))))))
+         (api (gist--check-perms-and-get-api
+               gist "Can't modify a gist that doesn't belong to you" t))
+         (fname (file-name-nondirectory (or (buffer-file-name buffer)
+                                            (buffer-name buffer))))
+         (g (clone gist :files
+                   (list
+                    (make-instance 'gh-gist-gist-file
+                                   :filename fname
+                                   :content (with-current-buffer buffer
+                                              (buffer-string))))))
+         (resp (gh-gist-edit api g)))
+    (gh-url-add-response-callback resp
+                                  (lambda (gist)
+                                    (gist-list-reload)))))
 
 (defun gist-remove-file (fname)
   (interactive (list
@@ -419,24 +495,27 @@ for the gist."
                    (mapcar #'(lambda (f) (oref f :filename))
                            (oref gist :files))))))
   (let* ((id (tabulated-list-get-id))
-         (gist (gist-list-db-get-gist id)))
-    (let* ((g (clone gist :files
-                     (list
-                      (gh-gist-gist-file "file"
-                                         :filename fname
-                                         :content nil))))
-           (api (gist-get-api t))
-           (resp (gh-gist-edit api g)))
-      (gh-url-add-response-callback resp
-                                    (lambda (gist)
-                                      (gist-list-reload))))))
+         (gist (gist-list-db-get-gist id))
+         (api (gist--check-perms-and-get-api
+               gist "Can't modify a gist that doesn't belong to you" t))
+         (g (clone gist :files
+                   (list
+                    (make-instance 'gh-gist-gist-file
+                                   :filename fname
+                                   :content nil))))
+         (resp (gh-gist-edit api g)))
+    (gh-url-add-response-callback resp
+                                  (lambda (gist)
+                                    (gist-list-reload)))))
 
 (defun gist-kill-current ()
   (interactive)
-  (let ((id (tabulated-list-get-id)))
+  (let* ((id (tabulated-list-get-id))
+         (gist (gist-list-db-get-gist id))
+         (api (gist--check-perms-and-get-api
+               gist "Can't delete a gist that doesn't belong to you" t)))
     (when (yes-or-no-p (format "Really delete gist %s ? " id) )
-      (let* ((api (gist-get-api t))
-             (resp (gh-gist-delete api id)))
+      (let* ((resp (gh-gist-delete api id)))
         (gist-list-reload)))))
 
 (defun gist-current-url ()
@@ -456,6 +535,49 @@ put it into `kill-ring'."
   (interactive)
   (browse-url (gist-current-url)))
 
+(defun gist--do-star (id how msg)
+  (let* ((api (gist-get-api t))
+         (resp (gh-gist-set-star api id how)))
+    (gh-url-add-response-callback resp
+                                  (lambda (gist)
+                                    (message msg id)))))
+
+;;;###autoload
+(defun gist-star ()
+  (interactive)
+  (let ((id (tabulated-list-get-id)))
+    (gist--do-star id t "Starred gist %s")))
+
+;;;###autoload
+(defun gist-unstar ()
+  (interactive)
+  (let ((id (tabulated-list-get-id)))
+    (gist--do-star id nil "Unstarred gist %s")))
+
+;;;###autoload
+(defun gist-list-starred (&optional background)
+  "List your starred gists."
+  (interactive)
+  (let* ((api (gist-get-api t))
+         (resp (gh-gist-list-starred api)))
+    (gh-url-add-response-callback
+     resp
+     (lexical-let ((buffer "*starred-gists*"))
+       (lambda (gists)
+         (with-current-buffer (get-buffer-create buffer)
+           (gist-list-render gists background)))))))
+
+;;;###autoload
+(defun gist-fork ()
+  "Fork a gist."
+  (interactive)
+  (let* ((id (tabulated-list-get-id))
+         (api (gist-get-api))
+         (resp (gh-gist-fork api id)))
+    (gh-url-add-response-callback resp
+                                  (lambda (gist)
+                                    (message "Forked gist %s" id)))))
+
 (defvar gist-list-menu-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
@@ -468,6 +590,9 @@ put it into `kill-ring'."
     (define-key map "-" 'gist-remove-file)
     (define-key map "y" 'gist-print-current-url)
     (define-key map "b" 'gist-browse-current-url)
+    (define-key map "*" 'gist-star)
+    (define-key map "^" 'gist-unstar)
+    (define-key map "f" 'gist-fork)
     map))
 
 (define-derived-mode gist-list-mode tabulated-list-mode "Gist Menu"
@@ -483,10 +608,9 @@ put it into `kill-ring'."
   (tabulated-list-init-header)
   (use-local-map gist-list-menu-mode-map))
 
-(defun gist-list-render (&optional background)
+(defun gist-list-render (gists &optional background)
   (gist-list-mode)
-  (setq tabulated-list-entries
-        (mapcar 'gist-tabulated-entry gist-list-db))
+  (setq tabulated-list-entries (mapcar 'gist-tabulated-entry gists))
   (tabulated-list-print)
   (gist-list-tag-multi-files)
   (unless background
@@ -494,9 +618,10 @@ put it into `kill-ring'."
 
 (defun gist-list-tag-multi-files ()
   (let ((ids nil))
-    (dolist (gist gist-list-db)
-      (when (< 1 (length (oref gist :files)))
-        (push (oref gist :id) ids)))
+    (maphash (lambda (k v)
+               (when (< 1 (length (oref v :files)))
+                 (push (oref v :id) ids)))
+             gist-list-db)
     (save-excursion
       (goto-char (point-min))
       (while (not (eobp))
@@ -505,8 +630,7 @@ put it into `kill-ring'."
           (forward-line 1))))))
 
 (defun gist-list-db-get-gist (id)
-  (loop for gist in gist-list-db if (string= (oref gist :id) id)
-        return gist))
+  (gethash id gist-list-db))
 
 ;;; Gist minor mode
 
@@ -571,4 +695,4 @@ put it into `kill-ring'."
 (define-key dired-mode-map "@" 'dired-do-gist)
 
 (provide 'gist)
-;;; gist.el ends here.
+;;; gist.el ends here

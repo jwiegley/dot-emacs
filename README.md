@@ -4,7 +4,15 @@ gist.el -- Emacs integration for gist.github.com
 ================================================
 
 Uses your local GitHub config if it can find it.
-See <http://github.com/blog/180-local-github-config>
+
+Go to your [GitHub Settings](https://github.com/settings/tokens) and generate a personal access token with `gist` scope
+
+Next run:
+
+``` Shell
+git config --global github.user <your-github-user-name>
+git config --global github.oauth-token <your-personal-access-token-with-gist-scope>
+```
 
 News
 ====
@@ -20,6 +28,11 @@ What's new in 1.0 ?
     * `k` : delete current gist
     * `+` : add a file to the current gist
     * `-` : remove a file from the current gist
+    * `y` : print current gist url
+    * `b` : browse current gist
+    * `*` : star gist
+    * `^` : unstar gist
+    * `f` : fork gist
 * in-place edition. While viewing a gist file buffer, you can:
     * `C-x C-s` : save a new version of the gist
     * `C-x C-w` : rename some file
