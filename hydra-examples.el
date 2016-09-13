@@ -138,7 +138,8 @@
      ("e" move-end-of-line "end")
      ("d" delete-region "del" :color blue)
      ("y" kill-ring-save "yank" :color blue)
-     ("q" nil "quit"))))
+     ("q" nil "quit")))
+  (hydra-set-property 'hydra-vi :verbosity 1))
 
 ;; This example introduces :color amaranth. It's similar to red,
 ;; except while you can quit red with any binding which isn't a Hydra
@@ -260,6 +261,7 @@ _v_ariable       _u_ser-option
 ;; (global-set-key (kbd "C-c h") 'hydra-apropos/body)
 
 ;;** Example 11: rectangle-mark-mode
+(require 'rect)
 (defhydra hydra-rectangle (:body-pre (rectangle-mark-mode 1)
                            :color pink
                            :post (deactivate-mark))
@@ -270,10 +272,10 @@ _h_   _l_   _o_k        _y_ank
 ^^^^        _e_xchange  _u_ndo
 ^^^^        ^ ^         _p_aste
 "
-  ("h" backward-char nil)
-  ("l" forward-char nil)
-  ("k" previous-line nil)
-  ("j" next-line nil)
+  ("h" rectangle-backward-char nil)
+  ("l" rectangle-forward-char nil)
+  ("k" rectangle-previous-line nil)
+  ("j" rectangle-next-line nil)
   ("e" hydra-ex-point-mark nil)
   ("n" copy-rectangle-as-kill nil)
   ("d" delete-rectangle nil)
@@ -288,6 +290,48 @@ _h_   _l_   _o_k        _y_ank
 
 ;; Recommended binding:
 ;; (global-set-key (kbd "C-x SPC") 'hydra-rectangle/body)
+
+;;** Example 12: org-agenda-view
+(defun org-agenda-cts ()
+  (and (eq major-mode 'org-agenda-mode)
+       (let ((args (get-text-property
+                    (min (1- (point-max)) (point))
+                    'org-last-args)))
+         (nth 2 args))))
+
+(defhydra hydra-org-agenda-view (:hint none)
+  "
+_d_: ?d? day        _g_: time grid=?g?  _a_: arch-trees
+_w_: ?w? week       _[_: inactive       _A_: arch-files
+_t_: ?t? fortnight  _f_: follow=?f?     _r_: clock report=?r?
+_m_: ?m? month      _e_: entry text=?e? _D_: include diary=?D?
+_y_: ?y? year       _q_: quit           _L__l__c_: log = ?l?"
+  ("SPC" org-agenda-reset-view)
+  ("d" org-agenda-day-view (if (eq 'day (org-agenda-cts)) "[x]" "[ ]"))
+  ("w" org-agenda-week-view (if (eq 'week (org-agenda-cts)) "[x]" "[ ]"))
+  ("t" org-agenda-fortnight-view (if (eq 'fortnight (org-agenda-cts)) "[x]" "[ ]"))
+  ("m" org-agenda-month-view (if (eq 'month (org-agenda-cts)) "[x]" "[ ]"))
+  ("y" org-agenda-year-view (if (eq 'year (org-agenda-cts)) "[x]" "[ ]"))
+  ("l" org-agenda-log-mode (format "% -3S" org-agenda-show-log))
+  ("L" (org-agenda-log-mode '(4)))
+  ("c" (org-agenda-log-mode 'clockcheck))
+  ("f" org-agenda-follow-mode (format "% -3S" org-agenda-follow-mode))
+  ("a" org-agenda-archives-mode)
+  ("A" (org-agenda-archives-mode 'files))
+  ("r" org-agenda-clockreport-mode (format "% -3S" org-agenda-clockreport-mode))
+  ("e" org-agenda-entry-text-mode (format "% -3S" org-agenda-entry-text-mode))
+  ("g" org-agenda-toggle-time-grid (format "% -3S" org-agenda-use-time-grid))
+  ("D" org-agenda-toggle-diary (format "% -3S" org-agenda-include-diary))
+  ("!" org-agenda-toggle-deadlines)
+  ("[" (let ((org-agenda-include-inactive-timestamps t))
+         (org-agenda-check-type t 'timeline 'agenda)
+         (org-agenda-redo)
+         (message "Display now includes inactive timestamps as well")))
+  ("q" (message "Abort") :exit t)
+  ("v" nil))
+
+;; Recommended binding:
+;; (define-key org-agenda-mode-map "v" 'hydra-org-agenda-view/body)
 
 ;;* Helpers
 (require 'windmove)
@@ -329,10 +373,14 @@ _h_   _l_   _o_k        _y_ank
   "Exchange point and mark."
   (interactive)
   (if rectangle-mark-mode
-      (exchange-point-and-mark)
+      (rectangle-exchange-point-and-mark)
     (let ((mk (mark)))
       (rectangle-mark-mode 1)
       (goto-char mk))))
 
 (provide 'hydra-examples)
+
+;; Local Variables:
+;; no-byte-compile: t
+;; End:
 ;;; hydra-examples.el ends here
