@@ -1,7 +1,9 @@
-# Wrap Region
+# Wrap Region [![Build Status](https://api.travis-ci.org/rejeep/wrap-region.el.png?branch=master)](http://travis-ci.org/rejeep/wrap-region.el)
 Wrap Region is a minor mode for Emacs that wraps a region with
 punctuations. For "tagged" markup modes, such as HTML and XML, it
 wraps with tags.
+
+[<img src="http://img.youtube.com/vi/9SWAKPF0fHE/0.jpg">](https://www.youtube.com/watch?v=9SWAKPF0fHE)
 
 ## Installation
 I recommend installing via ELPA, but manual installation is simple as well:
@@ -33,9 +35,9 @@ The same can be done with:
     (wrap-region-add-wrappers
      '(("$" "$")
        ("{-" "-}" "#")
-       ("/" "/" nil 'ruby-mode)
-       ("/* " " */" "#" '(java-mode javascript-mode css-mode))
-       ("`" "`" nil '(markdown-mode ruby-mode))))
+       ("/" "/" nil ruby-mode)
+       ("/* " " */" "#" (java-mode javascript-mode css-mode))
+       ("`" "`" nil (markdown-mode ruby-mode))))
 
 
 For more information, see comments in `wrap-region.el`.
@@ -58,14 +60,14 @@ To add a new mode, do this:
 
 ## Contribution
 Contribution is much welcome! Wrap region is tested using [Ecukes](http://ecukes.info). When
-Adding New features, please write tests for them!
+adding new features, please write tests for them!
 
-To fetch Ecukes:
+Install [cask](https://github.com/rejeep/cask.el) if you haven't
+already, then:
 
     $ cd /path/to/wrap-region
-    $ git submodule init
-    $ git submodule update
+    $ cask
 
-Run the tests with:
+Run all tests with:
 
-    $ ./util/ecukes/ecukes features
+    $ make
