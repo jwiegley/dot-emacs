@@ -40,3 +40,6 @@
 [submodule "site-lisp/agda"]
 	path = site-lisp/agda
 	url = git://github.com/agda/agda.git
+[submodule "lisp/helm-hoogle"]
+	path = lisp/helm-hoogle
+	url = git://github.com/jwiegley/helm-hoogle.git
