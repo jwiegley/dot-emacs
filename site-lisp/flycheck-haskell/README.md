@@ -6,29 +6,13 @@ flycheck-haskell — Flycheck for Haskell
 [![MELPA Stable][badge-melpa-stable]](http://stable.melpa.org/#/flycheck-haskell)
 [![Build Status][badge-travis]](https://travis-ci.org/flycheck/flycheck-haskell)
 
-Configure [Flycheck][] for Haskell:
-
-- Add source directories from your cabal project to the search path
-- Add build files and auto-generated files from Cabal to the search path
-- Use package databases from the current Cabal sandbox
-- Set the language from Cabal
-- Enable language extensions from Cabal
+Automatically configure [Flycheck][] for Haskell.
 
 Installation
 ------------
 
-As usual, from [MELPA][] or [MELPA Stable][].
-
-In your [`Cask`][cask] file:
-
-```cl
-(source gnu)
-(source melpa)
-
-(depends-on "flycheck-haskell")
-```
-
-In your `init.el`:
+Install `flycheck-haskell` from [MELPA][] or [MELPA Stable][] and add the
+following to your `init.el`:
 
 ```cl
 (eval-after-load 'flycheck

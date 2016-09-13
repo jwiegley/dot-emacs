@@ -14,7 +14,8 @@ library
 executable flycheck-haskell-test
   hs-source-dirs:      src/
   extensions:          GeneralizedNewtypeDeriving
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7 && <4.8,
+                       bytestring
   default-language:    Haskell2010
 
 executable flycheck-haskell-unknown-stuff
