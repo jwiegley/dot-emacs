@@ -1,5 +1,4 @@
 (defconst emacs-start-time (current-time))
-(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
 (unless noninteractive
   (message "Loading %s..." load-file-name))
@@ -7,6 +6,8 @@
 (setq message-log-max 16384)
 
 (eval-and-compile
+  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+
   (mapc #'(lambda (path)
             (add-to-list 'load-path
                          (expand-file-name path user-emacs-directory)))
@@ -190,7 +191,7 @@
 (defun smart-tab (&optional arg)
   (interactive "P")
   (cond
-   ((looking-back "^[-+* \t]*")
+   ((looking-back "^[-+* \t]*" nil)
     (if (eq major-mode 'org-mode)
         (org-cycle arg)
       (indent-according-to-mode)))
@@ -498,7 +499,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
       "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
       ))
-   ((string= system-name "ubuntu")
+   ((string= (system-name) "ubuntu")
     ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
     "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
     )
@@ -1519,6 +1520,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/doxymacs/lisp/")
 
 (use-package eclimd
+  :disabled t
   :load-path "site-lisp/emacs-eclim"
   :commands start-eclimd
   :config
@@ -1878,6 +1880,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("\\.lhs\\'" . literate-haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
   :preface
+  (defvar interactive-haskell-mode-map)
   (defun snippet (name)
     (interactive "sName: ")
     (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
@@ -3220,7 +3223,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config
     (setq projectile-completion-system 'helm)
     (helm-projectile-on))
-  (projectile-global-mode))
+  (projectile-global-mode)
+  (bind-key "s s"
+            #'(lambda ()
+                (interactive)
+                (helm-do-grep-1 (list (projectile-project-root)) t))
+            'projectile-command-map))
 
 (use-package proof-site
   :load-path ("site-lisp/ProofGeneral/generic"

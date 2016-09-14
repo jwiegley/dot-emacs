@@ -1,7 +1,7 @@
 ## -*- mode: makefile-gmake -*-
 
 DIRS	    = override lib lisp site-lisp
-SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git -type d -print)
+SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git ! -name style -type d -print)
 LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
 	      $(wildcard lisp/*.el) $(wildcard site-lisp/*.el)
 TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
