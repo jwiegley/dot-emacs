@@ -330,7 +330,7 @@ If flag `proof-general-debug' is nil, do nothing."
     (with-current-buffer (get-buffer-create "*PG Debug*")
       (help-mode)
       (let ((formatted (apply 'format msg args))
-	    (log-warning-minimum-level :debug)
+	    (warning-minimum-log-level :debug)
 	    (warning-minimum-level :debug)
 	    (buffer-read-only nil))
 	(display-warning 'proof-general
