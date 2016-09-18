@@ -1,16 +1,17 @@
 -*- outline -*-  
 
 This is a summary of main changes.  For details, please see
-the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
+the Git ChangeLog, the GitHub repo https://github.com/ProofGeneral/PG
+and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
 
 * Changes of Proof General 4.4 from Proof General 4.3
 
-** ProofGeneral has moved to github!
+** ProofGeneral has moved to GitHub!
 
-   https://github.com/ProofGeneral/PG.
+   https://github.com/ProofGeneral/PG
 
    Please submit new bugs there, old bugs may stay in good old PG trac
-   for a while though: http://proofgeneral.inf.ed.ac.uk/trac.
+   for a while though: http://proofgeneral.inf.ed.ac.uk/trac
 
 ** Coq changes
 
