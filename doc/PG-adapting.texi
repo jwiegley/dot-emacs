@@ -124,7 +124,7 @@ more details.
 
 Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
 
-Version control: @code{@value{rcsid}}
+@c (commented; dates from CVS) Version control: @code{@value{rcsid}}
 @end titlepage
 
 @page

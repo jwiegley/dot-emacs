@@ -130,7 +130,7 @@ Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
 
 @sp 1
 
-@code{@value{rcsid}}
+@c (commented; dates from CVS) @code{@value{rcsid}}
 @end titlepage
 
 @page
