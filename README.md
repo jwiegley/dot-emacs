@@ -6,7 +6,7 @@ Proof General is a generic Emacs interface for proof assistants.
 The aim of the Proof General project is to provide a powerful, generic
 environment for using interactive proof assistants.
 
-This is version 4.4pre of Proof General.
+This is version 4.4 of Proof General.
 
 ## Setup
 
@@ -43,7 +43,7 @@ See:
 
 Links:
 
-* [https://proofgeneral.github.io/doc](https://proofgeneral.github.io/doc/) for online documentation of Proof General
+* [https://proofgeneral.github.io/doc](https://proofgeneral.github.io/doc) for online documentation of Proof General
 * [http://proofgeneral.inf.ed.ac.uk/mailinglist](http://proofgeneral.inf.ed.ac.uk/mailinglist) for mailing list information
 
 Supported proof assistants:

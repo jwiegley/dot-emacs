@@ -21,7 +21,7 @@
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
 @set URLisamode  http://homepages.inf.ed.ac.uk/da/isamode
-@set URLpghome   http://proofgeneral.inf.ed.ac.uk
+@set URLpghome   https://proofgeneral.github.io
 @set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest.noarch.rpm
 @set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest.tar.gz
 @set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-devel-latest.tar.gz
@@ -51,9 +51,9 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 4.3pre
+@set version 4.4
 @set emacsversion 24.4
-@set last-update April 2015
+@set last-update September 2016
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -84,7 +84,7 @@ END-INFO-DIR-ENTRY
 @sp 1
 @subtitle Adapting Proof General @value{version} to new provers
 @subtitle @value{last-update}
-@subtitle @b{proofgeneral.inf.ed.ac.uk}
+@subtitle @b{proofgeneral.github.io}
 
 @iftex
 @vskip 1cm
@@ -122,7 +122,7 @@ more details.
 
 @sp 1
 
-Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
+Visit Proof General on the web at @code{https://proofgeneral.github.io}
 
 @c (commented; dates from CVS) Version control: @code{@value{rcsid}}
 @end titlepage
@@ -200,7 +200,7 @@ development method: if you require changes in the generic support,
 please contact us (or make adjustments yourself and send them to us).
 
 Proof General has a home page at
-@uref{http://proofgeneral.inf.ed.ac.uk}.  Visit this page
+@uref{https://proofgeneral.github.io}.  Visit this page
 for the latest version of the manuals, other documentation, system
 downloads, etc.
 
@@ -1264,7 +1264,7 @@ Completion is activated with M-x complete.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and post suggestions at
-http://proofgeneral.inf.ed.ac.uk/trac
+https://github.com/ProofGeneral/PG/issues
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-add-completions
@@ -2031,7 +2031,7 @@ symbol is @code{'systemspecific}.
 
 The goals buffer settings allow configuration of Proof General for proof
 by pointing or similar features.
-See the Proof General @uref{http://proofgeneral.inf.ed.ac.uk/doc, documentation web page}
+See the Proof General @uref{https://proofgeneral.github.io/doc, documentation web page}
 for a link to the technical report ECS-LFCS-97-368 which hints
 at how to use these settings.
 
@@ -2141,7 +2141,7 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General.
 
-The default value is @code{"http://proofgeneral.inf.ed.ac.uk"}.
+The default value is @code{"https://proofgeneral.github.io"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 

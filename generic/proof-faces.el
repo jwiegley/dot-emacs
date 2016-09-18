@@ -18,7 +18,7 @@
 ;; But it's difficult to keep track of all that!
 ;; Please report any bad/failing colour
 ;; combinations (with suggested improvements) at
-;; http://proofgeneral.inf.ed.ac.uk/trac
+;; https://github.com/ProofGeneral/PG/issues
 ;;
 ;; Some of these faces aren't used by default in Proof General,
 ;; but you can use them in font lock patterns for specific

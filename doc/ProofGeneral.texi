@@ -24,7 +24,7 @@
 @c so removed for now.
 @set URLxsymbol  http://x-symbol.sourceforge.net
 @set URLisamode  http://proofgeneral.inf.ed.ac.uk/~isamode
-@set URLpghome   http://proofgeneral.inf.ed.ac.uk
+@set URLpghome   https://proofgeneral.github.io
 @set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm
 @set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tar.gz
 @set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz
@@ -57,9 +57,9 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 4.3pre
+@set version 4.4
 @set emacsversion 24.4
-@set last-update April 2015
+@set last-update September 2016
 @set rcsid $Id$
 
 @dircategory Theorem proving
@@ -89,14 +89,14 @@
 @sp 1
 @subtitle User Manual for Proof General @value{version}
 @subtitle @value{last-update}
-@subtitle @b{proofgeneral.inf.ed.ac.uk}
+@subtitle @b{proofgeneral.github.io}
 
 @iftex
 @vskip 1cm
 @image{ProofGeneral-image}
 @end iftex
-@author David Aspinall and Thomas Kleymann
-@author with P. Courtieu, H. Goguen, D. Sequeira, M. Wenzel.
+@author D. Aspinall, P. Courtieu, E. Martin-Dorel, C. Pit--Claudel,
+@author T. Kleymann, H. Goguen, D. Sequeira, M. Wenzel
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -126,7 +126,7 @@ please check the accompanying file @file{COPYING} for more details.
 
 @sp 1
 
-Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
+Visit Proof General on the web at @code{https://proofgeneral.github.io}
 
 @sp 1
 
@@ -188,12 +188,13 @@ news about previous releases, and notes on the development
 of Proof General.
 
 Proof General has a home page at
-@uref{http://proofgeneral.inf.ed.ac.uk}.  
+@uref{https://proofgeneral.github.io}.  
 Visit this page for the latest version of this manual,
 other documentation, system downloads, etc.
 
 
 @menu
+* News for Version 4.4::
 * News for Version 4.3::
 * News for Version 4.2::
 * News for Version 4.1::
@@ -201,6 +202,16 @@ other documentation, system downloads, etc.
 * Future::
 * Credits::                     
 @end menu
+
+@node News for Version 4.4
+@unnumberedsec News for Version 4.4
+@cindex news
+
+Proof General 4.4 is the first release since PG has moved to
+@uref{https://github.com/ProofGeneral/PG, GitHub}.
+
+This release contains several bugfixes and improvements (see the Git
+ChangeLog for more details) and supports both Coq 8.4 and Coq 8.5.
 
 @node News for Version 4.3
 @unnumberedsec News for Version 4.3
@@ -355,6 +366,10 @@ for patches and suggestions, to Makarius for many bug reports and help
 with Isabelle support and to Pierre Courtieu for providing new
 features for Coq support.
 
+Between Proof General 4.3 and 4.4 releases, the PG sources have been
+migrated from CVS to to GitHub; special thanks go to Clement
+Pit--Claudel for help in this migration.
+
 Proof General 4.4's new icons were contributed by Yoshihiro Imai
 (@uref{http://proofcafe.org/wiki/Generaltan}) under CC-BY-SA 3.0
 (@uref{https://creativecommons.org/licenses/by-sa/3.0/})
@@ -392,6 +407,7 @@ Assia Mahboubi,
 Adam Megacz,
 Stefan Monnier,
 Tobias Nipkow, 
+Clement Pit--Claudel, 
 Leonor Prensa Nieto, 
 David von Oheimb,
 Lawrence Paulson,
@@ -451,7 +467,7 @@ Please help us!
 
 Send us comments, suggestsions, or (the best) patches to improve support
 for your chosen proof assistant.  Contact us at
-@uref{http://proofgeneral.inf.ed.ac.uk/trac}.
+@uref{https://github.com/ProofGeneral/PG/issues}.
 
 If your chosen proof assistant isn't supported, read the accompanying
 @i{Adapting Proof General} manual to find out how to configure PG for a
@@ -2899,7 +2915,7 @@ Completion is activated with M-x complete.
 
 If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and post suggestions at
-http://proofgeneral.inf.ed.ac.uk/trac
+https://github.com/ProofGeneral/PG/issues
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
@@ -4028,10 +4044,10 @@ when a file is loaded. File variables and their values
 are written as a list at the end of
 the file.
 
-@emph{Remark 1:} The examples in the following are for Coq but the
+@b{Remark 1:} The examples in the following are for Coq but the
 trick is applicable to other provers. 
 
-@emph{Remark 2:} For Coq specifically, there is a recommended other way
+@b{Remark 2:} For Coq specifically, there is a recommended other way
 of configuring Coq options:
 project files (@ref{Using the Coq project file}).
 Actually, project files are intended to be included in the
@@ -5436,12 +5452,12 @@ model checking crew).
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{http://proofgeneral.inf.ed.ac.uk,home page} hosted at
-Edinburgh.  Visit this page for the latest news!
+@uref{https://proofgeneral.github.io,home page} hosted at
+GitHub.  Visit this page for the latest news!
 
 @menu
 * Obtaining Proof General::     
-* Installing Proof General from tarball::  
+* Installing Proof General from sources::  
 * Setting the names of binaries::
 * Notes for syssies::           
 @end menu
@@ -5452,55 +5468,46 @@ Edinburgh.  Visit this page for the latest news!
 
 You can obtain Proof General from the URL
 @example
-@uref{http://proofgeneral.inf.ed.ac.uk}.
+@uref{https://github.com/ProofGeneral/PG}.
 @end example
 
-The distribution is available in as a tarball.  It may be
-redistributed by third party packagers in other forms.  
+The distribution is available in the master branch of the repository.
+Tagged versions of the sources may be redistributed by third party
+packagers in other forms.
 
-Two versions are available:
-@itemize @bullet
-@item The current stable version, @*
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-stable.tgz}
-@item The latest development version, @*
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tgz}
-@end itemize
-
-The source tarball includes the generic elisp code, and code for LEGO,
-Coq, Isabelle, and other provers.  Also included are installation
+The sources includes the generic elisp code, and code for Coq, LEGO,
+Isabelle, and other provers.  Also included are installation
 instructions (reproduced in brief below) and this documentation.
 
-For access to the source code repository, please see the
-Proof General web page @uref{http://proofgeneral.inf.ed.ac.uk/devel}.
+@node Installing Proof General from sources
+@section Installing Proof General from sources
 
-@node Installing Proof General from tarball
-@section Installing Proof General from tarball
-
-Copy the distribution to some directory @var{mydir}.
-Unpack it there. For example:
+Remove old versions of Proof General, then download and install the new
+release from GitHub:
 @example
-# cd @var{mydir}
-# tar -xpzf ProofGeneral-@var{version}.tgz
+$ git clone https://github.com/ProofGeneral/PG ~/.emacs.d/lisp/PG
+$ cd ~/.emacs.d/lisp/PG
+$ make
 @end example
-If you downloaded the version called @var{latest}, you'll find it
-unpacks to a numeric version number.
 
-Proof General will now be in some subdirectory of @var{mydir}.  The name
-of the subdirectory will depend on the version number of Proof General.
-For example, it might be @file{ProofGeneral-4.0}.  It's convenient to
-link it to a fixed name:
-@example
-# ln -sf ProofGeneral-4.0 ProofGeneral
-@end example
-Now put this line in your @file{.emacs} file:
+Then add the following to your @file{.emacs}:
 @lisp
-    (load-file "@var{mydir}/ProofGeneral/generic/proof-site.el")
+;; Open .v files with Proof General's Coq mode
+(load "~/.emacs.d/lisp/PG/generic/proof-site")
 @end lisp
+
+If Proof General complains about a version mismatch, make sure that the
+shell's @code{emacs} is indeed your usual Emacs. If not, run the Makefile
+again with an explicit path to Emacs. On Mac in particular you'll
+probably need something like
+@example
+make clean; make EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
+@end example
 
 @node Setting the names of binaries
 @section Setting the names of binaries
 
-The @code{load-file} command you have added will load @file{proof-site}
+The @code{load} command you have added will load @file{proof-site}
 which sets the Emacs load path for Proof General and add auto-loads and
 modes for the supported assistants.
 
@@ -5522,7 +5529,8 @@ If you do not want to use customize, simply add a line like this:
   (setq coq-prog-name "/usr/bin/coqtop -emacs")
 @end lisp
 to your @file{.emacs} file.
-
+For more advice on how to customize the @code{coq-prog-name} variable,
+@pxref{Using file variables}, Remark 2.
 
 
 @node Notes for syssies

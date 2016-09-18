@@ -150,7 +150,7 @@ Completion is activated with \\[complete].
 
 If this table is empty or needs adjusting, please make changes using
 `customize-variable' and post suggestions at
-http://proofgeneral.inf.ed.ac.uk/trac"
+https://github.com/ProofGeneral/PG/issues"
   :type '(repeat string)
   :group 'prover-config)
 

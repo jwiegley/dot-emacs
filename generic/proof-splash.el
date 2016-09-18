@@ -70,8 +70,8 @@ Proof General."
             "PG is on Github at https://github.com/ProofGeneral/PG")
     :link '("or the " "homepage"
             (lambda (button)
-              (browse-url "http://proofgeneral.inf.ed.ac.uk/"))
-            "Browse http://proofgeneral.inf.ed.ac.uk/")
+              (browse-url "https://proofgeneral.github.io"))
+            "Browse https://proofgeneral.github.io")
     nil
     :link '("Find out about Emacs on the Help menu -- start with the "
             "Emacs Tutorial" (lambda (button) (help-with-tutorial)))
