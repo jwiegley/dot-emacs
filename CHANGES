@@ -3,7 +3,7 @@
 This is a summary of main changes.  For details, please see
 the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
-* Changes of Proof General 4.3 from Proof General 4.2
+* Changes of Proof General 4.4 from Proof General 4.3
 
 ** ProofGeneral has moved to github!
 
@@ -11,6 +11,48 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
    Please submit new bugs there, old bugs may stay in good old PG trac
    for a while though: http://proofgeneral.inf.ed.ac.uk/trac.
+
+** Coq changes
+
+*** indentation of ";" tactical:
+    by default the indentation is like this:
+    tac1;
+      tac2;
+      tac3.
+    do this: (setq coq-indent-semicolon-tactical 0) to have this:
+    tac1;
+    tac2;
+    tac3.
+
+*** Option to disable the auto resizing of response buffer:
+
+    By default when the response buffer is on the same column than
+    goals buffer, pg changes its size dynamically to optimize goals
+    displaying.
+
+    To disable this feature use:
+    (setq coq-optimise-resp-windows-enable nil)
+    
+*** Option to prefer top of conclusion instead of bottom
+
+    When display goals that do not fit in the goals window, PG prefers
+    to display the bottom of the goal (where lies it own conclusion.
+    You can make it prefer the top of the conclusion by setting this:
+    (setq coq-prefer-top-of-conclusion t)
+
+*** Auto adjusting of printing width
+
+    On by default. To disable: Coq/Settings/Auto Adapt Printing Width
+    or (setq coq-auto-adapt-printing-width nil).
+
+*** Removed the Set Undo 500 at start.
+    This is obsolete. To recover: (setq coq-user-init-cmd `("Set Undo 500."))
+
+*** Option to highlight usual symbols
+    Off by default, enable using:
+    (setq coq-symbol-highlight-enable t)
+
+* Changes of Proof General 4.3 from Proof General 4.2
 
 ** Prooftree changes
 
@@ -65,15 +107,13 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
       | S n => ...
     end    
 
-*** indentation of ";" tactical:
-    by default the indentation is like this:
-    tac1;
-      tac2;
-      tac3.
-    do this: (setq coq-indent-semicolon-tactical 0) to have this:
-    tac1;
-    tac2;
-    tac3.
+*** indentation now supports { at end of line:
+    example:
+
+    assert (h:n = k). {
+      apply foo.
+      reflexivity. }
+    apply h.
 
 *** Default indentation of forall and exists is not boxed anymore
     For instance, this is now indented like this:
@@ -90,6 +130,20 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
     Use (setq coq-smie-after-bolp-indentation 0) for a smaller indentation:
        Lemma foo: forall x y,
          x = 0 -> ... .
+
+*** Default indentation cases of "match with" are now indented by 2 instead of 4.
+     "|" is indented by zero:
+
+        match n with                   
+          0 => ...	     
+        | S n => ...                   
+        end                            
+     instead of: 
+        match n with  
+            0 => ...       
+          | S n => ...
+        end
+     do this: (setq coq-match-indent 4) to bring old behaviour back.
 
 *** Support for bullets, braces and Grab Existential Variables for Prooftree.
 
@@ -111,40 +165,12 @@ the GIT ChangeLog and PG Trac, http://proofgeneral.inf.ed.ac.uk/trac.
 
 *** Support for prettify-symbols-mode.
 
-*** Option to disable the auto resizing of response buffer:
-
-    By default when the response buffer is on the same column than
-    goals buffer, pg changes its size dynamically to optimize goals
-    displaying.
-
-    To disable this feature use:
-    (setq coq-optimise-resp-windows-enable nil)
-    
-*** Option to prefer top of conclusion instead of bottom
-
-    When display goals that do not fit in the goals window, PG prefers
-    to display the bottom of the goal (where lies it own conclusion.
-    You can make it prefer the top of the conclusion by setting this:
-    (setq coq-prefer-top-of-conclusion t)
-
 *** Colors in response and goals buffers
 
     Experimental: colorize hypothesis names and some parts of error
     and warning messages, and also evars. For readability.
 
-*** Auto adjusting of printing width
-
-    On by default. To disable: Coq/Settings/Auto Adapt Printing Width
-    or (setq coq-auto-adapt-printing-width nil).
-
 *** Coq Querying facilities
-
-*** Removed the Set Undo 500 at start.
-    This is obsolete. To recover: (setq coq-user-init-cmd `("Set Undo 500."))
-
-*** Option to highlight usual symbols
-    Off by default, enable using:
-    (setq coq-symbol-highlight-enable t)
 
 **** Minibuffer interactive queries
 
