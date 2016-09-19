@@ -51,7 +51,7 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 4.4
+@set version 4.4.1~pre
 @set emacsversion 24.4
 @set last-update September 2016
 @set rcsid $Id$
