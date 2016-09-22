@@ -714,6 +714,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-h e k" #'find-function-on-key)
 (bind-key "C-h e l" #'find-library)
 
+(defun check-papers ()
+  (interactive)
+  ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
+  (find-file-other-window "/fencepost.gnu.org:/gd/gnuorg/copyright.list"))
+
+(bind-key "C-h e P" #'check-papers)
+
 (defvar lisp-modes '(emacs-lisp-mode
                      inferior-emacs-lisp-mode
                      ielm-mode

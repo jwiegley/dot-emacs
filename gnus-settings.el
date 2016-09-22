@@ -299,7 +299,7 @@ BAE Systems"))))
      ("list\\.haskell\\.community"
       (to-address . "haskell-community@haskell.org")
       (to-list . "haskell-community@haskell.org")
-      (list-identifier . "\\[Haskell-community\\]"))
+      (list-identifier . "\\[Haskell-\\(community\\|cafe\\)\\]"))
      ("list\\.haskell\\.announce"
       (to-address . "haskell@haskell.org")
       (to-list . "haskell@haskell.org")
