@@ -1989,11 +1989,12 @@ No effect if prover is busy."
       (proof-interrupt-process)
       (proof-shell-wait))
     (save-excursion
-      (save-restriction ;; see Trac#403
-	(widen)
-	(goto-char beg)
-	(proof-retract-until-point)
-	(proof-shell-wait)))))
+      (save-match-data ;; see PG#41
+        (save-restriction ;; see Trac#403
+          (widen)
+          (goto-char beg)
+          (proof-retract-until-point)
+          (proof-shell-wait))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
