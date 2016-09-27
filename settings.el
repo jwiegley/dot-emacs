@@ -209,6 +209,7 @@
  '(auto-save-list-file-prefix "~/.emacs.d/data/auto-save-list/.saves-")
  '(auto-save-timeout 2)
  '(avy-case-fold-search nil)
+ '(avy-keys (quote (97 111 101 117 105 100 104 116 110 115)))
  '(backup-directory-alist
    (quote
     (("/Volumes/Files/" . "/Volumes/Files/.backups")
@@ -620,7 +621,9 @@
      (find-tag . helm-completing-read-with-cands-in-buffer)
      (ffap-alternate-file)
      (ffap)
-     (tmm-menubar))))
+     (tmm-menubar)
+     (find-file)
+     (magit-status . ido))))
  '(helm-delete-minibuffer-contents-from-point t)
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
@@ -1081,7 +1084,7 @@
  '(wg-query-for-save-on-emacs-exit nil)
  '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(whitespace-auto-cleanup t t)
- '(whitespace-line-column 95)
+ '(whitespace-line-column 110)
  '(whitespace-rescan-timer-time nil t)
  '(whitespace-silent t t)
  '(whitespace-style (quote (face trailing lines space-before-tab empty)))

@@ -812,14 +812,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (forward-line 1)))
       (insert "*/\n")))
 
-  ;; (defun my-c-indent-or-complete ()
-  ;;   (interactive)
-  ;;   (let ((class (syntax-class (syntax-after (1- (point))))))
-  ;;     (if (or (bolp) (and (/= 2 class)
-  ;;                         (/= 3 class)))
-  ;;         (call-interactively 'indent-according-to-mode)
-  ;;       (call-interactively 'auto-complete))))
-
   (defvar printf-index 0)
 
   (defun insert-counting-printf (arg)
@@ -1130,39 +1122,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :defer t
     :config
     (use-package preview)
-    (use-package ac-math
-      :disabled t
-      :config
-      (defun ac-latex-mode-setup ()
-        (nconc ac-sources
-               '(ac-source-math-unicode ac-source-math-latex
-                                        ac-source-latex-commands)))
-
-      (add-to-list 'ac-modes 'latex-mode)
-      (add-hook 'latex-mode-hook 'ac-latex-mode-setup))
-
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
-
     (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
                           :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
                           :doc-spec '(("(latex2e)Concept Index" )
                                       ("(latex2e)Command Index")))))
-
-(use-package auto-complete-config
-  :disabled t
-  :load-path "site-lisp/auto-complete"
-  :diminish auto-complete-mode
-  :init
-  (use-package pos-tip)
-  (ac-config-default)
-
-  :config
-  (ac-set-trigger-key "<backtab>")
-  (setq ac-use-menu-map t)
-
-  (bind-key "A-M-?" #'ac-last-help)
-  (unbind-key "C-s" ac-completing-map))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -3932,7 +3897,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; For some reason, having these in settings.el gets ignored if whitespace
   ;; loads lazily.
   (setq whitespace-auto-cleanup t
-        whitespace-line-column 80
+        whitespace-line-column 110
         whitespace-rescan-timer-time nil
         whitespace-silent t
         whitespace-style '(face trailing lines space-before-tab empty)))
