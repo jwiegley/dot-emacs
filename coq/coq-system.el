@@ -449,7 +449,7 @@ coqtop."
          (push opt args))
         (`("-arg" ,concatenated-args)
          (setq args
-               (append (split-string (cadr opt) coq--project-file-separator)
+               (append (split-string-and-unquote (cadr opt) coq--project-file-separator)
                        args)))))
     (cons "-emacs" args)))
 
