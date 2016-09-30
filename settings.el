@@ -427,7 +427,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "##categorytheory" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org" "#haskell-lens"))))
+    (("freenode.net" "#haskell" "##categorytheory" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "##hott" "#ghc" "#haskell-infrastructure" "#haskell.org"))))
  '(erc-fill-function (quote erc-fill-variable))
  '(erc-fill-static-center 12)
  '(erc-foolish-content
@@ -437,7 +437,7 @@
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
- '(erc-ignore-list (quote ("lensbot" "rudybot" "JordiGH")))
+ '(erc-ignore-list (quote ("lensbot" "rudybot" "JordiGH" "johnwilkins")))
  '(erc-ignore-reply-list (quote ("JordiGH")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
@@ -623,7 +623,10 @@
      (ffap)
      (tmm-menubar)
      (find-file)
-     (magit-status . ido))))
+     (magit-status . ido)
+     (dired-do-copy . ido)
+     (dired-do-rename . ido)
+     (mml-attach-file . ido))))
  '(helm-delete-minibuffer-contents-from-point t)
  '(helm-ff-file-name-history-use-recentf t)
  '(helm-ff-search-library-in-sexp t)
