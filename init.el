@@ -3917,6 +3917,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/workgroups"
   :diminish workgroups-mode
   :bind-keymap ("C-\\" . wg-map)
+  :demand t
   :config
   (workgroups-mode 1)
 
