@@ -2069,7 +2069,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
          ("M-H"     . helm-resume)
-         ("M-x"     . helm-M-x))
+         ;; ("M-x"     . helm-M-x)
+         )
 
   :preface
   (defun my-helm-find ()
@@ -2396,7 +2397,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package ido-hacks
     :demand t
     :load-path "site-lisp/ido-hacks"
-    ;; :bind ("M-x" . my-ido-hacks-execute-extended-command)
+    :bind ("M-x" . my-ido-hacks-execute-extended-command)
     :config
     (ido-hacks-mode 1)
 
