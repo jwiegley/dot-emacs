@@ -2434,7 +2434,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package iedit
   :load-path "site-lisp/iedit"
-  :commands iedit)
+  :bind (("C-;" . iedit-mode)))
 
 (use-package ielm
   :bind ("C-c :" . ielm)
@@ -3188,8 +3188,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (persp-mode))
 
 (use-package popup-ruler
-  :bind (("C-. r" . popup-ruler)
-         ("C-. R" . popup-ruler-vertical)))
+  :bind (("C-. C-r" . popup-ruler)))
 
 (use-package pp-c-l
   :commands pretty-control-l-mode
@@ -3839,7 +3838,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
-  :commands visual-regexp
+  :commands (vr/replace
+             vr/query-replace)
+  :bind (("C-. r" . vr/replace)
+         ("C-. M-%" . vr/query-replace))
   :config
   (use-package visual-regexp-steroids
     :load-path "site-lisp/visual-regexp-steroids"))
