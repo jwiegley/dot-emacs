@@ -1030,7 +1030,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (if (null counsel--git-grep-dir)
         (error "Not in a git repository")
       (unless proj
-        (setq counsel--git-grep-count (counsel--gg-count "" t)))
+        (setq counsel--git-grep-count
+              (if (eq system-type 'windows-nt)
+                  0
+                (counsel--gg-count "" t))))
       (ivy-read "git grep" (if proj
                                'counsel-git-grep-proj-function
                              'counsel-git-grep-function)
@@ -1357,11 +1360,13 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (file-name-as-directory (file-name-nondirectory dir-file-name)))))
 
 (defun counsel-at-git-issue-p ()
-  "Whe point is at an issue in a Git-versioned file, return the issue string."
+  "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")
        (or
         (eq (vc-backend (buffer-file-name)) 'Git)
-        (memq major-mode '(magit-commit-mode)))
+        (or
+         (memq major-mode '(magit-commit-mode))
+         (bound-and-true-p magit-commit-mode)))
        (match-string-no-properties 0)))
 
 (defun counsel-github-url-p ()
@@ -1441,15 +1446,16 @@ string - the full shell command to run."
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command, or corresponding system command, on X."
   (interactive (list (read-file-name "File: ")))
-  (call-process shell-file-name nil
-                nil nil
-                shell-command-switch
-                (format "%s %s"
-                        (cl-case system-type
-                          (darwin "open")
-                          (windows-nt "start")
-                          (t "xdg-open"))
-                        (shell-quote-argument x))))
+  (if (eq system-type 'windows-nt)
+      (w32-shell-execute "open" x)
+    (call-process shell-file-name nil
+                  nil nil
+                  shell-command-switch
+                  (format "%s %s"
+                          (cl-case system-type
+                            (darwin "open")
+                            (t "xdg-open"))
+                          (shell-quote-argument x)))))
 
 (defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
 
@@ -2237,6 +2243,14 @@ And insert it into the minibuffer. Useful during
     (ivy-read "Expr: " (delete-dups read-expression-history)
               :action #'insert)))
 
+;;** `counsel-shell-command-history'
+;;;###autoload
+(defun counsel-shell-command-history ()
+  (interactive)
+  (ivy-read "cmd: " shell-command-history
+            :action #'insert
+            :caller 'counsel-shell-command-history))
+
 ;;** `counsel-esh-history'
 (defun counsel--browse-history (elements)
   "Use Ivy to navigate through ELEMENTS."
@@ -2286,7 +2300,7 @@ And insert it into the minibuffer. Useful during
                      (lookup-key keymap (kbd (nth 0 x)))))
                   heads)))
     (ivy-read "head: " head-names
-              :action #'call-interactively)
+              :action (lambda (x) (call-interactively (cdr x))))
     (hydra-keyboard-quit)))
 ;;** `counsel-semantic'
 (declare-function semantic-tag-start "tag")
@@ -2545,9 +2559,14 @@ replacements. "
   :keymap counsel-mode-map
   :lighter " counsel"
   (if counsel-mode
-      (when (and (fboundp 'advice-add)
-                 counsel-mode-override-describe-bindings)
-        (advice-add #'describe-bindings :override #'counsel-descbinds))
+      (progn
+        (when (and (fboundp 'advice-add)
+                   counsel-mode-override-describe-bindings)
+          (advice-add #'describe-bindings :override #'counsel-descbinds))
+        (define-key minibuffer-local-shell-command-map (kbd "C-r")
+          'counsel-shell-command-history)
+        (define-key read-expression-map (kbd "C-r")
+          'counsel-expression-history))
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
