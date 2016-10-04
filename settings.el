@@ -634,6 +634,7 @@
  '(helm-for-files-preferred-list
    (quote
     (helm-source-files-in-current-dir helm-source-recentf helm-source-bookmarks helm-source-file-cache helm-source-buffers-list helm-source-locate helm-source-ls-git)))
+ '(helm-grep-default-recurse-command "rg --no-heading --color=always -j4 -n%cH -e %p %f")
  '(helm-ls-git-show-abs-or-relative (quote relative))
  '(helm-quick-update t)
  '(helm-recentf-fuzzy-match t)
