@@ -988,6 +988,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
+(use-package ace-link
+  :load-path "site-lisp/ace-link"
+  :defer 5
+  :config
+  (ace-link-setup-default)
+  (bind-key "M-o" 'ace-link-gnus gnus-summary-mode-map)
+  (bind-key "M-o" 'ace-link-gnus gnus-article-mode-map))
+
 (use-package ag
   :load-path "site-lisp/ag-el"
   :commands (ag ag-regexp)
@@ -1079,6 +1087,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package async
   :load-path "elpa/packages/async")
+
+(use-package auto-yasnippet
+  :load-path "site-lisp/auto-yasnippet"
+  :bind (("C-. w" . aya-create)
+         ("C-. y" . aya-expand)
+         ("C-. o" . aya-open-line)))
 
 (use-package avy
   :demand t
@@ -1806,6 +1820,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/emacs-git-messenger"
   :bind ("C-x v m" . git-messenger:popup-message))
 
+(use-package git-timemachine
+  :load-path "site-lisp/git-timemachine"
+  :commands git-timemachine)
+
 (use-package git-wip-mode
   :load-path "site-lisp/git-wip/emacs/"
   :diminish git-wip-mode
@@ -2026,6 +2044,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun my-helm-do-grep-r ()
     (interactive)
     (helm-do-grep-1 (list default-directory) t)))
+
+(use-package helm-make
+  :load-path "site-lisp/helm-make"
+  :commands (helm-make helm-make-projectile))
 
 (use-package helm-swoop
   :load-path "site-lisp/helm-swoop"
@@ -2417,6 +2439,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (let ((wind (selected-window)))
       ad-do-it
       (select-window wind))))
+
+(use-package iedit
+  :load-path "site-lisp/iedit"
+  :commands iedit)
 
 (use-package ielm
   :bind ("C-c :" . ielm)
@@ -2908,6 +2934,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (remove-hook 'server-switch-hook 'magit-commit-diff))
 
   (use-package magithub
+    :disabled t
     :load-path "site-lisp/magithub")
 
   (unbind-key "M-h" magit-mode-map)
@@ -3137,7 +3164,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-. j" #'paredit-join-with-next-list paredit-mode-map)
   (bind-key "C-. J" #'paredit-join-with-previous-list paredit-mode-map))
 
-
 (or (use-package mic-paren
       :defer 5
       :config
@@ -3187,6 +3213,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/powerline"
   :config
   (powerline-default-theme))
+
+(use-package prodigy
+  :load-path "site-lisp/prodigy"
+  :commands prodigy)
 
 (use-package projectile
   :load-path "site-lisp/projectile"
@@ -3814,6 +3844,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                              (split-string dockernames-raw "\n"))))
           (setq ad-return-value dockernames))
       ad-do-it)))
+
+(use-package visual-regexp
+  :load-path "site-lisp/visual-regexp"
+  :commands visual-regexp
+  :config
+  (use-package visual-regexp-steroids
+    :load-path "site-lisp/visual-regexp-steroids"))
 
 (use-package vkill
   :commands vkill
