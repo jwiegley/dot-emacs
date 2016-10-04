@@ -988,14 +988,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
-(use-package ace-link
-  :load-path "site-lisp/ace-link"
-  :defer 5
-  :config
-  (ace-link-setup-default)
-  (bind-key "M-o" 'ace-link-gnus gnus-summary-mode-map)
-  (bind-key "M-o" 'ace-link-gnus gnus-article-mode-map))
-
 (use-package ag
   :load-path "site-lisp/ag-el"
   :commands (ag ag-regexp)
