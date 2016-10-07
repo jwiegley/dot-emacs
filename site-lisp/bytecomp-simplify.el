@@ -1,9 +1,9 @@
 ;;; bytecomp-simplify.el --- byte compile warnings for simplifications
 
-;; Copyright 2009, 2010, 2011, 2012 Kevin Ryde
+;; Copyright 2009, 2010, 2011, 2012, 2013, 2014 Kevin Ryde
 
-;; Author: Kevin Ryde <user42@zip.com.au>
-;; Version: 13
+;; Author: Kevin Ryde <user42_kevin@yahoo.com.au>
+;; Version: 18
 ;; Keywords: extensions, byte-compile
 ;; URL: http://user42.tuxfamily.org/bytecomp-simplify/index.html
 
@@ -35,6 +35,8 @@
 ;;     delete-windows-on     `current-buffer' omitted for Emacs 23 up
 ;;     eq nil                can be `null'
 ;;     equal 'sym            can be `eq'
+;;     forward-word          \ count==1 can be omitted for Emacs 22 and
+;;     backward-word         /   XEmacs 21 up
 ;;     kill-buffer           `current-buffer' nil or omitted for Emacs 23
 ;;     lisp-indent-function  `declare' within macro for Emacs 23 up
 ;;     princ "\n"            `terpri'
@@ -104,6 +106,11 @@
 ;; Version 11 - in fixed-match warning show the regexp
 ;; Version 12 - fix for put 'lisp-indent-function on unevaluated toplevels
 ;; Version 13 - new switch-to-buffer and write-region
+;; Version 14 - use `ignore-errors'
+;; Version 15 - suppress "Wrote /dev/null" message
+;; Version 16 - new forward-word, backward-word omit count=1 in emacs22
+;; Version 17 - fix check of write-region doesn't take nil in emacs20
+;; Version 18 - use `macrop' when available
 
 ;;; Code:
 
@@ -113,22 +120,37 @@
 ;; (don't unload 'advice before our -unload-function)
 (require 'advice)
 
-;; for apropos-macrop
-(require 'apropos)
+(eval-when-compile
+  (unless (fboundp 'ignore-errors)
+    (require 'cl))) ;; for `ignore-errors' macro
+
+
+;;-----------------------------------------------------------------------------
+;; `macrop' new in Emacs 24.4
+;; before that apropos.el had an `apropos-macrop'
+
+(defalias 'bytecomp-simplify--macrop
+  (if (eval-when-compile (fboundp 'macrop))
+      'macrop
+    (progn
+      (require 'apropos)
+      'apropos-macrop)))
 
 
 ;;-----------------------------------------------------------------------------
 ;; generic
 
-(put 'bytecomp-simplify-quoted-symbol 'side-effect-free 'error-free)
-(put 'bytecomp-simplify-quoted-symbol 'pure t)
 (defun bytecomp-simplify-quoted-symbol (obj)
-  "If OBJ is a list `(quote SYMBOL)' return SYMBOL, otherwise nil."
+  "An internal part of bytecomp-simplify.el.
+If OBJ is a list `(quote SYMBOL)' return SYMBOL, otherwise nil."
   (and (consp obj)
        (equal 2 (safe-length obj))
        (eq 'quote (car obj))
        (symbolp (cadr obj))
        (cadr obj)))
+(eval-when-compile
+  (put 'bytecomp-simplify-quoted-symbol 'side-effect-free 'error-free)
+  (put 'bytecomp-simplify-quoted-symbol 'pure t))
 
 
 ;;-----------------------------------------------------------------------------
@@ -163,9 +185,10 @@
 
 ;;-----------------------------------------------------------------------------
 
-(put  'bytecomp-simplify-warning-enabled-p 'side-effect-free t)
 (defun bytecomp-simplify-warning-enabled-p (&optional warning-type)
-  "Return non-nil if simplify warnings are enabled in `byte-compile-warnings'."
+  "An internal part of bytecomp-simplify.el.
+Return non-nil if WARNING-TYPE is enabled in `byte-compile-warnings'.
+If WARNING-TYPE is omitted or nil then check for `simplify'."
   (unless warning-type
     (setq warning-type 'simplify))
   (cond ((eval-when-compile (fboundp 'byte-compile-warning-enabled-p))
@@ -179,9 +202,12 @@
          (not (memq warning-type (cdr byte-compile-warnings))))
         (t
          (memq warning-type byte-compile-warnings))))
+(eval-when-compile
+  (put 'bytecomp-simplify-warning-enabled-p 'side-effect-free t))
 
 (defun bytecomp-simplify-warn (form)
-  "Warn about possible code simplifications in FORM.
+  "An internal part of bytecomp-simplify.el.
+Warn about possible code simplifications in FORM.
 A check is made of a plain call (FOO ...), anything else is
 ignored.  Just the FOO call is checked, not any calls within
 argument expressions."
@@ -207,44 +233,46 @@ argument expressions."
 
 (defadvice byte-compile-normal-call (before bytecomp-simplify activate)
   "Notice simplifications."
-  (bytecomp-simplify-warn form))
+  ;; (message "byte-compile-normal-call of %S" (ad-get-arg 0))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; emacs23 `char-before'
 (defadvice byte-compile-char-before (before bytecomp-simplify activate)
   "Notice simplifications."
-  (bytecomp-simplify-warn form))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; for `char-after'
 (defadvice byte-compile-zero-or-one-arg (before bytecomp-simplify activate)
   "Notice simplifications."
-  ;; (message "zero-one simplify: %S" form)
-  (bytecomp-simplify-warn form))
+  ;; (message "zero-one simplify: %S" (ad-get-arg 0))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; for `char-after' in xemacs21
 (defadvice byte-compile-zero-or-one-arg-with-one-extra (before bytecomp-simplify activate)
   "Notice simplifications."
-  ;; (message "zero-one-extra simplify: %S" form)
-  (bytecomp-simplify-warn form))
+  ;; (message "zero-one-extra simplify: %S" (ad-get-arg 0))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; for `eq'
 (defadvice byte-compile-two-args (before bytecomp-simplify activate)
   "Notice simplifications."
-  ;; (message "two-args simplify: %S" form)
-  (bytecomp-simplify-warn form))
+  ;; (message "two-args simplify: %S" (ad-get-arg 0))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; for `eq' in xemacs21
 (defadvice byte-compile-two-args-19->20 (before bytecomp-simplify activate)
   "Notice simplifications."
-  ;; (message "two-args-19->20 simplify: %S" form)
-  (bytecomp-simplify-warn form))
+  ;; (message "two-args-19->20 simplify: %S" (ad-get-arg 0))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 ;; get a look at 'cl `eql' before it's optimized down to eq or equal
 (defadvice compiler-macroexpand (before bytecomp-simplify activate)
   "Notice simplifications."
-  (bytecomp-simplify-warn form))
+  (bytecomp-simplify-warn (ad-get-arg 0)))
 
 (defun bytecomp-simplify-unload-function ()
-  "Remove defadvices applied by bytecomp-simplify.
+  "An internal part of bytecomp-simplify.el.
+Remove defadvices applied by bytecomp-simplify.
 This is called by `unload-feature'."
   (dolist (func '(byte-compile-normal-call
                   byte-compile-defmacro
@@ -262,7 +290,7 @@ This is called by `unload-feature'."
       (ad-activate        func)))
   nil) ;; and do normal unload-feature actions too
 
-      
+
 ;;-----------------------------------------------------------------------------
 ;; char-before, char-after, push-mark
 
@@ -292,12 +320,12 @@ This is called by `unload-feature'."
 ;; delete-windows-on
 
 (defconst bytecomp-simplify-delete-windows-on--optarg
-  (condition-case nil
-      (with-temp-buffer
-        (eval '(delete-windows-on))
-        t)
-    (error nil))
-  "Non-nil if `delete-windows-on' buffer arg is optional in this Emacs.")
+  (ignore-errors
+    (with-temp-buffer
+      (eval '(delete-windows-on))
+      t))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `delete-windows-on' buffer arg is optional in this Emacs.")
 
 (put 'delete-windows-on 'bytecomp-simplify-warn
      (lambda (fn form)
@@ -337,15 +365,50 @@ This is called by `unload-feature'."
 
 
 ;;-----------------------------------------------------------------------------
+;; forward-word
+;; backward-word
+
+(defconst bytecomp-simplify-backward/forward-word--optarg
+  (ignore-errors
+    (with-temp-buffer
+      (eval '(forward-word))
+      t))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `forward-word' count 1 is optional in this Emacs.")
+
+(defconst bytecomp-simplify-backward/forward-word--opposite
+  '((forward-word . backward-word)
+    (backward-word . forward-word)))
+
+(defun bytecomp-simplify-backward/forward-word (fn form)
+  ;; checkdoc-params: (fn form)
+  "Count 1 to `forward-word' or `backward-word' can be omitted.
+Count -1 can be the opposite too."
+  ;; ENHANCE-ME: (backward-word 1) reaches here as (forward-word -1) so the
+  ;; warning message refers to forward-word instead of backward-word from
+  ;; the source.  The suggested change to (backward-word) no args is correct
+  ;; though.
+  (when (equal (cadr form) 1)
+    (byte-compile-warn "`%S' can be simplified to `(%S)', for Emacs 22 and XEmacs 21 up" form fn))
+  (when (equal (cadr form) -1)
+    (byte-compile-warn "`%S' can be simplified to `(%S)', for Emacs 22 and XEmacs 21 up" form (cdr (assq fn bytecomp-simplify-backward/forward-word--opposite)))))
+
+(put 'forward-word 'bytecomp-simplify-warn
+     'bytecomp-simplify-backward/forward-word)
+(put 'backward-word 'bytecomp-simplify-warn
+     'bytecomp-simplify-backward/forward-word)
+
+
+;;-----------------------------------------------------------------------------
 ;; kill-buffer
 
 (defconst bytecomp-simplify-kill-buffer--optarg
-  (condition-case nil
-      (with-temp-buffer
-        (eval '(kill-buffer))
-        t)
-    (error nil))
-  "Non-nil if `kill-buffer' buffer arg is optional in this Emacs.")
+  (ignore-errors
+    (with-temp-buffer
+      (eval '(kill-buffer))
+      t))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `kill-buffer' buffer arg is optional in this Emacs.")
 
 (put 'kill-buffer 'bytecomp-simplify-warn
      (lambda (fn form)
@@ -380,27 +443,30 @@ This is called by `unload-feature'."
 ;; difference to how the code comes out.
 
 (defconst bytecomp-simplify-put--declare-indent-p
-  (condition-case nil
-      (eval
-       '(progn
-          (defmacro bytecomp-simplify-put--declare-indent-p--test
-            (foo &rest body)
-            (declare (indent 1))
-            nil)
-          (prog1
-              (equal 1 (get 'bytecomp-simplify-put--declare-indent-p--test
-                            'lisp-indent-function))
-            (fmakunbound 'bytecomp-simplify-put--declare-indent-p--test))))
-    (error nil))
-  "Non-nil if `(declare (indent N))' can be used in this Emacs.")
+  (ignore-errors
+    (eval
+     '(progn
+        (defmacro bytecomp-simplify-put--declare-indent-p--test
+          (foo &rest body)
+          (declare (indent 1))
+          nil)
+        (prog1
+            (equal 1 (get 'bytecomp-simplify-put--declare-indent-p--test
+                          'lisp-indent-function))
+          (fmakunbound 'bytecomp-simplify-put--declare-indent-p--test)))))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `(declare (indent N))' can be used in this Emacs.")
 
 (defvar bytecomp-simplify-put--pending-indents nil
-  "List of as-yet unknown symbols with (put 'lisp-indent-function).")
+  "An internal part of bytecomp-simplify.el.
+List of as-yet unknown symbols with (put 'lisp-indent-function).")
 (defvar bytecomp-simplify-put--known-macros nil
-  "List of defmacro defined symbols.")
+  "An internal part of bytecomp-simplify.el.
+List of defmacro defined symbols.")
 
 (defun bytecomp-simplify-put-warn-indent (symbol)
-  "Report lisp-indent-function on SYMBOL can be `declare' instead."
+  "An internal part of bytecomp-simplify.el.
+Report `lisp-indent-function' on SYMBOL can be `declare' instead."
   (setq bytecomp-simplify-put--pending-indents
         (remove symbol bytecomp-simplify-put--pending-indents))
   (byte-compile-warn "(put '%S 'lisp-indent-function) can be simplified to `(declare (indent N))' in the macro, for Emacs 23 up" symbol))
@@ -417,7 +483,7 @@ This is called by `unload-feature'."
          (if (or (memq fn bytecomp-simplify-put--known-macros)
                  (cdr (assq fn byte-compile-macro-environment))
                  (and (fboundp fn)
-                      (apropos-macrop fn)))
+                      (bytecomp-simplify--macrop fn)))
              (bytecomp-simplify-put-warn-indent fn)
            ;; not yet defined
            (add-to-list 'bytecomp-simplify-put--pending-indents fn)))
@@ -435,11 +501,23 @@ This is called by `unload-feature'."
         (bytecomp-simplify-put-warn-indent symbol)))))
 (defadvice byte-compile-defmacro (before bytecomp-simplify activate)
   "Check for previous encountered (put 'lisp-indent-function)."
+  ;; (message "defmacro of %S" (ad-get-arg 0))
   (bytecomp-simplify-defmacro (ad-get-arg 0)))
 (defadvice byte-compile-file-form-defmacro (before bytecomp-simplify activate)
   "Check for previous encountered (put 'lisp-indent-function)."
+  ;; (message "file-form-defmacro of %S" (ad-get-arg 0))
   (bytecomp-simplify-defmacro (ad-get-arg 0)))
 
+;; (defadvice byte-compile-preprocess (before bytecomp-simplify activate)
+;;   "Notice simplifications."
+;;   (bytecomp-simplify-warn (ad-get-arg 0)))
+;;
+;; (put 'defalias 'bytecomp-simplify-warn
+;;      (lambda (fn form)
+;;        (message "defalias of %S" form)
+;;        (when (equal '(quote macro)
+;;                     (car-safe (cdr-safe (car-safe (cdr-safe (cdr-safe form))))))
+;;          (bytecomp-simplify-defmacro (cadr form)))))
 
 ;;-----------------------------------------------------------------------------
 ;; search-forward
@@ -447,7 +525,8 @@ This is called by `unload-feature'."
 
 (defun bytecomp-simplify-search-limit (fn form)
   ;; checkdoc-params: (fn form)
-  "Search limit `point-min' or `point-max' can be nil."
+  "An internal part of bytecomp-simplify.el.
+Search limit `point-min' or `point-max' can be nil."
   (let ((default (if (string-match "forward" (symbol-name fn))
                      '(point-max)
                    '(point-min))))
@@ -466,8 +545,9 @@ This is called by `unload-feature'."
 ;; re-search-backward
 
 (defun bytecomp-simplify-regexp-fixed-p (regexp)
-  "Return non-nil if REGEXP matches only a fixed string.
-All backslashed alphabeticals like \\X are treated as not a fixed
+  "An internal part of bytecomp-simplify.el.
+Return non-nil if REGEXP matches only a fixed string.
+All backslashed alphabeticals like \\=\\X are treated as not a fixed
 match.  Unknown ones will match only a literal X, but you
 shouldn't rely on that in case the regexp engine gets new
 specials in the future."
@@ -482,7 +562,8 @@ specials in the future."
 
 (defun bytecomp-simplify-re-search-fixed (fn form)
   ;; checkdoc-params: (fn form)
-  "Fixed string `re-search-' can be plain `search-'."
+  "An internal part of bytecomp-simplify.el.
+Fixed string `re-search-' can be plain `search-'."
   (when (and (stringp (nth 1 form))
              (bytecomp-simplify-regexp-fixed-p (nth 1 form)))
     (byte-compile-warn
@@ -504,18 +585,19 @@ specials in the future."
 ;; up-list, down-list
 
 (defconst bytecomp-simplify-updown-list--optarg
-  (condition-case nil
-      (with-temp-buffer
-        (insert "()")
-        (goto-char (point-min))
-        (eval '(down-list))
-        t)
-    (error nil))
-  "Non-nil if `up-list' and `down-list' count arg is optional in this Emacs.")
+  (ignore-errors
+    (with-temp-buffer
+      (insert "()")
+      (goto-char (point-min))
+      (eval '(down-list))
+      t))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `up-list' and `down-list' count arg is optional in this Emacs.")
 
 (defun bytecomp-simplify-updown-list (fn form)
   ;; checkdoc-params: (fn form)
-  "`(up-list 1)' arg can be omitted as `(up-list)', in Emacs 21 up."
+  "An internal part of bytecomp-simplify.el.
+`(up-list 1)' arg can be omitted as `(up-list)', in Emacs 21 up."
   (when (and bytecomp-simplify-updown-list--optarg
              (equal (cdr form) '(1)))
     (byte-compile-warn "`%S' can be simplified to `(%S)', for Emacs 21 up"
@@ -539,18 +621,31 @@ specials in the future."
 ;; write-region
 
 (defconst bytecomp-simplify--write-region-nil
-  (condition-case nil
-      (with-temp-buffer
-        (write-region nil nil null-device)
-        t)
-    (error nil))
-  "Non-nil if `write-region' accepts nil for whole buffer in this Emacs.
-`write-region' has this in GNU Emacs 22 and up (and not in XEmacs 21.4).")
+  (and (/= emacs-major-version 20)
+       (with-temp-buffer
+         (ignore-errors
+           (write-region nil nil      ;; start,end
+                         null-device  ;; filename
+                         nil          ;; append
+                         'no-message) ;; visit
+           t)))
+  "An internal part of bytecomp-simplify.el.
+Non-nil if `write-region' accepts nil for whole buffer in this Emacs.
+\(write-region nil nil ...) works in in GNU Emacs 22 and up, and not in
+XEmacs 21.4.
+
+In Emacs 20 this check is forced to `write-region' not taking
+nil.  In normal interactive use `write-region' doesn't take nil
+because it calls `select-safe-coding-system' which doesn't take
+nil.  Under -batch that `select-safe-coding-system' is not run,
+so it appears `write-region' does allow nil, but force to not so
+that we don't report a simplification which would only work
+sometimes.")
 
 (put 'write-region 'bytecomp-simplify-warn
      (lambda (fn form)
        (when (and bytecomp-simplify--write-region-nil
-                  (equal (car-safe form) 'write-region)
+                  (eq (car-safe form) 'write-region)
                   (equal (car-safe (cdr-safe form)) '(point-min))
                   (equal (car-safe (cdr-safe (cdr-safe form))) '(point-max)))
          (byte-compile-warn "`(%S (point-min) (point-max)' can be simplified to `(%S nil nil', for Emacs 22 up"
@@ -558,7 +653,7 @@ specials in the future."
 
 ;;-----------------------------------------------------------------------------
 
-;; LocalWords: conditionalized spam defadvices alphabeticals
+;; LocalWords: conditionalized spam defadvices alphabeticals Eg arg backslashed
 
 (provide 'bytecomp-simplify)
 

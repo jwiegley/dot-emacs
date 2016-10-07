@@ -132,18 +132,17 @@
 
 (use-package anaphora       :defer t :load-path "lib/anaphora")
 (use-package button-lock    :defer t :load-path "lib/button-lock")
-(use-package dash           :defer t :load-path "lib/dash-el")
 (use-package ctable         :defer t :load-path "lib/emacs-ctable")
+(use-package dash           :defer t :load-path "lib/dash-el")
 (use-package deferred       :defer t :load-path "lib/emacs-deferred")
 (use-package epc            :defer t :load-path "lib/emacs-epc")
-(use-package web            :defer t :load-path "lib/emacs-web")
 (use-package epl            :defer t :load-path "lib/epl")
 (use-package f              :defer t :load-path "lib/f-el")
-(use-package fame           :defer t)
-(use-package fuzzy          :defer t)
+(use-package fame           :defer t :load-path "lib/fame")
+(use-package fuzzy          :defer t :load-path "lib/fuzzy-el")
 (use-package gh             :defer t :load-path "lib/gh-el")
 (use-package ht             :defer t :load-path "lib/ht-el")
-(use-package let-alist      :defer t)
+(use-package let-alist      :defer t :load-path "lib/let-alist")
 (use-package logito         :defer t :load-path "lib/logito")
 (use-package makey          :defer t :load-path "lib/makey")
 (use-package pcache         :defer t :load-path "lib/pcache")
@@ -153,8 +152,9 @@
 (use-package pos-tip        :defer t :load-path "lib/pos-tip")
 (use-package s              :defer t :load-path "lib/s-el")
 (use-package tablist        :defer t :load-path "lib/tablist")
-(use-package working        :defer t)
-(use-package xml-rpc        :defer t)
+(use-package web            :defer t :load-path "lib/emacs-web")
+(use-package working        :defer t :load-path "lib/working")
+(use-package xml-rpc        :defer t :load-path "lib/xml-rpc")
 
 ;;; Keybindings
 
@@ -463,6 +463,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("r" . do-eval-region)
            ("s" . scratch)
            ("z" . byte-recompile-directory))
+
+(use-package bytecomp-simplify :defer 15)
 
 (bind-key "C-c f" #'flush-lines)
 (bind-key "C-c k" #'keep-lines)
@@ -1358,6 +1360,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands diff-mode
   :config
   (use-package diff-mode-))
+
+(use-package diffview
+  :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
   :bind ("C-c J" . dired-double-jump)
