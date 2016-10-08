@@ -464,8 +464,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("s" . scratch)
            ("z" . byte-recompile-directory))
 
-(use-package bytecomp-simplify :defer 15)
-
 (bind-key "C-c f" #'flush-lines)
 (bind-key "C-c k" #'keep-lines)
 
@@ -971,6 +969,193 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                  (c-special-indent-hook . c-gnu-impose-minimum)
                  (c-block-comment-prefix . ""))))
 
+;;; PACKAGE CONFIGURATIONS
+
+(defun sort-package-declarations ()
+  (interactive)
+  (cl-flet ((next-use-package
+             () (if (re-search-forward "^(use-package " nil t)
+                    (goto-char (match-beginning 0))
+                  (goto-char (point-max)))))
+    (sort-subr
+     nil
+     #'next-use-package
+     #'(lambda ()
+         (goto-char (line-end-position))
+         (next-use-package))
+     #'(lambda ()
+         (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
+         (match-string 1)))))
+
+(defun package-inventory (&optional conversions builtin ignored)
+  (interactive)
+  (let ((installed
+         (sort
+          (delete-dups
+           (mapcar
+            #'(lambda (file)
+                (setq file (dired-make-relative file user-emacs-directory))
+                (cond
+                 ((string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)\\.el" file)
+                  (list (match-string 2 file)
+                        (match-string 1 file) t))
+                 ((string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)/" file)
+                  (list (match-string 2 file)
+                        (match-string 1 file)))))
+            (apply #'nconc
+                   (mapcar #'(lambda (dir)
+                               (directory-files-recursively
+                                (expand-file-name dir user-emacs-directory)
+                                "\\.el\\'" nil))
+                           '("lib" "site-lisp" "override" "lisp")))))
+          #'(lambda (x y)
+              (string-lessp (nth 0 x) (nth 0 y)))))
+        (referenced
+         (sort
+          (delete-dups
+           (apply
+            #'nconc
+            (mapcar
+             #'(lambda (file)
+                 (with-temp-buffer
+                   (insert-file-contents file)
+                   (goto-char (point-min))
+                   (let (pkgs)
+                     (while (re-search-forward
+                             "(use-package \\([A-Za-z0-9_+-]+\\)" nil t)
+                       (setq pkgs (cons (match-string 1) pkgs)))
+                     pkgs)))
+             (list (expand-file-name "init.el" user-emacs-directory)
+                   (expand-file-name "dot-gnus.el" user-emacs-directory)
+                   (expand-file-name "dot-org.el" user-emacs-directory)))))
+          #'string-lessp)))
+    (cl-flet ((entry-names
+               (entry)
+               (or (cdr (assoc (nth 0 entry) conversions))
+                   (list (nth 0 entry)))))
+      (with-current-buffer (get-buffer-create "*inventory*")
+        (delete-region (point-min) (point-max))
+        (dolist
+            (pkg
+             (sort
+              (nconc
+               (mapcar
+                #'(lambda (entry)
+                    (cons (if (cl-some #'(lambda (name) (member name referenced))
+                                       (entry-names entry))
+                              'installed-and-referenced
+                            'only-installed) (nth 0 entry)))
+                installed)
+               (mapcar
+                #'(lambda (name)
+                    (cons (if (or (cl-some
+                                   #'(lambda (entry)
+                                       (member name (entry-names entry)))
+                                   installed)
+                                  (member name builtin))
+                              'installed-and-referenced
+                            'only-referenced) name))
+                referenced))
+              #'(lambda (x y) (string-lessp (cdr x) (cdr y)))))
+          (unless (member (cdr pkg) ignored)
+            (pcase (car pkg)
+              ('installed-and-referenced)
+              ('only-installed
+               (let* ((inst (assoc (cdr pkg) installed))
+                      (cmd (concat
+                            "(shell-command \""
+                            (if (nth 2 inst)
+                                (concat "rm -f " (nth 1 inst) ".el*")
+                              (concat "rm -fr " (nth 1 inst)))
+                            "\")")))
+                 (insert "(use-package " (cdr pkg) ?\n
+                         "  ;; " cmd ?\n
+                         "  :disabled t")
+                 (unless (nth 2 inst)
+                   (insert ?\n "  :load-path \"" (nth 1 inst) "\""))
+                 (insert ")" ?\n ?\n)))
+              ('only-referenced
+               (insert ";; " (cdr pkg) " -- referenced" ?\n ?\n)))))
+        (goto-char (point-min))
+        (emacs-lisp-mode)
+        (display-buffer (current-buffer))))))
+
+(defun inventory ()
+  (interactive)
+  (package-inventory
+   '(
+     ("ProofGeneral" "proof-site" "coq" "pg-user")
+     ("agda" "agda-input" "agda2-mode")
+     ("auctex" "tex-site" "latex" "texinfo" "preview")
+     ("bbdb" "bbdb-com")
+     ("bookmark-plus" "bookmark+")
+     ("company-mode" "company")
+     ("dash-el" "dash")
+     ("debbugs" "debbugs-gnu")
+     ("diffview-mode" "diffview")
+     ("docker-el" "docker" "docker-images")
+     ("emacs-async" "async")
+     ("emacs-calfw" "calfw" "calfw-cal" "calfw-org")
+     ("emacs-ctable" "ctable")
+     ("emacs-deferred" "deferred")
+     ("emacs-epc" "epc")
+     ("emacs-git-messenger" "git-messenger")
+     ("emacs-web" "web")
+     ("expand-region-el" "expand-region")
+     ("f-el" "f")
+     ("flx" "flx-ido")
+     ("fold-this-el" "fold-this")
+     ("fuzzy-el" "fuzzy")
+     ("gh-el" "gh")
+     ("git-annex-el" "git-annex")
+     ("git-wip" "git-wip-mode")
+     ("github-issues-el" "github-issues")
+     ("haskell-config" "haskell-edit")
+     ("haskell-mode" "haskell-mode-autoloads")
+     ("helm" "helm-config" "helm-buffers" "helm-files" "helm-grep"
+      "helm-match-plugin" "helm-mode" "helm-multi-match")
+     ("ht-el" "ht")
+     ("ipa-el" "ipa")
+     ("liquid-types-el" "liquid-types")
+     ("lusty-emacs" "lusty-explorer")
+     ("magit" "magit" "magit-commit")
+     ("multifiles-el" "multifiles")
+     ("multiple-cursors-el" "multiple-cursors")
+     ("navi" "navi-mode")
+     ("popup-el" "popup")
+     ("popwin-el" "popwin")
+     ("projectile" "projectile" "helm-projectile")
+     ("s-el" "s")
+     ("slime" "slime" "hyperspec")
+     ("smart-forward-el" "smart-forward")
+     ("tramp" "tramp-sh")
+     ("yari-with-buttons" "yari")
+     ("smartparens" "smartparens" "smartparens-config")
+     )
+   '("align" "abbrev" "allout" "browse-url" "cc-mode" "compile"
+     "cus-edit" "diff-mode" "dired" "dired-x" "edebug" "ediff"
+     "edit-server" "eldoc" "elint" "em-unix" "epa" "erc" "ert"
+     "eshell" "etags" "eww" "flyspell" "grep" "gud" "hippie-exp"
+     "ibuffer" "ido" "ielm" "image-file" "info" "isearch"
+     "lisp-mode" "message" "midnight" "mule" "outline" "paren"
+     "ps-print" "recentf" "smerge-mode" "whitespace" "autorevert"
+     "bookmark" "ispell" "nroff-mode" "nxml-mode" "sh-script"
+     "testcover" "winner" "hi-lock" "hilit-chg" "hl-line"
+     "info-look"
+
+     "gnus-demon"
+     "gnus-dired"
+     "gnus-group"
+     "gnus-sum"
+     "mml"
+     "nnir"
+     )
+   '("use-package"
+     "dot-gnus" "dot-org"
+     "ledger-mode"
+     "sage"
+     "browse-kill-ring")))
+
 (use-package abbrev
   :disabled t
   :commands abbrev-mode
@@ -989,14 +1174,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             (lambda ()
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
-
-(use-package ag
-  :load-path "site-lisp/ag-el"
-  :commands (ag ag-regexp)
-  :init
-  (use-package helm-ag
-    :load-path "site-lisp/emacs-helm-ag"
-    :commands helm-ag))
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
@@ -1088,60 +1265,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-. y" . aya-expand)
          ("C-. o" . aya-open-line)))
 
+(use-package autorevert
+  :commands auto-revert-mode
+  :diminish auto-revert-mode
+  :init
+  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1))))
+
 (use-package avy
   :demand t
   :load-path "site-lisp/avy"
   :bind ("M-h" . avy-goto-char)
   :config
   (avy-setup-default))
-
-(use-package tex-site                   ; auctex
-  :load-path "site-lisp/auctex/"
-  :defines (latex-help-cmd-alist latex-help-file)
-  :mode ("\\.tex\\'" . TeX-latex-mode)
-  :init
-  (setq reftex-plug-into-AUCTeX t)
-  (setenv "PATH" (concat "/Library/TeX/texbin:"
-                         (getenv "PATH")))
-  (add-to-list 'exec-path "/Library/TeX/texbin")
-  :config
-  (defun latex-help-get-cmd-alist ()    ;corrected version:
-    "Scoop up the commands in the index of the latex info manual.
-   The values are saved in `latex-help-cmd-alist' for speed."
-    ;; mm, does it contain any cached entries
-    (if (not (assoc "\\begin" latex-help-cmd-alist))
-        (save-window-excursion
-          (setq latex-help-cmd-alist nil)
-          (Info-goto-node (concat latex-help-file "Command Index"))
-          (goto-char (point-max))
-          (while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
-            (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
-                  (value (buffer-substring (match-beginning 2)
-                                           (match-end 2))))
-              (add-to-list 'latex-help-cmd-alist (cons key value))))))
-    latex-help-cmd-alist)
-
-  (use-package ebib
-    :load-path "site-lisp/ebib"
-    :preface
-    (use-package parsebib :load-path "site-lisp/parsebib"))
-
-  (use-package latex
-    :defer t
-    :config
-    (use-package preview)
-    (add-hook 'LaTeX-mode-hook 'reftex-mode)
-    (info-lookup-add-help :mode 'LaTeX-mode
-                          :regexp ".*"
-                          :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                          :doc-spec '(("(latex2e)Concept Index" )
-                                      ("(latex2e)Command Index")))))
-
-(use-package autorevert
-  :commands auto-revert-mode
-  :diminish auto-revert-mode
-  :init
-  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1))))
 
 (use-package backup-each-save
   :commands backup-each-save
@@ -1279,9 +1414,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (bug-reference-github-set-url-format))
 
-`(use-package cmake-mode
-   :mode ((,(rx "CMakeLists.txt") . cmake-mode)
-          ("\\.cmake\\'"         . cmake-mode)))
+(use-package bytecomp-simplify
+  :defer 15)
+
+(use-package cmake-mode
+  :mode (("CMakeLists.txt" . cmake-mode)
+         ("\\.cmake\\'"    . cmake-mode)))
 
 (use-package color-moccur
   :commands (isearch-moccur isearch-all isearch-moccur-all)
@@ -1302,11 +1440,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defadvice company-pseudo-tooltip-unless-just-one-frontend
       (around only-show-tooltip-when-invoked activate)
     (when (company-explicit-action-p)
-      ad-do-it))
-
-  (use-package helm-company
-    :disabled t
-    :load-path "site-lisp/helm-company"))
+      ad-do-it)))
 
 (use-package compile
   :bind (("C-c c" . compile)
@@ -1335,6 +1469,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :bind ("A-M-W" . copy-code-as-rtf))
 
+;; uses col-highlight.el
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
 
@@ -1348,6 +1483,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (change-cursor-mode 1)
   (toggle-cursor-type-when-idle 1))
+
+(use-package cus-edit
+  :load-path "lisp/initsplit"
+  :defer 5
+  :config
+  (use-package initsplit))
 
 (use-package debbugs-gnu
   :load-path "elpa/packages/debbugs"
@@ -1502,20 +1643,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/doxymacs/lisp/")
 
-(use-package eclimd
-  :disabled t
-  :load-path "site-lisp/emacs-eclim"
-  :commands start-eclimd
-  :config
-  (use-package eclim
-    :defer t
-    :config
-    (global-eclim-mode)
-    (use-package company-emacs-eclim
-      :requires company
-      :config
-      (company-emacs-eclim-setup))))
-
 (use-package edebug
   :defer t
   :preface
@@ -1587,10 +1714,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
-
-(use-package gist
-  :load-path "site-lisp/gist"
-  :bind ("C-c G" . gist-region-or-buffer))
 
 (use-package erc
   :defer t
@@ -1742,11 +1865,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package esh-toggle
     :bind ("C-x C-z" . eshell-toggle)))
 
-(use-package ess-site
-  :disabled t
-  :load-path "site-lisp/ess/lisp/"
-  :commands R)
-
 (use-package etags
   :bind ("M-T" . tags-search))
 
@@ -1812,6 +1930,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("C-c i r" . ispell-region)))
   :config
   (unbind-key "C-." flyspell-mode-map))
+
+(use-package gist
+  :load-path "site-lisp/gist"
+  :bind ("C-c G" . gist-region-or-buffer))
 
 (use-package git-messenger
   :load-path "site-lisp/emacs-git-messenger"
@@ -2029,40 +2151,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
-(use-package helm-grep
-  :commands helm-do-grep-1
-  :bind (("M-s f" . my-helm-do-grep-r)
-         ("M-s g" . my-helm-do-grep))
-  :preface
-  (defun my-helm-do-grep ()
-    (interactive)
-    (helm-do-grep-1 (list default-directory)))
-
-  (defun my-helm-do-grep-r ()
-    (interactive)
-    (helm-do-grep-1 (list default-directory) t)))
-
-(use-package helm-make
-  :load-path "site-lisp/helm-make"
-  :commands (helm-make helm-make-projectile))
-
-(use-package helm-swoop
-  :load-path "site-lisp/helm-swoop"
-  :bind (("M-s o" . helm-swoop)
-         ("M-s /" . helm-multi-swoop))
-  :config
-  (use-package helm-match-plugin
-    :config
-    (helm-match-plugin-mode 1)))
-
-(use-package helm-descbinds
-  :load-path "site-lisp/helm-descbinds"
-  :bind ("C-h b" . helm-descbinds)
-  :init
-  (fset 'describe-bindings 'helm-descbinds)
-  :config
-  (require 'helm-config))
-
 (use-package helm-config
   :if (not running-alternate-emacs)
   :demand t
@@ -2102,6 +2190,40 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (when (executable-find "curl")
     (setq helm-google-suggest-use-curl-p t)))
+
+(use-package helm-descbinds
+  :load-path "site-lisp/helm-descbinds"
+  :bind ("C-h b" . helm-descbinds)
+  :init
+  (fset 'describe-bindings 'helm-descbinds)
+  :config
+  (require 'helm-config))
+
+(use-package helm-grep
+  :commands helm-do-grep-1
+  :bind (("M-s f" . my-helm-do-grep-r)
+         ("M-s g" . my-helm-do-grep))
+  :preface
+  (defun my-helm-do-grep ()
+    (interactive)
+    (helm-do-grep-1 (list default-directory)))
+
+  (defun my-helm-do-grep-r ()
+    (interactive)
+    (helm-do-grep-1 (list default-directory) t)))
+
+(use-package helm-make
+  :load-path "site-lisp/helm-make"
+  :commands (helm-make helm-make-projectile))
+
+(use-package helm-swoop
+  :load-path "site-lisp/helm-swoop"
+  :bind (("M-s o" . helm-swoop)
+         ("M-s /" . helm-multi-swoop))
+  :config
+  (use-package helm-match-plugin
+    :config
+    (helm-match-plugin-mode 1)))
 
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
@@ -2429,15 +2551,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (bind-key "<return>" #'ido-smart-select-text
                           ido-file-completion-map))))
 
-(use-package idris-mode
-  :disabled t
-  :mode ("\\.idr\\'" . idris-mode)
-  :config
-  (defadvice idris-load-file (around my-idris-load-file activate)
-    (let ((wind (selected-window)))
-      ad-do-it
-      (select-window wind))))
-
 (use-package iedit
   :load-path "site-lisp/iedit"
   :bind (("C-;" . iedit-mode)))
@@ -2509,6 +2622,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (auto-image-file-mode 1))
 
+(use-package indirect
+  :bind ("C-c C" . indirect-region))
+
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
   :init
@@ -2521,15 +2637,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package info-look
   :commands info-lookup-add-help)
-
-(use-package indirect
-  :bind ("C-c C" . indirect-region))
-
-(use-package cus-edit
-  :load-path "lisp/initsplit"
-  :defer 5
-  :config
-  (use-package initsplit))
 
 (use-package ipa
   :load-path "site-lisp/ipa-el"
@@ -2921,12 +3028,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setenv "GIT_PAGER" "")
 
-  (use-package magit-backup
-    :disabled t
-    :commands magit-backup-mode
-    :config
-    (magit-backup-mode -1))
-
   (use-package magit-commit
     :config
     (remove-hook 'server-switch-hook 'magit-commit-diff))
@@ -3021,11 +3122,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
 
-(use-package nix-mode
-  :mode "\\.nix\\'")
-
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
+
+(use-package nix-mode
+  :mode "\\.nix\\'")
 
 (use-package nlinum
   :disabled t
@@ -3105,12 +3206,22 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (on-screen-global-mode 1))
 
+(use-package osx-bbdb
+  :load-path "site-lisp/osx-bbdb"
+  :commands import-osx-contacts-to-bbdb)
+
 (use-package outline
   :commands outline-minor-mode
   :init
   (hook-into-modes #'outline-minor-mode
                    'emacs-lisp-mode-hook
                    'LaTeX-mode-hook))
+
+(use-package outorg
+  :load-path "site-lisp/outorg"
+  :bind ("C-c '" . outorg-edit-as-org)
+  :config
+  (require 'outshine))
 
 (use-package outshine
   :load-path ("site-lisp/outshine"
@@ -3120,16 +3231,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   :config
   (use-package navi-mode))
-
-(use-package outorg
-  :load-path "site-lisp/outorg"
-  :bind ("C-c '" . outorg-edit-as-org)
-  :config
-  (require 'outshine))
-
-(use-package osx-bbdb
-  :load-path "site-lisp/osx-bbdb"
-  :commands import-osx-contacts-to-bbdb)
 
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"
@@ -3177,9 +3278,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (pwp-mode 1))
 
-(use-package persian-johnw
-  :disabled t)
-
 (use-package persistent-scratch
   :disabled t
   :if (and window-system
@@ -3190,26 +3288,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package perspective
   :disabled t
   :config
-  (use-package persp-projectile)
   (persp-mode))
-
-(use-package popup-ruler
-  :bind (("C-. C-r" . popup-ruler)))
-
-(use-package pp-c-l
-  :commands pretty-control-l-mode
-  :init
-  (add-hook 'prog-mode-hook 'pretty-control-l-mode))
 
 (use-package poporg
   :load-path "site-lisp/poporg"
   :bind ("C-c e o" . poporg-dwim))
+
+(use-package popup-ruler
+  :bind (("C-. C-r" . popup-ruler)))
 
 (use-package powerline
   :disabled t
   :load-path "site-lisp/powerline"
   :config
   (powerline-default-theme))
+
+(use-package pp-c-l
+  :commands pretty-control-l-mode
+  :init
+  (add-hook 'prog-mode-hook 'pretty-control-l-mode))
 
 (use-package prodigy
   :load-path "site-lisp/prodigy"
@@ -3293,7 +3390,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       :load-path "site-lisp/company-math"
       :defer t
       :preface
-      (use-package math-symbols-lists
+      (use-package math-symbol-lists
         :load-path "site-lisp/math-symbol-lists"
         :defer t))
     :config
@@ -3426,6 +3523,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
   :config
   (recentf-mode 1))
+
+(use-package regex-tool
+  :disabled t
+  :load-path "lisp/regex-tool")
 
 (use-package repeat-insert
   :disabled t
@@ -3779,6 +3880,48 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
 
+(use-package tex-site                   ; auctex
+  :load-path "site-lisp/auctex/"
+  :defines (latex-help-cmd-alist latex-help-file)
+  :mode ("\\.tex\\'" . TeX-latex-mode)
+  :init
+  (setq reftex-plug-into-AUCTeX t)
+  (setenv "PATH" (concat "/Library/TeX/texbin:"
+                         (getenv "PATH")))
+  (add-to-list 'exec-path "/Library/TeX/texbin")
+  :config
+  (defun latex-help-get-cmd-alist ()    ;corrected version:
+    "Scoop up the commands in the index of the latex info manual.
+   The values are saved in `latex-help-cmd-alist' for speed."
+    ;; mm, does it contain any cached entries
+    (if (not (assoc "\\begin" latex-help-cmd-alist))
+        (save-window-excursion
+          (setq latex-help-cmd-alist nil)
+          (Info-goto-node (concat latex-help-file "Command Index"))
+          (goto-char (point-max))
+          (while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
+            (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
+                  (value (buffer-substring (match-beginning 2)
+                                           (match-end 2))))
+              (add-to-list 'latex-help-cmd-alist (cons key value))))))
+    latex-help-cmd-alist)
+
+  (use-package ebib
+    :load-path "site-lisp/ebib"
+    :preface
+    (use-package parsebib :load-path "site-lisp/parsebib"))
+
+  (use-package latex
+    :defer t
+    :config
+    (use-package preview)
+    (add-hook 'LaTeX-mode-hook 'reftex-mode)
+    (info-lookup-add-help :mode 'LaTeX-mode
+                          :regexp ".*"
+                          :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                          :doc-spec '(("(latex2e)Concept Index" )
+                                      ("(latex2e)Command Index")))))
+
 (use-package texinfo
   :defines texinfo-section-list
   :mode ("\\.texi\\'" . texinfo-mode)
@@ -3981,6 +4124,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/yaml-mode"
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
+(use-package yaoddmuse
+  :bind (("C-c w f" . yaoddmuse-browse-page-default)
+         ("C-c w e" . yaoddmuse-edit-default)
+         ("C-c w p" . yaoddmuse-post-library-default))
+  :config
+  (use-package helm-yaoddmuse))
+
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
   :demand t
@@ -4018,13 +4168,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (yas-global-mode 1)
 
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
-
-(use-package yaoddmuse
-  :bind (("C-c w f" . yaoddmuse-browse-page-default)
-         ("C-c w e" . yaoddmuse-edit-default)
-         ("C-c w p" . yaoddmuse-post-library-default))
-  :config
-  (use-package helm-yaoddmuse))
 
 (use-package zencoding-mode
   :disabled t
