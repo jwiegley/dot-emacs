@@ -279,6 +279,7 @@ SCHEDULED: %t
  '(org-priority-faces
 (quote
  ((65 :foreground "ForestGreen" :weight bold)
+  (66 . "DarkGreen")
   (67 :foreground "dark gray" :slant italic))))
  '(org-refile-targets
 (quote
