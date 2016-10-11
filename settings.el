@@ -626,6 +626,7 @@
      (magit-status . ido)
      (dired-do-copy . ido)
      (dired-do-rename . ido)
+     (dired-create-directory . ido)
      (mml-attach-file . ido))))
  '(helm-delete-minibuffer-contents-from-point t)
  '(helm-ff-file-name-history-use-recentf t)
