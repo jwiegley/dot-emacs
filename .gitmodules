@@ -43,3 +43,6 @@
 [submodule "lisp/helm-hoogle"]
 	path = lisp/helm-hoogle
 	url = git://github.com/jwiegley/helm-hoogle.git
+[submodule "site-lisp/flycheck"]
+	path = site-lisp/flycheck
+	url = git://github.com/flycheck/flycheck.git
