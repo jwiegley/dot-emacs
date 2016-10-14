@@ -5498,7 +5498,7 @@ Then add the following to your @file{.emacs}:
 
 If Proof General complains about a version mismatch, make sure that the
 shell's @code{emacs} is indeed your usual Emacs. If not, run the Makefile
-again with an explicit path to Emacs. On Mac in particular you'll
+again with an explicit path to Emacs. On macOS in particular you'll
 probably need something like
 @example
 make clean; make EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
