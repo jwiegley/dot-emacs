@@ -25,7 +25,7 @@ Then add the following to your `.emacs`:
 (load "~/.emacs.d/lisp/PG/generic/proof-site")
 ```
 
-If Proof General complains about a version mismatch, make sure that the shell's `emacs` is indeed your usual Emacs. If not, run the Makefile again with an explicit path to Emacs. On Mac in particular you'll probably need something like
+If Proof General complains about a version mismatch, make sure that the shell's `emacs` is indeed your usual Emacs. If not, run the Makefile again with an explicit path to Emacs. On macOS in particular you'll probably need something like
 
 ```sh
 make clean; make EMACS=/Applications/Emacs.app/Contents/MacOS/Emacs
