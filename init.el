@@ -973,191 +973,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 ;;; PACKAGE CONFIGURATIONS
 
-(defun sort-package-declarations ()
-  (interactive)
-  (cl-flet ((next-use-package
-             () (if (re-search-forward "^(use-package " nil t)
-                    (goto-char (match-beginning 0))
-                  (goto-char (point-max)))))
-    (sort-subr
-     nil
-     #'next-use-package
-     #'(lambda ()
-         (goto-char (line-end-position))
-         (next-use-package))
-     #'(lambda ()
-         (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
-         (match-string 1)))))
-
-(defun package-inventory (&optional conversions builtin ignored)
-  (interactive)
-  (let ((installed
-         (sort
-          (delete-dups
-           (mapcar
-            #'(lambda (file)
-                (setq file (dired-make-relative file user-emacs-directory))
-                (cond
-                 ((string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)\\.el" file)
-                  (list (match-string 2 file)
-                        (match-string 1 file) t))
-                 ((string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)/" file)
-                  (list (match-string 2 file)
-                        (match-string 1 file)))))
-            (apply #'nconc
-                   (mapcar #'(lambda (dir)
-                               (directory-files-recursively
-                                (expand-file-name dir user-emacs-directory)
-                                "\\.el\\'" nil))
-                           '("lib" "site-lisp" "override" "lisp")))))
-          #'(lambda (x y)
-              (string-lessp (nth 0 x) (nth 0 y)))))
-        (referenced
-         (sort
-          (delete-dups
-           (apply
-            #'nconc
-            (mapcar
-             #'(lambda (file)
-                 (with-temp-buffer
-                   (insert-file-contents file)
-                   (goto-char (point-min))
-                   (let (pkgs)
-                     (while (re-search-forward
-                             "(use-package \\([A-Za-z0-9_+-]+\\)" nil t)
-                       (setq pkgs (cons (match-string 1) pkgs)))
-                     pkgs)))
-             (list (expand-file-name "init.el" user-emacs-directory)
-                   (expand-file-name "dot-gnus.el" user-emacs-directory)
-                   (expand-file-name "dot-org.el" user-emacs-directory)))))
-          #'string-lessp)))
-    (cl-flet ((entry-names
-               (entry)
-               (or (cdr (assoc (nth 0 entry) conversions))
-                   (list (nth 0 entry)))))
-      (with-current-buffer (get-buffer-create "*inventory*")
-        (delete-region (point-min) (point-max))
-        (dolist
-            (pkg
-             (sort
-              (nconc
-               (mapcar
-                #'(lambda (entry)
-                    (cons (if (cl-some #'(lambda (name) (member name referenced))
-                                       (entry-names entry))
-                              'installed-and-referenced
-                            'only-installed) (nth 0 entry)))
-                installed)
-               (mapcar
-                #'(lambda (name)
-                    (cons (if (or (cl-some
-                                   #'(lambda (entry)
-                                       (member name (entry-names entry)))
-                                   installed)
-                                  (member name builtin))
-                              'installed-and-referenced
-                            'only-referenced) name))
-                referenced))
-              #'(lambda (x y) (string-lessp (cdr x) (cdr y)))))
-          (unless (member (cdr pkg) ignored)
-            (pcase (car pkg)
-              ('installed-and-referenced)
-              ('only-installed
-               (let* ((inst (assoc (cdr pkg) installed))
-                      (cmd (concat
-                            "(shell-command \""
-                            (if (nth 2 inst)
-                                (concat "rm -f " (nth 1 inst) ".el*")
-                              (concat "rm -fr " (nth 1 inst)))
-                            "\")")))
-                 (insert "(use-package " (cdr pkg) ?\n
-                         "  ;; " cmd ?\n
-                         "  :disabled t")
-                 (unless (nth 2 inst)
-                   (insert ?\n "  :load-path \"" (nth 1 inst) "\""))
-                 (insert ")" ?\n ?\n)))
-              ('only-referenced
-               (insert ";; " (cdr pkg) " -- referenced" ?\n ?\n)))))
-        (goto-char (point-min))
-        (emacs-lisp-mode)
-        (display-buffer (current-buffer))))))
-
-(defun inventory ()
-  (interactive)
-  (package-inventory
-   '(
-     ("ProofGeneral" "proof-site" "coq" "pg-user")
-     ("agda" "agda-input" "agda2-mode")
-     ("auctex" "tex-site" "latex" "texinfo" "preview")
-     ("bbdb" "bbdb-com")
-     ("bookmark-plus" "bookmark+")
-     ("company-mode" "company")
-     ("dash-el" "dash")
-     ("debbugs" "debbugs-gnu")
-     ("diffview-mode" "diffview")
-     ("docker-el" "docker" "docker-images")
-     ("emacs-async" "async")
-     ("emacs-calfw" "calfw" "calfw-cal" "calfw-org")
-     ("emacs-ctable" "ctable")
-     ("emacs-deferred" "deferred")
-     ("emacs-epc" "epc")
-     ("emacs-git-messenger" "git-messenger")
-     ("emacs-web" "web")
-     ("expand-region-el" "expand-region")
-     ("f-el" "f")
-     ("flx" "flx-ido")
-     ("fold-this-el" "fold-this")
-     ("fuzzy-el" "fuzzy")
-     ("gh-el" "gh")
-     ("git-annex-el" "git-annex")
-     ("git-wip" "git-wip-mode")
-     ("github-issues-el" "github-issues")
-     ("haskell-config" "haskell-edit")
-     ("haskell-mode" "haskell-mode-autoloads")
-     ("helm" "helm-config" "helm-buffers" "helm-files" "helm-grep"
-      "helm-match-plugin" "helm-mode" "helm-multi-match")
-     ("ht-el" "ht")
-     ("ipa-el" "ipa")
-     ("liquid-types-el" "liquid-types")
-     ("lusty-emacs" "lusty-explorer")
-     ("magit" "magit" "magit-commit")
-     ("multifiles-el" "multifiles")
-     ("multiple-cursors-el" "multiple-cursors")
-     ("navi" "navi-mode")
-     ("popup-el" "popup")
-     ("popwin-el" "popwin")
-     ("projectile" "projectile" "helm-projectile")
-     ("s-el" "s")
-     ("slime" "slime" "hyperspec")
-     ("smart-forward-el" "smart-forward")
-     ("tramp" "tramp-sh")
-     ("yari-with-buttons" "yari")
-     ("smartparens" "smartparens" "smartparens-config")
-     )
-   '("align" "abbrev" "allout" "browse-url" "cc-mode" "compile"
-     "cus-edit" "diff-mode" "dired" "dired-x" "edebug" "ediff"
-     "edit-server" "eldoc" "elint" "em-unix" "epa" "erc" "ert"
-     "eshell" "etags" "eww" "flyspell" "grep" "gud" "hippie-exp"
-     "ibuffer" "ido" "ielm" "image-file" "info" "isearch"
-     "lisp-mode" "message" "midnight" "mule" "outline" "paren"
-     "ps-print" "recentf" "smerge-mode" "whitespace" "autorevert"
-     "bookmark" "ispell" "nroff-mode" "nxml-mode" "sh-script"
-     "testcover" "winner" "hi-lock" "hilit-chg" "hl-line"
-     "info-look"
-
-     "gnus-demon"
-     "gnus-dired"
-     "gnus-group"
-     "gnus-sum"
-     "mml"
-     "nnir"
-     )
-   '("use-package"
-     "dot-gnus" "dot-org"
-     "ledger-mode"
-     "sage"
-     "browse-kill-ring")))
-
 (use-package abbrev
   :disabled t
   :commands abbrev-mode
@@ -1883,7 +1698,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (paredit-mode)
-    (local-set-key (kbd "<tab>") 'lisp-complete-symbol)))
+    (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)))
 
 (use-package eww
   :bind ("A-M-g" . eww)
@@ -2643,6 +2458,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package info-look
   :commands info-lookup-add-help)
 
+(use-package inventory
+  :commands inventory)
+
 (use-package ipa
   :load-path "site-lisp/ipa-el"
   :commands (ipa-insert ipa-load-annotations-into-buffer)
@@ -2840,7 +2658,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (elisp-slime-nav-mode 1)
 
     (local-set-key (kbd "<return>") 'paredit-newline)
-    (local-set-key (kbd "<tab>") 'lisp-complete-symbol)
+    (bind-key "<tab>" #'my-elisp-indent-or-complete emacs-lisp-mode-map)
 
     (add-hook 'after-save-hook 'check-parens nil t)
 
@@ -4175,7 +3993,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
-  (yas-global-mode 1)
+  (yas-global-mode -1)
 
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
