@@ -218,6 +218,15 @@ To use this function, add it to `org-agenda-finalize-hook':
         (gnus-summary-mark-article gnus-current-article
                                    (or new-mark gnus-read-mark))))))
 
+(defun org-todo-age (&optional pos)
+  (let ((stamp (org-entry-get (or pos (point)) "CREATED" t)))
+    (when stamp
+      (let* ((created
+              (org-time-string-to-time
+               (org-entry-get (or pos (point)) "CREATED" t)))
+             (age (time-subtract (current-time) created)))
+        (format "%.0fd" (time-to-number-of-days age))))))
+
 (defun org-my-message-open (message-id)
   (if (get-buffer "*Group*")
       (gnus-goto-article

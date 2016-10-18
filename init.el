@@ -774,7 +774,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (when (and (not running-alternate-emacs)
              (not running-development-emacs))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup)))
+    (my-org-startup))
+
+  (add-hook 'org-mode-hook #'(lambda () (flyspell-mode -1))))
 
 (use-package dot-gnus
   :load-path ("override/gnus/lisp" "override/gnus/contrib")
@@ -1880,7 +1882,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)
-    (paredit-mode)))
+    (paredit-mode)
+    (local-set-key (kbd "<tab>") 'lisp-complete-symbol)))
 
 (use-package eww
   :bind ("A-M-g" . eww)
@@ -2837,6 +2840,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (elisp-slime-nav-mode 1)
 
     (local-set-key (kbd "<return>") 'paredit-newline)
+    (local-set-key (kbd "<tab>") 'lisp-complete-symbol)
 
     (add-hook 'after-save-hook 'check-parens nil t)
 
@@ -3787,6 +3791,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (smartparens-mode show-smartparens-mode)
   :config
   (use-package smartparens-config))
+
+(use-package smedl-mode
+  :load-path "~/bae/smedl/emacs/"
+  :mode ("\\.smedl\\'" . smedl-mode))
 
 (use-package smerge-mode
   :commands smerge-mode
