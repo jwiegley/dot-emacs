@@ -17,14 +17,14 @@
 (defmacro on (f g) `(lambda (x y) (,f (,g x) (,g y))))
 
 (defun sort-on (seq predicate accessor)
-  "Sort SEQ use PREDICATE applied to values returned by ACCESSOR.
+  "Sort SEQ using PREDICATE applied to values returned by ACCESSOR.
 This implements the so-called Schwartzian transform, which has
 the performance advantage of applying ACCESSOR at most once per
 element in the list, as opposed to using `sort' with a PREDICATE
 that applies the ACCESSOR.
 Note: this function is only a win over `sort' if ACCESSOR is
 compute-intensive; otherwise, it uses more intermediate cons
-cells that regular `sort', and so represents a memory for CPU
+cells than regular `sort', and so represents a memory for CPU
 tradeoff."
   (mapcar #'cdr (sort (mapcar #'(lambda (x) (cons (funcall accessor x) x)) seq)
                       #'(lambda (x y) (funcall predicate (car x) (car y))))))
