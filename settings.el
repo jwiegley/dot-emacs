@@ -814,6 +814,7 @@
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
  '(ns-right-control-modifier (quote hyper))
+ '(nsm-settings-file "/Users/johnw/.emacs.d/data/network-security.data")
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(pabbrev-idle-timer-verbose nil)

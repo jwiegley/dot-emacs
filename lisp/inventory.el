@@ -29,6 +29,21 @@ tradeoff."
   (mapcar #'cdr (sort (mapcar #'(lambda (x) (cons (funcall accessor x) x)) seq)
                       #'(lambda (x y) (funcall predicate (car x) (car y))))))
 
+(defun sort-on* (seq predicate accessor)
+  "Sort SEQ using PREDICATE applied to values returned by ACCESSOR.
+This is a destructive version of `sort-on', which attempts to
+reuse storage as much as possible."
+  (let ((seq2 seq))
+    (while seq2
+      (setcar seq2 (cons (funcall accessor (car seq2)) (car seq2)))
+      (setq seq2 (cdr seq2))))
+  (setq seq (sort* seq #'(lambda (x y) (funcall predicate (car x) (car y)))))
+  (let ((seq2 seq))
+    (while seq2
+      (setcar seq2 (cdar seq2))
+      (setq seq2 (cdr seq2)))
+    seq))
+
 (defun package-inventory (&optional conversions builtin ignored)
   (interactive)
   (let ((pkgs (make-hash-table :test #'equal))
