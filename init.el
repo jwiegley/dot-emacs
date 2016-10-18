@@ -3993,7 +3993,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
-  (yas-global-mode -1)
+  (yas-global-mode 1)
 
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
