@@ -55,7 +55,7 @@
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}&CATEGORY<>{Assembly}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
@@ -89,14 +89,6 @@
           (quote scheduled)
           (quote deadline)
           (quote timestamp))))))
-     ("S" "Assembly Action Items" tags-todo "TODO<>\"PROJECT\""
-      ((org-agenda-files
-        (quote
-         ("~/doc/tasks/assembly.txt")))
-       (org-agenda-overriding-header "Assembly Action Items")
-       (org-agenda-sorting-strategy
-        (quote
-         (alpha-up time-up)))))
      ("c" "Appointment Calendar" agenda ""
       ((org-agenda-overriding-header "Appointment Calendar")
        (org-agenda-sorting-strategy
@@ -106,11 +98,7 @@
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         (quote
-         ("+APPT")))))
-     ("Z" "MobileOrg Tasks" agenda ""
-      ((org-agenda-overriding-header "MobileOrg Tasks")
-       (org-agenda-span 14)
-       (org-agenda-ndays 14))))))
+         ("+APPT"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
@@ -126,7 +114,7 @@
    (quote
     ((agenda . "  %-11c%?-12t% s")
      (timeline . "  % s")
-     (todo . "  %-11c")
+     (todo . "  %-11c%5(org-todo-age) ")
      (tags . "  %-11c"))))
  '(org-agenda-scheduled-leaders (quote ("" "S%d: ")))
  '(org-agenda-scheduled-relative-text "S%d: ")
