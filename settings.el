@@ -800,7 +800,6 @@
  '(menu-bar-mode nil)
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
- '(mouse-autoselect-window t)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
  '(mudel-output-filter-functions (quote (ansi-color-process-output)))
  '(multi-term-program "/usr/bin/screen")
