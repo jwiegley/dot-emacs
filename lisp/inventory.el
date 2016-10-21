@@ -99,6 +99,7 @@ reuse storage as much as possible."
       (dolist (pkg ignored) (with-package pkg))
 
       (with-current-buffer (get-buffer-create "*inventory*")
+        (cd user-emacs-directory)
         (delete-region (point-min) (point-max))
         (let (alist)
           (maphash #'(lambda (key value)
@@ -145,6 +146,7 @@ reuse storage as much as possible."
      ("dash-el" "dash")
      ("debbugs" "debbugs-gnu")
      ("diffview-mode" "diffview")
+     ("dircmp-mode" "dircmp")
      ("docker-el" "docker" "docker-images")
      ("emacs-async" "async")
      ("emacs-calfw" "calfw" "calfw-cal" "calfw-org")
