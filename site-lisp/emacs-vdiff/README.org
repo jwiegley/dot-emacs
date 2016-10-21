@@ -1,0 +1,177 @@
+* vdiff
+
+A tool like vimdiff for Emacs 
+
+** Introduction
+
+vdiff is a diff tool for Emacs that is made to behave like vimdiff, meaning diff
+information is displayed in buffers as you edit them. There are commands for
+cycling through the hunks detected by =diff= and applying changes from one
+buffer to the other. The main features are
+
+  1. Synchronized scrolling of the buffers with lines matching between the two
+  2. Commands to transmit (send/receive) hunks between buffers
+  3. Automatic folding of lines that are unchanged in both buffers
+  4. Commands to jump easily between hunks
+  5. Everything done through overlays, meaning vdiff doesn't alter the actual
+     text in the buffer (unless you are transmit changes of course)
+  6. Unlike ediff, remain in buffers instead of having to use a third "control
+     buffer"
+  7. Cool hydra (see below)
+
+vdiff has not been extensively tested yet, so please report any issues you
+find. Contributions and suggestions are very welcome.
+
+** Recent (Significant) Changes
+   - [2016-07-25] Added three-way diff support. See =vdiff-buffers3= and =vdiff-files3=.
+   
+** Screenshot
+
+*** Basic two file diff with refined hunks
+[[./img/leuven.png]]
+
+*** Three file diff with targets for sending changes
+[[./img/leuven3.png]]
+
+** Installation and Usage
+   
+vdiff was recently added to MELPA, which is the recommended way to install it
+and keep it up to date. To install it you may do =M-x package-install RET vdiff
+RET=.
+   
+After installing you can bind the commands to your preferred key prefix like this
+
+#+BEGIN_SRC emacs-lisp
+(require 'vdiff)
+(define-key vdiff-mode-map (kbd "C-c") vdiff-mode-prefix-map)
+#+END_SRC
+
+which will bind most of the commands under the =C-c= prefix when vdiff-mode is
+active. Of course you can pick whatever prefix you prefer. With the =C-c= prefix
+the commands would be
+
+*** Basics
+    
+| Key     | Command                 | Description                        |
+|---------+-------------------------+------------------------------------|
+| =C-c g= | =vdiff-switch-buffer=   | Switch buffers at matching line    |
+| =C-c n= | =vdiff-next-hunk=       | Move to next hunk in buffer        |
+| =C-c p= | =vdiff-previous-hunk=   | Move to previous hunk in buffer    |
+| =C-c h= | =vdiff-hydra/body=      | Enter vdiff-hydra                  |
+
+*** Viewing and Transmitting Changes Between Buffers
+
+| Key     | Command                            | Description                         |
+|---------+------------------------------------+-------------------------------------|
+| =C-c r= | =vdiff-receive-changes=            | Receive change from other buffer    |
+| =C-c s= | =vdiff-send-changes=               | Send this change(s) to other buffer |
+| =C-c f= | =vdiff-refine-this-hunk=           | Highlight changed words in hunk     |
+| =C-c x= | =vdiff-remove-refinements-in-hunk= | Remove refinement highlighting      |
+| (none)  | =vdiff-refine-this-hunk-symbol=    | Refine based on symbols             |
+| (none)  | =vdiff-refine-this-hunk-word=      | Refine based on words               |
+| =C-c F= | =vdiff-refine-all-hunks=           | Highlight changed words             |
+| (none)  | =vdiff-refine-all-hunks-symbol=    | Refine all based on symbols         |
+| (none)  | =vdiff-refine-all-hunks-word=      | Refine all based on words           |
+
+*** Folds
+
+| Key     | Command                            | Description                         |
+|---------+------------------------------------+-------------------------------------|
+| =C-c N= | =vdiff-next-fold=                  | Move to next fold in buffer         |
+| =C-c P= | =vdiff-previous-fold=              | Move to previous fold in buffer     |
+| =C-c c= | =vdiff-close-fold=                 | Close fold at point or in region    |
+| =C-c C= | =vdiff-close-all-folds=            | Close all folds in buffer           |
+| =C-c t= | =vdiff-close-other-folds=          | Close all other folds in buffer     |
+| =C-c o= | =vdiff-open-fold=                  | Open fold at point or in region     |
+| =C-c O= | =vdiff-open-all-folds=             | Open all folds in buffer            |
+
+*** Ignoring case and whitespace
+
+| Key       | Command                   | Description             |
+|-----------+---------------------------+-------------------------|
+| =C-c i c= | =vdiff-toggle-case=       | Toggle ignoring of case |
+| =C-c i w= | =vdiff-toggle-whitespace= | Toggle ignoring of case |
+
+*** Saving, Updating and Exiting
+
+| Key     | Command                 | Description                  |
+|---------+-------------------------+------------------------------|
+| =C-c w= | =vdiff-save-buffers=    | Save both buffers            |
+| =C-c u= | =vdiff-refresh=         | Force diff refresh           |
+| (none)  | =vdiff-restore-windows= | Restore window configuration |
+| =C-c q= | =vdiff-quit=            | Quit vdiff                   |
+
+Evil-mode users might prefer something like the following to use a comma as a
+prefix in normal state.
+
+#+BEGIN_SRC emacs-lisp
+(require 'vdiff)
+(require 'evil)
+(evil-define-key 'normal vdiff-mode-map "," vdiff-mode-prefix-map)
+#+END_SRC
+
+To start vdiff, use either =vdiff-files= to select two files or =vdiff-buffers=
+to select two open buffers.
+
+** Hydra
+
+Using the [[https://github.com/abo-abo/hydra][hydra package]], =vdiff-hydra= allows quick movement and changes to be
+made in the buffer. By default it lives on the =h= command in the prefix
+map. Bind =vdiff-hydra/body= directly to customize this key binding.
+
+[[file:img/hydra.png]]
+
+** Further customization
+   
+The current customization options and there defaults are
+   
+#+BEGIN_SRC emacs-lisp
+  ;; Whether to lock scrolling by default when starting vdiff
+  (setq vdiff-lock-scrolling t)
+
+  ;; external diff program/command to use
+  (setq vdiff-diff-program "diff")
+
+  ;; Extra arguments to pass to diff. If this is set wrong, you may
+  ;; break vdiff.
+  (setq vdiff-diff-program-args "")
+
+  ;; Unchanged lines to leave unfolded around a fold
+  (setq vdiff-fold-padding 6)
+
+  ;; Minimum number of lines to fold
+  (setq vdiff-min-fold-size 4)
+
+  ;; If non-nil, avoid closing new folds around point.
+  (setq vdiff-may-close-fold-on-point t)
+
+  ;; Function that returns the string printed for a closed fold. The arguments
+  ;; passed are the number of lines folded, the text on the first line, and the
+  ;; width of the buffer.
+  (setq vdiff-fold-string-function 'vdiff-fold-string-default)
+
+  ;; Default syntax table class code to use for identifying \"words\" in
+  ;; \`vdiff-refine-this-change'. Some useful options are
+  ;; 
+  ;; \"w\"   (default) words
+  ;; \"w_\"  symbols \(really words plus symbol constituents\)
+  ;; 
+  ;; For more information see
+  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Class-Table.html
+  (setq vdiff-default-refinement-syntax-code "w")
+
+  ;; If non-nil, automatically refine all hunks.
+  (setq vdiff-auto-refine nil)
+
+  ;; How to represent subtractions (i.e., deleted lines). The
+  ;; default is full which means add the same number of (fake) lines
+  ;; as those that were removed. The choice single means add only one
+  ;; fake line. The choice fringe means don't add lines but do
+  ;; indicate the subtraction location in the fringe.
+  (setq vdiff-subtraction-style 'full)
+
+  ;; Character to use for filling subtraction lines. See also
+  ;; `vdiff-subtraction-style'.
+  (setq vdiff-subtraction-fill-char ?-)
+#+END_SRC
+
