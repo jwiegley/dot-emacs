@@ -1,0 +1,23 @@
+* DrRacket-like Unicode input for Emacs
+
+This is a little bit of Elisp that defines a minor mode that causes
+Emacs to copy [[http://racket-lang.org][DrRacket]]'s method of inputting Unicode. Unlike Emacs
+input methods that transform input as you type, DrRacket simply
+provides a keybinding to transform the LaTeX-style code immediately
+prior to the cursor into Unicode.
+
+This package defines one command: =dr-racket-like-unicode-char=. This
+command is similar to the one in DrRacket. It consults the
+customizable table =dr-racket-like-unicode-table= to decide how to
+transform the string immediately prior to point.
+
+The package also defines a minor mode, =dr-racket-like-unicode-mode=,
+that binds =C-c \= to =dr-racket-like-unicode-mode=. This can be
+useful if you want to enable it only in some modes.
+
+For an experience more like DrRacket, rebind "C-\" to
+=dr-racket-like-unicode-char=, like this:
+
+#+BEGIN_SRC elisp
+(global-set-key (kbd "C-\\") 'dr-racket-like-unicode-char)
+#+END_SRC
