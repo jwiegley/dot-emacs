@@ -1221,7 +1221,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package bbdb-com
   :load-path "override/bbdb/lisp"
   :commands bbdb-create
-  :bind ("M-B" . bbdb))
+  :bind ("M-B" . bbdb)
+  :config
+  (use-package osx-bbdb
+    :load-path "site-lisp/osx-bbdb"
+    :commands import-osx-contacts-to-bbdb)
+
+  (use-package bbdb-vcard
+    :disabled t
+    :load-path "site-lisp/bbdb-vcard")
+
+  (use-package bbdb-vcard-export
+    :disabled t)
+
+  (use-package bbdb-vcard-import
+    :disabled t))
 
 (use-package bookmark
   :load-path "site-lisp/bookmark-plus"
@@ -1937,7 +1951,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-t" haskell-mode-map)
 
   (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
-  
+
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
@@ -3041,10 +3055,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 5
   :config
   (on-screen-global-mode 1))
-
-(use-package osx-bbdb
-  :load-path "site-lisp/osx-bbdb"
-  :commands import-osx-contacts-to-bbdb)
 
 (use-package outline
   :commands outline-minor-mode
