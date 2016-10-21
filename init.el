@@ -1470,6 +1470,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/doxymacs/lisp/")
 
+(use-package dr-racket-like-unicode
+  :bind ("C-\"" . dr-racket-like-unicode-char)
+  :load-path "site-lisp/dr-racket-like-unicode/")
+
 (use-package edebug
   :defer t
   :preface
