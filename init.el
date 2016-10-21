@@ -112,6 +112,14 @@
                      value)))))
     (eval settings)))
 
+(setq Info-directory-list
+      (list
+       "/Users/johnw/.emacs.d/info"
+       "/Users/johnw/Library/Info"
+       (expand-file-name
+        "share/info" (car (nix-read-environment emacs-environment)))
+       "/Users/johnw/.nix-profile/share/info"))
+
 ;;; Enable disabled commands
 
 (put 'downcase-region             'disabled nil)   ; Let downcasing work
