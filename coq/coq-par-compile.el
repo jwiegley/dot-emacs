@@ -473,9 +473,11 @@ load-path options to coqdep."
 
 (defun coq-par-analyse-coq-dep-exit (status output command)
   "Analyse output OUTPUT of coqdep command COMMAND with exit status STATUS.
-Returns the list of dependencies if there is no error. Otherwise,
+Returns the list of .vo dependencies if there is no error. Otherwise,
 writes an error message into `coq-compile-response-buffer', makes
 this buffer visible and returns a string."
+  (if coq-debug-auto-compilation
+      (message "analyse coqdep output \"%s\"" output))
   (if (or
        (not (eq status 0))
        (string-match coq-coqdep-error-regexp output))
@@ -486,10 +488,12 @@ this buffer visible and returns a string."
 	  (with-current-buffer coq-compile-response-buffer (insert output)))
 	(coq-display-compile-response-buffer)
 	"unsatisfied dependencies")
-    (when (string-match "\\`.*: " output)
+    ;; In 8.5, coqdep produces two lines. Match with .* here to
+    ;; extract only a part of the first line.
+    (when (string-match "\\`[^:]*: \\(.*\\)" output)
       (cl-remove-if-not
-       (lambda (f) (string-match-p "\\.vo?\\'" f))
-       (cdr-safe (split-string (substring output (match-end 0))))))))
+       (lambda (f) (string-match-p "\\.vo\\'" f))
+       (split-string (match-string 1 output))))))
 
 (defun coq-par-get-library-dependencies (lib-src-file coq-load-path
 						      &optional command-intro)
@@ -523,7 +527,7 @@ break."
 			 this-command))
 	 coqdep-status coqdep-output)
     ;; (if coq-debug-auto-compilation
-    ;;     (message "call coqdep arg list: %s" coqdep-arguments))
+    ;;     (message "CPGLD: call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
       (setq coqdep-status
             (apply 'call-process
@@ -531,7 +535,7 @@ break."
                    coqdep-arguments))
       (setq coqdep-output (buffer-string)))
     ;; (if coq-debug-auto-compilation
-    ;;     (message "coqdep status %s, output on %s: %s"
+    ;;     (message "CPGLD: coqdep status %s, output on %s: %s"
     ;;              coqdep-status lib-src-file coqdep-output))
     (coq-par-analyse-coq-dep-exit coqdep-status coqdep-output full-command)))
 
@@ -549,7 +553,7 @@ in order to provide correct load-path options to coqdep.
 A peculiar consequence of the current implementation is that this
 function returns () if MODULE-ID comes from the standard library."
   (let ((coq-load-path
-         (if coq-load-path-include-current
+         (if (and coq-load-path-include-current (coq--pre-v85))
              (cons default-directory coq-load-path)
            coq-load-path))
         (coq-load-path-include-current nil)
@@ -567,6 +571,8 @@ function returns () if MODULE-ID comes from the standard library."
 		 coq-load-path
                  (concat "echo \"" coq-string "\" > " temp-require-file))))
       (delete-file temp-require-file))
+    (if coq-debug-auto-compilation
+	(message "coq-par-get-library-dependencies delivered \"%s\"" result))
     (if (stringp result)
         ;; Error handling: coq-par-get-library-dependencies was not able to
         ;; translate module-id into a file name. We insert now a faked error
@@ -589,7 +595,7 @@ function returns () if MODULE-ID comes from the standard library."
           ;; (coq-seq-display-compile-response-buffer)
           (error error-message)))
     (assert (<= (length result) 1)
-            "Internal error in coq-seq-map-module-id-to-obj-file")
+	    nil "Internal error in coq-seq-map-module-id-to-obj-file")
     (car-safe result)))
 
 
@@ -765,7 +771,8 @@ errors are reported with an error message."
 (defun coq-par-add-queue-dependency (dependee dependant)
   "Add queue dependency from child job DEPENDEE to parent job DEPENDANT."
   (assert (and (not (get dependant 'queue-dependant-waiting))
-	       (not (get dependee 'queue-dependant))))
+	       (not (get dependee 'queue-dependant)))
+	  nil "queue dependency cannot be added")
   (put dependant 'queue-dependant-waiting t)
   (put dependee 'queue-dependant dependant)
   (if coq-debug-auto-compilation
@@ -861,7 +868,8 @@ case, the following actions are taken:
     (let ((dependant (get job 'queue-dependant)))
       (if dependant
 	  (progn
-	    (assert (not (eq coq-last-compilation-job job)))
+	    (assert (not (eq coq-last-compilation-job job))
+		    nil "coq-last-compilation-job invariant error")
 	    (put dependant 'queue-dependant-waiting nil)
 	    (if coq-debug-auto-compilation
 		(message
@@ -909,7 +917,8 @@ if it reaches 0, the next transition is triggered for DEPENDANT.
 For 'file jobs this is 'waiting-dep -> 'enqueued-coqc and for
 'clone jobs this 'waiting-dep -> 'waiting-queue."
   ;(message "%s: CPDCD with time %s" (get dependant 'name) dependee-time)
-  (assert (eq (get dependant 'state) 'waiting-dep))
+  (assert (eq (get dependant 'state) 'waiting-dep)
+	  nil "wrong state of parent dependant job")
   (when (coq-par-time-less (get dependant 'youngest-coqc-dependency)
 			   dependee-time)
     (put dependant 'youngest-coqc-dependency dependee-time))
@@ -917,7 +926,8 @@ For 'file jobs this is 'waiting-dep -> 'enqueued-coqc and for
        (append dependee-ancestor-files (get dependant 'ancestor-files)))
   (put dependant 'coqc-dependency-count
        (1- (get dependant 'coqc-dependency-count)))
-  (assert (<= 0 (get dependant 'coqc-dependency-count)))
+  (assert (<= 0 (get dependant 'coqc-dependency-count))
+	  nil "dependency count below zero")
   (if coq-debug-auto-compilation
       (message "%s: coqc dependency count down to %d"
 	       (get dependant 'name) (get dependant 'coqc-dependency-count)))
@@ -1196,6 +1206,8 @@ in `coq-last-compilation-job'.
 This function must be evaluated with the buffer that triggered
 the compilation as current, otherwise a wrong `coq-load-path'
 might be used."
+  (if coq-debug-auto-compilation
+      (message "handle required module \"%s\" with from \"%s\"" module-id from))
   (let ((module-obj-file
 	 (coq-par-map-module-id-to-obj-file module-id coq-load-path from))
 	module-job)
@@ -1234,6 +1246,8 @@ there is no last compilation job."
 	 (string (mapconcat 'identity (nth 1 item) " "))
 	 (span (car item))
          prefix start)
+    (if coq-debug-auto-compilation
+	(message "handle require command \"%s\"" string))
     ;; We know there is a require in string. But we have to match it
     ;; again in order to get the end position.
     (string-match coq-require-command-regexp string)
@@ -1250,7 +1264,8 @@ there is no last compilation job."
     ;; add the asserted items to the last compilation job
     (if coq-last-compilation-job
 	(progn
-	  (assert (not (coq-par-job-is-ready coq-last-compilation-job)))
+	  (assert (not (coq-par-job-is-ready coq-last-compilation-job))
+		  nil "last compilation job from previous compilation ready")
 	  (put coq-last-compilation-job 'queueitems require-items)
 	  (if coq-debug-auto-compilation
 	      (message "%s: attach %s items"
