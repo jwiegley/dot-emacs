@@ -69,13 +69,30 @@ See also `coq-prog-env' to adjust the environment."
 
 (defcustom coq-pinned-version nil
   "Which version of Coq you are using.
-There should be no need to set this value; Proof General can
-adjust to various releases of Coq automatically."
+There should be no need to set this value unless you use the trunk from
+the Coq github repository. For Coq versions with decent version numbers
+Proof General detects the version automatically and adjusts itself. This
+variable should contain nil or a version string."
   :type 'string
   :group 'coq)
 
 (defvar coq-autodetected-version nil
   "Version of Coq, as autodetected by `coq-autodetect-version'.")
+
+;;; error symbols
+
+;; coq-unclassifiable-version
+;;
+;; This error is signaled with one data item -- the bad version string
+
+(put 'coq-unclassifiable-version 'error-conditions
+     '(error coq-unclassifiable-version))
+
+(put 'coq-unclassifiable-version 'error-message
+     "Proof General cannot classify your Coq version")
+
+
+;;; version detection code
 
 (defun coq-version (&optional may-recompute)
   "Return the precomputed version of the current Coq toolchain.
@@ -135,7 +152,14 @@ version detection that Proof General does automatically."
 (defun coq--pre-v85 ()
   "Return non-nil if the auto-detected version of Coq is < 8.5.
 Returns nil if the version can't be detected."
-  (coq--version< (or (coq-version t) "8.5") "8.5snapshot"))
+  (let ((coq-version-to-use (or (coq-version t) "8.5")))
+    (condition-case err
+	(coq--version< coq-version-to-use "8.5snapshot")
+      (error
+       (cond
+	((equal (substring (cadr err) 0 15) "Invalid version")
+	 (signal 'coq-unclassifiable-version  coq-version-to-use))
+	(t (signal (car err) (cdr err))))))))
 
 (defcustom coq-use-makefile nil
   "Whether to look for a Makefile to attempt to guess the command line.
