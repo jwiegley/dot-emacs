@@ -982,7 +982,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;;; PACKAGE CONFIGURATIONS
 
 (use-package abbrev
-  :disabled t
   :commands abbrev-mode
   :diminish abbrev-mode
   :init
@@ -1071,8 +1070,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'allout-mode-hook 'my-allout-mode-hook))
 
 (use-package anchored-transpose
-  ;; (shell-command "rm -f site-lisp/anchored-transpose.el*")
-  :disabled t)
+  :commands anchored-transpose)
 
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
@@ -1108,8 +1106,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (avy-setup-default))
 
 (use-package awk-it
-  ;; (shell-command "rm -f site-lisp/awk-it.el*")
-  :disabled t)
+  :commands (awk-it
+             awk-it-with-separator
+             awk-it-single
+             awk-it-single-with-separator
+             awk-it-raw
+             awk-it-file
+             awk-it-with-file
+             awk-it-to-kill-ring
+             awk-it-to-file))
 
 (use-package backup-each-save
   :commands backup-each-save
@@ -1288,10 +1293,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode (("CMakeLists.txt" . cmake-mode)
          ("\\.cmake\\'"    . cmake-mode)))
 
-(use-package col-highlight
-  ;; (shell-command "rm -f site-lisp/col-highlight.el*")
-  :disabled t)
-
 (use-package color-moccur
   :commands (isearch-moccur isearch-all isearch-moccur-all)
   :bind ("M-s O" . moccur)
@@ -1348,20 +1349,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :bind ("A-M-W" . copy-code-as-rtf))
 
-;; uses col-highlight.el
 (use-package crosshairs
-  :bind ("M-o c" . crosshairs-mode))
+  :bind ("M-o c" . crosshairs-mode)
+  :config
+  (use-package col-highlight
+    :config
+    (use-package vline)))
 
 (use-package css-mode
   :mode "\\.css\\'")
 
 (use-package csv-mode
-  ;; (shell-command "rm -f site-lisp/csv-mode.el*")
-  :disabled t)
+  :mode "\\.csv\\'")
 
 (use-package cursor-chg
-  :disabled t
-  :defer 10
   :commands change-cursor-mode
   :config
   (change-cursor-mode 1)
@@ -1400,9 +1401,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package diffview
   :commands (diffview-current diffview-region diffview-message))
 
-(use-package diminish
-  ;; (shell-command "rm -f site-lisp/diminish.el*")
-  :disabled t)
+(use-package diminish)
 
 (use-package dircmp
   ;; (shell-command "rm -fr site-lisp/dircmp-mode")
@@ -1625,8 +1624,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package ediff-keep))
 
 (use-package edit-env
-  ;; (shell-command "rm -f site-lisp/edit-env.el*")
-  :disabled t)
+  :commands edit-env)
 
 (use-package edit-server
   :disabled t
@@ -1869,9 +1867,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/expand-region-el")
 
 (use-package fancy-narrow
-  ;; (shell-command "rm -fr site-lisp/fancy-narrow")
-  ;; (shell-command "git remote rm ext/fancy-narrow")
-  :disabled t
+  :commands (fancy-narrow-to-region fancy-widen)
   :load-path "site-lisp/fancy-narrow")
 
 (use-package fdb
@@ -1996,22 +1992,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/github-issues-el")
 
-(use-package gnus
-  ;; (shell-command "rm -fr override/gnus")
-  :disabled t
-  :load-path "override/gnus")
-
-(use-package gnus-hardsort
-  ;; (shell-command "rm -f site-lisp/gnus-hardsort.el*")
-  :disabled t)
-
-(use-package goto-last-point
-  ;; (shell-command "rm -f site-lisp/goto-last-point.el*")
-  :disabled t)
-
 (use-package graphviz-dot-mode
-  ;; (shell-command "rm -f site-lisp/graphviz-dot-mode.el*")
-  :disabled t)
+  :mode "\\.dot\\'")
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
@@ -2030,7 +2012,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t)
 
 (use-package gud
-  :disabled t
   :commands gud-gdb
   :bind ("C-. g" . show-debugger)
   :init
@@ -2225,29 +2206,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
-(use-package hdevtools-emacs
-  ;; (shell-command "rm -fr site-lisp/hdevtools-emacs")
-  ;; (shell-command "git remote rm ext/hdevtools-emacs")
-  :disabled t
-  :load-path "site-lisp/hdevtools-emacs")
-
-(use-package helm-c-yasnippet
-  ;; (shell-command "rm -fr site-lisp/helm-c-yasnippet")
-  :disabled t
-  :load-path "site-lisp/helm-c-yasnippet")
-
-(use-package helm-cmd-t
-  ;; (shell-command "rm -fr site-lisp/helm-cmd-t")
-  ;; (shell-command "git remote rm ext/helm-cmd-t")
-  :disabled t
-  :load-path "site-lisp/helm-cmd-t")
-
-(use-package helm-company
-  ;; (shell-command "rm -fr site-lisp/helm-company")
-  ;; (shell-command "git remote rm ext/helm-company")
-  :disabled t
-  :load-path "site-lisp/helm-company")
-
 (use-package helm-config
   :if (not running-alternate-emacs)
   :demand t
@@ -2288,12 +2246,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (when (executable-find "curl")
     (setq helm-google-suggest-use-curl-p t)))
 
-(use-package helm-dash
-  ;; (shell-command "rm -fr site-lisp/helm-dash")
-  ;; (shell-command "git remote rm ext/helm-dash")
-  :disabled t
-  :load-path "site-lisp/helm-dash")
-
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
   :bind ("C-h b" . helm-descbinds)
@@ -2301,12 +2253,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (fset 'describe-bindings 'helm-descbinds)
   :config
   (require 'helm-config))
-
-(use-package helm-emms
-  ;; (shell-command "rm -fr site-lisp/helm-emms")
-  ;; (shell-command "git remote rm ext/helm-emms")
-  :disabled t
-  :load-path "site-lisp/helm-emms")
 
 (use-package helm-gist
   ;; (shell-command "rm -fr site-lisp/helm-gist")
@@ -2318,12 +2264,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "git remote rm ext/helm-github-issues")
   :disabled t
   :load-path "site-lisp/helm-github-issues")
-
-(use-package helm-google
-  ;; (shell-command "rm -fr site-lisp/helm-google")
-  ;; (shell-command "git remote rm ext/helm-google")
-  :disabled t
-  :load-path "site-lisp/helm-google")
 
 (use-package helm-grep
   :commands helm-do-grep-1
@@ -2337,16 +2277,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun my-helm-do-grep-r ()
     (interactive)
     (helm-do-grep-1 (list default-directory) t)))
-
-(use-package helm-gtags
-  ;; (shell-command "rm -f site-lisp/helm-gtags.el*")
-  :disabled t)
-
-(use-package helm-ipython
-  ;; (shell-command "rm -fr site-lisp/helm-ipython")
-  ;; (shell-command "git remote rm ext/helm-ipython")
-  :disabled t
-  :load-path "site-lisp/helm-ipython")
 
 (use-package helm-make
   :load-path "site-lisp/helm-make"
@@ -2609,14 +2539,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package hl-line+))
 
-(use-package hpaste
-  ;; (shell-command "rm -f site-lisp/hpaste.el*")
-  :disabled t)
-
-(use-package hs-lint
-  ;; (shell-command "rm -f site-lisp/hs-lint.el*")
-  :disabled t)
-
 (use-package hydra
   :load-path "site-lisp/hydra"
   :defer 10
@@ -2776,7 +2698,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               my-iflipb-ing-internal))))
 
 (use-package image-file
-  :disabled t
   :config
   (auto-image-file-mode 1))
 
@@ -2819,12 +2740,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f site-lisp/irfc.el*")
   :disabled t)
 
-(use-package irony-mode
-  ;; (shell-command "rm -fr site-lisp/irony-mode")
-  ;; (shell-command "git remote rm ext/irony-mode")
-  :disabled t
-  :load-path "site-lisp/irony-mode")
-
 (use-package isearch
   :no-require t
   :bind (("C-M-r" . isearch-backward-other-window)
@@ -2845,12 +2760,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-t" #'isearch-toggle-regexp isearch-mode-map)
   (bind-key "C-^" #'isearch-edit-string isearch-mode-map)
   (bind-key "C-i" #'isearch-complete isearch-mode-map))
-
-(use-package jist
-  ;; (shell-command "rm -fr site-lisp/jist")
-  ;; (shell-command "git remote rm ext/jist")
-  :disabled t
-  :load-path "site-lisp/jist")
 
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
@@ -3092,10 +3001,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/loccur")
 
-(use-package log4j-mode
-  ;; (shell-command "rm -f site-lisp/log4j-mode.el*")
-  :disabled t)
-
 (use-package lua-mode
   :load-path "site-lisp/lua-mode"
   :mode "\\.lua\\'"
@@ -3205,10 +3110,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (sort filtered 'string<)
         (lusty-sort-by-fuzzy-score filtered file-portion)))))
 
-(use-package lzw
-  ;; (shell-command "rm -f lisp/lzw.el*")
-  :disabled t)
-
 (use-package macrostep
   :load-path "site-lisp/macrostep"
   :bind ("C-c e m" . macrostep-expand))
@@ -3259,6 +3160,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
+  (use-package with-editor
+    ;; Magit makes use of this mode
+    :commands (with-editor-async-shell-command
+               with-editor-shell-command)
+    :load-path "site-lisp/with-editor")
+
   :config
   (setenv "GIT_PAGER" "")
 
@@ -3287,10 +3194,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
-(use-package main
-  ;; (shell-command "rm -f lisp/main.el*")
-  :disabled t)
-
 (use-package markdown-mode
   :load-path "site-lisp/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
@@ -3307,33 +3210,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f site-lisp/memory-usage.el*")
   :disabled t)
 
-(use-package merlin
-  ;; (shell-command "rm -f lisp/merlin.el*")
-  :disabled t)
-
 (use-package midnight
   :defer 10)
 
 (use-package minesweeper
-  ;; (shell-command "rm -f site-lisp/minesweeper.el*")
-  :disabled t)
-
-(use-package misc
-  ;; (shell-command "rm -f lisp/misc.el*")
-  :disabled t)
-
-(use-package modeline-posn
-  ;; (shell-command "rm -f site-lisp/modeline-posn.el*")
-  :disabled t)
-
-(use-package monky
-  ;; (shell-command "rm -fr site-lisp/monky")
-  ;; (shell-command "git remote rm ext/monky")
-  :disabled t
-  :load-path "site-lisp/monky")
+  :commands minesweeper)
 
 (use-package mudel
-  :disabled t
   :commands mudel
   :bind ("C-c M" . mud)
   :init
@@ -3349,12 +3232,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (set-terminal-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-(use-package multi-eshell
-  ;; (shell-command "rm -f site-lisp/multi-eshell.el*")
-  :disabled t)
-
 (use-package multi-term
-  :disabled t
   :bind (("C-. t" . multi-term-next)
          ("C-. T" . multi-term))
   :init
@@ -3386,10 +3264,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defadvice term-process-pager (after term-process-rebind-keys activate)
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
-(use-package multifiles-el
-  ;; (shell-command "rm -fr site-lisp/multifiles-el")
-  ;; (shell-command "git remote rm ext/multifiles-el")
-  :disabled t
+(use-package multifiles
+  :bind ("C-!" . mf/mirror-region-in-multifile)
   :load-path "site-lisp/multifiles-el")
 
 (use-package multiple-cursors
@@ -3402,33 +3278,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
 
-(use-package muse
-  ;; (shell-command "rm -fr lisp/muse")
-  ;; (shell-command "git remote rm ext/muse")
-  :disabled t
-  :load-path "lisp/muse")
-
-(use-package my-one-key
-  ;; (shell-command "rm -f lisp/my-one-key.el*")
-  :disabled t)
-
-(use-package nameless
-  ;; (shell-command "rm -f site-lisp/nameless.el*")
-  :disabled t)
-
-(use-package narrow-stack
-  ;; (shell-command "rm -f site-lisp/narrow-stack.el*")
-  :disabled t)
-
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
 (use-package nix-mode
   :mode "\\.nix\\'")
-
-(use-package nixos-env
-  ;; (shell-command "rm -f site-lisp/nixos-env.el*")
-  :disabled t)
 
 (use-package nlinum
   :disabled t
@@ -3501,16 +3355,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; optional key bindings, easier than hs defaults
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
 
-(use-package offlineimap-ctl
-  ;; (shell-command "rm -f lisp/offlineimap-ctl.el*")
-  :disabled t)
-
-(use-package olivetti
-  ;; (shell-command "rm -fr site-lisp/olivetti")
-  ;; (shell-command "git remote rm ext/olivetti")
-  :disabled t
-  :load-path "site-lisp/olivetti")
-
 (use-package on-screen
   :disabled t
   :load-path "site-lisp/on-screen"
@@ -3522,57 +3366,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f site-lisp/one-key.el*")
   :disabled t)
 
-(use-package org-balance
-  ;; (shell-command "rm -f lisp/org-balance.el*")
-  :disabled t)
-
-(use-package org-debbugs
-  ;; (shell-command "rm -f lisp/org-debbugs.el*")
-  :disabled t)
-
-(use-package org-devonthink
-  ;; (shell-command "rm -f lisp/org-devonthink.el*")
-  :disabled t)
-
-(use-package org-download
-  ;; (shell-command "rm -fr site-lisp/org-download")
-  ;; (shell-command "git remote rm ext/org-download")
-  :disabled t
-  :load-path "site-lisp/org-download")
-
-(use-package org-magit
-  ;; (shell-command "rm -fr site-lisp/org-magit")
-  ;; (shell-command "git remote rm ext/org-magit")
-  :disabled t
-  :load-path "site-lisp/org-magit")
-
-(use-package org-mode
-  ;; (shell-command "rm -fr override/org-mode")
-  :disabled t
-  :load-path "override/org-mode")
-
-(use-package org-opml
-  ;; (shell-command "rm -fr site-lisp/org-opml")
-  ;; (shell-command "git remote rm ext/org-opml")
-  :disabled t
-  :load-path "site-lisp/org-opml")
-
-(use-package org-present
-  ;; (shell-command "rm -fr site-lisp/org-present")
-  ;; (shell-command "git remote rm ext/org-present")
-  :disabled t
-  :load-path "site-lisp/org-present")
-
-(use-package org-smart-capture
-  ;; (shell-command "rm -f lisp/org-smart-capture.el*")
-  :disabled t)
-
-(use-package orgaggregate
-  ;; (shell-command "rm -fr site-lisp/orgaggregate")
-  ;; (shell-command "git remote rm ext/orgaggregate")
-  :disabled t
-  :load-path "site-lisp/orgaggregate")
-
 (use-package outline
   :commands outline-minor-mode
   :init
@@ -3580,43 +3373,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    'emacs-lisp-mode-hook
                    'LaTeX-mode-hook))
 
-(use-package outorg
-  :load-path "site-lisp/outorg"
-  :bind ("C-c '" . outorg-edit-as-org)
-  :config
-  (require 'outshine))
-
-(use-package outshine
-  :load-path ("site-lisp/outshine"
-              "site-lisp/navi")
-  :commands outshine-hook-function
-  ;; :init
-  ;; (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
-  :config
-  (use-package navi-mode))
-
 (use-package pabbrev
   :load-path "site-lisp/pabbrev"
   :commands pabbrev-mode
   :diminish pabbrev-mode)
-
-(use-package page-break-lines
-  ;; (shell-command "rm -fr site-lisp/page-break-lines")
-  ;; (shell-command "git remote rm ext/page-break-lines")
-  :disabled t
-  :load-path "site-lisp/page-break-lines")
-
-(use-package pandoc-mode
-  ;; (shell-command "rm -fr site-lisp/pandoc-mode")
-  ;; (shell-command "git remote rm ext/pandoc-mode")
-  :disabled t
-  :load-path "site-lisp/pandoc-mode")
-
-(use-package paradox
-  ;; (shell-command "rm -fr site-lisp/paradox")
-  ;; (shell-command "git remote rm ext/paradox")
-  :disabled t
-  :load-path "site-lisp/paradox")
 
 (use-package paredit
   :commands paredit-mode
@@ -3657,21 +3417,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f site-lisp/parenface.el*")
   :disabled t)
 
-(use-package pdf-tools
-  ;; (shell-command "rm -fr site-lisp/pdf-tools")
-  ;; (shell-command "git remote rm ext/pdf-tools")
-  :disabled t
-  :load-path "site-lisp/pdf-tools")
-
 (use-package per-window-point
   :commands pwp-mode
   :defer 5
   :config
   (pwp-mode 1))
-
-(use-package persian-johnw
-  ;; (shell-command "rm -f lisp/persian-johnw.el*")
-  :disabled t)
 
 (use-package persistent-scratch
   :disabled t
@@ -3680,37 +3430,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            (not running-development-emacs)
            (not noninteractive)))
 
-(use-package persistent-soft
-  ;; (shell-command "rm -fr site-lisp/persistent-soft")
-  ;; (shell-command "git remote rm ext/persistent-soft")
-  :disabled t
-  :load-path "site-lisp/persistent-soft")
-
-(use-package perspective
-  :disabled t
-  :config
-  (persp-mode))
-
-(use-package php-mode-improved
-  ;; (shell-command "rm -f site-lisp/php-mode-improved.el*")
-  :disabled t)
-
 (use-package po-mode
-  ;; (shell-command "rm -f site-lisp/po-mode.el*")
-  :disabled t)
-
-(use-package poporg
-  :load-path "site-lisp/poporg"
-  :bind ("C-c e o" . poporg-dwim))
+  :mode "\\.\\(po\\'\\|po\\.\\)")
 
 (use-package popup-ruler
   :bind (("C-. C-r" . popup-ruler)))
-
-(use-package powerline
-  :disabled t
-  :load-path "site-lisp/powerline"
-  :config
-  (powerline-default-theme))
 
 (use-package pp-c-l
   :commands pretty-control-l-mode
@@ -3858,10 +3582,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (condition-case err ad-do-it
         (error (shell-command "killall coqtop"))))))
 
-(use-package prover
-  ;; (shell-command "rm -f lisp/prover.el*")
-  :disabled t)
-
 (use-package ps-print
   :defer t
   :config
@@ -3873,16 +3593,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (call-process (executable-find "open") nil nil nil temp-file)))
 
   (setq ps-print-region-function 'ps-spool-to-pdf))
-
-(use-package psvn
-  ;; (shell-command "rm -f site-lisp/psvn.el*")
-  :disabled t)
-
-(use-package puppet-mode
-  :disabled t
-  :mode ("\\.pp\\'" . puppet-mode)
-  :config
-  (use-package puppet-ext))
 
 (use-package python-mode
   :load-path "site-lisp/python-mode"
@@ -3942,7 +3652,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (recentf-mode 1))
 
 (use-package regex-tool
-  :disabled t
+  :commands regex-tool
   :load-path "lisp/regex-tool")
 
 (use-package repeat-insert
@@ -3955,18 +3665,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package restclient
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
-
-(use-package reveal-next
-  ;; (shell-command "rm -f site-lisp/reveal-next.el*")
-  :disabled t)
-
-(use-package rfringe
-  ;; (shell-command "rm -f site-lisp/rfringe.el*")
-  :disabled t)
-
-(use-package rs-info
-  ;; (shell-command "rm -f site-lisp/rs-info.el*")
-  :disabled t)
 
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
@@ -4005,10 +3703,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
-(use-package runner
-  ;; (shell-command "rm -f site-lisp/runner.el*")
-  :disabled t)
-
 (use-package sage
   :disabled t
   :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode/"
@@ -4016,16 +3710,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defvar python-source-modes nil)
   (setq sage-command "/Applications/Misc/sage/sage")
 
-  ;; If you want sage-view to typeset all your output and have plot()
-  ;; commands inline, uncomment the following line and configure sage-view:
-  (require 'sage-view)
-  (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
-  (add-hook 'sage-startup-after-prompt-hook 'sage-view)
-  ;; You can use commands like
-  ;; (add-hook 'sage-startup-after-prompt-hook
-  ;;           'sage-view-disable-inline-output)
-  (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
-  ;; to enable some combination of features
+  (use-package sage-view
+    :config
+    (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
+    (add-hook 'sage-startup-after-prompt-hook 'sage-view)
+    (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t))
 
   (setq sage-startup-before-prompt-command "")
 
@@ -4037,18 +3726,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          (texinputs (concat ".:" (substring str 0 (1- (length str))) ":")))
     (setenv "TEXINPUTS" texinputs)
 
-    (eval
-     `(defadvice sage (around my-sage activate)
-        (let ((process-environment
-               (cons
-                (concat "TEXINPUTS=" ,texinputs)
-                (mapcar
-                 (lambda (x)
-                   (if (string-match "\\`PATH=" x)
-                       (concat "PATH=/usr/bin:/bin:"
-                               (expand-file-name "~/.nix-profile/bin")) x))
-                 process-environment))))
-          ad-do-it))))
+    ;; (eval
+    ;;  `(defadvice sage (around my-sage activate)
+    ;;     (let ((process-environment
+    ;;            (cons
+    ;;             (concat "TEXINPUTS=" ,texinputs)
+    ;;             (mapcar
+    ;;              (lambda (x)
+    ;;                (if (string-match "\\`PATH=" x)
+    ;;                    (concat "PATH=/usr/bin:/bin:"
+    ;;                            (expand-file-name "~/.nix-profile/bin")) x))
+    ;;              process-environment))))
+    ;;       ad-do-it)))
+    )
 
   (bind-key "C-c Z" #'sage))
 
@@ -4212,11 +3902,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("A-n"   . next-error)
          ("A-p"   . previous-error)))
 
-(use-package smart-forward-el
-  ;; (shell-command "rm -fr site-lisp/smart-forward-el")
-  ;; (shell-command "git remote rm ext/smart-forward-el")
-  :disabled t
-  :load-path "site-lisp/smart-forward-el")
+(use-package smart-tabs-mode
+  :commands smart-tabs-mode
+  :load-path "site-lisp/smarttabs")
 
 (use-package smartparens
   :disabled t
@@ -4321,34 +4009,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-history-push default-directory)
         (sr-beginning-of-buffer)))))
 
-(use-package swiper
-  ;; (shell-command "rm -fr site-lisp/swiper")
-  ;; (shell-command "git remote rm ext/swiper")
-  :disabled t
-  :load-path "site-lisp/swiper")
-
 (use-package swiper-helm
   :load-path ("site-lisp/swiper"
               "site-lisp/swiper-helm")
-  :bind ("C-. C-s" . swiper-helm))
+  :bind ("C-. C-s" . swiper-helm)
+  :config
+  (use-package swiper
+    :load-path "site-lisp/swiper"))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
-
-(use-package tail
-  ;; (shell-command "rm -f site-lisp/tail.el*")
-  :disabled t)
-
-(use-package tbx2org
-  ;; (shell-command "rm -fr site-lisp/tbx2org")
-  :disabled t
-  :load-path "site-lisp/tbx2org")
-
-(use-package tellib
-  ;; (shell-command "rm -fr site-lisp/tellib")
-  ;; (shell-command "git remote rm ext/tellib")
-  :disabled t
-  :load-path "site-lisp/tellib")
 
 (use-package tex-site                   ; auctex
   :load-path "site-lisp/auctex/"
@@ -4424,8 +4094,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             5))))))
 
 (use-package tidy
-  ;; (shell-command "rm -f site-lisp/tidy.el*")
-  :disabled t)
+  :commands (tidy-buffer
+             tidy-parse-config-file
+             tidy-save-settings
+             tidy-describe-options))
 
 (use-package tiny
   :load-path "site-lisp/tiny"
@@ -4460,31 +4132,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ad-do-it)))
 
 (use-package transpar
-  ;; (shell-command "rm -f site-lisp/transpar.el*")
-  :disabled t)
+  :commands transpose-paragraph-as-table)
 
 (use-package transpose-mark
-  ;; (shell-command "rm -fr site-lisp/transpose-mark")
-  ;; (shell-command "git remote rm ext/transpose-mark")
-  :disabled t
+  :commands (transpose-mark
+             transpose-mark-line
+             transpose-mark-region)
   :load-path "site-lisp/transpose-mark")
 
-(use-package unicode-enbox
-  ;; (shell-command "rm -f site-lisp/unicode-enbox.el*")
-  :disabled t)
-
-(use-package unicode-helper
-  ;; (shell-command "rm -f site-lisp/unicode-helper.el*")
-  :disabled t)
-
-(use-package unify-buffer
-  ;; (shell-command "rm -f site-lisp/unify-buffer.el*")
-  :disabled t)
-
 (use-package vimish-fold
-  ;; (shell-command "rm -fr site-lisp/vimish-fold")
-  ;; (shell-command "git remote rm ext/vimish-fold")
-  :disabled t
+  :commands vimish-fold
   :load-path "site-lisp/vimish-fold")
 
 (use-package visual-regexp
@@ -4509,14 +4166,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setq vkill-show-all-processes t))
 
-(use-package vline
-  ;; (shell-command "rm -f site-lisp/vline.el*")
-  :disabled t)
-
-(use-package volatile-highlights
-  ;; (shell-command "rm -f site-lisp/volatile-highlights.el*")
-  :disabled t)
-
 (use-package wcount
   :disabled t
   :commands wcount-mode)
@@ -4526,10 +4175,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "git remote rm ext/web-mode")
   :disabled t
   :load-path "site-lisp/web-mode")
-
-(use-package weblogger
-  ;; (shell-command "rm -f site-lisp/weblogger.el*")
-  :disabled t)
 
 (use-package which-key
   :disabled t
@@ -4614,12 +4259,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (winner-mode 1))
 
-(use-package with-editor
-  ;; (shell-command "rm -fr site-lisp/with-editor")
-  ;; (shell-command "git remote rm ext/with-editor")
-  :disabled t
-  :load-path "site-lisp/with-editor")
-
 (use-package workgroups
   :load-path "site-lisp/workgroups"
   :diminish workgroups-mode
@@ -4647,8 +4286,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      ("`" "`" nil (markdown-mode ruby-mode shell-script-mode)))))
 
 (use-package xray
-  ;; (shell-command "rm -f site-lisp/xray.el*")
-  :disabled t)
+  :commands (xray-symbol xray-position xray-buffer xray-window
+             xray-frame xray-marker xray-overlay xray-screen
+             xray-faces xray-hooks xray-features))
 
 (use-package yaml-mode
   :load-path "site-lisp/yaml-mode"
@@ -4700,7 +4340,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package zencoding-mode
-  :disabled t
   :load-path "site-lisp/zencoding-mode"
   :commands zencoding-mode
   :init
@@ -4713,6 +4352,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
+
+(use-package zotelo
+  :disabled t
+  :load-path "site-lisp/zotelo"
+  :commands zotelo-minor-mode
+  :config
+  (add-hook 'TeX-mode-hook 'zotelo-minor-mode))
+
+(use-package ztree-diff
+  :commands ztree-diff
+  :load-path "site-lisp/ztree")
 
 ;;; Post initialization
 
@@ -4730,15 +4380,3 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             t))
 
 ;;; init.el ends here
-(use-package zotelo
-  ;; (shell-command "rm -fr site-lisp/zotelo")
-  ;; (shell-command "git remote rm ext/zotelo")
-  :disabled t
-  :load-path "site-lisp/zotelo")
-
-(use-package ztree
-  ;; (shell-command "rm -fr site-lisp/ztree")
-  ;; (shell-command "git remote rm ext/ztree")
-  :disabled t
-  :load-path "site-lisp/ztree")
-

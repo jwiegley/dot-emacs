@@ -1,5 +1,0 @@
-changeset = "{tags}"
-
-start_tags = ''
-tag = '{tag}\n'
-last_tag = ''
