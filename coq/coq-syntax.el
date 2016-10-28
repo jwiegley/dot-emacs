@@ -1304,10 +1304,6 @@ It is used:
 ;;  (concat "\\(with\\)\\s-+\\(" coq-id "\\)\\s-*\\([^(.]*:\\|.*)[^(.]*:=\\)"))
 ;;"\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>"
 
-;; (defconst coq-require-command-regexp
-;;   (concat "Require\\s-+\\(" coq-id "\\)")
-;;   "Regular expression matching Require commands in Coq.
-;; Group number 1 matches the name of the library which is required.")
 
 (defconst coq-context-marker-regexp
   (concat (regexp-opt '("ltac" "constr" "uconstr") 'symbols) ":"))
