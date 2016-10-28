@@ -454,7 +454,11 @@ the command whose output will appear in the buffer."
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
   (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
-  (proof-display-and-keep-buffer coq-compile-response-buffer 1 t))
+  (proof-display-and-keep-buffer coq-compile-response-buffer 1 t)
+  ;; Partial fix for #54: ensure that the compilation response
+  ;; buffer is not in a dedicated window.
+  (mapc (lambda (w) (set-window-dedicated-p w nil))
+      (get-buffer-window-list coq-compile-response-buffer nil t)))
 
 
 ;;; save some buffers
