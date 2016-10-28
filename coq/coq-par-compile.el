@@ -1369,7 +1369,7 @@ does the error checking/reporting for
        (message "%s %s" (get (car err) 'error-message) (cdr err)))
       (coq-unclassifiable-version
        (coq-par-emergency-cleanup)
-       (if (equal (cdr err) "trunkk")
+       (if (equal (cdr err) "trunk")
 	   (message
 	    (concat "your Coq version \"trunk\" is too unspecific for "
 		    "Proof General; please customize coq-pinned-version"))
