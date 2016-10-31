@@ -3742,6 +3742,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (bind-key "C-c Z" #'sage))
 
+(use-package selected
+  :load-path "site-lisp/selected"
+  :defer 5
+  :diminish selected-minor-mode
+  :config
+  (selected-global-mode 1)
+
+  (bind-key "F" #'fill-region selected-keymap)
+  (bind-key "U" #'unfill-region selected-keymap)
+  (bind-key "d" #'downcase-region selected-keymap)
+  (bind-key "r" #'reverse-region selected-keymap)
+  (bind-key "s" #'sort-lines selected-keymap)
+  (bind-key "u" #'upcase-region selected-keymap))
+
 (use-package selectkey
   :disabled t
   :bind-keymap ("C-. b" . selectkey-select-prefix-map)
