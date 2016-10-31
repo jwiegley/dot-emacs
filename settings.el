@@ -1098,6 +1098,7 @@
     (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
  '(yas-triggers-in-field t)
  '(yas-wrap-around-region t)
+ '(zencoding-indentation 2)
  '(zencoding-preview-default nil))
 
 (custom-set-faces
