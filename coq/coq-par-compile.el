@@ -526,6 +526,9 @@ break."
 			   (cons command-intro this-command)
 			 this-command))
 	 coqdep-status coqdep-output)
+    (if coq-debug-auto-compilation
+	(message "Run synchronously: %s"
+		 (mapconcat 'identity full-command " ")))
     ;; (if coq-debug-auto-compilation
     ;;     (message "CPGLD: call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
@@ -569,7 +572,7 @@ function returns () if MODULE-ID comes from the standard library."
                 (coq-par-get-library-dependencies
                  temp-require-file
 		 coq-load-path
-                 (concat "echo \"" coq-string "\" > " temp-require-file))))
+                 (concat "echo \"" coq-string "\" > " temp-require-file ";"))))
       (delete-file temp-require-file))
     (if coq-debug-auto-compilation
 	(message "coq-par-get-library-dependencies delivered \"%s\"" result))
@@ -1207,13 +1210,18 @@ This function must be evaluated with the buffer that triggered
 the compilation as current, otherwise a wrong `coq-load-path'
 might be used."
   (if coq-debug-auto-compilation
-      (message "handle required module \"%s\" with from \"%s\"" module-id from))
+      (if from
+	  (message "handle required module \"%s\" from \"%s\"" module-id from)
+	(message "handle required module \"%s\" without from clause"
+		 module-id)))
   (let ((module-obj-file
 	 (coq-par-map-module-id-to-obj-file module-id coq-load-path from))
 	module-job)
     (if coq-debug-auto-compilation
-        (message "check compilation for module %s from object file %s"
-		 module-id module-obj-file))
+	(if module-obj-file
+	    (message "check compilation for module %s from object file %s"
+		     module-id module-obj-file)
+	  (message "nothing to check for module %s" module-id)))
     ;; coq-par-map-module-id-to-obj-file currently returns () for
     ;; standard library modules!
     (when (and module-obj-file
@@ -1266,16 +1274,21 @@ there is no last compilation job."
 	(progn
 	  (assert (not (coq-par-job-is-ready coq-last-compilation-job))
 		  nil "last compilation job from previous compilation ready")
-	  (put coq-last-compilation-job 'queueitems require-items)
+	  (put coq-last-compilation-job 'queueitems
+	       (nconc (get coq-last-compilation-job 'queueitems)
+		      require-items))
 	  (if coq-debug-auto-compilation
-	      (message "%s: attach %s items"
+	      (message "%s: attach %s items (containing now %s items)"
 		       (get coq-last-compilation-job 'name)
-		       (length require-items))))
+		       (length require-items)
+		       (length (get coq-last-compilation-job 'queueitems)))))
       ;; or add them directly to queueitems if there is no compilation job
       ;; (this happens if the modules are ignored for compilation)
       (setq queueitems (nconc queueitems require-items))
       (if coq-debug-auto-compilation
-	  (message "attach %s items to queueitems" (length require-items))))))
+	  (message "attach %s items to queueitems (containing now %s items)"
+		   (length require-items)
+		   (length queueitems))))))
 
 
 (defun coq-par-item-require-predicate (item)
