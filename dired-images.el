@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 (require 'dired-hacks-utils)
 (require 'dash)
 (require 'eimp)
@@ -12,7 +13,7 @@
 ;;   - +/- given %
 
 ;; thumb customizes
-(defcustom di-thumbs-directory "~/.emacs.d/di/"
+(defcustom di-thumbs-directory (locate-user-emacs-file ".cache/di/")
   "Location where thumbnails are stored."
   :type 'directory)
 
@@ -114,9 +115,12 @@ This function sanitizes the variable `di-thumbs-directory'."
     dir))
 
 ;; TODO this should go to /tmp/
-(defun di--temp-file ()
-  "Return the location of temp file."
-  (concat (di--thumbs-directory) ".di-temp-" (buffer-name di-active-view-buffer)))
+(defun di--temp-file (&optional buffer)
+  "Return the location of temp file for a view buffer.
+
+Optional argument BUFFER is a view buffer, otherwise default to
+the active one."
+  (concat (di--thumbs-directory) ".di-temp-" (buffer-name (or buffer di-active-view-buffer))))
 
 ;; TODO: add optional dimensions of the thumb
 (defun di--thumb-name (file)
@@ -144,14 +148,18 @@ RELIEF and MARGIN specify the image properties.  See also
                    :margin ,(or margin 0))))
     (insert-image i)))
 
+(defun di--resize-image (in-file out-file width height)
+  "Resize IN-FILE to WIDTH and HEIGHT, save to OUT-FILE"
+  (call-process "convert" nil nil nil "-resize"
+                (format "%dx%d" width height)
+                in-file out-file))
+
 (defun di--create-fitted-image (file &optional window)
   "Resize FILE to fit current view window."
   (let* ((edges (window-inside-pixel-edges window))
          (width (- (nth 2 edges) (nth 0 edges)))
          (height (- (nth 3 edges) (nth 1 edges))))
-    (call-process "convert" nil nil nil "-resize"
-                  (format "%dx%d" width height)
-                  file (di--temp-file))))
+    (di--resize-image file (di--temp-file) width height)))
 
 (defun di--open-image (file &optional window)
   "Open FILE as image in current buffer."
@@ -201,7 +209,7 @@ The number of thumbs per row is calculated using
       (save-excursion (replace-string "\n" ""))
       (while (not (eobp))
         (forward-char row)
-        (insert "\n")))))
+        (unless (eobp) (insert "\n"))))))
 
 (defun di--insert-thumb (file dired-buffer)
   "Insert thumbnail image FILE.
@@ -260,12 +268,14 @@ With prefix argument \\[universal-argument] \\[universal-argument] open a new th
         (erase-buffer))
       (when (equal arg '(4))
         (goto-char (point-max)))
-      (di--insert-thumbs marked-files dir-buf)
-      (--when-let (di--get-active-thumb-windows)
-        (di--arrange-thumbs (car it))))))
+      (save-excursion
+        (di--insert-thumbs marked-files dir-buf)
+        (--when-let (di--get-active-thumb-windows)
+          (di--arrange-thumbs (car it)))))))
 
 ;; NOTE: (dired-get-marked-files) automagically returns the file under
 ;; cursor if no selection is made.
+;; TODO: cleanup: remove the temp files for views which no longer exists
 (defun di-view-files ()
   "View marked files."
   (interactive)
@@ -284,6 +294,7 @@ With prefix argument \\[universal-argument] \\[universal-argument] open a new th
     (set-keymap-parent map image-mode-map)
     (define-key map (kbd ".") 'di-view-next)
     (define-key map (kbd ",") 'di-view-previous)
+    (define-key map (kbd "s s") 'di-view-fit-image-to-window)
     (define-key map (kbd "<right>") 'di-view-next)
     (define-key map (kbd "<left>") 'di-view-previous)
     map))
@@ -297,7 +308,12 @@ With prefix argument \\[universal-argument] \\[universal-argument] open a new th
                                      "*")))))
     (setq di-active-view-buffer buf)
     (with-current-buffer di-active-view-buffer
-      (di-view-mode))
+      (di-view-mode)
+      (add-hook 'kill-buffer-hook
+                (let ((buffer (di--temp-file (current-buffer))))
+                  (lambda ()
+                    (ignore-errors
+                      (delete-file buffer)))) nil 'local))
     buf))
 
 (defun di--get-active-view-buffer ()
@@ -355,6 +371,11 @@ With prefix argument \\[universal-argument] \\[universal-argument] open a new th
         (set-window-point (car (di--get-active-thumb-windows)) (point)))
     (di-dec di-file-list-current (di--view-total) arg)
     (di--open-image (nth di-file-list-current di-file-list))))
+
+(defun di-view-fit-image-to-window ()
+  "Fit image to window."
+  (interactive)
+  (di--open-image (di--view-current-file)))
 
 (define-derived-mode di-view-mode special-mode
   "DI View"

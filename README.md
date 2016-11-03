@@ -9,8 +9,9 @@
     6. [dired-subtree](#dired-subtree)
     7. [dired-ranger](#dired-ranger)
     8. [dired-narrow](#dired-narrow)
+    9. [dired-list](#dired-list)
 
-# dired-hacks [![Paypal logo](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CEYP5YVHDRX8C)
+# dired-hacks [![Build Status](https://travis-ci.org/Fuco1/dired-hacks.svg?branch=master)](https://travis-ci.org/Fuco1/dired-hacks) [![Paypal logo](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CEYP5YVHDRX8C)
 
 Collection of useful dired additions.  I don't want this become
 another `dired+`, so I'm splitting all the functionality into separate
@@ -28,15 +29,31 @@ but it would be a bit more painful.
 <a name="contribute!" />
 # Contribute!
 
-Since this collection comes from my own config, it mostly contains
-stuff I use or find useful.  If you have a good idea or nice usecase
-for some addition, feel free to send patches or start an issue (but
-patches are preferred :P).
+If you want to support this project, you can do it in the following ways:
 
-If you find this package useful, or if you don't, you can also donate
-arbitrary sum of money via PayPal button above (note: it links to the
-[smartparens](https://github.com/Fuco1/smartparens) "product" because
-I'm lazy to create special button for every of my projects ;)
+* Contribute code. Since this collection comes from my own config, it
+  mostly contains stuff I use or find useful.  If you have an idea
+  that is not yet implemented and will benefit this project, feel free
+  to implement it and submit a pull request. If you have any concerns
+  whether your contribution will be accepted, ask beforehand. You can
+  email the author or
+  [start an issue](https://github.com/Fuco1/dired-hacks/issues/new) on
+  the tracker.
+* Contribute ideas. Even if you can't code Emacs Lisp, you can still
+  contribute valuable ideas for other programmers to implement. Simply
+  [start new issue](https://github.com/Fuco1/dired-hacks/issues/new)
+  on the tracker and submit your suggestion.
+* You can make a
+  [financial donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TAWNECQR3TTUY)
+  through PayPal.  If you like dired-hacks and can spare a modest
+  amount on a donation, feel free to do so.  These donations are
+  expressions of your gratitude and are used for my personal "rewards"
+  (books, games, music etc.).  You can also gift me a game on
+  [Steam](http://steamcommunity.com/profiles/76561198265034071/wishlist)
+  or buy something on
+  [Amazon](http://www.amazon.com/gp/registry/wishlist/2I8DOQH8OZEUR).
+  Regardless of the donations, dired-hacks will always be free both as
+  in beer and as in speech.
 
 <a name="packages" />
 # Packages
@@ -108,6 +125,9 @@ bound to `C-u`).  To logically negate the meaning of the filter, you
 can call the function with a double prefix argument (usually `C-u`
 `C-u`)
 
+You can use saved filters to mark files by calling
+`dired-filter-mark-by-saved-filters`.
+
 ### Stack operations
 
 To remove the filter from the stack, use `dired-filter-pop` or
@@ -129,11 +149,13 @@ Here's a list of built-in filters:
 * `dired-filter-by-extension`
 * `dired-filter-by-dot-files`
 * `dired-filter-by-omit`
+* `dired-filter-by-garbage`
 * `dired-filter-by-predicate`
 * `dired-filter-by-file`
 * `dired-filter-by-directory`
 * `dired-filter-by-mode`
 * `dired-filter-by-symlink`
+* `dired-filter-by-executable`
 
 You can see their documentation by calling M-x `describe-function`.
 
@@ -331,7 +353,7 @@ Here are some example uses:
                            :italic t) ".*\\.log")
 
 ; highlight executable files, but not directories
-(dired-rainbow-define-chmod executable-unix "Green" "-.*x.*")
+(dired-rainbow-define-chmod executable-unix "Green" "-[rw-]+x.*")
 ```
 
 <a name="dired-subtree" />
@@ -450,11 +472,32 @@ Bookmarks").
 This package provides live filtering of files in dired buffers.  In
 general, after calling the respective narrowing function you type a
 filter string into the minibuffer.  After each change the changes
-are automatically reflect in the buffer.  Typing C-g will cancel
-the narrowing and restore the original view, typing RET will exit
-the query mode and leave the filter in the narrowed state.  To
+automatically reflect in the buffer.  Typing C-g will cancel the
+narrowing and restore the original view, typing RET will exit the live
+filtering mode and leave the dired buffer in the narrowed state.  To
 bring it back to the original view, you can call `revert-buffer`
-(usually bound to `g`).
+(usually bound to <kbd>g</kbd>).
+
+During the filtering process, several special functions are available.
+You can customize the binding by changing `dired-narrow-map`.
+
+* `dired-narrow-next-file` (<kbd>\<down\></kbd>) - move the point to the next file
+* `dired-narrow-previous-file` (<kbd>\<up\></kbd>) - move the point to the previous
+  file
+* `dired-narrow-enter-directory` (<kbd>\<right\></kbd>) - descend into
+  the directory under point and immediately go back to narrowing mode
+
+You can customize what happens after exiting the live filtering mode
+by customizing `dired-narrow-exit-action`.
+`dired-narrow-exit-action` may be executed automatically,
+when there is only one file left while narrowing.
+In order to enable this feature, add `(setq dired-narrow-exit-when-1-left t)` to your config.
+It makes sense when you use find-file as your exit action, e.g.
+`(setq dired-narrow-exit-action 'dired-narrow-find-file)`.
+A chosen file will be quickly highlighted before executing `dired-narrow-exit-action`.
+This behavior is controlled by variables `dired-narrow-enable-blinking`,
+`dired-narrow-blink-time` and by a face `dired-narrow-blink`.
+
 
 These narrowing functions are provided:
 
@@ -470,3 +513,40 @@ at each line that describes a file with point at the beginning of
 the file name.  If the filter returns nil, the file is removed from
 the view.  As an inspiration, look at the built-in functions
 mentioned above.
+
+<a name="dired-list" />
+## dired-list
+
+Produce a file listing with a shell incantation and make a dired
+out of it!
+
+This package provides one principal function, `dired-list` which
+can be used to produce dired buffers from shell programs outputing
+text roughly in the format of `la -ls`.
+
+For most standard output formats the default filter and sentinel
+should work, but you can also provide your own if the situation
+requires it.
+
+Most of the time you can pipe a zero-delimited list of files to `ls`
+through `xargs(1)` using
+
+    | xargs -I '{}' -0 ls -l '{}'
+
+which creates a compatible listing.  For more information read the
+documentation of `dired-list`, for example by invoking
+
+    C-h f dired-list RET
+
+in emacs.
+
+In addition to the generic interface this package implements common
+listings (patches and extensions welcome!), these are:
+
+* `dired-list-mpc`
+* `dired-list-git-ls-files`
+* `dired-list-hg-locate`
+* `dired-list-locate`
+* `dired-list-find-file`
+* `dired-list-find-name`
+* `dired-list-grep`

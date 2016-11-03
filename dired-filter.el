@@ -1,13 +1,13 @@
 ;;; dired-filter.el --- Ibuffer-like filtering for dired
 
-;; Copyright (C) 2014 Matus Goljer
+;; Copyright (C) 2014-2015 Matúš Goljer
 
-;; Author: Matus Goljer <matus.goljer@gmail.com>
-;; Maintainer: Matus Goljer <matus.goljer@gmail.com>
+;; Author: Matúš Goljer <matus.goljer@gmail.com>
+;; Maintainer: Matúš Goljer <matus.goljer@gmail.com>
 ;; Keywords: files
 ;; Version: 0.0.2
 ;; Created: 14th February 2014
-;; Package-requires: ((dash "2.10.0") (dired-hacks-utils "0.0.1"))
+;; Package-requires: ((dash "2.10.0") (dired-hacks-utils "0.0.1") (f "0.17.0") (cl-lib "0.3"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -82,6 +82,9 @@
 ;; filter, you can call the function with a double prefix argument
 ;; (usually `C-u' `C-u')
 
+;; You can use saved filters to mark files by calling
+;; `dired-filter-mark-by-saved-filters'.
+
 ;;  Stack operations
 ;;  ----------------
 
@@ -105,11 +108,13 @@
 ;; * `dired-filter-by-extension'
 ;; * `dired-filter-by-dot-files'
 ;; * `dired-filter-by-omit'
+;; * `dired-filter-by-garbage'
 ;; * `dired-filter-by-predicate'
 ;; * `dired-filter-by-file'
 ;; * `dired-filter-by-directory'
 ;; * `dired-filter-by-mode'
 ;; * `dired-filter-by-symlink'
+;; * `dired-filter-by-executable'
 
 ;; You can see their documentation by calling M-x `describe-function'.
 
@@ -222,6 +227,8 @@
 (require 'dired-hacks-utils)
 (require 'dash)
 (require 'thingatpt)
+(require 'cl-lib)
+(require 'f)
 
 ;; silence the compiler warning
 (defvar dired-filter-mode nil)
@@ -232,7 +239,7 @@
 (defvar dired-filter-alist nil
   "Definitions of filters.
 
-Entries are of type (name desc body) ")
+Entries are of type (name desc body)")
 
 (defgroup dired-filter ()
   "Ibuffer-like filtering for `dired'."
@@ -285,8 +292,7 @@ By default, `dired-filter-by-omit' is active."
 (make-variable-buffer-local 'dired-filter-stack)
 
 (defcustom dired-filter-inherit-filter-stack nil
-  "When non-nil, visited subdirectories should inherit the filter
-of the parent directory."
+  "When non-nil, subdirectories inherit the filter of the parent directory."
   :type 'boolean
   :group 'dired-filter)
 
@@ -308,8 +314,9 @@ Currently, this only applies to `dired-filter-saved-filters'."
   :group 'dired-filter)
 
 (defcustom dired-filter-show-filters t
-  "If non-nil, if `dired-filter-stack' is non-nil, show a
-description of active filters in header line.
+  "If non-nil, show a description of active filters in header line.
+
+If `dired-filter-stack' is nil, no header is shown.
 
 This modifies `header-line-format' by appending
 `dired-filter-header-line-format' to it."
@@ -431,20 +438,27 @@ See `dired-filter-stack' for the format of FILTER-STACK."
     (define-key map "m" 'dired-filter-mark-by-mode)
     (define-key map "s" 'dired-filter-mark-by-symlink)
     (define-key map "x" 'dired-filter-mark-by-executable)
+    (define-key map "L" 'dired-filter-mark-by-saved-filters)
     map)
   "Keymap used for marking files.")
 
 (defun dired-filter--set-prefix-key (varname value)
+  "Set VARNAME to VALUE.
+
+Setter for `dired-filter-prefix' user variable."
   (when varname
     (set-default varname value))
   (when value
-    (define-key dired-mode-map (kbd value) dired-filter-map)))
+    (define-key dired-mode-map (read-kbd-macro value) dired-filter-map)))
 
 (defun dired-filter--set-mark-prefix-key (varname value)
+  "Set VARNAME to VALUE.
+
+Setter for `dired-filter-mark-prefix' user variable."
   (when varname
     (set-default varname value))
   (when value
-    (define-key dired-mode-map (kbd value) dired-filter-mark-map)))
+    (define-key dired-mode-map (read-kbd-macro value) dired-filter-mark-map)))
 
 (defcustom dired-filter-prefix "/"
   "Prefix key for `dired-filter-map'."
@@ -475,11 +489,12 @@ See `dired-filter-stack' for the format of FILTER-STACK."
 
 ;; TODO: save the filters in better structure to avoid undescriptive `cadddr'
 (defun dired-filter--make-filter-1 (stack)
+  "Translate STACK to a filter form."
   (cond
    ((stringp stack)
     `(and ,@(mapcar 'dired-filter--make-filter-1
                     (or (cdr (assoc stack dired-filter-saved-filters))
-                        (error "saved filter %s does not exist" filter)))))
+                        (error "saved filter %s does not exist" stack)))))
    ((stringp (car stack))
     `(and ,@(mapcar 'dired-filter--make-filter-1 (cdr stack))))
    ((eq (car stack) 'or)
@@ -487,7 +502,7 @@ See `dired-filter-stack' for the format of FILTER-STACK."
    ((eq (car stack) 'not)
     `(not ,@(mapcar 'dired-filter--make-filter-1 (cdr stack))))
    (t (let* ((def (assoc (car stack) dired-filter-alist))
-             (remove (cadddr def))
+             (remove (cl-cadddr def))
              (qualifier (cond
                          ((eq (car stack) 'predicate)
                           (let* ((predicate (cdr stack))
@@ -511,21 +526,23 @@ See `dired-filter-stack' for the format of FILTER-STACK."
         (if qualifier
             `(let ((qualifier ,qualifier))
                ,(if remove
-                    `(not ,(car (cddddr def)))
-                  (car (cddddr def))))
+                    `(not ,(car (cl-cddddr def)))
+                  (car (cl-cddddr def))))
           (if remove
-              `(not ,(car (cddddr def)))
-            (car (cddddr def))))))))
+              `(not ,(car (cl-cddddr def)))
+            (car (cl-cddddr def))))))))
 
 (defun dired-filter--make-filter (filter-stack)
-  "Build the expression that filters the files.
+  "Build the expression that filters the files according to FILTER-STACK.
 
 When this expression evals to non-nil, file is kept in the
 listing."
   `(and ,@(mapcar 'dired-filter--make-filter-1 filter-stack)))
 
 (defun dired-filter--describe-filters-1 (stack)
-  "Return a string describing `dired-filter-stack'."
+  "Return a string describing STACK.
+
+STACK is a filter stack with the format of `dired-filter-stack'."
   (cond
    ((stringp stack)
     (format "[Saved filter: %s]" stack))
@@ -537,14 +554,16 @@ listing."
     (concat "[NOT " (mapconcat 'dired-filter--describe-filters-1 (cdr stack) " ") "]"))
    (t (let* ((def (assoc (car stack) dired-filter-alist))
              (desc (cadr def))
-             (desc-qual (caddr def))
+             (desc-qual (cl-caddr def))
+             (remove (if (cl-cadddr def) "!" ""))
              (qualifier (cdr stack))
              (qual-formatted (eval desc-qual)))
         (if qual-formatted
-            (format "[%s: %s]" desc qual-formatted)
-          (format "[%s]" desc))))))
+            (format "[%s%s: %s]" remove desc qual-formatted)
+          (format "[%s%s]" remove desc))))))
 
 (defun dired-filter--describe-filters ()
+  "Return a string describing `dired-filter-stack'."
   (mapconcat 'dired-filter--describe-filters-1 dired-filter-stack " "))
 
 (defun dired-filter--apply ()
@@ -576,11 +595,8 @@ Do you want to apply the filters without reverting (this might provide incorrect
     (when file-name
       (dired-utils-goto-line file-name))))
 
-(defun dired-filter--narow-to-subdir (&optional p)
-  "Narrow to subdir at POINT.
-
-POINT defaults to current point."
-  (setq p (or p (point)))
+(defun dired-filter--narow-to-subdir ()
+  "Narrow to subdir at point."
   (let ((beg (progn
                (dired-next-subdir 0)
                (line-beginning-position)))
@@ -620,7 +636,10 @@ The matched lines are returned as a string."
   "Keymap used when over a group header.")
 
 (defun dired-filter-group--make-header (name &optional collapsed)
-  "Make group header named by NAME."
+  "Make group header named by NAME.
+
+Optional argument COLLAPSED specifies if the header is collapsed
+by default."
   (concat (propertize
            (concat
             "  "
@@ -632,6 +651,7 @@ The matched lines are returned as a string."
           "\n"))
 
 (defun dired-filter-group--apply (filter-group)
+  "Apply FILTER-GROUP."
   (when (and dired-filter-group-mode
              dired-filter-group)
     (save-excursion
@@ -639,32 +659,33 @@ The matched lines are returned as a string."
         (widen)
         (when (ignore-errors (dired-next-subdir 0))
           (goto-char (point-min))
-          (read-only-mode -1)
-          (unwind-protect
-              (progn
-                (while (--when-let (text-property-any (point-min) (point-max) 'font-lock-face 'dired-filter-group-header)
-                         (goto-char it))
-                  (delete-region (line-beginning-position) (1+ (line-end-position))))
-                (goto-char (point-min))
-                (let ((next t))
-                  (while next
-                    (-when-let ((_ . filter-stacks) filter-group)
-                      (dired-hacks-next-file)
-                      (beginning-of-line)
-                      (--each filter-stacks
-                        (-let* (((name . filter-stack) it)
-                                ;; TODO: extract only from last line following the last
-                                ;; filter group
-                                (group (dired-filter--extract-lines filter-stack)))
-                          (when (/= (length group) 0)
-                            (insert (dired-filter-group--make-header name) group))))
-                      (when (and (text-property-any
-                                  (save-excursion (dired-next-subdir 0))
-                                  (point-max) 'font-lock-face 'dired-filter-group-header)
-                                 (save-excursion (dired-hacks-next-file)))
-                        (insert (dired-filter-group--make-header "Default"))))
-                    (setq next (ignore-errors (dired-next-subdir 1))))))
-            (read-only-mode 1))
+          (let ((inhibit-read-only t))
+            (while (--when-let (text-property-any (point-min) (point-max) 'font-lock-face 'dired-filter-group-header)
+                     (goto-char it))
+              (delete-region (line-beginning-position) (1+ (line-end-position))))
+            (goto-char (point-min))
+            (let ((next t))
+              (while next
+                (let ((name-group-alist nil))
+                  (-when-let ((_ . filter-stacks) filter-group)
+                    (dired-hacks-next-file)
+                    (beginning-of-line)
+                    (--each (reverse filter-stacks)
+                      (-let* (((name . filter-stack) it)
+                              ;; TODO: extract only from last line following the last
+                              ;; filter group
+                              (group (dired-filter--extract-lines filter-stack)))
+                        (when (/= (length group) 0)
+                          (push (cons name group) name-group-alist))))
+                    (--each name-group-alist
+                      (-let (((name . group) it))
+                        (insert (dired-filter-group--make-header name) group)))
+                    (when (and (text-property-any
+                                (save-excursion (dired-next-subdir 0))
+                                (point-max) 'font-lock-face 'dired-filter-group-header)
+                               (save-excursion (backward-char 1) (dired-hacks-next-file)))
+                      (insert (dired-filter-group--make-header "Default")))))
+                (setq next (ignore-errors (dired-next-subdir 1))))))
           (when (featurep 'dired-details)
             (dired-details-delete-overlays)
             (dired-details-activate)))))))
@@ -684,11 +705,9 @@ The matched lines are returned as a string."
                (point)))
         (end (save-excursion
                (end-of-line)
-               (or (next-single-property-change (point) 'dired-filter-group-header)
-                   (save-excursion
-                     (goto-char (point-max))
-                     (dired-hacks-previous-file)
-                     (line-end-position))))))
+               (min (or (next-single-property-change (point) 'dired-filter-group-header)
+                        (point-max))
+                    (dired-subdir-max)))))
     (if collapsed
         (remove-text-properties beg end '(invisible))
       (put-text-property beg end 'invisible t))
@@ -723,14 +742,27 @@ The matched lines are returned as a string."
       (beginning-of-line)
       (forward-char 2))))
 
+(defun dired-filter-group-get-groups ()
+  "Return a hash table mapping drawer name to its files."
+  (save-excursion
+    (dired-next-subdir 0)
+    (let ((groups (make-hash-table :test 'equal)))
+      (while (dired-hacks-next-file)
+        (let ((file (dired-utils-get-filename :local))
+              (group (save-excursion
+                       (dired-filter-group-backward-drawer 1)
+                       (get-text-property (point) 'dired-filter-group-header))))
+          (puthash group (cons file (gethash group groups nil)) groups)))
+      (maphash (lambda (k v) (puthash k (nreverse (gethash k groups nil)) groups)) groups)
+      groups)))
+
 (defvar dired-filter--expanded-dirs nil
   "List of expanded subtrees.
 
 This adds support for `dired-subtree' package.")
 
 (defun dired-filter--expunge ()
-  "Remove the files specified by current `dired-filter-stack'
-from the listing."
+  "Remove the files specified by `dired-filter-stack' from the listing."
   (interactive)
   (when (and dired-filter-mode
              dired-filter-stack)
@@ -759,6 +791,16 @@ from the listing."
       count)))
 
 (defun dired-filter--mark-unmarked (filter)
+  "Mark originally unmarked files according to FILTER.
+
+If a file satisfies a filter, it is not marked.  Marked files are
+removed when filtering.
+
+Implementation note: when this function is called
+`dired-marker-char' is set to a special value so that the regular
+marks are preserved during filtering.  Files marked by user are
+preserved even in case they should have been removed by the
+filter"
   (if (and dired-filter-keep-expanded-subtrees
            (featurep 'dired-subtree))
       (progn
@@ -794,7 +836,7 @@ If prefix argument \\[universal-argument] is used, unmark the matched files inst
 If prefix argument \\[universal-argument] \\[universal-argument] is used, mark the files that would normally
 not be marked, that is, reverse the logical meaning of the
 filter."
-  (let* ((remove (cadddr (assoc (car filter) dired-filter-alist)))
+  (let* ((remove (cl-cadddr (assoc (car filter) dired-filter-alist)))
          (filter (if (equal current-prefix-arg '(16))
                      `(not ,(dired-filter--make-filter (list filter)))
                    (dired-filter--make-filter (list filter))))
@@ -900,6 +942,7 @@ filter."))
              dired-filter-alist))))
 
 ;;;###autoload (autoload 'dired-filter-by-dot-files "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-dot-files "dired-filter")
 (dired-filter-define dot-files
     "Toggle current view to dot-files."
   (:description "dot-files"
@@ -908,6 +951,7 @@ filter."))
   (string-match-p "^\\." file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-name "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-name "dired-filter")
 (dired-filter-define name
     "Toggle current view to files matching QUALIFIER."
   (:description "name"
@@ -915,13 +959,15 @@ filter."))
   (string-match-p qualifier file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-regexp "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-regexp "dired-filter")
 (dired-filter-define regexp
     "Toggle current view to files matching QUALIFIER as a regular expression."
   (:description "regexp"
-   :reader (read-string "Regexp: " ))
+   :reader (read-regexp "Regexp: " ))
   (string-match-p qualifier file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-extension "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-extension "dired-filter")
 (dired-filter-define extension
     "Toggle current view to files with extension matching QUALIFIER.
 
@@ -932,6 +978,7 @@ prefered as the regexp will be optimized to match any of the
 extensions and thus much faster than matching each extension
 separately in turn and ORing the filters together."
   (:description "extension"
+   :qualifier-description (format "%s" qualifier)
    :reader (let* ((file (dired-utils-get-filename))
                   (ext (and file (file-name-extension file)))
                   (exts
@@ -960,6 +1007,7 @@ separately in turn and ORing the filters together."
   (string-match-p qualifier file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-omit "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-omit "dired-filter")
 (dired-filter-define omit
     "Toggle current view to files matched by `dired-omit-regexp'."
   (:description "omit"
@@ -968,6 +1016,7 @@ separately in turn and ORing the filters together."
   (string-match-p qualifier file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-garbage "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-garbage "dired-filter")
 (dired-filter-define garbage
     "Toggle current view to files matched by `dired-garbage-files-regexp'."
   (:description "garbage"
@@ -976,6 +1025,7 @@ separately in turn and ORing the filters together."
   (string-match-p dired-garbage-files-regexp file-name))
 
 ;;;###autoload (autoload 'dired-filter-by-executable "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-executable "dired-filter")
 (dired-filter-define executable
     "Toggle current view to executable files."
   (:description "executable"
@@ -984,6 +1034,7 @@ separately in turn and ORing the filters together."
        (file-executable-p file-name)))
 
 ;;;###autoload (autoload 'dired-filter-by-predicate "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-predicate "dired-filter")
 (dired-filter-define predicate
     "Toggle current view to files for which QUALIFIER returns non-nil.
 
@@ -1020,18 +1071,23 @@ Examples:
   (eval qualifier))
 
 ;;;###autoload (autoload 'dired-filter-by-directory "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-directory "dired-filter")
 (dired-filter-define directory
     "Toggle current view to show only directories."
   (:description "directory")
-  (looking-at dired-re-dir))
+  (or (looking-at dired-re-dir)
+      (and (looking-at dired-re-sym)
+           (file-directory-p (dired-utils-get-filename)))))
 
 ;;;###autoload (autoload 'dired-filter-by-file "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-file "dired-filter")
 (dired-filter-define file
     "Toggle current view to show only files."
   (:description "file")
   (looking-at "^[* ] -"))
 
 ;;;###autoload (autoload 'dired-filter-by-mode "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-mode "dired-filter")
 (dired-filter-define mode
     "Toggle current view to files which open in mode specified by QUALIFIER.
 
@@ -1055,6 +1111,7 @@ of `auto-mode-alist'."
     (eq mm qualifier)))
 
 ;;;###autoload (autoload 'dired-filter-by-symlink "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-symlink "dired-filter")
 (dired-filter-define symlink
     "Toggle current view to show only symbolic links."
   (:description "symlink")
@@ -1140,7 +1197,7 @@ push all its constituents back on the stack."
             (if (stringp top)
                 (message "Popped saved filter %s" top)
               (--if-let (let ((qualifier (cdr top)))
-                          (eval (caddr (assoc (car top) dired-filter-alist))))
+                          (eval (cl-caddr (assoc (car top) dired-filter-alist))))
                   (message "Popped filter %s: %s" (car top) it)
                 (message "Popped filter %s" (car top))))
           (message "Filter stack was empty."))))
@@ -1251,6 +1308,15 @@ after the current buffer's name."
                          (read-string "New buffer name: " (buffer-name))
                        (generate-new-buffer-name (buffer-name)))))
   (dired (cons name (dired-utils-get-all-files t))))
+
+(defun dired-filter-mark-by-saved-filters (filter)
+  "Mark files using saved FILTER.
+
+The marking logic regarding prefix arguments is exactly the same
+as that of `dired-filter-mark-by-name'."
+  (interactive (dired-filters--read-saved-filter-name "Load"))
+  (--when-let (assoc filter dired-filter-saved-filters)
+    (dired-filter--mark it)))
 
 
 ;; mode stuff
