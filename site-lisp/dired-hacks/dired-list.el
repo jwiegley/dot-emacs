@@ -1,6 +1,6 @@
 ;;; dired-list.el --- Create dired listings from sources
 
-;; Copyright (C) 2014 Matúš Goljer <matus.goljer@gmail.com>
+;; Copyright (C) 2014-2015 Matúš Goljer
 
 ;; Author: Matúš Goljer <matus.goljer@gmail.com>
 ;; Maintainer: Matúš Goljer <matus.goljer@gmail.com>
@@ -26,6 +26,38 @@
 
 ;; Produce a file listing with a shell incantation and make a dired
 ;; out of it!
+
+;; This package provides one principal function, `dired-list' which
+;; can be used to produce dired buffers from shell programs outputing
+;; text roughly in the format of `la -ls'.
+
+;; For most standard output formats the default filter and sentinel
+;; should work, but you can also provide your own if the situation
+;; requires it.
+
+;; Most of the time you can pipe a zero-delimited list of files to ls
+;; through xargs(1) using
+
+;;   | xargs -I '{}' -0 ls -l '{}'
+
+;; which creates a compatible listing.  For more information read the
+;; documentation of `dired-list', for example by invoking
+
+;;   C-h f dired-list RET
+
+;; in emacs.
+
+;; In addition to the generic interface this package implements common
+;; listings (patches and extensions welcome!), these are:
+;; * `dired-list-mpc'
+;; * `dired-list-git-ls-files'
+;; * `dired-list-hg-locate'
+;; * `dired-list-locate'
+;; * `dired-list-find-file'
+;; * `dired-list-find-name'
+;; * `dired-list-grep'
+
+;; See https://github.com/Fuco1/dired-hacks for the entire collection.
 
 ;;; Code:
 (require 'dash)
@@ -79,6 +111,11 @@ This filter assumes that the input is in the format of `ls -l'."
                 (beginning-of-line)
                 ;; Remove occurrences of default-directory.
                 (while (search-forward (concat " " default-directory) nil t)
+                  (replace-match " " nil t))
+                ;; remove '\ ' and replace with just a space
+                (goto-char beg)
+                (beginning-of-line)
+                (while (search-forward "\\ " nil t)
                   (replace-match " " nil t))
                 (goto-char (point-max))
                 (when (search-backward "\n" (process-mark proc) t)
