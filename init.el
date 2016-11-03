@@ -1437,24 +1437,50 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (dired first-dir)
     (dired-other-window second-dir))
 
-  :config
-  (use-package dired-x)
-  (use-package dired+
-    :config
-    (unbind-key "M-s f" dired-mode-map))
-
-  (bind-key "l" #'dired-up-directory dired-mode-map)
-
   (defun my-dired-switch-window ()
     (interactive)
     (if (eq major-mode 'sr-mode)
         (call-interactively #'sr-change-window)
       (call-interactively #'other-window)))
 
+  :config
+  (bind-key "l" #'dired-up-directory dired-mode-map)
+
   (bind-key "<tab>" #'my-dired-switch-window dired-mode-map)
 
   (bind-key "M-!" #'async-shell-command dired-mode-map)
   (unbind-key "M-G" dired-mode-map)
+
+  (use-package dired-x)
+  (use-package dired+
+    :config
+    (unbind-key "M-s f" dired-mode-map))
+
+  (use-package dired-details
+    ;; (shell-command "rm -f site-lisp/dired-details.el*")
+    :disabled t)
+  
+  (use-package dired-ranger
+    :bind (:map dired-mode-map
+                ("W" . dired-ranger-copy)
+                ("X" . dired-ranger-move)
+                ("Y" . dired-ranger-paste)))
+  
+  (use-package dired-sort-map
+    ;; (shell-command "rm -f site-lisp/dired-sort-map.el*")
+    :disabled t)
+  
+  (use-package dired-toggle
+    :load-path "site-lisp/dired-toggle"
+    :bind ("C-. d" . dired-toggle)
+    :preface
+    (defun my-dired-toggle-mode-hook ()
+      (interactive)
+      (visual-line-mode 1)
+      (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
+      (setq-local word-wrap nil))
+    :config
+    (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
@@ -1522,32 +1548,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 "\\|")
                "\\)")))
         (funcall dired-omit-regexp-orig)))))
-
-(use-package dired-details
-  ;; (shell-command "rm -f site-lisp/dired-details.el*")
-  :disabled t)
-
-(use-package dired-hacks
-  ;; (shell-command "rm -fr site-lisp/dired-hacks")
-  ;; (shell-command "git remote rm ext/dired-hacks")
-  :disabled t
-  :load-path "site-lisp/dired-hacks")
-
-(use-package dired-sort-map
-  ;; (shell-command "rm -f site-lisp/dired-sort-map.el*")
-  :disabled t)
-
-(use-package dired-toggle
-  :load-path "site-lisp/dired-toggle"
-  :bind ("C-. d" . dired-toggle)
-  :preface
-  (defun my-dired-toggle-mode-hook ()
-    (interactive)
-    (visual-line-mode 1)
-    (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
-    (setq-local word-wrap nil))
-  :config
-  (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
 
 (use-package docker-images
   :commands docker-images
@@ -1640,43 +1640,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
 
-(use-package elisp-depend
-  ;; (shell-command "rm -f site-lisp/elisp-depend.el*")
-  :disabled t)
-
-(use-package elnode
-  ;; (shell-command "rm -fr site-lisp/elnode")
-  ;; (shell-command "git remote rm ext/elnode")
-  :disabled t
-  :load-path "site-lisp/elnode")
-
-(use-package elpy
-  ;; (shell-command "rm -fr site-lisp/elpy")
-  ;; (shell-command "git remote rm ext/elpy")
-  :disabled t
-  :load-path "site-lisp/elpy")
-
 (use-package emacros
   ;; (shell-command "rm -fr site-lisp/emacros")
   ;; (shell-command "git remote rm ext/emacros")
   :disabled t
   :load-path "site-lisp/emacros")
 
-(use-package emacs-edg
-  ;; (shell-command "rm -fr lisp/emacs-edg")
-  ;; (shell-command "git remote rm ext/emacs-edg")
-  :disabled t
-  :load-path "lisp/emacs-edg")
-
-(use-package emacs-pl
-  ;; (shell-command "rm -fr lisp/emacs-pl")
-  :disabled t
-  :load-path "lisp/emacs-pl")
-
 (use-package emacs-vdiff
-  ;; (shell-command "rm -fr site-lisp/emacs-vdiff")
-  ;; (shell-command "git remote rm ext/emacs-vdiff")
-  :disabled t
+  :commands (vdiff-files
+             vdiff-files3
+             vdiff-buffers
+             vdiff-buffers3)
   :load-path "site-lisp/emacs-vdiff")
 
 (use-package erc
