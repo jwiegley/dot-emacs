@@ -2065,22 +2065,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                             "Hoogle query: ")
                           nil nil def)
              current-prefix-arg)))
-    ;; (unless (and hoogle-server-process
-    ;;              (process-live-p hoogle-server-process))
-    ;;   (message "Starting local Hoogle server on port 8687...")
-    ;;   (with-current-buffer (get-buffer-create " *hoogle-web*")
-    ;;     (cd temporary-file-directory)
-    ;;     (setq hoogle-server-process
-    ;;           ;; (start-process "hoogle-web" (current-buffer) "hoogle"
-    ;;           ;;                "server" "--local" "--port=8687")
-    ;;           (start-process "hoogle-web" (current-buffer) "docker"
-    ;;                          "run" "-p" "8687:8687" "-ti" "jwiegley/hoogle-local")))
-    ;;   (sleep-for 2 0)
-    ;;   (with-current-buffer (get-buffer-create " *hoogle-ssh*")
-    ;;     (start-process "hoogle-ssh" (current-buffer) "docker-machine"
-    ;;                    "ssh" "default" "-NT" "-L" "8687:127.0.0.1:8687"))
-    ;;   (sleep-for 2 0)
-    ;;   (message "Starting local Hoogle server on port 8687...done"))
+    (unless (and hoogle-server-process
+                 (process-live-p hoogle-server-process))
+      (message "Starting local Hoogle server on port 8687...")
+      (with-current-buffer (get-buffer-create " *hoogle-web*")
+        (cd temporary-file-directory)
+        (setq hoogle-server-process
+              (start-process "hoogle-web" (current-buffer) "hoogle"
+                             "server" "--local" "--port=8687")
+              ;; (start-process "hoogle-web" (current-buffer) "docker"
+              ;;                "run" "-p" "8687:8687" "-ti" "jwiegley/hoogle-local")
+              ))
+      ;; (sleep-for 2 0)
+      ;; (with-current-buffer (get-buffer-create " *hoogle-ssh*")
+      ;;   (start-process "hoogle-ssh" (current-buffer) "docker-machine"
+      ;;                  "ssh" "default" "-NT" "-L" "8687:127.0.0.1:8687"))
+      ;; (sleep-for 2 0)
+      (message "Starting local Hoogle server on port 8687...done"))
     (browse-url
      (format "http://127.0.0.1:8687/?hoogle=%s"
              (replace-regexp-in-string
@@ -3749,6 +3750,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (selected-global-mode 1)
 
+  (bind-key "[" #'align-entire selected-keymap)
   (bind-key "F" #'fill-region selected-keymap)
   (bind-key "U" #'unfill-region selected-keymap)
   (bind-key "d" #'downcase-region selected-keymap)
