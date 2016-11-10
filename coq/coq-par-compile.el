@@ -210,6 +210,8 @@
 ;;   'coq-process-command       - the command for error reporting
 ;;                                (as string list) 
 ;;   'coq-par-process-killed    - t if this process has been killed
+;;   'coq-process-rm            - if not nil, a file to be deleted when
+;;                                the process is killed
 ;;
 ;;
 ;; Symbols in the coq-par-ancestor-files hash
@@ -663,11 +665,12 @@ and resets the internal state."
   (process-put process 'coq-process-output
 	       (concat (process-get process 'coq-process-output) output)))
 
-(defun coq-par-start-process (command arguments continuation job)
+(defun coq-par-start-process (command arguments continuation job file-rm)
   "Start asynchronous compilation job for COMMAND.
 This function starts COMMAND with arguments ARGUMENTS for
 compilation job JOB, making sure that CONTINUATION runs when the
-process finishes successfully."
+process finishes successfully. FILE-RM, if not nil, denotes a
+file to be deleted when the process is killed."
   (let ((process-connection-type nil)	; use pipes
 	(process-name (format "pro-%s" coq-par-next-id))
 	process)
@@ -695,7 +698,8 @@ process finishes successfully."
       (process-put process 'coq-compilation-job job)
       (process-put process 'coq-process-continuation continuation)
       (process-put process 'coq-process-command (cons command arguments))
-      (process-put process 'coq-process-output ""))))
+      (process-put process 'coq-process-output "")
+      (process-put process 'coq-process-rm file-rm))))
 
 (defun coq-par-process-sentinel (process event)
   "Sentinel for all background processes.
@@ -705,10 +709,18 @@ that has been registered with that process. Normal compilation
 errors are reported with an error message."
   (condition-case err
       (if (process-get process 'coq-par-process-killed)
-	  (if coq-debug-auto-compilation
-	      (message "%s %s: skip sentinel, process killed"
-		       (get (process-get process 'coq-compilation-job) 'name)
-		       (process-name process)))
+	  (progn
+	    (if coq-debug-auto-compilation
+		(message "%s %s: skip sentinel, process killed, %s"
+			 (get (process-get process 'coq-compilation-job) 'name)
+			 (process-name process)
+			 (if (process-get process 'coq-process-rm)
+			     (format "rm %s"
+				     (process-get process 'coq-process-rm))
+			   "no file removal")))
+	    (if (process-get process 'coq-process-rm)
+		(ignore-errors
+		  (delete-file (process-get process 'coq-process-rm)))))
 	(let (exit-status)
 	  (if coq-debug-auto-compilation
 	      (message "%s %s: process status changed to %s"
@@ -1006,7 +1018,8 @@ locked, registered in the 'ancestor-files property of JOB and in
      coq-dependency-analyzer
      (coq-par-coqdep-arguments (get job 'src-file) (get job 'load-path))
      'coq-par-process-coqdep-result
-     job)))
+     job
+     nil)))
 
 (defun coq-par-start-task (job)
   "Start the background job for which JOB is waiting.
@@ -1022,7 +1035,8 @@ coqdep or coqc are started for it."
        coq-compiler
        (coq-par-coqc-arguments (get job 'src-file) (get job 'load-path))
        'coq-par-coqc-continuation
-       job)))))
+       job
+       (get job 'obj-file))))))
 
 (defun coq-par-start-jobs-until-full ()
   "Start background jobs until the limit is reached."
