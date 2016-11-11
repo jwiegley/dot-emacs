@@ -1,0 +1,82 @@
+HACKING gnugo                                           -*- org -*-
+
+This file is both a guide for newcomers and a todo list for oldstayers.
+
+* next
+*** newbie support
+***** "don't panic" button :-D
+***** on gnugo.el load, check [[file:gnugo.el::defvar.gnugo-program][gnugo-program]], set "ready" state
+***** rat concessions :-/
+***** (?) ootb ‘gnugo-image-display-mode’ in ‘gnugo-start-game-hook’
+* fix bugs
+*** empty tree from many back/forw
+***** intermittent, grr
+***** manifests as ‘()’ (empty list) in .sgf (on write)
+*** {next,previous}-line weirdness in the presence of images
+*** no error-handling in SGF parsing
+* performance
+*** ‘compare-strings’ approach too clever/slow :-/
+*** cache frolic fruits
+* ideas / wishlist
+*** wrap GTP ‘loadsgf’ completely
+*** revamp image support
+***** DONE zonk ‘require’
+***** define simple API
+*** talk GTP over the network
+    (?) pending [[wrap GTP ‘loadsgf’ completely]]
+*** make gnugo (the external program) support query (read-only) thread
+*** extend GNUGO Board mode to manage another subprocess for analysis only
+*** command to label a position
+*** SGF tree traversal
+***** DONE monkey mind
+***** TODO monkey body
+*** "undo undo undoing"
+***** integrate Emacs undo, GTP undo, subgame branching
+***** (?) use [[file:../undo-tree/][../undo-tree/]]
+*** make buffer name format configurable (but enforce uniqueness)
+*** more tilde escapes for [[file:gnugo.el::defvar.gnugo-mode-line][gnugo-mode-line]]
+*** make veneration configurable (see also [[SVG display]])
+*** animation finery
+***** make more configurable
+***** lift same-color-stones-only restriction
+***** allow sequencing rather than lock-step
+***** include sound
+*** plunder el-go (grok [[info:eieio.info][EIEIO]] first)
+***** SVG display
+      pending [[revamp image support]]
+***** (?) SGF support
+******* IR compat
+******* error handling
+***** (?) other "backends"
+      pending [[talk GTP over the network]]
+*** [your hacking ideas here!]
+* tested with (newest first)
+  | Emacs     | GNU Go |
+  |-----------+--------|
+  | 24.3.50.3 | 3.8    |
+  | ?         | 3.6    |
+  | ?         | 3.4    |
+  | ?         | 3.3.15 |
+  | 22.0.50   | ?      |
+  | 21.3      | ?      |
+  |-----------+--------|
+  | <l>       | <l>    |
+* ChangeLog discipline
+*** based on [[info:standards#Change%20Logs][GNU Coding Standards]]
+*** commit-message format
+***** basic: TITLE LF LF [DISCUSSION...] LF LF CLASSIC
+***** short: TITLE-FRAGMENT "; nfc." [LF LF DISCUSSION...]
+*** don't bother w/ ChangeLog for "short" commit-message format
+* other conventions: see [[file:.dir-locals.el][.dir-locals.el]]
+* NEWS nostalgia
+(with-current-buffer (find-file "NEWS")
+  (highlight-phrase "[0-9][.][0-9][.][0-9]+\\|[0-9]+[.][.][0-9]+"
+                    'hi-red-b))
+* etc
+#+odd
+
+
+Copyright (C) 2014  Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.
