@@ -158,6 +158,7 @@
 (use-package popup          :defer t :load-path "lib/popup-el")
 (use-package popwin         :defer t :load-path "lib/popwin-el")
 (use-package pos-tip        :defer t :load-path "lib/pos-tip")
+(use-package request        :defer t :load-path "lib/emacs-request")
 (use-package s              :defer t :load-path "lib/s-el")
 (use-package tablist        :defer t :load-path "lib/tablist")
 (use-package web            :defer t :load-path "lib/emacs-web")
