@@ -154,6 +154,7 @@ reuse storage as much as possible."
      ("emacs-deferred" "deferred")
      ("emacs-epc" "epc")
      ("emacs-git-messenger" "git-messenger")
+     ("emacs-request" "request")
      ("emacs-web" "web")
      ("expand-region-el" "expand-region")
      ("f-el" "f")
