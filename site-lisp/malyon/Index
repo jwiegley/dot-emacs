@@ -1,0 +1,6 @@
+
+Index           this file
+
+malyon.el       Malyon is a Z-code interpreter for emacs that can play .z3,
+                .z5 and .z8 story files. The current version of Malyon is
+                1.1 and it is released under a MIT-style license.
