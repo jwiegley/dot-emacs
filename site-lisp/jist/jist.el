@@ -102,7 +102,7 @@
 ;; [Gist]: https://gist.github.com/
 
 ;;; Code:
-(declare-function pkg-info-version-info "pkg-info" (library))
+;; (declare-function pkg-info-version-info "pkg-info" (library))
 
 (eval-when-compile
   (require 'cl-lib)
@@ -218,8 +218,8 @@
 
 ;; XXX: https://developer.github.com/v3/#current-version
 (defconst jist-default-headers
-  `(("Accept" . "application/vnd.github.v3+json")
-    ("User-Agent" . ,(format "jist.el/%s" (pkg-info-version-info 'jist)))))
+  '(("Accept" . "application/vnd.github.v3+json")
+    ("User-Agent" . "jist.el/0.0.1")))
 
 (cl-defun jist--github-request (endpoint
                                 &key

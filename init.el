@@ -1959,6 +1959,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/github-issues-el")
 
+(use-package gnugo
+  :commands gnugo
+  :load-path "site-lisp/gnugo")
+
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
@@ -2728,6 +2732,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-t" #'isearch-toggle-regexp isearch-mode-map)
   (bind-key "C-^" #'isearch-edit-string isearch-mode-map)
   (bind-key "C-i" #'isearch-complete isearch-mode-map))
+
+(use-package jist
+  :commands (jist-region jist-region-public)
+  :load-path "site-lisp/jist")
 
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
