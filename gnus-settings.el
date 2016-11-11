@@ -284,7 +284,8 @@ BAE Systems"))))
       (expiry-target . "archive.haskell.libraries"))
      ("list\\.haskell\\.prime"
       (to-address . "haskell-prime@haskell.org")
-      (to-list . "haskell-prime@haskell.org"))
+      (to-list . "haskell-prime@haskell.org")
+      (list-identifier . "\\[haskell/rfcs\\]"))
      ("list\\.haskell\\.template-haskell"
       (to-address . "template-haskell@haskell.org")
       (to-list . "template-haskell@haskell.org"))
