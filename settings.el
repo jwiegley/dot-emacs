@@ -769,7 +769,6 @@
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
- '(jist-github-token "a4af4e52498fb11d80b4fc4b91d44993ce8518d0")
  '(kill-do-not-save-duplicates t)
  '(kill-whole-line t)
  '(large-file-warning-threshold nil)
