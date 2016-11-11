@@ -1928,9 +1928,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/git-gutter-plus")
 
 (use-package git-link
-  ;; (shell-command "rm -fr site-lisp/git-link")
-  ;; (shell-command "git remote rm ext/git-link")
-  :disabled t
+  :bind ("C-. G" . git-link)
+  :commands (git-link git-link-commit git-link-homepage)
   :load-path "site-lisp/git-link")
 
 (use-package git-messenger
