@@ -1646,13 +1646,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/emacros")
 
-(use-package emacs-vdiff
-  :commands (vdiff-files
-             vdiff-files3
-             vdiff-buffers
-             vdiff-buffers3)
-  :load-path "site-lisp/emacs-vdiff")
-
 (use-package erc
   :defer t
   :defines (erc-timestamp-only-if-changed-flag
@@ -3169,6 +3162,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
+(use-package malyon
+  :load-path "site-lisp/maylon"
+  :commands malyon)
+
 (use-package markdown-mode
   :load-path "site-lisp/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
@@ -3725,7 +3722,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (selected-global-mode 1)
 
   (bind-key "[" #'align-entire selected-keymap)
-  (bind-key "F" #'fill-region selected-keymap)
+  (bind-key "f" #'fill-region selected-keymap)
   (bind-key "U" #'unfill-region selected-keymap)
   (bind-key "d" #'downcase-region selected-keymap)
   (bind-key "r" #'reverse-region selected-keymap)
@@ -4129,6 +4126,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              transpose-mark-line
              transpose-mark-region)
   :load-path "site-lisp/transpose-mark")
+
+(use-package vdiff
+  :commands (vdiff-files
+             vdiff-files3
+             vdiff-buffers
+             vdiff-buffers3)
+  :load-path "site-lisp/emacs-vdiff")
 
 (use-package vimish-fold
   :commands vimish-fold
