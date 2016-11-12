@@ -153,6 +153,7 @@
 (use-package let-alist      :defer t :load-path "lib/let-alist")
 (use-package logito         :defer t :load-path "lib/logito")
 (use-package makey          :defer t :load-path "lib/makey")
+(use-package marshal        :defer t :load-path "lib/marshal-el")
 (use-package pcache         :defer t :load-path "lib/pcache")
 (use-package pkg-info       :defer t :load-path "lib/pkg-info")
 (use-package popup          :defer t :load-path "lib/popup-el")
