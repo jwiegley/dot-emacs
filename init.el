@@ -1907,10 +1907,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/fringe-helper-el")
 
-(use-package gist
-  :load-path "site-lisp/gist"
-  :bind ("C-c G" . gist-region-or-buffer))
-
 (use-package git-annex-el
   ;; (shell-command "rm -fr lisp/git-annex-el")
   ;; (shell-command "git remote rm ext/git-annex-el")
@@ -2227,17 +2223,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (require 'helm-config))
 
-(use-package helm-gist
-  ;; (shell-command "rm -fr site-lisp/helm-gist")
-  :disabled t
-  :load-path "site-lisp/helm-gist")
-
-(use-package helm-github-issues
-  ;; (shell-command "rm -fr site-lisp/helm-github-issues")
-  ;; (shell-command "git remote rm ext/helm-github-issues")
-  :disabled t
-  :load-path "site-lisp/helm-github-issues")
-
 (use-package helm-grep
   :commands helm-do-grep-1
   :bind (("M-s f" . my-helm-do-grep-r)
@@ -2254,12 +2239,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package helm-make
   :load-path "site-lisp/helm-make"
   :commands (helm-make helm-make-projectile))
-
-(use-package helm-slime
-  ;; (shell-command "rm -fr site-lisp/helm-slime")
-  ;; (shell-command "git remote rm ext/helm-slime")
-  :disabled t
-  :load-path "site-lisp/helm-slime")
 
 (use-package helm-swoop
   :load-path "site-lisp/helm-swoop"
@@ -4288,6 +4267,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (xray-symbol xray-position xray-buffer xray-window
              xray-frame xray-marker xray-overlay xray-screen
              xray-faces xray-hooks xray-features))
+
+(use-package yagist
+  :load-path "site-lisp/yagist"
+  :bind ("C-c G" . yagist-region-or-buffer))
 
 (use-package yaml-mode
   :load-path "site-lisp/yaml-mode"
