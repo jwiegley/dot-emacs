@@ -212,7 +212,7 @@ function."
           (setq result '(0 0))
         (let* ((lib-src-file
                 (expand-file-name
-		 (coq-library-src-of-obj-file lib-obj-file)))
+		 (coq-library-src-of-vo-file lib-obj-file)))
                dependencies deps-mod-time)
           (if (file-exists-p lib-src-file)
               ;; recurse into dependencies now
@@ -260,7 +260,7 @@ therefore the customizations for `compile' do not apply."
     (let* ((local-compile-command coq-compile-command)
            (physical-dir (file-name-directory absolute-module-obj-file))
            (module-object (file-name-nondirectory absolute-module-obj-file))
-           (module-source (coq-library-src-of-obj-file module-object))
+           (module-source (coq-library-src-of-vo-file module-object))
            (requiring-file buffer-file-name))
       (mapc
        (lambda (substitution)
@@ -282,7 +282,7 @@ therefore the customizations for `compile' do not apply."
       (compilation-start local-compile-command)
       (coq-seq-lock-ancestor
        span
-       (coq-library-src-of-obj-file absolute-module-obj-file)))))
+       (coq-library-src-of-vo-file absolute-module-obj-file)))))
 
 (defun coq-seq-map-module-id-to-obj-file (module-id span &optional from)
   "Map MODULE-ID to the appropriate coq object file.

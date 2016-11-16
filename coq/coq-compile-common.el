@@ -149,6 +149,59 @@ This option can be set/reset via menu
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-switch-compilation-method)
 
+(defcustom coq-compile-quick 'no-quick
+  "Control quick compilation, vio2vo and vio/vo files auto compilation.
+This option controls whether ``-quick'' is used for parallel background
+compilation and whether up-date .vo or .vio files are used or deleted.
+
+Note that ``-quick'' can be noticebly slower when your sources do not
+declare section variables with ``Proof using''. Use the default `no-quick',
+if you have not yet switched to ``Proof using''. Use `quick-no-vio2vo',
+if you want quick recompilation without producing .vo files. Value
+`quick-and-vio2vo' updates missing prerequisites with ``-quick'' and
+starts vio2vo conversion on a subset of the availables cores when the
+quick recompilation finished (see also `coq-compile-vio2vo-percentage').
+Note that all the previously described modes might load .vio files and
+that you therefore might not notice certain universe inconsitencies.
+Finally, use `ensure-vo' for only importing .vo files with complete
+universe checks.
+
+Detailed description of the 4 modes:
+no-quick         Compile outdated prerequisites without ``-quick'',
+                 producing .vo files, but don't compile prerequisites
+                 for which an up-to-date .vio file exists. Delete
+                 or overwrite outdated .vo files.
+quick-no-vio2vo  Compile outdated prerequisites with ``-quick'',
+                 producing .vio files, but don't compile prerequisites
+                 for which an up-to-date .vo file exists. Delete
+                 or overwrite outdated .vio files.
+quick-and-vio2vo Not yet supported, currently the same as `quick-no-vio2vo'.
+                 Same as `quick-no-vio2vo', but start vio2vo processes
+                 after the last require command has been processed
+                 to convert the vio dependencies into vo files. With this
+                 mode you might see asynchronous errors from vio2vo
+                 compilation while you are processing stuff far below the
+                 last require. vio2vo compilation is done on a subset of
+                 the available cores, see `coq-compile-vio2vo-percentage'.
+ensure-vo        Delete all .vio files for prerequisites and recompile
+                 without ``-quick'' as necessary. This setting is the
+                 only one that esures soundness."
+  :type
+  '(radio
+    (const :tag "don't use -quick but accept existing vio files" no-quick)
+    (const :tag "use -quick, don't do vio2vo" quick-no-vio2vo)
+    (const :tag "use -quick and do vio2vo" quick-and-vio2vo)
+    (const :tag "ensure vo compilation, delete vio files" ensure-vo))
+  :safe (lambda (v) (member v '(no-quick quick-no-vio2vo
+					 quick-and-vio2vo ensure-vo)))
+  :group 'coq-auto-compile)
+
+(defun coq-compile-prefer-quick ()
+  "Return t if a .vio file would be prefered."
+  (or
+   (eq coq-compile-quick 'quick-no-vio2vo)
+   (eq coq-compile-quick 'quick-and-vio2vo)))
+
 (defcustom coq-max-background-compilation-jobs 'all-cpus
   "Maximal number of parallel jobs, if parallel compilation is enabled.
 Use the number of available CPU cores if this is set to
@@ -266,7 +319,10 @@ of the regular expressions in this list then ProofGeneral does
 neither compile this file nor check its dependencies for
 compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
-that dependency checking takes noticeable time."
+that dependency checking takes noticeable time. The regular
+expressions in here are always matched against the .vo file name,
+regardless whether ``-quick'' would be used to compile the file
+or not."
   :type '(repeat regexp)
   :safe (lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
@@ -360,20 +416,16 @@ DEP-MOD-TIMES is empty it returns nil."
     max))
 
 
-;;; Compute command line for starting coqtop
-
-
-
-
-
 ;;; ignore library files
 
 (defun coq-compile-ignore-file (lib-obj-file)
   "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
 Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
-ProofGeneral should handle the file. For normal users it does, for instance,
-not make sense to let ProofGeneral check if the coq standard library
-is up-to-date."
+ProofGeneral should handle the file. For normal users it does,
+for instance, not make sense to let ProofGeneral check if the coq
+standard library is up-to-date. This function is always invoked
+on the .vo file name, regardless whether the file would be
+compiled with ``-quick'' or not."
   (or
    (and
     coq-compile-ignore-library-directory
@@ -394,10 +446,15 @@ is up-to-date."
 
 ;;; convert .vo files to .v files
 
-(defun coq-library-src-of-obj-file (lib-obj-file)
+(defun coq-library-src-of-vo-file (lib-obj-file)
   "Return source file name for LIB-OBJ-FILE.
 Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
+
+(defun coq-library-vio-of-vo-file (vo-obj-file)
+  "Return .vio file name for VO-OBJ-FILE.
+Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
+  (concat (coq-library-src-of-vo-file vo-obj-file) "io"))
 
 
 ;;; ancestor unlocking

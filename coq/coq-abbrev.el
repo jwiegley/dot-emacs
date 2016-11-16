@@ -148,6 +148,27 @@ It was constructed with `proof-defstringset-fn'.")
      :style toggle
      :selected coq-double-hit-enable
      :help "Automatically send commands when terminator typed twiced quickly."]
+    ("Quick compilation mode"
+     ["no quick"
+      (customize-set-variable 'coq-compile-quick 'no-quick)
+      :style radio
+      :selected (eq coq-compile-quick 'no-quick)
+      :help "Compile without -quick but accept existion .vio's"]
+     ["quick no vio2vo"
+      (customize-set-variable 'coq-compile-quick 'quick-no-vio2vo)
+      :style radio
+      :selected (eq coq-compile-quick 'quick-no-vio2vo)
+      :help "Compile with -quick, accept existing .vo's"]
+     ["quick and vio2vo"
+      (customize-set-variable 'coq-compile-quick 'quick-and-vio2vo)
+      :style radio
+      :selected (eq coq-compile-quick 'quick-and-vio2vo)
+      :help "Compile with -quick, accept existing .vo's, run vio2vo"]
+     ["ensure vo"
+      (customize-set-variable 'coq-compile-quick 'ensure-vo)
+      :style radio
+      :selected (eq coq-compile-quick 'ensure-vo)
+      :help "Ensure only vo's are used for consistency"])
     ""
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
