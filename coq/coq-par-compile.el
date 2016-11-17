@@ -888,7 +888,7 @@ therefore delete a file if it might be in the way."
        (if vo-obj-time (time-less-p vo-obj-time src-time) "-")
        (if vio-obj-time (time-less-p vio-obj-time src-time) "-")
        (if vo-obj-time (coq-par-time-less vo-obj-time dep-time) "-")
-       (if vio-obj-time (coq-par-time-less-p vio-obj-time dep-time) "-")))
+       (if vio-obj-time (coq-par-time-less vio-obj-time dep-time) "-")))
     ;; Compute first the max of vo-obj-time and vio-obj-time and remember
     ;; which of both is newer. This is only meaningful if at least one of
     ;; the .vo or .vio file exists.
@@ -906,8 +906,10 @@ therefore delete a file if it might be in the way."
     ;; Decide if and what to compile.
     (if (or (eq dep-time 'just-compiled) ; a dep has been just compiled
 	    (and (not vo-obj-time) (not vio-obj-time)) ; no obj exists
-	    (time-less-p max-obj-time src-time) ; src is younger than any obj
-	    (time-less-p max-obj-time dep-time)) ; dep is younger than any obj
+	    ;; src younger than any obj?
+	    (time-less-or-equal max-obj-time src-time)
+	    ;; dep younger than any obj?
+	    (time-less-or-equal max-obj-time dep-time))
 	;; compilation is definitely needed
 	(progn
 	  (setq result t)
@@ -963,9 +965,9 @@ therefore delete a file if it might be in the way."
 	      (put job 'required-obj-file vio-file)
 	      (put job 'obj-mod-time vio-obj-time)
 	      (when (and vo-obj-time
-			 (or (time-less-p vo-obj-time src-time)
+			 (or (time-less-or-equal vo-obj-time src-time)
 			     ;; dep-time is neither nil nor 'just-compiled here
-			     (time-less-p vo-obj-time dep-time)))
+			     (time-less-or-equal vo-obj-time dep-time)))
 		(setq file-to-delete vo-file))
 	      (when coq-debug-auto-compilation
 		(message "%s: vio up-to-date; delete %s"
@@ -974,9 +976,9 @@ therefore delete a file if it might be in the way."
 	  (put job 'required-obj-file vo-file)
 	  (put job 'obj-mod-time vo-obj-time)
 	  (when (and vio-obj-time
-		     (or (time-less-p vio-obj-time src-time)
+		     (or (time-less-or-equal vio-obj-time src-time)
 			 ;; dep-time is neither nil nor 'just-compiled here
-			 (time-less-p vio-obj-time dep-time)))
+			 (time-less-or-equal vio-obj-time dep-time)))
 	    (setq file-to-delete vio-file))
 	  (when coq-debug-auto-compilation
 	    (message "%s: vo up-to-date 2; delete %s"

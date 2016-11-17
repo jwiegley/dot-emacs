@@ -392,8 +392,7 @@ modules are matched separately with `coq-require-id-regexp'")
 A time value is a list of two integers as returned by `file-attributes'.
 The first integer contains the upper 16 bits and the second the lower
 16 bits of the time."
-  (or (time-less-p time-1 time-2)
-      (equal time-1 time-2)))
+  (not (time-less-p time-2 time-1)))
 
 (defun coq-max-dep-mod-time (dep-mod-times)
   "Return the maximum in DEP-MOD-TIMES.
