@@ -148,27 +148,54 @@ It was constructed with `proof-defstringset-fn'.")
      :style toggle
      :selected coq-double-hit-enable
      :help "Automatically send commands when terminator typed twiced quickly."]
-    ("Quick compilation mode"
+    ("Auto Compilation"
+     ["Compile Before Require"
+      coq-compile-before-require-toggle
+      :style toggle
+      :selected coq-compile-before-require
+      :help "Check dependencies of required modules and compile on the fly."]
+     ["Parallel background compilation"
+      coq-compile-parallel-in-background-toggle
+      :style toggle
+      :selected coq-compile-parallel-in-background
+      :active coq-compile-before-require
+      :help ,(concat "Compile parallel in background or "
+		    "sequentially with blocking ProofGeneral.")]
      ["no quick"
       (customize-set-variable 'coq-compile-quick 'no-quick)
       :style radio
       :selected (eq coq-compile-quick 'no-quick)
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
       :help "Compile without -quick but accept existion .vio's"]
      ["quick no vio2vo"
       (customize-set-variable 'coq-compile-quick 'quick-no-vio2vo)
       :style radio
       :selected (eq coq-compile-quick 'quick-no-vio2vo)
-      :help "Compile with -quick, accept existing .vo's"]
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help "Compile with -quick, accept existing .vo's, don't run vio2vo"]
      ["quick and vio2vo"
       (customize-set-variable 'coq-compile-quick 'quick-and-vio2vo)
       :style radio
       :selected (eq coq-compile-quick 'quick-and-vio2vo)
-      :help "Compile with -quick, accept existing .vo's, run vio2vo"]
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help "Compile with -quick, accept existing .vo's, run vio2vo later"]
      ["ensure vo"
       (customize-set-variable 'coq-compile-quick 'ensure-vo)
       :style radio
       :selected (eq coq-compile-quick 'ensure-vo)
-      :help "Ensure only vo's are used for consistency"])
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help "Ensure only vo's are used for consistency"]
+     ["Confirm External Compilation"
+      coq-confirm-external-compilation-toggle
+      :style toggle
+      :selected coq-confirm-external-compilation
+      :active (and coq-compile-before-require
+		   (not (equal coq-compile-command "")))
+      :help "Confirm external compilation command, see `coq-compile-command'."])
     ""
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
