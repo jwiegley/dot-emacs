@@ -1,9 +1,9 @@
 ;;; s.el --- The long lost Emacs string manipulation library.
 
-;; Copyright (C) 2012 Magnar Sveen
+;; Copyright (C) 2012-2015 Magnar Sveen
 
 ;; Author: Magnar Sveen <magnars@gmail.com>
-;; Version: 1.9.0
+;; Version: 1.10.0
 ;; Keywords: strings
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -31,15 +31,17 @@
 
 (defun s-trim-left (s)
   "Remove whitespace at the beginning of S."
-  (if (string-match "\\`[ \t\n\r]+" s)
-      (replace-match "" t t s)
-    s))
+  (save-match-data
+    (if (string-match "\\`[ \t\n\r]+" s)
+        (replace-match "" t t s)
+      s)))
 
 (defun s-trim-right (s)
   "Remove whitespace at the end of S."
-  (if (string-match "[ \t\n\r]+\\'" s)
-      (replace-match "" t t s)
-    s))
+  (save-match-data
+    (if (string-match "[ \t\n\r]+\\'" s)
+        (replace-match "" t t s)
+      s)))
 
 (defun s-trim (s)
   "Remove whitespace at the beginning and end of S."
@@ -54,7 +56,8 @@
 If OMIT-NULLS is non-nil, zero-length substrings are omitted.
 
 This is a simple wrapper around the built-in `split-string'."
-  (split-string s separator omit-nulls))
+  (save-match-data
+    (split-string s separator omit-nulls)))
 
 (defun s-split-up-to (separator s n &optional omit-nulls)
   "Split S up to N times into substrings bounded by matches for regexp SEPARATOR.
@@ -70,16 +73,16 @@ See also `s-split'."
         (setq op (goto-char (point-min)))
         (while (and (re-search-forward separator nil t)
                     (< 0 n))
-          (let ((sub (buffer-substring-no-properties op (match-beginning 0))))
+          (let ((sub (buffer-substring op (match-beginning 0))))
             (unless (and omit-nulls
                          (equal sub ""))
               (push sub r)))
           (setq op (goto-char (match-end 0)))
           (setq n (1- n)))
-        (if (/= (point) (point-max))
-            (push (buffer-substring-no-properties op (point-max)) r)
-          (unless omit-nulls
-            (push "" r))))
+        (let ((sub (buffer-substring op (point-max))))
+          (unless (and omit-nulls
+                       (equal sub ""))
+            (push sub r))))
       (nreverse r))))
 
 (defun s-lines (s)
@@ -180,11 +183,12 @@ See also `s-split'."
 
 (defun s-word-wrap (len s)
   "If S is longer than LEN, wrap the words with newlines."
-  (with-temp-buffer
-    (insert s)
-    (let ((fill-column len))
-      (fill-region (point-min) (point-max)))
-    (buffer-substring-no-properties (point-min) (point-max))))
+  (save-match-data
+    (with-temp-buffer
+      (insert s)
+      (let ((fill-column len))
+        (fill-region (point-min) (point-max)))
+      (buffer-substring (point-min) (point-max)))))
 
 (defun s-center (len s)
   "If S is shorter than LEN, pad it with spaces so it is centered."
@@ -292,6 +296,10 @@ This is a simple wrapper around the built-in `string-match-p'."
   "Is S nil or the empty string?"
   (or (null s) (string= "" s)))
 
+(defun s-blank-str? (s)
+  "Is S nil or the empty string or string only contains whitespace?"
+  (or (s-blank? s) (s-blank? (s-trim s))))
+
 (defun s-present? (s)
   "Is S anything but nil or the empty string?"
   (not (s-blank? s)))
@@ -333,13 +341,13 @@ This is a simple wrapper around the built-in `string-match-p'."
   (replace-regexp-in-string (regexp-quote old) new s t t))
 
 (defun s--aget (alist key)
-  (cdr (assoc key alist)))
+  (cdr (assoc-string key alist)))
 
 (defun s-replace-all (replacements s)
   "REPLACEMENTS is a list of cons-cells. Each `car` is replaced with `cdr` in S."
   (replace-regexp-in-string (regexp-opt (mapcar 'car replacements))
                             (lambda (it) (s--aget replacements it))
-                            s))
+                            s t t))
 
 (defun s-downcase (s)
   "Convert S to lower case.
@@ -405,19 +413,34 @@ attention to case differences."
 Each element itself is a list of matches, as per
 `match-string'. Multiple matches at the same position will be
 ignored after the first."
-  (let ((all-strings ())
-        (i 0))
-    (while (and (< i (length string))
-                (string-match regex string i))
-      (setq i (1+ (match-beginning 0)))
-      (let (strings
-            (num-matches (/ (length (match-data)) 2))
-            (match 0))
-        (while (/= match num-matches)
-          (push (match-string match string) strings)
-          (setq match (1+ match)))
-        (push (nreverse strings) all-strings)))
-    (nreverse all-strings)))
+  (save-match-data
+    (let ((all-strings ())
+          (i 0))
+      (while (and (< i (length string))
+                  (string-match regex string i))
+        (setq i (1+ (match-beginning 0)))
+        (let (strings
+              (num-matches (/ (length (match-data)) 2))
+              (match 0))
+          (while (/= match num-matches)
+            (push (match-string match string) strings)
+            (setq match (1+ match)))
+          (push (nreverse strings) all-strings)))
+      (nreverse all-strings))))
+
+(defun s-matched-positions-all (regexp string &optional subexp-depth)
+  "Return a list of matched positions for REGEXP in STRING.
+SUBEXP-DEPTH is 0 by default."
+  (if (null subexp-depth)
+      (setq subexp-depth 0))
+  (save-match-data
+    (let ((pos 0) result)
+      (while (and (string-match regexp string pos)
+                  (< pos (length string)))
+        (let ((m (match-end subexp-depth)))
+          (push (cons (match-beginning subexp-depth) (match-end subexp-depth)) result)
+          (setq pos (match-end 0))))
+      (nreverse result))))
 
 (defun s-match (regexp s &optional start)
   "When the given expression matches the string, this function returns a list
@@ -440,13 +463,14 @@ When START is non-nil the search will start at that index."
 
 (defun s-slice-at (regexp s)
   "Slices S up at every index matching REGEXP."
-  (save-match-data
-    (let (i)
-      (setq i (string-match regexp s 1))
-      (if i
-          (cons (substring s 0 i)
-                (s-slice-at regexp (substring s i)))
-        (list s)))))
+  (if (= 0 (length s)) (list "")
+    (save-match-data
+      (let (i)
+        (setq i (string-match regexp s 1))
+        (if i
+            (cons (substring s 0 i)
+                  (s-slice-at regexp (substring s i)))
+          (list s))))))
 
 (defun s-split-words (s)
   "Split S into list of words."
@@ -537,12 +561,14 @@ transformation."
                           (funcall 's--aget extra var))
                          ((eq replacer 'elt)
                           (funcall replacer extra var))
+                         ((eq replacer 'oref)
+                          (funcall #'slot-value extra (intern var)))
                          (t
                           (set-match-data saved-match-data)
                           (if extra
                               (funcall replacer var extra)
                             (funcall replacer var))))))
-                   (if v v (signal 's-format-resolve md)))
+                   (if v (format "%s" v) (signal 's-format-resolve md)))
                (set-match-data replacer-match-data)))) template
                ;; Need literal to make sure it works
                t t)
@@ -587,10 +613,11 @@ interpolated with \"%S\"."
 
 `start', inclusive, and `end', exclusive, delimit the part of `s'
 to match. "
-  (with-temp-buffer
-    (insert s)
-    (goto-char (point-min))
-    (count-matches regexp (or start 1) (or end (point-max)))))
+  (save-match-data
+    (with-temp-buffer
+      (insert s)
+      (goto-char (point-min))
+      (count-matches regexp (or start 1) (or end (point-max))))))
 
 (defun s-wrap (s prefix &optional suffix)
   "Wrap string S with PREFIX and optionally SUFFIX.
