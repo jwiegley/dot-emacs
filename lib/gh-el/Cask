@@ -15,4 +15,5 @@
 (development
   (depends-on "ert-runner")
   (depends-on "shut-up")
-  (depends-on "mocker"))
+  (depends-on "mocker")
+  (depends-on "undercover"))

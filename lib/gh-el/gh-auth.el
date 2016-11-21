@@ -67,7 +67,8 @@
                    (gh-config "password"))))
     (when (not pass)
       (setq pass (read-passwd "GitHub password: "))
-      (gh-set-config "password" pass))
+      (when remember
+        (gh-set-config "password" pass)))
     (when remember
       (gh-auth-remember profile :password pass))
     pass))
@@ -161,7 +162,8 @@
 (defmethod gh-auth-modify-request ((auth gh-oauth-authenticator) req)
   (object-add-to-list req :headers
                       (cons "Authorization"
-                            (format "token %s" (oref auth :token))))
+                            (encode-coding-string
+                             (format "token %s" (oref auth :token)) 'utf-8)))
   req)
 
 (provide 'gh-auth)

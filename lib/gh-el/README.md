@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sigma/gh.el.png?branch=master)](https://travis-ci.org/sigma/gh.el)
+[![Coverage Status](https://coveralls.io/repos/github/sigma/gh.el/badge.svg?branch=master)](https://coveralls.io/github/sigma/gh.el?branch=master)
 
 This is a (very early) GitHub client library for Emacs.
 
