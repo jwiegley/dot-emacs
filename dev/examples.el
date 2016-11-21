@@ -1,7 +1,26 @@
-;; -*- lexical-binding: t -*-
+;;; examples.el --- Examples/tests for dash.el's API  -*- lexical-binding: t -*-
+
+;; Copyright (C) 2015 Free Software Foundation, Inc.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
 
 ;; Only the first three examples per function are shown in the docs,
 ;; so make those good.
+
+;;; Code:
 
 (require 'dash)
 
@@ -13,12 +32,12 @@
 ;; around differences in implementation between systems. Use the `~>'
 ;; symbol instead of `=>' to test the expected and actual values with
 ;; `approx-equal'
-(defvar epsilon 1e-15)
+(defvar dash--epsilon 1e-15)
 (defun approx-equal (u v)
   (or (= u v)
       (< (/ (abs (- u v))
         (max (abs u) (abs v)))
-     epsilon)))
+     dash--epsilon)))
 
 (def-example-group "Maps"
   "Functions in this category take a transforming function, which
@@ -50,6 +69,9 @@ new list."
     (-map-last 'even? 'square '(1 2 3 4)) => '(1 2 3 16)
     (--map-last (> it 2) (* it it) '(1 2 3 4)) => '(1 2 3 16)
     (--map-last (= it 2) 17 '(1 2 3 2)) => '(1 2 3 17)
+    ;; the next two tests assert that the input list is not modified #158
+    (let ((l '(1 2 3))) (list (--map-last (< it 2) (number-to-string it) l) l)) => '(("1" 2 3) (1 2 3))
+    (let ((l '(1 2 3))) (list (--map-last (< it 3) (number-to-string it) l) l)) => '((1 "2" 3) (1 2 3))
     (-map-last 'even? 'square '(1 3 5 7)) => '(1 3 5 7)
     (-map-last 'even? 'square '(2)) => '(4)
     (-map-last 'even? 'square nil) => nil)
@@ -109,7 +131,10 @@ new list."
   (defexamples -remove-last
     (-remove-last 'even? '(1 3 5 4 7 8 10 11)) => '(1 3 5 4 7 8 11)
     (-remove-last 'stringp '(1 2 "last" "second" "third")) => '(1 2 "last" "second")
-    (--remove-last (> it 3) '(1 2 3 4 5 6 7 8 9 10)) => '(1 2 3 4 5 6 7 8 9))
+    (--remove-last (> it 3) '(1 2 3 4 5 6 7 8 9 10)) => '(1 2 3 4 5 6 7 8 9)
+    ;; the next two tests assert that the input list is not modified #158
+    (let ((l '(1 2 3))) (list (--remove-last (< it 2) l) l)) => '((2 3) (1 2 3))
+    (let ((l '(1 2 3))) (list (--remove-last (< it 4) l) l)) => '((1 2) (1 2 3)))
 
   (defexamples -remove-item
     (-remove-item 3 '(1 2 3 2 3 4 5 3)) => '(1 2 2 4 5)
@@ -143,9 +168,21 @@ new list."
     (-take 3 '(1 2 3 4 5)) => '(1 2 3)
     (-take 17 '(1 2 3 4 5)) => '(1 2 3 4 5))
 
+  (defexamples -take-last
+    (-take-last 3 '(1 2 3 4 5)) => '(3 4 5)
+    (-take-last 17 '(1 2 3 4 5)) => '(1 2 3 4 5)
+    (-take-last 1 '(1 2 3 4 5)) => '(5)
+    (let ((l '(1 2 3 4 5)))
+      (setcar (-take-last 2 l) 1)
+      l) => '(1 2 3 4 5))
+
   (defexamples -drop
     (-drop 3 '(1 2 3 4 5)) => '(4 5)
     (-drop 17 '(1 2 3 4 5)) => '())
+
+  (defexamples -drop-last
+    (-drop-last 3 '(1 2 3 4 5)) => '(1 2)
+    (-drop-last 17 '(1 2 3 4 5)) => '())
 
   (defexamples -take-while
     (-take-while 'even? '(1 2 3 4)) => '()
@@ -160,7 +197,15 @@ new list."
   (defexamples -select-by-indices
     (-select-by-indices '(4 10 2 3 6) '("v" "e" "l" "o" "c" "i" "r" "a" "p" "t" "o" "r")) => '("c" "o" "l" "o" "r")
     (-select-by-indices '(2 1 0) '("a" "b" "c")) => '("c" "b" "a")
-    (-select-by-indices '(0 1 2 0 1 3 3 1) '("f" "a" "r" "l")) => '("f" "a" "r" "f" "a" "l" "l" "a")))
+    (-select-by-indices '(0 1 2 0 1 3 3 1) '("f" "a" "r" "l")) => '("f" "a" "r" "f" "a" "l" "l" "a"))
+
+  (defexamples -select-columns
+    (-select-columns '(0 2) '((1 2 3) (a b c) (:a :b :c))) => '((1 3) (a c) (:a :c))
+    (-select-columns '(1) '((1 2 3) (a b c) (:a :b :c))) => '((2) (b) (:b))
+    (-select-columns nil '((1 2 3) (a b c) (:a :b :c))) => '(nil nil nil))
+
+  (defexamples -select-column
+    (-select-column 1 '((1 2 3) (a b c) (:a :b :c))) => '(2 b :b)))
 
 (def-example-group "List to list"
   "Bag of various functions which modify input list."
@@ -179,7 +224,10 @@ new list."
   (defexamples -flatten
     (-flatten '((1))) => '(1)
     (-flatten '((1 (2 3) (((4 (5))))))) => '(1 2 3 4 5)
-    (-flatten '(1 2 (3 . 4))) => '(1 2 (3 . 4)))
+    (-flatten '(1 2 (3 . 4))) => '(1 2 (3 . 4))
+    (-flatten '(nil nil nil)) => nil
+    (-flatten '(nil (1) nil)) => '(1)
+    (-flatten '(nil (nil) nil)) => nil)
 
   (defexamples -flatten-n
     (-flatten-n 1 '((1 2) ((3 4) ((5 6))))) => '(1 2 (3 4) ((5 6)))
@@ -378,7 +426,10 @@ new list."
     (-is-suffix? '(3 4 5) '(1 2 3 4 5)) => t
     (-is-suffix? '(1 2 3 4 5) '(3 4 5)) => nil
     (-is-suffix? '(3 5) '(1 2 3 4 5)) => nil
-    (-is-suffix? '(3 4 5) '(1 2 3 5)) => nil)
+    (-is-suffix? '(3 4 5) '(1 2 3 5)) => nil
+    (let ((l '(1 2 3)))
+      (list (-is-suffix? '(3) l)
+            l)) => '(t (1 2 3)))
 
   (defexamples -is-infix?
     (-is-infix? '(1 2 3) '(1 2 3 4 5)) => t
@@ -514,6 +565,15 @@ new list."
     (-intersection '(1 2 3) '(4 5 6)) => '()
     (-intersection '(1 2 3 4) '(3 4 5 6)) => '(3 4))
 
+  (defexamples -powerset
+    (-powerset '()) => '(nil)
+    (-powerset '(x y z)) => '((x y z) (x y) (x z) (x) (y z) (y) (z) nil))
+
+  (defexamples -permutations
+    (-permutations '()) => '(nil)
+    (-permutations '(1 2)) => '((1 2) (2 1))
+    (-permutations '(a b c)) => '((a b c) (a c b) (b a c) (b c a) (c a b) (c b a)))
+
   (defexamples -distinct
     (-distinct '()) => '()
     (-distinct '(1 2 2 4)) => '(1 2 4)))
@@ -569,6 +629,10 @@ new list."
   (defexamples -zip-fill
     (-zip-fill 0 '(1 2 3 4 5) '(6 7 8 9)) => '((1 . 6) (2 . 7) (3 . 8) (4 . 9) (5 . 0)))
 
+  (defexamples -unzip
+    (-unzip (-zip '(1 2 3) '(a b c) '("e" "f" "g"))) => '((1 2 3) (a b c) ("e" "f" "g"))
+    (-unzip '((1 2) (3 4) (5 6) (7 8) (9 10))) => '((1 3 5 7 9) (2 4 6 8 10)))
+
   (defexamples -cycle
     (-take 5 (-cycle '(1 2 3))) => '(1 2 3 1 2)
     (-take 7 (-cycle '(1 "and" 3))) => '(1 "and" 3 1 "and" 3 1)
@@ -592,6 +656,8 @@ new list."
     (-table-flat 'list '(1 2 3) '(a b c)) => '((1 a) (2 a) (3 a) (1 b) (2 b) (3 b) (1 c) (2 c) (3 c))
     (-table-flat '* '(1 2 3) '(1 2 3)) => '(1 2 3 2 4 6 3 6 9)
     (apply '-table-flat 'list (-repeat 3 '(1 2))) => '((1 1 1) (2 1 1) (1 2 1) (2 2 1) (1 1 2) (2 1 2) (1 2 2) (2 2 2))
+    (-table-flat '+ '(2)) => '(2)
+    (-table-flat '- '(2 4)) => '(-2 -4)
 
     ;; flatten law tests
     (-flatten-n 1 (-table 'list '(1 2 3) '(a b c))) => '((1 a) (2 a) (3 a) (1 b) (2 b) (3 b) (1 c) (2 c) (3 c))
@@ -615,11 +681,13 @@ new list."
 
   (defexamples -first-item
     (-first-item '(1 2 3)) => 1
-    (-first-item nil) => nil)
+    (-first-item nil) => nil
+    (let ((list (list 1 2 3))) (setf (-first-item list) 5) list) => '(5 2 3))
 
   (defexamples -last-item
     (-last-item '(1 2 3)) => 3
-    (-last-item nil) => nil)
+    (-last-item nil) => nil
+    (let ((list (list 1 2 3))) (setf (-last-item list) 5) list) => '(1 2 5))
 
   (defexamples -butlast
     (-butlast '(1 2 3)) => '(1 2)
@@ -733,7 +801,26 @@ new list."
   (defexamples -->
     (--> "def" (concat "abc" it "ghi")) => "abcdefghi"
     (--> "def" (concat "abc" it "ghi") (upcase it)) => "ABCDEFGHI"
-    (--> "def" (concat "abc" it "ghi") upcase) => "ABCDEFGHI"))
+    (--> "def" (concat "abc" it "ghi") upcase) => "ABCDEFGHI")
+
+  (defexamples -some->
+    (-some-> '(2 3 5)) => '(2 3 5)
+    (-some-> 5 square) => 25
+    (-some-> 5 even? square) => nil
+    (-some-> nil square) => nil)
+
+  (defexamples -some->>
+    (-some->> '(1 2 3) (-map 'square)) => '(1 4 9)
+    (-some->> '(1 3 5) (-last 'even?) (+ 100)) => nil
+    (-some->> '(2 4 6) (-last 'even?) (+ 100)) => 106
+    (-some->> '("A" "B" :c) (-filter 'stringp) (-reduce 'concat)) => "AB"
+    (-some->> '(:a :b :c) (-filter 'stringp) (-reduce 'concat)) => nil)
+
+  (defexamples -some-->
+    (-some--> "def" (concat "abc" it "ghi")) => "abcdefghi"
+    (-some--> nil (concat "abc" it "ghi")) => nil
+    (-some--> '(1 3 5) (-filter 'even? it) (append it it) (-map 'square it)) => nil
+    (-some--> '(2 4 6) (-filter 'even? it) (append it it) (-map 'square it)) => '(4 16 36 4 16 36)))
 
 (def-example-group "Binding"
   "Convenient versions of `let` and `let*` constructs combined with flow control."
@@ -876,6 +963,13 @@ new list."
     (-let [(&plist 'a a) (list 'a 1 'b 2)] a) => 1
     (-let [(&plist 'a [a b]) (list 'a [1 2] 'b 3)] (list a b)) => '(1 2)
     (-let [(&plist 'a [a b] 'c c) (list 'a [1 2] 'c 3)] (list a b c)) => '(1 2 3)
+    ;; mixing dot and &alist
+    (-let (((x y &alist 'a a 'c c) (list 1 2 '(a . b) '(e . f) '(g . h) '(c . d)))) (list x y a c)) => '(1 2 b d)
+    (-let (((_ _ &alist 'a a 'c c) (list 1 2 '(a . b) '(e . f) '(g . h) '(c . d)))) (list a c)) => '(b d)
+    (-let (((x y . (&alist 'a a 'c c)) (list 1 2 '(a . b) '(e . f) '(g . h) '(c . d)))) (list x y a c)) => '(1 2 b d)
+    (-let (((_ _ . (&alist 'a a 'c c)) (list 1 2 '(a . b) '(e . f) '(g . h) '(c . d)))) (list a c)) => '(b d)
+    (-let (((x y (&alist 'a a 'c c)) (list 1 2 '((a . b) (e . f) (g . h) (c . d))))) (list x y a c)) => '(1 2 b d)
+    (-let (((_ _ . ((&alist 'a a 'c c))) (list 1 2 '((a . b) (e . f) (g . h) (c . d))))) (list a c)) => '(b d)
     ;; test the &as form
     (-let (((items &as first . rest) (list 1 2 3))) (list first rest items)) => '(1 (2 3) (1 2 3))
     (-let [(all &as [vect &as a b] bar) (list [1 2] 3)] (list a b bar vect all)) => '(1 2 3 [1 2] ([1 2] 3))
@@ -937,9 +1031,17 @@ new list."
     (let (s) (-each-while '(2 4 5 6) 'even? (lambda (item) (!cons item s))) s) => '(4 2)
     (let (s) (--each-while '(1 2 3 4) (< it 3) (!cons it s)) s) => '(2 1))
 
+  (defexamples -each-indexed
+    (let (s) (-each-indexed '(a b c) (lambda (index item) (setq s (cons (list item index) s)))) s) => '((c 2) (b 1) (a 0))
+    (let (s) (--each-indexed '(a b c) (setq s (cons (list it it-index) s))) s) => '((c 2) (b 1) (a 0)))
+
   (defexamples -dotimes
     (let (s) (-dotimes 3 (lambda (n) (!cons n s))) s) => '(2 1 0)
-    (let (s) (--dotimes 5 (!cons it s)) s) => '(4 3 2 1 0)))
+    (let (s) (--dotimes 5 (!cons it s)) s) => '(4 3 2 1 0))
+
+  (defexamples -doto
+    (-doto '(1 2 3) (!cdr) (!cdr)) => '(3)
+    (-doto '(1 . 2) (setcar 3) (setcdr 4)) => '(3 . 4)))
 
 (def-example-group "Destructive operations" nil
   (defexamples !cons
@@ -1007,6 +1109,7 @@ new list."
     (defexamples -cut
       (funcall (-cut list 1 <> 3 <> 5) 2 4) => '(1 2 3 4 5)
       (-map (-cut funcall <> 5) '(1+ 1- (lambda (x) (/ 1.0 x)))) => '(6 4 0.2)
+      (-map (-cut <> 1 2 3) (list 'list 'vector 'string)) => '((1 2 3) [1 2 3] "")
       (-filter (-cut < <> 5) '(1 3 5 7 9)) => '(1 3))
 
     (defexamples -not
@@ -1068,3 +1171,5 @@ new list."
 ;; Local Variables:
 ;; eval: (font-lock-add-keywords nil '(("defexamples\\|def-example-group\\| => \\| !!> \\| ~>" (0 'font-lock-keyword-face)) ("(defexamples[[:blank:]]+\\(.*\\)" (1 'font-lock-function-name-face))))
 ;; End:
+
+;;; examples.el ends here
