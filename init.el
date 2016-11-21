@@ -399,15 +399,17 @@
 
 (bind-key "C-x M-q" #'refill-paragraph)
 
-(defun endless/fill-or-unfill ()
+(defun endless/fill-or-unfill (count)
   "Like `fill-paragraph', but unfill if used twice."
-  (interactive)
+  (interactive "P")
   (let ((fill-column
-         (if (eq last-command 'endless/fill-or-unfill)
-             (progn (setq this-command nil)
-                    (point-max))
-           fill-column)))
-    (call-interactively #'fill-paragraph)))
+         (if count
+             (prefix-numeric-value count)
+           (if (eq last-command 'endless/fill-or-unfill)
+               (progn (setq this-command nil)
+                      (point-max))
+             fill-column))))
+    (fill-paragraph)))
 
 (global-set-key [remap fill-paragraph]
                 #'endless/fill-or-unfill)
@@ -667,6 +669,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-. m" #'kmacro-keymap)
 
 (bind-key "C-. C-i" #'indent-rigidly)
+
+(defvar insert-and-counting--index 1)
+(defvar insert-and-counting--expr nil)
+
+(defun insert-and-counting (&optional index expr)
+  (interactive
+   (if (or current-prefix-arg
+           (not insert-and-counting--expr))
+       (list (setq insert-and-counting--index
+                   (prefix-numeric-value current-prefix-arg))
+             (setq insert-and-counting--expr
+                   (eval-expr-read-lisp-object-minibuffer "Pattern: ")))
+     (list (setq insert-and-counting--index
+                 (1+ insert-and-counting--index))
+           insert-and-counting--expr)))
+  (let ((n insert-and-counting--index))
+    (eval expr)))
+
+(bind-key "C-. C-y" #'insert-and-counting)
 
 ;;; help-map
 
@@ -1907,6 +1928,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/fringe-helper-el")
 
+(use-package gist
+  :load-path "site-lisp/gist"
+  :bind ("C-c G" . gist-region-or-buffer))
+
 (use-package git-annex-el
   ;; (shell-command "rm -fr lisp/git-annex-el")
   ;; (shell-command "git remote rm ext/git-annex-el")
@@ -1971,9 +1996,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
 
   (grep-apply-setting 'grep-command "egrep -nH -e ")
+  ;; (grep-apply-setting
+  ;;  'grep-find-command
+  ;;  '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))
   (grep-apply-setting
    'grep-find-command
-   '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49)))
+   '("rg --no-heading --color=always -j4 -nH -e " . 43)))
 
 (use-package gtags
   ;; (shell-command "rm -f site-lisp/gtags.el*")
@@ -2736,7 +2764,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/json-snatcher")
 
 (use-package ledger-mode
-  :load-path "~/src/ledger/lisp"
+  :load-path "~/src/ledger/ledger-mode/lisp"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
   :preface
@@ -3147,7 +3175,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
 (use-package malyon
-  :load-path "site-lisp/maylon"
+  :load-path "site-lisp/malyon"
   :commands malyon)
 
 (use-package markdown-mode
@@ -4267,10 +4295,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (xray-symbol xray-position xray-buffer xray-window
              xray-frame xray-marker xray-overlay xray-screen
              xray-faces xray-hooks xray-features))
-
-(use-package yagist
-  :load-path "site-lisp/yagist"
-  :bind ("C-c G" . yagist-region-or-buffer))
 
 (use-package yaml-mode
   :load-path "site-lisp/yaml-mode"
