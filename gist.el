@@ -363,7 +363,7 @@ for the gist."
         (creation (gist--get-time gist))
         (desc (or (oref gist :description) ""))
         (public (eq t (oref gist :public)))
-        (fnames (mapcar (lambda (f) (oref f :filename)) (oref gist :files))))
+        (fnames (mapcar (lambda (f) (when f (oref f :filename))) (oref gist :files))))
     (loop for (id label width sort format) in gist-list-format
           collect (let ((string-formatter (if (eq id 'created)
                                               'format-time-string
