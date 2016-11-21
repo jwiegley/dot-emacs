@@ -32,6 +32,9 @@
 (require 'ert)
 (require 'url-http)
 
+(when (require 'undercover nil t)
+  (undercover "*.el" "gh.el/*.el" (:exclude "gh-pkg.el")))
+
 (defun gh-test-get-traces-root ()
   (let* ((this-file (car
                      (rassoc-if

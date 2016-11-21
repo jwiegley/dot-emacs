@@ -133,7 +133,7 @@
       (json-read-from-string repr))))
 
 (defun gh-api-json-encode (json)
-  (json-encode-list json))
+  (encode-coding-string (json-encode-list json) 'utf-8))
 
 (defmethod gh-url-response-set-data ((resp gh-api-response) data)
   (call-next-method resp (gh-api-json-decode data)))

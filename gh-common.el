@@ -41,6 +41,12 @@
   "Github API client libraries."
   :group 'applications)
 
+(defcustom gh-use-local-git-config nil
+  "If `t' use git configuration from the machine running
+Emacs. This makes a difference when running with TRAMP."
+  :type 'boolean
+  :group 'gh)
+
 ;;; Helper functions
 
 (defun gh-read (obj field)
@@ -66,9 +72,12 @@
   (gh-command-to-string "config" "--global" (gh-namespaced-key key) value))
 
 (defun gh-command-to-string (&rest args)
-  (let ((git (executable-find "git")))
+  (let ((git (executable-find "git"))
+        (runner (if gh-use-local-git-config
+                    'call-process
+                  'process-file)))
     (with-output-to-string
-      (apply 'process-file git nil standard-output nil args))))
+      (apply runner git nil standard-output nil args))))
 
 ;;; Base classes for common objects
 
