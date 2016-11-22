@@ -28,13 +28,13 @@
     ;; ====================================================================
     ;; all of src dep vo vio present
     ((src dep vo vio)
-     (no-quick           nil            nil       vio)
-     (quick              nil            nil       vio)
+     (no-quick           nil            nil       vo )
+     (quick              nil            nil       vo )
      (ensure-vo          nil            vio       vo ))
 
     ((src dep vio vo)
-     (no-quick           nil            nil       vo )
-     (quick              nil            nil       vo )
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ((src vo dep vio)    
@@ -59,13 +59,13 @@
 
     ;; present files   | compilation? | delete | 'req-obj-file
     ((dep src vio vo)
-     (no-quick           nil            nil       vo )
-     (quick              nil            nil       vo )
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ((dep src vo vio)
-     (no-quick           nil            nil       vio)
-     (quick              nil            nil       vio)
+     (no-quick           nil            nil       vo )
+     (quick              nil            nil       vo )
      (ensure-vo          nil            vio       vo ))
 
     ((dep vo vio src)
@@ -219,13 +219,13 @@
     ;; present files   | compilation? | delete | 'req-obj-file
     ;; only src vo vio present
     ((src vo vio)
-     (no-quick           nil            nil      vio )
-     (quick              nil            nil      vio )
+     (no-quick           nil            nil       vo )
+     (quick              nil            nil       vo )
      (ensure-vo          nil            vio       vo ))
 
     ((src vio vo)
-     (no-quick           nil            nil      vo  )
-     (quick              nil            nil      vo  )
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ((vo src vio)
@@ -357,8 +357,8 @@
 
     (((src dep) (vo vio))
      ;; could also use the vio as 'req-obj-file in the first 2 cases here
-     (no-quick           nil            nil       vo)
-     (quick              nil            nil       vo)
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     (((vo vio) (src dep))
@@ -410,13 +410,13 @@
 
     ;; present files   | compilation? | delete | 'req-obj-file
     (((src dep) vo vio)
-     (no-quick           nil            nil       vio)
-     (quick              nil            nil       vio)
+     (no-quick           nil            nil       vo )
+     (quick              nil            nil       vo )
      (ensure-vo          nil            vio       vo ))
 
     (((src dep) vio vo)
-     (no-quick           nil            nil       vo )
-     (quick              nil            nil       vo )
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ((vo (src dep) vio)
@@ -518,8 +518,8 @@
 
     ((src dep (vo vio))
      ;; could also use the vio as 'req-obj-file in the first 2 cases here
-     (no-quick           nil            nil       vo)
-     (quick              nil            nil       vo)
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ((dep (vo vio) src)
@@ -529,8 +529,8 @@
 
     ((dep src (vo vio))
      ;; could also use the vio as 'req-obj-file in the first 2 cases here
-     (no-quick           nil            nil       vo)
-     (quick              nil            nil       vo)
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     (((dep vio) src vo)
@@ -672,8 +672,8 @@
 
     ((src (vio vo))
      ;; could also use the vio as 'req-obj-file in the first 2 cases here
-     (no-quick           nil            nil       vo )
-     (quick              nil            nil       vo )
+     (no-quick           nil            nil       vio)
+     (quick              nil            nil       vio)
      (ensure-vo          nil            vio       vo ))
 
     ;; 2 files with identical time stamp out of 2 files

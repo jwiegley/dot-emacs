@@ -873,7 +873,8 @@ therefore delete a file if it might be in the way."
 	 (vio-obj-time (nth 5 (file-attributes vio-file)))
 	 (dep-time (get job 'youngest-coqc-dependency))
 	 (src-time (nth 5 (file-attributes (get job 'src-file))))
-	 file-to-delete max-obj-time vio-is-newer result)
+	 file-to-delete max-obj-time vio-is-newer
+	 other-file other-obj-time result)
     (when coq-debug-auto-compilation
       (message
        (concat "%s: compare mod times: vo mod %s, vio mod %s, src mod %s, "
@@ -960,30 +961,46 @@ therefore delete a file if it might be in the way."
 	;; There is an up-to-date .vio or .vo file and the user does not
 	;; insist on either .vio or .vo - no need to compile.
 	;; Ensure to delete outdated .vio or .vo files.
+	;; First store the other obj file in other-file and other-obj-time.
 	(if vio-is-newer
+	    (setq other-file vo-file
+		  other-obj-time vo-obj-time)
+	  (setq other-file vio-file
+		other-obj-time vio-obj-time))
+	(if (and other-obj-time
+		 (time-less-p src-time other-obj-time)
+		 ;; dep-time is neither nil nor 'just-compiled here
+		 (time-less-p dep-time other-obj-time))
+	    ;; Both the .vio and .vo exist and are up-to-date. Coq
+	    ;; loads the younger one but we continue with the older
+	    ;; one to avoid recompilation for the case where a vio2vo
+	    ;; process took a long time for a dependency.
 	    (progn
-	      (put job 'required-obj-file vio-file)
-	      (put job 'obj-mod-time vio-obj-time)
-	      (when (and vo-obj-time
-			 (or (time-less-or-equal vo-obj-time src-time)
-			     ;; dep-time is neither nil nor 'just-compiled here
-			     (time-less-or-equal vo-obj-time dep-time)))
-		(setq file-to-delete vo-file))
+	      (put job 'required-obj-file other-file)
+	      (put job 'obj-mod-time other-obj-time)
 	      (when coq-debug-auto-compilation
-		(message "%s: vio up-to-date; delete %s"
+		(message (concat "%s: .vio and .vo up-to-date, "
+				 "continue with the older %s")
 			 (get job 'name)
-			 (if file-to-delete file-to-delete "noting"))))
-	  (put job 'required-obj-file vo-file)
-	  (put job 'obj-mod-time vo-obj-time)
-	  (when (and vio-obj-time
-		     (or (time-less-or-equal vio-obj-time src-time)
-			 ;; dep-time is neither nil nor 'just-compiled here
-			 (time-less-or-equal vio-obj-time dep-time)))
-	    (setq file-to-delete vio-file))
-	  (when coq-debug-auto-compilation
-	    (message "%s: vo up-to-date 2; delete %s"
-		     (get job 'name)
-		     (if file-to-delete file-to-delete "noting"))))))
+			 (if vio-is-newer ".vio" ".vo"))))
+	  ;; The other obj file does not exist or is outdated.
+	  ;; Delete the outdated if it exists.
+	  (when other-obj-time
+	    (setq file-to-delete other-file))
+	  (if vio-is-newer
+	      (progn
+		(put job 'required-obj-file vio-file)
+		(put job 'obj-mod-time vio-obj-time)
+		(when coq-debug-auto-compilation
+		  (message "%s: vio up-to-date; delete %s"
+			   (get job 'name)
+			   (if file-to-delete file-to-delete "noting"))))
+	    (put job 'required-obj-file vo-file)
+	    (put job 'obj-mod-time vo-obj-time)
+	    (when coq-debug-auto-compilation
+	      (message "%s: vo up-to-date 2; delete %s"
+		       (get job 'name)
+		       (if file-to-delete file-to-delete "noting")))))))
     (when file-to-delete
       (condition-case err
 	  (delete-file file-to-delete)

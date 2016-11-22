@@ -389,9 +389,10 @@ modules are matched separately with `coq-require-id-regexp'")
 
 (defun time-less-or-equal (time-1 time-2)
   "Return `t' if time value time-1 is earlier or equal to time-2.
-A time value is a list of two integers as returned by `file-attributes'.
-The first integer contains the upper 16 bits and the second the lower
-16 bits of the time."
+A time value is a list of two, three or four integers of the
+form (high low micro pico) as returned by `file-attributes' or
+'current-time'. First element high contains the upper 16 bits and
+the second low the lower 16 bits of the time."
   (not (time-less-p time-2 time-1)))
 
 (defun coq-max-dep-mod-time (dep-mod-times)
