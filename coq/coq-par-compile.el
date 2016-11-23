@@ -966,7 +966,8 @@ therefore delete a file if it might be in the way. Sets the
     ;; which of both is newer. This is only meaningful if at least one of
     ;; the .vo or .vio file exists.
     (cond
-     ((and vio-obj-time vo-obj-time (time-less-p vo-obj-time vio-obj-time))
+     ((and vio-obj-time vo-obj-time
+	   (time-less-or-equal vo-obj-time vio-obj-time))
       (setq max-obj-time vio-obj-time)
       (setq vio-is-newer t))
      ((and vio-obj-time vo-obj-time)
@@ -1015,10 +1016,13 @@ therefore delete a file if it might be in the way. Sets the
 			 (time-less-p src-time vo-obj-time)
 			 (time-less-p dep-time vo-obj-time)))
 		;; .vo is newer than src and youngest dep - don't compile
-		;; need to ensure no .vio is laying around
 		(progn
 		  (put job 'obj-mod-time vo-obj-time)
-		  (when vio-obj-time
+		  ;; delete vio if it is outdated or newer than vo
+		  (when (and vio-obj-time
+			     (or vio-is-newer
+				 (time-less-or-equal vio-obj-time src-time)
+				 (time-less-or-equal vio-obj-time dep-time)))
 		    (setq file-to-delete vio-file))
 		  (when coq-debug-auto-compilation
 		    (message "%s: vo up-to-date 1; delete %s"
@@ -1026,7 +1030,10 @@ therefore delete a file if it might be in the way. Sets the
 			     (if file-to-delete file-to-delete "noting"))))
 	      ;; .vo outdated - need to compile
 	      (setq result t)
-	      (when vio-obj-time
+	      ;; delete vio if it is outdated
+	      (when (and vio-obj-time
+			 (or (time-less-or-equal vio-obj-time src-time)
+			     (time-less-or-equal vio-obj-time dep-time)))
 		(setq file-to-delete vio-file))
 	      (when coq-debug-auto-compilation
 		(message "%s: need to compile to vo; delete %s"
