@@ -92,11 +92,38 @@ Must be used together with `coq-par-enable'."
 	ncpus
       nil)))
 
-(defvar coq-internal-max-jobs 1
+(defvar coq--max-background-vio2vo-percentage-shadow 40
+  "Internal shadow value of `coq-max-background-vio2vo-percentage'.
+This variable does always contain the same value as
+`coq-max-background-vio2vo-percentage'. It is used only to break
+the dependency cycle between `coq-set-max-vio2vo-jobs' and
+`coq-max-background-vio2vo-percentage'.")
+
+(defvar coq--internal-max-vio2vo-jobs 1
+  "Internal number of vio2vo jobs.
+This is the internal value, use
+`coq-max-background-vio2vo-percentage' to configure.")
+
+(defvar coq--internal-max-jobs 1
   "Value of `coq-max-background-compilation-jobs' translated to a number.")
 
+(defun coq-set-max-vio2vo-jobs ()
+  "Set `coq--internal-max-vio2vo-jobs'."
+  (setq coq--internal-max-vio2vo-jobs
+	(max 1
+	     (round (* coq--internal-max-jobs
+		       coq--max-background-vio2vo-percentage-shadow
+		       0.01)))))
+
+(defun coq-max-vio2vo-setter (symbol new-value)
+  ":set function for `coq-max-background-vio2vo-percentage'.
+SYMBOL should be 'coq-max-background-vio2vo-percentage"
+  (set symbol new-value)
+  (setq coq--max-background-vio2vo-percentage-shadow new-value)
+  (coq-set-max-vio2vo-jobs))
+
 (defun coq-max-jobs-setter (symbol new-value)
-  ":set function for `coq-max-background-compilation-jobs.
+  ":set function for `coq-max-background-compilation-jobs'.
 SYMBOL should be 'coq-max-background-compilation-jobs"
   (set symbol new-value)
   (cond
@@ -106,7 +133,8 @@ SYMBOL should be 'coq-max-background-compilation-jobs"
       (setq new-value 1)))
    ((and (integerp new-value) (> new-value 0)) t)
    (t (setq new-value 1)))
-  (setq coq-internal-max-jobs new-value))
+  (setq coq--internal-max-jobs new-value)
+  (coq-set-max-vio2vo-jobs))
 
 
 ;;; user options and variables
@@ -206,14 +234,24 @@ ensure-vo        Delete all .vio files for prerequisites and recompile
   "Maximal number of parallel jobs, if parallel compilation is enabled.
 Use the number of available CPU cores if this is set to
 'all-cpus. This variable is the user setting. The value that is
-really used is `coq-internal-max-jobs'. Use `coq-max-jobs-setter'
+really used is `coq--internal-max-jobs'. Use `coq-max-jobs-setter'
 or the customization system to change this variable. Otherwise
-your change will have no effect, because `coq-internal-max-jobs'
+your change will have no effect, because `coq--internal-max-jobs'
 is not adapted."
   :type '(choice (const :tag "use all CPU cores" all-cpus)
 		 (integer :tag "fixed number" :value 1))
   :safe (lambda (v) (or (eq v 'all-cpus) (and (integerp v) (> v 0))))
   :set 'coq-max-jobs-setter
+  :group 'coq-auto-compile)
+
+(defcustom coq-max-background-vio2vo-percentage 40
+  "Percentage of `coq-max-background-vio2vo-percentage' for vio2vo jobs.
+This setting configures the maximal number of vio2vo background
+jobs (if you set `coq-compile-quick' to 'quick-and-vio2vo) as
+percentage of `coq-max-background-compilation-jobs'."
+  :type 'number
+  :safe 'numberp
+  :set 'coq-max-vio2vo-setter
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""
@@ -444,7 +482,13 @@ compiled with ``-quick'' or not."
          t)
      nil)))
 
-;;; convert .vo files to .v files
+;;; convert .vo files to .v files and module names
+
+(defun coq-module-of-src-file (src-file)
+  "Return the module name for SRC-FILE.
+SRC-FILE must be a .v file."
+  (let ((file (file-name-nondirectory src-file)))
+  (substring file 0 (max 0 (- (length file) 2)))))
 
 (defun coq-library-src-of-vo-file (lib-obj-file)
   "Return source file name for LIB-OBJ-FILE.
@@ -473,9 +517,21 @@ Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
   (span-set-property span 'coq-locked-ancestors ()))
 
 
-;;; manage coq-compile-respose-buffer
+;;; manage coq-compile-response-buffer
 
-(defun coq-init-compile-response-buffer (command)
+(defun coq-compile-display-error (command error-message display)
+  "Display COMMAND and ERROR-MESSAGE in `coq-compile-response-buffer'.
+If needed, reinitialize `coq-compile-response-buffer'. Then
+display COMMAND and ERROR-MESSAGE."
+  (unless (buffer-live-p coq-compile-response-buffer)
+    (coq-init-compile-response-buffer))
+  (let ((inhibit-read-only t))
+    (with-current-buffer coq-compile-response-buffer
+      (insert command "\n" error-message)))
+  (when display
+    (coq-display-compile-response-buffer)))
+
+(defun coq-init-compile-response-buffer (&optional command)
   "Initialize the buffer for the compilation output.
 If `coq-compile-response-buffer' exists, empty it. Otherwise
 create a buffer with name `coq-compile-response-buffer', put
@@ -501,7 +557,9 @@ the command whose output will appear in the buffer."
     ;; the first line are not found for some reason ...
     (let ((inhibit-read-only t))
       (with-current-buffer buffer-object
-        (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
+        (insert "-*- mode: compilation; -*-\n\n")
+	(when command
+	  (insert command "\n"))))))
 
 (defun coq-display-compile-response-buffer ()
   "Display the errors in `coq-compile-response-buffer'."

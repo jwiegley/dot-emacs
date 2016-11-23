@@ -791,6 +791,7 @@ test the result and side effects wth `assert'."
 	(different-not-ok t)
 	(same-not-ok t)
 	(last-different-time-stamp '(0 0))
+	(file-descr-flattened (coq-par-test-flatten-files file-descr))
 	same-time-stamp file-list
 	obj-mod-result result)
     (message "test case %s/576: %s %s%s" counter (car variant) file-descr
@@ -862,7 +863,7 @@ test the result and side effects wth `assert'."
 		      (test-coq-par-sym-to-file dir delete-result))))
 	    nil (concat id " delete file"))
     ;; check no other file is deleted
-    (dolist (f (coq-par-test-flatten-files file-descr))
+    (dolist (f file-descr-flattened)
       (unless (eq f delete-result)
 	(assert (file-attributes (test-coq-par-sym-to-file dir f))
 		nil (format "%s non del file %s: %s"
@@ -886,6 +887,14 @@ test the result and side effects wth `assert'."
     (assert (eq (not (not (and compilation-result (eq req-obj-result 'vio))))
 		(get job 'use-quick))
 	    nil (concat id " use-quick"))
+    ;; check vio2vo-needed property
+    (assert (eq
+	     (and (eq quick-mode 'quick-and-vio2vo)
+		  (eq req-obj-result 'vio)
+		  (or (eq delete-result 'vo)
+		      (not (member 'vo file-descr-flattened))))
+	     (get job 'vio2vo-needed))
+	    nil (concat id " vio2vo-needed wrong"))
     (ignore-errors
       (delete-directory dir t))))
 
