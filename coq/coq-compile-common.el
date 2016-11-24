@@ -275,6 +275,14 @@ percentage of `coq-max-background-compilation-jobs'."
   :set 'coq-max-vio2vo-setter
   :group 'coq-auto-compile)
 
+(defcustom coq-compile-vio2vo-delay 2.5
+  "Delay in seconds for the vio2vo compilation.
+This delay helps to avoid running into a library inconsistency
+with 'quick-and-vio2vo, see Coq issue #5223."
+  :type 'number
+  :safe 'numberp
+  :group 'coq-auto-compile)
+
 (defcustom coq-compile-command ""
   "External compilation command. If empty ProofGeneral compiles itself.
 If unset (the empty string) ProofGeneral computes the dependencies of

@@ -318,6 +318,9 @@ Used to link top-level jobs with queue dependencies.")
 (defvar coq-compile-vio2vo-in-progress nil
   "Set to t iff vio2vo is running in background.")
 
+(defvar coq-compile-vio2vo-delay-timer nil
+  "Holds the timer for the vio2vo delay.")
+
 (defvar coq-par-next-id 1
   "Increased for every job and process, to get unique job names.
 The names are only used for debugging.")
@@ -416,7 +419,6 @@ queue.")
 
 
 ;;; vio2vo queue
-;;
 
 (defvar coq-par-vio2vo-queue (coq-par-new-queue)
   "Queue of jobs that need a vio2vo process.
@@ -754,6 +756,8 @@ and resets the internal state."
   (setq coq-last-compilation-job nil)
   (setq coq-par-vio2vo-queue (coq-par-new-queue))
   (setq coq-compile-vio2vo-in-progress nil)
+  (when coq-compile-vio2vo-delay-timer
+    (cancel-timer coq-compile-vio2vo-delay-timer))
   (when proof-action-list
     (setq proof-shell-interrupt-pending t))
   (coq-par-unlock-ancestors-on-error)
@@ -875,17 +879,27 @@ errors are reported with an error message."
 
 ;;; vio2vo compilation
 
+(defun coq-par-run-vio2vo-queue ()
+  "Start delayed vio2vo compilation."
+  (assert (not coq-last-compilation-job)
+	  nil "normal compilation and vio2vo in parallel 3")
+  (setq coq-compile-vio2vo-in-progress t)
+  (setq coq-compile-vio2vo-delay-timer nil)
+  (when coq-debug-auto-compilation
+    (message "Start vio2vo processing for %d jobs"
+	     (+ (length (car coq-par-vio2vo-queue))
+		(length (cdr coq-par-vio2vo-queue)))))
+  (coq-par-start-jobs-until-full))
+
 (defun coq-par-require-processed (span)
   "Callback for `proof-action-list' to start vio2vo compilation.
 This callback is inserted with a dummy item after the last
-require command to start vio2vo compilation."
+require command to start vio2vo compilation after
+`coq-compile-vio2vo-delay' seconds."
   (assert (not coq-last-compilation-job)
 	  nil "normal compilation and vio2vo in parallel 1")
-  (setq coq-compile-vio2vo-in-progress t)
-  (when coq-debug-auto-compilation
-    (message "Start vio2vo processing for %d jobs"
-	     (length (car coq-par-vio2vo-queue))))
-  (coq-par-start-jobs-until-full))
+  (setq coq-compile-vio2vo-delay-timer
+	(run-at-time coq-compile-vio2vo-delay nil 'coq-par-run-vio2vo-queue)))
 
 
 ;;; background job tasks
@@ -1697,12 +1711,13 @@ the maximal number of background compilation jobs is started."
     ;; with one command, use compilation-finish-functions to get
     ;; notification
     (when (cdr splitted-items)
+      (when coq-compile-vio2vo-delay-timer
+	(cancel-timer coq-compile-vio2vo-delay-timer))
       (when coq-compile-vio2vo-in-progress
 	(assert (not coq-last-compilation-job)
 		nil "normal compilation and vio2vo in parallel 2")
 	;; there are only vio2vo background processes
 	(coq-par-kill-all-processes)
-	(setq coq-par-vio2vo-queue (coq-par-new-queue))
 	(setq coq-compile-vio2vo-in-progress nil))
       ;; save buffers before invoking the first coqdep
       (coq-compile-save-some-buffers)
