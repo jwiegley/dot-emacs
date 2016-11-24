@@ -752,13 +752,22 @@ relative ages.")
 	  ;; a variant is a list of 4 elements
 	  (assert (eq (length variant) 4) nil (concat test-id " 2"))
 	  (let ((files (coq-par-test-flatten-files (car test)))
+		(quick-mode (car variant))
 		(compilation-result (nth 1 variant))
 		(delete-result (nth 2 variant))
 		(req-obj-result (nth 3 variant)))
 	    ;; the delete field, when set, must be a member of the files list
 	    (assert (or (not delete-result)
 			(member delete-result files))
-		    nil (concat test-id " 3"))))
+		    nil (concat test-id " 3"))
+	    ;; 8.4 compatibility check
+	    (when (and (or (eq quick-mode 'no-quick) (eq quick-mode 'ensure-vo))
+		       (not (member 'vio files)))
+	      (assert (not delete-result)
+		      nil (concat test-id " 4"))
+	      (assert (eq compilation-result
+			  (not (eq (car (last (car test))) 'vo)))
+		      nil (concat test-id " 5")))))
 	  (cdr test))))
    coq-par-job-needs-compilation-tests))
 
