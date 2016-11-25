@@ -4340,39 +4340,42 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 @node Using the Coq project file
 @section Using the Coq project file
 
-Before starting the Coq process, one need to set @code{coqtop} options,
-in particular the -I and -R command that set the directories to have in
-the coq load path. You can use file variables (@ref{Using file
-variables}) as it was recommended on previous versions of ProofGeneral
-but there is now a better way. ProofGeneral knows how to extract this
-information from the Coq project file if there is one. The Coq project
-file must be named following variable `coq-project-filename' (default:
-@code{_CoqProject}) and be on the root directory of your development.
+The Coq project file is the recommended way to configure the Coq
+load path and the mapping of logical module names to physical
+file path'. The project file is typically named
+@code{_CoqProject} and must be located at the directory root of
+your Coq project. Proof General searches for the Coq project file
+starting at the current directory and walking the directory
+structure upwards. The Coq project file contains the common
+options (especially @code{-R}) and a list of the files of the
+project, see the Coq reference manual, Section 15.3, ``Creating a
+Makefile for Coq modules''.
 
-It should contain something like:
+The Coq project file should contain something like:
 
 @verbatim
 -R foo bar
 -I foo2
 -arg -foo3
+file.v
+bar/other_file.v
+...
 @end verbatim
 
-The intial use of this file is to be given to the @code{coq_makefile}
-tool to generate a Makefile (see Coq documentation for details). It is
-parsed by ProofGeneral to guess the command line option. In this example
-the command line built by Proofgeneral will be @code{coqtop -foo3 -R foo
-bar -I foo2}.
+Proof General only extracts the common options from the Coq
+project file and uses them for @code{coqtop} background
+processes as well as for @code{coqdep} and @code{coqc} when you use
+the auto compilation feature, @ref{Automatic Compilation in
+Detail}. For the example above, Proof General will start
+@code{coqtop -foo3 -R foo bar -I foo2}.
 
 @emph{Remarque:} @code{-arg} must be followed by one and only one option
 to pass to coqtop/coqc, use several @code{-arg} to issue several
-options. One per line (limitation of proofgeneral).
+options. One per line (limitation of Proof General).
 
-This is the recommended way of configuring coqtop options for coq
-compilation, CoqIde and Proofgeneral. Its main advantage is that it
-avoids duplicating informations between these three tools.
-
-For specific (and rare) per file configuration one can still use file
-variables (@ref{Using file variables}).
+For backward compatibility, one can also configure the load path
+with the option @code{coq-load-path}, but this is not compatible
+with @code{CoqIde} or @code{coq_makefile}.
 
 @menu
 * Changing the name of the coq project file::
@@ -4382,44 +4385,60 @@ variables (@ref{Using file variables}).
 @node Changing the name of the coq project file
 @subsection Changing the name of the coq project file
 
-One can change the name of the project file by:
+To change the name of the Coq project file, configure
+@code{coq-project-filename} (select menu @code{Proof-General ->
+Advanced -> Customize -> Coq} and scroll down to ``Coq Project
+Filename''). Customizing @code{coq-project-filename} this way
+will change the Coq project file name permanently and globally.
 
-(setq coq-project-filename "myprojectfile")
-
-or:
-
-(setq (make-local-variable 'coq-project-filename) "myprojectfile")
-
-If this is for a project, the best is probably to have a .dir-locals.el
-at the root of the project, as explained in  @ref{Using file
-variables}. This file should contain something like:
+If you only want to change the name of the Coq project file for
+one project you can set the option as local file variable,
+@ref{Using file variables}. This can be done either directly in
+every file or once for all files of a directory tree with a
+@code{.dir-local.el} file, @inforef{Directory Variables, ,emacs}.
+For this case, this file should contain
 
 @lisp
 ((coq-mode . ((coq-project-filename . "myprojectfile"))))
 @end lisp
 
-or equivalently:
+Documentation of the user option @code{coq-project-filename}:
 
-@lisp
-((coq-mode
-  .
-  ((eval
-    .
-    (progn 
-      (make-local-variable 'coq-project-filename)
-      (setq coq-project-filename  "myprojectfile"))))))
-@end lisp
+@c TEXI DOCSTRING MAGIC: coq-project-filename
+@defvar coq-project-filename 
+The name of coq project file.@*
+The coq project file of a coq developpement (Cf Coq documentation
+on "makefile generation") should contain the arguments given to
+coq_makefile. In particular it contains the -I and -R
+options (preferably one per line). If @samp{coq-use-coqproject} is
+t (default) the content of this file will be used by proofgeneral
+to infer the @samp{@code{coq-load-path}} and the @samp{@code{coq-prog-args}} variables
+that set the coqtop invocation by proofgeneral. This is now the
+recommended way of configuring the coqtop invocation. Local file
+variables may still be used to override the coq project file's
+configuration. .dir-locals.el files also work and override
+project file settings.
+@end defvar
+
 
 @node Disabling the coq project file mechanism
 @subsection Disabling the coq project file mechanism
 
-If the variable `coq-use-project-file' is nil, then Proofgeneral will
-not look at project file. therefore you can put this in your config file
-(.emacs) to disable the use of project file:
+To disable the Coq project file feature in Proof General, set
+@code{coq-use-project-file} to nil (select menu
+@code{Proof-General -> Advanced -> Customize -> Coq} and scroll
+down to ``Coq Use Project File'').
 
-@lisp
-(setq coq-use-project-file nil)
-@end lisp
+@c TEXI DOCSTRING MAGIC: coq-use-project-file
+@defvar coq-use-project-file 
+If t, when opening a coq file read the dominating _CoqProject.@*
+If t, when a coq file is opened, Proof General will look for a
+project file (see @samp{@code{coq-project-filename}}) somewhere in the
+current directory or its parent directories.  If there is one,
+its contents are read and used to determine the arguments that
+must be given to coqtop.  In particular it sets the load
+path (including the -R lib options) (see @samp{@code{coq-load-path}}).
+@end defvar
 
 You can also use the .dir-locals.el as above to configure this setting
 on a per project basis.
@@ -4457,15 +4476,17 @@ There are actually two implementations of the Recompilation
 feature. 
 
 @table @asis
-@item Synchronous single threaded compilation (stable)
-With synchronous compilation, coqdep and coqc are called
-synchronously for each Require command. Proof General is locked
-until the compilation finishes
-@item Parallel asynchronous compilation (experimental)
+@item Parallel asynchronous compilation (stable, default)
 With parallel compilation, coqdep and coqc are launched in the
 background and Proof General stays responsive during compilation.
 Up to `coq-max-background-compilation-jobs' coqdep and coqc
-processes may run in parallel.
+processes may run in parallel. Coq 8.5 quick compilation is
+supported with various modes, @ref{Quick compilation and .vio Files}.
+@item Synchronous single threaded compilation (obsolete)
+With synchronous compilation, coqdep and coqc are called
+synchronously for each Require command. Proof General is locked
+until the compilation finishes. Coq 8.5 quick compilation is not
+supported with synchronously compilation.
 @end table
 
 To enable the automatic compilation feature, you have to follow
@@ -4474,30 +4495,15 @@ these points:
 @itemize @bullet
 @item
 The option @code{coq-compile-before-require} must be
-turned on (menu @code{Coq -> Settings -> Compile Before Require}).
+turned on (menu @code{Coq -> Auto Compilation -> Compile Before Require}).
 @item 
-Nonstandard load path elements @emph{must} be configured in the
-option @code{coq-load-path}. @code{-I} options in
+Nonstandard load path elements @emph{must} be configured via a
+Coq project file (this is the recommended option),
+@ref{Using the Coq project file} or via
+option @code{coq-load-path}. @code{-I} or @code{-R} options in
 @code{coq-prog-name} or @code{coq-prog-args} must be deleted.
 @item
-In @code{coq-load-path} use strings @code{"dir"} for @code{-I}
-options and lists of two strings @code{("dir" "path")} for
-@code{-R "dir" -as "path"} (for more details see the
-documentation of `coq-load-path' or @ref{Customizing Coq Multiple
-File Support}).
-@item
-For a nonstandard compilation procedure and limited ML module
-support, @code{coq-compile-command} can be set to an external
-compilation command. For standard dependency analysis with
-@code{coqdep} and compilation with @code{coqc} the option
-@code{coq-compile-command} can be left empty. In this case Proof
-General calls @code{coqdep} and @code{coqc} as needed.
-@item
-The default compilation method is synchronous compilation. In
-order to experience parallel background compilation on all your
-CPU cores, 
-enable `coq-compile-parallel-in-background' (menu @code{Coq ->
-Settings -> Compile Parallel In Background}). Configure 
+Configure
 @code{coq-max-background-compilation-jobs} if you want to limit
 the number of parallel background jobs.
 @end itemize
@@ -4507,6 +4513,7 @@ the number of parallel background jobs.
 @menu
 * Automatic Compilation in Detail::
 * Locking Ancestors::
+* Quick compilation and .vio Files::
 * Customizing Coq Multiple File Support::
 * Current Limitations::
 @end menu
@@ -4528,51 +4535,24 @@ compilation finished.
 
 Proof General uses @code{coqdep} in order to translate the
 qualified identifiers in @code{Require} commands to coq library
-file names. Therefore, in Coq version prior to @code{8.3pl2},
-@code{Require Arith} works, while
-@code{Require Arith.Le} gives an error. The use of @code{coqdep}
-is also the reason
-why nonstandard load path elements must be configured in
-@code{coq-load-path}. 
+file names and to determine library dependencies. Because Proof
+General cannot know whether files are updated outside of Emacs,
+it checks for every @code{Require} command the complete
+dependency tree and recompiles files as necessary.
 
-Once the library file name has been determined, its dependencies
-must be checked and out-of-date files must be compiled. This can
-either be done internally, by Proof General itself, or by an
-external command. If @code{coq-compile-command} is the empty
-string, Proof General does dependency checking and compilation
-itself. Otherwise the command in @code{coq-compile-command} is
-started as an external process after substituting certain keys,
-@ref{Customizing Coq Multiple File Support}. 
-
-For an external compilation command Proof General uses the
-general compilation facilities of Emacs
-(@inforef{Compilation,,emacs}) with its own customization variables.
-The compilation command must be customized in
-@code{coq-compile-command} and the flag
-@code{coq-confirm-external-compilation} (menu @code{Coq ->
-Settings -> Confirm External Compilation})
-determines
-whether the user must confirm the compilation command. The output
-of the compilation appears then in the @code{*compilation*}
-buffer.
-
-When Proof General compiles itself, output is only shown in case
+Output from the compilation is only shown in case
 of errors. It then appears in the buffer
-@code{*coq-compile-response*}. With internal as well as with external
-compilation 
-one can use @code{C-x `} (bound to @code{next-error},
+@code{*coq-compile-response*}.
+One can use @code{C-x `} (bound to @code{next-error},
 @inforef{Compilation Mode,,emacs}) to jump to error locations.
-Note however, that @code{coqdep} does not produce error messages
-with location information, so @code{C-x `} cannot work for errors
-from @code{coqdep}.
+Sometimes the compilation commands do not produce error messages
+with location information, then @code{C-x `} does only work in a
+limited way.
 
-Proof General cannot know if some library files have been updated
-outside of Proof General, therefore, it must perform the
-dependency checking for each @code{Require} command. If the
-continuous confirmation of the external compilation commands
-becomes tedious, disable
-@code{coq-confirm-external-compilation} (see menu @code{Coq ->
-Settings}).
+For Coq version 8.5 or newer, the option @code{coq-compile-quick}
+controls how @code{-quick} and @code{.vio} files are used,
+@ref{Quick compilation and .vio Files}. This can also be
+configured in the menu @code{Coq -> Auto Compilation}.
 
 When a @code{Require} command causes a compilation of some files
 one may wish to save some buffers to disk beforehand. The option
@@ -4587,13 +4567,18 @@ between two implementations of internal compilation.
 
 @table @asis
 @item Synchronous single threaded compilation
-This is the stable version supported since Proof General version
+This is the old, now outdated version supported since Proof General
 4.1. This method starts coqdep and coqc processes one after each
 other in synchronous subprocesses. Your Emacs session will be
 locked until compilation finishes. Use @code{C-g} to interrupt
-compilation. 
+compilation. This method supports compilation via an external
+command (such as @code{make}), see option
+@code{coq-compile-command} in @ref{Customizing Coq Multiple File
+Support} below. Synchronous compilation does not support the
+quick compilation of Coq 8.5.
+
 @item Parallel asynchronous compilation
-This is the new version added in Proof General version 4.3. It
+This is the newer and default version added in Proof General version 4.3. It
 runs up to @code{coq-max-background-compilation-jobs} coqdep and
 coqc jobs in parallel in asynchronous subprocesses (or uses all
 your CPU cores if @code{coq-max-background-compilation-jobs}
@@ -4609,6 +4594,14 @@ file. If you have other commands between two Require commands or
 before the first Require, then you may see Proof General and Coq
 running in addition to `coq-max-background-compilation-jobs'
 compilation jobs.
+
+Depending on the setting of @code{coq-compile-quick} (which can
+also be set via menu @code{Coq -> Auto Compilation}) Proof
+General produces @code{.vio} or @code{.vo} files and deletes
+outdated @code{.vio} or @code{.vo} files to ensure Coq does not
+load outdated files. When @code{quick-and-vio2vo} is selected a
+vio2vo compilation starts when the @code{Require} command had
+been processed, @ref{Quick compilation and .vio Files}.
 
 Actually, even with this method, not everything runs
 asynchronously. To translate module identifiers from the Coq
@@ -4658,6 +4651,109 @@ benefit, as Require commands are usually on the top of each
 file.]
 
 
+@node Quick compilation and .vio Files
+@subsection Quick compilation and .vio Files
+
+Proof General supports quick compilation only with the parallel
+asynchronous compilation. There are 4 modes that can be
+configured with @code{coq-compile-quick} or by selecting one of
+the radio buttons in the @code{Coq -> Auto Compilation} menu.
+
+Use the default @code{no-quick}, if you have not yet switched to
+@code{Proof using}. Use @code{quick-no-vio2vo}, if you want quick
+recompilation without producing .vo files. Option
+@code{quick-and-vio2vo} recompiles with @code{-quick} as
+@code{quick-no-vio2vo} does, but schedules a vio2vo compilation
+for missing @code{.vo} files after a certain delay. Finally, use
+@code{ensure-vo} for only importing @code{.vo} files with
+complete universe checks.
+
+Note that with all of @code{no-quick}, @code{quick-no-vio2vo} and
+@code{quick-and-vio2vo} your development might be unsound because
+universe constraints are not fully present in @code{.vio} files.
+
+There are a few peculiarities of quick compilation in Coq 8.5
+that one should be aware of.
+
+@itemize
+@item
+Quick compilation runs noticeably slower when section
+variables are not declared via @code{Proof using}.
+@item
+Even when section variables are declared, quick compilation runs
+slower on very small files, probably because of the
+comparatively big size of the @code{.vio} files. You can speed up
+quick compilation noticeably by running on a RAM disk.
+@item
+If both, the @code{.vo} and the @code{.vio} files are present,
+Coq load the more recent one, regardless of whether
+@code{-quick}, and emits a warning when the @code{.vio} is more
+recent than the @code{.vo}.
+@item
+Under some circumstances, files compiled when only the
+@code{.vio} file of some library was present are not compatible
+with (other) files compiled when also the @code{.vo} file of that
+library was present, see Coq issue #5223 for details. As a rule
+of thumb one should run vio2vo compilation only before or after
+library loading.
+@item
+Apart from the previous point, Coq works fine when libraries are
+present as a mixture of @code{.vio} and @code{.vo} files. While
+@code{make} insists on building all prerequisites as either
+@code{.vio} or @code{.vo} files, Proof General just checks
+whether an up-to-date compiled library file is present.
+@item
+To ensure soundness, all library dependencies must be compiled as
+@code{.vo} files and loaded into one Coq instance.
+@end itemize
+
+Detailed description of the 4 modes:
+
+@table @code
+@item no-quick
+Compile outdated prerequisites without @code{-quick}, producing @code{.vo}
+files, but don't compile prerequisites for which an up-to-date
+@code{.vio} file exists. Delete or overwrite outdated @code{.vo} files.
+
+@item quick-no-vio2vo
+Compile outdated prerequisites with @code{-quick}, producing @code{.vio}
+files, but don't compile prerequisites for which an up-to-date
+@code{.vo} file exists. Delete or overwrite outdated @code{.vio} files.
+
+@item quick-and-vio2vo
+Same as @code{quick-no-vio2vo}, but start vio2vo processes for
+missing @code{.vo} files after a certain delay when library
+complication for the current queue region has finished. With this
+mode you might see asynchronous errors from vio2vo compilation
+while you are processing stuff far below the last require. vio2vo
+compilation is done on a subset of the available cores controlled
+by option @code{coq-compile-vio2vo-percentage}, @ref{Customizing
+Coq Multiple File Support}.
+
+@emph{Warning}: This mode does only work when you process require
+commands in batches. Slowly single-stepping through require's
+might lead to inconsistency errors when loading some libraries,
+see Coq issue #5223. To mitigate this risk, vio2vo compilation
+only starts after a certain delay after the last require command
+of the current queue region has been processed. This is
+controlled by @code{coq-compile-vio2vo-delay}, @ref{Customizing
+Coq Multiple File Support}.
+
+@item ensure-vo
+Ensure that all library dependencies are present as @code{.vo}
+files and delete outdated @code{.vio} files or @code{.vio} files
+that are more recent than the corresponding @code{.vo} file. This
+setting is the only one that ensures soundness.
+@end table
+
+The options @code{no-quick} and @code{ensure-vo} are compatible
+with Coq 8.4 or older. When Proof General detects such an older
+Coq version, it changes the quick compilation mode automatically.
+For this to work, the option @code{coq-compile-quick} must only
+be set via the customization system or via the menu.
+
+
+
 @node Customizing Coq Multiple File Support
 @subsection Customizing Coq Multiple File Support
 
@@ -4677,7 +4773,7 @@ required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the "Require" command is processed.
 
 This option can be set/reset via menu
-@samp{Coq -> Settings -> Compile Before Require}.
+@samp{Coq -> Auto Compilation -> Compile Before Require}.
 @end defvar
 
 
@@ -4697,8 +4793,7 @@ confirmation.
 @end defvar
 
 
-The following two options are for the parallel compilation
-method.
+The following options configure parallel compilation.
 
 @c TEXI DOCSTRING MAGIC: coq-compile-parallel-in-background
 @defvar coq-compile-parallel-in-background 
@@ -4713,8 +4808,13 @@ the background. The maximal number of parallel compilation jobs
 is set with @samp{@code{coq-max-background-compilation-jobs}}.
 
 This option can be set/reset via menu
-@samp{Coq -> Settings -> Compile Parallel In Background}.
+@samp{Coq -> Auto Compilation -> Compile Parallel In Background}.
 @end defvar
+
+
+The option @code{coq-compile-quick} is described in detail above,
+@ref{Quick compilation and .vio Files}
+
 
 @c TEXI DOCSTRING MAGIC: coq-max-background-compilation-jobs
 @defvar coq-max-background-compilation-jobs 
@@ -4728,15 +4828,81 @@ is not adapted.
 @end defvar
 
 
-The following two options deal with the load path. Proof General
-divides the load path into the standard load path (which is
-hardwired in the tools and need not be set explicitly), the
-nonstandard load path (which must always be set explicitly), and
-the current directory (which must be set explicitly for
-@code{coqdep}). The option @code{coq-load-path} determines the
-nonstandard load path and @code{coq-load-path-include-current}
-determines whether the current directory is put into the load
-path of @code{coqdep}.
+@c TEXI DOCSTRING MAGIC: coq-max-background-vio2vo-percentage
+@defvar coq-max-background-vio2vo-percentage 
+Percentage of @samp{@code{coq-max-background-vio2vo-percentage}} for vio2vo jobs.@*
+This setting configures the maximal number of vio2vo background
+jobs (if you set @samp{@code{coq-compile-quick}} to @code{'quick-and-vio2vo}) as
+percentage of @samp{@code{coq-max-background-compilation-jobs}}.
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: coq-compile-vio2vo-delay
+@defvar coq-compile-vio2vo-delay 
+Delay in seconds for the vio2vo compilation.@*
+This delay helps to avoid running into a library inconsistency
+with @code{'quick-and-vio2vo}, see Coq issue #@var{5223}.
+@end defvar
+
+Locking ancestors can be disabled with the following option.
+
+@c TEXI DOCSTRING MAGIC: coq-lock-ancestors
+@defvar coq-lock-ancestors 
+If non-nil, lock ancestor module files.@*
+If external compilation is used (via @samp{@code{coq-compile-command}}) then
+only the direct ancestors are locked. Otherwise all ancestors are
+locked when the "Require" command is processed.
+@end defvar
+
+
+The sequential compilation setting supports an external
+compilation command (which could be a parallel running
+@code{make}). For this set
+@code{coq-compile-parallel-in-background} to @code{nil} and
+configure the compilation command in @code{coq-compile-command}.
+
+@c TEXI DOCSTRING MAGIC: coq-compile-command
+@defvar coq-compile-command 
+External compilation command. If empty ProofGeneral compiles itself.@*
+If unset (the empty string) ProofGeneral computes the dependencies of
+required modules with coqdep and compiles as necessary. This internal
+dependency checking does currently not handle ML modules.
+
+If a non-empty string, the denoted command is called to do the
+dependency checking and compilation. Before executing this
+command the following keys are substituted as follows:
+@lisp
+  %p  the (physical) directory containing the source of
+      the required module
+  %o  the Coq object file in the physical directory that will
+      be loaded
+  %s  the Coq source file in the physical directory whose
+      object will be loaded
+  %q  the qualified id of the "Require" command
+  %r  the source file containing the "Require"
+@end lisp
+For instance, "make -C %p %o" expands to "make -C bar foo.vo"
+when module "foo" from directory "bar" is required.
+
+After the substitution the command can be changed in the
+minibuffer if @samp{@code{coq-confirm-external-compilation}} is t.
+@end defvar
+
+
+@c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation
+@defvar coq-confirm-external-compilation 
+If set let user change and confirm the compilation command.@*
+Otherwise start the external compilation without confirmation.
+
+This option can be set/reset via menu
+@samp{Coq -> Settings -> Confirm External Compilation}.
+@end defvar
+
+
+The preferred way to configure the load path and the mapping of
+logical library names to physical file path is the Coq project
+file, @ref{Using the Coq project file}. Alternatively one can
+configure these things with the following options.
 
 @c TEXI DOCSTRING MAGIC: coq-load-path
 @defvar coq-load-path 
@@ -4786,82 +4952,12 @@ in @samp{@code{coq-load-path}}.
 This setting is only relevant with Coq < 8.5.
 @end defvar
 
-
-The following two options configure an external compilation
-process.
-
-
-@c TEXI DOCSTRING MAGIC: coq-compile-command
-@defvar coq-compile-command 
-External compilation command. If empty ProofGeneral compiles itself.@*
-If unset (the empty string) ProofGeneral computes the dependencies of
-required modules with coqdep and compiles as necessary. This internal
-dependency checking does currently not handle ML modules.
-
-If a non-empty string, the denoted command is called to do the
-dependency checking and compilation. Before executing this
-command the following keys are substituted as follows:
-@lisp
-  %p  the (physical) directory containing the source of
-      the required module
-  %o  the Coq object file in the physical directory that will
-      be loaded
-  %s  the Coq source file in the physical directory whose
-      object will be loaded
-  %q  the qualified id of the "Require" command
-  %r  the source file containing the "Require"
-@end lisp
-For instance, "make -C %p %o" expands to "make -C bar foo.vo"
-when module "foo" from directory "bar" is required.
-
-After the substitution the command can be changed in the
-minibuffer if @samp{@code{coq-confirm-external-compilation}} is t.
-@end defvar
-
-
-@c TEXI DOCSTRING MAGIC: coq-confirm-external-compilation
-@defvar coq-confirm-external-compilation 
-If set let user change and confirm the compilation command.@*
-Otherwise start the external compilation without confirmation.
-
-This option can be set/reset via menu
-@samp{Coq -> Settings -> Confirm External Compilation}.
-@end defvar
-
-
-Locking ancestors can be disabled with the following option.
-
-@c TEXI DOCSTRING MAGIC: coq-lock-ancestors
-@defvar coq-lock-ancestors 
-If non-nil, lock ancestor module files.@*
-If external compilation is used (via @samp{@code{coq-compile-command}}) then
-only the direct ancestors are locked. Otherwise all ancestors are
-locked when the "Require" command is processed.
-@end defvar
-
-
-The following option controls which warnings of @code{coqdep}
-are treated as errors.
-
-@c TEXI DOCSTRING MAGIC: coq-coqdep-error-regexp
-@defvar coq-coqdep-error-regexp 
-Regexp to match errors in the output of coqdep.@*
-coqdep indicates errors not always via a non-zero exit status,
-but sometimes only via printing warnings. This regular expression
-is used for recognizing error conditions in the output of
-coqdep (when coqdep terminates with exit status 0). Its default
-value matches the warning that some required library cannot be
-found on the load path and ignores the warning for finding a
-library at multiple places in the load path. If you want to turn
-the latter condition into an error, then set this variable to
-"^\*\*\* Warning".
-@end defvar
-
-
-The following two options do only influence the behaviour if
-Proof General does dependency checking and compilation itself.
-These options determine whether Proof General should descend into
-other Coq libraries and into the Coq standard library. 
+During library dependency checking Proof General does not dive
+into the Coq standard library or into libraries that are
+installed as user contributions. This stems from @code{coqdep},
+which does not output dependencies to these directories.
+The internal dependency check can also ignore additional
+libraries.
 
 @c TEXI DOCSTRING MAGIC: coq-compile-ignored-directories
 @defvar coq-compile-ignored-directories 
@@ -4872,84 +4968,25 @@ of the regular expressions in this list then ProofGeneral does
 neither compile this file nor check its dependencies for
 compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
-that dependency checking takes noticeable time.
+that dependency checking takes noticeable time. The regular
+expressions in here are always matched against the .vo file name,
+regardless whether @samp{`-quick}' would be used to compile the file
+or not.
 @end defvar
-
-
-@c TEXI DOCSTRING MAGIC: coq-compile-ignore-library-directory
-@defvar coq-compile-ignore-library-directory 
-If non-nil, ProofGeneral does not compile modules from the coq library.@*
-Should be @samp{t} for normal coq users. If @samp{nil} library modules are
-compiled if their sources are newer.
-
-This option has currently no effect, because Proof General uses
-coqdep to translate qualified identifiers into library file names
-and coqdep does not output dependencies in the standard library.
-@end defvar
-
-
-The last three Emacs constants are internal parameters. They only
-need to be changed under very special, unforeseen circumstances.
-They can only be set in Emacs lisp code because they are no
-customizable user options.
-
-@c TEXI DOCSTRING MAGIC: coq-compile-substitution-list
-@defvar coq-compile-substitution-list 
-Substitutions for @samp{@code{coq-compile-command}}.@*
-Value must be a list of substitutions, where each substitution is
-a 2-element list. The first element of a substitution is the
-regexp to substitute, the second the replacement. The replacement
-is evaluated before passing it to @samp{@code{replace-regexp-in-string}}, so
-it might be a string, or one of the symbols @code{'physical-dir},
-@code{'module-object}, @code{'module-source}, @code{'qualified-id} and
-@code{'requiring-file}, which are bound to, respectively, the physical
-directory containing the source file, the Coq object file in
-@code{'physical-dir} that will be loaded, the Coq source file in
-@code{'physical-dir} whose object will be loaded, the qualified module
-identifier that occurs in the "Require" command, and the file
-that contains the "Require".
-@end defvar
-
-
-@c TEXI DOCSTRING MAGIC: coq-require-command-regexp
-@defvar coq-require-command-regexp 
-Regular expression matching Require commands in Coq.@*
-Should match "Require" with its import and export variants up to (but not
-including) the first character of the first required module. The required
-modules are matched separately with @samp{@code{coq-require-id-regexp}}
-@end defvar
-
-
-@c TEXI DOCSTRING MAGIC: coq-require-id-regexp
-@defvar coq-require-id-regexp 
-Regular expression matching one Coq module identifier.@*
-Should match precisely one complete module identifier and surrounding
-white space. The module identifier must be matched with group number 1.
-Note that the trailing dot in "Require A." is not part of the module
-identifier and should therefore not be matched by this regexp.
-@end defvar
-
 
 
 @node Current Limitations
 @subsection Current Limitations
 
-In the current release some aspects of multiple file support have
-not been implemented. The following points will hopefully
-be addressed at some stage.
-
 @itemize
 @item
-Support @code{Declare ML Module} commands.
+No support @code{Declare ML Module} commands.
 @item
-Increase precision when comparing modification times. Because of
-an Emacs limitation, modification time stamps of files have only a
-precision of 1 second. If several compiled Coq object files have
-been created in the same second, Proof General is optimistic and
-does not recompile. (Note that GNU make behaves the same on file
-systems that record time stamps only with a precision of 1
-second.) Emacs version 24.3 implements high precision time stamps
-on files.
+When a compiled library has the same time stamp as the source
+file, it is considered outdated. Some old file systems (for
+instance ext3) or Emacs before version 24.3 support only time
+stamps with one second granularity. On such configurations Proof
+General will perform some unnecessary compilations.
 @end itemize
 
 

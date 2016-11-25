@@ -163,7 +163,7 @@ required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the \"Require\" command is processed.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Compile Before Require'."
+`Coq -> Auto Compilation -> Compile Before Require'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
@@ -180,7 +180,7 @@ the background. The maximal number of parallel compilation jobs
 is set with `coq-max-background-compilation-jobs'.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Compile Parallel In Background'."
+`Coq -> Auto Compilation -> Compile Parallel In Background'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile
@@ -206,34 +206,43 @@ Use the default `no-quick', if you have not yet switched to
 ``Proof using''. Use `quick-no-vio2vo', if you want quick
 recompilation without producing .vo files. Value
 `quick-and-vio2vo' updates missing prerequisites with ``-quick''
-and starts vio2vo conversion on a subset of the availables cores
-when the quick recompilation finished (see also
-`coq-compile-vio2vo-percentage'). Note that all the previously
-described modes might load .vio files and that you therefore
-might not notice certain universe inconsitencies. Finally, use
-`ensure-vo' for only importing .vo files with complete universe
-checks.
+and starts vio2vo conversion on a subset of the availables
+cores (see `coq-compile-vio2vo-percentage') when the quick
+recompilation finished (but see below for a .vio .vo
+incompatibility caveat). Note that all the previously described
+modes might load .vio files and that you therefore might not
+notice certain universe inconsistencies. Finally, use `ensure-vo'
+for only importing .vo files with complete universe checks.
 
 Detailed description of the 4 modes:
+
 no-quick         Compile outdated prerequisites without ``-quick'',
                  producing .vo files, but don't compile prerequisites
                  for which an up-to-date .vio file exists. Delete
                  or overwrite outdated .vo files.
+
 quick-no-vio2vo  Compile outdated prerequisites with ``-quick'',
                  producing .vio files, but don't compile prerequisites
                  for which an up-to-date .vo file exists. Delete
                  or overwrite outdated .vio files.
-quick-and-vio2vo Not yet supported, currently the same as `quick-no-vio2vo'.
-                 Same as `quick-no-vio2vo', but start vio2vo processes
-                 after the last require command has been processed
+
+quick-and-vio2vo Same as `quick-no-vio2vo', but start vio2vo processes
+                 after the last ``Require'' command has been processed
                  to convert the vio dependencies into vo files. With this
                  mode you might see asynchronous errors from vio2vo
                  compilation while you are processing stuff far below the
                  last require. vio2vo compilation is done on a subset of
                  the available cores, see `coq-compile-vio2vo-percentage'.
-ensure-vo        Delete all .vio files for prerequisites and recompile
-                 without ``-quick'' as necessary. This setting is the
-                 only one that esures soundness."
+
+                 Warning: This mode does only work when you process require
+                 commands in batches. Slowly single-stepping through require's
+                 might lead to inconsistency errors when loading some
+                 libraries, see Coq issue #5223.
+
+ensure-vo        Ensure that all library dependencies are present as .vo
+                 files and delete outdated .vio files or .vio files that
+                 are more recent than the corresponding .vo file. This
+                 setting is the only one that ensures soundness."
   :type
   '(radio
     (const :tag "don't use -quick but accept existing vio files" no-quick)
