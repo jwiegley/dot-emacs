@@ -18,6 +18,7 @@
 
 (eval-when (compile)
   ;;(defvar coq-pre-v85 nil)
+  (require 'compile)
   (defvar coq-confirm-external-compilation nil); defpacustom
   (defvar coq-compile-parallel-in-background nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
@@ -612,6 +613,30 @@ the command whose output will appear in the buffer."
   ;; buffer is not in a dedicated window.
   (mapc (lambda (w) (set-window-dedicated-p w nil))
       (get-buffer-window-list coq-compile-response-buffer nil t)))
+
+
+;;; enable next-error to find vio2vo errors
+;;
+;; compilation-error-regexp-alist-alist is an alist mapping symbols to
+;; what is expected for compilation-error-regexp-alist. This is
+;; element of the form (REGEXP FILE [LINE COLUMN TYPE HYPERLINK
+;; HIGHLIGHT...]). If REGEXP matches, the FILE'th subexpression gives
+;; the file name, and the LINE'th subexpression gives the line number.
+;; The COLUMN'th subexpression gives the column number on that line,
+;; see the documentation of compilation-error-regexp-alist.
+;;
+;; Need to wrap adding the vio2vo error regex in eval-after-load,
+;; because compile is loaded on demand and might not be present when
+;; the user visits the first Coq file.
+
+(eval-after-load 'compile
+  '(progn
+     (push
+      '(coq-vio2vo
+	"File \\(.*\\): proof of [^:]*\\(: chars \\([0-9]*\\)-\\([0-9]*\\)\\)?"
+	1 nil 3)
+      compilation-error-regexp-alist-alist)
+     (push 'coq-vio2vo compilation-error-regexp-alist)))
 
 
 ;;; save some buffers
