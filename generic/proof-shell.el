@@ -21,11 +21,20 @@
   (require 'span)
   (require 'proof-utils))
 
+;; declare a few functions and variables from proof-tree - if we
+;; require proof-tree the compiler complains about a recusive
+;; dependency.
+(declare-function proof-tree-urgent-action "proof-tree" (flags))
+(declare-function proof-tree-handle-delayed-output "proof-tree"
+		  (old-proof-marker cmd flags span))
+(eval-when (compile)
+  ;; without the nil initialization the compiler still warns about this variable
+  (defvar proof-tree-external-display nil))
+
 (require 'scomint)
 (require 'pg-response)
 (require 'pg-goals)
 (require 'pg-user)			; proof-script, new-command-advance
-(require 'proof-tree)
 
 
 ;;

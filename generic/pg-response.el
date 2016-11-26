@@ -22,6 +22,7 @@
   (defvar proof-assistant-menu nil))
 
 (require 'pg-assoc)
+(require 'span)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
