@@ -77,17 +77,17 @@ break."
          (nconc (coq-include-options coq-load-path (file-name-directory lib-src-file) (coq--pre-v85))
 		(list lib-src-file)))
         coqdep-status coqdep-output)
-    (if coq--debug-auto-compilation
-        (message "call coqdep arg list: %S" coqdep-arguments))
+    (when coq--debug-auto-compilation
+      (message "call coqdep arg list: %S" coqdep-arguments))
     (with-temp-buffer
       (setq coqdep-status
             (apply 'call-process
                    coq-dependency-analyzer nil (current-buffer) nil
                    coqdep-arguments))
       (setq coqdep-output (buffer-string)))
-    (if coq--debug-auto-compilation
-        (message "coqdep status %s, output on %s: %s"
-                 coqdep-status lib-src-file coqdep-output))
+    (when coq--debug-auto-compilation
+      (message "coqdep status %s, output on %s: %s"
+	       coqdep-status lib-src-file coqdep-output))
     (if (or
          (not (eq coqdep-status 0))
          (string-match coq-coqdep-error-regexp coqdep-output))
@@ -118,16 +118,16 @@ Display errors in buffer `coq--compile-response-buffer'."
         coqc-status)
     (coq-init-compile-response-buffer
      (mapconcat 'identity (cons coq-compiler coqc-arguments) " "))
-    (if coq--debug-auto-compilation
-        (message "call coqc arg list: %s" coqc-arguments))
+    (when coq--debug-auto-compilation
+      (message "call coqc arg list: %s" coqc-arguments))
     (setq coqc-status
           (apply 'call-process
                  coq-compiler nil coq--compile-response-buffer t coqc-arguments))
-    (if coq--debug-auto-compilation
-        (message "compilation %s exited with %s, output |%s|"
-                 src-file coqc-status
-                 (with-current-buffer coq--compile-response-buffer
-                   (buffer-string))))
+    (when coq--debug-auto-compilation
+      (message "compilation %s exited with %s, output |%s|"
+	       src-file coqc-status
+	       (with-current-buffer coq--compile-response-buffer
+		 (buffer-string))))
     (unless (eq coqc-status 0)
       (coq-display-compile-response-buffer)
       (let ((terminated-text (if (numberp coqc-status)
@@ -178,8 +178,8 @@ OBJ have identical modification times."
           (progn
             (coq-seq-compile-library src)
             'just-compiled)
-        (if coq--debug-auto-compilation
-            (message "Skip compilation of %s" src))
+        (when coq--debug-auto-compilation
+	  (message "Skip compilation of %s" src))
         obj-time))))
 
 (defun coq-seq-make-lib-up-to-date (coq-obj-hash span lib-obj-file)
@@ -202,8 +202,8 @@ function."
   (let ((result (gethash lib-obj-file coq-obj-hash)))
     (if result
         (progn
-          (if coq--debug-auto-compilation
-              (message "Checked %s already" lib-obj-file))
+          (when coq--debug-auto-compilation
+	    (message "Checked %s already" lib-obj-file))
           result)
       ;; lib-obj-file has not been checked -- do it now
       (message "Check %s" lib-obj-file)

@@ -405,16 +405,16 @@ queue.")
 (defun coq-par-job-enqueue (job)
   "Insert job in the queue of waiting compilation jobs."
   (coq-par-enqueue coq-par-compilation-queue job)
-  (if coq--debug-auto-compilation
-      (message "%s: enqueue job in waiting queue" (get job 'name))))
+  (when coq--debug-auto-compilation
+    (message "%s: enqueue job in waiting queue" (get job 'name))))
 
 (defun coq-par-job-dequeue ()
   "Dequeue the next job from the compilation queue."
   (let ((res (coq-par-dequeue coq-par-compilation-queue)))
-    (if coq--debug-auto-compilation
-	(if res
-	    (message "%s: dequeue" (get res 'name))
-	  (message "compilation queue empty")))
+    (when coq--debug-auto-compilation
+      (if res
+	  (message "%s: dequeue" (get res 'name))
+	(message "compilation queue empty")))
     res))
 
 
@@ -428,16 +428,16 @@ access the queue.")
 (defun coq-par-vio2vo-enqueue (job)
   "Insert JOB in the queue for vio2vo processing."
   (coq-par-enqueue coq-par-vio2vo-queue job)
-  (if coq--debug-auto-compilation
-      (message "%s: enqueue job in vio2vo queue" (get job 'name))))
+  (when coq--debug-auto-compilation
+    (message "%s: enqueue job in vio2vo queue" (get job 'name))))
 
 (defun coq-par-vio2vo-dequeue ()
   "Dequeue the next job from the vio2vo queue."
   (let ((res (coq-par-dequeue coq-par-vio2vo-queue)))
-    (if coq--debug-auto-compilation
-	(if res
-	    (message "%s: vio2vo dequeue" (get res 'name))
-	  (message "vio2vo queue empty")))
+    (when coq--debug-auto-compilation
+      (if res
+	  (message "%s: vio2vo dequeue" (get res 'name))
+	(message "vio2vo queue empty")))
     res))
 
 
@@ -570,8 +570,8 @@ this buffer visible and returns a string.
 This function does always return .vo dependencies, regardless of the
 value of `coq-compile-quick'. If necessary, the conversion into .vio
 files must be done elsewhere."
-  (if coq--debug-auto-compilation
-      (message "analyse coqdep output \"%s\"" output))
+  (when coq--debug-auto-compilation
+    (message "analyse coqdep output \"%s\"" output))
   (if (or
        (not (eq status 0))
        (string-match coq-coqdep-error-regexp output))
@@ -625,10 +625,10 @@ depending on `coq-compile-quick', must be done elsewhere."
 			   (cons command-intro this-command)
 			 this-command))
 	 coqdep-status coqdep-output)
-    (if coq--debug-auto-compilation
-	(message "Run synchronously: %s"
-		 (mapconcat 'identity full-command " ")))
-    ;; (if coq--debug-auto-compilation
+    (when coq--debug-auto-compilation
+      (message "Run synchronously: %s"
+	       (mapconcat 'identity full-command " ")))
+    ;; (when coq--debug-auto-compilation
     ;;     (message "CPGLD: call coqdep arg list: %s" coqdep-arguments))
     (with-temp-buffer
       (setq coqdep-status
@@ -636,7 +636,7 @@ depending on `coq-compile-quick', must be done elsewhere."
                    coq-dependency-analyzer nil (current-buffer) nil
                    coqdep-arguments))
       (setq coqdep-output (buffer-string)))
-    ;; (if coq--debug-auto-compilation
+    ;; (when coq--debug-auto-compilation
     ;;     (message "CPGLD: coqdep status %s, output on %s: %s"
     ;;              coqdep-status lib-src-file coqdep-output))
     (coq-par-analyse-coq-dep-exit coqdep-status coqdep-output full-command)))
@@ -676,7 +676,7 @@ function returns () if MODULE-ID comes from the standard library."
 		 coq-load-path
                  (concat "echo \"" coq-string "\" > " temp-require-file ";"))))
       (delete-file temp-require-file))
-    (if coq--debug-auto-compilation
+    (when coq--debug-auto-compilation
 	(message "coq-par-get-library-dependencies delivered \"%s\"" result))
     (if (stringp result)
         ;; Error handling: coq-par-get-library-dependencies was not able to
@@ -781,11 +781,11 @@ file to be deleted when the process is killed."
 	(process-name (format "pro-%s" coq--par-next-id))
 	process)
     (with-current-buffer (or proof-script-buffer (current-buffer))
-      (if coq--debug-auto-compilation
-	  (message "%s %s: start %s %s in %s"
-		   (get job 'name) process-name
-		   command (mapconcat 'identity arguments " ")
-		   default-directory))
+      (when coq--debug-auto-compilation
+	(message "%s %s: start %s %s in %s"
+		 (get job 'name) process-name
+		 command (mapconcat 'identity arguments " ")
+		 default-directory))
       (condition-case err
 	  ;; If the command is wrong, start-process aborts with an
 	  ;; error. However, in Emacs 23.4.1. it will leave a process
@@ -817,14 +817,14 @@ errors are reported with an error message."
   (condition-case err
       (if (process-get process 'coq-par-process-killed)
 	  (progn
-	    (if coq--debug-auto-compilation
-		(message "%s %s: skip sentinel, process killed, %s"
-			 (get (process-get process 'coq-compilation-job) 'name)
-			 (process-name process)
-			 (if (process-get process 'coq-process-rm)
-			     (format "rm %s"
-				     (process-get process 'coq-process-rm))
-			   "no file removal")))
+	    (when coq--debug-auto-compilation
+	      (message "%s %s: skip sentinel, process killed, %s"
+		       (get (process-get process 'coq-compilation-job) 'name)
+		       (process-name process)
+		       (if (process-get process 'coq-process-rm)
+			   (format "rm %s"
+				   (process-get process 'coq-process-rm))
+			 "no file removal")))
 	    (if (process-get process 'coq-process-rm)
 		(ignore-errors
 		  (delete-file (process-get process 'coq-process-rm))))
@@ -836,11 +836,11 @@ errors are reported with an error message."
 	      (coq-par-vio2vo-enqueue
 	       (process-get process 'coq-compilation-job))))
 	(let (exit-status)
-	  (if coq--debug-auto-compilation
-	      (message "%s %s: process status changed to %s"
-		       (get (process-get process 'coq-compilation-job) 'name)
-		       (process-name process)
-		       event))
+	  (when coq--debug-auto-compilation
+	    (message "%s %s: process status changed to %s"
+		     (get (process-get process 'coq-compilation-job) 'name)
+		     (process-name process)
+		     event))
 	  (cond
 	   ((eq (process-status process) 'exit)
 	    (setq exit-status (process-exit-status process)))
@@ -922,9 +922,9 @@ require command to start vio2vo compilation after
   (put dependant 'coqc-dependency-count
        (1+ (get dependant 'coqc-dependency-count)))
   (push dependant (get dependee 'coqc-dependants))
-  (if coq--debug-auto-compilation
-      (message "%s -> %s: add coqc dependency"
-	       (get dependee 'name) (get dependant 'name))))
+  (when coq--debug-auto-compilation
+    (message "%s -> %s: add coqc dependency"
+	     (get dependee 'name) (get dependant 'name))))
 
 (defun coq-par-add-queue-dependency (dependee dependant)
   "Add queue dependency from child job DEPENDEE to parent job DEPENDANT."
@@ -933,9 +933,9 @@ require command to start vio2vo compilation after
 	  nil "queue dependency cannot be added")
   (put dependant 'queue-dependant-waiting t)
   (put dependee 'queue-dependant dependant)
-  (if coq--debug-auto-compilation
-      (message "%s -> %s: add queue dependency"
-	       (get dependee 'name) (get dependant 'name))))
+  (when coq--debug-auto-compilation
+    (message "%s -> %s: add queue dependency"
+	     (get dependee 'name) (get dependant 'name))))
 
 (defun coq-par-job-needs-compilation (job)
   "Determine whether job needs to get compiled and do some side effects.
@@ -1122,15 +1122,15 @@ case, the following actions are taken:
   and `proof-second-action-list-active' are cleared."
   (if (or (not (eq (get job 'state) 'waiting-queue))
 	  (get job 'queue-dependant-waiting))
-      (if coq--debug-auto-compilation
-	  (if (not (eq (get job 'state) 'waiting-queue))
-	      (message "%s: no queue kickoff because in state %s"
-		       (get job 'name) (get job 'state))
-	    (message
-	     "%s: no queue kickoff because waiting for queue dependency"
-	     (get job 'name))))
-    (if coq--debug-auto-compilation
-	(message "%s: has itself no queue dependency" (get job 'name)))
+      (when coq--debug-auto-compilation
+	(if (not (eq (get job 'state) 'waiting-queue))
+	    (message "%s: no queue kickoff because in state %s"
+		     (get job 'name) (get job 'state))
+	  (message
+	   "%s: no queue kickoff because waiting for queue dependency"
+	   (get job 'name))))
+    (when coq--debug-auto-compilation
+      (message "%s: has itself no queue dependency" (get job 'name)))
     (when (and (get job 'require-span) coq-lock-ancestors)
       (let ((span (get job 'require-span)))
 	(dolist (f (get job 'ancestor-files))
@@ -1157,36 +1157,36 @@ case, the following actions are taken:
 		  (list nil nil 'coq-par-require-processed)
 		  (cdr items)))))
 	(proof-add-to-queue items 'advancing)
-	(if coq--debug-auto-compilation
-	    (message "%s: add %s items to action list"
-		     (get job 'name) (length items)))
+	(when coq--debug-auto-compilation
+	  (message "%s: add %s items to action list"
+		   (get job 'name) (length items)))
 	(put job 'queueitems nil)))
     (put job 'state 'ready)
-    (if coq--debug-auto-compilation
-	(message "%s: ready" (get job 'name)))
+    (when coq--debug-auto-compilation
+      (message "%s: ready" (get job 'name)))
     (let ((dependant (get job 'queue-dependant)))
       (if dependant
 	  (progn
 	    (assert (not (eq coq--last-compilation-job job))
 		    nil "coq--last-compilation-job invariant error")
 	    (put dependant 'queue-dependant-waiting nil)
-	    (if coq--debug-auto-compilation
-		(message
-		 "%s -> %s: clear queue dependency, kickoff queue at %s"
-		 (get job 'name) (get dependant 'name) (get dependant 'name)))
+	    (when coq--debug-auto-compilation
+	      (message
+	       "%s -> %s: clear queue dependency, kickoff queue at %s"
+	       (get job 'name) (get dependant 'name) (get dependant 'name)))
 	    (coq-par-kickoff-queue-maybe dependant)
-	    (if coq--debug-auto-compilation
-		(message "%s: queue kickoff finished"
-			 (get job 'name))))
+	    (when coq--debug-auto-compilation
+	      (message "%s: queue kickoff finished"
+		       (get job 'name))))
 	(when (eq coq--last-compilation-job job)
 	  (setq coq--last-compilation-job nil)
 	  (setq proof-second-action-list-active nil)
-	  (if coq--debug-auto-compilation
-	      (message "clear last compilation job"))
+	  (when coq--debug-auto-compilation
+	    (message "clear last compilation job"))
 	  (message "Library compilation finished"))
-	(if coq--debug-auto-compilation
-	    (message "%s: no queue dependant, queue kickoff finished"
-		     (get job 'name)))))))
+	(when coq--debug-auto-compilation
+	  (message "%s: no queue dependant, queue kickoff finished"
+		   (get job 'name)))))))
 
 (defun coq-par-compile-job-maybe (job)
   "Choose next action for JOB after dependencies are ready.
@@ -1204,8 +1204,8 @@ possible, also 'waiting-queue -> 'ready."
   ;; It also puts job into the vio2vo queue, if necessary.
   (if (coq-par-job-needs-compilation job)
       (coq-par-start-or-enqueue job)
-    (if coq--debug-auto-compilation
-	(message "%s: up-to-date, no compilation" (get job 'name)))
+    (when coq--debug-auto-compilation
+      (message "%s: up-to-date, no compilation" (get job 'name)))
     (when (get job 'vio2vo-needed)
       (coq-par-vio2vo-enqueue job))
     (coq-par-kickoff-coqc-dependants job (get job 'youngest-coqc-dependency))))
@@ -1235,9 +1235,9 @@ For 'file jobs this is 'waiting-dep -> 'enqueued-coqc and for
        (1- (get dependant 'coqc-dependency-count)))
   (assert (<= 0 (get dependant 'coqc-dependency-count))
 	  nil "dependency count below zero")
-  (if coq--debug-auto-compilation
-      (message "%s: coqc dependency count down to %d"
-	       (get dependant 'name) (get dependant 'coqc-dependency-count)))
+  (when coq--debug-auto-compilation
+    (message "%s: coqc dependency count down to %d"
+	     (get dependant 'name) (get dependant 'coqc-dependency-count)))
   (when (coq-par-dependencies-ready dependant)
     (cond
      ((eq (get dependant 'type) 'file)
@@ -1279,20 +1279,20 @@ This function makes the following actions.
     (unless (or (eq dep-time 'just-compiled) (eq (get job 'type) 'clone))
       (setq dep-time (get job 'obj-mod-time)))
     (put job 'youngest-coqc-dependency dep-time)
-    (if coq--debug-auto-compilation
-	(message "%s: kickoff %d coqc dependencies with time %s"
-		 (get job 'name) (length (get job 'coqc-dependants))
-		 (if (eq dep-time 'just-compiled)
-		     'just-compiled
-		   (current-time-string dep-time))))
+    (when coq--debug-auto-compilation
+      (message "%s: kickoff %d coqc dependencies with time %s"
+	       (get job 'name) (length (get job 'coqc-dependants))
+	       (if (eq dep-time 'just-compiled)
+		   'just-compiled
+		 (current-time-string dep-time))))
     (put job 'state 'waiting-queue)
     (mapc
      (lambda (dependant)
        (coq-par-decrease-coqc-dependency dependant dep-time ancestor-files))
      (get job 'coqc-dependants))
-    (if coq--debug-auto-compilation
-	(message "%s: coqc kickoff finished, maybe kickoff queue"
-		 (get job 'name)))
+    (when coq--debug-auto-compilation
+      (message "%s: coqc kickoff finished, maybe kickoff queue"
+	       (get job 'name)))
     (coq-par-kickoff-queue-maybe job)))
 
 (defun coq-par-start-coqdep (job)
@@ -1419,9 +1419,9 @@ This function returns the newly created job."
 	;; there is already a compilation job for module-vo-file
 	(progn
 	  (put new-job 'type 'clone)
-	  (if coq--debug-auto-compilation
-	      (message "%s: create %s compilation job for %s"
-		       (get new-job 'name) (get new-job 'type) module-vo-file))
+	  (when coq--debug-auto-compilation
+	    (message "%s: create %s compilation job for %s"
+		     (get new-job 'name) (get new-job 'type) module-vo-file))
 	  (when queue-dep
 	    (coq-par-add-queue-dependency queue-dep new-job))
 	  (if (coq-par-job-coqc-finished orig-job)
@@ -1447,9 +1447,9 @@ This function returns the newly created job."
       (put new-job 'load-path coq-load-path)
       (put new-job 'youngest-coqc-dependency '(0 0))
       (puthash module-vo-file new-job coq--compilation-object-hash)
-      (if coq--debug-auto-compilation
-	  (message "%s: create %s compilation for %s"
-		   (get new-job 'name) (get new-job 'type) module-vo-file))
+      (when coq--debug-auto-compilation
+	(message "%s: create %s compilation for %s"
+		 (get new-job 'name) (get new-job 'type) module-vo-file))
       (when queue-dep
 	(coq-par-add-queue-dependency queue-dep new-job))
       (coq-par-start-or-enqueue new-job))
@@ -1485,9 +1485,9 @@ is directly passed to `coq-par-analyse-coq-dep-exit'."
 	(signal 'coq-compile-error-coqdep (get job 'src-file))
 
       ;; no coqdep error -- work on dependencies
-      (if coq--debug-auto-compilation
-	  (message "%s: dependencies of %s are %s"
-		   (get job 'name) (get job 'src-file) dependencies-or-error))
+      (when coq--debug-auto-compilation
+	(message "%s: dependencies of %s are %s"
+		 (get job 'name) (get job 'src-file) dependencies-or-error))
       (put job 'state 'waiting-dep)
       (setq job-max-time (get job 'youngest-coqc-dependency))
       (mapc
@@ -1506,12 +1506,12 @@ is directly passed to `coq-par-analyse-coq-dep-exit'."
       (put job 'youngest-coqc-dependency job-max-time)
       (if (coq-par-dependencies-ready job)
 	  (progn
-	    (if coq--debug-auto-compilation
-		(message "%s: coqc dependencies finished" (get job 'name)))
+	    (when coq--debug-auto-compilation
+	      (message "%s: coqc dependencies finished" (get job 'name)))
 	    (coq-par-compile-job-maybe job))
-	(if coq--debug-auto-compilation
-	    (message "%s: wait for %d dependencies"
-		     (get job 'name) (get job 'coqc-dependency-count)))))))
+	(when coq--debug-auto-compilation
+	  (message "%s: wait for %d dependencies"
+		   (get job 'name) (get job 'coqc-dependency-count)))))))
 
 (defun coq-par-coqc-continuation (process exit-status)
   "Coqc continuation function.
@@ -1565,19 +1565,18 @@ in `coq--last-compilation-job'.
 This function must be evaluated with the buffer that triggered
 the compilation as current, otherwise a wrong `coq-load-path'
 might be used."
-  (if coq--debug-auto-compilation
-      (if from
-	  (message "handle required module \"%s\" from \"%s\"" module-id from)
-	(message "handle required module \"%s\" without from clause"
-		 module-id)))
+  (when coq--debug-auto-compilation
+    (if from
+	(message "handle required module \"%s\" from \"%s\"" module-id from)
+      (message "handle required module \"%s\" without from clause" module-id)))
   (let ((module-vo-file
 	 (coq-par-map-module-id-to-vo-file module-id coq-load-path from))
 	module-job)
-    (if coq--debug-auto-compilation
-	(if module-vo-file
-	    (message "check compilation for module %s from object file %s"
-		     module-id module-vo-file)
-	  (message "nothing to check for module %s" module-id)))
+    (when coq--debug-auto-compilation
+      (if module-vo-file
+	  (message "check compilation for module %s from object file %s"
+		   module-id module-vo-file)
+	(message "nothing to check for module %s" module-id)))
     ;; coq-par-map-module-id-to-vo-file currently returns () for
     ;; standard library modules!
     (when (and module-vo-file
@@ -1587,9 +1586,9 @@ might be used."
 					coq--last-compilation-job span
 					"scripting buffer"))
       (setq coq--last-compilation-job module-job)
-      (if coq--debug-auto-compilation
-	  (message "%s: this job is the last compilation job now"
-		   (get coq--last-compilation-job 'name))))))
+      (when coq--debug-auto-compilation
+	(message "%s: this job is the last compilation job now"
+		 (get coq--last-compilation-job 'name))))))
 
 (defun coq-par-handle-require-list (require-items)
   "Start compilation for the required modules in the car of REQUIRE-ITEMS.
@@ -1610,8 +1609,8 @@ there is no last compilation job."
 	 (string (mapconcat 'identity (nth 1 item) " "))
 	 (span (car item))
          prefix start)
-    (if coq--debug-auto-compilation
-	(message "handle require command \"%s\"" string))
+    (when coq--debug-auto-compilation
+      (message "handle require command \"%s\"" string))
     ;; We know there is a require in string. But we have to match it
     ;; again in order to get the end position.
     (string-match coq-require-command-regexp string)
@@ -1633,18 +1632,18 @@ there is no last compilation job."
 	  (put coq--last-compilation-job 'queueitems
 	       (nconc (get coq--last-compilation-job 'queueitems)
 		      require-items))
-	  (if coq--debug-auto-compilation
-	      (message "%s: attach %s items (containing now %s items)"
-		       (get coq--last-compilation-job 'name)
-		       (length require-items)
-		       (length (get coq--last-compilation-job 'queueitems)))))
+	  (when coq--debug-auto-compilation
+	    (message "%s: attach %s items (containing now %s items)"
+		     (get coq--last-compilation-job 'name)
+		     (length require-items)
+		     (length (get coq--last-compilation-job 'queueitems)))))
       ;; or add them directly to queueitems if there is no compilation job
       ;; (this happens if the modules are ignored for compilation)
       (setq queueitems (nconc queueitems require-items))
-      (if coq--debug-auto-compilation
-	  (message "attach %s items to queueitems (containing now %s items)"
-		   (length require-items)
-		   (length queueitems))))))
+      (when coq--debug-auto-compilation
+	(message "attach %s items to queueitems (containing now %s items)"
+		 (length require-items)
+		 (length queueitems))))))
 
 
 (defun coq-par-item-require-predicate (item)
@@ -1704,9 +1703,9 @@ the maximal number of background compilation jobs is started."
 		   (length (car splitted-items))
 		   (get coq--last-compilation-job 'name)))
       (setq queueitems (car splitted-items))
-      (if coq--debug-auto-compilation
-	  (message "attach first %s items directly to queue"
-		   (length (car splitted-items)))))
+      (when coq--debug-auto-compilation
+	(message "attach first %s items directly to queue"
+		 (length (car splitted-items)))))
     ;; XXX handle external compilation here, compile everything
     ;; with one command, use compilation-finish-functions to get
     ;; notification
@@ -1727,10 +1726,10 @@ the maximal number of background compilation jobs is started."
     (when coq--last-compilation-job
       (setq proof-second-action-list-active t))
     (coq-par-start-jobs-until-full)
-    (if coq--debug-auto-compilation
-	(if coq--last-compilation-job
-	    (message "return control, waiting for background jobs")
-	  (message "return control, no background jobs")))))
+    (when coq--debug-auto-compilation
+      (if coq--last-compilation-job
+	  (message "return control, waiting for background jobs")
+	(message "return control, no background jobs")))))
 
 (defun coq-par-preprocess-require-commands ()
   "Coq function for `proof-shell-extend-queue-hook' doing parallel compilation.

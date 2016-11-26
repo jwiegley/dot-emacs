@@ -508,15 +508,15 @@ compiled with ``-quick'' or not."
     (eq (compare-strings coq-library-directory 0 nil
                          lib-obj-file 0 (length coq-library-directory))
         t)
-    (if coq--debug-auto-compilation
-        (message "Ignore lib file %s" lib-obj-file))
+    (when coq--debug-auto-compilation
+      (message "Ignore lib file %s" lib-obj-file))
     t)
    (if (some
           (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
           coq-compile-ignored-directories)
        (progn
-         (if coq--debug-auto-compilation
-             (message "Ignore %s" lib-obj-file))
+         (when coq--debug-auto-compilation
+	   (message "Ignore %s" lib-obj-file))
          t)
      nil)))
 
