@@ -21,7 +21,7 @@
 
 (require 'coq-par-compile)
 
-(defconst coq-par-job-needs-compilation-tests
+(defconst coq--par-job-needs-compilation-tests
   ;; for documentation see the doc string following the init value
   '(
     ;; present files   | compilation? | delete | 'req-obj-file
@@ -769,7 +769,7 @@ relative ages.")
 			  (not (eq (car (last (car test))) 'vo)))
 		      nil (concat test-id " 5")))))
 	  (cdr test))))
-   coq-par-job-needs-compilation-tests))
+   coq--par-job-needs-compilation-tests))
 
 (defun test-coq-par-sym-to-file (dir sym)
   "Convert a test file symbol SYM to a file name in directory DIR."
@@ -785,7 +785,7 @@ relative ages.")
   "Do one test for one specific `coq-compile-quick' value.
 
 This function creates the files in DIR, sets up a job with the
-necessary fields, calls `coq-par-job-needs-compilation-tests' and
+necessary fields, calls `coq--par-job-needs-compilation-tests' and
 test the result and side effects wth `assert'."
   (let ((id (format "%s: %s %s%s" counter (car variant) file-descr
 		    (if dep-just-compiled " just" "")))
@@ -937,7 +937,7 @@ test the result and side effects wth `assert'."
 	(when (eq (car (last (car test))) 'dep)
 	  (test-coq-par-one-spec dir (car test) variant t)))
       (cdr test)))
-   coq-par-job-needs-compilation-tests))
+   coq--par-job-needs-compilation-tests))
 
 (condition-case err
     (progn

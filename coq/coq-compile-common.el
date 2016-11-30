@@ -454,11 +454,10 @@ modules are matched separately with `coq-require-id-regexp'")
 (defvar coq-compile-history nil
   "History of external Coq compilation commands.")
 
-(defvar coq-compile-response-buffer "*coq-compile-response*"
+(defvar coq--compile-response-buffer "*coq-compile-response*"
   "Name of the buffer to display error messages from coqc and coqdep.")
 
-
-(defvar coq-debug-auto-compilation nil
+(defvar coq--debug-auto-compilation nil
   "*Display more messages during compilation")
 
 
@@ -509,14 +508,14 @@ compiled with ``-quick'' or not."
     (eq (compare-strings coq-library-directory 0 nil
                          lib-obj-file 0 (length coq-library-directory))
         t)
-    (if coq-debug-auto-compilation
+    (if coq--debug-auto-compilation
         (message "Ignore lib file %s" lib-obj-file))
     t)
    (if (some
           (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
           coq-compile-ignored-directories)
        (progn
-         (if coq-debug-auto-compilation
+         (if coq--debug-auto-compilation
              (message "Ignore %s" lib-obj-file))
          t)
      nil)))
@@ -556,34 +555,34 @@ Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
   (span-set-property span 'coq-locked-ancestors ()))
 
 
-;;; manage coq-compile-response-buffer
+;;; manage coq--compile-response-buffer
 
 (defun coq-compile-display-error (command error-message display)
-  "Display COMMAND and ERROR-MESSAGE in `coq-compile-response-buffer'.
-If needed, reinitialize `coq-compile-response-buffer'. Then
+  "Display COMMAND and ERROR-MESSAGE in `coq--compile-response-buffer'.
+If needed, reinitialize `coq--compile-response-buffer'. Then
 display COMMAND and ERROR-MESSAGE."
-  (unless (buffer-live-p coq-compile-response-buffer)
+  (unless (buffer-live-p coq--compile-response-buffer)
     (coq-init-compile-response-buffer))
   (let ((inhibit-read-only t))
-    (with-current-buffer coq-compile-response-buffer
+    (with-current-buffer coq--compile-response-buffer
       (insert command "\n" error-message)))
   (when display
     (coq-display-compile-response-buffer)))
 
 (defun coq-init-compile-response-buffer (&optional command)
   "Initialize the buffer for the compilation output.
-If `coq-compile-response-buffer' exists, empty it. Otherwise
-create a buffer with name `coq-compile-response-buffer', put
+If `coq--compile-response-buffer' exists, empty it. Otherwise
+create a buffer with name `coq--compile-response-buffer', put
 it into `compilation-mode' and store it in
-`coq-compile-response-buffer' for later use. Argument COMMAND is
+`coq--compile-response-buffer' for later use. Argument COMMAND is
 the command whose output will appear in the buffer."
-  (let ((buffer-object (get-buffer coq-compile-response-buffer)))
+  (let ((buffer-object (get-buffer coq--compile-response-buffer)))
     (if buffer-object
         (let ((inhibit-read-only t))
           (with-current-buffer buffer-object
             (erase-buffer)))
       (setq buffer-object
-            (get-buffer-create coq-compile-response-buffer))
+            (get-buffer-create coq--compile-response-buffer))
       (with-current-buffer buffer-object
         (compilation-mode)
 	;; read-only-mode makes compilation fail if some messages need
@@ -601,18 +600,18 @@ the command whose output will appear in the buffer."
 	  (insert command "\n"))))))
 
 (defun coq-display-compile-response-buffer ()
-  "Display the errors in `coq-compile-response-buffer'."
-  (with-current-buffer coq-compile-response-buffer
+  "Display the errors in `coq--compile-response-buffer'."
+  (with-current-buffer coq--compile-response-buffer
     ;; fontification enables the error messages
     (let ((font-lock-verbose nil)) ; shut up font-lock messages
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
-  (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
-  (proof-display-and-keep-buffer coq-compile-response-buffer 1 t)
+  (setq next-error-last-buffer (get-buffer coq--compile-response-buffer))
+  (proof-display-and-keep-buffer coq--compile-response-buffer 1 t)
   ;; Partial fix for #54: ensure that the compilation response
   ;; buffer is not in a dedicated window.
   (mapc (lambda (w) (set-window-dedicated-p w nil))
-      (get-buffer-window-list coq-compile-response-buffer nil t)))
+      (get-buffer-window-list coq--compile-response-buffer nil t)))
 
 
 ;;; enable next-error to find vio2vo errors
