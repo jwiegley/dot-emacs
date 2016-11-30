@@ -393,8 +393,9 @@ project file (see `coq-project-filename') somewhere in the
 current directory or its parent directories.  If there is one,
 its contents are read and used to determine the arguments that
 must be given to coqtop.  In particular it sets the load
-path (including the -R lib options) (see `coq-load-path') ."
+path (including the -R lib options) (see `coq-load-path')."
   :type 'boolean
+  :safe 'booleanp
   :group 'coq)
 
 (defcustom coq-project-filename "_CoqProject"
@@ -411,6 +412,7 @@ variables may still be used to override the coq project file's
 configuration. .dir-locals.el files also work and override
 project file settings."
   :type 'string
+  :safe 'stringp
   :group 'coq)
 
 (defun coq-find-project-file ()

@@ -18,6 +18,7 @@
 
 (eval-when (compile)
   ;;(defvar coq-pre-v85 nil)
+  (require 'compile)
   (defvar coq-confirm-external-compilation nil); defpacustom
   (defvar coq-compile-parallel-in-background nil) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
@@ -92,11 +93,38 @@ Must be used together with `coq-par-enable'."
 	ncpus
       nil)))
 
-(defvar coq-internal-max-jobs 1
+(defvar coq--max-background-vio2vo-percentage-shadow 40
+  "Internal shadow value of `coq-max-background-vio2vo-percentage'.
+This variable does always contain the same value as
+`coq-max-background-vio2vo-percentage'. It is used only to break
+the dependency cycle between `coq-set-max-vio2vo-jobs' and
+`coq-max-background-vio2vo-percentage'.")
+
+(defvar coq--internal-max-vio2vo-jobs 1
+  "Internal number of vio2vo jobs.
+This is the internal value, use
+`coq-max-background-vio2vo-percentage' to configure.")
+
+(defvar coq--internal-max-jobs 1
   "Value of `coq-max-background-compilation-jobs' translated to a number.")
 
+(defun coq-set-max-vio2vo-jobs ()
+  "Set `coq--internal-max-vio2vo-jobs'."
+  (setq coq--internal-max-vio2vo-jobs
+	(max 1
+	     (round (* coq--internal-max-jobs
+		       coq--max-background-vio2vo-percentage-shadow
+		       0.01)))))
+
+(defun coq-max-vio2vo-setter (symbol new-value)
+  ":set function for `coq-max-background-vio2vo-percentage'.
+SYMBOL should be 'coq-max-background-vio2vo-percentage"
+  (set symbol new-value)
+  (setq coq--max-background-vio2vo-percentage-shadow new-value)
+  (coq-set-max-vio2vo-jobs))
+
 (defun coq-max-jobs-setter (symbol new-value)
-  ":set function for `coq-max-background-compilation-jobs.
+  ":set function for `coq-max-background-compilation-jobs'.
 SYMBOL should be 'coq-max-background-compilation-jobs"
   (set symbol new-value)
   (cond
@@ -106,7 +134,20 @@ SYMBOL should be 'coq-max-background-compilation-jobs"
       (setq new-value 1)))
    ((and (integerp new-value) (> new-value 0)) t)
    (t (setq new-value 1)))
-  (setq coq-internal-max-jobs new-value))
+  (setq coq--internal-max-jobs new-value)
+  (coq-set-max-vio2vo-jobs))
+
+(defun coq-compile-quick-setter (symbol new-value)
+  ":set function for `coq-compile-quick' for pre 8.5 compatibility.
+Ignore any quick setting for Coq versions before 8.5."
+  (cond
+   ((or (eq new-value 'ensure-vo) (eq new-value 'no-quick))
+    t)
+   ((coq--pre-v85)
+    (message "Ignore coq-compile-quick setting %s for Coq before 8.5"
+	     new-value)
+    (setq new-value 'no-quick)))
+  (set symbol new-value))
 
 
 ;;; user options and variables
@@ -123,7 +164,7 @@ required library module and its dependencies are up-to-date. If not, they
 are compiled from the sources before the \"Require\" command is processed.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Compile Before Require'."
+`Coq -> Auto Compilation -> Compile Before Require'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
@@ -140,7 +181,7 @@ the background. The maximal number of parallel compilation jobs
 is set with `coq-max-background-compilation-jobs'.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Compile Parallel In Background'."
+`Coq -> Auto Compilation -> Compile Parallel In Background'."
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile
@@ -149,18 +190,107 @@ This option can be set/reset via menu
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-switch-compilation-method)
 
+(defcustom coq-compile-quick 'no-quick
+  "Control quick compilation, vio2vo and vio/vo files auto compilation.
+This option controls whether ``-quick'' is used for parallel
+background compilation and whether up-date .vo or .vio files are
+used or deleted. Please use the customization system to change
+this option to ensure that any ``-quick'' setting is ignored for
+Coq before 8.5.
+
+Note that ``-quick'' can be noticebly slower when your sources do
+not declare section variables with ``Proof using''. Note that
+even if you do declare section variables, ``-quick'' is typically
+slower on small files.
+
+Use the default `no-quick', if you have not yet switched to
+``Proof using''. Use `quick-no-vio2vo', if you want quick
+recompilation without producing .vo files. Value
+`quick-and-vio2vo' updates missing prerequisites with ``-quick''
+and starts vio2vo conversion on a subset of the availables
+cores (see `coq-compile-vio2vo-percentage') when the quick
+recompilation finished (but see below for a .vio .vo
+incompatibility caveat). Note that all the previously described
+modes might load .vio files and that you therefore might not
+notice certain universe inconsistencies. Finally, use `ensure-vo'
+for only importing .vo files with complete universe checks.
+
+Detailed description of the 4 modes:
+
+no-quick         Compile outdated prerequisites without ``-quick'',
+                 producing .vo files, but don't compile prerequisites
+                 for which an up-to-date .vio file exists. Delete
+                 or overwrite outdated .vo files.
+
+quick-no-vio2vo  Compile outdated prerequisites with ``-quick'',
+                 producing .vio files, but don't compile prerequisites
+                 for which an up-to-date .vo file exists. Delete
+                 or overwrite outdated .vio files.
+
+quick-and-vio2vo Same as `quick-no-vio2vo', but start vio2vo processes
+                 after the last ``Require'' command has been processed
+                 to convert the vio dependencies into vo files. With this
+                 mode you might see asynchronous errors from vio2vo
+                 compilation while you are processing stuff far below the
+                 last require. vio2vo compilation is done on a subset of
+                 the available cores, see `coq-compile-vio2vo-percentage'.
+
+                 Warning: This mode does only work when you process require
+                 commands in batches. Slowly single-stepping through require's
+                 might lead to inconsistency errors when loading some
+                 libraries, see Coq issue #5223.
+
+ensure-vo        Ensure that all library dependencies are present as .vo
+                 files and delete outdated .vio files or .vio files that
+                 are more recent than the corresponding .vo file. This
+                 setting is the only one that ensures soundness."
+  :type
+  '(radio
+    (const :tag "don't use -quick but accept existing vio files" no-quick)
+    (const :tag "use -quick, don't do vio2vo" quick-no-vio2vo)
+    (const :tag "use -quick and do vio2vo" quick-and-vio2vo)
+    (const :tag "ensure vo compilation, delete vio files" ensure-vo))
+  :safe (lambda (v) (member v '(no-quick quick-no-vio2vo
+					 quick-and-vio2vo ensure-vo)))
+  :set 'coq-compile-quick-setter
+  :group 'coq-auto-compile)
+
+(defun coq-compile-prefer-quick ()
+  "Return t if a .vio file would be prefered."
+  (or
+   (eq coq-compile-quick 'quick-no-vio2vo)
+   (eq coq-compile-quick 'quick-and-vio2vo)))
+
 (defcustom coq-max-background-compilation-jobs 'all-cpus
   "Maximal number of parallel jobs, if parallel compilation is enabled.
 Use the number of available CPU cores if this is set to
 'all-cpus. This variable is the user setting. The value that is
-really used is `coq-internal-max-jobs'. Use `coq-max-jobs-setter'
+really used is `coq--internal-max-jobs'. Use `coq-max-jobs-setter'
 or the customization system to change this variable. Otherwise
-your change will have no effect, because `coq-internal-max-jobs'
+your change will have no effect, because `coq--internal-max-jobs'
 is not adapted."
   :type '(choice (const :tag "use all CPU cores" all-cpus)
 		 (integer :tag "fixed number" :value 1))
   :safe (lambda (v) (or (eq v 'all-cpus) (and (integerp v) (> v 0))))
   :set 'coq-max-jobs-setter
+  :group 'coq-auto-compile)
+
+(defcustom coq-max-background-vio2vo-percentage 40
+  "Percentage of `coq-max-background-vio2vo-percentage' for vio2vo jobs.
+This setting configures the maximal number of vio2vo background
+jobs (if you set `coq-compile-quick' to 'quick-and-vio2vo) as
+percentage of `coq-max-background-compilation-jobs'."
+  :type 'number
+  :safe 'numberp
+  :set 'coq-max-vio2vo-setter
+  :group 'coq-auto-compile)
+
+(defcustom coq-compile-vio2vo-delay 2.5
+  "Delay in seconds for the vio2vo compilation.
+This delay helps to avoid running into a library inconsistency
+with 'quick-and-vio2vo, see Coq issue #5223."
+  :type 'number
+  :safe 'numberp
   :group 'coq-auto-compile)
 
 (defcustom coq-compile-command ""
@@ -266,7 +396,10 @@ of the regular expressions in this list then ProofGeneral does
 neither compile this file nor check its dependencies for
 compilation. It makes sense to include non-standard coq library
 directories here if they are not changed and if they are so big
-that dependency checking takes noticeable time."
+that dependency checking takes noticeable time. The regular
+expressions in here are always matched against the .vo file name,
+regardless whether ``-quick'' would be used to compile the file
+or not."
   :type '(repeat regexp)
   :safe (lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
@@ -321,11 +454,10 @@ modules are matched separately with `coq-require-id-regexp'")
 (defvar coq-compile-history nil
   "History of external Coq compilation commands.")
 
-(defvar coq-compile-response-buffer "*coq-compile-response*"
+(defvar coq--compile-response-buffer "*coq-compile-response*"
   "Name of the buffer to display error messages from coqc and coqdep.")
 
-
-(defvar coq-debug-auto-compilation nil
+(defvar coq--debug-auto-compilation nil
   "*Display more messages during compilation")
 
 
@@ -333,11 +465,11 @@ modules are matched separately with `coq-require-id-regexp'")
 
 (defun time-less-or-equal (time-1 time-2)
   "Return `t' if time value time-1 is earlier or equal to time-2.
-A time value is a list of two integers as returned by `file-attributes'.
-The first integer contains the upper 16 bits and the second the lower
-16 bits of the time."
-  (or (time-less-p time-1 time-2)
-      (equal time-1 time-2)))
+A time value is a list of two, three or four integers of the
+form (high low micro pico) as returned by `file-attributes' or
+'current-time'. First element high contains the upper 16 bits and
+the second low the lower 16 bits of the time."
+  (not (time-less-p time-2 time-1)))
 
 (defun coq-max-dep-mod-time (dep-mod-times)
   "Return the maximum in DEP-MOD-TIMES.
@@ -360,44 +492,51 @@ DEP-MOD-TIMES is empty it returns nil."
     max))
 
 
-;;; Compute command line for starting coqtop
-
-
-
-
-
 ;;; ignore library files
 
 (defun coq-compile-ignore-file (lib-obj-file)
   "Check whether ProofGeneral should handle compilation of LIB-OBJ-FILE.
 Return `t' if ProofGeneral should skip LIB-OBJ-FILE and `nil' if
-ProofGeneral should handle the file. For normal users it does, for instance,
-not make sense to let ProofGeneral check if the coq standard library
-is up-to-date."
+ProofGeneral should handle the file. For normal users it does,
+for instance, not make sense to let ProofGeneral check if the coq
+standard library is up-to-date. This function is always invoked
+on the .vo file name, regardless whether the file would be
+compiled with ``-quick'' or not."
   (or
    (and
     coq-compile-ignore-library-directory
     (eq (compare-strings coq-library-directory 0 nil
                          lib-obj-file 0 (length coq-library-directory))
         t)
-    (if coq-debug-auto-compilation
+    (if coq--debug-auto-compilation
         (message "Ignore lib file %s" lib-obj-file))
     t)
    (if (some
           (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
           coq-compile-ignored-directories)
        (progn
-         (if coq-debug-auto-compilation
+         (if coq--debug-auto-compilation
              (message "Ignore %s" lib-obj-file))
          t)
      nil)))
 
-;;; convert .vo files to .v files
+;;; convert .vo files to .v files and module names
 
-(defun coq-library-src-of-obj-file (lib-obj-file)
+(defun coq-module-of-src-file (src-file)
+  "Return the module name for SRC-FILE.
+SRC-FILE must be a .v file."
+  (let ((file (file-name-nondirectory src-file)))
+  (substring file 0 (max 0 (- (length file) 2)))))
+
+(defun coq-library-src-of-vo-file (lib-obj-file)
   "Return source file name for LIB-OBJ-FILE.
 Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (substring lib-obj-file 0 (- (length lib-obj-file) 1)))
+
+(defun coq-library-vio-of-vo-file (vo-obj-file)
+  "Return .vio file name for VO-OBJ-FILE.
+Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
+  (concat (coq-library-src-of-vo-file vo-obj-file) "io"))
 
 
 ;;; ancestor unlocking
@@ -416,22 +555,34 @@ Chops off the last character of LIB-OBJ-FILE to convert \"x.vo\" to \"x.v\"."
   (span-set-property span 'coq-locked-ancestors ()))
 
 
-;;; manage coq-compile-respose-buffer
+;;; manage coq--compile-response-buffer
 
-(defun coq-init-compile-response-buffer (command)
+(defun coq-compile-display-error (command error-message display)
+  "Display COMMAND and ERROR-MESSAGE in `coq--compile-response-buffer'.
+If needed, reinitialize `coq--compile-response-buffer'. Then
+display COMMAND and ERROR-MESSAGE."
+  (unless (buffer-live-p coq--compile-response-buffer)
+    (coq-init-compile-response-buffer))
+  (let ((inhibit-read-only t))
+    (with-current-buffer coq--compile-response-buffer
+      (insert command "\n" error-message)))
+  (when display
+    (coq-display-compile-response-buffer)))
+
+(defun coq-init-compile-response-buffer (&optional command)
   "Initialize the buffer for the compilation output.
-If `coq-compile-response-buffer' exists, empty it. Otherwise
-create a buffer with name `coq-compile-response-buffer', put
+If `coq--compile-response-buffer' exists, empty it. Otherwise
+create a buffer with name `coq--compile-response-buffer', put
 it into `compilation-mode' and store it in
-`coq-compile-response-buffer' for later use. Argument COMMAND is
+`coq--compile-response-buffer' for later use. Argument COMMAND is
 the command whose output will appear in the buffer."
-  (let ((buffer-object (get-buffer coq-compile-response-buffer)))
+  (let ((buffer-object (get-buffer coq--compile-response-buffer)))
     (if buffer-object
         (let ((inhibit-read-only t))
           (with-current-buffer buffer-object
             (erase-buffer)))
       (setq buffer-object
-            (get-buffer-create coq-compile-response-buffer))
+            (get-buffer-create coq--compile-response-buffer))
       (with-current-buffer buffer-object
         (compilation-mode)
 	;; read-only-mode makes compilation fail if some messages need
@@ -444,21 +595,47 @@ the command whose output will appear in the buffer."
     ;; the first line are not found for some reason ...
     (let ((inhibit-read-only t))
       (with-current-buffer buffer-object
-        (insert "-*- mode: compilation; -*-\n\n" command "\n")))))
+        (insert "-*- mode: compilation; -*-\n\n")
+	(when command
+	  (insert command "\n"))))))
 
 (defun coq-display-compile-response-buffer ()
-  "Display the errors in `coq-compile-response-buffer'."
-  (with-current-buffer coq-compile-response-buffer
+  "Display the errors in `coq--compile-response-buffer'."
+  (with-current-buffer coq--compile-response-buffer
     ;; fontification enables the error messages
     (let ((font-lock-verbose nil)) ; shut up font-lock messages
       (font-lock-fontify-buffer)))
   ;; Make it so the next C-x ` will use this buffer.
-  (setq next-error-last-buffer (get-buffer coq-compile-response-buffer))
-  (proof-display-and-keep-buffer coq-compile-response-buffer 1 t)
+  (setq next-error-last-buffer (get-buffer coq--compile-response-buffer))
+  (proof-display-and-keep-buffer coq--compile-response-buffer 1 t)
   ;; Partial fix for #54: ensure that the compilation response
   ;; buffer is not in a dedicated window.
   (mapc (lambda (w) (set-window-dedicated-p w nil))
-      (get-buffer-window-list coq-compile-response-buffer nil t)))
+      (get-buffer-window-list coq--compile-response-buffer nil t)))
+
+
+;;; enable next-error to find vio2vo errors
+;;
+;; compilation-error-regexp-alist-alist is an alist mapping symbols to
+;; what is expected for compilation-error-regexp-alist. This is
+;; element of the form (REGEXP FILE [LINE COLUMN TYPE HYPERLINK
+;; HIGHLIGHT...]). If REGEXP matches, the FILE'th subexpression gives
+;; the file name, and the LINE'th subexpression gives the line number.
+;; The COLUMN'th subexpression gives the column number on that line,
+;; see the documentation of compilation-error-regexp-alist.
+;;
+;; Need to wrap adding the vio2vo error regex in eval-after-load,
+;; because compile is loaded on demand and might not be present when
+;; the user visits the first Coq file.
+
+(eval-after-load 'compile
+  '(progn
+     (push
+      '(coq-vio2vo
+	"File \\(.*\\): proof of [^:]*\\(: chars \\([0-9]*\\)-\\([0-9]*\\)\\)?"
+	1 nil 3)
+      compilation-error-regexp-alist-alist)
+     (push 'coq-vio2vo compilation-error-regexp-alist)))
 
 
 ;;; save some buffers

@@ -12,6 +12,33 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
     - Using query-replace (or replace-string) in the processed region
       doesn't wrongly jump to the first match anymore.
 
+** Coq changes
+
+*** new menu Coq -> Auto Compilation for all background compilation options
+
+*** support for 8.5 quick compilation
+
+    See new menu Coq -> Auto Compilation. Select "no quick" as
+    long as you have not switched to "Proof using" to compile
+    without -quick. Select "quick no vio2vo" to use -quick
+    without vio2vo (and guess what "quick and vio2vo" means ;-),
+    select "ensure vo" to ensure a sound development. See the
+    option `coq-compile-quick' or the subsection "11.3.3 Quick
+    compilation and .vio Files" in the Coq reference manual.
+
+*** bug fixes
+    - avoid leaving partial files behind when compilation fails
+    - 123: Parallel background compliation fails to execute some
+      imports
+    - fix error in process filter: Cannot resize window
+    - 54 partially: Buffer coq-compile-response sometimes takes
+      over the whole window
+    - 75: Library more.v is required
+    - 70: Coq trunk + compile before require => « Invalid version
+      syntax: 'trunk' »
+    - 92: Compile before require from current directory failing
+      with 8.5
+
 * Changes of Proof General 4.4 from Proof General 4.3
 
 ** ProofGeneral has moved to GitHub!
