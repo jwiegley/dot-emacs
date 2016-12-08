@@ -161,7 +161,15 @@ It was constructed with `proof-defstringset-fn'.")
       :active coq-compile-before-require
       :help ,(concat "Compile parallel in background or "
 		    "sequentially with blocking ProofGeneral.")]
-     ["no quick"
+     ["Keep going"
+      coq-compile-keep-going-toggle
+      :style toggle
+      :selected coq-compile-keep-going
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help ,(concat "Continue background compilation after "
+		     "the first error as far as possible")]
+    ["no quick"
       (customize-set-variable 'coq-compile-quick 'no-quick)
       :style radio
       :selected (eq coq-compile-quick 'no-quick)
