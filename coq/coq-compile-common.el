@@ -234,6 +234,9 @@ quick-and-vio2vo Same as `quick-no-vio2vo', but start vio2vo processes
                  compilation while you are processing stuff far below the
                  last require. vio2vo compilation is done on a subset of
                  the available cores, see `coq-compile-vio2vo-percentage'.
+                 When `coq-compile-keep-going' is set, vio2vo compilation
+                 is scheduled for those files for which coqc compilation
+                 was successful.
 
                  Warning: This mode does only work when you process require
                  commands in batches. Slowly single-stepping through require's
@@ -265,8 +268,11 @@ ensure-vo        Ensure that all library dependencies are present as .vo
   "Continue compilation after the first error as far as possible.
 Similar to ``make -k'', with this option enabled, the background
 compilation continues after the first error as far as possible.
-With this option disabled, the background compilation is
-immediately stopped after the first error.")
+With this option disabled, background compilation is
+immediately stopped after the first error.
+
+This option can be set/reset via menu
+`Coq -> Auto Compilation -> Keep going'.")
 
 ;; define coq-compile-keep-going-toggle
 (proof-deftoggle coq-compile-keep-going)

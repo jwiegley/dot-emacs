@@ -26,6 +26,12 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
     option `coq-compile-quick' or the subsection "11.3.3 Quick
     compilation and .vio Files" in the Coq reference manual.
 
+*** new option coq-compile-keep-going (in menu Coq -> Auto Compilation)
+
+    Similar to ``make -k'', with this option enabled, background
+    compilation does not stop at the first error but rather
+    continues as far as possible.
+
 *** bug fixes
     - avoid leaving partial files behind when compilation fails
     - 123: Parallel background compliation fails to execute some
