@@ -324,6 +324,17 @@ Used to link top-level jobs with queue dependencies.")
 (defvar coq--compile-vio2vo-delay-timer nil
   "Holds the timer for the vio2vo delay.")
 
+(defvar coq--compile-vio2vo-start-id 0
+  "Integer counter to detect races for `coq-par-require-processed'.
+Assume compilation for the last top-level ``Require'' command
+finishes but executing the ``Require'' takes so long that the
+user can assert a next ``Require'' and that the second
+compilation finishes before the first ``Require'' has been
+processed. In this case there are two `coq-par-require-processed'
+callbacks active, of which the first one must be ignored. For
+each new callback this counter is incremented and when there is a
+difference the call to `coq-par-require-processed' is ignored.")
+
 (defvar coq--par-next-id 1
   "Increased for every job and process, to get unique job names.
 The names are only used for debugging.")
@@ -890,7 +901,7 @@ errors are reported with an error message."
 		(length (cdr coq-par-vio2vo-queue)))))
   (coq-par-start-jobs-until-full))
 
-(defun coq-par-require-processed (span)
+(defun coq-par-require-processed (race-counter)
   "Callback for `proof-action-list' to signal completion of the last require.
 This function ensures that vio2vo compilation starts after
 `coq-compile-vio2vo-delay' seconds after the last module has been
@@ -901,7 +912,8 @@ somewhere after the last require command."
   ;; require command is being processed, `coq--last-compilation-job'
   ;; might get non-nil. In this case there is a new last compilation
   ;; job that will eventually trigger vio2vo compilation.
-  (unless coq--last-compilation-job
+  (unless (or coq--last-compilation-job
+	      (not (eq race-counter coq--compile-vio2vo-start-id)))
     (setq coq--compile-vio2vo-delay-timer
 	  (run-at-time coq-compile-vio2vo-delay nil
 		       'coq-par-run-vio2vo-queue))))
@@ -1147,14 +1159,18 @@ function must not be called for failed jobs."
     (when items
       (when (and (eq coq-compile-quick 'quick-and-vio2vo)
 		 (eq coq--last-compilation-job job))
-	;; Insert a notification callback for when the last require
-	;; queue item has been processed.
-	(setq items
-	      (cons
-	       (car items)		; this is the require
-	       (cons
-		(coq-par-callback-queue-item 'coq-par-require-processed)
-		(cdr items)))))
+	(let ((vio2vo-counter
+	       (setq coq--compile-vio2vo-start-id
+		     (1+ coq--compile-vio2vo-start-id))))
+	  ;; Insert a notification callback for when the last require
+	  ;; queue item has been processed.
+	  (setq items
+		(cons
+		 (car items)		; this is the require
+		 (cons
+		  (coq-par-callback-queue-item
+		   `(lambda (span) (coq-par-require-processed ,vio2vo-counter)))
+		  (cdr items))))))
       (proof-add-to-queue items 'advancing)
       (when coq--debug-auto-compilation
 	(message "%s: add %s items to action list"
