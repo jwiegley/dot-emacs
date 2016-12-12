@@ -1683,7 +1683,12 @@ tries to interrupt the proof process. It is therefore run earlier
 than `proof-shell-handle-error-or-interrupt-hook', which runs
 when the interrupt is acknowledged inside `proof-shell-exec-loop'.
 
-This hook also runs when the proof assistent is killed."
+This hook also runs when the proof assistent is killed.
+
+Hook functions should set the dynamic variable `prover-was-busy'
+to t if there might have been a reason to interrupt. Otherwise
+the generic interrupt handler might issue a prover-not-busy
+error."
   :type '(repeat function)
   :group 'proof-shell)
 

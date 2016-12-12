@@ -464,7 +464,9 @@ shell buffer, called by `proof-shell-bail-out' if process exits."
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
-    (run-hooks 'proof-shell-signal-interrupt-hook)
+    (let (prover-was-busy)
+      ;; hook functions might set prover-was-busy
+      (run-hooks 'proof-shell-signal-interrupt-hook))
     
     (redisplay t)
     (when (and alive proc)
@@ -826,14 +828,18 @@ In the first case, PG will terminate the queue of commands at the first
 available point.  In the second case, you may need to press enter inside
 the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*)."
   (interactive)
-  (unless (proof-shell-live-buffer)
+  (let ((prover-was-busy nil))
+    (unless (proof-shell-live-buffer)
       (error "Proof process not started!"))
-  (unless proof-shell-busy
-    (error "Proof process not active!"))
-  (setq proof-shell-interrupt-pending t)
-  (with-current-buffer proof-shell-buffer
-    (interrupt-process))
-  (run-hooks 'proof-shell-signal-interrupt-hook))
+    ;; hook functions might set prover-was-busy
+    (run-hooks 'proof-shell-signal-interrupt-hook)
+    (if proof-shell-busy
+	(progn
+	  (setq proof-shell-interrupt-pending t)
+	  (with-current-buffer proof-shell-buffer
+	    (interrupt-process)))
+      (unless prover-was-busy
+	(error "Proof process not active!")))))
 
 
 

@@ -203,7 +203,12 @@ It was constructed with `proof-defstringset-fn'.")
       :selected coq-confirm-external-compilation
       :active (and coq-compile-before-require
 		   (not (equal coq-compile-command "")))
-      :help "Confirm external compilation command, see `coq-compile-command'."])
+      :help "Confirm external compilation command, see `coq-compile-command'."]
+     ["Abort Background Compilation"
+      coq-par-emergency-cleanup
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help "Abort background compilation and kill all compilation processes."])
     ""
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]

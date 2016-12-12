@@ -717,7 +717,8 @@ function returns () if MODULE-ID comes from the standard library."
 ;;; manage background jobs
 
 (defun coq-par-kill-all-processes ()
-  "Kill all background coqc, coqdep or vio2vo compilation processes."
+  "Kill all background coqc, coqdep or vio2vo compilation processes.
+Return t if some process was killed."
   ;; need to first mark processes as killed, because delete process
   ;; starts running sentinels in the order processes terminated, so
   ;; after the first delete-process we see sentinentels of non-killed
@@ -741,7 +742,8 @@ function returns () if MODULE-ID comes from the standard library."
 		    (get (process-get process 'coq-compilation-job) 'name)
 		    (process-name process)))))
      (process-list))
-    (setq coq--current-background-jobs 0)))
+    (setq coq--current-background-jobs 0)
+    kill-needed))
 
 (defun coq-par-unlock-all-ancestors-on-error ()
   "Unlock ancestors which are not in an asserted span.
@@ -758,22 +760,29 @@ Used for unlocking ancestors on compilation errors."
   "Emergency cleanup for parallel background compilation.
 Kills all processes, unlocks ancestors, clears the queue region
 and resets the internal state."
-  (when coq--debug-auto-compilation
-    (message "emergency cleanup"))
-  (coq-par-kill-all-processes)
-  (setq coq-par-compilation-queue (coq-par-new-queue))
-  (setq coq--last-compilation-job nil)
-  (setq coq-par-vio2vo-queue (coq-par-new-queue))
-  (setq coq--compile-vio2vo-in-progress nil)
-  (when coq--compile-vio2vo-delay-timer
-    (cancel-timer coq--compile-vio2vo-delay-timer))
-  (when proof-action-list
-    (setq proof-shell-interrupt-pending t))
-  (coq-par-unlock-all-ancestors-on-error)
-  (proof-release-lock)
-  (proof-detach-queue)
-  (setq proof-second-action-list-active nil)
-  (coq-par-init-compilation-hash))
+  (interactive)				; needed for menu
+  (let (proc-killed was-busy)
+    (when coq--debug-auto-compilation
+      (message "emergency cleanup"))
+    (setq proc-killed (coq-par-kill-all-processes))
+    (when (and (boundp 'prover-was-busy)
+	       (or proc-killed coq--last-compilation-job
+		   coq--compile-vio2vo-in-progress
+		   coq--compile-vio2vo-delay-timer))
+      (setq prover-was-busy t))
+    (setq coq-par-compilation-queue (coq-par-new-queue))
+    (setq coq--last-compilation-job nil)
+    (setq coq-par-vio2vo-queue (coq-par-new-queue))
+    (setq coq--compile-vio2vo-in-progress nil)
+    (when coq--compile-vio2vo-delay-timer
+      (cancel-timer coq--compile-vio2vo-delay-timer))
+    (coq-par-unlock-all-ancestors-on-error)
+    (when proof-action-list
+      (setq proof-shell-interrupt-pending t))
+    (proof-release-lock)
+    (proof-detach-queue)
+    (setq proof-second-action-list-active nil)
+    (coq-par-init-compilation-hash)))
 
 (defun coq-par-process-filter (process output)
   "Store output from coq background compilation."

@@ -4515,6 +4515,12 @@ the number of parallel background jobs and set
 error.
 @end itemize
 
+To abort parallel background compilation, use @code{C-c C-c}
+(@code{proof-interrupt-process}), the tool bar interrupt icon,
+the menu entry @code{Abort Background Compilation} (menu
+@code{Coq -> Auto Compilation}) or kill the Coq toplevel via
+@code{C-c C-x} (@code{proof-shell-exit}). To abort synchronous
+single threaded compilation, simply hit @code{C-g}.
 
 
 @menu
@@ -4599,8 +4605,11 @@ runs up to @code{coq-max-background-compilation-jobs} coqdep and
 coqc jobs in parallel in asynchronous subprocesses (or uses all
 your CPU cores if @code{coq-max-background-compilation-jobs}
 equals @code{'all-cpus}). Your Emacs will stay responsive during
-compilation. Use @code{C-c C-c} or the tool bar icons for
-interrupt or restart to interrupt compilation.
+compilation. To abort the background compilation process, use
+@code{C-c C-c} (@code{proof-interrupt-process}), the tool bar
+interrupt icon, the menu entry @code{Abort Background
+Compilation} (menu @code{Coq -> Auto Compilation}) or kill the
+Coq toplevel via @code{C-c C-x} (@code{proof-shell-exit}).
 
 For the usual case, you have at most
 `coq-max-background-compilation-jobs' parallel processes
