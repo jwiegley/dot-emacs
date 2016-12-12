@@ -47,7 +47,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title With-Editor User Manual
-@subtitle for version 2.5
+@subtitle for version 2.5.7
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -62,7 +62,6 @@ General Public License for more details.
 @insertcopying
 @end ifnottex
 
-
 @menu
 * Using the With-Editor package::
 * Using With-Editor as a library::
@@ -75,7 +74,6 @@ Using the With-Editor package
 
 * Configuring With-Editor::
 * Using With-Editor commands::
-
 @end detailmenu
 @end menu
 
@@ -100,35 +98,35 @@ For information about using this library in you own package, see
 @node Configuring With-Editor
 @section Configuring With-Editor
 
-With-Editor tries very hard to locate a suitable emacsclient
+With-Editor tries very hard to locate a suitable @code{emacsclient}
 executable, so ideally you should never have to customize the option
 @code{with-editor-emacsclient-executable}.  When it fails to do so, then the
 most likely reason is that someone found yet another way to package
-Emacs (most likely on OS X) without putting the executable on @code{$PATH},
+Emacs (most likely on macOS) without putting the executable on @code{$PATH},
 and we have to add another kludge to find it anyway.
 
 @defopt with-editor-emacsclient-executable
 
-The emacsclient executable used as the editor by child process of
+The @code{emacsclient} executable used as the editor by child process of
 this Emacs instance.  By using this executable, child processes can
 call home to their parent process.
 
 This option is automatically set at startup by looking in @code{exec-path},
 and other places where the executable could be installed, to find
-the emacsclient executable most suitable for the current emacs
+the @code{emacsclient} executable most suitable for the current Emacs
 instance.
 
 You should @strong{not} customize this option permanently.  If you have to do
 it, then you should consider that a temporary kludge and inform the
 Magit maintainer as described in @ref{Debugging,Debugging}.
 
-If With-Editor fails to find a suitable emacsclient on you system,
+If With-Editor fails to find a suitable @code{emacsclient} on you system,
 then this should be fixed for all users at once, by teaching
-@code{with-editor-locate-emacsclient} how to so on your system and system
-like yours. Doing it this way has the advantage, that you won't have
-do it again every time you update Emacs, and that other users who
-have installed Emacs the same way as you have, won't have to go
-through the same trouble.
+@code{with-editor-locate-emacsclient} how to do so on your system and
+system like yours. Doing it this way has the advantage, that you
+won't have do it again every time you update Emacs, and that other
+users who have installed Emacs the same way as you have, won't have
+to go through the same trouble.
 
 Note that there also is a nuclear option; setting this variable to
 @code{nil} causes the "sleeping editor" described below to be used even for
@@ -143,20 +141,20 @@ The function used to set the initial value of the option
 @code{with-editor-emacsclient-executable}.  There's a lot of voodoo here.
 @end defun
 
-The emacsclient cannot be used when using Tramp to run a process on a
+The @code{emacsclient} cannot be used when using Tramp to run a process on a
 remote machine.  (Theoretically it could, but that would be hard to
 setup, very fragile, and rather insecure).
 
 With-Editor provides an alternative "editor" which can be used by
 remote processes in much the same way as local processes use an
-emacsclient executable.  This alternative is known as the "sleeping
+@code{emacsclient} executable.  This alternative is known as the "sleeping
 editor" because it is implemented as a shell script which sleeps until
 it receives a signal.
 
 @defopt with-editor-sleeping-editor
 
 The sleeping editor is a shell script used as the editor of child
-processes when the emacsclient executable cannot be used.
+processes when the @code{emacsclient} executable cannot be used.
 
 This fallback is used for asynchronous process started inside the
 macro @code{with-editor}, when the process runs on a remote machine or for
@@ -165,10 +163,29 @@ local processes when @code{with-editor-emacsclient-executable} is @code{nil}.
 Where the latter uses a socket to communicate with Emacs' server,
 this substitute prints edit requests to its standard output on
 which a process filter listens for such requests.  As such it is
-not a complete substitute for a proper Emacsclient, it can only
+not a complete substitute for a proper @code{emacsclient}, it can only
 be used as @code{$EDITOR} of child process of the current Emacs instance.
 
-It is unlikely that you should ever have to customize this option.
+Some shells do not execute traps immediately when waiting for a
+child process, but by default we do use such a blocking child
+process.
+
+If you use such a shell (e.g. @code{csh} on FreeBSD, but not Debian), then
+you have to edit this option.  You can either replace @code{sh} with @code{bash}
+(and install that), or you can use the older, less performant
+implementation:
+
+@lisp
+"sh -c '\
+echo \"WITH-EDITOR: $$ OPEN $0\"; \
+trap \"exit 0\" USR1; \
+trap \"exit 1\" USR2; \
+while true; do sleep 1; done'"
+@end lisp
+
+This leads to a delay of up to a second.  The delay can be shortened
+by replacing @code{sleep 1} with @code{sleep 0.01}, or if your implementation does
+not support floats, then by using @code{nanosleep 0.01} instead.
 @end defopt
 
 @node Using With-Editor commands
@@ -188,17 +205,17 @@ prompt for an alternative environment variable such as @code{$GIT_EDITOR}.
 @cindex with-editor-async-shell-command
 @deffn Command with-editor-async-shell-command
 
-Like @code{async-shell-command}, but the command is run with the current
-Emacs instance exported as @code{$EDITOR}.
+This command is like @code{async-shell-command}, but it runs the shell
+command with the current Emacs instance exported as @code{$EDITOR}.
 @end deffn
 
 @cindex with-editor-shell-command
 @deffn Command with-editor-shell-command
 
-Like @code{async-shell-command}, but the command is run with the current
-Emacs instance exported as @code{$EDITOR}.  This only has an effect if
-the command is run asynchronously, i.e. when the command ends
-with @code{&}.
+This command is like @code{async-shell-command}, but it runs the shell
+command with the current Emacs instance exported as @code{$EDITOR}.  This
+only has an effect if the shell command is run asynchronously,
+i.e. when the command ends with @code{&}.
 @end deffn
 
 To always use these variants add this to you init file:
@@ -229,7 +246,7 @@ appropriate mode hooks:
 
 @lisp
 (add-hook 'shell-mode-hook  'with-editor-export-editor)
-(add-hook 'term-mode-hook   'with-editor-export-editor)
+(add-hook 'term-exec-hook   'with-editor-export-editor)
 (add-hook 'eshell-mode-hook 'with-editor-export-editor)
 @end lisp
 
@@ -252,13 +269,15 @@ the editor, by exporting @code{$EDITOR}.
 @cindex with-editor-export-git-editor
 @deffn Command with-editor-export-git-editor
 
-Like @code{with-editor-export-editor} but exports @code{$GIT_EDITOR}.
+This command is like @code{with-editor-export-editor} but exports
+@code{$GIT_EDITOR}.
 @end deffn
 
 @cindex with-editor-export-hg-editor
 @deffn Command with-editor-export-hg-editor
 
-Like @code{with-editor-export-editor} but exports @code{$HG_EDITOR}.
+This command is like @code{with-editor-export-editor} but exports
+@code{$HG_EDITOR}.
 @end deffn
 
 @node Using With-Editor as a library
@@ -270,20 +289,20 @@ home, just like Magit does.  You don't need to know any of this just
 to create commits using Magit.  You can also ignore this if you use
 @code{with-editor} outside of Magit, but only as an end-user.
 
-For information about interactive use and options which affect both
+For information about interactive use and options that affect both
 interactive and non-interactive use, see @ref{Using the With-Editor package,Using the With-Editor package}.
 
 @defmac with-editor &rest body
 
-This macro arranges for the emacsclient or the sleeping editor to be
+This macro arranges for the @code{emacsclient} or the sleeping editor to be
 used as the editor of child processes, effectively teaching them to
-call home to the current emacs instance when they require that the
+call home to the current Emacs instance when they require that the
 user edits a file.
 
 This is essentially done by establishing a local binding for
 @code{process-environment} and changing the value of the @code{$EDITOR}
-environment variable.  This affects all processes started by forms
-inside BODY.
+environment variable in that scope.  This affects all asynchronous
+processes started by forms (dynamically) inside BODY.
 @end defmac
 
 @defun with-editor-set-process-filter process filter
@@ -298,17 +317,17 @@ first, passing @code{t} as NO-STANDARD-FILTER.  Then it calls FILTER.
 @node Debugging
 @chapter Debugging
 
-With-Editor tries very hard to locate a suitable emacsclient
+With-Editor tries very hard to locate a suitable @code{emacsclient}
 executable, and then sets option @code{with-editor-emacsclient-executable}
 accordingly.  In very rare cases this fails.  When it does fail, then
 the most likely reason is that someone found yet another way to
-package Emacs (most likely on OS X) without putting the executable on
+package Emacs (most likely on macOS) without putting the executable on
 @code{$PATH}, and we have to add another kludge to find it anyway.
 
 If you are having problems using @code{with-editor}, e.g. you cannot commit
 in Magit, then please open a new issue at
-@uref{https://github.com/magit/magit/issues} and provide information about
-your Emacs installation.  Most importantly how did you install Emacs
-and what is the output of @code{M-x with-editor-debug}?
+@uref{https://github.com/magit/with-editor/issues} and provide information
+about your Emacs installation.  Most importantly how did you install
+Emacs and what is the output of @code{M-x with-editor-debug RET}.
 
 @bye
