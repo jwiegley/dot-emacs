@@ -293,8 +293,10 @@ process command."
 		(apply proof-guess-command-line (list name)))))
 
     (if proof-prog-name-ask
-	(setq proof-prog-name (read-shell-command "Run process: "
-						  proof-prog-name)))
+        ;; if this option is set, an absolute file name is better to show if possible
+	(let ((prog-name (locate-file proof-prog-name exec-path exec-suffixes 1)))
+          (setq proof-prog-name (read-shell-command "Run process: "
+						  prog-name))))
     (let
 	((proc (downcase proof-assistant)))
 

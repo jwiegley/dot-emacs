@@ -30,7 +30,8 @@ On Windows you might need something like:
   :group 'coq)
 
 (defcustom coq-prog-name
-  (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin"))
+  (if (executable-find "coqtop") "coqtop"
+    (proof-locate-executable "coqtop" t '("C:/Program Files/Coq/bin")))
   "*Name of program to run as Coq. See `proof-prog-name', set from this.
 On Windows with latest Coq package you might need something like:
    C:/Program Files/Coq/bin/coqtop.opt.exe
