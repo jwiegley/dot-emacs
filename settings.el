@@ -465,7 +465,7 @@
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
- '(erc-ignore-list (quote ("lensbot" "rudybot" "JordiGH" "johnwilkins")))
+ '(erc-ignore-list (quote ("lensbot" "rudybot" "johnwilkins")))
  '(erc-ignore-reply-list (quote ("JordiGH")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
@@ -823,6 +823,7 @@
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
+ '(malyon-stories-directory "~/doc/games")
  '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
@@ -1067,13 +1068,11 @@
  '(term-scroll-show-maximum-output t)
  '(text-mode-hook
 (quote
- (turn-on-flyspell turn-on-auto-fill
-                   (lambda nil
-                     (ignore-errors
-                       (diminish
-                        (quote auto-fill-function))))
-                   (lambda nil
-                     (abbrev-mode 1)))))
+ (turn-on-auto-fill
+  (lambda nil
+    (ignore-errors
+      (diminish
+       (quote auto-fill-function)))))))
  '(tls-checktrust t)
  '(tls-program
 (quote
@@ -1084,6 +1083,7 @@
 (quote
  (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))))
  '(tramp-persistency-file-name "~/.emacs.d/data/tramp")
+ '(tramp-use-ssh-controlmaster-options nil)
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
  '(undo-tree-auto-save-history t)
