@@ -486,6 +486,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (defvar display-name
   (let ((width (display-pixel-width)))
     (cond ((>= width 2560) 'retina-imac)
+          ((= width 1680) 'macbook-pro)
           ((= width 1440) 'retina-macbook-pro))))
 
 (defvar emacs-min-top 23)
@@ -494,6 +495,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (t 521)))
 (defvar emacs-min-height
   (cond ((eq display-name 'retina-imac) 57)
+        ((eq display-name 'macbook-pro) 47)
         (t 44)))
 (defvar emacs-min-width 100)
 
@@ -510,6 +512,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
       ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
       "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
+      ))
+   ((eq display-name 'macbook-pro)
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
       ))
    ((string= (system-name) "ubuntu")
     ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
@@ -805,9 +813,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (when (and (not running-alternate-emacs)
              (not running-development-emacs))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup))
-
-  (add-hook 'org-mode-hook #'(lambda () (flyspell-mode -1))))
+    (my-org-startup)))
 
 (use-package dot-gnus
   :load-path ("override/gnus/lisp" "override/gnus/contrib")
@@ -1011,6 +1017,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (hook-into-modes #'abbrev-mode
                    'text-mode-hook
                    'prog-mode-hook
+                   'erc-mode-hook
                    'LaTeX-mode-hook)
 
   :config
@@ -3142,9 +3149,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package with-editor
     ;; Magit makes use of this mode
+    :demand t
     :commands (with-editor-async-shell-command
                with-editor-shell-command)
     :load-path "site-lisp/with-editor")
+
+  (use-package git-commit)
 
   :config
   (setenv "GIT_PAGER" "")
@@ -3170,13 +3180,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'magit-log-edit-mode-hook
             #'(lambda ()
                 (set-fill-column 72)
-                (flyspell-mode)))
+                (flyspell-mode 1)))
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
 (use-package malyon
   :load-path "site-lisp/malyon"
-  :commands malyon)
+  :commands malyon
+  :config
+  (defun replace-invisiclues ()
+    (interactive)
+    (query-replace-regexp "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)" (quote (replace-eval-replacement concat "\\1\\2" (replace-quote (rot13 (match-string 4))))) nil (if (use-region-p) (region-beginning)) (if (use-region-p) (region-end)) nil nil)))
 
 (use-package markdown-mode
   :load-path "site-lisp/markdown-mode"

@@ -95,6 +95,8 @@
 
 (define-abbrev-table 'edit-abbrevs-mode-abbrev-table '())
 
+(define-abbrev-table 'elisp-byte-code-mode-abbrev-table '())
+
 (define-abbrev-table 'emacs-lisp-byte-code-mode-abbrev-table '())
 
 (define-abbrev-table 'emacs-lisp-mode-abbrev-table '())
@@ -112,6 +114,7 @@
 (define-abbrev-table 'erc-mode-abbrev-table
   '(
     ("bottom" "⊥" nil 3)
+    ("nnix" "http://bit.ly/nix-cache" nil 3)
    ))
 
 (define-abbrev-table 'eshell-mode-abbrev-table '())
@@ -166,6 +169,8 @@
 (define-abbrev-table 'haskell-presentation-mode-abbrev-table '())
 
 (define-abbrev-table 'helm-grep-mode-abbrev-table '())
+
+(define-abbrev-table 'helm-major-mode-abbrev-table '())
 
 (define-abbrev-table 'helm-moccur-mode-abbrev-table '())
 
@@ -318,4 +323,6 @@
 (define-abbrev-table 'vc-git-log-edit-mode-abbrev-table '())
 
 (define-abbrev-table 'vc-git-log-view-mode-abbrev-table '())
+
+(define-abbrev-table 'vc-git-region-history-mode-abbrev-table '())
 

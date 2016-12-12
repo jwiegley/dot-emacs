@@ -135,7 +135,7 @@ BAE Systems"))))
      ("list\\.riscv\\.devel$"
       (to-address . "sw-dev@lists.riscv.org")
       (to-list . "sw-dev@lists.riscv.org")
-      (list-identifier . "\\[riscv-sw\\]"))
+      (list-identifier . "\\[\\(riscv-sw\\|sw-dev\\)\\]"))
      ("list\\.coq\\.fiat$ "
       (to-address . "fiat@lists.csail.mit.edu")
       (to-list . "fiat@lists.csail.mit.edu")
