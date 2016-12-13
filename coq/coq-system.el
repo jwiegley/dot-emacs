@@ -43,13 +43,15 @@ See also `coq-prog-env' to adjust the environment."
   :group 'coq)
 
 (defcustom coq-dependency-analyzer
-  (proof-locate-executable "coqdep" t '("C:/Program Files/Coq/bin"))
+  (if (executable-find "coqdep") "coqdep"
+    (proof-locate-executable "coqdep" t '("C:/Program Files/Coq/bin")))
   "Command to invoke coqdep."
   :type 'string
   :group 'coq)
 
 (defcustom coq-compiler
-  (proof-locate-executable "coqc" t '("C:/Program Files/Coq/bin"))
+  (if (executable-find "coqc") "coqc"
+    (proof-locate-executable "coqc" t '("C:/Program Files/Coq/bin")))
   "Command to invoke the coq compiler."
   :type 'string
   :group 'coq)
