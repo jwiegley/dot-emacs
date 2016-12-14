@@ -234,6 +234,9 @@ quick-and-vio2vo Same as `quick-no-vio2vo', but start vio2vo processes
                  compilation while you are processing stuff far below the
                  last require. vio2vo compilation is done on a subset of
                  the available cores, see `coq-compile-vio2vo-percentage'.
+                 When `coq-compile-keep-going' is set, vio2vo compilation
+                 is scheduled for those files for which coqc compilation
+                 was successful.
 
                  Warning: This mode does only work when you process require
                  commands in batches. Slowly single-stepping through require's
@@ -260,6 +263,19 @@ ensure-vo        Ensure that all library dependencies are present as .vo
   (or
    (eq coq-compile-quick 'quick-no-vio2vo)
    (eq coq-compile-quick 'quick-and-vio2vo)))
+
+(defcustom coq-compile-keep-going t
+  "Continue compilation after the first error as far as possible.
+Similar to ``make -k'', with this option enabled, the background
+compilation continues after the first error as far as possible.
+With this option disabled, background compilation is
+immediately stopped after the first error.
+
+This option can be set/reset via menu
+`Coq -> Auto Compilation -> Keep going'.")
+
+;; define coq-compile-keep-going-toggle
+(proof-deftoggle coq-compile-keep-going)
 
 (defcustom coq-max-background-compilation-jobs 'all-cpus
   "Maximal number of parallel jobs, if parallel compilation is enabled.
@@ -544,7 +560,10 @@ Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
 
 (defun coq-unlock-ancestor (ancestor-src)
   "Unlock ANCESTOR-SRC."
-  (let* ((true-ancestor (file-truename ancestor-src)))
+  (let* ((default-directory
+	   (buffer-local-value 'default-directory
+			       (or proof-script-buffer (current-buffer))))
+	 (true-ancestor (file-truename ancestor-src)))
     (setq proof-included-files-list
           (delete true-ancestor proof-included-files-list))
     (proof-restart-buffers (proof-files-to-buffers (list true-ancestor)))))
@@ -561,11 +580,14 @@ Changes the suffix from .vio to .vo. VO-OBJ-FILE must have a .vo suffix."
   "Display COMMAND and ERROR-MESSAGE in `coq--compile-response-buffer'.
 If needed, reinitialize `coq--compile-response-buffer'. Then
 display COMMAND and ERROR-MESSAGE."
-  (unless (buffer-live-p coq--compile-response-buffer)
+  (unless (buffer-live-p (get-buffer coq--compile-response-buffer))
     (coq-init-compile-response-buffer))
-  (let ((inhibit-read-only t))
+  (let ((inhibit-read-only t)
+	(deactivate-mark nil))
     (with-current-buffer coq--compile-response-buffer
-      (insert command "\n" error-message)))
+      (save-excursion
+	(goto-char (point-max))
+	(insert command "\n" error-message "\n"))))
   (when display
     (coq-display-compile-response-buffer)))
 

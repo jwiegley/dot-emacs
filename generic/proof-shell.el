@@ -88,9 +88,11 @@ See the functions `proof-start-queue' and `proof-shell-exec-loop'.")
 
 (defsubst proof-shell-invoke-callback (listitem)
   "From `proof-action-list' LISTITEM, invoke the callback on the span."
-  (condition-case nil
+  (condition-case err
       (funcall (nth 2 listitem) (car listitem))
-    (error nil)))
+    (error
+     (message "error escaping proof-shell-invoke-callback: %s" err)
+     nil)))
 
 (defvar proof-second-action-list-active nil
   "Signals that some items are waiting outside of `proof-action-list'.
