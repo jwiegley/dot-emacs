@@ -1788,7 +1788,7 @@ Near here means PT is either inside or just aside of a comment."
 (defpacustom search-blacklist coq-search-blacklist-string
   "Strings to blacklist in requests to coq environment."
   :type 'string
-  ;;:get coq-search-blacklist-string
+  :get coq-get-search-blacklist
   :setting coq-set-search-blacklist)
 
 
