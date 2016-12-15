@@ -4396,11 +4396,18 @@ one project you can set the option as local file variable,
 @ref{Using file variables}. This can be done either directly in
 every file or once for all files of a directory tree with a
 @code{.dir-local.el} file, @inforef{Directory Variables, ,emacs}.
-For this case, this file should contain
+The file @code{.dir-local.el} should then contain
 
 @lisp
 ((coq-mode . ((coq-project-filename . "myprojectfile"))))
 @end lisp
+
+Note that variables set in @code{.dir-local.el} are automatically
+made buffer local (such that files in different directories can
+have their independent setting of @code{coq-project-filename}).
+If you make complex customizations using @code{eval} in
+@code{.dir-local.el}, you might want to add appropriate calls to
+@code{make-local-variable}.
 
 Documentation of the user option @code{coq-project-filename}:
 
