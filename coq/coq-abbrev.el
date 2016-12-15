@@ -257,6 +257,8 @@ It was constructed with `proof-defstringset-fn'.")
      ["Unset Printing Coercions" coq-unset-printing-coercions t]
      ["Set Printing Synth" coq-set-printing-synth t]
      ["Unset Printing Synth" coq-unset-printing-synth t]
+     ["Set Printing Universes" coq-set-printing-universes t]
+     ["Unset Printing Universes" coq-unset-printing-universes t]
      ["Set Printing Wildcards" coq-set-printing-wildcards t]
      ["Unset Printing Wildcards" coq-unset-printing-wildcards t]
      ["Set Printing Width" coq-ask-adapt-printing-width-and-show t])
