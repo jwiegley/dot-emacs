@@ -420,18 +420,6 @@ or not."
   :safe (lambda (v) (every 'stringp v))
   :group 'coq-auto-compile)
 
-(defcustom coq-compile-ignore-library-directory t
-  "If non-nil, ProofGeneral does not compile modules from the coq library.
-Should be `t' for normal coq users. If `nil' library modules are
-compiled if their sources are newer.
-
-This option has currently no effect, because Proof General uses
-coqdep to translate qualified identifiers into library file names
-and coqdep does not output dependencies in the standard library."
-  :type 'boolean
-  :safe 'booleanp
-  :group 'coq-auto-compile)
-
 (defcustom coq-coqdep-error-regexp
   (concat "^\\*\\*\\* Warning: in file .*, library .* is required "
           "and has not been found")
@@ -518,23 +506,14 @@ for instance, not make sense to let ProofGeneral check if the coq
 standard library is up-to-date. This function is always invoked
 on the .vo file name, regardless whether the file would be
 compiled with ``-quick'' or not."
-  (or
-   (and
-    coq-compile-ignore-library-directory
-    (eq (compare-strings coq-library-directory 0 nil
-                         lib-obj-file 0 (length coq-library-directory))
-        t)
-    (when coq--debug-auto-compilation
-      (message "Ignore lib file %s" lib-obj-file))
-    t)
-   (if (some
-          (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
-          coq-compile-ignored-directories)
-       (progn
-         (when coq--debug-auto-compilation
-	   (message "Ignore %s" lib-obj-file))
-         t)
-     nil)))
+  (if (some
+       (lambda (dir-regexp) (string-match dir-regexp lib-obj-file))
+       coq-compile-ignored-directories)
+      (progn
+	(when coq--debug-auto-compilation
+	  (message "Ignore %s" lib-obj-file))
+	t)
+    nil))
 
 ;;; convert .vo files to .v files and module names
 

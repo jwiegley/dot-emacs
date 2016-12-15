@@ -1967,6 +1967,9 @@ does the error checking/reporting for
 		    "Proof General; please customize coq-pinned-version"))
 	 (message "%s \"%s\"; consider customizing coq-pinned-version"
 		  (get (car err) 'error-message) (cdr err))))
+      (file-error
+       (coq-par-emergency-cleanup)
+       (message "Error: %s" (mapconcat 'identity (cdr err) ": ")))
       (error
        (message "unexpected error during parallel compilation: %s"
 		err)

@@ -57,10 +57,12 @@ See also `coq-prog-env' to adjust the environment."
   :group 'coq)
 
 (defun get-coq-library-directory ()
-  (let ((c (substring (shell-command-to-string (concat coq-prog-name " -where")) 0 -1 )))
-    (if (string-match "not found" c)
-        "/usr/local/lib/coq"
-      c)))
+  (let ((default-directory
+	  (if (file-accessible-directory-p default-directory)
+	      default-directory
+	    "/")))
+    (or (ignore-errors (car (process-lines coq-prog-name "-where")))
+	"/usr/local/lib/coq")))
 
 (defconst coq-library-directory (get-coq-library-directory) ;; FIXME Should be refreshed more often
   "The coq library directory, as reported by \"coqtop -where\".")
@@ -123,7 +125,11 @@ Interactively (with INTERACTIVE-P), show that number."
     ;; Use `shell-command' via `find-file-name-handler' instead of
     ;; `process-line': when the buffer is running TRAMP, PG uses
     ;; `start-file-process', loading the binary from the remote server.
-    (let* ((coq-command (shell-quote-argument (or coq-prog-name "coqtop")))
+    (let* ((default-directory
+	     (if (file-accessible-directory-p default-directory)
+		 default-directory
+	       "/"))
+	   (coq-command (shell-quote-argument (or coq-prog-name "coqtop")))
            (shell-command-str (format "%s -v" coq-command))
            (fh (find-file-name-handler default-directory 'shell-command))
            (retv (if fh (funcall fh 'shell-command shell-command-str (current-buffer))
