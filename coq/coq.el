@@ -1871,7 +1871,7 @@ The not yet delayed output is in the region
                 coq-proof-tree-additional-subgoal-ID-regexp end t)
           (let ((subgoal-id (match-string-no-properties 1)))
             (unless (gethash subgoal-id proof-tree-sequent-hash)
-              (message "CPTGNS new sequent %s found" subgoal-id)
+              ;; (message "CPTGNS new sequent %s found" subgoal-id)
               (setq proof-action-list
                     (cons (proof-shell-action-list-item
                            (coq-show-sequent-command subgoal-id)
