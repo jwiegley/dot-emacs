@@ -15,7 +15,7 @@
  '(gnus-agent-mark-unread-after-downloaded nil)
  '(gnus-agent-synchronize-flags t)
  '(gnus-alias-allow-forward-as-reply t)
- '(gnus-alias-default-identity "NewArtisans")
+ '(gnus-alias-default-identity "Gmail")
  '(gnus-alias-identity-alist
    (quote
     (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -45,10 +45,10 @@ BAE Systems"))))
       "Gnu")
      ("Haskell Groups"
       ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans")
+      "Gmail")
      ("Haskell Mailing Lists"
       ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans"))))
+      "Gmail"))))
  '(gnus-alias-override-user-mail-address t)
  '(gnus-alias-unknown-identity-rule (quote error))
  '(gnus-always-read-dribble-file t)
