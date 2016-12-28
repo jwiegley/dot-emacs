@@ -1032,6 +1032,10 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   :load-path "site-lisp/poporg"
   :bind ("C-c e o" . poporg-dwim))
 
+(use-package org-wiki
+  :load-path "site-lisp/org-wiki"
+  :defer 5)
+
 (provide 'dot-org)
 
 ;; Local Variables:
