@@ -556,7 +556,8 @@ Runs on process status changes and cleans up when prooftree dies."
   "Start the external prooftree process.
 Does also initialize the communication channel and some internal
 variables."
-  (let ((old-proof-tree (get-process proof-tree-process-name)))
+  (let ((process-connection-type nil)	; use pipes, see emacs bug #24531
+	(old-proof-tree (get-process proof-tree-process-name)))
     ;; reset output marker
     (when proof-tree-output-marker
       (set-marker proof-tree-output-marker nil)
