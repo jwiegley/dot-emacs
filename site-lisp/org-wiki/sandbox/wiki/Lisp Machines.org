@@ -1,0 +1,24 @@
+#+INCLUDE: theme/style.org
+#+TITLE: Lisp Machines 
+
+[[wiki:index][index]]
+
+Related: [[wiki:Elisp][Elisp]] [[wiki:Linux][Linux]] [[wiki:Python][Python]]
+
+* Lisp Machines 
+** Machines 
+
+#+CAPTION: what is a lisp machine
+[[file:Lisp%20Machines/what%20is%20a%20lisp%20machine.png]]
+
+#+CAPTION: Lisp machine from late 1970
+[[file:Lisp%20Machines/Lisp%20machine%20from%20late%201970.png]]
+
+** Lambda Calculus Super Power 
+
+#+CAPTION: lambda calculus
+[[file:Lisp%20Machines/lambda%20calculus.png]]  
+
+
+#+CAPTION: Lambda Calculus Formula
+[[file:Lisp%20Machines/90d582b2-e81d-46ba-916d-bd1ca0334e24.png]]

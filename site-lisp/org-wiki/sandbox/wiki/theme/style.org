@@ -1,0 +1,15 @@
+# #+INFOJS_OPT: view:info toc:t ltoc:t ftoc:nil mouse:underline button:nil path:theme/org-info.js 
+
+#+HTML_HEAD: <link href="theme/style2.css" rel="stylesheet"> 
+#+AUTHOR: Insert Author Here 
+#+EMAIL:  Insert Email  Here
+#+LINK_HOME: /index.html
+#+LINK_UO:   /index.html
+#+LANGUAGE: en
+#+OPTIONS:   H:4
+
+# #+BEGIN_HTML
+# <lu> 
+#   <li><a class="index-button" href="index.html">Index</a></li>
+# </lu>
+# #+END_HTML

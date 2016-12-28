@@ -1,0 +1,18 @@
+#+TITLE: Math - Calculus
+#+DESCRIPTION: 
+#+KEYWORDS:
+
+Related:   
+
+[[wiki:index][index]]
+
+* Math Calculus 
+
+This formula is visible with: M-x org-toggle-latex-fragments
+
+\begin{equation}
+x = \frac{\sqrt(\alpha + 1000 \beta )}{100 * \alpha + \zeta}
+\end{equation}
+
+
+

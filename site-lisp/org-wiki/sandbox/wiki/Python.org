@@ -1,0 +1,31 @@
+#+TITLE: Python 
+#+DESCRIPTION: Python programming
+
+[[wiki:index][index]]
+
+Related: [[wiki:Bash - Shell - Unix][Bash - Shell - Unix]]
+
+* Python 
+
+*** Python logo 
+
+#+CAPTION: Python Logo.
+[[file:Python/70d62de1-b649-4651-b810-51844ea09ac5.png]]
+
+#+CAPTION: python icon test
+[[file:Python/python%20icon%20test.png]]
+
+*** A Pytho source code
+
+#+BEGIN_SRC python 
+  import sys
+  import os
+
+  def forEach(fn, seq):
+      for e in seq:
+          fn(e)
+
+  forEach(print, os.listdir("/"))       
+#+END_SRC
+
+
