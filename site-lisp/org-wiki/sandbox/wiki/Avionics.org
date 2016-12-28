@@ -1,0 +1,32 @@
+#+TITLE: Avionics
+#+DESCRIPTION:
+#+KEYWORDS:
+#+STARTUP:  overview
+
+Related:
+
+[[wiki:index][Index]] 
+
+* Avionics 
+** Electronics for Aviation 
+** Control Systems 
+
+Control Systems 
+ - Closed loop systems
+ - Control loop
+ - Equations
+ - Sensors, Actuators and control system
+ - Electronic control systems
+
+
+#+CAPTION: Control Systems - Control loop 
+[[file:Avionics/9d8128e1-eed1-4212-bf9e-bf5eb50eb0ef.png]] 
+
+
+#+CAPTION: Control Systems - Block Diagram 
+[[file:Avionics/a26fbbfb-6493-4d0d-bc99-98dda41f3a74.png]]
+
+
+#+CAPTION: Closed-loop systems.
+[[file:Avionics/63da7880-5005-4c6b-8497-bcd28d973a59.png]] 
+
