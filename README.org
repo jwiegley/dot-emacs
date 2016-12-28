@@ -1,0 +1,700 @@
+#+TITLE: org-wiki 
+#+INFOJS_OPT: view:t toc:t ltoc:t ftoc:nil mouse:underline button:t path:theme/org-info.js
+#+HTML_HEAD: <link href="theme/style.css" rel="stylesheet"> 
+#+AUTHOR: 
+#+EMAIL:  
+#+LINK_HOME: /index.html
+#+LINK_UO:   /index.html
+#+LANGUAGE: en
+#+OPTIONS:   H:4
+#+KEYWORKDS: org-mode, orgmode, emacs, wiki, desktop, wiki, tools, notes, notebook
+#+STARTUP: showall
+
+* Org-wiki 
+** Overview 
+
+Org-wiki is a org-mode extension that provides tools to manage and
+build a _desktop wiki_ where each wiki page is a org-mode file.  
+
+It provides a custom protocol ~wiki:keyword~ which creates like. When
+clicked this links creates the wiki file in the wiki directory with
+name ~keyword.org~.
+
+Features: 
+
+  - A wiki system for Emacs.
+
+  - Search wiki pages quickly.
+
+  - Create new wiki pages fast.
+
+  - Command to export all pages to html without block Emacs. M-x =M-x
+    org-wiki/export-html-async=
+
+  - Search wiki pages by its content. (grep)
+
+  - org-mode protocol to create and open wiki pages.
+
+  - org-mode protocol to open attachment/asset files with default
+    system application.
+
+  - Automatic download of attachment files with:
+    - =M-x org-wiki-asset-download-insert1= 
+    - =M-x org-wiki-asset-download-insert2= 
+
+Org-mode already has many features that makes it suitable to create a desktop
+wiki and store knowledge like:
+
+ - Render Latex formulas. 
+
+ - Block codes (org-babel).
+
+ - Fast navigation and editing
+
+ - Support for tables 
+
+ - Ability to export to html and other formats. 
+
+ - Links to files, images, system commands and Elisp commands.
+
+
+*Note* It is only possible to show the video demonstrations in [[https://caiorss.github.io/org-wiki][html version.]]
+
+*Link formats*
+
+ - =wiki:<pagename>=
+
+Example: 
+
+#+BEGIN_SRC org 
+    wiki:Linux 
+or 
+    [[wiki:Linux]]
+or
+    [[wiki:Linux][Linux]]  
+#+END_SRC
+
+ - =wiki-asset-sys:<pagename>/<asset file name>=
+
+Example: 
+
+#+BEGIN_SRC org
+     wiki-asset-sys:Linux;LearnLinux.pdf
+or 
+     [[wiki-asset-sys:Linux;LearnLinux.pdf]]
+or
+     [[wiki-asset-sys:Linux;LearnLinux.pdf][Book Learn Linux.pdf]]
+#+END_SRC
+
+It will open the file =~/wiki-directory/Linux/LearnLinux.pdf= with the
+default system application.
+
+** Repository 
+
+| Repository         | https://github.com/caiorss/org-wiki |
+| Html documentation | https://caiorss.github.io/org-wiki/ |
+|                    |                                     |
+ 
+** Demos 
+
+ - (1) Browsing Index: M-x org-wiki/index
+
+[[file:images/org-wiki-index.gif][file:images/org-wiki-index.gif]]
+
+
+ - (2) M-x org-wiki/helm - Select a wiki page by name. 
+
+[[file:images/org-wiki-helm.gif][file:images/org-wiki-helm.gif]]
+
+ - (3) M-x org-wiki/insert  Insert a link to wiki page at cursor position.
+
+[[file:images/org-wiki-insert.gif][file:images/org-wiki-insert.gif]]
+
+
+ - (4) - M-x org-wiki/asset-insert Insert a link to a asset file that
+   when clicked opens it with default system application.
+
+See video: [[http://i.imgur.com/KqqC7sY.mp4][M-x org-wiki/asset-insert]]
+
+#+BEGIN_HTML
+<video src="http://i.imgur.com/KqqC7sY.mp4" controls>
+</video>
+#+END_HTML 
+
+ - (5) - Org-wiki exported to HTML 
+
+
+You can view a sample wiki exported to html here: 
+
+ - [[https://caiorss.github.io/org-wiki/wiki/index.html][Sample org-wiki exported to html]]  
+
+ - This sample wiki is available at  [[https://github.com/caiorss/org-wiki/tree/master/sandbox/wiki][sandbox/wiki]]
+
+ 
+** Screenshots 
+
+ - 1. Command =M-x org-wiki-index= Open the wiki index page (file index.org) 
+
+[[file:images/org-wiki-index.png][file:images/org-wiki-index.png]]
+
+ - 2. Command =M-x org-wiki-helm= Open a helm menu to select the wiki
+   page to be opened. 
+
+[[file:images/wiki-helm-command.png][file:images/wiki-helm-command.png]]
+
+ - 3. =M-x org-wiki- [tab]= provides easy completion and
+   discoverability to org-wiki commands. 
+
+[[file:images/autocompletion.png][file:images/autocompletion.png]]
+
+ - 4. =M-x org-wiki-dired= Open the org-wiki directory showing only
+   the wiki pages (*.org files). 
+
+[[file:images/wiki-dired.png][file:images/wiki-dired.png]]
+
+ - 5. =M-x org-wiki-dired-all= Open the org-wiki directory showing all
+   files. 
+
+[[file:images/wiki-dired-all.png][file:images/wiki-dired-all.png]]
+
+ - 6. =M-x org-wiki-search-pattern= Search for all wiki page that contains
+   a pattern. (string or regex pattern). 
+
+Example: The command =M-x org-wiki/search-patern - System.Windows= will search all
+files that contains "System.Windows string".
+
+[[file:images/wiki-search-pattern.png][file:images/wiki-search-pattern.png]]
+** Setup 
+*** Install 
+**** Method 1 - Bootstrap installer 
+
+Evaluate this code in the scratch buffer that will install all
+dependencies and this package. The scratch buffer can be evaluated
+with =M-x eval-buffer=.
+
+#+BEGIN_SRC elisp 
+(let ((url "https://raw.githubusercontent.com/caiorss/org-wiki/master/org-wiki.el"))     
+      (with-current-buffer (url-retrieve-synchronously url)
+	(goto-char (point-min))
+	(re-search-forward "^$")
+	(delete-region (point) (point-min))
+	(kill-whole-line)
+	(package-install-from-buffer)))
+#+END_SRC
+
+**** Method 2 - El-get 
+
+Just copy this piece of code to scratch buffer and eveluate the buffer
+with =M-x eval-buffer=. It is assumed that [[https://github.com/dimitri/el-get][el-get]] is already installed. 
+
+#+BEGIN_SRC elisp
+(el-get-bundle org-wiki
+  :url "https://raw.githubusercontent.com/caiorss/org-wiki/master/org-wiki.el"
+  :description "Emacs' desktop wiki built with org-mode"
+  :features org-wiki
+  )
+#+END_SRC
+
+**** Method 3 - Manual installation 
+
+Copy the package to the desired location. 
+
+
+#+BEGIN_SRC sh 
+mkdir -p ~/.emacs.d/packages/ 
+
+cd ~/.emacs.d/packages/ 
+
+git clone  https://github.com/caiorss/org-wiki
+
+mkdir -p ~/org/wiki    # Make wiki location. 
+#+END_SRC
+*** Make org-wiki directory 
+
+ - =M-x make-directory ~/org-wiki=
+
+*** Configuration
+
+Add to init file ~/.emacs.d/init.el or ~/.emacs 
+
+#+BEGIN_SRC elisp 
+(require 'org-wiki)
+#+END_SRC
+
+Path to wiki location 
+
+#+BEGIN_SRC elisp 
+(setq org-wiki-location "~/org/wiki")
+#+END_SRC
+
+or in Windows it could be: 
+
+#+BEGIN_SRC elisp 
+(setq org-wiki-location "e:/projects/org-wiki-test.emacs")
+#+END_SRC
+
+In order to the html export work the path to emacs executable
+directory must be in the $PATH variable. In some OS like Windows where
+this path is not in $PATH variable it is necessary to set the variable
+=org-wiki-emacs-path= like:
+
+#+BEGIN_SRC elisp 
+(setq org-wiki-emacs-path "c:/Users/arch/opt/emacs/bin/runemacs.exe")
+#+END_SRC
+
+
+Optional: This package provides the command =M-x org-wiki-make-menu=
+that installs a menu on the menu bar. 
+
+The menu can be installed permanently by adding the init file: 
+
+#+BEGIN_SRC elisp 
+(org-wiki-make-menu)
+#+END_SRC
+
+*** Start the wiki 
+
+ - M-x org-wiki-index to go to index.org
+
+ - New pages can be created with =M-x org-wiki-link= that asks for
+   wiki word and inserts at point a hyperlink to the wiki page.
+
+ - References to existing pages can be inserted with =M-x org-wiki-insert=.
+
+** Commands
+*** Open the index page
+**** M-x org-wiki-index
+
+  - =M-x org-wiki-index= - Open the index page. It opens the file
+    index.org that is the first default page of the wiki. If the file
+    doesn't exist it will be created.
+
+**** M-x org-wiki-index-frame
+
+  - =M-x org-wiki-index-frame= - Open the wiki index page in a new frame.
+
+*** Browse pages
+**** M-x org-wiki-helm
+
+   - =M-x org-wiki-helm= - Open a helm menu to switch or open a wiki page.
+
+**** M-x org-wiki-switch 
+
+  - =M-x org-wiki-switch= - Switch between org-wiki buffers (*.org
+    files in org-wiki-location directory) already opened. 
+
+**** M-x org-wiki-helm-frame
+   
+   - =M-x org-wiki-helm-frame= - Open a wiki page in a new frame. 
+
+**** M-x org-wiki-helm-read-only
+
+   - =M-x org-wiki-helm-read-only= - Open a wiki page in read-only
+     mode. 
+
+**** M-x org-wiki-make-page
+
+   - =M-x org-wiki-make-page= - Creates a new wiki page asking the user
+     for the page name.
+
+**** M-x org-wiki-close 
+
+   - =M-x org-wiki-close= - Close all wiki pages, kill all *.or buffers
+     belonging to wiki directory.
+
+*** Insert Hyperlink to wiki pages or asset files
+**** M-x org-wiki-link 
+
+ - M-x org-wiki-link - Asks the user for the wiki page name and
+   inserts the hyperlink at point. It is useful to create new pages
+   fast without write the full syntax like ~[[wiki:page title] [page title]~
+ 
+Example: 
+
+ - 1. User enter M-x org-wiki-link and enter "The Art of Unix Programming"
+ - 2. It will insert at point (current cursor position):
+
+#+BEGIN_SRC txt
+[[wiki:The%20Art%20of%20Unix%20Programming][The Art of Unix Programming]]
+#+END_SRC
+
+And will create the hyperlink to this page.
+
+**** M-x org-wiki-insert 
+
+  - =M-x org-wiki-insert= - Inserts a org-mode link at current point
+    to a Wiki page selected through a helm-menu.
+
+**** M-x org-wiki-header 
+
+ - =M-x org-wiki-header. It inserts at top of the wiki page the template:
+
+#+BEGIN_SRC txt
+#+TITLE: <PAGE TITLE>
+#+DESCRIPTION:
+#+KEYWORDS:
+#+STARTUP:  overview
+
+Related:
+
+[[wiki:index][Index]]\n\n
+#+END_SRC
+
+**** M-x org-wiki-asset-insert 
+
+  - =M-x org-wiki-asset-insert= - Insert a asset file at point
+    providing a heml menu to select the file. It inserts a link of
+    format ~wiki-asset-sys:CurrentPage;AssetFilename.pdf~.
+
+*** Asset files / Attachments
+**** M-x org-wiki-assets-helm
+
+  - =M-x org-wiki-assets-helm= - Select a wiki page and open its
+    assets directory.
+
+**** M-x org-wiki-assets-open  
+
+  - =M-x org-wiki-assets-open= - Open asset directory of current page
+    with system's default file manager. 
+
+**** M-x org-wiki-asset-insert 
+
+  - =M-x org-wiki-asset-insert= - Insert a link to asset file of current
+    page at current cursor position. This link when clicked opens with
+    default system application. 
+
+Example: Inserts a a link such as the code below. User is in the page
+Linux and with this command selects in the Helm menu the file
+Manual.pdf.
+
+#+BEGIN_SRC 
+[[wiki-asset-sys:Linux;Manual.pdf][Manual.pdf]]
+#+END_SRC
+
+**** M-x org-wiki-asset-insert-file
+
+  - =M-x org-wiki-asset-insert-file= - Insert a link to an asset file of
+    current page at current cursor position. This is an ordinary
+    org-mode link.
+
+Example: Inserts a link such as:
+
+#+BEGIN_SRC 
+file:Linux/Manual.pdf 
+#+END_SRC
+
+**** M-x org-wiki-asset-download-insert1
+  
+  - =M-x org-wiki-asset-download-insert1= - Ask the user the url to
+    download a file suggesting the url stored in the clipboard and
+    then asks the file name. After download it inserts a hyperlink at
+    point to open the file with systems' default application. 
+
+Example: 
+ 
+ 1. User is in the page Linux that corresponds to the file <org-wiki-location>/Linux.org
+
+ 2. User copy the url
+    <https://inst.eecs.berkeley.edu/~cs61b/fa13/ta-materials/unix-concise-ref.pdf>
+
+ 3. User enter M-x org-wiki-asset-download-insert1
+    1. Confirm the first prompt asking for the url. The suggested url is the copied url.
+    2. Confirm the second prompt asking the file name. The suggested
+       name is unix-concise-ref.pdf
+
+ 4. It will insert at current point the hyperlink bellow. That points to the
+    file <org-wiki-location>/Linux/unix-concise-ref.pdf.
+
+#+BEGIN_SRC 
+[[wiki-asset-sys:Linux;unix-concise-ref.pdf][unix-concise-ref.pdf]] 
+#+END_SRC
+
+
+Note: This command is synchronous and it can hang Emacs, therefore
+downloading heavy files can freeze Emacs. If it happesn type C-g to
+cancel the current download.
+
+**** M-x org-wiki-asset-download-insert2
+ 
+ - =M-x org-wiki-asset-download-insert2= - Similar to =M-x
+   org-wiki-asset-download-insert1=, however it inserts a hyperlink of
+   type ~file:<org-wiki-page>/<file-name>~. 
+
+Example: 
+
+  1. User is in the page Linux and copies the url:
+     ~http://i1-linux.softpedia-static.com/screenshots/htop_1.jpg~
+
+  2. User enter the command M-x org-wiki-asset-download-insert1 and
+     answers all prompts.
+
+  3. It will insert the hyperlink bellow at point. 
+
+#+BEGIN_SRC 
+file:Linux/htop_1.jpg
+#+END_SRC
+
+*** Open wiki directory
+**** M-x org-wiki-dired 
+
+  - =M-x org-wiki-dired= - Open the wiki directory in Emacs
+    dired-mode showing only *.org files.
+
+**** M-x org-wiki-dired-all
+
+  - =M-x org-wiki-dired-all= - Open the wiki directory in Emacs
+    showing all files. 
+*** Export all pages to html
+**** M-x org-wiki-export-html 
+
+ - =M-x org-wiki-export-html= - Exports all wiki pages to html
+   asynchronously, it means withoyt block Emacs by starting a new
+   Emacs process in background.
+
+**** M-x org-wiki-index-html 
+
+ - =M-x org-wiki-index-html= - Open the index page exported to html in
+   the web browser.  
+*** Web Server 
+
+ - =M-x org-wiki-server-toggle=  Start/stop static http server at
+   org-wiki directory. 
+
+This command actually runs =python -m  http.server --bind <host> <port>= 
+at the org-wiki directory. So it requires Python installed and
+available in the $PATH variable. 
+
+Default value: 
+
+ - host: 0.0.0.0 
+ - port: 8000 
+
+To see your current local IP address type =M-x ifconfig=. You can
+access the static web site by entering the URL:
+
+ - ~http://<your local ip address>:8000~
+
+
+ - For instance:  http://192.168.1.10:8000.
+*** Panel - org-wiki-panel
+
+ - =M-x org-wiki-panel= - This command provides a command panel that
+   can execute actions just typing few keys like magit or dired
+   buffer.
+
+[[file:images/7d1dba05-89ff-4f0f-9406-087e65a304e7.png][file:images/7d1dba05-89ff-4f0f-9406-087e65a304e7.png]]
+
+*** Menu 
+
+ - =M-x org-wiki-make-menu= Shows a menu with org-wiki functions and
+   command reminders.
+
+[[file:images/org-wiki-menu1.png][file:images/org-wiki-menu1.png]] 
+
+[[file:images/org-wiki-menu2.png][file:images/org-wiki-menu2.png]]
+
+*** Search
+
+ - =M-x org-wiki-search= - Search all wiki page that contains
+   a pattern. (string or regex pattern).
+
+*** Paste Image
+**** Overview 
+
+This command requires the utility  [[https://github.com/caiorss/clip.jar][clip.jar]] and Java runtime to be available
+at the $PATH variable.  
+
+The custom variable =org-wiki-clip-jar-path=  holds the path to
+clip.jar utility has the default value: =~/bin/Clip.jar=. 
+
+If you wish to install in Clip.jar in a different path set the
+variable org-wiki-clip-jar-path like this in the init file:
+
+#+BEGIN_SRC elisp 
+(setq org-wiki-clip-jar-path "~/bin/opt/Clip.jar")
+#+END_SRC
+
+You can download a binary release with: 
+
+#+BEGIN_SRC 
+mkdir  ~/bin && cd ~/bin 
+curl -O -L https://github.com/caiorss/clip.jar/blob/build/Clip.jar
+#+END_SRC
+
+**** M-x org-wiki-paste-image 
+
+ - =M-x org-wiki-paste-image= Ask the user for the image file name and
+   writes the image from clipboard to the file. 
+
+Example: 
+
+ + User copies an image with mouse right click to clipboard.
+
+
+ + User type the command M-x org-wiki-paste-image and choses the name
+   Unix.png and he is on the page Linux (Linux.org). It will write
+   the image to the file ./Linux/Unix.png and will insert a
+   this block at current cursor position:
+
+#+BEGIN_SRC 
+#+CAPTION: 
+file:Linux/Unix.png
+#+END_SRC  
+
+**** M-x org-wiki-paste-image-uuid 
+
+ - =M-x org-wiki-paste-image-uuid= Paste an image from clipboard with
+   automatically generated name (uuid). 
+
+Example: 
+
+ + User copies an image from clipboard and type the command 
+   =M-x org-wiki-paste-image-uuid=. It will insert at point this block
+   containing a hyperlink to the image like:
+
+#+BEGIN_SRC 
+#+CAPTION: 
+file:Linux/fba53c12-3f23-4728-9f52-a26a3d285d7c.png
+#+END_SRC  
+
+*** Help 
+
+ - =M-x org-wiki-help= Show all package commands and its description. 
+** Suggestions
+*** Shortcuts 
+
+You might want shortcuts for frequent commands: 
+
+ - Open a wiki page quickly. =M-x w-h=
+
+#+BEGIN_SRC elisp 
+(defalias 'w-h #'org-wiki-helm)
+#+END_SRC
+
+ - Switch between org-wiki buffers, wiki pages already opened. 
+
+#+BEGIN_SRC elisp 
+(defalias 'w-s #'org-wiki-switch)
+#+END_SRC
+
+ - Open a wiki page in a new frame quickly. 
+
+#+BEGIN_SRC elisp
+(defalias 'w-hf  #'org-wiki-helm-frame)
+#+END_SRC
+
+ - Switch to wiki page in read-only mode. 
+
+#+BEGIN_SRC elisp 
+(defalias 'w-hr #'org-wiki-helm-read-only)
+#+END_SRC
+ 
+ - Go to the index page 
+
+#+BEGIN_SRC elisp 
+(defalias 'w-i #'org-wiki-index)
+#+END_SRC
+
+ - Insert a link to a wiki page at point. It provides helm
+   completion. =M-x w-in=
+
+#+BEGIN_SRC elisp 
+(defalias 'w-in #'org-wiki-insert)
+#+END_SRC
+
+ - Open the current wiki page assets directory: =M-x w-ad=
+
+#+BEGIN_SRC elisp
+(defalias 'w-ad #'org-wiki-asset-dired)
+#+END_SRC
+
+ - Export current wiki page to html or any org-mode file. =M-x og2h=
+
+#+BEGIN_SRC elisp 
+(defalias 'og2h #'org-html-export-to-html)
+#+END_SRC
+
+ - Close all wiki pages 
+
+#+BEGIN_SRC elisp 
+(defalias 'w-close #'org-wiki-close)
+#+END_SRC
+
+*** Helm commands
+
+Some Helm commands are very handy to navigate and search org-mode
+files.
+
+ - M-x helm-org-in-buffer-headings - To filter the headings of
+   org-files.
+
+ - M-x helm-occur - Occur-like command with helm interface.
+
+*** Screenshot tools 
+
+*Linux* 
+
+ - [[http://shutter-project.org/][Shutter - Feature-rich Screenshot Tool]] 
+
+ - [[https://www.youtube.com/watch?v=Z7gci0qKCPo][Shutter - Advanced screenshot tool for Ubuntu ! - YouTube]]
+
+*Windows*
+
+ - [[http://www.bleepingcomputer.com/tutorials/how-to-use-the-windows-snipping-tool/][How to use the Windows Snipping Tool]]
+
+*** Bookmarklets 
+
+If you don't kwnow what is a bookmarklet see: [[https://www.youtube.com/watch?v=K_A3Y3eqnzE][Creating a Simple Bookmarklet - YouTube]]
+
+Note: The hyperlink of bookmarklet is only visible on the  [[https://caiorss.github.io/org-wiki][html documentation.]] 
+
+This bookmarklet opens a prompt and creates an org-mode hyperlink code
+for the current web page.
+
+ - To test the bookmarklet just click on it and copy the generated hyperlink. 
+
+ - To install the bookmarklet drag and drop the hyperlink to browser
+   bookmark toolbar. 
+
+Bookmarklet:
+
+#+BEGIN_HTML
+<a href='javascript:(function(){var md = "[[" + document.URL + "][" + document.title + "]]" ;prompt("org-mode :", md);})()'>Org-mode Url</a>
+#+END_HTML
+
+Javascript code:
+
+#+BEGIN_SRC js 
+var md = "[[" + document.URL + "][" + document.title + "]]" ;
+prompt("org-mode :", md);
+#+END_SRC
+
+Compressed JavaScript code:
+
+#+BEGIN_SRC js 
+javascript:(function(){var md = "[[" + document.URL + "][" + document.title + "]]" ;prompt("org-mode :", md);})()
+#+END_SRC
+
+*** Modify it
+
+You can change the commands or explore it using the command. 
+=M-x find-function <command-name>= to open the file at the point where
+the function is defined and edit the file org-wiki.el. 
+
+Example: 
+ 
+ - M-x find-function =org-wiki-helm=
+
+ - M-x find-library org-wiki
+
+** TODOLIST 
+
+ - [x] - Add command to copy and paste images from clipboard.
+ - [] - Add this package to some Emacs repository.
+ - [x] - Add a runnable test.
+ - [x] - Add org-wiki example pages and generated html files.
+ - [] - Update gifs 
+
+
+
+

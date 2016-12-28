@@ -1,0 +1,46 @@
+#+INCLUDE: theme/style.org
+#+TITLE: This is the index 
+#+STARTUP: showall
+
+#+CAPTION: scala logo
+
+[[file:index/scala%20logo.png]]
+
+* Index 
+** Org-mode helpful command 
+
+| Description                  | Command                       |   |
+|------------------------------+-------------------------------+---|
+| Toggle inline images         | M-x org-toggle-inline-images  |   |
+| Toggle inline Latex Formulas | M-x org-toggle-latex-fragment |   |
+| Toggle hyperlinks            | M-x org-toggle-link-display   |   |
+
+
+
+#+CAPTION: Org-mode Logo
+[[file:index/fc0e0018-5a55-4f71-9c84-3d01a1cd46e4.png]]
+
+
+
+** Programming 
+
+ - [[wiki:Elisp][Elisp]]
+
+ - [[wiki:Python][Python]]
+
+ - [[wiki:Bash%20-%20Shell%20-%20Unix][Bash - Shell - Unix]]
+
+ - [[wiki:Linux][Linux]]
+
+ - [[wiki:The%20Art%20of%20Unix%20Programming][The Art of Unix Programming]]
+
+ - [[wiki:Lisp%20Machines][Lisp Machines]]
+
+ - [[wiki:Avionics][Avionics]]
+
+ - [[wiki:Circuit%20Boards][Circuit Boards]]
+
+ - [[wiki:Math%20-%20Calculus][Math - Calculus]]
+
+ - 
+ 

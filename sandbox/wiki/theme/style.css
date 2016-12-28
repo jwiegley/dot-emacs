@@ -1,0 +1,724 @@
+
+/*========== @group Fundamentals ============*/
+
+* { margin: 0; padding: 0 }
+
+/* Is this portable? */
+html {
+  
+  background:#252525;
+  width: 100%;
+  height: 100%;
+  font-family: serif;
+  font-size: 2.0em;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2.0em;
+  
+ 
+}
+
+
+body>div {
+	background:   white;
+	border-bottom:1px solid #bfbfbf;
+    background:#f2f2f2;                      
+}
+
+body>div>div {
+	background:#f8f8f8 top left;
+	border-right:1px solid #e0e0e0
+}
+
+/* ============ Body =================== */
+
+body {
+    margin-left:  3%;
+    margin-right: 3%;
+    /* font-size: 12px sans-serif; */
+    font-size: 1.2em;
+    font-family: serif;
+	font:13px/1.4 sans-serif;
+	*font-size:small; /* for IE */
+	*font:x-small; /* for IE in quirks mode */
+    background: white;
+    color: black;
+    text-align: left;
+    min-height: 100%;
+    position: relative;    
+}
+
+
+/* ======= Headlines ======== */
+
+
+h1 {
+    /* font-size: 200%; */
+    font-size: 2.6em;
+   }
+
+body>header h1 {
+	font-size:2.2em;
+	font-family:"PT Serif","Georgia","Helvetica Neue",Arial,sans-serif;
+	font-weight:normal;
+	line-height:1.2em;
+	margin-bottom:0.6667em
+}
+
+h2 { font-size: 131%;  }
+h3 { font-size: 116%;  }
+h4 { font-size: 100%;  }
+h5 { font-size: 100%;  }
+
+h1,h2,h3,h4,h5,h6 {
+	text-rendering:optimizelegibility;
+	margin-bottom:1em;
+	font-weight:bold
+}
+
+.caption, h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  color: rgb(78,98,114);
+  margin: 0.8em 0 0.4em;
+}
+
+* + h1, * + h2, * + h3, * + h4, * + h5, * + h6 {
+  margin-top: 2em;
+}
+
+h1 + h2, h2 + h3, h3 + h4, h4 + h5, h5 + h6 {
+  margin-top: inherit;
+}
+
+
+.index-button {
+  font: bold 100% Arial;
+  text-decoration: none;
+  background-color: #EEEEEE;
+  color: #333333;
+  padding: 2px 6px 2px 6px;
+  border-top: 1px solid #CCCCCC;
+  border-right: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #CCCCCC;
+}
+
+
+/* ============= Table ================== */
+
+
+table {
+	font-size:inherit;
+	font:100%;
+    /* display: block; */
+    overflow: auto;
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td {
+    padding: 6px 13px;  
+}
+
+/* ========= p ================= */
+
+
+p {
+    margin: 0.8em 0;
+    font-fize: 14pt;
+}
+
+
+/* ========== Code and Pre ================ */
+
+
+code {
+    padding: 0;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+    margin: 0;
+    font-size: 85%;
+    /* background-color: lightskyblue; */
+    background:#fff;
+    color:#555;
+    /* border-radius: 3px; */
+    border-radius: 0.3em;    
+    /* margin: 10px 0; */
+    
+    
+    display:inline-block;
+    margin-bottom: 2.1em;
+}
+
+
+/* ======= Pre ================== * 
+
+
+/* pre                                      {background-color:#f3f5f7;} */
+
+
+pre {
+    background:#fff;
+    color:#555;
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    
+    font-family: monospace,monospace;
+   
+    /* overflow: auto; */
+    /* overflow: scroll; */
+    overflow-y: hidden;
+    padding: 8pt;
+    background-color:#f3f5f7;
+    font-size: 85%;
+    border-radius: 0.5em;
+    margin: 1.2em;
+    margin-bottom: 2.1em;
+}
+
+pre span.org-builtin                     {color:#006FE0;font-weight:bold;}
+pre span.org-string                      {color:#008000;}
+pre span.org-keyword                     {color:#0000FF;}
+pre span.org-variable-name               {color:#BA36A5;}
+pre span.org-function-name               {color:#006699;}
+pre span.org-type                        {color:#6434A3;}
+pre span.org-preprocessor                {color:#808080;font-weight:bold;}
+pre span.org-constant                    {color:#D0372D;}
+pre span.org-comment-delimiter           {color:#8D8D84;}
+pre span.org-comment                     {color:darkgreen;font-style:italic}
+pre span.org-outshine-level-1            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-2            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-3            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-4            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-5            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-6            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-7            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-8            {color:#8D8D84;font-style:italic}
+pre span.org-outshine-level-9            {color:#8D8D84;font-style:italic}
+pre span.org-rainbow-delimiters-depth-1  {color:#707183;}
+pre span.org-rainbow-delimiters-depth-2  {color:#7388d6;}
+pre span.org-rainbow-delimiters-depth-3  {color:#909183;}
+pre span.org-rainbow-delimiters-depth-4  {color:#709870;}
+pre span.org-rainbow-delimiters-depth-5  {color:#907373;}
+pre span.org-rainbow-delimiters-depth-6  {color:#6276ba;}
+pre span.org-rainbow-delimiters-depth-7  {color:#858580;}
+pre span.org-rainbow-delimiters-depth-8  {color:#80a880;}
+pre span.org-rainbow-delimiters-depth-9  {color:#887070;}
+pre span.org-sh-quoted-exec              {color:#FF1493;}
+
+
+
+/*====================*/
+
+
+ul, ol {
+  margin: 0.8em 0 0.8em 2em;
+}
+
+dl {
+  margin: 0.8em 0;
+}
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  margin-left: 2em;
+}
+
+
+
+img {
+    max-width: 500px;
+    width: 100%;
+    clear: both;
+}
+
+
+
+
+
+
+ul li { padding: 5px 0px; }
+
+
+a:hover{
+  color: blue;
+}
+
+div.wrapper {
+  width: 500px;
+  height: 500px;
+  overflow: auto;
+}
+
+
+
+#table-of-contents {
+    float: right;
+    border: 1px solid #CCC;
+    max-width: 50%;
+    overflow: auto;
+}
+
+#table-of-contents {
+    /* font-size: 9pt; */
+    display: none;
+    visibility: hidden;
+    position: fixed;
+    right: 0em;
+    top: 0em;
+    background: white;
+    /* -webkit-box-shadow: 0 0 1em #777777; */
+    /* -moz-box-shadow: 0 0 1em #777777; */
+    /* -webkit-border-bottom-left-radius: 5px; */
+    /* -moz-border-radius-bottomleft: 5px; */
+    /* text-align: right; */
+    max-height: 80%;
+    overflow: auto;
+    z-index: 200;
+}
+
+#table-of-contents ul {
+    margin-left: 14pt; 
+    margin-bottom: 10pt;
+    padding: 0
+}
+
+#table-of-contents li {
+    padding: 0;
+    margin: 1px;
+    list-style: none;
+}
+
+
+#text-table-of-contents {
+    display: none;
+    visibility: hidden;
+    text-align: left;
+}
+
+/* #table-of-contents:hover #text-table-of-contents { */
+/*     display: block; */
+/*     margin-top: -1.5em; */
+/*     padding: 0.5em; */
+/* } */
+
+
+
+#org-info-js-window
+{
+    position:absolute;
+    top:140px;
+    /* margin-left:10%; */
+    margin-right: 10%;
+}
+
+
+
+
+
+/* =============================================== */
+
+
+
+a { text-decoration: none; }
+
+a[href]:link { color: rgb(196,69,29); }
+a[href]:visited { color: rgb(171,105,84); }
+a[href]:hover { text-decoration:underline; }
+
+a[href].def:link, a[href].def:visited { color: black; }
+a[href].def:hover { color: rgb(78, 98, 114); }
+
+select, input, button, textarea {
+	font:99% sans-serif;}
+
+kbd, samp, tt, .src {
+	font-family:monospace;
+	*font-size:108%;
+	line-height: 124%;
+}
+
+.links, .link {
+  font-size: 85%; /* 11pt */}
+
+#module-header .caption {
+  font-size: 182%; /* 24pt */
+}
+
+.info  {
+  font-size: 85%; /* 11pt */
+}
+
+#table-of-contents, #synopsis  {
+  /* font-size: 85%; /* 11pt */
+}
+
+
+/* @end */
+
+/* @group Common */
+
+ul.links {
+  list-style: none;
+  text-align: left;
+  float: right;
+  display: inline-table;
+  margin: 0 0 0 1em;
+}
+
+ul.links li {
+  display: inline;
+  border-left: 1px solid #d5d5d5;
+  white-space: nowrap;
+  padding: 0;
+}
+
+ul.links li a {
+  padding: 0.2em 0.5em;
+}
+
+.hide { display: none; }
+.show { display: inherit; }
+.clear { clear: both; }
+
+.collapser {
+  background-image: url(minus.gif);
+  background-repeat: no-repeat;
+}
+.expander {
+  background-image: url(plus.gif);
+  background-repeat: no-repeat;
+}
+.collapser, .expander {
+  padding-left: 14px;
+  margin-left: -14px;
+  cursor: pointer;
+}
+
+p.caption.expander {
+  background-position: 0 0.4em;
+}
+
+.instance.collapser, .instance.expander {
+  margin-left: 0px;
+  background-position: left center;
+  min-width: 9px;
+  min-height: 9px;
+}
+
+
+.src {
+  background: #f0f0f0;
+  padding: 0.2em 0.5em;
+}
+
+.keyword { font-weight: normal; }
+.def { font-weight: bold; }
+
+@media print {
+  #footer { display: none; }
+}
+
+/* @end */
+
+/* @group Page Structure */
+
+#content {
+  margin: 0 auto;
+  padding: 0 2em 6em;
+}
+
+#package-header {
+  background: rgb(41,56,69);
+  border-top: 5px solid rgb(78,98,114);
+  color: #ddd;
+  padding: 0.2em;
+  position: relative;
+  text-align: left;
+}
+
+#package-header .caption {
+  background: url(hslogo-16.png) no-repeat 0em;
+  color: white;
+  margin: 0 2em;
+  font-weight: normal;
+  font-style: normal;
+  padding-left: 2em;
+}
+
+#package-header a:link, #package-header a:visited { color: white; }
+#package-header a:hover { background: rgb(78,98,114); }
+
+#module-header .caption {
+  color: rgb(78,98,114);
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+
+
+div#style-menu-holder {
+  position: relative;
+  z-index: 2;
+  display: inline;
+}
+
+#style-menu {
+  position: absolute;
+  z-index: 1;
+  overflow: visible;
+  background: #374c5e;
+  margin: 0;
+  text-align: center;
+  right: 0;
+  padding: 0;
+  top: 1.25em;
+}
+
+#style-menu li {
+	display: list-item;
+	border-style: none;
+	margin: 0;
+	padding: 0;
+	color: #000;
+	list-style-type: none;
+}
+
+#style-menu li + li {
+	border-top: 1px solid #919191;
+}
+
+#style-menu a {
+  width: 6em;
+  padding: 3px;
+  display: block;
+}
+
+#footer {
+  background: #ddd;
+  border-top: 1px solid #aaa;
+  padding: 0.5em 0;
+  color: #666;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 3em;
+}
+
+/* @end */
+
+/* @group Front Matter */
+
+#table-of-contents {
+  float: right;
+  clear: right;
+  background: #faf9dc;
+  border: 1px solid #d8d7ad;
+  padding: 0.5em 1em;
+  max-width: 20em;
+  margin: 0.5em 0 1em 1em;
+}
+
+#table-of-contents .caption {
+  text-align: center;
+  margin: 0;
+}
+
+#table-of-contents ul {
+  list-style: none;
+  margin: 0;
+}
+
+#table-of-contents ul ul {
+  margin-left: 2em;
+}
+
+#description .caption {
+  display: none;
+}
+
+#synopsis {
+  display: none;
+}
+
+.no-frame #synopsis {
+  display: block;
+  position: fixed;
+  right: 0;
+  height: 80%;
+  top: 10%;
+  padding: 0;
+  max-width: 75%;
+}
+
+#synopsis .caption {
+  float: left;
+  width: 29px;
+  color: rgba(255,255,255,0);
+  height: 110px;
+  margin: 0;
+  font-size: 1px;
+  padding: 0;
+}
+
+#synopsis p.caption.collapser {
+  background: url(synopsis.png) no-repeat -64px -8px;
+}
+
+#synopsis p.caption.expander {
+  background: url(synopsis.png) no-repeat 0px -8px;
+}
+
+#synopsis ul {
+  height: 100%;
+  overflow: auto;
+  padding: 0.5em;
+  margin: 0;
+}
+
+#synopsis ul ul {
+  overflow: hidden;
+}
+
+#synopsis ul,
+#synopsis ul li.src {
+  background-color: #faf9dc;
+  white-space: nowrap;
+  list-style: none;
+  margin-left: 0;
+}
+
+/* @end */
+
+/* @group Main Content */
+
+
+.clearfix:after {
+  clear: both;
+  content: " ";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+
+.subs ul {
+  list-style: none;
+  display: table;
+  margin: 0;
+}
+
+.subs ul li {
+  display: table-row;
+}
+
+.subs ul li dfn {
+  display: table-cell;
+  font-style: normal;
+  font-weight: bold;
+  margin: 1px 0;
+  white-space: nowrap;
+}
+
+.subs ul li > .doc {
+  display: table-cell;
+  padding-left: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.subs ul li > .doc p {
+  margin: 0;
+}
+
+/* Render short-style data instances */
+.inst ul {
+  height: 100%;
+  padding: 0.5em;
+  margin: 0;
+}
+
+.inst, .inst li {
+  list-style: none;
+  margin-left: 1em;
+}
+
+/* Workaround for bug in Firefox (issue #384) */
+.inst-left {
+  float: left;
+}
+
+.top p.src {
+  border-top: 1px solid #ccc;
+}
+
+.subs, .doc {
+  /* use this selector for one level of indent */
+  padding-left: 2em;
+}
+
+.warning {
+  color: red;
+}
+
+.arguments {
+  margin-top: -0.4em;
+}
+.arguments .caption {
+  display: none;
+}
+
+.fields { padding-left: 1em; }
+
+.fields .caption { display: none; }
+
+.fields p { margin: 0 0; }
+
+/* this seems bulky to me
+.methods, .constructors {
+  background: #f8f8f8;
+  border: 1px solid #eee;
+}
+*/
+
+/* @end */
+
+/* @group Auxillary Pages */
+
+
+.extension-list {
+    list-style-type: none;
+    margin-left: 0;
+}
+
+
+
+#index .caption,
+#module-list .caption { font-size: 131%; /* 17pt */ }
+
+#index table {
+  margin-left: 10em;
+  border-collapse:collapse;
+	border-spacing:0
+}
+
+#index .src {
+  font-weight: bold;
+}
+#index .alt {
+  font-size: 77%; /* 10pt */
+  font-style: italic;
+  padding-left: 2em;
+}
+
+#index td + td {
+  padding-left: 1em;
+}
+
+
+.highlight code {
+	background:#000
+}
+
