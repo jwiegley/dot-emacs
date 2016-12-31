@@ -1435,7 +1435,7 @@ Near here means PT is either inside or just aside of a comment."
     (cond
      ((coq-looking-at-comment)
       (coq-get-comment-region (point)))
-     ((and (looking-back proof-script-comment-end)
+     ((and (looking-back proof-script-comment-end nil)
            (save-excursion (forward-char -1) (coq-looking-at-comment)))
       (coq-get-comment-region (- (point) 1)))
      ((and (looking-at proof-script-comment-start)

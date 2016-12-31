@@ -318,7 +318,7 @@ force indentation."
 The point should be at the beginning of the command name."
   (save-excursion ; FIXME Is there other module starting commands?
     (cond
-     ((looking-back "with\\s-+") "module") ; lowecase means Module that is not a declaration keyword (like in with Module) 
+     ((looking-back "with\\s-+" nil) "module") ; lowecase means Module that is not a declaration keyword (like in with Module) 
      ((proof-looking-at "\\(Module\\|Section\\)\\>")
       (if (coq-lonely-:=-in-this-command) "Module start" "Module def")))))
 
@@ -459,7 +459,7 @@ The point should be at the beginning of the command name."
      ((member corresp '("Inductive" "CoInductive")) ":= inductive")
      ((equal corresp "let") ":= let")
      ((equal corresp "where") ":= inductive") ;; inductive or fixpoint, nevermind
-     ((or (looking-back "{")) ":= record")
+     ((or (looking-back "{" nil)) ":= record")
      (t ":=")))) ; a parenthesis stopped the search
 
 
@@ -488,8 +488,8 @@ The point should be at the beginning of the command name."
 	  (cond
 	   ((member backtok '("." "Ltac")) "; tactic")
 	   ((equal backtok nil)
-	    (if (or (looking-back "(") (looking-back "\\[")
-		    (and (looking-back "{")
+	    (if (or (looking-back "(" nil) (looking-back "\\[")
+		    (and (looking-back "{" nil)
 			 (equal (coq-smie-backward-token) "{ subproof"))) ;; recursive call
 		"; tactic"
 	      "; record"))))))
@@ -505,10 +505,10 @@ The point should be at the beginning of the command name."
 		 (equal (coq-smie-backward-token) "; tactic")) ;; recursive
 	    "|| tactic")
 	   ;; this is wrong half of the time but should not harm indentation
-	   ((and (equal backtok nil) (looking-back "(")) "||") 
+	   ((and (equal backtok nil) (looking-back "(" nil)) "||") 
 	   ((equal backtok nil)
-	    (if (or (looking-back "\\[")
-		    (and (looking-back "{")
+	    (if (or (looking-back "\\[" nil)
+		    (and (looking-back "{" nil)
 			 (equal (coq-smie-backward-token) "{ subproof"))) ;; recursive call
 		"|| tactic"
 	      "||"))))))
@@ -549,7 +549,7 @@ The point should be at the beginning of the command name."
       (forward-char -1)
       (if (looking-at "{") "{ subproof" "} subproof"))
 
-     ((and (equal tok ":") (looking-back "\\<\\(constr\\|ltac\\|uconstr\\)"))
+     ((and (equal tok ":") (looking-back "\\<\\(constr\\|ltac\\|uconstr\\)" nil))
       ": ltacconstr")
 
      ((equal tok ":=")
