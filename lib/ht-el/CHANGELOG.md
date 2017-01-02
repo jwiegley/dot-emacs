@@ -1,3 +1,47 @@
+## v2.1
+
+* `ht<-alist` and `ht<-plist` gained an optional argument `test` to
+specify the equality predicate.
+* Added `ht-equal?`.
+
+## v2.0 -- API Change
+
+Functions names have been changed to be more explicit and consistent.
+
+Note that ht.el includes aliases, so v2.0 is fully backwards
+compatible.
+
+Mutation functions now always end with `!`, and `ht-delete-if` has
+been renamed for consistency with its non-mutating equivalent
+`ht-reject`.
+
+* `ht-set` -> `ht-set!`
+* `ht-update` -> `ht-update!`
+* `ht-remove` -> `ht-remove!`
+* `ht-clear` -> `ht-clear!`
+* `ht-delete-if` -> `ht-reject!`
+
+Predicates now always end with `?`.
+
+* `ht-p` -> `ht?`
+* `ht-contains-p` -> `ht-contains?`
+
+Conversion functions now use `<-` and `->`.
+
+* `ht-to-alist` -> `ht->alist`
+* `ht-to-plist` -> `ht->plist`
+* `ht-from-alist` -> `ht<-alist`
+* `ht-from-plist` -> `ht<-plist`
+
+## v1.6
+
+* Added `ht-reject` and `ht-select`
+* Added `ht-delete-if`
+* Added `ht-find`
+* Added `ht-empty?` and `ht-size`
+
+Also added Travis configuration.
+
 ## v1.5
 
 * `ht-aeach` now evaluates to `nil` as it should (use `ht-amap` if you

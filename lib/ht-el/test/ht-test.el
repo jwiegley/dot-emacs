@@ -1,4 +1,3 @@
-(require 'ert)
 (require 'ht)
 
 (ert-deftest ht-test-ht ()
@@ -120,6 +119,21 @@
        (ht ("foo" 1) ("bar" 2)))
       nil))))
 
+(ert-deftest ht-test-select-keys-empty ()
+  "ht-select-keys should return an empty table if the keys list is empty"
+  (let ((table (ht (:foo 1) (:bar 3))))
+    (should (ht-empty? (ht-select-keys table '())))))
+
+(ert-deftest ht-test-select-keys ()
+  "size of returned table should be the same as the keys list"
+  (let ((table (ht (:foo 1) (:bar 3))))
+    (should (equal (ht-size (ht-select-keys table '(:foo :bar))) 2))))
+
+(ert-deftest ht-test-select-keys-not-found ()
+  "if the key is not found, it doesn't occur in the returned table"
+  (let ((table (ht (:foo 1) (:bar 3))))
+    (should (equal (ht-size (ht-select-keys table '(:foo :baz))) 1))))
+
 (ert-deftest ht-test-from-alist ()
   (let* ((alist '(("key1" . "value1")))
          (test-table (ht-from-alist alist)))
@@ -154,6 +168,98 @@
 (ert-deftest ht-test-contains-p ()
   (should (ht-contains-p (ht ("key" nil)) "key"))
   (should-not (ht-contains-p (ht) "key")))
+
+(ert-deftest ht-test-size ()
+  (should (= (ht-size (ht)) 0))
+  (should (= (ht-size (ht ("foo" "bar"))) 1))
+  (should (= (ht-size (ht ("foo" "bar")
+                          ("baz" "qux"))) 2)))
+
+(ert-deftest ht-test-empty ()
+  (should (ht-empty? (ht)))
+  (should-not (ht-empty? (ht ("foo" "bar"))))
+  (should-not (ht-empty? (ht ("foo" "bar")
+                              ("baz" "qux")))))
+
+(ert-deftest ht-test-select ()
+  (let ((results
+         (ht-select
+          (lambda (key value)
+            (= (% value 2) 0))
+          (ht
+           ("foo" 1)
+           ("bar" 2)
+           ("baz" 3)
+           ("qux" 4)))))
+    (should (= (ht-size results) 2))
+    (should (= (ht-get results "bar") 2))
+    (should (= (ht-get results "qux") 4))))
+
+(ert-deftest ht-test-reject ()
+  (let ((results
+         (ht-reject
+          (lambda (key value)
+            (= (% value 2) 0))
+          (ht
+           ("foo" 1)
+           ("bar" 2)
+           ("baz" 3)
+           ("qux" 4)))))
+    (should (= (ht-size results) 2))
+    (should (= (ht-get results "foo") 1))
+    (should (= (ht-get results "baz") 3))))
+
+(ert-deftest ht-test-delete-if ()
+  (let* ((table (ht
+                 ("foo" 1)
+                 ("bar" 2)
+                 ("baz" 3)
+                 ("qux" 4)))
+         (results
+          (ht-delete-if
+           (lambda (key value)
+             (= (% value 2) 0))
+           table)))
+    (should-not results)
+    (should (= (ht-size table) 2))
+    (should (= (ht-get table "foo") 1))
+    (should (= (ht-get table "baz") 3))
+    (should-not (ht-get table "bar"))
+    (should-not (ht-get table "qux"))))
+
+(ert-deftest ht-test-find ()
+  (let* ((table (ht
+                 ("baz" 3)
+                 ("qux" 4)))
+         (result
+          (ht-find
+           (lambda (key value)
+             (= (% value 2) 0))
+           table)))
+    (should (equal result '("qux" 4)))))
+
+(ert-deftest ht-test-find-nil ()
+  (let* ((table (ht
+                 ("baz" 3)
+                 ("qux" 4)))
+         (result
+          (ht-find
+           (lambda (key value)
+             nil)
+           table)))
+    (should (equal result nil))))
+
+(ert-deftest ht-test-equal ()
+  ;; Same keys and values.
+  (should (ht-equal-p (ht) (ht)))
+  (should (ht-equal-p (ht (1 2)) (ht (1 2))))
+  ;; Different values.
+  (should (not (ht-equal-p (ht (1 2)) (ht (1 3)))))
+  ;; Different keys.
+  (should (not (ht-equal-p (ht (1 2)) (ht (2 2)))))
+  ;; Different amount of keys.
+  (should (not (ht-equal-p (ht (1 2)) (ht (1 2) (3 4)))))
+  (should (not (ht-equal-p (ht (1 2) (3 4)) (ht (1 2))))))
 
 (defun ht-run-tests ()
   (interactive)
