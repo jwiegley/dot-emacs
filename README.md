@@ -2,31 +2,93 @@
 
 The missing hash table library for Emacs.
 
+[![MELPA](http://melpa.org/packages/ht-badge.svg)](http://melpa.org/#/ht)
+[![MELPA Stable](http://stable.melpa.org/packages/ht-badge.svg)](http://stable.melpa.org/#/ht)
+[![Build Status](https://travis-ci.org/Wilfred/ht.el.png?branch=master)](https://travis-ci.org/Wilfred/ht.el)
+
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+**Table of Contents**
+
+- [ht.el](#htel)
+    - [Functions](#functions)
+        - [Return a hash table](#return-a-hash-table)
+        - [Accessing the hash table](#accessing-the-hash-table)
+        - [Mutating the hash table](#mutating-the-hash-table)
+        - [Iterating over the hash table](#iterating-over-the-hash-table)
+        - [Predicates](#predicates)
+        - [Converting from a hash table](#converting-from-a-hash-table)
+        - [Converting to a hash table](#converting-to-a-hash-table)
+    - [Macros](#macros)
+        - [Returning a hash table](#returning-a-hash-table)
+        - [Iterating over the hash table (anaphoric)](#iterating-over-the-hash-table-anaphoric)
+    - [Examples](#examples)
+    - [Why?](#why)
+        - [Similar libraries](#similar-libraries)
+    - [Installation](#installation)
+    - [Changelog](#changelog)
+    - [Running tests](#running-tests)
+    - [What's an alist/plist?](#whats-an-alistplist)
+
+<!-- markdown-toc end -->
+
 ## Functions
 
+### Return a hash table
+
 * `ht-create` `(test?)`
-* `ht-get` `(table key default?)`
-* `ht-set` `(table key value)`
-* `ht-update` `(table table)`
 * `ht-merge` `(&rest tables)`
-* `ht-remove` `(table key)`
-* `ht-clear` `(table)`
+* `ht-copy` `(table)`
+* `ht-select` `(function table)`
+* `ht-reject` `(function table)`
+* `ht-select-keys` `(table keys)`
+
+### Accessing the hash table
+
+* `ht-get` `(table key default?)`
 * `ht-keys` `(table)`
 * `ht-values` `(table)`
 * `ht-items` `(table)`
+* `ht-find` `(function table)`
+* `ht-size` `(table)`
+
+### Mutating the hash table
+
+* `ht-set!` `(table key value)`
+* `ht-update!` `(table table)`
+* `ht-remove!` `(table key)`
+* `ht-clear!` `(table)`
+* `ht-reject!` `(function table)`
+
+### Iterating over the hash table
+
 * `ht-map` `(function table)`
 * `ht-each` `(function table)`
-* `ht-copy` `(table)`
-* `ht-from-alist` `(alist)`
-* `ht-from-plist` `(plist)`
-* `ht-to-alist` `(table)`
-* `ht-to-plist` `(table)`
-* `ht-p` `(table-or-object)`
-* `ht-contains-p` `(table key)`
+
+### Predicates
+
+* `ht?` `(table-or-object)`
+* `ht-contains?` `(table key)`
+* `ht-equal?` `(table1 table2)`
+* `ht-empty?` `(table)`
+
+### Converting from a hash table
+
+* `ht->alist` `(table)`
+* `ht->plist` `(table)`
+
+### Converting to a hash table
+
+* `ht<-alist` `(alist test?)`
+* `ht<-plist` `(plist test?)`
 
 ## Macros
 
+### Returning a hash table
+
 * `ht` `(&rest pairs)`
+
+### Iterating over the hash table (anaphoric)
+
 * `ht-amap` `(form table)`
 * `ht-aeach` `(form table)`
 
@@ -34,22 +96,26 @@ The missing hash table library for Emacs.
 
 Creating a hash table and accessing it:
 
-    (require 'ht)
+``` emacs-lisp
+(require 'ht)
 
-    (defun say-hello (name)
-      (let ((greetings (ht ("Bob" "Hey bob!")
-                           ("Chris" "Hi Chris!"))))
-        (ht-get greetings name "Hello stranger!")))
+(defun say-hello (name)
+  (let ((greetings (ht ("Bob" "Hey bob!")
+                       ("Chris" "Hi Chris!"))))
+    (ht-get greetings name "Hello stranger!")))
+```
 
 This could be alternatively written as:
 
-    (require 'ht)
+``` emacs-lisp
+(require 'ht)
 
-    (defun say-hello (name)
-      (let ((greetings (ht-create)))
-        (ht-set greetings "Bob" "Hey Bob!")
-        (ht-set greetings "Chris" "Hi Chris!")
-        (ht-get greetings name "Hello stranger!")))
+(defun say-hello (name)
+  (let ((greetings (ht-create)))
+    (ht-set! greetings "Bob" "Hey Bob!")
+    (ht-set! greetings "Chris" "Hi Chris!")
+    (ht-get greetings name "Hello stranger!")))
+```
 
 ## Why?
 
@@ -72,29 +138,29 @@ ht.el offers:
 
 ### Similar libraries
 
-* [kv.el](https://github.com/nicferrier/emacs-kv) (focuses more on alists)
+* [kv.el](https://github.com/nicferrier/emacs-kv) (focuses more on
+  alists)
+* [mon-hash-utils](http://www.emacswiki.org/emacs/mon-hash-utils.el)
 
 ## Installation
 
-ht.el is availabe on [MELPA](http://melpa.milkbox.net/) and
+ht.el is available on [MELPA](https://melpa.org/) (recommended) and
 [Marmalade](http://marmalade-repo.org/).
 
-Add a package archive to your .emacs.d/init.el:
+Add MELPA to your .emacs.d/init.el:
 
-    (require 'package)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-    
-then run `M-x package-install <RET> ht <RET>`
+``` emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+```
 
-## API changelog
+then run `M-x package-install <RET> ht <RET>`.
+
+## Changelog
 
 ht.el uses semantic versioning, so an incompatible API change will
-result in the major version increasing. See CHANGELOG.md for a history
-of all changes.
-
-### v1.0
-
-* `ht-map` now returns a list.
+result in the major version increasing. See
+[CHANGELOG.md](CHANGELOG.md) for a history of all changes.
 
 ## Running tests
 
@@ -121,7 +187,7 @@ of items. It looks like this:
      key2 value2
      key3 value3)
 
-Both of these are slow. ht.el provides `ht-from-alist` and
-`ht-from-plist` to help you convert to hash tables. If you need to
-work with an alist or plist, use the functions `ht-to-alist` and
-`ht-to-plist` to convert an hash table to those formats.
+Both of these are slow. ht.el provides `ht<-alist` and
+`ht<-plist` to help you convert to hash tables. If you need to
+work with an alist or plist, use the functions `ht->alist` and
+`ht->plist` to convert an hash table to those formats.
