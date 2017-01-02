@@ -7,7 +7,8 @@
 ;;               Michael Ivey
 ;;               Phil Hagelberg
 ;;               Dan McKinley
-;; Version: 1.3.1
+;;               Marcelo Muñoz Araya <ma.munoz.araya@gmail.com>
+;; Version: 1.3.2
 ;; Package-Requires: ((emacs "24.1") (gh "0.9.2"))
 ;; Keywords: tools
 ;; Homepage: https://github.com/defunkt/gist.el
@@ -89,6 +90,11 @@
 
 (defcustom gist-ask-for-description nil
   "If non-nil, prompt for description before submitting gist."
+  :type 'boolean
+  :group 'gist)
+
+(defcustom gist-ask-for-filename nil
+  "If non-nil, prompt for change default file name before submitting gist."
   :type 'boolean
   :group 'gist)
 
@@ -182,6 +188,11 @@ appropriate modes from fetched gist files (based on filenames)."
   (when gist-ask-for-description
     (read-from-minibuffer "Gist description: ")))
 
+(defun gist-ask-for-filename-maybe (fname)
+  (if gist-ask-for-filename
+      (read-string (format "File name (%s): " fname) nil nil fname)
+    fname))
+
 ;;;###autoload
 (defun gist-region (begin end &optional private callback)
   "Post the current region as a new paste at gist.github.com
@@ -194,7 +205,8 @@ With a prefix argument, makes a private paste."
          (ext (or (cdr (assoc major-mode gist-supported-modes-alist))
                   (file-name-extension file)
                   "txt"))
-         (fname (concat (file-name-sans-extension name) "." ext))
+         (proposal-fname (concat (file-name-sans-extension name) "." ext))
+         (fname (gist-ask-for-filename-maybe proposal-fname))
          (files (list
                  (make-instance 'gh-gist-gist-file
                                 :filename fname
@@ -460,6 +472,7 @@ for the gist."
     (let* ((old-descr (oref gist :description))
            (new-descr (read-from-minibuffer "Description: " old-descr))
            (g (clone gist
+                     :files nil
                      :description new-descr))
            (resp (gh-gist-edit api g)))
       (gh-url-add-response-callback resp
