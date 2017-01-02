@@ -98,7 +98,12 @@
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         (quote
-         ("+APPT"))))))))
+         ("+APPT")))))
+     ("O" "All TODOs" tags "TODO<>\"\""
+      ((org-agenda-overriding-header "All TODOs")
+       (org-agenda-files
+        (quote
+         ("~/doc/tasks/todo.txt" "~/doc/tasks/BAE.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/OSS.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/index.txt" "~/doc/tasks/notes.txt" "~/doc/tasks/archive/BAE.txt" "~/doc/tasks/archive/Bahai.txt" "~/doc/tasks/archive/BoostPro.txt" "~/doc/tasks/archive/CEG.txt" "~/doc/tasks/archive/Embarcadero.txt" "~/doc/tasks/archive/FPComplete.txt" "~/doc/tasks/archive/IL-05.txt" "~/doc/tasks/archive/TI.txt" "~/doc/tasks/archive/archive-2007.txt" "~/doc/tasks/archive/archive-2008.txt" "~/doc/tasks/archive/archive-2009.txt" "~/doc/tasks/archive/archive-2010.txt" "~/doc/tasks/archive/archive-2011.txt" "~/doc/tasks/archive/archive-2012.txt" "~/doc/tasks/archive/archive-2013.txt" "~/doc/tasks/archive/archive-2014.txt" "~/doc/tasks/archive/archive-2015.txt" "~/doc/tasks/archive/archive.txt" "~/doc/tasks/archive/emacs.txt"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
@@ -133,7 +138,7 @@
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-start-with-log-mode nil)
  '(org-agenda-tags-column -100)
- '(org-agenda-text-search-extra-files (quote (agenda-archives "~/doc/notes/notes.txt")))
+ '(org-agenda-text-search-extra-files (quote (agenda-archives "~/doc/tasks/notes.txt")))
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
@@ -276,7 +281,6 @@ SCHEDULED: %t
   ("~/doc/tasks/emacs.txt" :level . 1)
   ("~/doc/tasks/OSS.txt" :level . 1)
   ("~/doc/tasks/BAE.txt" :level . 1)
-  ("~/doc/tasks/assembly.txt" :level . 1)
   (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
