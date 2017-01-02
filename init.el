@@ -486,15 +486,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (defvar display-name
   (let ((width (display-pixel-width)))
     (cond ((>= width 2560) 'retina-imac)
+          ((= width 1920) 'macbook-pro-vga)
           ((= width 1680) 'macbook-pro)
           ((= width 1440) 'retina-macbook-pro))))
 
 (defvar emacs-min-top 23)
 (defvar emacs-min-left
   (cond ((eq display-name 'retina-imac) 975)
+        ((eq display-name 'macbook-pro-vga) 837)
         (t 521)))
 (defvar emacs-min-height
   (cond ((eq display-name 'retina-imac) 57)
+        ((eq display-name 'macbook-pro-vga) 54)
         ((eq display-name 'macbook-pro) 47)
         (t 44)))
 (defvar emacs-min-width 100)
@@ -514,6 +517,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
       ))
    ((eq display-name 'macbook-pro)
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
+      ))
+   ((eq display-name 'macbook-pro-vga)
     (if running-alternate-emacs
         "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
       ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
