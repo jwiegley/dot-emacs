@@ -1354,6 +1354,8 @@ goal is redisplayed."
 (proof-definvisible coq-unset-printing-synth "Unset Printing Synth.")
 (proof-definvisible coq-set-printing-coercions "Set Printing Coercions.")
 (proof-definvisible coq-unset-printing-coercions "Unset Printing Coercions.")
+(proof-definvisible coq-set-printing-universes "Set Printing Universes.")
+(proof-definvisible coq-unset-printing-universes "Unset Printing Universes.")
 (proof-definvisible coq-set-printing-wildcards "Set Printing Wildcard.")
 (proof-definvisible coq-unset-printing-wildcards "Unset Printing Wildcard.")
 ; Takes an argument
@@ -1433,7 +1435,7 @@ Near here means PT is either inside or just aside of a comment."
     (cond
      ((coq-looking-at-comment)
       (coq-get-comment-region (point)))
-     ((and (looking-back proof-script-comment-end)
+     ((and (looking-back proof-script-comment-end nil)
            (save-excursion (forward-char -1) (coq-looking-at-comment)))
       (coq-get-comment-region (- (point) 1)))
      ((and (looking-at proof-script-comment-start)
@@ -1786,7 +1788,7 @@ Near here means PT is either inside or just aside of a comment."
 (defpacustom search-blacklist coq-search-blacklist-string
   "Strings to blacklist in requests to coq environment."
   :type 'string
-  ;;:get coq-search-blacklist-string
+  :get 'coq-get-search-blacklist
   :setting coq-set-search-blacklist)
 
 
@@ -1869,7 +1871,7 @@ The not yet delayed output is in the region
                 coq-proof-tree-additional-subgoal-ID-regexp end t)
           (let ((subgoal-id (match-string-no-properties 1)))
             (unless (gethash subgoal-id proof-tree-sequent-hash)
-              (message "CPTGNS new sequent %s found" subgoal-id)
+              ;; (message "CPTGNS new sequent %s found" subgoal-id)
               (setq proof-action-list
                     (cons (proof-shell-action-list-item
                            (coq-show-sequent-command subgoal-id)

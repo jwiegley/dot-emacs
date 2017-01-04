@@ -920,7 +920,7 @@ example in Isabelle with semi-colons, but these will not appear in the
 final text.
 
 Coq, on the other hand, requires a full-stop terminator at the end of
-each line, so @kbd{C-c C-.} is the key binding used to turn on
+each line, so @kbd{C-c .} is the key binding used to turn on
 electric terminator.  If you don't know what the terminator character
 is, you can find the option anyway on the menu:
 @code{Proof-General -> Quick Options -> Processing -> Electric Terminator}
@@ -4396,11 +4396,18 @@ one project you can set the option as local file variable,
 @ref{Using file variables}. This can be done either directly in
 every file or once for all files of a directory tree with a
 @code{.dir-local.el} file, @inforef{Directory Variables, ,emacs}.
-For this case, this file should contain
+The file @code{.dir-local.el} should then contain
 
 @lisp
 ((coq-mode . ((coq-project-filename . "myprojectfile"))))
 @end lisp
+
+Note that variables set in @code{.dir-local.el} are automatically
+made buffer local (such that files in different directories can
+have their independent setting of @code{coq-project-filename}).
+If you make complex customizations using @code{eval} in
+@code{.dir-local.el}, you might want to add appropriate calls to
+@code{make-local-variable}.
 
 Documentation of the user option @code{coq-project-filename}:
 
@@ -4494,8 +4501,12 @@ these points:
 
 @itemize @bullet
 @item
-The option @code{coq-compile-before-require} must be
-turned on (menu @code{Coq -> Auto Compilation -> Compile Before Require}).
+Set the option @code{coq-compile-before-require} (menu @code{Coq
+-> Auto Compilation -> Compile Before Require}) to enable
+compilation before processing @code{Require} commands and set
+@code{coq-compile-parallel-in-background} (menu @code{Coq
+-> Auto Compilation -> Parallel background compilation}) for
+parallel asynchronous compilation (recommended).
 @item 
 Nonstandard load path elements @emph{must} be configured via a
 Coq project file (this is the recommended option),
@@ -4505,9 +4516,18 @@ option @code{coq-load-path}. @code{-I} or @code{-R} options in
 @item
 Configure
 @code{coq-max-background-compilation-jobs} if you want to limit
-the number of parallel background jobs.
+the number of parallel background jobs and set
+@code{coq-compile-keep-going} (menu @code{Coq -> Auto Compilation
+-> Keep going}) to let compilation continue after the first
+error.
 @end itemize
 
+To abort parallel background compilation, use @code{C-c C-c}
+(@code{proof-interrupt-process}), the tool bar interrupt icon,
+the menu entry @code{Abort Background Compilation} (menu
+@code{Coq -> Auto Compilation}) or kill the Coq toplevel via
+@code{C-c C-x} (@code{proof-shell-exit}). To abort synchronous
+single threaded compilation, simply hit @code{C-g}.
 
 
 @menu
@@ -4554,7 +4574,16 @@ controls how @code{-quick} and @code{.vio} files are used,
 @ref{Quick compilation and .vio Files}. This can also be
 configured in the menu @code{Coq -> Auto Compilation}.
 
-When a @code{Require} command causes a compilation of some files
+Similar to @code{make -k}, background compilation can be
+configured to continue as far as possible after the first error,
+see option @code{coq-compile-keep-going} (menu @code{Coq -> Auto
+Compilation -> Keep going}). The keep-going option only applies
+to errors from @code{coqdep} and @code{coqc}. For all other
+errors (for instance when the translation from logical module
+names to physical files fails or when starting @code{coqc} or
+@code{coqdep} fails), the compilation is immediately aborted.
+
+When a @code{Require} command causes a compilation of some files,
 one may wish to save some buffers to disk beforehand. The option
 @code{coq-compile-auto-save} controls how and which files are
 saved. There are two orthogonal choices: One may wish to save all
@@ -4583,8 +4612,11 @@ runs up to @code{coq-max-background-compilation-jobs} coqdep and
 coqc jobs in parallel in asynchronous subprocesses (or uses all
 your CPU cores if @code{coq-max-background-compilation-jobs}
 equals @code{'all-cpus}). Your Emacs will stay responsive during
-compilation. Use @code{C-c C-c} or the tool bar icons for
-interrupt or restart to interrupt compilation.
+compilation. To abort the background compilation process, use
+@code{C-c C-c} (@code{proof-interrupt-process}), the tool bar
+interrupt icon, the menu entry @code{Abort Background
+Compilation} (menu @code{Coq -> Auto Compilation}) or kill the
+Coq toplevel via @code{C-c C-x} (@code{proof-shell-exit}).
 
 For the usual case, you have at most
 `coq-max-background-compilation-jobs' parallel processes
@@ -4723,12 +4755,14 @@ files, but don't compile prerequisites for which an up-to-date
 @item quick-and-vio2vo
 Same as @code{quick-no-vio2vo}, but start vio2vo processes for
 missing @code{.vo} files after a certain delay when library
-complication for the current queue region has finished. With this
+compilation for the current queue region has finished. With this
 mode you might see asynchronous errors from vio2vo compilation
 while you are processing stuff far below the last require. vio2vo
 compilation is done on a subset of the available cores controlled
 by option @code{coq-compile-vio2vo-percentage}, @ref{Customizing
-Coq Multiple File Support}.
+Coq Multiple File Support}. When @code{coq-compile-keep-going} is
+set, vio2vo compilation is scheduled for those files for which
+@code{coqc} compilation was successful.
 
 @emph{Warning}: This mode does only work when you process require
 commands in batches. Slowly single-stepping through require's
@@ -4816,14 +4850,27 @@ The option @code{coq-compile-quick} is described in detail above,
 @ref{Quick compilation and .vio Files}
 
 
+@c TEXI DOCSTRING MAGIC: coq-compile-keep-going
+@defvar coq-compile-keep-going 
+Continue compilation after the first error as far as possible.@*
+Similar to @samp{`make -k}', with this option enabled, the background
+compilation continues after the first error as far as possible.
+With this option disabled, background compilation is
+immediately stopped after the first error.
+
+This option can be set/reset via menu
+@samp{Coq -> Auto Compilation -> Keep going}.
+@end defvar
+
+
 @c TEXI DOCSTRING MAGIC: coq-max-background-compilation-jobs
 @defvar coq-max-background-compilation-jobs 
 Maximal number of parallel jobs, if parallel compilation is enabled.@*
 Use the number of available CPU cores if this is set to
 @code{'all-cpus}. This variable is the user setting. The value that is
-really used is @samp{@code{coq-internal-max-jobs}}. Use @samp{@code{coq-max-jobs-setter}}
+really used is @samp{@code{coq--internal-max-jobs}}. Use @samp{@code{coq-max-jobs-setter}}
 or the customization system to change this variable. Otherwise
-your change will have no effect, because @samp{@code{coq-internal-max-jobs}}
+your change will have no effect, because @samp{@code{coq--internal-max-jobs}}
 is not adapted.
 @end defvar
 

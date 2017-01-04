@@ -161,7 +161,15 @@ It was constructed with `proof-defstringset-fn'.")
       :active coq-compile-before-require
       :help ,(concat "Compile parallel in background or "
 		    "sequentially with blocking ProofGeneral.")]
-     ["no quick"
+     ["Keep going"
+      coq-compile-keep-going-toggle
+      :style toggle
+      :selected coq-compile-keep-going
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help ,(concat "Continue background compilation after "
+		     "the first error as far as possible")]
+    ["no quick"
       (customize-set-variable 'coq-compile-quick 'no-quick)
       :style radio
       :selected (eq coq-compile-quick 'no-quick)
@@ -195,7 +203,12 @@ It was constructed with `proof-defstringset-fn'.")
       :selected coq-confirm-external-compilation
       :active (and coq-compile-before-require
 		   (not (equal coq-compile-command "")))
-      :help "Confirm external compilation command, see `coq-compile-command'."])
+      :help "Confirm external compilation command, see `coq-compile-command'."]
+     ["Abort Background Compilation"
+      coq-par-emergency-cleanup
+      :active (and coq-compile-before-require
+		   coq-compile-parallel-in-background)
+      :help "Abort background compilation and kill all compilation processes."])
     ""
     ["Print..." coq-Print :help "With prefix arg (C-u): Set Printing All first"]
     ["Check..." coq-Check :help "With prefix arg (C-u): Set Printing All first"]
@@ -244,6 +257,8 @@ It was constructed with `proof-defstringset-fn'.")
      ["Unset Printing Coercions" coq-unset-printing-coercions t]
      ["Set Printing Synth" coq-set-printing-synth t]
      ["Unset Printing Synth" coq-unset-printing-synth t]
+     ["Set Printing Universes" coq-set-printing-universes t]
+     ["Unset Printing Universes" coq-unset-printing-universes t]
      ["Set Printing Wildcards" coq-set-printing-wildcards t]
      ["Unset Printing Wildcards" coq-unset-printing-wildcards t]
      ["Set Printing Width" coq-ask-adapt-printing-width-and-show t])
