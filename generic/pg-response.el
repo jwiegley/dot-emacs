@@ -158,23 +158,29 @@ Following POLICY, which can be one of 'smart, 'horizontal,
       (other-window 1)
       (switch-to-buffer b2)
       (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+      (set-window-dedicated-p (selected-window) proof-three-window-enable)
       (other-window 1)
-      (switch-to-buffer b3))
+      (switch-to-buffer b3)
+      (set-window-dedicated-p (selected-window) proof-three-window-enable))
      ((eq pol 'vertical)
       (split-window-vertically)
       (other-window 1)
       (switch-to-buffer b2)
       (proof-safe-split-window-vertically) ; enlarge vertically if necessary
+      (set-window-dedicated-p (selected-window) proof-three-window-enable)
       (other-window 1)
-      (switch-to-buffer b3))
+      (switch-to-buffer b3)
+      (set-window-dedicated-p (selected-window) proof-three-window-enable))
      ((eq pol 'horizontal)
       (split-window-horizontally) ; horizontally again
       (other-window 1)
       (switch-to-buffer b2)
       (enlarge-window (/ (frame-width) 6) t) ; take 2/3 of width before splitting again
       (split-window-horizontally) ; horizontally again
+      (set-window-dedicated-p (selected-window) proof-three-window-enable)
       (other-window 1)
-      (switch-to-buffer b3))))))
+      (switch-to-buffer b3)
+      (set-window-dedicated-p (selected-window) proof-three-window-enable))))))
 
 
 
@@ -271,7 +277,7 @@ dragging the separating bars.
     (proof-delete-all-associated-windows)
     (set-window-dedicated-p (selected-window) nil)
     (proof-display-three-b proof-three-window-mode-policy))
-   ;; Two-of-three window mode.
+   ;; Two window mode.
    ;; Show the response buffer as first in preference order.
    (t
     ;; If we are coming from multiple frame mode, delete associated

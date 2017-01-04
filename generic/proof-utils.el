@@ -220,42 +220,58 @@ Leave point at END."
   (unless (and (boundp sym) (symbol-value sym))
     (warn "Proof General %s: %s is unset."  tag (symbol-name sym))))
 
+(defvar proof-advertise-layout-freq 30
+  "Frequency for PG messages to be displayed from time to time.")
+(defvar proof-advertise-layout-count proof-advertise-layout-freq
+  "counter used to display PG messages from time to time.")
+
 (defun proof-get-window-for-buffer (buffer)
   "Find a window for BUFFER, display it there, return the window.
-NB: may change the selected window."
+NB: may change the selected window. This function is a wrapper on
+display-buffer. The idea is that if the user has opened and
+closed some windows we want to preserve the layout by only
+switching buffer in already pg-associate windows. So if the
+buffer is not already displayed, we try to reuse an existing
+associated window, even if in 3-win mode. If no such window
+exists, we fall back to display-buffer while protecting script
+buffer to be hidden or split.
+
+Experimentally we display a message from time to time advertising
+C-c C-l."
   ;; IF there *isn't* a visible window showing buffer...
   (unless (get-buffer-window buffer 0)
-    ;; THEN find somewhere nice to display it
-	  (if (and
-	     ;; If we're in two-window mode and already displaying a
-	     ;; script/response/goals, try to just switch the buffer
-	     ;; instead of calling display-buffer which alters sizes.
-	     ;; Gives user some stability on display.
-	     (not proof-three-window-enable)
-	     (> (count-windows) 1)
-	     ;; was: (not (eq (next-window) (selected-window)))
-	     (memq (window-buffer (next-window nil 'ignoreminibuf))
-		   ;; NB: 3.5: added rest of assoc'd buffers here
-		   (cons proof-script-buffer (proof-associated-buffers))))
-	    (if (eq (selected-window) (minibuffer-window))
-		;; 17.8.01: avoid switching the minibuffer's contents
-		;; -- terrrible confusion -- use next-window after
-		;; script buffer instead.
-		;; (another hack which is mostly right)
-		(set-window-buffer
-		 (next-window
-		  (car-safe (get-buffer-window-list proof-script-buffer))
-		  'ignoreminibuf) buffer)
-	      (if (eq (window-buffer (next-window nil 'ignoreminibuf))
-		      proof-script-buffer)
-		  ;; switch this window
-		  (set-window-buffer (selected-window) buffer)
-		;; switch other window
-		(set-window-buffer (next-window nil 'ignoreminibuf) buffer)))
-	    ;; o/w: call display buffer to configure windows nicely.
-	    (display-buffer buffer)))
+    (if proof-three-window-enable
+        (if (< proof-advertise-layout-count 30) (incf proof-advertise-layout-count)
+          (message (substitute-command-keys "Hit \\[proof-layout-windows] to reset layout"))
+          (setq proof-advertise-layout-count 0)))
+    ;; THEN either we are in 2 wins mode and we must switch the assoc
+    ;; window to buffer OR we deleted a window by mistake and we
+    ;; behave as if in 2 win mode instead of calling display-buffer
+    ;; (stability for the user). If no assoc win exists then we are in
+    ;; trouble: let display-buffer decide but avoid hiding the script buffer.
+    (if (= (count-windows) 1)
+        ;; only one window: fallback to display-buffer
+        (display-buffer buffer)
+      ;; There is at least 2 windows, let us find some assoc ones.
+      (let* ((assoc-wins (proof-associated-windows))
+             ;; may be nil if no assoc frame
+             (win-to-use (and assoc-wins (car assoc-wins))))
+        ;; let us switch the buffer in this window even if protected (3-win mode)
+        (if win-to-use
+            (let ((prot (window-dedicated-p win-to-use)))
+              (set-window-dedicated-p win-to-use nil)
+              (set-window-buffer win-to-use buffer)
+              (set-window-dedicated-p win-to-use prot))
+          ;; if no assoc win then let display-buffer decide but
+          ;; protect script buffer from disappearing.
+          (let ((win-proof-script (car-safe (get-buffer-window-list proof-script-buffer))))
+            (set-window-dedicated-p win-proof-script t) ; avoid to hide script buffer at all cost
+            (let ((res (display-buffer buffer))) ; return this but revert the dedicated flag first
+              (set-window-dedicated-p win-proof-script nil)
+              res))))))
   ;; Return the window, hopefully the one we first thought of.
   (get-buffer-window buffer 0))
+
 
 (defun proof-display-and-keep-buffer (buffer &optional pos force)
   "Display BUFFER and make window according to display mode.
