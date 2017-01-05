@@ -1589,10 +1589,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package docker
   :defer 15
+  :diminish docker-mode
   :load-path "site-lisp/docker-el/"
-  :init
-  (docker-global-mode)
   :config
+  (docker-global-mode)
   (use-package docker-images)
   (use-package docker-containers)
   (use-package docker-volumes)
