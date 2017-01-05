@@ -1,0 +1,11 @@
+# Compiled and temporary files
+*.elc
+*~
+
+# Cask
+/.cask
+dist
+
+# Ecukes
+/features/project/.cask
+/features/project/test/*.el
