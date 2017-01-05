@@ -31,7 +31,7 @@
 (defun docker-machines-entries ()
   "Returns the docker machines data for `tabulated-list-entries'."
   (let* ((fmt "{{.Name}}\\t{{.Active}}\\t{{.DriverName}}\\t{{.State}}\\t{{.URL}}\\t{{.Swarm}}\\t{{.DockerVersion}}\\t{{.Error}}")
-         (command (format "docker-machine ls %s" (format "--format='%s'" fmt)))
+         (command (format "docker-machine ls %s" (format "--format=\"%s\"" fmt)))
          (data (shell-command-to-string command))
          (lines (s-split "\n" data t)))
     (-map #'docker-machine-parse lines)))
@@ -92,19 +92,26 @@
   (docker-machine "kill" name))
 
 ;;;###autoload
+(defun docker-machine-create (name driver)
+  "Create a machine NAME using DRIVER."
+  (interactive "sName: \nsDriver: ")
+  (docker-machine "create" name "-d" driver))
+
+;;;###autoload
 (defun docker-machine-start (name)
   "Start a machine."
   (interactive (list (docker-read-machine-name "Start machine: ")))
   (docker-machine "start" name))
 
 (defun docker-machine-env-export (line)
-  (let ((split-string (s-split "=" (s-chop-prefix "export " line))))
-    (setenv (car split-string)
-            (read (cdr split-string)))))
+  (let ((index (s-index-of "=" line)))
+    (unless index
+      (error (format "Cannot find separator in %s" line)))
+    (setenv (substring line (length "export ") index) (substring line (+ 2 index) -1))))
 
 ;;;###autoload
 (defun docker-machine-env (name)
-  "Parse and set environment variables from 'docker-machine env' output"
+  "Parse and set environment variables from \"docker-machine env\" output"
   (interactive (list (docker-read-machine-name "Set up environment for machine: ")))
   (--each-while
       (s-lines (docker-machine "env" name))
@@ -194,6 +201,7 @@
 
 (defvar docker-machine-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "C" 'docker-machine-create)
     (define-key map "S" 'docker-machine-start-popup)
     (define-key map "E" 'docker-machine-env-popup)
     (define-key map "O" 'docker-machine-stop-popup)

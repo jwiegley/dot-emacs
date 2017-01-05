@@ -30,10 +30,15 @@
 (require 'tablist)
 (require 'json)
 
+(defcustom docker-containers-show-all t
+  "When nil, `docker-containers' will only show running containers."
+  :group 'docker
+  :type 'boolean)
+
 (defun docker-containers-entries ()
   "Return the docker containers data for `tabulated-list-entries'."
-  (let* ((fmt "[{{.ID|json}},{{.Image|json}},{{.Command|json}},{{.RunningFor|json}},{{.Status|json}},{{.Ports|json}},{{.Names|json}}]")
-         (data (docker "ps" (format "--format='%s'" fmt) "-a "))
+  (let* ((fmt "[{{json .ID}},{{json .Image}},{{json .Command}},{{json .RunningFor}},{{json .Status}},{{json .Ports}},{{json .Names}}]")
+         (data (docker "ps" (format "--format=\"%s\"" fmt) (when docker-containers-show-all "-a ")))
          (lines (s-split "\n" data t)))
     (-map #'docker-container-parse lines)))
 
@@ -93,6 +98,12 @@ Remove the volumes associated with the container when VOLUMES is set."
   (docker "rm" (when force "-f") (when link "-l") (when volumes "-v") name))
 
 ;;;###autoload
+(defun docker-kill (name &optional signal)
+  "Kill the container named NAME using SIGNAL."
+  (interactive (list (docker-read-container-name "Kill container: ")))
+  (docker "kill" (when signal (format "-s %s" signal)) name))
+
+;;;###autoload
 (defun docker-inspect (name)
   "Inspect the container named NAME."
   (interactive (list (docker-read-container-name "Inspect container: ")))
@@ -148,6 +159,7 @@ Remove the volumes associated with the container when VOLUMES is set."
    (lambda (id) (docker command arguments id))))
 
 (defmacro docker-containers-create-selection-functions (&rest functions)
+  (declare (indent defun) (doc-string 2))
   `(progn ,@(--map
              `(defun ,(intern (format "docker-containers-%s-selection" it)) ()
                 ,(format "Run `docker-%s' on the containers selection." it)
@@ -213,7 +225,14 @@ Remove the volumes associated with the container when VOLUMES is set."
                                                                   (s-join " " ,(list (intern (format "docker-containers-%s-arguments" it))))))
              functions)))
 
-(docker-containers-create-selection-functions start stop restart pause unpause rm)
+(docker-containers-create-selection-functions
+  start
+  stop
+  restart
+  pause
+  unpause
+  rm
+  kill)
 
 (docker-containers-create-selection-print-functions inspect logs diff)
 
@@ -281,6 +300,13 @@ Remove the volumes associated with the container when VOLUMES is set."
               (?v "Volumes" "-v"))
   :actions  '((?D "Remove" docker-containers-rm-selection)))
 
+(docker-utils-define-popup docker-containers-kill-popup
+  "Popup for kill signaling containers"
+  'docker-containers-popups
+  :man-page "docker-kill"
+  :options  '((?s "Signal" "-s "))
+  :actions  '((?K "Kill" docker-containers-kill-selection)))
+
 (docker-utils-define-popup docker-containers-cp-popup
   "Popup for copying files from/to containers."
   'docker-containers-popups
@@ -299,6 +325,7 @@ Remove the volumes associated with the container when VOLUMES is set."
     (define-key map "b" 'docker-containers-shell-popup)
     (define-key map "C" 'docker-containers-cp-popup)
     (define-key map "I" 'docker-containers-inspect-popup)
+    (define-key map "K" 'docker-containers-kill-popup)
     (define-key map "L" 'docker-containers-logs-popup)
     (define-key map "S" 'docker-containers-start-popup)
     (define-key map "O" 'docker-containers-stop-popup)

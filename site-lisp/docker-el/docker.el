@@ -3,7 +3,7 @@
 ;; Author: Philippe Vaucher <philippe.vaucher@gmail.com>
 ;; URL: https://github.com/Silex/docker.el
 ;; Keywords: filename, convenience
-;; Version: 0.4.0
+;; Version: 0.5.2
 ;; Package-Requires: ((emacs "24.4") (dash "2.12.1") (docker-tramp "0.1") (magit-popup "2.6.0") (s "1.11.0") (tablist "0.70") (json-mode "1.7.0"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -28,28 +28,6 @@
 ;; # Emacs interface to Docker!
 ;;
 ;; This package allows you to manipulate docker images, containers & more from Emacs.
-;;
-;; # API
-;;
-;; | command                     | description                                                     |
-;; |-----------------------------|-----------------------------------------------------------------|
-;; | docker-images               | list images                                                     |
-;; | docker-rmi                  | delete image                                                    |
-;; | docker-pull                 | pull image                                                      |
-;; | docker-push                 | push image                                                      |
-;; | docker-run                  | run image                                                       |
-;; | docker-containers           | list containers                                                 |
-;; | docker-rm                   | delete container                                                |
-;; | docker-stop                 | stop container                                                  |
-;; | docker-pause                | pause container                                                 |
-;; | docker-restart              | restart container                                               |
-;; | docker-start                | start container                                                 |
-;; | docker-unpause              | unpause container                                               |
-;; | docker-volumes              | list volumes                                                    |
-;; | docker-volume-rm            | delete volume                                                   |
-;; | docker-networks             | list networks                                                   |
-;; | docker-network-rm           | delete network                                                  |
-;; | dockerfile-build-buffer     | Build [Dockerfile](https://github.com/spotify/dockerfile-mode)  |
 
 ;;; Code:
 
@@ -59,7 +37,8 @@
 
 (defcustom docker-keymap-prefix "C-c d"
   "Prefix for `docker-mode'."
-  :group 'docker)
+  :group 'docker
+  :type 'string)
 
 (defvar docker-images-command-map
   (let ((map (make-sparse-keymap)))
@@ -79,6 +58,7 @@
     (define-key map "o" 'docker-stop)
     (define-key map "p" 'docker-pause)
     (define-key map "r" 'docker-restart)
+    (define-key map "k" 'docker-kill)
     (define-key map "s" 'docker-start)
     map)
   "Keymap for docker containers.")
