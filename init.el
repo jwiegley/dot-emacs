@@ -449,7 +449,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (kill-line arg)
     (goto-char here)))
 
-(bind-key "C-c d" #'delete-current-line)
 (bind-key "C-c g" #'goto-line)
 
 (defun do-eval-buffer ()
@@ -1588,9 +1587,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                "\\)")))
         (funcall dired-omit-regexp-orig)))))
 
-(use-package docker-images
-  :commands docker-images
-  :load-path "site-lisp/docker-el/")
+(use-package docker
+  :defer 15
+  :commands (docker-images docker-containers docker-volumes
+             docker-networks docker-machines)
+  :load-path "site-lisp/docker-el/"
+  :init
+  (docker-global-mode))
 
 (use-package dockerfile-mode
   :mode ("Dockerfile\\'" . dockerfile-mode)
