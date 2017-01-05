@@ -1998,12 +1998,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands git-wip-mode
   :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
 
-(use-package github-issues-el
-  ;; (shell-command "rm -fr site-lisp/github-issues-el")
-  ;; (shell-command "git remote rm ext/github-issues-el")
-  :disabled t
-  :load-path "site-lisp/github-issues-el")
-
 (use-package gnugo
   :commands gnugo
   :load-path "site-lisp/gnugo")
