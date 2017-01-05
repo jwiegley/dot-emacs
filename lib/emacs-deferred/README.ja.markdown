@@ -1,21 +1,21 @@
 # deferred.el #
 
-deferred.elは非同期処理を抽象化して書きやすくするためのライブラリです。APIや
-実装については 
+[![Build Status](https://travis-ci.org/kiwanami/emacs-deferred.svg)](https://travis-ci.org/kiwanami/emacs-deferred)
+[![Coverage Status](https://coveralls.io/repos/kiwanami/emacs-deferred/badge.svg)](https://coveralls.io/r/kiwanami/emacs-deferred)
+[![MELPA](http://melpa.org/packages/deferred-badge.svg)](http://melpa.org/#/deferred)
+[![MELPA stable](http://stable.melpa.org/packages/deferred-badge.svg)](http://stable.melpa.org/#/deferred)
+[![Tag Version](https://img.shields.io/github/tag/kiwanami/emacs-deferred.svg)](https://github.com/kiwanami/emacs-deferred/tags)
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
+deferred.el は非同期処理を抽象化して書きやすくするためのライブラリです。
+APIや実装については
 [JSDeferred](https://github.com/cho45/jsdeferred "JSDeferred") (by cho45さん)と
 [Mochikit.Async](http://mochikit.com/doc/html/MochiKit/Async.html
 "Mochikit.Async") (by Bob Ippolitoさん)を参考にしています。
 
 ## インストール ##
 
-deferred.elをload-pathに置いてください。
-
-[auto-install.el](http://d.hatena.ne.jp/rubikitch/20091221/autoinstall "auto-install.el]") を使うことで、以下の式を実行することでインストールできます。
-
-インストール実行:
-
-    (auto-install-from-url https://github.com/kiwanami/emacs-deferred/raw/master/deferred.el")
-
+deferred.elは package.elを使って, [MELPA](http://melpa.org)からインストールすることができます.
 
 ## 使い方例 ##
 
@@ -29,25 +29,27 @@ eval-last-sexp (C-x C-e) などで実行してみてください。
 
 Chain:
 
-    (deferred:$
-      (deferred:next 
-        (lambda () (message "deferred start")))
-      (deferred:nextc it
-        (lambda () 
-          (message "chain 1")
-          1))
-      (deferred:nextc it
-        (lambda (x)
-          (message "chain 2 : %s" x)))
-      (deferred:nextc it
-        (lambda ()
-          (read-minibuffer "Input a number: ")))
-      (deferred:nextc it
-        (lambda (x)
-          (message "Got the number : %i" x)))
-      (deferred:error it
-        (lambda (err)
-          (message "Wrong input : %s" err))))
+```el
+(deferred:$
+  (deferred:next
+    (lambda () (message "deferred start")))
+  (deferred:nextc it
+    (lambda ()
+      (message "chain 1")
+      1))
+  (deferred:nextc it
+    (lambda (x)
+      (message "chain 2 : %s" x)))
+  (deferred:nextc it
+    (lambda ()
+      (read-minibuffer "Input a number: ")))
+  (deferred:nextc it
+    (lambda (x)
+      (message "Got the number : %i" x)))
+  (deferred:error it
+    (lambda (err)
+      (message "Wrong input : %s" err))))
+```
 
 
 * この式を実行すると、直ちに結果が帰ってきます。
@@ -64,11 +66,13 @@ Chain:
 
 Timer:
 
-    (deferred:$
-      (deferred:wait 1000) ; 1000msec
-      (deferred:nextc it
-        (lambda (x)
-          (message "Timer sample! : %s msec" x))))
+```el
+(deferred:$
+  (deferred:wait 1000) ; 1000msec
+  (deferred:nextc it
+    (lambda (x)
+      (message "Timer sample! : %s msec" x))))
+```
 
 * deferred:wait の次の処理には、実際に経過した時間が渡ってきます。
 
@@ -78,10 +82,12 @@ Timer:
 
 Command process:
 
-    (deferred:$
-      (deferred:process "ls" "-la")
-      (deferred:nextc it
-        (lambda (x) (insert x))))
+```el
+(deferred:$
+  (deferred:process "ls" "-la")
+  (deferred:nextc it
+    (lambda (x) (insert x))))
+```
 
 * 非同期で実行するため、処理がブロックしたりしません。
 
@@ -92,60 +98,66 @@ GNUのトップページのHTMLを取ってきて、現在のバッファに貼�
 
 HTTP GET:
 
-    (require 'url)
-    
-    (deferred:$
-      (deferred:url-retrieve "http://www.gnu.org")
-      (deferred:nextc it
-        (lambda (buf)
-          (insert  (with-current-buffer buf (buffer-string)))
-          (kill-buffer buf))))
-    
+```el
+(require 'url)
+
+(deferred:$
+  (deferred:url-retrieve "http://www.gnu.org")
+  (deferred:nextc it
+    (lambda (buf)
+      (insert  (with-current-buffer buf (buffer-string)))
+      (kill-buffer buf))))
+```
+
 ### 画像 ###
 
 googleの画像を取ってきてそのままバッファに貼り付けます。
 
 Get an image:
 
-    (deferred:$
-      (deferred:url-retrieve "http://www.google.co.jp/intl/en_com/images/srpr/logo1w.png")
-      (deferred:nextc it
-        (lambda (buf)
-          (insert-image 
-           (create-image 
-            (let ((data (with-current-buffer buf (buffer-string))))
-              (substring data (+ (string-match "\n\n" data) 2)))
-            'png t))
-          (kill-buffer buf))))
-    
+```el
+(deferred:$
+  (deferred:url-retrieve "http://www.google.co.jp/intl/en_com/images/srpr/logo1w.png")
+  (deferred:nextc it
+    (lambda (buf)
+      (insert-image
+       (create-image
+        (let ((data (with-current-buffer buf (buffer-string))))
+          (substring data (+ (string-match "\n\n" data) 2)))
+        'png t))
+      (kill-buffer buf))))
+```
+
 ### 並列 ###
 
 2つの画像を取ってきて、結果がそろったところで各画像のファイルサイズを現在のバッファに表示します。
 
 Parallel deferred:
 
-    (deferred:$
-      (deferred:parallel
-        (lambda ()
-          (deferred:url-retrieve "http://www.google.co.jp/intl/en_com/images/srpr/logo1w.png"))
-        (lambda ()
-          (deferred:url-retrieve "http://www.google.co.jp/images/srpr/nav_logo14.png")))
-      (deferred:nextc it
-        (lambda (buffers)
-          (loop for i in buffers
-                do 
-                (insert 
-                 (format 
-                  "size: %s\n"
-                  (with-current-buffer i (length (buffer-string)))))
-                (kill-buffer i)))))
+```el
+(deferred:$
+  (deferred:parallel
+    (lambda ()
+      (deferred:url-retrieve "http://www.google.co.jp/intl/en_com/images/srpr/logo1w.png"))
+    (lambda ()
+      (deferred:url-retrieve "http://www.google.co.jp/images/srpr/nav_logo14.png")))
+  (deferred:nextc it
+    (lambda (buffers)
+      (cl-loop for i in buffers
+               do
+               (insert
+                (format
+                 "size: %s\n"
+                 (with-current-buffer i (length (buffer-string)))))
+               (kill-buffer i)))))
+```
 
 * deferred:parallel 内部で、並列に実行できるものは並列に動作します。
 * 各処理が完了するかエラーが発生して、すべての処理が完了したところで次の処理が開始されます。
 * 次の処理には結果がリストで渡されます。
  * 順番は保持されます
  * alistを渡して名前で結果を選ぶことも出来ます
-    
+
 ### deferred組み合わせ、try-catch-finally ###
 
 外部プロセスの wget で画像を取ってきて、ImageMagic の convert コマンドでリサイズし、バッファに画像を表示します。（wget, convertが無いと動きません）
@@ -153,31 +165,33 @@ deferred を組み合わせて、非同期処理の try-catch のような構造
 
 Get an image by wget and resize by ImageMagick:
 
-    (deferred:$ 
-    
-      ;; try
-      (deferred:$
-        (deferred:process "wget" "-O" "a.jpg" "http://www.gnu.org/software/emacs/tour/images/splash.png")
-        (deferred:nextc it
-          (lambda () (deferred:process "convert" "a.jpg" "-resize" "100x100" "jpg:b.jpg")))
-        (deferred:nextc it
-          (lambda ()
-            (clear-image-cache)
-            (insert-image (create-image (expand-file-name "b.jpg") 'jpeg nil)))))
-    
-      ;; catch
-      (deferred:error it ; 
-        (lambda (err) 
-          (insert "Can not get a image! : " err)))
-    
-      ;; finally
-      (deferred:nextc it
-        (lambda ()
-          (deferred:parallel
-            (lambda () (delete-file "a.jpg"))
-            (lambda () (delete-file "b.jpg")))))
-      (deferred:nextc it
-        (lambda (x) (message ">> %s" x))))
+```el
+(deferred:$
+
+  ;; try
+  (deferred:$
+    (deferred:process "wget" "-O" "a.jpg" "http://www.gnu.org/software/emacs/tour/images/splash.png")
+    (deferred:nextc it
+      (lambda () (deferred:process "convert" "a.jpg" "-resize" "100x100" "jpg:b.jpg")))
+    (deferred:nextc it
+      (lambda ()
+        (clear-image-cache)
+        (insert-image (create-image (expand-file-name "b.jpg") 'jpeg nil)))))
+
+  ;; catch
+  (deferred:error it ;
+    (lambda (err)
+      (insert "Can not get a image! : " err)))
+
+  ;; finally
+  (deferred:nextc it
+    (lambda ()
+      (deferred:parallel
+        (lambda () (delete-file "a.jpg"))
+        (lambda () (delete-file "b.jpg")))))
+  (deferred:nextc it
+    (lambda (x) (message ">> %s" x))))
+```
 
 * deferred を静的につなげることで、自由に組み合わせることが出来ます。
  * 関数などで個別の deferred 処理を作って、後で一つにまとめるなど。
@@ -186,24 +200,26 @@ Get an image by wget and resize by ImageMagick:
 
 Try-catch-finally:
 
+```el
+(deferred:$
+  (deferred:try
     (deferred:$
-      (deferred:try
-        (deferred:$
-          (deferred:process "wget" "-O" "a.jpg" "http://www.gnu.org/software/emacs/tour/images/splash.png")
-          (deferred:nextc it
-            (lambda () (deferred:process "convert" "a.jpg" "-resize" "100x100" "jpg:b.jpg")))
-          (deferred:nextc it
-            (lambda ()
-              (clear-image-cache)
-              (insert-image (create-image (expand-file-name "b.jpg") 'jpeg nil)))))
-        :catch
-        (lambda (err) (insert "Can not get a image! : " err))
-        :finally
-        (lambda ()
-          (delete-file "a.jpg")
-          (delete-file "b.jpg")))
+      (deferred:process "wget" "-O" "a.jpg" "http://www.gnu.org/software/emacs/tour/images/splash.png")
       (deferred:nextc it
-        (lambda (x) (message ">> %s" x))))
+        (lambda () (deferred:process "convert" "a.jpg" "-resize" "100x100" "jpg:b.jpg")))
+      (deferred:nextc it
+        (lambda ()
+          (clear-image-cache)
+          (insert-image (create-image (expand-file-name "b.jpg") 'jpeg nil)))))
+    :catch
+    (lambda (err) (insert "Can not get a image! : " err))
+    :finally
+    (lambda ()
+      (delete-file "a.jpg")
+      (delete-file "b.jpg")))
+  (deferred:nextc it
+    (lambda (x) (message ">> %s" x))))
+```
 
 ### earlierでtimeout ###
 
@@ -213,14 +229,16 @@ deferred:earlier は parallel と同様に、引数の処理を並列に実行�
 
 Timeout Process:
 
+```el
+(deferred:$
+  (deferred:earlier
+    (deferred:process "sh" "-c" "sleep 3 | echo 'hello!'")
     (deferred:$
-      (deferred:earlier
-        (deferred:process "sh" "-c" "sleep 3 | echo 'hello!'")
-        (deferred:$
-          (deferred:wait 1000) ; timeout msec
-          (deferred:nextc it (lambda () "canceled!"))))
-      (deferred:nextc it
-        (lambda (x) (insert x))))
+      (deferred:wait 1000) ; timeout msec
+      (deferred:nextc it (lambda () "canceled!"))))
+  (deferred:nextc it
+    (lambda (x) (insert x))))
+```
 
 * deferred:wait の待つ時間を5秒などにすると、コマンドの結果が渡ってきます。
 * エラーは完了と見なされません。すべての処理がエラーになった場合は nil が次に渡ります。
@@ -230,12 +248,14 @@ Timeout Process:
 
 Timeout macro:
 
-    (deferred:$
-      (deferred:timeout
-        1000 "canceled!"
-        (deferred:process "sh" "-c" "sleep 3 | echo 'hello!'"))
-      (deferred:nextc it
-        (lambda (x) (insert x))))
+```el
+(deferred:$
+  (deferred:timeout
+    1000 "canceled!"
+    (deferred:process "sh" "-c" "sleep 3 | echo 'hello!'"))
+  (deferred:nextc it
+    (lambda (x) (insert x))))
+```
 
 ### ループとアニメーション・スレッド ###
 
@@ -245,28 +265,30 @@ deferredの処理の中でdeferredオブジェクトを返すと、ソースコ�
 
 Loop and animation:
 
-    (lexical-let ((count 0) (anm "-/|\\-")
-                  (end 50) (pos (point))
-                  (wait-time 50))
-      (deferred:$
-        (deferred:next
-          (lambda (x) (message "Animation started.")))
-    
-        (deferred:nextc it
-          (deferred:lambda (x)
-            (save-excursion
-              (when (< 0 count)
-                (goto-char pos) (delete-char 1))
-              (insert (char-to-string 
-                       (aref anm (% count (length anm))))))
-            (if (> end (incf count)) ; 止める場合はdeferredでないものを返す（この場合はnil）
-                (deferred:nextc (deferred:wait wait-time) self)))) ; 続けるときはdeferredを返す
-    
-        (deferred:nextc it
-          (lambda (x)
-            (save-excursion
-              (goto-char pos) (delete-char 1))
-            (message "Animation finished.")))))
+```el
+(let ((count 0) (anm "-/|\\-")
+      (end 50) (pos (point))
+      (wait-time 50))
+  (deferred:$
+    (deferred:next
+      (lambda (x) (message "Animation started.")))
+
+    (deferred:nextc it
+      (deferred:lambda (x)
+        (save-excursion
+          (when (< 0 count)
+            (goto-char pos) (delete-char 1))
+          (insert (char-to-string
+                   (aref anm (% count (length anm))))))
+        (if (> end (cl-incf count)) ; 止める場合はdeferredでないものを返す（この場合はnil）
+            (deferred:nextc (deferred:wait wait-time) self)))) ; 続けるときはdeferredを返す
+
+    (deferred:nextc it
+      (lambda (x)
+        (save-excursion
+          (goto-char pos) (delete-char 1))
+        (message "Animation finished.")))))
+```
 
 * deferred:lambda は自分自身をselfとして使えるマクロです。再帰的構造を作るのに便利です。
 
@@ -286,7 +308,7 @@ Loop and animation:
    * 返値：deferredオブジェクト
    * 引数の関数をコールバックとしてラップしたdeferredオブジェクトを生成して返します。また実行キューに入れて非同期実行をスケジュールします。
       * →関数を非同期で実行します。
- 
+
 
 * deferred:nextc (d callback)
    * 引数：
@@ -563,21 +585,23 @@ deferred処理の中でdeferredオブジェクトを返すと、静的に接続�
 
 ### レキシカルスコープ ###
 
-deferredの処理に値を持って行く場合、lexical-let などを用いてレキシカルスコープを使うと大変便利です。
+deferredの処理に値を持って行く場合、let などを用いてレキシカルスコープを使うと大変便利です。
 
 特に、一連のdeferred処理の中で共通に使う値にレキシカルスコープを使うと、ローカル変数のようにアクセスすること出来るため、非同期処理のために値をグローバルに保持しておく必要が無くなります。
 
-lexical-let 例:
+let 例:
 
-    (lexical-let ((a (point)))
-      (deferred:$
-        (deferred:wait 1000)
-        (deferred:nextc it
-          (lambda (x) 
-            (goto-char a)
-            (insert "here!")))))
+```el
+(let ((a (point)))
+  (deferred:$
+    (deferred:wait 1000)
+    (deferred:nextc it
+      (lambda (x)
+        (goto-char a)
+        (insert "here!")))))
+```
 
-逆に、lexical-letでレキシカルスコープにバインドしていないシンボルを参照しようとして、エラーになることがよくあります。
+逆に、letでレキシカルスコープにバインドしていないシンボルを参照しようとして、エラーになることがよくあります。
 
 ### カレント状態 ###
 
@@ -585,27 +609,29 @@ save-execursion や with-current-buffer など、S式の範囲で状態を保持
 
 ダメな例:
 
-    (with-current-buffer (get-buffer "*Message*")
-      (deferred:$
-        (deferred:wait 1000)
-        (deferred:nextc it
-          (lambda (x)
-            (insert "Time: %s " x) ; ここは *Message* バッファとは限らない！
-          )))) 
-
+```el
+(with-current-buffer (get-buffer "*Message*")
+  (deferred:$
+    (deferred:wait 1000)
+    (deferred:nextc it
+      (lambda (x)
+        (insert "Time: %s " x) ; ここは *Message* バッファとは限らない！
+      ))))
+```
 
 このような場合は、レキシカルスコープなどでdeferredの中にバッファオブジェクトを持って行き、その中でバッファを切り替える必要があります。
 
 改善例:
 
-    (lexical-let ((buf (get-buffer "*Message*")))
-      (deferred:$
-        (deferred:wait 1000)
-        (deferred:nextc it
-          (lambda (x)
-            (with-current-buffer buf ; 非同期処理の中で設定する
-              (insert "Time: %s " x))))))
-
+```el
+(let ((buf (get-buffer "*Message*")))
+  (deferred:$
+    (deferred:wait 1000)
+    (deferred:nextc it
+      (lambda (x)
+        (with-current-buffer buf ; 非同期処理の中で設定する
+          (insert "Time: %s " x))))))
+```
 
 ### lambdaの返り値に気を使う ###
 
@@ -639,5 +665,5 @@ deferredによってどのようなことが可能になるかなどについて
 
 * * * * *
 
-(C) 2010, 2011  SAKURAI Masashi  All rights reserved.
+(C) 2010-2016  SAKURAI Masashi  All rights reserved.
 m.sakurai at kiwanami.net

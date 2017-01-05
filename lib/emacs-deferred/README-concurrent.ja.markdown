@@ -1,18 +1,17 @@
 # concurrent.el #
 
+[![Build Status](https://travis-ci.org/kiwanami/emacs-deferred.svg)](https://travis-ci.org/kiwanami/emacs-deferred)
+[![Coverage Status](https://coveralls.io/repos/kiwanami/emacs-deferred/badge.svg)](https://coveralls.io/r/kiwanami/emacs-deferred)
+[![MELPA](http://melpa.org/packages/concurrent-badge.svg)](http://melpa.org/#/concurrent)
+[![MELPA stable](http://stable.melpa.org/packages/concurrent-badge.svg)](http://stable.melpa.org/#/concurrent)
+[![Tag Version](https://img.shields.io/github/tag/kiwanami/emacs-deferred.svg)](https://github.com/kiwanami/emacs-deferred/tags)
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
 concurrent.elは、良くある非同期処理を抽象化したライブラリです。スレッド、セマフォ、イベント管理などがあります。他の環境のライブラリや並行プログラミングのアイデアを参考にしました。
 
 ## インストール ##
 
-deferred.el と concurrent.elをload-pathに置いてください。
-
-[auto-install.el](http://d.hatena.ne.jp/rubikitch/20091221/autoinstall "auto-install.el]") を使うことで、以下の式を実行することでインストールできます。
-
-インストール実行:
-
-    (auto-install-from-url https://github.com/kiwanami/emacs-deferred/raw/master/deferred.el")
-    (auto-install-from-url https://github.com/kiwanami/emacs-deferred/raw/master/concurrent.el")
-
+concurrent.elは package.elを使って, [MELPA](http://melpa.org)からインストールすることができます.
 
 ## 使い方例 ##
 
@@ -21,26 +20,27 @@ eval-last-sexp (C-x C-e) などで実行してみてください。
 
 ### Threadの例
 
-lexical-letを評価するとその場でアニメーションします。引数の時間は、bodyの処理の間隔です。
+letを評価するとその場でアニメーションします。引数の時間は、bodyの処理の間隔です。
 
 Thread:
 
-    (lexical-let 
-        ((count 0) (anm "-/|\\-")
-         (end 50) (pos (point)))
-      (cc:thread 
-       60 
-       (message "Animation started.")
-       (while (> end (incf count))
-         (save-excursion
-           (when (< 1 count)
-             (goto-char pos) (delete-char 1))
-           (insert (char-to-string 
-                    (aref anm (% count (length anm)))))))
-       (save-excursion
+```el
+(let ((count 0) (anm "-/|\\-")
+      (end 50) (pos (point)))
+  (cc:thread
+   60
+   (message "Animation started.")
+   (while (> end (cl-incf count))
+     (save-excursion
+       (when (< 1 count)
          (goto-char pos) (delete-char 1))
-       (message "Animation finished.")))
-    
+       (insert (char-to-string
+                (aref anm (% count (length anm)))))))
+   (save-excursion
+     (goto-char pos) (delete-char 1))
+   (message "Animation finished.")))
+```
+
 whileを使うことでスレッドをループさせることが出来ます。whileの中身は一気に実行されます。
 
 無限ループや重い処理でEmacsが固まらないように注意してください。もし無限ループに突入してしまったり、固まってしまったら deferred:clear-queue コマンドで回復できる可能性があります。
@@ -52,56 +52,60 @@ fib-genにジェネレーターを作ります。ジェネレーター生成body
 
 Generator:
 
-    (setq fib-list nil)
-    (setq fib-gen
-          (lexical-let ((a1 0) (a2 1))
-            (cc:generator
-             (lambda (x) (push x fib-list)) ; コールバックで結果受け取り
-             (yield a1)
-             (yield a2)
-             (while t
-               (let ((next (+ a1 a2)))
-                 (setq a1 a2
-                       a2 next)
-                 (yield next))))))
-    
-    (funcall fib-gen) ; 何度か呼んでみる
-    (funcall fib-gen) (funcall fib-gen)
-    (funcall fib-gen) (funcall fib-gen)
-    
-    fib-list ; => (3 2 1 1 0)
-    
+```el
+(setq fib-list nil)
+(setq fib-gen
+      (let ((a1 0) (a2 1))
+        (cc:generator
+         (lambda (x) (push x fib-list)) ; コールバックで結果受け取り
+         (yield a1)
+         (yield a2)
+         (while t
+           (let ((next (+ a1 a2)))
+             (setq a1 a2
+                   a2 next)
+             (yield next))))))
+
+(funcall fib-gen) ; 何度か呼んでみる
+(funcall fib-gen) (funcall fib-gen)
+(funcall fib-gen) (funcall fib-gen)
+
+fib-list ; => (3 2 1 1 0)
+```
+
 ### Semaphoreの例
 
 cc:semaphore-acquire 関数が deferred を返すので、それに続けて実行させたいタスクをつなげていきます。時系列で挙動が変わっていくのでコード中に簡単な説明を書いてみました。
 
 Semaphore:
 
-    ;; permit=1のセマフォ作成
-    (setq smp (cc:semaphore-create 1))
-    
-    ;; 続けて3つ実行しようとする
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go1")))
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go2")))
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go3")))
-    
-    ;; => 1つ目だけ実行されて go1 が表示される
-    
-    (cc:semaphore-release smp) ; permitを返す
-    
-    ;; => 2つ目が実行されて go2 が表示される
-    
-    (cc:semaphore-waiting-deferreds smp) ; go3 を表示するdeferred
-    
-    (cc:semaphore-release-all smp) ; => permitを初期化して go3 を表示するdeferredを返す
-    
-    (cc:semaphore-waiting-deferreds smp) ; => nil
+```el
+;; permit=1のセマフォ作成
+(setq smp (cc:semaphore-create 1))
+
+;; 続けて3つ実行しようとする
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go1")))
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go2")))
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go3")))
+
+;; => 1つ目だけ実行されて go1 が表示される
+
+(cc:semaphore-release smp) ; permitを返す
+
+;; => 2つ目が実行されて go2 が表示される
+
+(cc:semaphore-waiting-deferreds smp) ; go3 を表示するdeferred
+
+(cc:semaphore-release-all smp) ; => permitを初期化して go3 を表示するdeferredを返す
+
+(cc:semaphore-waiting-deferreds smp) ; => nil
+```
 
 ### Dataflowの例：
 
@@ -109,93 +113,96 @@ cc:dataflow-environment 関数で変数を格納する「環境」を作りま�
 
 Dataflow:
 
-    (setq dfenv (cc:dataflow-environment))
-    
-    ;; ○基本の使い方
-    
-    ;; ↓同期的に値を取得。ブロックしない。
-    (cc:dataflow-get-sync dfenv "abc") ; => nil まだ値が無い。
-    
-    (deferred:$ ; abc という値を取ってきて表示する処理
-      (cc:dataflow-get dfenv "abc")
-      (deferred:nextc it
-        (lambda (x) (message "Got abc : %s" x))))
-    ;; => 値がないので処理はブロックしたまま
-    
-    (cc:dataflow-set dfenv "abc" 256) ; 値をセット
-    ;; => ここで先ほどブロックしていた処理が再開し、 "Got abc : 256" が表示される
-    
-    (cc:dataflow-get-sync dfenv "abc") ; => 256
-    
-    (cc:dataflow-clear dfenv "abc") ; 値を未バインドに戻す
-    
-    (cc:dataflow-get-sync dfenv "abc") ; => nil
-    
-    ;; ○リストをキーにする
-    
-    (deferred:$
-      (cc:dataflow-get dfenv '("http://example.com/a.jpg" 300))
-      (deferred:nextc it
-        (lambda (x) (message "a.jpg:300 OK %s" x))))
-    
-    (cc:dataflow-set dfenv '("http://example.com/a.jpg" 300) 'jpeg)
-    
-    ;; => a.jpg:300 OK jpeg
-    
-    ;; ○2つの値を待ち受ける
-    
-    (deferred:$ ; abc, def の2つの値を使う
-      (deferred:parallel
-        (cc:dataflow-get dfenv "abc")
-        (cc:dataflow-get dfenv "def"))
-      (deferred:nextc it
-        (lambda (values) 
-          (apply 'message "Got values : %s, %s" values)
-          (apply '+ values)))
-      (deferred:nextc it
-        (lambda (x) (insert (format ">> %s" x)))))
-    ;; => もちろんブロックする
-    
-    (cc:dataflow-get-waiting-keys dfenv) ; => ("def" "abc")
-    (cc:dataflow-get-avalable-pairs dfenv) ; => ((("http://example.com/a.jpg" 300) . jpeg))
-    
-    (cc:dataflow-set dfenv "abc" 128) ; ここではまだブロックしたまま
-    (cc:dataflow-set dfenv "def" 256) ; ここでやっと動く
-    ;; => Got values : 128, 256
+```el
+(setq dfenv (cc:dataflow-environment))
+
+;; ○基本の使い方
+
+;; ↓同期的に値を取得。ブロックしない。
+(cc:dataflow-get-sync dfenv "abc") ; => nil まだ値が無い。
+
+(deferred:$ ; abc という値を取ってきて表示する処理
+  (cc:dataflow-get dfenv "abc")
+  (deferred:nextc it
+    (lambda (x) (message "Got abc : %s" x))))
+;; => 値がないので処理はブロックしたまま
+
+(cc:dataflow-set dfenv "abc" 256) ; 値をセット
+;; => ここで先ほどブロックしていた処理が再開し、 "Got abc : 256" が表示される
+
+(cc:dataflow-get-sync dfenv "abc") ; => 256
+
+(cc:dataflow-clear dfenv "abc") ; 値を未バインドに戻す
+
+(cc:dataflow-get-sync dfenv "abc") ; => nil
+
+;; ○リストをキーにする
+
+(deferred:$
+  (cc:dataflow-get dfenv '("http://example.com/a.jpg" 300))
+  (deferred:nextc it
+    (lambda (x) (message "a.jpg:300 OK %s" x))))
+
+(cc:dataflow-set dfenv '("http://example.com/a.jpg" 300) 'jpeg)
+
+;; => a.jpg:300 OK jpeg
+
+;; ○2つの値を待ち受ける
+
+(deferred:$ ; abc, def の2つの値を使う
+  (deferred:parallel
+    (cc:dataflow-get dfenv "abc")
+    (cc:dataflow-get dfenv "def"))
+  (deferred:nextc it
+    (lambda (values)
+      (apply 'message "Got values : %s, %s" values)
+      (apply '+ values)))
+  (deferred:nextc it
+    (lambda (x) (insert (format ">> %s" x)))))
+;; => もちろんブロックする
+
+(cc:dataflow-get-waiting-keys dfenv) ; => ("def" "abc")
+(cc:dataflow-get-avalable-pairs dfenv) ; => ((("http://example.com/a.jpg" 300) . jpeg))
+
+(cc:dataflow-set dfenv "abc" 128) ; ここではまだブロックしたまま
+(cc:dataflow-set dfenv "def" 256) ; ここでやっと動く
+;; => Got values : 128, 256
+```
 
 ### Signalの例：
 
 cc:signal-channel でシグナルを流すチャンネルを作成します。その後、signalに応答する処理を接続していきます。
 
-    ;; シグナルのチャンネルを作成
-    (setq channel (cc:signal-channel))
-    
-    (cc:signal-connect ; foo というシグナルを拾う
-     channel 'foo
-     (lambda (event) (message "Signal : %S" event)))
-    
-    (cc:signal-connect
-     channel t  ; t にするとすべてのシグナルを拾う
-     (lambda (event) 
-       (destructuring-bind (event-name (args)) event
-         (message "Listener : %S / %S" event-name args))))
-    
-    (deferred:$ ; deferred で非同期タスクを接続できる
-      (cc:signal-connect channel 'foo)
-      (deferred:nextc it
-        (lambda (x) (message "Deferred Signal : %S" x))))
-    
-    (cc:signal-send channel 'foo "hello signal!")
-    ;; =>
-    ;; Listener : foo / "hello signal!"
-    ;; Signal : (foo ("hello signal!"))
-    ;; Deferred Signal : (foo ("hello signal!"))
-    
-    (cc:signal-send channel 'some "some signal!")
-    ;; =>
-    ;; Listener : some / "some signal!"
+```el
+;; シグナルのチャンネルを作成
+(setq channel (cc:signal-channel))
 
-    
+(cc:signal-connect ; foo というシグナルを拾う
+ channel 'foo
+ (lambda (event) (message "Signal : %S" event)))
+
+(cc:signal-connect
+ channel t  ; t にするとすべてのシグナルを拾う
+ (lambda (event)
+   (cl-destructuring-bind (event-name (args)) event
+     (message "Listener : %S / %S" event-name args))))
+
+(deferred:$ ; deferred で非同期タスクを接続できる
+  (cc:signal-connect channel 'foo)
+  (deferred:nextc it
+    (lambda (x) (message "Deferred Signal : %S" x))))
+
+(cc:signal-send channel 'foo "hello signal!")
+;; =>
+;; Listener : foo / "hello signal!"
+;; Signal : (foo ("hello signal!"))
+;; Deferred Signal : (foo ("hello signal!"))
+
+(cc:signal-send channel 'some "some signal!")
+;; =>
+;; Listener : some / "some signal!"
+```
+
 dataflowの内部には、変数へのアクセスやバインドのシグナルを発信するchannelがあります。これを使って、未バインドの変数に値を作成してセットするようなことが出来ます。
 
 signalやdataflowは、カスケード接続して親子関係を構築できます。例えば、親dataflowにデフォルト値（フォールバックの値）を入れておくとか、channelで親子関係を構築してローカルなイベントとグローバルなイベントを分けて効率的にイベントを管理するなどが出来ます。
@@ -212,7 +219,7 @@ signalやdataflowは、カスケード接続して親子関係を構築できま
    * bodyのS式が一つずつ非同期で実行されます。その間隔が wait-time-msec で指定された時間です。
    * bodyの中に while があった場合は、特別にループとして処理します。
    * 無限ループや重い処理でEmacsが固まらないように注意してください。もし無限ループに突入してしまったり、固まってしまったら deferred:clear-queue コマンドで回復できる可能性があります。
- 
+
 ### Generator
 
 * cc:generator (callback &rest body)
@@ -299,7 +306,7 @@ signalやdataflowは、カスケード接続して親子関係を構築できま
       * args: イベント引数
    * 返値：なし
    * シグナルを発信します。
-   * args は、受信側で (lambda (event) (destructuring-bind (event-sym (args)) event ... )) のようにすると受け取れます。
+   * args は、受信側で (lambda (event) (cl-destructuring-bind (event-sym (args)) event ... )) のようにすると受け取れます。
 
 
 * cc:signal-send-global (channel event-sym &rest args)
@@ -404,5 +411,5 @@ signalやdataflowは、カスケード接続して親子関係を構築できま
 
 * * * * *
 
-(C) 2011  SAKURAI Masashi  All rights reserved.
+(C) 2011-2016  SAKURAI Masashi  All rights reserved.
 m.sakurai at kiwanami.net
