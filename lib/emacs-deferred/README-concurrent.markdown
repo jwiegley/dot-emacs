@@ -1,216 +1,223 @@
-# concurrent.el #
+# concurrent.el
 
-'concurrent.el' is a higher level library for asynchronous tasks,
-based on 'deferred.el'.  It is inspired by libraries of other
-environments and concurrent programing models.  It has following
-facilities: pseud-thread, generator, semaphore, dataflow variables and
-event management.
+[![Build Status](https://travis-ci.org/kiwanami/emacs-deferred.svg)](https://travis-ci.org/kiwanami/emacs-deferred)
+[![Coverage Status](https://coveralls.io/repos/kiwanami/emacs-deferred/badge.svg)](https://coveralls.io/r/kiwanami/emacs-deferred)
+[![MELPA](http://melpa.org/packages/concurrent-badge.svg)](http://melpa.org/#/concurrent)
+[![MELPA stable](http://stable.melpa.org/packages/concurrent-badge.svg)](http://stable.melpa.org/#/concurrent)
+[![Tag Version](https://img.shields.io/github/tag/kiwanami/emacs-deferred.svg)](https://github.com/kiwanami/emacs-deferred/tags)
+[![License](http://img.shields.io/:license-gpl3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0.html)
+
+`concurrent.el` is a higher level library for asynchronous tasks, based on `deferred.el`.
+
+It is inspired by libraries of other environments and concurrent programing models.
+It has following facilities: *pseud-thread*, *generator*, *semaphore*, *dataflow variables* and
+*event management*.
 
 ## Installation ##
 
-Put 'deferred.el' and 'concurrent.el' into your 'load-path'.
-
-If you have [auto-install.el](http://www.emacswiki.org/emacs/auto-install.el "auto-install.el]"), evaluating a following s-expression, you can install immediately.
-
-Install by auto-install:
-
-    (auto-install-from-url https://github.com/kiwanami/emacs-deferred/raw/master/deferred.el")
-    (auto-install-from-url https://github.com/kiwanami/emacs-deferred/raw/master/concurrent.el")
-
+You can install `concurrent.el` from [MELPA](http://melpa.org) by `package.el`.
 
 ## Sample codes ##
 
-You can find following sample codes in 'concurrent-sample.el'.
-Executing 'eval-last-sexp' (C-x C-e), you can try those codes.
+You can find following sample codes in `concurrent-sample.el`.
+Executing `eval-last-sexp` (C-x C-e), you can try those codes.
 
 ### Pseud-thread
 
-Evaluating the lexical-let in the blow code, the animation starts. After few seconds, the animation will stop.
+Evaluating the let in the blow code, the animation starts. After few seconds, the animation will stop.
 
 Thread:
 
-    (lexical-let 
-        ((count 0) (anm "-/|\\-")
-         (end 50) (pos (point)))
-      (cc:thread 
-       60 
-       (message "Animation started.")
-       (while (> end (incf count))
-         (save-excursion
-           (when (< 1 count)
-             (goto-char pos) (delete-char 1))
-           (insert (char-to-string 
-                    (aref anm (% count (length anm)))))))
-       (save-excursion
+```el
+(let ((count 0) (anm "-/|\\-")
+      (end 50) (pos (point)))
+  (cc:thread
+   60
+   (message "Animation started.")
+   (while (> end (cl-incf count))
+     (save-excursion
+       (when (< 1 count)
          (goto-char pos) (delete-char 1))
-       (message "Animation finished.")))
+       (insert (char-to-string
+                (aref anm (% count (length anm)))))))
+   (save-excursion
+     (goto-char pos) (delete-char 1))
+   (message "Animation finished.")))
+```
 
-Using 'while' clause in the body content, one can make a loop in the thread.
+Using `while` clause in the body content, one can make a loop in the thread.
 
-Be careful not to make an infinite loop or heavy loop accidentally. If you find that the Emacs enters infinite loop, you may be able to stop the loop with executing the command 'deferred:clear-queue'.
+Be careful not to make an infinite loop or heavy loop accidentally. If you find that the Emacs enters infinite loop, you may be able to stop the loop with executing the command `deferred:clear-queue`.
 
 ### Generator
 
-The following code creates a generator object and binds it to the variable 'fib-gen'.
-One can receive values, using 'yield' function in the generator body code.
+The following code creates a generator object and binds it to the variable `fib-gen`.
+One can receive values, using `yield` function in the generator body code.
 When the generator returns a value, the evaluation process stops.
 Calling generator object as a function, the evaluation process resumes.
 
 Generator:
 
-    (setq fib-list nil)
-    (setq fib-gen
-          (lexical-let ((a1 0) (a2 1))
-            (cc:generator
-             (lambda (x) (push x fib-list)) ; Receiving values as a callback function
-             (yield a1)
-             (yield a2)
-             (while t
-               (let ((next (+ a1 a2)))
-                 (setq a1 a2
-                       a2 next)
-                 (yield next))))))
-    
-    (funcall fib-gen) ; calling 5 times
-    (funcall fib-gen) (funcall fib-gen)
-    (funcall fib-gen) (funcall fib-gen)
-    
-    fib-list ; => (3 2 1 1 0)
-    
+```el
+(setq fib-list nil)
+(setq fib-gen
+      (let ((a1 0) (a2 1))
+        (cc:generator
+         (lambda (x) (push x fib-list)) ; Receiving values as a callback function
+         (yield a1)
+         (yield a2)
+         (while t
+           (let ((next (+ a1 a2)))
+             (setq a1 a2
+                   a2 next)
+             (yield next))))))
+
+(funcall fib-gen) ; calling 5 times
+(funcall fib-gen) (funcall fib-gen)
+(funcall fib-gen) (funcall fib-gen)
+
+fib-list ; => (3 2 1 1 0)
+```
+
 ### Semaphore
 
 The semaphore restricts the number of concurrent tasks.
-The following code creates a semaphore object with one permit, and binds it to the variable 'smp'.
+The following code creates a semaphore object with one permit, and binds it to the variable `smp`.
 The subsequent codes and comments show how the semaphore object works.
 
 Semaphore:
 
-    ;; Create a semaphore with permit=1.
-    (setq smp (cc:semaphore-create 1))
-    
-    ;; Start three tasks with acquiring permit.
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go1")))
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go2")))
-    (deferred:nextc (cc:semaphore-acquire smp)
-      (lambda(x) 
-        (message "go3")))
-    
-    ;; => Only the first task is executed and displays "go1".
-    ;;    Rest ones are blocked.
-    
-    (cc:semaphore-release smp) ; Releasing one permit
-    
-    ;; => The second task is executed, then, displays "go2".
-    
-    (cc:semaphore-waiting-deferreds smp) ; => The third task object
-    
-    (cc:semaphore-release-all smp) ; => Reset permits and return the third task object
-    
-    (cc:semaphore-waiting-deferreds smp) ; => nil
+```el
+;; Create a semaphore with permit=1.
+(setq smp (cc:semaphore-create 1))
+
+;; Start three tasks with acquiring permit.
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go1")))
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go2")))
+(deferred:nextc (cc:semaphore-acquire smp)
+  (lambda(x)
+    (message "go3")))
+
+;; => Only the first task is executed and displays "go1".
+;;    Rest ones are blocked.
+
+(cc:semaphore-release smp) ; Releasing one permit
+
+;; => The second task is executed, then, displays "go2".
+
+(cc:semaphore-waiting-deferreds smp) ; => The third task object
+
+(cc:semaphore-release-all smp) ; => Reset permits and return the third task object
+
+(cc:semaphore-waiting-deferreds smp) ; => nil
+```
 
 ### Dataflow
 
-The function 'cc:dataflow-environment' creates an environment for dataflow variables.
-The function 'cc:dataflow-get' returns a deferred object that can refer the value.
-The function 'cc:dataflow-set' binds a value to a dataflow variable.
+The function `cc:dataflow-environment` creates an environment for dataflow variables.
+The function `cc:dataflow-get` returns a deferred object that can refer the value.
+The function `cc:dataflow-set` binds a value to a dataflow variable.
 Any objects can be variable keys in the environment. This sample code uses strings as keys.
 
 Dataflow:
 
-    ;; Create an environment.
-    (setq dfenv (cc:dataflow-environment))
-    
-    ;;## Basic usage
-    
-    ;; Referring a variable synchronously. This function doesn't block.
-    (cc:dataflow-get-sync dfenv "abc") ; => nil
-    
-    (deferred:$ ; Start the task that gets the value of 'abc' and that displays the value.
-      (cc:dataflow-get dfenv "abc")
-      (deferred:nextc it
-        (lambda (x) (message "Got abc : %s" x))))
-    ;; => This task is blocked because no value is bound to the variable 'abc'.
-    
-    (cc:dataflow-set dfenv "abc" 256) ; Binding a value to the variable 'abc'.
-    ;; => The blocked task resumes and displays "Got abc : 256".
-    
-    (cc:dataflow-get-sync dfenv "abc") ; => 256
-    
-    (cc:dataflow-clear dfenv "abc") ; unbind the variable 'abc'
-    
-    (cc:dataflow-get-sync dfenv "abc") ; => nil
-    
-    ;;## Complex key
-    
-    (deferred:$
-      (cc:dataflow-get dfenv '("http://example.com/a.jpg" 300))
-      (deferred:nextc it
-        (lambda (x) (message "a.jpg:300 OK %s" x))))
-    
-    (cc:dataflow-set dfenv '("http://example.com/a.jpg" 300) 'jpeg)
-    
-    ;; => a.jpg:300 OK jpeg
-    
-    ;;## Waiting for two variables
-    
-    (deferred:$ ; Start the task that refers two variables, 'abc' and 'def'.
-      (deferred:parallel
-        (cc:dataflow-get dfenv "abc")
-        (cc:dataflow-get dfenv "def"))
-      (deferred:nextc it
-        (lambda (values) 
-          (apply 'message "Got values : %s, %s" values)
-          (apply '+ values)))
-      (deferred:nextc it
-        (lambda (x) (insert (format ">> %s" x)))))
-    ;; => This task is blocked.
-    
-    (cc:dataflow-get-waiting-keys dfenv) ; => ("def" "abc")
-    (cc:dataflow-get-avalable-pairs dfenv) ; => ((("http://example.com/a.jpg" 300) . jpeg))
-    
-    (cc:dataflow-set dfenv "abc" 128) ; Binding one value. The task is still blocked.
-    (cc:dataflow-set dfenv "def" 256) ; Binding the next value. Then, the task resumes.
-    ;; => Got values : 128, 256
+```el
+;; Create an environment.
+(setq dfenv (cc:dataflow-environment))
+
+;;## Basic usage
+
+;; Referring a variable synchronously. This function doesn't block.
+(cc:dataflow-get-sync dfenv "abc") ; => nil
+
+(deferred:$ ; Start the task that gets the value of `abc` and that displays the value.
+  (cc:dataflow-get dfenv "abc")
+  (deferred:nextc it
+    (lambda (x) (message "Got abc : %s" x))))
+;; => This task is blocked because no value is bound to the variable `abc`.
+
+(cc:dataflow-set dfenv "abc" 256) ; Binding a value to the variable `abc`.
+;; => The blocked task resumes and displays "Got abc : 256".
+
+(cc:dataflow-get-sync dfenv "abc") ; => 256
+
+(cc:dataflow-clear dfenv "abc") ; unbind the variable `abc`
+
+(cc:dataflow-get-sync dfenv "abc") ; => nil
+
+;;## Complex key
+
+(deferred:$
+  (cc:dataflow-get dfenv '("http://example.com/a.jpg" 300))
+  (deferred:nextc it
+    (lambda (x) (message "a.jpg:300 OK %s" x))))
+
+(cc:dataflow-set dfenv '("http://example.com/a.jpg" 300) 'jpeg)
+
+;; => a.jpg:300 OK jpeg
+
+;;## Waiting for two variables
+
+(deferred:$ ; Start the task that refers two variables, `abc` and `def`.
+  (deferred:parallel
+    (cc:dataflow-get dfenv "abc")
+    (cc:dataflow-get dfenv "def"))
+  (deferred:nextc it
+    (lambda (values)
+      (apply 'message "Got values : %s, %s" values)
+      (apply '+ values)))
+  (deferred:nextc it
+    (lambda (x) (insert (format ">> %s" x)))))
+;; => This task is blocked.
+
+(cc:dataflow-get-waiting-keys dfenv) ; => ("def" "abc")
+(cc:dataflow-get-avalable-pairs dfenv) ; => ((("http://example.com/a.jpg" 300) . jpeg))
+
+(cc:dataflow-set dfenv "abc" 128) ; Binding one value. The task is still blocked.
+(cc:dataflow-set dfenv "def" 256) ; Binding the next value. Then, the task resumes.
+;; => Got values : 128, 256
+```
 
 ### Signal
 
-The function 'cc:signal-channel' creates a channel for signals.
+The function `cc:signal-channel` creates a channel for signals.
 Then, one can connect receivers and send signals.
 
 Signal:
 
-    ;; Create a channel.
-    (setq channel (cc:signal-channel))
-    
-    (cc:signal-connect ; Connect the receiver for the signal 'foo.
-     channel 'foo
-     (lambda (event) (message "Signal : %S" event)))
-    
-    (cc:signal-connect
-     channel t  ; The signal symbol 't' means any signals.
-     (lambda (event) 
-       (destructuring-bind (event-name (args)) event
-         (message "Listener : %S / %S" event-name args))))
-    
-    (deferred:$ ; Connect the deferred task.
-      (cc:signal-connect channel 'foo)
-      (deferred:nextc it
-        (lambda (x) (message "Deferred Signal : %S" x))))
-    
-    (cc:signal-send channel 'foo "hello signal!")
-    ;; =>
-    ;; Listener : foo / "hello signal!"
-    ;; Signal : (foo ("hello signal!"))
-    ;; Deferred Signal : (foo ("hello signal!"))
-    
-    (cc:signal-send channel 'some "some signal!")
-    ;; =>
-    ;; Listener : some / "some signal!"
+```el
+;; Create a channel.
+(setq channel (cc:signal-channel))
 
+(cc:signal-connect ; Connect the receiver for the signal 'foo.
+ channel 'foo
+ (lambda (event) (message "Signal : %S" event)))
+
+(cc:signal-connect
+ channel t  ; The signal symbol 't' means any signals.
+ (lambda (event)
+   (cl-destructuring-bind (event-name (args)) event
+     (message "Listener : %S / %S" event-name args))))
+
+(deferred:$ ; Connect the deferred task.
+  (cc:signal-connect channel 'foo)
+  (deferred:nextc it
+    (lambda (x) (message "Deferred Signal : %S" x))))
+
+(cc:signal-send channel 'foo "hello signal!")
+;; =>
+;; Listener : foo / "hello signal!"
+;; Signal : (foo ("hello signal!"))
+;; Deferred Signal : (foo ("hello signal!"))
+
+(cc:signal-send channel 'some "some signal!")
+;; =>
+;; Listener : some / "some signal!"
+```
 
 Dataflow objects have the own channel to notify accessing to the variables.
 Receiving the signals for referring unbound variables, one can create values on demand.
@@ -229,10 +236,10 @@ one can use the different scope signals in the tree structure of the channel obj
    * Return
       * A thread object.
    * This function creates a thread and start it.
-   * The 'thread' means that each s-exps in the body part are executed as asynchronous tasks. Then, the interval between tasks is `wait-time-msec`.
+   * The `thread` means that each s-exps in the body part are executed as asynchronous tasks. Then, the interval between tasks is `wait-time-msec`.
    * The `while` form in the body part acts as a loop.
    * Note that the infinite loops or the heavy loop tasks may make the Emacs freeze. The command `deferred:clear-queue` may recover such freeze situation.
- 
+
 ### Generator
 
 * cc:generator (callback &rest body)
@@ -330,8 +337,8 @@ one can use the different scope signals in the tree structure of the channel obj
    * Return
       * None
    * Send a signal to the channel.
-   * If the `args` are given, observers can get the values by following code: 
-      * `(lambda (event) (destructuring-bind (event-sym (args)) event ... ))`
+   * If the `args` are given, observers can get the values by following code:
+      * `(lambda (event) (cl-destructuring-bind (event-sym (args)) event ... ))`
 
 * cc:signal-send-global (channel event-sym &rest args)
    * Arguments
@@ -435,7 +442,7 @@ one can use the different scope signals in the tree structure of the channel obj
       * df: A dataflow object
    * Return
       * None
-   * Clear all entries in the environment. 
+   * Clear all entries in the environment.
    * This function does nothing for the waiting deferred objects.
 
 * cc:dataflow-connect (df event-sym &optional callback)
@@ -451,5 +458,5 @@ one can use the different scope signals in the tree structure of the channel obj
 
 * * * * *
 
-(C) 2011  SAKURAI Masashi  All rights reserved.
+(C) 2011-2016  SAKURAI Masashi  All rights reserved.
 m.sakurai at kiwanami.net
