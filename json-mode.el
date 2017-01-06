@@ -4,8 +4,8 @@
 
 ;; Author: Josh Johnston
 ;; URL: https://github.com/joshwnj/json-mode
-;; Version: 1.5.0
-;; Package-Requires: ((json-reformat "20141009.1155") (json-snatcher "20131110.1107"))
+;; Version: 1.6.0
+;; Package-Requires: ((json-reformat "0.0.5") (json-snatcher "1.0.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.json$" . json-mode))
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.jsonld$" . json-mode))
 
 ;;;###autoload
@@ -79,10 +80,12 @@
       ;; delete the window if we have one,
       ;; so we can recreate it in the correct position
       (if temp-window
-          (delete-window temp-window))
+	  (delete-window temp-window))
 
       ;; always put the temp window below the json window
-      (set-window-buffer (split-window-below) temp-name))
+      (set-window-buffer (if (fboundp 'split-window-below)
+			     (split-window-below)
+			   (split-window-vertically)) temp-name))
     ))
 
 (define-key json-mode-map (kbd "C-c C-p") 'json-mode-show-path)
@@ -91,9 +94,11 @@
 (defun json-mode-beautify ()
   "Beautify / pretty-print the active region (or the entire buffer if no active region)."
   (interactive)
-  (if (use-region-p)
-      (json-reformat-region (region-beginning) (region-end))
-    (json-reformat-region (buffer-end -1) (buffer-end 1))))
+  (let ((json-reformat:indent-width js-indent-level)
+        (json-reformat:pretty-string? t))
+    (if (use-region-p)
+        (json-reformat-region (region-beginning) (region-end))
+      (json-reformat-region (buffer-end -1) (buffer-end 1)))))
 
 (define-key json-mode-map (kbd "C-c C-f") 'json-mode-beautify)
 

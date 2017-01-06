@@ -12,7 +12,7 @@ Install
 M-x package-install json-mode
 ```
 
-You need to have the [marmalade repository](https://marmalade-repo.org/) enabled in emacs for this to work.
+You need to have the [MELPA repository](https://melpa.org/) or [MELPA Stable repository](https://stable.melpa.org/) enabled in emacs for this to work.
 
 Default Keybindings
 ----
