@@ -1,3 +1,7 @@
+(require 'slime)
+(require 'cl-lib)
+(require 'grep)
+
 (define-slime-contrib slime-asdf
   "ASDF support."
   (:authors "Daniel Barlow       <dan@telent.net>"
@@ -36,13 +40,14 @@ in the directory of the current buffer."
   (let* ((completion-ignore-case nil)
          (prompt (or prompt "System"))
          (system-names (slime-eval `(swank:list-asdf-systems)))
-         (default-value (or default-value 
-                            (if determine-default-accurately
-                                (slime-determine-asdf-system (buffer-file-name)
-                                                             (slime-current-package))
-                                (slime-find-asd-file (or default-directory
-                                                         (buffer-file-name))
-                                                     system-names))))
+         (default-value
+           (or default-value 
+               (if determine-default-accurately
+                   (slime-determine-asdf-system (buffer-file-name)
+                                                (slime-current-package))
+                   (slime-find-asd-file (or default-directory
+                                            (buffer-file-name))
+                                        system-names))))
          (prompt (concat prompt (if default-value
                                     (format " (default `%s'): " default-value)
                                     ": "))))
@@ -57,15 +62,17 @@ in the directory of the current buffer."
 `directory' and returns it if it's in `system-names'."
   (let ((asd-files
          (directory-files (file-name-directory directory) nil "\.asd$")))
-    (loop for system in asd-files
-          for candidate = (file-name-sans-extension system)
-          when (find candidate system-names :test #'string-equal)
-            do (return candidate))))
+    (cl-loop for system in asd-files
+             for candidate = (file-name-sans-extension system)
+             when (cl-find candidate system-names :test #'string-equal)
+             do (cl-return candidate))))
 
 (defun slime-determine-asdf-system (filename buffer-package)
   "Try to determine the asdf system that `filename' belongs to."
-  (slime-eval `(swank:asdf-determine-system ,(slime-to-lisp-filename filename)
-                                            ,buffer-package)))
+  (slime-eval
+   `(swank:asdf-determine-system ,(and filename
+                                       (slime-to-lisp-filename filename))
+                                 ,buffer-package)))
 
 (defun slime-who-depends-on-rpc (system)
   (slime-eval `(swank:who-depends-on ,system)))
@@ -80,11 +87,11 @@ See also `slime-highlight-compiler-notes' and
 (defun slime-asdf-operation-finished-function (system)
   (if slime-asdf-collect-notes
       #'slime-compilation-finished
-      (lexical-let ((system system))
-        (lambda (result)
-          (let (slime-highlight-compiler-notes
-                slime-compilation-finished-hook)
-            (slime-compilation-finished result))))))
+      (slime-curry (lambda (system result)
+                     (let (slime-highlight-compiler-notes
+                           slime-compilation-finished-hook)
+                       (slime-compilation-finished result)))
+                   system)))
 
 (defun slime-oos (system operation &rest keyword-args)
   "Operate On System."
@@ -108,11 +115,11 @@ buffer's working directory"
   (interactive (list (slime-read-system-name)))
   (slime-oos system 'load-op))
 
-(defun slime-open-system (name &optional load)
+(defun slime-open-system (name &optional load interactive)
   "Open all files in an ASDF system."
-  (interactive (list (slime-read-system-name)))
+  (interactive (list (slime-read-system-name) nil t))
   (when (or load
-            (and (called-interactively-p)
+            (and interactive
                  (not (slime-eval `(swank:asdf-system-loaded-p ,name)))
                  (y-or-n-p "Load it? ")))
     (slime-load-system name))
@@ -157,7 +164,7 @@ buffer's working directory"
                   ((buffers-forward  (mapcar #'find-file-noselect files))
                    (buffers-backward (reverse buffers-forward)))
                 #'(lambda (current-buffer wrap)
-                    ;; Contrarily to the the docstring of
+                    ;; Contrarily to the docstring of
                     ;; `multi-isearch-next-buffer-function', the first
                     ;; arg is not necessarily a buffer. Report sent
                     ;; upstream. (2009-11-17)
@@ -266,7 +273,7 @@ depending on it."
   (:handler (lambda ()
               (interactive)
               (slime-oos (slime-read-system-name) 'test-op :force t)))
-  (:one-liner "Compile (as needed) and force test an ASDF system."))
+  (:one-liner "Recompile and test an ASDF system."))
 
 (defslime-repl-shortcut slime-repl-test-system ("test-system")
   (:handler (lambda ()
@@ -285,7 +292,7 @@ depending on it."
   (:handler (lambda ()
               (interactive)
               (slime-oos (slime-read-system-name) 'compile-op :force t)))
-  (:one-liner "Recompile (but not load) an ASDF system."))
+  (:one-liner "Recompile (but not completely load) an ASDF system."))
 
 (defslime-repl-shortcut slime-repl-open-system ("open-system")
   (:handler 'slime-open-system)

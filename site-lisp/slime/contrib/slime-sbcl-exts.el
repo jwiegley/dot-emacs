@@ -1,3 +1,5 @@
+(require 'slime)
+(require 'cl-lib)
 
 (define-slime-contrib slime-sbcl-exts
   "Misc extensions for SBCL"
