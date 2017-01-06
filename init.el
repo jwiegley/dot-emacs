@@ -3224,6 +3224,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package minesweeper
   :commands minesweeper)
 
+(use-package moz
+  :commands run-mozilla
+  :load-path "site-lisp/mozrepl/chrome/content")
+
 (use-package mudel
   :commands mudel
   :bind ("C-c M" . mud)
