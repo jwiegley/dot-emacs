@@ -1,0 +1,25 @@
+{
+  "name": "mozrepl",
+  "title": "MozRepl",
+  "id": "mozrepl@hyperstruct.net",
+  "description": "Interactive console for Mozilla applications",
+  "version": "1.2.0",
+  "author": "Massimiliano Mirra <bard@hyperstruct.net>",
+  "contributors": [
+    "Luca Greco <luca.greco@alcacoop.it>"
+  ],
+  "engines": {
+    "firefox": ">=36 <=*"
+  },
+  "scripts": {
+    "xpi": "zip -r mozrepl.xpi . --exclude @.xpiignore",
+    "test": "mocha test"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "jpm": "^1.0.0",
+    "mocha": "^2.2.5",
+    "mozfee": "^0.1.5",
+    "node-static": "^0.7.7"
+  }
+}
