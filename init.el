@@ -162,7 +162,10 @@
 (use-package request        :defer t :load-path "lib/emacs-request")
 (use-package s              :defer t :load-path "lib/s-el")
 (use-package tablist        :defer t :load-path "lib/tablist")
+(use-package uuidgen        :defer t :load-path "lib/uuidgen-el")
 (use-package web            :defer t :load-path "lib/emacs-web")
+(use-package websocket      :defer t :load-path "lib/emacs-websocket")
+(use-package web-server     :defer t :load-path "lib/emacs-web-server")
 (use-package working        :defer t :load-path "lib/working")
 (use-package xml-rpc        :defer t :load-path "lib/xml-rpc")
 
