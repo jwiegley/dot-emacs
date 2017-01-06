@@ -1,0 +1,13 @@
+content mozrepl chrome/content/
+skin mozrepl classic/1.0 chrome/skin/classic/
+
+overlay chrome://browser/content/browser.xul         chrome://mozrepl/content/overlay_browser.xul
+
+interfaces components/MozRepl.xpt
+component {57f4284b-1f9b-4990-8525-9ed5cbb23e01} components/MozRepl.js
+contract @hyperstruct.net/mozlab/mozrepl;1 {57f4284b-1f9b-4990-8525-9ed5cbb23e01}
+category profile-after-change nsIMozRepl @hyperstruct.net/mozlab/mozrepl;1
+
+component {f62cbe68-ee70-4264-8586-66df185244f5} components/CommandLine.js
+contract @mozilla.org/commandlinehandler/general-startup;1?type=repl {f62cbe68-ee70-4264-8586-66df185244f5}
+category command-line-handler mozrepl @mozilla.org/commandlinehandler/general-startup;1?type=repl
