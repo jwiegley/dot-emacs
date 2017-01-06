@@ -21,6 +21,7 @@
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-adapt-indentation nil)
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
+ '(org-agenda-cmp-user-defined (quote org-compare-todo-age))
  '(org-agenda-custom-commands
    (quote
     (("e" "Emacs Tasks" tags "TODO<>\"PROJECT\"&LEVEL<>1"
@@ -67,7 +68,8 @@
           "\\* \\(DEFERRED\\|SOMEDAY\\)")))
        (org-agenda-sorting-strategy
         (quote
-         (priority-down)))))
+         (user-defined-down)))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-files
         (quote

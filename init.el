@@ -1600,7 +1600,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package docker-machines))
 
 (use-package dockerfile-mode
-  :mode ("\\`Dockerfile" . dockerfile-mode)
+  :mode (".*Dockerfile.*" . dockerfile-mode)
   :load-path "site-lisp/dockerfile-mode/")
 
 (use-package doxymacs
@@ -3842,7 +3842,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-. C-z" . shell-toggle))
 
 (use-package slime
-  :disabled t
   :load-path "site-lisp/slime"
   :commands (sbcl slime)
   :init
@@ -3886,15 +3885,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (setq slime-net-coding-system 'utf-8-unix)
 
-    (setq slime-lisp-implementations
-          '((sbcl
-             ("sbcl" "--core"
-              "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-             :init
-             (lambda (port-file _)
-               (format "(swank:start-server %S)\n" port-file)))
-            (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
-            (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
+    ;; (setq slime-lisp-implementations
+    ;;       '((sbcl
+    ;;          ("sbcl" "--core"
+    ;;           "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
+    ;;          :init
+    ;;          (lambda (port-file _)
+    ;;            (format "(swank:start-server %S)\n" port-file)))
+    ;;         (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
+    ;;         (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
 
     (setq slime-default-lisp 'sbcl)
     (setq slime-complete-symbol*-fancy t)
