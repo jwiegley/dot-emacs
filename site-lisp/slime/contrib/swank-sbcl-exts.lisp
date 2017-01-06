@@ -31,10 +31,18 @@
         (destructuring-bind (instruction &rest args) argument-forms
           (declare (ignore args))
           (let* ((instr-name
-                  (if (arglist-dummy-p instruction)
-                      (string-upcase (arglist-dummy.string-representation instruction))
-                      (symbol-name instruction)))
-                 (instr-fn (gethash instr-name sb-assem:*assem-instructions*)))
+                   (typecase instruction
+                     (arglist-dummy
+                      (string-upcase (arglist-dummy.string-representation instruction)))
+                     (symbol
+                      (string-downcase instruction))))
+                 (instr-fn
+                   #+#.(swank/backend:with-symbol 'inst-emitter-symbol 'sb-assem)
+                   (sb-assem::inst-emitter-symbol instr-name)
+                   #+(and
+                      (not #.(swank/backend:with-symbol 'inst-emitter-symbol 'sb-assem))
+                      #.(swank/backend:with-symbol '*assem-instructions* 'sb-assem))
+                   (gethash instr-name sb-assem:*assem-instructions*)))
             (cond ((not instr-fn)
                    (call-next-method))
                   ((functionp instr-fn)
@@ -45,8 +53,10 @@
                    (with-available-arglist (arglist) (arglist instr-fn)
                      ;; SB-ASSEM:INST invokes a symbolic INSTR-FN with
                      ;; current segment and current vop implicitly.
-                     (decode-instruction-arglist instr-name (cddr arglist)))
-                   )))))))
+                     (decode-instruction-arglist instr-name
+                                                 (if (get instr-fn :macro)
+                                                     arglist
+                                                     (cddr arglist)))))))))))
 
 
 ) ; PROGN
