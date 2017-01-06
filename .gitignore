@@ -1,0 +1,7 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+
+.markdown-preview.html
