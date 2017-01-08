@@ -3209,7 +3209,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
-         ("\\.markdown\\'"    . markdown-mode)))
+         ("\\.markdown\\'"    . markdown-mode))
+  :config
+  (use-package markdown-preview-mode
+    :load-path "site-lisp/markdown-preview-mode"
+    :config
+    (setq markdown-preview-stylesheets
+          (list "http://ftp.newartisans.com/pub/github.css"))))
 
 (use-package mediawiki
   ;; (shell-command "rm -fr site-lisp/mediawiki")
@@ -3681,6 +3687,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
 
+(use-package rings-xhtml
+  :load-path "~/bae/xhtml-deliverable/scripts"
+  :bind ("<f10>" . rings-xhtml-run-all)
+  :commands (rings-xhtml-run-test-for-demo
+             rings-xhtml-run
+             rings-xhtml-run-all)
+  :init
+  (use-package rings
+    :load-path "~/bae/xhtml-deliverable/rings-dashboard"
+    :commands (rings-setup
+               rings-app-run
+               rings-cleanup-docker)))
+
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
   :mode ("\\.rb\\'" . ruby-mode)
@@ -3952,7 +3971,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package smedl-mode
   :load-path "~/bae/smedl/emacs/"
-  :mode ("\\.smedl\\'" . smedl-mode))
+  :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
 
 (use-package smerge-mode
   :commands smerge-mode
