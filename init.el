@@ -2763,25 +2763,26 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
-  :mode "\\.js\\'")
+  :mode "\\.js\\'"
+  :config
+  (setq flycheck-disabled-checkers
+        (append flycheck-disabled-checkers
+                '(javascript-jshint)))
+
+  (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  (flycheck-mode 1)
+
+  (bind-key "M-n" #'flycheck-next-error js2-mode-map)
+  (bind-key "M-p" #'flycheck-previous-error js2-mode-map))
 
 (use-package json-mode
   :load-path ("site-lisp/json-mode"
               "site-lisp/json-reformat"
               "site-lisp/json-snatcher")
-  :mode "\\.json\\'")
-
-(use-package json-reformat
-  ;; (shell-command "rm -fr site-lisp/json-reformat")
-  ;; (shell-command "git remote rm ext/json-reformat")
-  :disabled t
-  :load-path "site-lisp/json-reformat")
-
-(use-package json-snatcher
-  ;; (shell-command "rm -fr site-lisp/json-snatcher")
-  ;; (shell-command "git remote rm ext/json-snatcher")
-  :disabled t
-  :load-path "site-lisp/json-snatcher")
+  :mode "\\.json\\'"
+  :config
+  (use-package json-reformat)
+  (use-package json-snatcher))
 
 (use-package ledger-mode
   :load-path "~/src/ledger/ledger-mode/lisp"
