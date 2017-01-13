@@ -464,12 +464,12 @@
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
- '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-ignore-list (quote ("lensbot" "rudybot" "johnwilkins")))
  '(erc-ignore-reply-list (quote ("JordiGH")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
  '(erc-log-channels-directory "~/Messages/ERC")
  '(erc-log-write-after-send t)
+ '(erc-lurker-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-modules
 (quote
  (autojoin button completion dcc fill identd irccontrols list match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp track truncate highlight-nicknames)))
@@ -737,7 +737,8 @@
      (mode . gnus-article-mode)
      (name . "^\\.newsrc-dribble")
      (name . "^\\*\\(sent\\|unsent\\|fetch\\)")
-     (name . "^ \\*\\(nnimap\\|nntp\\|nnmail\\|gnus\\|server\\)")))
+     (name . "^ \\*\\(nnimap\\|nntp\\|nnmail\\|gnus\\|server\\|mm\\*\\)")
+     (name . "\\(Original Article\\|canonical address\\|extract address\\)")))
    ("Org"
     (or
      (name . "^\\*Calendar\\*$")
