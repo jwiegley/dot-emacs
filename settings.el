@@ -464,6 +464,7 @@
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
+ '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT")))
  '(erc-ignore-list (quote ("lensbot" "rudybot" "johnwilkins")))
  '(erc-ignore-reply-list (quote ("JordiGH")))
  '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
