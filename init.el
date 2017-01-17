@@ -1956,7 +1956,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package gist
   :load-path "site-lisp/gist"
-  :bind ("C-c G" . gist-region-or-buffer))
+  :bind ("C-c G" . my-gist-region-or-buffer)
+  :preface
+  (defun my-gist-region-or-buffer ()
+    (interactive)
+    (deactivate-mark)
+    (with-temp-buffer
+      (if buffer-file-name
+          (call-process "gist" nil t nil "-f" buffer-file-name "-P")
+        (call-process "gist" nil t nil "-P"))
+      (kill-ring-save (point-min) (1- (point-max)))
+      (message (buffer-substring (point-min) (1- (point-max)))))))
 
 (use-package git-annex-el
   ;; (shell-command "rm -fr lisp/git-annex-el")
