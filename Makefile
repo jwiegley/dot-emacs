@@ -163,14 +163,16 @@ INFODIR=${PREFIX}/share/info
 install: install-desktop install-elisp install-bin install-init
 
 install-desktop:
-	mkdir -p ${DESKTOP}/icons/hicolor/16x16
-	cp etc/desktop/icons/16x16/proofgeneral.png ${DESKTOP}/icons/hicolor/16x16
-	mkdir -p ${DESKTOP}/icons/hicolor/32x32
-	cp etc/desktop/icons/32x32/proofgeneral.png ${DESKTOP}/icons/hicolor/32x32
-	mkdir -p ${DESKTOP}/icons/hicolor/48x48
-	cp etc/desktop/icons/48x48/proofgeneral.png ${DESKTOP}/icons/hicolor/48x48
-	mkdir -p ${DESKTOP}/pixmaps
-	cp etc/desktop/icons/48x48/proofgeneral.png ${DESKTOP}/pixmaps
+	mkdir -p ${DESKTOP}/icons/hicolor/16x16/apps
+	cp etc/desktop/icons/16x16/proofgeneral.png ${DESKTOP}/icons/hicolor/16x16/apps
+	mkdir -p ${DESKTOP}/icons/hicolor/32x32/apps
+	cp etc/desktop/icons/32x32/proofgeneral.png ${DESKTOP}/icons/hicolor/32x32/apps
+	mkdir -p ${DESKTOP}/icons/hicolor/48x48/apps
+	cp etc/desktop/icons/48x48/proofgeneral.png ${DESKTOP}/icons/hicolor/48x48/apps
+	mkdir -p ${DESKTOP}/icons/hicolor/64x64/apps
+	cp etc/desktop/icons/64x64/proofgeneral.png ${DESKTOP}/icons/hicolor/64x64/apps
+	mkdir -p ${DESKTOP}/icons/hicolor/128x128/apps
+	cp etc/desktop/icons/128x128/proofgeneral.png ${DESKTOP}/icons/hicolor/128x128/apps
 	mkdir -p ${DESKTOP}/applications
 	cp etc/desktop/proofgeneral.desktop ${DESKTOP}/applications
 	mkdir -p ${DESKTOP}/mime-info
