@@ -431,6 +431,7 @@ so for the following reasons:
     ("Conjecture" "conj" "Conjecture #: #." t "Conjecture")
     ("Variable" "v" "Variable #: #." t "Variable")
     ("Variables" "vs" "Variables # , #: #." t "Variables")
+    ("Context" nil "Context #, (# : #)." t "Context")
     ("Local Coercion" nil "Local Coercion @{id} : @{typ1} >-> @{typ2}." t "Local\\s-+Coercion")
     ("Coercion" "coerc" "Coercion @{id} : @{typ1} >-> @{typ2}." t "Coercion")
     )
