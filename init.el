@@ -2026,12 +2026,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
 
   (grep-apply-setting 'grep-command "egrep -nH -e ")
-  ;; (grep-apply-setting
-  ;;  'grep-find-command
-  ;;  '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))
   (grep-apply-setting
    'grep-find-command
-   '("rg --no-heading --color=always -j4 -nH -e " . 43)))
+   '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))
+  ;; (grep-apply-setting
+  ;;  'grep-find-command
+  ;;  '("rg --no-heading --color=always -j4 -nH -e " . 43))
+  )
 
 (use-package gtags
   ;; (shell-command "rm -f site-lisp/gtags.el*")
