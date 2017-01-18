@@ -756,20 +756,15 @@ Used for unlocking ancestors on compilation errors."
 	 (put job 'lock-state 'unlocked)))
      coq--compilation-object-hash)))
 
-(defun coq-par-emergency-cleanup ()
-  "Emergency cleanup for parallel background compilation.
-Kills all processes, unlocks ancestors, clears the queue region
-and resets the internal state."
-  (interactive)				; needed for menu
-  (let (proc-killed was-busy)
+(defun coq-par-kill-and-cleanup ()
+  "Kill all background compilation, cleanup internal state and unlock ancestors.
+This is the common core of `coq-par-emergency-cleanup' and
+`coq-par-user-interrupt'. Returns t if there actually was a
+background job that was killed."
+  (let (proc-killed)
     (when coq--debug-auto-compilation
-      (message "emergency cleanup"))
+      (message "kill all jobs and cleanup state"))
     (setq proc-killed (coq-par-kill-all-processes))
-    (when (and (boundp 'prover-was-busy)
-	       (or proc-killed coq--last-compilation-job
-		   coq--compile-vio2vo-in-progress
-		   coq--compile-vio2vo-delay-timer))
-      (setq prover-was-busy t))
     (setq coq-par-compilation-queue (coq-par-new-queue))
     (setq coq--last-compilation-job nil)
     (setq coq-par-vio2vo-queue (coq-par-new-queue))
@@ -778,12 +773,62 @@ and resets the internal state."
       (cancel-timer coq--compile-vio2vo-delay-timer)
       (setq coq--compile-vio2vo-delay-timer nil))
     (coq-par-unlock-all-ancestors-on-error)
-    (when proof-action-list
-      (setq proof-shell-interrupt-pending t))
-    (proof-release-lock)
-    (proof-detach-queue)
     (setq proof-second-action-list-active nil)
-    (coq-par-init-compilation-hash)))
+    (coq-par-init-compilation-hash)
+    proc-killed))
+
+(defun coq-par-emergency-cleanup ()
+  "Emergency cleanup for errors in parallel background compilation.
+This is the function that cleans everything up when some
+background compilation process detected a severe error. When
+`coq-compile-keep-going' is nil, all errors are severe. When
+`coq-compile-keep-going' is t, coqc and some coqdep errors are
+not severe. This function is also used for the user action to
+kill all background compilation.
+
+On top of `coq-par-kill-and-cleanup', this function resets the
+queue region (and thus `proof-action-list' and signals an
+interrupt to the proof shell."
+  (interactive)				; needed for menu
+  (when coq--debug-auto-compilation
+    (message "emergency cleanup"))
+  (coq-par-kill-and-cleanup)
+  (when proof-action-list
+    (setq proof-shell-interrupt-pending t))
+  (proof-release-lock)
+  (proof-detach-queue))
+
+(defun coq-par-user-interrupt ()
+  "React to a generic user interrupt with cleaning up everything.
+This function cleans up background compilation when the proof
+assistant died (`proof-shell-handle-error-or-interrupt-hook') or
+when the user interrupted Proof General (with C-c C-c or
+`proof-interrupt-process' leading to
+`proof-shell-signal-interrupt-hook').
+
+On top of `coq-par-kill-and-cleanup', this function only sets the
+dynamic variable `prover-was-busy' to tell the proof shell that
+the user actually had a reason to interrupt. However, in the
+special case where `proof-action-list' is nil and
+`coq--last-compilation-job' not, this function also clears the
+queue region and releases the proof shell lock. This has the nice
+side effect, that `proof-interrupt-process' does not send an
+interrupt signal to the prover."
+  (let (proc-killed
+	(was-busy (or coq--last-compilation-job
+		      coq--compile-vio2vo-in-progress
+		      coq--compile-vio2vo-delay-timer)))
+    (when coq--debug-auto-compilation
+      (message "cleanup on user interrupt"))
+    (setq proc-killed (coq-par-kill-and-cleanup))
+    (unless proof-action-list
+      (when coq--debug-auto-compilation
+	(message "clear queue region and proof shell lock"))
+      (proof-release-lock)
+      (proof-detach-queue))
+    (when (and (boundp 'prover-was-busy)
+	       (or proc-killed was-busy))
+      (setq prover-was-busy t))))
 
 (defun coq-par-process-filter (process output)
   "Store output from coq background compilation."
