@@ -921,8 +921,10 @@ KEY is the optional key binding."
 
 (defun proof-settings-vars ()
   "Return a list of proof assistant setting variables."
-  (mapcar (lambda (setting) (proof-ass-symv (car setting)))
-	  proof-assistant-settings))
+  (append
+   (mapcar (lambda (setting) (proof-ass-symv (car setting)))
+	   proof-assistant-settings)
+   proof-assistant-additional-settings))
 
 (defun proof-settings-changed-from-defaults-p ()
   ;; FIXME: would be nice to add.  Custom support?

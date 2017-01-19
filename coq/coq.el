@@ -1544,6 +1544,12 @@ Near here means PT is either inside or just aside of a comment."
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
+  ;; Settings not defined with defpacustom because they have an unsupported
+  ;; type.
+  (setq proof-assistant-additional-settings
+        '(coq-compile-quick coq-compile-keep-going
+          coq-compile-auto-save coq-lock-ancestors))
+
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyplit-fn 'coq-goal-hyp

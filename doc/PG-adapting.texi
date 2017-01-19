@@ -361,7 +361,7 @@ file for the mode, which will be
 where @var{proof-home-directory} is the value of the
 variable @samp{@code{proof-home-directory}}.
 
-The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (phox "PhoX" "phx") (pgshell "PG-Shell" "pgsh") (pgocaml "PG-OCaml" "pgml") (pghaskell "PG-Haskell" "pghci"))}.
+The default value is @code{((isar "Isabelle" "thy") (coq "Coq" "v" nil (".vo" ".glob")) (easycrypt "EasyCrypt" "ec" ".*\\.eca?") (pgshell "PG-Shell" "pgsh") (pgocaml "PG-OCaml" "pgml") (pghaskell "PG-Haskell" "pghci"))}.
 @end defopt
 
 
@@ -3258,7 +3258,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'coq} @code{'phox} @code{'pgshell} @code{'pgocaml} @code{'pghaskell}.
+A list of symbols chosen from: @code{'isar} @code{'coq} @code{'easycrypt} @code{'pgshell} @code{'pgocaml} @code{'pghaskell}.
 If nil, the default will be ALL available proof assistants.
 
 Each proof assistant defines its own instance of Proof General,
