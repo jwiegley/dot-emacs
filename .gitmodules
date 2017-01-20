@@ -49,3 +49,6 @@
 [submodule "lisp/git-annex-el"]
 	path = lisp/git-annex-el
 	url = git://github.com/jwiegley/git-annex-el
+[submodule "lisp/erc-yank"]
+	path = lisp/erc-yank
+	url = git://github.com/jwiegley/erc-yank.git
