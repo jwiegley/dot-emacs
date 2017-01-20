@@ -31,21 +31,12 @@
                   (let ((inputs (split-string (match-string 1))))
                     inputs)))))))))
 
-  (mapc #'(lambda (path)
-            (let ((share (expand-file-name "share/emacs/site-lisp" path)))
-              (if (file-directory-p share)
-                  (add-to-list 'load-path share))))
-        (nix-read-environment emacs-environment))
-
-  (defun nix-site-lisp (query)
-    (catch 'result
-      (ignore
-       (dolist (path (nix-read-environment emacs-environment))
-         (let ((share (expand-file-name
-                       query
-                       (expand-file-name "share/emacs/site-lisp" path))))
-           (if (file-directory-p share)
-               (throw 'result share)))))))
+  (when (executable-find "nix-env")
+    (mapc #'(lambda (path)
+              (let ((share (expand-file-name "share/emacs/site-lisp" path)))
+                (if (file-directory-p share)
+                    (add-to-list 'load-path share))))
+          (nix-read-environment emacs-environment)))
 
   (eval-after-load 'advice
     `(setq ad-redefinition-action 'accept))
@@ -113,12 +104,16 @@
     (eval settings)))
 
 (setq Info-directory-list
-      (list
-       "/Users/johnw/.emacs.d/info"
-       "/Users/johnw/Library/Info"
-       (expand-file-name
-        "share/info" (car (nix-read-environment emacs-environment)))
-       "/Users/johnw/.nix-profile/share/info"))
+      (mapcar
+       'expand-file-name
+       (list
+        "~/.emacs.d/info"
+        "~/Library/Info"
+        (if (executable-find "nix-env")
+            (expand-file-name
+             "share/info" (car (nix-read-environment emacs-environment)))
+          "~/share/info")
+        "~/.nix-profile/share/info")))
 
 ;;; Enable disabled commands
 
@@ -3699,18 +3694,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
 
+(use-package rings
+    :load-path "~/bae/xhtml-deliverable/rings-dashboard"
+    :commands (rings-setup
+               rings-app-run
+               rings-cleanup-docker
+               rings-cleanup-app))
+
 (use-package rings-xhtml
   :load-path "~/bae/xhtml-deliverable/scripts"
   :bind ("<f10>" . rings-xhtml-run-all)
   :commands (rings-xhtml-run-test-for-demo
              rings-xhtml-run
-             rings-xhtml-run-all)
-  :init
-  (use-package rings
-    :load-path "~/bae/xhtml-deliverable/rings-dashboard"
-    :commands (rings-setup
-               rings-app-run
-               rings-cleanup-docker)))
+             rings-xhtml-run-all))
 
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"

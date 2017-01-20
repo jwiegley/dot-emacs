@@ -226,7 +226,13 @@ To use this function, add it to `org-agenda-finalize-hook':
                       (org-entry-get (or pos (point)) "CREATED" t))))))
 
 (defun org-todo-age (&optional pos)
-  (format "%.0fd" (time-to-number-of-days (org-todo-age-time pos))))
+  (let ((days (time-to-number-of-days (org-todo-age-time pos))))
+    (cond
+     ((< days 1)   "today")
+     ((< days 7)   (format "%dd" days))
+     ((< days 30)  (format "%.1fw" (/ days 7.0)))
+     ((< days 358) (format "%.1fm" (/ days 30.0)))
+     (t            (format "%.1fy" (/ days 365.0))))))
 
 (defun org-compare-todo-age (a b)
   (let ((time-a (org-todo-age-time (get-text-property 0 'org-hd-marker a)))
