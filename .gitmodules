@@ -52,3 +52,6 @@
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
 	url = git://github.com/jwiegley/erc-yank.git
+[submodule "lisp/chess"]
+	path = lisp/chess
+	url = git://github.com/jwiegley/emacs-chess.git
