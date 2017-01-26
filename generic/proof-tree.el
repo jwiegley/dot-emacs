@@ -842,13 +842,14 @@ The not yet delayed output is in the region
 	 (start proof-shell-delayed-output-start)
 	 (end proof-shell-delayed-output-end)
 	 inst-ex-vars)
-    (when (and (not (memq 'proof-tree-show-subgoal flags))
-	       (> state proof-tree-last-state))
-      ;; Only deal with existentials if the proof assistant has them
-      ;; (i.e., proof-tree-existential-regexp is set) and if there are some
-      ;; goals with existentials.
-      (when (and proof-tree-existential-regexp
+    (unless (memq 'proof-tree-show-subgoal flags)
+      (when (and (> state proof-tree-last-state)
+		 proof-tree-existential-regexp
 		 proof-tree-existentials-alist)
+	;; Only deal with existentials if this is not and undo
+	;; command, if the proof assistant actually has existentials
+	;; (i.e., proof-tree-existential-regexp is set) and if there
+	;; are some goals with existentials.
 	(setq inst-ex-vars
 	      (with-current-buffer proof-shell-buffer
 		(funcall proof-tree-extract-instantiated-existentials

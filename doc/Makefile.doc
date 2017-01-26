@@ -18,7 +18,7 @@
 
 MAKE = make -f Makefile.doc 
 MAKEINFO = makeinfo
-TEXI2HTML = texi2html -expandinfo -number-sections -split_chapter --noheader --css-include proofgen.css
+TEXI2HTML = makeinfo --html --ifinfo --number-sections --split=chapter --no-headers --css-include=proofgen.css
 # `texinfo-tex' package contains texi2pdf
 TEXI2PDF = texi2pdf
 # `dviutils' package contains these useful utilities.
@@ -50,7 +50,7 @@ default: doc
 	$(TEXI2PDF) $< 
 
 .texi.html:	
-	$(TEXI2HTML) --output $* $< 
+	$(TEXI2HTML) $<
 
 default: doc
 

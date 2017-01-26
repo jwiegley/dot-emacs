@@ -831,7 +831,11 @@ the prover command buffer (e.g., with Isabelle2009 press RET inside *isabelle*).
   (let ((prover-was-busy nil))
     (unless (proof-shell-live-buffer)
       (error "Proof process not started!"))
-    ;; hook functions might set prover-was-busy
+    ;; Hook functions might set prover-was-busy.
+    ;; In case `proof-action-list' is empty and only
+    ;; `proof-second-action-list-active' is t, the hook functions
+    ;; should clear the queue region and release the proof shell lock.
+    ;; `coq-par-user-interrupt' actually does this.
     (run-hooks 'proof-shell-signal-interrupt-hook)
     (if proof-shell-busy
 	(progn

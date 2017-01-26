@@ -4667,8 +4667,9 @@ ancestor.
 You have two choices, if you don't like ancestor locking in its
 default way.
 You can either switch ancestor locking completely off via
+menu @code{Coq -> Auto Compilation -> Lock Ancestors} or
 @code{coq-lock-ancestors} (@ref{Customizing Coq Multiple
-File Support}) or you can generally permit editing in locked
+File Support}). Alternatively, you can generally permit editing in locked
 sections with selecting 
 @code{Proof-General} -> @code{Quick Options} -> @code{Read Only}
 -> @code{Freely Edit} (which will set the option
@@ -4689,7 +4690,8 @@ file.]
 Proof General supports quick compilation only with the parallel
 asynchronous compilation. There are 4 modes that can be
 configured with @code{coq-compile-quick} or by selecting one of
-the radio buttons in the @code{Coq -> Auto Compilation} menu.
+the radio buttons in the @code{Coq -> Auto Compilation -> Quick
+compilation} menu.
 
 Use the default @code{no-quick}, if you have not yet switched to
 @code{Proof using}. Use @code{quick-no-vio2vo}, if you want quick
@@ -4824,6 +4826,9 @@ modified Coq buffers, @code{'ask-all} to confirm saving all modified
 buffers, @code{'save-coq} to save all modified Coq buffers without
 confirmation and @code{'save-all} to save all modified buffers without
 confirmation.
+
+This option can be set via menu
+@samp{Coq -> Auto Compilation -> Auto Save}.
 @end defvar
 
 
@@ -4899,6 +4904,9 @@ If non-nil, lock ancestor module files.@*
 If external compilation is used (via @samp{@code{coq-compile-command}}) then
 only the direct ancestors are locked. Otherwise all ancestors are
 locked when the "Require" command is processed.
+
+This option can be set via menu
+@samp{Coq -> Auto Compilation -> Lock Ancestors}.
 @end defvar
 
 
@@ -4942,7 +4950,7 @@ If set let user change and confirm the compilation command.@*
 Otherwise start the external compilation without confirmation.
 
 This option can be set/reset via menu
-@samp{Coq -> Settings -> Confirm External Compilation}.
+@samp{Coq -> Auto Compilation -> Confirm External Compilation}.
 @end defvar
 
 

@@ -228,7 +228,9 @@ which can be changed by sending commands.
 In this case, NAME stands for the internal setting, flag, etc,
 for the proof assistant, and a :setting and :type value should be
 provided.  The :type of NAME should be one of 'integer, 'float,
-'boolean, 'string.
+'boolean, 'string. Other types are not supported (see
+`proof-menu-entry-for-setting'). They will yield an error when
+constructing the proof assistant menu.
 
 The function `proof-assistant-format' is used to format VAL.
 

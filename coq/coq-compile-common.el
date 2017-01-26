@@ -42,9 +42,9 @@ Must be used together with `coq-seq-disable'."
   (add-hook 'proof-shell-extend-queue-hook
 	    'coq-par-preprocess-require-commands)
   (add-hook 'proof-shell-signal-interrupt-hook
-	    'coq-par-emergency-cleanup)
+	    'coq-par-user-interrupt)
   (add-hook 'proof-shell-handle-error-or-interrupt-hook
-	    'coq-par-emergency-cleanup))
+	    'coq-par-user-interrupt))
 
 (defun coq-par-disable ()
   "Disable parallel compilation.
@@ -52,9 +52,9 @@ Must be used together with `coq-seq-enable'."
   (remove-hook 'proof-shell-extend-queue-hook
 	       'coq-par-preprocess-require-commands)
   (remove-hook 'proof-shell-signal-interrupt-hook
-	       'coq-par-emergency-cleanup)
+	       'coq-par-user-interrupt)
   (remove-hook 'proof-shell-handle-error-or-interrupt-hook
-	       'coq-par-emergency-cleanup))
+	       'coq-par-user-interrupt))
 
 (defun coq-seq-enable ()
   "Enable sequential synchronous compilation.
@@ -246,7 +246,10 @@ quick-and-vio2vo Same as `quick-no-vio2vo', but start vio2vo processes
 ensure-vo        Ensure that all library dependencies are present as .vo
                  files and delete outdated .vio files or .vio files that
                  are more recent than the corresponding .vo file. This
-                 setting is the only one that ensures soundness."
+                 setting is the only one that ensures soundness.
+
+This option can be set via menu
+`Coq -> Auto Compilation -> Quick compilation'."
   :type
   '(radio
     (const :tag "don't use -quick but accept existing vio files" no-quick)
@@ -371,7 +374,10 @@ This makes four permitted values: 'ask-coq to confirm saving all
 modified Coq buffers, 'ask-all to confirm saving all modified
 buffers, 'save-coq to save all modified Coq buffers without
 confirmation and 'save-all to save all modified buffers without
-confirmation."
+confirmation.
+
+This option can be set via menu
+`Coq -> Auto Compilation -> Auto Save'."
   :type
   '(radio
     (const :tag "ask for each coq-mode buffer, except the current buffer"
@@ -389,17 +395,24 @@ confirmation."
   "If non-nil, lock ancestor module files.
 If external compilation is used (via `coq-compile-command') then
 only the direct ancestors are locked. Otherwise all ancestors are
-locked when the \"Require\" command is processed."
+locked when the \"Require\" command is processed.
+
+This option can be set via menu
+`Coq -> Auto Compilation -> Lock Ancestors'."
+
   :type 'boolean
   :safe 'booleanp
   :group 'coq-auto-compile)
+
+;; define coq-lock-ancestors-toggle
+(proof-deftoggle coq-lock-ancestors)
 
 (defpacustom confirm-external-compilation t
   "If set let user change and confirm the compilation command.
 Otherwise start the external compilation without confirmation.
 
 This option can be set/reset via menu
-`Coq -> Settings -> Confirm External Compilation'."
+`Coq -> Auto Compilation -> Confirm External Compilation'."
   :type 'boolean
   :group 'coq-auto-compile)
 

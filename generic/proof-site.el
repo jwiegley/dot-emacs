@@ -39,10 +39,11 @@
 
       (isar "Isabelle" "thy")
       (coq "Coq" "v" nil (".vo" ".glob"))
-      (phox "PhoX" "phx")
+      (easycrypt "EasyCrypt" "ec" ".*\\.eca?")
 
       ;; Obscure instances or conflict with other Emacs modes.
 
+      ;; (phox "PhoX" "phx")
       ;; (lego "LEGO" "l")
       ;; (ccc    "CASL Consistency Checker" "ccc")
 

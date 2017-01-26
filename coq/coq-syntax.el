@@ -411,7 +411,9 @@ so for the following reasons:
 (defvar coq-decl-db
   '(
     ("Local Axiom" nil "Local Axiom # : #" t "Local\\s-+Axiom")
+    ("Local Axioms" nil "Local Axioms # , #: #" t "Local\\s-+Axioms")
     ("Axiom" "ax" "Axiom # : #" t "Axiom")
+    ("Axioms" "axs" "Axioms # , #: #" t "Axioms")
     ("Global Variable" "gv" "Global Variable #: #." t "Global\\s-+Variable")
     ("Global Variables" "gvs" "Global Variables # , #: #." t "Global\\s-+Variables")
     ("Hint Constructors" "hc" "Hint Constructors # : #." t "Hint\\s-+Constructors")
@@ -427,10 +429,11 @@ so for the following reasons:
     ("Hypothesis" "hyp" "Hypothesis #: #" t "Hypothesis")
     ("Hypotheses" "hyp" "Hypotheses #: #" t "Hypotheses")
     ("Parameter" "par" "Parameter #: #" t "Parameter")
-    ("Parameters" "par" "Parameter #: #" t "Parameters")
+    ("Parameters" "par" "Parameters #: #" t "Parameters")
     ("Conjecture" "conj" "Conjecture #: #." t "Conjecture")
     ("Variable" "v" "Variable #: #." t "Variable")
     ("Variables" "vs" "Variables # , #: #." t "Variables")
+    ("Context" nil "Context #, (# : #)." t "Context")
     ("Local Coercion" nil "Local Coercion @{id} : @{typ1} >-> @{typ2}." t "Local\\s-+Coercion")
     ("Coercion" "coerc" "Coercion @{id} : @{typ1} >-> @{typ2}." t "Coercion")
     )

@@ -24,6 +24,8 @@
   (defvar proof-info nil)       ; dynamic scope in proof-tree-urgent-action
   (defvar action nil)       ; dynamic scope in coq-insert-as stuff
   (defvar string nil)       ; dynamic scope in coq-insert-as stuff
+  (defvar old-proof-marker nil)
+                         ; dynamic scoq in coq-proof-tree-enable-evar-callback
   (defvar coq-auto-insert-as nil)    ; defpacustom
   (defvar coq-time-commands nil)        ; defpacustom
   (defvar coq-use-project-file t)        ; defpacustom
@@ -1542,6 +1544,12 @@ Near here means PT is either inside or just aside of a comment."
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
+  ;; Settings not defined with defpacustom because they have an unsupported
+  ;; type.
+  (setq proof-assistant-additional-settings
+        '(coq-compile-quick coq-compile-keep-going
+          coq-compile-auto-save coq-lock-ancestors))
+
   (setq proof-goal-command-p 'coq-goal-command-p
         proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyplit-fn 'coq-goal-hyp
@@ -1851,14 +1859,19 @@ not finished, because Coq 8.5 lists open existential variables
 as (new) open subgoals. For this test we assume that
 `proof-marker' has not yet been moved.
 
+The `proof-tree-urgent-action-hook' is also called for undo
+commands. For those, nothing is done.
+
 The not yet delayed output is in the region
 \[proof-shell-delayed-output-start, proof-shell-delayed-output-end]."
   ;; (message "CPTGNS start %s end %s"
   ;;          proof-shell-delayed-output-start
   ;;          proof-shell-delayed-output-end)
-  (with-current-buffer proof-shell-buffer
-    (let ((start proof-shell-delayed-output-start)
-          (end proof-shell-delayed-output-end))
+  (let ((start proof-shell-delayed-output-start)
+        (end proof-shell-delayed-output-end)
+        (state  (car proof-info)))
+  (when (> state proof-tree-last-state)
+    (with-current-buffer proof-shell-buffer
       ;; The message "All the remaining goals are on the shelf" is processed as
       ;; urgent message and is therefore before
       ;; proof-shell-delayed-output-start. We therefore need to go back to
@@ -1879,7 +1892,7 @@ The not yet delayed output is in the region
                            '(no-goals-display
                              no-response-display
                              proof-tree-show-subgoal))
-                          proof-action-list)))))))))
+                          proof-action-list))))))))))
   
 (add-hook 'proof-tree-urgent-action-hook 'coq-proof-tree-get-new-subgoals)
 
@@ -1914,6 +1927,103 @@ This is the Coq incarnation of `proof-tree-find-undo-position'."
       (setq span-res span-cur)
       (setq span-cur (span-at (1- (span-start span-cur)) 'type)))
     (span-start span-res)))
+
+
+;; In Coq 8.6 the evar line is disabled by default because on some proofs it
+;; causes a severe performance hit. The disabled evar line causes prooftree to
+;; crash with a parsing error. Proof General must therefore turn on the evar
+;; output with the command "Set Printing Dependent Evars Line". Of course,
+;; after the proof, the evar line must be set back to what it was before the
+;; proof. I therefore look in the urgent action hook if proof display is
+;; switched on or off. When switched on, I test the current evar printing
+;; status with the undodumented command "Test Printing Dependent Evars Line" to
+;; remember if I have to switch evar printing off eventually.
+
+(defvar coq--proof-tree-must-disable-evars nil
+  "Remember if evar printing must be disabled when leaving the current proof.")
+
+(defun coq-proof-tree-enable-evar-callback (span)
+  "Callback for the evar printing status test.
+This is the callback for the command ``Test Printing Dependent
+Evars Line''. It checks whether evar printing was off and
+remembers that fact in `coq--proof-tree-must-disable-evars'."
+  (with-current-buffer proof-shell-buffer
+    (save-excursion
+      ;; When the callback runs, the next item is sent to Coq already and
+      ;; therefore proof-marker points to the end of the next command
+      ;; already. proof-shell-filter-manage-output sets old-proof-marker
+      ;; before calling proof-shell-exec-loop, this therefore points to the
+      ;; end of the command of this callback.
+      (goto-char old-proof-marker)
+      (when (re-search-forward "The Printing Dependent Evars Line mode is "
+                               nil t)
+        (if (looking-at "off")
+            (progn
+              ;; (message "CPTEEC evar line mode was off")
+              (setq coq--proof-tree-must-disable-evars t))
+          ;; (message "CPTEEC evar line mode was on")
+          (setq coq--proof-tree-must-disable-evars nil))))))
+
+(defun coq-proof-tree-insert-evar-command (cmd &optional callback)
+  "Insert an evar printing command at the head of `proof-action-list'."
+  (push (proof-shell-action-list-item
+         (concat cmd " Printing Dependent Evars Line.")
+         (if callback callback 'proof-done-invisible)
+         (list 'invisible))
+        proof-action-list))
+
+(defun coq-proof-tree-enable-evars ()
+  "Enable the evar status line for Coq >= 8.6.
+Test the status of evar printing to be able to set it back
+properly after the proof and enable the evar printing."
+  (when (coq--post-v86)
+    ;; We push to proof-action-list --- therefore we need to push in reverse
+    ;; order!
+    (coq-proof-tree-insert-evar-command "Set")
+    (coq-proof-tree-insert-evar-command
+     "Test"
+     'coq-proof-tree-enable-evar-callback)))
+
+(defun coq-proof-tree-disable-evars ()
+  "Disable evar printing if necessary.
+This function switches off evar printing after the proof, if it
+was off before the proof. For undo commands, we rely on the fact
+that Coq itself undos the effect of the evar printing change that
+we inserted after the goal statement. We also rely on the fact
+that Proof General never backtracks into the middle of a
+proof. (If this would happen, Coq would switch evar printing on
+and the code here would not switch it off after the proof.)
+
+Being called from `proof-tree-urgent-action-hook', this function
+can rely on `proof-info' being dynamically bound to the last
+result of `coq-proof-tree-get-proof-info'."
+  (when coq--proof-tree-must-disable-evars
+    (when (> (car proof-info) proof-tree-last-state)
+      (coq-proof-tree-insert-evar-command "Unset"))
+    (setq coq--proof-tree-must-disable-evars nil)))
+
+(defun coq-proof-tree-evar-display-toggle ()
+  "Urgent action hook function for changing the evar printing status in Coq.
+This function is for `proof-tree-urgent-action-hook' (which is
+called only if external proof disaply is switched on). It checks
+whether a proof was started or stopped and inserts commands for
+enableing and disabling the evar status line for Coq 8.6 or
+later. Without the evar status line being enabled, prooftree
+crashes.
+
+Must only be called via `proof-tree-urgent-action-hook' to ensure
+that the dynamic variable `proof-info' is bound to the current
+result of `coq-proof-tree-get-proof-info'."
+  (let ((current-proof-name (cadr proof-info)))
+    (cond
+     ((and (null proof-tree-current-proof) current-proof-name)
+      ;; started a new proof
+      (coq-proof-tree-enable-evars))
+     ((and proof-tree-current-proof (null current-proof-name))
+      ;; finished the current proof
+      (coq-proof-tree-disable-evars)))))
+
+(add-hook 'proof-tree-urgent-action-hook 'coq-proof-tree-evar-display-toggle)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

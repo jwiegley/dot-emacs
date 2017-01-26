@@ -52,7 +52,7 @@ while(<>)
        { $tagstring.=$1."\177".$8."\001".$lp.",".$cp."\n"; }
 
     elsif($stmt=~/^([ \t]*((Axiom)|(Hypothesis)|(Parameter)|(Variable))\s+[\w\']+)/)
-      { do adddecs($stmt,$1) }
+      { adddecs($stmt,$1); }
 
     elsif($stmt=~/^([ \t]*((Definition)|(Fixpoint)|(Inductive))\s+[\w\']+)/)
        { $tagstring.=$1."\177".$6."\001".$lp.",".$cp."\n"; }
