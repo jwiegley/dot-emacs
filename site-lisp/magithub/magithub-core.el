@@ -25,12 +25,14 @@
 ;;; Code:
 
 (require 'magit)
+(require 'dash)
+(require 's)
 
 (defun magithub-github-repository-p ()
   "Non-nil if \"origin\" points to GitHub or a whitelisted domain."
-  (let ((url (magit-get "remote" "origin" "url")))
-    (cl-some (lambda (domain) (s-contains? domain url))
-             (cons "github.com" (magit-get-all "hub" "host")))))
+  (-when-let (origin (magit-get "remote" "origin" "url"))
+    (-some? (lambda (domain) (s-contains? domain origin))
+            (cons "github.com" (magit-get-all "hub" "host")))))
 
 (defun magithub-repo-id ()
   "Returns an identifying value for this repository."
@@ -41,7 +43,7 @@
   (let ((magit-git-executable "ping")
         (magit-pre-call-git-hook nil)
         (magit-git-global-arguments nil))
-    (= 0 (magit-git-exit-code "-c 1" "api.github.com"))))
+    (= 0 (magit-git-exit-code "-c 1" "-n" "api.github.com"))))
 
 (defun magithub--completing-read-multiple (prompt collection)
   "Using PROMPT, get a list of elements in COLLECTION.
@@ -92,6 +94,13 @@ allowed."
   (with-timeout (5 (error "Took too long!  %s%S" command args))
     (magithub-with-hub (funcall magit-function command args))))
 
+(defun magithub--git-raw-output (&rest args)
+  "Execute Git with ARGS, returning its output as string.
+Adapted from `magit-git-lines'."
+  (with-temp-buffer
+    (apply #'magit-git-insert args)
+    (buffer-string)))
+
 (defun magithub--command (command &optional args)
   "Run COMMAND synchronously using `magithub-hub-executable'."
   (magithub--hub-command #'magit-run-git command args))
@@ -101,14 +110,25 @@ allowed."
 Ensure GIT_EDITOR is set up appropriately."
   (magithub--hub-command #'magit-run-git-with-editor command args))
 
-(defun magithub--command-output (command &optional args)
-  "Run COMMAND synchronously using `magithub-hub-executable'
-and returns its output as a list of lines."
-  (magithub--hub-command #'magit-git-lines command args))
+(defun magithub--command-output (command &optional args raw)
+  "Run COMMAND synchronously using `magithub-hub-executable'.
+If not RAW, return output as a list of lines."
+  (magithub--hub-command (if raw #'magithub--git-raw-output #'magit-git-lines) command args))
 
 (defun magithub--command-quick (command &optional args)
   "Quickly execute COMMAND with ARGS."
   (ignore (magithub--command-output command args)))
+
+(defun magithub-hub-version ()
+  "Return the `hub' version as a string."
+  (-> "--version"
+      magithub--command-output cadr
+      split-string cddr car
+      (split-string "-") car))
+
+(defun magithub-hub-version-at-least (version-string)
+  "Return t if `hub's version is at least VERSION-STRING."
+  (version<= version-string (magithub-hub-version)))
 
 (defun magithub--meta-new-issue ()
   "Open a new Magithub issue.
@@ -117,7 +137,7 @@ See /.github/ISSUE_TEMPLATE.md in this repository."
   (browse-url "https://github.com/vermiculus/magithub/issues/new"))
 
 (defun magithub--meta-help ()
-  "Opens Magithub help."
+  "Open Magithub help."
   (interactive)
   (browse-url "https://gitter.im/vermiculus/magithub"))
 
@@ -150,7 +170,8 @@ See /.github/ISSUE_TEMPLATE.md in this repository."
   "Non-nil if Magithub should do its thing."
   (and (executable-find magithub-hub-executable)
        (magithub-enabled-p)
-       (magithub-github-repository-p)))
+       (magithub-github-repository-p)
+       (magithub--api-available-p)))
 
 (defun magithub-error (err-message tag &optional trace)
   "Report a Magithub error."
@@ -178,6 +199,49 @@ See /.github/ISSUE_TEMPLATE.md in this repository."
         trace))))
     (magithub--meta-new-issue))
   (error err-message))
+
+(defmacro magithub--deftoggle (name hook func s)
+  "Define a section-toggle command."
+  (declare (indent defun))
+  `(defun ,name ()
+     ,(concat "Toggle the " s " section.")
+     (interactive)
+     (if (memq ,func ,hook)
+         (remove-hook ',hook ,func)
+       (if (executable-find magithub-hub-executable)
+           (add-hook ',hook ,func t)
+         (message ,(concat "`hub' isn't installed, so I can't insert " s))))
+     (when (derived-mode-p 'magit-status-mode)
+       (magit-refresh))
+     (memq ,func ,hook)))
+
+(defun magithub--zip-case (p e)
+  "Get an appropriate value for element E given property/function P."
+  (cond
+   ((symbolp p) (plist-get e p))
+   ((functionp p) (funcall p e))
+   ((null p) e)
+   (t nil)))
+
+(defun magithub--zip (object-list prop1 prop2)
+  "Process OBJECT-LIST into an alist defined by PROP1 and PROP2.
+
+If a prop is a symbol, that property will be used.
+
+If a prop is a function, it will be called with the
+current element of OBJECT-LIST.
+
+If a prop is nil, the entire element is used."
+  (delq nil
+        (-zip-with
+         (lambda (e1 e2)
+           (let ((p1 (magithub--zip-case prop1 e1))
+                 (p2 (magithub--zip-case prop2 e2)))
+             (unless (or (and prop1 (not p1))
+                         (and prop2 (not p2)))
+               (cons (if prop1 p1 e1)
+                     (if prop2 p2 e2)))))
+         object-list object-list)))
 
 (provide 'magithub-core)
 ;;; magithub-core.el ends here

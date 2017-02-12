@@ -8,6 +8,8 @@ matrix:
     - env: EMACS_VERSION=snapshot
 
 env:
+  - EMACS_VERSION=24.4
+  - EMACS_VERSION=24.5
   - EMACS_VERSION=25.1
   - EMACS_VERSION=snapshot
 
