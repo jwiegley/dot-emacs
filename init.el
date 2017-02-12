@@ -816,7 +816,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-. n" . org-velocity-read))
   :defer 30
   :config
-  (when (and (not running-alternate-emacs)
+  (when (and nil
+             (not running-alternate-emacs)
              (not running-development-emacs))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
@@ -3978,7 +3979,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package smartparens-config))
 
 (use-package smedl-mode
-  :load-path "~/bae/smedl/emacs/"
+  :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs/"
   :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
 
 (use-package smerge-mode
