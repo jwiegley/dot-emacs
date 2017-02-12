@@ -81,7 +81,7 @@ If CACHE is nil, the entire cache is cleared."
 (defun magithub-refresh ()
   "Refresh all GitHub data."
   (interactive)
-  (magithub-cache-clear)
+  (magithub-cache-clear (magithub-repo-id))
   (magit-refresh))
 
 (provide 'magithub-cache)
