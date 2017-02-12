@@ -26,19 +26,28 @@ Happy hacking!
 ## Installation
 
 The package can be installed from MELPA.  Otherwise, simply place
-`magithub.el` in your `load-path` and `(require 'magithub)`.
+`magithub.el` in your `load-path` and `(require 'magithub)`.  Use the
+function `magithub-feature-autoinject` to add full Magit workflow
+integration.
 
 If you use [use-package][gh-use-package], you should instead use:
 
 ```elisp
 (use-package magithub
-  :after magit)
+  :after magit
+  :config (magithub-feature-autoinject t))
 ```
 
 For now, Magithub requires the `hub` utility to work -- before trying
 to use Magithub, follow the installation instructions
 at [hub.github.com][hub].  To force `hub` to authenticate, you can use
 `hub browse` in a terminal (inside a GitHub repo).
+
+## Support
+
+I'm gainfully and happily employed with a company that frowns on
+moonlighting, so unfortunately I can't accept any donations myself.
+Instead, [please direct any and all support to Magit itself][magit-donate]!
 
 ## Note
 
@@ -53,6 +62,7 @@ been defunct for over three years and is likely abandoned, the present
 package's name will not be changing.
 
 [magit]: //www.github.com/magit/magit
+[magit-donate]: https://magit.vc/donate
 [hub]: //hub.github.com
 [gh-use-package]: //github.com/jwiegley/use-package
 [old-magithub]: //github.com/nex3/magithub
