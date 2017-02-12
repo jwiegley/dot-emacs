@@ -133,7 +133,7 @@
  '(org-agenda-skip-unavailable-files t)
  '(org-agenda-sorting-strategy
    (quote
-    ((agenda habit-down time-up todo-state-up priority-down user-defined-down)
+    ((agenda habit-down time-up todo-state-up priority-down)
      (todo priority-down category-keep)
      (tags priority-down category-keep)
      (search category-keep))))
