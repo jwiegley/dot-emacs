@@ -3185,8 +3185,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (remove-hook 'server-switch-hook 'magit-commit-diff))
 
   (use-package magithub
-    :disabled t
-    :load-path "site-lisp/magithub")
+    :load-path "site-lisp/magithub"
+    :after magit
+    :config (magithub-feature-autoinject t))
 
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)

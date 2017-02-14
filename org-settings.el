@@ -56,6 +56,24 @@
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
+     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Deadlined tasks: ")
+       (org-agenda-skip-function
+        (quote
+         (org-agenda-skip-entry-if
+          (quote notdeadline))))
+       (org-agenda-sorting-strategy
+        (quote
+         (category-up)))))
+     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+      ((org-agenda-overriding-header "Scheduled tasks: ")
+       (org-agenda-skip-function
+        (quote
+         (org-agenda-skip-entry-if
+          (quote notscheduled))))
+       (org-agenda-sorting-strategy
+        (quote
+         (category-up)))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
