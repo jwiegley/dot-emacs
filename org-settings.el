@@ -89,12 +89,17 @@
          (user-defined-down)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
-      ((org-agenda-files
+      ((org-agenda-overriding-header "Deferred tasks:")
+       (org-agenda-sorting-strategy
         (quote
-         ("~/doc/tasks/todo.txt")))
-       (org-agenda-overriding-header "Deferred tasks:")))
+         (user-defined-down)))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
-      ((org-agenda-overriding-header "Someday tasks:")))
+      ((org-agenda-overriding-header "Someday tasks:")
+       (org-agenda-sorting-strategy
+        (quote
+         (user-defined-down)))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
