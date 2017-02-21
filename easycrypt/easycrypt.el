@@ -61,7 +61,6 @@ this list are strings."
 
 ;; --------------------------------------------------------------------
 (defun easycrypt-prog-args ()
-  (message "%s" easycrypt-load-path)
   (append easycrypt-prog-args (easycrypt-include-options)))
 
 ;; --------------------------------------------------------------------

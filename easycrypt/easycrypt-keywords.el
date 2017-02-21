@@ -5,7 +5,7 @@
 ;; Distributed under the terms of the GPL-v3 license
 ;; --------------------------------------------------------------------
 
-; Generated on Thu Dec 17 16:14:05 2015
+; Generated on Tue Feb 21 23:37:34 2017
 
 (defvar easycrypt-bytac-keywords '(
   "exact"
@@ -43,6 +43,7 @@
   "const"
   "op"
   "pred"
+  "inductive"
   "notation"
   "abbrev"
   "require"
@@ -96,6 +97,7 @@
   "hoare"
   "phoare"
   "islossless"
+  "async"
 ))
 
 (defvar easycrypt-tactic-keywords '(
