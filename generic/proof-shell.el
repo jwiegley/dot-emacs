@@ -1110,6 +1110,24 @@ contains only invisible elements for Prooftree synchronization."
 	(setq cbitems (cons item
 			    (proof-shell-slurp-comments)))
 
+        ;; If proof-action-list is empty after removing the already
+        ;; processed actions and the last action was not already
+        ;; added by proof-shell-empty-action-list-command (prover
+        ;; specific), call it.
+        (when (and (null proof-action-list)
+                   (not (memq 'empty-action-list flags)))
+          (let* ((cmd (mapconcat 'identity (nth 1 item) " "))
+                (extra-cmds (apply proof-shell-empty-action-list-command (list cmd)))
+                (dummy (message "extra-cmds = %S" extra-cmds))
+                ;; tag all new items with 'empty-action-list
+                (extra-items (mapcar (lambda (s) (proof-shell-action-list-item
+                                                  s 'proof-done-invisible
+                                                  (list 'invisible 'empty-action-list)))
+                                     extra-cmds))
+                 (dummy (message "extra-items = %S" extra-items)))
+            ;; action-list should be empty at this point
+            (setq proof-action-list (append extra-items proof-action-list))))
+
 	;; This is the point where old items have been removed from
 	;; proof-action-list and where the next item has not yet been
 	;; sent to the proof assistant. This is therefore one of the

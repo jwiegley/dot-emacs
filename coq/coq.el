@@ -1218,6 +1218,15 @@ flag Printing All set."
     (remove-hook 'proof-assert-command-hook 'coq-adapt-printing-width)
     (remove-hook 'proof-retract-command-hook 'coq-reset-printing-width)))
 
+;; In case of nested proofs (which are announced as obsolete in future versions
+;; of coq) Coq does not show the goals of enclosing proof when closing a nested
+;; proof. This is coq's proof-shell-empty-action-list-command function which
+;; inserts a "Show" if the last command of an action list is a save command and
+;; there is more than one open proof before that save.
+(defun coq-empty-action-list-command (cmd)
+  (when (and (string-match coq-save-command-regexp-strict cmd)
+             (> (length coq-last-but-one-proofstack) 1))
+    (list "Show.")))
 
 (defpacustom auto-adapt-printing-width t
   "If non-nil, adapt automatically printing width of goals window.
@@ -1541,6 +1550,9 @@ Near here means PT is either inside or just aside of a comment."
         proof-goal-command "Goal %s. "
         proof-save-command "Save %s. "
         proof-find-theorems-command "Search %s. ")
+
+  (setq proof-shell-empty-action-list-command 'coq-empty-action-list-command)
+
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 

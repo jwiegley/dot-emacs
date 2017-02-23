@@ -1187,6 +1187,24 @@ If nil, use the whole of the output from the match on
   :type '(choice (const nil) regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-empty-action-list-command nil
+  "A function returning a list of commands (strings) to be sent
+to the prover when the last command in the queue has been
+performed. Typically to ask for some informational
+display (goals, etc).
+
+The function takes as argument the last command in the queue.
+
+NOTE 1: The commands will be tagged invisible, i.e. not related
+to a place in the buffer.
+
+NOTE 2: The commands should NOT have any effect on the state of
+the prover. Otherwise running the script outside pg would be
+inconsistent."
+  :type 'function
+  :group 'proof-shell)
+
+
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
 An \"eager annotation indicates\" to Proof General that some following output
