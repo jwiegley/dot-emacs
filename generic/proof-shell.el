@@ -1118,13 +1118,11 @@ contains only invisible elements for Prooftree synchronization."
                    (not (memq 'empty-action-list flags)))
           (let* ((cmd (mapconcat 'identity (nth 1 item) " "))
                 (extra-cmds (apply proof-shell-empty-action-list-command (list cmd)))
-                (dummy (message "extra-cmds = %S" extra-cmds))
                 ;; tag all new items with 'empty-action-list
                 (extra-items (mapcar (lambda (s) (proof-shell-action-list-item
                                                   s 'proof-done-invisible
                                                   (list 'invisible 'empty-action-list)))
-                                     extra-cmds))
-                 (dummy (message "extra-items = %S" extra-items)))
+                                     extra-cmds)))
             ;; action-list should be empty at this point
             (setq proof-action-list (append extra-items proof-action-list))))
 
