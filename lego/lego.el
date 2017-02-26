@@ -149,15 +149,14 @@ Activates extended printing routines required for Proof General.")
    (lego-shell-mode-config))
 
 (define-derived-mode lego-mode proof-mode
-   "lego" nil
-   (lego-mode-config))
+  "lego" nil
+  (lego-mode-config))
 
-(eval-and-compile
-  (define-derived-mode lego-response-mode proof-response-mode
-    "LEGOResp" nil
-    (setq proof-response-font-lock-keywords lego-font-lock-terms)
-    (lego-init-syntax-table)
-    (proof-response-config-done)))
+(define-derived-mode lego-response-mode proof-response-mode
+  "LEGOResp" nil
+  (setq proof-response-font-lock-keywords lego-font-lock-terms)
+  (lego-init-syntax-table)
+  (proof-response-config-done))
 
 (define-derived-mode lego-goals-mode proof-goals-mode
   "LEGOGoals" "LEGO Proof State"
