@@ -98,7 +98,7 @@ It was constructed with `proof-defstringset-fn'.")
 
 ;; The coq menu partly built from tables
 
-;; Common part (scrit, response and goals buffers)
+;; Common part (script, response and goals buffers)
 (defconst coq-menu-common-entries
   `(
     ["Toggle 3 Windows Mode" proof-three-window-toggle
@@ -300,7 +300,7 @@ It was constructed with `proof-defstringset-fn'.")
     ["ML4PG" (coq-activate-ml4pg) :help "Activates ML4PG: machine-learning methods for Proof General"]
     ))
 
-(defpgdefault menu-entries
+(setq-default coq-menu-entries
   (append coq-menu-common-entries
   `(
     ""
@@ -338,12 +338,10 @@ It was constructed with `proof-defstringset-fn'.")
      ["help" coq-local-vars-list-show-doc t]
      ["Compile" coq-Compile t]))))
 
-(defpgdefault help-menu-entries
+(setq-default coq-help-menu-entries
   '(["help on setting prog name persistently for a file" 
      coq-local-vars-list-show-doc t]))
 
-(defpgdefault other-buffers-menu-entries coq-menu-common-entries)
-
-
+(setq-default coq-other-buffers-menu-entries coq-menu-common-entries)
 
 (provide 'coq-abbrev)

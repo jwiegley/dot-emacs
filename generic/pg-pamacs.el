@@ -155,6 +155,8 @@ Usage: (defpgdefault SYM VALUE)"
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
   "As for macro `defpacustom' but evaluating arguments."
+  (unless (and proof-assistant (not (string= proof-assistant "")))
+    (error "No proof assistant defined"))
   (let (newargs setting evalform type descr)
     (while args
       (cond
