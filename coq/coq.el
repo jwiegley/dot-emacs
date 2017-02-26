@@ -30,8 +30,7 @@
   (defvar coq-time-commands)        ; defpacustom
   (defvar coq-use-project-file t)        ; defpacustom
   (defvar coq-use-editing-holes)    ; defpacustom
-  (defvar coq-hide-additional-subgoals)
-  (proof-ready-for-assistant 'coq))     ; compile for coq
+  (defvar coq-hide-additional-subgoals))
 
 (require 'proof)
 (require 'coq-system)                   ; load path, option, project file etc.

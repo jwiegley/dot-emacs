@@ -16,13 +16,12 @@
   (require 'cl))			;  mapcan, eval-when
 
 (eval-when (compile)
-  (require 'span)		        
-  (require 'scomint)		        
+  (require 'span)
+  (require 'scomint)
   (require 'proof-site)
   (require 'proof-menu)
   (require 'proof-syntax)
-  (proof-ready-for-assistant 'isar)	; compile for isar
-  (defvar proof-assistant-menu nil))
+  (defvar proof-assistant-menu))
 
 (declare-function mapcan "cl-extra")	; spurious bytecomp warning
 

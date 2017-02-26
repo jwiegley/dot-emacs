@@ -25,10 +25,9 @@
   (require 'pg-goals)
   (require 'pg-vars)
   (require 'outline)
-  (defvar comment-quote-nested nil)
-  (defvar isar-use-find-theorems-form nil)
-  (defvar isar-use-linear-undo nil)
-  (proof-ready-for-assistant 'isar))	; compile for isar
+  (defvar comment-quote-nested)
+  (defvar isar-use-find-theorems-form)
+  (defvar isar-use-linear-undo))
 
 (require 'proof)
 (require 'isabelle-system)		; system code

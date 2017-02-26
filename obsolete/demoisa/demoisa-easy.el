@@ -25,9 +25,8 @@
 ;; To test this file you must rename it demoisa.el.
 ;;
 
-(eval-and-compile
-  (require 'proof-site)			; compilation for demoisa
-  (proof-ready-for-assistant 'demoisa))
+(require 'proof-site)
+(proof-ready-for-assistant 'demoisa)
 
 (require 'proof)
 (require 'proof-easy-config)		; easy configure mechanism

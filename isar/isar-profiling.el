@@ -8,9 +8,8 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
-  (require 'proof-site)
-  (proof-ready-for-assistant 'isar))  
+(require 'proof-site)
+(proof-ready-for-assistant 'isar)
 
 (declare-function isar-tracing:auto-solve-toggle "isar.el")
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")

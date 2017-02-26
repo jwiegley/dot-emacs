@@ -29,8 +29,11 @@ Top-level forms, or forms that appear at top-level after compilation
 these forms depend on runtime information, e.g., the value of
 proof-assistant symbol (proof-ass), they will produce the wrong result
 (symptom: unbound nil-foobar). Running `proof-ready-for-assistant' can
-be used to avoid this and optimise compilation.  Byte compiler also
-optimises some conditionals that appear constant, be wary.
+be used to avoid this and optimise compilation (CPC 2017-02-25: this
+sounds fishy: this document seems to assume that compilation is done in
+a separate instance of Emacs, but that's not what happens when with
+package.el.  Calling `proof-ready-for-assistant' at compile time will
+tie the rest of that Emacs session to a specific proof assistant).
 
 Finally, the compiler will warn over-eagerly (and ususally spuriously)
 about unknown functions.  Adding extra requires can get these to go

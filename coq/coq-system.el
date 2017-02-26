@@ -16,8 +16,7 @@
 
 (eval-when-compile
   (require 'cl)
-  (require 'proof-compat)
-  (proof-ready-for-assistant 'coq))
+  (require 'proof-compat))
 
 (eval-when (compile)
   (defvar coq-prog-args)

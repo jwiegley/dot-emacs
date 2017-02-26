@@ -11,10 +11,10 @@
 (require 'pg-autotest)
 
 (eval-when (compile)
-  (require 'cl)
-  (require 'proof-site)
-  (proof-ready-for-assistant 'isar))
+  (require 'cl))
 
+(require 'proof-site)
+(proof-ready-for-assistant 'isar)
 
 (declare-function isar-tracing:auto-quickcheck-toggle "isar.el")
 (declare-function isar-tracing:auto-solve-direct-toggle "isar.el")

@@ -8,10 +8,8 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when-compile
-  (require 'proof-site)
-  (proof-ready-for-assistant 'coq)
-  (defvar coq-compile-before-require nil))
+(require 'proof-site)
+(proof-ready-for-assistant 'hol-light)
 
 (require 'pg-autotest)
 
