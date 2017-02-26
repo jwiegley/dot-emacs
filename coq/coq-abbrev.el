@@ -71,7 +71,7 @@
     ;; DA: how about above, just temporarily disable saving?
     (message "Coq default abbrevs loaded")))
 
-(unless noninteractive
+(unless (or noninteractive (bound-and-true-p byte-compile-current-file))
   (coq-install-abbrevs))
 ;;;;;
 

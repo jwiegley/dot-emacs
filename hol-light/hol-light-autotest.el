@@ -8,14 +8,14 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-site)
   (proof-ready-for-assistant 'coq)
   (defvar coq-compile-before-require nil))
 
 (require 'pg-autotest)
 
-(unless noninteractive
+(unless (bound-and-true-p byte-compile-current-file)
   
   (pg-autotest start 'debug)
   (pg-autotest log ".autotest.log")  ; convention

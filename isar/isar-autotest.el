@@ -20,7 +20,7 @@
 (declare-function isar-tracing:auto-solve-direct-toggle "isar.el")
 (declare-function isar-proof:parallel-proofs-toggle "isar.el")
 
-(unless noninteractive
+(unless (bound-and-true-p byte-compile-current-file)
 
   (pg-autotest start) ; can add 'debug flag for debug-on-error
 
@@ -89,10 +89,10 @@
   (pg-autotest script-randomjumps "isar/Example.thy" 8)
 
   (when isar-long-tests
-      (pg-autotest remark "Larger files...")
-      (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
-      (pg-autotest script-wholefile "isar/ex/Tarski.thy")
-      (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10)) ; better test?
+    (pg-autotest remark "Larger files...")
+    (pg-autotest script-wholefile "etc/isar/AHundredTheorems.thy")
+    (pg-autotest script-wholefile "isar/ex/Tarski.thy")
+    (pg-autotest script-randomjumps "isar/ex/Tarski.thy" 10)) ; better test?
 
 
   (pg-autotest remark "Testing restarting the prover")

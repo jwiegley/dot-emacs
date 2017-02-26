@@ -26,7 +26,7 @@
 
 (require 'proof-site)			; site/prover config, global vars, autoloads
 
-(unless noninteractive
+(unless (or noninteractive (bound-and-true-p byte-compile-current-file))
   (proof-splash-message))		; welcome the user now.
 
 (require 'proof-compat)			; Emacs and OS compatibility

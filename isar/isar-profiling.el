@@ -19,7 +19,7 @@
 (require 'pg-autotest)
 (require 'pg-dev)
 
-(unless noninteractive
+(unless (bound-and-true-p byte-compile-current-file)
 
   (pg-autotest log ".profile.log")  ; convention
 

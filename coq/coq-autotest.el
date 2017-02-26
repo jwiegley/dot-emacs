@@ -16,7 +16,7 @@
   (defvar coq-compile-before-require nil))
 
 
-(unless noninteractive
+(unless (bound-and-true-p byte-compile-current-file)
 
   (pg-autotest start 'debug)
 
