@@ -45,11 +45,7 @@
 (require 'quail)
 
 (eval-when-compile
-  (require 'maths-menu)		; nuke compile warnings
-  ;; Emacs <24 compatibility
-  (when (and (fboundp 'flet)
-	     (not (get 'flet 'byte-obsolete-info)))
-    (defalias 'cl-flet 'flet)))
+  (require 'maths-menu))		; nuke compile warnings
 
 ;;
 ;; Customizable user options
