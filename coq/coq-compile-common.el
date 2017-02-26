@@ -19,8 +19,8 @@
 (eval-when (compile)
   ;;(defvar coq-pre-v85 nil)
   (require 'compile)
-  (defvar coq-confirm-external-compilation nil); defpacustom
-  (defvar coq-compile-parallel-in-background nil) ; defpacustom
+  (defvar coq-confirm-external-compilation); defpacustom
+  (defvar coq-compile-parallel-in-background) ; defpacustom
   (proof-ready-for-assistant 'coq))     ; compile for coq
 
 

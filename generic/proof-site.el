@@ -163,7 +163,7 @@ You can use customize to set this variable."
 (require 'proof-autoloads)
 
 (eval-when-compile
-  (defvar Info-dir-contents nil))
+  (defvar Info-dir-contents))
 
 ;; Add the info directory to the Info path
 (if (file-exists-p proof-info-directory) ; for safety

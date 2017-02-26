@@ -19,10 +19,10 @@
   (require 'proof-compat))
 
 (eval-when (compile)
-  (defvar queueitems nil)       ; dynamic scope in p-s-extend-queue-hook
-  (defvar coq-compile-before-require nil)       ; defpacustom
-  (defvar coq-compile-parallel-in-background nil)       ; defpacustom
-  (defvar coq-confirm-external-compilation nil)); defpacustom
+  (defvar queueitems)       ; dynamic scope in p-s-extend-queue-hook
+  (defvar coq-compile-before-require)       ; defpacustom
+  (defvar coq-compile-parallel-in-background)       ; defpacustom
+  (defvar coq-confirm-external-compilation)); defpacustom
 
 (require 'coq-compile-common)
 

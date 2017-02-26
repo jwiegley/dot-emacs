@@ -17,9 +17,7 @@
 ;; Since Proof General 4.0, XEmacs is not supported at all.
 ;;
 
-(eval-when-compile
-  (require 'easymenu))
-
+(require 'easymenu)
 (require 'cl)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

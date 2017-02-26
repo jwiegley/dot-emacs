@@ -9,14 +9,9 @@
 (require 'proof-syntax)
 (require 'proof-utils)                  ; proof-locate-executable
 (require 'coq-db)
+(require 'span)
 
-(eval-when-compile
-  (require 'span)
-  (defvar coq-goal-command-regexp nil)
-  (defvar coq-save-command-regexp-strict nil))
-
-
- ;;; keyword databases
+;;; keyword databases
 
 (defcustom coq-user-tactics-db nil
   "User defined tactic information.  See `coq-syntax-db' for
