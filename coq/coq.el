@@ -306,27 +306,23 @@ See also `coq-hide-additional-subgoals'."
 ;; Derived modes
 ;;
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-shell-mode proof-shell-mode
-    "Coq Shell" nil
-    (coq-shell-mode-config)))
+(define-derived-mode coq-shell-mode proof-shell-mode
+  "Coq Shell" nil
+  (coq-shell-mode-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-response-mode proof-response-mode
+(define-derived-mode coq-response-mode proof-response-mode
   "Coq Response" nil
-    (coq-response-config)))
+  (coq-response-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-mode proof-mode "Coq"
-    "Major mode for Coq scripts.
+(define-derived-mode coq-mode proof-mode "Coq"
+  "Major mode for Coq scripts.
 
 \\{coq-mode-map}"
-    (coq-mode-config)))
+  (coq-mode-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-goals-mode proof-goals-mode
-    "Coq Goals" nil
-    (coq-goals-mode-config)))
+(define-derived-mode coq-goals-mode proof-goals-mode
+  "Coq Goals" nil
+  (coq-goals-mode-config))
 
 ;; Indentation and navigation support via SMIE.
 

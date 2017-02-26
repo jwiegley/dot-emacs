@@ -1911,7 +1911,6 @@ Error messages are displayed as usual."
 ;; Proof General shell mode definition
 ;;
 
-;(eval-and-compile			; to define vars
 ;;;###autoload
 (define-derived-mode proof-shell-mode scomint-mode
   "proof-shell" "Proof General shell mode class for proof assistant processes"

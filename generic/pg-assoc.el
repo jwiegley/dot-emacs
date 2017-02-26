@@ -16,13 +16,12 @@
 
 (require 'proof-utils)
 
-(eval-and-compile ; defines proof-universal-keys-only-mode-map at compile time
-  (define-derived-mode proof-universal-keys-only-mode fundamental-mode
-    proof-general-name "Universal keymaps only"
-    ;; Doesn't seem to supress TAB, RET
-    (suppress-keymap proof-universal-keys-only-mode-map 'all)
-    (proof-define-keys proof-universal-keys-only-mode-map
-		       proof-universal-keys)))
+(define-derived-mode proof-universal-keys-only-mode fundamental-mode
+  proof-general-name "Universal keymaps only"
+  ;; Doesn't seem to supress TAB, RET
+  (suppress-keymap proof-universal-keys-only-mode-map 'all)
+  (proof-define-keys proof-universal-keys-only-mode-map
+                     proof-universal-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
