@@ -1,11 +1,6 @@
 (* -*- coding: utf-8; -*- *)
 
-(* utf8 notations: You can (re)use the version here, 
-   or a compiled version distributed with Coq IDE: 
-    Add LoadPath "/usr/lib/coq/ide". 
-    Require Import utf8.
-*)
-Load "utf8".
+Require Import Utf8.
 
 (* Printing of unicode notation, in *goals* *)
 Lemma test : ∀ A:Prop, A -> A.
