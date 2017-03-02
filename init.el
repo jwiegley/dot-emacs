@@ -1411,6 +1411,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package initsplit))
 
+(use-package dash-at-point
+  :load-path "site-lisp/dash-at-point"
+  :bind ("C-c D" . dash-at-point)
+  :config
+  (add-to-list 'dash-at-point-mode-alist '(haskell-mode . "haskell")))
+
 (use-package debbugs-gnu
   :load-path "elpa/packages/debbugs"
   :commands (debbugs-gnu debbugs-gnu-search))
