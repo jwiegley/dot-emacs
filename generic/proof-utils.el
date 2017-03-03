@@ -411,7 +411,7 @@ or if the window is the only window of its frame."
 	  ;; weird test cases:
 	  ;; cur=45, max=23, desired=121, extraline=0
 	  ;; current height
-	  ;;; ((cur-height (window-height window))
+	  ;;; (cur-height (window-height window))
 	   ;; Most window is allowed to grow to
 	  ((max-height
 	     (/ (frame-height (window-frame window))

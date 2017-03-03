@@ -185,6 +185,32 @@ the token of \".\" is simply \".\"."
 
 
 
+;; A variant of smie-default-backward-token that recognize "." and ";"
+;; as single token even if glued at the end of another symbols.
+
+(defun coq-backward-token-fast-nogluing-dot-friends ()
+  (forward-comment (- (point)))
+  (let ((pt (point)))
+    (let* ((tok-punc (skip-syntax-backward "."))
+           (str-punc (buffer-substring-no-properties pt (point)))
+           (tok-other (if (zerop tok-punc) (skip-syntax-backward "w_'"))))
+      ;; special case: if the symbols found end by "." or ";", then consider this last letter alone as a token
+      (when (and (not (zerop tok-punc)) (string-match "\\s.+[.;]" str-punc))
+        (skip-syntax-forward ".")
+        (forward-char -1))
+      (buffer-substring-no-properties pt (point)))))
+
+(defun coq-forward-token-fast-nogluing-dot-friends ()
+  (forward-comment (point-max))
+  (let ((pt (point)))
+    (let* ((tok-punc (skip-syntax-forward "."))
+           (str-punc (buffer-substring-no-properties pt (point)))
+           (tok-other (if (zerop tok-punc) (skip-syntax-forward "w_'"))))
+     ;; special case: if the symbols found end by "." or ";", then consider this last letter alone as a token
+     (when (and (not (zerop tok-punc)) (string-match "\\s.+[.;]" str-punc))
+       (forward-char -1))
+     (buffer-substring-no-properties pt (point)))))
+
 ;; ignore-between is a description of pseudo delimiters of blocks that
 ;; should be jumped when searching. There is a bad interaction when
 ;; tokens and ignore-bteween are not disjoint
@@ -200,9 +226,7 @@ command (and inside parenthesis)."
       (catch 'found
 	(while (< (point) end)
 	  ;; The default lexer is faster and is good enough for our needs.
-	  (let* ((next2 (smie-default-forward-token))
-		 (is-dot-friend (coq-dot-friend-p next2))
-		 (next (if is-dot-friend "." next2))
+	  (let* ((next (coq-forward-token-fast-nogluing-dot-friends))
 		 (parop (assoc next ignore-between)))
 	    ; if we find something to ignore, we directly jump to the
 	    ; corresponding closer
@@ -231,6 +255,7 @@ command (and inside parenthesis)."
 		 ((member next tokens) (throw 'found next))))))))
     (scan-error nil)))
 
+
 ;; ignore-between is a description of pseudo delimiters of blocks that
 ;; should be jumped when searching. There is a bad interaction when
 ;; tokens and ignore-bteween are not disjoint
@@ -246,9 +271,7 @@ command (and inside parenthesis). "
 	(catch 'found
 	  (while (> (point) end)
 	    ;; The default lexer is faster and is good enough for our needs.
-	    (let* ((next2 (smie-default-backward-token))
-		   (is-dot-friend (coq-dot-friend-p next2))
-		   (next (if is-dot-friend "." next2))
+	    (let* ((next (coq-backward-token-fast-nogluing-dot-friends))
 		   (parop (rassoc next ignore-between)))
 	      ; if we find something to ignore, we directly jump to the
 	      ; corresponding openner
@@ -266,8 +289,8 @@ command (and inside parenthesis). "
 		      (goto-char (point))
 		      next))
 		;; Do not consider "." when not followed by a space
-		;(message "SPACE?: %S , %S , %S" next2 next (looking-at ".[[:space:]]"))
-		(when (or (not (equal next2 "."))
+		;(message "SPACE?: %S , %S , %S" next next (looking-at ".[[:space:]]"))
+		(when (or (not (equal next "."))
 			  (looking-at "\\.[[:space:]]"))
 		  (cond
 		   ((and (zerop (length next))
@@ -350,7 +373,7 @@ The point should be at the beginning of the command name."
 
 
 (defun coq-smie-forward-token ()
-  (let ((tok (smie-default-forward-token)))
+  (let ((tok (coq-forward-token-fast-nogluing-dot-friends)))
     (cond
      ;; @ may be  ahead of an id, it is part of the id.
      ((and (equal tok "@") (looking-at "[[:alpha:]_]"))
@@ -372,7 +395,7 @@ The point should be at the beginning of the command name."
 	  (concat tok newtok)))
        (t (save-excursion (coq-smie-backward-token))))) ;; recursive call
      ((or (string-match coq-bullet-regexp-nospace tok)
-	  (member tok '("=>" ":=" "exists" "in" "as" "∀" "∃" "→" "∨" "∧" ";"
+	  (member tok '("=>" ":=" "::=" "exists" "in" "as" "∀" "∃" "→" "∨" "∧" ";"
 			"," ":" "eval")))
       ;; The important lexer for indentation's performance is the backward
       ;; lexer, so for the forward lexer we delegate to the backward one when
@@ -427,6 +450,8 @@ The point should be at the beginning of the command name."
       (goto-char (1+ (point))) "|}")
      ((member tok coq-smie-proof-end-tokens) "Proof End")
      ((member tok '("Obligation")) "Proof")
+     ;; FIXME: this case should be useless now that we replace
+     ;; smie-default-forward... by a smarter function.
      ((coq-dot-friend-p tok) ".")
      ;; Try to rely on backward-token for non empty tokens: bugs (hangs)
      ;; ((not (zerop (length tok))) (save-excursion (coq-smie-backward-token)))
@@ -552,7 +577,7 @@ The point should be at the beginning of the command name."
      ((and (equal tok ":") (looking-back "\\<\\(constr\\|ltac\\|uconstr\\)" nil))
       ": ltacconstr")
 
-     ((equal tok ":=")
+     ((member tok '(":=" "::="))
       (save-excursion
 	(save-excursion (coq-smie-:=-deambiguate))))
 
@@ -905,6 +930,21 @@ Typical values are 2 or 4."
 ;;             | Leaf =>  add x d l
 
 
+;; Returns the column of the beginning of current atomic tactic (non
+;; composed). Returns the command start column if not found.
+(defun coq-find-with-related-backward()
+  (let ((cmd-start (save-excursion (coq-find-real-start))))
+    (save-excursion
+      ;; no point in going further the start of the command
+      ;; let us find a tactical between it and point
+      (let ((tok (coq-smie-search-token-backward '(";" "||" "|" "+") cmd-start)))
+        ;; hopefully we found the start of the current (non composed)tactic
+        ;; move point after the token found (if not found it will not move)
+        (forward-char (length tok))
+        (forward-comment (point-max)); skip spaces
+        ;; (coq-find-not-in-comment-forward "[^;+[:space:]|]")
+        (current-column)))))
+
 (defun coq-is-at-first-line-of-def-decl ()
   (let ((pt (point)))
     (save-excursion
@@ -927,7 +967,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	      (basic proof-indent)))
      (:close-all t)
      (:list-intro
-      (or (member token '("fun" "forall" "quantif exists"))
+      (or (member token '("fun" "forall" "quantif exists" "with"))
 	  ;; We include "." in list-intro for the ". { .. } \n { .. }" so the
 	  ;; second {..} is aligned with the first rather than being indented as
 	  ;; if it were an argument to the first.
@@ -949,6 +989,7 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	2)
 
        ((equal token "with match") coq-match-indent)
+       ((equal token "with") 2)  ; add 2 to the column of "with" in the children
 
 
        ;;; the ";" tactical ;;;
@@ -1010,6 +1051,12 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 ;	    (smie-rule-parent 2)
 ;	  (smie-rule-parent)))
 
+       ;; "with" is also in the :list-intro rules and in :after.
+       ((equal token "with")
+        ;; Hack: We know that "with" is linked to the first word of
+        ;; the current atomic tactic. This tactic is the parent, not
+        ;; the "." of the previous command.
+        `(column . ,(+ 2 (coq-find-with-related-backward))))
 
        ((equal token "with module")
 	(if (smie-rule-parent-p "with module")
@@ -1035,11 +1082,6 @@ KIND is the situation and TOKEN is the thing w.r.t which the rule applies."
 	(if (smie-rule-parent-p "xxx provedby" "with signature")
 	    (smie-rule-parent)
 	  (smie-rule-parent 4)))
-
-
-
-
-
 
 
        ;; This applies to forall located on the same line than "Lemma"

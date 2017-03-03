@@ -658,4 +658,4 @@ then be set using local file variables."
              "-emacs-U"))
         coq-prog-name))))
 
-;;; coq-compile-common.el ends here
+;;; coq-system.el ends here

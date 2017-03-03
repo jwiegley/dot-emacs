@@ -60,26 +60,33 @@ Let xxx                        (* Precedence of "else" w.r.t "," and "->"!  *)
       3).
 
 Module Y.
-  Lemma L : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Lemma L : forall x:nat , Nat.iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
     intros x.
     induction x;simpl;intros...
   Qed.
-  Lemma L2 : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Lemma L2 : forall x:nat , Nat.iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
     idtac.
     (* "as" tactical *)
     induction x
       as
         [ | x IHx]. 
-    - auto with arith.
+    - cbn.
+      apply Nat.le_trans
+        with
+          (n:=0) (* aligning the different closes of a "with". *)
+          (m:=0)
+          (p:=0).
+      + auto with arith.
+      + auto with arith.
     - simpl.
       intros.
       auto with arith.
   Qed.
 
-  Lemma L' : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x
-  with L'' : forall x:nat , nat_iter x (A:=nat) (plus 2) 0 >= x.
+  Lemma L' : forall x:nat , Nat.iter x (A:=nat) (plus 2) 0 >= x
+  with L'' : forall x:nat , Nat.iter x (A:=nat) (plus 2) 0 >= x.
   Proof with auto with arith.
     - induction x;simpl;intros...
     - induction x;simpl;intros...
@@ -249,32 +256,29 @@ Module X.
     intros r.
     {{
         idtac;
-        exists
-          {|
-            fld1:=r.(fld2);
-            fld2:=r.(fld1);
-            fld3:=false
-          |}.
+          exists
+            {|
+              fld1:=r.(fld2);
+              fld2:=r.(fld1);
+              fld3:=false
+            |}.
         (* ltac *)
         match goal with
-        | _:rec |- ?a /\ ?b => split
-        | _ => fail
-        end.
-
-        match goal with
           _:rec |- ?a /\ ?b => split
         | _ => fail
         end.
 
-        lazymatch goal with
-          _:rec |- ?a /\ ?b => split
-        | _ => fail
-        end.
+        Fail
+          lazymatch goal with
+            _:rec |- ?a /\ ?b => split
+          | _ => fail
+          end.
 
-        multimatch goal with
-          _:rec |- ?a /\ ?b => split
-        | _ => fail
-        end.
+        Fail
+          multimatch goal with
+            _:rec |- ?a /\ ?b => split
+          | _ => fail
+          end.
 
         { simpl. auto. }
         { simpl. auto. }}}
@@ -337,13 +341,13 @@ Section SET.
   Fixpoint setVecProd (T : Type) (n : nat) (v1:Vector.t (set T) n) {struct v1}:
     (Vector.t T n) ->  Prop :=
     match v1 with
-      Vector.nil =>
+      Vector.nil _ =>
       fun v2 =>
         match v2 with 
-          Vector.nil => True
+          Vector.nil _ => True
         | _ => False
         end
-    | (Vector.cons x n' v1') =>
+    | (Vector.cons _ x n' v1') =>
       fun v2 =>
         (* indentation of dependen "match" clause. *)
         match v2
@@ -354,8 +358,8 @@ Section SET.
               return
               (Vector.t T (pred n'') -> Prop) -> Prop
         with 
-        | Vector.nil => fun _ => False 
-        | (Vector.cons y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
+        | Vector.nil _ => fun _ => False 
+        | (Vector.cons _ y n'' v2') => fun v2'' => (x y) /\ (v2'' v2')
         end (setVecProd T n' v1')
     end.
   
@@ -373,7 +377,7 @@ Module curlybracesatend.
       reflexivity. }
     exists (S (S n)).
     simpl.
-    rewrite NPeano.Nat.add_1_r.
+    rewrite Nat.add_1_r.
     reflexivity.
   Qed.
   
@@ -388,7 +392,7 @@ Module curlybracesatend.
     
     exists (S (S n)).
     simpl.
-    rewrite NPeano.Nat.add_1_r.
+    rewrite Nat.add_1_r.
     reflexivity.
   Qed.
   
@@ -402,7 +406,7 @@ Module curlybracesatend.
         reflexivity. } {
         exists (S (S n)).
         simpl.
-        rewrite NPeano.Nat.add_1_r.
+        rewrite Nat.add_1_r.
         reflexivity. }
     }
     idtac.
