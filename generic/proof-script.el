@@ -2565,9 +2565,10 @@ finish setup which depends on specific proof assistant configuration."
   ;; Additional key def for (first character of) terminal string
   (if proof-terminal-string
       (progn
-	(define-key proof-mode-map
-	  (vconcat [(control c)] (vector (aref proof-terminal-string 0)))
-	  'proof-electric-terminator-toggle)
+;; This key-binding was disabled following a request in PG issue #160.
+;;	(define-key proof-mode-map
+;;	  (vconcat [(control c)] (vector (aref proof-terminal-string 0)))
+;;	  'proof-electric-terminator-toggle)
 	(define-key proof-mode-map (vector (aref proof-terminal-string 0))
 	  'proof-electric-terminator)))
 

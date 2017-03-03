@@ -12,6 +12,12 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
     - Using query-replace (or replace-string) in the processed region
       doesn't wrongly jump to the first match anymore.
 
+*** remove key-binding for proof-electric-terminator-toggle
+    - The default key-binding for proof-electric-terminator-toggle
+      (C-c .) was too easy to enter by mistake. And it was not that
+      useful as we can expect users to configure electric-terminator
+      once and for all. Hence the removal of this default key-binding.
+
 ** Coq changes
 
 *** new menu Coq -> Auto Compilation for all background compilation options
