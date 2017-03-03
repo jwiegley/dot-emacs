@@ -1224,8 +1224,10 @@ flag Printing All set."
 ;; inserts a "Show" if the last command of an action list is a save command and
 ;; there is more than one open proof before that save.
 (defun coq-empty-action-list-command (cmd)
-  (when (and (string-match coq-save-command-regexp-strict cmd)
-             (> (length coq-last-but-one-proofstack) 1))
+  (when (or (and (string-match coq-save-command-regexp-strict cmd)
+                 (> (length coq-last-but-one-proofstack) 1))
+            (and (string-match "\\(S\\|Uns\\)et\\s-+Printing" cmd)
+                 (> (length coq-last-but-one-proofstack) 0)))
     (list "Show.")))
 
 (defpacustom auto-adapt-printing-width t
