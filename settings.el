@@ -842,6 +842,7 @@
 (quote
  (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
+ '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer")
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(ns-right-alternate-modifier (quote super))
