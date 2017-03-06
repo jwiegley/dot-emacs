@@ -2673,27 +2673,28 @@ Only when three-buffer-mode is enabled."
   ;; https://github.com/cpitclaudel/company-coq/issues/8.
   (unless (memq 'no-response-display proof-shell-delayed-output-flags)
     ;; If there is no frame with goql+response then do nothing
-    (let ((threeb-frames (coq-find-threeb-frames)))
-      (when (and proof-three-window-enable threeb-frames)
-        (let ((pg-frame (car threeb-frames))) ; selecting one adequate frame
-          (with-selected-frame pg-frame
-            (let ((response-window (get-buffer-window proof-response-buffer t))
-                  (goals-window (get-buffer-window proof-goals-buffer t)))
-              (when (and response-window
-                         (> (frame-height) 10))
-                (with-selected-window response-window
-                  (with-current-buffer proof-response-buffer
-                    (let* ((response-height (window-text-height response-window))
-                           (goals-height (window-text-height goals-window))
-                           (maxhgth (- (+ response-height goals-height)
-                                       window-min-height))
-                           (nline-resp ; number of lines we want for response buffer
-                            (min maxhgth (max window-min-height ; + 1 for comfort
-                                              (+ 1 (count-lines (point-max) (point-min)))))))
-                      (unless (is-not-split-vertic (selected-window))
-                        (shrink-window (- response-height nline-resp)))
-                      (goto-char (point-min))
-                      (recenter))))))))))))
+    (when proof-three-window-enable 
+      (let ((threeb-frames (coq-find-threeb-frames)))
+        (when threeb-frames
+          (let ((pg-frame (car threeb-frames))) ; selecting one adequate frame
+            (with-selected-frame pg-frame
+              (let ((response-window (get-buffer-window proof-response-buffer t))
+                    (goals-window (get-buffer-window proof-goals-buffer t)))
+                (when (and response-window
+                           (> (frame-height) 10))
+                  (with-selected-window response-window
+                    (with-current-buffer proof-response-buffer
+                      (let* ((response-height (window-text-height response-window))
+                             (goals-height (window-text-height goals-window))
+                             (maxhgth (- (+ response-height goals-height)
+                                         window-min-height))
+                             (nline-resp ; number of lines we want for response buffer
+                              (min maxhgth (max window-min-height ; + 1 for comfort
+                                                (+ 1 (count-lines (point-max) (point-min)))))))
+                        (unless (is-not-split-vertic (selected-window))
+                          (shrink-window (- response-height nline-resp)))
+                        (goto-char (point-min))
+                        (recenter)))))))))))))
 
 ;; TODO: remove/add hook instead? 
 (defun coq-optimise-resp-windows-if-option ()
