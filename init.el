@@ -3318,6 +3318,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands nf-procmail-mode)
 
 (use-package nix-buffer
+  :disabled t
   :load-path "site-lisp/nix-buffer"
   :commands nix-buffer)
 
