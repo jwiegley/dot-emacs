@@ -2681,7 +2681,7 @@ Only when three-buffer-mode is enabled."
                   (goals-window (get-buffer-window proof-goals-buffer t)))
               (when (and response-window
                          (> (frame-height) 10))
-                (with-selected-window (get-buffer-window proof-response-buffer)
+                (with-selected-window response-window
                   (with-current-buffer proof-response-buffer
                     (let* ((response-height (window-text-height response-window))
                            (goals-height (window-text-height goals-window))
