@@ -4,7 +4,7 @@
 
 ;; Author: Shea Levy
 ;; URL: https://github.com/shlevy/nix-buffer/tree/master/
-;; Version: 2.3.0
+;; Version: 3.0.0
 ;; Package-Requires: ((f "0.17.3") (emacs "24.4"))
 
 ;;; Commentary:
@@ -24,19 +24,32 @@
 
 (defgroup nix-buffer nil "Customization for nix-buffer."
   :prefix "nix-buffer-"
+  :group 'environment
   :package-version '('nix-buffer . "2.3.0"))
+
+(defun nix-buffer--directory-name-setter (opt val)
+  "Defcustom setter for nix-buffer-directory-name.
+OPT The option we're setting.
+
+VAL The value it's being set to."
+  (nix-buffer-update-directory-name val))
 
 (defcustom nix-buffer-directory-name
   (locate-user-emacs-file "nix-buffer")
-  "Path where nix-buffer keeps its data."
+  "Path where nix-buffer keeps its data.
+To update this variable outside of Customize, please use
+'nix-buffer-update-directory-name'."
   :group 'nix-buffer
   :type '(directory)
+  :set 'nix-buffer--directory-name-setter
+  :initialize 'custom-initialize-default
   :risky t)
 
-(defconst nix-buffer--trust-exprs-file
+(defvar nix-buffer--trust-exprs-file
   (f-join nix-buffer-directory-name "trusted-exprs"))
 
-(defvar nix-buffer--trusted-exprs
+(defun nix-buffer--load-trusted-exprs ()
+  "Load the trusted nix-buffer exprs."
   (let ((tbl (ignore-errors
 	       (with-temp-buffer
 		 (insert-file-contents-literally
@@ -45,6 +58,16 @@
     (if (hash-table-p tbl)
 	tbl
       (make-hash-table :test 'equal))))
+
+(defvar nix-buffer--trusted-exprs (nix-buffer--load-trusted-exprs))
+
+(defun nix-buffer-update-directory-name (path)
+  "Update the nix-buffer state directory.
+PATH The path to store the nix-buffer state."
+  (setq nix-buffer-directory-name path)
+  (setq nix-buffer--trust-exprs-file
+	(f-join nix-buffer-directory-name "trusted-exprs"))
+  (setq nix-buffer--trusted-exprs (nix-buffer--load-trusted-exprs)))
 
 (defun nix-buffer-unload-function ()
   "Save state on unload."
