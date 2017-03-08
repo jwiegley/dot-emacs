@@ -427,16 +427,19 @@ This function also initialises the important tables for the mode."
     ;; hairy logic based on Coq-style vs Isabelle-style configs
     (if (string= "" (format unicode-tokens-token-format ""))
 	;; no special token format, parse separate words/symbols
-	(let* ((optoks
-		(remove* "^\\(?:\\sw\\|\\s_\\)+$"
-			 toks :test 'string-match))
-	       (idtoks
-		(set-difference toks optoks))
+ 	(let* ((tokextra (remove* "^\\(?:\\sw\\|\\s_\\)+$" toks :test 'string-match))
+               (toksymbwrd (set-difference toks tokextra))
+               ;; indentifier that are not pure words
+               (toksymb (remove* "^\\(?:\\sw\\)+$" toksymbwrd :test 'string-match))
+               ;; pure words
+               (tokwrd (set-difference toksymbwrd toksymb))
 	       (idorop
 		(concat "\\(\\_<"
-			(regexp-opt idtoks)
-			"\\_>\\|\\(?:\\B"
-			(regexp-opt optoks)
+                        (regexp-opt toksymb)
+                        "\\_>\\|\\(?:\\<"
+			(regexp-opt tokwrd)
+			"\\>\\)\\|\\(?:\\B"
+			(regexp-opt tokextra)
 			"\\B\\)\\)")))
 	  (if unicode-tokens-token-variant-format-regexp
 	      (format unicode-tokens-token-variant-format-regexp

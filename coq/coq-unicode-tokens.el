@@ -36,7 +36,7 @@
 
 (require 'proof-unicode-tokens)
 
-(defconst coq-token-format "%s")	; plain tokens
+(defconst coq-token-format "") ; Let generic code do the job
 (defconst coq-token-match nil)
 (defconst coq-hexcode-match nil)
 
@@ -253,24 +253,29 @@ meaning to be useful."
 
 (defconst coq-control-char-format-regexp
   ;; FIXME: fix Coq identifier syntax below
-  "\\(\s*%s\s*\\)\\([a-zA-Z0-9']+\\)")
+  ;;  "\\(\s_*%s\s_*\\)\\([a-zA-Z0-9']+\\)"
+  "\\(%s\\)\\(\\sw*\\)"
+ )
 
-(defconst coq-control-char-format " %s ")
+;; (defconst coq-control-char-format " %s ")
 
 (defconst coq-control-characters
   '(("Subscript" "__" sub)
     ("Superscript" "^^" sup)))
 
-(defconst coq-control-region-format-regexp "\\(\s*%s\{\\)\\([^}]*\\)\\(\}\s*\\)")
+;(defconst coq-control-region-format-regexp "\\(\s*%s\{\\)\\([^}]*\\)\\(\}\s*\\)")
+(defconst coq-control-region-format-regexp "\\(%s\{\\)\\([^}]*\\)\\(\}\\)")
 
 (defconst coq-control-regions
   '(("Subscript" "," "" sub)
+    ("Subscript" "_" "" sub)
     ("Superscript" "^" "" sup)
-    ("Bold" "BOLD" "" bold)
-    ("Italic" "ITALIC" "" italic)
-    ("Script" "SCRIPT" "" script)
-    ("Frakt"  "FRACT" "" frakt)
-    ("Roman"  "ROMAN" "" serif)))
+;    ("Bold" "BOLD" "" bold)
+;    ("Italic" "ITALIC" "" italic)
+;    ("Script" "SCRIPT" "" script)
+;    ("Frakt"  "FRACT" "" frakt)
+;    ("Roman"  "ROMAN" "" serif)
+))
 
 
 
