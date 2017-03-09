@@ -738,15 +738,17 @@ In any case, a mouse highlight and tooltip are only set if
 
 Argument FACE means add 'face property FACE to the span."
   (let* ((output     (pg-last-output-displayform))
-	 (newstart   (save-excursion
+	 (new-start   (save-excursion
 		       (goto-char (span-start span))
 		       (skip-chars-forward " \n\t")
 		       (point)))
-	 (newend     (save-excursion
+	 (new-end     (save-excursion
 		       (goto-char (span-end span))
 		       (skip-chars-backward " \n\t")
 		       (point)))
-	 (newspan     (span-make-modifying-removing-span newstart newend)))
+	 (extended-start (max (1- new-start) (point-min)))
+	 (extended-end (min (1+ new-end) (point-max)))
+	 (newspan (span-make-modifying-removing-span extended-start extended-end)))
     
     (span-set-property span 'pg-helpspan newspan) ; link from parent
 
