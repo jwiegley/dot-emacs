@@ -4129,9 +4129,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (use-package parsebib :load-path "site-lisp/parsebib"))
 
   (use-package latex
+    :load-path "site-lisp/auctex/style"
     :defer t
     :config
     (use-package preview)
+    (load "minted")
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
     (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
