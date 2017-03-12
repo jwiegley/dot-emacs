@@ -4,6 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(Info-fit-frame-flag nil)
+ '(LaTeX-verbatim-environments (quote ("verbatim" "verbatim*" "minted" "lstlisting")))
  '(TeX-PDF-mode t)
  '(TeX-auto-save t)
  '(TeX-auto-untabify t)
