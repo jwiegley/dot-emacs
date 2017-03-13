@@ -1115,7 +1115,8 @@ contains only invisible elements for Prooftree synchronization."
         ;; added by proof-shell-empty-action-list-command (prover
         ;; specific), call it.
         (when (and (null proof-action-list)
-                   (not (memq 'empty-action-list flags)))
+                   (not (memq 'empty-action-list flags))
+                   proof-shell-empty-action-list-command)
           (let* ((cmd (mapconcat 'identity (nth 1 item) " "))
                 (extra-cmds (apply proof-shell-empty-action-list-command (list cmd)))
                 ;; tag all new items with 'empty-action-list
