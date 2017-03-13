@@ -1311,10 +1311,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t)
 
 (use-package chess
-  ;; (shell-command "rm -fr lisp/chess")
-  ;; (shell-command "git remote rm ext/chess")
-  :disabled t
-  :load-path "lisp/chess")
+  :load-path "lisp/chess"
+  :commands chess)
 
 (use-package cl-info
   ;; (shell-command "rm -f lisp/cl-info.el*")
@@ -3191,6 +3189,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (remove-hook 'server-switch-hook 'magit-commit-diff))
 
   (use-package magithub
+    :disabled t
     :load-path "site-lisp/magithub"
     :after magit
     :config (magithub-feature-autoinject t))
@@ -4129,11 +4128,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (use-package parsebib :load-path "site-lisp/parsebib"))
 
   (use-package latex
-    ;; :load-path "site-lisp/auctex/style"
     :defer t
     :config
     (use-package preview)
-    ;; (load "minted")
+    (load (expand-file-name "site-lisp/auctex/style/minted"
+                            user-emacs-directory))
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
     (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
