@@ -163,6 +163,7 @@ provided for several other provers.
 * Coq Proof General::           
 * Isabelle Proof General::    
 * HOL Light Proof General::
+* EasyCrypt Proof General::
 * Shell Proof General::
 @c * PhoX Proof General::
 * Obtaining and Installing::  
@@ -520,6 +521,7 @@ script file for your proof assistant, for example:
 @item       Lambda-CLAM   @tab @file{.lcm}    @tab @code{lclam-mode}
 @item       CCC           @tab @file{.ccc}    @tab @code{ccc-mode}
 @item       PG-Shell      @tab @file{.pgsh}   @tab @code{pgshell-mode}
+@item       EasyCrypt     @tab @file{.ec}     @tab @code{easycrypt-mode}
 @end multitable
 (the exact list of Proof Assistants supported may vary according to the
 version of Proof General and its local configuration).  You can also
@@ -677,6 +679,9 @@ Isabelle for more details.
 @item
 @b{HOL Light Proof General} for HOL Light@*
 @xref{HOL Light Proof General}, for more details.
+@item
+@b{EasyCrypt Proof General} for EasyCrypt@*
+@xref{EasyCrypt Proof General}, for mode details.
 @item
 @b{Shell Proof General} for shell scripts (not really a proof assistant!)@*
 @xref{Shell Proof General}, for more details.
@@ -5495,9 +5500,66 @@ us know if you try this out and want help.  We welcome any interested
 collaborators from the HOL communities to help improve Proof General as
 an interface for HOL provers.
 
+@c =================================================================
+@c
+@c  CHAPTER: EasyCrypt Proof General
+@c
+@node EasyCrypt Proof General
+@chapter EasyCrypt Proof General
+@cindex EasyCrypt Proof General
 
+@menu
+* EasyCrypt specific commands::
+* EasyCrypt weak-check mode::
+* EasyCrypt customizations::
+@end menu
 
+EasyCrypt Proof General is an instantiation of Proof General for the
+EasyCrypt proof assistant.
 
+@node EasyCrypt specific commands
+@section EasyCrypt specific commands
+
+@kindex C-c C-a C-p
+@kindex C-c C-a C-c
+
+EasyCrypt Proof General supplies the following key-bindings:
+@table @kbd
+@item C-c C-a C-p
+Prompts for ``print'' query arguments.
+
+@item C-c C-a C-c
+The same for a ``check'' query.
+@end table
+
+@node EasyCrypt weak-check mode
+@section EasyCrypt weak-check mode
+
+The EasyCrypt menu contains a @code{Weak-check mode} toggle menu, which
+allows you to enable or disable the EasyCrypt Weak-Check mode. When
+enabled, all @code{smt} calls are ignored and assumed to succeed.
+
+@node EasyCrypt customizations
+@section EasyCrypt customizations
+
+Here are some of the other user options specific to EasyCrypt.  You can
+set these as usual with the customization mechanism.
+
+@c TEXI DOCSTRING MAGIC: easycrypt-prog-name
+@defvar easycrypt-prog-name
+Name of program to run EasyCrypt.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: easycrypt-load-path
+@defvar easycrypt-load-path
+Non-standard EasyCrypt library load path. This list specifies the
+include path for EasyCrypt.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: easycrypt-web-page
+@defvar easycrypt-web-page
+URL of web page for EasyCrypt.
+@end defvar
 
 
 @c =================================================================
