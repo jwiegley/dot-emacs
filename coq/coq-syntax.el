@@ -1207,7 +1207,7 @@ It is used:
 (defvar coq-symbols-regexp (regexp-opt coq-symbols))
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
+(defvar coq-error-regexp "^\\(In nested Ltac call\\|Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-shell-eager-annotation-start
