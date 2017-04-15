@@ -1314,6 +1314,22 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/chess"
   :commands chess)
 
+(use-package chess-ics
+  :load-path "lisp/chess"
+  :commands chess-ics
+  :config
+  (require 'auth-source)
+  (let ((info (car (auth-source-search
+                    :host "freechess.org"
+                    :user "jwiegley"
+                    :type 'netrc
+                    :port 80))))
+    (when info
+      (defun chess ()
+        (interactive)
+        (chess-ics "freechess.org" 5000 (plist-get info :user)
+                   (funcall (plist-get info :secret)))))))
+
 (use-package cl-info
   ;; (shell-command "rm -f lisp/cl-info.el*")
   :disabled t)
