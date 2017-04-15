@@ -133,7 +133,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
+    ("~/doc/papers/putting-lenses-to-work/putting-lenses-to-work.org" "~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -168,6 +168,7 @@
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
+ '(org-author-transforms (quote (("^Howard Reubenstein$" . "Howard"))))
  '(org-babel-load-languages
    (quote
     ((emacs-lisp . t)
@@ -288,6 +289,13 @@ SCHEDULED: %t
   ("" "amssymb" t)
   ("" "hyperref" nil)
   "\\tolerance=1000")))
+ '(org-latex-listings (quote minted))
+ '(org-latex-minted-options
+(quote
+ (("fontfamily" "courier")
+  ("fontsize" "\\footnotesize")
+  ("linenos" "true")
+  ("xleftmargin" "1em"))))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
  '(org-mobile-files (quote ("~/doc/tasks/todo.txt")))
@@ -312,6 +320,13 @@ SCHEDULED: %t
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
+ '(org-subject-transforms
+(quote
+ (("\\`\\(Re\\|Fwd\\): " . "")
+  ("\\`{ledger} " . "")
+  ("([Ww]as: .+)\\'" . "")
+  ("\\`\\[[a-z-]+\\] " . "")
+  ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]"))))
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces

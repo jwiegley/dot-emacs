@@ -39,16 +39,15 @@
   :type 'boolean
   :group 'org-smart-capture)
 
-(defvar org-subject-transforms
-  '(("\\`\\(Re\\|Fwd\\): "            . "")
-    ("\\`{ledger} "                   . "")
-    ("([Ww]as: .+)\\'"                . "")
-    ("\\`\\[[a-z-]+\\] "              . "")
-    ;; ("(#[0-9]+)\\'"                   . "")
-    ("\\`bug#\\([0-9]+\\):"           . "[[x-debbugs-gnu:\\1][#\\1]]")
-    ("\\`\\[Bug \\([0-9]+\\)\\] New:" . "[[bug:\\1][#\\1]]")
-    ("\\`\\[.*? - [A-Za-z]+ #\\([0-9]+\\)\\] (New)"
-     . "[[redmine:\\1][#\\1]]")))
+(defcustom org-subject-transforms nil
+  "Transformations to apply to Subject lines after capture."
+  :type '(alist :key-type regexp :value-type regexp)
+  :group 'org-smart-capture)
+
+(defcustom org-author-transforms nil
+  "Transformations to apply to author names after capture."
+  :type '(alist :key-type regexp :value-type regexp)
+  :group 'org-smart-capture)
 
 (defun convert-dates ()
   (interactive)
@@ -79,6 +78,13 @@
                       (mail-extract-address-components from))))
          fname lname)
 
+    (let ((new-name name))
+      (dolist (transform org-author-transforms)
+        (setq new-name
+              (replace-regexp-in-string (car transform)
+                                        (cdr transform) new-name)))
+      (setq name new-name))
+
     (when (stringp name)
       ;; Guess first name and last name:
       (cond ((string-match
@@ -100,7 +106,8 @@
 
     (when (stringp fname)
       (insert ?\( fname)
-      (if (and org-smart-capture-use-lastname (stringp lname))
+      (if (and org-smart-capture-use-lastname (stringp lname)
+               (> (length lname) 0))
           (insert ?  lname))
       (insert ?\) ? ))
 
