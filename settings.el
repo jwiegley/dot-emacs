@@ -184,9 +184,16 @@
  '(agda-input-tweak-all
    (quote
     (agda-input-compose
-     (agda-input-prepend "^")
+     (agda-input-prepend "\\")
      (agda-input-nonempty))))
- '(agda-input-user-translations (quote (("^" "^"))))
+ '(agda-input-user-translations
+   (quote
+    (("^" "^")
+     ("nat" "⟹")
+     ("for" "△")
+     ("mer" "▽")
+     ("iso" "≅")
+     ("miso" "≃"))))
  '(agda2-include-dirs
    (quote
     ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
