@@ -373,7 +373,7 @@ The point should be at the beginning of the command name."
 
 
 (defun coq-smie-forward-token ()
-  (let ((tok (coq-forward-token-fast-nogluing-dot-friends)))
+  (let ((tok (smie-default-forward-token)))
     (cond
      ;; @ may be  ahead of an id, it is part of the id.
      ((and (equal tok "@") (looking-at "[[:alpha:]_]"))
