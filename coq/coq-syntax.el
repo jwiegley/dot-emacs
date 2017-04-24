@@ -1210,8 +1210,14 @@ It is used:
 (defvar coq-error-regexp "^\\(In nested Ltac call\\|Error:\\|Discarding pattern\\|Syntax error:\\|System Error:\\|User Error:\\|User error:\\|Anomaly[:.]\\|Toplevel input[,]\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
+;; april2017: coq-8.7 removes special chars definitely and puts
+;; <infomsg> and <warning> around all messages except errors.
+;; We let our legacy regexp for some years and remove them, say, in 2020.
 (defvar coq-shell-eager-annotation-start
-   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>")
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>\\<warning>")
+
+(defvar coq-shell-eager-annotation-end
+  "\377\\|done\\]\\|</infomsg>\\|</warning>\\|\\*\\*\\*\\*\\*\\*\\|) >")
 
 (defvar coq-id "\\(@\\|_\\|\\w\\)\\(\\w\\|\\s_\\)*") ;; Coq ca start an id with @ or _
 (defvar coq-id-shy "\\(?:@\\|_\\|\\w\\)\\(?:\\w\\|\\s_\\)*")
