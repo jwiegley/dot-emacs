@@ -443,6 +443,8 @@ rpmrelease: rpm
 ##     This requires sudo powers for mounting, and
 ##     (on Ubuntu), packages hfsplus and hfsprogs
 ##
+## Warning: the following line was removed below so Contents/MacOS'll be empty:
+##     mv $(NAME)/bin/proofgeneral Contents/MacOS;
 DMGBUILD=$(DISTBUILDIR)/dmg
 dmg:
 	rm -rf $(DMGBUILD)
@@ -455,7 +457,6 @@ dmg:
 	$(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
 	mkdir -p Contents/Resources; \
 	mkdir -p Contents/MacOS; \
-	mv $(NAME)/bin/proofgeneral Contents/MacOS; \
 	mv $(NAME)/* Contents/Resources; \
 	rm -rf $(NAME) $(RELEASENAME); \
 	mkdir $(NAME).app; \
