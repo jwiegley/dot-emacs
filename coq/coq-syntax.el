@@ -1214,7 +1214,7 @@ It is used:
 ;; <infomsg> and <warning> around all messages except errors.
 ;; We let our legacy regexp for some years and remove them, say, in 2020.
 (defvar coq-shell-eager-annotation-start
-   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>\\<warning>")
+   "\376\\|\\[Reinterning\\|Warning:\\|TcDebug \\|<infomsg>\\|<warning>")
 
 (defvar coq-shell-eager-annotation-end
   "\377\\|done\\]\\|</infomsg>\\|</warning>\\|\\*\\*\\*\\*\\*\\*\\|) >")
