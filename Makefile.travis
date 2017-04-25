@@ -1,4 +1,4 @@
-VERSIONS = 21.4a 22.1 22.2 22.3 23.1 23.2b 23.3b 23.4 24.1 24.2 24.3 24.4 24.5
+VERSIONS = 24.1 24.2 24.3 24.4 24.5 25.1 25.2
 STABLE_TARGETS = $(addprefix prepare-emacs-,$(VERSIONS))
 
 .PHONY: prepare-emacs-24 prepare-emacs-git $(STABLE_TARGETS) \

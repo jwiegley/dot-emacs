@@ -5,7 +5,8 @@ env:
   - EMACS_TARGET=emacs-24.3
   - EMACS_TARGET=emacs-24.4
   - EMACS_TARGET=emacs-24.5
-  - EMACS_TARGET=emacs-git
+  - EMACS_TARGET=emacs-25.1
+  - EMACS_TARGET=emacs-25.2
 
 before_install:
   - make -f Makefile.travis before_install
