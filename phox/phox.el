@@ -7,7 +7,7 @@
 ;; loaded).
 
 (eval-when-compile
-  (defvar phox-toolbar-entries nil))
+  (defvar phox-toolbar-entries))
 
 (eval-after-load "pg-custom"
   '(setq phox-toolbar-entries

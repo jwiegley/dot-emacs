@@ -15,8 +15,8 @@
   (require 'cl))
 
 (eval-when (compile)
-  (defvar coq-prog-name nil)
-  (defvar coq-load-path nil))
+  (defvar coq-prog-name)
+  (defvar coq-load-path))
 
 
 ;;; Code:

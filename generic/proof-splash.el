@@ -264,7 +264,7 @@ binding to remove this buffer."
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
   (interactive)
-  (unless (or proof-splash-seen noninteractive)
+  (unless (or proof-splash-seen noninteractive (bound-and-true-p byte-compile-current-file))
     (if proof-splash-enable
 	(progn
 	  ;; disable ordinary emacs splash

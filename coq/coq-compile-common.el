@@ -15,14 +15,12 @@
 
 (require 'proof-shell)
 (require 'coq-system)
+(require 'compile)
 
 (eval-when (compile)
   ;;(defvar coq-pre-v85 nil)
-  (require 'compile)
-  (defvar coq-confirm-external-compilation nil); defpacustom
-  (defvar coq-compile-parallel-in-background nil) ; defpacustom
-  (proof-ready-for-assistant 'coq))     ; compile for coq
-
+  (defvar coq-confirm-external-compilation); defpacustom
+  (defvar coq-compile-parallel-in-background)) ; defpacustom
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -34,7 +32,7 @@
 ;; coq-par-compile, respectively. However, the :initialization
 ;; function of a defcustom seems to be evaluated when reading the
 ;; defcustom form. Therefore, these functions must be defined already,
-;; when the defpacustum coq-compile-parallel-in-background is read.
+;; when the defcustom coq-compile-parallel-in-background is read.
 
 (defun coq-par-enable ()
   "Enable parallel compilation.
@@ -157,7 +155,7 @@ Ignore any quick setting for Coq versions before 8.5."
   :group 'coq
   :package-version '(ProofGeneral . "4.1"))
 
-(defpacustom compile-before-require nil
+(defcustom coq-compile-before-require nil
   "If non-nil, check dependencies of required modules and compile if necessary.
 If non-nil ProofGeneral intercepts \"Require\" commands and checks if the
 required library module and its dependencies are up-to-date. If not, they
@@ -169,7 +167,9 @@ This option can be set/reset via menu
   :safe 'booleanp
   :group 'coq-auto-compile)
 
-(defpacustom compile-parallel-in-background nil
+(proof-deftoggle coq-compile-before-require)
+
+(defcustom coq-compile-parallel-in-background nil
   "Choose the internal compilation method.
 When Proof General compiles itself, you have the choice between
 two implementations. If this setting is nil, then Proof General
@@ -184,8 +184,12 @@ This option can be set/reset via menu
 `Coq -> Auto Compilation -> Compile Parallel In Background'."
   :type 'boolean
   :safe 'booleanp
-  :group 'coq-auto-compile
-  :eval (coq-switch-compilation-method))
+  :group 'coq-auto-compile)
+
+(proof-deftoggle coq-compile-parallel-in-background)
+
+(defun coq-compile-parallel-in-background ()
+  (coq-switch-compilation-method))
 
 ;; defpacustom fails to call :eval during inititialization, see trac #456
 (coq-switch-compilation-method)
@@ -407,7 +411,7 @@ This option can be set via menu
 ;; define coq-lock-ancestors-toggle
 (proof-deftoggle coq-lock-ancestors)
 
-(defpacustom confirm-external-compilation t
+(defcustom coq-confirm-external-compilation t
   "If set let user change and confirm the compilation command.
 Otherwise start the external compilation without confirmation.
 

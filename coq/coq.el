@@ -19,19 +19,18 @@
   (require 'newcomment)
   (require 'etags)
   (unless (proof-try-require 'smie)
-    (defvar smie-indent-basic nil)
-    (defvar smie-rules-function nil))
-  (defvar proof-info nil)       ; dynamic scope in proof-tree-urgent-action
-  (defvar action nil)       ; dynamic scope in coq-insert-as stuff
-  (defvar string nil)       ; dynamic scope in coq-insert-as stuff
-  (defvar old-proof-marker nil)
-                         ; dynamic scoq in coq-proof-tree-enable-evar-callback
-  (defvar coq-auto-insert-as nil)    ; defpacustom
-  (defvar coq-time-commands nil)        ; defpacustom
+    (defvar smie-indent-basic)
+    (defvar smie-rules-function))
+  (defvar proof-info)       ; dynamic scope in proof-tree-urgent-action
+  (defvar action)       ; dynamic scope in coq-insert-as stuff
+  (defvar string)       ; dynamic scope in coq-insert-as stuff
+  (defvar old-proof-marker)
+                                        ; dynamic scoq in coq-proof-tree-enable-evar-callback
+  (defvar coq-auto-insert-as)    ; defpacustom
+  (defvar coq-time-commands)        ; defpacustom
   (defvar coq-use-project-file t)        ; defpacustom
-  (defvar coq-use-editing-holes nil)    ; defpacustom
-  (defvar coq-hide-additional-subgoals nil) ; defpacustom
-  (proof-ready-for-assistant 'coq))     ; compile for coq
+  (defvar coq-use-editing-holes)    ; defpacustom
+  (defvar coq-hide-additional-subgoals))
 
 (require 'proof)
 (require 'coq-system)                   ; load path, option, project file etc.
@@ -306,27 +305,23 @@ See also `coq-hide-additional-subgoals'."
 ;; Derived modes
 ;;
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-shell-mode proof-shell-mode
-    "Coq Shell" nil
-    (coq-shell-mode-config)))
+(define-derived-mode coq-shell-mode proof-shell-mode
+  "Coq Shell" nil
+  (coq-shell-mode-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-response-mode proof-response-mode
+(define-derived-mode coq-response-mode proof-response-mode
   "Coq Response" nil
-    (coq-response-config)))
+  (coq-response-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-mode proof-mode "Coq"
-    "Major mode for Coq scripts.
+(define-derived-mode coq-mode proof-mode "Coq"
+  "Major mode for Coq scripts.
 
 \\{coq-mode-map}"
-    (coq-mode-config)))
+  (coq-mode-config))
 
-(eval-and-compile ;; FIXME: Why?
-  (define-derived-mode coq-goals-mode proof-goals-mode
-    "Coq Goals" nil
-    (coq-goals-mode-config)))
+(define-derived-mode coq-goals-mode proof-goals-mode
+  "Coq Goals" nil
+  (coq-goals-mode-config))
 
 ;; Indentation and navigation support via SMIE.
 
@@ -1199,7 +1194,7 @@ flag Printing All set."
 
 ;; Check
 (eval-when (compile)
-  (defvar coq-auto-adapt-printing-width nil)); defpacustom
+  (defvar coq-auto-adapt-printing-width)); defpacustom
 
 ;; Since Printing Width is a synchronized option in coq (?) it is retored
 ;; silently to a previous value when retracting. So we reset the stored width
@@ -1210,7 +1205,7 @@ flag Printing All set."
 ;; we can remove this.
 (defun coq-set-auto-adapt-printing-width (&optional symb val); args are for :set compatibility
   "Function called when setting `auto-adapt-printing-width'"
-  (setq symb val)
+  (setq symb val) ;; FIXME this is wrong (it should be 'set', but it would set nil sometimes)
   (if coq-auto-adapt-printing-width
       (progn
         (add-hook 'proof-assert-command-hook 'coq-adapt-printing-width)

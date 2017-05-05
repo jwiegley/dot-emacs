@@ -25,10 +25,9 @@
   (require 'pg-goals)
   (require 'pg-vars)
   (require 'outline)
-  (defvar comment-quote-nested nil)
-  (defvar isar-use-find-theorems-form nil)
-  (defvar isar-use-linear-undo nil)
-  (proof-ready-for-assistant 'isar))	; compile for isar
+  (defvar comment-quote-nested)
+  (defvar isar-use-find-theorems-form)
+  (defvar isar-use-linear-undo))
 
 (require 'proof)
 (require 'isabelle-system)		; system code
@@ -303,28 +302,24 @@ This is called when Proof General spots output matching
 ;;
 ;; use eval-and-compile to define vars for byte comp.
 
-(eval-and-compile
 (define-derived-mode isar-shell-mode proof-shell-mode
    "Isabelle Shell" nil
-   (isar-shell-mode-config)))
+   (isar-shell-mode-config))
 
-(eval-and-compile
 (define-derived-mode isar-response-mode proof-response-mode
   "Isar Messages" nil
-  (isar-response-mode-config)))
+  (isar-response-mode-config))
 
-(eval-and-compile
 (define-derived-mode isar-goals-mode proof-goals-mode
   "Isar Proofstate" nil
-  (isar-goals-mode-config)))
+  (isar-goals-mode-config))
 
-(eval-and-compile
 (define-derived-mode isar-mode proof-mode
   "Isar"
   "Major mode for editing Isar proof scripts.
 
 \\{isar-mode-map}"
-  (isar-mode-config)))
+  (isar-mode-config))
 
 
 

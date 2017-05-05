@@ -16,13 +16,12 @@
   (require 'cl))			;  mapcan, eval-when
 
 (eval-when (compile)
-  (require 'span)		        
-  (require 'scomint)		        
+  (require 'span)
+  (require 'scomint)
   (require 'proof-site)
   (require 'proof-menu)
   (require 'proof-syntax)
-  (proof-ready-for-assistant 'isar)	; compile for isar
-  (defvar proof-assistant-menu nil))
+  (defvar proof-assistant-menu))
 
 (declare-function mapcan "cl-extra")	; spurious bytecomp warning
 
@@ -73,6 +72,7 @@ unverified.  Otherwise, returns non-nil if isa-isabelle-command
 is surely an executable with full path."
   (interactive "p")
   (when (and (not noninteractive)
+             (not (bound-and-true-p byte-compile-current-file))
 	     (not proof-rsh-command)
 	     (or force
 		 isabelle-not-found
@@ -139,7 +139,7 @@ generated with the Lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
 
-(unless noninteractive
+(unless (or noninteractive (bound-and-true-p byte-compile-current-file))
   (setq isabelle-logics-available (isa-tool-list-logics)))
 
 (defcustom isabelle-chosen-logic nil
@@ -287,7 +287,7 @@ for you, you should disable this behaviour."
 				 :help (format "Switch to %s logic" l)))
 		       isabelle-logics-available)))))
 
-(unless noninteractive
+(unless (or noninteractive (bound-and-true-p byte-compile-current-file))
   (isabelle-logics-menu-calculate))
 
 (defvar isabelle-time-to-refresh-logics t

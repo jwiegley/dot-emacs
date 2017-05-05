@@ -43,6 +43,7 @@ approximation we test whether proof-config is fully-loaded yet."
   (set-default sym value)
   (when (and
 	 (not noninteractive)
+	 (not (bound-and-true-p byte-compile-current-file))
 	 (featurep 'pg-custom)
 	 (featurep 'proof-config))
       (if (fboundp sym)

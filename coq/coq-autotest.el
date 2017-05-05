@@ -10,13 +10,10 @@
 
 (require 'pg-autotest)
 
-(eval-when (compile)
-  (require 'proof-site)
-  (proof-ready-for-assistant 'coq)
-  (defvar coq-compile-before-require nil))
+(require 'proof-site)
+(defvar coq-compile-before-require)
 
-
-(unless noninteractive
+(unless (bound-and-true-p byte-compile-current-file)
 
   (pg-autotest start 'debug)
 

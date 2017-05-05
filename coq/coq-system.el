@@ -16,12 +16,11 @@
 
 (eval-when-compile
   (require 'cl)
-  (require 'proof-compat)
-  (proof-ready-for-assistant 'coq))
+  (require 'proof-compat))
 
 (eval-when (compile)
-  (defvar coq-prog-args nil)
-  (defvar coq-debug nil))
+  (defvar coq-prog-args)
+  (defvar coq-debug))
 
 (defcustom coq-prog-env nil
   "List of environment settings d to pass to Coq process.

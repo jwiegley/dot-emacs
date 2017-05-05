@@ -22,7 +22,7 @@
 ;     (message "%.06f" (float-time (time-since time)))))
 
 (eval-when-compile
-  (defvar coq-script-indent nil))
+  (defvar coq-script-indent))
 
 (defconst coq-any-command-regexp
   (proof-regexp-alt-list coq-keywords))
