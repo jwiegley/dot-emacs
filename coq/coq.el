@@ -12,7 +12,7 @@
   (require 'cl)
   (require 'proof-compat))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-utils)
   (require 'span)
   (require 'outline)
@@ -25,10 +25,11 @@
   (defvar action)       ; dynamic scope in coq-insert-as stuff
   (defvar string)       ; dynamic scope in coq-insert-as stuff
   (defvar old-proof-marker)
-                                        ; dynamic scoq in coq-proof-tree-enable-evar-callback
+  (defvar coq-keymap)
+  (defvar coq-one-command-per-line)
   (defvar coq-auto-insert-as)    ; defpacustom
   (defvar coq-time-commands)        ; defpacustom
-  (defvar coq-use-project-file t)        ; defpacustom
+  (defvar coq-use-project-file)        ; defpacustom
   (defvar coq-use-editing-holes)    ; defpacustom
   (defvar coq-hide-additional-subgoals))
 
@@ -1193,7 +1194,7 @@ flag Printing All set."
   (coq-ask-do-show-all "Show goal number" "Show" t))
 
 ;; Check
-(eval-when (compile)
+(eval-when-compile
   (defvar coq-auto-adapt-printing-width)); defpacustom
 
 ;; Since Printing Width is a synchronized option in coq (?) it is retored

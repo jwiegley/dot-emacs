@@ -14,7 +14,7 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (defvar coq-prog-name)
   (defvar coq-load-path))
 

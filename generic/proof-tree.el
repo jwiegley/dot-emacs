@@ -88,7 +88,7 @@
 
 (require 'cl)
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-shell))
 
 

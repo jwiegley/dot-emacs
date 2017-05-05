@@ -7,7 +7,7 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'pg-vars)
   (require 'proof-config)
   (require 'scomint))

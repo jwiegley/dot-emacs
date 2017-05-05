@@ -19,7 +19,7 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-site))
 
 (with-no-warnings

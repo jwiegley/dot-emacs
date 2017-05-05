@@ -10,7 +10,7 @@
 
 (require 'pg-autotest)
 
-(eval-when (compile)
+(eval-when-compile
   (require 'cl))
 
 (require 'proof-site)

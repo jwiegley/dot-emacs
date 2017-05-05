@@ -17,7 +17,7 @@
 (require 'coq-system)
 (require 'compile)
 
-(eval-when (compile)
+(eval-when-compile
   ;;(defvar coq-pre-v85 nil)
   (defvar coq-confirm-external-compilation); defpacustom
   (defvar coq-compile-parallel-in-background)) ; defpacustom

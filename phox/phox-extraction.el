@@ -9,7 +9,7 @@
 
 (require 'cl)
 
-(eval-when (compile)
+(eval-when-compile
   (defvar phox-prog-name nil))
 
 (declare-function proof-shell-invisible-command "proof-shell" (str))

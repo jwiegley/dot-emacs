@@ -15,7 +15,7 @@
 (eval-when-compile
   (require 'cl))			;  mapcan, eval-when
 
-(eval-when (compile)
+(eval-when-compile
   (require 'span)
   (require 'scomint)
   (require 'proof-site)

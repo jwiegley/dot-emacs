@@ -23,7 +23,7 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-auxmodes)	  ; loaded by proof.el
   (require 'maths-menu))	  ; loaded dynamically in proof-auxmodes
 

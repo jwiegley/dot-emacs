@@ -14,7 +14,7 @@
 
 (require 'cl)				; for-loop
 
-(eval-when (compile)
+(eval-when-compile
   (require 'unicode-tokens)	    ; it's loaded dynamically at runtime
   (require 'proof-unicode-tokens))  ; that file loads us at runtime
 

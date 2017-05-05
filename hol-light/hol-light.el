@@ -16,9 +16,9 @@
 (or (proof-try-require 'caml-font)	  ; use OCaml Emacs mode syntax 
     (defvar caml-font-lock-keywords nil)) ;
 
-(eval-when (compile)
- (require 'proof-tree)
- (defvar caml-font-lock-keywords nil))
+(eval-when-compile
+  (require 'proof-tree)
+  (defvar caml-font-lock-keywords nil))
 
 (defcustom hol-light-home 
   (or (getenv "HOLLIGHT_HOME")

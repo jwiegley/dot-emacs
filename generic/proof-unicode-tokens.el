@@ -21,10 +21,10 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
-    (require 'scomint)
-    (require 'proof-auxmodes)	 ; loaded by proof.el, autoloads us
-    (require 'unicode-tokens))	 ; it will be loaded by proof-auxmodes
+(eval-when-compile
+  (require 'scomint)
+  (require 'proof-auxmodes)	 ; loaded by proof.el, autoloads us
+  (require 'unicode-tokens))	 ; it will be loaded by proof-auxmodes
 
 (require 'proof-config)			; config variables
 

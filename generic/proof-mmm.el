@@ -28,7 +28,7 @@
 (eval-when-compile
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'proof-auxmodes)	  ; will be loaded
   (require 'mmm-auto))		  ; loaded dynamically by proof-auxmodes
 

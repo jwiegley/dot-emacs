@@ -19,7 +19,7 @@
 (eval-when-compile 
   (require 'cl))
 
-(eval-when (compile)
+(eval-when-compile
   (require 'span)
   (require 'proof-syntax)
   (require 'pg-goals)

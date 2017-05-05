@@ -18,7 +18,7 @@
 (eval-when-compile
   (require 'proof-compat))
 
-(eval-when (compile)
+(eval-when-compile
   (defvar queueitems))       ; dynamic scope in p-s-extend-queue-hook
 
 (require 'coq-compile-common)
