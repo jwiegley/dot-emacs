@@ -78,12 +78,13 @@
                       (mail-extract-address-components from))))
          fname lname)
 
-    (let ((new-name name))
-      (dolist (transform org-author-transforms)
-        (setq new-name
-              (replace-regexp-in-string (car transform)
-                                        (cdr transform) new-name)))
-      (setq name new-name))
+    (when name
+      (let ((new-name name))
+        (dolist (transform org-author-transforms)
+          (setq new-name
+                (replace-regexp-in-string (car transform)
+                                          (cdr transform) new-name)))
+        (setq name new-name)))
 
     (when (stringp name)
       ;; Guess first name and last name:

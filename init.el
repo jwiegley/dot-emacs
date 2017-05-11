@@ -2036,7 +2036,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
-         ("M-s F" . find-grep)
+         ("M-s f" . find-grep)
          ("M-s G" . grep))
   :config
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
@@ -2044,7 +2044,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (grep-apply-setting 'grep-command "egrep -nH -e ")
   (grep-apply-setting
    'grep-find-command
-   '("find . -type f -print0 | xargs -P4 -0 egrep -nH " . 49))
+   '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61))
   ;; (grep-apply-setting
   ;;  'grep-find-command
   ;;  '("rg --no-heading --color=always -j4 -nH -e " . 43))
@@ -2300,7 +2300,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package helm-grep
   :commands helm-do-grep-1
-  :bind (("M-s f" . my-helm-do-grep-r)
+  :bind (("M-s F" . my-helm-do-grep-r)
          ("M-s g" . my-helm-do-grep))
   :preface
   (defun my-helm-do-grep ()
@@ -3215,6 +3215,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-m" magit-mode-map)
   (unbind-key "M-w" magit-mode-map)
   (unbind-key "<C-return>" magit-file-section-map)
+
+  (diminish 'magit-wip-after-save-local-mode)
+  (diminish 'magit-wip-after-apply-mode)
+  (diminish 'magit-wip-before-change-mode)
 
   ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
   ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
