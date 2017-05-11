@@ -74,6 +74,23 @@
        (org-agenda-sorting-strategy
         (quote
          (category-up)))))
+     ("o" "Unscheduled open source tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks: ")
+       (org-agenda-skip-function
+        (quote
+         (org-agenda-skip-entry-if
+          (quote scheduled)
+          (quote deadline)
+          (quote timestamp)
+          (quote regexp)
+          "\\* \\(DEFERRED\\|SOMEDAY\\)")))
+       (org-agenda-sorting-strategy
+        (quote
+         (user-defined-down)))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        (quote
+         ("~/doc/tasks/OSS.txt" "~/doc/tasks/emacs.txt")))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -87,7 +104,10 @@
        (org-agenda-sorting-strategy
         (quote
          (user-defined-down)))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        (quote
+         ("~/doc/tasks/todo.txt" "~/doc/tasks/Bahai.txt")))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
@@ -211,7 +231,6 @@ SCHEDULED: %t
  '(org-clock-in-switch-to-state "STARTED")
  '(org-clock-into-drawer "LOGBOOK")
  '(org-clock-mode-line-total (quote current))
- '(org-clock-modeline-total (quote current))
  '(org-clock-out-remove-zero-time-clocks t)
  '(org-clock-out-switch-to-state nil)
  '(org-clock-persist t)

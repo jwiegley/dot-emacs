@@ -431,7 +431,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "#ghc" "#haskell-infrastructure" "#haskell.org"))))
+    (("freenode.net" "#haskell" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "#ghc" "#haskell-infrastructure" "#haskell.org" "##categorytheory" "#diagrams"))))
  '(erc-button-alist
    (quote
     (("https://gist\\.github\\.com/\\(.*\\)" 0 t gist-fetch 1)
@@ -831,6 +831,9 @@
  '(magit-stage-all-confirm nil)
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)
+ '(magit-wip-after-apply-mode t)
+ '(magit-wip-after-save-mode t)
+ '(magit-wip-before-change-mode t)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
  '(markdown-command "pandoc -f markdown_mmd -S")
