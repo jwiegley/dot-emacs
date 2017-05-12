@@ -2194,7 +2194,8 @@ mouse activation."
 
 (defun coq--format-intros (output)
   "Create an “intros” form from the OUTPUT of “Show Intros”."
-  (let* ((shints (replace-regexp-in-string "[\r\n ]*\\'" "" output)))
+  (let* ((shints1 (replace-regexp-in-string "^[0-9] subgoal\\(.\\|\n\\|\r\\)*"  "" output))
+         (shints (replace-regexp-in-string "[\r\n ]*\\'" "" shints1)))
     (if (or (string= "" shints)
             (string-match coq-error-regexp shints))
         (error "Don't know what to intro")
