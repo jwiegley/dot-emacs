@@ -251,6 +251,7 @@
   (beginning-of-line)
   (let ((here (point)))
     (dotimes (i arg)
+      (or (zerop i) (forward-line))
       (end-of-line))
     (set-mark (point))
     (goto-char here)))
