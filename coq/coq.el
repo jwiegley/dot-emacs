@@ -951,20 +951,25 @@ Otherwise propose identifier at point if any."
     (string-match "is on\\>" resp)))
 
 (defun coq-command-with-set-unset (setcmd cmd unsetcmd &optional postformatcmd testcmd)
-  "Play commands SETCMD then CMD and then silently UNSETCMD."
+  "Play commands SETCMD then CMD and then silently UNSETCMD. The
+last UNSETCMD is performed with tag 'empty-action-list so that it
+does not trigger 'proof-shell-empty-action (which dos \"Shwo\" at
+the time of writing this documentation)."
   (let* ((postform (if (eq postformatcmd nil) 'identity postformatcmd))
          (flag-is-on (and testcmd (coq-flag-is-on-p testcmd))))
     (unless flag-is-on (proof-shell-invisible-command
                         (format " %s . " (funcall postform setcmd)) 'wait))
     (proof-shell-invisible-command
      (format " %s . " (funcall postform cmd)) 'wait)
-    (unless flag-is-on (proof-shell-invisible-command-invisible-result
-                        (format " %s . " (funcall postform unsetcmd))))))
+    (unless flag-is-on (proof-shell-invisible-command
+                        (format " %s . " (funcall postform unsetcmd))
+                        'waitforit  nil 'empty-action-list))))
 
 (defun coq-ask-do-set-unset (ask do setcmd unsetcmd
                                  &optional dontguess postformatcmd tescmd)
   "Ask for an ident id and execute command DO in SETCMD mode.
-More precisely it executes SETCMD, then DO id and finally silently UNSETCMD."
+More precisely it executes SETCMD, then DO id and finally
+silently UNSETCMD. See `coq-command-with-set-unset'."
   (let* ((cmd) (postform (if (eq postformatcmd nil) 'identity postformatcmd tescmd)))
     (proof-shell-ready-prover)
     (setq cmd (coq-guess-or-ask-for-string ask dontguess))
@@ -1218,12 +1223,21 @@ flag Printing All set."
 ;; of coq) Coq does not show the goals of enclosing proof when closing a nested
 ;; proof. This is coq's proof-shell-empty-action-list-command function which
 ;; inserts a "Show" if the last command of an action list is a save command and
-;; there is more than one open proof before that save.
+;; there is more than one open proof before that save. If you want to issue a
+;; command and *not* have the goal redisplayed, the command must be tagged with
+;; 'empty-action-list.
 (defun coq-empty-action-list-command (cmd)
-  (when (or (and (string-match coq-save-command-regexp-strict cmd)
-                 (> (length coq-last-but-one-proofstack) 1))
-            (and (string-match "\\(S\\|Uns\\)et\\s-+Printing" cmd)
-                 (> (length coq-last-but-one-proofstack) 0)))
+  "Return the list of commands to send to coq after CMD if it is
+the last command of the action list.
+If CMD is tagged with 'empty-action-list then this function won't
+be called and no command will be sent to coq. "
+  (when (or
+         ;; If clsing a nested proof, return t.
+         (and (string-match coq-save-command-regexp-strict cmd)
+              (> (length coq-last-but-one-proofstack) 1))
+         ;; If user issued a printing option then t printing. 
+         (and (string-match "\\(S\\|Uns\\)et\\s-+Printing" cmd)
+              (> (length coq-last-but-one-proofstack) 0)))
     (list "Show.")))
 
 (defpacustom auto-adapt-printing-width t
