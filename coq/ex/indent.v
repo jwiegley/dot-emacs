@@ -91,6 +91,17 @@ Module Y.
     - induction x;simpl;intros...
     - induction x;simpl;intros...
   Qed.
+  Lemma L''' : forall x:nat , Nat.iter x (A:=nat) (plus 2) 0 >= x.
+  Proof using Type *.
+    intros x.
+    induction x;simpl;intros.  
+    admit.
+  Admitted.
+
+  Lemma L'''' : forall x:nat ,  0 <= x.
+  Proof (fun x : nat => Nat.le_0_l x).
+  (* no indentation here since the proof above closes the proof. *)
+  Definition foo:nat := 0.
 End Y.
 
 Function div2 (n : nat) {struct n}: nat :=
@@ -314,7 +325,7 @@ Module TC.
   
   Next Obligation.
   Proof.
-    unfold pointwise_relation, all in * .
+    unfold pointwise_relation, all in *.
     intro.
     intros y H.    
     intuition ; specialize (H x0) ; intuition.

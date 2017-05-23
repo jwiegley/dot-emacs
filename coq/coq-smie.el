@@ -592,9 +592,13 @@ The point should be at the beginning of the command name."
 
      ;; FIXME: no token should end with "." except "." itself
      ; for "unfold in *|-*."
-     ((member tok '("*." "-*." "|-*." "*|-*.")) (forward-char 1) ".")
+     ((member tok '("*." "-*." "|-*." "*|-*."))
+      (forward-char (- (length tok) 1))
+      (coq-smie-.-deambiguate))
      ; for "unfold in *|-*;"
-     ((member tok '("*;" "-*;" "|-*;" "*|-*;")) (forward-char 1) "; tactic") ;; FIXME; can be "; ltac" too
+     ((member tok '("*;" "-*;" "|-*;" "*|-*;"))
+      ;; FIXME; can be "; ltac" too
+      (forward-char (- (length tok) 1)) "; tactic")
      ((and (string-match coq-bullet-regexp-nospace tok)
 	   (save-excursion (coq-empty-command-p)))
       (concat tok " bullet"))
