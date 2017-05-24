@@ -34,7 +34,7 @@ PREFIX=$(DESTDIR)/usr
 DEST_PREFIX=$(DESTDIR)/usr
 
 PROVERS=acl2 ccc coq easycrypt hol-light hol98 isar lego pghaskell pgocaml pgshell phox twelf
-OTHER_ELISP=generic lib contrib/mmm
+OTHER_ELISP=generic lib
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=
 EXTRA_DIRS = images

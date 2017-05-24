@@ -603,26 +603,6 @@ Construct and return PG auxiliary menu used in non-scripting buffers.
 
 ;;;***
 
-;;;### (autoloads (proof-mmm-enable proof-mmm-set-global) "proof-mmm"
-;;;;;;  "proof-mmm.el" (20118 50210))
-;;; Generated autoloads from proof-mmm.el
-
-(autoload 'proof-mmm-set-global "proof-mmm" "\
-Set global status of MMM mode for PG buffers to be FLAG.
-
-\(fn FLAG)" nil nil)
-
-(autoload 'proof-mmm-enable "proof-mmm" "\
-Turn on or off MMM mode in Proof General script buffer.
-This invokes `mmm-mode' to toggle the setting for the current
-buffer, and then sets PG's option for default to match.
-Also we arrange to have MMM mode turn itself on automatically
-in future if we have just activated it for this buffer.
-
-\(fn)" t nil)
-
-;;;***
-
 ;;;### (autoloads (proof-config-done proof-mode proof-insert-sendback-command
 ;;;;;;  proof-insert-pbp-command proof-script-generic-parse-find-comment-end
 ;;;;;;  proof-register-possibly-new-processed-file pg-set-span-helphighlights

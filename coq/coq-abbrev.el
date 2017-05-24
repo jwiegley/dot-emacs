@@ -299,10 +299,7 @@ It was constructed with `proof-defstringset-fn'.")
      ["Unset Printing Unfocused" coq-unset-printing-unfocused t]
      ["Set Printing Wildcards" coq-set-printing-wildcards t]
      ["Unset Printing Wildcards" coq-unset-printing-wildcards t]
-     ["Set Printing Width" coq-ask-adapt-printing-width-and-show t])
-    ""
-    ["ML4PG" (coq-activate-ml4pg) :help "Activates ML4PG: machine-learning methods for Proof General"]
-    ))
+     ["Set Printing Width" coq-ask-adapt-printing-width-and-show t])))
 
 (setq-default coq-menu-entries
   (append coq-menu-common-entries

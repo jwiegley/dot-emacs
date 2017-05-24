@@ -2844,13 +2844,6 @@ are non-nil at the same time, this gives priority to the former."
 (define-key coq-mode-map (kbd ".") 'coq-terminator-insert)
 ;(define-key coq-mode-map (kbd ";") 'coq-terminator-insert) ; for french keyboards
 
-;; Activation of ML4PG functionality
-(declare-function ml4pg-select-mode "ml4pg") ;; Avoids copilation warnings
-
-(defun coq-activate-ml4pg ()
-  (let ((filename (concatenate 'string proof-home-directory "contrib/ML4PG/ml4pg.el")))
-    (when (file-exists-p filename) (load-file filename) (ml4pg-select-mode))))
-
 ;;;;;;;;;;;;;;
 
 ;; This was done in coq-compile-common, but it is actually a good idea even

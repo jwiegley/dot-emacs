@@ -194,17 +194,6 @@ Currently this setting is UNIMPLEMENTED, changes have no effect."
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defpgcustom mmm-enable nil
-  "*Whether to use MMM Mode in Proof General for this assistant.
-MMM Mode allows multiple modes to be used in the same buffer.
-If you activate this variable, whether or not you really get MMM
-support depends on whether your proof assistant supports it."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-
-
-
 (provide 'pg-custom)
 
 ;;; pg-custom.el ends here
