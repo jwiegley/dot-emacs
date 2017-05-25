@@ -15,28 +15,6 @@
 ;;; Code:
 
 ;;
-;; MMM
-;;
-(defun proof-mmm-support-available ()
-  "A test to see whether mmm support is available."
-  (and
-   (or (featurep 'mmm-auto)
-       (progn
-	 ;; put bundled version on load path
-	 (proof-add-to-load-path 
-		(concat proof-home-directory "contrib/mmm/"))
-	 ;; *should* always succeed unless bundled version broken
-	 (proof-try-require 'mmm-auto)))
-   ;; Load prover-specific config in <foo>-mmm.el
-   (proof-try-require (proof-ass-sym mmm))))
-
-(proof-eval-when-ready-for-assistant
-    (if (and (proof-ass mmm-enable)
-	     (proof-mmm-support-available))
-	(proof-mmm-set-global t)))
-
-
-;;
 ;; Maths menu
 ;;
 (defun proof-maths-menu-support-available ()
