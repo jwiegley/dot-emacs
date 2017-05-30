@@ -193,7 +193,8 @@
      ("for" "△")
      ("mer" "▽")
      ("iso" "≅")
-     ("miso" "≃"))))
+     ("miso" "≃")
+     ("diag" "∆"))))
  '(agda2-include-dirs
    (quote
     ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
@@ -348,6 +349,9 @@
     (nil "~/src/gitlib" "~/src/gitlib/gitlib" "~/src/gitlib/gitlib-libgit2" "~/src/gitlib/gitlib-s3" "~/src/gitlib/gitlib-test" "~/src/gitlib/git-monitor" "~/src/c2hsc")))
  '(compilation-skip-threshold 2)
  '(compilation-window-height 100)
+ '(completion-ignored-extensions
+   (quote
+    (".glob" ".vo" ".v.d" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".svn/" ".hg/" ".git/" ".bzr/" "CVS/" "_darcs/" "_MTN/" ".fmt" ".tfm" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".dfsl" ".pfsl" ".d64fsl" ".p64fsl" ".lx64fsl" ".lx32fsl" ".dx64fsl" ".dx32fsl" ".fx64fsl" ".fx32fsl" ".sx64fsl" ".sx32fsl" ".wx64fsl" ".wx32fsl" ".fasl" ".ufsl" ".fsl" ".dxl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
  '(coq-compile-before-require t)
  '(coq-holes-minor-mode nil)
  '(coq-maths-menu-enable t)
@@ -383,6 +387,7 @@
  '(dired-recursive-copies (quote always))
  '(dired-recursive-deletes (quote always))
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
+ '(display-time-interval 300)
  '(display-time-mail-function
    (lambda nil
      (= 0
@@ -826,14 +831,17 @@
  '(magit-fetch-arguments nil)
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
+ '(magit-log-section-commit-count 10)
+ '(magit-pre-refresh-hook nil)
  '(magit-process-popup-time 15)
  '(magit-push-always-verify nil)
+ '(magit-refresh-status-buffer nil)
  '(magit-stage-all-confirm nil)
+ '(magit-status-sections-hook
+(quote
+ (magit-insert-status-headers magit-insert-rebase-sequence magit-insert-am-sequence magit-insert-sequencer-sequence magit-insert-bisect-output magit-insert-bisect-rest magit-insert-bisect-log magit-insert-untracked-files magit-insert-unstaged-changes magit-insert-staged-changes)))
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)
- '(magit-wip-after-apply-mode t)
- '(magit-wip-after-save-mode t)
- '(magit-wip-before-change-mode t)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
  '(markdown-command "pandoc -f markdown_mmd -S")
@@ -883,14 +891,11 @@
  '(proof-autosend-enable nil)
  '(proof-electric-terminator-enable t)
  '(proof-fast-process-buffer nil)
- '(proof-full-annotation t)
- '(proof-keep-response-history t)
- '(proof-output-tooltips t)
  '(proof-script-fly-past-comments t)
  '(proof-shell-fiddle-frames nil)
  '(proof-splash-enable nil)
  '(proof-sticky-errors t)
- '(proof-tidy-response nil)
+ '(proof-tidy-response t)
  '(ps-font-size (quote (8 . 10)))
  '(ps-footer-font-size (quote (12 . 14)))
  '(ps-header-font-size (quote (12 . 14)))
@@ -1164,6 +1169,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(coq-symbol-face ((t (:inherit default-face))))
  '(diff-added ((((background dark)) (:foreground "#FFFF9B9BFFFF")) (t (:foreground "DarkGreen"))))
  '(diff-changed ((((background dark)) (:foreground "Yellow")) (t (:foreground "MediumBlue"))))
  '(diff-context ((((background dark)) (:foreground "White")) (t (:foreground "Black"))))

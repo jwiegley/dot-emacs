@@ -2274,10 +2274,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-commands)
   (use-package helm-files)
   (use-package helm-buffers)
-  (use-package helm-mode
-    :diminish helm-mode
-    :init
-    (helm-mode 1))
+  ;; (use-package helm-mode
+  ;;   :diminish helm-mode
+  ;;   :init
+  ;;   (helm-mode 1))
 
   (use-package helm-multi-match)
 
@@ -3230,7 +3230,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (set-fill-column 72)
                 (flyspell-mode 1)))
 
-  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
+  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+
+  (remove-hook 'server-switch-hook 'magit-commit-diff))
 
 (use-package malyon
   :load-path "site-lisp/malyon"
@@ -3824,7 +3826,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (selected-global-mode 1)
 
-  (bind-key "[" #'align-entire selected-keymap)
+  (bind-key "[" #'align-regexp selected-keymap)
   (bind-key "f" #'fill-region selected-keymap)
   (bind-key "U" #'unfill-region selected-keymap)
   (bind-key "d" #'downcase-region selected-keymap)

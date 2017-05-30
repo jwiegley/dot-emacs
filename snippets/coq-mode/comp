@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: comp
+# key: comp
+# --
+rewrite <- !comp_assoc.
+  rewrite (comp_assoc $0).
