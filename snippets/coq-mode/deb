@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: deb
+# key: deb
+# --
+Typeclasses eauto := debug.
