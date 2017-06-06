@@ -284,6 +284,13 @@ In this case `proof-shell-filter' must be called again after it finished.")
     (setq pg-response-special-display-regexp
 	  (proof-regexp-alt goals resp trace thms))))
 
+(defun proof-strip-whitespace-at-end (string)
+  "Return STRING stripped of all trailing whitespace."
+  (while (string-match "[\r\n\t ]+$" string)
+    (setq string (replace-match "" t t string)))
+  string)
+
+
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
 Does nothing if proof assistant is already running.
@@ -306,8 +313,9 @@ process command."
     (if proof-prog-name-ask
         ;; if this option is set, an absolute file name is better to show if possible
 	(let ((prog-name (locate-file proof-prog-name exec-path exec-suffixes 1)))
-          (setq proof-prog-name (read-shell-command "Run process: "
-						  prog-name))))
+          (setq proof-prog-name (proof-strip-whitespace-at-end
+                                 (read-shell-command "Run process: "
+                                                     prog-name)))))
     (let
 	((proc (downcase proof-assistant)))
 
