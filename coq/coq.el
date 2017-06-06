@@ -1231,15 +1231,29 @@ flag Printing All set."
 the last command of the action list.
 If CMD is tagged with 'empty-action-list then this function won't
 be called and no command will be sent to coq. "
-  (when (or
-         ;; If clsing a nested proof, return t.
-         (and (string-match coq-save-command-regexp-strict cmd)
-              (> (length coq-last-but-one-proofstack) 1))
-         ;; If user issued a printing option then t printing. 
-         (and (string-match "\\(S\\|Uns\\)et\\s-+Printing" cmd)
-              (> (length coq-last-but-one-proofstack) 0)))
-    (list "Show.")))
-
+  (cond
+   ((or
+     ;; If closing a nested proof, Show the enclosing goal.
+     (and (string-match coq-save-command-regexp-strict cmd)
+          (> (length coq-last-but-one-proofstack) 1))
+     ;; If user issued a printing option then t printing. 
+     (and (string-match "\\(S\\|Uns\\)et\\s-+Printing" cmd)
+          (> (length coq-last-but-one-proofstack) 0)))
+    (list "Show."))
+   ((or
+     ;; if we go back in the buffer and that the number of abort is less than
+     ;; the number of nested goals, then Unset Silent and Show the goal
+     (and (string-match "Backtrack\\s-+[[:digit:]]+\\s-+[[:digit:]]+\\(\\s-+[[:digit:]]*\\)" cmd)
+          (> (length (coq-get-span-proofstack (proof-last-locked-span)))
+             ;; the number of aborts is the third arg of Backtrack.
+             (string-to-number (match-string 1 cmd)))))
+    (list "Unset Silent." "Show."))
+   ((or
+     ;; If we go back in the buffer and not in the above case, then only Unset
+     ;; silent (there is no goal to show).
+     (string-match "Backtrack" cmd))
+    (list "Unset Silent."))))
+  
 (defpacustom auto-adapt-printing-width t
   "If non-nil, adapt automatically printing width of goals window.
 Each timme the user sends abunch of commands to Coq, check if the
