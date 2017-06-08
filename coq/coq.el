@@ -957,13 +957,17 @@ does not trigger 'proof-shell-empty-action (which dos \"Shwo\" at
 the time of writing this documentation)."
   (let* ((postform (if (eq postformatcmd nil) 'identity postformatcmd))
          (flag-is-on (and testcmd (coq-flag-is-on-p testcmd))))
+    ;; We put 'empty-action-list tags on all three commands since we don't want
+    ;; to trigger "Show" or anything that we usually insert after a group of
+    ;; commands.
     (unless flag-is-on (proof-shell-invisible-command
-                        (format " %s . " (funcall postform setcmd)) 'wait))
+                        (format " %s . " (funcall postform setcmd))
+                        nil nil 'no-response-display 'empty-action-list))
     (proof-shell-invisible-command
-     (format " %s . " (funcall postform cmd)) 'wait)
+     (format " %s . " (funcall postform cmd)) 'wait nil 'empty-action-list)
     (unless flag-is-on (proof-shell-invisible-command
                         (format " %s . " (funcall postform unsetcmd))
-                        'waitforit  nil 'empty-action-list))))
+                        'waitforit  nil 'no-response-display 'empty-action-list))))
 
 (defun coq-ask-do-set-unset (ask do setcmd unsetcmd
                                  &optional dontguess postformatcmd tescmd)
