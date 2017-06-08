@@ -499,7 +499,7 @@ BAE Systems"))))
                       (sc-cite-regexp "")
                       "\\)"
                       (sc-cite-regexp sc-citation-nonnested-root-regexp)))))
-     ("^[ 	]*$"
+     ("^[       ]*$"
       (if sc-cite-blank-lines-p
           (sc-cite-line)
         (sc-fill-if-different "")))

@@ -103,7 +103,7 @@
           "\\* \\(DEFERRED\\|SOMEDAY\\)")))
        (org-agenda-sorting-strategy
         (quote
-         (user-defined-down)))
+         (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote

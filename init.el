@@ -1517,17 +1517,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package dired-details
     ;; (shell-command "rm -f site-lisp/dired-details.el*")
     :disabled t)
-  
+
   (use-package dired-ranger
     :bind (:map dired-mode-map
                 ("W" . dired-ranger-copy)
                 ("X" . dired-ranger-move)
                 ("Y" . dired-ranger-paste)))
-  
+
   (use-package dired-sort-map
     ;; (shell-command "rm -f site-lisp/dired-sort-map.el*")
     :disabled t)
-  
+
   (use-package dired-toggle
     :load-path "site-lisp/dired-toggle"
     :bind ("C-. d" . dired-toggle)
@@ -2205,6 +2205,38 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-t" haskell-mode-map)
 
   (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
+
+  (defun haskell-mode--indent-shift-left (start end &optional count)
+    (interactive
+     (if mark-active
+         (list (region-beginning) (region-end) current-prefix-arg)
+       (list (line-beginning-position) (line-end-position) current-prefix-arg)))
+    (if count
+        (setq count (prefix-numeric-value count))
+      (setq count haskell-indentation-layout-offset))
+    (when (> count 0)
+      (let ((deactivate-mark nil))
+        (save-excursion
+          (goto-char start)
+          (while (< (point) end)
+            (if (and (< (current-indentation) count)
+                     (not (looking-at "[ \t]*$")))
+                (user-error "Can't shift all lines enough"))
+            (forward-line))
+          (indent-rigidly start end (- count))))))
+
+  (defun haskell-mode--indent-shift-right (start end &optional count)
+    (interactive
+     (if mark-active
+         (list (region-beginning) (region-end) current-prefix-arg)
+       (list (line-beginning-position) (line-end-position) current-prefix-arg)))
+    (let ((deactivate-mark nil))
+      (setq count (if count (prefix-numeric-value count)
+                    haskell-indentation-layout-offset))
+      (indent-rigidly start end count)))
+
+  (bind-key "C-c >" #'haskell-mode--indent-shift-right haskell-mode-map)
+  (bind-key "C-c <" #'haskell-mode--indent-shift-left haskell-mode-map)
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -4339,7 +4371,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (when (and (file-exists-p file)
                  (not (file-exists-p ".noclean"))
                  (not (and buffer-file-name
-                           (string-match "\\.texi\\'" buffer-file-name))))
+                           (string-match "\\(\\.texi\\|COMMIT_EDITMSG\\)\\'"
+                                         buffer-file-name))))
         (add-hook 'write-contents-hooks
                   #'(lambda () (ignore (whitespace-cleanup))) nil t)
         (whitespace-cleanup))))

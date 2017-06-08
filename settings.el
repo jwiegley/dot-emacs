@@ -454,7 +454,7 @@
       2)
      ("EmacsWiki:\\([A-Z][a-z]+\\([A-Z][a-z]+\\)+\\)" 0 t erc-browse-emacswiki 1)
      ("Lisp:\\([a-zA-Z.+-]+\\)" 0 t erc-browse-emacswiki-lisp 1)
-     ("\\bGoogle:\\([^ 	
+     ("\\bGoogle:\\([^
 ]+\\)" 0 t
 (lambda
   (keywords)
@@ -837,9 +837,6 @@
  '(magit-push-always-verify nil)
  '(magit-refresh-status-buffer nil)
  '(magit-stage-all-confirm nil)
- '(magit-status-sections-hook
-(quote
- (magit-insert-status-headers magit-insert-rebase-sequence magit-insert-am-sequence magit-insert-sequencer-sequence magit-insert-bisect-output magit-insert-bisect-rest magit-insert-bisect-log magit-insert-untracked-files magit-insert-unstaged-changes magit-insert-staged-changes)))
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
