@@ -1158,6 +1158,7 @@
  (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
  '(yas-triggers-in-field t)
  '(yas-wrap-around-region t)
+ '(z3-solver-cmd "z3")
  '(zencoding-indentation 2)
  '(zencoding-preview-default nil))
 

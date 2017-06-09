@@ -4501,6 +4501,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (add-hook 'TeX-mode-hook 'zotelo-minor-mode))
 
+(use-package z3-mode
+  :mode ("\\.rs\\'" . z3-mode)
+  :commands z3-mode
+  :load-path "site-lisp/z3-mode")
+
 (use-package ztree-diff
   :commands ztree-diff
   :load-path "site-lisp/ztree")
