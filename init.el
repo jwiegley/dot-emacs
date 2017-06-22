@@ -2222,38 +2222,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
 
-  (defun haskell-mode--indent-shift-left (start end &optional count)
-    (interactive
-     (if mark-active
-         (list (region-beginning) (region-end) current-prefix-arg)
-       (list (line-beginning-position) (line-end-position) current-prefix-arg)))
-    (if count
-        (setq count (prefix-numeric-value count))
-      (setq count haskell-indentation-layout-offset))
-    (when (> count 0)
-      (let ((deactivate-mark nil))
-        (save-excursion
-          (goto-char start)
-          (while (< (point) end)
-            (if (and (< (current-indentation) count)
-                     (not (looking-at "[ \t]*$")))
-                (user-error "Can't shift all lines enough"))
-            (forward-line))
-          (indent-rigidly start end (- count))))))
-
-  (defun haskell-mode--indent-shift-right (start end &optional count)
-    (interactive
-     (if mark-active
-         (list (region-beginning) (region-end) current-prefix-arg)
-       (list (line-beginning-position) (line-end-position) current-prefix-arg)))
-    (let ((deactivate-mark nil))
-      (setq count (if count (prefix-numeric-value count)
-                    haskell-indentation-layout-offset))
-      (indent-rigidly start end count)))
-
-  (bind-key "C-c >" #'haskell-mode--indent-shift-right haskell-mode-map)
-  (bind-key "C-c <" #'haskell-mode--indent-shift-left haskell-mode-map)
-
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
@@ -2776,6 +2744,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package image-file
   :config
   (auto-image-file-mode 1))
+
+(use-package indent-shift
+  :bind (("C-c <" . indent-shift-left)
+         ("C-c >" . indent-shift-right))
+  :load-path "site-lisp/indent-shift")
 
 (use-package indirect
   :bind ("C-c C" . indirect-region))
