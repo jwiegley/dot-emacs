@@ -1,0 +1,31 @@
+* indent-shift
+
+  A more general implementation of the =python-indent-shift-left= and
+  =python-indent-shift-right= commands. Basically just changes the
+  indent width variable used to =tab-width= (from =python-indent-offset=).
+
+** Installation
+
+   Download ~shift-indent.el~ and use =package-install-file= to install
+   it. Alternatively you could put it somewhere in your =load-path= and
+   either add some autoloads manually or use =(require 'shift-indent)=.
+
+** Usage
+
+   Bind the commands to some keys and you're ready to go, for example:
+
+   #+BEGIN_SRC emacs-lisp
+     (global-set-key (kbd "C-<") 'indent-shift-left)
+     (global-set-key (kbd "C->") 'indent-shift-right)
+   #+END_SRC
+
+   If you want to keep the original Python keybindings, you might not
+   want to use these keys, or you could rebind them locally when
+   =python-mode= starts.
+
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'python-mode-hook
+               (lambda ()
+                 (local-set-key (kbd "C->") 'python-indent-shift-right)
+                 (local-set-key (kbd "C-<") 'python-indent-shift-left)))
+   #+END_SRC
