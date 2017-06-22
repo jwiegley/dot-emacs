@@ -823,12 +823,9 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
   "Fit the Org Agenda to its buffer."
   (let ((notes
          (ignore-errors
-           (append
-            (directory-files
-             "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts4/Documents"
-             t "[0-9].*\\.txt\\'" nil)
-            (directory-files
-             "~/Dropbox/Apps/Drafts/" t "[0-9].*\\.txt\\'" nil)))))
+           (directory-files
+            "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts4/Documents"
+            t "[0-9].*\\.txt\\'" nil))))
     (when notes
       (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
         (save-excursion

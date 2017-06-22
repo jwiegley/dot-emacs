@@ -65,6 +65,14 @@
      (require 'ansi-color)
      (ansi-color-apply (substring str 0 (1- (length str)))))))
 
+(defun renumber-all (prefix)
+  (interactive)
+  (let ((index 1))
+    (while (re-search-forward (concat prefix " \\([0-9]+\\)") nil t)
+      (let ((num (string-to-number (match-string 1))))
+        (replace-match (number-to-string (+ num index)) nil nil nil 1)
+        (setq index (1+ index))))))
+
 ;;; Load customization settings
 
 (defconst titan-ip "127.0.0.1")
@@ -1610,7 +1618,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package docker
   :defer 15
   :diminish docker-mode
-  :load-path "site-lisp/docker-el/"
+  :load-path "site-lisp/docker-el"
   :config
   (docker-global-mode)
   (use-package docker-images)
@@ -1621,15 +1629,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
-  :load-path "site-lisp/dockerfile-mode/")
+  :load-path "site-lisp/dockerfile-mode")
 
 (use-package doxymacs
   :disabled t
-  :load-path "site-lisp/doxymacs/lisp/")
+  :load-path "site-lisp/doxymacs/lisp")
 
 (use-package dr-racket-like-unicode
   :bind ("C-\"" . dr-racket-like-unicode-char)
-  :load-path "site-lisp/dr-racket-like-unicode/")
+  :load-path "site-lisp/dr-racket-like-unicode")
+
+(use-package dumb-jump
+  :commands dumb-jump-mode
+  :init
+  (hook-into-modes #'dumb-jump-mode
+                   'coq-mode-hook
+                   'haskell-mode-hook)
+  :load-path "site-lisp/dumb-jump")
 
 (use-package edebug
   :defer t
@@ -1698,7 +1714,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            (not running-alternate-emacs)
            (not running-development-emacs)
            (not noninteractive))
-  :load-path "site-lisp/emacs_chrome/servers/"
+  :load-path "site-lisp/emacs_chrome/servers"
   :init
   (add-hook 'after-init-hook 'server-start t)
   (add-hook 'after-init-hook 'edit-server-start t))
@@ -2023,7 +2039,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands git-timemachine)
 
 (use-package git-wip-mode
-  :load-path "site-lisp/git-wip/emacs/"
+  :load-path "site-lisp/git-wip/emacs"
   :diminish git-wip-mode
   :commands git-wip-mode
   :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
@@ -3814,7 +3830,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package sage
   :disabled t
-  :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode/"
+  :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode"
   :config
   (defvar python-source-modes nil)
   (setq sage-command "/Applications/Misc/sage/sage")
@@ -3878,7 +3894,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package session
   :if (not noninteractive)
-  :load-path "site-lisp/session/lisp/"
+  :load-path "site-lisp/session/lisp"
   :preface
   (defun remove-session-use-package-from-settings ()
     (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
@@ -4045,7 +4061,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package smartparens-config))
 
 (use-package smedl-mode
-  :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs/"
+  :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
   :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
 
 (use-package smerge-mode
@@ -4152,7 +4168,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode ("\\.td\\'" . tablegen-mode))
 
 (use-package tex-site                   ; auctex
-  :load-path "site-lisp/auctex/"
+  :load-path "site-lisp/auctex"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :init
