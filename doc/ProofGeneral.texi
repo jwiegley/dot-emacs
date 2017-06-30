@@ -3471,40 +3471,49 @@ For multiple frame mode, this function obeys the setting of
 
 For single frame mode:
 
-- In two panes mode, this uses a canonical layout made by splitting
+@itemize @bullet
+@item
+In two panes mode, this uses a canonical layout made by splitting
 Emacs windows in equal proportions. The splitting is vertical if
 emacs width is smaller than @samp{@code{split-width-threshold}} and
 horizontal otherwise. You can then adjust the proportions by
 dragging the separating bars.
 
-- In three pane mode, there are three display modes, depending
-@lisp
-  where the three useful buffers are displayed: scripting
-  buffer, goals buffer and response buffer.
+@item
+In three pane mode, there are three display modes, depending
+where the three useful buffers are displayed: scripting
+buffer, goals buffer and response buffer.
 
-  Here are the three modes:
+Here are the three modes:
 
-  - vertical: the 3 buffers are displayed in one column.
-  - hybrid: 2 columns mode, left column displays scripting buffer
-    and right column displays the 2 others.
-  - horizontal: 3 columns mode, one for each buffer (script, goals,
-    response).
+@itemize @bullet
+@item
+@code{vertical}: the 3 buffers are displayed in one column.
 
-  By default, the display mode is automatically chosen by
-  considering the current emacs frame width: if it is smaller
-  than @samp{@code{split-width-threshold}} then vertical mode is chosen,
-  otherwise if it is smaller than 1.5 * @samp{@code{split-width-threshold}}
-  then hybrid mode is chosen, finally if the frame is larger than
-  1.5 * @samp{@code{split-width-threshold}} then the horizontal mode is chosen.
+@item
+@code{hybrid}: 2 columns mode, left column displays scripting buffer
+and right column displays the 2 others.
 
-  You can change the value of @samp{@code{split-width-threshold}} at your
-  will.
+@item
+@code{horizontal}: 3 columns mode, one for each buffer (script, goals, response).
+@end itemize
 
-  If you want to force one of the layouts, you can set variable
-  @samp{@code{proof-three-window-mode-policy}} to @code{'vertical}, @code{'horizontal} or
-  @code{'hybrid}. The default value is @code{'smart} which sets the automatic
-  behaviour described above.
-@end lisp
+By default, the display mode is automatically chosen by
+considering the current emacs frame width: if it is smaller
+than @samp{@code{split-width-threshold}} then vertical mode is chosen,
+otherwise if it is smaller than 1.5 * @samp{@code{split-width-threshold}}
+then hybrid mode is chosen, finally if the frame is larger than
+1.5 * @samp{@code{split-width-threshold}} then the horizontal mode is chosen.
+
+You can change the value of @samp{@code{split-width-threshold}} at your
+will.
+
+If you want to force one of the layouts, you can set variable
+@samp{@code{proof-three-window-mode-policy}} to @code{'vertical}, @code{'horizontal} or
+@code{'hybrid}. The default value is @code{'smart} which sets the automatic
+behaviour described above.
+@end itemize
+
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shrink-windows-tofit
