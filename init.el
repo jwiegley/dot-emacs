@@ -90,7 +90,7 @@
            (goto-char (point-min))
            (read (current-buffer))))
         (suffix (cond ((string= "emacs25alt" emacs-environment) "alt")
-                      ((string= "emacs25" emacs-environment) "dev")
+                      ((string= "emacsHEAD" emacs-environment) "dev")
                       (t "other"))))
     (setq running-development-emacs (string= suffix "dev")
           running-alternate-emacs (string= suffix "alt")
