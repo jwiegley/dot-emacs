@@ -79,10 +79,9 @@
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
-(defvar user-data-directory
-  (expand-file-name "data" user-emacs-directory))
+(defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
-(if (string= "emacsHEAD" emacs-environment)
+(if (string= "emacs25" emacs-environment)
     (load (expand-file-name "settings" user-emacs-directory))
   (let ((settings
          (with-temp-buffer
@@ -90,9 +89,8 @@
             (expand-file-name "settings.el" user-emacs-directory))
            (goto-char (point-min))
            (read (current-buffer))))
-        (suffix (cond ((string= "emacs24alt" emacs-environment) "alt")
-                      ((string= "emacsHEADalt" emacs-environment) "alt")
-                      ((string= "emacsHEAD" emacs-environment) "dev")
+        (suffix (cond ((string= "emacs25alt" emacs-environment) "alt")
+                      ((string= "emacs25" emacs-environment) "dev")
                       (t "other"))))
     (setq running-development-emacs (string= suffix "dev")
           running-alternate-emacs (string= suffix "alt")

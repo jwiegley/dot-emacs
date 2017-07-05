@@ -30,7 +30,7 @@
   "Rigidly indent region.
 Region is from START to END.  Move
 COUNT number of spaces if it is non-nil otherwise use
-`tab-width'."
+`4'."
   (interactive
    (if mark-active
        (list (region-beginning) (region-end) current-prefix-arg)
@@ -39,7 +39,7 @@ COUNT number of spaces if it is non-nil otherwise use
            current-prefix-arg)))
   (if count
       (setq count (prefix-numeric-value count))
-    (setq count tab-width))
+    (setq count 4))
   (when (> count 0)
     (let ((deactivate-mark nil))
       (save-excursion
@@ -55,7 +55,7 @@ COUNT number of spaces if it is non-nil otherwise use
 (defun indent-shift-right (start end &optional count)
   "Indent region between START and END rigidly to the right.
 If COUNT has been specified indent by that much, otherwise look at
-`tab-width'."
+`4'."
   (interactive
    (if mark-active
        (list (region-beginning) (region-end) current-prefix-arg)
@@ -65,7 +65,7 @@ If COUNT has been specified indent by that much, otherwise look at
   (let ((deactivate-mark nil))
     (if count
         (setq count (prefix-numeric-value count))
-      (setq count tab-width))
+      (setq count 4))
     (indent-rigidly start end count)))
 
 (add-to-list 'debug-ignored-errors "^Can't shift all lines enough")
