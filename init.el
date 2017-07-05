@@ -2238,6 +2238,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
     (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
 
+  ;; (use-package flycheck-hdevtools
+  ;;   :load-path "site-lisp/flycheck-hdevtools"
+  ;;   :config
+  ;;   (push 'haskell-hdevtools flycheck-checkers))
+
   (use-package haskell-edit
     :load-path "lisp/haskell-config"
     :config (bind-key "C-c M-q" #'haskell-edit-reformat haskell-mode-map))
@@ -3631,6 +3636,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          'my-proof-display-and-keep-buffer)
 
        ;; (company-coq-mode 1)
+
+       (flycheck-mode 1)
+       (bind-key "M-n" #'flycheck-next-error coq-mode-map)
+       (bind-key "M-p" #'flycheck-previous-error coq-mode-map)
 
        (set (make-local-variable 'fill-nobreak-predicate)
             (lambda ()
