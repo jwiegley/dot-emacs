@@ -603,6 +603,7 @@
  '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(find-ls-subdir-switches "-alh")
  '(flx-ido-use-faces nil)
+ '(flycheck-coq-executable "~/bin/ct-coqtop")
  '(flycheck-display-errors-delay 0.0)
  '(flycheck-standard-error-navigation nil)
  '(flymake-compilation-prevents-syntax-check nil)
