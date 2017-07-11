@@ -1,0 +1,9 @@
+*.elc
+*.test
+*-autoloads.el
+*-pkg.el
+*~
+*.tar.gz
+/tuareg.*/
+/opam/url
+ChangeLog

@@ -1,0 +1,34 @@
+opam-version: "1.2"
+name: "tuareg"
+version: "VERSION"
+maintainer: "Christophe.Troestler@umons.ac.be"
+authors: [
+  "Albert Cohen <Albert.Cohen@prism.uvsq.fr>"
+  "Sam Steingold <sds@gnu.org>"
+  "Christophe Troestler <Christophe.Troestler@umons.ac.be>"
+  "Stefan Monnier <monnier@iro.umontreal.ca>"
+]
+homepage: "https://github.com/ocaml/tuareg"
+bug-reports: "https://github.com/ocaml/tuareg/issues"
+dev-repo: "https://github.com/ocaml/tuareg.git"
+build: [
+  [make "tuareg-site-file.el"]
+  [make "elc"] { os != "darwin" }
+]
+depopts: [
+  "caml-mode"
+  "merlin"
+]
+depexts: [
+  [["debian"] ["emacs-nox"]]
+  [["ubuntu"] ["emacs"]]
+  [["centos"]["emacs-nox"]]
+]
+post-messages: "
+If you have not yet done so, please add the following line to ~/.emacs.d/init.el or ~/.emacs:
+    (load \"%{share}%/emacs/site-lisp/tuareg-site-file\")
+" {success & !user-setup:installed}
+post-messages: "
+You should consider installing \"merlin\" (completion, displaying types,...)
+or \"caml-mode\" (displaying types).  See https://github.com/ocaml/tuareg
+for customization tips."
