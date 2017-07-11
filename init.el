@@ -3637,9 +3637,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
        ;; (company-coq-mode 1)
 
-       (flycheck-mode 1)
-       (bind-key "M-n" #'flycheck-next-error coq-mode-map)
-       (bind-key "M-p" #'flycheck-previous-error coq-mode-map)
+       ;; (flycheck-mode 1)
+       ;; (bind-key "M-n" #'flycheck-next-error coq-mode-map)
+       ;; (bind-key "M-p" #'flycheck-previous-error coq-mode-map)
 
        (set (make-local-variable 'fill-nobreak-predicate)
             (lambda ()
