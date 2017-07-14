@@ -302,7 +302,8 @@
  '(column-number-mode t)
  '(company-coq-disabled-features
    (quote
-    (hello unicode-math-backend refman-tactic-abbrevs-backend refman-vernac-abbrevs-backend dynamic-symbols-backend)))
+    (hello prettify-symbols smart-subscripts dynamic-symbols-backend)))
+ '(company-coq-initial-fold-state (quote all))
  '(company-coq-prettify-symbols-alist
    (quote
     (("|-" . 8866)
@@ -658,6 +659,11 @@
 (quote
  ((describe-function . helm-completing-read-symbols)
   (describe-variable . helm-completing-read-symbols)
+  (customize-option . helm-completing-read-symbols)
+  (customize-variable . helm-completing-read-symbols)
+  (customize-function . helm-completing-read-symbols)
+  (describe-variable . helm-completing-read-symbols)
+  (describe-function . helm-completing-read-symbols)
   (debug-on-entry . helm-completing-read-symbols)
   (find-function . helm-completing-read-symbols)
   (find-tag . helm-completing-read-with-cands-in-buffer)

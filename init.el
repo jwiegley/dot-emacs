@@ -89,8 +89,8 @@
             (expand-file-name "settings.el" user-emacs-directory))
            (goto-char (point-min))
            (read (current-buffer))))
-        (suffix (cond ((string= "emacs25alt" emacs-environment) "alt")
-                      ((string= "emacsHEAD" emacs-environment) "dev")
+        (suffix (cond ;; ((string= "emacs25alt" emacs-environment) "alt")
+                      ((string= "emacsHEAD" emacs-environment) "alt")
                       (t "other"))))
     (setq running-development-emacs (string= suffix "dev")
           running-alternate-emacs (string= suffix "alt")
@@ -3635,7 +3635,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
-       ;; (company-coq-mode 1)
+       (company-coq-mode 1)
 
        ;; (flycheck-mode 1)
        ;; (bind-key "M-n" #'flycheck-next-error coq-mode-map)
