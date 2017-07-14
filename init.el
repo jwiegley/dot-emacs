@@ -4232,6 +4232,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/tiny"
   :bind ("C-. N" . tiny-expand))
 
+(use-package tuareg
+  :load-path "site-lisp/tuareg"
+  :mode (("\\.ml[ip]?\\'" . tuareg-mode)
+         ("\\.eliomi?\\'" . tuareg-mode)))
+
 (use-package tramp-sh
   :load-path "override/tramp"
   :defer t
