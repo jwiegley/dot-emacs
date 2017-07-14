@@ -22,6 +22,13 @@
 (require 'company-tests)
 (require 'company-template)
 
+(defun company-template-field-assert-text (str &optional pos)
+  (let ((field (company-template-field-at pos)))
+    (should (equal (buffer-substring-no-properties
+                    (overlay-start field)
+                    (overlay-end field))
+                   str))))
+
 (ert-deftest company-template-removed-after-the-last-jump ()
   (with-temp-buffer
     (insert "{ }")
@@ -29,8 +36,8 @@
     (let ((tpl (company-template-declare-template (point) (1- (point-max)))))
       (save-excursion
         (dotimes (_ 2)
-          (insert " ")
-          (company-template-add-field tpl (point) "foo")))
+          (insert " foo")
+          (company-template-add-field tpl (- (point) 3) (point))))
       (company-call 'template-forward-field)
       (should (= 3 (point)))
       (company-call 'template-forward-field)
@@ -46,8 +53,8 @@
     (goto-char 2)
     (let ((tpl (company-template-declare-template (point) (1- (point-max)))))
       (save-excursion
-        (insert " ")
-        (company-template-add-field tpl (point) "bar"))
+        (insert " bar")
+        (company-template-add-field tpl (- (point) 3) (point)))
       (company-call 'template-move-to-first tpl)
       (should (= 3 (point)))
       (dolist (c (string-to-list "tee"))
@@ -64,37 +71,100 @@
     (let ((text "foo(int a, short b)"))
       (insert text)
       (company-template-c-like-templatify text)
-      (should (equal "foo(arg0, arg1)" (buffer-string)))
-      (should (looking-at "arg0"))
-      (should (equal "int a"
-                     (overlay-get (company-template-field-at) 'display))))))
+      (should (equal "foo(int a, short b)" (buffer-string)))
+      (company-template-field-assert-text "int a"))))
 
 (ert-deftest company-template-c-like-templatify-trims-after-closing-paren ()
   (with-temp-buffer
     (let ((text "foo(int a, short b)!@ #1334 a"))
       (insert text)
       (company-template-c-like-templatify text)
-      (should (equal "foo(arg0, arg1)" (buffer-string)))
-      (should (looking-at "arg0")))))
+      (should (equal "foo(int a, short b)" (buffer-string)))
+      (company-template-field-assert-text "int a"))))
 
 (ert-deftest company-template-c-like-templatify-generics ()
   (with-temp-buffer
     (let ((text "foo<TKey, TValue>(int i, Dict<TKey, TValue>, long l)"))
       (insert text)
       (company-template-c-like-templatify text)
-      (should (equal "foo<arg0, arg1>(arg2, arg3, arg4)" (buffer-string)))
-      (should (looking-at "arg0"))
-      (should (equal "TKey" (overlay-get (company-template-field-at) 'display)))
-      (search-forward "arg3")
+      (should (equal (buffer-string) text))
+      (company-template-field-assert-text "TKey")
+      (search-forward "Dict")
       (forward-char -1)
-      (should (equal "Dict<TKey, TValue>"
-                     (overlay-get (company-template-field-at) 'display))))))
+      (company-template-field-assert-text "Dict<TKey, TValue>"))))
 
 (ert-deftest company-template-c-like-func-ptr ()
   (with-temp-buffer
     (let ((text "foo(*)(int)"))
       (insert text)
       (company-template-c-like-templatify text)
-      (should (equal "foo(arg0)" (buffer-string)))
+      (should (equal (buffer-string) "foo(int)"))
+      (company-template-field-assert-text "int"))))
+
+(ert-deftest company-clang-objc-templatify-empty-args ()
+  (with-temp-buffer
+    (let ((text "createBookWithTitle:andAuthor:"))
+      (insert text)
+      (company-template-objc-templatify text)
+      (should (equal "createBookWithTitle:arg0 andAuthor:arg1" (buffer-string)))
       (should (looking-at "arg0"))
-      (should (equal "int" (overlay-get (company-template-field-at) 'display))))))
+      (should (null (overlay-get (company-template-field-at) 'display))))))
+
+(ert-deftest company-template-objc-templatify ()
+  (with-temp-buffer
+    (let ((text "createBookWithTitle:(NSString) andAuthor:(id)"))
+      (insert text)
+      (company-template-objc-templatify text)
+      (should (equal (buffer-string) text))
+      (company-template-field-assert-text "(NSString)"))))
+
+(ert-deftest company-template-clear-field-c-like-first-arg ()
+  (with-temp-buffer
+    (let ((text "foo(int a, short b)"))
+      (insert text)
+      (company-template-c-like-templatify text)
+      (company-template-clear-field)
+      (should (equal "foo(short b)" (buffer-string))))))
+
+(ert-deftest company-template-clear-field-c-like-last-arg ()
+  (with-temp-buffer
+    (let ((text "foo(int a, short b)"))
+      (insert text)
+      (company-template-c-like-templatify text)
+      (insert "42")
+      (company-template-forward-field)
+      (company-template-clear-field)
+      (should (equal "foo(42)" (buffer-string))))))
+
+(ert-deftest company-template-clear-field-c-like-generic-1 ()
+  (with-temp-buffer
+    (let ((text "foo<TValue>(int a, short b)"))
+      (insert text)
+      (company-template-c-like-templatify text)
+      (company-template-clear-field)
+      (should (equal "foo<>(int a, short b)" (buffer-string))))))
+
+(ert-deftest company-template-clear-field-c-like-generic-2 ()
+  (with-temp-buffer
+    (let ((text "foo<TKey, TValue>(int a, short b)"))
+      (insert text)
+      (company-template-c-like-templatify text)
+      (company-template-clear-field)
+      (should (equal "foo<TValue>(int a, short b)" (buffer-string))))))
+
+(ert-deftest company-template-clear-field-objc-first-arg ()
+  (with-temp-buffer
+    (let ((text "createBookWithTitle:andAuthor:"))
+      (insert text)
+      (company-template-objc-templatify text)
+      (company-template-clear-field)
+      (should (equal "createBookWithTitle: andAuthor:arg1" (buffer-string))))))
+
+(ert-deftest company-template-insert-hook-c-like-field ()
+  (with-temp-buffer
+    (let ((text "foo(int a, short b)"))
+      (insert text)
+      (company-template-c-like-templatify text)
+      (let ((ovl (company-template-field-at (point))))
+        (company-template-insert-hook ovl nil)
+        (should (equal "foo(, short b)" (buffer-string)))))))

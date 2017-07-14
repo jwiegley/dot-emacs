@@ -1,6 +1,6 @@
-;;; company-semantic.el --- company-mode completion back-end using Semantic
+;;; company-semantic.el --- company-mode completion backend using Semantic
 
-;; Copyright (C) 2009-2011, 2013  Free Software Foundation, Inc.
+;; Copyright (C) 2009-2011, 2013-2016  Free Software Foundation, Inc.
 
 ;; Author: Nikolaj Schumacher
 
@@ -26,6 +26,7 @@
 ;;; Code:
 
 (require 'company)
+(require 'company-template)
 (require 'cl-lib)
 
 (defvar semantic-idle-summary-function)
@@ -38,14 +39,29 @@
 (declare-function semantic-tag-start "semantic/tag")
 (declare-function semantic-tag-buffer "semantic/tag")
 (declare-function semantic-active-p "semantic")
+(declare-function semantic-format-tag-prototype "semantic/format")
 
 (defgroup company-semantic nil
-  "Completion back-end using Semantic."
+  "Completion backend using Semantic."
   :group 'company)
 
 (defcustom company-semantic-metadata-function 'company-semantic-summary-and-doc
   "The function turning a semantic tag into doc information."
   :type 'function)
+
+(defcustom company-semantic-begin-after-member-access t
+  "When non-nil, automatic completion will start whenever the current
+symbol is preceded by \".\", \"->\" or \"::\", ignoring
+`company-minimum-prefix-length'.
+
+If `company-begin-commands' is a list, it should include `c-electric-lt-gt'
+and `c-electric-colon', for automatic completion right after \">\" and
+\":\".")
+
+(defcustom company-semantic-insert-arguments t
+  "When non-nil, insert function arguments as a template after completion."
+  :type 'boolean
+  :package-version '(company . "0.9.0"))
 
 (defvar company-semantic-modes '(c-mode c++-mode jde-mode java-mode))
 
@@ -89,7 +105,7 @@
     (let ((completion-ignore-case nil)
           (context (semantic-analyze-current-context)))
       (setq company-semantic--current-tags
-            (semantic-analyze-possible-completions context))
+            (semantic-analyze-possible-completions context 'no-unique))
       (all-completions prefix company-semantic--current-tags))))
 
 (defun company-semantic-completions-raw (prefix)
@@ -100,33 +116,21 @@
   (delete "" (mapcar 'semantic-tag-name company-semantic--current-tags)))
 
 (defun company-semantic-annotation (argument tags)
-  (let* ((tag (assoc argument tags))
+  (let* ((tag (assq argument tags))
          (kind (when tag (elt tag 1))))
     (cl-case kind
       (function (let* ((prototype (semantic-format-tag-prototype tag nil nil))
                        (par-pos (string-match "(" prototype)))
                   (when par-pos (substring prototype par-pos)))))))
 
-(defun company-semantic--pre-prefix-length (prefix-length)
-  "Sum up the length of all chained symbols before POS.
-Symbols are chained by \".\" or \"->\"."
-  (save-excursion
-    (let ((pos (point)))
-      (goto-char (- (point) prefix-length))
-      (while (looking-back "->\\|\\.")
-        (goto-char (match-beginning 0))
-        (skip-syntax-backward "w_"))
-      (- pos (point)))))
-
-(defun company-semantic--grab ()
-  "Grab the semantic prefix, but return everything before -> or . as length."
-  (let ((symbol (company-grab-symbol)))
-    (when symbol
-      (cons symbol (company-semantic--pre-prefix-length (length symbol))))))
+(defun company-semantic--prefix ()
+  (if company-semantic-begin-after-member-access
+      (company-grab-symbol-cons "\\.\\|->\\|::" 2)
+    (company-grab-symbol)))
 
 ;;;###autoload
 (defun company-semantic (command &optional arg &rest ignored)
-  "`company-mode' completion back-end using CEDET Semantic."
+  "`company-mode' completion backend using CEDET Semantic."
   (interactive (list 'interactive))
   (cl-case command
     (interactive (company-begin-backend 'company-semantic))
@@ -134,9 +138,9 @@ Symbols are chained by \".\" or \"->\"."
                  (semantic-active-p)
                  (memq major-mode company-semantic-modes)
                  (not (company-in-string-or-comment))
-                 (or (company-semantic--grab) 'stop)))
+                 (or (company-semantic--prefix) 'stop)))
     (candidates (if (and (equal arg "")
-                         (not (looking-back "->\\|\\.")))
+                         (not (looking-back "->\\|\\." (- (point) 2))))
                     (company-semantic-completions-raw arg)
                   (company-semantic-completions arg)))
     (meta (funcall company-semantic-metadata-function
@@ -147,10 +151,17 @@ Symbols are chained by \".\" or \"->\"."
                  (assoc arg company-semantic--current-tags)))
     ;; Because "" is an empty context and doesn't return local variables.
     (no-cache (equal arg ""))
+    (duplicates t)
     (location (let ((tag (assoc arg company-semantic--current-tags)))
                 (when (buffer-live-p (semantic-tag-buffer tag))
                   (cons (semantic-tag-buffer tag)
-                        (semantic-tag-start tag)))))))
+                        (semantic-tag-start tag)))))
+    (post-completion (let ((anno (company-semantic-annotation
+                                  arg company-semantic--current-tags)))
+                       (when (and company-semantic-insert-arguments anno)
+                         (insert anno)
+                         (company-template-c-like-templatify (concat arg anno)))
+                       ))))
 
 (provide 'company-semantic)
 ;;; company-semantic.el ends here

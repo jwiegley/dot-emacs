@@ -1,4 +1,4 @@
-;;; company-oddmuse.el --- company-mode completion back-end for oddmuse-mode
+;;; company-oddmuse.el --- company-mode completion backend for oddmuse-mode
 
 ;; Copyright (C) 2009-2011, 2014  Free Software Foundation, Inc.
 
@@ -27,7 +27,7 @@
 
 (require 'company)
 (require 'cl-lib)
-(eval-when-compile (require 'yaooddmuse nil t))
+(eval-when-compile (require 'yaoddmuse nil t))
 (eval-when-compile (require 'oddmuse nil t))
 
 (defvar company-oddmuse-link-regexp
@@ -42,7 +42,7 @@
 
 ;;;###autoload
 (defun company-oddmuse (command &optional arg &rest ignored)
-  "`company-mode' completion back-end for `oddmuse-mode'."
+  "`company-mode' completion backend for `oddmuse-mode'."
   (interactive (list 'interactive))
   (cl-case command
     (interactive (company-begin-backend 'company-oddmuse))

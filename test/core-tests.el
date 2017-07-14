@@ -1,6 +1,6 @@
 ;;; core-tests.el --- company-mode tests  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015  Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016, 2017  Free Software Foundation, Inc.
 
 ;; Author: Dmitry Gutov
 
@@ -153,6 +153,26 @@
       (should (equal '("abb" "abc" "abd" "acc" "acd")
                      (company-call-backend 'candidates "a"))))))
 
+(ert-deftest company-multi-backend-handles-keyword-separate ()
+  (let ((one (lambda (command &optional _)
+               (cl-case command
+                 (prefix "a")
+                 (candidates (list "aa" "ca" "ba")))))
+        (two (lambda (command &optional _)
+               (cl-case command
+                 (prefix "a")
+                 (candidates (list "bb" "ab")))))
+        (tri (lambda (command &optional _)
+               (cl-case command
+                 (prefix "a")
+                 (sorted t)
+                 (candidates (list "cc" "bc" "ac"))))))
+    (let ((company-backend (list one two tri :separate)))
+      (should (company-call-backend 'sorted))
+      (should-not (company-call-backend 'duplicates))
+      (should (equal '("aa" "ba" "ca" "ab" "bb" "cc" "bc" "ac")
+                     (company-call-backend 'candidates "a"))))))
+
 (ert-deftest company-begin-backend-failure-doesnt-break-company-backends ()
   (with-temp-buffer
     (insert "a")
@@ -295,6 +315,23 @@
         (company-call 'backward-delete-char 1)
         (should (eq 2 company-candidates-length))))))
 
+(ert-deftest company-backspace-into-bad-prefix ()
+  (with-temp-buffer
+    (insert "ab")
+    (company-mode)
+    (let (company-frontends
+          (company-minimum-prefix-length 2)
+          (company-backends
+           (list (lambda (command &optional _)
+                   (cl-case command
+                     (prefix (buffer-substring (point-min) (point)))
+                     (candidates '("abcd" "abef")))))))
+      (let ((company-idle-delay 'now))
+        (company-auto-begin))
+      (company-call 'backward-delete-char-untabify 1)
+      (should (string= "a" (buffer-string)))
+      (should (null company-candidates)))))
+
 (ert-deftest company-auto-complete-explicit ()
   (with-temp-buffer
     (insert "ab")
@@ -312,6 +349,31 @@
       (let ((last-command-event ? ))
         (company-call 'self-insert-command 1))
       (should (string= "abcd " (buffer-string))))))
+
+(ert-deftest company-auto-complete-with-electric-pair ()
+  (with-temp-buffer
+    (insert "foo(ab)")
+    (forward-char -1)
+    (company-mode)
+    (let (company-frontends
+          (company-auto-complete t)
+          (company-auto-complete-chars '(? ?\)))
+          (company-backends
+           (list (lambda (command &optional _)
+                   (cl-case command
+                     (prefix (buffer-substring 5 (point)))
+                     (candidates '("abcd" "abef"))))))
+          (electric-pair electric-pair-mode))
+      (unwind-protect
+          (progn
+            (electric-pair-mode)
+            (let (this-command)
+              (company-complete))
+            (let ((last-command-event ?\)))
+              (company-call 'self-insert-command 1)))
+        (unless electric-pair
+          (electric-pair-mode -1)))
+      (should (string= "foo(abcd)" (buffer-string))))))
 
 (ert-deftest company-no-auto-complete-when-idle ()
   (with-temp-buffer
@@ -398,6 +460,9 @@
   (or (and (not list1) (not list2))
       (and (ert-equal-including-properties (car list1) (car list2))
            (ct-equal-including-properties (cdr list1) (cdr list2)))))
+
+(ert-deftest company-strips-duplicates-returns-nil ()
+  (should (null (company--preprocess-candidates nil))))
 
 (ert-deftest company-strips-duplicates-within-groups ()
   (let* ((kvs '(("a" . "b")
