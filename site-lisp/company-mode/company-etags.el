@@ -1,4 +1,4 @@
-;;; company-etags.el --- company-mode completion back-end for etags
+;;; company-etags.el --- company-mode completion backend for etags
 
 ;; Copyright (C) 2009-2011, 2014  Free Software Foundation, Inc.
 
@@ -30,7 +30,7 @@
 (require 'etags)
 
 (defgroup company-etags nil
-  "Completion back-end for etags."
+  "Completion backend for etags."
   :group 'company)
 
 (defcustom company-etags-use-main-table-list t
@@ -45,17 +45,28 @@ buffer automatically."
   :type 'boolean
   :package-version '(company . "0.7.3"))
 
+(defcustom company-etags-everywhere nil
+  "Non-nil to offer completions in comments and strings.
+Set it to t or to a list of major modes."
+  :type '(choice (const :tag "Off" nil)
+                 (const :tag "Any supported mode" t)
+                 (repeat :tag "Some major modes"
+                         (symbol :tag "Major mode")))
+  :package-version '(company . "0.9.0"))
+
 (defvar company-etags-modes '(prog-mode c-mode objc-mode c++-mode java-mode
                               jde-mode pascal-mode perl-mode python-mode))
 
 (defvar-local company-etags-buffer-table 'unknown)
 
 (defun company-etags-find-table ()
-  (let ((file (locate-dominating-file (or buffer-file-name
-                                          default-directory)
-                                      "TAGS")))
+  (let ((file (expand-file-name
+               "TAGS"
+               (locate-dominating-file (or buffer-file-name
+                                           default-directory)
+                                       "TAGS"))))
     (when (and file (file-regular-p file))
-      (list (expand-file-name file)))))
+      (list file))))
 
 (defun company-etags-buffer-table ()
   (or (and company-etags-use-main-table-list tags-table-list)
@@ -74,12 +85,14 @@ buffer automatically."
 
 ;;;###autoload
 (defun company-etags (command &optional arg &rest ignored)
-  "`company-mode' completion back-end for etags."
+  "`company-mode' completion backend for etags."
   (interactive (list 'interactive))
   (cl-case command
     (interactive (company-begin-backend 'company-etags))
-    (prefix (and (apply 'derived-mode-p company-etags-modes)
-                 (not (company-in-string-or-comment))
+    (prefix (and (apply #'derived-mode-p company-etags-modes)
+                 (or (eq t company-etags-everywhere)
+                     (apply #'derived-mode-p company-etags-everywhere)
+                     (not (company-in-string-or-comment)))
                  (company-etags-buffer-table)
                  (or (company-grab-symbol) 'stop)))
     (candidates (company-etags--candidates arg))

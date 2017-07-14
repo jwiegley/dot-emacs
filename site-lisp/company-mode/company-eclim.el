@@ -1,6 +1,6 @@
-;;; company-eclim.el --- company-mode completion back-end for Eclim
+;;; company-eclim.el --- company-mode completion backend for Eclim
 
-;; Copyright (C) 2009, 2011, 2013  Free Software Foundation, Inc.
+;; Copyright (C) 2009, 2011, 2013, 2015  Free Software Foundation, Inc.
 
 ;; Author: Nikolaj Schumacher
 
@@ -21,10 +21,10 @@
 
 ;;; Commentary:
 ;;
-;; Using `emacs-eclim' together with (or instead of) this back-end is
+;; Using `emacs-eclim' together with (or instead of) this backend is
 ;; recommended, as it allows you to use other Eclim features.
 ;;
-;; The alternative back-end provided by `emacs-eclim' uses `yasnippet'
+;; The alternative backend provided by `emacs-eclim' uses `yasnippet'
 ;; instead of `company-template' to expand function calls, and it supports
 ;; some languages other than Java.
 
@@ -35,7 +35,7 @@
 (require 'cl-lib)
 
 (defgroup company-eclim nil
-  "Completion back-end for Eclim."
+  "Completion backend for Eclim."
   :group 'company)
 
 (defun company-eclim-executable-find ()
@@ -48,7 +48,9 @@
            (cl-return file)))))
 
 (defcustom company-eclim-executable
-  (or (executable-find "eclim") (company-eclim-executable-find))
+  (or (bound-and-true-p eclim-executable)
+      (executable-find "eclim")
+      (company-eclim-executable-find))
   "Location of eclim executable."
   :type 'file)
 
@@ -87,10 +89,11 @@ eclim can only complete correctly when the buffer has been saved."
 
 (defun company-eclim--project-dir ()
   (if (eq company-eclim--project-dir 'unknown)
-      (setq company-eclim--project-dir
-            (directory-file-name
-             (expand-file-name
-              (locate-dominating-file buffer-file-name ".project"))))
+      (let ((dir (locate-dominating-file buffer-file-name ".project")))
+        (when dir
+          (setq company-eclim--project-dir
+                (directory-file-name
+                 (expand-file-name dir)))))
     company-eclim--project-dir))
 
 (defun company-eclim--project-name ()
@@ -153,7 +156,7 @@ eclim can only complete correctly when the buffer has been saved."
       prefix)))
 
 (defun company-eclim (command &optional arg &rest ignored)
-  "`company-mode' completion back-end for Eclim.
+  "`company-mode' completion backend for Eclim.
 Eclim provides access to Eclipse Java IDE features for other editors.
 
 Eclim version 1.7.13 or newer (?) is required.

@@ -1,6 +1,6 @@
 ;;; frontends-tests.el --- company-mode tests  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015  Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016  Free Software Foundation, Inc.
 
 ;; Author: Dmitry Gutov
 
@@ -31,12 +31,12 @@
       (let ((company-frontends '(company-pseudo-tooltip-frontend))
             (company-begin-commands '(self-insert-command))
             (company-backends
-             (list (lambda (c &optional _)
+             (list (lambda (c &rest _)
                      (cl-case c (prefix "") (candidates '("a" "b" "c")))))))
         (let (this-command)
           (company-call 'complete))
         (company-call 'open-line 1)
-        (should (eq 1 (overlay-start company-pseudo-tooltip-overlay)))))))
+        (should (eq 2 (overlay-start company-pseudo-tooltip-overlay)))))))
 
 (ert-deftest company-pseudo-tooltip-show ()
   :tags '(interactive)
@@ -57,7 +57,7 @@
         (should (eq (overlay-get ov 'company-height) company-tooltip-limit))
         (should (eq (overlay-get ov 'company-column) col))
         (should (string= (overlay-get ov 'company-display)
-                         "\n  123 \nc 45  c\nddd\n")))))))
+                         "  123 \nc 45  c\nddd\n")))))))
 
 (ert-deftest company-pseudo-tooltip-edit-updates-width ()
   :tags '(interactive)
@@ -83,9 +83,8 @@
     (save-window-excursion
       (set-window-buffer nil (current-buffer))
       (save-excursion (insert "\n"))
-      (let ((company-candidates-length 1)
-            (company-candidates '("123")))
-        (company-preview-show-at-point (point))
+      (let ((company-backend #'ignore))
+        (company-preview-show-at-point (point) "123")
         (let* ((ov company-preview-overlay)
                (str (overlay-get ov 'after-string)))
           (should (string= str "123"))
@@ -109,7 +108,7 @@
           ;; With margins.
           (should (eq (overlay-get ov 'company-width) 8))
           (should (string= (overlay-get ov 'company-display)
-                           "\n 123(4) \n 45     \n")))))))
+                           " 123(4) \n 45     \n")))))))
 
 (ert-deftest company-pseudo-tooltip-show-with-annotations-right-aligned ()
   :tags '(interactive)
@@ -130,7 +129,7 @@
           ;; With margins.
           (should (eq (overlay-get ov 'company-width) 13))
           (should (string= (overlay-get ov 'company-display)
-                           "\n 123     (4) \n 45          \n 67 (891011) \n")))))))
+                           " 123     (4) \n 45          \n 67 (891011) \n")))))))
 
 (ert-deftest company-create-lines-shows-numbers ()
   (let ((company-show-numbers t)
@@ -149,7 +148,7 @@
          (company-candidates (mapcar #'car data))
          (company-candidates-length 4)
          (company-tooltip-margin 1)
-         (company-backend (lambda (cmd &optional arg)
+         (company-backend (lambda (cmd &optional arg &rest _)
                             (when (eq cmd 'annotation)
                               (cdr (assoc arg data)))))
          company-tooltip-align-annotations)
@@ -189,12 +188,15 @@
       (should (equal (list (format " %s " (make-string (- ww 2) ?1))
                            (format " %s " (make-string (- ww 2) ?1)))
                      res))
-      (should (eq 'company-tooltip-common-selection
-                    (get-text-property (- ww 2) 'face
-                                       (car res))))
-      (should (eq 'company-tooltip-selection
-                  (get-text-property (1- ww) 'face
-                                     (car res))))
+      (should (equal '(company-tooltip-common-selection
+                       company-tooltip-selection
+                       company-tooltip)
+                     (get-text-property (- ww 2) 'face
+                                        (car res))))
+      (should (equal '(company-tooltip-selection
+                       company-tooltip)
+                     (get-text-property (1- ww) 'face
+                                        (car res))))
       )))
 
 (ert-deftest company-create-lines-clears-out-non-printables ()
@@ -224,7 +226,7 @@
          (alist '(("a" . " ︸") ("b" . " ︸︸")))
          (company-candidates (mapcar #'car alist))
          (company-candidates-length 2)
-         (company-backend (lambda (c &optional a)
+         (company-backend (lambda (c &optional a &rest _)
                             (when (eq c 'annotation)
                               (assoc-default a alist)))))
     (should (equal '(" a ﻿︸   "
@@ -238,7 +240,7 @@
                                "MIRAI発売2カ月"))
          (company-candidates-length 2)
          (company-prefix "MIRAI発")
-         (company-backend (lambda (c &optional _arg)
+         (company-backend (lambda (c &rest _)
                             (pcase c
                               (`ignore-case 'keep-prefix)))))
     (should (equal '(" MIRAI﻿発﻿売1﻿カ﻿月 "
@@ -249,21 +251,54 @@
   (let ((company-search-string "foo")
         (company-backend #'ignore)
         (company-prefix ""))
-    (should (equal-including-properties
+    (should (ert-equal-including-properties
              (company-fill-propertize "barfoo" nil 6 t nil nil)
              #("barfoo"
-               0 3 (face company-tooltip mouse-face company-tooltip-mouse)
-               3 6 (face company-tooltip-search mouse-face company-tooltip-mouse))))
-    (should (equal-including-properties
+               0 3 (face (company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse))
+               3 6 (face (company-tooltip-search-selection company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse)))))
+    (should (ert-equal-including-properties
              (company-fill-propertize "barfoo" nil 5 t "" " ")
              #("barfo "
-               0 3 (face company-tooltip mouse-face company-tooltip-mouse)
-               3 5 (face company-tooltip-search mouse-face company-tooltip-mouse)
-               5 6 (face company-tooltip mouse-face company-tooltip-mouse))))
-    (should (equal-including-properties
+               0 3 (face (company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse))
+               3 5 (face (company-tooltip-search-selection company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse))
+               5 6 (face (company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse)))))
+    (should (ert-equal-including-properties
              (company-fill-propertize "barfoo" nil 3 t " " " ")
              #(" bar "
-               0 5 (face company-tooltip mouse-face company-tooltip-mouse))))))
+               0 5 (face (company-tooltip-selection company-tooltip) mouse-face (company-tooltip-mouse)))))))
+
+(ert-deftest company-fill-propertize-overrides-face-property ()
+  (let ((company-backend #'ignore)
+        (company-prefix "")
+        (str1 (propertize "str1" 'face 'foo))
+        (str2 (propertize "str2" 'face 'foo)))
+    (should (ert-equal-including-properties
+             (company-fill-propertize str1 str2 8 nil nil nil)
+             #("str1str2"
+               0 4 (face (company-tooltip) mouse-face (company-tooltip-mouse))
+               4 8 (face (company-tooltip-annotation company-tooltip)
+                         mouse-face (company-tooltip-mouse)))))))
+
+(ert-deftest company-fill-propertize-delegates-to-pre-render ()
+  (let ((company-backend
+         (lambda (command &rest args)
+           (pcase command
+             (`pre-render
+              (propertize (car args)
+                          'face (if (cadr args)
+                                    'annotation
+                                  'value))))))
+        (company-prefix "")
+        (str1 (propertize "str1" 'foo 'bar))
+        (str2 (propertize "str2" 'foo 'bar)))
+    (let ((res (company-fill-propertize str1 str2 8 nil nil nil)))
+      ;; Could use `ert-equal-including-properties' as well.
+      (should (eq (get-text-property 0 'foo res) 'bar))
+      (should (eq (get-text-property 4 'foo res) 'bar))
+      (should (equal (get-text-property 0 'face res)
+                     '(value company-tooltip)))
+      (should (equal (get-text-property 4 'face res)
+                     '(annotation company-tooltip-annotation company-tooltip))))))
 
 (ert-deftest company-column-with-composition ()
   :tags '(interactive)
@@ -299,7 +334,7 @@
     (insert (propertize "a" 'display "bbb\nccc\ndddd\n"))
     (insert "eee\nfff\nggg")
     (should (equal (company-buffer-lines (point-min) (point-max))
-                   '("" "" "" "eee" "fff" "ggg")))))
+                   '("a" "" "" "eee" "fff" "ggg")))))
 
 (ert-deftest company-buffer-lines-with-multiline-after-string-at-eob ()
   :tags '(interactive)
@@ -309,6 +344,16 @@
       (overlay-put ov 'after-string "~\n~\n~"))
     (should (equal (company-buffer-lines (point-min) (point-max))
                    '("a" "b" "c")))))
+
+(ert-deftest company-buffer-lines-with-line-wrapping ()
+  :tags '(interactive)
+  (with-temp-buffer
+    (let ((ww (company--window-width)))
+      (insert (make-string (* 3 ww) ?a))
+      (should (equal (company-buffer-lines (point-min) (point-max))
+                     (list (make-string ww ?a)
+                           (make-string ww ?a)
+                           (make-string ww ?a)))))))
 
 (ert-deftest company-modify-line ()
   (let ((str "-*-foobar"))
