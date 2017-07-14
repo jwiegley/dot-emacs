@@ -1,0 +1,15 @@
+language: generic
+
+sudo: false
+
+env:
+  - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.1-travis
+
+before_install:
+  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
+  - evm install $EVM_EMACS --use --skip
+  - cask install
+
+script:
+  - cask exec ecukes --no-win -r magnars
