@@ -1,7 +1,0 @@
-file { "/home/$1":
-  owner   => $1,
-  group   => $1,
-  mode    => 0700,
-  type    => directory,
-  ensure  => directory;
-}

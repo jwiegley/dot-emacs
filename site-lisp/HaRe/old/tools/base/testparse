@@ -1,4 +1,0 @@
-
-for FILE in *.hs */*.hs ; do
-    ./hsparse $FILE > tests/parser/`basename $FILE`.parsed 2>&1
-done

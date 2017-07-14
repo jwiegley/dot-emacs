@@ -1,6 +1,0 @@
-.ropeproject
-.coverage
-*.pyc
-*.elc
-MANIFEST
-dist/

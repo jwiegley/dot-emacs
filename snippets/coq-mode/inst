@@ -1,6 +1,0 @@
-Program Instance $1 : $2 := {
-    $0
-}.
-Obligation 1.
-  
-Qed.
