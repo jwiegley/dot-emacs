@@ -303,7 +303,6 @@
  '(company-coq-disabled-features
    (quote
     (hello prettify-symbols smart-subscripts dynamic-symbols-backend)))
- '(company-coq-initial-fold-state (quote all))
  '(company-coq-prettify-symbols-alist
    (quote
     (("|-" . 8866)
