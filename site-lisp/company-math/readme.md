@@ -4,7 +4,7 @@ This add-on defines three *[company-mode](http://company-mode.github.io/)* backe
 
       ![symbols](https://raw.github.com/vspinu/company-math/master/img/latex-symbols.png)
 
-* `company-math-symbols-unicode`	- unicode symbols (_by default, active everywhere except math faces_)
+* `company-math-symbols-unicode`	- math unicode symbols and sub(super)scripts (_by default, active everywhere except math faces_)
 
       ![math](https://raw.github.com/vspinu/company-math/master/img/unicode-symbols.png)
 
@@ -14,36 +14,43 @@ This add-on defines three *[company-mode](http://company-mode.github.io/)* backe
 
 Start math completion by typing the prefix <kbd>`\`</kbd> key. To select the
 completion type <kbd>RET</kbd>. Depending on the context and your configuration
-unicode symbol or latex tag will be inserted.
+unicode symbol or latex tag will be inserted. Since version 1.2 sub(super)script
+completion is available for unicode backend. Subscripts can be inserted either
+with `_` or `\_` prefix. Superscripts with `^` or `\^` prefixes.
 
 ## Activation ##
 
-Install from [MELPA](http://melpa.milkbox.net/) repository.
+Install from ELPA or MELPA repositories.
 
 You can either register each backend globally:
 
 
-```lisp
+```elisp
 
 ;; global activation of the unicode symbol completion 
 (add-to-list 'company-backends 'company-math-symbols-unicode)
-
 
 ```
 
 or locally per emacs mode:
 
 
-```lisp
+```elisp
 
 ;; local configuration for TeX modes
 (defun my-latex-mode-setup ()
   (setq-local company-backends
-              (append '(company-math-symbols-latex company-latex-commands)
+              (append '((company-math-symbols-latex company-latex-commands))
                       company-backends)))
 
-(add-hook 'TeX-mode-hook 'my-latex-mode-setup)
+(add-hook 'tex-mode-hook 'my-latex-mode-setup)
  
+```
+
+If you are using `AUCTeX` you might need to use `TeX-mode-hook` instead:
+
+```elisp
+(add-hook 'TeX-mode-hook 'my-latex-mode-setup)
 ```
 
 ## Customization ##
