@@ -1,3 +1,0 @@
-<div id="foo"
-     {% if hidden %}style="display: none;"{% endif %}>
-  <div>

@@ -1,7 +1,0 @@
-*.elc
-patch*
-*.patch
-*.diff
-Home.md
-TAGS
-helm-autoloads.el

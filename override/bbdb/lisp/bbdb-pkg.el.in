@@ -1,1 +1,0 @@
-(define-package "@PACKAGE_NAME@" "@PACKAGE_VERSION@" "The Insidious Big Brother Database for GNU Emacs")

@@ -1,3 +1,0 @@
-#name : (current date)
-# --
-`(format-time-string "%Y-%m-%d")`

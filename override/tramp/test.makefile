@@ -1,4 +1,0 @@
-.SILENT:
-
-%:
-	echo $(MAKECMDGOALS)

@@ -1,4 +1,0 @@
-# -*- mode: snippet -*-
-# name: tiny
-# --
-`(tinify-url (current-kill 0))`

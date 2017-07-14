@@ -1,3 +1,0 @@
-{% if foo.block.bar %}
-  Content
-{% endif %}
