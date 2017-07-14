@@ -22,15 +22,6 @@
 (require 'company-tests)
 (require 'company-clang)
 
-(ert-deftest company-clang-objc-templatify ()
-  (with-temp-buffer
-    (let ((text "createBookWithTitle:andAuthor:"))
-      (insert text)
-      (company-clang-objc-templatify text)
-      (should (equal "createBookWithTitle:arg0 andAuthor:arg1" (buffer-string)))
-      (should (looking-at "arg0"))
-      (should (null (overlay-get (company-template-field-at) 'display))))))
-
 (ert-deftest company-clang-simple-annotation ()
   (let ((str (propertize
               "foo" 'meta
@@ -48,3 +39,13 @@
 (ert-deftest company-clang-func-ptr-annotation ()
   (let ((str (propertize "foo" 'meta "void (*)(int) foo")))
     (should (equal (company-clang 'annotation str) "(*)(int)"))))
+
+(ert-deftest company-clang-null-annotation ()
+  (let ((str "char"))
+    (should (null (company-clang 'annotation str)))))
+
+(ert-deftest company-clang-anon-union-annotation ()
+  (let ((u (propertize "u" 'meta "union (anonymous) u"))
+        (s (propertize "s" 'meta "struct (anonymous) s")))
+    (should (null (company-clang 'annotation u)))
+    (should (null (company-clang 'annotation s)))))

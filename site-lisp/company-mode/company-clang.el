@@ -1,6 +1,6 @@
-;;; company-clang.el --- company-mode completion back-end for Clang  -*- lexical-binding: t -*-
+;;; company-clang.el --- company-mode completion backend for Clang  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2009, 2011, 2013-2015  Free Software Foundation, Inc.
+;; Copyright (C) 2009, 2011, 2013-2016  Free Software Foundation, Inc.
 
 ;; Author: Nikolaj Schumacher
 
@@ -30,7 +30,7 @@
 (require 'cl-lib)
 
 (defgroup company-clang nil
-  "Completion back-end for Clang."
+  "Completion backend for Clang."
   :group 'company)
 
 (defcustom company-clang-executable
@@ -145,7 +145,7 @@ or automatically through a custom `company-clang-prefix-guesser'."
 
 (defun company-clang--annotation (candidate)
   (let ((ann (company-clang--annotation-1 candidate)))
-    (if (not (string-prefix-p "(*)" ann))
+    (if (not (and ann (string-prefix-p "(*)" ann)))
         ann
       (with-temp-buffer
         (insert ann)
@@ -161,6 +161,7 @@ or automatically through a custom `company-clang-prefix-guesser'."
      ((null meta) nil)
      ((string-match "[^:]:[^:]" meta)
       (substring meta (1+ (match-beginning 0))))
+     ((string-match "(anonymous)" meta) nil)
      ((string-match "\\((.*)[ a-z]*\\'\\)" meta)
       (let ((paren (match-beginning 1)))
         (if (not (eq (aref meta (1- paren)) ?>))
@@ -203,13 +204,14 @@ or automatically through a custom `company-clang-prefix-guesser'."
         (buf (get-buffer-create "*clang-output*"))
         ;; Looks unnecessary in Emacs 25.1 and later.
         (process-adaptive-read-buffering nil))
-    (with-current-buffer buf
-      (erase-buffer)
-      (setq buffer-undo-list t))
     (if (get-buffer-process buf)
         (funcall callback nil)
-      (let ((process (apply #'start-process "company-clang" buf
-                            company-clang-executable args)))
+      (with-current-buffer buf
+        (erase-buffer)
+        (setq buffer-undo-list t))
+      (let* ((process-connection-type nil)
+             (process (apply #'start-file-process "company-clang" buf
+                             company-clang-executable args)))
         (set-process-sentinel
          process
          (lambda (proc status)
@@ -289,26 +291,8 @@ or automatically through a custom `company-clang-prefix-guesser'."
             ver))
       0)))
 
-(defun company-clang-objc-templatify (selector)
-  (let* ((end (point-marker))
-         (beg (- (point) (length selector) 1))
-         (templ (company-template-declare-template beg end))
-         (cnt 0))
-    (save-excursion
-      (goto-char beg)
-      (catch 'stop
-        (while (search-forward ":" end t)
-          (when (looking-at "([^)]*) ?")
-            (delete-region (match-beginning 0) (match-end 0)))
-          (company-template-add-field templ (point) (format "arg%d" cnt))
-          (if (< (point) end)
-              (insert " ")
-            (throw 'stop t))
-          (cl-incf cnt))))
-    (company-template-move-to-first templ)))
-
 (defun company-clang (command &optional arg &rest ignored)
-  "`company-mode' completion back-end for Clang.
+  "`company-mode' completion backend for Clang.
 Clang is a parser for C and ObjC.  Clang version 1.1 or newer is required.
 
 Additional command line arguments can be specified in
@@ -341,7 +325,7 @@ passed via standard input."
                        (when (and company-clang-insert-arguments anno)
                          (insert anno)
                          (if (string-match "\\`:[^:]" anno)
-                             (company-clang-objc-templatify anno)
+                             (company-template-objc-templatify anno)
                            (company-template-c-like-templatify
                             (concat arg anno))))))))
 
