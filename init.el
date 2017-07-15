@@ -2586,15 +2586,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package hl-line+))
 
-(use-package hydra
-  :disabled t
-  :load-path "site-lisp/hydra"
-  :defer 10
-  :config
-  (defhydra hydra-zoom (global-map "<f2>")
-    "zoom"
-    ("g" text-scale-increase "in")
-    ("l" text-scale-decrease "out")))
+;; (use-package hydra
+;;   :disabled t
+;;   :load-path "site-lisp/hydra"
+;;   :defer 10
+;;   :config
+;;   (defhydra hydra-zoom (global-map "<f2>")
+;;     "zoom"
+;;     ("g" text-scale-increase "in")
+;;     ("l" text-scale-decrease "out")))
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
