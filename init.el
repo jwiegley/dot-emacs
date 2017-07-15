@@ -2587,6 +2587,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package hl-line+))
 
 (use-package hydra
+  :disabled t
   :load-path "site-lisp/hydra"
   :defer 10
   :config
