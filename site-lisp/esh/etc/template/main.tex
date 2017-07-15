@@ -1,0 +1,48 @@
+\documentclass{article}
+
+\usepackage[margin=0.8in]{geometry}
+
+%%%%%%%%%%%%%%%%%%%%%%
+% *Load custom fonts %
+%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{fontspec}
+
+% https://github.com/khaledhosny/xits-math/
+\newfontfamily{\XITSMath}[Path=fonts/,
+                          UprightFont=*.otf,
+                          BoldFont=*bold.otf,
+                          Mapping=tex-ansi]{xits-math}
+
+% http://font.ubuntu.com/
+\newfontfamily{\UbuntuMono}[Path=fonts/,
+                            UprightFont=*-R.ttf,
+                            BoldFont=*-B.ttf,
+                            ItalicFont=*-RI.ttf,
+                            BoldItalicFont=*-BI.ttf,
+                            Mapping=tex-ansi]{UbuntuMono}
+
+% Load the ESH preamble
+%% ESH-preamble-here
+
+% Set up font sizes and families
+\renewcommand{\ESHFontFamily}{\UbuntuMono}
+\renewcommand{\ESHBlockFontSize}{\small}
+\renewcommand{\ESHFallbackFontFamily}{\XITSMath}
+
+% Define \cverb as an alias of verb (useful when compiling without ESH)
+\def\cverb{\verb}
+
+\begin{document}
+
+Here's some inline C code: \cverb|int main() {}|. And here's more, in a block:
+
+%% ESH: c
+\begin{verbatim}
+int
+main(argc, **argv)
+{
+  return 0;
+}
+\end{verbatim}
+\end{document}

@@ -1,0 +1,710 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       This file shows how to use and customize esh2tex.       %
+% (Comments marked with a '*' indicate optional customizations) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Load a few packages %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath,amssymb}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[pdfcreator=ESH]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Load the ESH preamble %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DO NOT MODIFY THIS FILE %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Instead, redefine the relevant macros in your own source file, **after**
+%% including this file.  This file is overwritten every time you run esh2tex
+%% with the --write-preamble option.
+
+%%%%%%%%%%%%%%
+%% Core ESH %%
+%%%%%%%%%%%%%%
+
+\newcommand*{\ESHRequirePackage}[2][]
+  {\IfFileExists{#2.sty}
+    {\RequirePackage[#1]{#2}}
+    {\PackageError{ESH}{Missing LaTeX dependency: please install #2}
+      {ESH requires relsize, ulem, and xcolor to work properly.  On Debian derivatives, these packages are provided by texlive-recommended and texlive-latex-extra.}}}
+
+% Packages
+%%%%%%%%%%
+
+\ESHRequirePackage{xcolor} % TeXLive-recommended
+\ESHRequirePackage[normalem]{ulem} % TeXLive-recommended
+
+\ESHRequirePackage{relsize} % TeXLive-latex-extra
+\renewcommand{\RSsmallest}{1pt}
+\renewcommand{\RSlargest}{50pt}
+
+% Fonts
+%%%%%%%
+
+% Code blocks
+\newcommand*{\ESHFontSize}{}
+\newcommand*{\ESHFontFamily}{\ttfamily}
+\newcommand*{\ESHFont}{\ESHFontSize\ESHFontFamily}
+
+% Inline snippets
+\newcommand*{\ESHInlineFontSize}{\ESHFontSize}
+\newcommand*{\ESHInlineFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHInlineFont}{\ESHInlineFontSize\ESHInlineFontFamily}
+
+% Inline blocks
+\newcommand*{\ESHInlineBlockFontSize}{\ESHFontSize}
+\newcommand*{\ESHInlineBlockFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHInlineBlockFont}{\ESHInlineBlockFontSize\ESHInlineBlockFontFamily}
+
+% Blocks
+\newcommand*{\ESHBlockFontSize}{\ESHFontSize}
+\newcommand*{\ESHBlockFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHBlockFont}{\ESHBlockFontSize\ESHBlockFontFamily}
+
+% Characters not covered by \ESHFont (XeTeX/LuaTeX only)
+\newcommand*{\ESHFallbackFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHFallbackFont}{\ESHFallbackFontFamily}
+
+% Utils
+%%%%%%%
+
+% \ESHNoHyphens disables hyphenation
+\newcommand*{\ESHNoHyphens}{\hyphenpenalty=10000}
+
+% \ESHConstantSpace ensures that spaces can't stretch
+\newcommand*{\ESHConstantSpace}{\spaceskip=\fontdimen2\font\xspaceskip=0pt}
+
+% \ESHCenterInWidthOf{#A}{#B} prints #B centered in a box as large as #A.
+\newdimen\ESHtempdim%
+\newcommand*{\ESHCenterInWidthOf}[2]
+  {\settowidth\ESHtempdim{#1}%
+   \makebox[\ESHtempdim][c]{#2}}
+
+% ESHText switches out of math mode if needed (textnormal amstext-friendly)
+\DeclareRobustCommand*{\ESHText}[1]{\ifmmode{\textnormal{#1}}\else{#1}\fi}
+
+% \ESHIfFontChar{#A} uses a XeLaTeX/LuaTeX primitive to print #A in
+% \ESHFallbackFont if it isn't covered by the current font.
+\newcommand*{\ESHIfFontChar}[1]
+  {\iffontchar\font`#1{#1}\else{\ESHFallbackFont#1}\fi}
+
+\makeatletter
+% In XeTeX and LuaTeX, \ESHWithFallback{#A} prints #A in the current font if
+% possible and falls back to \ESHFallbackFont. In other engines, it always uses
+% the fallback font.  The XeTeX implementation is derived from
+% https://tug.org/pipermail/xetex/2011-November/022319.html.
+\@ifundefined{XeTeXinterchartoks}
+  {\@ifundefined{luatexversion}
+     {% Not using XeTeX, nor LuaTeX: fall back to just using \ESHFallbackFont
+      \def\ESHWithFallback#1{\ESHFallbackFont#1}}
+     {% Using LuaTeX
+      \def\ESHWithFallback#1{\ESHIfFontChar{#1}}}}
+  {% Using XeTeX
+   \def\ESHWithFallback#1{%
+     \ifnum\XeTeXfonttype\font>0% Graphite, OpenType, or AAT font
+       \ESHIfFontChar{#1}%
+     \else% Legacy TeX font
+       \setbox0=\hbox{\tracinglostchars=0\kern1sp#1\expandafter}%
+       \ifnum\lastkern=1{\ESHFallbackFont#1}\else{#1}\fi
+     \fi}}
+\makeatother
+
+% \ESH*SpecialChar is used to wrap non-ascii characters, which may need a fallback font
+\DeclareRobustCommand*{\ESHInlineSpecialChar}[1]
+  {{\ESHInlineFontFamily\ESHWithFallback{#1}}}
+\DeclareRobustCommand*{\ESHBlockSpecialChar}[1]
+  {{\ESHCenterInWidthOf{\ESHBlockFontFamily{a}}{\ESHBlockFontFamily\ESHWithFallback{#1}}}}
+% \ESH*UnicodeSubstitution is for special characters replaced by equivalent math commands
+\DeclareRobustCommand*{\ESHInlineUnicodeSubstitution}[1]
+  {{\ESHInlineFontFamily#1}}
+\DeclareRobustCommand*{\ESHBlockUnicodeSubstitution}[1]
+  {{\ESHCenterInWidthOf{\ESHBlockFontFamily{a}}{\ESHBlockFontFamily#1}}}
+\DeclareRobustCommand*{\ESHMathSymbol}[1]{\ensuremath{#1}}
+
+% \ESHSetCurFontSize sets \ESHCurFontSize to the current font size (1 CSS em)
+\makeatletter
+\newlength{\ESHCurFontSize}
+\newcommand*{\ESHSetCurFontSize}{\setlength{\ESHCurFontSize}{\f@size pt}}
+\makeatother
+
+% \ESH*Raise implements sub/superscripts
+\DeclareRobustCommand*{\ESHInlineRaise}[2]
+  {\ESHSetCurFontSize\raisebox{#1\ESHCurFontSize}{\relsize{-2}#2}}
+\DeclareRobustCommand*{\ESHBlockRaise}[2]
+  {\rlap{\ESHInlineRaise{#1}{#2}}\hphantom{#2}}
+
+% ESH*Strut implements struts
+\newlength{\ESHBaselineskip}
+\DeclareRobustCommand*{\ESHBlockStrut}[1]
+  {\rule{0pt}{#1\ESHBaselineskip}}
+
+\makeatletter
+% ESHUnderline produces a straight underline
+\DeclareRobustCommand*{\ESHUnderline}[1]
+  {\bgroup\UL@setULdepth\markoverwith{#1\rule[-\ULdepth]{2pt}{0.4pt}}\ULon}
+% ESHUnderwave produces a wavy underline
+\DeclareRobustCommand*{\ESHUnderwave}[1]
+  {\bgroup\UL@setULdepth\markoverwith{#1\raisebox{-\ULdepth}{\raisebox{-.5\height}{\ESHSmallWaveFont\char58}}}\ULon}
+\font\ESHSmallWaveFont=lasyb10 scaled 400
+\makeatother
+
+% \ESHBoxSep is the vertical padding of \ESHBox
+\newlength{\ESHBoxSep}
+\setlength{\ESHBoxSep}{1pt}
+
+% \ESHPhantomStrut{} adds a zero-width strut whose depth and height are that of "Ag"
+\newcommand*{\ESHPhantomStrut}{\vphantom{Ag}}
+
+% \ESHBox{#color}{#lineWidth}{#contents} wraps #contents in an border of width
+% #lineWidth and of color #color.  The box has no horizontal padding, its
+% vertical padding is determined by \ESHBoxSep, and it doesn't affect the height
+% of the current line.
+\newdimen\ESHBoxTempDim%
+\newcommand*{\ESHBox}[3]
+  {\setlength{\fboxsep}{\ESHBoxSep}%
+   \setlength{\fboxrule}{#2}%
+   \setlength{\ESHBoxTempDim}{\dimexpr-\fboxsep-\fboxrule\relax}%
+   \ESHPhantomStrut{}\vphantom{#3}%
+   \smash{\fbox{\hspace*{\ESHBoxTempDim}\ESHPhantomStrut{}#3\hspace*{\ESHBoxTempDim}}}}
+
+% \ESHColorBox{#color}{#contents} adds a background of color #color to
+% #contents.  The box has no horizontal padding, its vertical padding is
+% determined by \ESHBoxSep, and it doesn't affect the height of the current
+% line.
+\newcommand*{\ESHColorBox}[2]
+  {\setlength{\fboxsep}{\ESHBoxSep}%
+   \setlength{\ESHBoxTempDim}{\dimexpr-\fboxsep-\fboxrule\relax}%
+   \ESHPhantomStrut{}\vphantom{#2}%
+   \smash{\colorbox[HTML]{#1}{\hspace*{\ESHBoxTempDim}\ESHPhantomStrut{}#2\hspace*{\ESHBoxTempDim}}}}
+
+% \ESHWeight* and \ESHSlant* adjust weight and slant
+\newcommand*{\ESHWeightLight}[1]{\textlf{#1}}
+\newcommand*{\ESHWeightRegular}[1]{\textmd{#1}}
+\newcommand*{\ESHWeightBold}[1]{\textbf{#1}}
+\newcommand*{\ESHInlineSlantItalic}[1]{\textit{#1}}
+\newcommand*{\ESHBlockSlantItalic}[1]{{\itshape{#1}}} % No italic correction
+\newcommand*{\ESHInlineSlantOblique}[1]{\textsl{#1}}
+\newcommand*{\ESHBlockSlantOblique}[1]{{\slshape{#1}}}
+\newcommand*{\ESHSlantNormal}[1]{\textup{#1}}
+
+% Environments and macros
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand*{\ESHBreakingSpace}{\ }
+\newcommand*{\ESHNonbreakingSpace}{~}
+
+% Internal plumbing needed to make the same code work with Inline, Block, and
+% InlineBlock.  See http://tex.stackexchange.com/questions/336936/ for details.
+\let\ESHSpecialChar\ignorespaces%
+\let\ESHUnicodeSubstitution\ignorespaces%
+\let\ESHRaise\ignorespaces%
+\let\ESHBol\ignorespaces%
+\let\ESHEol\ignorespaces%
+\let\ESHSpace\ignorespaces%
+\let\ESHDash\ignorespaces%
+\let\ESHSlantItalic\ignorespaces%
+\DeclareRobustCommand*{\ESHInlineInternalSetup}
+  {\def\ESHSpecialChar{\ESHInlineSpecialChar}\def\ESHUnicodeSubstitution{\ESHInlineUnicodeSubstitution}%
+   \def\ESHRaise{\ESHInlineRaise}\def\ESHSlantItalic{\ESHInlineSlantItalic}%
+   \def\ESHStrut{\relax}\def\ESHBol{\relax}\def\ESHEol{\newline}\def\ESHSpace{\ESHBreakingSpace}%
+   \def\ESHDash{-}}
+\DeclareRobustCommand*{\ESHInlineBlockInternalSetup}
+  {\def\arraystretch{1}%
+   \def\ESHSpecialChar{\ESHBlockSpecialChar}\def\ESHUnicodeSubstitution{\ESHBlockUnicodeSubstitution}%
+   \def\ESHRaise{\ESHBlockRaise}\def\ESHSlantItalic{\ESHBlockSlantItalic}%
+   \setlength{\ESHBaselineskip}{\baselineskip}\def\ESHStrut{\ESHBlockStrut}%
+   \def\ESHBol{\-}\def\ESHEol{\cr}\def\ESHSpace{\ESHNonbreakingSpace}\def\ESHDash{\hbox{-}\nobreak}}
+\DeclareRobustCommand*{\ESHBlockInternalSetup}
+  {\def\ESHSpecialChar{\ESHBlockSpecialChar}\def\ESHUnicodeSubstitution{\ESHBlockUnicodeSubstitution}%
+   \def\ESHRaise{\ESHBlockRaise}\def\ESHSlantItalic{\ESHBlockSlantItalic}%
+   \setlength{\ESHBaselineskip}{\baselineskip}\def\ESHStrut{\ESHBlockStrut}%
+   \def\ESHBol{\-}\def\ESHEol{\newline}\def\ESHSpace{\ESHNonbreakingSpace}\def\ESHDash{\hbox{-}\nobreak}}
+
+% Basic setup used when entering each type of environment or macro
+% See http://tex.stackexchange.com/questions/22852 for \leavevmode
+% \ESHBlockBasicSetup used to set \parskip to 0, but \ESHEol isn't \par anymore
+\newcommand*{\ESHInlineBasicSetup}
+  {\leavevmode\ESHNoHyphens\ESHInlineFont}
+\newcommand*{\ESHInlineBlockBasicSetup}
+  {\ESHNoHyphens\ESHInlineBlockFont\ESHConstantSpace}
+\newcommand*{\ESHBlockBasicSetup}
+  {\setlength{\parindent}{0pt}\raggedright\ESHNoHyphens%
+   \ESHBlockFont\ESHConstantSpace}
+
+% ESH*Hook is used to inject code before every ESH segment
+\newcommand*{\ESHHook}{}
+\newcommand*{\ESHInlineHook}{\ESHHook}
+\newcommand*{\ESHInlineBlockHook}{\ESHHook}
+\newcommand*{\ESHBlockHook}{\ESHHook}
+
+\makeatletter
+% \ESHInline is used for inline code
+\DeclareRobustCommand*{\ESHInline}[1]
+  {\bgroup\ESHText{\ESHInlineInternalSetup\ESHInlineBasicSetup\ESHInlineHook#1}\egroup}
+
+% \ESHInlineBlockVerticalAlignment is the default vertical alignment of inline blocks
+\newcommand*{\ESHInlineBlockVerticalAlignment}{c}
+
+% \ESHInlineBlock is used for inline code blocks
+\newenvironment{ESHInlineBlock}[1][\ESHInlineBlockVerticalAlignment]
+  {\bgroup\ESHInlineBlockInternalSetup\ESHInlineBlockBasicSetup\ESHInlineBlockHook\begin{tabular}[#1]{@{}l@{}}}
+  {\end{tabular}\egroup}
+
+% \ESHSkip is the amount to skip before and after an \ESHBlock
+\newlength{\ESHSkip}
+\setlength{\ESHSkip}{\baselineskip}
+
+% \ESHNoBreakAddVSpace adds vertical space, but prevents a page break.
+% \nobreak would use a \penalty (which breaks \addvspace), hence \addpenalty.
+\newcommand*{\ESHNoBreakAddVSpace}[1]{\addpenalty{\@M}\addvspace{#1}}
+
+% \ESHBlock is used for code blocks
+\newenvironment{ESHBlock}
+  {\par\ESHNoBreakAddVSpace{\ESHSkip}\bgroup\ESHBlockInternalSetup\ESHBlockBasicSetup\ESHBlockHook}
+  {\par\egroup\addvspace{\ESHSkip}}
+\makeatother
+
+%% \input wrappers
+%%%%%%%%%%%%%%%%%%
+
+\DeclareRobustCommand*{\ESHInputInline}[1]{\ESHInline{\input{#1.esh.tex}\unskip}}
+\DeclareRobustCommand*{\ESHInputInlineBlock}[2][\ESHInlineBlockVerticalAlignment]
+  {\begin{ESHInlineBlock}[#1]\input{#2.esh.tex}\unskip\end{ESHInlineBlock}}
+\DeclareRobustCommand*{\ESHInputBlock}[1]{\begin{ESHBlock}\input{#1.esh.tex}\unskip\end{ESHBlock}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \ESHpv: ESH Precomputed-Verbs support %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Adapted from https://tex.stackexchange.com/questions/336837/
+
+%% Utilities
+
+% \ESHpvEnterVerbMode sets all specials to catcode 12
+% * \@makeother sets the catcode of its argument to 12 (other)
+% * \dospecials applies \do to each special character
+% (see http://tex.stackexchange.com/questions/12721/control-command-arguments)
+\makeatletter
+\def\ESHpvEnterVerbMode{\let\do\@makeother\dospecials}
+\makeatother
+
+% \ESHpvNotFound{#msg} issues a warning
+\def\ESHpvNotFoundMessage#1{No highlighting found for "#1"; falling back to verbatim.}
+\def\ESHpvNotFound#1{\PackageWarning{ESH}{\ESHpvNotFoundMessage{#1}}}
+
+%% Defining substitutions
+
+% ESHpvReadDelimitedAndDefineSubstitution{#lang}#delim#key#delim#value maps
+% #lang-\detokenize{#key} to #value
+\def\ESHpvReadDelimitedAndDefineSubstitution#1#2{%
+  % \ESHpvInternalScanner reads tokens up to the next separator #2, restores
+  % catcodes (\endgroup), and calls \ESHpvDefineSubstitution on these tokens
+  \def\ESHpvInternalScanner##1#2{\endgroup\ESHpvDefineSubstitution{#1}{##1}}\ESHpvInternalScanner}
+
+% ESHpvDefineSubstitution{#lang}{#key}#value maps #lang-\detokenize{#key} to #value
+\def\ESHpvDefineSubstitution#1#2{\expandafter\def\csname #1-\detokenize{#2}\endcsname}
+
+%% Applying substitutions
+
+% \ESHpvSubstitute{#lang}{#key}{#msg}{#fallback} looks up a mapping for
+% #lang-\detokenize{#key} and inserts it.  If no mapping can be found, it prints
+% a warning based on #msg and includes #fallback in the document.
+\def\ESHpvSubstitute#1#2#3#4{%
+  \expandafter\ifx\csname #1-\detokenize{#2}\endcsname\relax
+  \ESHpvNotFound{#3}\texttt{#4}%
+  \else
+  \csname #1-\detokenize{#2}\expandafter\endcsname
+  \fi}
+
+% \ESHpvSubstituteMacro{#lang}{#key} looks up #lang-\detokenize{#key} and
+% substitutes it.  It falls back to #key itself if no mapping can be found.
+\def\ESHpvSubstituteMacro#1#2{\ESHpvSubstitute{#1}{#2}{\detokenize{#2}}{\detokenize{#2}}}
+
+% ESHpvReadDelimitedAndSubstitute{#lang}#delim#key#delim looks up
+% #lang-\detokenize{#key} and calls \ESHpvSubstituteMacro.
+\def\ESHpvReadDelimitedAndSubstitute#1#2{%
+  % \ESHpvInternalScanner reads tokens up to the next separator #2, restores
+  % catcodes (\endgroup), and calls \ESHpvSubstituteMacro on these tokens
+  \def\ESHpvInternalScanner##1#2{\endgroup\ESHpvSubstituteMacro{#1}{##1}}\ESHpvInternalScanner}
+
+%% High-level interface
+
+% \ESHpvLookupVerb reads its argument like \verb
+% Note that this won't work perfectly as an argument to a macro
+\DeclareRobustCommand*{\ESHpvLookupVerb}[1]
+  {\begingroup\ESHpvEnterVerbMode\ESHpvReadDelimitedAndSubstitute{macro-#1}}
+
+% \ESHpvDefineVerb#lang creates a new [code → highlight] record in table macro-#A
+\DeclareRobustCommand*{\ESHpvDefineVerb}[1]
+  {\begingroup\ESHpvEnterVerbMode\ESHpvReadDelimitedAndDefineSubstitution{macro-#1}}
+
+%% Convenience functions for wrapping verbs in boxes
+
+\newcommand*{\ESHSaveBoxName}[1]{ESHSaveBox:#1}
+
+\makeatletter
+% \ESHEnsureSaveBox{#name} calls \newsavebox{#name} if needed.
+\newcommand{\ESHEnsureSaveBox}[1]
+  {\@ifundefined{#1}{\expandafter\newsavebox\csname#1\endcsname}{}}
+\makeatother
+
+% \begin{ESHSavedVerb}{#name}#def\end{ESHSavedVerb} creates a box called
+% ESHSaveBox:#name, and saves #def into it.
+\newenvironment*{ESHSavedVerb}[1]
+  {\def\ESHCurBox{\ESHSaveBoxName{#1}}\ESHEnsureSaveBox{\ESHCurBox}\begin{lrbox}{0}\ignorespaces}
+  {\unskip\end{lrbox}\global\expandafter\setbox\csname\ESHCurBox\endcsname=\box0\relax}
+
+% \ESHUseVerb{#name} retrieves the contents of the box ESHSaveBox:#name
+\newcommand{\ESHUseVerb}[1]{\expandafter\usebox\csname\ESHSaveBoxName{#1}\endcsname}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% *Load custom fonts %
+%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+\@ifundefined{XeTeXinterchartoks}{% Minimal pdfLaTeX setup
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{lmodern}
+  \usepackage{MnSymbol}
+}{% Regular XeLaTeX setup (recommended)
+  \usepackage{fontspec}
+
+  % Load XITS Math for symbols
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % https://github.com/khaledhosny/xits-math/
+  \newfontfamily{\XITSMath}[Path=fonts/,
+                            UprightFont=*.otf,
+                            BoldFont=*bold.otf,
+                            Mapping=tex-ansi]{xits-math}
+
+  % Load Ubuntu Mono for code
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % http://font.ubuntu.com/
+  \newfontfamily{\UbuntuMono}[Path=fonts/,
+                              UprightFont=*-R.ttf,
+                              BoldFont=*-B.ttf,
+                              ItalicFont=*-RI.ttf,
+                              BoldItalicFont=*-BI.ttf,
+                              Mapping=tex-ansi]{UbuntuMono}
+
+  % Tell ESH about these fonts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \renewcommand{\ESHFontFamily}{\UbuntuMono}
+  \renewcommand{\ESHFallbackFontFamily}{\XITSMath}
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%
+% *Customize spacing %
+%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\ESHSkip}{0.8\baselineskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% *Customize environments %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ESHInline
+%%%%%%%%%%%
+
+\newcommand{\angles}[1]{$\langle\,$#1$\,\rangle$}
+
+\DeclareRobustCommand*{\ESHInline}[1]
+  {{\ESHText{\ESHInlineInternalSetup\ESHInlineBasicSetup\angles{#1}}}}
+
+% ESHBlock
+%%%%%%%%%%
+
+\renewenvironment{ESHBlock}{%
+  \par\ESHNoBreakAddVSpace{\ESHSkip}\bgroup\ESHBlockInternalSetup\ESHBlockBasicSetup%
+  \hrule\addvspace{0.5em}%
+}{%
+  \par\egroup\addvspace{0.5em}\hrule\addvspace{2\ESHSkip}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define and register a few inline macros %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% (These macros are registered in esh-init.el)
+% Make them all aliases of \verb to remain compatible with plain LaTeX
+
+\def\cverb{\verb}
+\def\javaverb{\verb}
+\def\pythonverb{\verb}
+\def\prettylisp{\verb}
+\def\normallisp{\verb}
+
+\begin{document}
+
+\section*{C (source: \texttt{xfaces.c} in Emacs)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{75507B}{\#if}\ESHSpace{}\textcolor[HTML]{75507B}{defined}\ESHSpace{}HAVE\_X\_WINDOWS\ESHSpace{}\&\&\ESHSpace{}\textcolor[HTML]{75507B}{defined}\ESHSpace{}USE\_X\_TOOLKIT\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{/*\ESHSpace{}Make\ESHSpace{}menus\ESHSpace{}on\ESHSpace{}frame\ESHSpace{}F\ESHSpace{}appear\ESHSpace{}as\ESHSpace{}specified\ESHSpace{}by\ESHSpace{}the\ESHSpace{}{`}menu{'}\ESHSpace{}face.\ESHSpace{}\ESHSpace{}*/}}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{static}\ESHSpace{}\textcolor[HTML]{204A87}{void}\ESHEol
+\ESHBol{}\textcolor[HTML]{A40000}{x\_update\_menu\_appearance}\ESHSpace{}(\textcolor[HTML]{346604}{struct}\ESHSpace{}\textcolor[HTML]{204A87}{frame}\ESHSpace{}*\textcolor[HTML]{B35000}{f})\ESHEol
+\ESHBol{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{struct}\ESHSpace{}\textcolor[HTML]{204A87}{x\_display\_info}\ESHSpace{}*\textcolor[HTML]{B35000}{dpyinfo}\ESHSpace{}=\ESHSpace{}FRAME\_DISPLAY\_INFO\ESHSpace{}(f);\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{XrmDatabase}\ESHSpace{}\textcolor[HTML]{B35000}{rdb};\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}(dpyinfo\ESHSpace{}\&\&\ESHSpace{}(rdb\ESHSpace{}=\ESHSpace{}XrmGetDatabase\ESHSpace{}(FRAME\_X\_DISPLAY\ESHSpace{}(f)),\ESHSpace{}rdb\ESHSpace{}!=\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{NULL}}))\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{char}\ESHSpace{}\textcolor[HTML]{B35000}{line}[512];\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{char}\ESHSpace{}*\textcolor[HTML]{B35000}{buf}\ESHSpace{}=\ESHSpace{}line;\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{ptrdiff\_t}\ESHSpace{}\textcolor[HTML]{B35000}{bufsize}\ESHSpace{}=\ESHSpace{}\textcolor[HTML]{346604}{sizeof}\ESHSpace{}line;\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{Lisp\_Object}\ESHSpace{}\textcolor[HTML]{B35000}{lface}\ESHSpace{}=\ESHSpace{}lface\_from\_face\_name\ESHSpace{}(f,\ESHSpace{}Qmenu,\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{true}});\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{struct}\ESHSpace{}\textcolor[HTML]{204A87}{face}\ESHSpace{}*\textcolor[HTML]{B35000}{face}\ESHSpace{}=\ESHSpace{}FACE\_FROM\_ID\ESHSpace{}(f,\ESHSpace{}MENU\_FACE\_ID);
+\end{ESHBlock}
+
+\section*{Emacs lisp (source: \texttt{esh.el} in this library)}
+
+\begin{ESHBlock}
+\ESHBol{}(\textcolor[HTML]{346604}{require}\ESHSpace{}{'}\ESHWeightBold{\textcolor[HTML]{204A87}{seq}})\ESHEol
+\ESHBol{}(\textcolor[HTML]{346604}{require}\ESHSpace{}{'}\ESHWeightBold{\textcolor[HTML]{204A87}{color}})\ESHEol
+\ESHBol{}(\textcolor[HTML]{346604}{require}\ESHSpace{}{'}\ESHWeightBold{\textcolor[HTML]{204A87}{subr\ESHDash{}x}})\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{;;;\ESHSpace{}Misc\ESHSpace{}utils}}\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}(\textcolor[HTML]{346604}{defun}\ESHSpace{}\textcolor[HTML]{A40000}{esh\ESHDash{}\ESHDash{}normalize\ESHDash{}color}\ESHSpace{}(color)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{"Return\ESHSpace{}COLOR\ESHSpace{}as\ESHSpace{}a\ESHSpace{}hex\ESHSpace{}string."}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}(upcase\ESHSpace{}(\textcolor[HTML]{346604}{if}\ESHSpace{}(=\ESHSpace{}(aref\ESHSpace{}color\ESHSpace{}0)\ESHSpace{}?\#)\ESHSpace{}color\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(apply\ESHSpace{}\#{'}color\ESHDash{}rgb\ESHDash{}to\ESHDash{}hex\ESHSpace{}(color\ESHDash{}name\ESHDash{}to\ESHDash{}rgb\ESHSpace{}color)))))\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}(\textcolor[HTML]{346604}{defun}\ESHSpace{}\textcolor[HTML]{A40000}{esh\ESHDash{}\ESHDash{}filter\ESHDash{}cdr}\ESHSpace{}(val\ESHSpace{}alist)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{"Remove\ESHSpace{}conses\ESHSpace{}in\ESHSpace{}ALIST\ESHSpace{}whose\ESHSpace{}{`}}\ESHWeightBold{\textcolor[HTML]{204A87}{cdr}}\textcolor[HTML]{5C3566}{{'}\ESHSpace{}is\ESHSpace{}VAL."}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}(seq\ESHDash{}filter\ESHSpace{}(\textcolor[HTML]{346604}{lambda}\ESHSpace{}(pair)\ESHSpace{}(not\ESHSpace{}(eq\ESHSpace{}(cdr\ESHSpace{}pair)\ESHSpace{}val)))\ESHSpace{}alist))
+\end{ESHBlock}
+
+\section*{Python (source: \texttt{monospacifier.py})}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{346604}{class}\ESHSpace{}\textcolor[HTML]{204A87}{AllowWideCharsGlyphScaler}(GlyphScaler):\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{\_\_init\_\_}(\textcolor[HTML]{346604}{self},\ESHSpace{}cell\_width,\ESHSpace{}avg\_width):\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{"""Construct\ESHSpace{}instance\ESHSpace{}based\ESHSpace{}on\ESHSpace{}target\ESHSpace{}CELL\_WIDTH\ESHSpace{}and\ESHSpace{}source\ESHSpace{}AVG\_WIDTH."""}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}GlyphScaler.\_\_init\_\_(\textcolor[HTML]{346604}{self},\ESHSpace{}cell\_width)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{self}.avg\_width\ESHSpace{}=\ESHSpace{}avg\_width\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{scale}(\textcolor[HTML]{346604}{self},\ESHSpace{}glyph):\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}glyph.width\ESHSpace{}{>}\ESHSpace{}0:\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{B35000}{new\_width\_in\_cells}\ESHSpace{}=\ESHSpace{}\textcolor[HTML]{75507B}{int}(math.ceil(0.75\ESHSpace{}*\ESHSpace{}glyph.width\ESHSpace{}/\ESHSpace{}\textcolor[HTML]{346604}{self}.avg\_width))\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{\#\ESHSpace{}if\ESHSpace{}new\_width\_in\_cells\ESHSpace{}{>}\ESHSpace{}1:}}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{\#\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}print("\{\}\ESHSpace{}is\ESHSpace{}\{\}\ESHSpace{}cells\ESHSpace{}wide\ESHSpace{}(\{\}\ESHSpace{}\ESHDash{}{>}\ESHSpace{}\{\})".format(...))}}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}GlyphScaler.set\_width(glyph,\ESHSpace{}new\_width\_in\_cells\ESHSpace{}*\ESHSpace{}\textcolor[HTML]{346604}{self}.cell\_width)
+\end{ESHBlock}
+
+\clearpage
+
+\section*{Perl (source: YAGOpt)}
+
+\begin{ESHBlock}
+\ESHBol{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{\#\&getopt("f:bar")\ESHSpace{}||}}\ESHEol
+\ESHBol{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{\#\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}die\ESHSpace{}\&usage("script","f:bar","oo","[files\ESHSpace{}...]");}}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{sub}\ESHSpace{}\textcolor[HTML]{A40000}{getopt}\ESHSpace{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{local}(\$\textcolor[HTML]{B35000}{\_},\$\textcolor[HTML]{B35000}{flag},\$\textcolor[HTML]{B35000}{opt},\$\textcolor[HTML]{B35000}{f},\$\textcolor[HTML]{B35000}{r},@\textcolor[HTML]{B35000}{\uline{temp}})\ESHSpace{}=\ESHSpace{}@\textcolor[HTML]{B35000}{\uline{\_}};\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}@\textcolor[HTML]{B35000}{\uline{temp}}\ESHSpace{}=\ESHSpace{}split(\textcolor[HTML]{5C3566}{/(.):/});\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{while}\ESHSpace{}(\$\#\textcolor[HTML]{B35000}{\uline{temp}}\ESHSpace{}{>}=\ESHSpace{}\$[)\ESHSpace{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\$\textcolor[HTML]{B35000}{flag}\ESHSpace{}.=\ESHSpace{}shift(@\textcolor[HTML]{B35000}{\uline{temp}});\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\$\textcolor[HTML]{B35000}{opt}\ESHSpace{}.=\ESHSpace{}shift(@\textcolor[HTML]{B35000}{\uline{temp}});\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{while}\ESHSpace{}(\$\textcolor[HTML]{B35000}{\_}\ESHSpace{}=\ESHSpace{}\$\textcolor[HTML]{B35000}{ARGV}[0],\ESHSpace{}\textcolor[HTML]{5C3566}{/\textasciicircum{}\ESHDash{}(.)(.*)/}\ESHSpace{}\&\&\ESHSpace{}shift(@\textcolor[HTML]{B35000}{\uline{ARGV}}))\ESHSpace{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\$\textcolor[HTML]{B35000}{f},\$\textcolor[HTML]{B35000}{r})\ESHSpace{}=\ESHSpace{}(\$\textcolor[HTML]{B35000}{1},\$\textcolor[HTML]{B35000}{2});\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{last}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}\$\textcolor[HTML]{B35000}{f}\ESHSpace{}eq\ESHSpace{}\textcolor[HTML]{5C3566}{{'}\ESHDash{}{'}};\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}(index(\$\textcolor[HTML]{B35000}{flag},\$\textcolor[HTML]{B35000}{f})\ESHSpace{}{>}=\ESHSpace{}\$[)\ESHSpace{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{eval}\ESHSpace{}\textcolor[HTML]{5C3566}{"\textbackslash{}\$opt\_\$f++;"};\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\$\textcolor[HTML]{B35000}{r}\ESHSpace{}=\textasciitilde{}\ESHSpace{}\textcolor[HTML]{5C3566}{/\textasciicircum{}(.)(.*)/},\textcolor[HTML]{346604}{redo}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}\$\textcolor[HTML]{B35000}{r}\ESHSpace{}ne\ESHSpace{}\textcolor[HTML]{5C3566}{{'}{'}};
+\end{ESHBlock}
+
+\section*{Ruby (source: \texttt{parser.rb} in Ruby's standard library)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{346604}{class}\ESHSpace{}\textcolor[HTML]{204A87}{NotWellFormedError}\ESHSpace{}{<}\ESHSpace{}\textcolor[HTML]{204A87}{Error}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{75507B}{attr\_reader}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{:line}},\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{:element}}\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSlantItalic{\textcolor[HTML]{5F615C}{\#\ESHSpace{}Create\ESHSpace{}a\ESHSpace{}new\ESHSpace{}NotWellFormedError\ESHSpace{}for\ESHSpace{}an\ESHSpace{}error\ESHSpace{}at\ESHSpace{}+line+\ESHSpace{}in\ESHSpace{}+element+.}}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{initialize}(line=\ESHWeightBold{\textcolor[HTML]{204A87}{nil}},\ESHSpace{}element=\ESHWeightBold{\textcolor[HTML]{204A87}{nil}})\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}message\ESHSpace{}=\ESHSpace{}\textcolor[HTML]{5C3566}{"This\ESHSpace{}is\ESHSpace{}not\ESHSpace{}well\ESHSpace{}formed\ESHSpace{}XML"}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}element\ESHSpace{}\textcolor[HTML]{346604}{or}\ESHSpace{}line\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}message\ESHSpace{}{<}{<}\ESHSpace{}\textcolor[HTML]{5C3566}{"\textbackslash{}nerror\ESHSpace{}occurred"}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}message\ESHSpace{}{<}{<}\ESHSpace{}\textcolor[HTML]{5C3566}{"\ESHSpace{}in\ESHSpace{}}\textcolor[HTML]{B35000}{\#\{element\}}\textcolor[HTML]{5C3566}{"}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}element\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{end}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}message\ESHSpace{}{<}{<}\ESHSpace{}\textcolor[HTML]{5C3566}{"\textbackslash{}n}\textcolor[HTML]{B35000}{\#\{yield\}}\textcolor[HTML]{5C3566}{"}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}\textcolor[HTML]{75507B}{block\_given?}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{super}(message)
+\end{ESHBlock}
+
+\section*{Misc}
+
+\subsection*{Inline snippets and inline blocks}
+
+ESH works inline as well:
+
+\begin{itemize}
+\item Here's some C and some Python code: \ESHInline{\ESHBol{}\textcolor[HTML]{204A87}{int}\ESHSpace{}\textcolor[HTML]{A40000}{main}()\ESHSpace{}\{\ESHSpace{}\textcolor[HTML]{346604}{return}\ESHSpace{}0;\ESHSpace{}\}}, \ESHInline{\ESHBol{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{method}(\textcolor[HTML]{346604}{self},\ESHSpace{}x):\ESHSpace{}\textcolor[HTML]{346604}{yield}\ESHSpace{}x}
+\item
+  \begin{tabular}[t]{@{}r@{ }l}
+    Some Elisp with prettification: & \ESHInline{\ESHBol{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}(x\ESHSpace{}y)\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{∨}}\ESHSpace{}(\ESHSpecialChar{≤}\ESHSpace{}x\ESHSpace{}y)\ESHSpace{}(\ESHSpecialChar{≈}\ESHSpace{}(\ESHSpecialChar{⊕}\ESHSpace{}x\ESHSpace{}y)\ESHSpace{}0)))} \\
+            without prettification: & \ESHInline{\ESHBol{}(\textcolor[HTML]{346604}{lambda}\ESHSpace{}(x\ESHSpace{}y)\ESHSpace{}(\textcolor[HTML]{346604}{or}\ESHSpace{}({<}=\ESHSpace{}x\ESHSpace{}y)\ESHSpace{}(approx=\ESHSpace{}(/+/\ESHSpace{}x\ESHSpace{}y)\ESHSpace{}0)))}
+  \end{tabular}
+\item And finally a few inline blocks:
+\fbox{% Using raggedright because verbatim breaks when used inline
+\begin{ESHInlineBlock}
+\ESHBol{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{main}():\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{return}\ESHSpace{}0
+\end{ESHInlineBlock}}
+\fbox{%
+\begin{ESHInlineBlock}[t]
+\ESHBol{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{main}():\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{return}\ESHSpace{}0
+\end{ESHInlineBlock}}
+\fbox{%
+\begin{ESHInlineBlock}[b]
+\ESHBol{}\textcolor[HTML]{346604}{def}\ESHSpace{}\textcolor[HTML]{A40000}{main}():\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{return}\ESHSpace{}0
+\end{ESHInlineBlock}}
+\end{itemize}
+
+\subsection*{Line breaking}
+
+ESH allows line breaks to happen within inline code snippets (here is an example: \ESHInline{\ESHBol{}\textcolor[HTML]{346604}{private}\ESHSpace{}\textcolor[HTML]{346604}{static}\ESHSpace{}\textcolor[HTML]{346604}{volatile}\ESHSpace{}\textcolor[HTML]{204A87}{int}\ESHSpace{}\textcolor[HTML]{B35000}{counter}\ESHSpace{}=\ESHSpace{}0}), but not in code blocks:
+
+\begin{ESHBlock}
+\ESHBol{}(\textcolor[HTML]{346604}{defun}\ESHSpace{}\textcolor[HTML]{A40000}{esh\ESHDash{}\ESHDash{}normalize\ESHDash{}color}\ESHSpace{}(color)\ESHSpace{}(upcase\ESHSpace{}(\textcolor[HTML]{346604}{if}\ESHSpace{}(=\ESHSpace{}(aref\ESHSpace{}color\ESHSpace{}0)\ESHSpace{}?\#)\ESHSpace{}color\ESHSpace{}(apply\ESHSpace{}\#{'}color\ESHDash{}rgb\ESHDash{}to\ESHDash{}hex\ESHSpace{}(color\ESHDash{}name\ESHDash{}to\ESHDash{}rgb\ESHSpace{}color)))))
+\end{ESHBlock}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following requires additional packages %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Highlighting with non-core Emacs packages}
+
+The following examples all depend on externally developped packages, and thus
+require that you run \texttt{cask install} to install these dependencies (Cask
+is the Emacs Lisp equivalent of Python's virtualenvs).
+
+\subsection*{Haskell (source: \texttt{Monoid.hs} in Haskell's standard library)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{5C3566}{\ESHDash{}\ESHDash{}\ESHSpace{}|\ESHSpace{}The\ESHSpace{}dual\ESHSpace{}of\ESHSpace{}a\ESHSpace{}{'}Monoid{'},\ESHSpace{}obtained\ESHSpace{}by\ESHSpace{}swapping\ESHSpace{}the\ESHSpace{}arguments\ESHSpace{}of\ESHSpace{}{'}mappend{'}.}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{newtype}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}a\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}\{\ESHSpace{}getDual\ESHSpace{}\textcolor[HTML]{B35000}{\ESHSpecialChar{∷}}\ESHSpace{}a\ESHSpace{}\}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{deriving}\ESHSpace{}(\textcolor[HTML]{204A87}{Eq},\ESHSpace{}\textcolor[HTML]{204A87}{Ord},\ESHSpace{}\textcolor[HTML]{204A87}{Read},\ESHSpace{}\textcolor[HTML]{204A87}{Show},\ESHSpace{}\textcolor[HTML]{204A87}{Bounded},\ESHSpace{}\textcolor[HTML]{204A87}{Generic},\ESHSpace{}\textcolor[HTML]{204A87}{Generic1})\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{instance}\ESHSpace{}\textcolor[HTML]{204A87}{Monoid}\ESHSpace{}a\ESHSpace{}\textcolor[HTML]{B35000}{\ESHSpecialChar{⇒}}\ESHSpace{}\textcolor[HTML]{204A87}{Monoid}\ESHSpace{}(\textcolor[HTML]{204A87}{Dual}\ESHSpace{}a)\ESHSpace{}\textcolor[HTML]{346604}{where}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}mempty\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}mempty\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}x\ESHSpace{}\textcolor[HTML]{B35000}{{`}mappend{`}}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}y\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Dual}\ESHSpace{}(y\ESHSpace{}\textcolor[HTML]{B35000}{{`}mappend{`}}\ESHSpace{}x)\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\textcolor[HTML]{5C3566}{\ESHDash{}\ESHDash{}\ESHSpace{}|\ESHSpace{}The\ESHSpace{}monoid\ESHSpace{}of\ESHSpace{}endomorphisms\ESHSpace{}under\ESHSpace{}composition.}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{newtype}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}a\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}\{\ESHSpace{}appEndo\ESHSpace{}\textcolor[HTML]{B35000}{\ESHSpecialChar{∷}}\ESHSpace{}a\ESHSpace{}\textcolor[HTML]{B35000}{\ESHSpecialChar{→}}\ESHSpace{}a\ESHSpace{}\}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{deriving}\ESHSpace{}(\textcolor[HTML]{204A87}{Generic})\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{instance}\ESHSpace{}\textcolor[HTML]{204A87}{Monoid}\ESHSpace{}(\textcolor[HTML]{204A87}{Endo}\ESHSpace{}a)\ESHSpace{}\textcolor[HTML]{346604}{where}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}mempty\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}id\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}f\ESHSpace{}\textcolor[HTML]{B35000}{{`}mappend{`}}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}g\ESHSpace{}\textcolor[HTML]{B35000}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Endo}\ESHSpace{}(f\ESHSpace{}\textcolor[HTML]{B35000}{\ESHSpecialChar{∘}}\ESHSpace{}g)
+\end{ESHBlock}
+
+\subsection*{Racket (source: \texttt{misc.rkt} in Racket's standard library)}
+
+\begin{ESHBlock}
+\ESHBol{}(\textcolor[HTML]{346604}{define\ESHDash{}syntax}\ESHSpace{}\textcolor[HTML]{B35000}{define\ESHDash{}syntax\ESHDash{}rule}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}(stx)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{let\ESHDash{}values}\ESHSpace{}([(err)\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}(what\ESHSpace{}.\ESHSpace{}xs)\ESHSpace{}(\textcolor[HTML]{346604}{apply}\ESHSpace{}\textcolor[HTML]{75507B}{raise\ESHDash{}syntax\ESHDash{}error}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{2E8B57}{{'}define\ESHDash{}syntax\ESHDash{}rule}\ESHSpace{}what\ESHSpace{}stx\ESHSpace{}xs))])\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{syntax\ESHDash{}case}\ESHSpace{}stx\ESHSpace{}()\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}[(dr\ESHSpace{}(name\ESHSpace{}.\ESHSpace{}pattern)\ESHSpace{}template)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{75507B}{identifier?}\ESHSpace{}\#\textcolor[HTML]{2E8B57}{{'}name})\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{syntax/loc}\ESHSpace{}stx\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{define\ESHDash{}syntax}\ESHSpace{}\textcolor[HTML]{B35000}{name}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}(user\ESHDash{}stx)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(syntax\ESHDash{}case**\ESHSpace{}dr\ESHSpace{}\textcolor[HTML]{2E8B57}{\#t}\ESHSpace{}user\ESHDash{}stx\ESHSpace{}()\ESHSpace{}\textcolor[HTML]{75507B}{free\ESHDash{}identifier=?}\ESHSpace{}\textcolor[HTML]{2E8B57}{\#f}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}[(\textcolor[HTML]{346604}{\_}\ESHSpace{}.\ESHSpace{}pattern)\ESHSpace{}(\textcolor[HTML]{75507B}{syntax\ESHDash{}protect}\ESHSpace{}(\textcolor[HTML]{346604}{syntax/loc}\ESHSpace{}user\ESHDash{}stx\ESHSpace{}template))]\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}[\textcolor[HTML]{346604}{\_}\ESHSpace{}(pattern\ESHDash{}failure\ESHSpace{}user\ESHDash{}stx\ESHSpace{}\textcolor[HTML]{2E8B57}{{'}pattern})]))))]
+\end{ESHBlock}
+
+\subsection*{OCaml (source: \texttt{genlex.ml} in OCaml's standard library)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{5C3566}{(**\ESHSpace{}The\ESHSpace{}lexer\ESHSpace{}**)}\ESHEol
+\ESHBol{}\ESHWeightBold{\textcolor[HTML]{000000}{let}}\ESHSpace{}\textcolor[HTML]{A40000}{make\_lexer}\textcolor[HTML]{B35000}{\ESHSpace{}keywords}\ESHSpace{}\textcolor[HTML]{A52A2A}{=}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{let}}\ESHSpace{}\textcolor[HTML]{B35000}{kwd\_table}\ESHSpace{}\textcolor[HTML]{A52A2A}{=}\ESHSpace{}\textcolor[HTML]{204A87}{Hashtbl.}create\ESHSpace{}17\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{in}}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{List.}iter\ESHSpace{}\textcolor[HTML]{A52A2A}{(}\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}\textcolor[HTML]{B35000}{s}\ESHSpace{}\textcolor[HTML]{A52A2A}{\ESHSpecialChar{→}}\ESHSpace{}\textcolor[HTML]{204A87}{Hashtbl.}add\ESHSpace{}kwd\_table\ESHSpace{}s\ESHSpace{}\textcolor[HTML]{A52A2A}{(}Kwd\ESHSpace{}s\textcolor[HTML]{A52A2A}{))}\ESHSpace{}keywords\textcolor[HTML]{A52A2A}{;}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{let}}\ESHSpace{}\textcolor[HTML]{A40000}{ident\_or\_keyword}\textcolor[HTML]{B35000}{\ESHSpace{}id}\ESHSpace{}\textcolor[HTML]{A52A2A}{=}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{try}\ESHSpace{}\textcolor[HTML]{204A87}{Hashtbl.}find\ESHSpace{}kwd\_table\ESHSpace{}id\ESHSpace{}\textcolor[HTML]{346604}{with}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{75507B}{Not\_found}\ESHSpace{}\textcolor[HTML]{A52A2A}{\ESHSpecialChar{→}}\ESHSpace{}Ident\ESHSpace{}id\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{and}}\ESHSpace{}\textcolor[HTML]{A40000}{keyword\_or\_error}\textcolor[HTML]{B35000}{\ESHSpace{}c}\ESHSpace{}\textcolor[HTML]{A52A2A}{=}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{let}}\ESHSpace{}\textcolor[HTML]{B35000}{s}\ESHSpace{}\textcolor[HTML]{A52A2A}{=}\ESHSpace{}\textcolor[HTML]{204A87}{String.}make\ESHSpace{}1\ESHSpace{}c\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{000000}{in}}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{try}\ESHSpace{}\textcolor[HTML]{204A87}{Hashtbl.}find\ESHSpace{}kwd\_table\ESHSpace{}s\ESHSpace{}\textcolor[HTML]{346604}{with}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{75507B}{Not\_found}\ESHSpace{}\textcolor[HTML]{A52A2A}{\ESHSpecialChar{→}}\ESHSpace{}\textcolor[HTML]{75507B}{raise}\ESHSpace{}\textcolor[HTML]{A52A2A}{(}\textcolor[HTML]{204A87}{Stream.}Error\ESHSpace{}\textcolor[HTML]{A52A2A}{(}\textcolor[HTML]{5C3566}{"Illegal\ESHSpace{}character\ESHSpace{}"}\ESHSpace{}\textcolor[HTML]{A52A2A}{\textasciicircum{}}\ESHSpace{}s\textcolor[HTML]{A52A2A}{))}
+\end{ESHBlock}
+
+\subsection*{Dafny (source: \texttt{DutchFlag.dfy} in Dafny's repo)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{75507B}{method}\ESHSpace{}\textcolor[HTML]{A40000}{DutchFlag}(\textcolor[HTML]{B35000}{a}:\ESHSpace{}\textcolor[HTML]{204A87}{array{<}Color{>}})\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{requires}\ESHSpace{}a\ESHSpace{}\ESHSpecialChar{≠}\ESHSpace{}\textcolor[HTML]{346604}{null}\ESHSpace{}\textcolor[HTML]{5C3566}{modifies}\ESHSpace{}a\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{ensures}\ESHSpace{}\textcolor[HTML]{346604}{\ESHSpecialChar{∀}}\ESHSpace{}i,j\ESHSpace{}\ESHSpecialChar{∙}\ESHSpace{}0\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}i\ESHSpace{}{<}\ESHSpace{}j\ESHSpace{}{<}\ESHSpace{}a.Length\ESHSpace{}\ESHSpace{}\ESHSpecialChar{⟹}\ESHSpace{}\ESHSpace{}Ordered(a[i],\ESHSpace{}a[j])\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{ensures}\ESHSpace{}\textcolor[HTML]{204A87}{multiset}(a[..])\ESHSpace{}==\ESHSpace{}\textcolor[HTML]{346604}{old}(\textcolor[HTML]{204A87}{multiset}(a[..]))\ESHEol
+\ESHBol{}\{\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{var}\ESHSpace{}\textcolor[HTML]{B35000}{r},\ESHSpace{}\textcolor[HTML]{B35000}{w},\ESHSpace{}\textcolor[HTML]{B35000}{b}\ESHSpace{}\ESHSpecialChar{≔}\ESHSpace{}0,\ESHSpace{}0,\ESHSpace{}a.Length;\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{while}\ESHSpace{}w\ESHSpace{}\ESHSpecialChar{≠}\ESHSpace{}b\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{invariant}\ESHSpace{}0\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}r\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}w\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}b\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}a.Length;\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{invariant}\ESHSpace{}\textcolor[HTML]{346604}{\ESHSpecialChar{∀}}\ESHSpace{}i\ESHSpace{}\ESHSpecialChar{∙}\ESHSpace{}0\ESHSpace{}\ESHSpecialChar{≤}\ESHSpace{}i\ESHSpace{}{<}\ESHSpace{}r\ESHSpace{}\ESHSpace{}\ESHSpecialChar{⟹}\ESHSpace{}\ESHSpace{}a[i]\ESHSpace{}==\ESHSpace{}Red\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{5C3566}{invariant}\ESHSpace{}\textcolor[HTML]{204A87}{multiset}(a[..])\ESHSpace{}==\ESHSpace{}\textcolor[HTML]{346604}{old}(\textcolor[HTML]{204A87}{multiset}(a[..]))\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\{\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{match}\ESHSpace{}a[w]\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{case}\ESHSpace{}Red\ESHSpace{}\ESHSpecialChar{⇒}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}a[r],\ESHSpace{}a[w]\ESHSpace{}\ESHSpecialChar{≔}\ESHSpace{}a[w],\ESHSpace{}a[r];\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{B35000}{r},\ESHSpace{}\textcolor[HTML]{B35000}{w}\ESHSpace{}\ESHSpecialChar{≔}\ESHSpace{}r\ESHSpace{}+\ESHSpace{}1,\ESHSpace{}w\ESHSpace{}+\ESHSpace{}1;
+\end{ESHBlock}
+
+\subsection*{F* (source: \texttt{Handshake.fst} in miTLS)}
+
+\begin{ESHBlock}
+\ESHBol{}\ESHWeightBold{val}\ESHSpace{}\textcolor[HTML]{A40000}{processServerFinished}:\ESHSpace{}\textcolor[HTML]{204A87}{KeySchedule}.ks\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\textcolor[HTML]{204A87}{HandshakeLog}.log\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}(hs\_msg\ESHSpace{}\ESHSpecialChar{×}\ESHSpace{}bytes)\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\textcolor[HTML]{346604}{ST}\ESHSpace{}(result\ESHSpace{}bytes)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{75507B}{requires}\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}\textcolor[HTML]{B35000}{h}\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{\ESHSpecialChar{⊤}}}))\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{75507B}{ensures}\ESHSpace{}(\textcolor[HTML]{346604}{\ESHSpecialChar{λ}}\ESHSpace{}\textcolor[HTML]{B35000}{h\ESHRaise{-0.30}{\textscale{0.8}{0}}\ESHSpace{}i\ESHSpace{}h\ESHRaise{-0.30}{\textscale{0.8}{1}}}\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\ESHWeightBold{\textcolor[HTML]{204A87}{\ESHSpecialChar{⊤}}}))\ESHEol
+\ESHBol{}\mbox{}\ESHEol
+\ESHBol{}\ESHWeightBold{let}\textcolor[HTML]{A40000}{\ESHSpace{}processServerFinished}\ESHSpace{}ks\ESHSpace{}log\ESHSpace{}(m,\ESHSpace{}l)\ESHSpace{}=\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{match}\ESHSpace{}m\ESHSpace{}\textcolor[HTML]{346604}{with}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}\textcolor[HTML]{204A87}{Finished}\ESHSpace{}(f)\ESHSpace{}\ESHSpecialChar{→}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{let}\textcolor[HTML]{A40000}{\ESHSpace{}svd}\ESHSpace{}=\ESHSpace{}\textcolor[HTML]{204A87}{KeySchedule}.ks\_client\_12\_server\_finished\ESHSpace{}ks\ESHSpace{}\ESHWeightBold{in}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{if}\ESHSpace{}(equalBytes\ESHSpace{}svd\ESHSpace{}f.fin\_vd)\ESHSpace{}\textcolor[HTML]{346604}{then}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHWeightBold{let}\textcolor[HTML]{A40000}{\ESHSpace{}\_}\ESHSpace{}=\ESHSpace{}log\ESHSpace{}@@\ESHSpace{}(\textcolor[HTML]{204A87}{Finished}\ESHSpace{}(f))\ESHSpace{}\ESHWeightBold{in}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{Correct}\ESHSpace{}svd\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{346604}{else}\ESHSpace{}\textcolor[HTML]{204A87}{Error}\ESHSpace{}(\textcolor[HTML]{204A87}{AD\_decode\_error},\ESHSpace{}\textcolor[HTML]{5C3566}{"Finished\ESHSpace{}MAC\ESHSpace{}did\ESHSpace{}not\ESHSpace{}verify"})\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\textcolor[HTML]{204A87}{Error}\ESHSpace{}(\textcolor[HTML]{204A87}{AD\_decode\_error},\ESHSpace{}\textcolor[HTML]{5C3566}{"Unexpected\ESHSpace{}state"})
+\end{ESHBlock}
+
+\subsection*{Coq (source: \texttt{ExtendedLemmas.v} in Fiat; requires a local Proof General setup)}
+
+\begin{ESHBlock}
+\ESHBol{}\textcolor[HTML]{346604}{Lemma}\ESHSpace{}\textcolor[HTML]{A40000}{ProgOk\_Chomp\_lemma}\ESHSpace{}:\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{\ESHSpecialChar{∀}}\ESHSpace{}{`}\{FacadeWrapper\ESHSpace{}(Value\ESHSpace{}av)\ESHSpace{}A\}\ESHSpace{}(\textcolor[HTML]{B35000}{ev}:\ESHSpace{}Env\ESHSpace{}av)\ESHSpace{}(\textcolor[HTML]{B35000}{key}:\ESHSpace{}StringMap.key)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\textcolor[HTML]{B35000}{prog}:\ESHSpace{}Stmt)\ESHSpace{}(\textcolor[HTML]{B35000}{tail\ESHRaise{-0.25}{1}\ESHSpace{}tail\ESHRaise{-0.25}{2}}:\ESHSpace{}A\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}Telescope\ESHSpace{}av)\ESHSpace{}ex\ESHSpace{}(\textcolor[HTML]{B35000}{v}:\ESHSpace{}A),\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}key\ESHSpace{}\ESHSpecialChar{∉}\ESHSpace{}ex\ESHSpace{}\ESHSpecialChar{→}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}(\{\{\ESHSpace{}tail\ESHRaise{-0.25}{1}\ESHSpace{}v\ESHSpace{}\}\}\ESHSpace{}prog\ESHSpace{}\{\{\ESHSpace{}tail\ESHRaise{-0.25}{2}\ESHSpace{}v\ESHSpace{}\}\}\ESHSpace{}\ESHSpecialChar{∪}\ESHSpace{}\{\{\ESHSpace{}[key\ESHSpace{}\ESHSpecialChar{▹}\ESHSpace{}wrap\ESHSpace{}v]\ESHSpace{}::\ESHSpace{}ex\ESHSpace{}\}\}\ESHSpace{}//\ESHSpace{}ev\ESHSpace{}\ESHSpecialChar{↔}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\{\{\ESHSpace{}[[{`}key\ESHSpace{}\ESHSpecialChar{↦}\ESHSpace{}v\ESHSpace{}\textcolor[HTML]{204A87}{as}\ESHSpace{}vv]]::tail\ESHRaise{-0.25}{1}\ESHSpace{}vv\ESHSpace{}\}\}\ESHSpace{}prog\ESHSpace{}\{\{\ESHSpace{}[[{`}key\ESHSpace{}\ESHSpecialChar{↦}\ESHSpace{}v\ESHSpace{}\textcolor[HTML]{204A87}{as}\ESHSpace{}vv]]::tail\ESHRaise{-0.25}{2}\ESHSpace{}vv\ESHSpace{}\}\}\ESHSpace{}\ESHSpecialChar{∪}\ESHSpace{}\{\{\ESHSpace{}ex\ESHSpace{}\}\}\ESHSpace{}//\ESHSpace{}ev).\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{Proof}.\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{B452CD}{repeat}\ESHSpace{}\textcolor[HTML]{204A87}{match}\ESHSpace{}goal\ESHSpace{}\textcolor[HTML]{204A87}{with}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{FF0000}{tauto}\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{B452CD}{progress}\ESHSpace{}(\textcolor[HTML]{00008B}{intros}\ESHSpace{}\ESHSpecialChar{‖}\ESHSpace{}\textcolor[HTML]{00008B}{split})\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}[\ESHSpace{}H:\ESHSpace{}\textcolor[HTML]{B35000}{?a}\ESHSpace{}\ESHSpecialChar{∧}\ESHSpace{}\textcolor[HTML]{B35000}{?b}\ESHSpace{}\ESHSpecialChar{⊢}\ESHSpace{}\_\ESHSpace{}]\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{00008B}{destruct}\ESHSpace{}H\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}[\ESHSpace{}H:\ESHSpace{}\textcolor[HTML]{B35000}{?a}\ESHSpace{}\ESHSpecialChar{≲}\ESHSpace{}Cons\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{∪}\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{⊢}\ESHSpace{}\_\ESHSpace{}]\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}learn\ESHSpace{}(Cons\_PushExt\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}H)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}[\ESHSpace{}H:\ESHSpace{}ProgOk\ESHSpace{}\textcolor[HTML]{B35000}{?fmap}\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\textcolor[HTML]{B35000}{?t\ESHRaise{-0.25}{1}}\ESHSpace{}\textcolor[HTML]{B35000}{?t\ESHRaise{-0.25}{2}},\ESHSpace{}H{'}:\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{≲}\ESHSpace{}\textcolor[HTML]{B35000}{?t\ESHRaise{-0.25}{1}}\ESHSpace{}\ESHSpecialChar{∪}\ESHSpace{}\textcolor[HTML]{B35000}{?fmap}\ESHSpace{}\ESHSpecialChar{⊢}\ESHSpace{}\_\ESHSpace{}]\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{00008B}{destruct}\ESHSpace{}(H\ESHSpace{}\_\ESHSpace{}H{'});\ESHSpace{}no\_dup\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}[\ESHSpace{}H:\ESHSpace{}RunsTo\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\textcolor[HTML]{B35000}{?from}\ESHSpace{}\textcolor[HTML]{B35000}{?to},\ESHSpace{}H{'}:\ESHSpace{}\textcolor[HTML]{204A87}{\ESHSpecialChar{∀}}\ESHSpace{}\textcolor[HTML]{B35000}{st},\ESHSpace{}RunsTo\ESHSpace{}\_\ESHSpace{}\_\ESHSpace{}\textcolor[HTML]{B35000}{?from}\ESHSpace{}st\ESHSpace{}\ESHSpecialChar{→}\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{⊢}\ESHSpace{}\_\ESHSpace{}]\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{00008B}{specialize}\ESHSpace{}(H{'}\ESHSpace{}\_\ESHSpace{}H)\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}|\ESHSpace{}[\ESHSpace{}H:\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{≲}\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{∪}\ESHSpace{}[\_\ESHSpace{}\ESHSpecialChar{▹}\ESHSpace{}\_]\ESHSpace{}::\ESHSpace{}\_\ESHSpace{}\ESHSpecialChar{⊢}\ESHSpace{}\_\ESHSpace{}]\ESHSpace{}\ESHSpecialChar{⇒}\ESHSpace{}\textcolor[HTML]{00008B}{apply}\ESHSpace{}Cons\_PopExt\ESHSpace{}\textcolor[HTML]{204A87}{in}\ESHSpace{}H\ESHEol
+\ESHBol{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\ESHSpace{}\textcolor[HTML]{204A87}{end}.\ESHEol
+\ESHBol{}\textcolor[HTML]{346604}{Qed}.
+\end{ESHBlock}
+
+\end{document}
