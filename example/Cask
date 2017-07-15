@@ -1,0 +1,9 @@
+(source gnu)
+(source melpa)
+
+(depends-on "company-coq")
+(depends-on "racket-mode")
+(depends-on "haskell-mode")
+(depends-on "boogie-friends")
+(depends-on "fstar-mode")
+(depends-on "tuareg")

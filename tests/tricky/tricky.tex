@@ -1,0 +1,51 @@
+\documentclass{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Load the ESH preamble
+%% ESH-preamble-here
+
+\begin{document}
+
+Tricky examples:
+
+\section*{Overlapping properties}
+%% ESH: tricky
+\begin{verbatim}
+abcdefghijklmn
+123456789
+\end{verbatim}
+
+\section*{\texttt{line-height}}
+%% ESH: tricky
+\begin{verbatim}
+tall
+tall
+short
+short
+\end{verbatim}
+
+\section*{\texttt{raise}}
+%% ESH: subsup
+\begin{verbatim}
+xabc123
+yabc123
+\end{verbatim}
+
+\section*{Multi-line properties}
+%% ESH: emacs-lisp
+\begin{verbatim}
+;; this comment
+;; spans
+;; multiple
+;; lines
+\end{verbatim}
+
+\section*{Overlays}
+%% ESH: overlays
+\begin{verbatim}
+
+\end{verbatim}
+
+\end{document}

@@ -1,0 +1,14 @@
+\documentclass{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\def\c{\verb}
+\def\python{\verb}
+\input{esh-preamble}
+\input{pv.esh-pv} % This won't contain the right pairs; that's on purpose, as
+                  % this file tests fallbacks.
+
+\begin{document}
+\c|int main() { ... }|, \python`def main(): ...`.
+\end{document}

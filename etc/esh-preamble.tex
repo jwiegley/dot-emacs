@@ -1,0 +1,346 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DO NOT MODIFY THIS FILE %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Instead, redefine the relevant macros in your own source file, **after**
+%% including this file.  This file is overwritten every time you run esh2tex
+%% with the --write-preamble option.
+
+%%%%%%%%%%%%%%
+%% Core ESH %%
+%%%%%%%%%%%%%%
+
+\newcommand*{\ESHRequirePackage}[2][]
+  {\IfFileExists{#2.sty}
+    {\RequirePackage[#1]{#2}}
+    {\PackageError{ESH}{Missing LaTeX dependency: please install #2}
+      {ESH requires relsize, ulem, and xcolor to work properly.  On Debian derivatives, these packages are provided by texlive-recommended and texlive-latex-extra.}}}
+
+% Packages
+%%%%%%%%%%
+
+\ESHRequirePackage{xcolor} % TeXLive-recommended
+\ESHRequirePackage[normalem]{ulem} % TeXLive-recommended
+
+\ESHRequirePackage{relsize} % TeXLive-latex-extra
+\renewcommand{\RSsmallest}{1pt}
+\renewcommand{\RSlargest}{50pt}
+
+% Fonts
+%%%%%%%
+
+% Code blocks
+\newcommand*{\ESHFontSize}{}
+\newcommand*{\ESHFontFamily}{\ttfamily}
+\newcommand*{\ESHFont}{\ESHFontSize\ESHFontFamily}
+
+% Inline snippets
+\newcommand*{\ESHInlineFontSize}{\ESHFontSize}
+\newcommand*{\ESHInlineFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHInlineFont}{\ESHInlineFontSize\ESHInlineFontFamily}
+
+% Inline blocks
+\newcommand*{\ESHInlineBlockFontSize}{\ESHFontSize}
+\newcommand*{\ESHInlineBlockFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHInlineBlockFont}{\ESHInlineBlockFontSize\ESHInlineBlockFontFamily}
+
+% Blocks
+\newcommand*{\ESHBlockFontSize}{\ESHFontSize}
+\newcommand*{\ESHBlockFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHBlockFont}{\ESHBlockFontSize\ESHBlockFontFamily}
+
+% Characters not covered by \ESHFont (XeTeX/LuaTeX only)
+\newcommand*{\ESHFallbackFontFamily}{\ESHFontFamily}
+\newcommand*{\ESHFallbackFont}{\ESHFallbackFontFamily}
+
+% Utils
+%%%%%%%
+
+% \ESHNoHyphens disables hyphenation
+\newcommand*{\ESHNoHyphens}{\hyphenpenalty=10000}
+
+% \ESHConstantSpace ensures that spaces can't stretch
+\newcommand*{\ESHConstantSpace}{\spaceskip=\fontdimen2\font\xspaceskip=0pt}
+
+% \ESHCenterInWidthOf{#A}{#B} prints #B centered in a box as large as #A.
+\newdimen\ESHtempdim%
+\newcommand*{\ESHCenterInWidthOf}[2]
+  {\settowidth\ESHtempdim{#1}%
+   \makebox[\ESHtempdim][c]{#2}}
+
+% ESHText switches out of math mode if needed (textnormal amstext-friendly)
+\DeclareRobustCommand*{\ESHText}[1]{\ifmmode{\textnormal{#1}}\else{#1}\fi}
+
+% \ESHIfFontChar{#A} uses a XeLaTeX/LuaTeX primitive to print #A in
+% \ESHFallbackFont if it isn't covered by the current font.
+\newcommand*{\ESHIfFontChar}[1]
+  {\iffontchar\font`#1{#1}\else{\ESHFallbackFont#1}\fi}
+
+\makeatletter
+% In XeTeX and LuaTeX, \ESHWithFallback{#A} prints #A in the current font if
+% possible and falls back to \ESHFallbackFont. In other engines, it always uses
+% the fallback font.  The XeTeX implementation is derived from
+% https://tug.org/pipermail/xetex/2011-November/022319.html.
+\@ifundefined{XeTeXinterchartoks}
+  {\@ifundefined{luatexversion}
+     {% Not using XeTeX, nor LuaTeX: fall back to just using \ESHFallbackFont
+      \def\ESHWithFallback#1{\ESHFallbackFont#1}}
+     {% Using LuaTeX
+      \def\ESHWithFallback#1{\ESHIfFontChar{#1}}}}
+  {% Using XeTeX
+   \def\ESHWithFallback#1{%
+     \ifnum\XeTeXfonttype\font>0% Graphite, OpenType, or AAT font
+       \ESHIfFontChar{#1}%
+     \else% Legacy TeX font
+       \setbox0=\hbox{\tracinglostchars=0\kern1sp#1\expandafter}%
+       \ifnum\lastkern=1{\ESHFallbackFont#1}\else{#1}\fi
+     \fi}}
+\makeatother
+
+% \ESH*SpecialChar is used to wrap non-ascii characters, which may need a fallback font
+\DeclareRobustCommand*{\ESHInlineSpecialChar}[1]
+  {{\ESHInlineFontFamily\ESHWithFallback{#1}}}
+\DeclareRobustCommand*{\ESHBlockSpecialChar}[1]
+  {{\ESHCenterInWidthOf{\ESHBlockFontFamily{a}}{\ESHBlockFontFamily\ESHWithFallback{#1}}}}
+% \ESH*UnicodeSubstitution is for special characters replaced by equivalent math commands
+\DeclareRobustCommand*{\ESHInlineUnicodeSubstitution}[1]
+  {{\ESHInlineFontFamily#1}}
+\DeclareRobustCommand*{\ESHBlockUnicodeSubstitution}[1]
+  {{\ESHCenterInWidthOf{\ESHBlockFontFamily{a}}{\ESHBlockFontFamily#1}}}
+\DeclareRobustCommand*{\ESHMathSymbol}[1]{\ensuremath{#1}}
+
+% \ESHSetCurFontSize sets \ESHCurFontSize to the current font size (1 CSS em)
+\makeatletter
+\newlength{\ESHCurFontSize}
+\newcommand*{\ESHSetCurFontSize}{\setlength{\ESHCurFontSize}{\f@size pt}}
+\makeatother
+
+% \ESH*Raise implements sub/superscripts
+\DeclareRobustCommand*{\ESHInlineRaise}[2]
+  {\ESHSetCurFontSize\raisebox{#1\ESHCurFontSize}{\relsize{-2}#2}}
+\DeclareRobustCommand*{\ESHBlockRaise}[2]
+  {\rlap{\ESHInlineRaise{#1}{#2}}\hphantom{#2}}
+
+% ESH*Strut implements struts
+\newlength{\ESHBaselineskip}
+\DeclareRobustCommand*{\ESHBlockStrut}[1]
+  {\rule{0pt}{#1\ESHBaselineskip}}
+
+\makeatletter
+% ESHUnderline produces a straight underline
+\DeclareRobustCommand*{\ESHUnderline}[1]
+  {\bgroup\UL@setULdepth\markoverwith{#1\rule[-\ULdepth]{2pt}{0.4pt}}\ULon}
+% ESHUnderwave produces a wavy underline
+\DeclareRobustCommand*{\ESHUnderwave}[1]
+  {\bgroup\UL@setULdepth\markoverwith{#1\raisebox{-\ULdepth}{\raisebox{-.5\height}{\ESHSmallWaveFont\char58}}}\ULon}
+\font\ESHSmallWaveFont=lasyb10 scaled 400
+\makeatother
+
+% \ESHBoxSep is the vertical padding of \ESHBox
+\newlength{\ESHBoxSep}
+\setlength{\ESHBoxSep}{1pt}
+
+% \ESHPhantomStrut{} adds a zero-width strut whose depth and height are that of "Ag"
+\newcommand*{\ESHPhantomStrut}{\vphantom{Ag}}
+
+% \ESHBox{#color}{#lineWidth}{#contents} wraps #contents in an border of width
+% #lineWidth and of color #color.  The box has no horizontal padding, its
+% vertical padding is determined by \ESHBoxSep, and it doesn't affect the height
+% of the current line.
+\newdimen\ESHBoxTempDim%
+\newcommand*{\ESHBox}[3]
+  {\setlength{\fboxsep}{\ESHBoxSep}%
+   \setlength{\fboxrule}{#2}%
+   \setlength{\ESHBoxTempDim}{\dimexpr-\fboxsep-\fboxrule\relax}%
+   \ESHPhantomStrut{}\vphantom{#3}%
+   \smash{\fbox{\hspace*{\ESHBoxTempDim}\ESHPhantomStrut{}#3\hspace*{\ESHBoxTempDim}}}}
+
+% \ESHColorBox{#color}{#contents} adds a background of color #color to
+% #contents.  The box has no horizontal padding, its vertical padding is
+% determined by \ESHBoxSep, and it doesn't affect the height of the current
+% line.
+\newcommand*{\ESHColorBox}[2]
+  {\setlength{\fboxsep}{\ESHBoxSep}%
+   \setlength{\ESHBoxTempDim}{\dimexpr-\fboxsep-\fboxrule\relax}%
+   \ESHPhantomStrut{}\vphantom{#2}%
+   \smash{\colorbox[HTML]{#1}{\hspace*{\ESHBoxTempDim}\ESHPhantomStrut{}#2\hspace*{\ESHBoxTempDim}}}}
+
+% \ESHWeight* and \ESHSlant* adjust weight and slant
+\newcommand*{\ESHWeightLight}[1]{\textlf{#1}}
+\newcommand*{\ESHWeightRegular}[1]{\textmd{#1}}
+\newcommand*{\ESHWeightBold}[1]{\textbf{#1}}
+\newcommand*{\ESHInlineSlantItalic}[1]{\textit{#1}}
+\newcommand*{\ESHBlockSlantItalic}[1]{{\itshape{#1}}} % No italic correction
+\newcommand*{\ESHInlineSlantOblique}[1]{\textsl{#1}}
+\newcommand*{\ESHBlockSlantOblique}[1]{{\slshape{#1}}}
+\newcommand*{\ESHSlantNormal}[1]{\textup{#1}}
+
+% Environments and macros
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand*{\ESHBreakingSpace}{\ }
+\newcommand*{\ESHNonbreakingSpace}{~}
+
+% Internal plumbing needed to make the same code work with Inline, Block, and
+% InlineBlock.  See http://tex.stackexchange.com/questions/336936/ for details.
+\let\ESHSpecialChar\ignorespaces%
+\let\ESHUnicodeSubstitution\ignorespaces%
+\let\ESHRaise\ignorespaces%
+\let\ESHBol\ignorespaces%
+\let\ESHEol\ignorespaces%
+\let\ESHSpace\ignorespaces%
+\let\ESHDash\ignorespaces%
+\let\ESHSlantItalic\ignorespaces%
+\DeclareRobustCommand*{\ESHInlineInternalSetup}
+  {\def\ESHSpecialChar{\ESHInlineSpecialChar}\def\ESHUnicodeSubstitution{\ESHInlineUnicodeSubstitution}%
+   \def\ESHRaise{\ESHInlineRaise}\def\ESHSlantItalic{\ESHInlineSlantItalic}%
+   \def\ESHStrut{\relax}\def\ESHBol{\relax}\def\ESHEol{\newline}\def\ESHSpace{\ESHBreakingSpace}%
+   \def\ESHDash{-}}
+\DeclareRobustCommand*{\ESHInlineBlockInternalSetup}
+  {\def\arraystretch{1}%
+   \def\ESHSpecialChar{\ESHBlockSpecialChar}\def\ESHUnicodeSubstitution{\ESHBlockUnicodeSubstitution}%
+   \def\ESHRaise{\ESHBlockRaise}\def\ESHSlantItalic{\ESHBlockSlantItalic}%
+   \setlength{\ESHBaselineskip}{\baselineskip}\def\ESHStrut{\ESHBlockStrut}%
+   \def\ESHBol{\-}\def\ESHEol{\cr}\def\ESHSpace{\ESHNonbreakingSpace}\def\ESHDash{\hbox{-}\nobreak}}
+\DeclareRobustCommand*{\ESHBlockInternalSetup}
+  {\def\ESHSpecialChar{\ESHBlockSpecialChar}\def\ESHUnicodeSubstitution{\ESHBlockUnicodeSubstitution}%
+   \def\ESHRaise{\ESHBlockRaise}\def\ESHSlantItalic{\ESHBlockSlantItalic}%
+   \setlength{\ESHBaselineskip}{\baselineskip}\def\ESHStrut{\ESHBlockStrut}%
+   \def\ESHBol{\-}\def\ESHEol{\newline}\def\ESHSpace{\ESHNonbreakingSpace}\def\ESHDash{\hbox{-}\nobreak}}
+
+% Basic setup used when entering each type of environment or macro
+% See http://tex.stackexchange.com/questions/22852 for \leavevmode
+% \ESHBlockBasicSetup used to set \parskip to 0, but \ESHEol isn't \par anymore
+\newcommand*{\ESHInlineBasicSetup}
+  {\leavevmode\ESHNoHyphens\ESHInlineFont}
+\newcommand*{\ESHInlineBlockBasicSetup}
+  {\ESHNoHyphens\ESHInlineBlockFont\ESHConstantSpace}
+\newcommand*{\ESHBlockBasicSetup}
+  {\setlength{\parindent}{0pt}\raggedright\ESHNoHyphens%
+   \ESHBlockFont\ESHConstantSpace}
+
+% ESH*Hook is used to inject code before every ESH segment
+\newcommand*{\ESHHook}{}
+\newcommand*{\ESHInlineHook}{\ESHHook}
+\newcommand*{\ESHInlineBlockHook}{\ESHHook}
+\newcommand*{\ESHBlockHook}{\ESHHook}
+
+\makeatletter
+% \ESHInline is used for inline code
+\DeclareRobustCommand*{\ESHInline}[1]
+  {\bgroup\ESHText{\ESHInlineInternalSetup\ESHInlineBasicSetup\ESHInlineHook#1}\egroup}
+
+% \ESHInlineBlockVerticalAlignment is the default vertical alignment of inline blocks
+\newcommand*{\ESHInlineBlockVerticalAlignment}{c}
+
+% \ESHInlineBlock is used for inline code blocks
+\newenvironment{ESHInlineBlock}[1][\ESHInlineBlockVerticalAlignment]
+  {\bgroup\ESHInlineBlockInternalSetup\ESHInlineBlockBasicSetup\ESHInlineBlockHook\begin{tabular}[#1]{@{}l@{}}}
+  {\end{tabular}\egroup}
+
+% \ESHSkip is the amount to skip before and after an \ESHBlock
+\newlength{\ESHSkip}
+\setlength{\ESHSkip}{\baselineskip}
+
+% \ESHNoBreakAddVSpace adds vertical space, but prevents a page break.
+% \nobreak would use a \penalty (which breaks \addvspace), hence \addpenalty.
+\newcommand*{\ESHNoBreakAddVSpace}[1]{\addpenalty{\@M}\addvspace{#1}}
+
+% \ESHBlock is used for code blocks
+\newenvironment{ESHBlock}
+  {\par\ESHNoBreakAddVSpace{\ESHSkip}\bgroup\ESHBlockInternalSetup\ESHBlockBasicSetup\ESHBlockHook}
+  {\par\egroup\addvspace{\ESHSkip}}
+\makeatother
+
+%% \input wrappers
+%%%%%%%%%%%%%%%%%%
+
+\DeclareRobustCommand*{\ESHInputInline}[1]{\ESHInline{\input{#1.esh.tex}\unskip}}
+\DeclareRobustCommand*{\ESHInputInlineBlock}[2][\ESHInlineBlockVerticalAlignment]
+  {\begin{ESHInlineBlock}[#1]\input{#2.esh.tex}\unskip\end{ESHInlineBlock}}
+\DeclareRobustCommand*{\ESHInputBlock}[1]{\begin{ESHBlock}\input{#1.esh.tex}\unskip\end{ESHBlock}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \ESHpv: ESH Precomputed-Verbs support %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Adapted from https://tex.stackexchange.com/questions/336837/
+
+%% Utilities
+
+% \ESHpvEnterVerbMode sets all specials to catcode 12
+% * \@makeother sets the catcode of its argument to 12 (other)
+% * \dospecials applies \do to each special character
+% (see http://tex.stackexchange.com/questions/12721/control-command-arguments)
+\makeatletter
+\def\ESHpvEnterVerbMode{\let\do\@makeother\dospecials}
+\makeatother
+
+% \ESHpvNotFound{#msg} issues a warning
+\def\ESHpvNotFoundMessage#1{No highlighting found for "#1"; falling back to verbatim.}
+\def\ESHpvNotFound#1{\PackageWarning{ESH}{\ESHpvNotFoundMessage{#1}}}
+
+%% Defining substitutions
+
+% ESHpvReadDelimitedAndDefineSubstitution{#lang}#delim#key#delim#value maps
+% #lang-\detokenize{#key} to #value
+\def\ESHpvReadDelimitedAndDefineSubstitution#1#2{%
+  % \ESHpvInternalScanner reads tokens up to the next separator #2, restores
+  % catcodes (\endgroup), and calls \ESHpvDefineSubstitution on these tokens
+  \def\ESHpvInternalScanner##1#2{\endgroup\ESHpvDefineSubstitution{#1}{##1}}\ESHpvInternalScanner}
+
+% ESHpvDefineSubstitution{#lang}{#key}#value maps #lang-\detokenize{#key} to #value
+\def\ESHpvDefineSubstitution#1#2{\expandafter\def\csname #1-\detokenize{#2}\endcsname}
+
+%% Applying substitutions
+
+% \ESHpvSubstitute{#lang}{#key}{#msg}{#fallback} looks up a mapping for
+% #lang-\detokenize{#key} and inserts it.  If no mapping can be found, it prints
+% a warning based on #msg and includes #fallback in the document.
+\def\ESHpvSubstitute#1#2#3#4{%
+  \expandafter\ifx\csname #1-\detokenize{#2}\endcsname\relax
+  \ESHpvNotFound{#3}\texttt{#4}%
+  \else
+  \csname #1-\detokenize{#2}\expandafter\endcsname
+  \fi}
+
+% \ESHpvSubstituteMacro{#lang}{#key} looks up #lang-\detokenize{#key} and
+% substitutes it.  It falls back to #key itself if no mapping can be found.
+\def\ESHpvSubstituteMacro#1#2{\ESHpvSubstitute{#1}{#2}{\detokenize{#2}}{\detokenize{#2}}}
+
+% ESHpvReadDelimitedAndSubstitute{#lang}#delim#key#delim looks up
+% #lang-\detokenize{#key} and calls \ESHpvSubstituteMacro.
+\def\ESHpvReadDelimitedAndSubstitute#1#2{%
+  % \ESHpvInternalScanner reads tokens up to the next separator #2, restores
+  % catcodes (\endgroup), and calls \ESHpvSubstituteMacro on these tokens
+  \def\ESHpvInternalScanner##1#2{\endgroup\ESHpvSubstituteMacro{#1}{##1}}\ESHpvInternalScanner}
+
+%% High-level interface
+
+% \ESHpvLookupVerb reads its argument like \verb
+% Note that this won't work perfectly as an argument to a macro
+\DeclareRobustCommand*{\ESHpvLookupVerb}[1]
+  {\begingroup\ESHpvEnterVerbMode\ESHpvReadDelimitedAndSubstitute{macro-#1}}
+
+% \ESHpvDefineVerb#lang creates a new [code → highlight] record in table macro-#A
+\DeclareRobustCommand*{\ESHpvDefineVerb}[1]
+  {\begingroup\ESHpvEnterVerbMode\ESHpvReadDelimitedAndDefineSubstitution{macro-#1}}
+
+%% Convenience functions for wrapping verbs in boxes
+
+\newcommand*{\ESHSaveBoxName}[1]{ESHSaveBox:#1}
+
+\makeatletter
+% \ESHEnsureSaveBox{#name} calls \newsavebox{#name} if needed.
+\newcommand{\ESHEnsureSaveBox}[1]
+  {\@ifundefined{#1}{\expandafter\newsavebox\csname#1\endcsname}{}}
+\makeatother
+
+% \begin{ESHSavedVerb}{#name}#def\end{ESHSavedVerb} creates a box called
+% ESHSaveBox:#name, and saves #def into it.
+\newenvironment*{ESHSavedVerb}[1]
+  {\def\ESHCurBox{\ESHSaveBoxName{#1}}\ESHEnsureSaveBox{\ESHCurBox}\begin{lrbox}{0}\ignorespaces}
+  {\unskip\end{lrbox}\global\expandafter\setbox\csname\ESHCurBox\endcsname=\box0\relax}
+
+% \ESHUseVerb{#name} retrieves the contents of the box ESHSaveBox:#name
+\newcommand{\ESHUseVerb}[1]{\expandafter\usebox\csname\ESHSaveBoxName{#1}\endcsname}
