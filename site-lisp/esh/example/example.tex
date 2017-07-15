@@ -1,0 +1,379 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%       This file shows how to use and customize esh2tex.       %
+% (Comments marked with a '*' indicate optional customizations) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% Load a few packages %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath,amssymb}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[pdfcreator=ESH]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Load the ESH preamble %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% ESH-preamble-here
+
+%%%%%%%%%%%%%%%%%%%%%%
+% *Load custom fonts %
+%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+\@ifundefined{XeTeXinterchartoks}{% Minimal pdfLaTeX setup
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{lmodern}
+  \usepackage{MnSymbol}
+}{% Regular XeLaTeX setup (recommended)
+  \usepackage{fontspec}
+
+  % Load XITS Math for symbols
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % https://github.com/khaledhosny/xits-math/
+  \newfontfamily{\XITSMath}[Path=fonts/,
+                            UprightFont=*.otf,
+                            BoldFont=*bold.otf,
+                            Mapping=tex-ansi]{xits-math}
+
+  % Load Ubuntu Mono for code
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % http://font.ubuntu.com/
+  \newfontfamily{\UbuntuMono}[Path=fonts/,
+                              UprightFont=*-R.ttf,
+                              BoldFont=*-B.ttf,
+                              ItalicFont=*-RI.ttf,
+                              BoldItalicFont=*-BI.ttf,
+                              Mapping=tex-ansi]{UbuntuMono}
+
+  % Tell ESH about these fonts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \renewcommand{\ESHFontFamily}{\UbuntuMono}
+  \renewcommand{\ESHFallbackFontFamily}{\XITSMath}
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%
+% *Customize spacing %
+%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength{\ESHSkip}{0.8\baselineskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% *Customize environments %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ESHInline
+%%%%%%%%%%%
+
+\newcommand{\angles}[1]{$\langle\,$#1$\,\rangle$}
+
+\DeclareRobustCommand*{\ESHInline}[1]
+  {{\ESHText{\ESHInlineInternalSetup\ESHInlineBasicSetup\angles{#1}}}}
+
+% ESHBlock
+%%%%%%%%%%
+
+\renewenvironment{ESHBlock}{%
+  \par\ESHNoBreakAddVSpace{\ESHSkip}\bgroup\ESHBlockInternalSetup\ESHBlockBasicSetup%
+  \hrule\addvspace{0.5em}%
+}{%
+  \par\egroup\addvspace{0.5em}\hrule\addvspace{2\ESHSkip}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define and register a few inline macros %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% (These macros are registered in esh-init.el)
+% Make them all aliases of \verb to remain compatible with plain LaTeX
+
+\def\cverb{\verb}
+\def\javaverb{\verb}
+\def\pythonverb{\verb}
+\def\prettylisp{\verb}
+\def\normallisp{\verb}
+
+\begin{document}
+
+\section*{C (source: \texttt{xfaces.c} in Emacs)}
+
+%% ESH: c
+\begin{verbatim}
+#if defined HAVE_X_WINDOWS && defined USE_X_TOOLKIT
+
+/* Make menus on frame F appear as specified by the `menu' face.  */
+static void
+x_update_menu_appearance (struct frame *f)
+{
+  struct x_display_info *dpyinfo = FRAME_DISPLAY_INFO (f);
+  XrmDatabase rdb;
+
+  if (dpyinfo && (rdb = XrmGetDatabase (FRAME_X_DISPLAY (f)), rdb != NULL))
+    {
+      char line[512];
+      char *buf = line;
+      ptrdiff_t bufsize = sizeof line;
+      Lisp_Object lface = lface_from_face_name (f, Qmenu, true);
+      struct face *face = FACE_FROM_ID (f, MENU_FACE_ID);
+\end{verbatim}
+
+\section*{Emacs lisp (source: \texttt{esh.el} in this library)}
+
+%% ESH: emacs-lisp
+\begin{verbatim}
+(require 'seq)
+(require 'color)
+(require 'subr-x)
+
+;;; Misc utils
+
+(defun esh--normalize-color (color)
+  "Return COLOR as a hex string."
+  (upcase (if (= (aref color 0) ?#) color
+            (apply #'color-rgb-to-hex (color-name-to-rgb color)))))
+
+(defun esh--filter-cdr (val alist)
+  "Remove conses in ALIST whose `cdr' is VAL."
+  (seq-filter (lambda (pair) (not (eq (cdr pair) val))) alist))
+\end{verbatim}
+
+\section*{Python (source: \texttt{monospacifier.py})}
+
+%% ESH: python
+\begin{verbatim}
+class AllowWideCharsGlyphScaler(GlyphScaler):
+    def __init__(self, cell_width, avg_width):
+        """Construct instance based on target CELL_WIDTH and source AVG_WIDTH."""
+        GlyphScaler.__init__(self, cell_width)
+        self.avg_width = avg_width
+
+    def scale(self, glyph):
+        if glyph.width > 0:
+            new_width_in_cells = int(math.ceil(0.75 * glyph.width / self.avg_width))
+            # if new_width_in_cells > 1:
+            #     print("{} is {} cells wide ({} -> {})".format(...))
+            GlyphScaler.set_width(glyph, new_width_in_cells * self.cell_width)
+\end{verbatim}
+
+\clearpage
+
+\section*{Perl (source: YAGOpt)}
+
+%% ESH: perl
+\begin{verbatim}
+#&getopt("f:bar") ||
+#	die &usage("script","f:bar","oo","[files ...]");
+sub getopt {
+    local($_,$flag,$opt,$f,$r,@temp) = @_;
+    @temp = split(/(.):/);
+    while ($#temp >= $[) {
+        $flag .= shift(@temp);
+        $opt .= shift(@temp);
+    }
+    while ($_ = $ARGV[0], /^-(.)(.*)/ && shift(@ARGV)) {
+        ($f,$r) = ($1,$2);
+        last if $f eq '-';
+        if (index($flag,$f) >= $[) {
+            eval "\$opt_$f++;";
+            $r =~ /^(.)(.*)/,redo if $r ne '';
+\end{verbatim}
+
+\section*{Ruby (source: \texttt{parser.rb} in Ruby's standard library)}
+
+%% ESH: ruby
+\begin{verbatim}
+class NotWellFormedError < Error
+  attr_reader :line, :element
+
+  # Create a new NotWellFormedError for an error at +line+ in +element+.
+  def initialize(line=nil, element=nil)
+    message = "This is not well formed XML"
+    if element or line
+      message << "\nerror occurred"
+      message << " in #{element}" if element
+    end
+    message << "\n#{yield}" if block_given?
+    super(message)
+\end{verbatim}
+
+\section*{Misc}
+
+\subsection*{Inline snippets and inline blocks}
+
+ESH works inline as well:
+
+\begin{itemize}
+\item Here's some C and some Python code: \cverb|int main() { return 0; }|, \pythonverb/def method(self, x): yield x/
+\item
+  \begin{tabular}[t]{@{}r@{ }l}
+    Some Elisp with prettification: & \prettylisp,(lambda (x y) (or (<= x y) (approx= (/+/ x y) 0))), \\
+            without prettification: & \normallisp!(lambda (x y) (or (<= x y) (approx= (/+/ x y) 0)))!
+  \end{tabular}
+\item And finally a few inline blocks:
+\fbox{% Using raggedright because verbatim breaks when used inline
+%% ESHInlineBlock: python
+\begin{raggedright}
+def main():
+    return 0
+\end{raggedright}}
+\fbox{%
+%% ESHInlineBlock[t]: python
+\begin{raggedright}
+def main():
+    return 0
+\end{raggedright}}
+\fbox{%
+%% ESHInlineBlock[b]: python
+\begin{raggedright}
+def main():
+    return 0
+\end{raggedright}}
+\end{itemize}
+
+\subsection*{Line breaking}
+
+ESH allows line breaks to happen within inline code snippets (here is an example: \javaverb|private static volatile int counter = 0|), but not in code blocks:
+
+%% ESH: emacs-lisp
+\begin{verbatim}
+(defun esh--normalize-color (color) (upcase (if (= (aref color 0) ?#) color (apply #'color-rgb-to-hex (color-name-to-rgb color)))))
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The following requires additional packages %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Highlighting with non-core Emacs packages}
+
+The following examples all depend on externally developped packages, and thus
+require that you run \texttt{cask install} to install these dependencies (Cask
+is the Emacs Lisp equivalent of Python's virtualenvs).
+
+\subsection*{Haskell (source: \texttt{Monoid.hs} in Haskell's standard library)}
+
+%% ESH: haskell
+\begin{verbatim}
+-- | The dual of a 'Monoid', obtained by swapping the arguments of 'mappend'.
+newtype Dual a = Dual { getDual :: a }
+        deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1)
+
+instance Monoid a => Monoid (Dual a) where
+        mempty = Dual mempty
+        Dual x `mappend` Dual y = Dual (y `mappend` x)
+
+-- | The monoid of endomorphisms under composition.
+newtype Endo a = Endo { appEndo :: a -> a }
+               deriving (Generic)
+
+instance Monoid (Endo a) where
+        mempty = Endo id
+        Endo f `mappend` Endo g = Endo (f . g)
+\end{verbatim}
+
+\subsection*{Racket (source: \texttt{misc.rkt} in Racket's standard library)}
+
+%% ESH: racket
+\begin{verbatim}
+(define-syntax define-syntax-rule
+  (lambda (stx)
+    (let-values ([(err) (lambda (what . xs) (apply raise-syntax-error
+                                              'define-syntax-rule what stx xs))])
+      (syntax-case stx ()
+        [(dr (name . pattern) template)
+         (identifier? #'name)
+         (syntax/loc stx
+           (define-syntax name
+             (lambda (user-stx)
+               (syntax-case** dr #t user-stx () free-identifier=? #f
+                 [(_ . pattern) (syntax-protect (syntax/loc user-stx template))]
+                 [_ (pattern-failure user-stx 'pattern)]))))]
+\end{verbatim}
+
+\subsection*{OCaml (source: \texttt{genlex.ml} in OCaml's standard library)}
+
+%% ESH: tuareg
+\begin{verbatim}
+(** The lexer **)
+let make_lexer keywords =
+  let kwd_table = Hashtbl.create 17 in
+  List.iter (fun s -> Hashtbl.add kwd_table s (Kwd s)) keywords;
+  let ident_or_keyword id =
+    try Hashtbl.find kwd_table id with
+      Not_found -> Ident id
+  and keyword_or_error c =
+    let s = String.make 1 c in
+    try Hashtbl.find kwd_table s with
+      Not_found -> raise (Stream.Error ("Illegal character " ^ s))
+\end{verbatim}
+
+\subsection*{Dafny (source: \texttt{DutchFlag.dfy} in Dafny's repo)}
+
+%% ESH: dafny
+\begin{verbatim}
+method DutchFlag(a: array<Color>)
+  requires a != null modifies a
+  ensures forall i,j :: 0 <= i < j < a.Length  ==>  Ordered(a[i], a[j])
+  ensures multiset(a[..]) == old(multiset(a[..]))
+{
+  var r, w, b := 0, 0, a.Length;
+  while w != b
+    invariant 0 <= r <= w <= b <= a.Length;
+    invariant forall i :: 0 <= i < r  ==>  a[i] == Red
+    invariant multiset(a[..]) == old(multiset(a[..]))
+  {   match a[w]
+        case Red =>
+          a[r], a[w] := a[w], a[r];
+          r, w := r + 1, w + 1;
+\end{verbatim}
+
+\subsection*{F* (source: \texttt{Handshake.fst} in miTLS)}
+
+%% ESH: fstar
+\begin{verbatim}
+val processServerFinished: KeySchedule.ks -> HandshakeLog.log -> (hs_msg * bytes) -> ST (result bytes)
+  (requires (fun h -> True))
+  (ensures (fun h_0 i h_1 -> True))
+
+let processServerFinished ks log (m, l) =
+   match m with
+   | Finished (f) ->
+     let svd = KeySchedule.ks_client_12_server_finished ks in
+     if (equalBytes svd f.fin_vd) then
+        let _ = log @@ (Finished (f)) in
+    Correct svd
+     else Error (AD_decode_error, "Finished MAC did not verify")
+   | _ -> Error (AD_decode_error, "Unexpected state")
+\end{verbatim}
+
+\subsection*{Coq (source: \texttt{ExtendedLemmas.v} in Fiat; requires a local Proof General setup)}
+
+%% ESH: prettified-coq
+\begin{verbatim}
+Lemma ProgOk_Chomp_lemma :
+  forall `{FacadeWrapper (Value av) A} (ev: Env av) (key: StringMap.key)
+    (prog: Stmt) (tail1 tail2: A -> Telescope av) ex (v: A),
+    key ∉ ex ->
+    ({{ tail1 v }} prog {{ tail2 v }} ∪ {{ [key |> wrap v] :: ex }} // ev <->
+     {{ [[`key ->> v as vv]]::tail1 vv }} prog {{ [[`key ->> v as vv]]::tail2 vv }} ∪ {{ ex }} // ev).
+Proof.
+  repeat match goal with
+         | _ => tauto
+         | _ => progress (intros || split)
+         | [ H: ?a /\ ?b |- _ ] => destruct H
+         | [ H: ?a ≲ Cons _ _ _ ∪ _ |- _ ] => learn (Cons_PushExt _ _ _ _ _ H)
+         | [ H: ProgOk ?fmap _ _ ?t1 ?t2, H': _ ≲ ?t1 ∪ ?fmap |- _ ] => destruct (H _ H'); no_dup
+         | [ H: RunsTo _ _ ?from ?to, H': forall st, RunsTo _ _ ?from st -> _ |- _ ] => specialize (H' _ H)
+         | [ H: _ ≲ _ ∪ [_ |> _] :: _ |- _ ] => apply Cons_PopExt in H
+         end.
+Qed.
+\end{verbatim}
+
+\end{document}

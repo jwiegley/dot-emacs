@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" /><title>esh2html example</title></head><body>
+    <h1>C (source: <code>xfaces.c</code> in Emacs)</h1>
+    <pre class="src-c"><span style="color:#75507B">#if</span> <span style="color:#75507B">defined</span> HAVE_X_WINDOWS &amp;&amp; <span style="color:#75507B">defined</span> USE_X_TOOLKIT
+
+<span style="color:#5F615C;font-style:italic">/* Make menus on frame F appear as specified by the `menu' face.  */</span>
+<span style="color:#346604">static</span> <span style="color:#204A87">void</span>
+<span style="color:#A40000">x_update_menu_appearance</span> (<span style="color:#346604">struct</span> <span style="color:#204A87">frame</span> *<span style="color:#B35000">f</span>)
+{
+  <span style="color:#346604">struct</span> <span style="color:#204A87">x_display_info</span> *<span style="color:#B35000">dpyinfo</span> = FRAME_DISPLAY_INFO (f);
+  <span style="color:#204A87">XrmDatabase</span> <span style="color:#B35000">rdb</span>;
+
+  <span style="color:#346604">if</span> (dpyinfo &amp;&amp; (rdb = XrmGetDatabase (FRAME_X_DISPLAY (f)), rdb != <span style="color:#204A87;font-weight:700">NULL</span>))
+    {
+      <span style="color:#204A87">char</span> <span style="color:#B35000">line</span>[512];
+      <span style="color:#204A87">char</span> *<span style="color:#B35000">buf</span> = line;
+      <span style="color:#204A87">ptrdiff_t</span> <span style="color:#B35000">bufsize</span> = <span style="color:#346604">sizeof</span> line;
+      <span style="color:#204A87">Lisp_Object</span> <span style="color:#B35000">lface</span> = lface_from_face_name (f, Qmenu, <span style="color:#204A87;font-weight:700">true</span>);
+      <span style="color:#346604">struct</span> <span style="color:#204A87">face</span> *<span style="color:#B35000">face</span> = FACE_FROM_ID (f, MENU_FACE_ID);</pre>
+
+    <h1>Emacs lisp (source: <code>esh.el</code> in this library)</h1>
+    <pre class="src-emacs-lisp">(<span style="color:#346604">require</span> '<span style="color:#204A87;font-weight:700">seq</span>)
+(<span style="color:#346604">require</span> '<span style="color:#204A87;font-weight:700">color</span>)
+(<span style="color:#346604">require</span> '<span style="color:#204A87;font-weight:700">subr-x</span>)
+
+<span style="color:#5F615C;font-style:italic">;;; Misc utils
+</span>
+(<span style="color:#346604">defun</span> <span style="color:#A40000">esh--normalize-color</span> (color)
+  <span style="color:#5C3566">&quot;Return COLOR as a hex string.&quot;</span>
+  (upcase (<span style="color:#346604">if</span> (= (aref color 0) ?#) color
+            (apply #'color-rgb-to-hex (color-name-to-rgb color)))))
+
+(<span style="color:#346604">defun</span> <span style="color:#A40000">esh--filter-cdr</span> (val alist)
+  <span style="color:#5C3566">&quot;Remove conses in ALIST whose `</span><span style="color:#204A87;font-weight:700">cdr</span><span style="color:#5C3566">' is VAL.&quot;</span>
+  (seq-filter (<span style="color:#346604">lambda</span> (pair) (not (eq (cdr pair) val))) alist))</pre>
+
+    <h1>Python (source: <code>monospacifier.py</code>)</h1>
+    <pre class="src-python"><span style="color:#346604">class</span> <span style="color:#204A87">AllowWideCharsGlyphScaler</span>(GlyphScaler):
+    <span style="color:#346604">def</span> <span style="color:#A40000">__init__</span>(<span style="color:#346604">self</span>, cell_width, avg_width):
+        <span style="color:#5C3566">&quot;&quot;&quot;Construct instance based on target CELL_WIDTH and source AVG_WIDTH.&quot;&quot;&quot;</span>
+        GlyphScaler.__init__(<span style="color:#346604">self</span>, cell_width)
+        <span style="color:#346604">self</span>.avg_width = avg_width
+
+    <span style="color:#346604">def</span> <span style="color:#A40000">scale</span>(<span style="color:#346604">self</span>, glyph):
+        <span style="color:#346604">if</span> glyph.width &gt; 0:
+            <span style="color:#B35000">new_width_in_cells</span> = <span style="color:#75507B">int</span>(math.ceil(0.75 * glyph.width / <span style="color:#346604">self</span>.avg_width))
+            <span style="color:#5F615C;font-style:italic"># if new_width_in_cells &gt; 1:
+</span>            <span style="color:#5F615C;font-style:italic">#     print(&quot;{} is {} cells wide ({} -&gt; {})&quot;.format(...))
+</span>            GlyphScaler.set_width(glyph, new_width_in_cells * <span style="color:#346604">self</span>.cell_width)</pre>
+
+    <h1>Perl (source: YAGOpt)</h1>
+    <pre class="src-perl"><span style="color:#5F615C;font-style:italic">#&amp;getopt(&quot;f:bar&quot;) ||
+#   die &amp;usage(&quot;script&quot;,&quot;f:bar&quot;,&quot;oo&quot;,&quot;[files ...]&quot;);
+</span><span style="color:#346604">sub</span> <span style="color:#A40000">getopt</span> {
+    <span style="color:#204A87">local</span>($<span style="color:#B35000">_</span>,$<span style="color:#B35000">flag</span>,$<span style="color:#B35000">opt</span>,$<span style="color:#B35000">f</span>,$<span style="color:#B35000">r</span>,@<span style="text-decoration:underline;color:#B35000">temp</span>) = @<span style="text-decoration:underline;color:#B35000">_</span>;
+    @<span style="text-decoration:underline;color:#B35000">temp</span> = split(<span style="color:#5C3566">/(.):/</span>);
+    <span style="color:#346604">while</span> ($#<span style="text-decoration:underline;color:#B35000">temp</span> &gt;= $[) {
+        $<span style="color:#B35000">flag</span> .= shift(@<span style="text-decoration:underline;color:#B35000">temp</span>);
+        $<span style="color:#B35000">opt</span> .= shift(@<span style="text-decoration:underline;color:#B35000">temp</span>);
+    }
+    <span style="color:#346604">while</span> ($<span style="color:#B35000">_</span> = $<span style="color:#B35000">ARGV</span>[0], <span style="color:#5C3566">/^-(.)(.*)/</span> &amp;&amp; shift(@<span style="text-decoration:underline;color:#B35000">ARGV</span>)) {
+        ($<span style="color:#B35000">f</span>,$<span style="color:#B35000">r</span>) = ($<span style="color:#B35000">1</span>,$<span style="color:#B35000">2</span>);
+        <span style="color:#346604">last</span> <span style="color:#346604">if</span> $<span style="color:#B35000">f</span> eq <span style="color:#5C3566">'-'</span>;
+        <span style="color:#346604">if</span> (index($<span style="color:#B35000">flag</span>,$<span style="color:#B35000">f</span>) &gt;= $[) {
+            <span style="color:#346604">eval</span> <span style="color:#5C3566">&quot;\$opt_$f++;&quot;</span>;
+            $<span style="color:#B35000">r</span> =~ <span style="color:#5C3566">/^(.)(.*)/</span>,<span style="color:#346604">redo</span> <span style="color:#346604">if</span> $<span style="color:#B35000">r</span> ne <span style="color:#5C3566">''</span>;</pre>
+
+    <h1>Ruby (source: <code>parser.rb</code> in Ruby’s standard library)</h1>
+    <pre class="src-ruby"><span style="color:#346604">class</span> <span style="color:#204A87">NotWellFormedError</span> &lt; <span style="color:#204A87">Error</span>
+  <span style="color:#75507B">attr_reader</span> <span style="color:#204A87;font-weight:700">:line</span>, <span style="color:#204A87;font-weight:700">:element</span>
+
+  <span style="color:#5F615C;font-style:italic"># Create a new NotWellFormedError for an error at +line+
+</span>  <span style="color:#5F615C;font-style:italic"># in +element+.
+</span>  <span style="color:#346604">def</span> <span style="color:#A40000">initialize</span>(line=<span style="color:#204A87;font-weight:700">nil</span>, element=<span style="color:#204A87;font-weight:700">nil</span>)
+    message = <span style="color:#5C3566">&quot;This is not well formed XML&quot;</span>
+    <span style="color:#346604">if</span> element <span style="color:#346604">or</span> line
+      message &lt;&lt; <span style="color:#5C3566">&quot;\nerror occurred&quot;</span>
+      message &lt;&lt; <span style="color:#5C3566">&quot; in </span><span style="color:#B35000">#{element}</span><span style="color:#5C3566">&quot;</span> <span style="color:#346604">if</span> element
+    <span style="color:#346604">end</span>
+    message &lt;&lt; <span style="color:#5C3566">&quot;\n</span><span style="color:#B35000">#{yield}</span><span style="color:#5C3566">&quot;</span> <span style="color:#346604">if</span> <span style="color:#75507B">block_given?</span>
+    <span style="color:#346604">super</span>(message)</pre>
+
+    <h1>Misc</h1>
+
+    <h2>Inline snippets</h2>
+    <p>ESH works inline as well:</p>
+    <ul><li><p>Here’s some C code: <code class="src-c"><span style="color:#204A87">int</span> <span style="color:#A40000">main</span>() { <span style="color:#346604">return</span> 0; }</code></p></li>
+      <li><p>Some Python: <code class="src-python"><span style="color:#346604">def</span> <span style="color:#A40000">method</span>(<span style="color:#346604">self</span>, x): <span style="color:#346604">yield</span> x</code></p></li>
+      <li><table><tbody><tr class="odd"><td align="right">Some Elisp with prettification:</td>
+              <td align="left"><code class="src-prettified-emacs-lisp">(<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> (x y) (<span style="color:#346604" class="esh-non-ascii"><span><span>∨</span></span></span> (<span class="esh-non-ascii"><span><span>≤</span></span></span> x y) (<span class="esh-non-ascii"><span><span>≈</span></span></span> (<span class="esh-non-ascii"><span><span>⊕</span></span></span> x y) 0)))</code>,</td>
+            </tr><tr class="even"><td align="right">without prettification:</td>
+              <td align="left"><code class="src-emacs-lisp">(<span style="color:#346604">lambda</span> (x y) (<span style="color:#346604">or</span> (&lt;= x y) (approx= (/+/ x y) 0)))</code></td>
+            </tr></tbody></table></li>
+    </ul><h1>Highlighting with non-core Emacs packages</h1>
+    <p>The following examples all depend on externally developped packages, and thus require that you run <code>cask install</code> to install these dependencies (Cask is the Emacs Lisp equivalent of Python’s virtualenvs).</p>
+
+    <h2>Haskell (source: <code>Monoid.hs</code> in Haskell’s standard library)</h2>
+    <pre class="src-haskell"><span style="color:#5C3566">-- | The dual of a 'Monoid', obtained by swapping the arguments of 'mappend'.
+</span><span style="color:#346604">newtype</span> <span style="color:#204A87">Dual</span> a <span style="color:#B35000">=</span> <span style="color:#204A87">Dual</span> { getDual <span style="color:#B35000" class="esh-non-ascii"><span><span>∷</span></span></span> a }
+        <span style="color:#346604">deriving</span> (<span style="color:#204A87">Eq</span>, <span style="color:#204A87">Ord</span>, <span style="color:#204A87">Read</span>, <span style="color:#204A87">Show</span>, <span style="color:#204A87">Bounded</span>, <span style="color:#204A87">Generic</span>, <span style="color:#204A87">Generic1</span>)
+
+<span style="color:#346604">instance</span> <span style="color:#204A87">Monoid</span> a <span style="color:#B35000" class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#204A87">Monoid</span> (<span style="color:#204A87">Dual</span> a) <span style="color:#346604">where</span>
+        mempty <span style="color:#B35000">=</span> <span style="color:#204A87">Dual</span> mempty
+        <span style="color:#204A87">Dual</span> x <span style="color:#B35000">`mappend`</span> <span style="color:#204A87">Dual</span> y <span style="color:#B35000">=</span> <span style="color:#204A87">Dual</span> (y <span style="color:#B35000">`mappend`</span> x)
+
+<span style="color:#5C3566">-- | The monoid of endomorphisms under composition.
+</span><span style="color:#346604">newtype</span> <span style="color:#204A87">Endo</span> a <span style="color:#B35000">=</span> <span style="color:#204A87">Endo</span> { appEndo <span style="color:#B35000" class="esh-non-ascii"><span><span>∷</span></span></span> a <span style="color:#B35000" class="esh-non-ascii"><span><span>→</span></span></span> a }
+               <span style="color:#346604">deriving</span> (<span style="color:#204A87">Generic</span>)
+
+<span style="color:#346604">instance</span> <span style="color:#204A87">Monoid</span> (<span style="color:#204A87">Endo</span> a) <span style="color:#346604">where</span>
+        mempty <span style="color:#B35000">=</span> <span style="color:#204A87">Endo</span> id
+        <span style="color:#204A87">Endo</span> f <span style="color:#B35000">`mappend`</span> <span style="color:#204A87">Endo</span> g <span style="color:#B35000">=</span> <span style="color:#204A87">Endo</span> (f <span style="color:#B35000" class="esh-non-ascii"><span><span>∘</span></span></span> g)</pre>
+
+    <h2>Racket (source: <code>misc.rkt</code> in Racket’s standard library)</h2>
+    <pre class="src-racket">(<span style="color:#346604">define-syntax</span> <span style="color:#B35000">define-syntax-rule
+</span>  (<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> (stx)
+    (<span style="color:#346604">let-values</span> ([(err) (<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> (what . xs) (<span style="color:#346604">apply</span> <span style="color:#75507B">raise-syntax-error</span>
+                                              <span style="color:#2E8B57">'define-syntax-rule</span> what stx xs))])
+      (<span style="color:#346604">syntax-case</span> stx ()
+        [(dr (name . pattern) template)
+         (<span style="color:#75507B">identifier?</span> #<span style="color:#2E8B57">'name</span>)
+         (<span style="color:#346604">syntax/loc</span> stx
+           (<span style="color:#346604">define-syntax</span> <span style="color:#B35000">name
+</span>             (<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> (user-stx)
+               (syntax-case** dr <span style="color:#2E8B57">#t</span> user-stx () <span style="color:#75507B">free-identifier=?</span> <span style="color:#2E8B57">#f</span>
+                 [(<span style="color:#346604">_</span> . pattern) (<span style="color:#75507B">syntax-protect</span> (<span style="color:#346604">syntax/loc</span> user-stx template))]
+                 [<span style="color:#346604">_</span> (pattern-failure user-stx <span style="color:#2E8B57">'pattern</span>)]))))]</pre>
+
+    <h2>OCaml (source: <code>genlex.ml</code> in OCaml’s standard library)</h2>
+    <pre class="src-tuareg"><span style="color:#5C3566">(** The lexer **)</span>
+<span style="color:#000000;font-weight:700">let</span> <span style="color:#A40000">make_lexer</span><span style="color:#B35000"> keywords</span> <span style="color:#A52A2A">=</span>
+  <span style="color:#000000;font-weight:700">let</span> <span style="color:#B35000">kwd_table</span> <span style="color:#A52A2A">=</span> <span style="color:#204A87">Hashtbl.</span>create 17 <span style="color:#000000;font-weight:700">in</span>
+  <span style="color:#204A87">List.</span>iter <span style="color:#A52A2A">(</span><span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> <span style="color:#B35000">s</span> <span style="color:#A52A2A" class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#204A87">Hashtbl.</span>add kwd_table s <span style="color:#A52A2A">(</span>Kwd s<span style="color:#A52A2A">))</span> keywords<span style="color:#A52A2A">;</span>
+  <span style="color:#000000;font-weight:700">let</span> <span style="color:#A40000">ident_or_keyword</span><span style="color:#B35000"> id</span> <span style="color:#A52A2A">=</span>
+    <span style="color:#346604">try</span> <span style="color:#204A87">Hashtbl.</span>find kwd_table id <span style="color:#346604">with</span>
+      <span style="color:#75507B">Not_found</span> <span style="color:#A52A2A" class="esh-non-ascii"><span><span>→</span></span></span> Ident id
+  <span style="color:#000000;font-weight:700">and</span> <span style="color:#A40000">keyword_or_error</span><span style="color:#B35000"> c</span> <span style="color:#A52A2A">=</span>
+    <span style="color:#000000;font-weight:700">let</span> <span style="color:#B35000">s</span> <span style="color:#A52A2A">=</span> <span style="color:#204A87">String.</span>make 1 c <span style="color:#000000;font-weight:700">in</span>
+    <span style="color:#346604">try</span> <span style="color:#204A87">Hashtbl.</span>find kwd_table s <span style="color:#346604">with</span>
+      <span style="color:#75507B">Not_found</span> <span style="color:#A52A2A" class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#75507B">raise</span> <span style="color:#A52A2A">(</span><span style="color:#204A87">Stream.</span>Error <span style="color:#A52A2A">(</span><span style="color:#5C3566">&quot;Illegal character &quot;</span> <span style="color:#A52A2A">^</span> s<span style="color:#A52A2A">))</span></pre>
+
+    <h2>Dafny (source: <code>DutchFlag.dfy</code> in Dafny’s repo)</h2>
+    <pre class="src-dafny"><span style="color:#75507B">method</span> <span style="color:#A40000">DutchFlag</span>(<span style="color:#B35000">a</span>: <span style="color:#204A87">array&lt;Color&gt;</span>)
+  <span style="color:#5C3566">requires</span> a <span class="esh-non-ascii"><span><span>≠</span></span></span> <span style="color:#346604">null</span> <span style="color:#5C3566">modifies</span> a
+  <span style="color:#5C3566">ensures</span> <span style="color:#346604" class="esh-non-ascii"><span><span>∀</span></span></span> i,j <span class="esh-non-ascii"><span><span>∙</span></span></span> 0 <span class="esh-non-ascii"><span><span>≤</span></span></span> i &lt; j &lt; a.Length  <span class="esh-non-ascii"><span><span>⟹</span></span></span>  Ordered(a[i], a[j])
+  <span style="color:#5C3566">ensures</span> <span style="color:#204A87">multiset</span>(a[..]) == <span style="color:#346604">old</span>(<span style="color:#204A87">multiset</span>(a[..]))
+{
+  <span style="color:#346604">var</span> <span style="color:#B35000">r</span>, <span style="color:#B35000">w</span>, <span style="color:#B35000">b</span> <span class="esh-non-ascii"><span><span>≔</span></span></span> 0, 0, a.Length;
+  <span style="color:#346604">while</span> w <span class="esh-non-ascii"><span><span>≠</span></span></span> b
+    <span style="color:#5C3566">invariant</span> 0 <span class="esh-non-ascii"><span><span>≤</span></span></span> r <span class="esh-non-ascii"><span><span>≤</span></span></span> w <span class="esh-non-ascii"><span><span>≤</span></span></span> b <span class="esh-non-ascii"><span><span>≤</span></span></span> a.Length;
+    <span style="color:#5C3566">invariant</span> <span style="color:#346604" class="esh-non-ascii"><span><span>∀</span></span></span> i <span class="esh-non-ascii"><span><span>∙</span></span></span> 0 <span class="esh-non-ascii"><span><span>≤</span></span></span> i &lt; r  <span class="esh-non-ascii"><span><span>⟹</span></span></span>  a[i] == Red
+    <span style="color:#5C3566">invariant</span> <span style="color:#204A87">multiset</span>(a[..]) == <span style="color:#346604">old</span>(<span style="color:#204A87">multiset</span>(a[..]))
+  {   <span style="color:#346604">match</span> a[w]
+        <span style="color:#346604">case</span> Red <span class="esh-non-ascii"><span><span>⇒</span></span></span>
+          a[r], a[w] <span class="esh-non-ascii"><span><span>≔</span></span></span> a[w], a[r];
+          <span style="color:#B35000">r</span>, <span style="color:#B35000">w</span> <span class="esh-non-ascii"><span><span>≔</span></span></span> r + 1, w + 1;</pre>
+
+    <h2>F* (source: <code>Handshake.fst</code> in miTLS)</h2>
+    <pre class="src-fstar"><span style="font-weight:700">val</span> <span style="color:#A40000">processServerFinished</span>: <span style="color:#204A87">KeySchedule</span>.ks <span class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#204A87">HandshakeLog</span>.log <span class="esh-non-ascii"><span><span>→</span></span></span> (hs_msg <span class="esh-non-ascii"><span><span>×</span></span></span> bytes) <span class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#346604">ST</span> (result bytes)
+  (<span style="color:#75507B">requires</span> (<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> <span style="color:#B35000">h</span> <span class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#204A87;font-weight:700" class="esh-non-ascii"><span><span>⊤</span></span></span>))
+  (<span style="color:#75507B">ensures</span> (<span style="color:#346604" class="esh-non-ascii"><span><span>λ</span></span></span> <span style="color:#B35000">h<span class="esh-raised"><span class="esh-raised-contents"><span style="font-size:80%;bottom:-0.3em">0</span></span><span class="esh-raised-placeholder">0</span></span> i h<span class="esh-raised"><span class="esh-raised-contents"><span style="font-size:80%;bottom:-0.3em">1</span></span><span class="esh-raised-placeholder">1</span></span></span> <span class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#204A87;font-weight:700" class="esh-non-ascii"><span><span>⊤</span></span></span>))
+
+<span style="font-weight:700">let</span><span style="color:#A40000"> processServerFinished</span> ks log (m, l) =
+   <span style="color:#346604">match</span> m <span style="color:#346604">with</span>
+   | <span style="color:#204A87">Finished</span> (f) <span class="esh-non-ascii"><span><span>→</span></span></span>
+     <span style="font-weight:700">let</span><span style="color:#A40000"> svd</span> = <span style="color:#204A87">KeySchedule</span>.ks_client_12_server_finished ks <span style="font-weight:700">in</span>
+     <span style="color:#346604">if</span> (equalBytes svd f.fin_vd) <span style="color:#346604">then</span>
+        <span style="font-weight:700">let</span><span style="color:#A40000"> _</span> = log @@ (<span style="color:#204A87">Finished</span> (f)) <span style="font-weight:700">in</span>
+        <span style="color:#204A87">Correct</span> svd
+     <span style="color:#346604">else</span> <span style="color:#204A87">Error</span> (<span style="color:#204A87">AD_decode_error</span>, <span style="color:#5C3566">&quot;Finished MAC did not verify&quot;</span>)
+   | _ <span class="esh-non-ascii"><span><span>→</span></span></span> <span style="color:#204A87">Error</span> (<span style="color:#204A87">AD_decode_error</span>, <span style="color:#5C3566">&quot;Unexpected state&quot;</span>)</pre>
+
+    <h2>Coq (source: <code>ExtendedLemmas.v</code> in Fiat; requires a local Proof General setup)</h2>
+    <pre class="src-coq"><span style="color:#346604">Lemma</span> <span style="color:#A40000">ProgOk_Chomp_lemma</span> :
+  <span style="color:#204A87" class="esh-non-ascii"><span><span>∀</span></span></span> `{FacadeWrapper (Value av) A} (<span style="color:#B35000">ev</span>: Env av) (<span style="color:#B35000">key</span>: StringMap.key)
+    (<span style="color:#B35000">prog</span>: Stmt) (<span style="color:#B35000">tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">1</span></span><span class="esh-raised-placeholder">1</span></span> tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">2</span></span><span class="esh-raised-placeholder">2</span></span></span>: A <span class="esh-non-ascii"><span><span>→</span></span></span> Telescope av) ex (<span style="color:#B35000">v</span>: A),
+    key <span class="esh-non-ascii"><span><span>∉</span></span></span> ex <span class="esh-non-ascii"><span><span>→</span></span></span>
+    ({{ tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">1</span></span><span class="esh-raised-placeholder">1</span></span> v }} prog {{ tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">2</span></span><span class="esh-raised-placeholder">2</span></span> v }} <span class="esh-non-ascii"><span><span>∪</span></span></span> {{ [key <span class="esh-non-ascii"><span><span>▹</span></span></span> wrap v] :: ex }} // ev <span class="esh-non-ascii"><span><span>↔</span></span></span>
+     {{ [[`key <span class="esh-non-ascii"><span><span>↦</span></span></span> v <span style="color:#204A87">as</span> vv]]::tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">1</span></span><span class="esh-raised-placeholder">1</span></span> vv }} prog {{ [[`key <span class="esh-non-ascii"><span><span>↦</span></span></span> v <span style="color:#204A87">as</span> vv]]::tail<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">2</span></span><span class="esh-raised-placeholder">2</span></span> vv }} <span class="esh-non-ascii"><span><span>∪</span></span></span> {{ ex }} // ev).
+<span style="color:#346604">Proof</span>.
+  <span style="color:#B452CD">repeat</span> <span style="color:#204A87">match</span> goal <span style="color:#204A87">with</span>
+         | _ <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#FF0000">tauto</span>
+         | _ <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#B452CD">progress</span> (<span style="color:#00008B">intros</span> <span class="esh-non-ascii"><span><span>‖</span></span></span> <span style="color:#00008B">split</span>)
+         | [ H: <span style="color:#B35000">?a</span> <span class="esh-non-ascii"><span><span>∧</span></span></span> <span style="color:#B35000">?b</span> <span class="esh-non-ascii"><span><span>⊢</span></span></span> _ ] <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#00008B">destruct</span> H
+         | [ H: <span style="color:#B35000">?a</span> <span class="esh-non-ascii"><span><span>≲</span></span></span> Cons _ _ _ <span class="esh-non-ascii"><span><span>∪</span></span></span> _ <span class="esh-non-ascii"><span><span>⊢</span></span></span> _ ] <span class="esh-non-ascii"><span><span>⇒</span></span></span> learn (Cons_PushExt _ _ _ _ _ H)
+         | [ H: ProgOk <span style="color:#B35000">?fmap</span> _ _ <span style="color:#B35000">?t<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">1</span></span><span class="esh-raised-placeholder">1</span></span></span> <span style="color:#B35000">?t<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">2</span></span><span class="esh-raised-placeholder">2</span></span></span>, H': _ <span class="esh-non-ascii"><span><span>≲</span></span></span> <span style="color:#B35000">?t<span class="esh-raised"><span class="esh-raised-contents"><span style="bottom:-0.25em">1</span></span><span class="esh-raised-placeholder">1</span></span></span> <span class="esh-non-ascii"><span><span>∪</span></span></span> <span style="color:#B35000">?fmap</span> <span class="esh-non-ascii"><span><span>⊢</span></span></span> _ ] <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#00008B">destruct</span> (H _ H'); no_dup
+         | [ H: RunsTo _ _ <span style="color:#B35000">?from</span> <span style="color:#B35000">?to</span>, H': <span style="color:#204A87" class="esh-non-ascii"><span><span>∀</span></span></span> <span style="color:#B35000">st</span>, RunsTo _ _ <span style="color:#B35000">?from</span> st <span class="esh-non-ascii"><span><span>→</span></span></span> _ <span class="esh-non-ascii"><span><span>⊢</span></span></span> _ ] <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#00008B">specialize</span> (H' _ H)
+         | [ H: _ <span class="esh-non-ascii"><span><span>≲</span></span></span> _ <span class="esh-non-ascii"><span><span>∪</span></span></span> [_ <span class="esh-non-ascii"><span><span>▹</span></span></span> _] :: _ <span class="esh-non-ascii"><span><span>⊢</span></span></span> _ ] <span class="esh-non-ascii"><span><span>⇒</span></span></span> <span style="color:#00008B">apply</span> Cons_PopExt <span style="color:#204A87">in</span> H
+         <span style="color:#204A87">end</span>.
+<span style="color:#346604">Qed</span>.</pre>
+  </body></html>

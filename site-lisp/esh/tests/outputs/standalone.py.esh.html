@@ -1,0 +1,14 @@
+<!doctype html>
+
+<html lang="en"><head><meta charset="utf-8" /><title>ESH:  *temp*</title><link rel="stylesheet" href="esh-preamble.css" /></head><body style="font-size:12pt;color:#2E3436;background-color:#EEEEEC"><pre class="esh-standalone" style="font-family: &quot;Ubuntu Mono&quot;, monospace;"><span style="color:#346604">class</span> <span style="color:#204A87">AllowWideCharsGlyphScaler</span>(GlyphScaler):
+    <span style="color:#346604">def</span> <span style="color:#A40000">__init__</span>(<span style="color:#346604">self</span>, cell_width, avg_width):
+        <span style="color:#5C3566">&quot;&quot;&quot;Construct instance based on target CELL_WIDTH and source AVG_WIDTH.&quot;&quot;&quot;</span>
+        GlyphScaler.__init__(<span style="color:#346604">self</span>, cell_width)
+        <span style="color:#346604">self</span>.avg_width = avg_width
+
+    <span style="color:#346604">def</span> <span style="color:#A40000">scale</span>(<span style="color:#346604">self</span>, glyph):
+        <span style="color:#346604">if</span> glyph.width &gt; 0:
+            <span style="color:#B35000">new_width_in_cells</span> = <span style="color:#75507B">int</span>(math.ceil(0.75 * glyph.width / <span style="color:#346604">self</span>.avg_width))
+            <span style="color:#5F615C;font-style:italic"># if new_width_in_cells &gt; 1:
+</span>            <span style="color:#5F615C;font-style:italic">#     print(&quot;{} is {} cells wide ({} -&gt; {})&quot;.format(...))
+</span>            GlyphScaler.set_width(glyph, new_width_in_cells * <span style="color:#346604">self</span>.cell_width)</pre></body></html>

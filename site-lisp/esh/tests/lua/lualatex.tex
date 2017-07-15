@@ -1,0 +1,30 @@
+\documentclass{article}
+
+\usepackage{polyglossia}
+\setmainlanguage{english}
+
+\usepackage{fontspec}
+
+%% ESH-preamble-here
+
+\newfontfamily{\Symbola}{Symbola}
+\renewcommand*{\ESHFallbackFontFamily}{\Symbola}
+
+\begin{document}
+
+%% ESH: emacs-lisp
+\begin{verbatim}
+(lambda (code)
+  "Find a delimiter that does not appear in CODE."
+  (let ((candidates esh--latex-pv-delimiters)
+        (delim nil))
+    (while (not delim)
+      (unless candidates
+        (error "No delimiter found to wrap %S" code))
+      (pcase-let* ((`(,char . ,re) (pop candidates)))
+        (when (not (string-match-p re code))
+          (setq delim char))))
+    delim))
+\end{verbatim}
+
+\end{document}
