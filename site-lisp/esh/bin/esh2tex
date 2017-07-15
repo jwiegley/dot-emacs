@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(add-to-list 'load-path "~/emacs/site-lisp/esh")
+
 (setq-default load-prefer-newer t)
 
 (eval-and-compile

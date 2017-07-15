@@ -44,17 +44,13 @@
   (require 'cl)
 
   (defvar use-package-verbose t)
-  ;;(defvar use-package-expand-minimally t)
+  ;; (defvar use-package-expand-minimally t)
   (require 'use-package))
 
 (require 'bind-key)
 (require 'diminish nil t)
 
 ;;; Utility macros and functions
-
-;; Support TextExpander
-;; (bind-key "A-v" #'scroll-down)
-;; (bind-key "M-v" #'yank)
 
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
@@ -881,11 +877,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (forward-line))
 
   (defun my-c-mode-common-hook ()
-    ;; (ggtags-mode 1)
     (eldoc-mode 1)
     (hs-minor-mode 1)
     (hide-ifdef-mode 1)
-    ;; (whitespace-mode 1)
     (which-function-mode 1)
     (company-mode 1)
     (bug-reference-prog-mode 1)
@@ -893,10 +887,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (diminish 'hs-minor-mode)
     (diminish 'hide-ifdef-mode)
 
-    ;; (bind-key "C-c p" 'insert-counting-printf c-mode-base-map)
-
-    ;;(doxymacs-mode 1)
-    ;;(doxymacs-font-lock)
+    ;; (doxymacs-mode 1)
+    ;; (doxymacs-font-lock)
 
     (bind-key "<return>" #'newline-and-indent c-mode-base-map)
 
@@ -1752,21 +1744,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (require 'erc)
     (if (slowping titan-ip)
-        (progn
-          ;; (erc :server titan-ip
-          ;;      :port 6697
-          ;;      :nick "johnw"
-          ;;      :password (lookup-password titan-ip "johnw/bitlbee" 6697))
-          (erc :server titan-ip
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password titan-ip "johnw/freenode" 6697))
-          ;; (erc :server titan-ip
-          ;;      :port 6697
-          ;;      :nick "johnw"
-          ;;      :password (lookup-password titan-ip "johnw/oftc" 6697))
-          )
-
+        (erc :server titan-ip
+             :port 6697
+             :nick "johnw"
+             :password (lookup-password titan-ip "johnw/freenode" 6697))
       (erc-tls :server "irc.freenode.net"
                :port 6697
                :nick "johnw"
@@ -2130,15 +2111,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (cd temporary-file-directory)
         (setq hoogle-server-process
               (start-process "hoogle-web" (current-buffer) "hoogle"
-                             "server" "--local" "--port=8687")
-              ;; (start-process "hoogle-web" (current-buffer) "docker"
-              ;;                "run" "-p" "8687:8687" "-ti" "jwiegley/hoogle-local")
-              ))
-      ;; (sleep-for 2 0)
-      ;; (with-current-buffer (get-buffer-create " *hoogle-ssh*")
-      ;;   (start-process "hoogle-ssh" (current-buffer) "docker-machine"
-      ;;                  "ssh" "default" "-NT" "-L" "8687:127.0.0.1:8687"))
-      ;; (sleep-for 2 0)
+                             "server" "--local" "--port=8687")))
       (message "Starting local Hoogle server on port 8687...done"))
     (browse-url
      (format "http://127.0.0.1:8687/?hoogle=%s"
@@ -2186,7 +2159,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       ("=>"     . ?⇒)
       ("~>"     . ?⇝)
       ("<~"     . ?⇜)
-      ;; ("."      . ?∘)
       ("<>"     . ?⨂)
       ("msum"   . ?⨁)
       ("\\"     . ?λ)
@@ -2238,10 +2210,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
     (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
 
-  ;; (use-package flycheck-hdevtools
-  ;;   :load-path "site-lisp/flycheck-hdevtools"
-  ;;   :config
-  ;;   (push 'haskell-hdevtools flycheck-checkers))
+  (use-package flycheck-hdevtools
+    :disabled t
+    :load-path "site-lisp/flycheck-hdevtools"
+    :config
+    (push 'haskell-hdevtools flycheck-checkers))
 
   (use-package haskell-edit
     :load-path "lisp/haskell-config"
@@ -2280,9 +2253,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-x f"   . helm-multi-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         ("M-H"     . helm-resume)
-         ;; ("M-x"     . helm-M-x)
-         )
+         ("M-H"     . helm-resume))
 
   :preface
   (defun my-helm-find ()
@@ -2293,10 +2264,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-commands)
   (use-package helm-files)
   (use-package helm-buffers)
-  ;; (use-package helm-mode
-  ;;   :diminish helm-mode
-  ;;   :init
-  ;;   (helm-mode 1))
+  (use-package helm-mode
+    :disabled t
+    :diminish helm-mode
+    :init
+    (helm-mode 1))
 
   (use-package helm-multi-match)
 
@@ -2400,10 +2372,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (interactive
          (let ((options (my-hippie-expand-completions ,hippie-expand-function)))
            (if options
-               (list
-                ;; (ido-completing-read "Completions: " options)
-                (completing-read "Completions: " options)
-                ))))
+               (list (completing-read "Completions: " options)))))
         (if selection
             (he-substitute-string selection t)
           (message "No expansion found")))))
@@ -2586,15 +2555,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package hl-line+))
 
-;; (use-package hydra
-;;   :disabled t
-;;   :load-path "site-lisp/hydra"
-;;   :defer 10
-;;   :config
-;;   (defhydra hydra-zoom (global-map "<f2>")
-;;     "zoom"
-;;     ("g" text-scale-increase "in")
-;;     ("l" text-scale-decrease "out")))
+(use-package hydra
+  :disabled t
+  :load-path "site-lisp/hydra"
+  :defer 10
+  :config
+  (defhydra hydra-zoom (global-map "<f2>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out")))
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
@@ -3628,19 +3597,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      (lambda ()
        (holes-mode -1)
        (whitespace-mode 1)
-       ;; (ggtags-mode 1)
        (set-input-method "Agda")
-       ;; (proof-unicode-tokens-enable 1)
+
        (add-hook 'proof-shell-extend-queue-hook
                  (lambda () (set-window-dedicated-p (selected-window) t)))
        (defalias 'proof-display-and-keep-buffer
          'my-proof-display-and-keep-buffer)
 
        (company-coq-mode 1)
-
-       ;; (flycheck-mode 1)
-       ;; (bind-key "M-n" #'flycheck-next-error coq-mode-map)
-       ;; (bind-key "M-p" #'flycheck-previous-error coq-mode-map)
 
        (set (make-local-variable 'fill-nobreak-predicate)
             (lambda ()
@@ -3942,86 +3906,87 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
-;; (use-package slime
-;;   :load-path "site-lisp/slime"
-;;   :commands (sbcl slime)
-;;   :init
-;;   (add-hook
-;;    'slime-load-hook
-;;    #'(lambda ()
-;;        (slime-setup
-;;         '(slime-asdf
-;;           slime-autodoc
-;;           slime-banner
-;;           slime-c-p-c
-;;           slime-editing-commands
-;;           slime-fancy-inspector
-;;           slime-fancy
-;;           slime-fuzzy
-;;           slime-highlight-edits
-;;           slime-parse
-;;           slime-presentation-streams
-;;           slime-presentations
-;;           slime-references
-;;           slime-repl
-;;           slime-sbcl-exts
-;;           slime-package-fu
-;;           slime-fontifying-fu
-;;           slime-mdot-fu
-;;           slime-scratch
-;;           slime-tramp
-;;           slime-enclosing-context
-;;           slime-typeout-frame
-;;           slime-xref-browser
-;;           ))
+(use-package slime
+  :disabled t
+  :load-path "site-lisp/slime"
+  :commands (sbcl slime)
+  :init
+  (add-hook
+   'slime-load-hook
+   #'(lambda ()
+       (slime-setup
+        '(slime-asdf
+          slime-autodoc
+          slime-banner
+          slime-c-p-c
+          slime-editing-commands
+          slime-fancy-inspector
+          slime-fancy
+          slime-fuzzy
+          slime-highlight-edits
+          slime-parse
+          slime-presentation-streams
+          slime-presentations
+          slime-references
+          slime-repl
+          slime-sbcl-exts
+          slime-package-fu
+          slime-fontifying-fu
+          slime-mdot-fu
+          slime-scratch
+          slime-tramp
+          slime-enclosing-context
+          slime-typeout-frame
+          slime-xref-browser
+          ))
 
-;;        (define-key slime-repl-mode-map [(control return)] 'other-window)
+       (define-key slime-repl-mode-map [(control return)] 'other-window)
 
-;;        (define-key slime-mode-map [return] 'paredit-newline)
-;;        (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
+       (define-key slime-mode-map [return] 'paredit-newline)
+       (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
 
-;;   :config
-;;   (progn
-;;     (eval-when-compile
-;;       (defvar slime-repl-mode-map))
+  :config
+  (progn
+    (eval-when-compile
+      (defvar slime-repl-mode-map))
 
-;;     (setq slime-net-coding-system 'utf-8-unix)
+    (setq slime-net-coding-system 'utf-8-unix)
 
-;;     ;; (setq slime-lisp-implementations
-;;     ;;       '((sbcl
-;;     ;;          ("sbcl" "--core"
-;;     ;;           "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-;;     ;;          :init
-;;     ;;          (lambda (port-file _)
-;;     ;;            (format "(swank:start-server %S)\n" port-file)))
-;;     ;;         (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
-;;     ;;         (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
+    (setq slime-lisp-implementations
+          '((sbcl
+             ("sbcl" "--core"
+              "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
+             :init
+             (lambda (port-file _)
+               (format "(swank:start-server %S)\n" port-file)))
+            (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
+            (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
 
-;;     (setq slime-default-lisp 'sbcl)
-;;     (setq slime-complete-symbol*-fancy t)
-;;     (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+    (setq slime-default-lisp 'sbcl)
+    (setq slime-complete-symbol*-fancy t)
+    (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
 
-;;     (defun sbcl (&optional arg)
-;;       (interactive "P")
-;;       (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
-;;             (current-prefix-arg nil))
-;;         (slime)))
-;;     (defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
-;;     (defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
+    (defun sbcl (&optional arg)
+      (interactive "P")
+      (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
+            (current-prefix-arg nil))
+        (slime)))
+    (defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
+    (defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
 
-;;     (defun start-slime ()
-;;       (interactive)
-;;       (unless (slime-connected-p)
-;;         (save-excursion (slime))))
+    (defun start-slime ()
+      (interactive)
+      (unless (slime-connected-p)
+        (save-excursion (slime))))
 
-;;     (add-hook 'slime-mode-hook 'start-slime)
-;;     (add-hook 'slime-load-hook #'(lambda () (require 'slime-fancy)))
-;;     (add-hook 'inferior-lisp-mode-hook #'(lambda () (inferior-slime-mode t)))
+    (add-hook 'slime-mode-hook 'start-slime)
+    (add-hook 'slime-load-hook #'(lambda () (require 'slime-fancy)))
+    (add-hook 'inferior-lisp-mode-hook #'(lambda () (inferior-slime-mode t)))
 
-;;     (use-package hyperspec
-;;       :config
-;;       (setq common-lisp-hyperspec-root
-;;             (expand-file-name "~/Library/Lisp/HyperSpec/")))))
+    (use-package hyperspec
+      :config
+      (setq common-lisp-hyperspec-root
+            (expand-file-name "~/Library/Lisp/HyperSpec/")))))
 
 (use-package smart-compile
   :disabled t
