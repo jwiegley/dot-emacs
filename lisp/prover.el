@@ -59,3 +59,5 @@
                       (nreverse ctors))
                 (buffer-string))))))
     indstr))
+
+(provide 'prover)
