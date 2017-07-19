@@ -2265,10 +2265,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package helm-files)
   (use-package helm-buffers)
   (use-package helm-mode
-    :disabled t
-    :diminish helm-mode
-    :init
-    (helm-mode 1))
+    :diminish helm-mode)
 
   (use-package helm-multi-match)
 
@@ -3584,6 +3581,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         :load-path "site-lisp/math-symbol-lists"
         :defer t))
     :config
+    (use-package prover)
+    (bind-key "C-M-h" #'company-coq-toggle-definition-overlay coq-mode-map)
     (unbind-key "M-<return>" company-coq-map))
 
   (use-package coq

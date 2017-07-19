@@ -300,9 +300,7 @@
     ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
  '(clean-buffer-list-kill-regexps (quote (".*")))
  '(column-number-mode t)
- '(company-coq-disabled-features
-   (quote
-    (hello prettify-symbols smart-subscripts dynamic-symbols-backend)))
+ '(company-coq-disabled-features (quote (hello prettify-symbols dynamic-symbols-backend)))
  '(company-coq-prettify-symbols-alist
    (quote
     (("|-" . 8866)
@@ -866,6 +864,7 @@
  '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer")
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
+ '(ns-function-modifier (quote hyper))
  '(ns-right-alternate-modifier (quote super))
  '(ns-right-control-modifier (quote hyper))
  '(nsm-settings-file "/Users/johnw/.emacs.d/data/network-security.data")
