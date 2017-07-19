@@ -384,7 +384,7 @@ LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
 LOAD-PATH, CURRENT-DIRECTORY, PRE-V85: see `coq-include-options'."
   ;; coqtop always adds the current directory to the LoadPath, so don't
   ;; include it in the -Q options.
-  (append (remove "-emacs" (remove "-emacs-U" coq-prog-args))
+  (append (remove "-emacs" coq-prog-args)
           (let ((coq-load-path-include-current nil)) ; Not needed in >=8.5beta3
             (coq-coqdep-prog-args coq-load-path current-directory pre-v85))))
 
@@ -654,7 +654,7 @@ then be set using local file variables."
             (setq coq-prog-args nil)
             (concat
              (substring command 0 (string-match " [^ ]*$" command))
-             "-emacs-U"))
+             "-emacs"))
         coq-prog-name))))
 
 ;;; coq-system.el ends here
