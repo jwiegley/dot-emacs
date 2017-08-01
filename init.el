@@ -1,3 +1,10 @@
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (defconst emacs-start-time (current-time))
 
 (unless noninteractive
@@ -195,20 +202,7 @@
 ;;; global-map
 
 (autoload 'org-cycle "org" nil t)
-(autoload 'hippie-expand "hippie-exp" nil t)
 (autoload 'indent-according-to-mode "indent" nil t)
-
-(defun smart-tab (&optional arg)
-  (interactive "P")
-  (cond
-   ((looking-back "^[-+* \t]*" nil)
-    (if (eq major-mode 'org-mode)
-        (org-cycle arg)
-      (indent-according-to-mode)))
-   (t
-    ;; Hippie also expands yasnippets, due to `yas-hippie-try-expand' in
-    ;; `hippie-expand-try-functions-list'.
-    (hippie-expand arg))))
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
@@ -400,20 +394,20 @@
 
 (bind-key "C-x M-q" #'refill-paragraph)
 
-(defun endless/fill-or-unfill (count)
-  "Like `fill-paragraph', but unfill if used twice."
-  (interactive "P")
-  (let ((fill-column
-         (if count
-             (prefix-numeric-value count)
-           (if (eq last-command 'endless/fill-or-unfill)
-               (progn (setq this-command nil)
-                      (point-max))
-             fill-column))))
-    (fill-paragraph)))
+;; (defun endless/fill-or-unfill (count)
+;;   "Like `fill-paragraph', but unfill if used twice."
+;;   (interactive "P")
+;;   (let ((fill-column
+;;          (if count
+;;              (prefix-numeric-value count)
+;;            (if (eq last-command 'endless/fill-or-unfill)
+;;                (progn (setq this-command nil)
+;;                       (point-max))
+;;              fill-column))))
+;;     (fill-paragraph)))
 
-(global-set-key [remap fill-paragraph]
-                #'endless/fill-or-unfill)
+;; (global-set-key [remap fill-paragraph]
+;;                 #'endless/fill-or-unfill)
 
 ;;; mode-specific-map
 
@@ -492,7 +486,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (defvar emacs-min-top 23)
 (defvar emacs-min-left
-  (cond ((eq display-name 'retina-imac) 975)
+  (cond ((eq display-name 'retina-imac) 465)
         ((eq display-name 'macbook-pro-vga) 837)
         (t 521)))
 (defvar emacs-min-height
@@ -500,7 +494,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         ((eq display-name 'macbook-pro-vga) 54)
         ((eq display-name 'macbook-pro) 47)
         (t 44)))
-(defvar emacs-min-width 100)
+(defvar emacs-min-width
+  (cond ((eq display-name 'retina-imac) 188)
+        (t 100)))
 
 (if running-alternate-emacs
     (setq emacs-min-top 22
@@ -2330,6 +2326,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
+  :disabled t
   :bind (("M-/" . dabbrev-expand)
          ("M-?" . hippie-expand))
   :preface
@@ -3531,43 +3528,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (declare-function proof-get-window-for-buffer "proof-utils")
     (declare-function proof-resize-window-tofit "proof-utils")
     (declare-function window-bottom-p "proof-compat"))
-
-  (defun my-proof-display-and-keep-buffer (buffer &optional pos force)
-    (when (or force proof-auto-raise-buffers)
-      (save-excursion
-        (save-selected-window
-          (let ((window (proof-get-window-for-buffer buffer)))
-            (when (window-live-p window) ;; [fails sometimes?]
-              (if proof-three-window-enable
-                  (set-window-dedicated-p window nil))
-              (select-window window)
-              (if proof-shrink-windows-tofit
-                  (proof-resize-window-tofit)
-                ;; If we're not shrinking to fit, allow the size of
-                ;; this window to change.  [NB: might be nicer to
-                ;; fix the size based on user choice]
-                (setq window-size-fixed nil))
-              ;; For various reasons, point may get moved around in
-              ;; response buffer.  Attempt to normalise its position.
-              (goto-char (or pos (point-max)))
-              (if pos
-                  (beginning-of-line)
-                (skip-chars-backward "\n\t "))
-              ;; Ensure point visible.  Again, window may have died
-              ;; inside shrink to fit, for some reason
-              (when (window-live-p window)
-                (unless (pos-visible-in-window-p (point) window)
-                  (recenter -1))
-                (with-current-buffer buffer
-                  (if (window-bottom-p window)
-                      (unless (local-variable-p 'mode-line-format)
-                        ;; Don't show any mode line.
-                        (set (make-local-variable 'mode-line-format) nil))
-                    (unless mode-line-format
-                      ;; If the buffer gets displayed elsewhere, re-add
-                      ;; the modeline.
-                      (kill-local-variable 'mode-line-format)))))))))))
-
   :config
   (use-package company-coq
     :load-path "site-lisp/company-coq"
@@ -3597,14 +3557,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        (holes-mode -1)
        (whitespace-mode 1)
        (set-input-method "Agda")
-
-       (add-hook 'proof-shell-extend-queue-hook
-                 (lambda () (set-window-dedicated-p (selected-window) t)))
-       (defalias 'proof-display-and-keep-buffer
-         'my-proof-display-and-keep-buffer)
-
        (company-coq-mode 1)
-
        (set (make-local-variable 'fill-nobreak-predicate)
             (lambda ()
               (pcase (get-text-property (point) 'face)
@@ -3621,12 +3574,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                   (interactive)
                   (proof-layout-windows)
                   (proof-prf)) coq-mode-map)
+
     (defalias 'coq-Search #'coq-SearchConstant)
     (defalias 'coq-SearchPattern #'coq-SearchIsos)
+
     (bind-key "C-c C-a C-s" #'coq-Search coq-mode-map)
     (bind-key "C-c C-a C-o" #'coq-SearchPattern coq-mode-map)
     (bind-key "C-c C-a C-a" #'coq-SearchAbout coq-mode-map)
     (bind-key "C-c C-a C-r" #'coq-SearchRewrite coq-mode-map)
+
     (unbind-key "C-c h" coq-mode-map))
 
   (use-package pg-user
@@ -4199,8 +4155,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package tuareg
   :load-path "site-lisp/tuareg"
-  :mode (("\\.ml[ip]?\\'" . tuareg-mode)
-         ("\\.eliomi?\\'" . tuareg-mode)))
+  :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
+         ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package tramp-sh
   :load-path "override/tramp"
