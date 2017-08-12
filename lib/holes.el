@@ -16,7 +16,7 @@
 ;; cleaner.
 ;;
 ;; Further cleanups by David Aspinall.
-;;
+
 ;; This software is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public
 ;; License version 2, as published by the Free Software Foundation.
@@ -27,11 +27,10 @@
 ;;
 ;; See the GNU General Public License version 2 for more details
 ;; (enclosed in the file GPL).
-;;
-;; See documentation in variable holes-short-doc.
-;;
 
 ;;; Commentary:
+;;
+;; See documentation in variable holes-short-doc.
 ;;
 ;; See documentation of `holes-mode'.
 

@@ -17,7 +17,8 @@
 ;; This file is distributed under the terms of the GNU General Public
 ;; License, Version 2.  Find a copy of the GPL with your version of
 ;; GNU Emacs or Texinfo.
-;;
+
+;;; Commentary:
 ;;
 ;; This package generates Texinfo source fragments from Emacs
 ;; docstrings.  This avoids documenting functions and variables in

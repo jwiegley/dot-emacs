@@ -9,9 +9,9 @@
 ;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
 ;; Portions © Copyright 2015-2017  Clément Pit-Claudel
 
-;; You can run these by issuing "make test.hol-light" in PG home dir.
-
 ;;; Commentary:
+;;
+;; You can run these by issuing "make test.hol-light" in PG home dir.
 ;;
 
 ;;; Code:

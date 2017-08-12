@@ -14,10 +14,10 @@
 
 ;; License:      GPL (GNU GENERAL PUBLIC LICENSE)
 
-;; Status:       Experimental code
-
 ;;; Commentary:
-;; 
+;;
+;; Status:       Experimental code
+;;
 ;; Based on Fiona McNeill's MSc project on analysing dependencies
 ;; within proofs.  Code rewritten by David Aspinall.
 ;;

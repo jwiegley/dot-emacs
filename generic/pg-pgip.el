@@ -13,6 +13,8 @@
 
 ;; License:  GPL (GNU GENERAL PUBLIC LICENSE)
 
+;;; Commentary:
+;;
 ;; STATUS: Experimental
 ;;
 ;; Proof General Kit uses PGIP, an XML-message protocol
@@ -28,9 +30,6 @@
 ;; -- parsescript input/outputs
 ;; -- guiconfig, some parts of
 ;; -- support fully native PGIP mode
-;;
-
-;;; Commentary:
 ;;
 
 ;;; Code:
