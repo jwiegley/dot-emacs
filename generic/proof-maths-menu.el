@@ -1,16 +1,22 @@
 ;;; proof-maths-menu.el --- Support for maths menu mode package
-;;
-;; Copyright (C) 2007, 2009 LFCS Edinburgh / David Aspinall
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
+
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
-;;
+
+;;; Commentary:
 ;;
 ;; With thanks to Dave Love for the original maths menu code,
 ;; provided at http://www.loveshack.ukfsn.org/emacs/
-;;
-;; $Id$
-;;
-;;; Commentary:
 ;; 
 ;; Note: maths menu is bundled with Proof General in lib/, and PG will select
 ;; it's own version before any other version on the Emacs load path.

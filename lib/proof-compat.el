@@ -1,10 +1,19 @@
-;; proof-compat.el   Operating system and Emacs version compatibility
-;;
-;; Copyright (C) 2000-2010 LFCS Edinburgh.
+;;; proof-compat.el --- Operating system and Emacs version compatibility
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
+
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
-;;
-;; $Id$
+
+;;; Commentary:
 ;;
 ;; This file collects together compatibility hacks for different
 ;; operating systems and Emacs versions.  This is to help keep
@@ -16,6 +25,8 @@
 ;;
 ;; Since Proof General 4.0, XEmacs is not supported at all.
 ;;
+
+;;; Code:
 
 (require 'easymenu)
 (require 'cl)

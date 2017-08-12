@@ -1,8 +1,16 @@
 ;;; pg-pamacs.el --- Macros for per-proof assistant configuration
-;;
-;; Copyright (C) 2010, 2011  LFCS Edinburgh, David Aspinall.
-;;
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Author: David Aspinall <da@longitude>
+
 ;; Keywords: internal
 
 ;;; Commentary:
@@ -24,13 +32,12 @@
 ;;
 ;; (proof-ass name)  or (proof-assistant-name)
 ;;
-;;
+
+;;; Code:
 
 (require 'proof-site)			; proof-assitant-symbol
 (require 'proof-compat)			; pg-custom-undeclare-variable
 (require 'proof-autoloads)		; proof-debug
-
-;;; Code:
 
 (defmacro deflocal (var value &optional docstring)
   "Define a buffer local variable VAR with default value VALUE."

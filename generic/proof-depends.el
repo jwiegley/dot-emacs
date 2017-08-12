@@ -1,21 +1,28 @@
 ;;; proof-depends.el --- Theorem-theorem and theorem-definition dependencies
-;;
-;; Copyright (C) 2000-2004, 2010 University of Edinburgh.
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Authors:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;;	         Earlier version by Fiona McNeil.
+
 ;; License:      GPL (GNU GENERAL PUBLIC LICENSE)
+
 ;; Status:       Experimental code
-;;
-;; $Id$
-;;
+
 ;;; Commentary:
 ;; 
 ;; Based on Fiona McNeill's MSc project on analysing dependencies
 ;; within proofs.  Code rewritten by David Aspinall.
 ;;
 
-
-
+;;; Code:
 (require 'cl)
 (require 'span)
 (require 'pg-vars)
@@ -33,9 +40,6 @@ i.e.: ((file-name-1 (thm1 thm2 thm3)) (file-name-2 (thm1 thm2 thm3)))")
 A list of lists; the first element of each list is a file-name, the
 second element a list of all the def names in that file.
 i.e.: ((file-name-1 (def1 def2 def3)) (file-name-2 (def1 def2 def3)))")
-
-
-;;; Code:
 
 ;; Utility functions
 

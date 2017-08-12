@@ -1,16 +1,24 @@
 ;; bufhist.el --- keep read-only history of buffer contents for browsing
 
-;; Copyright   (C) 2006, 2009 David Aspinall / University of Edinburgh
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
 
 ;; Author:     David Aspinall <David.Aspinall@ed.ac.uk>
-;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Keywords:   tools
-;;
-;; $Id$
-;;
+
+;; License:    GPL (GNU GENERAL PUBLIC LICENSE)
+
 ;; This file is distributed under the terms of the GNU General Public
 ;; License, Version 2.  Find a copy of the GPL with your version of
 ;; GNU Emacs or Texinfo.
+
+;;; Commentary:
 ;;
 ;; This library implements a minor mode for which keeps a ring history of
 ;; buffer contents.  Intended to be used for small buffers which are
@@ -28,6 +36,8 @@
 ;;         - duplicated first item in ring after clear (& on startup).
 ;;         - buttons are put at top of buffer but inserts happen before them
 ;;
+
+;;; Code:
 
 (require 'ring)
 

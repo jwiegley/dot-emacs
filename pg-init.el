@@ -1,6 +1,13 @@
 ;;; pg-init.el --- Init file used for compatibility with package.el and ELPA  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2017  Clément Pit-Claudel
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
 
 ;; Author: Clément Pit-Claudel <clement.pitclaudel@live.com>
 
@@ -18,7 +25,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
+;;
 ;; Proof General's initialization code (in generic/proof-site) is relatively
 ;; complex, in part because it was written before package.el existed, and in
 ;; part because package.el still doesn't look for autoloads in subdirectories.

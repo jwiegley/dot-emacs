@@ -1,16 +1,20 @@
 ;;; maths-menu.el --- insert maths characters from a menu  -*-coding: iso-2022-7bit;-*-
 
-;; Copyright (C) 2003, 2012  Free Software Foundation, Inc.
+;; This file is part of Proof General.
+
+;; Portions ,A)(B Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions ,A)(B Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions ,A)(B Copyright 2001-2017  Pierre Courtieu
+;; Portions ,A)(B Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions ,A)(B Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions ,A)(B Copyright 2015-2017  Cl,Ai(Bment Pit-Claudel
 
 ;; Author: Dave Love <fx@gnu.org>
 ;; Keywords: convenience
-
 ;; Version for Proof General modified by David Aspinall, 2007-8.
 ;; - Hooks added to insert tokenised versions of unicode characters.
 ;; - Added more characters to the menus.
 ;; - Define insertion functions following menu names (useful for keybindings)
-;; $Id$
-
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -48,8 +52,6 @@
 ;; instance, this minor mode won't give you the ability to insert into
 ;; the minibuffer via the menu, though presumably it could be added to
 ;; the minibuffer menu.
-
-
 
 ;;; Code:
 

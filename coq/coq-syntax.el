@@ -1,10 +1,23 @@
-;; coq-syntax.el Font lock expressions for Coq
-;; Copyright (C) 1997-2007, 2009 LFCS Edinburgh.
+;;; coq-syntax.el --- Font lock expressions for Coq
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Authors: Thomas Kleymann, Healfdene Goguen, Pierre Courtieu
-;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
-;; coq-syntax.el,v 11.13 2013/07/10 14:59:08 pier Exp
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
+
+;;; Commentary:
+;;
+
+;;; Code:
 
 (require 'proof-syntax)
 (require 'proof-utils)                  ; proof-locate-executable

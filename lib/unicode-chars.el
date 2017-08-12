@@ -1,13 +1,25 @@
-;; unicode-chars.el --- table of Unicode characters
-;;
+;;; unicode-chars.el --- table of Unicode characters
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Author:    David Aspinall
-;; $Id$
+
+;;; Commentary:
 ;;
 ;; Adapted from Norman Walsh's unichars.el (iso8879 names removed)
 ;;
 ;; The names are standard, see
 ;; http://www.unicode.org/unicode/standard/standard.html
 ;; http://www.unicode.org/Public/UNIDATA
+
+;;; Code:
 
 (defvar unicode-chars-alist
   '(;Unicode name  Codept

@@ -1,9 +1,18 @@
-;;; coq-db.el --- coq keywords database utility functions
-;;
+;;; coq-db.el --- coq keywords database utility functions -*- coding: utf-8; -*-
+
+;; This file is part of Proof General.
+
+;; Portions © Copyright 1994-2012  David Aspinall and University of Edinburgh
+;; Portions © Copyright 2003, 2012, 2014  Free Software Foundation, Inc.
+;; Portions © Copyright 2001-2017  Pierre Courtieu
+;; Portions © Copyright 2010, 2016  Erik Martin-Dorel
+;; Portions © Copyright 2011-2013, 2016-2017  Hendrik Tews
+;; Portions © Copyright 2015-2017  Clément Pit-Claudel
+
 ;; Author: Pierre Courtieu <courtieu@lri.fr>
+
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
-;;
-;;
+
 ;;; Commentary:
 ;;
 ;; We store all information on keywords (tactics or command) in big
@@ -284,7 +293,7 @@ See `coq-syntax-db' for DB structure."
 (defface coq-solve-tactics-face
   (proof-face-specs
    (:foreground "red") ; pour les fonds clairs
-   (:foreground "red") ; pour les fond fonc�s
+   (:foreground "red") ; pour les fond foncés
    ()) ; pour le noir et blanc
   "Face for names of closing tactics in proof scripts."
   :group 'proof-faces)
@@ -295,7 +304,7 @@ See `coq-syntax-db' for DB structure."
 (defface coq-cheat-face
   (proof-face-specs
    (:background "red") ; pour les fonds clairs
-   (:background "red") ; pour les fond fonc�s
+   (:background "red") ; pour les fond foncés
    ()) ; pour le noir et blanc
   "Face for names of cheating tactics in proof scripts."
   :group 'proof-faces)
