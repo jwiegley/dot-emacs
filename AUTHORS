@@ -1,22 +1,25 @@
 Current Authors/Maintainers:
 
-   David Aspinall      (all)
-   Pierre Courtieu     (coq)
-   Erik Martin-Dorel   (coq, website)
-   Clément Pit-Claudel (coq)
-   Christoph Raffalli  (phox)
-   Makarius Wenzel     (isar)
+   Pierre Courtieu     (Coq, lib)
+   Erik Martin-Dorel   (Coq, Web site)
+   Clément Pit-Claudel (Coq, packaging)
+   Henrik Tews         (Proof Tree)
 
 Previous Authors:
 
-   Stefan Berghofer   (isar)
-   Paul Callaghan     (plastic,lego)
-   Healfdene Goguen   (coq, generic, doc)
-   Thomas Kleymann    (lego, doc, generic)
-   Patrick Loiseleur  (coq)
-   David von Oheimb   (x-symbol)
-   Dilip Sequeira     (lego)
-   Graham Dutton      (web support)
+   David Aspinall     (all)
+   Christoph Raffalli (PhoX)
+   Makarius Wenzel    (Isar, generic)
+   Stefan Berghofer   (Isar)
+   Paul Callaghan     (Plastic, Lego)
+   Healfdene Goguen   (Coq, generic, doc)
+   Thomas Kleymann    (Lego, doc, generic)
+   Patrick Loiseleur  (Coq)
+   Stefan Monnier     (Coq)
+   Yves Bertot        (generic)
+   David von Oheimb   (X-Symbol)
+   Dilip Sequeira     (Lego, generic)
+   Graham Dutton      (Web support)
 
 These are the main "official" authors of Proof General, but many more
 people have contributed, some very significantly.  We're grateful to
