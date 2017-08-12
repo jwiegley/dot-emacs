@@ -33,24 +33,24 @@ EMACS=$(shell if [ -z "`which emacs`" ]; then echo "Emacs executable not found";
 PREFIX=$(DESTDIR)/usr
 DEST_PREFIX=$(DESTDIR)/usr
 
-PROVERS=acl2 ccc coq easycrypt hol-light hol98 isar lego pghaskell pgocaml pgshell phox twelf
+PROVERS=coq
 OTHER_ELISP=generic lib
 ELISP_DIRS=${PROVERS} ${OTHER_ELISP}
 ELISP_EXTRAS=
 EXTRA_DIRS = images
 
 DOC_FILES=AUTHORS BUGS COMPATIBILITY CHANGES COPYING INSTALL README REGISTER doc/*.pdf
-DOC_EXAMPLES=acl2/*.acl2 hol98/*.sml isar/*.thy lclam/*.lcm lego/*.l pgshell/*.pgsh phox/*.phx plastic/*.lf twelf/*.elf
+DOC_EXAMPLES=
 DOC_SUBDIRS=${DOC_EXAMPLES} */README* */CHANGES */BUGS 
 
 BATCHEMACS=${EMACS} --batch --no-site-file -q 
 
 # Scripts to edit paths to shells
-BASH_SCRIPTS = isar/interface
-PERL_SCRIPTS = lego/legotags coq/coqtags isar/isartags
+BASH_SCRIPTS =
+PERL_SCRIPTS = coq/coqtags
 
 # Scripts to install to bin directory
-BIN_SCRIPTS = lego/legotags coq/coqtags isar/isartags
+BIN_SCRIPTS = coq/coqtags
 
 # Setting load path might be better in Elisp, but seems tricky to do
 # only during compilation.  Another idea: put a function in proof-site
