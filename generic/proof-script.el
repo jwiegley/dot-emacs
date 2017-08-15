@@ -633,17 +633,6 @@ IDIOMSYM is a symbol and ID is a strings."
       (proof-with-script-buffer ; may be called from menu
        (maphash alterfn elts)))))
 
-;; Next two could be in pg-user.el.  No key-bindings for these.
-(defun pg-show-all-proofs ()
-  "Display all completed proofs in the buffer."
-  (interactive)
-  (pg-show-all-portions "proof"))
-
-(defun pg-hide-all-proofs ()
-  "Hide all completed proofs in the buffer."
-  (interactive)
-  (pg-show-all-portions "proof" 'hide))
-
 (defun pg-add-proof-element (name span controlspan)
   "Add a span proof element to SPAN with name NAME and parent CONTROLSPAN."
   (let ((proofid   (proof-next-element-id 'proof)))

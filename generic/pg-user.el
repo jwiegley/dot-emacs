@@ -702,6 +702,16 @@ If NUM is negative, move upwards.  Return new span."
   (interactive "p")
   (pg-move-region-down (- num)))
 
+;; No key-binding is defined for these two functions:
+(defun pg-show-all-proofs ()
+  "Display all completed proofs in the buffer."
+  (interactive)
+  (pg-show-all-portions 'proof))
+
+(defun pg-hide-all-proofs ()
+  "Hide all completed proofs in the buffer."
+  (interactive)
+  (pg-show-all-portions 'proof 'hide))
 
 
 
