@@ -1,10 +1,3 @@
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-(package-initialize)
-
 (defconst emacs-start-time (current-time))
 
 (unless noninteractive
@@ -84,7 +77,7 @@
 (defvar running-development-emacs nil)
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
-(if (string= "emacs25" emacs-environment)
+(if (string= "emacs26" emacs-environment)
     (load (expand-file-name "settings" user-emacs-directory))
   (let ((settings
          (with-temp-buffer
@@ -136,6 +129,8 @@
 (put 'company-coq-fold            'disabled nil)
 (put 'TeX-narrow-to-group         'disabled nil)
 (put 'LaTeX-narrow-to-environment 'disabled nil)
+
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
 ;;; Configure libraries
 
@@ -477,25 +472,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defvar emacs-min-height)
   (defvar emacs-min-width))
 
-(defvar display-name
+(defconst display-name
   (let ((width (display-pixel-width)))
     (cond ((>= width 2560) 'retina-imac)
           ((= width 1920) 'macbook-pro-vga)
           ((= width 1680) 'macbook-pro)
           ((= width 1440) 'retina-macbook-pro))))
 
-(defvar emacs-min-top 23)
-(defvar emacs-min-left
-  (cond ((eq display-name 'retina-imac) 465)
+(defconst emacs-min-top 23)
+(defconst emacs-min-left
+  (cond ((eq display-name 'retina-imac) 975)
         ((eq display-name 'macbook-pro-vga) 837)
         (t 521)))
-(defvar emacs-min-height
+(defconst emacs-min-height
   (cond ((eq display-name 'retina-imac) 57)
         ((eq display-name 'macbook-pro-vga) 54)
         ((eq display-name 'macbook-pro) 47)
         (t 44)))
-(defvar emacs-min-width
-  (cond ((eq display-name 'retina-imac) 188)
+(defconst emacs-min-width
+  (cond ((eq display-name 'retina-imac) 100)
         (t 100)))
 
 (if running-alternate-emacs
@@ -568,7 +563,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (defun emacs-toggle-size ()
   (interactive)
-  (if (> (cdr (assq 'width (frame-parameters))) 100)
+  (if (> (cdr (assq 'width (frame-parameters))) 200)
       (emacs-min)
     (emacs-max)))
 
@@ -1117,6 +1112,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package async
   :load-path "elpa/packages/async")
+
+(use-package auto-correct
+  :load-path "elpa/packages/auto-correct"
+  :commands auto-correct-mode
+  :diminish auto-correct-mode)
 
 (use-package auto-yasnippet
   :load-path "site-lisp/auto-yasnippet"
@@ -2195,8 +2195,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (flycheck-mode)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode)
-    (bug-reference-prog-mode 1)
-    (whitespace-mode 1))
+    (bug-reference-prog-mode 1))
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
   (use-package flycheck-haskell
@@ -2558,6 +2557,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     "zoom"
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out")))
+
+(use-package hyperbole
+  :disabled t
+  :load-path "site-lisp/hyperbole"
+  :defer 10
+  :config
+  (progn t))
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
@@ -3475,7 +3481,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (pwp-mode 1))
 
 (use-package persistent-scratch
-  :disabled t
   :if (and window-system
            (not running-alternate-emacs)
            (not running-development-emacs)
@@ -3555,7 +3560,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      'coq-mode-hook
      (lambda ()
        (holes-mode -1)
-       (whitespace-mode 1)
        (set-input-method "Agda")
        (company-coq-mode 1)
        (set (make-local-variable 'fill-nobreak-predicate)
