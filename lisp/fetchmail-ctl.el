@@ -110,7 +110,9 @@
           "*fetchmail*"
           (function
            (lambda ()
-             (start-fetchmail "*fetchmail*" nil "--idle")))))
+             (start-fetchmail
+              "*fetchmail*" nil "--idle"
+              "--pidfile" (expand-file-name "~/.fetchmail.pid"))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
@@ -118,9 +120,11 @@
            (lambda ()
              (let ((process-environment (copy-alist process-environment)))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
-               (start-fetchmail "*fetchmail-lists*" nil "--idle"
-                                "-f" (expand-file-name
-                                      "~/Messages/fetchmailrc.lists")))))))
+               (start-fetchmail
+                "*fetchmail-lists*" nil
+                "--pidfile" (expand-file-name "~/.fetchmail-lists.pid")
+                "-f" (expand-file-name
+                      "~/Messages/fetchmailrc.lists")))))))
         ;; (fetchmail-spam-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchmail-spam*"

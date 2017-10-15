@@ -134,6 +134,7 @@
    (when (or (null gcc)
              (string-match "nnfolder\\+archive:" gcc))
      (message-remove-header "Gcc")
+     (message-add-header (format "Bcc: %s" user-mail-address))
      (message-add-header
       (format "Gcc: %s"
               (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))

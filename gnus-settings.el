@@ -15,7 +15,7 @@
  '(gnus-agent-mark-unread-after-downloaded nil)
  '(gnus-agent-synchronize-flags t)
  '(gnus-alias-allow-forward-as-reply t)
- '(gnus-alias-default-identity "Gmail")
+ '(gnus-alias-default-identity "NewArtisans")
  '(gnus-alias-identity-alist
    (quote
     (("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -33,7 +33,7 @@ BAE Systems"))))
    (quote
     (("Ledger Mailing List"
       ("To" "ledger-cli@googlegroups\\.com" current)
-      "NewArtisans")
+      "Gmail")
      ("Emacs Mailing Lists"
       ("Cc" "\\(emacs\\|debbugs\\)" current)
       "Gnu")
@@ -45,10 +45,10 @@ BAE Systems"))))
       "Gnu")
      ("Haskell Groups"
       ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "Gmail")
+      "NewArtisans")
      ("Haskell Mailing Lists"
       ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "Gmail"))))
+      "NewArtisans"))))
  '(gnus-alias-override-user-mail-address t)
  '(gnus-alias-unknown-identity-rule (quote error))
  '(gnus-always-read-dribble-file t)
@@ -198,10 +198,7 @@ BAE Systems"))))
       (list-identifier . "\\[tj\\]"))
      ("list\\.emacs\\.devel$"
       (to-address . "emacs-devel@gnu.org")
-      (to-list . "emacs-devel@gnu.org")
-      (total-expire . t)
-      (expiry-wait . 365)
-      (expiry-target . "list.emacs.devel.archive"))
+      (to-list . "emacs-devel@gnu.org"))
      ("list\\.emacs\\.tangents$"
       (to-address . "emacs-tangents@gnu.org")
       (to-list . "emacs-tangents@gnu.org"))
@@ -209,10 +206,7 @@ BAE Systems"))))
       (to-address . "help-gnu-emacs@gnu.org")
       (to-list . "help-gnu-emacs@gnu.org"))
      ("list\\.emacs\\.bugs$"
-      (to-list . "bug-gnu-emacs@gnu.org")
-      (total-expire . t)
-      (expiry-wait . 365)
-      (expiry-target . "list.emacs.bugs.archive"))
+      (to-list . "bug-gnu-emacs@gnu.org"))
      ("list\\.emacs\\.bugs\\.tracker"
       (list-identifier . "\\[debbugs-tracker\\]"))
      ("list\\.emacs\\.diffs"
@@ -433,6 +427,7 @@ BAE Systems"))))
  '(gnus-verbose 4)
  '(mail-envelope-from (quote header))
  '(mail-host-address "newartisans.com")
+ '(mail-self-blind t)
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
@@ -534,12 +529,13 @@ BAE Systems"))))
  '(send-mail-function (quote sendmail-send-it))
  '(smtpmail-default-smtp-server "smtp.gmail.com")
  '(smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
- '(smtpmail-smtp-server "smtp.gmail.com")
+ '(smtpmail-smtp-server "smtp.fastmail.com")
  '(smtpmail-smtp-service 587)
- '(smtpmail-smtp-user "jwiegley@gmail.com")
+ '(smtpmail-smtp-user "johnw@newartisans.com")
  '(smtpmail-starttls-credentials
    (quote
     (("mail.johnwiegley.com" 587 nil nil)
+     ("smtp.fastmail.com" 587 nil nil)
      ("smtp.gmail.com" 587 nil nil))))
  '(smtpmail-stream-type (quote ssl))
  '(spam-assassin-program "/opt/local/bin/spamc-5.12")

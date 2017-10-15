@@ -86,7 +86,7 @@
           "\\* \\(DEFERRED\\|SOMEDAY\\)")))
        (org-agenda-sorting-strategy
         (quote
-         (user-defined-down)))
+         (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
@@ -112,13 +112,13 @@
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
         (quote
-         (user-defined-down)))
+         (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
       ((org-agenda-overriding-header "Someday tasks:")
        (org-agenda-sorting-strategy
         (quote
-         (user-defined-down)))
+         (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
@@ -133,7 +133,8 @@
          (org-agenda-skip-entry-if
           (quote scheduled)
           (quote deadline)
-          (quote timestamp))))))
+          (quote timestamp))))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("c" "Appointment Calendar" agenda ""
       ((org-agenda-overriding-header "Appointment Calendar")
        (org-agenda-sorting-strategy
@@ -153,7 +154,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/doc/papers/putting-lenses-to-work/putting-lenses-to-work.org" "~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
+    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -181,7 +182,6 @@
      (tags priority-down category-keep)
      (search category-keep))))
  '(org-agenda-start-on-weekday nil)
- '(org-agenda-start-with-log-mode t)
  '(org-agenda-tags-column -100)
  '(org-agenda-text-search-extra-files (quote (agenda-archives "~/doc/tasks/notes.txt")))
  '(org-agenda-use-time-grid nil)
@@ -292,29 +292,29 @@ SCHEDULED: %t
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-latex-default-packages-alist
-(quote
- (("T1" "fontenc" t)
-  ("" "fixltx2e" nil)
-  ("" "graphicx" t)
-  ("" "longtable" nil)
-  ("" "float" nil)
-  ("" "wrapfig" nil)
-  ("" "rotating" nil)
-  ("normalem" "ulem" t)
-  ("" "amsmath" t)
-  ("" "textcomp" t)
-  ("" "marvosym" t)
-  ("" "wasysym" t)
-  ("" "amssymb" t)
-  ("" "hyperref" nil)
-  "\\tolerance=1000")))
+   (quote
+    (("T1" "fontenc" t)
+     ("" "fixltx2e" nil)
+     ("" "graphicx" t)
+     ("" "longtable" nil)
+     ("" "float" nil)
+     ("" "wrapfig" nil)
+     ("" "rotating" nil)
+     ("normalem" "ulem" t)
+     ("" "amsmath" t)
+     ("" "textcomp" t)
+     ("" "marvosym" t)
+     ("" "wasysym" t)
+     ("" "amssymb" t)
+     ("" "hyperref" nil)
+     "\\tolerance=1000")))
  '(org-latex-listings (quote minted))
  '(org-latex-minted-options
-(quote
- (("fontfamily" "courier")
-  ("fontsize" "\\footnotesize")
-  ("linenos" "true")
-  ("xleftmargin" "1em"))))
+   (quote
+    (("fontfamily" "courier")
+     ("fontsize" "\\footnotesize")
+     ("linenos" "true")
+     ("xleftmargin" "1em"))))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
  '(org-mobile-files (quote ("~/doc/tasks/todo.txt")))
@@ -322,43 +322,43 @@ SCHEDULED: %t
  '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
  '(org-modules (quote (org-gnus org-habit org-info org-depend)))
  '(org-priority-faces
-(quote
- ((65 :foreground "ForestGreen" :weight bold)
-  (66 . "DarkGreen")
-  (67 :foreground "dark gray" :slant italic))))
+   (quote
+    ((65 :foreground "ForestGreen" :weight bold)
+     (66 . "DarkGreen")
+     (67 :foreground "dark gray" :slant italic))))
  '(org-refile-targets
-(quote
- (("~/doc/tasks/todo.txt" :level . 1)
-  ("~/doc/tasks/Bahai.txt" :level . 1)
-  ("~/doc/tasks/emacs.txt" :level . 1)
-  ("~/doc/tasks/OSS.txt" :level . 1)
-  ("~/doc/tasks/BAE.txt" :level . 1)
-  (org-agenda-files :todo . "PROJECT"))))
+   (quote
+    (("~/doc/tasks/todo.txt" :level . 1)
+     ("~/doc/tasks/Bahai.txt" :level . 1)
+     ("~/doc/tasks/emacs.txt" :level . 1)
+     ("~/doc/tasks/OSS.txt" :level . 1)
+     ("~/doc/tasks/BAE.txt" :level . 1)
+     (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
  '(org-subject-transforms
-(quote
- (("\\`\\(Re\\|Fwd\\): " . "")
-  ("\\`{ledger} " . "")
-  ("([Ww]as: .+)\\'" . "")
-  ("\\`\\[[a-z-]+\\] " . "")
-  ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]"))))
+   (quote
+    (("\\`\\(Re\\|Fwd\\): " . "")
+     ("\\`{ledger} " . "")
+     ("([Ww]as: .+)\\'" . "")
+     ("\\`\\[[a-z-]+\\] " . "")
+     ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]"))))
  '(org-tags-column -97)
  '(org-time-clocksum-use-fractional t)
  '(org-todo-keyword-faces
-(quote
- (("TODO" :foreground "medium blue" :weight bold)
-  ("APPT" :foreground "medium blue" :weight bold)
-  ("NOTE" :foreground "brown" :weight bold)
-  ("STARTED" :foreground "dark orange" :weight bold)
-  ("WAITING" :foreground "red" :weight bold)
-  ("DELEGATED" :foreground "dark violet" :weight bold)
-  ("DEFERRED" :foreground "dark blue" :weight bold)
-  ("SOMEDAY" :foreground "dark blue" :weight bold)
-  ("PROJECT" :foreground "#088e8e" :weight bold))))
+   (quote
+    (("TODO" :foreground "medium blue" :weight bold)
+     ("APPT" :foreground "medium blue" :weight bold)
+     ("NOTE" :foreground "brown" :weight bold)
+     ("STARTED" :foreground "dark orange" :weight bold)
+     ("WAITING" :foreground "red" :weight bold)
+     ("DELEGATED" :foreground "dark violet" :weight bold)
+     ("DEFERRED" :foreground "dark blue" :weight bold)
+     ("SOMEDAY" :foreground "dark blue" :weight bold)
+     ("PROJECT" :foreground "#088e8e" :weight bold))))
  '(org-todo-repeat-to-state "TODO")
  '(org-use-property-inheritance (quote ("AREA")))
  '(org-use-speed-commands t)
@@ -366,10 +366,10 @@ SCHEDULED: %t
  '(org-velocity-always-use-bucket t)
  '(org-velocity-bucket "~/doc/tasks/notes.txt")
  '(org-velocity-capture-templates
-(quote
- (("v" "Velocity" entry
-   (file "~/doc/tasks/notes.txt")
-   "* NOTE %:search
+   (quote
+    (("v" "Velocity" entry
+      (file "~/doc/tasks/notes.txt")
+      "* NOTE %:search
 %i%?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \\\"uuidgen\\\"):CREATED:  %U
@@ -395,6 +395,7 @@ SCHEDULED: %t
  '(org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
  '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
- '(org-headline-done ((t nil)))
+ '(org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
+ '(org-level-4 ((t (:foreground "darkblue"))))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown")))))
