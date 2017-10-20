@@ -154,7 +154,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
+    ("~/bae/concerto/solver/NOTES.txt" "~/doc/tasks/BAE.txt" "~/doc/tasks/todo.txt" "~/doc/tasks/habits.txt" "~/doc/tasks/Bahai.txt" "~/doc/tasks/emacs.txt" "~/doc/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
