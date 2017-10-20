@@ -19,7 +19,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Package-Requires: ((git-commit "0"))
+;; Package-Requires: ((git-commit "0") (dash "0"))
 ;; Keywords: git vc
 
 ;;; Commentary:
@@ -157,28 +157,31 @@ calculated width looks wrong. (This can happen with some special characters.)"
 (unless git-gutter+-view-diff-function
   (git-gutter+-enable-default-display-mode))
 
-(defun git-gutter+-call-git (args &optional file)
-  (if (and file (file-remote-p file))
-      (apply #'process-file git-gutter+-git-executable nil t nil args)
-    (apply #'call-process git-gutter+-git-executable nil t nil args)))
+(defun git-gutter+-call-git (args &optional file output-destination)
+  "Calls Git synchronously. Returns t on zero exit code, nil otherwise"
+  (zerop (if (and file (file-remote-p file))
+             (apply #'process-file git-gutter+-git-executable nil output-destination nil args)
+           (apply #'call-process git-gutter+-git-executable nil output-destination nil args))))
+
+(defun git-gutter+-insert-git-output (args &optional file)
+  "Inserts stdout from Git into the current buffer, ignores stderr.
+Returns t on zero exit code, nil otherwise."
+  (git-gutter+-call-git args file '(t nil)))
 
 (defun git-gutter+-in-git-repository-p (file)
   (with-temp-buffer
-    (let ((args '("rev-parse" "--is-inside-work-tree")))
-      (when (zerop (git-gutter+-call-git args file))
-        (goto-char (point-min))
-        (string= "true" (buffer-substring-no-properties
-                         (point) (line-end-position)))))))
+    (when (git-gutter+-insert-git-output '("rev-parse" "--is-inside-work-tree") file)
+      (goto-char (point-min))
+      (string= "true" (buffer-substring-no-properties
+                       (point) (line-end-position))))))
 
 (defun git-gutter+-root-directory (file)
   (with-temp-buffer
-    (let* ((args '("rev-parse" "--show-toplevel"))
-           (ret (git-gutter+-call-git args file)))
-      (when (zerop ret)
-        (goto-char (point-min))
-        (let ((root (buffer-substring-no-properties (point) (line-end-position))))
-          (unless (string= root "")
-            (file-name-as-directory root)))))))
+    (when (git-gutter+-insert-git-output '("rev-parse" "--show-toplevel") file)
+      (goto-char (point-min))
+      (let ((root (buffer-substring-no-properties (point) (line-end-position))))
+        (unless (string= root "")
+          (file-name-as-directory root))))))
 
 (defsubst git-gutter+-diff-args (file)
   (delq nil `("--no-pager" "diff" "--no-color" "--no-ext-diff" "-U0"
@@ -188,7 +191,7 @@ calculated width looks wrong. (This can happen with some special characters.)"
   (let ((args (git-gutter+-diff-args curfile))
         (file (buffer-file-name))) ;; for tramp
     (with-temp-buffer
-      (if (zerop (git-gutter+-call-git args file))
+      (if (git-gutter+-insert-git-output args file)
           (progn (goto-char (point-min))
                  (let ((diff-header (git-gutter+-get-diff-header))
                        (diffinfos   (git-gutter+-get-diffinfos)))
@@ -568,7 +571,7 @@ calculated width looks wrong. (This can happen with some special characters.)"
         (forward-line (1- (plist-get diffinfo :start-line)))
         (when (buffer-live-p (get-buffer git-gutter+-popup-buffer))
           (save-window-excursion
-            (git-gutter+-show-hunk)))))))
+            (git-gutter+-show-hunk diffinfo)))))))
 
 (defun git-gutter+-previous-hunk (arg)
   "Move to previous diff hunk"
@@ -844,7 +847,7 @@ If TYPE is not `modified', also remove all deletion (-) lines."
     (setq buffer-read-only nil)
     (erase-buffer)
     (let ((default-directory dir))
-      (git-gutter+-call-git '("diff" "--staged") file))
+      (git-gutter+-insert-git-output '("diff" "--staged") file))
     (goto-char (point-min))
     (diff-mode)
     (view-mode)))
@@ -925,7 +928,7 @@ If TYPE is not `modified', also remove all deletion (-) lines."
 
 (defun git-gutter+-anything-staged-p ()
   "Return t if the current repo has staged changes"
-  (not (zerop (git-gutter+-call-git '("diff" "--quiet" "--cached")))))
+  (not (git-gutter+-call-git '("diff" "--quiet" "--cached"))))
 
 (defun git-gutter+-commit-toggle-amending ()
   "Toggle whether this will be an amendment to the previous commit.
@@ -985,7 +988,7 @@ If TYPE is not `modified', also remove all deletion (-) lines."
 
 (defun git-gutter+-git-output (args)
   (with-temp-buffer
-    (git-gutter+-call-git args)
+    (git-gutter+-insert-git-output args)
     ;; Delete trailing newlines
     (goto-char (point-min))
     (if (re-search-forward "\n+\\'" nil t)
@@ -1165,8 +1168,11 @@ set remove it."
 (defvar git-gutter+-previously-staged-files nil)
 (defvar git-gutter+-staged-files nil)
 
-(eval-after-load 'magit
-  '(add-hook 'magit-refresh-status-hook 'git-gutter+-on-magit-refresh-status))
+(with-eval-after-load 'magit
+  ;; Old Magit versions
+  (add-hook 'magit-refresh-status-hook 'git-gutter+-on-magit-refresh-status)
+  ;; New Magit versions
+  (add-hook 'magit-status-refresh-hook 'git-gutter+-on-magit-refresh-status))
 
 (defun git-gutter+-on-magit-refresh-status ()
   (let ((head (git-gutter+-get-magit-head)))
@@ -1188,9 +1194,9 @@ set remove it."
 (defun git-gutter+-get-magit-staged-files ()
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward "^Staged changes:$" nil t)
+    (when (re-search-forward "^Staged changes" nil t)
       (let (staged-files)
-        (while (re-search-forward "^\\s-*Modified\\s-+\\(.+\\)$" nil t)
+        (while (re-search-forward "^\\s-*[Mm]odified\\s-+\\(.+\\)$" nil t)
           (push (match-string-no-properties 1) staged-files))
         staged-files))))
 
