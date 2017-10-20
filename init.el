@@ -1956,12 +1956,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/font-lock-studio")
 
-(use-package fringe-helper-el
-  ;; (shell-command "rm -fr site-lisp/fringe-helper-el")
-  ;; (shell-command "git remote rm ext/fringe-helper-el")
-  :disabled t
-  :load-path "site-lisp/fringe-helper-el")
-
 (use-package gist
   :load-path "site-lisp/gist"
   :bind ("C-c G" . my-gist-region-or-buffer)
@@ -1982,17 +1976,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "lisp/git-annex-el")
 
-(use-package git-gutter-fringe-plus
-  ;; (shell-command "rm -fr site-lisp/git-gutter-fringe-plus")
-  ;; (shell-command "git remote rm ext/git-gutter-fringe-plus")
-  :disabled t
-  :load-path "site-lisp/git-gutter-fringe-plus")
-
-(use-package git-gutter-plus
-  ;; (shell-command "rm -fr site-lisp/git-gutter-plus")
-  ;; (shell-command "git remote rm ext/git-gutter-plus")
-  :disabled t
-  :load-path "site-lisp/git-gutter-plus")
+(use-package git-gutter+
+  :load-path "site-lisp/git-gutter-plus"
+  :config
+  (use-package git-gutter-fringe+
+    :load-path "site-lisp/git-gutter-fringe-plus"
+    :init
+    (use-package fringe-helper-el
+      :load-path "site-lisp/fringe-helper-el"))
+  (global-git-gutter+-mode))
 
 (use-package git-link
   :bind ("C-. G" . git-link)
