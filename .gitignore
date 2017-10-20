@@ -8,7 +8,7 @@
 /network-security.data
 /projectile-bookmarks.eld
 /projectile.cache
-/release/
+/release*
 archive/
 autoloads.el
 backups/
