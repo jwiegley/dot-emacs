@@ -42,6 +42,19 @@
 ;     ,@body
 ;     (message "%.06f" (float-time (time-since time)))))
 
+(defcustom coq-smie-user-tokens nil
+  "Alist of (syntax . token) pairs to extend the coq smie parser.
+These are user configurable additional syntax for smie tokens. It
+allows to define alternative syntax for smie token. Typical
+example: if you define a infix operator \"xor\" you may want to
+define it as a new syntax for token \"or\" in order to have the
+indentation rules of or applied to xor. Other exemple: if you
+want to define a new notation \"ifb\" ... \"then\" \"else\" then
+you need to declare \"ifb\" as a new syntax for \"if\" to make
+indentation work well."
+  :type '(alist :key-type string :value-type string)
+  :group 'coq)
+
 
 (defun coq-string-suffix-p (str1 str2 &optional ignore-case)
   "Return non-nil if STR1 is a prefix of STR2.
@@ -375,6 +388,9 @@ The point should be at the beginning of the command name."
 (defun coq-smie-forward-token ()
   (let ((tok (smie-default-forward-token)))
     (cond
+     ((assoc tok coq-smie-user-tokens)
+      (let ((res (assoc tok coq-smie-user-tokens)))
+        (cdr res)))
      ;; @ may be  ahead of an id, it is part of the id.
      ((and (equal tok "@") (looking-at "[[:alpha:]_]"))
       (let ((newtok (coq-smie-forward-token))) ;; recursive call
@@ -492,6 +508,9 @@ The point should be at the beginning of the command name."
 (defun coq-smie-backward-token ()
   (let* ((tok (smie-default-backward-token)))
     (cond
+     ((assoc tok coq-smie-user-tokens)
+      (let ((res (assoc tok coq-smie-user-tokens)))
+        (cdr res)))
      ;; Distinguish between "," from quantification and other uses of
      ;; "," (tuples, tactic arguments)
      ((equal tok ",")
