@@ -6,6 +6,8 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
 
 * Changes of Proof General 4.4.1 from Proof General 4.4
 
+* Changes of Proof General 4.4.1 from Proof General 4.4
+
 ** Generic changes
 
 *** bug fixes
@@ -37,6 +39,21 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
     Similar to ``make -k'', with this option enabled, background
     compilation does not stop at the first error but rather
     continues as far as possible.
+
+*** Limited extensibility for indentation 
+
+    Coq indentation mechanism is based on a fixed set of tokens and
+    precedence rules. Extensibility is now possible by adding new
+    syntax for a given token (no new token can be added). 
+
+    Typical example: if you define a infix operator xor you may
+    want to define it as a new syntax for token \/ in order to
+    have the indentation rules of or applied to xor.
+
+    Use:
+    (setq coq-smie-user-tokens '(("xor" . "\\/")))
+    
+    The set of tokens can be seen in variable smie-grammar.
 
 *** bug fixes
     - avoid leaving partial files behind when compilation fails
