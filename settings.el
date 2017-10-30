@@ -358,7 +358,7 @@
  '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
  '(coq-prefer-top-of-conclusion t)
- '(coq-prog-args (quote ("-emacs" "-dont-load-proofs")))
+ '(coq-prog-args (quote ("-emacs")))
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "~/.emacs.d/settings.el")

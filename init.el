@@ -1978,13 +1978,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package git-gutter+
   :load-path "site-lisp/git-gutter-plus"
+  :diminish git-gutter+-mode
+  :init
+  (use-package git-commit
+    :load-path "site-lisp/magit/lisp"
+    :init
+    (use-package with-editor
+    :load-path "site-lisp/with-editor"))
   :config
   (use-package git-gutter-fringe+
     :load-path "site-lisp/git-gutter-fringe-plus"
     :init
     (use-package fringe-helper-el
       :load-path "site-lisp/fringe-helper-el"))
-  (global-git-gutter+-mode))
+  (add-hook 'prog-mode-hook 'git-gutter+-mode))
 
 (use-package git-link
   :bind ("C-. G" . git-link)
