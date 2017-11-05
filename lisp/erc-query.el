@@ -47,22 +47,27 @@
   (setq erc-query--mode nil)
   (message "Queries now go to IRC"))
 
-(defun erc-query (str)
+(defun erc-query (input)
   "Ask Google before asking IRC"
   (make-variable-buffer-local 'erc-query--last-asked)
   (when erc-query--mode
-    (let ((len (1- (length str))))
+    (let ((len (1- (length input))))
       (cond
-       ((string= str "?ask")
+       ((string= input "?ask")
         (setq str erc-query--last-asked
               erc-query--last-asked nil))
-       ((string-match "\\`\\(.+?\\)\\?\\s-*\\'" str)
+       ((string-match "\\`\\(.+?\\)\\?\\s-*\\'" input)
         (browse-url (concat "https://www.google.com/search?q="
-                            (url-encode-url (match-string 1 str))))
+                            (url-encode-url (match-string 1 input))))
         (setq erc-send-this nil
-              erc-query--last-asked str))))))
+              erc-query--last-asked input))))))
 
 (add-hook 'erc-send-pre-hook 'erc-query)
+
+(defun erc-cmd-G (name &rest ignore)
+  (when (re-search-backward (concat "<" name "> \\(\\(.\\|\n\\)+\\)\\?") nil t)
+    (browse-url (concat "https://www.google.com/search?q="
+                        (url-encode-url (subst-char-in-string ?\n ?\  (match-string 1)))))))
 
 (provide 'erc-query)
 
