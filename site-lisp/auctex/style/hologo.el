@@ -1,8 +1,8 @@
-;;; holog.el --- AUCTeX style for `hologo.sty' (v1.10)
+;;; hologo.el --- AUCTeX style for `hologo.sty' (v1.10)
 
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-10-31
 ;; Keywords: tex

@@ -1,6 +1,6 @@
 ;;; tex-mik.el --- MiKTeX support for AUCTeX.
 
-;; Copyright (C) 1999, 2000, 2001, 2004 Free Software Foundation, Inc.
+;; Copyright (C) 1999, 2000, 2001, 2004, 2016 Free Software Foundation, Inc.
 
 ;; Author: Per Abrahamsen <abraham@dina.kvl.dk>
 ;; Maintainer: auctex-devel@gnu.org
@@ -28,6 +28,8 @@
 ;; This file contains variables customized for MiKTeX.
 
 ;;; Code:
+
+(require 'tex)
 
   ;; Remove the Queue entry from the default, and make a non-Unix
   ;; specific print entry, assuming that we'll print via gsview32.

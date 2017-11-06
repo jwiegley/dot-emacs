@@ -1,6 +1,6 @@
 ;;; tex-wizard.el --- Check the TeX configuration
 
-;; Copyright (C) 2003  Free Software Foundation, Inc.
+;; Copyright (C) 2003, 2006, 2016 Free Software Foundation, Inc.
 
 ;; Author: David Kastrup <dak@gnu.org>
 ;; Keywords: tex, wp, convenience
@@ -90,7 +90,7 @@ and bibliographics references.\n")
 	       (boundp 'LaTeX-mode-hook)
 	       (memq 'turn-on-reftex LaTeX-mode-hook))
       (if (and (boundp 'reftex-plug-into-AUCTeX)
-		   reftex-plug-into-AUCTeX)
+	       reftex-plug-into-AUCTeX)
 	  (insert-before-markers
 	   "RefTeX appears to be configured for use with AUCTeX.\n")
 	(require 'reftex)
@@ -99,8 +99,8 @@ It appears that RefTeX is not configured to cooperate with
 AUCTeX.  Please configure it using the menus, save for future
 sessions, then press the finish button.")
 	(customize-variable-other-window 'reftex-plug-into-AUCTeX)
-	(set (make-local-variable 'custom-buffer-done-function)
-	     (lambda (buff) (kill-buffer buff) (exit-recursive-edit)))
+	(set (make-local-variable 'custom-buffer-done-kill) t)
+	(add-hook 'kill-buffer-hook #'exit-recursive-edit nil t)
 	(recursive-edit)
 	(select-window wizwin)
 	(switch-to-buffer wizbuf))))

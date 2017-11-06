@@ -1,6 +1,6 @@
 ;;; hyperref.el --- AUCTeX style for `hyperref.sty' v6.83m
 
-;; Copyright (C) 2008, 2013--2015 Free Software Foundation, Inc.
+;; Copyright (C) 2008, 2013--2016 Free Software Foundation, Inc.
 
 ;; Author: Ralf Angeli <angeli@caeruleus.net>
 ;; Maintainer: auctex-devel@gnu.org
@@ -267,15 +267,21 @@
    (LaTeX-add-environments
     '("Form"))
 
-   ;; Do not indent the content of the "Form"-env; it is odd if the
-   ;; whole document is indented.
+   ;; Do not indent the content of the "Form"-env; it is odd if the whole
+   ;; document is indented.  Append to `LaTeX-indent-environment-list' in order
+   ;; not to override custom settings.
    (make-local-variable 'LaTeX-indent-environment-list)
-   (add-to-list 'LaTeX-indent-environment-list '("Form" current-indentation))
+   (add-to-list 'LaTeX-indent-environment-list '("Form" current-indentation) t)
 
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "nolinkurl")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperbaseurl")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperimage")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "hyperref")
+
+   ;; In hyperref package, \url macro is redefined and \url|...| can't be used,
+   ;; while it's possible when only url package (required by hyperref) is loaded
+   (setq LaTeX-verbatim-macros-with-delims-local
+	 (remove "url"  LaTeX-verbatim-macros-with-delims-local))
 
    ;; Fontification
    (when (and (fboundp 'font-latex-add-keywords)
@@ -299,9 +305,10 @@
      ;; For syntactic fontification, e.g. verbatim constructs.
      (font-latex-set-syntactic-keywords))
 
-   ;; RefTeX
-   (when (fboundp 'reftex-ref-style-activate)
-     (reftex-ref-style-activate "Hyperref")))
+   ;; Activate RefTeX reference style.
+   (and LaTeX-reftex-ref-style-auto-activate
+	(fboundp 'reftex-ref-style-activate)
+	(reftex-ref-style-activate "Hyperref")))
  LaTeX-dialect)
 
 (defun LaTeX-hyperref-package-options ()

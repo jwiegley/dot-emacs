@@ -93,21 +93,39 @@ fi
 ])
 
 AC_DEFUN(AC_DATE_VERSION_FROM_CHANGELOG, [
-AC_MSG_CHECKING([for date in ChangeLog])
-$1=[`sed -n '1s/^\([-0-9][-0-9]*\).*/\1/p' "$3"`]
+AC_MSG_CHECKING([for date with git])
+$1=[`git log -1 --date=short --format=%cd 2> /dev/null`]
 if test "X${$1}" = X
 then
-  AC_MSG_ERROR([[not found]])
+  AC_MSG_RESULT([git not found, checking for date in ChangeLog:])
+  $1=[`sed -n '1s/^\([-0-9][-0-9]*\).*/\1/p' "$3"`]
+  if test "X${$1}" = X
+  then
+    AC_MSG_ERROR([[not found]])
+  fi
 fi
 AC_MSG_RESULT(${$1})
-AC_MSG_CHECKING([for release in ChangeLog])
-$2=[`sed -n '2,/^[0-9]/s/.*Version \(.*\) released\..*/\1/p' "$3"`]
-if test "X${$2}" = X
+
+AC_MSG_CHECKING([for release with git])
+if git describe --tags > /dev/null 2> /dev/null
 then
-  $2=${$1}
-  AC_MSG_RESULT([not found, using ${$2} instead])
+  if test "X`git describe --tags | sed 's/release_.._..//'`" = X
+  then
+    $2=[`git describe --tags`]
+  else
+    $2=${$1}
+    AC_MSG_RESULT([not found, using ${$2} instead])
+  fi
 else
-  AC_MSG_RESULT([${$2}])
+  AC_MSG_RESULT([git not found, checking for release in ChangeLog:])
+  $2=[`sed -n '2,/^[0-9]/s/.*Version \(.*\) released\..*/\1/p' "$3"`]
+  if test "X${$2}" = X
+  then
+    $2=${$1}
+    AC_MSG_RESULT([not found, using ${$2} instead])
+  else
+    AC_MSG_RESULT([${$2}])
+  fi
 fi
 ])
 

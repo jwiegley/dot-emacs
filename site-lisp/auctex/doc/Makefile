@@ -27,12 +27,12 @@ datadir=${datarootdir}$(null)
 packagedir=no$(null)
 infodir=${datarootdir}/info$(null)
 docdir=${datarootdir}/doc/${PACKAGE_TARNAME}$(null)
-TEX=/usr/local/texlive/2016/bin/x86_64-darwin/tex
-PDFTEX=/usr/local/texlive/2016/bin/x86_64-darwin/pdftex
-MAKEINFO=/usr/bin/makeinfo
+TEX=/Users/johnw/.nix-profile/bin/tex
+PDFTEX=/Users/johnw/.nix-profile/bin/pdftex
+MAKEINFO=/Users/johnw/.nix-profile/bin/makeinfo
 MAKEINFO_PLAIN=-D rawfile --no-headers
-INSTALL_INFO=/usr/bin/install-info
-INSTALL=/nix/store/dw110q8mzvp49s4sz7gqn9bdyp8byls6-coreutils-8.25/bin/install -c
+INSTALL_INFO=/Users/johnw/.nix-profile/bin/install-info
+INSTALL=/nix/store/7l8nkvrd8dck71lmr3r47kr04wb12yk2-coreutils-8.28/bin/install -c
 INSTALL_DATA=${INSTALL} -m 644
 DESTDIR=
 # If `texi2html' is not available, use `makeinfo' when possible.  Set the ToC
@@ -42,21 +42,21 @@ ifneq (:,:)
 	TEXI2HTML=:
 	TEXI2HTML_TOC=auctex_toc.html
 else
-	ifneq (/usr/bin/makeinfo,:)
-		TEXI2HTML=/usr/bin/makeinfo --html
+	ifneq (/Users/johnw/.nix-profile/bin/makeinfo,:)
+		TEXI2HTML=/Users/johnw/.nix-profile/bin/makeinfo --html
 		TEXI2HTML_TOC=index.html
 	else
 		TEXI2HTML=:
 		TEXI2HTML_TOC=auctex_toc.html
 	endif
 endif
-TEXI2DVI=/usr/bin/texi2dvi
-TEXI2PDF=/usr/bin/texi2pdf
+TEXI2DVI=/Users/johnw/.nix-profile/bin/texi2dvi
+TEXI2PDF=/Users/johnw/.nix-profile/bin/texi2pdf
 MKINSTALLDIRS = ../mkinstalldirs
-DVIPS=/usr/local/texlive/2016/bin/x86_64-darwin/dvips
+DVIPS=/Users/johnw/.nix-profile/bin/dvips
 PERL=/usr/bin/perl
-AUCTEXDATE=2015-11-13
-AUCTEXVERSION=11.89
+AUCTEXDATE=2017-11-06
+AUCTEXVERSION=11.91
 PACKAGE_TARNAME=auctex
 
 AUCTEXTEXIFILES = auctex.texi install.texi wininstall.texi intro.texi \
@@ -110,7 +110,7 @@ tex-ref.ps: tex-ref.dvi
 tex-ref.pdf: tex-ref.tex
 	$(PDFTEX) tex-ref.tex
 
-version.texi: ../ChangeLog
+version.texi: ../ChangeLog.1
 	echo @set VERSION $(AUCTEXVERSION) >version.texi
 	echo @set UPDATED $(AUCTEXDATE) >>version.texi
 

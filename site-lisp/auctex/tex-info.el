@@ -335,7 +335,7 @@ commands. Return the resulting string."
 		 nodes
 		 :test (lambda (a b)
 			 (when (equal a b)
-			   (push (cons a (line-number-at-pos (point))) dups)
+			   (push (cons a (TeX-line-number-at-pos (point))) dups)
 			   t))))
       (when dups
 	(display-warning
@@ -618,9 +618,9 @@ value of `Texinfo-mode-hook'."
   (set (make-local-variable 'require-final-newline) t)
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set (make-local-variable 'paragraph-separate)
-       (concat "\b\\|^@[a-zA-Z]*[ \n]\\|" paragraph-separate))
+       (concat "\b\\|@[a-zA-Z]*[ \n]\\|" paragraph-separate))
   (set (make-local-variable 'paragraph-start)
-       (concat "\b\\|^@[a-zA-Z]*[ \n]\\|" paragraph-start))
+       (concat "\b\\|@[a-zA-Z]*[ \n]\\|" paragraph-start))
   (set (make-local-variable 'fill-column) 72)
   (set (make-local-variable 'comment-start) "@c ")
   (set (make-local-variable 'comment-start-skip) "@c +\\|@comment +")

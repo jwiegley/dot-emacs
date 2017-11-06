@@ -515,19 +515,6 @@ following commands are defined:
     (LaTeX-kpfonts-mode))
 ;;; Kpfonts Minor Mode ends here
 
-;; New fonts by `kpfonts'.
-(setq TeX-font-list
-      (append
-       TeX-font-list
-       '(;; Math fonts
-	 (?\C-h "" "" "\\mathup{"   "}")
-	 (?\C-k "" "" "\\mathfrak{" "}")
-	 (?\C-p "" "" "\\mathscr{"  "}")
-	 ;; Text fonts
-	 (?\C-l "\\textscsl{"      "}")
-	 (?\C-o "\\textothersc{"   "}")
-	 (?\C-q "\\textotherscsl{" "}"))))
-
 (TeX-add-style-hook
  "kpfonts"
  (lambda ()
@@ -553,6 +540,19 @@ following commands are defined:
     '("wideOarc" 1)
     '("wideparen" 1)
     '("widering" 1))
+
+   ;; New fonts by `kpfonts'.
+   (setq TeX-font-list
+	 (append
+	  TeX-font-list
+	  '(;; Math fonts
+	    (?\C-h "" "" "\\mathup{"   "}")
+	    (?\C-k "" "" "\\mathfrak{" "}")
+	    (?\C-p "" "" "\\mathscr{"  "}")
+	    ;; Text fonts
+	    (?\C-l "\\textscsl{"      "}")
+	    (?\C-o "\\textothersc{"   "}")
+	    (?\C-q "\\textotherscsl{" "}"))))
 
    ;; Fontification
    (when (and (featurep 'font-latex)

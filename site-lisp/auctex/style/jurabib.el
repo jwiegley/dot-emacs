@@ -144,9 +144,8 @@
 				'variable))
 
      ;; Tell RefTeX (Thanks, Carsten)
-     (when (and (fboundp 'reftex-set-cite-format)
-		;; Is it `reftex-cite-format' customized?
-		(not (get 'reftex-cite-format 'saved-value)))
+     (when (and LaTeX-reftex-cite-format-auto-activate
+		(fboundp 'reftex-set-cite-format))
        ;; Check if RefTeX supports jurabib.
        (if (assoc 'jurabib reftex-cite-format-builtin)
 	   ;; Yes, use the provided default.

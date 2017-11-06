@@ -3,7 +3,7 @@
 ;;; Code:
 
 
-;;;### (autoloads nil "preview" "preview.el" (22409 33197 0 0))
+;;;### (autoloads nil "preview" "preview.el" (23040 61086 0 0))
 ;;; Generated autoloads from preview.el
 
 (autoload 'preview-install-styles "preview" "\
@@ -30,6 +30,8 @@ to add the preview functionality.
 Report a bug in the preview-latex package.
 
 \(fn)" t nil)
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "preview" '("preview-" "TeX-" "desktop-buffer-preview")))
 
 ;;;***
 

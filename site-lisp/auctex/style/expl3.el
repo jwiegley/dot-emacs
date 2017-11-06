@@ -1,6 +1,6 @@
 ;;; expl3.el --- AUCTeX style for `expl3.sty'
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2017 Free Software Foundation, Inc.
 
 ;; Author: Tassilo Horn <tsdh@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
@@ -41,11 +41,18 @@
  "expl3"
  (lambda ()
    (set-syntax-table LaTeX-expl3-syntax-table)
-   (when (and (featurep 'font-latex)
+   (when (and (fboundp 'font-latex-update-font-lock)
 	      (eq TeX-install-font-lock 'font-latex-setup))
-     ;; For syntactic fontification, e.g. verbatim constructs.
-     (font-latex-set-syntactic-keywords)
      ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock t)))
  LaTeX-dialect)
+
+(defun LaTeX-expl3-package-options ()
+  "Read the expl3 package options from the user."
+  (TeX-read-key-val t '(("check-declarations" ("true" "false"))
+			("log-functions" ("true" "false"))
+			("driver" ("auto"    "latex2e"
+				   "dvips"   "dvipdfmx"
+				   "pdfmode" "xdvipdfmx")))))
+
+;;; expl3.el ends here

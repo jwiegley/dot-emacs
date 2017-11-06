@@ -1,8 +1,8 @@
 ;;; environ.el --- AUCTeX style for `environ.sty' version v0.3
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-07-04
 ;; Keywords: tex
@@ -89,7 +89,7 @@ from `environ.sty'.")
 (defun TeX-arg-environ-final-code (_optional)
   "Query for the presence of optional `final code' as argument to
 `\\NewEnviron' and insert the appropriate brackets."
-  (let ((fincode (y-or-n-p "With optional final code?")))
+  (let ((fincode (y-or-n-p "With optional final code? ")))
     (when fincode
 	(insert "[]"))))
 
@@ -118,7 +118,15 @@ from `environ.sty'.")
     '("BODY")
 
     ;; Define another macro instead of \BODY
-    '("environbodyname" TeX-arg-define-macro)))
+    '("environbodyname" TeX-arg-define-macro))
+
+   ;; Fontification
+   (when (and (featurep 'font-latex)
+	      (eq TeX-install-font-lock 'font-latex-setup))
+     (font-latex-add-keywords '(("NewEnviron"      "{[[{[")
+				("RenewEnviron"    "{[[{[")
+				("environbodyname" "|{\\"))
+			      'function)))
   LaTeX-dialect)
 
 (defvar LaTeX-environ-package-options nil

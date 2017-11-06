@@ -590,11 +590,17 @@ string."
       "ab"
       "zb"
       "yb"))
+
+   ;; `siunitx.sty' adds new column specification letters
+   (set (make-local-variable 'LaTeX-array-column-letters)
+	(concat LaTeX-array-column-letters "s" "S"))
+
    (TeX-run-style-hooks "l3keys2e"
 			"array"
 			"amstext"
 			"xparse"
 			"expl3")
+
    ;; Fontification
    (when (and (featurep 'font-latex)
 	      (eq TeX-install-font-lock 'font-latex-setup))

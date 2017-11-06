@@ -1,11 +1,14 @@
 Installing AUCTeX
 *****************
 
-The simplest way of installing AUCTeX is by using the Emacs package
-manager integrated in Emacs 24 and greater (ELPA).  Simply do 'M-x
-package-list-packages RET', mark the auctex package for installation
-with 'i', and hit 'x' to execute the installation procedure.  That's
-all.
+The modern and strongly recommended way of installing AUCTeX is by using
+the Emacs package manager integrated in Emacs 24 and greater (ELPA).
+Simply do 'M-x list-packages RET', mark the auctex package for
+installation with 'i', and hit 'x' to execute the installation
+procedure.  That's all.  This installation procedure has several
+advantages.  Besides being platform and OS independent, you will receive
+intermediate releases between major AUCTeX releases conveniently.  For
+past ELPA releases, see <https://elpa.gnu.org/packages/auctex.html>.
 
    The remainder of this section is about installing AUCTeX from a
 release tarball or from a checkout of the AUCTeX repository.
@@ -392,7 +395,7 @@ big help already if things work from inside of Emacs.
    Here is how to do the various parts:
 
 Making the Elisp available
---------------------------
+==========================
 
 In GNU Emacs, it should be sufficient if people just do
 
@@ -409,7 +412,7 @@ easy programmatic way to do this, except to have a script do the
 symlinking for them.)
 
 Making the Info files available
--------------------------------
+===============================
 
 For making the info files accessible from within Elisp, something like
 the following might be convenient to add into your or other people's
@@ -425,7 +428,7 @@ of standalone readers outside of XEmacs.  (The info files in XEmacs are
 normally in '~/.xemacs/xemacs-packages/info'.)
 
 Making the LaTeX style available
---------------------------------
+================================
 
 If you want others to be able to share your installation, you should
 configure it using '--without-texmf-dir', in which case things should

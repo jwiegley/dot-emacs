@@ -1,5 +1,5 @@
 @c This is part of the AUCTeX manual.
-@c Copyright (C) 1994-2002, 2004-2010, 2012-2015 Free Software
+@c Copyright (C) 1994-2002, 2004-2010, 2012-2017 Free Software
 @c Foundation, Inc.
 @c See file auctex.texi for copying conditions.
 @include macros.texi
@@ -7,6 +7,250 @@
 @chapheading Changes and New Features in @AUCTeX{}
 
 @end ifset
+
+@heading News in 11.91
+
+@itemize @bullet
+@item
+Now @AUCTeX{} has a logo.  The @LaTeX{} code to create it is available
+in the @file{etc/} directory of the package.
+
+@item
+Add support for @command{upmendex}, an extension of @command{makeindex}
+capable of sorting indexes by unicode based ICU.
+
+@item
+Fix preview-latex to interact correctly with Japanese @LaTeX{}.  The
+parsing routine was made robust not to be confused by the 7-bit encoding
+of Japanese text and the necessary option to @LaTeX{} command is kept
+even when preamble caching is enabled.
+
+@item
+The new ``Glossaries'' entry in @code{TeX-command-list} runs the command
+@command{makeglossaries}.
+
+@item
+Fontification of control symbols has been improved.  Characters defined
+in @code{font-latex-match-simple-exclude-list} do not receive any
+fontification.  In Doc@TeX{} mode, the character @samp{_} is removed
+from @code{font-latex-match-simple-exclude-list} in order to fontify
+macros like @samp{\__module_foo:nnn} correctly.
+
+@item
+Fontification of math environments has been improved.  Optional and/or
+mandatory argument(s) to environments are not fontified.
+
+@item
+@file{preview.sty} loads @file{luatex85.sty} if possible and should be
+compatible with newer lua@TeX{} versions.
+
+@item
+@AUCTeX{} has a new customize option @code{TeX-ispell-verb-delimiters}.
+This string contains usual characters used as delimiters for in-line
+verbatim macros like @samp{\verb}.  Text between delimiters after an
+in-line verbatim macro will be skipped during spell checking.
+
+@item
+Fontification of in-line verbatim macros has been improved.
+@file{font-latex.el} recognizes an optional or a mandatory argument for
+macros like @samp{\Verb} from @file{fancyvrb.sty}, @samp{\mint} and
+@samp{\mintinline} from @file{minted.sty} and fontifies verbatim content
+correctly.
+
+@item
+@AUCTeX{} can put and parse labels in optional argument of environments.
+Inserting labels is done by new function
+@code{LaTeX-env-label-as-keyval}.  A new customize option
+@code{LaTeX-listing-label} is available as prefix to labels in code
+typesetting environments, e.g. @samp{lstlisting} environment provided by
+@samp{listings} package.  @code{LaTeX-listing-label} defaults to
+@code{lst:}.  Parsing of labels for later referencing relies on two
+requirements:
+@enumerate
+@item
+Label should come as last key-value argument, and
+@item
+label must be enclosed in braces, e.g.
+@example
+\begin@{lstlisting@}[caption=Some Caption,label=@{lst:foo@}]
+...
+\end@{lstlisting@}
+@end example
+@end enumerate
+
+@item
+The function @code{LaTeX-label} now takes a second optional argument
+@code{NO-INSERT}.  When non-@code{nil}, @code{LaTeX-label} reads a label
+and returns it as a string.  This argument is also passed to any
+function bound to @code{LaTeX-label-function} (see next item).
+
+@item
+@strong{Incompatible change:} The signature for the function passed with
+the customize option @code{LaTeX-label-function} has changed.  The
+function bound to this variable is now expected to take an optional
+second argument @code{NO-INSERT}.  When this argument is non-@code{nil},
+the function should read and only return a label as a string; insertion
+is done by another function.
+
+@item
+Directory local variables were ineffective for
+@code{japanese-latex-mode} and @code{japanese-plain-tex-mode}.  This bug
+was fixed.  (This was actually done in @AUCTeX{} 11.90, but not
+advertised)
+
+@item
+The output of Japanese text from Japanese @TeX{} engines is decoded
+correctly for most cases, according to the encoding of the @TeX{}
+documents and the locale.  The difference between MS Windows, macOS and
+unix-like OS is taken into account.  (This was actually done in
+@AUCTeX{} 11.90, but not advertised)
+
+@item
+Quite a few new @LaTeX{} packages are supported.
+
+@item
+As usual, many bugs were fixed.
+
+@end itemize
+
+@heading News in 11.90
+
+@itemize @bullet
+@item
+In addition to the completion performed by @code{TeX-complete-symbol},
+@AUCTeX{} now also supports the new Emacs standard completion-at-point
+facility (see the Emacs command @code{completion-at-point}).  This also
+means that modern completion UIs like @i{company-mode} work out of the
+box in @TeX{} and @LaTeX{} buffers.
+@ifclear rawfile
+@xref{Completion}, for details.
+@end ifclear
+
+@item
+Completion is now aware of being inside a math environment and then
+completes math macros.
+
+@item
+@AUCTeX{} is able to display several levels of super- and subscripts,
+each one raised above and a bit smaller than its basis.  For this
+feature, have a look at the customize options
+@code{font-latex-fontify-script} (especially the new values
+@code{multi-level} and @code{invisible}) and
+@code{font-latex-fontify-script-max-level}.  Also, the script characters
+@samp{^} and @samp{_} are also fontified with a special face named
+@code{font-latex-script-char-face}.
+@ifclear rawfile
+@xref{Fontification of math}, for details.
+@end ifclear
+
+@item
+Parsing of format specification in various tabular environments has been
+improved.  The function @code{LaTeX-insert-item} (@kbd{C-c @key{LFD}})
+inserts suitable number of ampersands for @samp{*@{num@}@{cols@}}
+constructs.  Style files for @LaTeX{} packages @samp{tabularx},
+@samp{tabulary}, @samp{longtable}, @samp{dcolumn} and @samp{siunitx} are
+adapted to take advantage of this improvement.
+
+@item
+@AUCTeX{} has a new Ispell dictionary @file{tex-ispell.el} for macros
+and environments which will be skipped during spell checking.  The
+activiation of this feature is controlled by a new customize option
+@code{TeX-ispell-extend-skip-list}, which is set to @code{t} and
+activated by default.
+
+@item
+@AUCTeX{} has a new customize option @code{TeX-raise-frame-function}
+that is currently only used by Evince and Atril inverse search to raise
+the Emacs frame.
+
+@item
+When inserting a new float, @AUCTeX{} will now prompt for a
+short-caption if the length of the caption provided is greater than a
+certain size.  This size is controlled via a new user option
+@code{LaTeX-short-caption-prompt-length}.
+
+@item
+Parsing of the compilation log has been reworked.  You should encounter
+fewer mistaken files while navigating through errors and warnings.
+
+@item
+Two new user options, @code{TeX-ignore-warnings} and
+@code{TeX-suppress-ignored-warnings}, allow ignoring certain warnings
+after compilation of the document.
+@ifclear rawfile
+@xref{Ignoring warnings}, for details.
+@end ifclear
+
+@item
+A new option, @code{TeX-PDF-from-DVI}, controls if and how to produce a
+@acronym{PDF} file by converting a @acronym{DVI} file.  This supersedes
+@code{TeX-PDF-via-dvips-ps2pdf} which is still recognized but marked as
+obsolete and may be removed in future releases.
+
+@item
+Support for a number of external viewers has been added:
+@itemize
+@item
+Atril viewer.  Forward and inverse search requires version 1.9.1 or
+later to work.
+
+@item
+dviout viewer on Windows.  Note that this setup works when
+@code{TeX-source-correlate-method} is set to use @samp{source-specials}
+for @acronym{DVI}, e.g.:
+@lisp
+(setq TeX-source-correlate-method
+      '((dvi . source-specials)
+        (pdf . synctex)))
+@end lisp
+which is the default.
+
+@item
+SumatraPDF viewer on Windows.
+
+@item
+Zathura viewer.  Forward and inverse search requires a recent version of
+the program to work (3.4 or later).
+@end itemize
+
+@item
+A new function, @code{TeX-documentation-texdoc}, for reading
+documentation with @samp{texdoc} has been added.  @code{TeX-doc} is
+still available but now @kbd{C-c ?} runs
+@code{TeX-documentation-texdoc}.
+
+@item
+@AUCTeX{} has a new custom option
+@code{LaTeX-reftex-cite-format-auto-activate} which controls the
+automatic activation of citation formats provided by RefTeX when a style
+file is loaded and RefTeX is enabled.  Currently, @file{biblatex.el},
+@file{harvard.el}, @file{jurabib.el} and @file{natbib.el} use this
+feature.  If you have customized @code{reftex-cite-format} and want to
+use your settings, you should set this variable to @code{nil}.
+
+@item
+@AUCTeX{} now has limited support for the TikZ package.  For the moment,
+this includes some basic support for prompting the user of arguments to
+the @samp{\draw} macro.
+
+@item
+The style @file{graphicx.el} went through a bigger overhaul.  The
+optional argument of command @samp{\includegraphics} now supports
+key-val query; keys can independently be chosen anytime by pressing the
+@key{,} key.  As a side effect, the variable
+@code{LaTeX-includegraphics-options-alist} is now no-op and is removed
+from @file{tex-style.el}.  You can safely remove any customization of it
+from your init file.  The mandatory argument of @samp{\includegraphics}
+knows about image file extensions supported by the used engine and
+offers them for inclusion.
+
+@item
+Support for other @LaTeX{} packages was improved, and style files for
+several new packages were added.
+
+@item
+Many bugs were crushed along the way.
+@end itemize
 
 @heading News in 11.89
 
@@ -76,10 +320,10 @@ select the Mark version to be used with new option
 messages in the output log of a Mark IV document.
 
 @item
-Support for tons of @LaTeX{} packages has been addedd.
+Support for tons of @LaTeX{} packages has been added.
 
 @item
-Numbers of bugs have been fixed, many minor features have been addedd.
+Numbers of bugs have been fixed, many minor features have been added.
 @end itemize
 
 @heading News in 11.88

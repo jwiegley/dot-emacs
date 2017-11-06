@@ -130,7 +130,7 @@ single quotes for that.
      save headaches, _if_ things don't work out.
 
   3. Install a current version of XEmacs from <http://www.xemacs.org/>
-     or Emacs from <ftp://ftp.gnu.org/gnu/emacs/windows/>.  Emacs is the
+     or Emacs from <ftp://ftp.gnu.org/gnu/emacs/windows/>. Emacs is the
      recommended choice because it is currently the primary platform for
      AUCTeX development.
 

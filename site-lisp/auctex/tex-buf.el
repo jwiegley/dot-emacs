@@ -1,6 +1,6 @@
 ;;; tex-buf.el --- External commands for AUCTeX.
 
-;; Copyright (C) 1991-1999, 2001-2015 Free Software Foundation, Inc.
+;; Copyright (C) 1991-1999, 2001-2016 Free Software Foundation, Inc.
 
 ;; Maintainer: auctex-devel@gnu.org
 ;; Keywords: tex, wp
@@ -29,6 +29,8 @@
 ;;; Code:
 
 (require 'tex)
+(require 'latex)
+(require 'comint)
 
 ;;; Customization:
 
@@ -175,11 +177,15 @@ temporary file before the region itself.  The document's header is all
 text before `TeX-header-end'.
 
 If the master file for the document has a trailer, it is written to
-the temporary file before the region itself.  The document's trailer is
+the temporary file after the region itself.  The document's trailer is
 all text after `TeX-trailer-start'."
   (interactive "P")
   (TeX-region-update)
-  (TeX-command (TeX-command-query (TeX-region-file nil t)) 'TeX-region-file
+  ;; In the next line, `TeX-region-file' should be called with nil
+  ;; `nondirectory' argument, otherwise `TeX-comand-default' called
+  ;; within `TeX-command-query' won't work in included files not
+  ;; placed in `TeX-master-directory'.
+  (TeX-command (TeX-command-query (TeX-region-file)) 'TeX-region-file
 	       override-confirm))
 
 (defun TeX-command-buffer (&optional override-confirm)
@@ -259,6 +265,23 @@ at bottom if LINE is nil."
       ;; Should test for TeX background process here.
       (error "No TeX process to kill"))))
 
+;; FIXME: The vars below are defined in this file, but they're defined too
+;; far down (i.e. further down than their first use), so we have to pre-declare
+;; them here to explain it to the compiler.
+;; We should move those vars's definitions earlier instead!
+(defvar TeX-current-process-region-p)
+(defvar TeX-save-query)
+(defvar TeX-parse-function)
+(defvar TeX-sentinel-function)
+(defvar TeX-sentinel-default-function)
+(defvar compilation-in-progress)
+(defvar TeX-current-page)
+(defvar TeX-error-overview-open-after-TeX-run)
+(defvar TeX-error-list)
+(defvar TeX-parse-all-errors)
+(defvar TeX-command-buffer)
+(defvar TeX-region)
+
 (defun TeX-home-buffer ()
   "Go to the buffer where you last issued a TeX command.
 If there is no such buffer, or you already are in that buffer, find
@@ -320,7 +343,7 @@ This works only with TeX commands and if the
       (previous-error arg)
 
     (let ((parse-function (TeX-get-parse-function)))
-      (if (and TeX-parse-all-errors (equal parse-function 'TeX-parse-TeX))
+      (if (and TeX-parse-all-errors (equal parse-function #'TeX-parse-TeX))
 	  ;; When `TeX-parse-all-errors' is non-nil and the parsing function is
 	  ;; `TeX-parse-TeX' we can move backward in the errors.
 	  (TeX-parse-TeX (- arg) nil)
@@ -414,7 +437,7 @@ to be run."
 Do you want to use this engine?" (cdr (assoc engine name-alist)))))
 	  ;; More than one engine is allowed.
 	  ((> length 1)
-	   (if (y-or-n-p (format "%s are required to build this document.
+	   (if (y-or-n-p (format "It appears %s are required to build this document.
 Do you want to select one of these engines?"
 				 (mapconcat
 				  (lambda (elt) (cdr (assoc elt name-alist)))
@@ -430,7 +453,12 @@ Do you want to select one of these engines?"
 			    (mapcar
 			     (lambda (elt) (cdr (assoc elt name-alist)))
 			     TeX-check-engine-list))
-			   name-alist))))))
+			   name-alist)))
+	     ;; Don't keep asking.  If user doesn't want to change engine,
+	     ;; probably has a good reason.  In order to do so, without adding
+	     ;; yet another variable we just hack `TeX-check-engine-list' and
+	     ;; make it nil.
+	     (setq TeX-check-engine-list nil))))
        (TeX-engine-set engine)
        (when (and (fboundp 'add-file-local-variable)
 		  (y-or-n-p "Do you want to remember the choice?"))
@@ -464,10 +492,15 @@ Run function `TeX-check-engine' to check the correct engine has
 been set."
   (TeX-check-engine name)
 
-  (cond ((eq file 'TeX-region-file)
+  (cond ((eq file #'TeX-region-file)
 	 (setq TeX-current-process-region-p t))
-	((eq file 'TeX-master-file)
+	((eq file #'TeX-master-file)
 	 (setq TeX-current-process-region-p nil)))
+
+  ;; When we're operating on a region, we need to update the position
+  ;; of point in the region file so that forward search works.
+  (if (string= name "View") (TeX-region-update-point))
+
   (let ((command (TeX-command-expand (nth 1 (assoc name TeX-command-list))
 				     file))
 	(hook (nth 2 (assoc name TeX-command-list)))
@@ -509,18 +542,23 @@ remember to add /Library/TeX/texbin/ to your PATH"
     (TeX-process-set-variable file 'TeX-command-next TeX-command-Show)
     (funcall hook name command file)))
 
+(defvar TeX-command-text)               ;Dynamically scoped.
+(defvar TeX-command-pos)                ;Dynamically scoped.
+
 (defun TeX-command-expand (command file &optional list)
   "Expand COMMAND for FILE as described in LIST.
 LIST default to `TeX-expand-list'.  As a special exception,
 `%%' can be used to produce a single `%' sign in the output
 without further expansion."
+  (defvar TeX-command-pos)
   (let (pat
-	pos
+	pos ;;FIXME: Should this be dynamically scoped?
 	entry TeX-command-text TeX-command-pos
+        ;; FIXME: This variable appears to be unused!
 	(file `(lambda (&rest args)
 		 (shell-quote-argument
 		  (concat (and (stringp TeX-command-pos) TeX-command-pos)
-			  (apply ',file args)
+			  (apply #',file args)
 			  (and (stringp TeX-command-pos) TeX-command-pos)))))
         expansion-res case-fold-search string expansion arguments)
     (setq list (cons
@@ -542,11 +580,11 @@ without further expansion."
 		     ;; a function definition made by an external
 		     ;; package (e.g. icicles) is not picked up.
 		     (cond ((and (not (eq expansion 'file))
-				 (TeX-function-p expansion))
+				 (functionp expansion))
 			    (apply expansion arguments))
 			   ((boundp expansion)
                             (setq expansion-res
-                                  (apply (eval expansion) arguments))
+                                  (apply (symbol-value expansion) arguments))
                             (when (eq expansion 'file)
                               ;; Advance past the file name in order to
                               ;; prevent expanding any substring of it.
@@ -569,9 +607,19 @@ ORIGINALS which are modified but not saved yet."
         found
 	(extensions (TeX-delete-duplicate-strings extensions))
         (buffers (buffer-list)))
-    (dolist (path (mapcar (lambda (dir)
-			    (expand-file-name (file-name-as-directory dir)))
-			  TeX-check-path))
+    (dolist (path (TeX-delete-duplicate-strings
+		   (mapcar (lambda (dir)
+			     (expand-file-name (file-name-as-directory dir)))
+			   (append
+			    TeX-check-path
+			    ;; In `TeX-command-default', this function is used to
+			    ;; check whether bibliography databases are newer
+			    ;; than generated *.bbl files, but bibliography
+			    ;; database are relative to `TeX-master-directory'
+			    ;; and the test can be run also from included files
+			    ;; that are in directories different from
+			    ;; `TeX-master-directory'.
+			    (list (TeX-master-directory))))))
       (dolist (orig originals)
 	(dolist (ext extensions)
 	  (let ((filepath (concat path orig "." ext)))
@@ -680,8 +728,12 @@ omitted) and `TeX-region-file'."
 	(setq cmd (TeX-command-default
 		   ;; File function should be called with nil `nondirectory'
 		   ;; argument, otherwise `TeX-command-sequence' won't work in
-		   ;; included files not placed in `TeX-master-directory'.
-		   (funcall TeX-command-sequence-file-function))
+		   ;; included files not placed in `TeX-master-directory'.  In
+		   ;; addition, `TeX-master-file' is called with the third
+		   ;; argument (`ask') set to t, so that the master file is
+		   ;; properly set.  This is also what `TeX-command-master'
+		   ;; does.
+		   (funcall TeX-command-sequence-file-function nil nil t))
 	      TeX-command-sequence-command t)))
       (TeX-command cmd TeX-command-sequence-file-function 0)
       (when reset
@@ -713,7 +765,8 @@ omitted) and `TeX-region-file'."
 	      TeX-command-sequence-last-command cmd)
 	(and (setq process (get-buffer-process (current-buffer)))
 	     (setq TeX-command-sequence-sentinel (process-sentinel process))
-	     (set-process-sentinel process 'TeX-command-sequence-sentinel)))))))
+	     (set-process-sentinel process
+                                   #'TeX-command-sequence-sentinel)))))))
 
 (defcustom TeX-save-query t
   "*If non-nil, ask user for permission to save files before starting TeX."
@@ -728,7 +781,7 @@ omitted) and `TeX-region-file'."
     (cond (;; name might be absolute or relative, so expand it for
 	   ;; comparison.
 	   (if (string-equal (expand-file-name name)
-			     (expand-file-name TeX-region))
+			     (expand-file-name (TeX-region-file)))
 	       (TeX-check-files (concat name "." (TeX-output-extension))
 				;; Each original will be checked for all dirs
 				;; in `TeX-check-path' so this needs to be just
@@ -741,14 +794,14 @@ omitted) and `TeX-region-file'."
 		;; Want to know if bib file is newer than .bbl
 		;; We don't care whether the bib files are open in emacs
 		(TeX-check-files (concat name ".bbl")
-				 (mapcar 'car
+				 (mapcar #'car
 					 (LaTeX-bibliography-list))
 				 (append BibTeX-file-extensions
 					 TeX-Biber-file-extensions)))
 	   ;; We should check for bst files here as well.
 	   (if LaTeX-using-Biber TeX-command-Biber TeX-command-BibTeX))
 	  ((and
-	    ;; Rational: makeindex should be run when final document is almost
+	    ;; Rationale: makeindex should be run when final document is almost
 	    ;; complete (see
 	    ;; http://tex.blogoverflow.com/2012/09/dont-forget-to-run-makeindex/),
 	    ;; otherwise, after following latex runs, index pages may change due
@@ -759,10 +812,9 @@ omitted) and `TeX-region-file'."
 		   (TeX-process-get-variable
 		    name
 		    'TeX-command-next
-		    (if (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode)
-			"Dvips"
-		      TeX-command-Show)))
-	     (list "Dvips" TeX-command-Show))
+		    (or (and TeX-PDF-mode (TeX-PDF-from-DVI))
+			TeX-command-Show)))
+	     (list "Dvips" "Dvipdfmx" TeX-command-Show))
 	    (cdr (assoc (expand-file-name (concat name ".idx"))
 			LaTeX-idx-changed-alist)))
 	   "Index")
@@ -775,7 +827,7 @@ omitted) and `TeX-region-file'."
          (completion-ignore-case t)
          (answer (or TeX-command-force
                      (completing-read
-                      (concat "Command: (default " default ") ")
+                      (concat "Command (default " default "): ")
                       (TeX-mode-specific-command-list major-mode) nil t
                       nil 'TeX-command-history default))))
     ;; If the answer is "latex" it will not be expanded to "LaTeX"
@@ -803,10 +855,9 @@ QUEUE is non-nil when we are checking for the printer queue."
 	     (setq printer (if TeX-printer-list
 			       (let ((completion-ignore-case t))
 				 (completing-read
-				  (concat "Printer: "
-					  (and TeX-printer-default
-					       (concat "(default "
-						       TeX-printer-default ") ")))
+				  (format "Printer%s: "
+					  (if TeX-printer-default
+					      (format " (default %s)" TeX-printer-default) ""))
 				  TeX-printer-list))
 			     ""))
 	     (setq printer (or (car-safe (TeX-assoc printer TeX-printer-list))
@@ -850,6 +901,29 @@ QUEUE is non-nil when we are checking for the printer queue."
     (goto-char (posn-point (event-start event)))
     (TeX-view)))
 
+(defun TeX-region-update-point ()
+  "Syncs the location of point in the region file with the current file.
+
+Thereafter, point in the region file is on the same text as in
+the current buffer.
+
+Do nothing in case the last command hasn't operated on the region
+or `TeX-source-correlate-mode' is disabled."
+  (when (and TeX-current-process-region-p TeX-source-correlate-mode)
+    (let ((region-buf (get-file-buffer (TeX-region-file t)))
+	  (orig-line (TeX-current-offset))
+	  (pos-in-line (- (point) (max (line-beginning-position)
+				       (or TeX-command-region-begin
+					   (region-beginning))))))
+      (when region-buf
+	(with-current-buffer region-buf
+	  (goto-char (point-min))
+	  (when (re-search-forward "!offset(\\(-?[0-9]+\\)" nil t)
+	    (let ((offset (string-to-number (match-string 1))))
+	      (goto-char (point-min))
+	      (forward-line (- orig-line offset))
+	      (forward-char pos-in-line))))))))
+
 (defun TeX-view ()
   "Start a viewer without confirmation.
 The viewer is started either on region or master file,
@@ -885,8 +959,8 @@ the current style options."
 
 ;;; Command Hooks
 
-(defvar TeX-after-TeX-LaTeX-command-finished-hook nil
-  "Hook being run after TeX/LaTeX finished successfully.
+(defvar TeX-after-compilation-finished-functions nil
+  "Hook being run after TeX/LaTeX/ConTeXt finished successfully.
 The functions in this hook are run with the DVI/PDF output file
 given as argument.  Using this hook can be useful for updating
 the viewer automatically after re-compilation of the document.
@@ -894,10 +968,14 @@ the viewer automatically after re-compilation of the document.
 If you use an emacs-internal viewer such as `doc-view-mode' or
 `pdf-view-mode', add `TeX-revert-document-buffer' to this hook.")
 
+(make-obsolete-variable 'TeX-after-TeX-LaTeX-command-finished-hook
+			'TeX-after-compilation-finished-functions
+			"11.89")
+
 (defun TeX-revert-document-buffer (file)
   "Revert the buffer visiting FILE.
 This function is intended to be used in
-`TeX-after-TeX-LaTeX-command-finished-hook' for users that view
+`TeX-after-compilation-finished-functions' for users that view
 their compiled document with an emacs viewer such as
 `doc-view-mode' or `pdf-view-mode'.  (Note that this function
 just calls `revert-buffer' in the respective buffer and thus
@@ -908,9 +986,58 @@ requires that the corresponding mode defines a sensible
       (with-current-buffer buf
 	(revert-buffer nil t t)))))
 
-(defvar TeX-after-start-process-function nil
-  "Hooks to run after starting an asynchronous process.
-Used by Japanese TeX to set the coding system.")
+(defvar TeX-after-start-process-function
+  #'TeX-adjust-process-coding-system
+  "Function to adjust coding system of an asynchronous process.
+Called with one argument PROCESS.")
+
+(defun TeX-adjust-process-coding-system (process)
+  "Adjust coding system of PROCESS to suitable value.
+Usually coding system is the same as the TeX file with eol format
+adjusted to OS default value.  Take care of Japanese TeX, which
+requires special treatment."
+  (when (featurep 'mule)
+    (if (and (boundp 'japanese-TeX-mode)
+	     (fboundp 'japanese-TeX-set-process-coding-system)
+	     (with-current-buffer TeX-command-buffer
+	       japanese-TeX-mode))
+	(japanese-TeX-set-process-coding-system process)
+      (let ((cs (with-current-buffer TeX-command-buffer
+		  buffer-file-coding-system)))
+	;; The value of `buffer-file-coding-system' is sometimes
+	;; undecided-{unix,dos,mac}.  That happens when the file
+	;; contains no multibyte chars and only end of line format is
+	;; determined.  Emacs lisp reference recommends not to use
+	;; undecided-* for process coding system, so it might seem
+	;; reasonable to change undecided-* to some fixed coding
+	;; system like this:
+	;; (if (eq 'undecided (coding-sytem-type cs))
+	;;     (setq cs 'utf-8))
+	;; However, that can lose when the following conditions are
+	;; met:
+	;; (1) The document is divided into multiple files.
+	;; (2) The command buffer contains no multibyte chars.
+	;; (3) The other files contain mutlibyte chars and saved in
+	;;     a coding system other than the coding system chosen
+	;;     above.
+	;; So we leave undecided-* unchanged here.  Although
+	;; undecided-* is not quite safe for the coding system for
+	;; encoding, i.e., keyboard input to the TeX process, we
+	;; expect that this does not raise serious problems because it
+	;; is pretty rare that TeX process needs keyboard input of
+	;; multibyte chars.
+
+	;; Eol format of TeX files can differ from OS default. TeX
+	;; binaries accept all type of eol format in the given files
+	;; and output messages according to OS default.  So we set eol
+	;; format to OS default value.
+	(setq cs (coding-system-change-eol-conversion
+		  cs
+		  ;; The eol of macosX is LF, not CR.  So we choose
+		  ;; other than `unix' only for w32 system.
+		  ;; FIXME: what should we do for cygwin?
+		  (if (eq system-type 'windows-nt) 'dos 'unix)))
+	(set-process-coding-system process cs cs)))))
 
 (defcustom TeX-show-compilation nil
   "*If non-nil, show output of TeX compilation in other window."
@@ -941,10 +1068,10 @@ Return the new process."
       (message "Type `%s' to display results of compilation."
 	       (substitute-command-keys
 		"\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
-    (setq TeX-parse-function 'TeX-parse-command)
+    (setq TeX-parse-function #'TeX-parse-command)
     (setq TeX-command-default default)
     (setq TeX-sentinel-function
-	  (lambda (process name)
+	  (lambda (_process name)
 	    (message (concat name ": done."))))
     (if TeX-process-asynchronous
 	(let ((process (start-process name buffer TeX-shell
@@ -952,8 +1079,8 @@ Return the new process."
 	  (if TeX-after-start-process-function
 	      (funcall TeX-after-start-process-function process))
 	  (TeX-command-mode-line process)
-	  (set-process-filter process 'TeX-command-filter)
-	  (set-process-sentinel process 'TeX-command-sentinel)
+	  (set-process-filter process #'TeX-command-filter)
+	  (set-process-sentinel process #'TeX-command-sentinel)
 	  (set-marker (process-mark process) (point-max))
 	  (setq compilation-in-progress (cons process compilation-in-progress))
 	  process)
@@ -967,7 +1094,7 @@ Return the new process."
   "Remember TeX command to use to NAME and set corresponding output extension."
   (setq TeX-command-default name
 	TeX-output-extension
-	(if (and (null TeX-PDF-via-dvips-ps2pdf) TeX-PDF-mode) "pdf" "dvi"))
+	(if (and (null (TeX-PDF-from-DVI)) TeX-PDF-mode) "pdf" "dvi"))
   (let ((case-fold-search t)
 	(lst TeX-command-output-list))
     (while lst
@@ -981,24 +1108,28 @@ Return the new process."
   (TeX-run-set-command name command)
   (let ((buffer (TeX-process-buffer-name file))
 	(process (TeX-run-command name command file)))
-    ;; Hook to TeX debuger.
+    ;; Hook to TeX debugger.
     (with-current-buffer buffer
       (TeX-parse-reset)
-      (setq TeX-parse-function 'TeX-parse-TeX)
-      (setq TeX-sentinel-function 'TeX-TeX-sentinel)
+      (setq TeX-parse-function #'TeX-parse-TeX)
+      (setq TeX-sentinel-function #'TeX-TeX-sentinel)
       (if TeX-process-asynchronous
 	  (progn
 	    ;; Updating the mode line.
 	    (setq TeX-current-page "[0]")
 	    (TeX-format-mode-line process)
-	    (set-process-filter process 'TeX-format-filter)))
+	    (set-process-filter process #'TeX-format-filter)))
       process)))
 
 (defvar TeX-error-report-switches nil
   "Reports presence of errors after `TeX-run-TeX'.
-To test whether the current buffer has an compile error from last
+To test whether the current buffer has a compile error from last
 run of `TeX-run-TeX', use
-  (plist-get TeX-error-report-switches (intern (TeX-master-file)))")
+  (TeX-error-report-has-errors-p)")
+
+(defun TeX-error-report-has-errors-p ()
+  "Return non-nil if current buffer has compile errors from last TeX run."
+  (plist-get TeX-error-report-switches (intern (TeX-master-file))))
 
 (defun TeX-run-TeX (name command file)
   "Create a process for NAME using COMMAND to format FILE with TeX."
@@ -1039,12 +1170,12 @@ run of `TeX-run-TeX', use
 
   (if TeX-interactive-mode
       (TeX-run-interactive name command file)
-    (let ((sentinel-function TeX-sentinel-default-function))
-      (let ((process (TeX-run-format name command file)))
-	(setq TeX-sentinel-function sentinel-function)
-	(if TeX-process-asynchronous
-	    process
-	  (TeX-synchronous-sentinel name file process))))))
+    (let* ((sentinel-function TeX-sentinel-default-function)
+           (process (TeX-run-format name command file)))
+      (setq TeX-sentinel-function sentinel-function)
+      (if TeX-process-asynchronous
+          process
+        (TeX-synchronous-sentinel name file process)))))
 
 ;; backward compatibilty
 
@@ -1054,7 +1185,7 @@ run of `TeX-run-TeX', use
 (defun TeX-run-BibTeX (name command file)
   "Create a process for NAME using COMMAND to format FILE with BibTeX."
   (let ((process (TeX-run-command name command file)))
-    (setq TeX-sentinel-function 'TeX-BibTeX-sentinel)
+    (setq TeX-sentinel-function #'TeX-BibTeX-sentinel)
     (if TeX-process-asynchronous
 	process
       (TeX-synchronous-sentinel name file process))))
@@ -1062,7 +1193,7 @@ run of `TeX-run-TeX', use
 (defun TeX-run-Biber (name command file)
   "Create a process for NAME using COMMAND to format FILE with Biber."
   (let ((process (TeX-run-command name command file)))
-    (setq TeX-sentinel-function 'TeX-Biber-sentinel)
+    (setq TeX-sentinel-function #'TeX-Biber-sentinel)
     (if TeX-process-asynchronous
         process
       (TeX-synchronous-sentinel name file process))))
@@ -1070,7 +1201,15 @@ run of `TeX-run-TeX', use
 (defun TeX-run-dvips (name command file)
   "Create a process for NAME using COMMAND to convert FILE with dvips."
   (let ((process (TeX-run-command name command file)))
-    (setq TeX-sentinel-function 'TeX-dvips-sentinel)
+    (setq TeX-sentinel-function #'TeX-dvips-sentinel)
+    (if TeX-process-asynchronous
+        process
+      (TeX-synchronous-sentinel name file process))))
+
+(defun TeX-run-dvipdfmx (name command file)
+  "Create a process for NAME using COMMAND to convert FILE with dvipdfmx."
+  (let ((process (TeX-run-command name command file)))
+    (setq TeX-sentinel-function #'TeX-dvipdfmx-sentinel)
     (if TeX-process-asynchronous
         process
       (TeX-synchronous-sentinel name file process))))
@@ -1078,7 +1217,7 @@ run of `TeX-run-TeX', use
 (defun TeX-run-ps2pdf (name command file)
   "Create a process for NAME using COMMAND to convert FILE with ps2pdf."
   (let ((process (TeX-run-command name command file)))
-    (setq TeX-sentinel-function 'TeX-ps2pdf-sentinel)
+    (setq TeX-sentinel-function #'TeX-ps2pdf-sentinel)
     (if TeX-process-asynchronous
         process
       (TeX-synchronous-sentinel name file process))))
@@ -1087,7 +1226,7 @@ run of `TeX-run-TeX', use
   "Create a process for NAME using COMMAND to compile the index file."
   (let ((process (TeX-run-command name command file))
 	(element nil))
-    (setq TeX-sentinel-function 'TeX-index-sentinel)
+    (setq TeX-sentinel-function #'TeX-index-sentinel)
     ;; Same cleaning as that for `LaTeX-idx-md5-alist' in `TeX-run-TeX'.
     (while (setq element
 		 ;; `file' has been determined in `TeX-command-buffer', while
@@ -1102,19 +1241,19 @@ run of `TeX-run-TeX', use
         process
       (TeX-synchronous-sentinel name file process))))
 
-(defun TeX-run-compile (name command file)
+(defun TeX-run-compile (_name command _file)
   "Ignore first and third argument, start compile with second argument."
   (let ((default-directory (TeX-master-directory)))
     (setq TeX-command-buffer (compile command))))
 
-(defun TeX-run-shell (name command file)
+(defun TeX-run-shell (_name command _file)
   "Ignore first and third argument, start shell-command with second argument."
   (let ((default-directory (TeX-master-directory)))
     (shell-command command)
     (if (eq system-type 'ms-dos)
 	(redraw-display))))
 
-(defun TeX-run-discard (name command file)
+(defun TeX-run-discard (_name command _file)
   "Start COMMAND as process, discarding its output.
 NAME and FILE are ignored."
   (let ((default-directory (TeX-master-directory)))
@@ -1123,7 +1262,7 @@ NAME and FILE are ignored."
 		  TeX-shell-command-option
 		  command)))
 
-(defun TeX-run-discard-foreground (name command file)
+(defun TeX-run-discard-foreground (_name command _file)
   "Call process with second argument in the foreground, discarding its output.
 With support for MS-DOS, especially when dviout is used with PC-9801 series."
   (if (and (boundp 'dos-machine-type) (eq dos-machine-type 'pc98)) ;if PC-9801
@@ -1134,7 +1273,7 @@ With support for MS-DOS, especially when dviout is used with PC-9801 series."
       (redraw-display)))
 (defalias 'TeX-run-dviout 'TeX-run-discard-foreground)
 
-(defun TeX-run-background (name command file)
+(defun TeX-run-background (name command _file)
   "Start process with second argument, show output when and if it arrives."
   (let ((dir (TeX-master-directory)))
     (set-buffer (get-buffer-create "*TeX background*"))
@@ -1145,17 +1284,17 @@ With support for MS-DOS, especially when dviout is used with PC-9801 series."
 				  TeX-shell-command-option command)))
       (if TeX-after-start-process-function
 	  (funcall TeX-after-start-process-function process))
-      (set-process-filter process 'TeX-background-filter)
+      (set-process-filter process #'TeX-background-filter)
       (process-kill-without-query process))))
 
-(defun TeX-run-silent (name command file)
+(defun TeX-run-silent (name command _file)
   "Start process with second argument."
   (let ((dir (TeX-master-directory)))
     (set-buffer (get-buffer-create "*TeX silent*"))
     (if dir (cd dir))
     (erase-buffer)
     (let ((process (start-process (concat name " silent")
-				  nil TeX-shell
+				  (current-buffer) TeX-shell
 				  TeX-shell-command-option command)))
       (if TeX-after-start-process-function
 	  (funcall TeX-after-start-process-function process))
@@ -1185,22 +1324,22 @@ Error parsing on \\[next-error] should work with a bit of luck."
     (comint-exec buffer name TeX-shell nil
 		 (list TeX-shell-command-option command))
     (comint-mode)
-    (add-hook 'comint-output-filter-functions 'TeX-interactive-goto-prompt)
+    (add-hook 'comint-output-filter-functions #'TeX-interactive-goto-prompt)
     (setq mode-name name)
     (setq TeX-command-default default)
     (setq process (get-buffer-process buffer))
     (if TeX-after-start-process-function
 	(funcall TeX-after-start-process-function process))
     (TeX-command-mode-line process)
-    (set-process-sentinel process 'TeX-command-sentinel)
+    (set-process-sentinel process #'TeX-command-sentinel)
     (set-marker (process-mark process) (point-max))
     (setq compilation-in-progress (cons process compilation-in-progress))
     (TeX-parse-reset)
-    (setq TeX-parse-function 'TeX-parse-TeX)
+    (setq TeX-parse-function #'TeX-parse-TeX)
     ;; use the sentinel-function that the major mode sets, not the LaTeX one
     (setq TeX-sentinel-function sentinel-function)))
 
-(defun TeX-run-function (name command file)
+(defun TeX-run-function (_name command _file)
   "Execute Lisp function or function call given as the string COMMAND.
 Parameters NAME and FILE are ignored."
   (let ((fun (car (read-from-string command))))
@@ -1214,7 +1353,7 @@ expected to be a string.  NAME and FILE are ignored."
       (TeX-run-function name command file)
     (TeX-run-discard name command file)))
 
-(defun TeX-run-ispell-on-document (command ignored name)
+(defun TeX-run-ispell-on-document (_command _ignored _name)
   "Run ispell on all open files belonging to the current document.
 This function is *obsolete* and only here for compatibility
 reasons.  Use `TeX-run-function' instead."
@@ -1285,19 +1424,19 @@ reasons.  Use `TeX-run-function' instead."
   (setq compilation-in-progress (delq process compilation-in-progress)))
 
 
-(defvar TeX-sentinel-function (lambda (process name))
+(defvar TeX-sentinel-function (lambda (_process _name) nil)
   "Hook to cleanup TeX command buffer after temination of PROCESS.
 NAME is the name of the process.")
 
-  (make-variable-buffer-local 'TeX-sentinel-function)
+(make-variable-buffer-local 'TeX-sentinel-function)
 
 
-(defvar TeX-sentinel-default-function (lambda (process name))
+(defvar TeX-sentinel-default-function (lambda (_process _name) nil)
   "Default for `TeX-sentinel-function'.  To be set in major mode.
 Hook to cleanup TeX command buffer after temination of PROCESS.
 NAME is the name of the process.")
 
-  (make-variable-buffer-local 'TeX-sentinel-default-function)
+(make-variable-buffer-local 'TeX-sentinel-default-function)
 
 (defun TeX-TeX-sentinel (process name)
   "Cleanup TeX output buffer after running TeX.
@@ -1312,13 +1451,16 @@ errors or warnings to show."
       (progn
 	(if TeX-parse-all-errors
 	    (TeX-parse-all-errors))
-	(if (and TeX-error-overview-open-after-TeX-run TeX-error-list)
+	(if (and TeX-error-overview-open-after-TeX-run
+		 (TeX-error-overview-make-entries
+		  (TeX-master-directory) (TeX-active-buffer)))
 	    (TeX-error-overview)))
     (message (concat name ": formatted " (TeX-current-pages)))
-    (if (with-current-buffer TeX-command-buffer
-	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
-	(setq TeX-command-next "Dvips")
-      (setq TeX-command-next TeX-command-Show))))
+    (let (dvi2pdf)
+	(if (with-current-buffer TeX-command-buffer
+	   (and TeX-PDF-mode (setq dvi2pdf (TeX-PDF-from-DVI))))
+	 (setq TeX-command-next dvi2pdf)
+       (setq TeX-command-next TeX-command-Show)))))
 
 (defun TeX-current-pages ()
   "Return string indicating the number of pages formatted."
@@ -1335,7 +1477,7 @@ Return nil ifs no errors were found."
   (save-excursion
     (goto-char (point-max))
     (cond
-     ((and (string-match "ConTeXt" name)
+     ((and (string-match "ConTeXt" name) (boundp 'ConTeXt-Mark-version)
 	   (with-current-buffer TeX-command-buffer
 	     (string= ConTeXt-Mark-version "IV")))
       (when (re-search-backward " > result saved in file: \\(.*?\\), " nil t)
@@ -1375,19 +1517,28 @@ Return nil ifs no errors were found."
 					    'TeX-current-master))
 			 t))
 	t)
-    (if (with-current-buffer TeX-command-buffer
-	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
-	(setq TeX-command-next "Dvips")
-      (setq TeX-command-next TeX-command-Show))
+    (let (dvi2pdf)
+	(if (with-current-buffer TeX-command-buffer
+	   (and TeX-PDF-mode (setq dvi2pdf (TeX-PDF-from-DVI))))
+	 (setq TeX-command-next dvi2pdf)
+       (setq TeX-command-next TeX-command-Show)))
     nil))
+
+;; This regexp should catch warnings of the type
+;;   LaTeX Warning: ...
+;;   LaTeX Font Warning: ...
+;;   Package xyz123 Warning: ...
+;;   Class xyz123 Warning: ...
+(defvar LaTeX-warnings-regexp
+  "\\(?:LaTeX\\|Class\\|Package\\|\*\\) [-A-Za-z0-9]* ?[Ww]arning:"
+  "Regexp matching LaTeX warnings.")
 
 (defun TeX-LaTeX-sentinel-has-warnings ()
   "Return non-nil, if the output buffer contains warnings.
 Warnings can be indicated by LaTeX or packages."
   (save-excursion
     (goto-char (point-min))
-    (re-search-forward
-     "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z0-9]+ \\)Warning:" nil t)))
+    (re-search-forward (concat "^" LaTeX-warnings-regexp) nil t)))
 
 (defun TeX-LaTeX-sentinel-has-bad-boxes ()
   "Return non-nil, if LaTeX output indicates overfull or underfull boxes."
@@ -1407,7 +1558,9 @@ Open the error overview if
 errors or warnings to show."
   (if TeX-parse-all-errors
       (TeX-parse-all-errors))
-  (if (and TeX-error-overview-open-after-TeX-run TeX-error-list)
+  (if (and TeX-error-overview-open-after-TeX-run
+	   (TeX-error-overview-make-entries
+	    (TeX-master-directory) (TeX-active-buffer)))
       (TeX-error-overview))
   (cond ((TeX-TeX-sentinel-check process name))
 	((and (save-excursion
@@ -1460,18 +1613,20 @@ Rerun to get outlines right" nil t)
 	((re-search-forward "^LaTeX Warning: Reference" nil t)
 	 (message "%s%s%s" name ": there were unresolved references, "
 		  (TeX-current-pages))
-	 (if (with-current-buffer TeX-command-buffer
-	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
-	     (setq TeX-command-next "Dvips")
-	   (setq TeX-command-next TeX-command-Show)))
+	 (let (dvi2pdf)
+	   (if (with-current-buffer TeX-command-buffer
+		 (and TeX-PDF-mode (setq dvi2pdf (TeX-PDF-from-DVI))))
+	       (setq TeX-command-next dvi2pdf)
+	     (setq TeX-command-next TeX-command-Show))))
 	((re-search-forward "^\\(?:LaTeX Warning: Citation\\|\
 Package natbib Warning:.*undefined citations\\)" nil t)
 	 (message "%s%s%s" name ": there were unresolved citations, "
 		  (TeX-current-pages))
-	 (if (with-current-buffer TeX-command-buffer
-	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
-	     (setq TeX-command-next "Dvips")
-	   (setq TeX-command-next TeX-command-Show)))
+	 (let (dvi2pdf)
+	   (if (with-current-buffer TeX-command-buffer
+		 (and TeX-PDF-mode (setq dvi2pdf (TeX-PDF-from-DVI))))
+	       (setq TeX-command-next dvi2pdf)
+	     (setq TeX-command-next TeX-command-Show))))
 	((re-search-forward "Package longtable Warning: Table widths have \
 changed\\. Rerun LaTeX\\." nil t)
 	 (message
@@ -1482,9 +1637,13 @@ Rerun to get mark in right position\\." nil t)
 	 (message
 	  "%s" "You should run LaTeX again to get TikZ marks in right position")
 	 (setq TeX-command-next TeX-command-default))
+	((re-search-forward "^\* xsim warning: \"rerun\"" nil t)
+	 (message
+	  "%s" "You should run LaTeX again to synchronize exercise properties")
+	 (setq TeX-command-next TeX-command-default))
 	((re-search-forward
 	  "^\\(\\*\\* \\)?J?I?p?\\(La\\|Sli\\)TeX\\(2e\\)? \
-\\(Version\\|ver\\.\\|<[0-9/]*>\\)" nil t)
+\\(Version\\|ver\\.\\|<[0-9/-]*\\(?:u[^>]*\\)?>\\)" nil t)
 	 (let* ((warnings (and TeX-debug-warnings
 			       (TeX-LaTeX-sentinel-has-warnings)))
 		(bad-boxes (and TeX-debug-bad-boxes
@@ -1497,10 +1656,11 @@ Rerun to get mark in right position\\." nil t)
 				    ")"))))
 	   (message "%s" (concat name ": successfully formatted "
 				 (TeX-current-pages) add-info)))
-	 (if (with-current-buffer TeX-command-buffer
-	       (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
-	     (setq TeX-command-next "Dvips")
-	   (setq TeX-command-next TeX-command-Show)))
+	 (let (dvi2pdf)
+	   (if (with-current-buffer TeX-command-buffer
+		 (and TeX-PDF-mode (setq dvi2pdf (TeX-PDF-from-DVI))))
+	       (setq TeX-command-next dvi2pdf)
+	     (setq TeX-command-next TeX-command-Show))))
 	(t
 	 (message "%s%s%s" name ": problems after " (TeX-current-pages))
 	 (setq TeX-command-next TeX-command-default)))
@@ -1525,21 +1685,22 @@ Rerun to get mark in right position\\." nil t)
 		 (md5 (current-buffer)))))
 	 (push (cons idx-file t) LaTeX-idx-changed-alist)))
 
-  (unless TeX-error-list
-    (run-hook-with-args 'TeX-after-TeX-LaTeX-command-finished-hook
+  (unless (TeX-error-report-has-errors-p)
+    (run-hook-with-args 'TeX-after-compilation-finished-functions
 			(with-current-buffer TeX-command-buffer
 			  (expand-file-name
 			   (TeX-active-master (TeX-output-extension)))))))
 
 ;; should go into latex.el? --pg
-(defun TeX-BibTeX-sentinel (process name)
+(defun TeX-BibTeX-sentinel (_process _name)
   "Cleanup TeX output buffer after running BibTeX."
   (goto-char (point-max))
   (cond
    ;; Check whether BibTeX reports any warnings or errors.
    ((re-search-backward (concat
 			 "^(There \\(?:was\\|were\\) \\([0-9]+\\) "
-			 "\\(warnings?\\|error messages?\\))") nil t)
+			 "\\(warnings?\\|error messages?\\))")
+                        nil t)
     ;; Tell the user their number so that she sees whether the
     ;; situation is getting better or worse.
     (message (concat "BibTeX finished with %s %s. "
@@ -1549,23 +1710,22 @@ Rerun to get mark in right position\\." nil t)
 	      "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
    (t
     (message (concat "BibTeX finished successfully. "
-		     "Run LaTeX again to get citations right."))
-  (setq TeX-command-next TeX-command-default))))
+		     "Run LaTeX again to get citations right."))))
+  ;; In any case, run the default next command.
+  (setq TeX-command-next TeX-command-default))
 
-(defun TeX-Biber-sentinel (process name)
+(defun TeX-Biber-sentinel (_process _name)
   "Cleanup TeX output buffer after running Biber."
   (goto-char (point-max))
   (cond
-   ((re-search-backward (concat
-                         "^INFO - \\(WARNINGS\\|ERRORS\\): \\([0-9]+\\)") nil t)
+   ((re-search-backward "^INFO - \\(WARNINGS\\|ERRORS\\): \\([0-9]+\\)" nil t)
     (message (concat "Biber finished with %s %s. "
                      "Type `%s' to display output.")
              (match-string 2) (downcase (match-string 1))
              (substitute-command-keys
               "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]"))
     (setq TeX-command-next TeX-command-default))
-   ((re-search-backward (concat
-                         "^FATAL") nil t)
+   ((re-search-backward "^FATAL" nil t)
     (message (concat "Biber had a fatal error and did not finish! "
                      "Type `%s' to display output.")
              (substitute-command-keys
@@ -1586,10 +1746,25 @@ Rerun to get mark in right position\\." nil t)
               "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
    (t
     (if (with-current-buffer TeX-command-buffer
-	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	  (and (equal (TeX-PDF-from-DVI) "Dvips") TeX-PDF-mode))
 	(setq TeX-output-extension "ps"
 	      TeX-command-next "Ps2pdf"))
     (message "Dvips finished successfully. "))))
+
+(defun TeX-dvipdfmx-sentinel (_process _name)
+  "Cleanup TeX output buffer after running dvipdfmx."
+  (goto-char (point-max))
+  (cond
+   ((search-backward "TeX Output exited abnormally" nil t)
+    (message "Dvipdfmx failed.  Type `%s' to display output."
+	     (substitute-command-keys
+              "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
+   (t
+    (if (with-current-buffer TeX-command-buffer
+	  (and (equal (TeX-PDF-from-DVI) "Dvipdfmx") TeX-PDF-mode))
+	(setq TeX-output-extension "pdf"
+	      TeX-command-next TeX-command-Show))
+    (message "Dvipdfmx finished successfully. "))))
 
 (defun TeX-ps2pdf-sentinel (_process _name)
   "Cleanup TeX output buffer after running ps2pdf."
@@ -1601,7 +1776,7 @@ Rerun to get mark in right position\\." nil t)
               "\\<TeX-mode-map>\\[TeX-recenter-output-buffer]")))
    (t
     (if (with-current-buffer TeX-command-buffer
-	  (and TeX-PDF-via-dvips-ps2pdf TeX-PDF-mode))
+	  (and (equal (TeX-PDF-from-DVI) "Dvips") TeX-PDF-mode))
 	(setq TeX-command-next TeX-command-Show
 	      TeX-output-extension "pdf"))
     (message "ps2pdf finished successfully. "))))
@@ -1631,7 +1806,7 @@ variable is nil."
 	(with-current-buffer TeX-command-buffer
 	  (unless
 	      (or
-	       (plist-get TeX-error-report-switches (intern (TeX-master-file)))
+	       (TeX-error-report-has-errors-p)
 	       (null TeX-command-sequence-command))
 	    (TeX-command-sequence TeX-command-sequence-command nil
 				  TeX-command-sequence-file-function))))))
@@ -1639,7 +1814,8 @@ variable is nil."
 ;;; Process Control
 
 
-;; This variable is chared with `compile.el'.
+;; This variable is shared with `compile.el'.
+;; FIXME: Then it should not be defvar'd here!
 (defvar compilation-in-progress nil
   "List of compilation processes now running.")
 
@@ -1734,15 +1910,18 @@ command."
 	(goto-char pt)
 	(insert-before-markers string)
 	(set-marker (process-mark process) (point))
-	;; Remove line breaks at column 79
+	;; Remove line breaks at columns 79 and 80
 	(while (> (point) pt)
 	  (end-of-line 0)
-	  (when (and (= (- (point) (line-beginning-position)) 79)
-		     ;; Heuristic: Don't delete the linebreak if the
-		     ;; next line is empty or starts with an opening
-		     ;; parenthesis or if point is located after a period.
+	  (when (and (memq (- (point) (line-beginning-position)) '(79 80))
+		     ;; Heuristic: Don't delete the linebreak if the next line
+		     ;; is empty or starts with an opening parenthesis, or if
+		     ;; point is located after a period and in the next line no
+		     ;; word char follows.
 		     (not (memq (char-after (1+ (point))) '(?\n ?\()))
-		     (not (eq (char-before) ?.)))
+		     (not (and (eq (char-before) ?.)
+			       (char-after (1+ (point)))
+			       (not (eq ?w (char-syntax (char-after (1+ (point)))))))))
 	    (delete-char 1)))
 	(goto-char (marker-position (process-mark process)))
 	;; Determine current page
@@ -1770,7 +1949,7 @@ command."
   "Function to call to parse content of TeX output buffer.")
 (make-variable-buffer-local 'TeX-parse-function)
 
-(defun TeX-background-filter (process string)
+(defun TeX-background-filter (_process string)
   "Filter to process background output."
   (let ((old-window (selected-window))
 	(pop-up-windows t))
@@ -1975,22 +2154,21 @@ original file."
 		") }\n"
 		trailer)
 	(setq TeX-region-orig-buffer orig-buffer)
-	;; Position point at the line/col that corresponds to point's line in
-	;; orig-buffer in order to make forward search work.
-	(let ((line-col (with-current-buffer orig-buffer
-			  (cons (line-number-at-pos)
-				(current-column)))))
-	  (goto-line (abs (- header-offset (car line-col))))
-	  (forward-char (cdr line-col)))
 	(run-hooks 'TeX-region-hook)
 	(if (string-equal (buffer-string) original-content)
 	    (set-buffer-modified-p nil)
 	  (save-buffer 0))))))
 
-(defun TeX-region-file (&optional extension nondirectory)
+(defun TeX-region-file (&optional extension nondirectory _ignore)
   "Return TeX-region file name with EXTENSION.
 If optional second argument NONDIRECTORY is non-nil, do not include
-the directory."
+the directory.
+
+The compatibility argument IGNORE is ignored."
+  ;; The third argument `_ignore' is kept for symmetry with `TeX-master-file's
+  ;; third argument `ask'.  For example, it's used in `TeX-command-sequence',
+  ;; where we don't know which function has to be called.  Keep this in mind
+  ;; should you want to use another argument here.
   (concat (if nondirectory "" (TeX-master-directory))
 	  (cond ((eq extension t)
 		 (concat TeX-region "." TeX-default-extension))
@@ -2016,11 +2194,12 @@ Initialize it to `LaTeX-largest-level' if needed."
     (setq LaTeX-command-section-level LaTeX-largest-level))
   LaTeX-command-section-level)
 
+
 (defun LaTeX-command-section-change-level (arg)
   "Change `LaTeX-command-section-level' by ARG.
 `LaTeX-command-section-level' is the sectioning level used to
-determine the current section by `LaTeX-command-section'.  The
-levels are defined by `LaTeX-section-list'."
+determine the current section by `LaTeX-command-section'.
+The levels are defined by `LaTeX-section-list'."
   (interactive "p")
   (let ((old-level (car (rassoc (list (LaTeX-command-section-level))
 				LaTeX-section-list))))
@@ -2144,12 +2323,29 @@ If optional argument REPARSE is non-nil, reparse the output log."
 
 ;; All this parsers hooks should have the same arguments even though they will
 ;; be ignored, because `TeX-next-error' can call any of these functions.
-(defun TeX-parse-command (arg reparse)
+(defun TeX-parse-command (_arg _reparse)
   "We can't parse anything but TeX."
   (error "I cannot parse %s output, sorry"
 	 (if (TeX-active-process)
 	     (process-name (TeX-active-process))
 	   "this")))
+
+(defun TeX-error-list-skip-warning-p (type ignore)
+  "Decide if a warning of `TeX-error-list' should be skipped.
+
+TYPE is one of the types listed in `TeX-error-list', IGNORE
+is the flag to choose if the warning should be skipped."
+  ;; The warning should be skipped if it...
+  (or
+   ;; ...is a warning and we want to ignore all warnings, or...
+   (and (null TeX-debug-warnings)
+	(equal type 'warning))
+   ;; ...is a bad-box and we want to ignore all bad-boxes, or...
+   (and (null TeX-debug-bad-boxes)
+	(equal type 'bad-box))
+   ;; ...is a warning to be ignored.
+   (and TeX-suppress-ignored-warnings
+	ignore)))
 
 (defun TeX-parse-TeX (arg reparse)
   "Find the next error produced by running TeX.
@@ -2171,12 +2367,31 @@ already in an Emacs buffer) and the cursor is placed at the error."
 	  (TeX-parse-reset reparse))
       (if TeX-parse-all-errors
 	  (progn
-	    (setq max-index (length TeX-error-list)
-		  TeX-error-last-visited (+ (or arg 1) TeX-error-last-visited)
-		  item (if (natnump TeX-error-last-visited)
-			   (nth TeX-error-last-visited TeX-error-list)
-			 ;; XEmacs doesn't support `nth' with a negative index.
-			 nil))
+	    (setq arg (or arg 1)
+		  max-index (length TeX-error-list))
+	    ;; This loop is needed to skip ignored warnings, when
+	    ;; `TeX-suppress-ignored-warnings' is non-nil and there are ignore
+	    ;; warnings.
+	    (while (null (zerop arg))
+	      (setq TeX-error-last-visited
+		    ;; Increase or decrese `TeX-error-last-visited' depending on
+		    ;; the sign of `arg'.  Note: `signum' is a function from
+		    ;; `cl' library, do not be tempted to use it.
+		    (if (> arg 0)
+			(1+ TeX-error-last-visited)
+		      (1- TeX-error-last-visited))
+		    item (if (natnump TeX-error-last-visited)
+			     (nth TeX-error-last-visited TeX-error-list)
+			   ;; XEmacs doesn't support `nth' with a negative index.
+			   nil))
+	      ;; Increase or decrease `arg' only if the warning isn't to be
+	      ;; skipped.
+	      (unless (TeX-error-list-skip-warning-p (nth 0 item) (nth 10 item))
+		;; Note: `signum' is a function from `cl' library, do not be
+		;; tempted to use it.
+		(setq arg (if (> arg 0)
+			      (1- arg)
+			    (1+ arg)))))
 	    (if (< TeX-error-last-visited -1)
 		(setq TeX-error-last-visited -1))
 	    (cond ((or (null item)
@@ -2187,7 +2402,7 @@ already in an Emacs buffer) and the cursor is placed at the error."
 		   (beep)
 		   (TeX-pop-to-buffer old-buffer))
 		  (t
-		   (apply 'TeX-find-display-help item))))
+		   (apply #'TeX-find-display-help item))))
 
 	(goto-char TeX-error-point)
 	(TeX-parse-error old-buffer)))))
@@ -2200,8 +2415,28 @@ already in an Emacs buffer) and the cursor is placed at the error."
 You might want to examine and modify the free variables `file',
 `offset', `line', `string', `error', and `context' from this hook.")
 
+;; `ignore' flag should be the always the last one in the list of information
+;; for each error/warning, because it can be set within `TeX-warning' by a
+;; custom function taking as argument all information present in
+;; `TeX-error-list' but `ignore', see `TeX-ignore-warnings'.
 (defvar TeX-error-list nil
   "List of warnings and errors.
+
+Each element of the list is a list of information for a specific
+error or warning.  This is the structure of each element:
+ *  0: type (error, warning, bad-box)
+ *  1: file
+ *  2: line
+ *  3: message of the error or warning
+ *  4: offset
+ *  5: context, to be displayed in the help window
+ *  6: string to search in the buffer, in order to find location
+       of the error or warning
+ *  7: for warnings referring to multiple lines (e.g. bad boxes),
+       the last line mentioned in the warning message
+ *  8: t if it is a bad-box, nil otherwise
+ *  9: value of `TeX-error-point'
+ * 10: whether the warning should be ignored
 
 This variable is intended to be set only in output buffer so it
 will be shared among all files of the same document.")
@@ -2238,25 +2473,21 @@ Return non-nil if an error or warning is found."
 	  ;; TeX error
 	  "^\\(!\\|\\(.*?\\):[0-9]+:\\) \\|"
 	  ;; New file
-	  "(\\(\"[^\"]*?\"\\|/*\
-\\(?:\\.+[^()\r\n{} \\/]*\\|[^()\r\n{} .\\/]+\
-\\(?: [^()\r\n{} .\\/]+\\)*\\(?:\\.[-0-9a-zA-Z_.]*\\)?\\)\
-\\(?:[\\/]+\\(?:\\.+[^()\r\n{} \\/]*\\|[^()\r\n{} .\\/]+\
-\\(?: [^()\r\n{} .\\/]+\\)*\\(?:\\.[-0-9a-zA-Z_.]*\\)?\\)?\\)*\\)\
-)*\\(?: \\|\r?$\\)\\|"
-	  ;; End of file.  The [^:] skips package messages like:
-	  ;; Package hyperref Message: Driver (autodetected): hpdftex.
-	  ;; [Loading MPS to PDF converter (version 2006.09.02).]
-	  "\\()\\)[^:.]\\|"
+	  "(\n?\\([^\n())]+\\)\\|"
+	  ;; End of file.
+	  "\\()\\)\\|"
 	  ;; Hook to change line numbers
 	  " !\\(?:offset(\\([---0-9]+\\))\\|"
 	  ;; Hook to change file name
 	  "name(\\([^)]+\\))\\)\\|"
-	  ;; LaTeX bad box
-	  "^\\(\\(?:Overfull\\|Underfull\\|Tight\\|Loose\\)\
- \\\\.*?[0-9]+--[0-9]+\\)\\|"
+	  ;; Start of LaTeX bad box
+	  "^\\(\\(?:Overfull\\|Underfull\\|Tight\\|Loose\\) "
+	  ;;   Horizontal bad box
+	  "\\(?:\\\\hbox.* at lines? [0-9]+\\(?:--[0-9]+\\)?$\\|"
+	  ;;   Vertical bad box.  See also `TeX-warning'.
+	  "\\\\vbox ([ a-z0-9]+) has occurred while \\\\output is active \\[[^]]+\\]\\)\\)\\|"
 	  ;; LaTeX warning
-	  "^\\(LaTeX [A-Za-z]*\\|Package [A-Za-z0-9]+ \\)Warning:.*"))
+	  "^\\(" LaTeX-warnings-regexp ".*\\)"))
 	(error-found nil))
     (while
 	(cond
@@ -2283,10 +2514,12 @@ Return non-nil if an error or warning is found."
 	    nil))
 	 ;; LaTeX bad box
 	 ((match-beginning 7)
-	  (if TeX-debug-bad-boxes
+	  ;; In `TeX-error-list' we collect all warnings, also if they're going
+	  ;; to be actually skipped.
+	  (if (or store TeX-debug-bad-boxes)
 	      (progn
 		(setq error-found t)
-		(TeX-warning (TeX-match-buffer 7) store)
+		(TeX-warning (TeX-match-buffer 7) (match-beginning 7) t store)
 		nil)
 	    (re-search-forward "\r?\n\
 \\(?:.\\{79\\}\r?\n\
@@ -2294,10 +2527,12 @@ Return non-nil if an error or warning is found."
 	    t))
 	 ;; LaTeX warning
 	 ((match-beginning 8)
-	  (if TeX-debug-warnings
+	  ;; In `TeX-error-list' we collect all warnings, also if they're going
+	  ;; to be actually skipped.
+	  (if (or store TeX-debug-warnings)
 	      (progn
 		(setq error-found t)
-		(TeX-warning (TeX-match-buffer 8) store)
+		(TeX-warning (TeX-match-buffer 8) (match-beginning 8) nil store)
 		nil)
 	    t))
 
@@ -2307,9 +2542,26 @@ Return non-nil if an error or warning is found."
 		(end (match-end 3)))
 	    ;; Strip quotation marks and remove newlines if necessary
 	    (when (or (eq (string-to-char file) ?\")
-		      (string-match "\n" file))
-	      (setq file
-		    (mapconcat 'identity (split-string file "[\"\n]+") "")))
+		      (string-match "[ \t\n]" file))
+	      (setq file (mapconcat #'identity (split-string file "[\"\n]+") "")))
+	    ;; Polish `file' string
+	    (setq file
+		  (let ((string file))
+		    ;; Trim whitespaces at the front.  XXX: XEmacs doesn't
+		    ;; support character classes in regexps, like "[:space:]".
+		    (setq string
+			  (if (string-match "\\'[ \t\n\r]*" string)
+			      (replace-match "" t t string)
+			    string))
+		    ;; Sometimes `file' is something like
+		    ;;     "./path/to/file.tex [9] [10 <./path/to/file>] "
+		    ;; where "[9]" and "[10 <./path/to/file>]" are pages of the
+		    ;; output file, with path to an included file.  Remove these
+		    ;; numbers together with whitespaces at the end of the
+		    ;; string.
+		    (if (string-match "\\( *\\(\\[[^]]+\\]\\)? *\\)*\\'" string)
+			(replace-match "" t t string)
+		      string)))
 	    (push file TeX-error-file)
 	    (push nil TeX-error-offset)
 	    (goto-char end))
@@ -2337,8 +2589,11 @@ Return non-nil if an error or warning is found."
     error-found))
 
 (defun TeX-find-display-help (type file line error offset context string
-				   line-end bad-box error-point)
-  "Find the error and display the help."
+				   line-end _bad-box error-point _ignore)
+  "Find the error and display the help.
+
+For a description of arguments, see `TeX-error-list'.  IGNORE
+value is not used here."
   ;; Go back to TeX-buffer
   (let ((runbuf (TeX-active-buffer))
 	(master (with-current-buffer TeX-command-buffer
@@ -2441,53 +2696,102 @@ information in `TeX-error-list' instead of displaying the error."
 				      context-start)))
 	 ;; We may use these in another buffer.
 	 (offset (or (car TeX-error-offset) 0))
-	 (file (car TeX-error-file)))
+	 (file (car TeX-error-file))
+	 info-list)
 
     ;; Remember where we was.
-    (setq TeX-error-point (point))
+    (setq TeX-error-point (point)
+	  info-list (list 'error file line error offset context string nil nil
+			  TeX-error-point nil))
     (if store
 	;; Store the error information.
-	(add-to-list 'TeX-error-list
-		     (list 'error file line error offset context string nil nil
-			   TeX-error-point) t)
+	(add-to-list 'TeX-error-list info-list t)
       ;; Find the error point and display the help.
-      (TeX-find-display-help
-       'error file line error offset context string nil nil TeX-error-point))))
+      (apply #'TeX-find-display-help info-list))))
 
-(defun TeX-warning (warning &optional store)
+(defun TeX-warning (warning warning-start bad-box &optional store)
   "Display a warning for WARNING.
+
+WARNING-START is the position where WARNING starts.  If BAD-BOX
+is non-nil, the warning refers to a bad-box, otherwise it is a
+generic warning.
 
 If optional argument STORE is non-nil, store the warning
 information in `TeX-error-list' instead of displaying the
 warning."
 
-  (let* ( ;; bad-box is nil if this is a "LaTeX Warning"
-	 (bad-box (string-match "\\\\[vh]box.*[0-9]*--[0-9]*" warning))
-	 ;; line-string: match 1 is beginning line, match 2 is end line
-	 (line-string (if bad-box " \\([0-9]*\\)--\\([0-9]*\\)"
+  (let* ( ;; line-string: match 1 is beginning line, match 2 is end line
+	 (line-string (if bad-box
+			  "at lines? \\([0-9]*\\)\\(?:--\\([0-9]*\\)\\)?"
 			"on input line \\([0-9]*\\)\\."))
 	 ;; word-string: match 1 is the word
 	 (word-string (if bad-box "[][\\W() ---]\\(\\w+\\)[][\\W() ---]*$"
-			"`\\(\\w+\\)'"))
+			;; Match "ref" in both "Reference `ref' on page NN
+			;; undefined" and "Citation 'ref' on page NN undefined".
+			"\\(?:`\\|'\\)\\([-a-zA-Z0-9:]+\\)'"))
 
-	 ;; Get error-line (warning).
-	 (line (when (save-excursion (re-search-backward line-string nil t))
+	 ;; Get error-line (warning).  Don't search before `warning-start' to
+	 ;; avoid catching completely unrelated line numbers.
+	 (line (when (save-excursion (re-search-backward line-string
+							 warning-start t))
 		 (string-to-number (TeX-match-buffer 1))))
-	 (line-end (if bad-box (string-to-number (TeX-match-buffer 2))
+	 ;; If this is a bad box and the warning ends with "...at lines MM--NN"
+	 ;; we can use "NN" as `line-end', in any other case (including bad
+	 ;; boxes ending with "...at line NN") just use `line'.
+	 (line-end (if (and bad-box (match-beginning 2))
+		       (string-to-number (TeX-match-buffer 2))
 		     line))
 
 	 ;; Find the context
-	 (context-start (progn (if bad-box (end-of-line)
-				 (beginning-of-line))
+	 (context-start (progn (cond
+				((and bad-box (string-match "\\\\hbox" warning))
+				 ;; Horizontal bad box
+				 (end-of-line))
+				(bad-box
+				 ;; Vertical bad box (by exclusion), don't move
+				 ;; point.  In the output buffer, unlike in the
+				 ;; actual *.log file, these warnings do not end
+				 ;; with "...is active []", but in the same line
+				 ;; there may be something else, including a new
+				 ;; file opened.  Thus, point shouldn't move
+				 ;; from the end of the actual bad box warning.
+				 ;; This is why the corresponding regexp in
+				 ;; `TeX-parse-error' doesn't match everything
+				 ;; until the end of the line.
+				 nil)
+				(t
+				 ;; Generic warning.
+				 (beginning-of-line)))
 			       (point)))
 
-	 (context (progn
-		    (forward-line 1)
-		    (end-of-line)
-		    (while (equal (current-column) 79)
-		      (forward-line 1)
-		      (end-of-line))
-		    (buffer-substring context-start (point))))
+	 (context (cond ((string-match LaTeX-warnings-regexp warning)
+			 ;; The warnings matching `LaTeX-warnings-regexp' are
+			 ;; emitted by \GenericWarning macro, or macros based on
+			 ;; it (\ClassWarning, \PackageWarning, etc).  After
+			 ;; such warnings there is an empty line, just look for
+			 ;; it to find the end.
+			 (beginning-of-line)
+			 (while (null (eolp))
+			   (forward-line 1))
+			 (buffer-substring context-start (progn (end-of-line)
+								(point))))
+
+			((and bad-box (string-match "\\\\vbox" warning))
+			 ;; Vertical bad boxes don't provide any additional
+			 ;; information.  In this case, reuse the `warning' as
+			 ;; `context' and don't move point, so that we avoid
+			 ;; eating the next line that may contain another
+			 ;; warning.  See also comment for `context-start'.
+			 (concat "\n" warning))
+
+			(t
+			 ;; Horizontal bad boxes.
+			 (forward-line 1)
+			 (end-of-line)
+			 (while (equal (current-column) 79)
+			   (forward-line 1)
+			   (end-of-line))
+			 (buffer-substring context-start (point)))))
 
 	 ;; This is where we want to be.
 	 (error-point (point))
@@ -2499,138 +2803,50 @@ warning."
 
 	 ;; We might use these in another file.
 	 (offset (or (car TeX-error-offset) 0))
-	 (file (car TeX-error-file)))
+	 (file (car TeX-error-file))
+	 info-list ignore)
+
+    ;; Second chance to get line number right.  If `line' is nil, check whether
+    ;; the reference to the line number is in `context'.  For example, this is
+    ;; the case for warnings emitted with \ClassWarning and \PackageWarning.
+    ;; XXX: maybe it suffices to evaluate `line' after `context' above, but I
+    ;; don't know if there are cases in which it's important to get `line'
+    ;; before `context'.
+    (and (null line)
+	 (string-match line-string context)
+	 (setq line-end
+	       (setq line (and (match-beginning 1)
+			       (string-to-number (match-string 1 context))))))
 
     ;; This is where we start next time.
     (goto-char error-point)
     (setq TeX-error-point (point))
 
+    ;; Explanation of what follows: we add the warning to `TeX-error-list' even
+    ;; if it has to be ignored, with a flag specifying whether it is ignored.
+    ;; We do so in order to be able to change between "ignore" and "dont-ignore"
+    ;; behavior by just looking to the flag, without the need to reparse the
+    ;; output log.
+
+    ;; Store the list of information about the warning.
+    (setq info-list (list (if bad-box 'bad-box 'warning) file line warning
+			  offset context string line-end bad-box
+			  TeX-error-point)
+	  ;; Decide whether it should be ignored.
+	  ignore (and TeX-ignore-warnings
+		      (cond
+		       ((stringp TeX-ignore-warnings)
+			(string-match TeX-ignore-warnings warning))
+		       ((fboundp TeX-ignore-warnings)
+			(apply TeX-ignore-warnings info-list))))
+	  ;; Update `info-list'.
+	  info-list (append info-list (list ignore)))
+
     (if store
 	;; Store the warning information.
-	(add-to-list 'TeX-error-list
-		     (list (if bad-box 'bad-box 'warning) file line warning
-			   offset context string line-end bad-box
-			   TeX-error-point) t)
+	(add-to-list 'TeX-error-list info-list t)
       ;; Find the warning point and display the help.
-      (TeX-find-display-help (if bad-box 'bad-box 'warning) file line warning
-			     offset context string line-end bad-box
-			     TeX-error-point))))
-
-;;; - Help
-
-(defgroup TeX-error-description-faces nil
-  "Faces used in error descriptions."
-  :prefix "TeX-error-description-"
-  :group 'TeX-output)
-
-(defface TeX-error-description-error
-  (if (< emacs-major-version 22)
-      nil
-    ;; This is the same as `error' face in latest GNU Emacs versions.
-    '((((class color) (min-colors 88) (background light))
-       :foreground "Red1" :weight bold)
-      (((class color) (min-colors 88) (background dark))
-       :foreground "Pink" :weight bold)
-      (((class color) (min-colors 16) (background light))
-       :foreground "Red1" :weight bold)
-      (((class color) (min-colors 16) (background dark))
-       :foreground "Pink" :weight bold)
-      (((class color) (min-colors 8))
-       :foreground "red" :weight bold)
-      (t (:inverse-video t :weight bold))))
-  "Face for \"Error\" string in error descriptions.")
-
-(defface TeX-error-description-warning
-  (if (< emacs-major-version 22)
-      nil
-    ;; This is the same as `warning' face in latest GNU Emacs versions.
-    '((((class color) (min-colors 16)) :foreground "DarkOrange" :weight bold)
-      (((class color)) :foreground "yellow" :weight bold)))
-  "Face for \"Warning\" string in error descriptions.")
-
-(defface TeX-error-description-tex-said
-  (if (< emacs-major-version 22)
-      nil
-    ;; This is the same as `font-lock-function-name-face' face in latest GNU
-    ;; Emacs versions.
-    '((((class color) (min-colors 88) (background light))
-       :foreground "Blue1")
-      (((class color) (min-colors 88) (background dark))
-       :foreground "LightSkyBlue")
-      (((class color) (min-colors 16) (background light))
-       :foreground "Blue")
-      (((class color) (min-colors 16) (background dark))
-       :foreground "LightSkyBlue")
-      (((class color) (min-colors 8))
-       :foreground "blue" :weight bold)
-      (t (:inverse-video t :weight bold))))
-  "Face for \"TeX said\" string in error descriptions.")
-
-(defface TeX-error-description-help
-  '((t (:inherit TeX-error-description-tex-said)))
-  "Face for \"Help\" string in error descriptions.")
-
-(defun TeX-help-error (error output runbuffer type)
-  "Print ERROR in context OUTPUT from RUNBUFFER in another window.
-TYPE is a symbol specifing if ERROR is a real error, a warning or
-a bad box."
-
-  (let ((old-buffer (current-buffer))
-	(log-file (with-current-buffer runbuffer
-		    (with-current-buffer TeX-command-buffer
-		      (expand-file-name (TeX-active-master "log")))))
-	(TeX-error-pointer 0))
-
-    ;; Find help text entry.
-    (while (not (string-match (car (nth TeX-error-pointer
-					TeX-error-description-list))
-			      error))
-      (setq TeX-error-pointer (+ TeX-error-pointer 1)))
-
-    (TeX-pop-to-buffer (get-buffer-create "*TeX Help*") nil t)
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (insert
-       (cond
-	((equal type 'error)
-	 (propertize "ERROR" 'font-lock-face 'TeX-error-description-error))
-	((equal type 'warning)
-	 (propertize "WARNING" 'font-lock-face 'TeX-error-description-warning))
-	((equal type 'bad-box)
-	 (propertize "BAD BOX" 'font-lock-face 'TeX-error-description-warning)))
-       ": " error
-       (propertize "\n\n--- TeX said ---" 'font-lock-face
-		   'TeX-error-description-tex-said)
-       output
-       (propertize "\n--- HELP ---\n" 'font-lock-face
-		   'TeX-error-description-help)
-       (let ((help (cdr (nth TeX-error-pointer
-			     TeX-error-description-list))))
-	 (save-excursion
-	   (if (and (string= help "No help available")
-		    (let* ((log-buffer (find-buffer-visiting log-file)))
-		      (if log-buffer
-			  (progn
-			    (set-buffer log-buffer)
-			    (revert-buffer t t))
-			(setq log-buffer
-			      (find-file-noselect log-file))
-			(set-buffer log-buffer))
-		      (auto-save-mode nil)
-		      (setq buffer-read-only t)
-		      (goto-char (point-min))
-		      (search-forward error nil t 1))
-		    (re-search-forward "^l\\." nil t)
-		    (re-search-forward "^ [^\n]+$" nil t))
-	       (let ((start (1+ (point))))
-		 (forward-char 1)
-		 (re-search-forward "^$")
-		 (concat "From the .log file...\n\n"
-			 (buffer-substring start (point))))
-	     help)))))
-    (goto-char (point-min))
-    (TeX-special-mode)
-    (TeX-pop-to-buffer old-buffer nil t)))
+      (apply #'TeX-find-display-help info-list))))
 
 ;;; Error Messages
 
@@ -3052,6 +3268,123 @@ error."
 		       (regexp :tag "Match")
 		       (string :format "Description:\n%v"))))
 
+;;; - Help
+
+(defgroup TeX-error-description-faces nil
+  "Faces used in error descriptions."
+  :prefix "TeX-error-description-"
+  :group 'TeX-output)
+
+(defface TeX-error-description-error
+  (if (< emacs-major-version 22)
+      nil
+    ;; This is the same as `error' face in latest GNU Emacs versions.
+    '((((class color) (min-colors 88) (background light))
+       :foreground "Red1" :weight bold)
+      (((class color) (min-colors 88) (background dark))
+       :foreground "Pink" :weight bold)
+      (((class color) (min-colors 16) (background light))
+       :foreground "Red1" :weight bold)
+      (((class color) (min-colors 16) (background dark))
+       :foreground "Pink" :weight bold)
+      (((class color) (min-colors 8))
+       :foreground "red" :weight bold)
+      (t (:inverse-video t :weight bold))))
+  "Face for \"Error\" string in error descriptions.")
+
+(defface TeX-error-description-warning
+  (if (< emacs-major-version 22)
+      nil
+    ;; This is the same as `warning' face in latest GNU Emacs versions.
+    '((((class color) (min-colors 16)) :foreground "DarkOrange" :weight bold)
+      (((class color)) :foreground "yellow" :weight bold)))
+  "Face for \"Warning\" string in error descriptions.")
+
+(defface TeX-error-description-tex-said
+  (if (< emacs-major-version 22)
+      nil
+    ;; This is the same as `font-lock-function-name-face' face in latest GNU
+    ;; Emacs versions.
+    '((((class color) (min-colors 88) (background light))
+       :foreground "Blue1")
+      (((class color) (min-colors 88) (background dark))
+       :foreground "LightSkyBlue")
+      (((class color) (min-colors 16) (background light))
+       :foreground "Blue")
+      (((class color) (min-colors 16) (background dark))
+       :foreground "LightSkyBlue")
+      (((class color) (min-colors 8))
+       :foreground "blue" :weight bold)
+      (t (:inverse-video t :weight bold))))
+  "Face for \"TeX said\" string in error descriptions.")
+
+(defface TeX-error-description-help
+  '((t (:inherit TeX-error-description-tex-said)))
+  "Face for \"Help\" string in error descriptions.")
+
+(defun TeX-help-error (error output runbuffer type)
+  "Print ERROR in context OUTPUT from RUNBUFFER in another window.
+TYPE is a symbol specifing if ERROR is a real error, a warning or
+a bad box."
+
+  (let ((old-buffer (current-buffer))
+	(log-file (with-current-buffer runbuffer
+		    (with-current-buffer TeX-command-buffer
+		      (expand-file-name (TeX-active-master "log")))))
+	(TeX-error-pointer 0))
+
+    ;; Find help text entry.
+    (while (not (string-match (car (nth TeX-error-pointer
+					TeX-error-description-list))
+			      error))
+      (setq TeX-error-pointer (+ TeX-error-pointer 1)))
+
+    (TeX-pop-to-buffer (get-buffer-create "*TeX Help*") nil t)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert
+       (cond
+	((equal type 'error)
+	 (propertize "ERROR" 'font-lock-face 'TeX-error-description-error))
+	((equal type 'warning)
+	 (propertize "WARNING" 'font-lock-face 'TeX-error-description-warning))
+	((equal type 'bad-box)
+	 (propertize "BAD BOX" 'font-lock-face 'TeX-error-description-warning)))
+       ": " error
+       (propertize "\n\n--- TeX said ---" 'font-lock-face
+		   'TeX-error-description-tex-said)
+       output
+       (propertize "\n--- HELP ---\n" 'font-lock-face
+		   'TeX-error-description-help)
+       (let ((help (cdr (nth TeX-error-pointer
+			     TeX-error-description-list))))
+	 (save-excursion
+	   (if (and (= (1+ TeX-error-pointer)
+		       (length TeX-error-description-list))
+		    (let* ((log-buffer (find-buffer-visiting log-file)))
+		      (if log-buffer
+			  (progn
+			    (set-buffer log-buffer)
+			    (revert-buffer t t))
+			(setq log-buffer
+			      (find-file-noselect log-file))
+			(set-buffer log-buffer))
+		      (auto-save-mode nil)
+		      (setq buffer-read-only t)
+		      (goto-char (point-min))
+		      (search-forward error nil t 1))
+		    (re-search-forward "^l\\." nil t)
+		    (re-search-forward "^ [^\n]+$" nil t))
+	       (let ((start (1+ (point))))
+		 (forward-char 1)
+		 (re-search-forward "^$")
+		 (concat "From the .log file...\n\n"
+			 (buffer-substring start (point))))
+	     help)))))
+    (goto-char (point-min))
+    (TeX-special-mode)
+    (TeX-pop-to-buffer old-buffer nil t)))
+
 ;;; Error Overview
 
 (defvar TeX-error-overview-active-buffer nil
@@ -3109,7 +3442,7 @@ please restart TeX error overview")))
 	    ;; `TeX-command-buffer' when visiting the error point.
 	    (let ((default-major-mode major-mode))
 	      ;; Find the error and display the help.
-	      (apply 'TeX-find-display-help item)))
+	      (apply #'TeX-find-display-help item)))
 	  ;; Return to the error overview.
 	  (if (TeX-error-overview-setup)
 	      (select-frame TeX-error-overview-frame)
@@ -3133,10 +3466,13 @@ please restart TeX error overview")))
       (message "No more errors.")
       (beep))))
 
-(defun TeX-error-overview-make-entries (&optional master-dir)
+(defun TeX-error-overview-make-entries (&optional master-dir active-buffer)
   "Generate the list of errors to be printed using `tabulated-list-entries'.
-Write file names relative to MASTER-DIR when they are not absolute."
-  (with-current-buffer TeX-error-overview-active-buffer
+Write file names relative to MASTER-DIR when they are not absolute.
+
+ACTIVE-BUFFER is used as buffer from which to extract the list of
+errors.  If nil, defaults to `TeX-error-overview-active-buffer'."
+  (with-current-buffer (or active-buffer TeX-error-overview-active-buffer)
     (let ((id 0)
 	  type file line msg entries)
       (mapc
@@ -3145,43 +3481,52 @@ Write file names relative to MASTER-DIR when they are not absolute."
 	       file (nth 1 entry)
 	       line (nth 2 entry)
 	       msg  (nth 3 entry))
-	 (add-to-list
-	  'entries
-	  (list
-	   ;; ID.
-	   id
-	   (vector
-	    ;; File.
-	    (if (stringp file)
-		(if (file-name-absolute-p file)
-		    file
-		  (file-relative-name file master-dir))
-	      "")
-	    ;; Line.
-	    (if (numberp line)
-		(number-to-string line)
-	      "")
-	    ;; Type.
-	    (cond
-	     ((equal type 'error)
-	      (propertize "Error" 'font-lock-face 'TeX-error-description-error))
-	     ((equal type 'warning)
-	      (propertize "Warning" 'font-lock-face
-			  'TeX-error-description-warning))
-	     ((equal type 'bad-box)
-	      (propertize "Bad box" 'font-lock-face
-			  'TeX-error-description-warning))
-	     (t
-	      ""))
-	    ;; Message.
-	    (list (if (stringp msg) msg "")
-		  'face 'link
-		  'follow-link t
-		  'id id
-		  'action 'TeX-error-overview-goto-source)
-	    )) t)
-	 (setq id (1+ id))) TeX-error-list)
-      entries)))
+	 ;; Add the entry only if it isn't to be skipped.
+	 (unless (TeX-error-list-skip-warning-p type (nth 10 entry))
+	   (push
+	    (list
+	     ;; ID.
+	     id
+	     (vector
+	      ;; File.
+	      (if (stringp file)
+		  (if (file-name-absolute-p file)
+		      file
+		    (file-relative-name file master-dir))
+		"")
+	      ;; Line.
+	      (if (numberp line)
+		  (number-to-string line)
+		"")
+	      ;; Type.
+	      (cond
+	       ((equal type 'error)
+		(propertize "Error" 'font-lock-face 'TeX-error-description-error))
+	       ((equal type 'warning)
+		(propertize "Warning" 'font-lock-face
+			    'TeX-error-description-warning))
+	       ((equal type 'bad-box)
+		(propertize "Bad box" 'font-lock-face
+			    'TeX-error-description-warning))
+	       (t
+		""))
+	      ;; Message.
+	      (list (if (stringp msg)
+			;; Sometimes, the message can be longer than one line,
+			;; but print here only the first one.
+			(progn
+			  (string-match "^.*" msg)
+			  (match-string 0 msg))
+		      "")
+		    'face 'link
+		    'follow-link t
+		    'id id
+		    'action 'TeX-error-overview-goto-source)))
+	    entries))
+	 ;; Increase the `id' counter in any case.
+	 (setq id (1+ id)))
+       TeX-error-list)
+      (reverse entries))))
 
 (defun TeX-error-overview-next-error (&optional arg)
   "Move to the next line and find the associated error.
@@ -3219,6 +3564,36 @@ forward, if negative)."
   (let ((TeX-display-help 'expert))
     (TeX-error-overview-goto-source)))
 
+(defun TeX-error-overview-toggle-debug-bad-boxes ()
+  "Run `TeX-toggle-debug-bad-boxes' and update entries list."
+  (interactive)
+  (TeX-toggle-debug-bad-boxes)
+  (setq tabulated-list-entries
+	(TeX-error-overview-make-entries
+	 (with-current-buffer TeX-command-buffer (TeX-master-directory))))
+  (tabulated-list-init-header)
+  (tabulated-list-print))
+
+(defun TeX-error-overview-toggle-debug-warnings ()
+  "Run `TeX-toggle-debug-warnings' and update entries list."
+  (interactive)
+  (TeX-toggle-debug-warnings)
+  (setq tabulated-list-entries
+	(TeX-error-overview-make-entries
+	 (with-current-buffer TeX-command-buffer (TeX-master-directory))))
+  (tabulated-list-init-header)
+  (tabulated-list-print))
+
+(defun TeX-error-overview-toggle-suppress-ignored-warnings ()
+  "Toggle visibility of ignored warnings and update entries list."
+  (interactive)
+  (TeX-toggle-suppress-ignored-warnings)
+  (setq tabulated-list-entries
+	(TeX-error-overview-make-entries
+	 (with-current-buffer TeX-command-buffer (TeX-master-directory))))
+  (tabulated-list-init-header)
+  (tabulated-list-print))
+
 (defun TeX-error-overview-quit ()
   "Delete the window or the frame of the error overview."
   (interactive)
@@ -3228,13 +3603,15 @@ forward, if negative)."
   (setq TeX-error-overview-orig-frame nil))
 
 (defvar TeX-error-overview-mode-map
-  (let ((map (make-sparse-keymap))
-	(menu-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
+    (define-key map "b"    'TeX-error-overview-toggle-debug-bad-boxes)
     (define-key map "j"    'TeX-error-overview-jump-to-source)
     (define-key map "l"    'TeX-error-overview-goto-log)
     (define-key map "n"    'TeX-error-overview-next-error)
     (define-key map "p"    'TeX-error-overview-previous-error)
     (define-key map "q"    'TeX-error-overview-quit)
+    (define-key map "w"    'TeX-error-overview-toggle-debug-warnings)
+    (define-key map "x"    'TeX-error-overview-toggle-suppress-ignored-warnings)
     (define-key map "\C-m" 'TeX-error-overview-goto-source)
     map)
   "Local keymap for `TeX-error-overview-mode' buffers.")
@@ -3254,6 +3631,18 @@ forward, if negative)."
       :help "Move point to the error in the source"]
      ["Go to log" TeX-error-overview-goto-log
       :help "Show the error in the log buffer"]
+     "-"
+     ["Debug Bad Boxes" TeX-error-overview-toggle-debug-bad-boxes
+      :style toggle :selected TeX-debug-bad-boxes
+      :help "Show overfull and underfull boxes"]
+     ["Debug Warnings" TeX-error-overview-toggle-debug-warnings
+      :style toggle :selected TeX-debug-warnings
+      :help "Show warnings"]
+     ["Ignore Unimportant Warnings"
+      TeX-error-overview-toggle-suppress-ignored-warnings
+      :style toggle :selected TeX-suppress-ignored-warnings
+      :help "Hide specified warnings"]
+     "-"
      ["Quit" TeX-error-overview-quit
       :help "Quit"])))
 
@@ -3303,12 +3692,17 @@ forward, if negative)."
   ;; Check requirements before start.
   (if (fboundp 'tabulated-list-mode)
       (if (setq TeX-error-overview-active-buffer (TeX-active-buffer))
-	  (if (with-current-buffer TeX-error-overview-active-buffer
-		TeX-error-list)
+	  ;; `TeX-error-overview-list-entries' is going to be used only as value
+	  ;; of `tabulated-list-entries' in `TeX-error-overview-mode'.  In
+	  ;; principle, we don't need `TeX-error-overview-list-entries', but
+	  ;; `tabulated-list-entries' is buffer-local and we need the list of
+	  ;; entries before creating the error overview buffer in order to
+	  ;; decide whether we need to show anything.
+	  (if (setq TeX-error-overview-list-entries
+		    (TeX-error-overview-make-entries
+		     (TeX-master-directory)))
 	      (progn
-		(setq TeX-error-overview-list-entries
-		      (TeX-error-overview-make-entries (TeX-master-directory))
-		      TeX-error-overview-orig-window (selected-window)
+		(setq TeX-error-overview-orig-window (selected-window)
 		      TeX-error-overview-orig-frame
 		      (window-frame TeX-error-overview-orig-window))
 		;; Create the error overview buffer.  This is
@@ -3343,40 +3737,55 @@ forward, if negative)."
 					   TeX-error-overview-buffer-name)
 			(set-window-dedicated-p (selected-window) t))
 		    (TeX-pop-to-buffer TeX-error-overview-buffer-name))))
-	    (error "No error or warning to show"))
+	    (error (concat "No error or warning to show"
+			   ;; Suggest to display warnings and bad boxes with the
+			   ;; appropriate key-bindings if there are such
+			   ;; messages in the output buffer.  Rationale of the
+			   ;; test: `TeX-error-overview-list-entries' is nil,
+			   ;; but if `TeX-error-list' is not nil it means that
+			   ;; there are hidden warnings/bad boxes.
+			   (when (TeX-process-get-variable (TeX-active-master)
+							   'TeX-error-list)
+			     (format ".  Type `%s' and `%s' to display \
+warnings and bad boxes"
+				     (substitute-command-keys
+				      "\\<TeX-mode-map>\\[TeX-toggle-debug-warnings]")
+				     (substitute-command-keys
+				      "\\<TeX-mode-map>\\[TeX-toggle-debug-bad-boxes]"))))))
 	(error "No process for this document"))
     (error "Error overview is available only in Emacs 24 or later")))
 
 ;;; Output mode
 
-(if (fboundp 'special-mode)
-    (progn
-      (defalias 'TeX-special-mode 'special-mode)
-      (defvaralias 'TeX-special-mode-map 'special-mode-map))
-  (defun TeX-special-mode ()
-    "Placeholder mode for Emacsen which don't have `special-mode'.")
-  (defvar TeX-special-mode-map
-    (let ((map (make-sparse-keymap)))
-      (suppress-keymap map)
-      (define-key map "q" (if (fboundp 'quit-window)
-                              'quit-window
-                            'bury-buffer))
-      (define-key map " " (if (fboundp 'scroll-up-command)
-                              'scroll-up-command
-                            'scroll-up))
-      (define-key map [backspace] (if (fboundp 'scroll-down-command)
-                                      'scroll-down-command
-                                    'scroll-down))
-      (define-key map "\C-?" (if (fboundp 'scroll-down-command)
-                                 'scroll-down-command
-                               'scroll-down))
-      (define-key map "?" 'describe-mode)
-      (define-key map "h" 'describe-mode)
-      (define-key map ">" 'end-of-buffer)
-      (define-key map "<" 'beginning-of-buffer)
-      (define-key map "g" 'revert-buffer)
-      map)
-    "Keymap for `TeX-special-mode-map'."))
+(defalias 'TeX-special-mode
+  (if (fboundp 'special-mode)
+      (progn
+        (defvaralias 'TeX-special-mode-map 'special-mode-map)
+        #'special-mode)
+    (defvar TeX-special-mode-map
+      (let ((map (make-sparse-keymap)))
+        (suppress-keymap map)
+        (define-key map "q" (if (fboundp 'quit-window)
+                                'quit-window
+                              'bury-buffer))
+        (define-key map " " (if (fboundp 'scroll-up-command)
+                                'scroll-up-command
+                              'scroll-up))
+        (define-key map [backspace] (if (fboundp 'scroll-down-command)
+                                        'scroll-down-command
+                                      'scroll-down))
+        (define-key map "\C-?" (if (fboundp 'scroll-down-command)
+                                   'scroll-down-command
+                                 'scroll-down))
+        (define-key map "?" 'describe-mode)
+        (define-key map "h" 'describe-mode)
+        (define-key map ">" 'end-of-buffer)
+        (define-key map "<" 'beginning-of-buffer)
+        (define-key map "g" 'revert-buffer)
+        map)
+      "Keymap for `TeX-special-mode-map'.")
+    (lambda ()
+      "Placeholder mode for Emacsen which don't have `special-mode'.")))
 
 (defvar TeX-output-mode-map
   (let ((map (make-sparse-keymap)))
@@ -3405,17 +3814,16 @@ forward, if negative)."
   ;; special-mode makes it read-only which prevents input from TeX.
   (setq buffer-read-only nil))
 
-(defun TeX-output-revert-buffer (ignore-auto noconfirm)
+(defun TeX-output-revert-buffer (_ignore-auto _noconfirm)
   "Rerun the TeX command which of which this buffer was the output."
   (goto-char (point-min))
   (if (looking-at "Running `\\(.*\\)' on `\\(.*\\)' with ``\\(.*\\)''$")
       (let ((name (match-string 1))
-            (file (match-string 2))
-            (command (match-string 3)))
+            (file (match-string 2)))
         (with-current-buffer TeX-command-buffer
-          (TeX-command name (if (string-match "_region_" file)
-                                'TeX-region-file
-                              'TeX-master-file))))
+          (TeX-command name (if (string-match TeX-region file)
+                                #'TeX-region-file
+                              #'TeX-master-file))))
     (error "Unable to find what command to run")))
 
 (provide 'tex-buf)

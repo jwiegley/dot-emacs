@@ -36,6 +36,7 @@
 (TeX-add-style-hook
  "amssymb"
  (lambda ()
+   (TeX-run-style-hooks "amsfonts")
    (TeX-add-symbols
     "boxdot"
     "boxplus"

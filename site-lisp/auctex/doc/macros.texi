@@ -64,10 +64,18 @@ font-latex
   \def\TeX#1{TeX#1}%
   \def\LaTeX#1{LaTeX#1}\def\previewlatex#1{preview-latex#1}}
 \xdef\indexnofonts{\the\toks0}
-\toks0\expandafter{\commondummies
-  \def\TeX#1{TeX#1}%
-  \def\LaTeX#1{LaTeX#1}\def\previewlatex#1{preview-latex#1}}
-\xdef\commondummies{\the\toks0}
+\ifx\commondummies\undefined \else
+  \toks0\expandafter{\commondummies
+    \def\TeX#1{TeX#1}%
+    \def\LaTeX#1{LaTeX#1}\def\previewlatex#1{preview-latex#1}}
+  \xdef\commondummies{\the\toks0}
+\fi
+\ifx\definedummies\undefined \else
+  \toks0\expandafter{\definedummies
+    \def\TeX#1{TeX#1}%
+    \def\LaTeX#1{LaTeX#1}\def\previewlatex#1{preview-latex#1}}
+  \xdef\definedummies{\the\toks0}
+\fi
 \ifx\acronym\undefined \gdef\acronym#1{{\smallcaps \lowercase{#1}}} \fi
 \ifx\env\undefined \global\let\env=\code \fi
 \ifx\option\undefined \global\let\option=\samp \fi

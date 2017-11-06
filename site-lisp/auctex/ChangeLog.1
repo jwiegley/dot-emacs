@@ -1,8 +1,3715 @@
-2015-11-13  MosË Giordano  <mose@gnu.org>
+2017-07-24  Mos√® Giordano  <mose@gnu.org>
+
+	* Version 11.91 released.
+
+2017-07-24  Mos√® Giordano  <mose@gnu.org>
+
+	Prepare for upcoming release
+
+2017-07-22  Arash Esbati  <arash@gnu.org>
+
+	Update key=val options to minted package v2.5
+
+	* style/minted.el (LaTeX-minted-key-val-options): Update options
+	to package version v2.5 from 2017/07/19.
+
+2017-07-21  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Conform to elisp coding conventions.
+
+	* latex.el (LaTeX-section-heading, LaTeX-environment)
+	(TeX-arg-document, LaTeX-arg-usepackage-read-packages-with-options)
+	(TeX-arg-bibstyle, TeX-arg-bibliography, TeX-arg-verb)
+	(LaTeX-fill-region): Taylor minibuffer prompt string. Add or taylor
+	"done" messages.
+	* tex-buf.el (TeX-command-query, TeX-printer-query): Ditto.
+	* tex.el (TeX-master-file-ask, TeX-master-file, TeX-update-style)
+	(TeX-auto-list-information, TeX-auto-generate): Ditto.
+
+2017-07-21  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	* doc/changes.texi: Mention changes related to Japanese TeX.
+
+2017-07-03  Arash Esbati  <arash@gnu.org>
+
+	* doc/auctex.texi (European): Add babel languages which load english.el.
+
+2017-07-03  Arash Esbati  <arash@gnu.org>
+
+	Check and set `TeX-quote-language' if necessary
+
+	* style/english.el ("english"): Reset `TeX-quote-language' to nil
+	if changed by other babel language options.
+
+2017-07-03  Arash Esbati  <arash@gnu.org>
+
+	Add new style/australian.el and style/newzealand.el
+
+	* Makefile.in (STYLESRC): Add new styles.
+
+	* style/australian.el:
+	* style/newzealand.el: New files.
+
+2017-07-02  Arash Esbati  <arash@gnu.org>
+
+	Add new style/canadian.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/canadian.el: New file.
+
+2017-07-01  Arash Esbati  <arash@gnu.org>
+
+	Add new style/moodle.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/moodle.el: New file.
+
+2017-07-01  Arash Esbati  <arash@gnu.org>
+
+	* latex.el (LaTeX-babel-hyphen-language-alist): Fix typo in docstring.
+
+2017-06-17  Antoine Levitt  <antoine.levitt@gmail.com>
+
+	Add support for xreader viewer
+
+	* tex.el (TeX-evince-dbus-p):
+	(TeX-evince-sync-view-1):
+	(TeX-view-program-select-evince):
+	(TeX-raise-frame-function):
+	(TeX-source-correlate-mode): Adapt functions and docstrings to xreader.
+	(TeX-xreader-sync-view): New function.
+	(TeX-view-program-list-builtin): Add xreader.
+
+2017-06-14  Arash Esbati  <arash@gnu.org>
+
+	Update key=value options to graphicx package version 1.1a
+
+	* style/graphicx.el (LaTeX-graphicx-key-val-options): Add new
+	key=value options.
+	(LaTeX-arg-graphicx-includegraphics-key-val): Support "pagebox"
+	key with pdfTeX or LuaTeX.
+
+2017-06-13  Arash Esbati  <arash@gnu.org>
+
+	* style/beamer.el ("beamer"): Query for optional argument after \pause.
+
+2017-06-13  Mos√® Giordano  <mose@gnu.org>
+
+	Suggest to rerun LaTeX if xsim properties changed
+
+	* tex-buf.el (TeX-LaTeX-sentinel): Catch xsim warning suggesting to rerun LaTeX
+	and set LaTeX and next default command.
+
+2017-06-13  Mos√® Giordano  <mose@gnu.org>
+
+	Catch expl3 warnings
+
+	* tex-buf.el (LaTeX-warnings-regexp): Adapt regexp to the style of expl3
+	warnings.
+	* tests/tex/error-parsing.el (TeX-error-parsing-expl3-warnings): New test for
+	expl3 warnings.
+
+2017-06-02  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Correct actions on region file in included file not placed in master dir
+
+	* tex-buf.el (TeX-command-region): Call `TeX-region-file' with nil
+	`nondirectory' argument.
+	Fix a typo in doc string.
+	(TeX-command-default): Use `(TeX-region-file)' instead of `TeX-region'
+	for comparison with the given argument.
+
+2017-05-30  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Imporve fix for Bug#26694
+
+	* tex-buf.el (TeX-command): Update point in region file if the
+	command is "View".
+	(TeX-view):
+	(TeX-region-create): Pass the above job to `TeX-command'.
+	(TeX-region-update-point): Move point according to the column in
+	the original buffer.
+	Do nothing when `TeX-source-correlate-mode' is disabled.
+	Use `TeX-current-offset' instead of `TeX-line-number-at-pos' in
+	case narrowing is in effect in the original buffer.
+	* preview.el.in (preview-at-point): Revert previous commit in
+	accord with the changes above.
+	* tex.el (TeX-evince-sync-view-1): Use `TeX-current-offset'
+	instead of `TeX-line-number-at-pos' in case narrowing is in
+	effect in the original buffer.
+	Add FIXME comment about using `current-column'.
+	(TeX-synctex-output-page-1): Ditto.
+	Arrange regexp to pick up page number more correctly.
+	(TeX-view-program-list-builtin): Remove spurious quotation around
+	%b in SumatraPDF entry.
+
+2017-05-29  Mos√® Giordano  <mose@gnu.org>
+
+	* tests/tex/compilation-log.txt:
+	* tests/tex/error-parsing.el: Add test for error starting with exclamation mark.
+
+2017-05-26  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Resolve preview-latex incompatibility with Japanese TeX (Bug#25322)
+
+	* preview.el.in (preview-error-quote): Work consistently with
+	decoded text.  The idea of "encoding entire string beforehand and
+	decoding it at the last stage" was used previously, but that failed
+	with `japanese-shift-jis' coding system containing bytes which
+	happen to coincide with regexp meta characters.
+	(preview--decode-^^ab):
+	(preview--convert-^^ab): New functions.
+	(TeX-inline-preview-internal): Record the process coding system
+	for decode assigned already so that `preview-error-quote' can
+	decode the given text correctly afterward.  To achive that, change
+	the role of `preview-coding-system' together with the changes to
+	`preview-error-quote'.
+	Give back the command options provided in `(TeX-engine-alist)' to
+	latex command when preamble caching is enabled.
+	(preview-coding-system): Modify doc string according to the
+	changes above to `preview-error-quote' and
+	`TeX-inline-preview-internal'.
+	* tex-buf.el (TeX-adjust-process-coding-system): New function.
+	Adjust the process coding system for asynchronous process launched
+	within AUCTeX.
+	(TeX-after-start-process-function): Change default value to
+	`TeX-adjust-process-coding-system'.
+	* tex-jp.el (japanese-TeX-set-process-coding-system): Specify end
+	of line format on the coding systems assigned to process.
+	(): Don't set `japanese-TeX-set-process-coding-system' to
+	`TeX-after-start-process-function'.  It is now called within
+	`TeX-adjust-process-coding-system'.
+	* prv-xemacs.el (preview-buffer-recoding-alist): Fix docstring.
+	(coding-system-change-eol-conversion): Add advice because XEmacs
+	21.4 mule-ucs fails to define `utf-8' coding system to respond
+	properly to this function.
+	(preview-ps-quote-filename): Add advice so that this function is
+	not confused by backslashes as path separator in the return value
+	of XEmacs function.
+	* tests/japanese/preview-latex.el:
+	* tests/japanese/preview-error-test.tex:
+	* tests/japanese/preview-error-test2.tex:
+	* tests/japanese/prv-dif-code.tex: New files for regression test.
+
+2017-05-21  Mos√® Giordano  <mose@gnu.org>
+
+	Fix indentation in ConTeXt mode after indented optional argument
+
+	* context.el (ConTeXt-find-indent): Fix indentation.  Requested by Henri Menke.
+	* tests/context/context-test.el:
+	* tests/context/context-indentation-in.tex:
+	* tests/context/context-indentation-out.tex: New test files.
+
+2017-05-17  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Don't discard process output with `TeX-run-silent'
+
+	* tex-buf.el (TeX-run-silent): Associate the process to the buffer
+	"*TeX silent*".
+
+2017-05-15  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	* tex.el (TeX-command-list): Fix typo in help string (mendex -> upmendex)
+
+2017-05-12  Arash Esbati  <arash@gnu.org>
+
+	* latex.el (LaTeX-env-label-as-keyval): Use `buffer-substring-no-properties'.
+
+2017-05-11  Arash Esbati  <arash@gnu.org>
+
+	* doc/changes.texi: Document recent changes.
+
+2017-05-10  Arash Esbati  <arash@gnu.org>
+
+	* tests/latex/fontification-general.tex: New file.
+
+2017-05-10  Arash Esbati  <arash@gnu.org>
+
+	Exclude arguments to math environments from fontification
+
+	* font-latex.el (font-latex-match-math-envII)
+	(font-latex-extend-region-backwards-math-envII): Match and exclude
+	optional and mandatory argument(s) to math environments from
+	fontification.
+
+2017-05-08  Arash Esbati  <arash@gnu.org>
+
+	Improve further the exclusion of reserved characters
+
+	* font-latex.el (font-latex-match-simple-exclude-list): New
+	variable.
+	(font-latex-match-simple-command): Use
+	`font-latex-match-simple-exclude-list'.  Add check for docTeX mode
+	in order to remove "_" from the list.
+
+2017-05-06  Mos√® Giordano  <mose@gnu.org>
+
+	Work around bug#26694
+
+	* preview.el.in (preview-at-point): Let-bind `TeX-source-correlate-mode' to nil.
+	* tex-buf.el (TeX-region-create): Move point only when
+	`TeX-source-correlate-mode' is non-nil.
+
+2017-05-06  Arash Esbati  <arash@gnu.org>
+
+	* latex/preview.dtx: Adjust contact email address.
+
+2017-05-04  Arash Esbati  <arash@gnu.org>
+
+	* tex-ispell.el: Move entries from style/empheq.el to this file.
+
+	* latex/preview.dtx: Adjust modification date for CTAN.
+
+2017-05-03  Arash Esbati  <arash@gnu.org>
+
+	Query for expl3 package options
+
+	* style/expl3.el (LaTeX-expl3-package-options): New function to
+	read package options from user.
+	Add missing file footer.
+
+2017-05-03  Arash Esbati  <arash@gnu.org>
+
+	Add new style/floatrow.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/floatrow.el: New file.
+
+2017-05-02  Arash Esbati  <arash@gnu.org>
+
+	Use `ispell-tex-arg-end' on parsed elements
+
+	* style/mdframed.el (LaTeX-mdframed-auto-cleanup, "mdframed"): Use
+	correct function `ispell-tex-arg-end'.
+
+2017-04-27  Arash Esbati  <arash@gnu.org>
+
+	Improve exclusion of reserved characters from command matches
+
+	* font-latex.el (font-latex-match-simple-command): Skip matches
+	starting with reserved characters.
+
+2017-04-27  Arash Esbati  <arash@gnu.org>
+
+	Add support for plus sign in macro syntax specification list
+
+	* font-latex.el (font-latex-match-command-with-arguments): Support
+	plus sign besides asterisk in specification of macro syntax.
+
+2017-04-27  Arash Esbati  <arash@gnu.org>
+
+	Update style/fontspec.el to package version 2.6a
+
+	* style/fontspec.el (LaTeX-fontspec-font-features): Update
+	variable to package version 2.6a.
+	(LaTeX-fontspec-auto-cleanup): New function for parsing support
+	for \newfontfamily and \newfontface macros.
+	("fontspec"): Add missing macros and environment.
+	(LaTeX-fontspec-package-options): Update with new options.
+
+2017-04-27  Arash Esbati  <arash@gnu.org>
+
+	Consider the return value of `assq-delete-all'
+
+	* style/breqn.el (LaTeX-breqn-update-color-keys):
+	* style/fvextra.el (LaTeX-fvextra-update-key-val):
+	* style/mdframed.el (LaTeX-mdframed-update-style-key):
+	* style/minted.el (LaTeX-minted-update-key-vals):
+	* style/tcolorbox.el (LaTeX-tcolorbox-update-style-key): Use the
+	return value of `assq-delete-all' rather than looking at the saved
+	value of the temporary variable.
+
+2017-04-27  Arash Esbati  <arash@gnu.org>
+
+	* latex.el (LaTeX-common-initialization): Add eminnershape macro.
+
+2017-04-26  Arash Esbati  <arash@gnu.org>
+
+	* tex-ispell.el (TeX-ispell-skip-cmds-list): Add \addlinespace.
+
+2017-04-25  Tassilo Horn  <tsdh@gnu.org>
+
+	Correctly exclude hypenation and thin spaces from command matches
+
+	* font-latex.el (font-latex-match-simple-command): Skip matches starting with
+	\- or \,.
+
+2017-04-25  Arash Esbati  <arash@gnu.org>
+
+	Add LaTeX core command \oldstylenums
+
+	* font-latex.el (font-latex-built-in-keyword-classes): Add
+	\oldstylenums to "type-command" keyword class.
+
+	* latex.el (LaTeX-common-initialization): Add \oldstylenums to
+	LaTeX core commands.
+
+	* style/textcomp.el ("textcomp"): Remove \oldstylenums from
+	textcomp.el which is provided by LaTeX core.
+
+2017-04-24  Arash Esbati  <arash@gnu.org>
+
+	Make preview.sty compatible with recent luatex
+
+	* latex/preview.dtx: Check if file luatex85.sty is loadable and
+	require the package (bug#25601).
+
+2017-04-24  Arash Esbati  <arash@gnu.org>
+
+	Do not highlight control spaces with "\ "
+
+	* font-latex.el (font-latex-match-simple-command): Add space to
+	the list of characters to be ignored.
+
+2017-04-23  Arash Esbati  <arash@gnu.org>
+
+	Adjust macros acc. to change in `LaTeX-paragraph-commands-regexp-make'
+
+	* style/bicaption.el ("bicaption"): Add \bicaption, \bicaptionbox,
+	\bisubcaption and \bisubcaptionbox to paragraph commands.
+
+	* style/caption.el ("caption"): Add \captionbox and \captionof to
+	paragraph commands.
+
+	* style/subcaption.el ("subcaption"): Add \subcaption and
+	\subcaptionbox to paragraph commands.
+
+2017-04-23  Arash Esbati  <arash@gnu.org>
+
+	* style/exam.el ("exam"): Remove duplicate entries and backslash.
+
+2017-04-23  Uwe Brauer  <oub@mat.ucm.es>
+
+	Add the select environment and related macros to exam style.
+
+	* style/exam.el ("exam"): Add the select environment and related macros.
+
+2017-04-23  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix comment environment highlighting
+
+	* style/comment.el ("comment"): Don't set comment starter/ender but generic
+	comment delimiters.
+
+2017-04-21  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Add test for my last commit
+
+	* tests/japanese/error-parsing.el: New file.
+
+2017-04-21  Mos√® Giordano  <mose@gnu.org>
+
+	Do not highlight thin spaces with \,
+
+	* font-latex.el (font-latex-match-simple-command): Add comma to the list of
+	characters to be ignored.
+
+2017-04-19  Mos√® Giordano  <mose@gnu.org>
+
+	Fix parsing of LaTeX2e date formats
+
+	* tex-buf.el (TeX-LaTeX-sentinel): Support ISO date format, now used by
+	LaTeX2e.  Reported by Uwe Siart.
+	* tests/tex/error-parsing.el (TeX-LaTeX2e-date): Add a test for LaTeX2e date
+	formats.
+
+2017-04-19  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Improve error handling for Japanese users
+
+	* tex-buf.el (TeX-help-error): Use number based condition to
+	detect whether the search over `TeX-error-description-list'
+	comes to its last element.  Comparison with a literal string
+	breaks when tex-jp.el installs Japanese help messages into
+	`TeX-error-description-list'.
+
+2017-04-18  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Deal with strange file name
+
+	* tex-jp.el (): Increase `pos' in case the master file
+	name happens to contain special %-sequence.
+
+2017-04-17  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Support upmendex
+
+	* tex-jp.el (): Make "%(makeindex)" to expand to upmendex when
+	upmendex is available and `TeX-engine' is supported by it.
+	Add "%(dic)" expander for the dictionary option of (up)mendex.
+	* tex.el (TeX-command-list): Add "upMendex" entry.  Set 4th
+	element to t so that user will get a chance to supply
+	dictionary option to the command line string.
+
+2017-04-17  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve command highlighting to not be triggered by hyphenation
+
+	Reported by Fran√ßois Patte.
+
+2017-04-17  Tassilo Horn  <tsdh@gnu.org>
+
+	Add proper copyright header to some styles
+
+	Add the required headers so that the ELPA build works again.
+
+2017-04-15  Arash Esbati  <arash@gnu.org>
+
+	* doc/changes.texi: Update with recent changes.
+
+2017-04-10  Arash Esbati  <arash@gnu.org>
+
+	* doc/auctex.texi (Selecting a Command): Document `TeX-ispell-verb-delimiters'.
+
+2017-04-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix `paragraph-start' and `paragraph-separate'
+
+	* plain-tex.el (plain-TeX-common-initialization): Remove "^" from
+	`paragraph-start' according to the doc string.
+	Remove LaTeX display math delimiters "\[" and "\]" from
+	`paragraph-start'.
+	Add "item" and "itemitem" to `paragraph-start'.
+	Change the regexp grouping to shy group in `paragraph-start' and
+	`paragraph-separate'.
+	* tex-info.el (TeX-texinfo-mode): Remove "^" from `paragraph-start'
+	and `paragraph-separate'.
+
+2017-04-03  Arash Esbati  <arash@gnu.org>
+
+	Update package options in style/amsmath.el
+
+	* style/amsmath.el (LaTeX-amsmath-package-options): Update package
+	options to v2.16a.
+
+2017-04-01  Arash Esbati  <arash@gnu.org>
+
+	Append \b to regexp built from TeX control words
+
+	* latex.el (LaTeX-paragraph-commands-regexp-make): Append \b to
+	regexp built from TeX control words.  Fix this report
+	http://lists.gnu.org/archive/html/auctex/2017-03/msg00009.html
+
+	* tests/latex/latex-filling-in.tex:
+	* tests/latex/latex-filling-out.tex:
+	* tests/latex/latex-test.el (LaTeX-filling): Extend test for addition
+	in `LaTeX-paragraph-commands-regexp-make' in latex.el.
+
+2017-03-31  Mos√® Giordano  <mose@gnu.org>
+
+	Fix detection of bibliography files with dots in path
+
+	* latex.el (LaTeX-auto-regexp-list): Remove dot from the list of excluded
+	characters in addbibresource's regexp.
+	* tests/latex/latex-test.el (LaTeX-addbibresource): New test for addbibresource.
+
+2017-03-29  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Don't alter standard value or saved value themselves of customize option
+
+	* tex-jp.el (): Stop using `setcar' on the elements of
+	`TeX-command-list'.  This used to alter the standard value
+	or saved value themselves of the customize option since
+	`setcar' operates descructively on lists as Lisp objects.
+	Instead create new list by `mapcar' and `append'.
+	(): Deal with the case that `TeX-view-program-list-builtin'
+	doesn't have an entry of "xdvi".
+	Change the expected executable name to "%(xdvi)" as well.
+
+2017-03-28  Arash Esbati  <arash@gnu.org>
+
+	Fix last improvement for skipping of inline verbatim macros
+
+	* tex.el (TeX-ispell-tex-arg-verb-end): New function.
+
+	* tex-ispell.el (TeX-ispell-verb-delimiters): Replace
+	`TeX-ispell-verb-opening-delimiters' and
+	`TeX-ispell-verb-closing-delimiters' with new customizable option
+	`TeX-ispell-verb-delimiters'.
+	(TeX-ispell-skip-setcar): Use new function
+	`TeX-ispell-tex-arg-verb-end' with verbatim macros.
+
+2017-03-27  Arash Esbati  <arash@gnu.org>
+
+	Improve skipping of inline verbatim macros
+
+	* tex-ispell.el (TeX-ispell-verb-opening-delimiters)
+	(TeX-ispell-verb-closing-delimiters): New customizable options.
+	(TeX-ispell-skip-setcar): Skip inline verbatim macros from
+	listings and fancyvrb package.  Use new variables for minted
+	package.
+
+2017-03-27  Arash Esbati  <arash@gnu.org>
+
+	* tests/latex/fontification-verb-macros.tex: New file.
+
+2017-03-27  Arash Esbati  <arash@gnu.org>
+
+	Improve fontification of verbatim macros in style/minted.el
+
+	* style/minted.el (LaTeX-minted-auto-cleanup): Add key=val query
+	and fontification support for parsed elements.
+	(LaTeX-minted-add-syntactic-keywords-extra): New function.
+	("minted"): Use `LaTeX-minted-add-syntactic-keywords-extra' to add
+	fontification support for \mint and \mintinline macros.
+	Add \mint and \mintinline to textual keywords class and apply the
+	fontification only for optional and first mandatory argument.
+
+2017-03-27  Arash Esbati  <arash@gnu.org>
+
+	Adapt fontification for \lstinline
+
+	* style/listings.el ("listings"): Fontify only the optional
+	argument of \lstinline.
+
+2017-03-27  Arash Esbati  <arash@gnu.org>
+
+	Recognize optional argument in verb macros with delimiters/braces
+
+	* font-latex.el (font-latex-built-in-keyword-classes): Add \verb
+	to textual keyword class.
+	(font-latex-set-syntactic-keywords): Extend regexp to ignore an
+	optional argument for verbatim macros with delimiters and/or
+	braces.
+
+2017-03-26  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Add support for Japanese font command
+
+	* tex-jp.el (): Append entries for mincho and gothic font
+	commands to `LaTeX-font-list'.
+	(japanese-latex-mode-initialization): Add font lock support
+	to \textgt, \mathgt and \gtfamily commands for displaying
+	with bold font in Emacs buffer.
+	* doc/auctex.texi (Japanese): Mention new font commands and
+	add indexes for them.
+
+2017-03-23  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Enhance Japanese class files support
+
+	* style/tarticle.el:
+	* style/tbooks.el:
+	* style/treport.el:
+	* style/jsreport.el: Add new style files.
+	* Makefile.in (STYLESRC): Add them and tweak order not to break the
+	format of file name alignment.
+	* style/j-book.el ("j-book"): Correct the largest section level to
+	"part" following book.el.
+	* style/jarticle.el:
+	* style/jbook.el:
+	* style/jreport.el:
+	* style/jsarticle.el:
+	* style/jsbook.el: Add defvar for class options, counters and
+	pagestyles following {article,book,report}.el.
+	Correct the largest section level in jbook.el, too.
+	Deal with "report" option in jsbook.el.
+
+2017-03-24  Arash Esbati  <arash@gnu.org>
+
+	* texmathp.el (texmathp-tex-commands-default): Add entries for empheq.sty.
+
+2017-03-23  Arash Esbati  <arash@gnu.org>
+
+	* style/minted.el ("minted"): Add key=val query for \mint and \mintinline.
+
+2017-03-19  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Use `TeX-line-number-at-pos' further for older emacsen
+
+	* tex-buf.el (TeX-region-create):
+	(TeX-region-update-point):
+	* tex-info.el (Texinfo-make-node-list): Replace `line-number-at-pos'
+	with `TeX-line-number-at-pos'.
+
+2017-03-19  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Use compatibility function `TeX-line-number-at-pos' for older emacsen
+
+	* tex.el (TeX-evince-sync-view-1):
+	(TeX-synctex-output-page-1): Replace `line-number-at-pos' with
+	`TeX-line-number-at-pos'.
+
+2017-03-18  Arash Esbati  <arash@gnu.org>
+
+	Use the variable `LaTeX-listing-label'
+
+	* style/minted.el ("minted"):
+	* style/newfloat.el (LaTeX-newfloat-auto-cleanup): Use
+	`LaTeX-listing-label' instead of hard-coded "lst:" string.
+
+2017-03-18  Arash Esbati  <arash@gnu.org>
+
+	Use compat function `TeX-replace-regexp-in-string' in core files
+
+	* tex.el (TeX-source-correlate-sync-source):
+	* latex.el (LaTeX-split-bibs): Use compat function
+	`TeX-replace-regexp-in-string'.
+
+2017-03-18  Arash Esbati  <arash@gnu.org>
+
+	Use `TeX-replace-regexp-in-string' in style files
+
+	* style/empheq.el (LaTeX-empheq-item-equation):
+	* style/tcolorbox.el (LaTeX-tcolorbox-load-used-libraries):
+	* style/xcolor.el (LaTeX-xcolor-auto-cleanup): Use compat function
+	`TeX-replace-regexp-in-string'.
+
+2017-03-18  Arash Esbati  <arash@gnu.org>
+
+	Add new compat function `TeX-replace-regexp-in-string'
+
+	* tex.el (TeX-replace-regexp-in-string): New compat function.
+	With XEmacs, pass arguments to `replace-in-string', with Emacs to
+	`replace-regexp-in-string'.  This function supports only mandatory
+	arguments of the original functions just mentioned.
+
+2017-03-17  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Avoid altering user option as much as possible
+
+	* tex-jp.el (): Alter `TeX-view-predicate-list-builtin' and
+	`TeX-view-program-list-builtin' instead of their customize option
+	cousins.
+	Append to `TeX-view-program-selection' only on w32 system.
+
+2017-03-16  Arash Esbati  <arash@gnu.org>
+
+	Add LaTeX inline math delimiters to Ispell skip list
+
+	* tex-ispell.el: Add LaTeX inline math delimiters \( \) to Ispell
+	skip list.  (bug#26125)
+	Remove unnecessary part from regexp for \cmidrule.
+
+2017-03-15  Arash Esbati  <arash@gnu.org>
+
+	Fix addition of key=val's
+
+	* style/fvextra.el (LaTeX-fvextra-update-key-val): Fix addition of
+	key=val's to `LaTeX-fancyvrb-key-val-options-local'.
+
+2017-03-15  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Modify `TeX-expand-list-builtin' instead of `TeX-expand-list'
+
+	* tex-jp.el (): `TeX-expand-list' is user option since 2015.  Add
+	extra entries for Japanese TeX engines to `TeX-expand-list-builtin'
+	instead.
+
+2017-03-13  Arash Esbati  <arash@gnu.org>
+
+	Add new style/fvextra.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/fvextra.el: New file.
+
+2017-03-13  Arash Esbati  <arash@gnu.org>
+
+	Improve parsing capabilities of style/fancyvrb.el
+
+	* style/fancyvrb.el (LaTeX-fancyvrb-key-val-options): Add
+	undocumented keys, update some values.
+	(LaTeX-fancyvrb-key-val-options-local)
+	(LaTeX-fancyvrb-base-macros, LaTeX-fancyvrb-base-environments)
+	(LaTeX-fancyvrb-key-val-skip-regexp): New variables.
+	(LaTeX-fancyvrb-macro-regexp, LaTeX-fancyvrb-environment-regexp):
+	Update for new parsing mechanism.
+	(LaTeX-fancyvrb-arg-define-macro)
+	(LaTeX-fancyvrb-arg-define-environment)
+	(LaTeX-fancyvrb-arg-file-relative): New functions.
+	("fancyvrb"): Use new variables and functions in the hook.  Update
+	fontification.
+
+2017-03-10  Arash Esbati  <arash@gnu.org>
+
+	Improve fallback for indentation when & is omitted
+
+	* latex.el (LaTeX-hanging-ampersand-position): Improve handling of
+	fallback which now respects also intended tabular environments.
+	Thanks to Ikumi Keita for testing and providing code.  (bug#26032)
+
+	* tests/latex/tabular-in.tex:
+	* tests/latex/tabular-out.tex: Add additional test for indented
+	tabular.
+
+2017-03-09  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Remove spurious entries of view settings.
+
+	* tex-jp.el (TeX-view-program-list):
+	(TeX-view-program-selection): Remove spurious entries, most of which
+	are related with other TeX IDEs.
+	cf. http://lists.gnu.org/archive/html/auctex-devel/2016-04/msg00036.html
+
+2017-03-09  Arash Esbati  <arash@gnu.org>
+
+	Add fallback for indentation when & is omitted
+
+	* latex.el (LaTeX-hanging-ampersand-position): Add fallback for
+	indentation if the row searched does not contain a column
+	separator &.
+
+	* tests/latex/tabular-in.tex:
+	* tests/latex/tabular-out.tex: Add filling test for missing & in
+	row.
+
+2017-02-06  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix auto selection of japanese TeX engine
+
+	* tex-jp.el (japanese-latex-mode-initialization): Use
+	`LaTeX-match-class-option' to detect uplatex option given to
+	jsarticle, jsreport and jsbook class.  (The root of this problem is
+	the same as Bug#25563)
+	(): Quit appending to `LaTeX-command-style' because this made the
+	user's intentional selection of `TeX-engine' ineffective with regard
+	to the selection of the executable names.
+	Fix copyright year.
+	* doc/auctex.texi (Japanese): Add description of Japanese TeX engine:
+	How to use, change and set the value of the engine.
+	Add description of the customize options related to the encoding of
+	Japanese TeX documents.
+
+2017-03-08  Arash Esbati  <arash@gnu.org>
+
+	Detect \& in tabular cells when filling
+
+	* latex.el (LaTeX-indent-tabular): Search backward for any
+	ampersands not escaped with a backslash, i.e. control symbol \&,
+	and return the adjusted value.  Thanks to Ikumi Keita for his
+	perceptive comments on the implementation.  (bug#26010)
+
+	* tests/latex/tabular-in.tex:
+	* tests/latex/tabular-out.tex: Add test for table filling with \&
+	in cells.
+
+2017-03-06  Arash Esbati  <arash@gnu.org>
+
+	* tex-ispell.el (TeX-ispell-skip-cmds-list): Add hyperref macros.
+
+2017-03-05  Arash Esbati  <arash@gnu.org>
+
+	* tex-ispell.el (TeX-ispell-skip-setcdr): Add entry for filecontents package.
+
+2017-03-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix documents and add trivial improvements.
+
+	* font-latex.el (font-latex-deactivated-keyword-classes): Add keyword
+	class biblatexnoarg, biblatex and slide-title to doc string.
+	Use `buffer-string'.
+	(font-latex-keyword-matcher): Mention that face attributes is accepted
+	as FACE argument in doc string.
+	(font-latex-make-built-in-keywords): Arrange doc string for generated
+	defvar of `font-latex-match-*-keywords-local' depending on the keyword
+	type.
+	Remove spurious type declaration from generated defcustom of
+	`font-latex-match-*-keywords'.
+	Replace meaningless argument with nil and add doc string for generated
+	defvar of `font-latex-match-*'.
+	Replace redundant call to intern with literal quote of symbol.
+	(font-latex-user-keyword-classes): Fix doc string.  The accepted face
+	argument is face attribute rather than font specification.
+	Add doc string for generated defvar of `font-latex-match-*'.
+	(font-latex-make-user-keywords): Replace backquote with quote where
+	backquote is not necessary.
+	(font-latex-add-keywords): Add keyword class biblatexnoarg to doc
+	string.
+	* doc/auctex.texi (): Update copyright year.
+	(Deactivating defaults of built-in keyword classes): Add keyword
+	class biblatexnoarg, biblatex and slide-title.
+	Fix sample lisp code.
+	(User-defined keyword classes): The accepted face argument is face
+	attribute rather than font specification.
+
+2017-03-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Make customization to face specification to appear in
+	customization buffer.
+
+	* font-latex.el (font-latex-user-keyword-classes): Exchange the order
+	of `face' and `custom-face-edit'.  Tweak doc string.
+
+2017-03-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Unify treatment of face argument over the relevant functions.
+
+	* font-latex.el (font-latex-keyword-matcher): Conform the face
+	argument correctly to the format `font-lock-keywords' requires.
+	(font-latex-make-user-keywords) : Call `font-latex-make-match-defun'
+	directly without `eval'.
+	(font-latex-deactivated-keyword-classes) : Accept a face symbol, as
+	well as a form returning a face symbol, for the third element for each
+	item of `font-latex-built-in-keyword-classes'.
+	(font-latex-built-in-keyword-classes) : Remove quoting from the face
+	names.  Contrary to the sentence of the doc string
+	"The third element is the symbol of a face to be used or a Lisp
+	form returning a face symbol.", symbol of a face was invalid due to
+	the above bugs.
+
+2017-03-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix font-latex-make-match-defun to generate intended code.
+
+	* font-latex.el (font-latex-make-match-defun): Arrange the order of
+	evaluation not to generate meaningless clause.  Byte compile warning
+	on xemacs went away.
+
+2017-03-04  Mos√® Giordano  <mose@gnu.org>
+
+	Partially revert previous commit, will look better later
+
+	* tex-buf.el (TeX-command-expand): Do not error if `string' is nil.  This made
+	"View" command unusable.
+
+2017-03-04  Mos√® Giordano  <mose@gnu.org>
+
+	Prevent infinite loop in TeX-command-expand
+
+	* tex-buf.el (TeX-command-expand): Throw an error if `string' is not a string.
+	This prevents an infinite loop.
+	* tex.el (TeX-engine-in-engine-alist): New function to pick up an engine from
+	`TeX-engine-alist' and throw an error if the engine is not there.
+	(TeX-expand-list-builtin): Use `TeX-engine-in-engine-alist'.
+	* context.el (ConTeXt-expand-options): Use `TeX-engine-in-engine-alist'.
+	* tests/tex/command-expansion.el (TeX-command-expansion-errors): Add tests for
+	error handling of `TeX-command-expand'.
+
+2017-02-24  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Tweak locale treatment on xemacs.
+
+	* tex-jp.el (japanese-TeX-set-process-coding-system): Use the locale
+	related environment variables for fallback value.
+
+2017-02-21  Arash Esbati  <arash@gnu.org>
+
+	Add new style/sourcecodepro.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/sourcecodepro.el: New file.
+
+2017-02-21  Arash Esbati  <arash@gnu.org>
+
+	* style/subfiles.el (LaTeX-subfiles-class-options): New function.
+
+2017-02-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Make papersize predicate in tex-jp.el to work again.
+	Problem parallel to bug#25563.
+
+	* tex-jp.el (): Use `LaTeX-match-class-option' to examine paper size
+	option of document class.
+
+2017-02-14  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix setting of coding system for Japanese TeX
+
+	* tex-jp.el (japanese-TeX-set-process-coding-system): Cater for the
+	case that kanji option is requested by user but cannot be determined.
+	XEmacs doesn't have `locale-coding-system'.  Use
+	`get-coding-system-from-locale' and `current-locale' instead.
+	Cleanup indentation.
+	(japanese-TeX-coding-ejsu): Add entry for xemacs coding system of cp932.
+
+2017-02-20  Mos√® Giordano  <mose@gnu.org>
+
+	Improve regexp for looking for documentclass macro
+
+	* latex.el (LaTeX-env-document): Allow any non line-breaking character in regexp
+	  used to look for `documentclass' macro.  Previous regexp did not catch class
+	  options containing dots or slash, that may occur when using `subfiles' class.
+
+2017-02-20  Mos√® Giordano  <mose@gnu.org>
+
+	Improve determination of master file with subfiles class
+
+	* style/subfiles.el ("subfiles"): Do not strip dirname from master file.
+
+2017-02-19  Arash Esbati  <arash@gnu.org>
+
+	Add new keys for package version 4.00
+
+	* style/tcolorbox.el (LaTeX-tcolorbox-keyval-options): Add new
+	keys for v4.00 of the package.
+
+2017-02-16  Arash Esbati  <arash@gnu.org>
+
+	* latex.el (LaTeX-label): Eliminate premature returning of label.
+
+2017-02-16  Arash Esbati  <arash@gnu.org>
+
+	Append "lstlisting" to `LaTeX-label-alist'
+
+	* style/listings.el ("listings"): Append "lstlisting" to
+	`LaTeX-label-alist'.
+	(LaTeX-listings-auto-cleanup): Use `LaTeX-listing-label' as a
+	symbol during clean up.
+
+2017-02-10  Arash Esbati  <arash@gnu.org>
+
+	Add new style/preview.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/preview.el: New file.
+
+2017-02-10  Arash Esbati  <arash@gnu.org>
+
+	* .gitignore: Ignore only preview.el in top directory.
+
+2017-02-10  Arash Esbati  <arash@gnu.org>
+
+	Improve parsing process in style/xcolor.el
+
+	* style/xcolor.el (LaTeX-xcolor-definecolor-regexp): Use
+	`regexp-opt' to build a regexp to match all color defining macros.
+	(LaTeX-xcolor-colorlet-regexp): Remove variable.
+	(LaTeX-xcolor-auto-cleanup): Romove unnecessary *.
+
+2017-02-09  Arash Esbati  <arash@gnu.org>
+
+	Improve parsing process in style/color.el
+
+	* style/color.el (LaTeX-color-definecolor-regexp): Remove
+	unnecessary 2nd and 3rd arguments from regexp.
+	(LaTeX-color-auto-cleanup): Delete unnecessary function and remove
+	it from `TeX-auto-cleanup-hook'.
+
+2017-02-09  Arash Esbati  <arash@gnu.org>
+
+	Fix parsing bug in style/xcolor.el
+
+	* style/xcolor.el (LaTeX-xcolor-definecolor-regexp): Move parsing
+	of \colorlet macro into `LaTeX-xcolor-colorlet-regexp'.
+	(LaTeX-xcolor-colorlet-regexp): New variable.
+	("xcolor"): Activate `LaTeX-xcolor-colorlet-regexp' in style hook.
+
+2017-02-06  Arash Esbati  <arash@gnu.org>
+
+	* latex/preview.dtx: Fix example for \PreviewMacro* macro.
+	Add missing backslash.
+
+2017-02-04  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix minor problems
+	* tex.el (TeX-view-predicate-list-builtin): Enclose whole alternatives
+	in regexp with shy group in order that the effect of "\`" and "\'"
+	covers all the alternatives.
+	* latex.el (LaTeX-auto-cleanup): Regard "Class", in addition to
+	"class", as an indicator of LaTeX2e document.
+
+2017-02-02  Arash Esbati  <arash@gnu.org>
+
+	Simplify addition of entirely skipped environments
+
+	* tex-ispell.el (TeX-ispell-skip-envs-list): New variable for
+	environments which should be skipped entirely.
+	(TeX-ispell-skip-envs-regexp): New variable keeping the regexp
+	generated from `TeX-ispell-skip-envs-list'.
+
+2017-02-02  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix TeX-view-predicate-list-builtin predicates wrt class opts
+
+	* latex.el (LaTeX-match-class-option): New function.
+	* tex.el (TeX-view-predicate-list-builtin): Use above function to check
+	paper sizes orientation from documentclass options (bug#25563).
+
+2017-02-01  Mos√® Giordano  <mose@gnu.org>
+
+	Fix number of arguments of local-variable-p in XEmacs
+
+	* font-latex.el (font-latex-after-hacking-local-variables): Second argument of
+	`local-variable-p' is mandatory in XEmacs.
+
+2017-02-01  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix font-latex-after-hacking-local-variables on XEmacs
+
+	* font-latex.el (font-latex-after-hacking-local-variables): Cater for the
+	fact that file-local-variables-alist isn't there in XEmacs and older
+	Emacs versions (bug#25564).
+
+2017-02-01  Arash Esbati  <arash@gnu.org>
+
+	* tex-ispell.el: Add support for enviroments from breqn.sty.
+
+2017-02-01  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix plain-TeX-auto-regexp-list docstring
+
+	* tex.el: Fix docstring of plain-TeX-auto-regexp-list (bug#25574).
+
+2017-01-29  Arash Esbati  <arash@gnu.org>
+
+	Add new style/breqn.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/breqn.el: New file.
+
+2017-01-29  Arash Esbati  <arash@gnu.org>
+
+	Update style/listings.el to use `LaTeX-env-label-as-keyval'
+
+	* style/listings.el (LaTeX-listings-key-val-options): Comment the
+	"label" key.
+	(LaTeX-listings-key-val-label-extract):
+	(LaTeX-listings-key-val-label-regexp): New variable.
+	(LaTeX-listings-auto-cleanup): Use `LaTeX-add-environments'
+	instead of adding new enviroments to `LaTeX-auto-environment'.
+	Use the function `LaTeX-env-label-as-keyval' to insert labels.
+	Add parsed enviroments to AUCTeX parser with `TeX-auto-add-regexp'.
+	("listings"): Add `LaTeX-listings-key-val-label-regexp' to the
+	parser.
+	Use `LaTeX-env-label-as-keyval' for "lstlisting".
+
+2017-01-29  Arash Esbati  <arash@gnu.org>
+
+	Add function to put labels in opt. argument of environments
+
+	* doc/changes.texi: Document new feature.
+
+	* latex.el (LaTeX-listing-label): New custom prefix for labels in
+	code typesetting environments.
+	(LaTeX-env-label-as-keyval): New function.
+	(LaTeX-narrow-to-environment): Fix typo in docstring.
+
+2017-01-27  Arash Esbati  <arash@gnu.org>
+
+	Add `NO-INSERT' argument to `LaTeX-label'
+
+	* doc/changes.texi: Document changes to `LaTeX-label' and
+	`LaTeX-label-function'.
+
+	* latex.el (LaTeX-label): Add second optional argument NO-INSERT.
+	This argument is passed to function bound to
+	`LaTeX-label-function' (usually `reftex-label' with RefTeX
+	enabled).  If `LaTeX-label-function' is nil and NO-INSERT is
+	non-nil, label is read and returned as a string.  Remove some
+	unnecessary checks.
+	(LaTeX-label-function): Mention in docstring that the function is
+	expected to take an optional argument NO-INSERT.  This is an
+	incompatible change.
+
+2017-01-27  Arash Esbati  <arash@gnu.org>
+
+	Check if label is defined before adding it to known labels
+
+	* latex.el (TeX-read-label): Check if label is already defined and
+	ask for user confirmation before adding it list of known labels.
+	Do not add label if empty string or the value of
+	`TeX-read-label-prefix'.
+
+2017-01-26  Arash Esbati  <arash@gnu.org>
+
+	Add \citetitle to `reftex-cite-format' in style/biblatex
+
+	* style/biblatex.el ("biblatex"): Add \citetitle[*] to
+	`reftex-cite-format' and bind them to keys i/I per user request
+	http://lists.gnu.org/archive/html/auctex/2017-01/msg00049.html.
+
+2017-01-25  Mos√® Giordano  <mose@gnu.org>
+
+	Guard setcar with appropriate test
+
+	* tex-jp.el (assoc): Replace second element of "BibTeX" and "Index" entries of
+	`TeX-command-list' only if they are already there.  This variable is
+	customizable and users may have removed them.  Reported by jfbu.
+
+2017-01-20  Mos√® Giordano  <mose@gnu.org>
+
+	* latex.el (LaTeX-newline): Make interactive.  See bug#24412.
+
+2017-01-20  Mos√® Giordano  <mose@gnu.org>
+
+	Add makeglossaries to the list of commands
+
+	* tex.el (TeX-command-list): Add makeglossaries.  Fixes bug#24952.
+	* latex.el (LaTeX-clean-intermediate-suffixes): Add extensions of files created
+	  by makeglossaries.
+
+2017-01-15  Mos√® Giordano  <mose@gnu.org>
+
+	Show summary of tests at the end of make check
+
+	* tests/Makefile (check): Depend on `check-doit' and `mostlyclean' phony
+	  targets.
+	(check-doit): New rule for showing summary of tests.
+	(mostlyclean): Delete log files.
+
+2017-01-13  Davide G. M. Salvetti  <salve@debian.org>
+
+	Fix ConTeXt-outline-regexp
+
+	Add a separator between different elements; see Debian bug #850444.
+
+2017-01-13  Mos√® Giordano  <mose@gnu.org>
+
+	Remove also a gitignore
+
+	* Makefile.in (EXCLUDEDFILES): Add latex/.gitignore to excluded files.
+
+2017-01-13  Mos√® Giordano  <mose@gnu.org>
+
+	Remove file from distributed tar ball
+
+	* Makefile.in (EXCLUDEDFILES): Add doc/tex-ref.log.
+
+2017-01-12  Mos√® Giordano  <mose@gnu.org>
+
+	Add AUCTeX Logo
+
+	* etc/auctex-logo.tex: Logo of AUCTeX.  It was realized with comments from
+	Vincent Bela√Øche, Marcin Borkowski, Marta Dell‚ÄôAtti, Tamas Papp and others.
+
+	* .gitignore: Ignore some files automatically created during compilation.
+
+2017-01-11  Mos√® Giordano  <mose@gnu.org>
+
+	Make gitlog-to-changelog ignore release-commit
+
+	* Makefile.in (release-commit): Prefix the commit message with "; ", so that
+	the commit will be ignored when automatically updating the ChangeLog.
+
+2017-01-10  Mos√® Giordano  <mose@gnu.org>
+
+	* Version 11.90 released.
+
+2017-01-10  Mos√® Giordano  <mose@gnu.org>
+
+	Refresh RELEASE file
+
+	* RELEASE: Update "Availability" and "Future development and additional
+	information" sections.
+
+2017-01-10  Mos√® Giordano  <mose@gnu.org>
+
+	* Makefile.in (release-commit): Use UTF-8 coding for ChangeLog entry.
+
+	* ChangeLog-preview: Change encoding to UTF-8.
+
+	* Makefile.in (release-commit): Fix name of preview ChangeLog.
+
+2017-01-10  Arash Esbati  <arash@gnu.org>
+
+	Use RefTeX for multiple references in cleveref
+
+	* style/cleveref.el (TeX-arg-cleveref-multiple-labels): Check if
+	RefTeX is enabled and use it for multiple referencing macros.
+	("cleveref"): Use `TeX-arg-ref' instead of `TeX-arg-label'.
+	("cleveref"): Remove call of (font-latex-set-syntactic-keywords).
+
+2017-01-10  Arash Esbati  <arash@gnu.org>
+
+	Skip macros and environments from tcolorbox and raster library
+
+	* tex-ispell.el (TeX-ispell-sort-skip-cmds-list): Extract macros
+	with optional argument from `TeX-ispell-skip-cmds-list'.
+	(TeX-ispell-skip-cmds-opt-arg-regexp): New variable containing
+	macros where only the optional argument is skipped while spell
+	checking.
+	Add macros and environments from tcolorbox.el and
+	tcolorboxlib-raster.el.
+
+2017-01-10  Arash Esbati  <arash@gnu.org>
+
+	Advertise AUCTeX installation from ELPA
+
+	* doc/quickstart.texi (Quick Start): Emphasize the necessity to
+	drop (load "auctex.el" nil t t) when installed from ELPA.
+
+	* doc/install.texi (Installation): Advertise installation from
+	ELPA.
+
+2017-01-09  Mos√® Giordano  <mose@gnu.org>
+
+	Prepare for upcoming release
+
+	* RELEASE: Update AUCTeX version, the new features section, and
+	the list of contributors.
+
+	* configure.ac: Update AUCTeX version.
+
+	* doc/changes.texi: Reorder changes for 11.90 version section.
+
+	* doc/tex-ref.tex: Update AUCTeX version and copyright years
+	across the file.
+
+	* latex/preview.dtx: Manually update release version.
+
+2017-01-07  Mos√® Giordano  <mose@gnu.org>
+
+	Adapt Makefile to new ChangeLog file name
+
+	* Makefile.in (release-commit): Use `CHANGELOG_N' in place of
+	`ChangeLog'.
+
+2017-01-06  Tassilo Horn  <tsdh@gnu.org>
+
+	Don't use cl function copy-list
+
+	* font-latex.el (font-latex--get-script-props): Use copy-sequence instead of
+	copy-list, the latter being a cl function.
+
+2017-01-05  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix bug where font-latex-sub/superscript-face was not applied to ^_
+
+	* font-latex.el (font-latex-make-user-keywords): prepend
+	font-latex-script-char-face, don't replace existing specs.
+
+2017-01-05  Tassilo Horn  <tsdh@gnu.org>
+
+	Fontify script characters with a new face
+
+	* doc/auctex.texi (Fontification of math): Document it.
+	* doc/changes.texi: Mention that.
+	* font-latex.el (font-latex-make-user-keywords): Adapt.
+	(font-latex-script-char-face): New face.
+	(font-latex-match-script-chars): Improve it so that double ^_ aren't
+	matched because such errors were hard to see with
+	font-latex-fontify-script set to invisible.
+	(font-latex-script-char): New function.
+
+2017-01-05  Arash Esbati  <arash.esbati@gmail.com>
+
+	Support biblatex cite format in all Emacsen
+
+	* style/biblatex.el ("biblatex"): Check if biblatex is available
+	in `reftex-cite-format-builtin' and use it.  If not, add entries
+	for older Emacsen manually.
+
+2017-01-05  Arash Esbati  <arash.esbati@gmail.com>
+
+	Check new custom option before activating RefTeX cite format
+
+	* doc/changes.texi: Document new variable.
+
+	* style/biblatex.el ("biblatex"):
+	* style/harvard.el ("harvard"):
+	* style/jurabib.el ("jurabib"):
+	* style/natbib.el ("natbib"): Set cite format provided by RefTeX
+	when `LaTeX-reftex-cite-format-auto-activate' is non-nil.
+
+	* tex-style.el (LaTeX-reftex-cite-format-auto-activate): New
+	customizable variable.
+
+2017-01-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix script unfontification bug
+
+	* font-latex.el (font-latex-unfontify-region): Remove script-level
+	property and raise display property even though it's value is different
+	from what's specified in font-latex-script-display.
+
+2017-01-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve completion docs
+
+	* doc/auctex.texi (Completion): Improved docs.
+	* doc/changes.texi: Mention math completion, add link to Completion node
+	in the manual.
+	* tex.el (TeX-complete-list): Improve docstring.
+
+2017-01-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Refactor normal completion and completion at point a bit
+
+	* tex.el (TeX--complete-find-entry): New function.
+	(TeX-complete-symbol,TeX--completion-at-point): Use it.
+
+2017-01-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Completion for math macros
+
+	* latex.el (LaTeX--after-math-macro-prefix-p): New function.
+	(LaTeX-common-initialization): Use it for new TeX-complete-list entry.
+	* tex.el (TeX-complete-list): Also allow match-data setting predicates in
+	entries.
+	(TeX-complete-symbol,TeX--completion-at-point): Adapt to new possibility.
+
+2017-01-03  Tassilo Horn  <tsdh@gnu.org>
+
+	Add completion-at-point support
+
+	* doc/auctex.texi (Completion): Document completion-at-point support.
+	* doc/changes.texi: Mention completion-at-point support.
+	* tex.el (TeX--completion-at-point): New function.
+	(VirTeX-common-initialization): Add TeX--completion-at-point to
+	completion-at-point-functions in TeX buffers if that's bound.
+
+2017-01-03  Mos√® Giordano  <mose@gnu.org>
+
+	Use RefTeX for multiple citations in biblatex
+
+	* style/biblatex.el (LaTeX-arg-biblatex-cites): Use RefTeX when
+	  available.  Suggested by Arash Esbati.
+
+2017-01-03  Tassilo Horn  <tsdh@gnu.org>
+
+	Simple docfix
+
+	* font-latex.el (font-latex-fontify-script-max-level): Correct escaping of
+	\(...\) in the docstring.
+
+2017-01-03  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve multi-level script fontification
+
+	* doc/auctex.texi (Fontification of math): Update docs.
+	* doc/changes.texi: Add an item for the new script fontification
+	features.
+	* font-latex.el (font-latex-fontify-script): Update docstring.
+	(font-latex-fontify-script-max-level): New custom variable.
+	(font-latex--get-script-props): Apply script face only for levels up to
+	font-latex-fontify-script-max-level.
+	(font-latex-script): Adapt call to font-latex--get-script-props.
+
+2017-01-03  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add a newline only if \label is inserted
+
+	* style/caption.el (LaTeX-arg-caption-captionof):
+	* style/bicaption.el (LaTeX-arg-bicaption-bicaption): Save the
+	position before asking for a label.  Add a newline only if a label
+	is inserted.
+
+2017-01-03  Tassilo Horn  <tsdh@gnu.org>
+
+	Bring back multi-level script font-locking
+
+	* doc/auctex.texi (Fontification of math): Add documentation.
+	* font-latex.el (font-latex-script-display): Increase default raise level to
+	0.5.
+	(font-latex-superscript-face,font-latex-subscript-face): Let scripts be a bit
+	larger (:height 0.85 instead of 0.8).
+	(font-latex--get-script-props): New function for incrementing/decrementing
+	raise display property values.
+	(font-latex-script): Use it.
+
+2017-01-03  Tassilo Horn  <tsdh@gnu.org>
+
+	Revert "Remove multi-level/invisible feature of font-latex-fontify-script"
+
+	This reverts commit ccec8501960a448dd8faccaae54dfd9839a37c30.
+
+2017-01-02  Tassilo Horn  <tsdh@gnu.org>
+
+	Remove multi-level/invisible feature of font-latex-fontify-script
+
+	* font-latex.el (font-latex-make-user-keywords,font-latex-script-display)
+	(font-latex-script): Remove multi-level/invisible feature of
+	font-latex-fontify-script.
+	(font-latex-doctex-preprocessor-face): Remove function.
+	* doc/auctex.texi (Fontification of math): Remove documentation for
+	font-latex-fontify-script's multi-level and invisible values.
+
+2016-12-31  Arash Esbati  <arash.esbati@gmail.com>
+
+	Set `reftex-set-cite-format' to biblatex or natbib
+
+	* style/biblatex.el ("biblatex"): Set `reftex-set-cite-format' to
+	biblatex or natbib depending on package option.
+
+2016-12-30  Uwe Brauer  <oub@mat.ucm.es>
+
+	Add new style/exam.sty
+
+	* Makefile.in (STYLESRC): add exam.el
+	* style/exam.el: Add style file
+	* tex-style.el: Move defcustom from exam.el to tex-style.el
+
+2016-12-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix the names also in expert macros
+
+	* style/cleveref.el ("cleveref"): Fix the names also in expert macros.
+
+2016-12-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix name of macros \lcnamecref and \lcnamecrefs
+
+	* style/cleveref.el ("cleveref"): Fix name of macros \lcnamecref
+	and \lcnamecrefs.
+
+2016-12-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add fontification for varioref's referencing macros
+
+	* font-latex.el (font-latex-built-in-keyword-classes): Add starred
+	version to \vref macro.
+
+	* style/varioref.el ("varioref"): Add fontification support for
+	referencing macros.
+
+2016-12-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add starred version of \citeauthor and \Citeauthor
+
+	* font-latex.el (font-latex-built-in-keyword-classes):
+	* style/biblatex.el ("biblatex"): Add starred version of
+	\citeauthor and \Citeauthor macros.
+
+2016-12-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix fontification for natbib compat macros
+
+	* style/biblatex.el ("biblatex"): Fix fontification for natbib
+	compat macros which take 2 optional arguments.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add \switchcolumn to paragraph commands
+
+	* style/paracol.el ("paracol"): Add \switchcolumn to paragraph
+	commands.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/titletoc.el
+
+	* style/titletoc.el: New file.
+
+	* Makefile.in (STYLESRC): Add new style.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/titlesec.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/titlesec.el: New file.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/titleps.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/titleps.el: New file.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/mdframed.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/mdframed.el: New file.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new tcolorbox library style/tcolorboxlib-raster.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/tcolorboxlib-raster.el: New file.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Update style/tcolorbox.el to package v3.96
+
+	* style/tcolorbox.el: Update style to package v3.96.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Query for optional float position
+
+	* style/newfloat.el (LaTeX-newfloat-auto-cleanup): Query for
+	optional float position.
+
+2016-12-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Improve inserting arguments of \captionof macro
+
+	* style/caption.el (LaTeX-arg-caption-captionof): New function
+	improving query and insert of caption and label acc. to float
+	type.
+	("caption"): Use it.
+
+2016-12-29  Mos√® Giordano  <mose@gnu.org>
+
+	Fix documentation of TeX-arg-file
+
+	* doc/auctex.texi (Adding Macros): `TeX-arg-file' does not strip
+	  extension.  Reported by Tyler Smith.  Fixes bug#24444.
+
+2016-12-26  Uwe Brauer  <oub@mat.ucm.es>
+
+	Make AUCTeX and RefTeX aware of file loading macro \subfile
+
+	* style/subfiles.el ("subfiles"): Make subfile macro be recognized
+	as a paragraph command.  For AUCTeX, add argument of subfile to
+	`TeX-auto-file'.  For RefTeX, append subfile to
+	`reftex-include-file-commands' and run `reftex-compile-variables'
+	only once.  Code rearrangement.
+
+2016-12-24  Mos√® Giordano  <mose@gnu.org>
+
+	Print only first line of the message in error overview
+
+	* tex-buf.el (TeX-error-overview-make-entries): Use `push' in place of
+	  `add-to-list'.  Print only the first line of the message.
+
+2016-12-23  Arash Esbati  <arash.esbati@gmail.com>
+
+	Mention improvements to `LaTeX-array-count-columns' in news
+
+	* doc/changes.texi: Mention improvements to
+	`LaTeX-array-count-columns' in news since 11.89.
+
+2016-12-23  Arash Esbati  <arash.esbati@gmail.com>
+
+	Extend test for new column counting code with style files loaded
+
+	* tests/latex/tabular-count-ampersands-out.tex:
+	* tests/latex/tabular-count-ampersands-in.tex: Add tests for
+	tabularx, tabulary, longtable, dcolumn, siunitx constructs.
+
+	* tests/latex/latex-test.el
+	(LaTeX-count-ampersands-inserted-in-tabular): Set `TeX-parse-self'
+	to t in order to load style files in the test.  Thanks to Mos√®
+	Giordano for enabling this feature.
+
+2016-12-22  Arash Esbati  <arash.esbati@gmail.com>
+
+	Update style/minted.el to package version 2.4.1.
+
+	* style/minted.el (LaTeX-minted-key-val-options): Add new key=vals
+	from package version 2.4.1.
+	(LaTeX-minted-key-val-options-local): New variable.
+	(LaTeX-minted-language-list): Set the variable
+	`LaTeX-minted-language-list' after the first call of function.
+	(LaTeX-minted-style-list): New variable.
+	(LaTeX-minted-style-list): New function analogous to
+	`LaTeX-minted-language-list' returning styles provided by
+	pymentize program.
+	(LaTeX-arg-minted-style): New function to insert styles provided
+	by pymentize program into buffer.
+	(LaTeX-minted-update-key-vals): New function to update key=vals in
+	`LaTeX-minted-key-val-options-local'.
+	(LaTeX-minted-auto-cleanup): Call `LaTeX-minted-update-key-vals'.
+	("minted"): Use `LaTeX-minted-key-val-options-local' for all
+	key=val queries.  Update macros incl. fontification.  Run style
+	hook for `newfloat' when package option is given.
+
+2016-12-22  Tassilo Horn  <tsdh@gnu.org>
+
+	Uniform font-lock updates/don't break prettify (bug#25245)
+
+	* font-latex.el (font-latex-update-font-lock): New function.
+	(font-latex-add-keywords): Use it.
+	(font-latex-after-hacking-local-variables): Use it.
+	* style/alltt.el: Use font-latex-update-font-lock.
+	* style/beamer.el: Ditto.
+	* style/comment.el: Ditto.
+	* style/expl3.el: Ditto.
+	* style/fancyhdr.el: Ditto.
+	* style/fancyvrb.el: Ditto.
+	* style/listings.el: Ditto.
+	* style/minted.el: Ditto.
+	* style/url.el: Ditto.
+
+2016-12-22  Mos√® Giordano  <mose@gnu.org>
+
+	Fix to TeX-add-local-master
+
+	* tex.el (TeX-add-local-master): Parse local variables again after
+	  calling the mode function, which killed local variables.
+
+2016-12-21  Mos√® Giordano  <mose@gnu.org>
+
+	Add style/ directory to TeX-style-path for tests
+
+	* tests/latex/latex-test.el: Add our "style/" directory `TeX-style-path'
+	  to make it possible to load style files inside tests.
+
+2016-12-20  Mos√® Giordano  <mose@gnu.org>
+
+	* tex.el (TeX-add-local-master): Inherit major mode from master file.
+
+2016-12-19  Arash Esbati  <arash.esbati@gmail.com>
+
+	Mention that arguments to *-operator must be in braces
+
+	* doc/auctex.texi (Tabular-like): Mention that the new code for
+	counting columns in *{num}{cols} expects num and cols to be
+	enclosed in braces.
+
+2016-12-19  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add test for new column counting code
+
+	* tests/latex/tabular-count-ampersands-out.tex:
+	* tests/latex/tabular-count-ampersands-in.tex: New files.
+
+	* tests/latex/latex-test.el
+	(LaTeX-count-ampersands-inserted-in-tabular): Test new column
+	counting code in `LaTeX-array-count-columns'.
+
+2016-12-19  Arash Esbati  <arash.esbati@gmail.com>
+
+	Count *-operator in column specification
+
+	* latex.el (LaTeX-array-count-columns): Detect *-operator in
+	column specification and count the arguments for final calculation
+	of columns.  Thanks to Ikumi Keita for pointing out this
+	deficiency and code to fix it.
+
+2016-12-19  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/dcolumn.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/dcolumn.el: New file.
+
+2016-12-19  Arash Esbati  <arash.esbati@gmail.com>
+
+	Accept non-letter characters as column specifier
+
+	* style/array.el (LaTeX-array-newcolumntype-regexp): Accept
+	non-letter characters as column specifier.
+
+2016-12-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Use `LaTeX-item-longtable' while inserting longtable's
+
+	* style/longtable.el (LaTeX-longtable-skipping-regexp): New variable.
+	(LaTeX-item-longtable): New function.  This function is a
+	variation of `LaTeX-item-array' which uses
+	`LaTeX-longtable-skipping-regexp' when inserting ampersands.
+	("longtable"): Append longtable to `LaTeX-item-list'.
+
+2016-12-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add "s" and "S" to `LaTeX-array-column-letters'
+
+	* style/siunitx.el ("siunitx"): Add column specification letters
+	"s" and "S" to `LaTeX-array-column-letters'.
+
+2016-12-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Append tabular[xy] to `LaTeX-item-list'
+
+	* style/tabulary.el ("tabulary"):
+	* style/tabularx.el ("tabularx"): Append tabularx and tabulary to
+	`LaTeX-item-list'.
+
+2016-12-06  Arash Esbati  <arash.esbati@gmail.com>
+
+	Support RefTeX with `reftex-add-index-macros' in style/splitidx.el
+
+	* style/splitidx.el ("splitidx"): Support RefTeX with
+	`reftex-add-index-macros' and not by appending macros to
+	`reftex-index-macros'.
+
+2016-12-06  Arash Esbati  <arash.esbati@gmail.com>
+
+	Support RefTeX with `reftex-add-label-environments' in style/mathtools.el
+
+	* style/mathtools.el (LaTeX-mathtools-auto-cleanup, "mathtools"):
+	Support RefTeX with `reftex-add-label-environments' and not by
+	appending environments to `reftex-label-alist'.
+	("mathtools"): Add fontification support for referencing macros.
+
+2016-12-06  Arash Esbati  <arash.esbati@gmail.com>
+
+	Support RefTeX with `reftex-add-label-environments' in style/empheq.el
+
+	* style/empheq.el ("empheq"): Support RefTeX with
+	`reftex-add-label-environments' and not by appending environments
+	to `reftex-label-alist'.
+
+2016-12-05  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix query for defined colors in style/textpos.el
+
+	* style/textpos.el ("textpos"): Use `cond' to check which color
+	defining package is loaded and use the respective function for
+	`completing-read'.
+
+2016-12-05  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix query for defined colors in style/ntheorem.el
+
+	* style/ntheorem.el ("ntheorem"): Use `cond' to check which color
+	defining package is loaded and use the respective function for
+	`completing-read'.
+
+2016-11-30  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add support for LaTeX core command \textsubscript
+
+	* font-latex.el (font-latex-built-in-keyword-classes):
+	* latex.el (LaTeX-common-initialization): Add entry for
+	"textsubscript" which is in LaTeX core since 2015/01/01.
+
+2016-11-28  Arash Esbati  <arash.esbati@gmail.com>
+
+	Do not spell-check arguments of \LTXtable
+
+	* tex-ispell.el (TeX-ispell-skip-cmds-list): Add entry for
+	\LTXtable.
+
+2016-11-28  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add \LTXtable to list of file-loading commands
+
+	* style/ltxtable.el (LaTeX-ltxtable-file-regexp): New variable.
+	("ltxtable"): Make AUCTeX and RefTeX aware of \LTXtable as file
+	loading command.
+	Add fontification support.
+
+2016-11-25  Arash Esbati  <arash.esbati@gmail.com>
+
+	Support new floats defined with newfloat package
+
+	* style/caption.el (LaTeX-caption-update-key-val-options): Append
+	new floating environments defined with "newfloat.sty" as values to
+	"type*?" keys in `LaTeX-caption-key-val-options-local'.
+
+2016-11-25  Arash Esbati  <arash.esbati@gmail.com>
+
+	Append entry to `LaTeX-label-alist' for new "verbatim" floats
+
+	* style/newfloat.el (LaTeX-newfloat-auto-cleanup): Append an entry
+	for parsed environments of "verbatim" type to `LaTeX-label-alist'.
+
+2016-11-24  Arash Esbati  <arash.esbati@gmail.com>
+
+	Insert \label inside the mandatory argument of \caption
+
+	* style/longtable.el ("longtable"): Append \label at the end of
+	caption text inside the mandatory argument.
+	(LaTeX-longtable-package-options): New variable to suppress the
+	query for package options.
+
+2016-11-24  Uwe Brauer  <oub@mat.ucm.es>
+
+	Add style file for subfiles package.
+
+	* Makefile.in (STYLESRC): add subfiles.el entry
+
+	* style/subfiles.el ("subfiles"): add new style.
+
+2016-11-23  Mos√® Giordano  <mose@gnu.org>
+
+	Min fix to kpfonts package
+
+	* style/kpfonts.el ("kpfonts"): Move setting of `TeX-font-list' inside
+	  the hook.
+
+2016-11-23  Mos√® Giordano  <mose@gnu.org>
+
+	Add style file for amsfonts package
+
+	* style/amsfonts.el: New file.
+	* Makefile.in (STYLESRC): Install it.
+	* style/amssymb.el ("amssymb"): Run `amsfonts' hook.
+
+2016-11-21  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/bicaption.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/bicaption.el: New file.
+
+2016-11-21  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add support for style/bicaption.el to style/caption.el
+
+	* style/caption.el (LaTeX-caption-supported-float-types): Add
+	supported caption types available with bicaption.el.
+	("caption"): Append key=vals from bicaption.el to
+	`LaTeX-caption-key-val-options-local'.
+	("caption"): Query for a second optional argument with
+	\captionsetup*? if bicaption.el is loaded.  Same for
+	fontification.
+
+2016-11-21  Arash Esbati  <arash.esbati@gmail.com>
+
+	Do not insert a new line if \label is omitted
+
+	* style/subcaption.el (LaTeX-arg-subcaption-subcaption): Insert a
+	new line only if \label is given.
+
+2016-11-18  Arash Esbati  <arash.esbati@gmail.com>
+
+	Improve caption and label insertion in style/caption.el
+
+	* style/caption.el (LaTeX-caption-key-val-options): Add key slc
+	which is an abbrev for singlelinecheck.
+	(LaTeX-arg-caption-captionbox): Delete unused prompt argument.
+	Ask for short caption acc. to the value of
+	`LaTeX-short-caption-prompt-length'.  Use `LaTeX-label' instead of
+	`TeX-insert-macro' to insert a label.  Use `TeX-argument-insert'
+	instead of conditional insert.
+	("caption"): Do not fontify the last argument of \captionbox.
+	Fontification happens within \begin...\end{tabular} or
+	\includegraphics.
+
+2016-11-18  Arash Esbati  <arash.esbati@gmail.com>
+
+	Improve caption and label insertion in style/subcaption.el
+
+	* style/subcaption.el (LaTeX-arg-subcaption-subcaption): Delete
+	unused prompt argument.  Ask for short caption acc. to the value
+	of `LaTeX-short-caption-prompt-length'.  Fill the inserted
+	sub-caption before using `LaTeX-label' to insert the label.
+	(LaTeX-arg-subcaption-subcaptionbox): Delete unused prompt
+	argument.  Ask for short caption acc. to the value of
+	`LaTeX-short-caption-prompt-length'.  Use `LaTeX-label' to insert
+	the label.  Use `TeX-argument-insert' instead of conditional
+	insert.
+	("subcaption"): Append package environments to `LaTeX-label-alist'.
+	("subcaption"): Do not fontify the last argument of
+	\subcaptionbox.  Fontification happens within
+	\begin...\end{tabular} or \includegraphics.
+
+2016-11-16  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/FiraSans.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/FiraSans.el: New file.
+
+2016-11-16  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/FiraMono.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/FiraMono.el: New file.
+
+2016-11-14  Mos√® Giordano  <mose@gnu.org>
+
+	Suggest to display warnings when there are no errors in error overview
+
+	* tex-buf.el (TeX-error-overview): When there are no errors, suggest to
+	  display warnings and bad boxes, if present.  Fixes bug #24877.
+
+2016-11-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Refresh font-latex fontification if vars are modified
+
+	Refresh font-latex fontification if variables such as
+	LaTeX-verbatim-*-local are set in a file-local variables block or as
+	directory-local variables (bug#24868).
+
+	* font-latex.el (font-latex-after-hacking-local-variables): New function.
+	(font-latex-setup): Add it do hack-local-variables-hook.
+	* tex.el (TeX--list-of-string-p): New function.
+	* latex.el (LaTeX-verbatim-environments-local):
+	(LaTeX-verbatim-macros-with-braces-local):
+	(LaTeX-verbatim-macros-with-delims-local): Use it for
+	safe-local-variable property.
+
+2016-11-02  Arash Esbati  <arash.esbati@gmail.com>
+
+	Update style/natbib.el to package version 8.31b
+
+	* style/natbib.el ("natbib"): Add missing macros to catch up with
+	package version 8.31b.  Rearrange code.
+	(LaTeX-arg-natbib-notes): Remove redundant check if
+	`TeX-arg-cite-note-p' is non-nil.
+
+2016-10-17  Tassilo Horn  <tsdh@gnu.org>
+
+	Make Copyright headers conforming to convention
+
+2016-10-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Do not insert unnecessary brackets for citation macros
+
+	* style/natbib.el (LaTeX-arg-natbib-notes): Rename function name
+	from `natbib-note-args'.
+	Improve the insertion of arguments in order not to have an empty
+	pair of brackets when both pre- and post-note are omitted.
+	("natbib"): Replace occurrence of `natbib-note-args' with
+	`LaTeX-arg-natbib-notes'.
+
+2016-10-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Use `TeX-argument-insert' instead of conditional `insert'
+
+	* style/biblatex.el (LaTeX-arg-biblatex-natbib-notes): Use
+	`TeX-argument-insert' instead of `insert' for arguments
+	insertion.
+
+2016-10-16  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add support for natbib macros to style/biblatex
+
+	* style/biblatex.el (LaTeX-arg-biblatex-natbib-notes): New
+	function.
+	("biblatex"): Add completion and fontification support for natbib
+	compatibility macros.
+
+2016-10-14  Tassilo Horn  <tsdh@gnu.org>
+
+	Manually merge changes that were only on the elpa branch
+
+2016-10-13  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix TeX--if-macro-fboundp edebug spec
+
+	* tex.el (TeX--if-macro-fboundp): Fix broken edebug spec.
+
+2016-09-27  Mos√® Giordano  <mose@gnu.org>
+
+	Fix to my previous commit
+
+	* tex-buf.el (TeX-BibTeX-sentinel): Fix misplaced `setq', it was inside
+	  the `cond' form while it should have been outside.
+
+2016-09-19  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve docs added/changed in last commit
+
+	* doc/auctex.texi (Display): Rewrite WYSIWYG paragraph and add
+	references.
+	(Fontification of math): Switch order in which multi-level and invisible
+	are introduced.  Fix misplaced @xref.
+
+2016-09-19  Uwe Brauer  <oub@mat.ucm.es>
+
+	Add information about prettify and semi WYSIWYG features.
+
+	* doc/auctex.texi (Display): Add a sentence about
+	prettify-symbols-unprettify-at-point.
+	(Fontification of math): add `invisible' to
+	`font-latex-fontify-script'.
+
+2016-09-18  Tassilo Horn  <tsdh@gnu.org>
+
+	Don't require \end{env} is on a separate line
+
+	* font-latex.el (font-latex-make-user-keywords):
+	(font-latex-set-syntactic-keywords): Don't require that \end{env} is on
+	a line of its own.  Also allow empty mandatory argument in verbatim
+	environments.
+
+2016-09-18  Mos√® Giordano  <mose@gnu.org>
+
+	Fix default command after running BibTeX with warnings
+
+	* tex-buf.el (TeX-BibTeX-sentinel): Always set `TeX-command-next' to
+	  `TeX-command-default'.  As it was before, if BibTeX issued
+	  warnings (or errors) the default next command would have been "View",
+	  which is in no case what the user would expect.  This is the same
+	  logic used in Biber sentinel (which has, in addition, a fatal error
+	  after which Biber is run again).
+
+2016-09-18  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve font-locking of verbatim environments
+
+	* font-latex.el (font-latex-set-syntactic-keywords): Handle case where
+	  verbatim content immediately follows \begin{verb-env}.
+
+2016-09-17  Uwe  <oub@mat.ucm.es>
+
+	Improve style/bidi and add make file entry.
+
+	* Makefile.in (STYLESRC): add bidi.el
+
+	* style/bidi.el ("bidi"): New file.
+
+2016-09-17  Arash Esbati  <arash.esbati@gmail.com>
+
+	Improve style/graphicx.el
+
+	* doc/changes.texi: Document the changes about graphicx.el.
+
+	* tex-style.el (LaTeX-includegraphics-options-alist): Remove the
+	now no-op variable.
+
+	* style/graphics.el ("graphics"): Set
+	`LaTeX-graphics-package-options' after running hooks for
+	graphicx.el.
+
+	* style/graphicx.el (LaTeX-graphicx-key-val-options)
+	(LaTeX-includegraphics-dvips-extensions)
+	(LaTeX-includegraphics-pdftex-extensions)
+	(LaTeX-includegraphics-xetex-extensions)
+	(LaTeX-graphicx-package-options): New variables.
+	(LaTeX-arg-graphicx-includegraphics-key-val): New function.
+	(LaTeX-includegraphics-extensions): Return extensions for input
+	files depending on the used engine.
+	(LaTeX-arg-includegraphics): Only query for the image file to
+	include.  The query for the optional key-val argument is now done
+	by `LaTeX-arg-graphicx-includegraphics-key-val'.
+	("graphicx"): Extend the query for commands \resizebox[*].
+	Commands shared with graphics.el are guarded respectively.
+	Add missing commands \graphicspath, \DeclareGraphicsExtensions and
+	\DeclareGraphicsRule.
+
+2016-09-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	Cherry-pick 9c24759a96f41e288841ec2e815d62d58dc01e7a from elpa branch
+
+	* tex-ispell.el (TeX-ispell-sort-skip-cmds-list): Drop symbol-value
+
+	* tex-site.el.in (TeX-modes): Use #'.
+
+2016-09-04  Mos√® Giordano  <mose@gnu.org>
+
+	Do not use a function from cl
+
+	* tex-buf.el (TeX-parse-TeX): Do not use the `signum' function, provided
+	  by `cl' library.
+
+2016-09-02  Mos√® Giordano  <mose@gnu.org>
+
+	Fix type of ConTeXt-Mark-version option
+
+	* context.el (ConTeXt-Mark-version): Fix the type, it was wrongly set
+	  with a string in place of a symbol.  Reported by Tobias Berndt.
+
+2016-09-01  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/menukeys.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/menukeys.el: New file.
+
+2016-09-01  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/paracol.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/paracol.el: New file.
+
+2016-09-01  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/framed.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/framed.el: New file.
+
+2016-08-31  Arash Esbati  <arash.esbati@gmail.com>
+
+	Use `TeX-ispell-skip-setcar' on user defined index macros
+
+	* style/splitidx.el (LaTeX-splitidx-newindex-regex): Replace wrong
+	`^}' with `^]'.
+	(LaTeX-splitidx-auto-cleanup, "splitidx"): Use
+	`TeX-ispell-skip-setcar' on user defined index macros.
+
+2016-08-31  Arash Esbati  <arash.esbati@gmail.com>
+
+	Use `TeX-ispell-skip-setcdr' on user defined listing environments
+
+	* style/listings.el (LaTeX-listings-auto-cleanup): Use
+	`TeX-ispell-skip-setcdr' on user defined lists.
+
+2016-08-31  Arash Esbati  <arash.esbati@gmail.com>
+
+	Use `TeX-ispell-skip-setcdr' on user defined list environments
+
+	* style/enumitem.el (LaTeX-enumitem-auto-cleanup): Use
+	`TeX-ispell-skip-setcdr' on user defined lists.
+	("enumitem"): Use `TeX-ispell-skip-setcdr' on user defined lists.
+	Use `TeX-argument-insert' instead of `insert'.
+
+2016-08-25  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Revise document for Japanese TeX
+
+	Revise document for Japanese TeX
+	* doc/auctex.texi (Language Support): Fix old statements.  Mention
+	about (semi-)obsolete variables japanese-(La)TeX-command-default,
+	japanese-TeX-command-list and recommend to use
+	japanese-TeX-engine-default instead.
+
+2016-08-25  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Add a Japanese error message translation
+
+	* tex-jp.el (TeX-error-description-list): Add a Japanese error
+	message translation.
+
+2016-08-25  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Set the right coding systems for Japanese TeX process
+
+	Set the right coding systems for Japanese TeX process
+
+	* tex-jp.el:
+	(LaTeX-command-style): Remove kanji option from uplatex and jlatex,
+	which was there by mistake.
+	(TeX-japanese-process-input-coding-system,
+	TeX-japanese-process-output-coding-system,
+	japanese-TeX-set-process-coding-system): The coding systems for
+	interacting with Japanese TeX vary with the OS and other
+	circumstances.  So choose the suitable coding system at run time
+	rather than using the fixed values.
+	(japanese-TeX-use-kanji-opt-flag): Declare before the first use.
+	In addition, change default value and tailor doc string as per the
+	above change.
+	(japanese-TeX-coding-ejsu): Add coding system compatible for emacs
+	21 and xemacs.
+
+2016-08-24  Mos√® Giordano  <mose@gnu.org>
+
+	Make TeX-previous-error go backward
+
+	* tex-buf.el (TeX-parse-TeX): Decrease `TeX-error-last-visited' when
+	  `arg' is negative.  This fixes the behavior of `TeX-previous-error'.
+
+2016-08-23  Arash Esbati  <arash.esbati@gmail.com>
+
+	Update style/mathtools.el to v1.18 of mathtools.sty
+
+	* style/mathtools.el (LaTeX-mathtools-package-options): Add
+	"nonrobust" option.
+	(LaTeX-mathtools-key-val-options): Add missing key=vals.  Insert a
+	period in doc string.
+	(LaTeX-mathtools-arg-mathstyle-completion)
+	(LaTeX-mathtools-arg-mathsize-completion)
+	(LaTeX-mathtools-arg-declarepaireddelimiter)
+	(LaTeX-mathtools-env-cases)
+	(LaTeX-mathtools-item-cases): New functions.
+	(LaTeX-mathtools-env-multlined): Add an empty pair of square
+	brackets if only the second optional argument is given.
+	("mathtools"): Update commands and environments in style hook.
+	(LaTeX-mathtools-env-matrix-starred)
+	(LaTeX-mathtools-env-spreadlines): Delete functions.  Use
+	["string"] when adding environments in `LaTeX-add-environments'.
+
+2016-08-21  Mos√® Giordano  <mose@gnu.org>
+
+	Fold environments with * in name
+
+	* tex-fold.el (TeX-fold-item): Add asterisk to the regexp matching LaTeX
+	  environment names.  Fixes bug#24263.
+
+2016-08-21  Mos√® Giordano  <mose@gnu.org>
+
+	Remove obsolete TeX-function-p function
+
+	* tex.el (TeX-function-p): Remove this function.  It was introduced here
+	  in AUCTeX in 1994, but is present in Emacs since 1997 as well, under
+	  the name `functionp'.  Fixes bug#24245.
+	* tex-buf.el (TeX-command-expand): Replace `TeX-function-p' with
+	  `functionp'.
+
+2016-08-14  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/empheq.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/empheq.el: New file.
+
+2016-08-10  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/commath.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/commath.el: New file.
+
+2016-08-02  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new style/pdflscape.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/pdflscape.el: New file.
+
+2016-07-22  Arash Esbati  <arash.esbati@gmail.com>
+
+	Document interaction with Ispell
+
+	* doc/auctex.texi (Selecting a Command): Document interaction with Ispell.
+
+2016-07-18  Arash Esbati  <arash.esbati@gmail.com>
+
+	Add new spell checking dictionary tex-ispell.el
+
+	* doc/todo.texi (Wishlist): Remove spell checking of macros from
+	wish list.
+
+	* doc/changes.texi: Mention new file tex-ispell.el in news since
+	11.89.
+	Fix typo.
+
+	* Makefile.in (AUCSRC): Add tex-ispell.el.
+
+	* latex.el (tex-ispell): Require tex-ispell.el.
+
+	* tex.el (TeX-ispell-extend-skip-list): New customizable variable.
+	(TeX-ispell-skip-setcar, TeX-ispell-skip-setcdr): New functions.
+	(TeX-ispell-tex-arg-end): New function.
+
+	* tex-ispell.el: Add new file.
+
+2016-07-08  Arash Esbati  <arash.esbati@gmail.com>
+
+	Reset `LaTeX-auto-xcolor-definecolorset' before parsing
+
+	* style/xcolor.el (LaTeX-xcolor-auto-prepare): Reset
+	`LaTeX-auto-xcolor-definecolorset' before parsing.
+	Improve comments.
+
+2016-07-08  Arash Esbati  <arash.esbati@gmail.com>
+
+	Fix doc string for curve quoting style in Emacs 25
+
+	* style/theorem.el (LaTeX-theorem-env-label):
+	* style/ntheorem.el (LaTeX-ntheorem-env-label):
+	* style/amsthm.el (LaTeX-amsthm-env-label): Fix doc string for new
+	text quoting style in Emacs 25.
+
+2016-06-29  Arash Esbati  <arash.esbati@gmail.com>
+
+	Catch up with deletion of \commondummies in texinfo.tex
+
+	* doc/macros.texi: Catch up with deletion of \commondummies in
+	texinfo.tex which is replaced with \definedummies.  Check which
+	command is defined and add AUCTeX definitions respectively.
+
+2016-06-28  Masayuki Ataka  <masayuki.ataka@gmail.com>  (tiny change)
+
+	Fix to doc/auctex.texi
+
+	* doc/auctex.texi (Prettifying): Insert missing '{}'.
+
+2016-06-27  Mos√® Giordano  <mose@gnu.org>
+
+	Change test for PDF Tools availability
+
+	* tex.el (TeX-pdf-tools-sync-view): Change test for PDF Tools
+	  availability, in order to make it possible to postpone loading of the
+	  package, for example when using "use-package".  Fixes bug#23803.
+
+2016-06-11  Tassilo Horn  <tsdh@gnu.org>
+
+	More about TeX-raise-frame-function
+
+	* doc/auctex.texi (I/O Correlation): Improve TeX-raise-frame-function
+	docs.
+	* doc/changes.texi: Mention TeX-raise-frame-function.
+	* tex.el (TeX-raise-frame-function): Use raise-frame as default value.
+
+2016-06-11  Tassilo Horn  <tsdh@gnu.org>
+
+	Document TeX-raise-frame-function
+
+	* doc/auctex.texi (I/O Correlation): Document TeX-raise-frame-function.
+
+2016-06-10  Tassilo Horn  <tsdh@gnu.org>
+
+	New defcustom TeX-raise-frame-function
+
+	* tex.el (TeX-raise-frame-function): New defcustom.
+	(TeX-source-correlate-sync-source): Use it.
+
+2016-06-04  Uwe Brauer  <oub@mat.ucm.es>
+
+	Document how to disable filling for specific environments
+
+	* latex.el (LaTeX-indent-environment-list): Mention in docstring that
+	environments listed here are not filled.
+	(LaTeX-fill-region-as-paragraph): Add information to the docstring
+	concerning excluding enviroments from that function by using
+	`LaTeX-indent-environment-list'.  Suggested by Uwe Brauer.
+
+2016-05-31  Mos√® Giordano  <mose@gnu.org>
+
+	Fix compatibility with GNU Emacs < 24
+
+	* tex.el (TeX-source-correlate-sync-source): Call `x-focus-frame' only
+	  when it is available.
+
+2016-05-29  Tassilo Horn  <tsdh@gnu.org>
+
+	Grab focus on Evince inverse search
+
+	* tex.el (TeX-source-correlate-sync-source): Call `x-focus-frame'.
+
+2016-05-29  Tassilo Horn  <tsdh@gnu.org>
+
+	Don't use non-existing custom-buffer-done-function
+
+	* tex-wizard.el (TeX-wizard): Use `kill-buffer-hook' and
+	`custom-buffer-done-kill' instead of `custom-buffer-done-function' which
+	has been removed from Emacs a long time ago.
+
+2016-05-27  Tassilo Horn  <tsdh@gnu.org>
+
+	Docs for prettification with Emacs 25+
+
+	* doc/auctex.texi (Prettifying): Document prettification.
+
+2016-05-27  Stefan Monnier  <monnier@IRO.UMontreal.CA>
+
+	Fix byte-compiler warnings.
+
+	* context.el: Fix some byte-compiler warnings.
+	* tex-buf.el: Ditto.
+	* tex-jp.el: Ditto.
+	* tex-mik.el: Ditto.
+	* toolbar-x.el: Ditto.
+
+2016-05-24  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix copyright header of tex-jp.el
+
+	* tex-jp.el: Fix Copyright and Author headers.
+
+2016-05-22  Tassilo Horn  <tsdh@gnu.org>
+
+	Convert ChangeLog.1 to UTF-8
+
+	* ChangeLog.1: Convert to UTF-8 and adjust encoding cookie.
+
+2016-05-22  Tassilo Horn  <tsdh@gnu.org>
+
+	Make ChangeLog UTF-8
+
+	* ChangeLog-preview.1: Convert to UTF-8.
+	* build-aux/gitlog-to-auctexlog: Remove iconv call for converting
+	  ChangeLog to ISO-8859-1.
+
+2016-05-21  Mos√® Giordano  <mose@gnu.org>
+
+	Append environment indentation rules to LaTeX-indent-environment-list
+
+	* style/alltt.el ("alltt"): Append indentation rule to
+	  `LaTeX-indent-environment-list' in order not to override custom
+	  settings.  Reported by Fran√ßois Patte.
+	* style/beamer.el ("beamer"): Ditto.
+	* style/doc.el ("doc"): Ditto.
+	* style/fancyvrb.el ("fancyvrb"): Ditto.
+	* style/filecontents.el ("filecontents"): Ditto.
+	* style/hyperref.el ("hyperref"): Ditto.
+	* style/listings.el (LaTeX-listings-auto-cleanup, "listings"): Ditto.
+	* style/longtable.el ("longtable"): Ditto.
+	* style/minted.el (LaTeX-minted-auto-cleanup, "minted"): Ditto.
+	* style/tabularx.el ("tabularx"): Ditto.
+	* style/tabulary.el ("tabulary"): Ditto.
+
+2016-05-18  Arash Esbati  <esbati@gmx.de>
+
+	Respect both "xcolor" and "color" for command queries
+
+	* style/textpos.el ("textpos"): Remove "color" from
+	`TeX-run-style-hooks'.
+	("textpos"): Respect both "xcolor" and "color" for query to
+	"textblockcolour" and "textblockrulecolour" commands.
+
+2016-05-18  Arash Esbati  <esbati@gmx.de>
+
+	Respect both "xcolor" and "color" for query to "shadecolor"
+
+	* style/ntheorem.el ("ntheorem"): Respect both "xcolor" and
+	"color" for query to "shadecolor" command.
+
+2016-05-18  Arash Esbati  <esbati@gmx.de>
+
+	Adjust query commands for loading by xcolor.el
+
+	* style/colortbl.el ("colortbl"): Run style hook for "color" only
+	if "xcolor" is not an active style.
+	("colortbl"): Check if "xcolor" is an active style and run
+	(TeX-arg-xcolor) or (TeX-arg-color) respectively to query for the
+	arguments.
+
+2016-05-18  Arash Esbati  <esbati@gmx.de>
+
+	Run `TeX-add-symbols' if "xcolor" is not an active style
+
+	* style/color.el ("color"): Check if "xcolor" is an active style
+	and then run `TeX-add-symbols' on commands defined by "color.sty"
+	and add fontification support.
+
+2016-05-18  Arash Esbati  <esbati@gmx.de>
+
+	Add new style/xcolor.el
+
+	* Makefile.in (STYLESRC): Add new style xcolor.el.
+
+	* style/xcolor.el: Add new file.
+
+2016-05-15  Tassilo Horn  <tsdh@gnu.org>
+
+	Make TeX-view work better with regions
+
+	* tex-buf.el (TeX-region-update-point): New function which sets point in
+	the region buffer so that it matches the location of point in the
+	current buffer.
+	(TeX-view): Use it.
+
+2016-05-14  Arash Esbati  <esbati@gmx.de>
+
+	Improve the insertation of "macro" environment
+
+	* style/doc.el (LaTeX-env-no-comment): Check if argument
+	`environment' is "macro" and query/insert a name prefixed with
+	`TeX-esc'.
+	(LaTeX-doc-after-insert-macrocode): Add "macro" environment.
+	("doc"): Run `LaTeX-env-no-comment' when "macro" environment is
+	inserted.
+
+2016-05-14  Mos√® Giordano  <mose@gnu.org>
+
+	Use commit date for package date also in configure
+
+	* aclocal.m4 (AC_DATE_VERSION_FROM_CHANGELOG): Use commit date rather
+	  than author date.
+
+2016-05-14  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Tweak mode name only when file local variable is enabled.
+
+	* tex-jp.el (japanese-plain-tex-mode-initialization)
+	  (japanese-latex-mode-initialization): Tweak mode name only
+	  when `enable-local-variables' is non-nil.
+
+2016-05-12  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Adapt for upLaTeX
+
+	* tex-buf.el (TeX-LaTeX-sentinel): Accept banner line of upLaTeX.
+	* tex-jp.el (japanese-LaTeX-style-list): Add class file for upLaTeX.
+	* tex.el (TeX-format-list): Make upLaTeX class file names lead to
+	  `japanese-latex-mode'.
+
+2016-05-09  Mos√® Giordano  <mose@gnu.org>
+
+	Do not check TeX engine with ifluatex package
+
+	* style/ifluatex.el ("ifluatex"): Set `TeX-check-engine-list' to nil so
+	  that the engine is not checked when this package is loaded.
+
+2016-05-09  Mos√® Giordano  <mose@gnu.org>
+
+	Check TeX engine only once
+
+	* tex-buf.el (TeX-check-engine): If user does not want to change engine,
+	  do not ask again.  Suggested by Joost Kremers.
+
+2016-05-09  Mos√® Giordano  <mose@gnu.org>
+
+	Use commit date to determine package date
+
+	* autogen.sh (AUCTEXDATE): Use commit date, rather than author date, to
+	  determine package date.
+
+2016-05-09  Arash Esbati  <esbati@gmx.de>
+
+	Insert braces after some macros and \relax after \ProcessOptions
+
+	* style/ltx-base.el ("ltx-base"): Insert a pair of braces after
+	"DeclareOption*", "AtEndOfPackage", "AtEndOfClass",
+	"AtBeginDocument" and "AtEndDocument".
+	Insert a "\relax" after "ProcessOptions".
+
+2016-05-09  Arash Esbati  <esbati@gmx.de>
+
+	Improve style/doc.el
+
+	* style/doc.el ("doc"): Do not indent the content inside the "macro"
+	environment.
+	Insert a pair of braces after "DoNotIndex", "StopEventually",
+	"MacroFont", "AltMacroFont".
+	Prefix the string read with TeX-esc when inserting
+	"DescribeMacro", "cmd".
+	Ask for an argument ("parg", "oarg", "marg", "meta").
+	Add missing macro "cs".
+	Delete dups ("MacroFont", "AltMacroFont", "theCodelineNo").
+	Ask for .fdd and .dtx files to input or include ("DocInput",
+	"DocInclude").
+	Add lengths "MacrocodeTopsep", "MacroTopsep", "MacroIndent".
+
+2016-05-06  Mos√® Giordano  <mose@gnu.org>
+
+	Allow for negative offsets in region backward search
+
+	* tex.el (TeX-source-correlate-handle-TeX-region): Use the same regexp
+	  used in `preview-parse-messages', that is also XEmacs compatible and
+	  allows for negative offsets.  This makes backward search work also
+	  when using `TeX-command-buffer' and `LaTeX-command-section'.  Reported
+	  by Qiang Yin.
+
+2016-04-28  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Enable directory local variables in japanese-{latex, plain-tex}-mode
+
+		* tex-jp.el (japanese-latex-mode-initialization): Set
+		`major-mode' to `japanese-latex-mode' and reset it to
+		`latex-mode' after `hack-local-variables' is done.
+		(japanese-plain-tex-mode-initialization): Similar changes
+		for `japanese-plain-tex-mode'.
+		(japanese-TeX-reset-mode-name): New function.
+		(top-level) Make `latex-mode' is regarded as parent of
+		`japanese-latex-mode' in directory local variables.  Similar
+		addition for `japanese-plain-tex-mode', too.
+
+2016-04-23  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Make unloading of tex-site work on Emacs 24
+
+	* tex-site.el.in (tex-site-unload-hook): Run `TeX-modes-set' when
+	  `advice-add' is defined.
+
+2016-04-20  Mos√® Giordano  <mose@gnu.org>
+
+	Fix TeX-error-overview-make-entries
+
+	* tex-buf.el (TeX-error-overview-make-entries): Add `active-buffer'
+	  optional argument.  If `TeX-error-overview-open-after-TeX-run' is
+	  non-nil and there is an error, TeX sentinels run this function but
+	  `TeX-error-overview-active-buffer' hadn‚Äôt been initialized yet.  Fixes
+	  bug#23318.
+
+2016-04-19  Mos√® Giordano  <mose@gnu.org>
+
+	Call TeX-newline-function interactively
+
+	* tex.el (TeX-newline): Replace `funcall' with `call-interactively'.
+	  This makes `electric-indent-mode' work out-of-the-box.  Suggested by
+	  alex (http://comments.gmane.org/gmane.emacs.auctex.devel/4631).
+
+2016-04-19  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Temporarily bind `TeX-insert-macro-default-style' to 'show-optional-args'
+
+	* latex.el (LaTeX-item-argument): Temporarily bind
+	`TeX-insert-macro-default-style' to 'show-optional-args'.
+	This is necessary in description environment if the user customize the
+	option to `mandatory-args-only'.
+
+2016-04-17  Mos√® Giordano  <mose@gnu.org>
+
+	Reword documentation of TeX-PDF-from-DVI
+
+	* doc/auctex.texi (Processor Options): Make information about Japanese
+	  documents more accurate.  Suggested by Ikumi Keita.
+
+2016-04-16  Mos√® Giordano  <mose@gnu.org>
+
+	Replace TeX-PDF-via-dvips-ps2pdf with TeX-PDF-from-DVI
+
+	* tex.el (TeX-command-list): Add Dvipdfmx.
+	(TeX-expand-list-builtin): Use `TeX-PDF-from-DVI' in place of
+	`TeX-PDF-via-dvips-ps2pdf'.
+	(TeX-PDF-from-DVI): New safe buffer-local and customizable variable.
+	(TeX-PDF-via-dvips-ps2pdf): Mark as obsolete.
+	(TeX-toggle-PDF-via-dvips-ps2pdf): Remove function.
+	(TeX-PDF-from-DVI): New function.
+	(TeX-mode-specific-command-menu-entries): Update menu to convert DVI to
+	PDF.
+	* tex-buf.el (TeX-command-default, TeX-run-set-command,
+	TeX-TeX-sentinel, TeX-TeX-sentinel-check, TeX-LaTeX-sentinel,
+	TeX-dvips-sentinel, TeX-ps2pdf-sentinel): Use `TeX-PDF-from-DVI' in
+	place of `TeX-PDF-via-dvips-ps2pdf'.
+	(TeX-run-dvipdfmx, TeX-dvipdfmx-sentinel): New function.
+	():
+	* doc/auctex.texi (Processor Options): Document `TeX-PDF-from-DVI' and
+	  remove mentions to `TeX-PDF-via-dvips-ps2pdf'
+	* doc/changes.texi: Mention `TeX-PDF-from-DVI'.
+
+2016-04-16  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Use customize option `TeX-region' instead of "_region_"
+
+	* tex-buf.el (TeX-output-revert-buffer): Use customize option
+	`TeX-region' instead of string literal "_region_".
+
+2016-04-16  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Use `deactivate-input-method' if defined
+
+	* tex.el (TeX-math-input-method-off): Use `deactivate-input-method'
+	instead of obsolete function `inactivate-input-method' when possible.
+
+2016-04-16  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Use `match-string-no-properties'
+
+	* texmathp.el (texmathp, texmathp-match-environment): For better
+	consistency with other parts of the file, change `match-string' to
+	`no-properties' variant.
+
+2016-04-16  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Fix small errors in doc string and comment
+
+	* tex.el (TeX-auto-add-type): Change the word `function' to `macro'
+	and add an `s' to the verb `create'.
+
+	* tex-buf.el (TeX-run-format): Correct a typo `debuger' to `debugger'.
+
+2016-04-14  Mos√® Giordano  <mose@gnu.org>
+
+	Fix in TeX sentinels
+
+	* tex-buf.el (TeX-TeX-sentinel, TeX-LaTeX-sentinel): Use
+	  `TeX-error-overview-make-entries' to test presence of errors or
+	  warnings.  This is the same test carried in `TeX-master-directory' and
+	  prevents from getting an error when
+	  `TeX-error-overview-open-after-TeX-run' is non-nil but
+	  `TeX-debug-warnings' and/or `TeX-debug-bad-boxes' are nil.
+
+2016-04-13  Matthew Leach  <matthew@mattleach.net>
+
+	Auto save `TeX-command-extra-options'.
+
+	* tex.el (TeX-auto-store): Save the value of `TeX-command-extra-options'
+	  so it is set project-wide.
+
+2016-04-13  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Don't allow relative points with \coordinate.
+
+	* style/tikz.el (TeX-TikZ-point-function-map): Revert back to simple
+	  point alist.
+	  (TeX-TikZ-relative-point-function-map): New.
+	  (TeX-TikZ-draw-arg-function-map): Use
+	  `TeX-TikZ-relative-point-function-map'.
+
+2016-04-13  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add the grid command.
+
+	* style/tikz.el (TeX-TikZ-arg-grid): New.
+	  (TeX-TikZ-draw-arg-function-map): Map the 'Grid' command to
+	  `TeX-TikZ-arg-grid'.
+
+2016-04-13  Matthew Leach  <matthew@mattleach.net>
+
+	Fix a documentation type.
+
+	* doc/auctex.texi (Automatic Local): Fix a documentation typo.
+
+2016-04-13  Mos√® Giordano  <mose@gnu.org>
+
+	Prevent infinite loop in TeX-command-expand
+
+	* tex.el (TeX-view-command-raw): This function should always return a
+	  string.  Throw an error if fails to do so.  This prevents an infinite
+	  loop in `TeX-command-expand' in the case in which `command' is nil
+	  because of a malformed viewer specification.
+	* tests/tex/command-expansion.el (TeX-view-command-raw-errors): Add
+	  tests to trigger errors in `TeX-view-command-raw'.
+
+2016-04-10  Ikumi Keita  <ikumi@ikumi.que.jp>
+
+	Integrate viewer support between tex.el and tex-jp.el
+
+	* tex.el (TeX-view-program-list-builtin): Integrate viewer support
+	  between tex.el and tex-jp.el.
+	* tex-jp.el : Ditto.
+
+2016-04-09  Mos√® Giordano  <mose@gnu.org>
+
+	Do not use add-to-list for let-bound variable
+
+	* style/tikz.el (TeX-TikZ-find-named-points): Replace add-to-list with
+	  `push'.
+
+2016-04-09  Mos√® Giordano  <mose@gnu.org>
+
+	Compatibility for XEmacs
+
+	* style/tikz.el (TeX-TikZ-single-macro-arg): Pass `function-alist' to
+	  `TeX-TikZ-get-arg-type` because XEmacs requires an alist as argument
+	  to `completing-read'.
+
+2016-04-08  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Remove unneeded function.
+
+	* style/tikz.el (TeX-TikZ-arg-rect-point): Delete.
+
+2016-04-08  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add the 'sin' and 'cos' connectors.
+
+	* style/tikz.el (TeX-TikZ-path-connector-function-map): Add 'sin' and
+	  'cos' mapping to `identity'.
+
+2016-04-08  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Make '+' and '++' prefixes apply to TikZ points
+
+	* style/tikz.el (TeX-TikZ-get-prefix-string): New.
+	  (TeX-TikZ-arg-rect-point): Add optional argument `prefix'.
+	  (TeX-TikZ-arg-polar-point): Likewise.
+	  (TeX-TikZ-arg-named-point): Likewise.
+	  (TeX-TikZ-single-macro-arg): Allow a variable number of arguments to
+	  the argument name function map.
+	  (TeX-TikZ-point-function-map): Prefix all point types with '+' and
+	  '++'.
+	  (TeX-TikZ-path-connector-function-map): Remove the '+' and '++'
+	  suffixes.
+
+2016-04-04  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add parabola command.
+
+	* style/tikz.el (TeX-TikZ-arg-bend): New.
+	  (TeX-TikZ-arg-parabola): New.
+	  (TeX-TikZ-draw-arg-function-map): Add mapping from "Parabola" to
+	  `TeX-TikZ-arg-parabola'.
+
+2016-04-04  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add optional parameter to `TeX-TikZ-single-macro-arg'.
+
+	* style/tikz.el (TeX-TikZ-single-macro-arg): New argument OPTIONAL.
+	  (TeX-TikZ-macro-arg): Use OPTIONAL argument when calling
+	  `TeX-TikZ-single-macro-arg'.
+
+2016-04-04  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: make `TeX-TikZ-single-macro-arg' prompt required.
+
+	* style/tikz.el (TeX-TikZ-get-arg-type): Make prompt non-optional.
+	  (TeX-TikZ-single-macro-arg): Likewise.
+	  (TeX-TikZ-macro-arg): Make prompt explicit.
+
+2016-04-04  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add the arc command.
+
+	* style/tikz.el (TeX-TikZ-arg-arc): New.
+	  (TeX-TikZ-draw-arg-function-map): Map the 'Arc' command to
+	  `Tex-TikZ-arg-arc'.
+
+2016-04-04  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add circle command.
+
+	* style/tikz.el (TeX-TikZ-arg-circle): New.
+	  (TeX-TikZ-draw-arg-function-map): Add mapping from 'Circle' to
+	  `TeX-TikZ-arg-circle'.
+
+2016-04-04  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* tex-buf.el: Address some compiler warnings
+
+	Require `latex' since we refer to some of its variables.
+	Use #' to quote a function.  Use _ prefix for unused vars.
+	(TeX-current-process-region-p, TeX-save-query, TeX-parse-function)
+	(TeX-sentinel-function, TeX-sentinel-default-function)
+	(compilation-in-progress, TeX-current-page)
+	(TeX-error-overview-open-after-TeX-run, TeX-error-list)
+	(TeX-parse-all-errors, TeX-command-buffer, TeX-region): Declare before
+	the first use.
+	(TeX-command-text, TeX-command-pos): Declare as dyn-bound
+	(TeX-command-expand): Strength reduce `eval' to `symbol-name'.
+	(TeX-run-TeX): Use let*.
+	(TeX-sentinel-function, TeX-sentinel-default-function): Put something
+	in the function's body.
+	(TeX-TeX-sentinel-check): Check ConTeXt-Mark-version exists before
+	using it.  We could have (require 'context) instead.
+	(TeX-Biber-sentinel): Remove redundant `concat'.
+	(TeX-error-description-list): Move before first use.
+	(TeX-error-overview-mode-map): Remove unused var `menu-map'.
+	(TeX-output-revert-buffer): Remove unused var `command'.
+
+2016-04-02  Mos√® Giordano  <mose@gnu.org>
+
+	Fix compatibility with older Emacs versions
+
+	* tex.el: Dynamic determination of `delete-selection' behavior has been
+	  introduced in Emacs 24.3.  For previous versions leave
+	  `TeX-insert-dollar' without that property.
+
+2016-04-01  Mos√® Giordano  <mose@gnu.org>
+
+	Dinamically put delete-selection prop to TeX-insert-dollar
+
+	* tex.el (TeX-insert-dollar): Put `delete-selection' property only when
+	  `TeX-electric-math' is nil.  Suggested by Roger Lipsett.  Fixes
+	  bug#23177.
+
+2016-03-30  Mos√® Giordano  <mose@gnu.org>
+
+	Restore compatibility with XEmacs
+
+	* tex-buf.el (TeX-format-filter): Use `memq' in place of `memql'.  This
+	  one is not available in XEmacs.
+
+2016-03-29  Mos√® Giordano  <mose@gnu.org>
+
+	Fix previous commit
+
+2016-03-29  Mos√® Giordano  <mose@gnu.org>
+
+	New function TeX-error-report-has-errors-p
+
+	* tex-buf.el (TeX-error-report-has-errors-p): New function.
+	(TeX-error-report-switches): Update docstring.
+	(TeX-LaTeX-sentinel, TeX-command-sequence-sentinel): Use
+	`TeX-error-report-has-errors-p'.
+	* tex-bar.el (TeX-bar-TeX-button-alist, TeX-bar-LaTeX-button-alist):
+	  Ditto.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add more path connector types.
+
+	* style/tikz.el (TeX-TikZ-path-connector-function-map): New.
+	  (TeX-TikZ-draw-arg-function-map): Use
+	  `TeX-TikZ-path-connector-function-map'.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Rename 'text' to 'label' to be consistent with TikZ terminology.
+
+	* style/tikz.el (TeX-TikZ-arg-label): Rename from `TeX-TikZ-arg-text'
+	  and prompt for a 'Label' rather than 'Text'.
+	  (TeX-TikZ-arg-node): Use new function name.
+	  (TeX-TikZ-node-arg): Likewise.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Ignore case when prompting for argument types.
+
+	* style/tikz.el (TeX-TikZ-get-arg-type): Let-bind
+	  `completion-ignore-case' to t when prompting the user.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Apply suggestions from checkdoc.
+
+	* style/tikz.el (TeX-TikZ-point-function-map): Make documentation
+	  consistent with checkdoc.
+	  (TeX-TikZ-draw-arg-function-map): Likewise.
+	  (TeX-TikZ-draw-arg): Likewise and rename parameter to '_ignored'.
+	  (TeX-TikZ-coordinate-arg): Likewise.
+	  (TeX-TikZ-node-arg): Likewise.
+
+2016-03-29  Mos√® Giordano  <mose@gnu.org>
+
+	Fill environment content onley when auto-fill-mode is active
+
+	* latex.el (LaTeX-insert-environment): Fill only when
+	  `auto-fill-function' is non-nil, that means auto-fill-mode is active.
+	  Reported by Florian Lindner.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add 'Named Point' point type with completion.
+
+	* style/tikz.el (TeX-TikZ-point-name-regexp): New.
+	  (TeX-TikZ-find-named-points): New.
+	  (TeX-TikZ-arg-named-point): New.
+	  (TeX-TikZ-point-function-map): Add 'Named Point' element that maps to
+	  `TeX-TikZ-arg-named-point'.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add prompting for TikZ's \node macro.
+
+	* style/tikz.el (TeX-TikZ-node-arg): New.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Add prompting for \coordinate macro.
+
+	* style/tikz.el (TeX-TikZ-point-function-map): New.
+	  (TeX-TikZ-draw-arg-function-map): Use `TeX-TikZ-point-function-map'.
+	  (TeX-TikZ-coordinate-arg): New.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: Extract the prompting of the next arg from TeX-TikZ-macro-arg.
+
+	* style/tikz.el (TeX-TikZ-single-macro-arg): New.
+	  (TeX-TikZ-macro-arg): Use `TeX-TikZ-single-macro-arg' for prompting
+	  the user and calling the appropriate function.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: allow arg type prompt to be specified.
+
+	* style/tikz.el (TeX-TikZ-get-arg-type): Add a new optional argument,
+	  prompt, and show that to the user when non-nil, instead of the
+	  default.
+
+2016-03-29  Matthew Leach  <matthew@mattleach.net>
+
+	TikZ: split out the prompts to TeX-TikZ-arg-node & TeX-TikZ-macro-arg.
+
+	* style/tikz.el (TeX-TikZ-arg-options): New.
+	  (TeX-TikZ-arg-name): New.
+	  (TeX-TikZ-arg-text): New.
+	  (TeX-TikZ-arg-node): Use new TikZ arg functions for prompting the
+	  user.
+	  (TeX-TikZ-macro-arg): Use `TeX-TikZ-arg-options' when prompting for
+	  the options.
+
+2016-03-29  Arash Esbati  <esbati@gmx.de>
+
+	Add fontification support
+
+	* style/environ.el ("environ"): Add fontification support.
+
+2016-03-29  Arash Esbati  <esbati@gmx.de>
+
+	Fix a misplaced closing parenthesis
+
+	* style/splitidx.el (LaTeX-splitidx-auto-cleanup): Fix a misplaced
+	closing parenthesis.
+
+2016-03-29  Arash Esbati  <esbati@gmx.de>
+
+	Fix the name of argument in function body
+
+	* style/currvita.el (LaTeX-currvita-env-with-label): Fix the name
+	of argument in the body of function.
+
+2016-03-29  Arash Esbati  <esbati@gmx.de>
+
+	Delete redundant code
+
+	* style/enumitem.el (LaTeX-arg-SetLabelAlign)
+	(LaTeX-arg-SetEnumitemKey, LaTeX-arg-SetEnumitemValue): Delete
+	redundant code which is part of the function
+	`LaTeX-enumitem-update-key-val-options'.
+	(LaTeX-enumitem-env-with-opts): Fix the name of argument in the
+	body of function.
+
+2016-03-28  Mos√® Giordano  <mose@gnu.org>
+
+	Better control for presence of errors
+
+	* tex-buf.el (TeX-LaTeX-sentinel): Use `TeX-error-report-switches'
+	  instead of `TeX-error-list'.
+
+2016-03-27  Tassilo Horn  <tsdh@gnu.org>
+
+	Call TeX-after-compilation-finished-functions on warnings
+
+	* tex-buf.el (TeX-LaTeX-sentinel): Skip calling
+	TeX-after-compilation-finished-functions only if there are real errors.
+
+2016-03-27  Matthew Leach  <matthew@mattleach.net>
+
+	Add the beginnings of TikZ support.
+
+	* style/tikz.el: New
+	* doc/changes.texi: Document TikZ style.
+	* Makefile.in: Add TikZ style to the build.
+
+2016-03-26  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix forward sync bug with multi-file documents
+
+	* tex.el (TeX-pdf-tools-sync-view): Use the current file for the
+	sync-view call, not always the master file (bug#23083).
+
+2016-03-19  Mos√® Giordano  <mose@gnu.org>
+
+	Temporarily bind gc-cons-threshold in time-consuming task
+
+	* tex.el (TeX-search-files-by-type): Bind `gc-cons-threshold' to
+	  10000000 during the search, to reduce number of garbage collections
+	  during the task.
+
+2016-03-17  Matthew Leach  <matthew@mattleach.net>
+
+	Prompt for optional short caption parameter.
+
+	* latex.el (LaTeX-compose-caption-macro): New.
+	  (LaTeX-short-caption-prompt-length): New.
+	  (LaTeX-env-figure): Prompt for optional short caption parameter, when
+	  the caption length is >= `LaTeX-short-caption-prompt-length', and pass
+	  to `LaTeX-compose-caption-macro'.
+	* style/longtable.el ("longtable"): Likewise.
+	* style/psfig.el (LaTeX-env-psfigure): Likewise.
+	* doc/auctex.texi (Floats): Document short-caption prompting and
+	  `LaTeX-short-caption-prompt-length'.
+	* doc/changes.texi: Likewise.
+
+2016-03-16  Matthew Leach  <matthew@mattleach.net>
+
+	Improve prompts when defining LaTeX macros.
+
+	* latex.el (TeX-arg-default-argument-value): New.
+	  (TeX-arg-define-macro-arguments): New.
+	  (LaTeX-common-initialization): Use new LaTeX macro argument functions.
+
+2016-03-12  Matthew Leach  <matthew@mattleach.net>
+
+	Ensure LaTeX-indent-environment-list environments aren't filled
+
+	* tests/latex/latex-filling-in.tex: Add a tabular environment to ensure
+	  the body of the environment isn't filled as it is listed in
+	  LaTeX-indent-environment-list.
+	* tests/latex/latex-filling-out.tex: Likewise.
+
+2016-03-08  Matthew Leach  <matthew@mattleach.net>
+
+	Remove "table" and "table*" from LaTeX-indent-environment-list
+
+	* latex.el (LaTeX-indent-environment-list): Remove the "table" and
+	  "table*" elements.
+
+2016-03-04  Mos√® Giordano  <mose@gnu.org>
+
+	Use TeX-quote-after-quote in all language style files
+
+	* style/icelandic.el ("icelandic"):
+	* style/polish.el ("polish"):
+	* style/polski.el ("polski"): Use value of `TeX-quote-after-quote'
+	  instead of hard-coding t.
+
+2016-02-28  Mos√® Giordano  <mose@gnu.org>
+
+	Improve word-string regexp in TeX-warning
+
+	* tex-buf.el (TeX-warning): Match letters, numbers, colons, and hyphens,
+	  not just word constituents.  They may be preceeded by both grave
+	  accent and apostrophe, not only grave accent.
+	* tests/tex/compilation-log.txt: Add test case.
+	* tests/tex/error-parsing.el: Update result.
+
+2016-02-27  Mos√® Giordano  <mose@gnu.org>
+
+	Another fix for vertical bad box warnings
+
+	* tex-buf.el (TeX-parse-error): Use different regexps for horizontal and
+	  vertical bad boxes, they cannot be handled together.
+	(TeX-warning): Do not move point when a vertical bad box has been found.
+	* tests/tex/compilation-log.txt: Add a test where the parser used to
+	  fail to find the file for warnings after a vertical bad box warning.
+	* tests/tex/error-parsing.el: Update result accordingly.
+
+2016-02-26  Mos√® Giordano  <mose@gnu.org>
+
+	Fix parsing of vertical bad boxes context
+
+	* tex-buf.el (TeX-warning): Use as context for vertical bad boxes the
+	warning itself and don't move point.
+	* tests/tex/compilation-log.txt: Add a test for vertical bad boxes, and
+	horizontal bad boxes ending with "at line NN".  The two warnings are in
+	two consecutive lines, make sure the second one is correctly reported.
+	* tests/tex/error-parsing.el: Update result of the test accordingly.
+
+2016-02-26  Mos√® Giordano  <mose@gnu.org>
+
+	Catch more bad box warnings
+
+	* tex-buf.el (TeX-error-list): More information for some elements of the
+	list.
+	(TeX-parse-error): Change regexp to catch bad vertical boxes as well and
+	provide new argument to `TeX-warning'.
+	(TeX-warning): Require an additional mandatory argument, `bad-box'.
+	Improve regexp for detecting ending line of horizontal bad boxes in
+	order to cater for the case "...at line NN".
+	* tests/tex/error-parsing.el: Update result of the test.
+
+2016-02-23  Mos√® Giordano  <mose@gnu.org>
+
+	Avoid checking duplicate directories in TeX-check-files
+
+	* tex-buf.el (TeX-check-files): Delete duplicate directories in paths
+	  list before performing the check.
+
+2016-02-21  Mos√® Giordano  <mose@gnu.org>
+
+	Fix detection of line number in TeX-warning
+
+	* tex-buf.el (TeX-warning): Require as additional mandatory argument the
+	  position where the warning starts.  Use it to limit
+	  `re-search-backward' when looking for the line number.
+	(TeX-parse-error): Provide additional argument to `TeX-warning'.
+	* tests/tex/compilation-log.txt: Add another case where the line number
+	  of the warning was mistaken.
+	* tests/tex/error-parsing.el: Update expected result of the test
+	  accordingly.
+
+2016-02-21  Mos√® Giordano  <mose@gnu.org>
+
+	Improve LaTeX-warnings-regexp
+
+	* tex-buf.el (LaTeX-warnings-regexp): Catch also "LaTeX Font" warnings.
+
+2016-02-21  Mos√® Giordano  <mose@gnu.org>
+
+	Another fix for TeX-parse-errro
+
+	* tex-buf.el (TeX-parse-error): Improve regexp for polishing file name.
+	* tests/tex/compilation-log.txt: Add example to test file.
+	* tests/tex/error-parsing.el: Update the expected result of the test
+	  accordingly.
+
+2016-02-21  Mos√® Giordano  <mose@gnu.org>
+
+	Allow ignoring certain warnings
+
+	* tex.el (TeX-ignore-warnings, TeX-suppress-ignored-warnings): New
+	  customizable options.
+	(TeX-toggle-suppress-ignored-warnings): New function.
+	(TeX-mode-map): Add key-binding for `TeX-toggle-suppress-ignored-warnings'.
+	* tex-buf.el (TeX-error-list-skip-warning-p): Add new argument and use it.
+	(TeX-parse-TeX): Provide additional argument to
+	`TeX-error-list-skip-warning-p'.
+	(TeX-error-list): Document new information.
+	(TeX-find-display-help): Add new (ignored) argument.
+	(TeX-error): Add new element to `TeX-error-list' entry.
+	(TeX-warning): Set the "ignore" flag for `TeX-error-list'
+	(TeX-error-overview-make-entries): Provide additional argument to
+	`TeX-error-list-skip-warning-p'.
+	(TeX-error-overview-toggle-debug-bad-boxes):
+	(TeX-error-overview-toggle-debug-warnings): Determine
+	`TeX-master-directory' in `TeX-command-buffer'.
+	(TeX-error-overview-toggle-suppress-ignored-warnings): New function.
+	(TeX-error-overview-mode-map): Add key-binding for
+	`TeX-error-overview-toggle-suppress-ignored-warnings'.
+	(TeX-error-overview-menu): Add entry for
+	`TeX-error-overview-toggle-suppress-ignored-warnings'.
+
+2016-02-21  Mos√® Giordano  <mose@gnu.org>
+
+	Show and hide warnings and bad boxes in error overview
+
+	* tex-buf.el (TeX-error-list-skip-warning-p): New function.
+	(TeX-parse-TeX): Skip warnings or bad boxes if they are to be ignored.
+	(TeX-error-list): Describe information present in the list.
+	(TeX-parse-error): When storing warnings and bad boxes, add them to
+	`TeX-error-list' even if `TeX-debug-bad-boxes' and `TeX-debug-warnings'
+	are nil.
+	(TeX-error-overview-make-entries): Skip warnings or bad boxes if they
+	are to be ignored.
+	(TeX-error-overview-toggle-debug-bad-boxes):
+	(TeX-error-overview-toggle-debug-warnings): New functions.
+	(TeX-error-overview-mode-map, TeX-error-overview-menu): Add
+	`TeX-error-overview-toggle-debug-bad-boxes' and
+	`TeX-error-overview-toggle-debug-warnings'.
+	(TeX-error-overview): Make the list of entries for the overview before
+	creating the buffer and use this list to decide whether there is
+	something to show.
+
+2016-02-14  Mos√® Giordano  <mose@gnu.org>
+
+	Fix TeX-check-files
+
+	* tex-buf.el (TeX-check-files): Run the test in `TeX-master-directory'
+	  as well.
+
+2016-02-14  Arash Esbati  <esbati@gmx.de>
+
+	Add new style/splitidx.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* tex-style.el (LaTeX-splitidx-sindex-reftex-quick-id-key): Add
+	customizable variable.
+
+	* style/splitidx.el: New file.
+
+2016-02-14  Arash Esbati  <esbati@gmx.de>
+
+	Fix wrong usage of `TeX-auto-prepare-hook'
+
+	* style/theorem.el (TeX-auto-cleanup-hook):
+	* style/ntheorem.el (TeX-auto-cleanup-hook):
+	* style/newfloat.el (TeX-auto-cleanup-hook):
+	* style/amsthm.el (TeX-auto-cleanup-hook): Use
+	`TeX-auto-cleanup-hook' instead of mistakenly used
+	`TeX-auto-prepare-hook'.
+
+2016-02-14  Arash Esbati  <esbati@gmx.de>
+
+	Add support for missing macro \SetLabelAlign
+
+	* style/enumitem.el ("enumitem-SetLabelAlign"): Plug
+	\SetLabelAlign into AUCTeX parser.
+	(LaTeX-enumitem-SetLabelAlign-regexp): New variable.
+	(LaTeX-enumitem-auto-prepare): Reset
+	`LaTeX-auto-enumitem-SetLabelAlign'.
+	(LaTeX-arg-SetLabelAlign): New function to query the arguments of
+	\SetLabelAlign.
+	("enumitem"): Add \SetLabelAlign to style hook incl. fontification.
+	(LaTeX-arg-SetEnumitemValue): Use `completing-read' instead of
+	`TeX-read-key-val'.
+
+2016-02-13  Mos√® Giordano  <mose@gnu.org>
+
+	Add support for Atril viewer
+
+	Suggested by Antoine Levitt.
+
+	* tex.el (TeX-evince-dbus-p): Take new arguments to specify desktop
+	  environment and application names.
+	(TeX-evince-sync-view-1): Rename from `TeX-evince-sync-view'.  Take new
+	  arguments to specify desktop environment and application names.
+	(TeX-atril-sync-view, TeX-evince-sync-view):
+	(TeX-view-program-select-evince): New functions.
+	(TeX-view-program-list-builtin): Add Atril entry and use
+	`TeX-view-program-select-evince' for Atril and Evince.
+	(TeX-source-correlate-mode): Register for Atril DBUS signal.
+	* doc/changes.texi: Mention Atril support.
+
+2016-02-09  Arash Esbati  <esbati@gmx.de>
+
+	Add support for dviout viewer
+
+	* doc/changes.texi: Mention support for dviout on Windows.
+
+	* tex.el (TeX-view-program-list-builtin): Add support for dviout
+	on Windows.  This setup works for `TeX-source-correlate-method'
+	set to (dvi . source-specials).
+	Reorder " %o" in entry for SumatraPDF.
+
+2016-02-09  Arash Esbati  <esbati@gmx.de>
+
+	Add support for SumatraPDF viewer
+
+	* doc/changes.texi: Mention support for SumatraPDF on Windows.
+	Fix typos.
+
+	* tex.el (TeX-view-program-list-builtin): Add support for
+	SumatraPDF on Windows.
+
+2016-02-08  Mos√® Giordano  <mose@gnu.org>
+
+	Add support for Zathura viewer
+
+	* tex.el (TeX-view-program-list-builtin): Add Zathura.
+	* doc/changes.texi: Mention Zathura support and reworked error parsing.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Minor fix in TeX-documentation-texdoc
+
+	* tex.el (TeX-documentation-texdoc): Make it possible to run the
+	  function in read-only buffers.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Improve parsing of certain warnings
+
+	* tex-buf.el (TeX-warning): Get full context and line numbers for
+	  warnings matching `LaTeX-warnings-regexp'.
+	* tests/tex/compilation-log.txt: Add example warnings for this case.
+	* tests/tex/error-parsing.el: Update result of test accordingly.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Catch LaTeX class warnings
+
+	* tex-buf.el (LaTeX-warnings-regexp): New variable.  This is the same
+	  regexp used before by `TeX-LaTeX-sentinel-has-warnings' and
+	  `TeX-parse-error', but now catches class warnings as well.
+	(TeX-LaTeX-sentinel-has-warnings, TeX-parse-error): Use
+	`LaTeX-warnings-regexp'.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Fix TeX-parse-error
+
+	* tex-buf.el (TeX-parse-error): Remove from the file string pages of the
+	  output file.
+	* tests/tex/compilation-log.txt: Add a warning containing such faulty
+	  file name.
+	* tests/tex/error-parsing.el (TeX-error-parsing): Update result of the
+	  test accordingly.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Add ERT test for error parsing
+
+	* tests/tex/compilation-log.txt: Add minimal example of compilation log
+	  that failed to be parsed correctly with the old parsing function.
+	* tests/tex/error-parsing.el: New ERT test.
+
+2016-02-07  Mos√® Giordano  <mose@gnu.org>
+
+	Add script to update the ChangeLog
+
+	* ChangeLog.1: Add copyright notice and information about included
+	  commits.
+	* Makefile.in: Add ChangeLog-related variables and rules.
+	* build-aux/gitlog-to-auctexlog: New script, adapted from GNU Emacs.
+
+2016-02-03  Arash Esbati  <esbati@gmx.de>
+
+	Another fix for file name regexp in TeX-documentation-texdoc
+
+	* tex.el (TeX-documentation-texdoc): Add `space' and `()'
+	to file name regexp for Windows paths.
+
+2016-02-02  Arash Esbati  <esbati@gmx.de>
+
+	Fix file name regexp in TeX-documentation-texdoc
+
+	* tex.el (TeX-documentation-texdoc): Add backslash separator for Windows
+	  paths.
+
+2016-02-02  Mos√® Giordano  <mose@gnu.org>
+
+	Capture warnings from packages with hyphens in name
+
+	* tex-buf.el (TeX-LaTeX-sentinel-has-warnings): Add hyphen to regexps.
+	(TeX-parse-error): Ditto.
+
+2016-02-02  Mos√® Giordano  <mose@gnu.org>
+
+	New function for reading documentation with texdoc
+
+	* tex.el (TeX-documentation-texdoc): New function.
+	(TeX-common-menu-entries): Replace `TeX-doc' with
+	`TeX-documentation-texdoc'.
+	(TeX-mode-map): Ditto.
+	* doc/auctex.texi (Documentation): Document `TeX-documentation-texdoc'
+	in place of `TeX-doc'.
+	* doc/changes.texi: Mention `TeX-documentation-texdoc'.
+
+2016-01-31  Tassilo Horn  <tsdh@gnu.org>
+
+	Capture message of LaTeX warnings
+
+	* tex-buf.el (TeX-parse-error): Capture message of LaTeX warnings.
+
+2016-01-30  Mos√® Giordano  <mose@gnu.org>
+
+	Use default argument of completing-read in ConTeXt-environment
+
+	* context.el (ConTeXt-environment): Properly use default argument of
+	  `completing-read'.  Do not set `ConTeXt-default-environment' to
+	  `environment' if the latter is equal to the current default
+	  environment, like in `LaTeX-environment'.
+
+2016-01-30  Mos√® Giordano  <mose@gnu.org>
+
+	Add completion for environments in ConTeXt
+
+	* context.el (ConTeXt-language-variable-list): Document variable.  Add
+	  `ConTeXt-environment-list' so that now completion for environments
+	  names in `ConTeXt-environment' function works.  Suggested by Andrea De
+	  Michele.
+
+2016-01-27  Mos√® Giordano  <mose@gnu.org>
+
+	Change coding back to iso-8859-1, XEmacs doesn't support utf-8
+
+	* font-latex.el: Restore coding to iso-8859-1.
+	* style/alphanum.el: Ditto.
+	* style/dk-bib.el: Ditto.
+	* style/doc.el: Ditto.
+	* style/inputenc.el: Ditto.
+	* style/jura.el: Ditto.
+	* style/ltx-base.el: Ditto.
+	* style/ltxdoc.el: Ditto.
+	* tex-font.el: Ditto.
+	* tex.el: Ditto.
+
+2016-01-25  Mos√® Giordano  <mose@gnu.org>
+
+	Code cleaning
+
+	* latex.el (TeX-arg-document): Remove useless (mapcar 'identity ...).
+	Suggested by Marcin Borkowski.
+	* style/biblatex.el (LaTeX-biblatex-package-options): Ditto.
+
+2016-01-24  Arash Esbati  <esbati@gmx.de>
+
+	Improve style/enumitem
+
+	* style/enumitem.el (LaTeX-enumitem-newlist-list)
+	(LaTeX-enumitem-newlist-list-item-arg)
+	(LaTeX-auto-enumitem-newlist): Remove variables.
+	(LaTeX-enumitem-newlist-list-local): Fix docstring.
+	(LaTeX-enumitem-auto-cleanup): Plug \newlist into AUCTeX parser.
+	("enumitem"): Offer only enumerated environments as completion for
+	\restartlist.
+
+2016-01-24  Arash Esbati  <esbati@gmx.de>
+
+	Improve font related queries
+
+	* style/theorem.el (LaTeX-theorem-fontdecl): Do not prefix the
+	elements with `TeX-esc'.
+	(LaTeX-arg-theorem-fontdecl): New function.
+	("theorem"): Use `LaTeX-arg-theorem-fontdecl' for font related
+	queries.
+
+2016-01-24  Arash Esbati  <esbati@gmx.de>
+
+	Improve font related queries
+
+	* style/ntheorem.el (LaTeX-ntheorem-fontdecl): Do not prefix the
+	elements with `TeX-esc'.
+	(LaTeX-arg-ntheorem-fontdecl): New function.
+	("ntheorem"): Use `LaTeX-arg-ntheorem-fontdecl' for font related
+	queries.
+
+2016-01-24  Arash Esbati  <esbati@gmx.de>
+
+	Improve font related queries
+
+	* style/amsthm.el (LaTeX-amsthm-fontdecl): Do not prefix the
+	elements with `TeX-esc'.
+	(LaTeX-arg-amsthm-fontdecl): New function.
+	("amsthm"): Use `LaTeX-arg-amsthm-fontdecl' for font related
+	queries.
+
+2016-01-23  Mos√® Giordano  <mose@gnu.org>
+
+	Write TeX-style-hook-dialect to parsed file
+
+	* latex.el (BibTeX-auto-store): Run `TeX-bibtex-set-BibTeX-dialect'.
+	* tex.el (TeX-auto-store): Store `TeX-style-hook-dialect' from buffer
+	  and write it to parsed file when present.
+
+2016-01-23  Mos√® Giordano  <mose@gnu.org>
+
+	Add new dialects
+
+	* context.el: Update copyright years.
+	(ConTeXt-dialect): New constant.
+	(ConTeXt-mode-common-initialization): Set `TeX-style-hook-dialect' to
+	`ConTeXt-dialect'.
+	* plain-tex.el: Update copyright years.
+	(plain-TeX-dialect): New constant.
+	(plain-TeX-common-initialization): Set `TeX-style-hook-dialect' to
+	`plain-TeX-dialect'.
+	* tex.el (TeX-style-hook-dialect): Document new dialects.
+	(TeX-style-hook-dialect-weight-alist): Add plain-tex and context dialects.
+
+2016-01-23  Mos√® Giordano  <mose@gnu.org>
+
+	Convert tex-font.el to UTF-8 coding
+
+	* tex-font.el: set coding to utf-8.
+
+2016-01-23  Mos√® Giordano  <mose@gnu.org>
+
+	Move \iff macro to Arrows section of LaTeX-math-default
+
+	* latex.el (LaTeX-math-default): \iff symbol is defined in base LaTeX,
+	  move it to the "Arrows" section.
+
+2016-01-20  Mos√® Giordano  <mose@gnu.org>
+
+	Fix bug in subfigure style file
+
+	* style/subfigure.el ("subfigure"): Move `TeX-complete-list' inside
+	  append argument.  Fixes bug#22417.
+
+2016-01-17  Mos√® Giordano  <mose@gnu.org>
+
+	Add some AMS arrows to LaTeX-math-default
+
+	* latex.el (LaTeX-math-default): Add `impliedby', `implies', and `iff'
+	  arrows.  Suggested by Aiko Kyle.
+
+2016-01-10  Mos√® Giordano  <mose@gnu.org>
+
+	url macro accepts only braces in hyperref
+
+	* style/hyperref.el: Update copyright years.
+	("hyperref"): Remove "url" from
+	`LaTeX-verbatim-macros-with-delims-local', it was added by url.el, but
+	in hyperref "\url" has a different syntax.
+
+2015-12-18  Ivan Andrus  <darthandrus@gmail.com>
+
+	Fix bug in `preview-LaTeX-disable-pdfoutput'
+
+	* preview.el.in (preview-LaTeX-disable-pdfoutput): Allow one or more
+	spaces between command line arguments.
+
+2015-12-04  Tassilo Horn  <tsdh@gnu.org>
+
+	Delete .cvsignore
+
+	I'm pretty confident we won't switch back. ;-)
+
+2015-11-30  Arash Esbati  <esbati@gmx.de>
+
+	Fix query prompt
+
+	* style/ntheorem.el ("ntheorem"):
+	* style/theorem.el ("theorem"): Fix wrong query prompt.
+
+2015-11-30  Mos√® Giordano  <mose@gnu.org>
+
+	Fix regex in texmathp
+
+	* texmathp.el: Replace \t with \r.  Reported by Marcin Borkowski.
+
+2015-11-24  Tassilo Horn  <tsdh@gnu.org>
+
+	Rename TeX-after-compilation-finished-hook to -functions
+
+	* tex-buf.el (TeX-after-compilation-finished-functions): Rename from
+	-hook to -functions.
+	(TeX-LaTeX-sentinel): Adapt.
+	* context.el (TeX-ConTeXt-sentinel): Adapt.
+
+2015-11-23  Arash Esbati  <esbati@gmx.de>
+
+	Add new style/ntheorem.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/ntheorem.el: New file.
+
+2015-11-23  Arash Esbati  <esbati@gmx.de>
+
+	Add new style/theorem.el
+
+	* Makefile.in (STYLESRC): Add new style.
+
+	* style/theorem.el: New file.
+
+2015-11-23  Arash Esbati  <esbati@gmx.de>
+
+	Improve style/amsthm.el
+
+	* style/amsthm.el (LaTeX-amsthm-fontdecl): Cover all font changing
+	declarations.
+	("amsthm"): Overrule the defintion for \newtheorem in `latex.el'.
+	("amsthm"): Use `TeX-completing-read-multiple' for font related
+	queries.
+
+2015-11-23  Tassilo Horn  <tsdh@gnu.org>
+
+	Rename TeX-after-TeX-LaTeX-command-finished-hook
+
+	* tex-buf.el (TeX-after-compilation-finished-hook): Rename from
+	TeX-after-TeX-LaTeX-command-finished-hook.
+	* context.el (TeX-ConTeXt-sentinel): Run
+	TeX-after-compilation-finished-hook when the compilation was successful.
+	* doc/auctex.texi (Modes and Hooks): Adapt docs.
+
+2015-11-21  Mos√® Giordano  <mose@gnu.org>
+
+	Convert Elisp source files to UTF-8
+
+	* font-latex.el: Change coding to UTF-8
+	* style/alphanum.el: Ditto.
+	* style/dk-bib.el: Ditto.
+	* style/doc.el: Ditto.
+	* style/inputenc.el: Ditto.
+	* style/jura.el: Ditto.
+	* style/ltx-base.el: Ditto.
+	* style/ltxdoc.el: Ditto.
+	* tex.el: Ditto.
+
+2015-11-19  Mos√® Giordano  <mose@gnu.org>
+
+	Fix bug in TeX-command-sequence
+
+	* tex-buf.el (TeX-command-sequence): Ask for TeX-master if unknown,
+	otherwise running this function on a file without a known `TeX-master'
+	will result in `TeX-master' being automatically set to "<none>" at some
+	point.
+	(TeX-region-file): Add a third compatibility argument and update
+	docstring accordingly.
+
+2015-11-19  Mos√® Giordano  <mose@gnu.org>
+
+	Remove support to "Master:" line
+
+	* tex.el (TeX-convert-master): Remove now unused variable.
+	(TeX-master-file): Remove support to "Master:" line and update
+	documentation accordingly.
+
+2015-11-15  Mos√® Giordano  <mose@gnu.org>
+
+	Activate RefTeX reference styles
+
+	* tex-style.el (LaTeX-reftex-ref-style-auto-activate): New
+	  customizable variable.
+	* style/cleveref.el ("cleveref"): Activate RefTeX reference style.
+	* style/fancyref.el ("fancyref"): Ditto.
+	* style/varioref.el ("varioref"): Ditto.
+	* style/hyperref.el ("hyperref"): Use
+	  `LaTeX-reftex-ref-style-auto-activate'.
+
+2015-11-15  Mos√® Giordano  <mose@gnu.org>
+
+	Determine AUCTEXDATE and AUCTEXVERSION from git
+
+	* aclocal.m4 (AC_DATE_VERSION_FROM_CHANGELOG): if this is git
+	  repository, use it to determine the variables.
+	* autogen.sh: Ditto.
+
+2015-11-14  Mos√® Giordano  <mose@gnu.org>
+
+	Fix error in autogen.sh, configure, and Makefile
+
+	* Makefile.in (doc/Makefile): Replace ChangeLog with ChangeLog.1.
+	* autogen.sh: Ditto.
+	* configure.ac: Ditto.
+	* doc/Makefile.in (version.texi): Ditto.
+
+2015-11-13  Mos√® Giordano  <mose@gnu.org>
+
+	Drop ChangeLog
+
+	* .gitignore: Add ChangeLog and auto dirs in tests.
+	* ChangeLog.1: Rename from ChangeLog.
+	* Makefile.in (EXCLUDEDFILES): Exclude build-aux directory.
+	* build-aux/gitlog-to-changelog: Copy script from gnulib.
+
+2014-05-02  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve new-file regex.
+
+	* tex-buf.el (TeX-parse-error): Improve new-file regex.
+
+2014-04-29  Tassilo Horn  <tsdh@gnu.org>
+
+	Fix Wrong type argument: characterp, nil error.
+
+	* tex-buf.el (TeX-format-filter): Fix error caused by trying to
+	get char syntax from char after EOF.
+
+2014-04-27  Tassilo Horn  <tsdh@gnu.org>
+
+	Don't use TRIM arg of split-string.
+
+	* tex-buf.el (TeX-parse-error): Don't use TRIM arg of
+	`split-string' which is new in emacs 24.4.
+
+2014-04-25  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve line wrap removal heuristics.
+
+	* tex-buf.el (TeX-format-filter): Remove linebreaks at columns 79
+	and also column 80.  Also remove linebreaks preceded by a period
+	that are followed by a word character to remove linebreaks in file
+	names that are wrapped just after the period starting the file
+	name extension.
+
+2014-04-24  Tassilo Horn  <tsdh@gnu.org>
+
+	Improve TeX error parsing.
+
+	* tex-buf.el (TeX-error): Error if file containing the TeX error
+	doesn't exist instead of finding a new file.
+	(TeX-parse-error): Greatly simplify the new file and end of file
+	regexps.
+
+2015-11-13  Mos√® Giordano  <mose@gnu.org>
 
 	* Version 11.89 released.
 
-2015-11-12  MosË Giordano  <mose@gnu.org>
+2015-11-12  Mos√® Giordano  <mose@gnu.org>
 
 	* RELEASE: Update AUCTeX version, the new features section, and
 	the list of contributors.
@@ -27,7 +3734,7 @@
 	old Emacsen, otherwise employ `display-graphic-p'.  Suggested by
 	Santiago Saavedra.
 
-2015-11-11  MosË Giordano  <mose@gnu.org>
+2015-11-11  Mos√® Giordano  <mose@gnu.org>
 
 	* tests/latex/latex-test.el (LaTeX-math-indent)
 	(LaTeX-change-environment-with-esc): New tests.
@@ -36,7 +3743,7 @@
 
 	* tests/latex/math-indent-out.tex: Ditto.
 
-2015-11-10  MosË Giordano  <mose@gnu.org>
+2015-11-10  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-fill-break-at-separators): Change default value
 	to opening only inline and display math switches.
@@ -66,18 +3773,18 @@
 	strategy for selecting it or evince goes down to the frame
 	performing the View command.  Fixes bug#21873.
 
-2015-11-09  MosË Giordano  <mose@gnu.org>
+2015-11-09  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-info.el: Update copyright years.
 	(Texinfo-nodename-de-escape, Texinfo-nodename-escape): Use
 	`TeX-assoc-string' in place of `assoc-string'.
 
-2015-11-08  MosË Giordano  <mose@gnu.org>
+2015-11-08  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-info.el (TeX-texinfo-mode): Set `TeX-output-extension'.
 	Remove compatibility code with old Emacsen.
 
-2015-11-06  MosË Giordano  <mose@gnu.org>
+2015-11-06  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-check-TeX, TeX-check-TeX-command-not-found): New
 	customizable options.
@@ -93,7 +3800,7 @@
 
 	* doc/changes.texi: Mention `TeX-check-TeX'.
 
-2015-11-03  MosË Giordano  <mose@gnu.org>
+2015-11-03  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/auctex.texi (Processor Options): Document
 	`ConTeXt-Mark-version'.
@@ -101,7 +3808,7 @@
 
 	* doc/changes.texi: Mention `ConTeXt-Mark-version'.
 
-2015-11-02  MosË Giordano  <mose@gnu.org>
+2015-11-02  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (TeX-arg-document): When `TeX-arg-input-file-search' is
 	nil, use `LaTeX-style-list' to complete document classes.  Fixes
@@ -121,7 +3828,7 @@
 	* tex-info.el (Texinfo-make-node-list): Warn about duplicate
 	nodes.  Return nodes in order instead of reversed.
 
-2015-10-25  Vincent BelaÔche  <vincent.b.1@hotmail.fr>
+2015-10-25  Vincent Bela√Øche  <vincent.b.1@hotmail.fr>
 
 	* tex-info.el (Texinfo-nodename-de-escape): New defun.
 	(Texinfo-nodename-escape): New defun.
@@ -168,17 +3875,17 @@
 	doctring.
 	(LaTeX-arg-subcaption-subcaptionbox): ditto.
 
-2015-10-19  MosË Giordano  <mose@gnu.org>
+2015-10-19  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-command): Check that AUCTeX can find a working
 	TeX distribution before running some *TeX commands.
 
-2015-10-18  MosË Giordano  <mose@gnu.org>
+2015-10-18  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (fboundp): Define a `TeX-completing-read-multiple'
 	version for GNU Emacs >= 24.4.  Fixes bug#19504.
 
-2015-10-13  MosË Giordano  <mose@gnu.org>
+2015-10-13  Mos√® Giordano  <mose@gnu.org>
 
 	* style/pstricks.el ("pstricks"): Do not disable PDF mode if XeTeX
 	engine is used.  Suggested by Mandar Mitra.
@@ -188,7 +3895,7 @@
 	* latex.el (LaTeX-fill-move-to-break-point): Fill $...$ like
 	\(...\) (bug#21645)
 
-2015-10-08  MosË Giordano  <mose@gnu.org>
+2015-10-08  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-expand-list-builtin): New variable.
 	(TeX-expand-list): Move all entries to `TeX-expand-list-builtin'
@@ -226,7 +3933,7 @@
 	environments definded through "newfloat.el" and offer them as
 	completion to "wrapfloat" environment.
 
-2015-10-05  MosË Giordano  <mose@gnu.org>
+2015-10-05  Mos√® Giordano  <mose@gnu.org>
 
 	* context.el (TeX-ConTeXt-sentinel): Parse ConTeXt Mark IV output.
 
@@ -241,7 +3948,7 @@
 	("newfloat"): Use `LaTeX-newfloat-key-val-options-local' and
 	delete redundant code.
 
-2015-10-04  MosË Giordano  <mose@gnu.org>
+2015-10-04  Mos√® Giordano  <mose@gnu.org>
 
 	* context.el (ConTeXt-Mark-version): New customizable and
 	safe-local variable.
@@ -257,16 +3964,16 @@
 	* font-latex.el (font-latex-math-environments): Add math
 	environment.
 
-2015-10-04  MosË Giordano  <mose@gnu.org>
+2015-10-04  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-command-list): Add MkIV to `TeX-command-list'.
 
-2015-09-29  MosË Giordano  <mose@gnu.org>
+2015-09-29  Mos√® Giordano  <mose@gnu.org>
 
 	* style/newfloat.el (LaTeX-newfloat-auto-cleanup): Replace another
 	`pushnew' with `add-to-list', previously overlooked.
 
-2015-09-28  MosË Giordano  <mose@gnu.org>
+2015-09-28  Mos√® Giordano  <mose@gnu.org>
 
 	* style/newfloat.el: Do not require cl at loading time.
 	(LaTeX-newfloat-auto-cleanup): Append elements to
@@ -282,7 +3989,7 @@
 	* style/longtable.el ("longtable"): Make package lengths available
 	through `LaTeX-add-lengths' and not `TeX-add-symbol'.
 
-2015-09-26  MosË Giordano  <mose@gnu.org>
+2015-09-26  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-search-files-kpathsea): Remove duplicates
 	directories.
@@ -314,7 +4021,7 @@
 
 	* style/fontenc.el: Fix mail address in Maintainer-header.
 
-2015-09-25  MosË Giordano  <mose@gnu.org>
+2015-09-25  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-common-initialization): Remove "abstract"
 	environment, it is not defined in latex.ltx.
@@ -333,7 +4040,7 @@
 
 	* style/scrreprt.el ("scrreprt"): Ditto.
 
-2015-09-24  MosË Giordano  <mose@gnu.org>
+2015-09-24  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-doc): Use default argument of `completing-read'.
 
@@ -342,7 +4049,7 @@
 	* latex.el (LaTeX-find-matching-end): Find correct end when point
 	is already on the name in \end{name}.
 
-2015-09-20  MosË Giordano  <mose@gnu.org>
+2015-09-20  Mos√® Giordano  <mose@gnu.org>
 
 	* .gitignore: Do not ignore auto.el.
 
@@ -370,7 +4077,7 @@
 
 	* style/fontenc.el: New file.
 
-2015-09-10  MosË Giordano  <mose@gnu.org>
+2015-09-10  Mos√® Giordano  <mose@gnu.org>
 
 	* style/gloss-italian.el ("gloss-italian"): Fix "textitalian"
 	macro and "italian" environment arguments.
@@ -384,7 +4091,7 @@
 	("polyglossia"): Remove `LaTeX-polyglossia-load-languages' from
 	here.
 
-2015-09-09  MosË Giordano  <mose@gnu.org>
+2015-09-09  Mos√® Giordano  <mose@gnu.org>
 
 	* style/polyglossia.el: Remove
 	`LaTeX-polyglossia-italian-options-list', moved to
@@ -417,7 +4124,7 @@
 	* tex-buf.el (TeX-command-default): Fix bug where wrong command
 	was guessed for region files.
 
-2015-09-07  MosË Giordano  <mose@gnu.org>
+2015-09-07  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (LaTeX-idx-md5-alist, LaTeX-idx-changed-alist): New
 	variables.
@@ -445,7 +4152,7 @@
 	* font-latex.el (font-latex-unfontify-region): Also remove the
 	`invisible' text properties.
 
-2015-09-04  MosË Giordano  <mose@gnu.org>
+2015-09-04  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/auctex.texi (Starting a Command): Update references to
 	`TeX-command-run-all' and C-c C-a key binding.
@@ -510,7 +4217,7 @@
 	* tex.el (TeX--if-macro-fboundp): New portability macro.
 	(VirTeX-common-initialization): Use it.
 
-2015-08-31  MosË Giordano  <mose@gnu.org>
+2015-08-31  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-previous-error): Delete point in error message.
 	(TeX-command-default)
@@ -597,7 +4304,7 @@
 	* tex.el (VirTeX-common-initialization): Add support for
 	`prettify-symbols-mode'.
 
-2015-08-21  MosË Giordano  <mose@gnu.org>
+2015-08-21  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-check-engine): New customizable variable.
 	(TeX-check-engine-list): New variable.
@@ -613,7 +4320,7 @@
 
 	* doc/changes.texi: Mention `TeX-check-engine'.
 
-2015-08-20  MosË Giordano  <mose@gnu.org>
+2015-08-20  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-error-overview-jump-to-source)
 	(TeX-error-overview-goto-log): New functions.
@@ -627,7 +4334,7 @@
 	(Debugging): Add section for error overview.
 	(Error overview): Document new functions and keys.
 
-2015-08-19  MosË Giordano  <mose@gnu.org>
+2015-08-19  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-label): Mention in the docstring the returned
 	value.  Let-bind `TeX-read-label-prefix' and use `TeX-read-label'
@@ -703,14 +4410,14 @@
 	* style/array.el: Parse user-defined new column types and add them
 	to `LaTeX-array-column-letters'.
 
-2015-07-09  MosË Giordano  <mose@gnu.org>
+2015-07-09  Mos√® Giordano  <mose@gnu.org>
 
 	* latex/README: restore file deleted by mistake when preview/
 	directory has been moved to top level.
 
 	* Makefile.in: Use everywhere $(MAKE) in place of make.
 
-2015-06-21  MosË Giordano  <mose@gnu.org>
+2015-06-21  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-LaTeX-sentinel): Add support for hf-tikz
 	messages.
@@ -725,7 +4432,7 @@
 	*.pdf files.  File name should be relative to master file
 	directory.
 
-2015-06-13  MosË Giordano  <mose@gnu.org>
+2015-06-13  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-LaTeX-sentinel-has-warnings, TeX-parse-error):
 	Cater for packages with digits in their names (e.g., fixltx2e,
@@ -794,12 +4501,12 @@
 	character |.
 	(TeX-tree-expand): Fix docstring.
 
-2015-05-07  MosË Giordano  <mose@gnu.org>
+2015-05-07  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el: Update copyright years.
 	(TeX-view-program-list): Fix type.  (Bug#20513)
 
-2015-05-05  MosË Giordano  <mose@gnu.org>
+2015-05-05  Mos√® Giordano  <mose@gnu.org>
 
 	* style/italian.el: Evaluate `TeX-quote-after-quote'.
 
@@ -877,20 +4584,20 @@
 	rely on `TeX-arg-eval' anymore.
 	(LaTeX-arg-caption-DeclareCaption): Ditto.
 
-2015-04-02  MosË Giordano  <mose@gnu.org>
+2015-04-02  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/auctex.texi (Indenting): Document indentation of "\[...\]".
 
 	* doc/changes.texi: Mention it.
 
-2015-03-30  MosË Giordano  <mose@gnu.org>
+2015-03-30  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-begin-regexp): Add "\[".
 	(LaTeX-indent-calculate): Remove indentation of "\[...\]" from
 	here, it is automatically done in `LaTeX-indent-level-count' now
 	that `LaTeX-begin-regexp' has "\[".  (Bug#20227)
 
-2015-03-28  MosË Giordano  <mose@gnu.org>
+2015-03-28  Mos√® Giordano  <mose@gnu.org>
 
 	* style/acro.el:
 
@@ -931,7 +4638,7 @@
 	order.  With that, a local style can modify a private or a global
 	style, and a private style can modify a global one.
 
-2015-03-17  MosË Giordano  <mose@gnu.org>
+2015-03-17  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/wininstall.texi: Fix a broken link.
 
@@ -977,7 +4684,7 @@
 	hook.
 	(TeX-LaTeX-sentinel): Call it.
 
-2015-03-09  MosË Giordano  <mose@gnu.org>
+2015-03-09  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-find-display-help): Display the help also when
 	the file cannot be determined.
@@ -1013,7 +4720,7 @@
 
 	* Makefile.in (STYLESRC): Activate new bidibeamer style.
 
-2015-03-07  MosË Giordano  <mose@gnu.org>
+2015-03-07  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/install.texi: Mention uninstallation in menus.
 	(Build/install and uninstall): Add "Uninstallation" index entry.
@@ -1098,7 +4805,7 @@
 	(TeX-source-correlate-sync-source, TeX-PDF-mode): Adapt PDF Tools
 	forward/backward search to latest PDF Tools changes.
 
-2015-02-06  MosË Giordano  <mose@gnu.org>
+2015-02-06  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-source-correlate-handle-TeX-region): Replace
 	`file-name-base', introduced in GNU Emacs 24, with
@@ -1235,7 +4942,7 @@
 	* tex.el (TeX-evince-sync-view): Don't URL-encode commas in the
 	file name (bug#19398).
 
-2014-12-12  MosË Giordano  <mose@gnu.org>
+2014-12-12  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-environment-name-regexp): New function.
 	(LaTeX-modify-environment): Use it.
@@ -1247,7 +4954,7 @@
 	(LaTeX-find-matching-begin): Use `TeX-grop' instead of the
 	hard-coded "{".
 
-2014-12-09  MosË Giordano  <mose@gnu.org>
+2014-12-09  Mos√® Giordano  <mose@gnu.org>
 
 	* style/babel.el (LaTeX-babel-active-languages): Move `nreverse'
 	call inside `let'.
@@ -1342,7 +5049,7 @@
 	(bib-display-this-environment): Fix comment.
 	(bib-document-TeX-files): Don't doubly-declare the-file.
 
-2014-12-08  MosË Giordano  <mose@gnu.org>
+2014-12-08  Mos√® Giordano  <mose@gnu.org>
 
 	* style/mathtools.el ("mathtools"): Fix closing bracket
 	placement.  (Bug#19301)
@@ -1365,12 +5072,12 @@
 
 	* style/baskervaldx.el: New file.
 
-2014-12-04  MosË Giordano  <mose@gnu.org>
+2014-12-04  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-Omega-command): Add aleph and omega choices.
 	(LaTeX-Omega-command): Add lamed and lambda choices.  (Bug#19260)
 
-2014-12-03  MosË Giordano  <mose@gnu.org>
+2014-12-03  Mos√® Giordano  <mose@gnu.org>
 
 	* README.GIT: Describe branches of the repository.
 
@@ -1378,7 +5085,7 @@
 
 	* latex/Makefile.in (MKINSTALLDIRS): Fix MKINSTALLDIRS path.
 
-2014-11-29  MosË Giordano  <mose@gnu.org>
+2014-11-29  Mos√® Giordano  <mose@gnu.org>
 
 	* tests/latex/latex-test.el (latex): Require latex.el.
 	(LaTeX-indent-tabular-test/in): Expand file name in load
@@ -1395,7 +5102,7 @@
 
 	* tex.el (TeX-view-program-list-builtin): Fix up paren typo.
 
-2014-11-28  MosË Giordano  <mose@gnu.org>
+2014-11-28  Mos√® Giordano  <mose@gnu.org>
 
 	* tex.el (TeX-view-program-list-builtin): Add the new third
 	element to each item.
@@ -1418,7 +5125,7 @@
 
 	* style/acro.el (tex): Ditto.
 
-2014-11-27  MosË Giordano  <mose@gnu.org>
+2014-11-27  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-label-alist): Expand doc string.
 	(LaTeX-label): Make second argument optional to restore backward
@@ -1503,7 +5210,7 @@
 	* tex-buf.el (TeX-region-create): Position point in the same
 	line/col as in the original buffer to make forward search work.
 
-2014-11-20  MosË Giordano  <mose@gnu.org>
+2014-11-20  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-env-figure): Fix indentation when there is the
 	\centering macro and no caption is inserted.
@@ -1542,7 +5249,7 @@
 	file should have been edited (happens easily with source
 	correlation mode).
 
-2014-11-16  MosË Giordano  <mose@gnu.org>
+2014-11-16  Mos√® Giordano  <mose@gnu.org>
 
 	* Makefile.in (WEMACSDATAROOTDIR, WEMACSSITELISP): New variables.
 	(WPACKAGEFILES): Update accordingly.
@@ -1551,9 +5258,9 @@
 	otherwise it would be updated instead of recreated.
 	Mention that bash shell is required for windows-package and
 	release-upload recipes due to some bashisms in them.  Reported by
-	JosÈ Carlos Santos.
+	Jos√© Carlos Santos.
 
-2014-11-15  MosË Giordano  <mose@gnu.org>
+2014-11-15  Mos√® Giordano  <mose@gnu.org>
 
 	* Makefile.in (WEMACSPACKAGE, WEMACSEXTRACTDIR): New variables.
 	(windows-package): Adapt rule to new Emacs 24.4 package for
@@ -1765,14 +5472,14 @@
 
         * doc/changes.texi: Mention `TeX-file-line-error'.
 
-2014-10-31  MosË Giordano  <mose@gnu.org>
+2014-10-31  Mos√® Giordano  <mose@gnu.org>
 
 	* Makefile.in (CTANDIR): New variable.
 	(preview-ball): Create a top level directory "preview/" in the
 	preview tarball, as required by CTAN.  Save the tarball to
 	$(CTANDIR) instead of $(FTPDIR).
 
-2014-10-29  MosË Giordano  <mose@gnu.org>
+2014-10-29  Mos√® Giordano  <mose@gnu.org>
 
 	* Version 11.88 released.
 
@@ -1785,7 +5492,7 @@
 	LaTeX-indent-environment-list to generate tabular-end regex when
 	called.
 
-2014-10-29  MosË Giordano  <mose@gnu.org>
+2014-10-29  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-largest-level-set): Set `outline-heading-alist'
 	only if it is bound.
@@ -1804,7 +5511,7 @@
 	version from its ChangeLog.  Add preview/preview.el to output
 	files.
 
-2014-10-22  MosË Giordano  <mose@gnu.org>
+2014-10-22  Mos√® Giordano  <mose@gnu.org>
 
 	* RELEASE: Update AUCTeX version, the new features section, and
 	the list of contributors.
@@ -1866,7 +5573,7 @@
 	* latex.el (LaTeX-insert-environment): Pass correct \end buffer
 	position to hooks in LaTeX-after-insert-env-hooks.
 
-2014-09-13  Vincent BelaÔche  <vincent.b.1@hotmail.fr>
+2014-09-13  Vincent Bela√Øche  <vincent.b.1@hotmail.fr>
 
 	* latex.el (LaTeX-dialect): Correct doctstring for consistency
 	with definition of function TeX-add-style-hook.
@@ -1875,7 +5582,7 @@
 	'TeX-add-style-hook', so that 3rd argument is added. Modify @defun
 	of 'TeX-add-style-hook' also to document addition of 3rd argument.
 
-2014-09-11  Vincent BelaÔche  <vincent.b.1@hotmail.fr>
+2014-09-11  Vincent Bela√Øche  <vincent.b.1@hotmail.fr>
 
 	* doc/changes.texi: Add information about style hook labelling by dialect.
 
@@ -2177,7 +5884,7 @@
 	* bib-cite.el (eval-after-load "bibtex"): Add hook
 	TeX-bibtex-set-BibTeX-dialect to BibTex mode, this will set
 	'TeX-style-hook-dialect' to :bibtex for BibTeX files so that
-	MosË's problem should be solved.
+	Mos√®'s problem should be solved.
 
 	* latex.el (LaTeX-common-initialization): set
 	'TeX-style-hook-dialect' to :latex for LaTeX files, and those in
@@ -2219,7 +5926,7 @@
 	* tex-buf.el (TeX-command-expand): Fix possible endless loop in
 	file name expansion.
 
-2014-08-24  MosË Giordano  <mose@gnu.org>
+2014-08-24  Mos√® Giordano  <mose@gnu.org>
 
 	* tests/tex/command-expansion.el: New test file.
 
@@ -2229,7 +5936,7 @@
 	lenght of the expanded string to get the current position in the
 	%' expander.
 
-2014-08-18  Vincent BelaÔche  <vincent.b.1@hotmail.fr>
+2014-08-18  Vincent Bela√Øche  <vincent.b.1@hotmail.fr>
 
 	* font-latex.el (font-latex-add-quotes): Code optimization: use
 	'(add-to-list (make-local-variable (quote foo)) some-value)'
@@ -2281,7 +5988,7 @@
 	* style/mathtools.el ("mathtools"): Don't use the removed
 	`LaTeX-amsmath-env-aligned' function.
 
-2014-08-14  MosË Giordano  <mose@gnu.org>
+2014-08-14  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-insert-label): Remove.
 	(LaTeX-label): Add a new mandatory argument.  Do not use
@@ -2307,7 +6014,7 @@
 
 	* doc/changes.texi: Remove references to `LaTeX-insert-label'.
 
-2014-08-12  MosË Giordano  <mose@gnu.org>
+2014-08-12  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (LaTeX-insert-label): Rename from
 	`LaTeX-auto-insert-label' and mention sections in the doc-string.
@@ -2323,7 +6030,7 @@
 	* doc/changes.texi: Rename `LaTeX-auto-insert-label' to
 	`LaTeX-insert-label' and mention sections too.
 
-2014-08-11  MosË Giordano  <mose@gnu.org>
+2014-08-11  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-command): Keep the frame and the buffer
 	associate to the error overview if the command to be run is View.
@@ -2343,7 +6050,7 @@
 	`outline-heading-alist' according to largest level in order to
 	make `outline-promote' (and others) work correctly.
 
-2014-07-25  MosË Giordano  <mose@gnu.org>
+2014-07-25  Mos√® Giordano  <mose@gnu.org>
 
 	* doc/auctex.texi (Adding Macros): Document `TeX-date-format'.
 
@@ -2353,7 +6060,7 @@
 	Suggested by Uwe Brauer.
 	(TeX-arg-date): Use it.
 
-2014-07-17  MosË Giordano  <mose@gnu.org>
+2014-07-17  Mos√® Giordano  <mose@gnu.org>
 
 	* Makefile.in: Update copyright years.
 	(EXCLUDEDFILES): Rename from GITFILES.  Remove also .cvsignore and
@@ -2413,7 +6120,7 @@
 
 	* doc/changes.texi: Ditto.
 
-2014-07-14  MosË Giordano  <mose@gnu.org>
+2014-07-14  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-next-error): Do not pass `reparse' argument to
 	`next-error' in XEmacs as it is not supported.
@@ -2426,7 +6133,7 @@
 	(TeX-error-description-tex-said): Set to nil in XEmacs and GNU
 	Emacs 21.  Reported by Ikumi Keita.
 
-2014-07-13  MosË Giordano  <mose@gnu.org>
+2014-07-13  Mos√® Giordano  <mose@gnu.org>
 
 	* latex.el (TeX-latex-mode): Add second argument to
 	`local-variable-p', mandatory in XEmacs.  Suggested by Ikumi
@@ -2439,13 +6146,13 @@
 	* tex.el (TeX-how-many): Make the function return a number also in
 	XEmacs and Emacs 21.  Suggested by Ikumi Keita.
 
-2014-07-12  MosË Giordano  <mose@gnu.org>
+2014-07-12  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-error-description-error): Do not use the
 	`default' display, not supported by GNU Emacs 21 and XEmacs 21.4.
 	(TeX-error-description-warning): Ditto.
 
-2014-07-11  MosË Giordano  <mose@gnu.org>
+2014-07-11  Mos√® Giordano  <mose@gnu.org>
 
 	* tex-buf.el (TeX-error-description-error): Make face definition
 	XEmacs compatible.
@@ -2458,7 +6165,7 @@
 	(and): Check whether dbus support is available before requiring
 	dbus.el.
 
-2014-07-02  MosË Giordano  <giordano.mose@libero.it>
+2014-07-02  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-expand-list): Set
 	`TeX-source-correlate-output-page-function' when necessary, in the
@@ -2486,7 +6193,7 @@
 	* doc/changes.texi: Mention change to the default value of
 	`TeX-source-correlate-method'.
 
-2014-06-29  MosË Giordano  <giordano.mose@libero.it>
+2014-06-29  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/todo.texi (Mid-term Goals): Remove "More flexible option and
 	command handling" item: we now have `TeX-command-extra-options'.
@@ -2495,7 +6202,7 @@
 	(Wishlist): Remove "multiple completion for \bibliography" item:
 	"\bibliography" does complete multiple arguments.
 
-2014-06-28  MosË Giordano  <giordano.mose@libero.it>
+2014-06-28  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el (TeX-command): Kill the frame and buffer associated
 	to the error overview before running commands.
@@ -2544,7 +6251,7 @@
 	* doc/todo.texi: Add local variables to the end of the file.
 	(Wishlist): Update entry about error reporting.
 
-2014-06-21  MosË Giordano  <giordano.mose@libero.it>
+2014-06-21  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el (TeX-parse-TeX): Use `TeX-find-display-help' in place
 	of `TeX-error-list-find-display-help'.
@@ -2560,7 +6267,7 @@
 	entry to fix the above mentioned bug.  Use `TeX-find-display-help'
 	to display the help.
 
-2014-06-04  MosË Giordano  <giordano.mose@libero.it>
+2014-06-04  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el (TeX-parse-TeX): Use
 	`TeX-error-list-find-display-help'.
@@ -2569,7 +6276,7 @@
 	(TeX-warning--find-display-help): Cater for bad boxes.
 	(TeX-help-error): Ditto.
 
-2014-06-02  MosË Giordano  <giordano.mose@libero.it>
+2014-06-02  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el (TeX-error--find-display-help): Use new fourth
 	argument of `TeX-help-error'.
@@ -2588,7 +6295,7 @@
 	cases this prevents infinite loops in `TeX-parse-all-errors' and
 	fixes wrong detection of context string.
 
-2014-05-27  MosË Giordano  <giordano.mose@libero.it>
+2014-05-27  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-mode-specific-command-menu-entries): Add
 	`TeX-previous-error'.
@@ -2608,7 +6315,7 @@
 	Stay away from `add-to-list' on let-bound variables.
 	(font-latex-match-command-in-braces): Remove unused var `end'.
 
-2014-05-20  MosË Giordano  <giordano.mose@libero.it>
+2014-05-20  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el: Update copyright years.
 	(TeX-error-last-visited): New buffer-local variable.
@@ -2652,14 +6359,14 @@
 	* doc/todo.texi: Update copyright years.
 	(Wishlist): Update a couple of items related to error parsing.
 
-2014-05-17  MosË Giordano  <giordano.mose@libero.it>
+2014-05-17  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* font-latex.el: Update copyright years.
 	(font-latex-update-sectioning-faces): Make sure
 	`height-scale' is a floating point number.
 	(font-latex-make-sectioning-faces): Ditto.
 
-2014-05-10  MosË Giordano  <giordano.mose@libero.it>
+2014-05-10  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/siunitx.el: Update copyright years and specify last
 	`siunitx' version supported.  Hard wrap lines longer than 80
@@ -2677,7 +6384,7 @@
 
 	* style/listings.el ("listings"): Fix typo.
 
-2014-05-01  MosË Giordano  <giordano.mose@libero.it>
+2014-05-01  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* font-latex.el (font-latex-set-syntactic-keywords): Fix
 	fontification of the optional argument to a verbatim-like
@@ -2692,7 +6399,7 @@
 	* tex-info.el (TeX-texinfo-mode): Use `texinfo-current-defun-name'
 	in `C-x 4 a'.
 
-2014-04-04  MosË Giordano  <giordano.mose@libero.it>
+2014-04-04  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-add-environments): Move advising of
 	`LaTeX-add-environments' after definition of
@@ -2718,7 +6425,7 @@
 
 	* doc/changes.texi: Mention `LaTeX-biblatex-use-Biber' change.
 
-2014-04-02  MosË Giordano  <giordano.mose@libero.it>
+2014-04-02  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el: Update copyright years and specify last
 	`biblatex' version supported.
@@ -2741,7 +6448,7 @@
 	* tex-buf.el (TeX-command-master): Ask for TeX-master if it cannot
 	be determined otherwise.
 
-2014-03-15  MosË Giordano  <giordano.mose@libero.it>
+2014-03-15  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-view-command-raw): Throw an error when `spec' is
 	nil, otherwise when the function returns nil `TeX-command-expand'
@@ -2787,17 +6494,17 @@
 	* latex.el (LaTeX-fill-break-at-separators): Default to opening
 	and closing math switches.
 
-2014-03-06  MosË Giordano  <giordano.mose@libero.it>
+2014-03-06  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Processor Options): Add missing pair of braces.
 
-2014-02-22  MosË Giordano  <giordano.mose@libero.it>
+2014-02-22  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-environment): Do not set
 	`LaTeX-default-environment' to `environment' if the latter is
 	equal to the current default environment.
 
-2014-02-21  MosË Giordano  <giordano.mose@libero.it>
+2014-02-21  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-arg-usepackage-read-packages-with-options): New
 	function.  Now options are requested only if at least one package
@@ -2814,7 +6521,7 @@
 
 	* doc/changes.texi: Mention it.
 
-2014-02-20  MosË Giordano  <giordano.mose@libero.it>
+2014-02-20  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-command-extra-options): New customizable variable.
 	(TeX-expand-list): New `%(extraopts)' expander.
@@ -2871,7 +6578,7 @@
 
 	* context.el: distinguish between numbered and unnumbered sections.
 
-2014-01-15  MosË Giordano  <giordano.mose@libero.it>
+2014-01-15  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/babel.el: Update copyright years and specify last `babel'
 	version supported.
@@ -2882,7 +6589,7 @@
 	(LaTeX-babel-package-options): Turn the variable into a function
 	because now requires `TeX-read-key-val'.
 
-2014-01-11  MosË Giordano  <giordano.mose@libero.it>
+2014-01-11  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-current-environment): Make search for `\begin'
 	and `\end' case sensitive.
@@ -2891,7 +6598,7 @@
 	(LaTeX-find-matching-end): Ditto.
 	(LaTeX-find-matching-begin): Ditto.
 
-2014-01-06  Vincent BelaÔche  <vincentb1@users.sourceforge.net>
+2014-01-06  Vincent Bela√Øche  <vincentb1@users.sourceforge.net>
 
 	* tex-info.el (Texinfo-reftex-hook): Replace use of
 	reftex-tables-dirty by that of reftex-default-label-alist-entries
@@ -2903,13 +6610,13 @@
 	reftex-compile-variables, which caused wrong
 	reftex-everything-regexp for sections.
 
-2014-01-06  MosË Giordano  <giordano.mose@libero.it>
+2014-01-06  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-math-insert): Use `TeX-electric-math' for
 	consistency with `TeX-insert-dollar'.
 	(LaTeX-math-cal): Ditto.
 
-2013-12-24  MosË Giordano  <giordano.mose@libero.it>
+2013-12-24  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-style.el (LaTeX-fontspec-arg-font-search): New customizable
 	variable.
@@ -2921,7 +6628,7 @@
 	* doc/changes.texi: Mention `LaTeX-fontspec-arg-font-search' and
 	`LaTeX-fontspec-font-list-default'.
 
-2013-12-20  MosË Giordano  <giordano.mose@libero.it>
+2013-12-20  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/imakeidx.el ("imakeidx"): Move addition of options to
 	`LaTeX-imakeidx-indexsetup-options' inside the hook.
@@ -2955,7 +6662,7 @@
 	`electric-pair-mode' (a global minor mode) in auctex buffers
 	because it interferes with auctex's pairing feature.
 
-2013-11-23  MosË Giordano  <giordano.mose@libero.it>
+2013-11-23  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-common-initialization):
 
@@ -2964,7 +6671,7 @@
 	to the AUCTeX maps because `narrow-map' is not defined in GNU
 	Emacs < 22.2 and XEmacs.  Reported by Giacomo Boffi.
 
-2013-11-13  MosË Giordano  <giordano.mose@libero.it>
+2013-11-13  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el ("biblatex"): Declare expert macros and
 	environments.
@@ -3011,7 +6718,7 @@
 	* latex.el (LaTeX-common-initialization): Fix void-function
 	LaTeX-symbol-list error.
 
-2013-11-05  MosË Giordano  <giordano.mose@libero.it>
+2013-11-05  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Folding): Document `TeX-fold-auto' and
 	`TeX-fold-unfold-around-mark'.
@@ -3024,12 +6731,12 @@
 	(LaTeX-arg-addbibresource): Run style file associated to the
 	bibliography database file.
 
-2013-11-03  MosË Giordano  <giordano.mose@libero.it>
+2013-11-03  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el ("biblatex"): Quote `TeX-arg-key-val'
 	arguments with `quote' special form istead of apostrophe.
 
-2013-11-02  MosË Giordano  <giordano.mose@libero.it>
+2013-11-02  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-narrow-to-environment): New function, disabled
 	by default.
@@ -3044,7 +6751,7 @@
 
 	* doc/changes.texi: Mention narrowing commands.
 
-2013-10-19  MosË Giordano  <giordano.mose@libero.it>
+2013-10-19  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-arg-file-name): New function.
 	(TeX-arg-file-name-sans-extension): Ditto.
@@ -3094,7 +6801,7 @@
 
 	* tex.el (TeX-how-many): added for compatibility with XEmacs.
 
-2013-10-11  MosË Giordano  <giordano.mose@libero.it>
+2013-10-11  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Quotes): Fix typo.
 
@@ -3106,7 +6813,7 @@
 
 	* doc/auctex.texi: Ditto.
 
-2013-10-06  MosË Giordano  <giordano.mose@libero.it>
+2013-10-06  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-insert-macro-default-style): Add new possible value
 	`show-all-optional-args' and update doc-string accordingly.
@@ -3133,7 +6840,7 @@
 
 	* doc/changes.texi: Mention `TeX-insert-braces-alist'.
 
-2013-09-27  MosË Giordano  <giordano.mose@libero.it>
+2013-09-27  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-arg-insert-braces): : Move
 	`indent-according-to-mode' after `save-excursion' because
@@ -3158,7 +6865,7 @@
 	* style/amsmath.el ("amsmath"): Make use of the above change.
 	\lvert and \lVert are paired with \rvert and \rVert, respectively.
 
-2013-09-19  MosË Giordano  <giordano.mose@libero.it>
+2013-09-19  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/siunitx.el ("siunitx"): Fix `radian' unit name.
 
@@ -3184,7 +6891,7 @@
 	* bib-cite.el (bib-cite-minor-mode): Call `make-local-hook' only
 	on XEmacs.
 
-2013-08-03  MosË Giordano  <giordano.mose@libero.it>
+2013-08-03  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-arg-ref): New function.
 
@@ -3213,13 +6920,13 @@
 	Also shuffle around several definitions in order to get a
 	declaration-before-use order.
 
-2013-07-29  MosË Giordano  <giordano.mose@libero.it>
+2013-07-29  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/changes.texi: Add other changes.
 
 	* doc/auctex.texi (Environments): Fix typo.
 
-2013-07-27  MosË Giordano  <giordano.mose@libero.it>
+2013-07-27  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (BibTeX-auto-regexp-list): Remove `TeX-token-char' from
 	the regexp since cite keys can start with non-letter characters,
@@ -3230,7 +6937,7 @@
 	* latex.el (LaTeX-math-menu-unicode): Enable also on windows
 	systems as it seems to work there, too.
 
-2013-07-23  MosË Giordano  <giordano.mose@libero.it>
+2013-07-23  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-clean-default-intermediate-suffixes): Add `.fls',
 	files created by TeX processors with `-recorder' option, and
@@ -3239,7 +6946,7 @@
 
 	* doc/changes.texi: Document some changes for next release.
 
-2013-07-22  MosË Giordano  <giordano.mose@libero.it>
+2013-07-22  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* Makefile.in: Update copyright years.
 	(GITFILES): Rename from `CVSFILES', adapt to Git.
@@ -3257,7 +6964,7 @@
 
 	* font-latex.el (font-latex-built-in-keyword-classes): Fix
 	fontification of some biblatex macros.  Reported by Christian
-	Kn¸pfer.
+	Kn√ºpfer.
 	(font-latex-built-in-keyword-classes): Revert changes made with
 	commit 7531cca, they were useless.
 
@@ -3267,12 +6974,12 @@
 
 	* Makefile.in (STYLESRC): Activate new style tabulary.
 
-2013-07-12  MosË Giordano  <giordano.mose@libero.it>
+2013-07-12  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Processor Options): Move
 	`TeX-source-correlate-method' to `I/O Correlation' section.
 
-2013-07-11  MosË Giordano  <giordano.mose@libero.it>
+2013-07-11  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Processor Options): Document
 	`TeX-source-correlate-method'.
@@ -3285,7 +6992,7 @@
 	* style/tabularx.el ("tabularx"): Set
 	`LaTeX-default-tabular-environment' to "tabularx".
 
-2013-06-29  MosË Giordano  <giordano.mose@libero.it>
+2013-06-29  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* bib-cite.el: Replace `save-excursion'+`set-buffer' with
 	`with-current-buffer'.
@@ -3336,7 +7043,7 @@
 
 	* tex.el (TeX-evince-dbus-p): Improved DBUS availability check.
 
-2013-06-21  R¸diger Sonderfeld  <ruediger@c-plusplus.de>
+2013-06-21  R√ºdiger Sonderfeld  <ruediger@c-plusplus.de>
 
 	* tex.el (TeX-doc-backend-alist): Remove unnecessary `info' check.
 
@@ -3353,7 +7060,7 @@
 	* tex-buf.el (TeX-help-error): Let-bind `inhibit-read-only' when
 	updating the *TeX Help* buffer.
 
-2013-06-11  MosË Giordano  <giordano.mose@libero.it>
+2013-06-11  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-after-document-hook): New hook.
 	(TeX-arg-document): Use it.
@@ -3365,7 +7072,7 @@
 	("babel"): Add `LaTeX-env-babel-lang' to
 	`LaTeX-after-usepackage-hook'.
 
-2013-06-08  MosË Giordano  <giordano.mose@libero.it>
+2013-06-08  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-math-close-double-dollar): Remove.
 	(TeX-math-close-single-dollar): Ditto.
@@ -3379,7 +7086,7 @@
 	(Environments): Document `LaTeX-find-matching-begin' and
 	`LaTeX-find-matching-end'.
 
-2013-06-02  MosË Giordano  <giordano.mose@libero.it>
+2013-06-02  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-buf.el: Shorten copyright year ranges and update with
 	missing years.  Delete trailing whitespaces.
@@ -3391,13 +7098,13 @@
 	* autogen.sh: Set LC_ALL=C when looking into ChangeLog for
 	AUCTEXDATE.
 
-2013-05-31  MosË Giordano  <giordano.mose@libero.it>
+2013-05-31  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-env-figure): Simplify using `save-excursion'
 	instead of regexp searches.  Fill the caption when
 	`auto-fill-mode' is on.
 
-2013-05-30  MosË Giordano  <giordano.mose@libero.it>
+2013-05-30  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-expand-list): Add new expander "%a", it returns the
 	quoted absolute path of the file visiting current buffer.
@@ -3408,7 +7115,7 @@
 
 	* tex.el (TeX-source-correlate-sync-source): Fix docstring.
 
-2013-05-23  MosË Giordano  <giordano.mose@libero.it>
+2013-05-23  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* font-latex.el: Update copyright years, there have been
 	non-trivial changes in 2010, and 2011.
@@ -3424,7 +7131,7 @@
 	(LaTeX-biblatex-package-options-list): Move preamble options to
 	`LaTeX-biblatex-executebibliographyoptions-options'.
 
-2013-05-22  MosË Giordano  <giordano.mose@libero.it>
+2013-05-22  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el: Replace `delete-backward-char' with `delete-char'.
 
@@ -3433,7 +7140,7 @@
 	* tex-buf.el: Replace `goto-line' with `goto-char' and
 	`forward-line'.
 
-2013-05-19  MosË Giordano  <giordano.mose@libero.it>
+2013-05-19  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/.gitignore: Rename from .cvsignore.
 
@@ -3441,7 +7148,7 @@
 
 	* preview/latex/.gitignore: Ditto.
 
-2013-05-18  MosË Giordano  <giordano.mose@libero.it>
+2013-05-18  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el: Update copyright years, there have been non-trivial
 	changes in 1998, 2001, 2002.
@@ -3457,7 +7164,7 @@
 	(TeX-arg-literal): Remove FIXME comment, `optional' is the first
 	argument passed to all functions by `TeX-parse-argument'.
 
-2013-05-13  MosË Giordano  <giordano.mose@libero.it>
+2013-05-13  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/fancyvrb.el: New style.
 
@@ -3466,7 +7173,7 @@
 	* Makefile.in (STYLESRC): Add style/fancyvrb.el and
 	style/xparse.el.
 
-2013-05-12  MosË Giordano  <giordano.mose@libero.it>
+2013-05-12  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-insert-dollar): Insert just a single dollar when the
 	point is in a verbatim-like construct.
@@ -3476,26 +7183,26 @@
 	broke compatibility changing the number of arguments.  Reported by
 	Robert Goldman.
 
-2013-05-08  MosË Giordano  <giordano.mose@libero.it>
+2013-05-08  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Environments): Document
 	`LaTeX-default-document-environment'.
 
-2013-05-07  MosË Giordano  <giordano.mose@libero.it>
+2013-05-07  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-electric-dollar): New variable.
 	(TeX-insert-dollar): Use it.
 
 	* doc/auctex.texi (Quotes): Document `TeX-electric-dollar'.
 
-2013-04-28  MosË Giordano  <giordano.mose@libero.it>
+2013-04-28  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex-bar.el: Update copyright range.
 	(TeX-bar-LaTeX-button-alist): Change BibTeX button to Biber when
 	`LaTeX-using-biber' is non-nil.
 	(LaTeX-install-toolbar): Refresh toolbar after styles update.
 
-2013-04-25  MosË Giordano  <giordano.mose@libero.it>
+2013-04-25  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-default-document-environment): New buffer-local
 	variable.
@@ -3511,7 +7218,7 @@
 
 	* style/slides.el ("slides"): Ditto.
 
-2013-04-24  MosË Giordano  <giordano.mose@libero.it>
+2013-04-24  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/acro.el (LaTeX-acro-acronym-history): New variable.
 	(LaTeX-arg-acro-acronym): Use it.
@@ -3526,7 +7233,7 @@
 	* style/siunitx.el (LaTeX-siunitx-unit-history): New variable.
 	(LaTeX-arg-siunitx-unit): Use it.
 
-2013-04-21  MosË Giordano  <giordano.mose@libero.it>
+2013-04-21  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/beamer.el ("beamer"): Set `frame' as default environment.
 	Set `section' as largest sectioning level.  Add fontification for
@@ -3542,7 +7249,7 @@
 	`LaTeX-newline' (used in `save-excursion') deletes trailing
 	whitespaces.
 
-2013-04-19  MosË Giordano  <giordano.mose@libero.it>
+2013-04-19  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/amsthm.el (LaTeX-amsthm-package-options): New variable.
 	("amsthm"): Remove `newtheorem' macro, already defined in
@@ -3565,7 +7272,7 @@
 	* style/slides.el (LaTeX-slides-class-options): New variable.
 	("slides"): Add counters and pagestyles.
 
-2013-04-18  MosË Giordano  <giordano.mose@libero.it>
+2013-04-18  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/beamer.el: Update copyright years and remove trailing
 	whitespaces.
@@ -3578,12 +7285,12 @@
 	("hyperref"): Use it.
 	(LaTeX-hyperref-package-options): Ditto.
 
-2013-04-17  MosË Giordano  <giordano.mose@libero.it>
+2013-04-17  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* plain-tex.el (plain-TeX-common-initialization): Fix typo in
 	abbrev table name.
 
-2013-04-16  MosË Giordano  <giordano.mose@libero.it>
+2013-04-16  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-default-author): New customizable variable.
 	(LaTeX-arg-author): New function.
@@ -3610,7 +7317,7 @@
 	* tex.el (TeX-source-correlate-sync-source): Use `raise-frame'
 	instead of the external wmctrl command to raise the emacs frame.
 
-2013-04-15  MosË Giordano  <giordano.mose@libero.it>
+2013-04-15  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-read-key-val): Add `prompt' optional argument.
 	(TeX-arg-key-val): Ditto.
@@ -3638,7 +7345,7 @@
 	* tex.el (TeX-source-correlate-sync-source): Raise frame when
 	placing point on the source location.
 
-2013-04-12  MosË Giordano  <giordano.mose@libero.it>
+2013-04-12  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* Makefile.in (STYLESRC): Add style/acro.el and style/acronym.el.
 
@@ -3687,13 +7394,13 @@
 
 	* latex.el (LaTeX-style-list): Correct docstring.
 
-2013-04-06  MosË Giordano  <giordano.mose@libero.it>
+2013-04-06  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-provided-class-options-member): Fix typo.
 	(LaTeX-arg-usepackage): Provide completion for more than one
 	package in mandatory argument.
 
-2013-04-05  MosË Giordano  <giordano.mose@libero.it>
+2013-04-05  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-global-class-files): New variable.
 	(TeX-arg-document): Provide completion for class options, based on
@@ -3710,7 +7417,7 @@
 
 	* style/report.el (LaTeX-report-class-options): New variable.
 
-2013-04-03  MosË Giordano  <giordano.mose@libero.it>
+2013-04-03  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-provided-class-options): New buffer-local
 	variable.
@@ -3749,11 +7456,11 @@
 	`LaTeX-siunitx-*' for consistency.
 	("siunitx"): Use `LaTeX-provided-package-options-member'.
 
-2013-03-29  MosË Giordano  <giordano.mose@libero.it>
+2013-03-29  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (TeX-arg-document): Search for LaTeX classes.
 
-2013-03-28  MosË Giordano  <giordano.mose@libero.it>
+2013-03-28  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el (LaTeX-biblatex-package-options): Correct name
 	of `TeX-read-key-val' argument.
@@ -3771,7 +7478,7 @@
 	* latex.el (TeX-arg-bibliography): Remove `addbibresource'
 	support.
 
-2013-03-27  MosË Giordano  <giordano.mose@libero.it>
+2013-03-27  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* tex.el (TeX-add-local-master): Remove trailing spaces from
 	inserted lines.
@@ -3842,13 +7549,13 @@
 	* style/scrbase.el ("scrbase"): Add \minisec macro to
 	`LaTeX-paragraph-commands' locally.
 
-2013-02-23  MosË Giordano  <giordano.mose@libero.it>
+2013-02-23  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/kpfonts.el: New style file.
 
 	* Makefile.in (STYLESRC): Add style/kpfonts.el.
 
-2013-02-20  MosË Giordano  <giordano.mose@libero.it>
+2013-02-20  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-math-default): Move `digamma' and `varkappa' to
 	`AMS > Greek Lowercase' menu.
@@ -3870,7 +7577,7 @@
 	* multi-prompt.el (multi-prompt-key-value): Don't require crm here
 	because it has already been required in tex.el.
 
-2013-02-16  MosË Giordano  <giordano.mose@libero.it>
+2013-02-16  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el ("biblatex"): Add hooks for loaded packages.
 	(LaTeX-biblatex-package-options): New function.
@@ -3886,7 +7593,7 @@
 	(TeX-normal-mode): Reset `BibLaTeX-global-style-files' when ARG is
 	non-nil.
 
-2013-02-14  MosË Giordano  <giordano.mose@libero.it>
+2013-02-14  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/siunitx.el (LaTeX-siunitx-package-options): New function.
 
@@ -3910,7 +7617,7 @@
 
 	* style/fancyhdr.el: New style.
 
-2013-02-13  MosË Giordano  <giordano.mose@libero.it>
+2013-02-13  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* doc/auctex.texi (Quotes): Document
 	`TeX-math-close-single-dollar'.
@@ -3955,7 +7662,7 @@
 	* style/hyperref.el ("hyperref"): Run nameref style hook because
 	hyperref activates nameref.
 
-2013-02-10  MosË Giordano  <giordano.mose@libero.it>
+2013-02-10  Mos√® Giordano  <giordano.mose@libero.it>
 
         * style/siunitx.el ("siunitx-unit"): New type for the parser.
         (LaTeX-siunitx-regexp): New variable.
@@ -3973,7 +7680,7 @@
         ("siunitx"): Use `LaTeX-add-siunitx-units' for adding siunitx unit
 	macros to the list of known units.
 
-2013-02-08  MosË Giordano  <giordano.mose@libero.it>
+2013-02-08  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/biblatex.el: Update copyright range.
 	("biblatex"): Check `backend' option value in
@@ -4013,7 +7720,7 @@
 	(LaTeX-default-options): Changed documentstyle to documentclass in
 	docstring.
 
-2013-01-25  MosË Giordano  <giordano.mose@libero.it>
+2013-01-25  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/siunitx.el ("siunitx"): Add `\gram' and
 	`\SendSettingsToPgf'.
@@ -4049,12 +7756,12 @@
 2013-01-17  Tassilo Horn  <tsdh@gnu.org>
 
 	* doc/todo.texi: Remove the todo concerning completion for
-	counters that was implemented by MosË Giordano on 2013-01-15.
+	counters that was implemented by Mos√® Giordano on 2013-01-15.
 
 	* doc/auctex.texi: Document `TeX-arg-length' and
 	`TeX-arg-define-length'.
 
-2013-01-16  MosË Giordano  <giordano.mose@libero.it>
+2013-01-16  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-auto-length-regexp-list): New variable.
 	(LaTeX-auto-regexp-list): Use `LaTeX-auto-length-regexp-list'.
@@ -4070,7 +7777,7 @@
 	* doc/auctex.texi: Document that `TeX-arg-counter' does completion
 	now.
 
-2013-01-15  MosË Giordano  <giordano.mose@libero.it>
+2013-01-15  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el (LaTeX-auto-pagestyle-regexp-list): Fix typo.
 	(LaTeX-auto-counter-regexp-list): New variable.
@@ -4108,11 +7815,11 @@
 
 	* style/memoir.el: New style.
 
-2013-01-14  MosË Giordano  <giordano.mose@libero.it>
+2013-01-14  Mos√® Giordano  <giordano.mose@libero.it>
 
         * latex.el (TeX-arg-environment): Fix typo.
 
-2013-01-10  MosË Giordano  <giordano.mose@libero.it>
+2013-01-10  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* latex.el: Update copyright range.
 	(LaTeX-auto-pagestyle-regexp-list): New variable.
@@ -4135,7 +7842,7 @@
 	* Makefile.in (STYLESRC): Add new style files kantlipsum.el,
 	lipsum.el, and longtable.el.
 
-2013-01-10  MosË Giordano  <giordano.mose@libero.it>
+2013-01-10  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/kantlipsum.el: New style.
 
@@ -4182,7 +7889,7 @@
 
 	* style/afterpage.el: New style.
 
-2012-12-30  MosË Giordano  <giordano.mose@libero.it>
+2012-12-30  Mos√® Giordano  <giordano.mose@libero.it>
 
         * latex.el (LaTeX-pagestyle-list): New variable.
 	(TeX-arg-pagestyle): Use it.
@@ -4198,7 +7905,7 @@
 
 	* style/multirow.el: New style.
 
-2012-12-27  MosË Giordano  <giordano.mose@libero.it>
+2012-12-27  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/siunitx.el (LaTeX-siunitx-package-options): New variable.
 	("siunitx"): Use it.
@@ -4251,7 +7958,7 @@
 
 	* style/footmisc.el: New style.
 
-2012-12-21  MosË Giordano  <giordano.mose@libero.it>
+2012-12-21  Mos√® Giordano  <giordano.mose@libero.it>
 
 	* style/bm.el: New style.
 
@@ -4343,7 +8050,7 @@
 	(TeX-normal-mode): Use separate variables for BibTeX and Biber
 	global files.
 
-2012-07-17  Vincent BelaÔche  <vincentb1@users.sourceforge.net>
+2012-07-17  Vincent Bela√Øche  <vincentb1@users.sourceforge.net>
 
 	* tex-info.el (Texinfo-reftex-hook): Added function.
 	(TeX-texinfo-mode): Added RefTeX plugging.
@@ -4358,7 +8065,7 @@
 2012-11-20  Davide G. M. Salvetti  <salve@debian.org>
 
         * doc/tex-ref.tex (column{preview-latex}): Fix typo.  Reported by
-        SÈbastien Villemot.  Update copyright information.
+        S√©bastien Villemot.  Update copyright information.
 
 2012-11-14  Ralf Angeli  <angeli@caeruleus.net>
 
@@ -4538,7 +8245,7 @@
 	(Adding Macros): Document special values for numbers used together
 	with `TeX-add-symbols'.
 
-2011-09-18  Vincent BelaÔche  <vincentb1@users.sourceforge.net>
+2011-09-18  Vincent Bela√Øche  <vincentb1@users.sourceforge.net>
 
 	* doc/auctex.texi: Add documentation for functions
 	LaTeX-mark-section, LaTeX-mark-environment, Texinfo-mark-section,
@@ -4564,7 +8271,7 @@
 	* tex.el (TeX-search-files-kpathsea): Check if directories are
 	accessible.
 
-2011-07-11  Vincent BelaÔche  <vincentb1@users.sourceforge.net>
+2011-07-11  Vincent Bela√Øche  <vincentb1@users.sourceforge.net>
 
 	* tex-info.el (Texinfo-mark-environment, Texinfo-mark-section)
 	(Texinfo-mark-node): New defun.
@@ -4861,7 +8568,7 @@
 	* style/doc.el: Do not unnecessarily protect `lambda' with
 	`function'.
 
-2010-09-06  Arne J¯rgensen  <arne@arnested.dk>
+2010-09-06  Arne J√∏rgensen  <arne@arnested.dk>
 
 	* style/danish.el: Changed font-latex-add-quotes from french to
 	german.
@@ -4910,7 +8617,7 @@
 	* autogen.sh: Set LANG=C when looking into ChangeLog for
 	AUCTEXDATE.
 
-2010-05-24  Vincent BelaÔche  <vincent.belaiche@gmail.com>
+2010-05-24  Vincent Bela√Øche  <vincent.belaiche@gmail.com>
 
 	* doc/auctex.texi (Texinfo mode): New section.
 
@@ -5619,7 +9326,7 @@
 	* latex.el (LaTeX-mark-environment): Keep point upon unsuccessful
 	search.
 
-2008-07-19  Vincent BelaÔche  <vincent.b.1@hotmail.fr>  (tiny change)
+2008-07-19  Vincent Bela√Øche  <vincent.b.1@hotmail.fr>  (tiny change)
 
 	* latex.el (LaTeX-mark-environment): Support marking of multiple
 	nested environments.
@@ -8049,7 +11756,7 @@
 	* style/babel.el (LaTeX-babel-package-options): Only use 2
 	argument form of defvaralias in order not to make XEmacs barf.
 
-2005-10-23  Arne J¯rgensen  <arne@arnested.dk>
+2005-10-23  Arne J√∏rgensen  <arne@arnested.dk>
 
 	* style/amstext.el (LaTeX-amstext-package-option): New variable.
 
@@ -8122,7 +11829,7 @@
 	face in order to make string fontification of ``foo $bar$ baz''
 	constructs work.
 
-2005-10-19  Arne J¯rgensen  <arne@arnested.dk>
+2005-10-19  Arne J√∏rgensen  <arne@arnested.dk>
 
 	* latex.el (LaTeX-arg-usepackage): If
 	`LaTeX-<package>-package-options' is bound and nil don't ask for
@@ -8169,7 +11876,7 @@
 
 	* tex-buf.el: Change defcustom group from TeX-commands to TeX-command
 
-2005-10-12  Arne J¯rgensen  <arne@arnested.dk>
+2005-10-12  Arne J√∏rgensen  <arne@arnested.dk>
 
 	* tex.el: Provide a `TeX-completing-read-multiple' either by
 	defalias'ing `completing-read-multiple' or defining a wrapper
@@ -8191,7 +11898,7 @@
 	* Makefile.in (STYLESRC): Added style/inputenc.el and
 	style/dk-bib.el.
 
-2005-10-10  Arne J¯rgensen  <arne@arnested.dk>
+2005-10-10  Arne J√∏rgensen  <arne@arnested.dk>
 
 	* latex.el (LaTeX-auto-regexp-list): Removed spurious characters
 	in variable definition.
@@ -11007,7 +14714,7 @@
 	* style/jurabib.el ("jurabib"): Add further macros.
 
 	* tex.el: Add coding cookie.
-	Use punctuation syntax for "´" and "ª" characters.
+	Use punctuation syntax for "¬´" and "¬ª" characters.
 	(TeX-parse-argument): Deactivate mark after insertion of first
 	pair of braces.  Fixes problems with the insertion of macros with
 	more than one brace and an active selection.
@@ -11396,7 +15103,7 @@
 	* latex.el (LaTeX-math-list): Improve doc string and custom type.
 	(LaTeX-math-default): Added doc string.
 
-2004-10-26  Frank K¸ster  <frank@kuesterei.ch>
+2004-10-26  Frank K√ºster  <frank@kuesterei.ch>
 
 	* doc/quickstart.texi: Don't use so many nodes.  Several fixes.
 
@@ -11472,7 +15179,7 @@
 
 	* doc/quickstart.texi: Fix markup.
 
-2004-10-18  Frank K¸ster  <frank@kuesterei.ch>
+2004-10-18  Frank K√ºster  <frank@kuesterei.ch>
 
 	* doc/quickstart.texi: New chapter.
 
@@ -11496,7 +15203,7 @@
 
 	* doc/Makefile.in (TEXIFILES): Added quickstart.texi.
 
-2004-10-18  Frank K¸ster  <frank@kuesterei.ch>
+2004-10-18  Frank K√ºster  <frank@kuesterei.ch>
 
 	* doc/Makefile.in (TEXIFILES): Add macros.texi.
 	(auctex.dvi, auctex.pdf): Depend on TEXIFILES.
@@ -11726,7 +15433,7 @@
 	`TeX-insert-macro'.  Fixed typo.
 	(Parsing Files): Fixed typo.
 	(European): Improved.
-	From Frank K¸ster <frank@kuesterei.ch>,	slightly modified.
+	From Frank K√ºster <frank@kuesterei.ch>,	slightly modified.
 
 	* latex.el (LaTeX-common-initialization): Use `LaTeX-env-tabular*'
 	for "tabular*".
@@ -12029,7 +15736,7 @@
 	(VirTeX-common-initialization): Append our stuff to the end of
 	`find-file-hooks'.  Fixes problems with `auto-insert-mode'.
 
-2004-09-15  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-09-15  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4 (EMACS_LISP): quote ${emacs}, Windows....
 
@@ -12169,7 +15876,7 @@
 
 	* tex.el: Autoload `TeX-process-set-variable' and `TeX-region-file'.
 
-2004-08-25  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-08-25  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4: EMACS_PATH_LISPDIR: Expand lispdir if relative to
 	binary. Quote lispdir, and deal with exec_prefix, add missing
@@ -12400,7 +16107,7 @@
 
 	* aclocal.m4: Use `${...}' instead of `$(...)' everywhere.
 
-2004-08-18  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-08-18  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4 (EMACS_LISPDIR): Output expanded lispdir
 
@@ -12494,7 +16201,7 @@
 
 	* bib-cite.el: Fix refTeX link.
 
-2004-08-16  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-08-16  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4 (EMACS_PROG_EMACS): Add "${prefix}/bin" for Windows users
 
@@ -12624,7 +16331,7 @@
 
 	* Version 11.50 released.
 
-2004-08-13  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-08-13  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4: Add another alternative for lispdir
 
@@ -13172,11 +16879,11 @@
 
 	* style/jura.el: Add header.
 
-	* style/doc.el: New file. Contributed by Frank K¸ster
+	* style/doc.el: New file. Contributed by Frank K√ºster
 	<frank@kuesterei.ch>.
 	(TeX-add-style-hook): Remove bogus `LaTeX-add-index-entries' call.
 
-	* style/ltx-base.el: New file. Contributed by Frank K¸ster
+	* style/ltx-base.el: New file. Contributed by Frank K√ºster
 	<frank@kuesterei.ch>.
 
 	* style/ltxdoc.el: Ditto.
@@ -14258,7 +17965,7 @@
 2004-04-16  David Kastrup  <dak@gnu.org>
 
 	* Makefile.in (STYLESRC): Add jura.el and alphanum.el
-	style/jura.el, style/alphanum.el: contributed by Frank K¸ster.
+	style/jura.el, style/alphanum.el: contributed by Frank K√ºster.
 
 2004-04-16  Berend de Boer  <berend@pobox.com>
 
@@ -14383,7 +18090,7 @@
 	* font-latex.el (font-latex-setup): Bug Fix; was overriding
 	font-latex-string-face.  Thanks to Reuben Thomas for finding the bug.
 
-2004-04-08  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-04-08  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* configure.in: Remove sole reference to texmfdir
 
@@ -14576,7 +18283,7 @@
 	* tex.el (VirTeX-common-initialization): Back out last change
 	about sentence-end-double-space.
 
-2004-03-22  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-03-22  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4, configure.in: Fix bug for the case $prefix=NONE
 
@@ -14670,7 +18377,7 @@
 	`LaTeX-fill-comment-syntax-aware' to
 	`LaTeX-format-comment-syntax-aware'.
 
-2004-03-18  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-03-18  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* Makefile.in, configure.in, tex-site.el, tex-site.el.in:
 	Move tex-site.el to tex-site.el.in, generate tex-site.el at configure
@@ -14739,7 +18446,7 @@
 	closing braces when `LaTeX-fill-distinct-content' is enabled for
 	braced content.
 
-2004-03-09  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-03-09  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* Makefile.in: Add separate target for .el files to cater for debian
 
@@ -14755,7 +18462,7 @@
 
 	* doc/auc-tex.texi: Small corrections in `Viewing' section.
 
-2004-03-02  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-03-02  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* doc/Makefile.in: Add packagedir
 
@@ -14787,7 +18494,7 @@
 
 	Merge with new-fill branch.
 
-2004-02-27  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-02-27  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* configure.in: Respect --infodir even if using xemacs.
 
@@ -15328,7 +19035,7 @@
 	(TeX-directory-absolute-p): removed, since file-name-absolute-p
 	serves the same purpose.
 
-2003-06-06  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-06-06  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* Makefile.in: Added datadir
 
@@ -15396,7 +19103,7 @@
 
 	* Makefile.in (STYLESRC): Added captcont.el and subfigure.el
 
-2003-04-15  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-04-15  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* doc/wininstall.texi: Corrected download info for GNU Emacs
 
@@ -15415,7 +19122,7 @@
 
 	* doc/install.texi (Customizing): hilit-LaTeX.el deleted.
 
-2003-04-14  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-04-14  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* autogen.sh: Generate INSTALL and INSTALL.windows
 
@@ -15448,7 +19155,7 @@
 
 	* Makefile.in: Added context.el(c)
 
-2003-04-09  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-04-09  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4: More sane emacs-macro path-searching.
 
@@ -15457,7 +19164,7 @@
 	* tex.el (TeX-kpathsea-directory-alist): Fix bad kpathsea
 	searchpath name for LaTeX files.
 
-2003-04-03  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-04-03  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* aclocal.m4: Make the emacs-macro path-searching tests run, and
 	make EMACS_PROG_EMACS fail gracefully when no binary executable is
@@ -15654,7 +19361,7 @@
 	(TeX-output-view-style, TeX-command-output-list): new variables
 	(TeX-expand-list): adapted for pdf output.
 
-2003-01-31  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2003-01-31  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* configure.in: Use new lispdir check.
 
@@ -16227,7 +19934,7 @@
 	Contributed by ataka@milk.freemail.ne.jp (Masayuki Ataka).
 
 	* tex-info.el (texinfo-mode): Comment out cindex.
-	Reported by Kai.Grossjohann@CS.Uni-Dortmund.DE (Kai Groﬂjohann)
+	Reported by Kai.Grossjohann@CS.Uni-Dortmund.DE (Kai Gro√üjohann)
 
 	* style/amsmath.el (LaTeX-item-equation, LaTeX-item-equations):
 	New functions.
@@ -16508,7 +20215,7 @@
 1999-12-11  Per Abrahamsen  <abraham@dina.kvl.dk>
 
 	* style/danish.el ("danish"): Support Danish quotes.
-	Suggested by arne@daimi.au.dk (Arne J¯rgensen).
+	Suggested by arne@daimi.au.dk (Arne J√∏rgensen).
 
 1999-12-03  Per Abrahamsen  <abraham@dina.kvl.dk>
 
@@ -17624,7 +21331,7 @@
 1996-07-15  Per Abrahamsen  <abraham@dina.kvl.dk>
 
 	* tex.el (TeX-parse-path): Ignore tralining //.  Suggested by
-	Gˆran Uddeborg <Gˆran.Uddeborg@carmen.se>.
+	G√∂ran Uddeborg <G√∂ran.Uddeborg@carmen.se>.
 
 1996-05-05  Per Abrahamsen  <abraham@dina.kvl.dk>
 
@@ -17965,7 +21672,7 @@
 	* tex.el (TeX-auto-store): Change to functions that prevent the
 	auto file buffer from entering emacs-lisp-mode.
 	(TeX-auto-insert): Don't rely on emacs-lisp-mode for indentation.
-	Suggested by Stefan Schˆf (schoef@informatik.uni-oldenburg.de).
+	Suggested by Stefan Sch√∂f (schoef@informatik.uni-oldenburg.de).
 
 1994-11-11  Per Abrahamsen  <abraham@iesd.auc.dk>
 
@@ -18256,6 +21963,27 @@
 
 	* Version 9.1 released.
 
+This file records repository revisions from
+commit c865982cacab289f4480f9145b3438ec06824232 (exclusive) to
+commit 17118fb3aabba5a158c8ff8b4f5ec4f215547d2b (inclusive).
+
 ;; Local Variables:
-;; coding: iso-8859-1
+;; coding: utf-8
 ;; End:
+
+  Copyright (C) 1994-2016 Free Software Foundation, Inc.
+
+  This file is part of GNU AUCTeX.
+
+  GNU AUCTeX is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  GNU AUCTeX is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with GNU AUCTeX.  If not, see <http://www.gnu.org/licenses/>.

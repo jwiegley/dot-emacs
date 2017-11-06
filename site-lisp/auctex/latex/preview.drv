@@ -1,0 +1,34 @@
+%%
+%% This is file `preview.drv',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% preview.dtx  (with options: `driver')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from preview.drv.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file preview.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%    The preview style for extracting previews from LaTeX documents.
+%%    Developed as part of AUCTeX <URL:http://www.gnu.org/software/auctex>.
+ \documentclass{ltxdoc}
+ \usepackage{preview}
+ \let\ifPreview\relax
+ \newcommand\previewlatex{\texttt{preview-latex}}
+ \begin{document}
+ \DocInput{preview.dtx}
+ \end{document}
+\endinput
+%%
+%% End of file `preview.drv'.

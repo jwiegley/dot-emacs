@@ -1,8 +1,8 @@
 ;;; caption.el --- AUCTeX style for `caption.sty' (v3.3-111)
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015--2017 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-02-21
 ;; Keywords: tex
@@ -80,6 +80,7 @@
     ("parskip")
     ("position"        ("top" "above" "bottom" "below" "auto"))
     ("singlelinecheck" ("false" "no" "off" "0" "true" "yes" "on" "1"))
+    ("slc"             ("false" "no" "off" "0" "true" "yes" "on" "1"))
     ("skip")
     ("strut"      ("false" "no" "off" "0" "true" "yes" "on" "1"))
     ("style"      ("base" "default"))
@@ -105,6 +106,7 @@
 (defvar LaTeX-caption-supported-float-types
   '("figure" "table" "ContinuedFloat"	; Standard caption.sty
     "sub" "subtable" "subfigure"        ; subcaption.sty
+    "bi" "bi-first" "bi-second"         ; bicaption.sty
     "ruled" "boxed"			; float.sty
     "floatingfigure" "floatingtable"	; floatflt.sty
     "lstlisting"			; listings.sty
@@ -174,12 +176,25 @@ in `caption'-completions."
 	      (when (and (string-equal key "labelformat")
 			 (boundp 'LaTeX-subcaption-key-val-options))
 		(pushnew (list "subrefformat"
-			       (delete-dups (apply 'append (list val) val-match)))
+			       (delete-dups (apply #'append (list val) val-match)))
 			 opts :test #'equal))
-	      (pushnew (list key (delete-dups (apply 'append (list val) val-match)))
+	      (pushnew (list key (delete-dups (apply #'append (list val) val-match)))
 		       opts :test #'equal))
 	  (pushnew (list key (list val)) opts :test #'equal)))
-      (setq LaTeX-caption-key-val-options-local (copy-alist opts)))))
+      (setq LaTeX-caption-key-val-options-local (copy-alist opts))))
+  ;; Support for environments defined with newfloat.sty: These
+  ;; environments are added to "type" and "type*" key:
+  (when (and (member "newfloat" (TeX-style-list))
+	     (fboundp 'LaTeX-newfloat-DeclareFloatingEnvironment-list)
+	     (LaTeX-newfloat-DeclareFloatingEnvironment-list))
+    (dolist (key '("type" "type*"))
+      (let* ((val (mapcar #'car (LaTeX-newfloat-DeclareFloatingEnvironment-list)))
+	     (val-match (cdr (assoc key LaTeX-caption-key-val-options-local)))
+	     (temp (copy-alist LaTeX-caption-key-val-options-local))
+	     (opts (assq-delete-all (car (assoc key temp)) temp)))
+	(pushnew (list key (delete-dups (apply #'append val val-match)))
+		 opts :test #'equal)
+	(setq LaTeX-caption-key-val-options-local (copy-alist opts))))))
 
 (defun LaTeX-arg-caption-command (optional &optional prompt)
   "Insert caption-commands from `caption.sty'. If OPTIONAL,
@@ -212,39 +227,91 @@ suffix of the command."
 ;; entry to the list of figures or tables.
 
 ;; The first mandatory argument {<heading>} contains the caption text
-;; and the label.  We use `TeX-insert-macro' to do the job. (Thanks to
-;; M. Giordano for his valuable comments on this!)
+;; and the label.  We used to use `TeX-insert-macro' to do the job
+;; (Thanks to M. Giordano for his valuable comments on this!), but now
+;; moved to `LaTeX-label'.
 
 ;; Syntax:
 ;; \captionbox[<list entry>]{<heading>}[<width>][<inner-pos>]{<contents>}
 ;; \captionbox*{<heading>}[<width>][<inner-pos>]{<contents>}
 
-(defun LaTeX-arg-caption-captionbox (optional &optional star prompt)
-  "Query for the arguments of `\\captionbox' incl. a label and
-insert them.  If STAR is non-nil, then do not query for a `\\label' and
-insert only a caption."
-  (let ((caption (TeX-read-string
-		  (TeX-argument-prompt optional prompt "Caption"))))
-    (LaTeX-indent-line)
+(defun LaTeX-arg-caption-captionbox (optional &optional star)
+  "Query for the arguments of \"\\captionbox\" incl. a label and insert them.
+If STAR is non-nil, then do not query for a \\label and a short
+caption, insert only a caption."
+  (let* ((currenv (LaTeX-current-environment))
+	 (caption (TeX-read-string
+		   (TeX-argument-prompt optional nil "Caption")))
+	 (short-caption
+	  (when (and (not star)
+		     (>= (length caption) LaTeX-short-caption-prompt-length))
+	    (TeX-read-string
+	     (TeX-argument-prompt t nil "Short caption")))))
+    (indent-according-to-mode)
+    (when (and short-caption (not (string= short-caption "")))
+      (insert LaTeX-optop short-caption LaTeX-optcl))
     (insert TeX-grop caption)
-    (unless star (TeX-insert-macro "label"))
+    (unless star (LaTeX-label currenv 'environment))
     (insert TeX-grcl))
-  (let* ((width (completing-read (TeX-argument-prompt t prompt "Width")
-				 (mapcar (lambda(elt) (concat TeX-esc (car elt)))
+  (let* ((TeX-arg-opening-brace "[")
+	 (TeX-arg-closing-brace "]")
+	 (width (completing-read (TeX-argument-prompt t nil "Width")
+				 (mapcar (lambda (elt) (concat TeX-esc (car elt)))
 					 (LaTeX-length-list))))
-	 (inpos (when (and width (not (string-equal width "")))
-		  (completing-read (TeX-argument-prompt t prompt "Inner position")
-				   '("c" "l" "r" "s")))))
-    (cond (;; 2 optional args
-	   (and width (not (string-equal width ""))
-		inpos (not (string-equal inpos "")))
-	   (insert (format "[%s][%s]" width inpos)))
-	  (;; 1st opt. arg, 2nd empty opt. arg
-	   (and width (not (string-equal width ""))
-		(string-equal inpos ""))
-	   (insert (format "[%s]" width)))
-	  (t ; Do nothing if both empty
-	   (ignore)))))
+	 (inpos (if (and width (not (string-equal width "")))
+		    (completing-read (TeX-argument-prompt t nil "Inner position")
+				     '("c" "l" "r" "s"))
+		  "")))
+    (TeX-argument-insert width t)
+    (TeX-argument-insert inpos t))
+  ;; Fill the paragraph before inserting {}.  We can use
+  ;; `LaTeX-fill-paragraph' without messing up the code since
+  ;; \caption starts a new paragraph with AUCTeX
+  ;; (cf. `paragraph-start').
+  (LaTeX-fill-paragraph))
+
+(defun LaTeX-arg-caption-captionof (optional &optional star)
+  "Query for the arguments of \"\\captionof\" macro and insert them.
+If OPTIONAL is non-nil, insert the arguments in brackets.  If
+STAR is non-nil, do not query for a short-caption and a label."
+  (let* ((envtype (completing-read (TeX-argument-prompt optional nil "Float type")
+				   LaTeX-caption-supported-float-types))
+	 (figtypes '("figure" "subfigure" "floatingfigure"
+		     "figwindow" "SCfigure" "measuredfigure" "wrapfigure"))
+	 (tabtypes '("table"  "subtable" "floatingtable"  "tabwindow" "SCtable"
+		     "supertabular" "xtabular" "threeparttable"  "wraptable"))
+	 (caption (TeX-read-string
+		   (TeX-argument-prompt optional nil "Caption")))
+	 (short-caption
+	  (when (and (not star)
+		     (>= (length caption) LaTeX-short-caption-prompt-length))
+	    (TeX-read-string
+	     (TeX-argument-prompt t nil "Short caption")))))
+    (indent-according-to-mode)
+    (TeX-argument-insert envtype optional)
+    (when (and short-caption (not (string= short-caption "")))
+      (insert LaTeX-optop short-caption LaTeX-optcl))
+    (TeX-argument-insert caption optional)
+    (LaTeX-fill-paragraph)
+    (when (and (not star)
+	       ;; Check if `envtype' is a figure or a table, also
+	       ;; consult `LaTeX-label-alist' for additions from user
+	       ;; or newfloat.el, then run `LaTeX-label' w/
+	       ;; 'environment arg, otherwise w/o.
+	       (save-excursion
+		 (if (or (member envtype figtypes)
+			 (member envtype tabtypes)
+			 (assoc envtype LaTeX-label-alist))
+		     (LaTeX-label (cond ((member envtype figtypes)
+					 "figure")
+					((member envtype tabtypes)
+					 "table")
+					(t envtype))
+				  'environment)
+		   (LaTeX-label envtype))))
+      (LaTeX-newline)
+      (indent-according-to-mode)
+      (end-of-line))))
 
 (TeX-add-style-hook
  "caption"
@@ -257,6 +324,21 @@ insert only a caption."
    (setq LaTeX-caption-key-val-options-local
 	 (copy-alist LaTeX-caption-key-val-options))
 
+   ;; Append key=vals from bicaption.sty if loaded: "language" key
+   ;; depends on the active languages, it is appended extra where main
+   ;; language is removed from the list:
+   (when (and (member "bicaption" (TeX-style-list))
+	      ;; Make sure that one of these packages is loaded:
+	      (or (fboundp 'LaTeX-babel-active-languages)
+		  (fboundp 'LaTeX-polyglossia-active-languages)))
+     (setq LaTeX-caption-key-val-options-local
+	   (append
+	    `(,(list "language"
+		     (or (butlast (LaTeX-babel-active-languages))
+			 (butlast (LaTeX-polyglossia-active-languages)))))
+	    LaTeX-bicaption-key-val-options
+	    LaTeX-caption-key-val-options-local)))
+
    ;; Caption commands:
    (TeX-add-symbols
     '("caption*" t)
@@ -266,24 +348,24 @@ insert only a caption."
 		    LaTeX-caption-supported-float-types]
       t)
 
-    '("captionof"
-      (TeX-arg-eval completing-read (TeX-argument-prompt nil nil "Float type")
-		    LaTeX-caption-supported-float-types)
-      ["List entry"] t)
+    '("captionof" LaTeX-arg-caption-captionof)
 
-    '("captionof*"
-      (TeX-arg-eval completing-read (TeX-argument-prompt nil nil "Float type")
-		    LaTeX-caption-supported-float-types)
-      ["List entry"] t)
+    '("captionof*" (LaTeX-arg-caption-captionof t))
 
     '("captionsetup"
-      [TeX-arg-eval completing-read (TeX-argument-prompt t nil "Float type")
-		    LaTeX-caption-supported-float-types]
+      (TeX-arg-conditional (member "bicaption" (TeX-style-list))
+			   ([LaTeX-arg-bicaption-captionsetup])
+			 ([TeX-arg-eval completing-read
+					(TeX-argument-prompt t nil "Float type")
+					LaTeX-caption-supported-float-types]))
       (LaTeX-arg-caption-command))
 
     '("captionsetup*"
-      [TeX-arg-eval completing-read (TeX-argument-prompt t nil "Float type")
-		    LaTeX-caption-supported-float-types]
+      (TeX-arg-conditional (member "bicaption" (TeX-style-list))
+			   ([LaTeX-arg-bicaption-captionsetup])
+			 ([TeX-arg-eval completing-read
+					(TeX-argument-prompt t nil "Float type")
+					LaTeX-caption-supported-float-types]))
       (LaTeX-arg-caption-command))
 
     '("clearcaptionsetup"
@@ -296,7 +378,7 @@ insert only a caption."
       (TeX-arg-eval completing-read (TeX-argument-prompt nil nil "Float type")
 		    LaTeX-caption-supported-float-types))
 
-    '("captionbox"  ["List entry"] (LaTeX-arg-caption-captionbox) t)
+    '("captionbox"  (LaTeX-arg-caption-captionbox) t)
 
     '("captionbox*" (LaTeX-arg-caption-captionbox t) t)
 
@@ -345,15 +427,18 @@ insert only a caption."
 
     '("bothIfSecond" 2))
 
+   ;; \caption(box|of) macros should get their own lines
+   (LaTeX-paragraph-commands-add-locally '("captionbox" "captionof"))
+
    ;; Fontification
    (when (and (featurep 'font-latex)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("caption"           "*[{")
 				("captionlistentry"  "[{")
 				("captionof"         "*{[{")
-				("captionbox"        "*[{[[{"))
+				("captionbox"        "*[{[["))
 			      'textual)
-     (font-latex-add-keywords '(("captionsetup"                  "*[{")
+     (font-latex-add-keywords '(("captionsetup"                  "*[[{")
 				("clearcaptionsetup"             "*[{")
 				("DeclareCaptionFont"            "{{")
 				("DeclareCaptionFormat"          "*{{")

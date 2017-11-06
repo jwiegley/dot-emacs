@@ -468,7 +468,7 @@ Return non-nil if an item was found and folded, nil otherwise."
 				   ((eq type 'env)
 				    (concat (regexp-quote TeX-esc)
 					    "begin[ \t]*{"
-					    "\\([A-Za-z]+\\)}"))
+					    "\\([A-Za-z*]+\\)}"))
 				   (t
 				    (concat (regexp-quote TeX-esc)
 					    "\\([A-Za-z@*]+\\)"))))

@@ -76,10 +76,6 @@ used to insert an appropriate @samp{\usepackage} statement if the user
 tries to insert a macro for which the respective package has not been
 requested yet.
 
-@item Spell checking of macros
-
-A special ispell dictionary for macros could be nice to have.
-
 @item Improvements to error reporting
 
 Fringe indicators for errors in the main text would be nice.

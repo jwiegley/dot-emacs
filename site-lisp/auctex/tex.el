@@ -1,6 +1,6 @@
 ;;; tex.el --- Support for TeX documents.
 
-;; Copyright (C) 1985-1987, 1991, 1993-2015 Free Software Foundation, Inc.
+;; Copyright (C) 1985-1987, 1991, 1993-2016 Free Software Foundation, Inc.
 
 ;; Maintainer: auctex-devel@gnu.org
 ;; Keywords: tex
@@ -151,10 +151,16 @@ If nil, none is specified."
      :help "Generate PostScript file")
     ("Dvips" "%(o?)dvips %d -o %f " TeX-run-dvips nil t
      :help "Convert DVI file to PostScript")
+    ("Dvipdfmx" "dvipdfmx %d" TeX-run-dvipdfmx nil t
+     :help "Convert DVI file to PDF with dvipdfmx")
     ("Ps2pdf" "ps2pdf %f" TeX-run-ps2pdf nil t
      :help "Convert PostScript file to PDF")
+    ("Glossaries" "makeglossaries %s" TeX-run-command nil
+     t :help "Run makeglossaries to create glossary file")
     ("Index" "makeindex %s" TeX-run-index nil t
      :help "Run makeindex to create index file")
+    ("upMendex" "upmendex %s" TeX-run-index t t
+     :help "Run upmendex to create index file")
     ("Xindy" "texindy %s" TeX-run-command nil t
      :help "Run xindy to create index file")
     ("Check" "lacheck %s" TeX-run-compile nil (latex-mode)
@@ -447,7 +453,7 @@ string."
     ("%(PDF)" (lambda ()
 		(if (and (eq TeX-engine 'default)
 			 (if TeX-PDF-mode
-			     (not TeX-PDF-via-dvips-ps2pdf)
+			     (not (TeX-PDF-from-DVI))
 			   TeX-DVI-via-PDFTeX))
 		    "pdf"
 		  "")))
@@ -474,8 +480,8 @@ string."
     ("%(file-line-error)"
      (lambda () (if TeX-file-line-error " -file-line-error" "")))
     ("%(o?)" (lambda () (if (eq TeX-engine 'omega) "o" "")))
-    ("%(tex)" (lambda () (eval (nth 2 (assq TeX-engine (TeX-engine-alist))))))
-    ("%(latex)" (lambda () (eval (nth 3 (assq TeX-engine (TeX-engine-alist))))))
+    ("%(tex)" (lambda () (eval (nth 2 (TeX-engine-in-engine-alist TeX-engine)))))
+    ("%(latex)" (lambda () (eval (nth 3 (TeX-engine-in-engine-alist TeX-engine)))))
     ("%(cntxcom)" ConTeXt-expand-command)
     ("%(execopts)" ConTeXt-expand-options)
     ("%(extraopts)" (lambda () TeX-command-extra-options))
@@ -630,7 +636,7 @@ is equivalent to
 but takes care of byte-compilation issues where the byte-code for
 the latter could signal an error if it has been compiled with
 emacs 24.1 and is then later run by emacs 24.5."
-  (declare (indent 2) (debug (symbolp form)))
+  (declare (indent 2) (debug (symbolp form &rest form)))
   (if (fboundp name)            ;If macro exists at compile-time, just use it.
       then
     `(if (fboundp ',name)       ;Else, check if it exists at run-time.
@@ -758,7 +764,11 @@ overlays."
 	     (/ outer-priority 2))
 	    ((and inner-priority outer-priority)
 	     (+ (/ (- outer-priority inner-priority) 2) inner-priority))
-	    (t TeX-overlay-priority-step)))) )
+	    (t TeX-overlay-priority-step))))
+
+  (defun TeX-replace-regexp-in-string (regexp rep string)
+    "Compatibility function mimicking `replace-regexp-in-string' for XEmacs."
+    (replace-in-string string regexp rep)) )
 
 ;; require crm here, because we often do
 ;;
@@ -896,7 +906,9 @@ overlays."
 	     (/ outer-priority 2))
 	    ((and inner-priority outer-priority)
 	     (+ (/ (- outer-priority inner-priority) 2) inner-priority))
-	    (t TeX-overlay-priority-step)))) )
+	    (t TeX-overlay-priority-step))))
+
+  (defalias #'TeX-replace-regexp-in-string #'replace-regexp-in-string) )
 
 (defun TeX-delete-dups-by-car (alist &optional keep-list)
   "Return a list of all elements in ALIST, but each car only once.
@@ -958,6 +970,28 @@ echo area.  If `expert' display output buffer with raw processor output."
   :group 'TeX-output
   :type 'boolean)
 
+(defcustom TeX-ignore-warnings nil
+  "Controls which warnings are to be ignored.
+
+It can be either a regexp matching warnings to be ignored, or a
+symbol with the name of a custom function taking as arguments all
+the information of the warning listed in `TeX-error-list', except
+the last one about whether to ignore the warning.
+
+If you want to use the custom function, see how it is used in the
+code of `TeX-warning'."
+  :group 'TeX-command
+  :type '(choice (const  :tag "Do not ignore anything" nil)
+		 (string :tag "Regexp")
+		 (symbol :tag "Function name")))
+
+(defcustom TeX-suppress-ignored-warnings nil
+  "Whether to actually show ignored warnings.
+
+Note that `TeX-debug-warnings' always takes the precedence."
+  :group 'TeX-command
+  :type 'boolean)
+
 (defun TeX-toggle-debug-bad-boxes ()
   "Toggle if the debugger should display \"bad boxes\" too."
   (interactive)
@@ -971,6 +1005,16 @@ echo area.  If `expert' display output buffer with raw processor output."
   (setq TeX-debug-warnings (not TeX-debug-warnings))
   (message (concat "TeX-debug-warnings: "
 		   (if TeX-debug-warnings "on" "off"))))
+
+(defun TeX-toggle-suppress-ignored-warnings ()
+  "Toggle if the debugger should display ignored warnings too.
+
+See `TeX-suppress-ignored-warnings' and `TeX-ignore-warnings' for
+more details."
+  (interactive)
+  (setq TeX-suppress-ignored-warnings (not TeX-suppress-ignored-warnings))
+  (message (concat "TeX-suppress-ignored-warnings: "
+		   (if TeX-suppress-ignored-warnings "on" "off"))))
 
 ;;; Mode names.
 
@@ -1131,21 +1175,33 @@ all the regular expressions must match for the element to apply."
     (mode-io-correlate
      TeX-source-correlate-mode)
     (paper-landscape
-     (TeX-match-style "\\`landscape\\'"))
+     (and (fboundp 'LaTeX-match-class-option)
+	  (LaTeX-match-class-option "\\`landscape\\'")))
     (paper-portrait
-     (not (TeX-match-style "\\`landscape\\'")))
+     (not (and (fboundp 'LaTeX-match-class-option)
+	       (LaTeX-match-class-option "\\`landscape\\'"))))
     (paper-a4
-     (TeX-match-style "\\`a4paper\\|a4dutch\\|a4wide\\|sem-a4\\'"))
+     (let ((regex "\\`\\(?:a4paper\\|a4dutch\\|a4wide\\|sem-a4\\)\\'"))
+       (or (TeX-match-style regex)
+	   (and (fboundp 'LaTeX-match-class-option)
+		(LaTeX-match-class-option regex)))))
     (paper-a5
-     (TeX-match-style "\\`a5paper\\|a5comb\\'"))
+     (let ((regex "\\`\\(?:a5paper\\|a5comb\\)\\'"))
+       (or (TeX-match-style regex)
+	   (and (fboundp 'LaTeX-match-class-option)
+		(LaTeX-match-class-option regex)))))
     (paper-b5
-     (TeX-match-style "\\`b5paper\\'"))
+     (and (fboundp 'LaTeX-match-class-option)
+	  (LaTeX-match-class-option "\\`b5paper\\'")))
     (paper-letter
-     (TeX-match-style "\\`letterpaper\\'"))
+     (and (fboundp 'LaTeX-match-class-option)
+	  (LaTeX-match-class-option "\\`letterpaper\\'")))
     (paper-legal
-     (TeX-match-style "\\`legalpaper\\'"))
+     (and (fboundp 'LaTeX-match-class-option)
+	  (LaTeX-match-class-option "\\`legalpaper\\'")))
     (paper-executive
-     (TeX-match-style "\\`executivepaper\\'")))
+     (and (fboundp 'LaTeX-match-class-option)
+	  (LaTeX-match-class-option "\\`executivepaper\\'"))))
   "Alist of built-in predicates for viewer selection and invocation.
 See the doc string of `TeX-view-predicate-list' for a short
 description of each predicate.")
@@ -1178,28 +1234,36 @@ The following built-in predicates are available:
   :group 'TeX-view
   :type '(alist :key-type symbol :value-type (group sexp)))
 
+;; XXX: Atril and xreader are forks of Evince and share an almost
+;; identical interface with it. Instead of having different functions
+;; for each program, we keep the original *-evince-* functions and
+;; make them accept arguments to specify the actual name of the
+;; program and the desktop environment, that will be used to set up
+;; DBUS communication.
+
 ;; Require dbus at compile time to prevent errors due to `dbus-ignore-errors'
 ;; not being defined.
 (eval-when-compile (and (featurep 'dbusbind)
 			(require 'dbus nil :no-error)))
-(defun TeX-evince-dbus-p (&rest options)
-  "Return non-nil, if evince is installed and accessible via DBUS.
+(defun TeX-evince-dbus-p (de app &rest options)
+  "Return non-nil, if an evince-compatible reader is accessible via DBUS.
 Additional OPTIONS may be given to extend the check.  If none are
 given, only the minimal requirements needed by backward search
 are checked.  If OPTIONS include `:forward', which is currently
 the only option, then additional requirements needed by forward
-search are checked, too."
+search are checked, too.
+
+DE is the name of the desktop environment, APP is the name of viewer."
   (let ((dbus-debug nil))
     (and (featurep 'dbusbind)
 	 (require 'dbus nil :no-error)
 	 (dbus-ignore-errors (dbus-get-unique-name :session))
-	 (dbus-ping :session "org.gnome.evince.Daemon")
-	 (executable-find "evince")
+	 (dbus-ping :session (format "org.%s.%s.Daemon" de app))
 	 (or (not (memq :forward options))
 	     (let ((spec (dbus-introspect-get-method
-			  :session "org.gnome.evince.Daemon"
-			  "/org/gnome/evince/Daemon"
-			  "org.gnome.evince.Daemon"
+			  :session (format "org.%s.%s.Daemon" de app)
+			  (format "/org/%s/%s/Daemon" de app)
+			  (format "org.%s.%s.Daemon" de app)
 			  "FindDocument")))
 	       ;; FindDocument must exist, and its signature must be (String,
 	       ;; Boolean, String).  Evince versions between 2.30 and 2.91.x
@@ -1218,16 +1282,19 @@ search are checked, too."
 If `TeX-source-correlate-mode' is disabled, only find and pop to
 the output PDF file.  Used by default for the PDF Tools viewer
 entry in `TeX-view-program-list-builtin'."
-  (unless (featurep 'pdf-tools)
-    (error "PDF Tools are not installed"))
+  ;; Make sure `pdf-tools' is at least in the `load-path', but the user must
+  ;; take care of properly loading and installing the package.  We used to test
+  ;; "(featurep 'pdf-tools)", but that doesn't play well with deferred loading.
+  (unless (fboundp 'pdf-tools-install)
+    (error "PDF Tools are not available"))
   (unless TeX-PDF-mode
     (error "PDF Tools only work with PDF output"))
   (add-hook 'pdf-sync-backward-redirect-functions
 	    #'TeX-source-correlate-handle-TeX-region)
   (if (and TeX-source-correlate-mode
 	   (fboundp 'pdf-sync-forward-search))
-      (with-current-buffer (or (find-buffer-visiting
-				(concat file "." TeX-default-extension))
+      (with-current-buffer (or (when TeX-current-process-region-p
+			    	 (get-file-buffer (TeX-region-file t)))
 			       (current-buffer))
 	(pdf-sync-forward-search))
     (let ((pdf (concat file "." (TeX-output-extension))))
@@ -1236,19 +1303,22 @@ entry in `TeX-view-program-list-builtin'."
 
 (defvar url-unreserved-chars)
 
-(defun TeX-evince-sync-view ()
+(defun TeX-evince-sync-view-1 (de app)
   "Focus the focused page/paragraph in Evince with the position
 of point in emacs by using Evince's DBUS API.  Used by default
-for the Evince viewer entry in `TeX-view-program-list-builtin' if
-the requirements are met."
+for the Evince-compatible entries in
+`TeX-view-program-list-builtin' if the requirements are met.
+
+DE is the name of the desktop environment, APP is the name of
+viewer."
   (require 'url-util)
   (let* ((uri (concat "file://" (url-encode-url
 				 (expand-file-name
 				  (concat file "." (TeX-output-extension))))))
 	 (owner (dbus-call-method
-		 :session "org.gnome.evince.Daemon"
-		 "/org/gnome/evince/Daemon"
-		 "org.gnome.evince.Daemon"
+		 :session (format "org.%s.%s.Daemon" de app)
+		 (format "/org/%s/%s/Daemon" de app)
+		 (format "org.%s.%s.Daemon" de app)
 		 "FindDocument"
 		 uri
 		 t)))
@@ -1258,18 +1328,71 @@ the requirements are met."
 				 (current-buffer))
 	  (dbus-call-method
 	   :session owner
-	   "/org/gnome/evince/Window/0"
-	   "org.gnome.evince.Window"
+	   (format "/org/%s/%s/Window/0" de app)
+	   (format "org.%s.%s.Window" de app)
 	   "SyncView"
 	   (buffer-file-name)
-	   (list :struct :int32 (line-number-at-pos) :int32 (1+ (current-column)))
+	   (list :struct :int32 (1+ (TeX-current-offset))
+		 ;; FIXME: Using `current-column' here is dubious.
+		 ;; Most of CJK letters count as occupying 2 columns,
+		 ;; so the column number is not equal to the number of
+		 ;; the characters counting from the beginning of a
+		 ;; line.  What is the right number to specify here?
+		 ;; number of letters? bytes in UTF8? or other?
+		 :int32 (1+ (current-column)))
 	   :uint32 0))
-      (error "Couldn't find the Evince instance for %s" uri))))
+      (error "Couldn't find the %s instance for %s" (capitalize app) uri))))
+
+(defun TeX-atril-sync-view ()
+  "Run `TeX-evince-sync-view-1', which see, set up for Atril."
+  (TeX-evince-sync-view-1 "mate" "atril"))
+
+(defun TeX-evince-sync-view ()
+  "Run `TeX-evince-sync-view-1', which see, set up for Evince."
+  (TeX-evince-sync-view-1 "gnome" "evince"))
+
+(defun TeX-xreader-sync-view ()
+  "Run `TeX-evince-sync-view-1', which see, set up for Evince."
+  (TeX-evince-sync-view-1 "x" "reader"))
+
+(defun TeX-view-program-select-evince (de app)
+  "Select how to call the Evince-like viewer.
+
+DE is the name of the desktop environment, APP is the name of
+viewer."
+  (if (TeX-evince-dbus-p de app :forward)
+      (intern (format "TeX-%s-sync-view" app))
+    `(,app (mode-io-correlate
+	    ;; With evince 3, -p N opens the page *labeled* N,
+	    ;; and -i,--page-index the physical page N.
+	    ,(if (string-match "--page-index"
+			       (shell-command-to-string (concat app " --help")))
+		 " -i %(outpage)"
+	       " -p %(outpage)")) " %o")))
 
 (defvar TeX-view-program-list-builtin
   (cond
    ((eq system-type 'windows-nt)
     '(("Yap" ("yap -1" (mode-io-correlate " -s %n%b") " %o") "yap")
+      ("dviout" ("dviout -1 "
+		 ((paper-a4 paper-portrait) "-y=A4 ")
+		 ((paper-a4 paper-landscape) "-y=A4L ")
+		 ((paper-a5 paper-portrait) "-y=A5 ")
+		 ((paper-a5 paper-landscape) "-y=A5L ")
+		 ((paper-b5 paper-portrait) "-y=E5 ")
+		 ((paper-b5 paper-landscape) "-y=E5L ")
+		 ((paper-b4jis paper-portrait) "-y=B4 ")
+		 ((paper-b4jis paper-landscape) "-y=B4L ")
+		 ((paper-b5jis paper-portrait) "-y=B5 ")
+		 ((paper-b5jis paper-landscape) "-y=B5L ")
+		 (paper-legal "-y=Legal ")
+		 (paper-letter "-y=Letter ")
+		 (paper-executive "-y=Executive ")
+		 "%d" (mode-io-correlate " \"# %n '%b'\"")) "dviout")
+      ("SumatraPDF"
+       ("SumatraPDF -reuse-instance"
+	(mode-io-correlate " -forward-search %b %n") " %o")
+       "SumatraPDF")
       ("dvips and start" "dvips %d -o && start \"\" %f" "dvips")
       ("start" "start \"\" %o")))
    ((eq system-type 'darwin)
@@ -1293,18 +1416,17 @@ the requirements are met."
       ("dvips and gv" "%(o?)dvips %d -o && gv %f" ,(list "%(o?)dvips" "gv"))
       ("gv" "gv %o" "gv")
       ("xpdf" ("xpdf -remote %s -raise %o" (mode-io-correlate " %(outpage)")) "xpdf")
-      ("Evince" ,(if (TeX-evince-dbus-p :forward)
-		     'TeX-evince-sync-view
-		   `("evince" (mode-io-correlate
-			       ;; With evince 3, -p N opens the page *labeled* N,
-			       ;; and -i,--page-index the physical page N.
-			       ,(if (string-match "--page-index"
-						  (shell-command-to-string "evince --help"))
-				    " -i %(outpage)"
-				  " -p %(outpage)")) " %o")) "evince")
+      ("Evince" ,(TeX-view-program-select-evince "gnome" "evince") "evince")
+      ("Atril" ,(TeX-view-program-select-evince "mate" "atril") "atril")
+      ("Xreader" ,(TeX-view-program-select-evince "x" "reader") "xreader")
       ("Okular" ("okular --unique %o" (mode-io-correlate "#src:%n%a")) "okular")
       ("xdg-open" "xdg-open %o" "xdg-open")
-      ("PDF Tools" TeX-pdf-tools-sync-view))))
+      ("PDF Tools" TeX-pdf-tools-sync-view)
+      ("Zathura"
+       ("zathura %o"
+	(mode-io-correlate
+	 " --synctex-forward %n:0:%b -x \"emacsclient +%{line} %{input}\""))
+       "zathura"))))
   "Alist of built-in viewer specifications.
 This variable should not be changed by the user who can use
 `TeX-view-program-list' to add new viewers or overwrite the
@@ -1510,7 +1632,11 @@ Check the `TeX-view-program-selection' variable" viewer)))
 		   ((listp elt)
 		    (when (TeX-view-match-predicate (car elt))
 		      (setq command (concat command (cadr elt)))))))
-	   command))))
+	   (if (stringp command)
+	       command
+	     ;; Signal an error if `command' isn't a string.  This prevents an
+	     ;; infinite loop in `TeX-command-expand' if `command' is nil.
+	     (error "Wrong viewer specification in `TeX-view-program-list'"))))))
 
 ;;; Engine
 
@@ -1552,6 +1678,17 @@ The function appends the built-in engine specs from
 `TeX-engine-alist' and deletes any entries from the built-in part
 where an entry with the same car exists in the user-defined part."
   (TeX-delete-dups-by-car (append TeX-engine-alist TeX-engine-alist-builtin)))
+
+(defun TeX-engine-in-engine-alist (engine)
+  "Return the `engine' entry in `TeX-engine-alist'.
+
+Throw an error if `engine' is not present in the alist."
+  (or
+   (assq engine (TeX-engine-alist))
+   (error "`%s' is not a known engine.  Valid values are: %s." engine
+	  (mapconcat
+	   (lambda (x) (prin1-to-string (car x)))
+	   (TeX-engine-alist) ", "))))
 
 (defcustom TeX-engine 'default
   (concat "Type of TeX engine to use.
@@ -1744,18 +1881,50 @@ file and LINE to (+ LINE offset-of-region).  Else, return nil."
     (with-current-buffer (or (find-buffer-visiting file)
 			     (find-file-noselect file))
       (goto-char 0)
-      (when (re-search-forward "!offset(\\([[:digit:]]+\\))" nil t)
+      ;; Same regexp used in `preview-parse-messages'.  XXX: XEmacs doesn't
+      ;; support regexp classes, so we can't use "[:digit:]" here.
+      (when (re-search-forward "!offset(\\([---0-9]+\\))" nil t)
 	(let ((offset (string-to-int (match-string-no-properties 1))))
 	  (when TeX-region-orig-buffer
 	    (list (expand-file-name (buffer-file-name TeX-region-orig-buffer))
 		  (+ line offset) col)))))))
+
+(defcustom TeX-raise-frame-function #'raise-frame
+  "A function which will be called to raise the Emacs frame.
+The function is called after `TeX-source-correlate-sync-source'
+has processed an inverse search DBUS request from
+Evince-compatible viewers in order to raise the Emacs frame.
+
+The default value is `raise-frame', however, depending on window
+manager and focus stealing policies, it might very well be that
+Emacs doesn't pop into the foreground.  So you can do whatever it
+takes here.
+
+For some users, `x-focus-frame' does the trick.  For some
+users (on GNOME 3.20),
+
+  (lambda ()
+    (run-at-time 0.5 nil #'x-focus-frame))
+
+does the trick.  Some other users use the external wmctrl tool to
+raise the Emacs frame like so:
+
+  (lambda ()
+    (call-process
+     \"wmctrl\" nil nil nil \"-i\" \"-R\"
+     (frame-parameter (selected-frame) 'outer-window-id)))"
+  :type 'function
+  :group 'TeX-view)
 
 (defun TeX-source-correlate-sync-source (file linecol &rest ignored)
   "Show TeX FILE with point at LINECOL.
 This function is called when emacs receives a SyncSource signal
 emitted from the Evince document viewer.  IGNORED absorbs an
 unused id field accompanying the DBUS signal sent by Evince-3.0.0
-or newer."
+or newer.
+
+If the Emacs frame isn't raised, customize
+`TeX-raise-frame-function'."
   ;; FILE may be given as relative path to the TeX-master root document or as
   ;; absolute file:// URL.  In the former case, the tex file has to be already
   ;; opened.
@@ -1766,7 +1935,7 @@ or newer."
 		     (url-unhex-string (aref (url-generic-parse-url file) 6)))
 		 ;; For Emacs 21 compatibility, which doesn't have the
 		 ;; url package.
-		 (file-error (replace-regexp-in-string "^file://" "" file))))
+		 (file-error (TeX-replace-regexp-in-string "^file://" "" file))))
 	 (flc (or (apply #'TeX-source-correlate-handle-TeX-region file linecol)
 		  (apply #'list file linecol)))
 	 (file (car flc))
@@ -1789,7 +1958,9 @@ or newer."
 	(when (or (< pos (point-min))
 		  (> pos (point-max)))
 	  (widen))
-	(goto-char pos)))))
+	(goto-char pos))
+      (when TeX-raise-frame-function
+	(funcall TeX-raise-frame-function)))))
 
 (define-minor-mode TeX-source-correlate-mode
   "Minor mode for forward and inverse search.
@@ -1812,12 +1983,15 @@ SyncTeX are recognized."
 				       TeX-source-correlate-map))
   (TeX-set-mode-name 'TeX-source-correlate-mode t t)
   (setq TeX-source-correlate-start-server-flag TeX-source-correlate-mode)
-  ;; Register Emacs for the SyncSource DBUS signal emitted by Evince.
-  (when (TeX-evince-dbus-p)
-    (dbus-register-signal
-     :session nil "/org/gnome/evince/Window/0"
-     "org.gnome.evince.Window" "SyncSource"
-     'TeX-source-correlate-sync-source)))
+  ;; Register Emacs for the SyncSource DBUS signal emitted by
+  ;; Evince-compatible viewers.
+  (dolist (de-app '(("gnome" "evince") ("mate" "atril") ("x" "reader")))
+    (when (TeX-evince-dbus-p (car de-app) (cadr de-app))
+      (dbus-register-signal
+       :session nil (format "/org/%s/%s/Window/0" (car de-app) (cadr de-app))
+       (format "org.%s.%s.Window" (car de-app) (cadr de-app))
+       "SyncSource"
+       'TeX-source-correlate-sync-source))))
 
 (defalias 'TeX-source-specials-mode 'TeX-source-correlate-mode)
 (make-obsolete 'TeX-source-specials-mode 'TeX-source-correlate-mode "11.86")
@@ -1924,11 +2098,14 @@ enabled and the `synctex' binary is available."
   (let ((synctex-output
 	 (with-output-to-string
 	   (call-process "synctex" nil (list standard-output nil) nil "view"
-			 "-i" (format "%s:%s:%s" (line-number-at-pos)
-				      (current-column)
+			 "-i" (format "%s:%s:%s" (1+ (TeX-current-offset))
+				      ;; FIXME: Using `current-column'
+				      ;; here is dubious.  See comment in
+				      ;; `TeX-evince-sync-view-1'.
+				      (1+ (current-column))
 				      file)
 			 "-o" (TeX-active-master (TeX-output-extension))))))
-    (when (string-match "Page:\\([0-9]+\\)" synctex-output)
+    (when (string-match "^Page:\\([0-9]+\\)" synctex-output)
       (match-string 1 synctex-output))))
 
 (defun TeX-synctex-output-page ()
@@ -2029,19 +2206,52 @@ already established, don't do anything."
   :group 'TeX-command
   :type 'boolean)
 
+(defcustom TeX-PDF-from-DVI nil
+  "Specify if and how to produce PDF output from a DVI file.
+
+If non-nil, the default compiler produces DVI output.  The value
+should be the name of the command used to convert the DVI file to
+PDF or to an intermediate type.
+
+Possible values are
+
+* \"Dvips\": the DVI file is converted to PS with dvips.  After
+  successfully running it, ps2pdf will be the default command to
+  convert the PS file to PDF
+* \"Dvipdfmx\": the PDF is produced with dvipdfmx
+
+Programs should not use this variable directly but the function
+`TeX-PDF-from-DVI' which handles now obsolete variable
+`TeX-PDF-via-dvips-ps2pdf'."
+  :group 'TeX-command
+  :type '(choice
+	  (const :tag "No DVI to PDF conversion" nil)
+	  (const :tag "dvips - ps2pdf sequence" "Dvips")
+	  (const :tag "dvipdfmx" "Dvipdfmx")))
+;; If you plan to support new values of `TeX-PDF-from-DVI' remember to update
+;; `TeX-command-default' accordingly.
+(make-variable-buffer-local 'TeX-PDF-from-DVI)
+(put 'TeX-PDF-from-DVI 'safe-local-variable
+     (lambda (x) (or (stringp x) (null x))))
+
 (defcustom TeX-PDF-via-dvips-ps2pdf nil
   "Whether to produce PDF output through the (La)TeX - dvips - ps2pdf sequence."
   :group 'TeX-command
   :type 'boolean)
 (make-variable-buffer-local 'TeX-PDF-via-dvips-ps2pdf)
-(put 'TeX-PDF-via-dvips-ps2pdf 'safe-local-variable 'booleanp)
+(put 'TeX-PDF-via-dvips-ps2pdf 'safe-local-variable 'TeX-booleanp)
+(make-obsolete-variable 'TeX-PDF-via-dvips-ps2pdf 'TeX-PDF-from-DVI "11.90")
 
-(defun TeX-toggle-PDF-via-dvips-ps2pdf ()
-  "Toggle `TeX-PDF-via-dvips-ps2pdf'."
-  (interactive)
-  (setq TeX-PDF-via-dvips-ps2pdf (not TeX-PDF-via-dvips-ps2pdf))
-  (message (concat "TeX-PDF-via-dvips-ps2pdf: "
-		   (if TeX-PDF-via-dvips-ps2pdf "on" "off"))))
+(defun TeX-PDF-from-DVI ()
+  "Return the value of variable `TeX-PDF-from-DVI'.
+
+If `TeX-PDF-from-DVI' is not set and obsolete option
+`TeX-PDF-via-dvips-ps2pdf' is non-nil, return \"dvips-ps2pdf\"
+for backward compatibility."
+  (cond
+   (TeX-PDF-from-DVI)
+   (TeX-PDF-via-dvips-ps2pdf
+    "Dvips")))
 
 (define-minor-mode TeX-interactive-mode
   "Minor mode for interactive runs of TeX."
@@ -2210,10 +2420,6 @@ this variable to \"<none>\"."
   :group 'TeX-command
   :type 'regexp)
 
-(defvar TeX-convert-master t
-  "*If not nil, automatically convert ``Master:'' lines to file variables.
-This will be done when AUCTeX first try to use the master file.")
-
 ;; Can be let-bound temporarily in order to inhibit the master file question
 ;; by using its value instead in case `TeX-master' is nil or 'shared.
 (defvar TeX-transient-master nil)
@@ -2235,7 +2441,7 @@ This will be done when AUCTeX first try to use the master file.")
     (let* ((default (TeX-dwim-master))
 	   (name (or (and (eq 'dwim TeX-master) default)
 		     (condition-case nil
-			 (read-file-name (format "Master file: (default %s) "
+			 (read-file-name (format "Master file (default %s): "
 						 (or default "this file"))
 					 nil default)
 		       (quit "<quit>")))))
@@ -2269,10 +2475,7 @@ If optional second argument NONDIRECTORY is non-nil, do not include
 the directory.
 
 If optional third argument ASK is non-nil, ask the user for the
-name of master file if it cannot be determined otherwise.
-
-Currently it will check for the presence of a ``Master:'' line in
-the beginning of the file, but that feature will be phased out."
+name of master file if it cannot be determined otherwise."
   (interactive)
   (if (eq extension t)
       (setq extension TeX-default-extension))
@@ -2296,7 +2499,7 @@ the beginning of the file, but that feature will be phased out."
 	  (setq TeX-master
 		(let* ((default (TeX-dwim-master))
 		       (name (read-file-name
-			      (format "Master file: (default %s) "
+			      (format "Master file (default %s): "
 				      (or default "this file"))
 			      nil default)))
 		  (cond ((string= name default)
@@ -2318,18 +2521,6 @@ the beginning of the file, but that feature will be phased out."
 
 	 ;; We might already know the name.
 	 ((or (eq TeX-master t) (stringp TeX-master)) TeX-master)
-
-	 ;; Support the ``Master:'' line (under protest!)
-	 ((re-search-forward
-	   "^%% *[Mm]aster:?[ \t]*\\([^ \t\n]+\\)" 500 t)
-	  (setq TeX-master
-		(TeX-strip-extension (TeX-match-buffer 1)
-				     (list TeX-default-extension)))
-	  (if TeX-convert-master
-	      (progn
-		(beginning-of-line)
-		(kill-line 1)
-		(TeX-add-local-master))))
 
 	 ;; Ask the user (but add it as a local variable).
 	 (ask (TeX-master-file-ask)))))
@@ -2366,7 +2557,9 @@ the beginning of the file, but that feature will be phased out."
 	   (file-name-directory buffer-file-name)))))))
 
 (defun TeX-add-local-master ()
-  "Add local variable for `TeX-master'."
+  "Add local variable for `TeX-master'.
+
+Get `major-mode' from master file and enable it."
   (when (and (buffer-file-name)
 	     (string-match TeX-one-master
 			   (file-name-nondirectory (buffer-file-name)))
@@ -2379,20 +2572,31 @@ the beginning of the file, but that feature will be phased out."
 						   "End:")))
 	  (beginning-of-line 1)
 	  (insert prefix "TeX-master: " (prin1-to-string TeX-master) "\n"))
-      (let ((comment-prefix (cond ((eq major-mode 'texinfo-mode) "@c ")
-				  ((eq major-mode 'doctex-mode) "% ")
-				  (t "%%% ")))
-	    (mode (concat (and (boundp 'japanese-TeX-mode) japanese-TeX-mode
-			       "japanese-")
-			  (substring (symbol-name major-mode) 0 -5))))
+      (let* ((mode (if (stringp TeX-master)
+		       (with-current-buffer
+			   (find-file-noselect
+			    (TeX-master-file TeX-default-extension))
+			 major-mode)
+		     major-mode))
+	     (comment-prefix (cond ((eq mode 'texinfo-mode) "@c ")
+				   ((eq mode 'doctex-mode) "% ")
+				   (t "%%% ")))
+	     (mode-string (concat (and (boundp 'japanese-TeX-mode) japanese-TeX-mode
+				       "japanese-")
+				  (substring (symbol-name mode) 0 -5))))
 	(newline)
 	(when (eq major-mode 'doctex-mode)
 	  (insert comment-prefix TeX-esc "endinput\n"))
 	(insert
 	 comment-prefix "Local Variables:\n"
-	 comment-prefix "mode: " mode "\n"
+	 comment-prefix "mode: " mode-string "\n"
 	 comment-prefix "TeX-master: " (prin1-to-string TeX-master) "\n"
-	 comment-prefix "End:\n")))))
+	 comment-prefix "End:\n")
+	(funcall mode)
+	;; TeX modes run `VirTeX-common-initialization' which kills all local
+	;; variables, thus `TeX-master' will be forgotten after `(funcall
+	;; mode)'.  Reparse local variables in order to bring it back.
+	(hack-local-variables)))))
 
 (defun TeX-local-master-p ()
   "Return non-nil if there is a `TeX-master' entry in local variables spec.
@@ -2622,8 +2826,10 @@ For supported dialects, see variables `TeX-style-hook-dialect'.")
 Supported values are described below:
 
 * `:bibtex'  for files in BibTeX mode.
+* `:context' for files in ConTeXt mode.
 * `:latex'   for files in LaTeX mode, or any mode derived
 	     thereof.
+* `:plain-tex' for files in plain-TeX mode.
 * `:texinfo' for Texinfo files.
 
 Purpose is notably to prevent non-Texinfo hooks to be run in
@@ -2686,7 +2892,7 @@ side effect e.g. on variable `TeX-font-list'.")
 	   (load-file el)))))
 
 (defconst TeX-style-hook-dialect-weight-alist
-  '((:latex . 1) (:texinfo . 2) (:bibtex . 4))
+  '((:latex . 1) (:texinfo . 2) (:bibtex . 4) (:plain-tex . 8) (:context . 16))
   "Association list to map dialects to binary weight, in order to
   implement dialect sets as bitmaps."  )
 
@@ -2882,7 +3088,7 @@ FORCE is not nil."
 				    TeX-style-hook-list))))
 	(TeX-auto-apply))
     (run-hooks 'TeX-update-style-hook)
-    (message "Applying style hooks... done")))
+    (message "Applying style hooks...done")))
 
 (defvar TeX-remove-style-hook nil
   "List of hooks to call when we remove the style specific information.")
@@ -2981,8 +3187,11 @@ Expert %s are completed depending on `TeX-complete-expert-commands'."
 
 Each entry is a list with the following elements:
 
-0. Regexp matching the preceding text.
-1. A number indicating the subgroup in the regexp containing the text.
+0. Regexp matching the preceding text or a predicate of arity 0
+which returns non-nil and sets `match-data' appropriately if it
+is applicable.
+1. A number indicating the subgroup in the regexp containing the
+text.
 2. A function returning an alist of possible completions.
 3. Text to append after a succesful completion.
 
@@ -2991,54 +3200,80 @@ Or alternatively:
 0. Regexp matching the preceding text.
 1. Function to do the actual completion.")
 
-(defun TeX-complete-symbol ()
-  "Perform completion on TeX/LaTeX symbol preceding point."
-  (interactive "*")
+(defun TeX--complete-find-entry ()
+  "Return the first applicable entry of `TeX-complete-list'."
   (let ((list TeX-complete-list)
 	entry)
     (while list
       (setq entry (car list)
 	    list (cdr list))
-      (if (TeX-looking-at-backward (car entry) 250)
-	  (setq list nil)))
-    (if (numberp (nth 1 entry))
-	(let* ((sub (nth 1 entry))
-	       (close (nth 3 entry))
-	       (begin (match-beginning sub))
-	       (end (match-end sub))
-	       (pattern (TeX-match-buffer 0))
-	       (symbol (buffer-substring begin end))
-	       (list (funcall (nth 2 entry)))
-	       (completion (try-completion symbol list))
-	       (buf-name "*Completions*"))
-	  (cond ((eq completion t)
-		 (and close
-		      (not (looking-at (regexp-quote close)))
-		      (insert close))
-		 (let ((window (get-buffer-window buf-name)))
-		   (when window (delete-window window))))
-		((null completion)
-		 (error "Can't find completion for \"%s\"" pattern))
-		((not (string-equal symbol completion))
-		 (delete-region begin end)
-		 (insert completion)
-		 (and close
-		      (eq (try-completion completion list) t)
-		      (not (looking-at (regexp-quote close)))
-		      (insert close))
-		 (let ((window (get-buffer-window buf-name)))
-		   (when window (delete-window window))))
-		(t
-		 (if (fboundp 'completion-in-region)
-		     (completion-in-region begin end
-					   (all-completions symbol list nil))
-		   (message "Making completion list...")
-		   (let ((list (all-completions symbol list nil)))
-		     (with-output-to-temp-buffer buf-name
-		       (display-completion-list list)))
-		   (set-window-dedicated-p (get-buffer-window buf-name) 'soft)
-		   (message "Making completion list...done")))))
-      (funcall (nth 1 entry)))))
+      (when (if (functionp (car entry))
+		(funcall (car entry))
+	      (TeX-looking-at-backward (car entry) 250))
+	(setq list nil)))
+    entry))
+
+(defun TeX-complete-symbol ()
+  "Perform completion on TeX/LaTeX symbol preceding point."
+  (interactive "*")
+  (let ((entry (TeX--complete-find-entry)))
+    (when entry
+      (if (numberp (nth 1 entry))
+	  (let* ((sub (nth 1 entry))
+		 (close (nth 3 entry))
+		 (begin (match-beginning sub))
+		 (end (match-end sub))
+		 (pattern (TeX-match-buffer 0))
+		 (symbol (buffer-substring begin end))
+		 (list (funcall (nth 2 entry)))
+		 (completion (try-completion symbol list))
+		 (buf-name "*Completions*"))
+	    (cond ((eq completion t)
+		   (and close
+			(not (looking-at (regexp-quote close)))
+			(insert close))
+		   (let ((window (get-buffer-window buf-name)))
+		     (when window (delete-window window))))
+		  ((null completion)
+		   (error "Can't find completion for \"%s\"" pattern))
+		  ((not (string-equal symbol completion))
+		   (delete-region begin end)
+		   (insert completion)
+		   (and close
+			(eq (try-completion completion list) t)
+			(not (looking-at (regexp-quote close)))
+			(insert close))
+		   (let ((window (get-buffer-window buf-name)))
+		     (when window (delete-window window))))
+		  (t
+		   (if (fboundp 'completion-in-region)
+		       (completion-in-region begin end
+					     (all-completions symbol list nil))
+		     (message "Making completion list...")
+		     (let ((list (all-completions symbol list nil)))
+		       (with-output-to-temp-buffer buf-name
+			 (display-completion-list list)))
+		     (set-window-dedicated-p (get-buffer-window buf-name) 'soft)
+		     (message "Making completion list...done")))))
+	(funcall (nth 1 entry))))))
+
+(defun TeX--completion-at-point ()
+  "(La)TeX completion at point function.
+See `completion-at-point-functions'."
+  (let ((entry (TeX--complete-find-entry)))
+    (when entry
+      (if (numberp (nth 1 entry))
+	  (let* ((sub (nth 1 entry))
+		 (begin (match-beginning sub))
+		 (end (match-end sub))
+		 (symbol (buffer-substring-no-properties begin end))
+		 (list (funcall (nth 2 entry))))
+	    (list begin end (all-completions symbol list)))
+	;; We intentionally don't call the fallback completion functions because
+	;; they do completion on their own and don't work too well with things
+	;; like company-mode.  And the default function `ispell-complete-word'
+	;; isn't so useful anyway.
+	nil))))
 
 (defcustom TeX-default-macro "ref"
   "*The default macro when creating new ones with `TeX-insert-macro'."
@@ -3407,7 +3642,7 @@ Choose `ignore' if you don't want AUCTeX to install support for font locking."
 
 (defvar TeX-format-list
   '(("JLATEX" japanese-latex-mode
-     "\\\\\\(documentstyle\\|documentclass\\)[^%\n]*{\\(j[s-]?\\|t\\)\
+     "\\\\\\(documentstyle\\|documentclass\\)[^%\n]*{u?\\(j[s-]?\\|t\\)\
 \\(article\\|report\\|book\\|slides\\)")
     ("JTEX" japanese-plain-tex-mode
      "-- string likely in Japanese TeX --")
@@ -3568,6 +3803,18 @@ The algorithm is as follows:
       (set (make-local-variable 'prettify-symbols-compose-predicate)
 	   #'TeX--prettify-symbols-compose-p)))
 
+  ;; Standard Emacs completion-at-point support
+  (when (boundp 'completion-at-point-functions)
+    (add-hook 'completion-at-point-functions
+	      #'TeX--completion-at-point nil t)
+
+    ;; Support for company-mode
+    (when (fboundp 'company-mode)
+      ;; By default, company completions kick in after a prefix of 3 chars has
+      ;; been typed.  Since we don't have too many completions, that's too
+      ;; much.
+      (set (make-local-variable 'company-minimum-prefix-length) 1)))
+
   ;; Let `TeX-master-file' be called after a new file was opened and
   ;; call `TeX-update-style' on any file opened.  (The addition to the
   ;; hook has to be made here because its local value will be deleted
@@ -3656,6 +3903,7 @@ The algorithm is as follows:
       (set local
 	   (sort (mapcar 'TeX-listify (apply 'append (symbol-value local)))
 		 'TeX-car-string-lessp))
+      (message "Sorting %s...done" name)
       ;; Make it unique
       (message "Removing duplicates...")
       (let ((entry (symbol-value local)))
@@ -3669,7 +3917,7 @@ The algorithm is as follows:
 	      (if (> (length next) (length this))
 		  (setcdr this (cdr next)))
 	      (setcdr entry (cdr (cdr entry)))))))
-      (message "Removing duplicates... done"))
+      (message "Removing duplicates...done"))
     (symbol-value local)))
 
 (defmacro TeX-auto-add-type (name prefix &optional plural)
@@ -3678,7 +3926,7 @@ The algorithm is as follows:
 Optional third argument PLURAL is the plural form of TYPE.
 By default just add an `s'.
 
-This function create a set of variables and functions to maintain a
+This macro creates a set of variables and functions to maintain a
 separate type of information in the parser."
   (let* ((names (or plural (concat name "s")))
 	 (tmp (intern (concat prefix "-auto-" name)))
@@ -3851,7 +4099,7 @@ If TEX is a directory, generate style files for all files in the directory."
 							t)
 				   ".el"))
 	   (kill-buffer (current-buffer))
-	   (message "Parsing %s... done" tex)))))
+	   (message "Parsing %s...done" tex)))))
 
 ;;;###autoload
 (defun TeX-auto-generate-global ()
@@ -3876,17 +4124,22 @@ If TEX is a directory, generate style files for all files in the directory."
 			    LaTeX-provided-class-options))
 	    (pkg-opts (if (boundp 'LaTeX-provided-package-options)
 			  LaTeX-provided-package-options))
+	    (tex-cmd-opts TeX-command-extra-options)
 	    (verb-envs (when (boundp 'LaTeX-verbatim-environments-local)
 			 LaTeX-verbatim-environments-local))
 	    (verb-macros-delims (when (boundp 'LaTeX-verbatim-macros-with-delims-local)
 				  LaTeX-verbatim-macros-with-delims-local))
 	    (verb-macros-braces (when (boundp 'LaTeX-verbatim-macros-with-braces-local)
-				  LaTeX-verbatim-macros-with-braces-local)))
+				  LaTeX-verbatim-macros-with-braces-local))
+	    (dialect TeX-style-hook-dialect))
 	(TeX-unload-style style)
 	(with-current-buffer (generate-new-buffer file)
 	  (erase-buffer)
 	  (insert "(TeX-add-style-hook\n \""
 		  style "\"\n (lambda ()")
+	  (unless (string= tex-cmd-opts "")
+	    (insert "\n   (setq TeX-command-extra-options\n"
+		    "         " (prin1-to-string tex-cmd-opts) ")"))
 	  (when class-opts
 	    (insert "\n   (TeX-add-to-alist 'LaTeX-provided-class-options\n"
 		    "                     '" (prin1-to-string class-opts) ")"))
@@ -3907,7 +4160,9 @@ If TEX is a directory, generate style files for all files in the directory."
 		     env)))
 	  (mapc (lambda (el) (TeX-auto-insert el style))
 		TeX-auto-parser)
-	  (insert "))\n\n")
+	  (insert ")")
+	  (if dialect (insert (concat "\n " (prin1-to-string dialect))))
+	  (insert ")\n\n")
 	  (write-region (point-min) (point-max) file nil 'silent)
 	  (kill-buffer (current-buffer))))
     (if (file-exists-p (concat file "c"))
@@ -3999,7 +4254,7 @@ alter the numbering of any ordinary, non-shy groups.")
        1 TeX-auto-file)
       (,(concat "\\\\mathchardef\\\\\\(" token "+\\)[^a-zA-Z@]")
        1 TeX-auto-symbol)))
-  "List of regular expression matching common LaTeX macro definitions.")
+  "List of regular expression matching common plain TeX macro definitions.")
 
 (defvar TeX-auto-full-regexp-list plain-TeX-auto-regexp-list
   "Full list of regular expression matching TeX macro definitions.")
@@ -4405,7 +4660,7 @@ upon a file search.  Note that the directories have to end with a
 directory separator.
 
 Each AUCTeX mode should set the variable buffer-locally with a
-more specific value.  See `LateX-search-files-type-alist' for an
+more specific value.  See `LaTeX-search-files-type-alist' for an
 example.")
 
 (defun TeX-search-files-by-type (filetype &optional scope nodir strip)
@@ -4422,7 +4677,8 @@ in the global directories only and nil in both.
 If optional argument NODIR is non-nil, remove directory part.
 
 If optional argument STRIP is non-nil, remove file extension."
-  (let* ((spec (assq filetype TeX-search-files-type-alist))
+  (let* ((gc-cons-threshold 10000000)
+	 (spec (assq filetype TeX-search-files-type-alist))
 	 (kpse-var (nth 1 spec))
 	 (rawdirs (nth 2 spec))
 	 (exts (nth 3 spec))
@@ -4521,15 +4777,6 @@ See `match-data' for details."
   (if (match-beginning n)
       (buffer-substring-no-properties (match-beginning n) (match-end n))
     ""))
-
-(defun TeX-function-p (arg)
-  "Return non-nil if ARG is callable as a function."
-  (or (and (fboundp 'byte-code-function-p)
-	   (byte-code-function-p arg))
-      (and (listp arg)
-	   (eq (car arg) 'lambda))
-      (and (symbolp arg)
-	   (fboundp arg))))
 
 (defun TeX-booleanp (arg)
   "Return non-nil if ARG is t or nil."
@@ -4741,7 +4988,7 @@ Brace insertion is only done if point is in a math construct and
 
 (defun TeX-newline ()
   "Call the function specified by the variable `TeX-newline-function'."
-  (interactive) (funcall TeX-newline-function))
+  (interactive) (call-interactively TeX-newline-function))
 
 (defvar TeX-mode-map
   (let ((map (make-sparse-keymap)))
@@ -4750,7 +4997,7 @@ Brace insertion is only done if point is in a math construct and
     (define-key map "\C-c}"    'up-list)
     (define-key map "\C-c#"    'TeX-normal-mode)
     (define-key map "\C-c\C-n" 'TeX-normal-mode)
-    (define-key map "\C-c?"    'TeX-doc)
+    (define-key map "\C-c?"    'TeX-documentation-texdoc)
     (define-key map "\C-c\C-i" 'TeX-goto-info-page)
     (define-key map "\r"       'TeX-newline)
 
@@ -4782,6 +5029,7 @@ Brace insertion is only done if point is in a math construct and
     (define-key map "\C-c\C-w"       'TeX-toggle-debug-bad-boxes); to be removed
     (define-key map "\C-c\C-t\C-b"   'TeX-toggle-debug-bad-boxes)
     (define-key map "\C-c\C-t\C-w"   'TeX-toggle-debug-warnings)
+    (define-key map "\C-c\C-t\C-x"   'TeX-toggle-suppress-ignored-warnings)
     (define-key map "\C-c\C-v" 'TeX-view)
     ;; From tex-buf.el
     (define-key map "\C-c\C-d" 'TeX-save-document)
@@ -4874,10 +5122,21 @@ Brace insertion is only done if point is in a math construct and
 	 :style toggle :selected TeX-PDF-mode
 	 :active (not (eq TeX-engine 'omega))
 	 :help "Use PDFTeX to generate PDF instead of DVI"]
-       [ "PDF via dvips + ps2pdf" TeX-toggle-PDF-via-dvips-ps2pdf
-	 :style toggle :selected TeX-PDF-via-dvips-ps2pdf
+       ( "PDF from DVI"
 	 :visible TeX-PDF-mode
-	 :help "Compile with (La)TeX and convert to PDF with dvips + ps2pdf"]
+	 :help "Compile to DVI with (La)TeX and convert to PDF"
+	 [ "Compile directly to PDF"
+	   (lambda () (interactive) (setq TeX-PDF-from-DVI nil))
+	   :style radio :selected (null (TeX-PDF-from-DVI))
+	   :help "Compile directly to PDF without intermediate conversions"]
+	 [ "dvips + ps2pdf"
+	   (lambda () (interactive) (setq TeX-PDF-from-DVI "Dvips"))
+	   :style radio :selected (equal (TeX-PDF-from-DVI) "Dvips")
+	   :help "Convert DVI to PDF with dvips + ps2pdf sequence"]
+	 [ "dvipdfmx"
+	   (lambda () (interactive) (setq TeX-PDF-from-DVI "Dvipdfmx"))
+	   :style radio :selected (equal (TeX-PDF-from-DVI) "Dvipdfmx")
+	   :help "Convert DVI to PDF with dvipdfmx"])
        [ "Run Interactively" TeX-interactive-mode
 	 :style toggle :selected TeX-interactive-mode :keys "C-c C-t C-i"
 	 :help "Stop on errors in a TeX run"]
@@ -4973,7 +5232,7 @@ Brace insertion is only done if point is in a math construct and
        :help "Save and reparse the current buffer for style information"]
       ["Reset AUCTeX" (TeX-normal-mode t) :keys "C-u C-c C-n"
        :help "Reset buffer and reload AUCTeX style files"])
-     ["Find Documentation..." TeX-doc
+     ["Find Documentation..." TeX-documentation-texdoc
       :help "Get help on commands, packages, or TeX-related topics in general"]
      ["Read the AUCTeX Manual" TeX-goto-info-page
       :help "Everything worth reading"]
@@ -5864,7 +6123,10 @@ sign.  With optional ARG, insert that many dollar signs."
        (texmathp)
        (boundp 'current-input-method) current-input-method
        (string-match TeX-math-input-method-off-regexp current-input-method)
-       (inactivate-input-method)))
+       ;; inactivate-input-method is obsolete since emacs 24.3.
+       (if (fboundp 'deactivate-input-method)
+	   (deactivate-input-method)
+	 (inactivate-input-method))))
 
 ;;; Simple Commands
 
@@ -6108,6 +6370,71 @@ to browse existing AUCTeX bugs.
 
 ;;; Documentation
 
+(defun TeX-documentation-texdoc (&optional arg)
+  "Run texdoc to read documentation.
+
+Prompt for selection of the package of which to show the documentation.
+
+If called with a prefix argument ARG, after selecting the
+package, prompt for selection of the manual of that package to
+show."
+  (interactive "P")
+  (let ((pkg (thing-at-point 'symbol))
+	buffer list doc)
+    ;; Strip off properties.  XXX: XEmacs doesn't have
+    ;; `substring-no-properties'.
+    (set-text-properties 0 (length pkg) nil pkg)
+    (setq pkg (TeX-read-string "View documentation for: " pkg))
+    (unless (zerop (length pkg))
+      (if arg
+	  ;; Called with prefix argument: run "texdoc --list --nointeract <pkg>"
+	  (progn
+	    ;; Create the buffer, insert the result of the command, and
+	    ;; accumulate the list of manuals.
+	    (with-current-buffer (get-buffer-create
+				  (setq buffer (format "*texdoc: %s*" pkg)))
+	      (erase-buffer)
+	      (insert (shell-command-to-string
+		       (concat "texdoc --list --nointeract " pkg)))
+	      (goto-char 1)		; No need to use `point-min' here.
+	      (save-excursion
+		(while (re-search-forward
+			;; XXX: XEmacs doesn't support character classes in
+			;; regexps, like "[:alnum:]".
+			"^ *\\([0-9]+\\) +\\([-~/a-zA-Z0-9_.${}#%,:\\ ()]+\\)" nil t)
+		  (push (cons (match-string 1) (match-string 2)) list))))
+	    (unwind-protect
+		(cond
+		 ((null (executable-find "texdoc"))
+		  ;; Note: `shell-command-to-string' uses shell, only
+		  ;; `call-process' looks at `exec-path', thus only here makes
+		  ;; sense to use `executable-find' to test whether texdoc is
+		  ;; available.
+		  (message "texdoc not found"))
+		 (list
+		  ;; Go on if there are manuals listed: show the buffer, prompt
+		  ;; for the number of the manual, then run
+		  ;;     texdoc --just-view <doc>
+		  (TeX-pop-to-buffer (get-buffer buffer))
+		  (condition-case nil
+		      (when (setq doc
+				  (cdr (assoc (TeX-read-string "Please enter \
+the number of the file to view, anything else to skip: ") list)))
+			(call-process "texdoc" nil 0 nil "--just-view" doc))
+		    ;; Exit gently if a `quit' signal is thrown.
+		    (quit nil)))
+		 (t (message "No documentation found for %s" pkg)))
+	      ;; In any case quit-and-kill the window.  XXX: XEmacs doesn't have
+	      ;; `quit-window', just kill the buffer in that case.
+	      (when (get-buffer-window buffer)
+		(if (fboundp 'quit-window)
+		    (quit-window t (get-buffer-window buffer))
+		  (kill-buffer buffer)))))
+	;; Called without prefix argument: just run "texdoc --view <pkg>" and
+	;; show the output, so that the user is warned in case it doesn't find
+	;; the documentation or "texdoc" is not available.
+	(message (shell-command-to-string (concat "texdoc --view " pkg)))))))
+
 (defun TeX-goto-info-page ()
   "Read documentation for AUCTeX in the info system."
   (interactive)
@@ -6284,6 +6611,110 @@ NAME may be a package, a command, or a document."
       (append '(plain-tex-mode ams-tex-mode latex-mode doctex-mode)
 	      ispell-tex-major-modes))
 
+(defcustom TeX-ispell-extend-skip-list t
+  "Whether to extend regions selected for skipping during spell checking."
+  :group 'TeX-misc
+  :type 'boolean)
+
+;; These functions are used to add new items to
+;; `ispell-tex-skip-alists' -- see tex-ispell.el:
+(defun TeX-ispell-skip-setcar (skip)
+  "Add SKIP to car of `ispell-tex-skip-alists'.
+SKIP is an alist with the format described in
+`ispell-tex-skip-alists'.  Each element in SKIP is added on top
+of the car of `ispell-tex-skip-alists'.  This only happens if
+`TeX-ispell-extend-skip-list' is non-nil."
+  (when TeX-ispell-extend-skip-list
+    (let ((raws (car ispell-tex-skip-alists))
+	  (envs (cadr ispell-tex-skip-alists)))
+      (dolist (x skip)
+	(pushnew x raws :test #'equal))
+      (setq ispell-tex-skip-alists (list raws envs)))))
+
+(defun TeX-ispell-skip-setcdr (skip)
+  "Add SKIP to cdr of `ispell-tex-skip-alists'.
+SKIP is an alist with the format described in
+`ispell-tex-skip-alists'.  Each element in SKIP is added on top
+of the cdr of `ispell-tex-skip-alists'.  This only happens if
+`TeX-ispell-extend-skip-list' is non-nil."
+  (when TeX-ispell-extend-skip-list
+    (let ((raws (car ispell-tex-skip-alists))
+	  (envs (cadr ispell-tex-skip-alists)))
+      (dolist (x skip)
+	(pushnew x envs :test #'equal))
+      (setq ispell-tex-skip-alists (list raws envs)))))
+
+(defun TeX-ispell-tex-arg-end (&optional arg1 arg2 arg3)
+  "Skip across ARG1, ARG2 and ARG3 number of braces and brackets.
+This function is a variation of `ispell-tex-arg-end'.  It should
+be used when adding skip regions to `ispell-tex-skip-alists' for
+constructs like:
+
+  \\begin{tabularx}{300pt}[t]{lrc} ...
+    or
+  \\fontspec{font name}[font features]
+
+where optional and/or mandatory argument(s) follow(s) a mandatory
+one.  ARG1 is the number of mandatory arguments before the
+optional one, ARG2 the max. number of following optional
+arguments, ARG3 is the max. number of mandatory arguments
+following.  Omitting argument means 1.
+
+Here some examples for additions to `ispell-tex-skip-alists':
+
+  \\begin{tabularx}{300pt}[t]{lrc} ...
+		ARG  1    2   3
+  (\"tabularx\" TeX-ispell-tex-arg-end) or equivalent
+  (\"tabularx\" TeX-ispell-tex-arg-end 1 1 1)
+
+  \\fontspec{font name}[font features]
+	       ARG1         ARG2        ARG3=0
+  (\"\\\\\\\\fontspec\" TeX-ispell-tex-arg-end 1 1 0)
+
+  \\raisebox{lift}[height][depth]{contents}
+	    ARG1       ARG2       ARG3=0 (checked by Ispell)
+  (\"\\\\\\\\raisebox\" TeX-ispell-tex-arg-end 1 2 0)
+
+Optional arguments before the first mandatory one are all
+skipped."
+  (condition-case nil
+      (progn
+	(while (looking-at "[ \t\n]*\\[") (forward-sexp))
+	(forward-sexp (or arg1 1))
+	(let ((num 0))
+	  (while (and (looking-at "[ \t\n]*\\[")
+		      (< num (or arg2 1)))
+	    (setq num (1+ num))
+	    (forward-sexp)))
+	(forward-sexp (or arg3 1)))
+    (error
+     (message "Error skipping s-expressions at point %d" (point))
+     (sit-for 2))))
+
+(defun TeX-ispell-tex-arg-verb-end (&optional arg)
+  "Skip across an optional argument, ARG number of mandatory ones and verbatim content.
+This function always checks if one optional argument in brackets
+is given and skips over it.  If ARG is a number, it skips over
+that many mandatory arguments in braces.  Then it checks for
+verbatim content to skip which is enclosed by a character given
+in `TeX-ispell-verb-delimiters' or in braces, otherwise raises an
+error."
+  (condition-case nil
+      (progn
+	(when (looking-at "[ \t\n]*\\[") (forward-sexp))
+	(when (and arg (looking-at "{"))
+	  (forward-sexp arg))
+	(cond ((looking-at (concat "[" TeX-ispell-verb-delimiters "]"))
+	       (forward-char)
+	       (skip-chars-forward (concat "^" (string (char-before))))
+	       (forward-char))
+	      ((looking-at "{")
+	       (forward-sexp))
+	      (t (error nil))))
+    (error
+     (message "Verbatim delimiter is not one of %s"
+	      (split-string TeX-ispell-verb-delimiters "" t))
+     (sit-for 2))))
 
 ;;; Abbrev mode
 
@@ -6316,6 +6747,18 @@ NAME may be a package, a command, or a document."
 (put 'TeX-newline 'delete-selection t)
 (put 'TeX-insert-quote 'delete-selection t)
 (put 'TeX-insert-backslash 'delete-selection t)
+;; When `TeX-electric-math' is non-nil, `TeX-insert-dollar' interferes with
+;; `delete-selection-mode', but when it's nil users may want to be able to
+;; delete active region if `delete-selection-mode' is active, see bug#23177.  We
+;; can dynamically determine the behavior of `delete-selection' with
+;; `TeX-insert-dollar' based on the value of `TeX-electric-math'.  This
+;; dynamicity has been introduced in Emacs 24.3, for previous versions keep
+;; `TeX-insert-dollar' without this property.
+(if (or (> emacs-major-version 24)
+	(and (= emacs-major-version 24)
+	     (>= emacs-minor-version 3)))
+    (put 'TeX-insert-dollar 'delete-selection
+	 (lambda () (null TeX-electric-math))))
 
 (defun TeX-how-many (regexp &optional rstart rend)
   "Compatibily function for `how-many'.
@@ -6344,6 +6787,16 @@ Emacs 21."
       (if (string-match "\\([0-9]+\\).*" string)
 	  (string-to-number (replace-match "\\1" nil nil string))
 	0))))
+
+(defun TeX--list-of-string-p (lst)
+  "Return non-nil iff `LST' is a list of strings.
+Used as function for validating a variable's `safe-local-variable' property."
+  (and (listp lst)
+       (let ((all-strings t))
+	 (while (and all-strings lst)
+	   (setq all-strings (stringp (car lst)))
+	   (setq lst (cdr lst)))
+	 all-strings)))
 
 (provide 'tex)
 

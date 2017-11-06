@@ -1,6 +1,6 @@
 ;;; tex-style.el --- Customizable variables for AUCTeX style files
 
-;; Copyright (C) 2005, 2007, 2009, 2012-2014
+;; Copyright (C) 2005, 2007, 2009, 2012-2015
 ;;   Free Software Foundation, Inc.
 
 ;; Author: Reiner Steib <Reiner.Steib@gmx.de>
@@ -33,6 +33,18 @@
 
 ;; Note: We don't have any defcustom in plain TeX style files yet.  Else we
 ;; should also create a TeX-style group.
+
+;; Common
+
+(defcustom LaTeX-reftex-ref-style-auto-activate t
+  "Whether to activate automatically RefTeX reference styles."
+  :type 'boolean
+  :group 'LaTeX-style)
+
+(defcustom LaTeX-reftex-cite-format-auto-activate t
+  "Whether to activate automatically RefTeX citation format."
+  :type 'boolean
+  :group 'LaTeX-style)
 
 ;; style/amsmath.el
 
@@ -265,6 +277,22 @@ produced by emp.sty and then re-LaTeX the document."
   :type 'boolean
   :group 'LaTeX-style)
 
+;; style/exam.el
+
+(defcustom LaTeX-exam-reftex-quick-id-key ?x
+  "Unique letter identifying exam class macros in RefTeX.
+
+A character argument for quick identification when RefTeX inserts
+new labels with `reftex-label'.  It must be unique.  It is
+initialized to ?x."
+  :group 'LaTeX-style
+  :type 'character)
+
+(defcustom LaTeX-exam-label "exm:"
+  "Default prefix to labels in environments of exam class."
+  :group 'LaTeX-style
+  :type 'string)
+
 ;; style/fontspec.el
 
 (defcustom LaTeX-fontspec-arg-font-search t
@@ -304,48 +332,6 @@ automatically get the list of fonts.  This requires
 	       (repeat :inline t
 		       :tag "Other"
 		       (string))))
-
-(defcustom LaTeX-includegraphics-options-alist
-  '((0 width)
-    ;; (1 width height clip)
-    ;; (2 width height keepaspectratio clip)
-    (4) ;; --> (4 nil)
-    (5 trim)
-    (16
-     ;; Table 1 in epslatex.ps: ``includegraphics Options''
-     height totalheight width scale angle origin bb
-     ;; Table 2 in epslatex.ps: ``cropping Options''
-     viewport trim
-     ;; Table 3 in epslatex.ps: ``Boolean Options''
-     ;; [not implemented:] noclip draft final
-     clip keepaspectratio
-     ;; Only for PDF:
-     page))
-  "Controls for which optional arguments of \\includegraphics you get prompted.
-
-An alist, consisting of \(NUMBER . LIST\) pairs.  Valid elements of LIST are
-`width', `height', `keepaspectratio', `clip', `angle', `totalheight', `trim'
-and `bb' \(Bounding Box\).
-
-The list corresponding to 0 is used if no prefix is given.  Note that 4 \(one
-\\[universal-argument]\) and 16 \(two \\[universal-argument]'s\) are easy to
-type and should be used for frequently needed combinations."
-  :group 'LaTeX-style
-  :type '(repeat (cons (integer :tag "Argument")
-		       (list (set :inline t
-				  (const height)
-				  (const totalheight)
-				  (const width)
-				  (const scale)
-				  (const angle)
-				  (const origin)
-				  (const :tag "Bounding Box" bb)
-				  ;;
-				  (const viewport)
-				  (const trim)
-				  ;;
-				  (const clip)
-				  (const keepaspectratio))))))
 
 (defcustom LaTeX-includegraphics-strip-extension-flag t
   "Non-nil means to strip known extensions from image file name."
@@ -390,6 +376,18 @@ Inserting the subdirectory in the filename (as
 					 (read-file-name "Image file: ")
 					 (TeX-master-directory))))
 		 (function :tag "other")))
+
+;; style/splitidx.el
+
+(defcustom LaTeX-splitidx-sindex-reftex-quick-id-key ?s
+  "Unique letter identifying \"\\sindex\" macro in RefTeX.
+
+A character argument for quick identification of \"\\sindex\"
+when RefTeX inserts new index entries with `reftex-index'.  It
+must be unique.  It is initialized to ?s when added to
+`reftex-index-macros'."
+  :group 'LaTeX-style
+  :type 'character)
 
 (provide 'tex-style)
 

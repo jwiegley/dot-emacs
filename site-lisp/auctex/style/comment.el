@@ -43,28 +43,27 @@
    ;; New environments
    (mapc 'LaTeX-add-environments LaTeX-comment-env-list)
    ;; Fontification
-   (when (and (featurep 'font-latex)
+   (when (and (fboundp 'font-latex-add-keywords)
+	      (fboundp 'font-latex-update-font-lock)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      ;; For syntactic fontification.
      (add-to-list 'font-latex-syntactic-keywords-extra
 		  ;; \begin is supposed to start at the beginning of a line.
-		  `(,(format "^\\\\begin *{\\(?:%s\\)}.*\\(\n\\)"
+		  `(,(format "^\\\\begin *{%s}.*\\(\n\\)"
 			     (regexp-opt LaTeX-comment-env-list))
-		    (1 "<" t)))
+		    (1 "!" t)))
      (add-to-list 'font-latex-syntactic-keywords-extra
 		  ;; \end is supposed to start at the beginning of a line.
-		  `(,(format "^\\(\\\\\\)end *{\\(?:%s\\)}"
+		  `(,(format "^\\(\\\\\\)end *{%s}"
 			     (regexp-opt LaTeX-comment-env-list))
-		    (1 ">" t)))
-     (font-latex-set-syntactic-keywords)
+		    (1 "!" t)))
      (font-latex-add-keywords '(("includecomment" "{")
 				("excludecomment" "{")
 				("specialcomment" "{{{")
 				("processcomment" "{{{{"))
 			      'variable)
      ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock t)))
  LaTeX-dialect)
 
 ;;; comment.el ends here

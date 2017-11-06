@@ -47,8 +47,8 @@
    ;; Install completion for labels:
    (setq TeX-complete-list
 	 (append
-	  '(("\\\\[Ss]ubref{\\([^{}\n\r\\%,]*\\)" 1 LaTeX-label-list "}")))
-	  TeX-complete-list)
+	  '(("\\\\[Ss]ubref{\\([^{}\n\r\\%,]*\\)" 1 LaTeX-label-list "}"))
+	  TeX-complete-list))
 
    ;; Fontification
    (when (and (featurep 'font-latex)

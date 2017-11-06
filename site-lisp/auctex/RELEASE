@@ -1,4 +1,4 @@
-Release notes for AUCTeX 11.89 with preview-latex
+Release notes for AUCTeX 11.91 with preview-latex
 =================================================
 
 AUCTeX provides by far the most wide-spread and sophisticated
@@ -21,58 +21,85 @@ AUCTeX needs volunteers in particular for non-programming tasks:
 documentation writing, tutorials, translations, reference material,
 sleuth work, testing.
 
-
 New features and fixed bugs in this release
 -------------------------------------------
 
-You can now run all commands needed to compile a document and then
-open the viewer with a single command: 'TeX-command-run-all', bound
-to 'C-c C-a'.
+Now AUCTeX has a logo.  The LaTeX code to create it is available in
+the 'etc/' directory of the package.
 
-Commands such as LaTeX and View can now be executed conveniently on
-the current section (or part, chapter, subsection, etc).  See
-'LaTeX-command-section' and 'LaTeX-command-section-change-level'.
+Add support for 'upmendex', an extension of 'makeindex' capable of
+sorting indexes by unicode based ICU.
 
-Forward and backward search with Evince now also work when only a
-region of the document is compiled/viewed.
+Fix preview-latex to interact correctly with Japanese LaTeX.  The
+parsing routine was made robust not to be confused by the 7-bit
+encoding of Japanese text and the necessary option to LaTeX command
+is kept even when preamble caching is enabled.
 
-To open the PDF output file you can now use also PDF Tools, a
-document viewer for Emacs.  With it, as a plus, forward and
-backward search is accurate at word level.
+The new "Glossaries" entry in 'TeX-command-list' runs the command
+'makeglossaries'.
 
-With new option 'TeX-PDF-via-dvips-ps2pdf' it is possible to
-compile a document to DVI and then convert it to PDF using
-'dvips'-'ps2pdf' before viewing it.
+Fontification of control symbols has been improved.  Characters
+defined in 'font-latex-match-simple-exclude-list' do not receive
+any fontification.  In DocTeX mode, the character '_' is removed
+from 'font-latex-match-simple-exclude-list' in order to fontify
+macros like '\__module_foo:nnn' correctly.
 
-New option 'TeX-file-line-error' allows to select file:line:error
-style for error messages.
+Fontification of math environments has been improved.  Optional
+and/or mandatory argument(s) to environments are not fontified.
 
-Indent '\[...\]' math mode as a regular environment by default.
+'preview.sty' loads 'luatex85.sty' if possible and should be
+compatible with newer luaTeX versions.
 
-Now AUCTeX suggests to run 'makeindex' when appropriate.
+AUCTeX has a new customize option 'TeX-ispell-verb-delimiters'.
+This string contains usual characters used as delimiters for
+in-line verbatim macros like '\verb'.  Text between delimiters
+after an in-line verbatim macro will be skipped during spell
+checking.
 
-'TeX-view-program-list' can contain, as third optional element of
-each item, the name of the executable(s) needed to open the viewer.
+Fontification of in-line verbatim macros has been improved.
+'font-latex.el' recognizes an optional or a mandatory argument for
+macros like '\Verb' from 'fancyvrb.sty', '\mint' and '\mintinline'
+from 'minted.sty' and fontifies verbatim content correctly.
 
-'TeX-expand-list' variable has been split into 'TeX-expand-list'
-and 'TeX-expand-list-builtin'.  Only the former is intended to be
-customized by the user, the latter contains built-in expanders.
-You might want to keep in 'TeX-expand-list' only new expansion
-strings.
+AUCTeX can put and parse labels in optional argument of
+environments.  Inserting labels is done by new function
+'LaTeX-env-label-as-keyval'.  A new customize option
+'LaTeX-listing-label' is available as prefix to labels in code
+typesetting environments, e.g.  'lstlisting' environment provided
+by 'listings' package.  'LaTeX-listing-label' defaults to 'lst:'.
+Parsing of labels for later referencing relies on two requirements:
+  1. Label should come as last key-value argument, and
+  2. label must be enclosed in braces, e.g.
+          \begin{lstlisting}[caption=Some Caption,label={lst:foo}]
+          ...
+          \end{lstlisting}
 
-When new option 'TeX-check-engine' is non-nil, before running LaTeX
-commands AUCTeX will check whether the correct engine has been set,
-based upon known restrictions posed by LaTeX packages.
+The function 'LaTeX-label' now takes a second optional argument
+'NO-INSERT'.  When non-'nil', 'LaTeX-label' reads a label and
+returns it as a string.  This argument is also passed to any
+function bound to 'LaTeX-label-function' (see next item).
 
-Basic support to ConTeXt Mark IV has been added.  Users can now
-select the Mark version to be used with new option
-'ConTeXt-Mark-version', and AUCTeX is able to catch error messages
-in the output log of a Mark IV document.
+*Incompatible change:* The signature for the function passed with
+the customize option 'LaTeX-label-function' has changed.  The
+function bound to this variable is now expected to take an optional
+second argument 'NO-INSERT'.  When this argument is non-'nil', the
+function should read and only return a label as a string; insertion
+is done by another function.
 
-Support for tons of LaTeX packages has been addedd.
+Directory local variables were ineffective for
+'japanese-latex-mode' and 'japanese-plain-tex-mode'.  This bug was
+fixed.  (This was actually done in AUCTeX 11.90, but not
+advertised)
 
-Numbers of bugs have been fixed, many minor features have been
-addedd.
+The output of Japanese text from Japanese TeX engines is decoded
+correctly for most cases, according to the encoding of the TeX
+documents and the locale.  The difference between MS Windows, macOS
+and unix-like OS is taken into account.  (This was actually done in
+AUCTeX 11.90, but not advertised)
+
+Quite a few new LaTeX packages are supported.
+
+As usual, many bugs were fixed.
 
 Requirements
 ------------
@@ -97,15 +124,17 @@ used to speed up the conversion.
 Availability
 ------------
 
-AUCTeX can be downloaded in various formats from
+The easiest way for getting AUCTeX, for users running Emacs 24.1 or
+higher, is installing it with GNU ELPA, see
+<URL:https://elpa.gnu.org/packages/auctex.html> for more information.
+Other download options are available at
 <URL:ftp://ftp.gnu.org/gnu/auctex/>.  At release time, we provide the
-source tarball, a precompiled version for Emacs on Windows, and a
-platform-independent XEmacs package file (which you have to install
-yourself using XEmacs' own package system, after using it for removing
-the previous version of AUCTeX).  The easiest way for using AUCTeX, of
-course, is using versions of Emacs that already include AUCTeX or a
-software package management system for your operating system which
-provides you with the latest release.
+source tarball, and a platform-independent XEmacs package file (which
+you have to install yourself using XEmacs' own package system, after
+using it for removing the previous version of AUCTeX).  You can also
+use versions of Emacs that already include AUCTeX or a software
+package management system for your operating system which provides you
+with the latest release.
 
 The XEmacs package file can be discerned by `pkg' in its name.  It is
 usually more recent than what gets distributed from XEmacs servers and
@@ -120,7 +149,6 @@ You'll find more information at the web site of AUCTeX
 <URL:http://www.gnu.org/software/auctex/>, including its mailing list
 addresses.
 
-
 Future development and additional information
 ---------------------------------------------
 
@@ -132,28 +160,27 @@ contributors.  The principal authors and maintainers have already done
 so, but it would require a diligent and diplomatic volunteer to find
 and ask the rest.
 
-Current project manager is David Kastrup.  Paypal contributions to
-<URL:mailto:auctex@gnu.org> would be appreciated in order to
-compensate for time, money and hardware required for presenting AUCTeX
-at conferences.  Extensions may be commissioned: enquire on the
-developer list (see above).  Other than that, volunteering for tasks
-remains the most effective way of helping AUCTeX development.
+Current AUCTeX managers are Arash Esbati, Mosè Giordano, and Tassilo
+Horn.  Everybody is welcome to contribute to the project by reporting
+bugs and suggesting improvements, but the most effective way of
+helping AUCTeX development remains volunteering for tasks.
 
 The following people contributed to this release series (in
 alphabetical order): Ivan Andrus, Ralf Angeli, Masayuki Ataka, Fabrice
-Ben Hamouda, Thomas Baumann, Vincent Belaïche, Berend de Boer, Ken
-Brown, Joshua Buhl, Patrice Dumas, Arash Esbati, Werner Fink, Miguel
-Frasson, Peter S. Galbraith, Mosè Giordano, Patrick Gundlach, Jobst
-Hoffmann, Tassilo Horn, Yvon Hevel, Orlando Iovino, Mads Jensen, Arne
-Jørgensen, David Kastrup, Ikumi Keita, Philip Kime, Oleh Krehel, Joost
-Kremers, Frank Küster, Jan-Åke Larsson, Matthew Leach, Antoine Levitt,
-Leo Liu, Vladimir Lomov, Stefan Monnier, Dan Nicolaescu, Piet van
-Oostrum, Nicolas Richard, Augusto Ritter Stoffel, Florent Rougon,
-Santiago Saavedra, Davide G. M. Salvetti, Rüdiger Sonderfeld, Holger
-Sparr, Mike Sperber, Reiner Steib, Christian Schlauer, Shiro Takeda,
-Mark Trettin (Please accept our apologies if we forgot somebody.)
+Ben Hamouda, Thomas Baumann, Vincent Belaïche, Berend de Boer, Uwe
+Brauer, Ken Brown, Joshua Buhl, Patrice Dumas, Arash Esbati, Werner
+Fink, Miguel Frasson, Peter S. Galbraith, Mosè Giordano, Patrick
+Gundlach, Jobst Hoffmann, Tassilo Horn, Yvon Hevel, Orlando Iovino,
+Mads Jensen, Arne Jørgensen, David Kastrup, Ikumi Keita, Philip Kime,
+Oleh Krehel, Joost Kremers, Frank Küster, Jan-Åke Larsson, Matthew
+Leach, Antoine Levitt, Leo Liu, Vladimir Lomov, Stefan Monnier, Dan
+Nicolaescu, Piet van Oostrum, Nicolas Richard, Augusto Ritter Stoffel,
+Florent Rougon, Santiago Saavedra, Davide G. M. Salvetti, Rüdiger
+Sonderfeld, Holger Sparr, Mike Sperber, Reiner Steib, Christian
+Schlauer, Shiro Takeda, Mark Trettin (Please accept our apologies if
+we forgot somebody.)
 
-Footnotes: 
+Footnotes:
 
 [1]  <URL:ftp://ftp.dante.de/tex-archive/macros/latex/contrib/preview/>
 

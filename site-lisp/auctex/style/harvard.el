@@ -103,7 +103,8 @@
 		 LaTeX-item-list))
 
      ;; Tell RefTeX
-     (when (fboundp 'reftex-set-cite-format)
+     (when (and LaTeX-reftex-cite-format-auto-activate
+		(fboundp 'reftex-set-cite-format))
        (reftex-set-cite-format 'harvard)))
  LaTeX-dialect)
 

@@ -12,11 +12,19 @@
 @chapter Installing @AUCTeX{}
 @end ifclear
 
-The simplest way of installing @AUCTeX{} is by using the Emacs package
-manager integrated in Emacs 24 and greater (@acronym{ELPA}).  Simply do
-@kbd{M-x package-list-packages RET}, mark the auctex package for
-installation with @kbd{i}, and hit @kbd{x} to execute the installation
-procedure.  That's all.
+The modern and strongly recommended way of installing @AUCTeX{} is by
+using the Emacs package manager integrated in Emacs 24 and greater
+(@acronym{ELPA}).  Simply do @kbd{M-x list-packages RET}, mark the
+auctex package for installation with @kbd{i}, and hit @kbd{x} to execute
+the installation procedure.  That's all.  This installation procedure
+has several advantages.  Besides being platform and @acronym{OS}
+independent, you will receive intermediate releases between major
+@AUCTeX{} releases conveniently.  For past @acronym{ELPA} releases, see
+@url{https://elpa.gnu.org/packages/auctex.html}.
+@ifclear rawfile
+Once the installation is completed, you can skip the rest of this
+section and proceed to @ref{Quick Start}.
+@end ifclear
 
 The remainder of this section is about installing @AUCTeX{} from a
 release tarball or from a checkout of the @AUCTeX{} repository.

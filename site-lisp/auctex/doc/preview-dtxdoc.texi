@@ -8,7 +8,7 @@ by Ghostscript).
 Current uses of the package include the @previewlatex{} package for
 WYSIWYG functionality in the @AUCTeX{} editing environment,
 generation of previews in LyX, as part of the operation of the
-ps4pdf package, the tbook XML system and some other tools.
+pst-pdf package, the tbook XML system and some other tools.
 
 Producing @acronym{EPS} files with Dvips and its derivatives using the
 @option{-E} option is not a good alternative: People make do by
@@ -437,7 +437,7 @@ away.
 As an example for using this argument, you might want to specify
 
 @example
-\PreviewMacro*\footnote[@{[]@}][#1@{@}]
+\PreviewMacro*[@{[]@}][#1@{@}]@{\footnote@}
 @end example
 
 @noindent
@@ -477,7 +477,7 @@ behave similar as @code{\begin} and @code{\end} of an environment.  It
 is essential for the operation of @code{\PreviewOpen} that the macro
 treated with it will open an additional group even when the preview
 falls inside of another preview or inside of a @code{nopreview}
-environment.  Similarly, the macro treated with @code{PreviewClose}
+environment.  Similarly, the macro treated with @code{\PreviewClose}
 will close an environment even when inactive.
 
 @item \ifPreview

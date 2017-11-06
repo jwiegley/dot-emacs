@@ -1,6 +1,6 @@
 ;;; ifluatex.el --- AUCTeX style for `ifluatex.sty' version 1.3.
 
-;; Copyright (C) 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2014, 2016 Free Software Foundation, Inc.
 
 ;; Author: Davide G. M. Salvetti <salve@debian.org>
 ;; Maintainer: auctex-devel@gnu.org
@@ -43,10 +43,14 @@
        (TeX-arg-literal "\n\\else%\n\\fi%"))
      '("luatexversion" 0)
      '("luatexrevision" 0))
-
     (TeX-declare-expert-macros
      "ifluatex"
      "ifluatex" "luatexversion" "luatexrevision")
+
+    ;; This package is used to make it possible to compile a document with both
+    ;; LuaTeX and base TeX engines.  By setting `TeX-check-engine-list' to nil
+    ;; we ignore engine restrictions posed by other packages.
+    (setq TeX-check-engine-list nil)
 
     (when (and (featurep 'font-latex)
 	       (eq TeX-install-font-lock 'font-latex-setup))

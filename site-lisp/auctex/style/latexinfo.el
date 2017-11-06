@@ -1,6 +1,6 @@
 ;;; latexinfo.el - Support for LaTeXinfo files.
 
-;; Copyright (C) 1993 Marc Gemis <makke@wins.uia.ac.be>
+;; Copyright (C) 1993 Free Software Foundation, Inc.
 
 ;; Author: Marc Gemis <makke@wins.uia.ac.be>
 

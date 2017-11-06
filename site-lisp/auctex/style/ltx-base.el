@@ -1,6 +1,6 @@
 ;;; ltx-base.el --- AUCTeX style for basic LaTeX commands.
 
-;; Copyright (C) 2004 Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2016 Free Software Foundation, Inc.
 
 ;; Author: Frank Küster <frank@kuesterei.ch>
 ;; Maintainer: auctex-devel@gnu.org
@@ -48,20 +48,20 @@
      '("DeclareOption" "option" t)
      ;; would be great if DeclareOption RET * RET would give
      ;; \DeclareOption*!
-     "DeclareOption*"
+     '("DeclareOption*" t)
      '("CurrentOption" 0)
      '("PassOptionsToPackage" "option list" "package")
      '("ExecuteOptions" "option list")
-     "ProcessOptions"
+     '("ProcessOptions" (TeX-arg-literal "\\relax"))
      "ProcessOptions*"
      '("OptionNotUsed" 0)
       ;; candidate for opt/mand toggling
      '("RequirePackage" [ "option list" ] "package" [ "release" ])
      '("LoadClass" [ "option list" ] "class" [ "release" ])
-     "AtEndOfPackage"
-     "AtEndOfClass"
-     "AtBeginDocument"
-     "AtEndDocument"
+     '("AtEndOfPackage" t)
+     '("AtEndOfClass" t)
+     '("AtBeginDocument" t)
+     '("AtEndDocument" t)
      '("IfFileExists" "filename" 2)
      '("InputIfFileExists" "filename" 2)
      '("PackageWarning" "name" t)
