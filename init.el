@@ -2301,8 +2301,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package helm-swoop
   :load-path "site-lisp/helm-swoop"
-  :bind (("M-s o" . helm-swoop)
-         ("M-s /" . helm-multi-swoop))
+  :bind (("M-s /" . helm-swoop)
+         ("M-s ?" . helm-multi-swoop))
   :config
   (use-package helm-match-plugin
     :config
