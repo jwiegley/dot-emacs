@@ -2028,6 +2028,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
+         ("M-s n" . find-name-dired)
          ("M-s f" . find-grep)
          ("M-s G" . grep))
   :config
@@ -2247,7 +2248,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
          ("M-s b"   . helm-occur)
-         ("M-s n"   . my-helm-find)
          ("M-H"     . helm-resume))
 
   :preface
