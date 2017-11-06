@@ -886,6 +886,7 @@
     (emacs-lisp-mode compilation-mode outline-mode prog-mode haskell-mode)))
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
+ '(pdf-info-epdfinfo-program "~/bin/epdfinfo")
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string
    "                                                                              ")
