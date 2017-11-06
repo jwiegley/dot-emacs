@@ -284,19 +284,21 @@ See `coq-syntax-db' for DB structure."
 (defface coq-solve-tactics-face
   (proof-face-specs
    (:foreground "red") ; pour les fonds clairs
-   (:foreground "red") ; pour les fond foncés
+   (:foreground "red1") ; pour les fond foncés
    ()) ; pour le noir et blanc
   "Face for names of closing tactics in proof scripts."
   :group 'proof-faces)
 
-;;A new face for cheating tactics 
-;; FIXMe: the background color disappear when locked region overrides it.
-;; this is hard to fix without re-colorizing afterward.
+;;A face for cheating tactics 
+;; We use :reverse-color instead of :background because it remains visible in
+;; locked-region. We could use :box but it makes text be slightly shifted when
+;; hitting the last letter of "admit." for instance, which may be irritating.
 (defface coq-cheat-face
-  (proof-face-specs
-   (:background "red") ; pour les fonds clairs
-   (:background "red") ; pour les fond foncés
-   ()) ; pour le noir et blanc
+  '((((class color) (background light)) . (:inverse-video t :foreground "red" :background "black"))
+    (((class color) (background dark)) . (:inverse-video t :foreground "red1"))
+    ;(((class color) (background light)) . (:box (:line-width 1 :color "red" :style nil) :background "red"))
+    ;(((class color) (background dark)) . (:box (:line-width 1 :color "red1" :style nil) :background "red1"))
+    (t . ())) ; monocolor or greyscale: no highlight
   "Face for names of cheating tactics in proof scripts."
   :group 'proof-faces)
 
