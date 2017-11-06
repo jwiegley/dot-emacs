@@ -3474,6 +3474,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f site-lisp/parenface.el*")
   :disabled t)
 
+(use-package pdf-tools
+  :defer 15
+  :mode "\\.pdf\\'"
+  :config (pdf-tools-install))
+
 (use-package per-window-point
   :commands pwp-mode
   :defer 5
