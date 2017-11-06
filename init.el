@@ -1797,7 +1797,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package erc-highlight-nicknames)
   (use-package erc-patch)
   (use-package erc-macros)
-  (use-package erc-query)
+  (use-package erc-question)
   (use-package erc-yank
     :load-path "lisp/erc-yank"
     :config
