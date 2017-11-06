@@ -1,4 +1,4 @@
-;;; erc-query --- Ask Google before asking on IRC
+;;; erc-question --- Ask Google before asking on IRC
 
 ;; Copyright (C) 2017 John Wiegley
 
@@ -6,7 +6,7 @@
 ;; Created: 5 Nov 2017
 ;; Version: 1.0
 ;; Keywords: erc irc google
-;; X-URL: https://github.com/jwiegley/erc-query
+;; X-URL: https://github.com/jwiegley/erc-question
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -32,37 +32,37 @@
 
 ;;; Code:
 
-(defgroup erc-query nil
+(defgroup erc-question nil
   "Ask Google before asking IRC"
   :group 'erc)
 
-(defvar erc-query--last-asked nil)
-(defvar erc-query--mode t)
+(defvar erc-question--last-asked nil)
+(defvar erc-question--mode t)
 
 (defun erc-cmd-ASKON (&rest ignore)
-  (setq erc-query--mode t)
+  (setq erc-question--mode t)
   (message "Queries now go to Google; use ?ask to submit the question"))
 
 (defun erc-cmd-ASKOFF (&rest ignore)
-  (setq erc-query--mode nil)
+  (setq erc-question--mode nil)
   (message "Queries now go to IRC"))
 
-(defun erc-query (input)
+(defun erc-question (input)
   "Ask Google before asking IRC"
-  (make-variable-buffer-local 'erc-query--last-asked)
-  (when erc-query--mode
+  (make-variable-buffer-local 'erc-question--last-asked)
+  (when erc-question--mode
     (let ((len (1- (length input))))
       (cond
        ((string= input "?ask")
-        (setq str erc-query--last-asked
-              erc-query--last-asked nil))
+        (setq str erc-question--last-asked
+              erc-question--last-asked nil))
        ((string-match "\\`\\(.+?\\)\\?\\'" input)
         (browse-url (concat "https://www.google.com/search?q="
                             (url-encode-url (match-string 1 input))))
         (setq erc-send-this nil
-              erc-query--last-asked input))))))
+              erc-question--last-asked input))))))
 
-(add-hook 'erc-send-pre-hook 'erc-query)
+(add-hook 'erc-send-pre-hook 'erc-question)
 
 (defun erc-cmd-G (name &rest ignore)
   (when (re-search-backward
@@ -72,6 +72,6 @@
              (url-encode-url
               (subst-char-in-string ?\n ?\  (match-string 1)))))))
 
-(provide 'erc-query)
+(provide 'erc-question)
 
-;;; erc-query.el ends here
+;;; erc-question.el ends here
