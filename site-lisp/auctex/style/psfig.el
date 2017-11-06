@@ -1,10 +1,9 @@
 ;;; psfig.el - Support for the psfig style option.
 
+;; Copyright (C) 2013-2014 Free Software Foundation, Inc.
+
 ;; Contributed by Marc Gemis <makke@wins.uia.ac.be>
 ;; Please direct comments to him.
-
-;; Copyright (C) 2014 Free Software Foundation, Inc.
-;; FIXME: What about the copyright for <= 2014?
 
 ;;; Code:
 
@@ -45,14 +44,16 @@
 
 (defun LaTeX-env-psfigure (_environment)
   "Create  with \\label and \\caption and \\psfig commands."
-  (let ((float (TeX-read-string "Float to: " LaTeX-float))
-	(caption (TeX-read-string "Caption: "))
-	(label (TeX-read-string "Label: " LaTeX-figure-label))
-        ; gf: ask if this should be centered
-	(psfile (read-file-name "PS-file: " "" "" nil))
-	(figwidth (TeX-read-string "Figure width: "))
-	(figheight (TeX-read-string "Figure height: "))
-	)
+  (let* ((float (TeX-read-string "Float to: " LaTeX-float))
+         (caption (TeX-read-string "Caption: "))
+         (short-caption (when (>= (length caption) LaTeX-short-caption-prompt-length)
+                          (TeX-read-string "(Optional) Short caption: ")))
+         (label (TeX-read-string "Label: " LaTeX-figure-label))
+         ; gf: ask if this should be centered
+         (psfile (read-file-name "PS-file: " "" "" nil))
+         (figwidth (TeX-read-string "Figure width: "))
+         (figheight (TeX-read-string "Figure height: "))
+         )
 
     (setq LaTeX-float (if (zerop (length float))
 			  LaTeX-float
@@ -71,7 +72,7 @@
     (if (zerop (length caption))
 	()
       (newline-and-indent)
-      (insert TeX-esc "caption" TeX-grop caption TeX-grcl))
+      (insert (LaTeX-compose-caption-macro caption short-caption)))
     (if (or (zerop (length label))
 	    (equal LaTeX-figure-label label))
 	()

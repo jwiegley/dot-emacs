@@ -1,6 +1,6 @@
 ;;; biblatex.el --- AUCTeX style for `biblatex.sty' version 2.8a.
 
-;; Copyright (C) 2012-2014 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2014, 2016 Free Software Foundation, Inc.
 
 ;; Author: Ralf Angeli <angeli@caeruleus.net>
 ;; Maintainer: auctex-devel@gnu.org
@@ -206,15 +206,36 @@ for citation keys."
 	     (TeX-argument-insert
 	      (TeX-read-string (TeX-argument-prompt t nil "Postnote"))
 	      (equal prenote ""))))
-      (setq items (TeX-completing-read-multiple
-		   (TeX-argument-prompt optional prompt "Key")
-		   (LaTeX-bibitem-list)))
+      (setq items (if (and (fboundp 'reftex-citation)
+			   (fboundp 'reftex-plug-flag)
+			   (reftex-plug-flag 3))
+		      ;; Use RefTeX when enabled.
+		      (reftex-citation t)
+		    ;; Multiple citation keys in each argument are allowed.
+		    (TeX-completing-read-multiple
+		     (TeX-argument-prompt optional prompt "Key(s)")
+		     (LaTeX-bibitem-list))))
       (apply 'LaTeX-add-bibitems items)
       ;; If input is empty, insert an empty group only the first time, when
       ;; `noinsert' flag is nil.
       (unless (and (not items) noinsert)
 	(TeX-argument-insert (mapconcat 'identity items ",") optional))
       (setq noinsert t))))
+
+(defun LaTeX-arg-biblatex-natbib-notes (optional)
+  "Prompt for two note arguments of a natbib compat citation command."
+  (when TeX-arg-cite-note-p
+      (let ((pre (TeX-read-string
+		  (TeX-argument-prompt optional nil "Prenote")))
+	    (post (TeX-read-string
+		   (TeX-argument-prompt optional nil "Postnote"))))
+	(TeX-argument-insert pre optional)
+	(TeX-argument-insert post optional)
+	;; pre is given, post is empty: Make sure that we insert an
+	;; extra pair of `[]', otherwise pre becomes post
+	(when (and pre (not (string= pre ""))
+		   (string= post ""))
+	  (insert LaTeX-optop LaTeX-optcl)))))
 
 (TeX-add-style-hook
  "biblatex"
@@ -355,6 +376,10 @@ for citation keys."
 					(["Prenote"] ["Postnote"]) ()) TeX-arg-cite)
     '("Citeauthor" (TeX-arg-conditional TeX-arg-cite-note-p
 					(["Prenote"] ["Postnote"]) ()) TeX-arg-cite)
+    '("citeauthor*" (TeX-arg-conditional TeX-arg-cite-note-p
+					 (["Prenote"] ["Postnote"]) ()) TeX-arg-cite)
+    '("Citeauthor*" (TeX-arg-conditional TeX-arg-cite-note-p
+					 (["Prenote"] ["Postnote"]) ()) TeX-arg-cite)
     '("citetitle" (TeX-arg-conditional TeX-arg-cite-note-p
 				       (["Prenote"] ["Postnote"]) ()) TeX-arg-cite)
     '("citetitle*" (TeX-arg-conditional TeX-arg-cite-note-p
@@ -456,6 +481,53 @@ for citation keys."
     '("DefineHyphenationExceptions"
       (TeX-arg-eval completing-read "Language: " LaTeX-biblatex-language-list) t)
     "NewBibliographyString")
+
+   ;; § 3.8.9 natbib Compatibility Commands
+   (when (or (LaTeX-provided-package-options-member "biblatex" "natbib")
+	     (LaTeX-provided-package-options-member "biblatex" "natbib=true"))
+     (let ((cmds '(("citet" . 1) ("citet*" . 1)
+		   ("Citet" . 1) ("Citet*" . 1)
+		   ("citep" . 2) ("citep*" . 2)
+		   ("Citep" . 2) ("Citep*" . 2)
+		   ("citealt" . 1) ("citealt*" . 1)
+		   ("Citealt" . 1) ("Citealt*" . 1)
+		   ("citealp" . 2) ("citealp*" . 2)
+		   ("Citealp" . 2) ("Citealp*" . 2))))
+       ;; Taken from natbib.el:
+       (apply
+	#'TeX-add-symbols
+	(mapcar
+	 (lambda (cmd)
+	   (cond
+	    ((= (cdr cmd) 1)
+	     ;; Just one optional argument, the post note
+	     (list
+	      (car cmd)
+	      '(TeX-arg-conditional TeX-arg-cite-note-p (["Postnote"]) nil)
+	      'TeX-arg-cite))
+	    ((= (cdr cmd) 2)
+	     ;; Pre and post notes
+	     (list
+	      (car cmd)
+	      '(TeX-arg-conditional TeX-arg-cite-note-p
+				    ([LaTeX-arg-biblatex-natbib-notes])
+				  nil)
+	      'TeX-arg-cite))))
+	 cmds))
+
+     ;; Fontification for compat macros does not go into `font-latex.el':
+     (when (and (featurep 'font-latex)
+		(eq TeX-install-font-lock 'font-latex-setup))
+       (font-latex-add-keywords '(("citet"        "*[[{")
+				  ("Citet"        "*[[{")
+				  ("citep"        "*[[{")
+				  ("Citep"        "*[[{")
+				  ("citealt"      "*[[{")
+				  ("Citealt"      "*[[{")
+				  ("citealp"      "*[[{")
+				  ("Citealp"      "*[[{"))
+				'biblatex))))
+
    (LaTeX-add-environments
     ;;; Bibliography commands
     ;; Bibliography Sections
@@ -478,7 +550,39 @@ for citation keys."
     "NewBibliographyString")
    (LaTeX-declare-expert-environments
     "biblatex"
-    "refsection" "refsegment"))
+    "refsection" "refsegment")
+
+   ;; Tell RefTeX: If package option `natbib' is given, activate that
+   ;; format, otherwise stick with `biblatex':
+   (when (and LaTeX-reftex-cite-format-auto-activate
+	      (fboundp 'reftex-set-cite-format))
+     (if (or (LaTeX-provided-package-options-member "biblatex" "natbib")
+	     (LaTeX-provided-package-options-member "biblatex" "natbib=true"))
+	 (reftex-set-cite-format 'natbib)
+       ;; The entry `biblatex' is defined in
+       ;; `reftex-cite-format-builtin' in reftex-vars.el which will be
+       ;; part of Emacs >= 25.3.  So check here if we find an entry,
+       ;; otherwise do it manually for older Emacsen.
+       (if (assoc 'biblatex reftex-cite-format-builtin)
+	   (reftex-set-cite-format 'biblatex)
+	 (reftex-set-cite-format
+	  '((?\C-m . "\\cite[][]{%l}")
+	    (?C    . "\\cite*[][]{%l}")
+	    (?t    . "\\textcite[][]{%l}")
+	    (?T    . "\\textcite*[][]{%l}")
+	    (?p    . "\\parencite[][]{%l}")
+	    (?P    . "\\parencite*[][]{%l}")
+	    (?f    . "\\footcite[][]{%l}")
+	    (?s    . "\\smartcite[][]{%l}")
+	    (?u    . "\\autocite[][]{%l}")
+	    (?U    . "\\autocite*[][]{%l}")
+	    (?a    . "\\citeauthor{%l}")
+	    (?A    . "\\citeauthor*{%l}")
+	    (?i    . "\\citetitle{%l}")
+	    (?I    . "\\citetitle*{%l}")
+	    (?y    . "\\citeyear{%l}")
+	    (?Y    . "\\citeyear*{%l}")
+	    (?n    . "\\nocite{%l}")))))))
  LaTeX-dialect)
 
 (defvar LaTeX-biblatex-package-options-list
@@ -514,7 +618,7 @@ for citation keys."
 	(progn
 	  (message "Searching for BibLaTeX styles...")
 	  (setq BibLaTeX-global-style-files
-		(mapcar 'identity (TeX-search-files-by-type 'bbxinputs 'global t t))))
+		(TeX-search-files-by-type 'bbxinputs 'global t t)))
       ;; ...else, use for completion only standard BibLaTeX styles (see §3.3 of
       ;; Biblatex reference manual).
       (setq BibLaTeX-global-style-files

@@ -1,6 +1,6 @@
 ;;; fancyref.el --- AUCTeX style file with support for fancyref.sty
 
-;; Copyright (C) 1999, 2014 Free Software Foundation, Inc.
+;; Copyright (C) 1999, 2014, 2015 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <dominik@strw.leidenuniv.nl>
 ;; Maintainer: auctex-devel@gnu.org
@@ -92,7 +92,12 @@
      ;; Fontification
      (when (and (featurep 'font-latex)
 		(eq TeX-install-font-lock 'font-latex-setup))
-       (font-latex-add-keywords '(("fref" "[{") ("Fref" "[{")) 'reference)))
+       (font-latex-add-keywords '(("fref" "[{") ("Fref" "[{")) 'reference))
+
+     ;; Activate RefTeX reference style.
+     (and LaTeX-reftex-ref-style-auto-activate
+	  (fboundp 'reftex-ref-style-activate)
+	  (reftex-ref-style-activate "Fancyref")))
    LaTeX-dialect)
 
 ;; The following list keeps a list of available format names

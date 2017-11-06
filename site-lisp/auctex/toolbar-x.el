@@ -1,6 +1,6 @@
 ;;; toolbar-x.el --- fancy toolbar handling in Emacs and XEmacs
 
-;; Copyright (C) 2004, 2005, 2008, 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2008, 2014, 2016 Free Software Foundation, Inc.
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -275,6 +275,11 @@ command, COMM is returned."
 ;; handle `menu titles' differently) meanwhile in XEmacs, menus are lists of
 ;; vectors
 
+(defmacro toolbarx--if-when-compile (test then else)
+  (declare (indent 1) (debug t))
+  (if (eval test) then else))
+
+(toolbarx--if-when-compile (not (featurep 'xemacs))
 (defun toolbarx-emacs-mount-popup-menu
   (strings var type &optional title save)
   "Return an interactive `lambda'-expression that shows a popup menu.
@@ -362,7 +367,8 @@ inside XEmacs. See documentation of that function for more."
     ;; warn if type is not `radio' ot `toggle'; use `radio' if incorrect.
     (unless (eq type real-type)
       (warn (concat "TYPE should be symbols `radio' or `toggle', "
-		    "but %s found; using `radio'") type))
+		    "but %s found; using `radio'")
+            type))
     ;; warn if save is not `nil', `offer' or `always'; use nil when incorrect
     (unless (eq save real-save)
       (setq real-save nil)
@@ -401,7 +407,7 @@ inside XEmacs. See documentation of that function for more."
     ;; returnung the lambda-expression
     `(lambda nil (interactive)
        (let ((popup-menu-titles ,(if title t nil)))
-	 (popup-menu (quote ,menu))))))
+	 (popup-menu (quote ,menu)))))))
 
 (defun toolbarx-mount-popup-menu (strings var type &optional title save)
   "Return a command that show a popup menu.
@@ -1138,9 +1144,10 @@ an extension.  If the extension is omitted, `xpm', `xbm' and
 This variable can store different values for the different buffers.")
 
 
+(toolbarx--if-when-compile (not (featurep 'xemacs))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Second engine: display parsed buttons in Emacs
-
+(progn
 (defun toolbarx-emacs-add-button (button used-keys keymap)
   "Insert a button where BUTTON is its description.
 USED-KEYS should be a list of symbols, where the first element is
@@ -1298,12 +1305,12 @@ is used and the default value of `toolbarx-map' is changed."
 							  tool-bar-map-temp)
     (if global-flag
 	(setq-default tool-bar-map tool-bar-map-temp)
-      (setq tool-bar-map tool-bar-map-temp))))
+      (setq tool-bar-map tool-bar-map-temp)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Third engine: display parsed buttons in XEmacs
-
+(progn
 (defun toolbarx-xemacs-image-properties (image)
   "Return a list of properties of IMAGE.
 IMAGE should be a string or a list of one to six strings or
@@ -1669,7 +1676,7 @@ the lists are built reversed."
 	  (set-specifier left-toolbar left locale))
       (remove-specifier left-toolbar locale)
       (remove-specifier left-toolbar-visible-p locale)
-      (remove-specifier left-toolbar-width locale))))
+      (remove-specifier left-toolbar-width locale))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,8 +1,8 @@
 ;;; currvita.el --- AUCTeX style for `currvita.sty' (v0.9i)
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-01-05
 ;; Keywords: tex
@@ -56,7 +56,7 @@
   ;; The inserted \item may have outdented the first line to the
   ;; right.  Fill it, if appropriate.
   (when (and (not (looking-at "$"))
-	     (not (assoc environment LaTeX-indent-environment-list))
+	     (not (assoc env LaTeX-indent-environment-list))
 	     (> (- (line-end-position) (line-beginning-position))
 		(current-fill-column)))
     (LaTeX-fill-paragraph nil)))

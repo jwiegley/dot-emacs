@@ -42,7 +42,7 @@
  (lambda ()
    (set-syntax-table LaTeX-polish-mode-syntax-table)
    (unless (eq (car TeX-quote-language) 'override)
-     (setq TeX-quote-language '("polish" "\"`" "\"'" t)))
+     (setq TeX-quote-language `("polish" "\"`" "\"'" ,TeX-quote-after-quote)))
    ;; Fontification of quotation marks.
    (when (fboundp 'font-latex-add-quotes)
      (font-latex-add-quotes '("\"`" "\"'"))

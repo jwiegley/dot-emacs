@@ -3,7 +3,7 @@
 %%    Developed as part of AUCTeX <URL:http://www.gnu.org/software/auctex>.
 %
 %     Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006,
-%                   2010 Free Software Foundation
+%                   2010, 2017 Free Software Foundation
 %
 %     This program is free software; you can redistribute it and/or modify
 %     it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 %     Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 %     Boston, MA 02110-1301  USA
 % \fi
-% \CheckSum{1758}
+% \CheckSum{1760}
 % \GetFileInfo{preview.sty}
 % \date{\filedate}
-% \author{David Kastrup\thanks{\texttt{dak@gnu.org}}}
+% \author{David Kastrup\thanks{\texttt{bug-auctex@gnu.org}}}
 % \title{The \texttt{preview} Package for \LaTeX\\Version \fileversion}
 % \maketitle
 % \section{Introduction}
@@ -37,7 +37,7 @@
 % Current uses of the package include the \previewlatex\ package for
 % WYSIWYG functionality in the AUC\TeX\ editing environment,
 % generation of previews in LyX, as part of the operation of the
-% ps4pdf package, the tbook XML system and some other tools.
+% pst-pdf package, the tbook XML system and some other tools.
 % 
 % Producing EPS files with Dvips and its derivatives using the
 % \texttt{-E} option is not a good alternative: People make do by
@@ -388,7 +388,7 @@
 % 
 % As an example for using this argument, you might want to specify
 % \begin{quote}
-%   |\PreviewMacro*\footnote[{[]}][#1{}]|
+%   |\PreviewMacro*[{[]}][#1{}]{\footnote}|
 % \end{quote}
 % This will replace a footnote by an empty footnote, but taking any
 % optional parameter into account, since an optional paramter changes
@@ -420,7 +420,7 @@
 % is essential for the operation of \cmd{\PreviewOpen} that the macro
 % treated with it will open an additional group even when the preview
 % falls inside of another preview or inside of a |nopreview|
-% environment.  Similarly, the macro treated with \cmd{PreviewClose}
+% environment.  Similarly, the macro treated with \cmd{\PreviewClose}
 % will close an environment even when inactive.
 % 
 % \DescribeMacro{\ifPreview} In case you need to know whether
@@ -439,12 +439,12 @@
 \NeedsTeXFormat{LaTeX2e} \def\reserved@a #1#2$#3:
 #4${\xdef#1{\reserved@c #2#4 $}} \def\reserved@c #1 #2${#1}
 \begingroup \catcode`\_=12
-\reserved@a\pr@version $Name: release_11_89 $ \ifx\pr@version\@empty
+\reserved@a\pr@version $Name: release_11_91 $ \ifx\pr@version\@empty
 \reserved@a\pr@version CVS-$Revision: 1.126 $ \endgroup \else
   \def\next release_{} \lccode`\_=`.
   \edef\next{\lowercase{\endgroup
     \def\noexpand\pr@version{\expandafter\next\pr@version}}} \next \fi
-\reserved@a\next $Date: 2010/02/14 16:19:00 $
+\reserved@a\next $Date: 2017/04/24 13:20:00 $
 \edef\next{\noexpand\ProvidesPackage{preview}%
   [\next\space \pr@version\space (AUCTeX/preview-latex)]}
 \next
@@ -494,13 +494,18 @@
 %  got executed.
 %\begin{macro}{\pr@loadcfg}
 %  The macro \cmd{\pr@loadcfg} is used for loading in configuration
-%  files, unless disabled by the |noconfig| option.
+%  files, unless disabled by the |noconfig| option.  After discussion
+%  with maintainer of pst-pdf package Rolf Niepraschk (Thanks!), we
+%  add here a check for existence of |luatex85.sty| and load it if
+%  available.  With this, |preview| will also work with newer |luatex|
+%  versions.
 %    \begin{macrocode}
 %<*!active>
 \let\preview@delay=\@gobble
 \let\pr@advise=\@gobbletwo
 \long\def\pr@advise@ship#1#2#3{}
 \def\pr@loadcfg#1{\InputIfFileExists{#1.cfg}{}{}}
+\IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
 \DeclareOption{noconfig}{\let\pr@loadcfg=\@gobble}
 %    \end{macrocode}
 %\begin{macro}{\pr@addto@front}

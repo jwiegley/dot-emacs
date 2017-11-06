@@ -1,6 +1,6 @@
 ;;; tex-site.el - Site specific variables.  Don't edit.
 
-;; Copyright (C) 2005 Free Software Foundation, Inc.
+;; Copyright (C) 2005, 2013, 2016 Free Software Foundation, Inc.
 ;;
 ;; completely rewritten.
 
@@ -39,7 +39,7 @@
 ;;; Code:
 
 (if (< emacs-major-version 21)
-  (error "AUCTeX requires Emacs 21 or later"))
+    (error "AUCTeX requires Emacs 21 or later"))
 
 ;; Define here in order for `M-x customize-group <RET> AUCTeX <RET>'
 ;; to work if the main AUCTeX files are not loaded yet.
@@ -87,21 +87,23 @@ shared by all users of a site."
 
 (add-hook 'tex-site-unload-hook
 	  (lambda ()
-	    (let ((list after-load-alist))
-	      (while list
-		;; Adapted copy of the definition of `assq-delete-all'
-		;; from Emacs 21 as substitute for
-		;; `(assq-delete-all'TeX-modes-set (car list))' which
-		;; fails on non-list elements in Emacs 21.
-		(let* ((alist (car list))
-		       (tail alist)
-		       (key 'TeX-modes-set))
-		  (while tail
-		    (if (and (consp (car tail))
-			     (eq (car (car tail)) key))
-			(setq alist (delq (car tail) alist)))
-		    (setq tail (cdr tail))))
-		(setq list (cdr list))))
+	    (if (fboundp 'advice-add)
+		(TeX-modes-set 'TeX-modes nil)
+	      (let ((list after-load-alist))
+		(while list
+		  ;; Adapted copy of the definition of `assq-delete-all'
+		  ;; from Emacs 21 as substitute for
+		  ;; `(assq-delete-all'TeX-modes-set (car list))' which
+		  ;; fails on non-list elements in Emacs 21.
+		  (let* ((alist (car list))
+			 (tail alist)
+			 (key 'TeX-modes-set))
+		    (while tail
+		      (if (and (consp (car tail))
+			       (eq (car (car tail)) key))
+			  (setq alist (delq (car tail) alist)))
+		      (setq tail (cdr tail))))
+		  (setq list (cdr list)))))
 	    (setq load-path (delq TeX-lisp-directory load-path))))
 
 (defun TeX-modes-set (var value &optional update)
@@ -130,14 +132,14 @@ definition."
               (get elt 'tex-saved))))))))
 
 (defcustom TeX-modes
-  (mapcar 'car TeX-mode-alist)
+  (mapcar #'car TeX-mode-alist)
   "List of modes provided by AUCTeX.
 
 This variable can't be set normally; use customize for that, or
 set it with `TeX-modes-set'."
   :type (cons 'set
 	      (mapcar (lambda(x) (list 'const (car x))) TeX-mode-alist))
-  :set 'TeX-modes-set
+  :set #'TeX-modes-set
   :group 'AUCTeX
   :initialize(lambda (var value)
 	       (custom-initialize-reset var value)
@@ -148,11 +150,11 @@ set it with `TeX-modes-set'."
 		       `(TeX-modes-set ',var ,var t))
 		     (setq list (cdr list)))))) )
 
-(defconst AUCTeX-version "11.89"
+(defconst AUCTeX-version "11.91"
     "AUCTeX version.
 If not a regular release, the date of the last change.")
 
-(defconst AUCTeX-date "2015-11-13"
+(defconst AUCTeX-date "2017-11-06"
   "AUCTeX release date using the ISO 8601 format, yyyy-mm-dd.")
 
 ;; Store bibitems when saving a BibTeX buffer
@@ -163,7 +165,7 @@ If not a regular release, the date of the last change.")
 ;;; Code:
 
 
-;;;### (autoloads nil "bib-cite" "bib-cite.el" (22085 42439 0 0))
+;;;### (autoloads nil "bib-cite" "bib-cite.el" (22901 48303 0 0))
 ;;; Generated autoloads from bib-cite.el
 
 (autoload 'bib-cite-minor-mode "bib-cite" "\
@@ -179,9 +181,11 @@ Unconditionally turn on Bib Cite mode.
 
 \(fn)" nil nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "bib-cite" '("psg-" "bib-" "search-directory-tree" "member-cis" "create-alist-from-list" "LaTeX-")))
+
 ;;;***
 
-;;;### (autoloads nil "context" "context.el" (22085 42439 0 0))
+;;;### (autoloads nil "context" "context.el" (22901 48303 0 0))
 ;;; Generated autoloads from context.el
 
 (defalias 'ConTeXt-mode 'context-mode)
@@ -198,9 +202,11 @@ of ConTeXt-mode-hook.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "context" '("context-guess-current-interface" "ConTeXt-" "TeX-ConTeXt-sentinel")))
+
 ;;;***
 
-;;;### (autoloads nil "context-en" "context-en.el" (22085 42439 0
+;;;### (autoloads nil "context-en" "context-en.el" (22901 48303 0
 ;;;;;;  0))
 ;;; Generated autoloads from context-en.el
 
@@ -216,9 +222,11 @@ of context-mode-hook.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "context-en" '("ConTeXt-")))
+
 ;;;***
 
-;;;### (autoloads nil "context-nl" "context-nl.el" (22085 42439 0
+;;;### (autoloads nil "context-nl" "context-nl.el" (22901 48303 0
 ;;;;;;  0))
 ;;; Generated autoloads from context-nl.el
 
@@ -234,9 +242,11 @@ of context-mode-hook.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "context-nl" '("ConTeXt-")))
+
 ;;;***
 
-;;;### (autoloads nil "font-latex" "font-latex.el" (22085 42439 0
+;;;### (autoloads nil "font-latex" "font-latex.el" (22901 48303 0
 ;;;;;;  0))
 ;;; Generated autoloads from font-latex.el
 
@@ -245,9 +255,11 @@ Setup this buffer for LaTeX font-lock.  Usually called from a hook.
 
 \(fn)" nil nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "font-latex" '("font-l")))
+
 ;;;***
 
-;;;### (autoloads nil "latex" "latex.el" (22085 42439 0 0))
+;;;### (autoloads nil "latex" "latex.el" (22901 48303 0 0))
 ;;; Generated autoloads from latex.el
 
 (autoload 'BibTeX-auto-store "latex" "\
@@ -284,9 +296,11 @@ runs the hooks in `docTeX-mode-hook'.
 
 (defalias 'TeX-doctex-mode 'docTeX-mode)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "latex" '("LaTeX-" "docTeX-" "TeX-" "latex-math-mode" "Bib")))
+
 ;;;***
 
-;;;### (autoloads nil "multi-prompt" "multi-prompt.el" (22085 42439
+;;;### (autoloads nil "multi-prompt" "multi-prompt.el" (22901 48303
 ;;;;;;  0 0))
 ;;; Generated autoloads from multi-prompt.el
 
@@ -314,9 +328,11 @@ The return value is the string as entered in the minibuffer.
 
 \(fn PROMPT TABLE &optional PREDICATE REQUIRE-MATCH INITIAL-INPUT HIST DEF INHERIT-INPUT-METHOD)" nil nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "multi-prompt" '("multi-prompt-")))
+
 ;;;***
 
-;;;### (autoloads nil "plain-tex" "plain-tex.el" (22085 42439 0 0))
+;;;### (autoloads nil "plain-tex" "plain-tex.el" (22901 48303 0 0))
 ;;; Generated autoloads from plain-tex.el
 
 (autoload 'TeX-plain-tex-mode "plain-tex" "\
@@ -345,9 +361,11 @@ of `AmS-TeX-mode-hook'.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "plain-tex" '("AmSTeX-mode-map" "plain-TeX-")))
+
 ;;;***
 
-;;;### (autoloads nil "tex" "tex.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex" "tex.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex.el
 
 (defalias 'TeX-assoc-string (symbol-function (if (featurep 'xemacs) 'assoc 'assoc-string)))
@@ -388,9 +406,11 @@ information about your AUCTeX version and AUCTeX configuration.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex" '("TeX-" "ispell-tex-" "Bib" "docTeX-default-extension" "LaTeX-" "plain-TeX-auto-regexp-list" "VirTeX-common-initialization" "tex-" "AmS-TeX-mode-hook" "ConTeXt-")))
+
 ;;;***
 
-;;;### (autoloads nil "tex-bar" "tex-bar.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-bar" "tex-bar.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex-bar.el
 
 (autoload 'TeX-install-toolbar "tex-bar" "\
@@ -403,17 +423,28 @@ Install toolbar buttons for LaTeX mode.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-bar" '("TeX-bar-")))
+
 ;;;***
 
-;;;### (autoloads nil "tex-fold" "tex-fold.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-buf" "tex-buf.el" (22901 48303 0 0))
+;;; Generated autoloads from tex-buf.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-buf" '("TeX-" "LaTeX-" "compilation-in-progress")))
+
+;;;***
+
+;;;### (autoloads nil "tex-fold" "tex-fold.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex-fold.el
  (autoload 'TeX-fold-mode "tex-fold" "Minor mode for hiding and revealing macros and environments." t)
 
 (defalias 'tex-fold-mode 'TeX-fold-mode)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-fold" '("TeX-fold-")))
+
 ;;;***
 
-;;;### (autoloads nil "tex-font" "tex-font.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-font" "tex-font.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex-font.el
 
 (autoload 'tex-font-setup "tex-font" "\
@@ -421,9 +452,11 @@ Setup font lock support for TeX.
 
 \(fn)" nil nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-font" '("tex-")))
+
 ;;;***
 
-;;;### (autoloads nil "tex-info" "tex-info.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-info" "tex-info.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex-info.el
 
 (defalias 'Texinfo-mode 'texinfo-mode)
@@ -439,9 +472,19 @@ value of `Texinfo-mode-hook'.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-info" '("Texinfo-" "texinfo-environment-regexp")))
+
 ;;;***
 
-;;;### (autoloads nil "tex-jp" "tex-jp.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-ispell" "tex-ispell.el" (22901 48303 0
+;;;;;;  0))
+;;; Generated autoloads from tex-ispell.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-ispell" '("TeX-ispell-")))
+
+;;;***
+
+;;;### (autoloads nil "tex-jp" "tex-jp.el" (22901 48303 0 0))
 ;;; Generated autoloads from tex-jp.el
 
 (autoload 'japanese-plain-tex-mode "tex-jp" "\
@@ -456,9 +499,18 @@ Set `japanese-TeX-mode' to t, and enter `TeX-latex-mode'.
 
 \(fn)" t nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-jp" '("TeX-" "japanese-")))
+
 ;;;***
 
-;;;### (autoloads nil "texmathp" "texmathp.el" (22085 42439 0 0))
+;;;### (autoloads nil "tex-style" "tex-style.el" (22901 48303 0 0))
+;;; Generated autoloads from tex-style.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "tex-style" '("LaTeX-")))
+
+;;;***
+
+;;;### (autoloads nil "texmathp" "texmathp.el" (22901 48303 0 0))
 ;;; Generated autoloads from texmathp.el
 
 (autoload 'texmathp "texmathp" "\
@@ -476,11 +528,15 @@ Limit searched to BOUND.
 
 \(fn BOUND)" nil nil)
 
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "texmathp" '("texmathp-")))
+
 ;;;***
 
-;;;### (autoloads nil "toolbar-x" "toolbar-x.el" (22085 42439 0 0))
+;;;### (autoloads nil "toolbar-x" "toolbar-x.el" (22901 48303 0 0))
 ;;; Generated autoloads from toolbar-x.el
  (autoload 'toolbarx-install-toolbar "toolbar-x")
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "toolbar-x" '("toolbarx-")))
 
 ;;;***
 

@@ -1,6 +1,6 @@
 ;;; tabularx.el --- AUCTeX style for the tabularx package.
 
-;; Copyright (C) 2009, 2013, 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2009, 2013-2016 Free Software Foundation, Inc.
 
 ;; Author: Ralf Angeli <angeli@caeruleus.net>
 ;; Maintainer: auctex-devel@gnu.org
@@ -39,9 +39,14 @@
  (lambda ()
    ;; Make tabularx the default tabular environment
    (setq LaTeX-default-tabular-environment "tabularx")
-   ;; Use the enhanced tabular indentation
-   (add-to-list 'LaTeX-indent-environment-list
-		'("tabularx" LaTeX-indent-tabular))
+   ;; Use the enhanced tabular indentation.  Append to
+   ;; `LaTeX-indent-environment-list' in order not to override custom settings.
+   (add-to-list (make-local-variable 'LaTeX-indent-environment-list)
+		'("tabularx" LaTeX-indent-tabular) t)
+
+   ;; Append tabularx to `LaTeX-item-list' with `LaTeX-item-tabular*'
+   (add-to-list 'LaTeX-item-list '("tabularx" . LaTeX-item-tabular*) t)
+
    ;; New symbols
    (TeX-add-symbols
     "tracingtabularx"

@@ -1,8 +1,8 @@
 ;;; textcomp.el --- AUCTeX style for `textcomp.sty' (v1.99g)
 
-;; Copyright (C) 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2014, 2017 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2014-10-25
 ;; Keywords: tex
@@ -161,14 +161,7 @@
     '("textdiv"                  0)     ; Type: Symbol -- Slot: 246
     '("textcircled"              1)     ; Type: Command -- Slot: N/A
     '("capitalcedilla"           1)     ; Type: Command -- Slot: N/A
-    '("capitalogonek"            1)     ; Type: Command -- Slot: N/A
-    '("oldstylenums" "Numbers"    ))    ; Type: Command -- Slot: N/A
-
-   ;; Fontification
-   (when (and (featurep 'font-latex)
-              (eq TeX-install-font-lock 'font-latex-setup))
-     (font-latex-add-keywords '(("oldstylenums"  "{"))
-                              'type-command)))
+    '("capitalogonek"            1)))   ; Type: Command -- Slot: N/A
  LaTeX-dialect)
 
 (defvar LaTeX-textcomp-package-options

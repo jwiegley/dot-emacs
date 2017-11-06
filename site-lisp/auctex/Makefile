@@ -27,31 +27,31 @@
 prefix = /usr/local$(null)
 exec_prefix = ${prefix}$(null)
 libdir = ${exec_prefix}/lib$(null)
-packagedatadir = /nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp/auctex$(null)
+packagedatadir = /nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp/auctex$(null)
 datarootdir = ${prefix}/share$(null)
 datadir = ${datarootdir}$(null)
 localstatedir = ${prefix}/var$(null)
 infodir = ${datarootdir}/info$(null)
-lispdir = /nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp$(null)
-auctexstartfile=/nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp/auctex.el
-previewstartfile = /nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp/preview-latex.el
-packagelispdir = /nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp/auctex$(null)
-packagedatadir = /nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/share/emacs/site-lisp/auctex$(null)
+lispdir = /nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp$(null)
+auctexstartfile=/nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp/auctex.el
+previewstartfile = /nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp/preview-latex.el
+packagelispdir = /nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp/auctex$(null)
+packagedatadir = /nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/share/emacs/site-lisp/auctex$(null)
 packagedir = no$(null)
 autodir = ${localstatedir}/auctex$(null)
 preview_enabled=yes
 styledir = $(packagedatadir)/style
-AUCTEXDATE = 2015-11-13
-AUCTEXVERSION = 11.89
+AUCTEXDATE = 2017-11-06
+AUCTEXVERSION = 11.91
 
-INSTALL = /nix/store/dw110q8mzvp49s4sz7gqn9bdyp8byls6-coreutils-8.25/bin/install -c
+INSTALL = /nix/store/7l8nkvrd8dck71lmr3r47kr04wb12yk2-coreutils-8.28/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 MKINSTALLDIRS = ./mkinstalldirs
 DESTDIR=
 
 PACKAGE=auctex
 PACKAGE_INFO=auctex preview-latex
-EMACS=/nix/store/v9g9p4sd73q66d099x5paykz4kknsf5p-emacs-HEAD/bin/emacs
+EMACS=/nix/store/28ax7ma68d0bndbgcjqx6244f6j1qpy8-emacs26/bin/emacs
 ELCC=$(EMACS) -batch -q -no-site-file -no-init-file -l lpath.el
 AUTOLOAD=--eval '(let ((generated-autoload-file (expand-file-name "$@"))) \
   (mapcar (function update-file-autoloads) command-line-args-left) \
@@ -60,7 +60,9 @@ AUTOLOAD=--eval '(let ((generated-autoload-file (expand-file-name "$@"))) \
 PREVIEW_AUTOLOAD=--eval '(let ((generated-autoload-file (expand-file-name "$@"))) \
 		(update-file-autoloads "preview.el")(save-buffers-kill-emacs t))'
 
-EXCLUDEDFILES=autogen.sh .cvsignore .gitignore doc/.gitignore README.GIT tests
+# Files and directories excluded from distributed tar ball.
+EXCLUDEDFILES=autogen.sh .gitignore doc/.gitignore doc/tex-ref.log \
+	latex/.gitignore README.GIT tests build-aux
 
 .SUFFIXES: .el .elc .texi
 
@@ -84,7 +86,7 @@ MULEELC = tex-jp.elc
 AUCSRC = tex.el tex-buf.el tex-style.el plain-tex.el latex.el tex-info.el \
 	texmathp.el multi-prompt.el tex-mik.el font-latex.el tex-font.el \
 	context.el context-en.el context-nl.el tex-fold.el \
-	toolbar-x.el tex-bar.el bib-cite.el
+	toolbar-x.el tex-bar.el bib-cite.el tex-ispell.el
 AUCELC = $(AUCSRC:.el=.elc)
 
 STYLESRC = style/prosper.el \
@@ -95,6 +97,8 @@ STYLESRC = style/prosper.el \
 	   style/dutch.el     style/german.el    style/dk.el \
 	   style/j-article.el style/j-book.el    style/j-report.el \
 	   style/jarticle.el  style/jbook.el     style/jreport.el \
+	   style/tarticle.el  style/tbook.el     style/treport.el \
+	   style/jsarticle.el style/jsbook.el    style/jsreport.el \
 	   style/dinbrief.el  style/virtex.el    style/plfonts.el \
 	   style/plhb.el      style/harvard.el	 style/swedish.el \
 	   style/danish.el    style/slovak.el    style/czech.el \
@@ -111,8 +115,6 @@ STYLESRC = style/prosper.el \
 	   style/alltt.el     style/italian.el   style/doc.el \
 	   style/ltxdoc.el    style/ltx-base.el	 style/units.el \
 	   style/nicefrac.el  style/url.el       style/listings.el \
-	   style/jurabib.el   style/csquotes.el  style/jsarticle.el \
-	   style/jsbook.el    style/babel.el     style/dk-bib.el \
 	   style/inputenc.el  style/frenchb.el   style/francais.el \
 	   style/MinionPro.el style/pdfsync.el   style/polish.el \
 	   style/polski.el    style/icelandic.el style/comment.el \
@@ -153,7 +155,19 @@ STYLESRC = style/prosper.el \
 	   style/vwcol.el     style/textpos.el   style/transparent.el \
 	   style/fontenc.el   style/Alegreya.el  style/gloss-italian.el \
 	   style/newfloat.el  style/subcaption.el style/AlegreyaSans.el \
-	   style/hologo.el
+	   style/hologo.el    style/theorem.el   style/ntheorem.el \
+	   style/splitidx.el  style/tikz.el      style/xcolor.el \
+	   style/pdflscape.el style/commath.el   style/empheq.el \
+	   style/framed.el    style/paracol.el   style/menukeys.el \
+	   style/bidi.el      style/FiraMono.el  style/FiraSans.el \
+	   style/bicaption.el style/amsfonts.el  style/subfiles.el \
+	   style/dcolumn.el   style/mdframed.el  style/tcolorboxlib-raster.el \
+	   style/titleps.el   style/titlesec.el  style/titletoc.el \
+	   style/exam.el      style/breqn.el     style/sourcecodepro.el \
+	   style/preview.el   style/fvextra.el   style/jurabib.el \
+	   style/csquotes.el  style/babel.el     style/dk-bib.el \
+	   style/floatrow.el  style/moodle.el    style/canadian.el \
+	   style/australian.el style/newzealand.el
 
 STYLEELC = $(STYLESRC:.el=.elc)
 
@@ -242,7 +256,7 @@ configure: configure.ac aclocal.m4
 Makefile: Makefile.in config.status
 	./config.status
 
-doc/Makefile: doc/Makefile.in config.status ChangeLog
+doc/Makefile: doc/Makefile.in config.status ChangeLog.1
 	./config.status
 
 config.status: configure
@@ -397,6 +411,60 @@ wc:
 	wc $(AUCSRC) $(STYLESRC)
 
 # ----------------------------------------------------------------------
+# The targets below update the ChangeLog from git log
+# and are intended to be used only by the maintainers.
+# These rules are adapted from GNU Emacs Makefile.
+
+.PHONY: ChangeLog change-history change-history-commit change-history-nocommit
+.PHONY: preferred-branch-is-current unchanged-history-files
+
+CHANGELOG = ChangeLog
+auctexlog = build-aux/gitlog-to-auctexlog
+# The ChangeLog history files are called ChangeLog.1, ChangeLog.2, ...,
+# ChangeLog.$(CHANGELOG_HISTORY_INDEX_MAX).  $(CHANGELOG_N) stands for
+# the newest (highest-numbered) ChangeLog history file.
+CHANGELOG_HISTORY_INDEX_MAX = 1
+CHANGELOG_N = ChangeLog.$(CHANGELOG_HISTORY_INDEX_MAX)
+
+# Check that we are in a good state for changing history.
+PREFERRED_BRANCH = master
+preferred-branch-is-current:
+	git branch | grep -q '^\* $(PREFERRED_BRANCH)$$'
+unchanged-history-files:
+	x=$$(git diff-files --name-only $(CHANGELOG_N) $(auctexlog)) && \
+	  test -z "$$x"
+
+# Convert git commit log to ChangeLog file.  make-dist uses this.
+# I guess this is PHONY so it always updates?
+ChangeLog:
+	  ./$(auctexlog) -o $(CHANGELOG) -n $(CHANGELOG_HISTORY_INDEX_MAX)
+
+# Regular expression that matches the newest commit covered by a ChangeLog.
+new_commit_regexp = ^commit [0123456789abcdef]* (inclusive)
+
+# Copy newer commit messages to the start of the ChangeLog history file,
+# and consider them to be older.
+change-history-nocommit: #preferred-branch-is-current unchanged-history-files
+	-rm -f ChangeLog.tmp
+	$(MAKE) ChangeLog CHANGELOG=ChangeLog.tmp
+	sed '/^This file records repository revisions/,$$d' \
+	  ChangeLog.tmp > $(CHANGELOG_N).tmp
+	new_commit_line=`grep --text '$(new_commit_regexp)' ChangeLog.tmp` && \
+	sed 's/$(new_commit_regexp).*/'"$$new_commit_line/" \
+	  $(CHANGELOG_N) >>$(CHANGELOG_N).tmp
+	rm ChangeLog.tmp
+	mv $(CHANGELOG_N).tmp $(CHANGELOG_N)
+
+change-history: change-history-nocommit
+	$(MAKE) $@-commit
+
+# If 'make change-history' fails because the newest ChangeLog history
+# file contains invalid text, fix the file by hand and then run
+# 'make change-history-commit'.
+change-history-commit:
+	git commit -m'; make $@' $(CHANGELOG_N) $(auctexlog)
+
+# ----------------------------------------------------------------------
 # The targets below are concerned with the release process and
 # intended to be used only by the maintainers.
 
@@ -406,34 +474,37 @@ wc:
 #    Run tests using ERT tool.  Not necessary but strongly suggested before a
 #    release.
 #
-# 1) release-commit TAG=<tag> COMMITTER=<committer>
+# 1) change-history
+#    Update the ChangeLog file.
+#
+# 2) release-commit TAG=<tag> COMMITTER=<committer>
 #    Tag the release.
 #    Pass `COMMITTER=<committer>' argument only if it is different from
 #    your git name and email.  `<committer>' should be in the form
 #        "John Doe  <john.doe@example.com>"
 #
-# 2) dist TAG=<tag>
+# 3) dist TAG=<tag>
 #    Create the tar ball and other release files and put them into $FTPDIR.
 #
-# 3) xemacs-package TAG=<tag>
+# 4) xemacs-package TAG=<tag>
 #    Create the precompiled XEmacs package.
 #
-# 4) windows-package WEMACSVER=<emacs-version> TAG=<tag>
+# 5) windows-package WEMACSVER=<emacs-version> TAG=<tag>
 #    Create the precompiled AUCTeX package for Windows.
 #    This requires a compiled Emacs of the same version at location $WEMACS.
 #    NOTA BENE: you may need to use bash shell for this recipe to work.
 #
-# 5) release-sign TAG=<tag>
+# 6) release-sign TAG=<tag>
 #    Sign the tar ball and create directive files for upload.  NOTA BENE: you
 #    may need to use bash shell for this recipe to work.
 #
-# 6) release-upload
+# 7) release-upload
 #    Upload files to GNU FTP server.
 #
-# 7) www-doc TAG=<tag>
+# 8) www-doc TAG=<tag>
 #    Create documentation for AUCTeX home page.
 #
-# 8) preview-ball TAG=<tag>
+# 9) preview-ball TAG=<tag>
 #    Create preview package.  (Not for GNU FTP server but for CTAN.)
 
 dist: check-tag tar-ball
@@ -449,18 +520,18 @@ check:
 release-commit: check-tag
 	@echo "Tagging release $(TAG) in Git ..."
 	sleep 5
-	mv ChangeLog ChangeLog.old
+	mv $(CHANGELOG_N) ChangeLog.old
 	mv ChangeLog-preview ChangeLog-preview.old
-# Make sure the release ChangeLog entry is encoded with ISO-8859-1.  This
-# requires the `iconv' program.
-	echo `date "+%Y-%m-%d "`" ${COMMITTER}" | iconv -t ISO-8859-1 - > ChangeLog
-	echo >> ChangeLog
-	echo "	* Version" $(TAG) released. >> ChangeLog
-	echo >> ChangeLog
-	cp ChangeLog ChangeLog-preview
-	cat ChangeLog.old >> ChangeLog
+# Make sure the release ChangeLog entry is encoded with UTF-8.
+# This requires the `iconv' program.
+	echo `date "+%Y-%m-%d "`" ${COMMITTER}" | iconv -t UTF-8 - > $(CHANGELOG_N)
+	echo >> $(CHANGELOG_N)
+	echo "	* Version" $(TAG) released. >> $(CHANGELOG_N)
+	echo >> $(CHANGELOG_N)
+	cp $(CHANGELOG_N) ChangeLog-preview
+	cat ChangeLog.old >> $(CHANGELOG_N)
 	cat ChangeLog-preview.old >> ChangeLog-preview
-	git commit -m 'Release_$(TAG)' -- ChangeLog ChangeLog-preview
+	git commit -m '; Release_$(TAG)' -- $(CHANGELOG_N) ChangeLog-preview
 	git tag release_`echo $(TAG) | sed -e 's/[.]/_/g'`
 	@echo
 	@echo "Congratulations!  Release $(TAG) of AUCTeX is ready."
@@ -487,7 +558,7 @@ tar-ball: doc/Makefile
 	cd doc && $(MAKE) extradist
 	rm -f doc/version.texi
 	$(CP) doc/auctex.ps doc/auctex.pdf doc/tex-ref.ps doc/tex-ref.pdf $(FTPDIR)
-	$(CP) ChangeLog $(FTPDIR)
+	$(CP) $(CHANGELOG_N) $(FTPDIR)
 
 rpm-packages:
 	rpmbuild -ta $(RPM_SIGN) $(FTPDIR)/auctex-$(TAG).tar.gz

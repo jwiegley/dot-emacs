@@ -1,4 +1,12 @@
-2015-11-13  MosË Giordano  <mose@gnu.org>
+2017-07-24  Mos√® Giordano  <mose@gnu.org>
+
+	* Version 11.91 released.
+
+2017-01-10  Mos√® Giordano  <mose@gnu.org>
+
+	* Version 11.90 released.
+
+2015-11-13  Mos√® Giordano  <mose@gnu.org>
 
 	* Version 11.89 released.
 
@@ -28,11 +36,11 @@
 	funcall instead of run-hooks.  Use goto-char + forward-line
 	instead of goto-line.
 
-2014-10-29  MosË Giordano  <mose@gnu.org>
+2014-10-29  Mos√® Giordano  <mose@gnu.org>
 
 	* Version 11.88 released.
 
-2014-10-29  MosË Giordano  <mose@gnu.org>
+2014-10-29  Mos√® Giordano  <mose@gnu.org>
 
 	* latex/preview.dtx: Manually change the release version.
 
@@ -1654,13 +1662,13 @@
 	* latex/preview.dtx: Make the end of snarfed environments behave
 	normally if the environment is not being snarfed.
 
-2004-10-14  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-10-14  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* doc/wininstall.texi: Adjust text to conform with the AUCTeX aclocal.
 
 	* configure.in: Add VALID_BUILD_DIR
 
-2004-10-13  Jan-≈ke Larsson  <jalar@mai.liu.se>
+2004-10-13  Jan-√Öke Larsson  <jalar@mai.liu.se>
 
 	* configure.in: Adjust for the aclocal.m4 sync with AUCTeX
 
@@ -1877,5 +1885,5 @@
 	* preview-latex.spec: prepare for 0.8, bump XEmacs to 21.4.9.
 
 ;; Local Variables:
-;; coding: iso-8859-1
+;; coding: utf-8
 ;; End:

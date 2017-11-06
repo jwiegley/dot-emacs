@@ -1,8 +1,8 @@
 ;;; textpos.el --- AUCTeX style for `textpos.sty' version v1.7j
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-07-04
 ;; Keywords: tex
@@ -65,7 +65,7 @@ them."
  "textpos"
  (lambda ()
 
-   (TeX-run-style-hooks "everyshi" "color")
+   (TeX-run-style-hooks "everyshi")
 
    (LaTeX-add-environments
     ;; \begin{textblock}{<hsize>}[<ho>,<vo>](<hpos>,<vpos>) ... \end{textblock}
@@ -83,15 +83,23 @@ them."
     '("textblockcolour"
       (TeX-arg-eval
        (lambda ()
-	 (let ((color (completing-read "Color name: "
-				       (LaTeX-color-definecolor-list))))
+	 (let ((color (cond ((member "xcolor" (TeX-style-list))
+			     (completing-read "Color name: " (LaTeX-xcolor-definecolor-list)))
+			    ((member "color" (TeX-style-list))
+			     (completing-read "Color name: " (LaTeX-color-definecolor-list)))
+			    (t
+			     (TeX-read-string "Color name: ")))))
 	   (format "%s" color)))))
 
     '("textblockrulecolour"
       (TeX-arg-eval
        (lambda ()
-	 (let ((color (completing-read "Color name: "
-				       (LaTeX-color-definecolor-list))))
+	 (let ((color (cond ((member "xcolor" (TeX-style-list))
+			     (completing-read "Color name: " (LaTeX-xcolor-definecolor-list)))
+			    ((member "color" (TeX-style-list))
+			     (completing-read "Color name: " (LaTeX-color-definecolor-list)))
+			    (t
+			     (TeX-read-string "Color name: ")))))
 	   (format "%s" color)))))
 
    '("TPshowboxestrue")

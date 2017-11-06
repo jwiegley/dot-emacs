@@ -34,7 +34,7 @@
 (TeX-auto-add-type "array-newcolumntype" "LaTeX")
 
 (defvar LaTeX-array-newcolumntype-regexp
-  '("\\\\newcolumntype{\\([a-zA-Z]+\\)}"
+  '("\\\\newcolumntype{\\([^}]+\\)}"
     1 LaTeX-auto-array-newcolumntype)
   "Matches the argument of `\\newcolumntype' from `array'
 package.")

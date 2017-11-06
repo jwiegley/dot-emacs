@@ -1,8 +1,8 @@
 ;;; colortbl.el --- AUCTeX style for `colortbl.sty' (v1.0a)
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015, 2016 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-03-22
 ;; Keywords: tex
@@ -35,22 +35,40 @@
  "colortbl"
  (lambda ()
 
-   (TeX-run-style-hooks "color" "array")
+   ;; array.el is always loaded:
+   (TeX-run-style-hooks "array")
+
+   ;; Load color.el only if xcolor.el is not already loaded.  This is
+   ;; mainly for the option `table' from xcolor.sty which loads
+   ;; colortbl.sty, but we don't want to load color.el.
+   (unless (member "xcolor" (TeX-style-list))
+     (TeX-run-style-hooks "color"))
 
    (TeX-add-symbols
-    ;; `TeX-arg-color' is provided by `color.el'.
-    '("columncolor" TeX-arg-color
+    ;; `TeX-arg-color' is provided by color.el,
+    ;; `TeX-arg-xcolor' is provided by xcolor.el.
+    '("columncolor" (TeX-arg-conditional (member "xcolor" (TeX-style-list))
+					 (TeX-arg-xcolor)
+				       (TeX-arg-color))
       [ TeX-arg-length "Left overhang" ] [ TeX-arg-length "Right overhang" ] )
 
-    '("rowcolor"    TeX-arg-color
+    '("rowcolor"    (TeX-arg-conditional (member "xcolor" (TeX-style-list))
+					 (TeX-arg-xcolor)
+				       (TeX-arg-color))
       [ TeX-arg-length "Left overhang" ] [ TeX-arg-length "Right overhang" ] )
 
-    '("cellcolor"   TeX-arg-color
+    '("cellcolor"   (TeX-arg-conditional (member "xcolor" (TeX-style-list))
+					 (TeX-arg-xcolor)
+				       (TeX-arg-color))
       [ TeX-arg-length "Left overhang" ] [ TeX-arg-length "Right overhang" ] )
 
-    '("arrayrulecolor" TeX-arg-color)
+    '("arrayrulecolor" (TeX-arg-conditional (member "xcolor" (TeX-style-list))
+					 (TeX-arg-xcolor)
+				       (TeX-arg-color)))
 
-    '("doublerulesepcolor" TeX-arg-color))
+    '("doublerulesepcolor" (TeX-arg-conditional (member "xcolor" (TeX-style-list))
+					 (TeX-arg-xcolor)
+				       (TeX-arg-color))))
 
    (LaTeX-add-lengths "minrowclearance")
 

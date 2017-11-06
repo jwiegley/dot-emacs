@@ -12,7 +12,7 @@ This manual is for @AUCTeX{}
 (version @value{VERSION} from @value{UPDATED}),
 a sophisticated TeX environment for Emacs.
 
-Copyright @copyright{} 1992-1995, 2001, 2002, 2004-2015
+Copyright @copyright{} 1992-1995, 2001, 2002, 2004-2017
 Free Software Foundation, Inc.
 
 @quotation
@@ -164,6 +164,7 @@ Controlling Screen Display
 * Folding::                     Folding Macros and Environments
 * Outline::                     Outlining the Document
 * Narrowing::                   Restricting display and editing to a portion of the buffer
+* Prettifying::                 Displaying Greek and math macros as Unicode characters
 
 Font Locking
 
@@ -190,6 +191,7 @@ Viewing the Formatted Output
 
 Catching the errors
 
+* Ignoring warnings::           Controlling warnings to be reported
 * Error overview::              List of all errors and warnings
 
 Customization and Extension
@@ -1004,6 +1006,14 @@ at the bottom of the float.  You can specify floats where the caption
 should be placed at the top with @code{LaTeX-top-caption-list}.
 @vindex LaTeX-top-caption-list
 
+@item short caption
+If the specified caption is greater than a specific length, then a short
+caption is prompted for and it is inserted as an optional argument to
+the @samp{\caption} macro.  The length that a caption needs to be before
+prompting for a short version is controlled by
+@code{LaTeX-short-caption-prompt-length}.
+@vindex LaTeX-short-caption-prompt-length
+
 @item label
 The label of this float.  The label will have a default prefix, which is
 controlled by the variables @code{LaTeX-figure-label} and
@@ -1034,6 +1044,11 @@ Prefix to use for table labels.
 
 @defopt LaTeX-top-caption-list
 List of float environments with top caption.
+@end defopt
+
+@defopt LaTeX-short-caption-prompt-length
+Number of chars a caption should be before prompting for a short
+caption.
 @end defopt
 
 @node Itemize-like
@@ -1086,7 +1101,12 @@ inserts the suitable number of ampersands.
 
 You can use @kbd{C-c @key{LFD}} (@code{LaTeX-insert-item}) to terminate
 rows in these environments.  It supplies line break macro @samp{\\} and
-inserts the suitable number of ampersands on the next line.
+inserts the suitable number of ampersands on the next line.  @AUCTeX{}
+also supports the @samp{*@{num@}@{cols@}} notation (which may contain
+another @samp{*}-expression) in the format string when calculating the
+number of ampersands.  Please note that @samp{num} and @samp{cols} must
+be enclosed in braces; expressions like @samp{*2l} are not recognized
+correctly by the algorithm.
 
 @deffn Command LaTeX-insert-item
 @kindex C-c @key{LFD}
@@ -1196,23 +1216,72 @@ If non-nil, insert braces after typing @key{^} and @key{_} in math mode.
 @cindex Arguments to @TeX{} macros
 
 Emacs lisp programmers probably know the @code{lisp-complete-symbol}
-command, usually bound to @kbd{M-@key{TAB}}.  Users of the wonderful
-ispell mode know and love the @code{ispell-complete-word} command from
-that package.  Similarly, @AUCTeX{} has a @code{TeX-complete-symbol}
-command, by default bound to @kbd{M-@key{TAB}} which is equivalent to
-@kbd{M-C-i}.  Using @code{TeX-complete-symbol} makes it easier to type
-and remember the names of long @LaTeX{} macros.
+command which was bound to @kbd{M-@key{TAB}} until completion-at-point
+became the new standard completion facility (see below).  Users of the
+wonderful ispell mode know and love the @code{ispell-complete-word}
+command from that package.  Similarly, @AUCTeX{} has a
+@code{TeX-complete-symbol} command, by default bound to
+@kbd{M-@key{TAB}} which is equivalent to @kbd{M-C-i}.  Using
+@code{TeX-complete-symbol} makes it easier to type and remember the
+names of long @LaTeX{} macros.
 
 In order to use @code{TeX-complete-symbol}, you should write a backslash
 and the start of the macro.  Typing @kbd{M-@key{TAB}} will now complete
 as much of the macro, as it unambiguously can.  For example, if you type
 `@samp{\renewc}' and then @kbd{M-@key{TAB}}, it will expand to
-`@samp{\renewcommand}'.
+`@samp{\renewcommand}'.  But there's more: if point is just after
+@samp{\begin@{}, then @code{TeX-complete-symbol} will complete @LaTeX{}
+environments, etc.  This is controlled by @code{TeX-complete-list}.
 
 @deffn Command TeX-complete-symbol
 @kindex M-@key{TAB}
 (@kbd{M-@key{TAB}})  Complete @TeX{} symbol before point.
 @end deffn
+
+@defvar TeX-complete-list
+List of ways to complete the preceding text.
+
+Each entry is a list with the following elements:
+
+@enumerate
+@item
+Regexp matching the preceding text or a predicate of arity 0 which
+returns non-nil and sets `match-data' appropriately if it is applicable.
+@item
+A number indicating the subgroup in the regexp containing the text.
+@item
+A function returning an alist of possible completions.
+@item
+Text to append after a succesful completion.
+@end enumerate
+
+Or alternatively:
+
+@enumerate
+@item
+Regexp matching the preceding text.
+@item
+Function to do the actual completion.
+@end enumerate
+@end defvar
+
+More recent Emacs versions have a new completion mechanism.  Modes may
+define and register custom completion-at-point functions and when the
+user invokes @code{completion-at-point} (usually bound to
+@kbd{M-@key{TAB}}), all such registered functions are consulted for
+checking for possible completions.  Modern completion UIs like
+@i{company-mode} support this completion-at-point facility.
+
+@defun TeX--completion-at-point
+@AUCTeX{}'s completion-at-point function which is automatically added to
+@code{completion-at-point-functions} in @TeX{} and @LaTeX{} buffers.
+
+It offers the same completion candidates as would
+@code{TeX-complete-symbol} (and is also controlled by
+@code{TeX-complete-list}) except that it doesn't fall back on
+@code{ispell-complete-word} which would be awkward with completion UIs
+like @i{company-mode}.
+@end defun
 
 A more direct way to insert a macro is with @code{TeX-insert-macro},
 bound to @kbd{C-c C-m} which is equivalent to @kbd{C-c @key{RET}}.  It
@@ -1247,7 +1316,6 @@ called with prefix argument (@kbd{C-u}), it's the other way round.
 Note that for some macros, there are special mechanisms, e.g.
 @code{LaTeX-includegraphics-options-alist} and
 @code{TeX-arg-cite-note-p}.
-
 @end defopt
 
 
@@ -1796,11 +1864,31 @@ Moreover, you can focus in a specific portion of the code by narrowing
 the buffer to the desired region.  @AUCTeX{} provides also functions to
 narrow the buffer to the current group and to @LaTeX{} environments.
 
+@AUCTeX{} also provides some WYSIWYG features.
+
+First, you can customize @code{font-latex-fontify-script} to enable
+special formatting of @code{^} superscripts and @code{_} subscripts
+(@pxref{Font Locking}).
+
+Secondly, @AUCTeX{} with GNU Emacs 25 or later can display certain math
+macros using Unicode characters, e.g., @code{\alpha} as α.  This is
+called prettification and is lightweight and reasonable robust
+(@pxref{Prettifying}).
+
+A more accurate approach is provided by @previewlatex{}, a subsystem of
+@AUCTeX{}, see @ref{Top,,Introduction,preview-latex,The @previewlatex{}
+Manual}.  This system uses @LaTeX{} to generate images that are then
+displayed in your buffer.  It is extremely accurate but can be fragile
+with some packages (like older pgf versions).
+
+Please note that you can use prettification and @previewlatex{} together.
+
 @menu
 * Font Locking::                Font Locking
 * Folding::                     Folding Macros and Environments
 * Outline::                     Outlining the Document
 * Narrowing::                   Restricting display and editing to a portion of the buffer
+* Prettifying::                 Displaying Greek and math macros as Unicode characters
 @end menu
 
 @node Font Locking
@@ -2049,10 +2137,11 @@ Face: @code{font-latex-type-face}
 described above.  You can disable these defaults per class by
 customizing the variable @code{font-latex-deactivated-keyword-classes}.
 This is a list of strings for keyword classes to be deactivated.  Valid
-entries are "warning", "variable", "reference", "function" ,
-"sectioning-0", "sectioning-1", "sectioning-2", "sectioning-3",
-"sectioning-4", "sectioning-5", "textual", "bold-command",
-"italic-command", "math-command", "type-command", "bold-declaration",
+entries are "warning", "variable", "biblatexnoarg", "biblatex",
+"reference", "function" , "sectioning-0", "sectioning-1",
+"sectioning-2", "sectioning-3", "sectioning-4", "sectioning-5",
+"slide-title", "textual", "bold-command", "italic-command",
+"math-command", "type-command", "bold-declaration",
 "italic-declaration", "type-declaration".
 
 You can also get rid of certain keywords only.  For example if you want
@@ -2063,7 +2152,9 @@ following stanza into your init file:
 (eval-after-load "font-latex"
   '(setq-default
     font-latex-match-reference-keywords-local
-    (remove "footnote" font-latex-match-reference-keywords-local)))
+    (remove (TeX-assoc-string "footnote"
+            font-latex-match-reference-keywords-local)
+                font-latex-match-reference-keywords-local)))
 @end lisp
 
 But note that this means fiddling with @fontlatex{}'s internals and is
@@ -2089,7 +2180,7 @@ covered by the keyword class.  A keyword can either be a simple command
 name omitting the leading backslash or a list consisting of the command
 name and a string specifying the sequence of arguments for the command.
 
-The face argument can either be an existing face or font specifications
+The face argument can either be an existing face or face attributes
 made by you.  (The latter option is not available on XEmacs.)
 
 There are three alternatives for the type of keywords---``Command with
@@ -2153,12 +2244,50 @@ variables @code{font-latex-fontify-script} and
 @code{font-latex-script-display}.
 
 @defopt font-latex-fontify-script
-If non-nil, fontify subscript and superscript strings.
+If non-nil, fontify subscript and superscript strings.  Concretely, this
+means that the scripts are raised or lowered.
 
-Note that this feature is not available on XEmacs, for which it is
-disabled per default.  In GNU Emacs raising and lowering is not enabled
-for versions 21.3 and before due to it working not properly.
+Another possiblity is setting this variable to the symbol
+@code{multi-level}.  In this case, in a formula @i{x^@{y^z@}}, @i{y} is
+raised above and smaller than @i{x}, and @i{z} is raised above and
+smaller than @i{y}.  With many script levels, the text might become too
+small to be readable.  (See @code{font-latex-fontify-script-max-level}
+below.)
+
+Lastly, you can set this variable to @code{invisible} whose behavior is
+like @code{multi-level}, and in addition the super-/subscript characters
+@i{^} and @i{_} are not displayed.
+
+Note that this feature is not available on XEmacs, for which
+it is disabled per default.  In GNU Emacs raising and lowering is not
+enabled for versions 21.3 and before due to it working not properly.
 @end defopt
+
+
+@defopt font-latex-fontify-script-max-level
+Maximum scriptification level for which script faces are applied.
+
+The faces @code{font-latex-superscript-face} and
+@code{font-latex-subscript-face} define custom @code{:height} values <
+1.0.  Therefore, scripts are displayed with a slightly smaller font than
+normal math text.  If @code{font-latex-fontify-script} is
+@code{multi-level} or @code{invisible}, the font size becomes too small
+to be readable after a few levels.  This option allows to specify the
+maximum level after which the size of the script text won’t be shrunken
+anymore.
+
+For example, in the expression @i{x^@{y^@{z^a_b@}@}}, @i{x} has
+scriptification level 0, @i{y} has level 1, @i{z} has level 2, and both
+@i{a} and @i{b} have scriptification level 3.
+
+If @code{font-latex-fontify-script-max-level} was 2, then @i{z}, @i{a},
+and @i{b} would have the same font size.  If it was 3 or more, then
+@i{a} and @i{b} were smaller than @i{z} just in the same way as @i{z} is
+smaller than @i{y} and @i{y} is smaller than @i{x}.
+@end defopt
+
+The script characters @samp{^} and @samp{_} themselves are also
+fontified with an own face named @code{font-latex-script-char-face}.
 
 @defopt font-latex-script-display
 Display specification for subscript and superscript content.  The car is
@@ -2564,6 +2693,33 @@ disabled.  Attempting to use them asks for confirmation and gives you
 the option of enabling them; if you enable the commands, confirmation
 will no longer be required for them.
 
+@node Prettifying
+@section Prettifying
+
+Emacs 25 is able to prettify symbols in programming language buffers,
+@pxref{Misc for Programs,,,emacs,GNU Emacs Manual}.  The canonical
+example is to display @code{(lambda () ...)} as @code{(λ () ...)} in
+Lisp buffers.
+
+@AUCTeX{} can use this feature in order to display certain math macros
+and greek letters using their Unicode representation, too.  For example,
+the @TeX{} code @code{\alpha \times \beta} will be displayed as @code{α
+× β}.  When point is on one of the characters, it'll be unprettified
+automatically, meaning you see the verbatim text again.  For this
+behaviour however you need to set
+@code{prettify-symbols-unprettify-at-point} to t or @code{right-edge}
+which will unprettify the symbol when point moves into or near it.
+
+To enable prettification in @AUCTeX{}, simply add
+@code{prettify-symbols-mode} to @code{TeX-mode-hook}.  If you enabled
+prettification globally with @code{global-prettify-symbols-mode}, then
+it's automatically enabled in @AUCTeX{}, too.
+
+You can also add custom symbol unicode-character pairs for
+prettification by adding to @code{tex--prettify-symbols-alist}.  Note
+that this variable is part of Emacs' stock @code{tex-mode.el} and used
+by that and @AUCTeX{}.
+
 @node Processing
 @chapter Starting Processors, Viewers and Other Programs
 
@@ -2833,6 +2989,141 @@ If nil, just check the current file.
 Used when checking if any files have changed.
 @end defopt
 
+@cindex ispell
+When performing spell checking on a document or a region (invoked
+through @AUCTeX{}'s @samp{Spell} command or @kbd{M-x ispell RET}), you
+want the spell checking program to skip certain macro arguments and
+environments, most notably the arguments of referencing macros and the
+contents of verbatim environments.  The skipped parts are controlled by
+variable @code{ispell-tex-skip-alists} provided by @file{ispell.el}.
+@AUCTeX{} has a library which can be added to this variable depending on
+the value of @code{TeX-ispell-extend-skip-list} which is set to @code{t}
+by default.
+
+@defopt TeX-ispell-extend-skip-list
+This boolean option controls whether @AUCTeX{} activates its extension
+for skipping certain macro arguments and environments when spell
+checking.
+
+When non-@code{nil}, @AUCTeX{} loads the file @file{tex-ispell.el} and
+adds its content to @code{ispell-tex-skip-alists}.  This library can and
+will never be complete, but the interface can be used to add selected
+and private macro names within your init file or on a file local basis.
+
+@code{ispell-tex-skip-alists} has the following structure:
+@lisp
+(defvar ispell-tex-skip-alists
+  '((;; First list
+     ("\\\\addcontentsline"         ispell-tex-arg-end 2)
+     ("\\\\\\([aA]lph\\|arabic\\)"  ispell-tex-arg-end)
+     ("\\\\makebox"                 ispell-tex-arg-end 0)
+     ("\\\\documentclass" . "\\\\begin@{document@}"))
+    (;; Second list
+     ("\\(figure\\|table\\)\\*?"  ispell-tex-arg-end 0)
+     ("list"                      ispell-tex-arg-end 2)
+     ("verbatim\\*?" . "\\\\end@{verbatim\\*?@}")))
+  "*Lists of regions to be skipped in TeX mode.
+First list is used raw.
+Second list has key placed inside \\begin@{@}.")
+@end lisp
+Each item is an alist and the structure of it is described in
+@code{ispell-skip-region-alist}:
+@lisp
+(defvar ispell-skip-region-alist
+  '((...))
+  "Alist expressing beginning and end of regions not to spell check.
+The alist key must be a regular expression.
+Valid forms include:
+  (KEY) - just skip the key.
+  (KEY . REGEXP) - skip to the end of REGEXP.
+                   REGEXP may be string or symbol.
+  (KEY REGEXP) - skip to end of REGEXP.  REGEXP must be a string.
+  (KEY FUNCTION ARGS) - FUNCTION called with ARGS
+                        returns end of region.")
+@end lisp
+
+Let's go through the first list of @code{ispell-tex-skip-alists} line by
+line:
+@lisp
+("\\\\addcontentsline"         ispell-tex-arg-end 2)
+@end lisp
+@code{KEY} is the string @code{"\\\\addcontentsline"}, @code{FUNCTION}
+is @code{ispell-tex-arg-end} called with @code{ARGS}, here @code{2}.
+@code{ispell-tex-arg-end} is a function provided by @file{ispell.el}
+which skips as many subsequent optional arguments in square brackets as
+it sees and then skips @code{ARGS} number of mandatory arguments in
+braces.  Omitting @code{ARGS} means skip @code{1} mandatory argument.
+In practice, when you have something like this in your document:
+@example
+\addcontentsline@{toc@}@{chapter@}@{Some text@}
+@end example
+The first two arguments are left out and @samp{Some text} will be spell
+checked.  For the next line
+@lisp
+("\\\\\\([aA]lph\\|arabic\\)"  ispell-tex-arg-end)
+@end lisp
+the name of the counter as argument is skipped.  Next line is
+@lisp
+("\\\\makebox"                 ispell-tex-arg-end 0)
+@end lisp
+where only optional arguments are skipped, the first mandatory argument
+is checked, e.g.
+@example
+\makebox[0pt][l]@{Some text@}
+@end example
+Finally, the next line
+@lisp
+("\\\\documentclass" . "\\\\begin@{document@}"))
+@end lisp
+ensures that the entire preamble of a document is discarded.  Second
+list works the same; it is more convenient for environments since
+@code{KEY} is wrapped inside @code{\begin@{@}}.
+
+@AUCTeX{} provides two functions to add items to car and cdr of
+@code{ispell-tex-arg-end}, namely @code{TeX-ispell-skip-setcar} and
+@code{TeX-ispell-skip-setcdr}.  The argument of these functions is
+exactly as in @code{ispell-tex-skip-alists}.  Additions can be done via
+init file, e.g.:
+@lisp
+(eval-after-load "tex-ispell"
+  '(progn
+     (TeX-ispell-skip-setcar
+      '(("\\\\mymacro" ispell-tex-arg-end)))
+     (TeX-ispell-skip-setcdr
+      '(("myverbatim" . "\\\\end@{myverbatim@}")))))
+@end lisp
+Another possibility is to use file local additions at the end of your
+@TeX{} file, e.g.:
+@example
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% eval: (TeX-ispell-skip-setcar '(("\\\\mymacro" . "@{[-0-9]+@}")))
+%%% End:
+@end example
+
+@findex TeX-ispell-tex-arg-end
+Finally, @AUCTeX{} provides a function called
+@code{TeX-ispell-tex-arg-end} which sees more arguments than
+@code{ispell-tex-arg-end}.  Refer to its doc string for more
+information.
+@end defopt
+
+@AUCTeX{} also provides a facility to skip the argument of in-line
+verbatim macros like @samp{\Verb} from @file{fancyvrb.sty} or
+@samp{\mintinline} from @file{minted.sty}.  Characters delimiting the
+verbatim text are stored in @code{TeX-ispell-verb-delimiters}.
+
+@defopt TeX-ispell-verb-delimiters
+String with delimiters recognized for in-line verbatim macros.  This
+variable is initialized to @samp{!|#~\"*/+^-}.  Since this string is
+used to build a character alternative inside a regular expression,
+special characters @samp{^} and @samp{-} should come last.  Other
+characters like opening brace @samp{@{}, asterisk @samp{*} or at sign
+@samp{@@} should be avoided as they are not recognized by
+@file{font-latex.el}.
+@end defopt
+
 @node Processor Options
 @subsection Options for @TeX{} Processors
 
@@ -2912,23 +3203,40 @@ the document into @acronym{DVI} output.  Thus, if you want a
 @acronym{PDF} document in the end you can either use Xe@TeX{} engine,
 see below for information about how to set engines, or compile the
 document with @command{tex} and then convert to @acronym{PDF} with
-@command{dvips}--@command{ps2pdf} before viewing it.  The latter can be
-done automatically in @AUCTeX{} by setting the
-@code{TeX-PDF-via-dvips-ps2pdf} variable to a non-nil value.
+@command{dvips}--@command{ps2pdf} before viewing it.  In addition,
+current Japanese @TeX{} engines cannot generate @acronym{PDF} directly
+so they rely on @acronym{DVI}-to-@acronym{PDF} converters.  Usually
+@command{dvipdfmx} command is used for this purpose.  You can use the
+@code{TeX-PDF-from-DVI} variable to let @AUCTeX{} know you want to
+generate the final @acronym{PDF} by converting a @acronym{DVI} file.
 
-@defopt TeX-PDF-via-dvips-ps2pdf
-With @code{TeX-PDF-mode} set to non-nil, if
-@code{TeX-PDF-via-dvips-ps2pdf} is non-nil too, the document is compiled
-with @command{tex} (or @command{latex}) instead of @command{pdftex} (or
-@command{pdflatex}).  When the document is ready, @kbd{C-c C-c} will
-suggest to run @command{dvips} and then @command{ps2pdf} in order to
-convert the @acronym{DVI} file to @acronym{PDF}.  When the @acronym{PDF}
-file is finally ready, the next suggested command will be to open the
-viewer.
+@defopt TeX-PDF-from-DVI
+This option controls if and how to produce a @acronym{PDF} file by
+converting a @acronym{DVI} file.
+
+When @code{TeX-PDF-mode} is non-nil, if @code{TeX-PDF-from-DVI} is
+non-nil too the document is compiled to @acronym{DVI} instead of
+@acronym{PDF}.  When the document is ready, @kbd{C-c C-c} will suggest
+to run the converter to @acronym{PDF} or an intermediate format.
+
+If non-nil, @code{TeX-PDF-from-DVI} should be the name of the command,
+as a string, used to convert the @acronym{DVI} file to @acronym{PDF} or
+to an intermediate format.  Values currently supported are:
+@itemize
+@item
+@code{"Dvips"}: the @acronym{DVI} file is converted to @acronym{PS} with
+@command{dvips}.  After successfully running it, @command{ps2pdf} will
+be the default command to convert the @acronym{PS} file to
+@acronym{PDF}.
+@item
+@code{"Dvipdfmx"}: the @acronym{DVI} file is converted to @acronym{PDF}
+with @command{dvipdfmx}.
+@end itemize
+When the @acronym{PDF} file is finally ready, the next suggested command
+will be to open the viewer.
 
 This option can also be set as a file local variable, in order to use
-the sequence @command{tex}--@command{dvips}--@command{ps2pdf} on a
-per-document basis.
+this conversion on a per-document basis.
 
 Recall the whole sequence of @kbd{C-c C-c} commands can be replace by
 the single @kbd{C-c C-a}.
@@ -3282,6 +3590,49 @@ from the viewer, typically by a mouse click.  Refer to the documentation
 of your viewer to find out how it has to be configured and what you have
 to do exactly.  In xdvi you normally have to use @kbd{C-down-mouse-1}.
 
+@vindex TeX-source-correlate-start-server
+Note that inverse search with the Evince PDF viewer or its MATE fork
+Atril might fail in raising the Emacs frame after updating point in your
+document's buffer.  There is simply no way to raise the Emacs frame
+reliably accross different operating systems and different window
+managers with their different focus stealing policies.  If the Emacs
+frame is not raised after performing an inverse search from Evince or
+Atril, you can customize the following option.
+
+@defopt TeX-raise-frame-function
+A function that will be called after performing an inverse search from
+Evince or Atril in order to raise the current Emacs frame.
+
+If your Emacs frame is already raised in that situation, just
+leave this variable set to its default value
+@code{raise-frame}.  Otherwise, here are some alternative
+settings that work for some users.
+
+@lisp
+;; Alternative 1: For some users, `x-focus-frame' works.  Note
+;; that this function requires Emacs 24+.
+(setq TeX-raise-frame-function #'x-focus-frame)
+
+;; Alternative 2: Under GNOME 3.20 (and probably others), it
+;; seems some focus stealing prevention policy prohibits that
+;; some window gets the focus immediately after the user has
+;; clicked in some other window.  Here waiting a bit before
+;; issuing the request seems to work.
+(setq TeX-raise-frame-function
+      (lambda ()
+	(run-at-time 0.5 nil #'x-focus-frame)))
+
+;; Alternative 3: Use the external wmctrl tool in order to
+;; force Emacs into the focus.
+(setq TeX-raise-frame-function
+      (lambda ()
+	(call-process
+	 "wmctrl" nil nil nil "-i" "-R"
+	 (frame-parameter (selected-frame) ’outer-window-id))))
+@end lisp
+@end defopt
+
+
 @node Debugging
 @section Catching the errors
 @cindex Debugging
@@ -3337,21 +3688,6 @@ not parse the whole output log buffer and @code{TeX-previous-error}
 cannot be used.
 @end defopt
 
-Normally @AUCTeX{} will only report real errors, but you may as well
-ask it to report `bad boxes' and warnings as well.
-
-@deffn Command TeX-toggle-debug-bad-boxes
-@kindex C-c C-t C-b
-(@kbd{C-c C-t C-b}) Toggle whether @AUCTeX{} should stop at bad boxes
-(i.e. overfull and underfull boxes) as well as normal errors.
-@end deffn
-
-@deffn Command TeX-toggle-debug-warnings
-@kindex C-c C-t C-w
-(@kbd{C-c C-t C-w}) Toggle whether @AUCTeX{} should stop at warnings as
-well as normal errors.
-@end deffn
-
 As default, @AUCTeX{} will display a special help buffer containing the
 error reported by @TeX{} along with the documentation.  There is however
 an `expert' option, which allows you to display the real @TeX{} output.
@@ -3365,8 +3701,63 @@ terse information about the error is displayed in the echo area.  If
 @end defopt
 
 @menu
+* Ignoring warnings::         Controlling warnings to be reported
 * Error overview::            List of all errors and warnings
 @end menu
+
+@node Ignoring warnings
+@subsection Controlling warnings to be reported
+
+Normally @AUCTeX{} will only report real errors, but you may as well
+ask it to report `bad boxes' and warnings as well.
+
+@deffn Command TeX-toggle-debug-bad-boxes
+@kindex C-c C-t C-b
+@vindex TeX-debug-bad-boxes
+(@kbd{C-c C-t C-b}) Toggle whether @AUCTeX{} should stop at bad boxes
+(i.e. overfull and underfull boxes) as well as normal errors.  The
+boolean option @code{TeX-debug-bad-boxes} is set accordingly.
+@end deffn
+
+@deffn Command TeX-toggle-debug-warnings
+@kindex C-c C-t C-w
+@vindex TeX-debug-warnings
+(@kbd{C-c C-t C-w}) Toggle whether @AUCTeX{} should stop at warnings as
+well as normal errors.  The boolean option @code{TeX-debug-warnings} is
+set accordingly.
+@end deffn
+
+While many users desire to have warnings reported after compilation,
+there are certain warnings that are considered unimportant and users
+want to ignore them.  For a more fine-grained control of what kinds of
+warnings should be shown after compilation, @AUCTeX{} provides other
+options.
+
+@defopt TeX-ignore-warnings
+Controls which warnings are to be ignored.
+
+It can be a regexp matching the message of the warnings to be ignored.
+
+More advanced users can set also this option to a symbol with the name
+of a custom function taking as arguments all the information of the
+warning listed in @code{TeX-error-list} variable, except the last one
+about whether to ignore the warning.  See the code of @code{TeX-warning}
+function and the documentation of @code{TeX-error-list} for more
+details.
+@end defopt
+
+@deffn Command TeX-toggle-suppress-ignored-warnings
+@kindex C-c C-t C-x
+@vindex TeX-suppress-ignored-warnings
+(@kbd{C-c C-t C-x}) Toggle whether @AUCTeX{} should actually hide the
+ignored warnings specified with @code{TeX-ignore-warnings}.  The boolean
+option @code{TeX-suppress-ignored-warnings} is set accordingly.  If this
+is nil, all warnings are shown, even those matched by
+@code{TeX-ignore-warnings}, otherwise these are hidden.
+
+Note that @code{TeX-debug-warnings} takes the precedence: if it is nil,
+all warnings are hidden in any case.
+@end deffn
 
 @node Error overview
 @subsection List of all errors and warnings
@@ -3385,8 +3776,11 @@ In this window you can visit the error on which point is on by pressing
 @key{p} respectively.  A prefix argument to these keys specifies how
 many errors to move forward or backward.  You can visit an error also by
 clicking on its message.  Jump to error point in the source code with
-@key{j}, and use @key{l} see the error in the log buffer.  Press @key{q}
-to quit the overview.
+@key{j}, and use @key{l} see the error in the log buffer.  In addition,
+you can toggle visibility of bad boxes, generic warnings, and ignored
+warnings with @key{b}, @key{w}, and @key{x}, respectively (see
+@ref{Ignoring warnings} for details).  Press @key{q} to quit the
+overview.
 @end deffn
 
 @defopt TeX-error-overview-open-after-TeX-run
@@ -3523,16 +3917,15 @@ before it is actually done.  If non-nil, ask before deleting files.
 @section Documentation about macros and packages
 @cindex Documentation
 
-@deffn Command TeX-doc
+@deffn Command TeX-documentation-texdoc
 @kindex C-c ?
-(@kbd{C-c ?})  Get documentation about macros, packages or @TeX{} &
-Co. in general.  The function will prompt for the name of a command or
-manual, providing a list of available keywords for completion.  If point
-is on a command or word with available documentation, this will be
+(@kbd{C-c ?})  Get documentation about the packages installed on your
+system, using @samp{texdoc} to find the manuals.  The function will
+prompt for the name of packages.  If point is on a word, this will be
 suggested as default.
 
-In case no documentation could be found, a prompt for querying the
-@samp{texdoc} program is shown, should the latter be available.
+If the command is called with a prefix argument, you will be shown a
+list of manuals of the given package among to choose.
 
 The command can be invoked by the key binding mentioned above as well as
 the @samp{Find Documentation...} entry in the mode menu.
@@ -3591,7 +3984,7 @@ and if it is relevant for all text modes, append it to
 
 Other useful hooks are listed below.
 
-@defvr Variable TeX-after-TeX-LaTeX-command-finished-hook
+@defvr Variable TeX-after-compilation-finished-hook
 Hook which is run after the @TeX{}/@LaTeX{} processor has successfully
 finished compiling your document.  (@xref{Processing}, for finding out
 how to compile your document).  Each function in the hook is run with
@@ -3602,7 +3995,7 @@ re-compilation especially when using Emacs viewers such as DocView or
 PDF Tools.  The function @code{TeX-revert-document-buffer} can be added
 to the hook for this purpose.
 @end defvr
-@vindex TeX-after-TeX-LaTeX-command-finished-hook
+@vindex TeX-after-compilation-finished-hook
 @findex TeX-revert-document-buffer
 
 @node Multifile
@@ -3938,8 +4331,8 @@ j@TeX{} for Japanese, H@LaTeX{} and k@TeX{} for Korean.  The
 
 Note that Unicode is not fully supported in Emacs 21 and XEmacs 21.
 @acronym{CJK} characters are not usable.  Please use the
-@acronym{MULE}-@acronym{UCS} EmacsLisp package or Emacs 22 (not released
-yet) if you need @acronym{CJK}.
+@acronym{MULE}-@acronym{UCS} EmacsLisp package or Emacs 22 and later if
+you need @acronym{CJK}.
 
 @c FIXME: We need more information for CTeX, ChinaTeX, KTeX, and HLaTeX.
 
@@ -4057,6 +4450,9 @@ in the composing words.
 Runs style hook @code{TeX-language-nl-hook}.
 
 @item english
+@itemx australian
+@itemx canadian
+@itemx newzealand
 Runs style hook @code{TeX-language-en-hook}.
 
 @item frenchb
@@ -4169,30 +4565,94 @@ If nil do it the other way round.
 @cindex ASCII p@TeX{}
 @cindex p@TeX{}
 @cindex p@LaTeX{}
+@cindex up@TeX{}
+@cindex up@LaTeX{}
 @cindex @file{tex-jp.el}
 @vindex TeX-default-mode
-@vindex japanese-TeX-command-default
-@vindex japanese-LaTeX-command-default
+@vindex TeX-parse-self
+@vindex TeX-engine
+@vindex TeX-engine-alist
+@vindex japanese-TeX-engine-default
 @vindex japanese-LaTeX-default-style
+@vindex japanese-TeX-use-kanji-opt-flag
+@vindex TeX-japanese-process-input-coding-system
+@vindex TeX-japanese-process-output-coding-system
 
-To write Japanese text with @AUCTeX{}, you need to have versions of
-@TeX{} and Emacs that support Japanese.  There exist at least two
-variants of @TeX{} for Japanese text (NTT j@TeX{} and ASCII p@TeX{}).
-@AUCTeX{} can be used with @acronym{MULE, MULtilingual Enhancement to GNU
-Emacs} supported Emacsen.
+To write Japanese text with @AUCTeX{}, you need the versions of
+@TeX{} and Emacs that support Japanese.  @AUCTeX{} supports three
+Japanese @TeX{} engines by default: NTT j@TeX{}, ASCII p@TeX{} and
+up@TeX{}.  On XEmacs, @AUCTeX{} needs @acronym{MULE, MULtilingual
+Enhancement to GNU Emacs} feature to deal with Japanese text.
 
-To use the Japanese @TeX{} variants, simply activate
-@code{japanese-plain-tex-mode} or @code{japanese-latex-mode} and
-everything should work.  If not, send mail to Masayuki Ataka
-@samp{<ataka@@milk.freemail.ne.jp>}, who kindly donated the code for
-supporting Japanese in @AUCTeX{}.  None of the primary @AUCTeX{}
+To use the Japanese @TeX{} engines, activate
+@code{japanese-plain-tex-mode} or @code{japanese-latex-mode}.  If it
+doesn't work, send mail to Masayuki Ataka
+@samp{<masayuki.ataka@@gmail.com>} or Ikumi Keita
+@samp{<ikumikeita@@jcom.home.ne.jp>}, who currently concern with
+stuff related to Japanese in @AUCTeX{}.  None of the primary @AUCTeX{}
 maintainers understand Japanese, so they cannot help you.
+
+It is recommended to enable @code{TeX-parse-self} for typical Japanese
+@LaTeX{} users.  When enabled, @code{japanese-latex-mode} selects the
+suitable Japanese @TeX{} engine automatically based on the class file
+name (such as @code{jbook}, @code{jsarticle} and @code{tjreport}) and
+its option.  @pxref{Parsing Files}.
+
+It is important to select the suitable Japanese @TeX{} engine because
+the selected engine determines the command name such as @samp{platex}
+and @samp{uptex} to typeset the document.  If you find that wrong
+command is used, check the value of @code{TeX-engine} on that buffer.
+If the value does not suit the current document, change the value by the
+@samp{TeXing Options} submenu below the @samp{Command} menu.
+@pxref{Processor Options}.
+
+To make the selected engine to persist across Emacs sessions, there are
+two ways from which you can choose one according to your needs:
+
+@enumerate
+@item
+If you use a specific engine (almost) exclusively, customize the option
+@code{japanese-TeX-engine-default}.
+
+@defopt japanese-TeX-engine-default
+The default TeX engine in Japanese @TeX{} mode.
+
+The default value is @samp{ptex}.
+@end defopt
+@item
+If you want to set the engine on a per file basis, use the file local
+variables to set @code{TeX-engine}.
+
+Here is a sample code to set @code{TeX-engine} to @samp{uptex}:
+
+@example
+%%% Local Variables:
+%%% mode: japanese-latex
+%%% TeX-engine: uptex
+%%% End:
+@end example
+@end enumerate
+
+In the both cases above, the valid value is one of @samp{ptex},
+@samp{jtex} and @samp{uptex}.
+
+You can override the command names associated with the above three
+engines or define your own engine by customizing
+@code{TeX-engine-alist}.  @xref{Processor Options}.
+
+It is sometimes necessary to use an engine which differs from the one
+@AUCTeX{} selects automatically.  For example, even when you want to use
+@code{j-article} document class deliberately with ASCII p@LaTeX{},
+@AUCTeX{} selects NTT j@LaTeX{} command if @code{TeX-parse-self} is
+enabled, because @code{j-article} originally belongs to NTT j@LaTeX{}.
+In such cases, use the file local variable method above to select the
+engine you intend to use.
 
 If you usually use @AUCTeX{} in Japanese, setting the following
 variables is useful.
 
 @defopt TeX-default-mode
-Mode to enter for a new file when it cannott be determined whether the
+Mode to enter for a new file when it cannot be determined whether the
 file is plain @TeX{} or @LaTeX{} or what.
 
 If you want to enter Japanese @LaTeX{} mode whenever this may happen,
@@ -4202,23 +4662,67 @@ set the variable like this:
 @end lisp
 @end defopt
 
-@defopt japanese-TeX-command-default
-The default command for @code{TeX-command} in Japanese @TeX{} mode.
-
-The default value is @samp{"pTeX"}.
-@end defopt
-
-@defopt japanese-LaTeX-command-default
-The default command for @code{TeX-command} in Japanese @LaTeX{} mode.
-
-The default value is @samp{"LaTeX"}.
-@end defopt
-
 @defopt japanese-LaTeX-default-style
 The default style/class when creating a new Japanese @LaTeX{} document.
 
 The default value is @samp{"jarticle"}.
 @end defopt
+
+It is recommended also for Japanese users to customize the option
+@code{TeX-PDF-from-DVI} to @code{"Dvipdfmx"}.  @xref{Processor Options}
+
+There are three customize options with regard to the encoding of
+Japanese text.
+
+@defopt japanese-TeX-use-kanji-opt-flag
+If non-nil, @AUCTeX{} adds @code{-kanji} option to the typesetting
+command when @code{TeX-engine} is @samp{ptex}.
+@end defopt
+
+Usually @AUCTeX{} guesses the right coding systems for input to and
+output from the Japanese @TeX{} process, but you can override them by
+the following two customize options.
+
+@defopt TeX-japanese-process-input-coding-system
+If non-nil, used for encoding input to Japanese @TeX{} process.
+When @code{nil}, @AUCTeX{} tries to choose suitable coding system.
+@end defopt
+
+@defopt TeX-japanese-process-output-coding-system
+If non-nil, used for decoding output from Japanese @TeX{} process.
+When @code{nil}, @AUCTeX{} tries to choose suitable coding system.
+@end defopt
+
+The former customize options @code{japanese-TeX-command-default} and
+@code{japanese-LaTeX-command-default} are obsolete.  Use
+@code{japanese-TeX-engine-default} instead.  If you need to customize
+the executable file name such as @samp{"latex"}, the options for them,
+or both, customize @code{TeX-engine-alist}.
+
+Also, the option @code{japanese-TeX-command-list} is considered as
+semi-obsolete.  It still functions as before, but in theory, it is not
+required anymore in normal use.
+
+The following two additional font commands are available in
+@LaTeX{} mode buffer.
+
+@table @kbd
+@item C-c C-f g
+@kindex C-c C-f g
+@cindex @code{\textgt}
+Insert @b{gothic face} font command @samp{\textbf@{@point{}@}} or
+@samp{\mathbf@{@point{}@}} depending on the context.
+
+@item C-c C-f m
+@kindex C-c C-f m
+@cindex @code{\textmc}
+Insert mincho font command @samp{\textmc@{@point{}@}} or
+@samp{\mathmc@{@point{}@}} depending on the context.
+
+@end table
+
+Although they are meaningful only with @samp{ptex} and @samp{uptex}
+engines, it won't matter in buffers with other engines.
 
 See @file{tex-jp.el} for more information.
 
@@ -4374,7 +4878,7 @@ These correspond to the personal @TeX{} macros.
 
 @AUCTeX{} can update the style information about a file each time you
 save it, and it will do this if the directory @code{TeX-auto-local}
-exist. @code{TeX-auto-local} is by default set to @samp{"auto"}, so
+exists. @code{TeX-auto-local} is by default set to @samp{"auto"}, so
 simply creating an @file{auto} directory will enable automatic saving of
 style information.
 
@@ -4664,7 +5168,7 @@ Prompt for a @LaTeX{} counter completing with known counters.
 Prompt for a @LaTeX{} savebox completing with known saveboxes.
 
 @item TeX-arg-file
-Prompt for a filename in the current directory, and use it without the
+Prompt for a filename in the current directory, and use it with the
 extension.
 
 @item TeX-arg-file-name

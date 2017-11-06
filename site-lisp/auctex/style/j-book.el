@@ -5,7 +5,7 @@
 (TeX-add-style-hook
  "j-book"
  (lambda ()
-   (LaTeX-largest-level-set "chapter"))
+   (LaTeX-largest-level-set "part"))
  LaTeX-dialect)
 
 ;;; j-book.el ends here

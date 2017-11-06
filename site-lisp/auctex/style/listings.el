@@ -1,6 +1,6 @@
 ;;; listings.el --- AUCTeX style for `listings.sty'
 
-;; Copyright (C) 2004, 2005, 2009, 2013, 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2005, 2009, 2013-2017 Free Software Foundation, Inc.
 
 ;; Author: Ralf Angeli <angeli@iwi.uni-sb.de>
 ;; Maintainer: auctex-devel@gnu.org
@@ -33,6 +33,8 @@
 ;;
 ;; October 2015: The style detects new "styles" defined with
 ;; `\lstdefinestyle' and offers them during key-value query.
+;;
+;; January 2017: Put label in opt. argument of environment.
 ;;
 ;; FIXME: Please make me more sophisticated!
 
@@ -108,7 +110,9 @@
     ;; Captions
     ("title")
     ("caption") ; Insert braces?
-    ("label")
+    ;; Label is inserted as part of environment insertion; see below
+    ;; for "lstlisting" in style hook
+    ;; ("label")
     ("nolol" ("true" "false"))
     ("numberbychapter" ("true" "false"))
     ("captionpos" ("t" "b")) ; Can be a subset of tb.
@@ -252,6 +256,27 @@ from `listings' package.")
   "Matches the argument of \"\\lstdefinestyle\" from
 \"listings\" package.")
 
+;; Setup for parsing the labels inside optional arguments:
+
+(defvar LaTeX-listings-key-val-label-extract
+  (concat
+   "\\(?:\\[[^][]*"
+     "\\(?:{[^}{]*"
+       "\\(?:{[^}{]*"
+         "\\(?:{[^}{]*}[^}{]*\\)*"
+       "}[^}{]*\\)*"
+     "}[^][]*\\)*"
+   "label[ \t]*=[ \t]*{\\([^}]+\\)}"
+   "\\(?:[^]]*\\)*"
+   "\\]\\)")
+  "Helper regexp to extract the label out of optional argument.")
+
+(defvar LaTeX-listings-key-val-label-regexp
+  `(,(concat
+      "\\\\begin{lstlisting}" LaTeX-listings-key-val-label-extract)
+    1 LaTeX-auto-label)
+  "Matches the label inside an optional argument after \\begin{lstlisting}.")
+
 (defun LaTeX-listings-update-style-key ()
   "Update the \"style\" key from `LaTeX-listings-key-val-options-local'
 with user-defined values via the \"lstdefinestyle\" macro."
@@ -280,18 +305,38 @@ with user-defined values via the \"lstdefinestyle\" macro."
       (cond (;; opt. 1st argument and mandatory argument(s)
 	     (and args (not (string-equal args ""))
 		  opt  (not (string-equal opt  "")))
-	     (add-to-list 'LaTeX-auto-environment
-			  (list env 'LaTeX-env-args (vector "argument")
-				(1- (string-to-number args)))))
+	     (LaTeX-add-environments
+	      `(,env
+		LaTeX-env-args
+		[TeX-arg-key-val LaTeX-listings-key-val-options-local]
+		(LaTeX-env-label-as-keyval "caption")
+		,(1- (string-to-number args)))))
 	    (;; mandatory argument(s) only
 	     (and args (not (string-equal args ""))
 		  (string-equal opt ""))
-	     (add-to-list 'LaTeX-auto-environment
-			  (list env (string-to-number args))))
+	     (LaTeX-add-environments
+	      (list env (string-to-number args))))
 	    (t ; No args
-	     (add-to-list 'LaTeX-auto-environment (list env))))
-      (add-to-list 'LaTeX-indent-environment-list `(,env current-indentation))
-      (add-to-list 'LaTeX-verbatim-environments-local env)))
+	     (LaTeX-add-environments (list env))))
+      (add-to-list 'LaTeX-indent-environment-list `(,env current-indentation) t)
+      (add-to-list 'LaTeX-verbatim-environments-local env t)
+      (add-to-list 'LaTeX-label-alist `(,env . LaTeX-listing-label) t)
+      ;; Add new env to parser for labels in opt. argument:
+      (TeX-auto-add-regexp `(,(concat "\\\\begin{" env "}"
+				      LaTeX-listings-key-val-label-extract)
+			     1 LaTeX-auto-label))
+      ;; Tell RefTeX
+      (when (fboundp 'reftex-add-label-environments)
+	(reftex-add-label-environments
+	 `((,env ?l "lst:" "~\\ref{%s}" nil (regexp "[Ll]isting")))))
+      ;; Fontification
+      (when (and (fboundp 'font-latex-add-keywords)
+		 (fboundp 'font-latex-update-font-lock)
+		 (eq TeX-install-font-lock 'font-latex-setup))
+	;; Tell font-lock about the update.
+	(font-latex-update-font-lock t))
+      ;; Add new env's to `ispell-tex-skip-alist': skip the entire env
+      (TeX-ispell-skip-setcdr `(,(cons env (concat "\\\\end{" env "}"))))))
   (when (LaTeX-listings-lstdefinestyle-list)
     (LaTeX-listings-update-style-key)))
 
@@ -306,6 +351,7 @@ with user-defined values via the \"lstdefinestyle\" macro."
    ;; Add to parser:
    (TeX-auto-add-regexp LaTeX-listings-lstnewenvironment-regexp)
    (TeX-auto-add-regexp LaTeX-listings-lstdefinestyle-regexp)
+   (TeX-auto-add-regexp LaTeX-listings-key-val-label-regexp)
 
    ;; Local version of key-val options:
    (setq LaTeX-listings-key-val-options-local
@@ -340,33 +386,33 @@ with user-defined values via the \"lstdefinestyle\" macro."
    ;; New environments
    (LaTeX-add-environments
     '("lstlisting" LaTeX-env-args
-      [TeX-arg-key-val LaTeX-listings-key-val-options-local]))
+      [TeX-arg-key-val LaTeX-listings-key-val-options-local]
+      (LaTeX-env-label-as-keyval "caption")))
+
+   ;; Append "lstlisting" to `LaTeX-label-alist':
+   (add-to-list 'LaTeX-label-alist '("lstlisting" . LaTeX-listing-label) t)
+
    ;; Filling
-   (make-local-variable 'LaTeX-indent-environment-list)
-   (add-to-list 'LaTeX-indent-environment-list
-		'("lstlisting" current-indentation))
+   (add-to-list (make-local-variable 'LaTeX-indent-environment-list)
+		'("lstlisting" current-indentation) t)
    (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
    ;; Fontification
    (when (and (fboundp 'font-latex-add-keywords)
-	      (fboundp 'font-latex-set-syntactic-keywords)
+	      (fboundp 'font-latex-update-font-lock)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("lstnewenvironment" "{[[{{")) 'function)
      (font-latex-add-keywords '(("lstinputlisting" "[{")) 'reference)
-     (font-latex-add-keywords '(("lstinline" "[{") ; The second argument should
-					; actually be verbatim.
+     (font-latex-add-keywords '(("lstinline" "[")
 				("lstlistoflistings" ""))
 			      'textual)
      (font-latex-add-keywords '(("lstalias" "{{")
 				("lstdefinestyle" "{{")
 				("lstset" "{"))
 			      'variable)
-     ;; For syntactic fontification, e.g. verbatim constructs.
-     (font-latex-set-syntactic-keywords)
      ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock t)))
  LaTeX-dialect)
 
 (defvar LaTeX-listings-package-options '("draft" "final" "savemem"

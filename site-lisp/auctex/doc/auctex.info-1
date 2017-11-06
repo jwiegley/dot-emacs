@@ -1,9 +1,10 @@
-This is auctex.info, produced by makeinfo version 6.0 from auctex.texi.
+This is auctex.info, produced by makeinfo version 6.4.90 from
+auctex.texi.
 
-This manual is for AUCTeX (version 11.89 from 2015-11-12), a
+This manual is for AUCTeX (version 11.91 from 2017-07-22), a
 sophisticated TeX environment for Emacs.
 
-   Copyright (C) 1992-1995, 2001, 2002, 2004-2015 Free Software
+   Copyright (C) 1992-1995, 2001, 2002, 2004-2017 Free Software
 Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
@@ -116,6 +117,7 @@ Controlling Screen Display
 * Folding::                     Folding Macros and Environments
 * Outline::                     Outlining the Document
 * Narrowing::                   Restricting display and editing to a portion of the buffer
+* Prettifying::                 Displaying Greek and math macros as Unicode characters
 
 Font Locking
 
@@ -142,6 +144,7 @@ Viewing the Formatted Output
 
 Catching the errors
 
+* Ignoring warnings::           Controlling warnings to be reported
 * Error overview::              List of all errors and warnings
 
 Customization and Extension
@@ -173,11 +176,11 @@ Writing Your Own Style Support
 
 Copying, Changes, Development, FAQ
 
-* Copying this Manual::         
-* Changes::                     
-* Development::                 
-* FAQ::                         
-* Texinfo mode::                
+* Copying this Manual::
+* Changes::
+* Development::
+* FAQ::
+* Texinfo mode::
 
 Copying this Manual
 
@@ -185,10 +188,10 @@ Copying this Manual
 
 Indices
 
-* Key Index::                   
-* Function Index::              
-* Variable Index::              
-* Concept Index::               
+* Key Index::
+* Function Index::
+* Variable Index::
+* Concept Index::
 
 
 
@@ -309,11 +312,16 @@ File: auctex.info,  Node: Installation,  Next: Quick Start,  Prev: Summary,  Up:
 1.2 Installing AUCTeX
 =====================
 
-The simplest way of installing AUCTeX is by using the Emacs package
-manager integrated in Emacs 24 and greater (ELPA).  Simply do 'M-x
-package-list-packages RET', mark the auctex package for installation
-with 'i', and hit 'x' to execute the installation procedure.  That's
-all.
+The modern and strongly recommended way of installing AUCTeX is by using
+the Emacs package manager integrated in Emacs 24 and greater (ELPA).
+Simply do 'M-x list-packages RET', mark the auctex package for
+installation with 'i', and hit 'x' to execute the installation
+procedure.  That's all.  This installation procedure has several
+advantages.  Besides being platform and OS independent, you will receive
+intermediate releases between major AUCTeX releases conveniently.  For
+past ELPA releases, see <https://elpa.gnu.org/packages/auctex.html>.
+Once the installation is completed, you can skip the rest of this
+section and proceed to *note Quick Start::.
 
    The remainder of this section is about installing AUCTeX from a
 release tarball or from a checkout of the AUCTeX repository.
@@ -731,7 +739,7 @@ big help already if things work from inside of Emacs.
    Here is how to do the various parts:
 
 Making the Elisp available
---------------------------
+..........................
 
 In GNU Emacs, it should be sufficient if people just do
 
@@ -748,7 +756,7 @@ easy programmatic way to do this, except to have a script do the
 symlinking for them.)
 
 Making the Info files available
--------------------------------
+...............................
 
 For making the info files accessible from within Elisp, something like
 the following might be convenient to add into your or other people's
@@ -764,7 +772,7 @@ of standalone readers outside of XEmacs.  (The info files in XEmacs are
 normally in '~/.xemacs/xemacs-packages/info'.)
 
 Making the LaTeX style available
---------------------------------
+................................
 
 If you want others to be able to share your installation, you should
 configure it using '--without-texmf-dir', in which case things should
@@ -777,7 +785,7 @@ File: auctex.info,  Node: Installation under MS Windows,  Next: Customizing,  Pr
 -----------------------------------
 
 In a Nutshell
--------------
+.............
 
 The following are brief installation instructions for the impatient.  In
 case you don't understand some of this, run into trouble of some sort,
@@ -841,7 +849,7 @@ further below.
           make install
 
 Detailed Installation Instructions
-----------------------------------
+..................................
 
 Installation of AUCTeX under Windows is in itself not more complicated
 than on other platforms.  However, meeting the prerequisites might
@@ -908,7 +916,7 @@ single quotes for that.
      save headaches, _if_ things don't work out.
 
   3. Install a current version of XEmacs from <http://www.xemacs.org/>
-     or Emacs from <ftp://ftp.gnu.org/gnu/emacs/windows/>.  Emacs is the
+     or Emacs from <ftp://ftp.gnu.org/gnu/emacs/windows/>. Emacs is the
      recommended choice because it is currently the primary platform for
      AUCTeX development.
 
@@ -1152,15 +1160,19 @@ These installation instructions are available in this manual as well,
 keystrokes are written in Emacs manuals.  If not, have a look at the
 Emacs Tutorial in the Help menu.
 
-   If AUCTeX is installed, you might still need to activate it, by
-inserting
+   If AUCTeX is installed in any other way than from the Emacs package
+manager (ELPA), you might still need to activate it, by inserting
 
      (load "auctex.el" nil t t)
 
-   in your user init file.(1)  If you've installed AUCTeX from the Emacs
-package manager (ELPA), you must not have this line in your user init
-file.  The installation procedure already cares about loading AUCTeX
-correctly.
+   in your user init file.(1)
+
+   If AUCTeX is installed from ELPA, the installation procedure already
+cares about loading AUCTeX correctly and you *must not* have the line
+above in your init file.  Note that this also applies if you have the
+following line in your init file
+
+     (package-initialize)
 
    In order to get support for many of the LaTeX packages you will use
 in your documents, you should enable document parsing as well, which can
@@ -1979,6 +1991,13 @@ CAPTION
      the caption should be placed at the top with
      'LaTeX-top-caption-list'.
 
+SHORT CAPTION
+     If the specified caption is greater than a specific length, then a
+     short caption is prompted for and it is inserted as an optional
+     argument to the '\caption' macro.  The length that a caption needs
+     to be before prompting for a short version is controlled by
+     'LaTeX-short-caption-prompt-length'.
+
 LABEL
      The label of this float.  The label will have a default prefix,
      which is controlled by the variables 'LaTeX-figure-label' and
@@ -2000,6 +2019,10 @@ environment.
 
  -- User Option: LaTeX-top-caption-list
      List of float environments with top caption.
+
+ -- User Option: LaTeX-short-caption-prompt-length
+     Number of chars a caption should be before prompting for a short
+     caption.
 
 
 File: auctex.info,  Node: Itemize-like,  Next: Tabular-like,  Prev: Floats,  Up: Environments
@@ -2046,7 +2069,11 @@ inserts the suitable number of ampersands.
 
    You can use 'C-c <LFD>' ('LaTeX-insert-item') to terminate rows in
 these environments.  It supplies line break macro '\\' and inserts the
-suitable number of ampersands on the next line.
+suitable number of ampersands on the next line.  AUCTeX also supports
+the '*{num}{cols}' notation (which may contain another '*'-expression)
+in the format string when calculating the number of ampersands.  Please
+note that 'num' and 'cols' must be enclosed in braces; expressions like
+'*2l' are not recognized correctly by the algorithm.
 
  -- Command: LaTeX-insert-item
      ('C-c <LFD>') Close the current row with '\\', move to the next
@@ -2144,20 +2171,60 @@ File: auctex.info,  Node: Completion,  Next: Marking,  Prev: Mathematics,  Up: E
 2.6 Completion
 ==============
 
-Emacs lisp programmers probably know the 'lisp-complete-symbol' command,
-usually bound to 'M-<TAB>'.  Users of the wonderful ispell mode know and
-love the 'ispell-complete-word' command from that package.  Similarly,
-AUCTeX has a 'TeX-complete-symbol' command, by default bound to
-'M-<TAB>' which is equivalent to 'M-C-i'.  Using 'TeX-complete-symbol'
-makes it easier to type and remember the names of long LaTeX macros.
+Emacs lisp programmers probably know the 'lisp-complete-symbol' command
+which was bound to 'M-<TAB>' until completion-at-point became the new
+standard completion facility (see below).  Users of the wonderful ispell
+mode know and love the 'ispell-complete-word' command from that package.
+Similarly, AUCTeX has a 'TeX-complete-symbol' command, by default bound
+to 'M-<TAB>' which is equivalent to 'M-C-i'.  Using
+'TeX-complete-symbol' makes it easier to type and remember the names of
+long LaTeX macros.
 
    In order to use 'TeX-complete-symbol', you should write a backslash
 and the start of the macro.  Typing 'M-<TAB>' will now complete as much
 of the macro, as it unambiguously can.  For example, if you type
 ''\renewc'' and then 'M-<TAB>', it will expand to ''\renewcommand''.
+But there's more: if point is just after '\begin{', then
+'TeX-complete-symbol' will complete LaTeX environments, etc.  This is
+controlled by 'TeX-complete-list'.
 
  -- Command: TeX-complete-symbol
      ('M-<TAB>') Complete TeX symbol before point.
+
+ -- Variable: TeX-complete-list
+     List of ways to complete the preceding text.
+
+     Each entry is a list with the following elements:
+
+       1. Regexp matching the preceding text or a predicate of arity 0
+          which returns non-nil and sets 'match-data' appropriately if
+          it is applicable.
+       2. A number indicating the subgroup in the regexp containing the
+          text.
+       3. A function returning an alist of possible completions.
+       4. Text to append after a succesful completion.
+
+     Or alternatively:
+
+       1. Regexp matching the preceding text.
+       2. Function to do the actual completion.
+
+   More recent Emacs versions have a new completion mechanism.  Modes
+may define and register custom completion-at-point functions and when
+the user invokes 'completion-at-point' (usually bound to 'M-<TAB>'), all
+such registered functions are consulted for checking for possible
+completions.  Modern completion UIs like company-mode support this
+completion-at-point facility.
+
+ -- Function: TeX--completion-at-point
+     AUCTeX's completion-at-point function which is automatically added
+     to 'completion-at-point-functions' in TeX and LaTeX buffers.
+
+     It offers the same completion candidates as would
+     'TeX-complete-symbol' (and is also controlled by
+     'TeX-complete-list') except that it doesn't fall back on
+     'ispell-complete-word' which would be awkward with completion UIs
+     like company-mode.
 
    A more direct way to insert a macro is with 'TeX-insert-macro', bound
 to 'C-c C-m' which is equivalent to 'C-c <RET>'.  It has the advantage
@@ -2666,12 +2733,33 @@ narrowing the buffer to the desired region.  AUCTeX provides also
 functions to narrow the buffer to the current group and to LaTeX
 environments.
 
+   AUCTeX also provides some WYSIWYG features.
+
+   First, you can customize 'font-latex-fontify-script' to enable
+special formatting of '^' superscripts and '_' subscripts (*note Font
+Locking::).
+
+   Secondly, AUCTeX with GNU Emacs 25 or later can display certain math
+macros using Unicode characters, e.g., '\alpha' as α.  This is called
+prettification and is lightweight and reasonable robust (*note
+Prettifying::).
+
+   A more accurate approach is provided by preview-latex, a subsystem of
+AUCTeX, see *note Introduction: (preview-latex)Top.  This system uses
+LaTeX to generate images that are then displayed in your buffer.  It is
+extremely accurate but can be fragile with some packages (like older pgf
+versions).
+
+   Please note that you can use prettification and preview-latex
+together.
+
 * Menu:
 
 * Font Locking::                Font Locking
 * Folding::                     Folding Macros and Environments
 * Outline::                     Outlining the Document
 * Narrowing::                   Restricting display and editing to a portion of the buffer
+* Prettifying::                 Displaying Greek and math macros as Unicode characters
 
 
 File: auctex.info,  Node: Font Locking,  Next: Folding,  Up: Display
@@ -2884,10 +2972,11 @@ font-latex ships with predefined lists of keywords for the classes
 described above.  You can disable these defaults per class by
 customizing the variable 'font-latex-deactivated-keyword-classes'.  This
 is a list of strings for keyword classes to be deactivated.  Valid
-entries are "warning", "variable", "reference", "function" ,
-"sectioning-0", "sectioning-1", "sectioning-2", "sectioning-3",
-"sectioning-4", "sectioning-5", "textual", "bold-command",
-"italic-command", "math-command", "type-command", "bold-declaration",
+entries are "warning", "variable", "biblatexnoarg", "biblatex",
+"reference", "function" , "sectioning-0", "sectioning-1",
+"sectioning-2", "sectioning-3", "sectioning-4", "sectioning-5",
+"slide-title", "textual", "bold-command", "italic-command",
+"math-command", "type-command", "bold-declaration",
 "italic-declaration", "type-declaration".
 
    You can also get rid of certain keywords only.  For example if you
@@ -2897,7 +2986,9 @@ following stanza into your init file:
      (eval-after-load "font-latex"
        '(setq-default
          font-latex-match-reference-keywords-local
-         (remove "footnote" font-latex-match-reference-keywords-local)))
+         (remove (TeX-assoc-string "footnote"
+                 font-latex-match-reference-keywords-local)
+                     font-latex-match-reference-keywords-local)))
 
    But note that this means fiddling with font-latex's internals and is
 not guaranteed to work in future versions of font-latex.
@@ -2925,9 +3016,8 @@ variable 'font-latex-user-keyword-classes'.
      the command name and a string specifying the sequence of arguments
      for the command.
 
-     The face argument can either be an existing face or font
-     specifications made by you.  (The latter option is not available on
-     XEmacs.)
+     The face argument can either be an existing face or face attributes
+     made by you.  (The latter option is not available on XEmacs.)
 
      There are three alternatives for the type of keywords--"Command
      with arguments", "Declaration inside TeX group" and "Command
@@ -2987,12 +3077,47 @@ respectively.  This fontification feature can be controlled with the
 variables 'font-latex-fontify-script' and 'font-latex-script-display'.
 
  -- User Option: font-latex-fontify-script
-     If non-nil, fontify subscript and superscript strings.
+     If non-nil, fontify subscript and superscript strings.  Concretely,
+     this means that the scripts are raised or lowered.
+
+     Another possiblity is setting this variable to the symbol
+     'multi-level'.  In this case, in a formula x^{y^z}, y is raised
+     above and smaller than x, and z is raised above and smaller than y.
+     With many script levels, the text might become too small to be
+     readable.  (See 'font-latex-fontify-script-max-level' below.)
+
+     Lastly, you can set this variable to 'invisible' whose behavior is
+     like 'multi-level', and in addition the super-/subscript characters
+     ^ and _ are not displayed.
 
      Note that this feature is not available on XEmacs, for which it is
      disabled per default.  In GNU Emacs raising and lowering is not
      enabled for versions 21.3 and before due to it working not
      properly.
+
+ -- User Option: font-latex-fontify-script-max-level
+     Maximum scriptification level for which script faces are applied.
+
+     The faces 'font-latex-superscript-face' and
+     'font-latex-subscript-face' define custom ':height' values < 1.0.
+     Therefore, scripts are displayed with a slightly smaller font than
+     normal math text.  If 'font-latex-fontify-script' is 'multi-level'
+     or 'invisible', the font size becomes too small to be readable
+     after a few levels.  This option allows to specify the maximum
+     level after which the size of the script text won’t be shrunken
+     anymore.
+
+     For example, in the expression x^{y^{z^a_b}}, x has scriptification
+     level 0, y has level 1, z has level 2, and both a and b have
+     scriptification level 3.
+
+     If 'font-latex-fontify-script-max-level' was 2, then z, a, and b
+     would have the same font size.  If it was 3 or more, then a and b
+     were smaller than z just in the same way as z is smaller than y and
+     y is smaller than x.
+
+   The script characters '^' and '_' themselves are also fontified with
+an own face named 'font-latex-script-char-face'.
 
  -- User Option: font-latex-script-display
      Display specification for subscript and superscript content.  The
@@ -3319,7 +3444,7 @@ better outline support.  It is available from your favorite emacs lisp
 archive.
 
 
-File: auctex.info,  Node: Narrowing,  Prev: Outline,  Up: Display
+File: auctex.info,  Node: Narrowing,  Next: Prettifying,  Prev: Outline,  Up: Display
 
 3.4 Narrowing
 =============
@@ -3343,6 +3468,34 @@ in a pair of curly braces, and to LaTeX environments.
 disabled.  Attempting to use them asks for confirmation and gives you
 the option of enabling them; if you enable the commands, confirmation
 will no longer be required for them.
+
+
+File: auctex.info,  Node: Prettifying,  Prev: Narrowing,  Up: Display
+
+3.5 Prettifying
+===============
+
+Emacs 25 is able to prettify symbols in programming language buffers,
+*note (emacs)Misc for Programs::.  The canonical example is to display
+'(lambda () ...)' as '(λ () ...)' in Lisp buffers.
+
+   AUCTeX can use this feature in order to display certain math macros
+and greek letters using their Unicode representation, too.  For example,
+the TeX code '\alpha \times \beta' will be displayed as 'α × β'.  When
+point is on one of the characters, it'll be unprettified automatically,
+meaning you see the verbatim text again.  For this behaviour however you
+need to set 'prettify-symbols-unprettify-at-point' to t or 'right-edge'
+which will unprettify the symbol when point moves into or near it.
+
+   To enable prettification in AUCTeX, simply add
+'prettify-symbols-mode' to 'TeX-mode-hook'.  If you enabled
+prettification globally with 'global-prettify-symbols-mode', then it's
+automatically enabled in AUCTeX, too.
+
+   You can also add custom symbol unicode-character pairs for
+prettification by adding to 'tex--prettify-symbols-alist'.  Note that
+this variable is part of Emacs' stock 'tex-mode.el' and used by that and
+AUCTeX.
 
 
 File: auctex.info,  Node: Processing,  Next: Customization,  Prev: Display,  Up: Top
@@ -3561,6 +3714,115 @@ directories.  You can change this by setting the variable
      If nil, just check the current file.  Used when checking if any
      files have changed.
 
+   When performing spell checking on a document or a region (invoked
+through AUCTeX's 'Spell' command or 'M-x ispell RET'), you want the
+spell checking program to skip certain macro arguments and environments,
+most notably the arguments of referencing macros and the contents of
+verbatim environments.  The skipped parts are controlled by variable
+'ispell-tex-skip-alists' provided by 'ispell.el'.  AUCTeX has a library
+which can be added to this variable depending on the value of
+'TeX-ispell-extend-skip-list' which is set to 't' by default.
+
+ -- User Option: TeX-ispell-extend-skip-list
+     This boolean option controls whether AUCTeX activates its extension
+     for skipping certain macro arguments and environments when spell
+     checking.
+
+     When non-'nil', AUCTeX loads the file 'tex-ispell.el' and adds its
+     content to 'ispell-tex-skip-alists'.  This library can and will
+     never be complete, but the interface can be used to add selected
+     and private macro names within your init file or on a file local
+     basis.
+
+     'ispell-tex-skip-alists' has the following structure:
+          (defvar ispell-tex-skip-alists
+            '((;; First list
+               ("\\\\addcontentsline"         ispell-tex-arg-end 2)
+               ("\\\\\\([aA]lph\\|arabic\\)"  ispell-tex-arg-end)
+               ("\\\\makebox"                 ispell-tex-arg-end 0)
+               ("\\\\documentclass" . "\\\\begin{document}"))
+              (;; Second list
+               ("\\(figure\\|table\\)\\*?"  ispell-tex-arg-end 0)
+               ("list"                      ispell-tex-arg-end 2)
+               ("verbatim\\*?" . "\\\\end{verbatim\\*?}")))
+            "*Lists of regions to be skipped in TeX mode.
+          First list is used raw.
+          Second list has key placed inside \\begin{}.")
+     Each item is an alist and the structure of it is described in
+     'ispell-skip-region-alist':
+          (defvar ispell-skip-region-alist
+            '((...))
+            "Alist expressing beginning and end of regions not to spell check.
+          The alist key must be a regular expression.
+          Valid forms include:
+            (KEY) - just skip the key.
+            (KEY . REGEXP) - skip to the end of REGEXP.
+                             REGEXP may be string or symbol.
+            (KEY REGEXP) - skip to end of REGEXP.  REGEXP must be a string.
+            (KEY FUNCTION ARGS) - FUNCTION called with ARGS
+                                  returns end of region.")
+
+     Let's go through the first list of 'ispell-tex-skip-alists' line by
+     line:
+          ("\\\\addcontentsline"         ispell-tex-arg-end 2)
+     'KEY' is the string '"\\\\addcontentsline"', 'FUNCTION' is
+     'ispell-tex-arg-end' called with 'ARGS', here '2'.
+     'ispell-tex-arg-end' is a function provided by 'ispell.el' which
+     skips as many subsequent optional arguments in square brackets as
+     it sees and then skips 'ARGS' number of mandatory arguments in
+     braces.  Omitting 'ARGS' means skip '1' mandatory argument.  In
+     practice, when you have something like this in your document:
+          \addcontentsline{toc}{chapter}{Some text}
+     The first two arguments are left out and 'Some text' will be spell
+     checked.  For the next line
+          ("\\\\\\([aA]lph\\|arabic\\)"  ispell-tex-arg-end)
+     the name of the counter as argument is skipped.  Next line is
+          ("\\\\makebox"                 ispell-tex-arg-end 0)
+     where only optional arguments are skipped, the first mandatory
+     argument is checked, e.g.
+          \makebox[0pt][l]{Some text}
+     Finally, the next line
+          ("\\\\documentclass" . "\\\\begin{document}"))
+     ensures that the entire preamble of a document is discarded.
+     Second list works the same; it is more convenient for environments
+     since 'KEY' is wrapped inside '\begin{}'.
+
+     AUCTeX provides two functions to add items to car and cdr of
+     'ispell-tex-arg-end', namely 'TeX-ispell-skip-setcar' and
+     'TeX-ispell-skip-setcdr'.  The argument of these functions is
+     exactly as in 'ispell-tex-skip-alists'.  Additions can be done via
+     init file, e.g.:
+          (eval-after-load "tex-ispell"
+            '(progn
+               (TeX-ispell-skip-setcar
+                '(("\\\\mymacro" ispell-tex-arg-end)))
+               (TeX-ispell-skip-setcdr
+                '(("myverbatim" . "\\\\end{myverbatim}")))))
+     Another possibility is to use file local additions at the end of
+     your TeX file, e.g.:
+          %%% Local Variables:
+          %%% mode: latex
+          %%% TeX-master: t
+          %%% eval: (TeX-ispell-skip-setcar '(("\\\\mymacro" . "{[-0-9]+}")))
+          %%% End:
+
+     Finally, AUCTeX provides a function called 'TeX-ispell-tex-arg-end'
+     which sees more arguments than 'ispell-tex-arg-end'.  Refer to its
+     doc string for more information.
+
+   AUCTeX also provides a facility to skip the argument of in-line
+verbatim macros like '\Verb' from 'fancyvrb.sty' or '\mintinline' from
+'minted.sty'.  Characters delimiting the verbatim text are stored in
+'TeX-ispell-verb-delimiters'.
+
+ -- User Option: TeX-ispell-verb-delimiters
+     String with delimiters recognized for in-line verbatim macros.
+     This variable is initialized to '!|#~\"*/+^-'.  Since this string
+     is used to build a character alternative inside a regular
+     expression, special characters '^' and '-' should come last.  Other
+     characters like opening brace '{', asterisk '*' or at sign '@'
+     should be avoided as they are not recognized by 'font-latex.el'.
+
 
 File: auctex.info,  Node: Processor Options,  Prev: Selecting a Command,  Up: Commands
 
@@ -3626,20 +3888,34 @@ are printed with.
 the document into DVI output.  Thus, if you want a PDF document in the
 end you can either use XeTeX engine, see below for information about how
 to set engines, or compile the document with 'tex' and then convert to
-PDF with 'dvips'-'ps2pdf' before viewing it.  The latter can be done
-automatically in AUCTeX by setting the 'TeX-PDF-via-dvips-ps2pdf'
-variable to a non-nil value.
+PDF with 'dvips'-'ps2pdf' before viewing it.  In addition, current
+Japanese TeX engines cannot generate PDF directly so they rely on
+DVI-to-PDF converters.  Usually 'dvipdfmx' command is used for this
+purpose.  You can use the 'TeX-PDF-from-DVI' variable to let AUCTeX know
+you want to generate the final PDF by converting a DVI file.
 
- -- User Option: TeX-PDF-via-dvips-ps2pdf
-     With 'TeX-PDF-mode' set to non-nil, if 'TeX-PDF-via-dvips-ps2pdf'
-     is non-nil too, the document is compiled with 'tex' (or 'latex')
-     instead of 'pdftex' (or 'pdflatex').  When the document is ready,
-     'C-c C-c' will suggest to run 'dvips' and then 'ps2pdf' in order to
-     convert the DVI file to PDF.  When the PDF file is finally ready,
-     the next suggested command will be to open the viewer.
+ -- User Option: TeX-PDF-from-DVI
+     This option controls if and how to produce a PDF file by converting
+     a DVI file.
+
+     When 'TeX-PDF-mode' is non-nil, if 'TeX-PDF-from-DVI' is non-nil
+     too the document is compiled to DVI instead of PDF.  When the
+     document is ready, 'C-c C-c' will suggest to run the converter to
+     PDF or an intermediate format.
+
+     If non-nil, 'TeX-PDF-from-DVI' should be the name of the command,
+     as a string, used to convert the DVI file to PDF or to an
+     intermediate format.  Values currently supported are:
+        * '"Dvips"': the DVI file is converted to PS with 'dvips'.
+          After successfully running it, 'ps2pdf' will be the default
+          command to convert the PS file to PDF.
+        * '"Dvipdfmx"': the DVI file is converted to PDF with
+          'dvipdfmx'.
+     When the PDF file is finally ready, the next suggested command will
+     be to open the viewer.
 
      This option can also be set as a file local variable, in order to
-     use the sequence 'tex'-'dvips'-'ps2pdf' on a per-document basis.
+     use this conversion on a per-document basis.
 
      Recall the whole sequence of 'C-c C-c' commands can be replace by
      the single 'C-c C-a'.
@@ -3954,6 +4230,43 @@ from the viewer, typically by a mouse click.  Refer to the documentation
 of your viewer to find out how it has to be configured and what you have
 to do exactly.  In xdvi you normally have to use 'C-down-mouse-1'.
 
+   Note that inverse search with the Evince PDF viewer or its MATE fork
+Atril might fail in raising the Emacs frame after updating point in your
+document's buffer.  There is simply no way to raise the Emacs frame
+reliably accross different operating systems and different window
+managers with their different focus stealing policies.  If the Emacs
+frame is not raised after performing an inverse search from Evince or
+Atril, you can customize the following option.
+
+ -- User Option: TeX-raise-frame-function
+     A function that will be called after performing an inverse search
+     from Evince or Atril in order to raise the current Emacs frame.
+
+     If your Emacs frame is already raised in that situation, just leave
+     this variable set to its default value 'raise-frame'.  Otherwise,
+     here are some alternative settings that work for some users.
+
+          ;; Alternative 1: For some users, `x-focus-frame' works.  Note
+          ;; that this function requires Emacs 24+.
+          (setq TeX-raise-frame-function #'x-focus-frame)
+
+          ;; Alternative 2: Under GNOME 3.20 (and probably others), it
+          ;; seems some focus stealing prevention policy prohibits that
+          ;; some window gets the focus immediately after the user has
+          ;; clicked in some other window.  Here waiting a bit before
+          ;; issuing the request seems to work.
+          (setq TeX-raise-frame-function
+                (lambda ()
+          	(run-at-time 0.5 nil #'x-focus-frame)))
+
+          ;; Alternative 3: Use the external wmctrl tool in order to
+          ;; force Emacs into the focus.
+          (setq TeX-raise-frame-function
+                (lambda ()
+          	(call-process
+          	 "wmctrl" nil nil nil "-i" "-R"
+          	 (frame-parameter (selected-frame) ’outer-window-id))))
+
 
 File: auctex.info,  Node: Debugging,  Next: Checking,  Prev: Viewing,  Up: Processing
 
@@ -3997,17 +4310,6 @@ variable.
      This is the default.  If nil, AUCTeX does not parse the whole
      output log buffer and 'TeX-previous-error' cannot be used.
 
-   Normally AUCTeX will only report real errors, but you may as well ask
-it to report 'bad boxes' and warnings as well.
-
- -- Command: TeX-toggle-debug-bad-boxes
-     ('C-c C-t C-b') Toggle whether AUCTeX should stop at bad boxes
-     (i.e.  overfull and underfull boxes) as well as normal errors.
-
- -- Command: TeX-toggle-debug-warnings
-     ('C-c C-t C-w') Toggle whether AUCTeX should stop at warnings as
-     well as normal errors.
-
    As default, AUCTeX will display a special help buffer containing the
 error reported by TeX along with the documentation.  There is however an
 'expert' option, which allows you to display the real TeX output.
@@ -4021,12 +4323,61 @@ error reported by TeX along with the documentation.  There is however an
 
 * Menu:
 
+* Ignoring warnings::         Controlling warnings to be reported
 * Error overview::            List of all errors and warnings
 
 
-File: auctex.info,  Node: Error overview,  Up: Debugging
+File: auctex.info,  Node: Ignoring warnings,  Next: Error overview,  Up: Debugging
 
-4.3.1 List of all errors and warnings
+4.3.1 Controlling warnings to be reported
+-----------------------------------------
+
+Normally AUCTeX will only report real errors, but you may as well ask it
+to report 'bad boxes' and warnings as well.
+
+ -- Command: TeX-toggle-debug-bad-boxes
+     ('C-c C-t C-b') Toggle whether AUCTeX should stop at bad boxes
+     (i.e.  overfull and underfull boxes) as well as normal errors.  The
+     boolean option 'TeX-debug-bad-boxes' is set accordingly.
+
+ -- Command: TeX-toggle-debug-warnings
+     ('C-c C-t C-w') Toggle whether AUCTeX should stop at warnings as
+     well as normal errors.  The boolean option 'TeX-debug-warnings' is
+     set accordingly.
+
+   While many users desire to have warnings reported after compilation,
+there are certain warnings that are considered unimportant and users
+want to ignore them.  For a more fine-grained control of what kinds of
+warnings should be shown after compilation, AUCTeX provides other
+options.
+
+ -- User Option: TeX-ignore-warnings
+     Controls which warnings are to be ignored.
+
+     It can be a regexp matching the message of the warnings to be
+     ignored.
+
+     More advanced users can set also this option to a symbol with the
+     name of a custom function taking as arguments all the information
+     of the warning listed in 'TeX-error-list' variable, except the last
+     one about whether to ignore the warning.  See the code of
+     'TeX-warning' function and the documentation of 'TeX-error-list'
+     for more details.
+
+ -- Command: TeX-toggle-suppress-ignored-warnings
+     ('C-c C-t C-x') Toggle whether AUCTeX should actually hide the
+     ignored warnings specified with 'TeX-ignore-warnings'.  The boolean
+     option 'TeX-suppress-ignored-warnings' is set accordingly.  If this
+     is nil, all warnings are shown, even those matched by
+     'TeX-ignore-warnings', otherwise these are hidden.
+
+     Note that 'TeX-debug-warnings' takes the precedence: if it is nil,
+     all warnings are hidden in any case.
+
+
+File: auctex.info,  Node: Error overview,  Prev: Ignoring warnings,  Up: Debugging
+
+4.3.2 List of all errors and warnings
 -------------------------------------
 
 When the option 'TeX-parse-all-errors' is non-nil, you will be also able
@@ -4044,7 +4395,10 @@ Emacs 24 or later.
      how many errors to move forward or backward.  You can visit an
      error also by clicking on its message.  Jump to error point in the
      source code with <j>, and use <l> see the error in the log buffer.
-     Press <q> to quit the overview.
+     In addition, you can toggle visibility of bad boxes, generic
+     warnings, and ignored warnings with <b>, <w>, and <x>, respectively
+     (see *note Ignoring warnings:: for details).  Press <q> to quit the
+     overview.
 
  -- User Option: TeX-error-overview-open-after-TeX-run
      When this boolean variable is non-nil, the error overview will be
@@ -4149,15 +4503,14 @@ File: auctex.info,  Node: Documentation,  Prev: Cleaning,  Up: Processing
 4.7 Documentation about macros and packages
 ===========================================
 
- -- Command: TeX-doc
-     ('C-c ?') Get documentation about macros, packages or TeX & Co.  in
-     general.  The function will prompt for the name of a command or
-     manual, providing a list of available keywords for completion.  If
-     point is on a command or word with available documentation, this
-     will be suggested as default.
+ -- Command: TeX-documentation-texdoc
+     ('C-c ?') Get documentation about the packages installed on your
+     system, using 'texdoc' to find the manuals.  The function will
+     prompt for the name of packages.  If point is on a word, this will
+     be suggested as default.
 
-     In case no documentation could be found, a prompt for querying the
-     'texdoc' program is shown, should the latter be available.
+     If the command is called with a prefix argument, you will be shown
+     a list of manuals of the given package among to choose.
 
      The command can be invoked by the key binding mentioned above as
      well as the 'Find Documentation...' entry in the mode menu.
@@ -4206,7 +4559,7 @@ it is relevant for all text modes, append it to 'text-mode-hook'.
 
    Other useful hooks are listed below.
 
- -- Variable: TeX-after-TeX-LaTeX-command-finished-hook
+ -- Variable: TeX-after-compilation-finished-hook
      Hook which is run after the TeX/LaTeX processor has successfully
      finished compiling your document.  (*Note Processing::, for finding
      out how to compile your document).  Each function in the hook is
@@ -4474,7 +4827,7 @@ document.
 
    Note that Unicode is not fully supported in Emacs 21 and XEmacs 21.
 CJK characters are not usable.  Please use the MULE-UCS EmacsLisp
-package or Emacs 22 (not released yet) if you need CJK.
+package or Emacs 22 and later if you need CJK.
 
 * Menu:
 
@@ -4554,6 +4907,9 @@ will for example choose a Danish dictionary for documents including
      Runs style hook 'TeX-language-nl-hook'.
 
 'english'
+'australian'
+'canadian'
+'newzealand'
      Runs style hook 'TeX-language-en-hook'.
 
 'frenchb'
@@ -4653,44 +5009,128 @@ File: auctex.info,  Node: Japanese,  Prev: European,  Up: Internationalization
 5.4.2 Using AUCTeX with Japanese TeX
 ------------------------------------
 
-To write Japanese text with AUCTeX, you need to have versions of TeX and
-Emacs that support Japanese.  There exist at least two variants of TeX
-for Japanese text (NTT jTeX and ASCII pTeX).  AUCTeX can be used with
-MULE (MULtilingual Enhancement to GNU Emacs) supported Emacsen.
+To write Japanese text with AUCTeX, you need the versions of TeX and
+Emacs that support Japanese.  AUCTeX supports three Japanese TeX engines
+by default: NTT jTeX, ASCII pTeX and upTeX.  On XEmacs, AUCTeX needs
+MULE (MULtilingual Enhancement to GNU Emacs) feature to deal with
+Japanese text.
 
-   To use the Japanese TeX variants, simply activate
-'japanese-plain-tex-mode' or 'japanese-latex-mode' and everything should
-work.  If not, send mail to Masayuki Ataka
-'<ataka@milk.freemail.ne.jp>', who kindly donated the code for
-supporting Japanese in AUCTeX.  None of the primary AUCTeX maintainers
+   To use the Japanese TeX engines, activate 'japanese-plain-tex-mode'
+or 'japanese-latex-mode'.  If it doesn't work, send mail to Masayuki
+Ataka '<masayuki.ataka@gmail.com>' or Ikumi Keita
+'<ikumikeita@jcom.home.ne.jp>', who currently concern with stuff related
+to Japanese in AUCTeX.  None of the primary AUCTeX maintainers
 understand Japanese, so they cannot help you.
+
+   It is recommended to enable 'TeX-parse-self' for typical Japanese
+LaTeX users.  When enabled, 'japanese-latex-mode' selects the suitable
+Japanese TeX engine automatically based on the class file name (such as
+'jbook', 'jsarticle' and 'tjreport') and its option.  *note Parsing
+Files::.
+
+   It is important to select the suitable Japanese TeX engine because
+the selected engine determines the command name such as 'platex' and
+'uptex' to typeset the document.  If you find that wrong command is
+used, check the value of 'TeX-engine' on that buffer.  If the value does
+not suit the current document, change the value by the 'TeXing Options'
+submenu below the 'Command' menu.  *note Processor Options::.
+
+   To make the selected engine to persist across Emacs sessions, there
+are two ways from which you can choose one according to your needs:
+
+  1. If you use a specific engine (almost) exclusively, customize the
+     option 'japanese-TeX-engine-default'.
+
+      -- User Option: japanese-TeX-engine-default
+          The default TeX engine in Japanese TeX mode.
+
+          The default value is 'ptex'.
+  2. If you want to set the engine on a per file basis, use the file
+     local variables to set 'TeX-engine'.
+
+     Here is a sample code to set 'TeX-engine' to 'uptex':
+
+          %%% Local Variables:
+          %%% mode: japanese-latex
+          %%% TeX-engine: uptex
+          %%% End:
+
+   In the both cases above, the valid value is one of 'ptex', 'jtex' and
+'uptex'.
+
+   You can override the command names associated with the above three
+engines or define your own engine by customizing 'TeX-engine-alist'.
+*Note Processor Options::.
+
+   It is sometimes necessary to use an engine which differs from the one
+AUCTeX selects automatically.  For example, even when you want to use
+'j-article' document class deliberately with ASCII pLaTeX, AUCTeX
+selects NTT jLaTeX command if 'TeX-parse-self' is enabled, because
+'j-article' originally belongs to NTT jLaTeX.  In such cases, use the
+file local variable method above to select the engine you intend to use.
 
    If you usually use AUCTeX in Japanese, setting the following
 variables is useful.
 
  -- User Option: TeX-default-mode
-     Mode to enter for a new file when it cannott be determined whether
+     Mode to enter for a new file when it cannot be determined whether
      the file is plain TeX or LaTeX or what.
 
      If you want to enter Japanese LaTeX mode whenever this may happen,
      set the variable like this:
           (setq TeX-default-mode 'japanese-latex-mode)
 
- -- User Option: japanese-TeX-command-default
-     The default command for 'TeX-command' in Japanese TeX mode.
-
-     The default value is '"pTeX"'.
-
- -- User Option: japanese-LaTeX-command-default
-     The default command for 'TeX-command' in Japanese LaTeX mode.
-
-     The default value is '"LaTeX"'.
-
  -- User Option: japanese-LaTeX-default-style
      The default style/class when creating a new Japanese LaTeX
      document.
 
      The default value is '"jarticle"'.
+
+   It is recommended also for Japanese users to customize the option
+'TeX-PDF-from-DVI' to '"Dvipdfmx"'.  *Note Processor Options::
+
+   There are three customize options with regard to the encoding of
+Japanese text.
+
+ -- User Option: japanese-TeX-use-kanji-opt-flag
+     If non-nil, AUCTeX adds '-kanji' option to the typesetting command
+     when 'TeX-engine' is 'ptex'.
+
+   Usually AUCTeX guesses the right coding systems for input to and
+output from the Japanese TeX process, but you can override them by the
+following two customize options.
+
+ -- User Option: TeX-japanese-process-input-coding-system
+     If non-nil, used for encoding input to Japanese TeX process.  When
+     'nil', AUCTeX tries to choose suitable coding system.
+
+ -- User Option: TeX-japanese-process-output-coding-system
+     If non-nil, used for decoding output from Japanese TeX process.
+     When 'nil', AUCTeX tries to choose suitable coding system.
+
+   The former customize options 'japanese-TeX-command-default' and
+'japanese-LaTeX-command-default' are obsolete.  Use
+'japanese-TeX-engine-default' instead.  If you need to customize the
+executable file name such as '"latex"', the options for them, or both,
+customize 'TeX-engine-alist'.
+
+   Also, the option 'japanese-TeX-command-list' is considered as
+semi-obsolete.  It still functions as before, but in theory, it is not
+required anymore in normal use.
+
+   The following two additional font commands are available in LaTeX
+mode buffer.
+
+'C-c C-f g'
+     Insert gothic face font command '\textbf{-!-}' or '\mathbf{-!-}'
+     depending on the context.
+
+'C-c C-f m'
+     Insert mincho font command '\textmc{-!-}' or '\mathmc{-!-}'
+     depending on the context.
+
+   Although they are meaningful only with 'ptex' and 'uptex' engines, it
+won't matter in buffers with other engines.
 
    See 'tex-jp.el' for more information.
 
@@ -4821,7 +5261,7 @@ File: auctex.info,  Node: Automatic Local,  Prev: Automatic Private,  Up: Automa
 ---------------------------------------------
 
 AUCTeX can update the style information about a file each time you save
-it, and it will do this if the directory 'TeX-auto-local' exist.
+it, and it will do this if the directory 'TeX-auto-local' exists.
 'TeX-auto-local' is by default set to '"auto"', so simply creating an
 'auto' directory will enable automatic saving of style information.
 
@@ -5086,8 +5526,8 @@ overwrite the default prompt.
      Prompt for a LaTeX savebox completing with known saveboxes.
 
 'TeX-arg-file'
-     Prompt for a filename in the current directory, and use it without
-     the extension.
+     Prompt for a filename in the current directory, and use it with the
+     extension.
 
 'TeX-arg-file-name'
      Prompt for a filename and use as initial input the name of the file
@@ -5466,11 +5906,11 @@ Appendix A Copying, Changes, Development, FAQ, Texinfo Mode
 
 * Menu:
 
-* Copying this Manual::         
-* Changes::                     
-* Development::                 
-* FAQ::                         
-* Texinfo mode::                
+* Copying this Manual::
+* Changes::
+* Development::
+* FAQ::
+* Texinfo mode::
 
 
 File: auctex.info,  Node: Copying this Manual,  Next: Changes,  Up: Appendices
@@ -5480,10 +5920,10 @@ A.1 Copying this Manual
 
 The copyright notice for this manual is:
 
-   This manual is for AUCTeX (version 11.89 from 2015-11-12), a
+   This manual is for AUCTeX (version 11.91 from 2017-07-22), a
 sophisticated TeX environment for Emacs.
 
-   Copyright (C) 1992-1995, 2001, 2002, 2004-2015 Free Software
+   Copyright (C) 1992-1995, 2001, 2002, 2004-2017 Free Software
 Foundation, Inc.
 
      Permission is granted to copy, distribute and/or modify this
@@ -5951,7 +6391,7 @@ A.1.1 GNU Free Documentation License
      2009, provided the MMC is eligible for relicensing.
 
 ADDENDUM: How to use this License for your documents
-====================================================
+----------------------------------------------------
 
 To use this License in a document you have written, include a copy of
 the License in the document and put the following copyright and license
@@ -5987,8 +6427,194 @@ File: auctex.info,  Node: Changes,  Next: Development,  Prev: Copying this Manua
 A.2 Changes and New Features
 ============================
 
+News in 11.91
+-------------
+
+   * Now AUCTeX has a logo.  The LaTeX code to create it is available in
+     the 'etc/' directory of the package.
+
+   * Add support for 'upmendex', an extension of 'makeindex' capable of
+     sorting indexes by unicode based ICU.
+
+   * Fix preview-latex to interact correctly with Japanese LaTeX.  The
+     parsing routine was made robust not to be confused by the 7-bit
+     encoding of Japanese text and the necessary option to LaTeX command
+     is kept even when preamble caching is enabled.
+
+   * The new "Glossaries" entry in 'TeX-command-list' runs the command
+     'makeglossaries'.
+
+   * Fontification of control symbols has been improved.  Characters
+     defined in 'font-latex-match-simple-exclude-list' do not receive
+     any fontification.  In DocTeX mode, the character '_' is removed
+     from 'font-latex-match-simple-exclude-list' in order to fontify
+     macros like '\__module_foo:nnn' correctly.
+
+   * Fontification of math environments has been improved.  Optional
+     and/or mandatory argument(s) to environments are not fontified.
+
+   * 'preview.sty' loads 'luatex85.sty' if possible and should be
+     compatible with newer luaTeX versions.
+
+   * AUCTeX has a new customize option 'TeX-ispell-verb-delimiters'.
+     This string contains usual characters used as delimiters for
+     in-line verbatim macros like '\verb'.  Text between delimiters
+     after an in-line verbatim macro will be skipped during spell
+     checking.
+
+   * Fontification of in-line verbatim macros has been improved.
+     'font-latex.el' recognizes an optional or a mandatory argument for
+     macros like '\Verb' from 'fancyvrb.sty', '\mint' and '\mintinline'
+     from 'minted.sty' and fontifies verbatim content correctly.
+
+   * AUCTeX can put and parse labels in optional argument of
+     environments.  Inserting labels is done by new function
+     'LaTeX-env-label-as-keyval'.  A new customize option
+     'LaTeX-listing-label' is available as prefix to labels in code
+     typesetting environments, e.g.  'lstlisting' environment provided
+     by 'listings' package.  'LaTeX-listing-label' defaults to 'lst:'.
+     Parsing of labels for later referencing relies on two requirements:
+       1. Label should come as last key-value argument, and
+       2. label must be enclosed in braces, e.g.
+               \begin{lstlisting}[caption=Some Caption,label={lst:foo}]
+               ...
+               \end{lstlisting}
+
+   * The function 'LaTeX-label' now takes a second optional argument
+     'NO-INSERT'.  When non-'nil', 'LaTeX-label' reads a label and
+     returns it as a string.  This argument is also passed to any
+     function bound to 'LaTeX-label-function' (see next item).
+
+   * *Incompatible change:* The signature for the function passed with
+     the customize option 'LaTeX-label-function' has changed.  The
+     function bound to this variable is now expected to take an optional
+     second argument 'NO-INSERT'.  When this argument is non-'nil', the
+     function should read and only return a label as a string; insertion
+     is done by another function.
+
+   * Directory local variables were ineffective for
+     'japanese-latex-mode' and 'japanese-plain-tex-mode'.  This bug was
+     fixed.  (This was actually done in AUCTeX 11.90, but not
+     advertised)
+
+   * The output of Japanese text from Japanese TeX engines is decoded
+     correctly for most cases, according to the encoding of the TeX
+     documents and the locale.  The difference between MS Windows, macOS
+     and unix-like OS is taken into account.  (This was actually done in
+     AUCTeX 11.90, but not advertised)
+
+   * Quite a few new LaTeX packages are supported.
+
+   * As usual, many bugs were fixed.
+
+News in 11.90
+-------------
+
+   * In addition to the completion performed by 'TeX-complete-symbol',
+     AUCTeX now also supports the new Emacs standard completion-at-point
+     facility (see the Emacs command 'completion-at-point').  This also
+     means that modern completion UIs like company-mode work out of the
+     box in TeX and LaTeX buffers.  *Note Completion::, for details.
+
+   * Completion is now aware of being inside a math environment and then
+     completes math macros.
+
+   * AUCTeX is able to display several levels of super- and subscripts,
+     each one raised above and a bit smaller than its basis.  For this
+     feature, have a look at the customize options
+     'font-latex-fontify-script' (especially the new values
+     'multi-level' and 'invisible') and
+     'font-latex-fontify-script-max-level'.  Also, the script characters
+     '^' and '_' are also fontified with a special face named
+     'font-latex-script-char-face'.  *Note Fontification of math::, for
+     details.
+
+   * Parsing of format specification in various tabular environments has
+     been improved.  The function 'LaTeX-insert-item' ('C-c <LFD>')
+     inserts suitable number of ampersands for '*{num}{cols}'
+     constructs.  Style files for LaTeX packages 'tabularx', 'tabulary',
+     'longtable', 'dcolumn' and 'siunitx' are adapted to take advantage
+     of this improvement.
+
+   * AUCTeX has a new Ispell dictionary 'tex-ispell.el' for macros and
+     environments which will be skipped during spell checking.  The
+     activiation of this feature is controlled by a new customize option
+     'TeX-ispell-extend-skip-list', which is set to 't' and activated by
+     default.
+
+   * AUCTeX has a new customize option 'TeX-raise-frame-function' that
+     is currently only used by Evince and Atril inverse search to raise
+     the Emacs frame.
+
+   * When inserting a new float, AUCTeX will now prompt for a
+     short-caption if the length of the caption provided is greater than
+     a certain size.  This size is controlled via a new user option
+     'LaTeX-short-caption-prompt-length'.
+
+   * Parsing of the compilation log has been reworked.  You should
+     encounter fewer mistaken files while navigating through errors and
+     warnings.
+
+   * Two new user options, 'TeX-ignore-warnings' and
+     'TeX-suppress-ignored-warnings', allow ignoring certain warnings
+     after compilation of the document.  *Note Ignoring warnings::, for
+     details.
+
+   * A new option, 'TeX-PDF-from-DVI', controls if and how to produce a
+     PDF file by converting a DVI file.  This supersedes
+     'TeX-PDF-via-dvips-ps2pdf' which is still recognized but marked as
+     obsolete and may be removed in future releases.
+
+   * Support for a number of external viewers has been added:
+        * Atril viewer.  Forward and inverse search requires version
+          1.9.1 or later to work.
+
+        * dviout viewer on Windows.  Note that this setup works when
+          'TeX-source-correlate-method' is set to use 'source-specials'
+          for DVI, e.g.:
+               (setq TeX-source-correlate-method
+                     '((dvi . source-specials)
+                       (pdf . synctex)))
+          which is the default.
+
+        * SumatraPDF viewer on Windows.
+
+        * Zathura viewer.  Forward and inverse search requires a recent
+          version of the program to work (3.4 or later).
+
+   * A new function, 'TeX-documentation-texdoc', for reading
+     documentation with 'texdoc' has been added.  'TeX-doc' is still
+     available but now 'C-c ?' runs 'TeX-documentation-texdoc'.
+
+   * AUCTeX has a new custom option
+     'LaTeX-reftex-cite-format-auto-activate' which controls the
+     automatic activation of citation formats provided by RefTeX when a
+     style file is loaded and RefTeX is enabled.  Currently,
+     'biblatex.el', 'harvard.el', 'jurabib.el' and 'natbib.el' use this
+     feature.  If you have customized 'reftex-cite-format' and want to
+     use your settings, you should set this variable to 'nil'.
+
+   * AUCTeX now has limited support for the TikZ package.  For the
+     moment, this includes some basic support for prompting the user of
+     arguments to the '\draw' macro.
+
+   * The style 'graphicx.el' went through a bigger overhaul.  The
+     optional argument of command '\includegraphics' now supports
+     key-val query; keys can independently be chosen anytime by pressing
+     the <,> key.  As a side effect, the variable
+     'LaTeX-includegraphics-options-alist' is now no-op and is removed
+     from 'tex-style.el'.  You can safely remove any customization of it
+     from your init file.  The mandatory argument of '\includegraphics'
+     knows about image file extensions supported by the used engine and
+     offers them for inclusion.
+
+   * Support for other LaTeX packages was improved, and style files for
+     several new packages were added.
+
+   * Many bugs were crushed along the way.
+
 News in 11.89
-=============
+-------------
 
    * You can now run all commands needed to compile a document and then
      open the viewer with a single command: 'TeX-command-run-all', bound
@@ -6039,13 +6665,13 @@ News in 11.89
      'ConTeXt-Mark-version', and AUCTeX is able to catch error messages
      in the output log of a Mark IV document.
 
-   * Support for tons of LaTeX packages has been addedd.
+   * Support for tons of LaTeX packages has been added.
 
    * Numbers of bugs have been fixed, many minor features have been
-     addedd.
+     added.
 
 News in 11.88
-=============
+-------------
 
    * 'TeX-PDF-mode' is now enabled by default.
 
@@ -6145,7 +6771,7 @@ News in 11.88
    * There have been lots of bug fixes and feature additions.
 
 News in 11.87
-=============
+-------------
 
    * AUCTeX now supports Biber in conjunction with biblatex in addition
      to BibTeX.
@@ -6170,7 +6796,7 @@ News in 11.87
    * A lot of smaller fixes and additions have been made.
 
 News in 11.86
-=============
+-------------
 
    * Parsing of LaTeX output was improved.  It is now less likely that
      AUCTeX opens a non-existent file upon calling 'TeX-next-error'; a
@@ -6201,7 +6827,7 @@ News in 11.86
    * A lot of smaller and larger bugs have been squashed.
 
 News in 11.85
-=============
+-------------
 
    * Font locking has been improved significantly.  It is now less prone
      to color bleeding which could lead to high resource usage.  In
@@ -6218,7 +6844,7 @@ News in 11.85
    * Lots of minor bugs in features and documentation fixed.
 
 News in 11.84
-=============
+-------------
 
    * There have been problems with the '-without-texmf-dir' option to
      'configure' when the value of '-with-kpathsea-sep' was set or
@@ -6255,7 +6881,7 @@ News in 11.84
      features and documentation across the board.
 
 News in 11.83
-=============
+-------------
 
    * The new function 'TeX-doc' provides easy access to documentation
      about commands and packages or information related to TeX and
@@ -6286,7 +6912,7 @@ News in 11.83
      Facilities::.
 
 News in 11.82
-=============
+-------------
 
    * Support for the MinionPro LaTeX package was added.
 
@@ -6340,7 +6966,7 @@ News in 11.82
    * Various bug fixes.
 
 News in 11.81
-=============
+-------------
 
    * 'LaTeX-mark-section' now marks subsections of a given section as
      well.  The former behavior is available via the prefix argument.
@@ -6413,7 +7039,7 @@ News in 11.81
    * Of course a lot of bugs have been fixed.
 
 News in 11.55
-=============
+-------------
 
    * A bug was fixed which lead to the insertion of trailing whitespace
      during filling.  In particular extra spaces were added to sentence
@@ -6441,7 +7067,7 @@ News in 11.55
      added.
 
 News in 11.54
-=============
+-------------
 
    * The parser (used e.g.  for 'TeX-auto-generate-global') was extended
      to recognize keywords common in LaTeX packages and classes, like
@@ -6509,7 +7135,7 @@ News in 11.54
    * Lots of bug fixes.
 
 News in 11.53
-=============
+-------------
 
    * The LaTeX math menu can include Unicode characters if your Emacs
      built supports it.  See the variable 'LaTeX-math-menu-unicode',
@@ -6525,7 +7151,7 @@ News in 11.53
      deactivate folding in comments.
 
 News in 11.52
-=============
+-------------
 
    * Installation and menus under XEmacs work again (maybe for the first
      time).
@@ -6536,7 +7162,7 @@ News in 11.52
    * Bug fixes in the build process.
 
 News in 11.51
-=============
+-------------
 
    * PDFTeX and Source Special support did not work with ConTeXt, this
      has been fixed.  Similar for Source Special support under Windows.
@@ -6548,7 +7174,7 @@ News in 11.51
    * 'TeX-fold' now supports folding of environments in Texinfo mode.
 
 News in 11.50
-=============
+-------------
 
    * The use of source specials when processing or viewing the document
      can now be controlled with the new 'TeX-source-specials' minor mode
@@ -6665,50 +7291,50 @@ News in 11.50
      details.
 
 News in 11.14
-=============
+-------------
 
    * Many more LaTeX and LaTeX2e commands are supported.  Done by
      Masayuki Ataka <ataka@milk.freemail.ne.jp>
 
 News in 11.12
-=============
+-------------
 
    * Support for the KOMA-Script classes.  Contributed by Mark Trettin
      <Mark.Trettin@gmx.de>.
 
 News in 11.11
-=============
+-------------
 
    * Support for 'prosper.sty', see <http://prosper.sourceforge.net/>.
      Contributed by Phillip Lord <p.lord@russet.org.uk>.
 
 News in 11.10
-=============
+-------------
 
    * 'comment-region' now inserts %% by default.  Suggested by "Davide
      G. M. Salvetti" <salve@debian.org>.
 
 News in 11.06
-=============
+-------------
 
    * You can now switch between using the 'font-latex' (all emacsen),
      the 'tex-font' (Emacs 21 only) or no special package for font
      locking.  Customize 'TeX-install-font-lock' for this.
 
 News in 11.04
-=============
+-------------
 
    * Now use -t landscape by default when landscape option appears.
      Suggested by Erik Frisk <frisk@isy.liu.se>.
 
 News in 11.03
-=============
+-------------
 
    * Use 'tex-fptex.el' for fpTeX support.  Contributed by Fabrice
      Popineau <Fabrice.Popineau@supelec.fr>.
 
 News in 11.02
-=============
+-------------
 
    * New user option 'LaTeX-top-caption-list' specifies environments
      where the caption should go at top.  Contributed by
@@ -6727,7 +7353,7 @@ News in 11.02
      <David.Kastrup@t-online.de>.
 
 News in 11.01
-=============
+-------------
 
    * Bug fixes.
 
@@ -6735,386 +7361,4 @@ Older versions
 --------------
 
 See the file 'history.texi' for older changes.
-
-
-File: auctex.info,  Node: Development,  Next: FAQ,  Prev: Changes,  Up: Appendices
-
-A.3 Future Development
-======================
-
-The following sections describe future development of AUCTeX.  Besides
-mid-term goals, bug reports and requests we cannot fix or honor right
-away are being gathered here.  If you have some time for Emacs Lisp
-hacking, you are encouraged to try to provide a solution to one of the
-following problems.  If you don't know Lisp, you may help us to improve
-the documentation.  It might be a good idea to discuss proposed changes
-on the mailing list of AUCTeX first.
-
-* Menu:
-
-* Mid-term Goals::
-* Wishlist::
-* Bugs::
-
-
-File: auctex.info,  Node: Mid-term Goals,  Next: Wishlist,  Up: Development
-
-A.3.1 Mid-term Goals
---------------------
-
-   * Integration of preview-latex into AUCTeX
-
-     As of AUCTeX 11.81 preview-latex is a part of AUCTeX in the sense
-     that the installation routines were merged and preview-latex is
-     being packaged with AUCTeX.
-
-     Further integration will happen at the backend.  This involves
-     folding of error parsing and task management of both packages which
-     will ease development efforts and avoid redundant work.
-
-   * Error help catalogs
-
-     Currently, the help for errors is more or less hardwired into
-     'tex.el'.  For supporting error help in other languages, it would
-     be sensible to instead arrange error messages in language-specific
-     files, make a common info file from all such catalogs in a given
-     language and look the error texts up in an appropriate index.  The
-     user would then specify a preference list of languages, and the
-     errors would be looked up in the catalogs in sequence until they
-     were identified.
-
-   * Combining 'docTeX' with RefTeX
-
-     Macro cross references should also be usable for document
-     navigation using RefTeX.
-
-
-File: auctex.info,  Node: Wishlist,  Next: Bugs,  Prev: Mid-term Goals,  Up: Development
-
-A.3.2 Wishlist
---------------
-
-   * Documentation lookup for macros
-
-     A parser could gather information about which macros are defined in
-     which LaTeX packages and store the information in a hashtable which
-     can be used in a backend for 'TeX-doc' in order to open the
-     matching documentation for a given macro.  The information could
-     also be used to insert an appropriate '\usepackage' statement if
-     the user tries to insert a macro for which the respective package
-     has not been requested yet.
-
-   * Spell checking of macros
-
-     A special ispell dictionary for macros could be nice to have.
-
-   * Improvements to error reporting
-
-     Fringe indicators for errors in the main text would be nice.
-
-   * A math entry grid
-
-     A separate frame with a table of math character graphics to click
-     on in order to insert the respective sequence into the buffer (cf.
-     the "grid" of x-symbol).
-
-   * Crossreferencing support
-
-     It would be nice if you could index process your favorite
-     collection of '.dtx' files (such as the LaTeX source), just call a
-     command on arbitrary control sequence, and get either the DVI
-     viewer opened right at the definition of that macro (using Source
-     Specials), or the source code of the '.dtx' file.
-
-   * Better plain TeX support
-
-     For starters, 'LaTeX-math-mode' is not very LaTeX-specific in the
-     first place, and similar holds for indentation and formatting.
-
-   * Page count when compiling should (optionally) go to modeline of the
-     window where the compilation command was invoked, instead of the
-     output window.  Suggested by Karsten Tinnefeld
-     <tinnefeld@irb.informatik.uni-dortmund.de>.
-
-   * Command to insert a macrodefinition in the preamble, without moving
-     point from the current location.  Suggested by "Jeffrey C. Ely"
-     <ely@nwu.edu>.
-
-   * A database of all commands defined in all stylefiles.  When a
-     command or environment gets entered that is provided in one of the
-     styles, insert the appropriate '\usepackage' in the preamble.
-
-   * A way to add and overwrite math mode entries in style files, and to
-     decide where they should be.  Suggested by Remo Badii
-     <Remo.Badii@psi.ch>.
-
-   * Create template for (first) line of tabular environment.
-
-   * I think prompting for the master is the intended behaviour.  It
-     corresponds to a 'shared' value for TeX-master.
-
-     There should probably be a 'none' value which wouldn't query for
-     the master, but instead disable all features that relies on
-     TeX-master.
-
-     This default value for TeX-master could then be controled with
-     mapping based on the extension.
-
-   * Use index files (when available) to speed up 'C-c C-m include
-     <RET>'.
-
-   * Option not to calculate very slow completions like for 'C-c C-m
-     include <RET>'.
-
-   * Font menu should be created from 'TeX-font-list'.
-
-   * Installation procedure written purely in emacs lisp.
-
-   * Included PostScript files should also be counted as part of the
-     document.
-
-   * A nice hierarchical by-topic organization of all officially
-     documented LaTeX macros, available from the menu bar.
-
-   * 'TeX-command-default' should be set from the master file, if not
-     set locally.  Suggested by Peter Whaite '<peta@cim.mcgill.ca>'.
-
-   * Make AUCTeX work with 'crypt++'.  Suggested by Chris Moore
-     '<Chris.Moore@src.bae.co.uk>'.
-
-   * Make AUCTeX work with 'longlines'.  This would also apply to
-     preview-latex, though it might make sense to unify error processing
-     before attempting this.
-
-   * The 'Spell' command should apply to all files in a document.  Maybe
-     it could try to restrict to files that have been modified since
-     last spell check?  Suggested by Ravinder Bhumbla
-     '<rbhumbla@ucsd.edu>'.
-
-   * Make <.> check for abbreviations and sentences ending with capital
-     letters.
-
-   * Use Emacs 19 minibuffer history to choose between previewers, and
-     other stuff.  Suggested by John Interrante
-     '<interran@uluru.Stanford.EDU>'.
-
-   * Documentation of variables that can be set in a style hook.
-
-     We need a list of what can safely be done in an ordinary style
-     hook.  You can not set a variable that AUCTeX depends on, unless
-     AUCTeX knows that it has to run the style hooks first.
-
-     Here is the start of such a list.
-
-     'LaTeX-add-environments'
-
-     'TeX-add-symbols'
-
-     'LaTeX-add-labels'
-
-     'LaTeX-add-bibliographies'
-
-     'LaTeX-largest-level'
-
-   * Outline should be (better) supported in TeX mode.
-
-     At least, support headers, trailers, as well as TeX-outline-extra.
-
-   * 'TeX-header-start' and 'TeX-trailer-end'.
-
-     We might want these, just for fun (and outlines)
-
-   * Plain TeX and LaTeX specific header and trailer expressions.
-
-     We should have a way to globally specify the default value of the
-     header and trailer regexps.
-
-   * Get closer to original 'TeX-mode' keybindings.
-
-     A third initialization file ('tex-mode.el') containing an emulator
-     of the standard 'TeX-mode' would help convince some people to
-     change to AUCTeX.
-
-   * Use markers in 'TeX-error-list' to remember buffer positions in
-     order to be more robust with regard to line numbers and changed
-     files.
-
-   * Finish the Texinfo mode.  For one thing, many Texinfo mode commands
-     do not accept braces around their arguments.
-
-   * Hook up the letter environment with 'bbdb.el'.
-
-
-File: auctex.info,  Node: Bugs,  Prev: Wishlist,  Up: Development
-
-A.3.3 Bugs
-----------
-
-   * The style hooks automatically generated by parsing files for
-     'example.dtx', 'example.sty', 'example.drv' and 'example.bib' all
-     clash.  Bad.  Clash with hand-written style hooks should be removed
-     by dialect discrimination -- to be checked.
-
-   * 'C-c `' should always stay in the current window, also when it
-     finds a new file.
-
-   * Do not overwrite emacs warnings about existing auto-save files when
-     loading a new file.
-
-   * Maybe the regexp for matching a TeX symbol during parsing should be
-     '"\\\\\\([a-zA-Z]+\\|.\\)"' --
-     '<thiemann@informatik.uni-tuebingen.de>' Peter Thiemann.
-
-   * AUCTeX should not parse verbatim environments.
-
-   * Make '`' check for math context in 'LaTeX-math-mode'.  and simply
-     self insert if not in a math context.
-
-   * Make 'TeX-insert-dollar' more robust.  Currently it can be fooled
-     by '\mbox''es and escaped double dollar for example.
-
-   * Correct indentation for tabular, tabbing, table, math, and array
-     environments.
-
-   * No syntactic font locking of verbatim macros and environments.
-     (XEmacs only)
-
-   * Font locking inside of verbatim macros and environments is not
-     inhibited.  This may result in syntax highlighting of unbalanced
-     dollar signs and the like spilling out of the verbatim content.
-     (XEmacs only)
-
-   * Folding of LaTeX constructs spanning more than one line may result
-     in overfull lines.  (XEmacs only)
-
-
-File: auctex.info,  Node: FAQ,  Next: Texinfo mode,  Prev: Development,  Up: Appendices
-
-A.4 Frequently Asked Questions
-==============================
-
-  1. Something is not working correctly.  What should I do?
-
-     Well, you might have guessed it, the first place to look is in the
-     available documentation packaged with AUCTeX.  This could be the
-     release notes (in the 'RELEASE' file) or the news section of the
-     manual in case you are experiencing problems after an upgrade, the
-     'INSTALL' file in case you are having problems with the
-     installation, the section about bugs in the manual in case you
-     encountered a bug or the relevant sections in the manual for other
-     related problems.
-
-     If this did not help, you can send a bug report to the AUCTeX bug
-     reporting list by using the command 'M-x TeX-submit-bug-report
-     RET'.  But before you do this, you can try to get more information
-     about the problem at hand which might also help you locate the
-     cause of the error yourself.
-
-     First, you can try to generate a so-called backtrace which shows
-     the functions involved in a program error.  In order to do this,
-     start Emacs with the command line 'emacs --debug-init' and/or put
-     the line
-
-          (setq debug-on-error t)
-
-     as the first line into your init file.  XEmacs users might want to
-     add '(setq stack-trace-on-error t)' as well.  After Emacs has
-     started, you can load a file which triggers the error and a new
-     window should pop up showing the backtrace.  If you get such a
-     backtrace, please include it in the bug report.
-
-     Second, you can try to figure out if something in your personal or
-     site configuration triggers the error by starting Emacs without
-     such customizations.  You can do this by invoking Emacs with the
-     command line 'emacs -q -no-site-file -l auctex'.  The '-l' option
-     'auctex.el' which you normally do in your init file.  After you
-     have started Emacs like this, you can load the file triggering the
-     error.  If everything is working now, you know that you have to
-     search either in the site configuration file or your personal init
-     file for statements related to the problem.
-
-  2. What versions of Emacs and XEmacs are supported?
-
-     AUCTeX was tested with Emacs 21 and XEmacs 21.4.15.  Older versions
-     may work but are unsupported.  Older versions of XEmacs might
-     possibly made to work by updating the 'xemacs-base' package through
-     the XEmacs package system.  If you are looking for a
-     recommendation, it would appear that the smoothest working platform
-     on all operating systems at the current point of time would be
-     Emacs 22 or higher.
-
-     Our success with XEmacs has been less than convincing.  Code for
-     core functionality like formatting and syntax highlighting tends to
-     be different and often older than even Emacs 21.4, and Unicode
-     support as delivered is problematic at best, missing on Windows.
-     Both AUCTeX and XEmacs developers don't hear much from active users
-     of the combination.  Partly for that reason, problems tend to go
-     unnoticed for long amounts of time and are often found, if at all,
-     after releases.  No experiences or recommendations can be given for
-     beta or developer versions of XEmacs.
-
-  3. What should I do when './configure' does not find programs like
-     latex?
-
-     This is problem often encountered on Windows.  Make sure that the
-     'PATH' environment variable includes the directories containing the
-     relevant programs, as described in *note (auctex)Installation under
-     MS Windows::.
-
-  4. Why doesn't the completion, style file, or multi-file stuff work?
-
-     It must be enabled first, insert this in your init file:
-
-          (setq-default TeX-master nil)
-          (setq TeX-parse-self t)
-          (setq TeX-auto-save t)
-
-     Read also the chapters about parsing and multifile documents in the
-     manual.
-
-  5. Why doesn't 'TeX-save-document' work?
-
-     'TeX-check-path' has to contain "./" somewhere.
-
-  6. Why is the information in 'foo.tex' forgotten when I save
-     'foo.bib'?
-
-     For various reasons, AUCTeX ignores the extension when it stores
-     information about a file, so you should use unique base names for
-     your files.  E.g.  rename 'foo.bib' to 'foob.bib'.
-
-  7. Why doesn't AUCTeX signal when processing a document is done?
-
-     If the message in the minibuffer stays "Type 'C-c C-l' to display
-     results of compilation.", you probably have a misconfiguration in
-     your init file ('.emacs', 'init.el' or similar).  To track this
-     down either search in the '*Messages*' buffer for an error message
-     or put '(setq debug-on-error t)' as the first line into your init
-     file, restart Emacs and open a LaTeX file.  Emacs will complain
-     loudly by opening a debugging buffer as soon as an error occurs.
-     The information in the debugging buffer can help you find the cause
-     of the error in your init file.
-
-  8. Why does 'TeX-next-error' ('C-c `') fail?
-
-     If 'TeX-file-line-error' is set to nil (not the default), these
-     sort of failures might be related to the the fact that when writing
-     the log file, TeX puts information related to a file, including
-     error messages, between a pair of parentheses.  In this scenario
-     AUCTeX determines the file where the error happened by parsing the
-     log file and counting the parentheses.  This can fail when there
-     are other, unbalanced parentheses present.
-
-     Activating so-called file:line:error messages for the log file
-     usually solves this issue, as these kind of messages are are easier
-     to parse; however, they may lack some details.  Activation can be
-     done either in the configuration of your TeX system (consult its
-     manual to see where this is) or by simply keeping the variable
-     'TeX-file-line-error' to the default value of non-nil.
-
-  9. What does AUC stand for?
-
-     AUCTeX came into being at Aalborg University in Denmark.  Back then
-     the Danish name of the university was Aalborg Universitetscenter;
-     AUC for short.
 

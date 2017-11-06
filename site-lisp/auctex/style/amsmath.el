@@ -220,7 +220,10 @@ START and END."
 					"sumlimits" "nosumlimits"
 					"namelimits" "nonamelimits"
 					"leqno" "reqno" "centertags"
-					"tbtags" "cmex10" "fleqn" "?")
+					"tbtags" "cmex10" "fleqn" "?"
+					"alignedleftspaceyes"
+					"alignedleftspaceno"
+					"alignedleftspaceyesifneg")
     "Package options for the amsmath package.")
 
 ;;; amsmath.el ends here.

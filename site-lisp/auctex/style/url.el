@@ -57,7 +57,8 @@
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "url")
 
    ;; Fontification
-   (when (and (featurep 'font-latex)
+   (when (and (fboundp 'font-latex-add-keywords)
+	      (fboundp 'font-latex-update-font-lock)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("path" "{") ("url" "{")) 'reference)
      (font-latex-add-keywords '(("Url" "")
@@ -74,11 +75,8 @@
 				("urldef" "")
 				("urlstyle" "{"))
 			      'variable)
-     ;; For syntactic fontification, e.g. verbatim constructs.
-     (font-latex-set-syntactic-keywords)
      ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock t)))
  LaTeX-dialect)
 
 (defun TeX-arg-urlstyle (optional &optional prompt)

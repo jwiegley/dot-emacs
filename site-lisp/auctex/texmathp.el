@@ -1,6 +1,6 @@
 ;;; texmathp.el -- Code to check if point is inside LaTeX math environment
 
-;; Copyright (C) 1998, 2004 Free Software Foundation, Inc.
+;; Copyright (C) 1998, 2004, 2017 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <dominik@strw.LeidenUniv.nl>
 ;; Maintainer: auctex-devel@gnu.org
@@ -143,7 +143,16 @@
     ("\\text"        arg-off)     ("\\intertext"   arg-off)
 
     ;; mathtools
-    ("\\shortintertext"   arg-off))
+    ("\\shortintertext"   arg-off)
+
+    ;; empheq
+    ("empheq"        env-on)
+    ("AmSequation"   env-on)      ("AmSequation*"  env-on)
+    ("AmSalign"      env-on)      ("AmSalign*"     env-on)
+    ("AmSgather"     env-on)      ("AmSgather*"    env-on)
+    ("AmSmultline"   env-on)      ("AmSmultline*"  env-on)
+    ("AmSflalign"    env-on)      ("AmSflalign*"   env-on)
+    ("AmSalignat"    env-on)      ("AmSalignat*"   env-on))
   "The default entries for `texmathp-tex-commands', which see.")
 
 (defun texmathp-compile ()
@@ -257,7 +266,7 @@ See the variable `texmathp-tex-commands' about which commands are checked."
   (interactive)
   (let* ((pos (point)) math-on sw-match
 	 (bound (save-excursion
-		  (if (re-search-backward "[\n\t][ \t]*[\n\r]"
+		  (if (re-search-backward "[\n\r][ \t]*[\n\r]"
 					  nil 1 texmathp-search-n-paragraphs)
 		      (match-beginning 0)
 		    (point-min))))
@@ -287,7 +296,7 @@ See the variable `texmathp-tex-commands' about which commands are checked."
 	  (goto-char (cdr match))
 	  (while (re-search-forward texmathp-toggle-regexp pos t)
 	    (if (setq math-on (not math-on))
-		(setq sw-match (cons (match-string 2) (match-beginning 2)))
+		(setq sw-match (cons (match-string-no-properties 2) (match-beginning 2)))
 	      (setq sw-match nil)))
 	  (and math-on sw-match (setq match sw-match))))
 
@@ -336,7 +345,7 @@ Limit searched to BOUND.  The return value is like (\"equation\" . (point))."
 	    (when (eq orig-comment-flag current-comment-flag)
 	      (setq env (buffer-substring-no-properties
 			 (match-beginning 2) (match-end 2)))
-	      (cond ((string= (match-string 1) "end")
+	      (cond ((string= (match-string-no-properties 1) "end")
 		     (setq end-list (cons env end-list)))
 		    ((equal env (car end-list))
 		     (setq end-list (cdr end-list)))

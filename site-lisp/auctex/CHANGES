@@ -1,6 +1,190 @@
 Changes and New Features in AUCTeX
 **********************************
 
+News in 11.91
+=============
+
+   * Now AUCTeX has a logo.  The LaTeX code to create it is available in
+     the 'etc/' directory of the package.
+
+   * Add support for 'upmendex', an extension of 'makeindex' capable of
+     sorting indexes by unicode based ICU.
+
+   * Fix preview-latex to interact correctly with Japanese LaTeX.  The
+     parsing routine was made robust not to be confused by the 7-bit
+     encoding of Japanese text and the necessary option to LaTeX command
+     is kept even when preamble caching is enabled.
+
+   * The new "Glossaries" entry in 'TeX-command-list' runs the command
+     'makeglossaries'.
+
+   * Fontification of control symbols has been improved.  Characters
+     defined in 'font-latex-match-simple-exclude-list' do not receive
+     any fontification.  In DocTeX mode, the character '_' is removed
+     from 'font-latex-match-simple-exclude-list' in order to fontify
+     macros like '\__module_foo:nnn' correctly.
+
+   * Fontification of math environments has been improved.  Optional
+     and/or mandatory argument(s) to environments are not fontified.
+
+   * 'preview.sty' loads 'luatex85.sty' if possible and should be
+     compatible with newer luaTeX versions.
+
+   * AUCTeX has a new customize option 'TeX-ispell-verb-delimiters'.
+     This string contains usual characters used as delimiters for
+     in-line verbatim macros like '\verb'.  Text between delimiters
+     after an in-line verbatim macro will be skipped during spell
+     checking.
+
+   * Fontification of in-line verbatim macros has been improved.
+     'font-latex.el' recognizes an optional or a mandatory argument for
+     macros like '\Verb' from 'fancyvrb.sty', '\mint' and '\mintinline'
+     from 'minted.sty' and fontifies verbatim content correctly.
+
+   * AUCTeX can put and parse labels in optional argument of
+     environments.  Inserting labels is done by new function
+     'LaTeX-env-label-as-keyval'.  A new customize option
+     'LaTeX-listing-label' is available as prefix to labels in code
+     typesetting environments, e.g.  'lstlisting' environment provided
+     by 'listings' package.  'LaTeX-listing-label' defaults to 'lst:'.
+     Parsing of labels for later referencing relies on two requirements:
+       1. Label should come as last key-value argument, and
+       2. label must be enclosed in braces, e.g.
+               \begin{lstlisting}[caption=Some Caption,label={lst:foo}]
+               ...
+               \end{lstlisting}
+
+   * The function 'LaTeX-label' now takes a second optional argument
+     'NO-INSERT'.  When non-'nil', 'LaTeX-label' reads a label and
+     returns it as a string.  This argument is also passed to any
+     function bound to 'LaTeX-label-function' (see next item).
+
+   * *Incompatible change:* The signature for the function passed with
+     the customize option 'LaTeX-label-function' has changed.  The
+     function bound to this variable is now expected to take an optional
+     second argument 'NO-INSERT'.  When this argument is non-'nil', the
+     function should read and only return a label as a string; insertion
+     is done by another function.
+
+   * Directory local variables were ineffective for
+     'japanese-latex-mode' and 'japanese-plain-tex-mode'.  This bug was
+     fixed.  (This was actually done in AUCTeX 11.90, but not
+     advertised)
+
+   * The output of Japanese text from Japanese TeX engines is decoded
+     correctly for most cases, according to the encoding of the TeX
+     documents and the locale.  The difference between MS Windows, macOS
+     and unix-like OS is taken into account.  (This was actually done in
+     AUCTeX 11.90, but not advertised)
+
+   * Quite a few new LaTeX packages are supported.
+
+   * As usual, many bugs were fixed.
+
+News in 11.90
+=============
+
+   * In addition to the completion performed by 'TeX-complete-symbol',
+     AUCTeX now also supports the new Emacs standard completion-at-point
+     facility (see the Emacs command 'completion-at-point').  This also
+     means that modern completion UIs like company-mode work out of the
+     box in TeX and LaTeX buffers.
+
+   * Completion is now aware of being inside a math environment and then
+     completes math macros.
+
+   * AUCTeX is able to display several levels of super- and subscripts,
+     each one raised above and a bit smaller than its basis.  For this
+     feature, have a look at the customize options
+     'font-latex-fontify-script' (especially the new values
+     'multi-level' and 'invisible') and
+     'font-latex-fontify-script-max-level'.  Also, the script characters
+     '^' and '_' are also fontified with a special face named
+     'font-latex-script-char-face'.
+
+   * Parsing of format specification in various tabular environments has
+     been improved.  The function 'LaTeX-insert-item' ('C-c <LFD>')
+     inserts suitable number of ampersands for '*{num}{cols}'
+     constructs.  Style files for LaTeX packages 'tabularx', 'tabulary',
+     'longtable', 'dcolumn' and 'siunitx' are adapted to take advantage
+     of this improvement.
+
+   * AUCTeX has a new Ispell dictionary 'tex-ispell.el' for macros and
+     environments which will be skipped during spell checking.  The
+     activiation of this feature is controlled by a new customize option
+     'TeX-ispell-extend-skip-list', which is set to 't' and activated by
+     default.
+
+   * AUCTeX has a new customize option 'TeX-raise-frame-function' that
+     is currently only used by Evince and Atril inverse search to raise
+     the Emacs frame.
+
+   * When inserting a new float, AUCTeX will now prompt for a
+     short-caption if the length of the caption provided is greater than
+     a certain size.  This size is controlled via a new user option
+     'LaTeX-short-caption-prompt-length'.
+
+   * Parsing of the compilation log has been reworked.  You should
+     encounter fewer mistaken files while navigating through errors and
+     warnings.
+
+   * Two new user options, 'TeX-ignore-warnings' and
+     'TeX-suppress-ignored-warnings', allow ignoring certain warnings
+     after compilation of the document.
+
+   * A new option, 'TeX-PDF-from-DVI', controls if and how to produce a
+     PDF file by converting a DVI file.  This supersedes
+     'TeX-PDF-via-dvips-ps2pdf' which is still recognized but marked as
+     obsolete and may be removed in future releases.
+
+   * Support for a number of external viewers has been added:
+        * Atril viewer.  Forward and inverse search requires version
+          1.9.1 or later to work.
+
+        * dviout viewer on Windows.  Note that this setup works when
+          'TeX-source-correlate-method' is set to use 'source-specials'
+          for DVI, e.g.:
+               (setq TeX-source-correlate-method
+                     '((dvi . source-specials)
+                       (pdf . synctex)))
+          which is the default.
+
+        * SumatraPDF viewer on Windows.
+
+        * Zathura viewer.  Forward and inverse search requires a recent
+          version of the program to work (3.4 or later).
+
+   * A new function, 'TeX-documentation-texdoc', for reading
+     documentation with 'texdoc' has been added.  'TeX-doc' is still
+     available but now 'C-c ?' runs 'TeX-documentation-texdoc'.
+
+   * AUCTeX has a new custom option
+     'LaTeX-reftex-cite-format-auto-activate' which controls the
+     automatic activation of citation formats provided by RefTeX when a
+     style file is loaded and RefTeX is enabled.  Currently,
+     'biblatex.el', 'harvard.el', 'jurabib.el' and 'natbib.el' use this
+     feature.  If you have customized 'reftex-cite-format' and want to
+     use your settings, you should set this variable to 'nil'.
+
+   * AUCTeX now has limited support for the TikZ package.  For the
+     moment, this includes some basic support for prompting the user of
+     arguments to the '\draw' macro.
+
+   * The style 'graphicx.el' went through a bigger overhaul.  The
+     optional argument of command '\includegraphics' now supports
+     key-val query; keys can independently be chosen anytime by pressing
+     the <,> key.  As a side effect, the variable
+     'LaTeX-includegraphics-options-alist' is now no-op and is removed
+     from 'tex-style.el'.  You can safely remove any customization of it
+     from your init file.  The mandatory argument of '\includegraphics'
+     knows about image file extensions supported by the used engine and
+     offers them for inclusion.
+
+   * Support for other LaTeX packages was improved, and style files for
+     several new packages were added.
+
+   * Many bugs were crushed along the way.
+
 News in 11.89
 =============
 
@@ -52,10 +236,10 @@ News in 11.89
      'ConTeXt-Mark-version', and AUCTeX is able to catch error messages
      in the output log of a Mark IV document.
 
-   * Support for tons of LaTeX packages has been addedd.
+   * Support for tons of LaTeX packages has been added.
 
    * Numbers of bugs have been fixed, many minor features have been
-     addedd.
+     added.
 
 News in 11.88
 =============

@@ -1,6 +1,6 @@
 ;;; beamer.el --- AUCTeX style for the latex-beamer class
 
-;; Copyright (C) 2003, 2004, 2005, 2008, 2013, 2014 Free Software Foundation
+;; Copyright (C) 2003, 2004, 2005, 2008, 2013-2016 Free Software Foundation
 
 ;; Author: Thomas Baumann <thomas.baumann@ch.tum.de>
 ;; Created: 2003-12-20
@@ -110,7 +110,7 @@
     '("only" TeX-arg-beamer-overlay-spec 1)
     '("onslide" TeX-arg-beamer-overlay-spec)
     '("partpage")
-    '("pause")
+    '("pause" ["Slide number"])
     '("structure" TeX-arg-beamer-overlay-spec 1)
     '("temporal" TeX-arg-beamer-overlay-spec 3)
     '("titlepage")
@@ -169,9 +169,8 @@
 		       "subsectionslide" "framenumber" "figure" "table"
 		       "beamerpauses")
    (LaTeX-add-pagestyles "navigation")
-   (make-local-variable 'LaTeX-indent-environment-list)
-   (add-to-list 'LaTeX-indent-environment-list
-		'("semiverbatim" current-indentation))
+   (add-to-list (make-local-variable 'LaTeX-indent-environment-list)
+		'("semiverbatim" current-indentation) t)
    (add-to-list 'LaTeX-verbatim-environments-local "semiverbatim")
 
    ;; Fontification
@@ -182,11 +181,7 @@
 				("author" "[{")
 				("date" "[{")
 				("frametitle" "<[{")) 'slide-title)
-     ;; For syntactic fontification, e.g. verbatim constructs.
-     (font-latex-set-syntactic-keywords)
-     ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock t)))
  LaTeX-dialect)
 
 (defun TeX-arg-beamer-overlay-spec (_optional &optional _prompt)

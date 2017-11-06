@@ -295,7 +295,7 @@ If `preview-fast-conversion' is set, this option is not
   :type 'number)
 
 (defvar preview-coding-system nil
-  "Coding system used for LaTeX process.")
+  "Proper coding system to decode output from LaTeX process.")
 (make-variable-buffer-local 'preview-coding-system)
 (defvar preview-parsed-font-size nil
   "Font size as parsed from the log of LaTeX run.")
@@ -2611,37 +2611,98 @@ later while in use."
   "Turn STRING with potential ^^ sequences into a regexp.
 To preserve sanity, additional ^ prefixes are matched literally,
 so the character represented by ^^^ preceding extended characters
-will not get matched, usually."
+will not get matched, usually.
+
+If decoding the process output was suppressed during receiving,
+decode first with RUN-CODING-SYSTEM."
   (let (output case-fold-search)
-    (when (featurep 'mule)
-      (setq string (encode-coding-string string run-coding-system)))
-    (while (string-match "\\^\\{2,\\}\\(\\([@-_?]\\)\\|[8-9a-f][0-9a-f]\\)"
-			 string)
+    ;; Some coding systems (e.g. japanese-shift-jis) use regexp meta
+    ;; characters on encoding.  Such meta characters would be
+    ;; interfered with `regexp-quote' below.  Thus the idea of
+    ;; "encoding entire string beforehand and decoding it at the last
+    ;; stage" does not work for such coding systems.
+    ;; Rather, we work consistently with decoded text.
+    (if (and (featurep 'mule)
+	     (not (eq run-coding-system
+		      (preview-buffer-recode-system run-coding-system))))
+	(setq string
+	      (decode-coding-string string run-coding-system)))
+
+    ;; Next, bytes with value from 0x80 to 0xFF represented with ^^
+    ;; form are converted to byte sequence, and decoded by the file
+    ;; coding system.
+    (setq string
+	  (preview--decode-^^ab string
+				(if (featurep 'mule)
+				    buffer-file-coding-system nil)))
+
+    ;; Then, control characters are taken into account.
+    (while (string-match "\\^\\{2,\\}\\([@-_?]\\)" string)
       (setq output
 	    (concat output
 		    (regexp-quote (substring string
 					     0
 					     (- (match-beginning 1) 2)))
-		    (if (match-beginning 2)
-			(concat
-			 "\\(?:" (regexp-quote
-				  (substring string
-					     (- (match-beginning 1) 2)
-					     (match-end 0)))
-			 "\\|"
-			 (char-to-string
-			  (logxor (aref string (match-beginning 2)) 64))
-			 "\\)")
-		      (char-to-string
-		       (string-to-number (match-string 1 string) 16))))
+		    (concat
+		     "\\(?:" (regexp-quote
+			      (substring string
+					 (- (match-beginning 1) 2)
+					 (match-end 0)))
+		     "\\|"
+		     (char-to-string
+		      (logxor (aref string (match-beginning 1)) 64))
+		     "\\)"))
 	    string (substring string (match-end 0))))
     (setq output (concat output (regexp-quote string)))
-    (if (featurep 'mule)
-	(decode-coding-string output
-			      (or (and (boundp 'TeX-japanese-process-output-coding-system)
-				       TeX-japanese-process-output-coding-system)
-				  buffer-file-coding-system))
-      output)))
+    output))
+
+(defun preview--decode-^^ab (string coding-system)
+  "Decode ^^ sequences in STRING with CODING-SYSTEM.
+Sequences of control characters such as ^^I are left untouched.
+
+Return a new string."
+  ;; Since the given string can contain multibyte characters, decoding
+  ;; should be performed seperately on each segment made up entirely
+  ;; with ASCII characters.
+  (let ((result ""))
+    (while (string-match "[\x00-\x7F]+" string)
+      (setq result
+	    (concat result
+		    (substring string 0 (match-beginning 0))
+		    (let ((text
+			   (save-match-data
+			     (preview--convert-^^ab
+			      (match-string 0 string)))))
+		      (if (featurep 'mule)
+			  (decode-coding-string text coding-system)
+			text)))
+	    string (substring string (match-end 0))))
+    (setq result (concat result string))
+    result))
+
+(defun preview--convert-^^ab (string)
+  "Convert ^^ sequences in STRING to raw 8bit.
+Sequences of control characters such as ^^I are left untouched.
+
+Return a new string."
+  (let ((result ""))
+    (while (string-match "\\^\\^[8-9a-f][0-9a-f]" string)
+      (setq result
+	    (concat result
+		    (substring string 0 (match-beginning 0))
+		    (let ((byte (string-to-number
+				 (substring string
+					    (+ (match-beginning 0) 2)
+					    (match-end 0)) 16)))
+		      ;; `char-to-string' is not appropriate in
+		      ;; Emacs >= 23 because it converts #xAB into
+		      ;; "\u00AB" (multibyte string), not "\xAB"
+		      ;; (raw 8bit unibyte string).
+		      (if (fboundp 'byte-to-string)
+			  (byte-to-string byte) (char-to-string byte))))
+	    string (substring string (match-end 0))))
+    (setq result (concat result string))
+    result))
 
 (defun preview-parse-messages (open-closure)
   "Turn all preview snippets into overlays.
@@ -3207,8 +3268,8 @@ and strings get evaluated as replacement strings."
 
 (defconst preview-LaTeX-disable-pdfoutput
   '(("\\`\\(pdf[^ ]*\\)\
-\\(\\( [-&]\\([^ \"]\\|\"[^\"]*\"\\)*\\|\
- \"[-&][^\"]*\"\\)*\\)\\(.*\\)\\'"
+\\(\\( +[-&]\\([^ \"]\\|\"[^\"]*\"\\)*\\|\
+ +\"[-&][^\"]*\"\\)*\\)\\(.*\\)\\'"
    . ("\\1\\2 \"\\\\pdfoutput=0 \" \\5")))
   "This replacement places `\"\\pdfoutput=0 \"' after the options
 of any command starting with `pdf'.")
@@ -3481,7 +3542,13 @@ internal parameters, STR may be a log to insert into the current log."
 	 "Preview-LaTeX"
 	 (if (consp (cdr dumped-cons))
 	     (preview-do-replacements
-	      command preview-undump-replacements)
+	      command
+	      (append preview-undump-replacements
+		      ;; Since the command options provided in
+		      ;; (TeX-engine-alist) are dropped, give them
+		      ;; back.
+		      (list (list "\\`\\([^ ]+\\)"
+			    (TeX-command-expand "%(latex)" nil)))))
 	   command) file)))
     (condition-case err
 	(progn
@@ -3494,18 +3561,20 @@ internal parameters, STR may be a log to insert into the current log."
 	  (preview-set-geometry geometry)
 	  (setq preview-gs-file pr-file)
 	  (setq TeX-sentinel-function 'preview-TeX-inline-sentinel)
+	  ;; Postpone decoding of process output for xemacs 21.4,
+	  ;; which is rather bad at preserving incomplete multibyte
+	  ;; characters.
 	  (when (featurep 'mule)
-	    (setq preview-coding-system
-		  (or (and (boundp 'TeX-japanese-process-output-coding-system)
-			   TeX-japanese-process-output-coding-system)
-		      (with-current-buffer commandbuff
-			buffer-file-coding-system)))
-	    (when preview-coding-system
-	      (setq preview-coding-system
-		    (preview-buffer-recode-system
-		     (coding-system-base preview-coding-system))))
-	    (set-process-coding-system
-	     process preview-coding-system))
+	    ;; Get process coding system set in `TeX-run-command'.
+	    (setq preview-coding-system (process-coding-system process))
+	    ;; Substitute coding system for decode with `raw-text' if
+	    ;; necessary and save the original coding system for
+	    ;; decode for later use in `preview-error-quote'.
+	    (set-process-coding-system process
+				       (preview-buffer-recode-system
+					(car preview-coding-system))
+				       (cdr preview-coding-system))
+	    (setq preview-coding-system (car preview-coding-system)))
 	  (TeX-parse-reset)
 	  (setq TeX-parse-function 'TeX-parse-TeX)
 	  (if TeX-process-asynchronous
@@ -3515,11 +3584,11 @@ internal parameters, STR may be a log to insert into the current log."
 	     (delete-process process)
 	     (preview-reraise-error process)))))
 
-(defconst preview-version "11.89"
+(defconst preview-version "11.91"
   "Preview version.
 If not a regular release, the date of the last change.")
 
-(defconst preview-release-date "2015-11-13"
+(defconst preview-release-date "2017-11-06"
   "Preview release date using the ISO 8601 format, yyyy-mm-dd.")
 
 (defun preview-dump-state (buffer)

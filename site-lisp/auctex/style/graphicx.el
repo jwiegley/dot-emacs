@@ -1,6 +1,6 @@
 ;;; graphicx.el --- AUCTeX style file for graphicx.sty
 
-;; Copyright (C) 2000, 2004, 2005, 2014 by Free Software Foundation, Inc.
+;; Copyright (C) 2000, 2004, 2005, 2014--2017 by Free Software Foundation, Inc.
 
 ;; Author: Ryuichi Arafune <arafune@debian.org>
 ;; Created: 1999/3/20
@@ -32,41 +32,132 @@
 
 ;;; Code:
 
-(TeX-add-style-hook
- "graphicx"
- (lambda ()
-   (TeX-add-symbols
-    '("reflectbox" "Argument")
-    '("resizebox" "Width" "Height" "Argument")
-    '("resizebox*" "Width" "Total height" "Argument")
-    '("rotatebox" [ "Options" ] "Angle" "Argument")
-    '("scalebox" "Horizontal scale" [ "Vertical scale" ] "Argument")
-    '("includegraphics" LaTeX-arg-includegraphics))
-   ;; Fontification
-   (when (and (featurep 'font-latex)
-	      (eq TeX-install-font-lock 'font-latex-setup))
-     (font-latex-add-keywords '(("reflectbox" "{")
-				("resizebox" "*{{{")
-				("rotatebox" "[{{")
-				("scalebox" "{[{"))
-			      'textual)
-     (font-latex-add-keywords '(("includegraphics" "*[[{")) 'reference)))
- LaTeX-dialect)
+(defvar LaTeX-graphicx-key-val-options
+  '(("bb")
+    ("bbllx")
+    ("bblly")
+    ("bburx")
+    ("bbury")
+    ("natheight")
+    ("natwidth")
+    ("viewport")
+    ("trim")
+    ("hiresbb" ("true" "false"))
+    ("angle")
+    ("origin")
+    ("width"           ("\\textwidth" "\\columnwidth" "\\linewidth"))
+    ("height"          ("\\textheight"))
+    ("totalheight"     ("\\textheight"))
+    ("keepaspectratio" ("true" "false"))
+    ("scale")
+    ("clip"  ("true" "false"))
+    ("draft" ("true" "false"))
+    ("quiet")
+    ("interpolate" ("true" "false")))
+  "Key=value options for graphicx macros.")
+
+(defvar LaTeX-includegraphics-dvips-extensions
+  '("eps" "mps" "EPS")
+  "List of extensions for image files supported by \"dvips\".")
+
+(defvar LaTeX-includegraphics-pdftex-extensions
+  '("png" "pdf" "jpe?g" "jbig2" "jb2" "mps"
+    "PNG" "PDF" "JPE?G" "JBIG2" "JB2")
+  "List of extensions for image files supported by \"pdftex\" and \"luatex\".")
+
+(defvar LaTeX-includegraphics-xetex-extensions
+  '("pdf" "eps" "mps" "ps" "png" "jpe?g" "jp2" "jpf"
+    "PDF" "EPS" "MPS" "PS" "PNG" "JPE?G" "JP2" "JPF"
+    "bmp" "pict" "psd" "mac" "tga" "gif" "tif" "tiff"
+    "BMP" "PICT" "PSD" "MAC" "TGA" "GIF" "TIF" "TIFF")
+  "List of extensions for image files supported by \"xetex\".")
+
+(defun LaTeX-arg-graphicx-includegraphics-key-val (optional)
+  "Insert key-val for optional argument of \\includegraphics macro.
+If OPTIONAL is non-nil, insert argument in square brackets.
+Temporarily remove \"space\" from `crm-local-completion-map' and
+`minibuffer-local-completion-map' in order to be able to insert
+spaces conveniently.
+
+If `TeX-engine' is set to symbol 'default (while
+`TeX-PDF-from-DVI' is set to nil) or 'luatex and `TeX-PDF-mode'
+is non-nil, add the keys \"page\" and \"pagebox\" to list of
+key-val's."
+  (let ((crm-local-completion-map
+	 (remove (assoc 32 crm-local-completion-map)
+		 crm-local-completion-map))
+	(minibuffer-local-completion-map
+	 (remove (assoc 32 minibuffer-local-completion-map)
+		 minibuffer-local-completion-map)))
+    (TeX-argument-insert
+     (TeX-read-key-val optional
+		       (if (and (or (and (eq TeX-engine 'default)
+					 (not (TeX-PDF-from-DVI)))
+				    (eq TeX-engine 'luatex))
+				TeX-PDF-mode)
+			   (append '(("page")
+				     ("pagebox" ("mediabox"
+						 "cropbox"
+						 "bleedbox"
+						 "trimbox"
+						 "artbox")))
+				   LaTeX-graphicx-key-val-options)
+			 LaTeX-graphicx-key-val-options))
+     optional)))
 
 (defun LaTeX-includegraphics-extensions (&optional list)
   "Return appropriate extensions for input files to \\includegraphics."
-  ;; FIXME: This function may check for latex/pdflatex later.
-  (concat "\\."
-	  (mapconcat 'identity
-		     (or list LaTeX-includegraphics-extensions)
-		     "$\\|\\.")
-	  "$"))
+  (let* ((temp (copy-sequence LaTeX-includegraphics-extensions))
+	 (LaTeX-includegraphics-extensions
+	  (cond (;; 'default TeX-engine:
+		 (if (and (eq TeX-engine 'default)
+			  ;; we want to produce a pdf
+			  (if TeX-PDF-mode
+			      ;; Return t if default compiler produces PDF,
+			      ;; nil for "Dvips" or "Dvipdfmx"
+			      (not (TeX-PDF-from-DVI))
+			    ;; t if pdftex is used in dvi-mode
+			    TeX-DVI-via-PDFTeX))
+		     ;; We're using pdflatex in pdf-mode
+		     (delete-dups
+		      (append LaTeX-includegraphics-pdftex-extensions
+			      LaTeX-includegraphics-extensions))
+		   ;; We're generating a .dvi to process with dvips or dvipdfmx
+		   (progn
+		     (dolist (x '("jpe?g" "pdf" "png"))
+		       (setq temp (remove x temp)))
+		     (delete-dups
+		      (append LaTeX-includegraphics-dvips-extensions
+			      temp)))))
+		;; Running luatex in pdf or dvi-mode:
+		((eq TeX-engine 'luatex)
+		 (if TeX-PDF-mode
+		     (delete-dups
+		      (append LaTeX-includegraphics-pdftex-extensions
+			      LaTeX-includegraphics-extensions))
+		   (progn
+		     (dolist (x '("jpe?g" "pdf" "png"))
+		       (setq temp (remove x temp)))
+		     (delete-dups
+		      (append LaTeX-includegraphics-dvips-extensions
+			      temp)))))
+		;; Running xetex in any mode:
+		((eq TeX-engine 'xetex)
+		 (delete-dups (append LaTeX-includegraphics-xetex-extensions
+				      LaTeX-includegraphics-extensions)))
+		;; For anything else
+		(t
+		 LaTeX-includegraphics-extensions))))
+    (concat "\\."
+	    (mapconcat 'identity
+		       (or list LaTeX-includegraphics-extensions)
+		       "$\\|\\.")
+	    "$")))
 
 (defun LaTeX-includegraphics-read-file-TeX ()
   "Read image file for \\includegraphics.
 Offers all graphic files found in the TeX search path.  See
 `LaTeX-includegraphics-read-file' for more."
-  ;; Drop latex/pdflatex differences for now.  Might be (re-)included later.
   (completing-read
    "Image file: "
    (TeX-delete-dups-by-car
@@ -88,198 +179,12 @@ doesn't works with Emacs 21.3 or XEmacs.  See
     ;; argument (Emacs 21.3: five args; XEmacs 21.4.15: sixth is HISTORY).
     (lambda (fname)
       (or (file-directory-p fname)
- 	  (string-match (LaTeX-includegraphics-extensions) fname))))
+	  (string-match (LaTeX-includegraphics-extensions) fname))))
    (TeX-master-directory)))
 
 (defun LaTeX-arg-includegraphics (_prefix)
-  "Ask for mandantory and optional arguments for the \\includegraphics command.
-
-The extent of the optional arguments is determined by the prefix argument and
-`LaTeX-includegraphics-options-alist'."
-  (let* ((maybe-left-brace "[")
-	 (maybe-comma "")
-	 show-hint
-	 (image-file (funcall LaTeX-includegraphics-read-file))
-	 (incl-opts
-	  (cond
-	   ((numberp
-	     (if (listp current-prefix-arg)
-		 (setq current-prefix-arg (car current-prefix-arg))
-	       current-prefix-arg))
-	    (cdr
-	     (assq current-prefix-arg LaTeX-includegraphics-options-alist)))
-	   ;; If no prefix is given, use `0' and tell the user about the
-	   ;; prefix.
-	   ((eq current-prefix-arg nil)
-	    (setq show-hint t)
-	    (cdr (assq 0 LaTeX-includegraphics-options-alist)))
-	   (t
-	    (cdr (assq 0 LaTeX-includegraphics-options-alist)))))
-	 ;; Order the optional aruments like in the tables in epslatex.ps,
-	 ;; page 14.  But collect y-or-n options at the end, so that the use
-	 ;; can skip some options by typing `RET RET ... RET n n n ... n'
-	 ;;
-	 ;; Options from Table 1 (epslatex.ps, page 14):
-	 (totalheight
-	  (TeX-arg-maybe
-	   'totalheight incl-opts
-	   '(TeX-read-string
-	     (concat "Total Height (" TeX-default-unit-for-image "): "))))
-	 (height
-	  (TeX-arg-maybe
-	   'height incl-opts
-	   ;; Either totalheight or height make sense:
-	   '(when (zerop (length totalheight))
-	      (TeX-read-string
-	       (concat "Figure height (" TeX-default-unit-for-image "): ")))))
-	 (width
-	  (TeX-arg-maybe
-	   'width incl-opts
-	   '(TeX-read-string
-	     (concat "Figure width (" TeX-default-unit-for-image "): "))))
-	 (scale
-	  (TeX-arg-maybe
-	   'angle incl-opts
-	   ;; If size is already specified, don't ask for scale:
-	   '(when (zerop (+ (length totalheight)
-			    (length height)
-			    (length width)))
-	      (TeX-read-string "Scale: "))))
-	 (angle
-	  (TeX-arg-maybe
-	   'angle incl-opts
-	   '(TeX-read-string "Rotation angle: ")))
-	 (origin
-	  (TeX-arg-maybe
-	   'origin incl-opts
-	   '(TeX-read-string
-	     (concat
-	      "Origin (any combination of `lcr' (horizontal) "
-	      "and `tcbB' (vertical)): "))))
-	 (page ;; Not in any table; Only for PDF.
-	  (TeX-arg-maybe
-	   'page incl-opts
-	   '(TeX-read-string "Page: ")))
-	 (bb
-	  (TeX-arg-maybe
-	   'bb incl-opts
-	   '(y-or-n-p "Set Bounding Box? ")))
-	 ;; Table 2:
-	 (viewport
-	  (TeX-arg-maybe
-	   'viewport incl-opts
-	   '(y-or-n-p "Set viewport? ")))
-	 (trim
-	  (TeX-arg-maybe
-	   'trim incl-opts
-	   '(and (not viewport)
-		 (y-or-n-p "Set trim? "))))
-	 ;; Table 3:
-	 (clip
-	  (TeX-arg-maybe
-	   'clip incl-opts
-	   ;; If viewport, we also use clip.
-	   '(or viewport
-		(y-or-n-p "Clipping figure? "))))
-	 (keepaspectratio
-	  (TeX-arg-maybe
-	   'keepaspectratio incl-opts
-	   ;; If we have width and [total]height...
-	   '(or (and (not (zerop (length width)))
-		     (or (not (zerop (length totalheight)))
-			 (not (zerop (length height)))))
-		(y-or-n-p "Keep Aspectratio? "))))
-	 ;; Used for bb, trim, viewport, ...:
-	 llx lly urx ury)
-    ;; Now insert stuff...
-    (when (not (zerop (length totalheight)))
-      (insert
-       maybe-left-brace maybe-comma "totalheight="
-       (car (TeX-string-divide-number-unit totalheight))
-       (if (zerop
-	    (length
-	     (car (cdr (TeX-string-divide-number-unit totalheight)))))
-	   TeX-default-unit-for-image
-	 (car (cdr (TeX-string-divide-number-unit totalheight)))))
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when (not (zerop (length height)))
-      (insert maybe-left-brace maybe-comma
-	      "height=" (car (TeX-string-divide-number-unit height))
-	      (if (zerop
-		   (length
-		    (car (cdr (TeX-string-divide-number-unit height)))))
-		  TeX-default-unit-for-image
-		(car (cdr (TeX-string-divide-number-unit height)))))
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when (not (zerop (length width)))
-      (insert maybe-left-brace maybe-comma
-	      "width=" (car (TeX-string-divide-number-unit width))
-	      (if (zerop
-		   (length
-		    (car (cdr (TeX-string-divide-number-unit width)))))
-		  TeX-default-unit-for-image
-		(car (cdr (TeX-string-divide-number-unit width)))))
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when (not (zerop (length scale)))
-      (insert maybe-left-brace maybe-comma "scale=" scale)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when (not (zerop (length angle)))
-      (insert maybe-left-brace maybe-comma "angle=" angle)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when (not (zerop (length origin)))
-      (insert maybe-left-brace maybe-comma "origin=" origin)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when bb
-      (setq llx (TeX-read-string "Bounding Box lower left x: "))
-      (setq lly (TeX-read-string "Bounding Box lower left y: "))
-      (setq urx (TeX-read-string "Bounding Box upper right x: "))
-      (setq ury (TeX-read-string "Bounding Box upper right y: "))
-      (insert maybe-left-brace maybe-comma
-	      "bb=" llx " " lly " " urx " " ury)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    ;;
-    (when viewport
-      (setq llx (TeX-read-string "Viewport lower left x: "))
-      (setq lly (TeX-read-string "Viewport lower left y: "))
-      (setq urx (TeX-read-string "Viewport upper right x: "))
-      (setq ury (TeX-read-string "Viewport upper right y: "))
-      (insert maybe-left-brace maybe-comma
-	      "viewport=" llx " " lly " " urx " " ury)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when trim
-      (setq llx (TeX-read-string "Trim lower left x: "))
-      (setq lly (TeX-read-string "Trim lower left y: "))
-      (setq urx (TeX-read-string "Trim Upper right x: "))
-      (setq ury (TeX-read-string "Trim Upper right y: "))
-      (insert maybe-left-brace maybe-comma
-	      "trim=" llx " " lly " " urx " " ury)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    ;;
-    (when clip
-      (insert maybe-left-brace maybe-comma "clip")
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    (when keepaspectratio
-      (insert maybe-left-brace maybe-comma "keepaspectratio")
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    ;;
-    (when (not (zerop (length page)))
-      (insert maybe-left-brace maybe-comma "page=" page)
-      (setq maybe-comma ",")
-      (setq maybe-left-brace ""))
-    ;;
-    (if (zerop (length maybe-left-brace))
-	(insert "]"))
+  "Ask for mandantory argument for the \\includegraphics command."
+  (let* ((image-file (funcall LaTeX-includegraphics-read-file)))
     (TeX-insert-braces 0)
     (insert
      (if LaTeX-includegraphics-strip-extension-flag
@@ -291,13 +196,95 @@ The extent of the optional arguments is determined by the prefix argument and
 					 nil t 1)
 	     (replace-match ""))
 	   (buffer-string))
-       image-file))
-    (when show-hint
-      (message
-       (concat
-	"Adding `C-u C-u' before the command asks for more optional arguments."
-	"\nSee `LaTeX-includegraphics-options-alist' for details."))
-      (sit-for 3))
-    t))
+       image-file))))
+
+(TeX-add-style-hook
+ "graphicx"
+ (lambda ()
+   (TeX-add-symbols
+    '("reflectbox" "Argument")
+
+    '("resizebox"
+      (TeX-arg-eval completing-read
+		    (TeX-argument-prompt optional nil "Width")
+		    (append '("\\width" "!")
+			    (mapcar
+			     (lambda (x) (concat TeX-esc (car x)))
+			     (LaTeX-length-list))))
+      (TeX-arg-eval completing-read
+		    (TeX-argument-prompt optional nil "Height")
+		    (append '("\\height" "\\totalheight" "\\depth" "!")
+			    (mapcar
+			     (lambda (x) (concat TeX-esc (car x)))
+			     (LaTeX-length-list))))
+      "Argument")
+
+    '("resizebox*"
+      (TeX-arg-eval completing-read
+		    (TeX-argument-prompt optional nil "Width")
+		    (append '("\\width" "!")
+			    (mapcar
+			     (lambda (x) (concat TeX-esc (car x)))
+			     (LaTeX-length-list))))
+      (TeX-arg-eval completing-read
+		    (TeX-argument-prompt optional nil "Height")
+		    (append '("\\height" "\\totalheight" "\\depth" "!")
+			    (mapcar
+			     (lambda (x) (concat TeX-esc (car x)))
+			     (LaTeX-length-list))))
+      "Argument")
+
+    '("rotatebox" (TeX-arg-conditional (member "graphics" (TeX-style-list))
+				       ()
+				     ([ TeX-arg-key-val (("x") ("y") ("origin") ("units")) ]))
+      "Angle" "Argument")
+
+    '("scalebox" "Horizontal scale" [ "Vertical scale" ] "Argument")
+
+    '("includegraphics" (TeX-arg-conditional (member "graphics" (TeX-style-list))
+					     (["llx,lly"] ["urx,ury"])
+					   ([ LaTeX-arg-graphicx-includegraphics-key-val ]))
+      LaTeX-arg-includegraphics)
+
+    '("includegraphics*" (TeX-arg-conditional (member "graphics" (TeX-style-list))
+					      (["llx,lly"] ["urx,ury"])
+					    ([ LaTeX-arg-graphicx-includegraphics-key-val ]))
+      LaTeX-arg-includegraphics)
+
+    '("graphicspath" t)
+
+    '("DeclareGraphicsExtensions" t)
+
+    '("DeclareGraphicsRule" 4))
+
+   ;; Fontification
+   (when (and (featurep 'font-latex)
+	      (eq TeX-install-font-lock 'font-latex-setup))
+     (font-latex-add-keywords '(("reflectbox" "{")
+				("resizebox" "*{{{")
+				("rotatebox" "[{{")
+				("scalebox" "{[{"))
+			      'textual)
+     (font-latex-add-keywords '(("includegraphics" "*[[{"))
+			      'reference)
+     (font-latex-add-keywords '(("graphicspath"              "{")
+				("DeclareGraphicsExtensions" "{")
+				("DeclareGraphicsRule"       "{{{{"))
+			      'function)))
+ LaTeX-dialect)
+
+(defvar LaTeX-graphicx-package-options
+  '("draft"       "final"         "debugshow"
+    "hiderotate"  "hidescale"     "hiresbb"
+    "setpagesize" "nosetpagesize" "demo"
+    "dvips"       "xdvi"
+    "dvipdf"      "dvipdfm"       "dvipdfmx"
+    "xetex"       "pdftex"        "luatex"
+    "dvisvgm"     "dvipsone"      "dviwindo"
+    "emtex"       "dviwin"        "oztex"
+    "textures"    "pctexps"       "pctexwin"
+    "pctexhp"     "pctex32"       "truetex"
+    "tcidvi"      "vtex")
+  "Package options for the graphicx package.")
 
 ;;; graphicx.el ends here

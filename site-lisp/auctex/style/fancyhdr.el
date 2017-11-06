@@ -63,7 +63,8 @@
    (LaTeX-add-pagestyles "fancy" "fancyplain")
 
    ;; Fontification
-   (when (and (featurep 'font-latex)
+   (when (and (fboundp 'font-latex-add-keywords)
+	      (fboundp 'font-latex-update-font-lock)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("fancyhead" "[{")
                                 ("fancyfoot" "[{")
@@ -81,8 +82,7 @@
                                 ("plainheadrulewidth" "")
                                 ("plainfootrulewidth" "")) 'variable)
      ;; Tell font-lock about the update.
-     (setq font-lock-set-defaults nil)
-     (font-lock-set-defaults)))
+     (font-latex-update-font-lock)))
  LaTeX-dialect)
 
 ;; Because there can be many positions, `TeX-completing-read-multiple' is used

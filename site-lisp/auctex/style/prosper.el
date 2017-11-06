@@ -1,6 +1,6 @@
 ;;; prosper.el --- Prosper style file for AUCTeX
 
-;; Copyright (C) 2001, 2002, 2014 by Philip Lord, Nevin Kapur
+;; Copyright (C) 2001, 2002, 2014  Free Software Foundation, Inc.
 
 ;; Authors:  Phillip Lord<p.lord@russet.org.uk>
 ;;           Nevin Kapur <nevin@jhu.edu>

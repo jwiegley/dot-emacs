@@ -18,7 +18,8 @@ as well, @ref{Installation}.  We also assume that you are familiar with
 the way keystrokes are written in Emacs manuals.  If not, have a look at
 the Emacs Tutorial in the Help menu.
 
-If @AUCTeX{} is installed, you might still need to activate it, by
+If @AUCTeX{} is installed in any other way than from the Emacs package
+manager (@acronym{ELPA}), you might still need to activate it, by
 inserting
 
 @lisp
@@ -27,10 +28,16 @@ inserting
 
 in your user init file.@footnote{This usually is a file in your home
 directory called @file{.emacs} if you are utilizing GNU Emacs or
-@file{.xemacs/init.el} if you are using XEmacs.}  If you've installed
-@AUCTeX{} from the Emacs package manager (ELPA), you must not have this
-line in your user init file.  The installation procedure already cares
-about loading @AUCTeX{} correctly.
+@file{.xemacs/init.el} if you are using XEmacs.}
+
+If @AUCTeX{} is installed from @acronym{ELPA}, the installation
+procedure already cares about loading @AUCTeX{} correctly and you
+@strong{must not} have the line above in your init file.  Note that this
+also applies if you have the following line in your init file
+
+@lisp
+(package-initialize)
+@end lisp
 
 In order to get support for many of the @LaTeX{} packages you will use
 in your documents, you should enable document parsing as well, which can

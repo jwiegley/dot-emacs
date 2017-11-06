@@ -1,8 +1,8 @@
 ;;; subcaption.el --- AUCTeX style for `subcaption.sty' (v1.1-100)
 
-;; Copyright (C) 2015 Free Software Foundation, Inc.
+;; Copyright (C) 2015--2017 Free Software Foundation, Inc.
 
-;; Author: Arash Esbati <esbati'at'gmx.de>
+;; Author: Arash Esbati <arash@gnu.org>
 ;; Maintainer: auctex-devel@gnu.org
 ;; Created: 2015-09-19
 ;; Keywords: tex
@@ -36,50 +36,69 @@
   "Key=value options for subcaption package.  This key takes the
 same values as \"labelformat\" from caption package.")
 
-(defun LaTeX-arg-subcaption-subcaption (optional &optional star prompt)
-  "Query for the arguments of \\subcaption incl. a label and
-insert them.  If STAR is non-nil, then do not query for the lof entry
-and \\label and insert only a caption."
-  (let ((lof (unless star
-	       (TeX-read-string
-		(TeX-argument-prompt t prompt "List entry"))))
-	(caption (TeX-read-string
-		  (TeX-argument-prompt optional prompt "Sub-caption"))))
-    (LaTeX-indent-line)
-    (when (and lof (not (string-equal lof "")))
-      (insert LaTeX-optop lof LaTeX-optcl))
+(defun LaTeX-arg-subcaption-subcaption (optional &optional star)
+  "Query for the arguments of \"\\subcaption\" incl. a label and insert them.
+If STAR is non-nil, then do not query for a \\label and a short
+caption, insert only a caption."
+  (let* (;; \subcaption needs an environment, "minipage" will be
+	 ;; popular.  If so, check next higher environment to find out
+	 ;; where we are
+	 (currenv (if (string= (LaTeX-current-environment) "minipage")
+		      (LaTeX-current-environment 2)
+		    (LaTeX-current-environment)))
+	 (caption (TeX-read-string
+		   (TeX-argument-prompt optional nil "Sub-caption")))
+	 (short-caption
+	  (when (and (not star)
+		     (>= (length caption) LaTeX-short-caption-prompt-length))
+	    (TeX-read-string
+	     (TeX-argument-prompt t nil "Short caption")))))
+    (indent-according-to-mode)
+    (when (and short-caption (not (string= short-caption "")))
+      (insert LaTeX-optop short-caption LaTeX-optcl))
     (insert TeX-grop caption TeX-grcl)
-    (unless star
+    ;; Fill the \subcaption paragraph before inserting the \label:
+    (LaTeX-fill-paragraph)
+    (when (and (not star)
+	       (save-excursion (LaTeX-label currenv 'environment)))
+      ;; Move \label into next line if we have one:
       (LaTeX-newline)
-      (LaTeX-indent-line)
-      (TeX-insert-macro "label"))))
+      (indent-according-to-mode)
+      (end-of-line))))
 
-(defun LaTeX-arg-subcaption-subcaptionbox (optional &optional star prompt)
-  "Query for the arguments of \\subcaptionbox incl. a label and
-insert them.  If STAR is non-nil, then do not query for a \\label and
-insert only a caption."
-  (let ((caption (TeX-read-string
-		  (TeX-argument-prompt optional prompt "Sub-caption"))))
-    (LaTeX-indent-line)
+(defun LaTeX-arg-subcaption-subcaptionbox (optional &optional star)
+  "Query for the arguments of \"\\subcaptionbox\" incl. a label and insert them.
+If STAR is non-nil, then do not query for a \\label and a short
+caption, insert only a caption."
+  (let* ((currenv (LaTeX-current-environment))
+	 (caption (TeX-read-string
+		   (TeX-argument-prompt optional nil "Sub-caption")))
+	 (short-caption
+	  (when (and (not star)
+		     (>= (length caption) LaTeX-short-caption-prompt-length))
+	    (TeX-read-string
+	     (TeX-argument-prompt t nil "Short Sub-caption")))))
+    (indent-according-to-mode)
+    (when (and short-caption (not (string= short-caption "")))
+      (insert LaTeX-optop short-caption LaTeX-optcl))
     (insert TeX-grop caption)
-    (unless star (TeX-insert-macro "label"))
+    (unless star (LaTeX-label currenv 'environment))
     (insert TeX-grcl))
-  (let* ((width (completing-read (TeX-argument-prompt t prompt "Width")
+  (let* ((TeX-arg-opening-brace "[")
+	 (TeX-arg-closing-brace "]")
+	 (width (completing-read (TeX-argument-prompt t nil "Width")
 				 (mapcar (lambda (elt) (concat TeX-esc (car elt)))
 					 (LaTeX-length-list))))
-	 (inpos (when (and width (not (string-equal width "")))
-		  (completing-read (TeX-argument-prompt t prompt "Inner position")
-				   '("c" "l" "r" "s")))))
-    (cond (;; 2 optional args
-	   (and width (not (string-equal width ""))
-		inpos (not (string-equal inpos "")))
-	   (insert (format "[%s][%s]" width inpos)))
-	  (;; 1st opt. arg, 2nd empty opt. arg
-	   (and width (not (string-equal width ""))
-		(string-equal inpos ""))
-	   (insert (format "[%s]" width)))
-	  (t ; Do nothing if both empty
-	   (ignore)))))
+	 (inpos (if (and width (not (string-equal width "")))
+		    (completing-read (TeX-argument-prompt t nil "Inner position")
+				     '("c" "l" "r" "s"))
+		  "")))
+    (TeX-argument-insert width t)
+    (TeX-argument-insert inpos t))
+  ;; Fill the paragraph before inserting {}.  We use this function
+  ;; since we add \subcaption to `paragraph-start' in the style hook
+  ;; below.
+  (LaTeX-fill-paragraph))
 
 (TeX-add-style-hook
  "subcaption"
@@ -96,7 +115,7 @@ insert only a caption."
     ;; Basic commands
     '("subcaption"     (LaTeX-arg-subcaption-subcaption))
     '("subcaption*"    (LaTeX-arg-subcaption-subcaption t))
-    '("subcaptionbox"  ["List entry"] (LaTeX-arg-subcaption-subcaptionbox) t)
+    '("subcaptionbox"  (LaTeX-arg-subcaption-subcaptionbox) t)
     '("subcaptionbox*" (LaTeX-arg-subcaption-subcaptionbox t) t)
     '("subref"         TeX-arg-ref)
     ;; \subref* is only available with hyperref.sty loaded, we don't
@@ -124,10 +143,17 @@ insert only a caption."
 		    (TeX-argument-prompt nil nil "Type")
 		    '("figure" "table"))))
 
+   ;; \subcaption(box)? macros should get their own lines
+   (LaTeX-paragraph-commands-add-locally '("subcaption" "subcaptionbox"))
+
    ;; The subfigure & subtable environments
    (LaTeX-add-environments
     '("subfigure" LaTeX-env-minipage)
     '("subtable"  LaTeX-env-minipage))
+
+   ;; Append them to `LaTeX-label-alist':
+   (add-to-list 'LaTeX-label-alist '("subfigure" . LaTeX-figure-label) t)
+   (add-to-list 'LaTeX-label-alist '("subtable" . LaTeX-table-label) t)
 
    ;; Introduce env's to RefTeX if loaded
    (when (fboundp 'reftex-add-label-environments)
@@ -139,7 +165,7 @@ insert only a caption."
    (when (and (featurep 'font-latex)
 	      (eq TeX-install-font-lock 'font-latex-setup))
      (font-latex-add-keywords '(("subcaption"            "*[{")
-				("subcaptionbox"         "*[{[[{")
+				("subcaptionbox"         "*[{[[")
 				("phantomcaption"        "")
 				("phantomsubcaption"     ""))
 			      'textual)

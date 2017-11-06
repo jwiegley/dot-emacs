@@ -1,6 +1,6 @@
 ;;; tex-site.el - Site specific variables.  Don't edit.
 
-;; Copyright (C) 2005 Free Software Foundation, Inc.
+;; Copyright (C) 2005, 2013, 2016 Free Software Foundation, Inc.
 ;;
 ;; completely rewritten.
 
@@ -39,7 +39,7 @@
 ;;; Code:
 
 (if (< emacs-major-version 21)
-  (error "AUCTeX requires Emacs 21 or later"))
+    (error "AUCTeX requires Emacs 21 or later"))
 
 ;; Define here in order for `M-x customize-group <RET> AUCTeX <RET>'
 ;; to work if the main AUCTeX files are not loaded yet.
@@ -87,21 +87,23 @@ shared by all users of a site."
 
 (add-hook 'tex-site-unload-hook
 	  (lambda ()
-	    (let ((list after-load-alist))
-	      (while list
-		;; Adapted copy of the definition of `assq-delete-all'
-		;; from Emacs 21 as substitute for
-		;; `(assq-delete-all'TeX-modes-set (car list))' which
-		;; fails on non-list elements in Emacs 21.
-		(let* ((alist (car list))
-		       (tail alist)
-		       (key 'TeX-modes-set))
-		  (while tail
-		    (if (and (consp (car tail))
-			     (eq (car (car tail)) key))
-			(setq alist (delq (car tail) alist)))
-		    (setq tail (cdr tail))))
-		(setq list (cdr list))))
+	    (if (fboundp 'advice-add)
+		(TeX-modes-set 'TeX-modes nil)
+	      (let ((list after-load-alist))
+		(while list
+		  ;; Adapted copy of the definition of `assq-delete-all'
+		  ;; from Emacs 21 as substitute for
+		  ;; `(assq-delete-all'TeX-modes-set (car list))' which
+		  ;; fails on non-list elements in Emacs 21.
+		  (let* ((alist (car list))
+			 (tail alist)
+			 (key 'TeX-modes-set))
+		    (while tail
+		      (if (and (consp (car tail))
+			       (eq (car (car tail)) key))
+			  (setq alist (delq (car tail) alist)))
+		      (setq tail (cdr tail))))
+		  (setq list (cdr list)))))
 	    (setq load-path (delq TeX-lisp-directory load-path))))
 
 (defun TeX-modes-set (var value &optional update)
@@ -130,14 +132,14 @@ definition."
               (get elt 'tex-saved))))))))
 
 (defcustom TeX-modes
-  (mapcar 'car TeX-mode-alist)
+  (mapcar #'car TeX-mode-alist)
   "List of modes provided by AUCTeX.
 
 This variable can't be set normally; use customize for that, or
 set it with `TeX-modes-set'."
   :type (cons 'set
 	      (mapcar (lambda(x) (list 'const (car x))) TeX-mode-alist))
-  :set 'TeX-modes-set
+  :set #'TeX-modes-set
   :group 'AUCTeX
   :initialize(lambda (var value)
 	       (custom-initialize-reset var value)

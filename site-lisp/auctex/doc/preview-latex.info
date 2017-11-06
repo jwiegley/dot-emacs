@@ -1,8 +1,8 @@
-This is preview-latex.info, produced by makeinfo version 6.0 from
+This is preview-latex.info, produced by makeinfo version 6.4.90 from
 preview-latex.texi.
 
 This manual is for preview-latex, a LaTeX preview mode for AUCTeX
-(version 11.89 from 2015-11-12).
+(version 11.91 from 2017-07-22).
 
    Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Free Software
 Foundation, Inc.
@@ -576,10 +576,10 @@ newer versions of the problematic software or by simple patches.
 
 * Menu:
 
-* Font problems with Dvips::    
-* Too small bounding boxes::    
-* x-symbol interoperation::     
-* Middle-clicks paste instead of toggling::  
+* Font problems with Dvips::
+* Too small bounding boxes::
+* x-symbol interoperation::
+* Middle-clicks paste instead of toggling::
 
    If you find something not mentioned here, please send a bug report
 using 'M-x preview-report-bug <RET>', which will fill in a lot of
@@ -698,10 +698,10 @@ Emacs-lisp part integrating the thing into Emacs (aided by AUCTeX).
 
 * Menu:
 
-* The LaTeX style file::        
-* The Emacs interface::         
-* The preview images::             
-* Misplaced previews::          
+* The LaTeX style file::
+* The Emacs interface::
+* The preview images::
+* Misplaced previews::
 
 
 File: preview-latex.info,  Node: The LaTeX style file,  Next: The Emacs interface,  Prev: For advanced users,  Up: For advanced users
@@ -717,7 +717,7 @@ generating PDF files (usually also postprocessed by Ghostscript).
 
    Current uses of the package include the preview-latex package for
 WYSIWYG functionality in the AUCTeX editing environment, generation of
-previews in LyX, as part of the operation of the ps4pdf package, the
+previews in LyX, as part of the operation of the pst-pdf package, the
 tbook XML system and some other tools.
 
    Producing EPS files with Dvips and its derivatives using the '-E'
@@ -1094,7 +1094,7 @@ File: preview-latex.info,  Node: Provided commands,  Prev: Package options,  Up:
 
      As an example for using this argument, you might want to specify
 
-          \PreviewMacro*\footnote[{[]}][#1{}]
+          \PreviewMacro*[{[]}][#1{}]{\footnote}
 
      This will replace a footnote by an empty footnote, but taking any
      optional parameter into account, since an optional paramter changes
@@ -1127,8 +1127,8 @@ File: preview-latex.info,  Node: Provided commands,  Prev: Package options,  Up:
      essential for the operation of '\PreviewOpen' that the macro
      treated with it will open an additional group even when the preview
      falls inside of another preview or inside of a 'nopreview'
-     environment.  Similarly, the macro treated with 'PreviewClose' will
-     close an environment even when inactive.
+     environment.  Similarly, the macro treated with '\PreviewClose'
+     will close an environment even when inactive.
 
 '\ifPreview'
      In case you need to know whether 'preview' is active, you can use
@@ -1561,12 +1561,12 @@ Appendix B Frequently Asked Questions
 
 * Menu:
 
-* Introduction to FAQ::         
-* Requirements::                
-* Installation Trouble::        
-* Customization::               
-* Troubleshooting::               
-* Other formats::               
+* Introduction to FAQ::
+* Requirements::
+* Installation Trouble::
+* Customization::
+* Troubleshooting::
+* Other formats::
 
 
 File: preview-latex.info,  Node: Introduction to FAQ,  Next: Requirements,  Prev: Frequently Asked Questions,  Up: Frequently Asked Questions
@@ -1900,7 +1900,7 @@ Appendix C Copying this Manual
 The copyright notice for this manual is:
 
    This manual is for preview-latex, a LaTeX preview mode for AUCTeX
-(version 11.89 from 2015-11-12).
+(version 11.91 from 2017-07-22).
 
    Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006 Free Software
 Foundation, Inc.
@@ -2413,23 +2413,23 @@ Index
 * \PreviewMacro:                         Provided commands.   (line  25)
 * Activation:                            Activating preview-latex.
                                                               (line   6)
-* 'C-c C-k':                             Keys and lisp.       (line 160)
-* 'C-c C-m P':                           Keys and lisp.       (line  63)
-* 'C-c C-p C-b':                         Keys and lisp.       (line  89)
-* 'C-c C-p C-c C-b':                     Keys and lisp.       (line 115)
-* 'C-c C-p C-c C-d':                     Keys and lisp.       (line 121)
-* 'C-c C-p C-c C-p':                     Keys and lisp.       (line  99)
-* 'C-c C-p C-c C-r':                     Keys and lisp.       (line 110)
-* 'C-c C-p C-c C-s':                     Keys and lisp.       (line 105)
-* 'C-c C-p C-d':                         Keys and lisp.       (line  94)
-* 'C-c C-p C-e':                         Keys and lisp.       (line  74)
-* 'C-c C-p C-f':                         Keys and lisp.       (line 128)
-* 'C-c C-p C-i':                         Keys and lisp.       (line 147)
-* 'C-c C-p C-p':                         Keys and lisp.       (line  23)
-* 'C-c C-p C-r':                         Keys and lisp.       (line  84)
-* 'C-c C-p C-s':                         Keys and lisp.       (line  79)
-* 'C-c C-p C-w':                         Keys and lisp.       (line  45)
-* 'C-u C-c C-p C-f':                     Keys and lisp.       (line 141)
+* C-c C-k:                               Keys and lisp.       (line 160)
+* C-c C-m P:                             Keys and lisp.       (line  63)
+* C-c C-p C-b:                           Keys and lisp.       (line  89)
+* C-c C-p C-c C-b:                       Keys and lisp.       (line 115)
+* C-c C-p C-c C-d:                       Keys and lisp.       (line 121)
+* C-c C-p C-c C-p:                       Keys and lisp.       (line  99)
+* C-c C-p C-c C-r:                       Keys and lisp.       (line 110)
+* C-c C-p C-c C-s:                       Keys and lisp.       (line 105)
+* C-c C-p C-d:                           Keys and lisp.       (line  94)
+* C-c C-p C-e:                           Keys and lisp.       (line  74)
+* C-c C-p C-f:                           Keys and lisp.       (line 128)
+* C-c C-p C-i:                           Keys and lisp.       (line 147)
+* C-c C-p C-p:                           Keys and lisp.       (line  23)
+* C-c C-p C-r:                           Keys and lisp.       (line  84)
+* C-c C-p C-s:                           Keys and lisp.       (line  79)
+* C-c C-p C-w:                           Keys and lisp.       (line  45)
+* C-u C-c C-p C-f:                       Keys and lisp.       (line 141)
 * Caching a preamble:                    Simple customization.
                                                               (line  59)
 * Contacts:                              Contacts.            (line   6)
@@ -2448,8 +2448,8 @@ Index
                                                               (line 110)
 * Kill preview-generating process:       Keys and lisp.       (line 160)
 * License:                               Copying.             (line   6)
-* 'M-m P':                               Keys and lisp.       (line  63)
-* 'M-x preview-report-bug <RET>':        Keys and lisp.       (line 152)
+* M-m P:                                 Keys and lisp.       (line  63)
+* M-x preview-report-bug <RET>:          Keys and lisp.       (line 152)
 * Mailing list:                          Contacts.            (line   6)
 * Menu entries:                          Keys and lisp.       (line   6)
 * Philosophy of preview-latex:           What use is it?.     (line   6)
@@ -2511,7 +2511,7 @@ Index
 * Readme:                                Introduction.        (line   6)
 * Report a bug:                          Keys and lisp.       (line 152)
 * Right:                                 Copying.             (line   6)
-* Showing '\label's:                     Simple customization.
+* Showing \labels:                       Simple customization.
                                                               (line  23)
 * Using dvipng:                          Basic modes of operation.
                                                               (line  19)
@@ -2520,41 +2520,41 @@ Index
 
 
 Tag Table:
-Node: Top941
-Node: Copying2213
-Node: Introduction2667
-Node: What use is it?3341
-Node: Activating preview-latex4730
-Node: Getting started5545
-Node: Basic modes of operation7633
-Node: More documentation8835
-Node: Availability9723
-Node: Contacts10328
-Node: Installation11600
-Node: Keys and lisp11801
-Node: Simple customization18465
-Node: Known problems24225
-Node: Font problems with Dvips25013
-Node: Too small bounding boxes26186
-Node: x-symbol interoperation27582
-Node: Middle-clicks paste instead of toggling28965
-Node: For advanced users29781
-Node: The LaTeX style file30280
-Node: Package options32841
-Node: Provided commands43745
-Node: The Emacs interface51092
-Node: The preview images60263
-Node: Misplaced previews63746
-Node: ToDo67200
-Node: Frequently Asked Questions71971
-Node: Introduction to FAQ72372
-Node: Requirements72711
-Node: Installation Trouble75682
-Node: Customization78244
-Node: Troubleshooting81789
-Node: Other formats84307
-Node: Copying this Manual85622
-Node: GNU Free Documentation License86550
-Node: Index111672
+Node: Top944
+Node: Copying2216
+Node: Introduction2670
+Node: What use is it?3344
+Node: Activating preview-latex4733
+Node: Getting started5548
+Node: Basic modes of operation7636
+Node: More documentation8838
+Node: Availability9726
+Node: Contacts10331
+Node: Installation11603
+Node: Keys and lisp11804
+Node: Simple customization18468
+Node: Known problems24228
+Node: Font problems with Dvips25001
+Node: Too small bounding boxes26174
+Node: x-symbol interoperation27570
+Node: Middle-clicks paste instead of toggling28953
+Node: For advanced users29769
+Node: The LaTeX style file30228
+Node: Package options32790
+Node: Provided commands43694
+Node: The Emacs interface51044
+Node: The preview images60215
+Node: Misplaced previews63698
+Node: ToDo67152
+Node: Frequently Asked Questions71923
+Node: Introduction to FAQ72246
+Node: Requirements72585
+Node: Installation Trouble75556
+Node: Customization78118
+Node: Troubleshooting81663
+Node: Other formats84181
+Node: Copying this Manual85496
+Node: GNU Free Documentation License86424
+Node: Index111546
 
 End Tag Table

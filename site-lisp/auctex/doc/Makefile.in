@@ -110,7 +110,7 @@ tex-ref.ps: tex-ref.dvi
 tex-ref.pdf: tex-ref.tex
 	$(PDFTEX) tex-ref.tex
 
-version.texi: ../ChangeLog
+version.texi: ../ChangeLog.1
 	echo @set VERSION $(AUCTEXVERSION) >version.texi
 	echo @set UPDATED $(AUCTEXDATE) >>version.texi
 
