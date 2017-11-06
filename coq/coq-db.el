@@ -290,14 +290,13 @@ See `coq-syntax-db' for DB structure."
   :group 'proof-faces)
 
 ;;A face for cheating tactics 
-;; We use :reverse-color instead of :background because it remains visible in
-;; locked-region. We could use :box but it makes text be slightly shifted when
-;; hitting the last letter of "admit." for instance, which may be irritating.
+;; We use :box in addition to :background because box remains visible in
+;; locked-region. :reverse-video is another solution.
 (defface coq-cheat-face
-  '((((class color) (background light)) . (:inverse-video t :foreground "red" :background "black"))
-    (((class color) (background dark)) . (:inverse-video t :foreground "red1"))
-    ;(((class color) (background light)) . (:box (:line-width 1 :color "red" :style nil) :background "red"))
-    ;(((class color) (background dark)) . (:box (:line-width 1 :color "red1" :style nil) :background "red1"))
+  '(;(((class color) (background light)) . (:inverse-video t :foreground "red" :background "black"))
+    ;(((class color) (background dark)) . (:inverse-video t :foreground "red1"))
+    (((class color) (background light)) . (:box (:line-width -1 :color "red" :style nil) :background "red"))
+    (((class color) (background dark)) . (:box (:line-width -1 :color "red1" :style nil) :background "red1"))
     (t . ())) ; monocolor or greyscale: no highlight
   "Face for names of cheating tactics in proof scripts."
   :group 'proof-faces)

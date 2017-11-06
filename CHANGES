@@ -13,6 +13,7 @@ and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
 *** bug fixes
     - Using query-replace (or replace-string) in the processed region
       doesn't wrongly jump to the first match anymore.
+    - cheat face (admit etc) now visible when locked.
 
 *** remove key-binding for proof-electric-terminator-toggle
     - The default key-binding for proof-electric-terminator-toggle
