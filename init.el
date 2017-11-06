@@ -3461,14 +3461,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-. j" #'paredit-join-with-next-list paredit-mode-map)
   (bind-key "C-. J" #'paredit-join-with-previous-list paredit-mode-map))
 
-(or (use-package mic-paren
-      :defer 5
-      :config
-      (paren-activate))
-    (use-package paren
-      :defer 5
-      :config
-      (show-paren-mode 1)))
+(or
+ (use-package mic-paren
+   :defer 5
+   :config
+   (paren-activate))
+ (use-package paren
+   :defer 5
+   :config
+   (show-paren-mode 1)))
 
 (use-package parenface
   ;; (shell-command "rm -f site-lisp/parenface.el*")
