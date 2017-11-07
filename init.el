@@ -130,7 +130,7 @@
 (put 'TeX-narrow-to-group         'disabled nil)
 (put 'LaTeX-narrow-to-environment 'disabled nil)
 
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
 ;;; Configure libraries
 
@@ -2072,7 +2072,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
-         ("M-s n" . find-name-dired)
+         ("M-s F" . find-name-dired)
          ("M-s f" . find-grep)
          ("M-s G" . grep))
   :config
@@ -2232,12 +2232,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-t" haskell-mode-map)
 
   (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
+  (bind-key "C-c C-," #'haskell-navigate-imports haskell-mode-map)
+  (bind-key "C-c C-." #'haskell-mode-format-imports haskell-mode-map)
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (unbind-key "C-c c" interactive-haskell-mode-map)
     (flycheck-mode)
+    (company-mode)
+    (haskell-decl-scan-mode)
+    (haskell-collapse-mode)
+    (flyspell-prog-mode)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode)
     (bug-reference-prog-mode 1))
@@ -2292,6 +2298,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-h e a" . my-helm-apropos)
          ("C-x f"   . helm-multi-files)
          ("M-s b"   . helm-occur)
+         ("M-s n"   . my-helm-find)
          ("M-H"     . helm-resume))
 
   :preface
