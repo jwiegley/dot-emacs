@@ -147,20 +147,7 @@
                             "-F" (expand-file-name "~/Messages/leafnode/config")
                             "-vvv" "-n")))))
         (cur-buf (current-buffer)))
-    (delete-other-windows)
-    (flet ((switch-in-other-buffer
-            (buf)
-            (when buf
-              (split-window-vertically)
-              (balance-windows)
-              (switch-to-buffer-other-window buf))))
-      (switch-to-buffer cur-buf)
-      (switch-in-other-buffer fetchmail-buf)
-      (switch-in-other-buffer fetchmail-lists-buf)
-      ;; (switch-in-other-buffer fetchmail-spam-buf)
-      (switch-in-other-buffer fetchnews-buf)
-      (select-window (get-buffer-window cur-buf))
-      (balance-windows))))
+    (display-buffer fetchmail-buf)))
 
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-fetchmail)
 

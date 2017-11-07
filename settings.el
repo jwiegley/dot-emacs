@@ -655,6 +655,7 @@
  '(haskell-indentation-starter-offset 4)
  '(haskell-indentation-where-post-offset 4)
  '(haskell-indentation-where-pre-offset 4)
+ '(haskell-process-load-or-reload-prompt t)
  '(helm-adaptive-history-file "~/.emacs.d/data/helm-adaptive-history")
  '(helm-buffers-fuzzy-matching t)
  '(helm-completing-read-handlers-alist
@@ -1000,6 +1001,7 @@
  '(scroll-bar-mode nil)
  '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
+ '(sendmail-program "msmtp")
  '(sentence-end-double-space nil)
  '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
  '(session-globals-include

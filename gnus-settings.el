@@ -452,6 +452,10 @@ BAE Systems"))))
  '(message-send-mail-function (quote message-send-mail-with-sendmail))
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from (quote header))
+ '(message-sendmail-extra-arguments
+   (quote
+    ("--read-envelope-from" "--file=/Users/johnw/Messages/msmtp.conf" "--account=fastmail")))
+ '(message-sendmail-f-is-evil t)
  '(message-sent-hook (quote (my-gnus-score-followup)))
  '(message-setup-hook (quote (gnus-harvest-set-from message-check-recipients)))
  '(message-signature-separator "^-- *$")
