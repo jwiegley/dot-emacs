@@ -80,6 +80,10 @@ After <kbd>M-g e</kbd>:
 
 ![avy-goto-word-0](http://oremacs.com/download/avi-goto-word-0.png)
 
+### Org-mode commands
+
+  * `avy-org-goto-heading-timer`: Type part of an Org heading.  When you stop typing, if only one heading on the screen matches, it will be jumped to; if more than one matches, you can jump to a heading with Avy.  This is like `avy-goto-char-timer` but for Org headings.
+  * `avy-org-refile-as-child`: With point in an entry you want to refile, run this command, select a heading with Avy, and the entry will be refiled as its first child heading.  This makes it quick and easy to refile to headings that are visible on-screen, even to other windows or buffers.
 
 ### Other commands
 
@@ -113,6 +117,6 @@ The copyright assignment isn't a big deal, it just says that the copyright for y
 
 The basic code style guide is to use `(setq indent-tabs-mode nil)`. It is provided for you in [.dir-locals.el](https://github.com/abo-abo/avy/blob/master/.dir-locals.el), please obey it.
 
-Before submitting the change, run `make compile` and `make test` to make sure that it doesn't introduce new compile warnings or test failures. Also run <kbd>M-x</kbd> `checkdoc` to see that your changes obey the documentation guidelines.
+Before submitting the change, run `make compile` and `make test` to make sure that it doesn't introduce new compile warnings or test failures. Also run `make checkdoc` to see that your changes obey the documentation guidelines.
 
 Use your own judgment for the commit messages, I recommend a verbose style using `magit-commit-add-log`.
