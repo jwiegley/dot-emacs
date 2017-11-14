@@ -3217,7 +3217,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; :bind ("C-. C-s" . swiper)
   :bind ("C-s" . swiper)
   :init
-  (bind-key "C-." #'swiper-from-isearch isearch-mode-map))
+  (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
+  (bind-key "M-%" #'swiper-query-replace swiper-map)
+  (bind-key "M-h" #'swiper-avy swiper-map))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
