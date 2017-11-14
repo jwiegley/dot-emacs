@@ -916,7 +916,7 @@
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude
    (quote
-    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
+    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")) t)
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
@@ -1060,6 +1060,7 @@
         (string-match "/\\(cree\\|EDG/Projects/edg\\)/"
                       (buffer-file-name buf)))
       . "cd ~/Products/cree/edg && (ninja && ctest -j$(ncpu)) & (cd ~/src/cree; mktags src ext/llvm) & wait"))))
+ '(smex-history-length 20)
  '(smex-save-file "~/.emacs.d/data/smex-items")
  '(sp-highlight-pair-overlay nil)
  '(sql-sqlite-program "sqlite3")
