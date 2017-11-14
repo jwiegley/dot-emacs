@@ -1089,9 +1089,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("M-s O" . moccur)
   :init
   (bind-key "M-o" #'isearch-moccur isearch-mode-map)
-  (bind-key "M-h" #'helm-occur-from-isearch isearch-mode-map)
   (bind-key "M-O" #'isearch-moccur-all isearch-mode-map)
-  (bind-key "M-H" #'helm-multi-occur-from-isearch isearch-mode-map)
   :config
   (use-package moccur-edit))
 
@@ -1131,7 +1129,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
 
 (use-package counsel
-  :load-path "site-lisp/site-ivy/swiper")
+  :load-path "site-lisp/site-ivy/swiper"
+  :bind ("C-h e a" . counsel-apropos))
 
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode)
@@ -1821,7 +1820,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-x f"   . helm-multi-files)
          ("M-s b"   . helm-occur)
          ("M-s n"   . my-helm-find)
-         ("M-H"     . helm-resume))
+         ;; ("M-H"     . helm-resume)
+         )
 
   :preface
   (defun my-helm-find ()
@@ -2035,7 +2035,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :diminish ivy-mode
   :load-path "site-lisp/site-ivy/swiper"
   :bind (("C-x b" . ivy-switch-buffer)
-         ("C-x B" . ivy-switch-buffer-other-window))
+         ("C-x B" . ivy-switch-buffer-other-window)
+         ("M-H"   . ivy-resume))
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t
@@ -3122,10 +3123,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands smerge-mode
   :config
   (setq smerge-command-prefix (kbd "C-. C-.")))
-
-(use-package smex
-  :disabled t
-  :load-path "site-lisp/smex")
 
 (use-package sort-words
   :load-path "site-lisp/sort-words"
