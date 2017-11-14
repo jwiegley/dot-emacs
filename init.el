@@ -1605,13 +1605,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
 
   (grep-apply-setting 'grep-command "egrep -nH -e ")
-  ;; (grep-apply-setting
-  ;;  'grep-find-command
-  ;;  '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61))
   (grep-apply-setting
    'grep-find-command
-   '("rg --no-heading --color=always -j4 -nH -e " . 43))
-  )
+   '("rg --no-heading --color=always -j4 -nH -e " . 43)
+   ;; '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61)
+   ))
 
 (use-package gtags
   :disabled t)
@@ -1976,8 +1974,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package swiper
     :load-path "site-lisp/ivy/swiper"
-    :bind (("C-s" . swiper)
-           ("C-r" . swiper))
+    :bind (("C-. C-s" . swiper)
+           ("C-. C-r" . swiper))
     :init
     (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
     :config
@@ -2783,11 +2781,32 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/regex-tool")
 
 (use-package repeat-insert
-  :disabled t
   :commands (insert-patterned
              insert-patterned-2
              insert-patterned-3
-             insert-patterned-4))
+             insert-patterned-4)
+  :init
+  (defvar pattern-line)
+  (make-variable-buffer-local 'pattern-line)
+  (defvar pattern-index)
+  (make-variable-buffer-local 'pattern-index)
+
+  (defun pattern-insert (reset)
+    (interactive "P")
+    (if reset
+        (progn
+          (setq pattern-line
+                (replace-regexp-in-string
+                 " \\([0-9]+\\)\\.\\." " %d.." (car kill-ring))
+                pattern-index
+                (and (string-match " \\([0-9]+\\)\\.\\." (car kill-ring))
+                     (1+ (string-to-number
+                          (match-string 1 (car kill-ring))))))
+          (message "Pattern has been set"))
+      (insert (format pattern-line pattern-index))
+      (setq pattern-index (1+ pattern-index))))
+
+  (bind-key "C-. C-y" #'pattern-insert))
 
 (use-package restclient
   :load-path "site-lisp/restclient"
