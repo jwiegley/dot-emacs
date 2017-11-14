@@ -94,8 +94,8 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -343,7 +343,7 @@ The recommended key bindings are:
      (global-set-key (kbd "C-x C-f") 'counsel-find-file)
      (global-set-key (kbd "<f1> f") 'counsel-describe-function)
      (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-     (global-set-key (kbd "<f1> l") 'counsel-load-library)
+     (global-set-key (kbd "<f1> l") 'counsel-find-library)
      (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
      (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 @end lisp
@@ -385,8 +385,8 @@ where the familiar @kbd{C-a}, @kbd{C-f}, @kbd{M-d}, @kbd{M-DEL}, @kbd{M-b}, @kbd
 
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -544,9 +544,10 @@ Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
 line.
 
 Comes in handy when opening multiple files from
-@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag}, or
-@code{counsel-locate} lists. Just hold @kbd{C-M-n} for rapid-fire default
-action on each successive element of the list.
+@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag},
+@code{counsel-rg}, or @code{counsel-locate} lists. Just hold
+@kbd{C-M-n} for rapid-fire default action on each successive element
+of the list.
 @end indentedblock
 @subsubheading @kbd{C-M-p} (@code{ivy-previous-line-and-call})
 @vindex ivy-previous-line-and-call
@@ -1317,9 +1318,9 @@ Switch to the home directory.
 If the current input matches an existing directory name exactly,
 switch the completion to that directory.
 @end indentedblock
-@subsubheading @kbd{M-q} (@code{ivy-toggle-regexp-quote})
+@subsubheading @kbd{M-r} (@code{ivy-toggle-regexp-quote})
 @vindex ivy-toggle-regexp-quote
-@kindex M-q
+@kindex M-r
 @indentedblock
 Toggle between input as regexp or not.
 
