@@ -2624,6 +2624,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ido
+  :disabled t
   :demand t
   :defines (ido-cur-item
             ido-require-match
@@ -4043,6 +4044,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands smerge-mode
   :config
   (setq smerge-command-prefix (kbd "C-. C-.")))
+
+(use-package smex
+  :disabled t
+  :load-path "site-lisp/smex")
 
 (use-package sort-words
   :load-path "site-lisp/sort-words"
