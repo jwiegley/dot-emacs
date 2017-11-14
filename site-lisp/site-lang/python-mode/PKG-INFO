@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: python-mode.el
+Version: 6.0.8
+Summary: Major mode for editing Python programs
+Home-page: http://launchpad.net/python-mode
+Author: Andreas Roehler
+Author-email: andreas.roehler@online.de
+License: GNU GPLv3, Python License
+Download-URL: http://launchpad.net/python-mode/trunk/6.0.8/+download/python-mode.el-6.0.8.tar.gz
+Description: UNKNOWN
+Platform: UNKNOWN

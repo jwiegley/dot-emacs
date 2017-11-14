@@ -1,0 +1,50 @@
+language: haskell
+sudo: false
+env:
+  global:
+    - EMACS=emacs24
+  # We test each GHC with each supported Cabal version
+  matrix:
+    # GHC 7.6
+    - EMACS=emacs24 GHC='7.6.3' CABAL='1.18.1.0'
+    - EMACS=emacs24 GHC='7.6.3' CABAL='1.20.1.0'
+    - EMACS=emacs24 GHC='7.6.3' CABAL='1.22.4.0'
+    # GHC 7.8
+    - EMACS=emacs24 GHC='7.8.4' CABAL='1.18.1.0'
+    - EMACS=emacs24 GHC='7.8.4' CABAL='1.20.1.0'
+    - EMACS=emacs24 GHC='7.8.4' CABAL='1.22.4.0'
+    # GHC 7.10
+    - EMACS=emacs24 GHC='7.10.1' CABAL='1.22.4.0'
+addons:
+  apt:
+    sources:
+      - cassou-emacs
+      - hvr-ghc
+    packages:
+      # Base packages (we need alex and happy for hlint, and want a recent cabal
+      # for installs)
+      - 'emacs24'
+      - 'alex-3.1.4'
+      - 'happy-1.19.5'
+      # Matrix packages
+      - 'ghc-7.6.3'
+      - 'ghc-7.8.4'
+      - 'ghc-7.10.1'
+before_install:
+  - export PATH="${HOME}/.cask/bin:${HOME}/.cabal/bin/:/opt/ghc/${GHC}/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH"
+  - ghc --version
+  - runhaskell --version
+  # Install and bootstrap cask
+  - curl -fsSkL https://raw.github.com/cask/cask/master/go | python
+  # Now install the appropriate Cabal version
+  - cabal update
+  - cabal install "cabal-install==${CABAL}"
+  - cabal --version
+  # Install HLint to check our source
+  - cabal install hlint
+install:
+  - cask install
+script:
+  - make EMACS=$EMACS compile
+  - make HLINTFLAGS=-c lint
+  - make EMACS=$EMACS test

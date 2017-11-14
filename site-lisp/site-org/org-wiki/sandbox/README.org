@@ -1,0 +1,32 @@
+* Org-Wiki Sandbox 
+
+This directory contains a script _sandbox.sh_ to test
+[[file:~/Documents/projects/org-wiki.emacs/org-wiki.el][file:../org-wiki.el]] in a isolate environment with a
+sample-org-wiki which the user can experiment. 
+
+Directory layout:
+
+ - ./sandbox
+   - ./sandbox/sandbox.sh  - Test script.
+   - ./sandbox/init.el     - Emacs init script
+   - ./sandbox/wiki        - Sample org-wiki for testing
+   - ./sandbox/elpa        - Directory which Emacs' packages will be installed. 
+
+Run the test: 
+
+#+BEGIN_SRC sh
+cd sandbox 
+./sandbox.sh run 
+#+END_SRC
+
+Clean (Remove the directory elpa). 
+
+#+BEGIN_SRC sh 
+cd sandbox 
+./sandbox clean
+#+END_SRC
+
+
+
+
+

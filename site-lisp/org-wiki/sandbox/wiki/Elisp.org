@@ -1,4 +1,0 @@
-#+INCLUDE: theme/style.org
-#+TITLE: Elisp 
-
-wiki:index - [[wiki:index][index]]

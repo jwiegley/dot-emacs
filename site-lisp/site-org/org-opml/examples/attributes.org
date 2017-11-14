@@ -1,0 +1,17 @@
+#+TITLE: Example of attributes in org-opml
+
+* Hello World
+  :PROPERTIES:
+  :name: helloWorld
+  :created: Sat, 08 Mar 2014 23:32:38 GMT
+  :END:
+
+  Property nodes attached to a headline become <outline> attributes.
+
+  Above, I've added two property nodes -- "name" and "created" --
+  and set their respective values.
+
+  Any property node provided will be attached as an <outline>
+  attribute.
+
+  You can quickly create a PROPERTIES drawer with `C-u C-c C-x d`.

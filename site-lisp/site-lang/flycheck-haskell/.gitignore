@@ -1,0 +1,10 @@
+*.elc
+
+/get-cabal-configuration
+/get-flags
+
+/.cask/
+/dist/
+/build/
+
+.dir-locals.el
