@@ -1871,21 +1871,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (helm-do-grep-1 (list default-directory) t)))
 
-(use-package helm-make
-  :disabled t
-  :load-path "site-lisp/site-helm/helm-make"
-  :commands (helm-make helm-make-projectile))
-
-(use-package helm-swoop
-  :disabled t
-  :load-path "site-lisp/site-helm/helm-swoop"
-  :bind (("M-s /" . helm-swoop)
-         ("M-s ?" . helm-multi-swoop))
-  :config
-  (use-package helm-match-plugin
-    :config
-    (helm-match-plugin-mode 1)))
-
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
          ("M-o r" . highlight-regexp)
