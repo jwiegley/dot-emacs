@@ -1788,6 +1788,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config (bind-key "C-c M-q" #'haskell-edit-reformat haskell-mode-map))
 
   (use-package helm-hoogle
+    :disabled t
     :load-path "lisp/helm-hoogle"
     :commands helm-hoogle
     :init (bind-key "A-M-h" #'helm-hoogle haskell-mode-map)
@@ -1811,6 +1812,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
 (use-package helm-config
+  :disabled t
   :if (not running-alternate-emacs)
   :demand t
   :load-path "site-lisp/site-helm/helm"
@@ -1856,6 +1858,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'helm-config))
 
 (use-package helm-grep
+  :disabled t
   :commands helm-do-grep-1
   :bind (("M-s F" . my-helm-do-grep-r)
          ("M-s g" . my-helm-do-grep))
@@ -1869,10 +1872,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (helm-do-grep-1 (list default-directory) t)))
 
 (use-package helm-make
+  :disabled t
   :load-path "site-lisp/site-helm/helm-make"
   :commands (helm-make helm-make-projectile))
 
 (use-package helm-swoop
+  :disabled t
   :load-path "site-lisp/site-helm/helm-swoop"
   :bind (("M-s /" . helm-swoop)
          ("M-s ?" . helm-multi-swoop))
@@ -2695,11 +2700,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (projectile-global-mode)
 
-  (bind-key "s s"
-            #'(lambda ()
-                (interactive)
-                (helm-do-grep-1 (list (projectile-project-root)) t))
-            'projectile-command-map))
+  ;; (bind-key "s s"
+  ;;           #'(lambda ()
+  ;;               (interactive)
+  ;;               (helm-do-grep-1 (list (projectile-project-root)) t))
+  ;;           'projectile-command-map)
+  )
 
 (use-package proof-site
   :load-path ("site-lisp/site-lang/ProofGeneral/generic"
@@ -2870,21 +2876,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :functions inf-ruby-keys
   :config
   (use-package yari
-    :load-path "site-lisp/site-lang/yari-with-buttons"
-    :init
-    (progn
-      (defvar yari-helm-source-ri-pages
-        '((name . "RI documentation")
-          (candidates . (lambda () (yari-ruby-obarray)))
-          (action  ("Show with Yari" . yari))
-          (candidate-number-limit . 300)
-          (requires-pattern . 2)
-          "Source for completing RI documentation."))
-
-      (defun helm-yari (&optional rehash)
-        (interactive (list current-prefix-arg))
-        (when current-prefix-arg (yari-ruby-obarray rehash))
-        (helm 'yari-helm-source-ri-pages (yari-symbol-at-point)))))
+    :load-path "site-lisp/site-lang/yari-with-buttons")
 
   (defun my-ruby-smart-return ()
     (interactive)
@@ -2895,8 +2887,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun my-ruby-mode-hook ()
     (require 'inf-ruby)
     (inf-ruby-keys)
-    (bind-key "<return>" #'my-ruby-smart-return ruby-mode-map)
-    (bind-key "C-h C-i" #'helm-yari ruby-mode-map))
+    (bind-key "<return>" #'my-ruby-smart-return ruby-mode-map))
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
@@ -3334,13 +3325,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package vkill
   :commands vkill
-  :bind ("C-x L" . vkill-and-helm-occur)
-  :preface
-  (defun vkill-and-helm-occur ()
-    (interactive)
-    (vkill)
-    (call-interactively #'helm-occur))
-
   :config
   (setq vkill-show-all-processes t))
 
@@ -3450,9 +3434,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
          ("C-c w e" . yaoddmuse-edit-default)
-         ("C-c w p" . yaoddmuse-post-library-default))
-  :config
-  (use-package helm-yaoddmuse))
+         ("C-c w p" . yaoddmuse-post-library-default)))
 
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
