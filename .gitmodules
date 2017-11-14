@@ -33,7 +33,7 @@
 	url = git://github.com/cpitclaudel/company-coq
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
-	url = https://github.com/capitaomorte/yasmate.git
+	url = git://github.com/joaotavora/yasnippet
 [submodule "site-lisp/ProofGeneral"]
 	path = site-lisp/ProofGeneral
 	url = git://github.com/ProofGeneral/PG.git
