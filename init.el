@@ -65,20 +65,11 @@
      (require 'ansi-color)
      (ansi-color-apply (substring str 0 (1- (length str)))))))
 
-(defun renumber-all (prefix)
-  (interactive)
-  (let ((index 1))
-    (while (re-search-forward (concat prefix " \\([0-9]+\\)") nil t)
-      (let ((num (string-to-number (match-string 1))))
-        (replace-match (number-to-string (+ num index)) nil nil nil 1)
-        (setq index (1+ index))))))
-
 ;;; Load customization settings
-
-(defconst titan-ip "127.0.0.1")
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
+
 (defvar user-data-directory (expand-file-name "data" user-emacs-directory))
 
 (if (string= "emacs26" emacs-environment)
@@ -134,8 +125,6 @@
 (put 'TeX-narrow-to-group         'disabled nil)
 (put 'LaTeX-narrow-to-environment 'disabled nil)
 
-;; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
 ;;; Configure libraries
 
 (eval-and-compile
@@ -168,37 +157,13 @@
 (use-package tablist          :defer t :load-path "lib/tablist")
 (use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
 (use-package web              :defer t :load-path "lib/emacs-web")
-(use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package web-server       :defer t :load-path "lib/emacs-web-server")
+(use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
 (use-package working          :defer t :load-path "lib/working")
 (use-package xml-rpc          :defer t :load-path "lib/xml-rpc")
 
 ;;; Keybindings
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; jww (2015-03-24): Move all of these into declarations                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Main keymaps for personal bindings are:
-;;
-;;   C-x <letter>  primary map (has many defaults too)
-;;   C-c <letter>  secondary map (not just for mode-specific)
-;;   C-. <letter>  tertiary map
-;;
-;;   M-g <letter>  goto map
-;;   M-s <letter>  search map
-;;   M-o <letter>  markup map (even if only temporarily)
-;;
-;;   C-<capital letter>
-;;   M-<capital letter>
-;;
-;;   A-<anything>
-;;   M-A-<anything>
-;;
-;; Single-letter bindings still available:
-;;   C- ,'";:?<>|!#$%^&*`~ <tab>
-;;   M- ?#
 
 ;;; global-map
 
@@ -214,13 +179,6 @@
 (bind-key "C-." #'ctl-period-map)
 
 (bind-key* "<C-return>" #'other-window)
-
-(defun collapse-or-expand ()
-  (interactive)
-  (if (> (length (window-list)) 1)
-      (delete-other-windows)
-    (bury-buffer)))
-
 (bind-key "C-z" #'delete-other-windows)
 
 ;;; M-
@@ -233,16 +191,6 @@
               (with-current-buffer buf
                 (rename-uniquely)))))))
 
-(bind-key "M-!" #'async-shell-command)
-(bind-key "M-'" #'insert-pair)
-(bind-key "M-\"" #'insert-pair)
-(bind-key "M-`" #'other-frame)
-
-(bind-key "M-j" #'delete-indentation-forward)
-(bind-key "M-J" #'delete-indentation)
-
-(bind-key "M-W" #'mark-word)
-
 (defun mark-line (&optional arg)
   (interactive "p")
   (beginning-of-line)
@@ -253,29 +201,32 @@
     (set-mark (point))
     (goto-char here)))
 
-(bind-key "M-L" #'mark-line)
-
 (defun mark-sentence (&optional arg)
   (interactive "P")
   (backward-sentence)
   (mark-end-of-sentence arg))
 
-(bind-key "M-S" #'mark-sentence)
-(bind-key "M-X" #'mark-sexp)
-(bind-key "M-D" #'mark-defun)
-
-(bind-key "M-g c" #'goto-char)
-(bind-key "M-g l" #'goto-line)
-
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
 
-;;; M-C-
+(bind-key "M-!" #'async-shell-command)
+(bind-key "M-'" #'insert-pair)
+(bind-key "M-\"" #'insert-pair)
+(bind-key "M-`" #'other-frame)
+(bind-key "M-j" #'delete-indentation-forward)
+(bind-key "M-J" #'delete-indentation)
+(bind-key "M-W" #'mark-word)
+(bind-key "M-L" #'mark-line)
+(bind-key "M-S" #'mark-sentence)
+(bind-key "M-X" #'mark-sexp)
+(bind-key "M-D" #'mark-defun)
+(bind-key "M-g c" #'goto-char)
+(bind-key "M-g l" #'goto-line)
+
+;;; C-M-
 
 (bind-key "<C-M-backspace>" #'backward-kill-sexp)
-
-;;; ctl-x-map
 
 ;;; C-x
 
@@ -308,11 +259,6 @@
     (kill-buffer (current-buffer))
     (set-window-configuration config)))
 
-(bind-key "C-x D" #'edit-rectangle)
-(bind-key "C-x d" #'delete-whitespace-rectangle)
-(bind-key "C-x F" #'set-fill-column)
-(bind-key "C-x t" #'toggle-truncate-lines)
-
 (defun delete-current-buffer-file ()
   "Delete the current buffer and the file connected with it"
   (interactive)
@@ -326,6 +272,10 @@
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
+(bind-key "C-x D" #'edit-rectangle)
+(bind-key "C-x d" #'delete-whitespace-rectangle)
+(bind-key "C-x F" #'set-fill-column)
+(bind-key "C-x t" #'toggle-truncate-lines)
 (bind-key "C-x v H" #'vc-region-history)
 (bind-key "C-x K" #'delete-current-buffer-file)
 
@@ -346,19 +296,16 @@
       (open-line 1)
       (insert line-text))))
 
-(bind-key "C-x C-d" #'duplicate-line)
-(bind-key "C-x C-e" #'pp-eval-last-sexp)
-(bind-key "C-x C-n" #'next-line)
-
 (defun find-alternate-file-with-sudo ()
   (interactive)
   (find-alternate-file (concat "/sudo::" (buffer-file-name))))
 
+(bind-key "C-x C-d" #'duplicate-line)
+(bind-key "C-x C-e" #'pp-eval-last-sexp)
+(bind-key "C-x C-n" #'next-line)
 (bind-key "C-x C-v" #'find-alternate-file-with-sudo)
 
 ;;; C-x M-
-
-(bind-key "C-x M-n" #'set-goal-column)
 
 (defun refill-paragraph (arg)
   (interactive "*P")
@@ -393,29 +340,12 @@
       (funcall fun nil))
     (goto-char (+ end 2))))
 
+(bind-key "C-x M-n" #'set-goal-column)
 (bind-key "C-x M-q" #'refill-paragraph)
-
-;; (defun endless/fill-or-unfill (count)
-;;   "Like `fill-paragraph', but unfill if used twice."
-;;   (interactive "P")
-;;   (let ((fill-column
-;;          (if count
-;;              (prefix-numeric-value count)
-;;            (if (eq last-command 'endless/fill-or-unfill)
-;;                (progn (setq this-command nil)
-;;                       (point-max))
-;;              fill-column))))
-;;     (fill-paragraph)))
-
-;; (global-set-key [remap fill-paragraph]
-;;                 #'endless/fill-or-unfill)
 
 ;;; mode-specific-map
 
 ;;; C-c
-
-(bind-key "C-c <tab>" #'ff-find-other-file)
-(bind-key "C-c SPC" #'just-one-space)
 
 (defmacro recursive-edit-preserving-window-config (body)
   "*Return a command that enters a recursive edit after executing BODY.
@@ -430,22 +360,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
        ,body
        (recursive-edit))))
 
-(bind-key "C-c 0"
-  (recursive-edit-preserving-window-config (delete-window)))
-(bind-key "C-c 1"
-  (recursive-edit-preserving-window-config
-   (if (one-window-p 'ignore-minibuffer)
-       (error "Current window is the only window in its frame")
-     (delete-other-windows))))
-
 (defun delete-current-line (&optional arg)
   (interactive "p")
   (let ((here (point)))
     (beginning-of-line)
     (kill-line arg)
     (goto-char here)))
-
-(bind-key "C-c g" #'goto-line)
 
 (defun do-eval-buffer ()
   (interactive)
@@ -456,23 +376,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (interactive)
   (call-interactively 'eval-region)
   (message "Region has been evaluated"))
-
-(bind-keys :prefix-map my-lisp-devel-map
-           :prefix "C-c e"
-           ("E" . elint-current-buffer)
-           ("b" . do-eval-buffer)
-           ("c" . cancel-debug-on-entry)
-           ("d" . debug-on-entry)
-           ("e" . toggle-debug-on-error)
-           ("f" . emacs-lisp-byte-compile-and-load)
-           ("j" . emacs-lisp-mode)
-           ("l" . find-library)
-           ("r" . do-eval-region)
-           ("s" . scratch)
-           ("z" . byte-recompile-directory))
-
-(bind-key "C-c f" #'flush-lines)
-(bind-key "C-c k" #'keep-lines)
 
 (eval-when-compile
   (defvar emacs-min-height)
@@ -573,8 +476,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (emacs-min)
     (emacs-max)))
 
-(bind-key "C-c m" #'emacs-toggle-size)
-
 (defcustom user-initials nil
   "*Initials of this user."
   :set
@@ -598,6 +499,47 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (insert (format "%s (%s): " user-initials
                   (format-time-string "%Y-%m-%d" (current-time)))))
 
+(defun view-clipboard ()
+  (interactive)
+  (delete-other-windows)
+  (switch-to-buffer "*Clipboard*")
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (clipboard-yank)
+    (goto-char (point-min))))
+
+(bind-key "C-c <tab>" #'ff-find-other-file)
+(bind-key "C-c SPC" #'just-one-space)
+
+(bind-key "C-c 0"
+  (recursive-edit-preserving-window-config (delete-window)))
+(bind-key "C-c 1"
+  (recursive-edit-preserving-window-config
+   (if (one-window-p 'ignore-minibuffer)
+       (error "Current window is the only window in its frame")
+     (delete-other-windows))))
+
+(bind-key "C-c g" #'goto-line)
+
+(bind-keys :prefix-map my-lisp-devel-map
+           :prefix "C-c e"
+           ("E" . elint-current-buffer)
+           ("b" . do-eval-buffer)
+           ("c" . cancel-debug-on-entry)
+           ("d" . debug-on-entry)
+           ("e" . toggle-debug-on-error)
+           ("f" . emacs-lisp-byte-compile-and-load)
+           ("j" . emacs-lisp-mode)
+           ("l" . find-library)
+           ("r" . do-eval-region)
+           ("s" . scratch)
+           ("z" . byte-recompile-directory))
+
+(bind-key "C-c f" #'flush-lines)
+(bind-key "C-c k" #'keep-lines)
+
+(bind-key "C-c m" #'emacs-toggle-size)
+
 (bind-key "C-c n" #'insert-user-timestamp)
 (bind-key "C-c o" #'customize-option)
 (bind-key "C-c O" #'customize-group)
@@ -609,15 +551,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-c u" #'rename-uniquely)
 
 (bind-key "C-c v" #'ffap)
-
-(defun view-clipboard ()
-  (interactive)
-  (delete-other-windows)
-  (switch-to-buffer "*Clipboard*")
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (clipboard-yank)
-    (goto-char (point-min))))
 
 (bind-key "C-c V" #'view-clipboard)
 (bind-key "C-c z" #'clean-buffer-list)
@@ -631,14 +564,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (interactive)
   (kill-region (point) (point-max)))
 
-(bind-key "C-c C-z" #'delete-to-end-of-buffer)
-
 (defun copy-current-buffer-name ()
   (interactive)
   (let ((name (buffer-file-name)))
     (kill-new name)
     (message name)))
 
+(bind-key "C-c C-z" #'delete-to-end-of-buffer)
 (bind-key "C-c C-0" #'copy-current-buffer-name)
 
 ;;; C-c M-
@@ -665,8 +597,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
           (replace-match " " nil nil nil 1))))))
 
-(bind-key "C-c M-q" #'unfill-paragraph)
-
 (defun unfill-region (beg end)
   (interactive "r")
   (setq end (copy-marker end))
@@ -676,13 +606,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (unfill-paragraph 1)
       (forward-paragraph))))
 
+(bind-key "C-c M-q" #'unfill-paragraph)
+
 ;;; ctl-period-map
 
 ;;; C-.
-
-(bind-key "C-. m" #'kmacro-keymap)
-
-(bind-key "C-. C-i" #'indent-rigidly)
 
 (defvar insert-and-counting--index 1)
 (defvar insert-and-counting--expr nil)
@@ -701,12 +629,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (let ((n insert-and-counting--index))
     (eval expr)))
 
+(bind-key "C-. m" #'kmacro-keymap)
+(bind-key "C-. C-i" #'indent-rigidly)
 (bind-key "C-. C-y" #'insert-and-counting)
-
-;;; help-map
-
-(defvar lisp-find-map)
-(define-prefix-command 'lisp-find-map)
 
 ;;; C-h e
 
@@ -747,6 +672,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
+(defvar lisp-find-map)
+(define-prefix-command 'lisp-find-map)
+
 (bind-key "C-h e" #'lisp-find-map)
 (bind-key "C-h e e" #'view-echo-area-messages)
 (bind-key "C-h e f" #'find-function)
@@ -756,10 +684,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-h e s" #'scratch)
 (bind-key "C-h e v" #'find-variable)
 (bind-key "C-h e V" #'apropos-value)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; jww (2015-03-24): Move all of the above into declarations                ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Delayed configuration
 
@@ -803,44 +727,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("\\.m\\'"                   . c-mode)
          ("\\.mm\\'"                  . c++-mode))
   :preface
-  (defun my-paste-as-check ()
-    (interactive)
-    (save-excursion
-      (insert "/*\n")
-      (let ((beg (point)) end)
-        (yank)
-        (setq end (point-marker))
-        (goto-char beg)
-        (while (< (point) end)
-          (forward-char 2)
-          (insert "CHECK: ")
-          (forward-line 1)))
-      (insert "*/\n")))
-
-  (defvar printf-index 0)
-
-  (defun insert-counting-printf (arg)
-    (interactive "P")
-    (if arg
-        (setq printf-index 0))
-    (if t
-        (insert (format "std::cerr << \"step %d..\" << std::endl;\n"
-                        (setq printf-index (1+ printf-index))))
-      (insert (format "printf(\"step %d..\\n\");\n"
-                      (setq printf-index (1+ printf-index)))))
-    (forward-line -1)
-    (indent-according-to-mode)
-    (forward-line))
-
   (defun my-c-mode-common-hook ()
     (eldoc-mode 1)
-    (hs-minor-mode 1)
     (hide-ifdef-mode 1)
     (which-function-mode 1)
     (company-mode 1)
     (bug-reference-prog-mode 1)
 
-    (diminish 'hs-minor-mode)
     (diminish 'hide-ifdef-mode)
 
     ;; (doxymacs-mode 1)
@@ -850,7 +743,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (unbind-key "M-j" c-mode-base-map)
     (bind-key "C-c C-i" #'c-includes-current-file c-mode-base-map)
-    (bind-key "C-c C-y" #'my-paste-as-check c-mode-base-map)
 
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indicate-empty-lines t)
@@ -868,13 +760,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          (t
           (c-set-style "clang")))))
 
-    (font-lock-add-keywords 'c++-mode '(("\\<\\(assert\\|DEBUG\\)("
-                                         1 font-lock-warning-face t))))
+    (font-lock-add-keywords
+     'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
   :config
   (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
   (setq c-syntactic-indentation nil)
+
+  (bind-key "<" #'self-insert-command c++-mode-map)
+  (bind-key ">" #'self-insert-command c++-mode-map)
 
   (bind-key "#" #'self-insert-command c-mode-base-map)
   (bind-key "{" #'self-insert-command c-mode-base-map)
@@ -886,89 +781,90 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key ":" #'self-insert-command c-mode-base-map)
   (bind-key "(" #'self-insert-command c-mode-base-map)
   (bind-key ")" #'self-insert-command c-mode-base-map)
-  (bind-key "<" #'self-insert-command c++-mode-map)
-  (bind-key ">" #'self-insert-command c++-mode-map)
 
-  (add-to-list 'c-style-alist
-               '("edg"
-                 (indent-tabs-mode . nil)
-                 (c-basic-offset . 2)
-                 (c-comment-only-line-offset . (0 . 0))
-                 (c-hanging-braces-alist
-                  . ((substatement-open before after)
-                     (arglist-cont-nonempty)))
-                 (c-offsets-alist
-                  . ((statement-block-intro . +)
-                     (knr-argdecl-intro . 5)
-                     (substatement-open . 0)
-                     (substatement-label . 0)
-                     (label . 0)
-                     (case-label . +)
-                     (statement-case-open . 0)
-                     (statement-cont . +)
-                     (arglist-intro . +)
-                     (arglist-close . +)
-                     (inline-open . 0)
-                     (brace-list-open . 0)
-                     (topmost-intro-cont
-                      . (first c-lineup-topmost-intro-cont
-                               c-lineup-gnu-DEFUN-intro-cont))))
-                 (c-special-indent-hook . c-gnu-impose-minimum)
-                 (c-block-comment-prefix . "")))
+  (add-to-list
+   'c-style-alist
+   '("edg"
+     (indent-tabs-mode . nil)
+     (c-basic-offset . 2)
+     (c-comment-only-line-offset . (0 . 0))
+     (c-hanging-braces-alist
+      . ((substatement-open before after)
+         (arglist-cont-nonempty)))
+     (c-offsets-alist
+      . ((statement-block-intro . +)
+         (knr-argdecl-intro . 5)
+         (substatement-open . 0)
+         (substatement-label . 0)
+         (label . 0)
+         (case-label . +)
+         (statement-case-open . 0)
+         (statement-cont . +)
+         (arglist-intro . +)
+         (arglist-close . +)
+         (inline-open . 0)
+         (brace-list-open . 0)
+         (topmost-intro-cont
+          . (first c-lineup-topmost-intro-cont
+                   c-lineup-gnu-DEFUN-intro-cont))))
+     (c-special-indent-hook . c-gnu-impose-minimum)
+     (c-block-comment-prefix . "")))
 
-  (add-to-list 'c-style-alist
-               '("ledger"
-                 (indent-tabs-mode . nil)
-                 (c-basic-offset . 2)
-                 (c-comment-only-line-offset . (0 . 0))
-                 (c-hanging-braces-alist
-                  . ((substatement-open before after)
-                     (arglist-cont-nonempty)))
-                 (c-offsets-alist
-                  . ((statement-block-intro . +)
-                     (knr-argdecl-intro . 5)
-                     (substatement-open . 0)
-                     (substatement-label . 0)
-                     (label . 0)
-                     (case-label . 0)
-                     (statement-case-open . 0)
-                     (statement-cont . +)
-                     (arglist-intro . +)
-                     (arglist-close . +)
-                     (inline-open . 0)
-                     (brace-list-open . 0)
-                     (topmost-intro-cont
-                      . (first c-lineup-topmost-intro-cont
-                               c-lineup-gnu-DEFUN-intro-cont))))
-                 (c-special-indent-hook . c-gnu-impose-minimum)
-                 (c-block-comment-prefix . "")))
+  (add-to-list
+   'c-style-alist
+   '("ledger"
+     (indent-tabs-mode . nil)
+     (c-basic-offset . 2)
+     (c-comment-only-line-offset . (0 . 0))
+     (c-hanging-braces-alist
+      . ((substatement-open before after)
+         (arglist-cont-nonempty)))
+     (c-offsets-alist
+      . ((statement-block-intro . +)
+         (knr-argdecl-intro . 5)
+         (substatement-open . 0)
+         (substatement-label . 0)
+         (label . 0)
+         (case-label . 0)
+         (statement-case-open . 0)
+         (statement-cont . +)
+         (arglist-intro . +)
+         (arglist-close . +)
+         (inline-open . 0)
+         (brace-list-open . 0)
+         (topmost-intro-cont
+          . (first c-lineup-topmost-intro-cont
+                   c-lineup-gnu-DEFUN-intro-cont))))
+     (c-special-indent-hook . c-gnu-impose-minimum)
+     (c-block-comment-prefix . "")))
 
-  (add-to-list 'c-style-alist
-               '("clang"
-                 (indent-tabs-mode . nil)
-                 (c-basic-offset . 2)
-                 (c-comment-only-line-offset . (0 . 0))
-                 (c-hanging-braces-alist
-                  . ((substatement-open before after)
-                     (arglist-cont-nonempty)))
-                 (c-offsets-alist
-                  . ((statement-block-intro . +)
-                     (knr-argdecl-intro . 5)
-                     (substatement-open . 0)
-                     (substatement-label . 0)
-                     (label . 0)
-                     (case-label . 0)
-                     (statement-case-open . 0)
-                     (statement-cont . +)
-                     (arglist-intro . +)
-                     (arglist-close . +)
-                     (inline-open . 0)
-                     (brace-list-open . 0)
-                     (topmost-intro-cont
-                      . (first c-lineup-topmost-intro-cont
-                               c-lineup-gnu-DEFUN-intro-cont))))
-                 (c-special-indent-hook . c-gnu-impose-minimum)
-                 (c-block-comment-prefix . ""))))
+  (add-to-list
+   'c-style-alist
+   '("clang"
+     (indent-tabs-mode . nil)
+     (c-basic-offset . 2)
+     (c-comment-only-line-offset . (0 . 0))
+     (c-hanging-braces-alist
+      . ((substatement-open before after)
+         (arglist-cont-nonempty)))
+     (c-offsets-alist
+      . ((statement-block-intro . +)
+         (knr-argdecl-intro . 5)
+         (substatement-open . 0)
+         (substatement-label . 0)
+         (label . 0)
+         (case-label . 0)
+         (statement-case-open . 0)
+         (statement-cont . +)
+         (arglist-intro . +)
+         (arglist-close . +)
+         (inline-open . 0)
+         (brace-list-open . 0)
+         (topmost-intro-cont
+          . (first c-lineup-topmost-intro-cont
+                   c-lineup-gnu-DEFUN-intro-cont))))
+     (c-special-indent-hook . c-gnu-impose-minimum)
+     (c-block-comment-prefix . ""))))
 
 ;;; PACKAGE CONFIGURATIONS
 
@@ -1037,30 +933,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (indent-region beg end-mark nil)
         (align beg end-mark)))))
 
-(use-package allout
-  :disabled t
-  :diminish allout-mode
-  :commands allout-mode
-  :config
-  (defvar allout-unprefixed-keybindings nil)
-
-  (defun my-allout-mode-hook ()
-    (dolist (mapping '((?b . allout-hide-bodies)
-                       (?c . allout-hide-current-entry)
-                       (?l . allout-hide-current-leaves)
-                       (?i . allout-show-current-branches)
-                       (?e . allout-show-entry)
-                       (?o . allout-show-to-offshoot)))
-      (eval `(bind-key ,(concat (format-kbd-macro allout-command-prefix)
-                                " " (char-to-string (car mapping)))
-                       (quote ,(cdr mapping))
-                       allout-mode-map)))
-
-    (if (memq major-mode lisp-modes)
-        (unbind-key "C-k" allout-mode-map)))
-
-  (add-hook 'allout-mode-hook 'my-allout-mode-hook))
-
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
   :commands ascii-on
@@ -1079,11 +951,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/site-lang/auctex"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
+
   :init
   (setq reftex-plug-into-AUCTeX t)
-  (setenv "PATH" (concat "/Library/TeX/texbin:"
-                         (getenv "PATH")))
+  (setenv "PATH" (concat "/Library/TeX/texbin:" (getenv "PATH")))
   (add-to-list 'exec-path "/Library/TeX/texbin")
+
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -1138,110 +1011,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (avy-setup-default))
 
-(use-package awk-it
-  :commands (awk-it
-             awk-it-with-separator
-             awk-it-single
-             awk-it-single-with-separator
-             awk-it-raw
-             awk-it-file
-             awk-it-with-file
-             awk-it-to-kill-ring
-             awk-it-to-file))
-
 (use-package backup-each-save
   :commands backup-each-save
-  :preface
-  (defun show-backups ()
-    (interactive)
-    (require 'find-dired)
-    (let* ((file (make-backup-file-name (buffer-file-name)))
-           (dir (file-name-directory file))
-           (args (concat "-iname '" (file-name-nondirectory file)
-                         ".~*~'"))
-           (dired-buffers dired-buffers)
-           (find-ls-option '("-print0 | xargs -0 ls -lta" . "-lta")))
-      ;; Check that it's really a directory.
-      (or (file-directory-p dir)
-          (error "Backup directory does not exist: %s" dir))
-      (with-current-buffer (get-buffer-create "*Backups*")
-        (let ((find (get-buffer-process (current-buffer))))
-          (when find
-            (if (or (not (eq (process-status find) 'run))
-                    (yes-or-no-p "A `find' process is running; kill it? "))
-                (condition-case nil
-                    (progn
-                      (interrupt-process find)
-                      (sit-for 1)
-                      (delete-process find))
-                  (error nil))
-              (error "Cannot have two processes in `%s' at once"
-                     (buffer-name)))))
-
-        (widen)
-        (kill-all-local-variables)
-        (setq buffer-read-only nil)
-        (erase-buffer)
-        (setq default-directory dir
-              args (concat
-                    find-program " . "
-                    (if (string= args "")
-                        ""
-                      (concat
-                       (shell-quote-argument "(")
-                       " " args " "
-                       (shell-quote-argument ")")
-                       " "))
-                    (if (string-match "\\`\\(.*\\) {} \\(\\\\;\\|+\\)\\'"
-                                      (car find-ls-option))
-                        (format "%s %s %s"
-                                (match-string 1 (car find-ls-option))
-                                (shell-quote-argument "{}")
-                                find-exec-terminator)
-                      (car find-ls-option))))
-        ;; Start the find process.
-        (message "Looking for backup files...")
-        (shell-command (concat args "&") (current-buffer))
-        ;; The next statement will bomb in classic dired (no optional arg
-        ;; allowed)
-        (dired-mode dir (cdr find-ls-option))
-        (let ((map (make-sparse-keymap)))
-          (set-keymap-parent map (current-local-map))
-          (define-key map "\C-c\C-k" 'kill-find)
-          (use-local-map map))
-        (make-local-variable 'dired-sort-inhibit)
-        (setq dired-sort-inhibit t)
-        (set (make-local-variable 'revert-buffer-function)
-             `(lambda (ignore-auto noconfirm)
-                (find-dired ,dir ,find-args)))
-        ;; Set subdir-alist so that Tree Dired will work:
-        (if (fboundp 'dired-simple-subdir-alist)
-            ;; will work even with nested dired format (dired-nstd.el,v 1.15
-            ;; and later)
-            (dired-simple-subdir-alist)
-          ;; else we have an ancient tree dired (or classic dired, where
-          ;; this does no harm)
-          (set (make-local-variable 'dired-subdir-alist)
-               (list (cons default-directory (point-min-marker)))))
-        (set (make-local-variable 'dired-subdir-switches)
-             find-ls-subdir-switches)
-        (setq buffer-read-only nil)
-        ;; Subdir headlerline must come first because the first marker in
-        ;; subdir-alist points there.
-        (insert "  " dir ":\n")
-        ;; Make second line a ``find'' line in analogy to the ``total'' or
-        ;; ``wildcard'' line.
-        (insert "  " args "\n")
-        (setq buffer-read-only t)
-        (let ((proc (get-buffer-process (current-buffer))))
-          (set-process-filter proc (function find-dired-filter))
-          (set-process-sentinel proc (function find-dired-sentinel))
-          ;; Initialize the process marker; it is used by the filter.
-          (move-marker (process-mark proc) 1 (current-buffer)))
-        (setq mode-line-process '(":%s")))))
-
-  (bind-key "C-x ~" #'show-backups)
-
   :init
   (defun my-make-backup-file-name (file)
     (make-backup-file-name-1 (file-truename file)))
@@ -1263,25 +1034,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (normal-backup-enable-predicate filename)))
 
   (setq backup-enable-predicate 'my-dont-backup-files-p))
-
-(use-package bbdb-com
-  :load-path "site-lisp/site-bbdb/bbdb/lisp"
-  :commands bbdb-create
-  :bind ("M-B" . bbdb)
-  :config
-  (use-package osx-bbdb
-    :load-path "site-lisp/site-bbdb/osx-bbdb"
-    :commands import-osx-contacts-to-bbdb)
-
-  (use-package bbdb-vcard
-    :disabled t
-    :load-path "site-lisp/site-bbdb/bbdb-vcard")
-
-  (use-package bbdb-vcard-export
-    :disabled t)
-
-  (use-package bbdb-vcard-import
-    :disabled t))
 
 (use-package bookmark
   :load-path "site-lisp/bookmark-plus"
@@ -1326,7 +1078,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    (funcall (plist-get info :secret)))))))
 
 (use-package cl-info
-  ;; (shell-command "rm -f lisp/cl-info.el*")
   :disabled t)
 
 (use-package cmake-mode
@@ -1411,7 +1162,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/dash-at-point"
   :bind ("C-c D" . dash-at-point)
   :config
-  (add-to-list 'dash-at-point-mode-alist '(haskell-mode . "haskell")))
+  (add-to-list 'dash-at-point-mode-alist
+               '(haskell-mode . "haskell")))
 
 (use-package debbugs-gnu
   :load-path "elpa/packages/debbugs"
@@ -1427,8 +1179,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package diffview
   :commands (diffview-current diffview-region diffview-message))
-
-(use-package diminish)
 
 (use-package dired
   :bind ("C-c J" . dired-double-jump)
@@ -1466,9 +1216,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (bind-key "l" #'dired-up-directory dired-mode-map)
-
   (bind-key "<tab>" #'my-dired-switch-window dired-mode-map)
-
   (bind-key "M-!" #'async-shell-command dired-mode-map)
   (unbind-key "M-G" dired-mode-map)
 
@@ -1479,9 +1227,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package dired-ranger
     :bind (:map dired-mode-map
-                ("W" . dired-ranger-copy)
-                ("X" . dired-ranger-move)
-                ("Y" . dired-ranger-paste)))
+           ("W" . dired-ranger-copy)
+           ("X" . dired-ranger-move)
+           ("Y" . dired-ranger-paste)))
 
   (use-package dired-toggle
     :load-path "site-lisp/site-dired/dired-toggle"
@@ -1631,22 +1379,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (defvar ctl-period-equals-map)
   (define-prefix-command 'ctl-period-equals-map)
-  (bind-key "C-. =" #'ctl-period-equals-map)
-
-  :bind (("C-. = b" . ediff-buffers)
-         ("C-. = B" . ediff-buffers3)
-         ("C-. = c" . compare-windows)
-         ("C-. = =" . ediff-files)
-         ("C-. = f" . ediff-files)
-         ("C-. = F" . ediff-files3)
-         ("C-. = r" . ediff-revision)
-         ("C-. = p" . ediff-patch-file)
-         ("C-. = P" . ediff-patch-buffer)
-         ("C-. = l" . ediff-regions-linewise)
-         ("C-. = w" . ediff-regions-wordwise))
 
   :config
-  (use-package ediff-keep))
+  (use-package ediff-keep)
+
+  (bind-keys
+   :prefix-map ctl-period-equals-map
+   :prefix "C-. ="
+   ("b" . ediff-buffers)
+   ("B" . ediff-buffers3)
+   ("c" . compare-windows)
+   ("=" . ediff-files)
+   ("f" . ediff-files)
+   ("F" . ediff-files3)
+   ("r" . ediff-revision)
+   ("p" . ediff-patch-file)
+   ("P" . ediff-patch-buffer)
+   ("l" . ediff-regions-linewise)
+   ("w" . ediff-regions-wordwise)))
 
 (use-package edit-env
   :commands edit-env)
@@ -1655,6 +1405,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-c e v" . edit-variable))
 
 (use-package erc
+  :if running-alternate-emacs
   :defer t
   :defines (erc-timestamp-only-if-changed-flag
             erc-timestamp-format
@@ -1679,15 +1430,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun irc ()
     (interactive)
     (require 'erc)
-    (if (slowping titan-ip)
-        (erc :server titan-ip
+    (erc-tls :server "irc.freenode.net"
              :port 6697
              :nick "johnw"
-             :password (lookup-password titan-ip "johnw/freenode" 6697))
-      (erc-tls :server "irc.freenode.net"
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password "irc.freenode.net" "johnw" 6667))))
+             :password (lookup-password "irc.freenode.net" "johnw" 6667)))
 
   (defun setup-irc-environment ()
     (setq erc-timestamp-only-if-changed-flag nil
@@ -1726,8 +1472,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    'erc-mode-hook
    #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
 
-  (if running-alternate-emacs
-      (add-hook 'after-init-hook 'irc))
+  (add-hook 'after-init-hook 'irc)
 
   :config
   (erc-track-minor-mode 1)
@@ -1815,12 +1560,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("A-M-g" . eww))
 
 (use-package expand-region
-  :bind ("C-. w" . expand-region)
+  :bind ("C-. w" . er/expand-region)
   :load-path "site-lisp/expand-region-el")
 
 (use-package fancy-narrow
   :bind (("C-. n" . fancy-narrow-to-region)
-         ("C-. W" . fancy-widen))
+         ("C-. N" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen)
   :load-path "site-lisp/fancy-narrow")
 
@@ -1831,27 +1576,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/site-lang/flycheck"
   :defer 5
   :config
-  (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
-  ;; :init
-  ;; (progn
-  ;;   (flycheck-define-checker clang++-ledger
-  ;;     "Clang++ checker for Ledger"
-  ;;     :command
-  ;;     '("clang++" "-Wall" "-fsyntax-only"
-  ;;       "-I/Users/johnw/Products/ledger/debug" "-I../lib"
-  ;;       "-I../lib/utfcpp/source"
-  ;;       "-I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7"
-  ;;       "-include" "system.hh" "-c" source-inplace)
-  ;;     :error-patterns
-  ;;     '(("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): warning:\\s-*\\(?4:.*\\)"
-  ;;        warning)
-  ;;       ("^\\(?1:.*\\):\\(?2:[0-9]+\\):\\(?3:[0-9]+\\): error:\\s-*\\(?4:.*\\)"
-  ;;        error))
-  ;;     :modes 'c++-mode
-  ;;     :predicate '(string-match "/ledger/" (buffer-file-name)))
-
-  ;;   (push 'clang++-ledger flycheck-checkers))
-  )
+  (defalias 'flycheck-show-error-at-point-soon
+    'flycheck-show-error-at-point))
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -1881,8 +1607,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (message (buffer-substring (point-min) (1- (point-max)))))))
 
 (use-package git-annex-el
-  ;; (shell-command "rm -fr lisp/git-annex-el")
-  ;; (shell-command "git remote rm ext/git-annex-el")
   :disabled t
   :load-path "lisp/site-git/git-annex-el")
 
@@ -1910,12 +1634,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/site-git/git-timemachine"
   :commands git-timemachine)
 
-(use-package git-wip-mode
-  :load-path "site-lisp/site-git/git-wip/emacs"
-  :diminish git-wip-mode
-  :commands git-wip-mode
-  :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
-
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
@@ -1928,16 +1646,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
 
   (grep-apply-setting 'grep-command "egrep -nH -e ")
-  (grep-apply-setting
-   'grep-find-command
-   '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61))
   ;; (grep-apply-setting
   ;;  'grep-find-command
-  ;;  '("rg --no-heading --color=always -j4 -nH -e " . 43))
+  ;;  '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61))
+  (grep-apply-setting
+   'grep-find-command
+   '("rg --no-heading --color=always -j4 -nH -e " . 43))
   )
 
 (use-package gtags
-  ;; (shell-command "rm -f site-lisp/gtags.el*")
   :disabled t)
 
 (use-package gud
@@ -2001,38 +1718,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      (format "http://127.0.0.1:8687/?hoogle=%s"
              (replace-regexp-in-string
               " " "+" (replace-regexp-in-string "\\+" "%2B" query)))))
-
-  (defun insert-scc-at-point ()
-    "Insert an SCC annotation at point."
-    (interactive)
-    (if (or (looking-at "\\b\\|[ \t]\\|$") (and (not (bolp))
-                                                (save-excursion
-                                                  (forward-char -1)
-                                                  (looking-at "\\b\\|[ \t]"))))
-        (let ((space-at-point (looking-at "[ \t]")))
-          (unless (and (not (bolp)) (save-excursion
-                                      (forward-char -1)
-                                      (looking-at "[ \t]")))
-            (insert " "))
-          (insert "{-# SCC \"\" #-}")
-          (unless space-at-point
-            (insert " "))
-          (forward-char (if space-at-point -5 -6)))
-      (error "Not over an area of whitespace")))
-
-  (defun kill-scc-at-point ()
-    "Kill the SCC annotation at point."
-    (interactive)
-    (save-excursion
-      (let ((old-point (point))
-            (scc "\\({-#[ \t]*SCC \"[^\"]*\"[ \t]*#-}\\)[ \t]*"))
-        (while (not (or (looking-at scc) (bolp)))
-          (forward-char -1))
-        (if (and (looking-at scc)
-                 (<= (match-beginning 1) old-point)
-                 (> (match-end 1) old-point))
-            (kill-region (match-beginning 0) (match-end 0))
-          (error "No SCC at point")))))
 
   (defvar haskell-prettify-symbols-alist
     '(("::"     . ?∷)
@@ -2262,7 +1947,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package iflipb
   :load-path "site-lisp/iflipb"
-  :bind ("C-. C-." . iflipb-previous-buffer)
+  :bind ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
   (defvar my-iflipb-auto-off-timeout-sec 2)
@@ -2324,9 +2009,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package info-look
   :commands info-lookup-add-help)
-
-(use-package inventory
-  :commands inventory)
 
 (use-package isearch
   :no-require t
@@ -2433,8 +2115,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (forward-line)))))
 
 (use-package lentic
-  ;; (shell-command "rm -fr site-lisp/lentic")
-  ;; (shell-command "git remote rm ext/lentic")
   :disabled t
   :load-path "site-lisp/lentic")
 
@@ -2806,8 +2486,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (list "http://ftp.newartisans.com/pub/github.css"))))
 
 (use-package mediawiki
-  ;; (shell-command "rm -fr site-lisp/mediawiki")
-  ;; (shell-command "git remote rm ext/mediawiki")
   :disabled t
   :load-path "site-lisp/mediawiki")
 
@@ -3534,13 +3212,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-history-push default-directory)
         (sr-beginning-of-buffer)))))
 
-(use-package swiper-helm
-  :load-path ("site-lisp/ivy/swiper"
-              "site-lisp/ivy/swiper-helm")
-  :bind ("C-. C-s" . swiper-helm)
-  :config
-  (use-package swiper
-    :load-path "site-lisp/ivy/swiper"))
+(use-package swiper
+  :load-path "site-lisp/ivy/swiper"
+  ;; :bind ("C-. C-s" . swiper)
+  :bind ("C-s" . swiper)
+  :init
+  (bind-key "C-." #'swiper-from-isearch isearch-mode-map))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
@@ -3584,7 +3261,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package tiny
   :load-path "site-lisp/tiny"
-  :bind ("C-. N" . tiny-expand))
+  :bind ("C-. x" . tiny-expand))
 
 (use-package tuareg
   :load-path "site-lisp/site-lang/tuareg"
@@ -3618,9 +3295,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (setq ad-return-value dockernames))
       ad-do-it)))
 
-(use-package transpar
-  :commands transpose-paragraph-as-table)
-
 (use-package transpose-mark
   :commands (transpose-mark
              transpose-mark-line
@@ -3636,7 +3310,18 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package vimish-fold
   :commands vimish-fold
-  :load-path "site-lisp/vimish-fold")
+  :load-path "site-lisp/vimish-fold"
+  :init
+  (defvar my-vimish-fold-map)
+  (define-prefix-command 'my-vimish-fold-map)
+
+  :config
+  (bind-keys
+   :prefix-map my-vimish-fold-map
+   :prefix "C-. v"
+   ("f" . vimish-fold)
+   ("d" . vimish-fold-delete)
+   ("D" . vimish-fold-delete-all)))
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
