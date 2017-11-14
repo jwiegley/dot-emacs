@@ -1060,6 +1060,7 @@
         (string-match "/\\(cree\\|EDG/Projects/edg\\)/"
                       (buffer-file-name buf)))
       . "cd ~/Products/cree/edg && (ninja && ctest -j$(ncpu)) & (cd ~/src/cree; mktags src ext/llvm) & wait"))))
+ '(smex-save-file "~/.emacs.d/data/smex-items")
  '(sp-highlight-pair-overlay nil)
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
