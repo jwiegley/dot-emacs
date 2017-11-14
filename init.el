@@ -2633,43 +2633,44 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("C-x b" . ido-switch-buffer)
          ("C-x B" . ido-switch-buffer-other-window))
   :preface
-  (eval-when-compile
-    (defvar ido-require-match)
-    (defvar ido-cur-item)
-    (defvar ido-show-confirm-message)
-    (defvar ido-selected)
-    (defvar ido-final-text))
+  ;; (eval-when-compile
+  ;;   (defvar ido-require-match)
+  ;;   (defvar ido-cur-item)
+  ;;   (defvar ido-show-confirm-message)
+  ;;   (defvar ido-selected)
+  ;;   (defvar ido-final-text))
 
-  (defun ido-smart-select-text ()
-    "Select the current completed item.  Do NOT descend into directories."
-    (interactive)
-    (when (and (or (not ido-require-match)
-                   (if (memq ido-require-match
-                             '(confirm confirm-after-completion))
-                       (if (or (eq ido-cur-item 'dir)
-                               (eq last-command this-command))
-                           t
-                         (setq ido-show-confirm-message t)
-                         nil))
-                   (ido-existing-item-p))
-               (not ido-incomplete-regexp))
-      (when ido-current-directory
-        (setq ido-exit 'takeprompt)
-        (unless (and ido-text (= 0 (length ido-text)))
-          (let ((match (ido-name (car ido-matches))))
-            (throw 'ido
-                   (setq ido-selected
-                         (if match
-                             (replace-regexp-in-string "/\\'" "" match)
-                           ido-text)
-                         ido-text ido-selected
-                         ido-final-text ido-text)))))
-      (exit-minibuffer)))
+  ;; (defun ido-smart-select-text ()
+  ;;   "Select the current completed item.  Do NOT descend into directories."
+  ;;   (interactive)
+  ;;   (when (and (or (not ido-require-match)
+  ;;                  (if (memq ido-require-match
+  ;;                            '(confirm confirm-after-completion))
+  ;;                      (if (or (eq ido-cur-item 'dir)
+  ;;                              (eq last-command this-command))
+  ;;                          t
+  ;;                        (setq ido-show-confirm-message t)
+  ;;                        nil))
+  ;;                  (ido-existing-item-p))
+  ;;              (not ido-incomplete-regexp))
+  ;;     (when ido-current-directory
+  ;;       (setq ido-exit 'takeprompt)
+  ;;       (unless (and ido-text (= 0 (length ido-text)))
+  ;;         (let ((match (ido-name (car ido-matches))))
+  ;;           (throw 'ido
+  ;;                  (setq ido-selected
+  ;;                        (if match
+  ;;                            (replace-regexp-in-string "/\\'" "" match)
+  ;;                          ido-text)
+  ;;                        ido-text ido-selected
+  ;;                        ido-final-text ido-text)))))
+  ;;     (exit-minibuffer)))
 
   :config
   (ido-mode 'buffer)
 
   (use-package ido-hacks
+    :disabled t
     :demand t
     :load-path "site-lisp/ido-hacks"
     :bind ("M-x" . my-ido-hacks-execute-extended-command)
@@ -2694,10 +2695,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config
     (flx-ido-mode 1))
 
-  (add-hook 'ido-minibuffer-setup-hook
-            #'(lambda ()
-                (bind-key "<return>" #'ido-smart-select-text
-                          ido-file-completion-map))))
+  ;; (add-hook 'ido-minibuffer-setup-hook
+  ;;           #'(lambda ()
+  ;;               (bind-key "<return>" #'ido-smart-select-text
+  ;;                         ido-file-completion-map)))
+  )
 
 (use-package iedit
   :load-path "site-lisp/iedit"
@@ -2858,7 +2860,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package json-snatcher))
 
 (use-package ledger-mode
-  :load-path "~/src/ledger/ledger-mode/lisp"
+  :load-path "~/src/ledger/lisp"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
   :preface
@@ -3702,6 +3704,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package rainbow-mode
   :commands rainbow-mode)
+
+(use-package rec-mode
+  :disabled t
+  :load-path "~/.nix-profile/share/emacs/site-lisp"
+  :mode ("\\.rec\\'" . rec-mode)
+  :commands rec-mode
+  :config
+  (defun rec-remove-continuation-line-marker-overlays ()
+    "Delete all the continuation line markers overlays."
+    (mapc 'delete-overlay rec-continuation-line-markers-overlays)
+    (setq rec-continuation-line-markers-overlays nil)))
 
 (use-package recentf
   :defer 10
