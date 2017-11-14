@@ -822,6 +822,8 @@
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
+ '(ivy-height 6)
+ '(ivy-use-virtual-buffers t)
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
  '(kill-do-not-save-duplicates t)
@@ -916,7 +918,7 @@
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude
    (quote
-    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")) t)
+    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)

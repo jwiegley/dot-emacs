@@ -47,7 +47,7 @@
 
   (require 'cl)
 
-  (defvar use-package-verbose t)
+  ;; (defvar use-package-verbose t)
   ;; (defvar use-package-expand-minimally t)
   (require 'use-package))
 
@@ -167,7 +167,6 @@
 
 ;;; global-map
 
-(autoload 'org-cycle "org" nil t)
 (autoload 'indent-according-to-mode "indent" nil t)
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
@@ -178,7 +177,6 @@
 (define-prefix-command 'ctl-period-map)
 (bind-key "C-." #'ctl-period-map)
 
-(bind-key* "<C-return>" #'other-window)
 (bind-key "C-z" #'delete-other-windows)
 
 ;;; M-
@@ -612,33 +610,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 ;;; C-.
 
-(defvar insert-and-counting--index 1)
-(defvar insert-and-counting--expr nil)
-
-(defun insert-and-counting (&optional index expr)
-  (interactive
-   (if (or current-prefix-arg
-           (not insert-and-counting--expr))
-       (list (setq insert-and-counting--index
-                   (prefix-numeric-value current-prefix-arg))
-             (setq insert-and-counting--expr
-                   (eval-expr-read-lisp-object-minibuffer "Pattern: ")))
-     (list (setq insert-and-counting--index
-                 (1+ insert-and-counting--index))
-           insert-and-counting--expr)))
-  (let ((n insert-and-counting--index))
-    (eval expr)))
-
 (bind-key "C-. m" #'kmacro-keymap)
 (bind-key "C-. C-i" #'indent-rigidly)
-(bind-key "C-. C-y" #'insert-and-counting)
 
 ;;; C-h e
-
-(defun my-switch-in-other-buffer (buf)
-  (when buf
-    (split-window-vertically)
-    (switch-to-buffer-other-window buf)))
 
 (defun check-papers ()
   (interactive)
@@ -672,18 +647,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
-(defvar lisp-find-map)
-(define-prefix-command 'lisp-find-map)
-
-(bind-key "C-h e" #'lisp-find-map)
-(bind-key "C-h e e" #'view-echo-area-messages)
-(bind-key "C-h e f" #'find-function)
-(bind-key "C-h e k" #'find-function-on-key)
-(bind-key "C-h e l" #'find-library)
-(bind-key "C-h e P" #'check-papers)
-(bind-key "C-h e s" #'scratch)
-(bind-key "C-h e v" #'find-variable)
-(bind-key "C-h e V" #'apropos-value)
+(bind-keys :prefix-map lisp-find-map
+           :prefix "C-h e"
+           ("e" . view-echo-area-messages)
+           ("f" . find-function)
+           ("k" . find-function-on-key)
+           ("l" . find-library)
+           ("P" . check-papers)
+           ("s" . scratch)
+           ("v" . find-variable)
+           ("V" . apropos-value))
 
 ;;; Delayed configuration
 
@@ -887,6 +860,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
+(use-package ace-window
+  :load-path "site-lisp/site-ivy/ace-window"
+  :bind ("<C-return>" . ace-window))
+
 (use-package agda2-mode
   :mode "\\.agda\\'"
   :load-path "site-lisp/site-lang/agda/src/data/emacs-mode"
@@ -986,17 +963,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                           :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
                           :doc-spec '(("(latex2e)Concept Index" )
                                       ("(latex2e)Command Index")))))
-
-(use-package auto-correct
-  :load-path "elpa/packages/auto-correct"
-  :commands auto-correct-mode
-  :diminish auto-correct-mode)
-
-(use-package auto-yasnippet
-  :load-path "site-lisp/auto-yasnippet"
-  :bind (("C-. w" . aya-create)
-         ("C-. y" . aya-expand)
-         ("C-. o" . aya-open-line)))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -1375,9 +1341,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (widen)))))
 
 (use-package ediff
-  :init
-  (defvar ctl-period-equals-map)
-  (define-prefix-command 'ctl-period-equals-map)
   :config
   (use-package ediff-keep)
   (bind-keys :prefix-map ctl-period-equals-map
@@ -1986,18 +1949,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-i" #'isearch-complete isearch-mode-map))
 
 (use-package ivy
+  :demand t
   :diminish ivy-mode
   :load-path "site-lisp/site-ivy/swiper"
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
+  :commands ivy-mode
   :config
+  (setq ivy-initial-inputs-alist nil
+        ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+
   (ivy-mode 1)
 
-  (setq ivy-use-virtual-buffers t
-        ivy-height 6
-        ivy-initial-inputs-alist nil
-        ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
+  (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map)
 
   (use-package ivy-rich
     :load-path "site-lisp/site-ivy/ivy-rich"
@@ -2006,7 +1972,27 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                                  'ivy-rich-switch-buffer-transformer)
     (setq ivy-virtual-abbreviate 'full
           ivy-rich-switch-buffer-align-virtual-buffer t)
-    (setq ivy-rich-path-style 'abbrev)))
+    (setq ivy-rich-path-style 'abbrev))
+
+  (use-package swiper
+    :load-path "site-lisp/ivy/swiper"
+    :bind (("C-s" . swiper)
+           ("C-r" . swiper))
+    :init
+    (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
+    :config
+    (bind-key "M-%" #'swiper-query-replace swiper-map)
+    (bind-key "M-h" #'swiper-avy swiper-map))
+
+  (use-package counsel
+    :bind (("M-x"     . counsel-M-x)
+           ("C-h f"   . counsel-describe-function)
+           ("C-h v"   . counsel-describe-variable)
+           ("C-h e l" . counsel-find-library)
+           ("C-h e u" . counsel-unicode-char))
+    :commands counsel-minibuffer-history
+    :init
+    (define-key minibuffer-local-map (kbd "M-r") 'counsel-minibuffer-history)))
 
 (use-package js2-mode
   :load-path "site-lisp/site-lang/js2-mode"
@@ -2634,6 +2620,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (use-package counsel-projectile
+    :after ivy
+    :if ivy-mode
     :load-path "site-lisp/site-ivy/counsel-projectile"
     :config
     (setq projectile-completion-system 'ivy)
@@ -3025,31 +3013,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-history-push default-directory)
         (sr-beginning-of-buffer)))))
 
-(use-package swiper
-  :demand t
-  :load-path "site-lisp/ivy/swiper"
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper))
-  :init
-  (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
-  :config
-  (bind-key "M-%" #'swiper-query-replace swiper-map)
-  (bind-key "M-h" #'swiper-avy swiper-map)
-
-  (use-package ivy
-    :config
-    (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
-    (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map))
-
-  (use-package counsel
-    :bind (("M-x" . counsel-M-x)
-           ("C-h f" . counsel-describe-function)
-           ("C-h v" . counsel-describe-variable)
-           ("C-h e l" . counsel-find-library)
-           ("C-h e u" . counsel-unicode-char))
-    :init
-    (define-key minibuffer-local-map (kbd "M-r") 'counsel-minibuffer-history)))
-
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
 
@@ -3144,9 +3107,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package vimish-fold
   :commands vimish-fold
   :load-path "site-lisp/vimish-fold"
-  :init
-  (defvar my-vimish-fold-map)
-  (define-prefix-command 'my-vimish-fold-map)
   :config
   (bind-keys :prefix-map my-vimish-fold-map
              :prefix "C-. v"
