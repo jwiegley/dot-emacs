@@ -1378,24 +1378,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (defvar ctl-period-equals-map)
   (define-prefix-command 'ctl-period-equals-map)
-
   :config
   (use-package ediff-keep)
-
-  (bind-keys
-   :prefix-map ctl-period-equals-map
-   :prefix "C-. ="
-   ("b" . ediff-buffers)
-   ("B" . ediff-buffers3)
-   ("c" . compare-windows)
-   ("=" . ediff-files)
-   ("f" . ediff-files)
-   ("F" . ediff-files3)
-   ("r" . ediff-revision)
-   ("p" . ediff-patch-file)
-   ("P" . ediff-patch-buffer)
-   ("l" . ediff-regions-linewise)
-   ("w" . ediff-regions-wordwise)))
+  (bind-keys :prefix-map ctl-period-equals-map
+             :prefix "C-. ="
+             ("b" . ediff-buffers)
+             ("B" . ediff-buffers3)
+             ("c" . compare-windows)
+             ("=" . ediff-files)
+             ("f" . ediff-files)
+             ("F" . ediff-files3)
+             ("r" . ediff-revision)
+             ("p" . ediff-patch-file)
+             ("P" . ediff-patch-buffer)
+             ("l" . ediff-regions-linewise)
+             ("w" . ediff-regions-wordwise)))
 
 (use-package edit-env
   :commands edit-env)
@@ -1787,19 +1784,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "lisp/haskell-config"
     :config (bind-key "C-c M-q" #'haskell-edit-reformat haskell-mode-map))
 
-  (use-package helm-hoogle
-    :disabled t
-    :load-path "lisp/helm-hoogle"
-    :commands helm-hoogle
-    :init (bind-key "A-M-h" #'helm-hoogle haskell-mode-map)
-    :config
-    (add-hook
-     'helm-c-hoogle-transform-hook
-     #'(lambda ()
-         (goto-char (point-min))
-         (while (re-search-forward "file:///nix/store" nil t)
-           (replace-match "http://127.0.0.1:8687/file//nix/store" t t)))))
-
   (eval-after-load 'align
     '(nconc
       align-rules-list
@@ -1815,41 +1799,41 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :if (not running-alternate-emacs)
   :demand t
   :load-path "site-lisp/site-helm/helm"
-  :bind ("C-c h"   . helm-command-prefix)
+  :bind ("C-c h" . helm-command-prefix)
 
   :config
-  (use-package helm-multi-match)
-
   (use-package helm
     :config
     (helm-autoresize-mode 1))
 
+  (use-package helm-multi-match)
+
   (bind-key "<tab>" #'helm-execute-persistent-action helm-map)
   (bind-key "C-i" #'helm-execute-persistent-action helm-map)
   (bind-key "C-z" #'helm-select-action helm-map)
-  (bind-key "A-v" #'helm-previous-page helm-map))
+  (bind-key "A-v" #'helm-previous-page helm-map)
 
-(use-package helm-descbinds
-  :load-path "site-lisp/site-helm/helm-descbinds"
-  :bind ("C-h b" . helm-descbinds)
-  :init
-  (fset 'describe-bindings 'helm-descbinds)
-  :config
-  (require 'helm-config))
+  (use-package helm-descbinds
+    :load-path "site-lisp/site-helm/helm-descbinds"
+    :bind ("C-h b" . helm-descbinds)
+    :init
+    (fset 'describe-bindings 'helm-descbinds)
+    :config
+    (require 'helm-config))
 
-(use-package helm-grep
-  :disabled t
-  :commands helm-do-grep-1
-  :bind (("M-s F" . my-helm-do-grep-r)
-         ("M-s g" . my-helm-do-grep))
-  :preface
-  (defun my-helm-do-grep ()
-    (interactive)
-    (helm-do-grep-1 (list default-directory)))
+  (use-package helm-grep
+    :disabled t
+    :commands helm-do-grep-1
+    :bind (("M-s F" . my-helm-do-grep-r)
+           ("M-s g" . my-helm-do-grep))
+    :preface
+    (defun my-helm-do-grep ()
+      (interactive)
+      (helm-do-grep-1 (list default-directory)))
 
-  (defun my-helm-do-grep-r ()
-    (interactive)
-    (helm-do-grep-1 (list default-directory) t)))
+    (defun my-helm-do-grep-r ()
+      (interactive)
+      (helm-do-grep-1 (list default-directory) t))))
 
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
@@ -2655,26 +2639,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (setq projectile-completion-system 'ivy)
     (counsel-projectile-on))
 
-  (use-package helm-projectile
-    :disabled t
-    :config
-    (setq projectile-completion-system 'helm)
-    (helm-projectile-on))
-
-  (projectile-global-mode)
-
-  ;; (bind-key "s s"
-  ;;           #'(lambda ()
-  ;;               (interactive)
-  ;;               (helm-do-grep-1 (list (projectile-project-root)) t))
-  ;;           'projectile-command-map)
-  )
+  (projectile-global-mode))
 
 (use-package proof-site
   :load-path ("site-lisp/site-lang/ProofGeneral/generic"
               "site-lisp/site-lang/ProofGeneral/lib"
               "site-lisp/site-lang/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
+
   :preface
   (eval-when-compile
     (defvar proof-auto-raise-buffers)
@@ -2684,6 +2656,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (declare-function proof-get-window-for-buffer "proof-utils")
     (declare-function proof-resize-window-tofit "proof-utils")
     (declare-function window-bottom-p "proof-compat"))
+
   :config
   (use-package company-coq
     :load-path "site-lisp/site-company/company-coq"
@@ -2710,8 +2683,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (add-hook
      'coq-mode-hook
      (lambda ()
-       (holes-mode -1)
        (set-input-method "Agda")
+       (holes-mode -1)
        (company-coq-mode 1)
        (set (make-local-variable 'fill-nobreak-predicate)
             (lambda ()
@@ -2869,28 +2842,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (setq sage-startup-before-prompt-command "")
 
-  (let* ((str
-          (shell-command-to-string
-           (concat
-            "find /nix/store/*-tetex-* -path "
-            "'*/share/texmf-dist/tex/latex/preview' -type d | head -1")))
-         (texinputs (concat ".:" (substring str 0 (1- (length str))) ":")))
-    (setenv "TEXINPUTS" texinputs)
-
-    ;; (eval
-    ;;  `(defadvice sage (around my-sage activate)
-    ;;     (let ((process-environment
-    ;;            (cons
-    ;;             (concat "TEXINPUTS=" ,texinputs)
-    ;;             (mapcar
-    ;;              (lambda (x)
-    ;;                (if (string-match "\\`PATH=" x)
-    ;;                    (concat "PATH=/usr/bin:/bin:"
-    ;;                            (expand-file-name "~/.nix-profile/bin")) x))
-    ;;              process-environment))))
-    ;;       ad-do-it)))
-    )
-
   (bind-key "C-c Z" #'sage))
 
 (use-package selected
@@ -2907,16 +2858,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "r" #'reverse-region selected-keymap)
   (bind-key "s" #'sort-lines selected-keymap)
   (bind-key "u" #'upcase-region selected-keymap))
-
-(use-package selectkey
-  :disabled t
-  :bind-keymap ("C-. b" . selectkey-select-prefix-map)
-  :config
-  (selectkey-define-select-key compile "c" "\\*compilation")
-  (selectkey-define-select-key shell-command "o" "Shell Command")
-  (selectkey-define-select-key shell "s" "\\*shell" (shell))
-  (selectkey-define-select-key multi-term "t" "\\*terminal" (multi-term-next))
-  (selectkey-define-select-key eshell "z" "\\*eshell" (eshell)))
 
 (use-package session
   :if (not noninteractive)
@@ -2987,96 +2928,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
-(use-package slime
-  :disabled t
-  :load-path "site-lisp/site-lang/slime"
-  :commands (sbcl slime)
-  :init
-  (add-hook
-   'slime-load-hook
-   #'(lambda ()
-       (slime-setup
-        '(slime-asdf
-          slime-autodoc
-          slime-banner
-          slime-c-p-c
-          slime-editing-commands
-          slime-fancy-inspector
-          slime-fancy
-          slime-fuzzy
-          slime-highlight-edits
-          slime-parse
-          slime-presentation-streams
-          slime-presentations
-          slime-references
-          slime-repl
-          slime-sbcl-exts
-          slime-package-fu
-          slime-fontifying-fu
-          slime-mdot-fu
-          slime-scratch
-          slime-tramp
-          slime-enclosing-context
-          slime-typeout-frame
-          slime-xref-browser
-          ))
-
-       (define-key slime-repl-mode-map [(control return)] 'other-window)
-
-       (define-key slime-mode-map [return] 'paredit-newline)
-       (define-key slime-mode-map [(control ?h) ?F] 'info-lookup-symbol)))
-
-  :config
-  (progn
-    (eval-when-compile
-      (defvar slime-repl-mode-map))
-
-    (setq slime-net-coding-system 'utf-8-unix)
-
-    (setq slime-lisp-implementations
-          '((sbcl
-             ("sbcl" "--core"
-              "/Users/johnw/Library/Lisp/sbcl.core-with-slime-X86-64")
-             :init
-             (lambda (port-file _)
-               (format "(swank:start-server %S)\n" port-file)))
-            (ecl ("ecl" "-load" "/Users/johnw/Library/Lisp/init.lisp"))
-            (clisp ("clisp" "-i" "/Users/johnw/Library/Lisp/lwinit.lisp"))))
-
-    (setq slime-default-lisp 'sbcl)
-    (setq slime-complete-symbol*-fancy t)
-    (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-
-    (defun sbcl (&optional arg)
-      (interactive "P")
-      (let ((slime-default-lisp (if arg 'sbcl64 'sbcl))
-            (current-prefix-arg nil))
-        (slime)))
-    (defun clisp () (interactive) (let ((slime-default-lisp 'clisp)) (slime)))
-    (defun ecl () (interactive) (let ((slime-default-lisp 'ecl)) (slime)))
-
-    (defun start-slime ()
-      (interactive)
-      (unless (slime-connected-p)
-        (save-excursion (slime))))
-
-    (add-hook 'slime-mode-hook 'start-slime)
-    (add-hook 'slime-load-hook #'(lambda () (require 'slime-fancy)))
-    (add-hook 'inferior-lisp-mode-hook #'(lambda () (inferior-slime-mode t)))
-
-    (use-package hyperspec
-      :config
-      (setq common-lisp-hyperspec-root
-            (expand-file-name "~/Library/Lisp/HyperSpec/")))))
-
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
   :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
 
 (use-package smerge-mode
-  :commands smerge-mode
-  :config
-  (setq smerge-command-prefix (kbd "C-. C-.")))
+  :commands smerge-mode)
 
 (use-package smex
   :defer 5
@@ -3179,6 +3036,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "M-%" #'swiper-query-replace swiper-map)
   (bind-key "M-h" #'swiper-avy swiper-map)
 
+  (use-package ivy
+    :config
+    (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
+    (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map))
+
   (use-package counsel
     :bind (("M-x" . counsel-M-x)
            ("C-h f" . counsel-describe-function)
@@ -3186,7 +3048,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("C-h e l" . counsel-find-library)
            ("C-h e u" . counsel-unicode-char))
     :init
-    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
     (define-key minibuffer-local-map (kbd "M-r") 'counsel-minibuffer-history)))
 
 (use-package tablegen-mode
@@ -3258,7 +3119,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
     a list of active Docker container names, followed by colons."
     (if (equal (ad-get-arg 1) "/docker:")
-        (let* ((dockernames-raw (shell-command-to-string "docker ps | perl -we 'use strict; $_ = <>; m/^(.*)NAMES/ or die; my $offset = length($1); while(<>) {substr($_, 0, $offset, q()); chomp; for(split m/\\W+/) {print qq($_:\n)} }'"))
+        (let* ((dockernames-raw
+                (shell-command-to-string
+                 "docker ps | perl -we 'use strict; $_ = <>; m/^(.*)NAMES/ or die; my $offset = length($1); while(<>) {substr($_, 0, $offset, q()); chomp; for(split m/\\W+/) {print qq($_:\n)} }'"))
                (dockernames (cl-remove-if-not
                              #'(lambda (dockerline) (string-match ":$" dockerline))
                              (split-string dockernames-raw "\n"))))
@@ -3284,14 +3147,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (defvar my-vimish-fold-map)
   (define-prefix-command 'my-vimish-fold-map)
-
   :config
-  (bind-keys
-   :prefix-map my-vimish-fold-map
-   :prefix "C-. v"
-   ("f" . vimish-fold)
-   ("d" . vimish-fold-delete)
-   ("D" . vimish-fold-delete-all)))
+  (bind-keys :prefix-map my-vimish-fold-map
+             :prefix "C-. v"
+             ("f" . vimish-fold)
+             ("d" . vimish-fold-delete)
+             ("D" . vimish-fold-delete-all)))
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
@@ -3309,7 +3170,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq vkill-show-all-processes t))
 
 (use-package wcount
-  :disabled t
   :commands wcount-mode)
 
 (use-package whitespace
