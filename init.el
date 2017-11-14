@@ -2025,10 +2025,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-H"   . ivy-resume))
   :config
   (ivy-mode 1)
+
   (setq ivy-use-virtual-buffers t
         ivy-height 6
         ivy-initial-inputs-alist nil
-        ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
+        ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+
+  (use-package ivy-rich
+    :load-path "site-lisp/site-ivy/ivy-rich"
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer)
+    (setq ivy-virtual-abbreviate 'full
+          ivy-rich-switch-buffer-align-virtual-buffer t)
+    (setq ivy-rich-path-style 'abbrev)))
 
 (use-package js2-mode
   :load-path "site-lisp/site-lang/js2-mode"
@@ -3084,6 +3094,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (setq smerge-command-prefix (kbd "C-. C-.")))
 
+(use-package smex
+  :defer 5
+  :load-path "site-lisp/smex"
+  :commands smex)
+
 (use-package sort-words
   :load-path "site-lisp/sort-words"
   :commands sort-words)
@@ -3180,7 +3195,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "M-%" #'swiper-query-replace swiper-map)
   (bind-key "M-h" #'swiper-avy swiper-map)
 
-  (use-package consel
+  (use-package counsel
     :bind (("M-x" . counsel-M-x)
            ("C-h f" . counsel-describe-function)
            ("C-h v" . counsel-describe-variable)
