@@ -1,0 +1,23 @@
+`macrostep-mode' is a minor mode for interactively stepping through
+the expansion of macros in Emacs Lisp source code. It lets you see
+exactly what happens at each step of the expansion process by
+pretty-printing the expanded forms inline in the source buffer, which
+is read-only while macro expansions are visible. You can expand and
+collapse macro forms one step at a time, and evaluate or instrument
+them for debugging with Edebug as normal (but see "Bugs and known
+limitations", below). Single-stepping through the expansion is useful
+for debugging macros that expand into another macro form, especially
+one like `lexical-let' that does significant rewriting. These can be
+difficult to debug with Emacs' built-in `macroexpand' because
+`macroexpand' continues expansion until the top-level form is no
+longer a macro call.
+
+macrostep-mode adds some simple additional fontification to
+macro-expanded text. The heads of macro sub-forms are fontified using
+`macrostep-macro-face'. Uninterned symbols (gensyms) are fontified
+based on which step in the expansion created them, to distinguish them
+from normal symbols and from other gensyms with the same print
+name. Use `customize-group' with the "macrostep" group to customize
+these faces.
+
+See the "Commentary" section of "macrostep.el" for more.

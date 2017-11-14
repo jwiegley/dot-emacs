@@ -1,0 +1,171 @@
+%%% bbdb-print.tex - for formatting address lists.
+
+%%% Authors: Luigi Semenzato <luigi@paris.cs.berkeley.edu>
+%%%          Boris Goldowsky <boris@cs.rochester.edu>
+%%% Copyright (C) 1993 Boris Goldowsky
+%%% Version: 3.92; 5Jan95
+
+%%% For instructions on using this format file with BBDB, see bbdb-print.el
+%%% which should have come bundled with this file.  The complete bbdb-print
+%%% package is also available via anonymous ftp at:
+%%% /cs.rochester.edu:/pub/u/boris/bbdb-print.tar.gz
+
+%%% This file is part of the bbdb-print extensions to the Insidious
+%%% Big Brother Database, which is for use with GNU Emacs.
+%%%
+%%% This program is free software; you can redistribute it and/or
+%%% modify it under the terms of the GNU General Public License as
+%%% published by the Free Software Foundation; either version 1, or
+%%% (at your option) any later version.
+%%%
+%%% This program is distributed in the hope that it will be useful,
+%%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+%%% General Public License for more details.
+%%%
+%%% You should have received a copy of the GNU General Public License
+%%% along with GNU Emacs; see the file COPYING.  If not, write to
+%%% the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+%%% The address-list file should look something like this:
+
+%%% \input file          % this format file's filename
+%%% \setsize{6}          % point size of type to use
+%%%                      % or \setpssize{6} to use PostScript fonts. (optional)
+%%% \setseparator{3}     % which style of separators, 0-7
+%%%
+%%% \separator{A}        % include a separator here
+%%%
+%%% \beginrecord         % and start a record
+%%% \name{A. Name}
+%%% \phone{location: (xxx) xxx-xxxx}
+%%% \address{1234 Main Street\\
+%%% Anytown, XX 00000\\}
+%%% \note{note name}{note text}
+%%% \notes{blah blah}
+%%% \endrecord
+%%% 
+%%% \endaddresses        % done
+%%% \bye
+
+\raggedright
+\tolerance=10000
+\hbadness=10000
+\parskip 0pt
+\parindent=0pt
+\footline{\hfil}
+
+%%%
+%%% Fonts
+%%%
+
+\def\setsize#1{
+  \font\rm=ecrm#1
+  \font\bf=ecbx#1
+  \font\it=\ifnum #1=6 ecti7 \else ecti#1 \fi
+  \font\tt=ectt#1
+  \font\bigbf=ecbx#1 scaled \magstep3
+  \rm
+  \baselineskip=#1pt
+  \ifnum #1>9 \advance\baselineskip by 1pt \fi
+}
+
+\def\setpssize#1{
+  \font\rm=ptmr at #1pt
+  \font\bf=ptmb at #1pt
+  \font\it=ptmri at #1pt
+  \font\tt=pcrr at #1pt
+  {\dimen0=#1pt\global\font\bigbf=ptmb at 1.8\dimen0}
+  \rm
+  \baselineskip=#1pt
+}
+
+%%%
+%%% Define separator types
+%%% 
+
+\def\setseparator#1{
+  \ifnum #1=1
+    \def\separator##1{\hrule\smallskip\mark{##1}}
+  \else \ifnum #1=2
+    \def\separator##1{\hbox{\vrule\hskip -0.4pt\vbox{\hrule\smallskip
+            \centerline{\bf{##1}}\smallskip\hrule}\hskip -0.4pt\vrule
+            \mark{##1}}}
+  \else \ifnum #1=3
+    \def\separator##1{\hbox{\vrule\hskip -0.4pt\vbox{\hrule\smallskip
+            \centerline{\bigbf{##1}}\smallskip\hrule}\hskip -0.4pt\vrule}
+            \medskip\mark{##1}}
+  \else \ifnum #1=4
+    \def\separator##1{\smallskip\centerline{\bigbf{##1}}\medskip\mark{##1}}
+  \else \ifnum #1=5
+    \def\separator##1{\hrule\smallskip
+            \centerline{\bigbf{##1}}\smallskip\hrule\medskip\mark{##1}}
+  \else \ifnum #1=6
+    \def\cute{$\sya\syb\syc\syd$}
+    \def\revcute{$\syd\syc\syb\sya$}
+    \let\sya=\heartsuit\let\syb=\spadesuit
+      \let\syc\diamondsuit\let\syd=\clubsuit
+    \def\cycle{\let\tmp=\sya\let\sya=\syb
+                   \let\syb=\syc\let\syc=\syd\let\syd=\tmp}
+    \def\separator##1{\smallskip
+        \hbox to \hsize{\hfil\cute\hfil\bigbf{##1}\hfil\revcute\hfil}
+        \cycle\medskip\mark{##1}}
+  \else \ifnum #1=7
+    \def\cute{$\sya\syb\syc\syd$}
+    \def\revcute{$\syd\syc\syb\sya$}
+    \let\sya=\heartsuit\let\syb=\spadesuit
+    \let\syc=\diamondsuit\let\syd=\clubsuit
+    \def\cycle{\let\tmp=\sya\let\sya=\syb\let\syb=\syc\let\syc=\syd
+               \let\syd=\tmp}
+    \def\separator##1{\hbox{\vrule\vbox{\hrule\smallskip
+            \hbox to \hsize{\hfil\cute\hfil\bigbf{##1}\hfil\revcute\hfil}
+            \smallskip\hrule}\vrule}\medskip\cycle\mark{##1}}
+  \else
+    \def\separator##1{\mark{##1}}
+  \fi\fi\fi\fi\fi\fi\fi
+} % end setseparator
+
+%%%
+%%% Macros for formatting the entries.
+%%%
+
+\def\beginaddresses{}
+
+\def\endaddresses{
+  \bigskip\hrule\smallskip
+  \noindent {\bf Printed \today}\vfill\endcol}
+
+\def\beginrecord{\bigbreak}
+
+\def\endrecord{\bigbreak}
+
+\def\\{\par}
+
+\def\dots{\leaders\hbox to 0.6em{\hss.\hss}}
+
+\def\firstline#1#2{% the name and (maybe) the first phone number.
+  \hyphenpenalty=10000\rightskip=0pt plus 1fil
+  \noindent{\bf #1}\dotfill\penalty-1\hbox{}\dotfill{#2}\\
+}
+
+\def\name#1{\firstline{#1}{}} % for backwards compatibility
+
+\def\comp#1{#1\\}
+
+\def\phone#1{\hfill#1\\}
+
+\def\email#1{\smallbreak{\tt#1}\\}
+
+\def\address#1{\smallbreak#1\smallbreak}
+
+\def\note#1#2{{\smallbreak\leftskip=2em\parindent=-1em
+  \noindent\hskip-\leftskip{\it#1:  } #2\\ }}
+
+\def\notes#1{\smallbreak{\it(#1)}\\ }
+
+\def\today{\number\day\space
+        \ifcase\month\or Jan\or Feb\or Mar\or Apr \or May\or June\or
+        Jul\or Aug\or Sept\or Oct\or Nov\or Dec\fi
+        \space\number\year}
+
+%%% bbdb-print.tex ends here.

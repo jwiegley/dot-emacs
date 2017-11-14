@@ -1,0 +1,196 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/NixOS.org) (preloaded format=pdflatex 2017.11.4)  6 NOV 2017 15:22
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**\nonstopmode \AtBeginDocument{\OnlyDescription}\input{preview.drv}
+(./preview.drv
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/latex/base/ltxdoc.cls
+Document Class: ltxdoc 2015/03/26 v2.0w Standard LaTeX documentation class
+
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/latex/base/size10.clo
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/latex/base/doc.sty
+Package: doc 2016/02/15 v2.1g Standard LaTeX documentation package (FMi)
+\c@StandardModuleDepth=\count87
+\guard@level=\count88
+\MacrocodeTopsep=\skip43
+\MacroIndent=\dimen103
+\macro@cnt=\count89
+\MacroTopsep=\skip44
+\index@excludelist=\toks14
+
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/latex/tools/multicol.sty
+Package: multicol 2016/04/07 v1.8p multicolumn formatting (FMi)
+\c@tracingmulticols=\count90
+\mult@box=\box26
+\multicol@leftmargin=\dimen104
+\c@unbalance=\count91
+\c@collectmore=\count92
+\doublecol@number=\count93
+\multicoltolerance=\count94
+\multicolpretolerance=\count95
+\full@width=\dimen105
+\page@free=\dimen106
+\premulticols=\dimen107
+\postmulticols=\dimen108
+\multicolsep=\skip45
+\multicolbaselineskip=\skip46
+\partial@page=\box27
+\last@line=\box28
+\maxbalancingoverflow=\dimen109
+\mult@rightbox=\box29
+\mult@grightbox=\box30
+\mult@gfirstbox=\box31
+\mult@firstbox=\box32
+\@tempa=\box33
+\@tempa=\box34
+\@tempa=\box35
+\@tempa=\box36
+\@tempa=\box37
+\@tempa=\box38
+\@tempa=\box39
+\@tempa=\box40
+\@tempa=\box41
+\@tempa=\box42
+\@tempa=\box43
+\@tempa=\box44
+\@tempa=\box45
+\@tempa=\box46
+\@tempa=\box47
+\@tempa=\box48
+\@tempa=\box49
+\c@columnbadness=\count96
+\c@finalcolumnbadness=\count97
+\last@try=\dimen110
+\multicolovershoot=\dimen111
+\multicolundershoot=\dimen112
+\mult@nat@firstbox=\box50
+\colbreak@box=\box51
+\mc@col@check@num=\count98
+)
+\IndexMin=\dimen113
+\c@IndexColumns=\count99
+\GlossaryMin=\dimen114
+\c@GlossaryColumns=\count100
+\check@sum=\count101
+\bslash@cnt=\count102
+\wrong@table=\toks15
+\c@CodelineNo=\count103
+)) (./preview.sty
+Package: preview 2017/04/24 11.91 (AUCTeX/preview-latex)
+
+(/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+tex/generic/luatex85/luatex85.sty
+Package: luatex85 2016/06/15 v1.4 pdftex aliases for luatex
+)) (./preview.aux)
+\openout1 = `preview.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
+LaTeX Font Info:    ... okay on input line 29.
+Package doc Info: Made | a short reference for \verb on input line 29.
+ (./preview.dtx
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <17.28> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 28.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 31.
+
+Overfull \hbox (2.944pt too wide) in paragraph at lines 42--51
+\OT1/cmr/m/n/10 good al-ter-na-tive: Peo-ple make do by fid-dling around with [
+]\OT1/cmtt/m/n/10 \thispagestyle{empty}
+ []
+
+[1
+
+{/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/
+fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 90.
+ [2]
+Overfull \hbox (6.0296pt too wide) in paragraph at lines 152--154
+[][]\OT1/cmtt/m/n/10 latex '\RequirePackage[active,delayed,$\OMS/cmsy/m/n/10 h$
+[]\OT1/cmr/m/it/10 options$\OMS/cmsy/m/n/10 i$[][]\OT1/cmtt/m/n/10 ]{preview}
+ []
+
+[3] [4] [5] [6] [7]
+
+LaTeX Warning: Marginpar on page 8 moved.
+
+) [8] (./preview.aux) ) 
+Here is how much of TeX's memory you used:
+ 695 strings out of 492960
+ 9364 string characters out of 6111507
+ 70198 words of memory out of 5000000
+ 4285 multiletter control sequences out of 15000+600000
+ 9748 words of font info for 36 fonts, out of 8000000 for 9000
+ 1181 hyphenation exceptions out of 8191
+ 31i,9n,21p,286b,213s stack positions out of 5000i,500n,10000p,200000b,80000s
+</nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-com
+bined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmbx12.pfb></nix/store/af
+n7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/fonts/type1/pu
+blic/amsfonts/cm/cmbxti10.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texl
+ive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmitt10.pfb></nix/
+store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/fonts/
+type1/public/amsfonts/cm/cmr10.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj
+-texlive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmr12.pfb></n
+ix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/fon
+ts/type1/public/amsfonts/cm/cmr17.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5
+rfj-texlive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmr7.pfb><
+/nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/f
+onts/type1/public/amsfonts/cm/cmsy10.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngns
+wy5rfj-texlive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmsy6.p
+fb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share/tex
+mf/fonts/type1/public/amsfonts/cm/cmsy8.pfb></nix/store/afn7amqcrsal8j7m0dwrzpn
+gnswy5rfj-texlive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm/cmti
+10.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/share
+/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb></nix/store/afn7amqcrsal8j7m0d
+wrzpngnswy5rfj-texlive-combined-2016/share/texmf/fonts/type1/public/amsfonts/cm
+/cmtt12.pfb></nix/store/afn7amqcrsal8j7m0dwrzpngnswy5rfj-texlive-combined-2016/
+share/texmf/fonts/type1/public/amsfonts/cm/cmtt8.pfb></nix/store/afn7amqcrsal8j
+7m0dwrzpngnswy5rfj-texlive-combined-2016/share/texmf/fonts/type1/public/amsfont
+s/cm/cmtt9.pfb>
+Output written on preview.pdf (8 pages, 170730 bytes).
+PDF statistics:
+ 91 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

@@ -1,0 +1,90 @@
+#+TITLE: Development Notes
+
+* Development Notes
+** TODO Tasklist 
+
+ - Document the API for developers and  Add development Notes
+
+ - Organize the API building a better abstraction and eliminating
+   repeated code.
+
+ - Add code exaples with IELM output and show how it works.
+
+ - Add  backend to extract metadata.
+
+   - Goals:
+
+     - Build a small database that allows the user to search metadata
+       in a fast way.
+
+     - Search pages by title
+
+     - Search pages by tags
+
+     - Search pages by tags and titles
+
+   - Requirements:
+     - Self contained script language
+     - Small and easy to install and easy to distribute as an self-contained
+       executable. 
+     - Fast startup time
+     - Support to sqlite
+     - Better candidate seems to be Python or Racket-scheme 
+
+ - Add automatic header creation.
+
+ - Update GIFs
+
+ - Add clip.jar utility as a GIT submodule
+
+ - Create a dired or magit-like interface to browse the notes.
+
+** API Diagram 
+
+
+#+BEGIN_SRC text 
+          Current Buffer
+          ---------------------------
+                                       
+                            +-------> org-wiki-buffer-is-page-p 
+                           /           Test if current buffer is a org-wiki page
+                          /
+          +--------------+----------> org-wiki-buffer-pagename 
+          |              |              Get page name of current buffer 
+          |   Current    +
+          |    Buffer    |----------> org-wiki-buffer-directory 
+          |              |            Get asset/attachment directory of a org-wiki buffer 
+          +--------------+
+
+
+
+          Operations with org-wiki buffers
+          --------------------------------
+
+          +---------------------+------------> Close all org-wiki buffers and saving them.
+          |  org-wiki-buffers   |
+          |                     +------------> Return all buffers belonging to org-wiki 
+          |                     |
+          +---------+-----------+------------> Switch between org-wiki buffers
+
+
+
+          Operations with org-wiki files 
+          -------------------------------
+
+
+         +-------------------------------+--------> Get all org-wiki file names        
+         |                               |
+         |                               |
+         | org-wiki files in             +--------> Open org-wiki page (org-mode file) in 
+         | <org-wiki-location directory  |           - current window 
+         |                               |           - new window 
+         +-------------------------------+           - new frame
+#+END_SRC
+
+
+
+
+
+
+

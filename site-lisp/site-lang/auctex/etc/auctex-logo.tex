@@ -1,0 +1,27 @@
+% Copyright (C) Free Software Foundation, Inc.
+% License: GNU GPLv3 or later
+
+\documentclass{article}
+\usepackage{crimson,listings,tikz,geometry}
+\geometry{paperwidth=7.5mm,paperheight=7.5mm}
+\definecolor{bg}{HTML}{8596B0}\pagecolor{bg}
+\definecolor{fg}{HTML}{F0F0EA}\color{fg}
+\lstset{basicstyle=\color{fg!65!bg}\ttfamily,
+  commentstyle=\itshape,language={[LaTeX]TeX}}
+\begin{document}
+\begin{tikzpicture}[overlay]
+  \coordinate (a) at (-7.26pt,1.89098pt) {};
+  \node[inner sep=0pt] at (-0.265,0.07)
+  {\resizebox{6.4mm}{!}
+    {\lstinputlisting{\jobname}}};
+  \node[inner sep=0pt,align=center] at (a)
+  {A\kern-0.05emU\kern-0.03emC\\[-0.7ex]%
+    T\kern-.15em\lower.46ex%
+    \hbox{\color[HTML]{CAE674}E}\kern-.06emX};
+\end{tikzpicture}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

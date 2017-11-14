@@ -1,0 +1,37 @@
+# -*- mode: org -*-
+#+PROPERTY: COOKIE_DATA todo recursive
+
+
+* TODO Support line-continuation with commas [0/2]
+  - [ ]  assignments
+    x,y = long_value,
+          other_long_value
+  - [ ] `for ... do' operators
+
+* TODO update site [0/2]
+** TODO reuse section-aware template
+** TODO add section for release downloading
+
+* TODO [#C] Improve lua-prefix-key machinery [0/2]
+  - [ ] add docs
+  - [ ] improve setting prefix-key
+    Currently, prefix-key is parsed from a macro string (which may
+    contain more than one key) and all keys but the first one are
+    silently removed. Maybe there's a better way to do it.
+
+* TODO [#C] Redo syntax engine using semantic/wisent
+
+* DONE Fix braces/parens that reduce indent by const offset
+   this causes wrong behavior when indented block was
+   anchored to first line, e.g.
+   my_func( hello,
+            world
+         )
+
+* DONE lua-mark-all-multiline-literals [5/5]
+  - [X] process --[[ as multiline comment
+  - [X] process ---[[ as single-line comment
+    distinguish by syntax state of last dash before square bracket
+  - [X] don't recognize [[ in comments or literals
+  - [X] extend region backwards if BEGIN is inside multiline literal
+  - [X] don't change buffer-modified-p state

@@ -1,0 +1,25 @@
+#+INCLUDE: theme/style.org
+#+TITLE: The Art of Unix Programming 
+#+DESCRIPTION: Everything about UNIX 
+
+[[wiki:index][index]]
+
+Related: [[wiki:Linux][Linux]] [[wiki:Bash - Shell - Unix][Bash - Shell - Unix]]  [[wiki:Python][Python]]   [[wiki:Circuit Boards][Circuit Boards]]
+
+* Unix 
+** Bell Labs 
+** AT & T - Ken Thompson and 
+
+#+CAPTION: Ken Thimpson quote about Unix
+[[file:The%20Art%20of%20Unix%20Programming/500f61dd-afb2-41ca-83e6-0742fcbdce86.png]]
+
+
+#+CAPTION: The heros, the pioneers and their legacy.
+[[file:The%20Art%20of%20Unix%20Programming/d4499b37-fbf6-476f-812d-63d8ea88241d.png]]
+
+
+
+** Unix Emulator 
+
+#+CAPTION: An unix emulator
+[[file:The%20Art%20of%20Unix%20Programming/An%20unix%20emulator.png]]

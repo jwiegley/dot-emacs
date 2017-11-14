@@ -75,11 +75,11 @@
        :view 'two-weeks))))
 
 (use-package org-autolist
-  :load-path "site-lisp/org-autolist"
+  :load-path "site-lisp/site-org/org-autolist"
   :commands org-autolist-mode)
 
 (use-package calfw
-  :load-path "site-lisp/emacs-calfw"
+  :load-path "site-lisp/site-org/emacs-calfw"
   :bind ("C-c A" . my-calendar)
   :init
   (progn
@@ -984,74 +984,8 @@ Summary: %s" product component version priority severity heading) ?\n ?\n)
          (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
     (apply #'diary-date greg-date)))
 
-(use-package org-debbugs
-  ;; (shell-command "rm -f lisp/org-debbugs.el*")
-  :disabled t)
-
-(use-package org-devonthink
-  ;; (shell-command "rm -f lisp/org-devonthink.el*")
-  :disabled t)
-
-(use-package org-download
-  ;; (shell-command "rm -fr site-lisp/org-download")
-  ;; (shell-command "git remote rm ext/org-download")
-  :disabled t
-  :load-path "site-lisp/org-download")
-
-(use-package org-magit
-  ;; (shell-command "rm -fr site-lisp/org-magit")
-  ;; (shell-command "git remote rm ext/org-magit")
-  :disabled t
-  :load-path "site-lisp/org-magit")
-
-(use-package org-mode
-  ;; (shell-command "rm -fr override/org-mode")
-  :disabled t
-  :load-path "override/org-mode")
-
-(use-package org-opml
-  ;; (shell-command "rm -fr site-lisp/org-opml")
-  ;; (shell-command "git remote rm ext/org-opml")
-  :disabled t
-  :load-path "site-lisp/org-opml")
-
-(use-package org-present
-  ;; (shell-command "rm -fr site-lisp/org-present")
-  ;; (shell-command "git remote rm ext/org-present")
-  :disabled t
-  :load-path "site-lisp/org-present")
-
-(use-package org-smart-capture
-  ;; (shell-command "rm -f lisp/org-smart-capture.el*")
-  :disabled t)
-
-(use-package orgaggregate
-  ;; (shell-command "rm -fr site-lisp/orgaggregate")
-  ;; (shell-command "git remote rm ext/orgaggregate")
-  :disabled t
-  :load-path "site-lisp/orgaggregate")
-
-(use-package outorg
-  :load-path "site-lisp/outorg"
-  :bind ("C-c '" . outorg-edit-as-org)
-  :config
-  (require 'outshine))
-
-(use-package outshine
-  :load-path ("site-lisp/outshine"
-              "site-lisp/navi")
-  :commands outshine-hook-function
-  ;; :init
-  ;; (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
-  :config
-  (use-package navi-mode))
-
-(use-package poporg
-  :load-path "site-lisp/poporg"
-  :bind ("C-c e o" . poporg-dwim))
-
 (use-package org-wiki
-  :load-path "site-lisp/org-wiki"
+  :load-path "site-lisp/site-org/org-wiki"
   :defer 5)
 
 (provide 'dot-org)

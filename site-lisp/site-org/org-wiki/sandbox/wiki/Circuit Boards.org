@@ -1,0 +1,14 @@
+#+TITLE:        Avionics
+#+DESCRIPTION: 
+
+wiki:index [[wiki:index][index]]
+
+
+Rasberry-PI 
+
+#+CAPTION: rasberry pi circuit board
+[[file:Circuit%20Boards/rasberry%20pi%20circuit%20board.png]] 
+
+
+#+CAPTION: Automated generated file name.
+[[file:Circuit%20Boards/b977882e-35ee-4d3a-8d46-59931ae04aeb.png]]

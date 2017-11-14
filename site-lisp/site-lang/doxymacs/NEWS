@@ -1,0 +1,82 @@
+$Id: NEWS,v 1.20 2007/06/10 13:17:24 ryants Exp $
+
+10/06/2007 Version 1.8.0 released.
+	Fix bug #1490021: Allow spaces in @param [in] style documentation.
+	Fix bug #1496399: Use better way to get user's e-mail address.
+
+22/04/2006 Version 1.7.0 released.
+	Fix bug #1459026: compile warning with gcc 4.0.
+	Feature request #1338245: make filladapt mode doxygen aware
+	of @param to nicely indent parameter lists.
+	Update the example HTML files with doxygen 1.4.4.
+
+04/06/2005 Version 1.6.0 released.
+	Many bug fixes for newer versions of {X}emacs.  Some additions to
+	fontification to handle new Doxygen constructs.  Can now customise
+	the browser that doxymacs uses to display documentation.
+
+	NOTE: doxymacs-group-comment-start and doxymacs-group-comment-end
+	are no longer tempo templates but are now just plain strings.
+
+
+25/01/2003 Version 1.5.0 released.
+	New C++ style.  Pre-baked .el files for people who do not have
+	autoconf.  Several small fontification bug fixes.
+
+05/01/2003 Version 1.4.0 released.
+	doxymacs now uses autoconf to configure, build and install itself.
+
+31/08/2002 Version 1.3.2 released.
+	Fix bug #601028: functions with blank lines in their argument lists
+	confused doxymacs-extract-args-list.
+
+09/05/2002 Version 1.3.1 released.
+	Fix issues compiling doxymacs_parser.c on Mac OS X.
+
+04/11/2001 Version 1.3.0 released.
+	Implement new grouping command (C-c d @) which inserts Doxygen
+	grouping comments around the current region.
+
+15/09/2001 Version 1.2.1 released.
+	Fix a bug in Qt style comments.
+
+26/08/2001 Version 1.2.0 released.
+	Better on-line documentation.  New "member comment" command which
+	works much like M-; (indent-for-comment).
+
+23/08/2001 Version 1.1.4 released.
+	minor bugfixes.
+
+08/07/2001 Version 1.1.3 released.
+	The external XML parser now requires libxml2 version 2.3.4 or
+	greater.
+
+04/07/2001 Version 1.1.2 released.
+	GNU Emacs doesn't understand ?: in regexps, so take them out.
+
+20/06/2001 Version 1.1.1 released.
+	Fix bug #432837 missing @see keyword and fix bug #432836 Font
+	lock for @ingroup not correct.
+
+12/06/2001 Version 1.1.0 released.
+	New feature: font lock for Doxygen keywords.
+
+06/06/2001 Version 1.0.0 released.
+	The first stable release.  There are still some bugs left (see
+	the FIXMEs in lisp/doxymacs.el), but they are both sufficiently
+	rare and hard to fix that they don't warrant holding up a stable
+	release.
+
+26/05/2001 Version 0.2.1 released.
+	Er... forgot to update this file the past few releases.
+	Oh well.  Look at the ChangeLog if you really care.
+
+09/05/2001 Version 0.1.1 released.
+	Bug fix: C-? is a bad choice for "look up", since it causes the	
+	DEL key to be mapped to "look up"... changed it to C-c d ?.
+	Feature add: Progress info as it parses XML tag file.
+
+07/05/2001 Version 0.1.0 (Alpha) released.
+	This represents the first public release of doxymacs.  It works for us,
+	now let's see if it works for other people too.
+

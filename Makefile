@@ -1,11 +1,37 @@
 ## -*- mode: makefile-gmake -*-
 
-DIRS	    = override lib lisp site-lisp
-SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git ! -name style -type d -print)
-LIB_SOURCE  = $(wildcard override/*.el) $(wildcard lib/*.el) \
-	      $(wildcard lisp/*.el) $(wildcard site-lisp/*.el)
+DIRS	    = lib				\
+	      lisp				\
+	      site-lisp				\
+	      site-lisp/site-bbdb		\
+	      site-lisp/site-dired		\
+	      site-lisp/site-git		\
+	      site-lisp/site-helm		\
+	      site-lisp/site-lang		\
+	      site-lisp/site-company		\
+	      site-lisp/site-emacs-lisp		\
+	      site-lisp/site-gnus		\
+	      site-lisp/site-ivy		\
+	      site-lisp/site-org
+
+LIB_SOURCE  = $(wildcard lib/*.el)				\
+	      $(wildcard lisp/*.el)				\
+	      $(wildcard site-lisp/*.el)			\
+	      $(wildcard site-lisp/site-bbdb/*.el)		\
+	      $(wildcard site-lisp/site-dired/*.el)		\
+	      $(wildcard site-lisp/site-git/*.el)		\
+	      $(wildcard site-lisp/site-helm/*.el)		\
+	      $(wildcard site-lisp/site-lang/*.el)		\
+	      $(wildcard site-lisp/site-company/*.el)		\
+	      $(wildcard site-lisp/site-emacs-lisp/*.el)	\
+	      $(wildcard site-lisp/site-gnus/*.el)		\
+	      $(wildcard site-lisp/site-ivy/*.el)		\
+	      $(wildcard site-lisp/site-org/*.el)
+
 TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
               $(patsubst %.el,%.elc, dot-gnus.el dot-org.el init.el)
+
+SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git ! -name style -type d -print)
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))

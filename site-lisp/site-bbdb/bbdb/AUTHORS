@@ -1,0 +1,61 @@
+Many people have contributed code included in BBDB.
+
+Abhi Yerra  <abhi@berkeley.edu>
+Adam C. Finnefrock  <adam@bigbro.biophys.cornell.edu>
+Alex Schroeder  <alex@gnu.org>
+Albert L. Ting <alt@artisan.com>
+Barak A. Pearlmutter <barak@cs.nuim.ie>
+Robert Widhopf-Fenk <bbdb@robf.de>
+Boris Goldowsky <boris@gnu.ai.mit.edu>: bbdb-print.el
+David Carlton <carlton@math.mit.edu>
+Christopher Kline <ckline@media.mit.edu>
+Colin Rafferty  <colin@xemacs.org>
+Soren Dayton <csdayton@cs.uchicago.edu>
+Didier Verna <didier@xemacs.org>
+Brian Edmonds  <edmonds@cs.ubc.ca>
+Christian Egli <christian.egli@sbs.ch>
+Dave Love  <fx@gnu.org>
+Greg Troxel <gdt@ir.bbn.com>
+Gijs Hillenius <gijs@hillenius.com>
+Dirk Grunwald <grunwald@cs.colorado.edu>: bbdb-print.el
+Hrvoje Niksic <hniksic@srce.hr>
+Ivan Kanis <ivan.kanis@googlemail.com>: bbdb-ispell
+Jack Repenning <jackr@dblues.wpd.sgi.com>: bbdb-mhe.el
+Simon Josefsson  <jas@extundo.com>
+Jeff Bigler  <jcb@mit.edu>
+Jeff Mincy  <jeff@delphioutpost.com>
+Jim Blandy <jimb@codesourcery.com>
+Jim Blandy  <jimb@redhat.com>
+Jochen Küpper  <jochen@fhi-berlin.mpg.de>
+John Heidemann <johnh@isi.edu>: bbdb-snarf.el
+Jamie Zawinski <jwz@netscape.com>
+Kees de Bruin <kees_de_bruin@tasking.nl>
+Karl Fogel <kfogel@red-bean.com>
+Fritz Knabe <knabe@ecrc.de>:  bbdb-mhe.el
+Kousik Nandy <kousik.nandy@gmail.com>
+Carsten Leonhardt  <leo@arioch.oche.de>
+Luigi Semenzato <luigi@paris.cs.berkeley.edu>: bbdb-print.el
+Marco Walther  <Marco.Walther@mch.sni.de>
+Stefan Monnier <monnier@iro.umontreal.ca>
+Jean-Yves Perrier  <perrier@nagra-kudelski.ch>
+Jens-Ulrik Holger Petersen <petersen@kurims.kyoto-u.ac.jp>
+Philip Hudson <phil.hudson@iname.com>
+Leo Liu  <sdl.web@gmail.com>
+Sam Steingold  <sds@gnu.org>
+Seth Golub  <seth@cs.wustl.edu>
+Matt Simmons  <simmonmt@acm.org>
+SL Baur  <steve@altair.xemacs.org>
+Kevin Davidson <tkld@quadstone.com>: bbdb-pgp.el
+Todd Kaufmann <toad@cs.cmu.edu>:  bbdb-mhe.el
+Tom Tromey <tromey@redhat.com>
+Teodor Zlatanov  <tzz@lifelogs.com>
+Waider <waider@waider.ie> 
+Christoph Wedler  <wedler@fmi.uni-passau.de>
+Roland Winkler  <winkler@gnu.org>
+Steve Youngs  <youngs@xemacs.org>
+ShengHuo Zhu  <zsh@cs.rochester.edu>
+
+
+Local Variables:
+coding: utf-8
+End:

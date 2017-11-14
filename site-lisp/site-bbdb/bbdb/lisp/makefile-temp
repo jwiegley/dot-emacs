@@ -1,0 +1,185 @@
+# Cheap BBDB makefile  -*- Makefile -*-
+# Copyright (C) 2010-2014 Roland Winkler <winkler@gnu.org>
+# 
+# This file is part of the Insidious Big Brother Database (aka BBDB),
+# 
+# BBDB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# BBDB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with BBDB.  If not, see <http://www.gnu.org/licenses/>.
+
+### Commentary:
+
+# This file provides a cheap workaround for (most of) those users
+# who like to use the latest BBDB, but do not have autotools installed.
+# This file can compile BBDB's lisp code on most systems.  Yet it is not
+# intended to be foolproof!
+# This file may also come handy for BBDB developers as it knows
+# about the proper dependencies of the elisp files, so that it keeps
+# the *.elc files consistently up to date.
+
+srcdir = .
+prefix = /usr/local
+lispdir = $(DESTDIR)/usr/local/share/emacs/site-lisp/bbdb
+
+INSTALL = /usr/bin/install -c
+INSTALL_DATA = ${INSTALL} -m 644
+
+RM   = /bin/rm -f
+LN_S = /bin/ln -s
+CP   = /bin/cp
+
+EMACS = emacs
+
+# Command line flags for Emacs.
+EMACSOPT =
+
+# The actual Emacs command run in the targets below.
+# --batch implies --no-init-file, yet let's be explicit about what we want
+emacs = LC_ALL=C $(EMACS) --batch --no-init-file --no-site-file \
+		--directory=./ $(EMACSOPT)
+emacs_compile = $(emacs) --funcall batch-byte-compile
+
+# VM is not part of GNU Emacs.  If you want to use BBDB with VM
+# then the variable VMDIR should point to your vm/lisp directory.
+VMDIR =
+
+VM = -eval '(unless (string= "$(VMDIR)" "") (push "$(VMDIR)" load-path))'
+
+.SUFFIXES: .elc .el .tar .Z .gz .uu
+
+SRCS =	bbdb.el bbdb-site.el bbdb-com.el bbdb-print.el bbdb-anniv.el \
+	bbdb-migrate.el bbdb-snarf.el \
+	bbdb-mua.el bbdb-message.el bbdb-rmail.el \
+	bbdb-gnus.el bbdb-mhe.el bbdb-vm.el bbdb-pgp.el bbdb-sc.el \
+	bbdb-ispell.el bbdb-pkg.el
+
+# ELC =	$(patsubst %.el,%.elc,$(SRCS)) # GNU Make
+ELC =	bbdb.elc bbdb-site.elc bbdb-com.elc bbdb-print.elc bbdb-anniv.elc \
+	bbdb-migrate.elc bbdb-snarf.elc \
+	bbdb-mua.elc bbdb-message.elc bbdb-rmail.elc \
+	bbdb-gnus.elc bbdb-mhe.elc bbdb-pgp.elc bbdb-sc.elc \
+	bbdb-ispell.elc # bbdb-pkg.elc
+
+all: bbdb
+
+bbdb:	bbdb-loaddefs.el $(ELC)
+vm:	bbdb-vm.elc
+
+bbdb-loaddefs.el: $(SRCS)
+#	2011-12-11: We switched from bbdb-autoloads.el to bbdb-loaddefs.el.
+#	If the user still has an old bbdb-autoloads.el in the BBDB
+#	lisp directory (and keeps loading it from the emacs init file),
+#	we might get strange error messages that things fail.
+#	So we throw an error if these old files are found.
+	@if test -f bbdb-autoloads.el -o -f bbdb-autoloads.elc; then \
+	  (echo "*** ERROR: Old file(s) \`bbdb-autoloads.el(c)' found ***" ; \
+	  echo "*** Delete these files; do not load them from your init file ***") && \
+	  false ; \
+	fi
+	-$(RM) $@;
+	@echo "(provide 'bbdb-loaddefs)" > $@;
+	@echo "(if (and load-file-name (file-name-directory load-file-name))" >> $@;
+	@echo "    (add-to-list 'load-path (file-name-directory load-file-name)))" >> $@;
+	@echo "" >> $@;
+#	Generated autoload-file must have an absolute path,
+#	$(srcdir) can be relative.
+	$(emacs) --load autoload \
+		--eval '(setq generated-autoload-file "'`pwd`/$@'")' \
+		--eval '(setq make-backup-files nil)' \
+		--funcall batch-update-autoloads `pwd`
+
+.el.elc:
+	$(emacs_compile) $<
+
+# Not perfect, but better than nothing:  If we do not have / do not use
+# autotools, we simply copy bbdb-site.el.in to bbdb-site.el.
+bbdb-site.el: bbdb-site.el.in
+	$(CP) $< $@
+bbdb-site.elc: bbdb-site.el
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-pkg.el: bbdb-pkg.el.in
+	$(CP) $< $@
+
+bbdb.elc: bbdb.el bbdb-site.elc
+	$(emacs_compile) $(@:.elc=.el)
+
+bbdb-com.elc: bbdb-com.el bbdb.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-mua.elc: bbdb-mua.el bbdb-com.elc
+	$(emacs) -eval '(unless (string= "$(VMDIR)" "") (push "$(VMDIR)" load-path) (load "vm" t t))' \
+	 --funcall batch-byte-compile $(@:.elc=.el)
+bbdb-rmail.elc: bbdb-rmail.el bbdb-mua.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-gnus.elc: bbdb-gnus.el bbdb-mua.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-mhe.elc: bbdb-mhe.el bbdb-mua.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-vm.elc: bbdb-vm.el bbdb-mua.elc
+	$(emacs) $(VM) --funcall batch-byte-compile $(@:.elc=.el)
+bbdb-sc.elc: bbdb-sc.el bbdb-mua.elc
+	$(emacs_compile) $(@:.elc=.el)
+
+bbdb-print.elc: bbdb-print.el bbdb-com.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-migrate.elc: bbdb-migrate.el bbdb.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-anniv.elc: bbdb-anniv.el bbdb-com.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-ispell.elc: bbdb-ispell.el bbdb.elc
+	$(emacs_compile) $(@:.elc=.el)
+bbdb-snarf.elc: bbdb-snarf.el bbdb-com.elc
+	$(emacs_compile) $(@:.elc=.el)
+
+install-el: all
+	$(INSTALL) -d -m 0755 "$(lispdir)/"
+	for elc in *.elc; do \
+	    el=`basename $$elc c`; \
+	    if test -f "$(srcdir)/$$el"; then \
+	        echo "Install $$el in $(lispdir)/"; \
+	        $(INSTALL_DATA) "${srcdir}/$$el" "$(lispdir)/"; \
+	    fi; \
+        done;
+	for el in bbdb-loaddefs.el; do \
+	    echo "Install $$el in $(lispdir)/"; \
+	    $(INSTALL_DATA) $$el "$(lispdir)/"; \
+        done;
+
+install-elc: all
+	$(INSTALL) -d -m 0755 "$(lispdir)/"
+	for elc in bbdb-loaddefs.el *.elc; do \
+	    echo "Install $$elc in $(lispdir)/"; \
+	    $(INSTALL_DATA) $$elc "$(lispdir)/"; \
+        done;
+
+uninstall:
+	for elc in *.elc; do \
+	  $(RM) "$(lispdir)/$$elc"; \
+	done
+	for el in *.el; do \
+	  $(RM) "$(lispdir)/$$el"; \
+	done
+
+# Assorted clean-up targets
+clean:
+	-$(RM) bbdb*.elc TAGS
+
+distclean: clean
+
+maintainer-clean: distclean
+	-$(RM) bbdb-loaddefs.el  # Generated file
+	-$(RM) Makefile
+
+extraclean: maintainer-clean
+	-$(RM) *~ \#*
+
+TAGS: $(SRCS)
+	etags $(SRCS)

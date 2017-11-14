@@ -11,7 +11,11 @@
   (mapc #'(lambda (path)
             (add-to-list 'load-path
                          (expand-file-name path user-emacs-directory)))
-        '("site-lisp" "override" "lisp" "lisp/use-package" ""))
+        '("site-lisp" "lisp/use-package" "lisp" ""))
+
+  (mapc #'(lambda (path) (add-to-list 'load-path path))
+        (directory-files (expand-file-name "site-lisp" user-emacs-directory)
+			 t "site-[A-Z0-9a-z-]+\\'"))
 
   (defun nix-read-environment (name)
     (let ((script
@@ -137,36 +141,38 @@
 (eval-and-compile
   (add-to-list 'load-path (expand-file-name "lib" user-emacs-directory)))
 
-(use-package anaphora       :defer t :load-path "lib/anaphora")
-(use-package button-lock    :defer t :load-path "lib/button-lock")
-(use-package ctable         :defer t :load-path "lib/emacs-ctable")
-(use-package dash           :defer t :load-path "lib/dash-el")
-(use-package deferred       :defer t :load-path "lib/emacs-deferred")
-(use-package epc            :defer t :load-path "lib/emacs-epc")
-(use-package epl            :defer t :load-path "lib/epl")
-(use-package f              :defer t :load-path "lib/f-el")
-(use-package fame           :defer t :load-path "lib/fame")
-(use-package fuzzy          :defer t :load-path "lib/fuzzy-el")
-(use-package gh             :defer t :load-path "lib/gh-el")
-(use-package ht             :defer t :load-path "lib/ht-el")
-(use-package let-alist      :defer t :load-path "lib/let-alist")
-(use-package logito         :defer t :load-path "lib/logito")
-(use-package makey          :defer t :load-path "lib/makey")
-(use-package marshal        :defer t :load-path "lib/marshal-el")
-(use-package pcache         :defer t :load-path "lib/pcache")
-(use-package pkg-info       :defer t :load-path "lib/pkg-info")
-(use-package popup          :defer t :load-path "lib/popup-el")
-(use-package popwin         :defer t :load-path "lib/popwin-el")
-(use-package pos-tip        :defer t :load-path "lib/pos-tip")
-(use-package request        :defer t :load-path "lib/emacs-request")
-(use-package s              :defer t :load-path "lib/s-el")
-(use-package tablist        :defer t :load-path "lib/tablist")
-(use-package uuidgen        :defer t :load-path "lib/uuidgen-el")
-(use-package web            :defer t :load-path "lib/emacs-web")
-(use-package websocket      :defer t :load-path "lib/emacs-websocket")
-(use-package web-server     :defer t :load-path "lib/emacs-web-server")
-(use-package working        :defer t :load-path "lib/working")
-(use-package xml-rpc        :defer t :load-path "lib/xml-rpc")
+(use-package anaphora         :defer t :load-path "lib/anaphora")
+(use-package button-lock      :defer t :load-path "lib/button-lock")
+(use-package ctable           :defer t :load-path "lib/emacs-ctable")
+(use-package dash             :defer t :load-path "lib/dash-el")
+(use-package deferred         :defer t :load-path "lib/emacs-deferred")
+(use-package epc              :defer t :load-path "lib/emacs-epc")
+(use-package epl              :defer t :load-path "lib/epl")
+(use-package f                :defer t :load-path "lib/f-el")
+(use-package fame             :defer t :load-path "lib/fame")
+(use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
+(use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
+(use-package gh               :defer t :load-path "lib/gh-el")
+(use-package ht               :defer t :load-path "lib/ht-el")
+(use-package let-alist        :defer t :load-path "lib/let-alist")
+(use-package logito           :defer t :load-path "lib/logito")
+(use-package makey            :defer t :load-path "lib/makey")
+(use-package marshal          :defer t :load-path "lib/marshal-el")
+(use-package pcache           :defer t :load-path "lib/pcache")
+(use-package pkg-info         :defer t :load-path "lib/pkg-info")
+(use-package popup            :defer t :load-path "lib/popup-el")
+(use-package popwin           :defer t :load-path "lib/popwin-el")
+(use-package pos-tip          :defer t :load-path "lib/pos-tip")
+(use-package request          :defer t :load-path "lib/emacs-request")
+(use-package s                :defer t :load-path "lib/s-el")
+(use-package tablist          :defer t :load-path "lib/tablist")
+(use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
+(use-package web              :defer t :load-path "lib/emacs-web")
+(use-package websocket        :defer t :load-path "lib/emacs-websocket")
+(use-package web-server       :defer t :load-path "lib/emacs-web-server")
+(use-package with-editor      :defer t :load-path "lib/with-editor")
+(use-package working          :defer t :load-path "lib/working")
+(use-package xml-rpc          :defer t :load-path "lib/xml-rpc")
 
 ;;; Keybindings
 
@@ -702,63 +708,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (defvar lisp-find-map)
 (define-prefix-command 'lisp-find-map)
 
-(bind-key "C-h e" #'lisp-find-map)
-
 ;;; C-h e
-
-(bind-key "C-h e c" #'finder-commentary)
-(bind-key "C-h e e" #'view-echo-area-messages)
-(bind-key "C-h e f" #'find-function)
-(bind-key "C-h e F" #'find-face-definition)
 
 (defun my-switch-in-other-buffer (buf)
   (when buf
     (split-window-vertically)
     (switch-to-buffer-other-window buf)))
 
-(defun my-describe-symbol  (symbol &optional mode)
-  (interactive
-   (info-lookup-interactive-arguments 'symbol current-prefix-arg))
-  (let (info-buf find-buf desc-buf cust-buf)
-    (save-window-excursion
-      (ignore-errors
-        (info-lookup-symbol symbol mode)
-        (setq info-buf (get-buffer "*info*")))
-      (let ((sym (intern-soft symbol)))
-        (when sym
-          (if (functionp sym)
-              (progn
-                (find-function sym)
-                (setq find-buf (current-buffer))
-                (describe-function sym)
-                (setq desc-buf (get-buffer "*Help*")))
-            (find-variable sym)
-            (setq find-buf (current-buffer))
-            (describe-variable sym)
-            (setq desc-buf (get-buffer "*Help*"))
-            ;;(customize-variable sym)
-            ;;(setq cust-buf (current-buffer))
-            ))))
-
-    (delete-other-windows)
-
-    (switch-to-buffer find-buf)
-    (my-switch-in-other-buffer desc-buf)
-    (my-switch-in-other-buffer info-buf)
-    ;;(switch-in-other-buffer cust-buf)
-    (balance-windows)))
-
-(bind-key "C-h e d" #'my-describe-symbol)
-(bind-key "C-h e i" #'info-apropos)
-(bind-key "C-h e k" #'find-function-on-key)
-(bind-key "C-h e l" #'find-library)
-
 (defun check-papers ()
   (interactive)
   ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
   (find-file-other-window "/fencepost.gnu.org:/gd/gnuorg/copyright.list"))
-
-(bind-key "C-h e P" #'check-papers)
 
 (defvar lisp-modes '(emacs-lisp-mode
                      inferior-emacs-lisp-mode
@@ -787,6 +747,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
+(bind-key "C-h e" #'lisp-find-map)
+(bind-key "C-h e e" #'view-echo-area-messages)
+(bind-key "C-h e f" #'find-function)
+(bind-key "C-h e k" #'find-function-on-key)
+(bind-key "C-h e l" #'find-library)
+(bind-key "C-h e P" #'check-papers)
 (bind-key "C-h e s" #'scratch)
 (bind-key "C-h e v" #'find-variable)
 (bind-key "C-h e V" #'apropos-value)
@@ -798,16 +764,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;;; Delayed configuration
 
 (use-package dot-org
-  :load-path ("override/org-mode/contrib/lisp"
-              "override/org-mode/lisp")
+  :load-path ("site-lisp/site-org/org-mode/contrib/lisp"
+              "site-lisp/site-org/org-mode/lisp")
   :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
          ("M-M"   . org-inline-note)
          ("C-c a" . org-agenda)
          ("C-c S" . org-store-link)
-         ("C-c l" . org-insert-link)
-         ("C-. n" . org-velocity-read))
+         ("C-c l" . org-insert-link))
   :defer 30
   :config
   (when (and nil
@@ -817,7 +782,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (my-org-startup)))
 
 (use-package dot-gnus
-  :load-path ("override/gnus/lisp" "override/gnus/contrib")
+  :load-path ("site-lisp/site-gnus/gnus/lisp" 
+              "site-lisp/site-gnus/gnus/contrib")
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
@@ -833,7 +799,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :diminish ggtags-mode)
 
 (use-package cc-mode
-  :load-path "override/cc-mode"
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'"                   . c-mode)
          ("\\.mm\\'"                  . c++-mode))
@@ -1028,7 +993,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
-  :load-path "site-lisp/agda/src/data/emacs-mode"
+  :load-path "site-lisp/site-lang/agda/src/data/emacs-mode"
   :defines agda2-mode-map
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
@@ -1096,9 +1061,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'allout-mode-hook 'my-allout-mode-hook))
 
-(use-package anchored-transpose
-  :commands anchored-transpose)
-
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
   :commands ascii-on
@@ -1114,7 +1076,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "elpa/packages/async")
 
 (use-package auctex
-  :load-path "site-lisp/auctex"
+  :load-path "site-lisp/site-lang/auctex"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :init
@@ -1139,16 +1101,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-to-list 'latex-help-cmd-alist (cons key value))))))
     latex-help-cmd-alist)
 
-  (use-package ebib
-    :load-path "site-lisp/ebib"
-    :preface
-    (use-package parsebib :load-path "site-lisp/parsebib"))
-
   (use-package latex
     :defer t
     :config
     (use-package preview)
-    (load (expand-file-name "site-lisp/auctex/style/minted"
+    (load (expand-file-name "site-lisp/site-lang/auctex/style/minted"
                             user-emacs-directory))
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
     (info-lookup-add-help :mode 'LaTeX-mode
@@ -1176,7 +1133,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package avy
   :demand t
-  :load-path "site-lisp/avy"
+  :load-path "site-lisp/site-ivy/avy"
   :bind ("M-h" . avy-goto-char)
   :config
   (avy-setup-default))
@@ -1308,17 +1265,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package bbdb-com
-  :load-path "override/bbdb/lisp"
+  :load-path "site-lisp/site-bbdb/bbdb/lisp"
   :commands bbdb-create
   :bind ("M-B" . bbdb)
   :config
   (use-package osx-bbdb
-    :load-path "site-lisp/osx-bbdb"
+    :load-path "site-lisp/site-bbdb/osx-bbdb"
     :commands import-osx-contacts-to-bbdb)
 
   (use-package bbdb-vcard
     :disabled t
-    :load-path "site-lisp/bbdb-vcard")
+    :load-path "site-lisp/site-bbdb/bbdb-vcard")
 
   (use-package bbdb-vcard-export
     :disabled t)
@@ -1337,7 +1294,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands browse-kill-ring)
 
 (use-package bug-reference-github
-  :load-path "site-lisp/bug-reference-github"
+  :load-path "site-lisp/site-git/bug-reference-github"
   :defer 10
   :config
   (bug-reference-github-set-url-format))
@@ -1346,8 +1303,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 15)
 
 (use-package c-includes
-  ;; (shell-command "rm -f lisp/c-includes.el*")
-  :disabled t)
+  :commands c-includes)
 
 (use-package chess
   :load-path "lisp/chess"
@@ -1373,12 +1329,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -f lisp/cl-info.el*")
   :disabled t)
 
-(use-package cmake-font-lock
-  ;; (shell-command "rm -fr site-lisp/cmake-font-lock")
-  ;; (shell-command "git remote rm ext/cmake-font-lock")
-  :disabled t
-  :load-path "site-lisp/cmake-font-lock")
-
 (use-package cmake-mode
   :mode (("CMakeLists.txt" . cmake-mode)
          ("\\.cmake\\'"    . cmake-mode)))
@@ -1394,14 +1344,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package moccur-edit))
 
-(use-package command-log-mode
-  ;; (shell-command "rm -fr site-lisp/command-log-mode")
-  ;; (shell-command "git remote rm ext/command-log-mode")
-  :disabled t
-  :load-path "site-lisp/command-log-mode")
-
 (use-package company
-  :load-path "site-lisp/company-mode"
+  :load-path "site-lisp/site-company/company-mode"
   :diminish company-mode
   :commands company-mode
   :config
@@ -1435,9 +1379,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
 
-(use-package copy-code
-  :disabled t
-  :bind ("A-M-W" . copy-code-as-rtf))
+(use-package counsel
+  :load-path "site-lisp/site-ivy/swiper")
 
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode)
@@ -1477,18 +1420,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package dedicated
   :bind ("C-. D" . dedicated-mode))
 
-(use-package deft
-  ;; (shell-command "rm -fr site-lisp/deft")
-  ;; (shell-command "git remote rm ext/deft")
-  :disabled t
-  :load-path "site-lisp/deft")
-
-(use-package diff-hl
-  ;; (shell-command "rm -fr site-lisp/diff-hl")
-  ;; (shell-command "git remote rm ext/diff-hl")
-  :disabled t
-  :load-path "site-lisp/diff-hl")
-
 (use-package diff-mode
   :commands diff-mode
   :config
@@ -1498,12 +1429,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package diminish)
-
-(use-package dircmp
-  ;; (shell-command "rm -fr site-lisp/dircmp-mode")
-  ;; (shell-command "git remote rm ext/dircmp-mode")
-  :disabled t
-  :load-path "site-lisp/dircmp-mode")
 
 (use-package dired
   :bind ("C-c J" . dired-double-jump)
@@ -1552,22 +1477,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config
     (unbind-key "M-s f" dired-mode-map))
 
-  (use-package dired-details
-    ;; (shell-command "rm -f site-lisp/dired-details.el*")
-    :disabled t)
-
   (use-package dired-ranger
     :bind (:map dired-mode-map
                 ("W" . dired-ranger-copy)
                 ("X" . dired-ranger-move)
                 ("Y" . dired-ranger-paste)))
 
-  (use-package dired-sort-map
-    ;; (shell-command "rm -f site-lisp/dired-sort-map.el*")
-    :disabled t)
-
   (use-package dired-toggle
-    :load-path "site-lisp/dired-toggle"
+    :load-path "site-lisp/site-dired/dired-toggle"
     :bind ("C-. d" . dired-toggle)
     :preface
     (defun my-dired-toggle-mode-hook ()
@@ -1648,7 +1565,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package docker
   :defer 15
   :diminish docker-mode
-  :load-path "site-lisp/docker-el"
+  :load-path "site-lisp/site-lang/docker-el"
   :config
   (docker-global-mode)
   (use-package docker-images)
@@ -1659,15 +1576,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
-  :load-path "site-lisp/dockerfile-mode")
+  :load-path "site-lisp/site-lang/dockerfile-mode")
 
 (use-package doxymacs
   :disabled t
-  :load-path "site-lisp/doxymacs/lisp")
-
-(use-package dr-racket-like-unicode
-  :bind ("C-\"" . dr-racket-like-unicode-char)
-  :load-path "site-lisp/dr-racket-like-unicode")
+  :load-path "site-lisp/site-lang/doxymacs/lisp")
 
 (use-package dumb-jump
   :commands dumb-jump-mode
@@ -1738,25 +1651,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package edit-env
   :commands edit-env)
 
-(use-package edit-server
-  :disabled t
-  :if (and window-system
-           (not running-alternate-emacs)
-           (not running-development-emacs)
-           (not noninteractive))
-  :load-path "site-lisp/emacs_chrome/servers"
-  :init
-  (add-hook 'after-init-hook 'server-start t)
-  (add-hook 'after-init-hook 'edit-server-start t))
-
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
-
-(use-package emacros
-  ;; (shell-command "rm -fr site-lisp/emacros")
-  ;; (shell-command "git remote rm ext/emacros")
-  :disabled t
-  :load-path "site-lisp/emacros")
 
 (use-package erc
   :defer t
@@ -1847,9 +1743,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :config
     (bind-key "C-y" #'erc-yank erc-mode-map))
 
-  (use-package wtf
-    :commands wtf-is)
-
   (add-hook 'erc-insert-pre-hook
             (lambda (s)
               (when (erc-foolish-content s)
@@ -1899,16 +1792,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :bind ("C-x C-z" . eshell-toggle)))
 
 (use-package esup
-  ;; (shell-command "rm -fr site-lisp/esup")
-  ;; (shell-command "git remote rm ext/esup")
   :disabled t
-  :load-path "site-lisp/esup")
+  :load-path "site-lisp/site-emacs-lisp/esup")
 
 (use-package etags
   :bind ("M-T" . tags-search))
 
 (use-package eval-expr
-  :load-path "site-lisp/eval-expr"
+  :load-path "site-lisp/site-emacs-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
   :config
   (setq eval-expr-print-function 'pp
@@ -1921,33 +1812,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)))
 
 (use-package eww
-  :bind ("A-M-g" . eww)
-  :config
-  (use-package eww-lnum
-    :load-path "site-lisp/eww-lnum"
-    :config
-    (bind-key "f" #'eww-lnum-follow eww-mode-map)
-    (bind-key "F" #'eww-lnum-universal eww-mode-map)))
+  :bind ("A-M-g" . eww))
 
-(use-package expand-region-el
-  ;; (shell-command "rm -fr site-lisp/expand-region-el")
-  ;; (shell-command "git remote rm ext/expand-region-el")
-  :disabled t
+(use-package expand-region
+  :bind ("C-. w" . expand-region)
   :load-path "site-lisp/expand-region-el")
 
 (use-package fancy-narrow
+  :bind (("C-. n" . fancy-narrow-to-region)
+         ("C-. W" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen)
   :load-path "site-lisp/fancy-narrow")
-
-(use-package fdb
-  ;; (shell-command "rm -f site-lisp/fdb.el*")
-  :disabled t)
 
 (use-package fetchmail-mode
   :commands fetchmail-mode)
 
 (use-package flycheck
-  :load-path "site-lisp/flycheck"
+  :load-path "site-lisp/site-lang/flycheck"
   :defer 5
   :config
   (defalias 'flycheck-show-error-at-point-soon 'flycheck-show-error-at-point)
@@ -1985,24 +1866,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (unbind-key "C-." flyspell-mode-map))
 
-(use-package fold-dwim
-  ;; (shell-command "rm -f site-lisp/fold-dwim.el*")
-  :disabled t)
-
-(use-package fold-this-el
-  ;; (shell-command "rm -fr site-lisp/fold-this-el")
-  ;; (shell-command "git remote rm ext/fold-this-el")
-  :disabled t
-  :load-path "site-lisp/fold-this-el")
-
-(use-package font-lock-studio
-  ;; (shell-command "rm -fr site-lisp/font-lock-studio")
-  ;; (shell-command "git remote rm ext/font-lock-studio")
-  :disabled t
-  :load-path "site-lisp/font-lock-studio")
-
 (use-package gist
-  :load-path "site-lisp/gist"
+  :load-path "site-lisp/site-git/gist"
   :bind ("C-c G" . my-gist-region-or-buffer)
   :preface
   (defun my-gist-region-or-buffer ()
@@ -2019,53 +1884,37 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; (shell-command "rm -fr lisp/git-annex-el")
   ;; (shell-command "git remote rm ext/git-annex-el")
   :disabled t
-  :load-path "lisp/git-annex-el")
+  :load-path "lisp/site-git/git-annex-el")
 
 (use-package git-gutter+
-  :load-path "site-lisp/git-gutter-plus"
+  :load-path "site-lisp/site-git/git-gutter-plus"
   :diminish git-gutter+-mode
   :init
   (use-package git-commit
-    :load-path "site-lisp/magit/lisp"
-    :init
-    (use-package with-editor
-    :load-path "site-lisp/with-editor"))
+    :load-path "site-lisp/site-git/magit/lisp")
   :config
   (use-package git-gutter-fringe+
-    :load-path "site-lisp/git-gutter-fringe-plus"
-    :init
-    (use-package fringe-helper-el
-      :load-path "site-lisp/fringe-helper-el"))
+    :load-path "site-lisp/site-git/git-gutter-fringe-plus")
   (add-hook 'prog-mode-hook 'git-gutter+-mode))
 
 (use-package git-link
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage)
-  :load-path "site-lisp/git-link")
+  :load-path "site-lisp/site-git/git-link")
 
 (use-package git-messenger
-  :load-path "site-lisp/emacs-git-messenger"
+  :load-path "site-lisp/site-git/emacs-git-messenger"
   :bind ("C-x v m" . git-messenger:popup-message))
 
-(use-package git-modes
-  ;; (shell-command "rm -fr site-lisp/git-modes")
-  ;; (shell-command "git remote rm ext/git-modes")
-  :disabled t
-  :load-path "site-lisp/git-modes")
-
 (use-package git-timemachine
-  :load-path "site-lisp/git-timemachine"
+  :load-path "site-lisp/site-git/git-timemachine"
   :commands git-timemachine)
 
 (use-package git-wip-mode
-  :load-path "site-lisp/git-wip/emacs"
+  :load-path "site-lisp/site-git/git-wip/emacs"
   :diminish git-wip-mode
   :commands git-wip-mode
   :init (add-hook 'find-file-hook #'(lambda () (git-wip-mode 1))))
-
-(use-package gnugo
-  :commands gnugo
-  :load-path "site-lisp/gnugo")
 
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
@@ -2112,14 +1961,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "<f11>" #'gud-step)
     (bind-key "S-<f11>" #'gud-finish)))
 
-(use-package guess-style
-  ;; (shell-command "rm -fr site-lisp/guess-style")
-  ;; (shell-command "git remote rm ext/guess-style")
-  :disabled t
-  :load-path "site-lisp/guess-style")
-
 (use-package haskell-mode-autoloads
-  :load-path "site-lisp/haskell-mode"
+  :load-path "site-lisp/site-lang/haskell-mode"
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
@@ -2250,17 +2093,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
   (use-package flycheck-haskell
-    :load-path "site-lisp/flycheck-haskell"
+    :load-path "site-lisp/site-lang/flycheck-haskell"
     :config
     (flycheck-haskell-setup)
     (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
     (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
-
-  (use-package flycheck-hdevtools
-    :disabled t
-    :load-path "site-lisp/flycheck-hdevtools"
-    :config
-    (push 'haskell-hdevtools flycheck-checkers))
 
   (use-package haskell-edit
     :load-path "lisp/haskell-config"
@@ -2292,7 +2129,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package helm-config
   :if (not running-alternate-emacs)
   :demand t
-  :load-path "site-lisp/helm"
+  :load-path "site-lisp/site-helm/helm"
   :bind (("C-c h"   . helm-command-prefix)
          ("C-h a"   . helm-apropos)
          ("C-h e a" . my-helm-apropos)
@@ -2326,7 +2163,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (setq helm-google-suggest-use-curl-p t)))
 
 (use-package helm-descbinds
-  :load-path "site-lisp/helm-descbinds"
+  :load-path "site-lisp/site-helm/helm-descbinds"
   :bind ("C-h b" . helm-descbinds)
   :init
   (fset 'describe-bindings 'helm-descbinds)
@@ -2347,11 +2184,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (helm-do-grep-1 (list default-directory) t)))
 
 (use-package helm-make
-  :load-path "site-lisp/helm-make"
+  :load-path "site-lisp/site-helm/helm-make"
   :commands (helm-make helm-make-projectile))
 
 (use-package helm-swoop
-  :load-path "site-lisp/helm-swoop"
+  :load-path "site-lisp/site-helm/helm-swoop"
   :bind (("M-s /" . helm-swoop)
          ("M-s ?" . helm-multi-swoop))
   :config
@@ -2364,234 +2201,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-o r" . highlight-regexp)
          ("M-o w" . highlight-phrase)))
 
-(use-package hide-region
-  ;; (shell-command "rm -f site-lisp/hide-region.el*")
-  :disabled t)
-
-(use-package hide-search
-  ;; (shell-command "rm -f site-lisp/hide-search.el*")
-  :disabled t)
-
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
-
-(use-package hippie-exp
-  :disabled t
-  :bind (("M-/" . dabbrev-expand)
-         ("M-?" . hippie-expand))
-  :preface
-  (autoload 'yas-expand "yasnippet" nil t)
-
-  (defun my-yas-hippie-try-expand (first-time)
-    (if (not first-time)
-        (let ((yas-fallback-behavior 'return-nil))
-          (yas-expand))
-      (undo 1)
-      nil))
-
-  (defun my-hippie-expand-completions (&optional hippie-expand-function)
-    "Return the full list of possible completions generated by `hippie-expand'.
-   The optional argument can be generated with `make-hippie-expand-function'."
-    (let ((this-command 'my-hippie-expand-completions)
-          (last-command last-command)
-          (buffer-modified (buffer-modified-p))
-          (hippie-expand-function (or hippie-expand-function 'hippie-expand)))
-      (flet ((ding))        ; avoid the (ding) when hippie-expand exhausts its
-                                        ; options.
-        (while (progn
-                 (funcall hippie-expand-function nil)
-                 (setq last-command 'my-hippie-expand-completions)
-                 (not (equal he-num -1)))))
-      ;; Evaluating the completions modifies the buffer, however we will finish
-      ;; up in the same state that we began.
-      (set-buffer-modified-p buffer-modified)
-      ;; Provide the options in the order in which they are normally generated.
-      (delete he-search-string (reverse he-tried-table))))
-
-  (defmacro my-ido-hippie-expand-with (hippie-expand-function)
-    "Generate an interactively-callable function that offers ido-based
-  completion using the specified hippie-expand function."
-    `(call-interactively
-      (lambda (&optional selection)
-        (interactive
-         (let ((options (my-hippie-expand-completions ,hippie-expand-function)))
-           (if options
-               (list (completing-read "Completions: " options)))))
-        (if selection
-            (he-substitute-string selection t)
-          (message "No expansion found")))))
-
-  (defun my-ido-hippie-expand ()
-    "Offer ido-based completion for the word at point."
-    (interactive)
-    (my-ido-hippie-expand-with 'hippie-expand))
-
-  (defun my-try-expand-company (old)
-    (require 'company)
-    (unless company-candidates
-      (company-auto-begin))
-    (if (not old)
-        (progn
-          (he-init-string (he-lisp-symbol-beg) (point))
-          (if (not (he-string-member he-search-string he-tried-table))
-              (setq he-tried-table (cons he-search-string he-tried-table)))
-          (setq he-expand-list
-                (and (not (equal he-search-string ""))
-                     company-candidates))))
-    (while (and he-expand-list
-                (he-string-member (car he-expand-list) he-tried-table))
-      (setq he-expand-list (cdr he-expand-list)))
-    (if (null he-expand-list)
-        (progn
-          (if old (he-reset-string))
-          ())
-      (progn
-	(he-substitute-string (car he-expand-list))
-	(setq he-expand-list (cdr he-expand-list))
-	t)))
-
-  (defun he-tag-beg ()
-    (save-excursion
-      (backward-word 1)
-      (point)))
-
-  (defun tags-complete-tag (string predicate what)
-    (save-excursion
-      ;; If we need to ask for the tag table, allow that.
-      (if (eq what t)
-          (all-completions string (tags-completion-table) predicate)
-        (try-completion string (tags-completion-table) predicate))))
-
-  (defun try-expand-tag (old)
-    (when tags-table-list
-      (unless old
-        (he-init-string (he-tag-beg) (point))
-        (setq he-expand-list
-              (sort (all-completions he-search-string 'tags-complete-tag)
-                    'string-lessp)))
-      (while (and he-expand-list
-                  (he-string-member (car he-expand-list) he-tried-table))
-        (setq he-expand-list (cdr he-expand-list)))
-      (if (null he-expand-list)
-          (progn
-            (when old (he-reset-string))
-            ())
-        (he-substitute-string (car he-expand-list))
-        (setq he-expand-list (cdr he-expand-list))
-        t)))
-
-  (defun my-dabbrev-substring-search (pattern &optional reverse limit)
-    (let ((result ())
-          (regpat (cond ((not hippie-expand-dabbrev-as-symbol)
-                         (concat (regexp-quote pattern) "\\sw+"))
-                        ((eq (char-syntax (aref pattern 0)) ?_)
-                         (concat (regexp-quote pattern) "\\(\\sw\\|\\s_\\)+"))
-                        (t
-                         (concat (regexp-quote pattern)
-                                 "\\(\\sw\\|\\s_\\)+")))))
-      (while (and (not result)
-                  (if reverse
-                      (re-search-backward regpat limit t)
-                    (re-search-forward regpat limit t)))
-        (setq result (buffer-substring-no-properties
-                      (save-excursion
-                        (goto-char (match-beginning 0))
-                        (skip-syntax-backward "w_")
-                        (point))
-                      (match-end 0)))
-        (if (he-string-member result he-tried-table t)
-            (setq result nil)))     ; ignore if bad prefix or already in table
-      result))
-
-  (defun try-my-dabbrev-substring (old)
-    (let ((old-fun (symbol-function 'he-dabbrev-search)))
-      (fset 'he-dabbrev-search (symbol-function 'my-dabbrev-substring-search))
-      (unwind-protect
-          (try-expand-dabbrev old)
-        (fset 'he-dabbrev-search old-fun))))
-
-  (defun try-expand-flexible-abbrev (old)
-    "Try to complete word using flexible matching.
-
-  Flexible matching works by taking the search string and then
-  interspersing it with a regexp for any character. So, if you try
-  to do a flexible match for `foo' it will match the word
-  `findOtherOtter' but also `fixTheBoringOrange' and
-  `ifthisisboringstopreadingnow'.
-
-  The argument OLD has to be nil the first call of this function, and t
-  for subsequent calls (for further possible completions of the same
-  string).  It returns t if a new completion is found, nil otherwise."
-    (if (not old)
-        (progn
-          (he-init-string (he-lisp-symbol-beg) (point))
-          (if (not (he-string-member he-search-string he-tried-table))
-              (setq he-tried-table (cons he-search-string he-tried-table)))
-          (setq he-expand-list
-                (and (not (equal he-search-string ""))
-                     (he-flexible-abbrev-collect he-search-string)))))
-    (while (and he-expand-list
-                (he-string-member (car he-expand-list) he-tried-table))
-      (setq he-expand-list (cdr he-expand-list)))
-    (if (null he-expand-list)
-        (progn
-          (if old (he-reset-string))
-          ())
-      (progn
-	(he-substitute-string (car he-expand-list))
-	(setq he-expand-list (cdr he-expand-list))
-	t)))
-
-  (defun he-flexible-abbrev-collect (str)
-    "Find and collect all words that flex-matches STR.
-  See docstring for `try-expand-flexible-abbrev' for information
-  about what flexible matching means in this context."
-    (let ((collection nil)
-          (regexp (he-flexible-abbrev-create-regexp str)))
-      (save-excursion
-        (goto-char (point-min))
-        (while (search-forward-regexp regexp nil t)
-          ;; Is there a better or quicker way than using `thing-at-point'
-          ;; here?
-          (setq collection (cons (thing-at-point 'word) collection))))
-      collection))
-
-  (defun he-flexible-abbrev-create-regexp (str)
-    "Generate regexp for flexible matching of STR.
-  See docstring for `try-expand-flexible-abbrev' for information
-  about what flexible matching means in this context."
-    (concat "\\b" (mapconcat (lambda (x) (concat "\\w*" (list x))) str "")
-            "\\w*" "\\b"))
-
-  (defun my-try-expand-dabbrev-visible (old)
-    (save-excursion (try-expand-dabbrev-visible old)))
-
-  :config
-  (setq hippie-expand-try-functions-list
-        '(my-yas-hippie-try-expand
-          my-try-expand-company
-          try-my-dabbrev-substring
-          my-try-expand-dabbrev-visible
-          try-expand-dabbrev
-          try-expand-dabbrev-all-buffers
-          try-expand-dabbrev-from-kill
-          try-expand-tag
-          try-expand-flexible-abbrev
-          try-complete-file-name-partially
-          try-complete-file-name
-          try-expand-all-abbrevs
-          try-expand-list
-          try-expand-line
-          try-expand-line-all-buffers
-          try-complete-lisp-symbol-partially
-          try-complete-lisp-symbol))
-
-  (bind-key "M-i" #'my-ido-hippie-expand)
-
-  (defadvice he-substitute-string (after he-paredit-fix)
-    "remove extra paren when expanding line in paredit"
-    (if (and paredit-mode (equal (substring str -1) ")"))
-        (progn (backward-delete-char 1) (forward-char)))))
 
 (use-package hl-line
   :commands hl-line-mode
@@ -2609,13 +2220,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out")))
 
-(use-package hyperbole
-  :disabled t
-  :load-path "site-lisp/hyperbole"
-  :defer 10
-  :config
-  (progn t))
-
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
   :init
@@ -2626,81 +2230,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package ido
   :disabled t
   :demand t
-  :defines (ido-cur-item
-            ido-require-match
-            ido-selected
-            ido-final-text
-            ido-show-confirm-message)
   :bind (("C-x b" . ido-switch-buffer)
-         ("C-x B" . ido-switch-buffer-other-window))
-  :preface
-  ;; (eval-when-compile
-  ;;   (defvar ido-require-match)
-  ;;   (defvar ido-cur-item)
-  ;;   (defvar ido-show-confirm-message)
-  ;;   (defvar ido-selected)
-  ;;   (defvar ido-final-text))
-
-  ;; (defun ido-smart-select-text ()
-  ;;   "Select the current completed item.  Do NOT descend into directories."
-  ;;   (interactive)
-  ;;   (when (and (or (not ido-require-match)
-  ;;                  (if (memq ido-require-match
-  ;;                            '(confirm confirm-after-completion))
-  ;;                      (if (or (eq ido-cur-item 'dir)
-  ;;                              (eq last-command this-command))
-  ;;                          t
-  ;;                        (setq ido-show-confirm-message t)
-  ;;                        nil))
-  ;;                  (ido-existing-item-p))
-  ;;              (not ido-incomplete-regexp))
-  ;;     (when ido-current-directory
-  ;;       (setq ido-exit 'takeprompt)
-  ;;       (unless (and ido-text (= 0 (length ido-text)))
-  ;;         (let ((match (ido-name (car ido-matches))))
-  ;;           (throw 'ido
-  ;;                  (setq ido-selected
-  ;;                        (if match
-  ;;                            (replace-regexp-in-string "/\\'" "" match)
-  ;;                          ido-text)
-  ;;                        ido-text ido-selected
-  ;;                        ido-final-text ido-text)))))
-  ;;     (exit-minibuffer)))
-
-  :config
-  (ido-mode 'buffer)
-
-  (use-package ido-hacks
-    :disabled t
-    :demand t
-    :load-path "site-lisp/ido-hacks"
-    :bind ("M-x" . my-ido-hacks-execute-extended-command)
-    :config
-    (ido-hacks-mode 1)
-
-    (defvar ido-hacks-completing-read (symbol-function 'completing-read))
-    (fset 'completing-read ido-hacks-orgin-completing-read-function)
-    (defun my-ido-hacks-execute-extended-command (&optional arg)
-      (interactive "P")
-      (flet ((completing-read
-              (prompt collection &optional predicate require-match
-                      initial-input hist def inherit-input-method)
-              (funcall ido-hacks-completing-read
-                       prompt collection predicate require-match
-                       initial-input hist def inherit-input-method)))
-        (ido-hacks-execute-extended-command arg))))
-
-  (use-package flx-ido
-    :disabled t
-    :load-path "site-lisp/flx"
-    :config
-    (flx-ido-mode 1))
-
-  ;; (add-hook 'ido-minibuffer-setup-hook
-  ;;           #'(lambda ()
-  ;;               (bind-key "<return>" #'ido-smart-select-text
-  ;;                         ido-file-completion-map)))
-  )
+         ("C-x B" . ido-switch-buffer-other-window)))
 
 (use-package iedit
   :load-path "site-lisp/iedit"
@@ -2731,6 +2262,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package iflipb
   :load-path "site-lisp/iflipb"
+  :bind ("C-. C-." . iflipb-previous-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
   (defvar my-iflipb-auto-off-timeout-sec 2)
@@ -2790,31 +2322,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (> (length (window-list)) 1)
         (delete-window))))
 
-(use-package info+
-  ;; (shell-command "rm -f site-lisp/info+.el*")
-  :disabled t)
-
 (use-package info-look
   :commands info-lookup-add-help)
 
-(use-package interaction-log
-  ;; (shell-command "rm -fr site-lisp/interaction-log")
-  ;; (shell-command "git remote rm ext/interaction-log")
-  :disabled t
-  :load-path "site-lisp/interaction-log")
-
 (use-package inventory
   :commands inventory)
-
-(use-package ipa
-  :load-path "site-lisp/ipa-el"
-  :commands (ipa-insert ipa-load-annotations-into-buffer)
-  :init
-  (add-hook 'find-file-hook 'ipa-load-annotations-into-buffer))
-
-(use-package irfc
-  ;; (shell-command "rm -f site-lisp/irfc.el*")
-  :disabled t)
 
 (use-package isearch
   :no-require t
@@ -2837,8 +2349,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-^" #'isearch-edit-string isearch-mode-map)
   (bind-key "C-i" #'isearch-complete isearch-mode-map))
 
+(use-package ivy
+  :diminish ivy-mode
+  :load-path "site-lisp/site-ivy/swiper"
+  :bind (("C-x b" . ivy-switch-buffer)
+         ("C-x B" . ivy-switch-buffer-other-window))
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t
+        ivy-height 6
+        ivy-count-format ""
+        ivy-initial-inputs-alist nil
+        ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
+
 (use-package js2-mode
-  :load-path "site-lisp/js2-mode"
+  :load-path "site-lisp/site-lang/js2-mode"
   :mode "\\.js\\'"
   :config
   (setq flycheck-disabled-checkers
@@ -2852,9 +2377,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "M-p" #'flycheck-previous-error js2-mode-map))
 
 (use-package json-mode
-  :load-path ("site-lisp/json-mode"
-              "site-lisp/json-reformat"
-              "site-lisp/json-snatcher")
+  :load-path ("site-lisp/site-lang/json-mode"
+              "site-lisp/site-lang/json-reformat"
+              "site-lisp/site-lang/json-snatcher")
   :mode "\\.json\\'"
   :config
   (use-package json-reformat)
@@ -2913,20 +2438,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/lentic")
 
-(use-package light-faces
-  ;; (shell-command "rm -f lisp/light-faces.el*")
-  :disabled t)
-
-(use-package linum
-  ;; (shell-command "rm -f site-lisp/linum.el*")
-  :disabled t)
-
-(use-package liquid-types-el
-  ;; (shell-command "rm -fr site-lisp/liquid-types-el")
-  ;; (shell-command "git remote rm ext/liquid-types-el")
-  :disabled t
-  :load-path "site-lisp/liquid-types-el")
-
 (use-package lisp-mode
   :defer t
   :preface
@@ -2949,7 +2460,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         :diminish redshank-mode)
 
       (use-package elisp-slime-nav
-        :load-path "site-lisp/elisp-slime-nav"
+        :load-path "site-lisp/site-emacs-lisp/elisp-slime-nav"
         :diminish elisp-slime-nav-mode)
 
       (use-package edebug)
@@ -3072,14 +2583,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package llvm-mode
   :mode "\\.ll\\'")
 
-(use-package loccur
-  ;; (shell-command "rm -fr site-lisp/loccur")
-  ;; (shell-command "git remote rm ext/loccur")
-  :disabled t
-  :load-path "site-lisp/loccur")
-
 (use-package lua-mode
-  :load-path "site-lisp/lua-mode"
+  :load-path "site-lisp/site-lang/lua-mode"
   :mode "\\.lua\\'"
   :interpreter ("lua" . lua-mode))
 
@@ -3119,9 +2624,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (require 'lusty-explorer)
     (let ((lusty--active-mode :file-explorer)
-          (helm-mode-prev (and (boundp 'helm-mode) helm-mode)))
+          (helm-mode-prev (and (boundp 'helm-mode) helm-mode))
+          (ivy-mode-prev (and (boundp 'ivy-mode) ivy-mode)))
       (if (fboundp 'helm-mode)
           (helm-mode -1))
+      (if (fboundp 'ivy-mode)
+          (ivy-mode -1))
       (unwind-protect
           (progn
             (lusty--define-mode-map)
@@ -3142,7 +2650,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                  (find-file-noselect
                   (expand-file-name file))))))
         (if (fboundp 'helm-mode)
-            (helm-mode (if helm-mode-prev 1 -1))))))
+            (helm-mode (if helm-mode-prev 1 -1)))
+        (if (fboundp 'ivy-mode)
+            (ivy-mode (if ivy-mode-prev 1 -1))))))
 
   :config
   (defun my-lusty-setup-hook ()
@@ -3188,12 +2698,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (lusty-sort-by-fuzzy-score filtered file-portion)))))
 
 (use-package macrostep
-  :load-path "site-lisp/macrostep"
+  :load-path "site-lisp/site-emacs-lisp/macrostep"
   :bind ("C-c e m" . macrostep-expand))
 
 (use-package magit
-  :load-path ("site-lisp/magit/lisp"
-              "site-lisp/with-editor")
+  :load-path ("site-lisp/site-git/magit/lisp"
+              "lib/with-editor")
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :preface
@@ -3237,13 +2747,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
-  (use-package with-editor
-    ;; Magit makes use of this mode
-    :demand t
-    :commands (with-editor-async-shell-command
-               with-editor-shell-command)
-    :load-path "site-lisp/with-editor")
-
   (use-package git-commit)
 
   :config
@@ -3255,7 +2758,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package magithub
     :disabled t
-    :load-path "site-lisp/magithub"
+    :load-path "site-lisp/site-git/magithub"
     :after magit
     :config (magithub-feature-autoinject t))
 
@@ -3291,13 +2794,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (query-replace-regexp "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)" (quote (replace-eval-replacement concat "\\1\\2" (replace-quote (rot13 (match-string 4))))) nil (if (use-region-p) (region-beginning)) (if (use-region-p) (region-end)) nil nil)))
 
 (use-package markdown-mode
-  :load-path "site-lisp/markdown-mode"
+  :load-path "site-lisp/site-lang/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
   :config
   (use-package markdown-preview-mode
-    :load-path "site-lisp/markdown-preview-mode"
+    :load-path "site-lisp/site-lang/markdown-preview-mode"
     :config
     (setq markdown-preview-stylesheets
           (list "http://ftp.newartisans.com/pub/github.css"))))
@@ -3309,26 +2812,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/mediawiki")
 
 (use-package memory-usage
-  ;; (shell-command "rm -f site-lisp/memory-usage.el*")
-  :disabled t)
+  :commands memory-usage)
 
 (use-package midnight
   :defer 10)
-
-(use-package minesweeper
-  :commands minesweeper)
-
-(use-package moz
-  :commands run-mozilla
-  :load-path "site-lisp/mozrepl/chrome/content")
-
-(use-package mudel
-  :commands mudel
-  :bind ("C-c M" . mud)
-  :init
-  (defun mud ()
-    (interactive)
-    (mudel "4dimensions" "4dimensions.org" 6000)))
 
 (use-package mule
   :no-require t
@@ -3374,44 +2861,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-!" . mf/mirror-region-in-multifile)
   :load-path "site-lisp/multifiles-el")
 
-(use-package multiple-cursors
-  :disabled t
-  :load-path "site-lisp/multiple-cursors-el"
-  :bind (("C-S-c C-S-c" . mc/edit-lines)
-         ("C->"         . mc/mark-next-like-this)
-         ("C-<"         . mc/mark-previous-like-this)
-         ("C-c C-<"     . mc/mark-all-like-this))
-  :config
-  (setq mc/list-file (expand-file-name "mc-lists.el" user-data-directory)))
-
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
-(use-package nix-buffer
-  :disabled t
-  :load-path "site-lisp/nix-buffer"
-  :commands nix-buffer)
-
 (use-package nix-mode
   :mode "\\.nix\\'")
-
-(use-package nlinum
-  :disabled t
-  :preface
-  (defun goto-line-with-feedback ()
-    "Show line numbers temporarily, while prompting for the line number input"
-    (interactive)
-    (unwind-protect
-        (progn
-          (nlinum-mode 1)
-          (let ((num (read-number "Goto line: ")))
-            (goto-char (point-min))
-            (forward-line (1- num))))
-      (nlinum-mode -1)))
-
-  :init
-  (bind-key "C-c g" #'goto-line)
-  (global-set-key [remap goto-line] 'goto-line-with-feedback))
 
 (use-package nroff-mode
   :commands nroff-mode
@@ -3466,28 +2920,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   ;; optional key bindings, easier than hs defaults
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
 
-(use-package on-screen
-  :disabled t
-  :load-path "site-lisp/on-screen"
-  :defer 5
-  :config
-  (on-screen-global-mode 1))
-
-(use-package one-key
-  ;; (shell-command "rm -f site-lisp/one-key.el*")
-  :disabled t)
-
 (use-package outline
   :commands outline-minor-mode
   :init
   (hook-into-modes #'outline-minor-mode
                    'emacs-lisp-mode-hook
                    'LaTeX-mode-hook))
-
-(use-package pabbrev
-  :load-path "site-lisp/pabbrev"
-  :commands pabbrev-mode
-  :diminish pabbrev-mode)
 
 (use-package paredit
   :commands paredit-mode
@@ -3524,10 +2962,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    :defer 5
    :config
    (show-paren-mode 1)))
-
-(use-package parenface
-  ;; (shell-command "rm -f site-lisp/parenface.el*")
-  :disabled t)
 
 (use-package pdf-tools
   :defer 15
@@ -3568,11 +3002,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 5
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
+  (use-package counsel-projectile
+    :load-path "site-lisp/site-ivy/counsel-projectile"
+    :config
+    (setq projectile-completion-system 'ivy)
+    (counsel-projectile-on))
+
   (use-package helm-projectile
+    :disabled t
     :config
     (setq projectile-completion-system 'helm)
     (helm-projectile-on))
+
   (projectile-global-mode)
+
   (bind-key "s s"
             #'(lambda ()
                 (interactive)
@@ -3580,9 +3023,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             'projectile-command-map))
 
 (use-package proof-site
-  :load-path ("site-lisp/ProofGeneral/generic"
-              "site-lisp/ProofGeneral/lib"
-              "site-lisp/ProofGeneral/coq")
+  :load-path ("site-lisp/site-lang/ProofGeneral/generic"
+              "site-lisp/site-lang/ProofGeneral/lib"
+              "site-lisp/site-lang/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
   :preface
   (eval-when-compile
@@ -3595,11 +3038,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (declare-function window-bottom-p "proof-compat"))
   :config
   (use-package company-coq
-    :load-path "site-lisp/company-coq"
+    :load-path "site-lisp/site-company/company-coq"
     :commands company-coq-mode
     :preface
     (use-package company-math
-      :load-path "site-lisp/company-math"
+      :load-path "site-lisp/site-company/company-math"
       :defer t
       :preface
       (use-package math-symbol-lists
@@ -3670,7 +3113,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq ps-print-region-function 'ps-spool-to-pdf))
 
 (use-package python-mode
-  :load-path "site-lisp/python-mode"
+  :load-path "site-lisp/site-lang/python-mode"
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :config
@@ -3705,17 +3148,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package rainbow-mode
   :commands rainbow-mode)
-
-(use-package rec-mode
-  :disabled t
-  :load-path "~/.nix-profile/share/emacs/site-lisp"
-  :mode ("\\.rec\\'" . rec-mode)
-  :commands rec-mode
-  :config
-  (defun rec-remove-continuation-line-marker-overlays ()
-    "Delete all the continuation line markers overlays."
-    (mapc 'delete-overlay rec-continuation-line-markers-overlays)
-    (setq rec-continuation-line-markers-overlays nil)))
 
 (use-package recentf
   :defer 10
@@ -3752,28 +3184,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
 
-(use-package rings
-    :load-path "~/bae/xhtml-deliverable/rings-dashboard"
-    :commands (rings-setup
-               rings-app-run
-               rings-cleanup-docker
-               rings-cleanup-app))
-
-(use-package rings-xhtml
-  :load-path "~/bae/xhtml-deliverable/scripts"
-  :bind ("<f10>" . rings-xhtml-run-all)
-  :commands (rings-xhtml-run-test-for-demo
-             rings-xhtml-run
-             rings-xhtml-run-all))
-
 (use-package ruby-mode
-  :load-path "site-lisp/ruby-mode"
+  :load-path "site-lisp/site-lang/ruby-mode"
   :mode ("\\.rb\\'" . ruby-mode)
   :interpreter ("ruby" . ruby-mode)
   :functions inf-ruby-keys
   :config
   (use-package yari
-    :load-path "site-lisp/yari-with-buttons"
+    :load-path "site-lisp/site-lang/yari-with-buttons"
     :init
     (progn
       (defvar yari-helm-source-ri-pages
@@ -3930,7 +3348,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-. C-z" . shell-toggle))
 
 (use-package slime
-  :load-path "site-lisp/slime"
+  :load-path "site-lisp/site-lang/slime"
   :commands slime
   :init
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
@@ -3938,7 +3356,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package slime
   :disabled t
-  :load-path "site-lisp/slime"
+  :load-path "site-lisp/site-lang/slime"
   :commands (sbcl slime)
   :init
   (add-hook
@@ -4018,24 +3436,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (setq common-lisp-hyperspec-root
             (expand-file-name "~/Library/Lisp/HyperSpec/")))))
 
-(use-package smart-compile
-  :disabled t
-  :commands smart-compile
-  :bind (("C-c c" . smart-compile)
-         ("A-n"   . next-error)
-         ("A-p"   . previous-error)))
-
-(use-package smart-tabs-mode
-  :commands smart-tabs-mode
-  :load-path "site-lisp/smarttabs")
-
-(use-package smartparens
-  :disabled t
-  :load-path "site-lisp/smartparens"
-  :commands (smartparens-mode show-smartparens-mode)
-  :config
-  (use-package smartparens-config))
-
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
   :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
@@ -4054,8 +3454,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands sort-words)
 
 (use-package springboard
-  ;; (shell-command "rm -fr lisp/springboard")
-  ;; (shell-command "git remote rm ext/springboard")
   :disabled t
   :load-path "lisp/springboard")
 
@@ -4137,12 +3535,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-beginning-of-buffer)))))
 
 (use-package swiper-helm
-  :load-path ("site-lisp/swiper"
-              "site-lisp/swiper-helm")
+  :load-path ("site-lisp/ivy/swiper"
+              "site-lisp/ivy/swiper-helm")
   :bind ("C-. C-s" . swiper-helm)
   :config
   (use-package swiper
-    :load-path "site-lisp/swiper"))
+    :load-path "site-lisp/ivy/swiper"))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
@@ -4189,12 +3587,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-. N" . tiny-expand))
 
 (use-package tuareg
-  :load-path "site-lisp/tuareg"
+  :load-path "site-lisp/site-lang/tuareg"
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package tramp-sh
-  :load-path "override/tramp"
   :defer t
   :config
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
@@ -4266,21 +3663,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package wcount
   :disabled t
   :commands wcount-mode)
-
-(use-package web-mode
-  ;; (shell-command "rm -fr site-lisp/web-mode")
-  ;; (shell-command "git remote rm ext/web-mode")
-  :disabled t
-  :load-path "site-lisp/web-mode")
-
-(use-package which-key
-  :disabled t
-  :load-path "site-lisp/which-key"
-  :diminish which-key-mode
-  :commands which-key-mode
-  :defer 10
-  :config
-  (which-key-mode 1))
 
 (use-package whitespace
   :diminish (global-whitespace-mode
@@ -4372,24 +3754,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-\\" #'wg-switch-to-previous-workgroup wg-map)
   (bind-key "\\" #'toggle-input-method wg-map))
 
-(use-package wrap-region
-  :load-path "site-lisp/wrap-region"
-  :commands wrap-region-mode
-  :diminish wrap-region-mode
-  :config
-  (wrap-region-add-wrappers
-   '(("$" "$")
-     ("/" "/" nil ruby-mode)
-     ("/* " " */" "#" (java-mode javascript-mode css-mode c-mode c++-mode))
-     ("`" "`" nil (markdown-mode ruby-mode shell-script-mode)))))
-
 (use-package xray
   :commands (xray-symbol xray-position xray-buffer xray-window
              xray-frame xray-marker xray-overlay xray-screen
              xray-faces xray-hooks xray-features))
 
 (use-package yaml-mode
-  :load-path "site-lisp/yaml-mode"
+  :load-path "site-lisp/site-lang/yaml-mode"
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
 (use-package yaoddmuse
@@ -4438,7 +3809,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package zencoding-mode
-  :load-path "site-lisp/zencoding-mode"
+  :load-path "site-lisp/site-lang/zencoding-mode"
   :commands zencoding-mode
   :init
   (add-hook 'nxml-mode-hook 'zencoding-mode)
@@ -4451,17 +3822,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
 
-(use-package zotelo
-  :disabled t
-  :load-path "site-lisp/zotelo"
-  :commands zotelo-minor-mode
-  :config
-  (add-hook 'TeX-mode-hook 'zotelo-minor-mode))
-
 (use-package z3-mode
   :mode ("\\.rs\\'" . z3-mode)
   :commands z3-mode
-  :load-path "site-lisp/z3-mode")
+  :load-path "site-lisp/site-lang/z3-mode")
 
 (use-package ztree-diff
   :commands ztree-diff

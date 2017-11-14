@@ -1,0 +1,26 @@
+#+TITLE: Linux 
+
+[[wiki:index][index]]
+
+Related: [[wiki:Python][Python]] 
+
+* Linux 
+** Linux X Unix X OSX 
+** Shell commands 
+
+ - =$ ls -la=
+
+Print CPU Information 
+
+#+BEGIN_SRC sh
+cat /proc/cpuinfo
+#+END_SRC
+
+** File 
+
+PDF File - When clicked it will open with default system application.
+
+ - [[wiki-asset-sys:Linux;Linux-Reference-Cheat-Sheet.pdf][Linux-Reference-Cheat-Sheet.pdf]]
+
+I got this file from: https://files.fosswire.com/2007/08/fwunixref.pdf
+

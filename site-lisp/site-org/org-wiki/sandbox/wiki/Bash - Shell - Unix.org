@@ -1,0 +1,23 @@
+#+INCLUDE: theme/style.org
+#+TITLE: Bash Script 
+
+[[wiki:index][index]]
+
+Related: [[wiki:Linux][Linux]] [[wiki:Python][Python]] [[wiki:The Art of Unix Programming][The Art of Unix Programming]]
+
+* Bash script 
+** For loops
+
+
+
+** Patterns 
+
+
+
+** Commands 
+
+#+BEGIN_SRC sh
+echo "Hello world" 
+echo "Halo World"
+echo "Hola Mundo"
+#+END_SRC

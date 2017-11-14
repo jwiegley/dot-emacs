@@ -1,0 +1,224 @@
+# Makefile for AUCTeX
+
+# Maintainer: auctex-devel@gnu.org
+
+# Copyright (C) 2003-2008, 2013-2015 Free Software Foundation, Inc.
+
+# This file is part of AUCTeX.
+
+# AUCTeX is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+
+# AUCTeX is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with AUCTeX; see the file COPYING.  If not, write to the Free
+# Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+prefix=/usr/local$(null)
+datarootdir=${prefix}/share$(null)
+datadir=${datarootdir}$(null)
+packagedir=no$(null)
+infodir=${datarootdir}/info$(null)
+docdir=${datarootdir}/doc/${PACKAGE_TARNAME}$(null)
+TEX=/Users/johnw/.nix-profile/bin/tex
+PDFTEX=/Users/johnw/.nix-profile/bin/pdftex
+MAKEINFO=/Users/johnw/.nix-profile/bin/makeinfo
+MAKEINFO_PLAIN=-D rawfile --no-headers
+INSTALL_INFO=/Users/johnw/.nix-profile/bin/install-info
+INSTALL=/nix/store/7l8nkvrd8dck71lmr3r47kr04wb12yk2-coreutils-8.28/bin/install -c
+INSTALL_DATA=${INSTALL} -m 644
+DESTDIR=
+# If `texi2html' is not available, use `makeinfo' when possible.  Set the ToC
+# file accordingly.  Actually, makeinfo >= 5 is needed, but we don't check the
+# version.
+ifneq (:,:)
+	TEXI2HTML=:
+	TEXI2HTML_TOC=auctex_toc.html
+else
+	ifneq (/Users/johnw/.nix-profile/bin/makeinfo,:)
+		TEXI2HTML=/Users/johnw/.nix-profile/bin/makeinfo --html
+		TEXI2HTML_TOC=index.html
+	else
+		TEXI2HTML=:
+		TEXI2HTML_TOC=auctex_toc.html
+	endif
+endif
+TEXI2DVI=/Users/johnw/.nix-profile/bin/texi2dvi
+TEXI2PDF=/Users/johnw/.nix-profile/bin/texi2pdf
+MKINSTALLDIRS = ../mkinstalldirs
+DVIPS=/Users/johnw/.nix-profile/bin/dvips
+PERL=/usr/bin/perl
+AUCTEXDATE=2017-11-06
+AUCTEXVERSION=11.91
+PACKAGE_TARNAME=auctex
+
+AUCTEXTEXIFILES = auctex.texi install.texi wininstall.texi intro.texi \
+	changes.texi todo.texi faq.texi macros.texi quickstart.texi \
+	fdl.texi version.texi
+PREVIEWTEXIFILES = copying.texi preview-faq.texi macros.texi \
+	preview-dtxdoc.texi preview-latex.texi preview-problems.texi \
+	preview-readme.texi preview-todo.texi version.texi
+DISTTEXTS = ../README ../INSTALL ../TODO ../INSTALL.windows ../FAQ ../CHANGES	\
+	../PROBLEMS.preview
+
+all: dist
+
+info: auctex.info preview-latex.info
+
+dvi: auctex.dvi tex-ref.dvi preview-latex.dvi
+
+install: install-auctex install-preview
+
+install-man:
+	test x$(packagedir) != xno && \
+	{ $(MKINSTALLDIRS) $(DESTDIR)$(packagedir)/man/auctex ; \
+	for i in $(AUCTEXTEXIFILES) $(PREVIEWTEXIFILES) tex-ref.tex ; \
+	do echo $(INSTALL_DATA) $$i $(DESTDIR)$(packagedir)/man/auctex; \
+	   $(INSTALL_DATA) $$i $(DESTDIR)$(packagedir)/man/auctex; \
+	done ; \
+	}
+
+dist: $(DISTTEXTS) preview-latex.info auctex.info tex-ref.pdf
+
+extradist: html/$(TEXI2HTML_TOC) auctex.ps auctex.pdf tex-ref.ps tex-ref.pdf
+
+.PHONY: all info dvi dist install-auctex disttexts clean distclean \
+	maintainer-clean install-preview install-man uninstall html-docs \
+	extradist
+
+# AUCTeX
+
+html/$(TEXI2HTML_TOC): auctex.texi
+	rm -rf html
+	mkdir html
+	cd html && $(TEXI2HTML) --split=node -I .. ../auctex.texi && \
+	test ! -d auctex || { mv auctex/* . && rm -rf auctex ; }
+
+tex-ref.dvi: tex-ref.tex
+	$(TEX) tex-ref
+
+tex-ref.ps: tex-ref.dvi
+	$(DVIPS) tex-ref.dvi -Ppdf -o tex-ref.ps
+
+tex-ref.pdf: tex-ref.tex
+	$(PDFTEX) tex-ref.tex
+
+version.texi: ../ChangeLog.1
+	echo @set VERSION $(AUCTEXVERSION) >version.texi
+	echo @set UPDATED $(AUCTEXDATE) >>version.texi
+
+auctex.dvi: $(AUCTEXTEXIFILES)
+	$(TEXI2DVI) auctex.texi
+
+auctex.pdf: $(AUCTEXTEXIFILES)
+	$(TEXI2PDF) auctex.texi
+
+auctex.ps: auctex.dvi
+	$(DVIPS) auctex.dvi -Ppdf -o auctex.ps
+
+auctex.info: $(AUCTEXTEXIFILES)
+	$(MAKEINFO) auctex.texi
+
+install-auctex: auctex.info tex-ref.pdf
+	-$(MKINSTALLDIRS) $(DESTDIR)$(infodir)
+	rm -f $(DESTDIR)$(infodir)/auctex $(DESTDIR)$(infodir)/auctex-*
+	$(INSTALL_DATA) auctex.info $(DESTDIR)$(infodir)
+	for x in auctex.info-*; do \
+	  if [ -r $$x ]; then \
+	    $(INSTALL_DATA) $$x $(DESTDIR)$(infodir) ; \
+	  fi; \
+	done
+	-$(INSTALL_INFO)  --info-dir=$(DESTDIR)$(infodir) auctex.info
+	test X$(packagedir) != Xno || { \
+	  $(MKINSTALLDIRS) $(DESTDIR)$(docdir); \
+	  rm -f $(DESTDIR)$(docdir)/tex-ref.pdf; \
+	  $(INSTALL_DATA) tex-ref.pdf $(DESTDIR)$(docdir); \
+	}
+
+# preview
+
+preview-latex/index.html: $(PREVIEWTEXIFILES)
+	rm -f preview-latex/*
+	$(TEXI2HTML) preview-latex.texi
+
+html-docs: preview-latex/index.html
+
+preview-dtxdoc.texi: ../latex/preview.dtx preview-dtxdoc.pl
+	-$(PERL) preview-dtxdoc.pl ../latex/preview.dtx \
+		preview-dtxdoc.texi
+
+preview-latex.dvi: $(PREVIEWTEXIFILES)
+	$(TEXI2DVI) preview-latex.texi
+
+preview-latex.ps: preview-latex.dvi
+	$(DVIPS) preview-latex.dvi -Ppdf -o preview-latex.ps
+
+preview-latex.pdf: $(PREVIEWTEXIFILES)
+	$(TEXI2PDF) preview-latex.texi
+
+preview-latex.info: $(PREVIEWTEXIFILES)
+	$(MAKEINFO) preview-latex.texi
+
+install-preview: preview-latex.info
+	-$(MKINSTALLDIRS) $(DESTDIR)$(infodir)
+	for x in preview-latex.info* ; do \
+		$(INSTALL_DATA) $$x $(DESTDIR)$(infodir) ; \
+	done
+	-$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) preview-latex.info
+
+# disttexts
+
+../INSTALL: install.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) install.texi --output $@
+
+../INSTALL.windows: wininstall.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) wininstall.texi --output $@
+
+../README: intro.texi preview-readme.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) intro.texi --output $@
+	$(MAKEINFO) $(MAKEINFO_PLAIN) preview-readme.texi --output - >> $@
+
+../CHANGES: changes.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) changes.texi --output $@
+
+../TODO: todo.texi preview-todo.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) todo.texi --output $@
+	$(MAKEINFO) $(MAKEINFO_PLAIN) preview-todo.texi --output - >> $@
+
+../FAQ: faq.texi preview-faq.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) faq.texi --output $@
+	$(MAKEINFO) $(MAKEINFO_PLAIN) --number-sections preview-faq.texi --output - >> $@
+
+../PROBLEMS.preview: preview-problems.texi macros.texi
+	$(MAKEINFO) $(MAKEINFO_PLAIN) --number-sections preview-problems.texi --output $@
+
+# clean
+
+uninstall:
+	for info in $(DESTDIR)$(infodir)/{auctex.info,preview-latex.info}; do \
+		test ! -f $${info} || \
+		$(INSTALL_INFO) --delete --info-dir=$(DESTDIR)$(infodir) $${info}; \
+	done
+	rm -f $(DESTDIR)$(infodir)/auctex.info $(DESTDIR)$(infodir)/auctex.info-* \
+	$(DESTDIR)$(infodir)/preview-latex.info*
+	test X$(packagedir) != Xno || rm -rf -f $(DESTDIR)$(docdir)
+
+clean:
+	rm -f *.dvi *.ps *.pdf *.aux *.cp *.fn *.ky *.log *~ \#*\# \
+		*.tp *.vr *.pg *.toc *.tp *.bak *.cps *.kys *.tps \
+		*.fns *.vrs *.pgs *.tmp *.html
+	rm -rf html preview-latex
+
+distclean: clean
+	rm -f Makefile
+
+maintainer-clean: distclean
+	rm -f INSTALL.windows README CHANGES HISTORY TODO FAQ \
+		preview-dtxdoc.texi version.texi $(DISTTEXTS) *.info *.info-*
