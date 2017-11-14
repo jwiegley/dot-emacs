@@ -1638,7 +1638,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package grep
   :bind (("M-s d" . find-grep-dired)
-         ("M-s F" . find-name-dired)
+         ("M-s n" . find-name-dired)
          ("M-s f" . find-grep)
          ("M-s G" . grep))
   :config
@@ -1812,7 +1812,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
 (use-package helm-config
-  :disabled t
   :if (not running-alternate-emacs)
   :demand t
   :load-path "site-lisp/site-helm/helm"
@@ -1844,10 +1843,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "<tab>" #'helm-execute-persistent-action helm-map)
   (bind-key "C-i" #'helm-execute-persistent-action helm-map)
   (bind-key "C-z" #'helm-select-action helm-map)
-  (bind-key "A-v" #'helm-previous-page helm-map)
-
-  (when (executable-find "curl")
-    (setq helm-google-suggest-use-curl-p t)))
+  (bind-key "A-v" #'helm-previous-page helm-map))
 
 (use-package helm-descbinds
   :load-path "site-lisp/site-helm/helm-descbinds"
@@ -2031,7 +2027,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t
         ivy-height 6
-        ivy-count-format ""
         ivy-initial-inputs-alist nil
         ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
 
@@ -2203,18 +2198,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (info-lookmore-elisp-cl)
         (info-lookmore-elisp-userlast)
         (info-lookmore-elisp-gnus)
-        (info-lookmore-apropos-elisp))
-
-      (use-package testcover
-        :commands testcover-this-defun)
-
-      (mapc (lambda (mode)
-              (info-lookup-add-help
-               :mode mode
-               :regexp "[^][()'\" \t\n]+"
-               :ignore-case t
-               :doc-spec '(("(ansicl)Symbol Index" nil nil nil))))
-            lisp-modes))
+        (info-lookmore-apropos-elisp)))
 
     (auto-fill-mode 1)
     (paredit-mode 1)
@@ -3186,13 +3170,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (sr-beginning-of-buffer)))))
 
 (use-package swiper
+  :demand t
   :load-path "site-lisp/ivy/swiper"
-  ;; :bind ("C-. C-s" . swiper)
-  :bind ("C-s" . swiper)
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper))
   :init
   (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
+  :config
   (bind-key "M-%" #'swiper-query-replace swiper-map)
-  (bind-key "M-h" #'swiper-avy swiper-map))
+  (bind-key "M-h" #'swiper-avy swiper-map)
+
+  (use-package consel
+    :bind (("M-x" . counsel-M-x)
+           ("C-h f" . counsel-describe-function)
+           ("C-h v" . counsel-describe-variable)
+           ("C-h e l" . counsel-find-library)
+           ("C-h e u" . counsel-unicode-char))
+    :init
+    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+    (define-key minibuffer-local-map (kbd "M-r") 'counsel-minibuffer-history)))
 
 (use-package tablegen-mode
   :mode ("\\.td\\'" . tablegen-mode))
