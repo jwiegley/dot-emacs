@@ -114,16 +114,7 @@
 
 ;;; Enable disabled commands
 
-(put 'downcase-region             'disabled nil)   ; Let downcasing work
-(put 'erase-buffer                'disabled nil)
-(put 'eval-expression             'disabled nil)   ; Let ESC-ESC work
-(put 'narrow-to-page              'disabled nil)   ; Let narrowing work
-(put 'narrow-to-region            'disabled nil)   ; Let narrowing work
-(put 'set-goal-column             'disabled nil)
-(put 'upcase-region               'disabled nil)   ; Let upcasing work
-(put 'company-coq-fold            'disabled nil)
-(put 'TeX-narrow-to-group         'disabled nil)
-(put 'LaTeX-narrow-to-environment 'disabled nil)
+(setq disabled-command-function nil)
 
 ;;; Configure libraries
 
@@ -1075,6 +1066,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
   :preface
+  (use-package my-compile)
+
   (defun show-compilation ()
     (interactive)
     (let ((compile-buf
