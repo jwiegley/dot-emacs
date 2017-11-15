@@ -922,7 +922,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (ascii-on))))
 
 (use-package async
-  :load-path "elpa/packages/async")
+  :load-path "lisp/emacs-async")
 
 (use-package auctex
   :load-path "site-lisp/site-lang/auctex"
@@ -1131,7 +1131,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                '(haskell-mode . "haskell")))
 
 (use-package debbugs-gnu
-  :load-path "elpa/packages/debbugs"
+  :load-path "site-lisp/debbugs"
   :commands (debbugs-gnu debbugs-gnu-search))
 
 (use-package dedicated
