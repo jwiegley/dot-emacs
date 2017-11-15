@@ -20,7 +20,7 @@ Patches in any form are always welcome! GitHub pull requests are even better! :-
 
 Before submitting a patch or a pull request make sure all tests are
 passing and that your patch is in line with the [contribution
-guidelines](https://github.com/bbatsov/projectile/blob/master/.github/CONTRIBUTING.md).
+guidelines](https://github.com/bbatsov/projectile/blob/master/CONTRIBUTING.md).
 
 ## Documentation
 
@@ -45,7 +45,7 @@ are merged in `master` (or the latest stable branch).
 You can install `MkDocs` locally and use the command `mkdocs serve` to see the
 result of changes you make to the manual locally:
 
-```
+```sh
 $ cd path/to/projectile/repo
 $ mkdocs serve
 ```
@@ -63,7 +63,7 @@ You can support the development of Projectile via
 
 ## Running the tests in batch mode
 
-```
+```sh
 $ cd /path/to/projectile
 $ make update
 $ make compile
@@ -72,7 +72,7 @@ $ make test
 
 Run all tests with:
 
-```
+```sh
 $ make test
 ```
 
