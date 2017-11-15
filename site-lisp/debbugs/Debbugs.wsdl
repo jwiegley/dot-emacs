@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (C) 2011-2017  Free Software Foundation, Inc.
+
+This file is not part of GNU Emacs.
+
+This file is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This file is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<!-- This file describes the bindings of the debbugs SOAP interface
+(see <http://wiki.debian.org/DebbugsSoapInterface>).  The operation
+"get_versions" is not contained (yet). -->
+
+<wsdl:definitions
+    name="Debbugs/SOAP"
+    targetNamespace="urn:Debbugs/SOAP"
+    xmlns:tns="urn:Debbugs/SOAP"
+    xmlns:types="urn:Debbugs/SOAP/TYPES"
+    xmlns:apachens="http://xml.apache.org/xml-soap"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+
+  <wsdl:types>
+    <schema targetNamespace="urn:Debbugs/SOAP/TYPES"
+	    xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+      <complexType name="ArrayOfBugNumber">
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:int[]"/>
+          </restriction>
+        </complexContent>
+       </complexType>
+
+      <complexType name="ArrayOfAnyType">
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:anyType[]"/>
+          </restriction>
+        </complexContent>
+       </complexType>
+
+      <complexType name="ArrayOfArrayOfAnyType">
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType"
+		       wsdl:arrayType="types:ArrayOfAnyType[]"/>
+          </restriction>
+        </complexContent>
+       </complexType>
+
+      <complexType name="ArrayOfArrayOfArrayOfAnyType">
+        <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType"
+		       wsdl:arrayType="types:ArrayOfArrayOfAnyType[]"/>
+          </restriction>
+        </complexContent>
+       </complexType>
+    </schema>
+
+    <schema targetNamespace="http://xml.apache.org/xml-soap"
+	    xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+
+      <complexType name="mapItem">
+        <sequence>
+          <element name="key" nillable="true" type="xsd:int"/>
+          <element name="value" nillable="true" type="xsd:anyType"/>
+        </sequence>
+      </complexType>
+
+      <complexType name="Map">
+        <sequence>
+          <element maxOccurs="unbounded" minOccurs="0"
+		   name="item" type="apachens:mapItem"/>
+        </sequence>
+      </complexType>
+    </schema>
+  </wsdl:types>
+
+  <wsdl:message name="get_statusRequest">
+    <wsdl:part name="bugs" type="types:ArrayOfBugNumber"/>
+  </wsdl:message>
+  <wsdl:message name="get_statusResponse">
+    <wsdl:part name="s-gensym3" type="apachens:Map"/>
+  </wsdl:message>
+
+  <wsdl:message name="get_bug_logRequest">
+    <wsdl:part name="bugnumber" type="xsd:int"/>
+  </wsdl:message>
+  <wsdl:message name="get_bug_logResponse">
+    <wsdl:part name="soapenc:Array" type="types:ArrayOfAnyType"/>
+  </wsdl:message>
+
+  <wsdl:message name="get_bugsRequest">
+    <wsdl:part name="query" type="types:ArrayOfAnyType"/>
+  </wsdl:message>
+  <wsdl:message name="get_bugsResponse">
+    <wsdl:part name="soapenc:Array" type="types:ArrayOfBugNumber"/>
+  </wsdl:message>
+
+  <wsdl:message name="get_usertagRequest">
+    <wsdl:part name="user" type="xsd:string"/>
+    <!-- We do not support tags -->
+  </wsdl:message>
+  <wsdl:message name="get_usertagResponse">
+    <wsdl:part name="s-gensym3" type="xsd:anyType"/>
+  </wsdl:message>
+
+  <wsdl:message name="newest_bugsRequest">
+    <wsdl:part name="amount" type="xsd:int"/>
+  </wsdl:message>
+  <wsdl:message name="newest_bugsResponse">
+    <wsdl:part name="soapenc:Array" type="types:ArrayOfBugNumber"/>
+  </wsdl:message>
+
+  <wsdl:message name="search_estRequest">
+    <wsdl:part name="query" type="types:ArrayOfArrayOfAnyType"/>
+  </wsdl:message>
+  <wsdl:message name="search_estResponse">
+    <wsdl:part name="soapenc:Array" type="types:ArrayOfArrayOfArrayOfAnyType"/>
+  </wsdl:message>
+
+  <wsdl:portType name="Debbugs/SOAP">
+    <wsdl:operation name="get_status" parameterOrder="bugs">
+      <wsdl:input message="tns:get_statusRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:get_statusResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_bug_log" parameterOrder="bugnumber">
+      <wsdl:input message="tns:get_bug_logRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:get_bug_logResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_bugs" parameterOrder="query">
+      <wsdl:input message="tns:get_bugsRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:get_bugsResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_usertag" parameterOrder="user">
+      <wsdl:input message="tns:get_usertagRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:get_usertagResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="newest_bugs" parameterOrder="amount">
+      <wsdl:input message="tns:newest_bugsRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:newest_bugsResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="search_est" parameterOrder="query">
+      <wsdl:input message="tns:search_estRequest">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output message="tns:search_estResponse">
+        <soap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <wsdl:binding name="Debbugs/SOAP/BINDING" type="tns:Debbugs/SOAP">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="get_status">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="get_statusRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="get_statusResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_bug_log">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="get_bug_logRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="get_bug_logResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_bugs">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="get_bugsRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="get_bugsResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="get_usertag">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="get_tagRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="get_tagResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="newest_bugs">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="newest_bugsRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="newest_bugsResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="search_est">
+      <wsdlsoap:operation soapAction="Debbugs/SOAP"/>
+      <wsdl:input name="search_estRequest">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:input>
+      <wsdl:output name="search_estResponse">
+        <wsdlsoap:body
+	    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+	    namespace="urn:Debbugs/SOAP"
+	    use="encoded"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="Debbugs/SOAP/SERVICE">
+    <wsdl:port binding="tns:Debbugs/SOAP/BINDING" name="gnu.org">
+      <wsdlsoap:address location="https://debbugs.gnu.org/cgi/soap.cgi"/>
+    </wsdl:port>
+    <wsdl:port binding="tns:Debbugs/SOAP/BINDING" name="debian.org">
+      <wsdlsoap:address location="https://bugs.debian.org/cgi-bin/soap.cgi"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
