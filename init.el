@@ -1375,9 +1375,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                     :port port))
               :secret)))
 
-  (defun slowping (host)
-    (= 0 (call-process "ping" nil nil nil "-c1" "-W5000" "-q" host)))
-
   (defun irc ()
     (interactive)
     (require 'erc)
@@ -1425,9 +1422,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :init
   (add-hook 'erc-mode-hook 'setup-irc-environment)
-  (add-to-list
-   'erc-mode-hook
-   #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
+  (add-to-list 'erc-mode-hook
+               #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
 
   (add-hook 'after-init-hook 'irc)
 
@@ -1492,10 +1488,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package esh-toggle
     :bind ("C-x C-z" . eshell-toggle)))
-
-(use-package esup
-  :disabled t
-  :load-path "site-lisp/site-emacs-lisp/esup")
 
 (use-package etags
   :bind ("M-T" . tags-search))
@@ -1563,10 +1555,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (kill-ring-save (point-min) (1- (point-max)))
       (message (buffer-substring (point-min) (1- (point-max)))))))
 
-(use-package git-annex-el
-  :disabled t
-  :load-path "lisp/site-git/git-annex-el")
-
 (use-package git-link
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage)
@@ -1593,9 +1581,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    '("rg --no-heading --color=always -j4 -nH -e " . 43)
    ;; '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61)
    ))
-
-(use-package gtags
-  :disabled t)
 
 (use-package gud
   :commands gud-gdb
@@ -1625,6 +1610,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("\\.cabal\\'" . haskell-cabal-mode))
   :preface
   (defvar interactive-haskell-mode-map)
+
   (defun snippet (name)
     (interactive "sName: ")
     (find-file (expand-file-name (concat name ".hs") "~/src/notes"))
@@ -1794,9 +1780,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package hl-line+))
 
 (use-package hydra
-  :disabled t
+  :defer 5
   :load-path "site-lisp/hydra"
-  :defer 10
   :config
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
@@ -2430,9 +2415,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                   (multi-term-program-switches "-DR"))
               (multi-term-get-buffer)))
       (set-buffer term-buffer)
-      ;; Internal handle for `multi-term' buffer.
       (multi-term-internal)
-      ;; Switch buffer
       (switch-to-buffer term-buffer)))
 
   :config
@@ -2474,8 +2457,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (save-buffer)))))))
 
   (add-hook 'nroff-mode-hook
-            #'(lambda ()
-                (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
+            #'(lambda () (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
 
 (use-package nxml-mode
   :commands nxml-mode
@@ -2928,10 +2910,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/sort-words"
   :commands sort-words)
 
-(use-package springboard
-  :disabled t
-  :load-path "lisp/springboard")
-
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
 
@@ -3063,7 +3041,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
 
-  ;; Open files in Docker containers like so: /docker:drunk_bardeen:/etc/passwd
+  ;; Open files in Docker containers: /docker:drunk_bardeen:/etc/passwd
   (push
    (cons
     "docker"
@@ -3075,12 +3053,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defadvice tramp-completion-handle-file-name-all-completions
       (around dotemacs-completion-docker activate)
-    "(tramp-completion-handle-file-name-all-completions \"\" \"/docker:\" returns
-    a list of active Docker container names, followed by colons."
     (if (equal (ad-get-arg 1) "/docker:")
         (let* ((dockernames-raw
                 (shell-command-to-string
-                 "docker ps | perl -we 'use strict; $_ = <>; m/^(.*)NAMES/ or die; my $offset = length($1); while(<>) {substr($_, 0, $offset, q()); chomp; for(split m/\\W+/) {print qq($_:\n)} }'"))
+                 (concat "docker ps | perl -we 'use strict; $_ = <>; "
+                         "m/^(.*)NAMES/ or die; my $offset = length($1); "
+                         "while(<>) {substr($_, 0, $offset, q()); chomp; "
+                         "for(split m/\\W+/) {print qq($_:\n)} }'")))
                (dockernames (cl-remove-if-not
                              #'(lambda (dockerline) (string-match ":$" dockerline))
                              (split-string dockernames-raw "\n"))))
@@ -3101,6 +3080,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/emacs-vdiff")
 
 (use-package vimish-fold
+  :defer 5
   :commands vimish-fold
   :load-path "site-lisp/vimish-fold"
   :config
@@ -3114,16 +3094,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/visual-regexp"
   :commands (vr/replace
              vr/query-replace)
-  :bind (("C-. r" . vr/replace)
+  :bind (("C-. r"   . vr/replace)
          ("C-. M-%" . vr/query-replace))
   :config
   (use-package visual-regexp-steroids
     :load-path "site-lisp/visual-regexp-steroids"))
-
-(use-package vkill
-  :commands vkill
-  :config
-  (setq vkill-show-all-processes t))
 
 (use-package wcount
   :commands wcount-mode)
@@ -3157,28 +3132,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun maybe-turn-on-whitespace ()
     "Depending on the file, maybe clean up whitespace."
-    (let ((file (expand-file-name ".clean"))
-          parent-dir)
-      (while (and (not (file-exists-p file))
-                  (progn
-                    (setq parent-dir
-                          (file-name-directory
-                           (directory-file-name
-                            (file-name-directory file))))
-                    ;; Give up if we are already at the root dir.
-                    (not (string= (file-name-directory file)
-                                  parent-dir))))
-        ;; Move up to the parent dir and try again.
-        (setq file (expand-file-name ".clean" parent-dir)))
-      ;; If we found a change log in a parent, use that.
-      (when (and (file-exists-p file)
-                 (not (file-exists-p ".noclean"))
-                 (not (and buffer-file-name
-                           (string-match "\\(\\.texi\\|COMMIT_EDITMSG\\)\\'"
-                                         buffer-file-name))))
-        (add-hook 'write-contents-hooks
-                  #'(lambda () (ignore (whitespace-cleanup))) nil t)
-        (whitespace-cleanup))))
+    (when (and (locate-dominating-file default-directory ".clean")
+               (not (locate-dominating-file default-directory ".noclean"))
+               (not (and buffer-file-name
+                         (string-match "\\(\\.texi\\|COMMIT_EDITMSG\\)\\'"
+                                       buffer-file-name))))
+      (add-hook 'write-contents-hooks
+                #'(lambda () (ignore (whitespace-cleanup))) nil t)
+      (whitespace-cleanup)))
 
   :init
   (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
@@ -3219,9 +3180,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "\\" #'toggle-input-method wg-map))
 
 (use-package xray
-  :commands (xray-symbol xray-position xray-buffer xray-window
-             xray-frame xray-marker xray-overlay xray-screen
-             xray-faces xray-hooks xray-features))
+  :commands (xray-buffer
+             xray-faces
+             xray-features
+             xray-frame
+             xray-hooks
+             xray-marker
+             xray-overlay
+             xray-position
+             xray-screen
+             xray-symbol
+             xray-window))
 
 (use-package yaml-mode
   :load-path "site-lisp/site-lang/yaml-mode"
@@ -3237,8 +3206,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :demand t
   :diminish yas-minor-mode
   :commands (yas-expand yas-minor-mode)
-  :functions (yas-guess-snippet-directories yas-table-name)
-  :defines (yas-guessed-modes)
+  :functions (yas--guess-snippet-directories yas--table-name)
+  :defines (yas--guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :bind (("C-c y TAB" . yas-expand)
          ("C-c y s"   . yas-insert-snippet)
@@ -3247,13 +3216,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :preface
   (defun yas-new-snippet (&optional choose-instead-of-guess)
     (interactive "P")
-    (let ((guessed-directories (yas-guess-snippet-directories)))
+    (let ((guessed-directories (yas--guess-snippet-directories)))
       (switch-to-buffer "*new snippet*")
       (erase-buffer)
       (kill-all-local-variables)
       (snippet-mode)
-      (set (make-local-variable 'yas-guessed-modes)
-           (mapcar #'(lambda (d) (intern (yas-table-name (car d))))
+      (set (make-local-variable 'yas--guessed-modes)
+           (mapcar #'(lambda (d) (intern (yas--table-name (car d))))
                    guessed-directories))
       (unless (and choose-instead-of-guess
                    (not (y-or-n-p "Insert a snippet with useful headers? ")))
