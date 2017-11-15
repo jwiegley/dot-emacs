@@ -1284,8 +1284,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package docker-images)
   (use-package docker-containers)
   (use-package docker-volumes)
-  (use-package docker-networks)
-  (use-package docker-machines))
+  (use-package docker-networks))
 
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
@@ -1389,10 +1388,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (defun irc ()
     (interactive)
     (require 'erc)
-    (erc-tls :server "irc.freenode.net"
-             :port 6697
-             :nick "johnw"
-             :password (lookup-password "irc.freenode.net" "johnw" 6667)))
+    (let ((titan-ip "127.0.0.1"))
+      (if t
+          (erc :server titan-ip
+               :port 6697
+               :nick "johnw"
+               :password (lookup-password titan-ip "johnw/freenode" 6697))
+        (erc-tls :server "irc.freenode.net"
+                 :port 6697
+                 :nick "johnw"
+                 :password (lookup-password "irc.freenode.net" "johnw" 6667)))))
 
   (defun setup-irc-environment ()
     (setq erc-timestamp-only-if-changed-flag nil
