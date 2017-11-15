@@ -1001,6 +1001,7 @@
  '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
  '(scroll-bar-mode nil)
+ '(scroll-preserve-screen-position 1)
  '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
  '(sendmail-program "msmtp")
