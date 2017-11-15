@@ -3302,10 +3302,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'after-init-hook
             `(lambda ()
-               (let ((elapsed (float-time (time-subtract (current-time)
-                                                         emacs-start-time))))
+               (let ((elapsed
+                      (float-time
+                       (time-subtract (current-time) emacs-start-time))))
                  (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed)))
-            t))
+                          ,load-file-name elapsed))) t))
 
 ;;; init.el ends here
