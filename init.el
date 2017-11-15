@@ -1394,7 +1394,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           erc-timestamp-format "%H:%M "
           erc-fill-prefix "          "
           erc-fill-column 88
-          erc-insert-timestamp-function 'erc-insert-timestamp-left)
+          erc-insert-timestamp-function 'erc-insert-timestamp-left
+          ivy-use-virtual-buffers nil)
 
     (use-package agda-input
       :config
