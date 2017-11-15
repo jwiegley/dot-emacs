@@ -1932,6 +1932,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
   (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map)
 
+  (use-package ivy-hydra)
+
   (use-package ivy-rich
     :load-path "site-lisp/site-ivy/ivy-rich"
     :config
