@@ -10,7 +10,6 @@
 (require 'starttls)
 (require 'message)
 
-;; (gnus-compile)
 (gnus-delay-initialize)
 
 (defvar switch-to-gnus-unplugged nil)
@@ -107,15 +106,6 @@
        (if (quickping "smtp.gmail.com") t 'always)))
 
 (add-hook 'message-send-hook 'queue-message-if-not-connected)
-
-(defun kick-postfix-if-needed ()
-  (if (and (quickping "imap.gmail.com")
-           (= 0 (call-process "/usr/bin/sudo" nil nil nil
-                              "/usr/libexec/postfix/master" "-t")))
-      (start-process "postfix" nil "/usr/bin/sudo"
-                     "/usr/libexec/postfix/master" "-e" "60")))
-
-(add-hook 'message-sent-hook 'kick-postfix-if-needed)
 (add-hook 'message-sent-hook 'gnus-score-followup-thread)
 
 (defun exit-gnus-on-exit ()
@@ -132,20 +122,6 @@
     (split-window-vertically)
     (balance-windows)
     (switch-to-buffer-other-window buf)))
-
-(defun open-mail-logs ()
-  (interactive)
-  (loop initially (delete-other-windows)
-        with first = t
-        for log in (directory-files "~/Messages/" t "\\.log\\'")
-        for buf = (find-file-noselect log)
-        do (if first
-               (progn
-                 (switch-to-buffer buf)
-                 (setf first nil))
-             (switch-in-other-buffer buf))
-        (with-current-buffer buf
-          (goto-char (point-max)))))
 
 (defun my-gnus-trash-article (arg)
   (interactive "P")
@@ -295,21 +271,6 @@ is:
 
 (use-package message-x)
 
-;; (use-package message
-;;   :defer t
-;;   :config
-;;   (defun adjust-body-goto-location ()
-;;     (if (looking-at "^--")
-;;         (save-excursion (insert ?\n ?\n))
-;;       (when (re-search-forward "^-- $" nil t)
-;;         (goto-char (match-beginning 0))
-;;         (if (looking-back "\n\n")
-;;             (forward-line -2)
-;;           (save-excursion (insert ?\n ?\n ?\n))
-;;           (forward-line 1)))))
-
-;;   (advice-add 'message-goto-body :after #'adjust-body-goto-location))
-
 (use-package gnus-dired
   :commands gnus-dired-mode
   :init
@@ -402,29 +363,7 @@ is:
                         'gnus-query-history)
            current-prefix-arg))
     (activate-gnus)
-    (let ((nnir-imap-default-search-key "imap")
-          ;; (nnir-ignored-newsgroups
-          ;;  (if arg
-          ;;      (concat (regexp-opt
-          ;;               '("archive"
-          ;;                 "archive.emacs"
-          ;;                 "list"
-          ;;                 "list.bahai"
-          ;;                 "list.boost"
-          ;;                 "list.clang"
-          ;;                 "list.emacs"
-          ;;                 "list.isocpp"
-          ;;                 "list.ledger"
-          ;;                 "list.llvm"
-          ;;                 "list.wg21"
-          ;;                 "mail"
-          ;;                 "mail.save"
-          ;;                 "Drafts"
-          ;;                 "Sent Messages"))
-          ;;              "\\'")
-          ;;    (concat "\\(\\(list\\|archive\\)\\.\\|"
-          ;;            "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)")))
-          )
+    (let ((nnir-imap-default-search-key "imap"))
       (gnus-group-make-nnir-group
        nil (list (cons 'nnir-query-spec
                        (list (cons 'query query)

@@ -9,18 +9,13 @@
 (require 'org-agenda)
 (require 'org-smart-capture)
 (require 'org-crypt)
-(require 'org-bbdb)
 (require 'org-devonthink)
-;; (require 'org-mac-link)
-;; (require 'org-magit)
-;; (require 'org-velocity)
 (require 'ob-python)
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
 (require 'ob-haskell)
 (require 'ob-sh)
 (require 'ox-md)
-;; (require 'ox-opml)
 
 (defconst my-org-soft-red    "#fcebeb")
 (defconst my-org-soft-orange "#fcf5eb")
@@ -44,24 +39,7 @@
   (org-agenda-list)
   (org-fit-agenda-window)
   (org-agenda-to-appt)
-  ;; (other-window 1)
-  ;; (my-calendar)
-  ;; (run-with-idle-timer
-  ;;  0.1 nil
-  ;;  (lambda ()
-  ;;    (let ((wind (get-buffer-window "*Org Agenda*")))
-  ;;      (when wind
-  ;;        (set-frame-selected-window nil wind)
-  ;;        (call-interactively #'org-agenda-redo)))
-  ;;    (let ((wind (get-buffer-window "*cfw-calendar*")))
-  ;;      (when wind
-  ;;        (set-frame-selected-window nil wind)
-  ;;        (call-interactively #'cfw:refresh-calendar-buffer)))
-  ;;    (let ((wind (get-buffer-window "*Org Agenda*")))
-  ;;      (when wind
-  ;;        (set-frame-selected-window nil wind)
-  ;;        (call-interactively #'org-resolve-clocks)))))
-  )
+  (call-interactively #'org-resolve-clocks))
 
 (defun my-calendar ()
   (interactive)
@@ -73,10 +51,6 @@
        (list (cfw:org-create-source "Dark Blue")
              (cfw:cal-create-source "Dark Orange"))
        :view 'two-weeks))))
-
-(use-package org-autolist
-  :load-path "site-lisp/site-org/org-autolist"
-  :commands org-autolist-mode)
 
 (use-package calfw
   :load-path "site-lisp/site-org/emacs-calfw"
@@ -249,15 +223,6 @@ To use this function, add it to `org-agenda-finalize-hook':
        (gnus-string-remove-all-properties (substring message-id 2)))
     (org-mac-message-open message-id)))
 
-;; (defun org-my-message-open (message-id)
-;;   (condition-case err
-;;       (if (get-buffer "*Group*")
-;;           (gnus-goto-article
-;;            (gnus-string-remove-all-properties (substring message-id 2)))
-;;         (org-mac-message-open message-id))
-;;     (error
-;;      (org-mac-message-open message-id))))
-
 (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 
 (defun save-org-mode-files ()
@@ -296,9 +261,9 @@ To use this function, add it to `org-agenda-finalize-hook':
            (call-process "ifconfig" nil t nil "en1" "inet")
            (call-process "ifconfig" nil t nil "bond0" "inet")
            (goto-char (point-min))
-           (not (re-search-forward "inet 192\\.168\\.9\\." nil t))))
+           (not (re-search-forward "inet 192\\.168\\.1\\." nil t))))
         ((string= tag "net")
-         (not (quickping "imap.gmail.com")))
+         (not (quickping "imap.fastmail.com")))
         ((string= tag "fun")
          org-clock-current-task))
        (concat "-" tag)))
@@ -609,105 +574,6 @@ end tell" (match-string 1))))
                     (nth 4 (org-heading-components)))))
     (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
     (compose-mail-other-window author (concat "Re: " subject))))
-
-;;;_  . make-bug-link
-
-(defun make-ledger-bugzilla-bug (product component version priority severity)
-  (interactive
-   (let ((omk (get-text-property (point) 'org-marker)))
-     (with-current-buffer (marker-buffer omk)
-       (save-excursion
-         (goto-char omk)
-         (let ((components
-                (list "data" "doc" "expr" "lisp" "math" "python" "report"
-                      "test" "util" "website" "build" "misc"))
-               (priorities (list "P1" "P2" "P3" "P4" "P5"))
-               (severities (list "blocker" "critical" "major"
-                                 "normal" "minor" "trivial" "enhancement"))
-               (product "Ledger")
-               (version "3.0.0-20120217"))
-           (list product
-                 (ido-completing-read "Component: " components
-                                      nil t nil nil (car (last components)))
-                 version
-                 (let ((orgpri (nth 3 (org-heading-components))))
-                   (cond
-                    ((and orgpri (= ?A orgpri))
-                     "P1")
-                    ((and orgpri (= ?C orgpri))
-                     "P3")
-                    (t
-                     (ido-completing-read "Priority: " priorities
-                                          nil t nil nil "P2"))))
-                 (ido-completing-read "Severity: " severities nil t nil nil
-                                      "normal") ))))))
-  (let ((omk (get-text-property (point) 'org-marker)))
-    (with-current-buffer (marker-buffer omk)
-      (save-excursion
-        (goto-char omk)
-        (let ((heading (nth 4 (org-heading-components)))
-              (contents (buffer-substring-no-properties
-                         (org-entry-beginning-position)
-                         (org-entry-end-position)))
-              bug)
-          (with-temp-buffer
-            (insert contents)
-            (goto-char (point-min))
-            (delete-region (point) (1+ (line-end-position)))
-            (search-forward ":PROP")
-            (delete-region (match-beginning 0) (point-max))
-            (goto-char (point-min))
-            (while (re-search-forward "^   " nil t)
-              (delete-region (match-beginning 0) (match-end 0)))
-            (goto-char (point-min))
-            (while (re-search-forward "^SCHE" nil t)
-              (delete-region (match-beginning 0) (1+ (line-end-position))))
-            (goto-char (point-min))
-            (when (eobp)
-              (insert "No description.")
-              (goto-char (point-min)))
-            (insert (format "Product: %s
-Component: %s
-Version: %s
-Priority: %s
-Severity: %s
-Hardware: Other
-OS: Other
-Summary: %s" product component version priority severity heading) ?\n ?\n)
-            (let ((buf (current-buffer)))
-              (with-temp-buffer
-                (let ((tmpbuf (current-buffer)))
-                  (if nil
-                      (insert "Bug 999 posted.")
-                    (with-current-buffer buf
-                      (shell-command-on-region
-                       (point-min) (point-max)
-                       "~/bin/bugzilla-submit http://bugs.ledger-cli.org/"
-                       tmpbuf)))
-                  (goto-char (point-min))
-                  (or (re-search-forward "Bug \\([0-9]+\\) posted." nil t)
-                      (debug))
-                  (setq bug (match-string 1))))))
-          (save-excursion
-            (org-back-to-heading t)
-            (re-search-forward
-             (concat "\\(TODO\\|DEFERRED\\|STARTED\\|WAITING\\|DELEGATED\\)"
-                     " \\(\\[#[ABC]\\] \\)?"))
-            (insert (format "[[bug:%s][#%s]] " bug bug)))))))
-  (org-agenda-redo))
-
-(defun make-bug-link ()
-  (interactive)
-  (let* ((omk (get-text-property (point) 'org-marker))
-         (path (with-current-buffer (marker-buffer omk)
-                 (save-excursion
-                   (goto-char omk)
-                   (org-get-outline-path)))))
-    (cond
-     ((string-match "/ledger/" (buffer-file-name (marker-buffer omk)))
-      (call-interactively #'make-ledger-bugzilla-bug))
-     (t
-      (error "Cannot make bug, unknown category")))))
 
 ;;;_  . keybindings
 
