@@ -2583,8 +2583,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "site-lisp/site-ivy/counsel-projectile"
     :config
     (setq projectile-completion-system 'ivy)
-    (counsel-projectile-on))
-
+    (counsel-projectile-on)
+    (define-key projectile-mode-map [remap projectile-ag]
+      #'counsel-projectile-rg))
   (projectile-global-mode))
 
 (use-package proof-site
