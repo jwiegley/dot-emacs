@@ -1557,7 +1557,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "C-." flyspell-mode-map))
 
 (use-package gist
-  :load-path "site-lisp/site-git/gist"
+  :no-require t
   :bind ("C-c G" . my-gist-region-or-buffer)
   :preface
   (defun my-gist-region-or-buffer ()
@@ -1574,25 +1574,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "lisp/site-git/git-annex-el")
 
-(use-package git-gutter+
-  :load-path "site-lisp/site-git/git-gutter-plus"
-  :diminish git-gutter+-mode
-  :init
-  (use-package git-commit
-    :load-path "site-lisp/site-git/magit/lisp")
-  :config
-  (use-package git-gutter-fringe+
-    :load-path "site-lisp/site-git/git-gutter-fringe-plus")
-  (add-hook 'prog-mode-hook 'git-gutter+-mode))
-
 (use-package git-link
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage)
   :load-path "site-lisp/site-git/git-link")
-
-(use-package git-messenger
-  :load-path "site-lisp/site-git/emacs-git-messenger"
-  :bind ("C-x v m" . git-messenger:popup-message))
 
 (use-package git-timemachine
   :load-path "site-lisp/site-git/git-timemachine"
@@ -2377,12 +2362,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package magit-commit
     :config
     (remove-hook 'server-switch-hook 'magit-commit-diff))
-
-  (use-package magithub
-    :disabled t
-    :load-path "site-lisp/site-git/magithub"
-    :after magit
-    :config (magithub-feature-autoinject t))
 
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
