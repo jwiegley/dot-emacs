@@ -1,0 +1,753 @@
+\input texinfo
+@setfilename debbugs.info
+@settitle Debbugs programmer's manual
+
+@dircategory Emacs
+@direntry
+* Debbugs: (debbugs).  A library for communication with Debbugs.
+@end direntry
+
+@copying
+Copyright @copyright{} 2011-2017 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover, or Back-Cover Texts.  A copy of
+the license is included in the section entitled ``GNU Free Documentation
+License'' in the Emacs manual.
+
+This document is part of a collection distributed under the GNU Free
+Documentation License.  If you want to distribute this document
+separately from the collection, you can do so by adding a copy of the
+license to the document, as described in section 6 of the license.
+
+All Emacs Lisp code contained in this document may be used, distributed,
+and modified without restriction.
+@end quotation
+@end copying
+
+@titlepage
+@title Debbugs Programmer's Manual
+@author by Evgeny M. Zubok
+@page
+@insertcopying
+@end titlepage
+
+@contents
+
+@node Top
+@top Debbugs Programmer's Manual
+
+Debbugs is a bugtracking system (BTS) that was initially written for
+the Debian project but currently used also by the GNU project.  The
+main distinctive feature of Debbugs is that it's mostly email-based.
+All actions on bug reports: opening, closing, changing the status,
+commenting, forwarding are performed via email by sending specially
+composed letters to the particular mail addresses.  However, searching
+the bug reports, querying bug report status and viewing comments have
+been web-based for a long time.  To overcome this inconvenience the
+Debbugs/SOAP service was introduced.
+
+The Debbugs/SOAP service provides the means for developers to write
+client applications that can send the queries with certain search
+criteria to the Debbugs server and retrieve a set of bug reports that
+match them.  The developer may also ask the Debbugs server for
+additional information about every bug report (e.g. subject, date,
+originator, tags and etc.) and get all comments and attachments.
+
+@code{debbugs}, described in this document, is the Emacs library that
+exposes to developers the available functions provided by the Debbugs
+server.  @code{debbugs} uses Emacs' SOAP client library for
+communication with the Debbugs server.  In tandem with Emacs' email
+facilities, @code{debbugs} provides a solution for building
+applications that interact with the Debbugs BTS directly from Emacs
+without addressing Debbugs' web interface.
+
+The user interface for accessing the Debbugs server for GNU projects
+is described in @ref{Top, Debbugs User Guide, , debbugs-ug}.
+
+@menu
+* Installation::                Getting and installing @code{debbugs}.
+* Configuration::               Configuring @code{debbugs}.
+* Requesting bug numbers::      How to request bug report numbers.
+* Requesting bugs statuses::    How to request the status of bug reports.
+* Searching bugs::              How to search for bugs.
+* Requesting messages::         How to get messages from bug reports.
+* Requesting user tags::        How to request tags set by users.
+@end menu
+
+@node Installation
+@chapter Installation
+
+@subheading Installation on Emacs 24 or later
+
+Install @code{debbugs} from the @ref{Packaging, ELPA repository, , elisp}.
+
+@subheading Installation on Emacs 22 and Emacs 23
+
+If you want to install @code{debbugs} on Emacs 22/23, you will need to
+install the @code{soap-client} library first.  It can be downloaded from
+the @uref{http://code.google.com/p/emacs-soap-client/, Emacs SOAP client
+project page}.
+
+Compile the library and add it into your @code{load-path}:
+
+@example
+(add-to-list 'load-path "/path/to/emacs-soap-client/")
+@end example
+
+@code{debbugs} library can be downloaded from the
+@uref{http://elpa.gnu.org/packages/, ELPA repository}.  Compile it and
+set the @code{load-path}:
+
+@example
+(add-to-list 'load-path "/path/to/debbugs/")
+@end example
+
+@subheading Installation on Emacs 21
+
+We have not tried yet to install @code{debbugs} on Emacs 21.  We would
+definitely say that the installation will require even more additional
+libraries than needed for installation on Emacs 22/23.
+
+@node Configuration
+@chapter Configuration
+
+@code{debbugs} is already configured to work with two main ports of
+Debbugs BTS: @uref{https://bugs.debian.org} and
+@uref{https://debbugs.gnu.org}.  So if you intend to use one of these
+ports, you don't need to configure @code{debbugs}.  If you want to
+interact with a Debbugs port other than those listed, you have to
+configure @code{debbugs} by adding a new server specifier to the
+@code{debbugs-servers} variable.  The actual port can be selected by
+the @code{debbugs-port} variable.
+
+@defvar debbugs-servers
+List of Debbugs server specifiers.  Each entry is a list that contains a
+string identifying the port name and the server parameters in
+keyword-value form.  The list initially contains two predefined and
+configured Debbugs servers: @code{"gnu.org"} and @code{"debian.org"}.
+
+Valid keywords are:
+
+@table @code
+@item :wsdl
+Location of WSDL.  The value is a string with the URL that should
+return the WSDL specification of the Debbugs/SOAP service.  This
+keyword is intended for future use, it is ignored currently.
+
+@item :bugreport-url
+The URL of the server script (@code{bugreport.cgi} in the default
+Debbugs installation) that provides the access to mboxes with messages
+from bug reports.
+@end table
+
+Example.  Add a new Debbugs port with name "foobars.net":
+
+@example
+(add-to-list
+ 'debbugs-servers
+ '("foobars.net"
+   :wsdl "https://bugs.foobars.net/cgi/soap.cgi?WSDL"
+   :bugreport-url "https://bugs.foobars.net/cgi/bugreport.cgi"))
+@end example
+@end defvar
+
+@defvar debbugs-port
+This variable holds the name of the currently used port.  The value of
+the variable corresponds to the Debbugs server to be accessed, either
+@code{"gnu.org"} or @code{"debian.org"}, or a user defined port name.
+@end defvar
+
+@defvar debbugs-cache-expiry
+The function @code{debbugs-get-status} (@pxref{Requesting bugs
+statuses}) caches retrieved status entries in order to improve the
+performance.  This variable determines the number of seconds an entry
+is cached, before it is retrieved again.  A value of @code{nil}
+disables cache expiration, and a value of @code{t} disables caching.
+Both values are not recommended for a usual workflow.
+@end defvar
+
+@node Requesting bug numbers
+@chapter Requesting bug numbers
+
+In Debbugs BTS, the bug number is the unique identifier of a bug
+report.  The functions described in this section return from the
+Debbugs server the list of bug numbers that match a user's query.
+
+@defun debbugs-get-bugs &rest query
+This function returns a list of bug numbers that match the
+@var{query}. @var{query} is a sequence of keyword-value pairs where the
+values are strings, i.e. :KEYWORD ``VALUE'' [:KEYWORD ``VALUE'']*
+
+The keyword-value pair is a subquery.  The keywords are allowed to
+have multiple occurrence within the query at any place.  The
+subqueries with the same keyword form the logical subquery, which
+returns the union of bugs of every subquery it contains.
+
+The result of the @var{query} is an intersection of results of all
+subqueries.
+
+Valid keywords are:
+
+@table @code
+@item :package
+The value is the name of the package a bug belongs to, like @code{"emacs"},
+@code{"coreutils"}, @code{"gnus"}, or @code{"tramp"}.
+
+@item :src
+This is used to retrieve bugs that belong to source with given name.
+
+@item :severity
+This is the severity of the bug.  The exact set of available severities
+depends on the policy of a particular Debbugs port:
+
+Debian port:
+@code{"critical"}, @code{"grave"}, @code{"serious"},
+@code{"important"}, @code{"normal"}, @code{"minor"}, @code{"wishlist"},
+and @code{"fixed"}.
+
+GNU port:
+@code{"serious"}, @code{"important"}, @code{"normal"}, @code{"minor"},
+@code{"wishlist"}.
+
+@item :tag
+An arbitrary string the bug is annotated with.  Usually, this is used
+to mark the status of the bug.  The list of possible tags depends on
+the Debbugs port.
+
+Debian port: @code{"patch"}, @code{"wontfix"}, @code{"moreinfo"},
+@code{"unreproducible"}, @code{"fixed"}, @code{"potato"},
+@code{"woody"}, @code{"sid"}, @code{"help"}, @code{"security"},
+@code{"upstream"}, @code{"pending"}, @code{"sarge"},
+@code{"sarge-ignore"}, @code{"experimental"}, @code{"d-i"},
+@code{"confirmed"}, @code{"ipv6"}, @code{"lfs"},
+@code{"fixed-in-experimental"}, @code{"fixed-upstream"},
+@code{"l10n"}, @code{"etch"}, @code{"etch-ignore"}, @code{"lenny"},
+@code{"lenny-ignore"}, @code{"squeeze"}, @code{"squeeze-ignore"},
+@code{"wheezy"}, @code{"wheezy-ignore"}, @code{"jessie"},
+@code{"jessie-ignore"}, @code{"stretch"}, @code{"stretch-ignore"},
+@code{"buster"}, @code{"buster-ignore"}. The actual list of tags can
+be found on @uref{http://www.debian.org/Bugs/Developer#tags}.
+
+GNU port: @code{"fixed"}, @code{"notabug"}, @code{"wontfix"},
+@code{"unreproducible"}, @code{"moreinfo"}, @code{"patch"},
+@code{"pending"}, @code{"help"}, @code{"security"},
+@code{"confirmed"}, @code{"easy"}.  See
+@url{https://debbugs.gnu.org/Developer.html#tags} for the actual list
+of tags.
+
+@item :owner
+This is used to identify bugs by the owner's email address.  The
+special email address @code{"me"} is used as pattern, replaced with
+the variable @code{user-mail-address} (@pxref{(elisp)User
+Identification}).
+
+@item :submitter
+With this keyword it is possible to filter bugs by the submitter's
+email address.  The special email address @code{"me"} is used as
+pattern, replaced with the variable @code{user-mail-address}.
+
+@item :maint
+This is used to find bugs of the packages which are maintained by the
+person with the given email address.  The special email address
+@code{"me"} is used as pattern, replaced with @code{user-mail-address}.
+
+@item :correspondent
+This allows to find bug reports where the person with the given email
+address has participated.  The special email address @code{"me"} is used
+as pattern, replaced with @code{user-mail-address}.
+
+@item :affects
+With this keyword it is possible to find bugs which affect the package
+with the given name.  The bugs are chosen by the value of field
+@code{affects} in bug's status.  The returned bugs do not necessary
+belong to this package.
+
+@item :status
+Status of bug.  Valid values are @code{"open"}, @code{"forwarded"} and
+@code{"done"}.
+
+@item :archive
+A keyword to filter for bugs which are already archived, or not.  Valid
+values are @code{"0"} (not archived), @code{"1"} (archived) or
+@code{"both"}.  If this keyword is not given in the query,
+@code{:archive "0"} is assumed by default.
+@end table
+
+Example.  Get all opened and forwarded release critical bugs for the
+packages which are maintained by @code{"me"} and which have a patch:
+
+@example
+(let ((debbugs-port "debian.org"))
+  (debbugs-get-bugs :maint "me" :tag "patch"
+                    :severity "critical"
+                    :status "open"
+                    :severity "grave"
+                    :status "forwarded"
+                    :severity "serious"))
+@end example
+@end defun
+
+@defun debbugs-newest-bugs amount
+This function returns a list of bug numbers, according to @var{amount}
+(a number) of latest bugs.
+
+Example.  Get the latest six bug report numbers from Debian BTS:
+
+@example
+(let ((debbugs-port "debian.org"))
+  (debbugs-newest-bugs 6))
+
+@result{} (633152 633153 633154 633155 633156 633157)
+@end example
+@end defun
+
+@node Requesting bugs statuses
+@chapter Requesting bugs statuses
+
+Bug status is a collection of fields that holds the information about
+the state and importance of the bug report, about originator, owner and
+various aspects of relationship with other bug reports.
+
+@defun debbugs-get-status &rest bug-numbers
+Return a list of status entries for the bug reports identified by
+@var{bug-numbers}.  Every returned entry is an association list with the
+following attributes:
+
+@table @code
+@item id
+@itemx bug_num
+The bug number.
+
+@item package
+A list of package names the bug belongs to.
+
+@item severity
+The severity of the bug report.  Possible values are the same as for
+@code{:severity} in @code{debbugs-get-bugs} (@pxref{Requesting bug
+numbers}).
+
+@item tags
+The status of the bug report, a list of strings.  Possible values are the
+same as for @code{:tags} in @code{debbugs-get-bugs} (@pxref{Requesting
+bug numbers}).
+
+@item pending
+The string @code{"pending"}, @code{"forwarded"}, @code{"fixed"} or
+@code{"done"}.
+
+@item subject
+Subject/Title of the bugreport.
+
+@item originator
+The E-mail address of the bug report submitter.
+
+@item mergedwith
+A list of bug numbers this bug was merged with.
+
+@item source
+Source package name of the bug report.
+
+@item date
+Date of bug creation.  Encoded as UNIX time.
+
+@item log_modified
+@itemx last_modified
+Date of last update.  Encoded as UNIX time.
+
+@item found_date
+@itemx fixed_date
+Date of bug report / bug fix (empty for now).  Encoded as UNIX time.
+
+@item done
+The E-mail address of the worker who has closed the bug (if done).
+
+@item archived
+@code{t} if the bug is archived, @code{nil} otherwise.
+
+@item unarchived
+The date the bug has been unarchived, if ever.  Encoded as UNIX time.
+
+@item found_versions
+@itemx fixed_versions
+List of version strings.
+
+@item forwarded
+A URL or an E-mail address.
+
+@item blocks
+A list of bug numbers this bug blocks.
+
+@item blockedby
+A list of bug numbers this bug is blocked by.
+
+@item msgid
+The message id of the initial bug report.
+
+@item owner
+Who is responsible for fixing.
+
+@item location
+Always the string @code{"db-h"} or @code{"archive"}.
+
+@item affects
+A list of package names.
+
+@item summary
+Arbitrary text.
+
+@item cache_time
+This is not an attribute located at the debbugs server, but an
+internal value of the debbugs.el package itself.
+@end table
+
+Example.  Get the status of bug number #10 from GNU BTS:
+
+@example
+(let ((debbugs-port "gnu.org"))
+  (debbugs-get-status 10))
+
+@result{} (((cache_time . 1469716026.4981334)
+     (source . "unknown") (found_versions) (done) (blocks)
+     (date . 1203606305.0) (fixed) (fixed_versions) (mergedwith)
+     (found) (unarchived) (blockedby) (keywords) (summary)
+     (msgid . "<87zltuz7eh.fsf@@freemail.hu>") (id . 10)
+     (forwarded) (severity . "wishlist")
+     (owner . "Magnus Henoch <*****@@freemail.hu>")
+     (log_modified . 1310061242.0) (location . "db-h")
+     (subject . "url-gw should support HTTP CONNECT proxies")
+     (originator . "Magnus Henoch <*****@@freemail.hu>")
+     (last_modified . 1310061242.0) (pending . "pending") (affects)
+     (archived) (tags) (fixed_date) (package "emacs") (found_date)
+     (bug_num . 10)))
+@end example
+@end defun
+
+@defun debbugs-get-attribute bug-or-message attribute
+General accessor that returns the value of key @var{attribute}.
+@var{bug-or-message} must be a list element returned by either
+@code{debbugs-get-status} or @code{debbugs-get-bug-log}
+(@pxref{Requesting messages}).
+
+Example.  Return the originator of the last submitted bug report:
+
+@example
+(let ((debbags-port "gnu.org"))
+  (debbugs-get-attribute
+   (car (apply 'debbugs-get-status (debbugs-newest-bugs 1)))
+   'originator))
+
+@result{} "Jack Daniels <jack@@daniels.com>"
+@end example
+@end defun
+
+@node Searching bugs
+@chapter Searching bugs
+
+The Debbugs servers include an hyperestraier search engine, which
+allows to search inside the bug database.  This is enabled only for
+the GNU port of the BTS, and also only the GNU port offers a
+Debbugs/SOAP interface for access.
+
+The search engine uses an index over the bug database.  This index is
+refreshed once a day only; search hits do not include recent changes
+of the same day.
+
+@defun debbugs-search-est &rest query
+Return the result of a full text search according to @var{query}.
+
+@var{query} is a sequence of lists of keyword-value pairs where the
+values are strings or numbers, i.e.@: @var{:keyword} @var{value}
+[@var{:keyword} @var{value}]*
+
+Every sublist of the @var{query} forms a hyperestraier condition.  A
+detailed description of hyperestraier conditions can be found at
+@url{http://fallabs.com/hyperestraier/uguide-en.html#searchcond}.
+
+The following conditions are possible:
+
+@itemize @w{}
+@item (:phrase @var{search-phrase} :skip @var{number} :max @var{number})
+
+The string @var{search-phrase} forms the search on the database.  It
+contains words to be searched for, combined by operators like AND,
+ANDNOT and OR.  If there is no operator between the words, AND is used
+by default.  The phrase keyword and value can also be omitted, this is
+useful in combination with other conditions.
+
+@code{:skip} and @code{:max} are optional.  They specify, how many
+hits are skipped, and how many maximal hits are returned.  This can be
+used for paged results.  Per default, :skip is 0 and all possible hits
+are returned according to the default maximum of the debbugs server.
+There is also an absolute maximum how many hits are returned by the
+debbugs server, which cannot be overwritten my any larger @code{:max}
+number.
+
+There must be exactly one such condition.
+
+@item (@var{attribute} @var{value}+ :operator @var{operator} :order @var{order})
+
+@var{attribute} is one of the following keywords:
+
+@table @code
+@item :subject
+@itemx :@@title
+The subject of a message or the title of the bug, a string.
+
+@item :date
+@itemx :@@cdate
+The submission date of the bug or the modification date of a message,
+a number.
+
+@item :@@author
+The email address of the author of a message belonging to this bug, a
+string.  It may be different than the email of the person submitting
+the bug.  The special email address @code{"me"} is used as pattern,
+replaced with @code{user-mail-address}.
+
+@item :package
+The value is the name of the package a bug belongs to, like
+@code{"emacs"}, @code{"coreutils"}, @code{"gnus"}, or @code{"tramp"}.
+
+@item :tags
+An arbitrary string the bug is annotated with.
+
+@item :severity
+This is the severity of the bug.  The exact set of allowed values
+depends on the Debbugs port.  Examples are @code{"normal"},
+@code{"minor"}, @code{"wishlist"} etc.
+@end table
+
+@code{:operator} defines the comparison operator to be applied to
+@var{attribute}.  For string attributes this could be @code{"STREQ"}
+(is equal to the string), @code{"STRNE"} (is not equal to the string),
+@code{"STRINC"} (includes the string), @code{"STRBW"} (begins with the
+string), @code{"STREW"} (ends with the string), @code{"STRAND"}
+(includes all tokens in the string), @code{"STROR"} (includes at least
+one token in the string), @code{"STROREQ"} (is equal to at least one
+token in the string) or @code{"STRRX"} (matches regular expressions of
+the string).  For operators with tokens, several values for
+@var{attribute} shall be used.
+
+Numbers can be compared by the operators @code{"NUMEQ"} (is equal to
+the number), @code{"NUMNE"} (is not equal to the number),
+@code{"NUMGT"} (is greater than the number), @code{"NUMGE"} (is
+greater than or equal to the number), @code{"NUMLT"} (is less than the
+number), @code{"NUMLE"} (is less than or equal to the number) or
+@code{"NUMBT"} (is between the two numbers).  In the last case, there
+must be two values for @var{attribute}.
+
+If an operator is led by @code{"!"}, the meaning is inverted.  If a
+string operator is led by @code{"I"}, the case of the value is
+ignored.
+
+The optional @code{:order} can be specified only in one condition.  It
+means, that @var{attribute} is used for sorting the results.  The
+following order operators exist: @code{"STRA"} (ascending by string),
+@code{"STRD"} (descending by string), @code{"NUMA"} (ascending by
+number) or @code{"NUMD"} (descending by number).
+
+A special case is an @code{:order}, where there is no corresponding
+attribute value and no operator.  In this case, @var{attribute} is
+not used for the search.
+
+The result of the @var{query} is a list of association lists with the
+same attributes as in the conditions.  Additional attributes are
+
+@table @code
+@item id
+The bug number.
+
+@item msg_num
+The number of the message inside the bug log.
+
+@item snippet
+The surrounding text found by the search.  For the syntax of the
+snippet, consult the hyperestraier user guide.
+@end table
+@end itemize
+
+Example.  Get two messages containing words "armstrong" and "debbugs"
+from GNU BTS.  Skip the first 10 hits:
+
+@example
+(let ((debbugs-port "gnu.org"))
+  (debbugs-search-est
+    '(:phrase "armstrong AND debbugs" :skip 10 :max 2)
+    '(:severity "normal" :operator "STRINC")
+    '(:date :order "NUMA")))
+
+@result{} ((("msg_num" . 21)
+     ("date" . 1229208302)
+     ("@@author" . "Glenn Morris <*****@@gnu.org>")
+     ("@@title" . "Re: bug#1567: Mailing an archived bug")
+     ("id" . 1567)
+     ("severity" . "normal")
+     ("@@cdate" . "Wed, 17 Dec 2008 14:34:50 -0500")
+     ("snippet" . "@dots{}")
+     ("subject" . "Mailing an archived bug")
+     ("package" . "debbugs.gnu.org"))
+ @dots{})
+@end example
+
+Example.  Show all messages for package "emacs" on GNU BTS between
+2011-08-21 and 2011-08-31.
+
+@example
+(let ((debbugs-port "gnu.org"))
+  (debbugs-search-est
+   '(:max 500)
+   '(:package "emacs" :operator "STREQ")
+   `(:@@cdate
+     ,(floor (float-time (encode-time 0 0 0 21 8 2011)))
+     ,(floor (float-time (encode-time 0 0 0 31 8 2011)))
+     :operator "NUMBT")))
+@end example
+@end defun
+
+@node Requesting messages
+@chapter Requesting messages
+
+@defun debbugs-get-bug-log bug-number
+Returns a list of messages related to @var{bug-number}.  Every message is
+an association list with the following attributes:
+
+@table @code
+@item msg_num
+The number of the message inside the bug log.  The numbers are ascending,
+newer messages have a higher number.
+@item header
+The header lines from the E-mail messages, as arrived at the bug
+tracker.
+@item body
+The message body.
+@item attachments
+A list of possible attachments, or @code{nil}.  Not implemented yet server
+side.
+@end table
+@end defun
+
+@defun debbugs-get-message-numbers messages
+Returns the message numbers of @var{messages}.  @var{messages} must be
+the result of a @code{debbugs-get-bug-log} call.
+
+Example.  Get message numbers from bug report #456789 log from Debian
+BTS:
+
+@example
+(let ((debbugs-port "debian.org"))
+   (debbugs-get-message-numbers (debbugs-get-bug-log 456789)))
+
+@result{} (5 10 12)
+@end example
+@end defun
+
+@defun debbugs-get-message messages message-number
+Returns the message @var{message-number} of
+@var{messages}.  @var{messages} must be the result of a
+@code{debbugs-get-bug-log} call.  The returned message is a list of
+strings.  The first element are the header lines of the message, the
+second element is the body of the message.  Further elements of the list,
+if any, are attachments of the message.  If there is no message with
+@var{message-number}, the function returns @code{nil}.
+
+Example: Return the first message of the last submitted bug report to
+GNU BTS:
+
+@example
+(let* ((debbugs-port "gnu.org")
+       (messages (apply 'debbugs-get-bug-log
+			(debbugs-newest-bugs 1))))
+  (debbugs-get-message
+   messages
+   (car (debbugs-get-message-numbers messages))))
+@end example
+@end defun
+
+@defun debbugs-get-mbox bug-number mbox-type &optional filename
+Download mbox with all messages from bug report
+@var{bug-number}.  @var{mbox-type} specifies a type of mbox and can be
+one of the following symbols:
+
+@table @code
+@item mboxfolder
+Download mbox folder, i.e. mbox with messages as they arrived at the
+Debbugs server.
+
+@item mboxmaint
+Download maintainer's mbox, i.e. mbox with messages as they are resent
+from the Debbugs server.
+
+@item mboxstat
+@itemx mboxstatus
+Download status mbox.  The use of either symbol depends on the actual
+Debbugs server configuration.  For @code{"gnu.org"}, use the former;
+for @code{"debian.org} - the latter.
+@end table
+
+@var{filename}, if non-@code{nil}, is the name of the file to store
+mbox.  If @var{filename} is @code{nil}, the downloaded mbox is
+inserted into the current buffer.
+
+Note, that mbox downloading will work only if the
+@code{:bugreport-url} field of the @code{debbugs-servers} variable is
+specified (@pxref{Configuration}).
+@end defun
+
+@node Requesting user tags
+@chapter Requesting user tags
+
+A user tag is a string, a user has assigned to one or several bugs.
+The user is identified by an email address.  The port @code{"gnu.org"}
+uses also package names as user identification.
+
+@defun debbugs-get-usertag &rest query
+Return a list of bug numbers which match @var{query}.
+
+@var{query} is a sequence of keyword-value pairs where the values are
+strings, i.e. :KEYWORD ``VALUE'' [:KEYWORD ``VALUE'']*
+
+Valid keywords are:
+
+@table @code
+@item :user
+The value is the name of the package a bug belongs to, like
+@code{"emacs"}, @code{"coreutils"}, or @code{"tramp"}.  It can also be
+an email address of a user who has applied a user tag.  The special
+email address @code{"me"} is used as pattern, replaced with
+@code{user-mail-address}.  There must be at least one such entry; it
+is recommended to have exactly one.
+
+@item :tag
+A string applied as user tag.  Often, it is a subproduct
+identification, like @code{"cedet"} or @code{"tramp"} for the package
+@code{"emacs"}.
+@end table
+
+If there is no @code{:tag} entry, no bug numbers will be returned but
+a list of existing user tags for @code{:user}.
+
+Example.  Get all user tags for the package @code{"emacs"}:
+
+@example
+(let ((debbugs-port "gnu.org"))
+  (debbugs-get-usertag :user "emacs"))
+
+@result{} ("www" "solaris" "ls-lisp" "cygwin")
+@end example
+
+Get all bugs tagged by package @code{"emacs"} with @code{"www"} or
+@code{"cygwin"})):
+
+@example
+(let ((debbugs-port "gnu.org"))
+  (debbugs-get-usertag :user "emacs" :tag "www" :tag "cygwin"))
+
+@result{} (807 1223 5637)
+@end example
+@end defun
+
+@bye
