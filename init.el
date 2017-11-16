@@ -2764,25 +2764,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
-(use-package sage-shell-mode
-  :load-path "site-lisp/sage-shell-mode"
-  :bind ("C-c Z" . run-sage)
-  :config
-  (setq sage-shell:sage-root "/Volumes/sage-8.0-OSX_10.12.6-x86_64/SageMath")
-
-  (sage-shell:define-alias)
-
-  ;; Turn on eldoc-mode in Sage terminal and in Sage source files
-  (add-hook 'sage-shell-mode-hook #'eldoc-mode)
-  (add-hook 'sage-shell:sage-mode-hook #'eldoc-mode)
-
-  (use-package sage-shell-view
-    ;; :config
-    ;; (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
-    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view)
-    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
-    ))
-
 (use-package selected
   :load-path "site-lisp/selected"
   :defer 5
