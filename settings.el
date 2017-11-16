@@ -859,6 +859,9 @@
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
+ '(mediawiki-site-alist
+   (quote
+    (("Wikipedia" "https://en.wikipedia.org/w/" "jwiegley" "" nil "Main Page"))))
  '(menu-bar-mode nil)
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
