@@ -700,8 +700,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (diminish 'hide-ifdef-mode)
 
-    ;; (doxymacs-mode 1)
-    ;; (doxymacs-font-lock)
+    (use-package doxymacs
+      :disabled t
+      :load-path "site-lisp/site-lang/doxymacs/lisp"
+      :config
+      (doxymacs-mode 1)
+      (doxymacs-font-lock))
 
     (bind-key "<return>" #'newline-and-indent c-mode-base-map)
 
@@ -1034,9 +1038,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (chess-ics "freechess.org" 5000 (plist-get info :user)
                    (funcall (plist-get info :secret)))))))
 
-(use-package cl-info
-  :disabled t)
-
 (use-package cmake-mode
   :mode (("CMakeLists.txt" . cmake-mode)
          ("\\.cmake\\'"    . cmake-mode)))
@@ -1282,10 +1283,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
   :load-path "site-lisp/site-lang/dockerfile-mode")
-
-(use-package doxymacs
-  :disabled t
-  :load-path "site-lisp/site-lang/doxymacs/lisp")
 
 (use-package dumb-jump
   :commands dumb-jump-mode
@@ -1750,21 +1747,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :init
     (fset 'describe-bindings 'helm-descbinds)
     :config
-    (require 'helm-config))
-
-  (use-package helm-grep
-    :disabled t
-    :commands helm-do-grep-1
-    :bind (("M-s F" . my-helm-do-grep-r)
-           ("M-s g" . my-helm-do-grep))
-    :preface
-    (defun my-helm-do-grep ()
-      (interactive)
-      (helm-do-grep-1 (list default-directory)))
-
-    (defun my-helm-do-grep-r ()
-      (interactive)
-      (helm-do-grep-1 (list default-directory) t))))
+    (require 'helm-config)))
 
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
@@ -2068,12 +2051,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         :diminish eldoc-mode
         :commands eldoc-mode
         :config
-        (use-package eldoc-extension
-          :disabled t
-          :defer t
-          :init
-          (add-hook 'emacs-lisp-mode-hook
-                    #'(lambda () (require 'eldoc-extension)) t))
         (eldoc-add-command 'paredit-backward-delete
                            'paredit-close-round))
 
@@ -2800,6 +2777,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package sage
   :disabled t
   :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode"
+  :commands sage
   :config
   (defvar python-source-modes nil)
   (setq sage-command "/Applications/Misc/sage/sage")
@@ -2896,7 +2874,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands slime
   :init
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
-        slime-contribs '(slime-fancy)))
+        slime-contribs '(slime-fancy))
+  :config
+  (use-package cl-info
+    :disabled t))
 
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
