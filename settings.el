@@ -222,7 +222,7 @@
      (".*" . "~/.backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bbdb-default-country "")
- '(bbdb-file "~/doc/tasks/bbdb")
+ '(bbdb-file "~/doc/tasks/bbdb" t)
  '(bbdb-message-caching-enabled nil)
  '(bbdb-no-duplicates t)
  '(bbdb-offer-save (quote savenoprompt))
@@ -694,6 +694,7 @@
  '(hi2-layout-offset 4)
  '(hi2-left-offset 4)
  '(hi2-show-indentations nil)
+ '(hibtypes-github-default-user "jwiegley")
  '(hippie-expand-try-functions-list
    (quote
     (yas-hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
