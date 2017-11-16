@@ -1779,12 +1779,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
-(use-package ido
-  :disabled t
-  :demand t
-  :bind (("C-x b" . ido-switch-buffer)
-         ("C-x B" . ido-switch-buffer-other-window)))
-
 (use-package iedit
   :load-path "site-lisp/iedit"
   :bind (("C-;" . iedit-mode)))
@@ -2364,10 +2358,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (setq markdown-preview-stylesheets
           (list "http://ftp.newartisans.com/pub/github.css"))))
 
-(use-package mediawiki
-  :disabled t
-  :load-path "site-lisp/mediawiki")
-
 (use-package memory-usage
   :commands memory-usage)
 
@@ -2774,23 +2764,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
 
-(use-package sage
-  :disabled t
-  :load-path "/Applications/Misc/sage/local/share/emacs/site-lisp/sage-mode"
-  :commands sage
+(use-package sage-shell-mode
+  :load-path "site-lisp/sage-shell-mode"
+  :bind ("C-c Z" . run-sage)
   :config
-  (defvar python-source-modes nil)
-  (setq sage-command "/Applications/Misc/sage/sage")
+  (setq sage-shell:sage-root "/Volumes/sage-8.0-OSX_10.12.6-x86_64/SageMath")
 
-  (use-package sage-view
-    :config
-    (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
-    (add-hook 'sage-startup-after-prompt-hook 'sage-view)
-    (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t))
+  (sage-shell:define-alias)
 
-  (setq sage-startup-before-prompt-command "")
+  ;; Turn on eldoc-mode in Sage terminal and in Sage source files
+  (add-hook 'sage-shell-mode-hook #'eldoc-mode)
+  (add-hook 'sage-shell:sage-mode-hook #'eldoc-mode)
 
-  (bind-key "C-c Z" #'sage))
+  (use-package sage-shell-view
+    ;; :config
+    ;; (add-hook 'sage-startup-before-prompt-hook 'compilation-setup)
+    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view)
+    ;; (add-hook 'sage-startup-after-prompt-hook 'sage-view-disable-inline-plots t)
+    ))
 
 (use-package selected
   :load-path "site-lisp/selected"
