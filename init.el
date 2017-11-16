@@ -1772,6 +1772,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out")))
 
+(use-package hyperbole
+  :defer 5
+  :load-path "site-lisp/hyperbole"
+  :config
+  (use-package kotl-mode
+    :load-path "site-lisp/hyperbole/kotl"))
+
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
   :init
