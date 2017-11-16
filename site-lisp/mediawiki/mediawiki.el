@@ -6,13 +6,12 @@
 ;;      Chong Yidong <cyd at stupidchicken com> for wikipedia.el,
 ;;      Uwe Brauer <oub at mat.ucm.es> for wikimedia.el
 ;; Author: Mark A. Hershberger <mah@everybody.org>
-;; Version: 2.2.5
 ;; Created: Sep 17 2004
 ;; Keywords: mediawiki wikipedia network wiki
-;; URL: http://github.com/hexmode/mediawiki-el
-;; Last Modified: <2015-04-03 18:08:35 mah>
+;; URL: https://github.com/hexmode/mediawiki-el
+;; Last Modified: <2017-08-13 01:53:37 mah>
 
-(defconst mediawiki-version "2.2.5"
+(defconst mediawiki-version "2.2.9"
   "Current version of mediawiki.el.")
 
 ;; This file is NOT (yet) part of GNU Emacs.
@@ -28,13 +27,13 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; This version of mediawiki.el represents a merging of
 ;; wikipedia-mode.el (maintained by Uwe Brauer <oub at mat.ucm.es>)
-;; from http://www.emacswiki.org/emacs/wikipedia-mode.el for its
+;; from https://www.emacswiki.org/emacs/wikipedia-mode.el for its
 ;; font-lock code, menu, draft mode, replying and convenience
 ;; functions to produce mediawiki.el 2.0.
 
@@ -70,12 +69,20 @@
 
 ;;; Changes
 
+;; 2.2.7:
+;;  * Add the ability to accept the domain
+;;  * Fix false failures when site isn't found.
+
+;; 2.2.6:
+;;  * Moved to github
+;;  * Code cleanup, flycheck
+
 ;; Since 2.2.4.2
-;; * Move to github
-;; * Added Readme.mediawiki to with information about security.
+;;  * Move to github
+;;  * Added Readme.mediawiki to with information about security.
 
 ;; Since 2.2.4.1:
-;; * Add the forgotten customizable mediawiki-debug.
+;;  * Add the forgotten customizable mediawiki-debug.
 
 ;; Since 2.2.4:
 ;;  * Made it clearer where debugging information is found when
@@ -145,9 +152,11 @@
 (require 'mml)
 (require 'mm-url)
 (require 'ring)
+(require 'subr-x)
 (eval-when-compile
   (require 'cl)
-  ;; Below copied from url-http to avoid compilation warnings
+  (require 'mml)
+;; Below copied from url-http to avoid compilation warnings
   (defvar url-http-extra-headers)
   (defvar url-http-target-url)
   (defvar url-http-proxy)
@@ -168,7 +177,7 @@
              lookfor (funcall (pop methods) urlobj) (url-type urlobj))
           bit)))))
 
-(unless (fboundp 'url-url-for-url)
+(unless (fboundp 'url-user-for-url)
   (defun url-user-for-url (url)
     "Attempt to use .authinfo to find a user for this URL."
     (url-bit-for-url 'url-user "login" url)))
@@ -179,7 +188,7 @@
     (url-bit-for-url 'url-password "password" url)))
 
 (when (fboundp 'url-http-create-request)
-  (if (string= "GET / HTTP/1.0\nMIME-Version: 1.0\nConnection: close\nHost: example.com\nAccept: */*\nUser-Agent: URL/Emacs\nContent-length: 4\n\ntest"
+  (if (string= "GET / HTTP/1.0\r\nMIME-Version: 1.0\r\nConnection: close\r\nHost: example.com\r\nAccept: */*\r\nUser-Agent: URL/Emacs\r\nContent-length: 4\r\n\r\ntest"
 	       (let ((url-http-target-url (url-generic-parse-url "http://example.com/"))
 		     (url-http-data "test") (url-http-version "1.0")
 		     url-http-method url-http-attempt-keepalives url-extensions-header
@@ -203,7 +212,7 @@
 			       (url-get-authentication url-http-target-url nil 'any nil))))
 	       (real-fname (concat (url-filename url-http-target-url)
 				   (with-no-warnings
-                                     (url-recreate-url-attributes url-http-target-url))))
+                                    (url-recreate-url-attributes url-http-target-url))))
 	       (host (url-host url-http-target-url))
 	       (auth (if (cdr-safe (assoc "Authorization" url-http-extra-headers))
 			 nil
@@ -405,19 +414,23 @@ Some provision is made for different versions of Emacs version.
 POST-PROCESS is the function to call for post-processing.
 BUFFER is the buffer to store the result in.  CALLBACK will be
 called in BUFFER with CBARGS, if given."
-  (cond ((boundp 'url-be-asynchronous) ; Sniff w3 lib capability
-	 (if callback
-	     (setq url-be-asynchronous t)
-	   (setq url-be-asynchronous nil))
-	 (url-retrieve url t)
-	 (when (not url-be-asynchronous)
-	   (let ((result (funcall post-process buffer)))
-	     result)))
-	(t (if callback
-	       (url-retrieve url post-process
-			     (list buffer callback cbargs))
-	     (with-current-buffer (url-retrieve-synchronously url)
-	       (funcall post-process buffer))))))
+  (let ((url-user-agent (concat (string-trim (if (functionp url-user-agent)
+                                                 (funcall url-user-agent)
+                                               url-user-agent))
+                                " mediawiki.el " mediawiki-version "\r\n")))
+    (cond ((boundp 'url-be-asynchronous) ; Sniff w3 lib capability
+           (if callback
+               (setq url-be-asynchronous t)
+             (setq url-be-asynchronous nil))
+           (url-retrieve url t)
+           (when (not url-be-asynchronous)
+             (let ((result (funcall post-process buffer)))
+               result)))
+          (t (if callback
+                 (url-retrieve url post-process
+                               (list buffer callback cbargs))
+               (with-current-buffer (url-retrieve-synchronously url)
+                 (funcall post-process buffer)))))))
 
 (defvar url-http-get-post-process 'url-http-response-post-process)
 (defun url-http-get (url &optional headers buffer callback cbargs)
@@ -476,8 +489,7 @@ given."
       (cons "Connection" "close")
       (cons "Content-Type" content-type)))
 
-    (message "Posting to: %s" url)
-    (url-compat-retrieve url url-http-post-post-process
+     (url-compat-retrieve url url-http-post-post-process
 			 buffer callback cbargs)))
 
 (defun url-http-response-post-process (status &optional buffer
@@ -540,11 +552,13 @@ per-session later."
   :group 'mediawiki)
 
 (defcustom mediawiki-site-alist '(("Wikipedia"
-                                   "http://en.wikipedia.org/w/"
+                                   "https://en.wikipedia.org/w/"
                                    "username"
                                    "password"
+                                   nil
 				   "Main Page"))
   "A list of MediaWiki websites."
+  :tag "MediaWiki sites"
   :group 'mediawiki
   :type '(alist :tag "Site Name"
                 :key-type (string :tag "Site Name")
@@ -552,6 +566,9 @@ per-session later."
                                   (string :tag "URL")
                                   (string :tag "Username")
                                   (string :tag "Password")
+                                  (choice :tag "Provide LDAP Domain?"
+                                          (string)
+                                          (other :tag "No" nil))
                                   (string :tag "First Page"
                                           :description "First page to open when `mediawiki-site' is called for this site"))))
 
@@ -661,16 +678,19 @@ it is sometimes put on MediaWiki sites.")
   "The current mediawiki site from `mediawiki-site-alist'.
 If not set, defaults to `mediawiki-site-default'.")
 
+(defvar mediawiki-site-info nil
+  "Holds the site information fetched in this session.")
+
 (defvar mediawiki-argument-pattern "?title=%s&action=%s"
   "Format of the string to append to URLs.
 Two string arguments are expected: first is a title and then an
 action.")
 
 (defvar mediawiki-URI-pattern
-  "http://\\([^/:]+\\)\\(:\\([0-9]+\\)\\)?/"
+  "https?://\\([^/:]+\\)\\(:\\([0-9]+\\)\\)?/"
   "Pattern match for a URI.
 Expected to match something like this:
-	http://mediawiki.sf.net/index.php
+	https://mediawiki.sf.net/index.php
 Passwords in the URL are not supported yet")
 
 (defvar mediawiki-page-uri nil
@@ -939,6 +959,8 @@ as group and page name.")
 
 (defvar mediawiki-draft-mode-map ())
 
+(defvar mediawiki-debug-buffer " *MediaWiki Debug*")
+
 (defun mediawiki-debug (buffer function)
   "The debug handler.
 When debugging is turned on, log the name of the BUFFER with the
@@ -947,9 +969,10 @@ examined.  If debugging is off, just kill the buffer.  This
 allows you to see what is being sent to and from the server."
   (if (not mediawiki-debug)
       (kill-buffer buffer)
-    (message "Examine the '%s' buffer called from '%s'."
-             (buffer-name buffer)
-             function)))
+    (with-current-buffer (get-buffer-create mediawiki-debug-buffer)
+      (goto-char (point-max))
+      (insert "\n")
+      (insert-buffer-substring buffer))))
 
 (defun mediawiki-translate-pagename (name)
   "Given NAME, return the typical name that MediaWiki would use.
@@ -960,17 +983,35 @@ Right now, this only means replacing \"_\" with \" \"."
 
 (defun mediawiki-make-api-url (&optional sitename)
   "Translate SITENAME (or MEDIAWIKI-SITE if not given) to a URL."
-  (format (concat (mediawiki-site-url (or sitename mediawiki-site))
-                  "api.php")))
+  (format (let* ((my-parsed (url-generic-parse-url
+                             (mediawiki-site-url (or sitename mediawiki-site))))
+                 (my-path (url-filename my-parsed)))
+	 (when (or (string= my-path "") (not (string= (substring my-path -1) "/")))
+	   (setq my-path (concat my-path "/")))
+	 (setf (url-filename my-parsed) (concat my-path "api.php"))
+	 (url-recreate-url my-parsed))))
 
-(defun mediawiki-api-call (sitename action args)
+(defun mediawiki-raise (result type notif)
+  "Show a TYPE of information from the RESULT to the user using NOTIF"
+  (when (assq type (cddr result))
+    (mapc (lambda (err)
+            (let ((label (or (cdr (assq 'code err))
+                             (car err)))
+                  (info (or (cdr (assq 'info err))
+                            (cddr err))))
+              (funcall notif label info)))
+
+          ;; Poor man's attempt at backward compatible xml form handling
+          (if (listp (cdr (assq type (cddr result))))
+              (cdr (assq type (cddr result)))
+            (cddr (assq type (cddr result)))))))
+
+(defun mediawiki-api-call (sitename action &optional args)
   "Wrapper for making an API call to SITENAME.
 ACTION is the API action.  ARGS is a list of arguments."
   (let* ((raw (url-http-post (mediawiki-make-api-url sitename)
-                        (delq nil
-                              (append args (list (cons "format" "xml")
-                                                 (cons "action" action))))
-                        (string= action "upload")))
+                             (append args (list (cons "format" "xml")
+                                                (cons "action" action)))))
          (result (assoc 'api
                             (with-temp-buffer
                               (insert raw)
@@ -978,12 +1019,15 @@ ACTION is the API action.  ARGS is a list of arguments."
     (unless result
       (error "There was an error parsing the result of the API call"))
 
-    (when (assq 'error (cddr result))
-      (let* ((err (cadr (assq 'error (cddr result))))
-             (err-code (cdr (assq 'code err)))
-             (err-info (cdr (assq 'info err))))
-        (error "The server encountered an error: (%s) %s" err-code err-info)))
-
+    (mediawiki-raise result 'warnings
+                     (lambda (label info)
+                       (message "Warning (%s) %s" label info)))
+    (mediawiki-raise result 'info
+                     (lambda (label info)
+                       (message  "(%s) %s" label info)))
+    (mediawiki-raise result 'error
+                     (lambda (label info)
+                       (error "(%s) %s" label info)))
 
     (if (cddr result)
         (let ((action-res (assq (intern action) (cddr result))))
@@ -1166,10 +1210,10 @@ return the whole revision structure."
   (let ((rev (cdr (nth revision (cddr (assq 'revisions (cddr page)))))))
     (cond
      ((eq bit 'content)
-      (cadr revision))
-     ((assoc bit (car revision))
-      (cdr (assoc bit (car revision))))
-     (t revision))))
+      (cadr rev))
+     ((assoc bit (car rev))
+      (cdr (assoc bit (car rev))))
+     (t rev))))
 
 (defun mediawiki-pagelist-find-page (pagelist title)
   "Given PAGELIST, extract the informaton for TITLE."
@@ -1275,35 +1319,55 @@ Prompt for a SUMMARY if one isn't given."
 
 (defun mediawiki-site-extract (sitename index)
   "Using 'mediawiki-site-alist' and SITENAME, find the nth item using INDEX."
-  (let ((bit (nth index (assoc sitename mediawiki-site-alist))))
+  (let* ((site (assoc sitename mediawiki-site-alist))
+         (bit (nth index site)))
     (cond
      ((eq nil sitename)
       (error "Sitename isn't set"))
-     ((eq nil bit)
+     ((eq nil site)
       (error "Couldn't find a site named: %s" sitename))
-     ((string-match "[^ \t\n]" bit) bit)
+     ((stringp bit)
+      bit)
      (nil))))
 
 (defun mediawiki-site-url (sitename)
   "Get the url for a given SITENAME."
   (mediawiki-site-extract sitename 1))
 
+(defmacro mediawiki-site-user-pass (sitename index method)
+  "Fetch the user or pass if provided, or use authinfo if not."
+  `(let* ((arg (mediawiki-site-extract ,sitename ,index))
+          (auth (funcall ,method (mediawiki-site-url ,sitename))))
+     (if (and arg (> (string-width arg) 0))
+         arg
+       auth)))
+
 (defun mediawiki-site-username (sitename)
   "Get the username for a given SITENAME."
-  (or (mediawiki-site-extract sitename 2)
-      (url-user-for-url (mediawiki-site-url sitename))))
+  (mediawiki-site-user-pass sitename 2 'url-user-for-url))
 
 (defun mediawiki-site-password (sitename)
   "Get the password for a given SITENAME."
-  (or (mediawiki-site-extract sitename 3)
-      (url-password-for-url (mediawiki-site-url sitename))))
+  (mediawiki-site-user-pass sitename 3 'url-password-for-url))
 
-(defun mediawiki-site-first-page (sitename)
-  "Get the password for a given SITENAME."
+(defun mediawiki-site-domain (sitename)
+  "Get the LDAP domain for a given SITENAME."
   (mediawiki-site-extract sitename 4))
 
-(defun mediawiki-do-login (&optional sitename username password)
-  "Log into SITENAME using USERNAME and PASSWORD.
+(defun mediawiki-site-first-page (sitename)
+  "Get the first page for a given SITENAME."
+  (mediawiki-site-extract sitename 5))
+
+(defun mediawiki-site-get-token (sitename type)
+  "Get token(s) for SITENAME of TYPE type."
+  (cdr
+   (caadar
+    (cddr (mediawiki-api-call sitename "query"
+                              (list (cons "meta" "tokens")
+                                    (cons "type" type)))))))
+
+(defun mediawiki-do-login (&optional sitename username password domain)
+  "Log into SITENAME using USERNAME, PASSWORD and DOMAIN.
 Store cookies for future authentication."
   (interactive)
   (when (not sitename)
@@ -1319,14 +1383,23 @@ Store cookies for future authentication."
                  (pass (or (mediawiki-site-password sitename)
                            password
                            (read-passwd "Password: ")))
+                 (dom-loaded (mediawiki-site-domain sitename))
+                 (dom (when dom-loaded
+                        (if (string= "" dom-loaded)
+                            (read-string "LDAP Domain: ")
+                          dom-loaded)))
                  (sitename sitename)
+                 (token (mediawiki-site-get-token sitename "login"))
                  (args (list (cons "lgname" user)
-                             (cons "lgpassword" pass)))
+                             (cons "lgpassword" pass)
+                             (when token
+                               (cons "lgtoken" token))
+                             (when dom
+                               (cons "lgdomain" dom))))
                  (result (cadr (mediawiki-api-call sitename "login" args))))
     (when (string= (cdr (assq 'result result)) "NeedToken")
       (setq result
-            (cadr (mediawiki-api-call
-                   sitename "login"
+            (cadr (mediawiki-api-call sitename "login"
                    (append
                     args (list (cons "lgtoken"
                                      (cdr (assq 'token result)))))))))
@@ -1342,28 +1415,37 @@ Store cookies for future authentication."
   (mediawiki-api-call sitename "logout" nil)
   (setq mediawiki-site nil))
 
-(defun mediawiki-save-page (sitename title summary content)
-  "On SITENAME, save the current page using TITLE, SUMMARY and CONTENT."
+(defun mediawiki-save-page (sitename title summary content &optional trynum)
+  "On SITENAME, save the current page using TITLE, SUMMARY, and CONTENT."
   ;; FIXME error checking, conflicts!
-  (if (not mediawiki-edittoken)
-      (error "Need an edit token!")
-    (mediawiki-api-call sitename "edit" (list (cons "title"
-                                                (mediawiki-translate-pagename title))
-                                          (cons "text" content)
-                                        (cons "summary" summary)
-                                        (cons "token" mediawiki-edittoken)
-                                        (cons "basetimestamp"
-                                                (or mediawiki-basetimestamp ""))
-                                          (cons "starttimestamp"
-                                                (or mediawiki-starttimestamp ""))))
-    (set-buffer-modified-p nil)))
+  (when (and trynum (< trynum 0))
+    (error "Too many tries."))
+  (let ((trynum (or trynum 3)))
+    (condition-case err
+        (mediawiki-api-call sitename "edit"
+                            (list (cons "title"
+                                        (mediawiki-translate-pagename title))
+                                  (cons "text" content)
+                                  (cons "summary" summary)
+                                  (cons "token" mediawiki-edittoken)
+                                  (cons "basetimestamp"
+                                        (or mediawiki-basetimestamp ""))
+                                  (cons "starttimestamp"
+                                        (or mediawiki-starttimestamp ""))))
+      (error (progn (message (concat trynum "Retry because of error: " err))
+                    (mediawiki-retry-save-page
+                     sitename title summary content trynum)))))
+  (set-buffer-modified-p nil))
 
-;; (cdr (assoc 'edittoken (cadr (caddr (caddr (mediawiki-api-call "mw-svn" "query"
-;;                                                                (list '("prop" . "info")
-;;                                                                      '("intoken" . "edit")
-;;                                                                      '("titles" . (concat "File:" filename)))))))))
-;
-;(mediawiki-api-call "mw-svn" "upload" (list '("filename" . "info.exe") '("file" . "edit") '("token" . token)))
+(defun mediawiki-retry-save-page (sitename title summary content trynum)
+  "Refresh the edit token and then try to save the current page using TITLE,
+SUMMARY, and CONTENT on SITENAME."
+  (let ((try (if trynum
+                 (- trynum 1)
+               3)))
+    (mediawiki-do-login sitename)
+    (setq mediawiki-edittoken (mediawiki-site-get-token sitename "csrf"))
+    (mediawiki-save-page sitename title summary content try)))
 
 (defun mediawiki-browse (&optional buffer)
   "Open the BUFFER in a browser.
@@ -1385,6 +1467,7 @@ If BUFFER is not given, the current buffer is used."
         mediawiki-site
       answer)))
 
+;;;###autoload
 (defun mediawiki-site (&optional site)
   "Set up mediawiki.el for a SITE.
 Without an argument, use `mediawiki-site-default'.
@@ -1827,7 +1910,7 @@ starting point.  Generalise to make `previous-long-line'."
 
 (defun mediawiki-outline-magic-keys ()
   "Set up outline magic keys.
-See http://www.emacswiki.org/emacs/OutlineMagic"
+See https://www.emacswiki.org/emacs/OutlineMagic"
   (interactive)
   (unless  (featurep 'xemacs)
     (local-set-key [(shift iso-lefttab)] 'outline-cycle)
@@ -1941,7 +2024,6 @@ mediawiki-draft-data-file, or send the buffer using
     (mediawiki-mode)
     (message " C-c C-k sends to draft file, C-c C-c sends to org buffer.")))
 
-;;;###autoload
 (defun mediawiki-draft-page ()
   "Set the current buffer as a draft buffer."
   (interactive)
@@ -1966,7 +2048,6 @@ region, will be mediawiki-drafted."
       (mediawiki-debug (current-buffer) "mediawiki-draft-region")
       (jump-to-register mediawiki-draft-register)))))
 
-;;;###autoload
 (defun mediawiki-draft-buffer ()
   "Mediawiki-draft-buffer sends the contents of the current (temporary)
 buffer to the mediawiki-draft-buffer, see the variable
@@ -1980,7 +2061,9 @@ Most useful for mediawiki-drafting things from Netscape or other X Windows
 application."
   (interactive)
   (with-temp-buffer
-    (insert (x-get-clipboard))
+    (insert (if (fboundp 'gui-get-selection) ; Since 25.1
+                (gui-get-selection)
+              (x-get-clipboard)))
     (run-hook-with-args-until-success 'mediawiki-draft-handler-functions)))
 
 (defun mediawiki-draft-view-draft ()
