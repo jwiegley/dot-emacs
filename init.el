@@ -1924,6 +1924,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "site-lisp/ivy/swiper"
     :bind (("C-. C-s" . swiper)
            ("C-. C-r" . swiper))
+    :commands swiper-from-isearch
     :init
     (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
     :config
