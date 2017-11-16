@@ -1,0 +1,4001 @@
+2017-11-15  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el: Updated to 7.0.0 for major release.
+
+* Makefile (help): Removed misplaced double quote characters.
+
+* hui-window.el (hmouse-drag-window-side): Fixed coordinate error when drag release is outside of Emacs.
+
+* hui-mouse.el (smart-helm-assist): Fixed message formatting bugs in hkey-debug message.
+
+* hlvar.el (hack-local-variables): Changed from use of older inhibit-local-variables variable to newer
+    (inhibit-local-variables-p) function call.
+
+* Makefile (version): Removed HY-ANNOUNCE-SHORT from distribution.
+
+* kotl/kexport.el (kexport:html): Changed to wrap cell contents in <PRE></PRE> tags if soft-newline-flag is nil
+    rather than using <BR> hard newlines, so all cell formatting is preserved.  Also changed NAME attribute to
+    ID for HTML5.
+
+2017-11-14  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kimport.el (kimport:star-heading): Added and replaced use of hard-coded regexps in star outline importation.
+    Also, stopped allowing leading whitespace before outline heading stars so can use indented stars as list items
+    rather than outline headings.
+
+* hibtypes.el (text-toc): Expanded file names to include DEMO and TUTORIAL.
+  DEMO: Added Table of Contents and a section on using it, Table of Contents Browsing.
+
+* hbut.el (ebut:label-p): Changed last parameter to limit search to two lines rather than one, so Info node matches can
+    span two lines as they often do.
+
+* HY-ABOUT: Added link to HY-WHY.kotl.
+  HY-WHY.kotl: Added links to relevant DEMO sections throughout.
+ DEMO (Koutliner): Updated this section.
+  hui-menu.el (infodock-hyperbole-menu): Added Why-Use? entry.
+  hui-mini.el (hui:menus): Added WhyUse entry to display HY-WHY.kotl, list of Hyperbole use cases.
+  man/hyperbole.css (code, tt): Removed leading and trailing padding of 5px from code samples so display inline better.
+
+2017-11-13  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-drag-thing): Added error if drag ends within the delimited thing region, so user knows
+    that this is an invalid drag.
+                (hmouse-yank-region, hmouse-kill-and-yank-region): Made no-op unless hkey-region is non-nil.
+    This handles the hmouse-drag-thing case when we want that predicate true (so no other predicate matches)
+    but there is no region to copy or kill, e.g. when the release point is within the thing itself.
+
+* hui-select.el (hui-select-delimited-thing): Fixed to match doc and work as a predicate.
+
+* hui-window.el (hmouse-goto-depress-prev-point): Deleted since it duplicated hmouse-goto-region-prev-point.
+                (hmouse-goto-region-prev-point): Added missing check for prev-point nil when setting loc.
+    This caused the Smart Keys to fail when used if a Lisp backtrace was active.
+                (hmouse-drag-thing): Erased any saved location of a region prior to Smart Key depress since
+    now we have a new region location.  This prevents hmouse-kill-and-yank-region from jumping to the old
+    location.  Also fixed edge cases where want to copy or move thing to the beginning or end of the thing region.
+                (hmouse-goto-region-point): Renamed to hmouse-goto-region-prev-point, for clarity.
+                (hmouse-kill-and-yank-region, hmouse-kill-region): Used value of point saved in hkey-value to determine
+    the region if non-nil. 
+
+* hui-select.el (hui-select-delimited-thing, hui-select-thing): Changed to use use-region-p.
+  hmouse-drv.el (hmouse-use-region-p): Added and used to improve hmouse-drag-thing.
+                (hmouse-save-region): Simplified.
+  hui-window.el (hmouse-drag-region-active): Changed call of region-active-p to hmouse-use-region-p.
+
+
+* hui-window.el (hmouse-kill-and-yank-region): Fixed error that was testing not in depress buffer (as desired) but the
+    buffer prior to depress.  Also protected insertion from syntax-directed indentation errors.
+
+* hui-em-but.el
+  hui-xe-but.el (hproperty:but-create-on-yank): Added as handler for yank-handled-properties so explicit buttons are
+    re-highlighted when yanked after being killed.
+
+2017-11-06  Bob Weiner  <rsw@gnu.org>
+
+* hyrolo-demo.el (hyrolo-demo-quit): Added to unload hyrolo-demo code and used in demo.
+
+* man/hyperbole.texi (Menus): Documented hyperbole-popup-menu.
+
+* hui-menu.el (hyperbole-popup-menu): With a non-nil prefix arg, rebuild the Hyperbole popup menu in case it did
+    not initialize properly for any reason.
+
+* man/hyperbole.texi (Using URLs with Find-File): Added URL browser customization menu reference and image.
+                     (Smart Key - WWW URLs): Added browse-url-browser-function and Cust/URL-Display reference.
+		     (Referent Display): Added this section and documented display options for standard link referents.
+
+* hyrolo-logic.el (hyrolo-map-logic): Removed improper outline test for old format Emacs outlines.
+                  (hyrolo-fgrep-logical): Fixed to include sub-entries in logical searches.
+
+* hib-kbd.el (kbd-key:mark-spaces-to-keep): Added to preserve spaces in (), [], or <> delimited sections of
+    Hyperbole sequences of brace delimited keys; used this function in kbd-key:normalize.
+
+2017-11-04  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-windows-grid-buffer-list): Replaced all uses of (eq major-mode 'dired-mode) with
+    (derived-mode-p 'dired-mode) to generalize.
+
+2017-11-03  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (HyRolo Settings): Added Google Contacts set up and use description.
+
+* hyrolo.el (hyrolo-file-list-initialize): Made interactive and displayed a message with the resulting list
+    if called interactively.  Added autoload.
+            (hyrolo-initialize-file-list): Renamed from hyrolo-file-list-initialize.
+
+* hui-window.el (hmouse-split-window): Changed to split selected window parallel to its shortest dimension.
+
+* DEMO: Added new section on HyRolo.
+  DEMO-ROLO.otl: Added.
+  hyrolo-demo.el: Added with the functions hyrolo-demo-fgrep and hyrolo-demo-fgrep-logical.
+  hyrolo-logic.el (hyrolo-map-logic): Fixed issue where a buffer was required but a buffer name was
+    given as an argument preventing search from matching.
+                  (hyrolo-fgrep-logical): Fixed that logical searches were not forced to case insensitive
+    to match hyrolo-fgrep.  Also updated to handle non-logical string searches.
+
+* hbut.el (ebut:operate): Fixed issue where user had selected a region to use as a button label but then
+    the same text was inserted when the label was created.  Solved by moving point to the beginning of
+    any marked region so buffer text comparison succeeds.
+
+* hui-window.el (hmouse-x-coord, hmouse-y-coord): Simplified logic in GNU Emacs clause.
+                (hmouse-emacs-modeline-event-p): If a drag release was to an unselected frame mode-line,
+    on click-to-focus systems, the release event will not include the mode-line area when release was on
+    the mode-line, so manually compute if that was the location.
+
+2017-11-02  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hkey-help): Fixed that arguments were being stripped from action calls in the help
+    output.
+
+* hibtypes.el (pathname): Fixed to handle "-subr.elc" whose prefix character "-" tells Hyperbole
+    to load, not display subr.elc.  Also handled subr.el.gz compressed source files.
+
+* hib-kbd.el (kbd-key): Prevented matches to brace delimited things that are not preceded by
+    whitespace or at the beginning of buffers, e.g. ${variable}.
+
+* man/hyperbole.texi (Implicit Buttons): Added examples.
+  hib-kbd.el (kbd-key): Improved doc.
+
+* hibtypes.el (hyp-address): Fixed to grab email address using thing-at-point and work in mail-mode
+    not just whatever mode hmail:composer is.
+              (Info-node): Added check for ``dual single quotes'' used in Texinfo smart quotes.
+
+* hpath.el (hpath:substitute-value):
+           (hpath:substitute-dir): Fixed to handle unbound symbol names.  This fixed an error when an
+    environment variable matched a symbol but the symbol was unbound, e.g. (hpath:substitute-value
+    "${PATH}/python")
+
+* hmouse-tag.el (smart-lisp-at-definition-p): Fixed to ignore lines like: (default (find-tag--default))
+    so the function in that line can be found as a tag.
+
+* HY-NEWS: Updated for next major release
+
+* man/hyperbole.texi (Button Colors): Added doc on hproperty:but-highlight-flag.
+                     (Hook Variables): Added doc of: action-key-depress-hook, action-key-release-hook,
+    assist-key-depress-hook and assist-key-release-hook.
+
+* hsettings.el (hproperty:but-highlight-flag): Added as a setting.
+  hui-em-but.el (hproperty:but-highlight-p): Renamed to hproperty:but-highlight-flag.
+                (hproperty:but-emphasize-p): Renamed to hproperty:but-highlight-flag.
+  hui-xe-but.el (hproperty:but-highlight-p): Renamed to hproperty:but-highlight-flag.
+                (hproperty:but-emphasize-p): Renamed to hproperty:but-highlight-flag.
+
+2017-11-01  Bob Weiner  <rsw@gnu.org>
+
+* hib-kbd.el (kbd-key:special-sequence-p): Added and used in implicit button type kbd-key and kbd-key:act.
+             (kbd-key:key-and-arguments): Added to allow for key sequences with interactive arguments and
+    added an example in DEMO.
+
+* hui-mini.el (hui:menus):
+  hui-menu.el (hui-menu-key-bindings): Added Find Web and Jump Thing key binding change entries.
+
+* hyperbole.el (mouse-position-function): Added this setting to make mouse-position and mouse-pixel-position
+    always return the selected frame.
+
+* hsettings.el (helm-allow-mouse): Changed to require Hyperbole-modified branch of Helm named global_mouse
+    and set helm-allow-mouse to the proper value of 'global-mouse-bindings.
+
+* man/hyperbole.texi (Version): Updated to 6.0.2g and rebuilt output formats.
+
+* hui-window.el (hmouse-prior-active-region): Changed to call use-region-p rather than active-region-p, for a tighter test.
+    This is used as a predicate; fixed bug that moved point, causing Smart Key release logic to use the wrong point.
+
+* hmouse-key.el (hmouse-add-unshifted-smart-keys): Removed GNU Emacs-only dependencies.
+
+* kotl/kotl-autoloads.el: Renamed from kotl/kotl-loaddefs.el to match package autoload naming scheme.
+
+* hmouse-sh.el (hmouse-unshifted-setup): In Info-mode, Emacs uses key-translation-map to link mouse-1 to do whatever
+    mouse-2 does but because Hyperbole uses both down and up bindings on mouse2, this does not work.  So we rebind
+    mouse-1 and double-mouse-1 in Info mode to be actual Action Mouse Keys (which makes them follow Info
+    links/cross-references properly, doing a superset of what they did before).
+               (hmouse-posn-set-point): Added to handle frames rather than windows returned by some events; used in
+    hmouse-move-point-emacs.
+
+* hui-mouse.el (hmouse-tag): Added require of hmouse-info and hmouse-tag for smart-info, smart-lisp etc. when autoload
+    file is not available.
+
+* hmouse-sh.el (hmouse-bind-key-emacs):
+  hui-select.el (hui-select-initialize): Added missing double-down-* and triple-down-* bindings.
+
+2017-10-31  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hyperb:init): Added an "Initializing Hyperbole..." message at the beginning of this function.
+    Removed 'Hyperbole loading' message at the beginning of this file since Emacs load function outputs a similar
+    message.  Moved Hyperbole 'ready for action' message here rather than at the end of this file since Hyperbole
+    initialization may be deferred until after Emacs initializaton time.  Hyperbole init. is complete only after
+    this function is run.
+
+2017-10-30  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tramp only
+    now.
+                     (Searching and Summarizing): Renamed from Location.
+
+* hibtypes.el (mail-address): Made lower priority than pathname so when an email-like user@domain is part of a remote
+    pathname, this won't trigger.
+
+* hpath.el (hpath:remote-at-p): Fixed to return /ftp: prepended to ftp paths since Tramp requires it.
+           (hpath:rfc): Prepended /ftp: to value so tramp recognizes it as a remote file path.
+
+* man/hyperbole.texi (Smart Mouse Key Modifiers):
+  hmouse-mod.el: Disabled this feature since it conflicts with present Emacs bindings of Control- and Meta- mouse keys.
+
+* hui-mini.el (Doc/Manifest):
+  hui-menu.el (Documentation/Manifest): Changed to use hypb:display-file-with-logo so can quit after viewing.
+
+* hversion.el (id-browse-file): Changed alias from find-file-read-only to view-file.
+  hui-mini.el (Doc/SmartKeys): Changed command used to match that used when same doc is displayed with a click at the right
+    of a modeline.
+
+* man/hyperbole.texi (Smart Keys): Added section on Smart Mouse Key Drags to match those in the DEMO file.
+                     (Global Key Bindings): Replaced hkey-toggle-bindings with proper reference to
+    hyperbole-toggle-bindings.
+                     (Smart Key Bindings): Included hyperbole-toggle-bindings (toggles keyboard and mouse keys)
+    rather than hmouse-toggle-bindings (toggles only mouse keys); moved the latter to the Global Key Bindings appendix.
+
+2017-10-27  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.css: Added to format HTML version of the Hyperbole manual like the Hyperbole web page, greatly improving
+    its appearance.
+
+* man/hkey-help.txt:
+  man/hyperbole.texi (Modeline Clicks and Drags):  Documented new drag below.
+  hui-window.el (hmouse-alist): Added context of a drag from a window with a release to a modeline which for Action Mouse
+    Key splits the release window (which contains the modeline) and then displays the item or the buffer from the depress
+    window in the release window.  With the Assist Mouse Key, just swaps buffers with no new window creation.
+
+                (hmouse-modeline-click): Updated to do full testing for a click, so this can be called at any point
+    after Smart Mouse Key release.
+                (hmouse-buffer-to-window, hmouse-item-to-window): Added optional boolean new-window parameter to force
+    a new window before buffer display.
+                (hmouse-split-window): Added.
+		(hmouse-modeline-event-p): Fixed conditional error that caused fall through past Modern GNU Emacs clause.
+		(action-mouse-key, assist-mouse-key): Set above new variables.
+                (action-key, assist-key): Added clear of any value of *-key-depress/release-position.
+  hmouse-drv.el (action-key-release-position, assist-key-release-position): Added these to compare to existing
+    *-key-depress-position value.
+
+* README.md, HY-ANNOUNCE: Updated for public release.
+
+2017-10-26  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Smart Mouse Drags outside a Window): Added this new section.
+    Updated manual with all new drag actions.
+
+* hui-window.el (hmouse-goto-region-point, hmouse-prior-active-region): Rewrote these to work properly so that Smart
+    Mouse yanking and killing feature works as documented.  Previously, it was not switching to the buffer of the
+    depress point when checking for an active region.
+
+* hmouse-drv.el: Updated doc.
+
+* MANIFEST (topwin): Renamed to topwin.py.
+
+* hycontrol.el (hycontrol-windows-grid): Improved doc.
+
+* hyperbole.el (hkey-initialize): Added global {C-c @} binding to hycontrol-windows-grid.
+  hui-mini.el (hui:menus): Under cust-keys, added GridOfWindows key change entry.
+  hui-menu.el (hui-menu-key-bindings): Added Grid-of-Windows-Key entry.
+  man/hyperbole.texi (Global Key Bindings): Documented this binding.
+
+* DEMO (Modeline Mouse Clicks): Added section, "Running Dired on the Current Directory".
+
+* man/hyperbole.texi (Smart Key - Image Thumbnails): Added this section.
+                     Wrapped all images with @example and removed @center so do not appear way to the left of text when
+    formatted as html.
+                     (Koutliner): Centralized all key binding index entries under "koutliner, ".
+		     (Glossary): Added Windows Grid entry.
+		     (HyControl): Added Concept Index entries.
+		     (Manual Overview): Improved pointer to DEMO.
+
+* hycontrol.el (hycontrol-windows-grid-rows-columns): Renamed to hycontrol-make-windows-grid.
+               (hycontrol--frames-prompt-format, hycontrol--windows-prompt-format): Changed FRAME: and WINDOW: prompt
+    to plural to match mode and variable names.
+
+2017-10-25  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el: Extended initial commentary with new features and improved explanations.
+                (hycontrol-split-windows-rows-columns): Modified to temporarily exit HyControl mode if need
+    to read a rows-columns argument.
+                (hycontrol-split-windows-buffer-list, hycontrol-split-windows, hycontrol-split-windows-by-major-mode
+                hycontrol-split-windows-repeatedly, hycontrol-split-windows-rows-columns): Renamed by replacing
+    'split-windows' with 'windows-grid'.
+                (hycontrol-window-minimize-lines): Previously did not resize window if it could not display all of the
+    buffer lines in the window.  Now will resize to 1 line if cannot or if all lines are already displayed.
+                (hycontrol-split-windows-buffer-list): Added doc string.
+
+* DEMO (HyControl): Added interactive examples of newest HyControl commands.
+
+* hui-window.el (hmouse-goto-depress-prev-point): Fixed to handle when no prev-point is saved.
+                (hmouse-drag-region-active): Return nil if no prev-point saved.
+
+* hpath.el (hpath:is-p): Fixed to handle single % in path argument when sent as format string near the
+    end of the function.
+
+* hib-kbd.el (kbd-key:normalize): Quoted % characters as %% to prevent format from treating them specially.
+             (kbd-key:hyperbole-hycontrol-key-p): Added to match key sequences within HyControl since
+    its prefix arguments are specified without C-u or ESC or META prefixes.
+             (kbd-key, kbd-key:act): Used above function here.
+
+* hmouse-drv.el (hkey-either): Fixed to ignore prefix args set by HyControl.
+
+* hyperbole.el (hkey-initialize):
+  hui-menu.el (hui-menu-key-bindings): Changed {C-c \} entry from hycontrol-windows to new hycontrol-enable-windows-mode.
+
+2017-10-24  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2f and rebuilt output formats.
+
+* hycontrol.el (hycontrol-universal-arg-digit): Removed first argument and replaced with global hycontrol-arg,
+    so could set this value internally.
+
+               (hycontrol-debug): Renamed from hycontrol--debug.  Made public so can be set directly.
+               (hycontrol-setup, hycontrol-frames, hycontrol-windows): : Removed debug parameter; no longer needed since
+    all events are handled normally by Emacs now.
+
+               (hycontrol-windows-mode-map): [ and ] bindings; don't call these interactively because a prefix arg of 1
+    tries to make one window 1 line tall.
+
+               (hycontrol-split-windows-repeatedly): Added to allow rapid visual testing of various window layouts until
+    satisfied.
+
+               (hycontrol-post-command-hook): Made this automatically quit from HyControl whenever a minibuffer prompt
+    becomes active so can use regular keys to type.
+
+	       (hycontrol-invert-mode-line-flag, hycontrol-invert-mode-line): Added to invert mode-line to emphasize the
+    special key bindings in effect in HyControl modes.
+
+2017-10-23  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-split-windows-buffer-list): Added to prefix buffer-list with any marked items
+    when in a Dired, Buffer-Menu or iBuffer listing buffer.  If any such items exist, the buffer-list
+    is not filtered by hycontrol-display-buffer-predicate-list.
+
+               (hycontrol-pre-command-hook): Added and changed setting of prefix-arg to pre-command-hook.  This set it
+    properly for HyControl commands.
+
+               (hycontrol--prompt-format): Added to generalize help prompt handling.
+               (hycontrol-post-command-hook): Replaced windows and frames post-command-hook with this one.
+
+               (hycontrol-frames-mode, hycontrol-windows-mode): Made these global minor modes and added their
+    variables to the hyperbole-screen group.  Buffer local minor modes renamed to hycontrol-local-*-mode.
+               (hycontrol-quit-frames-mode, hycontrol-quit-windows-mode): Changed defs to disable its global
+    minor mode.
+
+               (hycontrol-post-command-hook): Fixed so HyControl help messages are not logged to the
+    *Messages* buffer.
+
+               (hycontrol-disable-modes): Added.
+
+* set.el (set:create): Added autoload in case is ever used without a require.
+
+* hycontrol.el (hycontrol-split-windows, hycontrol-split-windows-rows-columns, hycontrol-split-windows-by-major-mode):
+    Incredible new autoloaded commands that split a frame into a number of balanced
+    windows specified by rows and columns (typically as prefix arg
+    digits).  Each window shows a different buffer, if possible, with the
+    by-major-mode command preferring buffers with the specified major mode.  The hycontrol-split-windows
+    chooses the by-major-mode command when given a prefix arg of 0; otheriwse, the rows-column one.
+               (hycontrol-window-display-buffer, hycontrol-display-buffer-predicate-list)
+                hycontrol--invert-display-buffer-predicates): Added to support new commands.
+               (require 'set): Added for set:create used in hycontrol-split-windows-by-major-mode.
+               (hycontrol-*-mode-map): Bound {@} to hycontrol-split-windows-rows-columns, also in Buffer-menu,
+    IBuffer and Dired modes.
+
+* hycontrol.el (hycontrol--initial-which-key-inhibit): Added.
+               (hycontrol-end-mode, hycontrol-frames, hycontrol-windows): Used above flag.
+
+	       (hycontrol-setup): Refactored common parts of hycontrol-frames and hycontrol-windows here.
+	       (hycontrol-frames-setup, hycontrol-windows-setup): Added and used in
+    hycontrol-frames and hycontrol-windows, respectively.
+
+2017-10-22  Bob Weiner  <rsw@gnu.org>
+
+* Makefile ($(pkg_dir)/hyperbole-$(HYPB_VERSION).tar): Ensured `topwin.py' script was made executable.
+  hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Changed to find `topwin.py' executable in
+    hyperb:dir so no additional installation is necessary.
+
+* hycontrol.el (hycontrol-window-to-new-frame): Fixed to duplicate prior selected window size properly.
+
+* hui-window.el
+  man/hkey-help.txt: Noted that a modeline click on a dired Buffer ID shows the parent directory.
+
+2017-10-20  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-help-flag):
+               (hycontrol-toggle-help): Added to allow toggling minibuffer key binding help off.
+	       (hycontrol-frames-mode, hycontrol-windows-mode): Made HyControl modes into minor modes.
+               (hycontrol-enable-frames-mode, hycontrol-enable-windows-mode): Renamed from
+    hycontrol-toggle-to-*-mode.
+  man/hyperbole.texi (HyControl): Updated documentation with these changes.
+
+* hbut.el (ibtype:create): Expanded this doc for defact, explaining how actions are connected to its
+   'at-p' parameter.
+
+* hycontrol.el (hycontrol-abort-mode): Added and used when {C-g} is pressed; exits HyControl
+    and executes (keyboard-quit).
+               (hycontrol-end-mode, hycontrol-quit-frames-mode, hycontrol-quit-windows-mode,
+                hycontrol-toggle-to-frames-mode, hycontrol-toggle-to-windows-mode): Added
+    and used as key bindings.
+    (hycontrol-exit-mode): Deleted and replaced with above commands.
+
+    (hycontrol-frame-fit-to-screen): Changed to adjust width and height separately which fixed
+      a bug in our call to set-frame-size which kept increasing the frame height slightly.
+
+    (hycontrol-frames, hycontrol-windows): Prevented `which-key' package from popping up its key
+       help and interferring with the minibuffer message while in HyControl.  Otherwise, the
+       which-key help could be left onscreen after a quit of HyControl.
+
+* hui-window.el (hmouse-pulse-flag): Made t the default because timing and display issues with
+    pulsing drag items were resolved now.
+
+2017-10-19  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (pkg): Changed hyperbole source dir from hyperbole-<version> to hyperbole since that
+    is the name of the git repo top-level directory from which packages are now built.
+
+* hui-jmenu.el (hui-menu-hywconfig): Fixed improper variable reference that kept Delete-Name
+    and Restore-Name from ever being active.
+
+2017-10-19  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2e and rebuilt output formats.
+
+* hycontrol.el (hycontrol-frame-adjust-widths, hycontrol-frame-adjust-heights,
+    hycontrol-frame-adjust-widths-full-height, hycontrol-frame-adjust-heights-full-width,
+    hycontrol-set-width-percentage-full-height, hycontrol-set-height-percentage-full-width,
+    hycontrol-frame-widths-pointer, hycontrol-frame-widths, hycontrol-frame-heights-pointer,
+    hycontrol-frame-heights: Added to cycle through resizing height or width of frames to
+      common sizes.  Also cycle through one dimension while fixing the other dimension
+      at full-screen size.
+    (hycontrol--frames-prompt-format): Added {a} and {A} bindings to both frames and windows
+        keymaps to adjust frame width and height respectively by cycle through a list of common
+        fixed percentages such as 25% and 50%.  Added to Hyperbole manual.
+
+2017-10-18  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-restore-frame-configuration, hycontrol-restore-window-configuration,
+                hycontrol-save-configurations, hycontrol-delete-other-frames,
+                hycontrol-delete-other-windows, hycontrol-clone-window-to-new-frame
+                hycontrol-make-frame): Made interactive.
+               (hycontrol-frames, hycontrol-windows): Forced arg to numeric value on entry.
+    	       (hycontrol-stay-in-mode, hycontrol-universal-arg-digit,
+	        hycontrol--debug, hycontrol--exit-status, hycontrol-arg,
+		hycontrol--frames-prompt-format, hycontrol--windows-prompt-format,
+		hycontrol-frames-pre-command-hook, hycontrol-windows-pre-command-hook,
+		hycontrol-frames-mode-map, hycontrol-windows-mode-map, hycontrol-exit-mode): Added.
+	       (hycontrol-prettify-event, hycontrol-handle-event): Removed.
+
+	       (hycontrol-frames, hycontrol-windows): Rewrote HyControl to use a frame-mode
+   and window-mode transient keymap which allows for regular key bindings and eliminates
+   the need for a HyControl event loop and processing of non-HyControl events.  There should
+   be no change in HyControl user-visible behavior from this other than that key bindings
+   may now be customized (remember to update the HyControl minibuffer prompts if you do change
+   any).  And mouse wheels now work for fast multi-window scrolling.
+
+2017-10-17  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-screen-offset-alist, hycontrol-set-screen-offsets,
+                hycontrol-display-screen-offsets):
+    Changed ordering of items to match Emacs window-edges and frame-edges.
+               (hycontrol-fit-to-screen): Added and used to ensure resized and repositioned
+    windows fit on the screen.
+               (hycontrol-set-frame-height, hycontrol-set-frame-position, hycontrol-set-frame-size,
+                hycontrol-set-frame-width): Added with calls to hycontrol-fit-to-screen.
+
+* man/hyperbole.texi: Removed InfoDock and XEmacs references since they are so old and no
+    longer maintained that no one uses them today.
+
+* hmouse-sh.el (hmouse-unshifted-setup): Changed to enable right mouse key as Assist Key unless
+    optional argument MIDDLE-KEY-ONLY-FLAG is non-nil (which is how it is called from
+    hmouse-shifted-setup).
+
+* hycontrol.el (hycontrol-frame-percentage-of-screen): Automatically adjusted out of bounds
+    percentages to the closest number of 0 and 0.998 (so does not overflow screen.
+    Automatically moved frame if right or bottom edges are offscreen as a result of size change.
+
+* DEMO (Dragging Buffers and Windows): Renamed this from 'Moving Buffers' and added subsections.
+
+2017-10-16  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Smart Key Modeline Clicks): Renamed from Smart Key Modeline.  Added
+    up-to-date info on click locations and actions.
+                     (Implicit Buttons): Added git-reference, git-commit-reference and
+    github-reference.
+                     (Future Work): Added Direct Manipulation section.
+		     (Smart Keys): Moved before Buttons chapter since Buttons references
+    Smart Keys and the benefits of Smart Keys are quicker to understand.
+
+* hui-mouse.el (smart-dired, smart-dired-assist): Made end of first line behave just like
+    last line for quitting and executing actions.
+
+* hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Further optimized for when
+    depress and release windows are the same and frame has an auto-raise property, then we
+    know release window was uppermost at the point of release and can skip finding what app
+    owned the topmost window.
+
+* hui-window.el (hmouse-dired-readin-hook):
+                (hmouse-dired-display-here-mode): Added and used in hmouse-drag-item-mode-forms.
+    Once a dired buffer item has been dragged, make next Action Key press on an item display it
+    in the same dired window.
+  man/hyperbole.texi (Smart Key - Dired Mode): Documented here and in smart-dired function.
+
+* man/hkey-help.txt:
+  hui-window.el: Updated drag acton summaries with the latest information.
+
+* hui-window.el (hmouse-drag-vertically-within-emacs): Added to allow for modeline vertical drags
+    between windows.
+
+* hui-mouse.el (smart-dired-pathname-up-to-point): Added this to change the behavior of smart-dired.
+    When on the first line of a Dired buffer where its directory path is shown, treat any ancestor
+    subdirectory of the current directory as a selectable path.  Thus, you can run Dired on any
+    ancestor subdirectory simply by pressing the Action Key at the end of the subdirectory you want.
+    A press on the first / character, runs dired on the root directory.
+  man/hyperbole.texi (Smart Key - Dired Mode): Updated doc to reflect this change.
+
+* hui-window.el (hmouse-drag-between-frames): Removed from hmouse-alist; treat this context
+    the same as a drag between windows within one frame, for consistency.
+
+* hui-menu.el (hui-menu-key-bindings): Added for use as menu filter for
+    Hyperbole/Options/Change-Key-Bindings so displayed key bindings are always up-to-date.
+
+* hui-mouse.el (smart-outline-level): Added and used instead of (outline-level) which assumes
+    its caller has already generated match data, which is not always the case in Hyperbole.
+
+* hmouse-sh.el (hmouse-move-point-emacs): Added mouse-select-region-move-to-beginning handling
+    that appeared in Emacs 26.1 and noted this in the function documentation.
+
+* hui-window.el (hmouse-buffer-to-window): Added along with drag from mode-line to another
+    window context to replace the buffer in a dest. window with the buffer from the source
+    window.
+
+* hib-debbugs.el (debbugs-query:at-p): eliminated match of #id-number and always required
+   'bug' or similar prefix so there is no ambiguity with social references including
+   git #commit-number.
+
+* hmouse-drv.el (hkey-help): Updated to handle call-interactively actions and 'or'ed action
+    intelligently when printing action documentation.
+
+2017-10-15  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (action-key-depress-position, assist-key-depress-position): Added to
+    test whether or not last Action Mouse Key event was a mouse click (non-drag event).
+
+2017-10-14  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Added optional Python script,
+    topwin.py, for macOS window-system only.  It determines the topmost application window at
+    the given position and returns the application name, so Emacs can tell if its frame is
+    obscured by another application or not.
+                (hmouse-verify-release-window-flag): Added so can turn off use of the macOS
+    Python script when desired since it slows Smart Key action handling at least 1/3 of a
+    second.
+
+* hycontrol.el (hycontrol-frames): Changed = command call to set-frame-size to use pixel
+    dimensions rather than chars/lines for better accuracy.
+    (hycontrol-window-to-new-frame): Same.
+
+* hui-menu.el (hui-menu-key-binding-item): Added.
+
+* hmouse-drv.el (hmouse-set-point): Fixed to return a posn object as a fallback, i.e. what
+    event-start and event-end return; previously, had returned point as a marker in this case.
+    Keyboard-based emulation of mouse drags via hkey-operate had been broken; this fixed it.
+* hui-window.el (hmouse-x-coord, hmouse-y-coord): Updated to accept a posn.
+                (hmouse-modeline-event-p): Ignored case where args is a posn or point-marker,
+    not an event.
+
+2017-10-13  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el (hyperb:window-sys-term): Emacs set-frame-parameter does not return the value, so
+    this function was always returning nil.  Fixed it to return what the doc says it does.
+
+* hycontrol.el (hycontrol-frame-at-left-p, hycontrol-frame-at-top-p, hycontrol-frame-at-right-p,
+    hycontrol-frame-at-bottom-p): Added.
+    (hycontrol-frame-expand-to-*): Rewrote these: first they expand a frame to a particular edge;
+      then the next invocation when already at that edge, cuts that frame dimension in half from the
+      opposite side (or to any percentage specified as an argument), leaving the particular edge fixed.
+      Renamed to hycontrol-frame-resize-to-*.  This allows both rapid expansion and contraction of
+      frames with just 4 keys whenever needed.
+    (hycontrol-frame-resize-percentage, hycontrol-frame-resize-arg): Added as support functions.
+    (hycontrol-frame-edges): Added to ensure outer edges of frames are always used.
+    (hycontrol-frames): Added arg as a 0-100 percentage for i,j,k,m commands.
+    (hycontrol-windows): Added same c (cycle frame positions), i,j,k,m keys and numeric
+       keypad keys to here.
+    (hycontrol-frames/windows): Added p (virtual numeric keypad) to allow keyboard-based frame
+       quadrant movement when a numeric keypad is not available.  This can be interrupted
+       with a q to return to the control menu or a C-g to abort the control menu.
+
+* hui-window.el (hmouse-horizontal-action-drag): Replaced doc typo of 'vertical' with 'horizontal'.
+
+* DEMO (Help buffers): Added description of how to get help for Smart Mouse Key-only events.
+
+* hycontrol.el (hycontrol-windows, hycontrol-frames): In window-control mode, changed {f}
+    to clone window to new frame without deleting the source window to match similar
+    Action Key drag from window/modeline to outside of any Emacs window.  Added {F} to clone but
+    delete the source window.  Added these 2 bindings to frame-control mode too.  Documented
+    in Hyperbole manual.
+
+    Expanded control help to 4 lines, added = command to equalize sizes of windows/frames,
+    added f/F commands.
+
+* hibtypes.el (texinfo-ref): Added doc display for Emacs Lisp @findex (function) and @vindex
+   (variable) entries.  Changed so does nothing if function or variable is unbound.
+   Updated its doc string and doc in the Hyperbole manual.
+
+* hmouse-drv.el (hkey-help): Changed to print "WHICH WILL:" rather than "WHICH:" when the first
+    word of the doc string does not end in an 's', e.g. "Display this" instead of "Displays this".
+
+* hui-window.el (hmouse-release-left-edge): Noted that left edge mode-line clicks must be on the
+    first blank character of the mode-line because Emacs overrides the Smart Mouse Key bindings
+    immediately after that position.  Noted in Hyperbole manual as well.
+
+* Makefile (version): Added hyperbole.el to version check.
+  hyperbole.el: Updated the Commentary with a description of Hyperbole in case the Emacs package
+    system or a user looks here for it.
+
+* hycontrol.el (hycontrol-clone-window-to-new-frame): Added and used in hmouse-alist.
+
+2017-10-12  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-window-to-frame): Renamed to hycontrol-window-to-new-frame.
+               (hycontrol-keep-window-flag): Added: When non-nil (default is nil), leave
+    original window when tear off window to another frame.
+
+* hui-window.el (hmouse-emacs-modeline-event-p, hmouse-modeline-event-p): Added.
+    (hmouse-modeline-depress, hmouse-modeline-release): Simplified and speeded up for GNU Emacs.
+    (action-key-modeline, assist-key-modeline):
+  man/hyperbole.texi (Modeline Clicks and Drags): Updated with new modeline buffer id click actions.
+  man/hkey-help.txt: Updated with most new drag and click actions.
+
+* hywconfig.el: Changed all (called-interactively-p 'interactive) to (called-interactively-p)
+    so will work if called interactively from one of the Smart Key lists.
+
+* DEMO: Fixed a number of small issues with implicit buttons therein.
+
+* hui-window.el (hmouse-drag-diagonally, hmouse-drag-horizontally, hmouse-drag-vertically):
+    Added explicit test that press and release are in the same window.
+    (hmouse-drag-item-to-display, hmouse-item-to-window): Added dired support.
+    (hmouse-pulse-flag): Disabled by default due to sluggishness and improper visuals at times.
+    (hmouse-map-modes-to-form, hmouse-drag-item-mode-forms): Added.
+    (hmouse-drag-item-to-display, hmouse-item-to-window): Updated to use the new variable,
+       hmouse-drag-item-mode-forms so users can add new modes for named item drags.
+
+* hui-window.el (hmouse-drag-between-frames): Added and used in hmouse-alist.
+                (hmouse-alist): Added modeline drags between frames and outside of Emacs.
+    Added window drags outside of any window (outside of Emacs).
+                (hmouse-clone-window-to-frame): Added and used in hmouse-alist.
+  man/hkey-help.txt: Updated with latest modeline and between window drag movements.
+
+2017-10-11  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-window-to-frame): Modified in the case of only one window in the frame,
+    then clone the window into a new frame.  This allows you to create a bunch of staggered frames
+    when in Window Control mode.  Also made this an autoload and called in "hui-window" within
+    hmouse-alist.
+
+* hui-window.el (hmouse-drag-outside-all-windows): Added to handle the case where a drag release is
+    outside of any Emacs window or frame and used in hmouse-alist.
+
+* hmouse-drv.el (hmouse-vertical-line-spacing): Added and used to compute vertical character positions.
+                (hmouse-key-release-window-emacs): Renamed to hmouse-key-release-window and used in
+    hmouse-function to set action/assist-key-release-window accurately.
+                (hmouse-function): Fixed so action/assist-key-release-prev-point is set properly,
+    before point is set to the location of the mouse button release.
+
+* hui-window.el (hmouse-drag-thing): Fixed to handle when release location is outside Emacs and
+    end-point is nil.
+                (hmouse-drag-same-window): Added and used in horizontal and vertical drag tests.
+
+* hmouse-key.el (hmouse-update-smart-keys): Extended to also re-initialize Smart Key bindings.
+
+* hmouse-drv.el (smart-scroll-up): Removed 's' from the end of verbs in all function comments,
+   e.g. scroll window instead of scrolls window, for consistency within the file.
+   (hmouse-window-at-absolute-pixel-position, hmouse-window-coordinates): Added to compute the
+      actual window and location of the release of a mouse drag which Emacs does not compute.
+      Proper top-to-bottom listing of frames is available only in Emacs 26 and above.  For
+      prior versions, the ordering of the frames returned is not guaranteed, so the frame
+      whose window is returned may not be the uppermost.
+
+   (hmouse-key-release-window-emacs, hmouse-key-release-args-emacs): Updated to use new window
+      of release functions.  Now drags between frames work properly.
+
+2017-10-10  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (after-init-time): Added hyperb:init to the end of after-init-hook;
+   previously was added at the beginning.  This is intended to ensure that Hyperbole
+   key bindings are set after any others, notably {M-RET}.
+
+* hypb.el (hypb:rgrep-command): Changed to zgrep when available to handle compressed source files.
+
+2017-10-09  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (annot-bib): Eliminated matches for any programming mode (modes derived from `prog-mode').
+
+* README.md: Fixed link markup in Mailing Lists and Ftp and Git Source Code-only Downloads
+
+2017-10-08  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Implicit Buttons): Re-arranged types to reflect newest prioritization.
+
+* hib-social.el (github-reference): Added support for showing status of Github services
+    with gh#status.
+
+2017-10-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Hiding and Showing): Added paragraph on using {C-x 4 c} to clone
+    a Koutline and display multiple views of it.  But commented this out because of an
+    Emacs bug which alters the narrowing of indirect buffers after an outline hide or show.
+
+2017-10-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2d and rebuilt output formats.
+
+* Makefile (README.md.html): Added build rule as part of 'make doc'.
+  README*: Rewrote the Summary intro paragraph and first two numbered items in simpler terms
+    for new users.
+
+* hib-social.el (git-commit-reference): Added new implicit button type to display a diff for
+    any commit listed in 'git log' output.
+                (git-reference): Fixed a few typos and added support for git#=branch:file syntax
+    to view (not edit) a file from a specific branch.  Hyperbole finds which project the branch
+    and file are associated with if a default is not specified.  Documented in this file and DEMO.
+
+2017-10-05  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-git-build-repos-cache): Fixed to prune matches like 'file-git',
+    leaving just .git parent directories.
+                (hibtypes-git-find-execute, hibtypes-git-find, git-find-file): Added
+    to locate and edit any git-versioned filename.
+                (hibtypes-social-regexp, git-reference): Updated with git#=file syntax
+    to find git-versioned files by name.
+  DEMO (Git (Local) References): Added example of new git#=file implicit button.
+
+2017-10-04  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2c and rebuilt output formats.
+
+* hmouse-sh.el (hmouse-bind-key): Renamed to hmouse-bind-key-emacs since is emacs-only.
+               (hmouse-bind-shifted-key): Renamed to hmouse-bind-shifted-key-emacs.
+
+2017-10-03  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-alist): In hmouse-drag-horizontally test, removed check of
+   (not (hmouse-drag-between-windows)) since was tested earlier in hmouse-alist.
+                (hmouse-resize-window-side, hmouse-release-left-edge,
+                 hmouse-swap-buffers, hmouse-swap-windows,
+                 hmouse-modeline-resize-window, hmouse-release-right-edge,
+                 hmouse-modeline-click, hmouse-modeline-release): Removed optional
+    assist-flag arg; used assist-flag free variable instead.
+
+* hmouse-tag.el (smart-tags-display): Fixed to include tags-table found in any
+    ancestor directory of current directory when tags-table-list already
+    contains items.
+
+* hpath.el (hpath:find-program): Changed so Hyperbole external and internal
+    file suffix lists are consulted before using standard directory or
+    image display methods.  So for example, Emacs.app on macOS, which is actually
+    a directory, can be displayed/run externally.
+           (hpath:external-display-alist-macos): Added .app suffix.
+
+* hui-jmenu.el (hui-menu-buffer-mode-name): mode-name might not be a string; pass it through
+    format-mode-line to ensure it is a string.  Without this, hui-menu-of-buffers could
+    trigger an error on some buffers.
+
+2017-10-02  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-pulse-flag): Added to allow disabling visual pulsing in Action Mouse
+    Key buffer/file window placement.  Used in hmouse-pulse-buffer and hmouse-pulse-line.
+
+* hload-path.el (stringp): Forced use of hyperb:dir truename (after resolving pathname links).
+
+* hbdata.el (hbdata:build): Modified to ensure that but-sym or hbut:current (if but-sym is nil)
+    is updated with all modified button attributes.  This is used after interactive explicit
+    button creation or modification to display current attributes.
+
+* hui.el (hui:ebut-operate): Removed as this was obsoleted long ago; use ebut:operate instead.
+
+* hbut.el (ebut:operate): Updated documentation to clarify that this modified button properties,
+    notably its action's argument list.
+  hbut.el (hattr:copy, hattr:set):
+  hpath.el (hpath:substitute-var): Clarified documentation.
+
+* hui.el (hui:ebut-message): Added message for use when creating and modifying explicit buttons.
+         (hui:ebut-create, hui:ebut-modify): Called hui:ebut-message after interactively creating
+    or modifying an explicit button (just as hui:link-directly already did).
+         (hui:link-directly): Modified to call hui:ebut-message.
+
+* hact.el (actype:param-list): Added.
+  hui.el (hui:action): Fixed to handle parameter lists with keywords such as &optional.
+
+* hactypes.el (link-to-file): When modifying a link, changed to handle a variable in the pathname
+    and also to maintain any prior in-file location as a default when prompting for changes even
+    if the linked-to file is not yet loaded in a buffer.
+
+* hact.el (action:params-emacs): Added to use doc strings and autoload functions to get calling
+    signatures for Emacs25 byte-coded functions.  Previously, functions with bit-coded integer
+    argument parameter placeholders were not supported.
+          (action:params): Called action:params-emacs on byte-coded objects.  Also, rewrote
+    to handle indirect byte-coded actions as well.
+
+2017-10-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-item-to-window): When drag from fixed menu header line, pulse the menu
+    buffer and move the menu buffer itself to the drag release window.
+
+* man/hyperbole.texi (Version): Updated to 6.0.2b and rebuilt output formats.
+
+* hycontrol.el (hycontrol-handle-event):
+               (hycontrol-prettify-event): Fixed to handle large integer code events, e.g. M-p.
+
+2017-09-30  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (HyControl):
+  hycontrol.el (hycontrol-frames, hycontrol-windows): Removed ESC as a quit command since now that
+    key sequences are supported, this is often used as a meta key prefix.  Use {q} to quit.
+
+* hact.el (actype:act, actype:action): Fixed regexp match to beginning of string; quote mark used
+   had somehow been changed to the end of string match regexp.  As a result, when explicit
+   buttons were being created or modified, no arguments were prompted for.
+
+* hargs.el (hargs:delimited): Removed unneeded properties from any returned string.
+
+* hpath.el (hpath:at-p): Added missing non-exist parameter to hpath:delimited-possible-path call.
+    This extends the prior bug fix for hpath:at-p.  See below.
+
+* hmouse-drv.el (hmouse-key-release-args-emacs): Updated to handle cross-frame drags properly
+    for when Emacs' event system is fixed to return the proper frame for a cross-frame drag
+    release event (as of 25.3, it returns the depress frame rather than the release frame).
+
+2017-09-29  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-prettify-event): Added.
+
+2017-09-28  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-handle-event): Expanded to handle single non-self-inserting
+    keys and key sequences.
+
+* man/hyperbole.texi (Version): Updated to 6.0.2a and rebuilt output formats.
+
+* man/hyperbole.texi (View Specs): Noted that ellipses can no longer be
+    turned off.
+  kotl/kvspec.el (kvspec:compute): Removed `e' ellipses viewspec because
+    it no longer works with modern Emacs outlining.
+                 (kvspec:update): Force display of `e' viewspec.
+                 (kvspec:activate): Changed to always compute new kvspec:current
+    even if requested view-spec seems the same so the 'e' viespec is added if
+    not included.
+
+* kotl/kotl-mode.el (kotl-mode): Handled removal of newest
+    outline-minor-mode mode-line indication for Koutlines.
+
+2017-09-28  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-push-button-help): Added 2nd optional arg, use-mouse-action,
+    which if non-nil, displays help for mouse-action property if any, and falls
+    back to action property otherwise.
+               (hkey-alist): push-button - Changed to use mouse-action if
+    last-command-event was a mouse event.  Previously, mouse actions were
+     not supported.
+
+* hmouse-tag.el (smart-lisp-at-tag-p): Changed to not match anywhere on the first
+    line of def constructs.  This aids in using Smart Keys for outline
+    folding within Lisp buffers.
+                (smart-lisp-at-definition-p): Added to test if point is on
+    the first line of a non-alias Lisp definition.
+                (smart-lisp-at-load-expression-p): Added to test if point
+    is on any type of Lisp library load expression.
+                (smart-lisp): Changed call of buffer-substring-no-properties
+    to match-string-no-properties.
+                (smart-lisp): Fixed regexp matching of require and autoload expressions.
+       For require and load, moved point to start of the buffer.
+       For autoload, triggered an error if library is found but symbol def is not.
+
+* hui-mouse.el (smart-outline-char-invisible-p): Substituted outline-invisible-p
+    call for kproperty:get, which may not yet be defined.
+               (smart-outline-subtree-hidden-p): Fixed to match only when point is
+    on a heading.
+               (smart-imenu-item-at-p): Updated to ignore when smart-lisp-at-definition-p
+    or smart-lisp-at-load-expression-p tests are true.
+               (hkey-alist): smart-imenu - ignored non-alias identifiers on the
+    first line of a Lisp def.
+
+2017-09-27  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-buffer-menu-no-marks): Added and called in smart-buffer-menu.
+               (smart-ibuffer-menu-no-marks): Added and called in smart-ibuffer-menu.
+    Makes Action Key display the selected buffer in the buffer menu window (like RET does)
+    rather than restoring previous window configuration and then displaying buffer.  This
+    works better with the new buffer item drag to display in a window feature.
+
+* hui-window.el (pulse): Added require for momentary highlighting of buffer/file
+    item lines.
+                (hmouse-pulse-line): Added.
+                (hmouse-item-to-window): Added pulses to source and dest. lines.
+
+2017-09-26  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (action-key-depress): Added action-key-depress-hook.
+                (assist-key-depress): Added assist-key-depress-hook.
+		(action-mouse-key):   Added action-key-release-hook.
+		(assist-mouse-key):   Added assist-key-release-hook.
+                (action-key): Added action-key-depress/release-hook.
+		(assist-key): Added assist-key-depress/release-hook.
+  hui-window.el (action-key-depress-hook): Set to select helm items
+    prior to a drag outside the helm buffer window.
+
+* hui-mouse.el (smart-helm-line-has-action): Fixed to use position of
+    Action Key depress; this properly selects the item chosen, even when
+    a cross-window drag is used; this allows helm buffer and file items to
+    be used in Hyperbole drag actions.
+
+* hib-social.el (github-reference): Added support for
+    gh#orgs/<org-name>/people query to list users in an org.
+
+* hmouse-drv.el (hmouse-depress-inactive-minibuffer-p): Improved doc and
+    changed param name to `event'.
+                (action-key-depress-window, assist-key-depress-window):
+    Improved doc.
+
+* hui-window.el (smart-coords-in-window-p, smart-window-of-coords,
+                 hmouse-inactive-minibuffer-p):
+  hmouse-drv.el (hmouse-depress-inactive-minibuffer-p):
+  hargs.el (hargs:select-event-window): Updated to handle multiple frames and minibuffers.
+
+* hui-window.el (hmouse-alist): Extended hmouse-drag-between-windows to
+    allow dragging items from a buffer menu or file menu buffer to a destination
+    window for display.  Helm buffer items are supported as well.
+                (hmouse-item-to-window, hmouse-drag-buffer-to-window): Added.
+  hui-mouse.el (smart-helm-to-minibuffer): Added to encapsulate when to
+    return to minibuffer, and called.
+
+* hversion.el (hyperb:version): Start adding a letter at the end of the version number for
+    significant pre-releases published to git, so we know which version is in use.
+
+2017-09-25  Bob Weiner  <rsw@gnu.org>
+
+* hui-mini.el (hui:menu-item): Improved so that if menu item has no help string but its action is a
+    function with a doc string, then it will use the first line of the action doc string for displaying
+    help on the item.
+
+* hmouse-key.el (hmouse-check-action-key, hmouse-check-assist-key): Added to check that both depress
+    and release events are set to Smart Mouse Keys.  Mainly for use with helm.  Called from smart-helm
+    and smart-helm-assist respectively.
+
+* hui-mouse.el (action-key-error, assist-key-error): Maded explicit these are messages from Hyperbole.
+               (smart-helm-at-header): Corrected doc string.
+	       (smart-helm-at): Added to test type of helm thing point is at.
+	       (smart-helm, smart-helm-assist): Updated to complement each other better; made section header
+    clicks work.
+
+* hmouse-key.el (hmouse-add-unshifted-smart-keys): Renamed from hmouse-add-unshifted-keys.
+    Made interactive and added error if invoked under something other than GNU Emacs 19 or higher.
+                (hmouse-update-smart-keys): Added to provide interactive updating of Smart Keys
+      whenever a matching context or action has been changed in the source code; reloads any
+      changes to "hui-mouse", "hui-window", "hibtypes" or "hactypes", most notably changes to
+      hkey-alist and hmouse-alist.
+
+* hui-mouse.el (hkey-alist, smart-outline-char-invisible-p, smart-eolp):
+    Added and used to improve and narrow matching of end-of-lines.  Previously, did not handle
+    new-style Emacs outlines properly nor helm section header lines.
+
+* kotl/kotl-mode.el (kotl-mode:action-key, kotl-mode:assist-key):
+  hui-mouse.el (smart-outline, smart-outline-assist): Changed to invoke action/assist-key-eol-function
+    for end-of-line scrolling, eliminating hard-coded call.
+  man/hyperbole.texi (Smart Key - Emacs Outline Mode): Documented this change.
+
+* hargs.el (hargs:at-p): Fixed bug when linking to files or directories, would choose
+    symbol at Action Key release point rather than the file or directory containing
+    that symbol.  This was caused by allowing matches to non-existent files and dirs
+    when the 'no-default' argument was t.  Now prevented such matching.  This could
+    occur when creating or editing explicit button links.
+
+2017-09-24  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-git-get-locate-command): Added this function to trigger an
+    error if locate command is not available when a git-reference is activated.  So
+    user knows what happened.
+
+2017-09-23  Bob Weiner  <rsw@gnu.org>
+
+* hib-debbugs.el (debbugs-version-sufficient-p): Added to eliminate use of version testing
+    function from package.el which some people prefer not to load.
+
+2017-09-22  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-git-add-project-to-repos-cache)
+                (hibtypes-git-build-or-add-to-repos-cache): Added to allow
+    for adding a single new project to the cache.
+
+* hact.el (actype:act): Expand arguments as pathnames only in functions
+    defined with defact (actions may be regular defuns as well).
+
+* hib-social.el (github-reference): Added support for listing all active or showing
+    individual branches, issues, pull requests and commit tags.  See the
+    doc string for this function and the examples in the file commentary.
+                (git-reference): Added support for listing all active or showing
+    individual branches and commit tags.  See the doc string for this function and
+    the examples in the file commentary.
+                (defact*): Changed all these to regular functions to
+    prevent Hyperbole from trying to expand their arguments as pathnames.
+
+2017-09-21  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm): Added: On a source section header, moves to the next source
+    section or first if on last.  But this doesn't yet work properly (helm is scrolling
+    the buffer and not leaving point in the proper location).
+
+* hui-mini.el (hyperbole): Removed interactive use of prefix argument to set doc-flag and
+    help-string-flag parameters since this didn't interactively display doc.  Instead,
+    this change lets the prefix arg flow through to any menu commands that can use it.
+
+* hib-social.el: Added full Commentary with implicit link examples.
+
+2017-09-20  Bob Weiner  <rsw@gnu.org>
+
+* DEMO (Git References): Added.
+  hib-social.el (hibtypes-github-default-project): Renamed from hibtypes-social-github-default-project.
+                (hibtypes-github-default-user): Renamed from hibtypes-social-github-default-user.
+		(hibtypes-git-default-project): Added.
+		(hibtypes-git-*, git-reference): Updated to allow
+    git#project/commit-hashtag references.  So now all of the
+    following are recognized as local git references if the default
+    project setting is set up:
+      git#hyperbole/5ae3550    (project name and commit hashtag can be given; commit diff displayed)
+      gt#5ae3550               (project default is used; commit diff displayed)
+      gt#/hyperbole            (project home directory is displayed)
+                (github-reference): Renamed from github-commit-reference.  Also added support for syntax:
+      gh#/hyperbole            (project home directory is displayed; uses default user setting)
+      gh#/rswgnu/hyperbole     (project home directory is displayed)
+
+    Requires GNU locate for finding all local git repositories.
+
+* hibtypes.el (grep-msg): Added match to context lines produced by 'grep -A<num>'
+    which use '-' around the line number rather than ':'.
+    (hib-debbugs): Lowered priority below hib-social so it doesn't shadow valid
+       social references since its matching is broad.
+
+* hib-social.el (social-reference, hibtypes-social-regexp): Added missing '-'
+    character in social-reference matches.
+
+* hui-mouse.el (smart-image-dired-thumbnail, smart-image-dired-thumbnail-assist):
+    Added to support browsing of directories of images via thumbnails.
+    Action Key displays a scaled version of the original image in an Emacs window.
+    Assist Key displays the original image in an external viewer.
+
+2017-09-19  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-social-default-service): Changed to use a radio
+    button choice when customizing this.
+                (hibtypes-social-hashtag-alist, hibtypes-social-username-alist): Added
+    github user and commit lookup via social link syntax.
+                (hibtypes-social-github-default-user):
+                (hibtypes-social-github-default-project)
+                (github-commit-reference): Added this new action and its
+    above default values.
+                (hibtypes-social-regexp): Updated to allow
+    github#user/project/commit-hashtag references.  So now all of the
+    following are recognized as github commit links if the default user
+    and project settings are set up:
+      gh#rswgnu/hyperbole/5ae3550 (if include user must include project)
+      github#hyperbole/5ae3550    (project can be given with user default)
+      gh#5ae3550                  (user and project defaults are used)
+
+    Additionally, gh@rswgnu can be used to jump to user rswgnu's github
+    home page.
+  DEMO (Github): Added to demonstrate github references.
+
+* hibtypes.el (annot-bib): Moved in priority below social hashtags and
+    denied matching to anything containing a # or @ character so
+    [twitter@someuser] doesn't match as an annot-bib entry.
+
+* hui-mouse.el (hkey-alist): Added helm support for Smart Key presses in
+   the minibuffer window (runs the standard RET command).
+
+2017-09-18  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm): Finalized and added doc. of contexts and actions.
+    Made smart-helm ignore helm candidate separator lines.
+
+* hui-window.el (smart-coords-in-window-p):
+                (hmouse-drag-window-side): Handled null value of coords.
+
+2017-09-17  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Changed minibuffer handling to support Helm.
+
+* man/hkey-help.txt: Small updates to Special Mode doc.
+
+* hmouse-key.el (hmouse-add-unshifted-keys): Added to allow user init
+    of unshifted Smart Keys.  For GNU Emacs only, this binds
+    [mouse-2] to the Action Key and [mouse-3] to the Assist Key.
+  man/hyperbole.texi (Smart Key Bindings): Added doc for hmouse-add-unshifted-keys.
+
+* hmouse-sh.el (hmouse-get-unshifted-bindings): Uncommented inclusion of
+   mouse-3 for times when user manually sets mouse-3 as the Assist Key.
+   Otherwise, hmouse-toggle-bindings will never change its value.
+               (hmouse-bind-key, hmouse-bind-shifted-key): Added and used
+   these to ensure depress and release bindings are wholly reset before
+   rebinding them under GNU Emacs.
+
+2017-09-14  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:external-open-office-suffixes): Added .odt suffix.
+
+* hui-select.el (hui-select-at-p): Protect against empty buffer error.
+
+2017-09-12  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (grep-msg):
+              (pathname): Don't match in helm completion buffers.
+
+* hui-mouse.el (smart-helm-line-has-action): Ignore any actions helm
+    imputes to header lines and candidate separator lines in helm
+    completion buffers, as they are non-actionable lines.  Also, ignore
+    if at the end of the buffer.
+               (hkey-alist): Lowered smart-helm priority so can use Smart
+    Key end-of-line functions in such buffers.
+
+* hsys-www.el (eww-link-at-point): Basic stylistic improvements.
+
+2017-09-11  Bob Weiner  <rsw@gnu.org>
+
+hyrolo.el: Added basic commentary to the file header.
+
+2017-09-10  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm, smart-helm-assist, smart-helm-line-has-action):
+  hsettings.el (helm-allow-mouse): Set to t.
+    New helm completion activation support.
+    Added to allow mouse direct selection of helm completion items and to see
+    match item actions prior to invoking them.  The smart-helm function
+    behaves similarly to the {C-j} and {C-z} key bindings that helm mode
+    provides when a helm completion is active. If helm is not active,
+    Hyperbole resumes the prior helm session before triggering the action.
+    The smart-helm-assist function displays the match item and its associated
+    action.
+
+* hsys-www.el (www-url): Added Action and Assist Key support for browsing
+    links in eww (the Emacs web browser) and for activating history links
+    in the eww history buffer.
+
+2017-09-08  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:url-regexp3): Added a third pattern match for URLs,
+   allowing for partial http urls with non-www site names preceded by the
+   literal url or URL followed by a : or =.  For example:
+   url:photos.google.com or url=calendar.google.com
+
+2017-09-07  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-browser): Changed the Default setting to always
+    use the current setting of browse-url-default-browser since that is the
+    default in browse-url (eliminated use of browse-url-generic).
+
+* hypb.el (hypb:decode-url): Added.
+  hpath.el (hpath:is-p): Fixed to handle and decode encoded URL paths before
+    returning the path.
+
+2017-09-06  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Changed Python predicate to match more
+broadly, namely in any non-file buffer whose name includes Pydoc: or
+Python (case-sensitive).
+
+* hmouse-tag.el (smart-python-at-tag-p): Expanded to handle tags with
+   periods embedded such as `sys.path'.
+
+2017-09-04  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (debugger-source): Added support for Python pdb stack trace lines.
+
+2017-08-31  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (pathname): Wrapped mode-name reference in format-mode-line
+    call since mode-name is not always a string.
+
+* hui-em-but.el (hproperty:but-highlight-p): Added to allow disabling of explicit button highlighting.
+                (hproperty:but-create-all):  Used this new flag.
+  hui-xe-but.el (hproperty:but-highlight-p): Added to allow disabling of explicit button highlighting.
+                (hproperty:but-create-all):  Used this new flag.
+
+* hbut.el (ebut:map): Changed to ignore explicit button matches in
+    programming languages when outside of a comment.  For example, syntax like
+    this in a Rust buffer had been improperly matched: fn parse_kv(kv_list:
+    Vec<(syn::Ident, syn::StrLit)>, function: &Function) -> LispFnArgs
+
+2017-08-25  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-ibuffer-menu): Ibuffer calling conventions have
+    changed across time (as of Emacs25) to allow for regional arguments;
+    updated to account for these.
+
+* hpath.el (hpath:remote-at-p): For Emacs 26 where
+    tramp-file-name-structure is now a function instead of a variable, call
+    the function.
+
+* hyrolo.el (hyrolo-kill): Triggered error if FILE contains a '*' character,
+    mainly in case a buffer name is passed as an argument.
+            (hyrolo-file-list-initialize): Added this function so can
+    re-initialize the hyrolo-file-list later if BBDB or Google Contacts
+    support is loaded after the Hyperbole Rolo is initialized.
+
+* hbut.el (hbut:source): Allowed for spaces in buffer names.
+
+* hyrolo.el (hyrolo-edit-entry): Avoided error if bbdb-file is nil.
+
+* hbut.el (ebut:label-p): Added one-line-flag to constrain label search to a single line.
+  hibtypes.el (Info-node): Constrained Info-node hyper-button matches to a single line.
+
+* hyrolo.el: Added support for Google Contacts when the google-contacts
+    package is in use and a public key package is available for Google
+    authorization.
+
+2016-09-08  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi: Documented Pages Directory Listing handling.
+
+* kotl/klink.el: (require 'hbut): Added to define defib when compiled.
+
+2016-08-26  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Added Smart Key jump to associated page in pages-directory-mode (page-ext.el).
+  man/hkey-help.txt: Documented Pages Directory Listing and Imenu Programming Identifier handling.
+
+* hmouse-drv.el (hkey-help-show): Modified to invoke help-mode only if buffer name includes 'Help' to
+    support other specialized modes that use temp buffers.
+
+2016-08-25  Bob Weiner  <rsw@gnu.org>
+
+* README.md, README.md.html: Updated to match Hyperbole home page.
+
+2016-08-18  Bob Weiner  <rsw@gnu.org>
+
+* DEMO: Wrote small textual updates.
+
+* hib-debbugs.el: Added a note about bug-reference-mode.el and the differences.
+
+2016-08-17  Bob Weiner  <rsw@gnu.org>
+
+* README: Added Summary section with a description of Hyperbole since this file may be shown prior to
+    download in the Emacs package manager.
+
+* kotl/kexport.el (kexport:label-html-font-attributes): Fixed improper 'defvar' definition which should
+    have been a 'defcustom'.
+
+2016-08-16  Bob Weiner  <rsw@gnu.org>
+
+* hib-kbd.el (kbd-key:normalize): Fixed so C-M-<char> is normalized the same way as M-C-<char>.
+             (kbd-key:extended-command-prefix): Added.
+             (kbd-key, kbd-key:act): Added kbd-key:extended-command-p test and used in this implicit button
+    type and action type to support Action Key presses on M-x extended commands like {M-x occur RET} since
+    these are included in the Hyperbole DEMO.
+
+2016-08-15  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:substitute-dir): Added support for environment variables including those with PATH
+    in their name (colon-separated paths) that should have been there.
+    Added call to hpath:exists-p to test path with hpath:suffixes added.  This fixed the bug where
+    "${load-path}/simple.el" did not resolve properly when the file was stored compressed
+    as simple.el.gz, for example.
+
+2016-08-12  Bob Weiner  <rsw@gnu.org>
+
+* hui-mini.el (hui:menu-enter): Fixed potential error of (wrong-type-argument char-or-string-p 134217741)
+    when insert was called with a non-character code integer.
+
+2016-08-10  Bob Weiner  <rsw@gnu.org>
+
+* HY-ANNOUNCE-SHORT - Added as a shorter release announcement.
+
+* HY-ABOUT, README, README.md, README.md.html - Synchronized with Hyperbole web home page
+    and typo fixes.
+
+* hpath.el (hpath:external-open-office-suffixes): Added external display of
+    Open Office documents based on this new option.
+           (hpath:command-string): Quoted filename argument to allow spaces in filenames.
+    This fixed an issue when an external viewer such as `open' was called under OS X
+    and the filename to be opened contained spaces.
+
+* hyperbole.el (Maintainer): Changed back to single line so ELPA parses it correctly.
+
+* hib-debbugs.el (debbugs-gnu-query:list):
+  hyperbole.el (hkey-global-set-key, Info-directory-list):
+  hvar.el (var:append): Removed improper function quoting of variable.
+
+==============================================================================
+V6.0.3 changes ^^^^:
+==============================================================================
+
+2016-08-08  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (release, elpa, ftp): Updated to work better.
+
+* hactypes.el (link-to-web-search): Added so Hyperbole global and explicit buttons can execute web searches.
+  hsettings.el (hyperbole-read-web-search-arguments): Added and used in hyperbole-web-search and link-to-web-search.
+  DEMO (Sample Explicit Buttons and Types):
+  man/hyperbole.texi (Action Types): Documented link-to-web-search.
+
+* INSTALL, README, README.md, README.md.html: Added Browsing the Source section with ftp tarball download information.
+
+* hpath.el (hpath:delimited-possible-path): Added non-ascii quote characters to possible delimiters.
+           (hpath:delete-trailer): Added quoting characters to deletion to fix bug where remote pathname retrieval
+    would include a trailing quote mark.
+
+* hargs.el (hargs:delimited): Added support for up to 2-line delimited regions as long as point is on the first line.
+    Normalized any newline followed by whitespace to a single space in the string returned.
+    Added (require 'hypb).
+
+* hys-org.el (defib org-mode, org-mode:help): Ensured trigger only in org-mode and simplified logic.
+             (org-heading-at-p): Deleted and used org-at-heading-p instead.
+
+* hpath.el (hpath:to-markup-anchor): Generalized to work in any HTML buffer based on major mode, not file suffix.
+           (hpath:html-suffix-regexp): Removed, no longer used.
+
+* hmouse-tag.el (smart-asm-include-file, smart-c-include-file): Simplified conditionals a bit.
+
+* hpath.el (hpath:is-p): Fixed improper parsing issue with hash links that included commas such as:
+    "DEMO#Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer".
+
+* Demo (Org Mode):
+  man/hyperbole.texi (Implicit Buttons):
+  hsys-org.el (org-mode): Changed so if not at an end of line, on an org mode link or on an existing heading,
+    then invokes the Org mode standard binding of M-RET, (org-meta-return).
+
+2016-08-07  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:markup-link-anchor-regexp, hpath:to-markup-anchor): Modified to support hash-style links
+    to Emacs outline file section headlines, matching as is done with Github-style Markdown section links.
+  DEMO:
+  man/hyperbole.texi: Updated to document the above change.
+
+* hypb.el (hypb:file-major-mode): Added.
+
+2016-08-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Customization): Renamed from Configuration.
+                     (Web Search Engines): Added this section under Customization.
+                     (HyControl): Added WindowsControl key sequence.
+                     (Smart Key - Smart Scrolling): Documented {action,assist}-key-eol-function variables.
+
+* hsmail.el (mail-indent-citation, mail-yank-original): Updated for Emacs 25 compatibility.
+
+2016-08-05  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (annot-bib): Added markdown-mode to the excluded list to avoid conflict with its links.
+              (markdown-internal-link): Added to follow internal Markdown links.
+  man/hyperbole.texi: (Implicit Buttons): Added markdown-internal-link.
+
+* hsys-www.el: Renamed from hsys-w3.el since it is not related to the Emacs W3 web browser any longer.
+
+* Demo (HTML and Markdown Hash Links): Added this section.
+  hibtypes.el (pathname):
+  hpath.el (hpath:to-markup-anchor): Renamed from hpath:to-html-anchor and generalized for use with Markdown as well.
+    Added recognition of section links like:
+        - [Why was Hyperbole developed?](#why-was-hyperbole-developed)
+      so the pathname implicit button type matches when the Action Key is pressed anywhere on or after the
+      hash character and jumps to the section:
+        ## Why was Hyperbole developed?
+      accounting for any trailing punctuation, whitespace and differences in case.
+           (hpath:markdown-suffix-regexp, hpath:markdown-anchor-id-pattern, hpath:markdown-section-pattern): Added.
+           (hpath:markup-link-anchor-regexp): Renamed from hpath:html-link-anchor-regexp.
+
+* hib-social.el (social-reference): Disabled this implicit button type within quoted strings (all modes) and within
+    parentheses (markdown-mode), so in-file hash link references are not matched as social hash tags.  Made the list
+    of modes a variable, hibtypes-social-inhibit-modes.
+  hpath.el (hpath:to-html-anchor): Added.
+           (hpath:find): Rewrote to follow HTML in-file anchor references.
+
+2016-08-04  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:html-suffix-regexp, hpath:html-anchor-id-pattern, hpath:html-link-anchor-regexp): Added.
+
+* README, README.md, README.md.html: Added a new testimonial.
+
+* Makefile (elpa, ftp): Added these targets to install Hyperbole releases for ELPA or ftp download.
+    Changed so release target depends on package target so you can build a package prior to a release.
+
+* hpath.el (hpath:remote-available-p): Fixed tramp package check prior to loading by adding a test for
+    tramp-autoload-file-name-handler.
+
+* README.md.html: Fixed bookmarks/in-file link ids.
+
+2016-08-03  Bob Weiner  <rsw@gnu.org>
+
+* hsettings.el (hyperbole-web-search-alist): Made any edit update all Hyperbole menus with the new value.
+  DEMO (Hyperbole Menus): Added description and exercise using the new Find/Web menu.
+  hui-mini.el (Cust/Web-Search): Added to allow setting of hyperbole-web-search-browser-function.
+  hui-menu.el (infodock-hyperbole-menu): Added optional rebuild-flag to force rebuilding of the
+    Hyperbole menubar menu.
+
+* man/hyperbole.texi (HyControl): Documented ESC as a way to quit from HyControl. (REMOVED IN A FUTURE REVISION).
+
+2016-08-02  Bob Weiner  <rsw@gnu.org>
+
+* README.md.html - Added.
+
+2016-08-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-browser): Added to allow setting of
+    hyperbole-web-search-browser-function.
+              (infodock-hyperbole-menu): Added missing quote in Display-Referents-in setq,
+    fixing invalid code generation.
+
+* README.md (Invocation):
+  HY-ANNOUNCE (Invocation):
+  INSTALL (Invocation):
+  README (Files):
+  DEMO (HyControl): Added pointer to HyControl video and {C-c \} binding.
+  hyperbole.texi (HyControl): Updated {C-c \} binding description.
+
+* hycontrol.el (hycontrol-frames, hycontrol-windows): Added ESC as an additional key
+    that quits from HyControl.
+
+* man/hyperbole.texi (Global Key Bindings): Documented {C-c /} prefix key.
+                     (Menus): Added Find/Web menu.
+
+2016-07-31  Bob Weiner  <rsw@gnu.org>
+
+* Changes: Renamed this file from ChangeLog since Elpa release builds
+    overwrite any file named ChangeLog with git log information which
+    has less history than Hyperbole's Changes.
+
+* hui-mini.el (hui-search-web): Added so can invoke the Hyperbole
+    Find/Web search menu directly.
+  hyperbole.el (hkey-initialize): Bound above command to {C-c /}.
+
+* hsettings.el (hyperbole-web-search-browser-function):
+               (hyperbole-web-search-alist):
+               (hyperbole-web-search):  Added.
+  hui-mini.el (hui:menu-web-search): Added and called within hui:menus.
+  hui-menu.el (hui-menu-web-search): Added and called in infodock-hyperbole-menu.
+
+* hinit.el (hyperb:init-menubar): Fixed so sets after-init-hook only
+    if not after-init-time.  Also forced a return value of nil.
+  hui-menu.el (hyperbole-menubar-menu): Changed so this always updates
+    the menubar with the latest version of the Hyperbole menu; previously
+    it only added the menu if it was not there.
+
+2016-07-29  Bob Weiner  <rsw@gnu.org>
+
+* README.md: Added menu images and screenshots for easy access.
+
+* hui-mouse.el (action-key-eol-function, assist-key-eol-function): Added these 2
+    options to control what the Action and Assist Keys do at the end of a line.
+    Default behaviors remain as before but now one can set these to do something
+    other than scrolling, if desired.
+
+2016-07-28  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el: Updated the header fields to better match GNU standards for use
+    by the Lisp maintainer package, lisp-mnt.el.
+
+2016-07-27  Bob Weiner  <rsw@gnu.org>
+
+* hactypes.el (exec-shell-cmd): Replaced call to old function 'show-output-from-shell'
+    with 'comint-show-output'.  This fixed a failure when this action type is used.
+
+* HY-ANNOUNCE (About):
+  README (Files): Added pointers to Hyperbole screenshot files.
+
+*  man/im/menu-hyperbole2.pdf: Removed this unneeded file.
+
+* HY-ANNOUNCE: Updated first section and used in sending 6.0.1 release announcements.
+    Added items from HY-NEWS for 6.0.1 that were unintentially left out of this file.
+
+* hload-path.el (hyperb:dir): If the Emacs Package Manager has already added this
+    to load-path without a trailing directory separator, don't add it with one.
+
+==============================================================================
+V6.0.2 changes ^^^^:
+==============================================================================
+
+2016-07-26  Mats Lidell  <matsl@gnu.org>
+
+* hypb.el (hypb:rgrep-command): Removed -Z option.
+  Different meaning on OS X and GNU/Linux.
+
+2016-07-26  Bob Weiner  <rsw@gnu.org>
+
+* hypb.el (hypb:rgrep-command): Removed -S option not supported by GNU/Linux.
+
+* hyperbole.el: Added Date: header with release date and updated date in
+    man/version.texi used in hyperbole.texi.
+
+* README.md: Added this, a markdown formatted introduction combining README,
+    INSTALL and HY-ABOUT.
+
+2016-07-26  Mats Lidell  <matsl@gnu.org>
+
+* MANIFEST: Removed hyperbole-readme.txt.
+
+2016-07-25  Bob Weiner  <rsw@gnu.org>
+
+* README: Renamed this file from HY-README.  Moved installation and invocation
+    instructions to "INSTALL" file.  These changes were to eliminate release
+    problems with INSTALL and README being symbolic links.
+
+* hmouse-tag.el (smart-tags-display): Added with-no-warnings around
+    find-tag call to prevent obsolete warnings and removed setting of
+    byte-compile-warnings.
+
+2016-07-24  Mats Lidell  <matsl@gnu.org>
+
+* Patch from Stefan Monnier. Thank you Stefan.
+  .gitignore: Added *-autoloads.el and *-pkg.el to ignored set.
+  hyperbole.el: Fixed autoload typo.
+  hload-path.el (load-path): Fixed to use regular quote.
+  hib-social.el (require 'hbut): Added to properly compile the defib.
+
+2016-07-23  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (hyperbole-$(HYPB_VERSION).tar): Added HY-ABOUT and HY-ANNOUNCE
+    to files installed outside the tar archive for reference.
+
+* man/hyperbole.texi (Installation): Updated to latest version.
+
+2016-07-23  Mats Lidell  <matsl@gnu.org>
+
+* kotl/kotl-loaddefs.el: Generated.
+
+* Makefile (kotl/kotl-loaddefs.el): Added copyright notice for satisfying elpa
+    copyright check.
+  hyperbole.el: Changed to load kotl/kotl-loaddefs file.
+
+2016-07-22  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi: Added new @kitem and @kitemx macros to surround keyboard
+    items in tables with braces.
+
+* Makefile (version): Added HY-ANNOUNCE.
+  HY-ANNOUNCE: Added release announcement.
+  INSTALL:
+  HY-NEWS: Small improvements.
+
+* hui-menu.el (infodock-hyperbole-menu): Commented out InfoDock manual reference
+    out until InfoDock is modernized for Emacs 25.
+
+* man/hyperbole.texi (Implicit Buttons):
+  hib-social.el (social-reference): Improved doc for this ibtype.
+
+* man/hyperbole.texi (Implicit Buttons, Explicit Buttons): Improved clarity.
+                     (Global Buttons): Explained how to use global buttons.
+
+* Makefile (release): Added this target to generate the kotl/kotl-autoloads.el file
+    within the source tree.
+
+* hmoccur.el: Normalized header to match other Hyperbole files.
+
+* hyperbole.el (hyperbole-koutliner group): Moved definition to ensure comes after
+    hversion is loaded.
+
+* Makefile (pkg): Updated to build kotl/kotl-autoloads.el file because the Emacs
+    Lisp Package Manager (ELPA) does not yet handle generation of autoloads
+    for package subdirectories.
+
+2016-07-21  Bob Weiner  <rsw@gnu.org>
+
+* hsettings.el: Renamed this from hsite.el to prevent Hyperbole V4 users from
+    accidentally loading it manually.
+
+* hyperbole.el (hyperbole-autoloads): If this exists and autoloads kotl-mode,
+    then skip setup to generate hyperbole-autoloads with autoloads from the kotl/
+    subdirectory.
+
+* hib-social.el (social-reference):
+  hibtypes.el (mail-address-at-p): Let case-fold-search be t since mail-addresses
+    are case-insensitive.
+
+* Various Files: Small copyright fixes and formatting adjustments.
+    Replaced hyperb:xemacs-p with (featurep 'xemacs) for byte-compiler
+    optimization purposes and made small fixes throughout suggested by Stefan
+    Monnier.
+
+* hibtypes.el (mail-address-regexp): Simplified and modernized address matching
+    to better distinguish from @username social media references.
+              (mail-address-mode-list): Added lisp-interaction-mode and fundamental-mode.
+              (mail-address-tld-regexp): Added to match most common top-level
+    domains to tell if a match is really an email address or not.
+              (mail-address-at-p): Tightened by using mail-address-tld-regexp.
+  DEMO (Email Addresses, Social Media Hashtags and Usernames): Added descriptions.
+
+2016-07-20  Bob Weiner  <rsw@gnu.org>
+
+* MANIFEST:
+  Makefile:
+  hibtypes.el (hib-social):
+  man/hyperbole.texi (Implicit Buttons): Added social-reference.
+  hib-social.el: Added this file to follow social media hashtag and username
+    references.
+
+* Makefile (help): Added as the default target, explaining major targets.
+
+* HY-ABOUT:
+  man/hyperbole.texi (Hyperbole Overview): Renamed 'Textual Information Management'
+    to 'Contact and Text Finder'.  Renamed 'Button Types' to 'Buttons and Smart Keys'
+    and made it the first item.  Added a paragraph on the Smart Keys.
+
+* .gitignore: Added Texinfo formatting indices.
+
+* hyperbole.el:
+  Makefile:
+  man/hyperbole.texi (Top):
+  hversion.el (hyperb:version): Normalized version number to GNU 3-part standard.
+
+2016-07-19  Mats Lidell  <matsl@gnu.org>
+
+* .gitignore: Added git ignore file.
+
+2016-07-19  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole-pkg.el (hyperbole): Version update in preparation for next release
+    and rebuilt package.
+
+* man/hyperbole.texi: Fixed typos and improved explanations in parts.
+    (Smart Key Modeline): Expanded and added instructions on using
+      customize-variable.
+    (Suggestion or Bug Reporting): Added menu key sequences.
+
+* Makefile (GPG): Added to digitally sign Hyperbole distributions.
+
+2016-07-18  Mats Lidell  <matsl@gnu.org>
+
+* .hypb: Added. Lost during initial commit to git.
+
+2016-07-18  Bob Weiner  <rsw@gnu.org>
+
+* HY-README (Installation):
+* man/hyperbole.texi (Installation): Made elpa line match the default in Emacs
+    so if it is already there, it won't be added again.
+
+* hyperbole.el (hkey-override-local-bindings): Fixed case where an invalid
+    key prefix is given and so local-key-binding returns a number rather than nil.
+
+* hui-window.el (hmouse-x-coord): Added support for a marker as `args'.
+  hypb.el (hypb:goto-marker): Added to jump to a marker in a different buffer.
+
+* man/hyperbole.texi (Global Key Bindings): Changed from setting the value of
+    hkey-init-override-local-keys in personal init file to using the
+    customize-variable interface.
+
+* MANIFEST: Eliminated hsite-ex.el and included hsite.el in distribution package.
+    Users will use customizations now rather than direct editing of this file.
+
+==============================================================================
+V6.0.1 changes ^^^^:
+==============================================================================
+
+2016-07-17  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (inhibit-hyperbole-messaging): Added :initialize function that skips more
+    complex :set function, which is not needed at initialization.  Also moved all requires
+    to before this function.
+
+2016-07-16  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi:
+  hmouse-tag.el: Renamed all '-dirs' variables to '-path'.
+
+2016-07-15  Bob Weiner  <rsw@gnu.org>
+
+* hargs.el (hargs:at-p): Fixed issue when in a dired buffer and a file or
+    directory is being read, the result was returned sans any path
+    information; now the full path is returned properly.
+
+* man/hyperbole.texi (Introduction): Removed Preface section and moved its
+    contents into subsections of the Introduction chapter, so Top info node
+    looks better is more helpful.
+                     (Mail Lists): Improved readability of this section.
+                     (Key Index): Grouped all HyControl bindings under "screen,"
+    and HyRolo bindings under "rolo,".
+
+* hyperbole.el (hyperbole-toggle-messaging): Moved this function from hvar.el and renamed from
+    var:toggle-hyperbole-messaging).  Display message only if called interactively.
+
+* hui-mini.el (Cust): Added All-Options to display editable Hyperbole options.
+* hui-menu.el (Customize): Added All-Hyperbole-Options.
+
+2016-07-14  Bob Weiner  <rsw@gnu.org>
+
+* Renamed all -hook variables to not have : in their names.
+
+* man/hyperbole.texi (Setup):
+  HY-README: Removed By-Hand Installation section.  Use the Emacs package manager.
+    Renamed Package Installation section to just Installation.
+  man/hyperbole.texi (Setup): Renamed from Installation.
+                     (Function, Variable and File Index): Renamed to this.
+
+* man/hyperbole.texi (Configuration): Added text on using the Emacs customize interface.
+
+* hyperbole.el (hkey-read-only-bindings):
+  man/hyperbole.texi (Smart Key Bindings): Removed these read-only mode bindings in Hyperbole
+    6.00 since is not consistent across all read-only modes and the standard bindings are
+    easy enough to use.
+
+* hui.el (hui:link-possible-types): Moved link-to-file below outline headline link match
+    since link-to-file was hiding this capability.
+
+* hywconfig.el (hywconfig-delete-by-name, hywconfig-restore-by-name): Added feedback messages
+    if called interactively.
+
+2016-07-13  Bob Weiner  <rsw@gnu.org>
+
+* All Files: Added defcustom variable declarations throughout.
+
+* hsmail.el (mail-yank-prefix): Set default value to match that of GNU Emacs.
+
+* hui-select.el: Changed defgroup used to hyperbole-commands.
+
+* hibtypes.el (mail-address-mode-list): Added more modes.
+
+* wconfig.el: Renamed library and all symbols to begin with hywconfig.
+
+* man/hyperbole.texi (Titlepage): Added cover image.
+
+* wrolo*: Changed all wrolo and rolo references to hyrolo.
+  hyrolo.el (rolo-file-list): Made obsolete and replaced with hyrolo-file-list.
+
+* hyperbole.el (require 'custom): Added to ensure defgroup and defcustom are always defined.
+
+2016-07-12  Bob Weiner  <rsw@gnu.org>
+
+* All Files: Redid file headers mostly to GNU Emacs standards.
+
+==============================================================================
+V6.0.0 changes ^^^^:
+==============================================================================
+
+2016-07-07  Bob Weiner  <rsw@gnu.org>
+
+* man/hkey-help.txt: Updated with Org mode and GNU Debbugs summaries.
+  man/hyperbole.texi (Smart Key Debugging): Added this section.
+
+* hyperbole.el (hkey-previous-bindings): Renamed from *hkey-list* for consistency with hmouse-previous-bindings.
+               (hkey-bindings, hkey-bindings-flag): Added.
+	       (autoloads): Commented out all "hyperbole" autoloads which date back to when
+    Hyperbole was not fully loaded at initialization time.
+               (hyperbole-toggle-bindings, hkey-set-bindings): Added to toggle
+    Hyperbole key bindings on and off.
+  hmouse-key.el (hmouse-toggle-bindings): Showed message only if called interactively.
+               (hkey-binding-entry, hkey-bindings-keys): Added to encapsulate binding storage format.
+	       (hkey-initialize): Stored Hyperbole key binding entries.
+  man/hyperbole.texi (Menus): After Hyperbole key bindings are described, added documentation on
+    how to toggle them on and off.
+
+* hmouse-sh.el (hmouse-get-bindings): Fixed doc.
+
+* man/hyperbole.texi (Invocation):
+  HY-README: Expanded Invocation section with many useful pointers and renamed installation sections.
+
+* hmouse-drv.el (hkey-help-hide): Changed to utilize quit-window function if *hkey-wconfig* is
+    not set and made it interactive and an autoload so can replace quit-window in help buffers.
+                (quit-window): Overloaded this function form "window.el" to utilize *hkey-wconfig*
+    when set.
+  hui-mini.el (hui:menu-help): This fixed an issue where Hyperbole minibuffer menu item help window
+    quit did not properly restore prior window configuration.
+
+2016-07-06  Bob Weiner  <rsw@gnu.org>
+
+* hypb.el (hypb:maximize-window-height): Added.
+  hib-debbugs.el (debbugs-gnu-mode, smart-debbugs-gnu, debbugs-gnu-mode:help): Added to support
+    the Smart Keys in Gnu Debbugs listing buffers.
+
+* hversion.el (id-info, id-info-item): Generalized and improved file handling.
+
+* hypb.el (hypb:format-quote): Added.
+  hmouse-drv.el (hkey-debug): Called above function to protect existing % fields in ButLabel
+    and Actions from affecting the message call.
+
+* DEMO (Hyperbole Menus): Updated with these new menu control features.
+  hui-mouse.el (hkey-alist): Same changes for Smart Mouse Key as below in hui-mini.el.
+  hui-mini.el (hui:menu-select): Changed to make a press of RET within a menu prefix (before a '>')
+    return to the top-level menu and a press at the end of the menu, quit the menu.
+
+2016-07-05  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Creation Via Action Key Drags): Small improvements.
+
+* man/hyperbole.texi (Smart Key - Identifier Menu Mode ): Renamed and updated with imenu support.
+  hui-mouse.el (smart-imenu-display-item-where, smart-item-menu-p, smart-imenu-item-at-p): Added
+
+    these functions and to use the Emacs imenu library to display programming identifiers defined
+    within the same file in which they are referenced.  This works without a TAGS file and on files
+    that have not yet been evaluated within the current Emacs session.
+               (hkey-alist): Added imenu support: Action Key press on an imenu identifier displays
+    its definition; Assist Key press prompts with completion for an identifier defined within the
+    current buffer to display.
+
+* hargs.el (hargs:find-tag-default): Added and used in hargs:at-p and hibtypes.el (hyp-address).
+    This supports the newer find-tag-default-function which may be major-mode specific.
+
+* hib-kbd.el (kbd-key): Added support to recognized key sequences in GNU standard Info manuals where
+    they are surrounded by a form of smart quotes.
+    (kbd-key:normalize): Added support for special keys delimited by angle brackets, e.g. <SPC>.
+
+* hmouse-tag.el (smart-lisp-at-known-identifier-p): Improved to further limit search for
+    library clauses by searching for close parentheses as well.
+
+2016-07-04  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:delimited-possible-path): Added (code broken out from hpath:at-p) so
+    can be used in multiple places.
+  hactypes.el (link-to-file-line-and-column): Added.
+  hibtypes.el (pathname): Called hpath:delimited-possible-path.
+              (pathname-line-and-column): Added this new implicit button type and
+    documented it.
+
+* hibtypes.el: Updated all to use match-string-no-properties.
+
+2016-07-02  Bob Weiner  <rsw@gnu.org>
+
+* hsys-org.el: New file added; defines an implicit button type, org-mode, that
+    displays Org mode links in a web browser and cycles through outline headings.
+  hibtypes.el (require 'hsys-org): Added.
+  man/hyperbole.texi (Implicit Buttons - org-mode):
+  DEMO (Org Mode): Updated doc to reflect this behavior.
+
+* hargs.el (hargs:delimited): Added optional 5th arg, LIST-POSITIONS-FLAG, which
+    if non-nil makes the return value a list of (string-matched start-pos end pos).
+    This is used for flashing any matching implicit button when activated.
+
+* hui-mini.el (hui:menu-backward-item, hui:menu-forward-item): Added these to move
+    point through minibuffer menu items; bound to SHIFT-TAB (or M-TAB) and to TAB.
+
+* hmouse-info.el: Renamed for consistency from hmous-info.el.
+    (require 'info): Added to be sure this is always loaded.
+
+* hactypes.el (link-to-Info-node): If lookup as a node fails, try it as an index
+    item name.  This allows for implicit links of the type "(file)index-item-name".
+
+* hui.el (hui:link-directly): Removed any text properties from string arguments in
+    case they are unintentially copied.
+
+2016-07-01  Bob Weiner  <rsw@gnu.org>
+
+* hui.el (hui:link-directly): Updated message after creation to include arguments
+    so the user sees what is linked to.
+
+* hmous-info.el (Info-handle-in-menu): Called Info-menu-item-at-point.
+                (Info-note-at-p): Added.
+
+  hargs.el (hargs:at-p): When reading an Info-node or Info-index-item, if point is
+    on a cross-reference or menu item, make the link to that item, not to the
+    current Info node.
+  hmous-info.el (Info-read-index-item-name, Info-build-menu-item-completions,
+    Info-complete-menu-item, Info-current-filename-sans-extension,
+    Info-menu-item-at-p, Info-node-has-menu-p, Info-read-index-item-name-1): Added.
+  hui.el (hui:link-possible-types):
+  hactypes.el (link-to-Info-index-item):
+  hargs.el (hargs:iforms-extensions, hargs:at-p): Added link-to-Info-index-item
+    action type (interactive spec of +X) with full completion of Info index nodes
+    across all installed Info manuals (at link creation time).  Added to
+    documentation.
+  DEMO (Info Paths): Updated to include index item links.
+
+* hact.el (action:params): Changed to return nil if ACTION argument is an Emacs
+    byte-coded function with a variable number of arguments in which case the
+    function parameters are not available.  This fixed an error in the function
+    kotl-mode where it expected a list to be returned, bug#23873.
+
+2016-06-30  Bob Weiner  <rsw@gnu.org>
+
+* Makefile: Removed ps_dir since now make a .pdf file, not a .ps and removed any
+    mention of a PostScript manual.
+    (doc): Made dependent on version.texi too.
+
+==============================================================================
+V5.15 changes ^^^^:
+==============================================================================
+
+2016-06-29  Bob Weiner  <rsw@gnu.org>
+
+* hvm.el, hui-xe-but.el, kotl/kprop-xe.el: Set to not byte compile since will be rarely
+    used and reduces the byte-compiler warnings.
+
+* hactypes.el: Replaced comint-kill-output with newer comint-delete-output.
+    Replaced shell-sent-input with comint-send-input.
+
+* hui-em-but.el: Added hyperbole group for all faces.
+
+* hmouse-key.el (require 'hsite): Added this and replaced require of hversion so
+    hmouse-middle-flag is defined at compile-time.
+
+* hmh.el (Mh-to): Removed called to no longer existing Mh-get-buffer and changed variable name
+    to currently used mh-show-buffer (all lower-case).
+
+* hib-doc-id.el (require 'wrolo): Added for rolo-grep calls.
+
+* hmouse-tag.el (eval-and-compile): Added this call around requires and loads.
+
+* kotl/kimport.el (require 'kfile): Added.
+  kotl/kcell.el (require 'kview): Added.
+
+* All Files (with-current-buffer): Used in place of (save-excursion (set-buffer...))
+
+* wrolo.el, wrolo-logic.el, wconfig.el, kotl/kexport.el, hvm.el, hui.el, hui-select.el:
+    Replaced all remaining calls of (interactive-p) with
+    (called-interactively-p 'interactive).
+
+* hinit.el (hyperb:init): Moved to hyperbole.el to resolve a compile-time warning.
+  hload-path.el: Added and moved load-path settings from hversion.el and hyperbole.el here
+    and required this file in hversion.el.  This is so the kotl/ directory is added to
+    load-path when just hversion.el is required.  This fixes an issue in hinit.el which
+    required hibtypes.el which required klink.el before kotl/ was in the load-path.
+  hversion.el (hyperb:kotl-p): Moved Koutline mode initializations from hyperbole.el
+    to here since hversion is sometimes required at compile time without requiring
+    the hyperbole library and we need the kotl/ subdirectory on load-path then.
+  kotl/kimport.el (kimport:mode-alist, kimport:suffix-alist): Moved these 2 definitions
+    from hyperbole.el back into this file since they are autoloaded and only used herein.
+  hgnus.el (require 'hypb): Added.
+  hsmail.el (smail:comment-add): Rewrote as a no-op if inhibit-hyperbole-messaging is nil.
+            (message-setup-hook, mh-letter-mode-hook): Changed to use add-hook rather than
+    var:append.  This solved a compile-time problem where inhibit-hyperbole-messaging was
+    not yet defined (from hyperbole.el) but was used in the var:append call.
+
+* htz.el (htz:span-in-days): Renamed call of calendar-absolute-from-julian
+    to newer calendar-julian-to-absolute.
+
+* hsmail.el (var:append): Fixed issue where inhibit-hyperbole-messaging was not defined
+    at compile time, causing a failure of hgnus.el (which requires hsmail) to compile.
+  hib-debbugs.el (debbugs-query:status): Added (require 'debbugs-gnu).
+  hib-doc-id.el:
+  hib-kbd.el:
+  hib-debbugs.el (require 'hactypes): Added missing require and eval-when-compile
+    needed for package compilation.
+  hact.el, hactypes.el, hbut.el, hgnus.el, hinit.el, hmh.el, hrmail.el, hui-menu.el,
+  hversion.el, hypb.el, kotl/kcell.el, kotl/kfile.el, kotl/kotl-mode.el, kotl/kview.el:
+    Added eval-when-compile needed for package compilation.
+
+==============================================================================
+V5.14 changes ^^^^:
+==============================================================================
+
+2016-06-28  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (infodock-hyperbole-menu): Fixed menubar Manual pointers for Find,
+    Koutliner, and Screen.  Also renamed Hyperbole submenu to Koutliner from
+    Koutline to distinguish it from the mode-specific Koutline menubar menu.
+  hversion.el (id-info-item): Added and used in menubar menus to go to Info index entries.
+              (id-info): Trigged an error if argument is not a string.
+	      (infodock-hyperbole-menu):
+
+* HY-README: Expanded the installation instructions here with additional pointers.
+
+* hpath.el (hpath:get-external-display-alist): Renamed from hpath:find-alist and
+    changed it from a variable to a function so it is resolved on a per-frame basis
+    since each frame may have different window-system value when using distributed
+    window systems.  Improved documentation.
+	   (hpath:external-display-alist-macos)
+	   (hpath:external-display-alist-mswindows)
+	   (hpath:external-display-alist-x): Added these variables for use with
+    each window system.
+           (hpath:internal-display-alist): Renamed from hpath:display-alist.
+
+* hactypes.el (link-to-Info-node): Updated doc to explain that completion is
+    available and there is no need to include a .info suffix for the filename.
+
+* hib-debbugs.el (debbugs-gnu-query, debbugs-gnu-query:string): Fixed some edge
+    cases with internal and trailing spacing.
+
+* DEMO (Thing Selection): Added this section.
+
+* hpath.el (hpath:find-file-urls-p): Removed message and beep call; made a pure predicate.
+           (hpath:enable-find-file-urls): Added a beep and message if called interactively
+   and no remote path library is loaded.
+
+2016-06-27  Bob Weiner  <rsw@gnu.org>
+
+* DEMO (HyControl, Creating and Modifying Explicit Buttons): Added these sections.
+    Reworked and updated the demo to reflect the current state of Hyperbole.
+
+* hbut.el (ebut:operate): Fixed bug where point was left on a button different than
+    the one operated upon by changing (forward-char 1) to (forward-char 2).
+
+* hargs.el (hargs:iforms-extensions): Simplified ?I (read an Info-node name) to call
+    Info-read-node-name.  This allows use of filename prefixes without the .info suffix,
+    e.g. (hyperbole) while still supplying completions.
+
+* hactypes.el (link-to-Info-node): Changed to call match-string-no-properties.
+
+* hibtypes.el (man-apropos): Fixed for new Emacs versions.
+    (rfc): Fixed to allow a space in the middle to match documentation.
+
+* hui-menu.el (infodock-hyperbole-menu): Moved the Types menu below the
+    Documentation menu to match the Hyperbole minibuffer menu.
+  hui-menu.el (infodock-hyperbole-menu):
+  hui-mini.el (hui:menus): Added Types item on the Explicit Buttons menu to display
+    action types; this matches the same item from the IBut menu.
+
+* DEMO: Removed description of Cust/Find-File-URLs as this is a bit advanced.  Doc is
+    available instead at "(hyperbole)Using URLs with Find-File".
+  man/hyperbole.texi (Using URLs with Find-File): Fixed to refer to the newer name,
+    hpath:find-file-urls-mode rather than hyperb:find-file-urls-mode.
+
+* DEMO (Path Suffixes and Variables): Added this section with more examples and removed
+    description of hpath:display-alist; documented in the Hyperbole Manual instead.
+
+* man/hyperbole.texi (Internal Viewers): Added description of file formats supported
+    by the default setting of hpath:display-alist.
+
+* hibtypes.el (pathname): Excluded paths that start with ~ from expansion via
+    load-path matching and changed to call locate-library so compressed Lisp files
+    are found.  Added support for Info filenames without any path (displays Top node).
+  hpath.el (hpath:info-suffix): Added and used in hpath:display-alist and implicit
+    type pathname definition.
+
+2016-06-25  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:display-alist): Added audio format mp3, wav and ogg suffixes.
+
+* man/hyperbole.texi (Link Variable Substitution): Small text fixes.
+
+2016-06-24  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-inactive-minibuffer-p): Added and used at the
+    start of hmouse-alist.  This added Smart Key support for an inactive
+    minibuffer.  Action Mouse Key click displays the Hyperbole minibuffer
+    menu for easy item selection with the Action Mouse Key.  Assist
+    Mouse Key click pops up the jump menu of frames, buffers and windows,
+    just as a blank area in the modeline does.
+                (action-key-minibuffer-function, assist-key-minibuffer-function):
+    Added these variables and used at the start of hmouse-alist.
+                (action-key-modeline-function, assist-key-modeline-function):
+    Changed name from *-hook since should only be set to a single function.
+
+2016-06-23  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-depress-inactive-minibuffer-p): Added and used in
+    action-key-depress and assist-key-depress.
+  hmouse-sh.el (hmouse-shifted-setup): For GNU Emacs, changed
+    hmouse-set-point-command to hmouse-move-point-emacs.
+    (hmouse-move-point-emacs): Added.
+
+* hycontrol.el (frame-pixel-*): Changed all these calls to hycontrol-frame-*
+    to include any window manager decorations in the calculation.
+               (hycontrol-frame-height, hycontrol-frame-width): Added.
+
+* hyperbole.el (hyperbole, hyperbole-keys): Added these customization
+    groups; used by hmouse-mod.el.
+  hmouse-mod.el (hmouse-mod-disable): Renamed from hmouse-mod-unset-global-map.
+    (hmouse-mod-enable): Renamed from hmouse-mod-set-global-map.
+    (hmouse-mod-mode): Added this to make it a minor mode and replaced
+  hmouse-mod-toggle.
+
+* man/hyperbole.texi (Glossary): Added Chord Keyboard entry.
+                     (Smart Key Modifiers, Smart Key Modeline): Added
+    these sections.
+
+* hib-kbd.el (kbd-key): Tightened to not match when point is on the
+   outside curly brace characters, thereby allowing hui-select-delimited-thing
+   to select the delimited key sequence.
+
+* man/hyperbole.texi (Implicit Buttons): Added debbugs-gnu-query doc.
+
+2016-06-22  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Smart Key Operations): Updated this section and
+    fixed documentation error concerning where to click the Action Mouse
+    Key to bring up the Info Browser.
+
+* hui-mini.el (hui:menus): Changed from Doc/SmartKy to Doc/SmartKeys.
+
+* hmouse-drv.el (hkey-summarize): Made interactive so can be bound to a key.
+    Deleted return to previously selected window, so can browse through
+    the help and then use {q} to restore the window configuration.
+  hui-mouse.el (action-key-error): Changed to call hypb:error.
+               (assist-key-error): Added and changed assist-key-default-function
+    to default to this, since its prior value, hkey-summarize, is
+    performed by an Assist Key click in the right of a modeline.
+
+* hmouse-tag.el (smart-lisp-at-tag-p): Added &, ~, and ^ as identifier
+    characters and removed #.
+
+2016-06-21  Bob Weiner  <rsw@gnu.org>
+
+* hib-debbugs.el: Added to browse discussion and show the status of Gnu
+    debbugs issues embedded in any buffer.
+  hibtypes.el (require 'hib-debbugs): Added.
+  MANIFEST: Added an entry for this.
+  Makefile: Added file entries.
+
+* hbut.el (hattr:report): Simplified conditionals and printing via format.
+
+* hui-mini.el (hui:menu-help): Fixed to handle windows already split side-by-side
+    and to leave point in the help buffer (so can use {q} to quit) if not called
+    from within the minibuffer, e.g. when on an implicit button.
+
+2016-06-20  Bob Weiner  <rsw@gnu.org>
+
+* hui-mini.el (hui:menu-doc, hui:menu-item-doc): Added and added
+    parameters to their callers to allow for return of menu item
+    documentation strings used by implicit keyboard buttons in hib-kbd.el.
+    This allowed display of documentation of Hyperbole minibuffer menu
+    items from readable key sequence strings via the Assist Key.
+
+ hib-kbd.el (kbd-key:normalize): Added support for RETURN fully spelled out.
+             (kbd-key:hyperbole-menu-key-p): Added.
+             (kbd-key:doc): Added error if no doc found for a key-sequence.
+             (ibtypes::kbd-key, kbd-key:act): Added support for invoking Hyperbole
+    minibuffer menu items with the Action Key when over a sequence of keys
+    like, e.g. {C-h h d d}.
+             (kbd-key:normalize): Added error if argument is not a string.
+
+* hui-window.el (hmouse-set-buffer-and-point): Added.
+    (hmouse-goto-depress-prev-point, hmouse-goto-depress-point,
+     hmouse-goto-region-point, hmouse-goto-release-point): Called `hmouse-set-buffer-and-point'.
+
+* hui-mouse.el (smart-gnus-summary, smart-gnus-summary-assist): Changed from
+    no-longer existing call of `gnus-summary-mark-unread-forward/backward' to
+    `gnus-summary-mark-article-as-unread'.
+
+2016-06-19  Bob Weiner  <rsw@gnu.org>
+
+* wrolo.el (rolo-sort-lines): Added to handle sorting of collapsed rolo
+   records properly since through Emacs 25.0 invisible lines are not
+   grouped with the prior visible line, making rolo entry (or any record)
+   sorts fail.  This function fixes that.
+           (rolo-forward-visible-line): Added to support rolo-sort-lines.
+
+2016-06-18  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el (hyperb:window-sys-term): Added per frame check for mouse
+   support, notably for graphical emacsclient spawned from a non-graphical
+   Emacs.  Previously such clients did not have Hyperbole mouse support;
+   now they do.
+     (hyperb:window-sys-term): Changed to take a single frame argument and
+       set the value of 'hyperb:window-system into the frame parameters.
+     (hyperb:window-system): Deleted this variable; now should be
+       called as a function only.  Added this as a function to return the
+       frame-specific value of `hyperb:window-system'.
+  hmouse-drv.el (hkey-operate, hmouse-set-point):
+  hypb.el (hypb:configuration):
+  hyperbole.el (hkey-initialize):
+  hui-window.el (hmouse-drag-window-side, hmouse-modeline-depress,
+    hmouse-modeline-release, hmouse-resize-window-side, hmouse-x-coord,
+    hmouse-y-coord):
+  hmouse-sh.el (hmouse-get-bindings, hmouse-get-unshifted-bindings
+    hmouse-shifted-setup, hmouse-unshifted-setup):
+  hmouse-key.el (hmouse-set-bindings): Changed from variable ref to function
+   call for hyperb:window-system.
+  hui-window.el: Simplified hmouse-alist setup a bit.
+  hui-mouse.el (hmouse-alist): Changed to always define this since one may start
+    Emacs on a tty and then use a distributed window system to create a frame under
+    a window system with mouse support that needs this.
+
+2016-06-17  Bob Weiner  <rsw@gnu.org>
+
+* hui-jmenu.el (hui-menu-of-buffers): Removed limit on top-level buffer menu length, i.e.
+    the number of categories/major modes.
+
+* man/hyperbole.texi (@var): Replaced all with @code since @var is meant for a
+    different purpose.
+
+* hmouse-key.el (hmouse-install): Changed to set the global value of hmouse-middle-flag
+    so always know if the middle mouse button was bound by Hyperbole.
+  hmouse-mod.el (DESCRIPTION): Fixed doc on adding unshifted middle button as Action Key.
+  hmouse-sh.el (hmouse-shifted-setup): Renamed from hmouse-setup and improved documentation.
+               (hmouse-unshifted-setup): Improved doc and removed use of flag argument.
+
+2016-06-16  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hmouse-key-release-args-emacs): Handled integer events.
+
+* man/hyperbole.texi (Cust/KeyBindings): Added doc for C-c RET,
+    syntactical region marking and C-c ., delimited thing to start and end.
+    Also indicated keys which are bound only if not bound prior to loading
+    Hyperbole.
+* hui-menu.el (hui-menu-options): On Customize/Change-Key-Bindings menu, renamed
+    Dragging-Actions to Drag-Emulation-Key, renamed Button-Rename to Button-Rename-Key.
+    Renamed HyControl-Windows to Windows-Control-Key.  Added Mark-Thing-Key.
+  hui-mini.el (hui:menus): On Cust/KeyBindings menu, renamed ControlWin to WinControl.
+    Renamed Dragging to DragKey.  Added MarkThing.
+
+* man/im - Replaced old images with ones generated by Mats.
+
+==============================================================================
+V5.13 changes ^^^^:
+==============================================================================
+
+2016-06-15  Bob Weiner  <rsw@gnu.org>
+
+* hui-jmenu.el (interactive "e"): Removed "e" from menu commands that take
+    no arguments.
+
+* hact.el (symset, htype): Moved from hbut.el because actype:create uses
+    htype and htype uses symset it and hbut.el requires hact.el, so we
+    can't require hbut here.  This solved an installation problem where
+    hact was byte-compiled before hbut was loaded and produced an invalid
+    defact/actype:create macro which then caused hactypes.el to fail
+    upon loading.  Also forced a load of set.el at compile time to satisfy
+    Hyperbole package builder.
+  hactypes.el (hact.el): Forced a load at compile time to satisfy Hyperbole
+    package builder.
+  hbut.el (hversion): Added require of this library; needed for
+    hyperb:microcruft-os-p definition at load time.
+
+2016-06-14  Bob Weiner  <rsw@gnu.org>
+
+* kotl/EXAMPLE.kotl:
+  kotl/kmenu.el (kotl-menu-common-preamble):
+  man/hyperbole.texi: Fixed all references to {C-h h o} which should have
+    been {C-h h k} since the Koutliner menu key has changed.
+
+* kotl/kotl-mode.el (kotl-mode:assist-key): Renamed from
+    kotl-mode:help-key for consistency.
+
+* man/hyperbole.texi (Glossary): Added Screen and Display entries.
+
+* hactypes.el (link-to-file-line): Improved to handle compilation buffers
+    where the directory has been changed and a relative pathname is given
+    in an error message.  Now will prompt for the directory of the path.
+
+* hmouse-drv.el (action-key-internal, assist-key-internal): Added.
+   (action-mouse-key, assist-mouse-key, action-key, assist-key): Refactored
+     to call the above internal functions.  Made action-key and assist-key
+     clear all the action mouse key variables so there can be no confusion
+     between mouse presses and keyboard presses.
+
+   (hkey-help-show): Generalized handling of completions buffers
+    and thereby fixed an issue in Emacs 24 where completions were not showing.
+
+* hpath.el (hpath:remote-at-p): Tightened matches to require at least one
+    char after the : to prevent false matches, e.g. to node:: in Texinfo files.
+           (hpath:at-p): Tightened space delimited match to exclude @ characters.
+
+           (hpath:find-alist): Added .pdf to mac-osx-suffixes and removed
+    old Interleaf and Framemaker configuration from x-suffixes.
+           (hpath:remote-available-p): Fixed to require the package if only
+    listed in file-name-handler-alist.
+
+* MANIFEST: Added man/hyperbole.pdf printable manual version to the distribution.
+  Makefile (dvi, ps): Removed .dvi and .ps outputs and replaced with just .pdf.
+           (distclean): Remove im/*.ps unneeded files and temp files used
+    in hyperbole.pdf generation.
+
+2016-06-13  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi: Typos and various small changes throughout.
+    Redid image insertion so is no longer conditionalized by output type
+    and uses @image and @caption.
+
+* Makefile:
+  HY-WHY.kotl: Added this file as a quick list of reasons to use
+    Hyperbole.  More are welcome.
+
+2016-06-09  Bob Weiner  <rsw@gnu.org>
+
+* hargs.el (hargs:delimited): Fixed to not return an empty string.
+
+* hyperbole.el (unless (fboundp 'kotl-mode)): If this is not bound, load
+    autoloads file, e.g. when loading Hyperbole other than as an Emacs
+    package.
+
+* hpath.el (hpath:find): Changed to not try to resolve executable paths
+    that begin with a modifier character.
+
+2016-06-08  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-drag-window-side): Rewrote to work with GNU Emacs
+    but only allows dragging vertical dividers on the right to the left
+    to shrink a window.
+    (hmouse-side-sensitivity): Increased from 2 to 5 to make this work.
+
+* hui.el (hui:bind-key): Forced prompt into minibuffer window for when
+    called from a menubar menu.
+
+* hmouse-drv.el (hkey-assist-help): Renamed from assist-key-help.
+    (hkey-mouse-help): Renamed from action-mouse-key-help.
+
+* hmouse-key.el: Moved all Smart Key depress functions from here to
+    hmouse-drv.el where the release function are.
+
+* kotl/kotl-mode.el (kotl-mode:remove-cell-attribute): Added.
+    (kotl-mode:transpose-chars): Improved error handling at the beginning of
+       cells and end of lines.
+
+2016-06-07  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode:set-cell-attribute): Fixed interactive part,
+    added error if called non-interactively in a read-only buffer
+    and improved prompts.
+
+* kotl/kview.el (kview:set-buffer): Renamed from kview:set-buffer-name
+    since it could get out of sync if some other library changed the
+    buffer name leading to kview:buffer returning nil.  Now the buffer
+    itself is stored.
+  kotl/kfile.el (kfile:write): Called kview:set-buffer.
+
+* kotl/kotl-mode.el (kotl-mode-map): Added missing {C-c C-i} binding
+    mentioned in the EXAMPLE.kotl file; sets cell attributes.
+
+* hui-select.el (hui-select-thing-with-mouse): Rewrote to better match
+    hui-select-thing and fixed issue with point moving away from point
+    clicked.
+
+* hmous-info.el (Info-handle-in-menu): Added support for index-nodes.
+                (smart-info, smart-info-assist): Added support for fixed
+    header line and text-property-based breadcrumb header line now used in Emacs.
+
+* hmouse-key.el (hmouse-save-region): Improved conditional for each emacs
+    version, tightening when a region is saved.
+
+* hmouse-mod.el (hmouse-mod-insert-command): Rewrote to support GNU Emacs
+      last-command-event and added autoload magic strings.
+    (hmouse-mod-set-global-map, hmouse-mod-unset-global-map): Modified to
+      save the prior global map and restore it later.
+    (hmouse-mod-execute-command): Added setting of prefix argument for
+      commands and made to support any self-inserting-character.
+    (hmouse-mod-toggle): Added to toggle this on and off.
+  hmouse-drv.el (action-key, assist-key): Added clear of action and assist
+    key depressed flags so hmouse-mod.el works properly.
+
+* hmouse-tag.el (smart-java-at-tag-p): Prevented @ annotation matches.
+                (smart-java-keywords, smart-c++-keywords,
+                 smart-c-keywords, smart-objc-keywords, smart-python-keywords):
+    Added to prevent tag matches in smart-*-at-tag-p.
+		(smart-asm-at-tag-p, smart-c-at-tag-p)
+                 smart-fortran-at-tag-p, smart-lisp-at-tag-p):
+    Added optional no-flash parameter for when called after button has
+    already been flashed.
+
+* man/hyperbole.texi (@smallexample): Changed most of these to @example
+    because the text was too small.
+
+2016-06-06  Bob Weiner  <rsw@gnu.org>
+
+* kotl/klink.el (klink:at-p): Greatly tightened matching by checking for
+    klink prefixes and that pathnames are valid.
+
+* hycontrol.el (hycontrol-frames): Added 1-9 argument for zoom amount.
+
+* hui-menu.el (hui-menu-options): Updated Change-Key-Bindings item names
+    and added HyControl-Windows.  For minibuffer menu, added ControlWin entry.
+
+* man/hyperbole.texi (Menus): Added pulldown menu cindex entries and
+    matched index entries exactly to the menus.
+
+* hycontrol.el (hycontrol-save-frame-configuration, hycontrol-save-window-configuration):
+    Added missing interactive specifiers.
+
+* man/hyperbole.texi (Glossary): Added Buffer, Frame, HyControl and Window definitions.
+                     (HyControl): Added this chapter.
+
+* hyperbole.el (hkey-initialize): Added {C-c \} key binding to hycontrol-windows.
+
+* man/hyperbole.texi (Smart Key Thing Selection): Renamed from Smart Key Selection.
+                     (Smart Key Argument Selection): Renamed from Entering Arguments.
+		     (Questions and Answers): Added some additional Q&A.
+
+* hactypes.el (link-to-Info-node): Removed hpath:absolute-to call.
+    Later Info-goto-node call fully resolves Info pathnames.
+
+2016-06-04  Bob Weiner  <rsw@gnu.org>
+
+* hui.el (hui:htype-help): Optimized replaces in temp-buffer hook.
+         (hui:htype-help-current-window): Added and used in Hyperbole Doc
+    menus for consistency of documentation display.
+  hui-mini.el (hui:menus):
+  hui-menu.el (infodock-hyperbole-menu): In Types menu, called above func.
+
+* hargs.el (hargs:delimited): Fixed to handle backslash quoted end delimiters.
+
+* hmouse-tag.el (smart-c-use-lib-man): Made small doc improvements.
+
+2016-06-02  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-screen): Added.
+	      (hui-menu-cutoff-list): Added.
+              (hui-menu-global-buttons):
+  hui-jmenu.el (hui-menu-of-frames, hui-menu-of-buffers,
+    hui-menu-of-windows): Called hui-menu-cutoff-list.
+               (hui-menu-of-buffers): Changed from buffers-menu-max-size
+    to hui-menu-max-list-length for cutoff menu size.
+  hui-jmenu.el (hui-menu-sort-buffers): Fixed reverse sort order issue.
+
+* hui-jmenu.el (hui-menu-to-window): Added error if window is not live
+    and forced skipping of minibuffer.
+               (hui-menu-modeline): Changed to a function so is
+    dynamically recomputed each time as it needs to be.
+
+* hypb.el (hypb:char-count): Added.
+  hui-mini.el (hui:menu-help): Simplified with call to hypb:char-count.
+
+2016-06-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-jmenu.el (hui-menu-wconfig): Moved from hui-menu.el since used here first.
+
+* hycontrol.el: Added this for quick, interactive sizing, moving,
+    replicating and deleting of windows and frames.
+  hui-mini.el (hui:menus): Added new Screen submenu to work with hycontrol.el.
+* hui-menu.el (require): hui-jmenu and added its menus to the newly added Screen menu.
+
+* man/hkey-help.txt: Clarified and fixed modeline documentation
+
+* wrolo.el (rolo-grep, rolo-isearch, rolo-isearch-for-regexp): Made all
+    finds and searches in the rolo consistent and case-insensitive by
+    temporarily setting case-fold-search to t in these functions.  Other
+    functions already had this.
+    (rolo-grep): Fixed so when a raw numeric-style prefix argument is given,
+      it is always converted to and evaluated as an integer.
+
+2016-05-31  Bob Weiner  <rsw@gnu.org>
+
+* DEMO: Updated horizontal and vertical drag exercises to correspond to
+    current Hyperbole behavior.
+
+* man/hyperbole.texi (Rolo Keys): Added doc for the {l} key.
+
+* wrolo.el (rolo-grep): Added support for using bbdb-file in
+    rolo-file-list for searches.
+    (rolo-file-list): Automatically added bbdb-file to search list if it
+      is set before wrolo is loaded.
+    Renamed rolo-buf arguments to rolo-file-or-buf wherever a filename or
+      buffer is acceptable.
+    (rolo-show-levels): Added to handle the bulk of {t} and {o} keys.
+      Added show of all match buffer @loc headers and maximized the number
+      of entries displayed for any given location of point.
+    (rolo-top-level, rolo-overview): Called rolo-show-levels.
+    (rolo-isearch-for-regexp): Added.
+    (rolo-isearch, rolo-isearch-regexp, rolo-locate): Rewrote and called rolo-isearch-for-regexp.
+    (wrolo-mode-map): Changed to {M-s} rolo-isearch and {C-u M-s} rolo-isearch-regexp key bindings.
+
+* man/hyperbole.texi (Smart Key Bindings): Removed {C-c C-t} binding for
+    hmouse-toggle-bindings to force the user to invoke this command by name or
+    to bind it themselves, so they really know what they are doing before use.
+    Also, this key collided with outlining usage in the Koutliner and Rolo tools.
+    Suggested a personal binding if needed.
+  hyperbole.el (hkey-initialize): Removed {C-c C-t} global binding.
+  hmouse-key.el (hmouse-toggle-bindings): Removed default disabling of
+    this command since it is no longer bound to an easy to invoke key.
+  hui-menu.el (hui-menu-options): Removed Toggle-Mouse-Keys.
+  hui-mini.el (hui:menus): Removed Toggle-Mouse key rebinding.
+
+* hmouse-drv.el (hkey-help-show): Made ignore completion buffers;
+    otherwise, was changing the current buffer to the completions list
+    when it should have been the minibuffer window.
+  hargs.el (hargs:set-string-to-complete): Fixed to prevent window
+    movement with save-window-execursion instead of save-excursion.
+
+* wrolo.el (rolo-date-format): Added.
+           (rolo-current-date): Rewrote to use rolo-date-format.
+           (rolo-set-date): Rewrote to add tab char. insertion here rather
+    than in rolo-current-date.
+
+* wrolo.el (rolo-isearch): Rewrote to handle string isearch only.
+           (rolo-isearch-regexp): Added to handle regexp isearch only.
+
+2016-05-30  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (infodock-hyperbole-menu): Renamed Action-Types to Show-Action-Types
+    and Implicit-Button-Types to Show-Implicit-Button-Types.
+* hui.el (hui:bind-key): Allowed C-g to quit this operation.
+
+* hmouse-sh.el (hmouse-unshifted-setup): Changed to take
+    hmouse-middle-flag as a parameter and to use var:add-and-run-hook.
+
+* hmouse-tag.el (smart-lisp-bound-symbol-def): Added with fix for if one
+    of the 3 functions called herein triggers an error.  Previously, the
+    condition-case was outside of all three, preventing testing each in turn
+    if one signaled an error.
+                (smart-lisp, smart-lisp-at-known-identifier-p): Called
+    above function here.
+
+* wrolo.el (rolo-bbdb-grep): Modified to make buffer unmodified and set to
+    read-only after entries are added.
+
+==============================================================================
+V5.12 changes ^^^^:
+==============================================================================
+
+2016-05-29  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hkey-install-override-local-bindings): Called var:run-hook-in-matching-buffer
+    to ensure existing buffers are affected by the hook change.
+
+* hui-em-but.el: Removed window-system test since faces now work on dumb terminals.
+
+* hui-menu.el (hyperbole-popup-menu): Added to access the menubar menu as
+    a popup and for possible use as action-key-default-function.
+
+* hmouse-tag.el (smart-python, smart-python-tag, (smart-python-oo-browser,
+    smart-python-at-tag-p): Added these functions to handle Python identifiers
+    much better.
+  hui-mouse.el (hkey-alist): Updated to use smart-python.
+  man/hyperbole.texi (Smart Key - Python Source Code), HY-NEWS: Added this doc.
+
+* man/hyperbole.texi: Added separate subsections for each major context of
+    the Smart Keys for easier quick reference.  Updated ordering of contexts
+    and added some missing ones.
+
+2016-05-28  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kproperty.el: Added (require 'hyperbole) to ensure kotl/ is in load-path.
+    Needed during package install.
+
+2016-05-27  Bob Weiner  <rsw@gnu.org>
+
+* wrolo.el (rolo-edit-entry): Added errors for when not on an entry line
+    or when attempting to edit a BBDB entry.
+
+* hui-select.el (hui-select-at-delimited-thing-p): Changed to return nil
+    if on a punctuation character that is not a comment.
+    (hui-select-thing-with-mouse): Simplified buffer-substring calls with match-string.
+
+* hbut.el (hattr:copy): Removed empty unwind-protect body.
+
+* set.el (set:create, set:intersection, set:difference): Reversed results to keep in stable order.
+  hbut.el (ebut:list): Removed nreverse call after set:create.
+
+* hvar.el (var:append): Added error messages if called with invalid
+    arguments and made it return the value of the 1st argument symbol.
+
+* hibtypes.el (Info-node): Allowed for `single' quotes around the referent.
+
+* hpath.el: Simplified buffer-substring calls with match-string.
+            (hpath:remote-at-p):
+            (hpath:remote-p): Rewrote to beter support tramp package.
+            (hpath:remote-available-p): Fixed to always return a package symbol or nil.
+
+* wrolo.el (rolo-bbdb-fgrep, rolo-bbdb-grep): Added these commands to integrate the BBDB with
+    the Rolo.
+    (wrolo-mode-map): Added {o} key bound to new function rolo-overview.  Shows first
+      line of all levels of rolo matches.
+    (rolo-top-level): Added and bound to {t} since previous binding of {t}
+      did not work when multiple levels of cells were showing upon command invocation.
+    (rolo-isearch, rolo-locate): Rewrote and required press of {C-s} following this call.
+  man/hyperbole.texi (Rolo Keys): Updated doc to reflect {M-s C-s}
+    sequence and new {o} key binding.  Improved doc of {t} binding.
+    (wrolo-mode-map): Added additional {Shift-TAB} binding to move
+       backwards by one rolo match.
+    (rolo-verify): Added to verify appropriate commands are called
+       from the match buffer and that match string exists.
+
+2016-05-26  Bob Weiner  <rsw@gnu.org>
+
+* hui-jmenu.el: Added for buffer, frame and window popup menu on the
+    Assist Key when pressed on the main part of a modeline.
+  hui-window.el (assist-key-modeline-function): Set to hui-menu-display-commands.
+  Makefile (EL_COMPILE, ELC_COMPILE): Added hui-jmenu.{el,elc}.
+  MANIFEST: Added hui-jmenu.el entry.
+  HY-NEWS: Added writeup about this.
+
+* hui-window.el (assist-key-modeline): Fixed naming issue with the Smart
+    Key help buffer that prevented hiding it with a click of the Assist
+    Modeline Key.
+
+* hmouse-tag.el (smart-lisp): Rewrote to use find-func.el library functions
+    that use symbol load history to quickly find Emacs Lisp identifiers
+    without any TAGS file.  Also now find face definitions as a result.
+    Used buffer-substring-no-properties throughout this file.
+                (smart-lisp-at-known-identifier-p): Rewrote in similar way to
+    smart-lisp.
+                (smart-emacs-lisp-mode-p): Fixed match for *Compile-Log* buffer.
+
+* hmoccur.el (moccur-mode-display-occurrence, moccur-noselect): Added and
+    bound to {C-o} to display occurrence in source file without jumping to
+    it.
+             (moccur-mode): Improved doc and derived from special-mode so
+    can now quit with {q} and have frame restored like in occur-mode and
+    help-mode.
+
+2016-05-25  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-tag.el (find-func): Required this library.
+                (smart-tags-noselect-function): Added
+    find-definition-noselect as the best way to locate a function def.
+
+* kotl/kotl-mode.el (kotl-mode:completion-kill-region): Added for
+    overloading binding of {C-w} when completion.el package is loaded.
+
+* hyperbole.el (hversion): Rewrote require of this file to handle when
+    hyperb:dir is not yet in the load-path but load-file-name is set.
+    (inhibit-hyperbole-messaging): Added this variable with a default of t.
+       When t, Hyperbole will not alter messaging mode hooks nor overload
+       functions from these packages, preventing potential
+       incompatibilities.
+  hvar.el (var:append): Does nothing when inhibit-var-append is non-nil.
+          (var:append): Simplified and saved additions for possible future removal.
+          (var:append-all, var:remove, var:remove-all): Added.
+  hyperbole (hyperbole-toggle-messaging): Added.
+  hui-menu.el (hui-menu-options): Added Toggle-Messaging-Explicit-Buttons.
+  hui-mini.el (hui:menus): Added Cust/Msg-Toggle-Ebuts.
+  man/hyperbole.texi (Buttons in Mail, Buttons in News): Updated these
+    sections to document new ability to toggle messaging ebut support on
+    and off.
+
+* hinit.el (hyperb:init): Changed var:append call to add-hook.
+  hsite-ex.el (hui:but-flash): GNU Emacs now has faces on ttys, so enabled
+    explicit button flashing on them.  Changed var:append call to add-hook.
+
+* hui-mouse.el (outline): Rewrote hook adding and supported outline-minor-mode.
+
+* hypb.el (hypb:rgrep): Improved pattern quoting, dynamically changing
+    pattern delimeters when patterns contain quote marks.  Still need to
+    backslash double quotes in patterns.
+
+* hsmail.el (smail:comment): Disabled by default since not many people
+    ever embedded buttons in mail.
+
+* hypb.el (hypb:toggle-isearch-invisible): Added and used in menus.
+  hui-menu.el (hui-menu-options): Added Toggle-Isearch-Invisible-Text,
+    most useful in the Koutliner to allow searching only within visible
+    text if desired.
+  hui-mini.el (hui:menus): Added matching Isearch-Invisible item.
+
+2016-05-24  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode:reveal-toggle-invisible): Added to cleanly
+    handle isearch temporary showing of invisible text and to leave any
+    isearch exit point visible.
+
+* hibtypes.el (pathname): Tightened to ignore matches in dired and buffer
+    menu modes.
+
+* hyperbole.el (package-generate-autoloads): Let `noninteractive' be t to
+    silence autoload generation messages.  (Former value of
+    inhibit-message is not defined in some V24 Emacs.
+
+* kotl/kimport.el (kimport:aug-post-outline, kimport:star-outline,
+    kimport:text): Fixed to handle now that count-matches when called
+    non-interactively returns its value rather than printing it,
+    eliminating the need to call read with its result.
+
+==============================================================================
+V5.11 changes ^^^^:
+==============================================================================
+
+2016-05-24  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el: Hyperbole now downloads, builds and installs as a regular
+   Emacs package.
+  HY-README: Rewrote Obtaining and Installation instructions for Hyperbole
+    as an Emacs package.
+
+* man/hyperbole.texi (Installation): Updated with package support.
+                     (By-hand Installation): Added this section.
+
+* hyperbole-pkg.el (:keywords): Fixed to be strings.
+
+* HY-WHY.kotl: Added to provide quick reasons to use Hyperbole.
+
+* kotl/kotl-mode.el (kotl-mode:add-cell): Added missing idstamp increment
+    when adding a child.
+
+* kotl/kview.el (kview:add-cell): Simplified doc.
+  kotl/kotl-mode.el (kotl-mode:kill-tree):
+  kotl/kfile.el (kfile:create): Changed label to "1" as it should be.
+
+* hib-kbd.el (kbd-key:normalize): Use kbd function first and if that does not
+    help produce a key binding, manually normalize the key sequence.
+
+* hversion.el (hyperb:stack-frame, hyperb:path-being-loaded): Moved here
+    from hyperbole.el so can be used within hsite.el as well.
+  hsite-ex.el (hyperb:stack-frame '(package-install)): The Emacs package
+    installer might load this file during package installation before
+    hyperbole.el is loaded. Test for this case and allow.
+              (hversion): Required.
+
+2016-05-23  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hyperb:package-autoloads-subdirectories-p): Added code to
+    ensure Koutliner autoloads in kotl/ subdirectory are generated and
+    loaded since these are now generated by the Emacs package system which
+    may require a patch to handle subdirectories in patches.  Hyperbole
+    automatically applies the patch if need be.
+               (hyperb:init): Call this after-init-time so {M-RET} binding
+    and others are not overridden.
+
+* Makefile (dist): Removed and replaced with package target.
+
+* hmouse-tag.el (smart-lisp-at-tag-p): Added /, = and ? as valid identifier characters.
+
+* Makefile (temp_dir): Removed this directory; used dist_dir instead.
+           (dist_hyperbole): Renamed from temp_hyperbole.
+
+* hpath.el (hpath:push-tag-mark): Added xref support.
+
+* kotl/EXAMPLE.kotl:
+* man/hyperbole.texi (View Specs): Noted that turning ellipses off may not work in Emac25.
+
+2016-05-22  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el ((hkey-override-local-bindings, hkey-global-set-key): Added key-description to saved key list
+    and fixed the first function to override keys properly.
+
+* man/hyperbole.texi (Autonumbering):
+  kotl/kvspec.el (kvspec:label-type-alist):
+  kotl/kmenu.el (kotl-menu-common-body):
+  kotl/kview.el (kview:default-label-type, kview:set-label-type): Disabled partial-alpha, start and
+    no labeling in outlines since there are likely problems with each and
+    no major need for them.
+
+* kotl/kview.el (kview:id-counter): Added and used.
+
+* kotl/kotl-mode.el (kotl-mode:add-cell): Conditionalized
+    klabel-type:update-labels call to update sibling labels to apply only to
+    label-types that require sequential updating.  This eliminated a problem
+    when idstamp labels were in use and the counter would increase twice for
+    each cell added.
+
+* kotl/klabel.el (klabel:idstamp-p): Added and used to prevent
+    incrementing idstamp count in multiple places.
+
+* kotl/kview.el (kcell-view:create): Generalized and rewrote the way label
+   is generated to account for kview's label-type.
+  kotl/kotl-mode.el (kotl-mode:kill-tree):
+  kotl/kfile.el (kfile:create): Called kview:add-cell with parameter of
+    "0" rather than "1" so proper label type is generated.
+    (kcell-view:create): Updated to handle various label-types.
+
+* kotl/klabel.el (klabel-type:increment, klabel:increment-alpha)
+    (klabel:increment-partial-alpha, klabel:increment-legal): Changed to
+      compute first child of 0 root cell, rather than trigger an error.
+
+* kotl/kview.el (kview:set-label-type): Reset per kview function
+    definitions even if the label type doesn't change, as these function
+    definitions might have changed.
+
+* kotl/klabel.el (klabel-type:function): Removed string formatting of
+    idstamp labels as they are already returned as strings.
+
+* kotl/kview.el (hyperb:emacs-p): Optimized to skip to the end of each kcell property
+
+* kotl/klabel.el (klabel-type:child, klabel-type:increment, klabel:level, klabel-type:parent):
+    Added support for idstamp and partial-alpha labels.
+
+* kotl/kotl-mode.el (kotl-mode:end-of-cell): Fixed handling of arg other
+    than 1 and noted that this applies only to visible cells.
+
+* kotl/kview.el (kcell-view:level): Deleted save excursion and stopped moving point.
+
+* kotl/klabel.el (klabel-type:legal-label): Improved naming and fixed
+    where string should have been referenced but index was instead.
+    (kotl-label:log26): Deleted and replaced with a direct call of (log n 26).
+    (klabel-type:update-tree-labels): Added missing first-label parameter.
+
+* kotl/kmenu.el (kotl-menu-common-body): Rearranged movement items so prev
+    item of matching item pair always comes first.
+
+* kotl/kotl-mode.el (kotl-mode-map): Added explicit {C-x i} binding to
+   kotl-mode:insert-file since sometimes, e.g. with ido.el loaded, the
+   insert-file command is remapped to another command in the global map and
+   then the implicit local key binding doesn't happen.
+  kotl/kimport (kimport:insert-file): Renamed from kotl-mode:insert-file.
+               (kimport:insert-file-contents): Renamed from kotl-mode:insert-file-contents.
+	       (kimport:insert-buffer): Renamed from kotl-mode:insert-buffer.
+	       (kimport:insert-register): Renamed from kotl-mode:insert-register.
+
+* kotl/klink.el (klink:at-p): Fixed issue with missing fall-through
+    condition causing <@ 2b1a> style klinks to be missed.
+
+2016-05-21  Bob Weiner  <rsw@gnu.org>
+
+* hsite-ex.el (find-file-hook): Changed from older find-file-hooks.
+
+* kotl/kfile.el (kfile:find-file-hook): Removed; unnecessary since file
+    reading code has already put point at a valid position before this hook
+    was called to do that.  Removal eliminates mutual dependency on
+    kotl-mode.el.
+
+* man/hyperbole.texi (Hook Variables):
+  hinit.el (hyperb:init):
+  DEMO (hyperbole-init-hook): Renamed this variable from hyperb:init-hook.
+
+* hactypes.el (annot-bib): Fixed to not move point in source window.
+
+* hbut.el (ebut:key-src): Tightened search for @loc> button source to only
+    look prior to the end of the current line.  Also, changed to ignore
+    this source if the explicit button is within a file buffer.  This
+    fixed an issue in DEMO where the wrong button source was chosen for an
+    explicit button because of a @loc> later in the file.
+
+* dir: Added as part of Hyperbole packaging for adding Hyperbole to the
+    Emacs category info directory tree.
+
+* DEMO:
+  man/hyperbole.texi:
+  hui-mini.el (hui:menus): Changed all references of Outliner to Koutliner.
+
+* Makefile (version): Added man/version.texi version number check.
+
+* hrmail.el (require): Simplified requires.
+
+* hyperbole.el ("Hyperbole %s is ready for action."): Added version number
+    to this message.
+               (autoload): Removed duplicative autoloads now loaded from
+    hyperbole-autoloads.
+  kotl/kotl-mode.el (require): Removed kview and kimport; added kfile.
+  kotl/kfile.el (require): Removed kotl-mode; added kview.
+  kotl/kimport.el (require): Added kotl-mode, allowing removal of more
+    duplicative autoloads.
+
+
+* hpath.el (hpath:display-buffer): Made an autoload since used in hooks.
+
+* Makefile (package): Added this and packageclean targets.  Added remove
+    of GNUmakefile.id (not used) in distclean.
+
+2016-05-20  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hyperb:dir): Set from load-file-name if available, e.g.
+    when Hyperbole is installed as an Emacs package.
+
+* hyperbole-autoloads.el: Renamed from auto-autoloads.el and added kotl/
+    autoloads in here as well.  Require this from hyperbole.el so it can
+    redefine some of the autoloads to load more of Hyperbole when called.
+
+* hypb.el (hypb:locate): Added and required locate library.
+          (hypb:locate-pathnames): Added.
+  hui-menu.el (infodock-hyperbole-menu): Added Find/Locate-Files.
+  hui-mini.el (hui:menus): Added Find/LocateFiles.
+          (hypb:rgrep): Rewrote so if in the *Locate* output buffer from
+    the locate command, then the grep is done on the files listed therein.
+
+* hyperbole.el (hkey-override-local-bindings): Fixed bug that argument is
+    a cons pair, allowing for local binding overrides.
+
+* hui-select.el (hui-select-at-delimited-thing-p): Rewrote to handle
+    comments whose syntax is marked as punctuation and thus allow the
+    action key to select comments.
+
+2016-05-19  Bob Weiner  <rsw@gnu.org>
+
+* hui-select.el (hui-select-comment): Added save-excursion in first cond
+    predicate so point remains for 2nd conditional.
+
+* hsite-ex.el: (hyperbole-loading): Prevented manual require/load of
+    hsite library.  Require/load hyperbole library instead.
+
+* kotl/kotl-mode.el (kotl-mode:to-visible-position): Updated so when
+    backward-p is true, only consider visibility of the character before point.
+
+* hui-select.el (hui-select-initialize): help-mode - match to Lisp symbols with : in
+    their names, often included in help buffers.
+
+* hargs.el (hargs:at-p, hargs:iforms-extensions):
+  hactypes.el (link-to-Info-node): Removed old reference to Info-directory.
+  (hargs:iforms-extensions): When reading a kcell label, match only to
+  presently visible cells.
+
+* hargs.el (hargs:read-match): Generalized doc string and if input is
+    empty, return the default `initial-input' value instead.
+  kotl/kview.el (kcell-view:visible-label): Added and used in hargs:read-match.
+
+* kotl/kview.el (kview:get-cells-status): Added missing (goto-char start).
+
+* kotl/kotl-mode.el (kotl-mode:demote-tree, kotl-mode:promote-tree):
+  kotl/kview.el (kview:map-siblings, kview:map-expanded-tree, kview:map-tree):
+    Called kotl-mode:to-start-of-line to handle edge case when a tree is
+    collapsed, its branches hidden and point is after the hidden branches.
+    Otherwise, the visible tree is missed.  Also ensured point ends up
+    back in the same cell where it started.
+    (kotl-mode:move-before, kotl-mode:move-after): Removed unused `orig' marker.
+
+* kotl/kotl-mode.el (kotl-mode:start-of-line): Renamed to kotl-mode:to-start-of-line
+    to clarify that it moves point.
+                    (kotl-mode:just-one-space): Fixed point movement issue
+    when point is within hidden text.
+
+* kotl/kvspec.el (kvspec:initialize): Updated to use unless.
+                 (kvspec:lines-to-show): Fixed to not alter which cells
+  are visible; this in turn fixed display in kotl-mode:top-cells.
+
+* hui-select.el: Removed all calls to with-syntax-table since there is no
+    one table that works for all modes.  Better to simply modify each mode
+    as needed for selection.
+    (hui-select-thing): Solved problem where punctuation would not select
+a region, so the region would never grow.  Now selects the word after point.
+    (hui-select-punctuation): Fixed to select properly.
+    (hui-select-initialize): Made . a symbol constituent in html and web
+      modes so can select a series of object references like parent.child.subchild.
+
+2016-05-18  Bob Weiner  <rsw@gnu.org>
+
+* hui-select.el (hui-select-markup-modes, hui-select-initialize): Added
+    support for web-mode (multiple language mode for HTML buffers).  Also
+    bound {C-c .} for moving between matching tags in web-mode.
+
+* hmouse-tag.el (smart-javascript-at-tag-p): Rewrote for much tighter matching.
+                (smart-javascript-keywords): Added to ignore keywords as identifier matches.
+  hui-mouse.el (hkey-alist): Added missing . after smart-javascript-at-tag-p test.
+
+* hyperbole.el (smart-javascript): Added missing autoload.
+
+* kotl/klink.el (klink:at-p): Conditionalized smart-c-include-regexp to
+    match only when in a C-based major mode, avoiding false hits in
+    hmtl-mode, for example.
+
+* wrolo-menu.el (wrolo-menubar-menu):
+  kotl/kmenu.el (kotl-menubar-menu):
+  hui-menu.el (hui-menu-options):
+  hinit.el (hyperb:init-menubar):
+  hui-menu.el (hyperbole-menubar-menu): Fixed so current-menubar is not
+    referenced under GNU Emacs and improved readability.
+
+* kotl/kotl-mode.el (kotl-mode-map): Added [backtab] (Shift-TAB) binding
+    to promote a tree (used to only be M-TAB but many outliners use
+    Shift-TAB.
+
+* hyperbole.el (wconfig-ring-empty-p): Added missing autoload for this
+    which is referenced in the Hyperbole menubar menu.
+
+* hversion.el (hyperb:mouse-buttons): Changed so Windows default is 3
+    mouse buttons as many mice now have 3 buttons or can emulate 3 buttons.
+
+* hsite-ex.el (htz:local): Hyperbole now automatically sets the timezone
+    under Windows; manual modifications are no longer necessary.  Added
+    conditionalized (require 'htz) here.
+  htz.el (htz:local): Modified for MS Windows which returns things like
+    "Eastern Daylight Time", so abbreviate to the first letter of each
+    word for matching to htz:world-timezones.
+
+2016-05-17  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode:collapse-tree, kotl-mode:expand-tree):
+   Fixed to not expand hidden cell when given the all-flag.
+                    (kotl-mode:hide-subtree): Fixed to handle when point
+   is in a hidden part of the tree.
+                    (kotl-mode:move-after, kotl-mode:move-before): Changed
+   to leave point at the start of the root of the moved or copied text, so
+   user can see and further manipulate this text.
+
+* kotl/kview.el (kview:get-cells-status, kview:set-cells-status, kcell-view:lines-visible,
+    kcell-view:next-invisible-p, kview:map-expanded-tree):
+      Added these functions and used in kview:map-* functions to restore
+      cell view status after manipulation.
+                (kview:move):
+  kotl/kotl-mode.el (kotl-mode:fill-tree, kotl-mode:fill-cell): Rewrote to
+      utilize above new functions and to greatly improve maintaining the
+      same view when some cells are collapsed and invisible.
+
+* kotl/kvspec.el (kvspec:show-lines-this-cell): Added and used.
+
+* kotl/kview.el (kview:map-branch, kview:map-siblings, kview:map-tree):
+    Added a second save-excursion to eliminate movement within the kview
+    if the kview is not within the current buffer.
+
+* kotl/kotl-mode.el (kotl-mode:fill-cell): Changed to call
+    kcell-view:collapsed-p.
+    (kotl-mode:fill-tree): Fixed bug that did not expand whole tree for filling.
+
+* wconfig.el (wconfig-set-window-configuration): Added and used throughout
+    to handle bad wconfig entries.
+
+* hinit.el (hyperb:init-menubar): Fixed to add Hyperbole to the menubar
+    after emacs initializations are run.
+
+2016-05-16  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kvspec.el (kvspec:show-lines-per-cell): Simplified to first show
+    all lines in all cells.
+
+* kotl/kview.el (kview:map-region): Added to apply a function to either
+    all or all visible cells within an active region.
+    (kview:map-branch, kview:map-tree): Simplified.
+
+* kotl/kotl-mode.el (kotl-mode:delete-indentation): Slightly improved doc.
+
+* kotl/kview.el (kview:char-visible-p, kview:first-invisible-point): Added.
+
+* kotl/kotl-mode.el (kotl-mode:shrink-region, kotl-mode:valid-region-p,
+    kotl-mode:maybe-shrink-region-p):
+      Added these new functions and used the last one at the start of each
+      kotl-mode editing command to trigger an error if the region spans more
+      than one cell, e.g. after a mouse drag.
+    (kotl-mode:indent-region): Called last above function.
+    (kotl-mode:shrink-region-flag): Added with default value of nil.
+       When enabled, automatically shrinks the region to within a single cell
+       before edit commands.
+    (delete-selection-pre-hook): Overrode this function from delsel.el to
+       possibly auto-shrink the region.
+    (kotl-mode:*): Added mode-specific support for delete-selection-mode from delsel library.
+    (kotl-mode:electric-newline-and-maybe-indent, kotl-mode:electric-indent-just-newline,
+     kotl-mode:reindent-then-newline-and-indent): Added.
+    (kot-mode:newline): Made arg optional and added delete of excess horizontal space before insertion.
+    (kotl-mode:yank):
+    (kotl-mode:yank-pop): Updated with latest Emacs changes.
+    (kotl-mode:exchange-point-and-mark): Added and used.
+    (kotl-mode:clipboard-yank): Added.
+    (kotl-mode:quoted-insert): Added to overload quoted-insert.
+
+* Makefile (distclean): Remove auto-autoloads.* files.  This is created
+    when the package is installed.
+  hyperbole-pkg.el ("hyperbole"): Defined attributes for release as a package.
+
+2016-05-14  Bob Weiner  <rsw@gnu.org>
+
+* README: Added symbolic link to HY-README for Emacs package system.
+
+* man/hyperbole.texi (Glossary): Added entries for Tramp and remote pathname.
+
+* kotl/kview.el (kview:create): Added (kview:is-p) test in case kview
+    exists already.  This may eliminate a sporadic issue where a kview
+    data structure becomes invalid.
+
+* hui-mini.el (hyperbole):
+  hmouse-drv.el (hkey-help): Removed (require 'hsite) since the
+    hyperbole.el file now takes care of this.
+
+* hyperbole.el: Removed duplicative adding of Hyperbole directories to load-path
+    and restored conditional adding of kotl/ directory.
+  hinit.el (hui-menu-remove): Made this an autoload and moved from hyperbole.el.
+
+* hypb.el (hypb:debug):
+  hyperbole.el (autoload): Changed all to load "hyperbole" rather than "hsite".
+               (hypb:chmod): Changed from (function) to #'.
+
+* hibtypes.el (rfc):
+  hactypes.el (link-to-rfc): Generalized doc.
+  hsys-w3.el (www-url-find-file-noselect): Generalized.
+  hyperbole.el (hpath:find-file-urls-p): Renamed from hyperb:find-file-url-support-p.
+               (hpath:remote-regexp): Renamed from hyperb:efs-path-and-url-regexp.
+               (hpath:handle-urls): Renamed from hyperb:handle-urls.
+    Rewrote to generalize and support Tramp.
+    Moved all hpath:* functions and variables from here to hpath.el.
+  hpath.el (hpath:enable-find-file-urls, hpath:disable-find-file-urls): Rewrote to use Tramp.
+           (hpath:efs-*): Renamed all to hpath:remote-*.
+           (hpath:remote-default-user, hpath:remote-available-p): Added newer
+    Tramp library support and changed to return the symbol for the package to use.
+
+* hib-doc-id.el: Updated documentation and removed site-specific code.
+
+==============================================================================
+V5.10 changes ^^^^:
+==============================================================================
+
+* hyperbole.el (hsite): Added code to automatically install hsite.el and
+    to warn if hsite-ex.el is newer.
+
+* man/hyperbole.texi (Glossary): Added InfoDock and the OO-Browser definitions.
+
+* hyperbole.el: Moved complete hyperb:dir setup here from hversion.el.
+    Moved Hyperbole initialization here from hsite-ex.el.  Changed so this
+    file requires hsite rather than vice-versa, allowing for single file
+    loading and initialization of Hyperbole, including adding it to the
+    load-path.  Do not separately require or load hsite anymore.
+
+2016-05-13  Bob Weiner  <rsw@gnu.org>
+
+*  man/hyperbole.texi (Koutliner Keys):
+   kotl/EXAMPLE.kotl:
+   kotl/kotl-mode.el (kotl-mode:overview, kotl-mode:show-all, kotl-mode:top-cells): Added
+     optional prefix arg to toggle display of blank lines viewspec.
+
+* hui-mouse.el (smart-outline-subtree-hidden-p): Fixed to not move point.
+
+* hyperbole.el (hui-menu-remove): Deleted support for older XEmacs versions.
+
+* Removed (function) quote from all lambda calls; lambda is self-quoting now.
+  Removed #' quoting from lambdas; any current emacs version should support this.
+
+* kotl/kotl-mode.el (kotl-mode:backward-word, kotl-mode:forward-char, kotl-mode:forward-word):
+    Updated to use some new primitives.
+                    (kotl-mode:hide-tree): Added kotl-mode:start-of-line to ensure whole
+    tree is expanded.
+
+* kotl/kview.el (kview:previous-visible-point, kview:first-visible-point): Added.
+  kotl/kotl-mode.el (kotl-mode:eolp, kotl-mode:eocp): Documented to handle
+    only visible locations.
+                    (kotl-mode:to-visible-position): Added.
+
+* kotl/kview.el (kcell-view:next-kcell): Added and used in kcell-view:next.
+                (kcell-view:previous-kcell): Added and used in kcell-view:previous.
+		(kcell-view:invisible-p): Added and used.
+
+* kotl/kvspec.el (kvspec:hide-levels): Removed call to kview:set-attr
+    which was duplicated in the subcall to kvspec:levels-to-show.
+
+* kotl/kotl-mode.el (kotl-mode:tree-end): Fixed to go to end of current
+    cell when at the end of the tree and used in kotl-mode:mail-tree.
+
+* hsmail.el: (mail-yank-original): Changed all calls of insert-buffer to insert-buffer-substring.
+
+* hsmail.el:
+  hrmail.el (rmail-forward): Replaced mail-setup-hook with message-setup-hook.
+  hyperbole.el (mail-mode-hook): Changed to newer message-mode-hook.
+
+
+* wconfig.el (wconfig-ring-empty-p): Added and used in Hyperbole menus.
+
+* kotl/kotl-mode.el (kotl-mode:copy-to-buffer, kotl-mode:mail-tree): Changed to call kfill:forward-line.
+  hypb.el (hypb:insert-region): Rewrote.
+  kotl/kview.el (kview:char-invisible-p): Added this function and called in hypb:insert-region.
+
+2016-05-12  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kvspec.el (kvspec:label-type-alist): Changed 'idstamp' to 'id' to
+    properly match label-type value.
+
+* kotl/kview.el (kview:move): Ensured collapsed cells list is created
+    before the cells are moved, since insert may not retain collapsed
+    properties.
+                (kcell-view:collapse):
+  kotl/kotl-mode.el (kotl-mode:collapse-tree): Fixed to leave first line of cell visible.
+
+* kotl/kprop-em.el (kproperty:map):
+  kotl/kprop-xe.el (kproperty:map): Changed so function called receives no arguments.
+                   (kproperty:map): Removed version for old XEmacs releases.
+
+* kotl/kprop-em.el (kproperty:map):
+  kotl/kview.el (kcell-view:to-label-end): Rewrote.
+
+* kotl/klabel.el (klabel-type:to-label-end): Deleted.
+  kotl/kview.el (kcell-view:to-label-end): Defined `kcell-view:to-visible-label-end' and called;
+    also simplified this function.
+                (kview:set-functions): Deleted to-label-end attribute; no longer needed.
+
+* HY-NEWS: Updated release numbers to Hyperbole major version 5.
+
+* kotl/kcell.el (kcell:create, kcell:set-creator):
+  hbdata.el (hbdata:build):
+  hypb.el (hypb:user-name): Added and used.
+  hinit.el (hyperb:user-email): Added this variable and used to set the
+    creator and modifier fields in Koutline cells.
+           (hyperb:init): Initialized hyperb:user-email.  Deleted `hyperb:host-domain' variable.
+    Use hyperb:user-email instead.
+  hypb.el (hypb:domain-name): Used message-user-fqdn variable when set and
+    added potential call of 'hostname -f' to get fully-qualified domain name.
+
+* kotl/kotl-mode.el (kotl-mode): Added call to kotl-mode:show-all prior to
+    any change of major mode in a koutline buffer.  Also, made more
+    variables buffer-local.
+
+* kotl/klabel.el (klabel-type:to-label-end): Changed all returned
+    functions to first move to the beginning of the line to ignore any labels
+    hidden within a collapsed tree.
+                 (klabel:set): Replaced delete-backward-char call with delete-char.
+
+2016-05-11  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode:cell-attributes, kotl-mode:cell-help): Changed to call with-help-window.
+
+* hui-em19-b.el: Renamed to hui-em-but.el.
+  hyperbole.el:
+  hversion.el (hyperb:window-sys-term):
+  hui-window.el:
+  hpath.el (hpath:find-alist):
+  hmouse-sh.el: Changed references from emacs19 to emacs.
+  hversion.el (hyperb:emacs19-p): Renamed to hyperb:emacs-p.
+
+* hmouse-sh.el (hmouse-get-bindings, hmouse-setup, hmouse-get-unshifted-bindings):
+    Added left- and right-fringe window drag support.
+
+* hui-mouse.el (hkey-alist): Tightened predicate at end for outline-minor-mode.
+
+* kotl/kotl-mode.el (kotl-mode:finish-of-line): Updated to go to the end
+    of the visible line and renamed to kot-mode:to-end-of-line.
+    (kotl-mode:set-temp-goal-column):
+    (kotl-mode:eocp): Changed to call kotl-mode:eolp and rewrote that
+    function to handle invisible newlines.
+    (kotl-mode): Set track-eol to t for better end-of-line vertical movement.
+
+* hui.el (hui:link-possible-types): Moved link to outline match to 2nd
+    lowest priority, so that a link to file or directory is the default.
+    Deleted link to elisp possibility as it can embed long elisp functions in
+    the button data file and possibly not parse them correctly.
+
+* kotl/kotl-mode.el (kotl-mode:line-move): Accounted for
+   temporary-goal-column potentially being a cons.
+   (kotl-mode:previous-line, kotl-mode:next-line): Unified begin and end
+   messages with emacs.
+
+2016-05-10  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kview.el (kview:move):
+  kotl/kfill.el: (kfill:forward-line): Defined and used so can better
+    control line movement.
+
+* hypb.el (hypb:insert-region): Rewrote to handle all invisible text.
+  hyperbole.el (outline-invisible-in-p): Added.
+  hui-mouse.el (smart-outline-subtree-hidden-p):
+  hypb.el (hypb:insert-region):
+  kotl/kvspec.el (kvspec:show-lines-per-cell):
+  kotl/kview.el (kcell-view:collapse, kcell-view:expand, kview:move, kcell-view:collapsed-p):
+  kotl/kotl-mode.el (kotl-mode:fill-tree, kotl-mode:collapse-tree, kotl-mode:expand-tree,
+                     kotl-mode:hide-subtree, kotl-mode:show-all, kotl-mode:hide-tree,
+                     kotl-mode:fill-cell): Rewrote to use only outline-*
+    functions, e.g. changed subst-char-in-region call to outline-flag-region.
+                    (kotl-mode): Added line-move-ignore-invisible true
+    setting and call to add-to-invisibility-spec.
+                    (kotl-mode:line-move): Changed to boolean test of
+    selective-display rather than integet test.
+                    (kotl-mode): Set selective-display to nil, as does outline-minor-mode.
+    Helps with movement.
+
+* hui-window.el (hmouse-context-ibuffer-menu): Added for IBuffer support
+    for those who use it.  Can be set as action-key-modeline-function.
+
+* man/version.texi: Added.
+
+* hui-em19-b.el (after-init-time):
+  hui-xe-but.el (hproperty:set-face-after-init): Added this to initialize face after emacs initialization.
+
+2016-05-06  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kmenu.el (kotl-menu-remove):
+  wrolo-menu.el (wrolo-menu-remove):
+  hui-menu.el (hui-menu-remove): Replace these functions with a single
+    macro, defined in hyperbole.el
+
+* kotl/kfile.el: Changed to always require kmenu since menubars exist on dumb terminals now.
+
+* hui-mouse.el (hkey-alist): Added support for xref item lists.  Action
+    Key displays an xref file line or just a file containing an xref.
+    Assist Key displays the same but leaves point in the listing buffer.
+
+* hpath.el (hpath:find): Fixed to expand relative file names in Hyperbole
+    buttons to absolute paths based on the source directory of the button,
+    e.g. when referencing a global button from a buffer in a directory
+    different than the source directory.
+
+* wrolo-menu.el (wrolo): Added (require 'wrolo).
+  wrolo.el (wrolo-mode): Removed (require 'wrolo-menu).  Reversed who
+    requires whom for these two files.
+
+* hui-menu.el (infodock-hyperbole-menu):
+  kotl/kmenu.el (kotl-menubar-menu):
+  wrolo-menu.el (id-popup-wrolo-menu): Switched from lmenu support to easymenu menus.
+                (wrolo-menu-remove): Added and called.
+
+* wrolo-menu.el (id-popup-wrolo-menu): Fixed Quit menu item when not under InfoDock.
+
+*  hyperbole.el (rolo-fgrep-logical): Moved autoload from wrolo.el.
+
+2016-05-05  Bob Weiner  <rsw@gnu.org>
+
+* wrolo.el: Simplified.
+
+* Makefile (HYPERBOLE_FILES): Added COPYING file with the GPL V3 in it.
+
+* hui-mini.el (hui:menu): Removed this old name.  Use `hyperbole' instead.
+
+* hui-window.el (hmouse-context-menu): Made interactive.
+
+* hmouse-sh.el (hmouse-get-unshifted-bindings, hmouse-get-bindings,
+    hmouse-setup, hmouse-unshifted-setup): Added header-line Smart Key
+    bindings, though not doing with it right now.
+
+* hui-mouse.el (smart-ibuffer-menu, smart-ibuffer-menu-assist): Added.
+               (hkey-alist): Added ibuffer-mode after Buffer-menu-mode.
+  man/hyperbole.texi (Smart Keyboard Keys): Document ibuffer support.
+
+* hui-window.el (abs):
+* hversion.el (locate-file): Removed conditional definition since this is
+    included in all modern Emacs releases.
+  hpath.el (hpath:find-executable): Changed to call file-executable-p.
+  hibtypes.el (pathname): Removed fboundp test for locate-file.
+
+* hversion.el (hyperb:path-being-loaded): Added this back; lost at some point.
+  hyperbole.el (hyperb:dir): Set with hyperb:path-being-loaded when possible.
+
+* *.el: Replace string-to-int with newer string-to-number calls.
+
+* hpath.el (hpath:at-p): Eliminated any trailing colons.
+  man/hyperbole.texi (Smart Keyboard Keys):
+  hui-mouse.el (hkey-alist): Moved dired-mode priority above Hyperbole
+    button priority so that files and pathnames don't trigger as implicit
+    buttons.
+               (smart-dired): Changed last line quit handler to skip
+    marked deletions and just quit dired.  To execute marked deletions,
+    press the Action Key on the first line of the buffer (the dired
+    directory name).
+
+* kotl/kotl-mode.el (kotl-mode:overview): Respect the blank-line viewspec,
+    so the user can control it.
+
+* man/hyperbole.texi (Smart Keyboard Keys):
+  hui-mouse.el (smart-gnus-group, smart-gnus-group-assist): If
+    `gnus-topic-mode' is active, and on a topic line, the topic is
+     expanded or collapsed as needed.
+
+* man/hyperbole.texi (Smart Keyboard Keys):
+  hui-mouse.el (action-key-default-function): Added comment about setting
+    it to #'hyperbole to bring up the Hyperbole minibuffer menu.
+
+* hui-mini.el (hui:menus):
+  hui-menu.el (infodock-hyperbole-menu):
+  hypb.el (hypb:remove-lines, hypb:save-lines): Added and used in menus,
+    so interactive prompts match menu names and mnemonics.
+
+2016-05-04  Bob Weiner  <rsw@gnu.org>
+
+* hsite-ex.el (hmouse-middle-flag): Added this setting.
+  man/hyperbole.texi:
+  hyperbole.el (hkey-initialize): Used here.
+
+* kotl/kotl-mode.el (hyperb:xemacs-p): Conditionalized defalias calls for XEmacs.
+    (kotl-mode:backward-or-forward-delete-char): Rewrote.
+    (kotl-mode:insert-buffer): Changed call to insert-buffer-substring.
+
+* kotl/kimport.el (kimport:file): Added missing argument to error call.
+                  (kimport:copy-and-set-buffer): Changed call to insert-buffer-substring.
+
+* hyperbole.el (show-all): Removed autoload.
+  hui-mouse.el:
+  wrolo-menu.el (wrolo-menu-common-body):
+  hyperbole.el (outline-*): Added aliases to new outline-* functions for older
+    emacs versions.
+  wrolo.el: Called new outline-* functions.
+
+* wrolo-menu.el:
+  kotl/kmenu.el:
+  hinit.el (hyperb:init-menubar): Eliminated hyperb:window-system test
+    since menubars now work on dumb terminals.
+           (hui-menu): Added missing require of this library.
+
+* hyperbole.el (hkey-global-set-key): Added to save global key bindings
+    which Hyperbole overrides.  Used in hkey-initialize.
+  hmouse-sh.el (hmouse-set-key-list): Use hkey-global-set-key.
+
+* Makefile (ps): Rewrote this target.
+
+* hmouse-tag.el (tags): Removed (provide 'tags); this is never tested for
+    anyway.
+                (xref-*): Added xref helper function definitions.
+                (smart-tags-find-p):
+		(smart-tags-display): Added xref.el support for newer
+    Emacs versions.
+                (smart-tags-noselect-function): Added this support function.
+
+
+* hmouse-key.el (action-key-depress, assist-key-depress,
+    assist-key-depress-emacs19, action-mouse-key-emacs19): Removed
+    (require 'hsite) since autoloads handle this.
+    (action-mouse-key-emacs19, assist-mouse-key-emacs19): Added apply call
+       to remove extra list layer here, rather than later.
+
+* man/hyperbole.texi (Smart Key Bindings): Updated.
+  hmouse-key.el (hmouse-shift-buttons): Renamed to hmouse-install since
+   bindings are always on shift buttons now and rewrote.
+  hyperbole.el (hkey-initialize):
+* hmouse-reg.el (hmouse-get-bindings): Removed NEXTSTEP unshifted mouse
+    key bindings, just use shifted ones on a 2-button mouse.  Also renamed
+    to hmouse-get-unshifted-bindings.
+                (hmouse-setup): Renamed to hmouse-unshifted-setup.
+                (hmouse-unshifted-setup): Changed mouse key bindings so
+    mouse-3 is never bound to the Assist Key; now it can be used for popup
+    menus.  This binds only mouse-2 to the Action Key.
+  hmouse-reg.el: Removed this file and merged into hmouse-sh.el.
+
+2016-05-03  Bob Weiner  <rsw@gnu.org>
+
+* wconfig.el (ring): Used ring.el to provide frame-specific, named window
+     configurations and frame-specific window configuration rings.
+  man/hyperbole.texi (Window Configurations): Updated documentation.
+
+* hversion.el (hyperb:window-sys-term):
+  hui-em19-b.el (hproperty:color-list, hproperty:good-colors): Added check
+    for a window-system of gtk.
+
+* hinit.el (hyperb:init): Fixed installation of
+    hkey-override-local-bindings when hyperbole.el has already been loaded.
+
+* hibtypes.el (hyp-address): Fixed string-match regexp.
+
+* hbut.el (ebut:key-src): Fixed bug by moving to (point-max) before
+    searching for hubt:source-prefix in a buffer with no attached file.
+          (ebut:delimit): Rewrote to use markers.
+          (hbut:comment): Don't add comments in messaging-related buffers
+    even though they have comment syntax.
+
+* hmail.el (hmail:composer): Changed default from mail-mode to
+    message-mode, the newer setting for Emacs.
+
+* h-skip-bytec.lsp (hmouse-set-point): Deleted this file and moved this
+    function to hmouse-key.el since the issue that kept us from
+    byte-compiling this function under X must be fixed by now.
+
+* hui-mini.el (hui:menu-help): Prevented error message when window cannot
+    be shrunk.
+              (hyperbole): Updated documentation.
+
+2016-05-02  Bob Weiner  <rsw@gnu.org>
+
+* hui.el (hui:link-directly): Account for prior active region in
+    determining default button label
+
+* hui-window.el (hmouse-drag-horizontally): Moved down in priority to just
+    before vertical drags.
+                (hmouse-goto-depress-prev-point): Added.
+                (hmouse-kill-region):
+                (hmouse-kill-and-yank-region):
+                (hmouse-yank-region):  Moved point to one end of the region
+    that hkey-value stores.
+                (hmouse-drag-region-active, hmouse-drag-not-allowed,
+                 hmouse-goto-region-point): Added to handle the case
+    where a region is active prior to a Smart Key drag; trigger an error.
+  man/hkey-help.txt:
+  man/hyperbole.texi (Smart Mouse Keys): Updated doc with these changes.
+
+2016-05-01  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kmenu.el (kotl-menubar-menu): Add the menu before the OO-Browser
+    menu, if on the menubar.
+
+* hmouse-sh.el (hmouse-setup): Disabled kmacro-call-mouse-event which can
+   create a global mouse key binding to [S-mouse-3] that conflicts with the
+   Assist Mouse Key.
+
+* hui-menu.el (infodock-hyperbole-menu):
+  man/hyperbole.texi (Creating Outlines):
+  hui-mini.el (hui:menus):
+  DEMO: Renamed the Hyperbole Koutliner menus so they all start with K for
+    consistency.  So now with the mini-buffer menu, type 'k' rather than
+    'o' to utilize the Koutliner.
+
+* hui-mini.el (hui:menus): Find>GrepFiles
+  hui-menu.el (infodock-hyperbole-menu): Find/Grep-Files
+  hypb.el (hypb:rgrep, hypb:rgrep-command): Added this command as an
+    autoload and used in Hyperbole menus, replacing standard grep command
+    for a much more effective grep.
+
+* hmouse-tag.el (smart-tags-find-p, smart-tags-display): Fixed bug that
+    overrode value of non-nil tags-table-list, sometimes preventing the
+    Smart Key from showing a tag definition.
+
+* hypb.el (hypb:configuration): Now adds the (HyDebug) entries from the
+     Messages* buffer when composing a message to bug-hyperbole.
+
+* hargs.el (hargs:completion): Generalized buffer-name match to include
+    package-specific completions like *Ido Completions*" or any buffer
+    in completion-mode.
+
+* hypb.el (hypb:window-list): Simplified to use window-list which should
+    be consistent across emacs variants now.
+
+* hmouse-drv.el (hkey-help-show): Removed set-buffer call because the
+    displayed buffer has already been selected. Don't use help-mode in
+    buffers already set up with a quit-key to bury the buffer,
+    e.g. minibuffer completions, as this will sometimes disable default
+    left mouse key item selection.
+  hpath.el (hpath:display-buffer, hpath:display-buffer)
+           (hpath:display-buffer-other-frame): Changed to return selected
+    window and updated doc.; this fixed a completions failure in hkey-help-show
+    used in temp-buffer-show-hook.
+
+* man/hkey-help.txt: Unified horizontal and vertical drag actions,
+    regardless of drag direction (left or right; up or down).  Action Key
+    splits the current window and Assist Key deletes it.
+  man/hyperbole.texi (Smart Mouse Keys): Updated doc here too.
+  hui-window.el (hmouse-split-window-horizontally): Renamed to hmouse-vertical-action-drag;
+    removed window-min-width setting.
+                (hmouse-split-window-vertically): Renamed to hmouse-horizontal-action-drag
+    and used in horizontal drag action; removed window-min-height setting.
+                (hmouse-vertical-assist-drag):
+                (hmouse-horizontal-assist): Renamed to hmouse-horizontal-assist-drag.
+		(hmouse-horizontal): Delted.
+
+==============================================================================
+V5.09 changes ^^^^:
+==============================================================================
+
+2016-04-30  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hkey-help-show): Added call to hpath:display-buffer so
+    buffer is shown according to user custom settings.
+
+* hpath.el (hpath:display-buffer): Removed call to hpath:push-tag-mark.
+    It may be interferring with region selection/manipulation via Smart
+    Key drags.
+
+2016-04-29  Bob Weiner  <rsw@gnu.org>
+
+* hinit.el (hyperb:init): Prefer newer write-file-functions variable.
+    Moved Hyperbole key bindings and local key override initialization
+    here and made them run after the editor is fully initialized.
+
+* hversion.el (hyperb:window-sys-term):
+  hui-window.el (hmouse-split-window-horizontally, hmouse-split-window-vertically):
+    Changed function prefix from 'sm-'.
+                (hyperb:window-system): Changed to a defvar.
+
+* hmouse-drv.el (hkey-toggle-debug): Added.
+  hui-menu.el (hui-menu-options): Added Customize/Toggle-Smart-Key-Debug.
+  hui-mini.el (hui:menus): Added Cust/Debug-Toggle.
+  hmouse-drv.el (hkey-execute): Added flag hkey-debug and hkey-debug
+    function to show the context and values from each Smart Key activation.
+
+* hui-mouse.el (require 'hbut): Added so don't have to conditionalize (hbut:at-p) call.
+               (hkey-alist): Simplified hbut:at-p predicate and stored it result
+   for debugging purposes.  Removed separate call to hbut:label-p since hbut:at-p
+   calls it.
+* hyperbole.el (hkey-initialize): Added this function and moved all
+    Hyperbole key bindings here.  Added it to after-init-hook so
+    Hyperbole key bindings are added only after Emacs is initialized,
+    allowing them to override defaults where necessary, notably with mouse
+    keys.
+
+* hmouse-drv.el (action-mouse-key, assist-mouse-key): Added clear of hkey-value.
+
+* Makefile (dist): Removed copying of hkey-help.txt from $(data_dir_dist)
+    into distribution since this might be an old copy.  Remove
+    data_dir_dist variable since no longer used.
+
+* hypb.el (hypb:configuration): Small text improvements.
+
+* man/hyperbole.texi (Smart Keyboard Keys): Improved doc for unrecognized contexts.
+
+* man/hkey-help.txt: Corrected that by default, an invalid context
+   produces an error message rather than bringing up the Hyperbole
+   minibuffer menu.
+
+* MANIFEST:
+  Makefile (TEXI2HTML): Changed to use standard makeinfo --html.
+           (HTML_MANUALS): Removed.  Added html format of the manual to
+the distribution.
+           (ps): Updated dir variable names.
+
+* hmouse-drv.el (hkey-help): Added check of newer Emacs variable
+    help-window-select.
+
+* hypb.el (hypb:push-mark): Deleted this old definition as all current
+    Emacs versions have push-mark now.
+
+* hmouse-tag.el (smart-lisp-at-tag-p): Tighted match to ignore all
+    punctuation matches such as, ***.
+
+* hui-select.el (hui-select-goto-matching-delimiter):
+  hyperbole.el ({C-c .}): Added this global binding to jump between the
+    opening and closing delimiters of a delimited thing, e.g. a string.
+    Also, works on matching markup tag pairs in HTML and SGML modes.
+
+* hyperbole.el (hkey-global-set-key, *hkey-list*): Added to capture global
+    Hyperbole key sequences for possible unsetting in local modes.
+               (hkey-override-local-bindings): Unset local keys here.
+
+* hmouse-sh.el (hmouse-get-bindings, hmouse-setup):
+  hmouse-reg.el (hmouse-get-bindings, hmouse-setup): Trigger NEXTSTEP setup
+    only when window-system is 'dps, not 'ns which Mac OS X uses too.
+    Fixes issue with binding the Action Key to mouse-1 instead of mouse-2
+    under Emacs on Mac OS X.
+
+2016-04-28  Bob Weiner  <rsw@gnu.org>
+
+* hypb.el (hypb:mouse-help-file): Renamed to hypb:hkey-help-file.
+
+* hyperbole.el (hkey-init): Changed doc to lookup keybindings.
+
+* hmouse-drv.el (help-window-point-marker): Added conditional definition
+    of this help variable not provided in earlier Emacs versions but
+    referenced in an Emacs 25 compiled version of `with-help-buffer' used
+    in `hkey-help-show'.  Fixes error with display of completions.
+                (hkey-help-show): Nullified `temp-buffer-show-hook'
+    and `temp-buffer-show-function' in here to prevent recursive call of
+    help-mode when it calls with-temp-buffer.  This fixed error in display
+    of apropos and other help information.
+                (action-key, assist-key): Updated documentation.
+
+* hyperbole.el (after-load-alist): Fixed quoting for this hook.
+
+2016-04-27  Bob Weiner  <rsw@gnu.org>
+
+* h-skip-bytec.lsp (hmouse-set-point): Fixed to handle when called with no
+    args from hkey-operate (keyboard drag emulation).
+
+* hmouse-drv.el (hkey-operate): Made prefix arg flag optional.
+
+* HY-ABOUT: Added Hyperbole version number.
+
+* man/hyperbole.texi (Smart Key Bindings): Renamed from Smart Key Assignments
+    and changed some descriptions of the bindings.
+
+* hactypes.el (link-to-elisp-doc): Added support for variables.
+  hui-mouse.el (hkey-alist): Added support for Emacs push buttons.  Action
+    key activates a button at point and Assist Key shows help for it.
+
+* hmouse-tag.el (smart-lisp-at-known-identifier-p, smart-tags-find-p): Added
+    for testing whether a potential Lisp identifier is found in any tags file.
+
+* hibtypes.el (texinfo-ref): Added support to display Texinfo nodes
+    references within Texinfo node names and menu items.  Also to show
+    documentation for Emacs Lisp identifiers within @code{} and @var()
+    references.
+  hmouse-tag.el (smart-emacs-lisp-mode-p): Since code references are
+    handled within texinfo-ref now, removed texinfo-mode from matching here.
+  man/hyperbole.texi (Implicit Buttons):
+  man/hkey-help.txt: Updated doc with these changes.
+
+* hui-mouse.el (hkey-alist):
+  hmouse-tag.el (smart-emacs-lisp-mode-p): Moved test for help-mode to here from hkey-alist.
+
+2016-04-26  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:is-p): Tightened match for in-file HTML references to
+    avoid matching to Lisp #'function constructs.
+
+* hui-mouse.el:
+  hmouse-drv.el (hkey-region): Moved definition from hui-mouse.el where it wasn't referenced.
+
+2016-04-25  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:at-p): Improved to ignore non-delimited matches of only punctuation.
+           (hpath:push-tag-mark): Added xref-find-definitions last-command check.
+
+* hui-window.el (hmouse-alist): Changed so if an active region exists
+    before an Assist Key depress and this is not a drag, then kill the
+    region and yank it wherever the Assist Key was released.
+                (hmouse-paste-region): Deleted and replaced with hmouse-yank-region.
+
+* hui-window.el (hmouse-yank-region):
+  hui.el (hui:buf-writable-err):
+  hui-window.el (hmouse-read-only-toggle-key): Added this function and
+    used it.
+  wrolo-menu.el (id-menubar-wrolo): Changed from 'toggle-read-only' to
+    newer 'read-only-mode' command.
+
+* hui-window.el (hmouse-horizontal): Changed to use goto-char.
+                (hmouse-key-alist): Added hmouse-drag-thing test.
+                (hmouse-drag-thing):
+                (hmouse-kill-region):
+                (hmouse-kill-and-yank-region):
+	        (smart-point-of-coords):
+                (hmouse-yank-region): Added to kill and yank delimited things via Smart Key drags.
+                (hmouse-insert-region): Added to handle regional yanks.
+		(hmouse-edge-sensitivity): Set this to 10 for GNU Emacs;
+    Mats Lidell says it needs to be this high.
+  hmouse-sh.el:
+  hmouse-reg.el: (hmouse-setup): Added drag event bindings for Emacs to
+    support Hyperbole drag actions.
+                 (hmouse-set-key-list): Added and used to simplify key bindings.
+
+2016-04-24  Bob Weiner  <rsw@gnu.org>
+
+* hhist.el (hhist:remove): Fixed to handle prefix args as a list.
+
+* hyperbole.el ({C-c RET}): Added this key binding to hui-select-thing;
+    made double and triple clicks of the left mouse button do the same thing.
+  kotl/klink.el (klink:at-p): Use hui-select-markup-modes
+  Makefile (EL_KOTL):
+  GNUmakefile.id (HYPB_ELCS):
+  MANIFEST: Removed TAGS.  Added hui-select.el.
+  hui-select.el: Added this file for thing support.
+  hmouse-tag.el (hui-select): Required.
+  hyperbole.el (hui-select): Required.
+
+* man/hypb-mouse.txt: Renamed to hkey-help.txt everywhere.
+
+* man/hkey-help.txt: Added mark thing.  Updated documentation of
+    mouse-only actions and keypress thing handling.
+  man/hyperbole.texi (Smart Keyboard Keys): Improved accuracy of Smart Key
+  context-specific actions and added thing marking as a context.
+  hui-mouse.el (hkey-alist): Added hui-select-delimited-sexp-at-p test and
+    hui-select-mark-delimited-sexp action.
+  HY-NEWS: Added delimited thing handling.
+
+==============================================================================
+V5.08 changes ^^^^:
+==============================================================================
+
+* hui.el (hui:hbut-act, hui:hbut-current-act):
+  hinit.el (hyperb:act-set): Removed this and hyperb:act and hcoord: references, since
+    coordinated/group browsing was never implemented.
+
+* hbut.el (gbut:act): Added error handling for a null or empty string label input.
+
+* hpath.el (hpath:find-program, hpath:find-file-mailcap): Improved doc and
+    added fallback use of mailcap external program viewer settings
+    (mailcap code from Mats Lidell <matsl@contactor.se>).
+  HY-NEWS:
+  man/hyperbole.texi (External Viewers): Documented this change.
+
+* hui-mouse.el (smart-dired-assist): Call dired-unmark-all-files.
+
+2016-04-22  Bob Weiner  <rsw@gnu.org>
+
+* hmail.el (hmail:invoke): Simplified by using compose-mail.
+
+* hmouse-tag.el (smart-tags-display): Prefer call to find-tag-noselect
+    (newer etags.el) than find-tag-internal.
+
+* man/hyperbole.texi:
+  hui-menu.el (infodock-hyperbole-menu): Renamed Customization menu to Customize.
+
+* hyperbole.el (hmouse-shift-buttons): Bind Hyperbole mouse buttons only
+      when hkey-init is true (the default).
+     Removed compatibility functions for many years old emacs versions:
+       frame function aliases,
+       find-file-noselect overload and hyperb:find-file-noselect.
+       (substitute-in-file-name): Made string-match tighter.
+       (hkey-read-only-bindings): Removed local assist-key bindings which
+     just shadow the same existing global binding, now that we can
+     automatically eliminate local bindings that shadow the global
+     Hyperbole Smart Keys.  Also simplified function.
+     Removed PIEmail pm-hook; this package no longer exists.
+       (assist-key-read-only): Removed, no longer used.
+       (hkey-init): Made this an autoload.  Changed so no keys are bound herein
+     unless this is true (previously, this affected only the Smart
+     Keys). Reordered key bindings to emphasize Smart Keys.
+
+* hyperbole (hkey-override-local-bindings, hkey-install-override-local-bindings,
+     hkey-toggle-override-local-bindings):
+     (hkey-init-override-local-keys): Added this new feature which allows for
+     automatic removal of local key bindings that hide the Action Key.
+     Set `hkey-init-override-local-keys' to nil to disable this feature.
+  hui-menu.el (hui-menu-options): Added Toggle-Override-Local-Keys.
+  hui-mini.el (hui:menus): Simplified Toggle-Rolo-Dates and added Override-Local-Key.
+
+* hui.el (hui:hbut-help): Fixed bug where :help was bound as a symbol but
+    not a function to be called.  Now ensures any type-specific help
+    symbol is a function to call.
+         (ebut:list): Called apply on set:create to fix list nesting bug.
+         (hbut:report): Called with-help-window and nullified
+   temp-buffer-show-{hook,function} to prevent a nested call to
+   with-output-to-temp-buf that would erase the help buffer after data.
+
+2016-04-21  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-tag.el (smart-lisp): Simplified documentation.
+
+* hui-mouse.el (smart-man-c-routine-ref): Improved and fixed documentation.
+
+* hmouse-tag.el (smart-tags-display): Small improvements.
+    (smart-tags-file-path):
+    (smart-c, smart-ancestor-tag-files): Changed 'tags-file-list' to newer
+      'tags-table-list'.
+    (smart-tags-display): Modified since emacs now uses 'tags-table-list'.
+    (smart-tags-file-list): Improved tests.
+
+* hibtypes.el (text-toc): Fixed to match documentation.
+
+* hyperbole.el (vm-mode-hook): Renamed to this newer name.
+
+* man/hyperbole.texi (Menus):
+  hui.el (hui:bind-key): Added.
+  hui-menu.el (hui-menu-options): Added Change-Key-Bindings menu and made
+    Customization option settings into submenus as the single-level menu was
+    getting too long.
+  hui-mini.el (hui:menus): Added new Cust/KeyBindings menu that allows
+    interactive rebinding of each global Hyperbole key.
+
+* hgnus.el: (require 'gnus-msg): Added and removed old gnuspost.el loading.
+
+* hargs.el (hargs:set-string-to-complete): Fixed bug that included
+    minibuffer prompt in string; changed 'buffer-string' call to
+    'minibuffer-contents'.
+
+* hui-menu.el (infodock-hyperbole-menu): Added Hyperbole Demonstration to
+    the top-level menubar so it is easy for new users to find.
+
+* hhist.el (all): Greatly improved to use frame configurations rather than just
+    storing a point in a buffer.
+ (hhist:wind-line): Deleted, unused.
+
+* DEMO (By Dragging): Info node was improperly referenced with earlier name, 'Drags'.
+    Made a number of small updates in this file.
+
+* hypb.el (hypb:hyperbole-banner-keymap):
+          (hypb:display-file-with-logo): Reworked to allow graphic in hyperb:dir.
+    Refactored to support GNU Emacs.  Use 'help-mode' as major mode for
+    easier navigaton and window restore.
+
+* hpath.el (hpath:url-regexp2): Made : optional again so www.gnu.org works
+    as a URL.
+
+* Makefile (distclean): Remove any TODO* working files from the dist.
+    Other small changes.
+
+2016-04-20  Bob Weiner  <rsw@gnu.org>
+
+* kotl/klink.el (klink:create): Added save-excursion to prevent movement
+    of point while reading arguments.
+
+* hargs.el (hargs:select-p): Fixed code for newer Emacs versions.
+
+* hui-mouse.el (hkey-alist): Added kotl-mode-specific end-of-line predicate.
+
+* wrolo-menu.el (wrolo-menubar-menu, id-popup-wrolo-menu, id-menubar-wrolo):
+    Renamed these menus from Wrolo to Rolo.
+
+* kotl/kmenu.el (id-menubar-kotl): Added 'Remove-this-Menu' item.
+                (kotl-popup-menu):
+  wrolo-menu.el (wrolo-popup-menu): Removed call to popup-menu-internal since GNU
+       Emacs has popup-menu now.
+
+* kotl/kmenu.el (kotl-menu-remove): Added.
+  hui-menu.el (hui-menu-options):
+  kotl/kmenu.el (kotl-menubar-menu):
+  hui-menu.el (hui-menu-remove, hyperbole-menubar-menu): Fixed to work
+    properly with Emacs menubars.
+              (hui-menu-remove): Remove Koutline menu as well.
+
+* Makefile: Added the following files as distribution dependency checks:
+      auto-autoloads.el, DEMO, MANIFEST, _hypb, .hypb, _pkg.el,
+      ChangeLog (only the latest one), hyperbole-banner.png, hypb-mouse.txt,
+      file-newer, smart-clib-sym
+    Changed distribution so only recent year ChangeLog is included, as the
+    rest is very old and irrelevant now.
+
+* hmouse-drv.el (hkey-help-show): Use help-mode major mode for Hyperbole Help buffers.
+   This generally allows typing q to quit and restore the prior window configuration.
+
+* man/hyperbole.texi (Menus): Added new Find menu documentation.
+  hui-mini.el (hui:menus): Added new Find menu to find matches and
+    non-matches of regexps across buffers and files.
+    Removed HypbCopy item which duplicated Info item.
+       Removed MsgForums since this manual section is gone and spread elsewhere.
+  hui-menu.el (infodock-hyperbole-menu): Added new Find menu to find matches and
+    non-matches of regexps across buffers and files.
+    Removed Copyright which duplicated Manual entry.  Removed Msg-Forums
+    since this manual section is gone and spread elsewhere.
+
+2016-04-19  Bob Weiner  <rsw@gnu.org>
+
+* hvm.el (vm-edit-message-end): Updated to latest "vm-edit.el" version.
+  hvm.el (vm-assimilate-new-messages): Updated to latest "vm-folder.el"
+    version, adding new 'first-time' parameter.
+
+* kotl/kexport.el (kexport:html, kexport:html): Added missing parameter to
+    'error' calls.
+
+==============================================================================
+V5.07 changes ^^^^:
+==============================================================================
+
+2016-04-19  Bob Weiner  <rsw@gnu.org>
+
+* MANIFEST:
+  Makefile (EL_KOTL, ELC_KOTL): Added "kexport" file which had been
+    mistakenly left out of distribution build dependencies.
+
+2016-04-18  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode-map):
+  kotl/kotl-mode.el (kotl-mode:scroll-down, kotl-mode:scroll-up): Modified
+    to work as global key bindings for use with mouse wheel scroll variables.
+
+* hmail.el (hmail:invoke): Modernized to use mail-user-agent settings.
+
+* hui-menu.el (infodock-hyperbole-menu):
+  hui-mini.el (hui:menus):
+  hibtypes.el (hyp-address):
+  hactypes.el (hyp-request): Updated mail list information and extended menus.
+
+* kotl/kotl-mode.el (kotl-mode:maintain-region-highlight): Removed
+    window-system conditional for transient-mark-mode since it now works on
+    dumb terminals.
+
+* kotl/kfile.el (kfile:view): Added missing file-name parameter to second
+    'error' call.
+
+* kotl/kfile.el (kfile:find-file-hook):
+  kotl/kotl-mode.el (kotl-mode:find-file-hook): Renamed to
+    kfile:find-file-hook and moved to "kfile.el" to ensure that kfile is
+    loaded (which loads kotl-mode) if this is invoked at startup, e.g. when
+    desktop restores a file.  Left an alias to kotl-mode-find-file-hook
+    for backward compatibility.
+
+* Removed support for old, no longer used Apollo window system.
+
+* hpath.el (hpath:display-buffer-alist, hpath:display-where-alist): Hash
+    quoted functions for byte-compilation.
+
+* kotl/kotl-mode.el (kotl-mode:add-indent-to-region): Rewrote with 'replace-match' call.
+
+* MANIFEST: Corrected to reference kotl/EXAMPLE.kotl
+
+* kotl/kfile.el:
+  kotl/kotl.el: Improved naming: renamed this file to kcell.el to better represent it and
+   renamed the 'kotl-data' structure to 'kcell-data'.
+
+* hargs.el (hargs:iform-read): Added support for Emacs interactive '^'
+   prefix character for activating/deactivating the transient region via
+   shift selection.
+
+* hpath.el (hpath:rfc): Updated to use ietf.org.
+
+* hpath.el (hpath:url-hostnames-regexp):
+  hsite-ex.el:
+  hsys-wais.el:
+  hyperbole.el (substitute-in-file-name):
+  Makefile: Removed support for old, no longer used WAIS and Gopher Internet protocols.
+
+* hact.el (action:commandp): Rewrote to call 'interactive-form' when available.
+          (hact): Simplified.
+
+2016-04-17  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode-map): Overloaded left-char and right-char for
+  Emacs arrow keys.
+
+* kotl/kexport.el (kexport:html): Replaced 'insert-string' with 'princ' since it works
+    differently in GNU Emacs and would fail to export cell contents.
+    (kexport:html): Updated doc string and added optional prefix arg,
+    SOFT-NEWLINES-P to prevent hard newline breaks within cells.
+
+* kotl/kotl-mode.el (kotl-mode:example): Rewrote so always uses the
+    distribution EXAMPLE.kotl file rather than the personally saved and
+    edited one, if the distribution file is newer.  In that case,
+    save a copy of the personal one, as SAVED-EXAMPLE.kotl before replacing it.
+    (kotl-mode:backward-or-forward-delete-char): Added GNU Emacs support.
+    (kotl-mode-map): Added delete-forward-char.
+    (kotl-mode:delete-char): Improved beginning and end of cell testing,
+    fixing issues when prefix arguments are given.
+
+* hvm.el: VM is not available as a regular Emacs package, so it is somewhat
+    difficult to install properly.  Requiring it below will therefore
+    often trigger an error and prevent Hyperbole from properly
+    building, so prevent this error with a condition-case around this
+    whole file.
+
+* man/hyperbole.texi: Updated version, copyrights, URL handling documentation.
+
+* hsys-w3.el (www-url): Changed to use browse-url.el support of textual
+    browsers when not running under a window system.  Removed w3 library
+    dependencies.
+
+* hui-ep-but.el, hui-epV4-b.el: Deleted, Epoch is long obsolete.
+
+* HY-README: Updated How to Obtain.
+
+2016-04-16  Bob Weiner  <rsw@gnu.org>
+
+* HY-COPY: Updated to GPL V3.
+
+* DEMO: Updated with gnu.org examples.
+
+* HY-ABOUT: Updated the intro.
+
+* hui-mini.el (hui:menus):
+  hui-menu.el (hui-menu-url-options): Modernized these menus for current
+    web browsers and changed 'browse-url-new-window-p' to 'browse-url-new-window-flag'.
+    Added toggle of 'browse-url-in-window-flag' menu item.
+
+* Makefile (data_dir): Updated to reference hyperbole-banner.png image.
+
+* hypb.el (hypb:browse-home-page): Renamed and changed to point to GNU Hyperbole web page.
+	  (hypb:display-file-with-logo): Rewrote to do nothing if banner file is not found.
+
+2016-04-14  Bob Weiner  <rsw@gnu.org>
+* hpath.el (hpath:find-line): Replaced goto-line call since it is meant for interactive use.
+
+* hbut.el (htype:create, ibtype:create):
+  hargs.el (hargs:make-iform-vector):
+  hui-em19-b.el (hproperty:list-cycle):
+  hui-xe-but.el (hproperty:list-cycle):
+  hpath.el (hpath:display-alist): Changed from defmacro to defsubst or updated macro syntax.
+
+* hui-menu.el (hui-menu-options): Removed old-style backquoting.
+
+* set.el (set:remove): Fixed bug by removing extra set of parentheses around args in call to 'set:member'.
+
+* hui-menu.el (infodock-hyperbole-menu): Conditionalized "%_" XEmacs menu
+    accelerator key prefix, so it does not appear as a literal in the Hyperbole menu name under GNU Emacs.
+
+2016-04-05  Bob Weiner  <rsw@gnu.org>
+
+* set.el (set:create): Improved to allow collection types as set elements.
+
+* set.el (set:difference): Fixed boundary case error by adding (setq rtn-set ...)
+    Also, updated defmacro syntax, used self-quoting lambdas and changed many mapcar calls to mapc.
+
+2016-03-29  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el ("info"): Simplified with eval-after-load
+
+* man/hyperbole.texi: Uncommented Hyperbole Info directory listing.
+
+2014-08-29  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kotl-mode.el (kotl-mode-map): Added newer XEmacs
+	`backward-char-command' and `forward-char-command' for overloading.
+
+2014-08-16  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist):
+  hmouse-tag.el: Added support for JavaScript identifier definition location.
+
+2014-08-28  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (mail-address-at-p): Handled the case when point is on the
+    `mailto:' part of a URI e-mail address.
+
+2014-08-15  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el: Updated to handle "%_Hyperbole" menu item name with menu
+    accelerator key embedded.
+
+2014-07-20  Bob Weiner  <rsw@gnu.org>
+
+* wrolo.el (wrolo-mode): Fixed error that had lowercased `mode-name'.
+
+* kotl/kmenu.el (kotl-menu-common-body): Added InfoDock Go and Options menus.
+
+==============================================================================
+V5.06 changes ^^^^:
+==============================================================================
