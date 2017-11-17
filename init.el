@@ -1474,10 +1474,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
 
-    (defun ss (server)
-      (interactive "sServer: ")
-      (call-process "spawn" nil nil nil "ss" server))
-
     (use-package em-unix
       :defer t
       :config
