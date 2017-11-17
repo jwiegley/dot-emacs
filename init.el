@@ -1773,11 +1773,30 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :defer 5
+  :demand t
   :load-path "site-lisp/hyperbole"
+  :bind* ("M-." . hkey-either)
   :config
   (use-package kotl-mode
-    :load-path "site-lisp/hyperbole/kotl"))
+    :load-path "site-lisp/hyperbole/kotl")
+
+  (defact visit-haskell-definition ()
+    "Go to the definition of a symbol in Haskell."
+    (interactive)
+    (condition-case err
+        (call-interactively #'haskell-mode-jump-to-def-or-tag)
+      (error
+       (call-interactively #'dumb-jump-go))))
+
+  (defib haskell-definition-link ()
+    "Go to the definition of a symbol in Haskell."
+    (and (eq major-mode 'haskell-mode)
+         (hact #'visit-haskell-definition)))
+
+  (defib gnus-article-urls-link ()
+    "Visit the URLs in a Gnus article."
+    (and (eq major-mode 'gnus-summary-mode)
+         (hact #'gnus-article-browse-urls))))
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
@@ -1929,7 +1948,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package swiper
     :load-path "site-lisp/ivy/swiper"
-    :bind (("C-. C-s" . swiper)
+    :bind (("C-s" . swiper)
+           ("C-. C-s" . swiper)
            ("C-. C-r" . swiper))
     :commands swiper-from-isearch
     :init
