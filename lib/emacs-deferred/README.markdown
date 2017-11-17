@@ -459,7 +459,7 @@ In the following example, `run-at-time` is used as an example for the asynchrono
    * Return
       * a deferred object
    * Execute a command asynchronously. These functions are wrappers of `start-process` and `start-process-shell-command`.
-   * The subsequent deferred task receives the stdout from the command as a string.
+   * The subsequent deferred task receives the stdout and stderr from the command as a string.
 
 * deferred:process-buffer (command args...) / deferred:process-shell-buffer (command args...)
    * Arguments
@@ -468,7 +468,7 @@ In the following example, `run-at-time` is used as an example for the asynchrono
    * Return
       * a deferred object
    * Execute a command asynchronously. These functions are wrappers of `start-process` and `start-process-shell-command`.
-   * The subsequent deferred task receives the stdout from the command as a buffer.
+   * The subsequent deferred task receives the stdout and stderr from the command as a buffer.
       * The following tasks are responsible to kill the buffer.
 
 * deferred:wait-idle (msec)
