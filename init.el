@@ -153,7 +153,6 @@
 (use-package pcache           :defer t :load-path "lib/pcache")
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
-(use-package popwin           :defer t :load-path "lib/popwin-el")
 (use-package pos-tip          :defer t :load-path "lib/pos-tip")
 (use-package request          :defer t :load-path "lib/emacs-request")
 (use-package s                :defer t :load-path "lib/s-el")
@@ -2593,6 +2592,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package popup-ruler
   :bind (("C-. C-r" . popup-ruler)))
+
+(use-package popwin
+  :defer 5
+  :load-path "site-lisp/popwin"
+  :config
+  (popwin-mode 1))
 
 (use-package pp-c-l
   :commands pretty-control-l-mode
