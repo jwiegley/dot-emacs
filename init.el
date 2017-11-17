@@ -1814,10 +1814,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
-(use-package iedit
-  :load-path "site-lisp/iedit"
-  :bind (("C-;" . iedit-mode)))
-
 (use-package ielm
   :bind ("C-c :" . ielm)
   :config
@@ -1965,7 +1961,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
     :config
     (bind-key "M-%" #'swiper-query-replace swiper-map)
-    (bind-key "M-h" #'swiper-avy swiper-map))
+    (bind-key "M-h" #'swiper-avy swiper-map)
+    (bind-key "M-c" #'swiper-mc swiper-map))
 
   (use-package counsel
     :bind (("M-x"     . counsel-M-x)
