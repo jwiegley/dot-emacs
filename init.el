@@ -1101,10 +1101,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
 
-(use-package counsel
-  :load-path "site-lisp/site-ivy/swiper"
-  :bind ("C-h e a" . counsel-apropos))
-
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode)
   :config
@@ -1945,9 +1941,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
   (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map)
 
-  (use-package ivy-hydra)
+  (use-package ivy-hydra
+    :demand t)
 
   (use-package ivy-rich
+    :demand t
     :load-path "site-lisp/site-ivy/ivy-rich"
     :config
     (ivy-set-display-transformer 'ivy-switch-buffer
@@ -1957,6 +1955,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (setq ivy-rich-path-style 'abbrev))
 
   (use-package swiper
+    :demand t
     :load-path "site-lisp/ivy/swiper"
     :bind (("C-s" . swiper)
            ("C-. C-s" . swiper)
@@ -1971,6 +1970,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "M-c" #'swiper-mc swiper-map))
 
   (use-package counsel
+    :demand t
     :bind (("M-x"     . counsel-M-x)
            ("C-h f"   . counsel-describe-function)
            ("C-h v"   . counsel-describe-variable)
@@ -1978,7 +1978,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("C-h e u" . counsel-unicode-char))
     :commands counsel-minibuffer-history
     :init
-    (define-key minibuffer-local-map (kbd "M-r") 'counsel-minibuffer-history)))
+    (define-key minibuffer-local-map (kbd "M-r")
+      'counsel-minibuffer-history)))
+    :config
+    (counsel-mode 1)
 
 (use-package js2-mode
   :load-path "site-lisp/site-lang/js2-mode"
@@ -2396,7 +2399,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "site-lisp/site-lang/markdown-preview-mode"
     :config
     (setq markdown-preview-stylesheets
-          (list "http://ftp.newartisans.com/pub/github.css"))))
+          '("https://github.com/dmarcotte/github-markdown-preview/blob/master/data/css/github.css"))))
 
 (use-package memory-usage
   :commands memory-usage)
@@ -2449,6 +2452,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
   :bind (("C-. c"   . mc/edit-lines)
+         ("C-'"     . mc/edit-lines)
          ("C->"     . mc/mark-next-like-this)
          ("C-<"     . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
@@ -2874,6 +2878,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-. C-z" . shell-toggle))
 
 (use-package slack
+  :disabled t
   :if running-alternate-emacs
   :load-path "site-lisp/emacs-slack"
   :commands slack-start
@@ -2886,8 +2891,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    :default t
    :client-id "115012203063.274340003812"
    :client-secret (lookup-password "plclub.slack.com" "115012203063.274340003812" 80)
-   :token "xoxs-115012203063-188919062931-274265151842-cd24feaa80"
-   :subscribed-channels '(hs-to-coq)))
+   :token (lookup-password "plclub.slack.com" "token" 80)))
 
 (use-package slime
   :load-path "site-lisp/site-lang/slime"
