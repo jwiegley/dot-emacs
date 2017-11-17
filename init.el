@@ -65,6 +65,16 @@
      (require 'ansi-color)
      (ansi-color-apply (substring str 0 (1- (length str)))))))
 
+(defun lookup-password (host user port)
+  (require 'auth-source)
+  (funcall (plist-get
+            (car (auth-source-search
+                  :host host
+                  :user user
+                  :type 'netrc
+                  :port port))
+            :secret)))
+
 ;;; Load customization settings
 
 (defvar running-alternate-emacs nil)
@@ -1036,6 +1046,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (chess-ics "freechess.org" 5000 (plist-get info :user)
                    (funcall (plist-get info :secret)))))))
 
+(use-package circe
+  :if running-alternate-emacs
+  :defer t
+  :load-path "site-lisp/circe")
+
 (use-package cmake-mode
   :mode (("CMakeLists.txt" . cmake-mode)
          ("\\.cmake\\'"    . cmake-mode)))
@@ -1360,16 +1375,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             erc-insert-timestamp-function
             erc-modified-channels-alist)
   :preface
-  (defun lookup-password (host user port)
-    (require 'auth-source)
-    (funcall (plist-get
-              (car (auth-source-search
-                    :host host
-                    :user user
-                    :type 'netrc
-                    :port port))
-              :secret)))
-
   (defun irc ()
     (interactive)
     (require 'erc)
@@ -2867,6 +2872,22 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package sh-toggle
   :bind ("C-. C-z" . shell-toggle))
+
+(use-package slack
+  :if running-alternate-emacs
+  :load-path "site-lisp/emacs-slack"
+  :commands slack-start
+  :init
+  (setq slack-buffer-emojify t
+        slack-prefer-current-team t)
+  :config
+  (slack-register-team
+   :name "plclub"
+   :default t
+   :client-id "115012203063.274340003812"
+   :client-secret (lookup-password "plclub.slack.com" "115012203063.274340003812" 80)
+   :token "xoxs-115012203063-188919062931-274265151842-cd24feaa80"
+   :subscribed-channels '(hs-to-coq)))
 
 (use-package slime
   :load-path "site-lisp/site-lang/slime"
