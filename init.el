@@ -527,7 +527,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (bind-key "C-c f" #'flush-lines)
 (bind-key "C-c k" #'keep-lines)
 
-(bind-key "C-c m" #'emacs-toggle-size)
+(bind-keys :prefix-map my-ctrl-c-m-map
+           :prefix "C-c m"
+           ("m" . emacs-toggle-size))
 
 (bind-key "C-c n" #'insert-user-timestamp)
 (bind-key "C-c o" #'customize-option)
@@ -2438,8 +2440,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multifiles
-  :bind ("C-!" . mf/mirror-region-in-multifile)
-  :load-path "site-lisp/multifiles-el")
+  :load ("C-c m f" . mf/mirror-region-in-multifile)
+  :bind-path "site-lisp/multifiles-el")
+
+(use-package multiple-cursors
+  :load-path "site-lisp/multiple-cursors"
+  :bind (("C-c m c" . mc/edit-lines)
+         ("C->"     . mc/mark-next-like-this)
+         ("C-<"     . mc/mark-previous-like-this)
+         ("C-c C-<" . mc/mark-all-like-this)
+         ("C-c m n" . mc/insert-numbers)
+         ("C-c m l" . mc/insert-letters)
+         ("C-c m s" . mc/sort-regions)
+         ("C-c m R" . mc/reverse-regions)
+         ("C-c m r" . set-rectangular-region-anchor)))
 
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
@@ -2753,34 +2767,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands regex-tool
   :load-path "lisp/regex-tool")
 
-(use-package repeat-insert
-  :commands (insert-patterned
-             insert-patterned-2
-             insert-patterned-3
-             insert-patterned-4)
-  :init
-  (defvar pattern-line)
-  (make-variable-buffer-local 'pattern-line)
-  (defvar pattern-index)
-  (make-variable-buffer-local 'pattern-index)
-
-  (defun pattern-insert (reset)
-    (interactive "P")
-    (if reset
-        (progn
-          (setq pattern-line
-                (replace-regexp-in-string
-                 " \\([0-9]+\\)\\.\\." " %d.." (car kill-ring))
-                pattern-index
-                (and (string-match " \\([0-9]+\\)\\.\\." (car kill-ring))
-                     (1+ (string-to-number
-                          (match-string 1 (car kill-ring))))))
-          (message "Pattern has been set"))
-      (insert (format pattern-line pattern-index))
-      (setq pattern-index (1+ pattern-index))))
-
-  (bind-key "C-. C-y" #'pattern-insert))
-
 (use-package restclient
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
@@ -3071,6 +3057,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              transpose-mark-line
              transpose-mark-region)
   :load-path "site-lisp/transpose-mark")
+
+(use-package undo-tree
+  :demand t
+  :load-path "site-lisp/undo-tree"
+  :config
+  (global-undo-tree-mode))
 
 (use-package vdiff
   :commands (vdiff-files

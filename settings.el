@@ -860,6 +860,7 @@
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
+ '(mc/list-file "~/.emacs.d/data/mc-lists.el")
  '(mediawiki-site-alist
    (quote
     (("Wikipedia" "https://en.wikipedia.org/w/" "jwiegley" "" nil "Main Page"))))
