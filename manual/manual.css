@@ -1,0 +1,88 @@
+body {
+    font-family: Verdana, "Bitstream Vera Sans", sans-serif;
+    background-color: #c9c9c9;
+    color: #33333A;
+    line-height: 140%;
+    font-size: 100%;
+}
+
+a {
+    text-decoration: none;
+    color: #533333;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #cf1212;
+}
+
+h1.title {
+    text-align: center;
+    font-size: 2em;
+}
+
+h2.author {
+    text-align: center;
+    font-size: 1.3em;
+}
+
+h3.date {
+    text-align: center;
+    font-size: 100%
+}
+
+h1 {
+    font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+img {
+    border: 0;
+}
+
+#main {
+    margin: auto;
+    max-width: 45%;
+    top: 140px;
+    text-align: justify;
+}
+
+#TOC {
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    -moz-box-shadow:    3px 3px 5px 6px #333333;
+    -webkit-box-shadow: 3px 3px 5px 6px #333333;
+    box-shadow:         3px 3px 5px 6px #333333;
+    position: fixed;
+    /* margin-left: 75%; */
+    width: 20%;
+    padding-right: 1%;
+    background-color: #6b1d1d;
+    color: #c9c9c9;
+    font-size: 75%;
+}
+
+#TOC a {
+    text-decoration: none;
+    color: #ffa71d;
+}
+
+#TOC a:hover {
+    text-decoration: none;
+    color: #ffdf20;
+}
+
+.bottom-dweller {
+    width: 100%;
+    position: absolute;
+    bottom: 0%;
+}
+
+.footnotes {
+    margin: auto;
+    max-width: 50%;
+}
