@@ -1815,7 +1815,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ielm
-  :bind ("C-c :" . ielm)
+  :commands ielm
   :config
   (defun my-ielm-return ()
     (interactive)
