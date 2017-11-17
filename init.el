@@ -1971,6 +1971,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package counsel
     :demand t
+    :diminish counsel-mode
     :bind (("M-x"     . counsel-M-x)
            ("C-h f"   . counsel-describe-function)
            ("C-h v"   . counsel-describe-variable)
@@ -2521,7 +2522,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
 
 (use-package outline
+  :disabled t
   :commands outline-minor-mode
+  :diminish outline-minor-mode
   :init
   (hook-into-modes #'outline-minor-mode
                    'emacs-lisp-mode-hook
