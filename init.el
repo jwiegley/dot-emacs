@@ -1757,6 +1757,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
 
+(use-package highlight-numbers
+  :load-path "site-lisp/highlight-numbers"
+  :commands highlight-numbers-mode
+  :init
+  (hook-into-modes #'highlight-numbers-mode
+                   'prog-mode-hook))
+
 (use-package hl-line
   :commands hl-line-mode
   :bind (("M-o h" . hl-line-mode))
@@ -2525,6 +2532,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "C-. j" #'paredit-join-with-next-list paredit-mode-map)
   (bind-key "C-. J" #'paredit-join-with-previous-list paredit-mode-map))
 
+(use-package parent-mode
+  :defer t
+  :load-path "site-lisp/parent-mode")
+
 (or
  (use-package mic-paren
    :defer 5
@@ -2534,6 +2545,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    :defer 5
    :config
    (show-paren-mode 1)))
+
+(use-package pcre2el
+  :load-path "site-lisp/site-emacs-lisp/pcre2el"
+  :commands (rxt-mode rxt-global-mode))
 
 (use-package pdf-tools
   :defer 15
