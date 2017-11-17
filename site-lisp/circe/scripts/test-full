@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+cd "$(dirname "$0")/.."
+. scripts/env
+
+cask exec buttercup -L .
+for ver in $SUPPORTED_EMACS_VERSIONS
+do
+    EMACS="emacs-$ver" cask exec buttercup -L .
+done
