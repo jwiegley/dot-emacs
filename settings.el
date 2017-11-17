@@ -1170,6 +1170,7 @@
  '(wg-prefix-key "")
  '(wg-query-for-save-on-emacs-exit nil)
  '(wg-query-for-save-on-workgroups-mode-exit nil)
+ '(wgrep-enable-key "")
  '(whitespace-auto-cleanup t t)
  '(whitespace-line-column 110)
  '(whitespace-rescan-timer-time nil t)

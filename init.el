@@ -1960,6 +1960,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :init
     (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
     :config
+    (bind-key "M-y" #'yank swiper-map)
     (bind-key "M-%" #'swiper-query-replace swiper-map)
     (bind-key "M-h" #'swiper-avy swiper-map)
     (bind-key "M-c" #'swiper-mc swiper-map))
@@ -3095,6 +3096,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package wcount
   :bind ("C-. W" . wcount-mode))
+
+(use-package wgrep
+  :defer 5
+  :load-path "site-lisp/wgrep")
 
 (use-package whitespace
   :diminish (global-whitespace-mode
