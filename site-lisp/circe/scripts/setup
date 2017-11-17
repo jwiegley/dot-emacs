@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+cd "$(dirname "$0")/.."
+. scripts/env
+
+test -d .cask && rm -rf .cask
+test -d dist && rm -rf dist
+
+cask install
+for ver in $SUPPORTED_EMACS_VERSIONS
+do
+    EMACS="emacs-$ver" cask install
+done
