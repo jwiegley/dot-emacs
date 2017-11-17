@@ -529,6 +529,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (bind-keys :prefix-map my-ctrl-c-m-map
            :prefix "C-c m"
+           ("k" . kmacro-keymap)
            ("m" . emacs-toggle-size))
 
 (bind-key "C-c n" #'insert-user-timestamp)
@@ -598,13 +599,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (forward-paragraph))))
 
 (bind-key "C-c M-q" #'unfill-paragraph)
-
-;;; ctl-period-map
-
-;;; C-.
-
-(bind-key "C-. m" #'kmacro-keymap)
-(bind-key "C-. C-i" #'indent-rigidly)
 
 ;;; C-h e
 
@@ -859,7 +853,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package ace-window
   :load-path "site-lisp/site-ivy/ace-window"
-  :bind ("<C-return>" . ace-window))
+  :bind* ("<C-return>" . ace-window))
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
@@ -1440,6 +1434,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :load-path "lisp/erc-yank"
     :config
     (bind-key "C-y" #'erc-yank erc-mode-map))
+
+  (defadvice erc-scroll-to-bottom (around my-erc-scroll-to-bottom activate)
+    "Ignore errors when attempting to scroll to the bottom."
+    (ignore-errors ad-do-it))
 
   (add-hook 'erc-insert-pre-hook
             (lambda (s)
@@ -2437,12 +2435,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multifiles
-  :load ("C-c m f" . mf/mirror-region-in-multifile)
-  :bind-path "site-lisp/multifiles-el")
+  :bind ("C-c m f" . mf/mirror-region-in-multifile)
+  :load-path "site-lisp/multifiles-el")
 
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
-  :bind (("C-c m c" . mc/edit-lines)
+  :bind (("C-. c"   . mc/edit-lines)
          ("C->"     . mc/mark-next-like-this)
          ("C-<"     . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
@@ -3069,12 +3067,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/emacs-vdiff")
 
 (use-package vimish-fold
-  :defer 5
-  :commands vimish-fold
   :load-path "site-lisp/vimish-fold"
-  :config
+  :commands (vimish-fold
+             vimish-fold-delete
+             vimish-fold-delete-all)
+  :init
   (bind-keys :prefix-map my-vimish-fold-map
-             :prefix "C-. v"
+             :prefix "C-. f"
              ("f" . vimish-fold)
              ("d" . vimish-fold-delete)
              ("D" . vimish-fold-delete-all)))
@@ -3083,14 +3082,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/visual-regexp"
   :commands (vr/replace
              vr/query-replace)
-  :bind (("C-. r"   . vr/replace)
-         ("C-. M-%" . vr/query-replace))
+  :init
+  (bind-keys :prefix-map my-visual-regexp-map
+             :prefix "C-. v"
+             ("r" . vr/replace)
+             ("%" . vr/query-replace))
   :config
   (use-package visual-regexp-steroids
     :load-path "site-lisp/visual-regexp-steroids"))
 
 (use-package wcount
-  :commands wcount-mode)
+  :bind ("C-. W" . wcount-mode))
 
 (use-package whitespace
   :diminish (global-whitespace-mode
