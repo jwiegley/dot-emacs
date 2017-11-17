@@ -1506,6 +1506,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (paredit-mode)
     (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)))
 
+(use-package evil
+  :load-path "site-lisp/evil"
+  :commands evil-mode)
+
 (use-package eww
   :bind ("A-M-g" . eww))
 
