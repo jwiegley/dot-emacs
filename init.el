@@ -3,7 +3,7 @@
 (setq message-log-max 16384)
 
 (defsubst emacs-path (path)
-  (emacs-path path))
+  (expand-file-name path user-emacs-directory))
 
 (eval-and-compile
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
