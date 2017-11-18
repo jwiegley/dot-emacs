@@ -1003,6 +1003,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (setq backup-enable-predicate 'my-dont-backup-files-p))
 
+(use-package beacon
+  :defer 5
+  :load-path "site-lisp/beacon"
+  :config
+  (beacon-mode 1))
+
 (use-package bookmark
   :load-path "site-lisp/bookmark-plus"
   :defer 10
@@ -2190,7 +2196,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package lusty-explorer
   :demand t
   :load-path "site-lisp/lusty-emacs"
-  :bind ("C-x C-f" . my-lusty-file-explorer)
+  :bind (("C-x C-f" . my-lusty-file-explorer)
+         ("C-x C-w" . my-write-file))
   :preface
   (defun lusty-read-directory ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2205,18 +2212,32 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              (lusty-only-directories t))
         (lusty--run 'read-directory-name default-directory ""))))
 
-  (defun lusty-read-file-name ()
+  (defun lusty-read-file-name
+      (prompt &optional dir default-filename mustmatch initial predicate)
     "Launch the file/directory mode of LustyExplorer."
     (interactive)
     (require 'lusty-explorer)
-    (let ((lusty--active-mode :file-explorer))
-      (lusty--define-mode-map)
-      (let* ((lusty--ignored-extensions-regex
-              (concat "\\(?:" (regexp-opt completion-ignored-extensions)
-                      "\\)$"))
-             (minibuffer-local-filename-completion-map lusty-mode-map)
-             (lusty-only-directories nil))
-        (lusty--run 'read-file-name default-directory ""))))
+    (let ((lusty--active-mode :file-explorer)
+          (helm-mode-prev (and (boundp 'helm-mode) helm-mode))
+          (ivy-mode-prev (and (boundp 'ivy-mode) ivy-mode)))
+      (if (fboundp 'helm-mode)
+          (helm-mode -1))
+      (if (fboundp 'ivy-mode)
+          (ivy-mode -1))
+      (unwind-protect
+          (progn
+            (lusty--define-mode-map)
+            (let* ((lusty--ignored-extensions-regex
+                    (concat "\\(?:" (regexp-opt completion-ignored-extensions)
+                            "\\)$"))
+                   (minibuffer-local-filename-completion-map lusty-mode-map)
+                   (lusty-only-directories nil))
+              (lusty--run 'read-file-name
+                          dir default-filename mustmatch initial predicate)))
+        (if (fboundp 'helm-mode)
+            (helm-mode (if helm-mode-prev 1 -1)))
+        (if (fboundp 'ivy-mode)
+            (ivy-mode (if ivy-mode-prev 1 -1))))))
 
   (defun my-lusty-file-explorer ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2261,8 +2282,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'lusty-setup-hook 'my-lusty-setup-hook)
 
   (defun lusty-open-this ()
-    "Open the given file/directory/buffer, creating it if not
-    already present."
+    "Open the given file/directory/buffer, creating it if not already present."
     (interactive)
     (when lusty--active-mode
       (ecase lusty--active-mode
@@ -2272,6 +2292,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            (lusty-select-match)
            (lusty-select-current-name)))
         (:buffer-explorer (lusty-select-match)))))
+
+  (defun my-write-file (filename &optional confirm)
+    (interactive
+     (list (if buffer-file-name
+	       (lusty-read-file-name "Write file: "
+			             nil nil nil nil)
+	     (lusty-read-file-name "Write file: " default-directory
+			           (expand-file-name
+			            (file-name-nondirectory (buffer-name))
+			            default-directory)
+			           nil nil))
+	   (not current-prefix-arg)))
+    (write-file filename confirm))
 
   (defvar lusty-only-directories nil)
 
@@ -2595,9 +2628,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package popwin
   :defer 5
-  :load-path "site-lisp/popwin"
-  :config
-  (popwin-mode 1))
+  :load-path "site-lisp/popwin")
 
 (use-package pp-c-l
   :commands pretty-control-l-mode
