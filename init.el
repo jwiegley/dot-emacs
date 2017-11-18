@@ -1005,6 +1005,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package beacon
   :defer 5
+  :diminish beacon-mode
   :load-path "site-lisp/beacon"
   :config
   (beacon-mode 1))
