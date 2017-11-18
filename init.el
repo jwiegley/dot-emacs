@@ -1011,10 +1011,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (beacon-mode 1))
 
 (use-package bookmark
-  :load-path "site-lisp/bookmark-plus"
   :defer 10
   :config
-  (use-package bookmark+))
+  (use-package bookmark+
+    :load-path "site-lisp/bookmark-plus"))
 
 (use-package browse-kill-ring+
   :defer 10
