@@ -1020,12 +1020,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 10
   :commands browse-kill-ring)
 
-(use-package bug-reference-github
-  :load-path "site-lisp/site-git/bug-reference-github"
-  :defer 10
-  :config
-  (bug-reference-github-set-url-format))
-
 (use-package bytecomp-simplify
   :defer 15)
 
