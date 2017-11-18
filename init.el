@@ -1,39 +1,32 @@
 (defconst emacs-start-time (current-time))
 
-(unless noninteractive
-  (message "Loading %s..." load-file-name))
-
 (setq message-log-max 16384)
+
+(defsubst emacs-path (path)
+  (emacs-path path))
 
 (eval-and-compile
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
-  (mapc #'(lambda (path)
-            (add-to-list 'load-path
-                         (expand-file-name path user-emacs-directory)))
-        '("site-lisp" "lisp/use-package" "lisp" ""))
+  (defsubst add-load-path (path)
+    (add-to-list 'load-path (emacs-path path)))
 
-  (mapc #'(lambda (path) (add-to-list 'load-path path))
-        (directory-files (expand-file-name "site-lisp" user-emacs-directory)
-			 t "site-[A-Z0-9a-z-]+\\'"))
+  (mapc #'add-load-path
+        (append (directory-files (emacs-path "site-lisp") t
+                                 "site-[A-Z0-9a-z-]+\\'")
+                '("site-lisp" "lisp/use-package" "lisp" "")))
 
   (defun nix-read-environment (name)
-    (let ((script
-           (nth 0 (split-string
-                   (shell-command-to-string (concat "which load-env-" name))
-                   "\n"))))
-      (if (string= script "")
-          (error "Could not find environment %s" name)
-        (with-temp-buffer
-          (insert-file-contents-literally script)
-          (when (re-search-forward "^source \\(.+\\)$" nil t)
-            (let ((script2 (match-string 1)))
-              (with-temp-buffer
-                (insert-file-contents-literally script2)
-                (when (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\""
-                                         nil t)
-                  (let ((inputs (split-string (match-string 1))))
-                    inputs)))))))))
+    (with-temp-buffer
+      (insert-file-contents-literally
+       (with-temp-buffer
+         (insert-file-contents-literally
+          (executable-find (concat "load-env-" name)))
+         (and (re-search-forward "^source \\(.+\\)$" nil t)
+              (match-string 1))))
+      (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+               (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
+           (split-string (match-string 1)))))
 
   (when (executable-find "nix-env")
     (mapc #'(lambda (path)
@@ -42,13 +35,7 @@
                     (add-to-list 'load-path share))))
           (nix-read-environment emacs-environment)))
 
-  (eval-after-load 'advice
-    `(setq ad-redefinition-action 'accept))
-
   (require 'cl)
-
-  ;; (defvar use-package-verbose t)
-  ;; (defvar use-package-expand-minimally t)
   (require 'use-package))
 
 (require 'bind-key)
@@ -67,34 +54,26 @@
 
 (defun lookup-password (host user port)
   (require 'auth-source)
-  (funcall (plist-get
-            (car (auth-source-search
-                  :host host
-                  :user user
-                  :type 'netrc
-                  :port port))
-            :secret)))
+  (funcall (plist-get (car (auth-source-search :host host :user user
+                                               :type 'netrc :port port))
+                      :secret)))
 
 ;;; Load customization settings
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
-
-(defvar user-data-directory (expand-file-name "data" user-emacs-directory))
+(defvar user-data-directory (emacs-path "data"))
 
 (if (string= "emacs26" emacs-environment)
-    (load (expand-file-name "settings" user-emacs-directory))
+    (load (emacs-path "settings"))
   (let ((settings
          (with-temp-buffer
-           (insert-file-contents
-            (expand-file-name "settings.el" user-emacs-directory))
-           (goto-char (point-min))
+           (insert-file-contents (emacs-path "settings.el"))
            (read (current-buffer))))
-        (suffix (cond ;; ((string= "emacs25alt" emacs-environment) "alt")
-                      ((string= "emacsHEAD" emacs-environment) "alt")
+        (suffix (cond ((string= "emacsHEAD" emacs-environment) "alt")
                       (t "other"))))
     (setq running-development-emacs (string= suffix "dev")
-          running-alternate-emacs (string= suffix "alt")
+          running-alternate-emacs   (string= suffix "alt")
           user-data-directory
           (replace-regexp-in-string "/data" (format "/data-%s" suffix)
                                     user-data-directory))
@@ -111,25 +90,22 @@
     (eval settings)))
 
 (setq Info-directory-list
-      (mapcar
-       'expand-file-name
-       (list
-        "~/.emacs.d/info"
-        "~/Library/Info"
-        (if (executable-find "nix-env")
-            (expand-file-name
-             "share/info" (car (nix-read-environment emacs-environment)))
-          "~/share/info")
-        "~/.nix-profile/share/info")))
+      (mapcar 'expand-file-name
+              (list
+               "~/.emacs.d/info"
+               "~/Library/Info"
+               (if (executable-find "nix-env")
+                   (expand-file-name
+                    "share/info"
+                    (car (nix-read-environment emacs-environment)))
+                 "~/share/info")
+               "~/.nix-profile/share/info")))
 
 ;;; Enable disabled commands
 
 (setq disabled-command-function nil)
 
 ;;; Configure libraries
-
-(eval-and-compile
-  (add-to-list 'load-path (expand-file-name "lib" user-emacs-directory)))
 
 (use-package anaphora         :defer t :load-path "lib/anaphora")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
@@ -230,35 +206,6 @@
 
 ;;; C-x
 
-(defvar edit-rectangle-origin)
-(defvar edit-rectangle-saved-window-config)
-
-(defun edit-rectangle (&optional start end)
-  (interactive "r")
-  (let ((strs (delete-extract-rectangle start end))
-        (mode major-mode)
-        (here (copy-marker (min (mark) (point)) t))
-        (config (current-window-configuration)))
-    (with-current-buffer (generate-new-buffer "*Rectangle*")
-      (funcall mode)
-      (set (make-local-variable 'edit-rectangle-origin) here)
-      (set (make-local-variable 'edit-rectangle-saved-window-config) config)
-      (local-set-key (kbd "C-c C-c") #'restore-rectangle)
-      (mapc #'(lambda (x) (insert x ?\n)) strs)
-      (goto-char (point-min))
-      (pop-to-buffer (current-buffer)))))
-
-(defun restore-rectangle ()
-  (interactive)
-  (let ((content (split-string (buffer-string) "\n"))
-        (origin edit-rectangle-origin)
-        (config edit-rectangle-saved-window-config))
-    (with-current-buffer (marker-buffer origin)
-      (goto-char origin)
-      (insert-rectangle content))
-    (kill-buffer (current-buffer))
-    (set-window-configuration config)))
-
 (defun delete-current-buffer-file ()
   "Delete the current buffer and the file connected with it"
   (interactive)
@@ -267,12 +214,11 @@
         (name (buffer-name)))
     (if (not (and filename (file-exists-p filename)))
         (kill-buffer buffer)
-      (when (yes-or-no-p "Are you sure, want to remove this file? ")
+      (when (yes-or-no-p "Are you sure this file should be removed? ")
         (delete-file filename)
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
-(bind-key "C-x D" #'edit-rectangle)
 (bind-key "C-x d" #'delete-whitespace-rectangle)
 (bind-key "C-x F" #'set-fill-column)
 (bind-key "C-x t" #'toggle-truncate-lines)
@@ -682,7 +628,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
-  (setq gnus-init-file (expand-file-name "dot-gnus" user-emacs-directory)
+  (setq gnus-init-file (emacs-path "dot-gnus")
         gnus-home-directory "~/Messages/Gnus/"))
 
 ;;; Packages
@@ -957,8 +903,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :defer t
     :config
     (use-package preview)
-    (load (expand-file-name "site-lisp/site-lang/auctex/style/minted"
-                            user-emacs-directory))
+    (load (emacs-path "site-lisp/site-lang/auctex/style/minted"))
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
     (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
@@ -1358,6 +1303,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package edit-env
   :commands edit-env)
 
+(use-package edit-rectangle
+  :bind ("C-. r" . edit-rectangle))
+
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
 
@@ -1370,7 +1318,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             erc-fill-column
             erc-insert-timestamp-function
             erc-modified-channels-alist)
-  :preface
+  :preface  
   (defun irc ()
     (interactive)
     (require 'erc)
