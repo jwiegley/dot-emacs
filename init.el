@@ -949,6 +949,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package beacon
+  :disabled t
   :defer 5
   :diminish beacon-mode
   :load-path "site-lisp/beacon"
