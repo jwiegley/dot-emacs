@@ -1514,6 +1514,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/site-git/git-timemachine"
   :commands git-timemachine)
 
+(use-package git-undo
+  :load-path "lisp/git-undo-el"
+  :bind ("C-. u" . git-undo))
+
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
