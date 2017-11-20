@@ -55,3 +55,6 @@
 [submodule "lisp/chess"]
 	path = lisp/chess
 	url = git://github.com/jwiegley/emacs-chess.git
+[submodule "lisp/git-undo-el"]
+	path = lisp/git-undo-el
+	url = git://github.com/jwiegley/git-undo-el.git
