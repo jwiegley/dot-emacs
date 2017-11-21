@@ -1852,7 +1852,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
-  :commands ivy-mode
+  :commands (ivy-mode ivy-read ivy-completing-read)
+  :init
+  (defun my-ivy-completing-read (&rest args)
+    (let ((ivy-sort-functions-alist '((t . nil))))
+      (apply 'ivy-completing-read args)))
+
   :config
   (setq ivy-initial-inputs-alist nil
         ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
