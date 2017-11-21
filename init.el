@@ -929,6 +929,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package bookmark+
     :load-path "site-lisp/bookmark-plus"))
 
+(use-package browse-at-remote
+  :load-path "site-lisp/browse-at-remote"
+  :bind ("C-. g g" . browse-at-remote))
+
 (use-package browse-kill-ring+
   :defer 10
   :commands browse-kill-ring
