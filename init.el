@@ -1,3 +1,5 @@
+;; Startup
+
 (defconst emacs-start-time (current-time))
 
 (setq message-log-max 16384)
@@ -41,27 +43,11 @@
 (require 'bind-key)
 (require 'diminish nil t)
 
-;;; Utility macros and functions
-
-(defsubst hook-into-modes (func &rest modes)
-  (dolist (mode-hook modes) (add-hook mode-hook func)))
-
-(defun get-jobhours-string ()
-  (with-current-buffer (get-buffer "*scratch*")
-   (let ((str (shell-command-to-string "jobhours")))
-     (require 'ansi-color)
-     (ansi-color-apply (substring str 0 (1- (length str)))))))
-
-(defun lookup-password (host user port)
-  (require 'auth-source)
-  (funcall (plist-get (car (auth-source-search :host host :user user
-                                               :type 'netrc :port port))
-                      :secret)))
-
 ;;; Load customization settings
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
+
 (defvar user-data-directory (emacs-path "data"))
 
 (if (string= "emacs26" emacs-environment)
@@ -100,230 +86,6 @@
                     (car (nix-read-environment emacs-environment)))
                  "~/share/info")
                "~/.nix-profile/share/info")))
-
-;;; Enable disabled commands
-
-(setq disabled-command-function nil)
-
-;;; Configure libraries
-
-(use-package alert            :defer t :load-path "lisp/alert")
-(use-package anaphora         :defer t :load-path "lib/anaphora")
-(use-package async            :defer t :load-path "lisp/emacs-async")
-(use-package button-lock      :defer t :load-path "lib/button-lock")
-(use-package ctable           :defer t :load-path "lib/emacs-ctable")
-(use-package dash             :defer t :load-path "lib/dash-el")
-(use-package deferred         :defer t :load-path "lib/emacs-deferred")
-(use-package emojify          :defer t :load-path "lib/emacs-emojify")
-(use-package epc              :defer t :load-path "lib/emacs-epc")
-(use-package epl              :defer t :load-path "lib/epl")
-(use-package f                :defer t :load-path "lib/f-el")
-(use-package fame             :defer t :load-path "lib/fame")
-(use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
-(use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
-(use-package gh               :defer t :load-path "lib/gh-el")
-(use-package ht               :defer t :load-path "lib/ht-el")
-(use-package let-alist        :defer t :load-path "lib/let-alist")
-(use-package logito           :defer t :load-path "lib/logito")
-(use-package makey            :defer t :load-path "lib/makey")
-(use-package marshal          :defer t :load-path "lib/marshal-el")
-(use-package oauth2           :defer t :load-path "lib/oauth2")
-(use-package pcache           :defer t :load-path "lib/pcache")
-(use-package pkg-info         :defer t :load-path "lib/pkg-info")
-(use-package popup            :defer t :load-path "lib/popup-el")
-(use-package pos-tip          :defer t :load-path "lib/pos-tip")
-(use-package request          :defer t :load-path "lib/emacs-request")
-(use-package s                :defer t :load-path "lib/s-el")
-(use-package tablist          :defer t :load-path "lib/tablist")
-(use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
-(use-package web              :defer t :load-path "lib/emacs-web")
-(use-package web-server       :defer t :load-path "lib/emacs-web-server")
-(use-package websocket        :defer t :load-path "lib/emacs-websocket")
-(use-package with-editor      :defer t :load-path "lib/with-editor")
-(use-package working          :defer t :load-path "lib/working")
-(use-package xml-rpc          :defer t :load-path "lib/xml-rpc")
-
-;;; Keybindings
-
-;;; global-map
-
-(autoload 'indent-according-to-mode "indent" nil t)
-
-(define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-
-;;; C-
-
-(defvar ctl-period-map)
-(define-prefix-command 'ctl-period-map)
-(bind-key "C-." #'ctl-period-map)
-
-(bind-key "C-z" #'delete-other-windows)
-
-;;; M-
-
-(defadvice async-shell-command (before uniqify-running-shell-command activate)
-  (let ((buf (get-buffer "*Async Shell Command*")))
-    (if buf
-        (let ((proc (get-buffer-process buf)))
-          (if (and proc (eq 'run (process-status proc)))
-              (with-current-buffer buf
-                (rename-uniquely)))))))
-
-(defun mark-line (&optional arg)
-  (interactive "p")
-  (beginning-of-line)
-  (let ((here (point)))
-    (dotimes (i arg)
-      (or (zerop i) (forward-line))
-      (end-of-line))
-    (set-mark (point))
-    (goto-char here)))
-
-(defun mark-sentence (&optional arg)
-  (interactive "P")
-  (backward-sentence)
-  (mark-end-of-sentence arg))
-
-(defun delete-indentation-forward ()
-  (interactive)
-  (delete-indentation t))
-
-(bind-key "M-!" #'async-shell-command)
-(bind-key "M-'" #'insert-pair)
-(bind-key "M-\"" #'insert-pair)
-(bind-key "M-`" #'other-frame)
-(bind-key "M-j" #'delete-indentation-forward)
-(bind-key "M-J" #'delete-indentation)
-(bind-key "M-W" #'mark-word)
-(bind-key "M-L" #'mark-line)
-(bind-key "M-S" #'mark-sentence)
-(bind-key "M-X" #'mark-sexp)
-(bind-key "M-D" #'mark-defun)
-(bind-key "M-g c" #'goto-char)
-(bind-key "M-g l" #'goto-line)
-
-;;; C-M-
-
-(bind-key "<C-M-backspace>" #'backward-kill-sexp)
-
-;;; C-x
-
-(defun delete-current-buffer-file ()
-  "Delete the current buffer and the file connected with it"
-  (interactive)
-  (let ((filename (buffer-file-name))
-        (buffer (current-buffer))
-        (name (buffer-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (kill-buffer buffer)
-      (when (yes-or-no-p "Are you sure this file should be removed? ")
-        (delete-file filename)
-        (kill-buffer buffer)
-        (message "File '%s' successfully removed" filename)))))
-
-(bind-key "C-x d" #'delete-whitespace-rectangle)
-(bind-key "C-x F" #'set-fill-column)
-(bind-key "C-x t" #'toggle-truncate-lines)
-(bind-key "C-x v H" #'vc-region-history)
-(bind-key "C-x K" #'delete-current-buffer-file)
-
-;;; C-x C-
-
-(defun duplicate-line ()
-  "Duplicate the line containing point."
-  (interactive)
-  (save-excursion
-    (let (line-text)
-      (goto-char (line-beginning-position))
-      (let ((beg (point)))
-        (goto-char (line-end-position))
-        (setq line-text (buffer-substring beg (point))))
-      (if (eobp)
-          (insert ?\n)
-        (forward-line))
-      (open-line 1)
-      (insert line-text))))
-
-(defun find-alternate-file-with-sudo ()
-  (interactive)
-  (find-alternate-file (concat "/sudo::" (buffer-file-name))))
-
-(bind-key "C-x C-d" #'duplicate-line)
-(bind-key "C-x C-e" #'pp-eval-last-sexp)
-(bind-key "C-x C-n" #'next-line)
-(bind-key "C-x C-v" #'find-alternate-file-with-sudo)
-
-;;; C-x M-
-
-(defun refill-paragraph (arg)
-  (interactive "*P")
-  (let ((fun (if (memq major-mode '(c-mode c++-mode))
-                 'c-fill-paragraph
-               (or fill-paragraph-function
-                   'fill-paragraph)))
-        (width (if (numberp arg) arg))
-        prefix beg end)
-    (forward-paragraph 1)
-    (setq end (copy-marker (- (point) 2)))
-    (forward-line -1)
-    (let ((b (point)))
-      (skip-chars-forward "^A-Za-z0-9`'\"(")
-      (setq prefix (buffer-substring-no-properties b (point))))
-    (backward-paragraph 1)
-    (if (eolp)
-        (forward-char))
-    (setq beg (point-marker))
-    (delete-horizontal-space)
-    (while (< (point) end)
-      (delete-indentation 1)
-      (end-of-line))
-    (let ((fill-column (or width fill-column))
-          (fill-prefix prefix))
-      (if prefix
-          (setq fill-column
-                (- fill-column (* 2 (length prefix)))))
-      (funcall fun nil)
-      (goto-char beg)
-      (insert prefix)
-      (funcall fun nil))
-    (goto-char (+ end 2))))
-
-(bind-key "C-x M-n" #'set-goal-column)
-(bind-key "C-x M-q" #'refill-paragraph)
-
-;;; mode-specific-map
-
-;;; C-c
-
-(defmacro recursive-edit-preserving-window-config (body)
-  "*Return a command that enters a recursive edit after executing BODY.
-Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
-or \\[abort-recursive-edit] (abort)), restore window configuration
-in current frame.
-Inspired by Erik Naggum's `recursive-edit-with-single-window'."
-  `(lambda ()
-     "See the documentation for `recursive-edit-preserving-window-config'."
-     (interactive)
-     (save-window-excursion
-       ,body
-       (recursive-edit))))
-
-(defun delete-current-line (&optional arg)
-  (interactive "p")
-  (let ((here (point)))
-    (beginning-of-line)
-    (kill-line arg)
-    (goto-char here)))
-
-(defun do-eval-buffer ()
-  (interactive)
-  (call-interactively 'eval-buffer)
-  (message "Buffer has been evaluated"))
-
-(defun do-eval-region ()
-  (interactive)
-  (call-interactively 'eval-region)
-  (message "Region has been evaluated"))
 
 (eval-when-compile
   (defvar emacs-min-height)
@@ -424,6 +186,52 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (emacs-min)
     (emacs-max)))
 
+;;; Enable disabled commands
+
+(setq disabled-command-function nil)
+
+;;; Configure libraries
+
+(use-package alert            :defer t :load-path "lisp/alert")
+(use-package anaphora         :defer t :load-path "lib/anaphora")
+(use-package async            :defer t :load-path "lisp/emacs-async")
+(use-package button-lock      :defer t :load-path "lib/button-lock")
+(use-package ctable           :defer t :load-path "lib/emacs-ctable")
+(use-package dash             :defer t :load-path "lib/dash-el")
+(use-package deferred         :defer t :load-path "lib/emacs-deferred")
+(use-package emojify          :defer t :load-path "lib/emacs-emojify")
+(use-package epc              :defer t :load-path "lib/emacs-epc")
+(use-package epl              :defer t :load-path "lib/epl")
+(use-package f                :defer t :load-path "lib/f-el")
+(use-package fame             :defer t :load-path "lib/fame")
+(use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
+(use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
+(use-package gh               :defer t :load-path "lib/gh-el")
+(use-package ht               :defer t :load-path "lib/ht-el")
+(use-package let-alist        :defer t :load-path "lib/let-alist")
+(use-package logito           :defer t :load-path "lib/logito")
+(use-package makey            :defer t :load-path "lib/makey")
+(use-package marshal          :defer t :load-path "lib/marshal-el")
+(use-package oauth2           :defer t :load-path "lib/oauth2")
+(use-package pcache           :defer t :load-path "lib/pcache")
+(use-package pkg-info         :defer t :load-path "lib/pkg-info")
+(use-package popup            :defer t :load-path "lib/popup-el")
+(use-package pos-tip          :defer t :load-path "lib/pos-tip")
+(use-package request          :defer t :load-path "lib/emacs-request")
+(use-package s                :defer t :load-path "lib/s-el")
+(use-package tablist          :defer t :load-path "lib/tablist")
+(use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
+(use-package web              :defer t :load-path "lib/emacs-web")
+(use-package web-server       :defer t :load-path "lib/emacs-web-server")
+(use-package websocket        :defer t :load-path "lib/emacs-websocket")
+(use-package with-editor      :defer t :load-path "lib/with-editor")
+(use-package working          :defer t :load-path "lib/working")
+(use-package xml-rpc          :defer t :load-path "lib/xml-rpc")
+
+;;; Macros and functions
+
+(autoload 'indent-according-to-mode "indent" nil t)
+
 (defcustom user-initials nil
   "*Initials of this user."
   :set
@@ -447,6 +255,143 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (insert (format "%s (%s): " user-initials
                   (format-time-string "%Y-%m-%d" (current-time)))))
 
+(defsubst hook-into-modes (func &rest modes)
+  (dolist (mode-hook modes) (add-hook mode-hook func)))
+
+(defun get-jobhours-string ()
+  (with-current-buffer (get-buffer "*scratch*")
+   (let ((str (shell-command-to-string "jobhours")))
+     (require 'ansi-color)
+     (ansi-color-apply (substring str 0 (1- (length str)))))))
+
+(defun lookup-password (host user port)
+  (require 'auth-source)
+  (funcall (plist-get (car (auth-source-search :host host :user user
+                                               :type 'netrc :port port))
+                      :secret)))
+
+(defadvice async-shell-command (before uniqify-running-shell-command activate)
+  (let ((buf (get-buffer "*Async Shell Command*")))
+    (if buf
+        (let ((proc (get-buffer-process buf)))
+          (if (and proc (eq 'run (process-status proc)))
+              (with-current-buffer buf
+                (rename-uniquely)))))))
+
+(defun mark-line (&optional arg)
+  (interactive "p")
+  (beginning-of-line)
+  (let ((here (point)))
+    (dotimes (i arg)
+      (or (zerop i) (forward-line))
+      (end-of-line))
+    (set-mark (point))
+    (goto-char here)))
+
+(defun mark-sentence (&optional arg)
+  (interactive "P")
+  (backward-sentence)
+  (mark-end-of-sentence arg))
+
+(defun delete-indentation-forward ()
+  (interactive)
+  (delete-indentation t))
+
+(defun delete-current-buffer-file ()
+  "Delete the current buffer and the file connected with it"
+  (interactive)
+  (let ((filename (buffer-file-name))
+        (buffer (current-buffer))
+        (name (buffer-name)))
+    (if (not (and filename (file-exists-p filename)))
+        (kill-buffer buffer)
+      (when (yes-or-no-p "Are you sure this file should be removed? ")
+        (delete-file filename)
+        (kill-buffer buffer)
+        (message "File '%s' successfully removed" filename)))))
+
+(defun duplicate-line ()
+  "Duplicate the line containing point."
+  (interactive)
+  (save-excursion
+    (let (line-text)
+      (goto-char (line-beginning-position))
+      (let ((beg (point)))
+        (goto-char (line-end-position))
+        (setq line-text (buffer-substring beg (point))))
+      (if (eobp)
+          (insert ?\n)
+        (forward-line))
+      (open-line 1)
+      (insert line-text))))
+
+(defun find-alternate-file-with-sudo ()
+  (interactive)
+  (find-alternate-file (concat "/sudo::" (buffer-file-name))))
+
+(defun refill-paragraph (arg)
+  (interactive "*P")
+  (let ((fun (if (memq major-mode '(c-mode c++-mode))
+                 'c-fill-paragraph
+               (or fill-paragraph-function
+                   'fill-paragraph)))
+        (width (if (numberp arg) arg))
+        prefix beg end)
+    (forward-paragraph 1)
+    (setq end (copy-marker (- (point) 2)))
+    (forward-line -1)
+    (let ((b (point)))
+      (skip-chars-forward "^A-Za-z0-9`'\"(")
+      (setq prefix (buffer-substring-no-properties b (point))))
+    (backward-paragraph 1)
+    (if (eolp)
+        (forward-char))
+    (setq beg (point-marker))
+    (delete-horizontal-space)
+    (while (< (point) end)
+      (delete-indentation 1)
+      (end-of-line))
+    (let ((fill-column (or width fill-column))
+          (fill-prefix prefix))
+      (if prefix
+          (setq fill-column
+                (- fill-column (* 2 (length prefix)))))
+      (funcall fun nil)
+      (goto-char beg)
+      (insert prefix)
+      (funcall fun nil))
+    (goto-char (+ end 2))))
+
+(defmacro recursive-edit-preserving-window-config (body)
+  "*Return a command that enters a recursive edit after executing BODY.
+Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
+or \\[abort-recursive-edit] (abort)), restore window configuration
+in current frame.
+Inspired by Erik Naggum's `recursive-edit-with-single-window'."
+  `(lambda ()
+     "See the documentation for `recursive-edit-preserving-window-config'."
+     (interactive)
+     (save-window-excursion
+       ,body
+       (recursive-edit))))
+
+(defun delete-current-line (&optional arg)
+  (interactive "p")
+  (let ((here (point)))
+    (beginning-of-line)
+    (kill-line arg)
+    (goto-char here)))
+
+(defun do-eval-buffer ()
+  (interactive)
+  (call-interactively 'eval-buffer)
+  (message "Buffer has been evaluated"))
+
+(defun do-eval-region ()
+  (interactive)
+  (call-interactively 'eval-region)
+  (message "Region has been evaluated"))
+
 (defun view-clipboard ()
   (interactive)
   (delete-other-windows)
@@ -455,61 +400,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (erase-buffer)
     (clipboard-yank)
     (goto-char (point-min))))
-
-(bind-key "C-c <tab>" #'ff-find-other-file)
-(bind-key "C-c SPC" #'just-one-space)
-
-(bind-key "C-c 0"
-  (recursive-edit-preserving-window-config (delete-window)))
-(bind-key "C-c 1"
-  (recursive-edit-preserving-window-config
-   (if (one-window-p 'ignore-minibuffer)
-       (error "Current window is the only window in its frame")
-     (delete-other-windows))))
-
-(bind-key "C-c g" #'goto-line)
-
-(bind-keys :prefix-map my-lisp-devel-map
-           :prefix "C-c e"
-           ("E" . elint-current-buffer)
-           ("b" . do-eval-buffer)
-           ("c" . cancel-debug-on-entry)
-           ("d" . debug-on-entry)
-           ("e" . toggle-debug-on-error)
-           ("f" . emacs-lisp-byte-compile-and-load)
-           ("j" . emacs-lisp-mode)
-           ("l" . find-library)
-           ("r" . do-eval-region)
-           ("s" . scratch)
-           ("z" . byte-recompile-directory))
-
-(bind-key "C-c f" #'flush-lines)
-(bind-key "C-c k" #'keep-lines)
-
-(bind-keys :prefix-map my-ctrl-c-m-map
-           :prefix "C-c m"
-           ("k" . kmacro-keymap)
-           ("m" . emacs-toggle-size))
-
-(bind-key "C-c n" #'insert-user-timestamp)
-(bind-key "C-c o" #'customize-option)
-(bind-key "C-c O" #'customize-group)
-(bind-key "C-c F" #'customize-face)
-
-(bind-key "C-c q" #'fill-region)
-(bind-key "C-c r" #'replace-regexp)
-(bind-key "C-c s" #'replace-string)
-(bind-key "C-c u" #'rename-uniquely)
-
-(bind-key "C-c v" #'ffap)
-
-(bind-key "C-c V" #'view-clipboard)
-(bind-key "C-c z" #'clean-buffer-list)
-
-(bind-key "C-c =" #'count-matches)
-(bind-key "C-c ;" #'comment-or-uncomment-region)
-
-;;; C-c C-
 
 (defun delete-to-end-of-buffer ()
   (interactive)
@@ -520,11 +410,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (let ((name (buffer-file-name)))
     (kill-new name)
     (message name)))
-
-(bind-key "C-c C-z" #'delete-to-end-of-buffer)
-(bind-key "C-c C-0" #'copy-current-buffer-name)
-
-;;; C-c M-
 
 (defun unfill-paragraph (arg)
   (interactive "*p")
@@ -556,10 +441,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (while (< (point) end)
       (unfill-paragraph 1)
       (forward-paragraph))))
-
-(bind-key "C-c M-q" #'unfill-paragraph)
-
-;;; C-h e
 
 (defun check-papers ()
   (interactive)
@@ -593,18 +474,109 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if (memq current-mode lisp-modes)
         (funcall current-mode))))
 
-(bind-keys :prefix-map lisp-find-map
-           :prefix "C-h e"
-           ("e" . view-echo-area-messages)
-           ("f" . find-function)
-           ("k" . find-function-on-key)
-           ("l" . find-library)
-           ("P" . check-papers)
-           ("s" . scratch)
-           ("v" . find-variable)
-           ("V" . apropos-value))
+(define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
-;;; Delayed configuration
+(bind-keys
+ ("C-z"   . delete-other-windows)
+
+ ("M-!"   . async-shell-command)
+ ("M-'"   . insert-pair)
+ ("M-\""  . insert-pair)
+ ("M-`"   . other-frame)
+ ("M-j"   . delete-indentation-forward)
+ ("M-J"   . delete-indentation)
+ ("M-W"   . mark-word)
+ ("M-L"   . mark-line)
+ ("M-S"   . mark-sentence)
+ ("M-X"   . mark-sexp)
+ ("M-D"   . mark-defun)
+
+ ("M-g c" . goto-char)
+ ("M-g l" . goto-line)
+
+ ("<C-M-backspace>" . backward-kill-sexp)
+
+ ("C-x d"   . delete-whitespace-rectangle)
+ ("C-x F"   . set-fill-column)
+ ("C-x t"   . toggle-truncate-lines)
+ ("C-x v H" . vc-region-history)
+ ("C-x K"   . delete-current-buffer-file)
+
+ ("C-x C-e" . pp-eval-last-sexp)
+ ("C-x C-n" . next-line)
+ ("C-x C-v" . find-alternate-file-with-sudo)
+
+ ("C-x M-q" . refill-paragraph)
+
+ ("C-c SPC" . just-one-space)
+ ("C-c 0" .
+  (recursive-edit-preserving-window-config (delete-window)))
+ ("C-c 1" .
+  (recursive-edit-preserving-window-config
+   (if (one-window-p 'ignore-minibuffer)
+       (error "Current window is the only window in its frame")
+     (delete-other-windows))))
+ ("C-c g" . goto-line)
+ ("C-c f" . flush-lines)
+ ("C-c k" . keep-lines)
+ ("C-c n" . insert-user-timestamp)
+ ("C-c o" . customize-option)
+ ("C-c O" . customize-group)
+ ("C-c F" . customize-face)
+ ("C-c q" . fill-region)
+ ("C-c r" . replace-regexp)
+ ("C-c s" . replace-string)
+ ("C-c u" . rename-uniquely)
+ ("C-c v" . ffap)
+ ("C-c V" . view-clipboard)
+ ("C-c z" . clean-buffer-list)
+ ("C-c =" . count-matches)
+ ("C-c ;" . comment-or-uncomment-region)
+
+ ("C-c C-z" . delete-to-end-of-buffer)
+ ("C-c C-0" . copy-current-buffer-name)
+
+ ("C-c M-q" . unfill-paragraph)
+
+ :prefix-map my-ctrl-dot-map
+ :prefix "C-."
+ ("?" . help)
+
+ :prefix-map my-ctrl-dot-g-map
+ :prefix "C-. g"
+ ("d" . show-debugger)
+
+ :prefix-map my-ctrl-c-e-map
+ :prefix "C-c e"
+ ("E" . elint-current-buffer)
+ ("b" . do-eval-buffer)
+ ("c" . cancel-debug-on-entry)
+ ("d" . debug-on-entry)
+ ("e" . toggle-debug-on-error)
+ ("f" . emacs-lisp-byte-compile-and-load)
+ ("j" . emacs-lisp-mode)
+ ("l" . find-library)
+ ("r" . do-eval-region)
+ ("s" . scratch)
+ ("z" . byte-recompile-directory)
+
+ :prefix-map my-ctrl-c-m-map
+ :prefix "C-c m"
+ ("k" . kmacro-keymap)
+ ("m" . emacs-toggle-size)
+
+ :prefix-map my-ctrl-h-e-map
+ :prefix "C-h e"
+ ("e" . view-echo-area-messages)
+ ("f" . find-function)
+ ("k" . find-function-on-key)
+ ("l" . find-library)
+ ("P" . check-papers)
+ ("s" . scratch)
+ ("v" . find-variable)
+ ("V" . apropos-value))
+
+;;; Separate configurations
 
 (use-package dot-org
   :load-path ("site-lisp/site-org/org-mode/contrib/lisp"
@@ -625,7 +597,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (my-org-startup)))
 
 (use-package dot-gnus
-  :load-path ("site-lisp/site-gnus/gnus/lisp" 
+  :load-path ("site-lisp/site-gnus/gnus/lisp"
               "site-lisp/site-gnus/gnus/contrib")
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
@@ -633,7 +605,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq gnus-init-file (emacs-path "dot-gnus")
         gnus-home-directory "~/Messages/Gnus/"))
 
-;;; Packages
+;;; Packages (must happen first)
 
 (use-package ggtags
   :disabled t
@@ -789,7 +761,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
      (c-special-indent-hook . c-gnu-impose-minimum)
      (c-block-comment-prefix . ""))))
 
-;;; PACKAGE CONFIGURATIONS
+;;; Packages
 
 (use-package abbrev
   :commands abbrev-mode
@@ -1284,19 +1256,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package ediff
   :config
   (use-package ediff-keep)
-  (bind-keys :prefix-map ctl-period-equals-map
-             :prefix "C-. ="
-             ("b" . ediff-buffers)
-             ("B" . ediff-buffers3)
-             ("c" . compare-windows)
-             ("=" . ediff-files)
-             ("f" . ediff-files)
-             ("F" . ediff-files3)
-             ("r" . ediff-revision)
-             ("p" . ediff-patch-file)
-             ("P" . ediff-patch-buffer)
-             ("l" . ediff-regions-linewise)
-             ("w" . ediff-regions-wordwise)))
+  (bind-keys
+   :prefix-map my-ctrl-dot-equal-map
+   :prefix "C-. ="
+   ("b" . ediff-buffers)
+   ("B" . ediff-buffers3)
+   ("c" . compare-windows)
+   ("=" . ediff-files)
+   ("f" . ediff-files)
+   ("F" . ediff-files3)
+   ("r" . ediff-revision)
+   ("p" . ediff-patch-file)
+   ("P" . ediff-patch-buffer)
+   ("l" . ediff-regions-linewise)
+   ("w" . ediff-regions-wordwise)))
 
 (use-package edit-env
   :commands edit-env)
@@ -1316,7 +1289,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
             erc-fill-column
             erc-insert-timestamp-function
             erc-modified-channels-alist)
-  :preface  
+  :preface
   (defun irc ()
     (interactive)
     (require 'erc)
@@ -1540,7 +1513,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package gud
   :commands gud-gdb
-  :bind ("C-. g" . show-debugger)
   :init
   (defun show-debugger ()
     (interactive)
@@ -1641,9 +1613,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-s" haskell-mode-map)
   (unbind-key "M-t" haskell-mode-map)
 
-  (bind-key "C-c C-h" #'my-haskell-hoogle haskell-mode-map)
-  (bind-key "C-c C-," #'haskell-navigate-imports haskell-mode-map)
-  (bind-key "C-c C-." #'haskell-mode-format-imports haskell-mode-map)
+  (bind-keys
+   :map haskell-mode-map
+   ("C-c C-h" . my-haskell-hoogle )
+   ("C-c C-," . haskell-navigate-imports haskell-mode-map)
+   ("C-c C-." . haskell-mode-format-imports haskell-mode-map))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -2488,25 +2462,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (use-package paredit-ext)
 
-  (bind-key "C-M-l" #'paredit-recentre-on-sexp paredit-mode-map)
-
-  (bind-key ")" #'paredit-close-round-and-newline paredit-mode-map)
-  (bind-key "M-)" #'paredit-close-round paredit-mode-map)
-
-  (bind-key "M-k" #'paredit-raise-sexp paredit-mode-map)
-  (bind-key "M-I" #'paredit-splice-sexp paredit-mode-map)
-
   (unbind-key "M-r" paredit-mode-map)
   (unbind-key "M-s" paredit-mode-map)
 
-  (bind-key "C-. D" #'paredit-forward-down paredit-mode-map)
-  (bind-key "C-. B" #'paredit-splice-sexp-killing-backward paredit-mode-map)
-  (bind-key "C-. C" #'paredit-convolute-sexp paredit-mode-map)
-  (bind-key "C-. F" #'paredit-splice-sexp-killing-forward paredit-mode-map)
-  (bind-key "C-. a" #'paredit-add-to-next-list paredit-mode-map)
-  (bind-key "C-. A" #'paredit-add-to-previous-list paredit-mode-map)
-  (bind-key "C-. j" #'paredit-join-with-next-list paredit-mode-map)
-  (bind-key "C-. J" #'paredit-join-with-previous-list paredit-mode-map))
+  (bind-keys
+   :map paredit-mode-map
+   (")"     . paredit-close-round-and-newline paredit-mode-map)
+   ("M-)"   . paredit-close-round paredit-mode-map)
+   ("M-k"   . paredit-raise-sexp paredit-mode-map)
+   ("M-I"   . paredit-splice-sexp paredit-mode-map)
+   ("C-M-l" . paredit-recentre-on-sexp paredit-mode-map)
+
+   ("C-. D" . paredit-forward-down)
+   ("C-. B" . paredit-splice-sexp-killing-backward paredit-mode-map)
+   ("C-. C" . paredit-convolute-sexp paredit-mode-map)
+   ("C-. F" . paredit-splice-sexp-killing-forward paredit-mode-map)
+   ("C-. a" . paredit-add-to-next-list paredit-mode-map)
+   ("C-. A" . paredit-add-to-previous-list paredit-mode-map)
+   ("C-. j" . paredit-join-with-next-list paredit-mode-map)
+   ("C-. J" . paredit-join-with-previous-list paredit-mode-map)))
 
 (use-package parent-mode
   :defer t
@@ -2547,7 +2521,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode "\\.\\(po\\'\\|po\\.\\)")
 
 (use-package popup-ruler
-  :bind (("C-. C-r" . popup-ruler)))
+  :bind ("C-. C-r" . popup-ruler))
 
 (use-package popwin
   :defer 5
@@ -3043,21 +3017,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              vimish-fold-delete
              vimish-fold-delete-all)
   :init
-  (bind-keys :prefix-map my-vimish-fold-map
-             :prefix "C-. f"
-             ("f" . vimish-fold)
-             ("d" . vimish-fold-delete)
-             ("D" . vimish-fold-delete-all)))
+  (bind-keys
+   :prefix-map my-ctrl-dot-f-map
+   :prefix "C-. f"
+   ("f" . vimish-fold)
+   ("d" . vimish-fold-delete)
+   ("D" . vimish-fold-delete-all)))
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
   :commands (vr/replace
              vr/query-replace)
   :init
-  (bind-keys :prefix-map my-visual-regexp-map
-             :prefix "C-. v"
-             ("r" . vr/replace)
-             ("%" . vr/query-replace))
+  (bind-keys
+   :prefix-map my-ctrl-dot-v-map
+   :prefix "C-. v"
+   ("r" . vr/replace)
+   ("%" . vr/query-replace))
   :config
   (use-package visual-regexp-steroids
     :load-path "site-lisp/visual-regexp-steroids"))
