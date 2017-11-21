@@ -1,0 +1,23 @@
+* This is an org-mode tree with tags
+:PROPERTIES:
+:OMM-COLOR: GREEN
+:OMM-LEGEND: Legend entry
+:END:
+
+** Branch A 
+*** Sub-Branch 1 
+*** Sub-Branch 2 
+*** Sub-Branch 3 
+
+** Branch B
+
+
+** Branch C 
+** Branch D 
+* This is an org-mode tree that interleaves :TagOne:
+** Branch E
+*** Sub-Branch 3 :TagTwo:
+
+*** Sub-Branch 3 :TagOne:
+** Branch B
+** Branch C

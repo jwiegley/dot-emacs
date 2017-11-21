@@ -1,0 +1,10 @@
+* This is an example org-mode tree 
+The content of the node doesn't matter.
+** Branch A
+*** Sub-Branch 1
+*** Sub-Branch 2
+*** Sub-Branch 3
+** Branch B
+** Branch C
+** Branch D
+
