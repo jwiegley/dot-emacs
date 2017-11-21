@@ -2843,6 +2843,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package sh-toggle
   :bind ("C-. C-z" . shell-toggle))
 
+(use-package shift-number
+  :load-path "site-lisp/shift-number"
+  :bind (("C-. +" . shift-number-up)
+         ("C-. -" . shift-number-down)))
+
 (use-package slime
   :load-path "site-lisp/site-lang/slime"
   :commands slime
