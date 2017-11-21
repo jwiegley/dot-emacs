@@ -1322,14 +1322,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (require 'erc)
     (let ((titan-ip "127.0.0.1"))
       (if t
-          (erc :server titan-ip
-               :port 6697
-               :nick "johnw"
-               :password (lookup-password titan-ip "johnw/freenode" 6697))
+          (progn
+            (erc :server titan-ip
+                 :port 6697
+                 :nick "johnw"
+                 :password (lookup-password titan-ip "johnw/freenode" 6697))
+            (erc-tls :server "plclub.irc.slack.com"
+                     :port 6697
+                     :nick "jwiegley"
+                     :password (lookup-password "plclub.irc.slack.com" "jwiegley" 6697)))
         (erc-tls :server "irc.freenode.net"
                  :port 6697
                  :nick "johnw"
-                 :password (lookup-password "irc.freenode.net" "johnw" 6667)))))
+                 :password (lookup-password "irc.freenode.net" "johnw" 6697)))))
 
   (defun setup-irc-environment ()
     (setq erc-timestamp-only-if-changed-flag nil
