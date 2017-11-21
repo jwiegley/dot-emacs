@@ -1,0 +1,66 @@
+* ERC-Gitter
+
+ERC-Gitter is an ERC module with the goal of incorporating the
+features present in Gitter Chatrooms.
+
+** Features
+
+- Proper sending and viewing of multiline messages include
+  code-blocks.
+- Inline markdown formatting using ~markdown-mode~.
+- Link detection for github issues (#IssueNo), and cross-repo issues
+  (user/repo#IssueNo).
+
+*** Planned
+
+- Recognition of ~@name~ and ~@/all~ notices used in Gitter
+  web-client.
+- Support for ~@name~ completion.
+
+*** Currently unsupported
+
+- Code and quote block markup.
+  ERC receives messages on a line-by-line basis.  Matching these lines
+  to detect code and quote blocks would require finding github block
+  markers (~```~) or text starting with 4 spaces (normal code block)
+  and then fontifying until end of block (next ~```~, end of 4+ space
+  indent, change of user).
+
+  These lines also include the entire IRC message string (sender,
+  server, PRIVMSG), which should not be fontified in the process.
+
+  Any assistance in reliably detecting these blocks is appreciated.
+
+** Installation
+
+This package has the following dependencies:
+- ERC (bundled with emacs)
+- Markdown-Mode (available in MELPA)
+
+*** Git Development package
+To install the development package, follow the usual steps:
+
+- Clone this repository :: https://github.com/jleechpe/erc-gitter.git
+- Add the directory to your load path :: 
+     ~(add-to-list 'load-path "/path/to/erc-gitter/")~
+- Require the package :: ~(require 'erc-gitter)~
+
+** Usage
+
+Add ~erc-gitter~ to the list of ~erc-modules~ and update the list of
+modules.
+
+#+begin_src emacs-lisp
+  (add-to-list 'erc-modules 'gitter)
+  (erc-update-modules)
+#+end_src
+
+Alternately, enable the module directly via ~M-x erc-gitter-enable~.
+
+** Contributing
+
+Please contribute.  Doing any of the following will help
+
+- [[https://github.com/jleechpe/erc-gitter/issues/new][Open an issue]]
+- [[https://github.com/jleechpe/erc-gitter/pulls][Submit a pull request]]
+- [[https://gitter.im/jleechpe/erc-gitter][Discuss the package on Gitter]]
