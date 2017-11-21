@@ -1071,6 +1071,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package dedicated
   :bind ("C-. D" . dedicated-mode))
 
+(use-package deft
+  :commands deft
+  :load-path "site-lisp/deft")
+
 (use-package diff-mode
   :commands diff-mode
   :config
