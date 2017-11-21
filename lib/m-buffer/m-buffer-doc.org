@@ -1,0 +1,101 @@
+
+#+TITLE: Manipulate the Contents of Emacs Buffers
+#+AUTHOR: Phillip Lord
+
+#+INFOJS_OPT: view:info toc:nil
+
+
+* Introduction
+
+m-buffer provides functions for accessing and manipulating the contents of an
+Emacs buffer. While Emacs already provides these features, m-buffer provides a
+higher-level interaction. It achieves this in several ways: many of the
+functions are list-orientated, so avoiding the need for iteration; it avoids
+the use of global emacs state whenever it can be avoided, so avoiding
+side-effects; and it provides a large library of functions supporting common
+operations.
+
+Core usage of buffer m-buffer is simple. For example, the following code
+returns a list of all matches to the /regexp/ "m-buffer" in the
+`current-buffer`.
+
+#+BEGIN_SRC elisp
+  (m-buffer-match
+   (current-buffer)
+   "m-buffer")
+#+END_SRC
+
+m-buffer is also expanding. Other parts of m-buffer provide stateless
+interaction with the existing buffer; for example, we can use the following to
+fetch the point of any buffer:
+
+#+BEGIN_SRC elisp
+  (m-buffer-at-point buffer)
+#+END_SRC
+
+These functions can help greatly when writing code which operates on two or
+more buffers. It is also possible to check whether the status of a location --
+either a buffer and position or a marker. For example, these calls are
+equivalent to `eolp`.
+
+#+BEGIN_SRC elisp
+ (m-buffer-at-eolp buffer position)
+ (m-buffer-at-eolp marker)
+#+END_SRC
+
+
+
+** Status
+
+`m-buffer' is a work in progress, but much of it is now stable and the
+interface should change only in forward-compatible ways for 1.0 release.
+The individual files have statements about their stability.
+
+
+
+* m-buffer
+
+m-buffer.el provides list-orientated search both for any regexp and standard
+regexps, as well as the ability to do things with these matches: replace, add
+overlays or text-properties or, most generically of all, call any function on
+matches.
+
+#+include: "m-buffer.org" :minlevel 2
+
+
+* m-buffer-at
+
+m-buffer-at.el provides a set of stateless functions which for accessing data
+about buffers, without requiring changing the `current-buffer'.
+
+#+include: "m-buffer-at.org" :minlevel 2
+
+
+* m-buffer-macro
+
+m-buffer-macro.el provides some general purpose macros for:
+ 
+ - dealing with markers and their cleanup
+ - running code at a specific location
+
+#+include: "m-buffer-macro.org" :minlevel 2
+
+
+* m-buffer-benchmark
+
+m-buffer-benchmark.el provides no functions, but is a set of benchmarks to
+give some idea of how much overhead various m-buffer functions entail.
+
+#+include: "m-buffer-benchmark.org" :minlevel 2
+
+
+* Roadmap
+
+** 0.11
+
+Full lentic documentation using lentic-server
+
+
+** 0.12
+
+Completion of m-buffer-at with all the core buffer functions.
