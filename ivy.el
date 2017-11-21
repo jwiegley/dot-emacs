@@ -226,13 +226,14 @@ act as if `ivy-completing-read-handlers-alist' is empty.")
         (plist-put ivy--actions-list cmd actions)))
 
 (defun ivy-add-actions (cmd actions)
-  "Add CMD extra exit points to ACTIONS."
+  "Add extra exit points ACTIONS to CMD.
+Existing exit points of CMD are overwritten by those in
+ACTIONS that have the same key."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd
-                   (delete-dups
-                    (append
-                     actions
-                     (plist-get ivy--actions-list cmd))))))
+                   (cl-delete-duplicates
+                    (append (plist-get ivy--actions-list cmd) actions)
+                    :key #'car :test #'equal))))
 
 (defvar ivy--prompts-list nil)
 
@@ -1589,8 +1590,7 @@ customizations apply to the current completion session."
                           (list (car source) (funcall (car source)))
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
-  (let ((inhibit-message t)
-        (ivy-recursive-last (and (active-minibuffer-window) ivy-last))
+  (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
         (transformer-fn
          (plist-get ivy--display-transformers-list
                     (or caller (and (functionp collection)
@@ -2852,7 +2852,8 @@ The alist VAL is a sorting function with the signature of
 All CANDIDATES are assumed to match NAME."
   (let ((key (or (ivy-state-caller ivy-last)
                  (when (functionp (ivy-state-collection ivy-last))
-                   (ivy-state-collection ivy-last))))
+                   (ivy-state-collection ivy-last))
+                 this-command))
         fun)
     (cond ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
@@ -3556,14 +3557,24 @@ BUFFER may be a string or nil."
 
 (ivy-set-actions
  'ivy-switch-buffer
- '(("k"
-    (lambda (x)
-      (kill-buffer x)
-      (ivy--reset-state ivy-last))
-    "kill")
+ `(("f"
+    ,(lambda (x)
+       (let* ((b (get-buffer x))
+              (default-directory
+                (or (and b (buffer-local-value 'default-directory b))
+                    default-directory)))
+         (call-interactively (if (fboundp 'counsel-find-file)
+                                 #'counsel-find-file
+                               #'find-file))))
+    "find file")
    ("j"
     ivy--switch-buffer-other-window-action
     "other window")
+   ("k"
+    ,(lambda (x)
+       (kill-buffer x)
+       (ivy--reset-state ivy-last))
+    "kill")
    ("r"
     ivy--rename-buffer-action
     "rename")))
@@ -3615,10 +3626,7 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (defun ivy-switch-buffer-occur ()
   "Occur function for `ivy-switch-buffer' using `ibuffer'."
-  (let* ((cand-regexp
-          (concat "\\(" (mapconcat #'regexp-quote ivy--old-cands "\\|") "\\)"))
-         (new-qualifier `((name . ,cand-regexp))))
-    (ibuffer nil (buffer-name) new-qualifier)))
+  (ibuffer nil (buffer-name) (list (cons 'name ivy--old-re))))
 
 ;;;###autoload
 (defun ivy-switch-buffer ()
