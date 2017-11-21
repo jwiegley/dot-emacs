@@ -1706,8 +1706,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package hyperbole
   :demand t
   :load-path "site-lisp/hyperbole"
-  :bind* ("M-." . hkey-either)
+  :bind* (("M-."   . hkey-either)
+          ("M-RET" . hkey-operate))
   :config
+  (unbind-key "M-o")
   (use-package kotl-mode
     :load-path "site-lisp/hyperbole/kotl")
 
