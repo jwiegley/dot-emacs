@@ -848,33 +848,41 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
-(use-package org-board
-  :disabled t
-  :load-path "site-lisp/site-org/org-board")
-
-(use-package org-brain
-  :disabled t
-  :load-path "site-lisp/site-org/org-brain")
-
 (use-package org-cliplink
   :load-path "site-lisp/site-org/org-cliplink"
-  :bind ("C-. l" . org-cliplink))
-
-(use-package org-mind-map
-  :disabled t
-  :load-path "site-lisp/site-org/org-mind-map")
+  :bind ("C-. C-y" . org-cliplink))
 
 (use-package org-super-agenda
   :disabled t
-  :load-path "site-lisp/site-org/org-super-agenda")
+  :load-path "site-lisp/site-org/org-super-agenda"
+  :config
+  (org-super-agenda-mode)
 
-(use-package org-trello
-  :disabled t
-  :load-path "site-lisp/site-org/org-trello")
-
-(use-package ox-anki
-  :disabled t
-  :load-path "site-lisp/site-org/ox-anki")
+  (defun super-jump-to-org-agenda ()
+    (interactive)
+    (let ((org-super-agenda-groups
+           '((:name "Today"
+                    :time-grid t
+                    :todo "TODAY")
+             (:name "Important"
+                    :tag "bills"
+                    :priority "A")
+             (:order-multi
+              (2 (:name "Shopping in town"
+                        :and (:tag "shopping" :tag "@town"))
+                 (:name "Food-related"
+                        :tag ("food" "dinner"))
+                 (:name "Personal"
+                        :habit t
+                        :tag "personal")
+                 (:name "Space-related (non-moon-or-planet-related)"
+                        :and (:regexp ("space" "NASA")
+                                      :not (:regexp "moon" :tag "planet")))))
+             (:todo "WAITING" :order 8)
+             (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+                    :order 9)
+             (:priority<= "B" :order 1))))
+      (org-agenda nil "a"))))
 
 (provide 'dot-org)
 
