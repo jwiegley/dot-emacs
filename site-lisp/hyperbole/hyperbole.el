@@ -262,13 +262,13 @@ Entry format is: (key-description key-sequence key-binding)."
     ;; commands from the keyboard.  This is most useful for rapidly creating
     ;; Hyperbole link buttons from the keyboard without invoking the Hyperbole
     ;; menu.  Only works if Hyperbole is run under a window system.
-    (when (hyperb:window-system)
-      (if (eq (global-key-binding "\M-o") 'facemenu-keymap)
-	  ;; Override facemenu package that adds a keymap on M-o,
-	  ;; since this binding is more important to Hyperbole
-	  ;; users.
-	  (hkey-global-set-key "\M-o" 'hkey-operate)
-	(hkey-maybe-global-set-key "\M-o" 'hkey-operate)))
+    ;; (when (hyperb:window-system)
+    ;;   (if (eq (global-key-binding "\M-o") 'facemenu-keymap)
+    ;;       ;; Override facemenu package that adds a keymap on M-o,
+    ;;       ;; since this binding is more important to Hyperbole
+    ;;       ;; users.
+    ;;       (hkey-global-set-key "\M-o" 'hkey-operate)
+    ;;     (hkey-maybe-global-set-key "\M-o" 'hkey-operate)))
     ;;
     ;; Binds {C-c @} to created a user-specified sized grid of windows
     ;; displaying different buffers.
