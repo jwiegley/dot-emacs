@@ -1713,6 +1713,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
+  :disabled t
   :demand t
   :load-path "site-lisp/hyperbole"
   :bind* (("M-."   . hkey-either)
