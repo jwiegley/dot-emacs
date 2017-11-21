@@ -5,7 +5,6 @@ DIRS	    = lib				\
 	      site-lisp				\
 	      site-lisp/site-dired		\
 	      site-lisp/site-git		\
-	      site-lisp/site-helm		\
 	      site-lisp/site-lang		\
 	      site-lisp/site-company		\
 	      site-lisp/site-emacs-lisp		\
@@ -18,7 +17,6 @@ LIB_SOURCE  = $(wildcard lib/*.el)				\
 	      $(wildcard site-lisp/*.el)			\
 	      $(wildcard site-lisp/site-dired/*.el)		\
 	      $(wildcard site-lisp/site-git/*.el)		\
-	      $(wildcard site-lisp/site-helm/*.el)		\
 	      $(wildcard site-lisp/site-lang/*.el)		\
 	      $(wildcard site-lisp/site-company/*.el)		\
 	      $(wildcard site-lisp/site-emacs-lisp/*.el)	\

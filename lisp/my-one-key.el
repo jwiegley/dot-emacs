@@ -14,7 +14,6 @@
 (setup-one-key "M-g"     "goto")
 (setup-one-key "C-h e"   "emacs-help")
 (setup-one-key "C-x a"   "abbrevs")
-;; (setup-one-key "C-x c"   "helm")
 (setup-one-key "C-x j"   "bmkp")
 (setup-one-key "C-x r"   "bookmarks-and-rectangles")
 (setup-one-key "C-x X"   "edebug")
