@@ -1932,9 +1932,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :commands counsel-minibuffer-history
     :init
     (define-key minibuffer-local-map (kbd "M-r")
-      'counsel-minibuffer-history)))
+      'counsel-minibuffer-history)
     :config
-    (counsel-mode 1)
+    (counsel-mode 1)))
 
 (use-package js2-mode
   :load-path "site-lisp/site-lang/js2-mode"
