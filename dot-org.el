@@ -848,6 +848,10 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package org-cliplink
+  :load-path "site-lisp/site-org/org-cliplink"
+  :bind ("C-. l" . org-cliplink))
+
 (provide 'dot-org)
 
 ;; Local Variables:
