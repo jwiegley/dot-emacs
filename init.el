@@ -43,6 +43,13 @@
 (require 'bind-key)
 (require 'diminish nil t)
 
+;; This must be defined before settings.el is read
+(defun get-jobhours-string ()
+  (with-current-buffer (get-buffer "*scratch*")
+    (let ((str (shell-command-to-string "jobhours")))
+      (require 'ansi-color)
+      (ansi-color-apply (substring str 0 (1- (length str)))))))
+
 ;;; Load customization settings
 
 (defvar running-alternate-emacs nil)
@@ -257,12 +264,6 @@
 
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
-
-(defun get-jobhours-string ()
-  (with-current-buffer (get-buffer "*scratch*")
-   (let ((str (shell-command-to-string "jobhours")))
-     (require 'ansi-color)
-     (ansi-color-apply (substring str 0 (1- (length str)))))))
 
 (defun lookup-password (host user port)
   (require 'auth-source)
@@ -536,16 +537,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
  ("C-c C-z" . delete-to-end-of-buffer)
  ("C-c C-0" . copy-current-buffer-name)
 
- ("C-c M-q" . unfill-paragraph)
+ ("C-c M-q" . unfill-paragraph))
 
- :prefix-map my-ctrl-dot-map
- :prefix "C-."
- ("?" . help)
+(bind-keys
+ :prefix-map my-ctrl-h-e-map
+ :prefix "C-h e"
+ ("e" . view-echo-area-messages)
+ ("f" . find-function)
+ ("k" . find-function-on-key)
+ ("l" . find-library)
+ ("P" . check-papers)
+ ("s" . scratch)
+ ("v" . find-variable)
+ ("V" . apropos-value))
 
- :prefix-map my-ctrl-dot-g-map
- :prefix "C-. g"
- ("d" . show-debugger)
-
+(bind-keys
  :prefix-map my-ctrl-c-e-map
  :prefix "C-c e"
  ("E" . elint-current-buffer)
@@ -558,23 +564,23 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
  ("l" . find-library)
  ("r" . do-eval-region)
  ("s" . scratch)
- ("z" . byte-recompile-directory)
+ ("z" . byte-recompile-directory))
 
+(bind-keys
  :prefix-map my-ctrl-c-m-map
  :prefix "C-c m"
  ("k" . kmacro-keymap)
- ("m" . emacs-toggle-size)
+ ("m" . emacs-toggle-size))
 
- :prefix-map my-ctrl-h-e-map
- :prefix "C-h e"
- ("e" . view-echo-area-messages)
- ("f" . find-function)
- ("k" . find-function-on-key)
- ("l" . find-library)
- ("P" . check-papers)
- ("s" . scratch)
- ("v" . find-variable)
- ("V" . apropos-value))
+(bind-keys
+ :prefix-map my-ctrl-dot-map
+ :prefix "C-."
+ ("?" . help))
+
+(bind-keys
+ :prefix-map my-ctrl-dot-g-map
+ :prefix "C-. g"
+ ("d" . show-debugger))
 
 ;;; Separate configurations
 
