@@ -431,10 +431,10 @@ Return non-nil iff associated documentation is found."
   (interactive)
   (hkey-help 'assist))
 
-;; Overload help-mode quit-window function to support Hyperbole
-;; hkey--wconfig window configurations.
-(unless (eq (symbol-function #'quit-window) #'hkey-help-hide)
-  (defalias 'hkey-quit-window (hypb:function-copy #'quit-window)))
+;; ;; Overload help-mode quit-window function to support Hyperbole
+;; ;; hkey--wconfig window configurations.
+;; (unless (eq (symbol-function #'quit-window) #'hkey-help-hide)
+;;   (defalias 'hkey-quit-window (hypb:function-copy #'quit-window)))
 
 ;;;###autoload
 (defun hkey-help-hide (&optional kill window)
@@ -451,7 +451,7 @@ details."
       (hkey-quit-window kill window)))
   (setq hkey--wconfig nil))
 
-(defalias 'quit-window 'hkey-help-hide)
+;; (defalias 'quit-window 'hkey-help-hide)
 
 ;; Newer versions of Emacs define this variable but older versions,
 ;; e.g. Emacs 22, do not.  Calls to the `with-help-buffer' macro
