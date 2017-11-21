@@ -897,9 +897,9 @@
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
  '(pdf-info-epdfinfo-program "~/bin/epdfinfo")
+ '(pdf-tools-handle-upgrades nil)
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
- '(pp^L-^L-string
-   "                                                                              ")
+ '(pp^L-^L-string "                                            ")
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
  '(projectile-enable-caching t)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))

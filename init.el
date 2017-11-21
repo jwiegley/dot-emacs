@@ -965,7 +965,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package browse-kill-ring+
   :defer 10
   :commands browse-kill-ring
-  :bind ("M-y" . browse-kill-ring))
+  ;; :bind ("M-y" . browse-kill-ring)
+  )
 
 (use-package bytecomp-simplify
   :defer 15)
