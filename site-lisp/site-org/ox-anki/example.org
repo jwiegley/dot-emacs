@@ -1,0 +1,25 @@
+* Good Guy?
+  :PROPERTIES:
+  :ID:       fb28ecd4-5ee7-4b93-b3c6-631c2b19fd6f
+  :END:
+  The Biscuit
+* Bad Guy
+  :PROPERTIES:
+  :ID:       60771bc0-a1f1-4ec9-984a-d85f54623b33
+  :END:
+  _hint: human_
+** Where?
+   :PROPERTIES:
+   :ID:       34c29a75-2bf6-4031-a254-6f265155ddb6
+   :END:
+   Far Far Away
+** When?
+   :PROPERTIES:
+   :ID:       f1b512de-0b1b-4475-b701-2ad27dde09c4
+   :END:
+   Long Long Ago
+** Who?
+   :PROPERTIES:
+   :ID:       826f883c-777e-4bb8-89d5-b6b81140c463
+   :END:
+   Prince Charming
