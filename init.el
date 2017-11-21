@@ -2432,6 +2432,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
+(use-package nix-buffer
+  :disabled t
+  :load-path "site-lisp/nix-buffer")
+
 (use-package nix-mode
   :load-path "site-lisp/site-lang/nix-mode"
   :mode "\\.nix\\'")
@@ -3168,6 +3172,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (bind-key "C-\\" #'wg-switch-to-previous-workgroup wg-map)
   (bind-key "\\" #'toggle-input-method wg-map))
+
+(use-package ws-butler
+  :disabled t
+  :load-path "site-lisp/ws-butler")
 
 (use-package xray
   :commands (xray-buffer
