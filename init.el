@@ -2366,6 +2366,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package midnight
   :defer 10)
 
+(use-package minimap
+  :load-path "site-lisp/minimap"
+  :commands minimap-mode)
+
 (use-package mule
   :no-require t
   :defines x-select-request-type
