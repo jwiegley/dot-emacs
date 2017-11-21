@@ -108,6 +108,7 @@
 ;;; Configure libraries
 
 (use-package anaphora         :defer t :load-path "lib/anaphora")
+(use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
 (use-package ctable           :defer t :load-path "lib/emacs-ctable")
 (use-package dash             :defer t :load-path "lib/dash-el")
@@ -868,9 +869,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (if ascii-display
         (ascii-off)
       (ascii-on))))
-
-(use-package async
-  :load-path "lisp/emacs-async")
 
 (use-package auctex
   :load-path "site-lisp/site-lang/auctex"
