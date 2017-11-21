@@ -1673,32 +1673,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
-(use-package helm-config
-  :if (not running-alternate-emacs)
-  :demand t
-  :load-path "site-lisp/site-helm/helm"
-  :bind ("C-c h" . helm-command-prefix)
-
-  :config
-  (use-package helm
-    :config
-    (helm-autoresize-mode 1))
-
-  (use-package helm-multi-match)
-
-  (bind-key "<tab>" #'helm-execute-persistent-action helm-map)
-  (bind-key "C-i" #'helm-execute-persistent-action helm-map)
-  (bind-key "C-z" #'helm-select-action helm-map)
-  (bind-key "A-v" #'helm-previous-page helm-map)
-
-  (use-package helm-descbinds
-    :load-path "site-lisp/site-helm/helm-descbinds"
-    :bind ("C-h b" . helm-descbinds)
-    :init
-    (fset 'describe-bindings 'helm-descbinds)
-    :config
-    (require 'helm-config)))
-
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
          ("M-o r" . highlight-regexp)
