@@ -2854,7 +2854,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package shackle
   :load-path "site-lisp/shackle"
   :config
-  (setq shackle-rules '((compilation-mode :select t :align t :size 0.9))
+  (setq shackle-rules
+        '((compilation-mode :select t :align t :size 0.9)
+          ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t))
         shackle-default-rule '(:select t)))
 
 (use-package shift-number
