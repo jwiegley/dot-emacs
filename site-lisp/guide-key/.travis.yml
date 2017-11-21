@@ -1,0 +1,28 @@
+language: emacs-lisp
+env:
+  - EMACS=emacs EVM_EMACS=emacs-24.1-bin
+  - EMACS=emacs EVM_EMACS=emacs-24.2-bin
+  - EMACS=emacs EVM_EMACS=emacs-24.3-bin
+  - EMACS=emacs EVM_EMACS=emacs-24.4-bin
+  - EMACS=emacs-snapshot EMACS_PPA=ppa:ubuntu-elisp/ppa
+before_install:
+  # Install Emacs
+  - if [ -n "$EMACS_PPA" ]; then
+      sudo add-apt-repository -y "$EMACS_PPA";
+      sudo apt-get update -qq;
+      sudo apt-get install -qq "$EMACS" "${EMACS}-el";
+    else
+      sudo mkdir -p /usr/local/evm;
+      sudo chown "$USER:$USER" /usr/local/evm;
+      curl -fsSkL --max-time 10 --retry 10 --retry-delay 10 https://raw.github.com/rejeep/evm/master/go | bash;
+      export PATH="$HOME/.evm/bin:$PATH";
+      evm install "$EVM_EMACS" --use;
+    fi
+  # Install Cask
+  - curl -fsSkL --max-time 10 --retry 10 --retry-delay 10
+        https://raw.github.com/cask/cask/master/go | python
+  - export PATH="$HOME/.cask/bin:$PATH"
+  - cask
+script:
+  - emacs --version
+  - make
