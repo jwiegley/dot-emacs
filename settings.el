@@ -1148,7 +1148,8 @@
  '(yas-wrap-around-region t)
  '(z3-solver-cmd "z3")
  '(zencoding-indentation 2)
- '(zencoding-preview-default nil))
+ '(zencoding-preview-default nil)
+ '(zoom-size (quote size-callback)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
