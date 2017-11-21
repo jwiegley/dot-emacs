@@ -504,6 +504,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
  ("C-x v H" . vc-region-history)
  ("C-x K"   . delete-current-buffer-file)
 
+ ("C-x C-d" . duplicate-line)
  ("C-x C-e" . pp-eval-last-sexp)
  ("C-x C-n" . next-line)
  ("C-x C-v" . find-alternate-file-with-sudo)
