@@ -850,10 +850,6 @@ end tell" (match-string 1))))
          (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
     (apply #'diary-date greg-date)))
 
-(use-package org-wiki
-  :load-path "site-lisp/site-org/org-wiki"
-  :defer 5)
-
 (provide 'dot-org)
 
 ;; Local Variables:
