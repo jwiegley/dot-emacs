@@ -2142,10 +2142,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (require 'lusty-explorer)
     (let ((lusty--active-mode :file-explorer)
-          (helm-mode-prev (and (boundp 'helm-mode) helm-mode))
           (ivy-mode-prev (and (boundp 'ivy-mode) ivy-mode)))
-      (if (fboundp 'helm-mode)
-          (helm-mode -1))
       (if (fboundp 'ivy-mode)
           (ivy-mode -1))
       (unwind-protect
@@ -2158,8 +2155,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    (lusty-only-directories nil))
               (lusty--run 'read-file-name
                           dir default-filename mustmatch initial predicate)))
-        (if (fboundp 'helm-mode)
-            (helm-mode (if helm-mode-prev 1 -1)))
         (if (fboundp 'ivy-mode)
             (ivy-mode (if ivy-mode-prev 1 -1))))))
 
@@ -2168,10 +2163,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (interactive)
     (require 'lusty-explorer)
     (let ((lusty--active-mode :file-explorer)
-          (helm-mode-prev (and (boundp 'helm-mode) helm-mode))
           (ivy-mode-prev (and (boundp 'ivy-mode) ivy-mode)))
-      (if (fboundp 'helm-mode)
-          (helm-mode -1))
       (if (fboundp 'ivy-mode)
           (ivy-mode -1))
       (unwind-protect
@@ -2193,8 +2185,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (switch-to-buffer
                  (find-file-noselect
                   (expand-file-name file))))))
-        (if (fboundp 'helm-mode)
-            (helm-mode (if helm-mode-prev 1 -1)))
         (if (fboundp 'ivy-mode)
             (ivy-mode (if ivy-mode-prev 1 -1))))))
 

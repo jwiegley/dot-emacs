@@ -167,7 +167,6 @@ reuse storage as much as possible."
      ("github-issues-el" "github-issues")
      ("haskell-config" "haskell-edit")
      ("haskell-mode" "haskell-mode-autoloads")
-     ("helm" "helm-config" "helm-buffers" "helm-files" "helm-grep" "helm-match-plugin" "helm-mode" "helm-multi-match")
      ("ht-el" "ht")
      ("ipa-el" "ipa")
      ("liquid-types-el" "liquid-types")
