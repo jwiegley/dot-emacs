@@ -1923,7 +1923,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (define-key minibuffer-local-map (kbd "M-r")
       'counsel-minibuffer-history)
     :config
-    (counsel-mode 1)))
+    (counsel-mode 1)
+
+    (use-package emacs-counsel-gtags
+      :disabled t
+      :load-path "site-lisp/site-ivy/emacs-counsel-gtags")))
 
 (use-package js2-mode
   :load-path "site-lisp/site-lang/js2-mode"
