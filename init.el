@@ -2829,22 +2829,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package sh-toggle
   :bind ("C-. C-z" . shell-toggle))
 
-(use-package slack
-  :disabled t
-  :if running-alternate-emacs
-  :load-path "site-lisp/emacs-slack"
-  :commands slack-start
-  :init
-  (setq slack-buffer-emojify t
-        slack-prefer-current-team t)
-  :config
-  (slack-register-team
-   :name "plclub"
-   :default t
-   :client-id "115012203063.274340003812"
-   :client-secret (lookup-password "plclub.slack.com" "115012203063.274340003812" 80)
-   :token (lookup-password "plclub.slack.com" "token" 80)))
-
 (use-package slime
   :load-path "site-lisp/site-lang/slime"
   :commands slime
