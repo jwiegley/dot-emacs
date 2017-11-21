@@ -802,7 +802,7 @@
  '(mac-pass-control-to-system nil)
  '(mac-wheel-button-is-mouse-2 nil)
  '(magit-auto-revert-mode nil)
- '(magit-completing-read-function (quote ivy-completing-read))
+ '(magit-completing-read-function (quote my-ivy-completing-read))
  '(magit-diff-options nil)
  '(magit-ediff-dwim-show-on-hunks t)
  '(magit-fetch-arguments nil)
