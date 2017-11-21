@@ -848,9 +848,33 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package org-board
+  :disabled t
+  :load-path "site-lisp/site-org/org-board")
+
+(use-package org-brain
+  :disabled t
+  :load-path "site-lisp/site-org/org-brain")
+
 (use-package org-cliplink
   :load-path "site-lisp/site-org/org-cliplink"
   :bind ("C-. l" . org-cliplink))
+
+(use-package org-mind-map
+  :disabled t
+  :load-path "site-lisp/site-org/org-mind-map")
+
+(use-package org-super-agenda
+  :disabled t
+  :load-path "site-lisp/site-org/org-super-agenda")
+
+(use-package org-trello
+  :disabled t
+  :load-path "site-lisp/site-org/org-trello")
+
+(use-package ox-anki
+  :disabled t
+  :load-path "site-lisp/site-org/ox-anki")
 
 (provide 'dot-org)
 
