@@ -1864,6 +1864,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (ivy-mode 1)
 
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
+
   (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
   (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map)
 
