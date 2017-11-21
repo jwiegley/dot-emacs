@@ -1026,6 +1026,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
 
+(use-package copy-as-format
+  :load-path "site-lisp/copy-as-format"
+  :bind ("C-. M-w" . copy-as-format)
+  :init
+  (setq copy-as-format-default "github"))
+
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode)
   :config
