@@ -1,0 +1,27 @@
+* This is an org-mode tree with tags
+:PROPERTIES:
+:OMM-COLOR: GREEN
+:OMM-LEGEND: Legend entry
+:END:
+
+** Branch A 
+*** Sub-Branch 1 
+*** Sub-Branch 2 
+*** Sub-Branch 3 
+
+** Branch B
+
+
+** Branch C 
+** Branch D 
+* Here is another tree
+** Branch One
+** Branch Two
+   [[Branch C]]
+** Branch Three
+
+   [[Branch One][Another link]]
+
+   [[Sub-Branch 1][Yet Another Link]]
+
+

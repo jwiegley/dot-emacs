@@ -1,0 +1,8 @@
+* This is an org-mode tree with tags
+** Branch A :TagA:
+*** Sub-Branch 1 :TagA:
+*** Sub-Branch 2 :TagA:
+*** Sub-Branch 3 :TagA:TagB:
+** Branch B :TagB:
+** Branch C
+** Branch D
