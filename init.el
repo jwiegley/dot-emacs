@@ -1490,15 +1490,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :no-require t
   :bind ("C-c G" . my-gist-region-or-buffer)
   :preface
-  (defun my-gist-region-or-buffer ()
-    (interactive)
+  (defun my-gist-region-or-buffer (start end)
+    (interactive "r")
+    (copy-region-as-kill start end)
     (deactivate-mark)
-    (with-temp-buffer
-      (if buffer-file-name
-          (call-process "gist" nil t nil "-f" buffer-file-name "-P")
-        (call-process "gist" nil t nil "-P"))
-      (kill-ring-save (point-min) (1- (point-max)))
-      (message (buffer-substring (point-min) (1- (point-max)))))))
+    (let ((file-name buffer-file-name))
+      (with-temp-buffer
+        (if file-name
+            (call-process "gist" nil t nil "-f" file-name "-P")
+          (call-process "gist" nil t nil "-P"))
+        (kill-ring-save (point-min) (1- (point-max)))
+        (message (buffer-substring (point-min) (1- (point-max))))))))
 
 (use-package git-link
   :bind ("C-. G" . git-link)
