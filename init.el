@@ -1624,16 +1624,16 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'haskell-mode)
   (require 'haskell-font-lock)
 
-  (bind-key "C-c C-u" (lambda () (interactive) (insert "undefined")) haskell-mode-map)
-
   (unbind-key "M-s" haskell-mode-map)
   (unbind-key "M-t" haskell-mode-map)
 
   (bind-keys
    :map haskell-mode-map
-   ("C-c C-h" . my-haskell-hoogle )
-   ("C-c C-," . haskell-navigate-imports haskell-mode-map)
-   ("C-c C-." . haskell-mode-format-imports haskell-mode-map))
+   ("C-c C-h" . my-haskell-hoogle)
+   ("C-c C-," . haskell-navigate-imports)
+   ("C-c C-." . haskell-mode-format-imports)
+   ("C-c C-u" . (lambda () (interactive)
+                  (insert "undefined"))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -2483,20 +2483,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (bind-keys
    :map paredit-mode-map
-   (")"     . paredit-close-round-and-newline paredit-mode-map)
-   ("M-)"   . paredit-close-round paredit-mode-map)
-   ("M-k"   . paredit-raise-sexp paredit-mode-map)
-   ("M-I"   . paredit-splice-sexp paredit-mode-map)
-   ("C-M-l" . paredit-recentre-on-sexp paredit-mode-map)
+   (")"     . paredit-close-round-and-newline)
+   ("M-)"   . paredit-close-round)
+   ("M-k"   . paredit-raise-sexp)
+   ("M-I"   . paredit-splice-sexp)
+   ("C-M-l" . paredit-recentre-on-sexp)
 
    ("C-. D" . paredit-forward-down)
-   ("C-. B" . paredit-splice-sexp-killing-backward paredit-mode-map)
-   ("C-. C" . paredit-convolute-sexp paredit-mode-map)
-   ("C-. F" . paredit-splice-sexp-killing-forward paredit-mode-map)
-   ("C-. a" . paredit-add-to-next-list paredit-mode-map)
-   ("C-. A" . paredit-add-to-previous-list paredit-mode-map)
-   ("C-. j" . paredit-join-with-next-list paredit-mode-map)
-   ("C-. J" . paredit-join-with-previous-list paredit-mode-map)))
+   ("C-. B" . paredit-splice-sexp-killing-backward)
+   ("C-. C" . paredit-convolute-sexp)
+   ("C-. F" . paredit-splice-sexp-killing-forward)
+   ("C-. a" . paredit-add-to-next-list)
+   ("C-. A" . paredit-add-to-previous-list)
+   ("C-. j" . paredit-join-with-next-list)
+   ("C-. J" . paredit-join-with-previous-list)))
 
 (use-package parent-mode
   :defer t
