@@ -107,6 +107,7 @@
 
 ;;; Configure libraries
 
+(use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora         :defer t :load-path "lib/anaphora")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
@@ -841,10 +842,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (char-mapping "A-r" " → ")
   (char-mapping "A-~" " ≅ ")
   (char-mapping "A-=" " ≡ "))
-
-(use-package alert
-  :load-path "lisp/alert"
-  :commands alert)
 
 (use-package align
   :bind (("M-["   . align-code)
