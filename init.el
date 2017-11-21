@@ -2843,6 +2843,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package sh-toggle
   :bind ("C-. C-z" . shell-toggle))
 
+(use-package shackle
+  :load-path "site-lisp/shackle"
+  :config
+  (setq shackle-rules '((compilation-mode :select t :align t :size 0.9))
+        shackle-default-rule '(:select t)))
+
 (use-package shift-number
   :load-path "site-lisp/shift-number"
   :bind (("C-. +" . shift-number-up)
