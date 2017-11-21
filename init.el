@@ -2001,8 +2001,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (forward-line)))))
 
 (use-package lentic
-  :disabled t
-  :load-path "site-lisp/lentic")
+  :load-path "site-lisp/lentic"
+  :commands global-lentic-mode)
 
 (use-package lisp-mode
   :defer t
