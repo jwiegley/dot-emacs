@@ -1,0 +1,91 @@
+:PROPERTIES:
+#+PROPERTY: board-name api test board
+#+PROPERTY: board-id 53fc6e11d9955d1d4b33aaab
+#+PROPERTY: CANCELLED 53fc6e13f83a2cd99386dc6d
+#+PROPERTY: FAILED 53fc6e134523f050b5d813ad
+#+PROPERTY: DELEGATED 53fc6e14c8d91df93fa57fb2
+#+PROPERTY: PENDING 53fc6e154208f410f575f105
+#+PROPERTY: DONE 53fc6e16ba9b332db5230132
+#+PROPERTY: IN-PROGRESS 53fc6e17b928efc254b028fa
+#+PROPERTY: TODO 53fc6e1754c24b2ab5d5eef5
+#+TODO: TODO IN-PROGRESS | DONE PENDING DELEGATED FAILED CANCELLED
+#+PROPERTY: orgtrello-user-antoineromaindumont 554b1f596ca33dd8f79e974b
+#+PROPERTY: orgtrello-user-orgmode 5203a0c833fc36360800177f
+#+PROPERTY: orgtrello-user-ardumont 4f2baa2f72b7c1293501cad3
+#+PROPERTY: :yellow yello
+#+PROPERTY: :lime green lime
+#+PROPERTY: :pink pink?
+#+PROPERTY: :sky blah
+#+PROPERTY: :purple violet
+#+PROPERTY: :red red
+#+PROPERTY: :green duplicated green
+#+PROPERTY: :blue blue
+#+PROPERTY: :grey hello
+#+PROPERTY: :black arf
+#+PROPERTY: :green green label with & char
+#+PROPERTY: :orange range
+#+PROPERTY: orgtrello-user-me ardumont
+:END:
+#+title: dummy sample to sync with trello
+#+author: Antoine R. Dumont
+
+* TODO Joy of FUN(ctional) LANGUAGES
+:PROPERTIES:
+:END:
+  hello description
+  - with many
+  - lines
+
+  - including
+
+  - blanks lines
+  - lists
+  - with start or dash  are now possible
+    - indentation too
+
+  - [-] LISP family
+    - [X] Emacs-Lisp
+    - [X] Common-Lisp
+    - [ ] Scheme
+    - [X] Clojure
+  - [-] ML family
+    - [X] Haskell
+    - [X] Ocaml
+  - [-] hybrid family
+    - [X] Scala
+* TODO Programming in scala
+:PROPERTIES:
+:END:
+
+  - [-] chapters
+    - [ ] introduction
+    - [ ] Ch. 1 - A scalable language
+    - [ ] Ch. 2 - First steps in scala
+    - [ ] Ch. 3 - Next steps in scala
+    - [ ] Ch. 4 - Classes and objects
+    - [ ] Ch. 5 - Basic types and operations
+    - [ ] Ch. 6 - Functional objects
+    - [ ] Ch. 7 - Buit-in control structures
+    - [ ] Ch. 8 - Functions and closures
+    - [ ] Ch. 9 - Control abstraction
+    - [ ] Ch. 10 - Composition and inheritance
+    - [ ] Ch. 11 - Scala's hierarchy
+    - [ ] Ch. 12 - Traits
+* TODO Functional programming in Haskell
+:PROPERTIES:
+:END:
+
+* PENDING Questions about life, the universe and everything
+:PROPERTIES:
+:END:
+
+  - [-] How to deal with promotion/demotion?
+
+* IN-PROGRESS blahblah
+:PROPERTIES:
+:END:
+  ah blah blah..
+  - [-] Checklist
+    - [ ] ⌂ hey ho
+    - [X] another item
+  - [-] ἀ ἃ ἄ ἅ ἆ ἇ Ἀ Ἁ Ἂ Ἃ Ἄ Ἅ Ἆ Ἇ
