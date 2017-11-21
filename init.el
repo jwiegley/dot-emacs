@@ -3238,6 +3238,17 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands z3-mode
   :load-path "site-lisp/site-lang/z3-mode")
 
+(use-package zoom
+  :load-path "site-lisp/zoom"
+  :bind ("C-x +" . zoom)
+  :config
+  (defun size-callback ()
+    (cond ((> (frame-pixel-width) 1280) '(90 . 0.75))
+          (t                            '(0.5 . 0.5))))
+
+  (custom-set-variables
+   '(zoom-size 'size-callback)))
+
 (use-package ztree-diff
   :commands ztree-diff
   :load-path "site-lisp/ztree")
