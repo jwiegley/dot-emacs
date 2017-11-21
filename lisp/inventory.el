@@ -177,7 +177,7 @@ reuse storage as much as possible."
      ("navi" "navi-mode")
      ("popup-el" "popup")
      ("popwin-el" "popwin")
-     ("projectile" "projectile" "helm-projectile")
+     ("projectile")
      ("s-el" "s")
      ("slime" "slime" "hyperspec")
      ("smart-forward-el" "smart-forward")
