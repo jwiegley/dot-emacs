@@ -1,0 +1,6 @@
+(let ((current-directory (file-name-directory load-file-name)))
+  (setq browse-at-remote-test-path (expand-file-name "." current-directory))
+  (setq browse-at-remote-root-path (expand-file-name ".." current-directory)))
+
+(add-to-list 'load-path browse-at-remote-root-path)
+(add-to-list 'load-path browse-at-remote-test-path)
