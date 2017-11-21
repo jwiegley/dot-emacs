@@ -41,43 +41,6 @@
   (org-agenda-to-appt)
   (call-interactively #'org-resolve-clocks))
 
-(defun my-calendar ()
-  (interactive)
-  (let ((buf (get-buffer "*cfw-calendar*")))
-    (if buf
-        (pop-to-buffer buf nil)
-      (cfw:open-calendar-buffer
-       :contents-sources
-       (list (cfw:org-create-source "Dark Blue")
-             (cfw:cal-create-source "Dark Orange"))
-       :view 'two-weeks))))
-
-(use-package calfw
-  :load-path "site-lisp/site-org/emacs-calfw"
-  :bind ("C-c A" . my-calendar)
-  :init
-  (progn
-    (use-package calfw-cal)
-    (use-package calfw-org)
-
-    (bind-key "M-n" 'cfw:navi-next-month-command cfw:calendar-mode-map)
-    (bind-key "M-p" 'cfw:navi-previous-month-command cfw:calendar-mode-map))
-
-  :config
-  (progn
-    ;; Unicode characters
-    (setq cfw:fchar-junction ?╋
-          cfw:fchar-vertical-line ?┃
-          cfw:fchar-horizontal-line ?━
-          cfw:fchar-left-junction ?┣
-          cfw:fchar-right-junction ?┫
-          cfw:fchar-top-junction ?┯
-          cfw:fchar-top-left-corner ?┏
-          cfw:fchar-top-right-corner ?┓)
-
-    (bind-key "j" 'cfw:navi-goto-date-command cfw:calendar-mode-map)
-    (bind-key "g" 'cfw:refresh-calendar-buffer cfw:calendar-mode-map)))
-
 (defadvice org-refile-get-location (before clear-refile-history activate)
   "Fit the Org Agenda to its buffer."
   (setq org-refile-history nil))
@@ -849,6 +812,41 @@ end tell" (match-string 1))))
                       0)))
          (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
     (apply #'diary-date greg-date)))
+
+(use-package calfw
+  :load-path "site-lisp/site-org/emacs-calfw"
+  :bind (("C-c A" . my-calendar)
+         :map cfw:calendar-mode-map
+         ("M-n" . cfw:navi-next-month-command)
+         ("M-p" . cfw:navi-previous-month-command)
+         ("j"   . cfw:navi-goto-date-command)
+         ("g"   . cfw:refresh-calendar-buffer))
+  :commands cfw:open-calendar-buffer
+
+  :preface
+  (defun my-calendar ()
+    (interactive)
+    (let ((buf (get-buffer "*cfw-calendar*")))
+      (if buf
+          (pop-to-buffer buf nil)
+        (cfw:open-calendar-buffer
+         :contents-sources
+         (list (cfw:org-create-source "Dark Blue")
+               (cfw:cal-create-source "Dark Orange"))
+         :view 'two-weeks))))
+
+  :config
+  (use-package calfw-cal)
+  (use-package calfw-org)
+
+  (setq cfw:fchar-junction ?╋
+        cfw:fchar-vertical-line ?┃
+        cfw:fchar-horizontal-line ?━
+        cfw:fchar-left-junction ?┣
+        cfw:fchar-right-junction ?┫
+        cfw:fchar-top-junction ?┯
+        cfw:fchar-top-left-corner ?┏
+        cfw:fchar-top-right-corner ?┓))
 
 (provide 'dot-org)
 
