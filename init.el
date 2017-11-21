@@ -2424,6 +2424,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands nf-procmail-mode)
 
 (use-package nix-mode
+  :load-path "site-lisp/site-lang/nix-mode"
   :mode "\\.nix\\'")
 
 (use-package nroff-mode
