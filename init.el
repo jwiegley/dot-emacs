@@ -217,6 +217,7 @@
 (use-package ht               :defer t :load-path "lib/ht-el")
 (use-package let-alist        :defer t :load-path "lib/let-alist")
 (use-package logito           :defer t :load-path "lib/logito")
+(use-package m-buffer         :defer t :load-path "lib/m-buffer")
 (use-package makey            :defer t :load-path "lib/makey")
 (use-package marshal          :defer t :load-path "lib/marshal-el")
 (use-package oauth2           :defer t :load-path "lib/oauth2")
