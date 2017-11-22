@@ -38,7 +38,8 @@
           (nix-read-environment emacs-environment)))
 
   (require 'cl)
-  (require 'use-package))
+  (require 'use-package)
+  (setq use-package-verbose t))
 
 (require 'bind-key)
 (require 'diminish nil t)
