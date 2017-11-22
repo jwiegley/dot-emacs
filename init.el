@@ -1520,6 +1520,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package guide-key
   :load-path "site-lisp/guide-key"
+  :diminish guide-key-mode
   :config
   (setq guide-key/guide-key-sequence t
         guide-key/popup-window-position 'bottom
@@ -2000,7 +2001,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
           (insert account))
         (forward-line)))))
 
-(use-package lentic
+(use-package lentic-mode
+  :diminish lentic-mode
   :load-path "site-lisp/lentic"
   :commands global-lentic-mode)
 
