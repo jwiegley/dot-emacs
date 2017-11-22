@@ -15,7 +15,8 @@
 ### language
 ###
 
-language: emacs-lisp
+# travis-lint no longer permits this value
+# language: emacs-lisp
 
 ###
 ### defining the build matrix
@@ -40,18 +41,11 @@ env:
 ###
 ### allowing failures
 ###
-### note that global variables must be included again
-### verbatim
-###
 
 matrix:
   allow_failures:
-    - env:
-        - EMACS=emacs22
-        - SOME_TOKEN=some_value
-    - env:
-        - EMACS=emacs-snapshot
-        - SOME_TOKEN=some_value
+    - env: EMACS=emacs22
+    - env: EMACS=emacs-snapshot
 
 ###
 ### limit build attempts to defined branches
@@ -75,7 +69,8 @@ matrix:
 ### emacs24 (current stable release) is obtained from the
 ### cassou PPA: http://launchpad.net/~cassou/+archive/emacs
 ###
-### emacs-snapshot (trunk) is obtained from the cassou PPA.
+### emacs-snapshot (trunk) is obtained from the Ubuntu Emacs Lisp PPA:
+### https://launchpad.net/~ubuntu-elisp/+archive/ppa
 ### For the emacs-snapshot build, bleeding-edge versions
 ### of all test dependencies are also used.
 ###
@@ -90,26 +85,31 @@ install:
         curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-common_22.2-0ubuntu9_all.deb &&
         curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-el_22.2-0ubuntu9_all.deb &&
         curl -Os http://security.ubuntu.com/ubuntu/pool/universe/e/emacs22/emacs22-gtk_22.2-0ubuntu9_i386.deb &&
-        sudo apt-get update -qq &&
-        sudo apt-get remove -qq emacs emacs23-bin-common emacs23-common emacs23-nox &&
-        sudo apt-get install -qq libjpeg62 xaw3dg &&
-        sudo dpkg -i emacs22_22.2-0ubuntu9_i386.deb emacs22-bin-common_22.2-0ubuntu9_i386.deb emacs22-common_22.2-0ubuntu9_all.deb emacs22-el_22.2-0ubuntu9_all.deb emacs22-gtk_22.2-0ubuntu9_i386.deb &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq remove emacs emacs23-bin-common emacs23-common emacs23-nox &&
+        sudo apt-get -qq --fix-missing install install-info emacsen-common libjpeg62:i386 xaw3dg:i386 liblockfile1:i386 libasound2:i386 libgif4:i386 libncurses5:i386 libpng12-0:i386 libtiff4:i386 libxpm4:i386 libxft2:i386 libglib2.0-0:i386 libgtk2.0-0:i386 &&
+        sudo dpkg -i emacs22-common_22.2-0ubuntu9_all.deb emacs22-el_22.2-0ubuntu9_all.deb &&
+        sudo dpkg -i --force-depends emacs22-bin-common_22.2-0ubuntu9_i386.deb &&
+        sudo dpkg -i emacs22_22.2-0ubuntu9_i386.deb emacs22-gtk_22.2-0ubuntu9_i386.deb &&
         sudo update-alternatives --set emacs22 /usr/bin/emacs22-gtk;
     fi
   - if [ "$EMACS" = 'emacs23' ]; then
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs23-gtk emacs23-el;
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs23-gtk emacs23-el;
     fi
   - if [ "$EMACS" = 'emacs24' ]; then
         sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs24 emacs24-el;
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs24 emacs24-el;
     fi
   - if [ "$EMACS" = 'emacs-snapshot' ]; then
-        sudo add-apt-repository -y ppa:cassou/emacs &&
-        sudo apt-get update -qq &&
-        sudo apt-get install -qq emacs-snapshot &&
-        sudo apt-get install -qq emacs-snapshot-el emacs-snapshot-gtk;
+        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs-snapshot &&
+        sudo apt-get -qq install emacs-snapshot-el;
     fi
 
 before_script:
@@ -124,7 +124,7 @@ before_script:
 ###
 
 script:
-  $EMACS --version && make test EMACS=$EMACS
+  $EMACS --version && ( test "$EMACS" != "emacs22" && make test EMACS="$EMACS" || make test-batch EMACS="$EMACS" )
 
 ###
 ### settings

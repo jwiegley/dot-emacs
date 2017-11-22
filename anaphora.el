@@ -4,9 +4,9 @@
 ;;
 ;; Author: Roland Walker <walker@pobox.com>
 ;; Homepage: http://github.com/rolandwalker/anaphora
-;; URL: http://raw.github.com/rolandwalker/anaphora/master/anaphora.el
-;; Version: 0.1.0
-;; Last-Updated: 30 Oct 2012
+;; URL: http://raw.githubusercontent.com/rolandwalker/anaphora/master/anaphora.el
+;; Version: 1.0.0
+;; Last-Updated: 22 Oct 2013
 ;; EmacsWiki: Anaphora
 ;; Keywords: extensions
 ;;
@@ -56,11 +56,10 @@
 ;;     `a*'
 ;;     `a/'
 ;;
-;; The following macros are experimental, especially the last one
+;; The following macros are experimental
 ;;
 ;;     `anaphoric-set'
 ;;     `anaphoric-setq'
-;;     `anaphoric-setf-experimental'
 ;;
 ;; See Also
 ;;
@@ -79,10 +78,10 @@
 ;;
 ;; Compatibility and Requirements
 ;;
-;;     GNU Emacs version 24.3-devel     : yes, except macros marked experimental
-;;     GNU Emacs version 24.1 & 24.2    : yes
-;;     GNU Emacs version 23.3           : yes
-;;     GNU Emacs version 22.3           : yes
+;;     GNU Emacs version 24.4-devel     : yes, except macros marked experimental
+;;     GNU Emacs version 24.3           : yes, except macros marked experimental
+;;     GNU Emacs version 23.3           : yes, except macros marked experimental
+;;     GNU Emacs version 22.2           : yes, except macros marked experimental
 ;;     GNU Emacs version 21.x and lower : unknown
 ;;
 ;; Bugs
@@ -97,10 +96,7 @@
 ;; public domain.  It is the author's belief that the portions adapted
 ;; from examples in "On Lisp" are in the public domain.  At least 10
 ;; lines of code have been adapted from the Emacs 'cl package (in the
-;; functions `anaphoric-setq' and `anaphoric-setf-experimental').  It
-;; may be that the function `anaphoric-setf-experimental' is
-;; sufficiently derived from Emacs as to be copyrighted under the GPL,
-;; Version 3.
+;; function `anaphoric-setq').
 ;;
 ;; Regardless of the copyright status of individual functions, all
 ;; code herein is free software, and is provided without any express
@@ -119,9 +115,9 @@
 ;;;###autoload
 (defgroup anaphora nil
   "Anaphoric macros providing implicit temp variables"
-  :version "0.1.0"
+  :version "1.0.0"
   :link '(emacs-commentary-link :tag "Commentary" "anaphora")
-  :link '(url-link :tag "Github" "http://github.com/rolandwalker/anaphora")
+  :link '(url-link :tag "GitHub" "http://github.com/rolandwalker/anaphora")
   :link '(url-link :tag "EmacsWiki" "http://emacswiki.org/emacs/Anaphora")
   :prefix "anaphora-"
   :group 'extensions)
@@ -517,7 +513,7 @@ The variable `it' is available within each VAL.
 
 ARGS in the form [SYM VAL] ... are otherwise as documented for `setq'.
 
-No alias `asetq' is provided, because it would easily mistaken
+No alias `asetq' is provided, because it would be easily mistaken
 for the pre-existing `aset', and because `anaphoric-setq' is not
 likely to find frequent use."
   (cond
@@ -531,73 +527,6 @@ likely to find frequent use."
     (t
      `(let ((it (quote ,(car args))))
         (set it ,(cadr args))))))
-
-;; `anaphoric-setf-experimental' is marked "experimental" because
-;;
-;;    1 There is a double evaluation and the workaround is only
-;;      lightly tested.
-;;
-;;    2 There is an outstanding test failure: anaphoric-setf-10.
-;;
-;;    3 Still trying to think of a real use-case where callf is
-;;      not sufficient.  There is one contrived example in
-;;      the tests: anaphoric-setf-16.
-;;
-;;    4 The innards of setf are being changed completely in
-;;      Emacs 24.3.
-;;
-;;  Therefore this macro is currently only a plaything and may removed
-;;  in a later revision for any of the above reasons.
-
-;;;###autoload
-(defmacro anaphoric-setf-experimental (&rest args)
-  "Like `setf', except that the value of PLACE is bound to `it'.
-
-The variable `it' is available within VAL.
-
-ARGS in the form [PLACE VAL] ... are otherwise as documented for `setf'.
-
-No alias `asetf' is provided, because it would be easily mistaken
-for the pre-existing `aset', and because `anaphoric-setf' is not
-likely to find frequent use."
-  (cond
-    ((not (fboundp 'cl-setf-do-modify))
-     (error "unimplemented"))
-    ((null args)
-     nil)
-    ((> (length args) 2)
-     (let ((pairs nil))
-       (while args
-         (push (list 'anaphoric-setf-experimental (pop args) (pop args)) pairs))
-       (cons 'progn (nreverse pairs))))
-    ((symbolp (car args))
-     (and args (cons 'anaphoric-setq args)))
-    (t
-     ;; ,partially-evaluated-place will be evaluated twice, once when
-     ;; setting `it', and once during the eval of `store'.  The
-     ;; working theory is that for all cases where setf is allowed,
-     ;; the double-eval is safe, after the partial evaluation.  If
-     ;; that is not true, digging into `cl-setf-do-modify' and
-     ;; `cl-setf-do-store' would be required to make this macro work.
-     ;; see test failure anaphoric-setf-10
-     (let ((partially-evaluated-place (gensym)))
-       `(let* ((,partially-evaluated-place (mapcar #'(lambda (x)
-                                                       (if (and (listp x)
-                                                                (not (eq 'quote (car x))))
-                                                           (if (listp (setq x (eval x)))
-                                                               (list 'quote x)
-                                                             ;; else
-                                                             x)
-                                                         ;; else
-                                                         x))
-                                                   ',(car args)))
-               (it (eval ,partially-evaluated-place)))
-          (let* ((method (cl-setf-do-modify ,partially-evaluated-place ',(nth 1 args)))
-                 (store (cl-setf-do-store (nth 1 method) ',(nth 1 args))))
-            (if (car method)
-                (eval (list 'let* (car method) store))
-              ;; else
-              (eval store))))))))
 
 (provide 'anaphora)
 
