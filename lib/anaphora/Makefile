@@ -22,7 +22,7 @@ EMACS_BATCH=$(EMACS_CLEAN) --batch
 TESTS=
 WIKI_USERNAME=roland.walker
 
-CURL=curl --silent
+CURL=curl --location --silent
 EDITOR=runemacs -no_wait
 WORK_DIR=$(shell pwd)
 PACKAGE_NAME=$(shell basename $(WORK_DIR))
@@ -31,8 +31,8 @@ AUTOLOADS_FILE=$(PACKAGE_NAME)-autoloads.el
 TRAVIS_FILE=.travis.yml
 TEST_DIR=ert-tests
 TEST_DEP_1=ert
-TEST_DEP_1_STABLE_URL=http://bzr.savannah.gnu.org/lh/emacs/emacs-24/download/head:/ert.el-20110112160650-056hnl9qhpjvjicy-2/ert.el
-TEST_DEP_1_LATEST_URL=https://raw.github.com/emacsmirror/emacs/master/lisp/emacs-lisp/ert.el
+TEST_DEP_1_STABLE_URL=http://git.savannah.gnu.org/cgit/emacs.git/plain/lisp/emacs-lisp/ert.el?h=emacs-24.3
+TEST_DEP_1_LATEST_URL=http://git.savannah.gnu.org/cgit/emacs.git/plain/lisp/emacs-lisp/ert.el?h=master
 
 .PHONY : build dist not-dirty pkg-version downloads downloads-latest autoloads \
  test-autoloads test-travis test test-prep test-batch test-interactive         \
@@ -90,9 +90,9 @@ test-batch :
 	(for test_lib in *-test.el; do                       \
 	   $(RESOLVED_EMACS) $(EMACS_BATCH) -L . -L .. -l cl \
 	   -l '$(TEST_DEP_1)' -l "$$test_lib" --eval         \
-	    "(flet ((ert--print-backtrace (&rest args)       \
-	      (insert \"no backtrace in batch mode\")))      \
-	       (ert-run-tests-batch-and-exit '(and \"$(TESTS)\" (not (tag :interactive)))))" || exit 1; \
+	    "(progn                                          \
+	      (fset 'ert--print-backtrace 'ignore)           \
+	      (ert-run-tests-batch-and-exit '(and \"$(TESTS)\" (not (tag :interactive)))))" || exit 1; \
 	done)
 
 test-interactive : test-prep
