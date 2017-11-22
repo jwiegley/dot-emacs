@@ -208,7 +208,7 @@ new list."
     (-select-column 1 '((1 2 3) (a b c) (:a :b :c))) => '(2 b :b)))
 
 (def-example-group "List to list"
-  "Bag of various functions which modify input list."
+  "Functions returning a modified copy of the input list."
 
   (defexamples -keep
     (-keep 'cdr '((1 2 3) (4 5) (6))) => '((2 3) (5))
@@ -333,6 +333,26 @@ new list."
     (-reduce-r '+ '(1)) => 1
     (--reduce-r (format "%s-%s" it acc) '()) => "nil-nil")
 
+  (defexamples -reductions-from
+    (-reductions-from (lambda (a i) (format "(%s FN %s)" a i)) "INIT" '(1 2 3 4)) => '("INIT" "(INIT FN 1)" "((INIT FN 1) FN 2)" "(((INIT FN 1) FN 2) FN 3)" "((((INIT FN 1) FN 2) FN 3) FN 4)")
+    (-reductions-from 'max 0 '(2 1 4 3)) => '(0 2 2 4 4)
+    (-reductions-from '* 1 '(1 2 3 4)) => '(1 1 2 6 24))
+
+  (defexamples -reductions-r-from
+    (-reductions-r-from (lambda (i a) (format "(%s FN %s)" i a)) "INIT" '(1 2 3 4)) => '("(1 FN (2 FN (3 FN (4 FN INIT))))" "(2 FN (3 FN (4 FN INIT)))" "(3 FN (4 FN INIT))" "(4 FN INIT)" "INIT")
+    (-reductions-r-from 'max 0 '(2 1 4 3)) => '(4 4 4 3 0)
+    (-reductions-r-from '* 1 '(1 2 3 4)) => '(24 24 12 4 1))
+
+  (defexamples -reductions
+    (-reductions (lambda (a i) (format "(%s FN %s)" a i)) '(1 2 3 4)) => '(1 "(1 FN 2)" "((1 FN 2) FN 3)" "(((1 FN 2) FN 3) FN 4)")
+    (-reductions '+ '(1 2 3 4)) => '(1 3 6 10)
+    (-reductions '* '(1 2 3 4)) => '(1 2 6 24))
+
+  (defexamples -reductions-r
+    (-reductions-r (lambda (i a) (format "(%s FN %s)" i a)) '(1 2 3 4)) => '("(1 FN (2 FN (3 FN 4)))" "(2 FN (3 FN 4))" "(3 FN 4)" 4)
+    (-reductions-r '+ '(1 2 3 4)) => '(10 9 7 4)
+    (-reductions-r '* '(1 2 3 4)) => '(24 24 12 4))
+
   (defexamples -count
     (-count 'even? '(1 2 3 4 5)) => 2
     (--count (< it 4) '(1 2 3 4)) => 3)
@@ -342,10 +362,30 @@ new list."
     (-sum '(1)) => 1
     (-sum '(1 2 3 4)) => 10)
 
+  (defexamples -running-sum
+    (-running-sum '(1 2 3 4)) => '(1 3 6 10)
+    (-running-sum '(1)) => '(1)
+    (-running-sum '()) !!> error)
+
   (defexamples -product
     (-product '()) => 1
     (-product '(1)) => 1
     (-product '(1 2 3 4)) => 24)
+
+  (defexamples -running-product
+    (-running-product '(1 2 3 4)) => '(1 2 6 24)
+    (-running-product '(1)) => '(1)
+    (-running-product '()) !!> error)
+
+  (defexamples -inits
+    (-inits '(1 2 3 4)) => '(nil (1) (1 2) (1 2 3) (1 2 3 4))
+    (-inits nil) => '(nil)
+    (-inits '(1)) => '(nil (1)))
+
+  (defexamples -tails
+    (-tails '(1 2 3 4)) => '((1 2 3 4) (2 3 4) (3 4) (4) nil)
+    (-tails nil) => '(nil)
+    (-tails '(1)) => '((1) nil))
 
   (defexamples -min
     (-min '(0)) => 0
@@ -384,6 +424,8 @@ new list."
   (defexamples -any?
     (-any? 'even? '(1 2 3)) => t
     (-any? 'even? '(1 3 5)) => nil
+    (-any? 'null '(1 3 5)) => nil
+    (-any? 'null '(1 3 ())) => t
     (--any? (= 0 (% it 2)) '(1 2 3)) => t)
 
   (defexamples -all?
@@ -506,6 +548,37 @@ new list."
     (--partition-by-header (> it 0) '(1 2 0 1 0 1 2 3 0)) => '((1 2 0) (1 0) (1 2 3 0))
     (-partition-by-header 'even? '(2 1 1 1 4 1 3 5 6 6 1)) => '((2 1 1 1) (4 1 3 5) (6 6 1)))
 
+  (defexamples -partition-after-pred
+    (-partition-after-pred #'oddp '()) => '()
+    (-partition-after-pred #'oddp '(1)) => '((1))
+    (-partition-after-pred #'oddp '(0 1)) => '((0 1))
+    (-partition-after-pred #'oddp '(1 1)) => '((1) (1))
+    (-partition-after-pred #'oddp '(0 0 0 1 0 1 1 0 1)) => '((0 0 0 1) (0 1) (1) (0 1)))
+
+  (defexamples -partition-before-pred
+    (-partition-before-pred #'oddp '()) => '()
+    (-partition-before-pred #'oddp '(1)) => '((1))
+    (-partition-before-pred #'oddp '(0 1)) => '((0) (1))
+    (-partition-before-pred #'oddp '(1 1)) => '((1) (1))
+    (-partition-before-pred #'oddp '(0 1 0)) => '((0) (1 0))
+    (-partition-before-pred #'oddp '(0 0 0 1 0 1 1 0 1)) => '((0 0 0) (1 0) (1) (1 0) (1)))
+
+  (defexamples -partition-before-item
+    (-partition-before-item 3 '()) => '()
+    (-partition-before-item 3 '(1)) => '((1))
+    (-partition-before-item 3 '(3)) => '((3))
+    (-partition-before-item 3 '(1 3)) => '((1) (3))
+    (-partition-before-item 3 '(1 3 4)) => '((1) (3 4))
+    (-partition-before-item 3 '(1 2 3 2 3 3 4)) => '((1 2) (3 2) (3) (3 4)))
+
+  (defexamples -partition-after-item
+    (-partition-after-item 3 '()) => '()
+    (-partition-after-item 3 '(1)) => '((1))
+    (-partition-after-item 3 '(3)) => '((3))
+    (-partition-after-item 3 '(3 1)) => '((3) (1))
+    (-partition-after-item 3 '(3 1 3)) => '((3) (1 3))
+    (-partition-after-item 3 '(3 2 3 3 4 5 3 2)) => '((3) (2 3) (3) (4 5 3) (2)))
+
   (defexamples -group-by
     (-group-by 'even? '()) => '()
     (-group-by 'even? '(1 1 2 2 2 3 4 6 8)) => '((nil . (1 1 3)) (t . (2 2 2 4 6 8)))
@@ -612,7 +685,8 @@ new list."
     (-interleave '(1 2) '("a" "b")) => '(1 "a" 2 "b")
     (-interleave '(1 2) '("a" "b") '("A" "B")) => '(1 "a" "A" 2 "b" "B")
     (-interleave '(1 2 3) '("a" "b")) => '(1 "a" 2 "b")
-    (-interleave '(1 2 3) '("a" "b" "c" "d")) => '(1 "a" 2 "b" 3 "c"))
+    (-interleave '(1 2 3) '("a" "b" "c" "d")) => '(1 "a" 2 "b" 3 "c")
+    (-interleave) => nil)
 
   (defexamples -zip-with
     (-zip-with '+ '(1 2 3) '(4 5 6)) => '(5 7 9)
@@ -624,7 +698,8 @@ new list."
     (-zip '(1 2 3) '(4 5 6 7)) => '((1 . 4) (2 . 5) (3 . 6))
     (-zip '(1 2 3 4) '(4 5 6)) => '((1 . 4) (2 . 5) (3 . 6))
     (-zip '(1 2 3) '(4 5 6) '(7 8 9)) => '((1 4 7) (2 5 8) (3 6 9))
-    (-zip '(1 2) '(3 4 5) '(6)) => '((1 3 6)))
+    (-zip '(1 2) '(3 4 5) '(6)) => '((1 3 6))
+    (-zip) => nil)
 
   (defexamples -zip-fill
     (-zip-fill 0 '(1 2 3 4 5) '(6 7 8 9)) => '((1 . 6) (2 . 7) (3 . 8) (4 . 9) (5 . 0)))
@@ -667,10 +742,14 @@ new list."
   (defexamples -first
     (-first 'even? '(1 2 3)) => 2
     (-first 'even? '(1 3 5)) => nil
+    (-first 'null '(1 3 5)) => nil
+    (-first 'null '(1 3 ())) => nil
     (--first (> it 2) '(1 2 3)) => 3)
 
   (defexamples -some
     (-some 'even? '(1 2 3)) => t
+    (-some 'null '(1 2 3)) => nil
+    (-some 'null '(1 2 ())) => t
     (--some (member 'foo it) '((foo bar) (baz))) => '(foo bar)
     (--some (plist-get it :bar) '((:foo 1 :bar 2) (:baz 3))) => 2)
 
@@ -683,6 +762,22 @@ new list."
     (-first-item '(1 2 3)) => 1
     (-first-item nil) => nil
     (let ((list (list 1 2 3))) (setf (-first-item list) 5) list) => '(5 2 3))
+
+  (defexamples -second-item
+    (-second-item '(1 2 3)) => 2
+    (-second-item nil) => nil)
+
+  (defexamples -third-item
+    (-third-item '(1 2 3)) => 3
+    (-third-item nil) => nil)
+
+  (defexamples -fourth-item
+    (-fourth-item '(1 2 3 4)) => 4
+    (-fourth-item nil) => nil)
+
+  (defexamples -fifth-item
+    (-fifth-item '(1 2 3 4 5)) => 5
+    (-fifth-item nil) => nil)
 
   (defexamples -last-item
     (-last-item '(1 2 3)) => 3
@@ -801,7 +896,33 @@ new list."
   (defexamples -->
     (--> "def" (concat "abc" it "ghi")) => "abcdefghi"
     (--> "def" (concat "abc" it "ghi") (upcase it)) => "ABCDEFGHI"
-    (--> "def" (concat "abc" it "ghi") upcase) => "ABCDEFGHI")
+    (--> "def" (concat "abc" it "ghi") upcase) => "ABCDEFGHI"
+    (--> "def" upcase) => "DEF"
+    (--> 3 (car (list it))) => 3
+
+    (--> '(1 2 3 4) (--map (1+ it) it)) => '(2 3 4 5)
+    (--map (--> it (1+ it)) '(1 2 3 4)) => '(2 3 4 5)
+
+    (--filter (--> it (equal 0 (mod it 2))) '(1 2 3 4)) => '(2 4)
+    (--> '(1 2 3 4) (--filter (equal 0 (mod it 2)) it)) => '(2 4)
+
+    (--annotate (--> it (< 1 it)) '(0 1 2 3)) => '((nil . 0)
+                                                   (nil . 1)
+                                                   (t . 2)
+                                                   (t . 3))
+
+    (--> '(0 1 2 3) (--annotate (< 1 it) it)) => '((nil . 0)
+                                                   (nil . 1)
+                                                   (t . 2)
+                                                   (t . 3)))
+
+  (defexamples -as->
+    (-as-> 3 my-var (1+ my-var) (list my-var) (mapcar (lambda (ele) (* 2 ele)) my-var)) => '(8)
+    (-as-> 3 my-var 1+) => 4
+    (-as-> 3 my-var) => 3
+    (-as-> "def" string (concat "abc" string "ghi")) => "abcdefghi"
+    (-as-> "def" string (concat "abc" string "ghi") upcase) => "ABCDEFGHI"
+    (-as-> "def" string (concat "abc" string "ghi") (upcase string)) => "ABCDEFGHI")
 
   (defexamples -some->
     (-some-> '(2 3 5)) => '(2 3 5)
@@ -1149,10 +1270,10 @@ new list."
     (defexamples -prodfn
       (funcall (-prodfn '1+ '1- 'int-to-string) '(1 2 3)) => '(2 1 "3")
       (-map (-prodfn '1+ '1-) '((1 2) (3 4) (5 6) (7 8))) => '((2 1) (4 3) (6 5) (8 7))
-      (apply '+ (funcall (-prodfn 'length 'string-to-int) '((1 2 3) "15"))) => 18
+      (apply '+ (funcall (-prodfn 'length 'string-to-number) '((1 2 3) "15"))) => 18
       (let ((f '1+)
             (g '1-)
-            (ff 'string-to-int)
+            (ff 'string-to-number)
             (gg 'length)
             (input '(1 2))
             (input2 "foo")
