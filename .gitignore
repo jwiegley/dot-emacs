@@ -38,3 +38,5 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
+/site-lisp/site-lang/auctex/preview-latex.el
+/site-lisp/site-lang/auctex/tex-site.el
