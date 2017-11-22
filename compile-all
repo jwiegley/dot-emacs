@@ -6,10 +6,13 @@ find "$@"                                                                       
           -o -name dev                                                          \
           -o -name test                                                         \
           -o -name tests                                                        \
+          -o -name testing                                                      \
           -o -name shimbun                                                      \
           -o -name obsolete                                                     \
           -o -name examples                                                     \
+          -o -name gnus-fallback-lib                                                     \
           -o -name support                                                      \
+          -o -name targets                                                      \
           -o -name style \) -prune \)                                           \
        -o -name '*.el' \)                                                       \
        -name '*.el'                                                             \
@@ -20,6 +23,7 @@ find "$@"                                                                       
        ! -path lib/pos-tip/sdic-inline-pos-tip.el                               \
        ! -path lisp/muse/contrib/htmlize-hack.el                                \
        ! -path lisp/my-one-key.el                                               \
+       ! -path lisp/puppet-ext.el                                  \
        ! -path lisp/springboard/springboard.el                                  \
        ! -path site-lisp/emacs-w3m/mew-w3m.el                                   \
        ! -path site-lisp/emacs-w3m/mime-w3m.el                                  \
@@ -28,6 +32,8 @@ find "$@"                                                                       
        ! -path site-lisp/emacs-w3m/w3m-xmas.el                                  \
        ! -path site-lisp/lentic/build.el                                        \
        ! -path site-lisp/popwin/misc/popwin-yatex.el                            \
+       ! -path site-lisp/restclient/restclient-helm.el                            \
+       ! -path site-lisp/site-gnus/gnus/lisp/gnus-icalendar.el \
        ! -path site-lisp/site-company/company-coq/etc/rebuild-screenshots.el    \
        ! -path site-lisp/site-company/company-coq/etc/screenshots.el            \
        ! -path site-lisp/site-lang/lua-mode/lua-mode.el                         \
