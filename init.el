@@ -3101,6 +3101,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package visual-regexp-steroids
     :load-path "site-lisp/visual-regexp-steroids"))
 
+(use-package w3m
+  :load-path "site-lisp/emacs-w3m"
+  :commands w3m)
+
 (use-package wcount
   :bind ("C-. W" . wcount-mode))
 
