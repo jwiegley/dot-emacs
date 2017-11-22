@@ -479,6 +479,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
+(bind-keys* ("<C-return>" . other-window))
+
 (bind-keys
  ("C-z"   . delete-other-windows)
 
@@ -792,6 +794,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
 (use-package ace-window
+  :disabled t
   :load-path "site-lisp/site-ivy/ace-window"
   :bind* ("<C-return>" . ace-window))
 
@@ -2426,6 +2429,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C->"     . mc/mark-next-like-this)
          ("C-<"     . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
+
          ("C-c m n" . mc/insert-numbers)
          ("C-c m l" . mc/insert-letters)
          ("C-c m s" . mc/sort-regions)
