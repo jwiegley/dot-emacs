@@ -65,7 +65,7 @@ reuse storage as much as possible."
         (dolist (name (cdr conv))
           (puthash name (car conv) feature-names)))
 
-      (dolist (dir '("lib" "site-lisp" "override" "lisp"))
+      (dolist (dir '("lib" "site-lisp" "lisp"))
         (dolist (file (directory-files-recursively
                        (expand-file-name dir user-emacs-directory)
                        "\\.el\\'" nil))
