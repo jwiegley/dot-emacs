@@ -3023,10 +3023,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              tidy-save-settings
              tidy-describe-options))
 
-(use-package tiny
-  :load-path "site-lisp/tiny"
-  :bind ("C-. x" . tiny-expand))
-
 (use-package tuareg
   :load-path "site-lisp/site-lang/tuareg"
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
