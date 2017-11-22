@@ -9,6 +9,14 @@
 /projectile-bookmarks.eld
 /projectile.cache
 /release*
+/site-lisp/site-lang/auctex/Makefile
+/site-lisp/site-lang/auctex/config.log
+/site-lisp/site-lang/auctex/config.status
+/site-lisp/site-lang/auctex/doc/Makefile
+/site-lisp/site-lang/auctex/latex/Makefile
+/site-lisp/site-lang/auctex/preview.el
+/site-lisp/site-lang/auctex/tex-site.el.out
+/smex-items
 archive/
 autoloads.el
 backups/
@@ -30,4 +38,3 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
-/smex-items
