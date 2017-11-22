@@ -1079,6 +1079,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands deft
   :load-path "site-lisp/deft")
 
+(use-package diff-hl
+  :commands (diff-hl-mode diff-hl-dired-mode)
+  :load-path "site-lisp/diff-hl"
+  :init
+  (use-package diff-hl-flydiff
+    :commands diff-hl-flydiff-mode)
+  :config
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
 (use-package diff-mode
   :commands diff-mode
   :config
