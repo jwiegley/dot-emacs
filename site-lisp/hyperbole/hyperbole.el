@@ -280,12 +280,12 @@ Entry format is: (key-description key-sequence key-binding)."
     ;; button renames without invoking the Hyperbole menu.
     ;;
     ;; Don't override local bindings of this key.
-    (hkey-maybe-global-set-key "\C-c\C-r" 'hui:ebut-rename t)
+    ;; (hkey-maybe-global-set-key "\C-c\C-r" 'hui:ebut-rename t)
     ;;
     ;; Binds {C-c RET} to select larger and larger synctactical units in a
     ;; buffer when invoked repeatedly, showing in the minibuffer the type
     ;; of unit selected each time.
-    (hkey-maybe-global-set-key "\C-c\C-m" 'hui-select-thing)
+    ;; (hkey-maybe-global-set-key "\C-c\C-m" 'hui-select-thing)
     ;;
     ;; Binds {C-c \} to interactively manage windows and frames.
     (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-enable-windows-mode)

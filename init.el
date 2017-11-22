@@ -1713,7 +1713,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package hl-line
   :commands hl-line-mode
-  :bind (("M-o h" . hl-line-mode))
+  :bind ("M-o h" . hl-line-mode)
   :config
   (use-package hl-line+))
 
@@ -1732,7 +1732,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind* (("M-."   . hkey-either)
           ("M-RET" . hkey-operate))
   :config
-  (unbind-key "M-o")
   (use-package kotl-mode
     :load-path "site-lisp/hyperbole/kotl")
 
