@@ -1,0 +1,44 @@
+#!/bin/bash -e
+
+find "$@"                                                                       \
+    \( \( \( -name .git                                                         \
+          -o -name doc                                                          \
+          -o -name dev                                                          \
+          -o -name test                                                         \
+          -o -name tests                                                        \
+          -o -name shimbun                                                      \
+          -o -name obsolete                                                     \
+          -o -name examples                                                     \
+          -o -name support                                                      \
+          -o -name style \) -prune \)                                           \
+       -o -name '*.el' \)                                                       \
+       -name '*.el'                                                             \
+       ! -name '.*'                                                             \
+       ! -name '*-test.el'                                                      \
+       ! -name '*-tests.el'                                                     \
+       ! -path lib/f-el/bin/docs.el                                             \
+       ! -path lib/pos-tip/sdic-inline-pos-tip.el                               \
+       ! -path lisp/muse/contrib/htmlize-hack.el                                \
+       ! -path lisp/my-one-key.el                                               \
+       ! -path lisp/springboard/springboard.el                                  \
+       ! -path site-lisp/emacs-w3m/mew-w3m.el                                   \
+       ! -path site-lisp/emacs-w3m/mime-w3m.el                                  \
+       ! -path site-lisp/emacs-w3m/octet.el                                     \
+       ! -path site-lisp/emacs-w3m/w3m-ucs.el                                   \
+       ! -path site-lisp/emacs-w3m/w3m-xmas.el                                  \
+       ! -path site-lisp/lentic/build.el                                        \
+       ! -path site-lisp/popwin/misc/popwin-yatex.el                            \
+       ! -path site-lisp/site-company/company-coq/etc/rebuild-screenshots.el    \
+       ! -path site-lisp/site-company/company-coq/etc/screenshots.el            \
+       ! -path site-lisp/site-lang/lua-mode/lua-mode.el                         \
+       ! -path site-lisp/site-company/company-ghc/company-ghc.el                \
+       ! -path site-lisp/site-dired/dired-hacks/dired-images.el                 \
+       ! -path site-lisp/site-gnus/gnus/lisp/gnus-xmas.el                       \
+       ! -path site-lisp/site-lang/nix-mode/nix-mode-mmm.el                     \
+       ! -path site-lisp/site-org/emacs-calfw/calfw-howm.el                     \
+       ! -path site-lisp/site-org/org-mode/contrib/lisp/org-jira.el             \
+       -type f -print0 |                                                        \
+    xargs -0 $BATCH_LOAD                                                        \
+          -L site-lisp/site-lang/agda/src/data/emacs-mode                       \
+          -L site-lisp/site-org/org-mode/contrib/lisp                           \
+          -f batch-byte-compile-if-not-done
