@@ -1015,14 +1015,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (defun show-compilation ()
     (interactive)
-    (let ((compile-buf
-           (catch 'found
-             (dolist (buf (buffer-list))
-               (if (string-match "\\*compilation\\*" (buffer-name buf))
-                   (throw 'found buf))))))
-      (if compile-buf
-          (switch-to-buffer-other-window compile-buf)
-        (call-interactively 'compile))))
+    (aif (--first (string-match "\\*compilation\\*" (buffer-name it))
+                  (buffer-list))
+        (progn
+          (delete-other-windows)
+          (display-buffer it))
+      (call-interactively 'compile)))
 
   (defun compilation-ansi-color-process-output ()
     (ansi-color-process-output nil)
