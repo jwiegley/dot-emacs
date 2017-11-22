@@ -33,10 +33,12 @@ SUBDIRS     = $(shell find $(DIRS) -maxdepth 2	\
 		    ! -name dev			\
 		    ! -name test		\
 		    ! -name tests		\
+		    ! -name testing		\
 		    ! -name shimbun		\
 		    ! -name obsolete		\
 		    ! -name examples		\
 		    ! -name support		\
+		    ! -name targets		\
 		    ! -name style		\
 		    ! -path '*/slime/lib'	\
 		    -type d -print)
@@ -46,6 +48,24 @@ MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET)
+
+compile-packages:
+	for i in \
+	    site-lisp/deft \
+	    site-lisp/evil \
+	    site-lisp/hyperbole \
+	    site-lisp/lusty-emacs \
+	    site-lisp/site-company/company-mode \
+	    site-lisp/site-gnus/gnus \
+	    site-lisp/site-ivy/swiper \
+	    site-lisp/site-ivy/avy \
+	    site-lisp/site-lang/auctex \
+	    site-lisp/site-lang/flycheck \
+	    site-lisp/site-lang/haskell-mode \
+	    site-lisp/site-lang/ProofGeneral \
+	    site-lisp/site-lang/slime \
+	    site-lisp/site-org/org-mode \
+	    ; do (cd $$i && make) ; done
 
 compile:
 	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
