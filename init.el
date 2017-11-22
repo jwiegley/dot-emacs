@@ -200,11 +200,11 @@
 ;;; Configure libraries
 
 (use-package alert            :defer t :load-path "lisp/alert")
-(use-package anaphora         :defer t :load-path "lib/anaphora")
+(use-package anaphora        :demand t :load-path "lib/anaphora")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
 (use-package ctable           :defer t :load-path "lib/emacs-ctable")
-(use-package dash             :defer t :load-path "lib/dash-el")
+(use-package dash            :demand t :load-path "lib/dash-el")
 (use-package deferred         :defer t :load-path "lib/emacs-deferred")
 (use-package emojify          :defer t :load-path "lib/emacs-emojify")
 (use-package epc              :defer t :load-path "lib/emacs-epc")
