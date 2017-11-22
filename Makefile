@@ -27,7 +27,19 @@ LIB_SOURCE  = $(wildcard lib/*.el)				\
 TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
               $(patsubst %.el,%.elc, dot-gnus.el dot-org.el init.el)
 
-SUBDIRS     = $(shell find $(DIRS) -maxdepth 2 ! -name .git ! -name style -type d -print)
+SUBDIRS     = $(shell find $(DIRS) -maxdepth 2	\
+		    ! -name .git		\
+		    ! -name doc			\
+		    ! -name dev			\
+		    ! -name test		\
+		    ! -name tests		\
+		    ! -name shimbun		\
+		    ! -name obsolete		\
+		    ! -name examples		\
+		    ! -name support		\
+		    ! -name style		\
+		    ! -path '*/slime/lib'	\
+		    -type d -print)
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
@@ -36,9 +48,8 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 all: $(TARGET)
 
 compile:
-	for i in $(DIRS); do \
-		$(BATCH_LOAD) --eval '(batch-byte-recompile-directory 0)' $$i; \
-	done
+	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
+	@echo All Emacs Lisp files have been compiled.
 
 init.elc: init.el dot-org.elc dot-gnus.elc
 	@rm -f $@
