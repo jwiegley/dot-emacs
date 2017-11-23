@@ -2333,10 +2333,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (unbind-key "M-w" magit-mode-map)
   (unbind-key "<C-return>" magit-file-section-map)
 
-  (diminish 'magit-wip-after-save-local-mode)
-  (diminish 'magit-wip-after-apply-mode)
-  (diminish 'magit-wip-before-change-mode)
-
   ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
   ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
   (bind-key "U" #'magit-unstage-all magit-mode-map)
