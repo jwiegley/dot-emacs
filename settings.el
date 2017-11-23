@@ -998,7 +998,9 @@
  '(shackle-default-rule (quote (:select t)))
  '(shackle-rules
    (quote
-    ((compilation-mode :frame t)
+    ((compilation-mode :select t :align
+                       (quote below)
+                       :size 0.6)
      (messages-buffer-mode :select t :align t :size 0.6)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
@@ -1052,7 +1054,6 @@
  '(smex-history-length 20)
  '(smex-save-file "~/.emacs.d/data/smex-items")
  '(sp-highlight-pair-overlay nil)
- '(special-display-regexps (quote (("\\\\*compilation\\\\*" (height . 60)))))
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
  '(sr-autoload-extensions nil)
