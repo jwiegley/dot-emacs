@@ -2876,7 +2876,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         '((compilation-mode :select t :align t :size 0.9)
           (messages-buffer-mode :select t :align t :size 0.6)
           ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
-          ("\\`\\*fetch.*" :regexp t :noselect t :align bottom :size 0.25))
+          ("\\`\\*fetch" :regexp t :noselect t :align bottom :size 0.25)
+          ("\\`\\*Flycheck" :regexp t :noselect t :align bottom :size 0.2))
         shackle-default-rule '(:select t))
   (shackle-mode 1))
 
