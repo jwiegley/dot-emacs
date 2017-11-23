@@ -215,6 +215,7 @@
 (use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
 (use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
 (use-package gh               :defer t :load-path "lib/gh-el")
+(use-package ghub+            :defer t :load-path "lib/ghub-plus")
 (use-package ht               :defer t :load-path "lib/ht-el")
 (use-package let-alist        :defer t :load-path "lib/let-alist")
 (use-package logito           :defer t :load-path "lib/logito")
@@ -2348,6 +2349,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
 
   (remove-hook 'server-switch-hook 'magit-commit-diff))
+
+(use-package magithub
+  :load-path "site-lisp/site-git/magithub"
+  :after magit
+  :config (magithub-feature-autoinject t))
 
 (use-package malyon
   :load-path "site-lisp/malyon"
