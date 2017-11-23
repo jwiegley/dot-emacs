@@ -202,6 +202,7 @@
 
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
+(use-package apiwrap         :demand t :load-path "lib/apiwrap")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
 (use-package ctable           :defer t :load-path "lib/emacs-ctable")
