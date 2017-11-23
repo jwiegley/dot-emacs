@@ -1453,10 +1453,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/site-emacs-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
   :config
-  (setq eval-expr-print-function 'pp
-        eval-expr-print-level 20
-        eval-expr-print-length 100)
-
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (paredit-mode)
@@ -1535,9 +1531,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/guide-key"
   :diminish guide-key-mode
   :config
-  (setq guide-key/guide-key-sequence t
-        guide-key/popup-window-position 'bottom
-        guide-key/idle-delay 1.5)
   (guide-key-mode 1))
 
 (use-package graphviz-dot-mode
@@ -1549,14 +1542,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-s f" . find-grep)
          ("M-s G" . grep))
   :config
-  (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed)))
-
-  (grep-apply-setting 'grep-command "egrep -nH -e ")
-  (grep-apply-setting
-   'grep-find-command
-   '("rg --no-heading --color=always -j4 -nH -e " . 43)
-   ;; '("find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH " . 61)
-   ))
+  (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed))))
 
 (use-package gud
   :commands gud-gdb
@@ -2608,7 +2594,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :if ivy-mode
     :load-path "site-lisp/site-ivy/counsel-projectile"
     :config
-    (setq projectile-completion-system 'ivy)
     (counsel-projectile-on)
     (define-key projectile-mode-map [remap projectile-ag]
       #'counsel-projectile-rg))
@@ -2874,13 +2859,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :demand t
   :load-path "site-lisp/shackle"
   :config
-  (setq shackle-rules
-        '((compilation-mode :select t :align t :size 0.9)
-          (messages-buffer-mode :select t :align t :size 0.6)
-          ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
-          ("\\`\\*fetch" :regexp t :noselect t :align bottom :size 0.25)
-          ("\\`\\*Flycheck" :regexp t :noselect t :align bottom :size 0.2))
-        shackle-default-rule '(:select t))
   (shackle-mode 1))
 
 (use-package shift-number
