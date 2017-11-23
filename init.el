@@ -794,7 +794,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
 (use-package ace-window
-  :disabled t
   :load-path "site-lisp/site-ivy/ace-window"
   :bind* ("<C-return>" . ace-window))
 

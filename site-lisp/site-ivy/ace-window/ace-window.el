@@ -1,4 +1,4 @@
-;;; ace-window.el --- Quickly switch windows. -*- lexical-binding: t -*-
+;;; ace-window.ews. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015  Free Software Foundation, Inc.
 
@@ -108,6 +108,10 @@ Use M-0 `ace-window' to toggle this value."
 This will make `ace-window' act different from `other-window' for
   one or two windows."
   :type 'boolean)
+
+(defcustom aw-dispatch-when-more-than 2
+  "If the number of windows is more than this, activate ace-window-ness."
+  :type 'integer)
 
 (defcustom aw-reverse-frame-list nil
   "When non-nil `ace-window' will order frames for selection in
@@ -315,7 +319,7 @@ Amend MODE-LINE to the mode line for the duration of the selection."
                    (when (eq aw-action 'exit)
                      (setq aw-action nil)))
                  (or (car wnd-list) start-window))
-                ((and (= (length wnd-list) 2)
+                ((and (<= (length wnd-list) aw-dispatch-when-more-than)
                       (not aw-dispatch-always)
                       (not aw-ignore-current))
                  (let ((wnd (next-window nil nil next-window-scope)))
