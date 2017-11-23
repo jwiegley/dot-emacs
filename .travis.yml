@@ -1,0 +1,40 @@
+#language: emacs-lisp
+language: python
+
+sudo: false
+
+cache:
+  - directories:
+    - "$HOME/emacs"
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
+
+env:
+  - EMACS_VERSION=25.1
+  - EMACS_VERSION=25.2
+  - EMACS_VERSION=snapshot
+
+before_install:
+  - export PATH="$HOME/bin:$PATH"
+  - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+  - make -f emacs-travis.mk install_emacs
+  - make -f emacs-travis.mk install_cask
+  - emacs --version
+  - cask exec emacs --version
+install:
+  - cask install
+
+script:
+  - cask exec ert-runner
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+  webhooks:
+    on_success: change
+    on_failure: always
+    on_start: never
