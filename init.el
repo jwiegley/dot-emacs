@@ -1712,6 +1712,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (hook-into-modes #'highlight-numbers-mode
                    'prog-mode-hook))
 
+(use-package hippie-exp
+  :bind ("C-M-/" . hippie-expand))
+
 (use-package hl-line
   :commands hl-line-mode
   :bind ("M-o h" . hl-line-mode)
