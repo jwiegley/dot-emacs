@@ -225,6 +225,7 @@
 (use-package makey            :defer t :load-path "lib/makey")
 (use-package marshal          :defer t :load-path "lib/marshal-el")
 (use-package oauth2           :defer t :load-path "lib/oauth2")
+(use-package parent-mode      :defer t :load-path "lib/parent-mode")
 (use-package pcache           :defer t :load-path "lib/pcache")
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
@@ -2310,8 +2311,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
   :init
-  (global-magit-file-mode)
-
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
   (use-package git-commit)
@@ -2322,6 +2321,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package magit-commit
     :config
     (remove-hook 'server-switch-hook 'magit-commit-diff))
+
+  (use-package magit-files
+    :config
+    (global-magit-file-mode))
 
   (unbind-key "M-h" magit-mode-map)
   (unbind-key "M-s" magit-mode-map)
@@ -2530,10 +2533,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ("C-. A" . paredit-add-to-previous-list)
    ("C-. j" . paredit-join-with-next-list)
    ("C-. J" . paredit-join-with-previous-list)))
-
-(use-package parent-mode
-  :defer t
-  :load-path "site-lisp/parent-mode")
 
 (or
  (use-package mic-paren
