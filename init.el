@@ -1045,7 +1045,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (use-package vline)))
 
 (use-package css-mode
-  :mode "\\.css\\'")
+  :mode "\\.css\\'"
+  :defines css-syntax-propertize-function)
 
 (use-package csv-mode
   :mode "\\.csv\\'")
