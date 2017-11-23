@@ -1707,7 +1707,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package hl-line+))
 
 (use-package hydra
-  :defer 5
+  :demand t
   :load-path "site-lisp/hydra"
   :config
   (defhydra hydra-zoom (global-map "<f2>")
@@ -1883,6 +1883,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map)
 
   (use-package ivy-hydra
+    :after hydra
     :demand t)
 
   (use-package ivy-rich
@@ -2346,6 +2347,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (remove-hook 'server-switch-hook 'magit-commit-diff))
 
 (use-package magithub
+  :disabled t
   :load-path "site-lisp/site-git/magithub"
   :after magit
   :config (magithub-feature-autoinject t))
@@ -3049,9 +3051,21 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/transpose-mark")
 
 (use-package undo-tree
-  :demand t
   :load-path "site-lisp/undo-tree"
-  :bind ("C-M-/" . undo-tree-redo)
+  :demand t
+  :after hydra
+  :bind (("C-M-/"   . undo-tree-redo)
+         ("C-. C-/" . hydra-undo-tree/undo-tree-undo))
+  :init
+  (defhydra hydra-undo-tree (:color yellow :hint nil)
+    "
+  _p_: undo  _n_: redo _s_: save _l_: load   "
+    ("p"   undo-tree-undo)
+    ("n"   undo-tree-redo)
+    ("s"   undo-tree-save-history)
+    ("l"   undo-tree-load-history)
+    ("u"   undo-tree-visualize "visualize" :color blue)
+    ("q"   nil "quit" :color blue))
   :config
   (global-undo-tree-mode))
 
