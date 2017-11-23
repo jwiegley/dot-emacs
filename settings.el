@@ -242,7 +242,7 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "~/doc/tasks/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "/Users/johnw/doc/tasks/bookmarks")
  '(bookmark-default-file "~/doc/tasks/bookmarks")
  '(browse-url-browser-function
    (quote
@@ -366,8 +366,8 @@
  '(custom-raised-buttons nil)
  '(default-frame-alist
     (quote
-     ((cursor-color . "#b247ee")
-      (font . "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"))))
+     ((font . "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
+      (height . 60))))
  '(default-input-method "latin-1-prefix")
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
@@ -539,6 +539,8 @@
     ("vi" "top" "screen" "less" "lynx" "rlogin" "telnet")))
  '(eudc-inline-expansion-format (quote ("%s <%s>" name email)))
  '(eval-expr-print-function (quote pp))
+ '(eval-expr-print-length 100)
+ '(eval-expr-print-level 20)
  '(eww-lnum-actions-link-alist
    (quote
     ("----  Link   ----"
@@ -648,7 +650,12 @@
  '(global-display-line-numbers-mode nil)
  '(global-font-lock-mode t nil (font-lock))
  '(global-undo-tree-mode t)
- '(grep-find-command (quote ("ag --noheading --column --ignore branches " . 43)))
+ '(grep-command "egrep -nH -e ")
+ '(grep-find-command
+   "find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH ")
+ '(guide-key/guide-key-sequence t)
+ '(guide-key/idle-delay 1.5)
+ '(guide-key/popup-window-position (quote bottom))
  '(haskell-indent-spaces 4)
  '(haskell-indentation-ifte-offset 4)
  '(haskell-indentation-layout-offset 4)
@@ -667,6 +674,7 @@
     (yas-hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
  '(history-delete-duplicates t)
  '(history-length 200)
+ '(hkey-init nil)
  '(holiday-bahai-holidays nil)
  '(hoogle-binary-path "hoogle")
  '(hpaste-announce (quote always))
@@ -864,6 +872,7 @@
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string "                                            ")
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
+ '(projectile-completion-system (quote ivy))
  '(projectile-enable-caching t)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
@@ -985,6 +994,13 @@
  '(session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")
  '(session-registers (quote (t (0 . 127))))
  '(session-save-file "~/.emacs.d/data/session")
+ '(shackle-default-rule (quote (:select t)))
+ '(shackle-rules
+   (quote
+    ((messages-buffer-mode :select t :align t :size 0.6)
+     ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
+     ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
+     ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom))))
  '(shm-auto-insert-bangs nil)
  '(shm-indent-spaces 4)
  '(shm-use-hdevtools t)
@@ -1034,6 +1050,7 @@
  '(smex-history-length 20)
  '(smex-save-file "~/.emacs.d/data/smex-items")
  '(sp-highlight-pair-overlay nil)
+ '(special-display-regexps (quote (("\\\\*compilation\\\\*" (height . 60)))))
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask (quote (nil nil t nil nil nil)))
  '(sr-autoload-extensions nil)
