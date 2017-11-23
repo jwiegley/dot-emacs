@@ -215,6 +215,7 @@
 (use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
 (use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
 (use-package gh               :defer t :load-path "lib/gh-el")
+(use-package ghub             :defer t :load-path "lib/ghub")
 (use-package ghub+            :defer t :load-path "lib/ghub-plus")
 (use-package ht               :defer t :load-path "lib/ht-el")
 (use-package let-alist        :defer t :load-path "lib/let-alist")
