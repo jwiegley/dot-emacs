@@ -1701,7 +1701,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    'prog-mode-hook))
 
 (use-package hippie-exp
-  :bind ("C-M-/" . hippie-expand))
+  :bind ("C-. M-/" . hippie-expand))
 
 (use-package hl-line
   :commands hl-line-mode
@@ -2314,6 +2314,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
   :init
+  (global-magit-file-mode)
+
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
   (use-package git-commit)
@@ -3053,6 +3055,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package undo-tree
   :demand t
   :load-path "site-lisp/undo-tree"
+  :bind ("C-M-/" . undo-tree-redo)
   :config
   (global-undo-tree-mode))
 

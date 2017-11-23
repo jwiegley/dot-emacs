@@ -242,7 +242,7 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "/Users/johnw/doc/tasks/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/doc/tasks/bookmarks")
  '(bookmark-default-file "~/doc/tasks/bookmarks")
  '(browse-url-browser-function
    (quote
@@ -997,7 +997,8 @@
  '(shackle-default-rule (quote (:select t)))
  '(shackle-rules
    (quote
-    ((messages-buffer-mode :select t :align t :size 0.6)
+    ((compilation-mode :frame t)
+     (messages-buffer-mode :select t :align t :size 0.6)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom))))
@@ -1113,7 +1114,6 @@
    (quote
     (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))) nil (tramp))
  '(tramp-persistency-file-name "~/.emacs.d/data/tramp" nil (tramp))
- '(tramp-syntax (quote simplified) nil (tramp))
  '(tramp-use-ssh-controlmaster-options nil nil (tramp))
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
