@@ -3100,6 +3100,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defer 5
   :load-path "site-lisp/wgrep")
 
+(use-package which-key
+  :demand t
+  :load-path "site-lisp/which-key"
+  :config
+  (which-key-mode))
+
 (use-package whitespace
   :diminish (global-whitespace-mode
              whitespace-mode
