@@ -59,12 +59,13 @@
   :config
   (bind-key "F" #'gnus-summary-wide-reply-with-original
             gnus-summary-mode-map)
-  (bind-key "F" #'gnus-article-wide-reply-with-original
-            gnus-article-mode-map))
+  )
 
-;; (use-package gnus-art
-;;   :config
-;;   (add-hook 'gnus-article-mode-hook #'(lambda () (text-scale-set 1))))
+(use-package gnus-art
+  :config
+  (bind-key "F" #'gnus-article-wide-reply-with-original
+            gnus-article-mode-map)
+  (add-hook 'gnus-article-mode-hook #'(lambda () (text-scale-set 1))))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
