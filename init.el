@@ -1527,12 +1527,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/git-undo-el"
   :bind ("C-. u" . git-undo))
 
-(use-package guide-key
-  :load-path "site-lisp/guide-key"
-  :diminish guide-key-mode
-  :config
-  (guide-key-mode 1))
-
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
