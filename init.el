@@ -602,8 +602,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-c l" . org-insert-link))
   :defer 30
   :config
-  (when (and nil
-             (not running-alternate-emacs)
+  (when (and (not running-alternate-emacs)
              (not running-development-emacs))
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
