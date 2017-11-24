@@ -1,13 +1,10 @@
-;;; load.el --- EPL: Load compatibility libraries -*- lexical-binding: t; -*-
+;;; pkg-info-dummy-package.el --- pkg-info: Dummy package for unit tests  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013  Sebastian Wiesner
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
-;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
-;;     Sebastian Wiesner <lunaryorn@gmail.com>
-;; URL: http://github.com/cask/epl
-
-;; This file is NOT part of GNU Emacs.
+;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
+;; URL: https://github.com/lunaryorn/pkg-info.el
+;; Version: 3.4.2.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,20 +21,14 @@
 
 ;;; Commentary:
 
-;; Load compatibility libraries if necessary.
+;; A little dummy package for our tests.
 
 ;;; Code:
 
-(require 'f)
+(defun pkg-info-dummy-package-dummy-function ()
+  "Go ahead, nothing useful here."
+  (message "Hello world"))
 
-(defconst epl-compat-directory (f-parent (f-this-file))
-  "Directory of EPL compatibility libraries.")
+(provide 'pkg-info-dummy-package)
 
-(defun epl-compat-load-when-compat (library)
-  (unless (locate-library library)
-    (load (f-join epl-compat-directory library) nil 'no-message)))
-
-(epl-compat-load-when-compat "package")
-(epl-compat-load-when-compat "ert")
-
-;;; load.el ends here
+;;; pkg-info-dummy-package.el ends here
