@@ -1313,6 +1313,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package edit-env
   :commands edit-env)
 
+(use-package edit-indirect
+  :bind ("C-c C" . edit-indirect-region))
+
 (use-package edit-rectangle
   :bind ("C-. r" . edit-rectangle))
 
@@ -1820,9 +1823,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("C-c <" . indent-shift-left)
          ("C-c >" . indent-shift-right))
   :load-path "site-lisp/indent-shift")
-
-(use-package indirect
-  :bind ("C-c C" . indirect-region))
 
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
