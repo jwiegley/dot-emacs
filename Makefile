@@ -6,9 +6,10 @@ REQUIREMENTS = $(shell grep ';; Package-Requires:' tuareg.el \
 	| sed 's/;; Package-Requires: *\(.*\)/\1/')
 DIST_NAME = tuareg-$(VERSION)
 TARBALL = $(DIST_NAME).tar.gz
-OPAM_DIR = tuareg.$(VERSION)
+OPAM_DIR = packages/tuareg/tuareg.$(VERSION)
 
-SOURCES = tuareg.el tuareg_indent.el ocamldebug.el
+SOURCES = tuareg.el ocamldebug.el tuareg-opam.el \
+  tuareg-jbuild.el
 ELS = $(SOURCES) tuareg-site-file.el
 ELC = $(ELS:.el=.elc)
 
@@ -86,10 +87,6 @@ tuareg-site-file.el: $(SOURCES)
 	$(EMACS) --batch --eval '(setq generated-autoload-file "'`pwd`'/$@")' -f batch-update-autoloads "."
 
 dist distrib: $(TARBALL)
-	@echo "archive: \"$<\"" > opam/url
-	@CHECKSUM="`md5sum -b $< | cut -d ' ' -f 1`" && \
-	echo "checksum: \"$$CHECKSUM\"" >> opam/url
-	@echo "Updated opam/url"
 
 $(TARBALL): $(DIST_FILES)
 	mkdir -p $(DIST_NAME)
@@ -98,13 +95,10 @@ $(TARBALL): $(DIST_FILES)
 	tar acvf $@ $(DIST_NAME)
 	$(RM) -r $(DIST_NAME)
 
-opam/opam: opam/opam.in tuareg.el
-	sed -e "s/VERSION/$(VERSION)/" $< > $@
-
 opam: $(TARBALL)
 	$(INSTALL_MKDIR) $(OPAM_DIR)
 	$(CP) -a $(filter-out %~, $(wildcard opam/*)) $(OPAM_DIR)
-	echo "archive: \"`pwd`/$(TARBALL)\"" > $(OPAM_DIR)/url
+	echo "archive: \"https://github.com/ocaml/tuareg/releases/download/$(VERSION)/$(TARBALL)\"" > $(OPAM_DIR)/url
 	echo "checksum: \"`md5sum $(TARBALL) | cut -d ' ' -f 1`\"" \
 	  >> $(OPAM_DIR)/url
 
