@@ -1,4 +1,4 @@
-;;; dired-filter.el --- Ibuffer-like filtering for dired
+;;; dired-filter.el --- Ibuffer-like filtering for dired -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Matúš Goljer
 
@@ -408,6 +408,7 @@ See `dired-filter-stack' for the format of FILTER-STACK."
     (define-key map "m" 'dired-filter-by-mode)
     (define-key map "s" 'dired-filter-by-symlink)
     (define-key map "x" 'dired-filter-by-executable)
+    (define-key map "ig" 'dired-filter-by-git-ignored)
 
     (define-key map "|" 'dired-filter-or)
     (define-key map "!" 'dired-filter-negate)
@@ -438,6 +439,7 @@ See `dired-filter-stack' for the format of FILTER-STACK."
     (define-key map "m" 'dired-filter-mark-by-mode)
     (define-key map "s" 'dired-filter-mark-by-symlink)
     (define-key map "x" 'dired-filter-mark-by-executable)
+    (define-key map "ig" 'dired-filter-mark-by-git-ignored)
     (define-key map "L" 'dired-filter-mark-by-saved-filters)
     map)
   "Keymap used for marking files.")
@@ -518,6 +520,11 @@ Setter for `dired-filter-mark-prefix' user variable."
                           ;; special hack for omit filter, to
                           ;; recompute the filter regexp
                           (dired-omit-regexp))
+                         ((eq (car stack) 'git-ignored)
+                          `',(with-temp-buffer
+                               (insert (mapconcat 'f-slash (f-entries ".") "\0"))
+                               (call-process-region (point-min) (point-max) "git" t t nil "check-ignore" "-z" "--stdin")
+                               (split-string (buffer-string) "\0" t)))
                          ((eq (car stack) 'extension)
                           (if (listp (cdr stack))
                               (concat "\\." (regexp-opt (-uniq (cdr stack))) "\\'")
@@ -557,7 +564,7 @@ STACK is a filter stack with the format of `dired-filter-stack'."
              (desc-qual (cl-caddr def))
              (remove (if (cl-cadddr def) "!" ""))
              (qualifier (cdr stack))
-             (qual-formatted (eval desc-qual)))
+             (qual-formatted (funcall `(lambda (qualifier) ,desc-qual) qualifier)))
         (if qual-formatted
             (format "[%s%s: %s]" remove desc qual-formatted)
           (format "[%s%s]" remove desc))))))
@@ -616,12 +623,12 @@ The matched lines are returned as a string."
       (dired-filter--narow-to-subdir)
       (goto-char (point-min))
       (let* ((buffer-read-only nil)
-             (filter (dired-filter--make-filter filter))
+             (filter `(lambda (file-name) ,(dired-filter--make-filter filter)))
              (re nil))
         (while (not (eobp))
           (let ((file-name (dired-utils-get-filename 'no-dir)))
             (if (and file-name
-                     (eval filter))
+                     (funcall filter file-name))
                 (push (delete-and-extract-region
                        (line-beginning-position)
                        (progn (forward-line 1) (point)))
@@ -953,18 +960,34 @@ filter."))
 ;;;###autoload (autoload 'dired-filter-by-name "dired-filter")
 ;;;###autoload (autoload 'dired-filter-mark-by-name "dired-filter")
 (dired-filter-define name
-    "Toggle current view to files matching QUALIFIER."
+    "Toggle current view to files matching QUALIFIER.
+
+The matching uses smart-case convention: match is
+case-insensitive if the QUALIFIER does not contain upper-case
+letter, otherwise it is case-sensitive."
   (:description "name"
    :reader (regexp-quote (read-string "Pattern: ")))
-  (string-match-p qualifier file-name))
+  (let ((case-fold-search nil))
+    (if (string-match-p "[A-Z]" qualifier)
+        (string-match-p qualifier file-name)
+      (let ((case-fold-search t))
+        (string-match-p qualifier file-name)))))
 
 ;;;###autoload (autoload 'dired-filter-by-regexp "dired-filter")
 ;;;###autoload (autoload 'dired-filter-mark-by-regexp "dired-filter")
 (dired-filter-define regexp
-    "Toggle current view to files matching QUALIFIER as a regular expression."
+    "Toggle current view to files matching QUALIFIER as a regular expression.
+
+The matching uses smart-case convention: match is
+case-insensitive if the QUALIFIER does not contain upper-case
+letter, otherwise it is case-sensitive."
   (:description "regexp"
    :reader (read-regexp "Regexp: " ))
-  (string-match-p qualifier file-name))
+  (let ((case-fold-search nil))
+    (if (string-match-p "[A-Z]" qualifier)
+        (string-match-p qualifier file-name)
+      (let ((case-fold-search t))
+        (string-match-p qualifier file-name)))))
 
 ;;;###autoload (autoload 'dired-filter-by-extension "dired-filter")
 ;;;###autoload (autoload 'dired-filter-mark-by-extension "dired-filter")
@@ -1014,6 +1037,19 @@ separately in turn and ORing the filters together."
    :qualifier-description nil
    :remove t)
   (string-match-p qualifier file-name))
+
+;;;###autoload (autoload 'dired-filter-by-git-ignored "dired-filter")
+;;;###autoload (autoload 'dired-filter-mark-by-git-ignored "dired-filter")
+(dired-filter-define git-ignored
+    "Toggle current view to files ignored by git.
+
+The ignored files are computed according to the results of
+
+  $ git check-ignore"
+  (:description "git-ignored"
+   :qualifier-description nil
+   :remove t)
+  (--any? (f-same? file-name it) qualifier))
 
 ;;;###autoload (autoload 'dired-filter-by-garbage "dired-filter")
 ;;;###autoload (autoload 'dired-filter-mark-by-garbage "dired-filter")
@@ -1197,7 +1233,9 @@ push all its constituents back on the stack."
             (if (stringp top)
                 (message "Popped saved filter %s" top)
               (--if-let (let ((qualifier (cdr top)))
-                          (eval (cl-caddr (assoc (car top) dired-filter-alist))))
+                          (funcall
+                           `(lambda (qualifier) ,(cl-caddr (assoc (car top) dired-filter-alist)))
+                           qualifier))
                   (message "Popped filter %s: %s" (car top) it)
                 (message "Popped filter %s" (car top))))
           (message "Filter stack was empty."))))
