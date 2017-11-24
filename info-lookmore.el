@@ -1,9 +1,9 @@
 ;;; info-lookmore.el --- more things for info-look.el
 
-;; Copyright 2008, 2009, 2010, 2011 Kevin Ryde
+;; Copyright 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017 Kevin Ryde
 
-;; Author: Kevin Ryde <user42@zip.com.au>
-;; Version: 5
+;; Author: Kevin Ryde <user42_kevin@yahoo.com.au>
+;; Version: 7
 ;; Keywords: help, languages, info-look
 ;; URL: http://user42.tuxfamily.org/info-lookmore/index.html
 
@@ -22,31 +22,34 @@
 
 ;;; Commentary:
 
-;; This is some more stuff for `info-lookup-symbol' -- some specific manuals
-;; to add and a couple of mode setups.
+;; This is some more manuals and a couple more mode setups for
+;; `info-lookup-symbol'.
 ;;
-;; Functions adding manuals are `interactive' you can M-x whatever to have
-;; it just for the current session.
+;; Functions adding manuals are `interactive' so you can for example
+;; `M-x info-lookmore-c-gcc' to see it just for the current session.
 ;;
-;; For manuals not covered see `info-lookmore-add-doc'.  Usually you have to
-;; find the node name for the index, then check whether entries can be used
-;; directly or need mangling.  The easiest is when there's a separate
-;; "Functions" or "Functions and Variables" index.  See `info-lookup-alist'
-;; for the details.
+;; More manuals can be added with `info-lookmore-add-doc' calls.  Usually
+;; you have to find the node name of the index, then check whether entries
+;; can be used directly or need mangling.  The easiest is when there's a
+;; separate "Functions" or "Functions and Variables" index.  See docstring
+;; of `info-lookup-alist' for the details.
+
+;;; Emacsen:
+
+;; Designed for Emacs 21 and up.  Works in XEmacs 21.
+;; Doesn't work in Emacs 20 due to "append" parameter to `add-to-list'.
 
 ;;; Install:
 
 ;; Put info-lookmore.el in one of your `load-path' directories, and in your
-;; .emacs add for example
+;; .emacs add for each setup function you want,
 ;;
-;;     (autoload 'info-lookmore-elisp-cl "info-lookmore" nil t)
-;;     (eval-after-load "info-look" '(info-lookmore-elisp-cl))
+;;     (autoload 'info-lookmore-c-gcc "info-lookmore" nil t)
+;;     (eval-after-load "info-look" '(info-lookmore-c-gcc))
 ;;
-;; for each setup function you want.
-;;
-;; There's autoload cookies for the functions if you know how to use
-;; `update-file-autoloads' and friends, after which just `eval-after-load'
-;; for each you want permanently, or M-x for one session.
+;; There's autoload cookies for the functions below if you install via
+;; `M-x package-install' or know how to use `update-file-autoloads'.  Then
+;; `eval-after-load' for each you want permanently, or M-x for one session.
 
 ;;; History:
 
@@ -56,31 +59,40 @@
 ;;           - info-lookmore-coreutils-index do nothing in emacs21
 ;; Version 4 - new info-lookmore-makefile-derivatives
 ;; Version 5 - new info-lookmore-c-gsl
+;; Version 6 - makeinfo single-quote variants
+;; Version 7 - really end at "ends here", don't add-to-list on let binding
 
 ;;; Code:
 
 (require 'info-look)
 
-(put  'info-lookmore->mode-value 'side-effect-free t)
+(eval-when-compile
+  (unless (and (fboundp 'declare)  ;; macros
+               (fboundp 'ignore-errors))
+    (require 'cl))) ;; for macros
+
+
 (defun info-lookmore->mode-value (topic mode)
-  "Return the mode value list for TOPIC and MODE.
+  "An internal part of info-lookmore.el.
+Return the mode value list for TOPIC and MODE.
 This is `info-lookup->mode-value', but signalling an error if
 TOPIC and MODE are not found."
   (or (info-lookup->mode-value topic mode)
       (error "Topic `%S' or mode `%S' not found in info-lookup-alist"
              topic mode)))
+(eval-when-compile
+  (put 'info-lookmore->mode-value 'side-effect-free t))
 
-(put  'info-lookmore-modify-doclist 'lisp-indent-function 2)
 (defun info-lookmore-modify-doclist (topic mode func)
-  "Call FUNC to modify the document list for info-lookup TOPIC and MODE.
+  "Modify document list for info-lookup TOPIC and MODE by calling FUNC.
 FUNC is called (FUNC doc-list) and its return value is set as the
-new doc-list.  FUNC mustn't change the old value, but should copy
-or cons as necessary.
+new doc-list.  FUNC mustn't change the given doc-list, but should
+copy or cons as necessary.
 
 If FUNC returns a changed DOC-LIST then `info-lookup-reset' is
-called to let it take effect on the next lookup."
+called so that it takes effect on the next lookup."
 
-  ;; (declare (indent 1)) ;; emacs22,xemacs21, or 'cl
+  (declare (indent 2))
   (let* ((mode-value (info-lookmore->mode-value topic mode))
          (old        (nth 3 mode-value))
          (new        (funcall func old)))
@@ -90,7 +102,9 @@ called to let it take effect on the next lookup."
 
 ;;;###autoload
 (defun info-lookmore-add-doc (topic mode doc-spec &optional append)
-  "Add DOC-SPEC to an existing `info-lookup-alist' entry.
+  "Add a document to `info-lookup-alist'.
+TOPIC is a symbol, either `symbol' or `file'.
+MODE is a symbol, a major mode name such as `foo-mode'.
 DOC-SPEC should be (INFO-NODE TRANS-FUNC PREFIX SUFFIX) as
 described by `info-lookup-alist'.
 
@@ -99,7 +113,12 @@ existing docs, or if APPEND is non-nil then after."
 
   (info-lookmore-modify-doclist topic mode
     (lambda (doc-list)
-      (add-to-list 'doc-list doc-spec append))))
+      (cond ((member doc-spec doc-list)
+             doc-list) ;; already present, list unchanged
+            (append    ;; otherwise add by append or prepend
+             (append doc-list (list doc-spec)))
+            (t
+             (cons doc-spec doc-list))))))
 
 ;; ;;;###autoload
 ;; (defun info-lookmore-remove-doc (topic mode info-node)
@@ -128,10 +147,10 @@ other-modes."
 (defun info-lookmore-elisp-userlast ()
   "Put the Emacs user manual last for `info-lookup-symbol'.
 This is good for programming when you'll prefer to look in the
-reference manual for a function or variable in both the user and
-reference manuals.
+reference manual for a function or variable which might be in
+both the user manual and reference manual.
 
-See info node `(elisp)Top' for the elisp reference manual and
+See info node `(elisp)Top' for the Elisp reference manual and
 info node `(emacs)Top' for the user manual."
 
   (interactive)
@@ -148,8 +167,8 @@ info node `(emacs)Top' for the user manual."
 (defun info-lookmore-elisp-cl ()
   "Add the Emacs CL manual to `emacs-lisp-mode' info-lookup.
 CL is appended to the document list, so as to prefer the main
-elisp manual for the few functions like `push' which are in both.
-But maybe CL should be preferred when using CL, so perhaps this
+Elisp manual for the few functions like `push' which are in both.
+Or maybe CL should be preferred when using CL, so perhaps this
 will change.
 
 See info node `(cl)Top' for the CL manual."
@@ -174,17 +193,24 @@ node `(emacs-mime)Top' for the Emacs MIME manual."
 
   (interactive)
   (info-lookmore-add-doc 'symbol 'emacs-lisp-mode
-                         '("(gnus)Index"
-                           nil
-                           ;; Match various `foo' unindented as well as
-                           ;; "-- Function: " style.
-                           ;;
-                           ;; `mm-file-name-trim-whitespace' unfortunately
-                           ;; only appears in the middle of a para, so it
-                           ;; doesn't get found by these patterns.
-                           ;;
-                           "^\\( --? .*: \\|`\\)"
-                           "\\([ ']\\|$\\)")
+                         (eval-when-compile
+                           `("(gnus)Index"
+                             nil
+                             ;; Match various `foo' unindented as well as
+                             ;; "-- Function: " style.
+                             ;;
+                             ;; `mm-file-name-trim-whitespace' unfortunately
+                             ;; only appears in the middle of a para, so it
+                             ;; doesn't get found by these patterns.
+                             ;;
+                             ,(concat "^\\( --? .*: \\|[`'"  ;; prefix
+                                      ;; U+2018 left single quote, if possible
+                                      (or (ignore-errors (string (decode-char 'ucs 8216))) "")
+                                      "]\\)")
+                             ,(concat "\\([ '"  ;; suffix
+                                      ;; U+2019 right single quote, if possible
+                                      (or (ignore-errors (string (decode-char 'ucs 8217))) "")
+                                      "]\\|$\\)")))
                          t) ;; append
   (info-lookmore-add-doc 'symbol 'emacs-lisp-mode
                          (eval-when-compile
@@ -195,16 +221,22 @@ node `(emacs-mime)Top' for the Emacs MIME manual."
                                 (let ((case-fold-search nil))
                                   (and (string-match "\\`[a-z]" item)
                                        item)))
-                             ;; same unindented etc (gnus) above
-                             "^\\( --? .*: \\|`\\)"
-                             "\\([ ']\\|$\\)"))
+                             ;; same unindented etc as the (gnus) setup above
+                             ,(concat "^\\( --? .*: \\|[`'"
+                                      ;; U+2018 left single quote, if possible
+                                      (or (ignore-errors (string (decode-char 'ucs 8216))) "")
+                                      "]\\)")
+                             ,(concat "\\([ '"
+                                      ;; U+2019 right single quote, if possible
+                                      (or (ignore-errors (string (decode-char 'ucs 8217))) "")
+                                      "]\\|$\\)")))
                          t)) ;; append
 
 ;;;###autoload
 (defun info-lookmore-apropos-elisp ()
   "Set `apropos-mode' info-lookup to follow `emacs-lisp-mode'.
 apropos-mode is the function/variable docstring display for
-`describe-function' etc.  Symbols etc are usually elisp things
+`describe-function' etc.  Symbols etc are usually Elisp things
 and following `emacs-lisp-mode' lets you look them up.
 
 This function is for use in Emacs 23.1 and earlier.  23.2 and up
@@ -223,16 +255,16 @@ has this setup already and this function does nothing there."
 
 ;;;###autoload
 (defun info-lookmore-c-gcc ()
-  "Add the GCC manual to `c-mode' info-lookup.
+  "Add the GNU C manual to `c-mode' info-lookup.
 This gives various GCC specifics like __builtin_expect() or
 __func__.  It's appended to the doc-list, so the main GNU C
-Library is preferred for things appearing in both (which includes
-lots of math.h functions).
+Library manual is preferred for things appearing in both (such as
+most of the math.h functions).
 
 See info node `(gcc)Top' for the GCC manual, and info
 node `(libc)Top' for the GNU C manual."
 
-  ;; As of gcc 4.3 the cpp manual doesn't have an index node with its
+  ;; As of gcc 4.9 the cpp manual doesn't have an index node with its
   ;; predefined macros like __GNUC__, so can't get those.  The preprocessor
   ;; directives like #if in "Index of Directives" would be a possibility,
   ;; but would want `info-lookup-guess-c-symbol' to recognise the "#".
@@ -306,9 +338,10 @@ This is good if you write a lot of C-like things in C++, or at
 least want to include the C manuals.
 
 `info-lookup-alist' doesn't have a c++-mode entry by default.
-This function copies the c-mode regexp and parse rule if nothing
-else has already made a c++-mode entry.  Not sure if that comes
-out quite right for real C++, but it's fine for mostly-C things."
+This function copies the `c-mode' regexp and parse rule if
+nothing else has already made a `c++-mode' entry.  Not sure if
+that comes out quite right for real C++, but it's fine for
+mostly-C things."
 
   (interactive)
   (info-lookup-maybe-add-help
@@ -341,7 +374,10 @@ The following modes are setup, if they don't already have setups.
     `makefile-makepp-mode'
 
 `makefile-automake-mode' looks in the automake manual then the
-make manual.  The others go to `makefile-mode' only."
+make manual.  The others go to `makefile-mode' only.
+
+These setups are incorporated in Emacs 24 info-look.el so are not
+needed there."
 
   (interactive)
   (info-lookup-maybe-add-help
@@ -355,21 +391,21 @@ make manual.  The others go to `makefile-mode' only."
    :doc-spec   '(
                  ;; "(automake)Macro Index" is autoconf macros used in
                  ;; configure.in, not Makefile.am, so don't have that here.
-                 ("(automake)Variable Index" nil "^[ \t]*`" "'")
+                 ("(automake)Variable Index" nil "^[ \t]*[`']" "'")
                  ;; in automake 1.4 it was a combined node
                  ("(automake)Macro and Variable Index" nil "^[ \t]*`" "'")
 
                  ;; Directives like "if" are in the General Index.
                  ;; Prefix "`" since the text for say `+=' isn't always have
                  ;; an @item etc of its own.
-                 ("(automake)General Index" nil "`" "'")
+                 ("(automake)General Index" nil "[`']" "'")
                  ;; In automake 1.3 there was just a single "Index" node.
-                 ("(automake)Index" nil "`" "'")))
+                 ("(automake)Index" nil "[`']" "'")))
 
-  ;; Same REGEXP, PARSE-RULE as makefile-mode.
-  ;; Even if these make variants have their own variable forms etc there no
-  ;; benefit recognising them if theres nothing in the GNU make manual
-  ;; describing them.
+  ;; Same REGEXP, PARSE-RULE as makefile-mode.  These make variants probably
+  ;; have some of their own syntax variations etc, but there won't be
+  ;; anything in the GNU make manual to describe that, so no benefit to
+  ;; extra PARSE-RULE etc.
   (let ((regexp     (info-lookup->regexp     'symbol 'makefile-mode))
         (parse-rule (info-lookup->parse-rule 'symbol 'makefile-mode)))
     (dolist (mode '(makefile-bsdmake-mode
@@ -410,6 +446,10 @@ from the latest Emacs is probably best)."
        `("(coreutils)Concept Index"
          ,(lambda (item) (if (string-match "\\`[a-z]+\\'" item) item)))))))
 
+;;------------------------------------------------------------------------------
+
+;; LocalWords:  lookup FUNC docstring builtin func readline automake Elisp
+;; LocalWords:  coreutils lookmore
 
 (provide 'info-lookmore)
 
