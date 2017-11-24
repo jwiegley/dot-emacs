@@ -19,6 +19,22 @@
   (let ((test-table (ht-create)))
     (should (equal (ht-get test-table "foo" "default") "default"))))
 
+(ert-deftest ht-test-get* ()
+  (let ((alphabets (ht ("Greek" (ht (1 (ht ('letter "α")
+                                           ('name "alpha")))
+                                    (2 (ht ('letter "β")
+                                           ('name "beta")))))
+                       ("English" (ht (1 (ht ('letter "a")
+                                             ('name "A")))
+                                      (2 (ht ('letter "b")
+                                             ('name "B"))))))))
+    ;; Nested
+    (should (equal (ht-get* alphabets "English" 1 'letter)
+                   "a"))
+    ;; Non-nested
+    (should (equal (ht-get* (ht (1 "one")) 1)
+                   "one"))))
+
 (ert-deftest ht-test-update ()
   (let ((test-table (ht ("foo" 1))))
     (ht-update test-table (ht ("bar" 2)))

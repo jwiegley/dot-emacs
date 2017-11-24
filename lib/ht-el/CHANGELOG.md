@@ -1,3 +1,11 @@
+## v2.2
+
+* Added `ht-select-keys`
+* Added `ht-get*`
+
+ht.el now uses `defsubst` for many of its functions, which may improve
+performance in byte-compiled code.
+
 ## v2.1
 
 * `ht<-alist` and `ht<-plist` gained an optional argument `test` to
