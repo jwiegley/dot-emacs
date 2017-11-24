@@ -1,0 +1,63 @@
+* org-opml
+
+=org-opml= lets you edit OPML files using Org mode in Emacs.
+
+Let's break that down:
+
+- [[http://dev.opml.org/spec2.html][OPML]] is a standardized XML file format for storing outlines.
+- [[http://orgmode.org/][Org mode]] is an Emacs extension for editing outlines (among other things).
+- [[http://www.gnu.org/software/emacs/][Emacs]] is a powerful text editor and programming environment.
+
+=org-opml= came about as Org mode's [[http://orgmode.org/org.html#Document-Structure][outliner interface]] is just about
+perfect, except I was looking for a way to save my outlines as OPML
+rather than Org mode's default file format of plain text with light
+markup.
+
+Here's how it works:
+
+Once =org-opml= is installed and you open an OPML file, it converts
+the OPML to Org mode style text. Think stars for headlines, dashes for
+list items, etc. This text is then displayed in Emacs and you can edit
+it freely using Org mode.
+
+When saving, the reverse happens. The displayed Org mode style text is
+converted to OPML and the result is written to disk.
+
+*So, in Emacs, you see Org mode. But on disk, it's OPML.*
+
+I find this to be the best of both worlds. You get all the power of
+Emacs/Org mode to edit your outlines while the resulting file can be
+parsed using standard XML/OPML libraries.
+
+** Features
+
+- Handles headlines, plain list items, and paragraphs
+- HTML entities (<, >, &, etc.) are safely escaped
+- Can set =<outline>= attributes via property drawers
+- Uses standard [[http://orgmode.org/org.html#Export-settings][export settings]] in the =<head>= element
+- Follows the OPML 2.0 [[http://dev.opml.org/spec2.html][specification]]
+
+** Installation
+
+1) Copy =org-opml.el= and =ox-opml.el= into a directory in your =load-path=
+2) Update the path to =opml2org.py=, if necessary
+3) Then, in =~/.emacs= put =(load-library "org-opml")=
+4) Move your cursor after the last parenthesis and type =C-x
+   C-e=. Everything in =org-opml.el= will now be evaluated and you
+   should be ready to start using it.
+
+I have to think this can be simplified. If you know a better way to do
+this, please let me know.
+
+** How it works
+
+=org-opml= consists of three files:
+
+- *ox-opml.el* converts Org mode to OPML. It defines an OPML backend
+  using Org mode's export dispatcher.
+- *opml2org.py* converts OPML to Org mode. It's a Python script.
+- *org-opml.el* handles all the necessary configuration.
+
+Also, as =ox-opml.el= is built using Org mode's export dispatcher, you
+can perform a one-way Org mode -> OPML export by typing =C-x C-e m= in
+an open Org mode file.

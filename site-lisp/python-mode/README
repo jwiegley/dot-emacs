@@ -1,0 +1,37 @@
+Customize default Python shell as `py-shell-name'
+
+`py-shell-name' might be an installed executable as
+shell command `type' would display, but also a
+PATH/TO/(I)PYTHON, of a virtualenv for example
+
+To change the Python default shell see also INSTALL
+
+Most python-mode.el commands start with prefix `py-'
+
+`M-x py- TAB'
+displays a list of them in completion-buffer. 
+See also commands list delivered in directory doc.
+
+List virtualenv related `M-x virtualenv- TAB'
+resp. Pymacs commands `M-x pymacs-'  
+
+Commands related to a specific shell start with
+it's name as `ipython-complete'.
+Open an installed shell by 
+
+M-x SHELL
+
+With prefix C-u user is prompted to specify a PATH-TO-LOCAL-SHELL
+Also evaluating
+
+(py-shell nil DEDICATED PATH-TO-LOCAL-SHELL)
+
+if DEDICATED is set to `t', shell will get an unique name.
+
+Install a local shell by evaluating
+
+(defun MY-LOCAL-SHELL ()
+  (interactive)
+  (py-shell nil DEDICATED PATH-TO-LOCAL-SHELL))
+
+If `py-complete-function' is set, it takes precedence 
