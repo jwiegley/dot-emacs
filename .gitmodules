@@ -21,7 +21,7 @@
 	url = git://github.com/jwiegley/haskell-config
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
-	url = git://github.com/haskell/haskell-mode.git
+	url = git://github.com/jwiegley/haskell-mode.git
 [submodule "site-lisp/gnus"]
 	path = site-lisp/gnus
 	url = http://git.gnus.org/gnus.git
