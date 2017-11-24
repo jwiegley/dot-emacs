@@ -1,0 +1,69 @@
+
+yari.el provides an Emacs frontend to Ruby's `ri' documentation
+tool. It offers lookup and completion.
+
+This version will load all completion targets the first time it's
+invoked. This can be a significant startup time, but it will not
+have to look up anything after that point.
+
+This library tries to by compatible with any version of `rdoc' gem.
+Self-testing covers all versions from 1.0.1 to 2.5.8 (current).
+
+The main function you should use as interface to ri is M-x yari. I
+recommend to bind it on some key local when you are ruby-mode. Here
+is the example:
+
+(defun ri-bind-key ()
+  (local-set-key [f1] 'yari))
+
+ or
+
+(defun ri-bind-key ()
+  (local-set-key [f1] 'yari-anything))
+
+(add-hook 'ruby-mode-hook 'ri-bind-key)
+
+You can use C-u M-x yari to reload all completion targets.
+
+I added 'buttons' to the original code.  I am abandoning ri-emacs for yari because
+it uses the ri command directly so there is far less compatibility problems.
+
+There is no nice way I can see to communicate to the users so I'll add
+my thoughts in here.
+
+# I'd like to figure out a nicer way for the completions to work.  I
+# can't do yari and type in create_type.  Instead I have to type in
+# ActiveRecord::ConnectionAdapters::SchemaStatements#create_table which
+# is rather painful.  It woudl be nice if I could type in "foo" and have
+# the list of options be the various classes (or modules) that contain a
+# method named "foo".
+
+The above "wish" was accomplished by turning on ido-mode.  I'm
+comfortable having ido-mode on all the time.  However I can see where
+some might not want it on all the time.  It would be trivial to
+introduce a customizable yari option so that only yari uses ido mode
+keeping ido mode off for the rest of the emacs interfaces.  If I get a
+request for this, I'll implement it.
+
+I experimented with rvm and rvm.el.  If you are in a Rails app
+directory (top level) and do M-x rvm-activate-corresponding-ruby, it
+will load the local .rvmrc file and know which ruby and gemset to
+use.  This is one step towards my goal.
+
+The next step will be to create some new rake tasks to create the ri
+documentation for the Rails application -- similar to ``rake doc:app''
+but cause it to create the ri version instead of the rdoc version.  I
+need to decide where to put it.  It is unfortunate that the Rails guys
+decided to put the applications rdoc files in doc/app.  Perhaps put
+them in doc/app/rdoc and doc/app/ri.  Then the api would be in
+doc/api/rdoc and doc/api/ri.
+
+The next step will be to invoke ri (from yari) with an
+--doc-dir=doc/app/ri so that it will pick up the application's
+documentation.  At that point, yari will know all about the
+application, the particular rails it is using, and the particular set
+of gems it is using.
+
+Finally, I can not get the C-u M-x yari to reload the completion
+targets.  On my emacs (GNU 23.1.1), I just get an error.  That is less
+of an issue right now.

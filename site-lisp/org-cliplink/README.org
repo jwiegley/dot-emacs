@@ -1,0 +1,101 @@
+[[http://melpa.org/#/org-cliplink][file:http://melpa.org/packages/org-cliplink-badge.svg]]
+[[https://travis-ci.org/rexim/org-cliplink][file:https://travis-ci.org/rexim/org-cliplink.svg?branch=master]]
+[[https://coveralls.io/r/rexim/org-cliplink][file:https://coveralls.io/repos/rexim/org-cliplink/badge.svg]]
+
+* org-cliplink
+
+  [[http://i.imgur.com/oA0birm.gif]]
+
+  A simple command that takes a URL from the clipboard and inserts an
+  org-mode link with a title of a page found by the URL into the
+  current buffer.
+
+  This code was a part of my Emacs config almost a year. I decided to
+  publish it as a separate package in case someone needs this feature
+  too.
+
+* Usage
+
+  Bind ~org-cliplink~ function to something. For example, put this
+  line in your init file:
+
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "C-x p i") 'org-cliplink)
+  #+END_SRC
+
+  Then copy any http/https URL to the clipboard, switch to the Emacs
+  window and hit ~C-x p i~.
+
+* Requirements
+
+  - Linux
+  - Emacs version 24.4+
+  - cURL 7.35.0+ (optional)
+
+** Windows
+
+   Windows is not officially supported until [[https://github.com/rexim/org-cliplink/issues/35][#35]] is resolved.
+
+   - GnuTLS — if you use Emacs installation from the official GNU FTP
+     server — ftp://ftp.gnu.org/gnu/emacs/windows/ — you may simply
+     download the latest version of GnuTLS from
+     ftp://ftp.gnutls.org/gcrypt/gnutls/w32/ and copy the content of
+     the downloaded archive to the emacs installation folder.
+
+* Bugs
+
+  https://github.com/rexim/org-cliplink/labels/bug
+
+* Development
+
+  1. open ~org-cliplink.el~ in Emacs;
+  2. change something;
+  3. ~M-x eval-buffer RET~;
+  4. manual testing;
+  5. go to 3 until it's done;
+
+** Automated testing
+
+   For automated testing you need to install [[http://cask.readthedocs.org/en/latest/][Cask]] first.
+
+   To run unit tests:
+
+   #+BEGIN_SRC bash
+     $ cask # only once to download development dependencies
+     $ cask exec ert-runner
+   #+END_SRC
+
+   To run integration and unit tests together:
+
+   #+BEGIN_SRC bash
+     $ ./run-travis-ci.sh
+   #+END_SRC
+
+   This exact script is run on every push to [[https://github.com/rexim/org-cliplink][org-cliplink GitHub repo]]
+   on [[https://travis-ci.org/rexim/org-cliplink/][Travis CI]] (that's why it's called ~run-travis-ci.sh~). This
+   script starts up a testing web-server, executes integrations tests
+   defined in ~*-integration-tests.el~ files and executes unit tests
+   after that.
+
+   You can start the testing web-server standalone:
+
+   #+BEGIN_SRC bash
+     $ ./run-testing-server.py
+   #+END_SRC
+
+   It requires Python 2.7.6+. It will serve ~test-data/site~ folder on
+   different ports with different features (like HTTPS, Gziped
+   content, Basic Auth, etc.).
+
+   To stop the server just ~^C~ it.
+
+   The automated testing stuff was tested only under Linux so far.
+
+** Contribution
+
+   This command doesn't handle some cases (like different encodings) but
+   I do my best to improve it. If you find this code useful and want to
+   make a contribution I'm waiting for your pull requests. :)
+   
+   Thanks.
+
