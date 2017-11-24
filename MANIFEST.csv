@@ -147,7 +147,7 @@ mic-paren.el,site-lisp,file,http://www.emacswiki.org/emacs/download/mic-paren.el
 minimap,site-lisp,subtree,git://github.com/dengste/minimap.git,
 misc.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/misc.el,
 moccur-edit,site-lisp,subtree,git://github.com/myuhe/moccur-edit.el.git,
-multi-term.el,site-lisp,file,,
+multi-term,site-lisp,subtree,git://github.com/milkypostman/multi-term.git,
 multifiles-el,site-lisp,subtree,git://github.com/magnars/multifiles.el.git,
 multiple-cursors,site-lisp,subtree,git://github.com/magnars/multiple-cursors.el.git,
 muse,lisp,subtree,git://github.com/jwiegley/muse.git,
