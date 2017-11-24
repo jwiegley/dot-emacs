@@ -4,7 +4,7 @@ use IPC::Open2;
 use RPC::EPC::Service;
 use Data::Dumper;
 
-$pid = open2(*PROC_OUT, undef, "perl ./t/_errors.pl");
+$pid = open2(*PROC_OUT, undef, $^X . " ./t/_errors.pl");
 $port = <PROC_OUT>;
 
 eval {

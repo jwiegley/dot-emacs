@@ -5,7 +5,7 @@ use Encode;
 use RPC::EPC::Service;
 use Data::Dumper;
 
-$pid = open2(*PROC_OUT, undef, "perl ./t/_echo.pl");
+$pid = open2(*PROC_OUT, undef, $^X . " ./t/_echo.pl");
 $port = <PROC_OUT>;
 
 eval {

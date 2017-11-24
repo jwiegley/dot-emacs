@@ -67,3 +67,9 @@
 
 # Avoid archives of this distribution
 \bRPC-EPC-Service-[\d\.\_]+
+
+# test files
+t/perlcritic\.t
+t/pod-coverage\.t
+t/pod\.t
+

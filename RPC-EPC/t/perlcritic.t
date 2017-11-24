@@ -1,4 +1,4 @@
-#!perl -T
+#!perl
 
 use Test::More;
 eval "use Test::Perl::Critic";
