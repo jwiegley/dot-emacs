@@ -1,4 +1,5 @@
-INFO-DIR-SECTION Emacs
-START-INFO-DIR-ENTRY
+
+@dircategory Emacs
+@direntry
 * Pandoc-mode: (pandoc-mode).        Minor mode for interacting with Pandoc.
-END-INFO-DIR-ENTRY
+@end direntry

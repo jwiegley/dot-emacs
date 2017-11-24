@@ -6,7 +6,7 @@
 
 `pandoc-mode` is an Emacs mode for interacting with [Pandoc](http://pandoc.org/). Pandoc is a program (plus libraries) created by John MacFarlane that can convert a text written in one markup language into another markup language. `pandoc-mode` is implemented as a minor mode that can be activated alongside the major mode for any of Pandoc's supported input formats. It provides facilities to set the various options that Pandoc accepts and to run Pandoc on the input file. It is possible to create different output profiles for a single input file, so that you can, for example, write your text in Markdown and then translate it to HTML for online reading, PDF for offline reading and Texinfo for reading in Emacs, all with just a few keystrokes.
 
-The current version of `pandoc-mode` is 2.19 and is compatible with Pandoc version 1.17.2.
+The current version of `pandoc-mode` is 2.20 and is compatible with Pandoc version 1.18.
 
 
 # Installation #
@@ -121,14 +121,29 @@ The output file you set is always just the base filename, it does not specify a 
 
 ## Creating a pdf ##
 
-The second item in the main menu is "Create PDF" (invoked with `C-c / p`). This option calls Pandoc with an output file with the extention `.pdf`, causing Pandoc to create a pdf file by first converting to `.tex` and then calling LaTeX on it. Like `C-c / r`, this command operates on the region if it is active.
+The second item in the main menu is "Create PDF" (invoked with `C-c / p`). This option calls Pandoc with a PDF file as output file. In order for Pandoc to create a PDF, the output format must be `latex`, `context` or `html5` (in which case `wkhtmltopdf` is used to create the PDF file). If the current buffer's output format is one of these, `C-c / p` creates the PDF using that format.
 
-If you choose this option, Emacs checks if your current output format is `latex`. If it is, Emacs calls Pandoc with the buffer's settings. If the output format is something other than `latex`, Emacs checks if you have a settings file for LaTeX output and uses those settings. This allows you to create a pdf without having to switch the output format to LaTeX. If your current output format is not LaTeX and no LaTeX settings file is found, Emacs calls Pandoc with only the input and output formats.
+If the current output format is set to something else, Emacs asks you which output format to use. If there is a settings file for the output format you specify, it is used to create the PDF. (The current buffer's settings aren't changed, however.) If there is no settings file, Pandoc is called with only the input and output formats and the output file.
+
+The format you choose is remembered (at least until you close the buffer or change the output format), so that the next time you convert the buffer to PDF, you are not asked for the format again. If you wish to use a different format for PDF creation, use a prefix argument `C-u`. (That is, the key sequence to type is `C-c / C-u p`.)
+
+This setup means that you do not need to switch the output format to `latex`, `context` or `html5` in order to create a PDF, which can be practical if you're also converting to another format. However, if you wish to change settings for PDF output, you **do** need to switch to the relevant output format.
 
 
 ## Connection Type ##
 
 By default, Emacs starts `pandoc` as an asynchronous process using a tty. If this causes problems for some reason, you can try using a pipe instead by customising `pandoc-process-connection-type`. Alternatively, you can use a synchronous process by unsetting the user option `pandoc-use-async`.
+
+
+## Citation Jumping ##
+
+`pandoc-mode` provides the function `pandoc-jump-to-reference` that locates a reference within external bibliography files indicated by the `bibliography` user option. Note that entries to the `bibliography` user option list must have an absolute path for this option to work properly (i.e. `"./Bibliography.bib"` rather than `"Bibliography.bib"`). This feature is not bound to any key by default, but may of course be bound to a key combination as follows:
+
+    (define-key markdown-mode-map (kbd "C-c j") 'pandoc-jump-to-reference)
+
+The jump behaviour can be customised by changing the option `pandoc-citation-jump-function`. Its default value is `pandoc-goto-citation-reference`, which opens the relevant BibTeX file in a new window and moves point to the entry. Two alternative functions have been defined: `pandoc-open-in-ebib`, which opens the relevant entry in Ebib, and `pandoc-show-citation-as-help`, which shows the entry in a `*Help*` buffer, but does not open the corresponding BibTeX file.
+
+Alternatively, you may also define your own function, which should take two arguments: the key of the entry to be displayed and a list of BibTeX files.
 
 
 # Font lock #

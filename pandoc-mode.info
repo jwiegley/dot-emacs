@@ -1,8 +1,14 @@
-This is pandoc-mode.info, produced by makeinfo version 5.2 from
+This is pandoc-mode.info, produced by makeinfo version 6.1 from
 pandoc-mode.texi.
 
-INFO-DIR-SECTION Emacs START-INFO-DIR-ENTRY * Pandoc-mode:
-(pandoc-mode).  Minor mode for interacting with Pandoc.
+INFO-DIR-SECTION Emacs
+START-INFO-DIR-ENTRY
+* Pandoc-mode: (pandoc-mode).        Minor mode for interacting with Pandoc.
+END-INFO-DIR-ENTRY
+
+INFO-DIR-SECTION Emacs
+START-INFO-DIR-ENTRY
+* Pandoc-mode: (pandoc-mode).        Minor mode for interacting with Pandoc.
 END-INFO-DIR-ENTRY
 
 
@@ -41,8 +47,8 @@ that you can, for example, write your text in Markdown and then
 translate it to HTML for online reading, PDF for offline reading and
 Texinfo for reading in Emacs, all with just a few keystrokes.
 
-The current version of ‘pandoc-mode’ is 2.19 and is compatible with
-Pandoc version 1.17.2.
+The current version of ‘pandoc-mode’ is 2.20 and is compatible with
+Pandoc version 1.18.
 
 
 File: pandoc-mode.info,  Node: Installation,  Next: Usage,  Prev: Introduction,  Up: Top
@@ -141,6 +147,7 @@ below.)
 * Setting an output file::
 * Creating a pdf::
 * Connection Type::
+* Citation Jumping::
 
 
 File: pandoc-mode.info,  Node: Input and output formats,  Next: The options menu,  Up: Usage
@@ -389,22 +396,32 @@ File: pandoc-mode.info,  Node: Creating a pdf,  Next: Connection Type,  Prev: Se
 ==================
 
 The second item in the main menu is "Create PDF" (invoked with ‘C-c /
-p’).  This option calls Pandoc with an output file with the extention
-‘.pdf’, causing Pandoc to create a pdf file by first converting to
-‘.tex’ and then calling LaTeX on it.  Like ‘C-c / r’, this command
-operates on the region if it is active.
+p’).  This option calls Pandoc with a PDF file as output file.  In order
+for Pandoc to create a PDF, the output format must be ‘latex’, ‘context’
+or ‘html5’ (in which case ‘wkhtmltopdf’ is used to create the PDF file).
+If the current buffer’s output format is one of these, ‘C-c / p’ creates
+the PDF using that format.
 
-If you choose this option, Emacs checks if your current output format is
-‘latex’.  If it is, Emacs calls Pandoc with the buffer’s settings.  If
-the output format is something other than ‘latex’, Emacs checks if you
-have a settings file for LaTeX output and uses those settings.  This
-allows you to create a pdf without having to switch the output format to
-LaTeX. If your current output format is not LaTeX and no LaTeX settings
-file is found, Emacs calls Pandoc with only the input and output
-formats.
+If the current output format is set to something else, Emacs asks you
+which output format to use.  If there is a settings file for the output
+format you specify, it is used to create the PDF. (The current buffer’s
+settings aren’t changed, however.)  If there is no settings file, Pandoc
+is called with only the input and output formats and the output file.
+
+The format you choose is remembered (at least until you close the buffer
+or change the output format), so that the next time you convert the
+buffer to PDF, you are not asked for the format again.  If you wish to
+use a different format for PDF creation, use a prefix argument ‘C-u’.
+(That is, the key sequence to type is ‘C-c / C-u p’.)
+
+This setup means that you do not need to switch the output format to
+‘latex’, ‘context’ or ‘html5’ in order to create a PDF, which can be
+practical if you’re also converting to another format.  However, if you
+wish to change settings for PDF output, you *do* need to switch to the
+relevant output format.
 
 
-File: pandoc-mode.info,  Node: Connection Type,  Prev: Creating a pdf,  Up: Usage
+File: pandoc-mode.info,  Node: Connection Type,  Next: Citation Jumping,  Prev: Creating a pdf,  Up: Usage
 
 3.7 Connection Type
 ===================
@@ -414,6 +431,34 @@ tty.  If this causes problems for some reason, you can try using a pipe
 instead by customising ‘pandoc-process-connection-type’.  Alternatively,
 you can use a synchronous process by unsetting the user option
 ‘pandoc-use-async’.
+
+
+File: pandoc-mode.info,  Node: Citation Jumping,  Prev: Connection Type,  Up: Usage
+
+3.8 Citation Jumping
+====================
+
+‘pandoc-mode’ provides the function ‘pandoc-jump-to-reference’ that
+locates a reference within external bibliography files indicated by the
+‘bibliography’ user option.  Note that entries to the ‘bibliography’
+user option list must have an absolute path for this option to work
+properly (i.e.  ‘"./Bibliography.bib"’ rather than
+‘"Bibliography.bib"’).  This feature is not bound to any key by default,
+but may of course be bound to a key combination as follows:
+
+(define-key markdown-mode-map (kbd "C-c j") 'pandoc-jump-to-reference)
+
+The jump behaviour can be customised by changing the option
+‘pandoc-citation-jump-function’.  Its default value is
+‘pandoc-goto-citation-reference’, which opens the relevant BibTeX file
+in a new window and moves point to the entry.  Two alternative functions
+have been defined: ‘pandoc-open-in-ebib’, which opens the relevant entry
+in Ebib, and ‘pandoc-show-citation-as-help’, which shows the entry in a
+‘*Help*’ buffer, but does not open the corresponding BibTeX file.
+
+Alternatively, you may also define your own function, which should take
+two arguments: the key of the entry to be displayed and a list of BibTeX
+files.
 
 
 File: pandoc-mode.info,  Node: Font lock,  Next: Settings Files,  Prev: Usage,  Up: Top
@@ -584,7 +629,7 @@ as follows:
                  (format-time-string "%d %b %Y")))
 
 This way, you could write ‘@@date’ to get just the date, and
-‘@@date{Cologne}’ to get "Cologne, 02 Sep 2016".
+‘@@date{Cologne}’ to get "Cologne, 03 May 2017".
 
 Two directives have been predefined: ‘@@lisp’ and ‘@@include’.  Both of
 these take an argument.  ‘@@lisp’ can be used to include Elisp code in
@@ -743,47 +788,49 @@ than ‘toc’).
 
 
 Tag Table:
-Node: Top218
-Node: Introduction522
-Ref: #introduction643
-Node: Installation1502
-Ref: #installation1625
-Node: OS X3205
-Ref: #os-x3282
-Node: Usage3873
-Ref: #usage3979
-Node: Input and output formats5795
-Ref: #input-and-output-formats5950
-Node: The options menu8886
-Ref: #the-options-menu9065
-Node: Template variables and metadata13760
-Ref: #template-variables-and-metadata13959
-Node: Running Pandoc14534
-Ref: #running-pandoc14705
-Node: Setting an output file16806
-Ref: #setting-an-output-file16976
-Node: Creating a pdf18670
-Ref: #creating-a-pdf18825
-Node: Connection Type19670
-Ref: #connection-type19796
-Node: Font lock20106
-Ref: #font-lock20222
-Node: Settings Files20386
-Ref: #settings-files20527
-Node: File-local variables22928
-Ref: #file-local-variables23098
-Node: Managing numbered examples24658
-Ref: #managing-numbered-examples24845
-Node: Using @@-directives26155
-Ref: #using--directives26332
-Node: Master file30555
-Ref: #master-file30691
-Node: Defining @@-directives32213
-Ref: #defining--directives32395
-Node: Directive hooks33973
-Ref: #directive-hooks34121
-Node: Disabling the hydra menu34458
-Ref: #disabling-the-hydra-menu34610
+Node: Top365
+Node: Introduction669
+Ref: #introduction790
+Node: Installation1647
+Ref: #installation1770
+Node: OS X3350
+Ref: #os-x3427
+Node: Usage4018
+Ref: #usage4124
+Node: Input and output formats5961
+Ref: #input-and-output-formats6116
+Node: The options menu9052
+Ref: #the-options-menu9231
+Node: Template variables and metadata13926
+Ref: #template-variables-and-metadata14125
+Node: Running Pandoc14700
+Ref: #running-pandoc14871
+Node: Setting an output file16972
+Ref: #setting-an-output-file17142
+Node: Creating a pdf18836
+Ref: #creating-a-pdf18991
+Node: Connection Type20434
+Ref: #connection-type20585
+Node: Citation Jumping20895
+Ref: #citation-jumping21025
+Node: Font lock22227
+Ref: #font-lock22343
+Node: Settings Files22507
+Ref: #settings-files22648
+Node: File-local variables25049
+Ref: #file-local-variables25219
+Node: Managing numbered examples26779
+Ref: #managing-numbered-examples26966
+Node: Using @@-directives28276
+Ref: #using--directives28453
+Node: Master file32676
+Ref: #master-file32812
+Node: Defining @@-directives34334
+Ref: #defining--directives34516
+Node: Directive hooks36094
+Ref: #directive-hooks36242
+Node: Disabling the hydra menu36579
+Ref: #disabling-the-hydra-menu36731
 
 End Tag Table
 

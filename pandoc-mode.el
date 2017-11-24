@@ -5,7 +5,7 @@
 ;; Author: Joost Kremers <joostkremers@fastmail.fm>
 ;; Maintainer: Joost Kremers <joostkremers@fastmail.fm>
 ;; Created: 31 Oct 2009
-;; Version: 2.19
+;; Version: 2.20
 ;; Keywords: text, pandoc
 ;; Package-Requires: ((hydra "0.10.0") (dash "2.10.0"))
 
@@ -46,6 +46,7 @@
 (require 'dash)
 (require 'pandoc-mode-utils)
 (require 'cl-lib)
+(require 'thingatpt)
 
 (defvar-local pandoc--@-counter 0 "Counter for (@)-lists.")
 
@@ -156,8 +157,8 @@
     (setq pandoc--local-settings (copy-tree pandoc--options))
     (pandoc--set 'read (cdr (assq major-mode pandoc-major-modes)))
     (setq pandoc--settings-modified-flag nil)
-    (or (buffer-live-p pandoc--output-buffer)
-        (setq pandoc--output-buffer (get-buffer-create " *Pandoc output*")))
+    ;; Make sure the output buffer exists.
+    (get-buffer-create pandoc--output-buffer-name)
     (pandoc-faces-load))
    ((not pandoc-mode)    ; pandoc-mode is turned off
     (setq pandoc--local-settings nil
@@ -223,17 +224,14 @@ FORMAT is the output format to use."
 (defun pandoc--format-all-options (input-file &optional pdf)
   "Create a list of strings with pandoc options for the current buffer.
 INPUT-FILE is the name of the input file.  If PDF is non-nil, an
-output file is always set, derived either from the input file or
-from the output file set for the \"latex\" output profile, and
-gets the suffix `.pdf'.  If the output format is \"odt\", \"epub\"
-or \"docx\" but no output file is specified, one will be created,
-since pandoc does not support output to stdout for those two
-formats."
+output file is always set, which gets the suffix `.pdf'.  If the
+output format is \"odt\", \"epub\" or \"docx\" but no output file
+is specified, one will be created."
   (let ((read (format "--read=%s%s%s" (pandoc--get 'read) (if (pandoc--get 'read-lhs) "+lhs" "")
                       (pandoc--format-extensions (pandoc--get 'read-extensions))))
         (write (if pdf
-                   (if (string= (pandoc--get 'write) "beamer")
-                       "--write=beamer"
+                   (if (member (pandoc--get 'write) pandoc--pdf-able-formats)
+                       (format "--write=%s" (pandoc--get 'write))
                      "--write=latex")
                  (format "--write=%s%s%s" (pandoc--get 'write) (if (pandoc--get 'write-lhs) "+lhs" "")
                          (pandoc--format-extensions (pandoc--get 'write-extensions)))))
@@ -400,7 +398,7 @@ local options.  The contents of the current buffer is copied into
 the temporary buffer, the @@-directives are processed, after
 which pandoc is called.
 
-OUTPUT-FORMAT is the format to use.  If nil, the current buffer's
+OUTPUT-FORMAT is the format to use.  If t, the current buffer's
 output format is used.  If PDF is non-nil, a pdf file is created.
 REGION is a cons cell specifying the beginning and end of the
 region to be sent to pandoc.
@@ -436,7 +434,7 @@ also ignored in this case."
       (with-temp-buffer
         (cond
          ;; if an output format was provided, try and load a settings file for it
-         (output-format
+         ((stringp output-format)
           (unless (and filename
                        (pandoc--load-settings-for-file (expand-file-name filename) output-format t))
             ;; if no settings file was found, unset all options except input and output format
@@ -445,8 +443,9 @@ also ignored in this case."
             (pandoc--set 'read (pandoc--get 'read buffer))))
          ;; if no output format was provided, we use BUFFER's options,
          ;; except the output format, which we take from ORIG-BUFFER:
-         (t (setq pandoc--local-settings (buffer-local-value 'pandoc--local-settings buffer))
-            (pandoc--set 'write (pandoc--get 'write orig-buffer))))
+         ((eq output-format t)
+          (setq pandoc--local-settings (buffer-local-value 'pandoc--local-settings buffer))
+          (pandoc--set 'write (pandoc--get 'write orig-buffer))))
         ;; copy any local `pandoc/' variables from `orig-buffer' or
         ;; `buffer' (the values in `orig-buffer' take precedence):
         (mapc (lambda (option)
@@ -458,11 +457,9 @@ also ignored in this case."
               pandoc--options)
         (let ((option-list (pandoc--format-all-options filename pdf)))
           (insert-buffer-substring-no-properties buffer (car region) (cdr region))
-          (message "Running %s on %s"
-                   (file-name-nondirectory pandoc--local-binary)
-                   display-name)
+          (message "Running %s on %s" (file-name-nondirectory pandoc--local-binary) display-name)
           (pandoc-process-directives (pandoc--get 'write))
-          (with-current-buffer (get-buffer-create pandoc--output-buffer)
+          (with-current-buffer (get-buffer-create pandoc--output-buffer-name)
             (erase-buffer))
           (pandoc--log 'log "%s\n%s" (make-string 50 ?=) (current-time-string))
           (pandoc--log 'log "Calling %s with:\n\n%s %s" (file-name-nondirectory pandoc--local-binary) pandoc--local-binary (mapconcat #'identity option-list " "))
@@ -479,23 +476,23 @@ also ignored in this case."
             (cond
              (pandoc-use-async
               (let* ((process-connection-type pandoc-process-connection-type)
-                     (process (apply #'start-process "pandoc-process" pandoc--output-buffer pandoc--local-binary option-list)))
+                     (process (apply #'start-process "pandoc-process" (get-buffer-create pandoc--output-buffer-name) pandoc--local-binary option-list)))
                 (set-process-sentinel process (lambda (_ e)
                                                 (cond
                                                  ((string-equal e "finished\n")
                                                   (funcall log-success display-name pandoc--local-binary)
                                                   (run-hooks 'pandoc-async-success-hook))
                                                  (t (funcall log-failure display-name pandoc--local-binary)
-                                                    (display-buffer pandoc--output-buffer)))))
+                                                    (display-buffer pandoc--output-buffer-name)))))
                 (process-send-region process (point-min) (point-max))
                 (process-send-eof process)))
              ((not pandoc-use-async)
-              (if (= 0 (apply #'call-process-region (point-min) (point-max) pandoc--local-binary nil pandoc--output-buffer t option-list))
+              (if (= 0 (apply #'call-process-region (point-min) (point-max) pandoc--local-binary nil (get-buffer-create pandoc--output-buffer-name) t option-list))
                   (funcall log-success display-name pandoc--local-binary)
                 (funcall log-failure display-name pandoc--local-binary)
-                (display-buffer pandoc--output-buffer))))))))))
+                (display-buffer pandoc--output-buffer-name))))))))))
 
-(defun pandoc-run-pandoc (prefix)
+(defun pandoc-run-pandoc (&optional prefix)
   "Run pandoc on the current document.
 If called with a PREFIX argument, the user is asked for an output
 format.  Otherwise, the output format currently set in the buffer
@@ -506,29 +503,46 @@ the buffer."
   (interactive "P")
   (pandoc--call-external (if prefix
                        (completing-read "Output format to use: " pandoc--output-formats nil t)
-                     nil)
+                     t)
                    nil
                    (if (use-region-p)
                        (cons (region-beginning) (region-end)))))
 
-(defun pandoc-convert-to-pdf (prefix)
+(defvar-local pandoc--output-format-for-pdf nil
+  "Output format used to for pdf conversion.
+  Set the first time the user converts to pdf.  Unset when the
+user changes output format.")
+
+(defun pandoc-convert-to-pdf (&optional prefix)
   "Convert the current document to pdf.
-If the output format of the current buffer is set to \"latex\" or
-\"beamer\", the buffer's options are used.  If called with a
-PREFIX argument, or if the current buffer's output format is not
-\"latex\" or \"beamer\", a LaTeX settings file is searched for
-and loaded when found.  If no such settings file is found, all
-options are unset except for the input and output formats.
+If the output format of the current buffer can be used to create
+a pdf (latex, context, or html5), the buffer's options are used.
+If not, the user is asked to supply a format.  If a settings file
+for the user-supplied format exists, the settings from this file
+are used for conversion.  If no such settings file exists, only
+the input and output format are set, all other options are unset.
+This user-supplied output format is persistent: the next pdf
+conversion uses the same format.
+
+If called with a PREFIX argument \\[universal-argument], always ask the user for a
+pdf-able format.
+
+Note that if the user changes the output format for the buffer,
+the format for pdf conversion is unset.
 
 If the region is active, pandoc is run on the region instead of
-the buffer."
+the buffer (except when a master file is set, in which case
+pandoc is always run on the master file)."
+  ;; TODO When the region is active, it might be nice to run pandoc on the
+  ;; region but use the master file's settings.
   (interactive "P")
-  (pandoc--call-external (if (or prefix (not (member (pandoc--get 'write) '("latex" "beamer"))))
-                       "latex"
-                     nil)
-                   t
-                   (if (use-region-p)
-                       (cons (region-beginning) (region-end)))))
+  (cond
+   ((member (pandoc--get 'write) pandoc--pdf-able-formats)
+    (setq pandoc--output-format-for-pdf t))
+   ((or (not pandoc--output-format-for-pdf)
+        (and (listp prefix) (eq (car prefix) 4)))
+    (setq pandoc--output-format-for-pdf (completing-read "Specify output format for pdf creation: " pandoc--pdf-able-formats nil t nil nil (car pandoc--pdf-able-formats)))))
+  (pandoc--call-external pandoc--output-format-for-pdf t (when (use-region-p) (cons (region-beginning) (region-end)))))
 
 (defun pandoc-set-default-format ()
   "Set the current output format as default.
@@ -712,7 +726,7 @@ options and their values."
 (defun pandoc-view-output ()
   "Displays the *Pandoc output* buffer."
   (interactive)
-  (display-buffer pandoc--output-buffer))
+  (display-buffer pandoc--output-buffer-name))
 
 (defun pandoc-view-settings ()
   "Displays the settings file in a *Help* buffer."
@@ -740,7 +754,7 @@ options and their values."
 (defun pandoc-view-log ()
   "Display the log buffer in a temporary window."
   (interactive)
-  (display-buffer pandoc--log-buffer))
+  (display-buffer (get-buffer-create pandoc--log-buffer-name)))
 
 (defun pandoc-insert-@ ()
   "Insert a new labeled (@) list marker at point."
@@ -794,6 +808,7 @@ format)."
     (pandoc--set 'write format)
     (pandoc--set 'read (cdr (assq major-mode pandoc-major-modes))))
   (setq pandoc--settings-modified-flag nil)
+  (setq pandoc--output-format-for-pdf nil)
   (message "Output format set to `%s'" format))
 
 (defun pandoc-set-read (format)
@@ -1409,6 +1424,82 @@ _M_: Use current file as master file
       (font-lock-flush)
     (with-no-warnings
       (font-lock-fontify-buffer))))
+
+;;; Citation jumping:
+;;; Jump to citation in a bibliography file.
+
+(defun pandoc-jump-to-reference ()
+  "Display the BibTeX reference for the citation key at point.
+Extract the key at point and pass it to the function in
+`pandoc-citation-jump-function', together with a list of the
+current buffer's BibTeX files."
+  (interactive)
+  (let ((biblist (pandoc--get 'bibliography)))
+    (if biblist
+        (cond
+         ((thing-at-point-looking-at pandoc-regex-in-text-citation)
+          (funcall pandoc-citation-jump-function (match-string-no-properties 4) biblist))
+         ((thing-at-point-looking-at pandoc-regex-in-text-citation-2)
+          (funcall pandoc-citation-jump-function (match-string-no-properties 2) biblist))
+         ((thing-at-point-looking-at pandoc-regex-parenthetical-citation-single)
+          (funcall pandoc-citation-jump-function (match-string-no-properties 3) biblist))
+         ((thing-at-point-looking-at pandoc-regex-parenthetical-citation-multiple)
+          (funcall pandoc-citation-jump-function (match-string-no-properties 4) biblist))
+         (t (error "No citation at point")))
+      (error "No bibliography selected"))))
+
+(defun pandoc-goto-citation-reference (key biblist)
+  "Open the BibTeX file containing the entry for KEY.
+BIBLIST is a list of BibTeX files in which to search for KEY.
+The first file in which KEY is found is opened in a new
+window (using `find-file-other-window').
+
+This function is the default value of `pandoc-citation-jump-function'."
+  (let* ((key-regexp (concat "@[a-zA-Z]*[[:space:]]*[{(][[:space:]]*" key))
+         (bibfile (cl-loop for file in biblist
+                           if (with-temp-buffer
+                                (insert-file-contents file)
+                                (re-search-forward key-regexp nil t))
+                           return file)))
+    (if (not bibfile)
+        (error "Key '%s' not found" key)
+      (find-file-other-window bibfile)
+      (goto-char (point-min))
+      (re-search-forward key-regexp nil t)
+      (beginning-of-line))))
+
+(defun pandoc-open-in-ebib (key biblist)
+  "Open BibTeX item KEY in Ebib.
+BIBLIST is a list of BibTeX files in which to search for KEY.
+
+This function is for use in `pandoc-citation-jump-function'."
+  (let ((bibfile (cl-loop for file in biblist
+                          if (with-temp-buffer
+                               (insert-file-contents file)
+                               (re-search-forward (concat "@[a-zA-Z]*[[:space:]]*[{(][[:space:]]*" key) nil t))
+                          return file)))
+    (if bibfile
+        (ebib bibfile key)
+      (error "Key '%s' not found" key))))
+
+(defun pandoc-show-citation-as-help (key biblist)
+  "Show the BibTeX item KEY in a *Help* buffer.
+BIBLIST is a list of BibTeX files in which to search for KEY.
+
+This function is for use in `pandoc-citation-jump-function'."
+  (let ((entry (cl-loop for file in biblist
+                        thereis (with-temp-buffer
+                                  (insert-file-contents file)
+                                  (when (re-search-forward (concat "@[a-zA-Z]*[[:space:]]*\\([{(]\\)[[:space:]]*" key) nil t)
+                                    (beginning-of-line)
+                                    (let ((beg (point)))
+                                      (goto-char (match-beginning 1))
+                                      (forward-list)
+                                      (buffer-substring beg (point))))))))
+    (if entry
+        (with-help-window (help-buffer)
+          (princ entry))
+      (error "Key `%s' not found" key))))
 
 (provide 'pandoc-mode)
 

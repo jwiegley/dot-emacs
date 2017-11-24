@@ -5,7 +5,7 @@
 ;; Author: Joost Kremers <joostkremers@fastmail.fm>
 ;; Maintainer: Joost Kremers <joostkremers@fastmail.fm>
 ;; Created: 31 Oct 2009
-;; Version: 2.19
+;; Version: 2.20
 ;; Keywords: text, pandoc
 ;; Package-Requires: ((hydra "0.10.0") (dash "2.10.0"))
 
@@ -116,6 +116,27 @@ list, not if it appears higher on the list."
   "Marker used to indicate an inactive extension."
   :group 'pandoc
   :type 'string)
+
+(defcustom pandoc-citation-jump-function 'pandoc-goto-citation-reference
+  "Action to take when locating a BibTeX reference from a citation key.
+Three actions have been predefined: Open the BibTeX file in Emacs
+and jump to the location of the key (the default option), open
+the BibTeX file in Ebib and show the key, or show the key's entry
+in a *Help* buffer.
+
+It is also possible to use a custom function.  This function must
+take two arguments:
+
+1) The string that matches the citation KEY at point
+2) A list of BIBLIOGRAPHY files
+
+It should direct the user to a bibliographic reference that
+matches KEY."
+  :group 'pandoc
+  :type '(choice (const :tag "Open BibTeX file" pandoc-goto-citation-reference)
+                 (const :tag "Open Ebib" pandoc-open-in-ebib)
+                 (const :tag "Show entry in *Help* buffer" pandoc-show-citation-as-help)
+                 (function :tag "Use a custom function")))
 
 (defcustom pandoc-major-modes
   '((haskell-mode . "native")
@@ -259,15 +280,20 @@ possible to customize the extensions."
   :group 'pandoc
   :type '(repeat :tag "Output Format" (list (string :tag "Format") (string :tag "Extension"))))
 
+(defvar pandoc--pdf-able-formats '("latex" "context" "html5")
+  "List of output formats that can be used to generate pdf output.")
+
 (defvar pandoc--extensions
   '(("abbreviations"                       ("markdown_phpextra"))
     ("all_symbols_escapable"               ("markdown" "markdown_mmd"))
+    ("angle_brackets_escapable"            ("markdown_github"))
     ("ascii_identifiers"                   ("markdown_github"))
     ("auto_identifiers"                    ("markdown" "markdown_github" "markdown_mmd" "latex" "rst" "mediawiki" "textile"))
     ("autolink_bare_uris"                  ("markdown_github"))
     ("backtick_code_blocks"                ("markdown" "markdown_github"))
     ("blank_before_blockquote"             ("markdown"))
     ("blank_before_header"                 ("markdown"))
+    ("bracketed_spans"                     ("markdown"))
     ("citations"                           ("markdown"))
     ("compact_definition_lists"            ())
     ("definition_lists"                    ("markdown" "markdown_phpextra" "markdown_mmd"))
@@ -368,8 +394,8 @@ with the default value NIL.")
 
 (defvar-local pandoc--settings-modified-flag nil "T if the current settings were modified and not saved.")
 
-(defvar pandoc--output-buffer (get-buffer-create " *Pandoc output*"))
-(defvar pandoc--log-buffer (get-buffer-create " *Pandoc log*"))
+(defvar pandoc--output-buffer-name " *Pandoc output*")
+(defvar pandoc--log-buffer-name " *Pandoc log*")
 
 (defvar pandoc--options-menu nil
   "Auxiliary variable for creating the options menu.")
@@ -403,7 +429,8 @@ If TYPE is `message', also display the message in the echo area.
 Any other value just logs the message, adding an empty line after
 it.  The arguments FORMAT-STRING and ARGS function as with
 `message'."
-  (with-current-buffer (get-buffer-create pandoc--log-buffer)
+  (with-current-buffer (get-buffer-create pandoc--log-buffer-name)
+    (goto-char (point-max))
     (insert (apply #'format format-string args) "\n\n"))
   (when (eq type 'message)
     (apply #'message format-string args)))
@@ -1078,13 +1105,15 @@ evaluated."
 ;;; Options affecting specific writers
 
 ;; general
-(define-pandoc-file-option   reference-docx  (specific "d" "%-21s") "Reference docx File")
-(define-pandoc-file-option   reference-odt   (specific "o" "%-21s") "Reference ODT File")
-(define-pandoc-number-option slide-level     (specific "h" "%-21s") "Slide Level Header")
-(define-pandoc-switch        incremental     (specific "i" "%-21s") "Incremental")
-(define-pandoc-switch        number-sections (specific "n" "%-21s") "Number Sections")
-(define-pandoc-switch        atx-headers     (specific "a" "%-21s") "Use ATX-style Headers")
-(define-pandoc-switch        reference-links (specific "r" "%-21s") "Reference Links")
+(define-pandoc-file-option   reference-docx     (specific "d" "%-21s") "Reference docx File")
+(define-pandoc-file-option   reference-odt      (specific "o" "%-21s") "Reference ODT File")
+(define-pandoc-number-option slide-level        (specific "h" "%-21s") "Slide Level Header")
+(define-pandoc-switch        incremental        (specific "i" "%-21s") "Incremental")
+(define-pandoc-switch        number-sections    (specific "n" "%-21s") "Number Sections")
+(define-pandoc-switch        atx-headers        (specific "a" "%-21s") "Use ATX-style Headers")
+(define-pandoc-switch        reference-links    (specific "r" "%-21s") "Reference Links")
+(define-pandoc-choice-option reference-location (specific "l" "%-21s") "Reference Location" ("block" "section" "document") ("markdown" "markdown_github" "markdown_mmd" "markdown_phpextra" "markdown_strict"))
+(define-pandoc-choice-option top-level-division (specific "t" "%-21s") "Top Level Division" ("section" "part" "chapter")   ("latex" "context" "docbook" "docbook5" "tei"))
 
 ;; html-based
 (define-pandoc-list-option   css               (html "c" "%-31s") file "CSS Style Sheet" "CSS")
