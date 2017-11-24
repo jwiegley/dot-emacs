@@ -79,6 +79,19 @@ Emacs. This makes a difference when running with TRAMP."
     (with-output-to-string
       (apply runner git nil standard-output nil args))))
 
+(defun gh-sanitize-content (content)
+  "Remove all non-unicode characters. This can be used to
+sanitize API calls that need to handle potentially dirty data."
+  (let (res skipped)
+    (mapc (lambda (c)
+            (if (eq 'Cn (get-char-code-property c 'general-category))
+                (setq skipped t)
+              (push c res)))
+          content)
+    (when skipped
+      (warn "Content contained non-unicode characters"))
+    (apply #'string (nreverse res))))
+
 ;;; Base classes for common objects
 
 ;;;###autoload

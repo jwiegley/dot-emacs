@@ -165,6 +165,8 @@
   (let ((url-registered-auth-schemes
          '(("basic" ignore . 4))) ;; don't let default handlers kick in
         (url-privacy-level 'high)
+        (url-user-agent (format "User-Agent: URL/%s\r\n"
+                                url-version))
         (url-request-method (oref req :method))
         (url-request-data (oref req :data))
         (url-request-extra-headers (oref req :headers))
