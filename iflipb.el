@@ -1,10 +1,11 @@
 ;;; iflipb.el --- interactively flip between recently visited buffers
 ;;
-;; Copyright (C) 2007-2014 Joel Rosdahl
+;; Copyright (C) 2007-2017 Joel Rosdahl
 ;;
 ;; Author: Joel Rosdahl <joel@rosdahl.net>
-;; Version: 1.3
-;; URL: http://git.rosdahl.net/?p=joel/iflipb.git
+;; Version: 1.4
+;; License: BSD-3-clause
+;; URL: https://github.com/jrosdahl/iflipb
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -17,6 +18,17 @@
 ;; 3. Neither the name of the author nor the names of its contributors
 ;;    may be used to endorse or promote products derived from this software
 ;;    without specific prior written permission.
+;;
+;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+;; ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+;; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+;; DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+;; DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+;; (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+;; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+;; ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;
 ;; ============================================================================
 ;;
@@ -91,11 +103,10 @@
 ;;
 ;; in your .emacs file or equivalent.
 ;;
-;; This file does not install any key bindings for the two commands. I
-;; personally use M-h and M-H (i.e., M-S-h) since I don't use the standard
-;; binding of M-h (mark-paragraph) and M-h is quick and easy to press. To
-;; install iflipb with M-h and M-H as keyboard bindings, put something like
-;; this in your .emacs:
+;; iflipb does not install any key bindings for the two commands. I personally
+;; use M-h and M-H (i.e., M-S-h) since I don't use the standard binding of M-h
+;; (mark-paragraph) and M-h is quick and easy to press. To install iflipb with
+;; M-h and M-H as keyboard bindings, put something like this in your .emacs:
 ;;
 ;;   (global-set-key (kbd "M-h") 'iflipb-next-buffer)
 ;;   (global-set-key (kbd "M-H") 'iflipb-previous-buffer)
@@ -163,7 +174,9 @@ around when an edge is reached in the buffer list."
 (defcustom iflipb-permissive-flip-back nil
   "This variable determines whether iflipb-previous-buffer should
 use the previous buffer list when it's the first iflipb-*-buffer
-command in a row."
+command in a row. In other words: Running iflipb-previous-buffer
+after editing a buffer will act as if the current buffer was not
+visited; it will stay in its original place in the buffer list."
   :group 'iflipb)
 
 (defvar iflipb-current-buffer-index 0
@@ -209,7 +222,7 @@ of iflipb-current-buffer-index.")
   "Returns a list of buffer names not matching a filter."
   (iflipb-filter
    (lambda (b) (not (iflipb-match-filter (buffer-name b) filter)))
-   (buffer-list)))
+   (buffer-list (selected-frame))))
 
 (defun iflipb-interesting-buffers ()
   "Returns buffers that should be included in the displayed
