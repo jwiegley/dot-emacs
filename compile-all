@@ -10,6 +10,7 @@ find "$@"                                                       \
           -o -name shimbun                                      \
           -o -name obsolete                                     \
           -o -name examples                                     \
+          -o -name samples                                      \
           -o -name gnus-fallback-lib                            \
           -o -name support                                      \
           -o -name targets                                      \
@@ -42,6 +43,7 @@ find "$@"                                                       \
        ! -path site-lisp/nix-mode/nix-mode-mmm.el               \
        ! -path site-lisp/emacs-calfw/calfw-howm.el              \
        ! -path site-lisp/org-mode/contrib/lisp/org-jira.el      \
+       ! -path lib/emacs-web/web-file-upload.el                 \
        -type f -print0 |                                        \
     xargs -0 $BATCH_LOAD                                        \
           -L site-lisp/agda/src/data/emacs-mode                 \

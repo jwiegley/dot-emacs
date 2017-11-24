@@ -19,6 +19,7 @@ SUBDIRS     = $(shell find $(DIRS) -maxdepth 2	\
 		    ! -name shimbun		\
 		    ! -name obsolete		\
 		    ! -name examples		\
+		    ! -name samples		\
 		    ! -name support		\
 		    ! -name targets		\
 		    ! -name style		\
