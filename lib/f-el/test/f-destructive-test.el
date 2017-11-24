@@ -187,6 +187,39 @@
    (should-exist "bar/file.txt" "FILE")))
 
 
+;;;; f-copy-contents
+
+(ert-deftest-async f-copy-contents-test/not-a-directory (done)
+  (with-playground
+   (f-touch "foo.txt")
+   (f-mkdir "bar")
+   (condition-case err
+       (f-copy-contents "foo.txt" "bar")
+     (error
+      (should (string= (error-message-string err) "Cannot copy contents as foo.txt is a file"))
+      (funcall done)))))
+
+(ert-deftest-async f-copy-contents-test/directory-does-not-exist (done)
+  (with-playground
+   (f-mkdir "foo")
+   (condition-case err
+       (f-copy-contents "foo" "bar")
+     (error
+      (should (string= (error-message-string err) "Cannot copy contents to non existing directory bar"))
+      (funcall done)))))
+
+(ert-deftest f-copy-contents-test/copy-directory ()
+  (with-playground
+   (f-mkdir "from")
+   (f-mkdir "from" "foo")
+   (f-touch "from/foo/bar")
+   (f-touch "from/baz")
+   (f-mkdir "to")
+   (f-copy-contents "from" "to")
+   (should-exist "to/foo/bar")
+   (should-exist "to/baz")))
+
+
 ;;;; f-touch
 
 (ert-deftest f-touch-test/file-does-not-exist-relative-path ()

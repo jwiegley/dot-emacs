@@ -103,6 +103,41 @@
    (f-write-bytes (unibyte-string 226 152 185 32 226 152 186) "foo.txt")
    (should (equal (f-read-text "foo.txt") (f-read "foo.txt")))))
 
+
+;;;; f-append-text
+
+(ert-deftest f-append-text/does-not-exist ()
+  (with-playground
+   (f-append-text "foo" 'utf-8 "foo.txt")
+   (should-exist "foo.txt" "foo")))
+
+(ert-deftest f-append-text/exists ()
+  (with-playground
+   (f-write "foo" 'utf-8 "foo.txt")
+   (f-append-text "bar" 'utf-8 "foo.txt")
+   (should-exist "foo.txt" "foobar")))
+
+(ert-deftest f-append/alias ()
+  (with-playground
+   (f-append "foo" 'utf-8 "foo.txt")
+   (should-exist "foo.txt" "foo")))
+
+
+;;;; f-append-bytes
+
+(ert-deftest f-append-bytes-test/does-not-exist ()
+  (with-playground
+   (let ((bytes (apply #'unibyte-string (-map #'random (-repeat 100 255)))))
+     (f-append-bytes bytes "foo.txt")
+     (should-exist "foo.txt" bytes))))
+
+(ert-deftest f-append-bytes-test/exists ()
+  (with-playground
+   (let ((bytes (apply #'unibyte-string (-map #'random (-repeat 100 255)))))
+     (f-write-bytes bytes "foo.txt")
+     (f-append-bytes bytes "foo.txt")
+     (should-exist "foo.txt" (concat bytes bytes)))))
+
 (provide 'f-io-test)
 
 ;;; f-io-test.el ends here

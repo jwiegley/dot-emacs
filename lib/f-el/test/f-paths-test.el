@@ -77,6 +77,11 @@
   (with-default-directory
    (should (equal (f-expand "foo" "/other") "/other/foo"))))
 
+(ert-deftest f-expand-test/skip-handlers ()
+  ;; If handlers are used, Tramp will try to connect but fail with an
+  ;; exception, hence this will fail.
+  (f-expand "foo:" "/"))
+
 
 ;;;; f-filename
 
@@ -140,6 +145,33 @@
    (should-not (f-parent (f-root)))))
 
 
+;;;; f-common-parent
+(ert-deftest f-common-parent/directory-relative ()
+  (should (equal (f-common-parent '("foo/bar/baz" "foo/bar/qux" "foo/bar/mux")) "foo/bar/"))
+  (should (equal (f-common-parent '("foo/bar/baz" "foo/bar/qux" "foo/bax/mux")) "foo/")))
+
+(ert-deftest f-common-parent/directory-absolute ()
+  (should (equal (f-common-parent '("/foo/bar/baz" "/foo/bar/qux" "/foo/bar/mux")) "/foo/bar/"))
+  (should (equal (f-common-parent '("/foo/bar/baz" "/foo/bar/qux" "/foo/bax/mux")) "/foo/")))
+
+(ert-deftest f-common-parent/no-common-parent ()
+  (should (equal (f-common-parent '("foo/bar/baz" "foo/bar/qux" "fo/bar/mux")) "")))
+
+(ert-deftest f-common-parent/root-common-parent ()
+  (should (equal (f-common-parent '("/foo" "/bar")) "/")))
+
+(ert-deftest f-common-parent/single-file ()
+  (should (equal (f-common-parent '("foo/bar/baz")) "foo/bar/"))
+  (should (equal (f-common-parent '("baz")) "./")))
+
+(ert-deftest f-common-parent/same-path ()
+  (should (equal (f-common-parent '("foo/bar/baz" "foo/bar/baz")) "foo/bar/baz/"))
+  (should (equal (f-common-parent '("foo" "foo")) "foo/")))
+
+(ert-deftest f-common-parent/empty-list ()
+  (should (equal (f-common-parent nil) nil)))
+
+
 ;;;; f-ext
 
 (ert-deftest f-ext-test/no-extension ()
@@ -164,6 +196,16 @@
   (should (equal (f-no-ext "path/to/file.txt.org") "path/to/file.txt")))
 
 
+;;;; f-swap-ext
+
+(ert-deftest f-swap-ext-test/no-extension ()
+  (should-error (f-swap-ext "path/to/file.txt" "")))
+
+(ert-deftest f-swap-ext-test/with-extension ()
+  (should (equal (f-swap-ext "path/to/file.txt" "org")
+                 "path/to/file.org")))
+
+
 ;;;; f-base
 
 (ert-deftest f-base-test/no-extension ()
