@@ -1,1 +1,2 @@
 .git* export-ignore
+lua-mode.el export-subst
