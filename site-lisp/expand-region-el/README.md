@@ -1,4 +1,4 @@
-# expand-region.el [![Build Status](https://secure.travis-ci.org/magnars/expand-region.el.png)](http://travis-ci.org/magnars/expand-region.el) [![Coverage Status](https://img.shields.io/coveralls/magnars/expand-region.el.svg)](https://coveralls.io/r/magnars/expand-region.el)
+# expand-region.el [![Build Status](https://secure.travis-ci.org/magnars/expand-region.el.png)](http://travis-ci.org/magnars/expand-region.el) [![Coverage Status](https://coveralls.io/repos/magnars/expand-region.el/badge.svg?branch=master&service=github)](https://coveralls.io/github/magnars/expand-region.el)
 
 Expand region increases the selected region by semantic units. Just keep
 pressing the key until it selects what you want.
@@ -138,10 +138,13 @@ sure to add a set of basic tests around the functionality you're changing.
 * [Alexis Gallagher](https://github.com/algal) contributs Standard ML expansions.
 * [Matt Price](https://github.com/titaniumbones) improved on org-mode expansions.
 * [Maksim Grinman](https://github.com/maksle) added inner-quotes expansion for nxml-mode.
+* [Andrea Orru](https://github.com/AndreaOrru) added `expand-region-smart-cursor`.
 
 Thanks!
 
 ## Changelog
+
+* Option `expand-region-smart-cursor` to keep cursor at beginning of region if it is there (Andrea Orru)
 
 ### From 0.9 to 0.10
 
@@ -178,7 +181,7 @@ Thanks!
 
 ## License
 
-Copyright (C) 2011-2013 Magnar Sveen
+Copyright (C) 2011-2016 Magnar Sveen
 
 Author: Magnar Sveen <magnars@gmail.com>
 Keywords: marking region
