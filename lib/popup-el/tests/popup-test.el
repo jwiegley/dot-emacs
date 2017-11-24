@@ -656,7 +656,7 @@ Qux" :nowait t)
 foo
 bar
 baz")
-    (popup-isearch-update popup "a")
+    (popup-isearch-update popup 'popup-isearch-filter-list "a")
     (should (popup-test-helper-rectangle-match "\
 bar
 baz"))
