@@ -106,10 +106,13 @@
 (defvar restclient-request-time-end nil)
 
 (defvar restclient-response-loaded-hook nil
-  "Hook run after response buffer created and data loaded.")
+  "Hook run after response buffer is formatted.")
 
 (defvar restclient-http-do-hook nil
   "Hook to run before making request.")
+
+(defvar restclient-response-received-hook nil
+  "Hook run after data is loaded into response buffer.")
 
 (defcustom restclient-vars-max-passes 10
   "Maximum number of recursive variable references. This is to prevent hanging if two variables reference each other directly or indirectly."
@@ -131,10 +134,10 @@
   "^\\(:[^: \n]+\\)$")
 
 (defconst restclient-var-regexp
-  (concat "^\\(:[^: ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
+  (concat "^\\(:[^:= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
 
 (defconst restclient-svar-regexp
-  "^\\(:[^: ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
+  "^\\(:[^:= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
 
 (defconst restclient-evar-regexp
   "^\\(:[^: ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
@@ -143,7 +146,7 @@
   "^\\(:[^: ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
 
 (defconst restclient-file-regexp
-  "^<[ \t]*\\([^<>]+\\)[ \t]*$")
+  "^<[ \t]*\\([^<>\n\r]+\\)[ \t]*$")
 
 (defconst restclient-content-type-regexp
   "^Content-[Tt]ype: \\(\\w+\\)/\\(?:[^\\+\r\n]*\\+\\)*\\([^;\r\n]+\\)")
@@ -180,7 +183,7 @@
   "Send ENTITY and HEADERS to URL as a METHOD request."
   (if restclient-log-request
       (message "HTTP %s %s Headers:[%s] Body:[%s]" method url headers entity))
-  (let ((url-request-method method)
+  (let ((url-request-method (encode-coding-string method 'us-ascii))
         (url-request-extra-headers '())
         (url-request-data (encode-coding-string entity 'utf-8)))
 
@@ -195,9 +198,10 @@
                                      ("accept" . url-mime-accept-string)))))
 
         (if mapped
-            (set (cdr mapped) (cdr header))
-          (setq url-request-extra-headers (cons header url-request-extra-headers)))
-        ))
+            (set (cdr mapped) (encode-coding-string (cdr header) 'us-ascii))
+          (let* ((hkey (encode-coding-string (car header) 'us-ascii))
+                 (hvalue (encode-coding-string (cdr header) 'us-ascii)))
+            (setq url-request-extra-headers (cons (cons hkey hvalue) url-request-extra-headers))))))
 
     (setq restclient-within-call t)
     (setq restclient-request-time-start (current-time))
@@ -219,6 +223,7 @@
                                                     "/"
                                                     (match-string-no-properties 2))
                                                    '(("text/xml" . xml-mode)
+                                                     ("text/plain" . text-mode)
                                                      ("application/xml" . xml-mode)
                                                      ("application/json" . js-mode)
                                                      ("image/png" . image-mode)
@@ -271,9 +276,8 @@
           (let ((hstart (point)))
             (insert method " " url "\n" headers)
             (insert (format "Request duration: %fs\n" (float-time (time-subtract restclient-request-time-end restclient-request-time-start))))
-            (unless (eq guessed-mode 'image-mode)
-              (comment-region hstart (point))
-              (indent-region hstart (point)))))))))
+            (unless (member guessed-mode '(image-mode text-mode))
+              (comment-region hstart (point)))))))))
 
 (defun restclient-prettify-json-unicode ()
   (save-excursion
@@ -294,6 +298,7 @@ The buffer contains the raw HTTP response sent by the server."
                             (current-buffer)
                             bufname
                             restclient-same-buffer-response)
+        (run-hooks 'restclient-response-received-hook)
         (unless raw
           (restclient-prettify-response method url))
         (buffer-enable-undo)
@@ -304,9 +309,9 @@ The buffer contains the raw HTTP response sent by the server."
 
 (defun restclient-decode-response (raw-http-response-buffer target-buffer-name same-name)
   "Decode the HTTP response using the charset (encoding) specified in the Content-Type header. If no charset is specified, default to UTF-8."
-  (let* ((charset-regexp "Content-Type.*charset=\\([-A-Za-z0-9]+\\)")
+  (let* ((charset-regexp "^Content-Type.*charset=\\([-A-Za-z0-9]+\\)")
          (image? (save-excursion
-                   (search-forward-regexp "Content-Type.*[Ii]mage" nil t)))
+                   (search-forward-regexp "^Content-Type.*[Ii]mage" nil t)))
          (encoding (if (save-excursion
                          (search-forward-regexp charset-regexp nil t))
                        (intern (downcase (match-string 1)))
@@ -415,7 +420,7 @@ The buffer contains the raw HTTP response sent by the server."
   (if (= 0 (or (string-match restclient-file-regexp entity) 1))
       (restclient-read-file (match-string 1 entity))
     (restclient-replace-all-in-string vars entity)))
-  
+
 (defun restclient-http-parse-current-and-do (func &rest args)
   (save-excursion
     (goto-char (restclient-current-min))
@@ -443,11 +448,20 @@ The buffer contains the raw HTTP response sent by the server."
   (interactive)
   (restclient-http-parse-current-and-do
    '(lambda (method url headers entity)
-      (kill-new (format "curl -i %s -X%s '%s' %s"
-                        (mapconcat (lambda (header) (format "-H '%s: %s'" (car header) (cdr header))) headers " ")
-                        method url
-                        (if (> (string-width entity) 0)
-                            (format "-d '%s'" entity) "")))
+      (let ((header-args
+             (apply 'append
+                    (mapcar (lambda (header)
+                              (list "-H" (format "%s: %s" (car header) (cdr header))))
+                            headers))))
+        (kill-new (concat "curl "
+                          (mapconcat 'shell-quote-argument
+                                     (append '("-i")
+                                             header-args
+                                             (list (concat "-X" method))
+                                             (list url)
+                                             (when (> (string-width entity) 0)
+                                               (list "-d" entity)))
+                                     " "))))
       (message "curl command copied to clipboard."))))
 
 ;;;###autoload
