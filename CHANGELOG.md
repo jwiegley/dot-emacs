@@ -4,7 +4,8 @@
 
 ### New Features
 
-* [#1166](https://github.com/bbatsov/projectile/pull/1168): Add CMake and Meson project support.
+* [#1175](https://github.com/bbatsov/projectile/pull/1175): Add a command `projectile-configure-command` for running a configuration for build systems that need that.
+* [#1168](https://github.com/bbatsov/projectile/pull/1168): Add CMake and Meson project support.
 * [#1159](https://github.com/bbatsov/projectile/pull/1159) Add [nix](http://nixos.org) project support.
 * [#1166](https://github.com/bbatsov/projectile/pull/1166): Add `-other-frame` versions of commands that had `-other-window` versions.
 * Consider Ensime configuration file as root marker, `.ensime`.
@@ -15,6 +16,9 @@
 
 ### Changes
 
+* [#1175](https://github.com/bbatsov/projectile/pull/1175): `projectile-register-project-type` can now set a default compilation directory for build systems that needs to build out-of-tree (eg. meson).
+* [#1175](https://github.com/bbatsov/projectile/pull/1175): `projectile-{test,run}-project` now run inside `(projectile-compilation-dir)`, just like `projectile-compile-project`.
+* [#1175](https://github.com/bbatsov/projectile/pull/1175): `projectile-{test,run}-project` now stores the default command per directory instead of per project, just like `projectile-compile-project`.
 * Cache the root of the current project to increase performance
 * [#1129](https://github.com/bbatsov/projectile/pull/1129): Fix TRAMP issues.
 * Add R DESCRIPTION file to `projectile-project-root-files`.
@@ -29,9 +33,11 @@
 * Don't treat `package.json` as a project marker.
 * [#987](https://github.com/bbatsov/projectile/issues/987): projectile-ag ignores ag-ignore-list when projectile-project-vcs is git
 * [#1119](https://github.com/bbatsov/projectile/issues/1119): File search ignores non-root dirs if prefixed with "*"
+* Treat members of `projectile-globally-ignored-file-suffixes` as file name suffixes (previous treat as file extensions).
 
 ### Bugs fixed
 
+* [#1169](https://github.com/bbatsov/projectile/issues/1169): `projectile-compile-project` does not prompt for compilation command.
 * [#1072](https://github.com/bbatsov/projectile/issues/1072): Create test files only within the project.
 * [#1063](https://github.com/bbatsov/projectile/issues/1063): Support Fossil checkouts on Windows.
 * [#1024](https://github.com/bbatsov/projectile/issues/1024): Do not cache ignored project files.
