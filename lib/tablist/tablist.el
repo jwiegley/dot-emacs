@@ -30,6 +30,8 @@
 ;; using tablist-minor-mode inside a tabulated-list-mode buffer.
 ;;
 
+;;; Code:
+
 (require 'cl-lib)
 (require 'ring)
 (require 'tabulated-list)
@@ -537,7 +539,7 @@ OLD and NEW are both characters used to mark files."
          (pcase new
            (?D
             (tablist-flag-forward 1))
-           (t
+           (_
             (let ((tablist-marker-char new)
                   (tablist-marked-face
                    (and default-mark-p

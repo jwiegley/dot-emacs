@@ -1,4 +1,4 @@
-;;; tablist-filter.el --- Filter expressions for tablists.
+;;; tablist-filter.el --- Filter expressions for tablists.  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2013, 2014  Andreas Politz
 
@@ -22,7 +22,8 @@
 
 ;;
 
-(let (python-mode-hook)
+(defvar python-mode-hook)
+(let (python-mode-hook)                 ;FIXME: Why?
 (require 'semantic/wisent/comp)
 (require 'semantic/wisent/wisent))
 
@@ -268,12 +269,12 @@
         (car item)
       item)))
 
-(defun tablist-filter-op-equal (id entry op1 op2)
+(defun tablist-filter-op-equal (_id entry op1 op2)
   "COLUMN == STRING : Matches if COLUMN's entry is equal to STRING."
   (let ((item (tablist-filter-get-item-by-name entry op1)))
     (string= item op2)))
 
-(defun tablist-filter-op-regexp (id entry op1 op2)
+(defun tablist-filter-op-regexp (_id entry op1 op2)
   "COLUMN =~ REGEXP : Matches if COLUMN's entry matches REGEXP."
   (let ((item (tablist-filter-get-item-by-name entry op1)))
     (string-match op2 item)))
@@ -298,7 +299,7 @@
   "COLUMN = NUMBER : Matches if COLUMN's entry as a number is equal to NUMBER."
   (tablist-filter-op-numeric '= id entry op1 op2))
 
-(defun tablist-filter-op-numeric (op id entry op1 op2)
+(defun tablist-filter-op-numeric (op _id entry op1 op2)
   (let ((item (tablist-filter-get-item-by-name entry op1)))
     (funcall op (string-to-number item)
              (string-to-number op2))))
