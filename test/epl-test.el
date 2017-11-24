@@ -1,15 +1,15 @@
-;;; package-structures-test.el --- EPL: Tests for package structures  -*- lexical-binding: t; -*-
+;;; epl-test.el --- EPL: Test suite -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013  Sebastian Wiesner
+;; Copyright (C) 2013-2015  Sebastian Wiesner
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
-;;     Sebastian Wiesner <lunaryorn@gmail.com>
+;;     Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; URL: http://github.com/cask/epl
 
 ;; This file is NOT part of GNU Emacs.
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -27,13 +27,44 @@
 
 ;;; Commentary:
 
-;; Test the `epl-package' and related structures.
+;; Test EPL
 
 ;;; Code:
 
 (require 'epl)
-
+(require 'f)
 (require 'ert)
+
+
+;;;; Directories
+(defconst epl-test-directory (f-parent (f-this-file))
+  "The directory of the test suite.")
+
+(defconst epl-sandbox-directory (f-expand "sandbox" epl-test-directory)
+  "The sandbox directory of the test suite.")
+
+
+;;;; Resource handling
+(defconst epl-test-resource-directory (f-join epl-test-directory "resources")
+  "The directory of test resource files.")
+
+(defun epl-test-resource-file-name (resource)
+  "Get the file name of a RESOURCE."
+  (f-join epl-test-resource-directory resource))
+
+(defmacro epl-test/with-sandbox (&rest body)
+  "Run BODY in a sandbox environment.
+
+In the sandbox, packages that are installed, are installed in the
+directory `epl-sandbox-directory'.  The sandbox directory never
+exist when entering the sandbox environment."
+  `(let ((package-user-dir epl-sandbox-directory))
+     (when (f-dir? epl-sandbox-directory)
+       (f-delete epl-sandbox-directory 'force))
+     ,@body))
+
+
+;;;; Package structures
 
 (ert-deftest epl-package-as-description/variable-must-be-a-symbol ()
   ;; We explicitly `eval' the expression here, to avoid eager macro expansion
@@ -53,6 +84,23 @@
     (should (eq (car err-and-data) 'wrong-type-argument))
     (should (eq (car data) #'epl-package-p))
     (should (equal (cadr data) "bar"))))
+
+(ert-deftest epl-package-from-buffer/invalid-lisp-package ()
+  (with-temp-buffer
+    (insert "
+foo.el --- Foo
+
+Version: 1
+Package-Requires: ((foo
+
+;;; foo.el ends here")
+    (should-error (epl-package-from-buffer) :type '(epl-invalid-package))))
+
+(ert-deftest epl-package-from-lisp-file/invalid-lisp-package ()
+  (let* ((file-name (epl-test-resource-file-name "invalid-package.el"))
+         (err (should-error (epl-package-from-lisp-file file-name)
+                              :type '(epl-invalid-package-file))))
+    (should (equal (cadr err) file-name))))
 
 (ert-deftest epl-package-from-file/valid-lisp-package ()
   (let* ((file (epl-test-resource-file-name "dummy-package.el"))
@@ -125,4 +173,33 @@ package.el tends to have such unfortunate side effects."
    (epl-package-from-file
     (epl-test-resource-file-name "invalid-package-pkg.el"))))
 
-;;; package-structures-test.el ends here
+(ert-deftest epl-package-directory/should-work ()
+  (epl-test/with-sandbox
+   (epl-install-file (epl-test-resource-file-name "smartie-package.el"))
+   (let ((package (epl-find-installed-package 'smartie-package)))
+     (should (equal (file-name-nondirectory (epl-package-directory package))
+                    "smartie-package-1.2.3"))
+     (epl-package-delete package))))
+
+
+;;; Package database
+(ert-deftest epl-built-in-packages/catches-all ()
+  ;; Make sure that `package--builtins' is filled for our test
+  (package-built-in-p 'foo)
+  (should package--builtins)
+  (should (equal (length (epl-built-in-packages)) (length package--builtins))))
+
+
+;;; Package operations
+(ert-deftest epl-package-delete/should-not-be-installed ()
+  (epl-test/with-sandbox
+   (let ((smartie-package (epl-test-resource-file-name "smartie-package.el")))
+     (epl-install-file smartie-package)
+     (let ((package (car (epl-find-installed-packages 'smartie-package))))
+       (should (epl-package-installed-p package))
+       (epl-package-delete package)
+       (should-not (epl-package-installed-p package))))))
+
+(provide 'epl-test)
+
+;;; epl-test.el ends here

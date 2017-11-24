@@ -1,10 +1,8 @@
-;;; dummy-package.el --- EPL: Dummy package for unit tests  -*- lexical-binding: t; -*-
+;;; smartie-package.el --- EPL: Invalid package for tests  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013  Sebastian Wiesner
+;; Copyright (C) 2014  Johan Andersson
 
-;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
-;; Version: 4.3.1.2-alpha
-;; Package-Requires: ((foo "1.2") (bar "2.2"))
+;; Author: Johan Andersson <johan.rejeep@gmail.com>
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -23,11 +21,9 @@
 
 ;;; Commentary:
 
-;; A dummy package to test EPL
-
 ;;; Code:
 
 
-(provide 'dummy-package)
+(provide 'invalid-package)
 
-;;; dummy-package.el ends here
+;;; invalid-package.el ends here
