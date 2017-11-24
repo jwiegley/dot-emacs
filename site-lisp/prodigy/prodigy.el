@@ -1404,8 +1404,7 @@ The old service process is transfered to the new service."
   (setq imenu-prev-index-position-function
         #'prodigy--imenu-prev-index-position-function)
   (setq imenu-extract-index-name-function
-        #'prodigy--imenu-extract-index-name-function)
-  (run-mode-hooks 'prodigy-mode-hook))
+        #'prodigy--imenu-extract-index-name-function))
 
 (defun prodigy--imenu-prev-index-position-function ()
   "Move point to previous line in prodigy buffer.
