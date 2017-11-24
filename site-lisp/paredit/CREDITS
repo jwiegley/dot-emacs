@@ -1,0 +1,42 @@
+The original inspirations for paredit were Interlisp-D's structure
+editor `SEdit' -- a real structure editor, not a cheesy imitation like
+paredit -- and Guillaume Germain's sedit.el for GNU Emacs.
+
+The following people have contributed to paredit in some way -- by
+submitting patches, by discussing design, by testing paredit and
+finding broken corner cases, &c.  It is not complete: most of those who
+contributed via IRC are missing, for example, and I started this list
+long after I ought to have.  If your name is not listed here and you
+think it should be, or if your name is listed here and you would rather
+that it not be, then let me know.
+
+Marco Baringer
+Eli Barzilay
+Edwin O'Connor
+John Cowan
+Iain Dalton
+Peter Danenberg
+Elly Jones
+Daniel Gackle
+Guillaume Germain
+Tobias Gerdin
+Phil Hagelberg
+Michael Heerdegen
+Thomas Hermann
+David Hilton
+Trey Jackson
+`Joe'
+Richard M Kreuter
+Leo Liu
+Brian Mastenbrook
+`megane'
+Mark Oteiza
+Eitan Postavsky
+Alex Plotnick
+Tobias C. Rittweiler
+Andreas Roehler
+Jorgen Schäfer
+Michael Weber
+Goran Weinholt
+Norman Werner
+John Wiegley
