@@ -1,30 +1,12 @@
 ## -*- mode: makefile-gmake -*-
 
-DIRS	    = lib				\
-	      lisp				\
-	      site-lisp				\
-	      site-lisp/site-dired		\
-	      site-lisp/site-git		\
-	      site-lisp/site-lang		\
-	      site-lisp/site-company		\
-	      site-lisp/site-emacs-lisp		\
-	      site-lisp/site-gnus		\
-	      site-lisp/site-ivy		\
-	      site-lisp/site-org
+DIRS	    = lib lisp site-lisp
 
-LIB_SOURCE  = $(wildcard lib/*.el)				\
-	      $(wildcard lisp/*.el)				\
-	      $(wildcard site-lisp/*.el)			\
-	      $(wildcard site-lisp/site-dired/*.el)		\
-	      $(wildcard site-lisp/site-git/*.el)		\
-	      $(wildcard site-lisp/site-lang/*.el)		\
-	      $(wildcard site-lisp/site-company/*.el)		\
-	      $(wildcard site-lisp/site-emacs-lisp/*.el)	\
-	      $(wildcard site-lisp/site-gnus/*.el)		\
-	      $(wildcard site-lisp/site-ivy/*.el)		\
-	      $(wildcard site-lisp/site-org/*.el)
+LIB_SOURCE  = $(wildcard lib/*.el)		\
+	      $(wildcard lisp/*.el)		\
+	      $(wildcard site-lisp/*.el)
 
-TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE)) \
+TARGET	    = $(patsubst %.el,%.elc, $(LIB_SOURCE))			\
               $(patsubst %.el,%.elc, dot-gnus.el dot-org.el init.el)
 
 SUBDIRS     = $(shell find $(DIRS) -maxdepth 2	\
@@ -50,21 +32,20 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 all: $(TARGET)
 
 compile-packages:
-	for i in \
-	    site-lisp/deft \
-	    site-lisp/evil \
-	    site-lisp/hyperbole \
-	    site-lisp/lusty-emacs \
-	    site-lisp/site-company/company-mode \
-	    site-lisp/site-gnus/gnus \
-	    site-lisp/site-ivy/swiper \
-	    site-lisp/site-ivy/avy \
-	    site-lisp/site-lang/auctex \
-	    site-lisp/site-lang/flycheck \
-	    site-lisp/site-lang/haskell-mode \
-	    site-lisp/site-lang/ProofGeneral \
-	    site-lisp/site-lang/slime \
-	    site-lisp/site-org/org-mode \
+	for i in				\
+	    site-lisp/ProofGeneral		\
+	    site-lisp/auctex			\
+	    site-lisp/avy			\
+	    site-lisp/company-mode		\
+	    site-lisp/deft			\
+	    site-lisp/evil			\
+	    site-lisp/flycheck			\
+	    site-lisp/haskell-mode		\
+	    site-lisp/hyperbole			\
+	    site-lisp/lusty-emacs		\
+	    site-lisp/org-mode			\
+	    site-lisp/slime			\
+	    site-lisp/swiper			\
 	    ; do (cd $$i && make) ; done
 
 compile:
