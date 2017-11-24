@@ -5,14 +5,9 @@
 ;; Author: "Aleksandar Simic" <asimic@gmail.com>
 ;; License: BSD
 ;; Created: 2016-09-07
-;; Version: 0.0.4
+;; Version: 0.0.5
 ;; Homepage: http://github.org/dotemacs/sort-words.el
 ;; Keywords: tools
-
-;;; Commentary:
-;;
-;; Usage: select a region and then
-;; M-x sort-words RET
 
 ;;; This file is NOT part of GNU Emacs
 ;;
@@ -41,6 +36,11 @@
 ;; STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ;; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 ;; OF THE POSSIBILITY OF SUCH DAMAGE.
+
+;;; Commentary:
+;;
+;; Usage: select a region and then
+;; M-x sort-words RET
 
 ;;; Code:
 
