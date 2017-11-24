@@ -45,6 +45,16 @@
    (f-write "BAZ" 'utf-8 "bar/baz.txt")
    (should (equal (f-size "bar") 6))))
 
+;;;; f-depth
+
+(ert-deftest f-depth/return-zero-for-root ()
+  (should (equal (f-depth "/") 0)))
+
+(ert-deftest f-depth/return-number-of-components-minus-one ()
+  (should (equal (f-depth "/usr/local/bin") 3))
+  (should (equal (f-depth "/usr/local/bin/rails") 4))
+  (should (equal (f-depth "/opt/git/f") 3)))
+
 (provide 'f-stats-test)
 
 ;;; f-stats-test.el ends here
