@@ -1,0 +1,40 @@
+# https://github.com/rolandwalker/emacs-travis
+
+language: emacs-lisp
+
+env:
+  matrix:
+    - EMACS=emacs23
+    - EMACS=emacs24
+    - EMACS=emacs-snapshot
+
+matrix:
+  allow_failures:
+    - env:
+        - EMACS=emacs-snapshot
+
+install:
+  - if [ "$EMACS" = "emacs23" ]; then
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs23-gtk emacs23-el &&
+        mkdir -p lib && curl https://raw.githubusercontent.com/ohler/ert/c619b56c5bc6a866e33787489545b87d79973205/lisp/emacs-lisp/ert.el > lib/ert.el;
+    fi
+  - if [ "$EMACS" = "emacs24" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs24 emacs24-el;
+    fi
+  - if [ "$EMACS" = "emacs-snapshot" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get install -qq emacs-snapshot &&
+        sudo apt-get install -qq emacs-snapshot-el emacs-snapshot-gtk;
+    fi
+  - mkdir -p lib && curl https://raw.githubusercontent.com/nschum/elisp-lint/stable/elisp-lint.el > lib/elisp-lint.el
+
+script:
+  $EMACS --version && find *.el -not -name "tests.el" | xargs $EMACS -Q --batch -l lib/elisp-lint.el -f elisp-lint-files-batch
+  && $EMACS -Q --batch -L lib -L . -l ert -l tests.el -f ert-run-tests-batch-and-exit
+
+notifications:
+  email: false
