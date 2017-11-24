@@ -5,7 +5,7 @@
 ;; Author: Aleksei Gusev <aleksei.gusev@gmail.com>
 ;; Maintainer: Aleksei Gusev <aleksei.gusev@gmail.com>
 ;; Created: 24 Apr 2010
-;; Version: 0.3
+;; Version: 0.5
 ;; Keywords: tools
 
 ;; Copyright (C) 2011  Perry Smith
@@ -34,12 +34,12 @@
 ;; invoked. This can be a significant startup time, but it will not
 ;; have to look up anything after that point.
 ;;
-;; This library tries to by compatible with any version of `rdoc' gem.
+;; This library tries to be compatible with any version of `rdoc' gem.
 ;; Self-testing covers all versions from 1.0.1 to 2.5.8 (current).
 ;;
-;; The main function you should use as interface to ri is M-x yari. I
-;; recommend to bind it on some key local when you are ruby-mode. Here
-;; is the example:
+;; The main function you should use as interface to ri is M-x yari
+;; (yari-anything is a variant using Anything input framework). I recommend to
+;; bind it on some key local when you are ruby-mode. Here is the example:
 ;;
 ;; (defun ri-bind-key ()
 ;;   (local-set-key [f1] 'yari))
@@ -55,6 +55,8 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
+
 (require 'thingatpt)
 (require 'ansi-color)
 
@@ -66,6 +68,9 @@
   "Hooks to run when invoking yari-mode."
   :group 'yari
   :type 'hook)
+
+(defcustom yari-ri-program-name "ri"
+  "This constant defines how yari.el will find ri, e.g. `ri1.9'.")
 
 (defvar yari-anything-source-ri-pages
   '((name . "RI documentation")
@@ -153,7 +158,8 @@
   (assert (member name (yari-ruby-obarray)) nil
           (format "%s is unknown symbol to RI." name))
   (shell-command-to-string
-   (format "ri -T -f ansi %s" (shell-quote-argument name))))
+   (format (concat yari-ri-program-name " -T -f ansi %s")
+           (shell-quote-argument name))))
 
 (when-ert-loaded
  (ert-deftest yari-test-ri-lookup-should-generate-error ()
@@ -173,7 +179,8 @@
 (defun yari-ruby-obarray (&optional rehash)
   "Build collection of classes and methods for completions."
   (if (and (null rehash) (consp yari-ruby-obarray-cache))
-      yari-ruby-obarray-cache
+      ;; TODO: I do not know how to return from here properly... ;]
+      (setq yari-ruby-obarray-cache yari-ruby-obarray-cache)
     (setq yari-ruby-obarray-cache (yari-ruby-methods-from-ri))))
 
 (when-ert-loaded
@@ -275,8 +282,9 @@
 
 (defun yari-get-ri-version (&optional version)
   "Return list of version parts or RI."
-  (let* ((raw-version-output (or version
-                                 (shell-command-to-string "ri --version")))
+  (let* ((raw-version-output
+          (or version (shell-command-to-string
+                       (concat yari-ri-program-name " --version"))))
          (raw-version (cadr (split-string raw-version-output))))
     (string-match "v?\\(.*\\)" raw-version)
     (match-string 1 raw-version)))
