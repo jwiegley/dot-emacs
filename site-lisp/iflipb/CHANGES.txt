@@ -1,3 +1,11 @@
+1.4
+===
+
+* iflipb now puts the current frame's recent buffers first in the buffer flip
+  list. This makes it easier to keep different contexts (related buffers) in
+  different frames.
+
+
 1.3
 ===
 
