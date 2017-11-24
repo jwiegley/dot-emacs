@@ -3260,40 +3260,47 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
+  :after hydra
   :demand t
   :diminish yas-minor-mode
-  :commands (yas-expand yas-minor-mode)
-  :functions (yas--guess-snippet-directories yas--table-name)
+  :commands (yas-expand
+             yas-minor-mode
+             yas-load-directory
+             yas-activate-extra-mode
+             yas-insert-snippet
+             yas-visit-snippet-file
+             yas-new-snippet
+             yas-tryout-snippet
+             yas-describe-tables
+             yas/global-mode
+             yas/minor-mode
+             yas-reload-all)
+  :functions (yas--guess-snippet-directories
+              yas--table-name)
   :defines (yas--guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :bind (("C-c y TAB" . yas-expand)
-         ("C-c y s"   . yas-insert-snippet)
-         ("C-c y n"   . yas-new-snippet)
-         ("C-c y v"   . yas-visit-snippet-file))
+  :bind (("C-c y" . hydra-yasnippet/body))
   :preface
-  (defun yas-new-snippet (&optional choose-instead-of-guess)
-    (interactive "P")
-    (let ((guessed-directories (yas--guess-snippet-directories)))
-      (switch-to-buffer "*new snippet*")
-      (erase-buffer)
-      (kill-all-local-variables)
-      (snippet-mode)
-      (set (make-local-variable 'yas--guessed-modes)
-           (mapcar #'(lambda (d) (intern (yas--table-name (car d))))
-                   guessed-directories))
-      (unless (and choose-instead-of-guess
-                   (not (y-or-n-p "Insert a snippet with useful headers? ")))
-        (yas-expand-snippet
-         (concat "\n"
-                 "# -*- mode: snippet -*-\n"
-                 "# name: $1\n"
-                 "# --\n"
-                 "$0\n")))))
-
+  (defhydra hydra-yasnippet (:color blue :hint nil)
+    "
+ _g_lobal  _d_irectory  _i_nsert
+ _m_inor   _f_ile       _t_ryout
+ _e_xtra   _l_ist       _n_ew
+         _a_ll"
+    ("d" yas-load-directory)
+    ("e" yas-activate-extra-mode)
+    ("i" yas-insert-snippet)
+    ("f" yas-visit-snippet-file :color blue)
+    ("n" yas-new-snippet)
+    ("t" yas-tryout-snippet)
+    ("l" yas-describe-tables)
+    ("g" yas/global-mode)
+    ("m" yas/minor-mode)
+    ("a" yas-reload-all)
+    ("x" yas-expand))
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
-
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package zencoding-mode
