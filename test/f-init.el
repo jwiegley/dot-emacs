@@ -25,6 +25,9 @@
 
 ;;; Code:
 
+(require 'undercover)
+(undercover "f.el")
+
 (defvar f-test/test-path
   (directory-file-name (file-name-directory load-file-name))
   "Path to tests directory.")
@@ -33,15 +36,12 @@
   (directory-file-name (file-name-directory f-test/test-path))
   "Path to root directory.")
 
-(defvar f-test/vendor-path
-  (expand-file-name "vendor" f-test/root-path)
-  "Path to vendor directory.")
-
 ;; TODO: WHERE CAN WE PUT THIS?
 ;; (unload-feature 'f 'force)
 
 (load (expand-file-name "f" f-test/root-path) 'noerror 'nomessage)
 
+(require 'ert-async)
 (unless (require 'ert nil t)
   (require 'ert (expand-file-name "ert" f-test/vendor-path)))
 

@@ -105,25 +105,25 @@
 
 ;;;; f-writable?
 
-(ert-deftest f-writeable?-test/is-readable ()
+(ert-deftest f-writable?-test/is-writable ()
   (with-playground
    (f-touch "foo.txt")
    (chmod "foo.txt" "700")
    (should (f-writable? "foo.txt"))))
 
-(ert-deftest f-writeable?-test/is-not-readable ()
+(ert-deftest f-writable?-test/is-not-writable ()
   (with-playground
    (f-touch "foo.txt")
    (chmod "foo.txt" "400")
    (should-not (f-writable? "foo.txt"))))
 
-(ert-deftest f-writeable?-test/is-readable ()
+(ert-deftest f-executable?-test/is-executable ()
   (with-playground
    (f-touch "foo.txt")
    (chmod "foo.txt" "100")
    (should (f-executable? "foo.txt"))))
 
-(ert-deftest f-writeable?-test/is-not-readable ()
+(ert-deftest f-executable?-test/is-not-executable ()
   (with-playground
    (f-touch "foo.txt")
    (chmod "foo.txt" "200")
@@ -185,30 +185,78 @@
 
 ;;;; f-same?/f-equal?
 
-(ert-deftest f-same?/relative-equal ()
+(ert-deftest f-same?/does-not-exist ()
   (with-playground
+   (should-not (f-same? "foo" "foo"))))
+
+(ert-deftest f-same?/relative-equal-file ()
+  (with-playground
+   (f-touch "foo")
    (should (f-same? "foo" "foo"))))
 
-(ert-deftest f-same?/relative-not-equal ()
+(ert-deftest f-same?/relative-equal-directory ()
   (with-playground
+   (f-mkdir "foo")
+   (should (f-same? "foo" "foo"))))
+
+(ert-deftest f-same?/relative-not-equal-files ()
+  (with-playground
+   (f-touch "foo")
+   (f-touch "bar")
    (should-not (f-same? "foo" "bar"))))
 
-(ert-deftest f-same?/absolute-equal ()
+(ert-deftest f-same?/relative-not-equal-directories ()
   (with-playground
+   (f-mkdir "foo")
+   (f-mkdir "bar")
+   (should-not (f-same? "foo" "bar"))))
+
+(ert-deftest f-same?/absolute-equal-file ()
+  (with-playground
+   (f-touch (f-expand "foo" f-test/playground-path))
    (should (f-same? (f-expand "foo" f-test/playground-path)
                     (f-expand "foo" f-test/playground-path)))))
 
-(ert-deftest f-same?/absolute-not-equal ()
+(ert-deftest f-same?/absolute-equal-directory ()
   (with-playground
+   (f-mkdir (f-expand "foo" f-test/playground-path))
+   (should (f-same? (f-expand "foo" f-test/playground-path)
+                    (f-expand "foo" f-test/playground-path)))))
+
+(ert-deftest f-same?/absolute-not-equal-files ()
+  (with-playground
+   (f-touch (f-expand "foo" f-test/playground-path))
+   (f-touch (f-expand "bar" f-test/playground-path))
    (should-not (f-same? (f-expand "foo" f-test/playground-path)
                         (f-expand "bar" f-test/playground-path)))))
 
-(ert-deftest f-same?/relative-and-absolute-equal ()
+(ert-deftest f-same?/absolute-not-equal-directories ()
   (with-playground
+   (f-mkdir (f-expand "foo" f-test/playground-path))
+   (f-mkdir (f-expand "bar" f-test/playground-path))
+   (should-not (f-same? (f-expand "foo" f-test/playground-path)
+                        (f-expand "bar" f-test/playground-path)))))
+
+(ert-deftest f-same?/relative-and-absolute-equal-file ()
+  (with-playground
+   (f-touch "foo")
    (should (f-same? "foo" (f-expand "foo" f-test/playground-path)))))
+
+(ert-deftest f-same?/relative-and-absolute-equal-directory ()
+  (with-playground
+   (f-mkdir "foo")
+   (should (f-same? "foo" (f-expand "foo" f-test/playground-path)))))
+
+(ert-deftest f-same?/relative-and-absolute-not-equal-files ()
+  (with-playground
+   (f-touch "foo")
+   (f-touch "bar")
+   (should-not (f-same? "foo" (f-expand "bar" f-test/playground-path)))))
 
 (ert-deftest f-same?/relative-and-absolute-not-equal ()
   (with-playground
+   (f-mkdir "foo")
+   (f-mkdir "bar")
    (should-not (f-same? "foo" (f-expand "bar" f-test/playground-path)))))
 
 (ert-deftest f-same?/symlink ()
@@ -219,6 +267,7 @@
 
 (ert-deftest f-equal?/alias ()
   (with-playground
+   (f-touch "foo")
    (should (f-equal? "foo" "foo"))))
 
 
@@ -342,6 +391,53 @@
    (should-not (f-descendant-of? "foo/bar/baz" "foo/bar/baz"))
    (should-not (f-descendant-of? "foo/bar/baz/qux" "foo/bar/baz/qux"))
    (should-not (f-descendant-of? (f-root) (f-root)))))
+
+
+;;;; f-hidden?
+
+(ert-deftest-async f-hidden?-test/does-not-exist (done)
+  (condition-case err
+      (f-hidden? "foo")
+    (error
+     (should (string= (error-message-string err) "Path does not exist: foo"))
+     (funcall done))))
+
+(ert-deftest f-hidden?-test/is-hidden ()
+  (with-playground
+   (f-touch ".foo")
+   (f-mkdir ".bar")
+   (should (f-hidden? ".foo"))
+   (should (f-hidden? ".bar"))))
+
+(ert-deftest f-hidden?-test/is-not-hidden ()
+  (with-playground
+   (f-touch "foo")
+   (f-mkdir "bar")
+   (should-not (f-hidden? "foo"))
+   (should-not (f-hidden? "bar"))))
+
+;;; f-empty?
+
+(ert-deftest f-empty?-test/empty-file-is-empty ()
+  (with-playground
+   (f-write-text "" 'utf-8 "foo.txt")
+   (should (f-empty? "foo.txt"))))
+
+(ert-deftest f-empty?-test/file-containing-text-is--not-empty ()
+  (with-playground
+   (f-write-text "hello" 'utf-8 "derp.txt")
+   (should-not (f-empty? "derp.txt"))))
+
+(ert-deftest f-empty?-test/empty-directory-is-empty ()
+  (with-playground
+   (f-mkdir "bar")
+   (should (f-empty? "bar"))))
+
+(ert-deftest f-empty?-test/directory-containing-files-is--not-empty ()
+  (with-playground
+   (f-mkdir "bar")
+   (f-write-text "hello" 'utf-8 "bar/derp.txt")
+   (should-not (f-empty? "bar"))))
 
 (provide 'f-predicates-test)
 
