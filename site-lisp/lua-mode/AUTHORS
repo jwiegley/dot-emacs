@@ -1,0 +1,42 @@
+Thanks to:
+
+- Thanks to xristos <xristos@sdf.lonestar.org> for subprocess buffer handling
+  fixes (tiny change)
+
+- Thanks to Juergen Fuhrmann <juergen.fuhrmann@web.de> (tiny change)
+
+- Thanks to guoxx <guoxx@me.com> for imenu expression extension (tiny change).
+
+- Vedat Hallac <github.com/vhallac> for sharing some of his fixes and updates
+  to core indentation logics.
+
+- Julien Danjou <julien@danjou.info> for a patch deriving lua-mode from
+  prog-mode with define-derived-mode
+
+- Rafael Sanchez <rafael@cornerdimension.com> for patch adding lua-mode to
+  interpreter-mode-alist.
+
+- Thanks to Leonardo Etcheverry <leo@kalio.net> for enabling narrow-to-defun
+  and fixing lua-send-defun.
+
+- Thanks to Tobias Polzin <polzin@gmx.de> for function indenting patch: Indent
+  "(" like "{".
+
+- Thanks to Fabien <fleutot@gmail.com> for imenu patches.
+
+- Thanks to Simon Marshall <simonm@mail.esrin.esa.it> and Olivier Andrieu
+  <oandrieu@gmail.com> for font-lock patches.
+
+- Additional font-lock highlighting and indentation tweaks by Adam D. Moss
+  <adam@gimp.org>.
+
+- Juergen Hoetzel <juergen@hoetzel.info> for hard work maintaining lua-mode during
+  2006 -- 2010.
+
+- Reuben Thomas <rrt@sc3d.org> for hard work maintaining lua-mode during 2010
+  -- 2011.
+
+- Rolando Pereira <rolando_pereira@sapo.pt> for adding support for goto keyword
+
+Ideas:
+- thanks to d87 <github.com/d87> for an idea of highlighting lua builtins
