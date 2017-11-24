@@ -24,7 +24,7 @@ Markdown preview in emacs features:
 ## Run
 
 * `markdown-preview-mode` - start mode and open preview window.
-* `markdown-preview-open-browser` - open priview window for current buffer.
+* `markdown-preview-open-browser` - open preview window for current buffer.
 * `markdown-preview-cleanup` - cleanup running processes (close websocket and http servers).
 
 ## Customize
@@ -38,6 +38,8 @@ Markdown preview in emacs features:
 
 ## Remote access
 
+* Customize `markdown-preview-host` to `0.0.0.0`.
+* Customize `markdown-preview-http-host` to `0.0.0.0`.
 * Set `markdown-preview-auto-open` to `nil` to disable window opening at remote emacs server.
 * Start `markdown-preview-mode`. Http link for preview will be printed to `*Messages*` buffer. If not - run `markdown-preview-open-browser` to get the link printed.
 * Setup 2 tunnels for `0.0.0.0:7379` and `0.0.0.0:9000` and then open preview link in local browser. Adjust tunnels according to your custom `ws-port` and `http-port` settings.
