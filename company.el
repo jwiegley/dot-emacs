@@ -5,7 +5,7 @@
 ;; Author: Nikolaj Schumacher
 ;; Maintainer: Dmitry Gutov <dgutov@yandex.ru>
 ;; URL: http://company-mode.github.io/
-;; Version: 0.9.3
+;; Version: 0.9.4
 ;; Keywords: abbrev, convenience, matching
 ;; Package-Requires: ((emacs "24.3"))
 
@@ -260,6 +260,12 @@ If this many lines are not available, prefer to display the tooltip above."
 This doesn't include the margins and the scroll bar."
   :type 'integer
   :package-version '(company . "0.8.0"))
+
+(defcustom company-tooltip-maximum-width most-positive-fixnum
+  "The maximum width of the tooltip's inner area.
+This doesn't include the margins and the scroll bar."
+  :type 'integer
+  :package-version '(company . "0.9.5"))
 
 (defcustom company-tooltip-margin 1
   "Width of margin columns to show around the toolip."
@@ -809,6 +815,11 @@ means that `company-mode' is always turned on except in `message-mode' buffers."
 (defun company-uninstall-map ()
   (setf (cdar company-emulation-alist) nil))
 
+(defun company--company-command-p (keys)
+  "Checks if the keys are part of company's overriding keymap"
+  (or (equal [company-dummy-event] keys)
+      (lookup-key company-my-keymap keys)))
+
 ;; Hack:
 ;; Emacs calculates the active keymaps before reading the event.  That means we
 ;; cannot change the keymap from a timer.  So we send a bogus command.
@@ -822,6 +833,9 @@ means that `company-mode' is always turned on except in `message-mode' buffers."
 (defun company-input-noop ()
   (push 'company-dummy-event unread-command-events))
 
+;; To avoid warnings in Emacs < 26.
+(declare-function line-number-display-width "indent.c")
+
 (defun company--posn-col-row (posn)
   (let ((col (car (posn-col-row posn)))
         ;; `posn-col-row' doesn't work well with lines of different height.
@@ -832,11 +846,12 @@ means that `company-mode' is always turned on except in `message-mode' buffers."
     (when (and header-line-format (version< emacs-version "24.3.93.3"))
       ;; http://debbugs.gnu.org/18384
       (cl-decf row))
+    (when (bound-and-true-p display-line-numbers)
+      (cl-decf col (+ 2 (line-number-display-width))))
     (cons (+ col (window-hscroll)) row)))
 
 (defun company--col-row (&optional pos)
-  (let (display-line-numbers)
-    (company--posn-col-row (posn-at-point pos))))
+  (company--posn-col-row (posn-at-point pos)))
 
 (defun company--row (&optional pos)
   (cdr (company--col-row pos)))
@@ -958,7 +973,8 @@ matches IDLE-BEGIN-AFTER-RE, return it wrapped in a cons."
 (defun company--multi-backend-adapter-candidates (backends prefix separate)
   (let ((pairs (cl-loop for backend in backends
                         when (equal (company--prefix-str
-                                     (funcall backend 'prefix))
+                                     (let ((company-backend backend))
+                                       (company-call-backend 'prefix)))
                                     prefix)
                         collect (cons (funcall backend 'candidates prefix)
                                       (company--multi-candidates-mapper
@@ -1533,7 +1549,8 @@ prefix match (same case) will be prioritized."
             (if (or (symbolp backend)
                     (functionp backend))
                 (when (company--maybe-init-backend backend)
-                  (funcall backend 'prefix))
+                  (let ((company-backend backend))
+                    (company-call-backend 'prefix)))
               (company--multi-backend-adapter backend 'prefix)))
       (when prefix
         (when (company--good-prefix-p prefix)
@@ -1831,7 +1848,7 @@ each one wraps a part of the input string."
   (interactive)
   (company--search-assert-enabled)
   (company-search-mode 0)
-  (company--unread-last-input))
+  (company--unread-this-command-keys))
 
 (defun company-search-delete-char ()
   (interactive)
@@ -1975,7 +1992,7 @@ With ARG, move by that many elements."
   (if (> company-candidates-length 1)
       (company-select-next arg)
     (company-abort)
-    (company--unread-last-input)))
+    (company--unread-this-command-keys)))
 
 (defun company-select-previous-or-abort (&optional arg)
   "Select the previous candidate if more than one, else abort
@@ -1986,7 +2003,7 @@ With ARG, move by that many elements."
   (if (> company-candidates-length 1)
       (company-select-previous arg)
     (company-abort)
-    (company--unread-last-input)))
+    (company--unread-this-command-keys)))
 
 (defun company-next-page ()
   "Select the candidate one page further."
@@ -2054,7 +2071,7 @@ With ARG, move by that many elements."
                                       0)))
           t)
       (company-abort)
-      (company--unread-last-input)
+      (company--unread-this-command-keys)
       nil)))
 
 (defun company-complete-mouse (event)
@@ -2170,20 +2187,22 @@ character, stripping the modifiers.  That character must be a digit."
     (make-string len ?\ )))
 
 (defun company-safe-substring (str from &optional to)
-  (if (> from (string-width str))
-      ""
-    (with-temp-buffer
-      (insert str)
-      (move-to-column from)
-      (let ((beg (point)))
-        (if to
-            (progn
-              (move-to-column to)
-              (concat (buffer-substring beg (point))
-                      (let ((padding (- to (current-column))))
-                        (when (> padding 0)
-                          (company-space-string padding)))))
-          (buffer-substring beg (point-max)))))))
+  (let ((bis buffer-invisibility-spec))
+    (if (> from (string-width str))
+        ""
+      (with-temp-buffer
+        (setq buffer-invisibility-spec bis)
+        (insert str)
+        (move-to-column from)
+        (let ((beg (point)))
+          (if to
+              (progn
+                (move-to-column to)
+                (concat (buffer-substring beg (point))
+                        (let ((padding (- to (current-column))))
+                          (when (> padding 0)
+                            (company-space-string padding)))))
+            (buffer-substring beg (point-max))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -2229,10 +2248,12 @@ character, stripping the modifiers.  That character must be a digit."
             (< (- (window-height) row 2) company-tooltip-limit)
             (recenter (- (window-height) row 2))))))
 
-(defun company--unread-last-input ()
-  (when last-input-event
-    (clear-this-command-keys t)
-    (setq unread-command-events (list last-input-event))))
+(defun company--unread-this-command-keys ()
+  (when (> (length (this-command-keys)) 0)
+    (setq unread-command-events (nconc
+                                 (listify-key-sequence (this-command-keys))
+                                 unread-command-events))
+    (clear-this-command-keys t)))
 
 (defun company-show-doc-buffer ()
   "Temporarily show the documentation buffer for the selection."
@@ -2583,6 +2604,8 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
     ;; Account for the line continuation column.
     (when (zerop (cadr (window-fringes)))
       (cl-decf ww))
+    (when (bound-and-true-p display-line-numbers)
+      (cl-decf ww (+ 2 (line-number-display-width))))
     (unless (or (display-graphic-p)
                 (version< "24.3.1" emacs-version))
       ;; Emacs 24.3 and earlier included margins
@@ -2702,6 +2725,7 @@ If SHOW-VERSION is non-nil, show the version in the echo area."
                          width))))
 
     (setq width (min window-width
+                     company-tooltip-maximum-width
                      (max company-tooltip-minimum-width
                           (if company-show-numbers
                               (+ 2 width)

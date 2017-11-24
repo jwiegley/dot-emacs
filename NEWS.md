@@ -2,13 +2,24 @@
 
 ## Next
 
+* Native line numbers compatibility fixes.
+* New feature `company-tng`. It contains a frontend and some helper code.
+  The frontend triggers insertion of the candidate as soon as it's selected, so
+  you only need to press TAB. Add `(company-tng-configure-default)` to your
+  init script to give it a try.
+  ([#706](https://github.com/company-mode/company-mode/issues/706))
+* New user option `company-tooltip-maximum-width`.
+
+## 2017-07-15 (0.9.4)
+
+* Compatibility with native line numbers display in Emacs 26.
 * `company-files` allows completion after `=`.
 * `company-template` has a new shortcut (`C-d`) for deleting an unmodified
   template field while cursor is on it.
 
 ## 2017-03-29 (0.9.3)
 
-* New variable `company-echo-truncate-lines`.
+* New user option `company-echo-truncate-lines`.
 * `company-auto-complete` improved compatibility with `electric-pair-mode`.
 * Use of `overriding-terminal-local-map` does not disable completion.
 * `company-clang` and `company-gtags` can work over Tramp.
@@ -25,7 +36,7 @@
 * `company-indent-or-complete-common` skips trying to indent if
   `indent-line-function` is `indent-relative` or `indent-relative-maybe`.
 * Better visualization of search matches. New face `company-tooltip-search-selection`.
-* New variable `company-files-exclusions`.
+* New user option `company-files-exclusions`.
 * `company-next-page` and `company-previous-page` adhere to
   `company-selection-wrap-around` docstring more closely and only wrap around
   when the selection is at the start of the end of the list.
