@@ -45,6 +45,7 @@ The missing hash table library for Emacs.
 ### Accessing the hash table
 
 * `ht-get` `(table key default?)`
+* `ht-get*` `(table &rest keys)`
 * `ht-keys` `(table)`
 * `ht-values` `(table)`
 * `ht-items` `(table)`
@@ -115,6 +116,20 @@ This could be alternatively written as:
     (ht-set! greetings "Bob" "Hey Bob!")
     (ht-set! greetings "Chris" "Hi Chris!")
     (ht-get greetings name "Hello stranger!")))
+```
+
+Accessing nested hash tables:
+
+``` emacs-lisp
+(let ((alphabets (ht ("Greek" (ht (1 (ht ('letter "α")
+                                         ('name "alpha")))
+                                  (2 (ht ('letter "β")
+                                         ('name "beta")))))
+                     ("English" (ht (1 (ht ('letter "a")
+                                           ('name "A")))
+                                    (2 (ht ('letter "b")
+                                           ('name "B"))))))))
+  (ht-get* alphabets "Greek" 1 'letter))  ; => "α"
 ```
 
 ## Why?
