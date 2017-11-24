@@ -37,7 +37,8 @@
 
 (defgroup transpose-mark nil
   "Transpose Mark group."
-  :prefix "transpose-mark-")
+  :prefix "transpose-mark-"
+  :group 'editing)
 
 (defface transpose-mark-region-set-face
   '((t :background "#7700ff" :foreground "#ffffff"))
