@@ -1,4 +1,5 @@
 *.elc
+*.tar.xz
 *~
 /auto-save-list/
 /devel/
@@ -9,13 +10,15 @@
 /projectile-bookmarks.eld
 /projectile.cache
 /release*
-/site-lisp/site-lang/auctex/Makefile
-/site-lisp/site-lang/auctex/config.log
-/site-lisp/site-lang/auctex/config.status
-/site-lisp/site-lang/auctex/doc/Makefile
-/site-lisp/site-lang/auctex/latex/Makefile
-/site-lisp/site-lang/auctex/preview.el
-/site-lisp/site-lang/auctex/tex-site.el.out
+/site-lisp/auctex/Makefile
+/site-lisp/auctex/config.log
+/site-lisp/auctex/config.status
+/site-lisp/auctex/doc/Makefile
+/site-lisp/auctex/latex/Makefile
+/site-lisp/auctex/preview-latex.el
+/site-lisp/auctex/preview.el
+/site-lisp/auctex/tex-site.el
+/site-lisp/auctex/tex-site.el.out
 /smex-items
 archive/
 autoloads.el
@@ -38,5 +41,3 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
-/site-lisp/site-lang/auctex/preview-latex.el
-/site-lisp/site-lang/auctex/tex-site.el
