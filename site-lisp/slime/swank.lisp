@@ -437,6 +437,13 @@ corresponding values in the CDR of VALUE."
 (defmacro without-slime-interrupts (&body body)
   `(with-interrupts-enabled% nil ,body))
 
+(defun queue-thread-interrupt (thread function)
+  (interrupt-thread thread
+                    (lambda ()
+                      ;; safely interrupt THREAD
+                      (when (invoke-or-queue-interrupt function)
+                        (wake-thread thread)))))
+
 (defun invoke-or-queue-interrupt (function)
   (log-event "invoke-or-queue-interrupt: ~a~%" function)
   (cond ((not (boundp '*slime-interrupts-enabled*))
@@ -457,7 +464,8 @@ corresponding values in the CDR of VALUE."
                (t
                 (log-event "queue-interrupt: ~a~%" function)
                 (when *interrupt-queued-handler*
-                  (funcall *interrupt-queued-handler*)))))))
+                  (funcall *interrupt-queued-handler*))
+                t)))))
 
 
 ;;; FIXME: poor name?
@@ -692,6 +700,8 @@ If PACKAGE is not specified, the home package of SYMBOL is used."
   "Default value of :dont-close argument to start-server and
   create-server.")
 
+(defparameter *loopback-interface* "localhost")
+
 (defun start-server (port-file &key (style *communication-style*)
                                     (dont-close *dont-close*))
   "Start the server and write the listen port number to PORT-FILE.
@@ -703,18 +713,22 @@ This is the entry point for Emacs."
 (defun create-server (&key (port default-server-port)
                         (style *communication-style*)
                         (dont-close *dont-close*)
+                        interface
                         backlog)
   "Start a SWANK server on PORT running in STYLE.
 If DONT-CLOSE is true then the listen socket will accept multiple
-connections, otherwise it will be closed after the first."
-  (setup-server port #'simple-announce-function
-                style dont-close backlog))
+connections, otherwise it will be closed after the first.
+
+Optionally, an INTERFACE could be specified and swank will bind
+the PORT on this interface. By default, interface is \"localhost\"."
+  (let ((*loopback-interface* (or interface
+                                  *loopback-interface*)))
+    (setup-server port #'simple-announce-function
+                  style dont-close backlog)))
 
 (defun find-external-format-or-lose (coding-system)
   (or (find-external-format coding-system)
       (error "Unsupported coding system: ~s" coding-system)))
-
-(defparameter *loopback-interface* "127.0.0.1")
 
 (defmacro restart-loop (form &body clauses)
   "Executes FORM, with restart-case CLAUSES which have a chance to modify FORM's
@@ -784,7 +798,7 @@ first."
   (let ((secret (slime-secret)))
     (when secret
       (set-stream-timeout stream 20)
-      (let ((first-val (decode-message stream)))
+      (let ((first-val (read-packet stream)))
         (unless (and (stringp first-val) (string= first-val secret))
           (error "Incoming connection doesn't know the password.")))
       (set-stream-timeout stream nil))))
@@ -976,10 +990,7 @@ The processing is done in the extent of the toplevel restart."
     (if thread
         (etypecase connection
           (multithreaded-connection
-           (interrupt-thread thread
-                             (lambda ()
-                               ;; safely interrupt THREAD
-                               (invoke-or-queue-interrupt #'simple-break))))
+           (queue-thread-interrupt thread #'simple-break))
           (singlethreaded-connection
            (simple-break)))
         (encode-message (list :debug-condition (current-thread-id)
@@ -2357,8 +2368,8 @@ and no continue restart available.")))))
 
 ;;;; Compilation Commands.
 
-(defstruct (:compilation-result
-             (:type list) :named)
+(defstruct (compilation-result (:type list))
+  (type :compilation-result)
   notes
   (successp nil :type boolean)
   (duration 0.0 :type float)
@@ -3458,12 +3469,11 @@ Example:
 
 (defslimefun debug-nth-thread (index)
   (let ((connection *emacs-connection*))
-    (interrupt-thread (nth-thread index)
-                      (lambda ()
-                        (invoke-or-queue-interrupt
-                         (lambda ()
-                           (with-connection (connection)
-                             (simple-break))))))))
+    (queue-thread-interrupt
+     (nth-thread index)
+     (lambda ()
+       (with-connection (connection)
+         (simple-break))))))
 
 (defslimefun kill-nth-thread (index)
   (kill-thread (nth-thread index)))

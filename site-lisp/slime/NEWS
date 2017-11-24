@@ -1,4 +1,21 @@
 * SLIME News                                -*- mode: outline; coding: utf-8 -*-
+* 2.20 (August 2017)
+** Core
+*** More secure handling of ~/.slime-secret
+** SBCL backend
+*** Compatiblity with the latest SBCL and older SBCL.
+** ECL backend
+*** Numerous enhancements
+
+* 2.19 (February 2017)
+** Core
+*** Function `create-server` now accepts optional `interface` argument.
+Swank will bind the PORT on this interface. By default, interface is 127.0.0.1.
+This argument can be used, for example, to bind swank on IPv6 interface "::1".
+** SBCL backend
+*** Now swank can be bound to IPv6 interface and can work on IPv6-only machines.
+*** Compatiblity with the latest SBCL
+
 * 2.18 (May 2016)
 *** Mostly bug fixes and compatibility with newer implementations
 
