@@ -7,7 +7,7 @@
 ;; Maintainer: Vasilij Schneidermann <v.schneidermann@gmail.com>
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: data yaml
-;; Version: 0.0.12
+;; Version: 0.0.13
 
 ;; This file is not part of Emacs
 
@@ -117,7 +117,7 @@ that key is pressed to begin a block literal."
 
 ;; Constants
 
-(defconst yaml-mode-version "0.0.12" "Version of `yaml-mode'.")
+(defconst yaml-mode-version "0.0.13" "Version of `yaml-mode'.")
 
 (defconst yaml-blank-line-re "^ *$"
   "Regexp matching a line containing only (valid) whitespace.")
@@ -125,7 +125,7 @@ that key is pressed to begin a block literal."
 (defconst yaml-directive-re "^\\(?:--- \\)? *%\\(\\w+\\)"
   "Regexp matching a line contatining a YAML directive.")
 
-(defconst yaml-document-delimiter-re "^ *\\(?:---\\|[.][.][.]\\)"
+(defconst yaml-document-delimiter-re "^\\(?:---\\|[.][.][.]\\)"
   "Rexexp matching a YAML document delimiter line.")
 
 (defconst yaml-node-anchor-alias-re "[&*][a-zA-Z0-9_-]+"
@@ -190,7 +190,7 @@ that key is pressed to begin a block literal."
     (define-key map ">" 'yaml-electric-bar-and-angle)
     (define-key map "-" 'yaml-electric-dash-and-dot)
     (define-key map "." 'yaml-electric-dash-and-dot)
-    (define-key map [backspace] 'yaml-electric-backspace)
+    (define-key map (kbd "DEL") 'yaml-electric-backspace)
     map)
   "Keymap used in `yaml-mode' buffers.")
 
@@ -201,8 +201,10 @@ that key is pressed to begin a block literal."
     (modify-syntax-entry ?# "<" syntax-table)
     (modify-syntax-entry ?\n ">" syntax-table)
     (modify-syntax-entry ?\\ "\\" syntax-table)
-    (modify-syntax-entry ?- "w" syntax-table)
+    (modify-syntax-entry ?- "_" syntax-table)
     (modify-syntax-entry ?_ "_" syntax-table)
+    (modify-syntax-entry ?& "." syntax-table)
+    (modify-syntax-entry ?* "." syntax-table)
     (modify-syntax-entry ?\( "." syntax-table)
     (modify-syntax-entry ?\) "." syntax-table)
     (modify-syntax-entry ?\{ "(}" syntax-table)
@@ -426,7 +428,7 @@ cross boundaries of block literals."
 
 
 (defun yaml-mode-version ()
-  "Diplay version of `yaml-mode'."
+  "Display version of `yaml-mode'."
   (interactive)
   (message "yaml-mode %s" yaml-mode-version)
   yaml-mode-version)

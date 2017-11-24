@@ -1,3 +1,10 @@
+0.0.13 Fri Nov 4 22:23:34 CET 2016
+	* Derive from text-mode, adjustments to major mode definition (wasamasa)
+	* Inclusion of longstanding PRs (wasamasa)
+	* Improved comment highlighting (wasamasa)
+	* Add *.raml to auto-mode-alist (Ville Skyttä)
+	* Map both DEL and <backspace> to electric backspace (forcer)
+	* Change dashes from word to symbol syntax (forcer)
 0.0.12 Mon Aug 17 05:34:37 UTC 2015
         * Enable encrypted yamls. (rhoml)
         * Use font-lock-flush when available. (tarsius)
