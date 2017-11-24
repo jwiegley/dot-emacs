@@ -207,18 +207,22 @@
             (host localpart secure) ""))
       (should (equal (concat base-headers "\r\n")
                      (websocket-create-headers "ws://www.example.com/path"
-                                               "key" nil nil)))
+                                               "key" nil nil nil)))
       (should (equal (concat base-headers
                              "Sec-WebSocket-Protocol: protocol\r\n\r\n")
                      (websocket-create-headers "ws://www.example.com/path"
-                                               "key" '("protocol") nil)))
+                                               "key" '("protocol") nil nil)))
       (should (equal
                (concat base-headers
                        "Sec-WebSocket-Extensions: ext1; a; b=2, ext2\r\n\r\n")
                (websocket-create-headers "ws://www.example.com/path"
                                          "key" nil
                                          '(("ext1" . ("a" "b=2"))
-                                           ("ext2"))))))
+                                           ("ext2")) nil)))
+      (should (equal
+               (concat base-headers "Foo: bar\r\nBaz: boo\r\n\r\n")
+               (websocket-create-headers "ws://www.example.com/path"
+                                         "key" nil nil '(("Foo" . "bar") ("Baz" . "boo"))))))
     (flet ((url-cookie-generate-header-lines
             (host localpart secure)
             (should (equal host "www.example.com:123"))
@@ -226,7 +230,7 @@
             (should secure)
             "Cookie: foo=bar\r\n"))
       (should (equal (websocket-create-headers "wss://www.example.com:123/path"
-                                               "key" nil nil)
+                                               "key" nil nil nil)
                      (concat
                       "Host: www.example.com:123\r\n"
                       "Upgrade: websocket\r\n"
@@ -237,7 +241,7 @@
     (should
      (string-match
       "Host: www.example.com:123\r\n"
-      (websocket-create-headers "ws://www.example.com:123/path" "key" nil nil)))))
+      (websocket-create-headers "ws://www.example.com:123/path" "key" nil nil nil)))))
 
 (ert-deftest websocket-process-headers ()
   (flet ((url-cookie-handle-set-cookie
