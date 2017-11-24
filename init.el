@@ -638,8 +638,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;;; Separate configurations
 
 (use-package dot-org
-  :load-path ("site-lisp/site-org/org-mode/contrib/lisp"
-              "site-lisp/site-org/org-mode/lisp")
+  :load-path ("site-lisp/org-mode/contrib/lisp"
+              "site-lisp/org-mode/lisp")
   :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
@@ -655,8 +655,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (my-org-startup)))
 
 (use-package dot-gnus
-  :load-path ("site-lisp/site-gnus/gnus/lisp"
-              "site-lisp/site-gnus/gnus/contrib")
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
@@ -687,7 +685,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (use-package doxymacs
       :disabled t
-      :load-path "site-lisp/site-lang/doxymacs/lisp"
+      :load-path "site-lisp/doxymacs/lisp"
       :config
       (doxymacs-mode 1)
       (doxymacs-font-lock))
@@ -841,12 +839,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
 (use-package ace-window
-  :load-path "site-lisp/site-ivy/ace-window"
+  :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
-  :load-path "site-lisp/site-lang/agda/src/data/emacs-mode"
+  :load-path "site-lisp/agda/src/data/emacs-mode"
   :defines agda2-mode-map
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
@@ -898,7 +896,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (ascii-on))))
 
 (use-package auctex
-  :load-path "site-lisp/site-lang/auctex"
+  :load-path "site-lisp/auctex"
   :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
 
@@ -928,7 +926,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     :defer t
     :config
     (use-package preview)
-    (load (emacs-path "site-lisp/site-lang/auctex/style/minted"))
+    (load (emacs-path "site-lisp/auctex/style/minted"))
     (add-hook 'LaTeX-mode-hook 'reftex-mode)
     (info-lookup-add-help :mode 'LaTeX-mode
                           :regexp ".*"
@@ -944,7 +942,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package avy
   :demand t
-  :load-path "site-lisp/site-ivy/avy"
+  :load-path "site-lisp/avy"
   :bind ("M-h" . avy-goto-char)
   :config
   (avy-setup-default))
@@ -1042,7 +1040,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package moccur-edit))
 
 (use-package company
-  :load-path "site-lisp/site-company/company-mode"
+  :load-path "site-lisp/company-mode"
   :diminish company-mode
   :commands company-mode
   :config
@@ -1278,7 +1276,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package docker
   :defer 15
   :diminish docker-mode
-  :load-path "site-lisp/site-lang/docker-el"
+  :load-path "site-lisp/docker-el"
   :config
   (docker-global-mode)
   (use-package docker-images)
@@ -1288,7 +1286,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
-  :load-path "site-lisp/site-lang/dockerfile-mode")
+  :load-path "site-lisp/dockerfile-mode")
 
 (use-package dumb-jump
   :commands dumb-jump-mode
@@ -1499,7 +1497,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("M-T" . tags-search))
 
 (use-package eval-expr
-  :load-path "site-lisp/site-emacs-lisp/eval-expr"
+  :load-path "site-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
@@ -1528,7 +1526,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands fetchmail-mode)
 
 (use-package flycheck
-  :load-path "site-lisp/site-lang/flycheck"
+  :load-path "site-lisp/flycheck"
   :defer 5
   :config
   (defalias 'flycheck-show-error-at-point-soon
@@ -1566,10 +1564,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package git-link
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage)
-  :load-path "site-lisp/site-git/git-link")
+  :load-path "site-lisp/git-link")
 
 (use-package git-timemachine
-  :load-path "site-lisp/site-git/git-timemachine"
+  :load-path "site-lisp/git-timemachine"
   :commands git-timemachine)
 
 (use-package git-undo
@@ -1608,7 +1606,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (bind-key "S-<f11>" #'gud-finish)))
 
 (use-package haskell-mode-autoloads
-  :load-path "site-lisp/site-lang/haskell-mode"
+  :load-path "site-lisp/haskell-mode"
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
@@ -1707,7 +1705,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
   (use-package flycheck-haskell
-    :load-path "site-lisp/site-lang/flycheck-haskell"
+    :load-path "site-lisp/flycheck-haskell"
     :config
     (flycheck-haskell-setup)
     (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
@@ -1907,7 +1905,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package ivy
   :demand t
   :diminish ivy-mode
-  :load-path "site-lisp/site-ivy/swiper"
+  :load-path "site-lisp/swiper"
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
@@ -1934,7 +1932,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (use-package ivy-rich
     :demand t
-    :load-path "site-lisp/site-ivy/ivy-rich"
+    :load-path "site-lisp/ivy-rich"
     :config
     (ivy-set-display-transformer 'ivy-switch-buffer
                                  'ivy-rich-switch-buffer-transformer)
@@ -1974,10 +1972,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
     (use-package emacs-counsel-gtags
       :disabled t
-      :load-path "site-lisp/site-ivy/emacs-counsel-gtags")))
+      :load-path "site-lisp/emacs-counsel-gtags")))
 
 (use-package js2-mode
-  :load-path "site-lisp/site-lang/js2-mode"
+  :load-path "site-lisp/js2-mode"
   :mode "\\.js\\'"
   :config
   (setq flycheck-disabled-checkers
@@ -1991,9 +1989,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (bind-key "M-p" #'flycheck-previous-error js2-mode-map))
 
 (use-package json-mode
-  :load-path ("site-lisp/site-lang/json-mode"
-              "site-lisp/site-lang/json-reformat"
-              "site-lisp/site-lang/json-snatcher")
+  :load-path ("site-lisp/json-mode"
+              "site-lisp/json-reformat"
+              "site-lisp/json-snatcher")
   :mode "\\.json\\'"
   :config
   (use-package json-reformat)
@@ -2073,7 +2071,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         :diminish redshank-mode)
 
       (use-package elisp-slime-nav
-        :load-path "site-lisp/site-emacs-lisp/elisp-slime-nav"
+        :load-path "site-lisp/elisp-slime-nav"
         :diminish elisp-slime-nav-mode)
 
       (use-package edebug)
@@ -2180,7 +2178,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode "\\.ll\\'")
 
 (use-package lua-mode
-  :load-path "site-lisp/site-lang/lua-mode"
+  :load-path "site-lisp/lua-mode"
   :mode "\\.lua\\'"
   :interpreter ("lua" . lua-mode))
 
@@ -2311,11 +2309,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
         (lusty-sort-by-fuzzy-score filtered file-portion)))))
 
 (use-package macrostep
-  :load-path "site-lisp/site-emacs-lisp/macrostep"
+  :load-path "site-lisp/macrostep"
   :bind ("C-c e m" . macrostep-expand))
 
 (use-package magit
-  :load-path ("site-lisp/site-git/magit/lisp"
+  :load-path ("site-lisp/magit/lisp"
               "lib/with-editor")
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
@@ -2394,7 +2392,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package magithub
   :disabled t
-  :load-path "site-lisp/site-git/magithub"
+  :load-path "site-lisp/magithub"
   :after magit
   :config
   (magithub-feature-autoinject t))
@@ -2408,14 +2406,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (query-replace-regexp "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)" (quote (replace-eval-replacement concat "\\1\\2" (replace-quote (rot13 (match-string 4))))) nil (if (use-region-p) (region-beginning)) (if (use-region-p) (region-end)) nil nil)))
 
 (use-package markdown-mode
-  :load-path "site-lisp/site-lang/markdown-mode"
+  :load-path "site-lisp/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
   :init (setq markdown-command "multimarkdown")
   :config
   (use-package markdown-preview-mode
-    :load-path "site-lisp/site-lang/markdown-preview-mode"
+    :load-path "site-lisp/markdown-preview-mode"
     :config
     (setq markdown-preview-stylesheets
           '("https://github.com/dmarcotte/github-markdown-preview/blob/master/data/css/github.css"))))
@@ -2499,7 +2497,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/nix-buffer")
 
 (use-package nix-mode
-  :load-path "site-lisp/site-lang/nix-mode"
+  :load-path "site-lisp/nix-mode"
   :mode "\\.nix\\'")
 
 (use-package nroff-mode
@@ -2590,7 +2588,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ("C-. J" . paredit-join-with-previous-list)))
 
 (use-package pcre2el
-  :load-path "site-lisp/site-emacs-lisp/pcre2el"
+  :load-path "site-lisp/pcre2el"
   :commands (rxt-mode rxt-global-mode))
 
 (use-package pdf-tools
@@ -2635,7 +2633,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (use-package counsel-projectile
     :after ivy
     :if ivy-mode
-    :load-path "site-lisp/site-ivy/counsel-projectile"
+    :load-path "site-lisp/counsel-projectile"
     :config
     (counsel-projectile-on)
     (define-key projectile-mode-map [remap projectile-ag]
@@ -2643,9 +2641,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path ("site-lisp/site-lang/ProofGeneral/generic"
-              "site-lisp/site-lang/ProofGeneral/lib"
-              "site-lisp/site-lang/ProofGeneral/coq")
+  :load-path ("site-lisp/ProofGeneral/generic"
+              "site-lisp/ProofGeneral/lib"
+              "site-lisp/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
 
   :preface
@@ -2660,11 +2658,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   :config
   (use-package company-coq
-    :load-path "site-lisp/site-company/company-coq"
+    :load-path "site-lisp/company-coq"
     :commands company-coq-mode
     :preface
     (use-package company-math
-      :load-path "site-lisp/site-company/company-math"
+      :load-path "site-lisp/company-math"
       :defer t
       :preface
       (use-package math-symbol-lists
@@ -2735,7 +2733,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq ps-print-region-function 'ps-spool-to-pdf))
 
 (use-package python-mode
-  :load-path "site-lisp/site-lang/python-mode"
+  :load-path "site-lisp/python-mode"
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :config
@@ -2800,13 +2798,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode ("\\.rest\\'" . restclient-mode))
 
 (use-package ruby-mode
-  :load-path "site-lisp/site-lang/ruby-mode"
+  :load-path "site-lisp/ruby-mode"
   :mode ("\\.rb\\'" . ruby-mode)
   :interpreter ("ruby" . ruby-mode)
   :functions inf-ruby-keys
   :config
   (use-package yari
-    :load-path "site-lisp/site-lang/yari-with-buttons")
+    :load-path "site-lisp/yari-with-buttons")
 
   (defun my-ruby-smart-return ()
     (interactive)
@@ -2910,7 +2908,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-. -" . shift-number-down)))
 
 (use-package slime
-  :load-path "site-lisp/site-lang/slime"
+  :load-path "site-lisp/slime"
   :commands slime
   :init
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
@@ -3089,7 +3087,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/transpose-mark")
 
 (use-package tuareg
-  :load-path "site-lisp/site-lang/tuareg"
+  :load-path "site-lisp/tuareg"
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
@@ -3245,7 +3243,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              xray-window))
 
 (use-package yaml-mode
-  :load-path "site-lisp/site-lang/yaml-mode"
+  :load-path "site-lisp/yaml-mode"
   :mode ("\\.ya?ml\\'" . yaml-mode))
 
 (use-package yaoddmuse
@@ -3301,10 +3299,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package z3-mode
   :mode ("\\.rs\\'" . z3-mode)
   :commands z3-mode
-  :load-path "site-lisp/site-lang/z3-mode")
+  :load-path "site-lisp/z3-mode")
 
 (use-package zencoding-mode
-  :load-path "site-lisp/site-lang/zencoding-mode"
+  :load-path "site-lisp/zencoding-mode"
   :commands zencoding-mode
   :init
   (add-hook 'nxml-mode-hook 'zencoding-mode)
