@@ -1,10 +1,11 @@
-;;; pkg-info-dummy-package.el --- pkg-info: Dummy package for unit tests  -*- lexical-binding: t; -*-
+;;; pkg-info-dummy-original-version.el --- pkg-info: Dummy package for unit tests  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2013  Sebastian Wiesner
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; URL: https://github.com/lunaryorn/pkg-info.el
 ;; Version: 3.4.2.1
+;; X-Original-Version: 1.3
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,10 +26,10 @@
 
 ;;; Code:
 
-(defun pkg-info-dummy-package-dummy-function ()
+(defun pkg-info-dummy-original-version-dummy-function ()
   "Go ahead, nothing useful here."
   (message "Hello world"))
 
-(provide 'pkg-info-dummy-package)
+(provide 'pkg-info-dummy-original-version)
 
-;;; pkg-info-dummy-package.el ends here
+;;; pkg-info-dummy-original-version.el ends here
