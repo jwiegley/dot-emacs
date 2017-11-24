@@ -1,9 +1,9 @@
 language: python
 sudo: false
 env:
-  - EVM_EMACS=emacs-24.3-travis
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.1-travis
 before_install:
   - pip install -q flask tornado
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
