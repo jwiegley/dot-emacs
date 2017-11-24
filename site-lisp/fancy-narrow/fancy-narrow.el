@@ -69,7 +69,8 @@ Please include your emacs and fancy-narrow-region versions."
   (browse-url "https://github.com/Bruce-Connor/fancy-narrow/issues/new"))
 (defgroup fancy-narrow nil
   "Customization group for fancy-narrow."
-  :prefix "fancy-narrow-")
+  :prefix "fancy-narrow-"
+  :group 'editing)
 
 (defconst fancy-narrow--help-string
   "This region is blocked from editing while buffer is narrowed."
@@ -88,6 +89,15 @@ Please include your emacs and fancy-narrow-region versions."
 (defvar fancy-narrow--was-semantic nil
   "")
 (make-variable-buffer-local 'fancy-narrow--was-semantic)
+
+;;;###autoload
+(defvar fancy-narrow--beginning nil "Beginning position.")
+;;;###autoload
+(make-variable-buffer-local 'fancy-narrow--beginning)
+;;;###autoload
+(defvar fancy-narrow--end nil "End position.")
+;;;###autoload
+(make-variable-buffer-local 'fancy-narrow--end)
 
 ;;;###autoload
 (defun fancy-narrow-active-p ()
@@ -154,15 +164,6 @@ Please include your emacs and fancy-narrow-region versions."
         end-of-defun beginning-of-defun
         goto-char  eobp bobp))
 
-;;;###autoload
-(defvar fancy-narrow--beginning nil "")
-;;;###autoload
-(make-variable-buffer-local 'fancy-narrow--beginning)
-;;;###autoload
-(defvar fancy-narrow--end nil "")
-;;;###autoload
-(make-variable-buffer-local 'fancy-narrow--end)
-
 (defun fancy-narrow--motion-function (&rest ignore)
   "Keep point from going past the boundaries."
   (let ((inhibit-point-motion-hooks t))
@@ -196,8 +197,7 @@ strings don't deemphasize correctly.
 
 To widen the region again afterwards use `fancy-widen'."
   (interactive "r")
-  (let ((modified (buffer-modified-p))
-        (l (min start end))
+  (let ((l (min start end))
         (r (max start end)))
     ;; If it was already active, just become narrower.
     (when fancy-narrow--beginning (setq l (max l fancy-narrow--beginning)))
@@ -215,20 +215,19 @@ To widen the region again afterwards use `fancy-widen'."
         (setq fancy-narrow--was-semantic t)
         (semantic-mode 0)))
     (add-hook 'post-command-hook 'fancy-narrow--motion-function t t)
-    (add-text-properties (point-min) l fancy-narrow-properties-stickiness)
-    (fancy-narrow--propertize-region (point-min) l)
-    (fancy-narrow--propertize-region r (point-max))
-    (if fancy-narrow--wasnt-font-lock
-        (progn
-          (font-lock-fontify-region r (point-max))
-          (font-lock-fontify-region (point-min) l))
-      ;; We have to ask to refontify the region, because apparently we
-      ;; broke fontlocking somewhere above.
-      (font-lock-fontify-region l r))
-    (setq fancy-narrow--beginning (copy-marker l nil))
-    (setq fancy-narrow--end (copy-marker r t))
-    (unless modified
-      (set-buffer-modified-p nil))))
+    (with-silent-modifications
+      (add-text-properties (point-min) l fancy-narrow-properties-stickiness)
+      (fancy-narrow--propertize-region (point-min) l)
+      (fancy-narrow--propertize-region r (point-max))
+      (if fancy-narrow--wasnt-font-lock
+          (progn
+            (font-lock-fontify-region r (point-max))
+            (font-lock-fontify-region (point-min) l))
+        ;; We have to ask to refontify the region, because apparently we
+        ;; broke fontlocking somewhere above.
+        (font-lock-fontify-region l r))
+      (setq fancy-narrow--beginning (copy-marker l nil))
+      (setq fancy-narrow--end (copy-marker r t)))))
 
 (defvar fancy-narrow--overlay-left nil "")
 (make-variable-buffer-local 'fancy-narrow--overlay-left)
@@ -247,9 +246,7 @@ To widen the region again afterwards use `fancy-widen'."
 (defun fancy-widen ()
   "Undo narrowing from `fancy-narrow-to-region'."
   (interactive)
-  (let ((modified (buffer-modified-p))
-        (inhibit-point-motion-hooks t)
-        (inhibit-read-only t))
+  (with-silent-modifications
     (when fancy-narrow--wasnt-font-lock
       (setq fancy-narrow--wasnt-font-lock nil)
       (font-lock-mode -1))
@@ -265,8 +262,7 @@ To widen the region again afterwards use `fancy-widen'."
     (delete-overlay fancy-narrow--overlay-right)
     (remove-hook 'post-command-hook 'fancy-narrow--motion-function t)
     (remove-text-properties (point-min) (point-max) fancy-narrow-properties)
-    (remove-text-properties (point-min) (point-max) fancy-narrow-properties-stickiness)
-    (unless modified (set-buffer-modified-p nil))))
+    (remove-text-properties (point-min) (point-max) fancy-narrow-properties-stickiness)))
 
 (defcustom fancy-narrow-lighter " *"
   "Lighter used in the mode-line while the mode is active."
