@@ -213,7 +213,6 @@
 (use-package epc              :defer t :load-path "lib/emacs-epc")
 (use-package epl              :defer t :load-path "lib/epl")
 (use-package f                :defer t :load-path "lib/f-el")
-(use-package fame             :defer t :load-path "lib/fame")
 (use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
 (use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
 (use-package gh               :defer t :load-path "lib/gh-el")
@@ -240,7 +239,6 @@
 (use-package web-server       :defer t :load-path "lib/emacs-web-server")
 (use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
-(use-package working          :defer t :load-path "lib/working")
 (use-package xml-rpc          :defer t :load-path "lib/xml-rpc")
 
 ;;; Macros and functions
