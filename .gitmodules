@@ -3,13 +3,13 @@
 	url = git://github.com/jwiegley/use-package.git
 [submodule "site-lisp/magit"]
 	path = site-lisp/magit
-	url = git://github.com/jwiegley/magit
+	url = git://github.com/jwiegley/magit.git
 [submodule "lisp/alert"]
 	path = lisp/alert
-	url = git://github.com/jwiegley/alert
+	url = git://github.com/jwiegley/alert.git
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
-	url = git://github.com/jwiegley/initsplit
+	url = git://github.com/jwiegley/initsplit.git
 [submodule "lisp/emacs-pl"]
 	path = lisp/emacs-pl
 	url = git://github.com/jwiegley/emacs-pl.git
@@ -18,7 +18,7 @@
 	url = git://github.com/jwiegley/org-mode.git
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
-	url = git://github.com/jwiegley/haskell-config
+	url = git://github.com/jwiegley/haskell-config.git
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = git://github.com/jwiegley/haskell-mode.git
@@ -27,13 +27,13 @@
 	url = git://github.com/jwiegley/emacs-async.git
 [submodule "site-lisp/company-coq"]
 	path = site-lisp/company-coq
-	url = git://github.com/cpitclaudel/company-coq
+	url = git://github.com/cpitclaudel/company-coq.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
-	url = git://github.com/joaotavora/yasnippet
+	url = git://github.com/joaotavora/yasnippet.git
 [submodule "site-lisp/ProofGeneral"]
 	path = site-lisp/ProofGeneral
-	url = git://github.com/psteckler/ProofGeneral
+	url = git://github.com/psteckler/ProofGeneral.git
 [submodule "site-lisp/agda"]
 	path = site-lisp/agda
 	url = git://github.com/agda/agda.git
@@ -42,7 +42,7 @@
 	url = git://github.com/flycheck/flycheck.git
 [submodule "lisp/git-annex-el"]
 	path = lisp/git-annex-el
-	url = git://github.com/jwiegley/git-annex-el
+	url = git://github.com/jwiegley/git-annex-el.git
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
 	url = git://github.com/jwiegley/erc-yank.git
