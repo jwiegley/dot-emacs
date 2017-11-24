@@ -2396,7 +2396,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :disabled t
   :load-path "site-lisp/site-git/magithub"
   :after magit
-  :config (magithub-feature-autoinject t))
+  :config
+  (magithub-feature-autoinject t))
 
 (use-package malyon
   :load-path "site-lisp/malyon"
