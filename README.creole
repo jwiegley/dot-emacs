@@ -107,6 +107,42 @@ mappings:
   :json-object-type 'list)
 }}}
 
+You can also upload files with web:
+
+{{{
+;; -*- lexical-binding: t -*-
+(require 'web)
+
+(let ((myfile (get-buffer-create "my-file.txt")))
+  (with-current-buffer myfile 
+     (insert "hello!!!!")
+     (write-file "my-file.txt"))
+  (web-http-post
+   (lambda (con hdr data) (message "the file was uploaded!"))
+   :url "http://localhost:9020"
+   :data `(("my-file" . ,myfile))
+   :mime-type web-multipart-mimetype))
+}}}
+
+The request MIME type has to be set to {{{web-multipart-mimetype}}}
+which is {{{multipart/form-data}}}. When set like that any buffer
+visiting a file used as a parameter value will be uploaded as a file.
+
+web uses Emacs' default MIME checking on files to try to establish the
+right //content-type// to send the file as. 
+
+Currently no extra encoding is done so binary files probably can't be
+sent.
+
+== Most wanted ==
+
+I'd really like web to not have to take a callback there and then but
+to be able to return some sort of future. The alteration would allow
+things like this:
+
+{{{
+(web-json-post :future :url "http://marmalade-repo.org/login")
+}}}
 
 == Installing ==
 
