@@ -20,60 +20,25 @@
 
 ;;; Commentary:
 
-;; Jump to issues from `magit-status'!
+;; Use a different repository context
 
 ;;; Code:
 
 (require 'magit)
 
-(defmacro magithub-with-proxy (remote &rest body)
-  "Using REMOTE as `origin', run BODY."
-  (declare (indent 1))
-  `(magithub--proxy-with-remote ,remote (lambda () ,@body)))
-
-(defconst magithub--proxy-remote-url-config
-  '("remote" "origin" "url")
-  "The config path to origin's URL.")
-
-(defun magithub--proxy-current-remote ()
-  "The current remote of `origin'."
-  (apply #'magit-get magithub--proxy-remote-url-config))
-
-(defun magithub--proxy-set-remote (remote)
-  "Set the remote of `origin'."
-  (apply #'magit-set remote magithub--proxy-remote-url-config))
-
-(defun magithub--proxy-with-remote (remote f)
-  "Using REMOTE as `origin', execute function F.
-F should take no arguments."
-  (if remote
-      (let ((real-origin-remote (magithub--proxy-current-remote)))
-        (prog2 (magithub--proxy-set-remote remote)
-            (condition-case err
-                (funcall f)
-              ;; if F throws errors, make sure to restore the real remote
-              (error (magithub--proxy-set-remote real-origin-remote)
-                     (error err)))
-          (magithub--proxy-set-remote real-origin-remote)))
-    (funcall f)))
-
-(defun magithub-proxy-default-proxy ()
-  "Get the default proxy for this repository."
-  (magit-get "magithub" "proxy"))
+(defun magithub-proxy-set (remote)
+  "Use REMOTE as the issue-tracker in this repository."
+  (interactive (list (magit-read-remote "Issue-tracking remote")))
+  (magit-set (unless (string= remote "origin") remote) "magithub" "proxy"))
 
 (defun magithub-proxy-set-default (remote)
-  "Set REMOTE as the proxy for this repository."
-  (interactive (list (ignore-errors
-                       (magit-read-url
-                        "Please enter the remote url to use for Magithub functionality"
-                        (or (magithub-proxy-default-proxy)
-                            (magit-get "remote" (magit-get "branch" "master" "remote") "url")
-                            (magithub--proxy-current-remote))))))
-  (if (or (string= remote "")
-          (string= remote (magithub--proxy-current-remote)))
-      (magit-set nil "magithub" "proxy")
-    (magit-set remote "magithub" "proxy"))
-  (magithub-issue-refresh))
+  "Use REMOTE as the default issue-tracker for all repositories.
+If no issue-tracker is defined on a per-repo basis, this tracker is used.
+
+This modifies global git-config."
+  (interactive "sDefault remote name of issue-tracker (applies to all repositories): ")
+  (and (magit-git-success "config" "--global" "magithub.proxy" remote)
+       remote))
 
 (provide 'magithub-proxy)
 ;;; magithub-proxy.el ends here

@@ -7,37 +7,42 @@
 ;;; Code:
 
 (require 'ert)
+(require 'magithub-core)
+(require 'ghub+)
 
-(add-to-list 'load-path ".")
+(setq ghubp-request-override-function
+      #'magithub-mock-ghub-request)
 
-(ert-deftest magithub-test-compile-core ()
-  (should (byte-compile-file "magithub-core.el")))
-(ert-deftest magithub-test-compile-issue ()
-  (should (byte-compile-file "magithub-issue.el")))
-(ert-deftest magithub-test-compile-ci ()
-  (should (byte-compile-file "magithub-ci.el")))
-(ert-deftest magithub-test-compile-main ()
-  (should (byte-compile-file "magithub.el")))
+(defmacro magithub-test-cache-with-new-cache (plist &rest body)
+  (declare (indent 1))
+  `(let ((magithub-cache-class-refresh-seconds-alist ',plist)
+         (magithub-cache--cache (make-hash-table)))
+     ,@body))
 
-(require 'magithub-cache)
 (ert-deftest magithub-test-cache ()
-  (should (equal (magithub-cache-value 1 :test)
-                 nil))
-  (should (equal (magithub-cache 1 :test '(list 1 2 3))
-                 '(1 2 3)))
-  (should (equal (magithub-cache-value 1 :test)
-                 '(1 2 3)))
-  (should (equal (magithub-cache-value 2 :test)
-                 nil))
-  (should (equal (magithub-cache 2 :test '(list 2 4 6))
-                 '(2 4 6)))
-  (should (equal (magithub-cache-value 2 :test)
-                 '(2 4 6)))
-  (should (equal (magithub-cache-value 2 :test-another)
-                 nil))
-  (should (equal (magithub-cache 2 :test-another 100)
-                 100))
-  (should (equal (magithub-cache-value 2 :test-another)
-                 100)))
+  (magithub-test-cache-with-new-cache ((:test . 30))
+    (should (equal t (magithub-cache :test t)))))
+
+(ert-deftest magithub-test-origin-parse ()
+  "Tests issue #105."
+  (let ((repo '((owner (login . "vermiculus"))
+                (name . "magithub"))))
+    (should (equal repo (magithub--url->repo "git@github.com:vermiculus/magithub.git")))
+    (should (equal repo (magithub--url->repo "git@github.com:vermiculus/magithub")))
+    (should (equal repo (magithub--url->repo "git+ssh://github.com/vermiculus/magithub")))
+    (should (equal repo (magithub--url->repo "ssh://git@github.com/vermiculus/magithub")))))
+
+(ert-deftest magithub-test-source-repo ()
+  "Test basic API functionality.
+This tests everything from checking API availability to
+determining that we're in a GitHub repository to actually making
+cached API calls."
+  (let ((magithub--api-last-checked (current-time)))
+    (should (magithub-source--sparse-repo))
+    (should (magithub-repo))
+    (should (let ((magithub-cache t))     ; force API call
+              (magithub-repo)))
+    (should (let ((magithub-cache nil))   ; force cache read
+              (magithub-repo)))))
 
 ;;; magithub-test.el ends here

@@ -5,8 +5,8 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: git, tools, vc
 ;; Homepage: https://github.com/vermiculus/magithub
-;; Package-Requires: ((emacs "24.4") (magit "2.8.0") (git-commit "20160821.1338") (with-editor "20160828.1025") (s "20160711.525"))
-;; Package-Version: 0.1
+;; Package-Requires: ((emacs "25") (magit "2.8") (s "1.12.0") (ghub+ "0.2") (git-commit "2.8") (markdown-mode "2.3"))
+;; Package-Version: 0.1.4
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,94 +23,72 @@
 
 ;;; Commentary:
 
-;; Magithub is an interface to GitHub using the `hub' utility [1].
+;; Magithub is a Magit-based interface to GitHub.
 ;;
-;; Integrated into Magit workflows, Magithub allows very easy, very
-;; basic GitHub repository management.  Supported actions include:
+;; Integrated into Magit workflows, Magithub allows easy GitHub
+;; repository management.  Supported actions include:
 ;;
 ;;  - pushing brand-new local repositories up to GitHub
 ;;  - creating forks of existing repositories
 ;;  - submitting pull requests upstream
 ;;  - viewing and creating issues
+;;  - seeing status checks
+;;
+;; all from the `magit-status' buffer.
 ;;
 ;; Press `H' in the status buffer to get started -- happy hacking!
-;;
-;; [1]: https://hub.github.com
-
-;; Requires hub 2.2.8
 
 ;;; Code:
 
 (require 'magit)
 (require 'magit-process)
 (require 'magit-popup)
-(require 'git-commit)
-(require 'with-editor)
 (require 'cl-lib)
 (require 's)
 (require 'dash)
+(require 'ghub+)
 
 (require 'magithub-core)
 (require 'magithub-issue)
-(require 'magithub-cache)
 (require 'magithub-ci)
 (require 'magithub-proxy)
+(require 'magithub-issue-post)
+(require 'magithub-issue-tricks)
+(require 'magithub-orgs)
+(require 'magithub-dash)
 
+;;;###autoload (autoload 'magithub-dispatch-popup "magithub" nil t)
 (magit-define-popup magithub-dispatch-popup
   "Popup console for dispatching other Magithub popups."
   'magithub-commands
-  :man-page "hub"
   :actions '("Actions"
+             (?d "Dashboard" magithub-dashboard)
              (?H "Browse on GitHub" magithub-browse)
-             (?c "Create" magithub-create-popup)
-             (?f "Fork" magithub-fork-popup)
-             (?i "Issues" magithub-issues-popup)
-             (?p "Submit a pull request" magithub-pull-request-popup)
-             (?x "Use a proxy repository for issues/PRs" magithub-proxy-set-default)
+             (?c "Create" magithub-create)
+             (?f "Fork" magithub-fork)
+             (?i "Issues" magithub-issue-new)
+             (?p "Submit a pull request" magithub-pull-request-new)
+             (?x "Use a proxy repository for issues/PRs" magithub-proxy-set)
+             (?O "Toggle online/offline" magithub-toggle-online)
              "Meta"
              (?` "Toggle Magithub-Status integration" magithub-enabled-toggle)
-             (?g "Refresh all GitHub data" magithub-refresh)
+             (?~ "Toggle CI status header" magithub-ci-toggle)
              (?& "Request a feature or report a bug" magithub--meta-new-issue)
              (?h "Ask for help on Gitter" magithub--meta-help)))
 
-(magit-define-popup-action 'magit-dispatch-popup
-  ?H "Magithub" #'magithub-dispatch-popup ?!)
-(define-key magit-status-mode-map
-  "H" #'magithub-dispatch-popup)
-
-(magit-define-popup magithub-create-popup
-  "Popup console for creating GitHub repositories."
-  'magithub-commands
-  :man-page "hub"
-  :switches '((?p "Mark as private" "-p"))
-  :actions '((?c "Create this repository" magithub-create))
-  :options '((?d "Description" "--description=")
-             (?h "Homepage" "--homepage=")))
-
-(magit-define-popup magithub-fork-popup
-  "Popup console for forking GitHub repositories."
-  'magithub-commands
-  :man-page "hub"
-  :switches '((?r "Don't add my fork as a remote in this repository" "--no-remote"))
-  :actions '((?f "Fork the project at origin" magithub-fork)))
-
-(magit-define-popup magithub-pull-request-popup
-  "Popup console for creating pull requests on GitHub repositories."
-  'magithub-commands
-  :man-page "hub"
-  :switches '((?f "Ignore unpushed commits" "-f")
-              (?o "Open in my browser" "-o"))
-  :options '((?b "Base branch" "--base=" magit-read-branch)
-             (?h "Head branch" "--head=" magit-read-branch))
-  :actions '((?P "Submit a pull request" magithub-pull-request))
-  :default-arguments '("-o"))
+(eval-after-load "magit"
+  '(progn
+     (magit-define-popup-action 'magit-dispatch-popup
+       ?H "Magithub" #'magithub-dispatch-popup ?!)
+     (define-key magit-status-mode-map
+       "H" #'magithub-dispatch-popup)))
 
 (defun magithub-browse ()
   "Open the repository in your browser."
   (interactive)
   (unless (magithub-github-repository-p)
     (user-error "Not a GitHub repository"))
-  (browse-url (car (magithub--command-output "browse" "-u"))))
+  (magithub-repo-visit (magithub-repo)))
 
 (defvar magithub-after-create-messages
   '("Don't be shy!"
@@ -118,97 +96,103 @@
   "One of these messages will be displayed after you create a
 GitHub repository.")
 
-(defun magithub-create ()
-  "Create the current repository on GitHub."
-  (interactive)
-  (message "Creating repository on GitHub...")
-  (magithub--command "create" (magithub-create-arguments))
-  (message "Creating repository on GitHub...done!  %s"
-           (nth (random (length magithub-after-create-messages))
-                magithub-after-create-messages))
-  (magit-push-popup))
+(defun magithub-create (repo &optional org)
+  "Create REPO on GitHub.
+
+If ORG is non-nil, it is an organization object under which to
+create the new repository.  You must be a member of this
+organization."
+  (interactive (if (or (not (magit-toplevel)) (magithub-github-repository-p))
+                   (list nil nil)
+                 (let* ((ghub-username (ghub--username)) ;performance
+                        (account (magithub--read-user-or-org))
+                        (priv (yes-or-no-p "Will this be a private repository? "))
+                        (reponame (magithub--read-repo-name account))
+                        (desc (read-string "Description (optional): ")))
+                   (list
+                    `((name . ,reponame)
+                      (private . ,priv)
+                      (description . ,desc))
+                    (unless (string= ghub-username account)
+                      `((login . ,account)))))))
+  (when (magithub-github-repository-p)
+    (error "Already in a GitHub repository"))
+  (if (not (magit-toplevel))
+      (when (y-or-n-p "Not inside a Git repository; initialize one here? ")
+        (magit-init default-directory)
+        (call-interactively #'magithub-create))
+    (with-temp-message "Creating repository on GitHub..."
+      (setq repo
+            (if org
+                (ghubp-post-orgs-org-repos org repo)
+              (ghubp-post-user-repos repo))))
+    (magithub--random-message "Creating repository on GitHub...done!")
+    (magit-status-internal default-directory)
+    (magit-remote-add "origin" (magithub-repo--clone-url repo))
+    (magit-refresh)
+    (when (magit-rev-verify "HEAD")
+      (magit-push-popup))))
+
+(defun magithub--read-user-or-org ()
+  "Prompt for an account with completion.
+
+Candidates will include the current user and all organizations,
+public and private, of which they're a part.  If there is only
+one candidate (i.e., no organizations), the single candidate will
+be returned without prompting the user."
+  (let ((user (ghub--username))
+        (orgs (ghubp-get-in-all '(login)
+                (magithub-orgs-list)))
+        candidates)
+    (setq candidates orgs)
+    (when user (push user candidates))
+    (cl-case (length candidates)
+      (0 (user-error "No accounts found"))
+      (1 (car candidates))
+      (t (completing-read "Account: " candidates nil t)))))
+
+(defun magithub--read-repo-name (for-user)
+  (let* ((prompt (format "Repository name: %s/" for-user))
+         (dirnam (file-name-nondirectory (substring default-directory 0 -1)))
+         (valid-regexp (rx bos (+ (any alnum "." "-" "_")) eos))
+         ret)
+    ;; This is not very clever, but it gets the job done.  I'd like to
+    ;; either have instant feedback on what's valid or not allow users
+    ;; to enter invalid names at all.  Could code from Ivy be used?
+    (while (not (s-matches-p valid-regexp (setq ret (read-string prompt nil nil dirnam))))
+      (message "invalid name")
+      (sit-for 1))
+    ret))
+
+(defun magithub--random-message (&optional prefix)
+  (let ((msg (nth (random (length magithub-after-create-messages))
+                  magithub-after-create-messages)))
+    (if prefix (format "%s  %s" prefix msg) msg)))
 
 (defun magithub-fork ()
   "Fork 'origin' on GitHub."
   (interactive)
   (unless (magithub-github-repository-p)
     (user-error "Not a GitHub repository"))
-  (when (and (s-equals? "master" (magit-get-current-branch))
-             (y-or-n-p "Looks like master is checked out.  Create a new branch? "))
-    (call-interactively #'magit-branch-spinoff))
-  (message "Forking repository on GitHub...")
-  (magithub--command "fork" (magithub-fork-arguments))
-  (message "Forking repository on GitHub...done"))
-
-(defun magithub-pull-request ()
-  "Open a pull request to 'origin' on GitHub."
-  (interactive)
-  (unless (magithub-github-repository-p)
-    (user-error "Not a GitHub repository"))
-  (let (just-pushed)
-    (unless (magit-get-push-remote)
-      (when (y-or-n-p "No push remote defined; push now? ")
-        (call-interactively #'magit-push-current-to-pushremote)
-        (setq just-pushed t)))
-    (unless (magit-get-push-remote)
-      (user-error "No push remote defined; aborting pull request"))
-    (unless just-pushed
-      (when (y-or-n-p "Do you want to push any more commits? ")
-        (magit-push-popup)))
-    (magithub--command-with-editor "pull-request" (magithub-pull-request-arguments))))
-
-(defface magithub-issue-warning-face
-  '((((class color)) :inherit warning))
-  "Face used to call out warnings in the issue-create buffer."
-  :group 'magithub)
-
-(defun magithub-setup-edit-buffer ()
-  "Perform setup on a hub edit buffer."
-  (with-editor-mode 1)
-  (git-commit-setup-font-lock)
-  (font-lock-add-keywords
-   nil `((,magithub-hash-regexp (0 'magit-hash t))) t)
-  (add-hook
-   (make-local-variable 'with-editor-pre-finish-hook)
-   (lambda ()
-     (let ((fill-column (point-max)))
-       (fill-region (point-min) (point-max))))))
-
-(defun magithub-setup-new-issue-buffer ()
-  "Setup the buffer created for issue-posting."
-  (font-lock-add-keywords
-   nil '(("^# \\(Creating issue for .*\\)" (1 'magithub-issue-warning-face t))) t))
-
-(defvar magithub--file-types
-  '(("ISSUE_EDITMSG" . issue)
-    ("PULLREQ_EDITMSG" . pull-request))
-  "File types -- car is the basename of a file in /.git/, cdr is
-  one of `issue' or `pull-request'.")
-
-(defun magithub--edit-file-type (path)
-  "Determine the type of buffer this is (if it was created by hub).
-Returns `issue', `pull-request', or another non-nil value if
-created by hub.
-
-This function will return nil for matches to
-`git-commit-filename-regexp'."
-  (when (and path (magit-inside-gitdir-p))
-    (let ((basename (file-name-base path)))
-      (and (not (s-matches? git-commit-filename-regexp basename))
-           (cdr (assoc basename magithub--file-types))))))
-
-(defun magithub-check-buffer ()
-  "If this is a buffer created by hub, perform setup."
-  (-when-let (filetype (magithub--edit-file-type buffer-file-name))
-    (magithub-setup-edit-buffer)
-    (when (eq filetype 'issue)
-      (magithub-setup-new-issue-buffer))))
-(add-hook 'find-file-hook #'magithub-check-buffer)
+  (let* ((repo (magithub-repo))
+         (fork (with-temp-message "Forking repository on GitHub..."
+                 (ghubp-post-repos-owner-repo-forks repo))))
+    (when (y-or-n-p "Create a spinoff branch? ")
+      (call-interactively #'magit-branch-spinoff))
+    (magithub--random-message
+     (let-alist repo (format "%s/%s forked!" .owner.login .name)))
+    (let-alist fork
+      (when (y-or-n-p (format "Add %s as a remote in this repository? " .owner.login))
+        (magit-remote-add .owner.login (magithub-repo--clone-url fork))
+        (magit-set .owner.login "branch" (magit-get-current-branch) "pushRemote")))
+    (let-alist repo
+      (when (y-or-n-p (format "Set upstream to %s? " .owner.login))
+        (call-interactively #'magit-set-branch*merge/remote)))))
 
 (defun magithub-clone--get-repo ()
   "Prompt for a user and a repository.
-Returns a list (USER REPOSITORY)."
-  (let ((user (getenv "GITHUB_USER"))
+Returns a sparse repository object."
+  (let ((user (ghub--username))
         (repo-regexp  (rx bos (group (+ (not (any " "))))
                           "/" (group (+ (not (any " ")))) eos))
         repo)
@@ -219,80 +203,89 @@ Returns a list (USER REPOSITORY)."
                    (if repo "(format is \"user/repo\"; C-g to quit)" "(user/repo)")
                    ": ")
                   (when user (concat user "/")))))
-    (list (match-string 1 repo)
-          (match-string 2 repo))))
+    `((owner (login . ,(match-string 1 repo)))
+      (name . ,(match-string 2 repo)))))
 
 (defcustom magithub-clone-default-directory nil
   "Default directory to clone to when using `magithub-clone'.
-When nil, the current directory at invocation is used.")
+When nil, the current directory at invocation is used."
+  :type 'directory
+  :group 'magithub)
 
-(defun magithub-clone (user repo dir)
-  "Clone USER/REPO.
+(defun magithub-clone (repo dir)
+  "Clone REPO.
 Banned inside existing GitHub repositories if
-`magithub-clone-default-directory' is nil."
+`magithub-clone-default-directory' is nil.
+
+See also `magithub-preferred-remote-method'."
   (interactive (if (and (not magithub-clone-default-directory)
                         (magithub-github-repository-p))
                    (user-error "Already in a GitHub repo")
-                 (let ((args (magithub-clone--get-repo)))
-                   (append args (list (read-directory-name
-                                       "Destination: "
-                                       (if (s-ends-with? "/" magithub-clone-default-directory)
-                                           magithub-clone-default-directory
-                                         (concat magithub-clone-default-directory "/"))
-                                       nil nil
-                                       (cadr args)))))))
+                 (let ((repo (magithub-clone--get-repo)))
+                   (condition-case _
+                       (let* ((repo (ghubp-get-repos-owner-repo repo))
+                              (dirname (read-directory-name
+                                        "Destination: "
+                                        magithub-clone-default-directory
+                                        (alist-get 'name repo))))
+                         (list repo dirname))
+                     (ghub-404 (let-alist repo
+                                 (user-error "Repository %s/%s does not exist"
+                                             .owner.login .name)))))))
+  ;; Argument validation
+  (unless (called-interactively-p 'any)
+    (condition-case _
+        (setq repo (ghubp-get-repos-owner-repo repo))
+      (ghub-404
+       (let-alist repo
+         (user-error "Repository %s/%s does not exist"
+                     .owner.login .name)))))
   (unless (file-writable-p dir)
     (user-error "%s does not exist or is not writable" dir))
-  (when (y-or-n-p (format "Clone %s/%s to %s? " user repo dir))
-    (let* ((proc (start-process "*magithub-clone*" "*magithub-clone*"
-                                magithub-hub-executable
-                                "clone"
-                                (format "%s/%s" user repo)
-                                dir)))
-      (set-process-sentinel
-       proc
-       (lambda (p event)
-         (setq event (s-trim event))
-         (cond ((string= event "finished")
-                (run-with-idle-timer 1 nil #'magithub-clone--finished user repo dir))
-               (t (pop-to-buffer (process-buffer p))
-                  (message "unhandled event: %s => %s" (process-command p) event))))))))
+
+  (let-alist repo
+    (when (y-or-n-p (format "Clone %s to %s? " .full_name dir))
+      (let ((default-directory dir)
+            (magit-clone-set-remote.pushDefault t)
+            set-upstream set-proxy)
+
+        (setq set-upstream
+              (and .fork (y-or-n-p (format (concat "This repository appears to be a fork of %s; "
+                                                   "set upstream to that remote?")
+                                           .parent.full_name)))
+              set-proxy
+              (and set-upstream (y-or-n-p "Use upstream as a proxy for issues, etc.? ")))
+
+        (condition-case _
+            (progn
+              (mkdir dir t)
+              (magit-clone (magithub-repo--clone-url repo) dir)
+              (while (process-live-p magit-this-process)
+                (magit-process-buffer)
+                (message "Waiting for clone to finish...")
+                (sit-for 1))
+              (when set-upstream
+                (let ((upstream "upstream"))
+                  (when set-proxy (magithub-proxy-set upstream))
+                  (magit-remote-add upstream (magithub-repo--clone-url .parent))
+                  (magit-set-branch*merge/remote (magit-get-current-branch) upstream)))))))))
 
 (defun magithub-clone--finished (user repo dir)
   "After finishing the clone, allow the user to jump to their new repo."
   (when (y-or-n-p (format "%s/%s has finished cloning to %s.  Open? " user repo dir))
-    (magit-status (s-chop-suffix "/" dir))))
-
-(defvar magithub-features nil
-  "An alist of feature-symbols to Booleans.
-When a feature symbol maps to non-nil, that feature is considered
-'loaded'.  Thus, to disable all messages, prepend '(t . t) to
-this list.
-
-Example:
-
-    ((pull-request-merge . t) (other-feature . nil))
-
-signals that `pull-request-merge' is a loaded feature and
-`other-feature' has not been loaded and will not be loaded.
-
-To enable all features, see `magithub-feature-autoinject'.
-
-See `magithub-feature-list' for a list and description of features.")
-
-(defconst magithub-feature-list
-  '(pull-request-merge pull-request-checkout)
-  "All magit-integration features of Magithub.
-
-`pull-request-merge'
-Apply patches from pull request
-
-`pull-request-checkout'
-Checkout pull requests as new branches")
+    (magit-status-internal (s-chop-suffix "/" dir))))
 
 (defun magithub-feature-autoinject (feature)
   "Configure FEATURE to recommended settings.
-If FEATURE is `all' ot t, all known features will be loaded."
+If FEATURE is `all' or t, all known features will be loaded.
+
+Features:
+
+- `pull-request-merge'
+  (`magithub-pull-request-merge' inserted into `magit-am-popup')
+
+- `pull-request-checkout'
+  (`magithub-pull-request-checkout' inserted into `magit-branch-popup')"
   (if (memq feature '(t all))
       (mapc #'magithub-feature-autoinject magithub-feature-list)
     (cl-case feature
@@ -308,24 +301,13 @@ If FEATURE is `all' ot t, all known features will be loaded."
       (t (user-error "unknown feature %S" feature)))
     (add-to-list 'magithub-features (cons feature t))))
 
-(defun magithub-feature-check (feature)
-  "Check if a Magithub FEATURE has been configured.
-See `magithub-features'."
-  (if (listp magithub-features)
-      (let* ((p (assq feature magithub-features)))
-        (if (consp p) (cdr p)
-          (cdr (assq t magithub-features))))
-    magithub-features))
-
-(defun magithub-feature-maybe-idle-notify (&rest features)
-  "Notify user if any of FEATURES are not yet configured."
-  (unless (-all? #'magithub-feature-check features)
-    (let ((m "Magithub features not configured: %S")
-          (s "see variable `magithub-features' to turn off this message"))
-      (run-with-idle-timer
-       1 nil (lambda ()
-               (message (concat m "; " s) features)
-               (add-to-list 'magithub-features '(t . t) t))))))
+(defun magithub-visit-thing ()
+  (interactive)
+  (user-error
+   (with-temp-buffer
+     (use-local-map magithub-map)
+     (substitute-command-keys
+      "Deprecated; use `\\[magithub-browse-thing]' instead"))))
 
 (provide 'magithub)
 ;;; magithub.el ends here
