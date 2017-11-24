@@ -1,11 +1,11 @@
 ;;; visual-regexp-steroids.el --- Extends visual-regexp to support other regexp engines
 
-;; Copyright (C) 2013-2016 Marko Bencun
+;; Copyright (C) 2013-2017 Marko Bencun
 
 ;; Author: Marko Bencun <mbencun@gmail.com>
 ;; URL: https://github.com/benma/visual-regexp-steroids.el/
-;; Version: 1.0
-;; Package-Requires: ((visual-regexp "1.0"))
+;; Version: 1.1
+;; Package-Requires: ((visual-regexp "1.1"))
 ;; Keywords: external, foreign, regexp, replace, python, visual, feedback
 
 ;; This file is part of visual-regexp-steroids
@@ -24,6 +24,7 @@
 ;; along with visual-regexp-steroids.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; WHAT'S NEW
+;; 1.1: Add new engine: emacs-plain.
 ;; 1.0: Make compatible with visual-regexp 1.0.
 ;; 0.9: Fix warnings regarding free variables.
 ;; 0.8: Added support for pcre2el as a new engine.
@@ -85,7 +86,7 @@ See also: http://docs.python.org/library/re.html#re.I"
 
 ;;; private variables
 
-(defconst vr--engines '(emacs pcre2el python))
+(defconst vr--engines '(emacs emacs-plain pcre2el python))
 
 (defvar vr--use-expression nil
   "Use expression instead of string in replacement.")
@@ -140,9 +141,12 @@ See also: http://docs.python.org/library/re.html#re.I"
     ""))
 
 (defadvice vr--get-replacement (around get-unmodified-replacement (replacement match-data i) activate)
-  (if (member vr/engine '(emacs pcre2el))
-      ad-do-it
-    (setq ad-return-value replacement)))
+  (cond ((member vr/engine '(emacs pcre2el))
+         ad-do-it)
+        ((eq vr/engine 'emacs-plain)
+         (let ((vr/plain t)) ad-do-it))
+        (t
+         (setq ad-return-value replacement))))
 
 (defadvice vr--get-regexp-string (around get-regexp-string (&optional for-display) activate)
   ad-do-it
@@ -281,36 +285,42 @@ and the message line."
 
 (defadvice vr--feedback-function (around feedback-around (regexp-string forward feedback-limit callback) activate)
   "Feedback function for search using an external command."
-  (if (member vr/engine '(emacs pcre2el))
-      ad-do-it
-    (setq ad-return-value
-          (vr--run-command
-           (format "%s matches --regexp %s %s %s"
-                   (vr--get-command)
-                   (shell-quote-argument regexp-string)
-                   (when feedback-limit (format "--feedback-limit %s" feedback-limit))
-                   (if forward "" "--backwards"))
-           (lambda (output)
-             (vr--parse-matches
-              output
-              callback))))))
+  (cond ((member vr/engine '(emacs pcre2el))
+         ad-do-it)
+        ((eq vr/engine 'emacs-plain)
+         (let ((vr/plain t)) ad-do-it))
+        (t
+         (setq ad-return-value
+               (vr--run-command
+                (format "%s matches --regexp %s %s %s"
+                        (vr--get-command)
+                        (shell-quote-argument regexp-string)
+                        (when feedback-limit (format "--feedback-limit %s" feedback-limit))
+                        (if forward "" "--backwards"))
+                (lambda (output)
+                  (vr--parse-matches
+                   output
+                   callback)))))))
 
 (defadvice vr--get-replacements (around get-replacements-around (feedback feedback-limit) activate)
   "Get replacements using an external command."
-  (if (member vr/engine '(emacs pcre2el))
-      ad-do-it
-    (setq ad-return-value
-          (vr--run-command
-           (format "%s replace %s %s %s --regexp %s --replace %s"
-                   (vr--get-command)
-                   (if feedback "--feedback" "")
-                   (if feedback-limit
-                       (format "--feedback-limit %s" feedback-limit)
-                     "")
-                   (if vr--use-expression "--eval" "")
-                   (shell-quote-argument (vr--get-regexp-string))
-                   (shell-quote-argument (vr--get-replace-string)))
-           'vr--parse-replace))))
+  (cond ((member vr/engine '(emacs pcre2el))
+         ad-do-it)
+        ((eq vr/engine 'emacs-plain)
+         (let ((vr/plain t)) ad-do-it))
+        (t
+         (setq ad-return-value
+               (vr--run-command
+                (format "%s replace %s %s %s --regexp %s --replace %s"
+                        (vr--get-command)
+                        (if feedback "--feedback" "")
+                        (if feedback-limit
+                            (format "--feedback-limit %s" feedback-limit)
+                          "")
+                        (if vr--use-expression "--eval" "")
+                        (shell-quote-argument (vr--get-regexp-string))
+                        (shell-quote-argument (vr--get-replace-string)))
+                'vr--parse-replace)))))
 
 (defun vr--select-engine ()
   (let ((default (symbol-name vr/engine))
