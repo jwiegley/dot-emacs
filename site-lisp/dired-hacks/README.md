@@ -1,17 +1,26 @@
-1. [dired-hacks](#)
-2. [Contribute!](#contribute!)
-3. [Packages](#packages)
-    1. [dired-hacks-utils](#dired-hacks-utils)
-    2. [dired-filter](#dired-filter)
-    3. [dired-avfs](#dired-avfs)
-    4. [dired-open](#dired-open)
-    5. [dired-rainbow](#dired-rainbow)
-    6. [dired-subtree](#dired-subtree)
-    7. [dired-ranger](#dired-ranger)
-    8. [dired-narrow](#dired-narrow)
-    9. [dired-list](#dired-list)
+* [dired-hacks](#dired-hacks--)
+* [Contribute!](#contribute)
+* [Packages](#packages)
+   * [dired-hacks-utils](#dired-hacks-utils)
+   * [dired-filter](#dired-filter)
+      * [Stack operations](#stack-operations)
+      * [Built-in filters](#built-in-filters)
+      * [Saved filters](#saved-filters)
+      * [Filter groups](#filter-groups)
+      * [Other features](#other-features)
+   * [dired-avfs](#dired-avfs)
+   * [dired-open](#dired-open)
+   * [dired-rainbow](#dired-rainbow)
+   * [dired-subtree](#dired-subtree)
+      * [Interactive functions](#interactive-functions)
+   * [dired-ranger](#dired-ranger)
+      * [Multi-stage copy/pasting of files](#multi-stage-copypasting-of-files)
+      * [Bookmarks](#bookmarks)
+   * [dired-narrow](#dired-narrow)
+   * [dired-list](#dired-list)
+   * [dired-collapse](#dired-collapse)
 
-# dired-hacks [![Build Status](https://travis-ci.org/Fuco1/dired-hacks.svg?branch=master)](https://travis-ci.org/Fuco1/dired-hacks) [![Paypal logo](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CEYP5YVHDRX8C)
+# dired-hacks [![Build Status](https://travis-ci.org/Fuco1/dired-hacks.svg?branch=master)](https://travis-ci.org/Fuco1/dired-hacks) [![Paypal logo](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A5PMGVKCQBT88) [![Patreon](https://c5.patreon.com/external/logo/logomarkOrange.svg)](https://www.patreon.com/user?u=3282358&ty=h)
 
 Collection of useful dired additions.  I don't want this become
 another `dired+`, so I'm splitting all the functionality into separate
@@ -26,7 +35,6 @@ Please note that only the packages that are listed in this readme are
 the other files are work-in-progress packages you could probably use,
 but it would be a bit more painful.
 
-<a name="contribute!" />
 # Contribute!
 
 If you want to support this project, you can do it in the following ways:
@@ -43,9 +51,9 @@ If you want to support this project, you can do it in the following ways:
   contribute valuable ideas for other programmers to implement. Simply
   [start new issue](https://github.com/Fuco1/dired-hacks/issues/new)
   on the tracker and submit your suggestion.
-* You can make a
-  [financial donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TAWNECQR3TTUY)
-  through PayPal.  If you like dired-hacks and can spare a modest
+* You can make a financial donation through
+  [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A5PMGVKCQBT88)
+  or [Patreon](https://www.patreon.com/user?u=3282358&ty=h).  If you like dired-hacks and can spare a modest
   amount on a donation, feel free to do so.  These donations are
   expressions of your gratitude and are used for my personal "rewards"
   (books, games, music etc.).  You can also gift me a game on
@@ -55,10 +63,8 @@ If you want to support this project, you can do it in the following ways:
   Regardless of the donations, dired-hacks will always be free both as
   in beer and as in speech.
 
-<a name="packages" />
 # Packages
 
-<a name="dired-hacks-utils" />
 ## dired-hacks-utils
 
 Set of utility functions used in all the `dired-hacks` packages.
@@ -69,7 +75,6 @@ This package also provides these interactive functions:
 * `dired-hacks-previous-file` - go to previous file, skipping empty
   and non-file lines
 
-<a name="dired-filter" />
 ## dired-filter
 
 The filtering system is designed after ibuffer: every dired
@@ -261,7 +266,6 @@ criteria than just extensions ;)
 You can clone the currently visible dired buffer by calling
 `dired-filter-clone-filtered-buffer`.
 
-<a name="dired-avfs" />
 ## dired-avfs
 
 Adds [avfs](http://avf.sourceforge.net/) support for seamless archive
@@ -276,7 +280,6 @@ Windows, sorry.
 Once the daemon is installed, run it with `mountavfs` and everything
 "Should Just Work™".
 
-<a name="dired-open" />
 ## dired-open
 
 While emacs already has the `auto-mode-alist`, this is often
@@ -320,7 +323,6 @@ If you write your own handler, make sure they do *not* throw errors
 but instead return nil if they can't proceed.  Please, don't forget to
 submit interesting handlers!
 
-<a name="dired-rainbow" />
 ## dired-rainbow
 
 This package adds more customizable highlighting for files in dired
@@ -356,7 +358,10 @@ Here are some example uses:
 (dired-rainbow-define-chmod executable-unix "Green" "-[rw-]+x.*")
 ```
 
-<a name="dired-subtree" />
+### Related packages
+
+There is a related package called [diredfl](https://github.com/purcell/diredfl/) which extracts the extra fontification rules from Dired+ and packages them in a modern Emacsy way.  They enhance things like the date face, permissions face and similar.  Check it out!
+
 ## dired-subtree
 
 The basic command to work with subdirectories in dired is `i`,
@@ -408,7 +413,6 @@ convenient prefix key map, for example `C-,`
 If you have package `dired-filter`, additional command
 `dired-subtree-apply-filter` is available.
 
-<a name="dired-ranger" />
 ## dired-ranger
 
 This package implements useful features present in the
@@ -466,7 +470,6 @@ These bookmarks are not persistent.  If you want persistent
 bookmarks use the bookmarks provided by emacs, see (info "(emacs)
 Bookmarks").
 
-<a name="dired-narrow" />
 ## dired-narrow
 
 This package provides live filtering of files in dired buffers.  In
@@ -481,11 +484,11 @@ bring it back to the original view, you can call `revert-buffer`
 During the filtering process, several special functions are available.
 You can customize the binding by changing `dired-narrow-map`.
 
-* `dired-narrow-next-file` (<kbd>\<down\></kbd>) - move the point to the next file
-* `dired-narrow-previous-file` (<kbd>\<up\></kbd>) - move the point to the previous
-  file
-* `dired-narrow-enter-directory` (<kbd>\<right\></kbd>) - descend into
-  the directory under point and immediately go back to narrowing mode
+* `dired-narrow-next-file` (<kbd>\<down\></kbd> or <kbd>C-n</kbd>) - move the point to the next file
+* `dired-narrow-previous-file` (<kbd>\<up\></kbd> or <kbd>C-p</kbd>) - move the point to the previous
+file
+* `dired-narrow-enter-directory` (<kbd>\<right\></kbd> or <kbd>C-j</kbd>) - descend into
+the directory under point and immediately go back to narrowing mode
 
 You can customize what happens after exiting the live filtering mode
 by customizing `dired-narrow-exit-action`.
@@ -514,7 +517,6 @@ the file name.  If the filter returns nil, the file is removed from
 the view.  As an inspiration, look at the built-in functions
 mentioned above.
 
-<a name="dired-list" />
 ## dired-list
 
 Produce a file listing with a shell incantation and make a dired
@@ -550,3 +552,50 @@ listings (patches and extensions welcome!), these are:
 * `dired-list-find-file`
 * `dired-list-find-name`
 * `dired-list-grep`
+
+## dired-collapse
+
+Often times we find ourselves in a situation where a single file
+or directory is nested in a chain of nested directories with no
+other content.  This is sometimes due to various mandatory
+layouts demanded by packaging tools or tools generating these
+deeply-nested "unique" paths to disambiguate architectures or
+versions (but we often use only one anyway).  If the user wants
+to access these directories they have to quite needlessly
+drill-down through varying number of "uninteresting" directories
+to get to the content.
+
+This minor mode is in main inspired by how GitHub renders these
+paths: if there is a chain of directories where each one only has
+one child, they are concatenated together and shown on the first
+level in this collapsed form.  When the user clicks this
+collapsed directory they are immediately brought to the deepest
+directory with some actual content.
+
+To enable or disable this functionality use `dired-collapse-mode` to
+toggle it for the current dired buffer.
+
+If the deepest directory contains only a single file this file is
+displayed instead of the last directory.  This way we can get
+directly to the file itself.  This is often helpful with config
+files which are stored in their own directories, for example in
+`~/.config/foo/config` and similar situations.
+
+The files or directories re-inserted in this manner will also
+have updated permissions, file sizes and modification dates so
+they truly correspond to the properties of the file being shown.
+
+The path to the deepest file is dimmed with the `shadow` face so
+that it does not distract but at the same time is still available
+for inspection.
+
+The mode is integrated with `dired-rainbow` so the nested files
+are properly colored according to user's rules.
+
+The directory without collapsed path might look something like this:
+
+![before](http://i.imgur.com/Xje5Nmo.png)
+
+After collapsing:
+
+![after](http://i.imgur.com/mm6gFbX.png)
