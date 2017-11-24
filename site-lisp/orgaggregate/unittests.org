@@ -1,6 +1,6 @@
 # -*- coding:utf-8; -*-
 #+TITLE: Unit Tests & Examples for Orgtbl Aggregate
-Copyright (C) 2013-2014  Thierry Banel
+Copyright (C) 2013, 2014, 2015, 2016  Thierry Banel
 
 org-aggregate is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,16 +34,16 @@ Run by typing C-c C-c on the first pipe of the source table.
 ** Source table
 No need to name it.
 
-#+ORGTBL: SEND aggtable1 orgtbl-to-aggregated-table :cols "sum($3) $2 sum($4) mean($5) sum($3*$3) min($5) max($5)"
-#+ORGTBL: SEND aggtable2 orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) sum(x*x) min(z) max(z)"
-#+ORGTBL: SEND aggtable3 orgtbl-to-aggregated-table :cols "p count() sum($4) mean(z) sum(z*z) list(x) min(y) max(y)"
+#+ORGTBL: SEND aggtable1 orgtbl-to-aggregated-table :cols "sum($3) $2 sum($4) mean($5) $3*$3 min($5) max($5)"
+#+ORGTBL: SEND aggtable2 orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) x*x min(z) max(z)"
+#+ORGTBL: SEND aggtable3 orgtbl-to-aggregated-table :cols "p count() sum($4) mean(z) sum(z*z) (x) min(y) max(y)"
 #+ORGTBL: SEND aggtable4 orgtbl-to-aggregated-table :cols "count() mean(x) mean(y) mean(z) meane(z) median(z)" :cond (not (equal f ""))
 #+ORGTBL: SEND aggtable5 orgtbl-to-aggregated-table :cols "count() mean(x) mean(y) mean(z) meane(z) median(z) hline"
 #+ORGTBL: SEND aggtable6 orgtbl-to-aggregated-table :cols "q prod(z) sdev(z) pvar(z) psdev(z)"
 #+ORGTBL: SEND aggtable7 orgtbl-to-aggregated-table :cols "q prod(z) cov(x,y) corr(z,z)"
 #+ORGTBL: SEND aggtable8 orgtbl-to-aggregated-table :cols "hline min(d) max(d) mean(d)"
-#+ORGTBL: SEND aggtable9 orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) sum(x*x) min(z) max(z)" :cond (equal hline "2")
-#+ORGTBL: SEND aggtablea orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) sum(x*x) min(z) max(z)" :cond (equal q "b")
+#+ORGTBL: SEND aggtable9 orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) x*x min(z) max(z)" :cond (equal hline "2")
+#+ORGTBL: SEND aggtablea orgtbl-to-aggregated-table :cols "sum(x) q sum(y) mean(z) x*x min(z) max(z)" :cond (equal q "b")
 | p | q |   x |    y | z | f | d                      |
 |---+---+-----+------+---+---+------------------------|
 | 1 | b |  12 |    8 | 9 | 0 | [2013-12-22 sun 09:01] |
@@ -65,28 +65,27 @@ No need to name it.
 ** Resulting tables
 
 #+BEGIN RECEIVE ORGTBL aggtable1
-| sum($3)    | $2 | sum($4)      |      mean($5) | sum($3*$3)        | min($5) | max($5) |
+| sum($3)    | $2 | sum($4)      |      mean($5) | $3*$3             | min($5) | max($5) |
 |------------+----+--------------+---------------+-------------------+---------+---------|
-| x          | q  | y            |             z | x^2               |       z |       z |
 | 2 b + 45   | b  | b + b^2 + 32 | 6.33333333333 | 2 b^2 + 6 b + 459 |       1 |       9 |
 | 2 a + 19.1 | a  | 11 a + 12    | 4.14285714286 | 2 a^2 + 78.01     |       1 |       8 |
 #+END RECEIVE ORGTBL aggtable1
 
 #+BEGIN RECEIVE ORGTBL aggtable2
-| sum(x)     | q | sum(y)       |       mean(z) | sum(x*x)          | min(z) | max(z) |
+| sum(x)     | q | sum(y)       |       mean(z) | x*x               | min(z) | max(z) |
 |------------+---+--------------+---------------+-------------------+--------+--------|
 | 2 b + 45   | b | b + b^2 + 32 | 6.33333333333 | 2 b^2 + 6 b + 459 |      1 |      9 |
 | 2 a + 19.1 | a | 11 a + 12    | 4.14285714286 | 2 a^2 + 78.01     |      1 |      8 |
 #+END RECEIVE ORGTBL aggtable2
 
 #+BEGIN RECEIVE ORGTBL aggtable3
-| p | count() |    sum($4) | mean(z) | sum(z*z) | list(x)            |         min(y) |         max(y) |
-|---+---------+------------+---------+----------+--------------------+----------------+----------------|
-| 1 |       3 |         12 |       7 |      161 | ("12" "3" "5.1")   |              2 |              8 |
-| 3 |       4 |         22 |    3.25 |       87 | ("12" "3" "5" "9") |              2 |              8 |
-| 2 |       2 |         10 |     3.5 |       29 | ("3" "9")          |              2 |              8 |
-| 4 |       2 |      a + b |       7 |      100 | ("a" "b")          |      min(a, b) |      max(a, b) |
-| 5 |       2 | 10 a + b^2 |       6 |       80 | ("a" "b+3")        | min(10 a, b^2) | max(10 a, b^2) |
+| p | count() |    sum($4) | mean(z) | sum(z*z) | (x)           |         min(y) |         max(y) |
+|---+---------+------------+---------+----------+---------------+----------------+----------------|
+| 1 |       3 |         12 |       7 |      161 | [12, 3, 5.1]  |              2 |              8 |
+| 3 |       4 |         22 |    3.25 |       87 | [12, 3, 5, 9] |              2 |              8 |
+| 2 |       2 |         10 |     3.5 |       29 | [3, 9]        |              2 |              8 |
+| 4 |       2 |      a + b |       7 |      100 | [a, b]        |      min(a, b) |      max(a, b) |
+| 5 |       2 | 10 a + b^2 |       6 |       80 | [a, b + 3]    | min(10 a, b^2) | max(10 a, b^2) |
 #+END RECEIVE ORGTBL aggtable3
 
 #+BEGIN RECEIVE ORGTBL aggtable4
@@ -118,27 +117,26 @@ No need to name it.
 #+END RECEIVE ORGTBL aggtable7
 
 #+BEGIN RECEIVE ORGTBL aggtable8
-| hline | min(d)                 | max(d)                 |                         mean(d) |
-|-------+------------------------+------------------------+---------------------------------|
-|     0 | <2011-09-24 sat 13:54> | <2014-02-26 wed 16:11> | <14089-07-17 sun. 11:55:00> / 7 |
-|     1 | <2012-12-25 tue 00:00> | <2015-09-14 mon 13:07> |                   735355.373438 |
-|     2 | <2015-10-02 fri 17:42> | <2016-01-28 thu 15:06> |                   735933.683334 |
+| hline | min(d)                  | max(d)                  |                     mean(d) |
+|-------+-------------------------+-------------------------+-----------------------------|
+|     0 | <2011-09-24 sam. 13:54> | <2014-02-26 mer. 16:11> | <14089-07-11 mon 11:55> / 7 |
+|     1 | <2012-12-25 mar. 00:00> | <2015-09-14 lun. 13:07> |               735354.373438 |
+|     2 | <2015-10-02 ven. 17:42> | <2016-01-28 jeu. 15:06> |               735932.683334 |
 #+END RECEIVE ORGTBL aggtable8
 
 #+BEGIN RECEIVE ORGTBL aggtable9
-| sum(x)  | q | sum(y)  | mean(z) | sum(x*x)        | min(z) | max(z) |
+| sum(x)  | q | sum(y)  | mean(z) | x*x             | min(z) | max(z) |
 |---------+---+---------+---------+-----------------+--------+--------|
 | 2 b + 3 | b | b + b^2 |       7 | 2 b^2 + 6 b + 9 |      6 |      8 |
 #+END RECEIVE ORGTBL aggtable9
 
 #+BEGIN RECEIVE ORGTBL aggtablea
-| sum(x)   | q | sum(y)       |       mean(z) | sum(x*x)          | min(z) | max(z) |
+| sum(x)   | q | sum(y)       |       mean(z) | x*x               | min(z) | max(z) |
 |----------+---+--------------+---------------+-------------------+--------+--------|
 | 2 b + 45 | b | b + b^2 + 32 | 6.33333333333 | 2 b^2 + 6 b + 459 |      1 |      9 |
 #+END RECEIVE ORGTBL aggtablea
 
 * Test PULL
-
 Pull = aggregated table knows how to compute itself,
        source table is unaware of the aggregation.
 
@@ -166,7 +164,7 @@ Not changed in any way by the aggregate process.
 ** Resulting tables
 Type C-c C-c within each to refresh
 
-Note the :formula parameter to add a new column after the aggregation has been computed
+Note the =:formula= parameter to add a new column after the aggregation has been computed.
 
 #+BEGIN: aggregate :table pulledtable :cols ("qû" "mean(zö)") :formula "$3=$2*100"
 | qû |      mean(zö) |           |
@@ -176,24 +174,24 @@ Note the :formula parameter to add a new column after the aggregation has been c
 #+TBLFM: $3=$2*100
 #+END
 
-Note the additional $8 column automatically computed after the aggregation
+Note the additional =$8= column automatically computed after the aggregation
 
-#+BEGIN: aggregate :table pulledtable :cols "sum(xà) qû sum(yÿ) mean(zö) sum(xà*xà) min(zö) max(zö)"
-| sum(xà)    | qû | sum(yÿ)      |      mean(zö) | sum(xà*xà)        | min(zö) | max(zö) |     |
+#+BEGIN: aggregate :table pulledtable :cols "sum(xà) qû sum(yÿ) mean(zö) xà*xà min(zö) max(zö)"
+| sum(xà)    | qû | sum(yÿ)      |      mean(zö) | xà*xà             | min(zö) | max(zö) |     |
 |------------+----+--------------+---------------+-------------------+---------+---------+-----|
 | 2 b + 45   | b  | b + b^2 + 32 | 6.33333333333 | 2 b^2 + 6 b + 459 |       1 |       9 |   5 |
 | 2 a + 19.1 | a  | 11 a + 12    | 4.14285714286 | 2 a^2 + 78.01     |       1 |       8 | 4.5 |
 #+TBLFM: $8=($6+$7)/2
 #+END
 
-#+BEGIN: aggregate :table pulledtable :cols "pé count() sum($4) mean(zö) sum(zö*zö) list(xà) min(yÿ) max(yÿ)"
-| pé | count() |    sum($4) | mean(zö) | sum(zö*zö) | list(xà)           |        min(yÿ) |        max(yÿ) |
-|----+---------+------------+----------+------------+--------------------+----------------+----------------|
-|  1 |       3 |         12 |        7 |        161 | ("12" "3" "5.1")   |              2 |              8 |
-|  3 |       4 |         22 |     3.25 |         87 | ("12" "3" "5" "9") |              2 |              8 |
-|  2 |       2 |         10 |      3.5 |         29 | ("3" "9")          |              2 |              8 |
-|  4 |       2 |      a + b |        7 |        100 | ("a" "b")          |      min(a, b) |      max(a, b) |
-|  5 |       2 | 10 a + b^2 |        6 |         80 | ("a" "b+3")        | min(10 a, b^2) | max(10 a, b^2) |
+#+BEGIN: aggregate :table pulledtable :cols "pé count() sum($4) mean(zö) sum(zö*zö) (xà) min(yÿ) max(yÿ)"
+| pé | count() |    sum($4) | mean(zö) | sum(zö*zö) | (xà)          |        min(yÿ) |        max(yÿ) |
+|----+---------+------------+----------+------------+---------------+----------------+----------------|
+|  1 |       3 |         12 |        7 |        161 | [12, 3, 5.1]  |              2 |              8 |
+|  3 |       4 |         22 |     3.25 |         87 | [12, 3, 5, 9] |              2 |              8 |
+|  2 |       2 |         10 |      3.5 |         29 | [3, 9]        |              2 |              8 |
+|  4 |       2 |      a + b |        7 |        100 | [a, b]        |      min(a, b) |      max(a, b) |
+|  5 |       2 | 10 a + b^2 |        6 |         80 | [a, b + 3]    | min(10 a, b^2) | max(10 a, b^2) |
 #+END
 
 #+BEGIN: aggregate :table pulledtable :cols "count() mean(xà) mean(yÿ) mean(zö)"
@@ -229,8 +227,7 @@ Note the additional $8 column automatically computed after the aggregation
 * Test :cond PUSH
 
 ** Source table
-
-Only the second group (5 rows) is considered with the test hline=1.
+Only the second group (5 rows) is considered with the test =hline=1=.
 
 #+ORGTBL: SEND aggtable15 orgtbl-to-aggregated-table :cond (equal hline "1") :cols "count() q mean(x) mean(y) mean(z) hline"
 | p | q |   x |    y | z |
@@ -261,12 +258,10 @@ Only the second group (5 rows) is considered with the test hline=1.
 #+END RECEIVE ORGTBL aggtable15
 
 * Test :cond PULL
-
-The :cond parameter takes a lisp expression
+The =:cond= parameter takes a lisp expression
 to filter-out resulting rows.
 
 ** Resulting tables
-
 Only consider rows for which column q have the value "b"
 
 #+BEGIN: aggregate :table pulledtable :cols "qû count() mean(zö)" :cond (equal qû "b")
@@ -275,8 +270,8 @@ Only consider rows for which column q have the value "b"
 | b  |       6 | 6.33333333333 |
 #+END
 
-Only consider rows for which column p is greater than 3.
-Note the string-to-number call, because cells always contain strings.
+Only consider rows for which column =p= is greater than =3=.
+Note the =string-to-number= call, because cells always contain strings.
 
 #+BEGIN: aggregate :table pulledtable :cols "qû count() mean(zö)" :cond (>= (string-to-number pé) 3)
 | qû | count() | mean(zö) |
@@ -285,7 +280,7 @@ Note the string-to-number call, because cells always contain strings.
 | a  |       4 |     3.75 |
 #+END
 
-Only consider rows for which the def column is not blank.
+Only consider rows for which the =def= column is not blank.
 
 #+BEGIN: aggregate :table pulledtable :cols "qû count() mean(zö) déf" :cond (not (equal déf ""))
 | qû | count() | mean(zö) | déf |
@@ -295,15 +290,14 @@ Only consider rows for which the def column is not blank.
 #+END
 
 * Test correlation
-
 Are two columns correlated ?
 
 ** Source table
 Contains columns correlated with some noise.
-y = 10* + noise             (x y are highly correlated)
-z = pure noise              (x z are not correlated)
-t = pure noise              (z t are not correlated)
-m = 10*x in reverse order   (x m are negative correlated)
+: y = 10* + noise             (x y are highly correlated)
+: z = pure noise              (x z are not correlated)
+: t = pure noise              (z t are not correlated)
+: m = 10*x in reverse order   (x m are negative correlated)
 
 #+TBLNAME: correlated
 | tag   |  x |       y |     z |     t |   m |
@@ -323,10 +317,10 @@ m = 10*x in reverse order   (x m are negative correlated)
 
 The following line was appended to the table to generate the random noise.
 It is thrown away to avoid recomputing new noise, and thus invalidating the test.
-#+TBLFM: $3=$2*10+random(1000)/500;%.3f::$4=random(1000)/10;%.2f::$5=random(1000)/10;%.2f
+: #+TBLFM: $3=$2*10+random(1000)/500;%.3f::$4=random(1000)/10;%.2f::$5=random(1000)/10;%.2f
 
 ** Resulting table
-Type C-c C-c within resulting table to refresh
+Type C-c C-c within resulting table to refresh.
 
 #+BEGIN: aggregate :table correlated :cols "tag corr(x,y) corr(x,z) corr(x,m) corr(z,t)"
 | tag   |      corr(x,y) |       corr(x,z) | corr(x,m) |      corr(z,t) |
@@ -336,9 +330,8 @@ Type C-c C-c within resulting table to refresh
 #+END
 
 * Test without headers
-
 What if the source table does not have headers?
-Then columns should be named $1, $2, $3 and so on.
+Then columns should be named =$1=, =$2=, =$3= and so on.
 
 ** Source table
 
@@ -372,12 +365,10 @@ Then columns should be named $1, $2, $3 and so on.
 #+END
 
 * Test hline
-
 Horizontal lines naturally create groups withing the source table.
-Those groups can be accessed through the "hline" virtual column.
+Those groups can be accessed through the =hline= virtual column.
 
 ** Source table
-
 It contains four groups separated by horizontal lines.
 
 #+TBLNAME: hlinetable
@@ -401,21 +392,19 @@ It contains four groups separated by horizontal lines.
 | 5 | b | b+3 |  b*b | 8 | 1 |
 
 ** Aggregated table
+The =hline= column groups data 
 
-The "hline" column groups data 
-
-#+BEGIN: aggregate :table hlinetable :cols "q hline count()" :cond (equal f "1")
-| q | hline | count() |
-|---+-------+---------|
-| a |     1 |       2 |
-| b |     2 |       2 |
-| a |     2 |       1 |
-| a |     3 |       1 |
-| b |     3 |       2 |
+#+BEGIN: aggregate :table hlinetable :cols "q hline vcount()" :cond (equal f "1")
+| q | hline | vcount() |
+|---+-------+----------|
+| a |     1 |        2 |
+| b |     2 |        2 |
+| a |     2 |        1 |
+| a |     3 |        1 |
+| b |     3 |        2 |
 #+END
 
 * Test dates
-
 Some (limited) handling of dates is available.
 
 ** Source table
@@ -434,19 +423,17 @@ Some (limited) handling of dates is available.
 ** Aggregated table
 
 #+BEGIN: aggregate :table datetable :cols "min(d) max(d) min(n) max(n) mean(d)"
-| min(d)                     | max(d)                     | min(n) | max(n) |       mean(d) |
-|----------------------------+----------------------------+--------+--------+---------------|
-| <2011-09-24 sat. 13:54:00> | <2014-02-26 wed. 16:11:00> |      1 |      8 | 735074.937066 |
+| min(d)                 | max(d)                 | min(n) | max(n) |       mean(d) |
+|------------------------+------------------------+--------+--------+---------------|
+| <2011-09-24 sat 13:54> | <2014-02-26 wed 16:11> |      1 |      8 | 735073.937066 |
 #+END
 
 * Test symbolic
-
 The Emacs Calc symbolic calculator is used by the aggregate package.
 Therefore, symbolic calculations are available.
 
 ** Source table
-
-Contains the variables x and a, which are not numeric.
+Contains the variables =x= and =a=, which are not numeric.
 
 #+TBLNAME: symtable
 | Day       | Color |  Level | Quantity |
@@ -467,8 +454,7 @@ Contains the variables x and a, which are not numeric.
 | Friday    | Blue  |     11 |        9 |
 
 ** Aggregated table
-
-Result is variabilized with x and a.
+Result is variabilized with =x= and =a=.
 
 #+BEGIN: aggregate :table "symtable" :cols "Day mean(Level) sum(Quantity)"
 | Day       | mean(Level)           | sum(Quantity) |
@@ -476,12 +462,11 @@ Result is variabilized with x and a.
 | Monday    | 2. x + 27.5           | a + 14        |
 | Thuesday  | 0.333333333334 x + 43 | 45            |
 | Wednesday | x / 3 + 18            | 54 - 6 a      |
-| Turdsday  | x / 3 + 43            | 4 a + 83      |
+| Turdsday  | x / 3 + 43.           | 4 a + 83      |
 | Friday    | 8                     | a + 22        |
 #+END
 
 * Test zero output
-
 The following test produces sums which happen to be zero, either
 because input is empty, or by chance (1-1 = 0).
 Zeros are no longer translated to empty cells.
@@ -500,23 +485,22 @@ Zeros are no longer translated to empty cells.
 | c    |       |
 | c    |       |
 
-#+BEGIN: aggregate :table resultzero :cols "Item sum(Value) mean(Value)"
-| Item | sum(Value) | mean(Value) |
-|------+------------+-------------|
-| a2   |          2 |           1 |
-| a0   |          0 |           0 |
-| b2   |          2 |           2 |
-| b0   |          0 |           0 |
-| c    |          0 |             |
+#+BEGIN: aggregate :table resultzero :cols "Item vsum(Value) vmean(Value)"
+| Item | vsum(Value) | vmean(Value) |
+|------+-------------+--------------|
+| a2   |           2 |            1 |
+| a0   |           0 |            0 |
+| b2   |           2 |            2 |
+| b0   |           0 |            0 |
+| c    |           0 |    vmean([]) |
 #+END
 
 * Test empty inputs
-
 Empty input cells are most often ignored.
 - This makes no difference for =sum= and =count=.
 - For =prod=, empty input do not result in zero.
 - For =mean=, only non-empty cells participate
-  (if empty cells were zero, they would count in the division)
+  (if empty cells were zero, they would count in the division).
 - For =min= and =max=, a possibly empty list of values is possible,
   resulting in =inf= or =-inf=
 
@@ -550,15 +534,15 @@ value with zero.
 | single-non-blank |    |     |
 | single-non-blank |    |     |
 
-#+BEGIN: aggregate :table "emptyinput" :cols "T sum(Q) prod(Q) list(Q)"
-| T                | sum(Q) | prod(Q) | list(Q)               |
-|------------------+--------+---------+-----------------------|
-| no-blank         |      6 |       6 | ("1" "2" "3")         |
-| 1-left-blank     |     17 |     168 | ("4" "" "6" "7")      |
-| all-blank        |      0 |       1 | ("" "" "")            |
-| 2-left-blank     |     50 |   24024 | ("11" "12" "13" "14") |
-| 1-dual-blank     |     32 |     255 | ("15" "" "17")        |
-| single-non-blank |     18 |      18 | ("18" "" "")          |
+#+BEGIN: aggregate :table "emptyinput" :cols "T sum(Q) prod(Q) (Q) min(Q) max(Q)"
+| T                | sum(Q) | prod(Q) | (Q)              | min(Q) | max(Q) |
+|------------------+--------+---------+------------------+--------+--------|
+| no-blank         |      6 |       6 | [1, 2, 3]        |      1 |      3 |
+| 1-left-blank     |     17 |     168 | [4, 6, 7]        |      4 |      7 |
+| all-blank        |      0 |       1 | []               |    inf |   -inf |
+| 2-left-blank     |     50 |   24024 | [11, 12, 13, 14] |     11 |     14 |
+| 1-dual-blank     |     32 |     255 | [15, 17]         |     15 |     17 |
+| single-non-blank |     18 |      18 | [18]             |     18 |     18 |
 #+END:
 
 #+BEGIN: aggregate :table "emptyinput" :cols "T mean(Q) meane(Q) gmean(Q) hmean(Q)"
@@ -566,10 +550,10 @@ value with zero.
 |------------------+---------------+----------------------------------+---------------+---------------|
 | no-blank         |             2 | 2 +/- 0.577350269189             | 1.81712059283 | 1.63636363636 |
 | 1-left-blank     | 5.66666666667 | 5.66666666667 +/- 0.881917103688 | 5.51784835276 | 5.36170212766 |
-| all-blank        |               |                                  |               |               |
+| all-blank        |     vmean([]) | vmeane([])                       |    vgmean([]) |    vhmean([]) |
 | 2-left-blank     |          12.5 | 12.5 +/- 0.645497224368          | 12.4497700445 |  12.399483871 |
 | 1-dual-blank     |            16 | 16 +/- 1                         | 15.9687194227 |       15.9375 |
-| single-non-blank |            18 |                                  |            18 |           18. |
+| single-non-blank |            18 | vmeane([18])                     |            18 |           18. |
 #+END:
 
 #+BEGIN: aggregate :table "emptyinput" :cols "T min(Q) max(Q)"
@@ -588,31 +572,233 @@ value with zero.
 |------------------+----------------+---------------+----------------|
 | no-blank         | 0.666666666667 |             1 | 0.816496580928 |
 | 1-left-blank     |  1.55555555556 | 1.52752523165 |  1.24721912893 |
-| all-blank        |                |               |                |
+| all-blank        |      vpvar([]) |     vsdev([]) |     vpsdev([]) |
 | 2-left-blank     |           1.25 | 1.29099444874 |  1.11803398875 |
 | 1-dual-blank     |              1 | 1.41421356237 |              1 |
-| single-non-blank |              0 |               |              0 |
+| single-non-blank |              0 |   vsdev([18]) |              0 |
 #+END:
 
-#+BEGIN: aggregate :table "emptyinput" :cols "T corr(Q,R) cov(Q,R) pcov(Q,R)"
-| T                |      corr(Q,R) |      cov(Q,R) |     pcov(Q,R) |
-|------------------+----------------+---------------+---------------|
-| no-blank         |              1 |            10 | 6.66666666667 |
-| 1-left-blank     | 0.625543242171 |           25. |         18.75 |
-| all-blank        |                |               |               |
-| 2-left-blank     |             1. | 16.6666666667 |          12.5 |
-| 1-dual-blank     |              1 |            20 |            10 |
-| single-non-blank |                |               |             0 |
+#+BEGIN: aggregate :table "emptyinput" :cols "T corr(Q,R);EN cov(Q,R);EN pcov(Q,R);EN"
+| T                |                corr(Q,R);EN |   cov(Q,R);EN |  pcov(Q,R);EN |
+|------------------+-----------------------------+---------------+---------------|
+| no-blank         |                           1 |            10 | 6.66666666667 |
+| 1-left-blank     |              0.625543242171 |           25. |         18.75 |
+| all-blank        | vcorr([0, 0, 0], [0, 0, 0]) |             0 |             0 |
+| 2-left-blank     |                          1. | 16.6666666667 |          12.5 |
+| 1-dual-blank     |                          1. | 863.333333333 | 575.555555556 |
+| single-non-blank |                           1 |          1080 |           720 |
 #+END:
 
-#+BEGIN: aggregate :table "emptyinput" :cols "T count() list(Q) list(R)"
-| T                | count() | list(Q)               | list(R)                   |
-|------------------+---------+-----------------------+---------------------------|
-| no-blank         |       3 | ("1" "2" "3")         | ("10" "20" "30")          |
-| 1-left-blank     |       4 | ("4" "" "6" "7")      | ("40" "50" "60" "70")     |
-| all-blank        |       3 | ("" "" "")            | ("" "" "")                |
-| 2-left-blank     |       4 | ("11" "12" "13" "14") | ("110" "120" "130" "140") |
-| 1-dual-blank     |       3 | ("15" "" "17")        | ("150" "" "170")          |
-| single-non-blank |       3 | ("18" "" "")          | ("180" "" "")             |
+#+BEGIN: aggregate :table "emptyinput" :cols "T count() (Q) (R)"
+| T                | count() | (Q)              | (R)                  |
+|------------------+---------+------------------+----------------------|
+| no-blank         |       3 | [1, 2, 3]        | [10, 20, 30]         |
+| 1-left-blank     |       4 | [4, 6, 7]        | [40, 50, 60, 70]     |
+| all-blank        |       3 | []               | []                   |
+| 2-left-blank     |       4 | [11, 12, 13, 14] | [110, 120, 130, 140] |
+| 1-dual-blank     |       3 | [15, 17]         | [150, 170]           |
+| single-non-blank |       3 | [18]             | [180]                |
 #+END:
 
+* Test empty and non-numeric
+
+#+tblname: nonnumeric
+|  X |
+|----|
+|  1 |
+|  2 |
+| aa |
+|    |
+|  4 |
+
+#+BEGIN: aggregate :table "nonnumeric" :cols "(X) (X);E (X);N (X);EN"
+| (X)           | (X);E              | (X);N        | (X);EN          |
+|---------------+--------------------+--------------+-----------------|
+| [1, 2, aa, 4] | [1, 2, aa, nan, 4] | [1, 2, 0, 4] | [1, 2, 0, 0, 4] |
+#+END:
+
+#+BEGIN: aggregate :table "nonnumeric" :cols "mean(X) mean(X);E mean(X);N mean(X);EN"
+| mean(X)       | mean(X);E | mean(X);N | mean(X);EN |
+|---------------+-----------+-----------+------------|
+| aa / 4 + 1.75 |       nan |      1.75 |        1.4 |
+#+END:
+
+Comparison with the spreadsheet:
+
+| 1                  |                 1 |
+| 2                  |                 2 |
+| aa                 |                aa |
+|                    |                   |
+| 4                  |                 4 |
+|--------------------+-------------------|
+| [1, 2, aa, 4]      | 0.75 + aa / 4 + 1 |
+| [1, 2, aa, nan, 4] |               nan |
+| [1, 2, 0, 4]       |              1.75 |
+| [1, 2, 0, 0, 4]    |               1.4 |
+#+TBLFM: @6$1=@1..@5 :: @7$1=@1..@5;E :: @8$1=@1..@5;N :: @9$1=@1..@5;EN :: @6$2=vmean(@1..@5) :: @7$2=vmean(@1..@5);E :: @8$2=vmean(@1..@5);N :: @9$2=vmean(@1..@5);EN
+
+* Test input errors
+
+#+tblname: inputerrors
+| A |  Q |     R |         Z | D            |
+|---+----+-------+-----------+--------------|
+| a |  3 |    10 | 2.3025851 | [2014-11-05] |
+| a | 4+ |    20 | 2.9957323 | [2014-11-21] |
+| b |  t | (88*) |    #ERROR | [2014-12-07] |
+| b |  1 |    41 | 3.7135721 | [2014-12-23] |
+| b |  2 |   111 | 4.7095302 | [2015-01-08] |
+| c |  8 |   z ' |    #ERROR |              |
+| c | 4= |     4 | 1.3862944 |              |
+#+TBLFM: $4=log($3)
+
+#+BEGIN: aggregate :table "inputerrors" :cols "A sum(Q) sum(R)"
+| A | sum(Q)                             | sum(R)                               |
+|---+------------------------------------+--------------------------------------|
+| a | error(2, '"Expected a number") + 3 | 30                                   |
+| b | t + 3                              | error(4, '"Expected a number") + 152 |
+| c | error(2, '"Expected a number") + 8 | error(2, '"Syntax error") + 4        |
+#+END:
+
+#+BEGIN: aggregate :table "inputerrors" :cols "A (Q) (R)"
+| A | (Q)                                 | (R)                                       |
+|---+-------------------------------------+-------------------------------------------|
+| a | [3, error(2, '"Expected a number")] | [10, 20]                                  |
+| b | [t, 1, 2]                           | [error(4, '"Expected a number"), 41, 111] |
+| c | [8, error(2, '"Expected a number")] | [error(2, '"Syntax error"), 4]            |
+#+END:
+
+* Test modifiers
+
+#+tblname: bigprec
+| A  | Q     |                   N |
+|----+-------+---------------------|
+| a  | 12    |                  20 |
+| a  | t+1   |   3.000000000000007 |
+| bb | 77    |                   4 |
+| bb | 2*t   | 5.12345678987654321 |
+| bb | 2*t+1 |                   6 |
+
+#+BEGIN: aggregate :table "bigprec" :cols "A sum(Q) mean(Q);FS (Q)"
+| A  | sum(Q)   | mean(Q);FS   | (Q)                |
+|----+----------+--------------+--------------------|
+| a  | t + 13   | t / 2 + 13:2 | [12, t + 1]        |
+| bb | 4 t + 78 | 4:3 t + 26   | [77, 2 t, 2 t + 1] |
+#+END:
+
+#+BEGIN: aggregate :table "bigprec" :cols "A sum(N);p20f18 sum(N);%.5f mean(N);f15 (N);f3"
+| A  |         sum(N);p20f18 | sum(N);%.5f |        mean(N);f15 | (N);f3        |
+|----+-----------------------+-------------+--------------------+---------------|
+| a  | 23.000000000000007000 |    23.00000 | 11.500000000000000 | [20, 3.000]   |
+| bb | 15.123456789876543210 |    15.12346 |  5.041152263290000 | [4, 5.123, 6] |
+#+END:
+* Test chaining
+
+Result of an aggregation can be further processed, for example with another aggregation.
+
+** chaining 3 aggregations
+
+#+TBLNAME: amx
+| A | M | X |
+|---+---+---|
+| a | m | 1 |
+| a | p | 2 |
+| a | m | 3 |
+|---+---+---|
+| b | p | 4 |
+| b | m | 5 |
+| b | p | 6 |
+| b | m | 7 |
+
+#+TBLNAME: amsx
+#+BEGIN: aggregate :table "amx" :cols "A M sum(X)"
+| A | M | SX |
+|---+---+----|
+| a | m |  4 |
+| a | p |  2 |
+| b | p | 10 |
+| b | m | 12 |
+#+TBLFM: @1$3=SX
+#+END:
+
+#+TBLNAME: asx
+#+BEGIN: aggregate :table "amsx" :cols "A sum(SX)"
+| A | SSX |
+|---+-----|
+| a |   6 |
+| b |  22 |
+#+TBLFM: @1$2=SSX
+#+END:
+
+#+BEGIN: aggregate :table "asx" :cols "sum(SSX)"
+| sum(SSX) |
+|----------|
+|       28 |
+#+END:
+
+** chaining 2 transpositions
+
+#+TBLNAME: tamx
+#+BEGIN: transpose :table "amx"
+| A |   | a | a | a |   | b | b | b | b |
+| M |   | m | p | m |   | p | m | p | m |
+| X |   | 1 | 2 | 3 |   | 4 | 5 | 6 | 7 |
+#+END:
+
+#+BEGIN: transpose :table "tamx"
+| A | M | X |
+|---+---+---|
+| a | m | 1 |
+| a | p | 2 |
+| a | m | 3 |
+|---+---+---|
+| b | p | 4 |
+| b | m | 5 |
+| b | p | 6 |
+| b | m | 7 |
+#+END:
+
+The double transposition is identical to the original "amx" table,
+including horizontal lines
+* Test funny column names
+Name of columns are not unnecessarily alphanumeric words.
+They need to be single or double quoted in formulas.
+In a :cond lisp formula, only double quotes work.
+
+** Source table
+
+#+NAME: funnynames
+| first column | observed;number | computed/expected |
+|--------------+-----------------+-------------------|
+| a/experiment |             2.3 |               2.4 |
+| a/experiment |            15.4 |              12.1 |
+| a/experiment |             8.2 |               6.9 |
+| b/test       |           -98.7 |               0.0 |
+| b/test       |             4.5 |               3.4 |
+| b/test       |             2.2 |               2.9 |
+| zero         |               0 |                 0 |
+
+#+BEGIN: aggregate :table "funnynames" :cols "\"first column\" mean('observed;number');%.3f mean('computed/expected');%.4f" :cond (and (>= (string-to-number "observed;number") 0) (not (equal "first column" "zero")))
+| "first column" | mean('observed;number');%.3f | mean('computed/expected');%.4f |
+|----------------+------------------------------+--------------------------------|
+| a/experiment   |                        8.633 |                         7.1333 |
+| b/test         |                        3.350 |                         3.1500 |
+#+END:
+
+#+BEGIN: aggregate :table "funnynames" :cols ("'first column'" "mean('observed;number');%.3f" "mean('computed/expected');%.4f") :cond "(and (>= (string-to-number \"observed;number\") 0) (not (equal \"first column\" \"zero\")))" 
+| 'first column' | mean('observed;number');%.3f | mean('computed/expected');%.4f |
+|----------------+------------------------------+--------------------------------|
+| a/experiment   |                        8.633 |                         7.1333 |
+| b/test         |                        3.350 |                         3.1500 |
+#+END:
+
+#+BEGIN: transpose :table "funnynames" :cols ("first column" "computed/expected" "observed;number")
+| first column      |   | a/experiment | a/experiment | a/experiment | b/test | b/test | b/test | zero |
+| computed/expected |   |          2.4 |         12.1 |          6.9 |    0.0 |    3.4 |    2.9 |    0 |
+| observed;number   |   |          2.3 |         15.4 |          8.2 |  -98.7 |    4.5 |    2.2 |    0 |
+#+END:
+
+#+BEGIN: transpose :table "funnynames" :cols "'first column' 'computed/expected' 'observed;number'"
+| first column      |   | a/experiment | a/experiment | a/experiment | b/test | b/test | b/test | zero |
+| computed/expected |   |          2.4 |         12.1 |          6.9 |    0.0 |    3.4 |    2.9 |    0 |
+| observed;number   |   |          2.3 |         15.4 |          8.2 |  -98.7 |    4.5 |    2.2 |    0 |
+#+END:
