@@ -1,0 +1,31 @@
+# Auto-Save Files
+\#*
+.#*
+
+# Log Files
+*.log
+
+# Intermediate Files
+*.aux
+*.cp
+*.cps
+*.dvi
+*.toc
+*.vr
+*.vrs
+*.fn
+*.fns
+*.ky
+*.kys
+*.pg
+*.pgs
+*._texi
+
+# Output Files
+*.xml
+*.epub
+*.info
+*.md
+*.ps
+*.txt
+*.adoc
