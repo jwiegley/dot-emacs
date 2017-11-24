@@ -4,7 +4,7 @@
 
 ;; Author: Stefan Monnier <monnier@cs.yale.edu>
 ;; Keywords: maint
-;; Version: 0.1
+;; Version: 0.2
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -78,42 +78,41 @@
   (let* ((bufs (buffer-list))
 	 (num (length bufs))
 	 (gc-stats (garbage-collect))
-	 (conses    (memory-usage-mult-cons 2 (nth 0 gc-stats)))
-	 (symbols   (memory-usage-mult-cons 6 (nth 1 gc-stats)))
-	 (markers   (memory-usage-mult-cons 5 (nth 2 gc-stats)))
-	 (chars     (nth 3 gc-stats))
-	 (vectors   (nth 4 gc-stats))
-	 (floats    (memory-usage-mult-cons 2 (nth 5 gc-stats)))
-	 (intervals (memory-usage-mult-cons 7 (nth 6 gc-stats)))
-         (strings   (memory-usage-mult-cons 4 (nth 7 gc-stats))))
-    (if (consp vectors) (setq vectors (cdr vectors)))
+         (gc-stats (if (numberp (caar gc-stats))
+                       (mapcar (lambda (x)
+                                 `(,(car x)
+                                   ,(max (* memory-usage-word-size (cadr x))
+                                         1)
+                                   ,@(let ((stat (nth (cddr x) gc-stats)))
+                                       (if (consp stat)
+                                           (list (car stat) (cdr stat))
+                                         (list stat)))))
+                               '((cons 2 . 0)
+                                 (symbol 6 . 1)
+                                 (marker 5 . 2)
+                                 (string 4 . 7)
+                                 (string-byte 0 . 3)
+                                 (vector-slot 1 . 4)
+                                 (float 2 . 5)
+                                 (interval 7 . 6)))
+                     gc-stats)))
     (insert (format "Garbage collection stats:\n%s\n\n =>" gc-stats))
-    (dolist (x `(("cons cells" . ,conses)
-                 ("symbols" . ,symbols)
-                 ("markers" . ,markers)
-                 ("floats" . ,floats)
-                 ("intervals" . ,intervals)
-                 ("string headers" . ,strings)))
-      (insert (format "\t%s (+ %s dead) in %s\n"
-                    (memory-usage-format (cadr x))
-                    (memory-usage-format (cddr x))
-                    (car x))))
-    (insert (format "\t%s of string chars\n" (memory-usage-format chars)))
-    (insert (format "\t%s of vector slots\n" (memory-usage-format vectors)))
-    (let ((live (+ (car conses)
-                   (car symbols)
-                   (car markers)
-                   (car floats)
-                   (car intervals)
-                   (car strings)
-                   chars
-		   vectors))
-          (dead (+ (cdr conses)
-                   (cdr symbols)
-                   (cdr markers)
-                   (cdr floats)
-                   (cdr intervals)
-                   (cdr strings))))
+    (let ((live 0)
+          (dead 0))
+      (dolist (x gc-stats)
+        (let* ((size (nth 1 x))
+               (xlive (* size (nth 2 x)))
+               (xdead (if (nth 3 x) (* size (nth 3 x)))))
+          (insert (if xdead
+                      (format "\t%s (+ %s dead) in %s\n"
+                              (memory-usage-format xlive)
+                              (memory-usage-format xdead)
+                              (car x))
+                    (format "\t%s in %s\n"
+                            (memory-usage-format xlive)
+                            (car x))))
+          (setq live (+ live xlive))
+          (if xdead (setq dead (+ dead xdead)))))
 
       (insert (format "\nTotal in lisp objects: %s (live %s, dead %s)\n\n"
                       (memory-usage-format (+ dead live))
