@@ -14,6 +14,7 @@
 (setq test-data-dir (f-expand "./test/data"))
 (setq test-data-dir-elisp (f-join test-data-dir "proj2-elisp"))
 (setq test-data-dir-proj1 (f-join test-data-dir "proj1"))
+(setq test-data-dir-proj3 (f-join test-data-dir "proj3-clj"))
 (setq test-data-dir-multiproj (f-join test-data-dir "multiproj"))
 
 (ert-deftest data-dir-exists-test ()
@@ -73,17 +74,17 @@
 
 (ert-deftest dumb-jump-generate-cmd-include-args ()
   (let ((args (dumb-jump-get-ext-includes "javascript"))
-        (expected " --include \\*.js --include \\*.jsx --include \\*.vue --include \\*.html "))
+        (expected " --include \\*.js --include \\*.jsx --include \\*.vue --include \\*.html --include \\*.css "))
     (should (string= expected args))))
 
 (ert-deftest dumb-jump-generate-grep-command-no-ctx-test ()
   (let* ((system-type 'darwin)
          (regexes (dumb-jump-get-contextual-regexes "elisp" nil 'grep))
          (expected-regexes (--map (concat " -e " (shell-quote-argument it))
-                                  '("\\((defun|cl-defun)\\s+tester($|[^\\w-])"
-                                    "\\(defvar\\b\\s*tester($|[^\\w-])"
-                                    "\\(defcustom\\b\\s*tester($|[^\\w-])"
-                                    "\\(setq\\b\\s*tester($|[^\\w-])"
+                                  '("\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])"
+                                    "\\(defvar\\b\\s*tester($|[^\\w\\?\\*-])"
+                                    "\\(defcustom\\b\\s*tester($|[^\\w\\?\\*-])"
+                                    "\\(setq\\b\\s*tester($|[^\\w\\?\\*-])"
                                     "\\(tester\\s+")))
          (expected (concat "LANG=C grep -REn --include \\*.el --include \\*.el.gz" (s-join "" expected-regexes) " .")))
     (should (string= expected  (dumb-jump-generate-grep-command  "tester" "blah.el" "." regexes "elisp" nil)))))
@@ -92,29 +93,29 @@
   (let* ((system-type 'darwin)
          (regexes (dumb-jump-get-contextual-regexes "elisp" nil 'gnu-grep))
          (expected-regexes (--map (concat " -e " (shell-quote-argument it))
-                                  '("\\((defun|cl-defun)[[:space:]]+tester($|[^\\w-])"
-                                    "\\(defvar\\b[[:space:]]*tester($|[^\\w-])"
-                                    "\\(defcustom\\b[[:space:]]*tester($|[^\\w-])"
-                                    "\\(setq\\b[[:space:]]*tester($|[^\\w-])"
+                                  '("\\((defun|cl-defun)[[:space:]]+tester($|[^\\w\\?\\*-])"
+                                    "\\(defvar\\b[[:space:]]*tester($|[^\\w\\?\\*-])"
+                                    "\\(defcustom\\b[[:space:]]*tester($|[^\\w\\?\\*-])"
+                                    "\\(setq\\b[[:space:]]*tester($|[^\\w\\?\\*-])"
                                     "\\(tester[[:space:]]+")))
          (expected (concat "LANG=C grep -rEn" (s-join "" expected-regexes) " .")))
     (should (string= expected  (dumb-jump-generate-gnu-grep-command  "tester" "blah.el" "." regexes "elisp" nil)))))
 
 (ert-deftest dumb-jump-generate-ag-command-no-ctx-test ()
   (let* ((regexes (dumb-jump-get-contextual-regexes "elisp" nil 'ag))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester(?![\\w-])|\\(defvar\\b\\s*tester(?![\\w-])|\\(defcustom\\b\\s*tester(?![\\w-])|\\(setq\\b\\s*tester(?![\\w-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester(?![\\w-])\\s*\\)?")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester(?![\\w\\?\\*-])|\\(defvar\\b\\s*tester(?![\\w\\?\\*-])|\\(defcustom\\b\\s*tester(?![\\w\\?\\*-])|\\(setq\\b\\s*tester(?![\\w\\?\\*-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester(?![\\w\\?\\*-])\\s*\\)?")
          (expected (concat "ag --nocolor --nogroup --elisp " (shell-quote-argument expected-regexes) " .")))
     (should (string= expected  (dumb-jump-generate-ag-command  "tester" "blah.el" "." regexes "elisp" nil)))))
 
 (ert-deftest dumb-jump-generate-rg-command-no-ctx-test ()
   (let* ((regexes (dumb-jump-get-contextual-regexes "elisp" nil 'rg))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])|\\(defvar\\b\\s*tester($|[^\\w-])|\\(defcustom\\b\\s*tester($|[^\\w-])|\\(setq\\b\\s*tester($|[^\\w-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w-])\\s*\\)?")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])|\\(defvar\\b\\s*tester($|[^\\w\\?\\*-])|\\(defcustom\\b\\s*tester($|[^\\w\\?\\*-])|\\(setq\\b\\s*tester($|[^\\w\\?\\*-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w\\?\\*-])\\s*\\)?")
          (expected (concat "rg --color never --no-heading --line-number --type elisp " (shell-quote-argument expected-regexes) " .")))
     (should (string= expected  (dumb-jump-generate-rg-command  "tester" "blah.el" "." regexes "elisp" nil)))))
 
 (ert-deftest dumb-jump-generate-git-grep-command-no-ctx-test ()
   (let* ((regexes (dumb-jump-get-contextual-regexes "elisp" nil 'git-grep))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])|\\(defvar\\b\\s*tester($|[^\\w-])|\\(defcustom\\b\\s*tester($|[^\\w-])|\\(setq\\b\\s*tester($|[^\\w-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w-])\\s*\\)?")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])|\\(defvar\\b\\s*tester($|[^\\w\\?\\*-])|\\(defcustom\\b\\s*tester($|[^\\w\\?\\*-])|\\(setq\\b\\s*tester($|[^\\w\\?\\*-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w\\?\\*-])\\s*\\)?")
          (excludes '("one" "two" "three"))
          (expected (concat "git grep --color=never --line-number --untracked -E " (shell-quote-argument expected-regexes) " -- ./\\*.el ./\\*.el.gz \\:\\(exclude\\)one \\:\\(exclude\\)two \\:\\(exclude\\)three")))
     (should (string= expected  (dumb-jump-generate-git-grep-command  "tester" "blah.el" "." regexes "elisp" excludes)))))
@@ -122,7 +123,7 @@
 (ert-deftest dumb-jump-generate-git-grep-command-not-search-untracked-test ()
   (let* ((dumb-jump-git-grep-search-untracked nil)
          (regexes (dumb-jump-get-contextual-regexes "elisp" nil 'git-grep))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])|\\(defvar\\b\\s*tester($|[^\\w-])|\\(defcustom\\b\\s*tester($|[^\\w-])|\\(setq\\b\\s*tester($|[^\\w-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w-])\\s*\\)?")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])|\\(defvar\\b\\s*tester($|[^\\w\\?\\*-])|\\(defcustom\\b\\s*tester($|[^\\w\\?\\*-])|\\(setq\\b\\s*tester($|[^\\w\\?\\*-])|\\(tester\\s+|\\((defun|cl-defun)\\s*.+\\(?\\s*tester($|[^\\w\\?\\*-])\\s*\\)?")
          (excludes '("one" "two" "three"))
          (expected (concat "git grep --color=never --line-number -E " (shell-quote-argument expected-regexes) " -- ./\\*.el ./\\*.el.gz \\:\\(exclude\\)one \\:\\(exclude\\)two \\:\\(exclude\\)three")))
     (should (string= expected  (dumb-jump-generate-git-grep-command  "tester" "blah.el" "." regexes "elisp" excludes)))))
@@ -131,7 +132,7 @@
   (let* ((system-type 'darwin)
          (dumb-jump-functions-only t)
          (regexes (dumb-jump-get-contextual-regexes "elisp" nil 'grep))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])")
          (expected (concat "LANG=C grep -REn -e " (shell-quote-argument expected-regexes) " ."))
          (zexpected (concat "LANG=C zgrep -REn -e " (shell-quote-argument expected-regexes) " .")))
     (should (string= expected  (dumb-jump-generate-grep-command  "tester" "blah.el" "." regexes "" nil)))
@@ -142,7 +143,7 @@
          (ctx-type (dumb-jump-get-ctx-type-by-language "elisp" '(:left "(" :right nil)))
          (dumb-jump-ignore-context nil) ;; overriding the default
          (regexes (dumb-jump-get-contextual-regexes "elisp" ctx-type 'grep))
-         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])")
+         (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])")
          (expected (concat "LANG=C grep -REn -e " (shell-quote-argument expected-regexes) " .")))
     ;; the point context being passed should match a "function" type so only the one command
     (should (string= expected  (dumb-jump-generate-grep-command "tester" "blah.el" "." regexes "" nil)))))
@@ -153,7 +154,7 @@
            (ctx-type (dumb-jump-get-ctx-type-by-language "elisp" '(:left "(" :right nil)))
            (dumb-jump-ignore-context nil) ;; overriding the default
            (regexes (dumb-jump-get-contextual-regexes "elisp" ctx-type 'grep))
-           (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w-])")
+           (expected-regexes "\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])")
            (expected (concat "grep -REn -e " (shell-quote-argument expected-regexes) " .")))
       (should (string= expected  (dumb-jump-generate-grep-command "tester" "blah.el" "." regexes "" nil))))))
 
@@ -163,10 +164,10 @@
          (dumb-jump-ignore-context t)
          (regexes (dumb-jump-get-contextual-regexes "elisp" ctx-type nil))
          (expected-regexes (--map (concat " -e " (shell-quote-argument it))
-                                  '("\\((defun|cl-defun)\\s+tester($|[^\\w-])"
-                                    "\\(defvar\\b\\s*tester($|[^\\w-])"
-                                    "\\(defcustom\\b\\s*tester($|[^\\w-])"
-                                    "\\(setq\\b\\s*tester($|[^\\w-])"
+                                  '("\\((defun|cl-defun)\\s+tester($|[^\\w\\?\\*-])"
+                                    "\\(defvar\\b\\s*tester($|[^\\w\\?\\*-])"
+                                    "\\(defcustom\\b\\s*tester($|[^\\w\\?\\*-])"
+                                    "\\(setq\\b\\s*tester($|[^\\w\\?\\*-])"
                                     "\\(tester\\s+")))
          (expected (concat "LANG=C grep -REn" (s-join "" expected-regexes) " .")))
 
@@ -388,7 +389,7 @@
   (let* ((results '((:path "/usr/blah/test.txt" :line 54 :context "function thing()")
                     (:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a"))))
     (with-mock
-     (mock (popup-menu* *) => "/test2.txt:52 var thing = function()")
+     (mock (popup-menu* *) => "/test2.txt:52: var thing = function()")
      (mock (dumb-jump-result-follow '(:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a")))
      (dumb-jump-prompt-user-for-choice "/usr/blah" results))))
 
@@ -398,7 +399,7 @@
                     (:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a"))))
     (with-mock
      (mock (helm-build-sync-source * :candidates * :persistent-action *))
-     (mock (helm * * :buffer "*helm dumb jump choices*") => "/test2.txt:52 var thing = function()")
+     (mock (helm * * :buffer "*helm dumb jump choices*") => "/test2.txt:52: var thing = function()")
      (mock (dumb-jump-result-follow '(:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a")))
      (dumb-jump-prompt-user-for-choice "/usr/blah" results))))
 
@@ -411,7 +412,7 @@
          (results '((:path "/usr/blah/test.txt" :line 54 :context "function thing()")
                     (:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a"))))
     (with-mock
-     (mock (ivy-read * *)  => "/test2.txt:52 var thing = function()")
+     (mock (ivy-read * *)  => "/test2.txt:52: var thing = function()")
      (mock (dumb-jump-result-follow '(:path "/usr/blah/test2.txt" :line 52 :context "var thing = function()" :target "a")))
      (dumb-jump-prompt-user-for-choice "/usr/blah" results))))
 
@@ -484,7 +485,7 @@
       (goto-char (point-min))
       (forward-char 13)
       (with-mock
-       (mock (popup-tip "/src/js/fake.js:3 function doSomeStuff() {"))
+       (mock (popup-tip "/src/js/fake.js:3: function doSomeStuff() {"))
        (should (string= go-js-file (dumb-jump-quick-look)))))))
 
 (ert-deftest dumb-jump-go-js2-test ()
@@ -554,7 +555,8 @@
 
 
 (ert-deftest dumb-jump-go-sig-def-test ()
-  (let ((js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
+  (let ((dumb-jump-aggressive t)
+        (js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
     (with-current-buffer (find-file-noselect js-file t)
       (goto-char (point-min))
       (forward-line 7)
@@ -564,7 +566,8 @@
        (should (string= js-file (dumb-jump-go)))))))
 
 (ert-deftest dumb-jump-go-sig-def2-test ()
-  (let ((js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
+  (let ((dumb-jump-aggressive t)
+        (js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
     (with-current-buffer (find-file-noselect js-file t)
       (goto-char (point-min))
       (forward-line 13)
@@ -574,7 +577,8 @@
        (should (string= js-file (dumb-jump-go)))))))
 
 (ert-deftest dumb-jump-go-sig-def3-test ()
-  (let ((js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
+  (let ((dumb-jump-aggressive t)
+        (js-file (f-join test-data-dir-proj1 "src" "js" "fake2.js")))
     (with-current-buffer (find-file-noselect js-file t)
       (goto-char (point-min))
       (forward-line 20)
@@ -584,7 +588,8 @@
        (should (string= js-file (dumb-jump-go)))))))
 
 (ert-deftest dumb-jump-go-var-let-test ()
-  (let ((el-file (f-join test-data-dir-elisp "fake2.el")))
+  (let ((dumb-jump-aggressive t)
+        (el-file (f-join test-data-dir-elisp "fake2.el")))
     (with-current-buffer (find-file-noselect el-file t)
       (goto-char (point-min))
       (forward-line 13)
@@ -594,7 +599,8 @@
        (should (string= el-file (dumb-jump-go)))))))
 
 (ert-deftest dumb-jump-go-var-let-repeat-test ()
-  (let ((el-file (f-join test-data-dir-elisp "fake2.el")))
+  (let ((dumb-jump-aggressive t)
+        (el-file (f-join test-data-dir-elisp "fake2.el")))
     (with-current-buffer (find-file-noselect el-file t)
       (goto-char (point-min))
       (forward-line 21)
@@ -604,7 +610,8 @@
        (should (string= el-file (dumb-jump-go)))))))
 
 (ert-deftest dumb-jump-go-var-arg-test ()
-  (let ((el-file (f-join test-data-dir-elisp "fake2.el")))
+  (let ((dumb-jump-aggressive t)
+        (el-file (f-join test-data-dir-elisp "fake2.el")))
     (with-current-buffer (find-file-noselect el-file t)
       (goto-char (point-min))
       (forward-line 4)
@@ -655,7 +662,8 @@
           (dumb-jump-go))))))
 
 (ert-deftest dumb-jump-message-handle-results-test ()
-  (let ((results '((:path "src/file.js" :line 62 :context "var isNow = true" :diff 7 :target "isNow")
+  (let ((dumb-jump-aggressive t)
+        (results '((:path "src/file.js" :line 62 :context "var isNow = true" :diff 7 :target "isNow")
                    (:path "src/file.js" :line 69 :context "isNow = false" :diff 0 :target "isNow"))))
     (with-mock
      (mock (dumb-jump-goto-file-line "src/file.js" 62 4))
@@ -748,7 +756,7 @@
 
 (ert-deftest dumb-jump-message-result-follow-tooltip-test ()
   (with-mock
-   (mock (popup-tip "/file.js:62 var isNow = true"))
+   (mock (popup-tip "/file.js:62: var isNow = true"))
    (let ((result '(:path "src/file.js" :line 62 :context "var isNow = true" :diff 7 :target "isNow")))
      (dumb-jump--result-follow result t "src"))))
 
@@ -950,7 +958,8 @@
 ;; This test makes sure that even though there's a local match it will jump to the external file
 ;; match instead.
 (ert-deftest dumb-jump-prefer-external ()
-  (let ((main-file (f-join test-data-dir-proj1 "src" "cpp" "external.cpp"))
+  (let ((dumb-jump-aggressive t)
+        (main-file (f-join test-data-dir-proj1 "src" "cpp" "external.cpp"))
         (header-file (f-join test-data-dir-proj1 "src" "cpp" "external.h")))
     (with-current-buffer (find-file-noselect main-file t)
       (goto-char (point-min))
@@ -982,7 +991,8 @@
        (should (string= main-file (dumb-jump-go-prefer-external)))))))
 
 (ert-deftest dumb-jump-prefer-external-other-window ()
-  (let ((main-file (f-join test-data-dir-proj1 "src" "cpp" "external.cpp"))
+  (let ((dumb-jump-aggressive t)
+        (main-file (f-join test-data-dir-proj1 "src" "cpp" "external.cpp"))
         (header-file (f-join test-data-dir-proj1 "src" "cpp" "external.h")))
     (with-current-buffer (find-file-noselect main-file t)
       (goto-char (point-min))
@@ -1101,7 +1111,8 @@
 ;; This test makes sure that if the `cur-file' is absolute but results are relative, then it must
 ;; still find and sort results correctly.
 (ert-deftest dumb-jump-handle-results-relative-current-file-test ()
-  (let ((results '((:path "relfile.js" :line 62 :context "var isNow = true" :diff 7 :target "isNow")
+  (let ((dumb-jump-aggressive t)
+        (results '((:path "relfile.js" :line 62 :context "var isNow = true" :diff 7 :target "isNow")
                    (:path "src/absfile.js" :line 69 :context "isNow = false" :diff 0 :target "isNow"))))
     (with-mock
      (mock (dumb-jump-goto-file-line "relfile.js" 62 4))
@@ -1152,3 +1163,52 @@
 (ert-deftest dumb-jump-shell-command-switch-unknown-test ()
   (let ((shell-file-name "/usr/bin/thisshelldoesnotexist"))
     (should (string-equal shell-command-switch (dumb-jump-shell-command-switch)))))
+
+(ert-deftest dumb-jump-go-clojure-question-mark-test ()
+  (let ((clj-jump-file (f-join test-data-dir-proj3 "file3.clj"))
+        (clj-to-file (f-join test-data-dir-proj3 "file2.clj")))
+    (with-current-buffer (find-file-noselect clj-jump-file t)
+      (funcall 'lisp-mode)  ;; need a built in lisp mode so `?` is part of a symbol
+      (goto-char (point-min))
+      (forward-line 2)
+      (forward-char 2)
+      (with-mock
+       (mock (dumb-jump-goto-file-line * 1 6))
+       (should (string= clj-to-file (dumb-jump-go)))))))
+
+
+(ert-deftest dumb-jump-go-clojure-no-question-mark-test ()
+  (let ((clj-jump-file (f-join test-data-dir-proj3 "file3.clj"))
+        (clj-to-file (f-join test-data-dir-proj3 "file1.clj")))
+    (with-current-buffer (find-file-noselect clj-jump-file t)
+      (funcall 'lisp-mode) ;; need a built in lisp mode so `?` is part of a symbol
+      (goto-char (point-min))
+      (forward-line 3)
+      (forward-char 2)
+      (with-mock
+       (mock (dumb-jump-goto-file-line * 2 6))
+       (should (string= clj-to-file (dumb-jump-go)))))))
+
+(ert-deftest dumb-jump-go-clojure-no-asterisk-test ()
+  (let ((clj-jump-file (f-join test-data-dir-proj3 "file3.clj"))
+        (clj-to-file (f-join test-data-dir-proj3 "file2.clj")))
+    (with-current-buffer (find-file-noselect clj-jump-file t)
+      (funcall 'lisp-mode) ;; need a built in lisp mode so `?` is part of a symbol
+      (goto-char (point-min))
+      (forward-line 4)
+      (forward-char 2)
+      (with-mock
+       (mock (dumb-jump-goto-file-line * 4 9))
+       (should (string= clj-to-file (dumb-jump-go)))))))
+
+(ert-deftest dumb-jump-go-clojure-asterisk-test ()
+  (let ((clj-jump-file (f-join test-data-dir-proj3 "file3.clj"))
+        (clj-to-file (f-join test-data-dir-proj3 "file1.clj")))
+    (with-current-buffer (find-file-noselect clj-jump-file t)
+      (funcall 'lisp-mode) ;; need a built in lisp mode so `?` is part of a symbol
+      (goto-char (point-min))
+      (forward-line 5)
+      (forward-char 2)
+      (with-mock
+       (mock (dumb-jump-goto-file-line * 5 7))
+       (should (string= clj-to-file (dumb-jump-go)))))))
