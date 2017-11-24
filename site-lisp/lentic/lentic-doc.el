@@ -6,7 +6,7 @@
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2015, Phillip Lord, Newcastle University
+;; Copyright (C) 2015, 2016, Phillip Lord, Newcastle University
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,9 +33,21 @@
 (require 'browse-url)
 (require 'lentic)
 (require 'lentic-org)
+(require 'lentic-ox)
 (require 'f)
 (require 's)
 ;; #+end_src
+
+
+;; #+begin_src emacs-lisp
+(defvar lentic-doc--includes
+    '(("http://phillord.github.io/lentic/include/lenticular.css" .
+       "include/lenticular.css")
+      ("http://orgmode.org/org-info.js" .
+       "include/org-info.js")
+      ))
+;; #+end_src
+
 
 ;; ** Orgify Package
 
@@ -54,14 +66,19 @@ as a prefix. "
           (locate-library package))
          (dir
           (f-parent main-file))
+         (prefix
+          (concat dir "/" package))
          (others
           (f-glob
-           (concat dir "/" package "*.el"))))
+           (concat prefix "*.el")))
+         (scripts
+          (f-glob
+           (concat prefix "*.els"))))
     (-remove
      (lambda (file)
        (or (s-match ".*-pkg.el" file)
            (s-match ".*-autoloads.el" file)))
-     others)))
+     (append others scripts))))
 
 (defun lentic-doc-orgify-if-necessary (file)
   (let* ((target
@@ -100,8 +117,7 @@ as a prefix. "
     (with-current-buffer
         (find-file-noselect
          (lentic-doc-package-start-source package))
-      (let ((org-export-htmlize-generate-css 'css))
-        (org-html-export-to-html)))))
+      (lentic-ox-html-export-to-html))))
 ;; #+end_src
 
 ;; #+begin_src emacs-lisp
@@ -113,7 +129,7 @@ EXT must not be nil or empty."
       (error "extension cannot be empty or nil.")
     (concat (f-no-ext path) "." ext)))
 
-(defun lentic-doc-package-explicit-start-source (package)
+(defun lentic-doc-package-start-source (package)
   (let ((doc-var
          (intern
           (concat package "-doc"))))
@@ -142,20 +158,32 @@ EXT must not be nil or empty."
             doc-file)))))
 
 (defun lentic-doc-package-implicit-start-source (package)
-  (lentic-f-swap-ext
-   (locate-library package)
-   "org"))
-
-(defun lentic-doc-package-start-source (package)
-  (or (lentic-doc-package-explicit-start-source package)
-      (lentic-doc-package-implicit-start-source package)))
+  (-if-let (lib (locate-library package))
+      (let ((start
+              (lentic-f-swap-ext
+               lib
+               "org")))
+        (if (f-exists? start)
+            start))))
 
 (defun lentic-doc-package-doc-file (package)
   (lentic-f-swap-ext
    (lentic-doc-package-start-source package)
    "html"))
 
+
+(defvar lentic-doc-allowed-files nil)
+
+(defun lentic-doc-ensure-allowed-html (package)
+  (let ((var (intern (concat package "-doc-html-files"))))
+    (if (boundp var)
+        (mapc
+         (lambda (f)
+           (add-to-list 'lentic-doc-allowed-files f))
+         (symbol-value var)))))
+
 (defun lentic-doc-ensure-doc (package)
+  (lentic-doc-ensure-allowed-html package)
   (unless (f-exists?
            (lentic-doc-package-doc-file package))
     (lentic-doc-htmlify-package package)))
@@ -170,7 +198,7 @@ EXT must not be nil or empty."
             (symbol-name feat))
           (-filter
            (lambda (feat)
-             (lentic-doc-package-explicit-start-source
+             (lentic-doc-package-start-source
               (symbol-name feat)))
            features)))))
 

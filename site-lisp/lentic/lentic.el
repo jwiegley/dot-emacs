@@ -4,14 +4,14 @@
 
 ;; This file is not part of Emacs
 
-;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Version: 0.10
+;; Author: Phillip Lord <phillip.lord@russet.org.uk>
+;; Maintainer: Phillip Lord <phillip.lord@russet.org.uk>
+;; Version: 0.11
 ;; Package-Requires: ((emacs "24.4")(m-buffer "0.13")(dash "2.5.0")(f "0.17.2")(s "1.9.0"))
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 
-;; Copyright (C) 2014, 2015, Phillip Lord, Newcastle University
+;; Copyright (C) 2014, 2015, 2016, Phillip Lord, Newcastle University
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -154,9 +154,11 @@
 (require 'eieio)
 (require 'm-buffer)
 (require 'm-buffer-at)
-;; #+end_src
+(require 'f)
 
 (defvar lentic-doc "lenticular.org")
+(defvar lentic-doc-html-files '("lenticular.css"))
+;; #+end_src
 
 ;; ** State
 
@@ -208,6 +210,7 @@ resilient to changes of mode in the current buffer.")
   "Given BUFFER, return a name for the configuration object."
   (format "lentic \"%s:%s\"" buffer (setq lentic-counter (+ 1 lentic-counter))))
 
+;;;###autoload
 (defvar lentic-init-functions nil
   "All functions that can be used as `lentic-init' function.")
 ;; #+end_src
@@ -620,7 +623,7 @@ see `lentic-init' for details."
   `(lentic-when-buffer
     ,buffer
     (with-current-buffer
-        buffer
+        ,buffer
       ,@body)))
 
 (defmacro lentic-with-lentic-buffer (buffer &rest body)
@@ -774,7 +777,7 @@ SEEN-BUFFER is a list of buffers to ignore."
 ;; impossible to analyse.
 
 ;; #+begin_src emacs-lisp
-(defvar lentic-log t)
+(defvar lentic-log nil)
 (defmacro lentic-log (&rest rest)
   "Log REST."
   `(when lentic-log
@@ -783,11 +786,7 @@ SEEN-BUFFER is a list of buffers to ignore."
              (concat
               (format ,@rest)
               "\n")))
-        (with-current-buffer
-            (get-buffer-create "*lentic-log*")
-          (goto-char (point-max))
-          (insert msg))))))
-
+        (princ msg #'external-debugging-output)))))
 ;; #+end_src
 
 ;; An emergency detection system. Several of the hooks in use (post-command-hook,
@@ -833,12 +832,14 @@ repeated errors.")
 (defun lentic-emergency ()
   "Stop lentic from working due to code problem."
   (interactive)
-  (setq lentic-emergency t))
+  (setq lentic-emergency t)
+  (lentic-update-all-display))
 
 (defun lentic-unemergency ()
   "Start lentic working after stop due to code problem."
   (interactive)
-  (setq lentic-emergency nil))
+  (setq lentic-emergency nil)
+  (lentic-update-all-display))
 
 (defun lentic-hook-fail (err hook)
   "Give an informative message when we have to fail.
@@ -1080,9 +1081,6 @@ the change."
             (nth 2 updates)
             seen-buffer))))
      lentic-config)))
-
-
-
 ;; #+end_src
 
 ;; We also need to store the location of the area to be changed before the change
@@ -1174,50 +1172,44 @@ update mechanism depends on CONF.
 START is at most the start of the change.
 STOP is at least the end of the change.
 LENGTH-BEFORE is the length of area before the change."
-  (let ((inhibit-read-only t))
-    (let ((skewed
-           (when
-               (or
-                ;; previously this was not skewed if no region, but actually,
-                ;; if there is no region we need to copy everything, we can
-                ;; also do by declaring skew -- this is important for the
-                ;; multi-lentic situation
-                (not (or start stop length-before))
-                ;; skews only occur in insertions which result in a positive
-                ;; length-before. This also picks up no-insertion changes
-                (and (< 0 length-before)
-                     ;; = start stop means we have a deletion because
-                     ;; there is no range after. Deletions seem to be
-                     ;; safe.
-                     (not (= start stop))))
-             (lentic-log "Skew detected: %s" this-command)
-             t)))
-      (m-buffer-with-markers
-          ((start-converted
-            (when
-                (and (not skewed)
-                     (oref conf :last-change-start-converted))
-              (set-marker (make-marker)
-                          (oref conf :last-change-start-converted)
-                          (lentic-that conf))))
-           (stop-converted
-            (when
-                (and (not skewed)
-                     (oref conf :last-change-stop-converted))
-              (set-marker (make-marker)
-                          (oref conf :last-change-stop-converted)
-                          (lentic-that conf)))))
-        ;; used these, so dump them
-        (oset conf :last-change-start nil)
-        (oset conf :last-change-start-converted nil)
-        (oset conf :last-change-stop nil)
-        (oset conf :last-change-stop-converted nil)
-        (lentic-widen
-            conf
-          (if skewed
-              (lentic-clone conf)
-            (lentic-clone conf start stop length-before
-                          start-converted stop-converted)))))))
+  (let ((inhibit-read-only t)
+        (no-fall-back
+         (and start stop length-before)))
+    (when
+        (and no-fall-back
+             (< (+ start length-before) (oref conf :last-change-stop)))
+      (let ((diff
+             (- (oref conf :last-change-stop)
+                (+ start length-before))))
+        (lentic-log "Skew detected %s" this-command)
+        (cl-incf length-before diff)
+        (cl-incf end diff)))
+    (m-buffer-with-markers
+        ((start-converted
+          (when
+              (and no-fall-back
+                   (oref conf :last-change-start-converted))
+            (set-marker (make-marker)
+                        (oref conf :last-change-start-converted)
+                        (lentic-that conf))))
+         (stop-converted
+          (when
+              (and no-fall-back
+                   (oref conf :last-change-stop-converted))
+            (set-marker (make-marker)
+                        (oref conf :last-change-stop-converted)
+                        (lentic-that conf)))))
+      ;; used these, so dump them
+      (oset conf :last-change-start nil)
+      (oset conf :last-change-start-converted nil)
+      (oset conf :last-change-stop nil)
+      (oset conf :last-change-stop-converted nil)
+      (lentic-widen
+          conf
+        (if (not no-fall-back)
+            (lentic-clone conf)
+          (lentic-clone conf start stop length-before
+                        start-converted stop-converted))))))
 
 (defun lentic-update-point (conf)
   "Update the location of point in that-buffer to reflect this-buffer.
@@ -1265,6 +1257,10 @@ same top-left location. Update details depend on CONF."
   "Update the display with information about lentic's state."
   (when (fboundp 'lentic-mode-update-mode-line)
     (lentic-mode-update-mode-line)))
+
+(defun lentic-update-all-display ()
+  (when (fboundp 'lentic-mode-update-all-display)
+    (lentic-mode-update-all-display)))
 ;; #+end_src
 
 

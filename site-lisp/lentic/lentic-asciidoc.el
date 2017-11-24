@@ -4,12 +4,12 @@
 
 ;; This file is not part of Emacs
 
-;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
+;; Author: Phillip Lord <phillip.lord@russet.org.uk>
+;; Maintainer: Phillip Lord <phillip.lord@russet.org.uk>
 
 ;; The contents of this file are subject to the GPL License, Version 3.0.
 ;;
-;; Copyright (C) 2014,2015, Phillip Lord, Newcastle University
+;; Copyright (C) 2014,2015,2016, Phillip Lord, Newcastle University
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -71,8 +71,26 @@
 (defun lentic-asciidoc-clojure-init ()
   (lentic-asciidoc-uncommented-new))
 
+;;;###autoload
 (add-to-list 'lentic-init-functions
              'lentic-asciidoc-clojure-init)
+
+
+;; ** Support Emacs-Lisp
+;;;###autoload
+(defun lentic-asciidoc-el-init ()
+  (lentic-asciidoc-oset
+   (lentic-uncommented-asciidoc-configuration
+    "temp"
+    :lentic-file
+    (concat
+     (file-name-sans-extension
+      (buffer-file-name)) ".el"))))
+
+;;;###autoload
+(add-to-list 'lentic-init-functions
+             'lentic-asciidoc-el-init)
+
 
 (defclass lentic-commented-asciidoc-configuration
   (lentic-commented-chunk-configuration)

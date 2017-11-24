@@ -2,7 +2,6 @@
 <img src="images/lentic-sphere.png"
  alt="Tawny Logo" title="Lentic Logo" height="300" align="right" />
 
-
 Lentic allows two buffers to share the same or similar content but
 otherwise operate independently. This can be used for several different
 purposes. Different buffers can be in the same mode, with different locations
@@ -30,6 +29,25 @@ perspective.
 
 Previously, lentic was known as linked-buffer.
 
+## In Action
+
+It is fairly hard to explain what lentic does and much easier to show in
+pictures. I am indebted to [tumashu](https://github.com/tumashu) for producing
+these excellent gifs, showing lentic in action combined with some advanced use
+of org-mode, web publishing and Chinese input methods.
+
+![Simple Lentic](https://cloud.githubusercontent.com/assets/67725/10606993/16504f82-7769-11e5-8431-90de09232239.gif)
+
+![Lentic in Chinese](https://cloud.githubusercontent.com/assets/67725/10629460/a08d0cc4-7801-11e5-8ce1-9eab0408bc03.gif)
+
+![Lentic and Org tables](https://cloud.githubusercontent.com/assets/67725/10688400/ace40c06-79a6-11e5-95f4-00c662c5dbc4.gif)
+
+There are also some videos of mine showing lentic over
+[emacs source](https://vimeo.com/116078853) and as part of a
+[latex workflow](https://vimeo.com/116141808).
+
+
+
 ## Contributions
 
 I welcome contributions to lentic. I would like to contribute lentic to ELPA
@@ -39,9 +57,28 @@ completed the relevant paperwork with the FSF.
 
 ## ChangeLog
 
+### 0.12
+
+This release adds significant support for use of lentic "out-of-the-box" with
+several languages when written as scripts, including where those scripts use a
+"magic cookie" line at the beginning.
+
+### 0.11
+
+This release is largely a bug fix release, with a single new feature. A new
+menu item has been added to force cloning, which can be useful with
+lentic-chunk which can fallback to an identical clone, and can need a full
+clone to restore the two buffers.
+
+The buffer-list-update-hook was very expensive, so handling has been improved.
+Finally, unmatched config was incorrectly returning the wrong type from
+lentic-invert. Finally, the f.el is now properly required.
+
+
+
 ### 0.10
 
-This release is large a bug fix release, including a missing require, handling
+This release is largely a bug fix release, including a missing require, handling
 of delimiters in strings, and more consistent widening.
 
 This also includes one significant breaking change, which is that

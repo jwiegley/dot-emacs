@@ -4,7 +4,6 @@
 
 #+INFOJS_OPT: view:info toc:nil
 
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="lenticular.css" />
 
 * Introduction
 

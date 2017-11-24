@@ -1,3 +1,31 @@
+;;; lentic-test.el --- Tests
+
+;;; Header:
+
+;; This file is not part of Emacs
+
+;; Author: Phillip Lord <phillip.lord@russet.org.uk>
+;; Maintainer: Phillip Lord <phillip.lord@russet.org.uk>
+
+;; The contents of this file are subject to the GPL License, Version 3.0.
+
+;; Copyright (C) 2014, 2015, 2016, Phillip Lord, Newcastle University
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Code:
+
 (require 'lentic)
 (require 'lentic-latex-code)
 (require 'lentic-asciidoc)
@@ -8,13 +36,17 @@
 
 (require 'load-relative)
 
+(require 'assess)
+(require 'assess-call)
+
 (setq lentic-condition-case-disabled t)
 
 (defvar lentic-test-dir
   (f-join
    (f-parent
     (f-dirname (__FILE__)))
-   "dev-resources/"))
+   "dev-resources/")
+  "Location of test files.")
 
 ;; (defvar lentic-test-dir
 ;;   (concat
@@ -23,91 +55,40 @@
 ;;    "dev-resources/"))
 
 (defun lentic-test-file (filename)
+  "Fetch the long name of the resource FILENAME."
   (let ((file
          (f-join lentic-test-dir filename)))
     (when (not (file-exists-p file))
       (error "Test File does not exist: %s" file))
     file))
 
-(defvar lentic-test-quiet nil)
+(defun lentic-test-clone (file init)
+  "Clone FILE with INIT and clean up all buffers after."
+  (assess-with-preserved-buffer-list
+   (lentic-batch-clone-with-config
+    (lentic-test-file file) init)))
 
-(defun lentic-test-equal-loudly (a b)
-  "Actually, this just tests equality and shouts if not."
-  ;; change this to t to disable noisy printout
-  (if lentic-test-quiet
-      (string= a b)
-    (if (string= a b)
-        t
-      (message "Results:\n%s\n:Complete\nShouldbe:\n%s\nComplete:" cloned-results cloned-file)
-      (let* ((a-buffer
-              (generate-new-buffer "a"))
-             (b-buffer
-              (generate-new-buffer "b"))
-             (a-file
-              (make-temp-file
-               (buffer-name a-buffer)))
-             (b-file
-              (make-temp-file
-               (buffer-name b-buffer))))
-        (with-current-buffer
-            a-buffer
-          (insert a)
-          (write-file a-file))
-        (with-current-buffer
-            b-buffer
-          (insert b)
-          (write-file b-file))
-        (message "diff:%senddiff:"
-                 (with-temp-buffer
-                   (call-process
-                    "diff"
-                    nil
-                    (current-buffer)
-                    nil
-                    "-c"
-                    a-file
-                    b-file)
-                   (buffer-string))))
-      nil)))
+(defun lentic-test-clone-to-assess (init file cloned-file)
+  (cons
+   (assess-file
+    (lentic-test-file cloned-file))
+   (lentic-test-clone
+    file init)))
 
-(defun lentic-test-clone-with-cleanup (file init)
-  (unwind-protect
-      (lentic-batch-clone-with-config (lentic-test-file file) init)
-    (let ((this (get-file-buffer (lentic-test-file file)))
-          ;; keep everything!
-          (lentic-kill-retain t))
-      (when this
-        (with-current-buffer this
-          (let ((that (lentic-that (car lentic-config)))
-                (kill-buffer-query-functions nil))
-            (with-current-buffer that
-              (set-buffer-modified-p nil)
-              (kill-buffer that))))
-        (let ((kill-buffer-query-functions nil))
-          (set-buffer-modified-p nil)
-          (kill-buffer this))))))
+(defun lentic-test-clone= (init file cloned-file)
+  "With INIT function clone FILE and compare to CLONED-file."
+  (let ((comp (lentic-test-clone-to-assess init file cloned-file)))
+    (assess= (car comp) (cdr comp))))
 
-(defun lentic-test-clone-equal (init file cloned-file)
-  (let ((cloned-file
-         (f-read
-          (lentic-test-file cloned-file)))
-        (cloned-results
-         (lentic-test-clone-with-cleanup
-          file init)))
-    (lentic-test-equal-loudly cloned-file cloned-results)))
+(put 'lentic-test-clone= 'ert-explainer 'lentic-test-clone-explain=)
 
-(defun lentic-test-clone-equal-generate
-  (init file cloned-file)
-  "Generates the test file for `lentic-batch-clone-equal'."
-  (f-write
-   (lentic-test-clone-with-cleanup
-    (lentic-test-file file) init)
-   o'utf-8
-   (concat lentic-test-dir cloned-file))
-  ;; return nil, so if we use this in a test by mistake, it will crash out.
-  nil)
+(defun lentic-test-clone-explain= (init file cloned-file)
+  "With INIT function clone FILE and compare to CLONED-file."
+  (let ((comp (lentic-test-clone-to-assess init file cloned-file)))
+    (assess-explain= (car comp) (cdr comp))))
 
 (ert-deftest lentic-conf ()
+  "Test whether the default configuration does sensible things."
   (should
    (equal nil
           (oref
@@ -115,15 +96,18 @@
            :lentic-mode))))
 
 (ert-deftest lentic-simple ()
+  "Simple clone."
   (should
-   (equal "simple\n"
-          (lentic-test-clone-with-cleanup
-           "simple-contents.txt"
-           'lentic-default-init))))
+   (assess=
+    "simple\n"
+    (lentic-test-clone
+     "simple-contents.txt"
+     'lentic-default-init))))
 
 (ert-deftest lentic-clojure-latex ()
+  "Clojure to LaTeX transform."
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-clojure-latex-init
     "chunk-comment.clj"
     "chunk-comment-out.tex")))
@@ -131,7 +115,7 @@
 
 (ert-deftest lentic-asciidoc-clojure ()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-asciidoc-clojure-init
     "asciidoc-clj.txt" "asciidoc-clj-out.clj")))
 
@@ -139,7 +123,7 @@
 ;; to stop this
 (ert-deftest lentic-org-el ()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-org-el-init
     "org-el.org" "org-el.el")))
 
@@ -148,26 +132,26 @@
 
 Addresses issue #32."
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-org-el-init
     "org-el-with-tags.org" "org-el-with-tags.el")))
 
 
 (ert-deftest lentic-el-org ()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-el-org-init
     "el-org.el" "el-org.org")))
 
 (ert-deftest lentic-orgel-org()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-orgel-org-init
     "orgel-org.el" "orgel-org.org")))
 
 (ert-deftest lentic-org-orgel()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-org-orgel-init
     "org-orgel.org" "org-orgel.el")))
 
@@ -176,7 +160,7 @@ Addresses issue #32."
 
 Addresses issue #19."
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-orgel-org-init
     "orgel-org-with-tags.el" "orgel-org-with-tags.org")))
 
@@ -186,43 +170,36 @@ line delimitors are not detected.
 
 Addresses issue #36."
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-org-orgel-init
     "string-src-block.org"
     "string-src-block.el")))
 
-
 (ert-deftest lentic-org-clojure ()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-org-clojure-init
     "org-clojure.org" "org-clojure.clj"
     )))
 
 (ert-deftest lentic-rot13 ()
   (should
-   (lentic-test-clone-equal
+   (lentic-test-clone=
     'lentic-rot13-init
     "abc.txt" "rot13-abc.txt")))
 
 (ert-deftest three-way ()
   (should
-   (with-current-buffer
-       (find-file-noselect
-        (lentic-test-file "chunk-comment.clj"))
-     (setq lentic-init
-           '(lentic-clojure-latex-init
-             lentic-default-init))
-     (lentic-init-all-create)
-     (let ((tex
-            (get-buffer "chunk-comment.tex"))
-           (clj
-            (get-buffer "*lentic: chunk-comment.clj*")))
-       (kill-buffer tex)
-       (kill-buffer clj)
-       (and clj tex)))))
-
-
+   (assess-with-preserved-buffer-list
+    (with-current-buffer
+        (find-file-noselect
+         (lentic-test-file "chunk-comment.clj"))
+      (setq lentic-init
+            '(lentic-clojure-latex-init
+              lentic-default-init))
+      (lentic-init-all-create)
+      (and (get-buffer "chunk-comment.tex")
+           (get-buffer "*lentic: chunk-comment.clj*"))))))
 
 ;; incremental testing
 ;; these test that buffers which are created and then changed are correct.
@@ -232,7 +209,8 @@ Addresses issue #36."
   (filename init &optional f-this f-that retn-this)
   "Clone file and make changes to check incremental updates.
 Using INIT clone FILE, then apply F in the buffer, and return the
-results."
+results. If RETN-THIS is non-nil return the contents of this
+buffer, else return that buffer."
   ;; most of this is the same as batch-clone..
   (let ((retn nil)
         (f-this
@@ -241,136 +219,141 @@ results."
         (f-that
          (or f-that
              (lambda ()))))
-    (let (this that)
-      (unwind-protect
-          (with-current-buffer
-              (setq this
-                    (find-file-noselect filename))
-            (setq lentic-init (-list init))
-            (progn
-              (setq that
-                    (car (lentic-init-all-create)))
-              (funcall f-this)
-              (with-current-buffer
-                  that
-                (funcall f-that)
-                (unless retn-this
-                  (setq retn
-                        (buffer-substring-no-properties
-                         (point-min)
-                         (point-max))))
-                (set-buffer-modified-p nil)))
-            (when retn-this
-              (setq retn
-                    (buffer-substring-no-properties
-                     (point-min)
-                     (point-max))))
-            (set-buffer-modified-p nil)
-            retn)
+    (assess-with-preserved-buffer-list
+     (let (this that)
+       (with-current-buffer
+           (setq this
+                 (find-file-noselect filename))
+         (setq lentic-init (-list init))
+         (progn
+           (setq that
+                 (car (lentic-init-all-create)))
+           (funcall f-this)
+           (with-current-buffer
+               that
+             (funcall f-that)
+             (unless retn-this
+               (setq retn
+                     (buffer-substring-no-properties
+                      (point-min)
+                      (point-max))))
+             (set-buffer-modified-p nil)))
+         (when retn-this
+           (setq retn
+                 (buffer-substring-no-properties
+                  (point-min)
+                  (point-max))))
+         (set-buffer-modified-p nil)
+         retn)))))
 
-        ;; unwind forms
-        (when this (kill-buffer this))
-        (when that (kill-buffer that))))))
-
-(defun lentic-test-clone-and-change-equal
+(defun lentic-test-clone-and-change=
   (init file cloned-file
         &optional f-this f-that retn-that)
-  (let ((cloned-file
-         (f-read
-          (lentic-test-file cloned-file)))
-        (cloned-results
-         (lentic-test-clone-and-change-with-config
-          (lentic-test-file file) init f-this f-that
-          retn-that)))
-    (if
-        (string= cloned-file cloned-results)
-        t
-      ;; comment this out if you don't want it.
-      (lentic-test-equal-loudly cloned-file cloned-results)
-      nil)))
-
-(defun lentic-test-clone-and-change-equal-generate
-  (init file cloned-file f)
-  "Generates the test file for `lentic-test-clone-and-change-with-config'."
-  (f-write
+  (assess=
+   (assess-file (lentic-test-file cloned-file))
    (lentic-test-clone-and-change-with-config
-    (lentic-test-file file) init
-    f)
-   'utf-8
-   (concat lentic-test-dir  cloned-file))
-  ;; return nil, so that if we use this in a test by mistake, it returns
-  ;; false, so there is a good chance it will fail the test.
-  nil)
+    (lentic-test-file file) init f-this f-that
+    retn-that)))
 
-(defvar lentic-test-last-transform "")
+(defun lentic-test-clone-and-change-explain=
+  (init file cloned-file
+        &optional f-this f-that retn-that)
+  (assess-explain=
+   (assess-file (lentic-test-file cloned-file))
+   (lentic-test-clone-and-change-with-config
+    (lentic-test-file file) init f-this f-that
+    retn-that)))
 
-(defadvice lentic-insertion-string-transform
-  (before store-transform
-         (string)
-         activate)
-  (setq lentic-test-last-transform string))
+(put 'lentic-test-clone-and-change= 'ert-explainer
+     #'lentic-test-clone-and-change-explain=)
+
+(defun capture-last-arg (sym-fn fn)
+  (cdar
+   (assess-call-capture sym-fn fn)))
+
+(defun clone-with-preserve (file init fn)
+  (assess-with-preserved-buffer-list
+   (lentic-test-clone-and-change-with-config
+    (lentic-test-file file)
+    init fn)))
+
+(defmacro with-capture-insertion (&rest body)
+  `(capture-last-arg
+    'lentic-insertion-string-transform
+    (lambda ()
+      ,@body)))
 
 (ert-deftest lentic-simple-with-change ()
-  "Test simple-contents with a change, mostly to check my test machinary."
   (should
-   (and
-    (equal "simple\nnot simple"
-           (lentic-test-clone-and-change-with-config
-            (lentic-test-file "simple-contents.txt")
-            'lentic-default-init
-            (lambda ()
-              (goto-char (point-max))
-              (insert "not simple"))))
-    (equal lentic-test-last-transform "not simple"))))
+   (assess=
+    "not simple"
+    (with-capture-insertion
+     (should
+      (assess=
+       (clone-with-preserve
+        "simple-contents.txt"
+        'lentic-default-init
+        (lambda ()
+          (goto-char (point-max))
+          (insert "not simple")))
+       "simple\nnot simple"))))))
 
 (ert-deftest lentic-simple-with-change-file()
   "Test simple-contents with a change and compare to file.
 This mostly checks my test machinary."
   (should
-   (and
-    (lentic-test-clone-and-change-equal
-     'lentic-default-init
-     "simple-contents.txt" "simple-contents-chg.txt"
-     (lambda ()
-       (goto-char (point-max))
-       (insert "simple")))
-    (equal lentic-test-last-transform "simple"))))
+   (assess=
+    "simple"
+    (with-capture-insertion
+     (should
+      (lentic-test-clone-and-change=
+       'lentic-default-init
+       "simple-contents.txt" "simple-contents-chg.txt"
+       (lambda ()
+         (goto-char (point-max))
+         (insert "simple"))))))))
 
 (ert-deftest lentic-clojure-latex-incremental ()
   (should
-   (and
-    (lentic-test-clone-and-change-equal
-     'lentic-clojure-latex-init
-     "chunk-comment.clj" "chunk-comment-changed-out.tex"
-     (lambda ()
-       (forward-line 1)
-       (insert ";; inserted\n")))
-    (equal lentic-test-last-transform ";; inserted\n")))
+   (assess=
+    ";; inserted\n"
+    (with-capture-insertion
+     (should
+      (lentic-test-clone-and-change=
+       'lentic-clojure-latex-init
+       "chunk-comment.clj" "chunk-comment-changed-out.tex"
+       (lambda ()
+         (forward-line 1)
+         (insert ";; inserted\n")))))))
 
   (should
-   (and
-    (lentic-test-clone-and-change-equal
-     'lentic-latex-clojure-init
-     "chunk-comment.tex" "chunk-comment-changed-1.clj"
-     (lambda ()
-       (forward-line 1)
-       (insert ";; inserted\n")))
-    (equal lentic-test-last-transform ";; inserted\n")))
+   (assess=
+    ";; inserted\n"
+    (with-capture-insertion
+     (should
+      (and
+       (lentic-test-clone-and-change=
+        'lentic-latex-clojure-init
+        "chunk-comment.tex" "chunk-comment-changed-1.clj"
+        (lambda ()
+          (forward-line 1)
+          (insert ";; inserted\n"))))))))
 
   (should
-   (and
-    (lentic-test-clone-and-change-equal
-     'lentic-latex-clojure-init
-     "chunk-comment.tex" "chunk-comment-changed-2.clj"
-     (lambda ()
-       (search-forward "\\begin{code}\n")
-       (insert "(form inserted)\n")))
-    (equal lentic-test-last-transform "(form inserted)\n"))))
+   (assess=
+    "(form inserted)\n"
+    (with-capture-insertion
+     (lentic-test-clone-and-change=
+      'lentic-latex-clojure-init
+      "chunk-comment.tex" "chunk-comment-changed-2.clj"
+      (lambda ()
+        (search-forward "\\begin{code}\n")
+        (insert "(form inserted)\n")))))))
 
 (ert-deftest clojure-latex-first-line ()
   "Tests for a bug after introduction of incremental chunks."
   (should
-   (lentic-test-clone-and-change-equal
+   (lentic-test-clone-and-change=
     'lentic-clojure-latex-init
     "chunk-comment.clj" "chunk-comment.tex"
     (lambda ()
@@ -382,7 +365,7 @@ This mostly checks my test machinary."
 (ert-deftest clojure-latex-empty-line ()
   "Tests for a deletion of an empty line"
   (should
-   (lentic-test-clone-and-change-equal
+   (lentic-test-clone-and-change=
     'lentic-clojure-latex-init
     "chunk-comment.clj" "chunk-comment.tex"
     nil
@@ -394,7 +377,7 @@ This mostly checks my test machinary."
 
 (ert-deftest orgel-org-incremental ()
   (should
-   (lentic-test-clone-and-change-equal
+   (lentic-test-clone-and-change=
     'lentic-orgel-org-init
     "orgel-org.el" "orgel-org.el"
     nil
@@ -409,7 +392,7 @@ This mostly checks my test machinary."
 ;; Editing the header one lines causes problems
 (ert-deftest orgel-org-incremental-on-header-one ()
   (should
-   (lentic-test-clone-and-change-equal
+   (lentic-test-clone-and-change=
     'lentic-orgel-org-init
     "orgel-org.el" "orgel-org.el"
     nil
@@ -462,13 +445,13 @@ This mostly checks my test machinary."
 
 (ert-deftest null-operation ()
   (should
-   (equal
+   (assess=
     abc-txt
     (simple-change-that nil))))
 
 (ert-deftest single-insertion ()
   (should
-   (equal
+   (assess=
     (concat "x" abc-txt)
     (simple-change-that
      (lambda ()
@@ -477,7 +460,7 @@ This mostly checks my test machinary."
 
 (ert-deftest single-delete ()
   (should
-   (equal
+   (assess=
     (substring abc-txt 1)
     (simple-change-that
      (lambda ()
@@ -486,7 +469,7 @@ This mostly checks my test machinary."
 
 (ert-deftest line-delete ()
   (should
-   (equal
+   (assess=
     (substring abc-txt 3)
     (simple-change-that
      (lambda ()
@@ -495,8 +478,10 @@ This mostly checks my test machinary."
 
 (ert-deftest erase-buffer ()
   (should
-   (equal
+   (assess=
     ""
     (simple-change-that
      (lambda ()
        (erase-buffer))))))
+
+(provide 'lentic-test)
