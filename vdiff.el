@@ -1,10 +1,11 @@
 ;;; vdiff.el --- A diff tool similar to  vimdiff -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016 Justin Burkett
+;; Copyright (C) 2017  Free Software Foundation, Inc.
 
 ;; Author: Justin Burkett <justin@burkett.cc>
+;; Maintainer: Justin Burkett <justin@burkett.cc>
 ;; URL: https://github.com/justbur/emacs-vdiff
-;; Version: 0.1
+;; Version: 0.2.3
 ;; Keywords: diff
 ;; Package-Requires: ((emacs "24.4") (hydra "0.13.0"))
 
@@ -21,38 +22,42 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;;; News:
+
+;; Version 0.2
+;;   * First ELPA Release
+
 ;;; Commentary:
 
 ;; A tool like vimdiff for Emacs
 
-;; * Introduction
+;; vdiff compares two or three buffers on the basis of the output from the diff
+;; tool. The buffers are kept synchronized so that as you move through one of
+;; the buffers the top of the active buffer aligns with the corresponding top of
+;; the other buffer(s). This is similar to how ediff works, but in ediff you use
+;; a third "control buffer" to move through the diffed buffers. The key
+;; difference is that in vdiff you are meant to actively edit one of the buffers
+;; and the display will update automatically for the other buffer. Similar to
+;; ediff, vdiff provides commands to "send" and "receive" hunks from one buffer
+;; to the other as well as commands to traverse the diff hunks, which are useful
+;; if you are trying to merge changes. In contrast to ediff, vdiff also provides
+;; folding capabilities to fold sections of the buffers that don't contain
+;; changes. This folding occurs automatically. Finally, you are encouraged to
+;; bind a key to `vdiff-hydra/body', which will use hydra.el (in ELPA) to create
+;; a convenient transient keymap containing most of the useful vdiff commands.
 
-;; vdiff is a diff tool for Emacs that is made to behave like vimdiff, meaning
-;; diff information is displayed in buffers as you edit them. There are commands
-;; for cycling through the hunks detected by =diff= and applying changes from
-;; one buffer to the other. The main features are
-
-;;   1. Synchronized scrolling of the buffers with lines matching between the
-;;      two
-;;   2. Commands to transmit (send/receive) changes between buffers
-;;   3. Automatic folding of lines that are unchanged in both buffers
-;;   4. Commands to jump easily between hunks
-;;   5. Everything done through overlays, meaning vdiff doesn't alter the actual
-;;      text in the buffer (unless you are transmit changes of course)
-;;   6. Unlike ediff, remain in buffers instead of having to use a third "control
-;;      buffer"
-;;   7. Cool hydra (see below)
-
-;; Contributions and suggestions are very welcome.
+;; This functionality is all inspired by (but not equivalent to) the vimdiff
+;; tool from vim.
 
 ;; See https://github.com/justbur/emacs-vdiff for more information
 
 ;;; Code:
 
 (require 'cl-lib)
-(require 'subr-x)
+(eval-when-compile (require 'subr-x))
 (require 'diff-mode)
 (require 'hydra)
+(require 'smerge-mode)
 
 (defvar vdiff-mode)
 (defvar vdiff-3way-mode)
@@ -65,45 +70,41 @@
 (defcustom vdiff-lock-scrolling t
   "Whether to lock scrolling by default when starting
 `vdiff-mode'."
-  :group 'vdiff
   :type 'boolean)
 
 (defcustom vdiff-diff-program "diff"
   "diff program to use."
-  :group 'vdiff
   :type 'string)
 
 (defcustom vdiff-diff3-program "diff3"
   "diff3 program to use."
-  :group 'vdiff
   :type 'string)
 
 (defcustom vdiff-diff-extra-args ""
   "Extra arguments to pass to diff. If this is set wrong, you may
 break vdiff. It is empty by default."
-  :group 'vdiff
   :type 'string)
+
+(defcustom vdiff-disable-folding nil
+  "If non-nil, disable folding in vdiff buffers."
+  :type 'boolean)
 
 (defcustom vdiff-fold-padding 6
   "Unchanged lines to leave unfolded around a fold"
-  :group 'vdiff
   :type 'integer)
 
 (defcustom vdiff-min-fold-size 4
   "Minimum number of lines to fold"
-  :group 'vdiff
   :type 'integer)
 
 (defcustom vdiff-may-close-fold-on-point t
-  "If non-nil, avoid closing new folds around point."
-  :group 'vdiff
+  "If non-nil, allow closing new folds around point after updates."
   :type 'boolean)
 
-(defcustom vdiff-fold-string-function 'vdiff-fold-string-default
+(defcustom vdiff-fold-string-function #'vdiff-fold-string-default
   "Function that returns the string printed for a closed
 fold. The arguments passed are the number of lines folded, the
 text on the first line, and the width of the buffer."
-  :group 'vdiff
   :type 'function)
 
 (defcustom vdiff-default-refinement-syntax-code "w"
@@ -111,16 +112,18 @@ text on the first line, and the width of the buffer."
 \"words\" in \`vdiff-refine-this-hunk'. Some useful options are
 
 \"w\"   (default) words
-\"w_\"  symbols \(really words plus symbol constituents\)
+\"w_\"  symbols \(words plus symbol constituents\)
 
 For more information see
 https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Class-Table.html"
-  :group 'vdiff
   :type 'string)
 
 (defcustom vdiff-auto-refine nil
   "If non-nil, automatically refine all hunks."
-  :group 'vdiff
+  :type 'boolean)
+
+(defcustom vdiff-only-highlight-refinements nil
+  "If non-nil, apply faces to refined words but not hunks."
   :type 'boolean)
 
 (defcustom vdiff-subtraction-style 'full
@@ -129,7 +132,6 @@ default is full which means add the same number of (fake) lines
 as those that were removed. The choice single means add only one
 fake line. The choice fringe means don't add lines but do
 indicate the subtraction location in the fringe."
-  :group 'vdiff
   :type '(radio (const :tag "Add same number of fake lines" full)
                 (const :tag "Add single line" single)
                 (const :tag "Add no lines but use fringe" fringe)))
@@ -137,53 +139,51 @@ indicate the subtraction location in the fringe."
 (defcustom vdiff-subtraction-fill-char ?-
   "Character to use for filling subtraction lines. See also
 `vdiff-subtraction-style'."
-  :group 'vdiff
   :type 'integer)
+
+(defcustom vdiff-use-ancestor-as-merge-buffer nil
+  "When in a merge conflict file and text from the ancestor file
+is included, `vdiff-merge-conflict' will use the ancestor file as
+the merge buffer (or target buffer) that will be saved when the
+merge is finished. The default is to show the original file with
+conflicts as the merge buffer."
+  :type 'boolean)
 
 (defface vdiff-addition-face
   '((t :inherit diff-added))
-  "Face for additions"
-  :group 'vdiff)
+  "Face for additions")
 
 (defface vdiff-change-face
   '((t :inherit diff-changed))
-  "Face for changes"
-  :group 'vdiff)
+  "Face for changes")
 
 (defface vdiff-closed-fold-face
   '((t :inherit region))
-  "Face for closed folds"
-  :group 'vdiff)
+  "Face for closed folds")
 
 (defface vdiff-open-fold-face
   '((t))
-  "Face for open folds"
-  :group 'vdiff)
+  "Face for open folds")
 
 (defface vdiff-subtraction-face
   '((t :inherit diff-removed))
-  "Face for subtractions"
-  :group 'vdiff)
+  "Face for subtractions")
 
 (defface vdiff-subtraction-fringe-face
   '((t :inherit vdiff-subtraction-face))
-  "Face for subtraction fringe indicators"
-  :group 'vdiff)
+  "Face for subtraction fringe indicators")
 
 (defface vdiff-refine-changed
   '((t :inherit diff-refine-changed))
-  "Face for word changes within a change hunk"
-  :group 'vdiff)
+  "Face for word changes within a change hunk")
 
 (defface vdiff-refine-added
   '((t :inherit diff-refine-added))
-  "Face for word changes within an addition hunk"
-  :group 'vdiff)
+  "Face for word changes within an addition hunk")
 
 (defface vdiff-target-face
   '((t :inverse-video t :inherit warning))
-  "Face for selecting hunk targets."
-  :group 'vdiff)
+  "Face for selecting hunk targets.")
 
 (defvar vdiff--force-sync-commands '(next-line
                                      previous-line
@@ -282,16 +282,18 @@ because those are handled differently.")
         ((vdiff--buffer-c-p) 'c)))
 
 (defun vdiff--unselected-buffers ()
-  (remq (current-buffer)
-        (vdiff-session-buffers vdiff--session)))
+  (cl-remove-if
+   (lambda (buf) (or (eq buf (current-buffer))
+                     (not (buffer-live-p buf))))
+   (vdiff-session-buffers vdiff--session)))
 
 (defun vdiff--unselected-windows ()
-  (mapcar #'get-buffer-window
+  (mapcar (lambda (buf) (get-buffer-window buf 0))
           (vdiff--unselected-buffers)))
 
 (defun vdiff--all-windows ()
   (remq nil
-        (mapcar #'get-buffer-window
+        (mapcar (lambda (buf) (get-buffer-window buf 0))
                 (vdiff-session-buffers vdiff--session))))
 
 (defun vdiff--all-overlays (ovr)
@@ -369,28 +371,42 @@ one buffer to another. Only applies in 3-way diffs."
   (goto-char (point-min))
   (forward-line (1- n)))
 
-(defun vdiff--overlay-at-pos (&optional pos)
+(defun vdiff--overlay-at-pos (&optional pos noerror)
   "Return first vdiff overlay found at POS which defaults to
-point."
-  (let ((pos (or pos (point))))
-    (catch 'yes
-      (dolist (ovr (overlays-at pos))
-        (when (overlay-get ovr 'vdiff-type)
-          (throw 'yes ovr))))))
+point.
+
+If NOERROR is non-nil, don't signal an error when no overlay is
+found."
+  (let ((pos (or pos (point)))
+        ovr)
+    (setq ovr
+          (catch 'yes
+            (dolist (ovr (overlays-at pos))
+              (when (overlay-get ovr 'vdiff-type)
+                (throw 'yes ovr)))))
+    (if (or ovr noerror)
+        ovr
+      (user-error "No vdiff overlay found here."))))
 
 (defun vdiff--hunk-at-point-p ()
-  "Return first vdiff hunk overlay found at point."
-  (let ((ovr (vdiff--overlay-at-pos)))
+  "Non-nil if point is in hunk overlay.
+
+Returns overlay."
+  (let ((ovr (vdiff--overlay-at-pos nil t)))
     (and (overlayp ovr)
          (overlay-get ovr 'vdiff-type)
-         (not (eq (overlay-get ovr 'vdiff-type) 'fold)))))
+         (not (eq (overlay-get ovr 'vdiff-type) 'fold))
+         ovr)))
 
 (defun vdiff--fold-at-point-p ()
-  "Return first vdiff fold overlay found at point."
-  (let ((ovr (vdiff--overlay-at-pos)))
+  "Non-nil if point is in fold overlay.
+
+Returns overlay."
+  (let ((ovr (vdiff--overlay-at-pos nil t)))
     (and (overlayp ovr)
          (overlay-get ovr 'vdiff-type)
-         (eq (overlay-get ovr 'vdiff-type) 'fold))))
+         (eq (overlay-get ovr 'vdiff-type) 'fold)
+         ovr)))
 
 (defun vdiff--overlays-in-region (beg end)
   "Return any vdiff overlays found within BEG and END."
@@ -403,7 +419,7 @@ point."
 (defun vdiff--maybe-exit-overlay (&optional up no-fold)
   "Move point out of any vdiff overlays. Move down unless UP is
 non-nil. Ignore folds if NO-FOLD is non-nil."
-  (let* ((ovr (vdiff--overlay-at-pos))
+  (let* ((ovr (vdiff--overlay-at-pos nil t))
          (type (when ovr (overlay-get ovr 'vdiff-type))))
     (when (and type
                (or (not no-fold)
@@ -450,8 +466,10 @@ non-nil. Ignore folds if NO-FOLD is non-nil."
 
 ;; * Main overlay refresh routine
 
-(defun vdiff-refresh (&optional post-refresh-hook)
-  "Asynchronously refresh diff information."
+(defun vdiff-refresh (&optional post-refresh-function)
+  "Asynchronously refresh diff information.
+
+POST-REFRESH-FUNCTION is called when the process finishes."
   (interactive)
   (when (vdiff--buffer-p)
     (let* ((tmp-a (make-temp-file "vdiff-a-"))
@@ -494,7 +512,7 @@ non-nil. Ignore folds if NO-FOLD is non-nil."
       (process-put proc 'vdiff-session ses)
       (process-put proc 'vdiff-tmp-a tmp-a)
       (process-put proc 'vdiff-tmp-b tmp-b)
-      (process-put proc 'vdiff-post-refresh-hook post-refresh-hook)
+      (process-put proc 'vdiff-post-refresh-function post-refresh-function)
       (when tmp-c
         (process-put proc 'vdiff-tmp-c tmp-c))
       (set-process-sentinel proc #'vdiff--diff-refresh-1))))
@@ -573,9 +591,10 @@ an addition when compared to other vdiff buffers."
 parsing the diff output and triggering the overlay updates."
   (unless vdiff--inhibit-diff-update
     (let ((parse-func (if (process-get proc 'vdiff-3way)
-                          'vdiff--parse-diff3
-                        'vdiff--parse-diff))
+                          #'vdiff--parse-diff3
+                        #'vdiff--parse-diff))
           (ses (process-get proc 'vdiff-session))
+          (post-function (process-get proc 'vdiff-post-refresh-function))
           finished)
       (cond
        ;; Was getting different exit code conventions depending on the
@@ -595,7 +614,8 @@ parsing the diff output and triggering the overlay updates."
         (let ((vdiff--session ses))
           (when vdiff-auto-refine
             (vdiff-refine-all-hunks))
-          (run-hooks (process-get proc 'vdiff-post-refresh-hook)))
+          (when post-function
+            (funcall post-function)))
         (delete-file (process-get proc 'vdiff-tmp-a))
         (delete-file (process-get proc 'vdiff-tmp-b))
         (when (process-get proc 'vdiff-tmp-c)
@@ -703,38 +723,55 @@ SYNTAX-CODE."
                    'vdiff-refine-added
                  'vdiff-refine-changed))
          instructions ovr-ins)
-    (when (and ovr
-               target-ovr
-               (consp (setq instructions
-                            (vdiff--diff-words ovr target-ovr))))
-      (dolist (curr-ovr (vdiff--all-overlays ovr))
-        (setq ovr-ins (if (eq curr-ovr ovr)
-                          (car instructions)
-                        (cdr instructions)))
-        (with-current-buffer (overlay-buffer curr-ovr)
-          (save-excursion
-            (let ((current-word-n 1))
-              (goto-char (overlay-start curr-ovr))
-              (skip-syntax-forward not-word-syn)
-              (dolist (ins ovr-ins)
-                (dotimes (_ (- (car ins) current-word-n))
-                  (skip-syntax-forward word-syn)
-                  (skip-syntax-forward not-word-syn))
-                (setq current-word-n (car ins))
-                (let* ((words (cdr ins))
-                       (word-ovr
-                        (make-overlay
-                         (point)
-                         (progn
-                           (dotimes (_ (length words))
-                             (skip-syntax-forward not-word-syn)
-                             (skip-syntax-forward word-syn))
-                           (point)))))
-                  (cl-incf current-word-n (length words))
-                  (overlay-put word-ovr 'vdiff t)
-                  (overlay-put word-ovr 'face face)
-                  (overlay-put word-ovr 'vdiff-refinement t)
-                  (skip-syntax-forward not-word-syn))))))))))
+    (if (fboundp 'smerge-refine-regions)
+        (when (and ovr target-ovr)
+          (smerge-refine-regions
+           (with-current-buffer (overlay-buffer ovr)
+             (copy-marker (overlay-start ovr)))
+           (overlay-end ovr)
+           (with-current-buffer (overlay-buffer target-ovr)
+             (copy-marker (overlay-start target-ovr)))
+           (overlay-end target-ovr)
+           `((face . ,face)
+             (vdiff . t)
+             (vdiff-refinement . t))))
+      (when (and ovr
+                 target-ovr
+                 (consp (setq instructions
+                              (vdiff--diff-words ovr target-ovr))))
+        (dolist (curr-ovr (vdiff--all-overlays ovr))
+          (setq ovr-ins (if (eq curr-ovr ovr)
+                            (car instructions)
+                          (cdr instructions)))
+          (with-current-buffer (overlay-buffer curr-ovr)
+            (save-excursion
+              (let ((current-word-n 1))
+                (goto-char (overlay-start curr-ovr))
+                (skip-syntax-forward not-word-syn)
+                (dolist (ins ovr-ins)
+                  (dotimes (_ (- (car ins) current-word-n))
+                    (skip-syntax-forward word-syn)
+                    (skip-syntax-forward not-word-syn))
+                  (setq current-word-n (car ins))
+                  (let* ((words (cdr ins))
+                         (word-ovr
+                          (make-overlay
+                           (point)
+                           (progn
+                             (dotimes (_ (length words))
+                               (skip-syntax-forward not-word-syn)
+                               (skip-syntax-forward word-syn))
+                             (point)))))
+                    (cl-incf current-word-n (length words))
+                    (overlay-put word-ovr 'vdiff t)
+                    (overlay-put word-ovr 'face face)
+                    (overlay-put word-ovr 'vdiff-refinement t)
+                    (skip-syntax-forward not-word-syn)))))))))
+    (when vdiff-only-highlight-refinements
+      (when ovr
+        (overlay-put ovr 'face nil))
+      (when target-ovr
+        (overlay-put target-ovr 'face nil)))))
 
 ;; Not working yet
 ;; (defun vdiff-refine-this-hunk-whitespace (ovr)
@@ -761,7 +798,11 @@ SYNTAX-CODE."
                         (overlay-start chg-ovr)
                         (overlay-end chg-ovr)))
         (when (overlay-get sub-ovr 'vdiff-refinement)
-          (delete-overlay sub-ovr))))))
+          (delete-overlay sub-ovr))))
+    (when vdiff-only-highlight-refinements
+      (cl-case (overlay-get chg-ovr 'vdiff-type)
+        (addition (overlay-put chg-ovr 'face 'vdiff-addition-face))
+        (change (overlay-put chg-ovr 'face 'vdiff-change-face))))))
 
 (defun vdiff-refine-all-hunks (&optional syntax-code)
   "Highlight word differences in all hunks.
@@ -794,6 +835,12 @@ of a \"word\"."
   (vdiff-refine-all-hunks "w"))
 
 ;; * Bitmaps
+
+;; emacs-nox users don't have this function. There's probably a better solution
+;; here, but this seems to work.
+(unless (fboundp 'define-fringe-bitmap)
+  (defun define-fringe-bitmap (&rest _)
+    nil))
 
 (define-fringe-bitmap
   'vdiff--vertical-bar
@@ -833,8 +880,10 @@ of a \"word\"."
 
 (defun vdiff--make-subtraction-string (n-lines)
   "Make string to fill in space for lines missing in a buffer."
-  (let* ((width (1- (window-text-width (get-buffer-window (current-buffer)))))
-         (win-height (window-height (get-buffer-window (current-buffer))))
+  (let* ((width (- (window-text-width
+                    (get-buffer-window (current-buffer) 0)) 2))
+         (win-height (window-height
+                      (get-buffer-window (current-buffer) 0)))
          (max-lines (floor (* 0.7 win-height)))
          (truncate (> n-lines max-lines))
          (trunc-n-lines
@@ -924,7 +973,7 @@ of a \"word\"."
                                  (- end-line beg-line)
                                  first-line-text
                                  (window-width
-                                  (get-buffer-window buffer)))
+                                  (get-buffer-window buffer 0)))
                         'face 'vdiff-closed-fold-face)))
       (overlay-put ovr 'face 'vdiff-open-fold-face)
       (overlay-put ovr 'vdiff-fold-text text)
@@ -1105,7 +1154,8 @@ of a \"word\"."
                             (with-current-buffer c-buffer
                               (line-number-at-pos (point-max))))))
               folds))
-      (vdiff--add-folds a-buffer b-buffer c-buffer folds))))
+      (unless vdiff-disable-folding
+        (vdiff--add-folds a-buffer b-buffer c-buffer folds)))))
 
 ;; * Send/Receive changes
 
@@ -1120,7 +1170,7 @@ well. This only returns bounds for `interactive'."
         (deactivate-mark))
     (list (if (or (= (line-number-at-pos) 1)
                   (vdiff--overlay-at-pos
-                   (line-beginning-position)))
+                   (line-beginning-position) t))
               (line-beginning-position)
             (save-excursion
               (forward-line -1)
@@ -1151,6 +1201,12 @@ use the hunk under point or on the immediately preceding line."
     (unless dont-refresh
       (vdiff-refresh #'vdiff--scroll-function))))
 
+(defun vdiff-send-changes-and-step ()
+  "Use `vdiff-send-changes' then `vdiff-next-hunk'."
+  (interactive)
+  (call-interactively 'vdiff-send-changes)
+  (call-interactively 'vdiff-next-hunk))
+
 (defun vdiff-receive-changes (beg end)
   "Receive the changes corresponding to this position from
 another vdiff buffer. This is equivalent to jumping to the
@@ -1161,6 +1217,12 @@ immediately preceding line."
   (interactive (vdiff--region-or-close-overlay))
   (vdiff-send-changes beg end t nil t)
   (vdiff-refresh #'vdiff--scroll-function))
+
+(defun vdiff-receive-changes-and-step ()
+  "Use `vdiff-receive-changes' then `vdiff-next-hunk'."
+  (interactive)
+  (call-interactively 'vdiff-receive-changes)
+  (call-interactively 'vdiff-next-hunk))
 
 (defun vdiff--transmit-change (ovr &optional targets)
   "Send text in OVR to corresponding overlay in other buffer."
@@ -1345,10 +1407,12 @@ buffer)."
    (lambda ()
      (unless vdiff--setting-vscroll
        (let ((vdiff--setting-vscroll t))
-         (when (and vscroll
-                    (eq vdiff-subtraction-style 'full))
-           (set-window-vscroll window vscroll))
-         (force-window-update window))))))
+         (when (and (windowp window)
+                    (window-live-p window))
+           (when (and vscroll
+                      (eq vdiff-subtraction-style 'full))
+             (set-window-vscroll window vscroll))
+           (force-window-update window)))))))
 
 (defun vdiff--flag-new-command ()
   (setq vdiff--new-command t))
@@ -1595,9 +1659,9 @@ with non-nil USE-FOLDS."
 ;; * Entry points
 
 ;;;###autoload
-(defun vdiff-files (file-a file-b &optional horizontal on-quit)
+(defun vdiff-files (file-a file-b &optional rotate on-quit)
   "Start a vdiff session. If called interactively, you will be
-asked to select two files. HORIZONTAL adjusts the buffer's
+asked to select two files. ROTATE adjusts the buffer's
 initial layout. A prefix argument can be used to set this
 variable interactively. ON-QUIT is a function to run on exiting
 the vdiff session. It is called with the two vdiff buffers as
@@ -1614,14 +1678,32 @@ arguments."
       current-prefix-arg)))
   (vdiff-buffers (find-file-noselect file-a)
                  (find-file-noselect file-b)
-                 horizontal on-quit))
+                 rotate on-quit))
+
+(defcustom vdiff-2way-layout-function 'vdiff-2way-layout-function-default
+  "Function to layout windows in 2way diffs.
+
+Should take the arguments (BUFFER-A BUFFER-B &optional ROTATE),
+where rotate switches from vertical to rotate (or vice
+versa)."
+  :group 'vdiff
+  :type 'function)
+
+(defun vdiff-2way-layout-function-default (buffer-a buffer-b &optional rotate)
+  (delete-other-windows)
+  (switch-to-buffer buffer-a)
+  (set-window-buffer
+   (if rotate
+       (split-window-vertically)
+     (split-window-horizontally))
+   buffer-b))
 
 ;;;###autoload
 (defun vdiff-buffers
     (buffer-a buffer-b
-     &optional horizontal on-quit restore-windows-on-quit kill-buffers-on-quit)
+     &optional rotate on-quit restore-windows-on-quit kill-buffers-on-quit)
   "Start a vdiff session. If called interactively, you will be
-asked to select two buffers. HORIZONTAL adjusts the buffer's
+asked to select two buffers. ROTATE adjusts the buffer's
 initial layout. A prefix argument can be used to set this
 variable interactively. ON-QUIT is a function to run on exiting
 the vdiff session. It is called with the two vdiff buffers as
@@ -1640,19 +1722,21 @@ function for ON-QUIT to do something useful with the result."
       (get-buffer
        (read-buffer
         (format "[Buffer 1 %s] Buffer 2: " buffer-a)
-        (window-buffer (next-window (selected-window)))))
+        (window-buffer (next-window (selected-window) nil 0))))
       current-prefix-arg)))
   (let ((prior-window-config (when restore-windows-on-quit
                                (current-window-configuration)))
         (buffer-a (get-buffer buffer-a))
         (buffer-b (get-buffer buffer-b)))
-    (delete-other-windows)
-    (switch-to-buffer buffer-a)
-    (save-selected-window
-      (if horizontal
-          (split-window-vertically)
-        (split-window-horizontally))
-      (switch-to-buffer-other-window buffer-b))
+    (if (functionp vdiff-2way-layout-function)
+        (funcall vdiff-2way-layout-function buffer-a buffer-b rotate)
+      (delete-other-windows)
+      (switch-to-buffer buffer-a)
+      (set-window-buffer
+       (if rotate
+           (split-window-vertically)
+         (split-window-horizontally))
+       buffer-b))
     (setq vdiff--temp-session
           (vdiff--init-session
            buffer-a buffer-b nil
@@ -1662,10 +1746,13 @@ function for ON-QUIT to do something useful with the result."
         (vdiff-mode -1)
         (vdiff-3way-mode -1)
         (vdiff-mode 1)))
+    (setq vdiff--temp-session nil)
     (vdiff-refresh #'vdiff--scroll-function)))
 
 (defcustom vdiff-3way-layout-function 'vdiff-3way-layout-function-default
-  "Function to layout windows in 3way diffs"
+  "Function to layout windows in 3way diffs.
+
+Should take the arguments (BUFFER-A BUFFER-B BUFFER-C)."
   :group 'vdiff
   :type 'function)
 
@@ -1718,7 +1805,82 @@ function for ON-QUIT to do something useful with the result."
         (vdiff-mode -1)
         (vdiff-3way-mode -1)
         (vdiff-3way-mode 1)))
+    (setq vdiff--temp-session nil)
     (vdiff-refresh #'vdiff--scroll-function)))
+
+;;;###autoload
+(defun vdiff-merge-conflict (file &optional restore-windows-on-quit)
+  "Start vdiff session using merge conflicts marked in FILE."
+  (interactive (list buffer-file-name))
+  (with-current-buffer (find-file-noselect file)
+    (require 'smerge-mode)
+    (let* ((smerge-buffer (current-buffer))
+           (mode major-mode)
+           (filename (file-name-directory (or buffer-file-name "-")))
+           (mine (generate-new-buffer
+                  (concat "*" filename " "
+                          (smerge--get-marker smerge-begin-re "MINE")
+                          "*")))
+           (other (generate-new-buffer
+                   (concat "*" filename " "
+                           (smerge--get-marker smerge-end-re "OTHER")
+                           "*")))
+           (ancestor (generate-new-buffer
+                  (concat "*" filename " "
+                          (smerge--get-marker smerge-end-re "ANCESTOR")
+                          "*")))
+           ancestor-used merge-buffer)
+      (with-current-buffer mine
+        (buffer-disable-undo)
+        (insert-buffer-substring smerge-buffer)
+        (goto-char (point-min))
+        (while (smerge-find-conflict)
+          (smerge-keep-n 1))
+        (buffer-enable-undo)
+        (set-buffer-modified-p nil)
+        (funcall mode))
+
+      (with-current-buffer ancestor
+        (buffer-disable-undo)
+        (insert-buffer-substring smerge-buffer)
+        (goto-char (point-min))
+        (while (smerge-find-conflict)
+          (when (match-beginning 2)
+            (setq ancestor-used t)
+            (smerge-keep-n 2)))
+        (buffer-enable-undo)
+        (set-buffer-modified-p nil)
+        (funcall mode))
+
+      (with-current-buffer other
+        (buffer-disable-undo)
+        (insert-buffer-substring smerge-buffer)
+        (goto-char (point-min))
+        (while (smerge-find-conflict)
+          (smerge-keep-n 3))
+        (buffer-enable-undo)
+        (set-buffer-modified-p nil)
+        (funcall mode))
+
+      (setq merge-buffer
+            (if (and ancestor-used vdiff-use-ancestor-as-merge-buffer)
+                ancestor
+              smerge-buffer))
+
+      (vdiff-buffers3
+       mine other merge-buffer
+       `(lambda (mine other merge-buffer)
+          (with-current-buffer ,smerge-buffer
+            (when (yes-or-no-p (format "Conflict resolution finished; save %s?"
+                                       buffer-file-name))
+              (when ,(and ancestor-used vdiff-use-ancestor-as-merge-buffer)
+                (erase-buffer)
+                (insert-buffer-substring merge-buffer))
+              (save-buffer)))
+          (when (buffer-live-p mine) (kill-buffer mine))
+          (when (buffer-live-p ,ancestor) (kill-buffer ,ancestor))
+          (when (buffer-live-p other) (kill-buffer other)))
+       restore-windows-on-quit))))
 
 ;;;###autoload
 (defun vdiff-files3 (file-a file-b file-c &optional on-quit)
@@ -1743,6 +1905,49 @@ you will be asked to select two files."
                   (find-file-noselect file-c)
                   on-quit))
 
+;;;###autoload
+(defun vdiff-current-file ()
+  "Start vdiff between current buffer and its file on disk.
+This command can be used instead of `revert-buffer'.  If there is
+nothing to revert then this command fails."
+  (interactive)
+  ;; Taken from `ediff-current-file'
+  (unless (or (not (eq revert-buffer-function #'revert-buffer--default))
+              (not (eq revert-buffer-insert-file-contents-function
+               #'revert-buffer-insert-file-contents--default-function))
+              (and buffer-file-number
+                   (or (buffer-modified-p)
+                       (not (verify-visited-file-modtime
+                             (current-buffer))))))
+    (error "Nothing to revert"))
+  (let* ((auto-save-p (and (recent-auto-save-p)
+                           buffer-auto-save-file-name
+                           (file-readable-p buffer-auto-save-file-name)
+                           (y-or-n-p
+                            "Buffer has been auto-saved recently.  Compare with auto-save file? ")))
+         (file-name (if auto-save-p
+                        buffer-auto-save-file-name
+                      buffer-file-name))
+         (revert-buf-name (concat "FILE=" file-name))
+         (revert-buf (get-buffer revert-buf-name))
+         (current-major major-mode))
+    (unless file-name
+      (error "Buffer does not seem to be associated with any file"))
+    (when revert-buf
+      (kill-buffer revert-buf)
+      (setq revert-buf nil))
+    (setq revert-buf (get-buffer-create revert-buf-name))
+    (with-current-buffer revert-buf
+      (insert-file-contents file-name)
+      ;; Assume same modes:
+      (funcall current-major))
+    (vdiff-buffers revert-buf (current-buffer)
+                   nil
+                   (lambda (rbuf _)
+                     (when (buffer-live-p rbuf)
+                       (kill-buffer rbuf)))
+                   t)))
+
 ;; (defvar vdiff-quit-hook nil)
 
 (defun vdiff-quit ()
@@ -1762,12 +1967,13 @@ you will be asked to select two files."
           (kill-process (get-buffer-process buf)))
         (when (buffer-live-p buf) (kill-buffer buf)))
       (dolist (buf (vdiff-session-buffers ses))
-        (with-current-buffer buf
-          (if vdiff-3way-mode
-              (vdiff-3way-mode -1)
-            (vdiff-mode -1)))
-        (when (vdiff-session-kill-buffers-on-quit ses)
-          (kill-buffer buf)))
+        (when (buffer-live-p buf)
+          (with-current-buffer buf
+            (if vdiff-3way-mode
+                (vdiff-3way-mode -1)
+              (vdiff-mode -1)))
+          (when (vdiff-session-kill-buffers-on-quit ses)
+            (kill-buffer buf))))
       ;; (run-hooks 'vdiff-quit-hook)
       (when (vdiff-session-prior-window-config ses)
         (set-window-configuration
@@ -1797,7 +2003,9 @@ you will be asked to select two files."
     (define-key map "P" 'vdiff-previous-fold)
     (define-key map "q" 'vdiff-quit)
     (define-key map "r" 'vdiff-receive-changes)
+    (define-key map "R" 'vdiff-receive-changes-and-step)
     (define-key map "s" 'vdiff-send-changes)
+    (define-key map "S" 'vdiff-send-changes-and-step)
     (define-key map "x" 'vdiff-remove-refinements-in-hunk)
     (define-key map "t" 'vdiff-close-other-folds)
     (define-key map "u" 'vdiff-refresh)
@@ -1822,8 +2030,7 @@ you will be asked to select two files."
   (remove-hook 'after-save-hook #'vdiff-refresh t)
   (remove-hook 'after-change-functions #'vdiff--after-change-function t)
   (remove-hook 'pre-command-hook #'vdiff--flag-new-command t)
-  (when vdiff-scroll-lock-mode
-    (vdiff-scroll-lock-mode -1)))
+  (remove-hook 'window-scroll-functions #'vdiff--scroll-function t))
 
 (define-minor-mode vdiff-mode
   "Minor mode active in a vdiff session involving two
@@ -1835,7 +2042,7 @@ automatically after calling commands like `vdiff-files' or
   (cond (vdiff-mode
          (vdiff--buffer-init)
          (when vdiff-lock-scrolling
-           (vdiff-scroll-lock-mode 1)))
+          (add-hook 'window-scroll-functions #'vdiff--scroll-function nil t)))
         (t
          (vdiff--buffer-cleanup))))
 
@@ -1849,7 +2056,7 @@ automatically after calling commands like `vdiff-files3' or
   (cond (vdiff-3way-mode
          (vdiff--buffer-init)
          (when vdiff-lock-scrolling
-           (vdiff-scroll-lock-mode 1)))
+           (add-hook 'window-scroll-functions #'vdiff--scroll-function nil t)))
         (t
          (vdiff--buffer-cleanup))))
 
@@ -1897,13 +2104,13 @@ enabled automatically if `vdiff-lock-scrolling' is non-nil."
 (defhydra vdiff-hydra (nil nil :hint nil :foreign-keys run)
   (concat (propertize
            "\
- Navigation^^^^          Refine^^   Transmit^^   Folds^^^^            Other^^^^                 "
+ Navigation^^^^          Refine^^   Transmit^^^^             Folds^^^^            Other^^^^                 "
            'face 'header-line)
           "
- _n_/_N_ next hunk/fold  _f_ this   _s_ send     _o_/_O_ open (all)   _i_ ^ ^ toggles
- _p_/_P_ prev hunk/fold  _F_ all    _r_ receive  _c_/_C_ close (all)  _u_ ^ ^ update diff
- _g_^ ^  switch buffers  _x_ clear  ^ ^          _t_ ^ ^ close other  _w_ ^ ^ save buffers
- ^ ^^ ^                  ^ ^        ^ ^          ^ ^ ^ ^              _q_/_Q_ quit hydra/vdiff
+ _n_/_N_ next hunk/fold  _f_ this   _s_/_S_ send (+step)     _o_/_O_ open (all)   _i_ ^ ^ toggles
+ _p_/_P_ prev hunk/fold  _F_ all    _r_/_R_ receive (+step)  _c_/_C_ close (all)  _u_ ^ ^ update diff
+ _g_^ ^  switch buffers  _x_ clear  ^ ^ ^ ^                  _t_ ^ ^ close other  _w_ ^ ^ save buffers
+ ^ ^^ ^                  ^ ^        ^ ^ ^ ^                  ^ ^ ^ ^              _q_/_Q_ quit hydra/vdiff
  ignore case: %s(vdiff--current-case) | ignore whitespace: %s(vdiff--current-whitespace)")
   ("n" vdiff-next-hunk)
   ("p" vdiff-previous-hunk)
@@ -1911,7 +2118,9 @@ enabled automatically if `vdiff-lock-scrolling' is non-nil."
   ("P" vdiff-previous-fold)
   ("g" vdiff-switch-buffer)
   ("s" vdiff-send-changes)
+  ("S" vdiff-send-changes-and-step)
   ("r" vdiff-receive-changes)
+  ("R" vdiff-receive-changes-and-step)
   ("o" vdiff-open-fold)
   ("O" vdiff-open-all-folds)
   ("c" vdiff-close-fold)

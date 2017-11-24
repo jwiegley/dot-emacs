@@ -1,28 +1,43 @@
+[[https://melpa.org/#/vdiff][file:https://melpa.org/packages/vdiff-badge.svg]]
+
 * vdiff
 
 A tool like vimdiff for Emacs 
 
+** Table of Contents                                                    :TOC:
+- [[#vdiff][vdiff]]
+  - [[#introduction][Introduction]]
+  - [[#recent-significant-changes][Recent (Significant) Changes]]
+  - [[#screenshot][Screenshot]]
+  - [[#installation-and-usage][Installation and Usage]]
+  - [[#hydra][Hydra]]
+  - [[#further-customization][Further customization]]
+
 ** Introduction
 
-vdiff is a diff tool for Emacs that is made to behave like vimdiff, meaning diff
-information is displayed in buffers as you edit them. There are commands for
-cycling through the hunks detected by =diff= and applying changes from one
-buffer to the other. The main features are
+   vdiff compares two or three buffers on the basis of the output from the diff
+   tool. The buffers are kept synchronized so that as you move through one of
+   the buffers the top of the active buffer aligns with the corresponding top of
+   the other buffer(s). This is similar to how ediff works, but in ediff you use
+   a third "control buffer" to move through the diffed buffers. The key
+   difference is that in vdiff you are meant to actively edit one of the buffers
+   and the display will update automatically for the other buffer. Similar to
+   ediff, vdiff provides commands to "send" and "receive" hunks from one buffer
+   to the other as well as commands to traverse the diff hunks, which are useful
+   if you are trying to merge changes. In contrast to ediff, vdiff also provides
+   folding capabilities to fold sections of the buffers that don't contain
+   changes. This folding occurs automatically. Finally, you are encouraged to
+   bind a key to `vdiff-hydra/body', which will use hydra.el (in ELPA) to create
+   a convenient transient keymap containing most of the useful vdiff commands.
 
-  1. Synchronized scrolling of the buffers with lines matching between the two
-  2. Commands to transmit (send/receive) hunks between buffers
-  3. Automatic folding of lines that are unchanged in both buffers
-  4. Commands to jump easily between hunks
-  5. Everything done through overlays, meaning vdiff doesn't alter the actual
-     text in the buffer (unless you are transmit changes of course)
-  6. Unlike ediff, remain in buffers instead of having to use a third "control
-     buffer"
-  7. Cool hydra (see below)
+   This functionality is all inspired by (but not equivalent to) the vimdiff
+   tool from vim.
 
-vdiff has not been extensively tested yet, so please report any issues you
-find. Contributions and suggestions are very welcome.
+   Contributions and suggestions are very welcome.
 
 ** Recent (Significant) Changes
+   - [2017-05-17] Split =vdiff-magit.el= into [[https://github.com/justbur/emacs-vdiff-magit][separate repository]]. 
+   - [2017-02-01] Added magit integration functions in =vdiff-magit.el=.
    - [2016-07-25] Added three-way diff support. See =vdiff-buffers3= and =vdiff-files3=.
    
 ** Screenshot
@@ -35,9 +50,19 @@ find. Contributions and suggestions are very welcome.
 
 ** Installation and Usage
    
-vdiff was recently added to MELPA, which is the recommended way to install it
-and keep it up to date. To install it you may do =M-x package-install RET vdiff
-RET=.
+vdiff is available in MELPA, which is the recommended way to install it and keep
+it up to date. To install it you may do =M-x package-install RET vdiff RET=.
+
+To start a vdiff session, the main entry points are
+
+| Command                | Description                                                       |
+|------------------------+-------------------------------------------------------------------|
+| =vdiff-buffers=        | Diff two open buffers                                             |
+| =vdiff-files=          | Diff two files                                                    |
+| =vdiff-buffers3=       | Diff three open buffers                                           |
+| =vdiff-files3=         | Diff three files                                                  |
+| =vdiff-current-file=   | Like =ediff-current-file= (Diff buffer with disk version of file) |
+| =vdiff-merge-conflict= | Use vdiff to resolve merge conflicts in current file              |
    
 After installing you can bind the commands to your preferred key prefix like this
 
@@ -64,7 +89,9 @@ the commands would be
 | Key     | Command                            | Description                         |
 |---------+------------------------------------+-------------------------------------|
 | =C-c r= | =vdiff-receive-changes=            | Receive change from other buffer    |
+| =C-c R= | =vdiff-receive-changes-and-step=   | Same as =C-c r= then =C-c n=        |
 | =C-c s= | =vdiff-send-changes=               | Send this change(s) to other buffer |
+| =C-c S= | =vdiff-send-changes-and-step=      | Same as =C-c s= then =C-c n=        |
 | =C-c f= | =vdiff-refine-this-hunk=           | Highlight changed words in hunk     |
 | =C-c x= | =vdiff-remove-refinements-in-hunk= | Remove refinement highlighting      |
 | (none)  | =vdiff-refine-this-hunk-symbol=    | Refine based on symbols             |
@@ -110,8 +137,21 @@ prefix in normal state.
 (evil-define-key 'normal vdiff-mode-map "," vdiff-mode-prefix-map)
 #+END_SRC
 
-To start vdiff, use either =vdiff-files= to select two files or =vdiff-buffers=
-to select two open buffers.
+To match vimdiff bindings some more work is required. The way the =d= command
+for evil is set up makes it difficult to bind =do= and =dp= as they exist in
+vimdiff. Here is a sample set of bindings that avoids this problem (thanks to
+@edkolev for these).
+
+#+BEGIN_SRC emacs-lisp
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "]c" 'vdiff-next-hunk)
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "[c" 'vdiff-previous-hunk)
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "zc" 'vdiff-close-fold)
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "zM" 'vdiff-close-all-folds)
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "zo" 'vdiff-open-fold)
+  (evil-define-minor-mode-key 'normal 'vdiff-mode "zR" 'vdiff-open-all-folds)
+  (evil-define-minor-mode-key 'motion 'vdiff-mode "go" 'vdiff-receive-changes)
+  (evil-define-minor-mode-key 'motion 'vdiff-mode "gp" 'vdiff-send-changes)
+#+END_SRC
 
 ** Hydra
 
@@ -120,6 +160,7 @@ made in the buffer. By default it lives on the =h= command in the prefix
 map. Bind =vdiff-hydra/body= directly to customize this key binding.
 
 [[file:img/hydra.png]]
+
 
 ** Further customization
    
@@ -136,13 +177,16 @@ The current customization options and there defaults are
   ;; break vdiff.
   (setq vdiff-diff-program-args "")
 
+  ;; Don't use folding in vdiff buffers if non-nil.
+  (setq vdiff-disable-folding nil)
+
   ;; Unchanged lines to leave unfolded around a fold
   (setq vdiff-fold-padding 6)
 
   ;; Minimum number of lines to fold
   (setq vdiff-min-fold-size 4)
 
-  ;; If non-nil, avoid closing new folds around point.
+  ;; If non-nil, allow closing new folds around point after updates.
   (setq vdiff-may-close-fold-on-point t)
 
   ;; Function that returns the string printed for a closed fold. The arguments
@@ -150,11 +194,11 @@ The current customization options and there defaults are
   ;; width of the buffer.
   (setq vdiff-fold-string-function 'vdiff-fold-string-default)
 
-  ;; Default syntax table class code to use for identifying \"words\" in
-  ;; \`vdiff-refine-this-change'. Some useful options are
+  ;; Default syntax table class code to use for identifying "words" in
+  ;; `vdiff-refine-this-change'. Some useful options are
   ;; 
-  ;; \"w\"   (default) words
-  ;; \"w_\"  symbols \(really words plus symbol constituents\)
+  ;; "w"   (default) words
+  ;; "w_"  symbols (words plus symbol constituents)
   ;; 
   ;; For more information see
   ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Syntax-Class-Table.html
