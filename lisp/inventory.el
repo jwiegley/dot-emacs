@@ -1,22 +1,4 @@
-(defun sort-package-declarations ()
-  (interactive)
-  (cl-flet ((next-use-package
-             () (if (re-search-forward "^(use-package " nil t)
-                    (goto-char (match-beginning 0))
-                  (goto-char (point-max)))))
-    (sort-subr
-     nil
-     #'next-use-package
-     #'(lambda ()
-         (goto-char (line-end-position))
-         (next-use-package))
-     #'(lambda ()
-         (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
-         (match-string 1)))))
-
-(defmacro on (f g) `(lambda (x y) (,f (,g x) (,g y))))
-
-(defun sort-on (seq predicate accessor)
+(defsubst sort-on (seq predicate accessor)
   "Sort SEQ using PREDICATE applied to values returned by ACCESSOR.
 This implements the so-called Schwartzian transform, which has
 the performance advantage of applying ACCESSOR at most once per
@@ -44,170 +26,225 @@ reuse storage as much as possible."
       (setq seq2 (cdr seq2)))
     seq))
 
-(defun package-inventory (&optional conversions builtin ignored)
+(defun sort-package-declarations ()
   (interactive)
-  (let ((pkgs (make-hash-table :test #'equal))
-        (feature-names (make-hash-table :test #'equal)))
-    (cl-macrolet
-        ((with-package
-          (name &rest forms)
-          `(let* ((pkg-name (gethash ,name feature-names ,name))
-                  (pkg (gethash pkg-name pkgs (list pkg-name nil nil))))
-             (let ((result (progn ,@forms)))
-               (if result
-                   (puthash pkg-name
-                            (list (nth 0 pkg)
-                                  (nth 1 pkg)
-                                  (cons result (nth 2 pkg))) pkgs)
-                 (remhash pkg-name pkgs))))))
+  (cl-flet ((next-use-package
+             () (if (re-search-forward "^(use-package " nil t)
+                    (goto-char (match-beginning 0))
+                  (goto-char (point-max)))))
+    (sort-subr
+     nil
+     #'next-use-package
+     #'(lambda ()
+         (goto-char (line-end-position))
+         (next-use-package))
+     #'(lambda ()
+         (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
+         (match-string 1)))))
 
-      (dolist (conv conversions)
-        (dolist (name (cdr conv))
-          (puthash name (car conv) feature-names)))
+(defsubst modhash (key table f)
+  (let ((value (gethash key table)))
+    (puthash key (funcall f value) table)))
 
-      (dolist (dir '("lib" "site-lisp" "lisp"))
-        (dolist (file (directory-files-recursively
-                       (expand-file-name dir user-emacs-directory)
-                       "\\.el\\'" nil))
-          (pcase (dired-make-relative file user-emacs-directory)
-            ((and (pred (string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)\\.el")) file)
-             (puthash (match-string 2 file)
-                      (list (match-string 1 file) t '(:installed)) pkgs))
-            ((and (pred (string-match "\\`\\([a-z-]+/\\([^/]+?\\)\\)/")) file)
-             (puthash (match-string 2 file)
-                      (list (match-string 1 file) nil '(:installed)) pkgs)))))
+(defun alist-put (alist &rest pairs)
+  (dolist (pair pairs)
+    (when pair
+      (let* ((key (car pair))
+             (value (cdr pair))
+             (entry (assq key alist)))
+        (if entry
+            (unless (equal (cdr entry) value)
+              (error "%s: overwriting %s with %s" key (cdr entry) value))
+          (setq alist (cons (cons key value) alist))))))
+  alist)
 
-      (dolist (pkg builtin) (with-package pkg :installed))
+(defun inventory (&optional conversions builtin ignored)
+  (interactive)
+  (let ((pkgs (make-hash-table :test #'equal)))
 
-      (dolist (file
-               (list (expand-file-name "init.el" user-emacs-directory)
-                     (expand-file-name "dot-gnus.el" user-emacs-directory)
-                     (expand-file-name "dot-org.el" user-emacs-directory)))
-        (with-temp-buffer
-          (insert-file-contents file)
-          (goto-char (point-min))
-          (while (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)" nil t)
-            (with-package (match-string 1) :referenced))))
+    ;; 1. git remotes
+    (with-temp-buffer
+      (shell-command "git remote" (current-buffer))
+      (goto-char (point-min))
+      (while (re-search-forward "^ext/\\(.+\\)" nil t)
+        (let* ((pkg (match-string 1))
+               (name (concat "ext/" pkg))
+               (url (substring
+                     (shell-command-to-string
+                      (format "git remote get-url %s" name)) 0 -1)))
+          (puthash pkg
+                   (alist-put nil
+                              (cons 'remote url)
+                              (cons 'remote-name name)) pkgs))))
 
+    ;; 2. subdirectories
+    (dolist (topdir '("lisp" "lib" "site-lisp"))
+      (let ((path (expand-file-name topdir user-emacs-directory)))
+        (dolist (entry (directory-files path t nil t))
+          (let ((base (file-name-nondirectory entry)))
+            (when (and (file-directory-p entry)
+                       (not (member base '("." ".."))))
+              (modhash
+               base pkgs
+               (lambda (value)
+                 (alist-put value
+                            (cons 'path
+                                  (concat topdir "/" base))))))))))
+
+    ;; 3. MANIFEST.csv
+    (with-temp-buffer
+      (insert-file-contents-literally
+       (expand-file-name "MANIFEST.csv" user-emacs-directory))
+      (goto-char (point-min))
+      (while (re-search-forward
+              "^\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\)$" nil t)
+        (let* ((name (match-string 1))
+               (dir (match-string 2))
+               (type (match-string 3))
+               (origin (match-string 4))
+               (options (match-string 5))
+               (path (concat dir "/" name))
+               (update
+                (pcase type
+                  ("subtree" (format "git pulltree %s/%s" dir name))
+                  ("file" (format "curl -s -S -o %s/%s %s" dir name origin))
+                  ("submodule"
+                   (format "git --git-dir=%s/%s fetch --no-tags"
+                           dir name)))))
+          (modhash
+           name pkgs
+           (lambda (value)
+             (alist-put value
+                        (cons 'manifest-path path)
+                        (cons 'manifest-type type)
+                        (cons 'manifest-origin origin)
+                        (cons 'manifest-options options)
+                        (and update
+                             (cons 'manifest-update update))))))))
+
+    ;; 4. use-package declarations
+    (dolist (file '("init.el" "dot-org.el" "dot-gnus.el"))
       (with-temp-buffer
-        (let ((default-directory user-emacs-directory))
-          (call-process "git" nil (current-buffer) nil "remote"))
+        (insert-file-contents
+         (expand-file-name file user-emacs-directory))
         (goto-char (point-min))
-        (while (re-search-forward "^ext/\\(.+\\)" nil t)
-          (with-package (match-string 1) :external)))
+        (while (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)" nil t)
+          (let* ((beg (match-beginning 0))
+                 (local-end (match-end 0))
+                 (name (match-string 1))
+                 (entry (and (goto-char beg)
+                             (read (current-buffer))))
+                 (end (progn
+                        (goto-char beg)
+                        (forward-sexp)
+                        (point)))
+                 (load-paths (plist-get entry :load-path))
+                 (load-path (cond
+                             ((and load-paths
+                                   (listp load-paths))
+                              (car load-paths))
+                             ((stringp load-paths)
+                              load-paths)))
+                 (load-path-re "\\`\\(site-lisp\\|lisp\\|lib\\)/\\([^/]+\\)")
+                 (key (if (and load-path
+                               (string-match load-path-re load-path))
+                          (let* ((key (match-string 2 load-path))
+                                 (entry (gethash key pkgs))
+                                 (pkg-name (alist-get 'use-package-name entry)))
+                            (if (or (null entry)
+                                    (null pkg-name)
+                                    (string= name pkg-name))
+                                key
+                              name))
+                        name)))
+            (modhash key pkgs
+                     (lambda (value)
+                       (alist-put value
+                                  (cons 'use-package-name name)
+                                  (and load-paths
+                                       (cons 'use-package-load-path
+                                             load-paths)))))
+            (goto-char local-end)))))
 
-      (dolist (pkg ignored) (with-package pkg))
-
-      (with-current-buffer (get-buffer-create "*inventory*")
-        (cd user-emacs-directory)
-        (delete-region (point-min) (point-max))
-        (let (alist)
-          (maphash #'(lambda (key value)
-                       (setq alist (cons (cons key value) alist))) pkgs)
-          (pcase-dolist (`(,key . ,value)
-                         (sort-on alist #'string-lessp #'car))
-            (let ((keys (nth 2 value)))
-              (if (memq :installed keys)
-                  (if (memq :referenced keys)
-                      ;; (unless (memq :external keys)
-                      ;;   (insert ";; no external: " key ?\n ?\n))
-                      t
-                    (insert "(use-package " key ?\n
-                            "  ;; " "(shell-command \""
-                            (if (nth 1 value)
-                                (concat "rm -f " (nth 0 value) ".el*")
-                              (concat "rm -fr " (nth 0 value)))
-                            "\")" ?\n)
-                    (when (memq :external keys)
-                      (insert "  ;; (shell-command \"git remote rm ext/"
-                              key "\")" ?\n))
-                    (insert "  :disabled t")
-                    (unless (nth 1 value)
-                      (insert ?\n "  :load-path \"" (nth 0 value) "\""))
-                    (insert ")" ?\n ?\n))
-                (when (memq :referenced keys)
-                  (insert ";; referenced: " key ?\n ?\n))
-                (when (memq :external keys)
-                  (insert ";; (shell-command \"git remote rm ext/" key "\")"
-                          ?\n ?\n))))))
-        (emacs-lisp-mode)
-        (display-buffer (current-buffer))))))
-
-(defun inventory ()
-  (interactive)
-  (package-inventory
-   '(
-     ("ProofGeneral" "proof-site" "coq" "pg-user")
-     ("agda" "agda-input" "agda2-mode")
-     ("auctex" "tex-site" "latex" "texinfo" "preview")
-     ("bbdb" "bbdb-com")
-     ("bookmark-plus" "bookmark+")
-     ("company-mode" "company")
-     ("dash-el" "dash")
-     ("debbugs" "debbugs-gnu")
-     ("diffview-mode" "diffview")
-     ("dircmp-mode" "dircmp")
-     ("docker-el" "docker" "docker-images")
-     ("emacs-async" "async")
-     ("emacs-calfw" "calfw" "calfw-cal" "calfw-org")
-     ("emacs-ctable" "ctable")
-     ("emacs-deferred" "deferred")
-     ("emacs-epc" "epc")
-     ("emacs-git-messenger" "git-messenger")
-     ("emacs-request" "request")
-     ("emacs-web" "web")
-     ("expand-region-el" "expand-region")
-     ("f-el" "f")
-     ("flx" "flx-ido")
-     ("fold-this-el" "fold-this")
-     ("fuzzy-el" "fuzzy")
-     ("gh-el" "gh")
-     ("git-annex-el" "git-annex")
-     ("git-wip" "git-wip-mode")
-     ("github-issues-el" "github-issues")
-     ("haskell-config" "haskell-edit")
-     ("haskell-mode" "haskell-mode-autoloads")
-     ("ht-el" "ht")
-     ("ipa-el" "ipa")
-     ("liquid-types-el" "liquid-types")
-     ("lusty-emacs" "lusty-explorer")
-     ("magit" "magit" "magit-commit")
-     ("multifiles-el" "multifiles")
-     ("multiple-cursors-el" "multiple-cursors")
-     ("navi" "navi-mode")
-     ("popup-el" "popup")
-     ("popwin-el" "popwin")
-     ("projectile")
-     ("s-el" "s")
-     ("slime" "slime" "hyperspec")
-     ("smart-forward-el" "smart-forward")
-     ("smartparens" "smartparens" "smartparens-config")
-     ("tramp" "tramp-sh")
-     ("yari-with-buttons" "yari")
-     )
-   '("align" "abbrev" "allout" "browse-url" "cc-mode" "compile"
-     "cus-edit" "diff-mode" "dired" "dired-x" "edebug" "ediff"
-     "edit-server" "eldoc" "elint" "em-unix" "epa" "erc" "ert"
-     "eshell" "etags" "eww" "flyspell" "grep" "gud" "hippie-exp"
-     "ibuffer" "ido" "ielm" "image-file" "info" "isearch"
-     "lisp-mode" "message" "midnight" "mule" "outline" "paren"
-     "ps-print" "recentf" "smerge-mode" "whitespace" "autorevert"
-     "bookmark" "ispell" "nroff-mode" "nxml-mode" "sh-script"
-     "testcover" "winner" "hi-lock" "hilit-chg" "hl-line"
-     "info-look"
-
-     "gnus-demon"
-     "gnus-dired"
-     "gnus-group"
-     "gnus-sum"
-     "mml"
-     "nnir"
-     "smedl-mode"
-     )
-   '("use-package"
-     "dot-gnus" "dot-org"
-     "ledger-mode"
-     "sage"
-     "browse-kill-ring")))
+    ;; Example of a full entry:
+    ;; '((use-package-name . "ace-window")
+    ;;   (use-package-load-path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
+    ;;   (manifest-path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
+    ;;   (manifest-type . "subtree")
+    ;;   (manifest-origin . "git://github.com/abo-abo/ace-window.git")
+    ;;   (path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
+    ;;   (remote . "git@github.com:abo-abo/ace-window.git")
+    ;;   (remote-name . "ext/ace-window"))
+    (display-buffer
+     (with-current-buffer (get-buffer-create "*Inventory*")
+       (erase-buffer)
+       (insert (format ";; %s packages\n(\n" (hash-table-size pkgs)))
+       (maphash
+        (lambda (key value)
+          (let ((mirror-only
+                 (let ((opts (alist-get 'manifest-options value)))
+                   (and opts (string-match "mirror-only" opts))))
+                errs)
+            (cl-flet ((report (err) (setq errs (cons err errs))))
+              (dolist (elem
+                       (if mirror-only
+                           '(manifest-path
+                             manifest-type
+                             manifest-origin
+                             remote
+                             remote-name)
+                         '(use-package-name
+                           manifest-path
+                           manifest-type
+                           manifest-origin
+                           path
+                           remote
+                           remote-name)))
+                (unless (assq elem value)
+                  (report (list 'missing elem))))
+              (cl-flet ((clean-url
+                         (url)
+                         (and url
+                              (replace-regexp-in-string
+                               "\\.git\\'" ""
+                               (replace-regexp-in-string
+                                "git@github\\.com:"
+                                "git://github.com/" url)))))
+                (let ((url1 (alist-get 'manifest-origin value))
+                      (url2 (alist-get 'remote value)))
+                  (if (and url1 url2
+                           (not (string= (clean-url url1)
+                                         (clean-url url2))))
+                      (report 'remote-mismatch))))
+              (let ((paths
+                     (let ((load-path
+                            (alist-get 'use-package-load-path value)))
+                       (delete nil
+                               (append (list (alist-get 'manifest-path value)
+                                             (alist-get 'path value))
+                                       (if (stringp load-path)
+                                           (list load-path)
+                                         load-path))))))
+                (if (and paths
+                         (> (length paths) 1)
+                         (not (= 1 (length (cl-remove-duplicates
+                                            paths :test #'string=)))))
+                    (report 'path-inconsistency))))
+            (unless mirror-only
+              (when (member '(missing path) errs)
+                (insert (format ";; %s: need to install\n" key)))
+              (when (member '(missing remote) errs)
+                (insert (format ";; %s: need to mirror as Git remote\n" key)))
+              (when (member '(missing use-package-name) errs)
+                (insert (format ";; %s: need to configure with use-package\n" key))))
+            (when (member '(missing manifest-path) errs)
+              (insert (format ";; %s: need to record in manifest\n" key)))
+            (insert (pp-to-string
+                     (cons key (if errs
+                                   (cons (cons 'errors errs) value)
+                                 value))) ?\n)))
+        pkgs)
+       (insert ")\n")
+       (current-buffer)))))
 
 (provide' inventory)
