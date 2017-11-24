@@ -116,9 +116,9 @@
            (projectile-project-name () "project")
            (projectile-ignored-files-rel () ())
            (projectile-ignored-directories-rel () ()))
-          (let* ((file-names '("foo.c" "foo.o" "foo.so" "foo.o.gz"))
+          (let* ((file-names '("foo.c" "foo.o" "foo.so" "foo.o.gz" "foo.tar.gz" "foo.tar.GZ"))
                  (files (mapcar 'projectile-expand-root file-names)))
-            (let ((projectile-globally-ignored-file-suffixes '(".o" ".so")))
+            (let ((projectile-globally-ignored-file-suffixes '(".o" ".so" ".tar.gz")))
               (should (equal (projectile-remove-ignored files)
                              (mapcar 'projectile-expand-root
                                      '("foo.c" "foo.o.gz"))))))))
@@ -656,7 +656,8 @@
 
 (ert-deftest projectile-test-compilation-directory ()
   (defun helper (project-root rel-dir)
-    (noflet ((projectile-project-root () project-root))
+    (noflet ((projectile-project-root () project-root)
+             (projectile-project-type () 'generic))
             (let ((projectile-project-compilation-dir rel-dir))
               (projectile-compilation-dir))))
 
@@ -664,6 +665,38 @@
   (should (equal "/root/build/" (helper "/root/" "build/")))
   (should (equal "/root/build/" (helper "/root/" "./build")))
   (should (equal "/root/local/build/" (helper "/root/" "local/build"))))
+
+(ert-deftest projectile-test-compilation-directory-with-default-directory ()
+  (projectile-register-project-type 'default-dir-project '("file.txt")
+                                    :compilation-dir "build")
+  (defun helper (project-root &optional rel-dir)
+    (noflet ((projectile-project-root () project-root)
+             (projectile-project-type () 'default-dir-project))
+            (if (null rel-dir)
+                (projectile-compilation-dir)
+              (let ((projectile-project-compilation-dir rel-dir))
+                (projectile-compilation-dir)))))
+
+  (should (equal "/root/build/"       (helper "/root/")))
+  (should (equal "/root/buildings/"   (helper "/root/" "buildings"))))
+
+(ert-deftest projectile-detect-project-type-of-rails-like-npm-test ()
+  (projectile-test-with-sandbox
+   (projectile-test-with-files
+    ("project/"
+     "project/Gemfile"
+     "project/app/"
+     "project/lib/"
+     "project/db/"
+     "project/config/"
+     "project/spec/"
+     "project/package.json"
+     )
+    (let ((projectile-indexing-method 'native))
+      (noflet ((projectile-project-root
+                () (file-truename (expand-file-name "project/"))))
+              (should (equal 'rails-rspec
+                             (projectile-detect-project-type))))))))
 
 (ert-deftest projectile-test-dirname-matching-count ()
   (should (equal 2
