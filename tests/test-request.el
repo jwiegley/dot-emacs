@@ -542,6 +542,17 @@ based backends (e.g., `curl') should avoid this problem."
                    '(("key with space" . "*evil* !values!"))))
                  "key%20with%20space=%2aevil%2a%20%21values%21")))
 
+(ert-deftest request--curl-command ()
+  "construct curl command"
+  (let ((options '("--noproxy" "--cacert")))
+    (let* ((request-curl-options options)
+           (got (request--curl-command "https://example.com")))
+      (dolist (opt options)
+        (should (member opt got))))
+    (let ((got (request--curl-command "https://example.com")))
+      (dolist (opt options)
+        (should-not (member opt got))))))
+
 (ert-deftest request--curl-preprocess/no-redirects ()
   (with-temp-buffer
     (erase-buffer)
@@ -742,8 +753,9 @@ RESPONSE-BODY"))
 127.0.0.1	FALSE	/	FALSE	0	key2	value2
 ")
     (should (equal (request--netscape-cookie-parse)
-                   '(("127.0.0.1" nil "/" nil 0 "key1" "value1")
-                     ("127.0.0.1" nil "/" nil 0 "key2" "value2"))))))
+                   '(("127.0.0.1" nil "/" nil t 0 "session" "\"Jm7AXQMIE\"")
+                     ("127.0.0.1" nil "/" nil nil 0 "key1" "value1")
+                     ("127.0.0.1" nil "/" nil nil 0 "key2" "value2"))))))
 
 (provide 'test-request)
 
