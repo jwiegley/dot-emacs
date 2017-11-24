@@ -1197,7 +1197,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
            ("Y" . dired-ranger-paste)))
 
   (use-package dired-toggle
-    :load-path "site-lisp/site-dired/dired-toggle"
+    :load-path "site-lisp/dired-toggle"
     :bind ("C-. d" . dired-toggle)
     :preface
     (defun my-dired-toggle-mode-hook ()
