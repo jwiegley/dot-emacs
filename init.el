@@ -2365,6 +2365,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
+  :init (setq markdown-command "multimarkdown")
   :config
   (use-package markdown-preview-mode
     :load-path "site-lisp/site-lang/markdown-preview-mode"
