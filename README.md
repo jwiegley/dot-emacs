@@ -1,44 +1,76 @@
 # Lua mode
 
-**lua-mode** is a major mode for editing Lua sources in Emacs. After a rather long hiatus, it's back in active development stage, so make sure to visit [homepage](https://github.com/immerrr/lua-mode) frequently enough.
+[![Build Status](https://travis-ci.org/immerrr/lua-mode.svg?branch=master)](https://travis-ci.org/immerrr/lua-mode)
+
+**lua-mode** is a major mode for editing Lua sources in Emacs.
+
 
 If you have a problem or a suggestion about **lua-mode**, please, let me know about it via github's [Issue Tracker](https://github.com/immerrr/lua-mode/issues).
 
 ## INSTALLATION
 
-To install, just copy `lua-mode.el` into a directory on your load-path (and optionally byte-compile it).
-To set up Emacs to automatically edit files ending in `.lua` or with a lua hash-bang line using **lua-mode**
-add the following to your init file:
+### EL-GET INSTALLATION
+
+[El-get](https://github.com/dimitri/el-get) is a package manager which greatly simplifies adding
+modules to your Emacs and keeping them up-to-date. Once you have **el-get** set up, installing
+**lua-mode** can be done with
+
+    <M-x> el-get-install "lua-mode"
+
+and updating is no more than
+
+    <M-x> el-get-update "lua-mode"`
+    
+Please, consult with [el-get documentation](https://github.com/dimitri/el-get/blob/master/README.md) for further information.
+
+### MANUAL INSTALLATION
+
+To install, you need to make sure that `lua-mode.el` is on your load-path (and optionally byte-compile
+it) and to set up Emacs to automatically enable **lua-mode** for `*.lua` files or ones that contain lua
+hash-bang line (`#!/usr/bin/lua`). Putting this snippet to `.emacs` should be enough in most cases:
+```lisp
+    ;;;; This snippet enables lua-mode
+
+    ;; This line is not necessary, if lua-mode.el is already on your load-path
+    (add-to-list 'load-path "/path/to/directory/where/lua-mode-el/resides")
 
     (autoload 'lua-mode "lua-mode" "Lua editing mode." t)
     (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
     (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+```
 
-## USAGE
+## FEATURES
 
-**lua-mode** supports c-mode style formatting and sending of lines/regions/files to a Lua interpreter. An
-interpreter (see variable `lua-default-application`) will be started if you try to send some code and none
-is running. You can use the process-buffer (named after the application you chose) as if it were an
-interactive shell. See the documentation for `comint.el` for details.
+- syntactic indentation & highlighting (including multiline literals/comments)
+- evaluation of lines/regions/functions/files in Lua subprocess or direct interaction with its REPL
+- documentation lookup (using online/offline reference manual, e.g. [string.find](http://www.lua.org/manual/5.1/manual.html#pdf-string.find))
+- [imenu](http://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html) integration
+- [HideShow](http://www.gnu.org/software/emacs/manual/html_node/emacs/Hideshow.html) integration
 
-Lua-mode also works with Hide Show minor mode (see ``hs-minor-mode``).
+## CUSTOMIZATION
 
-## TODO
-Currently, there're a lot of features that need fixing (or reimplementing), including but not limited to:
+The following variables are available for customization (see more via `M-x customize-group lua`):
 
-1. implementing autotesting of indentation engine
-1. supporting line-continuation commas
-1. fixing close-brace/paren positioning
-1. fix syntax handling of multiline comments/literals (including both highlighting & indentation)
-1. implementing a crisp scheme of customizing the way lua-mode indents the code
-1. cleaning up existing code
-1. extending docs & comments
+- Var `lua-indent-level` (default `3`): indentation offset in spaces
+- Var `lua-indent-string-contents` (default `nil`): set to `t` if you like to have contents of multiline strings to be indented like comments
+- Var `lua-mode-hook`: list of functions to execute when lua-mode is initialized
+- Var `lua-documentation-url` (default `"http://www.lua.org/manual/5.1/manual.html#pdf-"`): base URL for documentation lookup
+- Var `lua-documentation-function` (default `browse-url`): function used to show documentation (`eww` is a viable alternative for Emacs 25)
 
-## CEDET/Semantic integration
-Also, there's a rather distant goal to integrate lua-mode with [cedet's semantic](http://cedet.sourceforge.net/semantic.shtml). This would mean an almost complete rewrite, but I think the challenge is worth it. There's a slightest concern about the overhead brought by this dependency, but **semantic** is already being shipped with Emacs, so there might be no problem after all.
+## LUA SUBPROCESS CREATION
 
-### Use wisent-generated grammar
-First stage would be to rewrite syntax handling with help of **semantic/wisent**-generated parser based on the actual Lua grammar. Currently, syntax analysis is done ad-hoc and, despite the model is oversimplified and doesn't treat corner situation well, it's still very tricky and really hard to grasp.
+- Var `lua-default-application` (default `"lua"`): command to start up the subprocess (REPL)
+- Var `lua-default-command-switches` (default `"-i"`): arguments to pass to the subprocess on startup (make sure `-i` is there if you expect working with Lua shell interactively)
+- Cmd `lua-start-process`: start new REPL process, usually happens automatically
+- Cmd `lua-kill-process`: kill current REPL process
 
-### Extend cedet/semantic facilities onto Lua
-And there's the cherry on the pie: after completing the wisent-generated parser, the next step will be to provide semantic with all the information it needs to do it's magic of code analysis and generation.
+## LUA SUBPROCESS INTERACTION
+
+- Cmd `lua-show-process-buffer`: switch to REPL buffer
+- Cmd `lua-hide-process-buffer`: hide window showing REPL buffer
+- Var `lua-always-show`: show REPL buffer after sending something
+- Cmd `lua-send-buffer`: send whole buffer
+- Cmd `lua-send-current-line`: send current line
+- Cmd `lua-send-defun`: send current top-level function
+- Cmd `lua-send-region`: send active region
+- Cmd `lua-restart-with-whole-file`: restart REPL and send whole buffer
