@@ -58,3 +58,6 @@
 [submodule "lisp/git-undo-el"]
 	path = lisp/git-undo-el
 	url = git://github.com/jwiegley/git-undo-el.git
+[submodule "site-lisp/auctex"]
+	path = site-lisp/auctex
+	url = https://git.savannah.gnu.org/git/auctex.git
