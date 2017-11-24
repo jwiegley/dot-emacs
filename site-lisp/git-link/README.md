@@ -19,14 +19,16 @@ of your choice e.g., `(global-set-key (kbd "C-c g l") 'git-link)`
 
 With a prefix argument prompt for the remote's name. Defaults to `"origin"`.
 
+Works with dired and magit too.
+
 ### Settings
 
-Global setting are elisp variables.
+Global setting are elisp variables. They can be set directly or via `M-x customize`.
 
 Local settings are managed via the repository's git configuration. They can be set via:
 
 ```
-git config --local --set setting value
+git config --local --add setting value
 ```
 
 Local settings have precedence over global settings.
@@ -68,26 +70,39 @@ Name of the remote branch to link to.
 
 ### Git Timemachine
 
-If [`git-timemachine-mode`](https://github.com/pidu/git-timemachine) is active `git-link` generates a URL for the version of the file being visited.
+If [`git-timemachine-mode`](https://github.com/pidu/git-timemachine)
+is active `git-link` generates a URL for the version of the file being
+visited.
 
 ### Building Links and Adding Services
 
-`git-link-remote-alist` and `git-link-commit-remote-alist` map remotes'
-hostnames to a function capable of creating a URL on that host. To add (or
-modify) how URLs are created for a given host add the appropriate function
-objects to these lists.
+`git-link-remote-alist` is an alist containing `(REGEXP FUNCTION)`
+elements. The FUNCTION creates URLs for file on remote host names that
+match the REGEXP. To add (or modify) how URLs are created for a given
+host, add appropriate elements to this list.
 
-If you use a self-hosted version of one of the supported services, you
-can configure the link function alists for the hostname at which that
-service is hosted.  For example, for a GitHub Enterprise instance at
-`github.example.com`, you could add the following to your `.emacs` file.
+As an example, one of the default elements in this alist is
+`("gitlab" git-link-gitlab)`. So the `git-link-gitlab` function
+will be used to create URLs to files in remotes that match the
+*regexp* `"gitlab"`.  That would cover common Gitlab host URLs like
+*"gitlab.com"*, *"gitlab.example.com"* and *"gitlab.example.org"*.
 
-    (eval-after-load "git-link"
+`git-link-commit-remote-alist` is also an alist containing `(REGEXP
+FUNCTION)` elements. Here, the FUNCTION creates URLs to the commit
+pages, for remote hosts matching REGEXP.
+
+If you use a self-hosted version of one of the supported services, but
+your remote URL does match with the defaults, you can configure these
+link function alists.  For example, for a GitHub Enterprise instance
+at `gh.example.com`, you could add the following to your `.emacs`
+file:
+
+    (eval-after-load 'git-link
       '(progn
         (add-to-list 'git-link-remote-alist
-          '("github.example.com" git-link-github))
+          '("gh\\.example\\.com" git-link-github))
         (add-to-list 'git-link-commit-remote-alist
-          '("github.example.com" git-link-commit-github))))
+          '("gh\\.example\\.com" git-link-commit-github))))
 
 The `git-link` signature is:
 
@@ -108,6 +123,11 @@ The `git-link-commit` signature is:
 * `HOSTNAME` hostname of the remote
 * `DIRNAME` directory portion of the remote
 * `COMMIT` SHA of the commit
+
+### See Also
+
+* [copy-as-format](https://github.com/sshaw/copy-as-format)
+* [output-as-format](https://github.com/sshaw/output-as-format)
 
 ### TODO
 
