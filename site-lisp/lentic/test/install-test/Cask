@@ -1,0 +1,6 @@
+(source gnu)
+(source marmalade)
+(source melpa-stable)
+
+(depends-on "lentic")
+

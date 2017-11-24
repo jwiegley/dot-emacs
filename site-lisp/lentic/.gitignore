@@ -35,3 +35,7 @@ Makefile-local
 /examples/many-multi-block-comment-copy.tex
 /dev-resources/asciidoc-clj.clj
 /examples/orgel-org-with-tags.org
+/test/install-test/.cask
+/dev-resources/fillsh.org
+/dev-resources/fulllua.org
+/dev-resources/fullpython.org
