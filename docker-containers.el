@@ -44,7 +44,11 @@
 
 (defun docker-container-parse (line)
   "Convert a LINE from \"docker ps\" to a `tabulated-list-entries' entry."
-  (let ((data (json-read-from-string line)))
+  (let (data)
+    (condition-case err
+        (setq data (json-read-from-string line))
+      (json-readtable-error
+       (error "could not read following string as json:\n%s" line)))
     (list (aref data 6) data)))
 
 (defun docker-read-container-name (prompt)
@@ -130,8 +134,13 @@ Remove the volumes associated with the container when VOLUMES is set."
 ;;;###autoload
 (defun docker-container-shell (container)
   (interactive (list (docker-read-container-name "container: ")))
-  (let ((default-directory (format "/docker:%s:" container)))
-    (shell)))
+  (let* ((container-address (format "docker:%s:/" container))
+         (file-prefix (if (file-remote-p default-directory)
+                          (with-parsed-tramp-file-name default-directory nil
+                            (format "/%s:%s|" method host))
+                        "/"))
+         (default-directory (format "%s%s" file-prefix container-address)))
+    (shell (format "*shell %s*" default-directory))))
 
 (defun docker-containers-find-file-selection ()
   "Run `docker-container-find-file' on the containers selection."
@@ -169,7 +178,7 @@ Remove the volumes associated with the container when VOLUMES is set."
              functions)))
 
 ;;;###autoload
-(defun docker-rename-entry ()
+(defun docker-containers-rename ()
   (interactive)
   (docker-utils-select-if-empty)
   (let ((ids (docker-utils-get-marked-items-ids)))
@@ -178,6 +187,8 @@ Remove the volumes associated with the container when VOLUMES is set."
       (let ((new-name (read-string "New Name: ")))
         (docker "rename" (nth 0 ids) new-name)
         (tablist-revert)))))
+
+(defalias 'docker-rename-entry 'docker-containers-rename)
 
 (defun docker-containers-cp-from (container-path host-path)
   "Run `docker-cp' on the container to copy files from."
@@ -332,7 +343,7 @@ Remove the volumes associated with the container when VOLUMES is set."
     (define-key map "R" 'docker-containers-restart-popup)
     (define-key map "P" 'docker-containers-pause-popup)
     (define-key map "D" 'docker-containers-rm-popup)
-    (define-key map "r" 'docker-rename-entry)
+    (define-key map "r" 'docker-containers-rename)
     map)
   "Keymap for `docker-containers-mode'.")
 
