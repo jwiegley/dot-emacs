@@ -1,4 +1,4 @@
-RPC-EPC version 0.0.2
+RPC-EPC version 0.0.11
 
   An asynchronous remote procedure stack for Emacs.
 
@@ -26,7 +26,7 @@ DEPENDENCIES
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2011, Masashi Sakurai
+Copyright (C) 2014, Masashi Sakurai
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -3,7 +3,7 @@ use Test::More tests => 3;
 use IPC::Open2;
 use RPC::EPC::Service;
 
-$pid = open2(*PROC_OUT, undef, "perl ./t/_add.pl");
+$pid = open2(*PROC_OUT, undef, $^X . " ./t/_add.pl");
 $port = <PROC_OUT>;
 
 eval {
