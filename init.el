@@ -1736,6 +1736,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
 
+(use-package highlight
+  :bind ("C-. h" . hlt-highlight-region))
+
 (use-package highlight-numbers
   :load-path "site-lisp/highlight-numbers"
   :commands highlight-numbers-mode
