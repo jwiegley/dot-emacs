@@ -1,5 +1,6 @@
-2.1.0
-=====
+2.1.0 2017-11-10
+----------------
+
 * Let <kbd>M-q</kbd> reformat strings (and use only SMIE).
 * Do not indent an expression after `;;` (issue #106).
 * New face `tuareg-font-double-colon-face` to highlight `;;`.
@@ -31,7 +32,7 @@
   variable `tuareg-opam-insinuate` (issue #97).
 * New keybinding <kbd>C-cC-w</kbd> and function `tuareg-opam-update-env`
   to update the environment to an opam switch (offering completion).
-* Improved highlighting of quoted strings `{|…|}` (issue 89).
+* Improved highlighting of quoted strings `{|…|}` (issue #89).
 * Move after `;;` when evaluating a phrase in the toploop (issue #96).
 
 * ocamldebug:
@@ -42,8 +43,12 @@
   - Make possible to pass argument to the program being debugged (issue #66).
   - Warn if SMIE is disabled.
 
+* New modes `tuareg-jbuild` and `tuareg-opam` with syntax
+  highlighting, indentation, and skeletons.
+
 2.0.10
-======
+------
+
 * New indentation config var for SMIE: tuareg-indent-align-with-first-arg.
 * Many indentation improvements.
 * Fixed point jumping in ocamldebug completion (by Darius Foo).
@@ -52,7 +57,8 @@
 * Syntax highlight cppo preprocessor directives.
 
 2.0.9
-=====
+-----
+
 * Do not activate Tuareg for .mll and .mly files.
 * Toplevel prompt is readonly.
 * Font-lock code completely rewritten (avoids several hangs).  New faces
