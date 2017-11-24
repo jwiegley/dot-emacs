@@ -1,11 +1,11 @@
 ;;; dired-rainbow.el --- Extended file highlighting according to its type
 
-;; Copyright (C) 2014 Matus Goljer
+;; Copyright (C) 2014-2017 Matus Goljer
 
 ;; Author: Matus Goljer <matus.goljer@gmail.com>
 ;; Maintainer: Matus Goljer <matus.goljer@gmail.com>
 ;; Keywords: files
-;; Version: 0.0.2
+;; Version: 0.0.3
 ;; Created: 16th February 2014
 ;; Package-requires: ((dash "2.5.0") (dired-hacks-utils "0.0.1"))
 
@@ -86,6 +86,17 @@ colored."
 This alist is constructed in `dired-rainbow-define' for the case
 when the user wants to reuse the associations outside of dired.")
 
+(defun dired-rainbow--get-face (face-props)
+  "Return face specification according to FACE-PROPS.
+
+See `dired-rainbow-define'."
+  (cond
+   ((stringp face-props)
+    `(:foreground ,face-props))
+   ((symbolp face-props)
+    `(:inherit ,face-props))
+   (t face-props)))
+
 (defmacro dired-rainbow-define (symbol face-props extensions)
   "Define a custom dired face highlighting files by extension.
 
@@ -93,11 +104,12 @@ SYMBOL is the identifier of the face.  The macro will define a face named
 
   dired-rainbow-SYMBOL-face.
 
-FACE-PROPS is either a string or a list.  If a string, it is
+FACE-PROPS is a string, a list or a symbol.  If a string, it is
 assumed to be either a color name or a hexadecimal code (#......)
 describing a color.  If a list, it is assumed to be a property
 list describing the face.  See `defface' for list of possible
-attributes.
+attributes.  If a symbol it is taken as the name of an existing
+face which is used.
 
 EXTENSIONS is either a list or a symbol evaluating to a list of
 extensions that should be highlighted with this face.  Note that
@@ -107,6 +119,7 @@ compilation and must be defined before this macro is processed.
 Additionally, EXTENSIONS can be a single string or a symbol
 evaluating to a string that is interpreted as a regexp matching
 the entire file name."
+  (declare (debug (symbolp [&or stringp listp symbolp] [&or symbolp listp stringp])))
   (let* ((matcher (if (or (listp extensions)
                           (stringp extensions))
                       extensions
@@ -122,12 +135,11 @@ the entire file name."
          (face-name (intern (concat "dired-rainbow-" (symbol-name symbol) "-face"))))
     `(progn
        (defface ,face-name
-         '((t ,(if (stringp face-props)
-                   `(:foreground ,face-props)
-                 face-props)))
+         '((t ,(dired-rainbow--get-face face-props)))
          ,(concat "dired-rainbow face matching " (symbol-name symbol) " files.")
          :group 'dired-rainbow)
        (font-lock-add-keywords 'dired-mode '((,regexp 1 ',face-name)))
+       (font-lock-add-keywords 'wdired-mode '((,regexp 1 ',face-name)))
        ,(if (listp matcher) `(push
                               '(,matcher ,face-name ,(concat "\\." (regexp-opt matcher)))
                               dired-rainbow-ext-to-face)))))
@@ -139,11 +151,12 @@ SYMBOL is the identifier of the face.  The macro will define a face named
 
   dired-rainbow-SYMBOL-face.
 
-FACE-PROPS is either a string or a list.  If a string, it is
+FACE-PROPS is a string, a list or a symbol.  If a string, it is
 assumed to be either a color name or a hexadecimal code (#......)
 describing a color.  If a list, it is assumed to be a property
 list describing the face.  See `defface' for list of possible
-attributes.
+attributes.  If a symbol it is taken as the name of an existing
+face which is used.
 
 CHMOD is a regexp matching \"ls -l\" style permissions string.
 For example, the pattern
@@ -151,6 +164,7 @@ For example, the pattern
   \"-.*x.*\"
 
 matches any file with executable flag set for user, group or everyone."
+  (declare (debug (symbolp [&or stringp listp symbolp] stringp)))
   (let* ((regexp (concat
                   "^[^!]."
                   chmod
@@ -160,12 +174,11 @@ matches any file with executable flag set for user, group or everyone."
          (face-name (intern (concat "dired-rainbow-" (symbol-name symbol) "-face"))))
     `(progn
        (defface ,face-name
-         '((t ,(if (stringp face-props)
-                   `(:foreground ,face-props)
-                 face-props)))
+         '((t ,(dired-rainbow--get-face face-props)))
          ,(concat "dired-rainbow face matching " (symbol-name symbol) " files.")
          :group 'dired-rainbow)
-       (font-lock-add-keywords 'dired-mode '((,regexp 1 ',face-name))))))
+       (font-lock-add-keywords 'dired-mode '((,regexp 1 ',face-name)))
+       (font-lock-add-keywords 'wdired-mode '((,regexp 1 ',face-name))))))
 
 (provide 'dired-rainbow)
 
