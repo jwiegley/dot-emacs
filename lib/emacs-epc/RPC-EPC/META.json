@@ -1,0 +1,44 @@
+{
+   "abstract" : "An Asynchronous Remote Procedure Stack.",
+   "author" : [
+      "Masashi Sakurai <m.sakurai@kiwanami.net>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "RPC-EPC-Service",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.40"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "AnyEvent" : "6.1",
+            "Data::SExpression" : "0.41",
+            "Test::More" : "0",
+            "version" : "0"
+         }
+      }
+   },
+   "provides" : {
+      "RPC::EPC::Service" : {
+         "file" : "lib/RPC/EPC/Service.pm",
+         "version" : "v0.0.11"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "v0.0.11"
+}
