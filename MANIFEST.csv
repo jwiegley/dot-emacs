@@ -55,7 +55,6 @@ subtree,git://github.com/eschulte/emacs-web-server.git,lib,emacs-web-server
 subtree,git://github.com/ahyatt/emacs-websocket.git,lib,emacs-websocket
 subtree,git://github.com/cask/epl.git,lib,epl
 subtree,git://github.com/rejeep/f.el.git,lib,f-el
-subtree,,lib,fame
 subtree,git://github.com/nschum/fringe-helper.el,lib,fringe-helper-el
 subtree,git://github.com/auto-complete/fuzzy-el.git,lib,fuzzy-el
 subtree,git://github.com/sigma/gh.el.git,lib,gh-el
@@ -76,7 +75,6 @@ subtree,git://github.com/magnars/s.el.git,lib,s-el
 subtree,git://github.com/politza/tablist.git,lib,tablist
 subtree,git://github.com/kanru/uuidgen-el.git,lib,uuidgen-el
 subtree,git://github.com/magit/with-editor.git,lib,with-editor
-subtree,,lib,working
 subtree,http://www.emacswiki.org/emacs/download/xml-rpc.el,lib,xml-rpc
 subtree,git://github.com/abo-abo/ace-link.git,site-lisp,ace-link
 subtree,git://github.com/abo-abo/ace-window.git,site-lisp,ace-window
