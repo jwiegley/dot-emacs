@@ -30,6 +30,9 @@
 (require 'ht)
 (require 'marshal)
 
+(when (require 'undercover nil t)
+  (undercover "*.el" "marshal.el/*.el"))
+
 (marshal-defclass marshal-test:plop ()
   ((foo :initarg :foo :type string :marshal ((alist . field_foo)))
    (bar :initarg :bar :type integer :marshal ((alist . field_bar)))
@@ -137,6 +140,31 @@
                                (marshal obj0 'json)
                                'json)
                     'json)))))
+
+(marshal-defclass marshal-test:composite ()
+  ((obj :initarg :obj :marshal-type marshal-test:base :marshal (plist))))
+
+(marshal-defclass marshal-test:base ()
+  ((a :initarg :a :marshal (plist)))
+  :marshal-class-slot :clazz)
+
+(marshal-defclass marshal-test:derived (marshal-test:base)
+  ((b :initarg :b :marshal (plist))))
+
+(ert-deftest marshal-test:plist-subclass-roundtrip ()
+  (let* ((obj (make-instance 'marshal-test:composite
+                            :obj (make-instance 'marshal-test:derived
+                                                :a 42 :b 0)))
+         (marsh (marshal obj 'plist))
+         (unmarsh (unmarshal 'marshal-test:composite marsh 'plist)))
+    (should (eq (plist-get (plist-get marsh 'obj) :clazz)
+                'marshal-test:derived))
+    (should (equal (oref (oref unmarsh :obj) :b) 0))))
+
+(ert-deftest marshal-test:null-blob ()
+  (should (eq 'marshal-test:level0
+              (eieio-object-class
+               (unmarshal 'marshal-test:level0 nil nil)))))
 
 (provide 'marshal-test)
 ;;; marshal-test.el ends here

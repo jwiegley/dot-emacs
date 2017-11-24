@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/sigma/marshal.el.svg?branch=master)](https://travis-ci.org/sigma/marshal.el)
+[![Coverage Status](https://coveralls.io/repos/github/sigma/marshal.el/badge.svg?branch=master)](https://coveralls.io/github/sigma/marshal.el?branch=master)
 
 EIEIO marshalling, inspired by Go tagged structs.
 

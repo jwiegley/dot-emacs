@@ -6,7 +6,7 @@ test: unit-tests
 unit-tests: elpa
 	${CASK} exec ert-runner
 
-elpa:
+elpa: Cask *.el
 	mkdir -p elpa
 	${CASK} install 2> elpa/install.log
 
