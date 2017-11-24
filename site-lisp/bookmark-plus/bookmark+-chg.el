@@ -4,12 +4,12 @@
 ;; Description: Change logs for Bookmark+ libraries.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
-;; Copyright (C) 2000-2016, Drew Adams, all rights reserved.
+;; Copyright (C) 2000-2017, Drew Adams, all rights reserved.
 ;; Created: Fri Sep 15 07:58:41 2000
-;; Last-Updated: Tue Sep  6 09:59:26 2016 (-0700)
+;; Last-Updated: Fri Oct 27 14:14:47 2017 (-0700)
 ;;           By: dradams
-;;     Update #: 16075
-;; URL: http://www.emacswiki.org/bookmark+-chg.el
+;;     Update #: 16354
+;; URL: https://www.emacswiki.org/emacs/download/bookmark%2b-chg.el
 ;; Doc URL: http://www.emacswiki.org/BookmarkPlus
 ;; Keywords: bookmarks, bookmark+
 ;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
@@ -135,7 +135,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://dto.freeshell.org/notebook/Linkd.html.
+;;  http://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "CHANGE LOG FOR `bookmark+-1.el'")
 ;;  (@> "CHANGE LOG FOR `bookmark+-bmu.el'")
@@ -146,6 +146,129 @@
  
 ;;;(@* "CHANGE LOG FOR `bookmark+-1.el'")
 ;;
+;; 2017/10/08 dadams
+;;     bmkp-bookmark-description, bmkp-describe-bookmark-internals:
+;;       Bind print-(circle|length|level) so pp-to-string prints all.
+;; 2017/07/31 dadams
+;;     bmkp-find-file-invoke-bookmark-if-autofile:
+;;       Bind bmkp-autofile-access-invokes-bookmark-flag to nil while jumping to the bookmark.
+;; 2017/07/30 dadams
+;;     Added: bmkp-autofile-access-invokes-bookmark-flag, bmkp-find-file-invoke-bookmark-if-autofile.
+;;     bmkp-get-bookmark-in-alist: Use arg ALIST (was neglected).
+;; 2017/07/19 dadams
+;;     Put back bmkp-info-cp, as an obsolete alias, temporarily.
+;; 2017/07/03 dadams
+;;     Added: bmkp-info-position-cp, bmkp-info-sort-ignores-directories-flag.
+;;     Renamed: bmkp-info-cp to bmkp-info-node-name-cp.
+;;     bmkp-sort-comparer: Applied renaming of bmkp-info-cp.
+;;     bmkp-info-node-name-cp: Respect bmkp-info-sort-ignores-directories-flag (default: manual names)
+;; 2017/06/26 dadams
+;;     Added: bmkp-kmacro-list-bookmark-p.
+;;     bmkp-bookmark-description: Handle bmkp-kmacro-list-bookmark-p.
+;; 2017/06/25 dadams
+;;     Added: bmkp-set-kmacro-bookmark, bmkp-set-kmacro-list-bookmark, bmkp-jump-kmacro-list,
+;;            bmkp-make-kmacro-list-record.
+;; 2017/05/12 dadams
+;;     Added: bmkp-eww-auto-bookmark-mode, bmkp-set-eww-bookmark-here, bmkp-toggle-eww-auto-type,
+;;            bmkp-eww-auto-type.  Thx to Charles Roelli.
+;; 2017/03/31 dadams
+;;     Added other-window versions of: bmkp-(next|previous)(TYPE)-bookmark(-repeat).
+;;     bmkp-autonamed-bookmark-p:
+;;       If BUFFER is nil then let ?B match any name - do not use current buffer for nil case.
+;;     bmkp-goto-position: Error now mentions buffer name, not just file.
+;;     bmkp-cycle: If empty bmkp-nav-alist ask before setting it to bookmark-alist.
+;; 2017/02/26 dadams
+;;     Added:
+;;       bmkp-eww-rename-buffer, bmkp-eww-new-buffer-name, bmkp-eww-sans-pop-to-buffer,
+;;       bmkp-eww-buffer-handling (was ~bmkp-eww-allow-multiple-buffers-flag), 
+;;       bmkp-get-eww-mode-buffer, bmkp-eww-jumping-p, bmkp-eww-new-buf-name,
+;;       bmkp-jump-eww-in-buffer-*eww* (was ~bmkp-jump-eww-only-one-buffer),
+;;       bmkp-jump-eww-renaming-buffer (was ~bmkp-jump-eww-new-buffer), bmkp-info-auto-type,
+;;       bmkp-info-auto-bookmark-mode, bmkp-set-info-bookmark-with-node-name,
+;;       bmkp-toggle-info-auto-type.
+;;     Removed: bmkp-eww-allow-multiple-buffers-flag, bmkp-eww-set-new-buffer-name,
+;;              bmkp-jump-eww-new-buffer, bmkp-jump-eww-only-one-buffer.
+;;     bmkp-edit-bookmark-name-and-location: Don't consider changed-buffname-p if EWW bookmark.
+;;     bmkp-make-eww-record: Use bmkp-eww-new-buffer-name for buffer-name field.
+;;     Add bmkp-eww-rename-buffer to hooks eww-after-render-hook and eww-restore-history.
+;;     Support EWW only for Emacs 25+, not for 24.4+.  (E.g., bmkp-eww-title, bmkp-eww-url).
+;;     bookmark-show-all-annotations:
+;;       Use bookmark-maybe-load-default-file, to load bookmark file.
+;;       For Emacs 24+, call view-mode-enter with no args.  Thx to Alan Wehmann for bug report
+;;           and Martin Rudalics for info about the new signature.
+;;     bmkp-completing-read-1: Use single default, not list, for Emacs 20-22.
+;;     bmkp-default-bookmark-name:
+;;       Ensure use a single bname, not a list of names returned by bmkp-default-lighted.
+;; 2017/01/29 dadams
+;;     Added: bmkp-eww-title, bmkp-eww-url.
+;;     bookmark-set, bmkp-this-buffer-p, bmkp-make-eww-record: Use bmkp-eww-title, bmkp-eww-url.
+;; 2017/01/10 dadams
+;;     Added:
+;;       bmkp-eww-allow-multiple-buffers-flag, bmkp-eww-set-new-buffer-name, bmkp-jump-eww-new-buffer,
+;;       bmkp-jump-eww-only-one-buffer.
+;;     Renamed: bmkp-replace-eww-keys-flag     to bmkp-eww-replace-keys-flag,
+;;              bmkp-w3m-allow-multi-tabs-flag to bmkp-w3m-allow-multiple-buffers-flag,
+;;              bmkp-jump-w3m-new-session      to bmkp-jump-w3m-new-buffer,
+;;              bmkp-jump-w3m-only-one-tab     to bmkp-jump-w3m-only-one-buffer.  Keep old as aliases.
+;;     bmkp-jump-eww: Dispatch to bmkp-jump-eww-(new|only-one)-buffer
+;;     bmkp-jump-w3m-new-buffer, bmkp-jump-w3m-only-one-buffer: Use get-buffer-create, just in case.
+;;     bookmark-write-file:
+;;       Updated per latest fix for bug #25365: insert version stamp after writing bmks.  UNTESTED.
+;; 2017/01/08 dadams
+;;     Use the term "entry", not "property" everywhere, for bookmark entries (fields).
+;; 2017/01/07 dadams
+;;     bookmark-write-file, bookmark-load, bmkp-temporary-bookmarking-mode:
+;;       Use bookmark-file-coding-system (Emacs bug #25365).  UNTESTED.
+;; 2017/01/03 dadams
+;;     bookmark-location: Corrected doc string to reflect code: buffer before file.
+;; 2016/12/31 dadams
+;;     Added: bmkp-non-invokable-bookmark-p, bmkp-non-invokable-alist-only.
+;;     bmkp-bookmark-description: Include non-invokable.
+;; 2016/12/21 dadams
+;;     Added: bmkp-ffap-max-region-size, bmkp-ffap-guesser.
+;;     bmkp-file-target-set, bmkp-autofile-set, bmkp-autofile-(add|remove)-tags:
+;;       Use bmkp-ffap-guesser.bmkp-ffap-guesser, not ffap-guesser.
+;; 2016/12/11 dadams
+;;     Added: bmkp-convert-eww-bookmarks, bmkp-replace-eww-keys-flag.
+;; 2016/11/25 dadams
+;;     bmkp-make-function-bookmark: Added bookmark-make-record-default, to include creation date.
+;;     bmkp-make-sequence-record: Use 0 as position, in record.
+;;     bookmark-sort-flag: Replace doc string with mention that it is not used.
+;; 2016/11/23 dadams
+;;     bookmark-save, bookmark-write-file, bookmark-load, bmkp-empty-file, bmkp-tags-in-bookmark-file,
+;;       bmkp-list-defuns-in-commands-file, bmkp-set-bookmark-file-bookmark, bmkp-desktop-read:
+;;         Raise an error if we have a directory, not a file.
+;; 2016/11/18 dadams
+;;     Support Emacs 24.[45] too.
+;;     bookmark-set, bmkp-this-buffer-p, bmkp-make-eww-record: Update for Emacs 24.[45].
+;;     bmkp-edit-bookmark-name-and-location: Add support for EWW.
+;;     bmkp-jump-eww: Create buffer *eww* if it does not exist.
+;;     bmkp-crosshairs-highlight: Respect bmkp-crosshairs-highlight (not really needed).
+;;     bmkp-eww-cp: typos: w3m -> eww.
+;; 2016/11/15 dadams
+;;     bmkp-*eww-*, bookmark-set, bmkp-this-buffer-p, bmkp-url-bookmark-p, bmkp-url-target-set,
+;;       bmkp-bookmark-description: Ensure that EWW code is only for Emacs 25+.
+;; 2016/11/14 dadams
+;;     Added: bmkp-eww-jump, bmkp-eww-jump-other-window, bmkp-eww-alist-only, bmkp-eww-bookmark-p,
+;;            bmkp-eww-cp, bmkp-jump-eww, bmkp-make-eww-record, bmkp-eww-history.
+;;     bmkp-non-file-filename: Added EWW entry.
+;;     bookmark-set, bmkp-this-buffer-p, bmkp-url-bookmark-p, bmkp-url-target-set,
+;;       bmkp-bookmark-description: Support eww-mode.
+;;     bmkp-url-jump(-other-window): Just use bmkp-url-alist-only.
+;; 2016/10/27 dadams
+;;     bmkp-end-position-post-context: Typo: (point) -> ereg.
+;; 2016/09/21 dadams
+;;     Added: bmkp-desktop-default-directory.
+;;     Added: desktop-full-file-name, for Emacs < 22.
+;;     bmkp-set-desktop-bookmark, bmkp-desktop-change-dir, bmkp-desktop-read:
+;;       Use bmkp-desktop-default-directory when reading or expanding file name.
+;;     bmkp-desktop-change-dir: Error in interactive spec too, if cannot load desktop.el.
+;; 2016/09/10 dadams
+;;     Added: bmkp-format-spec.
+;;     bmkp-autoname-format: Use %B in default value.  Update doc string, allowing %B.
+;;     bmkp-autonamed-bookmark-p: Added optional arg BUFFER.  Use bmkp-format-spec.
+;;     bmkp-autonamed-bookmark-for-buffer-p, bmkp-autonamed-this-buffer-bookmark-p:
+;;       Use bmkp-autonamed-bookmark-p.
 ;; 2016/09/06 dadams
 ;;     Added: bmkp-read-from-whole-string.
 ;;     bmkp-make-function-bookmark, bmkp-set-sequence-bookmark: Use bmkp-read-from-whole-string.
@@ -1206,6 +1329,55 @@
  
 ;;;(@* "CHANGE LOG FOR `bookmark+-bmu.el'")
 ;;
+;; 2017/10/27 dadams
+;;     bookmark-bmenu-mode: Added to doc string: bmkp-bmenu-paste-(add|replace)-tags.
+;; 2017/10/14 dadams
+;;     All EWW stuff is for Emacs 25+, not Emacs 24.4+.
+;; 2017/10/08 dadams
+;;     bmkp-bmenu-describe-marked: Bind print-(circle|length|level) so pp-to-string prints all.
+;; 2017/07/03 dadams
+;;     Added: bmkp-bmenu-sort-by-Info-position.
+;;     Renamed bmkp-bmenu-sort-by-Info-location to bmkp-bmenu-sort-by-Info-node-name.
+;;     bookmark-bmenu-mode: Updated doc string for Info-bookmark sorting.
+;;     bmkp-bmenu-sort-by-bookmark-type, bmkp-bmenu-sort-by-Info-node-name:
+;;       Applied renaming of bmkp-info-cp to bmkp-info-node-name-cp.
+;;     Bind bmkp-bmenu-sort-by-Info-position to s I.
+;;     bmkp-bmenu-sort-menu:
+;;       Added bmkp-bmenu-sort-by-Info-position.  Renamed By Info Node to By Info Node Name.
+;; 2017/03/30 dadams
+;;     bmkp-bmenu-mark-*-bookmarks:
+;;       Added optional arg MSGP.  Pass it to bmkp-bmenu-mark-bookmarks-satisfying.
+;;     bmkp-bmenu-mark-(orphaned-local-)file-bookmarks: Made argument ARG optional.
+;;     bmkp-bmenu-mark-bookmarks-satisfying: Added missing \ni to interactive spec.
+;; 2017/01/10 dadams
+;;     Renamed bmkp-toggle-allow-multi-tabs-for-w3m to bmkp-toggle-w3m-allow-multiple-buffers.
+;;     bmkp-bmenu-toggle-menu: Added bmkp-toggle-eww-allow-multiple-buffers.
+;; 2017/01/08 dadams
+;;     Use the term "entry", not "property" everywhere, for bookmark entries (fields).
+;; 2017/01/07 dadams
+;;     bmkp-bmenu-copy-marked-to-bookmark-file: Use bookmark-file-coding-system (Emacs bug #25365).
+;; 2017/01/02 dadams
+;;     bmkp-bmenu-mouse-3-menu: Added menu item Store Org Link.
+;; 2016/12/31 dadams
+;;     Added: bmkp-bmenu-mark-non-invokable-bookmarks, bmkp-bmenu-show-only-non-invokable-bookmarks.
+;;       Bound them to nM and nS.  Added them to menus bmkp-bmenu-(mark|show)-types-menu.
+;;     bookmark-bmenu-mode: Include non-invokable bookmarks in doc string.
+;;     bmkp-bmenu-propertize-item: Handle non-invokable bookmarks.
+;; 2016/11/23 dadams
+;;     bookmark-bmenu-mode: Doc string cleanup.
+;;     bookmark-bmenu-list, bmkp-bmenu-copy-marked-to-bookmark-file:
+;;       Raise an error if we have a directory, not a file.
+;;     bmkp-bmenu-create-bookmark-file-from-marked: Ensure that FILE is not a directory.
+;; 2016/11/18 dadams
+;;     Support Emacs 24.[45] too.
+;; 2016/11/15 dadams
+;;     bmkp-*eww-*: Ensure that EWW code is only for Emacs 25+.
+;; 2016/11/14 dadams
+;;     Added: bmkp-bmenu-mark-eww-bookmarks, bmkp-bmenu-show-only-eww-bookmarks.
+;;     bookmark-bmenu-mode: Added EWW to doc.
+;;     Bound bmkp-bmenu-mark-eww-bookmarks to WEM, bmkp-bmenu-show-only-eww-bookmarks to WES.
+;;     Change bmkp-bmenu-mark-w3m-bookmarks to W3M, bmkp-bmenu-show-only-w3m-bookmarks binding to W3S.
+;;     bmkp-bmenu-mark-types-menu, bmkp-bmenu-show-types-menu: Support EWW.
 ;; 2016/06/24 dadams
 ;;     bookmark-bmenu-execute-deletions: Delete bookmark on the current line if none flagged/marked.
 ;; 2016/06/23 dadams
@@ -1792,6 +1964,22 @@
  
 ;;;(@* "CHANGE LOG FOR `bookmark+-key.el'")
 ;;
+;; 2017/10/14 dadams
+;;     All EWW stuff is for Emacs 25+, not Emacs 24.4+.
+;; 2017/01/10 dadams
+;;     Applied renaming: bmkp-replace-eww-keys-flag to bmkp-eww-replace-keys-flag.
+;; 2017/01/02 dadams
+;;     menu-bar-bookmark-map: Added menu item Store Org Link To....
+;;     Typo: bmkp-replace-EWW-keys-flag -> bmkp-replace-eww-keys-flag.
+;; 2016/12/11 dadams
+;;     Remap EWW keys to bmkp- keys.
+;; 2016/11/23 dadams
+;;     Put :advertised-binding on several keys.
+;; 2016/11/15 dadams
+;;     bmkp-eww-jump(-other-window): Ensure that EWW code is only for Emacs 25+.
+;; 2016/11/14 dadams
+;;     Added bindings for bmkp-eww-jump(-other-window), including in eww-mode-map.
+;;     Bind bmkp-delete-bookmarks to kill-line keys (C-x p C-k, C-x p deleteline).
 ;; 2016/06/24 dadams
 ;;     Added bmkp-delete-bookmarks binding for <deletechar> and <kp-delete>.
 ;; 2016/05/15 dadams
@@ -1919,6 +2107,20 @@
  
 ;;;(@* "CHANGE LOG FOR `bookmark+-lit.el'")
 ;;
+;; 2017/01/08 dadams
+;;     Use the term "entry", not "property" everywhere, for bookmark entries (fields).
+;; 2016/10/25 dadams
+;;     Added: Faces bmkp-light-autonamed-region, bmkp-light-non-autonamed-region.
+;;            Options bmkp-light-style-autonamed-region, bmkp-light-style-non-autonamed-region.
+;;     bmkp-light-styles-alist: Added Region style.
+;;     bmkp-make/move-overlay-of-style:
+;;       Added required arg BOOKMARK.  Put overlay on region if region bookmark.
+;;     bmkp-light-bookmark, bmkp-light-bookmarks:
+;;       Include newly added bookmark arg in calls to bmkp-make/move-overlay-of-style.
+;;     bmkp-light-face: Use face bmkp-light(-non)-autonamed-region for region bookmarks.
+;;     bmkp-light-style: Use style bmkp-light-style(-non)-autonamed-region for region bookmarks.
+;; 2016/09/10 dadams
+;;     bmkp-light-face, bmkp-light-style: Use bmkp-autonamed-bookmark-p.
 ;; 2016/06/18 dadams
 ;;     Protected use of fringe-bitmaps with boundp (should not be necessary though).
 ;; 2015/04/02 dadams
@@ -1989,6 +2191,8 @@
 ;;       that depends on macros needs to be byte-compiled anew after loading the updated macros.
 ;; **************************************************************************************************
 ;;
+;; 2017/03/31 dadams
+;;     bmkp-define-next+prev-cycle-commands: Added optional arg OTHERP.
 ;; 2015/04/03 dadams
 ;;     bmkp-replace-regexp-in-string: Copied defn here - used to produce the macro code for
 ;;       bmkp-define-show-only-command and bmkp-define-sort-command.
@@ -2033,6 +2237,12 @@
  
 ;;;(@* "CHANGE LOG FOR `bookmark+.el'")
 ;;
+;; 2017/03/31 dadams
+;;     Version 2017.03.31.  Fixed cycling bookmarks across buffers.  Added other-window cycling cmds.
+;; 2017/02/26 dadams
+;;     Version 2017.02.26.  Added auto-bookmarking for Info.  Better EWW - thx to Charles Roelli.
+;; 2016/11/14 dadams
+;;     Version 2016.11.14.  Added support for EWW bookmarks.  Thx to Charles Roelli.
 ;; 2015/02/22 dadams
 ;;     Version 2015.02.22.
 ;; 2015/02/08 dadams

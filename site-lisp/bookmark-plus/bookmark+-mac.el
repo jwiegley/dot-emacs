@@ -4,14 +4,14 @@
 ;; Description: Macros for Bookmark+.
 ;; Author: Drew Adams
 ;; Maintainer: Drew Adams
-;; Copyright (C) 2000-2016, Drew Adams, all rights reserved.
+;; Copyright (C) 2000-2017, Drew Adams, all rights reserved.
 ;; Created: Sun Aug 15 11:12:30 2010 (-0700)
-;; Last-Updated: Thu Dec 31 12:24:31 2015 (-0800)
+;; Last-Updated: Fri Mar 31 15:12:03 2017 (-0700)
 ;;           By: dradams
-;;     Update #: 197
-;; URL: http://www.emacswiki.org/bookmark+-mac.el
+;;     Update #: 206
+;; URL: https://www.emacswiki.org/emacs/download/bookmark%2b-mac.el
 ;; Doc URL: http://www.emacswiki.org/BookmarkPlus
-;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, w3m, gnus
+;; Keywords: bookmarks, bookmark+, placeholders, annotations, search, info, url, eww, w3m, gnus
 ;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
@@ -85,7 +85,7 @@
 ;;  navigate around the sections of this doc.  Linkd mode will
 ;;  highlight this Index, as well as the cross-references and section
 ;;  headings throughout this file.  You can get `linkd.el' here:
-;;  http://dto.freeshell.org/notebook/Linkd.html.
+;;  http://www.emacswiki.org/emacs/download/linkd.el.
 ;;
 ;;  (@> "Things Defined Here")
 ;;  (@> "Functions")
@@ -232,44 +232,64 @@ In Lisp code:
       (bmkp-cycle increment ,otherp startoverp))))
 
 ;;;###autoload (autoload 'bmkp-define-next+prev-cycle-commands "bookmark+")
-(defmacro bmkp-define-next+prev-cycle-commands (type)
-  "Define `next' and `previous' commands for bookmarks of type TYPE."
+(defmacro bmkp-define-next+prev-cycle-commands (type &optional otherp)
+  "Define `next' and `previous' commands for bookmarks of type TYPE.
+Non-nil OTHERP means define a command that cycles in another window."
   `(progn
     ;; `next' command.
-    (defun ,(intern (format "bmkp-next-%s-bookmark" type)) (n &optional startoverp)
-      ,(format "Jump to the Nth-next %s bookmark.
+    (defun ,(intern (format "bmkp-next-%s-bookmark%s" type (if otherp "-other-window" "")))
+        (n &optional startoverp)
+      ,(if otherp
+           (format "Same as `bmkp-next-%s-bookmark', but use other window." type)
+           (format "Jump to the Nth-next %s bookmark.
 N defaults to 1, meaning the next one.
 Plain `C-u' means start over at the first one.
-See also `bmkp-cycle-%s'." type type)
+See also `bmkp-cycle-%s'." type type))
       (interactive (let ((startovr  (consp current-prefix-arg)))
                      (list (if startovr 1 (prefix-numeric-value current-prefix-arg)) startovr)))
-      (,(intern (format "bmkp-cycle-%s" type)) n startoverp))
+      (,(intern (format "bmkp-cycle-%s%s" type (if otherp "-other-window" ""))) n startoverp))
 
     ;; `previous' command.
-    (defun ,(intern (format "bmkp-previous-%s-bookmark" type)) (n &optional startoverp)
-      ,(format "Jump to the Nth-previous %s bookmark.
-See `bmkp-next-%s-bookmark'." type type)
+    (defun ,(intern (format "bmkp-previous-%s-bookmark%s" type (if otherp "-other-window" "")))
+        (n &optional startoverp)
+      ,(if otherp
+           (format "Same as `bmkp-previous-%s-bookmark', but use other window." type)
+           (format "Jump to the Nth-previous %s bookmark.
+See `bmkp-next-%s-bookmark'." type type))
       (interactive (let ((startovr  (consp current-prefix-arg)))
                      (list (if startovr 1 (prefix-numeric-value current-prefix-arg)) startovr)))
-      (,(intern (format "bmkp-cycle-%s" type)) (- n) startoverp))
+      (,(intern (format "bmkp-cycle-%s%s" type (if otherp "-other-window" "")))
+        (- n) startoverp))
 
     ;; `next' repeating command.
-    (defun ,(intern (format "bmkp-next-%s-bookmark-repeat" type)) (arg)
-      ,(format "Jump to the Nth-next %s bookmark.
+    (defun ,(intern (format "bmkp-next-%s-bookmark%s-repeat"
+                            type
+                            (if otherp "-other-window" "")))
+        (arg)
+      ,(if otherp
+           (format "Same as `bmkp-next-%s-bookmark-repeat', but use other window." type)
+           (format "Jump to the Nth-next %s bookmark.
 This is a repeatable version of `bmkp-next-%s-bookmark'.
 N defaults to 1, meaning the next one.
-Plain `C-u' means start over at the first one (and no repeat)." type type)
+Plain `C-u' means start over at the first one (and no repeat)." type type))
       (interactive "P")
       (require 'repeat)
-      (bmkp-repeat-command ',(intern (format "bmkp-next-%s-bookmark" type))))
+      (bmkp-repeat-command
+       ',(intern (format "bmkp-next-%s-bookmark%s" type (if otherp "-other-window" "")))))
 
     ;; `previous repeating command.
-    (defun ,(intern (format "bmkp-previous-%s-bookmark-repeat" type)) (arg)
-      ,(format "Jump to the Nth-previous %s bookmark.
-See `bmkp-next-%s-bookmark-repeat'." type type)
+    (defun ,(intern (format "bmkp-previous-%s-bookmark%s-repeat"
+                            type
+                            (if otherp "-other-window" "")))
+        (arg)
+      ,(if otherp
+           (format "Same as `bmkp-previous-%s-bookmark-repeat', but use other window." type)
+           (format "Jump to the Nth-previous %s bookmark.
+See `bmkp-next-%s-bookmark-repeat'." type type))
       (interactive "P")
       (require 'repeat)
-      (bmkp-repeat-command ',(intern (format "bmkp-previous-%s-bookmark" type))))))
+      (bmkp-repeat-command
+       ',(intern (format "bmkp-previous-%s-bookmark%s" type (if otherp "-other-window" "")))))))
 
 ;; We don't bother making this hygienic.  Presumably only the Bookmark+ code will call it.
 ;;;###autoload (autoload 'bmkp-define-show-only-command "bookmark+")
