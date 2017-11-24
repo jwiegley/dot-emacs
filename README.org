@@ -1,3 +1,11 @@
+* NEW HOME
+
+org-opml now lives at https://github.com/org-opml/org-opml
+
+Thanks to @tonglianheng and @bsima for taking over.
+
+Refs: https://github.com/edavis/org-opml/issues/12
+
 * org-opml
 
 =org-opml= lets you edit OPML files using Org mode in Emacs.
