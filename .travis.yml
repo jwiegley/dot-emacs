@@ -1,0 +1,33 @@
+language: emacs
+
+env:
+  - "EMACS=emacs24        CHECK_TARGET=test"
+  - "EMACS=emacs24        CHECK_TARGET=test-interactive"
+  - "EMACS=emacs-snapshot CHECK_TARGET=test"
+  - "EMACS=emacs-snapshot CHECK_TARGET=test-interactive"
+
+matrix:
+  allow_failures:
+   - env: "EMACS=emacs-snapshot CHECK_TARGET=test"
+   - env: "EMACS=emacs-snapshot CHECK_TARGET=test-interactive"
+
+install:
+  - if [ "$EMACS" = "emacs24" ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs24-nox;
+    fi
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs-snapshot &&
+        sudo apt-get -qq install emacs-snapshot-el;
+    fi
+
+script:
+  - make $CHECK_TARGET EMACS=$EMACS
+
+notifications:
+  email: false
