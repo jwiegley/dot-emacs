@@ -4,7 +4,7 @@
 ;; Author: Vitalie Spinu
 ;; URL: https://github.com/vspinu/company-math
 ;; Keywords:  Unicode, symbols, completion
-;; Version: 1.2
+;; Version: 1.3
 ;; Package-Requires: ((company "0.8.0") (math-symbol-lists "1.2"))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -44,28 +44,41 @@
   :group 'company-math
   :type 'string)
 
-(defcustom company-math-subscript-prefix "_"
-  "Prefix to use for unicode subscripts.
-It will also work after `company-math-symbol-prefix'."
+(defcustom company-math-subscript-prefix "__"
+  "Prefix for unicode subscripts.
+When nil, no custom prefix is active. Irrespective of the value
+of this variable, prefix composed of `company-math-symbol-prefix'
+and \"_\" is always active (\"\\_\").  This variable takes effect
+in a new Emacs session."
   :group 'company-math
-  :type 'string)
+  :type '(choice (const :tag "No Custom Prefix" nil)
+                 string))
 
-(defcustom company-math-superscript-prefix "^"
-  "Prefix to use for unicode subscripts.
-It will also work after `company-math-symbol-prefix'."
+(defcustom company-math-superscript-prefix "^^"
+  "Prefix for unicode superscripts.
+When nil, no custom prefix is active. Irrespective of the value
+of this variable, prefix composed of `company-math-symbol-prefix'
+and \"^\" is always active (\"\\^\").  This variable takes effect
+in a new Emacs session."
   :group 'company-math
-  :type 'string)
+  :type '(choice (const :tag "No Custom Prefix" nil)
+                 string))
 
 ;; no more custom since since v.1.2
 (when (boundp 'company-math-prefix-regexp)
   (warn "`company-math-prefix-regexp' is deprecated, please remove from your custom settings."))
 
-(defvar company-math--latex-prefix-regexp (concat (regexp-quote company-math-symbol-prefix)
-                                                  "[^ \t\n]+"))
+(defvar company-math--latex-prefix-regexp
+  (concat (regexp-quote company-math-symbol-prefix)
+          "[^ \t\n]+"))
+
 (let ((psym (regexp-quote company-math-symbol-prefix))
-      (psub (regexp-quote company-math-subscript-prefix))
-      (psup (regexp-quote company-math-superscript-prefix)))
-  (defvar company-math--unicode-prefix-regexp (concat "\\(" psym "\\|" psub "\\|" psup "\\)[^ \t\n]*")))
+      (psub (when company-math-symbol-prefix
+              (concat "\\|" (regexp-quote company-math-subscript-prefix))))
+      (psup (when company-math-superscript-prefix
+              (concat "\\|" (regexp-quote company-math-superscript-prefix)))))
+  (setq company-math--unicode-prefix-regexp
+    (concat "\\(" psym psub psup "\\)[^ \t\n]*")))
 
 (defcustom company-math-allow-unicode-symbols-in-faces t
   "List of faces to allow the insertion of Unicode symbols.
@@ -75,7 +88,7 @@ When set to special value t, allow on all faces except those in
   :type '(choice (const t)
                  (repeat :tag "Faces" symbol)))
 
-(defcustom company-math-allow-latex-symbols-in-faces '(tex-math font-latex-math-face)
+(defcustom company-math-allow-latex-symbols-in-faces '(tex-math font-latex-math-face org-latex-and-related)
   "List of faces to disallow the insertion of latex mathematical symbols.
 When set to special value t, allow on all faces except those in
 `company-math-disallow-latex-symbols-in-faces'."
@@ -97,10 +110,10 @@ When set to special value t, allow on all faces except those in
 ;;; INTERNALS
 
 (defun company-math--make-candidates (alist prefix)
-  "Build a list of math symbols ready to be used in ac source.
-ALIST is one of the defined alist in package `symbols'. Return a
-list of LaTeX symbols with text property :symbol being the
-corresponding unicode symbol."
+  "Build a list of math symbols ready to be used in a company backend.
+ALIST is one of the defined alist in package
+`math-symbol-lists'. Return a list of LaTeX symbols with text
+property :symbol being the corresponding unicode symbol."
   (delq nil
         (mapcar
          (lambda (el)
@@ -122,12 +135,12 @@ corresponding unicode symbol."
 
 (defconst company-math--unicode
   (append
-   (append (company-math--make-candidates math-symbol-list-subscripts company-math-subscript-prefix)
-           (company-math--make-candidates math-symbol-list-subscripts (concat company-math-symbol-prefix
-                                                                              company-math-subscript-prefix))
-           (company-math--make-candidates math-symbol-list-superscripts company-math-superscript-prefix)
-           (company-math--make-candidates math-symbol-list-superscripts (concat company-math-symbol-prefix
-                                                                                company-math-superscript-prefix)))
+   (append (when company-math-subscript-prefix
+             (company-math--make-candidates math-symbol-list-subscripts company-math-subscript-prefix))
+           (company-math--make-candidates math-symbol-list-subscripts (concat company-math-symbol-prefix "_"))
+           (when company-math-superscript-prefix
+             (company-math--make-candidates math-symbol-list-superscripts company-math-superscript-prefix))
+           (company-math--make-candidates math-symbol-list-superscripts (concat company-math-symbol-prefix "^")))
    company-math--symbols)
   "List of math completion candidates for unicode backend.")
 
@@ -139,8 +152,12 @@ corresponding unicode symbol."
                            (memq face allow-faces)))))
     (when insertp
       (save-excursion
-        (when (looking-back regexp (point-at-bol) 'greedy)
-          (match-string 0))))))
+        (let* ((ppss (syntax-ppss))
+               (min-point (if (nth 3 ppss)
+                              (max (nth 8 ppss) (point-at-bol))
+                            (point-at-bol))))
+          (when (looking-back regexp min-point 'greedy)
+            (match-string 0)))))))
 
 (defun company-math--substitute-unicode (symbol)
   "Substitute preceding latex command with with SYMBOL."
