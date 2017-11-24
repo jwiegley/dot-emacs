@@ -3101,19 +3101,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package undo-tree
   :load-path "site-lisp/undo-tree"
   :demand t
-  :after hydra
-  :bind (("C-M-/"   . undo-tree-redo)
-         ("C-. C-/" . hydra-undo-tree/undo-tree-undo))
-  :init
-  (defhydra hydra-undo-tree (:color yellow :hint nil)
-    "
-  _p_: undo  _n_: redo _s_: save _l_: load   "
-    ("p"   undo-tree-undo)
-    ("n"   undo-tree-redo)
-    ("s"   undo-tree-save-history)
-    ("l"   undo-tree-load-history)
-    ("u"   undo-tree-visualize "visualize" :color blue)
-    ("q"   nil "quit" :color blue))
+  :bind (("C-M-/" . undo-tree-redo))
   :config
   (global-undo-tree-mode))
 
