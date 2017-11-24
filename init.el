@@ -1006,7 +1006,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands chess)
 
 (use-package chess-ics
-  :load-path "lisp/chess"
+  :after chess
   :commands chess-ics
   :config
   (require 'auth-source)
@@ -1094,7 +1094,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :defines css-syntax-propertize-function)
 
 (use-package csv-mode
-  :mode "\\.csv\\'")
+  :mode "\\.csv\\'"
+  :init
+  (setq default-mode-line-format mode-line-format))
 
 (use-package cursor-chg
   :commands change-cursor-mode
@@ -1103,10 +1105,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (toggle-cursor-type-when-idle 1))
 
 (use-package cus-edit
-  :load-path "lisp/initsplit"
   :defer 5
   :config
-  (use-package initsplit))
+  (use-package initsplit
+    :load-path "lisp/initsplit"))
 
 (use-package dash-at-point
   :load-path "site-lisp/dash-at-point"
@@ -1581,9 +1583,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("M-s d" . find-grep-dired)
          ("M-s n" . find-name-dired)
          ("M-s f" . find-grep)
-         ("M-s G" . grep))
-  :config
-  (add-hook 'grep-mode-hook #'(lambda () (use-package grep-ed))))
+         ("M-s G" . grep)))
 
 (use-package gud
   :commands gud-gdb
@@ -1763,6 +1763,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
+  :disabled t
   :demand t
   :load-path "site-lisp/hyperbole"
   :bind* (("M-."   . hkey-either)
