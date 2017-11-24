@@ -1,3 +1,6 @@
+[![MELPA](http://melpa.org/packages/docker-badge.svg)](http://melpa.org/#/docker)
+[![MELPA Stable](http://stable.melpa.org/packages/docker-badge.svg)](http://stable.melpa.org/#/docker)
+
 # docker.el
 
 ## Installation
@@ -64,6 +67,8 @@ changed with <kbd>M-x customize-variable docker-keymap-prefix</kbd>.
 
 ### API
 
+*WARNING* This keymap is likely to change or be removed soon.
+
 | command                      | keymap               | description                                                     |
 |------------------------------|----------------------|-----------------------------------------------------------------|
 | docker-images                | <kbd>C-c d i i</kbd> | list images                                                     |
@@ -94,6 +99,8 @@ After having selected some images, you can do the following actions:
 - `P`: push
 - `D`: rmi
 - `R`: run
+- `I`: inspect
+- `T`: tag
 
 ### docker-containers
 
@@ -110,6 +117,9 @@ After having selected some containers, you can do the following actions:
 * `D`: rm
 * `K`: kill
 * `d`: diff
+* `f`: find-file
+* `b`: shell
+* `r`: rename
 
 ### docker-volumes
 
