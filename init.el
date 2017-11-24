@@ -1733,9 +1733,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-o r" . highlight-regexp)
          ("M-o w" . highlight-phrase)))
 
-(use-package hilit-chg
-  :bind ("M-o C" . highlight-changes-mode))
-
 (use-package highlight
   :bind ("C-. h" . hlt-highlight-region))
 
@@ -1745,6 +1742,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (hook-into-modes #'highlight-numbers-mode
                    'prog-mode-hook))
+
+(use-package hilit-chg
+  :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
   :bind ("C-. M-/" . hippie-expand))
@@ -3052,11 +3052,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              tidy-save-settings
              tidy-describe-options))
 
-(use-package tuareg
-  :load-path "site-lisp/site-lang/tuareg"
-  :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
-         ("\\.eliomi?\\'"  . tuareg-mode)))
-
 (use-package tramp-sh
   :defer t
   :config
@@ -3092,6 +3087,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              transpose-mark-line
              transpose-mark-region)
   :load-path "site-lisp/transpose-mark")
+
+(use-package tuareg
+  :load-path "site-lisp/site-lang/tuareg"
+  :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
+         ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package undo-tree
   :load-path "site-lisp/undo-tree"
@@ -3298,6 +3298,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (yas-global-mode 1)
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
+(use-package z3-mode
+  :mode ("\\.rs\\'" . z3-mode)
+  :commands z3-mode
+  :load-path "site-lisp/site-lang/z3-mode")
+
 (use-package zencoding-mode
   :load-path "site-lisp/site-lang/zencoding-mode"
   :commands zencoding-mode
@@ -3311,11 +3316,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
-
-(use-package z3-mode
-  :mode ("\\.rs\\'" . z3-mode)
-  :commands z3-mode
-  :load-path "site-lisp/site-lang/z3-mode")
 
 (use-package zoom
   :load-path "site-lisp/zoom"
