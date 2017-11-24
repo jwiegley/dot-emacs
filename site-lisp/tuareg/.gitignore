@@ -4,6 +4,6 @@
 *-pkg.el
 *~
 *.tar.gz
+packages
 /tuareg.*/
-/opam/url
 ChangeLog

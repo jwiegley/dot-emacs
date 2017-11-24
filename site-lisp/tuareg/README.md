@@ -7,7 +7,9 @@ Tuareg: an Emacs OCaml mode
 
 This archive contains files to help editing [OCaml](http://ocaml.org/)
 code, to highlight important parts of the code, to run an OCaml
-toplevel, and to run the OCaml debugger within Emacs.
+[REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)
+(also called *toplevel*),
+and to run the OCaml debugger within Emacs.
 
 Contents
 --------
@@ -50,30 +52,42 @@ The Tuareg major mode is triggered by visiting a file with extension
 `.ml`, `.mli`, `.mly`, `.mll`, and `.mlp` or manually by
 <kbd>M-x tuareg-mode</kbd>.
 
-Start the OCaml toplevel with <kbd>M-x run-ocaml</kbd>.  You can evaluate a
-phrase in your buffer by typing <kbd>C-c C-e</kbd> when the cursor is on it (it
-will start the OCaml toplevel if needed).
+Start the OCaml REPL with <kbd>M-x run-ocaml</kbd>.
+To evaluate a
+phrase, simply type <kbd>S-⟨return⟩</kbd> (<kbd>shift</kbd> and
+<kbd>return</kbd>).  You can also evaluate a
+phrase in a different buffer by typing <kbd>C-c C-e</kbd> when the
+cursor is on it (it
+will start the OCaml REPL if needed).
 
 Run the OCaml debugger with <kbd>M-x ocamldebug FILE</kbd>.
 
 
-Customization
--------------
+Tips & customization
+--------------------
+
+- You can comment/uncomment a single line with <kbd>M-;</kbd>.
 
 - By default, Tuareg will align the arguments of functions as follows:
 
         function_name arg1
-                      arg2
+          arg2
 
-  If you prefer that arguments on the second line be indented w.r.t.
-  the function name, put `(setq tuareg-indent-align-with-first-arg nil)`
-  in your [Init File][].  This may be convenient if you use
-  the following style:
+  This is what most OCaml programmers expect and is convenient if you
+  use the following style:
 
         function_name (fun x ->
             do_something
           )
           arg2
+
+  If you prefer the “lisp style” indentation in which arguments on the
+  second line are aligned with the arguments on the first line as in
+
+        function_name arg1
+                      arg2
+
+  put `(setq tuareg-indent-align-with-first-arg t)` in your [Init File][].
 
   In both cases, if there are no argument on the line following the
   function name, the indentation will be:
@@ -124,11 +138,9 @@ Customization
 Thanks to the work of Stefan Monnier, a new indentation engine based on
 [SMIE](https://www.gnu.org/software/emacs/manual/html_node/elisp/SMIE.html)
 was written.  This changes the indentation somewhat w.r.t. the
-previous versions of `tuareg`.  If you do not want that, you can use
-the _old_ indentation engine by adding `(setq tuareg-use-smie nil)` to
-your [Init File][].  It is discouraged however as the older
-indentation engine will _not_ be updated (unless a PR is submitted)
-and will eventually be removed.
+previous versions of `tuareg`.  If the indentation does not correspond
+to what you expect, please submit a
+[motivated issue](https://github.com/ocaml/tuareg/issues/).
 
 
 The standard Emacs customization tool can be used to configure Tuareg

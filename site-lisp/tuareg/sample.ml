@@ -52,7 +52,7 @@ let x = List.map (fun x -> 5)
 let x =
   logf `Info "User %s has %i new messages" ba
     (Uid.to_string uid)
-    (List.length new_messages);
+    (List.length new_messages)
 
 let x =
   let open M in
@@ -81,18 +81,18 @@ let () =
 
 ;; (* http://caml.inria.fr/mantis/view.php?id=4247 *)
 let x = {
-  Foo.
-  a = b;
-  c = d;
-  e = {Bar.
-       f = 1;
-       g = 2;
-      };
-  h = {  Quux.
-         i = 3;
-         j = 4;
-      };
-}
+    Foo.
+    a = b;
+    c = d;
+    e = {Bar.
+         f = 1;
+         g = 2;
+        };
+    h = {  Quux.
+           i = 3;
+           j = 4;
+        };
+  }
 
 ;; (* http://caml.inria.fr/mantis/view.php?id=4249 *)
 let x = { a = b;
@@ -105,15 +105,15 @@ let x = { a = b;
 }
 
 let s = { a with
-  b = 1;
-}
+          b = 1;
+        }
 ;;
 
 let a = {
-  M.
-  foo = foo;
-  bar = bar;
-}
+    M.
+    foo = foo;
+    bar = bar;
+  }
 
 let a = { t with M.
           foo = foo;
@@ -152,8 +152,8 @@ type t = [                              (* Comment.  *)
   ]
 
 type t = a
-and typey = 4
-and x = b
+ and typey = 4
+ and x = b
 
 module M = struct
   type t =
@@ -175,12 +175,12 @@ module M = struct
 end
 
 module N =
-struct
-  type u =
-    | D
-    | E
-  with sexp
-end
+  struct
+    type u =
+      | D
+      | E
+    with sexp
+  end
 
 type m =
   | T
@@ -203,109 +203,109 @@ val f :
   -> c:c
 
 type bar = a -> b
-  -> c -> d
-  -> e -> f
+           -> c -> d
+           -> e -> f
 
 type baz = a -> b ->
-  c -> d ->
-  e -> f
+           c -> d ->
+           e -> f
 
 val quux : a -> b ->
-  c -> d ->
-  e -> f
+           c -> d ->
+           e -> f
 
 type t : a:b -> c:d
-  -> e:f -> g
+         -> e:f -> g
 
 val f : a:b -> c:d
-  -> e:f -> g
+        -> e:f -> g
 
 type t = {
-  foo : (a
-         -> b
-         -> c
-         -> d);
-}
+    foo : (a
+           -> b
+           -> c
+           -> d);
+  }
 
 type t = {
-  foo : (    a ->
-             b ->
-             c ->
-             d);
-}
+    foo : (    a ->
+               b ->
+               c ->
+               d);
+  }
 
 type t = {
-  foo : a
-        -> b
-        -> c
-        -> d;
-  bar :
-    a
-    -> b
-    -> c;
-}
+    foo : a
+          -> b
+          -> c
+          -> d;
+    bar :
+      a
+      -> b
+      -> c;
+  }
 
 type t = {
-  foo : a ->
-        b ->
-        c ->
-        d;
-  bar :
-    a ->
-    b ->
-    c;
-}
+    foo : a ->
+          b ->
+          c ->
+          d;
+    bar :
+      a ->
+      b ->
+      c;
+  }
 
 type t = {
-  a : B.t;
-  c : D.t;
+    a : B.t;
+    c : D.t;
 
-  e : F.t;
+    e : F.t;
 
-  g : H.t I.t;
-  j :
-    K.t L.t;
-  m : N.t O.t;
-  p :
-    ((q:R.t
-      -> s:T.U.t
-      -> v:(W.t -> X.t option)
-      -> y:(Z.t -> A.t -> B.t C.D.t E.t)
-      -> f:(G.t -> H.t I.t option)
-      -> j:(K.t -> L.t M.t option)
-      -> n:(O.t -> p option)
-      -> q:R.t
-      -> s:(string -> unit) -> T.t
-     )
-     -> U.t
-     -> V.W.t
-     -> X.t);
-  y : Z.t A.t;
-  b : C.t D.t E.t;
-  f : (G.t -> H.t -> I.t J.t);
-} with sexp_of
+    g : H.t I.t;
+    j :
+      K.t L.t;
+    m : N.t O.t;
+    p :
+      ((q:R.t
+        -> s:T.U.t
+        -> v:(W.t -> X.t option)
+        -> y:(Z.t -> A.t -> B.t C.D.t E.t)
+        -> f:(G.t -> H.t I.t option)
+        -> j:(K.t -> L.t M.t option)
+        -> n:(O.t -> p option)
+        -> q:R.t
+        -> s:(string -> unit) -> T.t
+       )
+       -> U.t
+       -> V.W.t
+       -> X.t);
+    y : Z.t A.t;
+    b : C.t D.t E.t;
+    f : (G.t -> H.t -> I.t J.t);
+  } with sexp_of
 
 type 'a v = id:O.t ->
-  ssss:Ssss.t ->
-  dddd:ddd.t ->
-  t:S_m.t ->
-  mmm:Safe_float.t ->
-  qqq:int ->
-  c:C.t ->
-  uuuu:string option ->
-  aaaaaa:Aaaaaa.t ->
-  a:A.t ->
-  rrrrr:Rrrrr.t ->
-  time:Time.t ->
-  typ:[ `L_p of Safe_float.t ] ->
-  bazonk:present option ->
-  o_p_e:O_m.t option ->
-  only_hjkl:present option ->
-  show_junk:int option ->
-  d_p_o: Safe_float.t option ->
-  asdf:present option ->
-  generic:Sexp.t list ->
-  'a
+           ssss:Ssss.t ->
+           dddd:ddd.t ->
+           t:S_m.t ->
+           mmm:Safe_float.t ->
+           qqq:int ->
+           c:C.t ->
+           uuuu:string option ->
+           aaaaaa:Aaaaaa.t ->
+           a:A.t ->
+           rrrrr:Rrrrr.t ->
+           time:Time.t ->
+           typ:[ `L_p of Safe_float.t ] ->
+           bazonk:present option ->
+           o_p_e:O_m.t option ->
+           only_hjkl:present option ->
+           show_junk:int option ->
+           d_p_o: Safe_float.t option ->
+           asdf:present option ->
+           generic:Sexp.t list ->
+           'a
 
 type 'a v =
   id:O.t
@@ -456,9 +456,9 @@ let g x =
 
 let h x =
   try  ff a b
-          c d;
+         c d;
        gg 1 2
-          3 4;
+         3 4;
   with e -> raise e
 
 let () =
@@ -471,10 +471,10 @@ let () =
   (* http://caml.inria.fr/resources/doc/guides/guidelines.en.html *)
   try () with
   | e ->
-    let x = z in
+     let x = z in
 
-    yyyyy
-      (a b)
+     yyyyy
+       (a b)
 
 let d x = function
   (* FIXME: Should we leave it like this or align "|" with "match"?
@@ -490,15 +490,15 @@ let d x = function
 
 let a f = function
   | A ->
-    1
+     1
   |   B ->
-    2
+       2
   |      C ->
-    (function
-     |  X  ->
-         a
-     | Y ->
-        b) 12
+          (function
+           |  X  ->
+               a
+           | Y ->
+              b) 12
   | D ->
      (match z with
       | 4 -> 3
@@ -559,12 +559,13 @@ let () =
    in
    x + 5)
 
-let foo = 1 and bar = 2 and zot = 3 in
-let quux = 4 in
-foo
-+ bar
-+ zot
-+ quux
+let x =
+  let foo = 1 and bar = 2 and zot = 3 in
+  let quux = 4 in
+  foo
+  + bar
+  + zot
+  + quux
 
 (* Indent comment to following code.  *)
 let () =
@@ -575,12 +576,12 @@ let () =
   with _ -> ()
 
 let () = try
-           f x;
+    f x;
   with _ -> ()
 
 let () = (try
             f x;
-  with _ -> ())
+          with _ -> ())
 
 let () =
   foo (sprintf ("a: %s"
@@ -696,8 +697,8 @@ let () =
 let () =
   match e with
   | `T d ->
-    notify `O `T d;
-    cancel t u ~now
+     notify `O `T d;
+     cancel t u ~now
 
 let () =
   let a = 1
@@ -740,8 +741,8 @@ let () =
   >>= function
   | b -> c
   | d ->
-    e
-    >>= f
+     e
+     >>= f
 
 let () =
   foo >>> fun bar ->
@@ -766,11 +767,11 @@ let () =
 
 let () =
   Hashtbl.iter times ~f:(fun ~key:time ~data:azot ->
-    Clock.at time
-    >>> fun () ->
-    Db.iter t.db ~f:(fun dbo ->
-      if S.mem azot (Dbo.azo dbo) then
-        Dbo.dont dbo))
+      Clock.at time
+      >>> fun () ->
+      Db.iter t.db ~f:(fun dbo ->
+          if S.mem azot (Dbo.azo dbo) then
+            Dbo.dont dbo))
 
 let () =
   f 1
@@ -818,11 +819,12 @@ let x =
   @ snoo
 
 let () =
-  IO.println out (tagL "ol" (List.map ~f:(tag ~a:[] "li") (
-    (List.map results ~f:(fun (what,_) ->
-      tag "a" ~a:[("href","#" ^ what)] (what_title what)))
-    @ [tag "a" ~a:[("href","#" ^ message_id)] message_title;
-       tag "a" ~a:[("href","#" ^ legend_id)] legend_title])))
+  tagL "ol" (List.map ~f:(tag ~a:[] "li") (
+                 (List.map results ~f:(fun (what,_) ->
+                      tag "a" ~a:[("href","#" ^ what)] (what_title what)))
+                 @ [tag "a" ~a:[("href","#" ^ message_id)] message_title;
+                    tag "a" ~a:[("href","#" ^ legend_id)] legend_title]))
+  |> IO.println out
 
 let x =
   let y =
@@ -836,15 +838,15 @@ let x =
 
 let () =
   foobar (fun () ->
-    step1
-    >>= fun () -> step2)
+      step1
+      >>= fun () -> step2)
 
 let w f =
   List.map f ~f:(fun (a, b) ->
-    L.r a
-    >>= function
-    | Ok s -> `Fst (b, s)
-    | Error e -> `Snd (b, a, e))
+      L.r a
+      >>= function
+      | Ok s -> `Fst (b, s)
+      | Error e -> `Snd (b, a, e))
 
 class c (a : b) =
 object
@@ -853,18 +855,18 @@ object
 end
 
 let f = {
-  a = 1;
-}
+    a = 1;
+  }
 
 let f a = {
-  a = a;
-}
+    a = a;
+  }
 
 let f a
       b = {
-  a = a;
-  b = b;
-}
+    a = a;
+    b = b;
+  }
 
 let () =
   for i = 10 to 17 do
@@ -873,9 +875,9 @@ let () =
 
 let a =
   B.c d ~e:f [
-        "g";
-        "h";
-      ]
+      "g";
+      "h";
+    ]
 
 let () =
   f a ~b:c ~d ~e:g
@@ -886,34 +888,34 @@ let () =
 
 let a = match b with
   | Some c ->  Some {
-    d = c;
-    e = e
-  }
+                   d = c;
+                   e = e
+                 }
   | None -> {
-    d = c;
-    e = e
-  }
+      d = c;
+      e = e
+    }
 
 let a = {
-  b = (
-    let z = f u in
-    z + z;
-  );
-  c = (let a = b in {
-    z = z;
-    y = h;
-  });
-}
+    b = (
+      let z = f u in
+      z + z;
+    );
+    c = (let a = b in {
+             z = z;
+             y = h;
+        });
+  }
 
 let () =
   { A.
     b =
       C.d e ~f:(fun g -> (h.I.j.K.l, m))
       |! begin fun n ->
-        match O.p n with
-        | `Q r -> r
-        | `S _k -> assert false
-      end;
+         match O.p n with
+         | `Q r -> r
+         | `S _k -> assert false
+         end;
     t =
       u ~v:w
         ~x:(Y.z a);
@@ -926,12 +928,12 @@ let () =
       V.w (fun x -> (Y.x a x).R.S.t);
     v =
       V.w (fun d ->
-        (D.g i d).R.S.z);
+          (D.g i d).R.S.z);
   }
 
 let x =
   [(W.background `Blue (W.hbox [
-    x
+                            x
    ]));
   ]
 
@@ -954,13 +956,13 @@ let c f =
 let foo x =
   f1 x >= f2 x
   && f3
-    (f4 x)
+      (f4 x)
 
 let foo x =
   (>=)
     (f1 x) (f2 x)
   && f3
-    (f4 x)
+      (f4 x)
 
 let a =
   foo
@@ -970,7 +972,7 @@ let a =
 let a =
   foo
     ~f:(fun () ->
-         a)
+      a)
 
 let a =
   foo
@@ -980,7 +982,7 @@ let a =
 let a =
   foo
     ~f:(fun () -> a
-       )
+    )
 
 let () =
   (* Comment.  *)
@@ -999,11 +1001,11 @@ let foo =
     ~f:(fun m ->
       M.q m
       |! T.u ~pr ~verbose:false
-          ~p:H.P.US ~is_bar:false)
+           ~p:H.P.US ~is_bar:false)
   |! List.sort ~cmp:(fun a b ->
-    compare
-      (I.r a.T.s)
-      (I.r b.T.s))
+         compare
+           (I.r a.T.s)
+           (I.r b.T.s))
 
 let check =
   a lsr 30 >= 3
@@ -1012,41 +1014,41 @@ let check =
 
 let () =
   snoo ~f:(fun foo ->
-    foo = bar
-    && snoo)
+      foo = bar
+      && snoo)
 
 let () =
   snoo ~f:(fun foo ->
-    foo + bar
-    && snoo)
+      foo + bar
+      && snoo)
 
 let () =
   snoo ~f:(fun foo ->
-    foo
-    && snoo)
+      foo
+      && snoo)
 
 let variants a =
   match String.split a ~on:'-' with
   | [ s1; s2; s3 ] ->
-    let a0 = String.concat ~sep:"" [ s1; s2] in
-    let a1 = String.concat ~sep:"-" [ s1; s2; s3; "055" ] in (* Comment.  *)
-    List.map [ a0; a1; a]
-      ~f:(fun a_s -> lookup a_s)
-    |! List.flatten
+     let a0 = String.concat ~sep:"" [ s1; s2] in
+     let a1 = String.concat ~sep:"-" [ s1; s2; s3; "055" ] in (* Comment.  *)
+     List.map [ a0; a1; a]
+       ~f:(fun a_s -> lookup a_s)
+     |! List.flatten
   | _ -> failwith "bad"
 
 let f a1 a2 a3
       b1 b2 b3 d1 d2 d3 = {
-  aa = func1 a1 a2 a3;
-  bb = func2
-    b1 b2 b3;
-  (* FIXME: Here it is reasonable to have '|' aligned with 'match' *)
-  cc = (match c with
-        | A -> 1
-        | B -> 2);
-  dd = func3
-    d1 d2 d3;
-}
+    aa = func1 a1 a2 a3;
+    bb = func2
+           b1 b2 b3;
+    (* FIXME: Here it is reasonable to have '|' aligned with 'match' *)
+    cc = (match c with
+          | A -> 1
+          | B -> 2);
+    dd = func3
+           d1 d2 d3;
+  }
 
 let fv =
   map3
@@ -1054,10 +1056,10 @@ let fv =
     b
     c
     ~f:(fun
-      x
-      y
-      z
-    ->
+        x
+        y
+        z
+      ->
       match x y z with
       | `No)
 
@@ -1069,11 +1071,11 @@ let b =
 
 
 module type X =
-struct
-  val f : float -> float
+  struct
+    val f : float -> float
   (** This comment should be under "val", like other doc comments and not
    aligned to the left margin. *)
-end
+  end
 
 let test () =                           (* bug#927 *)
   if a then
@@ -1115,7 +1117,7 @@ let f x =
 
 let splitting_long_expression =
   quad.{band, i3} <- quad.{band, i3} +. g +.
-                       area_12 *. (P.potential x13 y13 +. P.potential x23 y23)
+                      area_12 *. (P.potential x13 y13 +. P.potential x23 y23)
 
 let () =
   (* Beware of lexing ".;" as a single token!  *)
@@ -1143,22 +1145,22 @@ let x =
   with Not_found ->
        b
      | _ ->
-       c
+        c
 let x =
   try a
   with Not_found ->
        if a then b
      | flag when String.is_prefix flag ~prefix:"-" ->
-       a
+        a
      | _ ->
-       c
+        c
 
 let x = "toto try \
          tata"
 
 let optional_sci_float =
   do_something ~a:1e-7
-               ~b:(fun x -> x + 1)
+    ~b:(fun x -> x + 1)
 
 let () =
   f x ~tol:1.0
@@ -1168,7 +1170,7 @@ let () =
 
 let array_args =
   fold s multi_sms.(0).message_number folder
-       more_args (* FIXME *)
+    more_args (* FIXME *)
 
 let () =
   match var with
@@ -1183,9 +1185,9 @@ let () =
      z
 
 type t = {
-  mutable a: float;
-  b : int;
-}
+    mutable a: float;
+    b : int;
+  }
 
 (* [struct] and [sig] must be treated the same way. *)
 module Base64 : sig
@@ -1249,11 +1251,11 @@ end
 
 val f :
   x : int ->
-  int ->
-  int
+      int ->
+      int
 
 val f :
-  ?x : int ->
+  ?x: int ->
   int ->
   int
 
@@ -1268,18 +1270,19 @@ let subscribe_impl dir topic ~aborted =
     next_argument (* should be indented correctly, given the braces *)
 
 
-List.map
-  (function x ->
-    blabla    (* FIXME: indentation afer "(function" *)
-    blabla
-    blabla)
-  l
+let _ =
+  List.map
+    (function x ->
+      blabla    (* FIXME: indentation afer "(function" *)
+        blabla
+        blabla)
+    l
 
 let command =
   Command.Spec.(
     empty
     +> flag "-hello" (optional_with_default "Hello" string)
-            ~doc:" The 'hello' of 'hello world'"
+         ~doc:" The 'hello' of 'hello world'"
     +> flag "-world" (optional_with_default "World" string)
-            ~doc:" The 'world' of 'hello world'"
+         ~doc:" The 'world' of 'hello world'"
   )
