@@ -29,6 +29,8 @@ It is cleaner with [[https://github.com/jwiegley/use-package][use-package]]:
 
 Then activate it with =M-x selected-minor-mode=. It can be a good idea to add =selected-minor-mode= to the hooks of the major-modes where you want it activated. =selected-off= is a function which deactivates the keybindings until the next time the region becomes active. This is useful when you want to execute a command on the region, but then disable =selected-minor-mode= in favour of other commands like [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]].
 
+You might have other minor-modes which conflict with =selected=, such as [[https://github.com/abo-abo/worf][worf]], [[https://github.com/abo-abo/lispy][lispy]] or [[https://github.com/Kungsgeten/ryo-modal][ryo]]. In that case you can use =(setq selected-minor-mode-override t)=.
+
 * Major mode specific bindings
 
 You may want some keybindings to operate on the region, but only if you're in a certain major-mode. This is possible if you create a keymap named =selected-<major-mode>-map= (for instance =selected-org-mode-map=) and add the mode-specific bindings there. Here's an example, using =use-package=:
