@@ -1,8 +1,7 @@
-;;; dumb-jump.el --- jump to definition for multiple languages without configuration.
-
-;; Copyright (C) 2015-2016 jack angers
+;;; dumb-jump.el --- jump to definition for multiple languages without configuration. -*- lexical-binding: t; -*-
+;; Copyright (C) 2015-2017 jack angers
 ;; Author: jack angers
-;; Version: 0.5.0
+;; Version: 0.5.1
 ;; Package-Requires: ((emacs "24.3") (f "0.17.3") (s "1.11.0") (dash "2.9.0") (popup "0.5.3"))
 ;; Keywords: programming
 
@@ -48,7 +47,7 @@
 
 (defcustom dumb-jump-window
   'current
-  "Which window to use when jumping. Valid options are 'current (default) or 'other."
+  "Which window to use when jumping.  Valid options are 'current (default) or 'other."
   :group 'dumb-jump
   :type '(choice (const :tag "Current window" current)
                  (const :tag "Other window" other)))
@@ -67,11 +66,14 @@
                  (const :tag "Helm" helm)
                  (const :tag "Ivy" ivy)))
 
+(defcustom dumb-jump-ivy-jump-to-selected-function
+  #'dumb-jump-ivy-jump-to-selected
+  "Prompts user for a choice using ivy then dumb-jump to that choice")
+
 (defcustom dumb-jump-prefer-searcher
   nil
-  "The preferred searcher to use 'ag, 'rg, 'git-grep, 'gnu-grep,
-or 'grep. If `nil' then the most optimal searcher will be chosen
-at runtime."
+  "The preferred searcher to use 'ag, 'rg, 'git-grep, 'gnu-grep,or 'grep.
+If nil then the most optimal searcher will be chosen at runtime."
   :group 'dumb-jump
   :type '(choice (const :tag "Best Available" nil)
                  (const :tag "ag" ag)
@@ -82,9 +84,9 @@ at runtime."
 
 (defcustom dumb-jump-force-searcher
   nil
-  "Forcibly use searcher: 'ag, 'rg, 'git-grep, 'gnu-grep,
-or 'grep. Set to `nil' to not force anything and use
-`dumb-jump-prefer-searcher' or most optimal searcher."
+  "Forcibly use searcher: 'ag, 'rg, 'git-grep, 'gnu-grep, or 'grep.
+Set to nil to not force anything and use `dumb-jump-prefer-searcher'
+or most optimal searcher."
   :group 'dumb-jump
   :type '(choice (const :tag "Best Available" nil)
                  (const :tag "ag" ag)
@@ -123,25 +125,25 @@ or 'grep. Set to `nil' to not force anything and use
   :type 'string)
 
 (defcustom dumb-jump-ag-word-boundary
-  "(?![\\w-])"
+  "(?![\\w\\?\\*-])"
   "`\\b` thinks `-` is a word boundary.  When this matters use `\\j` instead and ag will use this value."
   :group 'dumb-jump
   :type 'string)
 
 (defcustom dumb-jump-rg-word-boundary
-  "($|[^\\w-])"
+  "($|[^\\w\\?\\*-])"
   "`\\b` thinks `-` is a word boundary.  When this matters use `\\j` instead and rg will use this value."
   :group 'dumb-jump
   :type 'string)
 
 (defcustom dumb-jump-git-grep-word-boundary
-  "($|[^\\w-])"
+  "($|[^\\w\\?\\*-])"
   "`\\b` thinks `-` is a word boundary.  When this matters use `\\j` instead and git grep will use this value."
   :group 'dumb-jump
   :type 'string)
 
 (defcustom dumb-jump-grep-word-boundary
-  "($|[^\\w-])"
+  "($|[^\\w\\?\\*-])"
   "`\\b` thinks `-` is a word boundary.  When this matters use `\\j` instead and grep will use this value."
   :group 'dumb-jump
   :type 'string)
@@ -206,8 +208,7 @@ or 'grep. Set to `nil' to not force anything and use
 
 (defcustom dumb-jump-git-grep-search-untracked
   t
-  "If non-nil Dumb Jump will also search untracked files when
-using searcher git-grep."
+  "If non-nil Dumb Jump will also search untracked files when using searcher git-grep."
   :group 'dumb-jump
   :type 'boolean)
 
@@ -263,11 +264,16 @@ using searcher git-grep."
 
     (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "clojure"
            :regex "\\(defn-?\\s+JJJ\\j"
-           :tests ("(defn test [foo]" "(defn- test [foo]"))
+           :tests ("(defn test [foo]" "(defn- test [foo]")
+           :not ("(defn test? [foo]" "(defn- test? [foo]"))
 
     (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "clojure"
            :regex "\\(defmacro\\s+JJJ\\j"
            :tests ("(defmacro test [foo]"))
+
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "clojure"
+           :regex "\\(deftask\\s+JJJ\\j"
+           :tests ("(deftask test [foo]"))
 
     (:type "type" :supports ("ag" "grep" "rg" "git-grep") :language "clojure"
            :regex "\\(deftype\\s+JJJ\\j"
@@ -427,28 +433,57 @@ using searcher git-grep."
            :not ("class testnot:" "class testnot(object):"))
 
     ;; ruby
-    (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "ruby"
-           :regex "\\s*JJJ\\s*=[^=\\n]+"
-           :tests ("test = 1234")
-           :not ("if test == 1234"))
+    (:type "variable" :supports ("ag" "rg" "git-grep") :language "ruby"
+           :regex "^\\s*((\\w+[.])*\\w+,\\s*)*JJJ(,\\s*(\\w+[.])*\\w+)*\\s*=([^=>~]|$)"
+           :tests ("test = 1234" "self.foo, test, bar = args")
+           :not ("if test == 1234" "foo_test = 1234"))
 
-    (:type "function" :supports ("ag" "rg") :language "ruby"
-           :regex "\\bdef\\s+(?:\\w+(::|\\.))*JJJ\\j"
+    (:type "function" :supports ("ag" "rg" "git-grep") :language "ruby"
+           :regex "(^|[^\\w.])((private|public|protected)\\s+)?def\\s+(\\w+(::|[.]))*JJJ($|[^\\w|:])"
            :tests ("def test(foo)" "def test()" "def test foo" "def test; end"
-                   "def self.test()" "def MODULE::test()"))
+                   "def self.test()" "def MODULE::test()" "private def test")
+           :not ("def test_foo"))
 
-    (:type "function" :supports ("ag" "rg") :language "ruby"
-           :regex "\\bdefine(?:_singleton|_instance)?_method\\s*(?:\\(\\s*)?:JJJ\\j"
+    (:type "function" :supports ("ag" "rg" "git-grep") :language "ruby"
+           :regex "(^|\\W)define(_singleton|_instance)?_method(\\s|[(])\\s*:JJJ($|[^\\w|:])"
            :tests ("define_method(:test, &body)"
                    "mod.define_instance_method(:test) { body }"))
 
-    (:type "type" :supports ("ag" "rg") :language "ruby"
-           :regex "\\bclass\\s+(?:\\w*::)*JJJ\\j"
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "ruby"
+           :regex "(^|[^\\w.])class\\s+(\\w*::)*JJJ($|[^\\w|:])"
            :tests ("class test" "class Foo::test"))
 
-    (:type "type" :supports ("ag" "rg") :language "ruby"
-           :regex "\\bmodule\\s+(?:\\w*::)*JJJ\\j"
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "ruby"
+           :regex "(^|[^\\w.])module\\s+(\\w*::)*JJJ($|[^\\w|:])"
            :tests ("module test" "module Foo::test"))
+
+    ;; crystal
+    (:type "variable" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "^\\s*((\\w+[.])*\\w+,\\s*)*JJJ(,\\s*(\\w+[.])*\\w+)*\\s*=([^=>~]|$)"
+           :tests ("test = 1234" "self.foo, test, bar = args")
+           :not ("if test == 1234" "foo_test = 1234"))
+
+    (:type "function" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "(^|[^\\w.])((private|public|protected)\\s+)?def\\s+(\\w+(::|[.]))*JJJ($|[^\\w|:])"
+           :tests ("def test(foo)" "def test()" "def test foo" "def test; end"
+                   "def self.test()" "def MODULE::test()" "private def test")
+           :not ("def test_foo"))
+
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "(^|[^\\w.])class\\s+(\\w*::)*JJJ($|[^\\w|:])"
+           :tests ("class test" "class Foo::test"))
+
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "(^|[^\\w.])module\\s+(\\w*::)*JJJ($|[^\\w|:])"
+           :tests ("module test" "module Foo::test"))
+
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "(^|[^\\w.])struct\\s+(\\w*::)*JJJ($|[^\\w|:])"
+           :tests ("struct test" "struct Foo::test"))
+
+    (:type "type" :supports ("ag" "rg" "git-grep") :language "crystal"
+           :regex "(^|[^\\w.])alias\\s+(\\w*::)*JJJ($|[^\\w|:])"
+           :tests ("alias test" "alias Foo::test"))
 
     ;; scala
     (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "scala"
@@ -499,6 +534,11 @@ using searcher git-grep."
            :regex "function\\s*JJJ\\s*"
            :tests ("function test{" "function test {" "function test () {")
            :not   ("function nottest {"))
+
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "shell"
+           :regex "JJJ\\\(\\\)\\s*\\{"
+           :tests ("test() {")
+           :not ("testx() {"))
 
     (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "shell"
            :regex "\\bJJJ\\s*=\\s*"
@@ -575,8 +615,9 @@ using searcher git-grep."
            :tests ("const test = (foo) => " "test: (foo) => {" "  test: (foo) => {"))
 
     (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "javascript"
-           :regex "\\bJJJ\\s*\\\([^\\\)]*\\\)\\s*[{]" :tags ("es6")
-           :tests ("test(foo) {" "test (foo){" "test(foo){"))
+           :regex "\\bJJJ\\s*\\([^()]*\\)\\s*[{]" :tags ("es6")
+           :tests ("test(foo) {" "test (foo){" "test(foo){")
+           :not ("test = blah.then(function(){"))
 
     (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "javascript" :tags ("es6")
            :regex "class\\s*JJJ\\s*[\\\(\\\{]"
@@ -608,6 +649,33 @@ using searcher git-grep."
            :regex "\\bJJJ\\s*=\\s*function\\s*\\\("
            :tests ("test = function()"))
 
+    ;; julia
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "julia"
+           :regex "(@noinline|@inline)?\\s*function\\s*JJJ(\\{[^\\}]*\\})?\\("
+           :tests ("function test()" "@inline function test()"
+                   "function test{T}(h)"))
+
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "julia"
+           :regex "(@noinline|@inline)?JJJ(\\{[^\\}]*\\})?\\([^\\)]*\\)\s*="
+           :tests ("test(a)=1" "test(a,b)=1*8"
+                   "@noinline test()=1" "test{T}(x)=x"))
+
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "julia"
+           :regex "macro\\s*JJJ\\("
+           :tests ("macro test(a)=1" " macro test(a,b)=1*8"))
+
+    (:type "variable" :supports ("ag" "rg") :language "julia" 
+           :regex "const\\s+JJJ\\b"
+           :tests ("const test = "))
+
+    (:type "type" :supports ("ag","rg") :language "julia"
+           :regex "(mutable)?\\s*struct\\s*JJJ"
+           :tests ("struct test"))
+
+    (:type "type" :supports ("ag","rg") :language "julia"
+           :regex "(type|immutable|abstract)\\s*JJJ"
+           :tests ("type test" "immutable test" "abstract test <:Testable" ))
+
     ;; haskell
     (:type "function" :supports ("ag") :language "haskell"
            :regex "^\\s*(let)?\\s*JJJ\\b\\s*(.+)?(?<==)"
@@ -620,6 +688,37 @@ using searcher git-grep."
                    "test :: PackageId -> Tar.Entry -> PkgIndexInfo")
            :not ("nottest :: FilePath -> HttpSession [PkgIndexIndex]"
                  "testnot :: PackageId -> Tar.Entry -> PkgIndexInfo"))
+
+    ;; ocaml
+    (:type "type" :supports ("ag" "rg") :language "ocaml"
+           :regex "^\\s*(and|type)\\s+.*\\bJJJ\\b"
+           :tests ("type test ="
+                   "and test ="
+                   "type 'a test ="
+                   "type ('a, _, 'c) test"))
+
+    (:type "variable" :supports ("ag" "rg") :language "ocaml"
+           :regex "let\\s+JJJ\\b"
+           :tests ("let test ="
+                   "let test x y ="))
+
+    (:type "variable" :supports ("ag" "rg") :language "ocaml"
+           :regex "let\\s+rec\\s+JJJ\\b"
+           :tests ("let rec test ="
+                   "let rec  test x y ="))
+
+    (:type "variable" :supports ("ag" "rg") :language "ocaml"
+           :regex "\\s*val\\s*\\bJJJ\\b\\s*"
+           :tests ("val test"))
+
+    (:type "module" :supports ("ag" "rg") :language "ocaml"
+           :regex "^\\s*module\\s*\\bJJJ\\b"
+           :tests ("module test ="))
+
+    (:type "module" :supports ("ag" "rg") :language "ocaml"
+           :regex "^\\s*module\\s*type\\s*\\bJJJ\\b"
+           :tests ("module type test ="))
+
     ;; lua
     (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "lua"
            :regex "\\s*\\bJJJ\\s*=[^=\\n]+" :tests ("test = 1234") :not ("if test === 1234"))
@@ -742,7 +841,66 @@ using searcher git-grep."
 
     (:type "type" :supports ("ag" "grep" "rg" "git-grep") :language "rust"
            :regex "mod\\s+JJJ\\s*[{]?"
-           :tests ("mod test;" "pub mod test {")))
+           :tests ("mod test;" "pub mod test {"))
+
+    ;; elixir
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "elixir"
+           :regex "\\bdef(p)?\\s+JJJ\\s*[ ,\\\(]"
+           :tests ("def test do"
+                   "def test, do:"
+                   "def test() do"
+                   "def test(), do:"
+                   "def test(foo, bar) do"
+                   "def test(foo, bar), do:"
+                   "defp test do"
+                   "defp test(), do:"))
+
+    (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "elixir"
+           :regex "\\s*JJJ\\s*=[^=\\n]+"
+           :tests ("test = 1234")
+           :not ("if test == 1234"))
+
+    (:type "module" :supports ("ag" "grep" "rg" "git-grep") :language "elixir"
+           :regex "defmodule\\s+(\\w+\\.)*JJJ\\s+"
+           :tests ("defmodule test do"
+                   "defmodule Foo.Bar.test do"))
+
+    (:type "module" :supports ("ag" "grep" "rg" "git-grep") :language "elixir"
+           :regex "defprotocol\\s+(\\w+\\.)*JJJ\\s+"
+           :tests ("defprotocol test do"
+                   "defprotocol Foo.Bar.test do"))
+
+    ;; erlang
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "erlang"
+           :regex "^JJJ\\b\\s*\\\("
+           :tests ("test() ->"
+                   "test()->"
+                   "test(Foo) ->"
+                   "test (Foo,Bar) ->"
+                   "test(Foo, Bar)->"))
+
+    (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "erlang"
+           :regex "\\s*JJJ\\s*=[^:=\\n]+"
+           :tests ("test = 1234")
+           :not ("if test =:= 1234"
+                 "if test == 1234"))
+
+    (:type "module" :supports ("ag" "grep" "rg" "git-grep") :language "erlang"
+           :regex "^-module\\\(JJJ\\\)"
+           :tests ("-module(test)."))
+
+    ;; scss
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "scss"
+           :regex "@mixin\\sJJJ\\b\\s*\\\("
+           :tests ("@mixin test()"))
+
+    (:type "function" :supports ("ag" "grep" "rg" "git-grep") :language "scss"
+           :regex "@function\\sJJJ\\b\\s*\\\("
+           :tests ("@function test()"))
+
+    (:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "scss"
+           :regex "JJJ\\s*:\\s*"
+           :tests ("test  :")))
 
   "List of regex patttern templates organized by language and type to use for generating the grep command."
   :group 'dumb-jump
@@ -757,6 +915,7 @@ using searcher git-grep."
                (:not (repeat string))))))
 
 ; https://github.com/ggreer/the_silver_searcher/blob/master/tests/list_file_types.t
+; https://github.com/BurntSushi/ripgrep/blob/master/ignore/src/types.rs#L99
 (defcustom dumb-jump-language-file-exts
   '((:language "elisp" :ext "el" :agtype "elisp" :rgtype "elisp")
     (:language "elisp" :ext "el.gz" :agtype "elisp" :rgtype "elisp")
@@ -774,11 +933,16 @@ using searcher git-grep."
     (:language "c++" :ext "c++" :agtype nil :rgtype nil)
     (:language "c++" :ext "h++" :agtype nil :rgtype nil)
     (:language "coq" :ext "v" :agtype nil :rgtype nil)
+    (:language "ocaml" :ext "ml" :agtype "ocaml" :rgtype "ocaml")
+    (:language "ocaml" :ext "mli" :agtype "ocaml" :rgtype "ocaml")
+    (:language "ocaml" :ext "mll" :agtype "ocaml" :rgtype "ocaml")
+    (:language "ocaml" :ext "mly" :agtype "ocaml" :rgtype "ocaml")
     (:language "haskell" :ext "hs" :agtype "haskell" :rgtype "haskell")
     (:language "haskell" :ext "lhs" :agtype "haskell" :rgtype "haskell")
     (:language "objc" :ext "m" :agtype "objc" :rgtype "objc")
     (:language "csharp" :ext "cs" :agtype "csharp" :rgtype "csharp")
     (:language "java" :ext "java" :agtype "java" :rgtype "java")
+    (:language "julia" :ext "jl" :agtype "julia" :rgtype "julia")
     (:language "clojure" :ext "clj" :agtype "clojure" :rgtype "clojure")
     (:language "clojure" :ext "cljc" :agtype "clojure" :rgtype "clojure")
     (:language "clojure" :ext "cljs" :agtype "clojure" :rgtype "clojure")
@@ -799,6 +963,7 @@ using searcher git-grep."
     (:language "javascript" :ext "jsx" :agtype "js" :rgtype "js")
     (:language "javascript" :ext "vue" :agtype "js" :rgtype "js")
     (:language "javascript" :ext "html" :agtype "html" :rgtype "html")
+    (:language "javascript" :ext "css" :agtype "css" :rgtype "css")
     (:language "lisp" :ext "lisp" :agtype "lisp" :rgtype "lisp")
     (:language "lisp" :ext "lsp" :agtype "lisp" :rgtype "lisp")
     (:language "lua" :ext "lua" :agtype "lua" :rgtype "lua")
@@ -824,18 +989,27 @@ using searcher git-grep."
     (:language "r" :ext "Rnw" :agtype "r" :rgtype "r")
     (:language "r" :ext "Rtex" :agtype "r" :rgtype nil)
     (:language "r" :ext "Rrst" :agtype "r" :rgtype nil)
+    (:language "crystal" :ext "cr" :agtype "crystal" :rgtype "crystal")
+    (:language "crystal" :ext "ecr" :agtype "crystal" :rgtype nil)
     (:language "ruby" :ext "rb" :agtype "ruby" :rgtype "ruby")
+    (:language "ruby" :ext "erb" :agtype "ruby" :rgtype nil)
     (:language "ruby" :ext "haml" :agtype "ruby" :rgtype nil)
     (:language "ruby" :ext "slim" :agtype "ruby" :rgtype nil)
     (:language "rust" :ext "rs" :agtype "rust" :rgtype "rust")
     (:language "scala" :ext "scala" :agtype "scala" :rgtype "scala")
     (:language "scheme" :ext "scm" :agtype "scheme" :rgtype "lisp")
-    (:language "shell" :ext "sh" :agtype "shell" :rgtype "sh")
-    (:language "shell" :ext "bash" :agtype "shell" :rgtype "sh")
-    (:language "shell" :ext "csh" :agtype "shell" :rgtype "sh")
-    (:language "shell" :ext "ksh" :agtype "shell" :rgtype "sh")
-    (:language "shell" :ext "tcsh" :agtype "shell" :rgtype "sh")
-    (:language "swift" :ext "swift" :agtype "swift" :rgtype "swift"))
+    (:language "shell" :ext "sh" :agtype nil :rgtype nil)
+    (:language "shell" :ext "bash" :agtype nil :rgtype nil)
+    (:language "shell" :ext "csh" :agtype nil :rgtype nil)
+    (:language "shell" :ext "ksh" :agtype nil :rgtype nil)
+    (:language "shell" :ext "tcsh" :agtype nil :rgtype nil)
+    (:language "swift" :ext "swift" :agtype nil :rgtype "swift")
+    (:language "elixir" :ext "ex" :agtype "elixir" :rgtype "elixir")
+    (:language "elixir" :ext "exs" :agtype "elixir" :rgtype "elixir")
+    (:language "elixir" :ext "eex" :agtype "elixir" :rgtype "elixir")
+    (:language "erlang" :ext "erl" :agtype "erlang" :rgtype "erlang")
+    (:language "scss" :ext "scss" :agtype "css" :rgtype "css"))
+
   "Mapping of programming language(s) to file extensions."
   :group 'dumb-jump
   :type
@@ -883,6 +1057,11 @@ a symbol then it's probably a function call"
   :group 'dumb-jump
   :type 'string)
 
+(defcustom dumb-jump-project nil
+  "The project to search within if normal denoters will not work.  This should only be needed in the rarest of cases."
+  :group 'dumb-jump
+  :type 'string)
+
 (defcustom dumb-jump-after-jump-hook nil
   "Hooks called after jumping."
   :type 'hook
@@ -890,7 +1069,7 @@ a symbol then it's probably a function call"
   :type 'hook)
 
 (defcustom dumb-jump-aggressive
-  t
+  nil
   "If `t` jump aggressively with the possiblity of a false positive.
 If `nil` always show list of more than 1 match."
   :group 'dumb-jump
@@ -956,16 +1135,15 @@ If `nil` always show list of more than 1 match."
     (1+ cur-pos)))
 
 (defun dumb-jump-run-test (test cmd)
-  "Run CMD using string TEST as its standard input."
+  "Use TEST as the standard input for the CMD."
   (with-temp-buffer
     (insert test)
     (shell-command-on-region (point-min) (point-max) cmd nil t)
     (buffer-substring-no-properties (point-min) (point-max))))
 
 (defun dumb-jump-run-git-grep-test (test cmd)
-  "Run CMD using string TEST as its input through a local,
-temporary file. Because git grep must be given a file as input,
-not just a string."
+  "Use string TEST as input through a local, temporary file for CMD.
+Because git grep must be given a file as input, not just a string."
   (let* ((thefile ".git.grep.test")
          (realcmd (concat cmd " " thefile)))
     (with-temp-buffer
@@ -979,12 +1157,11 @@ not just a string."
 (defun dumb-jump-test-rules (&optional run-not-tests)
   "Test all the grep rules and return count of those that fail.
 Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules."
-  (let ((failures '())
-        (fail-tmpl "grep %s FAILURE '%s' %s in response '%s' | CMD: '%s' | regex: '%s'")
-        (variant (if (eq (dumb-jump-grep-installed?) 'gnu) 'gnu-grep 'grep)))
-    (-each (--filter (member "grep" (plist-get it :supports)) dumb-jump-find-rules)
+  (let ((fail-tmpl "grep FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'")
+	(variant (if (eq (dumb-jump-grep-installed?) 'gnu) 'gnu-grep 'grep)))
+    (-mapcat
       (lambda (rule)
-        (-each (plist-get rule (if run-not-tests :not :tests))
+        (-mapcat
           (lambda (test)
             (let* ((cmd (concat "grep -En -e "
                                 (shell-quote-argument (dumb-jump-populate-regex (plist-get rule :regex) "test" variant))))
@@ -992,18 +1169,18 @@ Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules."
               (when (or
                      (and (not run-not-tests) (not (s-contains? test resp)))
                      (and run-not-tests (> (length resp) 0)))
-                (add-to-list 'failures (format fail-tmpl (if run-not-tests "not" "")
-                                               test (if run-not-tests "IS unexpectedly" "NOT") resp cmd (plist-get rule :regex)))))))))
-    failures))
+                (list (format fail-tmpl (if run-not-tests "not" "")
+                              test (if run-not-tests "IS unexpectedly" "NOT") resp cmd (plist-get rule :regex))))))
+	  (plist-get rule (if run-not-tests :not :tests))))
+      (--filter (member "grep" (plist-get it :supports)) dumb-jump-find-rules))))
 
 (defun dumb-jump-test-ag-rules (&optional run-not-tests)
   "Test all the ag rules and return count of those that fail.
 Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
-  (let ((failures '())
-        (fail-tmpl "ag FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
-    (-each (--filter (member "ag" (plist-get it :supports)) dumb-jump-find-rules)
+  (let ((fail-tmpl "ag FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
+    (-mapcat
       (lambda (rule)
-        (-each (plist-get rule (if run-not-tests :not :tests))
+        (-mapcat
           (lambda (test)
             (let* ((cmd (concat "ag --nocolor --nogroup "
                                 (shell-quote-argument (dumb-jump-populate-regex (plist-get rule :regex) "test" 'ag))))
@@ -1011,17 +1188,17 @@ Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
               (when (or
                      (and (not run-not-tests) (not (s-contains? test resp)))
                      (and run-not-tests (> (length resp) 0)))
-                (add-to-list 'failures (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule))))))))
-    failures))
+                (list (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule)))))
+	  (plist-get rule (if run-not-tests :not :tests))))
+      (--filter (member "ag" (plist-get it :supports)) dumb-jump-find-rules))))
 
 (defun dumb-jump-test-rg-rules (&optional run-not-tests)
   "Test all the rg rules and return count of those that fail.
 Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
-  (let ((failures '())
-        (fail-tmpl "rg FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
-    (-each (--filter (member "rg" (plist-get it :supports)) dumb-jump-find-rules)
+  (let ((fail-tmpl "rg FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
+    (-mapcat
       (lambda (rule)
-        (-each (plist-get rule (if run-not-tests :not :tests))
+        (-mapcat
           (lambda (test)
             (let* ((cmd (concat "rg --color never --no-heading "
                                 (shell-quote-argument (dumb-jump-populate-regex (plist-get rule :regex) "test" 'rg))))
@@ -1029,27 +1206,27 @@ Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
               (when (or
                      (and (not run-not-tests) (not (s-contains? test resp)))
                      (and run-not-tests (> (length resp) 0)))
-                (add-to-list 'failures (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule))))))))
-    failures))
+                (list (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule)))))
+	  (plist-get rule (if run-not-tests :not :tests))))
+      (--filter (member "rg" (plist-get it :supports)) dumb-jump-find-rules))))
 
 (defun dumb-jump-test-git-grep-rules (&optional run-not-tests)
   "Test all the git grep rules and return count of those that fail.
 Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
-  (let ((failures '())
-        (fail-tmpl "git grep FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
-    (-each (--filter (member "git-grep" (plist-get it :supports)) dumb-jump-find-rules)
+  (let ((fail-tmpl "rg FAILURE '%s' %s in response '%s' | CMD: '%s' | rule: '%s'"))
+    (-mapcat
       (lambda (rule)
-        (-each (plist-get rule (if run-not-tests :not :tests))
+        (-mapcat
           (lambda (test)
-            (let* ((cmd (concat "git grep --color=never -h --untracked -E "
-                                (shell-quote-argument
-                                 (dumb-jump-populate-regex (plist-get rule :regex) "test" 'git-grep))))
+            (let* ((cmd (concat "git grep --color=never -h --untracked -E  "
+                                (shell-quote-argument (dumb-jump-populate-regex (plist-get rule :regex) "test" 'git-grep))))
                    (resp (dumb-jump-run-git-grep-test test cmd)))
               (when (or
                      (and (not run-not-tests) (not (s-contains? test resp)))
                      (and run-not-tests (> (length resp) 0)))
-                (add-to-list 'failures (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule))))))))
-    failures))
+                (list (format fail-tmpl test (if run-not-tests "IS unexpectedly" "NOT") resp cmd rule)))))
+	  (plist-get rule (if run-not-tests :not :tests))))
+      (--filter (member "grep" (plist-get it :supports)) dumb-jump-find-rules))))
 
 (defun dumb-jump-message (str &rest args)
   "Log message STR with ARGS to the *Messages* buffer if not using dumb-jump-quiet."
@@ -1078,8 +1255,7 @@ Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
           (dumb-jump-result-follow result))))
 
 (defun dumb-jump-helm-persist-action (match)
-  "Previews a MATCH in a temporary buffer at the matched line
-number when pressing C-j in helm."
+  "Previews a MATCH in a temporary buffer at the matched line number when pressing \\<keymap>C-j</keymap> in helm."
   (let* ((parts (--remove (string= it "")
                           (s-split "\\(?:^\\|:\\)[0-9]+:"  match)))
          (file-line-part (s-split ":" (nth 0 parts)))
@@ -1097,18 +1273,27 @@ number when pressing C-j in helm."
       (goto-char (point-min))
       (forward-line (1- line)))))
 
+(defun dumb-jump--format-result (proj result)
+  (format "%s:%s: %s"
+          (s-replace proj "" (plist-get result :path))
+          (plist-get result :line)
+          (s-trim (plist-get result :context))))
+
+(defun dumb-jump-ivy-jump-to-selected (results choices proj)
+  "Offer CHOICES as canidates through ivy-read then execute
+dumb-jump-to-selected on RESULTS CHOICES and selected choice.
+Ignore PROJ"
+  (dumb-jump-to-selected results choices (ivy-read "Jump to: " choices)))
+
 (defun dumb-jump-prompt-user-for-choice (proj results)
   "Put a PROJ's list of RESULTS in a 'popup-menu' (or helm/ivy)
 for user to select.  Filters PROJ path from files for display."
   (let* ((choices (-map (lambda (result)
-                          (format "%s:%s %s"
-                                  (s-replace proj "" (plist-get result :path))
-                                  (plist-get result :line)
-                                  (s-trim (plist-get result :context))))
+                          (dumb-jump--format-result proj result))
                         results)))
     (cond
      ((and (eq dumb-jump-selector 'ivy) (fboundp 'ivy-read))
-      (dumb-jump-to-selected results choices (ivy-read "Jump to: " choices)))
+      (funcall dumb-jump-ivy-jump-to-selected-function results choices proj))
      ((and (eq dumb-jump-selector 'helm) (fboundp 'helm))
       (dumb-jump-to-selected results choices
                              (helm :sources
@@ -1123,6 +1308,7 @@ for user to select.  Filters PROJ path from files for display."
   "Keep looking at the parent dir of FILEPATH until a denoter file/dir is found."
   (f-expand
     (or
+      dumb-jump-project
       (locate-dominating-file filepath #'dumb-jump-get-config)
       dumb-jump-default-project)))
 
@@ -1145,11 +1331,14 @@ to keep looking for another root."
                        (dumb-jump-get-language-from-mode))))
     (if (member language languages)
       language
-      (format ".%s file" (or (f-ext file) "?")))))
+      (format ".%s file" (or (f-ext file) "")))))
 
 (defun dumb-jump-get-language-from-mode ()
   "Extract the language from the 'major-mode' name.  Currently just everything before '-mode'."
-  (s-replace "-mode" "" (symbol-name major-mode)))
+  (let ((lookup '(sh "shell" cperl "perl"))
+        (m (s-replace "-mode" "" (symbol-name major-mode))))
+        (or (plist-get lookup (intern m)) m)))
+
 
 (defun dumb-jump-get-language-by-filename (file)
   "Get the programming language from the FILE."
@@ -1207,7 +1396,7 @@ to keep looking for another root."
   (cond
    ((and (string= lang "clojure") (s-contains? "/" look-for))
     (nth 1 (s-split "/" look-for)))
-   ((and (string= lang "ruby") (s-starts-with? ":" look-for))
+   ((and (or (string= lang "ruby") (string= lang "crystal")) (s-starts-with? ":" look-for))
     (s-chop-prefix ":" look-for))
    (t
     look-for)))
@@ -1371,6 +1560,7 @@ current file."
     (:comment "--" :language "haskell")
     (:comment "--" :language "lua")
     (:comment "//" :language "rust")
+    (:comment "#"  :language "julia")
     (:comment "//" :language "objc")
     (:comment "//" :language "csharp")
     (:comment "//" :language "java")
@@ -1385,10 +1575,14 @@ current file."
     (:comment "#" :language "python")
     (:comment "#" :language "r")
     (:comment "#" :language "ruby")
+    (:comment "#" :language "crystal")
     (:comment "//" :language "scala")
     (:comment ";" :language "scheme")
     (:comment "#" :language "shell")
-    (:comment "//" :language "swift"))
+    (:comment "//" :language "swift")
+    (:comment "#" :language "elixir")
+    (:comment "%" :language "erlang")
+    (:comment "//" :language "scss"))
   "List of one-line comments organized by language."
   :group 'dumb-jump
   :type
@@ -1558,16 +1752,13 @@ Ffrom the ROOT project CONFIG-FILE."
                   (car (car target-boundary))
                 (s-index-of (plist-get result :target) (plist-get result :context))))
 
-        (thef (plist-get result :path))
-        (line (plist-get result :line)))
+         (thef (plist-get result :path))
+         (line (plist-get result :line)))
     (when thef
       (if use-tooltip
-          (popup-tip (format "%s:%s %s"
-                                  (s-replace proj "" (plist-get result :path))
-                                  (plist-get result :line)
-                                  (s-trim (plist-get result :context))))
-          (dumb-jump-goto-file-line thef line pos)))
-    ; return the file for test
+          (popup-tip (dumb-jump--format-result proj result))
+        (dumb-jump-goto-file-line thef line pos)))
+    ;; return the file for test
     thef))
 
 
@@ -1859,7 +2050,7 @@ searcher symbol."
 (defun dumb-jump-generate-git-grep-command (look-for cur-file proj regexes lang exclude-paths)
   "Generate the git grep response based on the needle LOOK-FOR in the directory PROJ."
   (let* ((filled-regexes (dumb-jump-populate-regexes look-for regexes 'git-grep))
-         (ggtypes (dumb-jump-get-git-grep-type-by-language lang))
+         (ggtypes (when (f-ext cur-file) (dumb-jump-get-git-grep-type-by-language lang)))
          (cmd (concat dumb-jump-git-grep-cmd
                       " --color=never --line-number"
                       (if dumb-jump-git-grep-search-untracked
@@ -1941,7 +2132,7 @@ searcher symbol."
                               dumb-jump-language-file-exts))))
 
 (defun dumb-jump-get-rules-by-language (language searcher)
-  "Return a list of rules for the LANGUAGE."
+  "Return a list of rules for the LANGUAGE by SEARCHER."
   (let* ((searcher-str (cond ((eq 'git-grep searcher) "git-grep")
                              ((eq 'rg searcher) "rg")
                              ((eq 'ag searcher) "ag")
