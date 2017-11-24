@@ -44,6 +44,7 @@
 (require 'etags)
 (require 'esh-util)
 (require 'compile)
+(require 'dired)
 
 ;;* Utility
 (defun counsel-more-chars (n)
@@ -1058,6 +1059,46 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (let ((default-directory counsel--git-dir))
       (find-file x))))
 
+(defun counsel-git-occur ()
+  "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
+  (cd counsel--git-dir)
+  (counsel-cmd-to-dired
+   (format "%s | grep -i -E '%s' | xargs ls"
+           counsel-git-cmd
+           (counsel-unquote-regex-parens ivy--old-re))))
+
+(defvar counsel-dired-listing-switches "-alh"
+  "Switches passed to `ls' for `counsel-cmd-to-dired'.")
+
+(defun counsel-cmd-to-dired (cmd)
+  "Adapted from `find-dired'."
+  (let ((inhibit-read-only t)
+        (full-cmd (format "%s %s | sed -e 's/^/  /'"
+                          cmd
+                          counsel-dired-listing-switches)))
+    (erase-buffer)
+    (dired-mode default-directory counsel-dired-listing-switches)
+    (insert "  " default-directory ":\n")
+    (let ((point (point)))
+      (insert "  " cmd "\n")
+      (dired-insert-set-properties point (point)))
+    (setq-local dired-sort-inhibit t)
+    (setq-local revert-buffer-function
+                (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
+    (setq-local dired-subdir-alist
+                (list (cons default-directory (point-min-marker))))
+    (let ((proc (start-process-shell-command
+                 "counsel-cmd" (current-buffer) full-cmd)))
+      (set-process-sentinel
+       proc
+       (lambda (_ state)
+         (when (equal state "finished\n")
+           (goto-char (point-min))
+           (forward-line 2)
+           (dired-move-to-filename)))))))
+
+(ivy-set-occur 'counsel-git 'counsel-git-occur)
+
 ;;** `counsel-git-grep'
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
@@ -1673,6 +1714,15 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :keymap counsel-find-file-map
             :caller 'counsel-find-file))
 
+(ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
+
+(defun counsel-find-file-occur ()
+  (cd ivy--directory)
+  (counsel-cmd-to-dired
+   (format
+    "ls | grep -i -E '%s' | xargs ls"
+    (counsel-unquote-regex-parens ivy--old-re))))
+
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
 
@@ -1907,6 +1957,17 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel--fzf-dir nil
   "Store the base fzf directory.")
 
+(defvar counsel-fzf-dir-function 'counsel-fzf-dir-function-projectile
+  "Function that returns a directory for fzf to use.")
+
+(defun counsel-fzf-dir-function-projectile ()
+  (if (and
+       (fboundp 'projectile-project-p)
+       (fboundp 'projectile-project-root)
+       (projectile-project-p))
+      (projectile-project-root)
+    default-directory))
+
 (defun counsel-fzf-function (str)
   (let ((default-directory counsel--fzf-dir))
     (counsel--async-command
@@ -1924,13 +1985,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-fzf-cmd)))
-  (setq counsel--fzf-dir
-        (if (and
-             (fboundp 'projectile-project-p)
-             (fboundp 'projectile-project-root)
-             (projectile-project-p))
-            (projectile-project-root)
-          default-directory))
+  (setq counsel--fzf-dir (funcall counsel-fzf-dir-function))
   (ivy-read "> " #'counsel-fzf-function
             :initial-input initial-input
             :re-builder #'ivy--regex-fuzzy
@@ -1944,6 +1999,21 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (with-ivy-window
     (let ((default-directory counsel--fzf-dir))
       (find-file x))))
+
+(defun counsel-fzf-occur ()
+  "Occur function for `counsel-fzf' using `counsel-cmd-to-dired'."
+  (cd counsel--fzf-dir)
+  (counsel-cmd-to-dired
+   (format
+    "%s --print0 | xargs -0 ls"
+    (format counsel-fzf-cmd ivy-text))))
+
+(ivy-set-occur 'counsel-fzf 'counsel-fzf-occur)
+
+(ivy-set-actions
+ 'counsel-fzf
+ '(("x" counsel-locate-action-extern "xdg-open")
+   ("d" counsel-locate-action-dired "dired")))
 
 (counsel-set-async-exit-code 'counsel-fzf 1 "Nothing found")
 
@@ -2264,10 +2334,11 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    "rg -i --no-heading --line-number --color never -- %s ."))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE -- %s %s"
-  "Format string to use in `cousel-grep-function' to construct the command.
-
-Note: don't use single quotes for either the regex or the file name."
+(defcustom counsel-grep-base-command "grep -E -n -e %s %s"
+  "Format string used by `counsel-grep' to build a shell command.
+It should contain two %-sequences (see function `format') to be
+substituted by the search regexp and file, respectively.  Neither
+%-sequence should be contained in single quotes."
   :type 'string
   :group 'ivy)
 
@@ -2295,29 +2366,25 @@ Note: don't use single quotes for either the regex or the file name."
                    (setq line-number (match-string-no-properties 1 x)))
                   ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
                    (setq file-name (match-string-no-properties 1 x))
-                   (setq line-number (match-string-no-properties 2 x)))
-                  (t nil))
+                   (setq line-number (match-string-no-properties 2 x))))
         ;; If the file buffer is already open, just get it. Prevent doing
         ;; `find-file', as that file could have already been opened using
         ;; `find-file-literally'.
-        (let ((buf (get-file-buffer file-name)))
-          (unless buf
-            (setq buf (find-file file-name)))
-          (with-current-buffer buf
-            (setq line-number (string-to-number line-number))
-            (if (null counsel-grep-last-line)
-                (progn
-                  (goto-char (point-min))
-                  (forward-line (1- (setq counsel-grep-last-line line-number))))
+        (with-current-buffer (or (get-file-buffer file-name)
+                                 (find-file file-name))
+          (setq line-number (string-to-number line-number))
+          (if counsel-grep-last-line
               (forward-line (- line-number counsel-grep-last-line))
-              (setq counsel-grep-last-line line-number))
-            (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-            (run-hooks 'counsel-grep-post-action-hook)
-            (if (eq ivy-exit 'done)
-                (swiper--ensure-visible)
-              (isearch-range-invisible (line-beginning-position)
-                                       (line-end-position))
-              (swiper--add-overlays (ivy--regex ivy-text)))))))))
+            (goto-char (point-min))
+            (forward-line (1- line-number)))
+          (setq counsel-grep-last-line line-number)
+          (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+          (run-hooks 'counsel-grep-post-action-hook)
+          (if (eq ivy-exit 'done)
+              (swiper--ensure-visible)
+            (isearch-range-invisible (line-beginning-position)
+                                     (line-end-position))
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
@@ -2339,11 +2406,9 @@ Note: don't use single quotes for either the regex or the file name."
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-dir default-directory)
-  (if (string-match "%s$" counsel-grep-base-command)
-      (setq counsel-grep-command
-            (concat (substring counsel-grep-base-command 0 (match-beginning 0))
-                    (shell-quote-argument (buffer-file-name))))
-    (error "expected `counsel-grep-base-command' to end in %%s"))
+  (setq counsel-grep-command
+        (format counsel-grep-base-command
+                "%s" (shell-quote-argument buffer-file-name)))
   (let ((init-point (point))
         res)
     (unwind-protect
@@ -2373,33 +2438,22 @@ Note: don't use single quotes for either the regex or the file name."
   :type 'integer
   :group 'ivy)
 
-(defvar counsel-compressed-file-regex
-  (progn
-    (require 'jka-compr nil t)
-    (jka-compr-build-file-regexp))
-  "Store the regex for compressed file names.")
-
 ;;;###autoload
 (defun counsel-grep-or-swiper ()
   "Call `swiper' for small buffers and `counsel-grep' for large ones."
   (interactive)
-  (let ((fname (buffer-file-name)))
-    (if (and fname
-             (not (buffer-narrowed-p))
-             (not (ignore-errors
-                    (file-remote-p fname)))
-             (not (string-match
-                   counsel-compressed-file-regex
-                   fname))
-             (> (buffer-size)
-                (if (eq major-mode 'org-mode)
-                    (/ counsel-grep-swiper-limit 4)
-                  counsel-grep-swiper-limit)))
-        (progn
-          (when (file-writable-p fname)
-            (save-buffer))
-          (counsel-grep))
-      (swiper--ivy (swiper--candidates)))))
+  (if (or (not buffer-file-name)
+          (buffer-narrowed-p)
+          (ignore-errors
+            (file-remote-p buffer-file-name))
+          (jka-compr-get-compression-info buffer-file-name)
+          (<= (buffer-size)
+              (/ counsel-grep-swiper-limit
+                 (if (eq major-mode 'org-mode) 4 1))))
+      (swiper)
+    (when (file-writable-p buffer-file-name)
+      (save-buffer))
+    (counsel-grep)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
