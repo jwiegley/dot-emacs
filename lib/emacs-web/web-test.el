@@ -28,7 +28,7 @@
 (require 'elnode)
 (require 'fakir)
 (require 'cl) ; really we need dflet package
-
+(require 'noflet)
 
 (ert-deftest web-json-let-bind ()
   "Test whether CL arguments are let-bindings."
@@ -57,6 +57,60 @@
     (should
      (equal "a=1&b=2&c=3&d=str&e"
             (web-to-query-string t2)))))
+
+(ert-deftest web-to-multipart ()
+  "Test the multipart creation"
+  (fakir-with-file-buffer file1
+    (with-current-buffer file1 (insert (json-encode '((a . "data")))))
+    (noflet ((web/to-multipart-boundary () "BOUNDARY")
+             (buffer-file-name (buffer) "/tmp/test-file.txt"))
+      (let ((mp (web-to-multipart
+                 `((param . "value")
+                   (somefile . ,file1)
+                   (param2 . "another")))))
+        (should 
+         (equal 
+          (substring-no-properties mp)
+          "--BOUNDARY\r
+content-disposition: form-data; name=\"param\"\r
+\r
+value\r
+--BOUNDARY\r
+content-disposition: form-data; name=\"param2\"\r
+\r
+another\r
+--BOUNDARY\r
+content-disposition: form-data; name=\"somefile\"; filename=\"test-file\"\r
+Content-type: text/plain\r
+\r
+{\"a\":\"data\"}\r
+--BOUNDARY--\r
+"))))))
+
+(ert-deftest web/header-string ()
+  "Test that we can make request headers."
+  (should
+   (equal
+    (web/header-string "GET" '(("X-Test" . "value")) nil nil)
+    "X-Test: value\r\n"))
+  ;; Now one that sets the automatic headers
+  (should
+   (equal
+    (web/header-string "POST" '(("X-Test" . "value")) web/request-mimetype "a=1")
+    "Content-length: 3\r
+Content-type: application/x-www-form-urlencoded\r
+X-Test: value\r
+"))
+  ;; And now a mulitpart - note the fake multipart body
+  (should
+   (equal
+    (web/header-string
+     "POST" '(("X-Test" . "value")) web/request-mimetype
+     (propertize "a=1" :boundary "BOUNDARY"))
+    "Content-length: 3\r
+Content-type: application/x-www-form-urlencoded; boundary=BOUNDARY\r
+X-Test: value\r
+")))
 
 (ert-deftest web-header-parse ()
   "Test HTTP header parsing."
@@ -161,7 +215,8 @@ Content-length: 1000\r
                        (setq cb-hdr hdr))
                      (unless (eq data :done)
                        (setq cb-data data)))))
-    (fakir-mock-process :fake ((:buffer "HTTP/1.1 200\r
+    (fakir-mock-process :fake
+        ((:buffer "HTTP/1.1 200\r
 Host: hostname\r
 Transfer-encoding: chunked\r\n"))
       (should-not cb-hdr)
@@ -313,33 +368,35 @@ This tests the parameter passing by having an elnode handler "
        data-received)
     ;; Start a server on the port
     (unwind-protect
-	;; Start the server
-	(elnode-start
-	 (lambda (httpcon)
-	   (let ((header-values (mapcar (lambda (header)
-					  (append headers (elnode-http-header httpcon header)))
-					'("Header1" "Header2"))))
-	     (elnode-http-start httpcon 200 '(Content-type . "text/plain"))
-	     (let ((response (mapconcat 'identity header-values "")))
-	       (elnode-http-return httpcon response))))
-	 :port port)
-      ;; GET with extra headers
-      (web-http-get
-       (lambda (con header data)
-	 (setq data-received data)
-	 (message "data received is: %s" data-received)
-	 (setq the-end t))
-       :path "/"
-       :host "localhost"
-       :port port
-       :extra-headers '(("Header1" . "Value1")
-			("Header2" . "Value2")))
-       ;; Hang till the client callback finishes
-       (while (not the-end)
-	 (sit-for 1))
+         ;; Start the server
+         (progn
+           (elnode-start
+            (lambda (httpcon)
+              (let ((header-values (mapcar (lambda (header)
+                                             (append headers (elnode-http-header httpcon header)))
+                                           '("Header1" "Header2"))))
+                (elnode-http-start httpcon 200 '(Content-type . "text/plain"))
+                (let ((response (mapconcat 'identity header-values "")))
+                  (elnode-http-return httpcon response))))
+            :port port)
+           ;; GET with extra headers
+           (web-http-get
+            (lambda (con header data)
+              (setq data-received data)
+              (message "data received is: %s" data-received)
+              (setq the-end t))
+            :path "/"
+            :host "localhost"
+            :port port
+            :extra-headers '(("Header1" . "Value1")
+                             ("Header2" . "Value2")))
+           ;; Hang till the client callback finishes
+           (while (not the-end)
+             (sit-for 1)))
       ;; And when we're done with the server...
       (elnode-stop port))
     ;; And a quick check of the contents
     (should (equal "Value1Value2" data-received))))
+
 
 ;;; web-test.el ends here
