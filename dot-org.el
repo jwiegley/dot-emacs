@@ -814,7 +814,7 @@ end tell" (match-string 1))))
     (apply #'diary-date greg-date)))
 
 (use-package calfw
-  :load-path "site-lisp/site-org/emacs-calfw"
+  :load-path "site-lisp/emacs-calfw"
   :bind (("C-c A" . my-calendar)
          :map cfw:calendar-mode-map
          ("M-n" . cfw:navi-next-month-command)
@@ -849,12 +849,12 @@ end tell" (match-string 1))))
         cfw:fchar-top-right-corner ?┓))
 
 (use-package org-cliplink
-  :load-path "site-lisp/site-org/org-cliplink"
+  :load-path "site-lisp/org-cliplink"
   :bind ("C-. C-y" . org-cliplink))
 
 (use-package org-super-agenda
   :disabled t
-  :load-path "site-lisp/site-org/org-super-agenda"
+  :load-path "site-lisp/org-super-agenda"
   :config
   (org-super-agenda-mode)
 
