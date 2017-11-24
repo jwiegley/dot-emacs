@@ -5,6 +5,7 @@
 
 ;; Author: Mickey Petersen <mickey@masteringemacs.org>
 ;; Keywords:
+;; Version: 0.3
 ;; Package-Requires: ((cl-lib "0.2"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -278,7 +279,11 @@ Do not customize this (used in the `makey-key-mode' implementation).")
                                             (cdr lisp-option))))
       (eval `(let* ,local-let-cells
                (when func
-                 (call-interactively func)))))))
+                 (if (stringp func)
+                     ;; this adds keymap-style support for
+                     ;; self-inserted strings.
+                     (call-interactively 'self-insert-command nil [func])
+                   (call-interactively func))))))))
 
 
 (defun makey-key-mode-add-lisp-variable (for-group lisp-variable-name input-func)
@@ -533,6 +538,7 @@ Return the point before the actions part, if any, nil otherwise."
          (quote ,group-name)
          ',lisp-variable-alist)))))
 
+;;;###autoload
 (defun makey-initialize-key-groups (key-group)
   "Initializes KEY-GROUP and creates all the relevant interactive commands."
   (setq makey-key-mode-keymaps nil)
