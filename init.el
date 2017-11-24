@@ -989,11 +989,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/browse-at-remote"
   :bind ("C-. g g" . browse-at-remote))
 
-(use-package browse-kill-ring+
-  :defer 10
+(use-package browse-kill-ring
+  :load-path "site-lisp/browse-kill-ring"
+  :defer 5
   :commands browse-kill-ring
-  ;; :bind ("M-y" . browse-kill-ring)
-  )
+  :config
+  (use-package browse-kill-ring+))
 
 (use-package bytecomp-simplify
   :defer 15)
