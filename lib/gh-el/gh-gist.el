@@ -88,6 +88,12 @@
    (url :initarg :url :marshal ((alist . raw_url)))
    (content :initarg :content)))
 
+(defmethod constructor :static ((file gh-gist-gist-file) &rest args)
+  (let ((obj (call-next-method)))
+    (when (oref obj :content)
+      (oset obj :content (gh-sanitize-content (oref obj :content))))
+    obj))
+
 (defmethod gh-gist-gist-to-obj ((gist gh-gist-gist-stub))
   (let ((files (mapcar #'gh-gist-gist-file-to-obj (oref gist :files))))
     `(("description" . ,(oref gist :description))
