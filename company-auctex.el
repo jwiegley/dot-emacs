@@ -33,6 +33,7 @@
 (require 'latex)
 (require 'company)
 (require 'yasnippet)
+(eval-when-compile (require 'cl-lib))
 
 (defvar company-auctex-arg-lookup-table
   '((TeX-arg-define-macro . ("\\MacroName"))
@@ -88,15 +89,15 @@
     (if arg (cdr arg) '(""))))
 
 (defun company-auctex-expand-arg-info (arg-info)
-  (loop for item in arg-info
-        append (cond
-                ((or (stringp item) (and (vectorp item) (stringp (elt item 0))))
-                 (list item))
-                ((vectorp item)
-                 (loop for item-2 in (company-auctex-lookup-arg (elt item 0))
-                       collect [item-2]))
-                (t
-                 (company-auctex-lookup-arg item)))))
+  (cl-loop for item in arg-info
+           append (cond
+                   ((or (stringp item) (and (vectorp item) (stringp (elt item 0))))
+                    (list item))
+                   ((vectorp item)
+                    (cl-loop for item-2 in (company-auctex-lookup-arg (elt item 0))
+                             collect [item-2]))
+                   (t
+                    (company-auctex-lookup-arg item)))))
 
 (defun company-auctex-snippet-arg (arg)
   (let* ((opt (vectorp arg))
@@ -117,20 +118,46 @@
 ;; Macros
 ;;
 
+(defun company-auctex--disable-yas ()
+  (yas-minor-mode -1)
+  (remove-hook 'yas-after-exit-snippet-hook #'company-auctex--disable-yas))
+
+(defmacro company-auctex-with-yas (&rest body)
+  `(progn
+     (unless yas-minor-mode
+       (yas-minor-mode +1)
+       (add-hook 'yas-after-exit-snippet-hook #'company-auctex--disable-yas))
+     ,@body))
+
+(defun company-auctex-get-LaTeX-font-list (&optional mathp)
+  (delq nil (mapcar
+             (lambda (x)
+               (and (stringp x)
+                    (not (string= x ""))
+                    (not (string= x "}"))
+                    (list (substring x 1 -1) t)))
+             (delete-dups
+              (mapcar (if mathp
+                          (lambda (x) (nth 3 x))
+                        #'cadr)
+                      LaTeX-font-list)))))
+
 (defun company-auctex-macro-snippet (arg-info)
   (let ((count 1))
     (apply 'concat
-           (loop for item in (company-auctex-expand-arg-info arg-info)
-                 collect (company-auctex-snippet-arg item)))))
+           (cl-loop for item in (company-auctex-expand-arg-info arg-info)
+                    collect (company-auctex-snippet-arg item)))))
 
 (defun company-auctex-expand-args (str env)
-  (yas-expand-snippet (company-auctex-macro-snippet (assoc-default str env))))
+  (company-auctex-with-yas
+    (yas-expand-snippet (company-auctex-macro-snippet (assoc-default str env)))))
 
 (defun company-auctex-macro-candidates (prefix)
   (let ((comlist (mapcar (lambda (item) (car-or (car item)))
                          (append (TeX-symbol-list)
                                  (LaTeX-length-list)
-                                 LaTeX-section-list))))
+                                 LaTeX-section-list
+                                 (company-auctex-get-LaTeX-font-list)))))
     (all-completions prefix comlist)))
 
 (defun company-auctex-macro-post-completion (candidate)
@@ -138,13 +165,14 @@
                               (append (TeX-symbol-list)
                                       (mapcar (lambda (item)
                                                 (list (car item) 'LaTeX-arg-section))
-                                              LaTeX-section-list))))
+                                              LaTeX-section-list)
+                                      (company-auctex-get-LaTeX-font-list))))
 
 ;;;###autoload
 (defun company-auctex-macros (command &optional arg &rest ignored)
   "company-auctex-macros backend"
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'company-auctex-macros))
     (prefix (company-auctex-prefix "\\\\\\([a-zA-Z]*\\)\\="))
     (candidates (company-auctex-macro-candidates arg))
@@ -158,29 +186,29 @@
   (append LaTeX-math-list LaTeX-math-default))
 
 (defun company-auctex-symbol-candidates (prefix)
-  (all-completions prefix (mapcar 'cadr (company-auctex-math-all))))
+  (all-completions prefix (append (mapcar 'cadr (company-auctex-math-all))
+                                  (mapcar 'car (company-auctex-get-LaTeX-font-list t)))))
 
 (defun company-auctex-symbol-post-completion (candidate)
   (search-backward candidate)
   (delete-region (1- (match-beginning 0)) (match-end 0))
   (if (texmathp)
-      (progn
-        (insert "\\" candidate)
-        (company-auctex-expand-args candidate (TeX-symbol-list)))
-    (progn
-      (insert "$\\" candidate "$")
-      (backward-char)
-      (company-auctex-expand-args candidate (TeX-symbol-list)))))
+      (insert "\\" candidate)
+    (insert "$\\" candidate "$")
+    (backward-char))
+  (company-auctex-expand-args
+   candidate
+   (append (TeX-symbol-list) (company-auctex-get-LaTeX-font-list t))))
 
 (defun company-auctex-symbol-annotation (candidate)
   (let ((char (nth 2 (assoc candidate (mapcar 'cdr (company-auctex-math-all))))))
-        (if char (concat " " (char-to-string (decode-char 'ucs char))) nil)))
+    (and char (concat " " (char-to-string (decode-char 'ucs char))))))
 
 ;;;###autoload
 (defun company-auctex-symbols (command &optional arg &rest ignored)
   "company-auctex-symbols backend"
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'company-auctex-symbols))
     (prefix (company-auctex-prefix "\\\\\\([a-zA-Z]*\\)\\="))
     (candidates (company-auctex-symbol-candidates arg))
@@ -207,18 +235,19 @@
   (delete-region (1- (match-beginning 0)) (match-end 0))
   (let ((candidate
          (substring candidate (length company-auctex-environment-prefix))))
-    (yas-expand-snippet
-     (format "\\begin{%s}%s\n$0\n\\end{%s}"
-             candidate
-             (company-auctex-macro-snippet
-              (assoc-default candidate (LaTeX-environment-list)))
-             candidate))))
+    (company-auctex-with-yas
+      (yas-expand-snippet
+       (format "\\begin{%s}%s\n$0\n\\end{%s}"
+               candidate
+               (company-auctex-macro-snippet
+                (assoc-default candidate (LaTeX-environment-list)))
+               candidate)))))
 
 ;;;###autoload
 (defun company-auctex-environments (command &optional arg &rest ignored)
   "company-auctex-environments backend"
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'company-auctex-environments))
     (prefix (company-auctex-prefix "\\\\\\([a-zA-Z]*\\)\\="))
     (candidates (company-auctex-environment-candidates arg))
@@ -235,7 +264,7 @@
 (defun company-auctex-labels (command &optional arg &rest ignored)
   "company-auctex-labels backend"
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'company-auctex-labels))
     (prefix (company-auctex-prefix "\\\\ref{\\([^}]*\\)\\="))
     (candidates (company-auctex-label-candidates arg))))
@@ -251,9 +280,9 @@
 (defun company-auctex-bibs (command &optional arg &rest ignored)
   "company-auctex-bibs backend"
   (interactive (list 'interactive))
-  (case command
+  (cl-case command
     (interactive (company-begin-backend 'company-auctex-bibs))
-    (prefix (company-auctex-prefix "\\\\cite\\(?:\\[[^]]*\\]\\){\\([^},]*\\)\\="))
+    (prefix (company-auctex-prefix "\\\\cite[^[{]*\\(?:\\[[^]]*\\]\\)?{\\([^},]*\\)\\="))
     (candidates (company-auctex-bib-candidates arg))))
 
 
