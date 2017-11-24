@@ -22,9 +22,6 @@
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = git://github.com/jwiegley/haskell-mode.git
-[submodule "site-lisp/gnus"]
-	path = site-lisp/gnus
-	url = http://git.gnus.org/gnus.git
 [submodule "lisp/emacs-async"]
 	path = lisp/emacs-async
 	url = git://github.com/jwiegley/emacs-async.git
@@ -40,9 +37,6 @@
 [submodule "site-lisp/agda"]
 	path = site-lisp/agda
 	url = git://github.com/agda/agda.git
-[submodule "lisp/helm-hoogle"]
-	path = lisp/helm-hoogle
-	url = git://github.com/jwiegley/helm-hoogle.git
 [submodule "site-lisp/flycheck"]
 	path = site-lisp/flycheck
 	url = git://github.com/flycheck/flycheck.git
