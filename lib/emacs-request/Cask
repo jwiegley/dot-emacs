@@ -1,7 +1,7 @@
+(source gnu)
 (source melpa)
-(source marmalade)
 
-(package "request" "0" "Compatible layer for URL request in Emacs")
+(package-file "request.el")
 
 (development
  (depends-on "ert")

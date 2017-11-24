@@ -11,6 +11,8 @@
    * `Repository <https://github.com/tkf/emacs-request>`_ (at GitHub)
    * `Issue tracker <https://github.com/tkf/emacs-request/issues>`_ (at GitHub)
    * `Travis CI <https://travis-ci.org/#!/tkf/emacs-request>`_ |build-status|
+   * `MELPA <https://melpa.org/#/request>`_ |melpa-badge|
+   * `MELPA Stable <https://stable.melpa.org/#/request>`_ |melpa-stable-badge|
 
 
 What is it?
@@ -31,6 +33,14 @@ use these backend without modifying their code.
 
 Request.el also patches url.el dynamically, to fix bugs in url.el.
 See `monkey patches for url.el`_ for the bugs fixed by request.el.
+
+
+Installation
+============
+
+request.el is available on `MELPA <https://melpa.org/>`_ and `MELPA stable <https://stable.melpa.org>`_.
+
+You can install request.el by package.el
 
 
 Examples
@@ -177,11 +187,9 @@ Supported Emacs versions:
  Emacs version          Does request.el work?      Tested on Travis CI
                                                    |build-status|
 ====================== ========================== =====================
+ GNU Emacs 25.1         yes (as of this writing)   yes
  GNU Emacs 24.5         yes (as of this writing)   yes
  GNU Emacs 24.4         yes (as of this writing)   yes
- GNU Emacs 24.3         yes (as of this writing)   yes
- GNU Emacs 24.2         yes                        no
- GNU Emacs 24.1         yes                        no
 ====================== ========================== =====================
 
 
@@ -193,29 +201,6 @@ Supported backends:
  url.el     Included in Emacs
  curl       Reliable             ✔               ✔                         ✔
 ========== ==================== ================ ========================= =============
-
-
-Monkey patches for url.el
-=========================
-
-Patches for following bugs are applied when request.el is loaded.
-If the patch is not required for the Emacs version you are using, it
-will not be applied.
-
-- `#12374 - 24.1.50;
-  Incorrect redirect in url-retrieve when URL contains port number -
-  GNU bug report logs
-  <http://debbugs.gnu.org/cgi/bugreport.cgi?bug=12374>`_
-
-  (patch: `PATCH Fix bug 12374 treat port number when expanding URL
-  <http://article.gmane.org/gmane.emacs.devel/155698>`_)
-
-- `#11469 - 24.1.50; url-retrieve with PUT method fails every two
-  times - GNU bug report logs
-  <http://debbugs.gnu.org/cgi/bugreport.cgi?bug=11469>`_
-
-  (patch: `PATCH Fix bug 11469 propagate url request vars properly
-  <http://article.gmane.org/gmane.emacs.devel/155697>`_)
 
 
 Related projects
@@ -240,7 +225,15 @@ See COPYING file for details.
 
 
 .. |build-status|
-   image:: https://secure.travis-ci.org/tkf/emacs-request.png
+   image:: https://secure.travis-ci.org/tkf/emacs-request.svg
            ?branch=master
    :target: http://travis-ci.org/tkf/emacs-request
    :alt: Build Status
+.. |melpa-badge|
+   image:: http://melpa.org/packages/request-badge.svg
+   :target: http://melpa.org/#/request
+   :alt: MELPA Badge
+.. |melpa-stable-badge|
+   image:: http://stable.melpa.org/packages/request-badge.svg
+   :target: http://stable.melpa.org/#/request
+   :alt: MELPA Stable Badge

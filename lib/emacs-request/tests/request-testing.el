@@ -84,7 +84,7 @@ The symbols other than `response' is bound using `cl-symbol-macrolet'."
            for str = (with-current-buffer buffer (buffer-string))
            do (cond
                ((string-match output-regexp str)
-                (return str))
+                (cl-return str))
                ((not (eq 'run (process-status process)))
                 (error "Server startup error.")))
            finally do (error "Server timeout error.")))
@@ -199,7 +199,7 @@ unless an error occurs.")
                          do (apply #'message m)))))
         ,@body))))
 
-(defmacro* request-deftest (name () &body docstring-and-body)
+(cl-defmacro request-deftest (name () &body docstring-and-body)
   "`ert-deftest' for test requiring test server.
 
 Additional keyword arguments:
