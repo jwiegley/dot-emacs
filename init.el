@@ -450,6 +450,48 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
       (unfill-paragraph 1)
       (forward-paragraph))))
 
+;; http://acidwords.com/posts/2017-10-19-closing-all-parentheses-at-once.html
+(defun close-all-parentheses* (indent-fn)
+  (let* ((closing nil)
+         ;; by default rely on (newline-and-indent)
+         (local-indent-fn (lambda (token)
+                            (newline-and-indent)
+                            (insert token)))
+         (indent-fn (if indent-fn
+                        indent-fn
+                      local-indent-fn)))
+    (save-excursion
+      (while
+          (condition-case nil
+              (progn
+                (backward-up-list)
+                (let ((syntax (syntax-after (point))))
+                  (case (car syntax)
+                    ((4) (setq closing
+                               (cons (cdr syntax) closing)))
+                    ((7 8) (setq closing
+                                 (cons (char-after (point)) closing)))))
+                t)
+            ((scan-error) nil))))
+    (dolist (token (nreverse closing))
+      (if arg
+          (funcall indent-fn token)
+        (insert token)))))
+
+(defun close-all-parentheses (arg)
+  (interactive "P")
+  (let ((my-format-fn
+         (lambda (token)
+           ;; 125 is codepoint for '}'
+           (if (and (= token 125)
+                    ;; C, C++ and Java
+                    (member major-mode '(c-mode c++-mode java-mode)))
+               (let ((last-command-event ?}))
+                 (newline)
+                 (c-electric-brace nil))
+             (insert token)))))
+    (close-all-parentheses* my-format-fn)))
+
 (defun check-papers ()
   (interactive)
   ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
@@ -541,6 +583,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
  ("C-c v" . ffap)
  ("C-c V" . view-clipboard)
  ("C-c z" . clean-buffer-list)
+ ("C-c )" . close-all-parentheses)
  ("C-c =" . count-matches)
  ("C-c ;" . comment-or-uncomment-region)
 
