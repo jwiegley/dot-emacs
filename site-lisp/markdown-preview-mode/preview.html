@@ -23,7 +23,7 @@
              console.log('Code: ' + event.code + ' reason: ' + event.reason);
          };
          socket.onmessage = function(event) {
-             $("#markdown-body").html($(event.data).find("#content").html());
+             $("#markdown-body").html($(event.data).find("#content").html()).trigger('mdContentChange');
              var scroll = $(document).height() * ($(event.data).find("#position-percentage").html() / 100);
              $("html, body").animate({ scrollTop: scroll }, 600);
          };
