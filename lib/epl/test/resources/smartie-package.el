@@ -1,11 +1,9 @@
-;;; load.el --- EPL: Load compatibility libraries -*- lexical-binding: t; -*-
+;;; smartie-package.el --- EPL: Smartie package for unit tests  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013  Sebastian Wiesner
+;; Copyright (C) 2014  Johan Andersson
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
-;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
-;;     Sebastian Wiesner <lunaryorn@gmail.com>
-;; URL: http://github.com/cask/epl
+;; Author: Johan Andersson <johan.rejeep@gmail.com>
+;; Version: 1.2.3
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -24,20 +22,11 @@
 
 ;;; Commentary:
 
-;; Load compatibility libraries if necessary.
+;; A smartie package to test EPL
 
 ;;; Code:
 
-(require 'f)
 
-(defconst epl-compat-directory (f-parent (f-this-file))
-  "Directory of EPL compatibility libraries.")
+(provide 'smartie-package)
 
-(defun epl-compat-load-when-compat (library)
-  (unless (locate-library library)
-    (load (f-join epl-compat-directory library) nil 'no-message)))
-
-(epl-compat-load-when-compat "package")
-(epl-compat-load-when-compat "ert")
-
-;;; load.el ends here
+;;; smartie-package.el ends here

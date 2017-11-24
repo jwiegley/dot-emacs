@@ -1,10 +1,10 @@
-;;; test-helper.el --- EPL: Unit test helpers -*- lexical-binding: t; -*-
+;;; test-helper.el --- EPL: Non interactive unit test initialization -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013  Sebastian Wiesner
+;; Copyright (C) 2013-2015  Sebastian Wiesner
 
-;; Author: Sebastian Wiesner <lunaryorn@gmail.com>
+;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; Maintainer: Johan Andersson <johan.rejeep@gmail.com>
-;;     Sebastian Wiesner <lunaryorn@gmail.com>
+;;     Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; URL: http://github.com/cask/epl
 
 ;; This file is NOT part of GNU Emacs.
@@ -24,46 +24,16 @@
 
 ;;; Commentary:
 
-;;
+;; Initializes the test suite for non-interactive running with ERT Runner.
 
 ;;; Code:
 
-(require 'find-func)
-(require 'cl-lib)
-(require 'f)
+(let* ((current-file (if load-in-progress load-file-name (buffer-file-name)))
+       (source-directory (locate-dominating-file current-file "Cask"))
+       (pkg-rel-dir (format ".cask/%s/elpa" emacs-version)))
+  (setq package-user-dir (expand-file-name pkg-rel-dir source-directory))
+  (package-initialize)
 
-
-;;;; Directories
-
-(eval-and-compile
-  (defconst epl-test-directory (f-parent (f-this-file))
-    "Directory of the EPL test suite.")
-
-  (defconst epl-test-resource-directory (f-join epl-test-directory "resources")
-    "Directory of resources for the EPL testsuite.")
-
-  (defconst epl-test-source-directory (f-parent epl-test-directory)
-    "Source directory of EPL."))
-
-
-;;;; Load EPL
-
-;; Load compatibility libraries first
-(load (f-join epl-test-source-directory "compat" "load.el") nil 'no-message)
-
-(require 'epl (f-join epl-test-source-directory "epl"))
-
-;; Check that it is really the right EPL
-(let ((source (symbol-file 'epl-initialize 'defun)))
-  (cl-assert (f-same? source (f-join epl-test-source-directory "epl.elc")) nil
-             "ERROR: EPL not loaded from byte-compiled source, but from %s! \
-Please run make compile" source))
-
-
-;;;; Utilities
-
-(defun epl-test-resource-file-name (resource)
-  "Get the file name of a RESOURCE."
-  (f-join epl-test-resource-directory resource))
+  (load (expand-file-name "epl" source-directory)))
 
 ;;; test-helper.el ends here
