@@ -98,16 +98,32 @@
     ((member :win32 *features*) nil)
     (t :fd-handler)))
 
-(defun resolve-hostname (name)
-  (car (sb-bsd-sockets:host-ent-addresses
-        (sb-bsd-sockets:get-host-by-name name))))
+
+(defun resolve-hostname (host)
+  "Returns valid IPv4 or IPv6 address for the host."
+  ;; get all IPv4 and IPv6 addresses as a list
+  (let* ((host-ents (multiple-value-list (sb-bsd-sockets:get-host-by-name host)))
+         ;; remove protocols for which we don't have an address
+         (addresses (remove-if-not #'sb-bsd-sockets:host-ent-address host-ents)))
+    ;; Return the first one or nil,
+    ;; but actually, it shouln't return nil, because
+    ;; get-host-by-name will signal NAME-SERVICE-ERROR condition
+    ;; if there isn't any address for the host.
+    (first addresses)))
+
 
 (defimplementation create-socket (host port &key backlog)
-  (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
-                               :type :stream
-                               :protocol :tcp)))
+  (let* ((host-ent (resolve-hostname host))
+         (socket (make-instance (cond #+#.(swank/backend:with-symbol 'inet6-socket 'sb-bsd-sockets)
+                                      ((eql (sb-bsd-sockets:host-ent-address-type host-ent) 10)
+                                       'sb-bsd-sockets:inet6-socket)
+                                      (t
+                                       'sb-bsd-sockets:inet-socket))
+                                :type :stream
+                                :protocol :tcp)))
     (setf (sb-bsd-sockets:sockopt-reuse-address socket) t)
-    (sb-bsd-sockets:socket-bind socket (resolve-hostname host) port)
+    (sb-bsd-sockets:socket-bind socket (sb-bsd-sockets:host-ent-address host-ent) port)
+
     (sb-bsd-sockets:socket-listen socket (or backlog 5))
     socket))
 
@@ -316,8 +332,7 @@
     (default-directory)))
 
 (defun make-socket-io-stream (socket external-format buffering)
-  (let ((args `(,@()
-                :output t
+  (let ((args `(:output t
                 :input t
                 :element-type ,(if external-format
                                    'character
@@ -698,13 +713,11 @@ QUALITIES is an alist with (quality . value)"
 (sb-alien:define-alien-routine (#-win32 "tempnam" #+win32 "_tempnam" tempnam)
     sb-alien:c-string
   (dir sb-alien:c-string)
-  (prefix sb-alien:c-string))
-
-)
+  (prefix sb-alien:c-string)))
 
 (defun temp-file-name ()
   "Return a temporary file name to compile strings into."
-  (tempnam nil nil))
+  (tempnam nil "slime"))
 
 (defvar *trap-load-time-warnings* t)
 
@@ -1400,27 +1413,27 @@ stack."
          ;; specially.
          (more-name (or (find-symbol "MORE" :sb-debug) 'more))
          (more-context nil)
-         (more-count nil)
-         (more-id 0))
+         (more-count nil))
     (when vars
       (let ((locals
               (loop for v across vars
-                    do (when (eq (sb-di:debug-var-symbol v) more-name)
-                         (incf more-id))
-                       (case (debug-var-info v)
-                         (:more-context
-                          (setf more-context (debug-var-value v frame loc)))
-                         (:more-count
-                          (setf more-count (debug-var-value v frame loc))))
+                    unless 
+                    (case (debug-var-info v)
+                      (:more-context
+                       (setf more-context (debug-var-value v frame loc))
+                       t)
+                      (:more-count
+                       (setf more-count (debug-var-value v frame loc))
+                       t))
                     collect
-                       (list :name (sb-di:debug-var-symbol v)
-                             :id (sb-di:debug-var-id v)
-                             :value (debug-var-value v frame loc)))))
+                    (list :name (sb-di:debug-var-symbol v)
+                          :id (sb-di:debug-var-id v)
+                          :value (debug-var-value v frame loc)))))
         (when (and more-context more-count)
           (setf locals (append locals
                                (list
                                 (list :name more-name
-                                      :id more-id
+                                      :id 0
                                       :value (multiple-value-list
                                               (sb-c:%more-arg-values
                                                more-context
@@ -1569,23 +1582,21 @@ stack."
                             append (label-value-line i value))))))))
 
 (defmethod emacs-inspect ((o function))
-  (let ((header (sb-kernel:widetag-of o)))
-    (cond ((= header sb-vm:simple-fun-header-widetag)
+    (cond ((sb-kernel:simple-fun-p o)
                    (label-value-line*
                     (:name (sb-kernel:%simple-fun-name o))
                     (:arglist (sb-kernel:%simple-fun-arglist o))
-                    (:self (sb-kernel:%simple-fun-self o))
                     (:next (sb-kernel:%simple-fun-next o))
                     (:type (sb-kernel:%simple-fun-type o))
                     (:code (sb-kernel:fun-code-header o))))
-          ((= header sb-vm:closure-header-widetag)
+          ((sb-kernel:closurep o)
                    (append
                     (label-value-line :function (sb-kernel:%closure-fun o))
                     `("Closed over values:" (:newline))
                     (loop for i below (1- (sb-kernel:get-closure-length o))
                           append (label-value-line
                                   i (sb-kernel:%closure-index-ref o i)))))
-          (t (call-next-method o)))))
+          (t (call-next-method o))))
 
 (defmethod emacs-inspect ((o sb-kernel:code-component))
   (append
@@ -1736,6 +1747,12 @@ stack."
             (push mb *mailboxes*)
             mb))))
 
+  (defimplementation wake-thread (thread)
+    (let* ((mbox (mailbox thread))
+           (mutex (mailbox.mutex mbox)))
+      (sb-thread:with-recursive-lock (mutex)
+        (sb-thread:condition-broadcast (mailbox.waitqueue mbox)))))
+
   (defimplementation send (thread message)
     (let* ((mbox (mailbox thread))
            (mutex (mailbox.mutex mbox)))
@@ -1743,22 +1760,7 @@ stack."
         (setf (mailbox.queue mbox)
               (nconc (mailbox.queue mbox) (list message)))
         (sb-thread:condition-broadcast (mailbox.waitqueue mbox)))))
-
-
-  (defun condition-timed-wait (waitqueue mutex timeout)
-    (macrolet ((foo ()
-                 (cond ((member :sb-lutex *features*) ; Darwin
-                        '(sb-thread:condition-wait waitqueue mutex))
-                       (t
-                        '(handler-case
-                          (let ((*break-on-signals* nil))
-                            (sb-sys:with-deadline (:seconds timeout
-                                                            :override t)
-                              (sb-thread:condition-wait waitqueue mutex) t))
-                          (sb-ext:timeout ()
-                           nil))))))
-      (foo)))
-
+  
   (defimplementation receive-if (test &optional timeout)
     (let* ((mbox (mailbox (current-thread)))
            (mutex (mailbox.mutex mbox))
@@ -1773,7 +1775,7 @@ stack."
              (setf (mailbox.queue mbox) (nconc (ldiff q tail) (cdr tail)))
              (return (car tail))))
          (when (eq timeout t) (return (values nil t)))
-         (condition-timed-wait waitq mutex 0.2)))))
+         (sb-thread:condition-wait waitq mutex)))))
 
   (let ((alist '())
         (mutex (sb-thread:make-mutex :name "register-thread")))
@@ -1792,33 +1794,7 @@ stack."
 
     (defimplementation find-registered (name)
       (sb-thread:with-mutex (mutex)
-        (cdr (assoc name alist)))))
-
-  ;; Workaround for deadlocks between the world-lock and auto-flush-thread
-  ;; buffer write lock.
-  ;;
-  ;; Another alternative would be to grab the world-lock here, but that's less
-  ;; future-proof, and could introduce other lock-ordering issues in the
-  ;; future.
-  ;;
-  ;; In an ideal world we would just have an :AROUND method on
-  ;; SLIME-OUTPUT-STREAM, and be done, but that class doesn't exist when this
-  ;; file is loaded -- so first we need a dummy definition that will be
-  ;; overridden by swank-gray.lisp.
-  #.(unless (find-package 'swank/gray) (make-package 'swank/gray) nil)
-  (eval-when (:load-toplevel :execute)
-    (unless (find-package 'swank/gray) (make-package 'swank/gray) nil))
-  (defclass swank/gray::slime-output-stream
-      (sb-gray:fundamental-character-output-stream)
-    ())
-  (defmethod sb-gray:stream-force-output
-      :around ((stream swank/gray::slime-output-stream))
-    (handler-case
-        (sb-sys:with-deadline (:seconds 0.1)
-          (call-next-method))
-      (sb-sys:deadline-timeout ()
-        nil)))
-  )
+        (cdr (assoc name alist))))))
 
 (defimplementation quit-lisp ()
   #+#.(swank/backend:with-symbol 'exit 'sb-ext)
@@ -1886,6 +1862,14 @@ stack."
 (defimplementation hash-table-weakness (hashtable)
   #+#.(swank/sbcl::sbcl-with-weak-hash-tables)
   (sb-ext:hash-table-weakness hashtable))
+
+;;; Floating point
+
+(defimplementation float-nan-p (float)
+  (sb-ext:float-nan-p float))
+
+(defimplementation float-infinity-p (float)
+  (sb-ext:float-infinity-p float))
 
 #-win32
 (defimplementation save-image (filename &optional restart-function)
