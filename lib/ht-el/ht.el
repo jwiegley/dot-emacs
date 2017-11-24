@@ -3,7 +3,7 @@
 ;; Copyright (C) 2013 Wilfred Hughes
 
 ;; Author: Wilfred Hughes <me@wilfred.me.uk>
-;; Version: 2.2
+;; Version: 2.3
 ;; Keywords: hash table, hash map, hash
 ;; Package-Requires: ((dash "2.12.0"))
 
@@ -44,7 +44,7 @@ Keys are compared with `equal'.
        ,@assignments
        ,table-symbol)))
 
-(defun ht-create (&optional test)
+(defsubst ht-create (&optional test)
   "Create an empty hash table.
 
 TEST indicates the function used to compare the hash
@@ -82,12 +82,20 @@ user-supplied test created via `define-hash-table-test'."
 
 (defalias 'ht-from-plist 'ht<-plist)
 
-(defun ht-get (table key &optional default)
+(defsubst ht-get (table key &optional default)
   "Look up KEY in TABLE, and return the matching value.
 If KEY isn't present, return DEFAULT (nil if not specified)."
   (gethash key table default))
 
-(defun ht-set! (table key value)
+(defun ht-get* (table &rest keys)
+  "Look up KEYS in nested hash tables, starting with TABLE.
+The lookup for each key should return another hash table, except
+for the final key, which may return any value."
+  (if (cdr keys)
+      (apply #'ht-get* (ht-get table (car keys)) (cdr keys))
+    (ht-get table (car keys))))
+
+(defsubst ht-set! (table key value)
   "Associate KEY in TABLE with VALUE."
   (puthash key value table)
   nil)
@@ -111,13 +119,13 @@ table is used."
     (mapc (lambda (table) (ht-update! merged table)) tables)
     merged))
 
-(defun ht-remove! (table key)
+(defsubst ht-remove! (table key)
   "Remove KEY from TABLE."
   (remhash key table))
 
 (defalias 'ht-remove 'ht-remove!)
 
-(defun ht-clear! (table)
+(defsubst ht-clear! (table)
   "Remove all keys from TABLE."
   (clrhash table)
   nil)
@@ -183,7 +191,7 @@ inverse of `ht<-plist'.  The following is not guaranteed:
 
 (defalias 'ht-to-plist 'ht->plist)
 
-(defun ht-copy (table)
+(defsubst ht-copy (table)
   "Return a shallow copy of TABLE (keys and values are shared)."
   (copy-hash-table table))
 
@@ -210,11 +218,11 @@ inverse of `ht<-alist'.  The following is not guaranteed:
 
 (defalias 'ht-contains-p 'ht-contains?)
 
-(defun ht-size (table)
+(defsubst ht-size (table)
   "Return the actual number of entries in TABLE."
   (hash-table-count table))
 
-(defun ht-empty? (table)
+(defsubst ht-empty? (table)
   "Return true if the actual number of entries in TABLE is zero."
   (zerop (ht-size table)))
 
