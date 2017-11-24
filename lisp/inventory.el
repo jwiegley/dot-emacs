@@ -82,10 +82,10 @@ reuse storage as much as possible."
       (let ((path (expand-file-name topdir user-emacs-directory)))
         (dolist (entry (directory-files path t nil t))
           (let ((base (file-name-nondirectory entry)))
-            (when (and (file-directory-p entry)
-                       (not (member base '("." ".."))))
+            (unless (string-match
+                     "\\(\\`\\.\\.?\\|\\.\\(elc\\|org\\)\\)\\'" base)
               (modhash
-               base pkgs
+               (replace-regexp-in-string "\\.el\\'" "" base) pkgs
                (lambda (value)
                  (alist-put value
                             (cons 'path
@@ -112,7 +112,7 @@ reuse storage as much as possible."
                    (format "git --git-dir=%s/%s fetch --no-tags"
                            dir name)))))
           (modhash
-           name pkgs
+           (replace-regexp-in-string "\\.el\\'" "" name) pkgs
            (lambda (value)
              (alist-put value
                         (cons 'manifest-path path)
@@ -186,22 +186,25 @@ reuse storage as much as possible."
                    (and opts (string-match "mirror-only" opts))))
                 errs)
             (cl-flet ((report (err) (setq errs (cons err errs))))
-              (dolist (elem
-                       (if mirror-only
-                           '(manifest-path
-                             manifest-type
-                             manifest-origin
-                             remote
-                             remote-name)
-                         '(use-package-name
-                           manifest-path
-                           manifest-type
-                           manifest-origin
-                           path
-                           remote
-                           remote-name)))
-                (unless (assq elem value)
-                  (report (list 'missing elem))))
+              (let ((fields (if mirror-only
+                                '(manifest-path
+                                  manifest-type
+                                  manifest-origin
+                                  remote
+                                  remote-name)
+                              '(use-package-name
+                                manifest-path
+                                manifest-type
+                                manifest-origin
+                                path
+                                remote
+                                remote-name))))
+                (when (and (alist-get 'manifest-type value)
+                           (string= (alist-get 'manifest-type value) "file"))
+                  (setq fields (delq 'remote (delq 'remote-name fields))))
+                (dolist (field fields)
+                  (unless (assq field value)
+                    (report (list 'missing field)))))
               (cl-flet ((clean-url
                          (url)
                          (and url
@@ -239,10 +242,12 @@ reuse storage as much as possible."
                 (insert (format ";; %s: need to configure with use-package\n" key))))
             (when (member '(missing manifest-path) errs)
               (insert (format ";; %s: need to record in manifest\n" key)))
-            (insert (pp-to-string
-                     (cons key (if errs
-                                   (cons (cons 'errors errs) value)
-                                 value))) ?\n)))
+            (let ((here (point)))
+              (insert (pp-to-string
+                       (cons key (if errs
+                                     (cons (cons 'errors errs) value)
+                                   value))) ?\n)
+              (align-code here (point)))))
         pkgs)
        (insert ")\n")
        (current-buffer)))))
