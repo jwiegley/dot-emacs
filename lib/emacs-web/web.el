@@ -5,9 +5,10 @@
 ;; Author: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Maintainer: Nic Ferrier <nferrier@ferrier.me.uk>
 ;; Created: 3 Aug 2012
-;; Version: 0.3.7
+;; Version: 0.5.2
 ;; Url: http://github.com/nicferrier/emacs-web
 ;; Keywords: lisp, http, hypermedia
+;; Package-requires: ((dash "2.9.0")(s "1.5.0"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -29,7 +30,26 @@
 ;; This is an HTTP client using lexical scope.  This makes coding with
 ;; callbacks easier than with `url'.  This package also provides a
 ;; streaming mode where the callback is continually called whenever
-;; chunk encoding chunks are completed.
+;; data arrives. This is particularly useful for chunked encoding
+;; scenarios.
+
+;; Examples:
+
+;; GET-ing an HTTP page
+;;
+;; (web-http-get
+;;  (lambda (con header data)
+;;    (message "the page returned is: %s" data))
+;;  :url "http://emacswiki.org/wiki/NicFerrier")
+
+;; POST-ing to an HTTP app
+;;
+;; (web-http-post
+;;  (lambda (con header data)
+;;    (message "the data is: %S" data))
+;;  :url "http://example.org/postplace/"
+;;  :data '(("parameter1" . "data")
+;;          ("parameter2" . "more data")))
 
 ;;; Code:
 
@@ -39,16 +59,24 @@
 ;;
 ;; for private functions.
 
-
 (eval-when-compile
   (require 'cl))
-
+(require 'cl-lib)
 (require 'url-parse)
 (require 'json)
+(require 'browse-url)
+(require 'dash)
+(require 'time-stamp)
+(require 'rx)
+(require 's)
 
 (defconst web/request-mimetype
   'application/x-www-form-urlencoded
   "The default MIME type used for requests.")
+
+(defconst web-multipart-mimetype
+  'multipart/form-data
+  "The MIME type used for multipart requests.")
 
 (defun web-header-parse (data)
   "Parse an HTTP response header.
@@ -76,7 +104,7 @@ which are stored as symbols the same as the normal header keys."
       (puthash 'status-string
                (or (match-string 4 status-line) "")
                header-hash))
-    (loop for line in (cdr header-lines)
+    (cl-loop for line in (cdr header-lines)
        if (string-match
            "^\\([A-Za-z0-9.-]+\\):[ ]*\\(.*\\)"
            line)
@@ -148,17 +176,93 @@ CON is used to store state with the process property
     (delete-process proc)
     (kill-buffer buf)))
 
-(defun web/content-length-filter (callback con header data)
+
+(defconst web-cookie-jar-file
+  (expand-file-name "web-cookies" user-emacs-directory)
+  "The location of the cookie jar file.
+
+Override this with dynamic scope if you need to use a specific
+file.")
+
+(defun web/cookie-split (cookie-header)
+  (when (string-match "\\([^=]+\\)=\\(.*\\)" cookie-header)
+    (let* ((name (match-string 1 cookie-header))
+           (cookie-str (match-string 2 cookie-header))
+           (parts (s-split ";" cookie-str))
+           (value (car parts))
+           (args (--keep (s-split "=" (s-trim it) t) (cdr parts))))
+      (list name value args))))
+
+(defun web/cookie-handler (con hdr)
+  "Maintains a cookie jar.
+
+Cookies are written to file \"web-cookie-jar-file\" in a JSON
+format but prefixed by the url that caused the cookie to be set."
+  (save-match-data
+    (let ((cookie-hdr (gethash 'set-cookie hdr)))
+      (when (string-match "\\([^=]+\\)=\\(.*\\)" cookie-hdr)
+        (let* ((name (match-string 1 cookie-hdr))
+               (cookie-str (match-string 2 cookie-hdr))
+               (parts (s-split ";" cookie-str))
+               (value (car parts))
+               (args (--keep (s-split "=" (s-trim it) t) (cdr parts))))
+          (condition-case err
+              (when web-cookie-jar-file
+                (with-current-buffer (find-file-noselect web-cookie-jar-file)
+                  (goto-char (point-min))
+                  (let ((url (process-get con :web-url))
+                        (json (json-encode `(,name ,value ,args))))
+                    (save-match-data
+                      (if (re-search-forward
+                           (rx-to-string `(and bol ,url " " (group-n 1 (* anything))))
+                           nil t)
+                          (replace-match json nil t nil 1)
+                          (goto-char (point-max))
+                          (insert url " " json "\n"))))
+                  (write-file (buffer-file-name))))
+            (error (message
+                    "web/cookie-handler: '%s' writing cookies to '%s'"
+                    err web-cookie-jar-file))))))))
+
+(defun web/chunked-filter (callback con mode header data)
+  "Filter for the client when we're doing chunking."
+  (cond
+    ((eq mode 'stream)
+     (funcall callback con header data)
+     (when (eq data :done)
+       (web/cleanup-process con)))
+    ((and (eq mode 'batch)
+          (eq data :done))
+     (funcall callback con header (process-get con :web-buffer))
+     (web/cleanup-process con))
+    (t
+     (process-put
+      con :web-buffer
+      (concat (or (process-get con :web-buffer) "")
+              data)))))
+
+(defun web/content-length-filter (callback con mode header data)
   "Does the content-length filtering."
-  (let ((so-far (concat (process-get con :web-buffer) data))
-        (content-len (string-to-number
-                      (gethash 'content-length header))))
-    (if (> content-len (length so-far))
-        (process-put con :web-buffer so-far)
-        ;; We have all the data, callback and then kill the process
-        (unwind-protect
-             (funcall callback con header so-far)
-          (web/cleanup-process con)))))
+  (let ((content-len (string-to-number (gethash 'content-length header))))
+    (if (eq mode 'batch)
+        (let ((so-far (concat (process-get con :web-buffer) data)))
+          (if (> content-len (length so-far))
+              (process-put con :web-buffer so-far)
+              ;; We have all the data, callback and then kill the process
+              (unwind-protect
+                   (funcall callback con header so-far)
+                (web/cleanup-process con))))
+        ;; Else we're in stream mode so deliver the bits
+        (let ((collected (+ (or (process-get con :web-len) 0)
+                            (length data))))
+          (if (> content-len collected)
+              (progn
+                (process-put con :web-len collected)
+                (funcall callback con header data))
+              ;; Else we're done
+              (funcall callback con header data)
+              (funcall callback con header :done)
+              (web/cleanup-process con))))))
 
 (defun web/http-post-filter (con data callback mode)
   "Filter function for HTTP POST.
@@ -195,33 +299,19 @@ by collecting it and then batching it to the CALLBACK."
                   (process-put con :http-header hdr)
                   ;; If we have more data call ourselves to process it
                   (when part-data
-                    (web/http-post-filter
-                     con part-data callback mode)))))
-          ;; We have the header, read the body and call callback
+                    (web/http-post-filter con part-data callback mode)))))
+          ;; Else we have the header, read the body and call callback
+          ;; FIXME - we could do cookie handling here... and auto redirect 
           (cond
             ((equal "chunked" (gethash 'transfer-encoding header))
              (web/chunked-decode-stream
               con data
               ;; FIXME we still need the callback to know if this is completion
               (lambda (con data)
-                (cond
-                  ((eq mode 'stream)
-                   (funcall callback con header data)
-                   (when (eq data :done)
-                     (web/cleanup-process con)))
-                  ((and (eq mode 'batch)
-                        (eq data :done))
-                   (funcall callback con header
-                            (process-get con :web-buffer))
-                   (web/cleanup-process con))
-                  (t
-                   (process-put
-                    con :web-buffer
-                    (concat (or (process-get con :web-buffer) "")
-                            data)))))))
+                (web/chunked-filter callback con mode header data))))
             ;; We have a content-length header so just buffer that much data
             ((gethash 'content-length header)
-             (web/content-length-filter callback con header data)))))))
+             (web/content-length-filter callback con mode header data)))))))
 
 (defun web/key-value-encode (key value)
   "Encode a KEY and VALUE for url encoding."
@@ -264,6 +354,70 @@ Keys may be symbols or strings."
       object))
    "&"))
 
+
+;; What a multipart body looks like
+;; Content-type: multipart/form-data, boundary=AaB03x
+;;
+;; --AaB03x
+;; content-disposition: form-data; name="field1"
+;;
+;; Joe Blow
+;; --AaB03x
+;; content-disposition: form-data; name="pics"; filename="file1.txt"
+;; Content-Type: text/plain
+;;
+;;  ... contents of file1.txt ...
+;; --AaB03x--
+
+(defun web/to-multipart-boundary ()
+  "Make a boundary marker."
+  (sha1 (format "%s%s" (random) (time-stamp-string))))
+
+(defun web/is-file (kv)
+  (let ((b (cdr kv)))
+    (and (bufferp b) (buffer-file-name b) b)))
+
+(defun web-to-multipart (data)
+  "Convert DATA, an ALIST or Hashtable, into a Multipart body.
+
+Returns a string of the multipart body propertized with
+`:boundary' with a value of the boundary string."
+  (let* ((boundary (web/to-multipart-boundary))
+         (parts (mapconcat  ; first the params ...
+                 (lambda (kv)
+                   (let ((name (car kv))
+                         (value (cdr kv)))
+                     (format "--%s\r
+Content-Disposition: form-data; name=\"%s\"\r\n\r\n%s"
+                             boundary name value)))
+                 (-filter (lambda (kv) (not (web/is-file kv))) data) "\r\n"))
+         (files (mapconcat  ; then the files ...
+                 (lambda (kv)
+                   (let* ((name (car kv))
+                          (buffer (cdr kv))
+                          (filename (buffer-file-name buffer))
+                          (mime-enc (or
+                                     (mm-default-file-encoding filename)
+                                     "text/plain")))
+                     (format "--%s\r
+Content-Transfer-Encoding: BASE64\r
+Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r
+Content-Type: %s\r\n\r\n%s"
+                             boundary name (file-name-nondirectory filename) mime-enc
+                             ;; FIXME - We should base64 the content when appropriate
+                             (base64-encode-string
+                              (apply
+                               'encode-coding-string
+                               (with-current-buffer buffer
+                                 (list (buffer-string) buffer-file-coding-system)))))))
+                 (-filter 'web/is-file data) "\r\n")))
+    (propertize
+     (format "%s%s--%s--\r\n" 
+             (if (and parts (not (equal parts ""))) (concat parts "\r\n") "")
+             (if (and files (not (equal files ""))) (concat files "\r\n") "")
+             boundary)
+     :boundary boundary)))
+
 (defvar web-log-info nil
   "Whether to log info messages, specifically from the sentinel.")
 
@@ -293,7 +447,7 @@ Keys may be symbols or strings."
 
 (defun web/header-list (headers)
   "Convert HEADERS (hash-table or alist) into a header list."
-  (labels
+  (cl-labels
       ((hdr (key val)
          (format "%s: %s\r\n" key val)))
     (cond
@@ -309,20 +463,57 @@ Keys may be symbols or strings."
         (lambda (pair) (hdr (car pair)(cdr pair)))
         headers)))))
 
+(defun web/header-string (method headers mime-type to-send)
+  "Return a string of all the HEADERS formatted for a request.
+
+Content-Type and Content-Length are both computed automatically.
+
+METHOD specifies the usual HTTP method and therefore whether
+there might be a Content-Type on the request body.
+
+MIME-TYPE specifies the MIME-TYPE of any TO-SEND.
+
+TO-SEND is any request body that needs to be sent.  TO-SEND may
+be propertized with a multipart boundary marker which needs to be
+set on the Content-Type header."
+  (let ((http-hdrs (web/header-list headers))
+        (boundary (and to-send
+                       (plist-get (text-properties-at 0 to-send) :boundary))))
+    (when (member method '("POST" "PUT"))
+      (when (> (length to-send) 1)
+        (push (format
+               "Content-type: %s%s\r\n" mime-type
+               (if boundary (format "; boundary=%s" boundary) ""))
+         http-hdrs)))
+    (when (and to-send (> (length to-send) 0))
+      (push
+       (format "Content-length: %d\r\n" (length to-send))
+       http-hdrs))
+    (cl-loop for hdr in http-hdrs if hdr concat hdr)))
+
+(defun web/log (log)
+  (when log
+    (with-current-buffer (get-buffer-create "*web-log*")
+      (save-excursion
+        (goto-char (point-max))
+        (insert "web-http ")
+        (insert (format "%s" log))
+        (insert "\n")))))
+
 ;;;###autoload
-(defun* web-http-call (method
-                       callback
-                       &key
-                       url
-                       (host "localhost")
-                       (port 80)
-                       secure
-                       (path "/")
-                       extra-headers
-                       data
-                       (mime-type web/request-mimetype)
-                       (mode 'batch)
-                       logging)
+(cl-defun web-http-call (method
+                         callback
+                         &key
+                         url
+                         (host "localhost")
+                         (port 80)
+                         secure
+                         (path "/")
+                         extra-headers
+                         data
+                         (mime-type web/request-mimetype)
+                         (mode 'batch)
+                         logging)
   "Make an HTTP method to the URL or the HOST, PORT, PATH and send DATA.
 
 If URL is specified then it takes precedence over SECURE, HOST,
@@ -336,8 +527,15 @@ PORT is 80 by default.  Even if SECURE it `t'.  If you manually
 specify SECURE you should manually specify PORT to be 443.  Using
 URL negates the need for that, an SSL URL will work correctly.
 
+The URL connected to (whether specified by URL or by the HOST and
+PORT) is recorded on the resulting connection as the process
+property `:web-url'.
+
 EXTRA-HEADERS is an alist or a hash-table of extra headers to
 send to the server.
+
+The full set of headers sent to the server is recorded on the
+connection with the process property `:web-headers'.
 
 DATA is of MIME-TYPE.  We try to interpret DATA and MIME-TYPE
 usefully:
@@ -345,6 +543,12 @@ usefully:
 If MIME-TYPE is `application/form-www-url-encoded' then
 `web-to-query-string' is used to to format the DATA into a POST
 body.
+
+If MIME-TYPE is `multipart/form-data' then `web-to-multipart' is
+called to get a POST body.
+
+Any data sent to the server is recorded on the connection with
+the process property `:web-sent'.
 
 When the request comes back the CALLBACK is called.  CALLBACK is
 always passed 3 arguments: the HTTP connection which is a process
@@ -361,8 +565,7 @@ of the stream or `:done' when the stream ends.
 
 The default MODE is `batch' which collects all the data from the
 response before calling CALLBACK with all the data as a string."
-  (when logging
-    (message "web-http-call %s" url))
+  (when logging (web/log url))
   (let* ((mode (or mode 'batch))
          (parsed-url (url-generic-parse-url
                       (if url url
@@ -388,11 +591,9 @@ response before calling CALLBACK with all the data as a string."
                       ((equal (url-type parsed-url) "https") 'tls)))))
     ;; We must use this coding system or the web dies
     (set-process-coding-system con 'raw-text-unix 'raw-text-unix)
-    (set-process-sentinel
-     con
-     (lambda (con evt)
-       ;;(message "the logging is set to [%s] %s" evt logging)
-       (web/http-post-sentinel-with-logging con evt logging)))
+    (set-process-sentinel con (lambda (con evt)
+                                (web/http-post-sentinel-with-logging
+                                 con evt logging)))
     (set-process-filter
      con
      (lambda (con data)
@@ -401,37 +602,33 @@ response before calling CALLBACK with all the data as a string."
          (web/http-post-filter con data cb mode))))
     ;; Send the request
     (let*
-        ((to-send
-          (cond
-            ((eq
-              (if (symbolp mime-type) mime-type (intern mime-type))
-              web/request-mimetype)
-             (web-to-query-string data))))
-         (headers
-          (or
-           (loop for hdr in
-                (append
-                 (list
-                  (when (member method '("POST" "PUT"))
-                    (format "Content-type: %s\r\n" mime-type))
-                  (when to-send
-                    (format
-                     "Content-length:%d\r\n" (length to-send))))
-                 (web/header-list extra-headers))
-              if hdr
-              concat hdr)
-           ""))
+        ((sym-mt (if (symbolp mime-type) mime-type (intern mime-type)))
+         (to-send (case sym-mt
+                    ('multipart/form-data
+                     (web-to-multipart data))
+                    ('application/x-www-form-urlencoded
+                     (web-to-query-string data))
+                    ;; By default just have the data
+                    (t data)))
+         (headers (or (web/header-string
+                       method extra-headers mime-type to-send)
+                      ""))
          (submission
           (format
            "%s %s HTTP/1.1\r\nHost: %s\r\n%s\r\n%s"
            method path host
            headers
            (if to-send to-send ""))))
+      ;; Set some data on the connection process so users will be able to find data
+      (process-put con :web-url (format "http://%s" dest))
+      (process-put con :web-headers headers)
+      (process-put con :web-sent to-send)
+      (when logging (web/log submission))
       (process-send-string con submission))
     con))
 
 ;;;###autoload
-(defun* web-http-get (callback
+(cl-defun web-http-get (callback
                       &key
                       url
                       (host "localhost")
@@ -459,7 +656,7 @@ to `t'."
    :logging logging))
 
 ;;;###autoload
-(defun* web-http-post (callback
+(cl-defun web-http-post (callback
                        &key
                        url
                        (host "localhost")
@@ -503,24 +700,25 @@ to `t'."
   (error "web-json failed to read %S as json with %s and %s"
          data http-con headers))
 
-(defun* web/json-parse (json-candidate-data
-                       &key
-                       (json-array-type json-array-type)
-                       (json-object-type json-object-type)
-                       (json-key-type json-key-type))
+(cl-defun web/json-parse (json-candidate-data
+                          &key
+                          (json-array-type json-array-type)
+                          (json-object-type json-object-type)
+                          (json-key-type json-key-type))
   "Parse DATA as JSON and return the result."
   (json-read-from-string json-candidate-data))
 
 ;;;###autoload
-(defun* web-json-post (callback
-                       &key
-                       url data headers
-                       (logging t)
-                       (json-array-type json-array-type)
-                       (json-object-type json-object-type)
-                       (json-key-type json-key-type)
-                       (expectation-failure-callback
-                        'web-json-default-expectation-failure))
+(cl-defun web-json-post (callback
+                         &key
+                         url data headers
+                         (mime-type web/request-mimetype)
+                         (logging t)
+                         (json-array-type json-array-type)
+                         (json-object-type json-object-type)
+                         (json-key-type json-key-type)
+                         (expectation-failure-callback
+                          'web-json-default-expectation-failure))
   "POST DATA to URL expecting a JSON response sent to CALLBACK.
 
 See `web-json-expected-mimetypes-list' for the list of Mime Types
@@ -541,7 +739,8 @@ so the function may be defined like this:
 HEADERS may be specified, these are treated as extra-headers to
 be sent with the request.
 
-The DATA is sent as `application/x-www-form-urlencoded'.
+The DATA is sent as `application/x-www-form-urlencoded' by
+default, MIME-TYPE can change that.
 
 JSON-ARRAY-TYPE, JSON-OBJECT-TYPE and JSON-KEY-TYPE, if present,
 are used to let bind the `json-read' variables of the same name
@@ -565,10 +764,11 @@ affecting the resulting lisp structure."
                  (funcall expectation-failure-callback
                           http-data httpcon header)))))
          (funcall callback lisp-data httpcon header)))
-     :url url
-     :data data
-     :extra-headers headers
-     :logging logging)))
+      :url url
+      :data data
+      :mime-type mime-type
+      :extra-headers headers
+      :logging logging)))
 
 (defvar web-get-history-list nil
   "History for `web-get' interactive forms.")
@@ -578,7 +778,8 @@ affecting the resulting lisp structure."
   "Get the specified URL into the BUFFER."
   (interactive
    (list
-    (read-from-minibuffer "URL: " nil nil nil 'web-get-history-list)
+    (let ((def-url (browse-url-url-at-point)))
+      (read-from-minibuffer "URL: " def-url nil nil 'web-get-history-list))
     (when current-prefix-arg
         (read-buffer "Buffer: " '("*web-get*")))))
   (let ((handler
@@ -593,6 +794,19 @@ affecting the resulting lisp structure."
              (insert data)
              (switch-to-buffer (current-buffer))))))
     (web-http-get handler :url url)))
+
+(defun web-header (header name &optional convert)
+  "Look up NAME in HEADER."
+  (let ((val (if (hash-table-p header)
+                 (let ((v (gethash (intern name) header)))
+                   (when v (cons name v)))
+                 ;; Else presume it's an alist
+                 (assoc name header))))
+    (when val
+      (case convert
+        (:num (string-to-number (cdr val)))
+        (t val)))))
+
 
 (provide 'web)
 
