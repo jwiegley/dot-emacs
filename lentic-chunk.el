@@ -4,12 +4,12 @@
 
 ;; This file is not part of Emacs
 
-;; Author: Phillip Lord <phillip.lord@newcastle.ac.uk>
-;; Maintainer: Phillip Lord <phillip.lord@newcastle.ac.uk>
+;; Author: Phillip Lord <phillip.lord@russet.org.uk>
+;; Maintainer: Phillip Lord <phillip.lord@russet.org.uk>
 
 ;; The contents of this file are subject to the LGPL License, Version 3.0.
 
-;; Copyright (C) 2014, 2015, Phillip Lord, Newcastle University
+;; Copyright (C) 2014, 2015, 2016, Phillip Lord, Newcastle University
 
 ;; This program is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU Lesser General Public License as published by
@@ -554,11 +554,31 @@ an implicit stop."
    lentic-commented-chunk-configuration)
   ())
 
+(defmethod lentic-invert
+  ((conf lentic-unmatched-commented-chunk-configuration))
+  (lentic-unmatched-uncommented-chunk-configuration
+   "unmatched-commented-inverted"
+   :this-buffer (lentic-that conf)
+   :that-buffer (lentic-this conf)
+   :comment (oref conf :comment)
+   :comment-start (oref conf :comment-start)
+   :comment-stop (oref conf :comment-stop)))
+
+
 (defclass lentic-unmatched-uncommented-chunk-configuration
   (lentic-unmatched-chunk-configuration
    lentic-uncommented-chunk-configuration)
   ())
 
+(defmethod lentic-invert
+  ((conf lentic-unmatched-uncommented-chunk-configuration))
+  (lentic-unmatched-commented-chunk-configuration
+   "unmatched-uncommented-inverted"
+   :this-buffer (lentic-that conf)
+   :that-buffer (lentic-this conf)
+   :comment (oref conf :comment)
+   :comment-start (oref conf :comment-start)
+   :comment-stop (oref conf :comment-stop)))
 
 (provide 'lentic-chunk)
 

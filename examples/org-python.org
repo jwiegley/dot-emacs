@@ -1,0 +1,18 @@
+
+* Header
+
+Testing python and org mode
+
+And this works just fine also.
+
+#+BEGIN_SRC python
+print("Hello World")
+
+print("Goodbye World")
+#+END_SRC
+
+* Footer
+
+Local Variables:
+lentic-init: lentic-org-python-init
+End:
