@@ -2423,6 +2423,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package memory-usage
   :commands memory-usage)
 
+(use-package mic-paren
+  :defer 5
+  :config
+  (paren-activate))
+
 (use-package midnight
   :defer 10)
 
@@ -2583,16 +2588,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ("C-. A" . paredit-add-to-previous-list)
    ("C-. j" . paredit-join-with-next-list)
    ("C-. J" . paredit-join-with-previous-list)))
-
-(or
- (use-package mic-paren
-   :defer 5
-   :config
-   (paren-activate))
- (use-package paren
-   :defer 5
-   :config
-   (show-paren-mode 1)))
 
 (use-package pcre2el
   :load-path "site-lisp/site-emacs-lisp/pcre2el"
