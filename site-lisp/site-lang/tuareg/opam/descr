@@ -1,5 +1,0 @@
-OCaml mode for GNU Emacs and XEmacs.
-
-Tuareg handles automatic indentation of OCaml and Camllight codes.
-Key parts of the code are highlighted using Font-Lock.  Support to run
-an interactive OCaml toplevel and debugger is provided.
