@@ -170,25 +170,18 @@ reuse storage as much as possible."
                                                load-paths))))))
             (goto-char local-end)))))
 
-    ;; Example of a full entry:
-    ;; '((use-package-name . "ace-window")
-    ;;   (use-package-load-path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
-    ;;   (manifest-path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
-    ;;   (manifest-type . "subtree")
-    ;;   (manifest-origin . "git://github.com/abo-abo/ace-window.git")
-    ;;   (path . "/Users/johnw/.emacs.d/site-lisp/ace-window")
-    ;;   (remote . "git@github.com:abo-abo/ace-window.git")
-    ;;   (remote-name . "ext/ace-window"))
     (with-temp-buffer
       (insert "(\n")
       (maphash
        (lambda (key value)
-         (let ((mirror-only
-                (let ((opts (alist-get 'manifest-options value)))
-                  (and opts (string-match "mirror-only" opts))))
+         (let ((internal
+                (let ((opts (alist-get 'manifest-options value))
+                      (type (alist-get 'manifest-type value)))
+                  (or (and opts (string-match "mirror-only" opts))
+                      (member type '("part" "internal")))))
                errs)
            (cl-flet ((report (err) (setq errs (cons err errs))))
-             (let ((fields (if mirror-only
+             (let ((fields (if internal
                                '(manifest-path
                                  manifest-type
                                  manifest-origin
@@ -201,7 +194,8 @@ reuse storage as much as possible."
                                path
                                remote
                                remote-name))))
-               (when (or (string= key "use-package")
+               (when (or internal
+                         (string= key "use-package")
                          (and (alist-get 'manifest-type value)
                               (string= (alist-get 'manifest-type value) "file")))
                  (setq fields (delq 'remote (delq 'remote-name fields))))
@@ -234,26 +228,17 @@ reuse storage as much as possible."
                                       (if (stringp load-path)
                                           (list load-path)
                                         load-path))))))
-               (if (and paths
-                        (> (length paths) 1)
-                        (not (= 1 (length (cl-remove-duplicates
-                                           paths :test #'string=)))))
-                   (report 'path-inconsistency))))
-           (unless mirror-only
-             (when (member '(missing path) errs)
-               (insert (format ";; %s: need to install\n" key)))
-             (when (member '(missing remote) errs)
-               (insert (format ";; %s: need to mirror as Git remote\n" key)))
-             (when (member '(missing use-package-name) errs)
-               (insert (format ";; %s: need to configure with use-package\n" key))))
-           (when (member '(missing manifest-path) errs)
-             (insert (format ";; %s: need to record in manifest\n" key)))
-           (let ((here (point)))
-             (insert (pp-to-string
-                      (cons key (if errs
-                                    (cons (cons 'errors errs) value)
-                                  value))) ?\n)
-             (align-code here (point)))))
+               (when (and (not internal)
+                          paths
+                          (> (length paths) 1)
+                          (not (= 1 (length (cl-remove-duplicates
+                                             paths :test #'string=)))))
+                 (report 'path-inconsistency))))
+           (insert (pp-to-string
+                    (cons key
+                          (if errs
+                              (cons (cons 'errors errs) value)
+                            value))) ?\n)))
        pkgs)
       (insert ")\n")
       (goto-char (point-min))
@@ -266,82 +251,25 @@ reuse storage as much as possible."
      (with-current-buffer (get-buffer-create "*Inventory*")
        (erase-buffer)
        (insert (format ";; %s packages\n(\n" (length pkgs)))
-       (mapc
-        (lambda (elem)
-          (let* ((key (car elem))
-                 (value (cdr elem))
-                 (mirror-only
-                  (let ((opts (alist-get 'manifest-options value)))
-                    (and opts (string-match "mirror-only" opts))))
-                 errs)
-            (cl-flet ((report (err) (setq errs (cons err errs))))
-              (let ((fields (if mirror-only
-                                '(manifest-path
-                                  manifest-type
-                                  manifest-origin
-                                  remote
-                                  remote-name)
-                              '(use-package-name
-                                manifest-path
-                                manifest-type
-                                manifest-origin
-                                path
-                                remote
-                                remote-name))))
-                (when (or (string= key "use-package")
-                          (and (alist-get 'manifest-type value)
-                               (string= (alist-get 'manifest-type value) "file")))
-                  (setq fields (delq 'remote (delq 'remote-name fields))))
-                (when (and (alist-get 'path value)
-                           (string-match "\\`lisp/" (alist-get 'path value)))
-                  (setq fields (delq 'use-package-name fields)))
-                (dolist (field fields)
-                  (unless (assq field value)
-                    (report (list 'missing field)))))
-              (cl-flet ((clean-url
-                         (url)
-                         (and url
-                              (replace-regexp-in-string
-                               "\\.git\\'" ""
-                               (replace-regexp-in-string
-                                "git@github\\.com:"
-                                "git://github.com/" url)))))
-                (let ((url1 (alist-get 'manifest-origin value))
-                      (url2 (alist-get 'remote value)))
-                  (if (and url1 url2
-                           (not (string= (clean-url url1)
-                                         (clean-url url2))))
-                      (report 'remote-mismatch))))
-              (let ((paths
-                     (let ((load-path
-                            (alist-get 'use-package-load-path value)))
-                       (delete nil
-                               (append (list (alist-get 'manifest-path value)
-                                             (alist-get 'path value))
-                                       (if (stringp load-path)
-                                           (list load-path)
-                                         load-path))))))
-                (if (and paths
-                         (> (length paths) 1)
-                         (not (= 1 (length (cl-remove-duplicates
-                                            paths :test #'string=)))))
-                    (report 'path-inconsistency))))
-            (unless mirror-only
-              (when (member '(missing path) errs)
-                (insert (format ";; %s: need to install\n" key)))
-              (when (member '(missing remote) errs)
-                (insert (format ";; %s: need to mirror as Git remote\n" key)))
-              (when (member '(missing use-package-name) errs)
-                (insert (format ";; %s: need to configure with use-package\n" key))))
-            (when (member '(missing manifest-path) errs)
-              (insert (format ";; %s: need to record in manifest\n" key)))
-            (let ((here (point)))
-              (insert (pp-to-string
-                       (cons key (if errs
-                                     (cons (cons 'errors errs) value)
-                                   value))) ?\n)
-              (align-code here (point)))))
-        pkgs)
+       (mapc (lambda (elem)
+               (let* ((key (car elem))
+                      (value (cdr elem))
+                      (errs (alist-get 'errors value))
+                      (internal
+                       (let ((opts (alist-get 'manifest-options value))
+                             (type (alist-get 'manifest-type value)))
+                         (or (and opts (string-match "mirror-only" opts))
+                             (member type '("part" "internal"))))))
+                 (unless internal
+                   (when (member '(missing path) errs)
+                     (insert (format ";; %s: need to install\n" key)))
+                   (when (member '(missing remote) errs)
+                     (insert (format ";; %s: need to mirror as Git remote\n" key)))
+                   (when (member '(missing use-package-name) errs)
+                     (insert (format ";; %s: need to configure with use-package\n" key))))
+                 (when (member '(missing manifest-path) errs)
+                   (insert (format ";; %s: need to record in manifest\n" key))))
+               (insert (pp-to-string elem) ?\n)) pkgs)
        (insert ")\n")
        (current-buffer)))))
 
