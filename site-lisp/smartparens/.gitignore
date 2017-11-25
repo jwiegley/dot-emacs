@@ -1,0 +1,4 @@
+elpa
+*.elc
+*~*
+docs/_build
