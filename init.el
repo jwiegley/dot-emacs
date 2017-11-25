@@ -3389,11 +3389,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/gitpatch"
   :commands gitpatch-mail)
 
-(use-package jump-tree
-  :load-path "site-lisp/jump-tree"
-  :diminish jump-tree-mode
-  :commands (global-jump-tree-mode jump-tree-mode))
-
 (use-package smartparens-config
   :load-path "site-lisp/smartparens"
   :commands smartparens-mode)
