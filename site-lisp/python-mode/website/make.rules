@@ -1,0 +1,99 @@
+# This requires GNU make.  -*- makefile -*-
+#
+# To use this, a script must include the following minimal set of
+# stuff:
+#
+# include relative/path/to/scripts/make.rules
+# ROOT_DIR = relative/path/to
+# ROOT_OFFSET = path/of/cwd/relative/to/ROOT_DIR
+#
+# E.g. for the cp4e directory:
+#
+# include ../scripts/make.rules
+# ROOT_DIR = ..
+# ROOT_OFFSET = cp4e
+
+# Make rules for www.python.org ht->html generation.  SOURCES
+# indirection filters out "*.ht" value when no ht files are around.
+SOURCES =	$(wildcard *.ht)
+HTTARGETS =	$(filter-out *.html,$(SOURCES:%.ht=%.html))
+TARGETS =	$(HTTARGETS) $(EXTRA_TARGETS)
+
+# Where to upload stuff for make install.  LIVE_ROOT is the actual
+# physical location of files on the server.
+LIVE_HOST = 	shell.sourceforge.net
+LIVE_ROOT =	/home/groups/p/py/python-mode/htdocs
+LIVE_DEST =	$(LIVE_HOST):$(LIVE_ROOT)/$(ROOT_OFFSET)
+
+# rsync definitions.
+RSYNC_RSH =	ssh
+
+# Validation
+HTML_CATALOG = /usr/share/sgml/html-4.01/HTML4.cat
+NSGMLS = nsgmls
+
+GLOBAL_EXCLUDES = 
+# If the file .rsync-excludes exists in the make dir, use it.
+EXCLUDE_FROM =	$(shell if [ -f .rsync-excludes ]; then \
+			   echo "--exclude-from=.rsync-excludes"; \
+			else \
+			   echo ""; \
+			fi)
+LOCAL_INCLUDE =
+
+SCRIPTDIR =	$(ROOT_DIR)
+HT2HTML =	$(shell which ht2html)
+HTSTYLE =	PMGenerator
+HTALLFLAGS =	-f -s $(HTSTYLE)
+HTROOT = 	$(shell $(SCRIPTDIR)/calcroot.py $(ROOT_OFFSET))
+HTFLAGS =	$(HTALLFLAGS) -r $(HTROOT)
+RST2HT =	rst2ht.py
+RSTFLAGS =	-g -t -s
+HTRELDIR =	.
+#HTWF =		$(SCRIPTDIR)/ht2html/htwf.py
+#HTWFFLAGS =	-s $(HTSTYLE) -r $(HTROOT)
+
+GENERATED_HTML= $(SOURCES:.ht=.html)
+
+.SUFFIXES:	.ht .html
+
+%.html : %.ht
+		PYTHONPATH=$(SCRIPTDIR) $(HT2HTML) $(HTFLAGS) $(HTRELDIR)/$<
+
+all: $(TARGETS)
+
+$(HTTARGETS): $(HT2HTML) $(SCRIPTDIR)/$(HTSTYLE).py
+
+clean:
+	-rm -f *~ .*~ *.py[co]
+
+realclean: clean
+	-rm -f $(GENERATED_HTML)
+
+install: all local_install
+	@if [ -z "$(ROOT_OFFSET)" ]; then \
+	  echo "You have to specify a value for 'ROOT_OFFSET' in the makefile!"; \
+	  false; \
+	fi
+	@echo Push to $(LIVE_DEST) ...
+	rsync --rsh=$(RSYNC_RSH) -v -l -u $(GLOBAL_EXCLUDES) $(EXCLUDE_FROM) $(HTTARGETS) *.ht $(LIVE_DEST)
+
+validate:	$(TARGETS)
+	for f in $(TARGETS); \
+	do echo $$f;\
+	$(NSGMLS) -s -c $(HTML_CATALOG) $$f; \
+	done
+
+wfcheck:
+	$(HTWF) $(HTWFFLAGS) $(SOURCES)
+
+# Override local_install in Makefile for directory-specific install actions.
+local_install:
+
+recursive: all
+	for dir in * ; do \
+            if [ -f $$dir/Makefile ] ; then \
+                echo "Changing to $$dir" ; \
+	        cd $$dir ; make recursive; cd .. ; \
+	    fi \
+	done

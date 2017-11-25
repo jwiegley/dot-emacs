@@ -1,0 +1,80 @@
+* General 
+
+  python-mode.el is composed from components-python-mode directory
+  using `components2pythonmode' shell-script
+
+  Get its source-files doing
+
+  git clone https://gitlab.com/python-mode-devs/components-python-mode
+
+  while master is at
+  https://gitlab.com/python-mode-devs/python-mode.git
+    
+  An effective way users may contribute is telling
+  us how Python-mode is used and which command is missing
+  still.
+  
+  For people who want to dig into the code:
+  
+  Major parts deal with editing and running of
+  Python code - start with edit-commands.
+  It's built around the notion of a statement.
+  Putting `py-end-of-statement',
+  `py-beginning-of-statement' under edebug should deliver
+  a way into the code.
+
+  No need for compiling. However when compiled files exist, don't
+  forget to re-compile before running it, else an existing older
+  compiled file is loaded - see docstring of `load'.
+
+* Output buffers
+  There will be
+  - one set internally to process, where the real work is done:
+    py-buffer-name
+  - a generic one, results may arrive finally, visible for user:
+    py-output-buffer
+  Commands might set their output-buffers, "*Python Completions*" for example.
+
+* Organizing source code to edit Python
+  Commands are grouped by action WRT Python forms
+  
+** backward FORM / forward of FORM
+*** forward FORM left corner
+** mark FORM
+**  copy FORM
+**  kill FORM
+**  delete FORM
+** up Form
+** down form
+
+   Basically use `backward' and `forward' instead of beginning/end of
+   `py-beginning-of-statement' aliased `py-backward-statement' etc.
+   beginning/end of forms are reserved for booleans.
+   A separating convention, intended to make sripting easier.
+
+* Organizing source code to run Python
+  A `py-python-' form may have a `py-ipython' sibling
+
+* Bugs, feature requests
+  Please use bug-tracker at
+  https://gitlab.com/python-mode-devs/python-mode/issues
+
+
+* Testing
+
+  Tests in batch-mode are run via run-travis-ci.sh 
+
+  However, there is no need to use batch-mode for a single
+  test. Batch-mode has some quirks and bugs. Tests in
+  test/py-ert-interactive-tests.el are expected to succeed when called
+  interactively, not in batch-mode.
+
+  Start tests from emacs -Q
+  All needed beside python-mode.el is
+  test/setup-ert-tests.el
+  and the file, which contains the test.
+  Run the test M-x ert TESTNAME RET
+
+  Instruments it for the debugger with M-x edebug-defun RET after or
+  inside the test . Use <space> to step.
+

@@ -1,0 +1,37 @@
+* Edit, debug, develop, run Python programs from Emacs.
+
+ Code is also provided via melpa.org:
+
+ (require 'package)
+ 
+ (add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+             
+ (package-initialize)
+
+  M-x list-packages RET and select python-mode.el
+
+* Pymacs  
+  In case `Pymacs' was installed via `make' on your system, don't
+  activate inlined one.  Keep `py-load-pymacs-p' nil.
+
+  Otherwise setting `py-load-pymacs-p' to `t' should enable a
+  company-based auto-completion - alongside with
+  `py-company-pycomplete-p'.
+
+  On systems which run Python3 as default
+  setting
+  export PYMACS_PYTHON=python2
+  was reported being useful.
+  Newer Pymacs should not need this.
+
+* Troubleshooting
+  When encountering a bug, maybe
+  
+  cd path/to/python-mode.el
+  
+  emacs -Q python-mode.el
+  
+  M-x eval-buffer RET
+  
+  and try again

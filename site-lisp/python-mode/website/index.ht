@@ -1,0 +1,13 @@
+Title: Python-Mode For Emacs
+Author: python-mode@python.org
+Meta: <meta name="keywords" content="Emacs Python Software" />
+      <meta name="description" content="Home page for Python-Mode, a
+      package used to facilitate editing and debugging of Python programs in
+      Emacs." />
+Content-Type: text/x-rst
+
+Nobody here but `us chickens`_ for now...
+
+Eventually we'll have some documentation and links.
+
+.. _us chickens: mailto:python-mode@python.org

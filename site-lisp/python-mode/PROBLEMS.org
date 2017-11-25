@@ -1,0 +1,15 @@
+* interactive Python shell
+
+  in some cases, with a new Emacs, py-shell seems not to receive
+  input, while listed by M-x list-processes RET looks okay and no
+  error elsewhere.  Killing the comint-buffer and open that shell
+  again helps AFAICT.
+
+  If it's about receiving results only, executing via non-interactive
+  Python (`py-fast-process-p') might be preferable.
+
+* Window-management
+  From choices offered by `py-split-window-on-execute' no bugs are
+  known with `just-two' --the behaviour of version 6.1.3-- and `nil',
+  whilst `always' and `t' have some
+

@@ -1,0 +1,142 @@
+Python-mode commands
+
+====================
+
+py-smart-operator-mode-on
+-------------------------
+Make sure, `py-smart-operator-mode-p' is on.
+
+Returns value of `py-smart-operator-mode-p'. 
+
+smart-operator-self-insert-command
+----------------------------------
+Insert the entered operator plus surrounding spaces.
+
+py-smart-operator-self-insert-command
+-------------------------------------
+Insert the entered operator plus surrounding spaces.
+
+py-smart-operator-<
+-------------------
+Insert operator "<" with surrounding spaces.
+e.g., `<' will become ` < ', `<=' will become ` <= '.
+
+With optional ARG, insert ` <= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-:
+-------------------
+See `py-smart-operator-insert'.
+
+py-smart-operator-\.
+--------------------
+Insert operator "." with space.
+e.g., `.' will become `. '
+
+With optional ARG, insert ` .= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-&
+-------------------
+Insert operator "&" with surrounding spaces.
+e.g., `&' will become ` & ', `&=' will become ` &= '.
+
+With optional ARG, insert ` &= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-*
+-------------------
+Insert operator "*" with surrounding spaces.
+e.g., `*' will become ` * ', `*=' will become ` *= '.
+
+With optional ARG, insert ` *= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator->
+-------------------
+Insert operator ">" with surrounding spaces.
+e.g., `>' will become ` > '.
+
+With optional ARG, insert ` >= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-+
+-------------------
+Insert operator "+" with surrounding spaces.
+e.g., `+' will become ` + ', `+=' will become ` += '.
+
+With optional ARG, insert ` += '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator--
+-------------------
+Insert operator "-" with surrounding spaces.
+e.g., `-' will become ` - ', `-=' will become ` -= '.
+
+With optional numerical ARG 4 -- M-4 --, insert ` -= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-\?
+--------------------
+Insert operator "?" with space.
+e.g., `?' will become `? '.
+
+With optional ARG, insert ` ?= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-!
+-------------------
+Insert operator "!" with space.
+e.g., `!' will become `! '.
+
+With optional ARG, insert ` != '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-%
+-------------------
+Insert operator "%" with space.
+e.g., `%' will become `% '.
+
+With optional ARG, insert ` %= '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-=
+-------------------
+Insert operator "=" with surrounding spaces.
+e.g., `=' will become ` = '.
+
+With optional ARG, insert ` == '.
+
+See also `py-smart-operator-insert' 
+
+py-smart-operator-|
+-------------------
+Insert operator "|" with surrounding spaces.
+e.g., `|' will become ` | '.
+
+With optional ARG, insert ` || '.
+
+See also `py-smart-operator-insert' 
+
+py-toggle-smart-operator
+------------------------
+If `py-smart-operator-mode-p' should be on or off.
+
+Returns value of `py-smart-operator-mode-p' switched to. 
+
+py-smart-operator-mode-off
+--------------------------
+Make sure, `py-smart-operator-mode-p' is off.
+
+Returns value of `py-smart-operator-mode-p'. 
+
