@@ -236,6 +236,7 @@
 (use-package let-alist        :defer t :load-path "lib/let-alist")
 (use-package list-utils       :defer t :load-path "lib/list-utils")
 (use-package logito           :defer t :load-path "lib/logito")
+(use-package loop             :defer t :load-path "lib/loop")
 (use-package m-buffer         :defer t :load-path "lib/m-buffer")
 (use-package makey            :defer t :load-path "lib/makey")
 (use-package marshal          :defer t :load-path "lib/marshal-el")
