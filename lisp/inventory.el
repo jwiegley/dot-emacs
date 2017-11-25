@@ -161,7 +161,8 @@ reuse storage as much as possible."
                               name))
                         name)))
             (unless (aif (locate-library name)
-                        (string-match "/share/emacs/" it))
+                        (and (string-match "/share/emacs/" it)
+                             (not (string-match "/site-lisp/elpa/" it))))
               (modhash key pkgs
                        (lambda (value)
                          (alist-put value
@@ -204,8 +205,9 @@ reuse storage as much as possible."
                                 path
                                 remote
                                 remote-name))))
-                (when (and (alist-get 'manifest-type value)
-                           (string= (alist-get 'manifest-type value) "file"))
+                (when (or (string= key "use-package")
+                          (and (alist-get 'manifest-type value)
+                               (string= (alist-get 'manifest-type value) "file")))
                   (setq fields (delq 'remote (delq 'remote-name fields))))
                 (when (and (alist-get 'path value)
                            (string-match "\\`lisp/" (alist-get 'path value)))

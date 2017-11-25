@@ -498,13 +498,13 @@ end tell"))
                           (substring subject 1 -1))))
 
 (defun org-insert-file-link ()
- (interactive)
- (insert (org-get-file-link)))
+  (interactive)
+  (insert (org-get-file-link)))
 
 (defun org-set-file-link ()
- "Set a property for the current headline."
- (interactive)
- (org-set-property "File" (org-get-file-link)))
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "File" (org-get-file-link)))
 
 (defun org-set-dtp-link ()
   "Set a property for the current headline."
@@ -771,7 +771,7 @@ end tell" (match-string 1))))
 
 (defconst days-of-há
   '(4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4 4 4 5 4
-    4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4)
+      4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4)
   "The days when Naw-Rúz begins, for the next fifty years.")
 
 (defconst bahai-months
@@ -848,9 +848,19 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package org-bookmark-heading
+  :load-path "site-lisp/org-bookmark-heading")
+
 (use-package org-cliplink
   :load-path "site-lisp/org-cliplink"
   :bind ("C-. C-y" . org-cliplink))
+
+(use-package org-opml
+  :disabled t
+  :load-path "site-lisp/org-opml")
+
+(use-package org-parser
+  :disabled t)
 
 (use-package org-super-agenda
   :disabled t
@@ -884,11 +894,13 @@ end tell" (match-string 1))))
              (:priority<= "B" :order 1))))
       (org-agenda nil "a"))))
 
-(use-package org-bookmark-heading
-  :load-path "site-lisp/org-bookmark-heading")
-
 (use-package org-web-tools
+  :disabled t
   :load-path "site-lisp/org-web-tools")
+
+(use-package orgaggregate
+  :disabled t
+  :load-path "site-lisp/orgaggregate")
 
 (provide 'dot-org)
 
