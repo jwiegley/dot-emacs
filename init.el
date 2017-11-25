@@ -799,6 +799,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-to-list 'latex-help-cmd-alist (cons key value))))))
     latex-help-cmd-alist)
 
+  (add-hook 'TeX-after-compilation-finished-functions
+            #'TeX-revert-document-buffer)
+
   (use-package latex
     :defer t
     :config
@@ -1138,6 +1141,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :demand t
   :diminish counsel-mode
   :bind (("M-x"     . counsel-M-x)
+         ("C-s"     . counsel-grep-or-swiper)
          ("C-h f"   . counsel-describe-function)
          ("C-h v"   . counsel-describe-variable)
          ("C-h e l" . counsel-find-library)
@@ -1896,12 +1900,36 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                            (regexp . ,(cdr x))
-                            (modes quote (haskell-mode literate-haskell-mode))))
+                       (regexp . ,(cdr x))
+                       (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
+
+(use-package helm-config
+  :load-path "site-lisp/helm"
+  :if (not running-alternate-emacs)
+  :demand t
+  :bind ("C-c h" . helm-command-prefix)
+  :config
+  (use-package helm
+    :config
+    (helm-autoresize-mode 1))
+  (use-package helm-multi-match)
+  (bind-keys
+   :map helm-map
+   ("<tab>" . helm-execute-persistent-action)
+   ("C-i"   . helm-execute-persistent-action)
+   ("C-z"   . helm-select-action)
+   ("A-v"   . helm-previous-page)))
+
+(use-package helm-descbinds
+  :load-path "site-lisp/helm-descbinds"
+  :after helm
+  :bind ("C-h b" . helm-descbinds)
+  :init
+  (fset 'describe-bindings 'helm-descbinds))
 
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
@@ -3144,8 +3172,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/ivy/swiper"
   :demand t
   :after ivy
-  :bind (("C-s" . swiper)
-         ("C-. C-s" . swiper)
+  :bind (("C-. C-s" . swiper)
          ("C-. C-r" . swiper))
   :commands swiper-from-isearch
   :init
