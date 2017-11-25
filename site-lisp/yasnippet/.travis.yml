@@ -1,0 +1,45 @@
+language: generic
+sudo: false
+git:
+  submodules: false
+
+env:
+  global:
+    - Wlexical=t
+    - Werror=t
+    - tests_Werror=t # For yasnippet-tests.el
+  matrix:
+    - EMACS_VERSION=23.4
+    # 24.3 gives a bunch of 'value returned from (car value-N) is
+    # unused' warnings.
+    - EMACS_VERSION=24.3 tests_Werror=nil
+    - EMACS_VERSION=24.5
+    - EMACS_VERSION=25.2
+
+
+install:
+  - curl -LO https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
+  - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
+  # Configure $PATH: Emacs installed to /tmp/emacs
+  - export PATH=/tmp/emacs/bin:${PATH}
+  - if ! emacs -Q --batch --eval "(require 'cl-lib)" ; then
+        curl -Lo cl-lib.el http://elpa.gnu.org/packages/cl-lib-0.6.1.el ;
+        export warnings="'(not cl-functions)" ;
+    fi
+  - if ! emacs -Q --batch --eval "(require 'ert)" ; then
+        curl -LO https://raw.githubusercontent.com/ohler/ert/c619b56c5bc6a866e33787489545b87d79973205/lisp/emacs-lisp/ert.el &&
+        curl -LO https://raw.githubusercontent.com/ohler/ert/c619b56c5bc6a866e33787489545b87d79973205/lisp/emacs-lisp/ert-x.el ;
+    fi
+  - emacs --version
+
+script:
+  - rake yasnippet.elc
+  - rake yasnippet-debug.elc
+  - rake yasnippet-tests.elc Werror=$tests_Werror
+  - rake tests
+
+notifications:
+  email:
+    # Default is change, but that includes a new branch's 1st success.
+    on_success: never
+    on_failure: always # The default.
