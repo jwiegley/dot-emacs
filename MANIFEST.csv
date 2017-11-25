@@ -1,7 +1,6 @@
 ProofGeneral,site-lisp,submodule,git://github.com/psteckler/ProofGeneral.git,
 ace-link,site-lisp,subtree,git://github.com/abo-abo/ace-link.git,
 ace-window,site-lisp,subtree,git://github.com/abo-abo/ace-window.git,
-agda,site-lisp,submodule,git://github.com/agda/agda.git,
 aggressive-indent-mode,site-lisp,subtree,git://github.com/Malabarba/aggressive-indent-mode.git,
 alert,lisp,submodule,git://github.com/jwiegley/alert,
 anaphora,lib,subtree,git://github.com/rolandwalker/anaphora.git,

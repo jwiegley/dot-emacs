@@ -712,13 +712,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
-  :load-path "site-lisp/agda/src/data/emacs-mode"
   :config
   (set-input-method "Agda"))
 
 (use-package agda2-mode
   :mode "\\.agda\\'"
-  :load-path "site-lisp/agda/src/data/emacs-mode"
   :defines agda2-mode-map
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
