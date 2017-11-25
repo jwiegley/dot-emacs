@@ -2741,6 +2741,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (rxt-mode rxt-global-mode))
 
 (use-package pdf-tools
+  :load-path "site-lisp/pdf-tools"
   :defer 15
   :mode "\\.pdf\\'"
   :config (pdf-tools-install))
