@@ -192,6 +192,7 @@ paredit-ext.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/ma
 parent-mode,lib,subtree,git://github.com/Fanael/parent-mode.git,
 pcache,lib,subtree,git://github.com/sigma/pcache.git,
 pcre2el,site-lisp,subtree,git://github.com/joddie/pcre2el.git,
+pdf-tools,file,subtree,git://github.com/politza/pdf-tools.git,
 per-window-point,site-lisp,subtree,git://github.com/alpaker/Per-Window-Point.git,
 persian-johnw.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/persian-johnw.el,
 persistent-scratch,site-lisp,subtree,git://github.com/Fanael/persistent-scratch.git,
