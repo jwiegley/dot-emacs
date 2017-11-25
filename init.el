@@ -244,7 +244,6 @@
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
 (use-package popwin           :defer t :load-path "site-lisp/popwin")
-(use-package pos-tip          :defer t :load-path "lib/pos-tip")
 (use-package request          :defer t :load-path "lib/emacs-request")
 (use-package s                :defer t :load-path "lib/s-el")
 (use-package tablist          :defer t :load-path "lib/tablist")
