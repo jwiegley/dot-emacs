@@ -1,0 +1,17 @@
+** What it do?
+
+Show event history and command history of some or all buffers.
+
+** What it look like?
+
+[[https://github.com/lewang/command-log-mode/raw/master/screenshot1.png]]
+
+** Where it from?
+
+This package is a fork of [[http://www.foldr.org/~michaelw/emacs/mwe-log-commands.el][mwe-log-commands.el]] by Michael Weber <michaelw@foldr.org>
+
+** How it different?
+
+1. Remove "mwe-" prefix, but keep credits to mwe.
+2. Make minor-mode and global minor-mode.
+3. Hosted on github so pull requests, etc are easy.
