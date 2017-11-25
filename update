@@ -33,7 +33,6 @@ elif [[ "$1" == --subtrees ]]; then
         echo git pulltree $DIR/$MODULE
         git pulltree $DIR/$MODULE
     done
-fi
 
 elif [[ "$1" == --submodules ]]; then
     cat MANIFEST.csv                            \
@@ -44,7 +43,7 @@ elif [[ "$1" == --submodules ]]; then
         | while read line; do
         MODULE=$(echo $line | cut -d, -f1)
         DIR=$(echo $line | cut -d, -f2)
-        echo git --git-dir=$DIR/$MODULE fetch --all --no-tags
-        git --git-dir=$DIR/$MODULE fetch --all --no-tags
+        echo git --git-dir=$DIR/$MODULE/.git fetch --all
+        git --git-dir=$DIR/$MODULE/.git fetch --all
     done
 fi
