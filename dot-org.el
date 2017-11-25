@@ -855,6 +855,9 @@ end tell" (match-string 1))))
   :load-path "site-lisp/org-cliplink"
   :bind ("C-. C-y" . org-cliplink))
 
+(use-package org-magit
+  :load-path "site-lisp/org-magit")
+
 (use-package org-opml
   :disabled t
   :load-path "site-lisp/org-opml")
@@ -893,6 +896,10 @@ end tell" (match-string 1))))
                     :order 9)
              (:priority<= "B" :order 1))))
       (org-agenda nil "a"))))
+
+(use-package org-trello
+  :disabled t
+  :load-path "site-lisp/org-trello")
 
 (use-package org-web-tools
   :disabled t
