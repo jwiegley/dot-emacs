@@ -1,0 +1,47 @@
+\documentclass[12pt,fleqn]{article}
+
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+
+\usepackage{breqn}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0in,paperwidth=PAGE-WIDTH]{geometry}
+
+\newcommand*{\ccQ}{\ensuremath{\mathbb{Q}}}
+\newcommand*{\ccNat}{\ensuremath{\mathbb{N}}}
+\newcommand*{\ccSucc}[1]{\ensuremath{\mathrm{S}\:#1}}
+\newcommand*{\ccFrac}[2]{\ensuremath{\frac{#1}{#2}}}
+\newcommand*{\ccNsum}[3]{\ensuremath{\sum_{#1 \hiderel{=} 0}^{#2} #3}}
+\newcommand*{\ccPow}[2]{\ensuremath{{#1}^{#2}}}
+% \newcommand*{\ccPlus}[2]{(#1 + #2)}
+% \newcommand*{\ccMult}[2]{(#1 \times #2)}
+
+\newcommand*{\ccEvar}[1]{\textit{\texttt{#1}}}
+
+% https://tex.stackexchange.com/questions/287922/automatically-adding-spaces-tracking-between-letters-in-math-mode
+\def\ccForall#1#2{\forall \xaddsp #1. \: #2}
+\def\xaddsp#1 {%
+\ifx:#1:\else
+\,#1\expandafter\xaddsp
+\fi}
+
+\pagestyle{empty}
+\definecolor{background}{HTML}{BACKGROUND}
+\definecolor{foreground}{HTML}{FOREGROUND}
+
+\begin{document}
+   \pagecolor{background}
+   \color{foreground}
+
+   % Useful for debugging page widths
+   % \noindent\makebox[\linewidth]{\rule{\paperwidth}{0.4pt}}
+
+   \begin{dmath*}[compact,style={\mathindent=0pt}]
+     CONTENTS
+   \end{dmath*}
+\end{document}

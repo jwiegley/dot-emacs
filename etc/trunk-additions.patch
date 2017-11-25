@@ -1,0 +1,146 @@
+From ce14e165ee187492e7e997762db79bf9a8b64148 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cl=C3=A9ment=20Pit--Claudel?= <clement.pitclaudel@live.com>
+Date: Wed, 6 May 2015 22:45:29 -0400
+Subject: [PATCH] Add a [Print Ltac Signatures] construct to print all known
+ tactics
+
+---
+ intf/vernacexpr.mli       |  1 +
+ library/nametab.ml        | 10 ++++++++++
+ library/nametab.mli       |  1 +
+ parsing/g_vernac.ml4      |  1 +
+ printing/ppvernac.ml      |  2 ++
+ tactics/tacintern.ml      |  7 +++++++
+ tactics/tacintern.mli     |  1 +
+ toplevel/vernacentries.ml |  1 +
+ 8 files changed, 24 insertions(+)
+
+diff --git a/intf/vernacexpr.mli b/intf/vernacexpr.mli
+index 99264db..19266bf 100644
+--- a/intf/vernacexpr.mli
++++ b/intf/vernacexpr.mli
+@@ -63,6 +63,7 @@ type printable =
+   | PrintTypeClasses
+   | PrintInstances of reference or_by_notation
+   | PrintLtac of reference
++  | PrintLtacSignatures
+   | PrintCoercions
+   | PrintCoercionPaths of class_rawexpr * class_rawexpr
+   | PrintCanonicalConversions
+diff --git a/library/nametab.ml b/library/nametab.ml
+index 5b6d7cd..0e02f5d 100644
+--- a/library/nametab.ml
++++ b/library/nametab.ml
+@@ -71,6 +71,7 @@ module type NAMETREE = sig
+   val push : visibility -> user_name -> elt -> t -> t
+   val locate : qualid -> t -> elt
+   val find : user_name -> t -> elt
++  val elements : t -> elt list
+   val exists : user_name -> t -> bool
+   val user_name : qualid -> t -> user_name
+   val shortest_qualid : Id.Set.t -> user_name -> t -> qualid
+@@ -193,6 +194,13 @@ let find_node qid tab =
+   let (dir,id) = repr_qualid qid in
+     search (Id.Map.find id tab) (DirPath.repr dir)
+ 
++let elements tab =
++  let f k v acc =
++    match v.path with
++    | Absolute (_, o) | Relative (_, o) -> o :: acc
++    | Nothing                           -> acc
++  in Id.Map.fold_right f tab []
++
+ let locate qid tab =
+   let o = match find_node qid tab with
+     | Absolute (uname,o) | Relative (uname,o) -> o
+@@ -403,6 +411,8 @@ let full_name_modtype qid = MPTab.user_name qid !the_modtypetab
+ 
+ let locate_tactic qid = KnTab.locate qid !the_tactictab
+ 
++let all_tactics () = KnTab.elements !the_tactictab
++
+ let locate_dir qid = DirTab.locate qid !the_dirtab
+ 
+ let locate_module qid =
+diff --git a/library/nametab.mli b/library/nametab.mli
+index e3aeb67..547ee8d 100644
+--- a/library/nametab.mli
++++ b/library/nametab.mli
+@@ -98,6 +98,7 @@ val locate_dir : qualid -> global_dir_reference
+ val locate_module : qualid -> module_path
+ val locate_section : qualid -> DirPath.t
+ val locate_tactic : qualid -> ltac_constant
++val all_tactics : unit -> ltac_constant list
+ 
+ (** These functions globalize user-level references into global
+    references, like [locate] and co, but raise a nice error message
+diff --git a/parsing/g_vernac.ml4 b/parsing/g_vernac.ml4
+index 1f9f57f..2a3ce6e 100644
+--- a/parsing/g_vernac.ml4
++++ b/parsing/g_vernac.ml4
+@@ -944,6 +944,7 @@ GEXTEND Gram
+       | IDENT "TypeClasses" -> PrintTypeClasses
+       | IDENT "Instances"; qid = smart_global -> PrintInstances qid
+       | IDENT "Ltac"; qid = global -> PrintLtac qid
++      | IDENT "Ltac"; IDENT "Signatures" -> PrintLtacSignatures
+       | IDENT "Coercions" -> PrintCoercions
+       | IDENT "Coercion"; IDENT "Paths"; s = class_rawexpr; t = class_rawexpr
+          -> PrintCoercionPaths (s,t)
+diff --git a/printing/ppvernac.ml b/printing/ppvernac.ml
+index 72b9caf..8a6c86c 100644
+--- a/printing/ppvernac.ml
++++ b/printing/ppvernac.ml
+@@ -475,6 +475,8 @@ module Make
+         keyword "Print Instances" ++ spc () ++ pr_smart_global qid
+       | PrintLtac qid ->
+         keyword "Print Ltac" ++ spc() ++ pr_ltac_ref qid
++      | PrintLtacSignatures  ->
++        keyword "Print Ltac Signatures"
+       | PrintCoercions ->
+         keyword "Print Coercions"
+       | PrintCoercionPaths (s,t) ->
+diff --git a/tactics/tacintern.ml b/tactics/tacintern.ml
+index 1778221..1b31019 100644
+--- a/tactics/tacintern.ml
++++ b/tactics/tacintern.ml
+@@ -832,6 +832,13 @@ let print_ltac id =
+    errorlabstrm "print_ltac"
+     (pr_qualid id ++ spc() ++ str "is not a user defined tactic.")
+ 
++let print_ltac_signatures () =
++  let tacs = Nametab.all_tactics () in
++  let print_one tac =
++    let l,t = split_ltac_fun (Tacenv.interp_ltac tac) in
++    hov 2 (pr_qualid (Nametab.shortest_qualid_of_tactic tac) ++ prlist pr_ltac_fun_arg l) in
++  prlist_with_sep fnl print_one tacs
++
+ (** Registering *)
+ 
+ let lift intern = (); fun ist x -> (ist, intern ist x)
+diff --git a/tactics/tacintern.mli b/tactics/tacintern.mli
+index a6e28d5..9b52302 100644
+--- a/tactics/tacintern.mli
++++ b/tactics/tacintern.mli
+@@ -55,6 +55,7 @@ val intern_genarg : glob_sign -> raw_generic_argument -> glob_generic_argument
+ 
+ (** printing *)
+ val print_ltac : Libnames.qualid -> std_ppcmds
++val print_ltac_signatures : unit -> std_ppcmds
+ 
+ (** Reduction expressions *)
+ 
+diff --git a/toplevel/vernacentries.ml b/toplevel/vernacentries.ml
+index 2b23323..424ba8d 100644
+--- a/toplevel/vernacentries.ml
++++ b/toplevel/vernacentries.ml
+@@ -1614,6 +1614,7 @@ let vernac_print = function
+   | PrintTypeClasses -> msg_notice (Prettyp.print_typeclasses())
+   | PrintInstances c -> msg_notice (Prettyp.print_instances (smart_global c))
+   | PrintLtac qid -> msg_notice (Tacintern.print_ltac (snd (qualid_of_reference qid)))
++  | PrintLtacSignatures -> msg_notice (Tacintern.print_ltac_signatures ())
+   | PrintCoercions -> msg_notice (Prettyp.print_coercions())
+   | PrintCoercionPaths (cls,clt) ->
+       msg_notice (Prettyp.print_path_between (cl_of_qualid cls) (cl_of_qualid clt))
+-- 
+2.6.4
+

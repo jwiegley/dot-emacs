@@ -1,0 +1,341 @@
+From f015d495eb8875a74db25edd9037bcc44c32ee48 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cl=C3=A9ment=20Pit--Claudel?= <clement.pitclaudel@live.com>
+Date: Mon, 16 Feb 2015 12:20:56 -0500
+Subject: [PATCH 1/4] search: Add a minimal search option
+
+When set, search results only display symbol names, instead of
+displaying full terms. This is useful when the list of symbols is needed
+by an external program.
+
+Extracted from 198b9c47dedf4fa3b2a95ab7102b2d2d4ada392f on branch
+SearchAny and adapted from the corresponding PR for 8.5
+---
+ toplevel/search.ml | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
+
+diff --git a/toplevel/search.ml b/toplevel/search.ml
+index 19d696a..346421e 100644
+--- a/toplevel/search.ml
++++ b/toplevel/search.ml
+@@ -21,6 +21,25 @@ open Matching
+ open Printer
+ open Libnames
+ open Nametab
++open Goptions
++
++(* This option restricts the output of [SearchPattern ...],
++[SearchAbout ...], etc. to the names of the symbols matching the
++query, separated by a newline. This type of output is useful for
++editors (like emacs), to generate a list of completion candidates
++without having to parse thorugh the types of all symbols. *)
++
++let search_output_name_only = ref false
++
++let _ =
++  declare_bool_option
++    { optsync  = true;
++      optdepr  = false;
++      optname  = "output-name-only search";
++      optkey   = ["Search";"Output";"Name";"Only"];
++      optread  = (fun () -> !search_output_name_only);
++      optwrite = (:=) search_output_name_only }
++
+ 
+ module SearchBlacklist =
+   Goptions.MakeStringTable
+@@ -106,9 +125,13 @@ let rec head c =
+ let xor a b = (a or b) & (not (a & b))
+ 
+ let plain_display ref a c =
+-  let pc = pr_lconstr_env a c in
+   let pr = pr_global ref in
+-  msg (hov 2 (pr ++ str":" ++ spc () ++ pc) ++ fnl ())
++  if !search_output_name_only then
++    msg (pr ++ fnl ())
++  else
++    let pc = pr_lconstr_env a c in
++    msg (hov 2 (pr ++ str":" ++ spc () ++ pc) ++ fnl ())
++
+ 
+ let filter_by_module (module_list:dir_path list) (accept:bool)
+   (ref:global_reference) _ _ =
+-- 
+2.6.4
+
+
+From f55bd258d543edba2b0e1b50b00a12b676ab38fd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cl=C3=A9ment=20Pit--Claudel?= <clement.pitclaudel@live.com>
+Date: Sat, 25 Apr 2015 13:03:16 -0400
+Subject: [PATCH 2/4] Add a [Redirect] construct to redirect output to a file
+
+---
+ parsing/g_vernac.ml4      |  1 +
+ parsing/ppvernac.ml       |  1 +
+ toplevel/vernac.ml        | 16 ++++++++++++++++
+ toplevel/vernacentries.ml |  2 +-
+ toplevel/vernacexpr.ml    |  5 +++--
+ 5 files changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/parsing/g_vernac.ml4 b/parsing/g_vernac.ml4
+index 301370e..90355e4 100644
+--- a/parsing/g_vernac.ml4
++++ b/parsing/g_vernac.ml4
+@@ -72,6 +72,7 @@ GEXTEND Gram
+   GLOBAL: vernac gallina_ext tactic_mode noedit_mode subprf subgoal_command;
+   vernac: FIRST
+     [ [ IDENT "Time"; v = vernac -> VernacTime v
++      | IDENT "Redirect"; s = ne_string; v = vernac -> VernacRedirect (s, v)
+       | IDENT "Timeout"; n = natural; v = vernac -> VernacTimeout(n,v)
+       | IDENT "Fail"; v = vernac -> VernacFail v
+       | locality; v = vernac_aux -> v ] ]
+diff --git a/parsing/ppvernac.ml b/parsing/ppvernac.ml
+index f249129..00fab59 100644
+--- a/parsing/ppvernac.ml
++++ b/parsing/ppvernac.ml
+@@ -488,6 +488,7 @@ let rec pr_vernac = function
+   | VernacLoad (f,s) -> str"Load" ++ if f then (spc() ++ str"Verbose"
+   ++ spc()) else spc()  ++ qs s
+   | VernacTime v -> str"Time" ++ spc() ++ pr_vernac v
++  | VernacRedirect (s, v) -> str"Redirect" ++ str s ++ spc() ++ pr_vernac v
+   | VernacTimeout(n,v) -> str"Timeout " ++ int n ++ spc() ++ pr_vernac v
+   | VernacFail v -> str"Fail" ++ spc() ++ pr_vernac v
+ 
+diff --git a/toplevel/vernac.ml b/toplevel/vernac.ml
+index ed8e215..5601775 100644
+--- a/toplevel/vernac.ml
++++ b/toplevel/vernac.ml
+@@ -205,6 +205,8 @@ let pr_new_syntax loc ocom =
+   States.unfreeze fs;
+   Format.set_formatter_out_channel stdout
+ 
++open Pp_control
++
+ let rec vernac_com interpfun checknav (loc,com) =
+   let rec interp = function
+     | VernacLoad (verbosely, fname) ->
+@@ -261,6 +263,20 @@ let rec vernac_com interpfun checknav (loc,com) =
+ 		 fnl () ++ str "=> " ++ hov 0 msg)
+ 	end
+ 
++    | VernacRedirect (fname, v) -> begin
++        let real_std = !std_ft in
++        let channel = open_out (String.concat "." [fname; "out"]) in
++        std_ft := Format.formatter_of_out_channel channel;
++        try
++          interp v;
++          std_ft := real_std;
++          close_out channel;
++        with reraise ->
++          std_ft := real_std;
++          close_out channel;
++          raise reraise
++      end
++
+     | VernacTime v ->
+ 	  let tstart = System.get_time() in
+           interp v;
+diff --git a/toplevel/vernacentries.ml b/toplevel/vernacentries.ml
+index 75efe13..5b60401 100644
+--- a/toplevel/vernacentries.ml
++++ b/toplevel/vernacentries.ml
+@@ -1588,7 +1588,7 @@ let vernac_check_guard () =
+ 
+ let interp c = match c with
+   (* Control (done in vernac) *)
+-  | (VernacTime _|VernacList _|VernacLoad _|VernacTimeout _|VernacFail _) ->
++  | (VernacRedirect _|VernacTime _|VernacList _|VernacLoad _|VernacTimeout _|VernacFail _) ->
+       assert false
+ 
+   (* Syntax *)
+diff --git a/toplevel/vernacexpr.ml b/toplevel/vernacexpr.ml
+index 3106e86..c019f50 100644
+--- a/toplevel/vernacexpr.ml
++++ b/toplevel/vernacexpr.ml
+@@ -216,6 +216,7 @@ type vernac_expr =
+   | VernacList of located_vernac_expr list
+   | VernacLoad of verbose_flag * string
+   | VernacTime of vernac_expr
++  | VernacRedirect of string * vernac_expr
+   | VernacTimeout of int * vernac_expr
+   | VernacFail of vernac_expr
+ 
+@@ -371,7 +372,7 @@ and located_vernac_expr = loc * vernac_expr
+ (** Categories of [vernac_expr] *)
+ 
+ let rec strip_vernac = function
+-  | VernacTime c | VernacTimeout(_,c) | VernacFail c -> strip_vernac c
++  | VernacTime c | VernacRedirect (_, c) | VernacTimeout(_,c) | VernacFail c -> strip_vernac c
+   | c -> c (* TODO: what about VernacList ? *)
+ 
+ let rec is_navigation_vernac = function
+@@ -380,7 +381,7 @@ let rec is_navigation_vernac = function
+   | VernacBacktrack _
+   | VernacBackTo _
+   | VernacBack _ -> true
+-  | VernacTime c -> is_navigation_vernac c (* Time Back* is harmless *)
++  | VernacTime c | VernacRedirect (_, c) -> is_navigation_vernac c (* Time Back* is harmless *)
+   | c -> is_deep_navigation_vernac c
+ 
+ and is_deep_navigation_vernac = function
+-- 
+2.6.4
+
+
+From fb252949a14eef79129df8bca0974e8da0f2c477 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cl=C3=A9ment=20Pit--Claudel?= <clement.pitclaudel@live.com>
+Date: Thu, 7 May 2015 11:42:13 -0400
+Subject: [PATCH 3/4] Add .v files to the list of files to install
+
+This allows source view to work for library files
+---
+ Makefile.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.build b/Makefile.build
+index 8d3045c..3636717 100644
+--- a/Makefile.build
++++ b/Makefile.build
+@@ -638,7 +638,7 @@ INSTALLCMI = $(sort \
+ 
+ install-library:
+ 	$(MKDIR) $(FULLCOQLIB)
+-	$(INSTALLSH) $(FULLCOQLIB) $(LIBFILES) $(PLUGINS)
++	$(INSTALLSH) $(FULLCOQLIB) $(LIBFILES) $(LIBFILES:.vo=.v) $(PLUGINS)
+ 	$(MKDIR) $(FULLCOQLIB)/states
+ 	$(INSTALLLIB) states/*.coq $(FULLCOQLIB)/states
+ 	$(MKDIR) $(FULLCOQLIB)/user-contrib
+-- 
+2.6.4
+
+
+From 41677ee34bc08879f29f7a0e9382197e21a53dfd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Cl=C3=A9ment=20Pit--Claudel?= <clement.pitclaudel@live.com>
+Date: Sat, 16 May 2015 18:12:36 -0400
+Subject: [PATCH 4/4] Add support for [Print Ltac Signatures]
+
+---
+ library/nametab.ml        | 10 ++++++++++
+ library/nametab.mli       |  1 +
+ parsing/g_vernac.ml4      |  1 +
+ tactics/tacinterp.ml      |  7 +++++++
+ tactics/tacinterp.mli     |  1 +
+ toplevel/vernacentries.ml |  1 +
+ toplevel/vernacexpr.ml    |  1 +
+ 7 files changed, 22 insertions(+)
+
+diff --git a/library/nametab.ml b/library/nametab.ml
+index 52e6901..4300b9a 100644
+--- a/library/nametab.ml
++++ b/library/nametab.ml
+@@ -69,6 +69,7 @@ module type NAMETREE = sig
+   val push : visibility -> user_name -> 'a -> 'a t -> 'a t
+   val locate : qualid -> 'a t -> 'a
+   val find : user_name -> 'a t -> 'a
++  val elements : 'a t -> 'a list
+   val exists : user_name -> 'a t -> bool
+   val user_name : qualid -> 'a t -> user_name
+   val shortest_qualid : Idset.t -> user_name -> 'a t -> qualid
+@@ -184,6 +185,13 @@ let find_node qid tab =
+   let (dir,id) = repr_qualid qid in
+     search (Idmap.find id tab) (repr_dirpath dir)
+ 
++let elements tab =
++  let f k v acc =
++    match fst v with
++    | Absolute (_, o) | Relative (_, o) -> o :: acc
++    | Nothing                           -> acc
++  in Idmap.fold f tab []
++
+ let locate qid tab =
+   let o = match find_node qid tab with
+     | Absolute (uname,o) | Relative (uname,o) -> o
+@@ -376,6 +384,8 @@ let full_name_modtype qid = SpTab.user_name qid !the_modtypetab
+ 
+ let locate_tactic qid = SpTab.locate qid !the_tactictab
+ 
++let all_tactics () = SpTab.elements !the_tactictab
++
+ let locate_dir qid = DirTab.locate qid !the_dirtab
+ 
+ let locate_module qid =
+diff --git a/library/nametab.mli b/library/nametab.mli
+index 10c2357..f8e5568 100644
+--- a/library/nametab.mli
++++ b/library/nametab.mli
+@@ -100,6 +100,7 @@ val locate_dir : qualid -> global_dir_reference
+ val locate_module : qualid -> module_path
+ val locate_section : qualid -> dir_path
+ val locate_tactic : qualid -> ltac_constant
++val all_tactics : unit -> ltac_constant list
+ 
+ (** These functions globalize user-level references into global
+    references, like [locate] and co, but raise a nice error message
+diff --git a/parsing/g_vernac.ml4 b/parsing/g_vernac.ml4
+index 90355e4..6300606 100644
+--- a/parsing/g_vernac.ml4
++++ b/parsing/g_vernac.ml4
+@@ -838,6 +838,7 @@ GEXTEND Gram
+       | IDENT "TypeClasses" -> PrintTypeClasses
+       | IDENT "Instances"; qid = smart_global -> PrintInstances qid
+       | IDENT "Ltac"; qid = global -> PrintLtac qid
++      | IDENT "Ltac"; IDENT "Signatures" -> PrintLtacSignatures
+       | IDENT "Coercions" -> PrintCoercions
+       | IDENT "Coercion"; IDENT "Paths"; s = class_rawexpr; t = class_rawexpr
+          -> PrintCoercionPaths (s,t)
+diff --git a/tactics/tacinterp.ml b/tactics/tacinterp.ml
+index 7479ee9..ea26dab 100644
+--- a/tactics/tacinterp.ml
++++ b/tactics/tacinterp.ml
+@@ -3111,6 +3111,13 @@ let print_ltac id =
+    errorlabstrm "print_ltac"
+     (pr_qualid id ++ spc() ++ str "is not a user defined tactic.")
+ 
++let print_ltac_signatures () =
++  let tacs = Nametab.all_tactics () in
++  let print_one tac =
++    let l,t = split_ltac_fun (lookup tac) in
++    hov 2 (pr_qualid (Nametab.shortest_qualid_of_tactic tac) ++ prlist pr_ltac_fun_arg l) in
++  prlist_with_sep fnl print_one tacs
++
+ open Libnames
+ 
+ (* Adds a definition for tactics in the table *)
+diff --git a/tactics/tacinterp.mli b/tactics/tacinterp.mli
+index 573efb1..64d68a7 100644
+--- a/tactics/tacinterp.mli
++++ b/tactics/tacinterp.mli
+@@ -160,6 +160,7 @@ val declare_xml_printer :
+ 
+ (** printing *)
+ val print_ltac : Libnames.qualid -> std_ppcmds
++val print_ltac_signatures : unit -> std_ppcmds
+ 
+ (** Internals that can be useful for syntax extensions. *)
+ 
+diff --git a/toplevel/vernacentries.ml b/toplevel/vernacentries.ml
+index 5b60401..0ac6344 100644
+--- a/toplevel/vernacentries.ml
++++ b/toplevel/vernacentries.ml
+@@ -1300,6 +1300,7 @@ let vernac_print = function
+   | PrintTypeClasses -> ppnl (Prettyp.print_typeclasses())
+   | PrintInstances c -> ppnl (Prettyp.print_instances (smart_global c))
+   | PrintLtac qid -> ppnl (Tacinterp.print_ltac (snd (qualid_of_reference qid)))
++  | PrintLtacSignatures -> ppnl (Tacinterp.print_ltac_signatures ())
+   | PrintCoercions -> ppnl (Prettyp.print_coercions())
+   | PrintCoercionPaths (cls,clt) ->
+       ppnl (Prettyp.print_path_between (cl_of_qualid cls) (cl_of_qualid clt))
+diff --git a/toplevel/vernacexpr.ml b/toplevel/vernacexpr.ml
+index c019f50..f55d0c7 100644
+--- a/toplevel/vernacexpr.ml
++++ b/toplevel/vernacexpr.ml
+@@ -56,6 +56,7 @@ type printable =
+   | PrintTypeClasses
+   | PrintInstances of reference or_by_notation
+   | PrintLtac of reference
++  | PrintLtacSignatures
+   | PrintCoercions
+   | PrintCoercionPaths of class_rawexpr * class_rawexpr
+   | PrintCanonicalConversions
+-- 
+2.6.4
+
