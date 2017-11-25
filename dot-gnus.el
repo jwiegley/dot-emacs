@@ -387,7 +387,9 @@ is:
       (add-hook 'message-x-after-completion-functions
                 'gnus-alias-message-x-completion))
 
-  (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)
+  (bind-key "\C-c\C-f\C-p" #'gnus-alias-select-identity message-mode-map)
+
+  (add-hook 'message-mode-hook #'(lambda () (company-mode -1)))
 
   (defsubst match-in-strings (re strs)
     (cl-some (apply-partially #'string-match re) strs))
