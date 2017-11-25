@@ -20,7 +20,7 @@ if [[ "$1" == --files ]]; then
 
 elif [[ "$1" == --remotes ]]; then
     git fetch --all --no-tags
-    
+
 elif [[ "$1" == --subtrees ]]; then
     cat MANIFEST.csv                                \
         | grep ',subtree,'                          \
@@ -32,5 +32,19 @@ elif [[ "$1" == --subtrees ]]; then
         DIR=$(echo $line | cut -d, -f2)
         echo git pulltree $DIR/$MODULE
         git pulltree $DIR/$MODULE
+    done
+fi
+
+elif [[ "$1" == --submodules ]]; then
+    cat MANIFEST.csv                            \
+        | grep ',submodule,'                    \
+        | grep -v mirror-only                   \
+        | grep -v internal                      \
+        | grep -v elpa                          \
+        | while read line; do
+        MODULE=$(echo $line | cut -d, -f1)
+        DIR=$(echo $line | cut -d, -f2)
+        echo git --git-dir=$DIR/$MODULE fetch --all --no-tags
+        git --git-dir=$DIR/$MODULE fetch --all --no-tags
     done
 fi
