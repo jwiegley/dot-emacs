@@ -1,4 +1,4 @@
-ProofGeneral,site-lisp,submodule,git://github.com/psteckler/ProofGeneral.git,
+ProofGeneral,site-lisp,submodule,git://github.com/ProofGeneral/PG.git,
 ace-link,site-lisp,subtree,git://github.com/abo-abo/ace-link.git,
 ace-window,site-lisp,subtree,git://github.com/abo-abo/ace-window.git,
 agda-input,file,internal,,
