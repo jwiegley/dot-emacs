@@ -1175,6 +1175,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :after diff-mode)
 
 (use-package diffview
+  :load-path "site-lisp/diffview-mode"
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
