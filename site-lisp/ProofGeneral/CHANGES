@@ -1,0 +1,583 @@
+-*- outline -*-  
+
+This is a summary of main changes.  For details, please see
+the Git ChangeLog, the GitHub repo https://github.com/ProofGeneral/PG
+and the PG Trac http://proofgeneral.inf.ed.ac.uk/trac
+
+* Changes of Proof General 4.4.1 from Proof General 4.4
+
+* Changes of Proof General 4.4.1 from Proof General 4.4
+
+** Generic changes
+
+*** bug fixes
+    - Using query-replace (or replace-string) in the processed region
+      doesn't wrongly jump to the first match anymore.
+    - cheat face (admit etc) now visible when locked.
+
+*** remove key-binding for proof-electric-terminator-toggle
+    - The default key-binding for proof-electric-terminator-toggle
+      (C-c .) was too easy to enter by mistake. And it was not that
+      useful as we can expect users to configure electric-terminator
+      once and for all. Hence the removal of this default key-binding.
+
+** Coq changes
+
+*** new menu Coq -> Auto Compilation for all background compilation options
+
+*** support for 8.5 quick compilation
+
+    See new menu Coq -> Auto Compilation. Select "no quick" as
+    long as you have not switched to "Proof using" to compile
+    without -quick. Select "quick no vio2vo" to use -quick
+    without vio2vo (and guess what "quick and vio2vo" means ;-),
+    select "ensure vo" to ensure a sound development. See the
+    option `coq-compile-quick' or the subsection "11.3.3 Quick
+    compilation and .vio Files" in the Coq reference manual.
+
+*** new option coq-compile-keep-going (in menu Coq -> Auto Compilation)
+
+    Similar to ``make -k'', with this option enabled, background
+    compilation does not stop at the first error but rather
+    continues as far as possible.
+
+*** Limited extensibility for indentation 
+
+    Coq indentation mechanism is based on a fixed set of tokens and
+    precedence rules. Extensibility is now possible by adding new
+    syntax for a given token (no new token can be added). 
+
+    Typical example: if you define a infix operator xor you may
+    want to define it as a new syntax for token \/ in order to
+    have the indentation rules of or applied to xor.
+
+    Use:
+    (setq coq-smie-user-tokens '(("xor" . "\\/")))
+    
+    The set of tokens can be seen in variable smie-grammar.
+
+*** bug fixes
+    - avoid leaving partial files behind when compilation fails
+    - 123: Parallel background compliation fails to execute some
+      imports
+    - fix error in process filter: Cannot resize window
+    - 54 partially: Buffer coq-compile-response sometimes takes
+      over the whole window
+    - 75: Library more.v is required
+    - 70: Coq trunk + compile before require => « Invalid version
+      syntax: 'trunk' »
+    - 92: Compile before require from current directory failing
+      with 8.5
+
+* Changes of Proof General 4.4 from Proof General 4.3
+
+** ProofGeneral has moved to GitHub!
+
+   https://github.com/ProofGeneral/PG
+
+   Please submit new bugs there, old bugs may stay in good old PG trac
+   for a while though: http://proofgeneral.inf.ed.ac.uk/trac
+
+** Coq changes
+
+*** indentation of ";" tactical:
+    by default the indentation is like this:
+    tac1;
+      tac2;
+      tac3.
+    do this: (setq coq-indent-semicolon-tactical 0) to have this:
+    tac1;
+    tac2;
+    tac3.
+
+*** Option to disable the auto resizing of response buffer:
+
+    By default when the response buffer is on the same column than
+    goals buffer, pg changes its size dynamically to optimize goals
+    displaying.
+
+    To disable this feature use:
+    (setq coq-optimise-resp-windows-enable nil)
+    
+*** Option to prefer top of conclusion instead of bottom
+
+    When display goals that do not fit in the goals window, PG prefers
+    to display the bottom of the goal (where lies it own conclusion.
+    You can make it prefer the top of the conclusion by setting this:
+    (setq coq-prefer-top-of-conclusion t)
+
+*** Auto adjusting of printing width
+
+    On by default. To disable: Coq/Settings/Auto Adapt Printing Width
+    or (setq coq-auto-adapt-printing-width nil).
+
+*** Removed the Set Undo 500 at start.
+    This is obsolete. To recover: (setq coq-user-init-cmd `("Set Undo 500."))
+
+*** Option to highlight usual symbols
+    Off by default, enable using:
+    (setq coq-symbol-highlight-enable t)
+
+* Changes of Proof General 4.3 from Proof General 4.2
+
+** Prooftree changes
+
+*** Require Prooftree version 0.11
+    Check the Prooftree website to see which other versions of
+    Prooftree are compatible with Proof General 4.3.
+
+*** New features
+    One can now trigger an retraction (undo) by selecting the
+    appropriate sequent in Prooftree. One can further send proof
+    commands or proof scripts from whole proof subtrees to Proof
+    General, which will insert them in the current buffer.
+    Prooftree also supports some recent Coq features, see below.
+
+** Coq changes
+
+*** Asynchronous parallel compilation of required modules
+    Proof General has now a second implementation for compiling
+    required Coq modules. 
+    Check menu Coq -> Settings -> Compile Parallel In Background
+    to compile modules in parallel in the background while Proof
+    General stays responsive.
+
+*** Support for more bullets (coq 8.5): -- --- ++ +++ ** ***
+    Scripting supports bullets of any length. 
+    Indentation supports only bullets of length <= 4 (like ----). Longer
+    may be supported if needed.
+    For indentation to work well, please use this precedence:
+    - + * -- ++ ** --- +++ *** ...
+
+*** smie indentation is now the only choice.
+    Old code removed. will work only if emacs >= 23.3.
+
+*** indentation of modules, sections and proofs are customizable
+
+    (setq coq-indent-modulestart X) will set indentation width for
+    modules and sections to X characters
+
+    (setq coq-indent-proofstart X) will set indentation width for
+    modules and sections to X characters
+
+*** indentation of match with cases:
+    by default the indentation is like this now:
+    match n with
+      O => ...
+    | S n => ...
+    end
+    do this: (setq coq-match-indent 4) to get back the
+    previous indetation style:
+    match n with
+        O => ...
+      | S n => ...
+    end    
+
+*** indentation now supports { at end of line:
+    example:
+
+    assert (h:n = k). {
+      apply foo.
+      reflexivity. }
+    apply h.
+
+*** Default indentation of forall and exists is not boxed anymore
+    For instance, this is now indented like this:
+
+       Lemma foo: forall x y,
+           x = 0 -> ... .
+
+    instead of:
+
+       Lemma foo: forall x y,
+                    x = 0 -> ... .
+    (do this: (setq coq-indent-box-style t) to bring the box style back).
+
+    Use (setq coq-smie-after-bolp-indentation 0) for a smaller indentation:
+       Lemma foo: forall x y,
+         x = 0 -> ... .
+
+*** Default indentation cases of "match with" are now indented by 2 instead of 4.
+     "|" is indented by zero:
+
+        match n with                   
+          0 => ...	     
+        | S n => ...                   
+        end                            
+     instead of: 
+        match n with  
+            0 => ...       
+          | S n => ...
+        end
+     do this: (setq coq-match-indent 4) to bring old behaviour back.
+
+*** Support for bullets, braces and Grab Existential Variables for Prooftree.
+
+*** Support for _Coqproject files
+
+    According to Coq documentation, it is advised to use coq_makefile
+    -f _CoqProject -o Makefile to build your Makefile automatically
+    from "profect file" _CoqProject. Such a file should contain the
+    options to pass to coq_makefile, i.e. paths to add to coq load
+    path (-I, -R) and other options to pass to coqc/coqtop (-arg).
+
+    Coqide (and now proofgeneral) do use the information stored in
+    this file to configure the options to add to the coqtop
+    invocation. When opening a coq file, proofgeneral looks for a file
+    _Coqproject in the current directory or a parent directory and
+    reads it. Except for very unlikely situation this should replace
+    the use of local file variables (which remains possible and
+    overrides project file options).
+
+*** Support for prettify-symbols-mode.
+
+*** Colors in response and goals buffers
+
+    Experimental: colorize hypothesis names and some parts of error
+    and warning messages, and also evars. For readability.
+
+*** Coq Querying facilities
+
+**** Minibuffer interactive queries
+
+    Menu Coq/Other Queries (C-c C-a C-q) allows to send queries (like
+    Print, Locate...) (à la auctex) without inserting them in the
+    buffer. Queries are TAB completed and the usual history mechanism
+    applies. Completion allows only a set of state preserving
+    commands. The list is not exhaustive yet.
+
+    This should replace the C-c C-v usual command mechanism (which has
+    no completion).
+
+**** Mouse Queries
+
+    This remaps standard emacs key bindings (faces and buffers menus
+    popup), so this is not enabled by default, use (setq
+    coq-remap-mouse-1 t) to enable.
+
+    - (control mouse-1) on an identifier sends a Print query on that id.
+    - (shift mouse-1) on an identifier sends a About query on that id.
+    - (control shift mouse-1) on an identifier sends a Check query on
+      that id.
+
+    As most of the bindings, they are active in the three buffer
+    (script, goals, response). Obeys C-u prefix for "Printing all"
+    flag.
+
+*** bug fixes
+    - Annoying cursor jump when hitting ".".
+    - random missing output due to the prover left in silent mode by
+      a previously scripted error.
+    - Better display of warnings (less messages lost).
+
+* Changes of Proof General 4.2 from Proof General 4.1
+
+** Generic/misc changes
+
+*** Added user option: `proof-next-command-insert-space'
+    Allows the user to turn off the electric behaviour of generating
+    newlines or spaces in the buffer.  Turned on by default, set
+    to nil to revert to PG 3.7 behaviour.
+
+*** Support proof-tree visualization via the external Prooftree program
+    Currently only Coq (using Coq version 8.4beta or newer)
+    supports proof-tree visualization. If Prooftree is installed,
+    the proof-tree display can be started via the toolbar, the
+    Proof-General menu or by C-c C-d.  To get Prooftree, visit
+    http://askra.de/software/prooftree
+
+*** Compilation fixes for Emacs 24.
+
+*** Fix "pgshell" mode for shell/CLI prover interaction
+    Also add some quick hacks for scripting OCaml and Haskell
+
+
+** Coq changes
+
+*** Smarter three windows mode:
+  In three pane mode, there are three display modes, depending
+  where the three useful buffers are displayed: scripting
+  buffer, goals buffer and response buffer.
+
+  Here are the three modes:
+
+  - vertical: the 3 buffers are displayed in one column.
+  - hybrid: 2 columns mode, left column displays scripting buffer
+    and right column displays the 2 others.
+  - horizontal: 3 columns mode, one for each buffer (script, goals,
+    response).
+
+  By default, the display mode is automatically chosen by
+  considering the current emacs frame width: if it is smaller
+  than `split-width-threshold' then vertical mode is chosen,
+  otherwise if it is smaller than 1.5 * `split-width-threshold'
+  then hybrid mode is chosen, finally if the frame is larger than
+  1.5 * `split-width-threshold' then the horizontal mode is chosen.
+
+  You can change the value of `split-width-threshold' at your
+  will (by default it is 160).
+
+  If you want to force one of the layouts, you can set variable
+  `proof-three-window-mode-policy' to 'vertical, 'horizontal or
+  'hybrid. The default value is 'smart which sets the automatic
+  behaviour described above.
+
+  example:
+
+     (setq proof-three-window-mode-policy 'hybrid).
+
+  Or via customization menus.
+
+*** Multiple file handling for Coq Feature.
+    No more experimental. Set coq-load-path to the list of directories
+    for libraries (you can attach it to the file using menu "coq prog
+    args"). Many thanks to Hendrik Tews for that great peace of code!
+
+*** Support proof-tree visualization
+    Many thanks to Hendrik Tews for that too!
+
+*** New commands for Print/Check/About/Show with "Printing All" flag
+    Avoids typing "Printing All" in the buffer. See the menu Coq >
+    Other queries. Thanks to Assia Mahboubi and Frederic Chyzak for
+    the suggestion.
+    Shortcut: add C-u before the usual shortcut
+     (example: C-u C-c C-a C-c for:
+     	        Set Printing All.
+		Check.
+		Unset Printing All. )
+
+*** Coq menus and shortcut in response and goals buffers.
+    Check, Print etc available in these buffers.
+
+*** Tooltips hidden by default
+    Flickering when hovering commands is off by default!
+
+*** "Insert Requires" now uses completion based on coq-load-path
+
+*** New setting for hiding additional goals from the *goals* buffer
+    Coq > Settings > Hide additional subgoals
+
+*** Double hit terminator
+    Experimental: Same as electric terminator except you have to type
+    "." twice quickly. Electric terminator will stop getting in the
+    way all the time with module.notations.
+     Coq > Double Hit Electric Terminator.
+
+    Note 1: Mutually exclusive with usual electric terminator.
+
+    Note 2: For french keyboard it may be convenient to map ";"
+    instead of ".":
+
+(add-hook 'proof-mode-hook
+ (lambda () (define-key coq-mode-map (kbd ";") 'coq-terminator-insert)))
+
+
+*** Indentation improvements using SMIE. Supporting bullets and { }.
+    Still experimental. Please submit bugs.
+
+    IMPORTANT: Limitations of indentation:
+
+    - hard-wired precedence between bullets: - < + < *
+     example:
+     Proof.
+       - split.
+         + split.
+           * auto.
+	   * auto.
+         + intros.
+           auto.
+       - auto.
+     Qed.
+
+    - Always use "Proof." when proving an "Instance" (wrong
+      indentation and slow downs otherwise). As a general rule, try to
+      always introduce a proof with "Proof." (or "Next Obligation"
+      with Program).
+
+*** "Show" shows the (cached) state of the proof at point.
+    If Show goals (C-c C-a C-s) is performed when point is on a locked
+    region, then it shows the prover state as stored by proofgeneral
+    at this point. This works only when the command at point has been
+    processed by "next step" (otherwise coq was silent at this point
+    and nothing were cached).
+
+*** Minor parsing fixes
+*** Windows resizing fixed
+
+** HOL Light  [WORK IN PROGRESS]
+
+*** Basic support now works, see hol-light directory  [WORK IN PROGRESS]
+
+
+* Changes of Proof General 4.1 from Proof General 4.0
+
+** Generic changes
+
+*** Parsing now uses cache by default (proof-use-parser-cache=t).
+    Speeds up undo/redo in long buffers if no edits are made.
+
+** Isabelle changes
+
+*** Unicode tokens enabled by default
+
+** Coq changes
+
+*** A new indentation algorithm, using SMIE.
+    This works when SMIE is available (Emacs >= 23.3), but must be enabled
+    by the variable `coq-use-smie'.  It also provides improved
+    navigation facilities for things like C-M-t, C-M-f and C-M-b.
+    Addition by Stefan Monnier.
+
+*** Experimental multiple file handling for Coq.
+    Proof General is now able to automatically compile files while
+    scripting Require commands, either internally or externally (by
+    running Make).  Additionally, it will automatically retract 
+    buffers when switching to new files, to model separate compilation
+    properly.  For details, see the Coq chapter in the Proof General manual.
+    Addition by Hendrik Tews.
+
+*** Fixes for Coq 8.3
+
+
+* Main Changes for Proof General 4.0 from 3.7.1
+
+** Install/support changes
+
+*** XEmacs is no longer supported; PG only works with GNU Emacs 23.1+
+    Older GNU Emacs versions after 22.3 may work but are unsupported.
+
+*** Primary distribution formats changed
+    The RPM and zip file formats have been removed.
+    We are very grateful to third-party packagers for Debian and Fedora
+    for distributing packaged versions of PG.
+
+** Generic changes
+
+*** Font-lock based Unicode Tokens mode replaces X-Symbol
+    Unicode Tokens has been significantly improved since PG 3.7.1,
+    and now works purely at a "presentation" level without changing 
+    buffer contents.  See Tokens menu for many useful commands.
+
+*** Document-centred mechanisms added:
+    - auto raise of prover output buffers can be disabled
+    - output retained for script buffer popups
+    - background colouring for locked region can be disabled
+    - ...but "sticky" colouring for errors can be used
+    - edit on processed region can automatically undo
+
+    Depending on the prover language and interaction output, this may
+    enable a useful "document centred" way of working, when output
+    buffers can be ignored and hidden.  Use "full annotation" to keep
+    output when several steps are taken.
+
+    Standard values for the options can be set in one go with:
+      Quick Options -> Display -> Document Centred
+    and the defaults set back with 
+      Quick Options -> Display -> Default. 
+    See the manual for more details.
+
+*** Automatic processing mode
+      Quick Options -> Processing -> Send Automatically
+    Sends commands to the prover when Emacs is idle for a while.
+    This only sends commands when the last processing action has
+    been an action moving forward through the buffer.  Interrupt by
+    making a keyboard/mouse action.
+    See the manual for more details.
+
+*** Fast buffer processing option
+      Quick Options -> Processing -> Fast Process Buffer
+    This affects 'proof-process-buffer' (C-c C-b, toolbar down).
+    It causes commands to be sent to the prover in a tight loop, without 
+    updating the display or processing other input.  This speeds up
+    processing dramatically on some Emacs implementations.
+    To interrupt, use C-g, which reverts to normal processing mode.
+    (To stop that, use C-c C-c as usual).
+
+*** Improved prevention of Undo in locked region
+    With thanks to Erik Martin-Dorel and Stefan Monnier.
+    Undo in read only region follows `proof-strict-read-only' and
+    gives the user the chance to allow edits by retracting first.
+
+*** Proof General -> Options menu extended and rearranged
+    - new menu for useful minor modes indicates modes that PG supports
+
+*** New query identifier info button and command (C-c C-i, C-M-mouse1)
+    These are convenience commands for looking up identifiers in the running prover.
+
+*** New user configuration options (also on Proof General -> Options)
+    proof-colour-locked       (use background colour for checked text)
+    proof-auto-raise-buffers  (set to nil for manual window control)
+    proof-full-decoration     (add full decoration to input text)
+    proof-sticky-errors       (add highlighting for commands that caused error)
+    proof-shell-quiet-errors  (non-nil to disable beep on error; default=nil)
+    proof-minibuffer-messages (non-nil to show prover messages; default=nil)
+
+*** Removed user configuration options
+    proof-toolbar-use-button-enablers  (now always used)
+    proof-output-fontify-enable        (now always enabled)
+
+*** "Movie" output: export an annotated buffer in XML
+    Basic movie output for Proviola, see http://mws.cs.ru.nl/proviola
+
+** Isabelle/Isar changes
+
+*** Support undo back into completed proofs (linear_undo).
+
+*** Electric terminator works without inserting terminator
+    Hit ; to process the last command.  Easier than C-RET.
+
+*** Line numbers reported during script management
+
+*** Sync problems with bad input prevented by command wrapping
+
+*** Isabelle Settings now organised in sub-menus
+
+** Coq changes
+
+*** Only supports Coq 8.1+, support for earlier versions dropped.
+
+*** Holes mode can be turned on/off and has its own minor mode
+
+*** Some keyboard shortcuts are now available in goals buffer
+    C-c C-a C-<c,p,o,b,a> are now available in goal buffer.
+
+*** Experimental storing buffer
+    To store the content of response or goals buffer in a dedicated
+    persistent buffer (for later use), use Coq/Store response or
+    Coq/Store goal.
+
+*** bug fixes, bugs
+    - Three panes mode: "window would be too small" error fixed.
+    - Indentation: several error fixed. If you want to indent tactics
+    inside "Instance" or "Add Parametric Relation" etc, please put
+    "Proof." before the tactics, there is no way for emacs to guess
+    wether these commands initiate new goals or not.
+    - coq prog args permanent settings is working again
+    - when a proof is completed, the goals buffer is cleared again.
+
+** Notable internal changes
+
+*** Altered prover configuration settings (internal)
+
+    proof-terminal-char replaced by proof-terminal-string
+
+    urgent message matching is now anchored; configurations for
+    `proof-shell-clear-response-regexp', etc, must match
+    strings which begin with `proof-shell-eager-annotation-start'.
+
+    proof-shell-strip-output-markup: added for cut-and-paste
+    proof-electric-terminator-noterminator: allows non-insert of terminator
+
+    pg-insert-output-as-comment-fn: removed (use p-s-last-output)
+    proof-shell-wakeup-char: removed (special chars deprecated)
+    pg-use-specials-for-fontify: removed (ditto)
+    proof-shell-prompt-pattern: removed (was only for shell UI)
+    proof-shell-abort-goal-regexp: removed (ordinary response)
+    proof-shell-error-or-interrupt-seen: removed, use p-s-last-output-kind
+    proof-script-next-entity-regexps,next-entity-fn: removed (func-menu dead)
+    proof-script-command-separator: removed (always a space)
+
+*** Simplified version of comint now used for proof shell (internal)
+    To improve efficiency, a cut-down version of comint is now used.
+    Editing, history and decoration in the shell (*coq*, *isabelle*,
+    etc) are impoverished compared with PG 3.X.

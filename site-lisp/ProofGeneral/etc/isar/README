@@ -1,0 +1,8 @@
+bad1.thy:
+  Bug test case: parser would silently skip bad command "foo".
+  Resolved as of 13.9.00
+
+bad2.thy:
+  Bug test case: synchronization problem on starting Isar process,
+  doesn't catch the first error.
+  Resolved as of 17.9.00

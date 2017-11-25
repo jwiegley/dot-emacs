@@ -1,0 +1,557 @@
+## -*- makefile -*-
+##
+## Makefile for Proof General development.
+##
+## Author:  David Aspinall <David.Aspinall@ed.ac.uk>
+##
+## Maintainer:  Proof General maintainer <da+pg-support@inf.ed.ac.uk>
+##
+## Developer use only, not part of user distribution.
+##
+##    make clean	  - remove intermediate files
+##    make distclean	  - remove all generated files
+##
+##    make elisptidy	  - tidy up elisp files (run whitespace-cleanup)
+##
+##    make ChangeLog	  - make ChangeLog from git log
+##    make tags		  - update TAGS file for Elisp sources
+##    make autoloads	  - update autoloads
+##
+##    make tag		  - tag the sources with GIT_RELEASENAME
+##    make untag	  - remove tag GIT_RELEASENAME from the sources
+##    make dist           - make a distribution from sources with above tag
+##    make rpm		  - make RPM packages based on etc/ProofGeneral.spec
+##    make pkg		  - make Emacs tar file packages (Tromey's package.el)
+##
+##    make release	  - make tag, dist, and install it in RELEASEDIR.
+##    make releaseall	  - make release, local installation and rpmrelease.
+##
+##    make distinstall	  - install distribution build by 'make dist'
+##			    into DISTINSTALLDIR.
+##
+##    make golive	  - publish previously built distribution
+##
+##    make links	  - add some links which help testing web pages
+##			    from the html directory.
+##
+##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
+##
+##    make testall.emacs23- run all autotest files in Emacs named "emacs23"
+##
+##
+## Notes:
+##
+##   Use 'make releaseclean' if giving up, to remove temp dirs.
+##
+##   NB: no facility to edit html to make a full release in this Makefile.
+##   Edit download.html by hand, then run
+##
+##      make releaseall VERSION=2.0
+##
+##   Or similar to make the required version.
+##
+##   To customize the tags in case of a re-release with the same
+##   official version:
+##
+##      make releaseall VERSION=2.0 FULLVERSION=2.0.1
+##
+##
+## $Id$
+##
+###########################################################################
+
+## TODO: could include prerel tag in web pages, and link using -latest
+## sym links.  Would avoid needing to edit html below.
+
+
+# Names and real mail addresses of developers
+# Arguments for rcs2log for ChangeLog target
+# NB: must use TAB as separator in list below.
+
+DEVELOPERS=\
+-u "da	David Aspinall	da@inf.ed.ac.uk" \
+-u "gkein	Gerwin Klein	gklein@in.tum.de" \
+-u "sberghof	Stefan Berghofer	berghofe@in.tum.de" \
+-u "markus	Makarius	makarius@sketis.net" \
+-u "makarius	Makarius	makarius@sketis.net" \
+-u "pier	Pierre Courtieu	courtieu@lri.fr" \
+-u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
+-u "pxc	Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
+-u "patrl	Patrick Loiseleur	da+pg-patrl@inf.ed.ac.uk" \
+-u "tms	Thomas Kleymann	da+pg-tms@inf.ed.ac.uk" \
+-u "djs	Dilip Sequiera	da+pg-djs@inf.ed.ac.uk" \
+-u "hhg	Healfdene Goguen	da+pg-hhg@inf.ed.ac.uk" \
+-u "gklein	Gerwin Klein	gerwin.klein@nicta.com.au" \
+-u "assia	Assia Mahboubi	assia.mahboubi@inria.fr" \
+-u "monnier	Stefan Monnier	monnier@iro.umontreal.ca" \
+-u "tews	Hendrik Tews	hendrik@askra.de"
+
+# PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
+# line in tag target below, which edits $(DOWNLOADHTML)
+# The prereltag.txt is kept as a record in the distrib area
+# of the current pre-release version (currently not used explicitly
+# anywhere for web pages/whatever).
+PRERELEASE_PREFIX=4\.4\.1~pre
+PRERELEASE_TAG=4.4.1~pre
+### Formerly: PRERELEASE_TAG=4.4pre$(shell date "+%y%m%d")
+PREREL_TAG_FILE=prereltag.txt
+
+# Path to web pages in repository, used for automatically
+# updating with release information.
+HTMLDIR=../web
+DOWNLOADHTMLS=devel.html
+
+# This is used for full releases to control the tag name
+# and distribution name.  No editing of html is done
+# when PRERELEASE_TAG != VERSION
+VERSION=$(PRERELEASE_TAG)
+
+# Date stamp used in file if we're making a full release.
+DATEMSG=$(shell if [ $(PRERELEASE_TAG) = $(VERSION) ]; then echo; else date "+ on %a %e %b %Y"; fi)
+
+
+# devel just means developer's package, with more files.
+# bit ambiguous: "development version" means latest version,
+# in development.
+# LATESTNAME is linked to the development version.
+# NAME is linked to the current release.
+NAME = ProofGeneral
+LATESTNAME = $(NAME)-latest
+
+VERSIONVARIABLE=proof-general-version
+VERSIONFILE=proof-site.el
+
+# Full version number defaults to ordinary version number.
+FULLVERSION=$(VERSION)
+
+# Name of tar file and RPM file.
+RELEASENAME = $(NAME)-$(VERSION)
+GIT_RELEASENAME ?= v$(FULLVERSION)
+
+# Where to release (i.e. copy) a new distribution to.
+# This may be the final directory (local) or temporary directory.
+# # was: RELEASEDIR = /home/proofgen/www
+RELEASEDIR = /tmp/proofgeneral-www
+
+# How to make the release "live".  (Could be "true" to do nothing).
+GOLIVE=rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
+
+# Emacs for batch compiling
+BATCHEMACS=$(EMACS) -batch -q -no-site-file
+
+# Emacs for interactive use in testing
+EMACSFLAGS=-q -no-site-file
+
+# GNU version of tar, please
+TAR=tar
+
+# Files not to include the distribution area or tarball
+UNFINISHED_ELISP=
+ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/*.txt
+NONDISTFILES=.gitignore */.gitignore Makefile.devel etc/trac etc/testsuite $(UNFINISHED_ELISP) $(ETC_FILES)
+DOCDISTFILES=ProofGeneral.info PG-adapting.info
+
+# Files not to include in the ordinary distribution tarball, but left
+# in the server's copy of the distribution.
+# NB: these are *patterns* to exclude rather than files!
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/etc/TESTS
+
+# Temporary directory to to build a distribution in
+DISTBUILDIR = /tmp/ProofGeneralRelease
+
+# Temporary dmg root for building Mac OS X disk image files.
+DMGTOPDIR=/tmp/$(NAME)-dmg
+
+RELEASENAMETGZ = $(RELEASENAME).tgz
+RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
+RELEASENAMEDMG = $(RELEASENAME).dmg
+
+# Where to install a distribution
+DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
+
+SUBDIRS=$(ELISP_DIRS) etc doc images
+
+PWD=$(shell pwd)
+
+FORCE:
+
+# Targets to pre-compile for distribution
+# Warning: elisp files are incompatible across emacs versions!
+alldist:	distcompile distdocs
+
+
+############################################################
+#
+# Make tags file
+#
+TAGS_EXTRAS=
+ETAGS=etags
+tags:	$(EL) $(TAGS_EXTRAS)
+	$(ETAGS) $(EL) $(TAGS_EXTRAS) doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
+
+
+############################################################
+#
+# Run tests for a particular prover and particular Emacs
+#
+run.%:
+	$(EMACS) $(EMACSFLAGS) -l generic/proof-site.el -eval '(proof-visit-example-file "$*")'
+
+test.%:
+	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests for $* run successfully on `date`"; else cat $*/.autotest.log; echo "Autotests for $* ran with failures on `date`"; exit 1; fi; fi
+
+profile.%:
+	if [ -f "$*/$*-profiling.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-profiling.el -f eval-current-buffer; then echo "Profiling for $* run successfully on `date`"; else echo "Profiling for $* ran with failures on `date`"; exit 1; fi; cat $*/.profile.log; fi
+
+testall.%:
+	for prover in ${PROVERS}; do $(MAKE) test.$$prover EMACS=$*; done
+
+
+############################################################
+#
+# Add recent messages to ChangeLog.
+#
+# FIXME: this duplicates entries made on the same day: we could do
+# with a way of cleaning the last day from the ChangeLog.
+#
+ChangeLog:	FORCE
+	git log --pretty="format:%ad %s" --date=short > ChangeLog
+
+
+############################################################
+#
+# Clean up intermediate files
+#
+devclean: FORCE
+	@echo "***** CLEANING UP INTERMEDIATE FILES ****"
+	rm -f doc/ProofGeneralPortrait.eps.gz
+	rm -f $(HTMLDIR)/ProofGeneral
+
+
+
+############################################################
+#
+# Clean up intermediate files, all generated files
+#  and Emacs backups.
+#
+distclean: devclean clean
+	@echo "***** CLEANING UP ALL JUNK FILES ****"
+	find . \( -name '*~' -o -name '#*#' -o -name '\.\#*' -o -name '\.*\.log' \) -print | xargs rm -f
+	(cd doc; $(MAKE) distclean)
+
+
+############################################################
+#
+# autoloads in generic/
+#
+autoloads: $(EL)
+	@echo "***** MAKING AUTOGENERATED AUTOLOADS  ****"
+	$(BATCHEMACS) -eval '(setq autoload-package-name "proof" generated-autoload-file "$(PWD)/generic/proof-autoloads.el")' -f batch-update-autoloads  generic/ lib/
+
+############################################################
+#
+# Elisp tidy
+#
+tidy: $(EL)
+	@echo "***** CLEANUP ELISP FILES  ****"
+	for f in $(EL); do echo "Cleaning $$f"; $(BATCHEMACS) -eval "(progn (find-file \"$$f\") (whitespace-cleanup) (save-buffer))"; done
+
+
+
+############################################################
+#
+# Documentation
+#
+distdocs: FORCE
+	@echo "***** MAKING DISTRIBUTION DOCS  ****"
+	(cd doc; ln -s $(HTMLDIR)/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
+
+############################################################
+#
+# Compilation
+#
+distcompile: FORCE
+	@echo "***** MAKING ELC FILES  ****"
+	$(MAKE) compile
+
+
+
+############################################################
+##
+## tag:    tag the sources of working directory with GIT_RELEASENAME,
+##	   set version stamp in proof-site.el and ProofGeneral.spec
+##         to VERSION, and edit $(DOWNLOADHTMLS)
+##	   if VERSION matches PRERELEASE_TAG.
+##
+tag:
+	@echo "*************************************************"
+	@echo " Tagging sources... "
+	@echo "*************************************************"
+	if [ -z "$(NOCVS)" ]; then git fetch origin && git log --exit-code master...origin/master || exit 1; fi
+# Update version in proof-site.el
+	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General Version $(FULLVERSION).\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
+# Tag ProofGeneral.spec
+	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
+# Edit $(DOWNLOADHTMLS) only for prereleases.
+# Careful: the sed command below relies on previous value of PRERELEASE_TAG.
+#	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
+#	  (cd $(HTMLDIR); \
+#	   for f in $(DOWNLOADHTMLS); do \
+#		mv $$f $$f.old; \
+#		sed -e 's|ProofGeneral\([emacselc-]*\)-$(PRERELEASE_PREFIX)......|ProofGeneral\1-$(PRERELEASE_TAG)|g' $$f.old > $$f; \
+#		rm $$f.old; \
+#	   done) \
+#	fi
+	if [ -z "$(NOCVS)" ]; then git add generic/$(VERSIONFILE) etc/ProofGeneral.spec && git commit -m"Set version tag for new release." ; fi
+	if [ -z "$(NOCVS)" ]; then git tag -a  "$(GIT_RELEASENAME)"; fi
+
+############################################################
+##
+## untag:  Remove the GIT_RELEASENAME tag from the sources.
+##
+
+untag:
+	git tag -d "$(GIT_RELEASENAME)"
+
+############################################################
+##
+## dist: make a distribution in DISTBUILDIR from CVS sources
+##       Builds for user-distribution, from sources tagged
+##       with GIT_RELEASENAME.
+##	 Moves html files to parent directory, removes
+##       non-distributed files.
+##
+
+cvsexport:
+	@echo "*************************************************"
+	@echo " Cleaning build directory and running cvs export..."
+	@echo "*************************************************"
+	rm -rf $(DISTBUILDIR)
+	mkdir -p $(DISTBUILDIR)
+	if [ -z "$(NOCVS)" ]; then \
+	   git archive --format=tar --prefix=$(RELEASENAME)/ $(GIT_RELEASENAME) | (cd "$(DISTBUILDIR)" && tar xf -) \
+	else \
+	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
+	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
+	fi
+
+dist:	cvsexport
+	@echo "*************************************************"
+	@echo " Running 'make alldist' for new release .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME); $(MAKE) alldist)
+	@echo "*************************************************"
+	@echo " Cleaning and copying doc files .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME)/doc; cp -pr $(DOCDISTFILES) $(DISTBUILDIR))
+	(cd $(DISTBUILDIR)/$(RELEASENAME)/doc; $(MAKE) clean)
+	(cd $(DISTBUILDIR); cp -pr $(DOCDISTFILES) $(RELEASENAME)/doc)
+	@echo "*************************************************"
+	@echo " Cleaning non-distributed files .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME); rm -rf $(NONDISTFILES))
+	@echo "*************************************************"
+	@echo " Making compressed tar file..."
+	@echo "*************************************************"
+	-(cd $(DISTBUILDIR); ls $(IGNOREDFILES) > ignoredfiles; echo ignoredfiles >> ignoredfiles)
+#	link the long name to short name for convenience of user
+	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
+	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETGZ) --directory $(DISTBUILDIR) --exclude-from $(DISTBUILDIR)/ignoredfiles $(RELEASENAME) $(NAME)
+#	remove temporary files made for tar/zip only
+	(cd $(DISTBUILDIR); rm -f ignoredfiles $(NAME))
+	@echo "*************************************************"
+	@echo " Finished making dist."
+	@echo "*************************************************"
+
+
+############################################################
+##
+## release:
+##     tag the sources, and make a distribution.
+##     Then install the distribution in RELEASEDIR
+##     WARNING: RELEASEDIR is not cleaned except to remove
+##     links, but files there with same names will be overwritten.
+##
+release: check distclean tag dist
+	@echo "*************************************************"
+	@echo " Making release (installing tarball distributions)."
+	@echo "*************************************************"
+	mkdir -p $(RELEASEDIR)
+	(cd $(DISTBUILDIR); rm -f $(NAME))
+	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
+	cp -pfR $(DISTBUILDIR)/* $(RELEASEDIR)
+	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETGZ) $(LATESTNAME).tgz)
+	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
+	@echo "*************************************************"
+	@echo " Finished installing dist."
+	@echo "*************************************************"
+
+
+############################################################
+##
+## rpm:
+##     Build an RPM binary package from the recently made distribution
+##     using the tarball.  (Any user could do this)
+##
+##
+
+# Temporary RPM topdir for building packages as non-root user.
+RPMTOPDIR=/tmp/$(NAME)-rpm
+RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
+
+rpm:
+	rm -rf $(RPMTOPDIR)
+	mkdir -p $(RPMTOPDIR)/RPMS
+	mkdir -p $(RPMTOPDIR)/SPECS
+	mkdir -p $(RPMTOPDIR)/SOURCES
+	mkdir -p $(RPMTOPDIR)/BUILD
+	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETGZ)
+
+
+############################################################
+##
+## pkg:
+##     Build an Emacs .tar file package
+##
+PKGMOVES=doc/dir doc/ProofGeneral.info doc/PG-adapting.info
+PKGDELETES=obsolete etc doc
+# Emacs package version is fussy about non-numbers in version, have to make version
+# from date.
+PKG_VERSION=$(shell echo $(FULLVERSION) | sed 's/$(PRERELEASE_PREFIX)/20/g' | sed 's/RC/\.0/g')
+PKG_RELEASENAME=$(NAME)-$(PKG_VERSION)
+pkg:	cvsexport
+	(cd $(DISTBUILDIR); if [ "$(RELEASENAME)" != "$(PKG_RELEASENAME)" ]; then mv $(RELEASENAME) $(PKG_RELEASENAME); fi)
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME)/doc; make info)
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); mv $(PKGMOVES) .;  rm -rf $(PKGDELETES))
+	(cd $(DISTBUILDIR)/$(PKG_RELEASENAME); echo '(define-package "ProofGeneral" "$(PKG_VERSION)" "Proof General theorem prover interface")' > ProofGeneral-pkg.el)
+	(cd $(DISTBUILDIR); tar -cf $(PKG_RELEASENAME).tar $(PKG_RELEASENAME))
+
+
+############################################################
+##
+## rpmrelease:
+##     Build and install RPM package into RELEASEDIR.
+##
+rpmrelease: rpm
+	cp -pf $(RPMTOPDIR)/RPMS/noarch/* $(RELEASEDIR)
+
+############################################################
+##
+## dmg: [experimental]
+##     Build (on Linux) a Mac OS X dmg disk image file
+##     This requires sudo powers for mounting, and
+##     (on Ubuntu), packages hfsplus and hfsprogs
+##
+## Warning: the following line was removed below so Contents/MacOS'll be empty:
+##     mv $(NAME)/bin/proofgeneral Contents/MacOS;
+DMGBUILD=$(DISTBUILDIR)/dmg
+dmg:
+	rm -rf $(DMGBUILD)
+	mkdir -p $(DMGBUILD)
+	dd if=/dev/zero of=$(DISTBUILDIR)/$(RELEASENAMEDMG) bs=1 count=0 seek=16M
+	/sbin/mkfs.hfsplus -v $(RELEASENAME) -s $(DISTBUILDIR)/$(RELEASENAMEDMG)
+	(cd $(DMGBUILD); mkdir dmgfs; \
+	sudo mount -t hfsplus -o loop,user $(DISTBUILDIR)/$(RELEASENAMEDMG) dmgfs; \
+	sudo chown $(LOGNAME) dmgfs; \
+	$(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
+	mkdir -p Contents/Resources; \
+	mkdir -p Contents/MacOS; \
+	mv $(NAME)/* Contents/Resources; \
+	rm -rf $(NAME) $(RELEASENAME); \
+	mkdir $(NAME).app; \
+	mv Contents $(NAME).app;\
+	sudo umount dmgfs)
+# on mac:
+#	hdiutil create -srcfolder $(DISTBUILDIR)
+
+############################################################
+##
+## releaseclean:
+##     Clean up temporary directories after building dist/release.
+##
+releaseclean:
+	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
+
+############################################################
+##
+## fakereleaseall:
+##     Do everything, but don't access CVS.  Just for
+##     testing on non-live system, really.
+## FIXME: does this still make sense now that git is used version control?
+##
+fakereleaseall:
+	$(MAKE) -f Makefile.devel release releaseclean NOCVS="no"
+
+############################################################
+##
+## releaseall:
+##     Do everything!  (EXCEPT: ChangeLog.gz update)
+##
+releaseall: release releaseclean golive
+
+############################################################
+##
+## golive:
+##     Execute golive command.
+##
+golive:
+	$(GOLIVE)
+	cd $(HTMLDIR); for f in $(DOWNLOADHTMLS); do $(MAKE) pub.$$f; done;
+	rm -rf $(RELEASEDIR)
+
+
+############################################################
+##
+## releasefinal:
+##     Do everything for a final release based on a pre-release.
+##     Except editing download file.
+##
+releasefinal: release releaseclean
+# Link the latest version
+# 31.5.13: remove this link from tar file, it is unconventional
+#	(cd $(DISTBUILDIR); rm -f $(NAME); ln -sf $(RELEASENAME) $(NAME))
+
+
+############################################################
+##
+## distinstall:
+##     Do everything for a local release.
+##
+distall: distclean tag dist distinstall releaseclean
+
+
+
+############################################################
+#
+# distinstall:
+#   Install distribution from $(DISTBUILDIR) into DISTINSTALLDIR
+#   Clean out DISTINSTALLDIR first.
+###   NB!  Simple install, no attempt to put info files, etc, in
+#   special places.
+#
+distinstall:
+	rm -rf $(DISTINSTALLDIR)/$(NAME)
+	mkdir -p $(DISTINSTALLDIR)
+	(cd $(DISTINSTALLDIR); \
+	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETGZ); \
+	 mv $(RELEASENAME) $(NAME))
+
+############################################################
+#
+# links:
+#
+#   Make some handy links for developers.
+#
+links:
+	ln -sf $(HTMLDIR)/ProofGeneralPortrait.eps.gz doc
+	ln -sf ../../ProofGeneral $(HTMLDIR)
+
+#################################################################
+##
+## Reporting Makefile settings.
+##
+## Useful for debugging Makefile
+
+show.%:
+	@echo $($*)

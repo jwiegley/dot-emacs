@@ -1,0 +1,54 @@
+Compatibility of Proof General
+==============================
+
+This version of Proof General has been tested with these Emacs versions
+on recent Linux systems:
+
+ Emacs 24.5          -- recommended and supported
+ Emacs 24.3, 24.4    -- previous versions, should work
+ Emacs 25 (dev)      -- next version, should work
+ Emacs 23.2, earlier -- obsolete versions, do NOT work
+
+and (main) prover versions:  Coq 8.4, Coq 8.5
+
+See below for notes about other operating systems.
+
+In the major 4.0 release ** XEmacs compatibility was dropped **
+
+Running on macOS
+-------------------
+
+For tips, please see here:
+
+   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnMacOSX
+
+We recommend the 24.5 build of GNU Emacs, which builds natively on macOS
+(based on the NextStep port).  Binaries are available at various
+websites (e.g., http://emacsformacosx.com), or you can build your own
+by compiling from the FSF CVS. See the Emacs Wiki at
+http://www.emacswiki.org/emacs/EmacsForMacOS for more.
+
+Note that macOS compatibility isn't thoroughly tested.  If you discover
+problems, please send a report and/or fix to the PG tracker.  Please
+add tips to the wiki page above.
+
+
+Running on Windows
+------------------
+
+For tips, please see here:
+
+   http://proofgeneral.inf.ed.ac.uk/wiki/PGEmacsOnWindows
+
+Note that Windows compatibility isn't tested by the maintainers.  If
+you discover problems, please add notes on the Wiki page above, and
+submit patches to http://proofgeneral.inf.ed.ac.uk/trac
+
+
+
+
+
+
+
+
+
