@@ -48,7 +48,7 @@
 
 ;; This must be defined before settings.el is read
 (defun get-jobhours-string ()
-  (with-current-buffer (get-buffer "*scratch*")
+  (with-current-buffer (get-buffer-create "*scratch*")
     (let ((str (shell-command-to-string "jobhours")))
       (require 'ansi-color)
       (ansi-color-apply (substring str 0 (1- (length str)))))))
@@ -229,6 +229,7 @@
 (use-package oauth2           :defer t :load-path "lib/oauth2")
 (use-package parent-mode      :defer t :load-path "lib/parent-mode")
 (use-package pcache           :defer t :load-path "lib/pcache")
+(use-package pfuture          :defer t :load-path "lib/pfuture")
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
 (use-package popwin           :defer t :load-path "site-lisp/popwin")
@@ -3076,32 +3077,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package tramp-sh
   :defer t
   :config
-  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin")
-
-  ;; Open files in Docker containers: /docker:drunk_bardeen:/etc/passwd
-  (push
-   (cons
-    "docker"
-    '((tramp-login-program "docker")
-      (tramp-login-args (("exec" "-it") ("%h") ("/bin/bash")))
-      (tramp-remote-shell "/bin/sh")
-      (tramp-remote-shell-args ("-i") ("-c"))))
-   tramp-methods)
-
-  (defadvice tramp-completion-handle-file-name-all-completions
-      (around dotemacs-completion-docker activate)
-    (if (equal (ad-get-arg 1) "/docker:")
-        (let* ((dockernames-raw
-                (shell-command-to-string
-                 (concat "docker ps | perl -we 'use strict; $_ = <>; "
-                         "m/^(.*)NAMES/ or die; my $offset = length($1); "
-                         "while(<>) {substr($_, 0, $offset, q()); chomp; "
-                         "for(split m/\\W+/) {print qq($_:\n)} }'")))
-               (dockernames (cl-remove-if-not
-                             #'(lambda (dockerline) (string-match ":$" dockerline))
-                             (split-string dockernames-raw "\n"))))
-          (setq ad-return-value dockernames))
-      ad-do-it)))
+  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 
 (use-package transpose-mark
   :commands (transpose-mark
@@ -3361,6 +3337,81 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package ztree-diff
   :commands ztree-diff
   :load-path "site-lisp/ztree")
+
+(use-package aggressive-indent
+  :load-path "site-lisp/aggressive-indent-mode"
+  :commands aggressive-indent-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
+
+(use-package cmake-font-lock
+  :load-path "site-lisp/cmake-font-lock"
+  :commands cmake-font-lock-activate
+  :init
+  (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
+
+(use-package command-log-mode
+  :load-path "site-lisp/command-log-mode"
+  :commands (command-log-mode
+             clm/open-command-log-buffer))
+
+(use-package debbugs
+  :load-path "site-lisp/debbugs"
+  :commands (debbugs-gnu
+             debbugs-gnu-search))
+
+(use-package docker-compose-mode
+  :load-path "site-lisp/docker-compose-mode")
+
+(use-package docker-tramp
+  :load-path "site-lisp/docker-tramp")
+
+(use-package ebdb-com
+  :load-path "site-lisp/ebdb"
+  :commands ebdb)
+
+(use-package eshell-bookmark
+  :load-path "site-lisp/eshell-bookmark"
+  :after eshell
+  :config
+  (add-hook 'eshell-mode-hook 'eshell-bookmark-setup))
+
+(use-package eyebrowse
+  :load-path "site-lisp/eyebrowse"
+  :commands eyebrowse-mode)
+
+(use-package fence-edit
+  :load-path "site-lisp/fence-edit"
+  :defer t)
+
+(use-package font-lock-studio
+  :load-path "site-lisp/font-lock-studio"
+  :commansd (font-lock-studio
+             font-lock-studio-region))
+
+(use-package free-keys
+  :load-path "site-lisp/free-keys"
+  :commands free-keys)
+
+(use-package gitpatch
+  :load-path "site-lisp/gitpatch"
+  :commands gitpatch-mail)
+
+(use-package jump-tree
+  :load-path "site-lisp/jump-tree"
+  :commands (global-jump-tree-mode jump-tree-mode))
+
+(use-package smartparens
+  :load-path "site-lisp/smartparens"
+  :defer t)
+
+(use-package treemacs
+  :load-path "site-lisp/treemacs"
+  :defer t)
+
+(use-package web-mode
+  :load-path "site-lisp/web-mode"
+  :defer t)
 
 ;;; Post initialization
 
