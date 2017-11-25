@@ -1,0 +1,6 @@
+.byte-compile
+nohup.out
+TAGS
+ChangeLog
+*.elc
+*~

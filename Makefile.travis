@@ -1,0 +1,29 @@
+VERSIONS = 24.1 24.2 24.3 24.4 24.5 25.1 25.2
+STABLE_TARGETS = $(addprefix prepare-emacs-,$(VERSIONS))
+
+.PHONY: prepare-emacs-24 prepare-emacs-git $(STABLE_TARGETS) \
+        prepare-emacs before_install install script
+
+$(STABLE_TARGETS):
+	curl -o /tmp/$(EMACS_TARGET).tar.gz "https://ftp.gnu.org/gnu/emacs/$(EMACS_TARGET).tar.gz"
+	mkdir /tmp/emacs-tmp
+	tar xzf /tmp/$(EMACS_TARGET).tar.gz -C /tmp/emacs-tmp
+	mv /tmp/emacs-tmp/* "/tmp/emacs" || (ls /tmp/*; exit 1)
+
+prepare-emacs-git:
+	git clone --depth=1 'git://git.savannah.gnu.org/emacs.git' --branch emacs-25 /tmp/emacs
+	cd /tmp/emacs && ./autogen.sh
+
+prepare-emacs: prepare-$(EMACS_TARGET)
+	cd /tmp/emacs && ./configure --prefix="$(HOME)" --without-all --with-x-toolkit=no --without-x --with-xml2 && make -j2 install
+
+before_install: prepare-emacs
+
+install:
+
+script:
+	make
+
+# Local Variables:
+# indent-tabs-mode: t
+# End:

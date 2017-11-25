@@ -1,0 +1,43 @@
+-*- outline -*-  
+
+** important: deal with different levels of the "in" keyword
+
+let x := y in      : expression
+eval x in y        : commande
+unfold x in y      : tactique
+
+
+** important: fix indention of definitions:
+
+Current behavior:
+
+function foo bar1 bar2
+    	 bar3
+
+Should be
+
+function foo bar1 bar2
+  <>bar3
+(<> length parameterized by coq-smie-after-bolp-indentation)
+or
+
+function foo bar1 bar2
+             bar3
+
+depending on an option (coq-indent-box-style).
+
+** Fix indentation of ;
+
+Current behavior:
+
+idtac ;
+  idtac.
+
+but:
+
+idtac; idtac;
+idtac.
+
+** dealing with several project files.
+
+

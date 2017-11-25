@@ -1,0 +1,1622 @@
+Here is an example of some text which generates the "nesting too deep
+for parser" error message in XEmacs.  [da]
+
+Paste into the response buffer and do
+
+ (proof-fontify-region (point-min) (point-max))
+
+Backtrace is this:
+
+  parse-partial-sexp(1 72319 nil nil nil syntax-table)
+  font-lock-fontify-syntactically-region(1 72319 nil)
+  font-lock-default-fontify-region(1 72319 nil)
+  (let ((font-lock-keywords proof-font-lock-keywords)) (if (and proof-running-on-XEmacs ... ... ...) (progn ... ...)) (save-restriction (narrow-to-region start end) (run-hooks ...) (setq end ...)) (font-lock-default-fontify-region start end nil))
+  (progn (proof-font-lock-set-font-lock-vars) (unless proof-running-on-XEmacs (font-lock-set-defaults)) (let (...) (if ... ...) (save-restriction ... ... ...) (font-lock-default-fontify-region start end nil)))
+  (if proof-output-fontify-enable (progn (proof-font-lock-set-font-lock-vars) (unless proof-running-on-XEmacs ...) (let ... ... ... ...)))
+  proof-fontify-region(1 72319)
+
+How deep is too deep?
+
+
+  (parse-partial-sexp 1 72319 10)
+  (parse-partial-sexp 1 72319 20)
+  (parse-partial-sexp 1 72319 80)
+  (parse-partial-sexp 1 72319 99)     -- gets to char 51927
+  (parse-partial-sexp 1 72319 100)    -- Gives error on XEmacs 21.4.15 
+				     -- still on
+    Value: "21.5  (beta17) \"chayote\" (+CVS-20040622) XEmacs Lucid"
+
+  (parse-partial-sexp 1 72319 200)    -- reaches end of this text at
+					 depth 130 in Emacs 21.3.1
+
+In fact Emacs 21.3.1 isn't bothered by a buffer containing 40,000 left-parens.
+Bug report at bottom [23.6.04].
+
+-----------------
+
+
+"$ISATOOL" document -c -o 'ps' '/tmp/isabelle-da4586/document' 2>&1
+This is TeXk, Version 3.14159 (Web2C 7.4.5)
+ %&-line parsing enabled.
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+
+(./root.tex (/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size10.clo)) (./isabelle.sty)
+(./isabellesym.sty) (/usr/share/texmf/tex/latex/base/inputenc.sty
+(/usr/share/texmf/tex/latex/base/latin1.def)) (./pdfsetup.sty)
+(/usr/local/texmf.da/tex/latex/comisc/url.sty)
+(/usr/share/texmf/tex/latex/base/latexsym.sty)
+No file root.aux.
+(./session.tex (./HeapSortProofVCG.tex
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 6--7
+[][]  \OT1/cmtt/m/sl/9 -- would be desirable to redesign CALLMP rule so that si
+de condition which[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 12--13
+[][]       \OT1/cmtt/m/sl/9 generates (variable number of) subgoals for each fu
+nction that is dominated
+(/usr/share/texmf/tex/latex/base/ulasy.fd)
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 19--20
+[][]       \OT1/cmtt/m/sl/9 need to verify n+1, which leaves indeterminate numb
+er of side-condition
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 31--32
+[][]       \OT1/cmtt/m/sl/9 maybe a good idea to have a method for (each) primi
+tives, and then a
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 32--33
+[][]       \OT1/cmtt/m/sl/9 let which does the composition on-the-fly  --- this
+ avoids duplicating
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 35--36
+[][]        \OT1/cmtt/m/sl/9 -- define ML values bound to tactics appearing in 
+bodies of methods[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 47--48
+[][]\OT1/cmtt/m/sl/9 text {*This corresponds to the following specifications, f
+ormalised from the
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 48--49
+[][]       \OT1/cmtt/m/sl/9 method bodies: the contexts (in second parameter of
+ @{text DAss}) are
+[1]
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 52--53
+[][]  \OT1/cmtt/m/sl/9 (if M = Insert then (DAss {t_} 1 (emptyfinmap(t_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (TreeET
+
+Overfull \hbox (29.18028pt too wide) in paragraph at lines 53--54
+[][]  \OT1/cmtt/m/sl/9 if M = Removesome then (DAss {t_} 0 (emptyfinmap(t_ $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (24.45532pt too wide) in paragraph at lines 54--55
+[][]  \OT1/cmtt/m/sl/9 if M = Removetop then (DAss {t_} 0 (emptyfinmap(t_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (15.0054pt too wide) in paragraph at lines 55--56
+[][]  \OT1/cmtt/m/sl/9 if M = Make_heap then (DAss {l_} 0 (emptyfinmap(l_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (TreeET
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 56--57
+[][]  \OT1/cmtt/m/sl/9 if M = Extract then (DAss {h_} 0 (emptyfinmap(h_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ListET
+
+Overfull \hbox (19.73036pt too wide) in paragraph at lines 57--58
+[][]  \OT1/cmtt/m/sl/9 if M = Siftdown then (DAss {t1_, t2_} 1 (emptyfinmap(t1_
+ $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))(t2_
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 58--59
+[][]  \OT1/cmtt/m/sl/9 if M = Sort then (DAss {l_} 0 (emptyfinmap(l_ $\OMS/cmsy
+/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (ListET 0)
+
+Overfull \hbox (20.53447pt too wide) in paragraph at lines 65--66
+[][]\OT1/cmtt/m/sl/9 "sMST == ($\OML/cmm/m/it/9 ^^U$ \OT1/cmtt/m/sl/9 C M args 
+E h hh v p. SPEC M (newframe_env Nullref (fst (methtable
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 70--71
+[][]  \OT1/cmtt/m/sl/9 Meth_Insert Fun_fInsert Fun_fzeroInsert Fun_foneInsert F
+un_ftwoInsert Fun_fthreeInsert[] 
+
+Overfull \hbox (61.34659pt too wide) in paragraph at lines 74--75
+[][]  \OT1/cmtt/m/sl/9 Meth_Removetop Fun_fRemovetop Fun_fzeroRemovetop Fun_fon
+eRemovetop Fun_ftwoRemovetop
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 75--76
+[][]  \OT1/cmtt/m/sl/9 Meth_Siftdown Fun_fSiftdown Fun_fzeroSiftdown Fun_foneSi
+ftdown Fun_ftwoSiftdown
+
+Overfull \hbox (89.69635pt too wide) in paragraph at lines 76--77
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourSiftdown Fun_ffiveSiftdown Fun_fsixSiftdown Fun
+_fsevenSiftdown Fun_feightSiftdown[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 77--78
+[][]  \OT1/cmtt/m/sl/9 Fun_fnineSiftdown Fun_ftenSiftdown Fun_felevenSiftdown F
+un_ftwelveSiftdown
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 78--79
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourteenSiftdown Fun_ffifteenSiftdown Fun_fsixteenS
+iftdown Fun_fseventeenSiftdown
+
+Overfull \hbox (38.27744pt too wide) in paragraph at lines 81--82
+[][]\OT1/cmtt/m/sl/9 lemma LL2: "$[]$(E, h, U,C,R,m):CS; U = V$[]$ $[][]\OMS/cm
+sy/m/n/9 )$ \OT1/cmtt/m/sl/9 (E, h, V,C,R,m):CS" (*<*)by simp(*>*)[] 
+
+Overfull \hbox (12.18752pt too wide) in paragraph at lines 88--89
+[][]  $[]$ \OT1/cmtt/m/sl/9 {y,z} , 1 , (emptyfinmap(y $\OMS/cmsy/m/n/9 7!$$[][
+]$\OT1/cmtt/m/sl/9 (TreeET 0))(z $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (Tr
+eeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 (TreeET
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 90--91
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+[2]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 92--93
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 96--97
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (7.43889pt too wide) in paragraph at lines 103--104
+[][] $[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1
+/cmtt/m/sl/9 (TreeET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 105--106
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 107--108
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 111--112
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 120--121
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 122--123
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 126--127
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.71393pt too wide) in paragraph at lines 133--134
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1/
+cmtt/m/sl/9 (ListET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 135--136
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 137--138
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[3]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 141--142
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (3.75562pt too wide) in paragraph at lines 148--149
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {y} , 1 , (emptyfinmap(y $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (TreeET 0), 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 150--151
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 152--153
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 156--157
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 163--164
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 165--166
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 167--168
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 171--172
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 178--179
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 180--181
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 182--183
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[4]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 186--187
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.5181pt too wide) in paragraph at lines 208--209
+[][]\OT1/cmtt/m/sl/9 lemma vcg_rvar: "GETr C x = Some T $[][]\OMS/cmsy/m/n/9 )$
+ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 RVar x : $[]$ {x} , n
+ , C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T
+
+Overfull \hbox (12.12497pt too wide) in paragraph at lines 218--219
+[][]                 $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 
+^^C$  \OT1/cmtt/m/sl/9 RPrimop f x y : $[]$ {x, y} , n , C $\OMS/cmsy/m/n/9 ^^]
+$ \OT1/cmtt/m/sl/9 IntET , n $[]$"
+
+Overfull \hbox (8.07211pt too wide) in paragraph at lines 230--231
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k); GETr C z = Some (Tre
+eET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+
+Overfull \hbox (17.61093pt too wide) in paragraph at lines 231--232
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg y, RNarg z]))
+[5]
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 239--240
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 241--242
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 245--246
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 247--248
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (8.40714pt too wide) in paragraph at lines 256--257
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 e : $[]$ U1 , n 
+, C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T1 , m $[]$ ; G $\U/lasy/m/n/9 ^^C$
+  \OT1/cmtt/m/sl/9 ee : $[]$ U2 , m , C(x$\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/
+sl/9 T1) $\OMS/cmsy/m/n/9 ^^]$
+
+Overfull \hbox (4.4306pt too wide) in paragraph at lines 257--258
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 (LET rf x =e IN 
+ee END) : $[]$ U1 $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl/9 (U2 - {x}) , n , C $\OMS
+/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T2 , k $[]$"[] 
+
+Overfull \hbox (5.1584pt too wide) in paragraph at lines 270--271
+[][]  $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/
+m/sl/9 (LET z = RPrimop f x y IN e END) : $[]${x, y} $\OMS/cmsy/m/n/9 [$ \OT1/c
+mtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$"
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 273--274
+[][]\OT1/cmtt/m/sl/9 (* Note: side conditions in match rules cannot be solved u
+ntil later because
+[6]
+Overfull \hbox (28.63316pt too wide) in paragraph at lines 292--293
+[][]$[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m
+/sl/9 (LET cont =t$[]$V0; rf left =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R1; rf 
+right =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R2;  _ =DIAM$[]$Free([RNarg
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 300--301
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 308--309
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (1.11948pt too wide) in paragraph at lines 315--316
+[][]     $\OMS/cmsy/m/n/9 8 $ \OT1/cmtt/m/sl/9 E h hh v p. sMST c M L E h hh v 
+p $[][]\OMS/cmsy/m/n/9 !$ $[]$\OT1/cmtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \O
+T1/cmtt/m/sl/9 T1, m$[]$ E h hh v
+
+Overfull \hbox (4.43343pt too wide) in paragraph at lines 319--320
+[][]   $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmt
+t/m/sl/9 (LET rf x = c$[]$M(L) IN e END) : $[]$U $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/
+m/sl/9 (V-{x}), nk, D $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$"
+
+Overfull \hbox (3.34715pt too wide) in paragraph at lines 323--324
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k);GETr C z = Some (Tree
+ET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+[7]
+Overfull \hbox (3.43605pt too wide) in paragraph at lines 326--327
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (LET rf x = DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg
+
+Overfull \hbox (62.34396pt too wide) in paragraph at lines 326--327
+\OT1/cmtt/m/sl/9 y, RNarg z]) IN e END): $[]$({y,z} $\OMS/cmsy/m/n/9 [$ \OT1/cm
+tt/m/sl/9 (U-{x})), n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$" by (e
+rule DA_LetrMakeTree,
+
+Overfull \hbox (19.73325pt too wide) in paragraph at lines 335--336
+[][]\OT1/cmtt/m/sl/9 lemma vcg_domcallcons: "$[]$(t,{(Call h, $[]$U, n, C $\OMS
+/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$)} $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl
+/9 G,f,P):DOM_Call;[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 347--348
+[][]       \OT1/cmtt/m/sl/9 context which contains an one entry for each syntac
+tic method invocation.*}[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 350--351
+[][]  \OT1/cmtt/m/sl/9 {(HS$[]$Insert([INarg x_,RNarg r2_]), sMST HS Insert [IN
+arg x_,RNarg r2_]),[] 
+
+Overfull \hbox (8.64705pt too wide) in paragraph at lines 351--352
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Insert([INarg v4_,RNarg r2_]), sMST HS Insert [IN
+arg v4_,RNarg r2_]),[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 358--359
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg v2_, RNarg r3_, RNarg r1_]), sMST
+ HS Siftdown [INarg
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 359--360
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r5_, RNarg r4_]), sMST 
+HS Siftdown [INarg w_,
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 360--361
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r8_, RNarg r7_]), sMST 
+HS Siftdown [INarg w_,
+[8]
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 380--381
+[][]    \OT1/cmtt/m/sl/9 CHANGED (simp_tac ((Simplifier.get_local_simpset ctxt)
+ addsimps thms) i)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 382--383
+[][]    \OT1/cmtt/m/sl/9 CHANGED (asm_simp_tac ((Simplifier.get_local_simpset c
+txt) addsimps thms)
+[9] [10]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 510--511
+[][]\OT1/cmtt/m/sl/9 (*            apply method_Let prefer 2 apply (simp add: H
+eapSortContext_def)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 511--512
+[][]                             \OT1/cmtt/m/sl/9 prefer 2 apply (clarsimp, eru
+le Siftdown_Invoke,
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 518--519
+[][]  \OT1/cmtt/m/sl/9 (* for solving premise of vcg_call -- either unfold Dom 
+def, or lookup *)
+[11]
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 557--558
+[][]   \OT1/cmtt/m/sl/9 fun main_tac ctxt (alldefs as (flowdefs,dom_defs,gamma_
+def)) i state = state
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 562--563
+[][]   \OT1/cmtt/m/sl/9 and main_tac_aux ctxt (alldefs as (flowdefs,dom_defs,ga
+mma_def)) i state
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 566--567
+[][]            \OT1/cmtt/m/sl/9 let_tac ctxt (flowdefs @ gamma_def)  (main_tac
+_aux ctxt alldefs)
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 575--576
+[][]\OT1/cmtt/m/sl/9 (* Testing methods for invoking parts of the tactic above 
+[for debug only]
+[12]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 585--586
+[][]\OT1/cmtt/m/sl/9 method_setup method_Let = {* Method.thms_ctxt_args (fn thm
+s => fn ctxt => [] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 589--590
+[][]\OT1/cmtt/m/sl/9 (* apply (rule vcg_call) apply (simp add: dominates_def is
+MergePoint_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 594--595
+[][]\OT1/cmtt/m/sl/9 (* apply (simp?, (rule DA_NullResult, simp) | rule DA_Null
+Tree | rule DA_NullList)
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 603--604
+[][]\OT1/cmtt/m/sl/9 (* FIXME: to combine method_Call with method_Dom or mergep
+oint stuff, we need
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 606--607
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 608--609
+[][]  \OT1/cmtt/m/sl/9 fn ctxt => Method.METHOD (fn facts => dom_tac ctxt thms 
+stop stop 1)) *}[] 
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 624--625
+[][]         \OT1/cmtt/m/sl/9 two_subgoal_tacs i THEN vdm_tac (i+1) THEN vdm_ta
+c i,  (* stack: reverse
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 630--631
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 631--632
+[][]\OT1/cmtt/m/sl/9 method_setup method_Weak = {* Method.thms_ctxt_args (fn th
+ms => fn ctxt =>
+[13]
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 636--637
+[][]\OT1/cmtt/m/sl/9 (*methods call and dom are applied together, using CallDom
+: proofs takes 55secs*)[] 
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 642--643
+[][]\OT1/cmtt/m/sl/9 (* apply (method_main dominates_def isMergePoint_def MFS_d
+efs SPEC_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 657--658
+[][]\OT1/cmtt/m/sl/9 (* Method main: writing bits of ML code to parse in Isar i
+s a pain, so we hardwire[] 
+
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 666--667
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac ctxt (thms "flow_def
+s", thms "doms_defs",
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 670--671
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac_aux ctxt (thms "flow
+_defs", thms "doms_defs",
+
+Overfull \hbox (13.4388pt too wide) in paragraph at lines 674--675
+[][]\OT1/cmtt/m/sl/9 "$[]$G = HeapSortContext$[]$ $[][]\OMS/cmsy/m/n/9 )$ \OT1/
+cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m/sl/9 snd (methtable HS Siftdown) 
+: SPEC Siftdown"[] 
+[14] [15] [16]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 805--806
+[][]                \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (* this the 
+place that cut is
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 830--831
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (* first call to 
+the merge point ffour*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 840--841
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (*This is the sec
+ond call to ffour*)[] 
+[17]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 853--854
+[][]                    \OT1/cmtt/m/sl/9 (*1*) apply simp (*contraint came from
+ TreematchD STAR.*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 855--856
+[][]                     \OT1/cmtt/m/sl/9 (*this is like a top-level verificati
+on, i.e.starts with
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 878--879
+[][]                           \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (
+* this the place
+[18]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 900--901
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the firs
+t call to feleven*)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 910--911
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the seco
+nd call to feleven*)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 920--921
+[][]                                 \OT1/cmtt/m/sl/9 (*call This is the third 
+call to feleven*)[] 
+
+Overfull \hbox (32.99683pt too wide) in paragraph at lines 924--925
+[][]                             \OT1/cmtt/m/sl/9 (*this is like a top-level ve
+rification, i.e.starts
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 938--939
+[][]                                           \OT1/cmtt/m/sl/9 (*of course, de
+fining the adaptaion
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 939--940
+[][]                                           \OT1/cmtt/m/sl/9 apply (method_L
+et HeapSortContext_def)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 943--944
+[][]                                           \OT1/cmtt/m/sl/9 (*1*) apply sim
+p (*letinvokeconst*)[] 
+[19]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 951--952
+[][]                                     \OT1/cmtt/m/sl/9 apply (method_Let Hea
+pSortContext_def)[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 957--958
+[][]                                           \OT1/cmtt/m/sl/9 (*2*) apply sim
+p (*letrmaketree*)[] 
+
+Overfull \hbox (51.89667pt too wide) in paragraph at lines 959--960
+[][]                             \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weake
+ning from the verification
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 960--961
+[][]                   \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weakening from 
+the verification
+
+Overfull \hbox (240.89508pt too wide) in paragraph at lines 967--968
+[][]\OT1/cmtt/m/sl/9 (* =======================================================
+==================================================================
+)) [20] (./root.aux) )
+(see the transcript file for additional information)
+Output written on root.dvi (20 pages, 43848 bytes).
+Transcript written on root.log.
+This is TeXk, Version 3.14159 (Web2C 7.4.5)
+ %&-line parsing enabled.
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+
+(./root.tex (/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size10.clo)) (./isabelle.sty)
+(./isabellesym.sty) (/usr/share/texmf/tex/latex/base/inputenc.sty
+(/usr/share/texmf/tex/latex/base/latin1.def)) (./pdfsetup.sty)
+(/usr/local/texmf.da/tex/latex/comisc/url.sty)
+(/usr/share/texmf/tex/latex/base/latexsym.sty) (./root.aux) (./session.tex
+(./HeapSortProofVCG.tex
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 6--7
+[][]  \OT1/cmtt/m/sl/9 -- would be desirable to redesign CALLMP rule so that si
+de condition which[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 12--13
+[][]       \OT1/cmtt/m/sl/9 generates (variable number of) subgoals for each fu
+nction that is dominated
+(/usr/share/texmf/tex/latex/base/ulasy.fd)
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 19--20
+[][]       \OT1/cmtt/m/sl/9 need to verify n+1, which leaves indeterminate numb
+er of side-condition
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 31--32
+[][]       \OT1/cmtt/m/sl/9 maybe a good idea to have a method for (each) primi
+tives, and then a
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 32--33
+[][]       \OT1/cmtt/m/sl/9 let which does the composition on-the-fly  --- this
+ avoids duplicating
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 35--36
+[][]        \OT1/cmtt/m/sl/9 -- define ML values bound to tactics appearing in 
+bodies of methods[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 47--48
+[][]\OT1/cmtt/m/sl/9 text {*This corresponds to the following specifications, f
+ormalised from the
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 48--49
+[][]       \OT1/cmtt/m/sl/9 method bodies: the contexts (in second parameter of
+ @{text DAss}) are
+[1]
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 52--53
+[][]  \OT1/cmtt/m/sl/9 (if M = Insert then (DAss {t_} 1 (emptyfinmap(t_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (TreeET
+
+Overfull \hbox (29.18028pt too wide) in paragraph at lines 53--54
+[][]  \OT1/cmtt/m/sl/9 if M = Removesome then (DAss {t_} 0 (emptyfinmap(t_ $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (24.45532pt too wide) in paragraph at lines 54--55
+[][]  \OT1/cmtt/m/sl/9 if M = Removetop then (DAss {t_} 0 (emptyfinmap(t_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (15.0054pt too wide) in paragraph at lines 55--56
+[][]  \OT1/cmtt/m/sl/9 if M = Make_heap then (DAss {l_} 0 (emptyfinmap(l_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (TreeET
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 56--57
+[][]  \OT1/cmtt/m/sl/9 if M = Extract then (DAss {h_} 0 (emptyfinmap(h_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ListET
+
+Overfull \hbox (19.73036pt too wide) in paragraph at lines 57--58
+[][]  \OT1/cmtt/m/sl/9 if M = Siftdown then (DAss {t1_, t2_} 1 (emptyfinmap(t1_
+ $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))(t2_
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 58--59
+[][]  \OT1/cmtt/m/sl/9 if M = Sort then (DAss {l_} 0 (emptyfinmap(l_ $\OMS/cmsy
+/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (ListET 0)
+
+Overfull \hbox (20.53447pt too wide) in paragraph at lines 65--66
+[][]\OT1/cmtt/m/sl/9 "sMST == ($\OML/cmm/m/it/9 ^^U$ \OT1/cmtt/m/sl/9 C M args 
+E h hh v p. SPEC M (newframe_env Nullref (fst (methtable
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 70--71
+[][]  \OT1/cmtt/m/sl/9 Meth_Insert Fun_fInsert Fun_fzeroInsert Fun_foneInsert F
+un_ftwoInsert Fun_fthreeInsert[] 
+
+Overfull \hbox (61.34659pt too wide) in paragraph at lines 74--75
+[][]  \OT1/cmtt/m/sl/9 Meth_Removetop Fun_fRemovetop Fun_fzeroRemovetop Fun_fon
+eRemovetop Fun_ftwoRemovetop
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 75--76
+[][]  \OT1/cmtt/m/sl/9 Meth_Siftdown Fun_fSiftdown Fun_fzeroSiftdown Fun_foneSi
+ftdown Fun_ftwoSiftdown
+
+Overfull \hbox (89.69635pt too wide) in paragraph at lines 76--77
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourSiftdown Fun_ffiveSiftdown Fun_fsixSiftdown Fun
+_fsevenSiftdown Fun_feightSiftdown[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 77--78
+[][]  \OT1/cmtt/m/sl/9 Fun_fnineSiftdown Fun_ftenSiftdown Fun_felevenSiftdown F
+un_ftwelveSiftdown
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 78--79
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourteenSiftdown Fun_ffifteenSiftdown Fun_fsixteenS
+iftdown Fun_fseventeenSiftdown
+
+Overfull \hbox (38.27744pt too wide) in paragraph at lines 81--82
+[][]\OT1/cmtt/m/sl/9 lemma LL2: "$[]$(E, h, U,C,R,m):CS; U = V$[]$ $[][]\OMS/cm
+sy/m/n/9 )$ \OT1/cmtt/m/sl/9 (E, h, V,C,R,m):CS" (*<*)by simp(*>*)[] 
+
+Overfull \hbox (12.18752pt too wide) in paragraph at lines 88--89
+[][]  $[]$ \OT1/cmtt/m/sl/9 {y,z} , 1 , (emptyfinmap(y $\OMS/cmsy/m/n/9 7!$$[][
+]$\OT1/cmtt/m/sl/9 (TreeET 0))(z $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (Tr
+eeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 (TreeET
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 90--91
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+[2]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 92--93
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 96--97
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (7.43889pt too wide) in paragraph at lines 103--104
+[][] $[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1
+/cmtt/m/sl/9 (TreeET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 105--106
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 107--108
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 111--112
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 120--121
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 122--123
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 126--127
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.71393pt too wide) in paragraph at lines 133--134
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1/
+cmtt/m/sl/9 (ListET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 135--136
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 137--138
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[3]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 141--142
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (3.75562pt too wide) in paragraph at lines 148--149
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {y} , 1 , (emptyfinmap(y $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (TreeET 0), 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 150--151
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 152--153
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 156--157
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 163--164
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 165--166
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 167--168
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 171--172
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 178--179
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 180--181
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 182--183
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[4]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 186--187
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.5181pt too wide) in paragraph at lines 208--209
+[][]\OT1/cmtt/m/sl/9 lemma vcg_rvar: "GETr C x = Some T $[][]\OMS/cmsy/m/n/9 )$
+ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 RVar x : $[]$ {x} , n
+ , C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T
+
+Overfull \hbox (12.12497pt too wide) in paragraph at lines 218--219
+[][]                 $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 
+^^C$  \OT1/cmtt/m/sl/9 RPrimop f x y : $[]$ {x, y} , n , C $\OMS/cmsy/m/n/9 ^^]
+$ \OT1/cmtt/m/sl/9 IntET , n $[]$"
+
+Overfull \hbox (8.07211pt too wide) in paragraph at lines 230--231
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k); GETr C z = Some (Tre
+eET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+
+Overfull \hbox (17.61093pt too wide) in paragraph at lines 231--232
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg y, RNarg z]))
+[5]
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 239--240
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 241--242
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 245--246
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 247--248
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (8.40714pt too wide) in paragraph at lines 256--257
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 e : $[]$ U1 , n 
+, C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T1 , m $[]$ ; G $\U/lasy/m/n/9 ^^C$
+  \OT1/cmtt/m/sl/9 ee : $[]$ U2 , m , C(x$\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/
+sl/9 T1) $\OMS/cmsy/m/n/9 ^^]$
+
+Overfull \hbox (4.4306pt too wide) in paragraph at lines 257--258
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 (LET rf x =e IN 
+ee END) : $[]$ U1 $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl/9 (U2 - {x}) , n , C $\OMS
+/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T2 , k $[]$"[] 
+
+Overfull \hbox (5.1584pt too wide) in paragraph at lines 270--271
+[][]  $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/
+m/sl/9 (LET z = RPrimop f x y IN e END) : $[]${x, y} $\OMS/cmsy/m/n/9 [$ \OT1/c
+mtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$"
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 273--274
+[][]\OT1/cmtt/m/sl/9 (* Note: side conditions in match rules cannot be solved u
+ntil later because
+[6]
+Overfull \hbox (28.63316pt too wide) in paragraph at lines 292--293
+[][]$[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m
+/sl/9 (LET cont =t$[]$V0; rf left =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R1; rf 
+right =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R2;  _ =DIAM$[]$Free([RNarg
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 300--301
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 308--309
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (1.11948pt too wide) in paragraph at lines 315--316
+[][]     $\OMS/cmsy/m/n/9 8 $ \OT1/cmtt/m/sl/9 E h hh v p. sMST c M L E h hh v 
+p $[][]\OMS/cmsy/m/n/9 !$ $[]$\OT1/cmtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \O
+T1/cmtt/m/sl/9 T1, m$[]$ E h hh v
+
+Overfull \hbox (4.43343pt too wide) in paragraph at lines 319--320
+[][]   $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmt
+t/m/sl/9 (LET rf x = c$[]$M(L) IN e END) : $[]$U $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/
+m/sl/9 (V-{x}), nk, D $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$"
+
+Overfull \hbox (3.34715pt too wide) in paragraph at lines 323--324
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k);GETr C z = Some (Tree
+ET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+[7]
+Overfull \hbox (3.43605pt too wide) in paragraph at lines 326--327
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (LET rf x = DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg
+
+Overfull \hbox (62.34396pt too wide) in paragraph at lines 326--327
+\OT1/cmtt/m/sl/9 y, RNarg z]) IN e END): $[]$({y,z} $\OMS/cmsy/m/n/9 [$ \OT1/cm
+tt/m/sl/9 (U-{x})), n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$" by (e
+rule DA_LetrMakeTree,
+
+Overfull \hbox (19.73325pt too wide) in paragraph at lines 335--336
+[][]\OT1/cmtt/m/sl/9 lemma vcg_domcallcons: "$[]$(t,{(Call h, $[]$U, n, C $\OMS
+/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$)} $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl
+/9 G,f,P):DOM_Call;[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 347--348
+[][]       \OT1/cmtt/m/sl/9 context which contains an one entry for each syntac
+tic method invocation.*}[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 350--351
+[][]  \OT1/cmtt/m/sl/9 {(HS$[]$Insert([INarg x_,RNarg r2_]), sMST HS Insert [IN
+arg x_,RNarg r2_]),[] 
+
+Overfull \hbox (8.64705pt too wide) in paragraph at lines 351--352
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Insert([INarg v4_,RNarg r2_]), sMST HS Insert [IN
+arg v4_,RNarg r2_]),[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 358--359
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg v2_, RNarg r3_, RNarg r1_]), sMST
+ HS Siftdown [INarg
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 359--360
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r5_, RNarg r4_]), sMST 
+HS Siftdown [INarg w_,
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 360--361
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r8_, RNarg r7_]), sMST 
+HS Siftdown [INarg w_,
+[8]
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 380--381
+[][]    \OT1/cmtt/m/sl/9 CHANGED (simp_tac ((Simplifier.get_local_simpset ctxt)
+ addsimps thms) i)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 382--383
+[][]    \OT1/cmtt/m/sl/9 CHANGED (asm_simp_tac ((Simplifier.get_local_simpset c
+txt) addsimps thms)
+[9] [10]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 510--511
+[][]\OT1/cmtt/m/sl/9 (*            apply method_Let prefer 2 apply (simp add: H
+eapSortContext_def)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 511--512
+[][]                             \OT1/cmtt/m/sl/9 prefer 2 apply (clarsimp, eru
+le Siftdown_Invoke,
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 518--519
+[][]  \OT1/cmtt/m/sl/9 (* for solving premise of vcg_call -- either unfold Dom 
+def, or lookup *)
+[11]
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 557--558
+[][]   \OT1/cmtt/m/sl/9 fun main_tac ctxt (alldefs as (flowdefs,dom_defs,gamma_
+def)) i state = state
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 562--563
+[][]   \OT1/cmtt/m/sl/9 and main_tac_aux ctxt (alldefs as (flowdefs,dom_defs,ga
+mma_def)) i state
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 566--567
+[][]            \OT1/cmtt/m/sl/9 let_tac ctxt (flowdefs @ gamma_def)  (main_tac
+_aux ctxt alldefs)
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 575--576
+[][]\OT1/cmtt/m/sl/9 (* Testing methods for invoking parts of the tactic above 
+[for debug only]
+[12]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 585--586
+[][]\OT1/cmtt/m/sl/9 method_setup method_Let = {* Method.thms_ctxt_args (fn thm
+s => fn ctxt => [] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 589--590
+[][]\OT1/cmtt/m/sl/9 (* apply (rule vcg_call) apply (simp add: dominates_def is
+MergePoint_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 594--595
+[][]\OT1/cmtt/m/sl/9 (* apply (simp?, (rule DA_NullResult, simp) | rule DA_Null
+Tree | rule DA_NullList)
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 603--604
+[][]\OT1/cmtt/m/sl/9 (* FIXME: to combine method_Call with method_Dom or mergep
+oint stuff, we need
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 606--607
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 608--609
+[][]  \OT1/cmtt/m/sl/9 fn ctxt => Method.METHOD (fn facts => dom_tac ctxt thms 
+stop stop 1)) *}[] 
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 624--625
+[][]         \OT1/cmtt/m/sl/9 two_subgoal_tacs i THEN vdm_tac (i+1) THEN vdm_ta
+c i,  (* stack: reverse
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 630--631
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 631--632
+[][]\OT1/cmtt/m/sl/9 method_setup method_Weak = {* Method.thms_ctxt_args (fn th
+ms => fn ctxt =>
+[13]
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 636--637
+[][]\OT1/cmtt/m/sl/9 (*methods call and dom are applied together, using CallDom
+: proofs takes 55secs*)[] 
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 642--643
+[][]\OT1/cmtt/m/sl/9 (* apply (method_main dominates_def isMergePoint_def MFS_d
+efs SPEC_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 657--658
+[][]\OT1/cmtt/m/sl/9 (* Method main: writing bits of ML code to parse in Isar i
+s a pain, so we hardwire[] 
+
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 666--667
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac ctxt (thms "flow_def
+s", thms "doms_defs",
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 670--671
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac_aux ctxt (thms "flow
+_defs", thms "doms_defs",
+
+Overfull \hbox (13.4388pt too wide) in paragraph at lines 674--675
+[][]\OT1/cmtt/m/sl/9 "$[]$G = HeapSortContext$[]$ $[][]\OMS/cmsy/m/n/9 )$ \OT1/
+cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m/sl/9 snd (methtable HS Siftdown) 
+: SPEC Siftdown"[] 
+[14] [15] [16]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 805--806
+[][]                \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (* this the 
+place that cut is
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 830--831
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (* first call to 
+the merge point ffour*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 840--841
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (*This is the sec
+ond call to ffour*)[] 
+[17]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 853--854
+[][]                    \OT1/cmtt/m/sl/9 (*1*) apply simp (*contraint came from
+ TreematchD STAR.*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 855--856
+[][]                     \OT1/cmtt/m/sl/9 (*this is like a top-level verificati
+on, i.e.starts with
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 878--879
+[][]                           \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (
+* this the place
+[18]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 900--901
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the firs
+t call to feleven*)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 910--911
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the seco
+nd call to feleven*)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 920--921
+[][]                                 \OT1/cmtt/m/sl/9 (*call This is the third 
+call to feleven*)[] 
+
+Overfull \hbox (32.99683pt too wide) in paragraph at lines 924--925
+[][]                             \OT1/cmtt/m/sl/9 (*this is like a top-level ve
+rification, i.e.starts
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 938--939
+[][]                                           \OT1/cmtt/m/sl/9 (*of course, de
+fining the adaptaion
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 939--940
+[][]                                           \OT1/cmtt/m/sl/9 apply (method_L
+et HeapSortContext_def)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 943--944
+[][]                                           \OT1/cmtt/m/sl/9 (*1*) apply sim
+p (*letinvokeconst*)[] 
+[19]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 951--952
+[][]                                     \OT1/cmtt/m/sl/9 apply (method_Let Hea
+pSortContext_def)[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 957--958
+[][]                                           \OT1/cmtt/m/sl/9 (*2*) apply sim
+p (*letrmaketree*)[] 
+
+Overfull \hbox (51.89667pt too wide) in paragraph at lines 959--960
+[][]                             \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weake
+ning from the verification
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 960--961
+[][]                   \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weakening from 
+the verification
+
+Overfull \hbox (240.89508pt too wide) in paragraph at lines 967--968
+[][]\OT1/cmtt/m/sl/9 (* =======================================================
+==================================================================
+)) [20] (./root.aux) )
+(see the transcript file for additional information)
+Output written on root.dvi (20 pages, 43848 bytes).
+Transcript written on root.log.
+This is TeXk, Version 3.14159 (Web2C 7.4.5)
+ %&-line parsing enabled.
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+
+(./root.tex (/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size10.clo)) (./isabelle.sty)
+(./isabellesym.sty) (/usr/share/texmf/tex/latex/base/inputenc.sty
+(/usr/share/texmf/tex/latex/base/latin1.def)) (./pdfsetup.sty)
+(/usr/local/texmf.da/tex/latex/comisc/url.sty)
+(/usr/share/texmf/tex/latex/base/latexsym.sty) (./root.aux) (./session.tex
+(./HeapSortProofVCG.tex
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 6--7
+[][]  \OT1/cmtt/m/sl/9 -- would be desirable to redesign CALLMP rule so that si
+de condition which[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 12--13
+[][]       \OT1/cmtt/m/sl/9 generates (variable number of) subgoals for each fu
+nction that is dominated
+(/usr/share/texmf/tex/latex/base/ulasy.fd)
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 19--20
+[][]       \OT1/cmtt/m/sl/9 need to verify n+1, which leaves indeterminate numb
+er of side-condition
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 31--32
+[][]       \OT1/cmtt/m/sl/9 maybe a good idea to have a method for (each) primi
+tives, and then a
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 32--33
+[][]       \OT1/cmtt/m/sl/9 let which does the composition on-the-fly  --- this
+ avoids duplicating
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 35--36
+[][]        \OT1/cmtt/m/sl/9 -- define ML values bound to tactics appearing in 
+bodies of methods[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 47--48
+[][]\OT1/cmtt/m/sl/9 text {*This corresponds to the following specifications, f
+ormalised from the
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 48--49
+[][]       \OT1/cmtt/m/sl/9 method bodies: the contexts (in second parameter of
+ @{text DAss}) are
+[1]
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 52--53
+[][]  \OT1/cmtt/m/sl/9 (if M = Insert then (DAss {t_} 1 (emptyfinmap(t_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (TreeET
+
+Overfull \hbox (29.18028pt too wide) in paragraph at lines 53--54
+[][]  \OT1/cmtt/m/sl/9 if M = Removesome then (DAss {t_} 0 (emptyfinmap(t_ $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (24.45532pt too wide) in paragraph at lines 54--55
+[][]  \OT1/cmtt/m/sl/9 if M = Removetop then (DAss {t_} 0 (emptyfinmap(t_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ResultET
+
+Overfull \hbox (15.0054pt too wide) in paragraph at lines 55--56
+[][]  \OT1/cmtt/m/sl/9 if M = Make_heap then (DAss {l_} 0 (emptyfinmap(l_ $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (TreeET
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 56--57
+[][]  \OT1/cmtt/m/sl/9 if M = Extract then (DAss {h_} 0 (emptyfinmap(h_ $\OMS/c
+msy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) (ListET
+
+Overfull \hbox (19.73036pt too wide) in paragraph at lines 57--58
+[][]  \OT1/cmtt/m/sl/9 if M = Siftdown then (DAss {t1_, t2_} 1 (emptyfinmap(t1_
+ $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))(t2_
+
+Overfull \hbox (5.55548pt too wide) in paragraph at lines 58--59
+[][]  \OT1/cmtt/m/sl/9 if M = Sort then (DAss {l_} 0 (emptyfinmap(l_ $\OMS/cmsy
+/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0))) (ListET 0)
+
+Overfull \hbox (20.53447pt too wide) in paragraph at lines 65--66
+[][]\OT1/cmtt/m/sl/9 "sMST == ($\OML/cmm/m/it/9 ^^U$ \OT1/cmtt/m/sl/9 C M args 
+E h hh v p. SPEC M (newframe_env Nullref (fst (methtable
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 70--71
+[][]  \OT1/cmtt/m/sl/9 Meth_Insert Fun_fInsert Fun_fzeroInsert Fun_foneInsert F
+un_ftwoInsert Fun_fthreeInsert[] 
+
+Overfull \hbox (61.34659pt too wide) in paragraph at lines 74--75
+[][]  \OT1/cmtt/m/sl/9 Meth_Removetop Fun_fRemovetop Fun_fzeroRemovetop Fun_fon
+eRemovetop Fun_ftwoRemovetop
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 75--76
+[][]  \OT1/cmtt/m/sl/9 Meth_Siftdown Fun_fSiftdown Fun_fzeroSiftdown Fun_foneSi
+ftdown Fun_ftwoSiftdown
+
+Overfull \hbox (89.69635pt too wide) in paragraph at lines 76--77
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourSiftdown Fun_ffiveSiftdown Fun_fsixSiftdown Fun
+_fsevenSiftdown Fun_feightSiftdown[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 77--78
+[][]  \OT1/cmtt/m/sl/9 Fun_fnineSiftdown Fun_ftenSiftdown Fun_felevenSiftdown F
+un_ftwelveSiftdown
+
+Overfull \hbox (70.79651pt too wide) in paragraph at lines 78--79
+[][]  \OT1/cmtt/m/sl/9 Fun_ffourteenSiftdown Fun_ffifteenSiftdown Fun_fsixteenS
+iftdown Fun_fseventeenSiftdown
+
+Overfull \hbox (38.27744pt too wide) in paragraph at lines 81--82
+[][]\OT1/cmtt/m/sl/9 lemma LL2: "$[]$(E, h, U,C,R,m):CS; U = V$[]$ $[][]\OMS/cm
+sy/m/n/9 )$ \OT1/cmtt/m/sl/9 (E, h, V,C,R,m):CS" (*<*)by simp(*>*)[] 
+
+Overfull \hbox (12.18752pt too wide) in paragraph at lines 88--89
+[][]  $[]$ \OT1/cmtt/m/sl/9 {y,z} , 1 , (emptyfinmap(y $\OMS/cmsy/m/n/9 7!$$[][
+]$\OT1/cmtt/m/sl/9 (TreeET 0))(z $\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (Tr
+eeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 (TreeET
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 90--91
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+[2]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 92--93
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 96--97
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (7.43889pt too wide) in paragraph at lines 103--104
+[][] $[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (ListET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1
+/cmtt/m/sl/9 (TreeET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 105--106
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 107--108
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 111--112
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 120--121
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 122--123
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 126--127
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.71393pt too wide) in paragraph at lines 133--134
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x}, 0 , (emptyfinmap(x $\OMS
+/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0)))  $\OMS/cmsy/m/n/9 ^^]$ \OT1/
+cmtt/m/sl/9 (ListET 0) , 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 135--136
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 137--138
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[3]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 141--142
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (3.75562pt too wide) in paragraph at lines 148--149
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {y} , 1 , (emptyfinmap(y $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (TreeET 0), 0 $[]$ E h hh
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 150--151
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 152--153
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 156--157
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 163--164
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 165--166
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 167--168
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 171--172
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.55698pt too wide) in paragraph at lines 178--179
+[][]$[][]\OMS/cmsy/m/n/9 )$ $[]$ \OT1/cmtt/m/sl/9 {x} , 0 , (emptyfinmap(x $\OM
+S/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/sl/9 (TreeET 0))) $\OMS/cmsy/m/n/9 ^^]$  \OT1
+/cmtt/m/sl/9 (ResultET 0 (TreeET 0)
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 180--181
+[][]\OT1/cmtt/m/sl/9 apply (simp add: sMST_def SPEC_def MFS_defs newframe_env_d
+ef evalARGS_def self_def)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 182--183
+[][]\OT1/cmtt/m/sl/9 apply (erule_tac x=q in allE, erule_tac x=F in allE, erule
+_tac x=R in allE,
+[4]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 186--187
+[][]        \OT1/cmtt/m/sl/9 ( (rule CS_NIL, fastsimp, simp+) | (rule CS_CONS, 
+fastsimp, simp+)
+
+Overfull \hbox (2.5181pt too wide) in paragraph at lines 208--209
+[][]\OT1/cmtt/m/sl/9 lemma vcg_rvar: "GETr C x = Some T $[][]\OMS/cmsy/m/n/9 )$
+ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 RVar x : $[]$ {x} , n
+ , C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T
+
+Overfull \hbox (12.12497pt too wide) in paragraph at lines 218--219
+[][]                 $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 
+^^C$  \OT1/cmtt/m/sl/9 RPrimop f x y : $[]$ {x, y} , n , C $\OMS/cmsy/m/n/9 ^^]
+$ \OT1/cmtt/m/sl/9 IntET , n $[]$"
+
+Overfull \hbox (8.07211pt too wide) in paragraph at lines 230--231
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k); GETr C z = Some (Tre
+eET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+
+Overfull \hbox (17.61093pt too wide) in paragraph at lines 231--232
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg y, RNarg z]))
+[5]
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 239--240
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 241--242
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (1.16122pt too wide) in paragraph at lines 245--246
+[][]  \OT1/cmtt/m/sl/9 "$\OMS/cmsy/m/n/9 :$ \OT1/cmtt/m/sl/9 isMergePoint f $\O
+MS/cmsy/m/n/9 ^$ \OT1/cmtt/m/sl/9 (dominates f, G, f, $[]$U, n, C $\OMS/cmsy/m/
+n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$) $\OMS/cmsy/m/n/9 2$ \OT1/cmtt/m/sl/9 DOM_Ca
+ll
+
+Overfull \hbox (12.61101pt too wide) in paragraph at lines 247--248
+[][]\OT1/cmtt/m/sl/9 (CALL f, $[]$U, n , restr C (ParList2RnameList (fst (funta
+ble f))) $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T , m $[]$)
+
+Overfull \hbox (8.40714pt too wide) in paragraph at lines 256--257
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 e : $[]$ U1 , n 
+, C $\OMS/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T1 , m $[]$ ; G $\U/lasy/m/n/9 ^^C$
+  \OT1/cmtt/m/sl/9 ee : $[]$ U2 , m , C(x$\OMS/cmsy/m/n/9 7!$$[][]$\OT1/cmtt/m/
+sl/9 T1) $\OMS/cmsy/m/n/9 ^^]$
+
+Overfull \hbox (4.4306pt too wide) in paragraph at lines 257--258
+[][]  \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m/sl/9 (LET rf x =e IN 
+ee END) : $[]$ U1 $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl/9 (U2 - {x}) , n , C $\OMS
+/cmsy/m/n/9 ^^]$  \OT1/cmtt/m/sl/9 T2 , k $[]$"[] 
+
+Overfull \hbox (5.1584pt too wide) in paragraph at lines 270--271
+[][]  $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/
+m/sl/9 (LET z = RPrimop f x y IN e END) : $[]${x, y} $\OMS/cmsy/m/n/9 [$ \OT1/c
+mtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$"
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 273--274
+[][]\OT1/cmtt/m/sl/9 (* Note: side conditions in match rules cannot be solved u
+ntil later because
+[6]
+Overfull \hbox (28.63316pt too wide) in paragraph at lines 292--293
+[][]$[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmtt/m
+/sl/9 (LET cont =t$[]$V0; rf left =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R1; rf 
+right =t$\OMS/cmsy/m/n/9 }$\OT1/cmtt/m/sl/9 R2;  _ =DIAM$[]$Free([RNarg
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 300--301
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (8.16101pt too wide) in paragraph at lines 308--309
+[][] $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m
+/sl/9 (LET h = GetFi l V0; rf t = GetFr l R1; _ = DIAM$[]$Free ([RNarg l])
+
+Overfull \hbox (1.11948pt too wide) in paragraph at lines 315--316
+[][]     $\OMS/cmsy/m/n/9 8 $ \OT1/cmtt/m/sl/9 E h hh v p. sMST c M L E h hh v 
+p $[][]\OMS/cmsy/m/n/9 !$ $[]$\OT1/cmtt/m/sl/9 U, n, C $\OMS/cmsy/m/n/9 ^^]$ \O
+T1/cmtt/m/sl/9 T1, m$[]$ E h hh v
+
+Overfull \hbox (4.43343pt too wide) in paragraph at lines 319--320
+[][]   $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$  \OT1/cmt
+t/m/sl/9 (LET rf x = c$[]$M(L) IN e END) : $[]$U $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/
+m/sl/9 (V-{x}), nk, D $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$"
+
+Overfull \hbox (3.34715pt too wide) in paragraph at lines 323--324
+[][]     \OT1/cmtt/m/sl/9 "$[]$GETr C y = Some (TreeET k);GETr C z = Some (Tree
+ET k); y$\OMS/cmsy/m/n/9 6\OT1/cmr/m/n/9 =$\OT1/cmtt/m/sl/9 z; n=(Suc
+[7]
+Overfull \hbox (3.43605pt too wide) in paragraph at lines 326--327
+[][]     $[][]\OMS/cmsy/m/n/9 )$ \OT1/cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cm
+tt/m/sl/9 (LET rf x = DIAM$[]$Make_IIDD ([VALarg (IVal 3), INarg v, RNarg
+
+Overfull \hbox (62.34396pt too wide) in paragraph at lines 326--327
+\OT1/cmtt/m/sl/9 y, RNarg z]) IN e END): $[]$({y,z} $\OMS/cmsy/m/n/9 [$ \OT1/cm
+tt/m/sl/9 (U-{x})), n, C $\OMS/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, l$[]$" by (e
+rule DA_LetrMakeTree,
+
+Overfull \hbox (19.73325pt too wide) in paragraph at lines 335--336
+[][]\OT1/cmtt/m/sl/9 lemma vcg_domcallcons: "$[]$(t,{(Call h, $[]$U, n, C $\OMS
+/cmsy/m/n/9 ^^]$ \OT1/cmtt/m/sl/9 T, m$[]$)} $\OMS/cmsy/m/n/9 [$ \OT1/cmtt/m/sl
+/9 G,f,P):DOM_Call;[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 347--348
+[][]       \OT1/cmtt/m/sl/9 context which contains an one entry for each syntac
+tic method invocation.*}[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 350--351
+[][]  \OT1/cmtt/m/sl/9 {(HS$[]$Insert([INarg x_,RNarg r2_]), sMST HS Insert [IN
+arg x_,RNarg r2_]),[] 
+
+Overfull \hbox (8.64705pt too wide) in paragraph at lines 351--352
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Insert([INarg v4_,RNarg r2_]), sMST HS Insert [IN
+arg v4_,RNarg r2_]),[] 
+
+Overfull \hbox (3.92209pt too wide) in paragraph at lines 358--359
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg v2_, RNarg r3_, RNarg r1_]), sMST
+ HS Siftdown [INarg
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 359--360
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r5_, RNarg r4_]), sMST 
+HS Siftdown [INarg w_,
+
+Overfull \hbox (18.09697pt too wide) in paragraph at lines 360--361
+[][]  \OT1/cmtt/m/sl/9 (HS$[]$Siftdown([INarg w_, RNarg r8_, RNarg r7_]), sMST 
+HS Siftdown [INarg w_,
+[8]
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 380--381
+[][]    \OT1/cmtt/m/sl/9 CHANGED (simp_tac ((Simplifier.get_local_simpset ctxt)
+ addsimps thms) i)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 382--383
+[][]    \OT1/cmtt/m/sl/9 CHANGED (asm_simp_tac ((Simplifier.get_local_simpset c
+txt) addsimps thms)
+[9] [10]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 510--511
+[][]\OT1/cmtt/m/sl/9 (*            apply method_Let prefer 2 apply (simp add: H
+eapSortContext_def)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 511--512
+[][]                             \OT1/cmtt/m/sl/9 prefer 2 apply (clarsimp, eru
+le Siftdown_Invoke,
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 518--519
+[][]  \OT1/cmtt/m/sl/9 (* for solving premise of vcg_call -- either unfold Dom 
+def, or lookup *)
+[11]
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 557--558
+[][]   \OT1/cmtt/m/sl/9 fun main_tac ctxt (alldefs as (flowdefs,dom_defs,gamma_
+def)) i state = state
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 562--563
+[][]   \OT1/cmtt/m/sl/9 and main_tac_aux ctxt (alldefs as (flowdefs,dom_defs,ga
+mma_def)) i state
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 566--567
+[][]            \OT1/cmtt/m/sl/9 let_tac ctxt (flowdefs @ gamma_def)  (main_tac
+_aux ctxt alldefs)
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 575--576
+[][]\OT1/cmtt/m/sl/9 (* Testing methods for invoking parts of the tactic above 
+[for debug only]
+[12]
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 585--586
+[][]\OT1/cmtt/m/sl/9 method_setup method_Let = {* Method.thms_ctxt_args (fn thm
+s => fn ctxt => [] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 589--590
+[][]\OT1/cmtt/m/sl/9 (* apply (rule vcg_call) apply (simp add: dominates_def is
+MergePoint_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 594--595
+[][]\OT1/cmtt/m/sl/9 (* apply (simp?, (rule DA_NullResult, simp) | rule DA_Null
+Tree | rule DA_NullList)
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 603--604
+[][]\OT1/cmtt/m/sl/9 (* FIXME: to combine method_Call with method_Dom or mergep
+oint stuff, we need
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 606--607
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 608--609
+[][]  \OT1/cmtt/m/sl/9 fn ctxt => Method.METHOD (fn facts => dom_tac ctxt thms 
+stop stop 1)) *}[] 
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 624--625
+[][]         \OT1/cmtt/m/sl/9 two_subgoal_tacs i THEN vdm_tac (i+1) THEN vdm_ta
+c i,  (* stack: reverse
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 630--631
+[][]\OT1/cmtt/m/sl/9 (* apply ((rule vcg_domcallcons) | (rule vcg_domcallnil))+
+ apply simp apply
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 631--632
+[][]\OT1/cmtt/m/sl/9 method_setup method_Weak = {* Method.thms_ctxt_args (fn th
+ms => fn ctxt =>
+[13]
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 636--637
+[][]\OT1/cmtt/m/sl/9 (*methods call and dom are applied together, using CallDom
+: proofs takes 55secs*)[] 
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 642--643
+[][]\OT1/cmtt/m/sl/9 (* apply (method_main dominates_def isMergePoint_def MFS_d
+efs SPEC_def) *)[] 
+
+Overfull \hbox (42.44675pt too wide) in paragraph at lines 657--658
+[][]\OT1/cmtt/m/sl/9 (* Method main: writing bits of ML code to parse in Isar i
+s a pain, so we hardwire[] 
+
+Overfull \hbox (28.27187pt too wide) in paragraph at lines 666--667
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac ctxt (thms "flow_def
+s", thms "doms_defs",
+
+Overfull \hbox (47.1717pt too wide) in paragraph at lines 670--671
+[][]  \OT1/cmtt/m/sl/9 Method.METHOD (fn facts => main_tac_aux ctxt (thms "flow
+_defs", thms "doms_defs",
+
+Overfull \hbox (13.4388pt too wide) in paragraph at lines 674--675
+[][]\OT1/cmtt/m/sl/9 "$[]$G = HeapSortContext$[]$ $[][]\OMS/cmsy/m/n/9 )$ \OT1/
+cmtt/m/sl/9 G $\U/lasy/m/n/9 ^^C$ \OT1/cmtt/m/sl/9 snd (methtable HS Siftdown) 
+: SPEC Siftdown"[] 
+[14] [15] [16]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 805--806
+[][]                \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (* this the 
+place that cut is
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 830--831
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (* first call to 
+the merge point ffour*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 840--841
+[][]                                \OT1/cmtt/m/sl/9 (*Call*) (*This is the sec
+ond call to ffour*)[] 
+[17]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 853--854
+[][]                    \OT1/cmtt/m/sl/9 (*1*) apply simp (*contraint came from
+ TreematchD STAR.*)[] 
+
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 855--856
+[][]                     \OT1/cmtt/m/sl/9 (*this is like a top-level verificati
+on, i.e.starts with
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 878--879
+[][]                           \OT1/cmtt/m/sl/9 apply (method_Dom doms_defs)  (
+* this the place
+[18]
+Overfull \hbox (18.82195pt too wide) in paragraph at lines 900--901
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the firs
+t call to feleven*)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 910--911
+[][]                                   \OT1/cmtt/m/sl/9 (*call This is the seco
+nd call to feleven*)[] 
+
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 920--921
+[][]                                 \OT1/cmtt/m/sl/9 (*call This is the third 
+call to feleven*)[] 
+
+Overfull \hbox (32.99683pt too wide) in paragraph at lines 924--925
+[][]                             \OT1/cmtt/m/sl/9 (*this is like a top-level ve
+rification, i.e.starts
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 938--939
+[][]                                           \OT1/cmtt/m/sl/9 (*of course, de
+fining the adaptaion
+
+Overfull \hbox (37.72179pt too wide) in paragraph at lines 939--940
+[][]                                           \OT1/cmtt/m/sl/9 apply (method_L
+et HeapSortContext_def)[] 
+
+Overfull \hbox (23.5469pt too wide) in paragraph at lines 943--944
+[][]                                           \OT1/cmtt/m/sl/9 (*1*) apply sim
+p (*letinvokeconst*)[] 
+[19]
+Overfull \hbox (9.37202pt too wide) in paragraph at lines 951--952
+[][]                                     \OT1/cmtt/m/sl/9 apply (method_Let Hea
+pSortContext_def)[] 
+
+Overfull \hbox (14.09698pt too wide) in paragraph at lines 957--958
+[][]                                           \OT1/cmtt/m/sl/9 (*2*) apply sim
+p (*letrmaketree*)[] 
+
+Overfull \hbox (51.89667pt too wide) in paragraph at lines 959--960
+[][]                             \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weake
+ning from the verification
+
+Overfull \hbox (4.64706pt too wide) in paragraph at lines 960--961
+[][]                   \OT1/cmtt/m/sl/9 (*2*) apply fast (* the weakening from 
+the verification
+
+Overfull \hbox (240.89508pt too wide) in paragraph at lines 967--968
+[][]\OT1/cmtt/m/sl/9 (* =======================================================
+==================================================================
+)) [20] (./root.aux) )
+(see the transcript file for additional information)
+Output written on root.dvi (20 pages, 43848 bytes).
+Transcript written on root.log.
+request id is kyo-603 (1 file(s))
+
+
+=================================================================
+
+To: XEmacs Beta <xemacs-beta@xemacs.org>
+Subject: [Bug: 21.4.15] parse-partial-sexp gives stack overflow 
+--text follows this line--
+================================================================
+Dear Bug Team!
+
+This bug/issue has been bothering me and (users of my Proof General
+package) for some time.  I have just verified that with the current CVS
+version of XEmacs the same problem is still present.
+
+Test case:
+
+1. switch to *scratch*
+2. C-u 100 ( 
+3. Eval expression (parse-partial-sexp 1 (point-max))
+
+The symptom I get is "nesting too deep for parser" error messages.
+(These are triggered e.g. by font-lock-fontify-region on large regions which
+contained ill-balanced parens; I also use parse-partial-sexp
+elsewhere in the PG code because of problems with buffer-syntactic-context.
+
+I notice some old comments in font-lock.el concerning this issue.  It
+might be worth looking at GNU Emacs implementation if these two are
+really supposed to be equivalent functions: on GNU Emacs 21.3.1 I
+tested a *scratch* buffer containing 40000 left parens and
+parse-partial-sexp returned a result without missing a beat 8-).
+[ NB: I didn't confirm whether the syntax tables being used were
+identical, but both cases were in Lisp Interaction mode ]
+
+ - David Aspinall.
+
+
+================================================================
