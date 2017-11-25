@@ -1,10 +1,10 @@
 ;;; erc-highlight-nicknames.el --- Highlights nicknames
 
 ;; Copyright (C) 2007  André Riemann
-;; Copyright (C) 2008  Andy Stewart
+;; Copyright (C) 2008 ~ 2014  Andy Stewart
 
 ;; Author: André Riemann  <andre.riemann@web.de>
-;; Maintainer: André Riemann  <andre.riemann@web.de>
+;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Created: 2007-09-25
 ;; Keywords: comm, faces
 
@@ -13,7 +13,7 @@
 ;;   * GNU Emacs 23.0 (Erc 5.2, 5.3)
 ;;   * XEmacs 21.4 (Erc 5.1) (briefly)
 ;; Version: 0.4.1
-;; Last-Updated: 2008-12-07
+;; Last-Updated: 2014-05-09 13:18:40
 ;; By: Andy Stewart
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -48,6 +48,10 @@
 ;; for example all the nicks underlined.
 
 ;;; Change Log:
+;;
+;; 2014/05/09
+;;   * Fixed `buffer-substring-no-properties' error with Emacs 24.4.50
+;; 
 ;; 2008-12-07  Andy Stewart
 ;;   * There was a bug that function `erc-highlight-nicknames' created
 ;;     many faces for the same nickname. It would create a new one when
@@ -116,29 +120,32 @@ between 0 and 255."
 twelve digits of the MD5 message digest of the nickname as
 color (#rrrrggggbbbb)."
   (with-syntax-table erc-button-syntax-table
-    (let (color new-nick-face)
+    (let (bounds bound-start bound-end word color new-nick-face)
       (goto-char (point-min))
       (while (re-search-forward "\\w+" nil t)
-        (let* ((bounds (bounds-of-thing-at-point 'word))
-               (word (ignore-errors
-                       (buffer-substring-no-properties
-                        (car bounds) (cdr bounds)))))
-          (when (and word (erc-get-server-user word))
-          (setq new-nick-face (gethash word erc-highlight-face-table))
-          (unless new-nick-face
-            (setq color (concat "#" (substring (md5 (downcase word)) 0 12)))
-            (if (equal (cdr (assoc 'background-mode (frame-parameters))) 'dark)
-                ;; if too dark for background
-                (when (< (hexcolor-luminance color) 85)
-                  (setq color (invert-color color)))
-              ;; if to bright for background
-              (when (> (hexcolor-luminance color) 170)
-                (setq color (invert-color color))))
-            (setq new-nick-face (make-symbol (concat "erc-highlight-nick-" word "-face")))
-            (copy-face 'erc-highlight-nick-base-face new-nick-face)
-            (set-face-foreground new-nick-face color)
-            (puthash word new-nick-face erc-highlight-face-table))
-          (erc-button-add-face (car bounds) (cdr bounds) new-nick-face)))))))
+        (setq bounds (bounds-of-thing-at-point 'word))
+        (setq bound-start (car bounds))
+        (setq bound-end (cdr bounds))
+        (when (and bound-start bound-end)
+          (setq word (buffer-substring-no-properties bound-start bound-end))
+          (when (erc-get-server-user word)
+            (setq new-nick-face (gethash word erc-highlight-face-table))
+            (unless new-nick-face
+              (setq color (concat "#" (substring (md5 (downcase word)) 0 12)))
+              (if (equal (cdr (assoc 'background-mode (frame-parameters))) 'dark)
+                  ;; if too dark for background
+                  (when (< (hexcolor-luminance color) 85)
+                    (setq color (invert-color color)))
+                ;; if to bright for background
+                (when (> (hexcolor-luminance color) 170)
+                  (setq color (invert-color color))))
+              (setq new-nick-face (make-symbol (concat "erc-highlight-nick-" word "-face")))
+              (copy-face 'erc-highlight-nick-base-face new-nick-face)
+              (set-face-foreground new-nick-face color)
+              (puthash word new-nick-face erc-highlight-face-table))
+            (erc-button-add-face bound-start bound-end new-nick-face))
+          )
+        ))))
 
 (define-erc-module highlight-nicknames nil
   "Search through the buffer for nicknames, and highlight."

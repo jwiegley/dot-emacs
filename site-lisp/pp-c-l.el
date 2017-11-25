@@ -1,27 +1,29 @@
 ;;; pp-c-l.el --- Display Control-l characters in a pretty way
-;; 
+;;
 ;; Filename: pp-c-l.el
 ;; Description: Display Control-l characters in a buffer in a pretty way
 ;; Author: Drew Adams
-;; Maintainer: Drew Adams
-;; Copyright (C) 2007-2012, Drew Adams, all rights reserved.
+;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
+;; Copyright (C) 2007-2017, Drew Adams, all rights reserved.
 ;; Created: Thu Feb 08 20:28:09 2007
-;; Version: 1.0
-;; Last-Updated: Sun Jan  1 14:05:12 2012 (-0800)
+;; Version: 0
+;; Package-Requires: ()
+;; Last-Updated: Sun Oct 29 17:22:11 2017 (-0700)
 ;;           By: dradams
-;;     Update #: 202
-;; URL: http://www.emacswiki.org/cgi-bin/wiki/pp-c-l.el
+;;     Update #: 224
+;; URL: https://www.emacswiki.org/emacs/download/pp-c-l.el
+;; Doc URL: https://emacswiki.org/PrettyControlL
 ;; Keywords: display, convenience, faces
-;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x
-;; 
+;; Compatibility: GNU Emacs: 20.x, 21.x, 22.x, 23.x, 24.x, 25.x
+;;
 ;; Features that might be required by this library:
 ;;
 ;;   None
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;;; Commentary: 
-;; 
+;;
+;;; Commentary:
+;;
 ;;  Faces defined here:
 ;;
 ;;    `pp^L-highlight'.
@@ -57,9 +59,13 @@
 ;;  new value to take effect.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Change Log:
 ;;
+;; 2017/10/29 dadams
+;;     Address Emacs bug #29050:
+;;       pretty-control-l-mode: Add refresh-pretty-control-l to window-size-change-functions too.
+;;       refresh-pretty-control-l: Added unused optional arg.
 ;; 2011/01/04 dadams
 ;;     Removed autoloads: non def* sexps & non-interactive fns.  Added for defalias.
 ;; 2010/04/28 dadams
@@ -79,29 +85,29 @@
 ;;     pp^L-make-glyph-code: If make-glyph-code exists, use that (alias).
 ;; 2007/05/28 dadams
 ;;     pp^L-make-glyph-code: Reported Emacs 23 bug to Emacs.
-;;       Fixed to work also with Emacs 23+, per Kenichi Handa's suggestion.  
+;;       Fixed to work also with Emacs 23+, per Kenichi Handa's suggestion.
 ;; 2007/02/08 dadams
 ;;     Created.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 2, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -129,10 +135,10 @@
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
-  :link '(url-link :tag "Download" "http://www.emacswiki.org/cgi-bin/wiki/pp-c-l.el")
+          "https://www.emacswiki.org/DrewsElispLibraries")
+  :link '(url-link :tag "Download" "https://www.emacswiki.org/emacs/download/pp-c-l.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/cgi-bin/wiki/PrettyControlL")
+          "https://www.emacswiki.org/PrettyControlL")
   :link '(emacs-commentary-link :tag "Commentary" "pp-c-l"))
 
 ;;;###autoload
@@ -213,22 +219,27 @@ pp-c-l.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
             :link '(url-link :tag "Other Libraries by Drew"
-                    "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+                    "http://www.emacswiki.org/DrewsElispLibraries")
             :link '(url-link :tag "Download"
-                    "http://www.emacswiki.org/cgi-bin/wiki/pp-c-l.el")
+                    "http://www.emacswiki.org/pp-c-l.el")
             :link '(url-link :tag "Description"
-                    "http://www.emacswiki.org/cgi-bin/wiki/PrettyControlL")
+                    "http://www.emacswiki.org/PrettyControlL")
             :link '(emacs-commentary-link :tag "Commentary" "pp-c-l")
-            (if pretty-control-l-mode
-                (add-hook 'window-configuration-change-hook 'refresh-pretty-control-l)
-              (remove-hook 'window-configuration-change-hook 'refresh-pretty-control-l))
-            (walk-windows 
- 	     (lambda (window)
- 	       (let ((display-table  (or (window-display-table window)
+            (cond (pretty-control-l-mode
+                   (add-hook 'window-configuration-change-hook 'refresh-pretty-control-l)
+                   (when (boundp 'window-size-change-functions)
+                     (add-hook 'window-size-change-functions 'refresh-pretty-control-l)))
+                  (t
+                   (remove-hook 'window-configuration-change-hook 'refresh-pretty-control-l)
+                   (when (boundp 'window-size-change-functions)
+                     (remove-hook 'window-size-change-functions 'refresh-pretty-control-l))))
+            (walk-windows
+             (lambda (window)
+               (let ((display-table  (or (window-display-table window)
                                          (make-display-table))))
- 		 (aset display-table ?\014 (and pretty-control-l-mode
+                 (aset display-table ?\014 (and pretty-control-l-mode
                                                 (pp^L-^L-display-table-entry window)))
- 		 (set-window-display-table window display-table)))
+                 (set-window-display-table window display-table)))
              'no-minibuf
              'visible)))
 
@@ -242,7 +253,7 @@ With ARG, turn pretty display of `^L' on if and only if ARG is positive."
     (if pretty-control-l-mode
         (add-hook 'window-configuration-change-hook 'refresh-pretty-control-l)
       (remove-hook 'window-configuration-change-hook 'refresh-pretty-control-l))
-    (walk-windows 
+    (walk-windows
      (lambda (window)
        (let ((display-table  (or (window-display-table window) (make-display-table))))
          (aset display-table ?\014 (and pretty-control-l-mode
@@ -252,11 +263,11 @@ With ARG, turn pretty display of `^L' on if and only if ARG is positive."
      'visible)))
 
 ;;;###autoload
-(defun refresh-pretty-control-l ()
+(defun refresh-pretty-control-l (&optional _frame)
   "Reinitialize `pretty-control-l-mode', if on, to update the display."
   (interactive)
   (when pretty-control-l-mode (pretty-control-l-mode t)))
-  
+
 ;;;;;;;;;;;;;;;;;;;;
 
 (provide 'pp-c-l)

@@ -3,16 +3,18 @@
 ;; Filename: diff-mode-.el
 ;; Description: Extensions to `diff-mode.el'.
 ;; Author: Drew Adams
-;; Maintainer: Drew Adams
-;; Copyright (C) 2004-2012, Drew Adams, all rights reserved.
+;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
+;; Copyright (C) 2004-2017, Drew Adams, all rights reserved.
 ;; Created: Mon Nov 08 16:36:09 2004
-;; Version: 21.0
-;; Last-Updated: Sun Jan  1 14:26:39 2012 (-0800)
+;; Version: 0
+;; Package-Requires: ()
+;; Last-Updated: Tue Feb 21 16:19:45 2017 (-0800)
 ;;           By: dradams
-;;     Update #: 702
-;; URL: http://www.emacswiki.org/cgi-bin/wiki/diff-mode-.el
+;;     Update #: 714
+;; URL: https://www.emacswiki.org/emacs/download/diff-mode-.el
+;; Doc URL: http://www.emacswiki.org/DiffEnhancements
 ;; Keywords: data, matching, tools, unix, local, font, face
-;; Compatibility: GNU Emacs: 21.x, 22.x, 23.x
+;; Compatibility: GNU Emacs: 21.x, 22.x, 23.x, 24.x, 25.x
 ;;
 ;; Features that might be required by this library:
 ;;
@@ -175,10 +177,16 @@
  ;; '(diff-function ((t (:foreground "Orange"))) 'now)
  '(diff-header ((((background dark)) (:foreground "Cyan"))
                 (t (:foreground "Red"))) 'now)
+ '(diff-hunk-header
+   ((((background dark))
+     (:foreground "Black" :background "#05057F7F8D8D")) ; ~ dark cyan
+    (t (:foreground "White" :background "Salmon"))) 'now)
  '(diff-index ((((background dark)) (:foreground "Magenta"))
                (t (:foreground "Green"))) 'now)
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) ; ~ yellow
                      (t (:foreground "DarkBlue"))) 'now)
+ '(diff-removed ((((background dark)) (:foreground "#7474FFFF7474"))
+                 (t (:foreground "DarkMagenta"))) 'now)
  )
 
 ;;; The only real difference here now from the standard Emacs 22 version is the

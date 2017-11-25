@@ -47,7 +47,7 @@
   (set-window-dedicated-p (selected-window) dedicated-mode)
   (if (not (assq 'dedicated-mode minor-mode-alist))
       (setq minor-mode-alist
-	    (cons '(dedicated-mode " D")
-		  minor-mode-alist))))
+            (cons '(dedicated-mode " D")
+                  minor-mode-alist))))
 
 (provide 'dedicated)

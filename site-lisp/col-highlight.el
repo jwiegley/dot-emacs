@@ -1,27 +1,29 @@
 ;;; col-highlight.el --- Highlight the current column.
-;; 
+;;
 ;; Filename: col-highlight.el
 ;; Description: Highlight the current column.
 ;; Author: Drew Adams
-;; Maintainer: Drew Adams
-;; Copyright (C) 2006-2012, Drew Adams, all rights reserved.
+;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
+;; Copyright (C) 2006-2017, Drew Adams, all rights reserved.
 ;; Created: Fri Sep 08 11:06:35 2006
-;; Version: 22.0
-;; Last-Updated: Fri May 18 07:32:07 2012 (-0700)
+;; Version: 0
+;; Package-Requires: ((vline "0"))
+;; Last-Updated: Wed May 10 15:43:34 2017 (-0700)
 ;;           By: dradams
-;;     Update #: 367
-;; URL: http://www.emacswiki.org/cgi-bin/wiki/col-highlight.el
+;;     Update #: 440
+;; URL: https://www.emacswiki.org/emacs/download/col-highlight.el
+;; Doc URL: http://emacswiki.org/emacs/HighlightCurrentColumn
 ;; Keywords: faces, frames, emulation, highlight, cursor, accessibility
-;; Compatibility: GNU Emacs: 22.x, 23.x
-;; 
+;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x, 25.x
+;;
 ;; Features that might be required by this library:
 ;;
 ;;   `vline'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Commentary:
-;; 
+;;
 ;;  This library highlights the current column.  When you move the
 ;;  cursor, the highlighting follows (tracks the cursor), as long as
 ;;  the highlighting stays on.
@@ -45,6 +47,10 @@
 ;;  You can use option `col-highlight-overlay-priority' to make the
 ;;  vline (i.e., column) highlighting appear on top of other overlay
 ;;  highlighting that might exist.
+;;
+;;  You can use option `col-highlight-show-only' to restrict
+;;  current-column highlighting to a section of text of a particular
+;;  kind: paragaph, sentence, page, defun, etc.
 ;;
 ;;
 ;;  To use this file, you must also have library `vline.el'.
@@ -90,7 +96,7 @@
 ;;  User options defined here:
 ;;
 ;;    `col-highlight-period', `column-highlight-mode',
-;;    `col-highlight-overlay-priority',
+;;    `col-highlight-overlay-priority', `col-highlight-show-only',
 ;;    `col-highlight-vline-face-flag'.
 ;;
 ;;  Faces defined here:
@@ -113,16 +119,24 @@
 ;;    `col-highlight-idle-timer', `col-highlight-when-idle-p'.
 ;;
 ;;
-;;  ***** NOTE: The following non-interactive function defined in
-;;              `vline.el' has been ADVISED HERE (to respect option
-;;              `col-highlight-overlay-priority'):
+;;  ***** NOTE: The following function defined in `vline.el' has
+;;              been REDEFINED HERE:
 ;;
-;;    `vline-show'.
+;;    `vline-show' - Respect options `col-highlight-overlay-priority'
+;;                   and `col-highlight-show-only'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Change Log:
 ;;
+;; 2017/05/10 dadams
+;;     vline-show: Wrap arg to make-string with abs.  Not a fix, but bypasses error from not
+;;                 handling SPC char with display property value of (space :align-to N).
+;; 2013/08/08 dadams
+;;     Added: col-highlight-show-only, redefinition of vline-show.
+;;     Removed defadvice of vline-show (replaced by redefinition).
+;; 2012/12/25 dadams
+;;     Added Package-Requires.
 ;; 2012/05/18 dadams
 ;;     Added: col-highlight-overlay-priority, defadvice of vline-show.
 ;; 2011/01/03 dadams
@@ -142,26 +156,26 @@
 ;;     Removed semi-support for Emacs 20.
 ;; 2006/09/08 dadams
 ;;     Created.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 3, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Code:
 
 (require 'vline)
@@ -180,9 +194,28 @@ col-highlight.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+          "http://www.emacswiki.org/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/cgi-bin/wiki/col-highlight.el"))
+          "http://www.emacswiki.org/col-highlight.el"))
+
+;;;###autoload
+(defcustom col-highlight-show-only nil
+  "Non-nil means `column-highlight-mode' affects only a section of text.
+This affects `vline-mode' also.
+
+The non-nil value determines the type of text section: paragraph,
+sentence, defun, page...
+
+The actual non-nil value is a forward movement command for the given
+section type, e.g., `forward-paragraph', `end-of-defun'."
+  :type '(choice
+          (const    :tag "All text"  nil)
+          (const    :tag "Paragraph" forward-paragraph)
+          (const    :tag "Sentence"  forward-sentence)
+          (const    :tag "Page"      forward-page)
+          (const    :tag "Defun"     end-of-defun)
+          (function :tag "Forward-thing function" :value forward-paragraph))
+  :group 'column-highlight)
 
 ;;;###autoload
 (defcustom col-highlight-vline-face-flag t
@@ -236,12 +269,118 @@ Do NOT change this yourself; instead, use
 ;; You must use `toggle-highlight-column-when-idle' to turn it on.
 (cancel-timer col-highlight-idle-timer)
 
-(defadvice vline-show (after set-priority activate)
-  "Set the overlay priority to `col-highlight-overlay-priority'."
-  (when (boundp 'vline-overlay-table)
-    (mapc (lambda (ov) (when (overlayp ov)
-                    (overlay-put ov 'priority col-highlight-overlay-priority)))
-          vline-overlay-table)))
+
+
+;;  REPLACE ORIGINAL `vline-show' defined in `vline.el'.
+;;
+;;  1. Respect options `col-highlight-overlay-priority' and `col-highlight-show-only'.
+;;  2. Tolerate SPC char with `display' property value (space :align-to N).
+;;
+(defun vline-show (&optional point)
+  (vline-clear)
+  (save-window-excursion
+    (save-excursion
+      (if point
+          (goto-char point)
+        (setq point  (point)))
+      (let* ((column           (vline-current-column))
+             (lcolumn          (current-column))
+             (i                0)
+             (compose-p        (memq vline-style '(compose mixed)))
+             (face-p           (memq vline-style '(face mixed)))
+             (line-char        (if compose-p vline-line-char ?\   ))
+             (line-str         (make-string 1 line-char))
+             (visual-line-str  line-str)
+             (in-fringe-p      (vline-into-fringe-p))
+             (only-beg         (and col-highlight-show-only
+                                    (condition-case nil
+                                        (save-excursion
+                                          (funcall col-highlight-show-only -1)
+                                          (point))
+                                      (error nil))))
+             (only-end         (and col-highlight-show-only
+                                    (condition-case nil
+                                        (save-excursion
+                                          (funcall col-highlight-show-only 1)
+                                          (point))
+                                      (error nil)))))
+        (when face-p
+          (setq line-str (propertize line-str 'face (vline-face nil)))
+          (setq visual-line-str  (propertize visual-line-str 'face (vline-face t))))
+        (goto-char (window-end nil t))
+        (vline-forward 0)
+        (while (and (not (bobp))
+                    (not in-fringe-p)
+                    (< i (window-height))
+                    (< i (length vline-overlay-table)))
+          (let ((cur-column   (vline-move-to-column column t))
+                (cur-lcolumn  (current-column)))
+            (unless (or (= (point) point) ; Non-cursor line only (eol workaround).
+                        (and only-beg  only-end  (or (<= (point) only-beg)
+                                                     (>= (point) only-end))))
+              (when (> cur-column column)
+                (let ((lcol  (current-column)))
+                  (backward-char)
+                  (setq cur-column  (- cur-column (- lcol (current-column))))))
+              (let* ((ovr       (aref vline-overlay-table i))
+                     (visual-p  (or (< lcolumn (current-column))
+                                    (> lcolumn (+ (current-column)
+                                                  (- column cur-column)))))
+                     ;; Consider a newline, tab and wide char.
+                     (str       (concat (make-string (abs (- column cur-column)) ?\  )
+                                        (if visual-p visual-line-str line-str)))
+                     (char      (char-after)))
+                (unless ovr
+                  (setq ovr  (make-overlay 0 0))
+                  (overlay-put ovr 'rear-nonsticky t)
+                  (aset vline-overlay-table i ovr))
+                (overlay-put ovr 'face nil)
+                (overlay-put ovr 'before-string nil)
+                (overlay-put ovr 'after-string nil)
+                (overlay-put ovr 'invisible nil)
+                (overlay-put ovr 'window (and vline-current-window-only  (selected-window)))
+                (cond ((memq char vline-multiwidth-space-list) ; Multiwidth space
+                       (setq str  (concat str (make-string (- (save-excursion (forward-char)
+                                                                              (current-column))
+                                                              (current-column)
+                                                              (string-width str))
+                                                           ?\  )))
+                       (move-overlay ovr (point) (1+ (point)))
+                       (overlay-put ovr 'invisible t)
+                       (overlay-put ovr 'after-string str))
+                      ((eolp)
+                       (move-overlay ovr (point) (point))
+                       (overlay-put ovr 'after-string str)
+                       (when (and (not truncate-lines) ; Do not expand more than window width.
+                                  (>= (1+ column) (window-width))
+                                  (>= column (vline-current-column))
+                                  (not (vline-into-fringe-p)))
+                         (delete-overlay ovr)))
+                      (t
+                       (cond (compose-p
+                              (let (str)
+                                (when char
+                                  (setq str  (compose-chars char
+                                                            (cond ((= (char-width char) 1)
+                                                                   '(tc . tc))
+                                                                  ((= cur-column column)
+                                                                   '(tc . tr))
+                                                                  (t
+                                                                   '(tc . tl)))
+                                                            line-char))
+                                  (when face-p
+                                    (setq str  (propertize str 'face (vline-face visual-p))))
+                                  (move-overlay ovr (point) (1+ (point)))
+                                  (overlay-put ovr 'invisible t)
+                                  (overlay-put ovr 'after-string str))))
+                             (face-p
+                              (move-overlay ovr (point) (1+ (point)))
+                              (overlay-put ovr 'face (vline-face visual-p))))))))
+            (setq i  (1+ i))
+            (vline-forward -1))))))
+  (mapc (lambda (ov) (when (overlayp ov) ; Set overlay priority to `col-highlight-overlay-priority'.
+                  (overlay-put ov 'priority col-highlight-overlay-priority)))
+        vline-overlay-table))
 
 ;;;###autoload
 (define-minor-mode column-highlight-mode
@@ -258,11 +397,11 @@ col-highlight.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+          "http://www.emacswiki.org/DrewsElispLibraries")
   :link '(url-link :tag
-          "Download" "http://www.emacswiki.org/cgi-bin/wiki/col-highlight.el")
+          "Download" "http://www.emacswiki.org/col-highlight.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/cgi-bin/wiki/ChangingCursorDynamically")
+          "http://www.emacswiki.org/ChangingCursorDynamically")
   :link '(emacs-commentary-link :tag "Commentary" "col-highlight")
   (cond (column-highlight-mode
          (add-hook 'pre-command-hook #'col-highlight-unhighlight)
@@ -324,7 +463,7 @@ With a prefix ARG, highlight for that many seconds."
   "Highlight current column.
 This has no effect in the minibuffer, unless optional arg
 MINIBUFFER-ALSO-P is non-nil."
-  (unless (and (minibufferp) (not minibuffer-also-p))
+  (unless (and (minibufferp)  (not minibuffer-also-p))
     (let ((vline-current-window-only  t))
       (if col-highlight-vline-face-flag
           (let ((vline-style  'face)
@@ -336,7 +475,7 @@ MINIBUFFER-ALSO-P is non-nil."
   "Turn off highlighting of current column.
 This has no effect in the minibuffer, unless optional arg
 MINIBUFFER-ALSO-P is non-nil."
-  (unless (and (minibufferp) (not minibuffer-also-p))
+  (unless (and (minibufferp)  (not minibuffer-also-p))
     (if col-highlight-vline-face-flag
         (let ((vline-style  'face)
               (vline-face   col-highlight-face))
