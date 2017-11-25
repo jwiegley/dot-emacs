@@ -606,7 +606,7 @@ Default is t."
   :group 'yaoddmuse)
 
 (defcustom yaoddmuse-wikis
-  '(("EmacsWiki" "http://www.emacswiki.org/emacs" utf-8 "uihnscuskc=1;")
+  '(("EmacsWiki" "https://www.emacswiki.org/emacs" utf-8 "uihnscuskc=1;")
     ("CommunityWiki" "http://www.communitywiki.org/cw" utf-8 "uihnscuskc=1;")
     ("RatpoisonWiki" "http://ratpoison.wxcvbn.org/cgi-bin/wiki.pl" utf-8 "uihnscuskc=1;")
     ("OddmuseWiki" "http://www.oddmuse.org/cgi-bin/oddmuse" utf-8 "uihnscuskc=1;"))
@@ -1414,11 +1414,11 @@ unless option FORCED is non-nil."
         (funcall handle-function wikiname pagename))
     ;; Otherwise get page name.
     (let* ((url (yaoddmuse-get-url wikiname))
+           (url-request-method "GET")
            (coding (yaoddmuse-get-coding wikiname))
            retrieve-buffer
            retrieve-buffer-name)
       ;; Initialize url request parameter.
-      (yaoddmuse-retrieve-request "GET")
       (setq url (yaoddmuse-format yaoddmuse-args-index coding url))
       ;; Get unique buffer for handle information.
       (setq retrieve-buffer (yaoddmuse-get-unique-buffer))
@@ -1459,13 +1459,13 @@ HANDLE-FUNCTION is function that handle download content."
 WIKINAME is the name of the wiki as defined in `yaoddmuse-wikis',
 PAGENAME is the pagename of the page you want to edit."
   (let* ((url (yaoddmuse-get-url wikiname))
+         (url-request-method "GET")
          (coding (yaoddmuse-get-coding wikiname))
          (yaoddmuse-wikiname wikiname)
          (yaoddmuse-pagename pagename)
          retrieve-buffer
          retrieve-buffer-name)
     ;; Initialize url request parameter.
-    (yaoddmuse-retrieve-request "GET")
     (setq url (yaoddmuse-format yaoddmuse-args-get coding url))
     ;; Get unique buffer for handle information.
     (setq retrieve-buffer (yaoddmuse-get-unique-buffer))
@@ -1562,15 +1562,19 @@ If BROWSE-PAGE is non-nil, will browse page after post successful."
     (setq browse-page current-prefix-arg))
   ;; Post.
   (let* ((url (yaoddmuse-get-url wikiname))
-         (coding (yaoddmuse-get-coding wikiname))
+         (url-request-method "POST")
+         (url-request-extra-headers
+          '(("Content-type: application/x-www-form-urlencoded;")))
+         (text post-string)
          (yaoddmuse-minor (if yaoddmuse-minor "on" "off"))
          (yaoddmuse-wikiname wikiname)
          (yaoddmuse-pagename pagename)
-         (text post-string))
-    (yaoddmuse-retrieve-request "POST" (yaoddmuse-format (yaoddmuse-get-post-args wikiname) coding))
+         (url-request-data
+          (yaoddmuse-format (yaoddmuse-get-post-args wikiname)
+                            (yaoddmuse-get-coding wikiname))))
     (url-retrieve url
-                  'yaoddmuse-post-callback
-                  (list wikiname pagename browse-page))))
+            'yaoddmuse-post-callback
+            (list wikiname pagename browse-page))))
 
 (defun yaoddmuse-post-callback (&optional redirect wikiname pagename browse-page)
   "The callback function for `yaoddmuse-post'.
@@ -1906,16 +1910,6 @@ Otherwise return nil."
         (match-string 1 str)
       nil)))
 
-(defun yaoddmuse-retrieve-request (method &optional data)
-  "Initialize url request parameter.
-METHOD is require method.
-DATA is data for post."
-  (setq url-request-extra-headers
-        (and (string= method "POST")
-             '(("Content-type: application/x-www-form-urlencoded;"))))
-  (setq url-request-method method)
-  (setq url-request-data data))
-
 (defun yaoddmuse-retrieve-decode (retrieve-buffer-name coding)
   "Decode the coding with retrieve page.
 RETRIEVE-BUFFER-NAME is name of retrieve buffer.
@@ -1938,6 +1932,8 @@ Substitute oddmuse format flags according to `yaoddmuse-pagename',
 `summary', `yaoddmuse-username',`yaoddmuse-password', `text'
 Each ARGS is url-encoded with CODING.
 If URL is `non-nil' return new url concat with ARGS."
+  (unless (and (boundp 'text) (boundp 'yaoddmuse-pagename))
+    (error "No `text' or `yaoddmuse-pagename'!"))
   (dolist (pair '(("%t" . yaoddmuse-pagename)
                   ("%u" . yaoddmuse-username)
                   ("%m" . yaoddmuse-minor)

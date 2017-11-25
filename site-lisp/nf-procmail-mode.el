@@ -6,7 +6,7 @@
 ;; Maintainer: friedman@splode.com
 ;; Created: 2006-05-15
 
-;; $Id: nf-procmail-mode.el,v 1.1 2006/06/20 20:51:22 friedman Exp $
+;; $Id: nf-procmail-mode.el,v 1.3 2012/01/05 21:18:05 friedman Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,9 +19,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, you can either send email to this
-;; program's maintainer or write to: The Free Software Foundation,
-;; Inc.; 51 Franklin Street, Fifth Floor; Boston, MA 02110-1301, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -109,6 +107,9 @@
       ("#.*"
        (0 font-lock-comment-face t)))))
 
+;; Declared because we reference it, but it's initialized by define-derived-mode.
+(defvar nf-procmail-mode-syntax-table)
+
 ;;;###autoload
 (define-derived-mode nf-procmail-mode text-mode "Procmail"
   "Major mode for editing procmail recipes."
@@ -116,6 +117,9 @@
 
   (setq comment-start      "#")
   (setq comment-start-skip "#\\W*")
+
+  ;; Treat backslash as an escape char.
+  (modify-syntax-entry ?\\ "\\" nf-procmail-mode-syntax-table)
 
   (make-local-variable 'font-lock-defaults)
   (setq font-lock-defaults '((nf-procmail-mode-font-lock-keywords)

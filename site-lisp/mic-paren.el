@@ -1,10 +1,10 @@
 ;;; mic-paren.el --- advanced highlighting of matching parentheses
 
-;;; Copyright (C) 2008, 2012 Thien-Thi Nguyen
+;;; Copyright (C) 2008, 2012, 2013 Thien-Thi Nguyen
 ;;; Copyright (C) 1997 Mikael Sjödin (mic@docs.uu.se)
 
-;; Version: 3.10
-;; Released: 2012-07-16
+;; Version: 3.11
+;; Released: 2013-09-20
 ;; Author: Mikael Sjödin (mic@docs.uu.se)
 ;;         Klaus Berndl  <berndl@sdm.de>
 ;;         Jonathan Kotta <jpkotta@gmail.com>
@@ -50,14 +50,19 @@
 ;;
 ;; Some examples to try in your ~/.emacs:
 ;;
-;; (add-hook 'LaTeX-mode-hook
-;;           (function (lambda ()
-;;                       (paren-toggle-matching-quoted-paren 1)
-;;                       (paren-toggle-matching-paired-delimiter 1))))
+;;  (add-hook 'LaTeX-mode-hook
+;;            (function (lambda ()
+;;                        (paren-toggle-matching-quoted-paren 1)
+;;                        (paren-toggle-matching-paired-delimiter 1))))
 ;;
-;; (add-hook 'c-mode-common-hook
-;;           (function (lambda ()
-;;                        (paren-toggle-open-paren-context 1))))
+;;  (add-hook 'c-mode-common-hook
+;;            (function (lambda ()
+;;                         (paren-toggle-open-paren-context 1))))
+;;
+;; If you use CUA mode, these might be useful, too:
+;;
+;;  (put 'paren-forward-sexp 'CUA 'move)
+;;  (put 'paren-backward-sexp 'CUA 'move)
 ;;
 ;; ----------------------------------------------------------------------
 ;; Installation:
@@ -87,6 +92,9 @@
 ;;   cursor is between two expressions).
 ;; o Indication of mismatched parentheses.
 ;; o Recognition of "escaped" (also often called "quoted") parentheses.
+;; o Recognition of SML-style "sexp-ish" comment syntax.
+;;   NB: This support is preliminary; there are still problems
+;;       when the parens in the comment span multiple lines, etc.
 ;; o Option to match "escaped" parens too, especially in (La)TeX-mode
 ;;   (e.g., matches expressions like "\(foo bar\)" properly).
 ;; o Offers two functions as replacement for `forward-sexp' and
@@ -169,6 +177,9 @@
 ;;
 ;; ----------------------------------------------------------------------
 ;; Versions:
+;; v3.11   + Added support for recognizing SML-style comments as a sexp.
+;;           Thanks to Leo Liu, Stefan Monnier.
+;;
 ;; v3.10   + Added message-length clamping (var `paren-max-message-length').
 ;;           Thanks to Jonathan Kotta.
 ;;
@@ -199,11 +210,11 @@
 ;;           the computation of the offscreen-message-linenumber.  Either the
 ;;           number of lines between the two matching parens or the absolute
 ;;           linenumber.  (Thank you for the idea and a first implementation
-;;           to Eliyahu Barzilay <eli@cs.bgu.ac.il>.)
+;;           to Eli Barzilay <eli@barzilay.org>.)
 ;;         + New option `paren-message-truncate-lines': If mic-paren messages
 ;;           should be truncated or not (has only an effect in GNU Emacs 21).
-;;           (Thank you for the idea and a first implementation to Eliyahu
-;;           Barzilay <eli@cs.bgu.ac.il>.)
+;;           (Thank you for the idea and a first implementation to Eli
+;;           Barzilay <eli@barzilay.org>.)
 ;;
 ;; v3.4    + Corrected some bugs in the backward-compatibility for older
 ;;           Emacsen.  Thanks to Tetsuo Tsukamoto <czkmt@remus.dti.ne.jp>.
@@ -295,7 +306,7 @@
 ;;
 ;; v1.9    Avoids multiple messages/dings when point has not moved.  Thus,
 ;;         mic-paren no longer overwrites messages in minibuffer.  Inspired by
-;;         the suggestion and code of Barzilay Eliyahu <eli@cs.bgu.ac.il>.
+;;         the suggestion and code of Eli Barzilay <eli@barzilay.org>.
 ;;
 ;; v1.3.1  Some spelling corrected (from Vinicius Jose Latorre
 ;;         <vinicius@cpqd.br> and Steven L Baur <steve@xemacs.org>).
@@ -311,7 +322,7 @@
 
 ;;; Code:
 
-(defvar mic-paren-version "3.10"
+(defvar mic-paren-version "3.11"
   "Version of mic-paren.")
 
 (eval-when-compile (require 'cl))
@@ -1006,6 +1017,32 @@ This is the main function of mic-paren."
                                  right-prio))
                        (not fcq)))))
 
+           (comment-style
+            ()
+            (or (get major-mode 'mic-paren-comment-style)
+                (put major-mode 'mic-paren-comment-style
+                     ;; Tested (lightly) w/ SML, Modula-2, Pascal.
+                     (flet ((sub (str pos) (condition-case ()
+                                               (aref str (if (> 0 pos)
+                                                             (+ (length str)
+                                                                pos)
+                                                           pos))
+                                             (error 0))))
+                       (if (string= "()" (string (sub comment-start 0)
+                                                 (sub comment-end -1)))
+                           'sexp
+                         'normal)))))
+
+           (sexp-ish-comment-edge
+            (p mult)
+            (and (eq 'sexp (comment-style))
+                 (if (> 0 mult)
+                     (prog1 (nth 8 (syntax-ppss (1- p)))
+                       (forward-char 1))
+                   ;; hmmm
+                   (save-match-data
+                     (looking-at (regexp-quote comment-start))))))
+
            (find-other-paren
             (forwardp)
             (let ((mult (if forwardp 1 -1)))
@@ -1022,7 +1059,11 @@ This is the main function of mic-paren."
                                             (min lim (point-max))
                                           (point-max)))))
                   (condition-case ()
-                      (setq opos (scan-sexps (point) mult))
+                      (setq opos (let ((p (point)))
+                                   (if (not (sexp-ish-comment-edge p mult))
+                                       (scan-sexps p mult)
+                                     (forward-comment mult)
+                                     (point))))
                     (error nil))))
               ;; We must call matching-paren because `scan-sexps' doesn't
               ;; care about the kind of paren (e.g., matches '( and '}).

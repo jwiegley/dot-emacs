@@ -1,14 +1,14 @@
-;;; @(#) gnus-alias.el -- an alternative to gnus-posting-styles
-;;; @(#) $Id: gnus-alias.el,v 1.4 2003/08/16 23:05:10 jcasa Exp $
+;;; gnus-alias.el --- an alternative to gnus-posting-styles
 
 ;; This file is not part of Emacs
 
 ;; Copyright (C) 2001 by Joseph L. Casadonte Jr.
-;; Author:          Joe Casadonte (emacs@northbound-train.com)
-;; Maintainer:      Joe Casadonte (emacs@northbound-train.com)
+;; Author:          Joe Casadonte <emacs@northbound-train.com>
+;; Maintainer:      Mark A. Hershberger <mah@everybody.org>
 ;; Created:         September 08, 2001
 ;; Keywords:        personality, identity, news, mail, gnus
-;; Latest Version:  http://www.northbound-train.com/emacs.html
+;; Version:         1.6
+;; Latest Version:  http://github.com/hexmode/gnus-alias/
 
 ;; COPYRIGHT NOTICE
 
@@ -30,8 +30,8 @@
 ;;; Commentary:
 ;;
 ;;  gnus-alias provides a simple mechanism to switch Identities when
-;;  using message-mode.  An Identity is one or more of the following
-;;  elements:
+;;  using a message-mode or a message-mode derived mode.  An Identity
+;;  is one or more of the following elements:
 ;;
 ;;  o From - sets the From header (i.e. the sender)
 ;;  o Organization - sets the Organization header (a common, optional header)
@@ -183,7 +183,7 @@
 ;;  o It's possible for a loop to be created when having one Identity
 ;;    refer to another.  This might be fixed at some point.
 
-;;; To Do (Real Soon Now):
+;;; To Do (maybe never):
 ;;
 ;;  o reply-using et al
 ;;  o Fix abbrev cache (or get rid of it)
@@ -196,9 +196,6 @@
 ;;  o fix known bugs
 ;;  o `message-narrow-to-headers' doesn't work on reply-buffer; maybe
 ;;    a gnus-alias-narrow-to-headers function
-
-;;; To Do (maybe never):
-;;
 ;;  o Could have GADI functions return a new 'split' to be fed back
 ;;    into GADI
 ;;  o GADI functions could return an Identity instead of just t or nil
@@ -720,8 +717,8 @@ one."
 ;;; **************************************************************************
 (defun gnus-alias-ensure-message-mode ()
   "Assert that the current buffer is a message buffer."
-  (when (not (eq major-mode 'message-mode))
-    (gnus-alias-error "Must be in `message-mode'.? ")))
+  (when (not (derived-mode-p 'message-mode))
+    (gnus-alias-error "Must be in a mode derived from `message-mode'.")))
 
 ;;; **************************************************************************
 ;;;###autoload
@@ -754,6 +751,14 @@ Identity, but don't actually use it (just return it)"
 
       ;; what is it, list or function?
       (cond
+       ;; .........................
+       ;; a function
+       ((functionp first-elem)
+        ;; call function; if it returns non-nil, use the identity
+        (when (funcall first-elem)
+          (setq identity (cadr current-choice))
+          ))
+
        ;; .........................
        ;; a list - class regexp orig-headers
        ((listp first-elem)
@@ -819,14 +824,6 @@ Identity, but don't actually use it (just return it)"
               ))
 
           (setq header-list (cdr header-list))
-          ))
-
-       ;; .........................
-       ;; a function
-       ((functionp first-elem)
-        ;; call function; if it returns non-nil, use the identity
-        (when (funcall first-elem)
-          (setq identity (cadr current-choice))
           ))
 
        ;; .........................
@@ -1091,6 +1088,12 @@ above circumstances rather then generate an error."
       (when reference
         (gnus-alias-use-identity-1 (gnus-alias-get-value reference)))
 
+      (save-restriction
+	(goto-char (point-min))
+	(save-match-data
+	  (when (re-search-forward "<#\\(mml\\|part\\)" nil t)
+	    (narrow-to-region (point-min) (match-beginning 0))))
+
       ;; add From maybe
       (when from
         (gnus-alias-remove-header "From")
@@ -1130,9 +1133,8 @@ above circumstances rather then generate an error."
       (when body
         (gnus-alias-remove-current-body)
         (gnus-alias-goto-sig)
-        (forward-line -1)
-        (unless (bolp) (insert "\n"))
-        (insert (gnus-alias-get-value body)))
+        (insert (gnus-alias-get-value body))
+        (unless (bolp) (insert "\n")))
 
       ;; remove old signature
       (gnus-alias-remove-sig)
@@ -1142,7 +1144,7 @@ above circumstances rather then generate an error."
         (goto-char (point-max))
         (unless (bolp) (insert "\n"))
         (insert "-- \n")
-        (insert (gnus-alias-get-value sig)))
+        (insert (gnus-alias-get-value sig))))
 
       ;; remember last Identity used
       (setq gnus-alias-current-identity identity)))
@@ -1221,6 +1223,12 @@ responsible for the subsequent mess)."
               body (gnus-alias-get-body ID)
               sig (gnus-alias-get-sig ID))
 
+	(save-restriction
+	  (goto-char (point-min))
+	  (save-match-data
+	    (when (re-search-forward "<#\\(mml\\|part\\)" nil t)
+	      (narrow-to-region (point-min) (match-beginning 0))))
+
           ;; remove From
           (when from (gnus-alias-remove-header "From"))
 
@@ -1242,7 +1250,7 @@ responsible for the subsequent mess)."
 
           ;; remove signature maybe
           (when sig (gnus-alias-remove-sig))
-          ))))
+          )))))
 
 ;;; **************************************************************************
 (defun gnus-alias-remove-header (tag)
@@ -1273,7 +1281,6 @@ responsible for the subsequent mess)."
       ;; remove it if there's something to remove
       (when current-body
         (save-restriction
-          (widen)
 
           ;; find body and narrow to it
           (message-goto-eoh)
@@ -1298,9 +1305,9 @@ responsible for the subsequent mess)."
 (defun gnus-alias-goto-sig ()
   "Goto beginning of signature or end of buffer."
   (goto-char (point-min))
-  (save-match-data
-    (re-search-forward message-signature-separator nil 'move))
-  (beginning-of-line))
+  (when (save-match-data
+	  (re-search-forward message-signature-separator nil 'move))
+    (beginning-of-line)))
 
 ;;; **************************************************************************
 (defun gnus-alias-goto-first-empty-header (or-body)

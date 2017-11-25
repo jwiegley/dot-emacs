@@ -1,27 +1,29 @@
 ;;; crosshairs.el --- Highlight the current line and column.
-;; 
+;;
 ;; Filename: crosshairs.el
 ;; Description: Highlight the current line and column.
 ;; Author: Drew Adams
-;; Maintainer: Drew Adams
-;; Copyright (C) 2006-2012, Drew Adams, all rights reserved.
+;; Maintainer: Drew Adams (concat "drew.adams" "@" "oracle" ".com")
+;; Copyright (C) 2006-2017, Drew Adams, all rights reserved.
 ;; Created: Fri Sep 08 13:09:19 2006
-;; Version: 22.0
-;; Last-Updated: Fri May 18 07:22:07 2012 (-0700)
+;; Version: 0
+;; Package-Requires: ((hl-line+ "0") (col-highlight "0") (vline "0"))
+;; Last-Updated: Mon Jun 26 15:48:30 2017 (-0700)
 ;;           By: dradams
-;;     Update #: 465
-;; URL: http://www.emacswiki.org/cgi-bin/wiki/crosshairs.el
+;;     Update #: 511
+;; URL: http://www.emacswiki.org/emacs/download/crosshairs.el
+;; Doc URL: http://www.emacswiki.org/CrosshairHighlighting
 ;; Keywords: faces, frames, emulation, highlight, cursor, accessibility
-;; Compatibility: GNU Emacs: 22.x, 23.x
-;; 
+;; Compatibility: GNU Emacs: 22.x, 23.x, 24.x, 25.x
+;;
 ;; Features that might be required by this library:
 ;;
 ;;   `col-highlight', `hl-line', `hl-line+', `vline'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;;; Commentary: 
-;; 
+;;
+;;; Commentary:
+;;
 ;;  This library highlights the current line and the current column.
 ;;  It combines the features of libraries `hl-line.el', `hl-line+.el',
 ;;  and `col-highlight.el', which let you highlight the line or column
@@ -51,6 +53,12 @@
 ;;  You can also have crosshairs highlighting come on automatically,
 ;;  when Emacs is idle.  Command `toggle-crosshairs-when-idle' toggles
 ;;  this mode.
+;;
+;;  You can use command `flash-crosshairs' to do what its name says
+;;  when you switch buffers or windows.  Here is how one user did it
+;;  (rejoin the split URL):
+;;  http://unix.stackexchange.com/questions/83167/emacs-finding-the-
+;;  cursor-in-multiple-windows
 ;;
 ;;
 ;;  See also:
@@ -86,9 +94,22 @@
 ;;   or (global-set-key [(control ?+)] 'crosshairs-flash)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;;; Change Log:
 ;;
+;; 2017/06/26 dadams
+;;     crosshairs-flash:
+;;       Use hl-line-unhighlight-now, not global-hl-line-unhighlight, for
+;;       crosshairs-flash-line-timer.  Thx to Dan Harms.
+;; 2014/11/28 dadams
+;;     crosshairs-mode: Call global-hl-line-unhighlight-all (Emacs 24.4+).
+;;     crosshairs-highlight:
+;;       Push global-hl-line-overlay to global-hl-line-overlays (Emacs 24.4+).
+;;     crosshairs-unhighlight: Call global-hl-line-unhighlight-all (Emacs 24.4+).
+;; 2014/07/22 dadams
+;;     Removed extra, vestigial package-requires.
+;; 2012/12/25 dadams
+;;     Added Package-Requires.
 ;; 2012/05/18 dadams
 ;;     Removed: crosshairs-overlay-priority.  Instead, use vline-overlay-priority
 ;;              and col-highlight-overlay-priority.
@@ -123,7 +144,7 @@
 ;;       If both are already on or off, reflect that as the crosshair state.
 ;;     crosshairs-toggle-when-idle:
 ;;       crosshairs-highlight-when-idle-p, not col-highlight-when-idle-p.
-;;     crosshairs-flash: 
+;;     crosshairs-flash:
 ;;       Save/restore global-hl-line-mode.
 ;;       Clear and rehighlight column initially.  Maybe highlight twice (bug).
 ;;       Don't use highlight modes to unhighlight - just unhighlight.
@@ -131,30 +152,32 @@
 ;;     Removed semi-support for Emacs 20.
 ;; 2006/09/08 dadams
 ;;     Created.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
+;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
 ;; published by the Free Software Foundation; either version 3, or
 ;; (at your option) any later version.
-;; 
+;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
-;; 
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
 
 (require 'hl-line+) ;; Requires `hl-line.el'.
 (require 'col-highlight) ;; Requires `vline.el'.
+
+(defvar global-hl-line-overlays)        ; In `hl-line.el' (Emacs 24.4+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -169,9 +192,9 @@ crosshairs.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+          "http://www.emacswiki.org/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/cgi-bin/wiki/crosshairs.el"))
+          "http://www.emacswiki.org/crosshairs.el"))
 
 (defvar crosshairs-highlight-when-idle-p nil
   "Non-nil means highlight current line and column when Emacs is idle.
@@ -195,11 +218,11 @@ crosshairs.el bug: \
 &body=Describe bug here, starting with `emacs -q'.  \
 Don't forget to mention your Emacs and library versions."))
   :link '(url-link :tag "Other Libraries by Drew"
-          "http://www.emacswiki.org/cgi-bin/wiki/DrewsElispLibraries")
+          "http://www.emacswiki.org/DrewsElispLibraries")
   :link '(url-link :tag "Download"
-          "http://www.emacswiki.org/cgi-bin/wiki/crosshairs.el")
+          "http://www.emacswiki.org/crosshairs.el")
   :link '(url-link :tag "Description"
-          "http://www.emacswiki.org/cgi-bin/wiki/ChangingCursorDynamically")
+          "http://www.emacswiki.org/ChangingCursorDynamically")
   :link '(emacs-commentary-link :tag "Commentary" "crosshairs")
   ;; If both were already on or off, reflect that as the previous crosshairs state.
   (unless arg
@@ -216,6 +239,8 @@ Don't forget to mention your Emacs and library versions."))
         (t
          (global-hl-line-mode -1)
          (global-hl-line-unhighlight)
+         (when (fboundp 'global-hl-line-unhighlight-all) ; Emacs 24.4+
+           (global-hl-line-unhighlight-all))
          (column-highlight-mode -1)
          (message "Point: %d - Crosshairs mode disabled" (point)))))
 
@@ -272,9 +297,10 @@ both for SECONDS seconds."
       (when seconds
         (setq line-period    (prefix-numeric-value seconds)
               column-period  line-period))
+      ;; $$$$$$ Do we need to worry about `global-hl-line-unhighlight-all' here?
       (setq crosshairs-flash-line-timer (run-at-time
                                          line-period nil
-                                         #'global-hl-line-unhighlight)
+                                         #'hl-line-unhighlight-now)
             crosshairs-flash-col-timer  (run-at-time
                                          column-period nil
                                          #'col-highlight-unhighlight t)))))
@@ -319,6 +345,9 @@ Return current position as a marker."
       (unless global-hl-line-overlay
         (setq global-hl-line-overlay (make-overlay 1 1)) ; to be moved
         (overlay-put global-hl-line-overlay 'face hl-line-face))
+      (when (and (boundp 'global-hl-line-overlays)
+                 (not (member global-hl-line-overlay global-hl-line-overlays)))
+	(push global-hl-line-overlay global-hl-line-overlays))
       (overlay-put global-hl-line-overlay 'window (selected-window))
       (hl-line-move global-hl-line-overlay))
     (when (and (fboundp 'col-highlight-highlight) (not (eq mode 'line-only)))
@@ -343,6 +372,8 @@ Optional arg nil means do nothing if this event is a frame switch."
 ;;       (when crosshairs-overlay-priority
 ;;         (overlay-put global-hl-line-overlay 'priority nil))
       (delete-overlay global-hl-line-overlay))
+    (when (fboundp 'global-hl-line-unhighlight-all) ; Emacs 24.4+
+      (global-hl-line-unhighlight-all))
     (remove-hook 'pre-command-hook 'crosshairs-unhighlight)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
