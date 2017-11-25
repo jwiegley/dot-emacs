@@ -728,6 +728,13 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (char-mapping "A-~" " ≅ ")
   (char-mapping "A-=" " ≡ "))
 
+(use-package aggressive-indent
+  :load-path "site-lisp/aggressive-indent-mode"
+  :diminish aggressive-indent-mode
+  :commands aggressive-indent-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
+
 (use-package align
   :bind (("M-["   . align-code)
          ("C-c [" . align-regexp))
@@ -1031,6 +1038,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands (cldoc-mode turn-on-cldoc-mode)
   :diminish cldoc-mode)
 
+(use-package cmake-font-lock
+  :load-path "site-lisp/cmake-font-lock"
+  :commands cmake-font-lock-activate
+  :init
+  (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
+
 (use-package cmake-mode
   :mode (("CMakeLists.txt" . cmake-mode)
          ("\\.cmake\\'"    . cmake-mode)))
@@ -1044,6 +1057,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          :map isearch-mode-map
          ("M-o" . isearch-moccur)
          ("M-O" . isearch-moccur-all)))
+
+(use-package command-log-mode
+  :load-path "site-lisp/command-log-mode"
+  :commands (command-log-mode
+             clm/open-command-log-buffer))
 
 (use-package company
   :load-path "site-lisp/company-mode"
@@ -1292,9 +1310,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package dired-ranger
   :bind (:map dired-mode-map
-         ("W" . dired-ranger-copy)
-         ("X" . dired-ranger-move)
-         ("Y" . dired-ranger-paste)))
+              ("W" . dired-ranger-copy)
+              ("X" . dired-ranger-move)
+              ("Y" . dired-ranger-paste)))
 
 (use-package dired-toggle
   :load-path "site-lisp/dired-toggle"
@@ -1321,6 +1339,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (require 'docker-volumes)
   (require 'docker-networks))
 
+(use-package docker-compose-mode
+  :load-path "site-lisp/docker-compose-mode")
+
+(use-package docker-tramp
+  :load-path "site-lisp/docker-tramp")
+
 (use-package dockerfile-mode
   :mode (".*Dockerfile.*" . dockerfile-mode)
   :load-path "site-lisp/dockerfile-mode")
@@ -1340,6 +1364,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    'coq-mode-hook
                    'haskell-mode-hook)
   :load-path "site-lisp/dumb-jump")
+
+(use-package ebdb-com
+  :load-path "site-lisp/ebdb"
+  :commands ebdb)
 
 (use-package edebug
   :demand t
@@ -1580,6 +1608,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :init
   (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
 
+(use-package eshell-bookmark
+  :load-path "site-lisp/eshell-bookmark"
+  :after eshell
+  :config
+  (add-hook 'eshell-mode-hook 'eshell-bookmark-setup))
+
 (use-package etags
   :bind ("M-T" . tags-search))
 
@@ -1603,11 +1637,24 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind ("C-. w" . er/expand-region)
   :load-path "site-lisp/expand-region-el")
 
+(use-package eyebrowse
+  :load-path "site-lisp/eyebrowse"
+  :init
+  (custom-set-variables
+   `(eyebrowse-keymap-prefix ,(kbd "C-\\")))
+  :config
+  (eyebrowse-mode)
+  (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
+
 (use-package fancy-narrow
   :bind (("C-. n" . fancy-narrow-to-region)
          ("C-. N" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen)
   :load-path "site-lisp/fancy-narrow")
+
+(use-package fence-edit
+  :load-path "site-lisp/fence-edit"
+  :commands fence-edit-code-at-point)
 
 (use-package fetchmail-mode
   :commands fetchmail-mode)
@@ -1632,6 +1679,15 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-c i f" . flyspell-mode))
   :config
   (unbind-key "C-." flyspell-mode-map))
+
+(use-package font-lock-studio
+  :load-path "site-lisp/font-lock-studio"
+  :commands (font-lock-studio
+             font-lock-studio-region))
+
+(use-package free-keys
+  :load-path "site-lisp/free-keys"
+  :commands free-keys)
 
 (use-package ggtags
   :disabled t
@@ -1668,6 +1724,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/git-undo-el"
   :bind ("C-. u" . git-undo))
 
+(use-package gitpatch
+  :load-path "site-lisp/gitpatch"
+  :commands gitpatch-mail)
+
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
@@ -1701,7 +1761,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/haskell-config"
   :after haskell-mode
   :bind (:map haskell-mode-map
-         ("C-c M-q" . haskell-edit-reformat) ))
+              ("C-c M-q" . haskell-edit-reformat) ))
 
 (use-package haskell-mode-autoloads
   :load-path "site-lisp/haskell-mode"
@@ -1806,8 +1866,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                       (regexp . ,(cdr x))
-                       (modes quote (haskell-mode literate-haskell-mode))))
+                            (regexp . ,(cdr x))
+                            (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -2726,7 +2786,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package prover
   :after coq)
-  
+
 (use-package ps-print
   :defer t
   :config
@@ -2923,6 +2983,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
+(use-package smartparens-config
+  :load-path "site-lisp/smartparens"
+  :commands smartparens-mode)
+
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
   :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
@@ -3085,6 +3149,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              transpose-mark-region)
   :load-path "site-lisp/transpose-mark")
 
+(use-package treemacs
+  :load-path "site-lisp/treemacs"
+  :commands treemacs)
+
 (use-package tuareg
   :load-path "site-lisp/tuareg"
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
@@ -3139,6 +3207,26 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/emacs-w3m"
   :commands w3m)
 
+(use-package web-mode
+  :load-path "site-lisp/web-mode"
+  :commands web-mode)
+
+;;; Post initialization
+
+(when window-system
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+  (add-hook 'after-init-hook
+            `(lambda ()
+               (let ((elapsed
+                      (float-time
+                       (time-subtract (current-time) emacs-start-time))))
+                 (message "Loading %s...done (%.3fs) [after-init]"
+                          ,load-file-name elapsed))) t))
+
+;;; init.el ends here
 (use-package wgrep
   :defer 5
   :load-path "site-lisp/wgrep")
@@ -3324,96 +3412,3 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands ztree-diff
   :load-path "site-lisp/ztree")
 
-(use-package aggressive-indent
-  :load-path "site-lisp/aggressive-indent-mode"
-  :diminish aggressive-indent-mode
-  :commands aggressive-indent-mode
-  :init
-  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
-
-(use-package cmake-font-lock
-  :load-path "site-lisp/cmake-font-lock"
-  :commands cmake-font-lock-activate
-  :init
-  (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
-
-(use-package command-log-mode
-  :load-path "site-lisp/command-log-mode"
-  :commands (command-log-mode
-             clm/open-command-log-buffer))
-
-(use-package debbugs
-  :load-path "site-lisp/debbugs"
-  :commands (debbugs-gnu
-             debbugs-gnu-search))
-
-(use-package docker-compose-mode
-  :load-path "site-lisp/docker-compose-mode")
-
-(use-package docker-tramp
-  :load-path "site-lisp/docker-tramp")
-
-(use-package ebdb-com
-  :load-path "site-lisp/ebdb"
-  :commands ebdb)
-
-(use-package eshell-bookmark
-  :load-path "site-lisp/eshell-bookmark"
-  :after eshell
-  :config
-  (add-hook 'eshell-mode-hook 'eshell-bookmark-setup))
-
-(use-package eyebrowse
-  :load-path "site-lisp/eyebrowse"
-  :init
-  (custom-set-variables
-   `(eyebrowse-keymap-prefix ,(kbd "C-\\")))
-  :config
-  (eyebrowse-mode)
-  (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
-
-(use-package fence-edit
-  :load-path "site-lisp/fence-edit"
-  :commands fence-edit-code-at-point)
-
-(use-package font-lock-studio
-  :load-path "site-lisp/font-lock-studio"
-  :commands (font-lock-studio
-             font-lock-studio-region))
-
-(use-package free-keys
-  :load-path "site-lisp/free-keys"
-  :commands free-keys)
-
-(use-package gitpatch
-  :load-path "site-lisp/gitpatch"
-  :commands gitpatch-mail)
-
-(use-package smartparens-config
-  :load-path "site-lisp/smartparens"
-  :commands smartparens-mode)
-
-(use-package treemacs
-  :load-path "site-lisp/treemacs"
-  :commands treemacs)
-
-(use-package web-mode
-  :load-path "site-lisp/web-mode"
-  :commands web-mode)
-
-;;; Post initialization
-
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
-
-  (add-hook 'after-init-hook
-            `(lambda ()
-               (let ((elapsed
-                      (float-time
-                       (time-subtract (current-time) emacs-start-time))))
-                 (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed))) t))
-
-;;; init.el ends here
