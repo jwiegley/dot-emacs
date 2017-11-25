@@ -1,0 +1,2 @@
+resolver: lts-3.16
+require-stack-version: '>= 0.1.8.0'
