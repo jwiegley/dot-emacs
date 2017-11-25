@@ -1,0 +1,5 @@
+*.elc
+ebdb-autoloads.el
+ebdb-pkg.el
+ChangeLog
+
