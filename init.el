@@ -383,18 +383,16 @@
       (funcall fun nil))
     (goto-char (+ end 2))))
 
-(defmacro recursive-edit-preserving-window-config (body)
-  "*Return a command that enters a recursive edit after executing BODY.
-Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
-or \\[abort-recursive-edit] (abort)), restore window configuration
-in current frame.
-Inspired by Erik Naggum's `recursive-edit-with-single-window'."
-  `(lambda ()
-     "See the documentation for `recursive-edit-preserving-window-config'."
-     (interactive)
-     (save-window-excursion
-       ,body
-       (recursive-edit))))
+(defun recursive-edit-preserving-window-config ()
+  (interactive)
+  (save-window-excursion
+    (unless (one-window-p 'ignore-minibuffer)
+      (delete-other-windows))
+    (recursive-edit)))
+
+(defun recursive-edit-preserving-window-config-pop ()
+  (interactive)
+  (exit-recursive-edit))
 
 (defun delete-current-line (&optional arg)
   (interactive "p")
@@ -575,30 +573,25 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
  ("C-x M-q" . refill-paragraph)
 
  ("C-c SPC" . just-one-space)
- ("C-c 0" .
-  (recursive-edit-preserving-window-config (delete-window)))
- ("C-c 1" .
-  (recursive-edit-preserving-window-config
-   (if (one-window-p 'ignore-minibuffer)
-       (error "Current window is the only window in its frame")
-     (delete-other-windows))))
- ("C-c g" . goto-line)
- ("C-c f" . flush-lines)
- ("C-c k" . keep-lines)
- ("C-c n" . insert-user-timestamp)
- ("C-c o" . customize-option)
- ("C-c O" . customize-group)
- ("C-c F" . customize-face)
- ("C-c q" . fill-region)
- ("C-c r" . replace-regexp)
- ("C-c s" . replace-string)
- ("C-c u" . rename-uniquely)
- ("C-c v" . ffap)
- ("C-c V" . view-clipboard)
- ("C-c z" . clean-buffer-list)
- ("C-c )" . close-all-parentheses)
- ("C-c =" . count-matches)
- ("C-c ;" . comment-or-uncomment-region)
+ ("C-c 0"   . recursive-edit-preserving-window-config-pop)
+ ("C-c 1"   . recursive-edit-preserving-window-config)
+ ("C-c g"   . goto-line)
+ ("C-c f"   . flush-lines)
+ ("C-c k"   . keep-lines)
+ ("C-c n"   . insert-user-timestamp)
+ ("C-c o"   . customize-option)
+ ("C-c O"   . customize-group)
+ ("C-c F"   . customize-face)
+ ("C-c q"   . fill-region)
+ ("C-c r"   . replace-regexp)
+ ("C-c s"   . replace-string)
+ ("C-c u"   . rename-uniquely)
+ ("C-c v"   . ffap)
+ ("C-c V"   . view-clipboard)
+ ("C-c z"   . clean-buffer-list)
+ ("C-c )"   . close-all-parentheses)
+ ("C-c ="   . count-matches)
+ ("C-c ;"   . comment-or-uncomment-region)
 
  ("C-c C-z" . delete-to-end-of-buffer)
  ("C-c C-0" . copy-current-buffer-name)

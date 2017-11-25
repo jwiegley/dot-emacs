@@ -184,7 +184,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   (if (get-buffer "*Group*")
       (gnus-goto-article
        (gnus-string-remove-all-properties (substring message-id 2)))
-    (org-mac-message-open message-id)))
+    (error "Gnus is not running")))
 
 (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 
