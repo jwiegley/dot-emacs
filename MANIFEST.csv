@@ -119,6 +119,8 @@ graphviz-dot-mode,site-lisp,subtree,git://github.com/ppareit/graphviz-dot-mode.g
 haskell-config,lisp,submodule,git://github.com/jwiegley/haskell-config,
 haskell-mode,site-lisp,submodule,git://github.com/haskell/haskell-mode.git,
 haskell-yas.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/haskell-yas.el,
+helm,site-lisp,subtree,git://github.com/emacs-helm/helm.git,
+helm-descbinds,site-lisp,subtree,git://github.com/emacs-helm/helm-descbinds.git,
 highlight-cl.el,site-lisp,file,https://www.emacswiki.org/emacs/download/highlight-cl.el,
 highlight-numbers,site-lisp,subtree,git://github.com/Fanael/highlight-numbers.git,
 highlight.el,site-lisp,file,https://www.emacswiki.org/emacs/download/highlight.el,
