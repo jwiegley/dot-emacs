@@ -1,0 +1,173 @@
+----------------------------------------------------------------------
+7.0.2 Announcement
+----------------------------------------------------------------------
+From: Bob Weiner <rsw@gnu.org>
+To: info-gnu@gnu.org, hyperbole-users@gnu.org, emacs-devel@gnu.org, gnu-emacs-sources@gnu.org, emacs-tangents@gnu.org
+Subject: GNU Hyperbole 7.0.1-7.0.2 is now available
+Date: Wed, 23 Nov 2017
+--text follows this line--
+This is a minor release with a number of small issues resolved and the following
+new features:
+
+  SMART (ACTION AND ASSIST) KEYS
+
+    - Keyboard Drags: Keyboard emulation of many Smart Mouse Key drag actions.
+      See "(hyperbole)Keyboard Drags".
+  
+    - Keyboard Help: When {M-o} is bound to the `hkey-operate' command to
+      emulate drag depress and release events, then when in the release window
+      prior to pressing the second {M-o}, {C-h A} now reports the drag
+      action associated with the current release point.  See "(hyperbole)C-h A".
+
+    - Ace Window: Integrated Hyperbole item drag and link creation with this
+      package's direct window selection.  Use {M-o i <window-id>}.
+      You typically can display any Dired or Buffer Menu item in any window
+      with a single 3 keystroke command!
+
+      Also added the ability to 'throw' an item to a window while leaving the
+      selected window the same.  Use {M-o t <window-id>}.  This
+      works in Dired, Buffer Menu, iBuffer Menu and Treemacs modes and lets
+      you throw multiple items to multiple windows quickly.
+
+      See "(hyperbole)Keyboard Drags" for setup and use instructions.
+
+    - Smart Treemacs: Smart Key and item drag support for the Treemacs package.
+      See "(hyperbole)Smart Key - Treemacs".
+
+  HYROLO
+
+    - Fixed Google Contacts support to prompt for authorization only during
+      first time use.
+
+-----
+
+For details on what Hyperbole is and how to obtain and install it, see:
+
+  https://www.gnu.org/s/hyperbole
+
+For a list of use cases, see:
+
+  https://www.gnu.org/s/hyperbole/HY-WHY.html
+
+For a full list of new features in Hyperbole 7, see:
+
+  https://git.savannah.gnu.org/cgit/hyperbole.git/plain/HY-NEWS
+
+For what users think about Hyperbole, see:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#user-quotes
+
+Bob Weiner designed and wrote GNU Hyperbole.  He and Mats
+Lidell maintain it with the Free Software Foundation.  It includes
+an interactive demo to introduce you to its features as well as a
+detailed reference manual, as explained here:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#invocation-and-doc
+
+
+Happy Thanksgiving,
+
+Bob Weiner and Mats Lidell
+
+
+----------------------------------------------------------------------
+7.0.0 Announcement
+----------------------------------------------------------------------
+To: info-gnu@gnu.org, hyperbole-users@gnu.org, emacs-devel@gnu.org, gnu-emacs-sources@gnu.org, emacs-tangents@gnu.org
+ANNOUNCE: GNU Hyperbole 7, a.k.a the Git Ready for Action Release, is now available
+
+This is the main public release of GNU Hyperbole for 2017 and it is
+bursting with new features and further quality improvements.  New
+capabilities, including Git and Github object links, are summarized
+here:
+
+  https://git.savannah.gnu.org/cgit/hyperbole.git/plain/HY-NEWS
+
+A short explanation of Hyperbole is included below.  For more
+detail or how to obtain and install it, see:
+
+  https://www.gnu.org/s/hyperbole
+
+For a list of use cases, see:
+
+  https://www.gnu.org/s/hyperbole/HY-WHY.html
+
+For what users think about Hyperbole, see:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#user-quotes
+
+----
+
+GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole,
+is an amazing, programmable hypertextual information management
+system implemented as a GNU Emacs package and extensively
+documented.  Hyperbole has been greatly expanded and updated for
+use with the latest Emacs 26 releases; it supports GNU Emacs 24.4
+or above.
+
+Hyperbole can boost your day-to-day productivity with Emacs and
+your ability to manage information stored across many different
+machines on the internet.  People who get used to Hyperbole often
+find they prefer never to use Emacs without it.
+
+Hyperbole includes its own easy-to-use hypertextual buttons and
+links that can be created without the need for any markup language.
+
+It also comes out-of-the-box with:
+
+  - a hierarchical, record-based contact manager
+
+  - a rapid window and frame control system
+
+  - a powerful multi-level auto-numbered outliner
+
+  - and two very smart context-dependent mouse and keyboard keys
+    that simplify operations in many editing and browsing modes.
+    All features are aimed at making textual information management
+    and display fast and easy.
+
+Bob Weiner designed and programmed GNU Hyperbole.  He and Mats
+Lidell maintain it with the Free Software Foundation.  It includes
+an interactive demo to introduce you to its features as well as a
+detailed reference manual, as explained here:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#invocation-and-doc
+
+----
+
+Please give Hyperbole a try.  It's free, man.  It adapts to your
+needs. It connects everything.  It rewires your brain.  It speeds
+your web searches for `carpal tunnel syndrome'.  It makes you feel
+like the sun is out on a gray winter day :-)
+
+But wait, there's more and this part is serious.  For a limited
+time, to encourage use and feedback, the first 30 people who try
+out the Hyperbole DEMO or read the Hyperbole Manual and send a few
+thoughtful sentences to <rsw at gnu dot org> will receive either of
+their choice of the following as yet unpublished single file Emacs
+Lisp libraries:
+
+;;  rsw-linecol.el: User-editable mode-line col/line number formats
+;;
+;;  GNU Emacs buries the formatting of mode-line line and column
+;;  numbers in a way that makes it virtually impossible for a user
+;;  to change this formatting.  This library fixes that with a new
+;;  variable which may be modified to instantly alter the mode-line
+;;  column and line number display.
+
+or
+
+;;  rsw-chrome-macos.el: Open a URL in Google Chrome and reuse an
+;;     existing tab/window if already displayed.
+;;
+;;  This library resolves the many problems of sending URLs to
+;;  Google Chrome on MacOS.  It properly sends # hash in-file links
+;;  (these are typically stripped when Chrome is called as a MacOS
+;;  application).  It reuses any tab already displaying any
+;;  matching URL that is sent and it does this even if the
+;;  ultimately displayed URL goes through several redirects before
+;;  display.
+
+Enjoy,
+
+Bob Weiner and Mats Lidell
