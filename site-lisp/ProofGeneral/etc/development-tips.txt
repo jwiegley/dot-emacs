@@ -1,0 +1,64 @@
+Please follow Emacs Lisp conventions as documented in the Emacs Lisp
+manual.  The 'checkdoc' mode helps with this, enabled automatically,
+alongside eldoc and Flyspell, in the development file:
+
+ M-x load-file RET generic/pg-dev.el RET
+
+ (load-file "../lib/pg-dev.el")
+
+Compilation
+===========
+
+Please check that your code compiles to Lisp bytecode ("make foo/foo.elc")
+and that the bytecode runs correctly.  Compilation not only speeds
+up the running code, but conducts some useful static analysis.
+
+To ensure correctness of running code, care is needed with macros (see
+the Lisp reference manual) and load order.   For example, to expand macros
+from proof-utils.el during compilation, use 
+
+ (eval-when-compile
+   (require 'proof-utils)).  
+
+Without using this, compilation can be incorrect (macro calls compiled
+as function calls: e.g., symptom unbound 'foobar' assistant variable
+with "(proof-ass foobar)" call).  
+
+Top-level forms, or forms that appear at top-level after compilation
+(these get evaluated when compiling later files) need extra care.  If
+these forms depend on runtime information, e.g., the value of
+proof-assistant symbol (proof-ass), they will produce the wrong result
+(symptom: unbound nil-foobar). Running `proof-ready-for-assistant' can
+be used to avoid this and optimise compilation (CPC 2017-02-25: this
+sounds fishy: this document seems to assume that compilation is done in
+a separate instance of Emacs, but that's not what happens when with
+package.el.  Calling `proof-ready-for-assistant' at compile time will
+tie the rest of that Emacs session to a specific proof assistant).
+
+Finally, the compiler will warn over-eagerly (and ususally spuriously)
+about unknown functions.  Adding extra requires can get these to go
+away, but watch out for introducing cycles in the require graphs.
+It's better/faster to use the new (declare-function ...) mechanism,
+although this is tedious if there are lot of declares needed.
+
+Rough dependency graph:
+
+
+proof-autoloads -> 
+        pg-vars -> proof-site  -> pg-vars
+
+  [To Be Continued]
+
+
+
+Some Emacs Resources
+====================
+
+Emacs Wiki:
+
+ http://www.emacswiki.org
+
+Mailing list archives:
+
+ http://mail.gnu.org/archive/html/emacs-devel/
+

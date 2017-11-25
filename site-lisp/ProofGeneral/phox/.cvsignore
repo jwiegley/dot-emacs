@@ -1,0 +1,13 @@
+config
+config.dos
+*~
+#*#
+*.o
+*.a
+*.cmo
+*.cmi
+*.cmx
+*.pho
+*.phi
+*.pht
+*.math.tex

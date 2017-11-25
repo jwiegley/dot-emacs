@@ -1,0 +1,30 @@
+
+
+Notes about proofgeneral.org  [obsolete!]
+-----------------------------------------
+
+Hosted by freeparking.co.uk.  
+
+Sign up 20th Sep 2000, 2 years for £29.95
+
+mail.proofgeneral.org	 is freeparking's mail handler
+www.proofgeneral.org	 is zermelo.dcs.ed.ac.uk
+
+ DNS zone:
+  
+   proofgeneral.org   A  129.215.96.75
+
+Email aliases:
+--------------
+
+support		proofgen@informatics.ed.ac.uk
+feedback	proofgen@informatics.ed.ac.uk
+bugs		proofgen@informatics.ed.ac.uk
+eeproof		proofgen@informatics.ed.ac.uk
+da		David.Aspinall@ed.ac.uk
+
+users	      proofgeneral@informatics.ed.ac.uk
+		http://lists.inf.ed.ac.uk/mailman/listinfo/proofgeneral
+devel	      proofgeneral-devel@informatics.ed.ac.uk
+		http://lists.inf.ed.ac.uk/mailman/listinfo/proofgeneral-devel
+

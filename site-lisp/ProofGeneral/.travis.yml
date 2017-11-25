@@ -1,0 +1,23 @@
+language: emacs-lisp
+sudo: false
+
+env:
+  - EMACS_TARGET=emacs-24.3
+  - EMACS_TARGET=emacs-24.4
+  - EMACS_TARGET=emacs-24.5
+  - EMACS_TARGET=emacs-25.1
+  - EMACS_TARGET=emacs-25.2
+
+before_install:
+  - make -f Makefile.travis before_install
+
+install:
+  - make -f Makefile.travis install
+
+script:
+  - emacs --version
+  - make -f Makefile.travis script
+
+notifications:
+  slack:
+    secure: "Cul0iDgsNZgDYCyuHE7a2D1XCWzbFMBi/3J9MIfddWwChL5EEEv/A1EI+VVjXwzWLyvyeJLv7V8PmPUKMuACjlcQcTKcb1q/1WV3k6Y5kR5Z29HktCNTF27KX/e/6bNeKMVvjC0EERRxIi9GAwCOOokapCxS5FjjPnVubGf99FNfRFXePh9FeRg3I7XcSNCjKicZgNGczME1vPxERbpcFnMXPD5+vPhjKjJWQJUNpZUnonRRqfbNmSCwu/oy0Uby3lJhmcLm2Fc7UggD/IYcFbefbLgzmImVmra1qzRH9ZLF5fVS59npd+o2iowL27SQCYxGtqMc6gX85h9evzwgL2KFMXCV6om1r5pwBOBnEPgkiNKqCig9R5Ij+nHbkEkZqPBwEcXqeQyVsXUEV5yiU5qwDZXe2z1dlqhPa8tRpxRNk0IUdVVYeOsOS+AhbkUDkbYMlOY+yMiY5J4P94AhhDmYzuLTuSNi3ZGdPNCJcx0JSTLALITT5NJp1QljaOO5Xq/8UHTRlVdfFKijfpLfaCT6VloigXw8kTbxhm5Kpf5aZqFC/3uCg+4D6CuBI/IiWNADJcLMocJqS/Rp6kUA+VqAMMWfpyWySihDHSuw0WXeDVZL/ZhynVagIV+0/VcqYzQKXDzCEOaD0lJp3ypeKfjBAz18N6s7LH/yBFHfJck="

@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+#
+# Or perhaps: /usr/local/bin/perl
+#
+#
+undef $/;  # undef input file separator; $_ gives the whole file
+
+if($#ARGV<$[) {die "No Files\n";}
+open($tagfile,">TAGS") || die "Couldn't open TAGS: $!\n";
+
+while(<>)	
+{ 
+  print "Tagging $ARGV\n";
+  $a=$_;			# read the whole file into $a
+  $cp=1;			# emacs char number of the start of
+				# the current line
+  $lp=1;			# line number
+  $tagstring="";		# accumulate all tags of one file here
+
+  while(1) 
+  { 
+
+#   ---- Get the next statement starting on a newline ---- 
+
+    # read over balanced comments
+    if($a=~/^[ \t\n]*\(\*/)
+    { while($a=~/^\s*\(\*/) 
+      { $d=1; $a=$'; $cp+=length $&; $lp+=(($wombat=$&)=~tr/\n/\n/);
+        while($d>0 && $a=~/\(\*|\*\)/)
+        { $a=$'; $cp+=2+length $`; $lp+=(($wombat=$`)=~tr/\n/\n/);
+          if($& eq "(*") {$d++} else {$d--};
+        }
+        if($d!=0) {die "Unbalanced Comment?";}
+      }
+    }
+
+    # skip remainder of a line after a comment or a statement
+    if($cp>1 && $a=~/.*\n/) {$a=$'; $cp+=length $&; $lp++;}
+    # skip white space lines
+    while($a=~/^[ \t]*\n/) {$cp+=length $&;$lp++;$a=$'}
+
+    # match the next statement
+    if($a=~/^[^\.]*\./) 
+    { $stmt=$&;
+      $newa=$';
+      $newcp=$cp+length $&;
+      $newlp=$lp+(($wombat=$&)=~tr/\n/\n/);
+    }
+    else { last;}
+
+# ---- The above embarrasses itself if there are semicolons inside comments 
+# ---- inside commands. Could do better.
+
+#  print "----- (",$lp,",",$cp,")\n", $stmt, "\n";
+
+    if($stmt=~/^([ \t]*((Fact)|(Goal)|(Lemma)|(Remark)|(Theorem)|(Proposition)|(Corollary))\s+([\w\']+))\s*:/)
+       { $tagstring.=$1."\177".$10."\001".$lp.",".$cp."\n"; }
+
+    elsif($stmt=~/^([ \t]*((Axiom)|(Hypothesis)|(Parameter)|(Variable))\s+[\w\']+)/)
+      { adddecs($stmt,$1); }
+
+    elsif($stmt=~/^([ \t]*((Definition)|(Fixpoint)|(Inductive)|(CoInductive)|(Record))\s+([\w\']+))/)
+    {
+	$tagstring.=$1."\177".$8."\001".$lp.",".$cp."\n";
+	if($2 eq "Inductive" || $2 eq "CoInductive"){
+	    add_constructors($stmt);
+	}
+	elsif($2 eq "Record"){
+	    add_record_labels($stmt, $8);
+	}
+    }
+
+    $cp=$newcp; $lp=$newlp; $a=$newa;
+  }  
+  print $tagfile "\f\n".$ARGV.",".(length $tagstring)."\n".$tagstring;
+}
+close $tagfile;
+
+sub adddecs {
+  $wk=$_[0];
+  $tag=$_[1];
+  $sep=",";
+  while($tst=($wk=~/\s*([\w\']+)\s*([,:\[])/) && $sep eq ",")
+  { $sep=$2; $tagstring.=$tag."\177".$1."\001".$lp.",".$cp."\n"; $wk=$'; }
+  0;
+}
+
+sub add_constructors {
+    my ($stmt) = @_;
+    my ($line, $tag);
+    my $current=0;
+
+    # skip to the body of the inductive definition
+    # and match the first constructor
+    if($stmt=~/:=\s*(?:\|\s*)?([\w\']+)/gc){
+	do {
+	    $tag=$1;
+	    $line=substr($stmt, $current, pos($stmt)-$current);
+
+	    # the previous match may span several lines
+	    # need to remove all but the last line
+	    if($line=~/^.*\n/s){
+		$current+= length($&);
+		$cp+= length($&);
+		$lp+= (($wombat=$&)=~ tr/\n/\n/);
+		$line=substr($stmt, $current, pos($stmt)-$current);
+	    }
+
+	    # print "C $tag in line $lp at $cp\n\tline: $line\n";
+	    $tagstring.=$line."\177".$tag."\001".$lp.",".$cp."\n";
+
+	    # match now the next constructor
+	} while($stmt=~/\G.*?\|\s*([\w\']+)/sgc);
+    }
+}
+
+sub add_record_labels {
+    my ($stmt, $record_name) = @_;
+    my ($line, $tag);
+    my $current=0;
+
+    # skip to the body of the record and match the record constructor
+    if($stmt=~/:=\s*([\w\']+)?/gc){
+	if(defined($1)){
+	    $tag=$1;
+	} else {
+	    $tag="Build_".$record_name;
+	}
+
+	$line=substr($stmt, $current, pos($stmt)-$current);
+
+	# the previous match may span several lines
+	# need to remove all but the last line
+	if($line=~/^.*\n/s){
+	    $current+= length($&);
+	    $cp+= length($&);
+	    $lp+= (($wombat=$&)=~ tr/\n/\n/);
+	    $line=substr($stmt, $current, pos($stmt)-$current);
+	}
+
+	$tagstring.=$line."\177".$tag."\001".$lp.",".$cp."\n";
+
+	# match the first record label
+	if($stmt=~/\G\s*{\s*([\w\']+)/gc){
+	    do {
+		$tag=$1;
+		$line=substr($stmt, $current, pos($stmt)-$current);
+
+		# the previous match may span several lines
+		# need to remove all but the last line
+		if($line=~/^.*\n/s){
+		    $current+= length($&);
+		    $cp+= length($&);
+		    $lp+= (($wombat=$&)=~ tr/\n/\n/);
+		    $line=substr($stmt, $current, pos($stmt)-$current);
+		}
+
+		$tagstring.=$line."\177".$tag."\001".$lp.",".$cp."\n";
+
+		# match now the next record label
+	    } while($stmt=~/\G.*?;\s*([\w\']+)/sgc);
+	}
+    }
+}

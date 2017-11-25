@@ -1,0 +1,26 @@
+Notes on Profiling Proof General in Emacs
+-----------------------------------------
+
+Run
+
+   make profile.<prover>
+
+to run scripted profiling tests in <prover>/<prover>-profiling.el
+
+
+Interactive use of Elisp profiler:
+
+   M-x elp-instrument-package RET proof RET
+   M-x elp-instrument-package RET pg RET
+
+< do something now >
+
+   M-x elp-results
+
+To display results.
+
+Canonical settings:
+
+   M-x profile-pg
+
+(in lib/pg-dev).
