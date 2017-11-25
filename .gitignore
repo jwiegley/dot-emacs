@@ -1,0 +1,12 @@
+*.elc
+*.o
+*.hi
+
+/get-cabal-configuration
+/get-flags
+
+/.cask/
+/dist/
+/build/
+
+/.stack-work/
