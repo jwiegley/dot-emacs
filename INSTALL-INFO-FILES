@@ -1,0 +1,34 @@
+Wilfred Hughes provides a tool which seems to permit
+building info docu for any Python version.
+
+Source here:
+http://github.com/wilfred/python-info
+
+After unpacking, either follow the recipes in README.md
+
+or, when aiming for an info of a different Python
+version, edit the Makefile in directory build. Replace
+the hard-coded Python-version by the one you need:
+Worked nicely here with Python 3.3.0
+
+This will create `build/python.texi`.
+
+Afterwards run `makeinfo' at the texi-file. 
+
+In order to get them recognised by Emacs info-reader,
+maybe copy the info-files into a known info-directory
+and edit the "dir" file there - the head of newly
+created info-files containes a line, which must appear
+in file "dir".
+
+At Linux that directory which keeps the info-files
+should appear in $INFOPATH.
+
+######
+
+`info-lookup-symbol' needs patched python-info.el available at
+http://bitbucket.org/andreas_roehler/pydoc-info
+
+Thanks Jonathan Waltman providing the original python-info.el:
+http://bitbucket.org/jonwaltman/pydoc-info
+

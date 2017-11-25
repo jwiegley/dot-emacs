@@ -1,0 +1,10 @@
+Title: Python-Mode Basics
+Author: python-mode@python.org
+Meta: <meta name="keywords" content="Emacs Python Software" />
+      <meta name="description" content="Basic Python-Mode functionality." />
+Content-Type: text/x-rst
+
+If you've used editing modes for other languages in Emacs, the basics of
+python-mode should be familiar to you.  Keywords and strings are colored.
+When you type a newline character, the cursor is automatically indented
+according to the indentation and content of the preceding line.
