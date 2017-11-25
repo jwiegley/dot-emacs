@@ -3625,6 +3625,14 @@ only partially propertized."
    (forward-line)
    (should-not (markdown-inline-code-at-point-p))))
 
+(ert-deftest test-markdown-parsing/in-comment-p-position ()
+  "Test `markdown-in-comment-p'."
+  (markdown-test-string
+   "HTML <!-- foo --> comment"
+   (should (eq (point) (point-min)))
+   (should-not (markdown-in-comment-p (point-max)))
+   (should (eq (point) (point-min)))))
+
 (ert-deftest test-markdown-parsing/match-comments ()
   "Test `markdown-match-comments'."
   (markdown-test-string
@@ -3655,7 +3663,7 @@ x: x
 `x`
 "
     (should (markdown-match-code (point-max)))
-    (should (= (point) 17))
+    (should (= (point) 18))
     (should (equal (match-data t) '(14 17 14 15 15 16 16 17)))
     (should-not (markdown-match-code (point-max)))))
 
@@ -3785,6 +3793,25 @@ puts 'hello, world'
 
 ;;; Lists:
 
+(ert-deftest test-markdown-lists/nested-list-file ()
+  "Test list item propertization for a nested list."
+  (markdown-test-file "nested-list.text"
+    (let ((values '(((1 25 3 5 "- " nil))
+                    ((26 189 3 5 "- " nil))
+                    ((191 581 3 5 "- " nil))
+                    ((217 482 7 9 "- " nil)
+                     (191 581 3 5 "- " nil))
+                    ((484 581 7 9 "- " nil)
+                     (191 581 3 5 "- " nil))
+                    ((514 581 11 13 "- " nil)
+                     (484 581 7 9 "- " nil)
+                     (191 581 3 5 "- " nil)))))
+      (cl-loop
+       for value in values
+       do (should
+           (equal (get-text-property (point) 'markdown-list-item) value))
+          (markdown-outline-next)))))
+
 (ert-deftest test-markdown-lists/levels-1 ()
   "Test list levels function `markdown-calculate-list-levels'."
   (markdown-test-file "nested-list.text"
@@ -3897,7 +3924,7 @@ puts 'hello, world'
   "Test function `markdown-promote-list-item'."
   (markdown-test-file "nested-list.text"
     (forward-line)
-    (should (looking-at "   - List level 1 item 2
+    (should (looking-at-p "   - List level 1 item 2
 
      Second paragraph of item 2
 
@@ -3906,7 +3933,7 @@ puts 'hello, world'
 
      Another paragraph of item 2"))
     (markdown-demote-list-item)
-    (should (looking-at "       - List level 1 item 2
+    (should (looking-at-p "       - List level 1 item 2
 
          Second paragraph of item 2
 
@@ -3915,7 +3942,7 @@ puts 'hello, world'
 
          Another paragraph of item 2"))
     (markdown-promote-list-item)
-    (should (looking-at "   - List level 1 item 2
+    (should (looking-at-p "   - List level 1 item 2
 
      Second paragraph of item 2
 
@@ -3925,15 +3952,15 @@ puts 'hello, world'
      Another paragraph of item 2"))
     (goto-char (point-min))
     (forward-line 22)
-    (should (looking-at "           - List level 3 item 1
+    (should (looking-at-p "           - List level 3 item 1
 
                  Nested pre block"))
     (markdown-demote-list-item)
-    (should (looking-at "               - List level 3 item 1
+    (should (looking-at-p "               - List level 3 item 1
 
                      Nested pre block"))
     (markdown-promote-list-item)
-    (should (looking-at "           - List level 3 item 1
+    (should (looking-at-p "           - List level 3 item 1
 
                  Nested pre block"))))
 

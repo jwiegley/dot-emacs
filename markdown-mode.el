@@ -1708,7 +1708,14 @@ Group 2 matches any whitespace and the final newline.")
   "Regular expression for matching preformatted text sections.")
 
 (defconst markdown-regex-list
-  "^\\([ \t]*\\)\\([0-9#]+\\.\\|[\\*\\+:-]\\)\\([ \t]+\\)"
+  (rx line-start
+      ;; 1. Leading whitespace
+      (group (* blank))
+      ;; 2. List marker: a numeral, bullet, or colon
+      (group (or (and (+ (any "0-9#")) ".")
+                 (any "*+:-")))
+      ;; 3. Trailing whitespace
+      (group (+ blank)))
   "Regular expression for matching list items.")
 
 (defconst markdown-regex-bold
@@ -1961,7 +1968,7 @@ Group 3 matches all attributes and whitespace following the tag name.")
 (defsubst markdown-in-comment-p (&optional pos)
   "Return non-nil if POS is in a comment.
 If POS is not given, use point instead."
-  (nth 4 (syntax-ppss pos)))
+  (get-text-property (or pos (point)) 'markdown-comment))
 
 (defun markdown-syntax-propertize-extend-region (start end)
   "Extend START to END region to include an entire block of text.
@@ -1981,9 +1988,10 @@ Function is called repeatedly until it returns nil. For details, see
                              (if (re-search-forward "\n\n" nil t)
                                  (max end (match-beginning 0))
                                (point-max))))
-             (code-match (markdown-code-block-at-pos new-start))
+             (code-match (markdown--code-block-at-pos-no-syntax new-start))
              (new-start (or (and code-match (cl-first code-match)) new-start))
-             (code-match (and (< end (point-max)) (markdown-code-block-at-pos end)))
+             (code-match (and (< end (point-max))
+                              (markdown--code-block-at-pos-no-syntax end)))
              (new-end (or (and code-match (cl-second code-match)) new-end)))
         (unless (and (eq new-start start) (eq new-end end))
           (cons new-start (min new-end (point-max))))))))
@@ -2006,6 +2014,96 @@ and END are the previous region to refontify."
       (setq jit-lock-start (car res)
             jit-lock-end (cdr res)))))
 
+(defun markdown--cur-list-item-bounds ()
+  "Return a list describing the list item at point.
+Assumes that match data is set for `markdown-regex-list'.  See the
+documentation for `markdown-cur-list-item-bounds' for the format of
+the returned list."
+  (save-excursion
+    (let* ((begin (match-beginning 0))
+           (indent (length (match-string-no-properties 1)))
+           (nonlist-indent (length (match-string 0)))
+           (marker (concat (match-string-no-properties 2)
+                           (match-string-no-properties 3)))
+           (checkbox (progn (goto-char (match-end 0))
+                            (when (looking-at "\\[[xX ]\\]\\s-*")
+                              (match-string-no-properties 0))))
+           (end (markdown-cur-list-item-end nonlist-indent)))
+      (list begin end indent nonlist-indent marker checkbox))))
+
+(defun markdown--append-list-item-bounds (marker indent cur-bounds bounds)
+  "Update list item BOUNDS given list MARKER, block INDENT, and CUR-BOUNDS.
+Here, MARKER is a string representing the type of list and INDENT
+is an integer giving the indentation, in spaces, of the current
+block.  CUR-BOUNDS is a list of the form returned by
+`markdown-cur-list-item-bounds' and BOUNDS is a list of bounds
+values for parent list items.  When BOUNDS is nil, it means we are
+at baseline (not inside of a nested list)."
+  (let ((prev-indent (or (cl-third (car bounds)) 0)))
+    (cond
+     ;; New list item at baseline.
+     ((and marker (null bounds))
+      (list cur-bounds))
+     ;; List item with greater indentation (four or more spaces).
+     ;; Increase list level by consing CUR-BOUNDS onto BOUNDS.
+     ((and marker (>= indent (+ prev-indent 4)))
+      (cons cur-bounds bounds))
+     ;; List item with greater or equal indentation (less than four spaces).
+     ;; Keep list level the same by replacing the car of BOUNDS.
+     ((and marker (>= indent prev-indent))
+      (cons cur-bounds (cdr bounds)))
+     ;; Lesser indentation level.
+     ;; Pop appropriate number of elements off BOUNDS list (e.g., lesser
+     ;; indentation could move back more than one list level).  Note
+     ;; that this block need not be the beginning of list item.
+     ((< indent prev-indent)
+      (while (and (> (length bounds) 1)
+                  (setq prev-indent (cl-third (cadr bounds)))
+                  (< indent (+ prev-indent 4)))
+        (setq bounds (cdr bounds)))
+      (cons cur-bounds bounds))
+     ;; Otherwise, do nothing.
+     (t bounds))))
+
+(defun markdown-syntax-propertize-list-items (start end)
+  "Propertize list items from START to END.
+Stores nested list item information in the `markdown-list-item'
+text property to make later syntax analysis easier.  The value of
+this property is a list with elements of the form (begin . end)
+giving the bounds of the current and parent list items."
+  (save-excursion
+    (goto-char start)
+    (let (bounds level pre-regexp)
+      ;; Find a baseline point with zero list indentation
+      (markdown-search-backward-baseline)
+      ;; Search for all list items between baseline and END
+      (while (and (< (point) end)
+                  (re-search-forward markdown-regex-list end t))
+        ;; Level of list nesting
+        (setq level (length bounds))
+        ;; Pre blocks need to be indented one level past the list level
+        (setq pre-regexp (format "^\\(    \\|\t\\)\\{%d\\}" (1+ level)))
+        (beginning-of-line)
+        (cond
+         ;; Reset at headings, horizontal rules, and top-level blank lines.
+         ;; Propertize baseline when in range.
+         ((markdown-new-baseline-p)
+          (setq bounds nil))
+         ;; Make sure this is not a line from a pre block
+         ((looking-at-p pre-regexp))
+         ;; If not, then update levels and propertize list item when in range.
+         (t
+          (let* ((indent (current-indentation))
+                 (cur-bounds (markdown--cur-list-item-bounds))
+                 (first (cl-first cur-bounds))
+                 (last (cl-second cur-bounds))
+                 (marker (cl-fifth cur-bounds)))
+            (setq bounds (markdown--append-list-item-bounds
+                          marker indent cur-bounds bounds))
+          (when (and (<= start (point)) (<= (point) end))
+            (put-text-property first last 'markdown-list-item bounds)))))
+        (end-of-line)))))
+
 (defun markdown-syntax-propertize-pre-blocks (start end)
   "Match preformatted text blocks from START to END."
   (save-excursion
@@ -2024,15 +2122,15 @@ and END are the previous region to refontify."
          ;; If not at the beginning of a line, move forward
          ((not (bolp)) (forward-line))
          ;; Move past blank lines
-         ((markdown-cur-line-blank) (forward-line))
+         ((markdown-cur-line-blank-p) (forward-line))
          ;; At headers and horizontal rules, reset levels
-         ((markdown-new-baseline) (forward-line) (setq levels nil))
+         ((markdown-new-baseline-p) (forward-line) (setq levels nil))
          ;; If the current line has sufficient indentation, mark out pre block
          ;; The opening should be preceded by a blank line.
          ((and (looking-at pre-regexp)
                (markdown-prev-line-blank-p))
           (setq open (match-beginning 0))
-          (while (and (or (looking-at-p pre-regexp) (markdown-cur-line-blank))
+          (while (and (or (looking-at-p pre-regexp) (markdown-cur-line-blank-p))
                       (not (eobp)))
             (forward-line))
           (skip-syntax-backward "-")
@@ -2323,6 +2421,8 @@ MIDDLE-BEGIN is the start of the \"middle\" section of the block."
       (put-text-property middle-begin close-begin
                          (cl-third fence-spec)
                          (list middle-begin close-begin))
+      ;; If the block is a YAML block, propertize the declarations inside
+      (markdown-syntax-propertize-yaml-metadata middle-begin close-begin)
       ;; Propertize closing line of fenced block.
       (put-text-property close-begin close-end
                          (cl-cadadr fence-spec) close-data))))
@@ -2413,12 +2513,15 @@ start which was previously propertized."
                            (match-data t))))))
 
 (defun markdown-syntax-propertize-yaml-metadata (start end)
+  "Propertize elements inside YAML metadata blocks from START to END.
+Assumes region from START and END is already known to be the interior
+region of a YAML metadata block as propertized by
+`markdown-syntax-propertize-fenced-block-constructs'."
   (save-excursion
     (goto-char start)
     (cl-loop
      while (re-search-forward markdown-regex-declarative-metadata end t)
-     do (when (get-text-property (match-beginning 0)
-                                 'markdown-yaml-metadata-section)
+     do (progn
           (put-text-property (match-beginning 1) (match-end 1)
                              'markdown-metadata-key (match-data t))
           (put-text-property (match-beginning 2) (match-end 2)
@@ -2445,7 +2548,7 @@ start which was previously propertized."
 
 (defun markdown-syntax-propertize-comments (start end)
   "Match HTML comments from the START to END."
-  (let* ((in-comment (markdown-in-comment-p)))
+  (let* ((in-comment (nth 4 (syntax-ppss))))
     (goto-char start)
     (cond
      ;; Comment start
@@ -2461,10 +2564,14 @@ start which was previously propertized."
      ;; Comment end
      ((and in-comment
            (re-search-forward markdown-regex-comment-end end t))
-      (put-text-property (1- (match-end 0)) (match-end 0)
-                         'syntax-table (string-to-syntax ">"))
-      (markdown-syntax-propertize-comments
-       (min (1+ (match-end 0)) end (point-max)) end))
+      (let ((comment-end (match-end 0))
+            (comment-begin (nth 8 (syntax-ppss))))
+        (put-text-property (1- comment-end) comment-end
+                           'syntax-table (string-to-syntax ">"))
+        (put-text-property comment-begin comment-end
+                           'markdown-comment (list comment-begin comment-end))
+        (markdown-syntax-propertize-comments
+         (min (1+ comment-end) end (point-max)) end)))
      ;; Nothing found
      (t nil))))
 
@@ -2478,9 +2585,11 @@ start which was previously propertized."
         'markdown-gfm-block-begin nil
         'markdown-gfm-block-end nil
         'markdown-gfm-code nil
+        'markdown-list-item nil
         'markdown-pre nil
         'markdown-blockquote nil
         'markdown-hr nil
+        'markdown-comment nil
         'markdown-heading nil
         'markdown-heading-1-setext nil
         'markdown-heading-2-setext nil
@@ -2502,7 +2611,7 @@ START and END delimit region to propertize."
     (save-excursion
       (remove-text-properties start end markdown--syntax-properties)
       (markdown-syntax-propertize-fenced-block-constructs start end)
-      (markdown-syntax-propertize-yaml-metadata start end)
+      (markdown-syntax-propertize-list-items start end)
       (markdown-syntax-propertize-pre-blocks start end)
       (markdown-syntax-propertize-blockquotes start end)
       (markdown-syntax-propertize-headings start end)
@@ -3193,45 +3302,36 @@ Used for `flyspell-generic-check-word-predicate'."
 
 ;;; Markdown Parsing Functions ================================================
 
-(defun markdown-cur-line-blank (&optional predicate)
-  "Return t if the current line is blank and nil otherwise.
-When PREDICATE is non-nil, don't modify the match data."
-  (save-excursion
-    (beginning-of-line)
-    (let ((regexp "^\\s *$"))
-      (if predicate
-          (looking-at-p regexp)
-        (looking-at regexp)))))
+(define-obsolete-function-alias
+  'markdown-cur-line-blank 'markdown-cur-line-blank-p "v2.4")
+(define-obsolete-function-alias
+  'markdown-prev-line-blank 'markdown-prev-line-blank-p "v2.4")
+(define-obsolete-function-alias
+  'markdown-next-line-blank 'markdown-next-line-blank-p "v2.4")
+(define-obsolete-function-alias
+  'markdown-new-baseline 'markdown-new-baseline-p "v2.4")
 
 (defun markdown-cur-line-blank-p ()
-  "Same as `markdown-cur-line-blank', but does not change the match data."
-  (markdown-cur-line-blank t))
+  "Return t if the current line is blank and nil otherwise."
+  (save-excursion
+    (beginning-of-line)
+    (looking-at-p "^\\s *$")))
 
-(defun markdown-prev-line-blank (&optional predicate)
+(defun markdown-prev-line-blank-p ()
   "Return t if the previous line is blank and nil otherwise.
-If we are at the first line, then consider the previous line to be blank.
-When PREDICATE is non-nil, don't modify the match data."
+If we are at the first line, then consider the previous line to be blank."
   (or (= (line-beginning-position) (point-min))
       (save-excursion
         (forward-line -1)
-        (markdown-cur-line-blank predicate))))
+        (markdown-cur-line-blank-p))))
 
-(defun markdown-prev-line-blank-p ()
-  "Same as `markdown-prev-line-blank', but does not change the match data."
-  (markdown-prev-line-blank t))
-
-(defun markdown-next-line-blank (&optional predicate)
+(defun markdown-next-line-blank-p ()
   "Return t if the next line is blank and nil otherwise.
-If we are at the last line, then consider the next line to be blank.
-When PREDICATE is non-nil, don't modify the match data."
+If we are at the last line, then consider the next line to be blank."
   (or (= (line-end-position) (point-max))
       (save-excursion
         (forward-line 1)
-        (markdown-cur-line-blank predicate))))
-
-(defun markdown-next-line-blank-p ()
-  "Same as `markdown-next-line-blank', but does not change the match data."
-  (markdown-next-line-blank t))
+        (markdown-cur-line-blank-p))))
 
 (defun markdown-prev-line-indent ()
   "Return the number of leading whitespace characters in the previous line.
@@ -3266,15 +3366,15 @@ Return nil if the current line is not the beginning of a list item."
     (forward-line -1)
     (markdown-cur-non-list-indent)))
 
-(defun markdown-new-baseline ()
+(defun markdown-new-baseline-p ()
   "Determine if the current line begins a new baseline level."
   (save-excursion
     (beginning-of-line)
-    (or (looking-at markdown-regex-header)
-        (looking-at markdown-regex-hr)
+    (or (looking-at-p markdown-regex-header)
+        (looking-at-p markdown-regex-hr)
         (and (null (markdown-cur-non-list-indent))
              (= (current-indentation) 0)
-             (markdown-prev-line-blank)))))
+             (markdown-prev-line-blank-p)))))
 
 (defun markdown-search-backward-baseline ()
   "Search backward baseline point with no indentation and not a list item."
@@ -3285,7 +3385,7 @@ Return nil if the current line is not the beginning of a list item."
       (when (match-end 2)
         (goto-char (match-end 2))
         (cond
-         ((markdown-new-baseline)
+         ((markdown-new-baseline-p)
           (setq stop t))
          ((looking-at-p markdown-regex-list)
           (setq stop nil))
@@ -3340,7 +3440,7 @@ immediately  after a list item, return nil."
         (beginning-of-line)
         (cond
          ;; Make sure this is not a header or hr
-         ((markdown-new-baseline) (setq levels nil))
+         ((markdown-new-baseline-p) (setq levels nil))
          ;; Make sure this is not a line from a pre block
          ((looking-at-p pre-regexp))
          ;; If not, then update levels
@@ -3446,8 +3546,9 @@ upon failure."
     next))
 
 (defun markdown-cur-list-item-end (level)
-  "Move to the end of the current list item with nonlist indentation LEVEL.
-If the point is not in a list item, do nothing."
+  "Move to end of list item with pre-marker indentation LEVEL.
+Return the point at the end when a list item was found at the
+original point.  If the point is not in a list item, do nothing."
   (let (indent)
     (forward-line)
     (setq indent (current-indentation))
@@ -3476,12 +3577,14 @@ If the point is not in a list item, do nothing."
       (setq indent (current-indentation)))
     ;; Don't skip over whitespace for empty list items (marker and
     ;; whitespace only), just move to end of whitespace.
-    (if (looking-back (concat markdown-regex-list "\\s-*") nil)
-        (goto-char (match-end 3))
-      (skip-syntax-backward "-"))))
+    (save-match-data
+      (if (looking-back (concat markdown-regex-list "\\s-*") (point-at-bol))
+          (goto-char (match-end 3))
+        (skip-chars-backward " \t\n")))
+    (point)))
 
 (defun markdown-cur-list-item-bounds ()
-  "Return bounds and indentation of the current list item.
+  "Return bounds for list item at point.
 Return a list of the following form:
 
     (begin end indent nonlist-indent marker checkbox)
@@ -3507,25 +3610,8 @@ the returned list would be
 
     (1 14 3 5 \"- \" nil)
 
-If the point is not inside a list item, return nil.
-Leave match data intact for `markdown-regex-list'."
-  (save-excursion
-    (let ((cur (point)))
-      (end-of-line)
-      (when (re-search-backward markdown-regex-list nil t)
-        (let* ((begin (match-beginning 0))
-               (indent (length (match-string-no-properties 1)))
-               (nonlist-indent (length (match-string 0)))
-               (marker (concat (match-string-no-properties 2)
-                               (match-string-no-properties 3)))
-               (checkbox (progn (goto-char (match-end 0))
-                                (when (looking-at "\\[[xX ]\\]\\s-*")
-                                  (match-string-no-properties 0))))
-               (end (save-match-data
-                      (markdown-cur-list-item-end nonlist-indent)
-                      (point))))
-          (when (and (>= cur begin) (<= cur end) nonlist-indent)
-            (list begin end indent nonlist-indent marker checkbox)))))))
+If the point is not inside a list item, return nil."
+  (car (get-text-property (point-at-bol) 'markdown-list-item)))
 
 (defun markdown-list-item-at-point-p ()
   "Return t if there is a list item at the point and nil otherwise."
@@ -3718,14 +3804,37 @@ data.  See `markdown-code-block-at-point-p' for code blocks."
 
 (make-obsolete 'markdown-code-at-point-p 'markdown-inline-code-at-point-p "v2.2")
 
+(defun markdown--code-block-at-pos-no-syntax (pos)
+  "Return match data list if there may be a code block at POS.
+This includes pre blocks, tilde-fenced code blocks, and GFM
+quoted code blocks.  Return nil otherwise.  This function does not
+use text properties, which have not yet been set during the
+syntax propertization phase."
+  (setq pos (save-excursion (goto-char pos) (point-at-bol)))
+  (or (looking-at-p markdown-regex-pre)
+      (markdown-get-enclosing-fenced-block-construct pos)))
+
 (defun markdown-code-block-at-pos (pos)
   "Return match data list if there is a code block at POS.
-Uses text properties at the beginning of the line position.
 This includes pre blocks, tilde-fenced code blocks, and GFM
-quoted code blocks.  Return nil otherwise."
+quoted code blocks.  Return nil otherwise.  This function uses
+cached text properties at the beginning of the line position for
+performance reasons, but therefore it must run after the syntax
+propertization phase."
   (setq pos (save-excursion (goto-char pos) (point-at-bol)))
   (or (get-text-property pos 'markdown-pre)
-      (markdown-get-enclosing-fenced-block-construct pos)
+      ;;(markdown-get-enclosing-fenced-block-construct pos)
+      (when (markdown-range-properties-exist
+             pos pos '(markdown-gfm-block-begin
+                       markdown-gfm-code
+                       markdown-gfm-block-end
+                       markdown-tilde-fence-begin
+                       markdown-fenced-code
+                       markdown-tilde-fence-end
+                       markdown-yaml-metadata-begin
+                       markdown-yaml-metadata-section
+                       markdown-yaml-metadata-end))
+        (markdown-get-enclosing-fenced-block-construct pos))
       ;; polymode removes text properties set by markdown-mode, so
       ;; check if `poly-markdown-mode' is active and whether the
       ;; `chunkmode' property is non-nil at POS.
@@ -3809,26 +3918,21 @@ When FACELESS is non-nil, do not return matches where faces have been applied."
   "Match inline code fragments from point to LAST."
   (unless (bobp)
     (backward-char 1))
-  (when (markdown-match-inline-generic markdown-regex-code last)
-    (let ((begin (match-beginning 1))
-          (end (match-end 1))
-          (open-begin (match-beginning 2))
-          (open-end (match-end 2))
-          (code-begin (match-beginning 3))
-          (code-end (match-end 3))
-          (close-begin (match-beginning 4))
-          (close-end (match-end 4)))
-      (if (or (markdown-in-comment-p begin)
-              (markdown-in-comment-p end)
-              (markdown-code-block-at-pos begin))
-          (progn (goto-char (min (1+ begin) last))
-                 (when (< (point) last)
-                   (markdown-match-code last)))
-        (set-match-data (list begin end
-                              open-begin open-end
-                              code-begin code-end
-                              close-begin close-end))
-        t))))
+  (when (markdown-search-until-condition
+         (lambda ()
+           (and
+            ;; Advance point in case of failure, but without exceeding last.
+            (goto-char (min (1+ (match-beginning 1)) last))
+            (not (markdown-in-comment-p (match-beginning 1)))
+            (not (markdown-in-comment-p (match-end 1)))
+            (not (markdown-code-block-at-pos (match-beginning 1)))))
+         markdown-regex-code last t)
+      (set-match-data (list (match-beginning 1) (match-end 1)
+                            (match-beginning 2) (match-end 2)
+                            (match-beginning 3) (match-end 3)
+                            (match-beginning 4) (match-end 4)))
+      (goto-char (min (1+ (match-end 0)) last (point-max)))
+      t))
 
 (defun markdown-match-bold (last)
   "Match inline bold from the point to LAST."
@@ -3996,7 +4100,15 @@ links with URLs."
   (while (and (progn
                 ;; Clear match data to test for a match after functions returns.
                 (set-match-data nil)
-                (re-search-forward "\\(!\\)?\\(\\[\\)" last 'limit))
+                ;; Preliminary regular expression search so we can return
+                ;; quickly upon failure.  This doesn't handle malformed links
+                ;; or nested square brackets well, so if it passes we back up
+                ;; continue with a more precise search.
+                (re-search-forward
+                 (if ref
+                     markdown-regex-link-reference
+                   markdown-regex-link-inline)
+                 last 'limit))
               ;; Keep searching if this is in a code block, inline
               ;; code, or a comment, or if it is include syntax.
               (or (markdown-code-block-at-point-p)
@@ -4101,49 +4213,25 @@ Made into a variable to allow for dynamic let-binding.")
       (setq ret (funcall condition)))
     ret))
 
-(defun markdown-match-generic-metadata
-    (regexp last &optional block-begin-re block-end-re)
+(defun markdown-match-generic-metadata (regexp last)
   "Match metadata declarations specified by REGEXP from point to LAST.
-These declarations must appear inside a metadata block specified
-by BLOCK-BEGIN-RE and BLOCK-END-RE.  BLOCK-BEGIN-RE is a regular
-expression denoting the beginning of a metadata block.  If it is
-nil, we assume metadata can only appear at the beginning of the
-buffer.  Similarly, BLOCK-END-RE is a regular expression denoting
-the end of a metadata block.  If it is nil, assume blocks end with
-a blank line or the end of the buffer.  There may be at most one such
-block in a file.  Subsequent blocks will be ignored."
+These declarations must appear inside a metadata block that begins at
+the beginning of the buffer and ends with a blank line (or the end of
+the buffer)."
   (let* ((first (point))
-         (begin-re (or block-begin-re "\\`"))
-         (end-re (or block-end-re "\n[ \t]*\n\\|\n\\'\\|\\'"))
-
-         ;; (prev-block-begin (when (re-search-backward begin-re (point-min) t) (match-end 0)))
-         ;; (next-block-begin (when (re-search-forward begin-re last t) (match-end 0)))
-         ;; (block-begin (or prev-block-begin next-block-begin))
-
-         (block-begin (when (or (re-search-backward begin-re (point-min) t)
-                                (re-search-forward begin-re last t))
-                        (match-end 0)))
-
-         (block-end (and block-begin (goto-char block-begin)
-                         (re-search-forward end-re nil t))))
-    (cond
-     ;; Don't match declarations if there is no metadata block or if
-     ;; the point is beyond the block.  Move point to point-max to
-     ;; prevent additional searches and return return nil since nothing
-     ;; was found.
-     ((or (null block-begin) (and block-end (> first block-end)))
-      (goto-char (point-max))
-      nil)
-     ;; No declarations to match if a block was found but not in
-     ;; range.  Move point to LAST, to resume there, and return nil.
-     ((> block-begin last)
-      (goto-char last)
-      nil)
-     ;; If a block was found that begins before LAST and ends after
-     ;; point, search for declarations inside it.
-     (t
-      ;; If the starting is before the beginning of the block, start
-      ;; there.  Otherwise, move back to FIRST.
+         (end-re "\n[ \t]*\n\\|\n\\'\\|\\'")
+         (block-begin (goto-char 1))
+         (block-end (re-search-forward end-re nil t)))
+    (if (and block-end (> first block-end))
+        ;; Don't match declarations if there is no metadata block or if
+        ;; the point is beyond the block.  Move point to point-max to
+        ;; prevent additional searches and return return nil since nothing
+        ;; was found.
+        (progn (goto-char (point-max)) nil)
+      ;; If a block was found that begins before LAST and ends after
+      ;; point, search for declarations inside it.  If the starting is
+      ;; before the beginning of the block, start there. Otherwise,
+      ;; move back to FIRST.
       (goto-char (if (< first block-begin) block-begin first))
       (if (re-search-forward regexp (min last block-end) t)
           ;; If a metadata declaration is found, set match-data and return t.
@@ -4159,7 +4247,7 @@ block in a file.  Subsequent blocks will be ignored."
             t)
         ;; Otherwise, move the point to last and return nil
         (goto-char last)
-        nil)))))
+        nil))))
 
 (defun markdown-match-declarative-metadata (last)
   "Match declarative metadata from the point to LAST."
@@ -6804,7 +6892,9 @@ increase the indentation by one level."
               (insert (concat new-indent new-prefix new-spacing)))))
          ;; Unordered list, GFM task list, or ordered list with hash mark
          ((string-match-p "[\\*\\+-]\\|#\\." marker)
-          (insert new-indent marker)))))))
+          (insert new-indent marker))))
+      ;; Propertize the newly inserted list item now
+      (markdown-syntax-propertize-list-items (point-at-bol) (point-at-eol)))))
 
 (defun markdown-move-list-item-up ()
   "Move the current list item up in the list when possible.
@@ -6852,12 +6942,18 @@ In nested lists, demote child items as well."
   (interactive)
   (when (or bounds (setq bounds (markdown-cur-list-item-bounds)))
     (save-excursion
-      (let ((end-marker (set-marker (make-marker) (nth 1 bounds))))
-        (goto-char (nth 0 bounds))
-        (while (< (point) end-marker)
+      (let* ((item-start (set-marker (make-marker) (nth 0 bounds)))
+             (item-end (set-marker (make-marker) (nth 1 bounds)))
+             (list-start (progn (markdown-beginning-of-list)
+                                (set-marker (make-marker) (point))))
+             (list-end (progn (markdown-end-of-list)
+                              (set-marker (make-marker) (point)))))
+        (goto-char item-start)
+        (while (< (point) item-end)
           (unless (markdown-cur-line-blank-p)
             (insert (make-string markdown-list-indent-width ? )))
-          (forward-line))))))
+          (forward-line))
+        (markdown-syntax-propertize-list-items list-start list-end)))))
 
 (defun markdown-promote-list-item (&optional bounds)
   "Unindent (or promote) the current list item.
@@ -6867,17 +6963,23 @@ In nested lists, demote child items as well."
   (when (or bounds (setq bounds (markdown-cur-list-item-bounds)))
     (save-excursion
       (save-match-data
-        (let ((end-marker (set-marker (make-marker) (nth 1 bounds)))
+        (let ((item-start (set-marker (make-marker) (nth 0 bounds)))
+              (item-end (set-marker (make-marker) (nth 1 bounds)))
+              (list-start (progn (markdown-beginning-of-list)
+                                 (set-marker (make-marker) (point))))
+              (list-end (progn (markdown-end-of-list)
+                               (set-marker (make-marker) (point))))
               num regexp)
-          (goto-char (nth 0 bounds))
+          (goto-char item-start)
           (when (looking-at (format "^[ ]\\{1,%d\\}"
                                     markdown-list-indent-width))
             (setq num (- (match-end 0) (match-beginning 0)))
             (setq regexp (format "^[ ]\\{1,%d\\}" num))
-            (while (and (< (point) end-marker)
-                        (re-search-forward regexp end-marker t))
+            (while (and (< (point) item-end)
+                        (re-search-forward regexp item-end t))
               (replace-match "" nil nil)
-              (forward-line))))))))
+              (forward-line))
+            (markdown-syntax-propertize-list-items list-start list-end)))))))
 
 (defun markdown-cleanup-list-numbers-level (&optional pfx)
   "Update the numbering for level PFX (as a string of spaces).
@@ -7016,13 +7118,13 @@ the surrounding context in light of Markdown syntax.  For that, see
 `markdown-forward-block'."
   (interactive)
   (beginning-of-line)
-  (skip-syntax-forward "-")
+  (skip-chars-forward " \t\n")
   (when (= (point) (point-min))
     (forward-char))
   (if (re-search-forward markdown-regex-block-separator nil t)
       (goto-char (match-end 0))
     (goto-char (point-max)))
-  (skip-syntax-backward "-")
+  (skip-chars-backward " \t\n")
   (forward-line))
 
 (defun markdown-backward-paragraph (&optional arg)
@@ -7035,7 +7137,7 @@ means move forward N blocks."
       (markdown-forward-paragraph (- arg))
     (dotimes (_ arg)
       ;; Skip over whitespace in between paragraphs when moving backward.
-      (skip-syntax-backward "-")
+      (skip-chars-backward " \t\n")
       (beginning-of-line)
       ;; Skip over code block endings.
       (when (markdown-range-properties-exist
@@ -8968,6 +9070,7 @@ Returns nil if non-applicable."
                     (insert markup))
                 (goto-char pos)
                 (insert markup))
+              (syntax-propertize (+ (cl-second bounds) 4))
               t))
         (unless (save-excursion
                   (back-to-indentation)
@@ -8989,6 +9092,7 @@ Returns nil if non-applicable."
                   (insert markup))
               (goto-char pos)
               (insert markup))
+            (syntax-propertize (point-at-eol))
             t)))))
 
 (defun markdown-toggle-gfm-checkbox ()
@@ -10019,6 +10123,7 @@ spaces, or alternatively a TAB should be used as the separator."
   (add-hook 'jit-lock-after-change-extend-region-functions
             #'markdown-font-lock-extend-region-function t t)
   (setq-local syntax-propertize-function #'markdown-syntax-propertize)
+  (syntax-propertize (point-max)) ;; Propertize before hooks run, etc.
   ;; Font lock.
   (setq-local font-lock-defaults nil)
   (setq-local font-lock-multiline t)
