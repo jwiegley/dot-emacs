@@ -1,0 +1,6 @@
+
+* Step into an expression form with Edebug. (e.g. Emacs-lisp mode.)
+
+* Step into a lambda matcher function. (C mode, when used non-byte-compiled)
+
+* Instrument function, and step into.
