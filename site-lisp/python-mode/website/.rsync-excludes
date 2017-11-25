@@ -1,0 +1,6 @@
+.*~
+*~
+make.rules
+Makefile
+.rsync-excludes
+*.py

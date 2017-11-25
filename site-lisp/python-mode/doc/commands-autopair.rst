@@ -1,0 +1,61 @@
+Python-mode commands
+
+====================
+
+autopair-insert-or-skip-quote
+-----------------------------
+Insert or possibly skip over a quoting character.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-insert-opening
+-----------------------
+Insert opening delimiter and possibly automatically close it.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-skip-close-maybe
+-------------------------
+Insert or possibly skip over a closing delimiter.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-backspace
+------------------
+Possibly delete a pair of paired delimiters.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-newline
+----------------
+Do a smart newline when right between parenthesis.
+
+In other words, insert an extra newline along with the one inserted normally
+by this command. Then place point after the first, indented.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-extra-insert-opening
+-----------------------------
+Insert (an extra) opening delimiter and possibly automatically close it.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-extra-skip-close-maybe
+-------------------------------
+Insert or possibly skip over a (and extra) closing delimiter.
+
+Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+
+autopair-insert-or-skip-paired-delimiter
+----------------------------------------
+Insert or possibly skip over a character with a syntax-class of "paired delimiter".Works by scheduling possible autopair behaviour, then calls
+original command as if autopair didn't exist.
+

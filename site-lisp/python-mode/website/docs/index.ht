@@ -1,0 +1,21 @@
+Title: Python-Mode Documentation
+Author: python-mode@python.org
+Meta: <meta name="keywords" content="Emacs Python Software" />
+      <meta name="description" content="Documentation for Python-Mode." />
+Content-Type: text/x-rst
+
+Python-mode makes a number of editing and debugging features available to
+Python programmers who use GNU Emacs or XEmacs.  Included in its basic
+feature set are:
+
+    * syntax coloring
+
+    * indent/dedent/electric newline support
+
+    * movement across major functional sections of code
+
+    * code execution in inferior Python processes
+
+    * class/function marking
+
+    * integration with pdb, the Python debugger

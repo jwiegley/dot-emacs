@@ -1,0 +1,141 @@
+*  (get-char-property pos 'syntax-table)
+
+text-properties-at
+
+remove-text-properties
+  alter-text-property
+  get-text-property
+
+  (set (make-local-variable 'comint-output-filter-functions)
+  '(ansi-color-process-output
+  python-shell-comint-watch-for-first-prompt-output-filter
+  python-pdbtrack-comint-output-filter-function
+  python-comint-postoutput-scroll-to-bottom))
+
+* autopair mode
+* py-fill-paren test
+* py--beginning-of- position auch von start
+* use comint-bol
+* which-func-mode in shell-buffer
+* py-ert-find-definition-test-1
+* py-indent-region-left
+* delimiters
+  (       )       [       ]       {       }
+  ,       :       .       ;       @       =
+  +=      -=      *=      /=      //=     %=
+  &=      |=      ^=      >>=     <<=     **=
+* py-report-comint-variable-setting, variables-prepare
+*   New keys setting in `py-python-shell-mode-map'
+  
+  [(control c)(control l)] 'comint-dynamic-list-input-ring)
+  [(control c)(control r)] 'comint-previous-prompt)
+  
+  Behaviour similar to Emacs comint/Python environment.
+  Taken from shift-keys, which are still there:
+  
+  [(control c)(<)] 'py-shift-left)
+  [(control c)(>)] 'py-shift-right)
+
+* py--escape-open-paren-col1 unbenutzt
+* -V terminates the process
+* py-load-pymacs-p in python-mode.el
+* pdb
+  in gud.el
+    (run-hooks 'pdb-mode-hook))
+* pdb breakpoints
+  http://stackoverflow.com/questions/6980749/simpler-way-to-put-pdb-breakpoints-in-python-code  
+    python -m pdb your_script.py
+
+It will break on the 1st line, then you'll be able to add a breakpoint wherever you want in your code using the break command, its syntax is:
+
+    b(reak) [[filename:]lineno | function[, condition]]
+
+* idlw-shell.el
+  ;; Python-mode, bundled with many Emacs installs, quite cavalierly
+  ;; adds this function to the global default hook.  It interferes
+  ;; with overlay-arrows.
+  (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
+
+
+* def (a,
+
+  ): no indent
+* am Ende von else: no completion
+* py-help-at-point fails at `readlines'
+  with open('GivenFixtures.txt', 'r') as gv:
+    # datei = gv.read()
+    text = gv.readlines()
+
+* let's dedicated shells buffer-name start with process-serial-no
+* py-minor-expression/token, py-expression/value
+* py-describe-symbol-fails-on-modules-lp:919719-test
+* print_function IPython completion von prin
+* py-fill-string-django-test
+* fill-paragraph-in-docstring-lp-1161232-test
+* py-execute-buffer-python2-switch-test
+* ipython-complete-lp-1102226-test
+* Bogus-whitespace-left-in-docstring-after-wrapping-lp-1178455-test
+* cls-pseudo-keyword-lp:328849-test 
+* py-execute-region-error-test
+* more-docstring-filling-woes-lp-1102296-nil-test
+* inconvenient-window-splitting-behavior-ipython-lp-1018996-test
+* py-electric-comment-add-space-lp:828398-test
+* py-help-at-point mit fast
+* py--fast-send-string store return
+* normalize py-execute-buffer-python-switch etc.
+* augmented-assigment-test
+* switch-windows-on-execute-p-test  - warum Fehler?
+* mention py-buffer-name holds current exec-buffer value
+* Python 3.3.0 (default, Oct 01 2012, 09:13:30) [GCC] on linux
+  Type "help", "copyright", "credits" or "license" for more information.
+  >>> ... >>> >>> ... ... ... ... ... ... ... ... ... >>> >>> ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... >>> Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  FileNotFoundError: [Errno 2] No such file or directory: '/tmp/python3-19061qd.py'
+* py-indent-tabs-mode design
+* make-temp-name zu md5, ein.py
+* `py-always-split-windows-p' renamed py-split-if-not-visible-p
+* py-buffer-name.txt
+* py-mode-output-map
+* python-mode-utils.el aktualisieren - fast-process Output buffer 
+* in py-shell
+  (args
+	  (cond (py-fast-process-p nil)
+* py-auto-completion-mode-p
+* forward-sexp-test
+*  with-output-to-temp-buffer, 
+* py-orig-buffer-or-file
+* py-remove-cwd-from-path
+* sys.version_info
+* py-ipython-complete-lp:927136-test
+* TODO py-max-help-buffer-p
+* TODO py-beginning-of-elif
+* TODO py-execute-python-mode-v5 returns position, now result
+  use orig
+* TODO implement respective to shell-dumb-shell-regexp 
+* TODO make `py-complete-completion-at-point' command
+* TODO run shebang in ansi-term, provide resp. commands
+* TODO dispay index in speedbar
+* TODO python3 smart detect for py-execute-
+* TODO py-electric-colon: insert colon
+* TODO py-decomment
+* TODO py-output-buffer
+* TODO Emacs Python Tested Environment
+  Many Emacs users keep there own environemt composed
+  of the extensions around. Therefor offering everthing
+  possibly needed right from the spot is not that
+  promising as elsewhere - moreover, there is a
+  probability, stuff delivered might disturb existing
+  workflow. OTOH many users will spend more time than
+  necessary collecting all this stuff from a plenty of
+  sources, which often need some tweaks. A Solution
+  might be indicating tested install examples.
+  
+* TODO py-down-block-same-level
+* TODO py-execute-statement-version
+  generic command, execute according to version customized in `py-execute-version'
+* TODO describe-mode remove unused key labels
+* TODO KEYWORDS = frozenset(keyword.kwlist + ['print']) - SINGLETONS
+  grasp keyword.kwlist as py-minor-expression
+* Text is read-only - Usache war prompt in comint, Konflikt mit setup
+* py-split-window-on-execute-lp-1361531-bpython-test
+* yanking back funkt nicht
