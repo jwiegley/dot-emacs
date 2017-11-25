@@ -1962,6 +1962,15 @@
   :init
   (fset 'describe-bindings 'helm-descbinds))
 
+(use-package helpful
+  :load-path "site-lisp/helpful"
+  :commands (helpful-function
+             helpful-command
+             helpful-macro
+             helpful-callable
+             helpful-variable
+             helpful-at-point))
+
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
          ("M-o r" . highlight-regexp)
