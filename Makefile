@@ -75,12 +75,6 @@ dot-gnus.elc: dot-gnus.el
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
 clean:
-	rm -f *.elc
-	find . -name '*.elc' | while read file ; do \
-	    if ! test -f $$(echo $$file | sed 's/\.elc$$/.el/'); then \
-		echo Removing old file: $$file ; \
-		rm $$file ; \
-	    fi ; \
-	done
+	find . -name '*.elc' -delete
 
 ### Makefile ends here
