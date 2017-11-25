@@ -1,4 +1,4 @@
-;;; springboard --- Temporarily change default-directory for one command
+;;; springboard.el --- Temporarily change default-directory for one command
 
 ;; Copyright (C) 2012 John Wiegley
 
@@ -6,6 +6,7 @@
 ;; Created: 13 Jun 2012
 ;; Version: 1.0
 ;; Keywords: helm
+;; Package-Requires: ((helm "1.6.9"))
 ;; X-URL: https://github.com/jwiegley/springboard
 
 ;; This program is free software; you can redistribute it and/or
@@ -42,6 +43,8 @@
 ;; have to run PCVS, Magit, etc.  The moment you type your command,
 ;; Springboard disappears, and if your command needs minibuffer input, you'll
 ;; now be in the minibuffer for that new command.
+
+;;; Code:
 
 (require 'helm)
 (require 'recentf)
@@ -101,6 +104,12 @@ disappears, then you need to add that command to this list."
   (defvar springboard-trapped nil)
   (defvar springboard-already-trapped nil))
 
+(defun springboard-add-trap ()
+  (add-hook 'pre-command-hook 'springboard-trap-command t t))
+
+(defun springboard-remove-trap ()
+  (remove-hook 'pre-command-hook 'springboard-trap-command t))
+
 (defun springboard-trap-command ()
   (unless springboard-already-trapped
     (condition-case err
@@ -118,12 +127,6 @@ disappears, then you need to add that command to this list."
           (helm-confirm-and-exit-minibuffer))
       (error
        (message "Error occurred: %s" err)))))
-
-(defun springboard-add-trap ()
-  (add-hook 'pre-command-hook 'springboard-trap-command t t))
-
-(defun springboard-remove-trap ()
-  (remove-hook 'pre-command-hook 'springboard-trap-command t))
 
 (defun springboard-current-history ()
   (let ((recentf-filtered-list
