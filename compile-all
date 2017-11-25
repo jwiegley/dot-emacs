@@ -22,7 +22,6 @@ find "$@"                                                                       
        ! -name '*-tests.el'                                                     \
        ! -path lib/emacs-web/web-file-upload.el                                 \
        ! -path lib/f-el/bin/docs.el                                             \
-       ! -path lib/sdic-inline-pos-tip.el                                       \
        ! -path lisp/muse/contrib/htmlize-hack.el                                \
        ! -path lisp/my-one-key.el                                               \
        ! -path lisp/puppet-ext.el                                               \
