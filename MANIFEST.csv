@@ -7,6 +7,7 @@ anaphora,lib,subtree,git://github.com/rolandwalker/anaphora.git,
 apiwrap,lib,subtree,git://github.com/vermiculus/apiwrap.el.git,
 ascii.el,site-lisp,file,http://www.emacswiki.org/emacs/download/ascii.el,
 auctex,site-lisp,submodule,https://git.savannah.gnu.org/git/auctex.git,
+auto-yasnippet,site-lisp,subtree,git://github.com/abo-abo/auto-yasnippet.git,
 avy,site-lisp,subtree,git://github.com/abo-abo/avy.git,
 backup-each-save.el,site-lisp,file,http://www.emacswiki.org/emacs/download/backup-each-save.el,
 bbdb,site-lisp,subtree,git://git.savannah.nongnu.org/bbdb.git,mirror-only
