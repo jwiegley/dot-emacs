@@ -222,6 +222,7 @@
 (use-package dash            :demand t :load-path "lib/dash-el")
 (use-package deferred         :defer t :load-path "lib/emacs-deferred")
 (use-package diminish        :demand t :load-path "lib/diminish")
+(use-package elisp-refs       :defer t :load-path "lib/elisp-refs")
 (use-package emojify          :defer t :load-path "lib/emacs-emojify")
 (use-package epc              :defer t :load-path "lib/emacs-epc")
 (use-package epl              :defer t :load-path "lib/epl")
