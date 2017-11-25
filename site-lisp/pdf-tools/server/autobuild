@@ -1,0 +1,480 @@
+#!/bin/sh
+
+##
+## Installs package dependencies and builds the application.
+##
+
+# Don't exit if some command fails.
+set +e
+# Disalbe file globbing.
+set -f
+
+# Boolean variables are true if non-empty and false otherwise.
+
+# Command to install packages.
+PKGCMD=
+# Args to pass to $PKGCMD.
+PKGARGS=
+# Required packages.
+PACKAGES=
+# Whether package installation requires root permissions.
+PKG_INSTALL_AS_ROOT=true
+# Whether to skip package installation altogether.
+PKG_INSTALL_SKIP=
+# Whether to force package installation, even if it does not seem
+# necessary.
+PKG_INSTALL_FORCE=
+# Only test if the OS is handled by this script.
+DRY_RUN=
+# If and where to install the program.
+INSTALL_DIR=
+# Whether we can install packages.
+OS_IS_HANDLED=true
+
+## +-----------------------------------------------------------+
+## * Utility Functions
+## +-----------------------------------------------------------+
+
+usage()
+{
+    cat <<EOF
+usage:$(basename "$0") [--help|-n|[-i DIR|-I]]
+
+    -n      Don't do anything, but check if this OS is handled.
+
+    -i DIR  Install the program in the given directory.
+
+    -d      Force dependency installattion.
+
+    -D      Skip dependency installattion.
+
+    --help  Display this message.
+
+EOF
+    exit "$1"
+}
+
+# Search for command $1 in PATH. Print its absolute filename.
+which()
+{
+    if [ -z "$1" ]; then
+        return 1
+    fi
+    IFS=:
+    for dir in $PATH; do
+        if [ -x "$dir/$1" ]; then
+            printf "%s" "$dir/$1"
+            unset IFS
+            return 0
+        fi
+    done
+    unset IFS
+    return 1
+}
+
+# Quote $@ for the shell.
+quote()
+{
+    quoted=
+    for arg; do
+        qarg=$(printf "%s" "$arg" | sed -e 's/[|&;<>()$\`"'\'' 	]/\\&/g')
+        if [ -z "$quoted" ]; then
+            quoted=$qarg
+        else
+            quoted="$quoted $qarg"
+        fi
+    done
+    printf "%s" "$quoted"
+}
+
+# Attempt to exec $@ as root.
+exec_privileged() {
+    if [ -z "$1" ]; then
+        echo "internal error: command is empty"
+        exit 2
+    fi
+    if [ -w / ]; then
+        "$@"
+    elif which sudo >/dev/null 2>&1; then
+        sudo -- "$@"
+        retval=$?
+        sudo -k
+        return $retval
+    elif which su >/dev/null 2>&1; then
+        su -c "$(quote "$@")"
+    else
+        echo "No such program: sudo or su"
+        exit 1
+    fi
+}
+
+# Test if $1 is in PATH or exit with a failure status.
+assert_program()
+{
+    if ! which "$1" >/dev/null 2>&1; then
+        echo "No such program: $1"
+        exit 1
+    fi
+}
+
+# Source filename $1 and echo variable $2.
+source_var()
+{
+    if ! [ -f "$1" ] || ! [ -r "$1" ] || [ -z "$2" ]; then
+        return 1
+    fi
+    # shellcheck source=/dev/null
+    . "$1"
+    eval "printf '%s\n' \$$2"
+    return 0
+}
+
+exit_success()
+{
+    echo "==========================="
+    echo "   Build succeeded. :O)    "
+    echo "==========================="
+    exit 0
+}
+
+exit_fail()
+{
+    echo "==========================="
+    echo "     Build failed.  ;o(    "
+    echo "==========================="
+    if [ -z "$PKG_INSTALL_FORCE" ]; then
+        echo "Note: maybe try the '-d' option."
+    fi
+    exit 1
+}
+
+# Return 0, if all required packages seem to be installed.
+have_packages_installed()
+{
+    {
+        which pkg-config || return 1
+        if ! [ -f configure ];then
+            which autoreconf || return 1
+            which automake || return 1
+        fi
+        for lib in libpng glib-2.0 poppler poppler-glib zlib; do
+            pkg-config --exists $lib || return 1
+        done
+        which make || return 1
+        which gcc || which cc || return 1
+        which g++ || which c++ || return 1
+        cc $(pkg-config --cflags poppler) -o /dev/null -E - 2>/dev/null <<EOF
+        #include <PDFDocEncoding.h>
+EOF
+        [ $? -eq 0 ] || return 1
+        return 0
+    } >/dev/null 2>&1
+}
+
+handle_options()
+{
+    while [ $# -gt 0 ]; do
+        case $1 in
+            --help) usage 0;;
+            -n) DRY_RUN=true;;
+            -d) PKG_INSTALL_FORCE=true ;;
+            -D) PKG_INSTALL_SKIP=true ;;
+            -i)
+                shift
+                [ $# -gt 0 ] || usage 1
+                if [ "${1%%/}" != "${PWD%%/}" ]; then
+                    INSTALL_DIR=$1
+                fi ;;
+            *) usage 1 ;;
+        esac
+        shift
+    done
+    if [ -n "$PKG_INSTALL_SKIP" ] && [ -n "$PKG_INSTALL_FORCE" ]; then
+        usage 1
+    fi
+}
+
+## +-----------------------------------------------------------+
+## * OS Functions
+## +-----------------------------------------------------------+
+
+# Archlinux
+os_arch() {
+    if ! [ -e "/etc/arch-release" ]; then
+        return 1;
+    fi
+    PKGCMD=pacman
+    PKGARGS="-S --needed"
+    PACKAGES="base-devel libpng zlib poppler-glib"
+    return 0;
+}
+
+# CentOS
+os_centos() {
+    if ! [ -e "/etc/centos-release" ]; then
+        return 1
+    fi
+    PKGCMD=yum
+    if yum help install-n >/dev/null 2>&1; then
+        PKGARGS=install-n
+    else
+        PKGARGS=install
+    fi
+    PACKAGES="autoconf
+              automake
+              gcc
+              gcc-c++
+              libpng-devel
+              make
+              pkgconfig
+              poppler-devel
+              poppler-glib-devel
+              zlib-devel"
+    return 0
+}
+
+# FreeBSD
+os_freebsd() {
+    if ! which uname >/dev/null 2>&1 || [ "$(uname -s)" != "FreeBSD" ]; then
+        return 1
+    fi
+    PKGCMD=pkg
+    PKGARGS=install
+    PACKAGES="autotools poppler-glib png pkgconf"
+    return 0
+}
+
+# Fedora
+os_fedora() {
+    if ! [ -e "/etc/fedora-release" ]; then
+        return 1
+    fi
+    PKGCMD=dnf
+    PKGARGS=install
+    PACKAGES="autoconf
+              automake
+              gcc
+              gcc-c++
+              libpng-devel
+              make
+              poppler-devel
+              poppler-glib-devel
+              zlib-devel"
+    VERSION=$(source_var /etc/os-release VERSION_ID)
+    if [ -n "$VERSION" ] && [ "$VERSION" -ge 26 ]; then
+        PACKAGES="$PACKAGES pkgconf"
+    else
+        PACKAGES="$PACKAGES pkgconfig"
+    fi
+    return 0
+}
+
+# Debian/Ubuntu
+os_debian() {
+    if ! [ -e "/etc/debian_version" ]; then
+        return 1
+    fi
+    PACKAGES="autoconf
+              automake
+              g++
+              gcc
+              libpng-dev
+              libpoppler-dev
+              libpoppler-glib-dev
+              libpoppler-private-dev
+              libz-dev
+              make
+              pkg-config"
+    PKGCMD=apt-get
+    PKGARGS=install
+    return 0
+}
+
+# Msys2
+os_msys2() {
+    if [ -z "$MSYSTEM" ] || ! [ -r "/etc/profile" ]; then
+        return 1
+    fi
+    case $MSYSTEM in
+        MINGW64)
+            PACKAGES="base-devel
+                      mingw-w64-x86_64-libpng
+                      mingw-w64-x86_64-poppler
+                      mingw-w64-x86_64-toolchain
+                      mingw-w64-x86_64-zlib" ;;
+        MINGW32)
+            PACKAGES="base-devel
+                      mingw-w64-i686-libpng
+                      mingw-w64-i686-poppler
+                      mingw-w64-i686-toolchain
+                      mingw-w64-i686-zlib" ;;
+        MSYS)
+            case $(uname -m) in
+                x86_64)
+                    MSYSTEM=MINGW64 ;;
+                *)
+                    MSYSTEM=MINGW32 ;;
+            esac
+            export MSYSTEM
+            # shellcheck source=/dev/null
+            . /etc/profile
+            eval "exec $(quote "$0" "$@")" ;;
+        *)
+            echo "Unrecognized MSYSTEM value: $MSYSTEM"
+            exit 1 ;;
+    esac
+    PKGCMD=pacman
+    PKGARGS="-S --needed"
+    PKG_INSTALL_AS_ROOT=
+    return 0
+}
+
+# MacOS
+os_macos() {
+    if ! which uname >/dev/null 2>&1 || [ "$(uname -s)" != "Darwin" ]; then
+        return 1
+    fi
+    PKGCMD=brew
+    PKGARGS=install
+    PACKAGES="pkg-config poppler automake"
+    PKG_INSTALL_AS_ROOT=
+    return 0
+}
+
+# NixOS
+os_nixos() {
+    # Already in the nix-shell.
+    if [ -n "$AUTOBUILD_NIX_SHELL" ]; then
+        return 0
+    fi
+    if ! which nix-shell >/dev/null 2>&1; then
+        return 1
+    fi
+    if [ -n "$DRY_RUN" ]; then
+        return 0
+    fi
+    command="AUTOBUILD_NIX_SHELL=true"
+    command="$command;export AUTOBUILD_NIX_SHELL"
+    command="$command;$(quote "$0" "$@")"
+    exec nix-shell --pure --command "$command" \
+         -p gcc gnumake automake autoconf pkgconfig libpng zlib poppler
+}
+
+# Gentoo
+os_gentoo() {
+    if ! [ -e "/etc/gentoo-release" ]; then
+        return 1
+    fi
+    PKGCMD=emerge
+    PKGARGS=--noreplace
+    PACKAGES="app-text/poppler
+              dev-util/pkgconfig
+              media-libs/libpng
+              sys-devel/autoconf
+              sys-devel/automake
+              sys-devel/gcc
+              sys-devel/make
+              sys-libs/zlib"
+    return 0
+}
+
+## +-----------------------------------------------------------+
+## * Figure out were we are, install deps and build the program
+## +-----------------------------------------------------------+
+
+handle_options "$@"
+
+os_nixos   "$@" || \
+os_macos   "$@" || \
+os_freebsd "$@" || \
+os_arch    "$@"	|| \
+os_centos  "$@"	|| \
+os_fedora  "$@"	|| \
+os_debian  "$@"	|| \
+os_gentoo  "$@"	|| \
+os_msys2   "$@"	|| \
+{
+    OS_IS_HANDLED=
+    if [ -z "$DRY_RUN" ]; then
+        echo "Failed to recognize this system, trying to continue."
+    fi
+}
+
+if [ -n "$DRY_RUN" ]; then
+    [ -n "$OS_IS_HANDLED" ]
+    exit $?
+fi
+
+if [ -n "$PKGCMD" ];then
+    echo "---------------------------"
+    echo "    Installing packages    "
+    echo "---------------------------"
+    if [ -n "$PKG_INSTALL_SKIP" ]; then
+        echo "Skipping package installation (as requested)"
+    elif [ -z "$PKG_INSTALL_FORCE" ] && have_packages_installed; then
+        echo "Skipping package installation (already installed)"
+    else
+        assert_program "$PKGCMD"
+        echo "$PKGCMD $PKGARGS $PACKAGES"
+        if [ -n "$PKG_INSTALL_AS_ROOT" ]; then
+            exec_privileged $PKGCMD $PKGARGS $PACKAGES
+        else
+            $PKGCMD $PKGARGS $PACKAGES
+        fi
+    fi
+    echo
+fi
+
+echo "---------------------------"
+echo " Configuring and compiling "
+echo "---------------------------"
+
+# Try to be in the correct directory.
+if which dirname >/dev/null 2>&1; then
+    cd "$(dirname "$0")" || {
+        echo "Failed to change into the source directory"
+        exit 1
+    }
+fi
+
+# Create the configure script.
+if ! [ -f ./configure ]; then
+    assert_program autoreconf
+    echo "autoreconf -i"
+    autoreconf -i
+    [ -f ./configure ] || exit_fail
+fi
+
+# Build the program.
+if [ -n "$INSTALL_DIR" ]; then
+    prefix=--bindir=$INSTALL_DIR
+fi
+
+echo "./configure -q $prefix && make -s"
+eval "./configure -q $(quote "$prefix") && make -s || exit_fail"
+echo
+if [ -n "$INSTALL_DIR" ]; then
+    echo "---------------------------"
+    echo "       Installing          "
+    echo "---------------------------"
+    echo make -s install
+    if mkdir -p -- "$INSTALL_DIR" && [ -w "$INSTALL_DIR" ]; then
+        make install || exit_fail
+    else
+        exec_privileged make install || exit_fail
+    fi
+    # Copy dynamic libraries on windows.
+    if [ -f epdfinfo.exe ]; then
+        assert_program awk
+        assert_program ldd
+        for dll in $(ldd epdfinfo.exe | awk '/\/mingw/ {print $3}'); do
+            cp -u "$dll" "$INSTALL_DIR"
+        done
+    fi
+    echo
+fi
+exit_success
+
+# Local Variables:
+# compile-command: "shellcheck autobuild"
+# End:
