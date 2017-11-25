@@ -1,4 +1,4 @@
-;;; regex-tool --- A regular expression evaluation tool for programmers
+;;; regex-tool.el --- A regular expression evaluation tool for programmers
 
 ;; Copyright (C) 2007 John Wiegley
 
@@ -50,6 +50,8 @@
 ;; 1.1 - Don't die horribly if the user simply types '^' or '$'
 ;; 1.2 - Include cl.el at compile time
 
+;;; Code:
+
 (eval-when-compile
   (require 'cl))
 
@@ -88,13 +90,15 @@ The `perl' backend talks to a perl subprocess to do the handling.\"
 (defun regex-render-perl (regex sample)
   (with-temp-buffer
     (insert (format "@lines = <DATA>;
-$line = join(\" \", @lines);
+$line = join(\"\", @lines);
 print \"(\";
 while ($line =~ m/%s/mg) {
   print \"(\", length($`), \" \", length($&), \" \";
   for $i (1 .. 20) {
     if ($$i) {
-      print \"(\", $i, \" . \\\"\", $$i, \"\\\") \";
+      my $group = $$i;
+      $group =~ s/([\\\\\"])/\\\\\\1/g;
+      print \"(\", $i, \" . \\\"\", $group, \"\\\") \";
     }
   }
   print \")\";
@@ -113,24 +117,32 @@ __DATA__
 ;;;###autoload
 (defun regex-tool ()
   (interactive)
-  (select-frame (make-frame-command))
-  (split-window-vertically)
-  (split-window-vertically)
-  (balance-windows)
-  (setq regex-expr-buffer (get-buffer-create "*Regex*"))
-  (switch-to-buffer regex-expr-buffer)
-  (regex-tool-mode)
-  (other-window 1)
-  (setq regex-text-buffer (get-buffer-create "*Text*"))
-  (switch-to-buffer regex-text-buffer)
-  (goto-char (point-min))
-  (if (eolp)
-      (insert "Hello, this is text your regular expression will match against."))
-  (regex-tool-mode)
-  (other-window 1)
-  (setq regex-group-buffer (get-buffer-create "*Groups*"))
-  (switch-to-buffer regex-group-buffer)
-  (other-window 1))
+  (let ((sample-text
+         (when (use-region-p)
+           (buffer-substring-no-properties (region-beginning) (region-end)))))
+    (select-frame (make-frame-command))
+    (split-window-vertically)
+    (split-window-vertically)
+    (balance-windows)
+    (setq regex-expr-buffer (get-buffer-create "*Regex*"))
+    (switch-to-buffer regex-expr-buffer)
+    (regex-tool-mode)
+    (other-window 1)
+    (setq regex-text-buffer (get-buffer-create "*Text*"))
+    (switch-to-buffer regex-text-buffer)
+    (goto-char (point-min))
+    (if sample-text
+        (progn
+          (delete-region (point-min) (point-max))
+          (insert sample-text)
+          (goto-char (point-min)))
+      (if (eolp)
+          (insert "Hello, this is text your regular expression will match against.")))
+    (regex-tool-mode)
+    (other-window 1)
+    (setq regex-group-buffer (get-buffer-create "*Groups*"))
+    (switch-to-buffer regex-group-buffer)
+    (other-window 1)))
 
 (defun regex-tool-markup-text (&optional beg end len)
   (interactive)
@@ -192,4 +204,4 @@ __DATA__
 
 (provide 'regex-tool)
 
-;; regex-tool.el ends here
+;;; regex-tool.el ends here
