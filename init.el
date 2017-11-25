@@ -657,8 +657,8 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 ;;; Separate configurations
 
 (use-package dot-org
-  :load-path ("site-lisp/org-mode/contrib/lisp"
-              "site-lisp/org-mode/lisp")
+  :load-path ("site-lisp/org-mode/lisp"
+              "site-lisp/org-mode/contrib/lisp")
   :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
@@ -1110,8 +1110,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
   :preface
-  (use-package my-compile)
-
   (defun show-compilation ()
     (interactive)
     (let ((buf (--first (string-match "\\*compilation\\*" (buffer-name it))
@@ -1432,7 +1430,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package ediff
   :config
-  (use-package ediff-keep)
   (bind-keys
    :prefix-map my-ctrl-dot-equal-map
    :prefix "C-. ="
@@ -1447,6 +1444,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ("P" . ediff-patch-buffer)
    ("l" . ediff-regions-linewise)
    ("w" . ediff-regions-wordwise)))
+
+(use-package ediff-keep
+  :after ediff)
 
 (use-package edit-env
   :commands edit-env)
@@ -2624,6 +2624,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("C-c m R" . mc/reverse-regions)
          ("C-c m r" . set-rectangular-region-anchor)))
 
+(use-package my-compile
+  :after compile)
+
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
@@ -2709,8 +2712,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands paredit-mode
   :diminish paredit-mode
   :config
-  (use-package paredit-ext)
-
   (unbind-key "M-r" paredit-mode-map)
   (unbind-key "M-s" paredit-mode-map)
 
@@ -2730,6 +2731,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    ("C-. A" . paredit-add-to-previous-list)
    ("C-. j" . paredit-join-with-next-list)
    ("C-. J" . paredit-join-with-previous-list)))
+
+(use-package paredit-ext
+  :after paredit)
 
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"

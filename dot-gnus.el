@@ -44,29 +44,22 @@
 (defun quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
-(use-package gnus-group
-  :defer t
+(use-package fetchmail-ctl
+  :after gnus-group
   :config
-  (use-package fetchmail-ctl
-    :config
-    (bind-key "v b" #'switch-to-fetchmail gnus-group-mode-map)
-    (bind-key "v o" #'start-fetchmail gnus-group-mode-map)
-    (bind-key "v d" #'shutdown-fetchmail gnus-group-mode-map)
-    (bind-key "v k" #'kick-fetchmail gnus-group-mode-map)
-    (bind-key "v p" #'fetchnews-post gnus-group-mode-map)))
+  (bind-key "v b" #'switch-to-fetchmail gnus-group-mode-map)
+  (bind-key "v o" #'start-fetchmail gnus-group-mode-map)
+  (bind-key "v d" #'shutdown-fetchmail gnus-group-mode-map)
+  (bind-key "v k" #'kick-fetchmail gnus-group-mode-map)
+  (bind-key "v p" #'fetchnews-post gnus-group-mode-map))
 
 (use-package gnus-sum
-  :config
-  (bind-key "F" #'gnus-summary-wide-reply-with-original
-            gnus-summary-mode-map)
-  )
+  :bind (:map gnus-summary-mode-map
+              ("F" . gnus-summary-wide-reply-with-original)))
 
 (use-package gnus-art
-  :config
-  (bind-key "F" #'gnus-article-wide-reply-with-original
-            gnus-article-mode-map)
-  ;; (add-hook 'gnus-article-mode-hook #'(lambda () (text-scale-set 1)))
-  )
+  :bind (:map gnus-article-mode-map
+              ("F" . gnus-article-wide-reply-with-original)))
 
 (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 (add-hook 'gnus-group-mode-hook 'hl-line-mode)
