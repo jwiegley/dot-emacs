@@ -2492,6 +2492,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
   (remove-hook 'server-switch-hook 'magit-commit-diff))
 
+(use-package magit-imerge
+  :disabled t
+  :load-path "site-lisp/magit-imerge"
+  :after magit)
+
 (use-package magithub
   :disabled t
   :load-path "site-lisp/magithub"
@@ -2505,7 +2510,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (defun replace-invisiclues ()
     (interactive)
-    (query-replace-regexp "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)" (quote (replace-eval-replacement concat "\\1\\2" (replace-quote (rot13 (match-string 4))))) nil (if (use-region-p) (region-beginning)) (if (use-region-p) (region-end)) nil nil)))
+    (query-replace-regexp
+     "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)"
+     (quote (replace-eval-replacement
+             concat "\\1\\2" (replace-quote (rot13 (match-string 4)))))
+     nil (if (use-region-p) (region-beginning))
+     (if (use-region-p) (region-end)) nil nil)))
 
 (use-package markdown-mode
   :load-path "site-lisp/markdown-mode"
@@ -2525,6 +2535,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package math-symbol-lists
   :load-path "site-lisp/math-symbol-lists"
   :defer t)
+
+(use-package mediawiki
+  :load-path "site-lisp/mediawiki"
+  :commands mediawiki-open)
 
 (use-package memory-usage
   :commands memory-usage)
