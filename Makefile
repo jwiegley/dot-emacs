@@ -43,12 +43,13 @@ compile-packages:
 	    site-lisp/evil			\
 	    site-lisp/flycheck			\
 	    site-lisp/haskell-mode		\
+	    site-lisp/helm			\
 	    site-lisp/hyperbole			\
 	    site-lisp/lusty-emacs		\
 	    site-lisp/org-mode			\
 	    site-lisp/slime			\
 	    site-lisp/swiper			\
-	    ; do (cd $$i && make) ; done
+	    ; do (cd $$i && make ASYNC_ELPA_DIR=$HOME/emacs/lisp/emacs-async) ; done
 
 compile:
 	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)

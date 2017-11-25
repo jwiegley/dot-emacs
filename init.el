@@ -6,6 +6,8 @@
   (expand-file-name path user-emacs-directory))
 
 (eval-and-compile
+  (require 'seq)
+
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
   (defsubst add-load-path (path)
@@ -1937,7 +1939,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
          ("M-o w" . highlight-phrase)))
 
 (use-package highlight
-  :bind ("C-. h" . hlt-highlight-region))
+  :commands (hlt-highlight-region
+             hlt-unhighlight-region)
+  :init
+  (bind-keys
+   :prefix-map my-ctrl-dot-h-map
+   :prefix "C-. h"
+   ("h" . hlt-highlight-region)
+   ("u" . hlt-unhighlight-region)))
 
 (use-package highlight-cl
   :init
