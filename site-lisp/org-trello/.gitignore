@@ -1,0 +1,14 @@
+*.elc
+*.log
+*.html
+/testing-clean-install/
+/elpa/
+*.tar
+/org-trello-*/
+.elpa
+.cask
+/#*org-trello-testing-buffer*#
+/*org-trello-testing-buffer*
+/_site/
+/dist/
+flycheck_*.el

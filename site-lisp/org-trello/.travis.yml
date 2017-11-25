@@ -1,0 +1,22 @@
+language: emacs-lisp
+sudo: false
+
+before_install:
+  # evm install
+  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
+  - evm install $EVM_EMACS --use --skip
+  # install the matrix's emacs version
+  - cask --version
+  - emacs --version
+  # install deps for cask
+  - EMACS="/home/travis/.evm/bin/emacs" cask install
+env:
+  - EVM_EMACS=emacs-24.4-travis
+  - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.1-travis
+  - EVM_EMACS=emacs-25.2-travis
+  - EVM_EMACS=emacs-25.3-travis
+
+script:
+  - pwd
+  - EMACS="/home/travis/.evm/bin/emacs" make install test
