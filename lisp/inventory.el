@@ -1,3 +1,5 @@
+(require 'anaphora)
+
 (defsubst sort-on (seq predicate accessor)
   "Sort SEQ using PREDICATE applied to values returned by ACCESSOR.
 This implements the so-called Schwartzian transform, which has
@@ -28,19 +30,20 @@ reuse storage as much as possible."
 
 (defun sort-package-declarations ()
   (interactive)
-  (cl-flet ((next-use-package
-             () (if (re-search-forward "^(use-package " nil t)
-                    (goto-char (match-beginning 0))
-                  (goto-char (point-max)))))
-    (sort-subr
-     nil
-     #'next-use-package
-     #'(lambda ()
-         (goto-char (line-end-position))
-         (next-use-package))
-     #'(lambda ()
-         (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
-         (match-string 1)))))
+  (save-excursion
+    (cl-flet ((next-use-package
+               () (if (re-search-forward "^(use-package " nil t)
+                      (goto-char (match-beginning 0))
+                    (goto-char (point-max)))))
+      (sort-subr
+       nil
+       #'next-use-package
+       #'(lambda ()
+           (goto-char (line-end-position))
+           (next-use-package))
+       #'(lambda ()
+           (re-search-forward "(use-package \\([A-Za-z0-9_+-]+\\)")
+           (match-string 1))))))
 
 (defsubst modhash (key table f)
   (let ((value (gethash key table)))
@@ -139,16 +142,16 @@ reuse storage as much as possible."
                         (forward-sexp)
                         (point)))
                  (load-paths (plist-get entry :load-path))
-                 (load-path (cond
-                             ((and load-paths
-                                   (listp load-paths))
-                              (car load-paths))
-                             ((stringp load-paths)
-                              load-paths)))
+                 (path (cond
+                        ((and load-paths
+                              (listp load-paths))
+                         (car load-paths))
+                        ((stringp load-paths)
+                         load-paths)))
                  (load-path-re "\\`\\(site-lisp\\|lisp\\|lib\\)/\\([^/]+\\)")
-                 (key (if (and load-path
-                               (string-match load-path-re load-path))
-                          (let* ((key (match-string 2 load-path))
+                 (key (if (and path
+                               (string-match load-path-re path))
+                          (let* ((key (match-string 2 path))
                                  (entry (gethash key pkgs))
                                  (pkg-name (alist-get 'use-package-name entry)))
                             (if (or (null entry)
@@ -157,13 +160,15 @@ reuse storage as much as possible."
                                 key
                               name))
                         name)))
-            (modhash key pkgs
-                     (lambda (value)
-                       (alist-put value
-                                  (cons 'use-package-name name)
-                                  (and load-paths
-                                       (cons 'use-package-load-path
-                                             load-paths)))))
+            (unless (aif (locate-library name)
+                        (string-match "/share/emacs/" it))
+              (modhash key pkgs
+                       (lambda (value)
+                         (alist-put value
+                                    (cons 'use-package-name name)
+                                    (and load-paths
+                                         (cons 'use-package-load-path
+                                               load-paths))))))
             (goto-char local-end)))))
 
     ;; Example of a full entry:
