@@ -1,0 +1,35 @@
+== mediawiki.el -- Edit mediawiki sites from emacs ==
+
+This version of mediawiki.el represents a merging of wikipedia-mode.el (maintained by Uwe Brauer) from [http://www.emacswiki.org/emacs/wikipedia-mode.el EmacsWiki] for its font-lock code, menu, draft mode, replying and convenience functions to produce mediawiki.el 2.0.
+
+=== Installation ===
+
+If you use [http://melpa.org/#/mediawiki MELPA], you can install via the M-x package-list-packages interface. This is preferrable as you will have access to updates automatically.
+
+Otherwise, just make sure this file is in your load-path (usually ~/.emacs.d is included) and put (require 'mediawiki.el) in your ~/.emacs or ~/.emacs.d/init.el file.
+
+==== Configuration and use ====
+
+ M-x customize-group RET mediawiki RET
+ *dink* *dink*
+ M-x mediawiki-site RET Wikipedia RET
+
+Open a wiki file:    M-x mediawiki-open
+Save a wiki buffer:  C-x C-s
+Save a wiki buffer with a different name:  C-x C-w
+
+==== About Security ====
+
+Although there is a place to put your password when you customize this package, there is no need to store your password in plain text.
+
+If mediawiki sees that the password is empty, then it will use [https://www.gnu.org/software/emacs/manual/html_mono/auth.html the auth-source library] to retrieve the password.  This will allow you to use encryption to store your passwords.
+
+
+=== TODO ===
+
+* Change customization to explicitly tell mediawiki.el to use the auth-source library.
+* Optionally use org-mode formatting for editing and translate that to mw
+* Move url-* methods to url-http
+* Use the MW API to support searching, etc.
+* Clean up and thoroughly test imported wikimedia.el code
+* Improve language support.  Currently there is a toggle for English or German.  This should probably just be replaced with the ability to use MediaWiki's i18n files in json format.
