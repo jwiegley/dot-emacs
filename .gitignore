@@ -1,0 +1,5 @@
+*~
+*.elc
+.cask
+el2markdown.el
+/dist/
