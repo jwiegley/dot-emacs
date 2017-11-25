@@ -1,0 +1,11 @@
+# Sphinx
+# 1.4.7 is broken, see https://github.com/sphinx-doc/sphinx/issues/2996
+Sphinx>=1.4,!=1.4.7
+# Automatically build documentation on changes
+sphinx-autobuild
+# Sphinx theme
+alabaster>=0.7.8
+# Syntax highlighting
+Pygments>=2.1
+# Network access
+requests>=2.9
