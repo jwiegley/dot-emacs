@@ -35,6 +35,17 @@
                     (add-to-list 'load-path share))))
           (nix-read-environment emacs-environment)))
 
+  (dolist (path (seq-filter
+                 (apply-partially #'string-match "-Agda-")
+                 (nix-read-environment (concat "ghc" (getenv "GHCVER")))))
+    (let ((agda-mode (expand-file-name "bin/agda-mode" path)))
+      (if (file-executable-p agda-mode)
+          (let ((dir (file-name-directory
+                      (substring (shell-command-to-string
+                                  (concat agda-mode " locate")) 0 -1))))
+            (if (file-directory-p dir)
+                (add-to-list 'load-path dir))))))
+
   (require 'cl)
   (require 'use-package)
   (setq use-package-verbose t))
