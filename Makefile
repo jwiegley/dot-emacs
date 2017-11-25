@@ -39,6 +39,7 @@ compile-packages:
 	    site-lisp/avy			\
 	    site-lisp/company-mode		\
 	    site-lisp/deft			\
+	    site-lisp/ebdb			\
 	    site-lisp/evil			\
 	    site-lisp/flycheck			\
 	    site-lisp/haskell-mode		\

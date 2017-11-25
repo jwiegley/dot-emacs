@@ -884,6 +884,12 @@ end tell" (match-string 1))))
              (:priority<= "B" :order 1))))
       (org-agenda nil "a"))))
 
+(use-package org-bookmark-heading
+  :load-path "site-lisp/org-bookmark-heading")
+
+(use-package org-web-tools
+  :load-path "site-lisp/org-web-tools")
+
 (provide 'dot-org)
 
 ;; Local Variables:
