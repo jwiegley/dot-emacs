@@ -1,0 +1,22 @@
+* Ideas
+
+** TODO Fill in bookmark name in helm-bookmarks
+
+When creating a bookmark with =helm-bookmarks=, the bookmark name doesn't get filled in like it does when using =C-x r m=.
+
+** TODO Make changes [[gnus:gmane.emacs.orgmode#87wpi3imbl.fsf@nicolasgoaziou.fr][suggested by Nicolas]]
+
+#+BEGIN_QUOTE
+> - please switch to lexical binding as all but one file in Org core,
+>
+> - it is "Org mode", not "org-mode"
+>
+> - `org-replace-links-in-string-with-desc' already exists, it is
+>   (mis)called `org-link-display-format'
+>
+> - `assoc' -> `assq' when key is a symbol
+>
+> - if you create a marker, unset it once useless
+>
+> - first sentence in docstrings has to fit in the first line.
+#+END_QUOTE
