@@ -505,14 +505,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
              (insert token)))))
     (close-all-parentheses* my-format-fn)))
 
-(defun my-elisp-indent-or-complete (&optional arg)
-  (interactive "p")
-  (call-interactively 'lisp-indent-line)
-  (unless (or (looking-back "^\\s-*")
-              (bolp)
-              (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-    (call-interactively 'lisp-complete-symbol)))
-
 (defun check-papers ()
   (interactive)
   ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
@@ -817,17 +809,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                                       ("(latex2e)Command Index")))))
 
 (use-package auto-yasnippet
+  :load-path "site-lisp/auto-yasnippet"
   :after yasnippet
-  :commands auto-revert-mode
-  :diminish auto-revert-mode
+  :commands (aya-create
+             aya-expand
+             aya-open-line)
   :init
-  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1)))
-  :config
-  (bind-keys
-   :map my-ctrl-c-y-map
-   ("a" . aya-create)
-   ("e" . aya-expand)
-   ("o" . aya-open-line)))
+  ;; `my-ctrl-c-y-map' isn't defined until after yasnippet has been
+  ;; initialized below.
+  (eval-after-load 'yasnippet
+    '(bind-keys
+      :map my-ctrl-c-y-map
+      ("a" . aya-create)
+      ("e" . aya-expand)
+      ("o" . aya-open-line))))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -1096,15 +1091,44 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package company
   :load-path "site-lisp/company-mode"
+  :demand t
   :diminish company-mode
-  :commands company-mode
+  :commands (company-mode global-company-mode)
   :config
+  (global-company-mode 1)
+
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
   (defadvice company-pseudo-tooltip-unless-just-one-frontend
       (around only-show-tooltip-when-invoked activate)
     (when (company-explicit-action-p)
-      ad-do-it)))
+      ad-do-it))
+
+  (defun check-expansion ()
+    (save-excursion
+      (if (outline-on-heading-p t)
+          nil
+        (if (looking-at "\\_>") t
+          (backward-char 1)
+          (if (looking-at "\\.") t
+            (backward-char 1)
+            (if (looking-at "->") t nil))))))
+
+  (define-key company-mode-map [tab]
+    '(menu-item "maybe-company-expand" nil
+                :filter (lambda (&optional _)
+                          (when (check-expansion)
+                            #'company-complete-common))))
+
+  (eval-after-load "yasnippet"
+    '(progn
+       (defun company-mode/backend-with-yas (backend)
+         (if (and (listp backend) (member 'company-yasnippet backend))
+             backend
+           (append (if (consp backend) backend (list backend))
+                   '(:with company-yasnippet))))
+       (setq company-backends
+             (mapcar #'company-mode/backend-with-yas company-backends)))))
 
 (use-package company-auctex
   :load-path "site-lisp/company-auctex"
@@ -1904,10 +1928,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (unbind-key "C-c c" interactive-haskell-mode-map)
-    (flycheck-mode)
-    (company-mode)
+    (flycheck-mode 1)
+    (company-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
-    (prettify-symbols-mode)
+    (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
@@ -2289,24 +2313,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     "Face used to dim parentheses."
     :group 'starter-kit-faces)
 
-  (defun my-lisp-indent-or-complete (&optional arg)
-    (interactive "p")
-    (if (or (looking-back "^\\s-*") (bolp))
-        (call-interactively 'lisp-indent-line)
-      (call-interactively 'slime-indent-and-complete-symbol)))
-
-  (defun my-byte-recompile-file ()
-    (save-excursion
-      (byte-recompile-file buffer-file-name)))
-
   (defun my-lisp-mode-hook ()
-    (auto-fill-mode 1)
     (paredit-mode 1)
     (redshank-mode 1)
+    (auto-fill-mode 1)
     (elisp-slime-nav-mode 1)
 
     (bind-key "<return>" #'paredit-newline lisp-mode-map)
-    (bind-key "<tab>" #'my-elisp-indent-or-complete lisp-mode-map)
+    (bind-key "<return>" #'paredit-newline emacs-lisp-mode-map)
 
     (add-hook 'after-save-hook 'check-parens nil t)
 
@@ -3452,7 +3466,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
    :prefix "C-c y"
    ("d" . yas-load-directory)
    ("i" . yas-insert-snippet)
-   ("f" . yas-visit-snippet-file :color blue)
+   ("f" . yas-visit-snippet-file)
    ("n" . yas-new-snippet)
    ("t" . yas-tryout-snippet)
    ("l" . yas-describe-tables)
