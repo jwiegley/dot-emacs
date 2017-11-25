@@ -1891,6 +1891,7 @@ string - the full shell command to run."
                   (format "%s %s"
                           (cl-case system-type
                             (darwin "open")
+                            (cygwin "cygstart")
                             (t "xdg-open"))
                           (shell-quote-argument x)))))
 
@@ -2400,8 +2401,9 @@ substituted by the search regexp and file, respectively.  Neither
 (counsel-set-async-exit-code 'counsel-grep 1 "")
 
 ;;;###autoload
-(defun counsel-grep ()
-  "Grep for a string in the current file."
+(defun counsel-grep (&optional initial-input)
+  "Grep for a string in the current file.
+When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
@@ -2413,6 +2415,7 @@ substituted by the search regexp and file, respectively.  Neither
         res)
     (unwind-protect
          (setq res (ivy-read "grep: " 'counsel-grep-function
+                             :initial-input initial-input
                              :dynamic-collection t
                              :preselect (format "%d:%s"
                                                 (line-number-at-pos)
@@ -2439,8 +2442,9 @@ substituted by the search regexp and file, respectively.  Neither
   :group 'ivy)
 
 ;;;###autoload
-(defun counsel-grep-or-swiper ()
-  "Call `swiper' for small buffers and `counsel-grep' for large ones."
+(defun counsel-grep-or-swiper (&optional initial-input)
+  "Call `swiper' for small buffers and `counsel-grep' for large ones.
+When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (if (or (not buffer-file-name)
           (buffer-narrowed-p)
@@ -2450,10 +2454,10 @@ substituted by the search regexp and file, respectively.  Neither
           (<= (buffer-size)
               (/ counsel-grep-swiper-limit
                  (if (eq major-mode 'org-mode) 4 1))))
-      (swiper)
+      (swiper initial-input)
     (when (file-writable-p buffer-file-name)
       (save-buffer))
-    (counsel-grep)))
+    (counsel-grep initial-input)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
@@ -2857,6 +2861,43 @@ The face can be customized through `counsel-org-goto-face-style'."
   (ivy-read "file: " (counsel-org-files)
             :action 'counsel-locate-action-dired
             :caller 'counsel-org-file))
+
+;;** `counsel-org-capture'
+(defvar org-capture-templates)
+
+;;;###autoload
+(defun counsel-org-capture ()
+  "Capture something."
+  (interactive)
+  (require 'org-capture)
+  (ivy-read "Capture template: "
+            (delq nil
+                  (mapcar
+                   (lambda (x)
+                     (when (> (length x) 2)
+                       (format "%-5s %s" (nth 0 x) (nth 1 x))))
+                   (or org-capture-templates
+                       '(("t" "Task" entry (file+headline "" "Tasks")
+                          "* TODO %?\n  %u\n  %a")))))
+            :require-match t
+            :action (lambda (x)
+                      (org-capture nil (car (split-string x))))
+            :caller 'counsel-org-capture))
+
+(ivy-set-actions
+ 'counsel-org-capture
+ '(("t" (lambda (x)
+          (org-capture-goto-target (car (split-string x))))
+    "go to target")
+   ("l" (lambda (_x)
+          (org-capture-goto-last-stored))
+    "go to last stored")
+   ("p" (lambda (x)
+          (org-capture 0 (car (split-string x))))
+    "insert template at point")
+   ("c" (lambda (_x)
+          (customize-variable 'org-capture-templates))
+    "customize org-capture-templates")))
 
 ;;** `counsel-mark-ring'
 (defun counsel--pad (string length)
