@@ -1,6 +1,23 @@
 #!/bin/bash -e
 
 cat MANIFEST.csv                                \
+    | grep ',file,'                          \
+    | grep -v mirror-only                       \
+    | grep -v internal                          \
+    | grep -v elpa                              \
+    | while read line; do
+    FILE=$(echo $line | cut -d, -f1)
+    DIR=$(echo $line | cut -d, -f2)
+    URL=$(echo $line | cut -d, -f4)
+    echo curl -o $DIR/$FILE $URL
+    curl -o $DIR/$FILE $URL
+done
+
+exit 0
+
+git fetch --all --no-tags
+
+cat MANIFEST.csv                                \
     | grep ',subtree,'                          \
     | grep -v mirror-only                       \
     | grep -v internal                          \
