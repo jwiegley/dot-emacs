@@ -1,5 +1,3 @@
-;; Startup
-
 (defconst emacs-start-time (current-time))
 
 (setq message-log-max 16384)
@@ -692,6 +690,12 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
               (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
+(use-package ace-link
+  :load-path "site-lisp/ace-link"
+  :after avy
+  :config
+  (ace-link-setup-default))
+
 (use-package ace-window
   :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
@@ -1075,6 +1079,10 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (when (company-explicit-action-p)
       ad-do-it)))
 
+(use-package company-auctex
+  :load-path "site-lisp/company-auctex"
+  :after (company latex))
+
 (use-package company-coq
   :load-path "site-lisp/company-coq"
   :after coq
@@ -1308,6 +1316,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :config
   (unbind-key "M-s f" dired-mode-map))
 
+(use-package dired-hacks
+  :load-path "site-lisp/dired-hacks"
+  :init
+  (autoload #'dired-filter-mode "dired-filter" nil t))
+
 (use-package dired-ranger
   :bind (:map dired-mode-map
               ("W" . dired-ranger-copy)
@@ -1457,6 +1470,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
   (add-to-list 'elint-standard-variables 'emacs-major-version)
   (add-to-list 'elint-standard-variables 'window-system))
+
+(use-package elisp-depend
+  :commands elisp-depend-print-dependencies)
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
@@ -1724,6 +1740,11 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "lisp/git-undo-el"
   :bind ("C-. u" . git-undo))
 
+(use-package github-pullrequest
+  :load-path "site-lisp/github-pullrequest"
+  :commands (github-pullrequest-new
+             github-pullrequest-checkout))
+
 (use-package gitpatch
   :load-path "site-lisp/gitpatch"
   :commands gitpatch-mail)
@@ -1906,6 +1927,9 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package hl-line
   :commands hl-line-mode
   :bind ("M-o h" . hl-line-mode))
+
+(use-package hl-line+
+  :after hl-line)
 
 (use-package hydra
   :demand t
@@ -2648,6 +2672,14 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                    'emacs-lisp-mode-hook
                    'LaTeX-mode-hook))
 
+(use-package pandoc-mode
+  :load-path "site-lisp/pandoc-mode"
+  :commands pandoc-mode
+  :init
+  (add-hook 'markdown-mode-hook 'pandoc-mode)
+  :config
+  (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings))
+
 (use-package paredit
   :load-path "site-lisp/paredit"
   :commands paredit-mode
@@ -3211,22 +3243,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :load-path "site-lisp/web-mode"
   :commands web-mode)
 
-;;; Post initialization
-
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
-
-  (add-hook 'after-init-hook
-            `(lambda ()
-               (let ((elapsed
-                      (float-time
-                       (time-subtract (current-time) emacs-start-time))))
-                 (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed))) t))
-
-;;; init.el ends here
 (use-package wgrep
   :defer 5
   :load-path "site-lisp/wgrep")
@@ -3412,3 +3428,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
   :commands ztree-diff
   :load-path "site-lisp/ztree")
 
+;;; Post initialization
+
+(when window-system
+  (let ((elapsed (float-time (time-subtract (current-time)
+                                            emacs-start-time))))
+    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+  (add-hook 'after-init-hook
+            `(lambda ()
+               (let ((elapsed
+                      (float-time
+                       (time-subtract (current-time) emacs-start-time))))
+                 (message "Loading %s...done (%.3fs) [after-init]"
+                          ,load-file-name elapsed))) t))
+
+;;; init.el ends here
