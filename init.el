@@ -3146,6 +3146,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package which-key
   :demand t
   :load-path "site-lisp/which-key"
+  :diminish which-key-mode
   :config
   (which-key-mode))
 
@@ -3213,21 +3214,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 (use-package word-count
   :load-path "site-lisp/word-count-mode"
   :bind ("C-. W" . word-count-mode))
-
-(use-package workgroups
-  :load-path "site-lisp/workgroups"
-  :diminish workgroups-mode
-  :bind-keymap ("C-\\" . wg-map)
-  :demand t
-  :config
-  (workgroups-mode 1)
-
-  (let ((workgroups-file (expand-file-name "workgroups" user-data-directory)))
-    (if (file-readable-p workgroups-file)
-        (wg-load workgroups-file)))
-
-  (bind-key "C-\\" #'wg-switch-to-previous-workgroup wg-map)
-  (bind-key "\\" #'toggle-input-method wg-map))
 
 (use-package ws-butler
   :disabled t
@@ -3340,6 +3326,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package aggressive-indent
   :load-path "site-lisp/aggressive-indent-mode"
+  :diminish aggressive-indent-mode
   :commands aggressive-indent-mode
   :init
   (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
@@ -3378,15 +3365,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
-  :commands eyebrowse-mode)
+  :init
+  (custom-set-variables
+   `(eyebrowse-keymap-prefix ,(kbd "C-\\")))
+  :config
+  (eyebrowse-mode)
+  (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
 
 (use-package fence-edit
   :load-path "site-lisp/fence-edit"
-  :defer t)
+  :commands fence-edit-code-at-point)
 
 (use-package font-lock-studio
   :load-path "site-lisp/font-lock-studio"
-  :commansd (font-lock-studio
+  :commands (font-lock-studio
              font-lock-studio-region))
 
 (use-package free-keys
@@ -3399,19 +3391,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package jump-tree
   :load-path "site-lisp/jump-tree"
+  :diminish jump-tree-mode
   :commands (global-jump-tree-mode jump-tree-mode))
 
-(use-package smartparens
+(use-package smartparens-config
   :load-path "site-lisp/smartparens"
-  :defer t)
+  :commands smartparens-mode)
 
 (use-package treemacs
   :load-path "site-lisp/treemacs"
-  :defer t)
+  :commands treemacs)
 
 (use-package web-mode
   :load-path "site-lisp/web-mode"
-  :defer t)
+  :commands web-mode)
 
 ;;; Post initialization
 
