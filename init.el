@@ -2258,6 +2258,7 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
     (elisp-slime-nav-mode 1)
 
     (bind-key "<return>" #'paredit-newline lisp-mode-map)
+    (bind-key "<tab>" #'my-elisp-indent-or-complete lisp-mode-map)
 
     (add-hook 'after-save-hook 'check-parens nil t)
 
