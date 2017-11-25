@@ -257,6 +257,12 @@ VALUES
 ;;;###autoload
 (defun gnus-harvest-addresses ()
   "Harvest and remember the addresses in the current article buffer."
+
+  ;; Ensure that we are looking at the article rather than summary
+  ;; buffer.
+  (when (derived-mode-p 'gnus-summary-mode)
+    (set-buffer gnus-article-buffer))
+  
   (let ((tmp-buf (generate-new-buffer "*gnus harvest*"))
         (moment (number-to-string (floor (float-time))))
         (email-list
