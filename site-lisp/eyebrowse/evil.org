@@ -1,0 +1,188 @@
+* General note
+
+Some of the presented ex commands can take special values instead of
+numbers, such as . for current, + for next, - for previous, 0 for
+first and $ for last.  It's time to look at how Evil exactly parses
+ranges and how to create a new interactive type for it if there isn't
+any fitting one for the task.
+
+There is a bang modifier for commands that close tabs, it forces Vim
+to ignore the presence of modified buffers in a tab page because it
+would otherwise abort the action.  This doesn't really fit Emacs (this
+question usually comes when ending the session), so I'm strongly
+considering to just drop these commands.
+
+- [ ] implement extended {count} argument
+
+* Switch to next tab
+
+Both switching to the next and nth tab with gt are supported.
+<C-PageDown> is not used since it's bound to the ~scroll-left~
+command in Emacs.  An ex command should be trivial to implement.  Note
+that in Vim gt wraps around, but in eyebrowse it doesn't unless the
+appropriate option is set.  Whether this default is worth changing or
+adjusting with an Evil command wrapper is yet to be determined.
+
+- [X] gt
+- [ ] <C-PageDown>
+- [ ] :tabn[ext]
+- [X] {count}gt
+- [ ] {count}<C-PageDown>
+- [ ] :tabn[ext] {count}
+- [ ] wraparound without argument
+
+* Switch to previous tab
+
+Both switching to the previous and n tabs backwards with wrapping
+temporarily enabled are supported.  The other caveats from the
+previous section still apply.  There's an extra ex command, but it
+is identical to the other one.
+
+- [X] gT
+- [ ] <C-PageUp>
+- [ ] :tabp[revious]
+- [ ] :tabN[ext]
+- [X] {count}gT
+- [ ] {count}<C-PageUp>
+- [ ] :tabp[revious] {count}
+- [ ] :tabN[ext] {count}
+- [ ] wraparound without argument
+
+* Switch to first tab
+
+Title says it all, it should be merely a special case of switching to
+the nth buffer.  Not implemented yet.
+
+- [ ] :tabfir[st]
+- [ ] :tabr[ewind]
+
+* Switch to last tab
+
+As suggested by the title, switch to whatever the last tab is.  There
+is a minor quibble though, simply because there is already an
+~eyebrowse-last-window-config~ command which does something different,
+switching to the tab used before the current one.  Perhaps that
+command shall be obsoleted for a more generic MRU replacement (à la
+irssi/weechat) that allows one to switch through a ring of tabs.  Not
+implemented yet.
+
+- [ ] :tabl[ast]
+
+* Create empty tab
+
+Now that it's possible to open empty tabs, simply let-binding the
+corresponding option and turning it into a command should do the
+trick.  To implement the count versions it's necessary to use either a
+number or special argument which will open the tab after the nth one
+instead.  Not implemented.
+
+- [ ] :[count]tabe[dit]
+- [ ] :[count]tabnew
+
+* Find file in tab
+
+The option for doing something different from cloning a window config
+will also allow a function as type, let-binding to a lambda that does
+find a file in combination with the appropriate interactive type.
+Same applies to the count argument as above.  Not implemented.
+
+- [ ] :[count]tabe[dit] [++opt] [+cmd] {file}
+- [ ] :[count]tabnew [++opt] [+cmd] {file}
+
+
+* Turn current window into tab
+
+See title.  This will fail if there's only one window open.  Probably
+requires the more flexible window configuration backend (or
+alternatively, clone the current window config, close the selected
+window in one tab, close all other windows in the other one).  A count
+will make the tab open before the tab with the respective number,
+otherwise it will be inserted after the current one.
+
+- [ ] [count]C-w T
+
+* Move tab
+
+There's two types of movements, one would be moving a tab to a
+specific position, the other one moving it in a direction by an
+amount.  I'm not sure whether Evil supports both types of specifying
+the count.  Not implemented.
+
+- [ ] :tabm[ove] [N]
+- [ ] :[N]tabm[ove]
+- [ ] :tabm[ove] +[N]
+- [ ] :tabm[ove] -[N]
+
+* Close a tab
+
+Currently, only closing the current tab is implemented.
+
+The other interesting part left to implement would be a numerical
+argument to close a different tab than the current one.  This should
+be fairly easy (take care of what tab you end up at afterwards since
+the behaviour is different from closing the current one), what looks
+more problematic though is implementing the special arguments as
+listed above (with the exception of 1 instead of 0 for the first tab).
+
+- [X] gc
+- [X] :tabc[lose]
+- [ ] :tabc[lose][!]
+- [ ] {count}gc
+- [ ] :{count}tabc[lose]
+- [ ] :{count}tabc[lose]!
+- [ ] :tabc[lose]{count}
+- [ ] :tabc[lose]!{count}
+
+* Close other tabs
+
+This is the inverse of the previous, closing all other tabs except the
+current one.  Similiar caveats apply, like the numerical argument and
+bang modifier.  Nothing implemented yet.
+
+- [ ] :tabo[nly]
+- [ ] :tabo[nly][!]
+- [ ] :{count}tabo[nly]
+- [ ] :{count}tabo[nly][!]
+
+* Tab overview
+
+Displays a list of tabs with currently displayed buffers in their
+windows with the currently active buffer (the buffer point is on?) and
+changed buffers highlighted.  Not implemented.
+
+- [ ] :tabs
+
+* Generic commands
+
+Vim allows both modifying an ex command to spawn in a tab instead of a
+window and executing an ex command by looping over all tabs.  I doubt
+this to be necessary to implement given that this is of limited
+utility when used interactively and a bit of elisp can solve the
+problem in a much cleaner manner.  Not implemented.
+
+- [ ] :[count]tab {cmd}
+- [ ] :[range]tabd[o] {cmd}
+
+* FFAP
+
+The following commands are very similiar to gf and gF which are
+wrappers around FFAP in Evil.  As I understand it, these will perform
+the same task, but display the result in a newly opened tab.  Not
+implemented.
+
+- [ ] :[count]tabf[ind] [++opt] [+cmd] {file}
+- [ ] C-w gf
+- [ ] C-w gF
+
+* Omissions
+
+Vim doesn't seem to have a concept of a last tab page (as in, tab page
+one was previously on) one can switch to, perhaps for the lack of a
+better name (to distinguish it from the tab positioned at the end of
+the tab list).  I've bound that command to zx, but that feels wrong
+since it's supposed to be a folding command that merely happened to be
+free in Evil's z map.  A solution as explained in the section about
+the "other" last tab page would probably work out.
+
+- [X] zx
+- [ ] Find a better solution and keybinding for it
