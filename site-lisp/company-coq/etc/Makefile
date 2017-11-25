@@ -1,0 +1,2 @@
+screenshots:
+	make -C .. screenshots

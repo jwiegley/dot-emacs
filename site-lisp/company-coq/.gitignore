@@ -1,0 +1,11 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+dist/
+TODO.org
+img/coq-pl-16-*.png
+etc/tactics
+etc/vm/.vagrant
+experiments/untracked/
