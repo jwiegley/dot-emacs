@@ -448,7 +448,8 @@ href=\"\\)\\(?:[^\"]+\\)?/\\(?:imgres\\?imgurl\\|url\\?\\(?:q\\|url\\)\\)=\
 	  (goto-char (point-max)))))))
 
 (defun w3m-filter-add-name-anchors (url)
-  ;;  cf. [emacs-w3m:11153] [emacs-w3m:12339] [emacs-w3m:12422]
+  ;;  cf. [emacs-w3m:11153], [emacs-w3m:12339], [emacs-w3m:12422],
+  ;; [emacs-w3m:12812]
   "Add name anchors that w3m can handle.
 This function adds ``<a name=\"FOO_BAR\"></a>'' in front of
 ``<TAG ... id=\"FOO_BAR\" ...>FOO BAR</TAG>'' in the current buffer."
@@ -457,7 +458,7 @@ This function adds ``<a name=\"FOO_BAR\"></a>'' in front of
 	names regexp i st nd)
     (goto-char (point-min))
     (while (re-search-forward "<a[\t\n\r ]+\\(?:[^\t\n\r >]+[\t\n\r ]+\\)*\
-href=\"#\\([a-z][-.0-9:_a-z]*\\)\"" nil t)
+href=\"#\\([.a-z][-.0-9:_a-z]*\\)\"" nil t)
       (add-to-list 'names (match-string 1)))
     (setq case-fold-search nil)
     (while names
