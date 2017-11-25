@@ -816,6 +816,19 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
                           :doc-spec '(("(latex2e)Concept Index" )
                                       ("(latex2e)Command Index")))))
 
+(use-package auto-yasnippet
+  :after yasnippet
+  :commands auto-revert-mode
+  :diminish auto-revert-mode
+  :init
+  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1)))
+  :config
+  (bind-keys
+   :map my-ctrl-c-y-map
+   ("a" . aya-create)
+   ("e" . aya-expand)
+   ("o" . aya-open-line)))
+
 (use-package autorevert
   :commands auto-revert-mode
   :diminish auto-revert-mode
@@ -3415,7 +3428,6 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
 
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
-  :after hydra
   :demand t
   :diminish yas-minor-mode
   :commands (yas-expand
@@ -3434,25 +3446,20 @@ Inspired by Erik Naggum's `recursive-edit-with-single-window'."
               yas--table-name)
   :defines (yas--guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :bind (("C-c y" . hydra-yasnippet/body))
-  :preface
-  (defhydra hydra-yasnippet (:color blue :hint nil)
-    "
- _g_lobal  _d_irectory  _i_nsert
- _m_inor   _f_ile       _t_ryout
- _e_xtra   _l_ist       _n_ew
-         _a_ll"
-    ("d" yas-load-directory)
-    ("e" yas-activate-extra-mode)
-    ("i" yas-insert-snippet)
-    ("f" yas-visit-snippet-file :color blue)
-    ("n" yas-new-snippet)
-    ("t" yas-tryout-snippet)
-    ("l" yas-describe-tables)
-    ("g" yas/global-mode)
-    ("m" yas/minor-mode)
-    ("a" yas-reload-all)
-    ("x" yas-expand))
+  :init
+  (bind-keys
+   :prefix-map my-ctrl-c-y-map
+   :prefix "C-c y"
+   ("d" . yas-load-directory)
+   ("i" . yas-insert-snippet)
+   ("f" . yas-visit-snippet-file :color blue)
+   ("n" . yas-new-snippet)
+   ("t" . yas-tryout-snippet)
+   ("l" . yas-describe-tables)
+   ("g" . yas/global-mode)
+   ("m" . yas/minor-mode)
+   ("a" . yas-reload-all)
+   ("x" . yas-expand))
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
