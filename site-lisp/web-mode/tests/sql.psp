@@ -1,0 +1,26 @@
+<div>
+  <?php
+  $query = "SELECT
+                id,
+                GROUP_CONCAT(name)
+            FROM
+                products
+            WHERE
+                id > 1";
+
+  $query = "SELECT
+                products.id,
+                name
+            FROM
+                products
+            LEFT JOIN(
+            SELECT
+                id
+            FROM
+                persons
+            ) ON persons.id = personId
+            WHERE
+                persons.id > 12";
+
+  ?>
+</div>

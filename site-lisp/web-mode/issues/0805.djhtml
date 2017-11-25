@@ -1,0 +1,14 @@
+<div>
+  {% graph %}
+    xsxs
+  {% endgraph %}
+
+  {% if block %}
+    Content
+  {% endif %}
+
+  {% javascript %}
+    var x = 1;
+  {% endjavascript %}
+
+</div>
