@@ -80,7 +80,7 @@ erc-patch.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/mast
 erc-question.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/erc-question.el,
 erc-yank,lisp,submodule,git://github.com/jwiegley/erc-yank.git,
 esh-toggle.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/esh-toggle.el,
-eval-expr/eval-expr.el,site-lisp,file,http://www.splode.com/~friedman/software/emacs-lisp/src/eval-expr.el,
+eval-expr,site-lisp,file,http://www.splode.com/~friedman/software/emacs-lisp/src/eval-expr.el,
 evil,site-lisp,subtree,git://github.com/emacs-evil/evil.git,
 expand-region-el,site-lisp,subtree,git://github.com/magnars/expand-region.el.git,
 f-el,lib,subtree,git://github.com/rejeep/f.el.git,
