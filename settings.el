@@ -604,6 +604,7 @@
          "*Aria*"))
       "Download with Aria"))))
  '(eww-search-prefix "https://startpage.com/do/m/mobilesearch?query=")
+ '(eyebrowse-keymap-prefix "")
  '(fill-column 78)
  '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
  '(find-ls-subdir-switches "-alh")
