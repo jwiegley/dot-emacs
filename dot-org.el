@@ -897,10 +897,6 @@ end tell" (match-string 1))))
              (:priority<= "B" :order 1))))
       (org-agenda nil "a"))))
 
-(use-package org-trello
-  :disabled t
-  :load-path "site-lisp/org-trello")
-
 (use-package org-web-tools
   :disabled t
   :load-path "site-lisp/org-web-tools")
