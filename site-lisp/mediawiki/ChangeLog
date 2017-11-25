@@ -1,0 +1,120 @@
+2015-04-03  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el: Various cleanups for flycheck.  Move to github and
+	git from Launchpad and bzr.  Clean up last bits of wikimedia.el.
+	* README.mediawiki: README file for github.  Use mediawiki markup
+	instead of Markdown since it just seems right.
+
+2012-05-27  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (mediawiki-debug): Add (and use) debugging customization.
+
+2012-01-18  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (mediawiki-save-page): Update for enwiki blackout
+	when I didn't get an edit token.
+
+2011-11-28  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (url-bit-for-url, url-url-for-url)
+	(url-password-for-url): Define only if undefined.  Perhaps some
+	others.
+	(mediawiki-logged-in-p): specify secure or not.
+	(url-http-post): Start to add support for multipart-form-data.
+
+2011-09-05  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (mediawiki-logged-in-p): Update test to check if
+	cookes exist instead of just checking if mediawiki-site is set.
+	(mediawiki-edit): return buffer that was just
+	opened.  Log in if cookies don't exist yet.
+
+2010-07-11  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (mediawiki-edit, mediawiki-mode): Make sure the
+	buffer page title is set and mediawiki-page-title is
+	buffer-local. (LP#603262, LP#603265)
+	(mediawiki-font-lock-keywords): Add support for semantic relations
+	and semantic variable replacement. (LP#604051)
+	(mediawiki-site-extract): Change error message when sitename is
+	nil. (LP#604044)
+	(mediawiki-api-call): Don't strip the call result down to just the
+	XML attribs.  (LP#604042)
+	(mediawiki-do-login, mediawiki-api-query-revisions): Extract
+	necessary bits with adjusted api-call. (LP#604042)
+
+2010-07-10  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (mediawiki-edit): Force point to beginning of
+	buffer. (LP#546851)
+	(mediawiki-goto-relative-link): New function.  Use noerror
+	argument. (LP#604045)
+	(mediawiki-goto-prev-link, mediawiki-goto-next-link):
+	Use new mediawiki-goto-relative-link.
+
+2010-07-02  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (url-http-create-request): Work around bug in url.el.
+	(mediawiki-edittoken, mediawiki-starttimestamp)
+	(mediawiki-basetimestamp): New buffer-local variables to enable
+	the API.
+	(mediawiki-make-api-url, mediawiki-api-call): New functions to
+	enable the API
+	(mediawiki-open): Update use of mediawiki-edit
+	(mediawiki-edit): Rewrite to use API and make it function
+	uniformly for all calls.  Remove dependency on buffer-local
+	mediawiki-site.
+	(mediawiki-get-form-vars): Simplify + make it handle <input>
+	elements without value attributes.
+	(mediawiki-save-page): Rewrite to use API.
+	(mediawiki-site): Use API.  Remove callbacks aren't used.
+	(mediawiki-site-extract): Trigger error for non-existant site.
+	(mediawiki-api-param): New utility function for setting parameters
+	like the MW API wants.
+	(mediawiki-page-get-title): New utility function to extract a
+	title from a page in the pagelist structure that the MW API
+	returns.
+	(mediawiki-page-get-revision): New utility function to extract a
+	revision from a the pagelist structure.
+	(mediawiki-pagelist-find-page): New utility function to extract
+	the entire page structure from a pagelist structure
+	(mediawiki-api-query-title): New function. Query the API and get
+	the current revision of the page.
+	(mediawiki-do-logout, mediawiki-do-login): Use the API.
+
+2010-06-23  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el: Clean up byte compilation warnings.
+	(mediawiki-make-url): Remove url-hexify-string in favor of
+	mm-url-form-encode-xwfu.
+	(mediawiki-get-edit-form-vars): Clean up and simplify permission
+	checking.  Use (message) instead of error to make messages less
+	confusing.
+	(mediawiki-site-password): Typo meant we weren't really getting
+	the password.
+	(mediawiki-do-login): Check to make sure we actually have a form
+	variable.
+	(mediawiki-view-source): New variable to show when we're viewing
+	source.
+	(mediawiki-pop-buffer-hook): New hook.
+	(mediawiki-pop-to-buffer): New functon to run hook on buffer.xo
+	(mediawiki-get, mediawiki-goto-relative-page): Use hook.
+
+2010-04-26  Mark A. Hershberger  <mah@everybody.org>
+
+	* mediawiki.el (url-compat-retrieve): Add help function so this
+	works with older versions of url.el like those found in Xemacs.
+	(url-http-get): Use url-compat-retrieve.
+	(url-http-post): Delete any nil parameters.  Use url-compat-retrieve.
+	(url-http-response-post-process): Follow redirects.  Need to add a
+	redirect limit.
+	(mediawiki-make-url): Make the URL properly if there is no action parameter.
+	(mediawiki-get-edit-form-vars): Refactor generic form-reading
+	functionality to mediawiki-get-form-vars.
+	(mediawiki-get-form-vars): New function.
+	(mediawiki-do-login): Rewrite so that new MW token parameter is
+	used for login.
+	(mediawiki-page-at-point): Identify and qualify sub-pages.
+	(mediawiki-mode): Remove any bindings that use C-h.
+	(mediawiki-insert): Fix mediawiki-insert using adopted patch from Bug#563127
+
