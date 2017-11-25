@@ -34,9 +34,6 @@
 [submodule "site-lisp/ProofGeneral"]
 	path = site-lisp/ProofGeneral
 	url = git://github.com/psteckler/ProofGeneral.git
-[submodule "site-lisp/agda"]
-	path = site-lisp/agda
-	url = git://github.com/agda/agda.git
 [submodule "site-lisp/flycheck"]
 	path = site-lisp/flycheck
 	url = git://github.com/flycheck/flycheck.git
