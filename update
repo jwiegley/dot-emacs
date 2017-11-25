@@ -9,5 +9,5 @@ cat MANIFEST.csv                                \
     MODULE=$(echo $line | cut -d, -f1)
     DIR=$(echo $line | cut -d, -f2)
     echo git pulltree $DIR/$MODULE
-    # git pulltree $DIR/$MODULE
+    git pulltree $DIR/$MODULE
 done
