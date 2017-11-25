@@ -1,3 +1,8 @@
+2017-11-18  Hideyuki SHIRAI  <shirai@meadowy.org>
+
+	* w3m-filter.el (w3m-filter-add-name-anchors):
+	Work for id="name" where name begins with "." ([emacs-w3m:12812]).
+
 2017-10-13  Katsumi Yamaoka  <yamaoka@jpl.org>
 
 	* w3m.el (w3m-copy-buffer): Make the copied buffer the next of the
