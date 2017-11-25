@@ -1,0 +1,1104 @@
+«f:set»(«v:CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS» «c:TRUE»)
+«f:set_property»(«t:GLOBAL» «t:PROPERTY» «c:USE_FOLDERS» «c:ON»)
+
+«k:IF»(«v:WIN32»)
+    «f:CMAKE_MINIMUM_REQUIRED»(«t:VERSION» 2.4.6 «t:FATAL_ERROR»)
+«k:ELSE»(«v:WIN32»)
+    «k:IF»(«v:APPLE»)
+        «f:CMAKE_MINIMUM_REQUIRED»(«t:VERSION» 2.6.0 «t:FATAL_ERROR»)
+    «k:ELSE»(«v:APPLE»)
+        «f:CMAKE_MINIMUM_REQUIRED»(«t:VERSION» 2.4.4 «t:FATAL_ERROR»)
+    «k:ENDIF»(«v:APPLE»)
+«k:ENDIF»(«v:WIN32»)
+
+«k:if»(«t:COMMAND» «f:cmake_policy»)
+    «x:# Works around warnings libraries linked against that don't
+»    «x:# have absolute paths (e.g. -lpthreads)
+»    «f:cmake_policy»(«t:SET» «c:CMP0003» «t:NEW»)
+
+    «x:# Works around warnings about escaped quotes in ADD_DEFINITIONS
+»    «x:# statements.
+»    «f:cmake_policy»(«t:SET» «c:CMP0005» «t:NEW»)
+
+    «x:# tell CMake to prefer CMake's own CMake modules when available
+»    «x:# only available from cmake-2.8.4
+»    «k:if»(«D:${»«v:CMAKE_MAJOR_VERSION»«D:}» «t:EQUAL» 2 «t:AND» «D:${»«v:CMAKE_MINOR_VERSION»«D:}» «t:EQUAL» 8 «t:AND» «D:${»«v:CMAKE_PATCH_VERSION»«D:}» «t:GREATER» 3)
+        «f:cmake_policy»(«t:SET» «c:CMP0017» «t:NEW»)
+    «k:endif»()
+
+    «x:# cmake-2.6.1 introduces policy cmp0008 decide how to treat full path libraries that do not appear to be valid library file names
+»    «x:# quote from cvslog "Such libraries worked by accident in the VS IDE and Xcode generators in CMake 2.4 and below."
+»    «k:if»(«D:${»«v:CMAKE_MAJOR_VERSION»«D:}» «t:EQUAL» 2 «t:AND» «D:${»«v:CMAKE_MINOR_VERSION»«D:}» «t:GREATER» 4 «t:AND» «D:${»«v:CMAKE_PATCH_VERSION»«D:}» «t:GREATER» 0)
+        «f:cmake_policy»(«t:SET» «c:CMP0008» «t:OLD»)
+    «k:endif»()
+«k:endif»()
+
+«f:PROJECT»(OpenSceneGraph)
+
+«f:SET»(«v:OPENSCENEGRAPH_MAJOR_VERSION» 3)
+«f:SET»(«v:OPENSCENEGRAPH_MINOR_VERSION» 1)
+«f:SET»(«v:OPENSCENEGRAPH_PATCH_VERSION» 4)
+«f:SET»(«v:OPENSCENEGRAPH_SOVERSION» 93)
+
+«x:# set to 0 when not a release candidate, non zero means that any generated
+# svn tags will be treated as release candidates of given number
+»«f:SET»(«v:OPENSCENEGRAPH_RELEASE_CANDIDATE» 0)
+
+«f:SET»(«v:OPENSCENEGRAPH_VERSION» «D:${»«v:OPENSCENEGRAPH_MAJOR_VERSION»«D:}».«D:${»«v:OPENSCENEGRAPH_MINOR_VERSION»«D:}».«D:${»«v:OPENSCENEGRAPH_PATCH_VERSION»«D:}»)
+
+«f:SET»(«v:OSG_PLUGINS» osgPlugins-«D:${»«v:OPENSCENEGRAPH_VERSION»«D:}»)
+
+«f:SET»(«v:OSG_PLUGIN_PREFIX» «s:""»)
+
+«k:IF» («v:CYGWIN»)
+    «f:SET»(«v:OSG_PLUGIN_PREFIX» «s:"cygwin_"»)
+«k:ENDIF»()
+
+«k:IF»(«v:MINGW»)
+    «f:SET»(«v:OSG_PLUGIN_PREFIX» «s:"mingw_"»)
+«k:ENDIF»()
+
+
+«x:# We want to build SONAMES shared librariess
+»«f:SET»(«v:OPENSCENEGRAPH_SONAMES» «c:TRUE»)
+«f:SET»(«v:OPENTHREADS_SONAMES» «c:TRUE»)
+
+«f:SET»(«v:OpenThreads_SOURCE_DIR» «D:${»«v:OpenSceneGraph_SOURCE_DIR»«D:}»)
+
+«x:# We have some custom .cmake scripts not in the official distribution.
+# Maybe this can be used override existing behavior if needed?
+»«f:SET»(«v:CMAKE_MODULE_PATH» «s:"${«v:OpenSceneGraph_SOURCE_DIR»}/CMakeModules;${«v:CMAKE_MODULE_PATH»}"»)
+
+«x:## Option to enable Android build using AndroidNDK
+»«f:OPTION»(«v:OSG_BUILD_PLATFORM_ANDROID» «c:OFF»)
+«k:IF»(«v:OSG_BUILD_PLATFORM_ANDROID»)
+
+    «f:CMAKE_MINIMUM_REQUIRED»(«t:VERSION» 2.8.0 «t:FATAL_ERROR»)
+
+    «k:INCLUDE»(OsgAndroidMacroUtils)
+    «f:SET»(«v:ANDROID» «c:TRUE»)
+    «k:IF»(«t:NOT» «v:ANDROID_PLATFORM»)
+        «f:MESSAGE»(«s:"Warning Android Platform version NOT defined, Default selected version: 5"»)
+        «f:SET»(«v:ANDROID_PLATFORM» 5)
+    «k:ENDIF»()
+    «k:IF»(«t:NOT» «v:ANDROID_ABI»)
+        «f:MESSAGE»(«s:"Warning Android ABI version NOT defined, Default selection: armeabi armeabi-v7a"»)
+        «f:SET»(«v:ANDROID_ABI» «s:"armeabi armeabi-v7a"»)
+    «k:ENDIF»()
+    «k:IF»(«t:NOT» «v:ANDROID_STL»)
+        «f:MESSAGE»(«s:"Warning Android STL NOT defined, Default selection: gnustl_static"»)
+        «f:SET»(«v:ANDROID_STL» «s:"gnustl_static"»)
+    «k:ENDIF»()
+    «k:IF»(«v:ANDROID_DEBUG»)
+        «f:MESSAGE»(«s:"Warning Android Build is in debug mode"»)
+        «f:SET»(«v:ANDROID_RELEASE_OPTIM» «s:"debug"»)
+    «k:ELSE»()
+        «f:MESSAGE»(«s:"Warning Android Build is in release mode"»)
+        «f:SET»(«v:ANDROID_RELEASE_OPTIM» «s:"release"»)
+    «k:ENDIF»()
+    «k:IF»(«v:ANDROID_NEON»)
+        «f:MESSAGE»(«s:"Warning Android NEON optimizations enabled, this will not be available on all armeabi-v7a devices ie. Tegra2"»)
+        «f:SET»(«v:ANDROID_OPTIM_NEON» «c:true»)
+    «k:ELSE»()
+        «f:SET»(«v:ANDROID_OPTIM_NEON» «c:false»)
+    «k:ENDIF»()
+    «k:IF»(«v:ANDROID_ARM32»)
+        «f:MESSAGE»(«s:"Warning ARM 32bit instruction set will be used"»)
+        «f:SET»(«v:ANDROID_OPTIM_ARM32» «c:true»)
+    «k:ELSE»()
+        «f:SET»(«v:ANDROID_OPTIM_ARM32» «c:false»)
+    «k:ENDIF»()
+
+    «f:FIND_PACKAGE»(AndroidNDK «t:REQUIRED»)
+
+    «f:SET»(«v:OSG_ANDROID_TEMPLATES» «s:"${«v:CMAKE_SOURCE_DIR»}/PlatformSpecifics/Android"»)
+
+    «f:SET»(«v:J»  «s:"4"» «t:CACHE» «t:STRING» «s:"how many processes for make -j <J>"»)
+
+    «f:ADD_CUSTOM_COMMAND»(
+        «t:OUTPUT»    Android-OpenSceneGraph
+        «t:DEPENDS»   «D:${»«v:CMAKE_BINARY_DIR»«D:}»/Android.mk
+        «t:COMMAND»   «s:"${«v:ANDROID_NDK»}/ndk-build"»
+        «t:ARGS»      --directory=«D:${»«v:CMAKE_BINARY_DIR»«D:}» NDK_APPLICATION_MK=Application.mk -j«D:${»«v:J»«D:}» NDK_LOG=1
+    )
+
+    «f:ADD_CUSTOM_TARGET»(«c:ndk» «t:ALL» echo
+          «t:DEPENDS» Android-OpenSceneGraph
+    )
+    «f:install»(«t:DIRECTORY» include/ «t:DESTINATION» include/
+        «t:PATTERN» «s:".svn"» «t:EXCLUDE»
+    )
+    «f:install»(«t:DIRECTORY» «D:${»«v:CMAKE_BINARY_DIR»«D:}»/include/ «t:DESTINATION» include/
+    )
+    «f:install»(«t:DIRECTORY» «D:${»«v:CMAKE_BINARY_DIR»«D:}»/obj/ «t:DESTINATION» obj/
+        «t:PATTERN» «s:".svn"» «t:EXCLUDE»
+        «t:PATTERN» «s:"objs"» «t:EXCLUDE»
+    )
+
+    «f:ADD_DEFINITIONS»(-D«c:ANDROID»)
+
+«k:ENDIF»()
+
+
+
+«x:# Okay, here's the problem: On some platforms, linking against OpenThreads
+# is not enough and explicit linking to the underlying thread library
+# is also required (e.g. FreeBSD). But OpenThreads may be built with different
+# backends (Pthreads, Sproc, Windows) so we don't know what the underlying
+# thread library is because some platforms support multiple backends (e.g.
+# IRIX supports Sproc and Pthreads). Linking all libraries won't work
+# because the libraries may be incompatible.
+# So the current solution is to attempt best guess linking and exempt certain
+# cases. With IRIX, we're going to hope explicit linking to the underlying
+# library is not necessary. We currently don't case for pthreads on Windows
+# which might be an issue on things like Cygwin. This may need to be fixed.
+»«k:IF»(«t:NOT» «v:ANDROID»)
+    «f:FIND_PACKAGE»(Threads)
+«k:ENDIF»()
+«k:IF»(«v:CMAKE_SYSTEM» «t:MATCHES» IRIX)
+    «x:# Erase CMAKE_THREAD_LIBS_INIT and hope it works
+»    «f:SET»(«v:CMAKE_THREAD_LIBS_INIT» «s:""» «t:CACHE» «t:INTERNAL» «s:""»)
+«k:ENDIF»()
+
+«f:OPTION»(«v:OSG_MAINTAINER» «s:"Enable OpenSceneGraph maintainer build methods, such as making svn branches, tags, updating ChangeLog."» «c:OFF»)
+«k:IF» («v:OSG_MAINTAINER»)
+
+    «f:SET»(«v:OPENSCENEGRAPH_SVN» «s:"trunk"»)
+    «x:#SET(OPENSCENEGRAPH_SVN "branches")
+»    «f:SET»(«v:OPENSCENEGRAPH_BRANCH» OpenSceneGraph-«D:${»«v:OPENSCENEGRAPH_MAJOR_VERSION»«D:}».«D:${»«v:OPENSCENEGRAPH_MINOR_VERSION»«D:}»)
+
+    «x:#
+»    «x:# Provide target for tagging a release
+»    «x:#
+»    «f:SET»(«v:SVNCOMMAND» svn)
+    «f:SET»(«v:SVNTRUNKDIR»     http://www.openscenegraph.org/svn/osg/OpenSceneGraph/trunk)
+    «f:SET»(«v:SVNTAGDIR»       http://www.openscenegraph.org/svn/osg/OpenSceneGraph/tags)
+    «f:SET»(«v:SVNBRANCHDIR»    http://www.openscenegraph.org/svn/osg/OpenSceneGraph/branches)
+
+    «k:IF»   («v:OPENSCENEGRAPH_SVN» «t:STREQUAL» «s:"trunk"»)
+        «f:SET»(«v:SVNSOURCEDIR» «D:${»«v:SVNTRUNKDIR»«D:}»)
+    «k:ELSE»()
+        «f:SET»(«v:SVNSOURCEDIR» «D:${»«v:SVNBRANCHDIR»«D:}»/«D:${»«v:OPENSCENEGRAPH_BRANCH»«D:}»)
+    «k:ENDIF»()
+
+
+    «k:IF»   («v:OPENSCENEGRAPH_RELEASE_CANDIDATE» «t:EQUAL» 0)
+        «f:SET»(«v:RELEASE_NAME» OpenSceneGraph-«D:${»«v:OPENSCENEGRAPH_VERSION»«D:}»)
+    «k:ELSE»()
+        «f:SET»(«v:RELEASE_NAME» OpenSceneGraph-«D:${»«v:OPENSCENEGRAPH_VERSION»«D:}»-rc«D:${»«v:OPENSCENEGRAPH_RELEASE_CANDIDATE»«D:}»)
+    «k:ENDIF»()
+
+
+    «f:ADD_CUSTOM_TARGET»(«c:tag-test»
+        «t:COMMAND» echo «D:${»«v:SVNCOMMAND»«D:}» copy «D:${»«v:SVNSOURCEDIR»«D:}» «D:${»«v:SVNTAGDIR»«D:}»/«D:${»«v:RELEASE_NAME»«D:}» -m «s:"Release ${«v:RELEASE_NAME»}"»
+    )
+
+    «f:ADD_CUSTOM_TARGET»(«c:tag-run»
+        «t:COMMAND» «D:${»«v:SVNCOMMAND»«D:}» copy «D:${»«v:SVNSOURCEDIR»«D:}» «D:${»«v:SVNTAGDIR»«D:}»/«D:${»«v:RELEASE_NAME»«D:}» -m «s:"Release ${«v:RELEASE_NAME»}"»
+    )
+
+    «f:ADD_CUSTOM_TARGET»(«c:branch-test»
+        «t:COMMAND» echo «D:${»«v:SVNCOMMAND»«D:}» copy «D:${»«v:SVNSOURCEDIR»«D:}» «D:${»«v:SVNBRANCHDIR»«D:}»/«D:${»«v:OPENSCENEGRAPH_BRANCH»«D:}» -m «s:"Branch ${«v:OPENSCENEGRAPH_BRANCH»}"»
+    )
+
+    «f:ADD_CUSTOM_TARGET»(«c:branch-run»
+        «t:COMMAND» «D:${»«v:SVNCOMMAND»«D:}» copy «D:${»«v:SVNSOURCEDIR»«D:}» «D:${»«v:SVNBRANCHDIR»«D:}»/«D:${»«v:OPENSCENEGRAPH_BRANCH»«D:}» -m «s:"Branch ${«v:OPENSCENEGRAPH_BRANCH»}"»
+    )
+
+    «x:#
+»    «x:# Provide target for generating ChangeLog
+»    «x:#
+»    «f:SET»(«v:GENERATELOGS» svn2cl)
+
+    «f:ADD_CUSTOM_TARGET»(«c:ChangeLog»
+        «t:COMMAND» «D:${»«v:SVNCOMMAND»«D:}» update
+        «t:COMMAND» «D:${»«v:GENERATELOGS»«D:}» «D:${»«v:SVNSOURCEDIR»«D:}»
+    )
+
+«k:ENDIF»(«v:OSG_MAINTAINER»)
+
+«k:IF»(«t:NOT» «v:ANDROID»)
+«k:IF»(«v:APPLE»)
+    «x:# Determine the canonical name of the selected Platform SDK
+»    «f:EXECUTE_PROCESS»(«t:COMMAND» «s:"defaults"» «s:"read"» «s:"${«v:CMAKE_OSX_SYSROOT»}/SDKSettings.plist"» «s:"CanonicalName"»
+                    «t:OUTPUT_VARIABLE» «v:OSG_OSX_SDK_NAME»
+                    «t:OUTPUT_STRIP_TRAILING_WHITESPACE»)
+
+    «x:# Trying to get CMake to generate an XCode IPhone project, current efforts are to get iphoneos sdk 3.1 working
+»    «x:# Added option which needs manually setting to select the IPhone SDK for building. We can only have one of the below
+»    «x:# set to true. Should realy have an OSG_BUILD_PLATFORM variable that we set to our desired platform
+»    «f:OPTION»(«v:OSG_BUILD_PLATFORM_IPHONE» «s:"Enable IPhoneSDK Device support"» «c:OFF»)
+    «f:OPTION»(«v:OSG_BUILD_PLATFORM_IPHONE_SIMULATOR» «s:"Enable IPhoneSDK Simulator support"» «c:OFF»)
+
+    «k:IF»(«v:OSG_BUILD_PLATFORM_IPHONE» «t:OR» «v:OSG_BUILD_PLATFORM_IPHONE_SIMULATOR»)
+
+        «x:#you need to manually set the default sdk version here
+»        «f:SET» («v:IPHONE_SDKVER» «s:"5.1"»)
+
+        «x:#the below is taken from ogre, it states the gcc stuff needs to happen before PROJECT() is called. I've no clue if we even need it
+»        «x:# Force gcc <= 4.2 on iPhone
+»        «k:include»(CMakeForceCompiler)
+        «f:CMAKE_FORCE_C_COMPILER»(llvm-gcc-4.2 GNU)
+        «f:CMAKE_FORCE_CXX_COMPILER»(llvm-gcc-4.2 GNU)
+        «f:SET»(«v:GCC_THUMB_SUPPORT» «c:NO»)
+
+        «x:#set either the device sdk or the simulator sdk. Can't find away to separate these in the same project
+»        «k:IF»(«v:OSG_BUILD_PLATFORM_IPHONE»)
+            «f:SET» («v:IPHONE_DEVROOT» «s:"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"»)
+            «f:SET» («v:IPHONE_SDKROOT» «s:"${«v:IPHONE_DEVROOT»}/SDKs/iPhoneOS${«v:IPHONE_SDKVER»}.sdk"»)
+        «k:ELSE»()
+            «f:SET» («v:IPHONE_DEVROOT» «s:"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"»)
+            «f:SET» («v:IPHONE_SDKROOT» «s:"${«v:IPHONE_DEVROOT»}/SDKs/iPhoneSimulator${«v:IPHONE_SDKVER»}.sdk"»)
+        «k:ENDIF»()
+
+        «x:# Apple iOS: Find OpenGLES
+»        «f:FIND_LIBRARY»(«v:OPENGLES_LIBRARY» OpenGLES)
+    «k:ELSE» ()
+        «f:FIND_LIBRARY»(«v:CARBON_LIBRARY» Carbon)
+        «f:FIND_LIBRARY»(«v:COCOA_LIBRARY» Cocoa)
+
+        «x:# Apple OS X: Find OpenGL and AGL
+»        «f:FIND_PACKAGE»(OpenGL)
+        «f:FIND_LIBRARY»(«v:AGL_LIBRARY» AGL)
+    «k:ENDIF» ()
+
+    «f:OPTION»(«v:OSG_COMPILE_FRAMEWORKS» «s:"compile frameworks instead of dylibs (experimental)"» «c:OFF»)
+    «f:SET»(«v:OSG_COMPILE_FRAMEWORKS_INSTALL_NAME_DIR» «s:"@executable_path/../Frameworks"» «t:CACHE» «t:STRING» «s:"install name dir for compiled frameworks"»)
+«k:ELSE»()
+    «x:# Non-Apple: Find OpenGL
+»    «f:FIND_PACKAGE»(OpenGL)
+«k:ENDIF»()
+«k:ENDIF»()
+
+«k:IF»(«v:UNIX» «t:AND» «t:NOT» «v:ANDROID»)
+    «x:# Not sure what this will do on Cygwin and Msys
+»    «x:# Also, remember OS X X11 is a user installed option so it may not exist.
+»    «f:FIND_PACKAGE»(X11)
+    «x:# Some Unicies need explicit linkage to the Math library or the build fails.
+»    «f:FIND_LIBRARY»(«v:MATH_LIBRARY» m)
+
+    «f:FIND_LIBRARY»(«v:DL_LIBRARY» dl)
+    «k:IF»(«t:NOT» «v:DL_LIBRARY»)
+        «f:SET»(«v:DL_LIBRARY» «s:""») «x:# change from NOTFOUND to empty when passed to linker
+»    «k:ENDIF»()
+
+    «k:IF»( «v:CMAKE_SYSTEM» «t:MATCHES» «s:"Linux"» )
+        «f:FIND_LIBRARY»( «v:RT_LIBRARY» rt )
+    «k:ENDIF»( «v:CMAKE_SYSTEM» «t:MATCHES» «s:"Linux"» )
+
+«k:ENDIF»()
+
+«f:INCLUDE_DIRECTORIES»(
+    «D:${»«v:OpenSceneGraph_SOURCE_DIR»«D:}»/include
+    «D:${»«v:OPENGL_INCLUDE_DIR»«D:}»
+)
+
+«x:# Make the headers visible to everything
+»«k:IF»(«t:NOT» «D:${»«v:PROJECT_BINARY_DIR»«D:}» «t:EQUAL» «D:${»«v:PROJECT_SOURCE_DIR»«D:}»)
+   «f:INCLUDE_DIRECTORIES»(«D:${»«v:PROJECT_BINARY_DIR»«D:}»/include)
+«k:ENDIF»()
+
+«x:# Common global definitions
+#ADD_DEFINITIONS(-D)
+# Platform specific definitions
+»
+
+«k:IF»(«v:WIN32» «t:AND» «t:NOT» «v:ANDROID»)
+
+    «k:IF»(«v:MSVC»)
+        «x:# This option is to enable the /MP switch for Visual Studio 2005 and above compilers
+»        «f:OPTION»(«v:WIN32_USE_MP» «s:"Set to ON to build OpenSceneGraph with the /MP option (Visual Studio 2005 and above)."» «c:OFF»)
+        «f:MARK_AS_ADVANCED»(«v:WIN32_USE_MP»)
+        «k:IF»(«v:WIN32_USE_MP»)
+            «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} /MP"»)
+        «k:ENDIF»(«v:WIN32_USE_MP»)
+
+        «x:# turn off various warnings
+»        «x:# foreach(warning 4244 4251 4267 4275 4290 4786 4305 4996)
+»        «x:#     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd${warning}")
+»        «x:# endforeach(warning)
+»
+        «x:# This option is to enable the /DYNAMICBASE switch
+»        «x:# It is used to workaround a bug in Windows 7 when linking in release, which results in corrupt
+»        «x:# binaries. See this page for details: http://www.wintellect.com/CS/blogs/jrobbins/archive/2009/01/24/the-case-of-the-corrupt-pe-binaries.aspx
+»        «f:OPTION»(«v:WIN32_USE_DYNAMICBASE» «s:"Set to ON to build OpenSceneGraph with the /DYNAMICBASE option to work around a bug when linking release executables on Windows 7."» «c:OFF»)
+        «f:MARK_AS_ADVANCED»(«v:WIN32_USE_DYNAMICBASE»)
+        «k:IF»(«v:WIN32_USE_DYNAMICBASE»)
+            «f:SET»(«v:CMAKE_EXE_LINKER_FLAGS» «s:"${«v:CMAKE_EXE_LINKER_FLAGS»} /DYNAMICBASE"»)
+        «k:ENDIF»(«v:WIN32_USE_DYNAMICBASE»)
+
+        «x:# More MSVC specific compilation flags
+»        «f:ADD_DEFINITIONS»(-D«c:_SCL_SECURE_NO_WARNINGS»)
+        «f:ADD_DEFINITIONS»(-D«c:_CRT_SECURE_NO_DEPRECATE»)
+
+        «f:OPTION»(«v:MSVC_DISABLE_CHECKED_ITERATORS» «s:"Set to ON to disable Visual C++ checked iterators. If you do this you must ensure that every other project in your solution and all dependencies are compiled with _SECURE_SCL=0."» «c:OFF»)
+        «f:MARK_AS_ADVANCED»(«v:MSVC_DISABLE_CHECKED_ITERATORS»)
+        «k:IF»(«v:MSVC_DISABLE_CHECKED_ITERATORS»)
+            «f:ADD_DEFINITIONS»(-D«c:_SECURE_SCL»=0)
+        «k:ENDIF»(«v:MSVC_DISABLE_CHECKED_ITERATORS»)
+
+        «f:OPTION»(«v:MSVC_USE_DEFAULT_STACK_SIZE» «s:"Set to ON to use the default Visual C++ stack size. CMake forces a high stack size by default, which can cause problems for applications with large number of threads."» «c:OFF»)
+        «f:MARK_AS_ADVANCED»(«v:MSVC_USE_DEFAULT_STACK_SIZE»)
+        «k:IF»(«v:MSVC_USE_DEFAULT_STACK_SIZE»)
+            «f:STRING»(«t:REGEX» «t:REPLACE» «s:"/STACK:[0-9]+"» «s:""» «v:CMAKE_EXE_LINKER_FLAGS» «s:"${«v:CMAKE_EXE_LINKER_FLAGS»}"»)
+            «f:STRING»(«t:REGEX» «t:REPLACE» «s:"/STACK:[0-9]+"» «s:""» «v:CMAKE_SHARED_LINKER_FLAGS» «s:"${«v:CMAKE_SHARED_LINKER_FLAGS»}"»)
+            «f:STRING»(«t:REGEX» «t:REPLACE» «s:"/STACK:[0-9]+"» «s:""» «v:CMAKE_MODULE_LINKER_FLAGS» «s:"${«v:CMAKE_MODULE_LINKER_FLAGS»}"»)
+        «k:ENDIF»(«v:MSVC_USE_DEFAULT_STACK_SIZE»)
+
+    «k:ENDIF»()
+
+    «x:#needed for net plugin
+»    «f:SET» («v:OSG_SOCKET_LIBS» wsock32)
+    «x:# Both Cygwin and Msys need -DNOMINMAX ???
+»    «k:IF»(«v:UNIX»)
+        «f:ADD_DEFINITIONS»(-D«c:NOMINMAX»)
+    «k:ENDIF»()
+
+«x:########################################################################################################
+# the following options are MSVC specific,
+# the first OSG_MSVC_VERSIONED_DLL activate a custom build-time layout that should allow to run examples and application
+# fron bin folder without requiring installation step.
+# it also prepend "osg${OPENSCENEGRAPH_SOVERSION}-" to only .dll files, leaving .lib files untouched in lib
+# it also use a hack to get rid of Debug and Release folder in MSVC projects
+# all the .dll and .pdb are in bin and all the .lib and .exp are in lib
+#
+# the second option disable incremental linking in debug build , that is enabled by default by CMake
+##########################################################################################################
+»
+    «k:IF»(«v:MSVC»)
+        «k:IF»(«D:${»«v:CMAKE_MAJOR_VERSION»«D:}» «t:EQUAL» 2 «t:AND» «D:${»«v:CMAKE_MINOR_VERSION»«D:}» «t:EQUAL» 4 «t:AND» «D:${»«v:CMAKE_PATCH_VERSION»«D:}» «t:LESS» 7)
+            «f:MESSAGE»(«s:"Warning:  disabling versioned options 2.4.6 exibits inconsintencies in .pdb naming, at least under MSVC, suggested upgrading at least to 2.4.7"»)
+            «f:SET»(«v:OSG_MSVC_VERSIONED_DLL» «c:OFF»)
+            «f:SET»(«v:OSG_MSVC_DEBUG_INCREMENTAL_LINK» «c:ON»)
+        «k:ELSE»()
+            «f:OPTION»(«v:OSG_MSVC_VERSIONED_DLL» «s:"Set to ON to build OpenSceneGraph with versioned dll names"» «c:ON»)
+            «f:MARK_AS_ADVANCED»(«v:OSG_MSVC_VERSIONED_DLL»)
+            «f:OPTION»(«v:OSG_MSVC_DEBUG_INCREMENTAL_LINK» «s:"Set to OFF to build OpenSceneGraph without incremental linking in debug (release is off by default)"» «c:ON»)
+            «f:MARK_AS_ADVANCED»(«v:OSG_MSVC_DEBUG_INCREMENTAL_LINK»)
+            «k:IF»(«t:NOT» «v:OSG_MSVC_DEBUG_INCREMENTAL_LINK»)
+                «f:SET»(«v:CMAKE_MODULE_LINKER_FLAGS_DEBUG» «s:"/debug /INCREMENTAL:NO"»)
+                «f:SET»(«v:CMAKE_SHARED_LINKER_FLAGS_DEBUG» «s:"/debug /INCREMENTAL:NO"»)
+                «f:SET»(«v:CMAKE_EXE_LINKER_FLAGS_DEBUG» «s:"/debug /INCREMENTAL:NO"»)
+            «k:ENDIF»(«t:NOT» «v:OSG_MSVC_DEBUG_INCREMENTAL_LINK»)
+        «k:ENDIF»()
+    «k:ENDIF»(«v:MSVC»)
+«k:ENDIF»(«v:WIN32» «t:AND» «t:NOT» «v:ANDROID»)
+
+«x:########################################################################################################
+##### these were settings located in SetupCommon.cmake used in Luigi builds.... find out what are useful
+########################################################################################################
+#luigi#SET(CMAKE_VERBOSE_MAKEFILE TRUE)
+#luigi#SET(CMAKE_SKIP_RPATH TRUE)
+#luigi#SET(CMAKE_SKIP_RULE_DEPENDENCY TRUE)
+#luigi#IF(UNIX)
+#luigi#    LIST_CONTAINS(contains "g++" ${CMAKE_CXX_COMPILER_LIST})
+#luigi#    IF (contains)
+#luigi#        MESSAGE(${MY_MESSAGE_DEFAULT} "${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} setting  CMAKE_CXX_COMPILER to g++")
+#luigi#        SET(CMAKE_CXX_COMPILER "g++")
+#luigi#        SET(CMAKE_CXX_COMPILER_LOADED 2)
+#luigi#        SET(CMAKE_CXX_COMPILER_WORKS 2)
+#luigi#    ENDIF (contains)
+#luigi#    SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
+#luigi#    SET(CMAKE_CXX_FLAGS_DEBUG "-ggdb -gstabs")
+#luigi#ENDIF(UNIX)
+########################################################################################################
+»
+«f:OPTION»(«v:OSG_NOTIFY_DISABLED» «s:"Set to ON to build OpenSceneGraph with the notify() disabled."» «c:OFF»)
+
+«f:OPTION»(«v:OSG_USE_FLOAT_MATRIX» «s:"Set to ON to build OpenSceneGraph with float Matrix instead of double."» «c:OFF»)
+«f:MARK_AS_ADVANCED»(«v:OSG_USE_FLOAT_MATRIX»)
+
+«f:OPTION»(«v:OSG_USE_FLOAT_PLANE» «s:"Set to ON to build OpenSceneGraph with float Plane instead of double."» «c:OFF»)
+«f:MARK_AS_ADVANCED»(«v:OSG_USE_FLOAT_PLANE»)
+
+«f:OPTION»(«v:OSG_USE_FLOAT_BOUNDINGSPHERE» «s:"Set to ON to build OpenSceneGraph with float BoundingSphere instead of double."» «c:ON»)
+«f:MARK_AS_ADVANCED»(«v:OSG_USE_FLOAT_BOUNDINGSPHERE»)
+
+«f:OPTION»(«v:OSG_USE_FLOAT_BOUNDINGBOX» «s:"Set to ON to build OpenSceneGraph with float BoundingBox instead of double."» «c:ON»)
+«f:MARK_AS_ADVANCED»(«v:OSG_USE_FLOAT_BOUNDINGBOX»)
+
+«k:IF» («v:WIN32»)
+    «f:OPTION»(«v:OSG_USE_UTF8_FILENAME» «s:"Set to ON to use a UTF8 locale for filenames instead of the default locale."» «c:OFF»)
+    «f:MARK_AS_ADVANCED»(«v:OSG_USE_UTF8_FILENAME»)
+«k:ENDIF»()
+
+«f:OPTION»(«v:OSG_DISABLE_MSVC_WARNINGS» «s:"Set to OFF to not disable MSVC warnings generated by OSG headers."» «c:ON»)
+«f:MARK_AS_ADVANCED»(«v:OSG_DISABLE_MSVC_WARNINGS»)
+
+«f:OPTION»(«v:OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION» «s:"Set to ON to use the ref_ptr<> T* operator() output conversion. "» «c:ON»)
+
+«f:OPTION»(«v:OSG_GL1_AVAILABLE» «s:"Set to OFF to disable use of OpenGL 1.x functions library."» «c:ON»)
+«f:OPTION»(«v:OSG_GL2_AVAILABLE» «s:"Set to OFF to disable use of OpenGL 2.x functions library."» «c:ON»)
+«f:OPTION»(«v:OSG_GL3_AVAILABLE» «s:"Set to OFF to disable use of OpenGL 3.x functions library."» «c:OFF»)
+«f:OPTION»(«v:OSG_GLES1_AVAILABLE» «s:"Set to OFF to disable use of OpenGL ES 1.x functions library."» «c:OFF»)
+«f:OPTION»(«v:OSG_GLES2_AVAILABLE» «s:"Set to OFF to disable use of OpenGL ES 2.x functions library."» «c:OFF»)
+«f:OPTION»(«v:OSG_GL_LIBRARY_STATIC» «s:"Set to ON to statically link with OpenGL/GLES library."» «c:OFF»)
+
+«f:SET»(«v:OPENGL_egl_LIBRARY» «t:CACHE» «t:STRING» «s:"Set the OpenGL egl library."»)
+
+«x:# SET(OSG_GL_DISPLAYLISTS_AVAILABLE ${OSG_GL1_AVAILABLE})
+# SET(OSG_GL_MATRICES_AVAILABLE ${OSG_GL1_AVAILABLE})
+# SET(OSG_GL_VERTEX_FUNCS_AVAILABLE ${OSG_GL1_AVAILABLE})
+# SET(OSG_GL_VERTEX_ARRAY_FUNCS_AVAILABLE ${OSG_GL1_AVAILABLE})
+# SET(OSG_GL_FIXED_FUNCTION_AVAILABLE ${OSG_GL1_AVAILABLE})
+»
+«f:OPTION»(«v:OSG_GL_DISPLAYLISTS_AVAILABLE» «s:"Set to OFF to disable use of OpenGL display lists."» «D:${»«v:OSG_GL1_AVAILABLE»«D:}»)
+«f:OPTION»(«v:OSG_GL_MATRICES_AVAILABLE» «s:"Set to OFF to disable use of OpenGL built-in matrices."» «D:${»«v:OSG_GL1_AVAILABLE»«D:}»)
+«f:OPTION»(«v:OSG_GL_VERTEX_FUNCS_AVAILABLE» «s:"Set to OFF to disable use of OpenGL vertex functions such as glVertex/glColor etc."» «D:${»«v:OSG_GL1_AVAILABLE»«D:}»)
+«f:OPTION»(«v:OSG_GL_VERTEX_ARRAY_FUNCS_AVAILABLE» «s:"Set to OFF to disable use of OpenGL vertex functions such as glVertexPointer/glColorPointer etc."» «D:${»«v:OSG_GL1_AVAILABLE»«D:}»)
+«f:OPTION»(«v:OSG_GL_FIXED_FUNCTION_AVAILABLE» «s:"Set to OFF to disable use of OpenGL fixed function pipeline."» «D:${»«v:OSG_GL1_AVAILABLE»«D:}»)
+
+«f:OPTION»(«v:OSG_CPP_EXCEPTIONS_AVAILABLE» «s:"Set to OFF to disable compile of OSG components that use C++ exceptions."» «c:ON»)
+
+«x:################################################################################
+# Set Config file
+»
+«f:SET»(«v:OPENSCENEGRAPH_CONFIG_HEADER» «s:"${«v:PROJECT_BINARY_DIR»}/include/osg/Config"»)
+«f:CONFIGURE_FILE»(«s:"${«v:CMAKE_CURRENT_SOURCE_DIR»}/src/osg/Config.in"»
+               «s:"${«v:OPENSCENEGRAPH_CONFIG_HEADER»}"»)
+
+«f:SET»(«v:OPENSCENEGRAPH_VERSION_HEADER» «s:"${«v:CMAKE_CURRENT_SOURCE_DIR»}/include/osg/Version"»)
+«f:CONFIGURE_FILE»(«s:"${«v:CMAKE_CURRENT_SOURCE_DIR»}/src/osg/Version.in"»
+               «s:"${«v:OPENSCENEGRAPH_VERSION_HEADER»}"»)
+
+«x:# INSTALL_FILES(/include/osg/ FILES "${OPENSCENEGRAPH_CONFIG_HEADER}")
+»
+
+«x:################################################################################
+# Set Version Info resource file
+»
+«k:IF»(«v:MSVC»)
+    «f:SET»(«v:OPENSCENEGRAPH_VERSIONINFO_RC» «s:"${«v:PROJECT_BINARY_DIR»}/PlatformSpecifics/Windows/OpenSceneGraphVersionInfo.rc"»)
+    «f:CONFIGURE_FILE»(«s:"${«v:CMAKE_CURRENT_SOURCE_DIR»}/PlatformSpecifics/Windows/OpenSceneGraphVersionInfo.rc.in"»
+                   «s:"${«v:OPENSCENEGRAPH_VERSIONINFO_RC»}"»)
+«k:ENDIF»()
+
+«x:################################################################################
+# Optional build components
+»
+«x:# OSG Applications
+»«f:OPTION»(«v:BUILD_OSG_APPLICATIONS» «s:"Enable to build OSG Applications (e.g. osgviewer)"» «c:ON»)
+
+«x:# OSG Examples
+»«f:OPTION»(«v:BUILD_OSG_EXAMPLES» «s:"Enable to build OSG Examples"» «c:OFF»)
+
+«x:################################################################################
+# 3rd Party Dependency Stuff
+»«k:IF»(«v:WIN32» «t:AND» «t:NOT» «v:ANDROID»)
+    «k:INCLUDE»(Find3rdPartyDependencies)
+«k:ENDIF»()
+
+«k:IF»(«v:ANDROID»)
+    «f:ANDROID_3RD_PARTY»()
+«k:ELSE»()
+«x:# Common to all platforms except android:
+»    «f:FIND_PACKAGE»(FreeType)
+    «f:FIND_PACKAGE»(Inventor)
+    «f:FIND_PACKAGE»(Jasper)
+    «f:FIND_PACKAGE»(OpenEXR)
+    «f:FIND_PACKAGE»(COLLADA)
+    «f:FIND_PACKAGE»(FBX)
+    «f:FIND_PACKAGE»(ZLIB)
+    «f:FIND_PACKAGE»(Xine)
+    «f:FIND_PACKAGE»(OpenVRML)
+    «f:FIND_PACKAGE»(Performer)
+    «f:FIND_PACKAGE»(GDAL)
+    «f:FIND_PACKAGE»(GTA)
+    «f:FIND_PACKAGE»(CURL)
+    «f:FIND_PACKAGE»(LibVNCServer)
+    «f:FIND_PACKAGE»(OurDCMTK)
+    «f:FIND_PACKAGE»(OpenAL)
+    «f:FIND_PACKAGE»(FFmpeg)
+    «f:FIND_PACKAGE»(DirectShow)
+    «f:FIND_PACKAGE»(SDL)
+    «f:FIND_PACKAGE»(Poppler-glib)
+    «f:FIND_PACKAGE»(RSVG)
+    «f:FIND_PACKAGE»(GtkGl)
+    «f:FIND_PACKAGE»(DirectInput)
+    «f:FIND_PACKAGE»(NVTT)
+    «f:FIND_PACKAGE»(Asio)
+«k:ENDIF»()
+
+«k:IF»(«v:CMAKE_MAJOR_VERSION» «t:EQUAL» 2 «t:AND» «v:CMAKE_MINOR_VERSION» «t:LESS» 8)
+    «f:FIND_PACKAGE»(ITK)
+«k:ENDIF»()
+
+«x:# Include macro utilities here
+»«k:INCLUDE»(OsgMacroUtils)
+
+«f:OPTION»(«v:OSG_USE_QT» «s:"Enable to use Qt (build Qt-dependent libraries, plugins and examples)"» «c:ON»)
+
+«k:IF»(«v:OSG_USE_QT» «t:AND» «t:NOT» «v:ANDROID»)
+«x:# To select a specific version of QT define DESIRED_QT_VERSION
+# via cmake -DDESIRED_QT_VERSION=4
+»    «k:IF»  («v:DESIRED_QT_VERSION»)
+
+        «k:IF»  («v:DESIRED_QT_VERSION» «t:MATCHES» 4)
+              «f:FIND_PACKAGE»(Qt4)
+        «k:ELSE»()
+              «f:FIND_PACKAGE»(Qt3)
+        «k:ENDIF»()
+
+    «k:ELSE»()
+
+        «f:FIND_PACKAGE»(Qt4)
+
+        «k:IF»  («t:NOT» «v:QT4_FOUND»)
+            «f:FIND_PACKAGE»(Qt3)
+        «k:ENDIF»()
+
+    «k:ENDIF»()
+«k:ENDIF»()
+
+«x:#optional example related dependencies
+»«k:IF»   («v:BUILD_OSG_EXAMPLES» «t:AND» «t:NOT» «v:ANDROID»)
+
+
+    «f:FIND_PACKAGE»(FLTK)
+    «f:FIND_PACKAGE»(GLUT)
+    «f:FIND_PACKAGE»(FOX)
+
+    «f:SET»(«v:wxWidgets_USE_LIBS» base core gl net)
+    «f:FIND_PACKAGE»(wxWidgets)
+
+«k:ENDIF»(«v:BUILD_OSG_EXAMPLES» «t:AND» «t:NOT» «v:ANDROID»)
+
+
+«x:# Platform specific:
+# (We can approach this one of two ways. We can try to FIND everything
+# and simply check if we found the packages before actually building
+# or we can hardcode the cases. The advantage of the former is that
+# packages that are installed on platforms that don't require them
+# will still get built (presuming no compatibility issues). But this
+# also means modules that are redundant may get built. For example,
+# OS X doesn't need GIF, JPEG, PNG, TIFF, etc because it uses QuickTime.
+# Also, it will clutter the CMake menu with "NOT_FOUND".
+# The downside to the latter is that it is harder to build those
+# potentially redundant modules.)
+»
+«x:# Image readers/writers depend on 3rd party libraries except for OS X which
+# can use Quicktime.
+»«k:IF»(«t:NOT» «v:ANDROID»)
+    «k:IF»(«t:NOT» «v:APPLE»)
+        «f:FIND_PACKAGE»(GIFLIB)
+        «f:FIND_PACKAGE»(JPEG)
+        «f:FIND_PACKAGE»(PNG)
+        «f:FIND_PACKAGE»(TIFF)
+
+        «x:# QuickTime is required for OS X, but optional for Windows.
+»        «k:IF»(«v:WIN32»)
+            «f:FIND_PACKAGE»(QuickTime)
+        «k:ENDIF»()
+
+    «k:ELSE»()
+        «f:FIND_PACKAGE»(QuickTime)
+        «f:FIND_PACKAGE»(QTKit)
+        «f:FIND_PACKAGE»(CoreVideo)
+        «f:FIND_PACKAGE»(CoreMedia)
+        «f:FIND_PACKAGE»(QuartzCore)
+        «f:FIND_PACKAGE»(AVFoundation)
+    «k:ENDIF»()
+«k:ENDIF»()
+
+«x:################################################################################
+# Create bin and lib directories if required
+»
+«k:IF»(«s:"${«v:CMAKE_SOURCE_DIR»}"» «t:STREQUAL» «s:"${«v:CMAKE_BINARY_DIR»}"»)
+   «f:FILE»(«t:MAKE_DIRECTORY» «D:${»«v:CMAKE_BINARY_DIR»«D:}»/bin «D:${»«v:CMAKE_BINARY_DIR»«D:}»/lib «D:${»«v:CMAKE_BINARY_DIR»«D:}»/lib/«D:${»«v:OSG_PLUGINS»«D:}»)
+«k:ENDIF»()
+
+
+«x:################################################################################
+# Installation stuff
+»
+«f:SET»(«v:CMAKE_DEBUG_POSTFIX» «s:"d"» «t:CACHE» «t:STRING» «s:"add a postfix, usually d on windows"»)
+«f:SET»(«v:CMAKE_RELEASE_POSTFIX» «s:""» «t:CACHE» «t:STRING» «s:"add a postfix, usually empty on windows"»)
+«f:SET»(«v:CMAKE_RELWITHDEBINFO_POSTFIX» «s:"rd"» «t:CACHE» «t:STRING» «s:"add a postfix, usually empty on windows"»)
+«f:SET»(«v:CMAKE_MINSIZEREL_POSTFIX» «s:"s"» «t:CACHE» «t:STRING» «s:"add a postfix, usually empty on windows"»)
+
+«x:# Set the build postfix extension according to what configuration is being built.
+»«k:IF» («v:CMAKE_BUILD_TYPE» «t:MATCHES» «s:"Release"»)
+    «f:SET»(«v:CMAKE_BUILD_POSTFIX» «s:"${«v:CMAKE_RELEASE_POSTFIX»}"»)
+«k:ELSEIF» («v:CMAKE_BUILD_TYPE» «t:MATCHES» «s:"MinSizeRel"»)
+    «f:SET»(«v:CMAKE_BUILD_POSTFIX» «s:"${«v:CMAKE_MINSIZEREL_POSTFIX»}"»)
+«k:ELSEIF»(«v:CMAKE_BUILD_TYPE» «t:MATCHES» «s:"RelWithDebInfo"»)
+    «f:SET»(«v:CMAKE_BUILD_POSTFIX» «s:"${«v:CMAKE_RELWITHDEBINFO_POSTFIX»}"»)
+«k:ELSEIF»(«v:CMAKE_BUILD_TYPE» «t:MATCHES» «s:"Debug"»)
+    «f:SET»(«v:CMAKE_BUILD_POSTFIX» «s:"${«v:CMAKE_DEBUG_POSTFIX»}"»)
+«k:ELSE»()
+    «f:SET»(«v:CMAKE_BUILD_POSTFIX» «s:""»)
+«k:ENDIF»()
+
+«k:IF»(«v:UNIX» «t:AND» «t:NOT» «v:WIN32»)
+  «f:SET»(«v:CMAKE_CXX_FLAGS_DEBUG» «s:"${«v:CMAKE_CXX_FLAGS_DEBUG»} -D_DEBUG"»)
+  «f:SET»(«v:CMAKE_C_FLAGS_DEBUG» «s:"${«v:CMAKE_C_FLAGS_DEBUG»} -D_DEBUG"»)
+«k:ENDIF»()
+
+«k:IF»(«v:CYGWIN»)
+  «f:SET»(«v:CMAKE_CXX_FLAGS_DEBUG» «s:"${«v:CMAKE_CXX_FLAGS_DEBUG»} -D_DEBUG"»)
+  «f:SET»(«v:CMAKE_C_FLAGS_DEBUG» «s:"${«v:CMAKE_C_FLAGS_DEBUG»} -D_DEBUG"»)
+«k:ENDIF»()
+
+«k:IF»(«v:UNIX» «t:AND» «t:NOT» «v:WIN32» «t:AND» «t:NOT» «v:APPLE»)
+  «k:IF»(«v:CMAKE_SIZEOF_VOID_P» «t:MATCHES» «s:"8"»)
+      «f:SET»(«v:LIB_POSTFIX» «s:"64"» «t:CACHE» «t:STRING» «s:"suffix for 32/64 dir placement"»)
+      «f:MARK_AS_ADVANCED»(«v:LIB_POSTFIX»)
+  «k:ENDIF»()
+«k:ENDIF»()
+«k:IF»(«t:NOT» «t:DEFINED» «v:LIB_POSTFIX»)
+    «f:SET»(«v:LIB_POSTFIX» «s:""»)
+«k:ENDIF»()
+
+«x:# Here we apparantly do some funky stuff with making the bin/ and lib/
+# folders which is probably needed to work around a very old CMake bug?
+»
+«x:#SET(OUTPUT_BINDIR ${PROJECT_BINARY_DIR}/bin/${CMAKE_SYSTEM_NAME})
+»«f:SET»(«v:OUTPUT_BINDIR» «D:${»«v:PROJECT_BINARY_DIR»«D:}»/bin)
+«f:MAKE_DIRECTORY»(«D:${»«v:OUTPUT_BINDIR»«D:}»)
+«k:IF»(«v:MSVC» «t:AND» «t:NOT» «v:MSVC_IDE»)
+    «f:MAKE_DIRECTORY»(«D:${»«v:OUTPUT_BINDIR»«D:}»/«D:${»«v:OSG_PLUGINS»«D:}»)
+«k:ENDIF»(«v:MSVC» «t:AND» «t:NOT» «v:MSVC_IDE»)
+
+«x:#SET(OUTPUT_LIBDIR ${PROJECT_BINARY_DIR}/lib/${CMAKE_SYSTEM_NAME})
+»«f:SET»(«v:OUTPUT_LIBDIR» «D:${»«v:PROJECT_BINARY_DIR»«D:}»/lib)
+«f:MAKE_DIRECTORY»(«D:${»«v:OUTPUT_LIBDIR»«D:}»)
+«k:IF»(«t:NOT» «v:MSVC» «t:OR» «v:MSVC_IDE»)
+    «f:MAKE_DIRECTORY»(«D:${»«v:OUTPUT_LIBDIR»«D:}»/«D:${»«v:OSG_PLUGINS»«D:}»)
+«k:ENDIF»(«t:NOT» «v:MSVC» «t:OR» «v:MSVC_IDE»)
+
+«x:# On CMake 2.4.x use EXECUTABLE_OUTPUT_PATH and LIBRARY_OUTPUT_PATH and later
+# we work around the DLL placement by use of the PREFIX target property hack
+#
+# On CMake 2.6.x use the newly minted CMAKE_LIBRARY_OUTPUT_DIRECTORY,
+# CMAKE_ARCHIVE_OUTPUT_DIRECTORY & CMAKE_RUNTIME_OUTPUT_DIRECTORY
+#
+# CMake >= 2.8.1 changed the output directory algorithm (See doc).
+# Here we also set per-configuration directories (CMAKE_*_OUTPUT_DIRECTORY_<CONFIG>), or else binaries are generated in /bin/Debug and /bin/Release, etc. with MSVC and Xcode.
+# (Doc reads "multi-configuration generators (VS, Xcode) do NOT append a per-configuration subdirectory to the specified directory").
+# The workaround for 2.6.x (adding "../" as an output prefix for each target) seem to have no effect in >=2.8.1, so there is no need to change this.
+»«k:IF»(«v:CMAKE_MAJOR_VERSION» «t:EQUAL» 2 «t:AND» «v:CMAKE_MINOR_VERSION» «t:LESS» 5)
+    «x:# If CMake < 2.6.0
+»    «f:SET»(«v:EXECUTABLE_OUTPUT_PATH» «D:${»«v:OUTPUT_BINDIR»«D:}»)
+    «f:SET»(«v:LIBRARY_OUTPUT_PATH»    «D:${»«v:OUTPUT_LIBDIR»«D:}»)
+«k:ELSE»()
+    «x:# If CMake >= 2.6.0
+»    «f:SET»(«v:CMAKE_ARCHIVE_OUTPUT_DIRECTORY» «D:${»«v:OUTPUT_LIBDIR»«D:}»)
+    «f:SET»(«v:CMAKE_RUNTIME_OUTPUT_DIRECTORY» «D:${»«v:OUTPUT_BINDIR»«D:}»)
+    «k:IF»(«v:WIN32»)
+        «f:SET»(«v:CMAKE_LIBRARY_OUTPUT_DIRECTORY» «D:${»«v:OUTPUT_BINDIR»«D:}»)
+    «k:ELSE»(«v:WIN32»)
+        «f:SET»(«v:CMAKE_LIBRARY_OUTPUT_DIRECTORY» «D:${»«v:OUTPUT_LIBDIR»«D:}»)
+    «k:ENDIF»(«v:WIN32»)
+
+    «x:# Testing CMAKE_VERSION is possible in >= 2.6.4 only
+»    «f:BUILDER_VERSION_GREATER»(2 8 0)
+    «k:IF»(«v:VALID_BUILDER_VERSION»)  «x:# If CMake >= 2.8.1
+»        «k:FOREACH»(«v:CONF» «D:${»«v:CMAKE_CONFIGURATION_TYPES»«D:}»)        «x:# For each configuration (Debug, Release, MinSizeRel... and/or anything the user chooses)
+»            «f:STRING»(«t:TOUPPER» «s:"${«v:CONF»}"» «v:CONF»)                «x:# Go uppercase (DEBUG, RELEASE...)
+»            «f:SET»(«s:"CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${«v:CONF»}"» «s:"${«v:OUTPUT_LIBDIR»}"»)
+            «f:SET»(«s:"CMAKE_RUNTIME_OUTPUT_DIRECTORY_${«v:CONF»}"» «s:"${«v:OUTPUT_BINDIR»}"»)
+            «k:IF»(«v:WIN32»)
+                «f:SET»(«s:"CMAKE_LIBRARY_OUTPUT_DIRECTORY_${«v:CONF»}"» «s:"${«v:OUTPUT_BINDIR»}"»)
+            «k:ELSE»()
+                «f:SET»(«s:"CMAKE_LIBRARY_OUTPUT_DIRECTORY_${«v:CONF»}"» «s:"${«v:OUTPUT_LIBDIR»}"»)
+            «k:ENDIF»()
+        «k:ENDFOREACH»()
+    «k:ENDIF»(«v:VALID_BUILDER_VERSION»)
+«k:ENDIF»()
+
+«x:#SET(INSTALL_BINDIR OpenSceneGraph/bin)
+#SET(INSTALL_INCDIR OpenSceneGraph/include)
+#SET(INSTALL_LIBDIR OpenSceneGraph/lib)
+#SET(INSTALL_DOCDIR OpenSceneGraph/doc)
+»
+«x:################################################################################
+# User Options
+»
+
+«x:# Expose CMAKE_INCLUDE_PATH and CMAKE_LIBARY_PATH to the GUI so users
+# may set these values without needing to manipulate the environment.
+»«f:SET»(«v:CMAKE_INCLUDE_PATH» «D:${»«v:CMAKE_INCLUDE_PATH»«D:}» «t:CACHE» «t:STRING» «s:"You may add additional search paths here. Use ; to separate multiple paths."»)
+«f:SET»(«v:CMAKE_LIBRARY_PATH» «D:${»«v:CMAKE_LIBRARY_PATH»«D:}» «t:CACHE» «t:STRING» «s:"You may add additional search paths here. Use ; to separate multiple paths."»)
+«x:# We are proposing that a new variable called CMAKE_PREFIX_PATH be introduced
+# to CMake to compliment CMAKE_INCLUDE_PATH and CMAKE_LIBRARY_PATH.
+# A formal feature request has been submited to CMake, Bug #4947.
+# It is intended for those users who have common prefixes for their INCLUDE
+# and LIBRARY locations. So if users have headers in /usr/local/include
+# and libraries in /usr/local/lib, the common prefix is /usr/local.
+# It should also cover the case where headers and libraries are
+# in the same directory.
+# Our proposal expects that FIND_* commands will automatically search for
+# CMAKE_PREFIX_PATH right after CMAKE_INCLUDE_PATH or CMAKE_LIBRARY_PATH.
+# Obviously, since CMake does not currently support this, we must write
+# our Find*.cmake modules to explicitly support this. Otherwise, this variable
+# will have no impact.
+# This is unofficial so this may be removed or changed at anytime.
+»«f:SET»(«v:CMAKE_PREFIX_PATH» «D:${»«v:CMAKE_PREFIX_PATH»«D:}» «t:CACHE» «t:STRING» «s:"(EXPERIMENTAL) You may add additional search paths here. Use ; to separate multiple paths."»)
+
+«x:# This is for an advanced option to give aggressive warnings
+# under different compilers. If yours is not implemented, this option
+# will not be made available.
+»«k:IF»(«v:CMAKE_COMPILER_IS_GNUCXX»)
+    «x:# To be complete, we might also do GNUCC flags,
+»    «x:# but everything here is C++ code.
+»    «x:# -Wshadow and -Woverloaded-virtual are also interesting flags, but OSG
+»    «x:# returns too many hits.
+»    «x:# FYI, if we do implement GNUCC, then -Wmissing-prototypes in another
+»    «x:# interesting C-specific flag.
+»    «x:# Also, there is a bug in gcc 4.0. Under C++, -pedantic will create
+»    «x:# errors instead of warnings for certain issues, including superfluous
+»    «x:# semicolons and commas, and the use of long long. -fpermissive seems
+»    «x:# to be the workaround.
+»    «f:SET»(«v:OSG_AGGRESSIVE_WARNING_FLAGS» -Wall -Wparentheses -Wno-long-long -Wno-import -pedantic -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wunused -fpermissive)
+
+    «x:# Previous included -Wformat=2 in OSG_AGGRESSIVE_WARNING_FLAGS but had to remove it due to standard library errors
+»
+
+«k:ELSE»()
+    «k:IF»(«v:MSVC»)
+        «x:# FIXME: What are good aggressive warning flags for Visual Studio?
+»        «x:# And do we need to further subcase this for different versions of VS?
+»        «x:# CMake variables: MSVC60, MSVC70, MSVC71, MSVC80, CMAKE_COMPILER_2005
+»        «f:SET»(«v:OSG_AGGRESSIVE_WARNING_FLAGS» /W4 /wd4706 /wd4127 /wd4100)
+
+
+    «k:ELSE»()
+        «x:# CMake lacks an elseif, so other non-gcc, non-VS compilers need
+»        «x:# to be listed below. If unhandled, OSG_AGGRESSIVE_WARNING_FLAGS should
+»        «x:# remain unset.
+»    «k:ENDIF»()
+«k:ENDIF»()
+
+«x:# This part is for the CMake menu option to toggle the warnings on/off.
+# This will only be made available if we set values for OSG_AGGRESSIVE_WARNING_FLAGS.
+»«k:IF»(«v:OSG_AGGRESSIVE_WARNING_FLAGS»)
+
+    «k:IF» («v:APPLE»)
+        «f:SET»(«v:DEFAULT_USE_AGGRESSIVE_WARNINGS» «c:OFF»)
+    «k:ELSE»()
+        «f:SET»(«v:DEFAULT_USE_AGGRESSIVE_WARNINGS» «c:ON»)
+    «k:ENDIF»()
+
+    «f:OPTION»(«v:OSG_USE_AGGRESSIVE_WARNINGS» «s:"Enable to activate aggressive warnings"» «D:${»«v:DEFAULT_USE_AGGRESSIVE_WARNINGS»«D:}»)
+    «f:MARK_AS_ADVANCED»(«v:OSG_USE_AGGRESSIVE_WARNINGS»)
+
+    «k:IF»(«v:OSG_USE_AGGRESSIVE_WARNINGS»)
+        «x:# Add flags defined by OSG_AGGRESSIVE_WARNING_FLAGS if they aren't already there
+»        «k:FOREACH»(«v:flag» «D:${»«v:OSG_AGGRESSIVE_WARNING_FLAGS»«D:}»)
+            «k:IF»(«t:NOT» «v:CMAKE_CXX_FLAGS» «t:MATCHES» «s:"${«v:flag»}"»)
+                «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} ${«v:flag»}"»)
+            «k:ENDIF»()
+        «k:ENDFOREACH»()
+    «k:ELSE»()
+        «x:# Remove all flags considered aggresive
+»        «k:FOREACH»(«v:flag» «D:${»«v:OSG_AGGRESSIVE_WARNING_FLAGS»«D:}»)
+            «f:STRING»(«t:REGEX» «t:REPLACE» «s:"${«v:flag»}"» «s:""» «v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»}"»)
+        «k:ENDFOREACH»()
+    «k:ENDIF»()
+«k:ENDIF»()
+
+
+«x:# Dynamic vs Static Linking
+»«f:OPTION»(«v:DYNAMIC_OPENSCENEGRAPH» «s:"Set to ON to build OpenSceneGraph for dynamic linking.  Use OFF for static."» «c:ON»)
+«k:IF»   («v:DYNAMIC_OPENSCENEGRAPH»)
+    «f:SET»(«v:OPENSCENEGRAPH_USER_DEFINED_DYNAMIC_OR_STATIC» «s:"SHARED"»)
+«k:ELSE» ()
+    «f:SET»(«v:OPENSCENEGRAPH_USER_DEFINED_DYNAMIC_OR_STATIC» «s:"STATIC"»)
+«k:ENDIF»()
+
+
+«x:# OSG Core
+»«f:ADD_SUBDIRECTORY»(src)
+
+«k:IF»   («v:BUILD_OSG_APPLICATIONS» «t:AND» «t:NOT» «v:ANDROID»)
+    «f:ADD_SUBDIRECTORY»(applications)
+«k:ENDIF»()
+
+«k:IF»   («v:BUILD_OSG_EXAMPLES»)
+    «f:ADD_SUBDIRECTORY»(examples)
+«k:ENDIF»()
+
+
+«k:IF»(«v:APPLE»)
+
+        «x:#Here we check if the user specified IPhone SDK
+»    «k:IF»(«v:OSG_BUILD_PLATFORM_IPHONE» «t:OR» «v:OSG_BUILD_PLATFORM_IPHONE_SIMULATOR»)
+
+        «x:#set iphone arch and flags taken from http://sites.google.com/site/michaelsafyan/coding/resources/how-to-guides/cross-compile-for-the-iphone/how-to-cross-compile-for-the-iphone-using-cmake
+»        «k:IF»(«v:OSG_BUILD_PLATFORM_IPHONE»)
+            «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"armv6;armv7"» «t:CACHE» «t:STRING» «s:"Build architectures for iOS"» «t:FORCE»)
+            «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -miphoneos-version-min=4.1 -mno-thumb -arch armv6 -pipe -no-cpp-precomp"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+        «k:ELSE»()
+            «x:#simulator uses i386 architectures
+»            «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"i386"» «t:CACHE» «t:STRING» «s:"Build architectures for iOS Simulator"» «t:FORCE»)
+            «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -mno-thumb -arch i386 -pipe -no-cpp-precomp"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+        «k:ENDIF»()
+
+        «x:#here we set the specific iphone sdk version. We can only set either device or simulator sdk. So if you want both you currently have to have two seperate projects
+»        «f:SET»(«v:CMAKE_OSX_SYSROOT» «s:"${«v:IPHONE_SDKROOT»}"» «t:CACHE» «t:STRING» «s:"System root for iOS"» «t:FORCE»)
+
+        «x:#hack, force link to opengles
+»        «f:set»(«v:CMAKE_EXE_LINKER_FLAGS» «s:"-framework Foundation -framework OpenGLES"»)
+
+        «x:#use the IPhone windowing system
+»        «f:SET»(«v:OSG_WINDOWING_SYSTEM» «s:"IOS"» «t:CACHE» «t:STRING» «s:"Forced IPhone windowing system on iOS"»  «t:FORCE»)
+        «f:SET»(«v:OSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX» «s:"imageio"» «t:CACHE» «t:STRING» «s:"Forced imageio default image plugin for iOS"» «t:FORCE»)
+
+        «x:#I think this or similar will be required for IPhone apps
+»        «f:OPTION»(«v:OSG_BUILD_APPLICATION_BUNDLES» «s:"Enable the building of applications and examples as OSX Bundles"» «c:ON»)
+
+    «k:ELSE»()
+
+        «x:# Set defaults for Universal Binaries. We want 32-bit Intel/PPC on 10.4
+»        «x:# and 32/64-bit Intel/PPC on >= 10.5. Anything <= 10.3 doesn't support.
+»
+        «x:# These are just defaults/recommendations, but how we want to build
+»        «x:# out of the box. But the user needs to be able to change these options.
+»        «x:# So we must only set the values the first time CMake is run, or we
+»        «x:# will overwrite any changes the user sets.
+»        «x:# FORCE is used because the options are not reflected in the UI otherwise.
+»        «x:# Seems like a good place to add version specific compiler flags too.
+»        «k:IF»(«t:NOT» «v:OSG_CONFIG_HAS_BEEN_RUN_BEFORE»)
+            «k:IF»(«D:${»«v:OSG_OSX_SDK_NAME»«D:}» «t:STREQUAL» «s:"macosx10.8"»)
+                «f:SET»(«v:OSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX» «s:"imageio"» «t:CACHE» «t:STRING» «s:"Forced imageio default image plugin for OSX"» «t:FORCE»)
+                «x:# 64 Bit Works, i386,ppc is not supported any more
+»                «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"x86_64"» «t:CACHE» «t:STRING» «s:"Build architectures for OSX"» «t:FORCE»)
+                «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -mmacosx-version-min=10.8 -fvisibility-inlines-hidden"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+            «k:ELSEIF»(«D:${»«v:OSG_OSX_SDK_NAME»«D:}» «t:STREQUAL» «s:"macosx10.7"»)
+                «f:SET»(«v:OSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX» «s:"imageio"» «t:CACHE» «t:STRING» «s:"Forced imageio default image plugin for OSX"» «t:FORCE»)
+                «x:# 64 Bit Works, PPC is not supported any more
+»                «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"i386;x86_64"» «t:CACHE» «t:STRING» «s:"Build architectures for OSX"» «t:FORCE»)
+                «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -mmacosx-version-min=10.7 -fvisibility-inlines-hidden"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+            «k:ELSEIF»(«D:${»«v:OSG_OSX_SDK_NAME»«D:}» «t:STREQUAL» «s:"macosx10.6"» «t:OR» «D:${»«v:OSG_OSX_SDK_NAME»«D:}» «t:STREQUAL» «s:"macosx10.5"»)
+                «f:SET»(«v:OSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX» «s:"imageio"» «t:CACHE» «t:STRING» «s:"Forced imageio default image plugin for OSX"» «t:FORCE»)
+                «x:# 64-bit compiles are not supported with Carbon.
+»                «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"ppc;i386"» «t:CACHE» «t:STRING» «s:"Build architectures for OSX"» «t:FORCE»)
+                «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -mmacosx-version-min=10.5 -ftree-vectorize -fvisibility-inlines-hidden"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+            «k:ELSEIF»(«D:${»«v:OSG_OSX_SDK_NAME»«D:}» «t:STREQUAL» «s:"macosx10.4"»)
+                «f:SET»(«v:OSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX» «s:"quicktime"» «t:CACHE» «t:STRING» «s:"Forced imageio default image plugin for OSX"» «t:FORCE»)
+                «f:SET»(«v:CMAKE_OSX_ARCHITECTURES» «s:"ppc;i386"» «t:CACHE» «t:STRING» «s:"Build architectures for OSX"» «t:FORCE»)
+                «f:SET»(«v:CMAKE_CXX_FLAGS» «s:"${«v:CMAKE_CXX_FLAGS»} -mmacosx-version-min=10.4 -ftree-vectorize -fvisibility-inlines-hidden"» «t:CACHE» «t:STRING» «s:"Flags used by the compiler during all build types."» «t:FORCE»)
+            «k:ELSE»()
+                «x:# No Universal Binary support
+»                «x:# Should break down further to set the -mmacosx-version-min,
+»                «x:# but the SDK detection is too unreliable here.
+»            «k:ENDIF»()
+        «k:ENDIF»()
+
+        «f:OPTION»(«v:OSG_BUILD_APPLICATION_BUNDLES» «s:"Enable the building of applications and examples as OSX Bundles"» «c:OFF»)
+
+    «k:ENDIF»()
+
+«k:ENDIF»(«v:APPLE»)
+
+
+«x:# For Doxygen
+»«k:INCLUDE»(«D:${»«v:CMAKE_ROOT»«D:}»/Modules/Documentation.cmake «t:OPTIONAL»)
+«f:OPTION»(«v:BUILD_DOCUMENTATION» «s:"Build OpenSceneGraph reference documentation using doxygen (use: make DoxygenDoc)"» «c:OFF»)
+«f:MARK_AS_ADVANCED»(«t:CLEAR» «v:BUILD_DOCUMENTATION»)
+«x:# To build the documention, you will have to enable it
+# and then do the equivalent of "make DoxygenDoc".
+»«k:IF»(«v:BUILD_DOCUMENTATION»)
+
+    «f:OPTION»(«v:BUILD_REF_DOCS_SEARCHENGINE» «s:"Enable doxygen's search engine (requires that documentation to be installed on a php enabled web server)"» «c:OFF»)
+    «k:IF»(«v:BUILD_REF_DOCS_SEARCHENGINE»)
+        «f:SET»(«v:SEARCHENGINE» «c:YES»)
+    «k:ELSE»()
+        «f:SET»(«v:SEARCHENGINE» «c:NO»)
+    «k:ENDIF»()
+
+    «f:OPTION»(«v:BUILD_REF_DOCS_TAGFILE» «s:"Generate a tag file named osg.tag on the documentation web server"» «c:OFF»)
+    «k:IF»(«v:BUILD_REF_DOCS_TAGFILE»)
+        «f:SET»(«v:GENERATE_TAGFILE» «s:"${«v:OpenSceneGraph_BINARY_DIR»}/doc/OpenSceneGraphReferenceDocs/osg.tag"»)
+    «k:ELSE»()
+        «f:SET»(«v:GENERATE_TAGFILE» «s:""»)
+    «k:ENDIF»()
+
+    «k:IF»(«v:DOT»)
+        «f:SET»(«v:HAVE_DOT» «c:YES»)
+    «k:ELSE»()
+        «f:SET»(«v:HAVE_DOT» «c:NO»)
+    «k:ENDIF»()
+
+    «x:# If html help generation was requested. DOCUMENTATION_HTML_HELP is defined by Documentation.cmake
+»    «f:SET»(«v:GENERATE_HTMLHELP» «s:"NO"»)
+    «k:IF»(«v:DOCUMENTATION_HTML_HELP»)
+        «x:# on windows Documentation.cmake finds the html help workshop if it exists. On u*ix we might have it with wine but no way to point it out
+»        «k:IF»(«t:NOT» «v:WIN32»)
+            «f:SET»(«v:HTML_HELP_COMPILER» «s:""» «t:CACHE» «t:FILEPATH» «s:"Enter location of the HTML help compiler to let doxygen compile html"»)
+            «f:MARK_AS_ADVANCED»(«v:HTML_HELP_COMPILER»)
+        «k:ENDIF»()
+        «x:# this var sets a proper value in .doxygen files when configuring them below
+»        «f:SET»(«v:GENERATE_HTMLHELP» «s:"YES"»)
+    «k:endif»()
+
+    «x:# This processes our doxyfile.cmake and substitutes paths to generate
+»    «x:# a final Doxyfile
+»    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/doc/Doxyfiles/doxyfile.cmake
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/openscenegraph.doxyfile
+    )
+    «x:# copy the osg logo to documentations target folder
+»    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/PlatformSpecifics/Windows/icons/src/osg32-32.png
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/OpenSceneGraphReferenceDocs/osg32-32.png «t:COPYONLY»
+    )
+    «x:#INSTALL(FILES ${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}ReferenceDocs-${OPENSCENEGRAPH_VERSION}.chm DESTINATION doc OPTIONAL COMPONENT openscenegraph-doc)
+»    «f:INSTALL»(«t:DIRECTORY» «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/OpenSceneGraphReferenceDocs «t:DESTINATION» doc «t:COMPONENT» openscenegraph-doc)
+
+    «x:# now set up openthreads documentation generation
+»    «k:IF»(«v:BUILD_REF_DOCS_TAGFILE»)
+        «f:SET»(«v:GENERATE_TAGFILE» «s:"${«v:OpenSceneGraph_BINARY_DIR»}/doc/OpenThreadsReferenceDocs/ot.tag"»)
+    «k:ENDIF»()
+
+    «x:# This processes our openthreads.doxyfile.cmake and generate a final doxyfile
+»    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/doc/Doxyfiles/openthreads.doxyfile.cmake
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/openthreads.doxyfile
+    )
+    «x:# copy the osg logo to documentations target folder
+»    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/PlatformSpecifics/Windows/icons/src/osg32-32.png
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/OpenThreadsReferenceDocs/osg32-32.png «t:COPYONLY»
+    )
+    «x:#INSTALL(FILES ${PROJECT_BINARY_DIR}/doc/${PROJECT_NAME}ReferenceDocs-${OPENSCENEGRAPH_VERSION}.chm DESTINATION doc OPTIONAL COMPONENT openscenegraph-doc)
+»    «f:INSTALL»(«t:DIRECTORY» «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/OpenThreadsReferenceDocs «t:DESTINATION» doc «t:COMPONENT» openthreads-doc)
+
+    «x:# Process our other doxyfiles but don't create targets for these
+»    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/doc/Doxyfiles/all_Doxyfile
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/all_Doxyfile)
+    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/doc/Doxyfiles/auto_Doxyfile
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/auto_Doxyfile)
+    «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/doc/Doxyfiles/core_Doxyfile
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/core_Doxyfile)
+
+    «x:# This creates a new target to build documentation.
+»    «x:# It runs ${DOXYGEN} which is the full path and executable to
+»    «x:# Doxygen on your system, set by the FindDoxygen.cmake module
+»    «x:# (called by FindDocumentation.cmake).
+»    «x:# It runs the final generated Doxyfile against it.
+»    «x:# The DOT_PATH is substituted into the Doxyfile.
+»    «f:ADD_CUSTOM_TARGET»(«c:doc_openscenegraph» «D:${»«v:DOXYGEN»«D:}»
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/openscenegraph.doxyfile
+    )
+    «f:SET_TARGET_PROPERTIES»(«c:doc_openscenegraph» «t:PROPERTIES» «c:FOLDER» «s:"Documentation"»)
+
+    «f:ADD_CUSTOM_TARGET»(«c:doc_openthreads» «D:${»«v:DOXYGEN»«D:}»
+        «D:${»«v:PROJECT_BINARY_DIR»«D:}»/doc/openthreads.doxyfile
+    )
+    «f:SET_TARGET_PROPERTIES»(«c:doc_openthreads» «t:PROPERTIES» «c:FOLDER» «s:"Documentation"»)
+«k:ENDIF»(«v:BUILD_DOCUMENTATION»)
+
+«f:OPTION»(«v:BUILD_DASHBOARD_REPORTS» «s:"Set to ON to activate reporting of OpenSceneGraph builds here http://www.cdash.org/CDashPublic/index.php?project=OpenSceneGraph"» «c:OFF»)
+«k:IF»(«v:BUILD_DASHBOARD_REPORTS»)
+«x:# The following are required to uses Dart and the Cdash dashboard
+# viewable here : http://www.cdash.org/CDashPublic/index.php?project=OpenSceneGraph
+»    «k:INCLUDE»(Dart)
+«k:ENDIF»()
+
+«x:# present the packaging option only if we have the cpack command defined (effectively >= 2.6.0)
+»«k:IF»(«v:CMAKE_CPACK_COMMAND»)
+    «f:OPTION»(«v:BUILD_OSG_PACKAGES» «s:"Set to ON to generate CPack configuration files and packaging targets"» «c:OFF»)
+    «k:IF»(«v:BUILD_OSG_PACKAGES»)
+      «k:INCLUDE»(OsgCPack)
+    «k:ENDIF»()
+«k:ENDIF»()
+
+«x:# Generate pkg-config configuration files
+»
+«f:SET»(«v:PKGCONFIG_FILES»
+  openscenegraph
+  openscenegraph-osg
+  openscenegraph-osgDB
+  openscenegraph-osgFX
+  openscenegraph-osgGA
+  openscenegraph-osgParticle
+  openscenegraph-osgSim
+  openscenegraph-osgText
+  openscenegraph-osgUtil
+  openscenegraph-osgTerrain
+  openscenegraph-osgManipulator
+  openscenegraph-osgViewer
+  openscenegraph-osgWidget
+  openscenegraph-osgShadow
+  openscenegraph-osgAnimation
+  openscenegraph-osgVolume
+)
+
+«k:IF»(«v:QT4_FOUND»)
+  «f:SET»(«v:PKGCONFIG_FILES» «D:${»«v:PKGCONFIG_FILES»«D:}» openscenegraph-osgQt)
+«k:ENDIF»(«v:QT4_FOUND»)
+
+«k:FOREACH»(«v:PKGCONFIG_FILE» «D:${»«v:PKGCONFIG_FILES»«D:}»)
+  «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/packaging/pkgconfig/«D:${»«v:PKGCONFIG_FILE»«D:}».pc.in
+    «D:${»«v:PROJECT_BINARY_DIR»«D:}»/packaging/pkgconfig/«D:${»«v:PKGCONFIG_FILE»«D:}».pc
+    «t:@ONLY»
+    )
+  «f:INSTALL»(«t:FILES» «D:${»«v:PROJECT_BINARY_DIR»«D:}»/packaging/pkgconfig/«D:${»«v:PKGCONFIG_FILE»«D:}».pc «t:DESTINATION» lib«D:${»«v:LIB_POSTFIX»«D:}»/pkgconfig «t:COMPONENT» libopenscenegraph-dev)
+«k:ENDFOREACH»(«v:PKGCONFIG_FILE»)
+
+
+«x:# Run this as late as possible so users can easier spot the message
+»«k:IF» («t:NOT» «t:DEFINED» «v:REQUIRES_LIBPATH_MESSAGE» «t:AND» «D:${»«v:CMAKE_INSTALL_PREFIX»«D:}» «t:STREQUAL» «s:"/usr/local"»)
+    «f:SET»(«v:REQUIRES_LIBPATH_MESSAGE» «c:ON»)
+«k:ENDIF»()
+
+«k:IF»(«v:REQUIRES_LIBPATH_MESSAGE»)
+    «k:IF» («t:NOT» «v:OSG_LIBPATH_MESSAGE_HAS_BEEN_RUN_BEFORE»)
+        «f:SET»(«v:OSG_LIBPATH_MESSAGE_HAS_BEEN_RUN_BEFORE» 1 «t:CACHE» «t:INTERNAL» «s:"Flag to track whether the libpath message has been reported before"»)
+
+        «f:MESSAGE»(«s:"\nThe build system is configured to install libraries to ${«v:CMAKE_INSTALL_PREFIX»}/lib${«v:LIB_POSTFIX»}\n"»
+            «s:"Your applications may not be able to find your installed libraries unless you:\n"»
+            «s:"    set your LD_LIBRARY_PATH (user specific) or\n"»
+            «s:"    update your ld.so configuration (system wide)"»)
+        «k:IF»(«t:IS_DIRECTORY» /etc/ld.so.conf.d)
+            «f:MESSAGE»(«s:"You have an ld.so.conf.d directory on your system, so if you wish to ensure that\n"»
+                «s:"applications find the installed osg libraries, system wide, you could install an\n"»
+                «s:"OpenSceneGraph specific ld.so configuration with:\n"»
+                «s:"    sudo make install_ld_conf\n"»)
+            «f:CONFIGURE_FILE»(«D:${»«v:PROJECT_SOURCE_DIR»«D:}»/packaging/ld.so.conf.d/openscenegraph.conf.in
+                «D:${»«v:PROJECT_BINARY_DIR»«D:}»/packaging/ld.so.conf.d/openscenegraph.conf
+            )
+            «f:ADD_CUSTOM_TARGET»(«c:install_ld_conf» «D:${»«v:CMAKE_COMMAND»«D:}» -E copy_if_different
+                «D:${»«v:PROJECT_BINARY_DIR»«D:}»/packaging/ld.so.conf.d/openscenegraph.conf
+                /etc/ld.so.conf.d/openscenegraph.conf
+                «t:COMMAND» ldconfig
+                «t:COMMENT» «s:"Copying openscenegraph.conf to /etc/ld.so.conf.d and running ldconfig"»
+            )
+        «k:ELSE»()
+            «k:IF»(«t:EXISTS» /etc/ld.so.conf)
+                «f:MESSAGE»(«s:"You have an ld.so.conf file in /etc, if you wish to ensure \n"»
+                «s:"that applications find the installed osg libraries, system wide, you\n"»
+                «s:"could add ${«v:CMAKE_INSTALL_PREFIX»}/lib${«v:LIB_POSTFIX»} to it."»)
+            «k:ENDIF»()
+        «k:ENDIF»()
+
+        «x:# emit a message during installation.
+»        «f:INSTALL»(«t:CODE» «s:"MESSAGE(\"Libraries were installed to ${«v:CMAKE_INSTALL_PREFIX»}lib${«v:LIB_POSTFIX»}.\\nYou may need to update your ld.so configuration. \")"»)
+
+    «k:ENDIF»(«t:NOT» «v:OSG_LIBPATH_MESSAGE_HAS_BEEN_RUN_BEFORE»)
+
+«k:ELSE»()
+    «f:SET»(«v:OSG_LIBPATH_MESSAGE_HAS_BEEN_RUN_BEFORE» 0 «t:CACHE» «t:INTERNAL» «s:"Flag to track whether the libpath message has been reported before"»)
+«k:ENDIF»()
+
+
+«x:# This needs to be run very last so other parts of the scripts can take
+# advantage of this.
+»«k:IF»(«t:NOT» «v:OSG_CONFIG_HAS_BEEN_RUN_BEFORE»)
+    «f:SET»(«v:OSG_CONFIG_HAS_BEEN_RUN_BEFORE» 1 «t:CACHE» «t:INTERNAL» «s:"Flag to track whether this is the first time running CMake or if CMake has been configured before"»)
+«k:ENDIF»()
+
+«x:#-----------------------------------------------------------------------------
+### uninstall target
+#-----------------------------------------------------------------------------
+»«f:CONFIGURE_FILE»(
+  «s:"${«v:CMAKE_CURRENT_SOURCE_DIR»}/CMakeModules/cmake_uninstall.cmake.in"»
+  «s:"${«v:CMAKE_CURRENT_BINARY_DIR»}/cmake_uninstall.cmake"»
+  IMMEDIATE «t:@ONLY»)
+«f:ADD_CUSTOM_TARGET»(«c:uninstall»
+  «s:"${«v:CMAKE_COMMAND»}"» -P «s:"${«v:CMAKE_CURRENT_BINARY_DIR»}/cmake_uninstall.cmake"»)
+
+«x:#
+»«k:IF»(«v:ANDROID»)
+    «f:message»(«t:STATUS» «s:"Creating Android Makefile Master files"» )
+    «f:configure_file»(«s:"${«v:OSG_ANDROID_TEMPLATES»}/Android.mk.master.in"» «s:"${«v:CMAKE_BINARY_DIR»}/Android.mk"»)
+    «f:configure_file»(«s:"${«v:OSG_ANDROID_TEMPLATES»}/Application.mk.master.in"» «s:"${«v:CMAKE_BINARY_DIR»}/Application.mk"»)
+    «f:configure_file»(«s:"${«v:OSG_ANDROID_TEMPLATES»}/AndroidManifest.xml.master.in"» «s:"${«v:CMAKE_BINARY_DIR»}/AndroidManifest.xml"»)
+«k:ENDIF»(«v:ANDROID»)
