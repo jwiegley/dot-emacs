@@ -1,0 +1,4 @@
+# Dirs
+old/*
+# Compiled
+*.elc
