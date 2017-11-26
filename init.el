@@ -3304,6 +3304,7 @@
   :commands (vr/replace
              vr/query-replace)
   :bind (("C-c r" . vr/replace)
+         ("C-c %" . vr/query-replace)
          ("C-c C->" . vr/mc-mark))
   :init
   (bind-keys
