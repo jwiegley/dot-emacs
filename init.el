@@ -38,15 +38,6 @@
                     (add-to-list 'load-path share))))
           (nix-read-environment emacs-environment)))
 
-  (dolist (path (seq-filter
-                 (apply-partially #'string-match "-Agda-")
-                 (nix-read-environment (concat "ghc" (getenv "GHCVER")))))
-    (let ((dir (file-name-directory
-                (substring (shell-command-to-string
-                            (concat path "/bin/agda-mode locate")) 0 -1))))
-      (if (file-directory-p dir)
-          (add-to-list 'load-path dir))))
-
   (require 'use-package)
   (setq use-package-verbose t))
 
@@ -698,6 +689,16 @@
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
+  :load-path
+  (lambda ()
+    (mapcar
+     #'(lambda (dir)
+         (file-name-directory
+          (substring (shell-command-to-string
+                      (concat dir "/bin/agda-mode locate")) 0 -1)))
+     (seq-filter
+      (apply-partially #'string-match "-Agda-")
+      (nix-read-environment (concat "ghc" (getenv "GHCVER"))))))
   :config
   (set-input-method "Agda"))
 
@@ -1124,9 +1125,8 @@
   (unbind-key "M-<return>" company-coq-map))
 
 (use-package company-ghc
-  :disabled t
   :load-path "site-lisp/company-ghc"
-  :after company)
+  :after (company ghc))
 
 (use-package company-math
   :load-path "site-lisp/company-math"
@@ -1759,6 +1759,36 @@
   :load-path "site-lisp/ggtags"
   :commands ggtags-mode
   :diminish ggtags-mode)
+
+(use-package ghc
+  ;; Disabled right now until https://github.com/DanielG/ghc-mod/issues/905 is
+  ;; fixed, since the cabal helper is not being built.
+  :disabled t
+  :load-path
+  (lambda ()
+    (mapcar
+     #'(lambda (conf)
+         (with-temp-buffer
+           (insert-file-contents-literally conf)
+           (re-search-forward "^data-dir: \\(.+\\)" nil)
+           (let ((data-dir (match-string 1)))
+             (when (file-directory-p data-dir)
+               (expand-file-name "elisp" data-dir)))))
+     (cl-mapcan
+      #'(lambda (ghc)
+          (directory-files (expand-file-name "package.conf.d" ghc)
+                           t "\\.conf$"))
+      (cl-mapcan
+       #'(lambda (lib) (directory-files lib t "^ghc-"))
+       (cl-mapcan
+        #'(lambda (path) (directory-files path t "^lib$"))
+        (seq-filter
+         (apply-partially #'string-match "-ghc-mod-")
+         (nix-read-environment (concat "ghc" (getenv "GHCVER")))))))))
+  :after haskell-mode
+  :commands ghc-init
+  :init
+  (add-hook 'haskell-mode-hook #'(lambda () (ghc-init))))
 
 (use-package gist
   :no-require t
