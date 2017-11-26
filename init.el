@@ -1357,6 +1357,7 @@
         (funcall dired-omit-regexp-orig)))))
 
 (use-package dired+
+  :after dired
   :config
   (unbind-key "M-s f" dired-mode-map))
 
@@ -2536,14 +2537,13 @@
   :init
   (add-hook 'magit-mode-hook 'hl-line-mode)
 
-  (use-package git-commit)
-
   :config
   (setenv "GIT_PAGER" "")
 
   (use-package magit-commit
     :config
-    (remove-hook 'server-switch-hook 'magit-commit-diff))
+    (remove-hook 'server-switch-hook 'magit-commit-diff)
+    (use-package git-commit))
 
   (use-package magit-files
     :config
