@@ -855,18 +855,19 @@ end tell" (match-string 1))))
   :load-path "site-lisp/org-magit")
 
 (use-package org-opml
-  :disabled t
   :load-path "site-lisp/org-opml")
 
 (use-package org-parser
-  :disabled t)
+  :defer t
+  :preface
+  (autoload #'org-parser-parse-buffer "org-parser")
+  (autoload #'org-parser-parse-file "org-parser")
+  (autoload #'org-parser-parse-string "org-parser"))
 
 (use-package org-super-agenda
   :disabled t
   :load-path "site-lisp/org-super-agenda"
-  :config
-  (org-super-agenda-mode)
-
+  :preface
   (defun super-jump-to-org-agenda ()
     (interactive)
     (let ((org-super-agenda-groups
@@ -891,7 +892,9 @@ end tell" (match-string 1))))
              (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
                     :order 9)
              (:priority<= "B" :order 1))))
-      (org-agenda nil "a"))))
+      (org-agenda nil "a")))
+  :config
+  (org-super-agenda-mode))
 
 (use-package org-web-tools
   :load-path "site-lisp/org-web-tools"
