@@ -3427,7 +3427,7 @@
 
 (use-package yaml-mode
   :load-path "site-lisp/yaml-mode"
-  :mode ("\\.ya?ml\\'" . yaml-mode))
+  :mode "\\.ya?ml\\'")
 
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
