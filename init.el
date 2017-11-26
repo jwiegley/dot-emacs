@@ -1384,7 +1384,8 @@
   :config
   (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
 
-(use-package dired-x)
+(use-package dired-x
+  :after dired)
 
 (use-package docker
   :defer 15
