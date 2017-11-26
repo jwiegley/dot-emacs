@@ -2811,8 +2811,8 @@
                    'LaTeX-mode-hook))
 
 (use-package outorg
-  :disabled t
-  :load-path "site-lisp/outorg")
+  :load-path "site-lisp/outorg"
+  :after outshine)
 
 (use-package outshine
   :load-path "site-lisp/outshine"
