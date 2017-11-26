@@ -1382,6 +1382,7 @@
   (unbind-key "M-s f" dired-mode-map))
 
 (use-package dired-hacks
+  :disabled t
   :load-path "site-lisp/dired-hacks"
   :init
   (autoload #'dired-filter-mode "dired-filter" nil t))
