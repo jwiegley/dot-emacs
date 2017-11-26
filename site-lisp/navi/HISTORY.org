@@ -1,0 +1,193 @@
+* TODO Version 2.1
+
+** TODO set and push v2.1 tag
+** TODO update README
+** TODO set version number
+** TODO announce in org-mode mailing-list
+** TODO announce in emacs-user mailing-list
+
+
+* TODO Version 2.0
+
+** TODO improve MELPA-package
+** DONE set and push v2.0 tag
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:06]
+** TODO delete tj-navi branch
+** DONE Merge trunk in master
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 22:39]
+** DONE quite byte-compiler
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 21:31]
+** DONE update README
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 19:20]
+** DONE set version number
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 19:17]
+** DONE announce in org-mode mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:07]
+** DONE announce in emacs-user mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:07]
+
+* DONE Version 1.0
+  CLOSED: [2013-05-03 Fr 19:21]
+  :LOGBOOK:
+  - State "DONE"       from "TODO"       [2013-05-03 Fr 19:21]
+  :END:
+  [2013-02-21 Do 01:24]
+
+** DONE change version number
+   CLOSED: [2013-05-03 Fr 19:21]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:21]
+   :END:
+   [2013-02-21 Do 01:27]
+** CANCELLED announce in org-mode mailing-list                    :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:20] \\
+     enough publicity
+   :END:
+   [2013-02-21 Do 01:28]
+** CANCELLED announce in emacs mailing-list                       :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:20] \\
+     enough publicity
+   :END:
+ [2013-02-21 Do 01:24]
+
+
+* DONE Version 0.9
+  CLOSED: [2013-05-03 Fr 19:20]
+  :LOGBOOK:
+  - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+  :END:
+  [2013-02-21 Do 01:24]
+
+** DONE fix navi-edit-mode ("e")
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-10 So 01:54]
+** DONE fix not revieves keys
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-10 So 01:54]
+** DONE finish keybindings
+   CLOSED: [2013-03-09 Sa 23:12]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-09 Sa 23:12]
+   :END:
+   [2013-03-08 Fr 12:01]
+** DONE write 'navi-quit-and-switch'
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 12:00]
+** DONE make '?' and 'h' show C-h b
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 11:58]
+** DONE implement 'remote control' functions
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 11:58]
+** DONE write Worg article
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 11:50]
+** DONE ask about keybindings for functions with args.
+   CLOSED: [2013-03-09 Sa 23:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-09 Sa 23:13]
+   :END:
+   [2013-03-08 Fr 11:49]
+** DONE fix wrong point location (always 1st match) after excursion to other buffers
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 11:44]
+
+When switching between the twin-buffers, automatic point-location seems to
+work, but when switching to other, non-related buffers in between, and then
+back to the original-buffer and then to the navi-buffer, point always ends up
+at the first match. 
+
+** DONE make navi derived major-mode
+   CLOSED: [2013-03-08 Fr 11:42]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-08 Fr 11:42]
+   :END:
+   [2013-02-25 Mo 09:33]
+** CANCELLED turn off fontification of matches???                 :CANCELLED:
+   CLOSED: [2013-03-08 Fr 11:41]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-03-08 Fr 11:41] \\
+     in the end, the fontification is not so bad, maybe even useful.
+   :END:
+   [2013-02-21 Do 01:32]
+** DONE global command: go-back-to-navi-buffer (at marker-position)
+   CLOSED: [2013-02-25 Mo 09:33]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-25 Mo 09:33]
+   :END:
+   [2013-02-21 Do 01:30]
+** DONE make functions that return from original-buffer to navi-buffer revert navi-buffer
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
+   [2013-03-08 Fr 11:43]
+** CANCELLED implement actualization hook for navi-buffers (always-up-to-date) :CANCELLED:
+   CLOSED: [2013-03-08 Fr 11:42]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-03-08 Fr 11:42] \\
+     instead of an actualization-hook-function, each function that returns from
+     the original-buffer to the navi-buffer reverts the navi-buffer.
+   :END:
+   [2013-02-21 Do 01:29]
+** DONE implement narrow/widen
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
+   [2013-02-21 Do 01:27]
+** DONE implement predefined queries with 1key keybindings
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "NEXT"       [2013-05-03 Fr 19:19]
+   :END:
+   [2013-02-21 Do 01:27]
+** DONE connect navi-buffer and principal buffer (markers)
+   CLOSED: [2013-03-08 Fr 11:44]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-08 Fr 11:44]
+   :END:
+   [2013-02-21 Do 01:26]
+** DONE make occur-buffers permanent (-> navi-buffer)
+   CLOSED: [2013-03-08 Fr 11:44]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-08 Fr 11:44]
+   :END:
+   [2013-02-21 Do 01:26]
+** DONE announce in org-mode mailing-list
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
+[2013-02-21 Do 01:25]
+** DONE announce in emacs mailing-list
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
+  [2013-02-21 Do 01:24]
