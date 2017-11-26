@@ -4,7 +4,7 @@
 ;; Free Software Foundation, Inc.
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
-;; Version: 2.4a (see also `session-version' below)
+;; Version: 2.4b (see also `session-version' below)
 ;; Keywords: session, session management, desktop, data, tools
 ;; X-URL: http://emacs-session.sourceforge.net/
 
@@ -203,7 +203,7 @@
 ;;;;##########################################################################
 
 
-(defconst session-version "2.4a"
+(defconst session-version "2.4b"
   "Current version of package session.
 Check <http://emacs-session.sourceforge.net/> for the newest.")
 
@@ -330,18 +330,26 @@ not exclude any file."
   "Function to generate menu accelerators, or nil if not supported.")
 
 ;; calling `abbrev-file-name' on remote files opens the connection!
+
 (defvar session-abbrev-inhibit-function
 ;; this will be renamed with the next release (when minimum is
 ;; Emacs-22.1, jun 2007 and XEmacs 21.4.12, jan 2003) -> only there we have
 ;; `define-obsolete-variable-alias'
   (cond ((fboundp 'file-remote-p) 'file-remote-p)
-	;;  `file-remote-p' doesn't exist in Emacs < 22.1
+        ;;  `file-remote-p' doesn't exist in Emacs < 22.1
+        ;; (cond-emacs-xemacs
+        ;;  ;; as opposed to the docstring of `file-remote-p',
+        ;;  ;; `tramp-handle-file-remote-p' does try to open a connection
+        ;;  :EMACS (lambda (file) (find-file-name-handler file 'file-remote-p))
+        ;;  :XEMACS 'file-remote-p))
 	((fboundp 'efs-ftp-path) 'efs-ftp-path)
 	((fboundp 'ange-ftp-ftp-name) 'ange-ftp-ftp-name)
 	((fboundp 'ange-ftp-ftp-path) 'ange-ftp-ftp-path))
   "Function used to determine whether to abbreviate file name.
-A file name is not abbreviated if this function returns non-nil when
-called with the file name.")
+A file name is not abbreviated and no buffer information is shown in the
+file menus if this function returns non-nil when called with the file name.
+If the value is not a function, it directly determines whether to abbreviate
+a file name.")
 
 (defvar session-directory-sep-char    ; directory-sep-char is not set
   (if (memq system-type '(ms-dos windows-nt)) ?\\ ?\/)
@@ -1044,22 +1052,24 @@ a file in the menu."
 	(when (consp name)
 	  (setq desc name
 		name (car name)))
-	(setq name (session-abbrev-file-name (directory-file-name name)))
+	(setq name (session-abbrev-file-name name t))
 	(unless (member name excl)
 	  (setq i (1- i))
 	  (push name excl)
-	  (push (vector (or (session-file-prune-name name max-string) name)
-			(list find-fn name)
-			:keys (concat (and (sixth desc) "p")
-				      (let ((buf (get-file-buffer name)))
+          (let ((buf (if (session-abbrev-inhibit-function name)
+                         nil
+                       (get-file-buffer name))))
+            (push (vector (or (session-file-prune-name name max-string) name)
+                          (list find-fn name)
+                          :keys (concat (and (sixth desc) "p")
 					(when buf
 					  (with-current-buffer buf
 					    (if (consp buffer-undo-list)
 						(if (buffer-modified-p)
 						    "c" "s")
 					      (if buffer-read-only
-						  "r" "v")))))))
-		menu))))
+						  "r" "v"))))))
+                  menu)))))
     (session-menu-maybe-accelerator menu-items (nreverse menu))))
 
 (defun session-file-prune-name (elem max-string)
@@ -1099,16 +1109,24 @@ The items in MENU will be modified to add accelerator specifications if
 	      (funcall session-menu-accelerator-support menu)
 	    menu)))
 
-(defun session-abbrev-file-name (name)
+(defun session-abbrev-inhibit-function (name)
+  "Call function in variable `session-abbrev-inhibit-function'."
+  (and session-abbrev-inhibit-function
+       (or (not (functionp session-abbrev-inhibit-function))
+           (funcall session-abbrev-inhibit-function name))))
+
+(defun session-abbrev-file-name (name &optional call-dfn)
   "Return a version of NAME shortened using `directory-abbrev-alist'.
 This function does not consider remote file names (see
 `session-abbrev-inhibit-function') and substitutes \"~\" for the user's
-home directory."
-  (if (and session-abbrev-inhibit-function
-	   (or (not (fboundp session-abbrev-inhibit-function))
-	       (funcall session-abbrev-inhibit-function name)))
+home directory.
+If optional argument CALL-DFN is non-nil and the file is not remote,
+remove final slash according to function `directory-file-name'."
+  (if (session-abbrev-inhibit-function name)
       name
-    (cond-emacs-xemacs (abbreviate-file-name name :XEMACS t))))
+    (cond-emacs-xemacs
+     (abbreviate-file-name (if call-dfn (directory-file-name name) name)
+                           :XEMACS t))))
 
 
 ;;;===========================================================================
@@ -1356,8 +1374,7 @@ Argument BUFFER should be the current buffer."
 		  session-undo-check))))
    ;; mode and name check ----------------------------------------------------
    (let ((file (buffer-file-name buffer)))
-     (and (or (and (fboundp session-abbrev-inhibit-function)
-		   (funcall session-abbrev-inhibit-function file))
+     (and (or (session-abbrev-inhibit-function file)
 	      (and (file-exists-p file) (file-readable-p file)))
 	  (if (if session-auto-store
 		  (not (memq major-mode session-mode-disable-list))
@@ -1746,6 +1763,10 @@ this function to `after-init-hook'."
 	(session-initialize-menus)))
     (when (or (eq session-initialize t)
 	      (memq 'session session-initialize))
+      ;; Although desktop and savehist also add its function to
+      ;; kill-emacs-hook, it might be better to add this function to
+      ;; `kill-emacs-query-functions' instead.  People who want to exit Emacs
+      ;; without saving the session file might simply call M-x kill-emacs
       (add-hook 'kill-emacs-hook 'session-save-session)
       (or session-successful-p
 	  (setq session-successful-p
