@@ -231,7 +231,7 @@ The second column represents the Cc: field:
 These can combine in some ways to tell you at a glance how visible the message
 is:
 
-   >.    Someone wrote to me and one other
+   <.    Someone wrote to me and one other
     &    I was copied along with several other people
    *:    Mail to lots of people in both the To and Cc!"
   (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
