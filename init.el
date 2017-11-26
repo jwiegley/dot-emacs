@@ -1957,6 +1957,15 @@
   :init
   (fset 'describe-bindings 'helm-descbinds))
 
+(use-package helm-describe-modes
+  :load-path "site-lisp/helm-describe-modes"
+  :after helm
+  :bind ("C-h m" . helm-describe-modes))
+
+(use-package helm-navi
+  :load-path "site-lisp/helm-navi"
+  :after (helm navi))
+
 (use-package helpful
   :load-path "site-lisp/helpful"
   :commands (helpful-function
@@ -2686,6 +2695,10 @@
 (use-package my-compile
   :after compile)
 
+(use-package navi
+  :load-path "site-lisp/navi"
+  :after outshine)
+
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
@@ -2748,6 +2761,20 @@
 
   ;; optional key bindings, easier than hs defaults
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
+
+(use-package outline
+  :commands outline-minor-mode
+  :diminish outline-minor-mode
+  :init
+  (hook-into-modes #'outline-minor-mode
+                   'emacs-lisp-mode-hook
+                   'LaTeX-mode-hook))
+
+(use-package outshine
+  :load-path "site-lisp/outshine"
+  :after outline
+  :init
+  (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
 
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"
