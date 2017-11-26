@@ -3123,7 +3123,7 @@
 
 (use-package session
   :if (not noninteractive)
-  :load-path "site-lisp/session/lisp"
+  :load-path "site-lisp/session"
   :preface
   (defun remove-session-use-package-from-settings ()
     (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
