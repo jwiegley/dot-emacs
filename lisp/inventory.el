@@ -1,3 +1,5 @@
+(eval-when-compile
+  (require 'cl))
 (require 'anaphora)
 
 (defsubst sort-on (seq predicate accessor)
@@ -142,7 +144,8 @@ reuse storage as much as possible."
                  (load-paths (plist-get entry :load-path))
                  (path (cond
                         ((and load-paths
-                              (listp load-paths))
+                              (listp load-paths)
+                              (cl-every #'stringp load-paths))
                          (car load-paths))
                         ((stringp load-paths)
                          load-paths)))
@@ -231,6 +234,7 @@ reuse storage as much as possible."
                (when (and (not internal)
                           paths
                           (> (length paths) 1)
+                          (cl-every #'stringp paths)
                           (not (= 1 (length (cl-remove-duplicates
                                              paths :test #'string=)))))
                  (report 'path-inconsistency))))
