@@ -1123,6 +1123,11 @@
   (bind-key "C-M-h" #'company-coq-toggle-definition-overlay coq-mode-map)
   (unbind-key "M-<return>" company-coq-map))
 
+(use-package company-ghc
+  :disabled t
+  :load-path "site-lisp/company-ghc"
+  :after company)
+
 (use-package company-math
   :load-path "site-lisp/company-math"
   :defer t)
@@ -1728,6 +1733,11 @@
   (flycheck-haskell-setup)
   (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
   (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
+
+(use-package flycheck-hdevtools
+  :disabled t
+  :load-path "site-lisp/flycheck-hdevtools"
+  :after flycheck)
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -2769,6 +2779,10 @@
   (hook-into-modes #'outline-minor-mode
                    'emacs-lisp-mode-hook
                    'LaTeX-mode-hook))
+
+(use-package outorg
+  :disabled t
+  :load-path "site-lisp/outorg")
 
 (use-package outshine
   :load-path "site-lisp/outshine"
