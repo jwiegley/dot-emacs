@@ -20,6 +20,7 @@ find "$@"                                                                       
        ! -name '.*'                                                             \
        ! -name '*-test.el'                                                      \
        ! -name '*-tests.el'                                                     \
+       ! -path lib/elisp-refs/elisp-refs-bench.el                               \
        ! -path lib/emacs-web/web-file-upload.el                                 \
        ! -path lib/f-el/bin/docs.el                                             \
        ! -path lisp/muse/contrib/htmlize-hack.el                                \
