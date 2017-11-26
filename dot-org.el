@@ -897,9 +897,10 @@ end tell" (match-string 1))))
   :load-path "site-lisp/org-web-tools"
   :bind ("C-. C-y" . org-web-tools-insert-link-for-url))
 
-(use-package orgaggregate
-  :disabled t
-  :load-path "site-lisp/orgaggregate")
+(use-package orgtbl-aggregate
+  :load-path "site-lisp/orgaggregate"
+  :config
+  (load "org-insert-dblock"))
 
 (provide 'dot-org)
 
