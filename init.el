@@ -236,6 +236,8 @@
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
 (use-package popwin           :defer t :load-path "site-lisp/popwin")
+(use-package pos-tip          :defer t)
+(use-package popup-pos-tip    :defer t)
 (use-package request          :defer t :load-path "lib/emacs-request")
 (use-package s                :defer t :load-path "lib/s-el")
 (use-package tablist          :defer t :load-path "lib/tablist")
@@ -244,6 +246,7 @@
 (use-package web-server       :defer t :load-path "lib/emacs-web-server")
 (use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
+(use-package xml-rpc          :defer t)
 
 ;;; Macros and functions
 
