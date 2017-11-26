@@ -1,8 +1,0 @@
-HTTP/1.0 200 OK
-Server: SimpleHTTP/0.6 Python/2.7.9
-Date: Sun, 08 Mar 2015 14:17:14 GMT
-Content-type: text/html
-Content-Length: 199
-Last-Modified: Sun, 08 Mar 2015 14:06:08 GMT
-
-Here goes body
