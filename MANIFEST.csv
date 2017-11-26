@@ -75,6 +75,7 @@ elisp-refs,lib,subtree,git://github.com/Wilfred/elisp-refs.git,
 elisp-slime-nav,site-lisp,subtree,git://github.com/purcell/elisp-slime-nav.git,
 emacs-async,lisp,submodule,git://github.com/jwiegley/emacs-async.git,
 emacs-calfw,site-lisp,subtree,git://github.com/kiwanami/emacs-calfw.git,
+emacs-cl,site-lisp,subtree,git://github.com/larsbrinkhoff/emacs-cl.git,mirror-only
 emacs-counsel-gtags,site-lisp,subtree,git://github.com/syohex/emacs-counsel-gtags.git,
 emacs-ctable,lib,subtree,git://github.com/kiwanami/emacs-ctable.git,
 emacs-deferred,lib,subtree,git://github.com/kiwanami/emacs-deferred.git,
@@ -221,6 +222,7 @@ persian-johnw.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/
 persistent-scratch,site-lisp,subtree,git://github.com/Fanael/persistent-scratch.git,
 pfuture,lib,subtree,git://github.com/Alexander-Miller/pfuture.git,
 pkg-info,lib,subtree,git://github.com/lunaryorn/pkg-info.el.git,
+planner,site-lisp,subtree,git://repo.or.cz/planner-el.git,mirror-only
 po-mode.el,site-lisp,file,http://git.savannah.gnu.org/cgit/gettext.git/plain/gettext-tools/misc/po-mode.el,
 popup-el,lib,subtree,git://github.com/auto-complete/popup-el.git,
 popup-pos-tip.el,lib,file,https://www.emacswiki.org/emacs/download/popup-pos-tip.el,
