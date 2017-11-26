@@ -250,7 +250,7 @@ reuse storage as much as possible."
 
 (defun inventory ()
   (interactive)
-  (let ((pkgs (inventory-alist)))
+  (let ((pkgs (sort* (inventory-alist) #'string-lessp :key #'car)))
     (display-buffer
      (with-current-buffer (get-buffer-create "*Inventory*")
        (erase-buffer)
