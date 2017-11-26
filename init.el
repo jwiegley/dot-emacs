@@ -6,6 +6,7 @@
   (expand-file-name path user-emacs-directory))
 
 (eval-and-compile
+  (require 'cl)
   (require 'seq)
 
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
@@ -40,22 +41,19 @@
   (dolist (path (seq-filter
                  (apply-partially #'string-match "-Agda-")
                  (nix-read-environment (concat "ghc" (getenv "GHCVER")))))
-    (let ((agda-mode (expand-file-name "bin/agda-mode" path)))
-      (if (file-executable-p agda-mode)
-          (let ((dir (file-name-directory
-                      (substring (shell-command-to-string
-                                  (concat agda-mode " locate")) 0 -1))))
-            (if (file-directory-p dir)
-                (add-to-list 'load-path dir))))))
+    (let ((dir (file-name-directory
+                (substring (shell-command-to-string
+                            (concat path "/bin/agda-mode locate")) 0 -1))))
+      (if (file-directory-p dir)
+          (add-to-list 'load-path dir))))
 
-  (require 'cl)
   (require 'use-package)
   (setq use-package-verbose t))
 
-(require 'bind-key)
-
 (setplist 'flet (use-package-plist-delete (symbol-plist 'flet)
                                           'byte-obsolete-info))
+
+(require 'bind-key)
 
 ;; This must be defined before settings.el is read
 (defun get-jobhours-string ()
@@ -1034,17 +1032,10 @@
   :after chess
   :commands chess-ics
   :config
-  (require 'auth-source)
-  (let ((info (car (auth-source-search
-                    :host "freechess.org"
-                    :user "jwiegley"
-                    :type 'netrc
-                    :port 80))))
-    (when info
-      (defun chess ()
-        (interactive)
-        (chess-ics "freechess.org" 5000 (plist-get info :user)
-                   (funcall (plist-get info :secret)))))))
+  (defun chess ()
+    (interactive)
+    (chess-ics "freechess.org" 5000 "jwiegley"
+               (lookup-password "freechess.org" "jwiegley" 80))))
 
 (use-package circe
   :if running-alternate-emacs
@@ -1409,7 +1400,6 @@
   :load-path "site-lisp/dockerfile-mode")
 
 (use-package doxymacs
-  :disabled t
   :load-path "site-lisp/doxymacs/lisp"
   :commands (doxymacs-mode doxymacs-font-lock)
   :config
@@ -1535,6 +1525,7 @@
 (use-package erc
   :if running-alternate-emacs
   :defer t
+  :commands (erc erc-tls)
   :defines (erc-timestamp-only-if-changed-flag
             erc-timestamp-format
             erc-fill-prefix
@@ -1544,7 +1535,6 @@
   :preface
   (defun irc ()
     (interactive)
-    (require 'erc)
     (let ((titan-ip "127.0.0.1"))
       (if t
           (progn
@@ -2644,6 +2634,7 @@
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
 (use-package multi-term
+  :load-path "site-lisp/multi-term"
   :bind (("C-. t" . multi-term-next)
          ("C-. T" . multi-term))
   :init
@@ -2660,6 +2651,8 @@
       (switch-to-buffer term-buffer)))
 
   :config
+  (require 'term)
+
   (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
 
   (defun my-term-end-of-buffer ()
@@ -2667,8 +2660,6 @@
     (call-interactively #'end-of-buffer)
     (if (and (eobp) (bolp))
         (delete-char -1)))
-
-  (require 'term)
 
   (defadvice term-process-pager (after term-process-rebind-keys activate)
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
@@ -2698,8 +2689,8 @@
   :commands nf-procmail-mode)
 
 (use-package nix-buffer
-  :disabled t
-  :load-path "site-lisp/nix-buffer")
+  :load-path "site-lisp/nix-buffer"
+  :commands nix-buffer)
 
 (use-package nix-mode
   :load-path "site-lisp/nix-mode"
@@ -2779,9 +2770,10 @@
   :commands paredit-mode
   :diminish paredit-mode
   :config
-  (unbind-key "M-r" paredit-mode-map)
-  (unbind-key "M-s" paredit-mode-map)
-
+  (add-hook 'paredit-mode-hook
+            #'(lambda ()
+                (unbind-key "M-r" paredit-mode-map)
+                (unbind-key "M-s" paredit-mode-map)))
   (bind-keys
    :map paredit-mode-map
    (")"     . paredit-close-round-and-newline)
@@ -3382,10 +3374,7 @@
   (defun maybe-turn-on-whitespace ()
     "Depending on the file, maybe clean up whitespace."
     (when (and (locate-dominating-file default-directory ".clean")
-               (not (locate-dominating-file default-directory ".noclean"))
-               (not (and buffer-file-name
-                         (string-match "\\(\\.texi\\|COMMIT_EDITMSG\\)\\'"
-                                       buffer-file-name))))
+               (not (locate-dominating-file default-directory ".noclean")))
       (add-hook 'write-contents-hooks
                 #'(lambda () (ignore (whitespace-cleanup))) nil t)
       (whitespace-cleanup)))
@@ -3418,8 +3407,9 @@
   :bind ("C-. W" . word-count-mode))
 
 (use-package ws-butler
-  :disabled t
-  :load-path "site-lisp/ws-butler")
+  :load-path "site-lisp/ws-butler"
+  :config
+  (add-hook 'prog-mode-hook 'ws-butler-mode))
 
 (use-package xray
   :commands (xray-buffer
