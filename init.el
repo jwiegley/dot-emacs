@@ -3408,6 +3408,7 @@
 
 (use-package ws-butler
   :load-path "site-lisp/ws-butler"
+  :diminish ws-butler-mode
   :config
   (add-hook 'prog-mode-hook 'ws-butler-mode))
 
