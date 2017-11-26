@@ -2027,7 +2027,7 @@
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :demand t
+  :defer 10
   :load-path "site-lisp/hyperbole"
   :bind* (("M-."   . hkey-either)
           ("M-RET" . hkey-operate))
