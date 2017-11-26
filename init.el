@@ -1109,7 +1109,9 @@
 
 (use-package company-ghc
   :load-path "site-lisp/company-ghc"
-  :after (company ghc))
+  :after (company ghc)
+  :config
+  (add-to-list 'company-backends 'company-ghc))
 
 (use-package company-math
   :load-path "site-lisp/company-math"
