@@ -851,10 +851,6 @@ end tell" (match-string 1))))
 (use-package org-bookmark-heading
   :load-path "site-lisp/org-bookmark-heading")
 
-(use-package org-cliplink
-  :load-path "site-lisp/org-cliplink"
-  :bind ("C-. C-y" . org-cliplink))
-
 (use-package org-magit
   :load-path "site-lisp/org-magit")
 
@@ -898,8 +894,8 @@ end tell" (match-string 1))))
       (org-agenda nil "a"))))
 
 (use-package org-web-tools
-  :disabled t
-  :load-path "site-lisp/org-web-tools")
+  :load-path "site-lisp/org-web-tools"
+  :bind ("C-. C-y" . org-web-tools-insert-link-for-url))
 
 (use-package orgaggregate
   :disabled t
