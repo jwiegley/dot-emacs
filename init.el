@@ -1257,11 +1257,57 @@
         (call-interactively #'sr-change-window)
       (call-interactively #'other-window)))
 
+  (defun ora-dired-rsync (dest)
+    (interactive
+     (list
+      (expand-file-name
+       (read-file-name "Rsync to: " (dired-dwim-target-directory)))))
+    (let ((files (dired-get-marked-files
+                  nil current-prefix-arg))
+          (tmtxt/rsync-command
+           "rsync -arvz --progress "))
+      (dolist (file files)
+        (setq tmtxt/rsync-command
+              (concat tmtxt/rsync-command
+                      (shell-quote-argument file)
+                      " ")))
+      (setq tmtxt/rsync-command
+            (concat tmtxt/rsync-command
+                    (shell-quote-argument dest)))
+      (async-shell-command tmtxt/rsync-command "*rsync*")
+      (other-window 1)))
+
+  (defun ora-ediff-files ()
+    (interactive)
+    (let ((files (dired-get-marked-files))
+          (wnd (current-window-configuration)))
+      (if (<= (length files) 2)
+          (let ((file1 (car files))
+                (file2 (if (cdr files)
+                           (cadr files)
+                         (read-file-name
+                          "file: "
+                          (dired-dwim-target-directory)))))
+            (if (file-newer-than-file-p file1 file2)
+                (ediff-files file2 file1)
+              (ediff-files file1 file2))
+            (add-hook 'ediff-after-quit-hook-internal
+                      `(lambda ()
+                         (setq ediff-after-quit-hook-internal nil)
+                         (set-window-configuration ,wnd))))
+        (error "no more than 2 files should be marked"))))
+
   :config
-  (bind-key "l" #'dired-up-directory dired-mode-map)
-  (bind-key "<tab>" #'my-dired-switch-window dired-mode-map)
-  (bind-key "M-!" #'async-shell-command dired-mode-map)
-  (unbind-key "M-G" dired-mode-map)
+  (add-hook 'dired-mode-hook
+            #'(lambda ()
+                (bind-keys
+                 :map dired-mode-map
+                 ("e"     . ora-ediff-files)
+                 ("l"     . dired-up-directory)
+                 ("Y"     . ora-dired-rsync)
+                 ("<tab>" . my-dired-switch-window)
+                 ("M-!"   . async-shell-command))
+                (unbind-key "M-G" dired-mode-map)))
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
