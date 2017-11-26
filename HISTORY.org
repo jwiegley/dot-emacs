@@ -1,0 +1,266 @@
+* TODO Version 2.1
+
+** TODO quit byte-compiler
+** TODO improve MELPA-package
+** TODO update README
+** TODO set version number
+** TODO announce in org-mode mailing-list
+** TODO announce in emacs-user mailing-list
+
+
+
+* TODO Version 2.0
+
+** TODO improve MELPA-package
+** DONE create new ert-buffer-report github repo
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:16]
+** DONE add hint to outorg-export repo during loading
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:15]
+** TODO clean test file
+** DONE update comment-section
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:39]
+** DONE port org-mode's marker tracking to outorg
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:38]
+** DONE test conversion process for side-effects
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:37]
+** DONE (almost) handle special multi-line comments
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:36]
+** DONE rewrite conversion functions
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:35]
+** DONE quite byte-compiler
+   - State "DONE"       from "TODO"       [2014-09-21 So 02:07]
+** DONE update README
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:58]
+** DONE set version number
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 14:57]
+** DONE announce in org-mode mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:16]
+** DONE announce in emacs-user mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:16]
+
+
+* DONE Version 1.0
+  CLOSED: [2013-05-03 Fr 19:14]
+  :LOGBOOK:
+  - State "DONE"       from "NEXT"       [2013-05-03 Fr 19:14]
+  :END:
+
+** DONE add menu to outorg-edit-buffer
+   CLOSED: [2013-05-03 Fr 19:12]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:12]
+   :END:
+   [2013-03-19 Di 16:14]
+** DONE check headline not uncommented bug in html
+   CLOSED: [2013-05-03 Fr 19:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:13]
+   :END:
+   [2013-02-20 Mi 14:47]
+** CANCELLED check with java                                      :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:13] \\
+     later
+   :END:
+   [2013-02-16 Sa 23:40]
+** CANCELLED check with C                                         :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:13] \\
+     later
+   :END:
+   [2013-02-16 Sa 23:40]
+** CANCELLED check with R                                         :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:13] \\
+     later
+   :END:
+   [2013-02-16 Sa 23:39]
+** CANCELLED check with html                                      :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:13] \\
+     later
+   :END:
+   [2013-02-16 Sa 23:39]
+** CANCELLED check with latex                                     :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:12]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:12] \\
+     later
+   :END:
+   [2013-02-16 Sa 23:39]
+** DONE keybindings for commands
+   CLOSED: [2013-03-19 Di 16:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-19 Di 16:13]
+   :END:
+   [2013-02-16 Sa 23:25]
+** DONE work out the edit-buffer and tmp-file naming scheme
+   CLOSED: [2013-02-16 Sa 23:25]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 23:25]
+   :END:
+   [2013-02-16 Sa 02:35]
+** DONE rename outorg2 to outorg and (old) outorg to old-outorg.
+   CLOSED: [2013-02-16 Sa 02:34]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 02:34]
+   :END:
+   [2013-02-16 Sa 02:29]
+** DONE fix issue with indented comments when 'comment-region' is applied to indented text.
+   CLOSED: [2013-02-16 Sa 14:09]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 14:09]
+   :END:
+   [2013-02-16 Sa 02:26]
+** DONE fix double insertion bug (when edit-buffer killed without saving??)
+   CLOSED: [2013-02-20 Mi 17:56]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-20 Mi 17:56]
+   - State "TODO"       from "DONE"       [2013-02-20 Mi 14:48]
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+   :END:
+   [2013-02-14 Do 17:37]
+** DONE add special marker to narrowed buffers to remember point-position
+   CLOSED: [2013-02-16 Sa 20:29]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 20:29]
+   :END:
+   [2013-02-14 Do 17:18]
+** DONE add persistent header line to edit-buffer
+   CLOSED: [2013-02-14 Do 17:18]
+   :LOGBOOK:
+   - State "DONE"       from ""           [2013-02-14 Do 17:18]
+   :END:
+   [2013-02-14 Do 17:15]
+** DONE move outxxtra.el to its own github repo
+   CLOSED: [2013-02-14 Do 17:15]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-14 Do 17:15]
+   :END:
+   [2013-02-14 Do 17:14]
+** DONE special minor-mode for edit-buffer
+   CLOSED: [2013-02-16 Sa 02:28]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+   :END:
+   [2013-02-13 Mi 01:42]
+*** DONE outorg-keybindings in edit-buffer
+    CLOSED: [2013-02-16 Sa 02:28]
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+    :END:
+    [2013-02-13 Mi 01:44]
+*** DONE kill-buffer actions
+    CLOSED: [2013-02-16 Sa 02:28]
+    :LOGBOOK:
+    - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+    :END:
+    [2013-02-13 Mi 01:44]
+**** DONE reset window-config
+     CLOSED: [2013-02-16 Sa 02:28]
+     :LOGBOOK:
+     - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+     :END:
+     [2013-02-13 Mi 01:45]
+**** DONE save dangling edits in tmp-file
+     CLOSED: [2013-02-16 Sa 02:28]
+     :LOGBOOK:
+     - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+     :END:
+     [2013-02-13 Mi 01:44]
+**** DONE reset-global-vars
+     CLOSED: [2013-02-16 Sa 02:28]
+     :LOGBOOK:
+     - State "DONE"       from "TODO"       [2013-02-16 Sa 02:28]
+     :END:
+     [2013-02-13 Mi 01:45]
+** DONE fix bug eob when last line was line of code (conversion to org)
+   CLOSED: [2013-02-14 Do 17:11]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-14 Do 17:11]
+   :END:
+   [2013-02-13 Mi 01:39]
+** DONE refactor outxxtra.el (only extensions to out-xtra.el)
+   CLOSED: [2013-02-14 Do 17:11]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-14 Do 17:11]
+   :END:
+   [2013-02-13 Mi 01:38]
+** DONE refactor outorg2.el (only Org-style editing)
+   CLOSED: [2013-02-14 Do 17:11]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-14 Do 17:11]
+   :END:
+   [2013-02-13 Mi 01:37]
+** CANCELLED announce new version in PicoLisp mailing-list        :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:14]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:14] \\
+     enough publicity
+   :END:
+   [2013-02-13 Mi 01:37]
+** DONE change version number (comment and const)
+   CLOSED: [2013-05-03 Fr 19:14]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:14]
+   :END:
+   [2013-02-13 Mi 01:37]
+** CANCELLED fix menu                                             :CANCELLED:
+   CLOSED: [2013-02-14 Do 17:12]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-02-14 Do 17:12] \\
+     related to outxxtra.el
+   :END:
+   [2013-02-13 Mi 01:37]
+** DONE develop README to Worg article
+   CLOSED: [2013-03-19 Di 16:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-19 Di 16:13]
+   :END:
+   [2013-02-13 Mi 01:37]
+** DONE write installation guide (with outline-magic)
+   CLOSED: [2013-03-19 Di 16:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-19 Di 16:13]
+   :END:
+   [2013-02-13 Mi 01:37]
+** CANCELLED check keybindings, compare to org                    :CANCELLED:
+   CLOSED: [2013-02-14 Do 17:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-02-14 Do 17:13] \\
+     related to outxxtra.el
+   :END:
+   [2013-02-13 Mi 01:36]
+** CANCELLED fix demote and promote subtree                       :CANCELLED:
+   CLOSED: [2013-02-14 Do 17:11]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-02-14 Do 17:11] \\
+     related to outxxtra.el
+   :END:
+   [2013-02-13 Mi 01:36]
+** CANCELLED check with different languages (comment-end true, e..g. HTML) :CANCELLED:
+   CLOSED: [2013-02-14 Do 17:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-02-14 Do 17:13] \\
+     related to outxxtra.el
+   :END:
+   [2013-02-13 Mi 01:36]
+** CANCELLED check with different languages (comment-end false, e.g. R, Java) :CANCELLED:
+   CLOSED: [2013-02-14 Do 17:13]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-02-14 Do 17:13] \\
+     related to outxxtra.el
+   :END:
+   [2013-02-13 Mi 01:36]
+
+
+* Version 0.9
+** DONE announce new version in Org-mode mailing-list
+   CLOSED: [2013-02-12 Di 00:08]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-12 Di 00:08]
+   :END:
