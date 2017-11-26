@@ -855,6 +855,7 @@ end tell" (match-string 1))))
   :load-path "site-lisp/org-magit")
 
 (use-package org-opml
+  :disabled t
   :load-path "site-lisp/org-opml")
 
 (use-package org-parser
