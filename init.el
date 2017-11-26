@@ -1670,6 +1670,14 @@
 (use-package eval-expr
   :load-path "site-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
+  :preface
+  (defun my-elisp-indent-or-complete (&optional arg)
+    (interactive "p")
+    (call-interactively 'lisp-indent-line)
+    (unless (or (looking-back "^\\s-*")
+                (bolp)
+                (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
+      (call-interactively 'lisp-complete-symbol)))
   :config
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)

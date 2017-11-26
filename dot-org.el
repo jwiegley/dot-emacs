@@ -898,7 +898,17 @@ end tell" (match-string 1))))
 
 (use-package org-web-tools
   :load-path "site-lisp/org-web-tools"
-  :bind ("C-. C-y" . org-web-tools-insert-link-for-url))
+  :bind ("C-. C-y" . my-org-insert-url)
+  :preface
+  (defun my-org-insert-url (&optional arg)
+    (interactive "P")
+    (let ((link (org-web-tools--org-link-for-url
+                 (org-web-tools--get-first-url))))
+      (if arg
+          (progn
+            (org-set-property "URL" link)
+            (message "Added pasteboard link to URL property"))
+        (insert link)))))
 
 (use-package orgtbl-aggregate
   :load-path "site-lisp/orgaggregate"
