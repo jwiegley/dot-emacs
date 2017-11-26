@@ -1056,8 +1056,7 @@
   (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
 
 (use-package cmake-mode
-  :mode (("CMakeLists.txt" . cmake-mode)
-         ("\\.cmake\\'"    . cmake-mode)))
+  :mode ("CMakeLists.txt" "\\.cmake\\'"))
 
 (use-package col-highlight
   :commands col-highlight-mode)
@@ -1396,7 +1395,7 @@
   :load-path "site-lisp/docker-tramp")
 
 (use-package dockerfile-mode
-  :mode (".*Dockerfile.*" . dockerfile-mode)
+  :mode "Dockerfile"
   :load-path "site-lisp/dockerfile-mode")
 
 (use-package doxymacs
@@ -2350,7 +2349,7 @@
 (use-package lua-mode
   :load-path "site-lisp/lua-mode"
   :mode "\\.lua\\'"
-  :interpreter ("lua" . lua-mode))
+  :interpreter "lua")
 
 (use-package lusty-explorer
   :demand t
@@ -2921,8 +2920,8 @@
 
 (use-package python-mode
   :load-path "site-lisp/python-mode"
-  :mode ("\\.py\\'" . python-mode)
-  :interpreter ("python" . python-mode)
+  :mode "\\.py\\'"
+  :interpreter "python"
   :config
   (defvar python-mode-initialized nil)
 
@@ -2991,8 +2990,8 @@
 
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
-  :mode ("\\.rb\\'" . ruby-mode)
-  :interpreter ("ruby" . ruby-mode)
+  :mode "\\.rb\\'"
+  :interpreter "ruby"
   :functions inf-ruby-keys
   :config
   (defun my-ruby-smart-return ()
@@ -3109,7 +3108,7 @@
 
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
-  :mode ("\\.\\(a4\\)?smedl\\'" . smedl-mode))
+  :mode "\\.\\(a4\\)?smedl\\'")
 
 (use-package smerge-mode
   :commands smerge-mode)
@@ -3218,7 +3217,7 @@
    ("M-c" . swiper-mc)))
 
 (use-package tablegen-mode
-  :mode ("\\.td\\'" . tablegen-mode))
+  :mode "\\.td\\'")
 
 (use-package texinfo
   :defines texinfo-section-list
@@ -3486,7 +3485,7 @@
         "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
 
 (use-package z3-mode
-  :mode ("\\.rs\\'" . z3-mode)
+  :mode "\\.rs\\'"
   :commands z3-mode
   :load-path "site-lisp/z3-mode")
 
