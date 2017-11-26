@@ -221,6 +221,7 @@ The first column represent my relationship to the To: field.  It can be:
 
 The second column represents the Cc: field:
 
+         I wasn't mentioned, nor was anyone else
     .    I wasn't mentioned, but one other was
     :    I wasn't mentioned, but others were
     ^    I was the only Cc mentioned
