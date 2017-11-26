@@ -1,0 +1,96 @@
+* outorg                                                           :noexport:
+
+Outorg is for editing comment-sections of source-code files in temporary Org-mode buffers. It turns conventional literate-programming upside-down in that the default mode is the programming-mode, and special action has to be taken to switch to the text-mode (i.e. Org-mode).
+
+Outorg depends on Outshine, i.e. outline-minor-mode with outshine extensions activated. An outshine buffer is structured like an org-mode buffer, only with outcommented headlines. While in Org-mode text is text and source-code is 'hidden' inside of special src-blocks, in an outshine buffer source-code is source-code and text is 'hidden' as comments.
+
+Thus org-mode and programming-mode are just two different views on the outshine-style structured source-file, and outorg is the tool to switch between these two views. When switching from a programming-mode to org-mode, the comments are converted to text and the source-code is put into src-blocks. When switching back from org-mode to the programming-mode, the process is reversed - the text is outcommented again and the src-blocks that enclose the source-code are removed.
+
+When the code is more important than the text, i.e. when the task is "literate /programming/" rather than "/literate/ programming," it is often more convenient to work in a programming-mode and switch to org-mode once in a while than vice-versa. Outorg is really fast, even big files with 10k lines are converted in a second or so, and the user decides if he wants to convert just the current subtree (done instantly) or the whole buffer. Since text needs no session handling or variable passing or other special treatment, the outorg approach is much simpler than the Org-Babel approach. However, the full power of Org-Babel is available once the *outorg-edit-buffer* has popped up.
+
+* Contents                                                              :TOC:
+ - [[#installation][Installation]]
+ - [[#usage][Usage]]
+ - [[#changelog][Changelog]]
+ - [[#bugs-and-shortcomings][Bugs and Shortcomings]]
+ - [[#credits][Credits]]
+ - [[#license][License]]
+
+* Installation                                                   :noexport_1:
+
+** MELPA
+
+If you install from MELPA, you're done.
+
+** Manual
+
+First install [[https://github.com/alphapapa/outshine][Outshine]], then =(require 'outorg)= in your init file.
+
+* Usage
+
+Outorg assumes that you set =outline-minor-mode-prefix= in your init-file to =M-#=, like this:
+
+#+BEGIN_SRC elisp
+    ;; Must be set before outline is loaded
+    (defvar outline-minor-mode-prefix "\M-#")
+#+END_SRC
+
+Outorg's main command is =outorg-edit-as-org= (by default, bound to =M-# #=), to be used in source-code buffers where =outline-minor-mode= is activated with =outshine= extensions. The Org-mode edit-buffer popped up by this command is called *outorg-edit-buffer* and has =outorg-edit-minor-mode= activated, a minor-mode with only 2 commands:
+
++  =outorg-copy-edits-and-exit= (=M-#=)
++  =outorg-save-edits-to-tmp-file= (=C-x C-s=)
+
+If you want to insert Org-mode source-code or example blocks in comment-sections, i.e. you don't want outorg to remove the enclosing blocks, simply outcomment them in the outorg-edit buffer before calling =outorg-copy-edits-and-exit=.
+
+* Changelog                                                      :noexport_1:
+
+** 2.1-pre
+
+*Additions*:
++  Convert readme to Org.
++  Display blank lines between code blocks and regular text when editing.
++  Use =SRC= blocks more often (i.e. when the source buffer has a major mode).
+
+*Fixes:*
++  Use =setq-local= instead of =org-set-local=
++  Verify =outline-minor-mode= is active before trying to edit.
+
+** Pre-2.1 changelog
+
+  | date              | author(s)         | version   |
+  |-------------------+-------------------+-----------|
+  | <2014-09-20 Sa>   | Thorsten Jolitz   | 2.0       |
+  | <2013-05-03 Fr>   | Thorsten Jolitz   | 1.0       |
+  | <2013-02-11 Mo>   | Thorsten Jolitz   | 0.9       |
+
+* Bugs and Shortcomings
+
+Outorg started out purely line-based, it only worked with one-line comments, i.e. with comment-sections like those produced by =comment-region= (a command that comments or uncomments each line in the region). It was enhanced later on to recognize comment regions too, i.e. those special multi-line comments found in many programming languages.  But using outorg on such multi-line comments will probably change their syntax back to single-line whenever =comment-region= uses this style.
+
+* Credits
+
+Outorg was originally written by [[https://github.com/tj64][Thorsten Jolitz]], who transferred maintainership to Adam Porter in April 2017.
+
+* License
+
+GPLv2 or later.
+
+* Tests                                                            :noexport:
+
+*Note:* The tests are currently non-functional.  They should be updated using =assess= rather than =ert-buffer=.
+
+A special kind of test has been developed for outorg using the =ert-buffer= library, the so called 'conversion test'. It has the following steps:
+
+1. programming-mode -> org-mode
+
+2. edit in org-mode, store undo-information
+
+3. org-mode -> programming-mode
+
+4. programming-mode -> org-mode (again)
+
+5. undo edits
+
+6. org-mode -> programming-mode (again)
+
+After these 4 conversions, the original programming-mode buffer must be unchanged when the conversion process is perfect, i.e. does not introduce any changes itself. See =outorg-test.el= for details.

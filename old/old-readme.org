@@ -1,0 +1,66 @@
+#+TITLE:     outorg.el -- reverse org-babel
+#+AUTHOR:    Thorsten Jolitz
+#+EMAIL:     tjolitz <at> gmail <dot> com
+#+DATE:      2013-02-11 Mo
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:nil
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+
+
+* outorg.el - Org-style comment editing
+** Copyright
+
+Copyright (C) 2013 Thorsten Jolitz
+This file is not (yet) part of GNU Emacs
+
+Author: Thorsten Jolitz  (format "tjolitz%sgmail%s" "@" ".com")
+
+** Credits
+
+This library is inspired by the way source-blocks can be edited in temporary
+edit files in Org-mode (http://orgmode.org/worg/org-contrib/babel/).
+
+** Commentary
+
+`outorg' is like "reverse Org-babel": editing of comment-sections from source
+code files in temporary Org-mode buffers instead of editing of Org-mode
+source-blocks in temporary source-code buffers. 
+
+** Emacs Version
+
+`outorg.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+
+Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing with older
+versions or other types of Emacs have be made (yet).
+
+** Installation
+
+Insert
+(require 'outorg)
+in your .emacs file to install.  If you want a different prefix
+key, insert first
+(defvar outline-minor-mode-prefix "\C-c")
+or whatever.  The prefix can only be changed before outline (minor)
+mode is loaded.
+
+** ChangeLog
+
+| date            | author(s)       | version |
+|-----------------+-----------------+---------|
+| <2013-02-11 Mo> | Thorsten Jolitz |     0.9 |
+
+** Bugs
+
+`outorg' is line-based, it only works with 'one-line' comments, i.e. with
+comment-sections like those produced by `comment-region' (a command that
+comments or uncomments each line in the region). Those special multi-line
+comments found in many programming languages are not recognized and lead to
+undefined behaviour.
+
