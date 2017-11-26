@@ -854,12 +854,9 @@
   (setq backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package beacon
-  :disabled t
-  :defer 5
-  :diminish beacon-mode
   :load-path "site-lisp/beacon"
-  :config
-  (beacon-mode 1))
+  :diminish beacon-mode
+  :commands beacon-mode)
 
 (use-package bookmark+
   :load-path "site-lisp/bookmark-plus"
@@ -2746,15 +2743,6 @@
 
   ;; optional key bindings, easier than hs defaults
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
-
-(use-package outline
-  :disabled t
-  :commands outline-minor-mode
-  :diminish outline-minor-mode
-  :init
-  (hook-into-modes #'outline-minor-mode
-                   'emacs-lisp-mode-hook
-                   'LaTeX-mode-hook))
 
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"
