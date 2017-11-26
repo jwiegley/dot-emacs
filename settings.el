@@ -870,6 +870,7 @@
     (emacs-lisp-mode compilation-mode outline-mode prog-mode haskell-mode)))
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
+ '(pdf-tools-handle-upgrades nil)
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string "                                            ")
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
