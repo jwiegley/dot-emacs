@@ -3315,6 +3315,8 @@
   :load-path "site-lisp/visual-regexp"
   :commands (vr/replace
              vr/query-replace)
+  :bind (("C-c r" . vr/replace)
+         ("C-c C->" . vr/mc-mark))
   :init
   (bind-keys
    :prefix-map my-ctrl-dot-v-map
@@ -3323,6 +3325,7 @@
    ("%" . vr/query-replace)))
 
 (use-package visual-regexp-steroids
+  :disabled t
   :load-path "site-lisp/visual-regexp-steroids"
   :after visual-regexp)
 
