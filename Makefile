@@ -50,6 +50,7 @@ compile-packages:
 	    site-lisp/slime			\
 	    site-lisp/swiper			\
 	    ; do (cd $$i && make ASYNC_ELPA_DIR=$HOME/emacs/lisp/emacs-async) ; done
+	(cd site-lisp/hyperbole && make elc)
 
 compile:
 	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
