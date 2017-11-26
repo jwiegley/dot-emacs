@@ -1934,8 +1934,8 @@
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                       (regexp . ,(cdr x))
-                       (modes quote (haskell-mode literate-haskell-mode))))
+                            (regexp . ,(cdr x))
+                            (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -3482,6 +3482,14 @@
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
+
+(use-package yasnippet-snippets
+  :load-path "site-lisp/yasnippet-snippets"
+  :after yasnippet
+  :demand t
+  :init
+  (setq yas-installed-snippets-dir
+        "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
 
 (use-package z3-mode
   :mode ("\\.rs\\'" . z3-mode)
