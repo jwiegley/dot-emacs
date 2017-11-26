@@ -1229,9 +1229,6 @@
 (use-package diff-mode
   :commands diff-mode)
 
-(use-package diff-mode-
-  :after diff-mode)
-
 (use-package diffview
   :load-path "site-lisp/diffview-mode"
   :commands (diffview-current diffview-region diffview-message))
