@@ -207,7 +207,7 @@ org-smart-capture.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-em
 org-super-agenda,site-lisp,subtree,git://github.com/alphapapa/org-super-agenda.git,
 org-web-tools,site-lisp,subtree,git://github.com/alphapapa/org-web-tools.git,
 orgaggregate,site-lisp,subtree,git://github.com/tbanel/orgaggregate.git,
-outorg,site-lisp,subtree,git://github.com/tj64/outorg.git,
+outorg,site-lisp,subtree,git://github.com/alphapapa/outorg.git,
 outshine,site-lisp,subtree,git@github.com:alphapapa/outshine.git,
 pandoc-mode,site-lisp,subtree,git://github.com/joostkremers/pandoc-mode.git,
 paredit,site-lisp,subtree,http://mumble.net/~campbell/git/paredit.git,
