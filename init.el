@@ -355,8 +355,8 @@
   (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1))))
 
 (use-package avy
-  :demand t
   :load-path "site-lisp/avy"
+  :demand t
   :bind ("M-h" . avy-goto-char)
   :config
   (avy-setup-default))
@@ -569,9 +569,9 @@
                (lookup-password "freechess.org" "jwiegley" 80))))
 
 (use-package circe
+  :load-path "site-lisp/circe"
   :if running-alternate-emacs
-  :defer t
-  :load-path "site-lisp/circe")
+  :defer t)
 
 (use-package cl-info
   :disabled t)
@@ -713,8 +713,8 @@
   (counsel-mode 1))
 
 (use-package counsel-projectile
-  :after (counsel projectile)
   :load-path "site-lisp/counsel-projectile"
+  :after (counsel projectile)
   :config
   (counsel-projectile-on)
   (define-key projectile-mode-map [remap projectile-ag]
@@ -957,9 +957,9 @@
   :after dired)
 
 (use-package docker
+  :load-path "site-lisp/docker-el"
   :defer 15
   :diminish docker-mode
-  :load-path "site-lisp/docker-el"
   :config
   (docker-global-mode)
   (require 'docker-images)
@@ -974,8 +974,8 @@
   :load-path "site-lisp/docker-tramp")
 
 (use-package dockerfile-mode
-  :mode "Dockerfile"
-  :load-path "site-lisp/dockerfile-mode")
+  :load-path "site-lisp/dockerfile-mode"
+  :mode "Dockerfile")
 
 (use-package dot-gnus
   :bind (("M-G"   . switch-to-gnus)
@@ -1009,12 +1009,12 @@
   (doxymacs-font-lock))
 
 (use-package dumb-jump
+  :load-path "site-lisp/dumb-jump"
   :commands dumb-jump-mode
   :init
   (hook-into-modes #'dumb-jump-mode
                    'coq-mode-hook
-                   'haskell-mode-hook)
-  :load-path "site-lisp/dumb-jump")
+                   'haskell-mode-hook))
 
 (use-package ebdb-com
   :load-path "site-lisp/ebdb"
@@ -1295,8 +1295,8 @@
   :bind ("A-M-g" . eww))
 
 (use-package expand-region
-  :bind ("C-. w" . er/expand-region)
-  :load-path "site-lisp/expand-region-el")
+  :load-path "site-lisp/expand-region-el"
+  :bind ("C-. w" . er/expand-region))
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
@@ -1308,10 +1308,10 @@
   (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
 
 (use-package fancy-narrow
+  :load-path "site-lisp/fancy-narrow"
   :bind (("C-. n" . fancy-narrow-to-region)
          ("C-. N" . fancy-widen))
-  :commands (fancy-narrow-to-region fancy-widen)
-  :load-path "site-lisp/fancy-narrow")
+  :commands (fancy-narrow-to-region fancy-widen))
 
 (use-package fence-edit
   :load-path "site-lisp/fence-edit"
@@ -1409,9 +1409,9 @@
         (message (buffer-substring (point-min) (1- (point-max))))))))
 
 (use-package git-link
+  :load-path "site-lisp/git-link"
   :bind ("C-. G" . git-link)
-  :commands (git-link git-link-commit git-link-homepage)
-  :load-path "site-lisp/git-link")
+  :commands (git-link git-link-commit git-link-homepage))
 
 (use-package git-modes
   :load-path "site-lisp/git-modes"
@@ -1659,8 +1659,8 @@
   :after hl-line)
 
 (use-package hydra
-  :demand t
   :load-path "site-lisp/hydra"
+  :demand t
   :config
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
@@ -1668,8 +1668,8 @@
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :defer 10
   :load-path "site-lisp/hyperbole"
+  :defer 10
   :bind* (("M-."   . hkey-either)
           ("M-RET" . hkey-operate))
   :config
@@ -1769,9 +1769,9 @@
   :commands indent-according-to-mode)
 
 (use-package indent-shift
+  :load-path "site-lisp/indent-shift"
   :bind (("C-c <" . indent-shift-left)
-         ("C-c >" . indent-shift-right))
-  :load-path "site-lisp/indent-shift")
+         ("C-c >" . indent-shift-right)))
 
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
@@ -1831,9 +1831,9 @@
          ("C-c i r" . ispell-region)))
 
 (use-package ivy
+  :load-path "site-lisp/swiper"
   :demand t
   :diminish ivy-mode
-  :load-path "site-lisp/swiper"
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
@@ -2023,8 +2023,8 @@
   :interpreter "lua")
 
 (use-package lusty-explorer
-  :demand t
   :load-path "site-lisp/lusty-emacs"
+  :demand t
   :bind (("C-x C-f" . my-lusty-file-explorer)
          ("C-x C-w" . my-write-file))
   :preface
@@ -2771,8 +2771,8 @@
   :commands redshank-mode)
 
 (use-package regex-tool
-  :commands regex-tool
-  :load-path "lisp/regex-tool")
+  :load-path "lisp/regex-tool"
+  :commands regex-tool)
 
 (use-package restclient
   :load-path "site-lisp/restclient"
@@ -2813,8 +2813,8 @@
              ("u" . upcase-region)))
 
 (use-package session
-  :if (not noninteractive)
   :load-path "site-lisp/session"
+  :if (not noninteractive)
   :preface
   (defun remove-session-use-package-from-settings ()
     (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
@@ -2875,8 +2875,8 @@
   :bind ("C-. C-z" . shell-toggle))
 
 (use-package shackle
-  :demand t
   :load-path "site-lisp/shackle"
+  :demand t
   :config
   (shackle-mode 1))
 
@@ -2916,8 +2916,8 @@
   :commands smerge-mode)
 
 (use-package smex
-  :defer 5
   :load-path "site-lisp/smex"
+  :defer 5
   :commands smex)
 
 (use-package sort-words
@@ -3063,10 +3063,10 @@
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 
 (use-package transpose-mark
+  :load-path "site-lisp/transpose-mark"
   :commands (transpose-mark
              transpose-mark-line
-             transpose-mark-region)
-  :load-path "site-lisp/transpose-mark")
+             transpose-mark-region))
 
 (use-package treemacs
   :load-path "site-lisp/treemacs"
@@ -3085,11 +3085,11 @@
   (global-undo-tree-mode))
 
 (use-package vdiff
+  :load-path "site-lisp/emacs-vdiff"
   :commands (vdiff-files
              vdiff-files3
              vdiff-buffers
-             vdiff-buffers3)
-  :load-path "site-lisp/emacs-vdiff")
+             vdiff-buffers3))
 
 (use-package vimish-fold
   :load-path "site-lisp/vimish-fold"
@@ -3129,12 +3129,12 @@
   :commands web-mode)
 
 (use-package wgrep
-  :defer 5
-  :load-path "site-lisp/wgrep")
+  :load-path "site-lisp/wgrep"
+  :defer 5)
 
 (use-package which-key
-  :demand t
   :load-path "site-lisp/which-key"
+  :demand t
   :diminish which-key-mode
   :config
   (which-key-mode))
@@ -3237,33 +3237,17 @@
   :load-path "site-lisp/yasnippet"
   :demand t
   :diminish yas-minor-mode
-  :commands (yas-expand
-             yas-minor-mode
-             yas-load-directory
-             yas-activate-extra-mode
-             yas-insert-snippet
-             yas-visit-snippet-file
-             yas-new-snippet
-             yas-tryout-snippet
-             yas-describe-tables
-             yas/global-mode
-             yas/minor-mode
-             yas-reload-all)
-  :functions (yas--guess-snippet-directories
-              yas--table-name)
-  :defines (yas--guessed-modes)
+  :bind (("C-c y d" . yas-load-directory)
+         ("C-c y i" . yas-insert-snippet)
+         ("C-c y f" . yas-visit-snippet-file)
+         ("C-c y n" . yas-new-snippet)
+         ("C-c y t" . yas-tryout-snippet)
+         ("C-c y l" . yas-describe-tables)
+         ("C-c y g" . yas/global-mode)
+         ("C-c y m" . yas/minor-mode)
+         ("C-c y a" . yas-reload-all)
+         ("C-c y x" . yas-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :init
-  (bind-keys ("C-c y d" . yas-load-directory)
-             ("C-c y i" . yas-insert-snippet)
-             ("C-c y f" . yas-visit-snippet-file)
-             ("C-c y n" . yas-new-snippet)
-             ("C-c y t" . yas-tryout-snippet)
-             ("C-c y l" . yas-describe-tables)
-             ("C-c y g" . yas/global-mode)
-             ("C-c y m" . yas/minor-mode)
-             ("C-c y a" . yas-reload-all)
-             ("C-c y x" . yas-expand))
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
@@ -3278,9 +3262,9 @@
         "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
 
 (use-package z3-mode
+  :load-path "site-lisp/z3-mode"
   :mode "\\.rs\\'"
-  :commands z3-mode
-  :load-path "site-lisp/z3-mode")
+  :commands z3-mode)
 
 (use-package zencoding-mode
   :load-path "site-lisp/zencoding-mode"
@@ -3308,8 +3292,8 @@
    '(zoom-size 'size-callback)))
 
 (use-package ztree-diff
-  :commands ztree-diff
-  :load-path "site-lisp/ztree")
+  :load-path "site-lisp/ztree"
+  :commands ztree-diff)
 
 ;;; Finalization
 
