@@ -1,0 +1,61 @@
+~lsp-mode~ exposes a simple API for connecting and communicating with other
+language clients. It also allows the user to add custom handlers for
+non-standard notifications from the server.
+
+* Functions
+** lsp-define-stdio-client /name language-id get-root command &rest args/
+   Define a LSP client that uses stdio to communicate with the language server.
+
+~name~ is the symbol to use for the name of the client.
+
+~language-id~ is the language id to be used when communication with the Language Server.
+
+~command~ is the command to run.  It may either be a string containing the path of
+the command, or a list wherein the ~car~ is a string containing the path of the
+command, and the ~cdr~ are arguments to that command.
+
+Optional arguments:
+
+~:ignore-regexps~ is a list of regexps which when matched will be ignored by
+ the output parser.
+
+~:command-fn~ is a function that returns the command string/list to be used to
+launch the language server. If non-nil, ~command~ is ignored.
+
+~:initialize~ is a function called when the client is intiailized. It takes a 
+single argument, the newly created client.
+
+** lsp-client-on-notification /mode method callback/
+   Add a method handler when Emacs get a notification from the language server
+   for major-mode MODE.
+
+~mode~ should be a symbol of the major-mode name for the programming language.
+
+~method~ should be a string with the method name.
+
+~callback~ should be a lisp function taking a single argument, the parameters
+passed with the notification as a hash table.
+
+** lsp-make-traverser /name/
+   Return a closure that walks up the current directory until NAME is found.
+
+NAME can either be a string or a predicate used for ~locate-dominating-file~.
+The value returned by the function will be the directory name for NAME.
+
+If no such directory could be found, log a warning and return ~default-directory~ instead.
+Example for `lsp-python`:
+#+BEGIN_SRC emacs-lisp
+(lsp-define-stdio-client lsp-python "python"
+			 (lsp-make-traverser #'(lambda (dir)
+						 (directory-files
+						  dir
+						  nil
+						  "\\(__init__\\|setup\\)\\.py")))
+			 '("pyls"))
+#+END_SRC
+* Hooks
+** lsp-after-initialize-hook
+   A list of functions to be called after a Language Server has been initialized for a new workspace.
+
+** lsp-after-diagnostics-hook
+   A list of functions to be called after the Language Server publishes diagnostics for a file.
