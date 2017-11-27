@@ -1895,7 +1895,7 @@
   :load-path "lisp/haskell-config"
   :after haskell-mode
   :bind (:map haskell-mode-map
-              ("C-c M-q" . haskell-edit-reformat) ))
+              ("C-c M-q" . haskell-edit-reformat)))
 
 (use-package haskell-mode-autoloads
   :load-path "site-lisp/haskell-mode"
