@@ -97,116 +97,18 @@
                  "~/share/info")
                "~/.nix-profile/share/info")))
 
-(eval-when-compile
-  (defvar emacs-min-height)
-  (defvar emacs-min-width))
-
-(defconst display-name
-  (let ((width (display-pixel-width)))
-    (cond ((>= width 2560) 'retina-imac)
-          ((= width 1920) 'macbook-pro-vga)
-          ((= width 1680) 'macbook-pro)
-          ((= width 1440) 'retina-macbook-pro))))
-
-(defconst emacs-min-top 23)
-(defconst emacs-min-left
-  (cond ((eq display-name 'retina-imac) 975)
-        ((eq display-name 'macbook-pro-vga) 837)
-        (t 521)))
-(defconst emacs-min-height
-  (cond ((eq display-name 'retina-imac) 57)
-        ((eq display-name 'macbook-pro-vga) 54)
-        ((eq display-name 'macbook-pro) 47)
-        (t 44)))
-(defconst emacs-min-width
-  (cond ((eq display-name 'retina-imac) 100)
-        (t 100)))
-
-(if running-alternate-emacs
-    (setq emacs-min-top 22
-          emacs-min-left 5
-          emacs-min-height 57
-          emacs-min-width 90))
-
-(defvar emacs-min-font
-  (cond
-   ((eq display-name 'retina-imac)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
-      ))
-   ((eq display-name 'macbook-pro)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
-      ))
-   ((eq display-name 'macbook-pro-vga)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
-      ))
-   ((string= (system-name) "ubuntu")
-    ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-    "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
-    )
-   (t
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
-      ))))
-
-(let ((frame-alist
-       (list (cons 'top    emacs-min-top)
-             (cons 'left   emacs-min-left)
-             (cons 'height emacs-min-height)
-             (cons 'width  emacs-min-width)
-             (cons 'font   emacs-min-font))))
-  (setq initial-frame-alist frame-alist))
-
-(defun emacs-min ()
-  (interactive)
-
-  (set-frame-parameter (selected-frame) 'fullscreen nil)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-
-  (set-frame-parameter (selected-frame) 'top emacs-min-top)
-  (set-frame-parameter (selected-frame) 'left emacs-min-left)
-  (set-frame-parameter (selected-frame) 'height emacs-min-height)
-  (set-frame-parameter (selected-frame) 'width emacs-min-width)
-
-  (set-frame-font emacs-min-font))
-
-(if window-system
-    (add-hook 'after-init-hook 'emacs-min))
-
-(defun emacs-max ()
-  (interactive)
-  (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
-
-(defun emacs-toggle-size ()
-  (interactive)
-  (if (> (cdr (assq 'width (frame-parameters))) 200)
-      (emacs-min)
-    (emacs-max)))
-
 ;;; Enable disabled commands
 
 (setq disabled-command-function nil)
 
-;;; Configure libraries
+;;; Libraries
 
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
 (use-package apiwrap         :demand t :load-path "lib/apiwrap")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
+(use-package crux            :demand t :load-path "lib/crux")
 (use-package ctable           :defer t :load-path "lib/emacs-ctable")
 (use-package dash            :demand t :load-path "lib/dash-el")
 (use-package deferred         :defer t :load-path "lib/emacs-deferred")
@@ -250,32 +152,7 @@
 (use-package with-editor      :defer t :load-path "lib/with-editor")
 (use-package xml-rpc          :defer t)
 
-;;; Macros and functions
-
-(autoload 'indent-according-to-mode "indent" nil t)
-
-(defcustom user-initials nil
-  "*Initials of this user."
-  :set
-  #'(lambda (symbol value)
-      (if (fboundp 'font-lock-add-keywords)
-          (mapc
-           #'(lambda (mode)
-               (font-lock-add-keywords
-                mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
-                                 1 font-lock-warning-face t))))
-           '(c-mode c++-mode emacs-lisp-mode lisp-mode
-                    python-mode perl-mode java-mode groovy-mode
-                    haskell-mode literate-haskell-mode)))
-      (set symbol value))
-  :type 'string
-  :group 'mail)
-
-(defun insert-user-timestamp ()
-  "Insert a quick timestamp using the value of `user-initials'."
-  (interactive)
-  (insert (format "%s (%s): " user-initials
-                  (format-time-string "%Y-%m-%d" (current-time)))))
+;;; Functions
 
 (defsubst hook-into-modes (func &rest modes)
   (dolist (mode-hook modes) (add-hook mode-hook func)))
@@ -286,348 +163,15 @@
                                                :type 'netrc :port port))
                       :secret)))
 
-(defadvice async-shell-command (before uniqify-running-shell-command activate)
-  (let ((buf (get-buffer "*Async Shell Command*")))
-    (if buf
-        (let ((proc (get-buffer-process buf)))
-          (if (and proc (eq 'run (process-status proc)))
-              (with-current-buffer buf
-                (rename-uniquely)))))))
+;;; Keymaps
 
-(defun mark-line (&optional arg)
-  (interactive "p")
-  (beginning-of-line)
-  (let ((here (point)))
-    (dotimes (i arg)
-      (or (zerop i) (forward-line))
-      (end-of-line))
-    (set-mark (point))
-    (goto-char here)))
+(defconst init-keymaps 
+  '("C-h e"))
 
-(defun mark-sentence (&optional arg)
-  (interactive "P")
-  (backward-sentence)
-  (mark-end-of-sentence arg))
-
-(defun delete-indentation-forward ()
-  (interactive)
-  (delete-indentation t))
-
-(defun delete-current-buffer-file ()
-  "Delete the current buffer and the file connected with it"
-  (interactive)
-  (let ((filename (buffer-file-name))
-        (buffer (current-buffer))
-        (name (buffer-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (kill-buffer buffer)
-      (when (yes-or-no-p "Are you sure this file should be removed? ")
-        (delete-file filename)
-        (kill-buffer buffer)
-        (message "File '%s' successfully removed" filename)))))
-
-(defun duplicate-line ()
-  "Duplicate the line containing point."
-  (interactive)
-  (save-excursion
-    (let (line-text)
-      (goto-char (line-beginning-position))
-      (let ((beg (point)))
-        (goto-char (line-end-position))
-        (setq line-text (buffer-substring beg (point))))
-      (if (eobp)
-          (insert ?\n)
-        (forward-line))
-      (open-line 1)
-      (insert line-text))))
-
-(defun find-alternate-file-with-sudo ()
-  (interactive)
-  (find-alternate-file (concat "/sudo::" (buffer-file-name))))
-
-(defun refill-paragraph (arg)
-  (interactive "*P")
-  (let ((fun (if (memq major-mode '(c-mode c++-mode))
-                 'c-fill-paragraph
-               (or fill-paragraph-function
-                   'fill-paragraph)))
-        (width (if (numberp arg) arg))
-        prefix beg end)
-    (forward-paragraph 1)
-    (setq end (copy-marker (- (point) 2)))
-    (forward-line -1)
-    (let ((b (point)))
-      (skip-chars-forward "^A-Za-z0-9`'\"(")
-      (setq prefix (buffer-substring-no-properties b (point))))
-    (backward-paragraph 1)
-    (if (eolp)
-        (forward-char))
-    (setq beg (point-marker))
-    (delete-horizontal-space)
-    (while (< (point) end)
-      (delete-indentation 1)
-      (end-of-line))
-    (let ((fill-column (or width fill-column))
-          (fill-prefix prefix))
-      (if prefix
-          (setq fill-column
-                (- fill-column (* 2 (length prefix)))))
-      (funcall fun nil)
-      (goto-char beg)
-      (insert prefix)
-      (funcall fun nil))
-    (goto-char (+ end 2))))
-
-(defun recursive-edit-preserving-window-config ()
-  (interactive)
-  (save-window-excursion
-    (unless (one-window-p 'ignore-minibuffer)
-      (delete-other-windows))
-    (recursive-edit)))
-
-(defun recursive-edit-preserving-window-config-pop ()
-  (interactive)
-  (exit-recursive-edit))
-
-(defun delete-current-line (&optional arg)
-  (interactive "p")
-  (let ((here (point)))
-    (beginning-of-line)
-    (kill-line arg)
-    (goto-char here)))
-
-(defun do-eval-buffer ()
-  (interactive)
-  (call-interactively 'eval-buffer)
-  (message "Buffer has been evaluated"))
-
-(defun do-eval-region ()
-  (interactive)
-  (call-interactively 'eval-region)
-  (message "Region has been evaluated"))
-
-(defun view-clipboard ()
-  (interactive)
-  (delete-other-windows)
-  (switch-to-buffer "*Clipboard*")
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (clipboard-yank)
-    (goto-char (point-min))))
-
-(defun delete-to-end-of-buffer ()
-  (interactive)
-  (kill-region (point) (point-max)))
-
-(defun copy-current-buffer-name ()
-  (interactive)
-  (let ((name (buffer-file-name)))
-    (kill-new name)
-    (message name)))
-
-(defun unfill-paragraph ()
-  (interactive)
-  (let ((fill-column (point-max)))
-    (fill-paragraph nil t)))
-
-(defun unfill-region (beg end)
-  (interactive "r")
-  (setq end (copy-marker end))
-  (save-excursion
-    (goto-char beg)
-    (while (< (point) end)
-      (unfill-paragraph 1)
-      (forward-paragraph))))
-
-;; http://acidwords.com/posts/2017-10-19-closing-all-parentheses-at-once.html
-(defun close-all-parentheses* (indent-fn)
-  (let* ((closing nil)
-         ;; by default rely on (newline-and-indent)
-         (local-indent-fn (lambda (token)
-                            (newline-and-indent)
-                            (insert token)))
-         (indent-fn (if indent-fn
-                        indent-fn
-                      local-indent-fn)))
-    (save-excursion
-      (while
-          (condition-case nil
-              (progn
-                (backward-up-list)
-                (let ((syntax (syntax-after (point))))
-                  (case (car syntax)
-                    ((4) (setq closing
-                               (cons (cdr syntax) closing)))
-                    ((7 8) (setq closing
-                                 (cons (char-after (point)) closing)))))
-                t)
-            ((scan-error) nil))))
-    (dolist (token (nreverse closing))
-      (if arg
-          (funcall indent-fn token)
-        (insert token)))))
-
-(defun close-all-parentheses (arg)
-  (interactive "P")
-  (let ((my-format-fn
-         (lambda (token)
-           ;; 125 is codepoint for '}'
-           (if (and (= token 125)
-                    ;; C, C++ and Java
-                    (member major-mode '(c-mode c++-mode java-mode)))
-               (let ((last-command-event ?}))
-                 (newline)
-                 (c-electric-brace nil))
-             (insert token)))))
-    (close-all-parentheses* my-format-fn)))
-
-(defun check-papers ()
-  (interactive)
-  ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
-  (find-file-other-window "/fencepost.gnu.org:/gd/gnuorg/copyright.list"))
-
-(defun scratch ()
-  (interactive)
-  (let ((current-mode major-mode))
-    (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-    (goto-char (point-min))
-    (when (looking-at ";")
-      (forward-line 4)
-      (delete-region (point-min) (point)))
-    (goto-char (point-max))
-    (funcall current-mode)))
-
-(define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-
-(bind-keys* ("<C-return>" . other-window))
-
-(bind-keys
- ("C-z"   . delete-other-windows)
-
- ("M-!"   . async-shell-command)
- ("M-'"   . insert-pair)
- ("M-\""  . insert-pair)
- ("M-`"   . other-frame)
- ("M-j"   . delete-indentation-forward)
- ("M-J"   . delete-indentation)
- ("M-W"   . mark-word)
- ("M-L"   . mark-line)
- ("M-S"   . mark-sentence)
- ("M-X"   . mark-sexp)
- ("M-D"   . mark-defun)
-
- ("M-g c" . goto-char)
- ("M-g l" . goto-line)
-
- ("<C-M-backspace>" . backward-kill-sexp)
-
- ("C-x d"   . delete-whitespace-rectangle)
- ("C-x F"   . set-fill-column)
- ("C-x t"   . toggle-truncate-lines)
- ("C-x v H" . vc-region-history)
- ("C-x K"   . delete-current-buffer-file)
-
- ("C-x C-d" . duplicate-line)
- ("C-x C-e" . pp-eval-last-sexp)
- ("C-x C-n" . next-line)
- ("C-x C-v" . find-alternate-file-with-sudo)
-
- ("C-x M-q" . refill-paragraph)
-
- ("C-c SPC" . just-one-space)
- ("C-c 0"   . recursive-edit-preserving-window-config-pop)
- ("C-c 1"   . recursive-edit-preserving-window-config)
- ("C-c g"   . goto-line)
- ("C-c f"   . flush-lines)
- ("C-c k"   . keep-lines)
- ("C-c n"   . insert-user-timestamp)
- ("C-c o"   . customize-option)
- ("C-c O"   . customize-group)
- ("C-c F"   . customize-face)
- ("C-c q"   . fill-region)
- ("C-c r"   . replace-regexp)
- ("C-c s"   . replace-string)
- ("C-c u"   . rename-uniquely)
- ("C-c v"   . ffap)
- ("C-c V"   . view-clipboard)
- ("C-c z"   . clean-buffer-list)
- ("C-c )"   . close-all-parentheses)
- ("C-c ="   . count-matches)
- ("C-c ;"   . comment-or-uncomment-region)
-
- ("C-c C-z" . delete-to-end-of-buffer)
- ("C-c C-0" . copy-current-buffer-name)
-
- ("C-c M-q" . unfill-paragraph))
-
-(bind-keys
- :prefix-map my-ctrl-h-e-map
- :prefix "C-h e"
- ("e" . view-echo-area-messages)
- ("f" . find-function)
- ("k" . find-function-on-key)
- ("l" . find-library)
- ("P" . check-papers)
- ("s" . scratch)
- ("v" . find-variable)
- ("V" . apropos-value))
-
-(bind-keys
- :prefix-map my-ctrl-c-e-map
- :prefix "C-c e"
- ("E" . elint-current-buffer)
- ("b" . do-eval-buffer)
- ("c" . cancel-debug-on-entry)
- ("d" . debug-on-entry)
- ("e" . toggle-debug-on-error)
- ("f" . emacs-lisp-byte-compile-and-load)
- ("j" . emacs-lisp-mode)
- ("l" . find-library)
- ("r" . do-eval-region)
- ("s" . scratch)
- ("z" . byte-recompile-directory))
-
-(bind-keys
- :prefix-map my-ctrl-c-m-map
- :prefix "C-c m"
- ("k" . kmacro-keymap)
- ("m" . emacs-toggle-size))
-
-(bind-keys
- :prefix-map my-ctrl-dot-map
- :prefix "C-."
- ("?" . help))
-
-(bind-keys
- :prefix-map my-ctrl-dot-g-map
- :prefix "C-. g"
- ("d" . show-debugger))
-
-;;; Separate configurations
-
-(use-package dot-org
-  :load-path ("site-lisp/org-mode/lisp"
-              "site-lisp/org-mode/contrib/lisp")
-  :commands my-org-startup
-  :bind (("M-C"   . jump-to-org-agenda)
-         ("M-m"   . org-smart-capture)
-         ("M-M"   . org-inline-note)
-         ("C-c a" . org-agenda)
-         ("C-c S" . org-store-link)
-         ("C-c l" . org-insert-link))
-  :defer 30
-  :config
-  (when (and (not running-alternate-emacs)
-             (not running-development-emacs))
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup)))
-
-(use-package dot-gnus
-  :bind (("M-G"   . switch-to-gnus)
-         ("C-x m" . compose-mail))
-  :init
-  (setq gnus-init-file (emacs-path "dot-gnus")
-        gnus-home-directory "~/Messages/Gnus/"))
+(mapc #'(lambda (key)
+          (let ((keymap (gensym)))
+            (define-prefix-command keymap)
+            (bind-key key keymap))) init-keymaps)
 
 ;;; Packages
 
@@ -1143,9 +687,7 @@
   :bind (("M-x"     . counsel-M-x)
          ("C-s"     . counsel-grep-or-swiper)
          ("C-h f"   . counsel-describe-function)
-         ("C-h v"   . counsel-describe-variable)
-         ("C-h e l" . counsel-find-library)
-         ("C-h e u" . counsel-unicode-char))
+         ("C-h v"   . counsel-describe-variable))
   :commands counsel-minibuffer-history
   :init
   (define-key minibuffer-local-map (kbd "M-r")
@@ -1163,10 +705,6 @@
 
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
-
-(use-package crux
-  :load-path "site-lisp/crux"
-  :bind ("C-c e i" . crux-find-user-init-file))
 
 (use-package css-mode
   :mode "\\.css\\'"
@@ -1422,6 +960,30 @@
 (use-package dockerfile-mode
   :mode "Dockerfile"
   :load-path "site-lisp/dockerfile-mode")
+
+(use-package dot-gnus
+  :bind (("M-G"   . switch-to-gnus)
+         ("C-x m" . compose-mail))
+  :init
+  (setq gnus-init-file (emacs-path "dot-gnus")
+        gnus-home-directory "~/Messages/Gnus/"))
+
+(use-package dot-org
+  :load-path ("site-lisp/org-mode/lisp"
+              "site-lisp/org-mode/contrib/lisp")
+  :commands my-org-startup
+  :bind (("M-C"   . jump-to-org-agenda)
+         ("M-m"   . org-smart-capture)
+         ("M-M"   . org-inline-note)
+         ("C-c a" . org-agenda)
+         ("C-c S" . org-store-link)
+         ("C-c l" . org-insert-link))
+  :defer 30
+  :config
+  (when (and (not running-alternate-emacs)
+             (not running-development-emacs))
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (my-org-startup)))
 
 (use-package doxymacs
   :load-path "site-lisp/doxymacs/lisp"
@@ -1999,8 +1561,8 @@
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                            (regexp . ,(cdr x))
-                            (modes quote (haskell-mode literate-haskell-mode))))
+                       (regexp . ,(cdr x))
+                       (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -2037,7 +1599,8 @@
 
 (use-package helm-navi
   :load-path "site-lisp/helm-navi"
-  :after (helm navi))
+  :after (helm navi)
+  :commands helm-navi)
 
 (use-package helpful
   :load-path "site-lisp/helpful"
@@ -2197,6 +1760,9 @@
 (use-package image-file
   :config
   (auto-image-file-mode 1))
+
+(use-package indent
+  :commands indent-according-to-mode)
 
 (use-package indent-shift
   :bind (("C-c <" . indent-shift-left)
@@ -2926,6 +2492,111 @@
            (not running-alternate-emacs)
            (not running-development-emacs)
            (not noninteractive)))
+
+(use-package personal
+  :after (crux counsel)
+  :config
+  (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
+
+  (bind-keys* ("<C-return>" . other-window))
+
+  (bind-keys ("C-z" . delete-other-windows)
+
+             ("M-!"  . async-shell-command)
+             ("M-'"  . insert-pair)
+             ("M-\"" . insert-pair)
+             ("M-`"  . other-frame)
+             ("M-j"  . delete-indentation-forward)
+             ("M-J"  . delete-indentation)
+             ("M-W"  . mark-word)
+             ("M-L"  . mark-line)
+             ("M-S"  . mark-sentence)
+             ("M-X"  . mark-sexp)
+             ("M-D"  . mark-defun)
+
+             ("M-g c" . goto-char)
+             ("M-g l" . goto-line)
+
+             ("<C-M-backspace>" . backward-kill-sexp)
+
+             ("C-x d"   . delete-whitespace-rectangle)
+             ("C-x F"   . set-fill-column)
+             ("C-x t"   . toggle-truncate-lines)
+             ("C-x v H" . vc-region-history)
+             ("C-x K"   . delete-current-buffer-file)
+
+             ("C-x C-d" . duplicate-line)
+             ("C-x C-e" . pp-eval-last-sexp)
+             ("C-x C-n" . next-line)
+             ("C-x C-v" . find-alternate-file-with-sudo)
+
+             ("C-x M-q" . refill-paragraph)
+
+             ("C-c SPC" . just-one-space)
+             ("C-c 0"   . recursive-edit-preserving-window-config-pop)
+             ("C-c 1"   . recursive-edit-preserving-window-config)
+             ("C-c g"   . goto-line)
+             ("C-c f"   . flush-lines)
+             ("C-c k"   . keep-lines)
+             ("C-c n"   . insert-user-timestamp)
+             ("C-c o"   . customize-option)
+             ("C-c O"   . customize-group)
+             ("C-c F"   . customize-face)
+             ("C-c q"   . fill-region)
+             ("C-c r"   . replace-regexp)
+             ("C-c s"   . replace-string)
+             ("C-c u"   . rename-uniquely)
+             ("C-c v"   . ffap)
+             ("C-c V"   . view-clipboard)
+             ("C-c z"   . clean-buffer-list)
+             ("C-c )"   . close-all-parentheses)
+             ("C-c ="   . count-matches)
+             ("C-c ;"   . comment-or-uncomment-region)
+
+             ("C-c C-z" . delete-to-end-of-buffer)
+             ("C-c C-0" . copy-current-buffer-name)
+
+             ("C-c M-q" . unfill-paragraph))
+
+  (bind-keys :prefix-map my-ctrl-h-e-map
+             :prefix "C-h e"
+             ("e" . view-echo-area-messages)
+             ("f" . find-function)
+             ("k" . find-function-on-key)
+             ("l" . find-library)
+             ("P" . check-papers)
+             ("s" . scratch)
+             ("v" . find-variable)
+             ("V" . apropos-value))
+
+  (bind-keys :prefix-map my-ctrl-c-e-map
+             :prefix "C-c e"
+             ("E" . elint-current-buffer)
+             ("b" . do-eval-buffer)
+             ("c" . cancel-debug-on-entry)
+             ("d" . debug-on-entry)
+             ("e" . toggle-debug-on-error)
+             ("f" . emacs-lisp-byte-compile-and-load)
+             ("i" . crux-find-user-init-file)
+             ("j" . emacs-lisp-mode)
+             ("l" . counsel-find-library)
+             ("r" . do-eval-region)
+             ("s" . scratch)
+             ("u" . counsel-unicode-char)
+             ("z" . byte-recompile-directory))
+
+  (bind-keys :prefix-map my-ctrl-c-m-map
+             :prefix "C-c m"
+             ("k" . kmacro-keymap)
+             ("m" . emacs-toggle-size))
+
+  (bind-keys :prefix-map my-ctrl-dot-map
+             :prefix "C-."
+             ("?" . help))
+
+  (bind-keys :prefix-map my-ctrl-dot-g-map
+             :prefix "C-. g"
+             ("d" . show-debugger)))
 
 (use-package phi-search
   :load-path "site-lisp/phi-search"
