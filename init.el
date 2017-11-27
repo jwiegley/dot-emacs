@@ -2884,6 +2884,7 @@
 
 (use-package smart-mode-line
   :load-path "site-lisp/smart-mode-line"
+  :defer 5
   :config
   (sml/setup)
   (sml/apply-theme 'light))
