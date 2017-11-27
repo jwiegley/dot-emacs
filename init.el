@@ -172,21 +172,19 @@
 
 ;;; Keymaps
 
-(defconst init-keymaps
-  '(("C-."   . my-ctrl-dot-map)
-    ("C-. =" . my-ctrl-dot-equals-map)
-    ("C-. f" . my-ctrl-dot-f-map)
-    ("C-. g" . my-ctrl-dot-g-map)
-    ("C-. h" . my-ctrl-dot-h-map)
-    ("C-. v" . my-ctrl-dot-v-map)
-    ("C-h e" . my-ctrl-h-e-map)
-    ("C-c e" . my-ctrl-c-e-map)
-    ("C-c m" . my-ctrl-c-m-map)
-    ("C-c y" . my-ctrl-c-y-map)))
-
 (mapc #'(lambda (entry)
           (define-prefix-command (cdr entry))
-          (bind-key (car entry) (cdr entry))) init-keymaps)
+          (bind-key (car entry) (cdr entry)))
+      '(("C-."   . my-ctrl-dot-map)
+        ("C-. =" . my-ctrl-dot-equals-map)
+        ("C-. f" . my-ctrl-dot-f-map)
+        ("C-. g" . my-ctrl-dot-g-map)
+        ("C-. h" . my-ctrl-dot-h-map)
+        ("C-. v" . my-ctrl-dot-v-map)
+        ("C-h e" . my-ctrl-h-e-map)
+        ("C-c e" . my-ctrl-c-e-map)
+        ("C-c m" . my-ctrl-c-m-map)
+        ("C-c y" . my-ctrl-c-y-map)))
 
 ;;; Packages
 
@@ -202,6 +200,7 @@
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file))
+
   (add-hook 'expand-load-hook
             (lambda ()
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
@@ -234,7 +233,7 @@
   (set-input-method "Agda"))
 
 (use-package agda2-mode
-  :after agda-input
+  ;; This declaration depends on the load-path established by agda-input.
   :mode "\\.agda\\'"
   :defines agda2-mode-map
   :preface
@@ -336,17 +335,9 @@
 (use-package auto-yasnippet
   :load-path "site-lisp/auto-yasnippet"
   :after yasnippet
-  :commands (aya-create
-             aya-expand
-             aya-open-line)
-  :init
-  ;; `my-ctrl-c-y-map' isn't defined until after yasnippet has been
-  ;; initialized below.
-  (eval-after-load 'yasnippet
-    '(bind-keys :map my-ctrl-c-y-map
-                ("a" . aya-create)
-                ("e" . aya-expand)
-                ("o" . aya-open-line))))
+  :bind (("C-c y a" . aya-create)
+         ("C-c y e" . aya-expand)
+         ("C-c y o" . aya-open-line)))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -363,13 +354,10 @@
 
 (use-package backup-each-save
   :commands backup-each-save
-  :init
+  :preface
   (defun my-make-backup-file-name (file)
     (make-backup-file-name-1 (file-truename file)))
 
-  (add-hook 'after-save-hook 'backup-each-save)
-
-  :config
   (defun backup-each-save-filter (filename)
     (not (string-match
           (concat "\\(^/tmp\\|\\.emacs\\.d/data\\(-alt\\)?/"
@@ -377,13 +365,15 @@
                   "\\(archive/sent/\\|recentf\\`\\)\\)")
           filename)))
 
-  (setq backup-each-save-filter-function 'backup-each-save-filter)
-
   (defun my-dont-backup-files-p (filename)
     (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
       (normal-backup-enable-predicate filename)))
 
-  (setq backup-enable-predicate 'my-dont-backup-files-p))
+  :init
+  (add-hook 'after-save-hook 'backup-each-save)
+  :config
+  (setq backup-each-save-filter-function 'backup-each-save-filter
+        backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package beacon
   :load-path "site-lisp/beacon"
@@ -414,8 +404,8 @@
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
-         ("\\.m\\'"                   . c-mode)
-         ("\\.mm\\'"                  . c++-mode))
+         ("\\.m\\'" . c-mode)
+         ("\\.mm\\'" . c++-mode))
   :preface
   (defun my-c-mode-common-hook ()
     (eldoc-mode 1)
