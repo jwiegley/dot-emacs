@@ -1064,6 +1064,7 @@
   :commands (company-mode global-company-mode)
   :config
   (global-company-mode 1)
+  (add-hook 'eshell-mode-hook #'(lambda () (company-mode -1)))
 
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
