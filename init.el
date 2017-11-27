@@ -486,21 +486,6 @@
   ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
   (find-file-other-window "/fencepost.gnu.org:/gd/gnuorg/copyright.list"))
 
-(defvar lisp-modes '(emacs-lisp-mode
-                     inferior-emacs-lisp-mode
-                     ielm-mode
-                     lisp-mode
-                     inferior-lisp-mode
-                     lisp-interaction-mode
-                     slime-repl-mode))
-
-(defvar lisp-mode-hooks
-  (mapcar (function
-           (lambda (mode)
-             (intern
-              (concat (symbol-name mode) "-hook"))))
-          lisp-modes))
-
 (defun scratch ()
   (interactive)
   (let ((current-mode major-mode))
@@ -510,8 +495,7 @@
       (forward-line 4)
       (delete-region (point-min) (point)))
     (goto-char (point-max))
-    (if (memq current-mode lisp-modes)
-        (funcall current-mode))))
+    (funcall current-mode)))
 
 (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
@@ -2083,18 +2067,14 @@
 (use-package highlight-cl
   :init
   (autoload #'highlight-cl-add-font-lock-keywords "highlight-cl")
-  (mapc (function
-         (lambda (mode-hook)
-           (add-hook mode-hook
-                     'highlight-cl-add-font-lock-keywords)))
-        lisp-mode-hooks))
+  (hook-into-modes #'highlight-cl-add-font-lock-keywords
+                   'emacs-lisp-mode-hook))
 
 (use-package highlight-numbers
   :load-path "site-lisp/highlight-numbers"
   :commands highlight-numbers-mode
   :init
-  (hook-into-modes #'highlight-numbers-mode
-                   'prog-mode-hook))
+  (hook-into-modes #'highlight-numbers-mode 'prog-mode-hook))
 
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
@@ -2427,23 +2407,35 @@
 
   ;; Change lambda to an actual lambda symbol
   :init
-  (mapc
-   (lambda (major-mode)
-     (font-lock-add-keywords
-      major-mode
-      '(("(\\(lambda\\)\\>"
-         (0 (ignore
-             (compose-region (match-beginning 1)
-                             (match-end 1) ?λ))))
-        ;; For the moment I'm using rainbow-delimiters
-        ;; ("(\\|)" . 'esk-paren-face)
-        ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
-         (1 font-lock-keyword-face)
-         (2 font-lock-function-name-face
-            nil t)))))
-   lisp-modes)
+  (mapc #'(lambda (major-mode)
+            (font-lock-add-keywords
+             major-mode
+             '(("(\\(lambda\\)\\>"
+                (0 (ignore
+                    (compose-region (match-beginning 1)
+                                    (match-end 1) ?λ))))
+               ;; For the moment I'm using rainbow-delimiters
+               ;; ("(\\|)" . 'esk-paren-face)
+               ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
+                (1 font-lock-keyword-face)
+                (2 font-lock-function-name-face
+                   nil t)))))
+        '(emacs-lisp-mode
+          inferior-emacs-lisp-mode
+          ielm-mode
+          lisp-mode
+          inferior-lisp-mode
+          lisp-interaction-mode
+          slime-repl-mode))
 
-  (apply #'hook-into-modes 'my-lisp-mode-hook lisp-mode-hooks))
+  (hook-into-modes #'my-lisp-mode-hook
+                   'emacs-lisp-mode-hook
+                   'inferior-emacs-lisp-mode-hook
+                   'ielm-mode-hook
+                   'lisp-mode-hook
+                   'inferior-lisp-mode-hook
+                   'lisp-interaction-mode-hook
+                   'slime-repl-mode-hook))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
