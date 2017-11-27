@@ -422,21 +422,6 @@
  '(el-get-dir "~/.emacs.d/site-lisp/")
  '(el-get-generate-autoloads nil)
  '(electric-indent-mode nil)
- '(emacs-lisp-mode-hook
-   (quote
-    (turn-on-auto-fill
-     (lambda nil
-       (ignore-errors
-         (diminish
-          (quote auto-fill-function))))
-     eldoc-mode
-     (lambda nil
-       (local-set-key
-        [(meta 46)]
-        (quote find-function))
-       (local-set-key
-        [(control 109)]
-        (quote newline-and-indent))))))
  '(enable-recursive-minibuffers t)
  '(erc-auto-query (quote window-noselect))
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
