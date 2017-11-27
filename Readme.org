@@ -1,0 +1,176 @@
+* phi-search.el
+
+multiple-cursors.el対応のインクリメンタルサーチ
+
+another incremental search & replace, compatible with "multiple-cursors"
+
+** Screencast
+
+[[img/search.gif]]
+
+** Usage
+
+Require this script
+
+: (require 'phi-search)
+
+then command "phi-search" and "phi-search-backward" are available. You
+may bind a key to the command.
+
+: (global-set-key (kbd "C-s") 'phi-search)
+: (global-set-key (kbd "C-r") 'phi-search-backward)
+
+While searching, following commands are available.
+
+- [C-s] phi-search-again-or-next
+
+  Move to the next matching item. If query is blank, use the last
+  query.
+
+- [C-r] phi-search-again-or-previous
+
+  Similar to phi-search-again-or-next, but move to the previous item.
+
+- [C-v] phi-search-scroll-up
+
+  Scroll the target window up, to check candidates.
+
+- [M-v] phi-search-scroll-down
+
+  Scroll the target window down.
+
+- [C-l] phi-search-recenter
+
+  Recenter the target window.
+
+- [C-w] phi-search-yank-word
+
+  Expand query by yanking one word from the target buffer.
+
+- [RET] phi-search-complete
+
+  Finish searching.
+
+- [C-RET] phi-search-complete-at-beginning
+
+  Finish searching at the beginning of the match.
+
+- [C-c C-c] phi-search-unlimit
+
+  Force update results regardless of "phi-search-limit"
+
+- [C-g] phi-search-abort
+
+  Finish searching, and move back to the original position.
+
+** Working with Regions
+
+(in following examples, assume "[" as mark, and "|" as point)
+
+When phi-search is called with an active region, then the substring is
+used as the default query.
+
+: [region| another region   |region another region   region another |region
+: _______________________   ______________________   ______________________
+:                           query: region            query: region
+
+Or, if phi-search is called with an active mark but no region there,
+mark stays active until phi-search ends. So you may use this command
+to expand region.
+
+: [|mark me !   [|mark me !   [mark |me !
+: ___________   ___________   ___________
+:               query:        query: me
+
+** Working with multiple-cursors.el
+
+phi-search is available even when multiple-cursors-mode is
+active. Here are some examples.
+
+: |foo bar baz   |foo bar baz   foo bar |baz
+: |foo bar baz   |foo bar baz   foo bar |baz
+: ____________   ____________   ____________
+:                query:         query: baz
+
+: [|mark us !                 [|mark us !                 [mark |us !
+: [|mark us with a region !   [|mark us with a region !   [mark |us with a region !
+: _________________________   _________________________   _________________________
+:                             query:                      query: us
+
+: [foo| ABC foo       |foo ABC foo       foo ABC |foo
+: [bar| EFGHIJK bar   |bar EFGHIJK bar   bar EFGHIJK |bar
+: _________________   ________________   ________________
+:                     query: foo         query: foo
+
+** phi-replace.el
+
+"phi-replace" and "phi-replace-query" in "phi-replace.el" are
+interactive replace commands, that use the same interface as
+"phi-search".
+
+[[img/replace.gif]]
+
+To use these commands, require
+
+: (require 'phi-replace)
+
+and bind a key.
+
+: (global-set-key (kbd "M-%") 'phi-replace-query)
+
+Keybinds are basically the same as phi-search, by default.
+
+** Customization
+*** Keybinds
+
+You may change keybindings by changing "phi-search-default-map".
+
+: (define-key phi-search-default-map (kbd "<") 'phi-search-again-or-previous)
+: (define-key phi-search-default-map (kbd ">") 'phi-search-again-or-next)
+
+This will affect all commands based on phi-search. If you want to add
+commands only for a specific command, you may use variables below.
+
+- phi-search-default-map :: the phi-search common keymap
+
+- phi-search-additional-keybinds :: list of (KEY . COMMAND) used in
+     "phi-search(-backward)" command
+
+- phi-replace-additional-keybinds :: list of (KEY . COMMAND) used in
+     "phi-replace(-query)" command
+
+: (push '((kbd "<app>") . 'phi-search-complete-at-beginning)
+:       phi-search-additional-keybinds)
+
+*** Searching
+
+You may change limit of search by setting "phi-search-limit", and
+case-sensitivity by "phi-search(replace)-case-sensitive".
+
+: (setq phi-search-limit           10000
+:       phi-search-case-sensitive  t)
+
+You may also set "phi-search-case-sensitive" to 'guess, to make
+phi-search case sensitive only when some upcase letters are in the
+query.
+
+*** Hooks
+
+Hooks "phi-search-init-hook" and "phi-replace-init-hook" are hooks run
+after initializing the minibuffer.
+
+*** Faces
+
+Matching items are propertized with "phi-search-match-face", and the
+selected item is propertized with "phi-search-selection-face". If they
+look not pretty in your colorscheme, you may modify them.
+
+: (set-face-attribute 'phi-search-selection-face nil
+:                     :background "orange")
+
+** Notes
+
+This command uses "multiple-cursors" variables and behavior that are
+not documented. Therefore, after you update "multiple-cursors", it is
+good idea to test if this command works still correctly, before you
+actually use this command.
