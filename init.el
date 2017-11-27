@@ -2,17 +2,44 @@
 
 (setq message-log-max 16384)
 
+;;; Functions
+
 (defsubst emacs-path (path)
   (expand-file-name path user-emacs-directory))
 
+(defsubst add-load-path (path)
+  (add-to-list 'load-path (emacs-path path)))
+
+(defsubst hook-into-modes (func &rest modes)
+  (dolist (mode-hook modes) (add-hook mode-hook func)))
+
+(defsubst lookup-password (host user port)
+  (require 'auth-source)
+  (funcall (plist-get (car (auth-source-search :host host :user user
+                                               :type 'netrc :port port))
+                      :secret)))
+
+(defun get-jobhours-string ()
+  (with-current-buffer (get-buffer-create "*scratch*")
+    (let ((str (shell-command-to-string "jobhours")))
+      (require 'ansi-color)
+      (ansi-color-apply (substring str 0 (1- (length str)))))))
+
+(defun plist-delete (plist property)
+  "Delete PROPERTY from PLIST"
+  (let (p)
+    (while plist
+      (if (not (eq property (car plist)))
+          (setq p (plist-put p (car plist) (nth 1 plist))))
+      (setq plist (cddr plist)))
+    p))
+
+;;; Environment
+
 (eval-and-compile
   (require 'cl)
-  (require 'seq)
 
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
-
-  (defsubst add-load-path (path)
-    (add-to-list 'load-path (emacs-path path)))
 
   (mapc #'add-load-path
         (append (directory-files (emacs-path "site-lisp") t
@@ -41,19 +68,10 @@
   (require 'use-package)
   (setq use-package-verbose t))
 
-(setplist 'flet (use-package-plist-delete (symbol-plist 'flet)
-                                          'byte-obsolete-info))
-
 (require 'bind-key)
+(require 'seq)
 
-;; This must be defined before settings.el is read
-(defun get-jobhours-string ()
-  (with-current-buffer (get-buffer-create "*scratch*")
-    (let ((str (shell-command-to-string "jobhours")))
-      (require 'ansi-color)
-      (ansi-color-apply (substring str 0 (1- (length str)))))))
-
-;;; Load customization settings
+;;; Settings
 
 (defvar running-alternate-emacs nil)
 (defvar running-development-emacs nil)
@@ -97,9 +115,9 @@
                  "~/share/info")
                "~/.nix-profile/share/info")))
 
-;;; Enable disabled commands
-
 (setq disabled-command-function nil)
+
+(setplist 'flet (plist-delete (symbol-plist 'flet) 'byte-obsolete-info))
 
 ;;; Libraries
 
@@ -151,27 +169,6 @@
 (use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
 (use-package xml-rpc          :defer t)
-
-;;; Functions
-
-(defsubst hook-into-modes (func &rest modes)
-  (dolist (mode-hook modes) (add-hook mode-hook func)))
-
-(defun lookup-password (host user port)
-  (require 'auth-source)
-  (funcall (plist-get (car (auth-source-search :host host :user user
-                                               :type 'netrc :port port))
-                      :secret)))
-
-;;; Keymaps
-
-(defconst init-keymaps 
-  '("C-h e"))
-
-(mapc #'(lambda (key)
-          (let ((keymap (gensym)))
-            (define-prefix-command keymap)
-            (bind-key key keymap))) init-keymaps)
 
 ;;; Packages
 
@@ -3330,7 +3327,7 @@
   :commands ztree-diff
   :load-path "site-lisp/ztree")
 
-;;; Post initialization
+;;; Finalization
 
 (when window-system
   (let ((elapsed (float-time (time-subtract (current-time)
