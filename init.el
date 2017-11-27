@@ -1165,9 +1165,8 @@
   :bind ("M-o c" . crosshairs-mode))
 
 (use-package crux
-  ;; jww (2017-11-26): Need to make use of these functions.
-  :disabled t
-  :load-path "site-lisp/crux")
+  :load-path "site-lisp/crux"
+  :bind ("C-c e i" . crux-find-user-init-file))
 
 (use-package css-mode
   :mode "\\.css\\'"
