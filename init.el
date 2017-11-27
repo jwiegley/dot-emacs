@@ -240,6 +240,7 @@
 (use-package pos-tip          :defer t)
 (use-package popup-pos-tip    :defer t)
 (use-package request          :defer t :load-path "lib/emacs-request")
+(use-package rich-minority    :defer t :load-path "lib/rich-minority")
 (use-package s                :defer t :load-path "lib/s-el")
 (use-package tablist          :defer t :load-path "lib/tablist")
 (use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
@@ -2922,6 +2923,10 @@
 (use-package popup-ruler
   :bind ("C-. C-r" . popup-ruler))
 
+(use-package powerline
+  :disabled t
+  :load-path "site-lisp/powerline")
+
 (use-package pp-c-l
   :commands pretty-control-l-mode
   :init
@@ -3202,6 +3207,18 @@
   :init
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
+
+(use-package smart-mode-line
+  :load-path "site-lisp/smart-mode-line"
+  :config
+  (sml/setup)
+  (sml/apply-theme 'light))
+
+(use-package smart-mode-line-light-powerline-theme
+  :disabled t
+  :after (powerline smart-mode-line)
+  :config
+  (sml/apply-theme 'light-powerline))
 
 (use-package smartparens-config
   :load-path "site-lisp/smartparens"
