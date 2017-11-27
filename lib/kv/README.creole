@@ -1,0 +1,155 @@
+A collection of tools for dealing with key/value data structures such
+as plists, alists and hash-tables.
+
+=== kvalist->filter-keys alist &rest keys ===
+
+Return the //alist// filtered to the //keys// list.
+
+Only pairs where the car is a [[member]] of //keys// will be returned.
+
+
+=== kvalist->hash alist &rest hash-table-args ===
+
+Convert //alist// to a HASH.
+
+//hash-table-args// are passed to the hash-table creation.
+
+
+=== kvalist->keys alist ===
+
+Get just the keys from the alist.
+
+
+=== kvalist->plist alist ===
+
+Convert an alist to a plist.
+
+
+=== kvalist->values alist ===
+
+Get just the values from the alist.
+
+
+=== kvalist-keys->* alist fn ===
+
+Convert the keys of //alist// through //fn//.
+
+
+=== kvalist-keys->symbols alist ===
+
+Convert the keys of //alist// into symbols.
+
+
+=== kvalist-sort alist pred ===
+
+Sort //alist// (by key) with //pred//.
+
+
+=== kvalist-sort-by-value alist pred ===
+
+Sort //alist// by value with //pred//.
+
+
+=== kvalist2->alist alist2 car-key cdr-key &optional proper ===
+
+Reduce the //alist2// (a list of alists) to a single alist.
+
+//car-key// is the key of each alist to use as the resulting key and
+//cdr-key// is the key of each alist to user as the resulting cdr.
+
+If //proper// is [[t]] then the alist is a list of proper lists, not
+cons cells.
+
+
+=== kvalist2->filter-keys alist2 &rest keys ===
+
+Return the //alist2// (a list of alists) filtered to the //keys//.
+
+
+=== kvalist2->plist alist2 ===
+
+Convert a list of alists too a list of plists.
+
+
+=== kvcmp a b ===
+
+Do a comparison of the two values using printable syntax.
+
+Use this as the function to pass to [[sort]].
+
+
+=== kvdotassoc expr table ===
+
+Dotted expression handling with [[assoc]].
+
+
+=== kvdotassoc-fn expr table func ===
+
+Use the dotted //expr// to access deeply nested data in //table//.
+
+//expr// is a dot separated expression, either a symbol or a string.
+For example:
+
+{{{
+ "a.b.c"
+}}}
+
+or:
+
+{{{
+ 'a.b.c
+}}}
+
+If the //expr// is a symbol then the keys of the alist are also
+expected to be symbols.
+
+//table// is expected to be an alist currently.
+
+//func// is some sort of [[assoc]] like function.
+
+
+=== kvdotassq expr table ===
+
+Dotted expression handling with [[assq]].
+
+
+=== kvhash->alist hash ===
+
+Convert //hash// to an ALIST.
+
+
+=== kvmap-bind args sexp seq ===
+
+A hybrid of [[destructuring-bind]] and [[mapcar]]
+//args// shall be of the form used with [[destructuring-bind]]
+
+Unlike most other mapping forms this is a macro intended to be
+used for structural transformations, so the expected usage will
+be that //args// describes the structure of the items in //seq//, and
+//sexp// will describe the structure desired.
+
+
+=== kvplist->alist plist ===
+
+Convert //plist// to an alist.
+
+The keys are expected to be :prefixed and the colons are removed.
+The keys in the resulting alist are symbols.
+
+
+=== kvplist->filter-keys plist &rest keys ===
+
+Filter the plist to just those matching //keys//.
+
+//keys// must actually be :-less symbols.
+
+[[kvalist->filter-keys]] is actually used to do this work.
+
+=== kvplist->merge &rest plists ===
+
+Merge the 2nd and subsequent plists into the first, clobbering values set
+by lists to the left.
+
+=== kvplist2->filter-keys plist2 &rest keys ===
+
+Return the //plist2// (a list of plists) filtered to the //keys//.
