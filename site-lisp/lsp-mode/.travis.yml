@@ -1,0 +1,29 @@
+language: emacs-lisp
+sudo: false
+cache:
+  - directories:
+      - "$HOME/emacs/"
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
+env:
+  - EMACS_VERSION=25.1
+before_install:
+  - export PATH="$HOME/bin:$PATH"
+  - wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+  - make -f emacs-travis.mk install_emacs
+  - make -f emacs-travis.mk install_cask
+install:
+  - cask install
+script:
+  - cask build
+  - emacs -batch -l ert -L . -l test/lsp-mode-tests.el -l test/lsp-receive-tests.el -f ert-run-tests-batch-and-exit
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/3c80316cc2101deff8ce
+    on_success: change
+    on_failure: always
+    on_start: never
