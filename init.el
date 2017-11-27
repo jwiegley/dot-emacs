@@ -1180,6 +1180,11 @@
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
 
+(use-package crux
+  ;; jww (2017-11-26): Need to make use of these functions.
+  :disabled t
+  :load-path "site-lisp/crux")
+
 (use-package css-mode
   :mode "\\.css\\'"
   :defines css-syntax-propertize-function)
@@ -1849,6 +1854,13 @@
   :commands (git-link git-link-commit git-link-homepage)
   :load-path "site-lisp/git-link")
 
+(use-package git-modes
+  :load-path "site-lisp/git-modes"
+  :init
+  (use-package gitattributes-mode)
+  (use-package gitconfig-mode)
+  (use-package gitignore-mode))
+
 (use-package git-timemachine
   :load-path "site-lisp/git-timemachine"
   :commands git-timemachine)
@@ -2423,7 +2435,8 @@
          (0 (ignore
              (compose-region (match-beginning 1)
                              (match-end 1) ?λ))))
-        ("(\\|)" . 'esk-paren-face)
+        ;; For the moment I'm using rainbow-delimiters
+        ;; ("(\\|)" . 'esk-paren-face)
         ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
          (1 font-lock-keyword-face)
          (2 font-lock-function-name-face
@@ -2434,6 +2447,11 @@
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
+
+(use-package lsp-mode
+  ;; jww (2017-11-26): Need to install LSP for Haskell
+  :disabled t
+  :load-path "site-lisp/lsp-mode")
 
 (use-package lua-mode
   :load-path "site-lisp/lua-mode"
@@ -2758,6 +2776,7 @@
 
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
+  :after phi-search
   :bind (("C-. c"   . mc/edit-lines)
          ("C-'"     . mc/edit-lines)
          ("C->"     . mc/mark-next-like-this)
@@ -2917,6 +2936,12 @@
            (not running-development-emacs)
            (not noninteractive)))
 
+(use-package phi-search
+  :load-path "site-lisp/phi-search"
+  ;; When multiple-cursors is loaded, if this is loaded also then C-s and C-r
+  ;; will be bound to phi-search and phi-search-backward, which work with mc.
+  :after multiple-cursors)
+
 (use-package po-mode
   :mode "\\.\\(po\\'\\|po\\.\\)")
 
@@ -3057,6 +3082,12 @@
     (unbind-key "C-c c" python-mode-map))
 
   (add-hook 'python-mode-hook 'my-python-mode-hook))
+
+(use-package rainbow-delimiters
+  :load-path "site-lisp/rainbow-delimiters"
+  :commands rainbow-delimiters-mode
+  :init
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package rainbow-mode
   :commands rainbow-mode)
