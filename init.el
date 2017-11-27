@@ -222,6 +222,7 @@
 (use-package ghub             :defer t :load-path "lib/ghub")
 (use-package ghub+            :defer t :load-path "lib/ghub-plus")
 (use-package ht               :defer t :load-path "lib/ht-el")
+(use-package kv               :defer t :load-path "lib/kv")
 (use-package let-alist        :defer t :load-path "lib/let-alist")
 (use-package list-utils       :defer t :load-path "lib/list-utils")
 (use-package logito           :defer t :load-path "lib/logito")
