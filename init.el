@@ -170,6 +170,24 @@
 (use-package with-editor      :defer t :load-path "lib/with-editor")
 (use-package xml-rpc          :defer t)
 
+;;; Keymaps
+
+(defconst init-keymaps
+  '(("C-."   . my-ctrl-dot-map)
+    ("C-. =" . my-ctrl-dot-equals-map)
+    ("C-. f" . my-ctrl-dot-f-map)
+    ("C-. g" . my-ctrl-dot-g-map)
+    ("C-. h" . my-ctrl-dot-h-map)
+    ("C-. v" . my-ctrl-dot-v-map)
+    ("C-h e" . my-ctrl-h-e-map)
+    ("C-c e" . my-ctrl-c-e-map)
+    ("C-c m" . my-ctrl-c-m-map)
+    ("C-c y" . my-ctrl-c-y-map)))
+
+(mapc #'(lambda (entry)
+          (define-prefix-command (cdr entry))
+          (bind-key (car entry) (cdr entry))) init-keymaps)
+
 ;;; Packages
 
 (use-package abbrev
@@ -181,11 +199,9 @@
                    'prog-mode-hook
                    'erc-mode-hook
                    'LaTeX-mode-hook)
-
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file))
-
   (add-hook 'expand-load-hook
             (lambda ()
               (add-hook 'expand-expand-hook 'indent-according-to-mode)
@@ -206,6 +222,8 @@
   (lambda ()
     (mapcar
      #'(lambda (dir)
+         ;; The Emacs files for Agda are installed by Nix as part of the
+         ;; haskellPackages.Agda package.
          (file-name-directory
           (substring (shell-command-to-string
                       (concat dir "/bin/agda-mode locate")) 0 -1)))
@@ -216,6 +234,7 @@
   (set-input-method "Agda"))
 
 (use-package agda2-mode
+  :after agda-input
   :mode "\\.agda\\'"
   :defines agda2-mode-map
   :preface
@@ -324,11 +343,10 @@
   ;; `my-ctrl-c-y-map' isn't defined until after yasnippet has been
   ;; initialized below.
   (eval-after-load 'yasnippet
-    '(bind-keys
-      :map my-ctrl-c-y-map
-      ("a" . aya-create)
-      ("e" . aya-expand)
-      ("o" . aya-open-line))))
+    '(bind-keys :map my-ctrl-c-y-map
+                ("a" . aya-create)
+                ("e" . aya-expand)
+                ("o" . aya-open-line))))
 
 (use-package autorevert
   :commands auto-revert-mode
@@ -437,19 +455,21 @@
 
   (setq c-syntactic-indentation nil)
 
-  (bind-key "<" #'self-insert-command c++-mode-map)
-  (bind-key ">" #'self-insert-command c++-mode-map)
+  (bind-keys :map c++-mode-map
+             ("<" . self-insert-command)
+             (">" . self-insert-command))
 
-  (bind-key "#" #'self-insert-command c-mode-base-map)
-  (bind-key "{" #'self-insert-command c-mode-base-map)
-  (bind-key "}" #'self-insert-command c-mode-base-map)
-  (bind-key "/" #'self-insert-command c-mode-base-map)
-  (bind-key "*" #'self-insert-command c-mode-base-map)
-  (bind-key ";" #'self-insert-command c-mode-base-map)
-  (bind-key "," #'self-insert-command c-mode-base-map)
-  (bind-key ":" #'self-insert-command c-mode-base-map)
-  (bind-key "(" #'self-insert-command c-mode-base-map)
-  (bind-key ")" #'self-insert-command c-mode-base-map)
+  (bind-keys :map c-mode-base-map
+             ("#" . self-insert-command)
+             ("{" . self-insert-command)
+             ("}" . self-insert-command)
+             ("/" . self-insert-command)
+             ("*" . self-insert-command)
+             (";" . self-insert-command)
+             ("," . self-insert-command)
+             (":" . self-insert-command)
+             ("(" . self-insert-command)
+             (")" . self-insert-command))
 
   (add-to-list
    'c-style-alist
@@ -829,13 +849,12 @@
   :config
   (add-hook 'dired-mode-hook
             #'(lambda ()
-                (bind-keys
-                 :map dired-mode-map
-                 ("e"     . ora-ediff-files)
-                 ("l"     . dired-up-directory)
-                 ("Y"     . ora-dired-rsync)
-                 ("<tab>" . my-dired-switch-window)
-                 ("M-!"   . async-shell-command))
+                (bind-keys :map dired-mode-map
+                           ("e"     . ora-ediff-files)
+                           ("l"     . dired-up-directory)
+                           ("Y"     . ora-dired-rsync)
+                           ("<tab>" . my-dired-switch-window)
+                           ("M-!"   . async-shell-command))
                 (unbind-key "M-G" dired-mode-map)))
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
@@ -1040,20 +1059,17 @@
 
 (use-package ediff
   :config
-  (bind-keys
-   :prefix-map my-ctrl-dot-equal-map
-   :prefix "C-. ="
-   ("b" . ediff-buffers)
-   ("B" . ediff-buffers3)
-   ("c" . compare-windows)
-   ("=" . ediff-files)
-   ("f" . ediff-files)
-   ("F" . ediff-files3)
-   ("r" . ediff-revision)
-   ("p" . ediff-patch-file)
-   ("P" . ediff-patch-buffer)
-   ("l" . ediff-regions-linewise)
-   ("w" . ediff-regions-wordwise)))
+  (bind-keys ("C-. = b" . ediff-buffers)
+             ("C-. = B" . ediff-buffers3)
+             ("C-. = c" . compare-windows)
+             ("C-. = =" . ediff-files)
+             ("C-. = f" . ediff-files)
+             ("C-. = F" . ediff-files3)
+             ("C-. = r" . ediff-revision)
+             ("C-. = p" . ediff-patch-file)
+             ("C-. = P" . ediff-patch-buffer)
+             ("C-. = l" . ediff-regions-linewise)
+             ("C-. = w" . ediff-regions-wordwise)))
 
 (use-package ediff-keep
   :after ediff)
@@ -1316,8 +1332,9 @@
   :after haskell-mode
   :config
   (flycheck-haskell-setup)
-  (bind-key "M-n" #'flycheck-next-error haskell-mode-map)
-  (bind-key "M-p" #'flycheck-previous-error haskell-mode-map))
+  (bind-keys :map haskell-mode-map
+             ("M-n" . flycheck-next-error)
+             ("M-p" . flycheck-previous-error)))
 
 (use-package flycheck-hdevtools
   :disabled t
@@ -1443,11 +1460,10 @@
           (switch-to-buffer-other-window gud-buf)
         (call-interactively 'gud-gdb))))
   :config
-  (progn
-    (bind-key "<f9>" #'gud-cont)
-    (bind-key "<f10>" #'gud-next)
-    (bind-key "<f11>" #'gud-step)
-    (bind-key "S-<f11>" #'gud-finish)))
+  (bind-keys ("<f9>"    . gud-cont)
+             ("<f10>"   . gud-next)
+             ("<f11>"   . gud-step)
+             ("S-<f11>" . gud-finish)))
 
 (use-package haskell-edit
   :load-path "lisp/haskell-config"
@@ -1535,13 +1551,11 @@
   (unbind-key "M-s" haskell-mode-map)
   (unbind-key "M-t" haskell-mode-map)
 
-  (bind-keys
-   :map haskell-mode-map
-   ("C-c C-h" . my-haskell-hoogle)
-   ("C-c C-," . haskell-navigate-imports)
-   ("C-c C-." . haskell-mode-format-imports)
-   ("C-c C-u" . (lambda () (interactive)
-                  (insert "undefined"))))
+  (bind-keys :map haskell-mode-map
+             ("C-c C-h" . my-haskell-hoogle)
+             ("C-c C-," . haskell-navigate-imports)
+             ("C-c C-." . haskell-mode-format-imports)
+             ("C-c C-u" . (lambda () (interactive) (insert "undefined"))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -1575,12 +1589,11 @@
     :config
     (helm-autoresize-mode 1))
   (use-package helm-multi-match)
-  (bind-keys
-   :map helm-map
-   ("<tab>" . helm-execute-persistent-action)
-   ("C-i"   . helm-execute-persistent-action)
-   ("C-z"   . helm-select-action)
-   ("A-v"   . helm-previous-page)))
+  (bind-keys :map helm-map
+             ("<tab>" . helm-execute-persistent-action)
+             ("C-i"   . helm-execute-persistent-action)
+             ("C-z"   . helm-select-action)
+             ("A-v"   . helm-previous-page)))
 
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
@@ -1617,11 +1630,8 @@
   :commands (hlt-highlight-region
              hlt-unhighlight-region)
   :init
-  (bind-keys
-   :prefix-map my-ctrl-dot-h-map
-   :prefix "C-. h"
-   ("h" . hlt-highlight-region)
-   ("u" . hlt-unhighlight-region)))
+  (bind-keys ("C-. h h" . hlt-highlight-region)
+             ("C-. h u" . hlt-unhighlight-region)))
 
 (use-package highlight-cl
   :init
@@ -1709,10 +1719,7 @@
         (call-interactively #'paredit-newline))))
 
   (add-hook 'ielm-mode-hook
-            (function
-             (lambda ()
-               (bind-key "<return>" #'my-ielm-return ielm-map)))
-            t))
+            #'(lambda () (bind-key "<return>" #'my-ielm-return ielm-map)) t))
 
 (use-package iflipb
   :load-path "site-lisp/iflipb"
@@ -1810,10 +1817,11 @@
     (call-interactively 'isearch-forward))
 
   :config
-  (bind-key "C-c" #'isearch-toggle-case-fold isearch-mode-map)
-  (bind-key "C-t" #'isearch-toggle-regexp isearch-mode-map)
-  (bind-key "C-^" #'isearch-edit-string isearch-mode-map)
-  (bind-key "C-i" #'isearch-complete isearch-mode-map))
+  (bind-keys :map isearch-mode-map
+             ("C-c" . isearch-toggle-case-fold)
+             ("C-t" . isearch-toggle-regexp)
+             ("C-^" . isearch-edit-string)
+             ("C-i" . isearch-complete)))
 
 (use-package ispell
   :bind (("C-c i c" . ispell-comments-and-strings)
@@ -1843,8 +1851,9 @@
 
   (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
 
-  (bind-key "C-r" #'ivy-previous-line-or-history ivy-minibuffer-map)
-  (bind-key "M-r" #'ivy-reverse-i-search ivy-minibuffer-map))
+  (bind-keys :map ivy-minibuffer-map
+             ("C-r" . ivy-previous-line-or-history)
+             ("M-r" . ivy-reverse-i-search)))
 
 (use-package ivy-hydra
   :after (ivy hydra)
@@ -1872,8 +1881,9 @@
   (flycheck-add-mode 'javascript-eslint 'js2-mode)
   (flycheck-mode 1)
 
-  (bind-key "M-n" #'flycheck-next-error js2-mode-map)
-  (bind-key "M-p" #'flycheck-previous-error js2-mode-map))
+  (bind-keys :map js2-mode-map
+             ("M-n" . flycheck-next-error)
+             ("M-p" . flycheck-previous-error)))
 
 (use-package json-mode
   :load-path "site-lisp/json-mode"
@@ -2325,8 +2335,8 @@
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multifiles
-  :bind ("C-c m f" . mf/mirror-region-in-multifile)
-  :load-path "site-lisp/multifiles-el")
+  :load-path "site-lisp/multifiles-el"
+  :bind ("C-c m f" . mf/mirror-region-in-multifile))
 
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
@@ -2448,22 +2458,21 @@
             #'(lambda ()
                 (unbind-key "M-r" paredit-mode-map)
                 (unbind-key "M-s" paredit-mode-map)))
-  (bind-keys
-   :map paredit-mode-map
-   (")"     . paredit-close-round-and-newline)
-   ("M-)"   . paredit-close-round)
-   ("M-k"   . paredit-raise-sexp)
-   ("M-I"   . paredit-splice-sexp)
-   ("C-M-l" . paredit-recentre-on-sexp)
+  (bind-keys :map paredit-mode-map
+             (")"     . paredit-close-round-and-newline)
+             ("M-)"   . paredit-close-round)
+             ("M-k"   . paredit-raise-sexp)
+             ("M-I"   . paredit-splice-sexp)
+             ("C-M-l" . paredit-recentre-on-sexp)
 
-   ("C-. D" . paredit-forward-down)
-   ("C-. B" . paredit-splice-sexp-killing-backward)
-   ("C-. C" . paredit-convolute-sexp)
-   ("C-. F" . paredit-splice-sexp-killing-forward)
-   ("C-. a" . paredit-add-to-next-list)
-   ("C-. A" . paredit-add-to-previous-list)
-   ("C-. j" . paredit-join-with-next-list)
-   ("C-. J" . paredit-join-with-previous-list)))
+             ("C-. D" . paredit-forward-down)
+             ("C-. B" . paredit-splice-sexp-killing-backward)
+             ("C-. C" . paredit-convolute-sexp)
+             ("C-. F" . paredit-splice-sexp-killing-forward)
+             ("C-. a" . paredit-add-to-next-list)
+             ("C-. A" . paredit-add-to-previous-list)
+             ("C-. j" . paredit-join-with-next-list)
+             ("C-. J" . paredit-join-with-previous-list)))
 
 (use-package paredit-ext
   :after paredit)
@@ -2555,45 +2564,31 @@
 
              ("C-c M-q" . unfill-paragraph))
 
-  (bind-keys :prefix-map my-ctrl-h-e-map
-             :prefix "C-h e"
-             ("e" . view-echo-area-messages)
-             ("f" . find-function)
-             ("k" . find-function-on-key)
-             ("l" . find-library)
-             ("P" . check-papers)
-             ("s" . scratch)
-             ("v" . find-variable)
-             ("V" . apropos-value))
+  (bind-keys ("C-h e e" . view-echo-area-messages)
+             ("C-h e f" . find-function)
+             ("C-h e k" . find-function-on-key)
+             ("C-h e l" . find-library)
+             ("C-h e P" . check-papers)
+             ("C-h e s" . scratch)
+             ("C-h e v" . find-variable)
+             ("C-h e V" . apropos-value))
 
-  (bind-keys :prefix-map my-ctrl-c-e-map
-             :prefix "C-c e"
-             ("E" . elint-current-buffer)
-             ("b" . do-eval-buffer)
-             ("c" . cancel-debug-on-entry)
-             ("d" . debug-on-entry)
-             ("e" . toggle-debug-on-error)
-             ("f" . emacs-lisp-byte-compile-and-load)
-             ("i" . crux-find-user-init-file)
-             ("j" . emacs-lisp-mode)
-             ("l" . counsel-find-library)
-             ("r" . do-eval-region)
-             ("s" . scratch)
-             ("u" . counsel-unicode-char)
-             ("z" . byte-recompile-directory))
+  (bind-keys ("C-c e E" . elint-current-buffer)
+             ("C-c e b" . do-eval-buffer)
+             ("C-c e c" . cancel-debug-on-entry)
+             ("C-c e d" . debug-on-entry)
+             ("C-c e e" . toggle-debug-on-error)
+             ("C-c e f" . emacs-lisp-byte-compile-and-load)
+             ("C-c e i" . crux-find-user-init-file)
+             ("C-c e j" . emacs-lisp-mode)
+             ("C-c e l" . counsel-find-library)
+             ("C-c e r" . do-eval-region)
+             ("C-c e s" . scratch)
+             ("C-c e u" . counsel-unicode-char)
+             ("C-c e z" . byte-recompile-directory))
 
-  (bind-keys :prefix-map my-ctrl-c-m-map
-             :prefix "C-c m"
-             ("k" . kmacro-keymap)
-             ("m" . emacs-toggle-size))
-
-  (bind-keys :prefix-map my-ctrl-dot-map
-             :prefix "C-."
-             ("?" . help))
-
-  (bind-keys :prefix-map my-ctrl-dot-g-map
-             :prefix "C-. g"
-             ("d" . show-debugger)))
+  (bind-keys ("C-c m k" . kmacro-keymap)
+             ("C-c m m" . emacs-toggle-size)))
 
 (use-package phi-search
   :load-path "site-lisp/phi-search"
@@ -2667,21 +2662,20 @@
                               (memq 'font-lock-comment-face x)))) nil)
                 (_ t))))))
 
-    (bind-key "M-RET" #'proof-goto-point coq-mode-map)
-    (bind-key "RET" #'newline-and-indent coq-mode-map)
-    (bind-key "C-c C-p"
-              #'(lambda ()
-                  (interactive)
-                  (proof-layout-windows)
-                  (proof-prf)) coq-mode-map)
-
     (defalias 'coq-Search #'coq-SearchConstant)
     (defalias 'coq-SearchPattern #'coq-SearchIsos)
 
-    (bind-key "C-c C-a C-s" #'coq-Search coq-mode-map)
-    (bind-key "C-c C-a C-o" #'coq-SearchPattern coq-mode-map)
-    (bind-key "C-c C-a C-a" #'coq-SearchAbout coq-mode-map)
-    (bind-key "C-c C-a C-r" #'coq-SearchRewrite coq-mode-map)
+    (bind-keys :map coq-mode-map
+               ("M-RET"       . proof-goto-point)
+               ("RET"         . newline-and-indent)
+               ("C-c C-p"     . (lambda ()
+                                  (interactive)
+                                  (proof-layout-windows)
+                                  (proof-prf)))
+               ("C-c C-a C-s" . coq-Search)
+               ("C-c C-a C-o" . coq-SearchPattern)
+               ("C-c C-a C-a" . coq-SearchAbout)
+               ("C-c C-a C-r" . coq-SearchRewrite))
 
     (unbind-key "C-c h" coq-mode-map))
 
@@ -2809,14 +2803,14 @@
   :diminish selected-minor-mode
   :config
   (selected-global-mode 1)
-
-  (bind-key "[" #'align-regexp selected-keymap)
-  (bind-key "f" #'fill-region selected-keymap)
-  (bind-key "U" #'unfill-region selected-keymap)
-  (bind-key "d" #'downcase-region selected-keymap)
-  (bind-key "r" #'reverse-region selected-keymap)
-  (bind-key "s" #'sort-lines selected-keymap)
-  (bind-key "u" #'upcase-region selected-keymap))
+  (bind-keys :map selected-keymap
+             ("[" . align-regexp)
+             ("f" . fill-region)
+             ("U" . unfill-region)
+             ("d" . downcase-region)
+             ("r" . reverse-region)
+             ("s" . sort-lines)
+             ("u" . upcase-region)))
 
 (use-package session
   :if (not noninteractive)
@@ -2955,12 +2949,12 @@
   (require 'sunrise-x-tree)
   (require 'sunrise-x-tabs)
 
-  (bind-key "/" #'sr-sticky-isearch-forward sr-mode-map)
-  (bind-key "<backspace>" #'sr-scroll-quick-view-down sr-mode-map)
-  (bind-key "C-x t" #'sr-toggle-truncate-lines sr-mode-map)
-
-  (bind-key "q" #'sr-history-prev sr-mode-map)
-  (bind-key "z" #'sr-quit sr-mode-map)
+  (bind-keys :map sr-mode-map
+             ("/"     . sr-sticky-isearch-forward)
+             ("q"     . sr-history-prev)
+             ("z"     . sr-quit)
+             ("C-x t" . sr-toggle-truncate-lines)
+             ("<backspace>" . sr-scroll-quick-view-down))
 
   (unbind-key "C-e" sr-mode-map)
   (unbind-key "C-p" sr-tabs-mode-map)
@@ -3017,12 +3011,11 @@
   :init
   (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
   :config
-  (bind-keys
-   :map swiper-map
-   ("M-y" . yank)
-   ("M-%" . swiper-query-replace)
-   ("M-h" . swiper-avy)
-   ("M-c" . swiper-mc)))
+  (bind-keys :map swiper-map
+             ("M-y" . yank)
+             ("M-%" . swiper-query-replace)
+             ("M-h" . swiper-avy)
+             ("M-c" . swiper-mc)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
@@ -3104,12 +3097,9 @@
              vimish-fold-delete
              vimish-fold-delete-all)
   :init
-  (bind-keys
-   :prefix-map my-ctrl-dot-f-map
-   :prefix "C-. f"
-   ("f" . vimish-fold)
-   ("d" . vimish-fold-delete)
-   ("D" . vimish-fold-delete-all)))
+  (bind-keys ("C-. f f" . vimish-fold)
+             ("C-. f d" . vimish-fold-delete)
+             ("C-. f D" . vimish-fold-delete-all)))
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
@@ -3119,11 +3109,8 @@
          ("C-c %" . vr/query-replace)
          ("C-c C->" . vr/mc-mark))
   :init
-  (bind-keys
-   :prefix-map my-ctrl-dot-v-map
-   :prefix "C-. v"
-   ("r" . vr/replace)
-   ("%" . vr/query-replace)))
+  (bind-keys ("C-. v r" . vr/replace)
+             ("C-. v %" . vr/query-replace)))
 
 (use-package visual-regexp-steroids
   :disabled t
@@ -3267,19 +3254,16 @@
   :defines (yas--guessed-modes)
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :init
-  (bind-keys
-   :prefix-map my-ctrl-c-y-map
-   :prefix "C-c y"
-   ("d" . yas-load-directory)
-   ("i" . yas-insert-snippet)
-   ("f" . yas-visit-snippet-file)
-   ("n" . yas-new-snippet)
-   ("t" . yas-tryout-snippet)
-   ("l" . yas-describe-tables)
-   ("g" . yas/global-mode)
-   ("m" . yas/minor-mode)
-   ("a" . yas-reload-all)
-   ("x" . yas-expand))
+  (bind-keys ("C-c y d" . yas-load-directory)
+             ("C-c y i" . yas-insert-snippet)
+             ("C-c y f" . yas-visit-snippet-file)
+             ("C-c y n" . yas-new-snippet)
+             ("C-c y t" . yas-tryout-snippet)
+             ("C-c y l" . yas-describe-tables)
+             ("C-c y g" . yas/global-mode)
+             ("C-c y m" . yas/minor-mode)
+             ("C-c y a" . yas-reload-all)
+             ("C-c y x" . yas-expand))
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
