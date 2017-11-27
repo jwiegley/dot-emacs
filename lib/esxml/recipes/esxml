@@ -1,0 +1,5 @@
+(esxml
+ :version "0.3.0"
+ :doc "Handle HTML with lists."
+ :requires ((db "0.0.1"))
+ :files ("esxml.el" "esxml-html.el" "esxml-form.el" "esxml-query.el"))
