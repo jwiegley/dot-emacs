@@ -1307,7 +1307,6 @@ non-empty directories is allowed."
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
-  :custom (eyebrowse-keymap-prefix (kbd "C-\\"))
   :config
   (eyebrowse-mode)
   (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
@@ -1850,8 +1849,6 @@ non-empty directories is allowed."
   :bind (:map ivy-minibuffer-map
               ("C-r" . ivy-previous-line-or-history)
               ("M-r" . ivy-reverse-i-search))
-  :custom ((ivy-initial-inputs-alist nil)
-           (ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
   :init
   (defun my-ivy-completing-read (&rest args)
     (let ((ivy-sort-functions-alist '((t . nil))))
@@ -3296,10 +3293,7 @@ non-empty directories is allowed."
 
 (use-package yasnippet-snippets
   :load-path "site-lisp/yasnippet-snippets"
-  :after yasnippet
-  :demand t
-  :custom (yas-installed-snippets-dir
-           "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
+  :after yasnippet)
 
 (use-package z3-mode
   :load-path "site-lisp/z3-mode"
@@ -3324,8 +3318,7 @@ non-empty directories is allowed."
   :preface
   (defun size-callback ()
     (cond ((> (frame-pixel-width) 1280) '(90 . 0.75))
-          (t '(0.5 . 0.5))))
-  :custom (zoom-size 'size-callback))
+          (t '(0.5 . 0.5)))))
 
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
