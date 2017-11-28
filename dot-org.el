@@ -600,7 +600,6 @@ end tell" (match-string 1))))
           ',org-agenda-sym-no-logging)))))
 
 (bind-keys :map org-mode-map
-           ("C-c x b" (lambda (bug) (error "Define bug syntax!")))
            ("C-c x l" . org-insert-dtp-link)
            ("C-c x L" . org-set-dtp-link)
            ("C-c x m" . org-insert-message-link)
@@ -848,6 +847,7 @@ end tell" (match-string 1))))
   :load-path "site-lisp/org-bookmark-heading")
 
 (use-package org-magit
+  :disabled t
   :load-path "site-lisp/org-magit")
 
 (use-package org-opml
@@ -902,6 +902,7 @@ end tell" (match-string 1))))
   :preface
   (defun my-org-insert-url (&optional arg)
     (interactive "P")
+    (require 'org-web-tools)
     (let ((link (org-web-tools--org-link-for-url
                  (org-web-tools--get-first-url))))
       (if arg
