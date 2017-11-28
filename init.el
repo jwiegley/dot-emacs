@@ -1677,9 +1677,6 @@ non-empty directories is allowed."
   :bind* (("M-."   . hkey-either)
           ("M-RET" . hkey-operate))
   :config
-  (use-package kotl-mode
-    :load-path "site-lisp/hyperbole/kotl")
-
   (defact visit-haskell-definition ()
     "Go to the definition of a symbol in Haskell."
     (interactive)
@@ -1900,6 +1897,10 @@ non-empty directories is allowed."
 (use-package json-snatcher
   :load-path "site-lisp/json-snatcher"
   :after json-mode)
+
+(use-package kotl-mode
+  :load-path "site-lisp/hyperbole/kotl"
+  :mode "\\.kotl\\'")
 
 (use-package ledger-mode
   :load-path "~/src/ledger/lisp"
