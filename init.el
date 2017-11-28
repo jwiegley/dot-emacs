@@ -1449,7 +1449,7 @@ non-empty directories is allowed."
 
 (use-package google-this
   :load-path "site-lisp/google-this"
-  :bind-keymap ("C-c /" . google-this-mode-submap))
+  :bind-keymap ("C-. /" . google-this-mode-submap))
 
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
