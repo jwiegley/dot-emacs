@@ -743,7 +743,7 @@
 
 (use-package deft
   :load-path "site-lisp/deft"
-  :commands deft)
+  :bind ("C-. C-," . deft))
 
 (use-package diff-hl
   :load-path "site-lisp/diff-hl"
