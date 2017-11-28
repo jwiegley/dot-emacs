@@ -897,6 +897,9 @@ end tell" (match-string 1))))
   :config
   (org-super-agenda-mode))
 
+(use-package org-velocity
+  :bind ("C-. C-." . org-velocity))
+
 (use-package org-web-tools
   :load-path "site-lisp/org-web-tools"
   :bind ("C-. C-y" . my-org-insert-url)
