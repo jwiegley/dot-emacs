@@ -694,7 +694,8 @@
   :after ivy
   :demand t
   :diminish counsel-mode
-  :bind (("M-x"     . counsel-M-x)
+  :bind (("C-*"     . counsel-org-agenda-headlines)
+         ("M-x"     . counsel-M-x)
          ("C-s"     . counsel-grep-or-swiper)
          ("C-h f"   . counsel-describe-function)
          ("C-h v"   . counsel-describe-variable))
