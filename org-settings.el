@@ -15,9 +15,9 @@
         (nth 4 xs)
         (nth 3 xs)
         (nth 5 xs)))))
- '(deft-auto-save-interval 0.0)
  '(deft-directory "~/doc/notes")
  '(deft-text-mode (quote org-mode))
+ '(deft-use-filename-as-title t)
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-adapt-indentation nil)
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
@@ -372,11 +372,12 @@ SCHEDULED: %t
       "* NOTE %:search
 %i%?
 :PROPERTIES:
-:ID:       %(shell-command-to-string \\\"uuidgen\\\"):CREATED:  %U
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t))))
- '(org-velocity-exit-on-match t)
+ '(org-velocity-exit-on-match nil)
  '(org-velocity-force-new t)
  '(org-velocity-search-method (quote regexp))
+ '(org-velocity-use-completion t)
  '(org-x-backends (quote (ox-org ox-redmine)))
  '(org-x-redmine-title-prefix-function (quote org-x-redmine-title-prefix))
  '(org-x-redmine-title-prefix-match-function (quote org-x-redmine-title-prefix-match)))
