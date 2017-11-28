@@ -300,4 +300,5 @@ yasnippet-snippets,site-lisp,subtree,git://github.com/AndreaCrotti/yasnippet-sni
 z3-mode,site-lisp,subtree,git://github.com/zv/z3-mode.git,
 zencoding-mode,site-lisp,subtree,git://github.com/rooney/zencoding.git,
 zoom,site-lisp,subtree,git://github.com/cyrus-and/zoom.git,
+zoutline,lib,subtree,git@github.com:abo-abo/zoutline.git,
 ztree,site-lisp,subtree,git://github.com/fourier/ztree.git,
