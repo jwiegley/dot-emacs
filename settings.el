@@ -1152,6 +1152,7 @@
  '(workgroups-mode nil)
  '(x-stretch-cursor t)
  '(yaoddmuse-directory "~/.emacs.d/doc")
+ '(yas-installed-snippets-dir "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/" t)
  '(yas-prompt-functions
    (quote
     (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
@@ -1160,7 +1161,7 @@
  '(z3-solver-cmd "z3")
  '(zencoding-indentation 2)
  '(zencoding-preview-default nil)
- '(zoom-size (quote size-callback)))
+ '(zoom-size (quote size-callback) t))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

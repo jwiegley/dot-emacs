@@ -691,6 +691,7 @@
   (setq copy-as-format-default "github"))
 
 (use-package counsel
+  :load-path "site-lisp/swiper"
   :after ivy
   :demand t
   :diminish counsel-mode
@@ -1086,7 +1087,9 @@ non-empty directories is allowed."
   :commands edit-env)
 
 (use-package edit-indirect
-  :bind ("C-c C" . edit-indirect-region))
+  :load-path "site-lisp/edit-indirect"
+  :bind (("C-c '" . edit-indirect-region)
+         ("C-c C" . edit-indirect-region)))
 
 (use-package edit-rectangle
   :bind ("C-. r" . edit-rectangle))
@@ -1673,6 +1676,7 @@ non-empty directories is allowed."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
+  :disabled t
   :load-path "site-lisp/hyperbole"
   :defer 10
   :bind* (("M-."   . hkey-either)
@@ -2026,7 +2030,9 @@ non-empty directories is allowed."
   :bind (:map emacs-lisp-mode-map
               ("C-c C-j" . lispy-goto))
   :init
-  (add-hook 'emacs-lisp-mode-hook #'lispy-mode))
+  (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
+  (add-hook 'lispy-mode-hook
+            #'(lambda () (unbind-key "M-j" lispy-mode-map))))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
