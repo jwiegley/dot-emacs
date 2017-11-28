@@ -2596,10 +2596,7 @@ non-empty directories is allowed."
              ("C-c m m" . emacs-toggle-size)))
 
 (use-package phi-search
-  :load-path "site-lisp/phi-search"
-  ;; When multiple-cursors is loaded, if this is loaded also then C-s and C-r
-  ;; will be bound to phi-search and phi-search-backward, which work with mc.
-  :after multiple-cursors)
+  :load-path "site-lisp/phi-search")
 
 (use-package po-mode
   :mode "\\.\\(po\\'\\|po\\.\\)")
