@@ -10,6 +10,7 @@
 /projectile-bookmarks.eld
 /projectile.cache
 /release*
+/server/
 /site-lisp/auctex/Makefile
 /site-lisp/auctex/config.log
 /site-lisp/auctex/config.status
