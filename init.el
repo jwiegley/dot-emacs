@@ -135,6 +135,7 @@
 (use-package emojify          :defer t :load-path "lib/emacs-emojify")
 (use-package epc              :defer t :load-path "lib/emacs-epc")
 (use-package epl              :defer t :load-path "lib/epl")
+(use-package esxml            :defer t :load-path "lib/esxml")
 (use-package f                :defer t :load-path "lib/f-el")
 (use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
 (use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
@@ -2376,6 +2377,10 @@ non-empty directories is allowed."
 (use-package nix-mode
   :load-path "site-lisp/nix-mode"
   :mode "\\.nix\\'")
+
+(use-package nov
+  :load-path "site-lisp/nov-el"
+  :mode ("\\.epub\\'" . nov-mode))
 
 (use-package nroff-mode
   :commands nroff-mode
