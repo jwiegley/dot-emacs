@@ -1861,6 +1861,7 @@ non-empty directories is allowed."
   :demand t)
 
 (use-package ivy-rich
+  :disabled t
   :load-path "site-lisp/ivy-rich"
   :demand t
   :after ivy
