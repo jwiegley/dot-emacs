@@ -131,6 +131,7 @@ github-pullrequest,site-lisp,subtree,git://github.com/jakoblind/github-pullreque
 gitpatch,site-lisp,subtree,git://github.com/tumashu/gitpatch.git,
 gnus-alias.el,site-lisp,file,https://www.emacswiki.org/emacs/download/gnus-alias.el,
 gnus-harvest,lisp,subtree,git://github.com/jwiegley/gnus-harvest.git,
+google-this,site-lisp,subtree,git@github.com:Malabarba/emacs-google-this.git,
 graphviz-dot-mode,site-lisp,subtree,git://github.com/ppareit/graphviz-dot-mode.git,
 haskell-config,lisp,submodule,git://github.com/jwiegley/haskell-config,
 haskell-mode,site-lisp,subtree,git://github.com/haskell/haskell-mode.git,

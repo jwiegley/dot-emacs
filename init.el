@@ -1446,6 +1446,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/gitpatch"
   :commands gitpatch-mail)
 
+(use-package google-this
+  :load-path "site-lisp/google-this"
+  :bind-keymap ("C-c /" . google-this-mode-submap))
+
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
 
