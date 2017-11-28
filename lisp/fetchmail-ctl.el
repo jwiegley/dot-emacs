@@ -77,7 +77,8 @@
   (safely-kill-process "*fetchmail*")
   (safely-kill-process "*fetchmail-lists*")
   ;; (safely-kill-process "*fetchmail-spam*")
-  (safely-kill-process "*fetchnews*"))
+  ;; (safely-kill-process "*fetchnews*")
+  )
 
 (defun kick-fetchmail ()
   (interactive)
@@ -135,27 +136,27 @@
         ;;        (start-fetchmail "*fetchmail-spam*" t
         ;;                         "-f" (expand-file-name
         ;;                               "~/Messages/fetchmailrc.spam")))))))
-        (fetchnews-buf
-         (get-buffer-or-call-func
-          "*fetchnews*"
-          (function
-           (lambda ()
-             (start-process "*fetchnews*"
-                            (get-buffer-create "*fetchnews*")
-                            (executable-find "fetchnews")
-                            "-d" (expand-file-name "~/Messages/Newsdir")
-                            "-F" (expand-file-name "~/Messages/leafnode/config")
-                            "-vvv" "-n")))))
-        (cur-buf (current-buffer)))
+        ;; (fetchnews-buf
+        ;;  (get-buffer-or-call-func
+        ;;   "*fetchnews*"
+        ;;   (function
+        ;;    (lambda ()
+        ;;      (start-process "*fetchnews*"
+        ;;                     (get-buffer-create "*fetchnews*")
+        ;;                     (executable-find "fetchnews")
+        ;;                     "-d" (expand-file-name "~/Messages/Newsdir")
+        ;;                     "-F" (expand-file-name "~/Messages/leafnode/config")
+        ;;                     "-vvv" "-n")))))
+        )
     (display-buffer fetchmail-buf)))
 
 (add-hook 'gnus-after-exiting-gnus-hook 'shutdown-fetchmail)
 
-(defun fetchnews-post ()
-  (interactive)
-  (async-shell-command
-   (format "fetchnews -F %s -vv -n -P"
-           (expand-file-name "~/Messages/leafnode/config"))))
+;; (defun fetchnews-post ()
+;;   (interactive)
+;;   (async-shell-command
+;;    (format "fetchnews -F %s -vv -n -P"
+;;            (expand-file-name "~/Messages/leafnode/config"))))
 
 (provide 'fetchmail-ctl)
 

@@ -48,10 +48,10 @@
   :after gnus-group
   :config
   (bind-key "v b" #'switch-to-fetchmail gnus-group-mode-map)
-  (bind-key "v o" #'start-fetchmail gnus-group-mode-map)
   (bind-key "v d" #'shutdown-fetchmail gnus-group-mode-map)
   (bind-key "v k" #'kick-fetchmail gnus-group-mode-map)
-  (bind-key "v p" #'fetchnews-post gnus-group-mode-map))
+  ;; (bind-key "v p" #'fetchnews-post gnus-group-mode-map)
+  )
 
 (use-package gnus-sum
   :bind (:map gnus-summary-mode-map
