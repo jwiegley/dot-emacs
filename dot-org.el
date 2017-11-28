@@ -571,14 +571,15 @@ end tell" (match-string 1))))
         (defun ,org-sym ()
           (interactive)
           (org-todo ,label))
-        (bind-key (concat "C-c x " (char-to-string ,key)) ',org-sym)
+        (bind-key (concat "C-c x " (char-to-string ,key)) ',org-sym
+                  org-mode-map)
 
         (defun ,org-sym-no-logging ()
           (interactive)
           (let ((org-inhibit-logging t))
             (org-todo ,label)))
         (bind-key (concat "C-c x " (char-to-string  ,(upcase key)))
-                  ',org-sym-no-logging)
+                  ',org-sym-no-logging org-mode-map)
 
         (defun ,org-agenda-sym ()
           (interactive)
@@ -598,49 +599,44 @@ end tell" (match-string 1))))
         (define-key org-todo-state-map [,(upcase key)]
           ',org-agenda-sym-no-logging)))))
 
-(bind-key "C-c x b"
-          (lambda (bug) (error "Define bug syntax!")
-            ;; (interactive "sBug: ")
-            ;; (insert (format "[[project:%s][#%s]]" bug bug))
-            ))
-(bind-key "C-c x l" 'org-insert-dtp-link)
-(bind-key "C-c x L" 'org-set-dtp-link)
-(bind-key "C-c x m" 'org-insert-message-link)
-(bind-key "C-c x M" 'org-set-message-link)
-(bind-key "C-c x u" 'org-insert-url-link)
-(bind-key "C-c x U" 'org-set-url-link)
-(bind-key "C-c x f" 'org-insert-file-link)
-(bind-key "C-c x F" 'org-set-file-link)
+(bind-keys :map org-mode-map
+           ("C-c x b" (lambda (bug) (error "Define bug syntax!")))
+           ("C-c x l" . org-insert-dtp-link)
+           ("C-c x L" . org-set-dtp-link)
+           ("C-c x m" . org-insert-message-link)
+           ("C-c x M" . org-set-message-link)
+           ("C-c x u" . org-insert-url-link)
+           ("C-c x U" . org-set-url-link)
+           ("C-c x f" . org-insert-file-link)
+           ("C-c x F" . org-set-file-link)
 
-(org-defkey org-mode-map [(control meta return)]
-            'org-insert-heading-after-current)
-(org-defkey org-mode-map [(control return)] 'other-window)
-(org-defkey org-mode-map [return] 'org-return-indent)
-(org-defkey org-mode-map [(control ?c) (control ?x) ?@] 'visible-mode)
-(org-defkey org-mode-map [(control ?c) (meta ?m)] 'my-org-wrap-region)
+           ("C-c C-x @" . visible-mode)
+           ("C-c m"     . my-org-wrap-region)
+
+           ([return]                . org-return-indent)
+           ([(control return)]      . other-window)
+           ([(control meta return)] . org-insert-heading-after-current))
 
 (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
 ;;;_  . org-agenda-mode
 
-(let ((map org-agenda-mode-map))
-  (define-key map "\C-n" 'next-line)
-  (define-key map "\C-p" 'previous-line)
+(bind-keys :map org-agenda-mode-map
+           ("C-n" . next-line)
+           ("C-p" . previous-line)
+           ("M-n" . org-agenda-later)
+           ("M-p" . org-agenda-earlier)
+           (" "   . org-agenda-tree-to-indirect-buffer)
+           (">" . org-agenda-filter-by-top-headline)
+           ("g"   . org-agenda-redo)
+           ("f"   . org-agenda-date-later)
+           ("b"   . org-agenda-date-earlier)
+           ("r"   . org-agenda-refile)
+           ("F"   . org-agenda-follow-mode)
+           ("q"   . delete-window)
+           ("x"   . org-todo-state-map))
 
-  (define-key map "g" 'org-agenda-redo)
-  (define-key map "f" 'org-agenda-date-later)
-  (define-key map "b" 'org-agenda-date-earlier)
-  (define-key map "r" 'org-agenda-refile)
-  (define-key map " " 'org-agenda-tree-to-indirect-buffer)
-  (define-key map "F" 'org-agenda-follow-mode)
-  (define-key map "q" 'delete-window)
-  (define-key map [(meta ?p)] 'org-agenda-earlier)
-  (define-key map [(meta ?n)] 'org-agenda-later)
-  (define-key map "x" 'org-todo-state-map)
-
-  (define-key map ">" 'org-agenda-filter-by-top-headline)
-
-  (define-key org-todo-state-map "z" 'make-bug-link))
+(bind-key "z" #'make-bug-link org-todo-state-map)
 
 (unbind-key "M-m" org-agenda-keymap)
 
