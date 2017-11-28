@@ -2364,7 +2364,8 @@ non-empty directories is allowed."
 
 (use-package navi
   :load-path "site-lisp/navi"
-  :after outshine)
+  :after outshine
+  :bind ("M-s n" . navi-search-and-switch))
 
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
