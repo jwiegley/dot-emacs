@@ -1,0 +1,10 @@
+(custom-set-variables
+ '(inhibit-startup-screen t)
+ '(scroll-bar-mode nil)
+ '(show-paren-mode t)
+ '(tool-bar-mode nil)
+ '(indent-tabs-mode nil))
+(require 'worf)
+(add-hook 'org-mode-hook (lambda () (worf-mode 1)))
+(require 'swiper)
+(ivy-mode)
