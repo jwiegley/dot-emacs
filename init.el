@@ -2121,14 +2121,14 @@ non-empty directories is allowed."
   (defun my-write-file (filename &optional confirm)
     (interactive
      (list (if buffer-file-name
-	       (lusty-read-file-name "Write file: "
-			             nil nil nil nil)
-	     (lusty-read-file-name "Write file: " default-directory
-			           (expand-file-name
-			            (file-name-nondirectory (buffer-name))
-			            default-directory)
-			           nil nil))
-	   (not current-prefix-arg)))
+               (lusty-read-file-name "Write file: "
+                                     nil nil nil nil)
+             (lusty-read-file-name "Write file: " default-directory
+                                   (expand-file-name
+                                    (file-name-nondirectory (buffer-name))
+                                    default-directory)
+                                   nil nil))
+           (not current-prefix-arg)))
     (write-file filename confirm))
 
   (defvar lusty-only-directories nil)
