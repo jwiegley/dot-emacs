@@ -931,7 +931,7 @@ non-empty directories is allowed."
      (nreverse
       ;; this may move point if ARG is an integer
       (dired-map-over-marks (cons (dired-get-filename) (point))
-			    arg))
+                            arg))
      arg t)))
 
 (use-package dired-hacks
@@ -1577,8 +1577,8 @@ non-empty directories is allowed."
     '(nconc
       align-rules-list
       (mapcar (lambda (x) `(,(car x)
-                       (regexp . ,(cdr x))
-                       (modes quote (haskell-mode literate-haskell-mode))))
+                            (regexp . ,(cdr x))
+                            (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
