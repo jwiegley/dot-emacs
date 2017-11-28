@@ -611,7 +611,7 @@ end tell" (match-string 1))))
            ("C-c x F" . org-set-file-link)
 
            ("C-c C-x @" . visible-mode)
-           ("C-c m"     . my-org-wrap-region)
+           ("C-c M-m"   . my-org-wrap-region)
 
            ([return]                . org-return-indent)
            ([(control return)]      . other-window)
