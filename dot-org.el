@@ -14,6 +14,7 @@
 (require 'ob-ruby)
 (require 'ob-emacs-lisp)
 (require 'ob-haskell)
+(require 'ob-dot)
 (require 'ob-sh)
 (require 'ox-md)
 
