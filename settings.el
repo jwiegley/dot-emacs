@@ -839,6 +839,7 @@
     (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
  '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer")
+ '(nov-save-place-file "~/.emacs.d/data/nov-places")
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(ns-function-modifier (quote hyper))
