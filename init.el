@@ -1618,12 +1618,12 @@ non-empty directories is allowed."
 
 (use-package helpful
   :load-path "site-lisp/helpful"
-  :commands (helpful-function
-             helpful-command
-             helpful-macro
-             helpful-callable
-             helpful-variable
-             helpful-at-point))
+  :bind (("C-h e F" . helpful-function)
+         ("C-h e C" . helpful-command)
+         ("C-h e M" . helpful-macro)
+         ("C-h e L" . helpful-callable)
+         ("C-h e S" . helpful-at-point)
+         ("C-h e V" . helpful-variable)))
 
 (use-package hi-lock
   :bind (("M-o l" . highlight-lines-matching-regexp)
