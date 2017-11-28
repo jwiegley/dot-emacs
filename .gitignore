@@ -1,0 +1,9 @@
+/init.el
+/gh-pages/
+/.projectile
+/.cask/
+*.elc
+\#*#
+.#*
+*~
+*$py.class
