@@ -2448,7 +2448,7 @@ non-empty directories is allowed."
 
 (use-package outshine
   :load-path "site-lisp/outshine"
-  :after outline
+  :after (:or outline org-mode)
   :init
   (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
 
