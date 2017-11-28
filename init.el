@@ -1584,7 +1584,7 @@ non-empty directories is allowed."
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
-(use-package helm-config
+(use-package helm-autoloads
   :load-path "site-lisp/helm"
   :if (not running-alternate-emacs)
   :demand t

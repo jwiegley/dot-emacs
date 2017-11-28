@@ -654,6 +654,8 @@
  '(haskell-indentation-where-post-offset 4)
  '(haskell-indentation-where-pre-offset 4)
  '(haskell-process-load-or-reload-prompt t)
+ '(helm-command-prefix-key nil)
+ '(helm-minibuffer-history-key nil)
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
  '(hi2-left-offset 4)
