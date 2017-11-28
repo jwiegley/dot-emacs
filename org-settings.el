@@ -289,6 +289,7 @@ SCHEDULED: %t
  '(org-hide-leading-stars t)
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width (quote (800)))
+ '(org-imenu-depth 4)
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)
  '(org-latex-default-packages-alist
