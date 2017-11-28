@@ -183,6 +183,7 @@
         ("C-. g" . my-ctrl-dot-g-map)
         ("C-. h" . my-ctrl-dot-h-map)
         ("C-. m" . my-ctrl-dot-m-map)
+        ("C-. r" . my-ctrl-dot-r-map)
         ("C-. v" . my-ctrl-dot-v-map)
         ("C-h e" . my-ctrl-h-e-map)
         ("C-c e" . my-ctrl-c-e-map)
@@ -1092,7 +1093,7 @@ non-empty directories is allowed."
          ("C-c C" . edit-indirect-region)))
 
 (use-package edit-rectangle
-  :bind ("C-. r" . edit-rectangle))
+  :bind ("C-x r e" . edit-rectangle))
 
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
@@ -2808,6 +2809,30 @@ non-empty directories is allowed."
 (use-package restclient
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
+
+(use-package rtags
+  :commands rtags-mode
+  :bind (("C-. r D" . rtags-dependency-tree)
+         ("C-. r F" . rtags-fixit)
+         ("C-. r R" . rtags-rename-symbol)
+         ("C-. r T" . rtags-tagslist)
+         ("C-. r c" . rtags-create-doxygen-comment)
+         ("C-. r d" . rtags-display-summary)
+         ("C-. r e" . rtags-print-enum-value-at-point)
+         ("C-. r f" . rtags-find-file)
+         ("C-. r i" . rtags-include-file)
+         ("C-. r i" . rtags-symbol-info)
+         ("C-. r m" . rtags-imenu)
+         ("C-. r n" . rtags-next-match)
+         ("C-. r p" . rtags-previous-match)
+         ("C-. r r" . rtags-find-references)
+         ("C-. r s" . rtags-find-symbol)
+         ("C-. r v" . rtags-find-virtuals-at-point))
+  :init
+  (add-hook 'c-mode-common-hook
+            #'(lambda ()
+                (bind-key "M-." #'rtags-find-symbol-at-point c-mode-map)
+                (bind-key "M-." #'rtags-find-symbol-at-point c++-mode-map))))
 
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
