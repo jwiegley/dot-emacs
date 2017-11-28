@@ -170,6 +170,7 @@
 (use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
 (use-package xml-rpc          :defer t)
+(use-package zoutline         :defer t :load-path "lib/zoutline")
 
 ;;; Keymaps
 
@@ -1701,6 +1702,10 @@ non-empty directories is allowed."
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
+(use-package iedit
+  :load-path "site-lisp/iedit"
+  :defer t)
+
 (use-package ielm
   :commands ielm
   :config
@@ -2013,6 +2018,14 @@ non-empty directories is allowed."
                    'inferior-lisp-mode-hook
                    'lisp-interaction-mode-hook
                    'slime-repl-mode-hook))
+
+(use-package lispy
+  :load-path "site-lisp/lispy"
+  :commands lispy-mode
+  :bind (:map emacs-lisp-mode-map
+              ("C-c C-j" . lispy-goto))
+  :init
+  (add-hook 'emacs-lisp-mode-map #'lispy-mode))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
@@ -3209,6 +3222,12 @@ non-empty directories is allowed."
 (use-package word-count
   :load-path "site-lisp/word-count-mode"
   :bind ("C-. m w" . word-count-mode))
+
+(use-package worf
+  :load-path "site-lisp/worf"
+  :after org-mode
+  :config
+  (bind-key "C-c C-j" #'worf-goto org-mode-map))
 
 (use-package ws-butler
   :load-path "site-lisp/ws-butler"
