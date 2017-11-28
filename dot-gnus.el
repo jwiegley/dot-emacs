@@ -46,12 +46,12 @@
 
 (use-package fetchmail-ctl
   :after gnus-group
-  :config
-  (bind-key "v b" #'switch-to-fetchmail gnus-group-mode-map)
-  (bind-key "v d" #'shutdown-fetchmail gnus-group-mode-map)
-  (bind-key "v k" #'kick-fetchmail gnus-group-mode-map)
-  ;; (bind-key "v p" #'fetchnews-post gnus-group-mode-map)
-  )
+  :bind (:map gnus-group-mode-map
+              ("v b" . switch-to-fetchmail)
+              ("v d" . shutdown-fetchmail)
+              ("v k" . kick-fetchmail)
+              ;; ("v p" . fetchnews-post)
+              ))
 
 (use-package gnus-sum
   :bind (:map gnus-summary-mode-map
@@ -388,7 +388,7 @@ is:
       (add-hook 'message-x-after-completion-functions
                 'gnus-alias-message-x-completion))
 
-  (bind-key "\C-c\C-f\C-p" #'gnus-alias-select-identity message-mode-map)
+  (bind-key "C-c C-f C-p" #'gnus-alias-select-identity message-mode-map)
 
   (add-hook 'message-mode-hook #'(lambda () (company-mode -1)))
 

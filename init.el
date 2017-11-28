@@ -184,7 +184,6 @@
         ("C-. h" . my-ctrl-dot-h-map)
         ("C-. m" . my-ctrl-dot-m-map)
         ("C-. r" . my-ctrl-dot-r-map)
-        ("C-. v" . my-ctrl-dot-v-map)
         ("C-h e" . my-ctrl-h-e-map)
         ("C-c e" . my-ctrl-c-e-map)
         ("C-c m" . my-ctrl-c-m-map)
@@ -206,9 +205,9 @@
       (quietly-read-abbrev-file))
 
   (add-hook 'expand-load-hook
-            (lambda ()
-              (add-hook 'expand-expand-hook 'indent-according-to-mode)
-              (add-hook 'expand-jump-hook 'indent-according-to-mode))))
+            #'(lambda ()
+                (add-hook 'expand-expand-hook 'indent-according-to-mode)
+                (add-hook 'expand-jump-hook 'indent-according-to-mode))))
 
 (use-package ace-link
   :load-path "site-lisp/ace-link"
@@ -410,6 +409,20 @@
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'" . c-mode)
          ("\\.mm\\'" . c++-mode))
+  :bind (:map c++-mode-map
+              ("<" . self-insert-command)
+              (">" . self-insert-command))
+  :bind (:map c-mode-base-map
+              ("#" . self-insert-command)
+              ("{" . self-insert-command)
+              ("}" . self-insert-command)
+              ("/" . self-insert-command)
+              ("*" . self-insert-command)
+              (";" . self-insert-command)
+              ("," . self-insert-command)
+              (":" . self-insert-command)
+              ("(" . self-insert-command)
+              (")" . self-insert-command))
   :preface
   (defun my-c-mode-common-hook ()
     (eldoc-mode 1)
@@ -448,22 +461,6 @@
   (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
   (setq c-syntactic-indentation nil)
-
-  (bind-keys :map c++-mode-map
-             ("<" . self-insert-command)
-             (">" . self-insert-command))
-
-  (bind-keys :map c-mode-base-map
-             ("#" . self-insert-command)
-             ("{" . self-insert-command)
-             ("}" . self-insert-command)
-             ("/" . self-insert-command)
-             ("*" . self-insert-command)
-             (";" . self-insert-command)
-             ("," . self-insert-command)
-             (":" . self-insert-command)
-             ("(" . self-insert-command)
-             (")" . self-insert-command))
 
   (add-to-list
    'c-style-alist
@@ -770,6 +767,12 @@
 
 (use-package dired
   :bind ("C-c J" . dired-double-jump)
+  :bind (:map dired-mode-map
+              ("e"     . ora-ediff-files)
+              ("l"     . dired-up-directory)
+              ("Y"     . ora-dired-rsync)
+              ("<tab>" . my-dired-switch-window)
+              ("M-!"   . async-shell-command))
   :preface
   (defvar mark-files-cache (make-hash-table :test #'equal))
 
@@ -844,14 +847,7 @@
 
   :config
   (add-hook 'dired-mode-hook
-            #'(lambda ()
-                (bind-keys :map dired-mode-map
-                           ("e"     . ora-ediff-files)
-                           ("l"     . dired-up-directory)
-                           ("Y"     . ora-dired-rsync)
-                           ("<tab>" . my-dired-switch-window)
-                           ("M-!"   . async-shell-command))
-                (unbind-key "M-G" dired-mode-map)))
+            #'(lambda () (unbind-key "M-G" dired-mode-map)))
 
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
@@ -1068,18 +1064,17 @@ non-empty directories is allowed."
         (widen)))))
 
 (use-package ediff
-  :config
-  (bind-keys ("C-. = b" . ediff-buffers)
-             ("C-. = B" . ediff-buffers3)
-             ("C-. = c" . compare-windows)
-             ("C-. = =" . ediff-files)
-             ("C-. = f" . ediff-files)
-             ("C-. = F" . ediff-files3)
-             ("C-. = r" . ediff-revision)
-             ("C-. = p" . ediff-patch-file)
-             ("C-. = P" . ediff-patch-buffer)
-             ("C-. = l" . ediff-regions-linewise)
-             ("C-. = w" . ediff-regions-wordwise)))
+  :bind (("C-. = b" . ediff-buffers)
+         ("C-. = B" . ediff-buffers3)
+         ("C-. = c" . compare-windows)
+         ("C-. = =" . ediff-files)
+         ("C-. = f" . ediff-files)
+         ("C-. = F" . ediff-files3)
+         ("C-. = r" . ediff-revision)
+         ("C-. = p" . ediff-patch-file)
+         ("C-. = P" . ediff-patch-buffer)
+         ("C-. = l" . ediff-regions-linewise)
+         ("C-. = w" . ediff-regions-wordwise)))
 
 (use-package ediff-keep
   :after ediff)
@@ -1206,9 +1201,9 @@ non-empty directories is allowed."
     (ignore-errors ad-do-it))
 
   (add-hook 'erc-insert-pre-hook
-            (lambda (s)
-              (when (erc-foolish-content s)
-                (setq erc-insert-this nil)))))
+            #'(lambda (s)
+                (when (erc-foolish-content s)
+                  (setq erc-insert-this nil)))))
 
 (use-package erc-alert
   :after erc)
@@ -1340,11 +1335,11 @@ non-empty directories is allowed."
 (use-package flycheck-haskell
   :load-path "site-lisp/flycheck-haskell"
   :after haskell-mode
+  :bind (:map haskell-mode-map
+              ("M-n" . flycheck-next-error)
+              ("M-p" . flycheck-previous-error))
   :config
-  (flycheck-haskell-setup)
-  (bind-keys :map haskell-mode-map
-             ("M-n" . flycheck-next-error)
-             ("M-p" . flycheck-previous-error)))
+  (flycheck-haskell-setup))
 
 (use-package flycheck-hdevtools
   :disabled t
@@ -1436,7 +1431,7 @@ non-empty directories is allowed."
 
 (use-package git-undo
   :load-path "lisp/git-undo-el"
-  :bind ("C-. u" . git-undo))
+  :bind ("C-. C-/" . git-undo))
 
 (use-package github-pullrequest
   :load-path "site-lisp/github-pullrequest"
@@ -1462,6 +1457,10 @@ non-empty directories is allowed."
 
 (use-package gud
   :commands gud-gdb
+  :bind (("<f9>"    . gud-cont)
+         ("<f10>"   . gud-next)
+         ("<f11>"   . gud-step)
+         ("S-<f11>" . gud-finish))
   :init
   (defun show-debugger ()
     (interactive)
@@ -1472,12 +1471,7 @@ non-empty directories is allowed."
                    (throw 'found buf))))))
       (if gud-buf
           (switch-to-buffer-other-window gud-buf)
-        (call-interactively 'gud-gdb))))
-  :config
-  (bind-keys ("<f9>"    . gud-cont)
-             ("<f10>"   . gud-next)
-             ("<f11>"   . gud-step)
-             ("S-<f11>" . gud-finish)))
+        (call-interactively 'gud-gdb)))))
 
 (use-package haskell-edit
   :load-path "lisp/haskell-config"
@@ -1490,8 +1484,16 @@ non-empty directories is allowed."
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
+  :bind (:map haskell-mode-map
+              ("C-c C-h" . my-haskell-hoogle)
+              ("C-c C-," . haskell-navigate-imports)
+              ("C-c C-." . haskell-mode-format-imports)
+              ("C-c C-u" . my-haskell-insert-undefined))
   :preface
   (defvar interactive-haskell-mode-map)
+
+  (defun my-haskell-insert-undefined ()
+    (interactive) (insert "undefined"))
 
   (defun snippet (name)
     (interactive "sName: ")
@@ -1565,12 +1567,6 @@ non-empty directories is allowed."
   (unbind-key "M-s" haskell-mode-map)
   (unbind-key "M-t" haskell-mode-map)
 
-  (bind-keys :map haskell-mode-map
-             ("C-c C-h" . my-haskell-hoogle)
-             ("C-c C-," . haskell-navigate-imports)
-             ("C-c C-." . haskell-mode-format-imports)
-             ("C-c C-u" . (lambda () (interactive) (insert "undefined"))))
-
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
@@ -1585,9 +1581,10 @@ non-empty directories is allowed."
   (eval-after-load 'align
     '(nconc
       align-rules-list
-      (mapcar (lambda (x) `(,(car x)
-                            (regexp . ,(cdr x))
-                            (modes quote (haskell-mode literate-haskell-mode))))
+      (mapcar #'(lambda (x)
+                  `(,(car x)
+                    (regexp . ,(cdr x))
+                    (modes quote (haskell-mode literate-haskell-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -1599,13 +1596,13 @@ non-empty directories is allowed."
   :demand t
   :config
   (use-package helm
+    :bind (:map helm-map
+                ("<tab>" . helm-execute-persistent-action)
+                ("C-i"   . helm-execute-persistent-action)
+                ("C-z"   . helm-select-action)
+                ("A-v"   . helm-previous-page))
     :config
-    (helm-autoresize-mode 1)
-    (bind-keys :map helm-map
-               ("<tab>" . helm-execute-persistent-action)
-               ("C-i"   . helm-execute-persistent-action)
-               ("C-z"   . helm-select-action)
-               ("A-v"   . helm-previous-page)))
+    (helm-autoresize-mode 1))
   (use-package helm-multi-match))
 
 (use-package helm-descbinds
@@ -1640,11 +1637,8 @@ non-empty directories is allowed."
          ("M-o w" . highlight-phrase)))
 
 (use-package highlight
-  :commands (hlt-highlight-region
-             hlt-unhighlight-region)
-  :init
-  (bind-keys ("C-. h h" . hlt-highlight-region)
-             ("C-. h u" . hlt-unhighlight-region)))
+  :bind (("C-. h h" . hlt-highlight-region)
+         ("C-. h u" . hlt-unhighlight-region)))
 
 (use-package highlight-cl
   :init
@@ -1818,8 +1812,6 @@ non-empty directories is allowed."
 
 (use-package isearch
   :no-require t
-  :bind (("C-M-r" . isearch-backward-other-window)
-         ("C-M-s" . isearch-forward-other-window))
   :preface
   (defun isearch-backward-other-window ()
     (interactive)
@@ -1830,13 +1822,13 @@ non-empty directories is allowed."
     (interactive)
     (split-window-vertically)
     (call-interactively 'isearch-forward))
-
-  :config
-  (bind-keys :map isearch-mode-map
-             ("C-c" . isearch-toggle-case-fold)
-             ("C-t" . isearch-toggle-regexp)
-             ("C-^" . isearch-edit-string)
-             ("C-i" . isearch-complete)))
+  :bind (("C-M-r" . isearch-backward-other-window)
+         ("C-M-s" . isearch-forward-other-window))
+  :bind (:map isearch-mode-map
+              ("C-c" . isearch-toggle-case-fold)
+              ("C-t" . isearch-toggle-regexp)
+              ("C-^" . isearch-edit-string)
+              ("C-i" . isearch-complete)))
 
 (use-package ispell
   :bind (("C-c i c" . ispell-comments-and-strings)
@@ -1852,23 +1844,18 @@ non-empty directories is allowed."
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
-  :commands (ivy-mode ivy-read ivy-completing-read)
+  :bind (:map ivy-minibuffer-map
+              ("C-r" . ivy-previous-line-or-history)
+              ("M-r" . ivy-reverse-i-search))
+  :custom ((ivy-initial-inputs-alist nil)
+           (ivy-re-builders-alist '((t . ivy--regex-ignore-order))))
   :init
   (defun my-ivy-completing-read (&rest args)
     (let ((ivy-sort-functions-alist '((t . nil))))
       (apply 'ivy-completing-read args)))
-
   :config
-  (setq ivy-initial-inputs-alist nil
-        ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-
   (ivy-mode 1)
-
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
-
-  (bind-keys :map ivy-minibuffer-map
-             ("C-r" . ivy-previous-line-or-history)
-             ("M-r" . ivy-reverse-i-search)))
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
 
 (use-package ivy-hydra
   :after (ivy hydra)
@@ -1889,17 +1876,13 @@ non-empty directories is allowed."
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
   :mode "\\.js\\'"
+  :bind (:map js2-mode-map
+              ("M-n" . flycheck-next-error)
+              ("M-p" . flycheck-previous-error))
   :config
-  (setq flycheck-disabled-checkers
-        (append flycheck-disabled-checkers
-                '(javascript-jshint)))
-
+  (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
   (flycheck-add-mode 'javascript-eslint 'js2-mode)
-  (flycheck-mode 1)
-
-  (bind-keys :map js2-mode-map
-             ("M-n" . flycheck-next-error)
-             ("M-p" . flycheck-previous-error)))
+  (flycheck-mode 1))
 
 (use-package json-mode
   :load-path "site-lisp/json-mode"
@@ -2035,7 +2018,6 @@ non-empty directories is allowed."
   :bind (:map emacs-lisp-mode-map
               ("C-c C-j" . lispy-goto))
   :init
-  (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
   (add-hook 'lispy-mode-hook
             #'(lambda () (unbind-key "M-j" lispy-mode-map))))
 
@@ -2488,26 +2470,26 @@ non-empty directories is allowed."
   :load-path "site-lisp/paredit"
   :commands paredit-mode
   :diminish paredit-mode
+  :bind (:map paredit-mode-map
+              (")"     . paredit-close-round-and-newline)
+              ("M-)"   . paredit-close-round)
+              ("M-k"   . paredit-raise-sexp)
+              ("M-I"   . paredit-splice-sexp)
+              ("C-M-l" . paredit-recentre-on-sexp)
+
+              ("C-. D" . paredit-forward-down)
+              ("C-. B" . paredit-splice-sexp-killing-backward)
+              ("C-. C" . paredit-convolute-sexp)
+              ("C-. F" . paredit-splice-sexp-killing-forward)
+              ("C-. a" . paredit-add-to-next-list)
+              ("C-. A" . paredit-add-to-previous-list)
+              ("C-. j" . paredit-join-with-next-list)
+              ("C-. J" . paredit-join-with-previous-list))
   :config
   (add-hook 'paredit-mode-hook
             #'(lambda ()
                 (unbind-key "M-r" paredit-mode-map)
-                (unbind-key "M-s" paredit-mode-map)))
-  (bind-keys :map paredit-mode-map
-             (")"     . paredit-close-round-and-newline)
-             ("M-)"   . paredit-close-round)
-             ("M-k"   . paredit-raise-sexp)
-             ("M-I"   . paredit-splice-sexp)
-             ("C-M-l" . paredit-recentre-on-sexp)
-
-             ("C-. D" . paredit-forward-down)
-             ("C-. B" . paredit-splice-sexp-killing-backward)
-             ("C-. C" . paredit-convolute-sexp)
-             ("C-. F" . paredit-splice-sexp-killing-forward)
-             ("C-. a" . paredit-add-to-next-list)
-             ("C-. A" . paredit-add-to-previous-list)
-             ("C-. j" . paredit-join-with-next-list)
-             ("C-. J" . paredit-join-with-previous-list)))
+                (unbind-key "M-s" paredit-mode-map))))
 
 (use-package paredit-ext
   :after paredit)
@@ -2661,8 +2643,20 @@ non-empty directories is allowed."
               "site-lisp/ProofGeneral/lib"
               "site-lisp/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
-
+  :bind (:map coq-mode-map
+              ("M-RET"       . proof-goto-point)
+              ("RET"         . newline-and-indent)
+              ("C-c C-p"     . my-layout-proof-windows)
+              ("C-c C-a C-s" . coq-Search)
+              ("C-c C-a C-o" . coq-SearchPattern)
+              ("C-c C-a C-a" . coq-SearchAbout)
+              ("C-c C-a C-r" . coq-SearchRewrite))
   :preface
+  (defun my-layout-proof-windows ()
+    (interactive)
+    (proof-layout-windows)
+    (proof-prf))
+
   (eval-when-compile
     (defvar proof-auto-raise-buffers)
     (defvar proof-three-window-enable)
@@ -2681,33 +2675,22 @@ non-empty directories is allowed."
     :config
     (add-hook
      'coq-mode-hook
-     (lambda ()
-       (set-input-method "Agda")
-       (holes-mode -1)
-       (company-coq-mode 1)
-       (set (make-local-variable 'fill-nobreak-predicate)
-            (lambda ()
-              (pcase (get-text-property (point) 'face)
-                ('font-lock-comment-face nil)
-                ((pred (lambda (x)
-                         (and (listp x)
-                              (memq 'font-lock-comment-face x)))) nil)
-                (_ t))))))
+     #'(lambda ()
+         (set-input-method "Agda")
+         (holes-mode -1)
+         (company-coq-mode 1)
+         (set (make-local-variable 'fill-nobreak-predicate)
+              #'(lambda ()
+                  (pcase (get-text-property (point) 'face)
+                    ('font-lock-comment-face nil)
+                    ((pred
+                      #'(lambda (x)
+                          (and (listp x)
+                               (memq 'font-lock-comment-face x)))) nil)
+                    (_ t))))))
 
     (defalias 'coq-Search #'coq-SearchConstant)
     (defalias 'coq-SearchPattern #'coq-SearchIsos)
-
-    (bind-keys :map coq-mode-map
-               ("M-RET"       . proof-goto-point)
-               ("RET"         . newline-and-indent)
-               ("C-c C-p"     . (lambda ()
-                                  (interactive)
-                                  (proof-layout-windows)
-                                  (proof-prf)))
-               ("C-c C-a C-s" . coq-Search)
-               ("C-c C-a C-o" . coq-SearchPattern)
-               ("C-c C-a C-a" . coq-SearchAbout)
-               ("C-c C-a C-r" . coq-SearchRewrite))
 
     (unbind-key "C-c h" coq-mode-map))
 
@@ -2857,16 +2840,16 @@ non-empty directories is allowed."
   :load-path "site-lisp/selected"
   :defer 5
   :diminish selected-minor-mode
+  :bind (:map selected-keymap
+              ("[" . align-regexp)
+              ("f" . fill-region)
+              ("U" . unfill-region)
+              ("d" . downcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines)
+              ("u" . upcase-region))
   :config
-  (selected-global-mode 1)
-  (bind-keys :map selected-keymap
-             ("[" . align-regexp)
-             ("f" . fill-region)
-             ("U" . unfill-region)
-             ("d" . downcase-region)
-             ("r" . reverse-region)
-             ("s" . sort-lines)
-             ("u" . upcase-region)))
+  (selected-global-mode 1))
 
 (use-package session
   :load-path "site-lisp/session"
@@ -2988,6 +2971,12 @@ non-empty directories is allowed."
   :load-path "site-lisp/sunrise-commander"
   :bind (("C-c j" . my-activate-sunrise)
          ("C-c C-j" . sunrise-cd))
+  :bind (:map sr-mode-map
+              ("/"     . sr-sticky-isearch-forward)
+              ("q"     . sr-history-prev)
+              ("z"     . sr-quit)
+              ("C-x t" . sr-toggle-truncate-lines)
+              ("<backspace>" . sr-scroll-quick-view-down))
   :commands sunrise
   :defines sr-tabs-mode-map
   :preface
@@ -3005,13 +2994,6 @@ non-empty directories is allowed."
   (require 'sunrise-x-modeline)
   (require 'sunrise-x-tree)
   (require 'sunrise-x-tabs)
-
-  (bind-keys :map sr-mode-map
-             ("/"     . sr-sticky-isearch-forward)
-             ("q"     . sr-history-prev)
-             ("z"     . sr-quit)
-             ("C-x t" . sr-toggle-truncate-lines)
-             ("<backspace>" . sr-scroll-quick-view-down))
 
   (unbind-key "C-e" sr-mode-map)
   (unbind-key "C-p" sr-tabs-mode-map)
@@ -3064,15 +3046,13 @@ non-empty directories is allowed."
   :after ivy
   :bind (("C-. C-s" . swiper)
          ("C-. C-r" . swiper))
-  :commands swiper-from-isearch
-  :init
-  (bind-key "C-." #'swiper-from-isearch isearch-mode-map)
-  :config
-  (bind-keys :map swiper-map
-             ("M-y" . yank)
-             ("M-%" . swiper-query-replace)
-             ("M-h" . swiper-avy)
-             ("M-c" . swiper-mc)))
+  :bind (:map swiper-map
+              ("M-y" . yank)
+              ("M-%" . swiper-query-replace)
+              ("M-h" . swiper-avy)
+              ("M-c" . swiper-mc))
+  :bind (:map isearch-mode-map
+              ("C-." . swiper-from-isearch)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
@@ -3150,24 +3130,17 @@ non-empty directories is allowed."
 
 (use-package vimish-fold
   :load-path "site-lisp/vimish-fold"
-  :commands (vimish-fold
-             vimish-fold-delete
-             vimish-fold-delete-all)
-  :init
-  (bind-keys ("C-. f f" . vimish-fold)
-             ("C-. f d" . vimish-fold-delete)
-             ("C-. f D" . vimish-fold-delete-all)))
+  :bind (("C-. f f" . vimish-fold)
+         ("C-. f d" . vimish-fold-delete)
+         ("C-. f D" . vimish-fold-delete-all)))
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
   :commands (vr/replace
              vr/query-replace)
-  :bind (("C-c r" . vr/replace)
-         ("C-c %" . vr/query-replace)
-         ("C-c C->" . vr/mc-mark))
-  :init
-  (bind-keys ("C-. v r" . vr/replace)
-             ("C-. v %" . vr/query-replace)))
+  :bind (("C-c r"   . vr/replace)
+         ("C-c %"   . vr/query-replace)
+         ("C-c C->" . vr/mc-mark)))
 
 (use-package visual-regexp-steroids
   :disabled t
