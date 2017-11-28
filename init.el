@@ -1675,12 +1675,15 @@ non-empty directories is allowed."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :disabled t
   :load-path "site-lisp/hyperbole"
   :defer 10
   :bind* (("M-."   . hkey-either)
           ("M-RET" . hkey-operate))
   :config
+  (when (eq temp-buffer-show-function #'hkey-help-show)
+    (setq temp-buffer-show-function nil))
+  (remove-hook 'temp-buffer-show-hook #'hkey-help-show)
+
   (defact visit-haskell-definition ()
     "Go to the definition of a symbol in Haskell."
     (interactive)
