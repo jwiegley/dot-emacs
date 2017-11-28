@@ -3171,7 +3171,8 @@ non-empty directories is allowed."
 
   (defun maybe-turn-on-whitespace ()
     "Depending on the file, maybe clean up whitespace."
-    (when (and (locate-dominating-file default-directory ".clean")
+    (when (and (not (memq major-mode '(markdown-mode)))
+               (locate-dominating-file default-directory ".clean")
                (not (locate-dominating-file default-directory ".noclean")))
       (add-hook 'write-contents-hooks
                 #'(lambda () (ignore (whitespace-cleanup))) nil t)
