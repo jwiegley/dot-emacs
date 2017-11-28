@@ -181,6 +181,7 @@
         ("C-. f" . my-ctrl-dot-f-map)
         ("C-. g" . my-ctrl-dot-g-map)
         ("C-. h" . my-ctrl-dot-h-map)
+        ("C-. m" . my-ctrl-dot-m-map)
         ("C-. v" . my-ctrl-dot-v-map)
         ("C-h e" . my-ctrl-h-e-map)
         ("C-c e" . my-ctrl-c-e-map)
@@ -1305,9 +1306,7 @@ non-empty directories is allowed."
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
-  :init
-  (custom-set-variables
-   `(eyebrowse-keymap-prefix ,(kbd "C-\\")))
+  :custom (eyebrowse-keymap-prefix (kbd "C-\\"))
   :config
   (eyebrowse-mode)
   (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
@@ -2362,7 +2361,7 @@ non-empty directories is allowed."
 (use-package my-compile
   :after compile)
 
-(use-package navi
+(use-package navi-mode
   :load-path "site-lisp/navi"
   :after outshine
   :bind ("M-s n" . navi-search-and-switch))
@@ -3209,26 +3208,27 @@ non-empty directories is allowed."
 
 (use-package word-count
   :load-path "site-lisp/word-count-mode"
-  :bind ("C-. W" . word-count-mode))
+  :bind ("C-. m w" . word-count-mode))
 
 (use-package ws-butler
   :load-path "site-lisp/ws-butler"
   :diminish ws-butler-mode
+  :commands ws-butler-mode
   :config
   (add-hook 'prog-mode-hook 'ws-butler-mode))
 
 (use-package xray
-  :commands (xray-buffer
-             xray-faces
-             xray-features
-             xray-frame
-             xray-hooks
-             xray-marker
-             xray-overlay
-             xray-position
-             xray-screen
-             xray-symbol
-             xray-window))
+  :bind (("C-c x b" . xray-buffer)
+         ("C-c x f" . xray-faces)
+         ("C-c x F" . xray-features)
+         ("C-c x R" . xray-frame)
+         ("C-c x h" . xray-hooks)
+         ("C-c x m" . xray-marker)
+         ("C-c x o" . xray-overlay)
+         ("C-c x p" . xray-position)
+         ("C-c x S" . xray-screen)
+         ("C-c x s" . xray-symbol)
+         ("C-c x w" . xray-window)))
 
 (use-package yaml-mode
   :load-path "site-lisp/yaml-mode"
@@ -3267,14 +3267,12 @@ non-empty directories is allowed."
   :load-path "site-lisp/yasnippet-snippets"
   :after yasnippet
   :demand t
-  :init
-  (setq yas-installed-snippets-dir
-        "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
+  :custom (yas-installed-snippets-dir
+           "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/"))
 
 (use-package z3-mode
   :load-path "site-lisp/z3-mode"
-  :mode "\\.rs\\'"
-  :commands z3-mode)
+  :mode "\\.rs\\'")
 
 (use-package zencoding-mode
   :load-path "site-lisp/zencoding-mode"
@@ -3285,7 +3283,6 @@ non-empty directories is allowed."
   (add-hook 'html-mode-hook
             #'(lambda ()
                 (bind-key "<return>" #'newline-and-indent html-mode-map)))
-
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
@@ -3293,13 +3290,11 @@ non-empty directories is allowed."
 (use-package zoom
   :load-path "site-lisp/zoom"
   :bind ("C-x +" . zoom)
-  :config
+  :preface
   (defun size-callback ()
     (cond ((> (frame-pixel-width) 1280) '(90 . 0.75))
-          (t                            '(0.5 . 0.5))))
-
-  (custom-set-variables
-   '(zoom-size 'size-callback)))
+          (t '(0.5 . 0.5))))
+  :custom (zoom-size 'size-callback))
 
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
