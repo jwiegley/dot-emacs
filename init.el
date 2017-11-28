@@ -2575,14 +2575,14 @@ non-empty directories is allowed."
 
              ("C-c M-q" . unfill-paragraph))
 
-  (bind-keys ("C-h e e" . view-echo-area-messages)
+  (bind-keys ("C-h e P" . check-papers)
+             ("C-h e a" . apropos-value)
+             ("C-h e e" . view-echo-area-messages)
              ("C-h e f" . find-function)
              ("C-h e k" . find-function-on-key)
              ("C-h e l" . find-library)
-             ("C-h e P" . check-papers)
              ("C-h e s" . scratch)
-             ("C-h e v" . find-variable)
-             ("C-h e V" . apropos-value))
+             ("C-h e v" . find-variable))
 
   (bind-keys ("C-c e E" . elint-current-buffer)
              ("C-c e b" . do-eval-buffer)
