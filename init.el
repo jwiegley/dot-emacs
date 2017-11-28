@@ -2026,7 +2026,7 @@ non-empty directories is allowed."
   :bind (:map emacs-lisp-mode-map
               ("C-c C-j" . lispy-goto))
   :init
-  (add-hook 'emacs-lisp-mode-map #'lispy-mode))
+  (add-hook 'emacs-lisp-mode-hook #'lispy-mode))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
