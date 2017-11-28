@@ -1588,17 +1588,16 @@ non-empty directories is allowed."
   :load-path "site-lisp/helm"
   :if (not running-alternate-emacs)
   :demand t
-  :bind ("C-c h" . helm-command-prefix)
   :config
   (use-package helm
     :config
-    (helm-autoresize-mode 1))
-  (use-package helm-multi-match)
-  (bind-keys :map helm-map
-             ("<tab>" . helm-execute-persistent-action)
-             ("C-i"   . helm-execute-persistent-action)
-             ("C-z"   . helm-select-action)
-             ("A-v"   . helm-previous-page)))
+    (helm-autoresize-mode 1)
+    (bind-keys :map helm-map
+               ("<tab>" . helm-execute-persistent-action)
+               ("C-i"   . helm-execute-persistent-action)
+               ("C-z"   . helm-select-action)
+               ("A-v"   . helm-previous-page)))
+  (use-package helm-multi-match))
 
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
@@ -2388,7 +2387,7 @@ non-empty directories is allowed."
   (defun update-nroff-timestamp ()
     (save-excursion
       (goto-char (point-min))
-      (when (re-search-forward "^\\.Dd ")
+      (when (re-search-forward "^\\.Dd " nil t)
         (let ((stamp (format-time-string "%B %e, %Y")))
           (unless (looking-at stamp)
             (delete-region (point) (line-end-position))
