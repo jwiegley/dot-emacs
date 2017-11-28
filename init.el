@@ -1661,7 +1661,7 @@ non-empty directories is allowed."
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
-  :bind ("C-. M-/" . hippie-expand))
+  :bind ("C-c M-/" . hippie-expand))
 
 (use-package hl-line
   :commands hl-line-mode
