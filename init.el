@@ -3081,6 +3081,10 @@ non-empty directories is allowed."
          ("C-. f d" . vimish-fold-delete)
          ("C-. f D" . vimish-fold-delete-all)))
 
+(use-package visual-fill-column
+  :load-path "site-lisp/visual-fill-column"
+  :commands visual-fill-column-mode)
+
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
   :bind (("C-c r"   . vr/replace)
@@ -3113,6 +3117,10 @@ non-empty directories is allowed."
   :diminish
   :config
   (which-key-mode))
+
+(use-package writeroom-mode
+  :load-path "site-lisp/writeroom-mode"
+  :commands writeroom-mode)
 
 (use-package whitespace
   :diminish (global-whitespace-mode
