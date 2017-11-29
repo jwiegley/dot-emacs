@@ -917,6 +917,11 @@ end tell" (match-string 1))))
   :config
   (load "org-insert-dblock"))
 
+(use-package worf
+  :load-path "site-lisp/worf"
+  :bind (:map org-mode-map
+              ("C-c C-j" . worf-goto)))
+
 (provide 'dot-org)
 
 ;; Local Variables:
