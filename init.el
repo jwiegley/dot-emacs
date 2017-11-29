@@ -1639,6 +1639,10 @@ non-empty directories is allowed."
 (use-package hl-line+
   :after hl-line)
 
+(use-package html-mode
+  :bind (:map html-mode-map
+              ("<return>" . newline-and-indent)))
+
 (use-package hydra
   :load-path "site-lisp/hydra"
   :demand t
@@ -2586,7 +2590,6 @@ non-empty directories is allowed."
 (use-package projectile
   :load-path "site-lisp/projectile"
   :diminish
-  :commands projectile-global-mode
   :defer 5
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
@@ -2661,14 +2664,14 @@ non-empty directories is allowed."
 
 (use-package ps-print
   :defer t
-  :config
+  :preface
   (defun ps-spool-to-pdf (beg end &rest ignore)
     (interactive "r")
     (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
       (call-process-region beg end (executable-find "ps2pdf")
                            nil nil nil "-" temp-file)
       (call-process (executable-find "open") nil nil nil temp-file)))
-
+  :config
   (setq ps-print-region-function 'ps-spool-to-pdf))
 
 (use-package python-mode
@@ -2804,7 +2807,7 @@ non-empty directories is allowed."
 
 (use-package session
   :load-path "site-lisp/session"
-  :if (not noninteractive)
+  :unless noninteractive
   :preface
   (defun remove-session-use-package-from-settings ()
     (when (string= (file-name-nondirectory (buffer-file-name)) "settings.el")
@@ -2858,7 +2861,6 @@ non-empty directories is allowed."
                             :regexp ".*"
                             :doc-spec
                             '(("(bash)Index")))))
-
   (add-hook 'shell-mode-hook 'initialize-sh-script))
 
 (use-package sh-toggle
@@ -2884,7 +2886,6 @@ non-empty directories is allowed."
 
 (use-package smart-mode-line
   :load-path "site-lisp/smart-mode-line"
-  :defer 5
   :config
   (sml/setup)
   (sml/apply-theme 'light))
@@ -2951,8 +2952,9 @@ non-empty directories is allowed."
   (unbind-key "C-n" sr-tabs-mode-map)
   (unbind-key "M-<backspace>" sr-term-line-minor-mode-map)
 
-  (bind-key "M-[" #'sr-tabs-prev sr-tabs-mode-map)
-  (bind-key "M-]" #'sr-tabs-next sr-tabs-mode-map)
+  (bind-keys :map sr-tabs-mode-map
+             ("M-[" . sr-tabs-prev)
+             ("M-]" . sr-tabs-next))
 
   (defun sr-browse-file (&optional file)
     "Display the selected file with the default appication."
@@ -2993,7 +2995,6 @@ non-empty directories is allowed."
 
 (use-package swiper
   :load-path "site-lisp/ivy/swiper"
-  :demand t
   :after ivy
   :bind (("C-. C-s" . swiper)
          ("C-. C-r" . swiper))
@@ -3068,7 +3069,7 @@ non-empty directories is allowed."
 (use-package undo-tree
   :load-path "site-lisp/undo-tree"
   :demand t
-  :bind (("C-M-/" . undo-tree-redo))
+  :bind ("C-M-/" . undo-tree-redo)
   :config
   (global-undo-tree-mode))
 
@@ -3087,8 +3088,6 @@ non-empty directories is allowed."
 
 (use-package visual-regexp
   :load-path "site-lisp/visual-regexp"
-  :commands (vr/replace
-             vr/query-replace)
   :bind (("C-c r"   . vr/replace)
          ("C-c %"   . vr/query-replace)
          ("C-c C->" . vr/mc-mark)))
@@ -3172,7 +3171,7 @@ non-empty directories is allowed."
         whitespace-style '(face trailing lines space-before-tab empty)))
 
 (use-package winner
-  :if (not noninteractive)
+  :unless noninteractive
   :defer 5
   :bind (("M-N" . winner-redo)
          ("M-P" . winner-undo))
@@ -3182,12 +3181,6 @@ non-empty directories is allowed."
 (use-package word-count
   :load-path "site-lisp/word-count-mode"
   :bind ("C-. m w" . word-count-mode))
-
-(use-package worf
-  :load-path "site-lisp/worf"
-  :after org-mode
-  :config
-  (bind-key "C-c C-j" #'worf-goto org-mode-map))
 
 (use-package ws-butler
   :load-path "site-lisp/ws-butler"
@@ -3238,6 +3231,7 @@ non-empty directories is allowed."
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
   (yas-global-mode 1)
+
   (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
 
 (use-package yasnippet-snippets
@@ -3250,11 +3244,7 @@ non-empty directories is allowed."
 
 (use-package zencoding-mode
   :load-path "site-lisp/zencoding-mode"
-  :hook
-  nxml-mode
-  html-mode
-  (html-mode
-   . (lambda () (bind-key "<return>" #'newline-and-indent html-mode-map)))
+  :hook (nxml-mode html-mode)
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
