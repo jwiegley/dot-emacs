@@ -2540,7 +2540,7 @@ non-empty directories is allowed."
 
   (bind-keys ("C-h e a" . apropos-value)
              ("C-h e e" . view-echo-area-messages)
-             ("C-h e f" . counsel-find-function)
+             ("C-h e f" . find-function)
              ("C-h e k" . find-function-on-key)
              ("C-h e l" . counsel-find-library)
              ("C-h e u" . counsel-unicode-char)
