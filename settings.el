@@ -789,7 +789,7 @@
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
  '(ivy-height 10)
  '(ivy-initial-inputs-alist nil t)
- '(ivy-re-builders-alist (quote ((ivy-switch-buffer . regexp-quote) (t . ivy--regex-ignore-order))) t)
+ '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
  '(ivy-use-virtual-buffers t)
  '(ivy-wrap t)
  '(jist-enable-default-authorized t)
