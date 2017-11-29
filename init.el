@@ -586,10 +586,8 @@
   :demand t
   :diminish
   :commands (company-mode global-company-mode)
+  :hook (prog-mode . company-mode)
   :config
-  (global-company-mode 1)
-  (add-hook 'eshell-mode-hook #'(lambda () (company-mode -1)))
-
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
   (defadvice company-pseudo-tooltip-unless-just-one-frontend
