@@ -174,17 +174,19 @@
 (mapc #'(lambda (entry)
           (define-prefix-command (cdr entry))
           (bind-key (car entry) (cdr entry)))
-      '(("C-."   . my-ctrl-dot-map)
+      '(("C-h e" . my-ctrl-h-e-map)
+
+        ("C-c e" . my-ctrl-c-e-map)
+        ("C-c m" . my-ctrl-c-m-map)
+        ("C-c y" . my-ctrl-c-y-map)
+
+        ("C-."   . my-ctrl-dot-map)
         ("C-. =" . my-ctrl-dot-equals-map)
         ("C-. f" . my-ctrl-dot-f-map)
         ("C-. g" . my-ctrl-dot-g-map)
         ("C-. h" . my-ctrl-dot-h-map)
         ("C-. m" . my-ctrl-dot-m-map)
-        ("C-. r" . my-ctrl-dot-r-map)
-        ("C-h e" . my-ctrl-h-e-map)
-        ("C-c e" . my-ctrl-c-e-map)
-        ("C-c m" . my-ctrl-c-m-map)
-        ("C-c y" . my-ctrl-c-y-map)))
+        ("C-. r" . my-ctrl-dot-r-map)))
 
 ;;; Packages
 
@@ -192,14 +194,13 @@
   :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
+  (expand-load
+   . (lambda ()
+       (add-hook 'expand-expand-hook 'indent-according-to-mode)
+       (add-hook 'expand-jump-hook 'indent-according-to-mode)))
   :config
   (if (file-exists-p abbrev-file-name)
-      (quietly-read-abbrev-file))
-
-  (add-hook 'expand-load-hook
-            #'(lambda ()
-                (add-hook 'expand-expand-hook 'indent-according-to-mode)
-                (add-hook 'expand-jump-hook 'indent-according-to-mode))))
+      (quietly-read-abbrev-file)))
 
 (use-package ace-link
   :load-path "site-lisp/ace-link"
@@ -678,11 +679,8 @@
   :after ivy
   :demand t
   :diminish
-  :bind (("C-*"     . counsel-org-agenda-headlines)
-         ("M-x"     . counsel-M-x)
-         ("C-s"     . counsel-grep-or-swiper)
-         ("C-h f"   . counsel-describe-function)
-         ("C-h v"   . counsel-describe-variable))
+  :bind (("C-*" . counsel-org-agenda-headlines)
+         ("M-x" . counsel-M-x))
   :commands counsel-minibuffer-history
   :init
   (define-key minibuffer-local-map (kbd "M-r")
@@ -1431,9 +1429,9 @@ non-empty directories is allowed."
   :mode "\\.dot\\'")
 
 (use-package grep
-  :bind (("M-s d" . find-grep-dired)
-         ("M-s n" . find-name-dired)
-         ("M-s f" . find-grep)
+  :bind (("M-s f" . find-grep)
+         ("M-s F" . find-grep-dired)
+         ("M-s d" . find-name-dired)
          ("M-s G" . grep)))
 
 (use-package gud
@@ -2505,6 +2503,9 @@ non-empty directories is allowed."
              ("M-g c" . goto-char)
 
              ("<C-M-backspace>" . backward-kill-sexp)
+
+             ("C-h f"   . describe-function)
+             ("C-h v"   . describe-variable)
 
              ("C-x d"   . delete-whitespace-rectangle)
              ("C-x t"   . toggle-truncate-lines)
