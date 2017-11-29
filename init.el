@@ -231,7 +231,8 @@
 (use-package agda2-mode
   ;; This declaration depends on the load-path established by agda-input.
   :mode "\\.agda\\'"
-  :defines agda2-mode-map
+  :bind (:map agda2-mode-map
+              ("C-c C-i" . agda2-insert-helper-function))
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
     (interactive "P")
@@ -243,9 +244,7 @@
           (insert "  where\n    " func-def "    " name " x = ?\n")))))
 
   :config
-  (bind-key "C-c C-i" #'agda2-insert-helper-function agda2-mode-map)
-
-  (defun char-mapping (key char)
+  (defsubst char-mapping (key char)
     (bind-key key `(lambda () (interactive) (insert ,char))))
 
   (char-mapping "A-G" "Γ")
@@ -275,8 +274,7 @@
 
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
-  :commands ascii-on
-  :functions ascii-off
+  :commands (ascii-on ascii-off)
   :preface
   (defun ascii-toggle ()
     (interactive)
@@ -286,14 +284,8 @@
 
 (use-package auctex
   :load-path "site-lisp/auctex"
-  :defines (latex-help-cmd-alist latex-help-file)
   :mode ("\\.tex\\'" . TeX-latex-mode)
-
-  :init
-  (setq reftex-plug-into-AUCTeX t)
-  (setenv "PATH" (concat "/Library/TeX/texbin:" (getenv "PATH")))
-  (add-to-list 'exec-path "/Library/TeX/texbin")
-
+  :defines (latex-help-cmd-alist latex-help-file)
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -312,19 +304,7 @@
     latex-help-cmd-alist)
 
   (add-hook 'TeX-after-compilation-finished-functions
-            #'TeX-revert-document-buffer)
-
-  (use-package latex
-    :defer t
-    :config
-    (require 'preview)
-    (load (emacs-path "site-lisp/auctex/style/minted"))
-    (add-hook 'LaTeX-mode-hook 'reftex-mode)
-    (info-lookup-add-help :mode 'LaTeX-mode
-                          :regexp ".*"
-                          :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                          :doc-spec '(("(latex2e)Concept Index" )
-                                      ("(latex2e)Command Index")))))
+            #'TeX-revert-document-buffer))
 
 (use-package auto-yasnippet
   :load-path "site-lisp/auto-yasnippet"
@@ -1872,6 +1852,17 @@ non-empty directories is allowed."
   :load-path "site-lisp/hyperbole/kotl"
   :mode "\\.kotl\\'")
 
+(use-package latex
+  :after auctex
+  :config
+  (require 'preview)
+  (load (emacs-path "site-lisp/auctex/style/minted"))
+  (info-lookup-add-help :mode 'LaTeX-mode
+                        :regexp ".*"
+                        :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                        :doc-spec '(("(latex2e)Concept Index")
+                                    ("(latex2e)Command Index"))))
+
 (use-package ledger-mode
   :load-path "~/src/ledger/lisp"
   :commands ledger-mode
@@ -2731,6 +2722,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/redshank"
   :diminish
   :commands redshank-mode)
+
+(use-package reftex
+  :after auctex
+  :hook (LaTeX-mode . reftex-mode))
 
 (use-package regex-tool
   :load-path "lisp/regex-tool"
