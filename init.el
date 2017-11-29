@@ -1111,8 +1111,6 @@ non-empty directories is allowed."
   :after counsel)
 
 (use-package erc
-  :if running-alternate-emacs
-  :defer t
   :commands (erc erc-tls)
   :defines (erc-timestamp-only-if-changed-flag
             erc-timestamp-format
@@ -1121,23 +1119,18 @@ non-empty directories is allowed."
             erc-insert-timestamp-function
             erc-modified-channels-alist)
   :preface
-  (defun irc ()
-    (interactive)
-    (let ((titan-ip "127.0.0.1"))
-      (if t
-          (progn
-            (erc :server titan-ip
-                 :port 6697
-                 :nick "johnw"
-                 :password (lookup-password titan-ip "johnw/freenode" 6697))
-            (erc-tls :server "plclub.irc.slack.com"
-                     :port 6697
-                     :nick "jwiegley"
-                     :password (lookup-password "plclub.irc.slack.com" "jwiegley" 6697)))
-        (erc-tls :server "irc.freenode.net"
-                 :port 6697
-                 :nick "johnw"
-                 :password (lookup-password "irc.freenode.net" "johnw" 6697)))))
+  (defun irc (&optional arg)
+    (interactive "P")
+    (if arg
+        (erc-tls :server "irc.freenode.net" :port 6697 :nick "johnw_")
+      (erc :server "127.0.0.1"
+           :port 6697
+           :nick "johnw"
+           :password (lookup-password "127.0.0.1" "johnw/freenode" 6697))
+      (erc-tls :server "plclub.irc.slack.com"
+               :port 6697
+               :nick "jwiegley"
+               :password (lookup-password "plclub.irc.slack.com" "jwiegley" 6697))))
 
   (defun setup-irc-environment ()
     (setq erc-timestamp-only-if-changed-flag nil
@@ -1168,11 +1161,13 @@ non-empty directories is allowed."
     (erc-list-match erc-foolish-content msg))
 
   :init
-  (add-hook 'erc-mode-hook 'setup-irc-environment)
-  (add-to-list 'erc-mode-hook
-               #'(lambda () (set (make-local-variable 'scroll-conservatively) 100)))
+  (add-hook 'erc-mode-hook
+            #'(lambda ()
+                (setup-irc-environment)
+                (set (make-local-variable 'scroll-conservatively) 100)))
 
-  (add-hook 'after-init-hook 'irc)
+  (when running-alternate-emacs
+    (add-hook 'after-init-hook 'irc))
 
   :config
   (erc-track-minor-mode 1)
