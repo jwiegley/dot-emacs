@@ -1751,6 +1751,7 @@ non-empty directories is allowed."
 
 (use-package info-lookmore
   :load-path "site-lisp/info-lookmore"
+  :after info-look
   :config
   (info-lookmore-elisp-cl)
   (info-lookmore-elisp-userlast)
@@ -1766,6 +1767,13 @@ non-empty directories is allowed."
 
 (use-package isearch
   :no-require t
+  :bind (("C-M-r" . isearch-backward-other-window)
+         ("C-M-s" . isearch-forward-other-window))
+  :bind (:map isearch-mode-map
+              ("C-c" . isearch-toggle-case-fold)
+              ("C-t" . isearch-toggle-regexp)
+              ("C-^" . isearch-edit-string)
+              ("C-i" . isearch-complete))
   :preface
   (defun isearch-backward-other-window ()
     (interactive)
@@ -1775,16 +1783,10 @@ non-empty directories is allowed."
   (defun isearch-forward-other-window ()
     (interactive)
     (split-window-vertically)
-    (call-interactively 'isearch-forward))
-  :bind (("C-M-r" . isearch-backward-other-window)
-         ("C-M-s" . isearch-forward-other-window))
-  :bind (:map isearch-mode-map
-              ("C-c" . isearch-toggle-case-fold)
-              ("C-t" . isearch-toggle-regexp)
-              ("C-^" . isearch-edit-string)
-              ("C-i" . isearch-complete)))
+    (call-interactively 'isearch-forward)))
 
 (use-package ispell
+  :no-require t
   :bind (("C-c i c" . ispell-comments-and-strings)
          ("C-c i d" . ispell-change-dictionary)
          ("C-c i k" . ispell-kill-ispell)
@@ -1801,7 +1803,7 @@ non-empty directories is allowed."
   :bind (:map ivy-minibuffer-map
               ("C-r" . ivy-previous-line-or-history)
               ("M-r" . ivy-reverse-i-search))
-  :init
+  :preface
   (defun my-ivy-completing-read (&rest args)
     (let ((ivy-sort-functions-alist '((t . nil))))
       (apply 'ivy-completing-read args)))
@@ -1814,7 +1816,7 @@ non-empty directories is allowed."
   :demand t)
 
 (use-package ivy-rich
-  :disabled t
+  :disabled t                           ; too slow sometimes
   :load-path "site-lisp/ivy-rich"
   :demand t
   :after ivy
@@ -1822,8 +1824,8 @@ non-empty directories is allowed."
   (ivy-set-display-transformer 'ivy-switch-buffer
                                'ivy-rich-switch-buffer-transformer)
   (setq ivy-virtual-abbreviate 'full
-        ivy-rich-switch-buffer-align-virtual-buffer t)
-  (setq ivy-rich-path-style 'abbrev))
+        ivy-rich-switch-buffer-align-virtual-buffer t
+        ivy-rich-path-style 'abbrev))
 
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
@@ -1979,6 +1981,8 @@ non-empty directories is allowed."
   :load-path "site-lisp/lispy"
   :commands lispy-mode
   :bind (:map emacs-lisp-mode-map
+              ("C-1"     . lispy-describe-inline)
+              ("C-2"     . lispy-arglist-inline)
               ("C-c C-j" . lispy-goto))
   :hook (lispy-mode . (lambda () (unbind-key "M-j" lispy-mode-map))))
 
