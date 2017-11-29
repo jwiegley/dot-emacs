@@ -373,7 +373,7 @@
     (quote
      ((font . "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
       (height . 60))))
- '(default-input-method "latin-1-prefix")
+ '(default-input-method "Agda")
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
@@ -896,6 +896,7 @@
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
+ '(reftex-plug-into-AUCTeX t)
  '(reftex-trust-label-prefix t)
  '(regex-tool-backend (quote perl))
  '(rng-schema-locating-files
