@@ -253,11 +253,14 @@
   (interactive)
   (kill-region (point) (point-max)))
 
-(defun copy-current-buffer-name ()
-  (interactive)
+(defun copy-current-buffer-name (&optional arg)
+  (interactive "P")
   (let ((name (buffer-file-name)))
-    (kill-new name)
-    (message name)))
+    (unless arg
+      (setq name (file-name-nondirectory name)))
+    (when name
+      (kill-new name)
+      (message name))))
 
 (defun unfill-paragraph ()
   (interactive)

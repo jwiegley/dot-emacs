@@ -10,9 +10,6 @@
 (defsubst add-load-path (path)
   (add-to-list 'load-path (emacs-path path)))
 
-(defsubst hook-into-modes (func &rest modes)
-  (dolist (mode-hook modes) (add-hook mode-hook func)))
-
 (defsubst lookup-password (host user port)
   (require 'auth-source)
   (funcall (plist-get (car (auth-source-search :host host :user user
@@ -192,14 +189,9 @@
 ;;; Packages
 
 (use-package abbrev
-  :commands abbrev-mode
-  :diminish abbrev-mode
-  :init
-  (hook-into-modes #'abbrev-mode
-                   'text-mode-hook
-                   'prog-mode-hook
-                   'erc-mode-hook
-                   'LaTeX-mode-hook)
+  :diminish
+  :hook
+  ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file))
@@ -264,10 +256,8 @@
 
 (use-package aggressive-indent
   :load-path "site-lisp/aggressive-indent-mode"
-  :diminish aggressive-indent-mode
-  :commands aggressive-indent-mode
-  :init
-  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
+  :diminish
+  :hook (emacs-lisp-mode . aggressive-indent-mode))
 
 (use-package align
   :bind (("M-["   . align-code)
@@ -343,10 +333,8 @@
          ("C-c y o" . aya-open-line)))
 
 (use-package autorevert
-  :commands auto-revert-mode
   :diminish auto-revert-mode
-  :init
-  (add-hook 'find-file-hook #'(lambda () (auto-revert-mode 1))))
+  :hook (find-file . auto-revert-mode))
 
 (use-package avy
   :load-path "site-lisp/avy"
@@ -372,15 +360,14 @@
     (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
       (normal-backup-enable-predicate filename)))
 
-  :init
-  (add-hook 'after-save-hook 'backup-each-save)
+  :hook after-save
   :config
   (setq backup-each-save-filter-function 'backup-each-save-filter
         backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package beacon
   :load-path "site-lisp/beacon"
-  :diminish beacon-mode
+  :diminish
   :commands beacon-mode)
 
 (use-package bookmark+
@@ -569,13 +556,11 @@
 
 (use-package cldoc
   :commands (cldoc-mode turn-on-cldoc-mode)
-  :diminish cldoc-mode)
+  :diminish)
 
 (use-package cmake-font-lock
   :load-path "site-lisp/cmake-font-lock"
-  :commands cmake-font-lock-activate
-  :init
-  (add-hook 'cmake-mode-hook #'cmake-font-lock-activate))
+  :hook (cmake-mode . cmake-font-lock-activate))
 
 (use-package cmake-mode
   :mode ("CMakeLists.txt" "\\.cmake\\'"))
@@ -598,7 +583,7 @@
 (use-package company
   :load-path "site-lisp/company-mode"
   :demand t
-  :diminish company-mode
+  :diminish
   :commands (company-mode global-company-mode)
   :config
   (global-company-mode 1)
@@ -692,7 +677,7 @@
   :load-path "site-lisp/swiper"
   :after ivy
   :demand t
-  :diminish counsel-mode
+  :diminish
   :bind (("C-*"     . counsel-org-agenda-headlines)
          ("M-x"     . counsel-M-x)
          ("C-s"     . counsel-grep-or-swiper)
@@ -730,6 +715,11 @@
   (change-cursor-mode 1)
   (toggle-cursor-type-when-idle 1))
 
+(use-package cus-edit
+  :bind (("C-c o" . customize-option)
+         ("C-c O" . customize-group)
+         ("C-c F" . customize-face)))
+
 (use-package dash-at-point
   :load-path "site-lisp/dash-at-point"
   :bind ("C-c D" . dash-at-point)
@@ -751,8 +741,7 @@
 (use-package diff-hl
   :load-path "site-lisp/diff-hl"
   :commands (diff-hl-mode diff-hl-dired-mode)
-  :config
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+  :hook (magit-post-refresh . diff-hl-magit-post-refresh))
 
 (use-package diff-hl-flydiff
   :load-path "site-lisp/diff-hl"
@@ -956,8 +945,7 @@ non-empty directories is allowed."
     (visual-line-mode 1)
     (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
     (setq-local word-wrap nil))
-  :config
-  (add-hook 'dired-toggle-mode-hook #'my-dired-toggle-mode-hook))
+  :hook (dired-toggle-mode . my-dired-toggle-mode-hook))
 
 (use-package dired-x
   :after dired)
@@ -965,7 +953,7 @@ non-empty directories is allowed."
 (use-package docker
   :load-path "site-lisp/docker-el"
   :defer 15
-  :diminish docker-mode
+  :diminish
   :config
   (docker-global-mode)
   (require 'docker-images)
@@ -1016,11 +1004,7 @@ non-empty directories is allowed."
 
 (use-package dumb-jump
   :load-path "site-lisp/dumb-jump"
-  :commands dumb-jump-mode
-  :init
-  (hook-into-modes #'dumb-jump-mode
-                   'coq-mode-hook
-                   'haskell-mode-hook))
+  :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 
 (use-package ebdb-com
   :load-path "site-lisp/ebdb"
@@ -1094,7 +1078,7 @@ non-empty directories is allowed."
   :bind ("C-c e v" . edit-variable))
 
 (use-package eldoc
-  :diminish eldoc-mode
+  :diminish
   :commands eldoc-mode
   :config
   (eldoc-add-command 'paredit-backward-delete
@@ -1120,7 +1104,7 @@ non-empty directories is allowed."
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
-  :diminish elisp-slime-nav-mode
+  :diminish
   :commands elisp-slime-nav-mode)
 
 (use-package emacs-counsel-gtags
@@ -1270,9 +1254,7 @@ non-empty directories is allowed."
 
 (use-package eshell-bookmark
   :load-path "site-lisp/eshell-bookmark"
-  :after eshell
-  :config
-  (add-hook 'eshell-mode-hook 'eshell-bookmark-setup))
+  :hook (eshell-mode . eshell-bookmark-setup))
 
 (use-package etags
   :bind ("M-T" . tags-search))
@@ -1298,9 +1280,6 @@ non-empty directories is allowed."
   :load-path "site-lisp/evil"
   :commands evil-mode)
 
-(use-package eww
-  :bind ("A-M-g" . eww))
-
 (use-package expand-region
   :load-path "site-lisp/expand-region-el"
   :bind ("C-. w" . er/expand-region))
@@ -1323,6 +1302,9 @@ non-empty directories is allowed."
 
 (use-package fetchmail-mode
   :commands fetchmail-mode)
+
+(use-package ffap
+  :bind ("C-c v" . ffap))
 
 (use-package flycheck
   :load-path "site-lisp/flycheck"
@@ -1364,7 +1346,7 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/ggtags"
   :commands ggtags-mode
-  :diminish ggtags-mode)
+  :diminish)
 
 (use-package ghc
   ;; Disabled right now until https://github.com/DanielG/ghc-mod/issues/905 is
@@ -1640,16 +1622,11 @@ non-empty directories is allowed."
          ("C-. h u" . hlt-unhighlight-region)))
 
 (use-package highlight-cl
-  :init
-  (autoload #'highlight-cl-add-font-lock-keywords "highlight-cl")
-  (hook-into-modes #'highlight-cl-add-font-lock-keywords
-                   'emacs-lisp-mode-hook))
+  :hook (emacs-lisp-mode . highlight-cl-add-font-lock-keywords))
 
 (use-package highlight-numbers
   :load-path "site-lisp/highlight-numbers"
-  :commands highlight-numbers-mode
-  :init
-  (hook-into-modes #'highlight-numbers-mode 'prog-mode-hook))
+  :hook (prog-mode . highlight-numbers-mode))
 
 (use-package hilit-chg
   :bind ("M-o C" . highlight-changes-mode))
@@ -1842,7 +1819,7 @@ non-empty directories is allowed."
 (use-package ivy
   :load-path "site-lisp/swiper"
   :demand t
-  :diminish ivy-mode
+  :diminish
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
@@ -1949,7 +1926,7 @@ non-empty directories is allowed."
 
 (use-package lentic-mode
   :load-path "site-lisp/lentic"
-  :diminish lentic-mode
+  :diminish
   :commands global-lentic-mode)
 
 (use-package lisp-mode
@@ -1967,7 +1944,8 @@ non-empty directories is allowed."
     (paredit-mode 1)
     (redshank-mode 1)
     (auto-fill-mode 1)
-    (elisp-slime-nav-mode 1)
+    ;; Use Hyperbole for M-. in emacs-lisp-mode for now
+    ;; (elisp-slime-nav-mode 1)
 
     (bind-key "<return>" #'paredit-newline lisp-mode-map)
     (bind-key "<return>" #'paredit-newline emacs-lisp-mode-map)
@@ -1979,6 +1957,14 @@ non-empty directories is allowed."
       (turn-on-cldoc-mode)
       (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
       (bind-key "M-l" #'slime-selector lisp-mode-map)))
+
+  :hook ((emacs-lisp-mode
+          inferior-emacs-lisp-mode
+          ielm-mode
+          lisp-mode
+          inferior-lisp-mode
+          lisp-interaction-mode
+          slime-repl-mode) . my-lisp-mode-hook)
 
   ;; Change lambda to an actual lambda symbol
   :init
@@ -2001,25 +1987,14 @@ non-empty directories is allowed."
           lisp-mode
           inferior-lisp-mode
           lisp-interaction-mode
-          slime-repl-mode))
-
-  (hook-into-modes #'my-lisp-mode-hook
-                   'emacs-lisp-mode-hook
-                   'inferior-emacs-lisp-mode-hook
-                   'ielm-mode-hook
-                   'lisp-mode-hook
-                   'inferior-lisp-mode-hook
-                   'lisp-interaction-mode-hook
-                   'slime-repl-mode-hook))
+          slime-repl-mode)))
 
 (use-package lispy
   :load-path "site-lisp/lispy"
   :commands lispy-mode
   :bind (:map emacs-lisp-mode-map
               ("C-c C-j" . lispy-goto))
-  :init
-  (add-hook 'lispy-mode-hook
-            #'(lambda () (unbind-key "M-j" lispy-mode-map))))
+  :hook (lispy-mode . (lambda () (unbind-key "M-j" lispy-mode-map))))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
@@ -2298,7 +2273,8 @@ non-empty directories is allowed."
   (paren-activate))
 
 (use-package midnight
-  :defer 10)
+  :defer 10
+  :bind ("C-c z" . clean-buffer-list))
 
 (use-package minimap
   :load-path "site-lisp/minimap"
@@ -2441,12 +2417,8 @@ non-empty directories is allowed."
   (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
 
 (use-package outline
-  :commands outline-minor-mode
   :diminish outline-minor-mode
-  :init
-  (hook-into-modes #'outline-minor-mode
-                   'emacs-lisp-mode-hook
-                   'LaTeX-mode-hook))
+  :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
 
 (use-package outorg
   :load-path "site-lisp/outorg"
@@ -2455,21 +2427,17 @@ non-empty directories is allowed."
 (use-package outshine
   :load-path "site-lisp/outshine"
   :after (:or outline org-mode)
-  :init
-  (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
+  :hook (outline-minor-mode . outshine-hook-function))
 
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"
-  :commands pandoc-mode
-  :init
-  (add-hook 'markdown-mode-hook 'pandoc-mode)
-  :config
-  (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings))
+  :hook (markdown-mode
+         (pandoc-mode   . pandoc-load-default-settings)))
 
 (use-package paredit
   :load-path "site-lisp/paredit"
   :commands paredit-mode
-  :diminish paredit-mode
+  :diminish
   :bind (:map paredit-mode-map
               (")"     . paredit-close-round-and-newline)
               ("M-)"   . paredit-close-round)
@@ -2531,26 +2499,19 @@ non-empty directories is allowed."
              ("M-`"  . other-frame)
              ("M-j"  . delete-indentation-forward)
              ("M-J"  . delete-indentation)
-             ("M-W"  . mark-word)
              ("M-L"  . mark-line)
              ("M-S"  . mark-sentence)
-             ("M-X"  . mark-sexp)
-             ("M-D"  . mark-defun)
 
              ("M-g c" . goto-char)
-             ("M-g l" . goto-line)
 
              ("<C-M-backspace>" . backward-kill-sexp)
 
              ("C-x d"   . delete-whitespace-rectangle)
-             ("C-x F"   . set-fill-column)
              ("C-x t"   . toggle-truncate-lines)
-             ("C-x v H" . vc-region-history)
              ("C-x K"   . delete-current-buffer-file)
 
              ("C-x C-d" . duplicate-line)
              ("C-x C-e" . pp-eval-last-sexp)
-             ("C-x C-n" . next-line)
              ("C-x C-v" . find-alternate-file-with-sudo)
 
              ("C-x M-q" . refill-paragraph)
@@ -2562,32 +2523,26 @@ non-empty directories is allowed."
              ("C-c f"   . flush-lines)
              ("C-c k"   . keep-lines)
              ("C-c n"   . insert-user-timestamp)
-             ("C-c o"   . customize-option)
-             ("C-c O"   . customize-group)
-             ("C-c F"   . customize-face)
              ("C-c q"   . fill-region)
-             ("C-c r"   . replace-regexp)
+             ;; ("C-c r"   . replace-regexp)
              ("C-c s"   . replace-string)
              ("C-c u"   . rename-uniquely)
              ("C-c v"   . ffap)
              ("C-c V"   . view-clipboard)
-             ("C-c z"   . clean-buffer-list)
              ("C-c )"   . close-all-parentheses)
              ("C-c ="   . count-matches)
-             ("C-c ;"   . comment-or-uncomment-region)
 
              ("C-c C-z" . delete-to-end-of-buffer)
              ("C-c C-0" . copy-current-buffer-name)
 
              ("C-c M-q" . unfill-paragraph))
 
-  (bind-keys ("C-h e P" . check-papers)
-             ("C-h e a" . apropos-value)
+  (bind-keys ("C-h e a" . apropos-value)
              ("C-h e e" . view-echo-area-messages)
-             ("C-h e f" . find-function)
+             ("C-h e f" . counsel-find-function)
              ("C-h e k" . find-function-on-key)
-             ("C-h e l" . find-library)
-             ("C-h e s" . scratch)
+             ("C-h e l" . counsel-find-library)
+             ("C-h e u" . counsel-unicode-char)
              ("C-h e v" . find-variable))
 
   (bind-keys ("C-c e E" . elint-current-buffer)
@@ -2599,9 +2554,9 @@ non-empty directories is allowed."
              ("C-c e i" . crux-find-user-init-file)
              ("C-c e j" . emacs-lisp-mode)
              ("C-c e l" . counsel-find-library)
+             ("C-c e P" . check-papers)
              ("C-c e r" . do-eval-region)
              ("C-c e s" . scratch)
-             ("C-c e u" . counsel-unicode-char)
              ("C-c e z" . byte-recompile-directory))
 
   (bind-keys ("C-c m k" . kmacro-keymap)
@@ -2621,9 +2576,7 @@ non-empty directories is allowed."
   :load-path "site-lisp/powerline")
 
 (use-package pp-c-l
-  :commands pretty-control-l-mode
-  :init
-  (add-hook 'prog-mode-hook 'pretty-control-l-mode))
+  :hook (prog-mode . pretty-control-l-mode))
 
 (use-package prodigy
   :load-path "site-lisp/prodigy"
@@ -2631,7 +2584,7 @@ non-empty directories is allowed."
 
 (use-package projectile
   :load-path "site-lisp/projectile"
-  :diminish projectile-mode
+  :diminish
   :commands projectile-global-mode
   :defer 5
   :bind-keymap ("C-c p" . projectile-command-map)
@@ -2753,9 +2706,7 @@ non-empty directories is allowed."
 
 (use-package rainbow-delimiters
   :load-path "site-lisp/rainbow-delimiters"
-  :commands rainbow-delimiters-mode
-  :init
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
   :commands rainbow-mode)
@@ -2775,14 +2726,13 @@ non-empty directories is allowed."
            (if (= ?/ (aref dired-directory last-idx))
                (substring dired-directory 0 last-idx)
              dired-directory)))))
-  :init
-  (add-hook 'dired-mode-hook 'recentf-add-dired-directory)
+  :hook (dired-mode . recentf-add-dired-directory)
   :config
   (recentf-mode 1))
 
 (use-package redshank
   :load-path "site-lisp/redshank"
-  :diminish redshank-mode
+  :diminish
   :commands redshank-mode)
 
 (use-package regex-tool
@@ -3152,7 +3102,7 @@ non-empty directories is allowed."
 
 (use-package w3m
   :load-path "site-lisp/emacs-w3m"
-  :commands w3m)
+  :bind ("A-M-g" . w3m-browse-url))
 
 (use-package web-mode
   :load-path "site-lisp/web-mode"
@@ -3165,7 +3115,7 @@ non-empty directories is allowed."
 (use-package which-key
   :load-path "site-lisp/which-key"
   :demand t
-  :diminish which-key-mode
+  :diminish
   :config
   (which-key-mode))
 
@@ -3240,10 +3190,8 @@ non-empty directories is allowed."
 
 (use-package ws-butler
   :load-path "site-lisp/ws-butler"
-  :diminish ws-butler-mode
-  :commands ws-butler-mode
-  :config
-  (add-hook 'prog-mode-hook 'ws-butler-mode))
+  :diminish
+  :hook (prog-mode . ws-butler-mode))
 
 (use-package xray
   :bind (("C-c x b" . xray-buffer)
@@ -3301,13 +3249,11 @@ non-empty directories is allowed."
 
 (use-package zencoding-mode
   :load-path "site-lisp/zencoding-mode"
-  :commands zencoding-mode
-  :init
-  (add-hook 'nxml-mode-hook 'zencoding-mode)
-  (add-hook 'html-mode-hook 'zencoding-mode)
-  (add-hook 'html-mode-hook
-            #'(lambda ()
-                (bind-key "<return>" #'newline-and-indent html-mode-map)))
+  :hook
+  nxml-mode
+  html-mode
+  (html-mode
+   . (lambda () (bind-key "<return>" #'newline-and-indent html-mode-map)))
   :config
   (defvar zencoding-mode-keymap (make-sparse-keymap))
   (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
