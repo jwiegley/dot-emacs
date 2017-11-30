@@ -1618,8 +1618,8 @@ non-empty directories is allowed."
 (use-package hyperbole
   :load-path "site-lisp/hyperbole"
   :defer 10
-  :bind* (("M-."   . hkey-either)
-          ("M-RET" . hkey-operate))
+  :bind* (("M-." . hkey-either)
+          ("A-<return>" . hkey-operate))
   :config
   (when (eq temp-buffer-show-function #'hkey-help-show)
     (setq temp-buffer-show-function nil))
@@ -2527,15 +2527,6 @@ non-empty directories is allowed."
               "site-lisp/ProofGeneral/lib"
               "site-lisp/ProofGeneral/coq")
   :mode ("\\.v\\'" . coq-mode)
-  :bind (:map coq-mode-map
-              ("M-RET"       . proof-goto-point)
-              ("RET"         . newline-and-indent)
-              ("C-c h")
-              ("C-c C-p"     . my-layout-proof-windows)
-              ("C-c C-a C-s" . coq-Search)
-              ("C-c C-a C-o" . coq-SearchPattern)
-              ("C-c C-a C-a" . coq-SearchAbout)
-              ("C-c C-a C-r" . coq-SearchRewrite))
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
@@ -2557,6 +2548,15 @@ non-empty directories is allowed."
     :defer t
     :defines coq-mode-map
     :functions (proof-layout-windows coq-SearchConstant)
+    :bind (:map coq-mode-map
+                ("M-RET"       . proof-goto-point)
+                ("RET"         . newline-and-indent)
+                ("C-c h")
+                ("C-c C-p"     . my-layout-proof-windows)
+                ("C-c C-a C-s" . coq-Search)
+                ("C-c C-a C-o" . coq-SearchPattern)
+                ("C-c C-a C-a" . coq-SearchAbout)
+                ("C-c C-a C-r" . coq-SearchRewrite))
     :config
     (add-hook
      'coq-mode-hook
