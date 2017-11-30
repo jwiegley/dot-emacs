@@ -1961,9 +1961,6 @@ non-empty directories is allowed."
   :demand t
   :bind (("C-x C-f" . my-lusty-file-explorer)
          ("C-x C-w" . my-write-file))
-  :bind (:map lusty-mode-map
-              ("SPC" . lusty-select-match)
-              ("C-d" . exit-minibuffer))
   :preface
   (defun lusty-read-directory ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2031,6 +2028,12 @@ non-empty directories is allowed."
             (ivy-mode (if ivy-mode-prev 1 -1))))))
 
   :config
+  (defun my-lusty-setup-hook ()
+    (bind-key "SPC" #'lusty-select-match lusty-mode-map)
+    (bind-key "C-d" #'exit-minibuffer lusty-mode-map))
+
+  (add-hook 'lusty-setup-hook 'my-lusty-setup-hook)
+
   (defun lusty-open-this ()
     "Open the given file/directory/buffer, creating it if not already present."
     (interactive)
@@ -2363,8 +2366,6 @@ non-empty directories is allowed."
               ("M-)"   . paredit-close-round)
               ("M-k"   . paredit-raise-sexp)
               ("M-I"   . paredit-splice-sexp)
-              ("M-s")
-              ("M-r")
               ("C-M-l" . paredit-recentre-on-sexp)
 
               ("C-. D" . paredit-forward-down)
@@ -2379,6 +2380,9 @@ non-empty directories is allowed."
               ("<return>" . paredit-newline))
   :bind (:map emacs-lisp-mode-map
               ("<return>" . paredit-newline))
+  :hook (paredit-mode . (lambda ()
+                          (unbind-key "M-r" paredit-mode-map)
+                          (unbind-key "M-s" paredit-mode-map)))
   :config
   (require 'eldoc)
   (eldoc-add-command 'paredit-backward-delete
