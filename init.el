@@ -390,27 +390,14 @@
               ("," . self-insert-command)
               (":" . self-insert-command)
               ("(" . self-insert-command)
-              (")" . self-insert-command))
+              (")" . self-insert-command)
+              ("<return>" . newline-and-indent)
+              ("C-c C-i"  . c-includes-current-file)
+              ("M-q" . c-fill-paragraph)
+              ("M-j"))
   :preface
   (defun my-c-mode-common-hook ()
-    (eldoc-mode 1)
-    (hide-ifdef-mode 1)
-    (which-function-mode 1)
-    (company-mode 1)
-    (bug-reference-prog-mode 1)
-
-    (diminish 'hide-ifdef-mode)
-
-    (bind-key "<return>" #'newline-and-indent c-mode-base-map)
-
-    (unbind-key "M-j" c-mode-base-map)
-    (bind-key "C-c C-i" #'c-includes-current-file c-mode-base-map)
-
     (set (make-local-variable 'parens-require-spaces) nil)
-    (setq indicate-empty-lines t)
-    (setq fill-column 72)
-
-    (bind-key "M-q" #'c-fill-paragraph c-mode-base-map)
 
     (let ((bufname (buffer-file-name)))
       (when bufname
@@ -425,11 +412,8 @@
     (font-lock-add-keywords
      'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
 
+  :hook (c-mode-common . my-c-mode-common-hook)
   :config
-  (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
-
-  (setq c-syntactic-indentation nil)
-
   (add-to-list
    'c-style-alist
    '("edg"
@@ -609,9 +593,10 @@
   :load-path "site-lisp/company-coq"
   :after coq
   :commands company-coq-mode
-  :config
-  (bind-key "C-M-h" #'company-coq-toggle-definition-overlay coq-mode-map)
-  (unbind-key "M-<return>" company-coq-map))
+  :bind (:map company-coq-map
+              ("M-<return>"))
+  :bind (:map coq-mode-map
+              ("C-M-h" . company-coq-toggle-definition-overlay)))
 
 (use-package company-ghc
   :load-path "site-lisp/company-ghc"
@@ -737,7 +722,8 @@
               ("l"     . dired-up-directory)
               ("Y"     . ora-dired-rsync)
               ("<tab>" . my-dired-switch-window)
-              ("M-!"   . async-shell-command))
+              ("M-!"   . async-shell-command)
+              ("M-G"))
   :preface
   (defvar mark-files-cache (make-hash-table :test #'equal))
 
@@ -811,9 +797,6 @@
         (error "no more than 2 files should be marked"))))
 
   :config
-  (add-hook 'dired-mode-hook
-            #'(lambda () (unbind-key "M-G" dired-mode-map)))
-
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
     (diminish 'dired-omit-mode) dired-mode-map)
@@ -883,9 +866,9 @@
 
 (use-package dired+
   :after dired
+  :bind (:map dired-mode-map
+              ("M-s f"))
   :config
-  (unbind-key "M-s f" dired-mode-map)
-
   (defun dired-do-delete (&optional arg)
     "Delete all marked (or next ARG) files.
 `dired-recursive-deletes' controls whether deletion of
@@ -899,12 +882,6 @@ non-empty directories is allowed."
       (dired-map-over-marks (cons (dired-get-filename) (point))
                             arg))
      arg t)))
-
-(use-package dired-hacks
-  :disabled t
-  :load-path "site-lisp/dired-hacks"
-  :init
-  (autoload #'dired-filter-mode "dired-filter" nil t))
 
 (use-package dired-ranger
   :bind (:map dired-mode-map
@@ -1059,10 +1036,7 @@ non-empty directories is allowed."
 
 (use-package eldoc
   :diminish
-  :commands eldoc-mode
-  :config
-  (eldoc-add-command 'paredit-backward-delete
-                     'paredit-close-round))
+  :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
 (use-package elint
   :commands 'elint-initialize
@@ -1249,6 +1223,7 @@ non-empty directories is allowed."
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)
+    (require 'paredit)
     (paredit-mode)))
 
 (use-package evil
@@ -1261,9 +1236,10 @@ non-empty directories is allowed."
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
+  :bind (:map eyebrowse-mode-map
+              ("C-\\ C-\\" . eyebrowse-last-window-config))
   :config
-  (eyebrowse-mode)
-  (bind-key "C-\\ C-\\" #'eyebrowse-last-window-config eyebrowse-mode-map))
+  (eyebrowse-mode))
 
 (use-package fancy-narrow
   :load-path "site-lisp/fancy-narrow"
@@ -1305,8 +1281,8 @@ non-empty directories is allowed."
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
-  :config
-  (unbind-key "C-." flyspell-mode-map))
+  :bind (:map flyspell-mode-map
+              ("C-.")))
 
 (use-package font-lock-studio
   :load-path "site-lisp/font-lock-studio"
@@ -1444,7 +1420,11 @@ non-empty directories is allowed."
               ("C-c C-h" . my-haskell-hoogle)
               ("C-c C-," . haskell-navigate-imports)
               ("C-c C-." . haskell-mode-format-imports)
-              ("C-c C-u" . my-haskell-insert-undefined))
+              ("C-c C-u" . my-haskell-insert-undefined)
+              ("M-s")
+              ("M-t"))
+  :bind (:map interactive-haskell-mode-map
+              ("C-c c"))
   :preface
   (defvar interactive-haskell-mode-map)
 
@@ -1520,13 +1500,9 @@ non-empty directories is allowed."
   (require 'haskell-mode)
   (require 'haskell-font-lock)
 
-  (unbind-key "M-s" haskell-mode-map)
-  (unbind-key "M-t" haskell-mode-map)
-
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
-    (unbind-key "C-c c" interactive-haskell-mode-map)
     (flycheck-mode 1)
     (company-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
@@ -1591,6 +1567,16 @@ non-empty directories is allowed."
   :bind (("M-o l" . highlight-lines-matching-regexp)
          ("M-o r" . highlight-regexp)
          ("M-o w" . highlight-phrase)))
+
+(use-package hideif
+  :diminish hide-ifdef-mode
+  :hook (c-mode-common . hide-ifdef-mode))
+
+(use-package hideshow
+  :diminish hs-minor-mode
+  :hook (prog-mode . hs-minor-mode)
+  :bind (:map prog-mode-map
+              ("C-c h" . hs-toggle-hiding)))
 
 (use-package highlight
   :bind (("C-. h h" . hlt-highlight-region)
@@ -1670,6 +1656,8 @@ non-empty directories is allowed."
 
 (use-package ielm
   :commands ielm
+  :bind (:map ielm-map
+              ("<return>" . my-ielm-return))
   :config
   (defun my-ielm-return ()
     (interactive)
@@ -1683,10 +1671,8 @@ non-empty directories is allowed."
             (skip-chars-backward " \t\n\r")
             (delete-region (point) (point-max))
             (call-interactively #'ielm-return))
-        (call-interactively #'paredit-newline))))
-
-  (add-hook 'ielm-mode-hook
-            #'(lambda () (bind-key "<return>" #'my-ielm-return ielm-map)) t))
+        (require 'paredit)
+        (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
   :load-path "site-lisp/iflipb"
@@ -1739,6 +1725,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/indent-shift"
   :bind (("C-c <" . indent-shift-left)
          ("C-c >" . indent-shift-right)))
+
+(use-package inf-ruby
+  :load-path "site-lisp/ruby-mode"
+  :hook (ruby-mode . inf-ruby-keys))
 
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
@@ -1923,72 +1913,35 @@ non-empty directories is allowed."
 
 (use-package lisp-mode
   :defer t
-  :preface
-  (defface esk-paren-face
-    '((((class color) (background dark))
-       (:foreground "grey50"))
-      (((class color) (background light))
-       (:foreground "grey55")))
-    "Face used to dim parentheses."
-    :group 'starter-kit-faces)
-
-  (defun my-lisp-mode-hook ()
-    (paredit-mode 1)
-    (redshank-mode 1)
-    (auto-fill-mode 1)
-    ;; Use Hyperbole for M-. in emacs-lisp-mode for now
-    ;; (elisp-slime-nav-mode 1)
-
-    (bind-key "<return>" #'paredit-newline lisp-mode-map)
-    (bind-key "<return>" #'paredit-newline emacs-lisp-mode-map)
-
-    (add-hook 'after-save-hook 'check-parens nil t)
-
-    (unless (memq major-mode
-                  '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-      (turn-on-cldoc-mode)
-      (bind-key "M-q" #'slime-reindent-defun lisp-mode-map)
-      (bind-key "M-l" #'slime-selector lisp-mode-map)))
-
-  :hook ((emacs-lisp-mode
-          inferior-emacs-lisp-mode
-          ielm-mode
-          lisp-mode
-          inferior-lisp-mode
-          lisp-interaction-mode
-          slime-repl-mode) . my-lisp-mode-hook)
-
-  ;; Change lambda to an actual lambda symbol
+  :hook ((emacs-lisp-mode lisp-mode)
+         . (lambda () (add-hook 'after-save-hook 'check-parens nil t)))
   :init
-  (mapc #'(lambda (major-mode)
-            (font-lock-add-keywords
-             major-mode
-             '(("(\\(lambda\\)\\>"
-                (0 (ignore
-                    (compose-region (match-beginning 1)
-                                    (match-end 1) ?λ))))
-               ;; For the moment I'm using rainbow-delimiters
-               ;; ("(\\|)" . 'esk-paren-face)
-               ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
-                (1 font-lock-keyword-face)
-                (2 font-lock-function-name-face
-                   nil t)))))
-        '(emacs-lisp-mode
-          inferior-emacs-lisp-mode
-          ielm-mode
-          lisp-mode
-          inferior-lisp-mode
-          lisp-interaction-mode
-          slime-repl-mode)))
+  (dolist (mode '(ielm-mode
+                  inferior-emacs-lisp-mode
+                  inferior-lisp-mode
+                  lisp-interaction-mode
+                  lisp-mode
+                  emacs-lisp-mode))
+    (font-lock-add-keywords
+     mode
+     '(("(\\(lambda\\)\\>"
+        (0 (ignore
+            (compose-region (match-beginning 1)
+                            (match-end 1) ?λ))))
+       ("(\\(ert-deftest\\)\\>[         '(]*\\(setf[    ]+\\sw+\\|\\sw+\\)?"
+        (1 font-lock-keyword-face)
+        (2 font-lock-function-name-face
+           nil t))))))
 
 (use-package lispy
   :load-path "site-lisp/lispy"
   :commands lispy-mode
+  :bind (:map lispy-mode-map
+              ("M-j"))
   :bind (:map emacs-lisp-mode-map
               ("C-1"     . lispy-describe-inline)
               ("C-2"     . lispy-arglist-inline)
-              ("C-c C-j" . lispy-goto))
-  :hook (lispy-mode . (lambda () (unbind-key "M-j" lispy-mode-map))))
+              ("C-c C-j" . lispy-goto)))
 
 (use-package llvm-mode
   :mode "\\.ll\\'")
@@ -2008,6 +1961,9 @@ non-empty directories is allowed."
   :demand t
   :bind (("C-x C-f" . my-lusty-file-explorer)
          ("C-x C-w" . my-write-file))
+  :bind (:map lusty-mode-map
+              ("SPC" . lusty-select-match)
+              ("C-d" . exit-minibuffer))
   :preface
   (defun lusty-read-directory ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2075,12 +2031,6 @@ non-empty directories is allowed."
             (ivy-mode (if ivy-mode-prev 1 -1))))))
 
   :config
-  (defun my-lusty-setup-hook ()
-    (bind-key "SPC" #'lusty-select-match lusty-mode-map)
-    (bind-key "C-d" #'exit-minibuffer lusty-mode-map))
-
-  (add-hook 'lusty-setup-hook 'my-lusty-setup-hook)
-
   (defun lusty-open-this ()
     "Open the given file/directory/buffer, creating it if not already present."
     (interactive)
@@ -2107,7 +2057,6 @@ non-empty directories is allowed."
     (write-file filename confirm))
 
   (defvar lusty-only-directories nil)
-
   (defun lusty-file-explorer-matches (path)
     (let* ((dir (lusty-normalize-dir (file-name-directory path)))
            (file-portion (file-name-nondirectory path))
@@ -2138,6 +2087,14 @@ non-empty directories is allowed."
               "lib/with-editor")
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
+  :bind (:map magit-mode-map
+              ("U" . magit-unstage-all)
+              ("M-h")
+              ("M-s")
+              ("M-m")
+              ("M-w"))
+  :bind (:map magit-file-section-map
+              ("<C-return>"))
   :preface
   (defun magit-monitor (&optional no-display)
     "Start git-monitor in the current directory."
@@ -2176,9 +2133,7 @@ non-empty directories is allowed."
                 "*git"
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
-  :init
-  (add-hook 'magit-mode-hook 'hl-line-mode)
-
+  :hook (magit-mode . hl-line-mode)
   :config
   (setenv "GIT_PAGER" "")
 
@@ -2191,24 +2146,7 @@ non-empty directories is allowed."
     :config
     (global-magit-file-mode))
 
-  (unbind-key "M-h" magit-mode-map)
-  (unbind-key "M-s" magit-mode-map)
-  (unbind-key "M-m" magit-mode-map)
-  (unbind-key "M-w" magit-mode-map)
-  (unbind-key "<C-return>" magit-file-section-map)
-
-  ;; (bind-key "M-H" #'magit-show-level-2-all magit-mode-map)
-  ;; (bind-key "M-S" #'magit-show-level-4-all magit-mode-map)
-  (bind-key "U" #'magit-unstage-all magit-mode-map)
-
-  (add-hook 'magit-log-edit-mode-hook
-            #'(lambda ()
-                (set-fill-column 72)
-                (flyspell-mode 1)))
-
-  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
-
-  (remove-hook 'server-switch-hook 'magit-commit-diff))
+  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
 (use-package magit-imerge
   :disabled t
@@ -2377,38 +2315,26 @@ non-empty directories is allowed."
 
 (use-package nxml-mode
   :commands nxml-mode
-  :init
-  (defalias 'xml-mode 'nxml-mode)
-  :config
-  (defun my-nxml-mode-hook ()
-    (bind-key "<return>" #'newline-and-indent nxml-mode-map))
-
-  (add-hook 'nxml-mode-hook 'my-nxml-mode-hook)
-
+  :bind (:map nxml-mode-map
+              ("<return>" . newline-and-indent)
+              ("C-c M-h"  . tidy-xml-buffer))
+  :preface
   (defun tidy-xml-buffer ()
     (interactive)
     (save-excursion
       (call-process-region (point-min) (point-max) "tidy" t t nil
                            "-xml" "-i" "-wrap" "0" "-omit" "-q" "-utf8")))
-
-  (bind-key "C-c M-h" #'tidy-xml-buffer nxml-mode-map)
-
-  (require 'hideshow)
-  (require 'sgml-mode)
-
+  :init
+  (defalias 'xml-mode 'nxml-mode)
+  :config
+  (autoload 'sgml-skip-tag-forward "sgml-mode")
   (add-to-list 'hs-special-modes-alist
                '(nxml-mode
                  "<!--\\|<[^/>]*[^/]>"
                  "-->\\|</[^/>]*[^/]>"
-
                  "<!--"
                  sgml-skip-tag-forward
-                 nil))
-
-  (add-hook 'nxml-mode-hook 'hs-minor-mode)
-
-  ;; optional key bindings, easier than hs defaults
-  (bind-key "C-c h" #'hs-toggle-hiding nxml-mode-map))
+                 nil)))
 
 (use-package outline
   :diminish outline-minor-mode
@@ -2430,13 +2356,15 @@ non-empty directories is allowed."
 
 (use-package paredit
   :load-path "site-lisp/paredit"
-  :commands paredit-mode
   :diminish
+  :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
   :bind (:map paredit-mode-map
               (")"     . paredit-close-round-and-newline)
               ("M-)"   . paredit-close-round)
               ("M-k"   . paredit-raise-sexp)
               ("M-I"   . paredit-splice-sexp)
+              ("M-s")
+              ("M-r")
               ("C-M-l" . paredit-recentre-on-sexp)
 
               ("C-. D" . paredit-forward-down)
@@ -2447,11 +2375,14 @@ non-empty directories is allowed."
               ("C-. A" . paredit-add-to-previous-list)
               ("C-. j" . paredit-join-with-next-list)
               ("C-. J" . paredit-join-with-previous-list))
+  :bind (:map lisp-mode-map
+              ("<return>" . paredit-newline))
+  :bind (:map emacs-lisp-mode-map
+              ("<return>" . paredit-newline))
   :config
-  (add-hook 'paredit-mode-hook
-            #'(lambda ()
-                (unbind-key "M-r" paredit-mode-map)
-                (unbind-key "M-s" paredit-mode-map))))
+  (require 'eldoc)
+  (eldoc-add-command 'paredit-backward-delete
+                     'paredit-close-round))
 
 (use-package paredit-ext
   :after paredit)
@@ -2595,6 +2526,7 @@ non-empty directories is allowed."
   :bind (:map coq-mode-map
               ("M-RET"       . proof-goto-point)
               ("RET"         . newline-and-indent)
+              ("C-c h")
               ("C-c C-p"     . my-layout-proof-windows)
               ("C-c C-a C-s" . coq-Search)
               ("C-c C-a C-o" . coq-SearchPattern)
@@ -2639,9 +2571,7 @@ non-empty directories is allowed."
                     (_ t))))))
 
     (defalias 'coq-Search #'coq-SearchConstant)
-    (defalias 'coq-SearchPattern #'coq-SearchIsos)
-
-    (unbind-key "C-c h" coq-mode-map))
+    (defalias 'coq-SearchPattern #'coq-SearchIsos))
 
   (use-package pg-user
     :defer t
@@ -2670,6 +2600,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/python-mode"
   :mode "\\.py\\'"
   :interpreter "python"
+  :bind (:map python-mode-map
+              ("C-c c")
+              ("C-c C-z" . python-shell))
   :config
   (defvar python-mode-initialized nil)
 
@@ -2691,12 +2624,8 @@ non-empty directories is allowed."
               (format "%s.%s" (match-string 2 item)
                       (match-string 1 item)))))))))
 
-    (setq indicate-empty-lines t)
     (set (make-local-variable 'parens-require-spaces) nil)
-    (setq indent-tabs-mode nil)
-
-    (bind-key "C-c C-z" #'python-shell python-mode-map)
-    (unbind-key "C-c c" python-mode-map))
+    (setq indent-tabs-mode nil))
 
   (add-hook 'python-mode-hook 'my-python-mode-hook))
 
@@ -2729,7 +2658,7 @@ non-empty directories is allowed."
 (use-package redshank
   :load-path "site-lisp/redshank"
   :diminish
-  :commands redshank-mode)
+  :hook ((lisp-mode emacs-lisp-mode) . redshank-mode))
 
 (use-package reftex
   :after auctex
@@ -2761,30 +2690,21 @@ non-empty directories is allowed."
          ("C-. r r" . rtags-find-references)
          ("C-. r s" . rtags-find-symbol)
          ("C-. r v" . rtags-find-virtuals-at-point))
-  :init
-  (add-hook 'c-mode-common-hook
-            #'(lambda ()
-                (bind-key "M-." #'rtags-find-symbol-at-point c-mode-map)
-                (bind-key "M-." #'rtags-find-symbol-at-point c++-mode-map))))
+  :bind (:map c-mode-base-map
+              ("M-." . rtags-find-symbol-at-point)))
 
 (use-package ruby-mode
   :load-path "site-lisp/ruby-mode"
   :mode "\\.rb\\'"
   :interpreter "ruby"
-  :functions inf-ruby-keys
-  :config
+  :bind (:map ruby-mode-map
+              ("<return>" . my-ruby-smart-return))
+  :preface
   (defun my-ruby-smart-return ()
     (interactive)
     (when (memq (char-after) '(?\| ?\" ?\'))
       (forward-char))
-    (call-interactively 'newline-and-indent))
-
-  (defun my-ruby-mode-hook ()
-    (require 'inf-ruby)
-    (inf-ruby-keys)
-    (bind-key "<return>" #'my-ruby-smart-return ruby-mode-map))
-
-  (add-hook 'ruby-mode-hook 'my-ruby-mode-hook))
+    (call-interactively 'newline-and-indent)))
 
 (use-package selected
   :load-path "site-lisp/selected"
@@ -2884,6 +2804,12 @@ non-empty directories is allowed."
   :load-path "site-lisp/slime"
   :commands slime
   :init
+  ;; (unless (memq major-mode
+  ;;               '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
+  ;;   (turn-on-cldoc-mode)
+  ;;   ("M-q" . slime-reindent-defun)
+  ;;   ("M-l" . slime-selector))
+
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
 
@@ -2931,10 +2857,17 @@ non-empty directories is allowed."
               ("/"     . sr-sticky-isearch-forward)
               ("q"     . sr-history-prev)
               ("z"     . sr-quit)
+              ("C-e")
               ("C-x t" . sr-toggle-truncate-lines)
               ("<backspace>" . sr-scroll-quick-view-down))
+  :bind (:map sr-tabs-mode-map
+              ("C-p")
+              ("C-n")
+              ("M-[" . sr-tabs-prev)
+              ("M-]" . sr-tabs-next))
+  :bind (:map sr-term-line-minor-mode-map
+              ("M-<backspace>"))
   :commands sunrise
-  :defines sr-tabs-mode-map
   :preface
   (defun my-activate-sunrise ()
     (interactive)
@@ -2950,15 +2883,6 @@ non-empty directories is allowed."
   (require 'sunrise-x-modeline)
   (require 'sunrise-x-tree)
   (require 'sunrise-x-tabs)
-
-  (unbind-key "C-e" sr-mode-map)
-  (unbind-key "C-p" sr-tabs-mode-map)
-  (unbind-key "C-n" sr-tabs-mode-map)
-  (unbind-key "M-<backspace>" sr-term-line-minor-mode-map)
-
-  (bind-keys :map sr-tabs-mode-map
-             ("M-[" . sr-tabs-prev)
-             ("M-]" . sr-tabs-next))
 
   (defun sr-browse-file (&optional file)
     "Display the selected file with the default appication."
@@ -3131,6 +3055,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/writeroom-mode"
   :commands writeroom-mode)
 
+(use-package which-func
+  :hook (c-mode-common . which-function-mode))
+
 (use-package whitespace
   :diminish (global-whitespace-mode
              whitespace-mode
@@ -3239,12 +3166,12 @@ non-empty directories is allowed."
          ("C-c y m" . yas/minor-mode)
          ("C-c y a" . yas-reload-all)
          ("C-c y x" . yas-expand))
+  :bind (:map yas-keymap
+              ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :config
   (yas-load-directory "~/.emacs.d/snippets/")
-  (yas-global-mode 1)
-
-  (bind-key "C-i" #'yas-next-field-or-maybe-expand yas-keymap))
+  (yas-global-mode 1))
 
 (use-package yasnippet-snippets
   :load-path "site-lisp/yasnippet-snippets"
@@ -3257,9 +3184,10 @@ non-empty directories is allowed."
 (use-package zencoding-mode
   :load-path "site-lisp/zencoding-mode"
   :hook (nxml-mode html-mode)
-  :config
-  (defvar zencoding-mode-keymap (make-sparse-keymap))
-  (bind-key "C-c C-c" #'zencoding-expand-line zencoding-mode-keymap))
+  :bind (:map zencoding-mode-keymap
+              ("C-c C-c" . zencoding-expand-line))
+  :preface
+  (defvar zencoding-mode-keymap (make-sparse-keymap)))
 
 (use-package zoom
   :load-path "site-lisp/zoom"
