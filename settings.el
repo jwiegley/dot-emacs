@@ -790,7 +790,7 @@
  '(ivy-height 10)
  '(ivy-ignore-buffers
    (quote
-    ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'")))
+    ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'" "\\`\\*Org Agenda\\*\\'")))
  '(ivy-initial-inputs-alist nil t)
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
  '(ivy-use-virtual-buffers t)
