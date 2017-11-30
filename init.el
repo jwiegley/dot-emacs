@@ -931,17 +931,19 @@ non-empty directories is allowed."
   :defer 15
   :diminish
   :config
-  (docker-global-mode)
   (require 'docker-images)
   (require 'docker-containers)
   (require 'docker-volumes)
-  (require 'docker-networks))
+  (require 'docker-networks)
+  (docker-global-mode))
 
 (use-package docker-compose-mode
-  :load-path "site-lisp/docker-compose-mode")
+  :load-path "site-lisp/docker-compose-mode"
+  :mode "docker-compose.*\.yml\\'")
 
 (use-package docker-tramp
-  :load-path "site-lisp/docker-tramp")
+  :load-path "site-lisp/docker-tramp"
+  :after tramp)
 
 (use-package dockerfile-mode
   :load-path "site-lisp/dockerfile-mode"
@@ -951,6 +953,8 @@ non-empty directories is allowed."
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
+  ;; Have to set these here, because initsplit sends their customization
+  ;; values to gnus-settings.el.
   (setq gnus-init-file (emacs-path "dot-gnus")
         gnus-home-directory "~/Messages/Gnus/"))
 
@@ -2797,6 +2801,13 @@ non-empty directories is allowed."
   :config
   (selected-global-mode 1))
 
+(use-package server
+  :unless (or noninteractive
+              running-alternate-emacs
+              running-development-emacs)
+  :no-require
+  :hook (after-init . server-start))
+
 (use-package session
   :load-path "site-lisp/session"
   :unless noninteractive
@@ -2809,7 +2820,7 @@ non-empty directories is allowed."
           (delete-region (line-beginning-position)
                          (1+ (line-end-position)))))))
 
-  ;; expanded folded secitons as required
+  ;; expand folded sections as required
   (defun le::maybe-reveal ()
     (when (and (or (memq major-mode  '(org-mode outline-mode))
                    (and (boundp 'outline-minor-mode)
@@ -2878,6 +2889,7 @@ non-empty directories is allowed."
 
 (use-package smart-mode-line
   :load-path "site-lisp/smart-mode-line"
+  :defer 5
   :config
   (sml/setup)
   (sml/apply-theme 'light))
