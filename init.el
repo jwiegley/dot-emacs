@@ -648,14 +648,10 @@
   :diminish
   :bind (("C-*" . counsel-org-agenda-headlines)
          ("M-x" . counsel-M-x))
-  :bind (:map counsel-mode-map
-              ("M-y"))
   :commands counsel-minibuffer-history
   :init
   (define-key minibuffer-local-map (kbd "M-r")
-    'counsel-minibuffer-history)
-  :config
-  (counsel-mode 1))
+    'counsel-minibuffer-history))
 
 (use-package counsel-projectile
   :load-path "site-lisp/counsel-projectile"
@@ -2402,12 +2398,13 @@ non-empty directories is allowed."
 
 (use-package pdf-tools
   :load-path "site-lisp/pdf-tools/lisp"
-  :defer 5
+  :magic ("%PDF" . pdf-view-mode)
   :config
-  (dolist (pkg
-           '(pdf-annot pdf-cache pdf-dev pdf-history pdf-info pdf-isearch
-                       pdf-links pdf-misc pdf-occur pdf-outline pdf-sync
-                       pdf-util pdf-view pdf-virtual))
+  (dolist
+      (pkg
+       '(pdf-annot pdf-cache pdf-dev pdf-history pdf-info pdf-isearch
+                   pdf-links pdf-misc pdf-occur pdf-outline pdf-sync
+                   pdf-util pdf-view pdf-virtual))
     (require pkg))
   (pdf-tools-install))
 
