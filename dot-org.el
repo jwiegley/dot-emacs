@@ -1,9 +1,28 @@
 ;;;_ , Org-mode
 
-(require 'cl)
-(require 'use-package)
+(eval-when-compile
+  (require 'cl)
 
-(load "org-settings")
+  (defun plist-delete (plist property)
+    "Delete PROPERTY from PLIST"
+    (let (p)
+      (while plist
+        (if (not (eq property (car plist)))
+            (setq p (plist-put p (car plist) (nth 1 plist))))
+        (setq plist (cddr plist)))
+      p))
+
+  (eval-when-compile
+    (setplist 'string-to-multibyte
+              (plist-delete
+               (symbol-plist 'string-to-multibyte) 'byte-obsolete-info))))
+
+(eval-and-compile
+  (require 'cl-lib)
+  (require 'use-package)
+  (setq use-package-verbose 'debug)
+
+  (load "org-settings"))
 
 (require 'org)
 (require 'org-agenda)
@@ -553,8 +572,9 @@ end tell" (match-string 1))))
     (?y . "SOMEDAY")
     ))
 
-(defvar org-todo-state-map nil)
-(define-prefix-command 'org-todo-state-map)
+(eval-and-compile
+  (defvar org-todo-state-map nil)
+  (define-prefix-command 'org-todo-state-map))
 
 (dolist (ckey org-mode-completion-keys)
   (let* ((key (car ckey))
@@ -635,8 +655,6 @@ end tell" (match-string 1))))
            ("F"   . org-agenda-follow-mode)
            ("q"   . delete-window)
            ("x"   . org-todo-state-map))
-
-(bind-key "z" #'make-bug-link org-todo-state-map)
 
 (unbind-key "M-m" org-agenda-keymap)
 
@@ -792,14 +810,17 @@ end tell" (match-string 1))))
     "‘Alá’"     ; 19
     ))
 
-(defun bahai-date (month day &optional bahai-year)
+(eval-and-compile
   (require 'cal-julian)
+  (require 'diary-lib))
+
+(defun bahai-date (month day &optional bahai-year)
   (let* ((greg-year (if bahai-year
                         (+ 1844 (1- bahai-year))
                       (nth 2 (calendar-current-date))))
          (year (1+ (- greg-year 1844)))
-         (first-day (find-if #'(lambda (x) (= greg-year (nth 2 x)))
-                             naw-ruz))
+         (first-day (cl-find-if #'(lambda (x) (= greg-year (nth 2 x)))
+                                naw-ruz))
          (greg-base (calendar-julian-to-absolute first-day))
          (hdays (nth (- year first-year-in-list) days-of-há))
          (offset (+ (1- day) (* 19 (1- month))
@@ -855,13 +876,6 @@ end tell" (match-string 1))))
   :disabled t
   :load-path "site-lisp/org-opml")
 
-(use-package org-parser
-  :defer t
-  :preface
-  (autoload #'org-parser-parse-buffer "org-parser")
-  (autoload #'org-parser-parse-file "org-parser")
-  (autoload #'org-parser-parse-string "org-parser"))
-
 (use-package org-super-agenda
   :disabled t
   :load-path "site-lisp/org-super-agenda"
@@ -895,15 +909,20 @@ end tell" (match-string 1))))
   (org-super-agenda-mode))
 
 (use-package org-velocity
+  :load-path "site-lisp/org-mode/contrib/lisp"
   :bind ("C-. C-." . org-velocity))
 
 (use-package org-web-tools
   :load-path "site-lisp/org-web-tools"
   :bind ("C-. C-y" . my-org-insert-url)
+  :functions (org-web-tools--org-link-for-url
+              org-web-tools--get-first-url)
   :preface
+  (declare-function org-web-tools--org-link-for-url "org-web-tools")
+  (declare-function org-web-tools--get-first-url "org-web-tools")
   (defun my-org-insert-url (&optional arg)
     (interactive "P")
-    (require 'org-web-tools)
+    (require' org-web-tools)
     (let ((link (org-web-tools--org-link-for-url
                  (org-web-tools--get-first-url))))
       (if arg

@@ -2,13 +2,21 @@
 
 (eval-when-compile
   (require 'cl))
-(require 'use-package)
 
-(load "gnus-settings")
+(eval-and-compile
+  (require 'use-package)
+  (setq use-package-verbose 'debug)
+
+  (load "gnus-settings"))
 
 (require 'gnus)
 (require 'starttls)
 (require 'message)
+(eval-and-compile
+  (require 'gnus-start)
+  (require 'gnus-sum)
+  (require 'gnus-art)
+  (require 'mml))
 
 (gnus-delay-initialize)
 
@@ -383,15 +391,9 @@ is:
              gnus-alias-message-x-completion
              gnus-alias-select-identity
              gnus-alias-use-identity)
-  :init
-  (if (featurep 'message-x)
-      (add-hook 'message-x-after-completion-functions
-                'gnus-alias-message-x-completion))
-
-  (bind-key "C-c C-f C-p" #'gnus-alias-select-identity message-mode-map)
-
-  (add-hook 'message-mode-hook #'(lambda () (company-mode -1)))
-
+  :bind (:map  message-mode-map
+               ("C-c C-f C-p" . gnus-alias-select-identity))
+  :preface
   (defsubst match-in-strings (re strs)
     (cl-some (apply-partially #'string-match re) strs))
 
@@ -421,6 +423,10 @@ is:
         (gnus-alias-use-identity "BAE"))
        (t
         (gnus-alias-determine-identity)))))
+  :init
+  (when (featurep 'message-x)
+    (add-hook 'message-x-after-completion-functions
+              'gnus-alias-message-x-completion))
 
   (add-hook 'message-setup-hook #'my-gnus-alias-determine-identity))
 
@@ -522,7 +528,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
           (mapc (lambda (string)
                   (insert (format "\t%d: %s\n" count string))
                   (setq count (1+ count))) urls)
-          (not-modified)
+          (set-buffer-modified-p nil)
           (pop-to-buffer temp-buffer)
           (setq count
                 (string-to-number
@@ -546,9 +552,8 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 
 (use-package mml
   :defer t
-  :config
+  :preface
   (defvar mml-signing-attachment nil)
-
   (defun mml-sign-attached-file (file &optional type description disposition)
     (unless (or mml-signing-attachment
                 (null current-prefix-arg))
@@ -565,7 +570,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
             (call-process epg-gpg-program file t nil "--detach-sign")))
         (message "Signing %s...done" file)
         (mml-attach-file signature))))
-
+  :config
   (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
 
 (provide 'dot-gnus)
