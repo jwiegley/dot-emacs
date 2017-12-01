@@ -1,40 +1,45 @@
 (defconst emacs-start-time (current-time))
 
-(setq message-log-max 16384)
+(setq message-log-max 16384
+      gc-cons-threshold 32000000)
 
 ;;; Functions
 
-(defsubst emacs-path (path)
-  (expand-file-name path user-emacs-directory))
+(eval-and-compile
+  (defsubst emacs-path (path)
+    (expand-file-name path user-emacs-directory))
 
-(defsubst add-load-path (path)
-  (add-to-list 'load-path (emacs-path path)))
+  (defsubst add-load-path (path)
+    (add-to-list 'load-path (emacs-path path)))
 
-(defsubst lookup-password (host user port)
-  (require 'auth-source)
-  (funcall (plist-get (car (auth-source-search :host host :user user
-                                               :type 'netrc :port port))
-                      :secret)))
+  (defsubst lookup-password (host user port)
+    (require 'auth-source)
+    (funcall (plist-get (car (auth-source-search :host host :user user
+                                                 :type 'netrc :port port))
+                        :secret)))
 
-(defun get-jobhours-string ()
-  (with-current-buffer (get-buffer-create "*scratch*")
-    (let ((str (shell-command-to-string "jobhours")))
-      (require 'ansi-color)
-      (ansi-color-apply (substring str 0 (1- (length str)))))))
+  (defun get-jobhours-string ()
+    (with-current-buffer (get-buffer-create "*scratch*")
+      (let ((str (shell-command-to-string "jobhours")))
+        (require 'ansi-color)
+        (ansi-color-apply (substring str 0 (1- (length str)))))))
 
-(defun plist-delete (plist property)
-  "Delete PROPERTY from PLIST"
-  (let (p)
-    (while plist
-      (if (not (eq property (car plist)))
-          (setq p (plist-put p (car plist) (nth 1 plist))))
-      (setq plist (cddr plist)))
-    p))
+  (defun plist-delete (plist property)
+    "Delete PROPERTY from PLIST"
+    (let (p)
+      (while plist
+        (if (not (eq property (car plist)))
+            (setq p (plist-put p (car plist) (nth 1 plist))))
+        (setq plist (cddr plist)))
+      p)))
 
 ;;; Environment
 
+(eval-when-compile
+  (require 'cl))
+
 (eval-and-compile
-  (require 'cl)
+  (require 'seq)
 
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
@@ -63,58 +68,57 @@
           (nix-read-environment emacs-environment)))
 
   (require 'use-package)
-  (setq use-package-verbose t))
-
-(require 'bind-key)
-(require 'seq)
+  (setq use-package-verbose 'debug))
 
 ;;; Settings
 
-(defvar running-alternate-emacs nil)
-(defvar running-development-emacs nil)
+(eval-and-compile
+  (defvar running-alternate-emacs nil)
+  (defvar running-development-emacs nil)
 
-(defvar user-data-directory (emacs-path "data"))
+  (defvar user-data-directory (emacs-path "data"))
 
-(if (string= "emacs26" emacs-environment)
-    (load (emacs-path "settings"))
-  (let ((settings
-         (with-temp-buffer
-           (insert-file-contents (emacs-path "settings.el"))
-           (read (current-buffer))))
-        (suffix (cond ((string= "emacsHEAD" emacs-environment) "alt")
-                      (t "other"))))
-    (setq running-development-emacs (string= suffix "dev")
-          running-alternate-emacs   (string= suffix "alt")
-          user-data-directory
-          (replace-regexp-in-string "/data" (format "/data-%s" suffix)
-                                    user-data-directory))
-    (dolist (setting settings)
-      (let ((value (and (listp setting)
-                        (nth 1 (nth 1 setting)))))
-        (if (and (stringp value)
-                 (string-match "/\\.emacs\\.d/data" value))
-            (setcar (nthcdr 1 (nth 1 setting))
-                    (replace-regexp-in-string
-                     "/\\.emacs\\.d/data"
-                     (format "/.emacs.d/data-%s" suffix)
-                     value)))))
-    (eval settings)))
+  (if (string= "emacs26" emacs-environment)
+      (load (emacs-path "settings"))
+    (let ((settings
+           (with-temp-buffer
+             (insert-file-contents (emacs-path "settings.el"))
+             (read (current-buffer))))
+          (suffix (cond ((string= "emacsHEAD" emacs-environment) "alt")
+                        (t "other"))))
+      (setq running-development-emacs (string= suffix "dev")
+            running-alternate-emacs   (string= suffix "alt")
+            user-data-directory
+            (replace-regexp-in-string "/data" (format "/data-%s" suffix)
+                                      user-data-directory))
+      (dolist (setting settings)
+        (let ((value (and (listp setting)
+                          (nth 1 (nth 1 setting)))))
+          (if (and (stringp value)
+                   (string-match "/\\.emacs\\.d/data" value))
+              (setcar (nthcdr 1 (nth 1 setting))
+                      (replace-regexp-in-string
+                       "/\\.emacs\\.d/data"
+                       (format "/.emacs.d/data-%s" suffix)
+                       value)))))
+      (eval settings))))
 
-(setq Info-directory-list
-      (mapcar 'expand-file-name
-              (list
-               "~/.emacs.d/info"
-               "~/Library/Info"
-               (if (executable-find "nix-env")
-                   (expand-file-name
-                    "share/info"
-                    (car (nix-read-environment emacs-environment)))
-                 "~/share/info")
-               "~/.nix-profile/share/info")))
+(defvar Info-directory-list
+  (mapcar 'expand-file-name
+          (list
+           "~/.emacs.d/info"
+           "~/Library/Info"
+           (if (executable-find "nix-env")
+               (expand-file-name
+                "share/info"
+                (car (nix-read-environment emacs-environment)))
+             "~/share/info")
+           "~/.nix-profile/share/info")))
 
 (setq disabled-command-function nil)
 
-(setplist 'flet (plist-delete (symbol-plist 'flet) 'byte-obsolete-info))
+(eval-when-compile
+  (setplist 'flet (plist-delete (symbol-plist 'flet) 'byte-obsolete-info)))
 
 ;;; Libraries
 
@@ -134,7 +138,7 @@
 (use-package epl              :defer t :load-path "lib/epl")
 (use-package esxml            :defer t :load-path "lib/esxml")
 (use-package f                :defer t :load-path "lib/f-el")
-(use-package fringe-helper-el :defer t :load-path "lib/fringe-helper-el")
+(use-package fringe-helper    :defer t :load-path "lib/fringe-helper-el")
 (use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
 (use-package gh               :defer t :load-path "lib/gh-el")
 (use-package ghub             :defer t :load-path "lib/ghub")
@@ -244,8 +248,8 @@
           (insert "  where\n    " func-def "    " name " x = ?\n")))))
 
   :config
-  (defsubst char-mapping (key char)
-    (bind-key key `(lambda () (interactive) (insert ,char))))
+  (defmacro char-mapping (key char)
+    `(bind-key ,key (lambda () (interactive) (insert ,char))))
 
   (char-mapping "A-G" "Γ")
   (char-mapping "A-l" "λ x → ")
@@ -285,7 +289,6 @@
 (use-package auctex
   :load-path "site-lisp/auctex"
   :mode ("\\.tex\\'" . TeX-latex-mode)
-  :defines (latex-help-cmd-alist latex-help-file)
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
@@ -599,6 +602,7 @@
               ("C-M-h" . company-coq-toggle-definition-overlay)))
 
 (use-package company-ghc
+  :disabled t
   :load-path "site-lisp/company-ghc"
   :after (company ghc)
   :config
@@ -609,6 +613,7 @@
   :defer t)
 
 (use-package compile
+  :no-require
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
   :preface
@@ -628,8 +633,7 @@
     (set (make-local-variable 'comint-last-output-start)
          (point-marker)))
 
-  :config
-  (add-hook 'compilation-filter-hook #'compilation-ansi-color-process-output))
+  :hook (compilation-filter . compilation-ansi-color-process-output))
 
 (use-package copy-as-format
   :load-path "site-lisp/copy-as-format"
@@ -644,6 +648,8 @@
   :diminish
   :bind (("C-*" . counsel-org-agenda-headlines)
          ("M-x" . counsel-M-x))
+  :bind (:map counsel-mode-map
+              ("M-y"))
   :commands counsel-minibuffer-history
   :init
   (define-key minibuffer-local-map (kbd "M-r")
@@ -663,8 +669,7 @@
   :bind ("M-o c" . crosshairs-mode))
 
 (use-package css-mode
-  :mode "\\.css\\'"
-  :defines css-syntax-propertize-function)
+  :mode "\\.css\\'")
 
 (use-package csv-mode
   :load-path "site-lisp/csv-mode"
@@ -945,6 +950,8 @@ non-empty directories is allowed."
          ("C-c a" . org-agenda)
          ("C-c S" . org-store-link)
          ("C-c l" . org-insert-link))
+  :bind (:map org-mode-map
+              ("C-'"))
   :defer 30
   :config
   (when (and (not running-alternate-emacs)
@@ -1068,12 +1075,6 @@ non-empty directories is allowed."
 
 (use-package erc
   :commands (erc erc-tls)
-  :defines (erc-timestamp-only-if-changed-flag
-            erc-timestamp-format
-            erc-fill-prefix
-            erc-fill-column
-            erc-insert-timestamp-function
-            erc-modified-channels-alist)
   :preface
   (defun irc (&optional arg)
     (interactive "P")
@@ -1602,7 +1603,7 @@ non-empty directories is allowed."
 (use-package hl-line+
   :after hl-line)
 
-(use-package html-mode
+(use-package mhtml-mode
   :bind (:map html-mode-map
               ("<return>" . newline-and-indent)))
 
@@ -1649,6 +1650,11 @@ non-empty directories is allowed."
   (add-hook 'ibuffer-mode-hook
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
+
+(use-package ido
+  :disabled t
+  :bind (("C-x b" . ido-switch-buffer)
+         ("C-x B" . ido-switch-buffer-other-window)))
 
 (use-package iedit
   :load-path "site-lisp/iedit"
@@ -2220,7 +2226,6 @@ non-empty directories is allowed."
 
 (use-package mule
   :no-require t
-  :defines x-select-request-type
   :config
   (prefer-coding-system 'utf-8)
   (set-terminal-coding-system 'utf-8)
@@ -2396,10 +2401,15 @@ non-empty directories is allowed."
   :commands (rxt-mode rxt-global-mode))
 
 (use-package pdf-tools
-  :load-path "site-lisp/pdf-tools"
-  :defer 15
-  :mode "\\.pdf\\'"
-  :config (pdf-tools-install))
+  :load-path "site-lisp/pdf-tools/lisp"
+  :defer 5
+  :config
+  (dolist (pkg
+           '(pdf-annot pdf-cache pdf-dev pdf-history pdf-info pdf-isearch
+                       pdf-links pdf-misc pdf-occur pdf-outline pdf-sync
+                       pdf-util pdf-view pdf-virtual))
+    (require pkg))
+  (pdf-tools-install))
 
 (use-package per-window-point
   :commands pwp-mode
@@ -2546,8 +2556,6 @@ non-empty directories is allowed."
   (use-package coq
     :no-require t
     :defer t
-    :defines coq-mode-map
-    :functions (proof-layout-windows coq-SearchConstant)
     :bind (:map coq-mode-map
                 ("M-RET"       . proof-goto-point)
                 ("RET"         . newline-and-indent)
@@ -2677,6 +2685,7 @@ non-empty directories is allowed."
   :mode ("\\.rest\\'" . restclient-mode))
 
 (use-package rtags
+  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :commands rtags-mode
   :bind (("C-. r D" . rtags-dependency-tree)
          ("C-. r F" . rtags-fixit)
@@ -2942,7 +2951,6 @@ non-empty directories is allowed."
   :mode "\\.td\\'")
 
 (use-package texinfo
-  :defines texinfo-section-list
   :mode ("\\.texi\\'" . texinfo-mode)
   :config
   (defun my-texinfo-mode-hook ()
@@ -2999,6 +3007,7 @@ non-empty directories is allowed."
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package undo-tree
+  :disabled t
   :load-path "site-lisp/undo-tree"
   :demand t
   :bind ("C-M-/" . undo-tree-redo)
@@ -3069,9 +3078,6 @@ non-empty directories is allowed."
   :commands (whitespace-buffer
              whitespace-cleanup
              whitespace-mode)
-  :defines (whitespace-auto-cleanup
-            whitespace-rescan-timer-time
-            whitespace-silent)
   :preface
   (defun normalize-file ()
     (interactive)

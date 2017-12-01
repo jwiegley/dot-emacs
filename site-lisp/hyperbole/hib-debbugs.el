@@ -74,9 +74,9 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-(eval-after-load "debbugs-gnu"
-  #'(progn (push "hyperbole"  debbugs-gnu-all-packages)
-	   (push "oo-browser" debbugs-gnu-all-packages)))
+;; (eval-after-load "debbugs-gnu"
+;;   #'(progn (push "hyperbole"  debbugs-gnu-all-packages)
+;; 	   (push "oo-browser" debbugs-gnu-all-packages)))
 
 ;;; ************************************************************************
 ;;; Public implicit button types
