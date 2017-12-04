@@ -1609,7 +1609,7 @@ non-empty directories is allowed."
 (use-package hyperbole
   :load-path "site-lisp/hyperbole"
   :defer 10
-  :bind* (("M-." . hkey-either)
+  :bind* (("C-. M-." . hkey-either)
           ("A-<return>" . hkey-operate))
   :config
   (when (eq temp-buffer-show-function #'hkey-help-show)
@@ -2826,6 +2826,17 @@ non-empty directories is allowed."
 
   (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
         slime-contribs '(slime-fancy)))
+
+(use-package smart-jump
+  :load-path "site-lisp/smart-jump"
+  :bind ("M-." . smart-jump)
+  :config
+  (smart-jump-register :modes '(emacs-lisp-mode lisp-interaction-mode)
+                       :jump-fn 'elisp-slime-nav-find-elisp-thing-at-point
+                       :pop-fn 'pop-tag-mark
+                       :should-jump t
+                       :heuristic 'error
+                       :async nil))
 
 (use-package smart-mode-line
   :load-path "site-lisp/smart-mode-line"

@@ -262,6 +262,7 @@ sh-toggle.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/mast
 shackle,site-lisp,subtree,git://github.com/wasamasa/shackle.git,
 shift-number,site-lisp,subtree,git://github.com/alezost/shift-number.el.git,
 slime,site-lisp,subtree,git://github.com/slime/slime.git,
+smart-jump,site-lisp,subtree,git://github.com/jojojames/smart-jump.git,
 smart-mode-line,site-lisp,subtree,git://github.com/Malabarba/smart-mode-line.git,
 smart-mode-line-light-powerline-theme,file,part,smart-mode-line,
 smartparens,site-lisp,subtree,git://github.com/Fuco1/smartparens.git,
