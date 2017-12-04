@@ -1,13 +1,16 @@
 ;;;_ , Gnus
 
-(eval-when-compile
-  (require 'cl))
-
 (eval-and-compile
+  (require 'cl-lib)
   (require 'use-package)
-  (setq use-package-verbose 'debug)
-
+  (setq use-package-verbose t)
   (load "gnus-settings"))
+
+(eval-when-compile
+  (require 'cl)
+  (setplist 'string-to-multibyte
+            (use-package-plist-delete
+             (symbol-plist 'string-to-multibyte) 'byte-obsolete-info)))
 
 (require 'gnus)
 (require 'starttls)

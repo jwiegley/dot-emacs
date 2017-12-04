@@ -1,28 +1,16 @@
 ;;;_ , Org-mode
 
-(eval-when-compile
-  (require 'cl)
-
-  (defun plist-delete (plist property)
-    "Delete PROPERTY from PLIST"
-    (let (p)
-      (while plist
-        (if (not (eq property (car plist)))
-            (setq p (plist-put p (car plist) (nth 1 plist))))
-        (setq plist (cddr plist)))
-      p))
-
-  (eval-when-compile
-    (setplist 'string-to-multibyte
-              (plist-delete
-               (symbol-plist 'string-to-multibyte) 'byte-obsolete-info))))
-
 (eval-and-compile
   (require 'cl-lib)
   (require 'use-package)
-  (setq use-package-verbose 'debug)
-
+  (setq use-package-verbose t)
   (load "org-settings"))
+
+(eval-when-compile
+  (require 'cl)
+  (setplist 'string-to-multibyte
+            (use-package-plist-delete
+             (symbol-plist 'string-to-multibyte) 'byte-obsolete-info)))
 
 (require 'org)
 (require 'org-agenda)
