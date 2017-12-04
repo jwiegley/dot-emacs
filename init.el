@@ -1,7 +1,6 @@
 (defconst emacs-start-time (current-time))
 
-(setq message-log-max 16384
-      gc-cons-threshold 32000000)
+(setq message-log-max 16384)
 
 ;;; Functions
 
@@ -22,16 +21,7 @@
     (with-current-buffer (get-buffer-create "*scratch*")
       (let ((str (shell-command-to-string "jobhours")))
         (require 'ansi-color)
-        (ansi-color-apply (substring str 0 (1- (length str)))))))
-
-  (defun plist-delete (plist property)
-    "Delete PROPERTY from PLIST"
-    (let (p)
-      (while plist
-        (if (not (eq property (car plist)))
-            (setq p (plist-put p (car plist) (nth 1 plist))))
-        (setq plist (cddr plist)))
-      p)))
+        (ansi-color-apply (substring str 0 (1- (length str))))))))
 
 ;;; Environment
 
@@ -78,7 +68,8 @@
 
   (defvar user-data-directory (emacs-path "data"))
 
-  (if (string= "emacs26" emacs-environment)
+  (if (or (string= "emacs26" emacs-environment)
+          (string= "emacs26debug" emacs-environment))
       (load (emacs-path "settings"))
     (let ((settings
            (with-temp-buffer
@@ -118,7 +109,8 @@
 (setq disabled-command-function nil)
 
 (eval-when-compile
-  (setplist 'flet (plist-delete (symbol-plist 'flet) 'byte-obsolete-info)))
+  (setplist 'flet (use-package-plist-delete (symbol-plist 'flet)
+                                            'byte-obsolete-info)))
 
 ;;; Libraries
 
@@ -648,7 +640,9 @@
   :diminish
   :bind (("C-*" . counsel-org-agenda-headlines)
          ("M-x" . counsel-M-x))
-  :commands counsel-minibuffer-history
+  :commands (counsel-minibuffer-history
+             counsel-find-library
+             counsel-unicode-char)
   :init
   (define-key minibuffer-local-map (kbd "M-r")
     'counsel-minibuffer-history))
@@ -2409,19 +2403,26 @@ non-empty directories is allowed."
   (pdf-tools-install))
 
 (use-package per-window-point
+  :load-path "site-lisp/per-window-point"
   :commands pwp-mode
   :defer 5
   :config
   (pwp-mode 1))
 
 (use-package persistent-scratch
+  :load-path "site-lisp/persistent-scratch"
   :if (and window-system
            (not running-alternate-emacs)
            (not running-development-emacs)
-           (not noninteractive)))
+           (not noninteractive))
+  :config
+  (persistent-scratch-autosave-mode)
+  :commands persistent-scratch-setup-default
+  :hook (after-init . (lambda () (with-demoted-errors "Error: %S"
+                              (persistent-scratch-setup-default)))))
 
 (use-package personal
-  :after (crux counsel)
+  :after crux
   :config
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
@@ -2781,7 +2782,7 @@ non-empty directories is allowed."
   (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
   (add-hook 'session-after-jump-to-last-change-hook 'le::maybe-reveal)
   (run-with-idle-timer 60 t 'save-information)
-  (add-hook 'after-init-hook 'session-initialize t))
+  (add-hook 'after-init-hook 'session-initialize))
 
 (use-package sh-script
   :defer t
@@ -3129,6 +3130,7 @@ non-empty directories is allowed."
   :bind ("C-. m w" . word-count-mode))
 
 (use-package ws-butler
+  :disabled t
   :load-path "site-lisp/ws-butler"
   :diminish
   :hook (prog-mode . ws-butler-mode))
@@ -3159,26 +3161,26 @@ non-empty directories is allowed."
   :load-path "site-lisp/yari-with-buttons"
   :commands yari)
 
-(use-package yasnippet
-  :load-path "site-lisp/yasnippet"
-  :demand t
-  :diminish yas-minor-mode
-  :bind (("C-c y d" . yas-load-directory)
-         ("C-c y i" . yas-insert-snippet)
-         ("C-c y f" . yas-visit-snippet-file)
-         ("C-c y n" . yas-new-snippet)
-         ("C-c y t" . yas-tryout-snippet)
-         ("C-c y l" . yas-describe-tables)
-         ("C-c y g" . yas/global-mode)
-         ("C-c y m" . yas/minor-mode)
-         ("C-c y a" . yas-reload-all)
-         ("C-c y x" . yas-expand))
-  :bind (:map yas-keymap
-              ("C-i" . yas-next-field-or-maybe-expand))
-  :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :config
-  (yas-load-directory "~/.emacs.d/snippets/")
-  (yas-global-mode 1))
+;; (use-package yasnippet
+;;   :load-path "site-lisp/yasnippet"
+;;   :demand t
+;;   :diminish yas-minor-mode
+;;   :bind (("C-c y d" . yas-load-directory)
+;;          ("C-c y i" . yas-insert-snippet)
+;;          ("C-c y f" . yas-visit-snippet-file)
+;;          ("C-c y n" . yas-new-snippet)
+;;          ("C-c y t" . yas-tryout-snippet)
+;;          ("C-c y l" . yas-describe-tables)
+;;          ("C-c y g" . yas/global-mode)
+;;          ("C-c y m" . yas/minor-mode)
+;;          ("C-c y a" . yas-reload-all)
+;;          ("C-c y x" . yas-expand))
+;;   :bind (:map yas-keymap
+;;               ("C-i" . yas-next-field-or-maybe-expand))
+;;   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
+;;   :config
+;;   (yas-load-directory "~/.emacs.d/snippets/")
+;;   (yas-global-mode 1))
 
 (use-package yasnippet-snippets
   :load-path "site-lisp/yasnippet-snippets"
@@ -3207,6 +3209,92 @@ non-empty directories is allowed."
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
+
+;;; Layout
+
+(defconst display-name
+  (let ((width (display-pixel-width)))
+    (cond ((>= width 2560) 'retina-imac)
+          ((= width 1920) 'macbook-pro-vga)
+          ((= width 1680) 'macbook-pro)
+          ((= width 1440) 'retina-macbook-pro))))
+
+(defconst emacs-min-top 23)
+
+(defconst emacs-min-left
+  (cond (running-alternate-emacs 5)
+        ((eq display-name 'retina-imac) 975)
+        ((eq display-name 'macbook-pro-vga) 837)
+        (t 521)))
+
+(defconst emacs-min-height
+  (cond (running-alternate-emacs 57)
+        ((eq display-name 'retina-imac) 57)
+        ((eq display-name 'macbook-pro-vga) 54)
+        ((eq display-name 'macbook-pro) 47)
+        (t 44)))
+
+(defconst emacs-min-width
+  (cond (running-alternate-emacs 90)
+        ((eq display-name 'retina-imac) 100)
+        (t 100)))
+
+(defconst emacs-min-font
+  (cond
+   ((eq display-name 'retina-imac)
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
+      ))
+   ((eq display-name 'macbook-pro)
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
+      ))
+   ((eq display-name 'macbook-pro-vga)
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
+      ))
+   ((string= (system-name) "ubuntu")
+    ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
+    "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
+    )
+   (t
+    (if running-alternate-emacs
+        "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
+      ;; "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"
+      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"))))
+
+(defun emacs-min ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'fullscreen nil)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (set-frame-font emacs-min-font)
+  (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (set-frame-height (selected-frame) emacs-min-height)
+  (set-frame-width (selected-frame) emacs-min-width))
+
+(defun emacs-max ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (set-frame-font emacs-min-font))
+
+(defun emacs-toggle-size ()
+  (interactive)
+  (if (> (cdr (assq 'width (frame-parameters))) 200)
+      (emacs-min)
+    (emacs-max)))
+
+(when window-system
+  (add-hook 'after-init-hook #'emacs-min t))
 
 ;;; Finalization
 

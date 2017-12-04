@@ -369,10 +369,6 @@
  '(custom-safe-themes
    (quote
     ("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "b9e9ba5aeedcc5ba8be99f1cc9301f6679912910ff92fdf7980929c2fc83ab4d" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
- '(default-frame-alist
-    (quote
-     ((font . "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
-      (height . 60))))
  '(default-input-method "Agda")
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
@@ -625,7 +621,6 @@
         (assq
          (quote height)
          (frame-parameters))))))) t)
- '(garbage-collection-messages t)
  '(gc-cons-threshold 3500000)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
@@ -868,7 +863,10 @@
  '(parens-require-spaces t)
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
  '(pdf-tools-handle-upgrades nil)
+ '(persistent-scratch-autosave-interval 30)
+ '(persistent-scratch-backup-directory "~/.backups")
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
+ '(persistent-scratch-save-file "/Users/johnw/.emacs.d/data/persistent-scratch")
  '(pp^L-^L-string "                                            ")
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
  '(projectile-completion-system (quote ivy))
