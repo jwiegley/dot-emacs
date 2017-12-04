@@ -1056,7 +1056,8 @@ non-empty directories is allowed."
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
   :diminish
-  :commands elisp-slime-nav-mode)
+  :commands (elisp-slime-nav-mode
+             elisp-slime-nav-find-elisp-thing-at-point))
 
 (use-package emacs-counsel-gtags
   :disabled t
@@ -2829,7 +2830,7 @@ non-empty directories is allowed."
 
 (use-package smart-jump
   :load-path "site-lisp/smart-jump"
-  :bind ("M-." . smart-jump)
+  :bind ("M-." . smart-jump-go)
   :config
   (smart-jump-register :modes '(emacs-lisp-mode lisp-interaction-mode)
                        :jump-fn 'elisp-slime-nav-find-elisp-thing-at-point
