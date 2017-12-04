@@ -1840,6 +1840,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/json-snatcher"
   :after json-mode)
 
+(use-package key-chord
+  :commands key-chord-mode)
+
 (use-package kotl-mode
   :load-path "site-lisp/hyperbole/kotl"
   :mode "\\.kotl\\'")
