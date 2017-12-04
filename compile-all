@@ -30,7 +30,6 @@ find "$@"                                                                       
        ! -path lisp/my-one-key.el                                               \
        ! -path lisp/puppet-ext.el                                               \
        ! -path lisp/springboard/springboard.el                                  \
-       ! -path lisp/use-package/use-package-ensure-system-package.el            \
        ! -path site-lisp/company-coq/etc/rebuild-screenshots.el                 \
        ! -path site-lisp/company-coq/etc/screenshots.el                         \
        ! -path site-lisp/company-ghc/company-ghc.el                             \
