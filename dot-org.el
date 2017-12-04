@@ -32,11 +32,6 @@
 (defconst my-org-soft-blue   "#e8eff9")
 (defconst my-org-soft-purple "#f3e8f9")
 
-(declare-function cfw:open-calendar-buffer "calfw")
-(declare-function cfw:refresh-calendar-buffer "calfw")
-(declare-function cfw:org-create-source "calfw-org")
-(declare-function cfw:cal-create-source "calfw-cal")
-
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
   (and (memq org-agenda-window-setup '(reorganize-frame))
@@ -827,7 +822,10 @@ end tell" (match-string 1))))
          ("j"   . cfw:navi-goto-date-command)
          ("g"   . cfw:refresh-calendar-buffer))
   :commands cfw:open-calendar-buffer
-
+  :functions (cfw:open-calendar-buffer
+              cfw:refresh-calendar-buffer
+              cfw:org-create-source
+              cfw:cal-create-source)
   :preface
   (defun my-calendar ()
     (interactive)
