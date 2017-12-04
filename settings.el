@@ -782,6 +782,7 @@
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
+ '(ivy-dynamic-exhibit-delay-ms 200)
  '(ivy-height 10)
  '(ivy-ignore-buffers
    (quote
