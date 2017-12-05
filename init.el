@@ -115,6 +115,8 @@
 
 ;;; Libraries
 
+(use-package packed :defer t :load-path "lib/packed")
+
 (use-package auto-compile
   :load-path "site-lisp/auto-compile"
   :config
