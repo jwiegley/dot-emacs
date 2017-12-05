@@ -115,6 +115,13 @@
 
 ;;; Libraries
 
+(use-package auto-compile
+  :load-path "site-lisp/auto-compile"
+  :config
+  (auto-compile-on-load-mode)
+  (setq auto-compile-display-buffer nil
+        auto-compile-mode-line-counter t))
+
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
 (use-package apiwrap         :demand t :load-path "lib/apiwrap")
