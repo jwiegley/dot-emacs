@@ -1,6 +1,7 @@
 (defconst emacs-start-time (current-time))
 
-(setq message-log-max 16384)
+(setq message-log-max 16384
+      load-prefer-newer t)
 
 ;;; Functions
 
@@ -1224,7 +1225,7 @@ non-empty directories is allowed."
 
 (use-package expand-region
   :load-path "site-lisp/expand-region-el"
-  :bind ("C-. w" . er/expand-region))
+  :bind ("C-=" . er/expand-region))
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
@@ -1672,7 +1673,7 @@ non-empty directories is allowed."
 
 (use-package iflipb
   :load-path "site-lisp/iflipb"
-  :bind ("<S-return>" . my-iflipb-next-buffer)
+  :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
   (defvar my-iflipb-auto-off-timeout-sec 2)
