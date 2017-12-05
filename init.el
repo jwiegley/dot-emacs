@@ -1531,7 +1531,6 @@ non-empty directories is allowed."
 
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
-  :after helm
   :bind ("C-h b" . helm-descbinds)
   :init
   (fset 'describe-bindings 'helm-descbinds))
@@ -2447,7 +2446,7 @@ non-empty directories is allowed."
 
              ("<C-M-backspace>" . backward-kill-sexp)
 
-             ("C-h f"   . describe-function)
+             ("C-h f"   . counsel-describe-function)
              ("C-h v"   . describe-variable)
 
              ("C-x d"   . delete-whitespace-rectangle)
