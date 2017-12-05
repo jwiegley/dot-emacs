@@ -234,7 +234,8 @@
       (forward-line 4)
       (delete-region (point-min) (point)))
     (goto-char (point-max))
-    (funcall current-mode)))
+    (when (memq current-mode '(emacs-lisp-mode))
+      (funcall current-mode))))
 
 (defun find-all-macros ()
   (interactive)
