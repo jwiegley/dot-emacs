@@ -236,4 +236,28 @@
     (goto-char (point-max))
     (funcall current-mode)))
 
+(defun find-all-macros ()
+  (interactive)
+  (while (re-search-forward "(\\([A-Za-z-]+\\)\\s-+" nil t)
+    (let ((sym (intern-soft (match-string 1))))
+      (if (and sym (macrop sym)
+               (not (memq sym
+                          '(declare
+                            declare-function
+                            defcustom
+                            defgroup
+                            defmacro
+                            defsubst
+                            defun
+                            eval-and-compile
+                            lambda
+                            when
+                            unless
+                            with-current-buffer
+                            push))))
+          (with-current-buffer (get-buffer-create "*macros*")
+            (goto-char (point-max))
+            (insert (symbol-name sym) ?\n)))))
+  (display-buffer (get-buffer-create "*macros*")))
+
 (provide 'personal)
