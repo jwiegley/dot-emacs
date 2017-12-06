@@ -2543,8 +2543,7 @@ non-empty directories is allowed."
              ("C-c m m" . emacs-toggle-size)))
 
 (use-package phi-search
-  :load-path "site-lisp/phi-search"
-  :after multiple-cursors)
+  :load-path "site-lisp/phi-search")
 
 (use-package phi-search-mc
   :load-path "site-lisp/phi-search-mc"
