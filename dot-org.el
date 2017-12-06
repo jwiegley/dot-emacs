@@ -930,8 +930,6 @@ end tell" (match-string 1))))
   :bind (:map org-mode-map
               ("C-c C-j" . worf-goto)))
 
-(provide 'dot-org)
-
 ;; Local Variables:
 ;;   mode: emacs-lisp
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"

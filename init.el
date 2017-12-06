@@ -116,15 +116,6 @@
 
 ;;; Libraries
 
-;; (use-package packed :defer t :load-path "lib/packed")
-
-;; (use-package auto-compile
-;;   :load-path "site-lisp/auto-compile"
-;;   :config
-;;   (auto-compile-on-load-mode)
-;;   (setq auto-compile-display-buffer nil
-;;         auto-compile-mode-line-counter t))
-
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
 (use-package apiwrap          :defer t :load-path "lib/apiwrap")
@@ -964,7 +955,6 @@ non-empty directories is allowed."
          ("C-c l" . org-insert-link))
   :bind (:map org-mode-map
               ("C-'"))
-  :defer 30
   :config
   (when (and (not running-alternate-emacs)
              (not running-development-emacs))

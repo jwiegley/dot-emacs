@@ -577,8 +577,6 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
   :config
   (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
 
-(provide 'dot-gnus)
-
 ;; Local Variables:
 ;;   mode: emacs-lisp
 ;;   outline-regexp: "^;;;_\\([,. ]+\\)"
