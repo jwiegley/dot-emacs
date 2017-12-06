@@ -60,7 +60,8 @@
 
   (require 'use-package)
   (setq use-package-verbose nil)
-  (setq use-package-expand-minimally t))
+  (setq use-package-expand-minimally t)
+  (setq use-package-compute-statistics nil))
 
 ;;; Settings
 
@@ -214,8 +215,7 @@
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
-  :after coq
-  :defer 15
+  :defer 5
   :load-path
   (lambda ()
     (mapcar
@@ -1672,7 +1672,7 @@ non-empty directories is allowed."
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
-  (defvar my-iflipb-auto-off-timeout-sec 2)
+  (defvar my-iflipb-auto-off-timeout-sec 1)
   (defvar my-iflipb-auto-off-timer-canceler-internal nil)
   (defvar my-iflipb-ing-internal nil)
 

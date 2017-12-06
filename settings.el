@@ -826,7 +826,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -898,7 +898,7 @@
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude
    (quote
-    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
+    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")) t)
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
@@ -1003,7 +1003,7 @@
     ((compilation-mode :select t :align
                        (quote below)
                        :size 0.6)
-     (messages-buffer-mode :select t :align t :size 0.6)
+     ("\\`\\*Messages" :select t :align t :size 0.6)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
