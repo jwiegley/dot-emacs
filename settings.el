@@ -792,6 +792,7 @@
     ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'")))
  '(ivy-initial-inputs-alist nil t)
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
+ '(ivy-sort-matches-functions-alist (quote ((t))))
  '(ivy-use-virtual-buffers t)
  '(ivy-wrap t)
  '(jist-enable-default-authorized t)

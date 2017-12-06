@@ -1790,14 +1790,29 @@ non-empty directories is allowed."
   :bind (:map ivy-minibuffer-map
               ("C-r" . ivy-previous-line-or-history)
               ("M-r" . ivy-reverse-i-search))
+  :bind (:map ivy-switch-buffer-map
+              ("C-k" . ivy-switch-buffer-kill))
+
   :preface
+  (defun ivy-switch-buffer-kill ()
+    (interactive)
+    (debug)
+    (let ((bn (ivy-state-current ivy-last)))
+      (when (get-buffer bn)
+        (kill-buffer bn))
+      (unless (buffer-live-p (ivy-state-buffer ivy-last))
+        (setf (ivy-state-buffer ivy-last)
+              (with-ivy-window (current-buffer))))
+      (setq ivy--all-candidates (delete bn ivy--all-candidates))
+      (ivy--exhibit)))
+
   (defun my-ivy-completing-read (&rest args)
     (let ((ivy-sort-functions-alist '((t . nil))))
       (apply 'ivy-completing-read args)))
+
   :config
   (ivy-mode 1)
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
-  (define-key ivy-switch-buffer-map (kbd "C-k") (kbd "C-M-o k")))
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
 
 (use-package ivy-hydra
   :after (ivy hydra)
@@ -2093,8 +2108,8 @@ non-empty directories is allowed."
               ("M-s")
               ("M-m")
               ("M-w"))
-  :bind (:map magit-file-section-map
-              ("<C-return>"))
+  :bind (:map magit-file-section-map ("<C-return>"))
+  :bind (:map magit-hunk-section-map ("<C-return>"))
   :preface
   (defun magit-monitor (&optional no-display)
     "Start git-monitor in the current directory."
