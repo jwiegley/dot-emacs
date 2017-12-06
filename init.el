@@ -98,7 +98,7 @@
 (defvar Info-directory-list
   (mapcar 'expand-file-name
           (list
-           "~/.emacs.d/info"
+           (emacs-path "info")
            "~/Library/Info"
            (if (executable-find "nix-env")
                (expand-file-name
@@ -329,6 +329,11 @@
   :config
   (avy-setup-default))
 
+(use-package avy-zap
+  :load-path "site-lisp/avy-zap"
+  :bind (("M-z" . avy-zap-to-char-dwim)
+         ("M-Z" . avy-zap-up-to-char-dwim)))
+
 (use-package backup-each-save
   :commands backup-each-save
   :preface
@@ -502,6 +507,11 @@
                    c-lineup-gnu-DEFUN-intro-cont))))
      (c-special-indent-hook . c-gnu-impose-minimum)
      (c-block-comment-prefix . ""))))
+
+(use-package change-inner
+  :load-path "site-lisp/change-inner"
+  :bind (("M-i"     . change-inner)
+         ("M-o M-o" . change-outer)))
 
 (use-package chess
   :load-path "lisp/chess"
@@ -1161,6 +1171,14 @@ non-empty directories is allowed."
   :bind (:map erc-mode-map
               ("C-y" . erc-yank )))
 
+(use-package erefactor
+  :load-path "site-lisp/erefactor"
+  :after elisp-mode
+  :config
+  (add-hook 'emacs-lisp-mode-hook
+            #'(lambda ()
+                (erefactor-lazy-highlight-turn-on)
+                (bind-key "C-c C-v" erefactor-map emacs-lisp-mode-map))))
 (use-package ert
   :bind ("C-c e t" . ert-run-tests-interactively))
 
@@ -1279,6 +1297,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/flycheck-hdevtools"
   :after flycheck)
+
+(use-package flycheck-package
+  :load-path "site-lisp/flycheck-package"
+  :after package-lint)
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -1539,6 +1561,10 @@ non-empty directories is allowed."
     (helm-autoresize-mode 1))
   (use-package helm-multi-match))
 
+(use-package helm-dash
+  :load-path "site-lisp/helm-dash"
+  :commands helm-dash)
+
 (use-package helm-descbinds
   :load-path "site-lisp/helm-descbinds"
   :bind ("C-h b" . helm-descbinds)
@@ -1602,10 +1628,6 @@ non-empty directories is allowed."
 
 (use-package hl-line+
   :after hl-line)
-
-(use-package mhtml-mode
-  :bind (:map html-mode-map
-              ("<return>" . newline-and-indent)))
 
 (use-package hydra
   :load-path "site-lisp/hydra"
@@ -2204,12 +2226,30 @@ non-empty directories is allowed."
   :load-path "site-lisp/math-symbol-lists"
   :defer t)
 
+(use-package mc-extras
+  :load-path "site-lisp/mc-extras"
+  :bind (:map mc/keymap
+              ("C-. M-C-f" . mc/mark-next-sexps)
+              ("C-. M-C-b" . mc/mark-previous-sexps)
+              ("C-. <"     . mc/mark-all-above)
+              ("C-. >"     . mc/mark-all-below)
+              ("C-. C-d"   . mc/remove-current-cursor)
+              ("C-. C-k"   . mc/remove-cursors-at-eol)
+              ("C-. d"     . mc/remove-duplicated-cursors)
+              ("C-. C-."   . mc/freeze-fake-cursors-dwim)
+              ("C-. ."     . mc/move-to-column)
+              ("C-. ="     . mc/compare-chars)))
+
 (use-package mediawiki
   :load-path "site-lisp/mediawiki"
   :commands mediawiki-open)
 
 (use-package memory-usage
   :commands memory-usage)
+
+(use-package mhtml-mode
+  :bind (:map html-mode-map
+              ("<return>" . newline-and-indent)))
 
 (use-package mic-paren
   :defer 5
@@ -2360,6 +2400,9 @@ non-empty directories is allowed."
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
 
+(use-package package-lint
+  :load-path "site-lisp/package-lint")
+
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"
   :hook (markdown-mode
@@ -2432,7 +2475,7 @@ non-empty directories is allowed."
   (persistent-scratch-autosave-mode)
   :commands persistent-scratch-setup-default
   :hook (after-init . (lambda () (with-demoted-errors "Error: %S"
-                              (persistent-scratch-setup-default)))))
+                                   (persistent-scratch-setup-default)))))
 
 (use-package personal
   :after crux
@@ -2517,6 +2560,13 @@ non-empty directories is allowed."
 
 (use-package phi-search
   :load-path "site-lisp/phi-search")
+
+(use-package phi-search-mc
+  :load-path "site-lisp/phi-search-mc"
+  :after (phi-search multiple-cursors)
+  :config
+  (phi-search-mc/setup-keys)
+  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
 
 (use-package po-mode
   :mode "\\.\\(po\\'\\|po\\.\\)")
@@ -2682,6 +2732,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/redshank"
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . redshank-mode))
+
+(use-package refine
+  :load-path "site-lisp/refine"
+  :commands refine)
 
 (use-package reftex
   :after auctex
@@ -2865,6 +2919,11 @@ non-empty directories is allowed."
   :load-path "site-lisp/smartparens"
   :commands smartparens-mode)
 
+(use-package smartscan
+  :load-path "site-lisp/smart-scan"
+  :commands smartscan-mode
+  :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode))
+
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
   :mode "\\.\\(a4\\)?smedl\\'")
@@ -2957,7 +3016,7 @@ non-empty directories is allowed."
         (sr-beginning-of-buffer)))))
 
 (use-package swiper
-  :load-path "site-lisp/ivy/swiper"
+  :load-path "site-lisp/swiper"
   :after ivy
   :bind (("C-. C-s" . swiper)
          ("C-. C-r" . swiper))
@@ -3079,19 +3138,15 @@ non-empty directories is allowed."
   :load-path "site-lisp/wgrep"
   :defer 5)
 
+(use-package which-func
+  :hook (c-mode-common . which-function-mode))
+
 (use-package which-key
   :load-path "site-lisp/which-key"
   :demand t
   :diminish
   :config
   (which-key-mode))
-
-(use-package writeroom-mode
-  :load-path "site-lisp/writeroom-mode"
-  :commands writeroom-mode)
-
-(use-package which-func
-  :hook (c-mode-common . which-function-mode))
 
 (use-package whitespace
   :diminish (global-whitespace-mode
@@ -3153,6 +3208,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/word-count-mode"
   :bind ("C-. m w" . word-count-mode))
 
+(use-package writeroom-mode
+  :load-path "site-lisp/writeroom-mode"
+  :commands writeroom-mode)
+
 (use-package ws-butler
   :disabled t
   :load-path "site-lisp/ws-butler"
@@ -3203,7 +3262,7 @@ non-empty directories is allowed."
               ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :config
-  (yas-load-directory "~/.emacs.d/snippets/")
+  (yas-load-directory (emacs-path "snippets"))
   (yas-global-mode 1))
 
 (use-package yasnippet-snippets
@@ -3233,6 +3292,7 @@ non-empty directories is allowed."
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
+
 
 ;;; Layout
 

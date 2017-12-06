@@ -59,7 +59,10 @@ reuse storage as much as possible."
              (entry (assq key alist)))
         (if entry
             (unless (equal (cdr entry) value)
-              (error "%s: overwriting %s with %s" key (cdr entry) value))
+              (display-warning
+               'inventory
+               (format "%s: overwriting %s with %s" key (cdr entry) value)
+               :error))
           (setq alist (cons (cons key value) alist))))))
   alist)
 
