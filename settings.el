@@ -634,7 +634,7 @@
  '(glasses-separator "-")
  '(glasses-uncapitalize-p t)
  '(global-auto-complete-mode t)
- '(global-display-line-numbers-mode nil)
+ '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
  '(global-undo-tree-mode t)
  '(grep-command "egrep -nH -e ")
