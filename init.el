@@ -59,7 +59,7 @@
           (nix-read-environment emacs-environment)))
 
   (require 'use-package)
-  (setq use-package-verbose 'debug))
+  (setq use-package-verbose t))
 
 ;;; Settings
 
@@ -115,23 +115,23 @@
 
 ;;; Libraries
 
-(use-package packed :defer t :load-path "lib/packed")
+;; (use-package packed :defer t :load-path "lib/packed")
 
-(use-package auto-compile
-  :load-path "site-lisp/auto-compile"
-  :config
-  (auto-compile-on-load-mode)
-  (setq auto-compile-display-buffer nil
-        auto-compile-mode-line-counter t))
+;; (use-package auto-compile
+;;   :load-path "site-lisp/auto-compile"
+;;   :config
+;;   (auto-compile-on-load-mode)
+;;   (setq auto-compile-display-buffer nil
+;;         auto-compile-mode-line-counter t))
 
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
-(use-package apiwrap         :demand t :load-path "lib/apiwrap")
+(use-package apiwrap          :defer t :load-path "lib/apiwrap")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
 (use-package crux            :demand t :load-path "lib/crux")
 (use-package ctable           :defer t :load-path "lib/emacs-ctable")
-(use-package dash            :demand t :load-path "lib/dash-el")
+(use-package dash             :defer t :load-path "lib/dash-el")
 (use-package deferred         :defer t :load-path "lib/emacs-deferred")
 (use-package diminish        :demand t :load-path "lib/diminish")
 (use-package elisp-refs       :defer t :load-path "lib/elisp-refs")
@@ -197,6 +197,7 @@
 ;;; Packages
 
 (use-package abbrev
+  :defer 5
   :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
@@ -209,6 +210,7 @@
       (quietly-read-abbrev-file)))
 
 (use-package ace-link
+  :disabled t
   :load-path "site-lisp/ace-link"
   :after avy
   :config
@@ -219,6 +221,8 @@
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
+  :after coq
+  :defer 15
   :load-path
   (lambda ()
     (mapcar
@@ -318,13 +322,8 @@
          ("C-c y e" . aya-expand)
          ("C-c y o" . aya-open-line)))
 
-(use-package autorevert
-  :diminish auto-revert-mode
-  :hook (find-file . auto-revert-mode))
-
 (use-package avy
   :load-path "site-lisp/avy"
-  :demand t
   :bind ("M-h" . avy-goto-char)
   :config
   (avy-setup-default))
@@ -562,9 +561,8 @@
 
 (use-package company
   :load-path "site-lisp/company-mode"
-  :demand t
   :diminish
-  :commands (company-mode global-company-mode)
+  :commands company-mode
   :hook (prog-mode . company-mode)
   :config
   ;; From https://github.com/company-mode/company-mode/issues/87
@@ -984,43 +982,6 @@ non-empty directories is allowed."
   :load-path "site-lisp/ebdb"
   :commands ebdb)
 
-(use-package edebug
-  :demand t
-  :preface
-  (defvar modi/fns-in-edebug nil
-    "List of functions for which `edebug' is instrumented.")
-
-  (defconst modi/fns-regexp
-    (concat "(\\s-*"
-            "\\(defun\\|defmacro\\)\\s-+"
-            "\\(?1:\\(\\w\\|\\s_\\)+\\)\\_>") ; word or symbol char
-    "Regexp to find defun or defmacro definition.")
-
-  (defun modi/toggle-edebug-defun ()
-    (interactive)
-    (let (fn)
-      (save-excursion
-        (search-backward-regexp modi/fns-regexp)
-        (setq fn (match-string 1))
-        (mark-sexp)
-        (narrow-to-region (point) (mark))
-        (if (member fn modi/fns-in-edebug)
-            ;; If the function is already being edebugged, uninstrument it
-            (progn
-              (setq modi/fns-in-edebug (delete fn modi/fns-in-edebug))
-              (eval-region (point) (mark))
-              (setq-default eval-expression-print-length 12)
-              (setq-default eval-expression-print-level  4)
-              (message "Edebug disabled: %s" fn))
-          ;; If the function is not being edebugged, instrument it
-          (progn
-            (add-to-list 'modi/fns-in-edebug fn)
-            (setq-default eval-expression-print-length nil)
-            (setq-default eval-expression-print-level  nil)
-            (edebug-defun)
-            (message "Edebug: %s" fn)))
-        (widen)))))
-
 (use-package ediff
   :bind (("C-. = b" . ediff-buffers)
          ("C-. = B" . ediff-buffers3)
@@ -1072,6 +1033,31 @@ non-empty directories is allowed."
 
 (use-package elisp-depend
   :commands elisp-depend-print-dependencies)
+
+(use-package elisp-mode
+  :no-require t
+  :catch nil
+  :init
+  (add-hook
+   'emacs-lisp-mode-hook
+   #'(lambda ()
+       (use-package erefactor
+         :load-path "site-lisp/erefactor")
+
+       (use-package package-lint
+         :load-path "site-lisp/package-lint")
+
+       (use-package flycheck-package
+         :load-path "site-lisp/flycheck-package"
+         :after package-lint)
+
+       (bind-keys :map emacs-lisp-mode-map
+                  ("M-n" . flycheck-next-error)
+                  ("M-p" . flycheck-previous-error)
+
+                  ("C-c C-v" . erefactor-map))
+
+       (erefactor-lazy-highlight-turn-on))))
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
@@ -1171,14 +1157,6 @@ non-empty directories is allowed."
   :bind (:map erc-mode-map
               ("C-y" . erc-yank )))
 
-(use-package erefactor
-  :load-path "site-lisp/erefactor"
-  :after elisp-mode
-  :config
-  (add-hook 'emacs-lisp-mode-hook
-            #'(lambda ()
-                (erefactor-lazy-highlight-turn-on)
-                (bind-key "C-c C-v" erefactor-map emacs-lisp-mode-map))))
 (use-package ert
   :bind ("C-c e t" . ert-run-tests-interactively))
 
@@ -1281,7 +1259,7 @@ non-empty directories is allowed."
   :load-path "site-lisp/flycheck"
   :defer 5
   :config
-  (defalias 'flycheck-show-error-at-point-soon
+  (defalias 'show-error-at-point-soon
     'flycheck-show-error-at-point))
 
 (use-package flycheck-haskell
@@ -1297,10 +1275,6 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/flycheck-hdevtools"
   :after flycheck)
-
-(use-package flycheck-package
-  :load-path "site-lisp/flycheck-package"
-  :after package-lint)
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -1376,7 +1350,8 @@ non-empty directories is allowed."
 
 (use-package git-modes
   :load-path "site-lisp/git-modes"
-  :init
+  :defer 5
+  :config
   (use-package gitattributes-mode)
   (use-package gitconfig-mode)
   (use-package gitignore-mode))
@@ -1549,7 +1524,7 @@ non-empty directories is allowed."
 (use-package helm-autoloads
   :load-path "site-lisp/helm"
   :if (not running-alternate-emacs)
-  :demand t
+  :defer 5
   :config
   (use-package helm
     :bind (:map helm-map
@@ -1630,6 +1605,7 @@ non-empty directories is allowed."
   :after hl-line)
 
 (use-package hydra
+  :disabled t
   :load-path "site-lisp/hydra"
   :demand t
   :config
@@ -1831,7 +1807,8 @@ non-empty directories is allowed."
       (apply 'ivy-completing-read args)))
   :config
   (ivy-mode 1)
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
+  (define-key ivy-switch-buffer-map (kbd "C-k") (kbd "C-M-o k")))
 
 (use-package ivy-hydra
   :after (ivy hydra)
@@ -2325,7 +2302,8 @@ non-empty directories is allowed."
          ("C-c m r" . set-rectangular-region-anchor)))
 
 (use-package my-compile
-  :after compile)
+  :after compile
+  :defer 5)
 
 (use-package navi-mode
   :load-path "site-lisp/navi"
@@ -2400,9 +2378,6 @@ non-empty directories is allowed."
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
 
-(use-package package-lint
-  :load-path "site-lisp/package-lint")
-
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"
   :hook (markdown-mode
@@ -2466,6 +2441,9 @@ non-empty directories is allowed."
   (pwp-mode 1))
 
 (use-package persistent-scratch
+  ;; Using this slows down startup considerably, since it restores whatever
+  ;; major-mode the previous buffer contents were in.
+  :disabled t
   :load-path "site-lisp/persistent-scratch"
   :if (and window-system
            (not running-alternate-emacs)
@@ -2475,7 +2453,7 @@ non-empty directories is allowed."
   (persistent-scratch-autosave-mode)
   :commands persistent-scratch-setup-default
   :hook (after-init . (lambda () (with-demoted-errors "Error: %S"
-                                   (persistent-scratch-setup-default)))))
+                              (persistent-scratch-setup-default)))))
 
 (use-package personal
   :after crux
@@ -2559,7 +2537,8 @@ non-empty directories is allowed."
              ("C-c m m" . emacs-toggle-size)))
 
 (use-package phi-search
-  :load-path "site-lisp/phi-search")
+  :load-path "site-lisp/phi-search"
+  :after multiple-cursors)
 
 (use-package phi-search-mc
   :load-path "site-lisp/phi-search-mc"
@@ -2869,7 +2848,7 @@ non-empty directories is allowed."
 
 (use-package shackle
   :load-path "site-lisp/shackle"
-  :demand t
+  :defer 5
   :config
   (shackle-mode 1))
 
@@ -2903,8 +2882,8 @@ non-empty directories is allowed."
                        :async nil))
 
 (use-package smart-mode-line
+  :disabled t
   :load-path "site-lisp/smart-mode-line"
-  :defer 5
   :config
   (sml/setup)
   (sml/apply-theme 'light))
@@ -3143,7 +3122,7 @@ non-empty directories is allowed."
 
 (use-package which-key
   :load-path "site-lisp/which-key"
-  :demand t
+  :defer 5
   :diminish
   :config
   (which-key-mode))
@@ -3246,7 +3225,8 @@ non-empty directories is allowed."
 
 (use-package yasnippet
   :load-path "site-lisp/yasnippet"
-  :demand t
+  :after prog-mode
+  :defer 10
   :diminish yas-minor-mode
   :bind (("C-c y d" . yas-load-directory)
          ("C-c y i" . yas-insert-snippet)
