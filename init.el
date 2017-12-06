@@ -59,7 +59,8 @@
           (nix-read-environment emacs-environment)))
 
   (require 'use-package)
-  (setq use-package-verbose t))
+  (setq use-package-verbose nil)
+  (setq use-package-expand-minimally t))
 
 ;;; Settings
 
@@ -177,22 +178,23 @@
 
 ;;; Keymaps
 
-(mapc #'(lambda (entry)
-          (define-prefix-command (cdr entry))
-          (bind-key (car entry) (cdr entry)))
-      '(("C-h e" . my-ctrl-h-e-map)
+(eval-and-compile
+  (mapc #'(lambda (entry)
+            (define-prefix-command (cdr entry))
+            (bind-key (car entry) (cdr entry)))
+        '(("C-h e" . my-ctrl-h-e-map)
 
-        ("C-c e" . my-ctrl-c-e-map)
-        ("C-c m" . my-ctrl-c-m-map)
-        ("C-c y" . my-ctrl-c-y-map)
+          ("C-c e" . my-ctrl-c-e-map)
+          ("C-c m" . my-ctrl-c-m-map)
+          ("C-c y" . my-ctrl-c-y-map)
 
-        ("C-."   . my-ctrl-dot-map)
-        ("C-. =" . my-ctrl-dot-equals-map)
-        ("C-. f" . my-ctrl-dot-f-map)
-        ("C-. g" . my-ctrl-dot-g-map)
-        ("C-. h" . my-ctrl-dot-h-map)
-        ("C-. m" . my-ctrl-dot-m-map)
-        ("C-. r" . my-ctrl-dot-r-map)))
+          ("C-."   . my-ctrl-dot-map)
+          ("C-. =" . my-ctrl-dot-equals-map)
+          ("C-. f" . my-ctrl-dot-f-map)
+          ("C-. g" . my-ctrl-dot-g-map)
+          ("C-. h" . my-ctrl-dot-h-map)
+          ("C-. m" . my-ctrl-dot-m-map)
+          ("C-. r" . my-ctrl-dot-r-map))))
 
 ;;; Packages
 
@@ -210,9 +212,9 @@
       (quietly-read-abbrev-file)))
 
 (use-package ace-link
-  :disabled t
   :load-path "site-lisp/ace-link"
   :after avy
+  :defer t
   :config
   (ace-link-setup-default))
 
@@ -548,6 +550,7 @@
   :commands col-highlight-mode)
 
 (use-package color-moccur
+  :load-path "site-lisp/color-moccur"
   :commands (isearch-moccur isearch-all isearch-moccur-all)
   :bind (("M-s O" . moccur)
          :map isearch-mode-map
@@ -897,6 +900,7 @@ non-empty directories is allowed."
      arg t)))
 
 (use-package dired-ranger
+  :load-path "site-lisp/dired-hacks"
   :bind (:map dired-mode-map
               ("W" . dired-ranger-copy)
               ("X" . dired-ranger-move)
@@ -1049,15 +1053,13 @@ non-empty directories is allowed."
 
        (use-package flycheck-package
          :load-path "site-lisp/flycheck-package"
-         :after package-lint)
+         :after (flycheck package-lint))
 
        (bind-keys :map emacs-lisp-mode-map
                   ("M-n" . flycheck-next-error)
                   ("M-p" . flycheck-previous-error)
 
-                  ("C-c C-v" . erefactor-map))
-
-       (erefactor-lazy-highlight-turn-on))))
+                  ("C-c C-v" . erefactor-map)))))
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
@@ -1352,9 +1354,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/git-modes"
   :defer 5
   :config
-  (use-package gitattributes-mode)
-  (use-package gitconfig-mode)
-  (use-package gitignore-mode))
+  (require 'gitattributes-mode)
+  (require 'gitconfig-mode)
+  (require 'gitignore-mode))
 
 (use-package git-timemachine
   :load-path "site-lisp/git-timemachine"
@@ -1378,6 +1380,7 @@ non-empty directories is allowed."
   :bind-keymap ("C-. /" . google-this-mode-submap))
 
 (use-package graphviz-dot-mode
+  :load-path "site-lisp/graphviz-dot-mode"
   :mode "\\.dot\\'")
 
 (use-package grep
@@ -1422,11 +1425,7 @@ non-empty directories is allowed."
               ("C-c C-u" . my-haskell-insert-undefined)
               ("M-s")
               ("M-t"))
-  :bind (:map interactive-haskell-mode-map
-              ("C-c c"))
   :preface
-  (defvar interactive-haskell-mode-map)
-
   (defun my-haskell-insert-undefined ()
     (interactive) (insert "undefined"))
 
@@ -1534,7 +1533,8 @@ non-empty directories is allowed."
                 ("A-v"   . helm-previous-page))
     :config
     (helm-autoresize-mode 1))
-  (use-package helm-multi-match))
+  (use-package helm-multi-match
+    :load-path "site-lisp/helm"))
 
 (use-package helm-dash
   :load-path "site-lisp/helm-dash"
@@ -1605,9 +1605,8 @@ non-empty directories is allowed."
   :after hl-line)
 
 (use-package hydra
-  :disabled t
   :load-path "site-lisp/hydra"
-  :demand t
+  :defer t
   :config
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
@@ -1812,7 +1811,7 @@ non-empty directories is allowed."
 
 (use-package ivy-hydra
   :after (ivy hydra)
-  :demand t)
+  :defer t)
 
 (use-package ivy-rich
   :disabled t                           ; too slow sometimes
@@ -2145,19 +2144,20 @@ non-empty directories is allowed."
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
   :hook (magit-mode . hl-line-mode)
-  :config
-  (setenv "GIT_PAGER" "")
+  ;; :config
+  ;; (setenv "GIT_PAGER" "")
 
-  (use-package magit-commit
-    :config
-    (remove-hook 'server-switch-hook 'magit-commit-diff)
-    (use-package git-commit))
+  ;; (use-package magit-commit
+  ;;   :config
+  ;;   (remove-hook 'server-switch-hook 'magit-commit-diff)
+  ;;   (use-package git-commit))
 
-  (use-package magit-files
-    :config
-    (global-magit-file-mode))
+  ;; (use-package magit-files
+  ;;   :config
+  ;;   (global-magit-file-mode))
 
-  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
+  ;; (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+  )
 
 (use-package magit-imerge
   :disabled t
@@ -2222,6 +2222,7 @@ non-empty directories is allowed."
   :commands mediawiki-open)
 
 (use-package memory-usage
+  :load-path "site-lisp/memory-usage"
   :commands memory-usage)
 
 (use-package mhtml-mode
@@ -2242,6 +2243,7 @@ non-empty directories is allowed."
   :commands minimap-mode)
 
 (use-package moccur-edit
+  :load-path "site-lisp/moccur-edit"
   :after color-moccur)
 
 (use-package mule
@@ -2686,6 +2688,7 @@ non-empty directories is allowed."
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
+  :load-path "site-lisp/rainbow-mode"
   :commands rainbow-mode)
 
 (use-package recentf
@@ -2920,6 +2923,7 @@ non-empty directories is allowed."
   :commands sort-words)
 
 (use-package stopwatch
+  :load-path "site-lisp/stopwatch"
   :bind ("<f8>" . stopwatch))
 
 (use-package sunrise-commander
@@ -3272,7 +3276,6 @@ non-empty directories is allowed."
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
-
 
 ;;; Layout
 

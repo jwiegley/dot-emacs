@@ -57,19 +57,10 @@ compile:
 	@echo All Emacs Lisp files have been compiled.
 
 init.elc: init.el dot-org.elc dot-gnus.elc
-	@rm -f $@
-	@echo Compiling file init.el
-	@$(BATCH_LOAD) -f batch-byte-compile init.el
 
 dot-org.elc: dot-org.el
-	@rm -f $@
-	@echo Compiling file dot-org.el
-	@$(BATCH_LOAD) -f batch-byte-compile dot-org.el
 
 dot-gnus.elc: dot-gnus.el
-	@rm -f $@
-	@echo Compiling file dot-gnus.el
-	@$(BATCH_LOAD) -f batch-byte-compile dot-gnus.el
 
 %.elc: %.el
 	@echo Compiling file $<

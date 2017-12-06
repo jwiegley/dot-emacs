@@ -3,7 +3,8 @@
 (eval-and-compile
   (require 'cl-lib)
   (require 'use-package)
-  (setq use-package-verbose t)
+  (setq use-package-verbose nil)
+  (setq use-package-expand-minimally t)
   (load "gnus-settings"))
 
 (eval-when-compile
