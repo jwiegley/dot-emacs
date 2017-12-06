@@ -3,7 +3,8 @@
 (eval-and-compile
   (require 'cl-lib)
   (require 'use-package)
-  (setq use-package-verbose t)
+  (setq use-package-verbose nil)
+  (setq use-package-expand-minimally t)
   (load "org-settings"))
 
 (eval-when-compile
@@ -839,8 +840,10 @@ end tell" (match-string 1))))
          :view 'two-weeks))))
 
   :config
-  (use-package calfw-cal)
-  (use-package calfw-org)
+  (use-package calfw-cal
+    :load-path "site-lisp/emacs-calfw")
+  (use-package calfw-org
+    :load-path "site-lisp/emacs-calfw")
 
   (setq cfw:fchar-junction ?╋
         cfw:fchar-vertical-line ?┃
