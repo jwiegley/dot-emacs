@@ -30,7 +30,7 @@ EMACS_BATCH = $(EMACS) -Q -batch
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(TARGET)
+all: $(TARGET) compile
 
 compile-packages:
 	for i in				\
