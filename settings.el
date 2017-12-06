@@ -652,6 +652,8 @@
  '(haskell-indentation-where-pre-offset 4)
  '(haskell-process-load-or-reload-prompt t)
  '(helm-command-prefix-key nil)
+ '(helm-dash-browser-func (quote eww))
+ '(helm-dash-docsets-path "/Users/johnw/Library/Application Support/Dash/DocSets/")
  '(helm-minibuffer-history-key nil)
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
@@ -787,7 +789,7 @@
  '(ivy-height 10)
  '(ivy-ignore-buffers
    (quote
-    ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'" "\\`\\*Org Agenda\\*\\'")))
+    ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'")))
  '(ivy-initial-inputs-alist nil t)
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
  '(ivy-use-virtual-buffers t)
@@ -823,7 +825,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
