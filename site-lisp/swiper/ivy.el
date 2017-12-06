@@ -765,6 +765,12 @@ When ARG is t, exit with current text, ignoring the candidates."
         (t
          (ivy-done))))
 
+(defvar ivy-auto-select-single-candidate nil
+  "When non-nil, auto-select the candidate if it is the only one.
+When t, it is the same as if the user were prompted and selected the candidate
+by calling the default action.  This variable has no use unless the collection
+contains a single candidate.")
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let (dir)
@@ -1556,12 +1562,6 @@ Directories come first."
           (cl-remove-if-not predicate seq)
         seq))))
 
-(defvar ivy-auto-select-single-candidate nil
-  "When non-nil, auto-select the candidate if it is the only one.
-When t, it is the same as if the user were prompted and selected the candidate
-by calling the default action.  This variable has no use unless the collection
-contains a single candidate.")
-
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -2008,15 +2008,11 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (pt (point))
           (beg ivy-completion-beg)
           (end ivy-completion-end))
-      (when ivy-completion-beg
-        (delete-region
-         ivy-completion-beg
-         ivy-completion-end))
-      (setq ivy-completion-beg
-            (move-marker (make-marker) (point)))
+      (when beg
+        (delete-region beg end))
+      (setq ivy-completion-beg (point))
       (insert (substring-no-properties str))
-      (setq ivy-completion-end
-            (move-marker (make-marker) (point)))
+      (setq ivy-completion-end (point))
       (save-excursion
         (dolist (cursor fake-cursors)
           (goto-char (overlay-start cursor))
@@ -2025,8 +2021,8 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (insert (substring-no-properties str))
           ;; manually move the fake cursor
           (move-overlay cursor (point) (1+ (point)))
-          (move-marker (overlay-get cursor 'point) (point))
-          (move-marker (overlay-get cursor 'mark) (point)))))))
+          (set-marker (overlay-get cursor 'point) (point))
+          (set-marker (overlay-get cursor 'mark) (point)))))))
 
 (defun ivy-completion-common-length (str)
   "Return the length of the first `completions-common-part' face in STR."
@@ -3624,7 +3620,24 @@ BUFFER may be a string or nil."
     (with-current-buffer buffer
       (rename-buffer new-name))))
 
-(defvar ivy-switch-buffer-map (make-sparse-keymap))
+(defvar ivy-switch-buffer-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-k") 'ivy-switch-buffer-kill)
+    map))
+
+(defun ivy-switch-buffer-kill ()
+  "Kill the current buffer in `ivy-switch-buffer'."
+  (interactive)
+  (let ((bn (ivy-state-current ivy-last)))
+    (when (get-buffer bn)
+      (kill-buffer bn))
+    (unless (buffer-live-p (ivy-state-buffer ivy-last))
+      (setf (ivy-state-buffer ivy-last)
+            (with-ivy-window (current-buffer))))
+    (setf (ivy-state-preselect ivy-last) ivy--index)
+    (setq ivy--old-re nil)
+    (setq ivy--all-candidates (delete bn ivy--all-candidates))
+    (ivy--exhibit)))
 
 (ivy-set-actions
  'ivy-switch-buffer
@@ -3632,8 +3645,8 @@ BUFFER may be a string or nil."
     ,(lambda (x)
        (let* ((b (get-buffer x))
               (default-directory
-                (or (and b (buffer-local-value 'default-directory b))
-                    default-directory)))
+               (or (and b (buffer-local-value 'default-directory b))
+                   default-directory)))
          (call-interactively (if (functionp 'counsel-find-file)
                                  #'counsel-find-file
                                #'find-file))))
@@ -3644,6 +3657,9 @@ BUFFER may be a string or nil."
    ("k"
     ,(lambda (x)
        (kill-buffer x)
+       (unless (buffer-live-p (ivy-state-buffer ivy-last))
+         (setf (ivy-state-buffer ivy-last) (current-buffer)))
+       (setq ivy--index 0)
        (ivy--reset-state ivy-last))
     "kill")
    ("r"

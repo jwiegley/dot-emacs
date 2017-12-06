@@ -273,8 +273,7 @@ Update the minibuffer with the amount of lines collected every
   (interactive)
   (let* ((bnd (unless (and (looking-at ")")
                            (eq (char-before) ?\())
-                (bounds-of-thing-at-point
-                 'symbol)))
+                (bounds-of-thing-at-point 'symbol)))
          (str (if bnd
                   (buffer-substring-no-properties
                    (car bnd)
@@ -284,14 +283,8 @@ Update the minibuffer with the amount of lines collected every
          (pred (and (eq (char-before (car bnd)) ?\()
                     #'fboundp))
          symbol-names)
-    (if bnd
-        (progn
-          (setq ivy-completion-beg
-                (move-marker (make-marker) (car bnd)))
-          (setq ivy-completion-end
-                (move-marker (make-marker) (cdr bnd))))
-      (setq ivy-completion-beg nil)
-      (setq ivy-completion-end nil))
+    (setq ivy-completion-beg (car bnd))
+    (setq ivy-completion-end (cdr bnd))
     (if (string= str "")
         (mapatoms
          (lambda (x)
@@ -329,35 +322,28 @@ Update the minibuffer with the amount of lines collected every
   "Python completion at point."
   (interactive)
   (let ((bnd (bounds-of-thing-at-point 'symbol)))
-    (if bnd
-        (progn
-          (setq ivy-completion-beg (car bnd))
-          (setq ivy-completion-end (cdr bnd)))
-      (setq ivy-completion-beg nil)
-      (setq ivy-completion-end nil)))
+    (setq ivy-completion-beg (car bnd))
+    (setq ivy-completion-end (cdr bnd)))
   (deferred:sync!
       (jedi:complete-request))
   (ivy-read "Symbol name: " (jedi:ac-direct-matches)
             :action #'counsel--py-action))
 
-(defun counsel--py-action (symbol)
-  "Insert SYMBOL, erasing the previous one."
-  (when (stringp symbol)
+(defun counsel--py-action (symbol-name)
+  "Insert SYMBOL-NAME, erasing the previous one."
+  (when (stringp symbol-name)
     (with-ivy-window
       (when ivy-completion-beg
         (delete-region
          ivy-completion-beg
          ivy-completion-end))
-      (setq ivy-completion-beg
-            (move-marker (make-marker) (point)))
-      (insert symbol)
-      (setq ivy-completion-end
-            (move-marker (make-marker) (point)))
-      (when (equal (get-text-property 0 'symbol symbol) "f")
+      (setq ivy-completion-beg (point))
+      (insert symbol-name)
+      (setq ivy-completion-end (point))
+      (when (equal (get-text-property 0 'symbol symbol-name) "f")
         (insert "()")
-        (setq ivy-completion-end
-              (move-marker (make-marker) (point)))
-        (backward-char 1)))))
+        (setq ivy-completion-end (point))
+        (backward-char)))))
 
 ;;** `counsel-clj'
 (declare-function cider-sync-request:complete "ext:cider-client")
@@ -2342,7 +2328,9 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
          (when current-prefix-arg
            (read-directory-name (concat
                                  (car (split-string counsel-rg-base-command))
-                                 " in directory: ")))))
+                                 " in directory: ")))
+         (when current-prefix-arg
+           (read-from-minibuffer "rg args: "))))
   (counsel-require-program (car (split-string counsel-rg-base-command)))
   (ivy-set-prompt 'counsel-rg counsel-prompt-function)
   (setq counsel--git-dir (or initial-directory
@@ -2434,9 +2422,11 @@ substituted by the search regexp and file, respectively.  Neither
 
 ;;;###autoload
 (defun counsel-grep (&optional initial-input)
-  "Grep for a string in the current file.
+  "Grep for a string in the file visited by the current buffer.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
+  (unless buffer-file-name
+    (user-error "Current buffer is not visiting a file"))
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-dir default-directory)
@@ -2862,26 +2852,22 @@ The face can be customized through `counsel-org-goto-face-style'."
       (propertize name 'face 'minibuffer-prompt)))
 
 ;;** `counsel-org-file'
-(defun counsel-org-file-ids ()
-  (let (cands)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "^:ID: *\\([^ \n]+\\)$" nil t)
-        (push (match-string-no-properties 1) cands)))
-    (nreverse cands)))
+(declare-function org-attach-dir "org-attach")
+(declare-function org-attach-file-list "org-attach")
 
 (defun counsel-org-files ()
-  (mapcar 'file-relative-name
-          (cl-mapcan
-           (lambda (id)
-             (directory-files
-              (expand-file-name
-               (format "%s/%s"
-                       (substring id 0 2)
-                       (substring id 2))
-               org-attach-directory)
-              t "^[^.]"))
-           (counsel-org-file-ids))))
+  "Return list of all files under current Org attachment directories.
+Filenames returned are relative to `default-directory'.  For each
+attachment directory associated with the current buffer, all
+contained files are listed, so the return value could conceivably
+include attachments of other Org buffers."
+  (require 'org-attach)
+  (cl-mapcan
+   (lambda (dir)
+     (mapcar (lambda (file)
+               (file-relative-name (expand-file-name file dir)))
+             (org-attach-file-list dir)))
+   (delete-dups (delq nil (org-map-entries #'org-attach-dir "ID={.}")))))
 
 ;;;###autoload
 (defun counsel-org-file ()
