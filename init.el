@@ -2149,20 +2149,19 @@ non-empty directories is allowed."
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
   :hook (magit-mode . hl-line-mode)
-  ;; :config
-  ;; (setenv "GIT_PAGER" "")
+  :config
+  (setenv "GIT_PAGER" "")
 
-  ;; (use-package magit-commit
-  ;;   :config
-  ;;   (remove-hook 'server-switch-hook 'magit-commit-diff)
-  ;;   (use-package git-commit))
+  (use-package magit-commit
+    :config
+    ;; (remove-hook 'server-switch-hook 'magit-commit-diff)
+    (use-package git-commit))
 
-  ;; (use-package magit-files
-  ;;   :config
-  ;;   (global-magit-file-mode))
+  (use-package magit-files
+    :config
+    (global-magit-file-mode))
 
-  ;; (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
-  )
+  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
 (use-package magit-imerge
   :disabled t
