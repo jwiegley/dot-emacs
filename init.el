@@ -24,6 +24,12 @@
         (require 'ansi-color)
         (ansi-color-apply (substring str 0 (1- (length str))))))))
 
+(defun save-all ()
+  (interactive)
+  (save-some-buffers t))
+
+(add-hook 'focus-out-hook 'save-all)
+
 ;;; Environment
 
 (eval-when-compile
@@ -1068,15 +1074,22 @@ non-empty directories is allowed."
   (defun irc (&optional arg)
     (interactive "P")
     (if arg
-        (erc-tls :server "irc.freenode.net" :port 6697 :nick "johnw_")
-      (erc :server "127.0.0.1"
-           :port 6697
-           :nick "johnw"
-           :password (lookup-password "127.0.0.1" "johnw/freenode" 6697))
-      (erc-tls :server "plclub.irc.slack.com"
-               :port 6697
-               :nick "jwiegley"
-               :password (lookup-password "plclub.irc.slack.com" "jwiegley" 6697))))
+        (pcase-dolist (`(,server . ,nick)
+                       '(("irc.freenode.net"     . "johnw")
+                         ("irc.gitter.im"        . "jwiegley")
+                         ("plclub.irc.slack.com" . "jwiegley")
+                         ;; ("irc.oftc.net"         . "johnw")
+                         ))
+          (erc-tls :server server :port 6697 :nick (concat nick "_")
+                   :password (lookup-password server nick 6697)))
+      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+           :password (lookup-password "127.0.0.1" "johnw/gitter" 6697))
+      (sleep-for 5)
+      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+           :password (lookup-password "127.0.0.1" "johnw/plclub" 6697))
+      (sleep-for 5)
+      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+           :password (lookup-password "127.0.0.1" "johnw/freenode" 6697))))
 
   (defun setup-irc-environment ()
     (setq erc-timestamp-only-if-changed-flag nil
@@ -1272,7 +1285,18 @@ non-empty directories is allowed."
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
   :bind (:map flyspell-mode-map
-              ("C-.")))
+              ("C-."))
+  :config
+  (defun my-flyspell-maybe-correct-transposition (beg end candidates)
+    (let ((attempt
+           (save-excursion
+             (save-restriction
+               (narrow-to-region beg end)
+               (goto-char (point-min))
+               (let (case-fold-search)
+                 (not (looking-at "\\`[A-Z0-9]+\\'")))))))
+      (when attempt
+        (flyspell-maybe-correct-transposition beg end candidates)))))
 
 (use-package font-lock-studio
   :load-path "site-lisp/font-lock-studio"

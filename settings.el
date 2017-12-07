@@ -601,7 +601,7 @@
  '(flymake-compilation-prevents-syntax-check nil)
  '(flymake-proc-compilation-prevents-syntax-check nil)
  '(flyspell-abbrev-p nil)
- '(flyspell-incorrect-hook (quote (flyspell-maybe-correct-transposition)))
+ '(flyspell-incorrect-hook (quote (my-flyspell-maybe-correct-transposition)))
  '(flyspell-use-meta-tab nil)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
@@ -898,7 +898,7 @@
  '(recentf-auto-cleanup (quote never))
  '(recentf-exclude
    (quote
-    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")) t)
+    ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
  '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
@@ -1070,7 +1070,9 @@
  '(sr-windows-default-ratio 80)
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
+ '(swiper-stay-on-quit t)
  '(switch-to-buffer-preserve-window-point t)
+ '(tab-always-indent (quote complete))
  '(tags-apropos-verbose t)
  '(tags-case-fold-search nil)
  '(tail-max-size 25)
