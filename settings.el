@@ -777,6 +777,7 @@
  '(inhibit-startup-echo-area-message "johnw")
  '(inhibit-startup-screen t)
  '(initial-major-mode (quote fundamental-mode))
+ '(initial-scratch-message "")
  '(initsplit-customizations-alist
    (quote
     (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil)
