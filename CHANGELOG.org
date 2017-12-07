@@ -1,0 +1,27 @@
+#+TITLE: Changelog
+
+* Release 1.6
+** New Features
+*** New functions for easier purpose configuration
+    User purposes: ~purpose-add-user-purposes~, ~purpose-remove-user-purposes~
+    Extension purposes: ~purpose-add-extension-purposes~, ~purpose-remove-extension-purposes~
+*** Added Purpose menu to the menu-bar
+** Enhancements
+*** Purpose ships with preinstalled layouts
+    Subdirectory ~layouts~ contains preinstalled layouts. Customizable variable
+    ~purpose-use-built-in-layouts~ controls if those layouts are available to
+    the user (available by default).
+*** ~purpose-window-with-purpose~ now takes optional ~frame~ argument
+** Bug Fixes
+*** [[https://github.com/bmag/emacs-purpose/issues/79][#79]]: nil buffer means ~other-buffer~ for some buffer switching commands
+    These commands are: ~purpose-switch-buffer~,
+    ~purpose-switch-buffer-other-window~, ~purpose-pop-buffer~ and
+    ~purpose-pop-buffer-same-window~.
+*** dislpay function returning ~fail~ means don't display buffer at all
+*** [[https://github.com/bmag/emacs-purpose/issues/80][#80]]: added autoloads to some commands outside of window-purpose.el
+*** fixed argument order for ~purpose--remove-suffix~ in Emacs 24.3 and 24.4
+*** [[https://github.com/bmag/emacs-purpose/issues/95][#95]]: loading layouts to show different buffers
+    ~purpose-set-window-layout~ places different buffers of the same purpose, if
+    the layout has multiple windows with same purpose. Previously, all windows
+    with the purpose would show the same buffer after loading a layout. This
+    affects all layout-loading commands.
