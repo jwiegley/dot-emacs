@@ -3221,6 +3221,10 @@ non-empty directories is allowed."
         whitespace-silent t
         whitespace-style '(face trailing lines space-before-tab empty)))
 
+(use-package window-purpose
+  :load-path "site-lisp/purpose"
+  :commands purpose-mode)
+
 (use-package winner
   :unless noninteractive
   :defer 5
