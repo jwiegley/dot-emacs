@@ -2961,6 +2961,13 @@ non-empty directories is allowed."
   :load-path "site-lisp/stopwatch"
   :bind ("<f8>" . stopwatch))
 
+(use-package super-save
+  :load-path "site-lisp/super-save"
+  :defer 5
+  :config
+  (setq super-save-auto-save-when-idle t)
+  (super-save-mode 1))
+
 (use-package sunrise-commander
   :load-path "site-lisp/sunrise-commander"
   :bind (("C-c j" . my-activate-sunrise)
