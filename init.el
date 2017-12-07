@@ -1880,6 +1880,14 @@ non-empty directories is allowed."
 (use-package key-chord
   :commands key-chord-mode)
 
+(use-package know-your-http-well
+  :load-path "site-lisp/know-your-http-well/emacs"
+  :commands (http-header
+             http-method
+             http-relation
+             http-status-code
+             media-type))
+
 (use-package kotl-mode
   :load-path "site-lisp/hyperbole/kotl"
   :mode "\\.kotl\\'")
