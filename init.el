@@ -2963,6 +2963,7 @@ non-empty directories is allowed."
 
 (use-package super-save
   :load-path "site-lisp/super-save"
+  :diminish
   :defer 5
   :config
   (setq super-save-auto-save-when-idle t)
