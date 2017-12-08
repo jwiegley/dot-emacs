@@ -2943,6 +2943,7 @@ non-empty directories is allowed."
   :commands smartparens-mode)
 
 (use-package smartscan
+  :disabled t
   :load-path "site-lisp/smart-scan"
   :commands smartscan-mode
   :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode))
