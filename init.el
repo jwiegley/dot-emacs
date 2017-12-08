@@ -146,7 +146,7 @@
 (use-package ghub+            :defer t :load-path "lib/ghub-plus")
 (use-package ht               :defer t :load-path "lib/ht-el")
 (use-package kv               :defer t :load-path "lib/kv")
-(use-package let-alist        :defer t :load-path "lib/let-alist")
+(use-package let-alist        :defer t)
 (use-package list-utils       :defer t :load-path "lib/list-utils")
 (use-package logito           :defer t :load-path "lib/logito")
 (use-package loop             :defer t :load-path "lib/loop")
@@ -160,8 +160,8 @@
 (use-package pkg-info         :defer t :load-path "lib/pkg-info")
 (use-package popup            :defer t :load-path "lib/popup-el")
 (use-package popwin           :defer t :load-path "site-lisp/popwin")
-(use-package pos-tip          :defer t)
-(use-package popup-pos-tip    :defer t)
+(use-package pos-tip          :defer t :load-path "lib")
+(use-package popup-pos-tip    :defer t :load-path "lib")
 (use-package request          :defer t :load-path "lib/emacs-request")
 (use-package rich-minority    :defer t :load-path "lib/rich-minority")
 (use-package s                :defer t :load-path "lib/s-el")
@@ -171,7 +171,7 @@
 (use-package web-server       :defer t :load-path "lib/emacs-web-server")
 (use-package websocket        :defer t :load-path "lib/emacs-websocket")
 (use-package with-editor      :defer t :load-path "lib/with-editor")
-(use-package xml-rpc          :defer t)
+(use-package xml-rpc          :defer t :load-path "lib")
 (use-package zoutline         :defer t :load-path "lib/zoutline")
 
 ;;; Keymaps
