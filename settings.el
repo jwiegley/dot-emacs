@@ -425,7 +425,8 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("freenode.net" "#haskell" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "#ghc" "#haskell-infrastructure" "#haskell.org" "##categorytheory" "#diagrams"))))
+    (("freenode" "#haskell" "#coq" "#ledger" "#haskell-ops" "##nix-darwin" "#haskell-infrastructure" "##categorytheory")
+     ("gitter" "#use-package/Lobby"))))
  '(erc-button-alist
    (quote
     (("https://gist\\.github\\.com/\\(.*\\)" 0 t gist-fetch 1)
