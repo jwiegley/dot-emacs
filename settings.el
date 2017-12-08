@@ -475,7 +475,7 @@
  '(erc-lurker-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-modules
    (quote
-    (autojoin button completion dcc fill identd irccontrols list match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp track truncate highlight-nicknames)))
+    (autojoin button completion dcc fill identd irccontrols list match menu move-to-prompt netsplit networks noncommands readonly replace ring services smiley stamp track truncate highlight-nicknames)))
  '(erc-nick "johnw")
  '(erc-port 6667)
  '(erc-priority-people-regexp "\\`[^#].+")

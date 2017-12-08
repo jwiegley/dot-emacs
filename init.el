@@ -1070,6 +1070,8 @@ non-empty directories is allowed."
 
 (use-package erc
   :commands (erc erc-tls)
+  :bind (:map erc-mode-map
+              ("C-c r" . reset-erc-track-mode))
   :preface
   (defun irc (&optional arg)
     (interactive "P")
@@ -1091,22 +1093,21 @@ non-empty directories is allowed."
       (erc :server "127.0.0.1" :port 6697 :nick "johnw"
            :password (lookup-password "127.0.0.1" "johnw/freenode" 6697))))
 
+  (defun reset-erc-track-mode ()
+    (interactive)
+    (setq erc-modified-channels-alist nil)
+    (erc-modified-channels-update)
+    (erc-modified-channels-display)
+    (force-mode-line-update))
+
   (defun setup-irc-environment ()
+    (set (make-local-variable 'scroll-conservatively) 100)
     (setq erc-timestamp-only-if-changed-flag nil
           erc-timestamp-format "%H:%M "
           erc-fill-prefix "          "
           erc-fill-column 88
           erc-insert-timestamp-function 'erc-insert-timestamp-left
-          ivy-use-virtual-buffers nil)
-
-    (defun reset-erc-track-mode ()
-      (interactive)
-      (setq erc-modified-channels-alist nil)
-      (erc-modified-channels-update)
-      (erc-modified-channels-display)
-      (force-mode-line-update))
-
-    (bind-key "C-c r" #'reset-erc-track-mode))
+          ivy-use-virtual-buffers nil))
 
   (defcustom erc-foolish-content '()
     "Regular expressions to identify foolish content.
@@ -1120,22 +1121,13 @@ non-empty directories is allowed."
     (erc-list-match erc-foolish-content msg))
 
   :init
-  (add-hook 'erc-mode-hook
-            #'(lambda ()
-                (setup-irc-environment)
-                (set (make-local-variable 'scroll-conservatively) 100)))
-
+  (add-hook 'erc-mode-hook #'setup-irc-environment)
   (when running-alternate-emacs
     (add-hook 'after-init-hook 'irc))
 
   :config
   (erc-track-minor-mode 1)
   (erc-track-mode 1)
-
-  (defadvice erc-scroll-to-bottom (around my-erc-scroll-to-bottom activate)
-    "Ignore errors when attempting to scroll to the bottom."
-    (ignore-errors ad-do-it))
-
   (add-hook 'erc-insert-pre-hook
             #'(lambda (s)
                 (when (erc-foolish-content s)
