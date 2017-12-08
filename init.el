@@ -1154,6 +1154,7 @@ non-empty directories is allowed."
   :after erc)
 
 (use-package erc-question
+  :disabled t
   :after erc)
 
 (use-package erc-yank
@@ -1630,7 +1631,7 @@ non-empty directories is allowed."
 (use-package hyperbole
   :load-path "site-lisp/hyperbole"
   :defer 10
-  :bind* (("C-. M-." . hkey-either)
+  :bind* (("C-M-." . hkey-either)
           ("A-<return>" . hkey-operate))
   :config
   (when (eq temp-buffer-show-function #'hkey-help-show)
@@ -1734,6 +1735,10 @@ non-empty directories is allowed."
 (use-package image-file
   :config
   (auto-image-file-mode 1))
+
+(use-package imenu-list
+  :load-path "site-lisp/imenu-list"
+  :commands imenu-list-minor-mode)
 
 (use-package indent
   :commands indent-according-to-mode)
@@ -2001,6 +2006,7 @@ non-empty directories is allowed."
   :interpreter "lua")
 
 (use-package lusty-explorer
+  :disabled t
   :load-path "site-lisp/lusty-emacs"
   :demand t
   :bind (("C-x C-f" . my-lusty-file-explorer)
