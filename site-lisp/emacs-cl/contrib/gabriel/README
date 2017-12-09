@@ -1,0 +1,2 @@
+To run the benchmarks start lisp, load benchmark.lisp and call the function 
+(benchmark). For more info see the benchmark.lisp file.

@@ -1,0 +1,17 @@
+TODO: Write proper installation instructions.
+
+To load the files, load load-cl.el into Emacs.  Warning: Loading the
+last file, populate.el, will take a long time, especially on slow
+computers.
+
+It's important to compile the files for improved speed.  To do this,
+type "M-x compile-cl".  A Makefile is also included, so you can just
+type "make" at a shell.
+
+The code is frequently verified to work with GNU Emacs 20.7 and 21.3,
+and XEmacs 21.4.
+
+To start an interactive session, type "M-x emacs-cl".
+
+With the "emacs-cl" script, it's also possible to run Emacs Common
+Lisp in batch mode.
