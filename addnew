@@ -40,11 +40,14 @@ for arg in "$@"; do
         DIR=site-lisp
     fi
 
-    URL=$(echo "$GIT" | sed -e 's/@/:\/\//' -e 's/:/\//')
+    URL=$(echo "$GIT" | sed -e 's/:/\//' -e 's/@/:\/\//')
 
     echo "MANIFEST: $PKG,$DIR,subtree,$URL,"
     echo "$PKG,$DIR,subtree,$URL," >> MANIFEST.csv
 
     echo "INIT: (use-package $PKG :load-path \"$DIR/$PKG\")"
-    echo "\n(use-package $PKG\n  :disabled t\n  :load-path \"$DIR/$PKG\")" >> init.el
+    echo "" >> init.el
+    echo "(use-package $PKG" >> init.el
+    echo "  :disabled t" >> init.el
+    echo "  :load-path \"$DIR/$PKG\")" >> init.el
 done
