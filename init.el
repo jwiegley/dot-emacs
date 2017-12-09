@@ -3446,6 +3446,14 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/js3-mode")
 
+(use-package fullframe
+  :disabled t
+  :load-path "site-lisp/fullframe")
+
+(use-package biblio
+  :disabled t
+  :load-path "site-lisp/biblio")
+
 ;;; Layout
 
 (defconst display-name
