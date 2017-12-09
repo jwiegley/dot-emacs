@@ -8,7 +8,7 @@ for arg in "$@"; do
 
     PKG=$(echo "$arg" | cut -s -d'|' -f2)
     if [[ -z "$PKG" ]]; then
-        PKG=$(basename "$GIT")
+        PKG=$(basename "$GIT" | sed 's/\.git//')
     fi
 
     DIR=$(echo "$arg" | cut -s -d'|' -f3)
@@ -32,7 +32,7 @@ for arg in "$@"; do
 
     PKG=$(echo "$arg" | cut -s -d'|' -f2)
     if [[ -z "$PKG" ]]; then
-        PKG=$(basename "$GIT")
+        PKG=$(basename "$GIT" | sed 's/\.git//')
     fi
 
     DIR=$(echo "$arg" | cut -s -d'|' -f3)
@@ -45,6 +45,6 @@ for arg in "$@"; do
     echo "MANIFEST: $PKG,$DIR,subtree,$URL,"
     echo "$PKG,$DIR,subtree,$URL," >> MANIFEST.csv
 
-    echo "INIT: (use-package $PKG :disabled t :load-path \"$DIR/$PKG\")"
-    echo "(use-package $PKG :disabled t :load-path \"$DIR/$PKG\")" >> init.el
+    echo "INIT: (use-package $PKG :load-path \"$DIR/$PKG\")"
+    echo "\n(use-package $PKG\n  :disabled t\n  :load-path \"$DIR/$PKG\")" >> init.el
 done
