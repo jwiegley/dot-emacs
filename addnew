@@ -1,0 +1,44 @@
+#!/bin/bash -ex
+
+for arg in "$@"; do
+    GIT=$(echo "$arg" | cut -s -d'|' -f1)
+    if [[ -z "$GIT" ]]; then
+        GIT="$arg"
+    fi
+
+    PKG=$(echo "$arg" | cut -s -d'|' -f2)
+    if [[ -z "$PKG" ]]; then
+        PKG=$(basename "$GIT")
+    fi
+
+    DIR=$(echo "$arg" | cut -s -d'|' -f3)
+    if [[ -z "$DIR" ]]; then
+        DIR=site-lisp
+    fi
+
+    git remote add ext/$PKG $GIT
+    git fetch --no-tags ext/$PKG
+    git addtree $DIR/$PKG
+done
+
+for arg in "$@"; do
+    GIT=$(echo "$arg" | cut -s -d'|' -f1)
+    if [[ -z "$GIT" ]]; then
+        GIT="$arg"
+    fi
+
+    PKG=$(echo "$arg" | cut -s -d'|' -f2)
+    if [[ -z "$PKG" ]]; then
+        PKG=$(basename "$GIT")
+    fi
+
+    DIR=$(echo "$arg" | cut -s -d'|' -f3)
+    if [[ -z "$DIR" ]]; then
+        DIR=site-lisp
+    fi
+
+    URL=$(echo "$GIT" | sed -e 's/@/:\/\//' -e 's/:/\//')
+
+    echo "$PKG,$DIR,subtree,$URL," >> MANIFEST.csv
+    echo "(use-package $PKG :disabled t :load-path \"$DIR/$PKG\")" >> init.el
+done
