@@ -1,0 +1,47 @@
+From: Marco Gidde <marco.gidde@tiscali.de>
+Date: 18 Apr 2004 00:15:04 +0200
+
+Here we go!
+
+What is Closette?
+
+This answer is taken from the source file:
+;;; Closette is an implementation of a subset of CLOS with a metaobject
+;;; protocol as described in "The Art of The Metaobject Protocol",
+;;; MIT Press, 1991.
+
+Since Closette is a subset of CLOS there are several restrictions. The
+following were found by chance:
+
+1. It is not possible to redefine a class
+2. DEFGENERIC does not know the :method option (this happens very
+   early when loading the gcl-ansi-tests)
+Probably lots more ...
+
+The current version of Emacs Common Lisp must be slightly modified to
+run with Closette. PRINT-OBJECT should be a generic function but is
+defined as a normal function in emacs-cl. At the time PRINT-OBJECT is
+defined in Closette, there is at least one call to REMOVE-IF-NOT which
+calles REMOVE-IF with the COMPLEMENTed function, but the latter uses
+PRINT-OBJECT and this leads to an endless recursion. So COMPLEMENT
+must be redefined without the use of PRINT-OBJECT.
+
+To use Closette 
+
+  (load "closette.lisp")
+  (use-package :closette)
+
+should be sufficient. There is a hint in the source file that one
+should not try to compile Closette. I don't know why and I did not
+try.
+
+The tests within closette-tests.lisp should not be taken too
+literally. It is not a real test suite but a collection of definitions
+where the expected results are added as comments. These are sometimes
+wrong. Comparing the outputs of emacs-cl and CLisp running those tests
+showed essentially one difference (line 744) and CLisp seems to be
+right there.
+
+I would finish this with "Have fun", but Closette is very slow under
+emacs-cl, so it is actually a GREAT fun if you are only masochistic
+enough. 

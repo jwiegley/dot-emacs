@@ -1,0 +1,47 @@
+CALLING AN EMACS LISP FUNCTION FROM COMMON LISP
+===============================================
+
+All Emacs Lisp symbols are accessible from the EMACS-LISP package
+nicknamed EL.  Remember that by default, Common Lisp converts symbol
+names to upper case, so use | to prevent that.  For example, to print
+a message in the echo area:
+
+  (el:|message| "Hello Emacs!")
+
+
+WRITING AN INTERACTIVE EMACS COMMAND
+====================================
+
+Enter these functions at the interactive prompt:
+
+  (defun fac (n) (if (< n 2) 1 (* n (fac (1- n)))))
+
+  (defun el:|my-fun| (n)
+    "Print n!"
+    (declare (interactive "nEnter a number: "))
+    (el:|message| (format nil "~D! is ~D" n (fac n))))
+
+Now, try it with "M-x my-fun".
+
+
+CALLING A COMMON LISP FUNCTION FROM EMACS LISP
+==============================================
+
+If it's a standard Common Lisp function, it's probably available in
+Emacs Lisp with an all-uppercase name.  For example
+
+  (READ-FROM-STRING "#.(+ 1 2)")
+  => 3
+
+Otherwise, you'll find the symbol in the package in which you defined
+the function.  For example, if you defined the function above at the
+"COMMON-LISP-USER>" prompt:
+
+  (FIND-SYMBOL "FAC" "CL-USER")
+
+For easy access from Emacs Lisp, you may store the function in a local
+symbol:
+
+  (fset 'fac (symbol-function (FIND-SYMBOL "FAC" "CL-USER")))
+
+Now you can call (fac 10).
