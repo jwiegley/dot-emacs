@@ -2320,17 +2320,52 @@ non-empty directories is allowed."
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
   :after phi-search
-  :bind (("C-. c"   . mc/edit-lines)
-         ("C-'"     . mc/edit-lines)
-         ("C->"     . mc/mark-next-like-this)
-         ("C-<"     . mc/mark-previous-like-this)
-         ("C-c C-<" . mc/mark-all-like-this)
+  ;; NOTES:
+  ;;
+  ;; - Sometimes you end up with cursors outside of your view. You can scroll
+  ;;   the screen to center on each cursor with `C-v` and `M-v`.
+  ;;
+  ;; - If you get out of multiple-cursors-mode and yank - it will yank only
+  ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
+  ;;   cursor use yank-rectangle, normally found at C-x r y.
+  :bind (:map selected-keymap
+              ("c"   . mc/edit-lines)
+              ("."   . mc/mark-next-like-this)
+              ("<"   . mc/unmark-next-like-this)
+              ("C->" . mc/skip-to-next-like-this)
+              (","   . mc/mark-previous-like-this)
+              (">"   . mc/unmark-previous-like-this)
+              ("C-<" . mc/skip-to-previous-like-this)
+              ("y"   . mc/mark-next-symbol-like-this)
+              ("Y"   . mc/mark-previous-symbol-like-this)
+              ("w"   . mc/mark-next-word-like-this)
+              ("W"   . mc/mark-previous-word-like-this))
 
-         ("<C-m> n" . mc/insert-numbers)
-         ("<C-m> l" . mc/insert-letters)
-         ("<C-m> s" . mc/sort-regions)
-         ("<C-m> R" . mc/reverse-regions)
-         ("<C-m> r" . set-rectangular-region-anchor)))
+  :bind (("C-'"         . set-rectangular-region-anchor)
+         ("<C-m> `"     . mc/edit-beginnings-of-lines)
+         ("<C-m> '"     . mc/edit-ends-of-lines)
+         ("<C-m> R"     . mc/reverse-regions)
+         ("<C-m> S"     . mc/sort-regions)
+         ("<C-m> t"     . mc/mark-sgml-tag-pair)
+         ("<C-m> a"     . mc/mark-all-like-this-dwim)
+         ("<C-m> c"     . mc/mark-all-dwim)
+         ("<C-m> r"     . mc/mark-all-in-region-regexp)
+         ("<C-m> l"     . mc/insert-letters)
+         ("<C-m> n"     . mc/insert-numbers)
+         ("<C-m> w"     . mc/mark-next-like-this-word)
+         ("<C-m> W"     . mc/mark-all-words-like-this)
+         ("<C-m> y"     . mc/mark-next-like-this-symbol)
+         ("<C-m> Y"     . mc/mark-all-symbols-like-this)
+         ("<C-m> x"     . mc/mark-more-like-this-extended)
+         ("<C-m> C-SPC" . mc/mark-pop)
+         ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
+         ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
+         ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
+         ("<C-m> ["     . mc/vertical-align-with-space)
+         ("<C-m> {"     . mc/vertical-align)
+
+         ("S-<down-mouse-1>")
+         ("S-<mouse-1>" . mc/add-cursor-on-click)))
 
 (use-package my-compile
   :after compile
