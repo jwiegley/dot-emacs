@@ -1,0 +1,97 @@
+* =eshell-z= [[https://travis-ci.org/xuchunyang/eshell-z][https://travis-ci.org/xuchunyang/eshell-z.svg?branch=master]] [[https://melpa.org/#/eshell-z][https://melpa.org/packages/eshell-z-badge.svg]] [[https://stable.melpa.org/#/eshell-z][https://stable.melpa.org/packages/eshell-z-badge.svg]]
+** Introduction
+The =eshell-z= package is an Emacs port of [[https://github.com/rupa/z][z]].
+It keeps track of where you’ve been and how many commands you invoke there,
+and provides a convenient way to jump to the directories you actually
+use. =eshell-z= and =z= can work together by sharing the same data file.
+
+** Table of Contents                                                    :TOC@4:
+ - [[#eshell-z][=eshell-z=]]
+     - [[#introduction][Introduction]]
+     - [[#install][Install]]
+         - [[#melpa][MELPA]]
+         - [[#manually][Manually]]
+     - [[#setup][Setup]]
+     - [[#usage][Usage]]
+     - [[#notations][Notations]]
+         - [[#aging][Aging]]
+         - [[#frecency][Frecency]]
+         - [[#common][Common]]
+     - [[#tab-completion][Tab Completion]]
+     - [[#see-also][See also]]
+
+** Install
+*** MELPA
+After setting up [[http://melpa.org][MELPA]] as a repository, use =M-x package-install eshell-z= or
+your preferred method.
+
+*** Manually
+Add eshell-z to your =load-path=. Something like
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "path/to/eshell-z")
+#+END_SRC
+
+** Setup
+To use this package, add following code to your init.el or .emacs
+#+BEGIN_SRC emacs-lisp
+(add-hook 'eshell-mode-hook
+          (defun my-eshell-mode-hook ()
+            (require 'eshell-z)))
+#+END_SRC
+
+** Usage
+#+BEGIN_SRC
+~ $ z -h
+usage: z [-chlrtx] [regex1 regex2 ... regexn]
+
+    -c, --current        estrict matches to subdirectories of the current directory
+    -h, --help           show a brief help message
+    -l, --list           list only
+    -r, --rank           match by rank only
+    -t, --time           match by recent access only
+    -x, --delete         remove the current directory from the datafile
+
+examples:
+
+    z foo         cd to most frecent dir matching foo
+    z foo bar     cd to most frecent dir matching foo, then bar
+    z -r foo      cd to highest ranked dir matching foo
+    z -t foo      cd to most recently accessed dir matching foo
+    z -l foo      list all dirs matching foo (by frecency)
+#+END_SRC
+
+** Notations
+
+*NOTICE* _This section is copied from the manpage of [[https://github.com/rupa/z][z]]._
+
+*** Aging
+The rank of directories maintained by z undergoes aging based on a simple
+formula. The rank of each entry is incremented every time it is accessed.  When
+the sum of ranks is over 9000, all ranks are multiplied by 0.99. Entries with a
+rank lower than 1 are forgotten.
+
+*** Frecency
+Frecency is a portmanteau of 'recent' and 'frequency'. It is a weighted rank
+that depends on how often and how recently something occurred. As far as I know,
+Mozilla came up with the term.
+
+To z, a directory that has low ranking but has been accessed recently will
+quickly  have  higher rank than a directory accessed frequently a long time
+ago.
+
+Frecency is determined at runtime.
+
+*** Common
+When multiple directories match all queries, and they all have a common prefix,
+z will cd to the shortest matching directory, without regard to priority.  This
+has been in effect, if  undocumented, for quite some time, but should probably
+be configurable or reconsidered.
+
+** Tab Completion
+z supports basic tab completion, press TAB to complete on options and
+directories. This is implemented with =pcomplete=.
+
+** See also
+- [[https://github.com/rupa/z][rupa/z]]
+- [[https://github.com/wting/autojump][wting/autojump]] and [[https://github.com/coldnew/eshell-autojump][coldnew/eshell-autojump]]
