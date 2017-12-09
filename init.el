@@ -3315,6 +3315,122 @@ non-empty directories is allowed."
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
 
+(use-package benchstat
+  :disabled t
+  :load-path "site-lisp/benchstat")
+
+(use-package difflib
+  :disabled t
+  :load-path "site-lisp/difflib")
+
+(use-package el-mock.el
+  :disabled t
+  :load-path "lib/el-mock.el")
+
+(use-package elisp-docstring-mode
+  :disabled t
+  :load-path "site-lisp/elisp-docstring-mode")
+
+(use-package emacs-cl
+  :disabled t
+  :load-path "site-lisp/emacs-cl")
+
+(use-package emacs-sos
+  :disabled t
+  :load-path "site-lisp/emacs-sos")
+
+(use-package emacs-sql-indent
+  :disabled t
+  :load-path "site-lisp/emacs-sql-indent")
+
+(use-package esh-buf-stack
+  :disabled t
+  :load-path "site-lisp/esh-buf-stack")
+
+(use-package esh-help
+  :disabled t
+  :load-path "site-lisp/esh-help")
+
+(use-package eshell-autojump
+  :disabled t
+  :load-path "site-lisp/eshell-autojump")
+
+(use-package eshell-up
+  :disabled t
+  :load-path "site-lisp/eshell-up")
+
+(use-package eshell-z
+  :disabled t
+  :load-path "site-lisp/eshell-z")
+
+(use-package eval-in-repl
+  :disabled t
+  :load-path "site-lisp/eval-in-repl")
+
+(use-package fn-el
+  :disabled t
+  :load-path "lib/fn-el")
+
+(use-package ipcalc
+  :disabled t
+  :load-path "site-lisp/ipcalc")
+
+(use-package jq-mode
+  :disabled t
+  :load-path "site-lisp/jq-mode")
+
+(use-package monitor
+  :disabled t
+  :load-path "site-lisp/monitor")
+
+(use-package n2o
+  :disabled t
+  :load-path "site-lisp/n2o")
+
+(use-package nginx-mode
+  :disabled t
+  :load-path "site-lisp/nginx-mode")
+
+(use-package olivetti
+  :disabled t
+  :load-path "site-lisp/olivetti")
+
+(use-package org-ref
+  :disabled t
+  :load-path "site-lisp/org-ref")
+
+(use-package parsec
+  :disabled t
+  :load-path "lib/parsec")
+
+(use-package peval
+  :disabled t
+  :load-path "lib/peval")
+
+(use-package repl-toggle
+  :disabled t
+  :load-path "site-lisp/repl-toggle")
+
+(use-package reveal-in-osx-finder
+  :disabled t
+  :load-path "site-lisp/reveal-in-osx-finder")
+
+(use-package smart-newline
+  :disabled t
+  :load-path "site-lisp/smart-newline")
+
+(use-package string-edit
+  :disabled t
+  :load-path "site-lisp/string-edit")
+
+(use-package string-inflection
+  :disabled t
+  :load-path "site-lisp/string-inflection")
+
+(use-package tagedit
+  :disabled t
+  :load-path "site-lisp/tagedit")
+
 ;;; Layout
 
 (defconst display-name
