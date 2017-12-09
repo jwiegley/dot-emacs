@@ -123,57 +123,63 @@
 
 ;;; Libraries
 
-(use-package alert            :defer t :load-path "lisp/alert")
-(use-package anaphora        :demand t :load-path "lib/anaphora")
-(use-package apiwrap          :defer t :load-path "lib/apiwrap")
-(use-package asoc             :defer t :load-path "lib/asoc")
-(use-package async            :defer t :load-path "lisp/emacs-async")
-(use-package button-lock      :defer t :load-path "lib/button-lock")
-(use-package crux            :demand t :load-path "lib/crux")
-(use-package ctable           :defer t :load-path "lib/emacs-ctable")
-(use-package dash             :defer t :load-path "lib/dash-el")
-(use-package deferred         :defer t :load-path "lib/emacs-deferred")
-(use-package diminish        :demand t :load-path "lib/diminish")
-(use-package elisp-refs       :defer t :load-path "lib/elisp-refs")
-(use-package emojify          :defer t :load-path "lib/emacs-emojify")
-(use-package epc              :defer t :load-path "lib/emacs-epc")
-(use-package epl              :defer t :load-path "lib/epl")
-(use-package esxml            :defer t :load-path "lib/esxml")
-(use-package f                :defer t :load-path "lib/f-el")
-(use-package fringe-helper    :defer t :load-path "lib/fringe-helper-el")
-(use-package fuzzy            :defer t :load-path "lib/fuzzy-el")
-(use-package gh               :defer t :load-path "lib/gh-el")
-(use-package ghub             :defer t :load-path "lib/ghub")
-(use-package ghub+            :defer t :load-path "lib/ghub-plus")
-(use-package ht               :defer t :load-path "lib/ht-el")
-(use-package kv               :defer t :load-path "lib/kv")
-(use-package let-alist        :defer t)
-(use-package list-utils       :defer t :load-path "lib/list-utils")
-(use-package logito           :defer t :load-path "lib/logito")
-(use-package loop             :defer t :load-path "lib/loop")
-(use-package m-buffer         :defer t :load-path "lib/m-buffer")
-(use-package makey            :defer t :load-path "lib/makey")
-(use-package marshal          :defer t :load-path "lib/marshal-el")
-(use-package oauth2           :defer t :load-path "lib/oauth2")
-(use-package parent-mode      :defer t :load-path "lib/parent-mode")
-(use-package pcache           :defer t :load-path "lib/pcache")
-(use-package pfuture          :defer t :load-path "lib/pfuture")
-(use-package pkg-info         :defer t :load-path "lib/pkg-info")
-(use-package popup            :defer t :load-path "lib/popup-el")
-(use-package popwin           :defer t :load-path "site-lisp/popwin")
-(use-package pos-tip          :defer t :load-path "lib")
-(use-package popup-pos-tip    :defer t :load-path "lib")
-(use-package request          :defer t :load-path "lib/emacs-request")
-(use-package rich-minority    :defer t :load-path "lib/rich-minority")
-(use-package s                :defer t :load-path "lib/s-el")
-(use-package tablist          :defer t :load-path "lib/tablist")
-(use-package uuidgen          :defer t :load-path "lib/uuidgen-el")
-(use-package web              :defer t :load-path "lib/emacs-web")
-(use-package web-server       :defer t :load-path "lib/emacs-web-server")
-(use-package websocket        :defer t :load-path "lib/emacs-websocket")
-(use-package with-editor      :defer t :load-path "lib/with-editor")
-(use-package xml-rpc          :defer t :load-path "lib")
-(use-package zoutline         :defer t :load-path "lib/zoutline")
+(use-package alert         :defer t  :load-path "lisp/alert")
+(use-package anaphora      :demand t :load-path "lib/anaphora")
+(use-package apiwrap       :defer t  :load-path "lib/apiwrap")
+(use-package asoc          :defer t  :load-path "lib/asoc")
+(use-package async         :defer t  :load-path "lisp/emacs-async")
+(use-package button-lock   :defer t  :load-path "lib/button-lock")
+(use-package crux          :demand t :load-path "lib/crux")
+(use-package ctable        :defer t  :load-path "lib/emacs-ctable")
+(use-package dash          :defer t  :load-path "lib/dash-el")
+(use-package deferred      :defer t  :load-path "lib/emacs-deferred")
+(use-package diminish      :demand t :load-path "lib/diminish")
+(use-package elisp-refs    :defer t  :load-path "lib/elisp-refs")
+(use-package emojify       :defer t  :load-path "lib/emacs-emojify")
+(use-package epc           :defer t  :load-path "lib/emacs-epc")
+(use-package epl           :defer t  :load-path "lib/epl")
+(use-package esxml         :defer t  :load-path "lib/esxml")
+(use-package f             :defer t  :load-path "lib/f-el")
+(use-package fn-el         :defer t  :load-path "lib/fn-el")
+(use-package fringe-helper :defer t  :load-path "lib/fringe-helper-el")
+(use-package fuzzy         :defer t  :load-path "lib/fuzzy-el")
+(use-package gh            :defer t  :load-path "lib/gh-el")
+(use-package ghub          :defer t  :load-path "lib/ghub")
+(use-package ghub+         :defer t  :load-path "lib/ghub-plus")
+(use-package ht            :defer t  :load-path "lib/ht-el")
+(use-package kv            :defer t  :load-path "lib/kv")
+(use-package list-utils    :defer t  :load-path "lib/list-utils")
+(use-package logito        :defer t  :load-path "lib/logito")
+(use-package loop          :defer t  :load-path "lib/loop")
+(use-package m-buffer      :defer t  :load-path "lib/m-buffer")
+(use-package makey         :defer t  :load-path "lib/makey")
+(use-package marshal       :defer t  :load-path "lib/marshal-el")
+(use-package names         :defer t  :load-path "lib/names")
+(use-package noflet        :defer t  :load-path "lib/noflet")
+(use-package oauth2        :defer t  :load-path "lib/oauth2")
+(use-package parent-mode   :defer t  :load-path "lib/parent-mode")
+(use-package parsebib      :defer t  :load-path "lib/parsebib")
+(use-package parsec        :defer t  :load-path "lib/parsec")
+(use-package pcache        :defer t  :load-path "lib/pcache")
+(use-package peval         :defer t  :load-path "lib/peval")
+(use-package pfuture       :defer t  :load-path "lib/pfuture")
+(use-package pkg-info      :defer t  :load-path "lib/pkg-info")
+(use-package popup         :defer t  :load-path "lib/popup-el")
+(use-package popup-pos-tip :defer t  :load-path "lib")
+(use-package popwin        :defer t  :load-path "site-lisp/popwin")
+(use-package pos-tip       :defer t  :load-path "lib")
+(use-package request       :defer t  :load-path "lib/emacs-request")
+(use-package rich-minority :defer t  :load-path "lib/rich-minority")
+(use-package s             :defer t  :load-path "lib/s-el")
+(use-package spinner       :defer t  :load-path "lib/spinner")
+(use-package tablist       :defer t  :load-path "lib/tablist")
+(use-package uuidgen       :defer t  :load-path "lib/uuidgen-el")
+(use-package web           :defer t  :load-path "lib/emacs-web")
+(use-package web-server    :defer t  :load-path "lib/emacs-web-server")
+(use-package websocket     :defer t  :load-path "lib/emacs-websocket")
+(use-package with-editor   :defer t  :load-path "lib/with-editor")
+(use-package xml-rpc       :defer t  :load-path "lib")
+(use-package zoutline      :defer t  :load-path "lib/zoutline")
 
 ;;; Keymaps
 
@@ -363,6 +369,14 @@
   :load-path "site-lisp/beacon"
   :diminish
   :commands beacon-mode)
+
+(use-package benchstat
+  :disabled t
+  :load-path "site-lisp/benchstat")
+
+(use-package biblio
+  :load-path "site-lisp/biblio"
+  :commands biblio-lookup)
 
 (use-package bookmark+
   :load-path "site-lisp/bookmark-plus"
@@ -724,6 +738,10 @@
 (use-package diff-mode
   :commands diff-mode)
 
+(use-package difflib
+  :disabled t
+  :load-path "site-lisp/difflib")
+
 (use-package diffview
   :load-path "site-lisp/diffview-mode"
   :commands (diffview-current diffview-region diffview-message))
@@ -1012,6 +1030,8 @@ non-empty directories is allowed."
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
 
+(use-package el-mock.el :defer t :load-path "lib")
+
 (use-package eldoc
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
@@ -1034,6 +1054,10 @@ non-empty directories is allowed."
 (use-package elisp-depend
   :commands elisp-depend-print-dependencies)
 
+(use-package elisp-docstring-mode
+  :load-path "site-lisp/elisp-docstring-mode"
+  :commands elisp-docstring-mode)
+
 (use-package elisp-mode
   :no-require t
   :catch nil
@@ -1044,6 +1068,8 @@ non-empty directories is allowed."
        (use-package erefactor
          :load-path "site-lisp/erefactor")
 
+       (define-key emacs-lisp-mode-map "C-c C-v" erefactor-map)
+
        (use-package package-lint
          :load-path "site-lisp/package-lint")
 
@@ -1053,15 +1079,17 @@ non-empty directories is allowed."
 
        (bind-keys :map emacs-lisp-mode-map
                   ("M-n" . flycheck-next-error)
-                  ("M-p" . flycheck-previous-error)
-
-                  ("C-c C-v" . erefactor-map)))))
+                  ("M-p" . flycheck-previous-error)))))
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
   :diminish
   :commands (elisp-slime-nav-mode
              elisp-slime-nav-find-elisp-thing-at-point))
+
+(use-package emacs-cl
+  :disabled t
+  :load-path "site-lisp/emacs-cl")
 
 (use-package emacs-counsel-gtags
   :disabled t
@@ -1158,6 +1186,20 @@ non-empty directories is allowed."
 (use-package ert
   :bind ("C-c e t" . ert-run-tests-interactively))
 
+(use-package esh-buf-stack
+  :load-path "site-lisp/esh-buf-stack"
+  :after eshell
+  :bind (:map eshell-mode-map
+              ("M-q" . eshell-push-command))
+  :config
+  (setup-eshell-buf-stack))
+
+(use-package esh-help
+  :load-path "site-lisp/esh-help"
+  :after eshell
+  :config
+  (setup-esh-help-eldoc))
+
 (use-package esh-toggle
   :bind ("C-x C-z" . eshell-toggle))
 
@@ -1197,9 +1239,21 @@ non-empty directories is allowed."
   :init
   (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
 
+(use-package eshell-autojump
+  :disabled t
+  :load-path "site-lisp/eshell-autojump")
+
 (use-package eshell-bookmark
   :load-path "site-lisp/eshell-bookmark"
   :hook (eshell-mode . eshell-bookmark-setup))
+
+(use-package eshell-up
+  :load-path "site-lisp/eshell-up"
+  :commands eshell-up)
+
+(use-package eshell-z
+  :load-path "site-lisp/eshell-z"
+  :after eshell)
 
 (use-package etags
   :bind ("M-T" . tags-search))
@@ -1221,6 +1275,10 @@ non-empty directories is allowed."
     (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)
     (require 'paredit)
     (paredit-mode)))
+
+(use-package eval-in-repl
+  :disabled t
+  :load-path "site-lisp/eval-in-repl")
 
 (use-package evil
   :load-path "site-lisp/evil"
@@ -1294,6 +1352,12 @@ non-empty directories is allowed."
 (use-package free-keys
   :load-path "site-lisp/free-keys"
   :commands free-keys)
+
+(use-package fullframe
+  :load-path "site-lisp/fullframe"
+  :defer t
+  :init
+  (autoload #'fullframe "fullframe"))
 
 (use-package ggtags
   :disabled t
@@ -1661,8 +1725,7 @@ non-empty directories is allowed."
 
 (use-package ielm
   :commands ielm
-  :bind (:map ielm-map
-              ("<return>" . my-ielm-return))
+  :bind (:map ielm-map ("<return>" . my-ielm-return))
   :config
   (defun my-ielm-return ()
     (interactive)
@@ -1768,6 +1831,10 @@ non-empty directories is allowed."
 (use-package inventory
   :commands (inventory sort-package-declarations))
 
+(use-package ipcalc
+  :load-path "site-lisp/ipcalc"
+  :commands ipcalc)
+
 (use-package isearch
   :no-require t
   :bind (("C-M-r" . isearch-backward-other-window)
@@ -1830,6 +1897,10 @@ non-empty directories is allowed."
   (ivy-mode 1)
   (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
 
+(use-package ivy-bibtex
+  :load-path "site-lisp/helm-bibtex"
+  :commands ivy-bibtex)
+
 (use-package ivy-hydra
   :after (ivy hydra)
   :defer t)
@@ -1846,6 +1917,10 @@ non-empty directories is allowed."
         ivy-rich-switch-buffer-align-virtual-buffer t
         ivy-rich-path-style 'abbrev))
 
+(use-package jq-mode
+  :load-path "site-lisp/jq-mode"
+  :mode "\\.jq\\'")
+
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
   :mode "\\.js\\'"
@@ -1856,6 +1931,10 @@ non-empty directories is allowed."
   (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
   (flycheck-add-mode 'javascript-eslint 'js2-mode)
   (flycheck-mode 1))
+
+(use-package js3-mode
+  :disabled t
+  :load-path "site-lisp/js3-mode")
 
 (use-package json-mode
   :load-path "site-lisp/json-mode"
@@ -2275,6 +2354,12 @@ non-empty directories is allowed."
   :load-path "site-lisp/moccur-edit"
   :after color-moccur)
 
+(use-package monitor
+  :load-path "site-lisp/monitor"
+  :defer t
+  :init
+  (autoload #'define-monitor "monitor"))
+
 (use-package mule
   :no-require t
   :config
@@ -2383,6 +2468,10 @@ non-empty directories is allowed."
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
 
+(use-package nginx-mode
+  :load-path "site-lisp/nginx-mode"
+  :commands nginx-mode)
+
 (use-package nix-buffer
   :load-path "site-lisp/nix-buffer"
   :commands nix-buffer)
@@ -2435,6 +2524,14 @@ non-empty directories is allowed."
                  sgml-skip-tag-forward
                  nil)))
 
+(use-package olivetti
+  :load-path "site-lisp/olivetti"
+  :commands olivetti-mode)
+
+(use-package org-ref
+  :disabled t
+  :load-path "site-lisp/org-ref")
+
 (use-package outline
   :diminish outline-minor-mode
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
@@ -2453,13 +2550,15 @@ non-empty directories is allowed."
   :hook (markdown-mode
          (pandoc-mode   . pandoc-load-default-settings)))
 
+(use-package paradox
+  :load-path "site-lisp/paradox"
+  :commands paradox-list-packages)
 (use-package paredit
   :load-path "site-lisp/paredit"
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
   :bind (:map paredit-mode-map
-              (")"     . paredit-close-round-and-newline)
-              ("M-)"   . paredit-close-round)
+              ("[")
               ("M-k"   . paredit-raise-sexp)
               ("M-I"   . paredit-splice-sexp)
               ("C-M-l" . paredit-recentre-on-sexp)
@@ -2472,13 +2571,12 @@ non-empty directories is allowed."
               ("C-. A" . paredit-add-to-previous-list)
               ("C-. j" . paredit-join-with-next-list)
               ("C-. J" . paredit-join-with-previous-list))
-  :bind (:map lisp-mode-map
-              ("<return>" . paredit-newline))
-  :bind (:map emacs-lisp-mode-map
-              ("<return>" . paredit-newline))
-  :hook (paredit-mode . (lambda ()
-                          (unbind-key "M-r" paredit-mode-map)
-                          (unbind-key "M-s" paredit-mode-map)))
+  :bind (:map lisp-mode-map       ("<return>" . paredit-newline))
+  :bind (:map emacs-lisp-mode-map ("<return>" . paredit-newline))
+  :hook (paredit-mode
+         . (lambda ()
+             (unbind-key "M-r" paredit-mode-map)
+             (unbind-key "M-s" paredit-mode-map)))
   :config
   (require 'eldoc)
   (eldoc-add-command 'paredit-backward-delete
@@ -2571,7 +2669,6 @@ non-empty directories is allowed."
              ;; ("C-c r"   . replace-regexp)
              ("C-c s"   . replace-string)
              ("C-c u"   . rename-uniquely)
-             ("C-c v"   . ffap)
              ("C-c V"   . view-clipboard)
              ("C-c )"   . close-all-parentheses)
              ("C-c ="   . count-matches)
@@ -2794,9 +2891,22 @@ non-empty directories is allowed."
   :load-path "lisp/regex-tool"
   :commands regex-tool)
 
+(use-package repl-toggle
+  :disabled t
+  :load-path "site-lisp/repl-toggle")
+
 (use-package restclient
   :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
+
+(use-package reveal-in-osx-finder
+  :no-require t
+  :bind ("C-c M-v" .
+         (lambda () (interactive)
+           (call-process "/usr/bin/open" nil nil nil
+                         "-R" (expand-file-name
+                               (or (buffer-file-name)
+                                   default-directory))))))
 
 (use-package rtags
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
@@ -2964,6 +3074,11 @@ non-empty directories is allowed."
   :config
   (sml/apply-theme 'light-powerline))
 
+(use-package smart-newline
+  :load-path "site-lisp/smart-newline"
+  :diminish
+  :commands smart-newline-mode)
+
 (use-package smartparens-config
   :load-path "site-lisp/smartparens"
   :commands smartparens-mode)
@@ -2990,17 +3105,25 @@ non-empty directories is allowed."
   :load-path "site-lisp/sort-words"
   :commands sort-words)
 
+(use-package sos
+  :load-path "site-lisp/emacs-sos"
+  :commands sos)
+
+(use-package sql-indent
+  :load-path "site-lisp/emacs-sql-indent"
+  :commands sqlind-minor-mode)
+
 (use-package stopwatch
   :load-path "site-lisp/stopwatch"
   :bind ("<f8>" . stopwatch))
 
-(use-package super-save
-  :load-path "site-lisp/super-save"
-  :diminish
-  :defer 5
-  :config
-  (setq super-save-auto-save-when-idle t)
-  (super-save-mode 1))
+(use-package string-edit
+  :load-path "site-lisp/string-edit"
+  :bind ("C-c C-'" . string-edit-at-point))
+
+(use-package string-inflection
+  :load-path "site-lisp/string-inflection"
+  :bind ("C-c C-u" . string-inflection-all-cycle))
 
 (use-package sunrise-commander
   :load-path "site-lisp/sunrise-commander"
@@ -3074,6 +3197,14 @@ non-empty directories is allowed."
         (sr-history-push default-directory)
         (sr-beginning-of-buffer)))))
 
+(use-package super-save
+  :load-path "site-lisp/super-save"
+  :diminish
+  :defer 5
+  :config
+  (setq super-save-auto-save-when-idle t)
+  (super-save-mode 1))
+
 (use-package swiper
   :load-path "site-lisp/swiper"
   :after ivy
@@ -3089,6 +3220,10 @@ non-empty directories is allowed."
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
+
+(use-package tagedit
+  :load-path "site-lisp/tagedit"
+  :commands tagedit-mode)
 
 (use-package texinfo
   :mode ("\\.texi\\'" . texinfo-mode)
@@ -3357,153 +3492,6 @@ non-empty directories is allowed."
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
 
-(use-package benchstat
-  :disabled t
-  :load-path "site-lisp/benchstat")
-
-(use-package difflib
-  :disabled t
-  :load-path "site-lisp/difflib")
-
-(use-package el-mock.el
-  :disabled t
-  :load-path "lib/el-mock.el")
-
-(use-package elisp-docstring-mode
-  :disabled t
-  :load-path "site-lisp/elisp-docstring-mode")
-
-(use-package emacs-cl
-  :disabled t
-  :load-path "site-lisp/emacs-cl")
-
-(use-package emacs-sos
-  :disabled t
-  :load-path "site-lisp/emacs-sos")
-
-(use-package emacs-sql-indent
-  :disabled t
-  :load-path "site-lisp/emacs-sql-indent")
-
-(use-package esh-buf-stack
-  :disabled t
-  :load-path "site-lisp/esh-buf-stack")
-
-(use-package esh-help
-  :disabled t
-  :load-path "site-lisp/esh-help")
-
-(use-package eshell-autojump
-  :disabled t
-  :load-path "site-lisp/eshell-autojump")
-
-(use-package eshell-up
-  :disabled t
-  :load-path "site-lisp/eshell-up")
-
-(use-package eshell-z
-  :disabled t
-  :load-path "site-lisp/eshell-z")
-
-(use-package eval-in-repl
-  :disabled t
-  :load-path "site-lisp/eval-in-repl")
-
-(use-package fn-el
-  :disabled t
-  :load-path "lib/fn-el")
-
-(use-package ipcalc
-  :disabled t
-  :load-path "site-lisp/ipcalc")
-
-(use-package jq-mode
-  :disabled t
-  :load-path "site-lisp/jq-mode")
-
-(use-package monitor
-  :disabled t
-  :load-path "site-lisp/monitor")
-
-(use-package nginx-mode
-  :disabled t
-  :load-path "site-lisp/nginx-mode")
-
-(use-package olivetti
-  :disabled t
-  :load-path "site-lisp/olivetti")
-
-(use-package org-ref
-  :disabled t
-  :load-path "site-lisp/org-ref")
-
-(use-package parsec
-  :disabled t
-  :load-path "lib/parsec")
-
-(use-package peval
-  :disabled t
-  :load-path "lib/peval")
-
-(use-package repl-toggle
-  :disabled t
-  :load-path "site-lisp/repl-toggle")
-
-(use-package reveal-in-osx-finder
-  :disabled t
-  :load-path "site-lisp/reveal-in-osx-finder")
-
-(use-package smart-newline
-  :disabled t
-  :load-path "site-lisp/smart-newline")
-
-(use-package string-edit
-  :disabled t
-  :load-path "site-lisp/string-edit")
-
-(use-package string-inflection
-  :disabled t
-  :load-path "site-lisp/string-inflection")
-
-(use-package tagedit
-  :disabled t
-  :load-path "site-lisp/tagedit")
-
-(use-package parsebib
-  :disabled t
-  :load-path "lib/parsebib")
-
-(use-package helm-bibtex
-  :disabled t
-  :load-path "site-lisp/helm-bibtex")
-
-(use-package js3-mode
-  :disabled t
-  :load-path "site-lisp/js3-mode")
-
-(use-package fullframe
-  :disabled t
-  :load-path "site-lisp/fullframe")
-
-(use-package biblio
-  :disabled t
-  :load-path "site-lisp/biblio")
-
-(use-package noflet
-  :disabled t
-  :load-path "lib/noflet")
-
-(use-package paradox
-  :disabled t
-  :load-path "site-lisp/paradox")
-
-(use-package names
-  :disabled t
-  :load-path "lib/names")
-
-(use-package spinner
-  :disabled t
-  :load-path "lib/spinner")
 
 ;;; Layout
 

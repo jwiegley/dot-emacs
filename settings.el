@@ -829,7 +829,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S" t)
+ '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -859,6 +859,7 @@
  '(nsm-settings-file "/Users/johnw/.emacs.d/data/network-security.data")
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
+ '(olivetti-hide-mode-line t)
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
    (quote
