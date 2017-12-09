@@ -233,7 +233,6 @@ multiple-cursors,site-lisp,subtree,git://github.com/magnars/multiple-cursors.el.
 muse,lisp,subtree,git://github.com/jwiegley/muse.git,
 my-compile.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/my-compile.el,
 my-gnus-score.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/my-gnus-score.el,
-n2o,site-lisp,subtree,git://github.com/Quasilyte/n2o.el,
 navi,site-lisp,subtree,git://github.com/alphapapa/navi.git,
 nf-procmail-mode.el,site-lisp,file,http://www.splode.com/~friedman/software/emacs-lisp/src/nf-procmail-mode.el,
 nginx-mode,site-lisp,subtree,git://github.com/ajc/nginx-mode,

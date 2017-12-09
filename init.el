@@ -3386,10 +3386,6 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/monitor")
 
-(use-package n2o
-  :disabled t
-  :load-path "site-lisp/n2o")
-
 (use-package nginx-mode
   :disabled t
   :load-path "site-lisp/nginx-mode")
