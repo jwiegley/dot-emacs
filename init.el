@@ -3501,6 +3501,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "lib/names")
 
+(use-package spinner
+  :disabled t
+  :load-path "lib/spinner")
+
 ;;; Layout
 
 (defconst display-name
