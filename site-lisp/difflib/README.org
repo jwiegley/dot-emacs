@@ -1,0 +1,110 @@
+* difflib.el
+[[https://melpa.org/#/difflib][file:https://melpa.org/packages/difflib-badge.svg]]
+[[https://stable.melpa.org/#/difflib][file:https://stable.melpa.org/packages/difflib-badge.svg]]
+[[https://travis-ci.org/dieggsy/difflib.el][file:https://travis-ci.org/dieggsy/difflib.el.svg?branch=master]]
+[[https://coveralls.io/github/dieggsy/difflib.el?branch=master][file:https://coveralls.io/repos/github/dieggsy/difflib.el/badge.svg?branch=master]]
+
+This is a port of [[https://github.com/python/cpython/blob/c62f0cb3b1f6f9ca4ce463b1c99b0543bdfa38d6/Lib/difflib.py][python's difflib]] to emacs-lisp. It provides tools for
+computing "human friendly" diffs, which use the notion of the longest
+contiguous and junk-free matching subsequence.
+
+** Installation
+This package is on melpa. If you have melpa in your package repositories, you
+can use ~M-x RET package-install RET difflib~ or install with [[https://github.com/jwiegley/use-package][use-package]]:
+#+begin_src emacs-lisp
+(use-package difflib
+  :ensure t)
+#+end_src
+
+Alternatively, consider installing with [[https://github.com/raxod502/straight.el][straight.el]] or [[https://github.com/quelpa/quelpa-use-package][quelpa-use-package]].
+
+Otherwise, download the files to somewhere in your load path, and require
+difflib:
+#+begin_src emacs-lisp
+(require 'difflib)
+#+end_src
+
+** Functions
+*** difflib-get-close-matches ~(word possibilities (:n 3) (:cutoff 0.6))~
+Use ~difflib-sequence-matcher~ to return a list of the best "good enough"
+matches.
+#+begin_src emacs-lisp
+(difflib-get-close-matches "appel" '("ape" "apple" "peach" "puppy")) ;; => '("apple" "ape")
+(difflib-get-close-matches "wheel" '("if" "while" "with" "except")) ;; => '("while")
+(difflib-get-close-matches "apple" '("if" "while" "with" "except")) ;; => nil
+(difflib-get-close-matches "accept" '("if" "while" "with" "except")) ;; => '("except")
+#+end_src
+*** difflib-ndiff ~(a b &key linejunk (charjunk #'difflib-is-character-junk-p))~
+Return a delta: the difference between ~a~ and ~b~ (lists of strings).
+#+begin_src emacs-lisp
+(difflib-ndiff '("one" "two" "three")
+               '("ore" "tree" "emu"))
+;; =>
+;; '("- one"
+;;   "?  ^"
+;;   "+ ore"
+;;   "?  ^"
+;;   "- two"
+;;   "- three"
+;;   "?  -"
+;;   "+ tree"
+;;   "+ emu")
+#+end_src
+*** difflib-unified-diff ~(a b &key ...)~
+#+begin_src emacs-lisp
+(difflib-unified-diff (s-split " " "one two three four")
+                      (s-split " " "zero one tree four")
+                      :fromfile "Original"
+                      :tofile "Current"
+                      :fromfiledate "2005-01-26 23:30:50"
+                      :tofiledate "2010-04-02 10:20:52")
+
+;; =>
+;; '("--- Original\t2005-01-26 23:30:50"
+;;   "+++ Current\t2010-04-02 10:20:52"
+;;   "@@ -1,4 +1,4 @@"
+;;   "+zero"
+;;   " one"
+;;   "-two"
+;;   "-three"
+;;   "+tree"
+;;   " four")
+#+end_src
+*** difflib-context-diff ~(a b &key ...)~
+For two lists of strings, return a delta in context diff format.
+#+begin_src emacs-lisp
+(difflib-context-diff (s-split " " "one two three four")
+                      (s-split " " "zero one tree four")
+                      :fromfile "Original"
+                      :tofile "Current")
+;; =>
+;; '("*** Original"
+;;   "--- Current"
+;;   "***************"
+;;   "*** 1,4 ****"
+;;   "  one"
+;;   "! two"
+;;   "! three"
+;;   "  four"
+;;   "--- 1,4 ----"
+;;   "+ zero"
+;;   "  one"
+;;   "! tree"
+;;   "  four")
+#+end_src
+*** difflib-restore ~(delta which)~
+Return one of the two sequences that generated a ~difflib-ndiff~ delta.
+#+begin_src emacs-lisp
+(difflib-restore
+ (difflib-ndiff '("one" "two" "three") '("ore" "tree" "emu"))
+ 1) ;; => '("one" "two" "three")
+
+(difflib-restore
+ (difflib-ndiff '("one" "two" "three") '("ore" "tree" "emu"))
+ 2) ;; => '("ore" "tree" "emu")
+#+end_src
+** Classes
+*** difflib-sequence-matcher
+A flexible class for comparing deltas of sequences of any type.
+*** difflib-differ
+For producing human-readable deltas from sequences of lines of text.
