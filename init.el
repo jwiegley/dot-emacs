@@ -177,11 +177,15 @@
 
 ;;; Keymaps
 
+(define-key input-decode-map [?\C-m] [C-m])
+
 (eval-and-compile
   (mapc #'(lambda (entry)
             (define-prefix-command (cdr entry))
             (bind-key (car entry) (cdr entry)))
-        '(("C-h e" . my-ctrl-h-e-map)
+        '(("<C-m>" . my-ctrl-m-map)
+
+          ("C-h e" . my-ctrl-h-e-map)
 
           ("C-c e" . my-ctrl-c-e-map)
           ("C-c m" . my-ctrl-c-m-map)
@@ -2323,11 +2327,11 @@ non-empty directories is allowed."
          ("C-<"     . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)
 
-         ("C-c m n" . mc/insert-numbers)
-         ("C-c m l" . mc/insert-letters)
-         ("C-c m s" . mc/sort-regions)
-         ("C-c m R" . mc/reverse-regions)
-         ("C-c m r" . set-rectangular-region-anchor)))
+         ("<C-m> n" . mc/insert-numbers)
+         ("<C-m> l" . mc/insert-letters)
+         ("<C-m> s" . mc/sort-regions)
+         ("<C-m> R" . mc/reverse-regions)
+         ("<C-m> r" . set-rectangular-region-anchor)))
 
 (use-package my-compile
   :after compile
