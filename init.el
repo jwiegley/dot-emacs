@@ -133,6 +133,7 @@
 (use-package ctable        :defer t  :load-path "lib/emacs-ctable")
 (use-package dash          :defer t  :load-path "lib/dash-el")
 (use-package deferred      :defer t  :load-path "lib/emacs-deferred")
+(use-package difflib       :defer t  :load-path "lib/difflib")
 (use-package diminish      :demand t :load-path "lib/diminish")
 (use-package elisp-refs    :defer t  :load-path "lib/elisp-refs")
 (use-package emojify       :defer t  :load-path "lib/emacs-emojify")
@@ -737,10 +738,6 @@
 
 (use-package diff-mode
   :commands diff-mode)
-
-(use-package difflib
-  :disabled t
-  :load-path "site-lisp/difflib")
 
 (use-package diffview
   :load-path "site-lisp/diffview-mode"
