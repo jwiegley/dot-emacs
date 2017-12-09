@@ -42,3 +42,4 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
+/site-lisp/swiper/doc/ivy.info
