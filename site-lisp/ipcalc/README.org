@@ -1,0 +1,31 @@
+
+* IP calculator in Emacs Lisp
+
+** Usage
+
+#+begin_src emacs-lisp
+(ipcalc "192.168.0.23/21")
+#+end_src
+
+produces a new buffer with:
+
+: Address:   192.168.0.23         11000000101010000000000000010111
+: Netmask:   255.255.248.0 = 21   11111111111111111111100000000000
+: Wildcard:  0.0.7.255            00000000000000000000011111111111
+: =>
+: Network:   192.168.0.0          11000000101010000000000000000000
+: HostMin:   192.168.0.1          11000000101010000000000000000001
+: HostMax:   192.168.7.254        11000000101010000000011111111110
+: Broadcast: 192.168.7.255        11000000101010000000011111111111
+: Hosts/Net: 2046
+
+** Install
+
+The package is to be found on MELPA.
+
+If using *use-package*:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ipcalc
+    :ensure t)
+#+END_SRC
