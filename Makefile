@@ -40,6 +40,7 @@ compile-packages:
 	    site-lisp/company-mode		\
 	    site-lisp/deft			\
 	    site-lisp/ebdb			\
+	    site-lisp/emacs-cl/src		\
 	    site-lisp/evil			\
 	    site-lisp/flycheck			\
 	    site-lisp/haskell-mode		\
@@ -49,7 +50,7 @@ compile-packages:
 	    site-lisp/org-mode			\
 	    site-lisp/slime			\
 	    site-lisp/swiper			\
-	    ; do (cd $$i && make ASYNC_ELPA_DIR=$HOME/emacs/lisp/emacs-async) ; done
+	    ; do (cd $$i && make EMACS=emacs ASYNC_ELPA_DIR=$HOME/emacs/lisp/emacs-async) ; done
 	(cd site-lisp/hyperbole && make elc)
 
 compile:
