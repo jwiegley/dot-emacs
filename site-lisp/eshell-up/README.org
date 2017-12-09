@@ -1,0 +1,113 @@
+#+STARTUP: showall
+
+#+TITLE: eshell-up.el
+
+[[https://melpa.org/#/eshell-up][file:https://melpa.org/packages/eshell-up-badge.svg]]
+[[http://melpa-stable.milkbox.net/#/eshell-up][file:http://melpa-stable.milkbox.net/packages/eshell-up-badge.svg]]
+[[https://travis-ci.org/peterwvj/eshell-up.svg?branch=master]]
+[[http://www.gnu.org/licenses/gpl-3.0.html][http://img.shields.io/:license-gpl3-blue.svg?style=flat-square]]
+
+Emacs package for quickly navigating to a specific parent directory in
+~eshell~ without having to repeatedly typing ~cd ..~.
+
+** Usage
+
+Navigating to a specific parent directory is achieved using the
+~eshell-up~ function, which can be bound to an ~eshell~ alias such as
+~up~.
+
+*** Examples
+
+To demonstrate how to use ~eshell-up~ let's assume that the current
+working directory of ~eshell~ is:
+
+#+BEGIN_SRC bash
+/home/user/first/second/third/fourth/fifth $
+#+END_SRC
+
+Now, in order to quicky go to (say) the directory named ~first~ one
+simply executes:
+
+#+BEGIN_SRC bash
+/home/user/first/second/third/fourth/fifth $ up fi
+/home/user/first $
+#+END_SRC
+
+This command searches the current path from right to left (while
+skipping the current directory, ~fifth~) for a directory that matches
+the user's input (~fi~ in this case). If a match is found then
+~eshell~ changes to that directory, otherwise it does nothing. If, on
+the other hand, no argument is passed to ~eshell-up~, this command
+simply changes to the nearest parent directory (like ~cd ..~ does).
+
+It is also possible to compute the matching parent directory without
+changing to it. This is achieved using the ~eshell-up-peek~ function,
+which can be bound to an alias such as ~pk~.  When this function is
+used in combination with /subshells/ the matching parent directory can
+be passed as an argument to other functions.  Returning to the
+previous example one can (for example) list the contents of ~first~ by
+executing:
+
+#+BEGIN_SRC bash
+/home/user/first/second/third/fourth/fifth $ ls {pk fi}
+<directory contents>
+...
+#+END_SRC
+
+** Installation
+
+~eshell-up~ is available via [[https://github.com/melpa/melpa][MELPA]]. To add it to Emacs execute the
+following:
+
+#+BEGIN_SRC elisp
+package-install RET eshell-up RET
+#+END_SRC
+
+Now, put the following in your ~.emacs~ file:
+
+#+BEGIN_SRC elisp
+(require 'eshell-up)
+#+END_SRC
+
+It is recommended to invoke ~eshell-up~ and ~eshell-up-peek~ using
+aliases as done in the examples above.  To do that, add the following
+to your ~.eshell.aliases~ file:
+
+#+BEGIN_SRC
+alias up eshell-up $1
+alias pk eshell-up-peek $1
+#+END_SRC
+
+** Configuration (optional)
+
+To make ~eshell-up~ searches case sensitive:
+
+#+BEGIN_SRC elisp
+(setq eshell-up-ignore-case nil)
+#+END_SRC
+
+To print the matching parent directory before changing to it:
+
+#+BEGIN_SRC elisp
+(setq eshell-up-print-parent-dir t)
+#+END_SRC
+
+** Testing
+
+The test are written using [[https://www.gnu.org/software/emacs/manual/ert.html][ERT]], and can be executed as follows:
+
+#+BEGIN_SRC elisp
+load-file eshell-up-tests.el
+ert t
+#+END_SRC
+
+Alternatively, the tests can be run in batch mode:
+
+#+BEGIN_SRC bash
+emacs -Q --batch -L . -l ert -l eshell-up-tests.el -f ert-run-tests-batch-and-exit
+#+END_SRC
+
+** Credits
+
+This package is inspired by [[https://github.com/vigneshwaranr/bd][bd]], which uses bash to implement similar
+functionality.
