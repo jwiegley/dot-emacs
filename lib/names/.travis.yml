@@ -1,0 +1,155 @@
+###
+### Notes
+###
+### The travis web interface may choke silently and fail to
+### update when there are issues with the .travis.yml file.
+###
+### The "travis-lint" command-line tool does not catch all
+### errors which may lead to silent failure.
+###
+### Shell-style comments in this file must have "#" as the
+### *first* character of the line.
+###
+
+###
+### language
+###
+
+language: emacs-lisp
+
+###
+### defining the build matrix
+###
+### ===>                                                       <===
+### ===> each variation in env/matrix will be built and tested <===
+### ===>                                                       <===
+###
+### variables under env/global are available to the build process
+### but don't cause the creation of a separate variation
+###
+
+env:
+  - EMACS=emacs-24.1-bin METHOD=evm
+  - EMACS=emacs-24.2-bin METHOD=evm
+  - EMACS=emacs-24.3-bin METHOD=evm
+  - EMACS=emacs24 METHOD=manual
+  - EMACS=emacs-snapshot METHOD=manual
+
+###
+### allowing build failures
+###
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS=emacs-23.4-bin METHOD=evm
+
+###
+### limit build attempts to defined branches
+###
+### notes
+###
+### This controls which branches are built.
+###
+### You can also control which branches affect the web badge, by
+### appending "?branch=master,staging,production" to the end of the
+### image URL (replacing "master,staging,production" with a
+### comma-separated list of branches to be reflected in the badge).
+###
+#
+#  branches:
+#    only:
+#      - master
+#
+
+###
+### runtime initialization
+###
+### notes
+###
+### emacs22 is extracted manually from Ubuntu Maverick.
+###
+### emacs23 is the stock default, but is updated anyway to
+### a GUI-capable version, which will have certain additional
+### functions compiled in.
+###
+### emacs24 (current stable release) is obtained from the
+### cassou PPA: http://launchpad.net/~cassou/+archive/emacs
+###
+### emacs-snapshot (trunk) is obtained from the Ubuntu Emacs Lisp PPA:
+### https://launchpad.net/~ubuntu-elisp/+archive/ppa
+### For the emacs-snapshot build, bleeding-edge versions
+### of all test dependencies are also used.
+###
+
+before_install:
+  - git submodule --quiet update --init --recursive
+
+install:
+  - if [ "$EMACS" = 'emacs23' ]; then
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs23-gtk emacs23-el;
+    fi
+  - if [ "$METHOD" = 'evm' ]; then
+        sudo mkdir /usr/local/evm &&
+        sudo chown travis:travis /usr/local/evm &&
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get update -qq &&
+        sudo apt-get build-dep -qq emacs23 &&
+        sudo apt-get build-dep -qq emacs24 &&
+        curl -fsSkL https://raw.github.com/rejeep/evm/master/go | bash &&
+        export PATH="~/.evm/bin:$PATH" &&
+        chmod +x ~/.evm/bin/evm &&
+        ~/.evm/bin/evm install $EMACS &&
+        ~/.evm/bin/evm use $EMACS &&
+        FULL_EMACS_PATH="/usr/local/evm/$EMACS/bin/emacs" &&
+        export EMACS="$FULL_EMACS_PATH" &&
+        EMACS="$FULL_EMACS_PATH";
+    fi
+  - if [ "$EMACS" = 'emacs24' ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs24 emacs24-el;
+    fi
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs-snapshot &&
+        sudo apt-get -qq install emacs-snapshot-el;
+    fi
+
+before_script:
+#   - if [ "$EMACS" = 'emacs-snapshot' ]; then
+#         make downloads-latest;
+#     else
+#         make downloads;
+#     fi
+
+###
+### the actual build/test command
+###
+### Use "make test-batch" to test without byte-compiling.
+### The default command avoids byte-compiling on Emacs 22.
+###
+
+script:
+  echo "Method is $METHOD " && $EMACS --version && cd tests && chmod +x run-tests.sh && EMACS="$EMACS" ./run-tests.sh
+
+###
+### settings
+###
+
+notifications:
+  email: false
+
+#
+# Emacs
+#
+# Local Variables:
+# indent-tabs-mode: nil
+# coding: utf-8
+# End:
+#

@@ -1,0 +1,12 @@
+*~
+*.elc
+\#*#
+/tests/junk.el
+/la.el
+/dt.el
+/ex.el
+/ex2.el
+/tests/flycheck/
+/tests/out.tex
+/tests/elpa/aggressive-indent-0.1/
+/tests/elpa/names-*/
