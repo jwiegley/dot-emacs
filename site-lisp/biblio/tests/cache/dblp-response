@@ -1,0 +1,141 @@
+HTTP/1.1 200 OK
+Date: Tue, 22 Mar 2016 21:34:38 GMT
+Server: Apache/2.4.7 (Ubuntu)
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 2518
+Keep-Alive: timeout=5, max=100
+Connection: Keep-Alive
+Content-Type: text/xml; charset=utf-8
+
+<?xml version="1.0" encoding="UTF-8"?>
+<result>
+<query id="240201">:filter:author:lamport*</query>
+<status code="200">OK</status>
+<time unit="msecs">1.82</time>
+<completions total="1" computed="1" sent="1">
+<c sc="149" dc="149" oc="149" id="5619680">:filter:author:lamport</c>
+</completions>
+<hits total="149" computed="100" sent="30" first="0">
+<hit score="1" id="41775">
+<info><title>Who builds a house without drawing blueprints?</title><authors><author>Leslie Lamport</author></authors><venue>Commun. ACM</venue><volume>58</volume><number>4</number><pages>38-41</pages><year>2015</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/cacm/Lamport15</url></info>
+<url>URL#41775</url>
+</hit>
+<hit score="1" id="41823">
+<info><title>Turing lecture: The computer science of concurrency: the early years.</title><authors><author>Leslie Lamport</author></authors><venue>Commun. ACM</venue><volume>58</volume><number>6</number><pages>71-76</pages><year>2015</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/cacm/Lamport15a</url></info>
+<url>URL#41823</url>
+</hit>
+<hit score="1" id="468866">
+<info><title>An incomplete history of concurrency chapter 1. 1965-1977.</title><authors><author>Leslie Lamport</author></authors><venue>PODC</venue><pages>291</pages><year>2014</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/podc/Lamport13</url></info>
+<url>URL#468866</url>
+</hit>
+<hit score="1" id="511881">
+<info><title>Coalescing: Syntactic Abstraction for Reasoning in First-Order Modal Logics.</title><authors><author>Damien Doligez</author><author>Jael Kriener</author><author>Leslie Lamport</author><author>Tomer Libal</author><author>Stephan Merz</author></authors><venue>CoRR</venue><volume>abs/1409.3819</volume><year>2014</year><type>Informal Publications</type><url>http://dblp.org/rec/journals/corr/DoligezKLLM14</url></info>
+<url>URL#511881</url>
+</hit>
+<hit score="1" id="736279">
+<info><title>Adaptive Register Allocation with a Linear Number of Registers.</title><authors><author>Carole Delporte-Gallet</author><author>Hugues Fauconnier</author><author>Eli Gafni</author><author>Leslie Lamport</author></authors><venue>DISC</venue><pages>269-283</pages><year>2013</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/wdag/Delporte-GalletFGL13</url></info>
+<url>URL#736279</url>
+</hit>
+<hit score="1" id="888846">
+<info><title>TLA + Proofs.</title><authors><author>Denis Cousineau 0002</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author><author>Daniel Ricketts</author><author>Hernán Vanzetto</author></authors><venue>FM</venue><pages>147-154</pages><year>2012</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/fm/CousineauDLMRV12</url></info>
+<url>URL#888846</url>
+</hit>
+<hit score="1" id="988222">
+<info><title>TLA+ Proofs</title><authors><author>Denis Cousineau 0002</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author><author>Daniel Ricketts</author><author>Hernán Vanzetto</author></authors><venue>CoRR</venue><volume>abs/1208.5933</volume><year>2012</year><type>Informal Publications</type><url>http://dblp.org/rec/journals/corr/abs-1208-5933</url></info>
+<url>URL#988222</url>
+</hit>
+<hit score="1" id="1031468">
+<info><title>Euclid Writes an Algorithm: A Fairytale.</title><authors><author>Leslie Lamport</author></authors><venue>Int. J. Software and Informatics</venue><volume>5</volume><number>1-2</number><pages>7-20</pages><year>2011</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/ijsi/Lamport11</url></info>
+<url>URL#1031468</url>
+</hit>
+<hit score="1" id="1195275">
+<info><title>Brief Announcement: Leaderless Byzantine Paxos.</title><authors><author>Leslie Lamport</author></authors><venue>DISC</venue><pages>141-142</pages><year>2011</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/wdag/Lamport11</url></info>
+<url>URL#1195275</url>
+</hit>
+<hit score="1" id="1195287">
+<info><title>Byzantizing Paxos by Refinement.</title><authors><author>Leslie Lamport</author></authors><venue>DISC</venue><pages>211-224</pages><year>2011</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/wdag/Lamport11a</url></info>
+<url>URL#1195287</url>
+</hit>
+<hit score="1" id="1234349">
+<info><title>The mailbox problem.</title><authors><author>Marcos Kawazoe Aguilera</author><author>Eli Gafni</author><author>Leslie Lamport</author></authors><venue>Distributed Computing</venue><volume>23</volume><number>2</number><pages>113-134</pages><year>2010</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/dc/AguileraGL10</url></info>
+<url>URL#1234349</url>
+</hit>
+<hit score="1" id="1281533">
+<info><title>Reconfiguring a state machine.</title><authors><author>Leslie Lamport</author><author>Dahlia Malkhi</author><author>Lidong Zhou</author></authors><venue>SIGACT News</venue><volume>41</volume><number>1</number><pages>63-73</pages><year>2010</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/sigact/LamportMZ10</url></info>
+<url>URL#1281533</url>
+</hit>
+<hit score="1" id="1307663">
+<info><title>Computer Science and State Machines.</title><authors><author>Leslie Lamport</author></authors><venue>Concurrency, Compositionality, and Correctness</venue><pages>60-65</pages><year>2010</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/birthday/Lamport10</url></info>
+<url>URL#1307663</url>
+</hit>
+<hit score="1" id="1308794">
+<info><title>Verifying Safety Properties with the TLA+ Proof System.</title><authors><author>Kaustuv Chaudhuri</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author></authors><venue>IJCAR</venue><pages>142-148</pages><year>2010</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/cade/ChaudhuriDLM10</url></info>
+<url>URL#1308794</url>
+</hit>
+<hit score="1" id="1358719">
+<info><title>The TLA+ Proof System: Building a Heterogeneous Verification Platform.</title><authors><author>Kaustuv Chaudhuri</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author></authors><venue>ICTAC</venue><pages>44</pages><year>2010</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/ictac/ChaudhuriDLM10</url></info>
+<url>URL#1358719</url>
+</hit>
+<hit score="1" id="1423808">
+<info><title>Verifying Safety Properties With the TLA+ Proof System</title><authors><author>Kaustuv Chaudhuri</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author></authors><venue>CoRR</venue><volume>abs/1011.2560</volume><year>2010</year><type>Informal Publications</type><url>http://dblp.org/rec/journals/corr/abs-1011-2560</url></info>
+<url>URL#1423808</url>
+</hit>
+<hit score="1" id="1486066">
+<info><title>Teaching concurrency.</title><authors><author>Leslie Lamport</author></authors><venue>SIGACT News</venue><volume>40</volume><number>1</number><pages>58-62</pages><year>2009</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/sigact/Lamport09</url></info>
+<url>URL#1486066</url>
+</hit>
+<hit score="1" id="1562336">
+<info><title>The PlusCal Algorithm Language.</title><authors><author>Leslie Lamport</author></authors><venue>ICTAC</venue><pages>36-60</pages><year>2009</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/ictac/Lamport09</url></info>
+<url>URL#1562336</url>
+</hit>
+<hit score="1" id="1588860">
+<info><title>TLA+: Whence, Wherefore, and Whither.</title><authors><author>Leslie Lamport</author></authors><venue>NASA Formal Methods</venue><pages>3</pages><year>2009</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/nfm/Lamport09</url></info>
+<url>URL#1588860</url>
+</hit>
+<hit score="1" id="1593464">
+<info><title>Vertical paxos and primary-backup replication.</title><authors><author>Leslie Lamport</author><author>Dahlia Malkhi</author><author>Lidong Zhou</author></authors><venue>PODC</venue><pages>312-313</pages><year>2009</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/podc/LamportMZ09</url></info>
+<url>URL#1593464</url>
+</hit>
+<hit score="1" id="1644639">
+<info><title>Implementing dataflow with threads.</title><authors><author>Leslie Lamport</author></authors><venue>Distributed Computing</venue><volume>21</volume><number>3</number><pages>163-181</pages><year>2008</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/dc/Lamport08</url></info>
+<url>URL#1644639</url>
+</hit>
+<hit score="1" id="1775393">
+<info><title>A TLA+ Proof System.</title><authors><author>Kaustuv Chaudhuri</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author></authors><venue>LPAR Workshops</venue><year>2008</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/lpar/ChaudhuriDLM08</url></info>
+<url>URL#1775393</url>
+</hit>
+<hit score="1" id="1801679">
+<info><title>The Mailbox Problem.</title><authors><author>Marcos Kawazoe Aguilera</author><author>Eli Gafni</author><author>Leslie Lamport</author></authors><venue>DISC</venue><pages>1-15</pages><year>2008</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/wdag/AguileraGL08</url></info>
+<url>URL#1801679</url>
+</hit>
+<hit score="1" id="1815428">
+<info><title>A TLA+ Proof System</title><authors><author>Kaustuv Chaudhuri</author><author>Damien Doligez</author><author>Leslie Lamport</author><author>Stephan Merz</author></authors><venue>CoRR</venue><volume>abs/0811.1914</volume><year>2008</year><type>Informal Publications</type><url>http://dblp.org/rec/journals/corr/abs-0811-1914</url></info>
+<url>URL#1815428</url>
+</hit>
+<hit score="1" id="1855369">
+<info><title>Formal specification of a Web services protocol.</title><authors><author>James E. Johnson</author><author>David E. Langworthy</author><author>Leslie Lamport</author><author>Friedrich H. Vogt</author></authors><venue>J. Log. Algebr. Program.</venue><volume>70</volume><number>1</number><pages>34-52</pages><year>2007</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/jlp/JohnsonLLV07</url></info>
+<url>URL#1855369</url>
+</hit>
+<hit score="1" id="1979167">
+<info><title>DISC 20th Anniversary: Invited Talk Time, Clocks, and the Ordering of My Ideas About Distributed Systems.</title><authors><author>Leslie Lamport</author></authors><venue>DISC</venue><pages>504</pages><year>2007</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/wdag/Lamport07</url></info>
+<url>URL#1979167</url>
+</hit>
+<hit score="1" id="2002188">
+<info><title>Fast Paxos.</title><authors><author>Leslie Lamport</author></authors><venue>Distributed Computing</venue><volume>19</volume><number>2</number><pages>79-103</pages><year>2006</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/dc/Lamport06</url></info>
+<url>URL#2002188</url>
+</hit>
+<hit score="1" id="2002189">
+<info><title>Lower bounds for asynchronous consensus.</title><authors><author>Leslie Lamport</author></authors><venue>Distributed Computing</venue><volume>19</volume><number>2</number><pages>104-125</pages><year>2006</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/dc/Lamport06a</url></info>
+<url>URL#2002189</url>
+</hit>
+<hit score="1" id="2044410">
+<info><title>Consensus on transaction commit.</title><authors><author>Jim Gray</author><author>Leslie Lamport</author></authors><venue>ACM Trans. Database Syst.</venue><volume>31</volume><number>1</number><pages>133-160</pages><year>2006</year><type>Journal Articles</type><url>http://dblp.org/rec/journals/tods/GrayL06</url></info>
+<url>URL#2044410</url>
+</hit>
+<hit score="1" id="2076181">
+<info><title>The +CAL Algorithm Language.</title><authors><author>Leslie Lamport</author></authors><venue>FORTE</venue><pages>23</pages><year>2006</year><type>Conference and Workshop Papers</type><url>http://dblp.org/rec/conf/forte/Lamport06</url></info>
+<url>URL#2076181</url>
+</hit>
+</hits>
+</result>
