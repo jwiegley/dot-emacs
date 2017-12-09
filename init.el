@@ -3454,6 +3454,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/biblio")
 
+(use-package noflet
+  :disabled t
+  :load-path "lib/noflet")
+
 ;;; Layout
 
 (defconst display-name
