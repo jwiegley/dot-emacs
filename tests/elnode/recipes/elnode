@@ -1,0 +1,30 @@
+(elnode
+ :version "0.9.9.7.9"
+ :doc "The Emacs webserver."
+ :requires 
+ ((web "0.1.4") ;; for rle and proxy
+  (dash "1.1.0")
+  (noflet "0.0.7")
+  (s "1.5.0")
+  (creole "0.8.14") ;; for wiki
+  (fakir "0.1.6") ;; we provide the test-call with fakir 
+  (db "0.0.5")
+  (kv "0.0.17"))
+ :files 
+ ("elnode.el" 
+  "elnode-compat.el"
+  "elnode-lists.el"
+  "elnode-js.el"
+  "elnode-tools.el"
+  "elnode-wiki.el"
+  "elnode-proxy.el"
+  "elnode-log-mode.el"
+  "elnode-testsupport.el"
+  "default-wiki-index.creole"
+  "default-webserver-test.html"
+  "default-webserver-image.png"
+  "README.creole"
+  "COPYING")
+ :test
+ (:files
+  ("elnode-tests.el")))
