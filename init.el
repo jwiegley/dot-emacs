@@ -663,8 +663,7 @@
              counsel-find-library
              counsel-unicode-char)
   :init
-  (define-key minibuffer-local-map (kbd "M-r")
-    'counsel-minibuffer-history))
+  (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map))
 
 (use-package counsel-projectile
   :load-path "site-lisp/counsel-projectile"
