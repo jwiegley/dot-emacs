@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 for arg in "$@"; do
     GIT=$(echo "$arg" | cut -s -d'|' -f1)
