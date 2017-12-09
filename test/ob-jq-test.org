@@ -1,0 +1,14 @@
+* ob-jq tests
+
+  #+NAME: json1
+  #+BEGIN_EXAMPLE
+  {"a" : "test"}
+  #+END_EXAMPLE
+
+  #+NAME: simple-execution
+  #+BEGIN_SRC jq :stdin json1
+  .a
+  #+END_SRC
+
+  #+RESULTS: simple-execution
+  : test
