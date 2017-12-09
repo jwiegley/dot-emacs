@@ -1,0 +1,28 @@
+language: emacs-lisp
+sudo: false
+cache:
+  - directories:
+      # Cache stable Emacs binaries (saves 1min per job)
+      - "$HOME/emacs/"
+      
+# Allow Emacs snapshot builds to fail and don’t wait for these as they can
+# take a looooong time
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: EMACS_VERSION=snapshot
+env:
+  - EMACS_VERSION=25.2
+before_install:
+  # Configure $PATH: Executables are installed to $HOME/bin
+  - export PATH="$HOME/bin:$PATH"
+  # Download the makefile to emacs-travis.mk
+  - wget 'https://raw.githubusercontent.com/alex-hhh/emacs-travis/master/emacs-travis.mk'
+  # Install Emacs (according to $EMACS_VERSION)
+  - make -f emacs-travis.mk install_emacs
+install:
+  # Install your dependencies
+script:
+  - emacs -batch -Q --no-site-file -L . -f batch-byte-compile *.el
+  - emacs -batch -Q --no-site-file -L . -l sql-indent-test.el -f ert-run-tests-batch-and-exit
