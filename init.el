@@ -1065,7 +1065,7 @@ non-empty directories is allowed."
        (use-package erefactor
          :load-path "site-lisp/erefactor")
 
-       (define-key emacs-lisp-mode-map "C-c C-v" erefactor-map)
+       (define-key emacs-lisp-mode-map "\C-c\C-v" erefactor-map)
 
        (use-package package-lint
          :load-path "site-lisp/package-lint")
@@ -1867,6 +1867,9 @@ non-empty directories is allowed."
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
+  :bind (:map ivy-mode-map
+              ("<tab>" . ivy-alt-done)
+              ("C-i" . ivy-partial-or-done))
   :bind (:map ivy-minibuffer-map
               ("C-r" . ivy-previous-line-or-history)
               ("M-r" . ivy-reverse-i-search))
