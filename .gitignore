@@ -1,0 +1,8 @@
+\#*
+*~
+*.elc
+*.~undo-tree~
+scratch.el
+working.el
+README.html
+_ignore_*
