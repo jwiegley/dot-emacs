@@ -1,0 +1,42 @@
+* What is it?
+  =jq-mode= is an emacs major mode for editing [[https://github.com/stedolan/jq][jq]]-scripts.
+
+* Getting started
+  [[https://melpa.org/#/jq-mode][file:https://melpa.org/packages/jq-mode-badge.svg]] [[https://stable.melpa.org/#/jq-mode][file:https://stable.melpa.org/packages/jq-mode-badge.svg]]
+  - Download jq-mode.el and put it in a directory somewhere.
+  - Add the following to your .emacs file
+
+  #+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "/path/to/jq-mode-dir")
+  (autoload 'jq-mode "jq-mode.el"
+      "Major mode for editing jq files" t)
+  (add-to-list 'auto-mode-alist '("\\.jq$" . jq-mode))
+  #+END_SRC
+
+  Now jq-mode will load whenever you visit a file whose name ends
+  with .jq. Alternatively, run =M-x jq-mode= in an existing
+  buffer containing jq commands.
+
+* Interactive mode
+  =jq-mode= can also be used interactively in a JSON buffer. If you
+  add the following to your .emacs file
+
+  #+BEGIN_SRC emacs-lisp
+    (with-eval-after-load "json-mode"
+      (define-key json-mode-map (kbd "C-c C-j") #'jq-interactively))
+  #+END_SRC
+
+  or you can call =M-x jq-interactivly=. =jq-interactively= runs the
+  expression that is written in the minibuffer iteratively over the
+  JSON buffer. Press =C-g= to abort, =C-j= for newline, =RET= commits
+  any changes.
+
+* Org babel
+
+  =jq-mode= provides =ob-jq= for working with literate programming in
+  Org mode.
+
+* Bugs and Enhancements
+  If you have a problem or would like to see it get better in a
+  specific way, feel free to drop an issue in [[https://github.com/ljos/jq-mode/issues][the issue tracker]].
+  Enjoy!
