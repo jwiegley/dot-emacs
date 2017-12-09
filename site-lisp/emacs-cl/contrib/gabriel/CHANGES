@@ -1,0 +1,33 @@
+I got this set of files from the CMU AI repository.  I wish there were
+more directions, but I can see none.  It looks like the master file is the
+makefile, even though it can only work on unix systems, not on, say,
+Explorers.  Consequently, I added the benchmark and cl-vs-tcl.lisp files,
+the latter of which is particular for my purposes.  The only files I have
+added are that one and this one.
+
+I made the following modifications to the files:
+
+1.  In fft-mod and fft, wherever #+KCL, #+Lucid and #+excl were used, I added a
+#+Explorer and #+Lispworks.
+
+2.  In the `browse-init' function in browse.cl, I renamed an inner loop variable
+from `i' to `k' because, for some reason, the Explorer compiler seemed to be
+making a mistake, resulting in a run-time error.  The new loop:
+
+      (do ((k i (the fixnum (1- k))))
+	  ((= k 0))
+	(declare (type fixnum k))
+	(setf (get name (gensym)) nil))
+
+3. I modified the make-declare.lisp file to put its definitions in the :user
+package.  It originally put them in the SI package, but that's not portable
+Common Lisp. To be more exact, it makes it difficult to load the cl-vs-tcl
+file because that file references functions in the SI package defined by
+make-declare, but that file hasn't been loaded yet, so the package doesn't
+exist, and so the load fails.  Other solutions are possible, but I like this
+better.  
+
+Scott D. Anderson
+anderson@cs.umass.edu
+May 30, 1995
+

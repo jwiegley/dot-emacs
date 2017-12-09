@@ -1,0 +1,4 @@
+#!/bin/sh
+EMACS=emacs
+DIR=/home/lars/src/emacs-cl
+exec $EMACS -batch -l $DIR/load-cl.el -l $DIR/batch.el -f batch-repl
