@@ -3438,6 +3438,14 @@ non-empty directories is allowed."
   :disabled t
   :load-path "lib/parsebib")
 
+(use-package helm-bibtex
+  :disabled t
+  :load-path "site-lisp/helm-bibtex")
+
+(use-package js3-mode
+  :disabled t
+  :load-path "site-lisp/js3-mode")
+
 ;;; Layout
 
 (defconst display-name
