@@ -1,0 +1,660 @@
+#+TITLE: Bibtex-completion, helm-bibtex, ivy-bibtex
+#+Options: num:nil
+
+Helm-bibtex: [[http://melpa.org/#/helm-bibtex][http://melpa.org/packages/helm-bibtex-badge.svg]]
+Ivy-bibtex: [[http://melpa.org/#/ivy-bibtex][http://melpa.org/packages/ivy-bibtex-badge.svg]]
+
+Helm-bibtex and ivy-bibtex allow you to search and manage your BibTeX bibliography.  They both share the same generic backend, bibtex-completion, but one uses the Helm completion framework and the other Ivy as a front-end.
+
+* News
+- 2017-10-21: Added support for multiple PDFs or other file types.  See sections “Additional PDFs” and “Other file types than PDF”.
+- 2017-10-10: Added support for ~@string~ constants.
+- 2017-10-02: Use date field if year is not defined.
+- 2017-09-29: If there is a BibTeX entry, citation macro, or
+  org-bibtex entry at point, the corresponding publication will be
+  pre-selected in helm-bibtex and ivy-bibtex giving quick access to
+  PDFs and other functions.
+
+See [[file:NEWS.org]] for old news.
+
+* Key features
+
+- Quick access to your bibliography from within Emacs
+- Powerful search capabilities
+- Provides instant search results as you type
+- Tightly integrated with LaTeX authoring, emails, Org mode, etc.
+- Open the PDFs, URLs, or DOIs associated with an entry
+- Insert LaTeX cite commands, Ebib links, or Pandoc citations,
+  BibTeX entries, or plain text references at point, attach PDFs to
+  emails
+- Support for note taking
+- Quick access to online bibliographic databases such as Pubmed,
+  arXiv, Google Scholar, Library of Congress, etc.
+- Import BibTeX entries from CrossRef and other sources.
+
+Helm-bibtex’ and ivy-bitex’ main selling points are efficient search in large bibliographies using powerful search expressions and tight integration into your Emacs workflows.  They both can perform the following actions on entries matching the search expression: open the PDF associated with an entry, its URL or DOI, insert a citation for that entry, the BibTeX key, the BibTeX entry, or a plain text reference, attach the PDF to an email, take notes, edit the BibTeX entry.  Many aspects can be configured to suit personal preferences.
+
+* Example
+
+Below is a screenshot showing a helm-bibtex search for entries containing the expression “eye tracking”.
+
+#+CAPTION: A search for publications containing the expression “eye tracking”
+[[file:screenshot.png]]
+
+The regular expression ~eye.?tracking~ allows searching for different spellings (“eye tracking”, “eye-tracking”, “eyetracking”).  A looped square symbol (⌘) next to an entry indicates that a PDF is available.  A pen symbol (✎) means that there are notes attached to this entry.  At the bottom, there are entries that can be used to search in online databases.
+
+* Installation
+
+The easiest way to install helm-bibtex or ivy-bibtex is through [[http://melpa.org/#/helm-bibtex][MELPA]].  Alternatively, put the files [[file:bibtex-completion.el]] and either [[file:helm-bibtex.el]] or [[file:ivy-bibtex.el]] in a directory included in your load-path and add the following line to your start-up file (typically ~init.el~):
+
+#+BEGIN_SRC emacs-lisp
+(autoload 'helm-bibtex "helm-bibtex" "" t)
+#+END_SRC
+
+or
+
+#+BEGIN_SRC emacs-lisp
+(autoload 'ivy-bibtex "ivy-bibtex" "" t)
+#+END_SRC
+
+Helm-bibtex and ivy-bibtex depend on a number of packages that will be automatically installed if you use MELPA.
+
+When using helm-bibtex or ivy-bibtex, make sure that helm or ivy is correctly configured (see [[https://github.com/emacs-helm/helm#quick-install-from-git][helm documentation]] or [[http://oremacs.com/swiper/#installing-from-the-git-repository][ivy documentation]]).
+
+* Minimal configuration
+
+A minimal configuration involves telling bibtex-completion where your bibliographies can be found:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-bibliography
+      '("/path/to/bibtex-file-1.bib"
+        "/path/to/bibtex-file-2.bib"))
+#+END_SRC
+
+Org-bibtex users can also specify org-mode bibliography files, in which case it will be assumed that a BibTeX file exists with the same name and extension bib instead of org.  If the bib file has a different name, use a cons cell ~("orgfile.org" . “bibfile.bib")~ instead:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-bibliography
+      '("/path/to/bibtex-file-1.bib"
+        "/path/to/org-bibtex-file.org"
+        ("/path/to/org-bibtex-file2.org" . "/path/to/bibtex-file.bib")))
+#+END_SRC
+
+* Basic configuration (recommended)
+** PDF files
+Specify where PDFs can be found:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-library-path '("/path1/to/pdfs" "/path2/to/pdfs"))
+#+END_SRC
+
+Bibtex-completion assumes that the name of a PDF consists of the BibTeX key followed plus a user-defined suffix (~.pdf~ by default).  For example, if a BibTeX entry has the key ~Darwin1859~, bibtex-completion searches for ~Darwin1859.pdf~.
+
+If the BibTeX entries have a field that specifies the full path to the PDFs, that field can also be used.  For example, JabRef and Zotero store the location of PDFs in a field called ~File~:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-field "File")
+#+END_SRC
+
+If ~bibtex-completion-pdf-field~ is non-nil, bibtex-completion will first try to retrieve the file specified in this field.  If the field is not set for an entry or if the specified file does not exists, bibtex-completion falls back to the method described above (searching for key + ~.pdf~ in the directories listed in ~bibtex-completion-library-path~).
+
+File specifications can be bare paths or follow the format used by JabRef, Zotero, and Mendeley.  This format also allows the specification of multiple files (e.g., the main paper and supplementary material).  Examples:
+
+- ~File = {/path/to/article.pdf}~
+- ~File = {:/path/to/article.pdf:PDF}~
+- ~File = {:/path/to/article.pdf:PDF;:/path/to/supplementary_materials.pdf:PDF}~
+
+** Notes
+
+Bibtex-completion supports two methods for storing notes.  It can either store all notes in one file or store notes in multiple files, one file per publication.  In the first case, the customization variable ~bibtex-completion-notes-path~ has to be set to the full path of the notes file: 
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-notes-path "/path/to/notes.org")
+#+END_SRC
+
+If one file per publication is preferred, ~bibtex-completion-notes-path~ should point to the directory used for storing the notes files:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-notes-path "/path/to/notes")
+#+END_SRC
+
+The names of these files consist of the BibTeX key plus a user-defined suffix (~.org~ by default).
+
+At this point most people will be ready to go.  Skip to [[#usage][Usage]] below to see how to use helm-bibtex and ivy-bibtex.
+
+* Advanced configuration
+** Customize layout of search results
+
+The variable ~bibtex-completion-display-formats~ can be used to customize how search results are presented on a per-entry-type basis.  The default is
+
+#+BEGIN_SRC elisp
+'((t . "${author:36} ${title:*} ${year:4} ${=has-pdf=:1}${=has-note=:1} ${=type=:7}"))
+#+END_SRC
+
+which means that all entry types are presented in the same way: authors, title, year, …  In this format string, the numbers indicate how much space is reserved for the respective field.  If there is a ~*~ instead of a number that means that this field gets whatever space remains.  Here is a setup that uses a different layout for different entry types:
+
+#+BEGIN_SRC elisp
+(setq bibtex-completion-display-formats
+    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+#+END_SRC
+
+For this to work, you have to add ~journal~ and ~booktitle~ to ~bibtex-completion-additional-search-fields~.  See next section.
+
+** Fields used for searching
+
+The default fields used for searching are: author, title, year, BibTeX key, entry type (article, inproceedings, …).  The variable ~bibtex-completion-addition-search-fields~ can be used to extend this list.  Example:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-additional-search-fields '(keywords))
+#+END_SRC
+
+** Symbols used for indicating the availability of notes and PDF files
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-symbol "⌘")
+(setq bibtex-completion-notes-symbol "✎")
+#+END_SRC
+
+** Different naming schemes for PDF files
+
+If the PDFs files follow a different naming scheme than BibTeX key + ~.pdf~, the function ~bibtex-completion-find-pdf-in-library~ can be modified to accommodate that.
+
+** Application used for opening PDFs
+
+By default Emacs is used to open PDF files.  This means that either DocView is used, or, if installed, the much superior [[https://github.com/politza/pdf-tools][pdf-tools]] extension which offers features such as incremental search in PDF files and creation and modification of annotations that are compatible with annotations created by Adobe software.
+
+To configure another PDF viewer the customization variable ~bibtex-completion-pdf-open-function~ can be used.  Here is an example configuration for the OS X PDF viewer Skim:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-open-function
+  (lambda (fpath)
+    (call-process "open" nil 0 nil "-a" "/Applications/Skim.app" fpath)))
+#+END_SRC
+
+Here is another example for the Linux PDF viewer Evince:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-open-function
+  (lambda (fpath)
+    (call-process "evince" nil 0 nil fpath)))
+#+END_SRC
+
+** Additional PDFs
+:PROPERTIES:
+:CUSTOM_ID: additionalpdfs
+:END:
+
+You may store additional PDFs for a given entry, such as an annotated version of the original PDF, a file containing supplemental material, or chapter files.  If the ~file~ field is used to link PDFs to entries (see section [[https://github.com/tmalsburg/helm-bibtex#pdf-files][PDF files]]), these additional PDFs can simply be added to that field.  If the action “Open PDF file” is triggered, you will then be prompted for the file to open.
+
+If the ~file~ field is not used but instead the naming scheme ~bibtex-key~ + ~.pdf~ (again see [[https://github.com/tmalsburg/helm-bibtex#pdf-files][PDF files]]), you can obtain the same behavior with:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-find-additional-pdfs t)
+#+END_SRC
+
+All files whose name start with the BibTeX key will then be associated with an entry.  It is then sufficient to name your files accordingly (for example with the [[http://askubuntu.com/questions/58546/how-to-easily-rename-files-using-command-line][rename utility]]). Examples:
+
+- ~bibtex-key-annotated.pdf~
+- ~bibtex-key-supplemental.pdf~
+- ~bibtex-key-chapter1.pdf~
+
+Note that for performance reasons, these additional files are only detected when triggering an action, such as "Open PDF file". When the whole bibliography is loaded, only the "main" PDF ~bibtex-key.pdf~ is detected.
+
+** Other file types than PDF
+
+If documents are referenced via the naming scheme ~bibtex-key.pdf~ but you are storing files in a different format than PDF, you can set the variable ~bibtex-completion-pdf-extension~ accordingly. Example:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-extenaion ".djvu")
+#+END_SRC
+
+If you store files in various formats, then you can specify a list instead of a single file type:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-pdf-extenaion '(".pdf" ".djvu"))
+#+END_SRC
+
+Extensions in this list are then tried sequentially until a file is found. Beware that this can reduce performance for large bibliographies.
+
+** Browser used for opening URLs and DOIs
+
+By default bibtex-completion uses whatever is Emacs’ default.  However, there are a variety of alternatives (see the documentation of ~bibtex-completion-browser-function~ for a complete list).  Example:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-browser-function 'browser-url-chromium)
+#+END_SRC
+
+User-defined functions can be used, too:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-browser-function
+  (lambda (url _) (start-process "firefox" "*firefox*" "firefox" url)))
+#+END_SRC
+
+** Format of citations
+
+Bibtex-completion creates citations based on the major mode in which the citation is inserted:
+
+- org-mode :: insert link for opening the entry in Ebib
+- latex-mode :: insert LaTeX citation command
+- markdown-mode :: insert Pandoc citation macro
+- other modes :: insert plain BibTeX key
+
+The list of modes can be extended and the citation functions can be changed using the customization variable ~bibtex-completion-format-citation-functions~.  For example, people who don't use Ebib might prefer links to the PDFs instead of Ebib-links in org mode files:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-format-citation-functions
+  '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+    (latex-mode    . bibtex-completion-format-citation-cite)
+    (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+    (default       . bibtex-completion-format-citation-default)))
+#+END_SRC
+
+A citation function has to accept a list of keys as input and return a string containing the citations.  See the predefined citation functions for examples.
+
+*** LaTeX citation commands
+
+Bibtex-completion prompts for a LaTeX citation command when inserting citations in LaTeX documents.  The list of commands available for auto-completion can be defined using the variable ~bibtex-completion-cite-commands~.
+
+The default setting includes all cite commands defined in biblatex (except multicite commands and ~\volcite~ et al.).  If no command is entered, a default command is used which can be configured using ~bibtex-completion-cite-default-command~.  The default value for the default command is ~cite~.  The variable ~bibtex-completion-cite-default-as-initial-input~ controls how the default command is used.  If ~t~, it is inserted into the minibuffer before reading input from the user.  If ~nil~, it is not inserted into the minibuffer but used as the default if the user doesn't enter anything.
+
+By default, bibtex-completion also prompts for the optional pre- and postnotes for the citation.  This can be switched off by setting the variable ~bibtex-completion-cite-prompt-for-optional-arguments~ to ~nil~.
+
+See also the section [[#latex-cite][Insert LaTeX cite commands]] below.
+
+** Online databases
+
+Online databases can be configured using the customization variable ~bibtex-completion-fallback-options~.  This variable contains an alist where the first element of each entry is the name of the database and the second element is either a URL or a function.  The URL must contain a ~%s~ at the position where the current search expression should be inserted.  If a function is used, that function should take this search expression as single argument.
+
+** Key-bindings
+:PROPERTIES:
+:CUSTOM_ID: key-bindings
+:END:
+
+For quick access to the bibliography, bind the search command, ~helm-bibtex~ or ~ivy-bibtex~, to a convenient key.
+
+*Helm-bibtex*:  I use the [[http://farm1.static.flickr.com/68/167224406_166a1bf2e5.jpg][menu key]] as the prefix key for all helm commands and bind ~helm-bibtex~ to ~b~.  Helm-bibtex can then be started using ~<menu> b~.  It is also useful to bind ~helm-resume~ to ~<menu>~ in ~helm-command-map~.  With this binding, ~<menu> <menu>~ can be used to reopen the last helm search.
+
+*Ivy-bibtex*:  You could similarly bind ~ivy-bibtex~ to ~<menu> b~ and ~ivy-resume~ to ~<menu> <menu>~.
+
+** Predefined searches
+
+For convenience, frequent searches can be captured in commands and bound to key combinations.  Below is example code that defines a search for publications authored by “Jane Doe” and binds the search command to ~C-x p~.
+
+*Helm-bibtex*:
+
+#+BEGIN_SRC elisp
+(defun helm-bibtex-my-publications (&optional arg)
+  "Search BibTeX entries authored by “Jane Doe”.
+
+With a prefix ARG, the cache is invalidated and the bibliography reread."
+  (interactive "P")
+  (when arg
+    (bibtex-completion-clear-cache))
+  (helm :sources (list helm-source-bibtex helm-source-fallback-options)
+        :full-frame helm-bibtex-full-frame
+        :buffer "*helm bibtex*"
+        :input "Jane Doe"
+        :candidate-number-limit 500))
+
+;; Bind this search function to Ctrl-x p:
+(global-set-key (kbd "C-x p") 'helm-bibtex-my-publications)
+#+END_SRC
+
+*Ivy-bibtex*:
+
+#+BEGIN_SRC elisp
+(defun ivy-bibtex-my-publications (&optional arg)
+  "Search BibTeX entries authored by “Jane Doe”.
+
+With a prefix ARG, the cache is invalidated and the bibliography reread."
+  (interactive "P")
+  (when arg
+    (bibtex-completion-clear-cache))
+  (bibtex-completion-init)
+  (ivy-read "BibTeX Items: "
+            (bibtex-completion-candidates)
+            :initial-input "Jane Doe" 
+            :caller 'ivy-bibtex
+            :action ivy-bibtex-default-action))
+
+;; Bind this search function to Ctrl-x p:
+(global-set-key (kbd "C-x p") 'ivy-bibtex-my-publications)
+#+END_SRC
+
+** Change the available actions
+:PROPERTIES:
+:CUSTOM_ID: change-actions
+:END:
+
+Pressing ~<enter>~ on a publication triggers the “default action” which is opening the PDF associated with the publication, if present, or its URL or DOI otherwise. Pressing ~<tab>~ in helm-bibtex or ~M-o~ in ivy-bibtex instead displays an action menu listing the available actions. Here is the list of all available actions along with their functions (these are the generic action functions, for helm-bibtex the function names start with ~helm-bibtex-~ instead of ~bibtex-completion-~, and for ivy-bibtex they start with ~ivy-bibtex-~ instead):
+
+- Open PDF, URL or DOI: ~bibtex-completion-open-any~
+- Open PDF file (if present): ~bibtex-completion-open-pdf~
+- Open URL or DOI in browser: ~bibtex-completion-open-url-or-doi~
+- Insert citation: ~bibtex-completion-insert-citation~
+- Insert reference: ~bibtex-completion-insert-reference~
+- Insert BibTeX key: ~bibtex-completion-insert-key~
+- Insert BibTeX entry: ~bibtex-completion-insert-bibtex~
+- Attach PDF to email: ~bibtex-completion-add-PDF-attachment~
+- Edit notes: ~bibtex-completion-edit-notes~
+- Show entry: ~bibtex-completion-show-entry~
+- Add PDF to library: ~bibtex-completion-add-pdf-to-library~
+
+*Helm-bibtex*:  The action list can be modified through the commands ~helm-add-action-to-source~ and ~helm-delete-action-from-source~. For instance, the following adds a new action ~helm-bibtex-open-annotated-pdf~ (see [[#annotated][above]]) just after the first item in the list above:
+
+#+BEGIN_SRC emacs-lisp
+  (helm-add-action-to-source
+   "Open annotated PDF (if present)" 'helm-bibtex-open-annotated-pdf
+   helm-source-bibtex 1)
+#+END_SRC
+
+If the last, numerical argument in ~helm-add-action-to-source~ is omitted, the new action is added at the end of the list. Since the default action is simply the first entry in the list of actions, the default action can be changed by deleting an action and re-inserting it at the top of the list.  Below is an example showing how to make “Insert BibTeX key” the default action:
+
+#+BEGIN_SRC emacs-lisp
+(helm-delete-action-from-source "Insert BibTeX key" helm-source-bibtex)
+(helm-add-action-to-source "Insert BibTeX key" 'bibtex-completion-insert-key helm-source-bibtex 0)
+#+END_SRC
+
+*Ivy-bibtex*:  The default action and the additional available actions are set separately. The default action is controlled by the variable ~ivy-bibtex-default-action~. For example, the following code changes the default action to "insert BibTeX key":
+
+#+BEGIN_SRC emacs-lisp
+(setq ivy-bibtex-default-action 'ivy-bibtex-insert-key)
+#+END_SRC
+
+The additional actions are set by passing the desired action list to the command ~ivy-set-actions~. For instance, the following codes keeps only two available actions in addition to the default one:
+
+#+BEGIN_SRC emacs-lisp
+(ivy-set-actions
+ 'ivy-bibtex
+ '(("p" ivy-bibtex-open-any "Open PDF, URL, or DOI")
+   ("e" ivy-bibtex-edit-notes "Edit notes")))
+#+END_SRC
+
+The letters ~p~ and ~e~ are the key bindings for the two actions in the action menu. The key binding ~o~ is reserved for the default action. If you only want to add new actions at the end of the action list, you can alternatively use the command ~ivy-add-actions~. For instance, the following adds a new action ~helm-bibtex-open-annotated-pdf~ (see [[#annotated][above]]) at the end of the action list:
+
+#+BEGIN_SRC emacs-lisp
+(ivy-add-actions
+   'ivy-bibtex
+   '(("P" 'ivy-bibtex-open-annotated-pdf "Open annotated PDF (if present)")))
+#+END_SRC
+
+** Create new actions
+:PROPERTIES:
+:CUSTOM_ID: create-actions
+:END:
+
+Creating a new action for helm-bibtex or ivy-bibtex can be done in three steps. For an example see [[#annotated][Action for opening annotated PDFs]] above.
+
+The first and main step is to create a generic action function ~bibtex-completion-<action>~ (e.g. ~bibtex-completion-open-annotated-pdf~). This function should take as single argument a list of BibTeX keys and perform the action on the corresponding BibTeX entries.
+
+The second step is to tailor the generic action function for helm-bibtex or ivy-bibtex, so that it will be run in the correct buffer and receive the keys of the selected entries).
+
+*Helm-bibtex*:  This is simply done with:
+
+#+BEGIN_SRC emacs-lisp
+(helm-bibtex-helmify-action bibtex-completion-<action> helm-bibtex-<action>)
+#+END_SRC
+
+*Ivy-bibtex*:  This is simply done with:
+
+#+BEGIN_SRC emacs-lisp
+(ivy-bibtex-ivify-action bibtex-completion-<action> ivy-bibtex-<action>)
+#+END_SRC
+
+The third and final step is to make the tailored action function ~helm-bibtex-<action>~ or ~ivy-bibtex-<action>~ available in helm-bibtex or ivy-bibtex by adding it to the action menu. See [[#change-actions][Change the available actions]].
+
+** Window size
+
+*Helm-bibtex*: By default ~helm-bibtex~ uses the entire frame to display the bibliography.  This can be changed by setting the variable ~helm-bibtex-full-frame~ to ~nil~, in which case helm’s standard is used (typically vertical split, with the helm search being shown in the lower window).
+
+*Ivy-bibtex*:  Ivy-bibtex always displays the bibliography in the minibuffer. The variable ~ivy-height~ controls the number of lines for the minibuffer window in all ivy commands.
+
+** Templates for new notes
+:PROPERTIES:
+:END:
+
+Bibtex-completion populates new notes with some basic information about the publication.  In the case of just one note file for all publications, new entries look like the following example:
+
+#+BEGIN_EXAMPLE
+ * Gigerenzer, G. (1998): We need statistical thinking, not statistical rituals
+   :PROPERTIES:
+   :Custom_ID: Gigerenzer1998
+   :END:
+#+END_EXAMPLE
+
+The title of the new section consists of the author names, the year, and the title of the publication.  The property ~Custom_ID~ specifies the BibTeX key of the entry (it’s named ~Custom_ID~ for compatibility with org-ref).
+
+In the case of one file per publication, a new notes file contains a title in the following format:
+
+#+BEGIN_EXAMPLE
+#+TITLE: Notes on: Gigerenzer, G. (1998): We need statistical thinking, not statistical rituals
+#+END_EXAMPLE
+
+If other formats are desired, the templates for new notes can be changed using the customization variables ~bibtex-completion-notes-template-one-file~ and ~bibtex-completion-notes-template-multiple-files~.
+
+** File type of note files
+
+By default bibtex-completion assumes that note files are in org-mode format.  However, any other format can be used as well.  In the case of just one notes file, it is enough to set ~bibtex-completion-notes-path~ to point to the desired file.  In the case of multiple note files, the type of the files can be specified using the customization variable ~bibtex-completion-notes-extension~.  For example, if Markdown is the desired file type:
+
+#+BEGIN_SRC emacs-lisp
+(setq bibtex-completion-notes-path "/path/to/notes")
+(setq bibtex-completion-notes-extension ".md")
+#+END_SRC
+
+If the file type is set to something else than org-mode, the templates for new note files need to be adjusted as well.  See the section above for details.
+
+* Usage
+:PROPERTIES:
+:CUSTOM_ID: usage
+:END:
+** Search publications
+
+Use ~M-x helm-bibtex~ or ~M-x ivy-bibtex~ to start a new search.  The default fields for searching are: author, title, year, BibTeX key, and entry type.  Regular expressions can be used.  Example searches:
+
+Everything published by Janet Fodor:
+
+#+BEGIN_EXAMPLE
+janet fodor
+#+END_EXAMPLE
+
+All PhD theses:
+
+#+BEGIN_EXAMPLE
+phdthesis
+#+END_EXAMPLE
+
+Lyn Frazier's PhD thesis:
+
+#+BEGIN_EXAMPLE
+phdthesis frazier
+#+END_EXAMPLE
+
+Publications about eye tracking.  A regular expression is used to match various spellings (“eyetracking”, “eye tracking”, “eye-tracking”):
+
+#+BEGIN_EXAMPLE
+eye.?tracking
+#+END_EXAMPLE
+
+Conference presentations in 2013:
+
+#+BEGIN_EXAMPLE
+2013 inproceedings
+#+END_EXAMPLE
+
+Publications from 2010 and 2011:
+
+#+BEGIN_EXAMPLE
+\(2010\|2011\)
+#+END_EXAMPLE
+
+Articles co-authored by David Caplan and Gloria Waters:
+
+#+BEGIN_EXAMPLE
+article waters caplan
+#+END_EXAMPLE
+
+Search for articles by David Caplan that are /not/ co-authored by Gloria Waters:
+
+#+BEGIN_EXAMPLE
+article caplan !waters
+#+END_EXAMPLE
+
+** Search in the local bibliography
+
+Use ~helm-bibtex-with-local-bibliography~ or ~ivy-bibtex-with-local-bibliography~ to start a search in the current buffer's "local bibliography", instead of the "global bibliography" defined by ~bibtex-completion-bibliography~. These comands use the built-in reftex library to determine the local bibliography from the standard LaTeX bibliography commands ~\bibliography~ and ~\addbibresource~. They can be used not only in LaTeX buffers but also in org-mode buffers and in fact any buffer in which the LaTeX bibliography commands are used, and they take care of loading reftex if needed.
+
+** Search the word under the cursor
+
+A common use case is where a search term is written in a document (say in your LaTeX manuscript) and you want to search for it in your bibliography.  In this situation, just start helm-bibtex or ivy-bibtex and enter ~M-n~.  This inserts the word under the cursor as the search term.  (This is a helm / ivy feature and can be used in all helm / ivy commands, not just helm-bibtex / ivy-bibtex.)  Note that it is also possible to use BibTeX keys for searching.  So if your cursor is on a BibTeX key (e.g., in a LaTeX cite command) you can start helm-bibtex or ivy-bibtex, hit ~M-n~ and see the entry associated with that BibTeX key.  Special case: you want to open the PDF associated with the BibTeX key under the cursor: ~M-x helm-bibtex M-n RET~ or ~M-x ivy-bibtex M-n RET~.  This is of course shorter if you bind ~helm-bibtex~ or ~ivy-bibtex~ to a convenient key (see [[#key-bindings][Key-bindings]]).
+
+** Actions for selected publications
+
+The available actions are: 
+- Open a PDF if present, or a URL or DOI (default action)
+- Open the URL or DOI in browser
+- Insert citation
+- Insert reference
+- Insert BibTeX key
+- Insert BibTeX entry
+- Attach PDF to email
+- Edit notes
+- Show entry
+- Add PDF to library
+
+*Helm-bibtex*: Select an entry and press ~<return>~ to execute the default action.  Alternatively, press ~TAB~ (tabulator) to see a list of all available actions, execute one of them and exit helm-bibtex.
+
+*Ivy-bibtex*: Select an entry and press ~<return>~ to execute the default action.  Alternatively, press ~M-o~ to see a list of all available actions, execute one of them and exit ivy-bibtex.
+
+** Apply actions to multiple entries
+
+*Helm-bibtex*: Start helm-bibtex, enter the search expression, move the cursor to the matching entry and enter ~C-<space>~ (control + space bar) to mark this entry, optionally change your search expression, mark more entries, finally press ~<return>~ or ~<tab>~ to execute an action for all selected entries at once and exit helm-bibtex.
+
+*Ivy-bibtex*: Start ivy-bibtex, enter the search expression, move the cursor to the matching entry and press ~M-<return>~ instead of ~<return>~ or ~C-M-o~ instead of ~M-o~ to execute an action for this entry without exiting ivy-bibtex, optionally change your search expression, move the cursor the new matching entry and press ~M-<return>~ or ~C-M-o~ to execute the same (not necessarily the default) or another action for this new entry, and so on, finally press ~<return>~ or ~C-o~ to execute the same or another action and exit ivy-bibtex.
+
+** A colleague asks for copies of your new papers
+
+*Helm-bibtex*: Start an email to your colleague (~C-x m~) and execute ~helm-bibtex~.  Search for your new publications and mark them with ~C-<space>~, then press ~<f7>~ to execute the action “Attach PDF to email”.  Then ~M-x helm-resume~ (the publications are still marked) and press ~<f6>~ to execute the action “Insert BibTeX entry”.  Optionally insert more human readable references using ~M-x helm-resume~ and ~<f4>~ to execute the action “Insert reference”.  Send email (~C-c C-c~).  Done.  This takes less than 10 seconds.
+
+*Ivy-bibtex*: Start an email to your colleague (~C-x m~) and execute ~ivy-bibtex~.  Search for your new publications and select the first one, then press ~C-M-o a~ to execute the action “Attach PDF to email”. Then press ~C-M-o b~ to execute the action “Insert BibTeX entry”. Optionally insert a more human readable reference using ~C-M-o r~ to execute the action “Insert reference”. Then select your next publication and again ~C-M-o a~, ~C-M-o b~ and, optionally, ~C-M-o r~. And so on.  Send email (~C-c C-c~).  Done. 
+
+ Of course, this assumes that you’re sending email from Emacs, e.g. via [[http://www.djcbsoftware.nl/code/mu/mu4e.html][Mu4e]].
+
+** Tag publications
+
+Helm-bibtex and ivy-bibtex have powerful search capabilities but some common searches cannot be performed simply because the relevant information is typically not represented in BibTeX files.  For example, bibtex-completion doesn’t know whether a conference presentation was a talk or a poster because both are represented as ~inproceedings~.  So if you want to compile a list of your conference talks (e.g., for your CV), that’s not possible – not without some additional work.  One solution is to “tag” publications.  Tags are like keywords except that they don’t represent the content of a publications but meta data.  Example:
+
+#+BEGIN_SRC bibtex
+@inproceedings{BibtexKey2015,
+  author = {Jane Doe and Monika Mustermann},
+  title = {This is the title},
+  crossref = {XYZ-conference-2015},
+  keywords = {keyword1, keyword2},
+  pages = {10},
+  tags = {poster},
+}
+#+END_SRC
+
+Since ~tags~ is not a standard BibTeX field, bibtex-completion by default doesn’t consider it when searching.  In order to be able to search for tags, we therefore have to tell bibtex-completion that the ~tags~ field is relevant, too: 
+
+#+BEGIN_SRC elsip
+(setq bibtex-completion-additional-search-fields '(tags))
+#+END_SRC
+
+There are many other ways in which tags can be used.  For example, they can be used to mark articles that you plan to read or important articles or manuscripts in progress, etc.  Be creative.
+
+** Insert LaTeX cite commands
+:PROPERTIES:
+:CUSTOM_ID: latex-cite
+:END:
+
+The action for inserting a citation command into a LaTeX document prompts for the citation command and, if applicable, for the pre- and postnote arguments.  The prompt for the citation command has its own minibuffer history, which means that previous inputs can be accessed by pressing the ~<up>~ key for helm-bibtex or ~M-p~ for ivy-bibtex.  By pressing ~<down>~ it is also possible to access the list of all citation commands defined in biblatex (except for multicite commands and volcite et al. which have different argument structures).  The prompt also supports auto-completion via the ~tab~ key.  If no command is entered, the default command is used.  The default command is defined in the customization variable ~bibtex-completion-cite-default-command~.  By default, helm-bibtex and ivy-bibtex prompt for pre- and postnotes for the citation.  This can be switched off by setting the variable ~bibtex-completion-cite-prompt-for-optional-arguments~ to ~nil~.
+
+** Force reloading of the bibliography
+
+Bibtex-completion caches the bibliography to prevent a costly reread when a new query is started.  However, bibtex-completion does not check whether new PDFs or notes were added since the last read and hence the symbols indicating the presence or absence of these items may be incorrect.  A reread can be forced using a prefix argument.  
+
+*Helm-bibtex*: Either do ~C-u M-x helm-bibtex~ or ~C-u~ followed by whatever key binding you use to invoke helm-bibtex.
+
+*Ivy-bibtex*: Either do ~C-u M-x ivy-bibtex~ or ~C-u~ followed by whatever key binding you use to invoke ivy-bibtex.
+
+** Import BibTeX from CrossRef
+
+*Helm-bibtex*: Start helm-bibtex and enter search terms.  Then select “CrossRef” in the section titled “Fallback options”.  (You can use the left and right arrow keys to switch between sections.) 
+
+*Ivy-bibtex*: Start ivy-bibtex and enter search terms.  Then press ~M-o f~ to see the list of fallback options and and select "CrossRef".
+
+This will use [[https://github.com/cpitclaudel/biblio.el][biblio.el]] to search the CrossRef database.  In the results list, place the cursor on the entry of interest and hit ~c~ to copy the BibTeX for that entry or ~i~ to insert it at point.  Press ~q~ to close the buffer with the search results.  See the [[https://github.com/cpitclaudel/biblio.el/blob/master/README.md][documentation of biblio.el]] for details.
+
+* Advanced usage (a.k.a. hacks)
+
+Below I provide code that was useful for me or other users.  Note that this code may make assumptions that do not hold in your setup.  Read the code carefully before executing it and make changes as needed.
+
+** Convert multiple note files to one notes file
+
+The code below reads all note files in your ~bibtex-completion-notes-path~ and creates a new notes file containing a section for each publication.  This code assumes that bibtex-completion is still configured for multiple note files and that you want to store the notes in the file ~notes.org~ in your ~bibtex-completion-notes-path~.  The code also adds a level to all org headlines found in the individual note files (because top-level headings are used for the publications in the new notes file).  If a note file doesn't have a corresponding entry in the bibliography, it is ignored.
+
+#+BEGIN_SRC elisp
+(let ((note-files (directory-files bibtex-completion-notes-path t "^[^.]+\\.org$"))
+      (bibtex-completion-notes-path (f-join bibtex-completion-notes-path "notes.org")))
+  (cl-loop
+   for note-file in note-files
+   for key = (f-no-ext (f-filename note-file))
+   do (condition-case nil
+          (progn
+            (bibtex-completion-edit-notes key)
+            (insert (with-temp-buffer
+                      (insert-file-contents note-file)
+                      (replace-regexp "^*" "**")
+                      (buffer-string))))
+        (error nil))))
+#+END_SRC
+
+** Create a BibTeX file containing only specific entries
+
+Say you want to create a BibTeX file containing only entries that you cited in an article, then you can use the following code to populate the new BibTeX file with entries:
+
+#+BEGIN_SRC elisp
+(progn
+  (switch-to-buffer (generate-new-buffer "my_new_bibliography.bib"))
+  (--map (insert (bibtex-completion-make-bibtex it)) (-distinct '("Key1" "Key2"))))
+#+END_SRC
+
+If LaTeX is used to write the article, grep and sed can be used to extract the cited keys:
+
+#+BEGIN_SRC sh
+grep '\entry{' manuscript.bbl | sed 's/^.*\entry{\([^}]*\)}.*$/\1/'
+#+END_SRC
+
+** Reverse order of entries
+
+Helm-bibtex and ivy-bibtex display entries in the order in which they appear in the BibTeX file reversed.  This way, entries that were added at the bottom of the BibTeX file show up at the top when searching.  There is currently no support for sorting but if you want to reverse the order of entries you can use the code below:
+
+#+BEGIN_SRC elisp
+(advice-add 'bibtex-completion-candidates
+            :filter-return 'reverse)
+#+END_SRC
+
+* Troubleshooting
+
+** Helm-bibtex doesn’t show any entries
+
+This usually happens when a BibTeX file isn’t well-formed.  Common problems are opening quotes or parentheses that don’t have matching counterparts.  Unfortunately, Helm swallows the error message that is generated in these cases and just shows an empty buffer.
+
+One way to diagnose the problem is to call the function for reading BibTeX directly and to see what error message it produces:
+
+#+BEGIN_SRC elisp
+(bibtex-completion-candidates)
+#+END_SRC
+
+If you see
+
+#+BEGIN_SRC
+forward-sexp: Scan error: "Unbalanced parentheses", 181009, 512282
+#+END_SRC
+
+this means that there is an unmatched opening parenthesis at the position 181009.  To find this parenthesis, open the BibTeX file and do ~M-: (goto-char 181009) RET~.  You can also use the command ~M-x bibtex-validate RET~ to check for errors.  Fix any problems and try again.
