@@ -35,11 +35,25 @@ find "$@"                                                                       
        ! -path site-lisp/company-ghc/company-ghc.el                             \
        ! -path site-lisp/dired-hacks/dired-images.el                            \
        ! -path site-lisp/emacs-calfw/calfw-howm.el                              \
+       ! -path site-lisp/emacs-cl/src/cl-compile.el                             \
+       ! -path site-lisp/emacs-cl/src/cl-eval.el                                \
+       ! -path site-lisp/emacs-cl/src/cl-objects.el                             \
+       ! -path site-lisp/emacs-cl/src/cl-streams.el                             \
        ! -path site-lisp/emacs-w3m/mew-w3m.el                                   \
        ! -path site-lisp/emacs-w3m/mime-w3m.el                                  \
        ! -path site-lisp/emacs-w3m/octet.el                                     \
        ! -path site-lisp/emacs-w3m/w3m-ucs.el                                   \
        ! -path site-lisp/emacs-w3m/w3m-xmas.el                                  \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-cider.el                     \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-elm.el                       \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-erlang.el                    \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-geiser.el                    \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-hy.el                        \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-iex.el                       \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-javascript.el                \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-racket.el                    \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-scala.el                     \
+       ! -path site-lisp/eval-in-repl/eval-in-repl-sml.el                       \
        ! -path site-lisp/gnus/lisp/gnus-xmas.el                                 \
        ! -path site-lisp/lentic/build.el                                        \
        ! -path site-lisp/lua-mode/lua-mode.el                                   \
