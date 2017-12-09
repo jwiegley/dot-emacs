@@ -3493,6 +3493,14 @@ non-empty directories is allowed."
   :disabled t
   :load-path "lib/noflet")
 
+(use-package paradox
+  :disabled t
+  :load-path "site-lisp/paradox")
+
+(use-package names
+  :disabled t
+  :load-path "lib/names")
+
 ;;; Layout
 
 (defconst display-name
