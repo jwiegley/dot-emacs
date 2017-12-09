@@ -1,0 +1,25 @@
+* Other Packages
+*Names* isn't the first package to try patching up namespaces in
+Emacs. Here we link to descriptions and provide short comparisons of
+previous packages attempting similar things.
+** [[https://github.com/Wilfred/with-namespace.el][with-namespace]]
+The closest to *Names* in terms of ideology. It performs simple
+namespacing of symbols inside =defun= forms and alike.
+
+The difference is that *Names* performs intelligent namespacing (it
+understand which symbols are vars, which are functions, and which are
+not fit for namespacing) and applies to any form under the sun.
+** [[https://github.com/sigma/codex][Codex]]
+A robust and somewhat similar option. Notable differences are that
+*Names* does have edebug integration (which greatly facilitates actual
+development) and is generally more focused on being practical (write
+code as you would, just without the prefix).
+** [[https://github.com/skeeto/elisp-fakespace/][Fakespace]]
+Focuses on the global obarray clobbering, not on code clobbering. It
+uninterns defined symbols, while *Names* actually simplifies the code
+that you write.
+** [[https://github.com/chrisbarrett/elisp-namespaces][elisp-namespaces]]
+Possibly the safest and faciest of the bunch. It's a great way to
+avoid clobbering the global obarray if you're willing to use its
+syntax. Like above, the difference it that *Names* actually simplifies
+that you type.
