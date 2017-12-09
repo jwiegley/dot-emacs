@@ -829,7 +829,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -1178,7 +1178,7 @@
  '(z3-solver-cmd "z3")
  '(zencoding-indentation 2)
  '(zencoding-preview-default nil)
- '(zoom-size (quote size-callback) t))
+ '(zoom-size (quote size-callback)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
