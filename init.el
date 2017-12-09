@@ -1867,10 +1867,9 @@ non-empty directories is allowed."
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
-  :bind (:map ivy-mode-map
-              ("<tab>" . ivy-alt-done)
-              ("C-i" . ivy-partial-or-done))
   :bind (:map ivy-minibuffer-map
+              ("<tab>" . ivy-alt-done)
+              ("C-i" . ivy-partial-or-done)
               ("C-r" . ivy-previous-line-or-history)
               ("M-r" . ivy-reverse-i-search))
   :bind (:map ivy-switch-buffer-map
