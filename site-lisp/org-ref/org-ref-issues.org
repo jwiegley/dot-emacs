@@ -1,0 +1,161 @@
+#+TODO: ISSUE | COMPLETED
+#+BEGIN_SRC emacs-lisp
+(org-link-set-parameters
+ "github-issue"
+ :follow (lambda (path)
+	   (browse-url
+	    (format "https://github.com/jkitchin/org-ref/issues/%s" path))))
+#+END_SRC
+
+#+RESULTS:
+
+* COMPLETED TODO 381 Testing labels
+CLOSED: [2017-05-07 Sun 19:50]
+
+label:test.1
+
+label:test-1 \label{fig:test-foo} \label{fig:testfoo}
+
+ref:test.1  ref:test  ref:test-1
+
+<2017-02-22 Wed>
+
+I found some minor inconsistencies with labels and ref messages that are caused by allowing . in the name. The . in particular is tricky since it is a special regexp character. I added regexp-quote in a lot of places to accommodate this.
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-labels)
+#+END_SRC
+
+#+RESULTS:
+| test.1 | test-1 | fig:test-foo | fig:testfoo |
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-count-labels "test")
+#+END_SRC
+
+#+RESULTS:
+: 0
+
+github-issue:381
+* COMPLETED 388
+CLOSED: [2017-05-07 Sun 19:49]
+
+https://github.com/jkitchin/org-ref/issues/388
+
+Click on this, and press "g". It should get the bibtex entry from the doi.
+
+doi:10.1016/j.calphad.2017.01.009
+* COMPLETED 399
+CLOSED: [2017-05-07 Sun 19:50]
+github-issue:399
+
+This is a natbib type, and if you do not use the natbib package, it will not work correctly in pdf export.
+
+citenum:akhade-2011-effec
+#+latex_class: article-nodefaults
+#+latex_header: \usepackage{biblatex}
+#+latex_header: \addbibresource{org-ref.bib}
+
+
+* COMPLETED 356
+CLOSED: [2017-05-07 Sun 19:51]
+  :PROPERTIES:
+  :CUSTOM_ID:       8E93EBF7-D0D3-4024-B005-45729C6AC6E0
+  :END:
+github-issue:356
+
+cite:jkitchin76:online
+
+
+printbibliography:nil
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-html-bibliography)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-bibtex-keys)
+#+END_SRC
+
+#+RESULTS:
+| jkitchin76:online |
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-find-bibliography)
+#+END_SRC
+
+#+RESULTS:
+| org-ref.bib |
+
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-bibtex-entry-html "jkitchin76:online")
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(org-ref-get-bibtex-entry-citation "jkitchin76:online")
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(bibtex-set-dialect 'biblatex)
+(org-ref-key-in-file-p "jkitchin76:online" (file-truename "org-ref.bib"))
+#+END_SRC
+
+#+RESULTS:
+: 9765
+ref:8E93EBF7-D0D3-4024-B005-45729C6AC6E0e
+
+* COMPLETED 405
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:405
+ref:test-table
+
+  #+name: test-table
+  | 5 | 6 |
+* COMPLETED 404 isbn issues
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:404
+
+#+BEGIN_SRC emacs-lisp
+(let ((org-ref-clean-bibtex-entry-hook
+       '(org-ref-bibtex-format-url-if-doi
+	 orcb-key-comma
+	 org-ref-replace-nonascii
+	 orcb-& orcb-%
+	 org-ref-title-case-article
+	 orcb-clean-year
+	 orcb-clean-doi
+	 orcb-clean-pages
+	 org-ref-sort-bibtex-entry)))
+  (isbn-to-bibtex "9783540330363" "org-ref.bib"))
+#+END_SRC
+
+#+RESULTS:
+* COMPLETED 410
+CLOSED: [2017-05-07 Sun 19:51]
+github-issue:410
+
+#+STARTUP: content indent hidestars fninline
+#+OPTIONS: toc:nil
+
+
+* ISSUE Wrong type argument: listp, "\\tolerance=1000" #430
+github-issue:430
+* ISSUE org-ref invalid org-store-link in org babel #433                :bug:
+  :PROPERTIES:
+  :ID:       57D3E663-E37A-4372-9832-A82DC9A1BC01
+  :END:
+
+github-issue:433
+
+#+BEGIN_SRC clojure
+(defn )                                                             (ref:hello)
+#+END_SRC
+
+[[id:57D3E663-E37A-4372-9832-A82DC9A1BC01][org-ref invalid org-store-link in org babel #433]]
+
+It looks like I fixed it in [[orgit-rev:~/vc/jkitchin-github/scimax/org-ref/::ad6fb5c][~/vc/jkitchin-github/scimax/org-ref/ (magit-rev ad6fb5c)]].
