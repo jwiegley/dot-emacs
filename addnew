@@ -16,8 +16,11 @@ for arg in "$@"; do
         DIR=site-lisp
     fi
 
+    echo git remote add ext/$PKG $GIT
     git remote add ext/$PKG $GIT
+    echo git fetch --no-tags ext/$PKG
     git fetch --no-tags ext/$PKG
+    echo git addtree $DIR/$PKG
     git addtree $DIR/$PKG
 done
 
@@ -39,6 +42,9 @@ for arg in "$@"; do
 
     URL=$(echo "$GIT" | sed -e 's/@/:\/\//' -e 's/:/\//')
 
+    echo "MANIFEST: $PKG,$DIR,subtree,$URL,"
     echo "$PKG,$DIR,subtree,$URL," >> MANIFEST.csv
+
+    echo "INIT: (use-package $PKG :disabled t :load-path \"$DIR/$PKG\")"
     echo "(use-package $PKG :disabled t :load-path \"$DIR/$PKG\")" >> init.el
 done
