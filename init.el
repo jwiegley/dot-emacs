@@ -3431,6 +3431,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/tagedit")
 
+(use-package parsebib
+  :disabled t
+  :load-path "lib/parsebib")
+
 ;;; Layout
 
 (defconst display-name
