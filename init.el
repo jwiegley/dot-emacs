@@ -126,6 +126,7 @@
 (use-package alert            :defer t :load-path "lisp/alert")
 (use-package anaphora        :demand t :load-path "lib/anaphora")
 (use-package apiwrap          :defer t :load-path "lib/apiwrap")
+(use-package asoc             :defer t :load-path "lib/asoc")
 (use-package async            :defer t :load-path "lisp/emacs-async")
 (use-package button-lock      :defer t :load-path "lib/button-lock")
 (use-package crux            :demand t :load-path "lib/crux")
@@ -1277,13 +1278,8 @@ non-empty directories is allowed."
               ("C-."))
   :config
   (defun my-flyspell-maybe-correct-transposition (beg end candidates)
-    (let ((attempt
-           (save-excursion
-             (save-restriction
-               (narrow-to-region beg end)
-               (goto-char (point-min))
-               (let (case-fold-search)
-                 (not (looking-at "\\`[A-Z0-9]+\\'")))))))
+    (let ((attempt (string-match "\\`[A-Z0-9]+\\'"
+                                 (buffer-substring-no-properties beg end))))
       (when attempt
         (flyspell-maybe-correct-transposition beg end candidates)))))
 
@@ -1388,9 +1384,9 @@ non-empty directories is allowed."
 
 (use-package grep
   :bind (("M-s f" . find-grep)
-         ("M-s F" . find-grep-dired)
-         ("M-s d" . find-name-dired)
-         ("M-s G" . grep)))
+         ("M-s d" . find-grep-dired)
+         ("M-s n" . find-name-dired)
+         ("M-s g" . grep)))
 
 (use-package gud
   :commands gud-gdb
@@ -2340,7 +2336,7 @@ non-empty directories is allowed."
 (use-package navi-mode
   :load-path "site-lisp/navi"
   :after outshine
-  :bind ("M-s n" . navi-search-and-switch))
+  :bind ("M-s s" . navi-search-and-switch))
 
 (use-package nf-procmail-mode
   :commands nf-procmail-mode)
