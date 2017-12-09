@@ -28,6 +28,7 @@
 
 ;;; Code:
 
+(require 'dash)
 (eval-when-compile (require 'cl))
 (if (version< emacs-version "24.4.1")
     (load-library "cl-indent")
