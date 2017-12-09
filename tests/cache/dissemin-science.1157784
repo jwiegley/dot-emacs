@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Date: Wed, 23 Mar 2016 13:37:31 GMT
+Server: Apache/2.4.10 (Debian)
+Vary: Accept-Language,Cookie
+X-Frame-Options: SAMEORIGIN
+Content-Language: en
+Keep-Alive: timeout=5, max=100
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: application/json
+
+{"status": "ok", "paper": {"classification": "OK", "title": "Strategic Reading, Ontologies, and the Future of Scientific Publishing", "records": [], "publications": [{"publisher": "American Association for the Advancement of Science (AAAS)", "doi": "10.1126/science.1157784", "issue": "5942", "journal": "Science", "issn": "0036-8075", "volume": "325", "policy": {"romeo_id": "3", "preprint": "can", "postprint": "can", "published": "cannot"}, "type": "journal-article", "pages": "828-832"}], "authors": [{"name": {"last": "Renear", "first": "A. H."}}, {"name": {"last": "Palmer", "first": "C. L."}}], "date": "2009-08-13", "type": "journal-article"}}

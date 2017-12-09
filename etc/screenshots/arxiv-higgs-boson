@@ -1,0 +1,293 @@
+HTTP/1.1 200 OK
+Date: Thu, 24 Mar 2016 02:46:49 GMT
+Server: Apache
+Access-control-allow-origin: *
+Vary: Accept-Encoding,User-Agent
+Content-Encoding: gzip
+Content-Length: 4784
+Keep-Alive: timeout=5, max=100
+Connection: Keep-Alive
+Content-Type: application/atom+xml; charset=UTF-8
+
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <link href="http://arxiv.org/api/query?search_query%3Dhiggs%20boson%26id_list%3D%26start%3D0%26max_results%3D10" rel="self" type="application/atom+xml"/>
+  <title type="html">ArXiv Query: search_query=higgs boson&amp;id_list=&amp;start=0&amp;max_results=10</title>
+  <id>http://arxiv.org/api/4OqqJwVKfuQ6P4T04C6gTHGTNmA</id>
+  <updated>2016-03-23T00:00:00-04:00</updated>
+  <opensearch:totalResults xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">42429</opensearch:totalResults>
+  <opensearch:startIndex xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">0</opensearch:startIndex>
+  <opensearch:itemsPerPage xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">10</opensearch:itemsPerPage>
+  <entry>
+    <id>http://arxiv.org/abs/1409.1711v1</id>
+    <updated>2014-09-05T09:53:24Z</updated>
+    <published>2014-09-05T09:53:24Z</published>
+    <title>Future prospects of Higgs Physics at CMS</title>
+    <summary>  The Higgs boson physics reach of the CMS detector with 300(0) fb-1 of
+proton-proton collisions at sqrt{s} = 14 TeV is presented. Precision
+measurements of the Higgs boson properties, Higgs boson pair production and
+self-coupling, rare Higgs boson decays, and the potential for additional Higgs
+bosons are discussed.
+</summary>
+    <author>
+      <name>Miguel Vidal Marono</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">for the CMS Collaboration</arxiv:affiliation>
+    </author>
+    <link href="http://arxiv.org/abs/1409.1711v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1409.1711v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1108.0157v1</id>
+    <updated>2011-07-31T08:20:46Z</updated>
+    <published>2011-07-31T08:20:46Z</published>
+    <title>Higgs Bosons in the Next-to-Minimal Supersymmetric Standard Model at the
+  LHC</title>
+    <summary>  We review possible properties of Higgs bosons in the NMSSM, which allow to
+discriminate this model from the MSSM: masses of mostly Standard-Model-like
+Higgs bosons at or above 140 GeV, or enhanced branching fractions into two
+photons, or Higgs-to-Higgs decays. In the case of a Standard-Model-like Higgs
+boson above 140 GeV, it is necessarily accompagnied by a lighter state with a
+large gauge singlet component. Examples for such scenarios are presented.
+Available studies on Higgs-to-Higgs decays are discussed according to the
+various Higgs production modes, light Higgs masses and decay channels.
+</summary>
+    <author>
+      <name>Ulrich Ellwanger</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1140/epjc/s10052-011-1782-3</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1140/epjc/s10052-011-1782-3" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">19 pages, 1 Figure, 2 Tables</arxiv:comment>
+    <link href="http://arxiv.org/abs/1108.0157v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1108.0157v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ex/0307010v1</id>
+    <updated>2003-07-05T09:37:52Z</updated>
+    <published>2003-07-05T09:37:52Z</published>
+    <title>Search for a Higgs Boson Decaying to Weak Boson Pairs at LEP</title>
+    <summary>  A Higgs particle produced in association with a Z boson and decaying into
+weak boson pairs is searched for in 336.4 1/pb of data collected by the L3
+experiment at LEP at centre-of-mass energies from 200 to 209 GeV. Limits on the
+branching fraction of the Higgs boson decay into two weak bosons as a function
+of the Higgs mass are derived. These results are combined with the L3 search
+for a Higgs boson decaying to photon pairs. A Higgs produced with a Standard
+Model e+e- --&gt; Zh cross section and decaying only into electroweak boson pairs
+is excluded at 95% CL for a mass below 107 GeV.
+</summary>
+    <author>
+      <name> L3 Collaboration</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1016/j.physletb.2003.06.057</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1016/j.physletb.2003.06.057" rel="related"/>
+    <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Phys.Lett.B568:191-204,2003</arxiv:journal_ref>
+    <link href="http://arxiv.org/abs/hep-ex/0307010v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ex/0307010v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ex" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1501.04257v1</id>
+    <updated>2015-01-18T02:32:18Z</updated>
+    <published>2015-01-18T02:32:18Z</published>
+    <title>Properties and searches of the exotic neutral Higgs bosons in the
+  Georgi-Machacek model</title>
+    <summary>  The Georgi-Machacek model predicts the existence of four neutral Higgs
+bosons, one of which can be identified as the 125-GeV Higgs boson. The latest
+Higgs data favor the parameter space of small mixing angle alpha between the
+two custodial singlets of the model. The other two neutral Higgs bosons belong
+respectively to the custodial triplet and quintet. We study the general decay
+and production properties of these particles in the small-alpha scenario.
+Constraints on the SU(2)_L triplet vacuum expectation value are obtained as a
+function of the exotic Higgs boson masses using latest ATLAS data of various
+search channels for additional neutral Higgs bosons.
+</summary>
+    <author>
+      <name>Cheng-Wei Chiang</name>
+    </author>
+    <author>
+      <name>Koji Tsumura</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">21 pages, 32 eps files</arxiv:comment>
+    <link href="http://arxiv.org/abs/1501.04257v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1501.04257v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1411.6526v2</id>
+    <updated>2014-11-26T14:56:16Z</updated>
+    <published>2014-11-24T16:51:17Z</published>
+    <title>Charged Higgs Bosons in the LHCHXSWG</title>
+    <summary>  Searches for charged Higgs bosons are an integral part of current and future
+investigations at the LHC. The LHC Higgs Cross Section Working Group (LHCHXSWG)
+was created to provide cross sections, branching ratios, analysis strategies
+etc. for Higgs boson searches at the LHC. We briefly review progress and
+results for charged Higgs bosons in and for the LHCHXSWG.
+</summary>
+    <author>
+      <name>S. Heinemeyer</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">Preprint number added, conclusions unchanged</arxiv:comment>
+    <link href="http://arxiv.org/abs/1411.6526v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1411.6526v2" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ph/0102058v1</id>
+    <updated>2001-02-06T06:35:23Z</updated>
+    <published>2001-02-06T06:35:23Z</published>
+    <title>Higgs and SUSY Higgs bosons at future linear collider</title>
+    <summary>  Theoretical overview on phenomenology of Higgs boson and SUSY Higgs boson at
+a future linear collider experiment is given as a Higgs and SUSY Higgs working
+group summary report for LCWS 2000.
+</summary>
+    <author>
+      <name>Yasuhiro Okada</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">KEK</arxiv:affiliation>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1063/1.1394309</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1063/1.1394309" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">14 page, 4 figures, Talk given at Linear Collider Workshop 2000,
+  October 24 -28, 2000, Fermilab</arxiv:comment>
+    <link href="http://arxiv.org/abs/hep-ph/0102058v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/0102058v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ph/0206205v3</id>
+    <updated>2003-01-21T17:11:03Z</updated>
+    <published>2002-06-21T11:41:49Z</published>
+    <title>Triple and quartic interactions of Higgs bosons in the two-Higgs-doublet
+  model with CP violation</title>
+    <summary>  We consider the two-Higgs-doublet model with explicit CP-violation, where the
+effective Higgs potential is not CP-invariant at the tree-level. Three neutral
+Higgs bosons of the model are the mixtures of CP-even and CP-odd bosons which
+exist in the CP-conserving limit of the theory. The mass spectrum and
+tree-level couplings of the neutral Higgs bosons to gauge bosons and fermions
+are significantly dependent on the parameters of the Higgs boson mixing matrix.
+We calculate the Higgs-gauge boson, Higgs-fermion, triple and quartic Higgs
+self-interactions in the MSSM with explicit CP-violation in the Higgs sector
+and CP-violating Yukawa interactions of the third generation scalar quarks. In
+some regions of the MSSM parameter space substantial changes of the
+self-interaction vertices take place, leading to significant suppression or
+enhancement of the multiple Higgs boson production cross sections.
+</summary>
+    <author>
+      <name>M. N. Dubinin</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">Moscow State Univ.</arxiv:affiliation>
+    </author>
+    <author>
+      <name>A. V. Semenov</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">LAPTH, Annecy</arxiv:affiliation>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1140/epjc/s2003-01141-5</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1140/epjc/s2003-01141-5" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">29 pages, 4 figures. Minor changes in section 3, misprints in (47)
+  corrected. Version accepted by EPJC</arxiv:comment>
+    <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Eur.Phys.J. C28 (2003) 223-236</arxiv:journal_ref>
+    <link href="http://arxiv.org/abs/hep-ph/0206205v3" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/0206205v3" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1502.06438v3</id>
+    <updated>2015-11-17T14:42:00Z</updated>
+    <published>2015-01-06T16:23:20Z</published>
+    <title>A Higgs Boson Composed of Gauge Bosons</title>
+    <summary>  It is proposed to replace the Higgs boson of the standard model by a Lorentz-
+and gauge-invariant combination of SU(2) gauge bosons. A pair of Higgs bosons
+is identified with pairs of gauge bosons by setting their mass Lagrangians
+equal to each other. That immediately determines the mass of the composite
+Higgs boson. It becomes simply half of the vacuum expectation value of the
+standard Higgs boson, which matches the observed mass with tree-level accuracy
+(2%). The two parameters of the standard Higgs potential are replaced by five
+one-loop self-interactions of the SU(2) gauge bosons, derived from the
+fundamental gauge couplings. The Brout-Englert-Higgs mechanism of spontaneous
+symmetry breaking is generalized from scalars to vectors. Their transverse
+components acquire finite vacuum expectation values which generate masses for
+both gauge bosons and the Higgs boson. This concept leads beyond the standard
+model by enabling calculations of the Higgs mass and its potential without
+adjustable parameters. It can be applied to non-abelian gauge theories in
+general, such as grand unified models and supersymmetry.
+</summary>
+    <author>
+      <name>F. J. Himpsel</name>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">27 pages, 10 figures, added appendix, fixed errors and typos,
+  clarified the text, added explanation of Equation (15), added references</arxiv:comment>
+    <link href="http://arxiv.org/abs/1502.06438v3" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/1502.06438v3" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ph/0507296v1</id>
+    <updated>2005-07-26T10:30:05Z</updated>
+    <published>2005-07-26T10:30:05Z</published>
+    <title>Distinguishing a SM-like MSSM Higgs boson from SM Higgs boson at muon
+  collider</title>
+    <summary>  We explore the possibility of distinguishing the SM-like MSSM Higgs boson
+from the SM Higgs boson via Higgs boson pair production at future muon
+collider. We study the behavior of the production cross section in SM and MSSM
+with Higgs boson mass for various choices of MSSM parameters tan \beta and
+m\sub A. We observe that at fixed CM energy, in the SM, the total cross section
+increases with the increase in Higgs boson mass whereas this trend is reversed
+for the MSSM case. The changes that occur for the MSSM case in comparison to
+the SM predictions are quantified in terms of the relative percentage deviation
+in cross section. The observed large deviations in cross section for different
+choices of Higgs mass suggest that the measurements of the cross section could
+possibly distinguish the SM-like MSSM Higgs boson from the SM Higgs boson.
+</summary>
+    <author>
+      <name>Jai Kumar Singhal</name>
+    </author>
+    <author>
+      <name>Sardar Singh</name>
+    </author>
+    <author>
+      <name>Ashok K Nagawat</name>
+    </author>
+    <arxiv:doi xmlns:arxiv="http://arxiv.org/schemas/atom">10.1007/s12043-007-0093-6</arxiv:doi>
+    <link title="doi" href="http://dx.doi.org/10.1007/s12043-007-0093-6" rel="related"/>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">5 figures</arxiv:comment>
+    <arxiv:journal_ref xmlns:arxiv="http://arxiv.org/schemas/atom">Pramana68:931-942,2007</arxiv:journal_ref>
+    <link href="http://arxiv.org/abs/hep-ph/0507296v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/0507296v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/hep-ph/9705282v1</id>
+    <updated>1997-05-09T21:09:26Z</updated>
+    <published>1997-05-09T21:09:26Z</published>
+    <title>Detecting and Studying Higgs Bosons</title>
+    <summary>  I review the ability of the LHC (large hadron collider), NLC (next linear
+lepton collider) and FMC (first muon collider) to detect and study Higgs
+bosons, with emphasis on the Higgs bosons of extended Higgs sectors, especially
+those of the minimal supersymmetric standard model (MSSM). Particular attention
+is given to means for distinguishing the lightest neutral CP-even Higgs boson
+of the MSSM from the single Higgs boson of the minimal Standard Model (SM).
+</summary>
+    <author>
+      <name>J. F. Gunion</name>
+      <arxiv:affiliation xmlns:arxiv="http://arxiv.org/schemas/atom">U.C. Davis</arxiv:affiliation>
+    </author>
+    <arxiv:comment xmlns:arxiv="http://arxiv.org/schemas/atom">65 pages, to appear in ``Perspectives on Higgs Physics'', ed. G.
+  Kane, 2nd edition (World Scientific Publishing). Full postscript file is
+  available via anonymous ftp at
+  ftp://ucdhep.ucdavis.edu/gunion/perspectives97.ps</arxiv:comment>
+    <link href="http://arxiv.org/abs/hep-ph/9705282v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/hep-ph/9705282v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category xmlns:arxiv="http://arxiv.org/schemas/atom" term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="hep-ph" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>
