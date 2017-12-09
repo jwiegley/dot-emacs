@@ -52,6 +52,7 @@
   "Pop a command from the buffer stack."
   (interactive)
   (when *eshell-buffer-stack*
+    (goto-char (point-max))
     (insert (pop *eshell-buffer-stack*))))
 
 ;;;###autoload
