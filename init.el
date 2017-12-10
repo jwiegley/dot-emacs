@@ -581,8 +581,9 @@
 
 (use-package clipmon
   :load-path "site-lisp/clipmon"
-  :defer 5
-  :bind ("<f2>" . clipmon-autoinsert-toggle))
+  :bind ("<f2>" . clipmon-autoinsert-toggle)
+  :hook ((after-init . clipmon-mode-start)
+         (after-init . clipmon-persist)))
 
 (use-package cmake-font-lock
   :load-path "site-lisp/cmake-font-lock"
@@ -611,7 +612,6 @@
   :load-path "site-lisp/company-mode"
   :diminish
   :commands company-mode
-  :hook (prog-mode . company-mode)
   :config
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
@@ -928,9 +928,10 @@
 
 (use-package dired+
   :after dired
-  :bind (:map dired-mode-map
-              ("M-s f"))
   :config
+  (ignore-errors
+    (unbind-key "M-s f" dired-mode-map))
+
   (defun dired-do-delete (&optional arg)
     "Delete all marked (or next ARG) files.
 `dired-recursive-deletes' controls whether deletion of
@@ -1042,10 +1043,8 @@ non-empty directories is allowed."
 
 (use-package easy-kill
   :load-path "site-lisp/easy-kill"
-  :defer 5
-  :config
-  (global-set-key [remap kill-ring-save] 'easy-kill)
-  (global-set-key [remap mark-sexp] 'easy-mark))
+  :bind (("C-. w" . easy-kill)
+         ("C-. @" . easy-mark)))
 
 (use-package ebdb-com
   :load-path "site-lisp/ebdb"
@@ -1241,13 +1240,14 @@ non-empty directories is allowed."
   :bind ("C-c e t" . ert-run-tests-interactively))
 
 (use-package esh-buf-stack
-  :disabled t
   :load-path "site-lisp/esh-buf-stack"
   :after eshell
-  :bind (:map eshell-mode-map
-              ("M-q" . eshell-push-command))
   :config
-  (setup-eshell-buf-stack))
+  (setup-eshell-buf-stack)
+  (add-hook 'eshell-prepare-command-hook
+            #'(lambda ()
+                (bind-keys :map eshell-command-map
+                           ("M-p" . eshell-push-command)))))
 
 (use-package esh-help
   :load-path "site-lisp/esh-help"
@@ -2721,9 +2721,9 @@ non-empty directories is allowed."
   :defer 5
   :config
   (persistent-scratch-autosave-mode)
-  :commands persistent-scratch-setup-default
-  :hook (after-init . (lambda () (with-demoted-errors "Error: %S"
-                                   (persistent-scratch-setup-default)))))
+  (with-demoted-errors "Error: %S"
+    (persistent-scratch-setup-default))
+  :commands persistent-scratch-setup-default)
 
 (use-package personal
   :after crux
