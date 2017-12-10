@@ -3491,6 +3491,86 @@ non-empty directories is allowed."
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
 
+(use-package multi-compile
+  :disabled t
+  :load-path "site-lisp/multi-compile")
+
+(use-package dired-k
+  :disabled t
+  :load-path "site-lisp/dired-k")
+
+(use-package back-button
+  :disabled t
+  :load-path "site-lisp/back-button")
+
+(use-package bm
+  :disabled t
+  :load-path "site-lisp/bm")
+
+(use-package typo
+  :disabled t
+  :load-path "site-lisp/typo")
+
+(use-package focus
+  :disabled t
+  :load-path "site-lisp/focus")
+
+(use-package easy-kill
+  :disabled t
+  :load-path "site-lisp/easy-kill")
+
+(use-package clipmon
+  :disabled t
+  :load-path "site-lisp/clipmon")
+
+(use-package whitespace-cleanup-mode
+  :disabled t
+  :load-path "site-lisp/whitespace-cleanup-mode")
+
+(use-package company-quickhelp
+  :disabled t
+  :load-path "site-lisp/company-quickhelp")
+
+(use-package origami
+  :disabled t
+  :load-path "site-lisp/origami")
+
+(use-package parinfer-mode
+  :disabled t
+  :load-path "site-lisp/parinfer-mode")
+
+(use-package highlight-defined
+  :disabled t
+  :load-path "site-lisp/highlight-defined")
+
+(use-package elmacro
+  :disabled t
+  :load-path "site-lisp/elmacro")
+
+(use-package makefile-runner
+  :disabled t
+  :load-path "site-lisp/makefile-runner")
+
+(use-package riscv-mode
+  :disabled t
+  :load-path "site-lisp/riscv-mode")
+
+(use-package discover
+  :disabled t
+  :load-path "site-lisp/discover")
+
+(use-package discover-my-major
+  :disabled t
+  :load-path "site-lisp/discover-my-major")
+
+(use-package ov-el
+  :disabled t
+  :load-path "lib/ov-el")
+
+(use-package lsp-haskell
+  :disabled t
+  :load-path "site-lisp/lsp-haskell")
+
 ;;; Layout
 
 (defconst display-name
