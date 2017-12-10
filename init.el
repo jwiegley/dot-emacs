@@ -211,8 +211,6 @@
 ;;; Packages
 
 (use-package abbrev
-  :defer 5
-  :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
   (expand-load
@@ -349,6 +347,7 @@
 (use-package back-button
   :load-path "site-lisp/back-button"
   :defer 5
+  :commands back-button-mode
   :config
   (back-button-mode 1))
 
@@ -582,8 +581,7 @@
 (use-package clipmon
   :load-path "site-lisp/clipmon"
   :bind ("<f2>" . clipmon-autoinsert-toggle)
-  :hook ((after-init . clipmon-mode-start)
-         (after-init . clipmon-persist)))
+  :hook (after-init . clipmon-mode-start))
 
 (use-package cmake-font-lock
   :load-path "site-lisp/cmake-font-lock"
@@ -971,9 +969,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/discover"
   :defer 5
   :commands global-discover-mode
+  :hook (dired-mode-hook . dired-turn-on-discover)
   :config
-  (global-discover-mode 1)
-  (add-hook 'dired-mode-hook 'dired-turn-on-discover))
+  (global-discover-mode 1))
 
 (use-package discover-my-major
   :load-path "site-lisp/discover-my-major"
@@ -1370,7 +1368,6 @@ non-empty directories is allowed."
 
 (use-package flycheck
   :load-path "site-lisp/flycheck"
-  :defer 5
   :commands flycheck-mode
   :config
   (defalias 'show-error-at-point-soon
@@ -2426,7 +2423,6 @@ non-empty directories is allowed."
   (paren-activate))
 
 (use-package midnight
-  :defer 10
   :bind ("C-c z" . clean-buffer-list))
 
 (use-package minimap
@@ -2707,8 +2703,8 @@ non-empty directories is allowed."
 
 (use-package per-window-point
   :load-path "site-lisp/per-window-point"
-  :commands pwp-mode
   :defer 5
+  :commands pwp-mode
   :config
   (pwp-mode 1))
 
@@ -2835,8 +2831,8 @@ non-empty directories is allowed."
 
 (use-package projectile
   :load-path "site-lisp/projectile"
-  :diminish
   :defer 5
+  :diminish
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (projectile-global-mode))
@@ -3127,8 +3123,7 @@ non-empty directories is allowed."
       (setq sh-script-initialized t)
       (info-lookup-add-help :mode 'shell-script-mode
                             :regexp ".*"
-                            :doc-spec
-                            '(("(bash)Index")))))
+                            :doc-spec '(("(bash)Index")))))
   (add-hook 'shell-mode-hook 'initialize-sh-script))
 
 (use-package sh-toggle
@@ -3137,6 +3132,7 @@ non-empty directories is allowed."
 (use-package shackle
   :load-path "site-lisp/shackle"
   :defer 5
+  :commands shackle-mode
   :config
   (shackle-mode 1))
 
@@ -3458,6 +3454,7 @@ non-empty directories is allowed."
   :load-path "site-lisp/which-key"
   :defer 5
   :diminish
+  :commands which-key-mode
   :config
   (which-key-mode))
 

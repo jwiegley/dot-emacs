@@ -32,6 +32,14 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
 all: $(TARGET) compile
 
+info/dir:
+	ls -1 info/* $(HOME)/.nix-profile/share/info/*	\
+	    | egrep -v -e '-[0-9]*.gz'			\
+	    | parallel install-info {} $@
+	install-info								\
+	    --entry='* HyperSpec: (gcl).     The Common Lisp HyperSpec.'	\
+	    info/gcl.info info/dir
+
 compile-packages:
 	for i in				\
 	    site-lisp/ProofGeneral		\
