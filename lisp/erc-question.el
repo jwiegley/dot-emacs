@@ -62,7 +62,7 @@
         (setq erc-send-this nil
               erc-question--last-asked input))))))
 
-(add-hook 'erc-send-pre-hook 'erc-question)
+;; (add-hook 'erc-send-pre-hook 'erc-question)
 
 (defun erc-cmd-G (name &rest ignore)
   (when (re-search-backward
