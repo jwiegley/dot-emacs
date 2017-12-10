@@ -1241,6 +1241,7 @@ non-empty directories is allowed."
   :bind ("C-c e t" . ert-run-tests-interactively))
 
 (use-package esh-buf-stack
+  :disabled t
   :load-path "site-lisp/esh-buf-stack"
   :after eshell
   :bind (:map eshell-mode-map
