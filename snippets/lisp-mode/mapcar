@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: mapcar
+# key: mapcar
+# --
+(mapcar ${1:fnc} ${2:list})
+$0

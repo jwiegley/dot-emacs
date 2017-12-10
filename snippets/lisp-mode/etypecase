@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: etypecase
+# key: etypecase
+# --
+(etypecase ${1:key-form}
+  (${2:match} ${3:result}))

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: destructuring-bind
+# key: dbind
+# --
+(destructuring-bind (${1:vars}) ${2:value}
+  $0)

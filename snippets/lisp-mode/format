@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: format
+# key: format
+# --
+(format ${1:nil} ${2:str} $0)

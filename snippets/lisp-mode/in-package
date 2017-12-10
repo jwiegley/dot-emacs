@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: in-package
+# key: in-package
+# --
+(in-package #:${1:package})
+$0

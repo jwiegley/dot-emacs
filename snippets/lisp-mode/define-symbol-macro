@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: define-symbol-macro
+# key: define-symbol-macro
+# --
+(define-symbol-macro ${1:name} ${2:expansion})
+$0

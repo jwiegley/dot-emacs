@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: defmacro
+# key: defmacro
+# --
+(defmacro ${1:name} (${2:args }${3:&body body})${4:
+  "${5:doc}"}
+  $0)

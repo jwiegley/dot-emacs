@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: typecase
+# key: typecase
+# --
+(typecase ${1:key-form}
+  (${2:match} ${3:result})${4:
+  (t ${5:otherwise})})

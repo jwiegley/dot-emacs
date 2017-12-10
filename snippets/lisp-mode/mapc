@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: mapc
+# key: mapc
+# --
+(mapc ${1:fnc} ${2:list})
+$0

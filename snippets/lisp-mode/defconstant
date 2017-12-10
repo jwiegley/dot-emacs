@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: defconstant
+# key: defconstant
+# --
+(defconstant +${1:name}+ ${2:nil}${3:
+ "${4:doc}"})
+$0
