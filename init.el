@@ -211,6 +211,7 @@
 ;;; Packages
 
 (use-package abbrev
+  :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
   (expand-load
@@ -347,6 +348,7 @@
 (use-package back-button
   :load-path "site-lisp/back-button"
   :defer 5
+  :diminish
   :commands back-button-mode
   :config
   (back-button-mode 1))
@@ -3509,6 +3511,7 @@ non-empty directories is allowed."
 (use-package whitespace-cleanup-mode
   :load-path "site-lisp/whitespace-cleanup-mode"
   :defer 5
+  :diminish
   :commands whitespace-cleanup-mode
   :config
   (global-whitespace-cleanup-mode))
