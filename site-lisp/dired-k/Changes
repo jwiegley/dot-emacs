@@ -1,0 +1,66 @@
+Revision history for dired-k.el
+
+Revision 0.19 2016/11/16 syohex
+    - Drop older Emacs support 24.1 and 24.2.
+
+Revision 0.18 2016/09/19 syohex
+    - Fix sub directory status issue(#34, #35)
+
+Revision 0.17 2016/08/18 syohex
+    - Check process buffer is lived(#32)
+      If two processes are launched then buffer may be killed
+
+Revision 0.16 2015/11/08 syohex
+    - Introduce padding parameter for git status sign
+    - Add no revert interface for 'dired-after-readin-hook'(Proposed by Alexander-Shukaev)
+
+Revision 0.15 2015/06/21 syohex
+    - Highlight like k.sh
+    - Fix case when .git is not found
+
+Revision 0.14 2015/06/21 syohex
+    - Change state signs same sa k zsh
+
+Revision 0.13 2014/11/11 syohex
+    - Fix for tramp(Reported by panaak)
+    - Checking error status
+
+Revision 0.12 2014/10/25 syohex
+    - Fix for tramp
+    - Refactoring
+
+Revision 0.11 2014/10/13 syohex
+    - Support human readable size case
+
+Revision 0.10 2014/07/01 syohex
+    - Fix for file whose name contains spaces
+
+Revision 0.09 2014/06/19 syohex
+    - Clear overlays before highlighting items at direx-k
+    - Add package dependency
+
+Revision 0.08 2014/06/18 syohex
+    - Fix not highlighting issue
+
+Revision 0.07 2014/06/18 syohex
+    - Refactoring
+    - Add direx-k
+
+Revision 0.06 2014/04/25 syohex
+    - Add new viewing style like 'git status --short'
+
+Revision 0.05 2014/04/16 syohex
+    - More improvement for asynchronous job
+
+Revision 0.04 2014/04/11 syohex
+    - Improve for asynchronous execution
+
+Revision 0.03 2014/04/09 syohex
+    - Fix invalid highlighting where is not repository top
+
+Revision 0.02 2014/04/09 syohex
+    - Fix invalid variable use
+    - Add function documentation
+
+Revision 0.01 2014/04/09 syohex
+    - Initial release
