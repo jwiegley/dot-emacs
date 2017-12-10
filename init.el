@@ -389,7 +389,7 @@
   :bind (("C-. b" . bm-toggle)
          ("C-. ." . bm-next)
          ("C-. ," . bm-previous))
-  :commands bm-repository-load
+  :commands (bm-repository-load bm-buffer-save bm-buffer-restore)
   :init
   (add-hook' after-init-hook 'bm-repository-load)
   (add-hook 'find-file-hooks 'bm-buffer-restore)
@@ -1371,6 +1371,7 @@ non-empty directories is allowed."
 (use-package flycheck
   :load-path "site-lisp/flycheck"
   :defer 5
+  :commands flycheck-mode
   :config
   (defalias 'show-error-at-point-soon
     'flycheck-show-error-at-point))
