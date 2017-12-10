@@ -225,9 +225,23 @@
 (use-package ace-link
   :load-path "site-lisp/ace-link"
   :after avy
-  :defer t
   :config
-  (ace-link-setup-default))
+  (ace-link-setup-default)
+
+  (add-hook 'org-mode-hook
+            #'(lambda ()
+                (bind-key "C-c C-o" #'ace-link-org org-mode-map)))
+  (add-hook 'gnus-summary-mode-hook
+            #'(lambda ()
+                (bind-key "M-o" #'ace-link-gnus gnus-summary-mode-map)))
+  (add-hook 'gnus-article-mode-hook
+            #'(lambda ()
+                (bind-key "M-o" #'ace-link-gnus gnus-article-mode-map)))
+  (add-hook 'ert-results-mode-hook
+            #'(lambda ()
+                (bind-key "o" #'ace-link-help ert-results-mode-map)))
+
+  (bind-key "C-c M-o" 'ace-link-addr))
 
 (use-package ace-window
   :load-path "site-lisp/ace-window"
@@ -263,18 +277,7 @@
       (save-excursion
         (forward-paragraph)
         (let ((name (car (split-string func-def " "))))
-          (insert "  where\n    " func-def "    " name " x = ?\n")))))
-
-  :config
-  (defmacro char-mapping (key char)
-    `(bind-key ,key (lambda () (interactive) (insert ,char))))
-
-  (char-mapping "A-G" "Γ")
-  (char-mapping "A-l" "λ x → ")
-  (char-mapping "A-:" " ∷ ")
-  (char-mapping "A-r" " → ")
-  (char-mapping "A-~" " ≅ ")
-  (char-mapping "A-=" " ≡ "))
+          (insert "  where\n    " func-def "    " name " x = ?\n"))))))
 
 (use-package aggressive-indent
   :load-path "site-lisp/aggressive-indent-mode"
@@ -2727,8 +2730,6 @@ non-empty directories is allowed."
   :after crux
   :config
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-
-  (bind-keys* ("<C-return>" . other-window))
 
   (bind-keys ("C-z" . delete-other-windows)
 
