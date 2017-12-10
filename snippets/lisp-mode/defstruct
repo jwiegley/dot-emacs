@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: defstruct
+# key: defstruct
+# --
+(defstruct ${1:name}${2:
+  "${3:doc}"}
+  ($0))

@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: defpackage
+# key: defpackage
+# --
+(defpackage   :${1:package}${2:
+  (:nicknames ${3:nicks})}${4:
+  (:use       ${5:packages})}${6:
+  (:shadow    ${7:packages})}${8:
+  (:export    ${9:packages})}${10:
+  (:documentation "${11:doc}")})
+$0

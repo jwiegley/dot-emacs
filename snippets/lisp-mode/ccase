@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: ccase
+# key: ccase
+# --
+(ccase ${1:key-form}
+  (${2:match} ${3:result}))

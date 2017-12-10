@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: if
+# key: if
+# --
+(if ${1:test} ${2:then}${3: else})

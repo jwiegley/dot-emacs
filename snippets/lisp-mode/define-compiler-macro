@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Mark Karpov
+# name: define-compiler-macro
+# key: define-compiler-macro
+# --
+(define-compiler-macro ${1:name} (${2:args})
+  $0)
