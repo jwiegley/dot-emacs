@@ -159,6 +159,7 @@
 (use-package names         :defer t  :load-path "lib/names")
 (use-package noflet        :defer t  :load-path "lib/noflet")
 (use-package oauth2        :defer t  :load-path "lib/oauth2")
+(use-package ov-el         :defer t  :load-path "lib/ov-el")
 (use-package parent-mode   :defer t  :load-path "lib/parent-mode")
 (use-package parsebib      :defer t  :load-path "lib/parsebib")
 (use-package parsec        :defer t  :load-path "lib/parsec")
@@ -345,6 +346,12 @@
   :bind (("M-z" . avy-zap-to-char-dwim)
          ("M-Z" . avy-zap-up-to-char-dwim)))
 
+(use-package back-button
+  :load-path "site-lisp/back-button"
+  :defer 5
+  :config
+  (back-button-mode 1))
+
 (use-package backup-each-save
   :commands backup-each-save
   :preface
@@ -380,6 +387,24 @@
 (use-package biblio
   :load-path "site-lisp/biblio"
   :commands biblio-lookup)
+
+(use-package bm
+  :unless running-alternate-emacs
+  :load-path "site-lisp/bm"
+  :bind (("C-. b" . bm-toggle)
+         ("C-. ." . bm-next)
+         ("C-. ," . bm-previous))
+  :commands bm-repository-load
+  :init
+  (add-hook' after-init-hook 'bm-repository-load)
+  (add-hook 'find-file-hooks 'bm-buffer-restore)
+  (add-hook 'after-revert-hook #'bm-buffer-restore)
+  (add-hook 'kill-buffer-hook #'bm-buffer-save)
+  (add-hook 'after-save-hook #'bm-buffer-save)
+  (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
+  (add-hook 'kill-emacs-hook #'(lambda nil
+                                 (bm-buffer-save-all)
+                                 (bm-repository-save))))
 
 (use-package bookmark+
   :load-path "site-lisp/bookmark-plus"
@@ -559,6 +584,11 @@
   :commands (cldoc-mode turn-on-cldoc-mode)
   :diminish)
 
+(use-package clipmon
+  :load-path "site-lisp/clipmon"
+  :defer 5
+  :bind ("<f2>" . clipmon-autoinsert-toggle))
+
 (use-package cmake-font-lock
   :load-path "site-lisp/cmake-font-lock"
   :hook (cmake-mode . cmake-font-lock-activate))
@@ -645,6 +675,11 @@
 (use-package company-math
   :load-path "site-lisp/company-math"
   :defer t)
+
+(use-package company-quickhelp
+  :load-path "site-lisp/company-quickhelp"
+  :bind (:map company-active-map
+              ("C-c h" . company-quickhelp-manual-begin)))
 
 (use-package compile
   :no-require
@@ -936,6 +971,19 @@ non-empty directories is allowed."
 (use-package dired-x
   :after dired)
 
+(use-package discover
+  :load-path "site-lisp/discover"
+  :defer 5
+  :commands global-discover-mode
+  :config
+  (global-discover-mode 1)
+  (add-hook 'dired-mode-hook 'dired-turn-on-discover))
+
+(use-package discover-my-major
+  :load-path "site-lisp/discover-my-major"
+  :bind (("C-h <C-m>" . discover-my-major)
+         ("C-h M-m"   . discover-my-mode)))
+
 (use-package docker
   :load-path "site-lisp/docker-el"
   :defer 15
@@ -997,6 +1045,13 @@ non-empty directories is allowed."
   :load-path "site-lisp/dumb-jump"
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 
+(use-package easy-kill
+  :load-path "site-lisp/easy-kill"
+  :defer 5
+  :config
+  (global-set-key [remap kill-ring-save] 'easy-kill)
+  (global-set-key [remap mark-sexp] 'easy-mark))
+
 (use-package ebdb-com
   :load-path "site-lisp/ebdb"
   :commands ebdb)
@@ -1022,8 +1077,7 @@ non-empty directories is allowed."
 
 (use-package edit-indirect
   :load-path "site-lisp/edit-indirect"
-  :bind (("C-c '" . edit-indirect-region)
-         ("C-c C" . edit-indirect-region)))
+  :bind (("C-c '" . edit-indirect-region)))
 
 (use-package edit-rectangle
   :bind ("C-x r e" . edit-rectangle))
@@ -1085,6 +1139,11 @@ non-empty directories is allowed."
   :diminish
   :commands (elisp-slime-nav-mode
              elisp-slime-nav-find-elisp-thing-at-point))
+
+(use-package elmacro
+  :load-path "site-lisp/elmacro"
+  :bind (("C-c m e" . elmacro-mode)
+         ("C-x C-)" . elmacro-show-last-macro)))
 
 (use-package emacs-cl
   ;; jww (2017-12-10): This is not building under Emacs 26.
@@ -1346,6 +1405,10 @@ non-empty directories is allowed."
                                  (buffer-substring-no-properties beg end))))
       (when attempt
         (flyspell-maybe-correct-transposition beg end candidates)))))
+
+(use-package focus
+  :load-path "site-lisp/focus"
+  :commands focus-mode)
 
 (use-package font-lock-studio
   :load-path "site-lisp/font-lock-studio"
@@ -1655,6 +1718,10 @@ non-empty directories is allowed."
 
 (use-package highlight-cl
   :hook (emacs-lisp-mode . highlight-cl-add-font-lock-keywords))
+
+(use-package highlight-defined
+  :load-path "site-lisp/highlight-defined"
+  :commands highlight-defined-mode)
 
 (use-package highlight-numbers
   :load-path "site-lisp/highlight-numbers"
@@ -2069,6 +2136,10 @@ non-empty directories is allowed."
 (use-package llvm-mode
   :mode "\\.ll\\'")
 
+(use-package lsp-haskell
+  ;; jww (2017-11-26): https://github.com/haskell/haskell-ide-engine/issues/117
+  :disabled t
+  :load-path "site-lisp/lsp-haskell")
 (use-package lsp-mode
   ;; jww (2017-11-26): Need to install LSP for Haskell
   :disabled t
@@ -2290,6 +2361,10 @@ non-empty directories is allowed."
   :config
   (magithub-feature-autoinject t))
 
+(use-package makefile-runner
+  :load-path "site-lisp/makefile-runner"
+  :bind ("C-c C" . makefile-runner))
+
 (use-package malyon
   :load-path "site-lisp/malyon"
   :commands malyon
@@ -2377,6 +2452,19 @@ non-empty directories is allowed."
   (prefer-coding-system 'utf-8)
   (set-terminal-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
+(use-package multi-compile
+  :load-path "site-lisp/multi-compile"
+  :after compile
+  :config
+  (setq multi-compile-alist
+        `(((string-match "concerto" default-directory) .
+           (("build-TXRX" .
+             (concat "(cd ~/bae/concerto/solver && "
+                     "make clean && "
+                     "cabal build && "
+                     "PATH=./dist/build/solver "
+                     "solver --args test/TXRX.opts)")))))))
 
 (use-package multi-term
   :load-path "site-lisp/multi-term"
@@ -2540,6 +2628,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/org-ref")
 
+(use-package origami
+  :load-path "site-lisp/origami"
+  :commands origami-mode)
+
 (use-package outline
   :diminish outline-minor-mode
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
@@ -2594,6 +2686,12 @@ non-empty directories is allowed."
 (use-package paredit-ext
   :after paredit)
 
+(use-package parinfer
+  :load-path "site-lisp/parinfer-mode"
+  :bind ("C-. C-(" . parinfer-toggle-mode)
+  :config
+  (setq parinfer-extensions '(defaults paredit smart-yank)))
+
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"
   :commands (rxt-mode rxt-global-mode))
@@ -2628,7 +2726,7 @@ non-empty directories is allowed."
   (persistent-scratch-autosave-mode)
   :commands persistent-scratch-setup-default
   :hook (after-init . (lambda () (with-demoted-errors "Error: %S"
-                              (persistent-scratch-setup-default)))))
+                                   (persistent-scratch-setup-default)))))
 
 (use-package personal
   :after crux
@@ -2916,6 +3014,10 @@ non-empty directories is allowed."
                          "-R" (expand-file-name
                                (or (buffer-file-name)
                                    default-directory))))))
+
+(use-package riscv-mode
+  :load-path "site-lisp/riscv-mode"
+  :commands riscv-mode)
 
 (use-package rtags
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
@@ -3293,6 +3395,10 @@ non-empty directories is allowed."
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
+(use-package typo
+  :load-path "site-lisp/typo"
+  :commands typo-mode)
+
 (use-package undo-tree
   ;; jww (2017-12-10): This package often breaks the ability to "undo in
   ;; region". Also, its backup files often get corrupted, so this sub-feature
@@ -3406,6 +3512,13 @@ non-empty directories is allowed."
         whitespace-silent t
         whitespace-style '(face trailing lines space-before-tab empty)))
 
+(use-package whitespace-cleanup-mode
+  :load-path "site-lisp/whitespace-cleanup-mode"
+  :defer 5
+  :commands whitespace-cleanup-mode
+  :config
+  (global-whitespace-cleanup-mode))
+
 (use-package window-purpose
   :load-path "site-lisp/purpose"
   :commands purpose-mode)
@@ -3508,91 +3621,6 @@ non-empty directories is allowed."
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
-
-(use-package multi-compile
-  :load-path "site-lisp/multi-compile"
-  :after compile
-  :config
-  (setq multi-compile-alist
-        `(((string-match "concerto" default-directory) .
-           (("build-TXRX" .
-             (concat "(cd ~/bae/concerto/solver && "
-                     "make clean && "
-                     "cabal build && "
-                     "PATH=./dist/build/solver "
-                     "solver --args test/TXRX.opts)")))))))
-
-(use-package back-button
-  :disabled t
-  :load-path "site-lisp/back-button")
-
-(use-package bm
-  :disabled t
-  :load-path "site-lisp/bm")
-
-(use-package typo
-  :disabled t
-  :load-path "site-lisp/typo")
-
-(use-package focus
-  :disabled t
-  :load-path "site-lisp/focus")
-
-(use-package easy-kill
-  :disabled t
-  :load-path "site-lisp/easy-kill")
-
-(use-package clipmon
-  :disabled t
-  :load-path "site-lisp/clipmon")
-
-(use-package whitespace-cleanup-mode
-  :disabled t
-  :load-path "site-lisp/whitespace-cleanup-mode")
-
-(use-package company-quickhelp
-  :disabled t
-  :load-path "site-lisp/company-quickhelp")
-
-(use-package origami
-  :disabled t
-  :load-path "site-lisp/origami")
-
-(use-package parinfer-mode
-  :disabled t
-  :load-path "site-lisp/parinfer-mode")
-
-(use-package highlight-defined
-  :disabled t
-  :load-path "site-lisp/highlight-defined")
-
-(use-package elmacro
-  :disabled t
-  :load-path "site-lisp/elmacro")
-
-(use-package makefile-runner
-  :disabled t
-  :load-path "site-lisp/makefile-runner")
-
-(use-package riscv-mode
-  :disabled t
-  :load-path "site-lisp/riscv-mode")
-
-(use-package discover
-  :disabled t
-  :load-path "site-lisp/discover")
-
-(use-package discover-my-major
-  :disabled t
-  :load-path "site-lisp/discover-my-major")
-
-(use-package ov-el
-  :disabled t
-  :load-path "lib/ov-el")
-
-(use-package lsp-haskell
-  :disabled t
-  :load-path "site-lisp/lsp-haskell")
 
 ;;; Layout
 
