@@ -1086,9 +1086,9 @@
     (when symbol
       (info-other-window (concatenate 'string "(gcl) " symbol)))))
 
-(eval-after-load "lisp-mode"
-  '(progn
-     (define-key lisp-mode-map [(control ?h) ?f] 'cl-info)))
+;; (eval-after-load "lisp-mode"
+;;   '(progn
+;;      (define-key lisp-mode-map [(control ?h) ?f] 'cl-info)))
 
 (defadvice Info-exit (after remove-info-window activate)
   "When info mode is quit, remove the window."
