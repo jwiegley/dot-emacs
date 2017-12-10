@@ -135,6 +135,7 @@
 (use-package deferred      :defer t  :load-path "lib/emacs-deferred")
 (use-package difflib       :defer t  :load-path "lib/difflib")
 (use-package diminish      :demand t :load-path "lib/diminish")
+(use-package el-mock       :defer t  :load-path "lib")
 (use-package elisp-refs    :defer t  :load-path "lib/elisp-refs")
 (use-package emojify       :defer t  :load-path "lib/emacs-emojify")
 (use-package epc           :defer t  :load-path "lib/emacs-epc")
@@ -1026,8 +1027,6 @@ non-empty directories is allowed."
 
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
-
-(use-package el-mock.el :defer t :load-path "lib")
 
 (use-package eldoc
   :diminish
@@ -2552,6 +2551,7 @@ non-empty directories is allowed."
 (use-package paradox
   :load-path "site-lisp/paradox"
   :commands paradox-list-packages)
+
 (use-package paredit
   :load-path "site-lisp/paredit"
   :diminish
@@ -2949,7 +2949,7 @@ non-empty directories is allowed."
   :bind (:map selected-keymap
               ("[" . align-code)
               ("f" . fill-region)
-              ("F" . unfill-region)
+              ("U" . unfill-region)
               ("d" . downcase-region)
               ("u" . upcase-region)
               ("r" . reverse-region)
@@ -3490,7 +3490,6 @@ non-empty directories is allowed."
 (use-package ztree-diff
   :load-path "site-lisp/ztree"
   :commands ztree-diff)
-
 
 ;;; Layout
 
