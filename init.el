@@ -373,6 +373,7 @@
   :commands beacon-mode)
 
 (use-package benchstat
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/benchstat")
 
@@ -551,6 +552,7 @@
   :defer t)
 
 (use-package cl-info
+  ;; jww (2017-12-10): Need to configure.
   :disabled t)
 
 (use-package cldoc
@@ -633,6 +635,7 @@
               ("C-M-h" . company-coq-toggle-definition-overlay)))
 
 (use-package company-ghc
+  ;; jww (2017-12-10): Need to get ghc-mod working.
   :disabled t
   :load-path "site-lisp/company-ghc"
   :after (company ghc)
@@ -1084,10 +1087,12 @@ non-empty directories is allowed."
              elisp-slime-nav-find-elisp-thing-at-point))
 
 (use-package emacs-cl
+  ;; jww (2017-12-10): This is not building under Emacs 26.
   :disabled t
   :load-path "site-lisp/emacs-cl")
 
 (use-package emacs-counsel-gtags
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/emacs-counsel-gtags"
   :after counsel)
@@ -1170,7 +1175,6 @@ non-empty directories is allowed."
   :after erc)
 
 (use-package erc-question
-  :disabled t
   :after erc)
 
 (use-package erc-yank
@@ -1236,6 +1240,7 @@ non-empty directories is allowed."
   (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
 
 (use-package eshell-autojump
+  ;; jww (2017-12-10): I'm using eshell-z.
   :disabled t
   :load-path "site-lisp/eshell-autojump")
 
@@ -1273,6 +1278,7 @@ non-empty directories is allowed."
     (paredit-mode)))
 
 (use-package eval-in-repl
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/eval-in-repl")
 
@@ -1324,6 +1330,7 @@ non-empty directories is allowed."
   (flycheck-haskell-setup))
 
 (use-package flycheck-hdevtools
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/flycheck-hdevtools"
   :after flycheck)
@@ -1356,14 +1363,14 @@ non-empty directories is allowed."
   (autoload #'fullframe "fullframe"))
 
 (use-package ggtags
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/ggtags"
   :commands ggtags-mode
   :diminish)
 
 (use-package ghc
-  ;; Disabled right now until https://github.com/DanielG/ghc-mod/issues/905 is
-  ;; fixed, since the cabal helper is not being built.
+  ;; jww (2017-12-10): https://github.com/DanielG/ghc-mod/issues/905
   :disabled t
   :load-path
   (lambda ()
@@ -1711,6 +1718,7 @@ non-empty directories is allowed."
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ido
+  ;; jww (2017-12-10): I now use ivy.
   :disabled t
   :bind (("C-x b" . ido-switch-buffer)
          ("C-x B" . ido-switch-buffer-other-window)))
@@ -1904,7 +1912,8 @@ non-empty directories is allowed."
   :defer t)
 
 (use-package ivy-rich
-  :disabled t                           ; too slow sometimes
+  ;; jww (2017-12-10): This is too slow sometimes.
+  :disabled t
   :load-path "site-lisp/ivy-rich"
   :demand t
   :after ivy
@@ -1931,6 +1940,7 @@ non-empty directories is allowed."
   (flycheck-mode 1))
 
 (use-package js3-mode
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/js3-mode")
 
@@ -2070,6 +2080,7 @@ non-empty directories is allowed."
   :interpreter "lua")
 
 (use-package lusty-explorer
+  ;; jww (2017-12-10): I'm now using counsel.
   :disabled t
   :load-path "site-lisp/lusty-emacs"
   :demand t
@@ -2266,11 +2277,13 @@ non-empty directories is allowed."
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
 (use-package magit-imerge
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/magit-imerge"
   :after magit)
 
 (use-package magithub
+  ;; jww (2017-12-10): Waiting for the next release of Magit.
   :disabled t
   :load-path "site-lisp/magithub"
   :after magit
@@ -2523,6 +2536,7 @@ non-empty directories is allowed."
   :commands olivetti-mode)
 
 (use-package org-ref
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/org-ref")
 
@@ -2604,14 +2618,12 @@ non-empty directories is allowed."
   (pwp-mode 1))
 
 (use-package persistent-scratch
-  ;; Using this slows down startup considerably, since it restores whatever
-  ;; major-mode the previous buffer contents were in.
-  :disabled t
   :load-path "site-lisp/persistent-scratch"
   :if (and window-system
            (not running-alternate-emacs)
            (not running-development-emacs)
            (not noninteractive))
+  :defer 5
   :config
   (persistent-scratch-autosave-mode)
   :commands persistent-scratch-setup-default
@@ -2715,6 +2727,7 @@ non-empty directories is allowed."
   :bind ("C-. C-r" . popup-ruler))
 
 (use-package powerline
+  ;; jww (2017-12-10): Don't like powerline yet.
   :disabled t
   :load-path "site-lisp/powerline")
 
@@ -2887,6 +2900,7 @@ non-empty directories is allowed."
   :commands regex-tool)
 
 (use-package repl-toggle
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/repl-toggle")
 
@@ -3057,13 +3071,14 @@ non-empty directories is allowed."
                        :async nil))
 
 (use-package smart-mode-line
-  :disabled t
   :load-path "site-lisp/smart-mode-line"
+  :defer 10
   :config
   (sml/setup)
   (sml/apply-theme 'light))
 
 (use-package smart-mode-line-light-powerline-theme
+  ;; jww (2017-12-10): Don't like powerline yet.
   :disabled t
   :after (powerline smart-mode-line)
   :config
@@ -3079,10 +3094,12 @@ non-empty directories is allowed."
   :commands smartparens-mode)
 
 (use-package smartscan
-  :disabled t
   :load-path "site-lisp/smart-scan"
   :commands smartscan-mode
-  :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode))
+  :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode)
+  :bind (:map smartscan-map
+              ("C-. C-n" . smartscan-symbol-go-forward)
+              ("C-. C-p" . smartscan-symbol-go-backward)))
 
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
@@ -3277,6 +3294,9 @@ non-empty directories is allowed."
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package undo-tree
+  ;; jww (2017-12-10): This package often breaks the ability to "undo in
+  ;; region". Also, its backup files often get corrupted, so this sub-feature
+  ;; is disabled in settings.el.
   :disabled t
   :load-path "site-lisp/undo-tree"
   :demand t
@@ -3308,6 +3328,7 @@ non-empty directories is allowed."
          ("C-c C->" . vr/mc-mark)))
 
 (use-package visual-regexp-steroids
+  ;; jww (2017-12-10): I prefer to use Emacs regexps within Emacs.
   :disabled t
   :load-path "site-lisp/visual-regexp-steroids"
   :after visual-regexp)
@@ -3406,6 +3427,7 @@ non-empty directories is allowed."
   :commands writeroom-mode)
 
 (use-package ws-butler
+  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/ws-butler"
   :diminish
