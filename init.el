@@ -3571,6 +3571,10 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/lsp-haskell")
 
+(use-package direx
+  :disabled t
+  :load-path "site-lisp/direx")
+
 ;;; Layout
 
 (defconst display-name
