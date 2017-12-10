@@ -19,7 +19,6 @@ backup-each-save.el,site-lisp,file,https://www.emacswiki.org/emacs/download/back
 bbdb,site-lisp,subtree,git://git.savannah.nongnu.org/bbdb.git,mirror-only
 bbdb-vcard,site-lisp,subtree,git://github.com/trebb/bbdb-vcard.git,mirror-only
 beacon,site-lisp,subtree,git://github.com/Malabarba/beacon.git,
-benchstat,site-lisp,subtree,git://github.com/Quasilyte/benchstat.el,
 biblio,site-lisp,subtree,git://github.com/cpitclaudel/biblio.el.git,
 bm,site-lisp,subtree,git://github.com/joodland/bm.git,
 bookmark-plus,site-lisp,subtree,git://github.com/emacsmirror/bookmark-plus.git,

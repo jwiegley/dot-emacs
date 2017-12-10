@@ -379,11 +379,6 @@
   :diminish
   :commands beacon-mode)
 
-(use-package benchstat
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/benchstat")
-
 (use-package biblio
   :load-path "site-lisp/biblio"
   :commands biblio-lookup)
