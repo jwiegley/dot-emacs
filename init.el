@@ -3500,10 +3500,6 @@ non-empty directories is allowed."
                      "PATH=./dist/build/solver "
                      "solver --args test/TXRX.opts)")))))))
 
-(use-package dired-k
-  :disabled t
-  :load-path "site-lisp/dired-k")
-
 (use-package back-button
   :disabled t
   :load-path "site-lisp/back-button")
@@ -3575,10 +3571,6 @@ non-empty directories is allowed."
 (use-package lsp-haskell
   :disabled t
   :load-path "site-lisp/lsp-haskell")
-
-(use-package direx
-  :disabled t
-  :load-path "site-lisp/direx")
 
 ;;; Layout
 
