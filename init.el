@@ -2454,10 +2454,6 @@ non-empty directories is allowed."
               ("w"   . mc/mark-next-word-like-this)
               ("W"   . mc/mark-previous-word-like-this)))
 
-(use-package my-compile
-  :after compile
-  :defer 5)
-
 (use-package navi-mode
   :load-path "site-lisp/navi"
   :after outshine
@@ -3492,8 +3488,17 @@ non-empty directories is allowed."
   :commands ztree-diff)
 
 (use-package multi-compile
-  :disabled t
-  :load-path "site-lisp/multi-compile")
+  :load-path "site-lisp/multi-compile"
+  :after compile
+  :config
+  (setq multi-compile-alist
+        `(((string-match "concerto" default-directory) .
+           (("build-TXRX" .
+             (concat "(cd ~/bae/concerto/solver && "
+                     "make clean && "
+                     "cabal build && "
+                     "PATH=./dist/build/solver "
+                     "solver --args test/TXRX.opts)")))))))
 
 (use-package dired-k
   :disabled t
