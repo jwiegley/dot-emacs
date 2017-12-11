@@ -3731,3 +3731,7 @@ non-empty directories is allowed."
                           ,load-file-name elapsed))) t))
 
 ;;; init.el ends here
+
+(use-package pass
+  :disabled t
+  :load-path "site-lisp/pass")
