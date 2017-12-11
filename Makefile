@@ -75,6 +75,11 @@ dot-gnus.elc: dot-gnus.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
+pull:
+	for i in release release-25 master ; do	\
+	    (cd $$i ; git pull) ;		\
+	done
+
 clean:
 	find . -name '*.elc' -delete
 
