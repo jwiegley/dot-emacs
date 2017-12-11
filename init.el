@@ -330,6 +330,11 @@
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
 
+(use-package auth-password-store
+  :load-path "site-lisp/auth-password-store"
+  :config
+  (auth-source-pass-enable))
+
 (use-package auto-yasnippet
   :load-path "site-lisp/auto-yasnippet"
   :after yasnippet
@@ -1691,6 +1696,10 @@ non-empty directories is allowed."
   :after (helm navi)
   :commands helm-navi)
 
+(use-package helm-pass
+  :load-path "site-lisp/helm-pass"
+  :commands helm-pass)
+
 (use-package helpful
   :load-path "site-lisp/helpful"
   :bind (("C-h e F" . helpful-function)
@@ -1979,6 +1988,10 @@ non-empty directories is allowed."
 (use-package ivy-hydra
   :after (ivy hydra)
   :defer t)
+
+(use-package ivy-pass
+  :load-path "site-lisp/ivy-pass"
+  :commands ivy-pass)
 
 (use-package ivy-rich
   ;; jww (2017-12-10): This is too slow sometimes.
@@ -2693,11 +2706,21 @@ non-empty directories is allowed."
   :config
   (setq parinfer-extensions '(defaults paredit smart-yank)))
 
+(use-package pass
+  :load-path "site-lisp/pass"
+  :commands (pass pass-view-mode)
+  :mode ("\\.passwords/.*\\.gpg\\'" . pass-view-mode))
+
 (use-package password-store
   :load-path "site-lisp/password-store/contrib/emacs"
   :commands (password-store-insert
              password-store-copy
-             password-store-get))
+             password-store-get)
+  :config
+  (defun password-store--run-edit (entry)
+    (require 'pass)
+    (find-file (concat (expand-file-name entry (password-store-dir))
+                       ".gpg"))))
 
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"
@@ -3731,7 +3754,3 @@ non-empty directories is allowed."
                           ,load-file-name elapsed))) t))
 
 ;;; init.el ends here
-
-(use-package pass
-  :disabled t
-  :load-path "site-lisp/pass")
