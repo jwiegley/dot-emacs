@@ -68,4 +68,5 @@ find "$@"                                                                       
     xargs -0 $BATCH_LOAD                                                        \
           -L site-lisp/agda/src/data/emacs-mode                                 \
           -L site-lisp/org-mode/contrib/lisp                                    \
+          -L site-lisp/password-store/contrib/emacs                             \
           -f batch-byte-compile-if-not-done
