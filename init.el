@@ -2693,6 +2693,12 @@ non-empty directories is allowed."
   :config
   (setq parinfer-extensions '(defaults paredit smart-yank)))
 
+(use-package password-store
+  :load-path "site-lisp/password-store/contrib/emacs"
+  :commands (password-store-insert
+             password-store-copy
+             password-store-get))
+
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"
   :commands (rxt-mode rxt-global-mode))
