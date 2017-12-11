@@ -425,7 +425,10 @@
   :defer 15)
 
 (use-package c-includes
-  :commands c-includes)
+  :commands c-includes
+  :after cc-mode
+  :bind (:map c-mode-base-map
+              ("C-c C-i"  . c-includes-current-file)))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
@@ -971,6 +974,7 @@ non-empty directories is allowed."
   :after dired)
 
 (use-package discover
+  :disabled t
   :load-path "site-lisp/discover"
   :defer 5
   :commands global-discover-mode
@@ -1853,6 +1857,7 @@ non-empty directories is allowed."
               my-iflipb-ing-internal))))
 
 (use-package image-file
+  :defer 5
   :config
   (auto-image-file-mode 1))
 
@@ -1870,20 +1875,16 @@ non-empty directories is allowed."
 
 (use-package inf-ruby
   :load-path "site-lisp/ruby-mode"
+  :after ruby-mode
   :hook (ruby-mode . inf-ruby-keys))
 
 (use-package info
-  :bind ("C-h C-i" . info-lookup-symbol)
-  :init
-  (remove-hook 'menu-bar-update-hook 'mac-setup-help-topics)
-  :config
-  (defadvice Info-exit (after remove-info-window activate)
-    "When info mode is quit, remove the window."
-    (if (> (length (window-list)) 1)
-        (delete-window))))
+  :bind ("C-h C-i" . info-lookup-symbol))
 
 (use-package info-look
-  :commands info-lookup-add-help)
+  :defer t
+  :init
+  (autoload 'info-lookup-add-help "info-look"))
 
 (use-package info-lookmore
   :load-path "site-lisp/info-lookmore"
@@ -1918,11 +1919,13 @@ non-empty directories is allowed."
   (defun isearch-backward-other-window ()
     (interactive)
     (split-window-vertically)
+    (other-window 1)
     (call-interactively 'isearch-backward))
 
   (defun isearch-forward-other-window ()
     (interactive)
     (split-window-vertically)
+    (other-window 1)
     (call-interactively 'isearch-forward)))
 
 (use-package ispell
@@ -2362,7 +2365,7 @@ non-empty directories is allowed."
 
 (use-package makefile-runner
   :load-path "site-lisp/makefile-runner"
-  :bind ("C-c C" . makefile-runner))
+  :bind ("C-c M-C" . makefile-runner))
 
 (use-package malyon
   :load-path "site-lisp/malyon"
@@ -2453,16 +2456,16 @@ non-empty directories is allowed."
 
 (use-package multi-compile
   :load-path "site-lisp/multi-compile"
-  :after compile
+  :bind ("C-c C" . multi-compile-run)
   :config
   (setq multi-compile-alist
         `(((string-match "concerto" default-directory) .
            (("build-TXRX" .
-             (concat "(cd ~/bae/concerto/solver && "
-                     "make clean && "
-                     "cabal build && "
-                     "PATH=./dist/build/solver "
-                     "solver --args test/TXRX.opts)")))))))
+             ,(concat "(cd ~/bae/concerto/solver && "
+                      "make clean && "
+                      "nix-shell --command \"cabal build\" && "
+                      "PATH=./dist/build/solver "
+                      "solver --args test/TXRX.opts)")))))))
 
 (use-package multi-term
   :load-path "site-lisp/multi-term"
