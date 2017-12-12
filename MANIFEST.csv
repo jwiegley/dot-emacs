@@ -240,6 +240,7 @@ mic-paren.el,site-lisp,file,https://www.emacswiki.org/emacs/download/mic-paren.e
 minimap,site-lisp,subtree,git://github.com/dengste/minimap.git,
 moccur-edit,site-lisp,subtree,git://github.com/myuhe/moccur-edit.el.git,
 monitor,site-lisp,subtree,git://github.com/GuiltyDolphin/monitor.git,
+mudel,site-lisp,file,https://www.emacswiki.org/emacs/download/mudel.el,
 multi-compile,site-lisp,subtree,git://github.com/ReanGD/emacs-multi-compile.git,
 multi-term,site-lisp,subtree,git://github.com/milkypostman/multi-term.git,
 multifiles-el,site-lisp,subtree,git://github.com/magnars/multifiles.el.git,

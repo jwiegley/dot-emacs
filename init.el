@@ -28,7 +28,7 @@
   (interactive)
   (save-some-buffers t))
 
-(add-hook 'focus-out-hook 'save-all)
+;; (add-hook 'focus-out-hook 'save-all)
 
 ;;; Environment
 
@@ -330,10 +330,25 @@
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
 
-(use-package auth-password-store
-  :load-path "site-lisp/auth-password-store"
+(use-package auth-source-pass
+  :defer 5
   :config
-  (auth-source-pass-enable))
+  (auth-source-pass-enable)
+
+  (defun auth-source-pass--read-entry (entry)
+    "Return a string with the file content of ENTRY."
+    (with-temp-buffer
+      (insert-file-contents (expand-file-name
+                             (format "%s.gpg" entry)
+                             (getenv "PASSWORD_STORE_DIR")))
+      (buffer-substring-no-properties (point-min) (point-max))))
+
+  (defun auth-source-pass-entries ()
+    "Return a list of all password store entries."
+    (let ((store-dir (getenv "PASSWORD_STORE_DIR")))
+      (mapcar
+       (lambda (file) (file-name-sans-extension (file-relative-name file store-dir)))
+       (directory-files-recursively store-dir "\.gpg$")))))
 
 (use-package auto-yasnippet
   :load-path "site-lisp/auto-yasnippet"
@@ -454,7 +469,6 @@
               ("(" . self-insert-command)
               (")" . self-insert-command)
               ("<return>" . newline-and-indent)
-              ("C-c C-i"  . c-includes-current-file)
               ("M-q" . c-fill-paragraph)
               ("M-j"))
   :preface
@@ -1220,8 +1234,12 @@ non-empty directories is allowed."
     (add-hook 'after-init-hook 'irc))
 
   :config
+  (require 'erc-pcomplete)
+
   (erc-track-minor-mode 1)
   (erc-track-mode 1)
+  (erc-pcomplete-mode 1)
+
   (add-hook 'erc-insert-pre-hook
             #'(lambda (s)
                 (when (erc-foolish-content s)
@@ -2460,6 +2478,14 @@ non-empty directories is allowed."
   :init
   (autoload #'define-monitor "monitor"))
 
+(use-package mudel
+  :commands mudel
+  :bind ("C-c M" . mud)
+  :init
+  (defun mud ()
+    (interactive)
+    (mudel "4dimensions" "4dimensions.org" 6000)))
+
 (use-package mule
   :no-require t
   :config
@@ -2713,6 +2739,7 @@ non-empty directories is allowed."
 
 (use-package password-store
   :load-path "site-lisp/password-store/contrib/emacs"
+  :defer 5
   :commands (password-store-insert
              password-store-copy
              password-store-get)
@@ -3224,6 +3251,7 @@ non-empty directories is allowed."
   :commands smartparens-mode)
 
 (use-package smartscan
+  :disabled t
   :load-path "site-lisp/smart-scan"
   :commands smartscan-mode
   :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode)
@@ -3340,6 +3368,7 @@ non-empty directories is allowed."
         (sr-beginning-of-buffer)))))
 
 (use-package super-save
+  :disabled t
   :load-path "site-lisp/super-save"
   :diminish
   :defer 5
