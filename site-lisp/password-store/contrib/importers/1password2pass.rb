@@ -109,12 +109,12 @@ elsif File.extname(filename) =~ /.1pif/i
     pass = {}
 
     pass[:name] = "#{(options.group + "/") if options.group}#{entry[options.name]}"
-
     pass[:title] = entry[:title]
 
-    pass[:password] = entry[:secureContents][:fields].detect do |field|
+    pass_field = entry[:secureContents][:fields].detect do |field|
       field[:designation] == "password"
-    end[:value]
+    end
+    pass[:password] = pass_field[:value] if pass_field
 
     username = entry[:secureContents][:fields].detect do |field|
       field[:designation] == "username"
