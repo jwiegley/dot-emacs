@@ -262,7 +262,7 @@
       (apply-partially #'string-match "-Agda-")
       (nix-read-environment (concat "ghc" (getenv "GHCVER"))))))
   :config
-  (set-input-method "Agda"))
+  (setq default-input-method "Agda"))
 
 (use-package agda2-mode
   ;; This declaration depends on the load-path established by agda-input.
