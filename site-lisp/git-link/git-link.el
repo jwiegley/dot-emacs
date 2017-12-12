@@ -207,7 +207,8 @@ As an example, \"gitlab\" will match with both \"gitlab.com\" and
 (defun git-link--branch ()
   (or (git-link--get-config "git-link.branch")
       git-link-default-branch
-      (git-link--current-branch)))
+      (git-link--current-branch)
+      (car (git-link--exec "rev-parse" "HEAD"))))
 
 (defun git-link--remote ()
   (let* ((branch (git-link--current-branch))
