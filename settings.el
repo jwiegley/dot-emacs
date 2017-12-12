@@ -848,6 +848,12 @@
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
  '(mudel-output-filter-functions (quote (ansi-color-process-output)))
+ '(multi-compile-alist
+   (quote
+    (((string-match "concerto" default-directory)
+      ("build-TXRX" . "(cd ~/bae/concerto/solver && make clean && nix-shell --command \"cabal build\" && PATH=./dist/build/solver solver --args test/TXRX.opts)"))
+     ((string-match "haskell-z3" default-directory)
+      ("build-Generate" . "(cd ~/src/haskell-z3 ; cabal build)")))))
  '(multi-term-program "/usr/bin/screen")
  '(multi-term-program-switches "-DR")
  '(multi-term-scroll-show-maximum-output t)

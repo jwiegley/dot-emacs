@@ -630,8 +630,8 @@
 
 (use-package command-log-mode
   :load-path "site-lisp/command-log-mode"
-  :commands (command-log-mode
-             clm/open-command-log-buffer))
+  :bind (("C-c e M" . command-log-mode)
+         ("C-c e L" . clm/open-command-log-buffer)))
 
 (use-package company
   :load-path "site-lisp/company-mode"
@@ -1657,7 +1657,6 @@ non-empty directories is allowed."
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (flycheck-mode 1)
-    (company-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
@@ -1964,18 +1963,47 @@ non-empty directories is allowed."
   :load-path "site-lisp/swiper"
   :demand t
   :diminish
+
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
          ("M-H"   . ivy-resume))
+
   :bind (:map ivy-minibuffer-map
               ("<tab>" . ivy-alt-done)
-              ("C-i" . ivy-partial-or-done)
-              ("C-r" . ivy-previous-line-or-history)
-              ("M-r" . ivy-reverse-i-search))
+              ("SPC"   . ivy-alt-done-or-space)
+              ("C-d"   . ivy-done-or-delete-char)
+              ("C-i"   . ivy-partial-or-done)
+              ("C-r"   . ivy-previous-line-or-history)
+              ("M-r"   . ivy-reverse-i-search))
+
   :bind (:map ivy-switch-buffer-map
               ("C-k" . ivy-switch-buffer-kill))
 
+  :custom
+  (ivy-dynamic-exhibit-delay-ms 200)
+  (ivy-height 10)
+  (ivy-initial-inputs-alist nil t)
+  (ivy-magic-tilde nil)
+  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-sort-matches-functions-alist '((t)))
+  (ivy-use-virtual-buffers t)
+  (ivy-wrap t)
+
   :preface
+  (defun ivy-done-or-delete-char ()
+    (interactive)
+    (call-interactively
+     (if (eolp)
+         #'ivy-done
+       #'ivy-delete-char)))
+
+  (defun ivy-alt-done-or-space ()
+    (interactive)
+    (call-interactively
+     (if (= ivy--length 1)
+         #'ivy-alt-done
+       #'self-insert-command)))
+
   (defun ivy-switch-buffer-kill ()
     (interactive)
     (debug)
@@ -1988,6 +2016,8 @@ non-empty directories is allowed."
       (setq ivy--all-candidates (delete bn ivy--all-candidates))
       (ivy--exhibit)))
 
+  ;; This is the value of `magit-completing-read-function', so that we see
+  ;; Magit's own sorting choices.
   (defun my-ivy-completing-read (&rest args)
     (let ((ivy-sort-functions-alist '((t . nil))))
       (apply 'ivy-completing-read args)))
@@ -2492,16 +2522,7 @@ non-empty directories is allowed."
 
 (use-package multi-compile
   :load-path "site-lisp/multi-compile"
-  :bind ("C-c C" . multi-compile-run)
-  :config
-  (setq multi-compile-alist
-        `(((string-match "concerto" default-directory) .
-           (("build-TXRX" .
-             ,(concat "(cd ~/bae/concerto/solver && "
-                      "make clean && "
-                      "nix-shell --command \"cabal build\" && "
-                      "PATH=./dist/build/solver "
-                      "solver --args test/TXRX.opts)")))))))
+  :bind ("C-c C" . multi-compile-run))
 
 (use-package multi-term
   :load-path "site-lisp/multi-term"
