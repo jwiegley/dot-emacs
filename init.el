@@ -1234,11 +1234,8 @@ non-empty directories is allowed."
     (add-hook 'after-init-hook 'irc))
 
   :config
-  (require 'erc-pcomplete)
-
   (erc-track-minor-mode 1)
   (erc-track-mode 1)
-  (erc-pcomplete-mode 1)
 
   (add-hook 'erc-insert-pre-hook
             #'(lambda (s)
@@ -3217,6 +3214,7 @@ non-empty directories is allowed."
         slime-contribs '(slime-fancy)))
 
 (use-package smart-jump
+  :disabled t
   :load-path "site-lisp/smart-jump"
   :bind ("M-." . smart-jump-go)
   :config
