@@ -309,7 +309,6 @@ popup-pos-tip.el,lib,file,https://www.emacswiki.org/emacs/download/popup-pos-tip
 popup-ruler.el,site-lisp,file,https://www.emacswiki.org/emacs/download/popup-ruler.el,
 popwin,site-lisp,subtree,git://github.com/m2ym/popwin-el.git,
 pos-tip.el,lib,file,https://www.emacswiki.org/emacs/download/pos-tip.el,
-powerline,site-lisp,subtree,git://github.com/milkypostman/powerline.git,
 pp-c-l.el,site-lisp,file,https://www.emacswiki.org/emacs/download/pp-c-l.el,
 prodigy,site-lisp,subtree,git://github.com/rejeep/prodigy.el.git,
 projectile,site-lisp,subtree,git://github.com/bbatsov/projectile.git,
