@@ -853,6 +853,9 @@ end tell" (match-string 1))))
 (use-package org-babel
   :no-require
   :config
+  (use-package ob-restclient
+    :load-path "site-lisp/ob-restclient")
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python     . t)
@@ -860,7 +863,8 @@ end tell" (match-string 1))))
      (haskell    . t)
      (sh         . t)
      (sql        . t)
-     (dot        . t))))
+     (dot        . t)
+     (restclient . t))))
 
 (use-package org-bookmark-heading
   :load-path "site-lisp/org-bookmark-heading")
