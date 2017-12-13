@@ -1,0 +1,37 @@
+* ob-restclient.el
+
+  An extension to restclient.el for emacs that provides org-babel support.
+
+  To get started, install =ob-restclient.el= and add =(restclient
+  . t)= to =org-babel-load-languages=:
+
+  #+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((restclient . t)))
+  #+END_SRC
+
+  You can then execute the query by pressing =C-c C-c= on the
+  source-block header.
+
+    #+BEGIN_SRC org
+      ,#+BEGIN_SRC restclient
+        GET http://example.com
+      ,#+END_SRC
+
+      ,#+RESULTS:
+      ,#+BEGIN_SRC html
+      <!doctype html>
+      <html>
+      <head>
+        ...
+      </head>
+      </html>
+      ,#+END_SRC
+    #+END_SRC
+
+  See [[https://github.com/pashky/restclient.el][restclient.el]] for documentation and examples of usage.
+
+* Author
+
+Alf Lervåg
