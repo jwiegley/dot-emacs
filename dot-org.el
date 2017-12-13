@@ -712,6 +712,11 @@ end tell" (match-string 1))))
     (if taskcode (org-entry-put (point) "TASKCODE" taskcode))
     (if project (org-entry-put (point) "PROJECT" project))))
 
+(font-lock-add-keywords
+ 'org-mode
+ '(("^ *\\(-\\) "
+    (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
 (defconst first-year-in-list 172)
 
 (defconst naw-ruz
