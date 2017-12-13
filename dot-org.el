@@ -15,15 +15,6 @@
 
 (require 'org)
 (require 'org-agenda)
-(require 'org-smart-capture)
-(require 'org-crypt)
-(require 'org-devonthink)
-(require 'ob-python)
-(require 'ob-ruby)
-(require 'ob-emacs-lisp)
-(require 'ob-haskell)
-(require 'ob-dot)
-(require 'ob-sh)
 (require 'ox-md)
 
 (defconst my-org-soft-red    "#fcebeb")
@@ -859,8 +850,24 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package org-babel
+  :no-require
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python     . t)
+     (emacs-lisp . t)
+     (haskell    . t)
+     (sh         . t)
+     (sql        . t)
+     (dot        . t))))
+
 (use-package org-bookmark-heading
   :load-path "site-lisp/org-bookmark-heading")
+
+(use-package org-crypt)
+
+(use-package org-devonthink)
 
 (use-package org-magit
   :disabled t
@@ -869,6 +876,8 @@ end tell" (match-string 1))))
 (use-package org-opml
   :disabled t
   :load-path "site-lisp/org-opml")
+
+(use-package org-smart-capture)
 
 (use-package org-super-agenda
   :disabled t
