@@ -2563,6 +2563,7 @@ non-empty directories is allowed."
 (use-package multiple-cursors
   :load-path "site-lisp/multiple-cursors"
   :after phi-search
+  :defer 5
 
   ;; - Sometimes you end up with cursors outside of your view. You can scroll
   ;;   the screen to center on each cursor with `C-v` and `M-v`.
@@ -2883,7 +2884,8 @@ non-empty directories is allowed."
              ("C-c m m" . emacs-toggle-size)))
 
 (use-package phi-search
-  :load-path "site-lisp/phi-search")
+  :load-path "site-lisp/phi-search"
+  :defer 5)
 
 (use-package phi-search-mc
   :load-path "site-lisp/phi-search-mc"
