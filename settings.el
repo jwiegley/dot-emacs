@@ -855,7 +855,8 @@
     (((string-match "concerto" default-directory)
       ("build-TXRX" . "(cd ~/bae/concerto/solver && make clean && nix-shell --command \"cabal build\" && PATH=./dist/build/solver solver --args test/TXRX.opts)"))
      ((string-match "haskell-z3" default-directory)
-      ("build-Generate" . "(cd ~/src/haskell-z3 ; cabal build)")))))
+      ("build-Generate" . "(cd ~/src/haskell-z3 ; cabal build && ./dist/build/generate/generate --yaml generate/z3-api-4.5.0.yml)")))))
+ '(multi-compile-history-file "/Users/johnw/.emacs.d/data/multi-compile.cache")
  '(multi-term-program "/usr/bin/screen")
  '(multi-term-program-switches "-DR")
  '(multi-term-scroll-show-maximum-output t)
@@ -975,14 +976,9 @@
            (setq default-directory coq-root-directory)))))))
  '(safe-local-variable-values
    (quote
-    ((nix-package-name . "pkgs.haskellPackages_ghc782.newartisans")
-     (eval require
-           (quote edg))
-     (eval ignore-errors
-           (require
-            (quote edg)))
-     (after-save-hook git-commit-changes)
-     (shm-lambda-indent-style . leftmost-parent)
+    ((multi-compile-alist
+      ((string-match "haskell-z3" default-directory)
+       ("build-Generate" . "(cd ~/src/haskell-z3 ; nix-shell --command 'cabal build' && ./dist/build/generate/generate --yaml generate/z3-api-4.5.0.yml)")))
      (haskell-indent-spaces . 4)
      (haskell-indent-spaces . 2)
      (haskell-indentation-ifte-offset . 2)
@@ -990,9 +986,7 @@
      (haskell-indentation-left-offset . 2)
      (haskell-indentation-starter-offset . 2)
      (haskell-indentation-where-post-offset . 2)
-     (haskell-indentation-where-pre-offset . 2)
-     (coq-prog-args "-emacs" "-no-native-compiler" "-R" "." "Hask")
-     (coq-prog-args "-emacs" "-R" "." "Hask"))))
+     (haskell-indentation-where-pre-offset . 2))))
  '(sage-view-anti-aliasing-level 4)
  '(sage-view-margin (quote (20 . 20)))
  '(sage-view-scale 2.0)
