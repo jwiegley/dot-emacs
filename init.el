@@ -2040,8 +2040,6 @@ non-empty directories is allowed."
   :commands ivy-pass)
 
 (use-package ivy-rich
-  ;; jww (2017-12-10): This is too slow sometimes.
-  :disabled t
   :load-path "site-lisp/ivy-rich"
   :demand t
   :after ivy
