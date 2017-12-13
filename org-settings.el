@@ -286,6 +286,7 @@ SCHEDULED: %t
  '(org-footnote-section nil)
  '(org-habit-preceding-days 42)
  '(org-habit-today-glyph 45)
+ '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width (quote (800)))
@@ -339,6 +340,7 @@ SCHEDULED: %t
  '(org-reverse-note-order t)
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
+ '(org-src-tab-acts-natively t)
  '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
  '(org-subject-transforms
    (quote
