@@ -915,7 +915,7 @@
  '(purpose-preferred-prompt (quote vanilla))
  '(rdebug-many-windows nil)
  '(read-buffer-function (quote ido-read-buffer))
- '(recentf-auto-cleanup (quote never))
+ '(recentf-auto-cleanup 60)
  '(recentf-exclude
    (quote
     ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
@@ -1001,22 +1001,18 @@
  '(save-abbrevs (quote silently))
  '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
+ '(save-place-file "~/.emacs.d/data/places")
+ '(savehist-additional-variables
+   (quote
+    (kill-ring file-name-history search-ring regexp-search-ring sr-history-registry)))
+ '(savehist-autosave-interval 60)
+ '(savehist-file "~/.emacs.d/data/history")
+ '(savehist-ignored-variables (quote (load-history flyspell-auto-correct-ring)))
  '(scroll-bar-mode nil)
  '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
  '(sendmail-program "msmtp")
  '(sentence-end-double-space nil)
- '(session-globals-exclude (quote (load-history flyspell-auto-correct-ring)))
- '(session-globals-include
-   (quote
-    ((kill-ring 10 nil)
-     (session-file-alist 200 t)
-     (file-name-history 200 nil)
-     search-ring regexp-search-ring sr-history-registry)))
- '(session-initialize (quote (session places keys)))
- '(session-name-disable-regexp "\\(\\`/tmp\\|COMMIT_EDITMSG\\)")
- '(session-registers (quote (t (0 . 127))))
- '(session-save-file "~/.emacs.d/data/session")
  '(shackle-default-rule (quote (:select t)))
  '(shackle-rules
    (quote
