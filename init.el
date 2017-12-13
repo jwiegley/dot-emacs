@@ -3682,7 +3682,7 @@ non-empty directories is allowed."
         (t 44)))
 
 (defconst emacs-min-width
-  (cond (running-alternate-emacs 90)
+  (cond (running-alternate-emacs 80)
         ((eq display-name 'retina-imac) 100)
         (t 100)))
 
