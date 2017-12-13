@@ -1535,6 +1535,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/google-this"
   :bind-keymap ("C-. /" . google-this-mode-submap))
 
+(use-package goto-last-change
+  :bind ("C-x C-/" . goto-last-change))
+
 (use-package graphviz-dot-mode
   :load-path "site-lisp/graphviz-dot-mode"
   :mode "\\.dot\\'")
