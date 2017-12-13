@@ -732,6 +732,7 @@
   :demand t
   :diminish
   :bind (("C-*" . counsel-org-agenda-headlines)
+         ("C-x C-f" . counsel-find-file)
          ("M-x" . counsel-M-x))
   :commands (counsel-minibuffer-history
              counsel-find-library
