@@ -2900,11 +2900,6 @@ non-empty directories is allowed."
 (use-package popup-ruler
   :bind ("C-. C-r" . popup-ruler))
 
-(use-package powerline
-  ;; jww (2017-12-10): Don't like powerline yet.
-  :disabled t
-  :load-path "site-lisp/powerline")
-
 (use-package pp-c-l
   :hook (prog-mode . pretty-control-l-mode))
 
@@ -3220,13 +3215,6 @@ non-empty directories is allowed."
   :config
   (sml/setup)
   (sml/apply-theme 'light))
-
-(use-package smart-mode-line-light-powerline-theme
-  ;; jww (2017-12-10): Don't like powerline yet.
-  :disabled t
-  :after (powerline smart-mode-line)
-  :config
-  (sml/apply-theme 'light-powerline))
 
 (use-package smart-newline
   :load-path "site-lisp/smart-newline"
