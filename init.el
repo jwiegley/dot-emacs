@@ -2051,28 +2051,6 @@ non-empty directories is allowed."
       (setq ivy--all-candidates (delete bn ivy--all-candidates))
       (ivy--exhibit)))
 
-  (defun ivy--sort-by-buffer-position-or-not-special (_name candidates)
-    (mapcar
-     (apply-partially #'nth 1)
-     (sort
-      (let ((index 0) copy)
-        (dolist (elem candidates)
-          (setq copy (cons (list
-                            index
-                            elem
-                            (or (string-match "\\` ?\\*" elem)
-                                (eq (get-text-property 0 'face elem)
-                                    'ivy-virtual)))
-                           copy)
-                index (1+ index)))
-        copy)
-      (lambda (f1 f2)
-        (if (nth 2 f1)
-            nil
-          (if (nth 2 f2)
-              t
-            (< (nth 0 f1) (nth 0 f2))))))))
-
   ;; This is the value of `magit-completing-read-function', so that we see
   ;; Magit's own sorting choices.
   (defun my-ivy-completing-read (&rest args)
@@ -2081,9 +2059,7 @@ non-empty directories is allowed."
 
   :config
   (ivy-mode 1)
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
-  (setcdr (assq 'ivy-switch-buffer ivy-sort-matches-functions-alist)
-          #'ivy--sort-by-buffer-position-or-not-special))
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
 
 (use-package ivy-bibtex
   :load-path "site-lisp/helm-bibtex"
