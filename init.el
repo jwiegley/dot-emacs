@@ -1731,10 +1731,15 @@ non-empty directories is allowed."
   :after helm
   :bind ("C-h m" . helm-describe-modes))
 
+(use-package helm-firefox
+  :load-path "site-lisp/helm-firefox"
+  :commands helm-firefox
+  :bind ("A-M-b" . helm-firefox-bookmarks))
+
 (use-package helm-google
   :load-path "site-lisp/helm-google"
   :commands helm-google
-  :bind ("C-S-g" . helm-google))
+  :bind ("A-M-g" . helm-google))
 
 (use-package helm-navi
   :load-path "site-lisp/helm-navi"
