@@ -73,9 +73,7 @@ searches you will want to use `www.google.TLD'."
    "\n" ""
    (with-temp-buffer
      (insert html)
-     (if (fboundp 'html2text)
-         (html2text)
-       (shr-render-region (point-min) (point-max)))
+     (shr-render-region (point-min) (point-max))
      (buffer-substring-no-properties (point-min) (point-max)))))
 
 (defmacro helm-google--with-buffer (buf &rest body)
