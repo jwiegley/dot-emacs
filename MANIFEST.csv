@@ -319,7 +319,6 @@ python-mode,site-lisp,subtree,https://gitlab.com/python-mode-devs/python-mode.gi
 rainbow-delimiters,site-lisp,subtree,git://github.com/Fanael/rainbow-delimiters.git,
 rainbow-mode,site-lisp,elpa,rainbow-mode,
 redshank,site-lisp,subtree,http://www.foldr.org/~michaelw/projects/redshank.git,
-refine,site-lisp,subtree,git://github.com/Wilfred/refine.git,
 regex-tool,lisp,subtree,git://github.com/jwiegley/regex-tool.git,
 repl-toggle,site-lisp,subtree,git://github.com/tomterl/repl-toggle.git,
 restclient,site-lisp,subtree,git://github.com/pashky/restclient.el.git,

@@ -3076,10 +3076,6 @@ non-empty directories is allowed."
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . redshank-mode))
 
-(use-package refine
-  :load-path "site-lisp/refine"
-  :commands refine)
-
 (use-package reftex
   :after auctex
   :hook (LaTeX-mode . reftex-mode))
