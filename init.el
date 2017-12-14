@@ -1236,7 +1236,7 @@ non-empty directories is allowed."
     (setq erc-timestamp-only-if-changed-flag nil
           erc-timestamp-format "%H:%M "
           erc-fill-prefix "          "
-          erc-fill-column 88
+          erc-fill-column 78
           erc-insert-timestamp-function 'erc-insert-timestamp-left
           ivy-use-virtual-buffers nil))
 
