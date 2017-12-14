@@ -450,6 +450,21 @@
   :bind (:map c-mode-base-map
               ("C-c C-i"  . c-includes-current-file)))
 
+(use-package calc
+  :defer t
+  :custom
+  (math-additional-units
+   '((GiB "1024 * MiB" "Giga Byte")
+     (MiB "1024 * KiB" "Mega Byte")
+     (KiB "1024 * B" "Kilo Byte")
+     (B nil "Byte")
+     (Gib "1024 * Mib" "Giga Bit")
+     (Mib "1024 * Kib" "Mega Bit")
+     (Kib "1024 * b" "Kilo Bit")
+     (b "B / 8" "Bit")))
+  :config
+  (setq math-units-table nil))
+
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'" . c-mode)
@@ -731,9 +746,13 @@
   :after ivy
   :demand t
   :diminish
-  :bind (("C-*" . counsel-org-agenda-headlines)
+  :custom (counsel-find-file-ignore-regexp
+           (concat "\\(\\`\\.\\|"
+                   (regexp-opt completion-ignored-extensions)
+                   "\\)"))
+  :bind (("C-*"     . counsel-org-agenda-headlines)
          ("C-x C-f" . counsel-find-file)
-         ("M-x" . counsel-M-x))
+         ("M-x"     . counsel-M-x))
   :commands (counsel-minibuffer-history
              counsel-find-library
              counsel-unicode-char)
@@ -3670,7 +3689,8 @@ non-empty directories is allowed."
 
 (defconst emacs-min-left
   (cond (running-alternate-emacs 5)
-        ((eq display-name 'retina-imac) 975)
+        ;; ((eq display-name 'retina-imac) 975)
+        ((eq display-name 'retina-imac) 746)
         ((eq display-name 'macbook-pro-vga) 837)
         (t 521)))
 
@@ -3683,7 +3703,8 @@ non-empty directories is allowed."
 
 (defconst emacs-min-width
   (cond (running-alternate-emacs 80)
-        ((eq display-name 'retina-imac) 100)
+        ;; ((eq display-name 'retina-imac) 100)
+        ((eq display-name 'retina-imac) 162)
         (t 100)))
 
 (defconst emacs-min-font
