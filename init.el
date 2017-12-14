@@ -1731,6 +1731,11 @@ non-empty directories is allowed."
   :after helm
   :bind ("C-h m" . helm-describe-modes))
 
+(use-package helm-google
+  :load-path "site-lisp/helm-google"
+  :commands helm-google
+  :bind ("C-S-g" . helm-google))
+
 (use-package helm-navi
   :load-path "site-lisp/helm-navi"
   :after (helm navi)
@@ -3518,7 +3523,7 @@ non-empty directories is allowed."
 
 (use-package w3m
   :load-path "site-lisp/emacs-w3m"
-  :bind ("A-M-g" . w3m-browse-url))
+  :commands w3m-browse-url)
 
 (use-package web-mode
   :load-path "site-lisp/web-mode"
