@@ -369,7 +369,7 @@
  '(coq-prog-args (quote ("-emacs")))
  '(counsel-describe-function-preselect (quote ivy-function-called-at-point))
  '(counsel-find-file-ignore-regexp
-   "\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|hg/\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)")
+   "\\(\\`\\.\\|\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|h\\(?:g/\\|i\\)\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)\\)")
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "~/.emacs.d/settings.el")
@@ -795,6 +795,7 @@
  '(irfc-directory "~/Archives/Admin/RFC/")
  '(ispell-extra-args (quote ("--sug-mode=fast" "--keyboard=dvorak")))
  '(ivy-dynamic-exhibit-delay-ms 200)
+ '(ivy-extra-directories nil)
  '(ivy-height 10)
  '(ivy-ignore-buffers
    (quote
@@ -837,7 +838,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S" t)
+ '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -977,6 +978,12 @@
  '(safe-local-variable-values
    (quote
     ((multi-compile-alist
+      ((string-match "z3-generate-api" default-directory)
+       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && cd ~/src/z3-generate-api/api/4.5.0; ~/src/z3-generate-api/dist/build/z3-generate-api/z3-generate-api --yaml api.yml)")))
+     (multi-compile-alist
+      ((string-match "z3-generate-api" default-directory)
+       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && ./dist/build/z3-generate-api/z3-generate-api --yaml 4.5.0.yml)")))
+     (multi-compile-alist
       ((string-match "haskell-z3" default-directory)
        ("build-Generate" . "(cd ~/src/haskell-z3 ; nix-shell --command 'cabal build' && ./dist/build/generate/generate --yaml generate/z3-api-4.5.0.yml)")))
      (haskell-indent-spaces . 4)
@@ -1011,9 +1018,7 @@
  '(shackle-default-rule (quote (:select t)))
  '(shackle-rules
    (quote
-    ((compilation-mode :select t :align
-                       (quote below)
-                       :size 0.6)
+    ((compilation-mode :select t :size 0.6)
      ("\\`\\*Messages" :select t :align t :size 0.6)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
