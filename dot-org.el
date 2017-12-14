@@ -873,9 +873,9 @@ end tell" (match-string 1))))
 
 (use-package org-devonthink)
 
-(use-package org-magit
+(use-package orgit
   :disabled t
-  :load-path "site-lisp/org-magit")
+  :load-path "site-lisp/orgit")
 
 (use-package org-opml
   :disabled t
