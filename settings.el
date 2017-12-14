@@ -1028,7 +1028,7 @@
  '(shackle-default-rule (quote (:select t)))
  '(shackle-rules
    (quote
-    ((compilation-mode :select t :size 0.6)
+    ((compilation-mode :select nil :size 0.6)
      ("\\`\\*Messages" :select t :align t :size 0.6)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)

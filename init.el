@@ -14,8 +14,7 @@
 
   (defsubst lookup-password (host user port)
     (require 'auth-source)
-    (funcall (plist-get (car (auth-source-search :host host :user user
-                                                 :type 'netrc :port port))
+    (funcall (plist-get (car (auth-source-search :host host :user user :port port))
                         :secret)))
 
   (defun get-jobhours-string ()
@@ -1215,14 +1214,15 @@ non-empty directories is allowed."
                          ))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
-      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-           :password (lookup-password "127.0.0.1" "johnw/gitter" 6697))
-      (sleep-for 5)
-      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-           :password (lookup-password "127.0.0.1" "johnw/plclub" 6697))
-      (sleep-for 5)
-      (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-           :password (lookup-password "127.0.0.1" "johnw/freenode" 6697))))
+      (let ((pass (lookup-password "irc.freenode.net" "johnw" 6697)))
+        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+             :password (concat "johnw/gitter:" pass))
+        (sleep-for 5)
+        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+             :password (concat "johnw/plclub:" pass))
+        (sleep-for 5)
+        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+             :password (concat "johnw/freenode:" pass)))))
 
   (defun reset-erc-track-mode ()
     (interactive)
@@ -2029,7 +2029,7 @@ non-empty directories is allowed."
     (interactive)
     (call-interactively
      (if (eolp)
-         #'ivy-done
+         #'ivy-immediate-done
        #'ivy-delete-char)))
 
   (defun ivy-alt-done-or-space ()
@@ -2492,17 +2492,17 @@ non-empty directories is allowed."
 
 (use-package mc-extras
   :load-path "site-lisp/mc-extras"
-  :bind (:map mc/keymap
-              ("C-. M-C-f" . mc/mark-next-sexps)
-              ("C-. M-C-b" . mc/mark-previous-sexps)
-              ("C-. <"     . mc/mark-all-above)
-              ("C-. >"     . mc/mark-all-below)
-              ("C-. C-d"   . mc/remove-current-cursor)
-              ("C-. C-k"   . mc/remove-cursors-at-eol)
-              ("C-. d"     . mc/remove-duplicated-cursors)
-              ("C-. C-."   . mc/freeze-fake-cursors-dwim)
-              ("C-. ."     . mc/move-to-column)
-              ("C-. ="     . mc/compare-chars)))
+  :after multiple-cursors
+  :bind (("C-. M-C-f" . mc/mark-next-sexps)
+         ("C-. M-C-b" . mc/mark-previous-sexps)
+         ("C-. <"     . mc/mark-all-above)
+         ("C-. >"     . mc/mark-all-below)
+         ("C-. C-d"   . mc/remove-current-cursor)
+         ("C-. C-k"   . mc/remove-cursors-at-eol)
+         ("C-. d"     . mc/remove-duplicated-cursors)
+         ("C-. C-."   . mc/freeze-fake-cursors-dwim)
+         ("C-. ."     . mc/move-to-column)
+         ("C-. ~"     . mc/compare-chars)))
 
 (use-package mediawiki
   :load-path "site-lisp/mediawiki"
