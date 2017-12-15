@@ -37,7 +37,11 @@
 (eval-and-compile
   (require 'seq)
 
-  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+  (defconst emacs-environment
+    (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26")))
+      (if (string= env "ghc80")
+          "emacs26"
+        env)))
 
   (mapc #'add-load-path
         (append (directory-files (emacs-path "site-lisp") t
@@ -45,6 +49,7 @@
                 '("site-lisp" "lisp/use-package" "lisp" "")))
 
   (defun nix-read-environment (name)
+    (ignore-errors
     (with-temp-buffer
       (insert-file-contents-literally
        (with-temp-buffer
@@ -54,14 +59,14 @@
               (match-string 1))))
       (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
                (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
-           (split-string (match-string 1)))))
+           (split-string (match-string 1))))))
 
   (when (executable-find "nix-env")
     (mapc #'(lambda (path)
               (let ((share (expand-file-name "share/emacs/site-lisp" path)))
                 (if (file-directory-p share)
                     (add-to-list 'load-path share))))
-          (nix-read-environment emacs-environment)))
+	  (nix-read-environment emacs-environment)))
 
   (require 'use-package)
   (setq use-package-verbose nil)
