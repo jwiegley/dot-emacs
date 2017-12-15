@@ -14,8 +14,14 @@
 
   (defsubst lookup-password (host user port)
     (require 'auth-source)
-    (funcall (plist-get (car (auth-source-search :host host :user user :port port))
-                        :secret)))
+    (let ((auth (auth-source-search :host host :user user :port port)))
+      (if auth
+          (let ((secretf (plist-get (car auth) :secret)))
+            (if secretf
+                (funcall secretf)
+              (error "Auth entry for %s@%s:%s has no secret!"
+                     user host port)))
+        (error "No auth entry found for %s@%s:%s" user host port))))
 
   (defun get-jobhours-string ()
     (with-current-buffer (get-buffer-create "*scratch*")
@@ -50,16 +56,16 @@
 
   (defun nix-read-environment (name)
     (ignore-errors
-    (with-temp-buffer
-      (insert-file-contents-literally
-       (with-temp-buffer
-         (insert-file-contents-literally
-          (executable-find (concat "load-env-" name)))
-         (and (re-search-forward "^source \\(.+\\)$" nil t)
-              (match-string 1))))
-      (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
-               (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
-           (split-string (match-string 1))))))
+      (with-temp-buffer
+        (insert-file-contents-literally
+         (with-temp-buffer
+           (insert-file-contents-literally
+            (executable-find (concat "load-env-" name)))
+           (and (re-search-forward "^source \\(.+\\)$" nil t)
+                (match-string 1))))
+        (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+                 (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
+             (split-string (match-string 1))))))
 
   (when (executable-find "nix-env")
     (mapc #'(lambda (path)
@@ -69,9 +75,10 @@
 	  (nix-read-environment emacs-environment)))
 
   (require 'use-package)
-  (setq use-package-verbose nil)
-  (setq use-package-expand-minimally t)
-  (setq use-package-compute-statistics nil))
+  (setq use-package-verbose 'debug)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-compute-statistics nil)
+  (setq debug-on-error t))
 
 ;;; Settings
 
@@ -82,6 +89,7 @@
   (defvar user-data-directory (emacs-path "data"))
 
   (if (or (string= "emacs26" emacs-environment)
+          (string= "emacs26bare" emacs-environment)
           (string= "emacs26debug" emacs-environment))
       (load (emacs-path "settings"))
     (let ((settings
@@ -263,7 +271,7 @@
           (substring (shell-command-to-string
                       (concat dir "/bin/agda-mode locate")) 0 -1)))
      (seq-filter
-      (apply-partially #'string-match "-Agda-")
+      (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
       (nix-read-environment (concat "ghc" (getenv "GHCVER"))))))
   :config
   (setq default-input-method "Agda"))
@@ -1210,6 +1218,7 @@ non-empty directories is allowed."
   :preface
   (defun irc (&optional arg)
     (interactive "P")
+    (require 'auth-source-pass)
     (if arg
         (pcase-dolist (`(,server . ,nick)
                        '(("irc.freenode.net"     . "johnw")
@@ -2496,6 +2505,7 @@ non-empty directories is allowed."
   :defer t)
 
 (use-package mc-extras
+  :disabled t
   :load-path "site-lisp/mc-extras"
   :after multiple-cursors
   :bind (("C-. M-C-f" . mc/mark-next-sexps)
