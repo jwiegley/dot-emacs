@@ -80,6 +80,9 @@ pull:
 	    (cd $$i ; git pull) ;		\
 	done
 
+speed:
+	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+
 clean:
 	find . -name '*.elc' -delete
 
