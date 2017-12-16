@@ -812,7 +812,8 @@
 
 (use-package debbugs-gnu
   :load-path "site-lisp/debbugs"
-  :commands (debbugs-gnu debbugs-gnu-search))
+  :commands (debbugs-gnu debbugs-gnu-search)
+  :bind ("C-. #" . gnus-read-ephemeral-emacs-bug-group))
 
 (use-package dedicated
   :bind ("C-. D" . dedicated-mode))
