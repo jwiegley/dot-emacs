@@ -2505,7 +2505,6 @@ non-empty directories is allowed."
   :defer t)
 
 (use-package mc-extras
-  :disabled t
   :load-path "site-lisp/mc-extras"
   :after multiple-cursors
   :bind (("C-. M-C-f" . mc/mark-next-sexps)
@@ -2514,10 +2513,20 @@ non-empty directories is allowed."
          ("C-. >"     . mc/mark-all-below)
          ("C-. C-d"   . mc/remove-current-cursor)
          ("C-. C-k"   . mc/remove-cursors-at-eol)
-         ("C-. d"     . mc/remove-duplicated-cursors)
-         ("C-. C-."   . mc/freeze-fake-cursors-dwim)
-         ("C-. ."     . mc/move-to-column)
+         ("C-. M-d"   . mc/remove-duplicated-cursors)
+         ("C-. M-f"   . mc/freeze-fake-cursors-dwim)
+         ("C-. |"     . mc/move-to-column)
          ("C-. ~"     . mc/compare-chars)))
+
+(use-package mc-freeze
+  :load-path "site-lisp/mc-extras"
+  :after multiple-cursors
+  :bind ("C-. C-f" . mc/freeze-fake-cursors-dwim))
+
+(use-package mc-rect
+  :load-path "site-lisp/mc-extras"
+  :after multiple-cursors
+  :bind ("C-\"" . mc/rect-rectangle-to-multiple-cursors))
 
 (use-package mediawiki
   :load-path "site-lisp/mediawiki"
@@ -2633,7 +2642,8 @@ non-empty directories is allowed."
          ("<C-m> c"     . mc/mark-all-dwim)
          ("<C-m> l"     . mc/insert-letters)
          ("<C-m> n"     . mc/insert-numbers)
-         ("<C-m> r"     . mc/mark-all-in-region-regexp)
+         ("<C-m> r"     . mc/mark-all-in-region)
+         ("<C-m> /"     . mc/mark-all-in-region-regexp)
          ("<C-m> t"     . mc/mark-sgml-tag-pair)
          ("<C-m> w"     . mc/mark-next-like-this-word)
          ("<C-m> x"     . mc/mark-more-like-this-extended)
@@ -2771,7 +2781,7 @@ non-empty directories is allowed."
               ("M-I"   . paredit-splice-sexp)
               ("C-M-l" . paredit-recentre-on-sexp)
 
-              ("C-. D" . paredit-forward-down)
+              ("C-. M-f" . paredit-forward-down)
               ("C-. B" . paredit-splice-sexp-killing-backward)
               ("C-. C" . paredit-convolute-sexp)
               ("C-. F" . paredit-splice-sexp-killing-forward)
@@ -3098,6 +3108,9 @@ non-empty directories is allowed."
   :config
   (recentf-mode 1))
 
+(use-package rect
+  :bind ("C-. r t" . rectangle-mark-mode))
+
 (use-package redshank
   :load-path "site-lisp/redshank"
   :diminish
@@ -3140,8 +3153,8 @@ non-empty directories is allowed."
          ("C-. r F" . rtags-fixit)
          ("C-. r R" . rtags-rename-symbol)
          ("C-. r T" . rtags-tagslist)
-         ("C-. r c" . rtags-create-doxygen-comment)
-         ("C-. r d" . rtags-display-summary)
+         ("C-. r d" . rtags-create-doxygen-comment)
+         ("C-. r c" . rtags-display-summary)
          ("C-. r e" . rtags-print-enum-value-at-point)
          ("C-. r f" . rtags-find-file)
          ("C-. r i" . rtags-include-file)
@@ -3610,7 +3623,7 @@ non-empty directories is allowed."
 
 (use-package word-count
   :load-path "site-lisp/word-count-mode"
-  :bind ("C-. m w" . word-count-mode))
+  :bind ("C-. W" . word-count-mode))
 
 (use-package writeroom-mode
   :load-path "site-lisp/writeroom-mode"

@@ -838,7 +838,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -988,6 +988,9 @@
  '(safe-local-variable-values
    (quote
     ((multi-compile-alist
+      ((string-match "z3-generate-api" default-directory)
+       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && cd ~/src/z3-generate-api/api/4.5.0-20171106; ~/src/z3-generate-api/dist/build/z3-generate-api/z3-generate-api --yaml api.yml)")))
+     (multi-compile-alist
       ((string-match "z3-generate-api" default-directory)
        ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && cd ~/src/z3-generate-api/api/4.5.0; ~/src/z3-generate-api/dist/build/z3-generate-api/z3-generate-api --yaml api.yml)")))
      (multi-compile-alist
