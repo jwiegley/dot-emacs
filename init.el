@@ -1,7 +1,6 @@
 (defconst emacs-start-time (current-time))
 
-(setq message-log-max 16384
-      load-prefer-newer t)
+(setq message-log-max 16384)
 
 ;;; Functions
 
@@ -29,12 +28,6 @@
         (require 'ansi-color)
         (ansi-color-apply (substring str 0 (1- (length str))))))))
 
-(defun save-all ()
-  (interactive)
-  (save-some-buffers t))
-
-;; (add-hook 'focus-out-hook 'save-all)
-
 ;;; Environment
 
 (eval-when-compile
@@ -44,10 +37,8 @@
   (require 'seq)
 
   (defconst emacs-environment
-    (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26")))
-      (if (string= env "ghc80")
-          "emacs26"
-        env)))
+    (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26full")))
+      (if (string= env "ghc80") "emacs26full" env)))
 
   (mapc #'add-load-path
         (append (directory-files (emacs-path "site-lisp") t
@@ -75,10 +66,11 @@
 	  (nix-read-environment emacs-environment)))
 
   (require 'use-package)
-  (setq use-package-verbose 'debug)
-  (setq use-package-expand-minimally nil)
-  (setq use-package-compute-statistics nil)
-  (setq debug-on-error t))
+
+  (setq use-package-verbose nil
+        use-package-expand-minimally t
+        use-package-compute-statistics nil
+        debug-on-error t))
 
 ;;; Settings
 
@@ -89,7 +81,6 @@
   (defvar user-data-directory (emacs-path "data"))
 
   (if (or (string= "emacs26" emacs-environment)
-          (string= "emacs26bare" emacs-environment)
           (string= "emacs26debug" emacs-environment))
       (load (emacs-path "settings"))
     (let ((settings
@@ -1717,9 +1708,11 @@ non-empty directories is allowed."
 
 (use-package helm-autoloads
   :load-path "site-lisp/helm"
+  :no-require t
   :if (not running-alternate-emacs)
-  :defer 5
   :config
+  (load "helm-autoloads")
+
   (use-package helm
     :bind (:map helm-map
                 ("<tab>" . helm-execute-persistent-action)
@@ -1728,8 +1721,10 @@ non-empty directories is allowed."
                 ("A-v"   . helm-previous-page))
     :config
     (helm-autoresize-mode 1))
+
   (use-package helm-multi-match
-    :load-path "site-lisp/helm"))
+    :load-path "site-lisp/helm"
+    :after helm))
 
 (use-package helm-dash
   :load-path "site-lisp/helm-dash"
@@ -2012,7 +2007,7 @@ non-empty directories is allowed."
 
 (use-package ivy
   :load-path "site-lisp/swiper"
-  :demand t
+  :defer 5
   :diminish
 
   :bind (("C-x b" . ivy-switch-buffer)
