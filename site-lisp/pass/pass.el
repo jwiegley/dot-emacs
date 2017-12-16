@@ -216,7 +216,7 @@ When called with a prefix argument ARG, visit the entry file."
 It creates an empty entry file, and visit it."
   (let ((entry (format "%s.gpg" (read-string "Password entry: ")))
         (default-directory (password-store-dir)))
-    (make-directory (file-name-directory entry) t)
+    ;; (make-directory (file-name-directory entry) t)
     (find-file (expand-file-name entry (password-store-dir)))))
 
 (defun pass-insert-generated ()

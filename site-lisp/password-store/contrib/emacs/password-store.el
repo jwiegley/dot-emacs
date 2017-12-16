@@ -224,15 +224,20 @@ Separate multiple IDs with spaces."
   (message "%s" (password-store--run-init (split-string gpg-id))))
 
 ;;;###autoload
-(defun password-store-insert (entry password)
+(defun password-store-insert (entry login password)
   "Insert a new ENTRY containing PASSWORD."
   (interactive (list (read-string "Password entry: ")
+                     (read-string "Login: ")
                      (read-passwd "Password: " t)))
   (message "%s" (shell-command-to-string
-                 (format "echo %s | %s insert -m -f %s"
-                         (shell-quote-argument password)
-                         password-store-executable
-                         (shell-quote-argument entry)))))
+                 (if (string= "" password)
+                     (format "echo %s | %s insert -m -f %s"
+                             (shell-quote-argument password)
+                             password-store-executable
+                             (shell-quote-argument entry))
+                   (format "echo -e '%s\nlogin: %s' | %s insert -m -f %s"
+                           password login password-store-executable
+                           (shell-quote-argument entry))))))
 
 ;;;###autoload
 (defun password-store-generate (entry &optional password-length)
