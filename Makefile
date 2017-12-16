@@ -83,6 +83,9 @@ pull:
 speed:
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
+update-pdf-tools:
+	cd ~/emacs/site-lisp/pdf-tools/server && ./autobuild
+
 clean:
 	find . -name '*.elc' -delete
 
