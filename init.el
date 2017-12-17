@@ -163,6 +163,7 @@
 (use-package noflet        :defer t  :load-path "lib/noflet")
 (use-package oauth2        :defer t  :load-path "lib/oauth2")
 (use-package ov            :defer t  :load-path "lib/ov-el")
+(use-package packed        :defer t  :load-path "lib/packed")
 (use-package parent-mode   :defer t  :load-path "lib/parent-mode")
 (use-package parsebib      :defer t  :load-path "lib/parsebib")
 (use-package parsec        :defer t  :load-path "lib/parsec")
@@ -1160,26 +1161,11 @@ non-empty directories is allowed."
 
 (use-package elisp-mode
   :no-require t
-  :catch nil
   :init
-  (add-hook
-   'emacs-lisp-mode-hook
-   #'(lambda ()
-       (use-package erefactor
-         :load-path "site-lisp/erefactor")
-
-       (define-key emacs-lisp-mode-map "\C-c\C-v" erefactor-map)
-
-       (use-package package-lint
-         :load-path "site-lisp/package-lint")
-
-       (use-package flycheck-package
-         :load-path "site-lisp/flycheck-package"
-         :after (flycheck package-lint))
-
-       (bind-keys :map emacs-lisp-mode-map
-                  ("M-n" . flycheck-next-error)
-                  ("M-p" . flycheck-previous-error)))))
+  (add-hook 'emacs-lisp-mode-hook
+            #'(lambda () (bind-keys :map emacs-lisp-mode-map
+                               ("M-n" . flycheck-next-error)
+                               ("M-p" . flycheck-previous-error)))))
 
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
@@ -1291,6 +1277,11 @@ non-empty directories is allowed."
   :after erc
   :bind (:map erc-mode-map
               ("C-y" . erc-yank )))
+
+(use-package erefactor
+  :load-path "site-lisp/erefactor"
+  :bind (:map emacs-lisp-mode-map
+              ("C-c C-v" . erefactor-map)))
 
 (use-package ert
   :bind ("C-c e t" . ert-run-tests-interactively))
@@ -1444,6 +1435,10 @@ non-empty directories is allowed."
   ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/flycheck-hdevtools"
+  :after flycheck)
+
+(use-package flycheck-package
+  :load-path "site-lisp/flycheck-package"
   :after flycheck)
 
 (use-package flyspell
@@ -2757,6 +2752,10 @@ non-empty directories is allowed."
   :load-path "site-lisp/outshine"
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
+
+(use-package package-lint
+  :load-path "site-lisp/package-lint"
+  :commands package-lint-current-buffer)
 
 (use-package pandoc-mode
   :load-path "site-lisp/pandoc-mode"

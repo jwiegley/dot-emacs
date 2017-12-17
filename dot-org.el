@@ -836,10 +836,8 @@ end tell" (match-string 1))))
          :view 'two-weeks))))
 
   :config
-  (use-package calfw-cal
-    :load-path "site-lisp/emacs-calfw")
-  (use-package calfw-org
-    :load-path "site-lisp/emacs-calfw")
+  (require 'calfw-cal)
+  (require 'calfw-org)
 
   (setq cfw:fchar-junction ?╋
         cfw:fchar-vertical-line ?┃
@@ -850,12 +848,13 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package ob-restclient
+  :load-path "site-lisp/ob-restclient")
+
 (use-package org-babel
   :no-require
+  :after ob-restclient
   :config
-  (use-package ob-restclient
-    :load-path "site-lisp/ob-restclient")
-
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python     . t)
@@ -880,6 +879,9 @@ end tell" (match-string 1))))
 (use-package org-opml
   :disabled t
   :load-path "site-lisp/org-opml")
+
+(use-package org-parser
+  :defer t)
 
 (use-package org-smart-capture)
 
@@ -942,6 +944,10 @@ end tell" (match-string 1))))
   :load-path "site-lisp/orgaggregate"
   :config
   (load "org-insert-dblock"))
+
+(use-package ox-texinfo-plus
+  :load-path "site-lisp/ox-texinfo-plus"
+  :defer t)
 
 (use-package worf
   :load-path "site-lisp/worf"
