@@ -223,7 +223,9 @@ reuse storage as much as possible."
                      (url2 (alist-get 'remote value)))
                  (if (and url1 url2
                           (not (string= (clean-url url1)
-                                        (clean-url url2))))
+                                        (clean-url url2)))
+                          (not (aif (alist-get 'manifest-options value)
+                                   (string-match "custom-remote" it))))
                      (report 'remote-mismatch))))
              (let ((paths
                     (let ((load-path
@@ -237,6 +239,9 @@ reuse storage as much as possible."
                (when (and (not internal)
                           paths
                           (> (length paths) 1)
+                          (not (equal (alist-get 'use-package-load-path value) "lib"))
+                          (not (aif (alist-get 'manifest-options value)
+                                   (string-match "custom-path" it)))
                           (cl-every #'stringp paths)
                           (not (= 1 (length (cl-remove-duplicates
                                              paths :test #'string=)))))
