@@ -30,6 +30,7 @@ cus-dirs.el
 data-alt/
 data-dev/
 data-other/
+data-full/
 data/
 ede-projects.el
 emms/

@@ -1,6 +1,10 @@
+;; (require 'profiler)
+;; (profiler-start 'cpu+mem)
+
 (defconst emacs-start-time (current-time))
 
-(setq message-log-max 16384)
+(setq package-enable-at-startup nil
+      message-log-max 16384)
 
 ;;; Functions
 
@@ -72,39 +76,37 @@
         use-package-compute-statistics nil
         debug-on-error t))
 
+(when (string= "emacs26full" emacs-environment)
+  (defun use-package-handler/:load-path (name keyword arg rest state)
+    (use-package-process-keywords name rest state)))
+
 ;;; Settings
 
 (eval-and-compile
-  (defvar running-alternate-emacs nil)
-  (defvar running-development-emacs nil)
+  (defconst emacs-data-suffix
+    (cond ((string= "emacsHEAD" emacs-environment) "alt")
+          ((string= "emacs26full" emacs-environment) "full")))
 
-  (defvar user-data-directory (emacs-path "data"))
+  (defconst running-alternate-emacs (string= emacs-data-suffix "alt"))
 
-  (if (or (string= "emacs26" emacs-environment)
-          (string= "emacs26debug" emacs-environment))
-      (load (emacs-path "settings"))
-    (let ((settings
-           (with-temp-buffer
-             (insert-file-contents (emacs-path "settings.el"))
-             (read (current-buffer))))
-          (suffix (cond ((string= "emacsHEAD" emacs-environment) "alt")
-                        (t "other"))))
-      (setq running-development-emacs (string= suffix "dev")
-            running-alternate-emacs   (string= suffix "alt")
-            user-data-directory
-            (replace-regexp-in-string "/data" (format "/data-%s" suffix)
-                                      user-data-directory))
-      (dolist (setting settings)
-        (let ((value (and (listp setting)
-                          (nth 1 (nth 1 setting)))))
-          (if (and (stringp value)
+  (defconst user-data-directory
+    (emacs-path (if emacs-data-suffix
+                    (format "data-%s" emacs-data-suffix)
+                  "data")))
+
+  (load (emacs-path "settings"))
+
+  (when emacs-data-suffix
+    (let ((settings (with-temp-buffer
+                      (insert-file-contents (emacs-path "settings.el"))
+                      (read (current-buffer)))))
+      (pcase-dolist (`(quote (,var ,value . ,_)) (cdr settings))
+        (when (and (stringp value)
                    (string-match "/\\.emacs\\.d/data" value))
-              (setcar (nthcdr 1 (nth 1 setting))
-                      (replace-regexp-in-string
-                       "/\\.emacs\\.d/data"
-                       (format "/.emacs.d/data-%s" suffix)
-                       value)))))
-      (eval settings))))
+          (set var (replace-regexp-in-string
+                    "/\\.emacs\\.d/data"
+                    (format "/.emacs.d/data-%s" emacs-data-suffix)
+                    value)))))))
 
 (defvar Info-directory-list
   (mapcar 'expand-file-name
@@ -980,6 +982,7 @@
         (funcall dired-omit-regexp-orig)))))
 
 (use-package dired+
+  :disabled t
   :after dired
   :config
   (ignore-errors
@@ -1079,8 +1082,7 @@ non-empty directories is allowed."
   :bind (:map org-mode-map
               ("C-'"))
   :config
-  (when (and (not running-alternate-emacs)
-             (not running-development-emacs))
+  (unless running-alternate-emacs
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
 
@@ -2846,10 +2848,9 @@ non-empty directories is allowed."
 
 (use-package persistent-scratch
   :load-path "site-lisp/persistent-scratch"
-  :if (and window-system
-           (not running-alternate-emacs)
-           (not running-development-emacs)
-           (not noninteractive))
+  :unless (or (null window-system)
+              running-alternate-emacs
+              noninteractive)
   :defer 5
   :config
   (persistent-scratch-autosave-mode)
@@ -3203,8 +3204,7 @@ non-empty directories is allowed."
 
 (use-package server
   :unless (or noninteractive
-              running-alternate-emacs
-              running-development-emacs)
+              running-alternate-emacs)
   :no-require
   :hook (after-init . server-start))
 
@@ -3680,6 +3680,7 @@ non-empty directories is allowed."
   (yas-global-mode 1))
 
 (use-package yasnippet-snippets
+  :disabled t
   :load-path "site-lisp/yasnippet-snippets"
   :after yasnippet)
 

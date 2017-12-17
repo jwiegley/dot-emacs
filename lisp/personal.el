@@ -275,4 +275,16 @@
               (forward-line))
           (delete-char 1))))))
 
+(defun traverse (f x)
+  "Visit all nodes within the sexp X, apply F to its leaves."
+  (cond ((consp x)
+         (cons (traverse f (car x))
+               (traverse f (cdr x))))
+        ((listp x)
+         (mapcar (apply-partially #'traverse f) x))
+        ((hash-table-p x)
+         (maphash #'(lambda (key value)
+                      (puthash key (traverse f value) x)) x))
+        (t (funcall f x))))
+
 (provide 'personal)
