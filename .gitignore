@@ -2,6 +2,7 @@
 *.tar.xz
 *~
 /auto-save-list/
+/compiled/
 /devel/
 /elpa/
 /image-dired/
@@ -20,6 +21,7 @@
 /site-lisp/auctex/preview.el
 /site-lisp/auctex/tex-site.el
 /site-lisp/auctex/tex-site.el.out
+/site-lisp/swiper/doc/ivy.info
 /smex-items
 archive/
 autoloads.el
@@ -29,8 +31,8 @@ compile.log
 cus-dirs.el
 data-alt/
 data-dev/
-data-other/
 data-full/
+data-other/
 data/
 ede-projects.el
 emms/
@@ -43,4 +45,3 @@ site-lisp/.loaddefs.el
 site-lisp/.status.el
 srecode-map.el
 var/
-/site-lisp/swiper/doc/ivy.info
