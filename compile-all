@@ -76,7 +76,7 @@ if [[ "$1" == --leq ]]; then
     mkdir compiled
     cd compiled
 
-    find ../lib ../site-lisp                                    \
+    find ../lib ../lisp ../site-lisp                            \
       \(    -ipath ../site-lisp/auctex/style -prune             \
          -o -ipath ../site-lisp/slime/lib -prune                \
          -o -ipath ../site-lisp/evil/lib -prune                 \
@@ -140,6 +140,7 @@ if [[ "$1" == --leq ]]; then
             \! -name w3m-ucs.el                                 \
             \! -name w3m-xmas.el                                \
             \! -name web-file-upload.el                         \
+            \! -name setup-ox-hugo.el                           \
       \)                                                        \
       -name '*.el'                                              \
       -type f                                                   \
@@ -151,4 +152,4 @@ if [[ "$1" == --leq ]]; then
 fi
 
 cd compiled
-parallel emacs -batch -L ../lisp/emacs-async -L . -f batch-byte-compile-if-not-done {} ::: *.el
+parallel -j8 emacs -batch -L . -f batch-byte-compile-if-not-done {} ::: *.el
