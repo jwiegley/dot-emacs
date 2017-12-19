@@ -1130,10 +1130,6 @@ non-empty directories is allowed."
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
-(use-package electric-operator
-  :disabled t
-  :load-path "site-lisp/electric-operator")
-
 (use-package elint
   :commands 'elint-initialize
   :preface
