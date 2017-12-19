@@ -3181,11 +3181,13 @@ non-empty directories is allowed."
 
 (use-package savehist
   :unless noninteractive
+  :defer 5
   :config
   (savehist-mode 1))
 
 (use-package saveplace
   :unless noninteractive
+  :defer 5
   :config
   (save-place-mode 1))
 
