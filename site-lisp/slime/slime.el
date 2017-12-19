@@ -69,7 +69,7 @@
   (if (< emacs-major-version 23)
       (error "Slime requires an Emacs version of 23, or above")))
 
-(require 'hyperspec "lib/hyperspec")
+(require 'hyperspec)
 (require 'thingatpt)
 (require 'comint)
 (require 'pp)

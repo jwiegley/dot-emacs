@@ -1018,7 +1018,7 @@
     (kill-ring file-name-history search-ring regexp-search-ring sr-history-registry)))
  '(savehist-autosave-interval 60)
  '(savehist-file "~/.emacs.d/data/history")
- '(savehist-ignored-variables (quote (load-history flyspell-auto-correct-ring)))
+ '(savehist-ignored-variables (quote (load-history flyspell-auto-correct-ring kill-ring)))
  '(scroll-bar-mode nil)
  '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
