@@ -583,6 +583,8 @@
      (c-special-indent-hook . c-gnu-impose-minimum)
      (c-block-comment-prefix . ""))))
 
+(use-package centered-cursor-mode
+  :disabled t)
 (use-package change-inner
   :load-path "site-lisp/change-inner"
   :bind (("M-i"     . change-inner)
@@ -2702,6 +2704,10 @@
   :load-path "site-lisp/olivetti"
   :commands olivetti-mode)
 
+(use-package operate-on-number
+  :load-path "site-lisp/operate-on-number"
+  :bind ("C-. '" . operate-on-number-at-point))
+
 (use-package origami
   :load-path "site-lisp/origami"
   :commands origami-mode)
@@ -3239,6 +3245,10 @@
   :load-path "site-lisp/smart-newline"
   :diminish
   :commands smart-newline-mode)
+
+(use-package smart-region
+  :disabled t
+  :load-path "site-lisp/smart-region")
 
 (use-package smartparens-config
   :load-path "site-lisp/smartparens"
