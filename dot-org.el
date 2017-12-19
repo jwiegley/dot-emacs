@@ -883,6 +883,11 @@ end tell" (match-string 1))))
 (use-package org-parser
   :defer t)
 
+(use-package org-ref
+  ;; jww (2017-12-10): Need to configure.
+  :disabled t
+  :load-path "site-lisp/org-ref")
+
 (use-package org-smart-capture)
 
 (use-package org-super-agenda

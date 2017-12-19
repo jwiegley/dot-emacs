@@ -74,7 +74,7 @@
   (setq use-package-verbose nil
         use-package-expand-minimally t
         use-package-compute-statistics nil
-        debug-on-error t))
+        debug-on-error nil))
 
 (when (string= "emacs26full" emacs-environment)
   (defun use-package-handler/:load-path (name keyword arg rest state)
@@ -250,6 +250,7 @@
   (bind-key "C-c M-o" 'ace-link-addr))
 
 (use-package ace-window
+  :disabled t
   :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
 
@@ -914,6 +915,9 @@
         (error "no more than 2 files should be marked"))))
 
   :config
+  (ignore-errors
+    (unbind-key "M-s f" dired-mode-map))
+
   (defadvice dired-omit-startup (after diminish-dired-omit activate)
     "Make sure to remove \"Omit\" from the modeline."
     (diminish 'dired-omit-mode) dired-mode-map)
@@ -1450,10 +1454,10 @@ non-empty directories is allowed."
               ("C-."))
   :config
   (defun my-flyspell-maybe-correct-transposition (beg end candidates)
-    (let ((attempt (string-match "\\`[A-Z0-9]+\\'"
-                                 (buffer-substring-no-properties beg end))))
-      (when attempt
-        (flyspell-maybe-correct-transposition beg end candidates)))))
+    (unless (let (case-fold-search)
+              (string-match "\\`[A-Z0-9]+\\'"
+                            (buffer-substring-no-properties beg end)))
+      (flyspell-maybe-correct-transposition beg end candidates))))
 
 (use-package focus
   :load-path "site-lisp/focus"
@@ -2240,6 +2244,7 @@ non-empty directories is allowed."
   ;; jww (2017-11-26): https://github.com/haskell/haskell-ide-engine/issues/117
   :disabled t
   :load-path "site-lisp/lsp-haskell")
+
 (use-package lsp-mode
   ;; jww (2017-11-26): Need to install LSP for Haskell
   :disabled t
@@ -2733,11 +2738,6 @@ non-empty directories is allowed."
   :load-path "site-lisp/olivetti"
   :commands olivetti-mode)
 
-(use-package org-ref
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/org-ref")
-
 (use-package origami
   :load-path "site-lisp/origami"
   :commands origami-mode)
@@ -2862,6 +2862,8 @@ non-empty directories is allowed."
   :after crux
   :config
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
+
+  (bind-keys* ("<C-return>" . other-window))
 
   (bind-keys ("C-z" . delete-other-windows)
 

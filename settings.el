@@ -399,10 +399,6 @@
  '(dired-recursive-deletes (quote always))
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
  '(display-time-interval 300)
- '(display-time-mail-function
-   (lambda nil
-     (= 0
-        (call-process "~/Messages/manage-mail/newmail"))))
  '(display-time-mode t)
  '(display-time-string-forms
    (quote
