@@ -1755,10 +1755,6 @@ non-empty directories is allowed."
   :after (helm navi)
   :commands helm-navi)
 
-(use-package helm-pass
-  :load-path "site-lisp/helm-pass"
-  :commands helm-pass)
-
 (use-package helpful
   :load-path "site-lisp/helpful"
   :bind (("C-h e F" . helpful-function)

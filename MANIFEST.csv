@@ -172,7 +172,6 @@ helm-describe-modes,site-lisp,subtree,git://github.com/emacs-helm/helm-describe-
 helm-firefox,site-lisp,subtree,git://github.com/emacs-helm/helm-firefox.git,
 helm-google,site-lisp,subtree,git://github.com/steckerhalter/helm-google.git,
 helm-navi,site-lisp,subtree,git://github.com/emacs-helm/helm-navi.git,
-helm-pass,site-lisp,subtree,git://github.com/jabranham/helm-pass.git,
 helpful,site-lisp,subtree,git://github.com/Wilfred/helpful.git,
 highlight-cl.el,site-lisp,file,https://www.emacswiki.org/emacs/download/highlight-cl.el,
 highlight-defined,site-lisp,subtree,git://github.com/Fanael/highlight-defined.git,
