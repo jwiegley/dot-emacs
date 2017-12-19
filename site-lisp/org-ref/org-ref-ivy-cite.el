@@ -30,6 +30,7 @@
 
 ;;; Code:
 (require 'ivy)
+(require 'org-ref-core)
 (require 'org-ref-bibtex)
 (require 'org-ref-citeproc)
 (require 'bibtex-completion)
