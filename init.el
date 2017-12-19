@@ -138,7 +138,6 @@
 (use-package ctable        :defer t  :load-path "lib/emacs-ctable")
 (use-package dash          :defer t  :load-path "lib/dash-el")
 (use-package deferred      :defer t  :load-path "lib/emacs-deferred")
-(use-package difflib       :defer t  :load-path "lib/difflib")
 (use-package diminish      :demand t :load-path "lib/diminish")
 (use-package el-mock       :defer t  :load-path "lib")
 (use-package elisp-refs    :defer t  :load-path "lib/elisp-refs")

@@ -61,7 +61,6 @@ dedicated.el,site-lisp,file,https://raw.githubusercontent.com/emacsmirror/dedica
 deft,site-lisp,subtree,git://jblevins.org/git/deft.git,
 diff-hl,site-lisp,subtree,git://github.com/dgutov/diff-hl.git,
 diff-hl-flydiff,file,part,diff-hl,
-difflib,lib,subtree,git://github.com/dieggsy/difflib.el.git,
 diffview-mode,site-lisp,subtree,git://github.com/mgalgs/diffview-mode.git,
 diminish,lib,subtree,git://github.com/myrjola/diminish.el.git,
 dired+.el,site-lisp,file,https://www.emacswiki.org/emacs/download/dired%2b.el,
