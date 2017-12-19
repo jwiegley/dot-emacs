@@ -1705,25 +1705,16 @@ non-empty directories is allowed."
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
-(use-package helm-autoloads
+(use-package helm
   :load-path "site-lisp/helm"
-  :no-require t
   :if (not running-alternate-emacs)
+  :bind (:map helm-map
+              ("<tab>" . helm-execute-persistent-action)
+              ("C-i"   . helm-execute-persistent-action)
+              ("C-z"   . helm-select-action)
+              ("A-v"   . helm-previous-page))
   :config
-  (load "helm-autoloads")
-
-  (use-package helm
-    :bind (:map helm-map
-                ("<tab>" . helm-execute-persistent-action)
-                ("C-i"   . helm-execute-persistent-action)
-                ("C-z"   . helm-select-action)
-                ("A-v"   . helm-previous-page))
-    :config
-    (helm-autoresize-mode 1))
-
-  (use-package helm-multi-match
-    :load-path "site-lisp/helm"
-    :after helm))
+  (helm-autoresize-mode 1))
 
 (use-package helm-dash
   :load-path "site-lisp/helm-dash"
