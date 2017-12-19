@@ -972,27 +972,6 @@
                "\\)")))
         (funcall dired-omit-regexp-orig)))))
 
-(use-package dired+
-  :disabled t
-  :after dired
-  :config
-  (ignore-errors
-    (unbind-key "M-s f" dired-mode-map))
-
-  (defun dired-do-delete (&optional arg)
-    "Delete all marked (or next ARG) files.
-`dired-recursive-deletes' controls whether deletion of
-non-empty directories is allowed."
-    ;; This is more consistent with the file marking feature than
-    ;; dired-do-flagged-delete.
-    (interactive "P")
-    (dired-internal-do-deletions
-     (nreverse
-      ;; this may move point if ARG is an integer
-      (dired-map-over-marks (cons (dired-get-filename) (point))
-                            arg))
-     arg t)))
-
 (use-package dired-ranger
   :load-path "site-lisp/dired-hacks"
   :bind (:map dired-mode-map
