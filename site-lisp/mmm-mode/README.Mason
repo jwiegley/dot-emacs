@@ -1,0 +1,122 @@
+-*-text-*-
+                Using MMM Mode for Mason: An Overview
+                =====================================
+
+  Since many users of MMM Mode use it for Mason <www.masonhq.com>, and
+  since the Mason submode class is the most complex one supplied, a
+  few comments regarding its usage are in order.  Even if you don't
+  use Mason, this file may be of interest to you as an example of MMM
+  usage and possible problems.
+
+INSTALLATION AND LOADING
+
+  For general installation and information, see the README file and
+  the texinfo documentation.  The submode class for Mason components
+  is called `mason' and is automatically loaded from `mmm-mason.el'
+  the first time it is used.
+
+MODES AND EXTENSIONS
+
+  If you want to have mason submodes automatically in all Mason files,
+  you can use `mmm-mode-ext-classes-alist'; the details depend on what
+  you call your Mason components and what major mode you use.  Some
+  example elements of `mmm-mode-ext-classes-alist' follow, with
+  comments on the corresponding naming scheme.
+
+  (html-mode "\\.html\\'" mason)         ;; Any .html file in html-mode
+  (hm--html-mode nil mason)              ;; Any buffer in hm--html-mode
+  (sgml-mode nil mason)                  ;; Any buffer in sgml-mode
+  (nil "\\.\\(mason\\|html\\)\\'" mason) ;; All .mason and .html files
+  (nil "\\.m[dc]\\'" mason)              ;; All .md and .mc files
+  (nil "\\`/var/www/mason/" mason)       ;; Any file in the directory
+  (nil nil mason)                        ;; All buffers.
+
+  In order for any of these to work, you must set `mmm-global-mode' to
+  a non-nil value, such as `t' or `maybe' (the two of which mean
+  different things; see the documentation).  This can be done with a
+  line in .emacs such as the following:
+
+  (setq mmm-global-mode 'maybe)
+
+  If you use an extension for your Mason files that emacs does not
+  automatically place in your preferred HTML Mode (be it html-mode,
+  sgml-html-mode, hm--html-mode, or whatever), you will probably want
+  to associate that extension with your HTML Mode (this is a feature
+  of emacs, not MMM Mode).  An example is shown below.
+
+  (add-to-list 'auto-mode-alist '("\\.mason\\'" . html-mode))
+
+  This also goes for "special" Mason files such as autohandlers and
+  dhandlers.  The code below tells emacs to use html-mode for files
+  named `autohandler' and `dhandler'.
+
+  (add-to-list 'auto-mode-alist '("\\(auto\\|d\\)handler\\'" . html-mode))
+
+  An alternate solution is to change the names of your autohandlers
+  and dhandlers so that emacs recognizes them as HTML automatically.
+  Similar code can be used to recognize all files in a given directory
+  as HTML and/or Mason.
+
+CPERL PROBLEMS
+
+  There are certain problems with CPerl mode in submode regions.  (Not
+  to say that the original perl-mode would do any better--it hasn't
+  been much tried.)  First of all, the first line of a Perl section
+  is usually indented as if it were a continuation line.  A fix for
+  this is to start with a semicolon on the first line.  The insertion
+  key commands do this whenever the Mason syntax allows it.
+
+  <%perl>;
+  print $var;
+  </%perl>
+
+  In addition, some users have reported that the CPerl indentation
+  sometimes does not work.  This problem has not yet been tracked
+  down, however, and more data about when it happens would be helpful.
+
+PSGML PROBLEMS
+
+  Some people have reported problems using PSGML with Mason.  Adding
+  the following line to a .emacs file should suffice to turn PSGML off
+  and cause emacs to use a simpler HTML mode:
+
+  (autoload 'html-mode "sgml-mode" "HTML Mode" t)
+
+  Earlier versions of PSGML may require instead the following fix:
+
+  (delete '("\\.html$" . sgml-html-mode) auto-mode-alist)
+  (delete '("\\.shtml$" . sgml-html-mode) auto-mode-alist)
+
+  Other users report using PSGML with Mason and MMM Mode without
+  difficulty.  If you don't have problems and want to use PSGML, you
+  may need to replace `html-mode' in the suggested code with
+  `sgml-html-mode'.  (Depending on your version of PSGML, this may not
+  be necessary.)  Similarly, if you are using XEmacs and want to use
+  the alternate HTML mode `hm--html-mode', replace `html-mode' with
+  that symbol.
+
+  One problem that crops up when using PSGML with Mason is that even
+  ignoring the special tags and Perl code (which, as I've said,
+  haven't caused me any problems), Mason components often are not a
+  complete SGML document.  For instance, my autohandlers often say
+
+  <body>
+    <% $m->call_next %>
+  </body>
+
+  in which case the actual components contain no doctype declaration,
+  <html>, <head>, or <body>, confusing PSGML.  One solution I've found
+  is to use the variable `sgml-parent-document' in such incomplete
+  components; try, for example, these lines at the end of a component.
+
+  %# Local Variables:
+  %# sgml-parent-document: ("autohandler" "body" nil ("body"))
+  %# sgml-doctype: "/top/level/autohandler"
+  %# End:
+
+  This tells PSGML that the current file is a sub-document of the file
+  `autohandler' and is included inside a <body> tag, thus alleviating
+  its confusion, and also instructs it where to find the doctype
+  declaration (assuming your top-level autohandler has one).  This
+  alleviates most problems for me.  I admit to not understanding PSGML
+  internals very well, so YMMV.

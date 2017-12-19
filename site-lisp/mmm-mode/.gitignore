@@ -1,0 +1,14 @@
+autom4te.cache
+aclocal.m4
+configure
+config.log
+config.status
+Makefile
+Makefile.in
+elc-stamp
+mmm.info*
+*.elc
+*.tar.gz
+script
+stamp-vti
+version.texi
