@@ -230,7 +230,7 @@
 
 (use-package ace-link
   :load-path "site-lisp/ace-link"
-  :after avy
+  :defer 10
   :config
   (ace-link-setup-default)
 
