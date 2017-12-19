@@ -1130,6 +1130,10 @@ non-empty directories is allowed."
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
+(use-package electric-operator
+  :disabled t
+  :load-path "site-lisp/electric-operator")
+
 (use-package elint
   :commands 'elint-initialize
   :preface
@@ -1181,6 +1185,13 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/emacs-counsel-gtags"
   :after counsel)
+
+(use-package engine-mode
+  :load-path "site-lisp/engine-mode"
+  :defer 5
+  :config
+  (defengine google "https://www.google.com/search?q=%s" :keybinding "/")
+  (engine-mode 1))
 
 (use-package erc
   :commands (erc erc-tls)
@@ -2534,6 +2545,9 @@ non-empty directories is allowed."
   :load-path "site-lisp/minimap"
   :commands minimap-mode)
 
+(use-package mmm-mode
+  :load-path "site-lisp/mmm-mode"
+  :defer t)
 (use-package moccur-edit
   :load-path "site-lisp/moccur-edit"
   :after color-moccur)
@@ -3509,6 +3523,12 @@ non-empty directories is allowed."
   :disabled t
   :load-path "site-lisp/visual-regexp-steroids"
   :after visual-regexp)
+
+(use-package vlf
+  :load-path "site-lisp/vlfi"
+  :defer 5
+  :init
+  (setq-default vlf-tune-max (* 512 1024)))
 
 (use-package vline
   :commands vline-mode)
