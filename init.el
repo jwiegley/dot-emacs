@@ -3380,8 +3380,9 @@
               ("M-%" . swiper-query-replace)
               ("M-h" . swiper-avy)
               ("M-c" . swiper-mc))
-  :bind (:map isearch-mode-map
-              ("C-." . swiper-from-isearch)))
+  :commands swiper-from-isearch
+  :init
+  (bind-keys :map isearch-mode-map ("C-." . swiper-from-isearch)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
