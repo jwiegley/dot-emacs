@@ -860,7 +860,7 @@
  '(multi-compile-alist
    (quote
     (((string-match "concerto" default-directory)
-      ("build-TXRX" . "(cd ~/bae/concerto/solver && make clean && nix-shell --command \"cabal build\" && PATH=./dist/build/solver solver --args test/TXRX.opts)"))
+      ("build-TXRX" . "(cd ~/bae/concerto/solver && make clean && cabal build && PATH=./dist/build/solver solver --args test/TXRX.opts)"))
      ((string-match "haskell-z3" default-directory)
       ("build-Generate" . "(cd ~/src/haskell-z3 ; cabal build && ./dist/build/generate/generate --yaml generate/z3-api-4.5.0.yml)")))))
  '(multi-compile-history-file "/Users/johnw/.emacs.d/data/multi-compile.cache")

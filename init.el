@@ -1505,8 +1505,7 @@ non-empty directories is allowed."
          (nix-read-environment (concat "ghc" (getenv "GHCVER")))))))))
   :after haskell-mode
   :commands ghc-init
-  :init
-  (add-hook 'haskell-mode-hook #'(lambda () (ghc-init))))
+  :hook (haskell-mode . ghc-init))
 
 (use-package gist
   :no-require t
@@ -1595,7 +1594,7 @@ non-empty directories is allowed."
   :bind (:map haskell-mode-map
               ("C-c M-q" . haskell-edit-reformat)))
 
-(use-package haskell-mode-autoloads
+(use-package haskell-mode
   :load-path "site-lisp/haskell-mode"
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode)
@@ -1677,8 +1676,8 @@ non-empty directories is allowed."
       ("undefined"          . ?⊥)))
 
   :config
-  (require 'haskell-mode)
-  (require 'haskell-font-lock)
+  (require 'haskell)
+  (require 'haskell-doc)
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -1687,6 +1686,7 @@ non-empty directories is allowed."
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
+
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
   (eval-after-load 'align
