@@ -379,7 +379,6 @@ whitespace-cleanup-mode,site-lisp,subtree,git://github.com/purcell/whitespace-cl
 with-editor,lib,subtree,git://github.com/magit/with-editor.git,
 word-count-mode,site-lisp,subtree,git://github.com/tomaszskutnik/word-count-mode.git,
 worf,site-lisp,subtree,git://github.com/abo-abo/worf.git,
-writeroom-mode,site-lisp,subtree,git://github.com/joostkremers/writeroom-mode.git,
 ws-butler,site-lisp,subtree,git://github.com/lewang/ws-butler.git,
 xml-rpc.el,lib,file,https://www.emacswiki.org/emacs/download/xml-rpc.el,
 xray.el,site-lisp,file,https://www.emacswiki.org/emacs/download/xray.el,
