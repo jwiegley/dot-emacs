@@ -3622,10 +3622,6 @@ non-empty directories is allowed."
   :load-path "site-lisp/word-count-mode"
   :bind ("C-. W" . word-count-mode))
 
-(use-package writeroom-mode
-  :load-path "site-lisp/writeroom-mode"
-  :commands writeroom-mode)
-
 (use-package ws-butler
   ;; jww (2017-12-10): Need to configure.
   :disabled t
