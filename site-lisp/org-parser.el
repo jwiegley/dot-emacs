@@ -100,7 +100,7 @@ no headlines or plain lists in it."
 
 In-buffer settings are described at http://orgmode.org/manual/In_002dbuffer-settings.html#In_002dbuffer-settings"
   (when lines
-    (destructuring-bind (first . rest) lines
+    (cl-destructuring-bind (first . rest) lines
       (if (string-match "#\\+\\([[:graph:]]+\\):\\(.*\\)" first)
           (cons (cons (match-string 1 first)
                       (split-string (match-string 2 first)))

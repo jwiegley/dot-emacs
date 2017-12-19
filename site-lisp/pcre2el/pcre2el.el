@@ -1466,7 +1466,7 @@ string (see `rxt-explain-elisp', `rxt-explain-pcre' and
 ;;;; Regexp syntax tree data type
 
 ;; Base class from which other elements of the syntax-tree inherit
-(cl-defstruct rxt-syntax-tree)
+(cl-defstruct rxt-syntax-tree ignore)
 
 ;; Struct representing the original source location
 (cl-defstruct rxt-location
