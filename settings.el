@@ -1195,6 +1195,7 @@
  '(yas-prompt-functions
    (quote
     (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
+ '(yas-snippet-dirs (quote ("/Users/johnw/.emacs.d/snippets")))
  '(yas-triggers-in-field t)
  '(yas-wrap-around-region t)
  '(z3-solver-cmd "z3")

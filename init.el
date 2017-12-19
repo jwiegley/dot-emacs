@@ -12,9 +12,6 @@
   (defsubst emacs-path (path)
     (expand-file-name path user-emacs-directory))
 
-  (defsubst add-load-path (path)
-    (add-to-list 'load-path (emacs-path path)))
-
   (defsubst lookup-password (host user port)
     (require 'auth-source)
     (let ((auth (auth-source-search :host host :user user :port port)))
@@ -44,10 +41,8 @@
     (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26full")))
       (if (string= env "ghc80") "emacs26full" env)))
 
-  (mapc #'add-load-path
-        (append (directory-files (emacs-path "site-lisp") t
-                                 "site-[A-Z0-9a-z-]+\\'")
-                '("site-lisp" "lisp/use-package" "lisp" "")))
+  (setq load-path (append '("~/emacs" "~/emacs/lisp/use-package")
+                          (delete-dups load-path)))
 
   (defun nix-read-environment (name)
     (ignore-errors
@@ -62,13 +57,6 @@
                  (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
              (split-string (match-string 1))))))
 
-  (when (executable-find "nix-env")
-    (mapc #'(lambda (path)
-              (let ((share (expand-file-name "share/emacs/site-lisp" path)))
-                (if (file-directory-p share)
-                    (add-to-list 'load-path share))))
-	  (nix-read-environment emacs-environment)))
-
   (require 'use-package)
 
   (setq use-package-verbose nil
@@ -76,9 +64,10 @@
         use-package-compute-statistics nil
         debug-on-error nil))
 
-(when (string= "emacs26full" emacs-environment)
-  (defun use-package-handler/:load-path (name keyword arg rest state)
-    (use-package-process-keywords name rest state)))
+(add-to-list 'load-path "~/emacs/compiled")
+
+(defun use-package-handler/:load-path (name keyword arg rest state)
+  (use-package-process-keywords name rest state))
 
 ;;; Settings
 
