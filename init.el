@@ -121,7 +121,7 @@
 ;;; Libraries
 
 (use-package alert         :defer t  :load-path "lisp/alert")
-(use-package anaphora      :demand t :load-path "lib/anaphora")
+(use-package anaphora      :defer t  :load-path "lib/anaphora")
 (use-package apiwrap       :defer t  :load-path "lib/apiwrap")
 (use-package asoc          :defer t  :load-path "lib/asoc")
 (use-package async         :defer t  :load-path "lisp/emacs-async")
@@ -207,6 +207,7 @@
 ;;; Packages
 
 (use-package abbrev
+  :defer 5
   :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
@@ -356,7 +357,7 @@
 
 (use-package avy
   :load-path "site-lisp/avy"
-  :bind ("M-h" . avy-goto-char)
+  :bind ("M-h" . avy-goto-char-timer)
   :config
   (avy-setup-default))
 
@@ -410,7 +411,10 @@
   :bind (("C-. b" . bm-toggle)
          ("C-. ." . bm-next)
          ("C-. ," . bm-previous))
-  :commands (bm-repository-load bm-buffer-save bm-buffer-restore)
+  :commands (bm-repository-load
+             bm-buffer-save
+             bm-buffer-save-all
+             bm-buffer-restore)
   :init
   (add-hook' after-init-hook 'bm-repository-load)
   (add-hook 'find-file-hooks 'bm-buffer-restore)
@@ -724,10 +728,14 @@
   :preface
   (defun show-compilation ()
     (interactive)
-    (aif (--first (string-match "\\*compilation\\*" (buffer-name it))
-                  (buffer-list))
-        (display-buffer it)
-      (call-interactively 'compile)))
+    (let ((it
+           (catch 'found
+             (dolist (buf (buffer-list))
+               (when (string-match "\\*compilation\\*" (buffer-name buf))
+                 (throw 'found buf))))))
+      (if it
+          (display-buffer it)
+        (call-interactively 'compile))))
 
   (defun compilation-ansi-color-process-output ()
     (ansi-color-process-output nil)
@@ -1031,7 +1039,8 @@
 
 (use-package docker-tramp
   :load-path "site-lisp/docker-tramp"
-  :after tramp)
+  :after tramp
+  :defer 5)
 
 (use-package dockerfile-mode
   :load-path "site-lisp/dockerfile-mode"
@@ -1773,7 +1782,7 @@
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
-  :bind (("C-M-/" . hippie-expand)
+  :bind (("C-M-/"   . hippie-expand)
          ("C-. M-/" . dabbrev-completion)))
 
 (use-package hl-line
@@ -1946,7 +1955,8 @@
 
 (use-package initsplit
   :load-path "lisp/initsplit"
-  :after cus-edit)
+  :after cus-edit
+  :defer 5)
 
 (use-package inventory
   :commands (inventory sort-package-declarations))
@@ -2065,8 +2075,8 @@
 
 (use-package ivy-rich
   :load-path "site-lisp/ivy-rich"
-  :demand t
   :after ivy
+  :demand t
   :config
   (ivy-set-display-transformer 'ivy-switch-buffer
                                'ivy-rich-switch-buffer-transformer)
@@ -2847,11 +2857,10 @@
 
 (use-package personal
   :after crux
-  :config
+  :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-
   (bind-keys* ("<C-return>" . other-window))
-
+  :config
   (bind-keys ("C-z" . delete-other-windows)
 
              ("M-!"  . async-shell-command)
@@ -3392,7 +3401,7 @@
 (use-package super-save
   :load-path "site-lisp/super-save"
   :diminish
-  :command super-save-mode
+  :commands super-save-mode
   :config
   (setq super-save-auto-save-when-idle t))
 
@@ -3518,6 +3527,7 @@
   :after visual-regexp)
 
 (use-package vlf
+  :disabled t
   :load-path "site-lisp/vlfi"
   :defer 5
   :init
