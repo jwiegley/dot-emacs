@@ -1169,7 +1169,8 @@
   :load-path "site-lisp/engine-mode"
   :defer 5
   :config
-  (defengine google "https://www.google.com/search?q=%s" :keybinding "/")
+  (defengine google "https://www.google.com/search?q=%s"
+    :keybinding "/")
   (engine-mode 1))
 
 (use-package erc
@@ -1538,7 +1539,8 @@
 
 (use-package google-this
   :load-path "site-lisp/google-this"
-  :bind-keymap ("C-. /" . google-this-mode-submap))
+  :bind-keymap ("C-. /" . google-this-mode-submap)
+  :bind ("A-M-f" . google-this-search))
 
 (use-package goto-last-change
   :bind ("C-x C-/" . goto-last-change))
