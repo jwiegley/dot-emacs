@@ -1822,6 +1822,14 @@
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
+(use-package ibuffer-vc
+  :load-path "site-lisp/ibuffer-vc"
+  :commands ibuffer-vc-set-filter-groups-by-vc-root
+  :hook (ibuffer . (lambda ()
+                     (ibuffer-vc-set-filter-groups-by-vc-root)
+                     (unless (eq ibuffer-sorting-mode 'alphabetic)
+                       (ibuffer-do-sort-by-alphabetic)))))
+
 (use-package ido
   ;; jww (2017-12-10): I now use ivy.
   :disabled t
