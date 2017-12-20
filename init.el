@@ -3598,7 +3598,14 @@
   :diminish
   :commands whitespace-cleanup-mode
   :config
-  (global-whitespace-cleanup-mode))
+  (global-whitespace-cleanup-mode 1))
+
+(use-package whole-line-or-region
+  :load-path "site-lisp/whole-line-or-region"
+  :defer 5
+  :diminish whole-line-or-region-local-mode
+  :config
+  (whole-line-or-region-global-mode 1))
 
 (use-package window-purpose
   :load-path "site-lisp/purpose"
@@ -3617,7 +3624,6 @@
   :bind ("C-. W" . word-count-mode))
 
 (use-package ws-butler
-  ;; jww (2017-12-10): Need to configure.
   :disabled t
   :load-path "site-lisp/ws-butler"
   :diminish
