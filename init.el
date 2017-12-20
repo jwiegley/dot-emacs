@@ -2529,6 +2529,7 @@
 (use-package mmm-mode
   :load-path "site-lisp/mmm-mode"
   :defer t)
+
 (use-package moccur-edit
   :load-path "site-lisp/moccur-edit"
   :after color-moccur)
