@@ -3266,13 +3266,13 @@
   :commands smartparens-mode)
 
 (use-package smartscan
-  :disabled t
   :load-path "site-lisp/smart-scan"
-  :commands smartscan-mode
-  :hook ((haskell-mode emacs-lisp-mode) . smartscan-mode)
+  :defer 5
   :bind (:map smartscan-map
-              ("C-. C-n" . smartscan-symbol-go-forward)
-              ("C-. C-p" . smartscan-symbol-go-backward)))
+              ("C->" . smartscan-symbol-go-forward)
+              ("C-<" . smartscan-symbol-go-backward))
+  :config
+  (global-smartscan-mode 1))
 
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
