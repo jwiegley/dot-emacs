@@ -59,10 +59,13 @@
 
   (require 'use-package)
 
-  (setq use-package-verbose nil
-        use-package-expand-minimally t
-        use-package-compute-statistics nil
-        debug-on-error nil))
+  (if init-file-debug
+      (setq use-package-verbose t
+            use-package-expand-minimally nil
+            use-package-compute-statistics t
+            debug-on-error t)
+    (setq use-package-verbose nil
+          use-package-expand-minimally t)))
 
 (add-to-list 'load-path "~/emacs/compiled")
 
