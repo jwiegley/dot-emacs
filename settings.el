@@ -904,7 +904,6 @@
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
  '(projectile-completion-system (quote ivy))
  '(projectile-enable-caching t)
- '(projectile-enable-idle-timer t)
  '(projectile-file-exists-local-cache-expire 300)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
