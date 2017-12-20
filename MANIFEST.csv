@@ -182,6 +182,7 @@ hl-line+.el,site-lisp,file,https://www.emacswiki.org/emacs/download/hl-line%2b.e
 ht-el,lib,subtree,git://github.com/Wilfred/ht.el.git,
 hydra,site-lisp,subtree,git://github.com/abo-abo/hydra.git,
 hyperbole,site-lisp,subtree,git://git.savannah.gnu.org/hyperbole.git,
+ibuffer-vc,site-lisp,subtree,git://github.com/purcell/ibuffer-vc.git,
 iedit,site-lisp,subtree,git://github.com/victorhge/iedit.git,
 iflipb,site-lisp,subtree,git://github.com/jrosdahl/iflipb.git,
 imenu-list,site-lisp,subtree,git://github.com/bmag/imenu-list.git,
