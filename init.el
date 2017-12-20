@@ -585,7 +585,8 @@
      (c-block-comment-prefix . ""))))
 
 (use-package centered-cursor-mode
-  :disabled t)
+  :commands centered-cursor-mode)
+
 (use-package change-inner
   :load-path "site-lisp/change-inner"
   :bind (("M-i"     . change-inner)
@@ -3383,13 +3384,11 @@
         (sr-beginning-of-buffer)))))
 
 (use-package super-save
-  :disabled t
   :load-path "site-lisp/super-save"
   :diminish
-  :defer 5
+  :command super-save-mode
   :config
-  (setq super-save-auto-save-when-idle t)
-  (super-save-mode 1))
+  (setq super-save-auto-save-when-idle t))
 
 (use-package swiper
   :load-path "site-lisp/swiper"
