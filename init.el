@@ -439,6 +439,7 @@
   :defer 15)
 
 (use-package c-includes
+  :disabled t
   :commands c-includes
   :after cc-mode
   :bind (:map c-mode-base-map
@@ -1766,7 +1767,8 @@
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
-  :bind ("C-c M-/" . hippie-expand))
+  :bind (("C-M-/" . hippie-expand)
+         ("C-. M-/" . dabbrev-completion)))
 
 (use-package hl-line
   :commands hl-line-mode
@@ -2936,6 +2938,7 @@
   :load-path "site-lisp/projectile"
   :defer 5
   :diminish
+  :bind* ("C-c TAB" . projectile-find-other-file)
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (projectile-global-mode))
@@ -3247,8 +3250,8 @@
   :commands smart-newline-mode)
 
 (use-package smart-region
-  :disabled t
-  :load-path "site-lisp/smart-region")
+  :load-path "site-lisp/smart-region"
+  :bind ("S-SPC" . smart-region))
 
 (use-package smartparens-config
   :load-path "site-lisp/smartparens"
