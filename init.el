@@ -1393,6 +1393,7 @@
 
 (use-package eyebrowse
   :load-path "site-lisp/eyebrowse"
+  :bind-keymap ("C-\\" . eyebrowse-mode-map)
   :bind (:map eyebrowse-mode-map
               ("C-\\ C-\\" . eyebrowse-last-window-config))
   :config
