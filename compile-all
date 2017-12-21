@@ -78,12 +78,12 @@ if [[ "$1" == --leq ]]; then
 
     find ../lib ../lisp ../site-lisp                            \
       \(    -ipath ../site-lisp/auctex/style -prune             \
-         -o -ipath ../site-lisp/slime/lib -prune                \
+         -o -ipath ../site-lisp/slime -prune                    \
          -o -ipath ../site-lisp/evil/lib -prune                 \
          -o -ipath ../site-lisp/emacs-cl -prune                 \
          -o -ipath ../site-lisp/emacs-w3m/shimbun -prune        \
          -o -ipath ../site-lisp/hyperbole -prune                \
-         -o -ipath ../site-lisp/proof-general -prune                \
+         -o -ipath ../site-lisp/proof-general -prune            \
                                                                 \
          -o -name dev -prune                                    \
          -o -name ert-tests -prune                              \
@@ -123,6 +123,7 @@ if [[ "$1" == --leq ]]; then
             \! -name eval-in-repl-javascript.el                 \
             \! -name eval-in-repl-racket.el                     \
             \! -name eval-in-repl-scala.el                      \
+            \! -name eval-in-repl-slime.el                      \
             \! -name eval-in-repl-sml.el                        \
             \! -name fundocu2infoformats.el                     \
             \! -name haskell-gifcasts.el                        \
@@ -156,4 +157,6 @@ cd compiled
 parallel -j8 emacs -batch \
                    -L . \
                    -L ../site-lisp/proof-general \
+                   -L ../site-lisp/proof-general/lib \
+                   -L ../site-lisp/proof-general/generic \
                    -f batch-byte-compile-if-not-done {} ::: *.el
