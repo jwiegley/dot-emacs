@@ -71,7 +71,7 @@
 
 (advice-add 'use-package-handler/:load-path :around
             #'(lambda (orig-func name keyword args rest state)
-                (if (or (memq name '(agda-input hyperbole proof-site))
+                (if (or (memq name '(agda-input hyperbole proof-site slime))
                         (cl-some (apply-partially #'string-match "\\`~") args))
                     (funcall orig-func name keyword arg rest state)
                   (use-package-process-keywords name rest state))))
@@ -433,7 +433,8 @@
 
 (use-package bookmark+
   :load-path "site-lisp/bookmark-plus"
-  :after bookmark)
+  :after bookmark
+  :bind ("M-B" . bookmark-bmenu-list))
 
 (use-package browse-at-remote
   :load-path "site-lisp/browse-at-remote"
@@ -1131,7 +1132,11 @@
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
 (use-package elfeed
-  :load-path "site-lisp/elfeed")
+  :load-path "site-lisp/elfeed"
+  :bind ("M-F" . elfeed)
+  :config
+  (add-hook 'elfeed-search-update-hook
+            #'(lambda () (selected-minor-mode -1))))
 
 (use-package elint
   :commands 'elint-initialize
