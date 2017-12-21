@@ -1129,6 +1129,9 @@
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
+(use-package elfeed
+  :load-path "site-lisp/elfeed")
+
 (use-package elint
   :commands 'elint-initialize
   :preface

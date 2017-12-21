@@ -153,4 +153,7 @@ if [[ "$1" == --leq ]]; then
 fi
 
 cd compiled
-parallel -j8 emacs -batch -L . -f batch-byte-compile-if-not-done {} ::: *.el
+parallel -j8 emacs -batch \
+                   -L . \
+                   -L ../site-lisp/proof-general \
+                   -f batch-byte-compile-if-not-done {} ::: *.el
