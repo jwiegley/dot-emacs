@@ -174,6 +174,7 @@
 (use-package request       :defer t  :load-path "lib/emacs-request")
 (use-package rich-minority :defer t  :load-path "lib/rich-minority")
 (use-package s             :defer t  :load-path "lib/s-el")
+(use-package simple-httpd  :defer t  :load-path "lib/simple-httpd")
 (use-package spinner       :defer t  :load-path "lib/spinner")
 (use-package tablist       :defer t  :load-path "lib/tablist")
 (use-package uuidgen       :defer t  :load-path "lib/uuidgen-el")
