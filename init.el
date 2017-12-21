@@ -41,7 +41,9 @@
     (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26full")))
       (if (string= env "ghc80") "emacs26full" env)))
 
-  (setq load-path (append '("~/emacs" "~/emacs/lisp/use-package")
+  (setq load-path (append '("~/emacs"
+                            "~/emacs/lisp/use-package"
+                            "~/emacs/compiled")
                           (delete-dups load-path)))
 
   (defun nix-read-environment (name)
@@ -67,10 +69,11 @@
     (setq use-package-verbose nil
           use-package-expand-minimally t)))
 
-(add-to-list 'load-path "~/emacs/compiled")
-
-(defun use-package-handler/:load-path (name keyword arg rest state)
-  (use-package-process-keywords name rest state))
+(advice-add 'use-package-handler/:load-path :around
+            #'(lambda (orig-func name keyword arg rest state)
+                (if (memq name '(agda-input hyperbole proof-site))
+                    (funcall orig-func name keyword arg rest state)
+                  (use-package-process-keywords name rest state))))
 
 ;;; Settings
 
@@ -260,7 +263,7 @@
       (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
       (nix-read-environment (concat "ghc" (getenv "GHCVER"))))))
   :config
-  (setq default-input-method "Agda"))
+  (setq-default default-input-method "Agda"))
 
 (use-package agda2-mode
   ;; This declaration depends on the load-path established by agda-input.
@@ -2968,60 +2971,49 @@
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path ("site-lisp/ProofGeneral/generic"
-              "site-lisp/ProofGeneral/lib"
-              "site-lisp/ProofGeneral/coq")
-  :mode ("\\.v\\'" . coq-mode)
+  :load-path ("site-lisp/proof-general/generic"
+              "site-lisp/proof-general/lib"
+              "site-lisp/proof-general/coq")
+  :defer 5
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
     (proof-layout-windows)
     (proof-prf))
 
-  (eval-when-compile
-    (defvar proof-auto-raise-buffers)
-    (defvar proof-three-window-enable)
-    (defvar proof-shrink-windows-tofit)
-
-    (declare-function proof-get-window-for-buffer "proof-utils")
-    (declare-function proof-resize-window-tofit "proof-utils")
-    (declare-function window-bottom-p "proof-compat"))
-
   :config
   (use-package coq
-    :no-require t
     :defer t
-    :bind (:map coq-mode-map
-                ("M-RET"       . proof-goto-point)
-                ("RET"         . newline-and-indent)
-                ("C-c h")
-                ("C-c C-p"     . my-layout-proof-windows)
-                ("C-c C-a C-s" . coq-Search)
-                ("C-c C-a C-o" . coq-SearchPattern)
-                ("C-c C-a C-a" . coq-SearchAbout)
-                ("C-c C-a C-r" . coq-SearchRewrite))
     :config
-    (add-hook
-     'coq-mode-hook
-     #'(lambda ()
-         (set-input-method "Agda")
-         (holes-mode -1)
-         (company-coq-mode 1)
-         (set (make-local-variable 'fill-nobreak-predicate)
-              #'(lambda ()
-                  (pcase (get-text-property (point) 'face)
-                    ('font-lock-comment-face nil)
-                    ((pred
-                      #'(lambda (x)
-                          (and (listp x)
-                               (memq 'font-lock-comment-face x)))) nil)
-                    (_ t))))))
 
     (defalias 'coq-Search #'coq-SearchConstant)
-    (defalias 'coq-SearchPattern #'coq-SearchIsos))
+    (defalias 'coq-SearchPattern #'coq-SearchIsos)
+
+    (bind-keys :map coq-mode-map
+               ("M-RET"       . proof-goto-point)
+               ("RET"         . newline-and-indent)
+               ("C-c h")
+               ("C-c C-p"     . my-layout-proof-windows)
+               ("C-c C-a C-s" . coq-Search)
+               ("C-c C-a C-o" . coq-SearchPattern)
+               ("C-c C-a C-a" . coq-SearchAbout)
+               ("C-c C-a C-r" . coq-SearchRewrite))
+
+    (add-hook 'coq-mode-hook
+              #'(lambda ()
+                  (set-input-method "Agda")
+                  (holes-mode -1)
+                  (company-coq-mode 1)
+                  (set (make-local-variable 'fill-nobreak-predicate)
+                       #'(lambda ()
+                           (pcase (get-text-property (point) 'face)
+                             ('font-lock-comment-face nil)
+                             ((and (pred listp)
+                                   x (guard (memq 'font-lock-comment-face x)))
+                              nil)
+                             (_ t)))))))
 
   (use-package pg-user
-    :defer t
     :config
     (defadvice proof-retract-buffer
         (around my-proof-retract-buffer activate)
