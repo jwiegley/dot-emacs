@@ -214,8 +214,6 @@
  '(auto-save-interval 64)
  '(auto-save-list-file-prefix "~/.emacs.d/data/auto-save-list/.saves-")
  '(auto-save-timeout 2)
- '(avy-all-windows nil)
- '(avy-all-windows-alt (quote all-frames))
  '(avy-case-fold-search t)
  '(avy-keys (quote (97 111 101 117 105 100 104 116 110 115)))
  '(aw-dispatch-when-more-than 3)
