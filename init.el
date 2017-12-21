@@ -70,8 +70,9 @@
           use-package-expand-minimally t)))
 
 (advice-add 'use-package-handler/:load-path :around
-            #'(lambda (orig-func name keyword arg rest state)
-                (if (memq name '(agda-input hyperbole proof-site))
+            #'(lambda (orig-func name keyword args rest state)
+                (if (or (memq name '(agda-input hyperbole proof-site))
+                        (cl-some (apply-partially #'string-match "\\`~") args))
                     (funcall orig-func name keyword arg rest state)
                   (use-package-process-keywords name rest state))))
 
@@ -1883,29 +1884,37 @@
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
   (defvar my-iflipb-auto-off-timeout-sec 1)
+  (defvar my-iflipb-auto-off-timer nil)
   (defvar my-iflipb-auto-off-timer-canceler-internal nil)
   (defvar my-iflipb-ing-internal nil)
 
   (defun my-iflipb-auto-off ()
-    (message nil)
     (setq my-iflipb-auto-off-timer-canceler-internal nil
-          my-iflipb-ing-internal nil))
+          my-iflipb-ing-internal nil)
+    (when my-iflipb-auto-off-timer
+      (message nil)
+      (cancel-timer my-iflipb-auto-off-timer)
+      (setq my-iflipb-auto-off-timer nil)))
 
   (defun my-iflipb-next-buffer (arg)
     (interactive "P")
     (iflipb-next-buffer arg)
     (if my-iflipb-auto-off-timer-canceler-internal
         (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-    (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-    (setq my-iflipb-ing-internal t))
+    (setq my-iflipb-auto-off-timer
+          (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0
+                               'my-iflipb-auto-off)
+          my-iflipb-ing-internal t))
 
   (defun my-iflipb-previous-buffer ()
     (interactive)
     (iflipb-previous-buffer)
     (if my-iflipb-auto-off-timer-canceler-internal
         (cancel-timer my-iflipb-auto-off-timer-canceler-internal))
-    (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0 'my-iflipb-auto-off)
-    (setq my-iflipb-ing-internal t))
+    (setq my-iflipb-auto-off-timer
+          (run-with-idle-timer my-iflipb-auto-off-timeout-sec 0
+                               'my-iflipb-auto-off)
+          my-iflipb-ing-internal t))
 
   :config
   (setq iflipb-always-ignore-buffers
@@ -3263,6 +3272,7 @@
   :commands smart-newline-mode)
 
 (use-package smart-region
+  :disabled t
   :load-path "site-lisp/smart-region"
   :bind ("S-SPC" . smart-region))
 
@@ -3275,9 +3285,7 @@
   :defer 5
   :bind (:map smartscan-map
               ("C->" . smartscan-symbol-go-forward)
-              ("C-<" . smartscan-symbol-go-backward))
-  :config
-  (global-smartscan-mode 1))
+              ("C-<" . smartscan-symbol-go-backward)))
 
 (use-package smedl-mode
   :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
