@@ -1035,7 +1035,7 @@
  '(save-place-file "~/.emacs.d/data/places")
  '(savehist-additional-variables
    (quote
-    (kill-ring file-name-history search-ring regexp-search-ring sr-history-registry)))
+    (file-name-history search-ring regexp-search-ring sr-history-registry kmacro-ring)))
  '(savehist-autosave-interval 60)
  '(savehist-file "~/.emacs.d/data/history")
  '(savehist-ignored-variables (quote (load-history flyspell-auto-correct-ring kill-ring)))
