@@ -1806,7 +1806,6 @@
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :disabled t
   :load-path "site-lisp/hyperbole"
   :defer 10
   :bind* (("C-M-." . hkey-either)
