@@ -3225,6 +3225,7 @@
          ("C-. -" . shift-number-down)))
 
 (use-package slime
+  :disabled t
   :load-path "site-lisp/slime"
   :commands slime
   :init
