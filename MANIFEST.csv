@@ -1,4 +1,3 @@
-ProofGeneral,site-lisp,subtree,git://github.com/ProofGeneral/PG.git,custom-path
 ace-link,site-lisp,subtree,git://github.com/abo-abo/ace-link.git,
 ace-window,site-lisp,subtree,git://github.com/abo-abo/ace-window.git,
 agda-input,file,internal,,
@@ -319,6 +318,7 @@ pos-tip.el,lib,file,https://www.emacswiki.org/emacs/download/pos-tip.el,
 pp-c-l.el,site-lisp,file,https://www.emacswiki.org/emacs/download/pp-c-l.el,
 prodigy,site-lisp,subtree,git://github.com/rejeep/prodigy.el.git,
 projectile,site-lisp,subtree,git://github.com/bbatsov/projectile.git,
+proof-general,site-lisp,subtree,git://github.com/ProofGeneral/PG.git,custom-path
 prover.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/prover.el,
 purpose,site-lisp,subtree,git://github.com/bmag/emacs-purpose.git,
 python-mode,site-lisp,subtree,https://gitlab.com/python-mode-devs/python-mode.git,

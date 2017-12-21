@@ -83,6 +83,7 @@ if [[ "$1" == --leq ]]; then
          -o -ipath ../site-lisp/emacs-cl -prune                 \
          -o -ipath ../site-lisp/emacs-w3m/shimbun -prune        \
          -o -ipath ../site-lisp/hyperbole -prune                \
+         -o -ipath ../site-lisp/proof-general -prune                \
                                                                 \
          -o -name dev -prune                                    \
          -o -name ert-tests -prune                              \
