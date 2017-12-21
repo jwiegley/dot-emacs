@@ -2734,10 +2734,6 @@
   :load-path "site-lisp/olivetti"
   :commands olivetti-mode)
 
-(use-package operate-on-number
-  :load-path "site-lisp/operate-on-number"
-  :bind ("C-. '" . operate-on-number-at-point))
-
 (use-package origami
   :load-path "site-lisp/origami"
   :commands origami-mode)
