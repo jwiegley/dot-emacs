@@ -246,7 +246,6 @@
   (bind-key "C-c M-o" 'ace-link-addr))
 
 (use-package ace-window
-  :disabled t
   :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
 
@@ -2876,7 +2875,6 @@
   :after crux
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-  (bind-keys* ("<C-return>" . other-window))
   :config
   (bind-keys ("C-z" . delete-other-windows)
 
