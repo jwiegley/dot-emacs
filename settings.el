@@ -216,6 +216,7 @@
  '(auto-save-timeout 2)
  '(avy-case-fold-search t)
  '(avy-keys (quote (97 111 101 117 105 100 104 116 110 115)))
+ '(avy-timeout-seconds 0.3)
  '(aw-dispatch-when-more-than 3)
  '(aw-scope (quote frame))
  '(backup-directory-alist
