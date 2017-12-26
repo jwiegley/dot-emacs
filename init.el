@@ -1189,6 +1189,12 @@
   :load-path "site-lisp/emacs-counsel-gtags"
   :after counsel)
 
+(use-package emms-setup
+  :load-path "site-lisp/emms/lisp"
+  :config
+  (emms-all)
+  (emms-default-players))
+
 (use-package engine-mode
   :load-path "site-lisp/engine-mode"
   :defer 5
