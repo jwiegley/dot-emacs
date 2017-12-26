@@ -848,6 +848,10 @@ end tell" (match-string 1))))
         cfw:fchar-top-left-corner ?┏
         cfw:fchar-top-right-corner ?┓))
 
+(use-package helm-org-rifle
+  :load-path "site-lisp/helm-org-rifle"
+  :bind ("A-M-r" . helm-org-rifle))
+
 (use-package ob-restclient
   :load-path "site-lisp/ob-restclient")
 
