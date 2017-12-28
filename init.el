@@ -2280,7 +2280,7 @@
   :interpreter "lua")
 
 (use-package lusty-explorer
-  ;; jww (2017-12-10): I'm now using counsel.
+  ;; jww (2017-12-10): I'm now using `counsel-find-file'.
   :disabled t
   :load-path "site-lisp/lusty-emacs"
   :demand t
@@ -2441,13 +2441,6 @@
     (interactive)
     (let ((current-prefix-arg '(4)))
       (call-interactively 'magit-status)))
-
-  (defun lusty-magit-status (dir &optional switch-function)
-    (interactive (list (if current-prefix-arg
-                           (lusty-read-directory)
-                         (or (magit-get-top-dir)
-                             (lusty-read-directory)))))
-    (magit-status-internal dir switch-function))
 
   (defun eshell/git (&rest args)
     (cond
@@ -3401,25 +3394,7 @@
         (start-process-shell-command "open" nil (format app file))
         (unless (eq buff (current-buffer))
           (sr-scrollable-viewer (current-buffer)))
-        (message "Opening \"%s\" ..." fname))))
-
-  (defun sr-goto-dir (dir)
-    "Change the current directory in the active pane to the given one."
-    (interactive (list (progn
-                         (require 'lusty-explorer)
-                         (lusty-read-directory))))
-    (if sr-goto-dir-function
-        (funcall sr-goto-dir-function dir)
-      (unless (and (eq major-mode 'sr-mode)
-                   (sr-equal-dirs dir default-directory))
-        (if (and sr-avfs-root
-                 (null (posix-string-match "#" dir)))
-            (setq dir (replace-regexp-in-string
-                       (expand-file-name sr-avfs-root) "" dir)))
-        (sr-save-aspect
-         (sr-within dir (sr-alternate-buffer (dired dir))))
-        (sr-history-push default-directory)
-        (sr-beginning-of-buffer)))))
+        (message "Opening \"%s\" ..." fname)))))
 
 (use-package super-save
   :load-path "site-lisp/super-save"
