@@ -76,8 +76,8 @@ dot-gnus.elc: dot-gnus.el
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
 pull:
-	for i in release release-25 master ; do	\
-	    (cd $$i ; git pull) ;		\
+	for i in release master ; do	\
+	    (cd $$i ; git pull) ;	\
 	done
 
 speed:
