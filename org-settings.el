@@ -237,6 +237,7 @@ SCHEDULED: %t
  '(org-clock-persist-file "~/.emacs.d/data/org-clock-save.el")
  '(org-clock-resolve-expert t)
  '(org-completion-use-ido t)
+ '(org-confirm-babel-evaluate nil)
  '(org-confirm-elisp-link-function nil)
  '(org-confirm-shell-link-function nil)
  '(org-crypt-disable-auto-save nil)
