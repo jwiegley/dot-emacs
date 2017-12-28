@@ -39,12 +39,17 @@
 
   (defconst emacs-environment
     (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26full")))
-      (if (string= env "ghc80") "emacs26full" env)))
+      (if (string= env (concat "ghc" (getenv "GHCVER")))
+          "emacs26full"
+        env)))
 
-  (setq load-path (append '("~/emacs"
-                            "~/emacs/lisp/use-package"
-                            "~/emacs/compiled")
-                          (delete-dups load-path)))
+  (setq load-path
+        (append '("~/emacs"
+                  "~/emacs/lisp/use-package"
+                  "~/emacs/compiled")
+                (cl-remove-if
+                 (apply-partially #'string-match "/org\\'")
+                 (delete-dups load-path))))
 
   (defun nix-read-environment (name)
     (ignore-errors
@@ -253,16 +258,20 @@
   :defer 5
   :load-path
   (lambda ()
-    (mapcar
-     #'(lambda (dir)
-         ;; The Emacs files for Agda are installed by Nix as part of the
-         ;; haskellPackages.Agda package.
-         (file-name-directory
-          (substring (shell-command-to-string
-                      (concat dir "/bin/agda-mode locate")) 0 -1)))
-     (seq-filter
-      (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
-      (nix-read-environment (concat "ghc" (getenv "GHCVER"))))))
+    (delete
+     nil
+     (mapcar
+      #'(lambda (dir)
+          ;; The Emacs files for Agda are installed by Nix as part of the
+          ;; haskellPackages.Agda package.
+          (let ((exe (expand-file-name "bin/agda-mode" dir)))
+            (when (file-executable-p exe)
+              (file-name-directory
+               (substring (shell-command-to-string (concat exe " locate"))
+                          0 -1)))))
+      (seq-filter
+       (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
+       (nix-read-environment "ghc80")))))
   :config
   (setq-default default-input-method "Agda"))
 
