@@ -17,6 +17,9 @@
 (require 'org-agenda)
 (require 'ox-md)
 
+(unbind-key "C-," org-mode-map)
+(unbind-key "C-'" org-mode-map)
+
 (defconst my-org-soft-red    "#fcebeb")
 (defconst my-org-soft-orange "#fcf5eb")
 (defconst my-org-soft-yellow "#fcfceb")
