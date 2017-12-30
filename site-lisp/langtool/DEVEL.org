@@ -1,0 +1,22 @@
+* Java
+
+** Debian(stable)
+
+Build new JDK to try the newest LanguageTool.
+https://wiki.debian.org/JavaPackage
+
+
+
+* Test
+1. create .test-init.el
+   To indicate `langtool-language-tool-jar`
+
+2. make check
+
+3. Try to check some buffer. (C-x 4 w)
+   Try to correct buffer (C-x 4 c)
+
+
+
+
+

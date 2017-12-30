@@ -1,0 +1,3 @@
+*.elc
+.test-init.el
+encodings/*
