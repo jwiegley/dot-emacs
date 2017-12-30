@@ -927,6 +927,7 @@
      ("gpg" "")
      ("mli" "ml")
      ("ml" "mli"))))
+ '(projectile-require-project-root nil)
  '(proof-auto-action-when-deactivating-scripting (quote retract))
  '(proof-autosend-enable nil)
  '(proof-electric-terminator-enable t)
