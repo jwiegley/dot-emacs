@@ -770,7 +770,7 @@
   :demand t
   :diminish
   :custom (counsel-find-file-ignore-regexp
-           (concat "\\(\\`\\.\\|"
+           (concat "\\(\\`\\.[^.]\\|"
                    (regexp-opt completion-ignored-extensions)
                    "\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
