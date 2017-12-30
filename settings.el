@@ -528,6 +528,18 @@
            (user-uid)
            0)
           " # " " $ "))))
+ '(eshell-rebind-keys-alist
+   (quote
+    (([(control 97)]
+      . eshell-bol)
+     ([home]
+      . eshell-bol)
+     ([(control 100)]
+      . eshell-delchar-or-maybe-eof)
+     ([backspace]
+      . eshell-delete-backward-char)
+     ([delete]
+      . eshell-delete-backward-char))))
  '(eshell-save-history-on-exit t)
  '(eshell-stringify-t nil)
  '(eshell-term-name "ansi")
