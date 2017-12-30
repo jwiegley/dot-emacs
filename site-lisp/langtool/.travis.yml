@@ -1,0 +1,41 @@
+
+language: generic
+
+sudo: true
+env:
+  matrix:
+#    - EMACS=emacs23
+    - EMACS=emacs24
+    - EMACS=emacs-snapshot
+  global:
+    # - SOME_TOKEN=some_value
+
+before_install:
+  - git submodule --quiet update --init --recursive
+  - wget "https://languagetool.org/download/LanguageTool-3.2.zip"
+  - echo '(setq langtool-language-tool-jar "./LanguageTool-3.2.zip")' > .test-init.el
+# This install script come from https://github.com/rolandwalker/emacs-travis
+install:
+  - if [ "$EMACS" = 'emacs23' ]; then
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs23-gtk emacs23-el;
+    fi
+  - if [ "$EMACS" = 'emacs24' ]; then
+        sudo add-apt-repository -y ppa:cassou/emacs &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs24 emacs24-el;
+    fi
+  - if [ "$EMACS" = 'emacs-snapshot' ]; then
+        sudo add-apt-repository -y ppa:ubuntu-elisp/ppa &&
+        sudo apt-get -qq update &&
+        sudo apt-get -qq -f install &&
+        sudo apt-get -qq install emacs-snapshot &&
+        sudo apt-get -qq install emacs-snapshot-el;
+    fi
+
+script:
+  - uname -a
+  - make check
+
