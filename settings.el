@@ -685,7 +685,7 @@
  '(hibtypes-github-default-user "jwiegley")
  '(hippie-expand-try-functions-list
    (quote
-    (yas-hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
+    (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill yas-hippie-try-expand try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
  '(history-delete-duplicates t)
  '(history-length 200)
  '(hkey-init nil)
