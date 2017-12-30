@@ -2596,10 +2596,6 @@
   (set-terminal-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-(use-package multi-compile
-  :load-path "site-lisp/multi-compile"
-  :bind ("C-c C" . multi-compile-run))
-
 (use-package multi-term
   :load-path "site-lisp/multi-term"
   :bind (("C-. t" . multi-term-next)
