@@ -813,6 +813,7 @@
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 500)
  '(kill-whole-line t)
+ '(langtool-language-tool-jar "~/.nix-profile/share/languagetool-commandline.jar")
  '(large-file-warning-threshold nil)
  '(ledger-binary-path "~/bin/ledger")
  '(ledger-file "/Volumes/Files/Accounts/ledger.dat")

@@ -208,6 +208,7 @@ key-chord.el,site-lisp,file,https://www.emacswiki.org/emacs/download/key-chord.e
 know-your-http-well,site-lisp,subtree,git://github.com/for-GET/know-your-http-well.git,custom-path
 kotl-mode,file,part,hyperbole,
 kv,lib,subtree,git://github.com/nicferrier/emacs-kv.git,
+langtool,site-lisp,subtree,git://github.com/mhayashi1120/Emacs-langtool.git,
 latex,file,part,auctex,
 ledger-mode,file,internal,,
 lentic,site-lisp,subtree,git://github.com/phillord/lentic.git,
