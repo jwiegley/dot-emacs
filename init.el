@@ -1810,8 +1810,8 @@
   :bind ("M-o C" . highlight-changes-mode))
 
 (use-package hippie-exp
-  :bind (("C-M-/"   . hippie-expand)
-         ("C-. M-/" . dabbrev-completion)))
+  :bind (("M-/"   . hippie-expand)
+         ("C-M-/" . dabbrev-completion)))
 
 (use-package hl-line
   :commands hl-line-mode
