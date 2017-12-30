@@ -602,8 +602,8 @@
  '(eww-search-prefix "https://startpage.com/do/m/mobilesearch?query=")
  '(eyebrowse-keymap-prefix "")
  '(fill-column 78)
- '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
- '(find-ls-subdir-switches "-alh")
+ '(find-ls-option (quote ("-print0 | xargs -P4 -0 ls -ldN" . "-ldN")))
+ '(find-ls-subdir-switches "-ldN")
  '(flx-ido-use-faces nil)
  '(flycheck-coq-executable "~/bin/ct-coqtop")
  '(flycheck-display-errors-delay 0.0)
