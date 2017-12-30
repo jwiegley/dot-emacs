@@ -2166,6 +2166,10 @@
   :load-path "site-lisp/hyperbole/kotl"
   :mode "\\.kotl\\'")
 
+(use-package langtool
+  :load-path "site-lisp/langtool"
+  :commands langtool-check)
+
 (use-package latex
   :after auctex
   :config
