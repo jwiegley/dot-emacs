@@ -229,6 +229,10 @@
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
 
+(use-package ace-jump-mode
+  :load-path "site-lisp/ace-jump-mode"
+  :defer t)
+
 (use-package ace-link
   :load-path "site-lisp/ace-link"
   :defer 10
