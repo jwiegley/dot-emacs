@@ -1,3 +1,4 @@
+ace-jump-mode,site-lisp,subtree,git://github.com/winterTTr/ace-jump-mode.git,
 ace-link,site-lisp,subtree,git://github.com/abo-abo/ace-link.git,
 ace-mc,site-lisp,subtree,git://github.com/mm--/ace-mc.git,
 ace-window,site-lisp,subtree,git://github.com/abo-abo/ace-window.git,
