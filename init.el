@@ -1205,6 +1205,7 @@
 
 (use-package emms-setup
   :load-path "site-lisp/emms/lisp"
+  :bind ("M-E" . emms-browser)
   :config
   (emms-all)
   (emms-default-players))
