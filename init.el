@@ -135,7 +135,6 @@
 (use-package asoc          :defer t  :load-path "lib/asoc")
 (use-package async         :defer t  :load-path "lisp/emacs-async")
 (use-package button-lock   :defer t  :load-path "lib/button-lock")
-(use-package crux          :demand t :load-path "lib/crux")
 (use-package ctable        :defer t  :load-path "lib/emacs-ctable")
 (use-package dash          :defer t  :load-path "lib/dash-el")
 (use-package deferred      :defer t  :load-path "lib/emacs-deferred")
@@ -509,6 +508,46 @@
               ("M-j"))
   :preface
   (defun my-c-mode-common-hook ()
+    (company-mode 1)
+
+    (require 'flycheck)
+    (flycheck-define-checker
+     c++-ledger
+     "A C++ syntax checker for the Ledger project specifically."
+     :command ("ninja"
+               "-C"
+               (eval (expand-file-name "~/Products/ledger"))
+               (eval (concat "src/CMakeFiles/libledger.dir/"
+                             (file-name-nondirectory (buffer-file-name))
+                             ".o")))
+     :error-patterns
+     ((error line-start
+             (message "In file included from") " " (or "<stdin>" (file-name))
+             ":" line ":" line-end)
+      (info line-start (or "<stdin>" (file-name)) ":" line ":" column
+            ": note: " (optional (message)) line-end)
+      (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
+               ": warning: " (optional (message)) line-end)
+      (error line-start (or "<stdin>" (file-name)) ":" line ":" column
+             ": " (or "fatal error" "error") ": " (optional (message)) line-end))
+     :error-filter
+     (lambda (errors)
+       (let ((errors (flycheck-sanitize-errors errors)))
+         (dolist (err errors)
+           ;; Clang will output empty messages for #error/#warning pragmas
+           ;; without messages. We fill these empty errors with a dummy message
+           ;; to get them past our error filtering
+           (setf (flycheck-error-message err)
+                 (or (flycheck-error-message err) "no message")))
+         (flycheck-fold-include-levels errors "In file included from")))
+     :modes c++-mode
+     :next-checkers ((warning . c/c++-cppcheck)))
+
+    (flycheck-mode 1)
+    (flycheck-select-checker 'c++-ledger)
+    (setq-local flycheck-check-syntax-automatically nil)
+    (setq-local flycheck-highlighting-mode nil)
+
     (set (make-local-variable 'parens-require-spaces) nil)
 
     (let ((bufname (buffer-file-name)))
@@ -738,7 +777,11 @@
 (use-package company-quickhelp
   :load-path "site-lisp/company-quickhelp"
   :bind (:map company-active-map
-              ("C-c h" . company-quickhelp-manual-begin)))
+              ("C-c ?" . company-quickhelp-manual-begin)))
+
+(use-package company-rtags
+  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
+  :after (company rtags))
 
 (use-package compile
   :no-require
@@ -783,6 +826,7 @@
          ("M-x"     . counsel-M-x))
   :commands (counsel-minibuffer-history
              counsel-find-library
+             counsel-describe-function
              counsel-unicode-char)
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
@@ -800,6 +844,10 @@
 
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
+
+(use-package crux
+  :load-path "site-lisp/crux"
+  :bind ("C-c e i" . crux-find-user-init-file))
 
 (use-package css-mode
   :mode "\\.css\\'")
@@ -1173,14 +1221,6 @@
   :load-path "site-lisp/elisp-docstring-mode"
   :commands elisp-docstring-mode)
 
-(use-package elisp-mode
-  :no-require t
-  :init
-  (add-hook 'emacs-lisp-mode-hook
-            #'(lambda () (bind-keys :map emacs-lisp-mode-map
-                               ("M-n" . flycheck-next-error)
-                               ("M-p" . flycheck-previous-error)))))
-
 (use-package elisp-slime-nav
   :load-path "site-lisp/elisp-slime-nav"
   :diminish
@@ -1447,7 +1487,19 @@
 
 (use-package flycheck
   :load-path "site-lisp/flycheck"
-  :commands flycheck-mode
+  :commands (flycheck-mode
+             flycheck-next-error
+             flycheck-previous-error)
+  :init
+  (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
+                   (haskell-mode-hook    . haskell-mode-map)
+                   (js2-mode-hook        . js2-mode-map)
+                   (c-mode-common-hook   . c-mode-base-map)))
+    (add-hook (car where)
+              `(lambda ()
+                 (bind-key "M-n" #'flycheck-next-error ,(cdr where))
+                 (bind-key "M-p" #'flycheck-previous-error ,(cdr where)))
+              t))
   :config
   (defalias 'show-error-at-point-soon
     'flycheck-show-error-at-point))
@@ -1455,9 +1507,6 @@
 (use-package flycheck-haskell
   :load-path "site-lisp/flycheck-haskell"
   :after haskell-mode
-  :bind (:map haskell-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
   :config
   (flycheck-haskell-setup))
 
@@ -1469,6 +1518,10 @@
 
 (use-package flycheck-package
   :load-path "site-lisp/flycheck-package"
+  :after flycheck)
+
+(use-package flycheck-rtags
+  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after flycheck)
 
 (use-package flyspell
@@ -2125,6 +2178,10 @@
         ivy-rich-switch-buffer-align-virtual-buffer t
         ivy-rich-path-style 'abbrev))
 
+(use-package ivy-rtags
+  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
+  :after (ivy rtags))
+
 (use-package jq-mode
   :load-path "site-lisp/jq-mode"
   :mode "\\.jq\\'")
@@ -2132,9 +2189,6 @@
 (use-package js2-mode
   :load-path "site-lisp/js2-mode"
   :mode "\\.js\\'"
-  :bind (:map js2-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
   :config
   (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
   (flycheck-add-mode 'javascript-eslint 'js2-mode)
@@ -2889,7 +2943,6 @@
   :commands persistent-scratch-setup-default)
 
 (use-package personal
-  :after crux
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
   :config
@@ -2954,7 +3007,6 @@
              ("C-c e d" . debug-on-entry)
              ("C-c e e" . toggle-debug-on-error)
              ("C-c e f" . emacs-lisp-byte-compile-and-load)
-             ("C-c e i" . crux-find-user-init-file)
              ("C-c e j" . emacs-lisp-mode)
              ("C-c e l" . counsel-find-library)
              ("C-c e P" . check-papers)
