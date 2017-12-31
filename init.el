@@ -1153,12 +1153,12 @@
 
 (use-package elint
   :commands 'elint-initialize
+  :bind ("C-c e E" . my-elint-current-buffer)
   :preface
-  (defun elint-current-buffer ()
+  (defun my-elint-current-buffer ()
     (interactive)
     (elint-initialize)
     (elint-current-buffer))
-
   :config
   (add-to-list 'elint-standard-variables 'current-prefix-arg)
   (add-to-list 'elint-standard-variables 'command-line-args-left)
@@ -2948,8 +2948,7 @@
              ("C-h e u" . counsel-unicode-char)
              ("C-h e v" . find-variable))
 
-  (bind-keys ("C-c e E" . elint-current-buffer)
-             ("C-c e b" . do-eval-buffer)
+  (bind-keys ("C-c e b" . do-eval-buffer)
              ("C-c e c" . cancel-debug-on-entry)
              ("C-c e d" . debug-on-entry)
              ("C-c e e" . toggle-debug-on-error)
