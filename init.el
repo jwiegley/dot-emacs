@@ -762,6 +762,10 @@
   :load-path "site-lisp/company-auctex"
   :after (company latex))
 
+(use-package company-cabal
+  :load-path "site-lisp/company-cabal"
+  :after (company haskell-cabal))
+
 (use-package company-coq
   :load-path "site-lisp/company-coq"
   :after coq
@@ -785,8 +789,13 @@
 
 (use-package company-quickhelp
   :load-path "site-lisp/company-quickhelp"
+  :after company
   :bind (:map company-active-map
               ("C-c ?" . company-quickhelp-manual-begin)))
+
+(use-package company-restclient
+  :load-path "site-lisp/company-restclient"
+  :after (company restclient))
 
 (use-package company-rtags
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
