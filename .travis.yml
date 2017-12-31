@@ -1,0 +1,21 @@
+language: generic
+
+sudo: false
+
+env:
+  - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.3-travis
+
+before_install:
+  - export PATH="$HOME/.evm/bin:$HOME/.cask/bin:$PATH"
+  - git clone https://github.com/rejeep/evm.git /home/travis/.evm
+  - evm config path /tmp
+  - evm install $EVM_EMACS --use
+  - export EMACS=$(which emacs)
+  - curl -fsSkL https://raw.github.com/cask/cask/master/go | python
+
+install:
+  - cask install
+
+script:
+  - cask exec ecukes --no-win -r magnars
