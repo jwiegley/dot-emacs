@@ -240,17 +240,13 @@
   (ace-link-setup-default)
 
   (add-hook 'org-mode-hook
-            #'(lambda ()
-                (bind-key "C-c C-o" #'ace-link-org org-mode-map)))
+            #'(lambda () (bind-key "C-c C-o" #'ace-link-org org-mode-map)))
   (add-hook 'gnus-summary-mode-hook
-            #'(lambda ()
-                (bind-key "M-o" #'ace-link-gnus gnus-summary-mode-map)))
+            #'(lambda () (bind-key "M-o" #'ace-link-gnus gnus-summary-mode-map)))
   (add-hook 'gnus-article-mode-hook
-            #'(lambda ()
-                (bind-key "M-o" #'ace-link-gnus gnus-article-mode-map)))
+            #'(lambda () (bind-key "M-o" #'ace-link-gnus gnus-article-mode-map)))
   (add-hook 'ert-results-mode-hook
-            #'(lambda ()
-                (bind-key "o" #'ace-link-help ert-results-mode-map)))
+            #'(lambda () (bind-key "o" #'ace-link-help ert-results-mode-map)))
 
   (bind-key "C-c M-o" 'ace-link-addr))
 
