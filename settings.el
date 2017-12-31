@@ -348,6 +348,7 @@
  '(company-frontends
    (quote
     (company-pseudo-tooltip-unless-just-one-frontend company-echo-metadata-frontend company-preview-frontend)))
+ '(company-idle-delay nil)
  '(company-quickhelp-use-propertized-text t)
  '(compilation-always-kill t)
  '(compilation-ask-about-save nil)
