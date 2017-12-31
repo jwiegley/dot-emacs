@@ -250,6 +250,11 @@
 
   (bind-key "C-c M-o" 'ace-link-addr))
 
+(use-package ace-mc
+  :load-path "site-lisp/ace-mc"
+  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
+         ("<C-m> M-h" . ace-mc-add-single-cursor)))
+
 (use-package ace-window
   :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
