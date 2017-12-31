@@ -715,10 +715,13 @@
   :diminish
   :commands (company-mode company-indent-or-complete-common)
   :init
-  (add-hook 'company-mode-hook
-            #'(lambda ()
-                (local-set-key "<tab>"
-                               #'company-indent-or-complete-common)))
+  (dolist (hook '(emacs-lisp-mode-hook
+                  haskell-mode-hook
+                  c-mode-common-hook))
+    (add-hook hook
+              #'(lambda ()
+                  (local-set-key (kbd "<tab>")
+                                 #'company-indent-or-complete-common))))
   :config
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
