@@ -1152,7 +1152,7 @@
             #'(lambda () (selected-minor-mode -1))))
 
 (use-package elint
-  :commands 'elint-initialize
+  :commands (elint-initialize elint-current-buffer)
   :bind ("C-c e E" . my-elint-current-buffer)
   :preface
   (defun my-elint-current-buffer ()
