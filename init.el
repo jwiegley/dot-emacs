@@ -2526,21 +2526,20 @@
 (use-package mc-extras
   :load-path "site-lisp/mc-extras"
   :after multiple-cursors
-  :bind (("C-. M-C-f" . mc/mark-next-sexps)
-         ("C-. M-C-b" . mc/mark-previous-sexps)
-         ("C-. <"     . mc/mark-all-above)
-         ("C-. >"     . mc/mark-all-below)
-         ("C-. C-d"   . mc/remove-current-cursor)
-         ("C-. C-k"   . mc/remove-cursors-at-eol)
-         ("C-. M-d"   . mc/remove-duplicated-cursors)
-         ("C-. M-f"   . mc/freeze-fake-cursors-dwim)
-         ("C-. |"     . mc/move-to-column)
-         ("C-. ~"     . mc/compare-chars)))
+  :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
+         ("<C-m> M-C-b" . mc/mark-previous-sexps)
+         ("<C-m> <"     . mc/mark-all-above)
+         ("<C-m> >"     . mc/mark-all-below)
+         ("<C-m> C-d"   . mc/remove-current-cursor)
+         ("<C-m> C-k"   . mc/remove-cursors-at-eol)
+         ("<C-m> M-d"   . mc/remove-duplicated-cursors)
+         ("<C-m> |"     . mc/move-to-column)
+         ("<C-m> ~"     . mc/compare-chars)))
 
 (use-package mc-freeze
   :load-path "site-lisp/mc-extras"
   :after multiple-cursors
-  :bind ("C-. C-f" . mc/freeze-fake-cursors-dwim))
+  :bind ("<C-m> f" . mc/freeze-fake-cursors-dwim))
 
 (use-package mc-rect
   :load-path "site-lisp/mc-extras"
