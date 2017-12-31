@@ -508,8 +508,6 @@
               ("M-j"))
   :preface
   (defun my-c-mode-common-hook ()
-    (company-mode 1)
-
     (require 'flycheck)
     (flycheck-define-checker
      c++-ledger
@@ -713,8 +711,14 @@
 
 (use-package company
   :load-path "site-lisp/company-mode"
+  :defer 5
   :diminish
-  :commands company-mode
+  :commands (company-mode company-indent-or-complete-common)
+  :init
+  (add-hook 'company-mode-hook
+            #'(lambda ()
+                (local-set-key "<tab>"
+                               #'company-indent-or-complete-common)))
   :config
   ;; From https://github.com/company-mode/company-mode/issues/87
   ;; See also https://github.com/company-mode/company-mode/issues/123
@@ -747,7 +751,9 @@
            (append (if (consp backend) backend (list backend))
                    '(:with company-yasnippet))))
        (setq company-backends
-             (mapcar #'company-mode/backend-with-yas company-backends)))))
+             (mapcar #'company-mode/backend-with-yas company-backends))))
+
+  (global-company-mode 1))
 
 (use-package company-auctex
   :load-path "site-lisp/company-auctex"
@@ -822,12 +828,13 @@
                    (regexp-opt completion-ignored-extensions)
                    "\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
-         ("C-x C-f" . counsel-find-file)
+         ;; ("C-x C-f" . counsel-find-file)
+         ("C-h f"   . counsel-describe-function)
+         ("C-c e l" . counsel-find-library)
+         ("C-h e l" . counsel-find-library)
+         ("C-h e u" . counsel-unicode-char)
          ("M-x"     . counsel-M-x))
-  :commands (counsel-minibuffer-history
-             counsel-find-library
-             counsel-describe-function
-             counsel-unicode-char)
+  :commands counsel-minibuffer-history
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
   :config
@@ -1433,19 +1440,9 @@
 (use-package eval-expr
   :load-path "site-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
-  :preface
-  (defun my-elisp-indent-or-complete (&optional arg)
-    (interactive "p")
-    (call-interactively 'lisp-indent-line)
-    (unless (or (looking-back "^\\s-*")
-                (bolp)
-                (not (looking-back "[-A-Za-z0-9_*+/=<>!?]+")))
-      (call-interactively 'lisp-complete-symbol)))
   :config
   (defun eval-expr-minibuffer-setup ()
     (set-syntax-table emacs-lisp-mode-syntax-table)
-    (local-set-key (kbd "<tab>") #'my-elisp-indent-or-complete)
-    (require 'paredit)
     (paredit-mode)))
 
 (use-package eval-in-repl
@@ -1957,7 +1954,6 @@
             (skip-chars-backward " \t\n\r")
             (delete-region (point) (point-max))
             (call-interactively #'ielm-return))
-        (require 'paredit)
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
@@ -2344,12 +2340,8 @@
   :interpreter "lua")
 
 (use-package lusty-explorer
-  ;; jww (2017-12-10): I'm now using `counsel-find-file'.
-  :disabled t
   :load-path "site-lisp/lusty-emacs"
-  :demand t
-  :bind (("C-x C-f" . my-lusty-file-explorer)
-         ("C-x C-w" . my-write-file))
+  :bind (("C-x C-f" . my-lusty-file-explorer))
   :preface
   (defun lusty-read-directory ()
     "Launch the file/directory mode of LustyExplorer."
@@ -2434,19 +2426,6 @@
            (lusty-select-match)
            (lusty-select-current-name)))
         (:buffer-explorer (lusty-select-match)))))
-
-  (defun my-write-file (filename &optional confirm)
-    (interactive
-     (list (if buffer-file-name
-               (lusty-read-file-name "Write file: "
-                                     nil nil nil nil)
-             (lusty-read-file-name "Write file: " default-directory
-                                   (expand-file-name
-                                    (file-name-nondirectory (buffer-name))
-                                    default-directory)
-                                   nil nil))
-           (not current-prefix-arg)))
-    (write-file filename confirm))
 
   (defvar lusty-only-directories nil)
   (defun lusty-file-explorer-matches (path)
@@ -2945,77 +2924,63 @@
 (use-package personal
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
-  :config
-  (bind-keys ("C-z" . delete-other-windows)
+  :commands unfill-region
+  :bind (("M-L"  . mark-line)
+         ("M-S"  . mark-sentence)
+         ("M-j"  . delete-indentation-forward)
 
-             ("M-!"  . async-shell-command)
-             ("M-'"  . insert-pair)
-             ("M-\"" . insert-pair)
-             ("M-`"  . other-frame)
-             ("M-j"  . delete-indentation-forward)
-             ("M-J"  . delete-indentation)
-             ("M-L"  . mark-line)
-             ("M-S"  . mark-sentence)
+         ("C-c )"   . close-all-parentheses)
+         ("C-c 0"   . recursive-edit-preserving-window-config-pop)
+         ("C-c 1"   . recursive-edit-preserving-window-config)
+         ("C-c C-0" . copy-current-buffer-name)
+         ("C-c C-z" . delete-to-end-of-buffer)
+         ("C-c M-q" . unfill-paragraph)
+         ("C-c V"   . view-clipboard)
+         ("C-c e P" . check-papers)
+         ("C-c e b" . do-eval-buffer)
+         ("C-c e r" . do-eval-region)
+         ("C-c e s" . scratch)
+         ("C-c n"   . insert-user-timestamp)
+         ("C-x C-d" . duplicate-line)
+         ("C-x C-v" . find-alternate-file-with-sudo)
+         ("C-x K"   . delete-current-buffer-file)
+         ("C-x M-q" . refill-paragraph))
+  :init
+  (bind-keys ("<C-M-backspace>" . backward-kill-sexp)
 
+             ("M-!"   . async-shell-command)
+             ("M-'"   . insert-pair)
+             ("M-J"   . delete-indentation)
+             ("M-\""  . insert-pair)
+             ("M-`"   . other-frame)
              ("M-g c" . goto-char)
 
-             ("<C-M-backspace>" . backward-kill-sexp)
-
-             ("C-h f"   . counsel-describe-function)
-             ("C-h v"   . describe-variable)
-
-             ("C-x d"   . delete-whitespace-rectangle)
-             ("C-x t"   . toggle-truncate-lines)
-             ("C-x K"   . delete-current-buffer-file)
-
-             ("C-x C-d" . duplicate-line)
-             ("C-x C-e" . pp-eval-last-sexp)
-             ("C-x C-v" . find-alternate-file-with-sudo)
-
-             ("C-x M-q" . refill-paragraph)
-
-             ("C-c SPC" . just-one-space)
-             ("C-c 0"   . recursive-edit-preserving-window-config-pop)
-             ("C-c 1"   . recursive-edit-preserving-window-config)
-             ("C-c g"   . goto-line)
-             ("C-c f"   . flush-lines)
-             ("C-c k"   . keep-lines)
-             ("C-c n"   . insert-user-timestamp)
-             ("C-c q"   . fill-region)
-             ;; ("C-c r"   . replace-regexp)
-             ("C-c s"   . replace-string)
-             ("C-c u"   . rename-uniquely)
-             ("C-c V"   . view-clipboard)
-             ("C-c )"   . close-all-parentheses)
              ("C-c ="   . count-matches)
-
-             ("C-c C-z" . delete-to-end-of-buffer)
-             ("C-c C-0" . copy-current-buffer-name)
-
-             ("C-c M-q" . unfill-paragraph))
-
-  (bind-keys ("C-h e a" . apropos-value)
-             ("C-h e e" . view-echo-area-messages)
-             ("C-h e f" . find-function)
-             ("C-h e k" . find-function-on-key)
-             ("C-h e l" . counsel-find-library)
-             ("C-h e u" . counsel-unicode-char)
-             ("C-h e v" . find-variable))
-
-  (bind-keys ("C-c e b" . do-eval-buffer)
+             ("C-c SPC" . just-one-space)
              ("C-c e c" . cancel-debug-on-entry)
              ("C-c e d" . debug-on-entry)
              ("C-c e e" . toggle-debug-on-error)
              ("C-c e f" . emacs-lisp-byte-compile-and-load)
              ("C-c e j" . emacs-lisp-mode)
-             ("C-c e l" . counsel-find-library)
-             ("C-c e P" . check-papers)
-             ("C-c e r" . do-eval-region)
-             ("C-c e s" . scratch)
-             ("C-c e z" . byte-recompile-directory))
-
-  (bind-keys ("C-c m k" . kmacro-keymap)
-             ("C-c m m" . emacs-toggle-size)))
+             ("C-c e z" . byte-recompile-directory)
+             ("C-c f"   . flush-lines)
+             ("C-c g"   . goto-line)
+             ("C-c k"   . keep-lines)
+             ("C-c m k" . kmacro-keymap)
+             ("C-c m m" . emacs-toggle-size)
+             ("C-c q"   . fill-region)
+             ("C-c s"   . replace-string)
+             ("C-c u"   . rename-uniquely)
+             ("C-h e a" . apropos-value)
+             ("C-h e e" . view-echo-area-messages)
+             ("C-h e f" . find-function)
+             ("C-h e k" . find-function-on-key)
+             ("C-h e v" . find-variable)
+             ("C-h v"   . describe-variable)
+             ("C-x C-e" . pp-eval-last-sexp)
+             ("C-x d"   . delete-whitespace-rectangle)
+             ("C-x t"   . toggle-truncate-lines)
+             ("C-z"     . delete-other-windows)))
 
 (use-package phi-search
   :load-path "site-lisp/phi-search"
