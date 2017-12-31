@@ -697,6 +697,29 @@ end tell" (match-string 1))))
   ad-do-it
   (org-fit-agenda-window))
 
+(defun org-inline-note ()
+  (interactive)
+  (switch-to-buffer-other-window "todo.txt")
+  (goto-char (point-min))
+  (re-search-forward "^\\* Inbox$")
+  (re-search-forward "^:END:")
+  (forward-line)
+  (goto-char (line-beginning-position))
+  (insert "** NOTE ")
+  (save-excursion
+    (insert (format "
+:PROPERTIES:
+:ID:       %s
+:VISIBILITY: folded
+:CREATED:  %s
+:END:"
+                    (substring (shell-command-to-string "uuidgen") 0 -1)
+                    (format-time-string (org-time-stamp-format t t))))
+    (insert ?\n))
+  (save-excursion
+    (forward-line)
+    (org-cycle)))
+
 (defadvice org-archive-subtree (before set-billcode-before-archiving activate)
   "Before archiving a task, set its BILLCODE and TASKCODE."
   (let ((billcode (org-entry-get (point) "BILLCODE" t))
