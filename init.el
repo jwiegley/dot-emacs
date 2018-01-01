@@ -76,7 +76,8 @@
 
 (advice-add 'use-package-handler/:load-path :around
             #'(lambda (orig-func name keyword args rest state)
-                (if (or (memq name '(agda-input hyperbole proof-site slime))
+                (if (or (memq name '(agda-input hyperbole proof-site slime
+                                                flycheck-haskell ghc))
                         (cl-some (apply-partially #'string-match "\\`~") args))
                     (funcall orig-func name keyword arg rest state)
                   (use-package-process-keywords name rest state))))
@@ -776,12 +777,10 @@
               ("C-M-h" . company-coq-toggle-definition-overlay)))
 
 (use-package company-ghc
-  ;; jww (2017-12-10): Need to get ghc-mod working.
-  :disabled t
   :load-path "site-lisp/company-ghc"
   :after (company ghc)
   :config
-  (add-to-list 'company-backends 'company-ghc))
+  (push 'company-ghc company-backends))
 
 (use-package company-math
   :load-path "site-lisp/company-math"
@@ -799,7 +798,9 @@
 
 (use-package company-rtags
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
-  :after (company rtags))
+  :after (company rtags)
+  :config
+  (push 'company-rtags company-backends))
 
 (use-package compile
   :no-require
@@ -1572,32 +1573,22 @@
   :diminish)
 
 (use-package ghc
-  ;; jww (2017-12-10): https://github.com/DanielG/ghc-mod/issues/905
   :disabled t
   :load-path
   (lambda ()
-    (mapcar
-     #'(lambda (conf)
-         (with-temp-buffer
-           (insert-file-contents-literally conf)
-           (re-search-forward "^data-dir: \\(.+\\)" nil)
-           (let ((data-dir (match-string 1)))
-             (when (file-directory-p data-dir)
-               (expand-file-name "elisp" data-dir)))))
+    (cl-mapcan
+     #'(lambda (lib) (directory-files lib t "^ghc-"))
      (cl-mapcan
-      #'(lambda (ghc)
-          (directory-files (expand-file-name "package.conf.d" ghc)
-                           t "\\.conf$"))
-      (cl-mapcan
-       #'(lambda (lib) (directory-files lib t "^ghc-"))
-       (cl-mapcan
-        #'(lambda (path) (directory-files path t "^lib$"))
-        (seq-filter
-         (apply-partially #'string-match "-ghc-mod-")
-         (nix-read-environment (concat "ghc" (getenv "GHCVER")))))))))
+      #'(lambda (lib) (directory-files lib t "^elpa$"))
+      (seq-filter (apply-partially #'string-match "-emacs-ghc-") load-path))))
   :after haskell-mode
   :commands ghc-init
-  :hook (haskell-mode . ghc-init))
+  :hook (haskell-mode . ghc-init)
+  :config
+  (setenv "cabal_helper_libexecdir"
+          (file-name-directory
+           (substring
+            (shell-command-to-string "which cabal-helper-wrapper") 0 -1))))
 
 (use-package gist
   :no-require t
