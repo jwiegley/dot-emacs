@@ -669,6 +669,7 @@
  '(guide-key/guide-key-sequence t)
  '(guide-key/idle-delay 1.5)
  '(guide-key/popup-window-position (quote bottom))
+ '(haskell-hoogle-command nil)
  '(haskell-indent-spaces 4)
  '(haskell-indentation-ifte-offset 4)
  '(haskell-indentation-layout-offset 4)
@@ -975,6 +976,9 @@
  '(rng-schema-locating-files
    (quote
     ("schemas.xml" "~/src/schemas.xml" "~/.nix-profile/share/emacs/24.4/etc/schema/schemas.xml")))
+ '(rtags-autostart-diagnostics t)
+ '(rtags-completions-enabled t)
+ '(rtags-display-result-backend (quote ivy))
  '(runner-init-file "~/.emacs.d/data/runner-conf.el")
  '(safe-local-eval-forms
    (quote
