@@ -2060,6 +2060,10 @@
   :after cus-edit
   :defer 5)
 
+(use-package interactive-align
+  :load-path "site-lisp/interactive-align"
+  :bind ("C-. [" . ialign-interactive-align))
+
 (use-package inventory
   :commands (inventory sort-package-declarations))
 
