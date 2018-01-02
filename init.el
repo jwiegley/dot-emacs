@@ -45,8 +45,10 @@
 
   (setq load-path
         (append '("~/emacs"
-                  "~/emacs/lisp/use-package"
-                  "~/emacs/compiled")
+                  "~/emacs/lib"
+                  "~/emacs/site-lisp"
+                  "~/emacs/lisp"
+                  "~/emacs/lisp/use-package")
                 (cl-remove-if
                  (apply-partially #'string-match "/org\\'")
                  (delete-dups load-path))))
@@ -74,13 +76,13 @@
     (setq use-package-verbose nil
           use-package-expand-minimally t)))
 
-(advice-add 'use-package-handler/:load-path :around
-            #'(lambda (orig-func name keyword args rest state)
-                (if (or (memq name '(agda-input hyperbole proof-site slime
-                                                flycheck-haskell ghc))
-                        (cl-some (apply-partially #'string-match "\\`~") args))
-                    (funcall orig-func name keyword arg rest state)
-                  (use-package-process-keywords name rest state))))
+;; (advice-add 'use-package-handler/:load-path :around
+;;             #'(lambda (orig-func name keyword args rest state)
+;;                 (if (or (memq name '(agda-input hyperbole proof-site slime
+;;                                                 flycheck-haskell ghc))
+;;                         (cl-some (apply-partially #'string-match "\\`~") args))
+;;                     (funcall orig-func name keyword arg rest state)
+;;                   (use-package-process-keywords name rest state))))
 
 ;;; Settings
 
@@ -798,6 +800,7 @@
   :after (company restclient))
 
 (use-package company-rtags
+  :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after (company rtags)
   :config
@@ -1144,8 +1147,8 @@
   (setq gnus-init-file (emacs-path "dot-gnus")
         gnus-home-directory "~/Messages/Gnus/")
   :config
-  (setq fetchmail-password
-        (lookup-password "imap.fastmail.com" "johnw" 993)))
+  (defvar fetchmail-password
+    (lookup-password "imap.fastmail.com" "johnw" 993)))
 
 (use-package dot-org
   :load-path ("site-lisp/org-mode/lisp"
@@ -1536,6 +1539,7 @@
   :after flycheck)
 
 (use-package flycheck-rtags
+  :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after flycheck)
 
@@ -2183,6 +2187,7 @@
         ivy-rich-path-style 'abbrev))
 
 (use-package ivy-rtags
+  :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after (ivy rtags))
 
@@ -3187,6 +3192,7 @@
   :commands riscv-mode)
 
 (use-package rtags
+  :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :commands rtags-mode
   :bind (("C-. r D" . rtags-dependency-tree)
@@ -3282,7 +3288,6 @@
          ("C-. -" . shift-number-down)))
 
 (use-package slime
-  :disabled t
   :load-path "site-lisp/slime"
   :commands slime
   :init
