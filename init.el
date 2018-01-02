@@ -2241,7 +2241,7 @@
 
 (use-package langtool
   :load-path "site-lisp/langtool"
-  :commands langtool-check)
+  :bind ("C-. l" . langtool-check))
 
 (use-package latex
   :after auctex
