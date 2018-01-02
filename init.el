@@ -120,6 +120,7 @@
                 "share/info"
                 (car (nix-read-environment emacs-environment)))
              "~/share/info")
+           "/run/current-system/sw/share/info"
            "~/.nix-profile/share/info")))
 
 (setq disabled-command-function nil)
@@ -1134,13 +1135,17 @@
   :mode "Dockerfile")
 
 (use-package dot-gnus
+  :after auth-source-pass
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
   ;; Have to set these here, because initsplit sends their customization
   ;; values to gnus-settings.el.
   (setq gnus-init-file (emacs-path "dot-gnus")
-        gnus-home-directory "~/Messages/Gnus/"))
+        gnus-home-directory "~/Messages/Gnus/")
+  :config
+  (setq fetchmail-password
+        (lookup-password "imap.fastmail.com" "johnw" 993)))
 
 (use-package dot-org
   :load-path ("site-lisp/org-mode/lisp"
@@ -3287,7 +3292,7 @@
   ;;   ("M-q" . slime-reindent-defun)
   ;;   ("M-l" . slime-selector))
 
-  (setq inferior-lisp-program "/Users/johnw/.nix-profile/bin/sbcl"
+  (setq inferior-lisp-program "sbcl"
         slime-contribs '(slime-fancy)))
 
 (use-package smart-jump

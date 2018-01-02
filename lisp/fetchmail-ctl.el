@@ -46,6 +46,8 @@
                (throw 'proc-running proc)
              (throw 'proc-running nil)))))))
 
+(defvar fetchmail-password)
+
 (defun start-fetchmail (&optional name once &rest extra-args)
   (interactive)
   (let ((procname (or name "*fetchmail*")))
@@ -56,7 +58,10 @@
         (unless once (nconc args '("-d" "900")))
         (setq fetchmail-process
               (apply #'start-process procname buf
-                     "fetchmail" "-n" "-N" args)))
+                     "fetchmail" "-n" "-N" args))
+        (sleep-for 0 250)
+        (process-send-string fetchmail-process fetchmail-password)
+        (process-send-string fetchmail-process "\n"))
       (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
@@ -113,7 +118,8 @@
            (lambda ()
              (start-fetchmail
               "*fetchmail*" nil "--idle"
-              "--pidfile" (expand-file-name "~/.fetchmail.pid"))))))
+              "--pidfile" (expand-file-name "~/.fetchmail.pid")
+              "-f" "/etc/fetchmailrc")))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
@@ -124,8 +130,7 @@
                (start-fetchmail
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "~/.fetchmail-lists.pid")
-                "-f" (expand-file-name
-                      "~/Messages/fetchmailrc.lists")))))))
+                "-f" "/etc/fetchmailrc.lists"))))))
         ;; (fetchmail-spam-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchmail-spam*"

@@ -413,8 +413,6 @@
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(ebib-autogenerate-keys t)
- '(eclim-executable
-   "/Applications/Misc/ACL2s/plugins/org.eclim_2.4.1/bin/eclim")
  '(ediff-combination-pattern
    (quote
     ("<<<<<<< A: HEAD" A "||||||| Ancestor" Ancestor "=======" B ">>>>>>> B: Incoming")))
@@ -621,7 +619,7 @@
  '(find-ls-option (quote ("-print0 | xargs -P4 -0 ls -ldN" . "-ldN")))
  '(find-ls-subdir-switches "-ldN")
  '(flx-ido-use-faces nil)
- '(flycheck-coq-executable "~/bin/ct-coqtop")
+ '(flycheck-coq-executable "ct-coqtop")
  '(flycheck-display-errors-delay 0.0)
  '(flycheck-standard-error-navigation nil)
  '(flymake-compilation-prevents-syntax-check nil)
@@ -832,7 +830,7 @@
  '(kill-whole-line t)
  '(langtool-language-tool-jar "~/.nix-profile/share/languagetool-commandline.jar")
  '(large-file-warning-threshold nil)
- '(ledger-binary-path "~/bin/ledger")
+ '(ledger-binary-path "ledger")
  '(ledger-file "/Volumes/Files/Accounts/ledger.dat")
  '(ledger-post-use-ido t)
  '(line-number-mode t)
@@ -880,7 +878,7 @@
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
  '(mudel-output-filter-functions (quote (ansi-color-process-output)))
- '(multi-term-program "/usr/bin/screen")
+ '(multi-term-program "screen")
  '(multi-term-program-switches "-DR")
  '(multi-term-scroll-show-maximum-output t)
  '(my-gnus-thread-sort-functions
@@ -1025,19 +1023,7 @@
            (setq default-directory coq-root-directory)))))))
  '(safe-local-variable-values
    (quote
-    ((multi-compile-alist
-      ((string-match "z3-generate-api" default-directory)
-       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && cd ~/src/z3-generate-api/api/4.5.0-20171106; ~/src/z3-generate-api/dist/build/z3-generate-api/z3-generate-api --yaml api.yml)")))
-     (multi-compile-alist
-      ((string-match "z3-generate-api" default-directory)
-       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && cd ~/src/z3-generate-api/api/4.5.0; ~/src/z3-generate-api/dist/build/z3-generate-api/z3-generate-api --yaml api.yml)")))
-     (multi-compile-alist
-      ((string-match "z3-generate-api" default-directory)
-       ("build-Generate" . "(cd ~/src/z3-generate-api ; nix-shell --command 'cabal build' && ./dist/build/z3-generate-api/z3-generate-api --yaml 4.5.0.yml)")))
-     (multi-compile-alist
-      ((string-match "haskell-z3" default-directory)
-       ("build-Generate" . "(cd ~/src/haskell-z3 ; nix-shell --command 'cabal build' && ./dist/build/generate/generate --yaml generate/z3-api-4.5.0.yml)")))
-     (haskell-indent-spaces . 4)
+    ((haskell-indent-spaces . 4)
      (haskell-indent-spaces . 2)
      (haskell-indentation-ifte-offset . 2)
      (haskell-indentation-layout-offset . 2)
@@ -1085,44 +1071,6 @@
  '(slime-kill-without-query-p t)
  '(slime-repl-history-file "~/.emacs.d/data/slime-history.eld")
  '(slime-startup-animation nil)
- '(smart-compile-alist
-   (quote
-    (((lambda
-        (buf)
-        (let
-            ((case-fold-search t))
-          (and
-           (string-match "/ansi/"
-                         (buffer-file-name buf))
-           (string-match "/opencl"
-                         (shell-command-to-string "git symbolic-ref HEAD")))))
-      . "cd ~/Contracts/TI/src/c60_iaansi ; ~/Contracts/TI/bin/build.sh c60")
-     ((lambda
-        (buf)
-        (let
-            ((case-fold-search t))
-          (and
-           (string-match "/\\(src/ansi\\|src/.*?ansi\\)/"
-                         (buffer-file-name buf))
-           (string-match "/merge_4_2"
-                         (shell-command-to-string "git symbolic-ref HEAD")))))
-      . "cd ~/Contracts/TI/src/msp_iaansi ; ~/Contracts/TI/bin/build.sh msp")
-     ((lambda
-        (buf)
-        (string-match "/\\(\\(src\\|Projects\\)/ledger\\)/"
-                      (buffer-file-name buf)))
-      . "cd ~/src/ledger ; ~/src/ledger/tools/build.sh debug")
-     ((lambda
-        (buf)
-        (string-match "/emacs/"
-                      (buffer-file-name buf)))
-      . "emacs-build release macport opt make")
-     (emacs-lisp-mode emacs-lisp-byte-compile-and-load)
-     ((lambda
-        (buf)
-        (string-match "/\\(cree\\|EDG/Projects/edg\\)/"
-                      (buffer-file-name buf)))
-      . "cd ~/Products/cree/edg && (ninja && ctest -j$(ncpu)) & (cd ~/src/cree; mktags src ext/llvm) & wait"))))
  '(smex-history-length 20)
  '(smex-save-file "~/.emacs.d/data/smex-items")
  '(sp-highlight-pair-overlay nil)
