@@ -119,7 +119,7 @@
              (start-fetchmail
               "*fetchmail*" nil "--idle"
               "--pidfile" (expand-file-name "~/.fetchmail.pid")
-              "-f" "/etc/fetchmailrc")))))
+              "-f" (expand-file-name "~/.fetchmailrc"))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
@@ -130,7 +130,7 @@
                (start-fetchmail
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "~/.fetchmail-lists.pid")
-                "-f" "/etc/fetchmailrc.lists"))))))
+                "-f" (expand-file-name "~/.fetchmailrc.lists")))))))
         ;; (fetchmail-spam-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchmail-spam*"
