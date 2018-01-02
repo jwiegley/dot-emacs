@@ -385,8 +385,9 @@ BAE Systems"))))
  '(gnus-select-method
    (quote
     (nnimap "Local"
-            (nnimap-stream shell)
-            (nnimap-shell-program "~/bin/imap"))))
+            (nnimap-stream plain)
+            (nnimap-address "127.0.0.1")
+            (nnimap-server-port 9143))))
  '(gnus-sieve-file "~/Messages/dovecot.sieve")
  '(gnus-sieve-select-method "nnimap:Local")
  '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
@@ -465,7 +466,7 @@ BAE Systems"))))
  '(message-sendmail-envelope-from (quote header))
  '(message-sendmail-extra-arguments
    (quote
-    ("--read-envelope-from" "--file=/Users/johnw/Messages/msmtp.conf" "--account=fastmail")))
+    ("--read-envelope-from" "--file=/etc/msmtp.conf" "--account=fastmail")))
  '(message-sendmail-f-is-evil t)
  '(message-sent-hook (quote (my-gnus-score-followup)))
  '(message-setup-hook (quote (gnus-harvest-set-from message-check-recipients)))
