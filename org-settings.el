@@ -74,8 +74,8 @@
        (org-agenda-sorting-strategy
         (quote
          (category-up)))))
-     ("o" "Unscheduled open source tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
-      ((org-agenda-overriding-header "Unscheduled Open Source tasks: ")
+     ("d" "Unscheduled open source tasks (by date)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by date): ")
        (org-agenda-skip-function
         (quote
          (org-agenda-skip-entry-if
@@ -87,6 +87,23 @@
        (org-agenda-sorting-strategy
         (quote
          (user-defined-up)))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        (quote
+         ("~/doc/tasks/OSS.txt" "~/doc/tasks/emacs.txt")))))
+     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
+       (org-agenda-skip-function
+        (quote
+         (org-agenda-skip-entry-if
+          (quote scheduled)
+          (quote deadline)
+          (quote timestamp)
+          (quote regexp)
+          "\\* \\(DEFERRED\\|SOMEDAY\\)")))
+       (org-agenda-sorting-strategy
+        (quote
+         (category-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
