@@ -249,7 +249,7 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "/Users/johnw/doc/tasks/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/doc/tasks/bookmarks")
  '(bookmark-default-file "~/doc/tasks/bookmarks")
  '(browse-url-browser-function
    (quote

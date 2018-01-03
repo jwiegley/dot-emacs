@@ -1903,6 +1903,8 @@
   :defer 10
   :bind* (("C-M-." . hkey-either)
           ("A-<return>" . hkey-operate))
+  :init
+  (setq hbmap:dir-user (expand-file-name "hyperb" user-data-directory))
   :config
   (when (eq temp-buffer-show-function #'hkey-help-show)
     (setq temp-buffer-show-function nil))
