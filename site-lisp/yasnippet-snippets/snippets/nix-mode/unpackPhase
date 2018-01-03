@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: unpackPhase
-# key: up
-# --
-unpackPhase = ''
-  $1
-'';
-$0

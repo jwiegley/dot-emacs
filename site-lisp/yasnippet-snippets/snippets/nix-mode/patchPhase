@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: patchPhase
-# key: pp
-# --
-patchPhase = ''
-  $1
-'';
-$0

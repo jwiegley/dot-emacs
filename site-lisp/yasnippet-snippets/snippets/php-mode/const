@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# contributor: USAMI Kenta <tadsan@zonu.me>
-# name: const
-# key: const
-# group: definitions
-# --
-const ${1:NAME} = ${2:value};

@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: with-timeout-of-seconds
-# --
-with timeout of $1 seconds
-$0
-end timeout

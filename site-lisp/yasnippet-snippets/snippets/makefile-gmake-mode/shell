@@ -1,5 +1,0 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: shell
-# key: sh
-# --
-\$(shell ${1:command})$0

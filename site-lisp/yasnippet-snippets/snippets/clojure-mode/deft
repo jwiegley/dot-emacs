@@ -1,8 +1,0 @@
-# name: deftype
-# key: deft
-# --
-(deftype
-  ^{"$1"}$>
-  $2$>
-  [$3]$>
-  $0)$>

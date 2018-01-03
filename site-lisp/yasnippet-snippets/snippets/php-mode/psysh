@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# contributor: USAMI Kenta <tadsan@zonu.me>
-# name: psysh
-# key: psysh
-# group: generic
-# --
-eval(\Psy\sh());

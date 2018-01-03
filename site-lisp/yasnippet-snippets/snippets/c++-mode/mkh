@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: make_heap
-# key: mkh
-# --
-std::make_heap(std::begin(${1:container}), std::end($1));
-$0

@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# contributor: USAMI Kenta <tadsan@zonu.me>
-# name: PHPDoc: @var (one-line)
-# key: @var
-# group: definitions
-# --
-/** @var ${type} */

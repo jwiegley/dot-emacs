@@ -407,9 +407,21 @@
  '(display-time-string-forms
    (quote
     ((format-time-string "%l:%M %p" now)
-     " "
-     (get-jobhours-string)
-     " ")))
+     "  "
+     (let
+         ((str
+           (get-jobhours-string)))
+       (if
+           (string-match "🕓" str)
+           (progn
+             (put-text-property 0
+                                (length str)
+                                (quote face)
+                                (quote bold)
+                                str)
+             str)
+         str))
+     "  ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(ebib-autogenerate-keys t)
@@ -828,7 +840,7 @@
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 500)
  '(kill-whole-line t)
- '(langtool-language-tool-jar "~/.nix-profile/share/languagetool-commandline.jar")
+ '(langtool-language-tool-jar "/run/current-system/sw/share/languagetool-commandline.jar")
  '(large-file-warning-threshold nil)
  '(ledger-binary-path "ledger")
  '(ledger-file "/Volumes/Files/Accounts/ledger.dat")

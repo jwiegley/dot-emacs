@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: #![allow(lint)]
-# key: allow!
-# --
-#![allow(${1:lint})]

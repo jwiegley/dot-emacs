@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: for
-# key: for
-# --
-for ${2:x} <- ${1:enum} do
-  $2$0
-end

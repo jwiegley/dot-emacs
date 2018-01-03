@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: fill_n
-# key: fln
-# --
-std::fill_n(std::begin(${1:container}), $2, $3);
-$0

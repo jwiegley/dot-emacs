@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: repeat
-# --
-repeat $1
-$0
-end repeat

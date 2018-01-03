@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: repeat-until
-# --
-repeat until $1
-$0
-end repeat

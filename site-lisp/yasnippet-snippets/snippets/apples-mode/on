@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: on
-# --
-on $1
-$0
-end $1

@@ -1,6 +1,0 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: notdir
-# contributor: gbalats
-# key: nd
-# --
-\$(notdir ${1:\$(${2:paths})})$0

@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: configurePhase
-# key: cp
-# --
-configurePhase= ''
-$1
-'';
-$0

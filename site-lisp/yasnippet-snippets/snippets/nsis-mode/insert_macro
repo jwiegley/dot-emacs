@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: insert_macro
-# key: im
-# --
-!insertmacro ${1:Name} ${2:"args"}
