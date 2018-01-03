@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: ignoring-application-responses
-# --
-ignoring application responses
-$0
-end ignoring

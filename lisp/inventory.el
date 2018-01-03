@@ -175,6 +175,22 @@ reuse storage as much as possible."
                                          (cons 'use-package-load-path
                                                load-paths))))))
             (goto-char local-end)))))
+    ;; 5. overrides.nix
+    (dolist (file '("~/src/nix/overrides.nix"))
+      (with-temp-buffer
+        (insert-file-contents file)
+        (goto-char (point-min))
+        (re-search-forward "^emacs26FullEnv")
+        (re-search-forward "super: with super; \\[")
+        (forward-line)
+        (while (not (looking-at "^\\s-+\\]"))
+          (when (looking-at "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?:\\s-+#\\s-+\\(.+\\)\\)?$")
+            (let* ((alias (match-string 2))
+                   (name (or alias (match-string 1))))
+              (modhash name pkgs
+                       (lambda (value)
+                         (alist-put value (cons 'nixpkgs-name name))))))
+          (forward-line))))
 
     (with-temp-buffer
       (insert "(\n")
@@ -194,6 +210,7 @@ reuse storage as much as possible."
                                  remote
                                  remote-name)
                              '(use-package-name
+                               nixpkgs-name
                                manifest-path
                                manifest-type
                                manifest-origin

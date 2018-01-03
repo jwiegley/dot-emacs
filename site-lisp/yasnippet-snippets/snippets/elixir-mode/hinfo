@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: hinfo
-# key: hinfo
-# --
-def handle_info($1, state) do
-  $0
-  {:noreply, state}
-end

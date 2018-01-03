@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: search_n
-# key: srn
-# --
-auto pos = std::search_n(std::begin(${1:container}), std::end($1),$2,$3);
-if (pos != std::end($1)) {
-  $4
-}
-$0

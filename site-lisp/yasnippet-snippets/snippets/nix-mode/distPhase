@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: distPhase
-# key: dp
-# --
-distPhase= ''
-$1
-'';
-$0

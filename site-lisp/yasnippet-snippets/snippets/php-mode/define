@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# contributor: USAMI Kenta <tadsan@zonu.me>
-# name: define
-# key: define
-# group: definitions
-# --
-define('${1:NAME}', ${2:value});

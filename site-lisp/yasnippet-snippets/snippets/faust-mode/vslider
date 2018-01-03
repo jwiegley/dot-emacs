@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: vslider
-# key: vs
-# --
-vslider("${1:name}", ${2:default}, ${3:min}, ${4:max}, ${5:step})$0

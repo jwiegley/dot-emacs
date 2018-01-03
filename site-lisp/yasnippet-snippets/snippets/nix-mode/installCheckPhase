@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: installCheckPhase
-# key: ic
-# --
-installCheckPhase= ''
-$1
-'';
-$0

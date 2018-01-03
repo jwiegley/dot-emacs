@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: iop
-# key: iop
-# --
-IO.puts("$1 #{inspect $1}")$0

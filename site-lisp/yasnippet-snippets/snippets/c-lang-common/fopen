@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: FILE *fp = fopen(..., ...);
-# key: fopen
-# --
-FILE *${fp} = fopen(${"file"}, "${r}");

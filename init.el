@@ -450,7 +450,8 @@
 (use-package bookmark+
   :load-path "site-lisp/bookmark-plus"
   :after bookmark
-  :bind ("M-B" . bookmark-bmenu-list))
+  :bind ("M-B" . bookmark-bmenu-list)
+  :commands bmkp-jump-dired)
 
 (use-package browse-at-remote
   :load-path "site-lisp/browse-at-remote"
@@ -1146,8 +1147,8 @@
   ;; values to gnus-settings.el.
   (setq gnus-init-file (emacs-path "dot-gnus")
         gnus-home-directory "~/Messages/Gnus/")
-  :config
-  (defvar fetchmail-password
+
+  (defun fetchmail-password ()
     (lookup-password "imap.fastmail.com" "johnw" 993)))
 
 (use-package dot-org
@@ -2487,15 +2488,19 @@
   (defun magit-monitor (&optional no-display)
     "Start git-monitor in the current directory."
     (interactive)
-    (when (string-match "\\*magit: \\(.+\\)" (buffer-name))
-      (let ((name (format "*git-monitor: %s*"
-                          (match-string 1 (buffer-name)))))
-        (or (get-buffer name)
-            (let ((buf (get-buffer-create name)))
-              (ignore-errors
-                (start-process "*git-monitor*" buf "git-monitor"
-                               "-d" (expand-file-name default-directory)))
-              buf)))))
+    (let* ((path (file-truename
+                  (directory-file-name
+                   (expand-file-name default-directory))))
+           (name (format "*git-monitor: %s*"
+                         (file-name-nondirectory path))))
+      (unless (and (get-buffer name)
+                   (with-current-buffer (get-buffer name)
+                     (string= path (directory-file-name default-directory))))
+        (with-current-buffer (get-buffer-create name)
+          (cd path)
+          (ignore-errors
+            (start-process "*git-monitor*" (current-buffer)
+                           "git-monitor" "-d" path))))))
 
   (defun magit-status-with-prefix ()
     (interactive)
@@ -2515,9 +2520,9 @@
                 (eshell-stringify-list (eshell-flatten-list args)))))))
 
   :hook (magit-mode . hl-line-mode)
-  :config
+  :init
   (setenv "GIT_PAGER" "")
-
+  :config
   (use-package magit-commit
     :config
     ;; (remove-hook 'server-switch-hook 'magit-commit-diff)
@@ -3727,11 +3732,6 @@
   :config
   (yas-load-directory (emacs-path "snippets"))
   (yas-global-mode 1))
-
-(use-package yasnippet-snippets
-  :disabled t
-  :load-path "site-lisp/yasnippet-snippets"
-  :after yasnippet)
 
 (use-package z3-mode
   :load-path "site-lisp/z3-mode"

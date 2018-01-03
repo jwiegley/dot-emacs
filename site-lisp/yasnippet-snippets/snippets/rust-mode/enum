@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: enum Type { ... }
-# key: enum
-# --
-enum ${1:Type} {
-     $0
-}

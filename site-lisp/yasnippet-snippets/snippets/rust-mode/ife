@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: if expression { ... } else { .. }
-# key: ife
-# --
-if ${1:expression} {
-   $0
-} else {
-   
-}

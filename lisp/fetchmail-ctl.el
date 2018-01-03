@@ -46,8 +46,6 @@
                (throw 'proc-running proc)
              (throw 'proc-running nil)))))))
 
-(defvar fetchmail-password)
-
 (defun start-fetchmail (&optional name once &rest extra-args)
   (interactive)
   (let ((procname (or name "*fetchmail*")))
@@ -60,7 +58,7 @@
               (apply #'start-process procname buf
                      "fetchmail" "-n" "-N" args))
         (sleep-for 0 250)
-        (process-send-string fetchmail-process fetchmail-password)
+        (process-send-string fetchmail-process (fetchmail-password))
         (process-send-string fetchmail-process "\n"))
       (message "Starting Fetchmail...done"))))
 

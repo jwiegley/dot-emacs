@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: declare name
-# key: dn
-# --
-declare name "$1";
-$0

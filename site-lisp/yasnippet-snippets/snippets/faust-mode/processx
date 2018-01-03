@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: processx
-# key: px
-# --
-process(${1:x}) = ${2:expression}($1);
