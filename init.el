@@ -1180,6 +1180,7 @@
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 
 (use-package easy-kill
+  :disabled t
   :load-path "site-lisp/easy-kill"
   :bind (("C-. w" . easy-kill)
          ("C-. @" . easy-mark)))
@@ -3273,6 +3274,10 @@ append it to ENTRY."
   :defer 5
   :config
   (save-place-mode 1))
+
+(use-package sdcv
+  :load-path "site-lisp/sdcv"
+  :bind ("C-. w" . sdcv-search))
 
 (use-package selected
   :load-path "site-lisp/selected"
