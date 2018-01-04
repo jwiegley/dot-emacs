@@ -886,6 +886,8 @@
    (quote
     (("Wikipedia" "https://en.wikipedia.org/w/" "jwiegley" "" nil "Main Page"))))
  '(menu-bar-mode nil)
+ '(midnight-delay 18000)
+ '(midnight-mode t)
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook (quote (mudel-add-scroll-to-bottom)))
