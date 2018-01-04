@@ -304,6 +304,7 @@ parsebib,lib,subtree,git://github.com/joostkremers/parsebib.git,
 parsec,lib,subtree,git://github.com/cute-jumper/parsec.el.git,
 pass,site-lisp,subtree,git://github.com/NicolasPetton/pass.git,
 password-store,site-lisp,subtree,git://git.zx2c4.com/password-store,custom-path
+password-store-otp,site-lisp,subtree,git://github.com/volrath/password-store-otp.el.git,
 pcache,lib,subtree,git://github.com/sigma/pcache.git,
 pcre2el,site-lisp,subtree,git://github.com/joddie/pcre2el.git,
 pdf-tools,site-lisp,subtree,git://github.com/politza/pdf-tools.git,custom-path
