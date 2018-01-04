@@ -343,6 +343,7 @@ riscv-mode,site-lisp,subtree,git://github.com/AdamNiederer/riscv-mode.git,
 rs-gnus-summary.el,site-lisp,file,http://theotp1.physik.uni-ulm.de/~ste/comp/emacs/gnus/rs-gnus-summary.el,
 ruby-mode,site-lisp,subversion,http://svn.ruby-lang.org/repos/ruby/trunk/misc,custom-path;custom-remote
 s-el,lib,subtree,git://github.com/magnars/s.el.git,
+sdcv,site-lisp,subtree,git://github.com/gucong/emacs-sdcv.git,
 selected,site-lisp,subtree,git://github.com/Kungsgeten/selected.el.git,
 sh-toggle.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/sh-toggle.el,
 shackle,site-lisp,subtree,git://github.com/wasamasa/shackle.git,
