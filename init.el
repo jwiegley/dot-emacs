@@ -2910,6 +2910,11 @@
     (find-file (concat (expand-file-name entry (password-store-dir))
                        ".gpg"))))
 
+
+(use-package password-store-otp
+  :load-path "site-lisp/password-store-otp"
+  :defer t)
+
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"
   :commands (rxt-mode rxt-global-mode))
