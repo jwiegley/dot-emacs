@@ -2910,10 +2910,29 @@
     (find-file (concat (expand-file-name entry (password-store-dir))
                        ".gpg"))))
 
-
 (use-package password-store-otp
   :load-path "site-lisp/password-store-otp"
-  :defer t)
+  :defer t
+  :config
+  (defun password-store-otp-append-from-image (entry)
+    "Check clipboard for an image and scan it to get an OTP URI,
+append it to ENTRY."
+    (interactive (list (read-string "Password entry: ")))
+    (let ((qr-image-filename (password-store-otp--get-qr-image-filename entry)))
+      (when (not (zerop (call-process "screencapture" nil nil nil
+                                      "-T5" qr-image-filename)))
+        (error "Couldn't get image from clipboard"))
+      (with-temp-buffer
+        (condition-case nil
+            (call-process "zbarimg" nil t nil "-q" "--raw"
+                          qr-image-filename)
+          (error
+           (error "It seems you don't have `zbar-tools' installed")))
+        (password-store-otp-append
+         entry
+         (buffer-substring (point-min) (point-max))))
+      (when (not password-store-otp-screenshots-path)
+        (delete-file qr-image-filename)))))
 
 (use-package pcre2el
   :load-path "site-lisp/pcre2el"
