@@ -408,19 +408,7 @@
    (quote
     ((format-time-string "%l:%M %p" now)
      "  "
-     (let
-         ((str
-           (get-jobhours-string)))
-       (if
-           (string-match "🕓" str)
-           (progn
-             (put-text-property 0
-                                (length str)
-                                (quote face)
-                                (quote bold)
-                                str)
-             str)
-         str))
+     (get-jobhours-string)
      "  ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)

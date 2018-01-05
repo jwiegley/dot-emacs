@@ -3357,7 +3357,8 @@ append it to ENTRY."
   :defer 10
   :config
   (sml/setup)
-  (sml/apply-theme 'light))
+  (sml/apply-theme 'light)
+  (remove-hook 'display-time-hook 'sml/propertize-time-string))
 
 (use-package smart-newline
   :load-path "site-lisp/smart-newline"
