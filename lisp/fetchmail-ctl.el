@@ -114,21 +114,29 @@
           "*fetchmail*"
           (function
            (lambda ()
-             (start-fetchmail
-              "*fetchmail*" nil "--idle"
-              "--pidfile" (expand-file-name "~/.fetchmail.pid")
-              "-f" (expand-file-name "~/.fetchmailrc"))))))
+             (let ((config-dir (expand-file-name "~/.config/fetchmail"))
+                   (cache-dir (expand-file-name "~/.cache/fetchmail")))
+               (unless (file-directory-p cache-dir)
+                 (make-directory cache-dir t))
+               (start-fetchmail
+                "*fetchmail*" nil "--idle"
+                "--pidfile" (expand-file-name "pid" cache-dir)
+                "-f" (expand-file-name "config.copy" config-dir)))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
           (function
            (lambda ()
-             (let ((process-environment (copy-alist process-environment)))
+             (let ((process-environment (copy-alist process-environment))
+                   (config-dir (expand-file-name "~/.config/fetchmail"))
+                   (cache-dir (expand-file-name "~/.cache/fetchmail")))
+               (unless (file-directory-p cache-dir)
+                 (make-directory cache-dir t))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
                (start-fetchmail
                 "*fetchmail-lists*" nil
-                "--pidfile" (expand-file-name "~/.fetchmail-lists.pid")
-                "-f" (expand-file-name "~/.fetchmailrc.lists")))))))
+                "--pidfile" (expand-file-name "lists.pid" cache-dir)
+                "-f" (expand-file-name "config-lists.copy" config-dir)))))))
         ;; (fetchmail-spam-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchmail-spam*"

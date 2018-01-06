@@ -2064,7 +2064,7 @@
   :after cus-edit
   :defer 5)
 
-(use-package interactive-align
+(use-package ialign
   :load-path "site-lisp/interactive-align"
   :bind ("C-. [" . ialign-interactive-align))
 
