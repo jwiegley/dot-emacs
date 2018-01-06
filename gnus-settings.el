@@ -466,7 +466,7 @@ BAE Systems"))))
  '(message-sendmail-envelope-from (quote header))
  '(message-sendmail-extra-arguments
    (quote
-    ("--read-envelope-from" "--file=/etc/msmtp.conf" "--account=fastmail")))
+    ("--read-envelope-from" "--file=/Users/johnw/.config/msmtp" "--account=fastmail")))
  '(message-sendmail-f-is-evil t)
  '(message-sent-hook (quote (my-gnus-score-followup)))
  '(message-setup-hook (quote (gnus-harvest-set-from message-check-recipients)))

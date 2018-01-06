@@ -967,7 +967,7 @@
  '(recentf-exclude
    (quote
     ("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'")))
- '(recentf-max-saved-items 200)
+ '(recentf-max-saved-items 2000)
  '(recentf-save-file "~/.emacs.d/data/recentf")
  '(redisplay-dont-pause t t)
  '(reftex-plug-into-AUCTeX t)
