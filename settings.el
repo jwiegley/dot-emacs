@@ -223,7 +223,7 @@
    (quote
     (("/Volumes/Files/" . "/Volumes/Files/.backups")
      ("\\(recentf\\|archive/sent\\)" . "/tmp")
-     (".*" . "~/.backups"))))
+     (".*" . "~/.cache/emacs/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bbdb-default-country "")
  '(bbdb-file "~/doc/tasks/bbdb" t)
@@ -912,7 +912,7 @@
  '(pcomplete-compare-entries-function (quote file-newer-than-file-p))
  '(pdf-tools-handle-upgrades nil)
  '(persistent-scratch-autosave-interval 30)
- '(persistent-scratch-backup-directory "~/.backups")
+ '(persistent-scratch-backup-directory "~/.cache/emacs/backups")
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(persistent-scratch-save-file "/Users/johnw/.emacs.d/data/persistent-scratch")
  '(phi-search-limit 100000)
@@ -1135,7 +1135,7 @@
    (quote
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
- '(tramp-auto-save-directory "~/.backups" nil (tramp))
+ '(tramp-auto-save-directory "~/.cache/emacs/backups" nil (tramp))
  '(tramp-default-method-alist
    (quote
     (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))) nil (tramp))
@@ -1143,7 +1143,7 @@
  '(tramp-use-ssh-controlmaster-options nil nil (tramp))
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
- '(undo-tree-history-directory-alist (quote ((".*" . "~/.backups"))))
+ '(undo-tree-history-directory-alist (quote ((".*" . "~/.cache/emacs/backups"))))
  '(undo-tree-mode-lighter "")
  '(undo-tree-visualizer-timestamps t)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
