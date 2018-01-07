@@ -5485,7 +5485,7 @@ Tweaks company-mode settings for smoother use with Coq."
   (company-coq-do-in-coq-buffers
     (pcase arg
       (`on
-       (setq-local company-idle-delay 0.01)
+       (setq-local company-idle-delay nil)
        (setq-local company-tooltip-align-annotations t)
        (setq-local company-abort-manual-when-too-short t)
        ;; See https://github.com/cpitclaudel/company-coq/issues/42

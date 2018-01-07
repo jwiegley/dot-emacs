@@ -38,10 +38,11 @@
   (require 'seq)
 
   (defconst emacs-environment
-    (let ((env (or (getenv "NIX_MYENV_NAME") "emacs26full")))
-      (if (string= env (concat "ghc" (getenv "GHCVER")))
+    (let ((name (getenv "NIX_MYENV_NAME")))
+      (if (or (null name)
+              (string= name (concat "ghc" (getenv "GHCVER"))))
           "emacs26full"
-        env)))
+        name)))
 
   (setq load-path
         (append '("~/emacs"
@@ -50,7 +51,8 @@
                   "~/emacs/lisp"
                   "~/emacs/lisp/use-package")
                 (cl-remove-if
-                 (apply-partially #'string-match "/org\\'")
+                 (apply-partially #'string-match
+                                  "\\(emacs-packages-deps/\\|/org\\'\\)")
                  (delete-dups load-path))))
 
   (defun nix-read-environment (name)
@@ -89,7 +91,8 @@
 (eval-and-compile
   (defconst emacs-data-suffix
     (cond ((string= "emacsHEAD" emacs-environment) "alt")
-          ((string= "emacs26full" emacs-environment) "full")))
+          ((string-match "emacs26\\(.+\\)$" emacs-environment)
+           (match-string 1))))
 
   (defconst running-alternate-emacs (string= emacs-data-suffix "alt"))
 
@@ -2361,6 +2364,7 @@
   :interpreter "lua")
 
 (use-package lusty-explorer
+  :disabled t
   :load-path "site-lisp/lusty-emacs"
   :bind (("C-x C-f" . my-lusty-file-explorer))
   :preface
@@ -2432,7 +2436,8 @@
   :config
   (defun my-lusty-setup-hook ()
     (bind-key "SPC" #'lusty-select-match lusty-mode-map)
-    (bind-key "C-d" #'exit-minibuffer lusty-mode-map))
+    (bind-key "C-d" #'exit-minibuffer lusty-mode-map)
+    (bind-key "C-M-j" #'exit-minibuffer lusty-mode-map))
 
   (add-hook 'lusty-setup-hook 'my-lusty-setup-hook)
 
@@ -3108,6 +3113,7 @@ append it to ENTRY."
                              (_ t)))))))
 
   (use-package pg-user
+    :defer t
     :config
     (defadvice proof-retract-buffer
         (around my-proof-retract-buffer activate)
@@ -3874,22 +3880,20 @@ append it to ENTRY."
       (emacs-min)
     (emacs-max)))
 
-(when window-system
-  (add-hook 'after-init-hook #'emacs-min t))
+(add-hook 'after-init-hook #'emacs-min t)
 
 ;;; Finalization
 
-(when window-system
-  (let ((elapsed (float-time (time-subtract (current-time)
-                                            emacs-start-time))))
-    (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+(let ((elapsed (float-time (time-subtract (current-time)
+                                          emacs-start-time))))
+  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
 
-  (add-hook 'after-init-hook
-            `(lambda ()
-               (let ((elapsed
-                      (float-time
-                       (time-subtract (current-time) emacs-start-time))))
-                 (message "Loading %s...done (%.3fs) [after-init]"
-                          ,load-file-name elapsed))) t))
+(add-hook 'after-init-hook
+          `(lambda ()
+             (let ((elapsed
+                    (float-time
+                     (time-subtract (current-time) emacs-start-time))))
+               (message "Loading %s...done (%.3fs) [after-init]"
+                        ,load-file-name elapsed))) t)
 
 ;;; init.el ends here
