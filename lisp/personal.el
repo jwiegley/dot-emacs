@@ -287,4 +287,9 @@
                       (puthash key (traverse f value) x)) x))
         (t (funcall f x))))
 
+(defun comment-and-copy (beg end)
+  (interactive "r")
+  (insert (buffer-substring beg end))
+  (comment-region beg end))
+
 (provide 'personal)

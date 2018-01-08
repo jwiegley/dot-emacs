@@ -3015,6 +3015,7 @@ append it to ENTRY."
              ("M-\""  . insert-pair)
              ("M-`"   . other-frame)
              ("M-g c" . goto-char)
+             ("C-M-;" . comment-and-copy)
 
              ("C-c ="   . count-matches)
              ("C-c SPC" . just-one-space)
