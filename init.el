@@ -3281,7 +3281,7 @@ append it to ENTRY."
   :config
   (save-place-mode 1))
 
-(use-package sdcv
+(use-package sdcv-mode
   :load-path "site-lisp/sdcv"
   :bind ("C-. w" . sdcv-search))
 
