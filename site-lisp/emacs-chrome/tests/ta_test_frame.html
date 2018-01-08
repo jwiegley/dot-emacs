@@ -1,0 +1,90 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <style type="text/css">
+      h1,h2,h3 {
+	  clear:both;
+      }
+      
+      div.editable {
+	  width: 339px;
+	  border-width: 1px;
+	  box-sizing: border-box;
+	  word-wrap: break-word;
+      }
+
+      div.left {
+	  float:left;
+      }
+
+      div.right {
+	  float:right;
+      }
+    </style>
+
+    <title>Embedded Frame Text Area Test</title>
+  </head>
+
+  <body>
+
+
+    <h1>Introduction</h1>
+
+    This is a simple embedded frame with couple of textareas.
+
+    <h1>Class Text Areas</h1>
+
+    <h2>pre-filled</h2>
+    <div class="left" id="first">
+      <form name="myform">
+	<input type="button" name="ta1_test" value="Test" onclick="seeTextArea(this.form)"/>
+	<textarea name="first_textarea" cols="40" rows="5" id="foo">
+	  Frame Text Area 1
+	</textarea>
+      </form>
+    </div>
+
+    <h2>read-only</h2>
+    <div class="left" id="third">
+    <form name="myroform">
+      <input type="button" name="ro_button" value="Test" onclick="seeTextArea(this.form)"/>
+      <textarea name="read" cols="40" rows="5" id="baz" readonly="readonly">
+This is some read-only text
+      </textarea>
+    </form>
+    </div>
+    <button onclick="duplicateDiv('third',this)">Duplicate Me</button>
+
+    <h1>Editable DIVs</h1>
+    <h2>pre-filled</h2>
+    <div class="left" id="fourth">
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce1)"/>
+      <div class="editable" id="ce1" contenteditable="true">
+	This is an editable div....
+      </div>
+    </div>
+
+    <h2>Empty but editable</h2>
+    <div class="left" id="fifth">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce2)"/>
+      <div class="editable" id="ce2" contenteditable="true"></div>
+    </div>
+
+    <h2>pre-filled with plain text</h2>
+    <div class="left" id="sixth">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce3)"/>
+      <div class="editable" id="ce3" contenteditable="plaintext-only">
+	Some content is plain text only...
+      </div>
+    </div>
+
+    <h2>Empty with plain text</h2>
+    <div class="left" id="seventh">  
+      <input type="button" name="ro_button" value="Test" onclick="showDiv(#ce4)"/>
+      <div class="editable" id="ce4" contenteditable="plaintext-only"></div>
+    </div>
+
+  </body>
+</html>
+
