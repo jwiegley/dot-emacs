@@ -1265,6 +1265,13 @@
   :bind (("C-c m e" . elmacro-mode)
          ("C-x C-)" . elmacro-show-last-macro)))
 
+(use-package emacs-chrome
+  :if window-system
+  :load-path "site-lisp/emacs-chrome/servers"
+  :defer 5
+  :config
+  (edit-server-start))
+
 (use-package emacs-cl
   ;; jww (2017-12-10): This is not building under Emacs 26.
   :disabled t
