@@ -3291,31 +3291,30 @@ append it to ENTRY."
 
 (use-package sdcv-mode
   :load-path "site-lisp/sdcv"
-  :bind ("C-. w" . sdcv-search)
+  :bind ("C-. w" . my-sdcv-search)
   :config
   (defvar sdcv-index nil)
 
-  (advice-add
-   'sdcv-search :around
-   #'(lambda (orig-func word &optional dict-list-name dict-list interactive-p)
-       (flet ((read-string
-               (prompt &optional initial-input history
-                       default-value inherit-input-method)
-               (ivy-read prompt
-                         (or sdcv-index
-                             (with-temp-buffer
-                               (insert-file-contents
-                                "~/.local/share/dictionary/websters.index")
-                               (goto-char (point-max))
-                               (insert ")")
-                               (goto-char (point-min))
-                               (insert "(")
-                               (goto-char (point-min))
-                               (setq sdcv-index (read (current-buffer)))))
-                         :history history
-                         :initial-input initial-input
-                         :def default-value)))
-         (funcall orig-func word dict-list-name dict-list interactive-p)))))
+  (defun my-sdcv-search ()
+    (interactive)
+    (flet ((read-string
+            (prompt &optional initial-input history
+                    default-value inherit-input-method)
+            (ivy-read prompt
+                      (or sdcv-index
+                          (with-temp-buffer
+                            (insert-file-contents
+                             "~/.local/share/dictionary/websters.index")
+                            (goto-char (point-max))
+                            (insert ")")
+                            (goto-char (point-min))
+                            (insert "(")
+                            (goto-char (point-min))
+                            (setq sdcv-index (read (current-buffer)))))
+                      :history history
+                      :initial-input initial-input
+                      :def default-value)))
+      (call-interactively #'sdcv-search))))
 
 (use-package selected
   :load-path "site-lisp/selected"
