@@ -908,6 +908,10 @@ end tell" (match-string 1))))
   :disabled t
   :load-path "site-lisp/orgit")
 
+(use-package org-noter
+  :load-path "site-lisp/org-noter"
+  :commands org-noter)
+
 (use-package org-opml
   :disabled t
   :load-path "site-lisp/org-opml")
