@@ -1,4 +1,4 @@
-;;; anki-editor.el --- Create Anki cards in Org-mode  -*- lexical-binding: t; -*-
+;;; anki-editor.el --- Create Anki cards in Org-mode  -*- lexical-binding: nil; -*-
 
 ;; Copyright (C) 2018  Louie Tan
 
