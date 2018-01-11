@@ -2855,6 +2855,10 @@
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
 
+(use-package ovpn-mode
+  :load-path "site-lisp/ovpn-mode"
+  :commands ovpn)
+
 (use-package package-lint
   :load-path "site-lisp/package-lint"
   :commands package-lint-current-buffer)
@@ -3242,6 +3246,7 @@ append it to ENTRY."
   :commands riscv-mode)
 
 (use-package rtags
+  ;; jww (2018-01-09): https://github.com/Andersbakken/rtags/issues/1123
   :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :commands rtags-mode
