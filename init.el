@@ -319,9 +319,6 @@
         (indent-region beg end-mark nil)
         (align beg end-mark)))))
 
-(use-package anki-editor
-  :load-path "site-lisp/anki-editor")
-
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
   :commands (ascii-on ascii-off)
