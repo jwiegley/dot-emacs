@@ -2657,6 +2657,10 @@
   :load-path "site-lisp/moccur-edit"
   :after color-moccur)
 
+(use-package mode-line-bell
+  :load-path "site-lisp/mode-line-bell"
+  :defer 5)
+
 (use-package monitor
   :load-path "site-lisp/monitor"
   :defer t
