@@ -92,7 +92,7 @@
   (defconst emacs-data-suffix
     (cond ((string= "emacsHEAD" emacs-environment) "alt")
           ((string-match "emacs26\\(.+\\)$" emacs-environment)
-           (match-string 1))))
+           (match-string 1 emacs-environment))))
 
   (defconst running-alternate-emacs (string= emacs-data-suffix "alt"))
 
