@@ -253,6 +253,7 @@ mic-paren.el,site-lisp,file,https://www.emacswiki.org/emacs/download/mic-paren.e
 minimap,site-lisp,subtree,git://github.com/dengste/minimap.git,
 mmm-mode,site-lisp,subtree,git://github.com/purcell/mmm-mode,
 moccur-edit,site-lisp,subtree,git://github.com/myuhe/moccur-edit.el.git,
+mode-line-bell,site-lisp,subtree,git://github.com/purcell/mode-line-bell.git,
 monitor,site-lisp,subtree,git://github.com/GuiltyDolphin/monitor.git,
 mudel.el,site-lisp,file,https://www.emacswiki.org/emacs/download/mudel.el,
 multi-term,site-lisp,subtree,git://github.com/milkypostman/multi-term.git,
