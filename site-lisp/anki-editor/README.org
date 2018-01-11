@@ -1,0 +1,33 @@
+anki-editor -- an Emacs package that helps you create Anki cards in Org-mode
+
+* Requirements
+  - [[https://github.com/FooSoft/anki-connect#installation][anki-connect]], an Anki add-on which is required for this package to
+    interact with Anki.
+  - curl
+
+* Usage
+  1. Download it and put it into your Emacs' =load-path=
+  2. =(require 'anki-editor)=
+  3. Write notes in org syntax, e.g. [[./examples.org][examples.org]]
+     - Headings of deck are tagged with =deck=
+     - Headings of note are tagged with =note=
+     - Custom properties of a note heading can be used to specify note
+       type and tags
+     - Subheadings of a note heading are fields of its note type
+     - The contents of field headings will be converted to html by
+       org-mode's html backend, with the latex syntax translated to
+       the Anki style
+  4. Command Cheat Sheet
+     | Command                                       | Default Keybinding | Description                                                                                                                                                                                                |
+     |-----------------------------------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+     | =anki-editor-setup-default-keybindings=       | N/A                | Set up default keybindings.                                                                                                                                                                                |
+     | =anki-editor-submit=                          | C-c a s            | Send notes in current buffer to Anki.                                                                                                                                                                      |
+     | =anki-editor-insert-deck=                     | C-c a i d          | Insert a deck heading with the same level as current heading. With prefix, only insert the deck name.                                                                                                      |
+     | =anki-editor-insert-note=                     | C-c a i n          | Insert a note heading that's one level lower to current heading. The inserted heading will be structured with the property drawer and subheadings that correspond to the fields of the selected note type. |
+     | =anki-editor-export-heading-contents-to-html= | C-c a e            | Export the contents of the heading at point to HTML.                                                                                                                                                       |
+     | =anki-editor-convert-region-to-html=          | N/A                | Convert and replace region to HTML.                                                                                                                                                                        |
+
+  *Not a native speaker, hope this README is clear enough. Happy hacking :)*
+
+** Demo
+   [[./demo.gif]]
