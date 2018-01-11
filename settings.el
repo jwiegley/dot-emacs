@@ -513,6 +513,7 @@
  '(erc-user-full-name (quote user-full-name))
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-name "~/.emacs.d/eshell/")
+ '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
  '(eshell-ls-dired-initial-args (quote ("-h")))
  '(eshell-ls-exclude-regexp "~\\'")
