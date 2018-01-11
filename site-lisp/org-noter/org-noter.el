@@ -215,7 +215,7 @@ moment."
       (goto-char begin)
       (org-show-entry)
       (org-narrow-to-subtree)
-      (org-show-children)
+      (org-show-subtree)
       (if (or (< old-point contents-pos)
               (and (not (eq end (point-max))) (>= old-point end)))
           (goto-char contents-pos)
