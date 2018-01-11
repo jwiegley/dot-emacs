@@ -898,6 +898,7 @@
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(olivetti-hide-mode-line t)
+ '(ovpn-mode-base-directory "~/.config/openvpn")
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
    (quote
