@@ -1204,6 +1204,7 @@
  ;; If there is more than one, they won't work right.
  '(company-coq-features/code-folding-bullet-face ((t (:weight bold))))
  '(coq-symbol-face ((t (:inherit default-face))))
+ '(cursor ((t (:background "#8D0CFF"))))
  '(diff-added ((((background dark)) (:foreground "#FFFF9B9BFFFF")) (t (:foreground "DarkGreen"))))
  '(diff-changed ((((background dark)) (:foreground "Yellow")) (t (:foreground "MediumBlue"))))
  '(diff-context ((((background dark)) (:foreground "White")) (t (:foreground "Black"))))
@@ -1217,7 +1218,7 @@
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
  '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.4))))
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
- '(mode-line-inactive ((t (:inherit mode-line :background "grey90" :foreground "grey20" :weight normal))))
+ '(mode-line-inactive ((t (:background "grey95"))))
  '(proof-script-sticky-error-face ((t (:background "yellow"))))
  '(variable-pitch ((t (:height 1.2 :family "Myriad Pro"))))
  '(whitespace-line ((t (:background "#fff7d5"))))
