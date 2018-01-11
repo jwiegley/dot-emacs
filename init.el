@@ -2656,7 +2656,9 @@
 
 (use-package mode-line-bell
   :load-path "site-lisp/mode-line-bell"
-  :defer 5)
+  :defer 5
+  :config
+  (mode-line-bell-mode))
 
 (use-package monitor
   :load-path "site-lisp/monitor"
