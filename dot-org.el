@@ -836,6 +836,10 @@ end tell" (match-string 1))))
          (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
     (apply #'diary-date greg-date)))
 
+(use-package anki-editor
+  :load-path "site-lisp/anki-editor"
+  :commands anki-editor-submit)
+
 (use-package calfw
   :load-path "site-lisp/emacs-calfw"
   :bind (("C-c A" . my-calendar)
