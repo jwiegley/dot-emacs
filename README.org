@@ -1,0 +1,132 @@
+* Org-noter - A synchronized, Org-mode, document annotator [[https://melpa.org/#/org-noter][file:https://melpa.org/packages/org-noter-badge.svg]]
+After using Sebastian Christ's amazing [[https://github.com/rudolfochrist/interleave][Interleave package]] for some time, I got some ideas
+on how I could improve upon it, usability and feature-wise. So I created this package from
+scratch with those ideas in mind!
+
+Org-Noter's purpose is to let you create notes that are kept in sync when you scroll through
+the document, but that are external to it - the notes themselves live in an Org-mode file.
+As such, this leverages the power of [[http://orgmode.org/][Org-mode]] (the notes may have outlines, latex
+fragments, babel, etc...) while acting like notes that are made /inside/ the document.
+Also, taking notes is very simple: just press @@html:<kbd>@@i@@html:</kbd>@@ and annotate
+away!
+
+*Note*: While this is similar to ~interleave~, it is not intended to be a clone;
+therefore, /not every feature of the original mode is available/! You may prefer using the
+original, because this is a different take on the same idea. [[#diff][View some differences here.]]
+
+Also, while it is not needed, you may want to try [[https://github.com/politza/pdf-tools][PDF Tools]] for a /much better/
+experience with PDFs. Nevertheless, this package is also compatible with [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][DocView]]. There
+might be discrepancies /if you change between the two/, eg., when setting a localized
+note.
+
+** Features
+- Easy to use annotation interface :: Just press @@html:<kbd>@@i@@html:</kbd>@@ in the
+     document buffer and annotate away!
+- Keep your notes in sync with the document :: When you take a note by pressing
+     @@html:<kbd>@@i@@html:</kbd>@@, it saves the page where you took it so it is able to
+     show you the notes while you scroll, automatically! Also, there is a new command
+     that, besides saving the page, also asks for the page position, so it scrolls there
+     when syncing the note page to the document!
+- Easy navigation :: You may navigate your document as usual, seeing the notes buffer
+     scroll and show you the respective notes; however, you may also navigate by notes,
+     only seeing annotated pages.
+- Isolated interface :: Each session has its own frame and the document and notes buffers
+     are indirect buffers to the original ones. Killing any of these things will terminate
+     your annotation session.
+- Simultaneous sessions :: You may open as many annotation sessions as you wish, at the
+     same time! The root heading of each document will be made read-only to prevent you
+     from deleting a heading from an open session.
+
+Compatible with PDF Tools and DocView.
+
+** Installation
+*** MELPA
+This package is [[https://melpa.org/#/org-noter][available from MELPA]], so if you want to install it and have added MELPA to
+your package archives, you can run
+@@html:<kbd>@@M-x@@html:</kbd>@@ ~package-install~ @@html:<kbd>@@RET@@html:</kbd>@@ ~org-noter~
+
+*** Manual installation
+You can also install it manually, using =package.el=.
+1. Download =org-noter.el=
+2. Open it
+3. Run @@html:<kbd>@@M-x@@html:</kbd>@@ ~package-install-from-buffer~ @@html:<kbd>@@RET@@html:</kbd>@@
+
+** Usage
+The usage is very simple:
+- Just have an Org file where you want the notes to go
+- Create a root heading to hold the notes
+- Run @@html:<kbd>@@M-x@@html:</kbd>@@ ~org-noter~ inside!
+  On the first run, it will ask you for the path of the document and save it in a
+  property.
+
+This will open a new dedicated frame where you can use [[#keys][the keybindings described here]].
+
+There are some things you may change; find them through the customization interface or
+just open =org-noter.el=!
+
+** Screencast
+/Not yet available/... sorry!
+
+** Keybindings @@html:<a name="keys">@@
+:PROPERTIES:
+:CUSTOM_ID: keys
+:END:
+| Key                              | Description                                 | Where?                    |
+| @@html:<kbd>@@i@@html:</kbd>@@   | Insert note on this page                    | Document buffer           |
+| @@html:<kbd>@@M-i@@html:</kbd>@@ | Insert new localized note                   | Document buffer           |
+| @@html:<kbd>@@q@@html:</kbd>@@   | Kill session                                | Document buffer           |
+| @@html:<kbd>@@M-p@@html:</kbd>@@ | Go to the page of the previous set of notes | Document and notes buffer |
+| @@html:<kbd>@@M-.@@html:</kbd>@@ | Go to the page of the selected set of notes | Document and notes buffer |
+| @@html:<kbd>@@M-n@@html:</kbd>@@ | Go to the page of the next set of notes     | Document and notes buffer |
+
+You can use the usual keybindings to navigate the document
+(@@html:<kbd>@@n@@html:</kbd>@@, @@html:<kbd>@@p@@html:</kbd>@@,
+@@html:<kbd>@@SPC@@html:</kbd>@@, ...).
+
+In PDF Tools, I use the hook provided to know when the current page changes
+(=pdf-view-after-change-page-hook=). In DocView, I advise =doc-view-goto-page=.
+
+You may also want to check the docstrings of the functions associated with the
+keybindings, because there is some extra functionality in some. Also there other commands
+like ~org-noter-other-window-config~ and ~org-noter-set-start-page~.
+
+** Why a rewrite from scratch? Why not contribute to the existing Interleave package?
+Doing a refactor on a foreign codebase takes a long time because of several factors, like
+introducing the ideas to the owner (with which he may even disagree), learning its
+internals, proposing pull requests, more back and forth in code review, etc...
+
+Besides, I like doing things from scratch, not only because it expands my skills, but also
+because it is something I find very rewarding!
+
+*** Some differences from Interleave @@html:<a name="diff">@@
+:PROPERTIES:
+:CUSTOM_ID: diff
+:END:
+Note that this list *is not* exhaustive!
+
+There are new features, such as each session having its own frame and the possibility of
+having several sessions simultaneously (even of the same document and/or from the same
+notes file!). Aside from that, using indirect buffers is also great, because the narrowing
+is only applied in the indirect one, not on the original, so you may continue working on
+the rest of the buffer when interleaving.
+
+Also, this is as if you always used the multi-pdf mode of the original - you can't open a
+session without having a parent headline. As such, there is still no way to open the notes
+from the document file (when I have time, maybe I'll try to implement this).
+
+For compatibility with existing notes made with Sebastian's Interleave, *you must* change
+the following variables like this:
+#+BEGIN_SRC emacs-lisp
+  (setq org-noter-property-doc-file "INTERLEAVE_PDF"
+        org-noter-property-note-page "INTERLEAVE_PAGE_NOTE")
+#+END_SRC
+
+One of the reasons of rewriting from scratch is to fix some bugs, like:
+- Notes not sorted
+- Notes not synced when executing different page change commands, eg. goto-page or
+  beginning-of-buffer
+- Sometimes it would start narrowing other parts of the buffer, giving errors when trying
+  to go to notes.
+
+** Acknowledgments
+I must thank [[https://github.com/rudolfochrist][Sebastian]] for the original idea and the inspiration!
