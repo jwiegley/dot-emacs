@@ -866,7 +866,7 @@ If the other ring is also displayed, then its displayed is updated."
 
 ;;; Key Bindings
 
-(browse-kill-ring-default-keybindings)
+;; (browse-kill-ring-default-keybindings)
 
 ;;;;;;;;;;;;;;;;;;;;;
 

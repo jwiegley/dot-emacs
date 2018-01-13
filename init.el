@@ -850,11 +850,18 @@
                    "\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
          ;; ("C-x C-f" . counsel-find-file)
-         ("C-h f"   . counsel-describe-function)
          ("C-c e l" . counsel-find-library)
+         ("C-c e q" . counsel-set-variable)
          ("C-h e l" . counsel-find-library)
          ("C-h e u" . counsel-unicode-char)
-         ("M-x"     . counsel-M-x))
+         ("C-h f"   . counsel-describe-function)
+         ("C-x r b" . counsel-bookmark)
+         ("M-x"     . counsel-M-x)
+         ("M-y"     . counsel-yank-pop)
+
+         ("M-s f" . counsel-rg)
+         ("M-s j" . counsel-dired-jump)
+         ("M-s n" . counsel-file-jump))
   :commands counsel-minibuffer-history
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
@@ -1670,10 +1677,10 @@
   :mode "\\.dot\\'")
 
 (use-package grep
-  :bind (("M-s f" . find-grep)
-         ("M-s d" . find-grep-dired)
-         ("M-s n" . find-name-dired)
-         ("M-s g" . grep)))
+  :bind (("M-s d" . find-name-dired)
+         ("M-s F" . find-grep)
+         ("M-s g" . grep)
+         ("M-s m" . find-grep-dired)))
 
 (use-package gud
   :commands gud-gdb
@@ -2540,7 +2547,6 @@
   :config
   (use-package magit-commit
     :config
-    ;; (remove-hook 'server-switch-hook 'magit-commit-diff)
     (use-package git-commit))
 
   (use-package magit-files
@@ -2748,6 +2754,7 @@
          ("<C-m> w"     . mc/mark-next-like-this-word)
          ("<C-m> x"     . mc/mark-more-like-this-extended)
          ("<C-m> y"     . mc/mark-next-like-this-symbol)
+         ("<C-m> C-x"   . reactivate-mark)
          ("<C-m> C-SPC" . mc/mark-pop)
          ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
          ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
@@ -2770,7 +2777,12 @@
               ("y"   . mc/mark-next-symbol-like-this)
               ("Y"   . mc/mark-previous-symbol-like-this)
               ("w"   . mc/mark-next-word-like-this)
-              ("W"   . mc/mark-previous-word-like-this)))
+              ("W"   . mc/mark-previous-word-like-this))
+
+  :preface
+  (defun reactivate-mark ()
+    (interactive)
+    (activate-mark)))
 
 (use-package navi-mode
   :load-path "site-lisp/navi"
@@ -3686,7 +3698,8 @@ append it to ENTRY."
              whitespace-newline-mode)
   :commands (whitespace-buffer
              whitespace-cleanup
-             whitespace-mode)
+             whitespace-mode
+             whitespace-turn-off)
   :preface
   (defun normalize-file ()
     (interactive)
@@ -3705,8 +3718,11 @@ append it to ENTRY."
         (save-buffer))))
 
   (defun maybe-turn-on-whitespace ()
-    "Depending on the file, maybe clean up whitespace."
-    (when (and (not (memq major-mode '(markdown-mode)))
+    "depending on the file, maybe clean up whitespace."
+    (when (and (not (or (memq major-mode '(markdown-mode))
+                        (and buffer-file-name
+                             (string-match "\\(\\.texi\\|commit_editmsg\\)\\'"
+                                           buffer-file-name))))
                (locate-dominating-file default-directory ".clean")
                (not (locate-dominating-file default-directory ".noclean")))
       (add-hook 'write-contents-hooks
@@ -3737,6 +3753,8 @@ append it to ENTRY."
   (global-whitespace-cleanup-mode 1))
 
 (use-package whole-line-or-region
+  :unless (or noninteractive
+              running-alternate-emacs)
   :load-path "site-lisp/whole-line-or-region"
   :defer 5
   :diminish whole-line-or-region-local-mode
