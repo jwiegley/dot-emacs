@@ -230,7 +230,7 @@ Separate multiple IDs with spaces."
                      (read-string "Login: ")
                      (read-passwd "Password: " t)))
   (message "%s" (shell-command-to-string
-                 (if (string= "" password)
+                 (if (string= "" login)
                      (format "echo %s | %s insert -m -f %s"
                              (shell-quote-argument password)
                              password-store-executable
