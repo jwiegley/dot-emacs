@@ -319,6 +319,10 @@
         (indent-region beg end-mark nil)
         (align beg end-mark)))))
 
+(use-package aria2
+  :load-path "site-lisp/aria2"
+  :commands aria2-downloads-list)g
+
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
   :commands (ascii-on ascii-off)
