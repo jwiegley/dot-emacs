@@ -849,7 +849,7 @@
                    (regexp-opt completion-ignored-extensions)
                    "\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
-         ;; ("C-x C-f" . counsel-find-file)
+         ("C-x C-f" . counsel-find-file)
          ("C-c e l" . counsel-find-library)
          ("C-c e q" . counsel-set-variable)
          ("C-h e l" . counsel-find-library)
