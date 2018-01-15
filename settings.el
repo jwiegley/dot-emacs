@@ -351,6 +351,7 @@
  '(company-global-modes (quote (emacs-lisp-mode haskell-mode c-mode c++-mode)))
  '(company-idle-delay nil)
  '(company-quickhelp-use-propertized-text t)
+ '(company-show-numbers t)
  '(compilation-always-kill t)
  '(compilation-ask-about-save nil)
  '(compilation-context-lines 10)
