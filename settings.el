@@ -413,6 +413,7 @@
      "  ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
+ '(docker-containers-show-all nil)
  '(ebib-autogenerate-keys t)
  '(ediff-combination-pattern
    (quote
