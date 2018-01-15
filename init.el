@@ -1541,6 +1541,12 @@ In that case, insert the number."
          ("C-. N" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen))
 
+(use-package feebleline
+  :load-path "site-lisp/feebleline"
+  :commands feebleline-mode
+  :config
+  (window-divider-mode t))
+
 (use-package fence-edit
   :load-path "site-lisp/fence-edit"
   :commands fence-edit-code-at-point)
