@@ -321,7 +321,7 @@
 
 (use-package aria2
   :load-path "site-lisp/aria2"
-  :commands aria2-downloads-list)g
+  :commands aria2-downloads-list)
 
 (use-package ascii
   :bind ("C-c e A" . ascii-toggle)
