@@ -139,6 +139,7 @@ expand-region-el,site-lisp,subtree,git://github.com/magnars/expand-region.el.git
 eyebrowse,site-lisp,subtree,git://github.com/wasamasa/eyebrowse.git,
 f-el,lib,subtree,git://github.com/rejeep/f.el.git,
 fancy-narrow,site-lisp,subtree,git://github.com/Bruce-Connor/fancy-narrow.git,
+feebleline,site-lisp,subtree,git://github.com/tautologyclub/feebleline.git,
 fence-edit,site-lisp,subtree,git://github.com/aaronbieber/fence-edit.el.git,
 fetchmail-ctl.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/fetchmail-ctl.el,
 fetchmail-mode.el,site-lisp,file,https://www.emacswiki.org/emacs/download/fetchmail-mode.el,
