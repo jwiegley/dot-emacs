@@ -1185,6 +1185,8 @@
  '(whitespace-rescan-timer-time nil t)
  '(whitespace-silent t t)
  '(whitespace-style (quote (face trailing lines space-before-tab empty)))
+ '(window-divider-default-bottom-width 1)
+ '(window-divider-default-places (quote bottom-only))
  '(workgroups-mode nil)
  '(x-stretch-cursor t)
  '(yaoddmuse-directory "~/.emacs.d/doc")
