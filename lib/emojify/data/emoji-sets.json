@@ -1,0 +1,26 @@
+{
+    "emojione-v2-22" : {
+        "description" : "Emojis provided by Emoji One (version 2), resized to 22px",
+        "website" : "http://emojione.com",
+        "url" : "https://github.com/iqbalansari/emacs-emojify/blob/a81cfd11cdd0eb5b6840d2a7fe95a9505195c1a3/emojione-v2-22.tar?raw=true",
+        "sha256" : "adbe3cf2c776fe7daf375d8e8dbd4c40567a1dbb753dce1d05e61a2f815572d3"
+    },
+    "emojione-v2" : {
+        "description" : "Emojis provided by Emoji One (version 2)",
+        "website" : "http://emojione.com",
+        "url" : "https://github.com/iqbalansari/emacs-emojify/blob/a81cfd11cdd0eb5b6840d2a7fe95a9505195c1a3/emojione-v2.tar?raw=true",
+        "sha256" : "46c5a600a148897da22d42d36f42ad764868568943e96917c33e0fe44113afef"
+    },
+    "emojione-v2.2.6-22" : {
+        "description" : "Emojis provided by Emoji One (version 2.2.6), resized to 22px",
+        "website" : "http://emojione.com",
+        "url" : "https://github.com/iqbalansari/emacs-emojify/blob/4e91ba8c2b3415cd78f53e7026fc76b9ac935fc3/emojione-v2.2.6-22.tar?raw=true",
+        "sha256" : "56dede1c77ad690eebc21e00913b9c7525d290f1a936f87aad282014b04bf2a7"
+    },
+    "emojione-v2.2.6" : {
+        "description" : "Emojis provided by Emoji One (version 2.2.6)",
+        "website" : "http://emojione.com",
+        "url" : "https://github.com/iqbalansari/emacs-emojify/blob/4e91ba8c2b3415cd78f53e7026fc76b9ac935fc3/emojione-v2.2.6.tar?raw=true",
+        "sha256" : "416b5807d9836a7030434710c9b859accce1e2e5c3c0dcae8ef2a0d9483ff2e9"
+    }
+}
