@@ -1,0 +1,17 @@
+language: generic
+sudo: false
+before_install:
+  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
+  - evm install $EVM_EMACS --use --skip
+  - cask
+env:
+  - EVM_EMACS=emacs-24.4-travis
+  - EVM_EMACS=emacs-24.5-travis
+  - EVM_EMACS=emacs-25.1-travis
+
+script:
+  - emacs --version
+  - make travis-ci
+after_script:
+  - cat /tmp/undercover-report.json
+  - curl -v -include --form json_file=@/tmp/undercover-report.json https://coveralls.io/api/v1/jobs
