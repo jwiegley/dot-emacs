@@ -153,8 +153,7 @@ reuse storage as much as possible."
                         ((stringp load-paths)
                          load-paths)))
                  (load-path-re "\\`\\(site-lisp\\|lisp\\|lib\\)/\\([^/]+\\)")
-                 (key (if (and path
-                               (string-match load-path-re path))
+                 (key (if (and path (string-match load-path-re path))
                           (let* ((key (match-string 2 path))
                                  (entry (gethash key pkgs))
                                  (pkg-name (alist-get 'use-package-name entry)))
@@ -180,8 +179,7 @@ reuse storage as much as possible."
       (with-temp-buffer
         (insert-file-contents file)
         (goto-char (point-min))
-        (re-search-forward "^emacs26FullEnv")
-        (re-search-forward "super: with super; \\[")
+        (re-search-forward "^emacs26FullPackages")
         (forward-line)
         (while (not (looking-at "^\\s-+\\]"))
           (when (looking-at "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?: +# +\\(.+?\\)\\)?$")
