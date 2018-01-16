@@ -1,6 +1,0 @@
-<?php
-
-$test = "test" .
-        ($test ?
-
-?>

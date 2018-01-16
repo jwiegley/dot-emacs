@@ -1,5 +1,0 @@
-
-@dircategory Emacs
-@direntry
-* Pandoc-mode: (pandoc-mode).        Minor mode for interacting with Pandoc.
-@end direntry

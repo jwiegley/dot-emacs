@@ -1,1 +1,0 @@
-Module C Import A B;

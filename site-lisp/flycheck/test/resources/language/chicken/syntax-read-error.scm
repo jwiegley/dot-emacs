@@ -1,1 +1,0 @@
-(define #number 42)

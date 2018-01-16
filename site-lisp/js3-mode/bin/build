@@ -1,7 +1,0 @@
-#!/bin/sh
-
-git status 2> /dev/null 1> /dev/null || (echo "Not in git repository" && exit 0)
-cd $(git rev-parse --show-toplevel) || (echo "Can't find root directory" && exit 0)
-cat lib/js3-head.el lib/js3-externs.el lib/js3-vars.el lib/js3-util.el lib/js3-scan.el lib/js3-messages.el lib/js3-ast.el lib/js3-highlight.el lib/js3-browse.el lib/js3-parse.el lib/js3-indent.el lib/js3-foot.el > js3-mode.el
-emacs --batch -f batch-byte-compile js3-mode.el
-cp js3-mode.elc js3.elc

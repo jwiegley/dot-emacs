@@ -1,2 +1,0 @@
-test:
-	cask install

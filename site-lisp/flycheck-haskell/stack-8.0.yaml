@@ -1,2 +1,0 @@
-resolver: lts-8.14
-require-stack-version: '>= 0.1.8.0'
