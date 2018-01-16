@@ -77,14 +77,14 @@
     (setq use-package-verbose nil
           use-package-expand-minimally t)))
 
-(advice-add 'use-package-handler/:load-path :around
-            #'(lambda (orig-func name keyword args rest state)
-                (unless (string= emacs-environment "emacs26full")
-                  (if (or (memq name '(agda-input hyperbole proof-site slime
-                                                  flycheck-haskell ghc))
-                          (cl-some (apply-partially #'string-match "\\`~") args))
-                      (funcall orig-func name keyword arg rest state)
-                    (use-package-process-keywords name rest state)))))
+;; (advice-add 'use-package-handler/:load-path :around
+;;             #'(lambda (orig-func name keyword args rest state)
+;;                 (unless (string= emacs-environment "emacs26full")
+;;                   (if (or (memq name '(agda-input hyperbole proof-site slime
+;;                                                   flycheck-haskell ghc))
+;;                           (cl-some (apply-partially #'string-match "\\`~") args))
+;;                       (funcall orig-func name keyword arg rest state)
+;;                     (use-package-process-keywords name rest state)))))
 
 ;;; Settings
 
