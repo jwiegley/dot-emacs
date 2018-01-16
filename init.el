@@ -135,7 +135,7 @@
 (use-package anaphora      :defer t  :load-path "lib/anaphora")
 (use-package apiwrap       :defer t  :load-path "lib/apiwrap")
 (use-package asoc          :defer t  :load-path "lib/asoc")
-(use-package async         :defer t  :load-path "lisp/emacs-async")
+(use-package async         :defer t  :load-path "lisp/async")
 (use-package button-lock   :defer t  :load-path "lib/button-lock")
 (use-package ctable        :defer t  :load-path "lib/ctable")
 (use-package dash          :defer t  :load-path "lib/dash")
@@ -1181,8 +1181,8 @@ In that case, insert the number."
     (lookup-password "imap.fastmail.com" "johnw" 993)))
 
 (use-package dot-org
-  :load-path ("site-lisp/org-mode/lisp"
-              "site-lisp/org-mode/contrib/lisp")
+  :load-path ("site-lisp/org/lisp"
+              "site-lisp/org/contrib/lisp")
   :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
@@ -1659,6 +1659,11 @@ In that case, insert the number."
         (kill-ring-save (point-min) (1- (point-max)))
         (message (buffer-substring (point-min) (1- (point-max))))))))
 
+(use-package git-annex
+  :load-path "lisp/git-annex"
+  :after dired
+  :defer t)
+
 (use-package git-link
   :load-path "site-lisp/git-link"
   :bind ("C-. G" . git-link)
@@ -1677,7 +1682,7 @@ In that case, insert the number."
   :commands git-timemachine)
 
 (use-package git-undo
-  :load-path "lisp/git-undo-el"
+  :load-path "lisp/git-undo"
   :bind ("C-. C-/" . git-undo))
 
 (use-package github-pullrequest
@@ -2080,7 +2085,7 @@ In that case, insert the number."
          ("C-c >" . indent-shift-right)))
 
 (use-package inf-ruby
-  :load-path "site-lisp/ruby-mode"
+  :load-path "site-lisp/enh-ruby-mode"
   :after ruby-mode
   :hook (ruby-mode . inf-ruby-keys))
 
