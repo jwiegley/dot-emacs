@@ -1,0 +1,370 @@
+%% TeX macros to handle Japanese texinfo files
+%%
+%% 92.7.8   modified for Mule Ver.0.9.5 by K.Handa <handa@etl.go.jp>
+%%      To detect type of jTeX and its version, the method
+%%      posted by Takafumi SAKURAI <sakurai@math.metro-u.ac.jp> is used.
+%% 92.9.30  modified for Mule Ver.0.9.6 by K.Handa <handa@etl.go.jp>
+%%      For unknown reason, \newif\ifNTTOLD should be before
+%%      \ifNTT.
+%% 93.4.29  modified for Mule Ver.0.9.7 by N.Hikichi <hikichi@sra.co.jp>
+%% 95.10.6  modified for texinfo 2.145 by K.Handa <handa@etl.go.jp>
+%% 95.10.13 modified by J.Sato <jun@svgw.rd.casio.co.jp>
+%%      Support many Japanese oriented phrases (reference, etc)
+%% 95.10.14 modified by K.Handa <handa@etl.go.jp>
+%%      Bug for handling index fixed.
+%% 96.1.16 modified by J.Sato <jun@svgw.rd.casio.co.jp>
+%%      index with [] of @deffn.
+%% 99.6.27 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%	for texinfo 1999-05-25.6
+%% 2000.2.23 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%	for texinfo.tex 1999-09-25.10
+%% 2000.4.11 modified by Moimoi <fukusaka@xa2.so-net.ne.jp>
+%%      for texinfo.tex 1999-09-25.10
+%%      fixed for jTeX/pTeX/MulTeX
+%% 2010.06.02 modified by Shoichi Fukusaka <fukusaka@xa2.so-net.ne.jp>
+%%      for texinfo.tex 2005-01-30.17
+%%      omitted support for old NTT-jTeX/MulTex
+%%      improve macros
+%% 2010.06.03 modified by Shoichi Fukusaka <fukusaka@xa2.so-net.ne.jp>
+%%      for texinfo.tex 2010-05.22.17 modified version
+%%      minimize re-define macro
+%% 2010.06.03a modified by Shoichi Fukusaka <fukusaka@xa2.so-net.ne.jp>
+%%      for texinfo.tex 2010-05.22.17 modified version
+%%      output \special for dvipdfmx to generate pdf bookmark
+%% 2015.10.13 modified by Katsumi Yamaoka <yamaoka@jpl.org>
+%%      make the pdf document display a bookmark by default
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 92.7.8 by K.Handa
+\newif\ifNTT
+\ifx\gtfam\undefined
+\NTTtrue
+\else
+\NTTfalse
+\fi
+
+%% TeX macros to handle Japanese texinfo files
+%% 92/05/24 merged jtexinfo.tex (by H. Isozaki and N. Hikichi) into this
+%% Created by Satoru Tomura (tomura@etl.go.jp)
+
+\def\texinfoJPversion{5}
+
+\ifNTT
+\message{txi-ja (NTT JTeX) package [Version \texinfoJPversion]:}
+\else
+\message{txi-ja (ASCII pTeX) package [Version \texinfoJPversion]:}
+\fi
+\message{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set up fixed words for Japanese.
+\gdef\putwordAppendix{付録}
+\gdef\putwordChapter{章}
+\gdef\putwordfile{ファイル}
+\gdef\putwordin{in}
+\gdef\putwordIndexIsEmpty{(索引が空です)}
+\gdef\putwordIndexNonexistent{(索引がありません)}
+\gdef\putwordInfo{Info}
+\gdef\putwordInstanceVariableof{Instance Variable of}
+\gdef\putwordMethodon{Method on}
+\gdef\putwordNoTitle{無題}
+\gdef\putwordof{of}
+\gdef\putwordon{on}
+\gdef\putwordpage{p.\gobble}
+\gdef\putwordsection{節}
+\gdef\putwordSection{節}
+\gdef\putwordsee{を参照}
+\gdef\putwordSee{を参照してください}
+\gdef\putwordShortTOC{簡略目次}
+\gdef\putwordTOC{目次}
+%
+\gdef\putwordMJan{1月}
+\gdef\putwordMFeb{2月}
+\gdef\putwordMMar{3月}
+\gdef\putwordMApr{4月}
+\gdef\putwordMMay{5月}
+\gdef\putwordMJun{6月}
+\gdef\putwordMJul{7月}
+\gdef\putwordMAug{8月}
+\gdef\putwordMSep{9月}
+\gdef\putwordMOct{10月}
+\gdef\putwordMNov{11月}
+\gdef\putwordMDec{12月}
+%
+\gdef\putwordDefmac{マクロ}
+\gdef\putwordDefspec{特殊フォーム}
+\gdef\putwordDefvar{変数}
+\gdef\putwordDefopt{オプション}
+\gdef\putwordDeffunc{関数}
+
+\def\today{\number\year 年 \number\month 月 \number\day 日}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 日本語組の段落インデントのデフォルトを設定
+\global\defaultparindent = 1em
+\global\def\suppressfirstparagraphindent{\relax}
+
+% 日本人好きのギッシリ詰まった紙
+\global\def\afourpaperj{{\globaldefs = 1
+  \parskip = 3pt plus 2pt minus 1pt
+  \textleading = 12pt
+  %
+  \internalpagesizes{248mm}{170mm}%
+                    {\voffset}{-6mm}%
+                    {\bindingoffset}{8mm}%
+                    {297mm}{210mm}%
+  %
+  \tolerance = 750
+  \hfuzz = 1pt
+  \contentsrightmargin = 0pt
+  \defbodyindent = 5mm
+}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Utility routines.
+
+\def\csdef#1{\expandafter\def\csname#1\endcsname}
+
+\gdef\addcsbefore#1#2{%
+  \cslet{orig#1}{#1}%
+  \csdef{addcs#1}{#2}%
+  \csdef{#1}{%
+    \cslet{addcs}{addcs#1}%
+    \futurelet\orig\addcsbeforeyyy\expandafter\empty\csname orig#1\endcsname
+  }
+}
+\gdef\addcsbeforeyyy{\addcs\orig}
+
+\gdef\addcsafter#1#2{%
+  \cslet{orig#1}{#1}%
+  \csdef{addcs#1}{#2}%
+  \csdef{#1}{%
+    \cslet{addcs}{addcs#1}%
+    \futurelet\orig\addcsafteryyy\expandafter\empty\csname orig#1\endcsname
+  }
+}
+\gdef\addcsafteryyy{\orig\addcs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 日本語フォント
+
+\def\jafont{%
+\ifNTT%
+\let\next=\jTeXjafont%
+\else%
+\let\next=\pTeXjafont%
+\fi%
+\next}
+
+\def\jTeXjafont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{mc}
+\ifx\tempa\tempb% mc
+\expandafter\gjfont\csname#1\endcsname=dm#3 scaled #4%
+\else% gt
+\expandafter\gjfont\csname#1\endcsname=dg#3 scaled #4%
+\fi%
+}
+
+\def\pTeXjafont#1#2#3#4{%
+\def\tempa{#2}
+\def\tempb{mc}
+\ifx\tempa\tempb% mc
+\global\expandafter\font\csname#1\endcsname=min#3 scaled #4%
+\else% gt
+\global\expandafter\font\csname#1\endcsname=goth#3 scaled #4%
+\fi
+}
+
+%
+% 日本語フォントの定義
+%
+
+% Text fonts (11.2pt, magstep1).
+\jafont{textmc}{mc}{10}{\mainmagstep}
+\jafont{textgt}{gt}{10}{\mainmagstep}
+
+% Fonts for indices, footnotes, small examples (9pt).
+\jafont{smallmc}{mc}{9}{1000}
+\jafont{smallgt}{gt}{9}{1000}
+
+% Fonts for small examples (8pt).
+\jafont{smallermc}{mc}{8}{1000}
+\jafont{smallergt}{gt}{8}{1000}
+
+% Fonts for title page (20.4pt):
+\jafont{titlemc}{mc}{10}{\magstep4}
+
+% Chapter (and unnumbered) fonts (17.28pt).
+\jafont{chapmc}{mc}{10}{\magstep3}
+\jafont{chapgt}{gt}{10}{\magstep3}
+
+% Section fonts (14.4pt).
+\jafont{secmc}{mc}{10}{\magstep2}
+\jafont{secgt}{gt}{10}{\magstep2}
+
+% Subsection fonts (13.15pt).
+\jafont{ssecmc}{mc}{10}{1315}
+\jafont{ssecgt}{gt}{10}{1315}
+
+% Reduced fonts for @acro in text (10pt).
+\jafont{reducedmc}{mc}{10}{1000}
+\jafont{reducedgt}{gt}{10}{1000}
+
+% Fonts for short table of contents. (12pt)
+\jafont{shortcontmc}{mc}{10}{\magstep1}
+\jafont{shortcontgt}{gt}{10}{\magstep1}
+
+% 95.11.2 by K.Handa
+% Reduce Overfull/Underfull \hbox by relaxing these glues.
+\ifNTT
+\global\jintercharskip=0pt plus 0.5pt minus -0.2pt
+\global\jasciikanjiskip=2.28854pt plus 0.5pt minus -0.2pt
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\syncjfont#1#2{\addcsafter{#1}{\csname #2\endcsname}}
+\def\addjfonts#1#2{\addcsafter{#1fonts}{\cslet{tenmc}{#2mc}\cslet{tengt}{#2gt}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\globaldefs = 1
+
+\syncjfont{rm}{tenmc}
+\syncjfont{bf}{tengt}
+\syncjfont{sl}{tengt}
+\syncjfont{authorrm}{secmc}
+\syncjfont{authortt}{secgt}
+
+\addjfonts{text}{text}
+\addjfonts{title}{title}
+\addjfonts{chap}{chap}
+\addjfonts{sec}{sec}
+\addjfonts{subsec}{ssec}
+\addjfonts{small}{small}
+\addjfonts{smaller}{smaller}
+\addjfonts{reduced}{reduced}
+
+\let\subsubsecfonts = \subsecfonts
+\let\smallexamplefonts = \smallfonts
+
+\textfonts \rm
+
+\globaldefs = 0
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 日本語表記の改善
+%  1. ヘッドの章の表記
+%  2. See 訳語に合わせて動詞の後置
+%  3. クロスレファレンスの表記
+%  4. @dfn の表記
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  1. ヘッドの章の表記
+\gdef\thischapterspace{\hskip \SETthischapterspace em}
+\set thischapterspace 1
+
+\gdef\printheadingappendix#1#2{\putwordAppendix{}#1\thischapterspace#2}
+\gdef\printheadingchapter#1#2{第#1\putwordChapter{}\thischapterspace#2}
+
+\gdef\Ynumbered{%
+  \ifnum\secno=0
+    第\the\chapno\putwordChapter%
+  \else \ifnum\subsecno=0
+    \the\chapno.\the\secno\putwordSection%
+  \else \ifnum\subsubsecno=0
+    \the\chapno.\the\secno.\the\subsecno\putwordSection%
+  \else
+    \the\chapno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection%
+  \fi\fi\fi
+}
+
+\gdef\Yappendix{%
+  \ifnum\secno=0
+     \putwordAppendix@tie @char\the\appendixno{}%
+  \else \ifnum\subsecno=0
+     @char\the\appendixno.\the\secno\putwordSection%
+  \else \ifnum\subsubsecno=0
+     @char\the\appendixno.\the\secno.\the\subsecno\putwordSection%
+  \else
+     @char\the\appendixno.\the\secno.\the\subsecno.\the\subsubsecno\putwordSection%
+  \fi\fi\fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  2. See 訳語に合わせて動詞の後置
+
+\global\def\inforefzzz #1,#2,#3,#4**{\putwordInfo{}\putwordfile{} \file{\ignorespaces #3{}},  ノード\samp{\ignorespaces#1{}}\putwordSee{}}
+
+\global\def\pxref#1{\xrefX[#1,,,,,,,]\putwordsee{}}
+\global\def\xref#1{\xrefX[#1,,,,,,,]\putwordSee{}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  3. クロスレファレンスの表記
+
+\global\def\xrefprintinmanual#1#2{\space \putwordin{} \cite{#1}}
+\global\def\xrefprintrefinmanual#1#2{\cite{#2}の``#1''\putwordsection{}}
+\global\def\xrefprintnodename#1#2#3{\def\temp{#1}\ifx\empty\temp\else#1\fi「#2」#3}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  4. @dfn の表記
+
+\global\def\doublebracket#1{『#1』}
+\global\let\dfn=\doublebracket
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% for dvipdfmx
+\gdef\usedvipdfmx{
+
+  \ifnum 42146=\euc"A4A2 \special{pdf:tounicode EUC-UCS2}\else
+  \special{pdf:tounicode 90ms-RKSJ-UCS2}\fi
+
+  \global\pdfmakepagedesttrue
+  \gdef\pdfdest name##1 xyz{%
+    \iffinishedtitlepage\else
+    \special{pdf:dest (name##1) [\@thispage /XYZ \@xpos \@ypos]}%
+    \fi
+  }
+
+  \gdef\dopdfoutline##1##2##3##4{%
+    \special{pdf:out [] ##2 << /Title (##1) /A << /S /GoTo /D (name##4) >> >> }%
+  }
+
+  \gdef\entryaddpdfoutline##1##2{%
+    \global\cslet{orig##1}{##1}%
+    \csdef{##1}####1####2####3####4{%
+      \expandafter\empty\csname orig##1\endcsname{####1}{####2}{####3}{####4}%
+      \dopdfoutline{####1}{##2}{####3}{####4}%
+    }
+  }
+
+  \entryaddpdfoutline{numchapentry}{1}
+  \entryaddpdfoutline{numsecentry}{2}
+  \entryaddpdfoutline{numsubsecentry}{3}
+  \entryaddpdfoutline{numsubsubsecentry}{4}
+
+  \entryaddpdfoutline{unnchapentry}{1}
+  \entryaddpdfoutline{unnsecentry}{2}
+  \entryaddpdfoutline{unnsubsecentry}{3}
+  \entryaddpdfoutline{unnsubsubsecentry}{4}
+
+  \entryaddpdfoutline{appentry}{1}
+  \let\appsecentry=\numsecentry
+  \let\appsubsecentry=\numsubsecentry
+  \let\appsubsubsecentry=\numsubsubsecentry
+
+  \addcsbefore{contents}{%
+    \special{pdf:docinfo <<
+          /Title (\thistitle)
+          %/Subject (subject)
+          /Creator (texinfo.tex+dvipdfmx)
+          %/Author (author)
+          %/Producer (producer)
+          %/Keywords (keywords)
+        >>%
+    }
+  }
+  \special{pdf:docview << /PageMode /UseOutlines >>}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
