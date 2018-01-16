@@ -36,11 +36,11 @@ find "$@"                                                                       
        ! -path site-lisp/dired-hacks/dired-images.el                                            \
        ! -path site-lisp/emacs-calfw/calfw-howm.el                                              \
        ! -path 'site-lisp/emacs-cl/src/*.el'                                                    \
-       ! -path site-lisp/emacs-w3m/mew-w3m.el                                                   \
-       ! -path site-lisp/emacs-w3m/mime-w3m.el                                                  \
-       ! -path site-lisp/emacs-w3m/octet.el                                                     \
-       ! -path site-lisp/emacs-w3m/w3m-ucs.el                                                   \
-       ! -path site-lisp/emacs-w3m/w3m-xmas.el                                                  \
+       ! -path site-lisp/w3m/mew-w3m.el                                                   \
+       ! -path site-lisp/w3m/mime-w3m.el                                                  \
+       ! -path site-lisp/w3m/octet.el                                                     \
+       ! -path site-lisp/w3m/w3m-ucs.el                                                   \
+       ! -path site-lisp/w3m/w3m-xmas.el                                                  \
        ! -path site-lisp/eval-in-repl/eval-in-repl-cider.el                                     \
        ! -path site-lisp/eval-in-repl/eval-in-repl-elm.el                                       \
        ! -path site-lisp/eval-in-repl/eval-in-repl-erlang.el                                    \
@@ -81,7 +81,7 @@ find "$@"                                                                       
 #          -o -ipath ../site-lisp/slime -prune                    \
 #          -o -ipath ../site-lisp/evil/lib -prune                 \
 #          -o -ipath ../site-lisp/emacs-cl -prune                 \
-#          -o -ipath ../site-lisp/emacs-w3m/shimbun -prune        \
+#          -o -ipath ../site-lisp/w3m/shimbun -prune        \
 #          -o -ipath ../site-lisp/hyperbole -prune                \
 #          -o -ipath ../site-lisp/proof-general -prune            \
 #                                                                 \
