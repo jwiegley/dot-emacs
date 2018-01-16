@@ -88,10 +88,11 @@ will return a ton of issues.
 See also `ghubp-get-repos-owner-repo-issues'."
   (cl-assert (cl-evenp (length params)))
   (magithub-cache :issues
-    `(ghubp-unpaginate
-      (ghubp-get-repos-owner-repo-issues
-       ',(magithub-repo)
-       ,@params))
+    `(magithub-request
+      (ghubp-unpaginate
+       (ghubp-get-repos-owner-repo-issues
+        ',(magithub-repo)
+        ,@params)))
     :message
     "Retrieving issue list..."))
 
@@ -106,7 +107,9 @@ See also `ghubp-get-repos-owner-repo-issues'."
   "Get comments on ISSUE."
   (let ((repo (magithub-issue-repo issue)))
     (magithub-cache :issues
-      `(ghubp-get-repos-owner-repo-issues-number-comments ',repo ',issue))))
+      `(magithub-request
+        (ghubp-unpaginate
+         (ghubp-get-repos-owner-repo-issues-number-comments ',repo ',issue))))))
 
 ;; Finding issues and pull requests
 (defun magithub-issues ()
@@ -174,13 +177,20 @@ default."
   (-find (lambda (i) (= (alist-get 'number i) number))
          (magithub--issue-list :filter "all" :state "all")))
 
-(defun magithub-issue (repo number)
-  "Retrieve in REPO issue NUMBER."
-  (magithub-cache :issues
-    `(ghubp-get-repos-owner-repo-issues-number
-      ',repo '((number . ,number)))
-    :message
-    (format "Getting issue %s#%d..." (magithub-repo-name repo) number)))
+(defun magithub-issue (repo number-or-issue)
+  "Retrieve in REPO issue NUMBER-OR-ISSUE.
+NUMBER-OR-ISSUE is either a number or an issue object.  If it's a
+number, the issue by that number is retrieved.  If it's an issue
+object, the same issue is retrieved."
+  (let ((num (or (and (numberp number-or-issue)
+                      number-or-issue)
+                 (alist-get 'number number-or-issue))))
+    (magithub-cache :issues
+      `(magithub-request
+        (ghubp-get-repos-owner-repo-issues-number
+         ',repo '((number . ,num))))
+      :message
+      (format "Getting issue %s#%d..." (magithub-repo-name repo) num))))
 
 (defun magithub-issue-personal-note-file (issue-or-pr)
   "Return an absolute filename appropriate for ISSUE-OR-PR."
@@ -216,18 +226,21 @@ This is stored in `magit-git-dir' and is unrelated to
 (defun magithub-issue-repo (issue)
   "Get a repository object from ISSUE."
   (let-alist issue
-    (save-match-data
-      (when (string-match (concat (rx bos)
-                                  (regexp-quote ghub-base-url)
-                                  (rx "/repos/"
-                                      (group (+ (not (any "/")))) "/"
-                                      (group (+ (not (any "/")))) "/issues/")
-                                  (regexp-quote (number-to-string .number))
-                                  (rx eos))
-                          .url)
-        (magithub-repo
-         `((owner (login . ,(match-string 1 .url)))
-           (name . ,(match-string 2 .url))))))))
+    (or .repository
+        .base.repo
+        (save-match-data
+          (when (string-match (concat (rx bos)
+                                      "https://"
+                                      (regexp-quote (ghubp-host))
+                                      (rx "/repos/"
+                                          (group (+ (not (any "/")))) "/"
+                                          (group (+ (not (any "/")))) "/issues/")
+                                      (regexp-quote (number-to-string .number))
+                                      (rx eos))
+                              .url)
+            (magithub-repo
+             `((owner (login . ,(match-string 1 .url)))
+               (name . ,(match-string 2 .url)))))))))
 
 (defun magithub-issue-reference (issue)
   "Return a string like \"owner/repo#number\" for ISSUE."
@@ -307,14 +320,16 @@ Each function takes two arguments:
   "Insert when ISSUE was created using FMT."
   (let-alist issue
     (insert (format fmt "Created:")
-            (propertize .created_at 'face 'magit-dimmed)
+            (propertize (magithub--format-time .created_at)
+                        'face 'magit-dimmed)
             "\n")))
 
 (defun magithub-issue-detail-insert-updated (issue fmt)
   "Insert when ISSUE was created using FMT."
   (let-alist issue
     (insert (format fmt "Updated:")
-            (propertize .updated_at 'face 'magit-dimmed)
+            (propertize (magithub--format-time .updated_at)
+                        'face 'magit-dimmed)
             "\n")))
 
 (defun magithub-issue-detail-insert-assignees (issue fmt)
@@ -350,7 +365,8 @@ Each function takes two arguments:
       (insert label-string)
 
       (if (or (null .body) (string= .body ""))
-          (concat (propertize "none" 'face 'magit-dimmed))
+          (insert (concat (propertize "none" 'face 'magit-dimmed)
+                          "\n"))
 
         (setq label-len (length label-string))
         (setq width (- fill-column label-len))
@@ -405,6 +421,7 @@ we'll hit the API) if Magithub is offline."
     (set-keymap-parent map magithub-map)
     (define-key map [remap magit-visit-thing] #'magithub-issue-visit)
     (define-key map [remap magithub-browse-thing] #'magithub-issue-browse)
+    (define-key map [remap magit-refresh] #'magithub-issue-refresh)
     map)
   "Keymap for `magithub-issue-list' sections.")
 
@@ -422,6 +439,7 @@ we'll hit the API) if Magithub is offline."
     (set-keymap-parent map magithub-map)
     (define-key map [remap magit-visit-thing] #'magithub-pull-visit)
     (define-key map [remap magithub-browse-thing] #'magithub-pull-browse)
+    (define-key map [remap magit-refresh] #'magithub-issue-refresh)
     map)
   "Keymap for `magithub-pull-request-list' sections.")
 
@@ -458,14 +476,15 @@ buffer."
        (list issue (magithub--completing-read-multiple
                     "Add labels: " (magithub-label-list) fmt
                     nil nil current-labels)))))
-  (when (ghubp-patch-repos-owner-repo-issues-number
-         (magithub-repo) issue `((labels . ,labels)))
+  (when (magithub-request
+         (ghubp-patch-repos-owner-repo-issues-number
+          (magithub-repo) issue `((labels . ,labels))))
     (setcdr (assq 'labels issue) labels))
   (when (derived-mode-p 'magit-status-mode)
     (magit-refresh)))
 
 (defun magithub-issue--insert-issue-section ()
-  "Insert GitHub issues if appropriate."
+  "Insert Github issues if appropriate."
   (when (and (magithub-usable-p)
              (alist-get 'has_issues (magithub-repo)))
     (magithub-issue--insert-generic-section
@@ -475,7 +494,7 @@ buffer."
      magithub-issue-issue-filter-functions)))
 
 (defun magithub-issue--insert-pr-section ()
-  "Insert GitHub pull requests if appropriate."
+  "Insert Github pull requests if appropriate."
   (when (magithub-usable-p)
     (magithub-feature-maybe-idle-notify
      'pull-request-merge
@@ -550,8 +569,9 @@ Interactively, this finds the issue at point."
 (defun magithub-pull-request (repo number)
   "Retrieve a pull request in REPO by NUMBER."
   (magithub-cache :issues
-    `(ghubp-get-repos-owner-repo-pulls-number
-      ',repo '((number . ,number)))
+    `(magithub-request
+      (ghubp-get-repos-owner-repo-pulls-number
+       ',repo '((number . ,number))))
     :message
     (format "Getting pull request %s#%d..."
             (magithub-repo-name repo)
@@ -579,9 +599,10 @@ PULL-REQUEST is the full object; not just the issue subset."
   (interactive (list
                 (let ((pr (or (magithub-thing-at-point 'pull-request)
                               (magithub-issue-completing-read-pull-requests))))
-                  (ghubp-get-repos-owner-repo-pulls-number
-                   (magithub-repo)
-                   `((number . ,(alist-get 'number pr)))))))
+                  (magithub-request
+                   (ghubp-get-repos-owner-repo-pulls-number
+                    (magithub-repo)
+                    `((number . ,(alist-get 'number pr))))))))
   (let-alist pull-request
     (let ((remote .user.login)
           (branch (format "%s/%s" .user.login .head.ref)))

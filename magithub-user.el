@@ -47,14 +47,16 @@
 (defun magithub-user-me ()
   "Return the currently-authenticated user."
   (magithub-cache :user-demographics
-    '(ghubp-get-user)
+    `(magithub-request
+      (ghubp-get-user))
     :message
     "user object for the currently-authenticated user"))
 
 (defun magithub-user (user)
   "Return the full object for USER."
   (magithub-cache :user-demographics
-    `(ghubp-get-users-username ',user)))
+    `(magithub-request
+      (ghubp-get-users-username ',user))))
 
 (defun magithub-assignee--verify-manage ()
   (or (magithub-repo-push-p)
@@ -74,8 +76,9 @@
                              .user.login
                              (magithub-repo-name .repo)
                              .issue.number))
-        (prog1 (ghubp-post-repos-owner-repo-issues-number-assignees
-                .repo .issue (list .user))
+        (prog1 (magithub-request
+                (ghubp-post-repos-owner-repo-issues-number-assignees
+                 .repo .issue (list .user)))
           (let ((sec (magit-current-section)))
             (magithub-cache-without-cache :issues
               (magit-refresh-buffer))
@@ -93,8 +96,8 @@
                              .user.login
                              (magithub-repo-name .repo)
                              .issue.number))
-        (prog1
-            (ghubp-delete-repos-owner-repo-issues-number-assignees .repo .issue (list .user))
+        (prog1 (magithub-request
+                (ghubp-delete-repos-owner-repo-issues-number-assignees .repo .issue (list .user)))
           (magithub-cache-without-cache :issues
             (magit-refresh-buffer)))
       (user-error "Aborted"))))
@@ -107,8 +110,9 @@
              (concat prompt
                      (if new-username (format " ['%s' not found]" new-username)))
              (alist-get 'login default-user)))
-      (when-let ((try (condition-case _err
-                          (ghubp-get-users-username `((login . ,new-username)))
+      (when-let ((try (condition-case _
+                          (magithub-request
+                           (ghubp-get-users-username `((login . ,new-username))))
                         (ghub-404 nil))))
         (setq ret-user try)))
     ret-user))
@@ -116,13 +120,14 @@
 (defun magithub-user-choose-assignee (prompt &optional repo default-user)
   (magithub--completing-read
    prompt
-   (ghubp-get-repos-owner-repo-assignees repo)
+   (magithub-request
+    (ghubp-get-repos-owner-repo-assignees repo))
    (lambda (user) (let-alist user .login))
    nil t default-user))
 
 (defalias 'magithub-user-visit #'magithub-user-browse)
 (defun magithub-user-browse (user)
-  "Open USER on GitHub."
+  "Open USER on Github."
   (interactive (list (magithub-thing-at-point 'user)))
   (if user
       (browse-url (alist-get 'html_url user))
