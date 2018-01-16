@@ -25,7 +25,7 @@ before_install:
   - emacs --version
   - cask exec emacs --version
 install:
-  - cask install
+  - cask --verbose install
 
 script:
   - cask exec ert-runner

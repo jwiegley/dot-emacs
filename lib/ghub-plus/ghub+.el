@@ -5,8 +5,8 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.3"))
-;; Package-Version: 0.2
+;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.4"))
+;; Package-Version: 0.2.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -54,20 +54,21 @@
     "Function to contextualize `ghub' requests.
 Can return an alist with any of the following properties:
 
-* `root'
 * `auth'
-* `user'
+* `headers'
+* `host'
 * `unpaginate'
-* `extra-headers'
+* `username'
 
-If (and only if) these properties are non-nil, they will override
-the eponymous `ghub' variables.
+If (and only if) these properties are non-nil, they will provide
+values for the eponymous `ghub-request' keyword arguments.
 
-The function should be callable with no arguments.")
+The function should be callable with no arguments.
+
+See also `ghubp-get-context'.")
 
   (defvar ghubp-request-override-function nil
     "Function to use instead of `ghub-request' for base calls.
-
 It is expected to have the same signature as `ghub-request'.")
 
   (defun ghubp-get-context ()
@@ -103,26 +104,18 @@ PARAMS is a plist.
 
 DATA is an alist."
     (let-alist (ghubp-get-context)
-      (let ((method (upcase (symbol-name method)))
+      (let ((method (encode-coding-string (upcase (symbol-name method)) 'utf-8))
             (params (apiwrap-plist->alist params)))
-        (if (fboundp 'ghub-create-token)
-            ;; working with the new version of ghub, still in dev
-            ;; https://github.com/magit/ghub/blob/pu
-            (funcall (or ghubp-request-override-function
-                         #'ghub-request)
-                     method resource params data
-                     .extra-headers .unpaginate
-                     nil nil   ; pass errors up ; use default `json-read'
-                     .user .auth .root)
-          ;; working with the old version
-          (let ((ghub-extra-headers (or .extra-headers ghub-extra-headers))
-                (ghub-unpaginate    (or .unpaginate    ghub-unpaginate))
-                (ghub-username      (or .user          ghub-username))
-                (ghub-authenticate  (or .auth          ghub-authenticate))
-                (ghub-base-url      (or .root          ghub-base-url)))
-            (funcall (or ghubp-request-override-function
-                         #'ghub-request)
-                     method resource params data))))))
+        (funcall (or ghubp-request-override-function
+                     #'ghub-request)
+                 method resource nil
+                 :query params
+                 :payload data
+                 :unpaginate .unpaginate
+                 :headers .headers
+                 :username .username
+                 :auth .auth
+                 :host .host))))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
@@ -142,7 +135,8 @@ DATA is an alist."
     :link #'ghubp--make-link
     :pre-process-params #'ghubp--pre-process-params))
 
-;;; Utilities
+
+;;; Utilities:
 
 (defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses while executing BODY."
@@ -154,7 +148,7 @@ NEW-VALUE takes precedence over anything that
 `ghubp-contextualize-function' provides for CONTEXT, but
 `ghubp-contextualize-function' is otherwise respected."
   (declare (indent 2))
-  (unless (memq context '(root auth user unpaginate extra-headers))
+  (unless (memq context '(host auth username unpaginate headers))
     (error (concat "`ghubp-override-context' should only override one "
                    "of the symbols from `ghubp-contextualize-function'.")))
   (let ((sym-other-context (cl-gensym)))
@@ -218,9 +212,11 @@ returns an alist with the following properties:
 (defun ghubp--follow (method resource &optional params data)
   "Using METHOD, follow the RESOURCE link with PARAMS and DATA.
 This method is intended for use with callbacks."
-  (when (string-prefix-p ghub-base-url resource)
-    (setq resource (url-filename (url-generic-parse-url resource))))
-  (ghubp-request method resource params data))
+  (let ((url (url-generic-parse-url resource)))
+    (when (fboundp 'ghub--host)
+      (unless (string-equal (url-host url) (ghub--host))
+        (error "Bad link")))
+    (ghubp-request method (url-filename url) params data)))
 
 (defun ghubp-follow-get    (resource &optional params data)
   "GET wrapper for `ghubp-follow'."
@@ -242,15 +238,28 @@ This method is intended for use with callbacks."
   (ghubp--follow 'delete resource params data))
 
 (defun ghubp-base-html-url ()
-  "Get the base HTML URL from `ghub-base-url'"
-  (cond
-   ((string= ghub-base-url "https://api.github.com")
-    "https://github.com")
-   ((string-match (rx bos (group (* any)) "/api/v3" eos)
-                  ghub-base-url)
-    (match-string 1 ghub-base-url))))
+  "Get the base HTML URL from `ghub-default-host'"
+  (if-let ((host (magit-get "github" "host")))
+      (and (string-match (rx bos (group (* any)) "/api/v3" eos) host)
+           (match-string 1 host))
+    "https://github.com"))
 
-;;; Issues
+(defun ghubp-host ()
+  "Exposes `ghub--host'."
+  (ghub--host))
+
+(defun ghubp-username ()
+  "Exposes `ghub--username'."
+  (ghub--username (ghub--host)))
+
+(defun ghubp-token (package)
+  "Exposes `ghub--token' in a friendly way."
+  (let* ((host (ghub--host))
+         (user (ghub--username host)))
+    (ghub--token host user package t)))
+
+
+;;; Issues:
 
 (defapiget-ghubp "/issues"
   "List all issues assigned to the authenticated user across all
@@ -303,7 +312,8 @@ Users with push access can unlock an issue's conversation."
   "issues/#unlock-an-issue"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
-;;; Issue Assignees
+
+;;; Issue Assignees:
 
 (defapiget-ghubp "/repos/:owner/:repo/assignees"
   "List assignees.
@@ -340,7 +350,8 @@ logins) from the issue."
   (lambda (users)
     `((assignees . ,(ghubp-get-in-all '(login) users)))))
 
-;;; Issue Comments
+
+;;; Issue Comments:
 
 (defapiget-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "List comments on an issue.
@@ -374,7 +385,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
 
-;;; Issue Events
+
+;;; Issue Events:
 
 (defapiget-ghubp "/repos/:owner/:repo/issues/:number/events"
   ;; note: :number changed from :issue_number for consistency
@@ -392,7 +404,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/events/#get-a-single-event"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
 
-;;; Issue Labels
+
+;;; Issue Labels:
 
 (defapiget-ghubp "/repos/:owner/:repo/labels"
   "List all labels for this repository."
@@ -451,7 +464,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/labels/#get-labels-for-every-issue-in-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number/labels")
 
-;;; Issue Milestones
+
+;;; Issue Milestones:
 
 (defapiget-ghubp "/repos/:owner/:repo/milestones"
   "List milestones for a repository."
@@ -478,7 +492,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/milestones/#delete-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
 
-;;; Organizations
+
+;;; Organizations:
 
 (defapiget-ghubp "/user/orgs"
   "List organizations for the authenticated user."
@@ -503,7 +518,8 @@ By default, Issue Comments are ordered by ascending ID."
   "orgs/#edit-an-organization"
   (org) "/orgs/:org.login")
 
-;;; Pull Request
+
+;;; Pull Request:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls"
   "List pull requests."
@@ -545,7 +561,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/#merge-a-pull-request-merge-button"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/merge")
 
-;;; Pull Request Reviews
+
+;;; Pull Request Reviews:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews"
   "List reviews on a pull request."
@@ -582,7 +599,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/reviews/#dismiss-a-pull-request-review"
   (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/dismissals")
 
-;;; Pull Request Review Comments
+
+;;; Pull Request Review Comments:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/comments"
   "List comments on a pull request."
@@ -614,7 +632,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
 
-;;; Pull Request Review Requests
+
+;;; Pull Request Review Requests:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
   "List review requests."
@@ -631,7 +650,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/review_requests/#delete-a-review-request"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
 
-;;; Reactions
+
+;;; Reactions:
 
 (defapiget-ghubp "/repos/:owner/:repo/comments/:id/reactions"
   "List reactions for a commit comment."
@@ -678,7 +698,8 @@ By default, Issue Comments are ordered by ascending ID."
   "reactions/#delete-a-reaction"
   (thread) "/reactions/:thread.id")
 
-;;; Repositories
+
+;;; Repositories:
 
 (defapiget-ghubp "/user/repos"
   "List your repositories.
@@ -724,9 +745,12 @@ organization."
 (defapiget-ghubp "/repos/:owner/:repo"
   "Get a specific repository object."
   "repos/#get"
-  (repo) "/repos/:repo.owner.login/:repo.name")
+  (repo) "/repos/:repo.owner.login/:repo.name"
+  :condition-case
+  ((ghub-404 nil)))
 
-;;; Users
+
+;;; Users:
 (defapiget-ghubp "/users/:username"
   "Get a single user."
   "users/#get-a-single-user"
@@ -912,7 +936,8 @@ notifications (until you comment or get @mentioned once more)."
   "activity/notifications/#delete-a-thread-subscription"
   (thread) "/notifications/threads/:thread.id/subscription")
 
-;;; Unfiled
+
+;;; Unfiled:
 
 (defapiget-ghubp "/repos/:owner/:repo/commits/:ref/statuses"
   "List statuses for a specific ref"
@@ -933,6 +958,11 @@ notifications (until you comment or get @mentioned once more)."
   "Post a comment to an issue"
   "issues/comments/#create-a-comment"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/commits"
+  "List commits on a repository"
+  "repos/commits/#list-commits-on-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/commits")
 
 (defun ghubp-url-parse (url)
   "Parse URL for its type and API callback.
