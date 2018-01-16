@@ -29,8 +29,8 @@
 (defun magithub-orgs-list ()
   "List organizations for the currently authenticated user."
   (magithub-cache :user-demographics
-    `(progn ,(ghub--username)
-            (ghubp-get-user-orgs))))
+    `(magithub-request
+      (ghubp-get-user-orgs))))
 
 (provide 'magithub-orgs)
 ;;; magithub-orgs.el ends here

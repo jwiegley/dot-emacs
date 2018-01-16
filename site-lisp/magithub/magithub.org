@@ -10,22 +10,8 @@ Happy hacking!
 
 ** Installation
 
-Most of Magithub is implemented in pure Elisp now, but there are a few
-lingering goodies that haven't been ported (since their real logic is
-non-trivial):
-
-- `magithub-pull-request-checkout`
-- `magithub-pull-request-merge`
-
-These definitions are relegated to =magithub-issue-tricks.el=.
-
-Make sure to install [[https://hub.github.com][=hub=]] and add it to your exec-path if you intend to use
-these functions.  After installation, use =hub browse= from a directory with a
-GitHub repository to force the program to authenticate -- this avoids some
-weirdness on the Emacs side of things.
-
-Other than that, Magithub can be installed from [[http://melpa.milkbox.net/#/magithub][MELPA]] using =M-x
-list-packages= or by evaluating
+Magithub can be installed from [[http://melpa.milkbox.net/#/magithub][MELPA]] using =M-x list-packages= or by
+evaluating the following:
 #+BEGIN_SRC elisp
   (package-install 'magithub)
 #+END_SRC
@@ -42,14 +28,27 @@ via the usual means.
 
 ** Authentication
 
-Magithub does not yet support running unauthenticated (and such support is
-unlikely considering GitHub's heavy rate-limiting of unauthenticated
-requests).  As such, you /must/ authenticate before you use Magithub.  (As of
-#107, Magithub will not even attempt go online until you're properly
-authenticated.)
+Given Github's rate-limiting policy, Magithub is unlikely to ever support
+running with authenticating.  As such, you /must/ authenticate before you use
+Magithub.  (As of #107, Magithub will not even attempt go online until
+you're properly authenticated.)
 
-Authentication is completely managed by =ghub=, so see its README for
-instructions.
+To authenticate, you can simply start using Magithub; Ghub should walk you
+through the authentication process.  (Your token is stored in one of your
+~auth-sources~; see [[https://magit.vc/manual/ghub/How-Ghub-uses-Auth_002dSource.html#How-Ghub-uses-Auth_002dSource][Ghub's manual]] for details.)
+
+If you want to authenticate Ghub without using Magithub, you can simply
+evaluate the following:
+#+BEGIN_SRC emacs-lisp
+  (require 'magithub)
+  (ghub-get "/user" nil :auth 'magithub)
+#+END_SRC
+After Ghub walks you through the authentication process during evaluation,
+the ~ghub-get~ form should return familiar information (your login, email,
+etc.).
+
+If you're having trouble /authenticating/, [[https://github.com/magit/ghub/issues/new][open a Ghub issue]] or drop by
+[[https://github.com/magit/ghub/issues/new][Magithub's Gitter channel]].
 
 * Documentation
 ** Interface
@@ -194,34 +193,28 @@ all GitHub API requests concerning the /actual/ current repository.
 |-------------+----------------------------------------|
 | =H x=         | Set a proxy for all GitHub information |
 
+** 'Tricks'
+
+Most of Magithub is implemented in pure Elisp now, but there are a few
+lingering goodies that haven't been ported (since their real logic is
+non-trivial).  These definitions are relegated to =magithub-issue-tricks.el=.
+
+Make sure to install [[https://hub.github.com][=hub=]] and add it to your ~exec-path~ if you intend to use
+these functions.  After installation, use =hub browse= from a directory with a
+GitHub repository to force the program to authenticate -- this avoids some
+weirdness on the Emacs side of things.
+
 * FAQ
-** How do I authenticate?
-GitHub authentication is handled by =ghub= -- its README includes [[https://github.com/magit/ghub#initial-configuration][instructions
-on how to authenticate]].  In the interest of not duplicating documentation
-(and risking this duplication to fall out of date), I will not repeat those
-instructions here.
-
-To verify that you're authenticated, evaluate the following expression:
-#+BEGIN_SRC emacs-lisp
-  (ghub-get "/user")
-#+END_SRC
-If this returns an alist that has some familiar information (like your
-login, email, bio, and location), you should be good to go!
-
-If you're still having trouble after reading [[https://github.com/magit/ghub#initial-configuration][=ghub='s README]], feel free to
-drop by [[https://gitter.im/vermiculus/magithub][Magithub's Gitter room]] and ask the question there.
-
 ** I've authenticated, but some features are still not authorized.
+
 You might need to configure your personal access token with more
-permissions.  [[https://github.com/settings/tokens][Manage these permissions on GitHub.]]  Currently, I recommend
-giving your token all of the following permissions:
-- =admin:org=
-- =gist=
-- =notifications=
-- =repo=
-- =user=
+permissions.  [[https://github.com/settings/tokens][Manage these permissions on GitHub.]]
+
+The scopes used by Magithub are detailed in the variable
+~magithub-github-token-scopes~.
 
 ** What's this 'Magithub features not configured' message?
+
 Sometimes, Magithub might complain that you haven't turned on certain
 features.  These features are those pieces of functionality that are
 injected into Magit's internal popups by =magithub-feature-autoinject=.  In
@@ -231,7 +224,7 @@ functionality out of popups is currently infeasible with standard API,
 Magithub had to instead provide a way to introduce these features manually.
 
 'Turning on a feature' only involves =magithub-feature-autoinject=.  For
-example, to turn on the PR Merge feature:
+example, to turn on the 'PR Merge' feature:
 #+BEGIN_SRC emacs-lisp
   (magithub-feature-autoinject 'pull-request-merge)
 #+END_SRC
@@ -246,13 +239,13 @@ messages.
 
 ** Does Magithub work for Enterprise instances?
 
-Yes, but it's entirely tested by you folks.  I don't have access to an
-Enterprise to test against, so YMMV.  (There is one obscure bug here (#115)
-but you're unlikely to run into it.)
+Mostly, yes, but it's entirely tested by you folks.  I don't have access to
+an Enterprise to test against, so YMMV.  (There is one obscure bug here
+(#115) but you're unlikely to run into it.)
 
 * Shameless Plugs
 
-Magithub is made possible by [[https://github.com/vermiculus/ghub-plus][=ghub+=]] via [[https://github.com/vermiculus/apiwrap.el][=API-Wrap.el=]] over [[https://www.github.com/magit/ghub][=magit/ghub=]].
+Magithub is made possible by [[https://github.com/vermiculus/ghub-plus][Ghub+]] via [[https://github.com/vermiculus/apiwrap.el][API-Wrap.el]] over [[https://www.github.com/magit/ghub][Ghub]].
 
 * Prior Art
 
