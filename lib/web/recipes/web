@@ -1,0 +1,10 @@
+(web
+ :files 
+ ("web.el")
+ :requires ((dash "1.5.0"))
+ :test 
+ (:requires 
+  ((fakir "0.1.9")
+   (elnode "0.9.9.6.2"))
+  :files
+  ("web-test.el")))
