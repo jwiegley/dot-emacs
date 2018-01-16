@@ -1,0 +1,5 @@
+dir
+web-server/
+*.info
+*.html
+*.svg
