@@ -1,19 +1,20 @@
-(load-file "./ghub+.el")
-(message "ghub+ loaded manually: %s"
-         (if (featurep 'ghub+) "yes" "no"))
+(unless (require 'ghub+ nil 'noerror)
+  (message "attempting to load ghub+ manually...")
+  (load-file "./ghub+.el")
+  (message "attempting to load ghub+ manually...done")
+  (require 'ghub+))
 
 (require 'subr-x)
 (require 'dash)
 (require 's)
 
-(setq ghubp-request-override-function
-      (lambda (method resource params data)
-        (cond
-         ((and (string= method "GET")
-               (string= resource "/repos/vermiculus/ghub-plus")
-               (null params)
-               (null data))
-          '((id . 82884749))))))
+(cl-defun test-request-override (method resource &optional params &key query payload
+                                        headers unpaginate noerror reader username auth host)
+  (pcase (list method resource params query payload headers
+               unpaginate noerror reader username auth host)
+    (`("GET" "/repos/vermiculus/ghub-plus" nil nil nil nil nil nil nil nil nil nil)
+     '((id . 82884749)))))
+(setq ghubp-request-override-function #'test-request-override)
 
 (defun lint-is-api-form-p (form)
   "Is FORM a defapi* macro call?"
