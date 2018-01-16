@@ -1,0 +1,300 @@
+= A useful HTTP client =
+
+Emacs has quite a few HTTP clients but they are all rather old. This
+is my attempt at a modern one.
+
+The idea is to always use callbacks to collect the response.
+
+== Interactive ==
+
+An interactive function is included:
+
+{{{
+M-x web-get [RET] url
+}}}
+
+I'm hoping to make this plugin to ffap.
+
+== Examples ==
+
+Here's a basic example:
+
+{{{
+;; -*- lexical-binding: t -*-
+(require 'web)
+
+(let ((url "http://feeds.pinboard.in/json/u:nicferrier"))
+  (web-http-get
+   (lambda (httpc header my-data)
+     (with-current-buffer (get-buffer-create "nicfeed")
+       (goto-char (point-max))
+       (insert my-data)))
+   :url url))
+}}}
+
+That creates the buffer {{{nicfeed}}} with the downloaded contents in
+it.
+
+Here's a POST:
+
+{{{
+;; -*- lexical-binding: t -*-
+
+(require 'web)
+
+(let ((query-data (make-hash-table :test 'equal)))
+  (puthash 'name "nic" query-data)
+  (puthash 'email "nic@example.com" query-data)
+  (web-http-post
+    (lambda (con header data)
+      (message "data received is: %s" data))
+    :url "http://localhost:8001/someplace"
+    :data query-data))
+}}}
+
+SSL works too:
+
+{{{
+;; -*- lexical-binding: t -*-
+
+(require 'web)
+
+(web-http-call
+ "GET"
+ (lambda (conn headers data)
+   (message "%S %S" headers data))
+ :url "https://duckduckgo.com/"
+ :data '(("q" . "search+engine")))
+}}}
+
+and JSON has special support and a *different* callback form:
+
+{{{
+;; -*- lexical-binding: t -*-
+
+(require 'web)
+
+(web-json-post 
+  (lambda (data conn headers)
+     (message "%S" data))
+  :url "http://someurlthatproducesjson/")
+}}}
+
+The JSON callback form allows just data to be collected:
+
+{{{
+;; -*- lexical-binding: t -*-
+(require 'web)
+
+(web-json-post 
+  (lambda (data)
+     (message "%S" data))
+  :url "http://someurlthatproducesjson/")
+}}}
+
+and the JSON support allows the usual overriding of JSON type
+mappings:
+
+{{{
+;; -*- lexical-binding: t -*-
+(require 'web)
+
+(web-json-post 
+  (lambda (data)
+    ;; data will be a list
+    (message "The car => %s" (car data)))
+  :url "http://someurlthatproducesjson/"
+  :json-object-type 'list)
+}}}
+
+You can also upload files with web:
+
+{{{
+;; -*- lexical-binding: t -*-
+(require 'web)
+
+(let ((myfile (get-buffer-create "my-file.txt")))
+  (with-current-buffer myfile 
+     (insert "hello!!!!")
+     (write-file "my-file.txt"))
+  (web-http-post
+   (lambda (con hdr data) (message "the file was uploaded!"))
+   :url "http://localhost:9020"
+   :data `(("my-file" . ,myfile))
+   :mime-type web-multipart-mimetype))
+}}}
+
+The request MIME type has to be set to {{{web-multipart-mimetype}}}
+which is {{{multipart/form-data}}}. When set like that any buffer
+visiting a file used as a parameter value will be uploaded as a file.
+
+web uses Emacs' default MIME checking on files to try to establish the
+right //content-type// to send the file as. 
+
+Currently no extra encoding is done so binary files probably can't be
+sent.
+
+== Most wanted ==
+
+I'd really like web to not have to take a callback there and then but
+to be able to return some sort of future. The alteration would allow
+things like this:
+
+{{{
+(web-json-post :future :url "http://marmalade-repo.org/login")
+}}}
+
+== Installing ==
+
+I keep the {{{web}}} package on [[http://marmalade-repo.org]] but if
+you want to install it manually you can just install the package file
+{{{web.el}}}.
+
+Using {{{elpakit}}} you can also get testing.
+
+
+== API ==
+
+=== web-header-parse data ===
+
+Parse an HTTP response header.
+
+Each header line is stored in the hash with a symbol form of the
+header name.
+
+The status line is expected to be the first line of the data.
+The status is stored in the header as well with the following
+keys:
+
+{{{
+  status-version
+  status-code
+  status-string
+}}}
+
+which are stored as symbols the same as the normal header keys.
+
+
+=== web-http-call method callback &key url (host "localhost") (port 80) secure (path "/") extra-headers data (mime-type web/request-mimetype) (mode 'batch) logging ===
+
+Make an HTTP method to the //url// or the //host//, //port//, //path// and send //data//.
+
+If //url// is specified then it takes precedence over //secure//, //host//,
+//port// and //path//.  //url// may be HTTP or HTTPS.
+
+Important note: any query in //url// is currently IGNORED!
+
+//secure// is [[nil]] by default but if [[t]] then SSL is used.
+
+//port// is 80 by default.  Even if //secure// it [[t]].  If you manually
+specify //secure// you should manually specify //port// to be 443.  Using
+//url// negates the need for that, an SSL //url// will work correctly.
+
+//extra-headers// is an alist or a hash-table of extra headers to
+send to the server.
+
+//data// is of //mime-type//.  We try to interpret //data// and //mime-type//
+usefully:
+
+If //mime-type// is [[application/form-www-url-encoded]] then
+[[web-to-query-string]] is used to to format the //data// into a POST
+body.
+
+When the request comes back the //callback// is called.  //callback// is
+always passed 3 arguments: the HTTP connection which is a process
+object, the HTTP header which is a [[hash-table]] and [[data]], which
+is normally a string.  [[data]] depends somewhat on the context.
+See below.
+
+//mode// defines what it means for the request to cause the //callback//
+to be fired.  When //mode// is [[stream]] then the //callback// is called
+for every chunk of data received after the header has arrived.
+This allows streaming data to somewhere else; hence [[stream]]
+mode.  In this mode //callback//'s [[data]] argument is a single chunk
+of the stream or [[:done]] when the stream ends.
+
+The default //mode// is [[batch]] which collects all the data from the
+response before calling //callback// with all the data as a string.
+
+
+=== web-http-get callback &key url (host "localhost") (port 80) (path "/") extra-headers (mode 'batch)) (logging t) ===
+
+Make a GET calling //callback// with the result.
+
+For information on //url// or //path//, //host//, //port// and also //extra-headers//
+and //mode// see [[web-http-call]].
+
+The callback probably won't work unless you set [[lexical-binding]]
+to [[t]].
+
+
+=== web-http-post callback &key url host ("localhost") port (80) path ("/") extra-headers data mime-type (web/request-mimetype) mode ((quote batch)) logging (t) ===
+
+Make a POST and call //callback// with the result.
+
+For information on //url// or //path//, //host//, //port// and also //mode// see
+[[web-http-call]].
+
+The callback probably won't work unless you set [[lexical-binding]]
+to [[t]].
+
+
+=== web-json-default-expectation-failure data http-con headers ===
+
+Default expectation callback for JSON expectation errors.
+
+
+=== web-json-post callback &key url data headers json-array-type (json-array-type) json-object-type (json-object-type) json-key-type (json-key-type) expectation-failure-callback ((quote web-json-default-expectation-failure)) ===
+
+POST //data// to //url// expecting a JSON response sent to //callback//.
+
+See [[web-json-expected-mimetypes-list]] for the list of Mime Types
+we accept JSON for.  This may be let bound.  If the expectation
+is not met then //expectation-failure-callback// is called being
+passed the //callback// parameters.  By default
+//expectation-failure-callback// is
+[[web-json-default-expectation-failure]].
+
+The //callback// is called as:
+
+{{{
+  //callback// RESPONSE-//data// HTTPCON RESPONSE-HEADER
+}}}
+
+so the function may be defined like this:
+
+{{{
+  (lambda (data &rest stuff) ...)
+}}}
+
+//headers// may be specified, these are treated as extra-headers to
+be sent with the request.
+
+The //data// is sent as [[application/x-www-form-urlencoded]].
+
+//json-array-type//, //json-object-type// and //json-key-type//, if present,
+are used to let bind the [[json-read]] variables of the same name
+affecting the resulting lisp structure.
+
+
+=== web-json/parse json-candidate-data &key json-array-type (json-array-type) json-object-type (json-object-type) json-key-type (json-key-type) ===
+
+Parse DATA as JSON and return the result.
+
+
+=== web-to-query-string object ===
+
+Convert //object// (a hash-table or alist) to an HTTP query string.
+
+If //object// is of type [[hash-table]] then the keys and values of the
+hash are iterated into the string depending on their types.
+
+Keys with [[number]] and [[string]] values are encoded as
+"key=value" in the resulting query.
+
+Keys with a boolean value (or any other value not already
+described) are encoded just as "key".
+
+Keys may be symbols or strings.
+
+
