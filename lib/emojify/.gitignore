@@ -1,0 +1,7 @@
+# -*- mode: gitignore; -*-
+# Compiled files
+*.elc
+
+# cask packages
+.cask/
+/dist/
