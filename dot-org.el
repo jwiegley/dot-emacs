@@ -960,7 +960,7 @@ end tell" (match-string 1))))
   (org-super-agenda-mode))
 
 (use-package org-velocity
-  :load-path "site-lisp/org-mode/contrib/lisp"
+  :load-path "site-lisp/org/contrib/lisp"
   :bind ("C-. C-." . org-velocity))
 
 (use-package org-web-tools

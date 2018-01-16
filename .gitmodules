@@ -20,7 +20,7 @@
 	path = site-lisp/haskell-mode
 	url = git://github.com/jwiegley/haskell-mode.git
 [submodule "lisp/emacs-async"]
-	path = lisp/emacs-async
+	path = lisp/async
 	url = git://github.com/jwiegley/emacs-async.git
 [submodule "site-lisp/company-coq"]
 	path = site-lisp/company-coq
@@ -35,7 +35,7 @@
 	path = site-lisp/flycheck
 	url = git://github.com/flycheck/flycheck.git
 [submodule "lisp/git-annex-el"]
-	path = lisp/git-annex-el
+	path = lisp/git-annex
 	url = git://github.com/jwiegley/git-annex-el.git
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
@@ -44,7 +44,7 @@
 	path = lisp/chess
 	url = git://github.com/jwiegley/emacs-chess.git
 [submodule "lisp/git-undo-el"]
-	path = lisp/git-undo-el
+	path = lisp/git-undo
 	url = git://github.com/jwiegley/git-undo-el.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
