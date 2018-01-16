@@ -13,9 +13,6 @@
 [submodule "lisp/emacs-pl"]
 	path = lisp/emacs-pl
 	url = git://github.com/jwiegley/emacs-pl.git
-[submodule "site-lisp/org-mode"]
-	path = site-lisp/org-mode
-	url = git://github.com/jwiegley/org-mode.git
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config.git
@@ -51,7 +48,7 @@
 	url = git://github.com/jwiegley/git-undo-el.git
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
-	url = https://git.savannah.gnu.org/git/auctex.git
+	url = git://git.savannah.gnu.org/git/auctex.git
 [submodule "site-lisp/org"]
 	path = site-lisp/org
-	url = https://github.com/eschulte/jump.el.git
+	url = git://github.com/eschulte/jump.el.git
