@@ -1,0 +1,14 @@
+COPYING
+examples
+Makefile
+NOTES
+README
+stuff
+web-server-test.el
+
+## Ignorable documentation files
+doc/dir
+doc/doclicense.texi
+doc/gpl.texi
+doc/Makefile
+doc/web-server.texi
