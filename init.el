@@ -138,7 +138,7 @@
 (use-package async         :defer t  :load-path "lisp/emacs-async")
 (use-package button-lock   :defer t  :load-path "lib/button-lock")
 (use-package ctable        :defer t  :load-path "lib/ctable")
-(use-package dash          :defer t  :load-path "lib/dash-el")
+(use-package dash          :defer t  :load-path "lib/dash")
 (use-package deferred      :defer t  :load-path "lib/deferred")
 (use-package diminish      :demand t :load-path "lib/diminish")
 (use-package el-mock       :defer t  :load-path "lib")
@@ -147,24 +147,24 @@
 (use-package epc           :defer t  :load-path "lib/epc")
 (use-package epl           :defer t  :load-path "lib/epl")
 (use-package esxml         :defer t  :load-path "lib/esxml")
-(use-package f             :defer t  :load-path "lib/f-el")
-(use-package fn            :defer t  :load-path "lib/fn-el")
-(use-package fringe-helper :defer t  :load-path "lib/fringe-helper-el")
-(use-package fuzzy         :defer t  :load-path "lib/fuzzy-el")
+(use-package f             :defer t  :load-path "lib/f")
+(use-package fn            :defer t  :load-path "lib/fn")
+(use-package fringe-helper :defer t  :load-path "lib/fringe-helper")
+(use-package fuzzy         :defer t  :load-path "lib/fuzzy")
 (use-package ghub          :defer t  :load-path "lib/ghub")
 (use-package ghub+         :defer t  :load-path "lib/ghub-plus")
-(use-package ht            :defer t  :load-path "lib/ht-el")
+(use-package ht            :defer t  :load-path "lib/ht")
 (use-package kv            :defer t  :load-path "lib/kv")
 (use-package list-utils    :defer t  :load-path "lib/list-utils")
 (use-package logito        :defer t  :load-path "lib/logito")
 (use-package loop          :defer t  :load-path "lib/loop")
 (use-package m-buffer      :defer t  :load-path "lib/m-buffer")
 (use-package makey         :defer t  :load-path "lib/makey")
-(use-package marshal       :defer t  :load-path "lib/marshal-el")
+(use-package marshal       :defer t  :load-path "lib/marshal")
 (use-package names         :defer t  :load-path "lib/names")
 (use-package noflet        :defer t  :load-path "lib/noflet")
 (use-package oauth2        :defer t  :load-path "lib/oauth2")
-(use-package ov            :defer t  :load-path "lib/ov-el")
+(use-package ov            :defer t  :load-path "lib/ov")
 (use-package packed        :defer t  :load-path "lib/packed")
 (use-package parent-mode   :defer t  :load-path "lib/parent-mode")
 (use-package parsebib      :defer t  :load-path "lib/parsebib")
@@ -172,17 +172,17 @@
 (use-package peval         :defer t  :load-path "lib/peval")
 (use-package pfuture       :defer t  :load-path "lib/pfuture")
 (use-package pkg-info      :defer t  :load-path "lib/pkg-info")
-(use-package popup         :defer t  :load-path "lib/popup-el")
+(use-package popup         :defer t  :load-path "lib/popup")
 (use-package popup-pos-tip :defer t  :load-path "lib")
 (use-package popwin        :defer t  :load-path "site-lisp/popwin")
 (use-package pos-tip       :defer t  :load-path "lib")
 (use-package request       :defer t  :load-path "lib/request")
 (use-package rich-minority :defer t  :load-path "lib/rich-minority")
-(use-package s             :defer t  :load-path "lib/s-el")
+(use-package s             :defer t  :load-path "lib/s")
 (use-package simple-httpd  :defer t  :load-path "lib/simple-httpd")
 (use-package spinner       :defer t  :load-path "lib/spinner")
 (use-package tablist       :defer t  :load-path "lib/tablist")
-(use-package uuidgen       :defer t  :load-path "lib/uuidgen-el")
+(use-package uuidgen       :defer t  :load-path "lib/uuidgen")
 (use-package web           :defer t  :load-path "lib/web")
 (use-package web-server    :defer t  :load-path "lib/web-server")
 (use-package websocket     :defer t  :load-path "lib/websocket")
@@ -296,7 +296,7 @@
           (insert "  where\n    " func-def "    " name " x = ?\n"))))))
 
 (use-package aggressive-indent
-  :load-path "site-lisp/aggressive-indent-mode"
+  :load-path "site-lisp/aggressive-indent"
   :diminish
   :hook (emacs-lisp-mode . aggressive-indent-mode))
 
@@ -712,7 +712,7 @@
          ("C-c e L" . clm/open-command-log-buffer)))
 
 (use-package company
-  :load-path "site-lisp/company-mode"
+  :load-path "site-lisp/company"
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
@@ -953,7 +953,7 @@ In that case, insert the number."
   :commands diff-mode)
 
 (use-package diffview
-  :load-path "site-lisp/diffview-mode"
+  :load-path "site-lisp/diffview"
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
@@ -1109,7 +1109,7 @@ In that case, insert the number."
         (funcall dired-omit-regexp-orig)))))
 
 (use-package dired-ranger
-  :load-path "site-lisp/dired-hacks"
+  :load-path "site-lisp/dired-hacks-utils"
   :bind (:map dired-mode-map
               ("W" . dired-ranger-copy)
               ("X" . dired-ranger-move)
@@ -1144,7 +1144,7 @@ In that case, insert the number."
          ("C-h M-m"   . discover-my-mode)))
 
 (use-package docker
-  :load-path "site-lisp/docker-el"
+  :load-path "site-lisp/docker"
   :defer 15
   :diminish
   :config
@@ -1246,7 +1246,7 @@ In that case, insert the number."
 
 (use-package edit-server
   :if window-system
-  :load-path "site-lisp/emacs-chrome/servers"
+  :load-path "site-lisp/edit-server/servers"
   :defer 5
   :config
   (edit-server-start))
@@ -1514,7 +1514,7 @@ In that case, insert the number."
   :commands evil-mode)
 
 (use-package expand-region
-  :load-path "site-lisp/expand-region-el"
+  :load-path "site-lisp/expand-region"
   :bind ("C-=" . er/expand-region))
 
 (use-package eyebrowse
@@ -2107,7 +2107,7 @@ In that case, insert the number."
   :defer 5)
 
 (use-package ialign
-  :load-path "site-lisp/interactive-align"
+  :load-path "site-lisp/ialign"
   :bind ("C-. [" . ialign-interactive-align))
 
 (use-package inventory
@@ -2404,7 +2404,7 @@ In that case, insert the number."
 
 (use-package lusty-explorer
   :disabled t
-  :load-path "site-lisp/lusty-emacs"
+  :load-path "site-lisp/lusty-explorer"
   :bind (("C-x C-f" . my-lusty-file-explorer))
   :preface
   (defun lusty-read-directory ()
@@ -2801,7 +2801,7 @@ In that case, insert the number."
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multifiles
-  :load-path "site-lisp/multifiles-el"
+  :load-path "site-lisp/multifiles"
   :bind ("C-c m f" . mf/mirror-region-in-multifile))
 
 (use-package multiple-cursors
@@ -2867,7 +2867,7 @@ In that case, insert the number."
     (activate-mark)))
 
 (use-package navi-mode
-  :load-path "site-lisp/navi"
+  :load-path "site-lisp/navi-mode"
   :after outshine
   :bind ("M-s s" . navi-search-and-switch))
 
@@ -3003,7 +3003,7 @@ In that case, insert the number."
                 (set-field "sha256" (alist-get 'sha256 data))))))))))
 
 (use-package nov
-  :load-path "site-lisp/nov-el"
+  :load-path "site-lisp/nov"
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package nroff-mode
@@ -3121,7 +3121,7 @@ In that case, insert the number."
   :after paredit)
 
 (use-package parinfer
-  :load-path "site-lisp/parinfer-mode"
+  :load-path "site-lisp/parinfer"
   :bind ("C-. C-(" . parinfer-toggle-mode)
   :config
   (setq parinfer-extensions '(defaults paredit smart-yank)))
@@ -3486,7 +3486,7 @@ append it to ENTRY."
               ("M-." . rtags-find-symbol-at-point)))
 
 (use-package ruby-mode
-  :load-path "site-lisp/ruby-mode"
+  :load-path "site-lisp/enh-ruby-mode"
   :mode "\\.rb\\'"
   :interpreter "ruby"
   :bind (:map ruby-mode-map
@@ -3633,7 +3633,7 @@ append it to ENTRY."
   :commands smartparens-mode)
 
 (use-package smartscan
-  :load-path "site-lisp/smart-scan"
+  :load-path "site-lisp/smartscan"
   :defer 5
   :bind (:map smartscan-map
               ("C->" . smartscan-symbol-go-forward)
@@ -3858,7 +3858,7 @@ append it to ENTRY."
 
 (use-package vlf
   :disabled t
-  :load-path "site-lisp/vlfi"
+  :load-path "site-lisp/vlf"
   :defer 5
   :init
   (setq-default vlf-tune-max (* 512 1024)))

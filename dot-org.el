@@ -841,7 +841,7 @@ end tell" (match-string 1))))
   :commands anki-editor-submit)
 
 (use-package calfw
-  :load-path "site-lisp/emacs-calfw"
+  :load-path "site-lisp/calfw"
   :bind (("C-c A" . my-calendar)
          :map cfw:calendar-mode-map
          ("M-n" . cfw:navi-next-month-command)
