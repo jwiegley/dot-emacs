@@ -2604,7 +2604,16 @@ In that case, insert the number."
   :load-path "site-lisp/magithub"
   :after magit
   :config
-  (magithub-feature-autoinject t))
+  (magithub-feature-autoinject t)
+
+  (defvar my-ghub-token-cache nil)
+
+  (advice-add
+   'ghub--token :around
+   #'(lambda (orig-func host username package &optional nocreate)
+       (or my-ghub-token-cache
+           (setq my-ghub-token-cache
+                 (funcall orig-func host username package nocreate))))))
 
 (use-package makefile-runner
   :load-path "site-lisp/makefile-runner"
