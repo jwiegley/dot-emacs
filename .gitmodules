@@ -52,3 +52,6 @@
 [submodule "site-lisp/auctex"]
 	path = site-lisp/auctex
 	url = https://git.savannah.gnu.org/git/auctex.git
+[submodule "site-lisp/org"]
+	path = site-lisp/org
+	url = https://github.com/eschulte/jump.el.git
