@@ -164,8 +164,8 @@ reuse storage as much as possible."
                               name))
                         name)))
             (unless (aif (locate-library name)
-                        (and (string-match "/share/emacs/" it)
-                             (not (string-match "/site-lisp/elpa/" it))))
+                         (and (string-match "/share/emacs/" it)
+                              (not (string-match "/site-lisp/elpa/" it))))
               (modhash key pkgs
                        (lambda (value)
                          (alist-put value
@@ -179,7 +179,7 @@ reuse storage as much as possible."
       (with-temp-buffer
         (insert-file-contents file)
         (goto-char (point-min))
-        (re-search-forward "^emacs26FullPackages")
+        (re-search-forward "^myEmacsPackages =")
         (forward-line)
         (while (not (looking-at "^\\s-+\\]"))
           (when (looking-at "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?: +# +\\(.+?\\)\\)?$")
@@ -242,7 +242,7 @@ reuse storage as much as possible."
                           (not (string= (clean-url url1)
                                         (clean-url url2)))
                           (not (aif (alist-get 'manifest-options value)
-                                   (string-match "custom-remote" it))))
+                                    (string-match "custom-remote" it))))
                      (report 'remote-mismatch))))
              (let ((paths
                     (let ((load-path
@@ -258,7 +258,7 @@ reuse storage as much as possible."
                           (> (length paths) 1)
                           (not (equal (alist-get 'use-package-load-path value) "lib"))
                           (not (aif (alist-get 'manifest-options value)
-                                   (string-match "custom-path" it)))
+                                    (string-match "custom-path" it)))
                           (cl-every #'stringp paths)
                           (not (= 1 (length (cl-remove-duplicates
                                              paths :test #'string=)))))

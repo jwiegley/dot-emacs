@@ -1,6 +1,3 @@
-;; (require 'profiler)
-;; (profiler-start 'cpu+mem)
-
 (defconst emacs-start-time (current-time))
 
 (setq package-enable-at-startup nil
@@ -37,22 +34,10 @@
 (eval-and-compile
   (require 'seq)
 
-  (defconst emacs-environment
-    (let ((name (getenv "NIX_MYENV_NAME")))
-      (if (or (null name)
-              (string= name (concat "ghc" (getenv "GHCVER"))))
-          "emacs26full"
-        name)))
+  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
   (setq load-path
-        (append '("~/emacs"
-                  "~/emacs/lib"
-                  "~/emacs/site-lisp"
-                  "~/emacs/lisp"
-                  "~/emacs/lisp/use-package")
-                (cl-remove-if
-                 (apply-partially #'string-match "/org\\'")
-                 (delete-dups load-path))))
+        (append '("~/emacs") (delete-dups load-path) '("~/emacs/lisp")))
 
   (defun nix-read-environment (name)
     (ignore-errors
@@ -69,6 +54,22 @@
 
   (require 'use-package)
 
+  (defconst load-path-reject-re "/\\.emacs\\.d/\\(lib\\|site-lisp\\)/"
+    "Regexp matching `:load-path' values to be rejected.")
+
+  (defun load-path-handler-override (orig-func name keyword args rest state)
+    (if (cl-some (apply-partially #'string-match load-path-reject-re) args)
+        (use-package-process-keywords name rest state)
+      (let ((body (use-package-process-keywords name rest state)))
+        (use-package-concat
+         (mapcar #'(lambda (path)
+                     `(eval-and-compile (add-to-list 'load-path ,path t)))
+                 arg)
+         body))))
+
+  (advice-add 'use-package-handler/:load-path
+              :around #'load-path-handler-override)
+
   (if init-file-debug
       (setq use-package-verbose t
             use-package-expand-minimally nil
@@ -76,15 +77,6 @@
             debug-on-error t)
     (setq use-package-verbose nil
           use-package-expand-minimally t)))
-
-;; (advice-add 'use-package-handler/:load-path :around
-;;             #'(lambda (orig-func name keyword args rest state)
-;;                 (unless (string= emacs-environment "emacs26full")
-;;                   (if (or (memq name '(agda-input hyperbole proof-site slime
-;;                                                   flycheck-haskell ghc))
-;;                           (cl-some (apply-partially #'string-match "\\`~") args))
-;;                       (funcall orig-func name keyword arg rest state)
-;;                     (use-package-process-keywords name rest state)))))
 
 ;;; Settings
 
@@ -103,6 +95,8 @@
 
   (load (emacs-path "settings"))
 
+  ;; Note that deferred loading may override some of these changed values.
+  ;; This can happen with `savehist', for example.
   (when emacs-data-suffix
     (let ((settings (with-temp-buffer
                       (insert-file-contents (emacs-path "settings.el"))
@@ -128,9 +122,10 @@
            "/run/current-system/sw/share/info"
            "~/.nix-profile/share/info")))
 
-(setq disabled-command-function nil)
+(setq disabled-command-function nil) ;; enable all commands
 
 (eval-when-compile
+  ;; Disable all warnings about obsolete functions here.
   (setplist 'flet (use-package-plist-delete (symbol-plist 'flet)
                                             'byte-obsolete-info)))
 
