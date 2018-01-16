@@ -2889,7 +2889,123 @@ In that case, insert the number."
 
 (use-package nix-mode
   :load-path "site-lisp/nix-mode"
-  :mode "\\.nix\\'")
+  :mode "\\.nix\\'"
+  :bind ("C-. u" . nix-update-fetch)
+  :preface
+  (defun nix-update-fetch ()
+    (interactive)
+    (save-excursion
+      (when (re-search-forward
+             "fetch\\(url\\|git\\|FromGit\\(?:Hub\\|Lab\\)\\)\\s-+\\({\\)"
+             nil t)
+        (goto-char (match-beginning 2))
+        (let ((begin (point))
+              (type (match-string 1)))
+          (forward-sexp)
+          (save-restriction
+            (narrow-to-region begin (point))
+            (cl-flet ((get-field
+                       (field)
+                       (goto-char (point-min))
+                       (when (re-search-forward
+                              (concat field "\\s-+=\\s-+\"?\\(.+?\\)\"?\\s-*;"))
+                         (match-string 1)))
+                      (set-field
+                       (field value)
+                       (goto-char (point-min))
+                       (if (re-search-forward
+                            (concat field "\\s-+=\\s-+\"?\\(.+?\\)\"?\\s-*;")
+                            nil t)
+                           (replace-match value nil t nil 1)
+                         (goto-char (point-max))
+                         (search-backward ";")
+                         (goto-char (line-beginning-position))
+                         (let ((leader "    "))
+                           (when (looking-at "^\\(\\s-+\\)")
+                             (setq leader (match-string 1)))
+                           (goto-char (line-end-position))
+                           (insert ?\n leader field " = " value ";")))))
+              (let ((data
+                     (pcase type
+                       (`"FromGitHub"
+                        (let ((owner (get-field "owner"))
+                              (repo (get-field "repo")))
+                          (with-temp-buffer
+                            (message "Fetching GitHub repository: %s/%s ..."
+                                     owner repo)
+                            (let ((inhibit-redisplay t))
+                              (shell-command
+                               (format
+                                (concat
+                                 "nix-prefetch-git --no-deepClone"
+                                 " --quiet git://github.com/%s/%s.git %s")
+                                owner repo "refs/heads/master")
+                               (current-buffer))
+                              (message
+                               "Fetching GitHub repository: %s/%s ...done"
+                               owner repo))
+                            (goto-char (point-min))
+                            (json-read-object))))
+                       (`"FromGitLab"
+                        (let ((owner (get-field "owner"))
+                              (repo (get-field "repo")))
+                          (with-temp-buffer
+                            (message "Fetching GitLab repository: %s/%s ..."
+                                     owner repo)
+                            (let ((inhibit-redisplay t))
+                              (shell-command
+                               (format
+                                (concat
+                                 "nix-prefetch-git --no-deepClone"
+                                 " --quiet https://gitlab.com/%s/%s.git %s")
+                                owner repo "refs/heads/master")
+                               (current-buffer))
+                              (message
+                               "Fetching GitLab repository: %s/%s ...done"
+                               owner repo))
+                            (goto-char (point-min))
+                            (json-read-object))))
+                       (`"git"
+                        (let ((url (get-field "url")))
+                          (with-temp-buffer
+                            (message "Fetching Git URL: %s ..." url)
+                            (let ((inhibit-redisplay t))
+                              (shell-command
+                               (format (concat
+                                        "nix-prefetch-git --no-deepClone"
+                                        " --quiet %s %s")
+                                       url "refs/heads/master")
+                               (current-buffer))
+                              (message "Fetching Git URL: %s ...done" url))
+                            (goto-char (point-min))
+                            (json-read-object))))
+                       (`"url"
+                        (let ((url (get-field "url")))
+                          (with-temp-buffer
+                            (message "Fetching URL %s: ..." url)
+                            (let ((inhibit-redisplay t))
+                              (shell-command (format "nix-prefetch-url %s" url)
+                                             (current-buffer))
+                              (message "Fetching URL %s: ...done" url))
+                            (goto-char (point-min))
+                            (when (looking-at "^path is")
+                              (forward-line))
+                            (list
+                             (cons 'date
+                                   (format-time-string "%Y-%m-%dT%H:%M:%S%z"))
+                             (cons 'sha256
+                                   (buffer-substring
+                                    (line-beginning-position)
+                                    (line-end-position))))))))))
+                (if (assq 'rev data)
+                    (set-field "rev" (alist-get 'rev data)))
+                (if (assq 'date data)
+                    (set-field "# date"
+                               (let ((date (alist-get 'date data)))
+                                 (if (string-match "\\`\"\\(.+\\)\"\\'" date)
+                                     (match-string 1 date)
+                                   date))))
+                (set-field "sha256" (alist-get 'sha256 data))))))))))
 
 (use-package nov
   :load-path "site-lisp/nov-el"
