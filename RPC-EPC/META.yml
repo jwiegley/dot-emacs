@@ -1,0 +1,26 @@
+---
+abstract: 'An Asynchronous Remote Procedure Stack.'
+author:
+  - 'Masashi Sakurai <m.sakurai@kiwanami.net>'
+build_requires: {}
+configure_requires:
+  Module::Build: 0.40
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: RPC-EPC-Service
+provides:
+  RPC::EPC::Service:
+    file: lib/RPC/EPC/Service.pm
+    version: v0.0.11
+requires:
+  AnyEvent: 6.1
+  Data::SExpression: 0.41
+  Test::More: 0
+  version: 0
+resources:
+  license: http://dev.perl.org/licenses/
+version: v0.0.11
