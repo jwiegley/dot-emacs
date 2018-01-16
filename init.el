@@ -2590,6 +2590,10 @@ In that case, insert the number."
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
 
+(use-package magit-popup
+  :load-path "site-lisp/magit-popup"
+  :defer t)
+
 (use-package magit-imerge
   ;; jww (2017-12-10): Need to configure.
   :disabled t
@@ -2597,8 +2601,6 @@ In that case, insert the number."
   :after magit)
 
 (use-package magithub
-  ;; jww (2017-12-10): Waiting for the next release of Magit.
-  :disabled t
   :load-path "site-lisp/magithub"
   :after magit
   :config

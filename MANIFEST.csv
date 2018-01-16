@@ -235,6 +235,7 @@ m-buffer,lib,subtree,git://github.com/phillord/m-buffer-el.git,
 macrostep,site-lisp,subtree,git://github.com/joddie/macrostep.git,
 magit,site-lisp,submodule,git://github.com/magit/magit.git,custom-path
 magit-imerge,site-lisp,subtree,git://github.com/magit/magit-imerge.git,
+magit-popup,site-lisp,subtree,git://github.com/magit/magit-popup.git,
 magithub,site-lisp,subtree,git://github.com/vermiculus/magithub.git,
 main.el,lisp,file,https://raw.githubusercontent.com/jwiegley/dot-emacs/master/lisp/main.el,
 makefile-runner,site-lisp,subtree,git://github.com/danamlund/emacs-makefile-runner.git,
