@@ -1,6 +1,0 @@
-= Document
-:doctype: article
-
-=== P1
-
-endif::[]

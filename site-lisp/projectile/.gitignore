@@ -1,8 +1,0 @@
-/elpa
-/.elpa
-/.cask
-*.elc
-*~
-[#]*[#]
-/TAGS
-/project

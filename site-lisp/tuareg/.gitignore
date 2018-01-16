@@ -1,9 +1,0 @@
-*.elc
-*.test
-*-autoloads.el
-*-pkg.el
-*~
-*.tar.gz
-packages
-/tuareg.*/
-ChangeLog

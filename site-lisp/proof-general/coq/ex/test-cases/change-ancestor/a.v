@@ -1,3 +1,0 @@
-
-Definition a := 0.
-

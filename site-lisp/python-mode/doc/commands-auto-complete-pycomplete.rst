@@ -1,4 +1,0 @@
-Python-mode commands
-
-====================
-

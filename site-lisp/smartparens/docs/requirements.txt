@@ -1,5 +1,0 @@
-sphinx
-sphinx-autobuild
-sphinxcontrib-emacs
-sphinx_rtd_theme
-rst

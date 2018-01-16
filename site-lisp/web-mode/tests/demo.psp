@@ -1,9 +1,0 @@
-<div>
-  <?php
-  if ($test == 5 &&
-      $test2 == 7) {
-    print("hello");
-  }
-  ?>
-  <!-- test folding -->
-</div>

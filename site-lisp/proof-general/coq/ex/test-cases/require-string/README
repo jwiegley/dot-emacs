@@ -1,3 +1,0 @@
-The "Require string" variant is currently not supported.
-
-Here b.v contains Require "a.vo".

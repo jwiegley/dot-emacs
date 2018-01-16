@@ -1,4 +1,0 @@
-*.elc
-.cask/*
-
-/repl-toggle-pkg.el

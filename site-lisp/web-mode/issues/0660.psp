@@ -1,3 +1,0 @@
-<?php
-
-if ($x) echo $x;

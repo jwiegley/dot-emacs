@@ -1,8 +1,0 @@
-HTTP/1.1 200 OK
-Server: nginx/1.1.19
-Date: Wed, 23 Mar 2016 15:11:01 GMT
-Content-Type: text/plain
-Transfer-Encoding: chunked
-Connection: keep-alive
-
- @misc{Pit-Claudel, Clément_Courtieu, Pierre_2016, title={Company-Coq: Taking Proof General one step closer to a real IDE}, url={http://dx.doi.org/10.5281/zenodo.44331}, DOI={10.5281/zenodo.44331}, publisher={Zenodo}, author={Pit-Claudel, Clément and Courtieu, Pierre}, year={2016}}

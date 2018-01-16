@@ -1,9 +1,0 @@
-#!/bin/sh
-
-PATH="$(dirname "$0")":$PATH
-
-set -e
-
-yes-or-enter | ./autobuild -i /bin
-yes-or-enter | ./autobuild -i /usr/bin | \
-    grep -q "Skipping package installation (already installed)"
