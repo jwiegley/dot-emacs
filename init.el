@@ -3664,7 +3664,6 @@ append it to ENTRY."
   :commands sqlind-minor-mode)
 
 (use-package stopwatch
-  :load-path "site-lisp/stopwatch"
   :bind ("<f8>" . stopwatch))
 
 (use-package string-edit
