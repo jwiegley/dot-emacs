@@ -1,0 +1,189 @@
+v1.15 (PRERELEASE)
+
+Extension
+
+* Now builds for Firefox using WebExtension hooks
+* Use chrome.notifications instead of webkitNotifications
+* Use <div> with style instead of inline <img> for edit button
+
+edit-server.el
+
+* avoid calling make-frame-on-display for TTY setups
+* restore edit-server-default-major-mode if auto-mode lookup fails
+
+v1.14
+
+Extension
+
+* Fix a bug with the context menu (#85)
+* Make text buttons slightly opaque
+
+edit-server.el
+
+* add edit-server-edit-mode-hook (#91, #94)
+
+v1.13
+
+Extension
+
+* Change the handling of hidden elements (fix bug #78)
+* Add debugging for erroneous hidden text areas (#93)
+* Add keyboard shortcut to bring Emacs to foreground
+* Pass clipboard contents to foreground request
+
+edit-server.el
+
+* add advice to save-buffers-kill-emacs to avoid prompting on shutdown
+* add autoload cookies
+* fix bug with format chars in url (#80)
+* don't call kill buffer hooks twice (#92)
+* don't set-buffer-multibyte on process buffer
+* support the "foreground" request with optional clipboard contents
+
+v1.12
+
+Extension
+
+* Upgraded manifest to version 2 for future releases of Chrome
+* Added an "Enable Debug" flag to control logging to console
+* Use Mutation Observers to better track changes in dynamic DOMs
+* Fake a keypress when updating the textarea
+* Bug fix for handling editable DIV elements
+
+edit-server.el
+
+* Now available from the MELPA package archive!
+* Beta support for iterative C-x C-s saving (it works but is ugly, see kill-ring)
+* Default to using UTF-8 coding for process communication
+* Raise existing frame consistently on Mac
+* Tweak the portion of the URL used to name buffers
+
+v1.11
+
+Extension
+
+* Fixed some breakage to the "edit focused area" feature
+* Fixed broken link to embedded edit-server
+
+edit-server.el
+
+* A couple of fixes for Emacs 24 compatibility
+* Globalize the minor mode so it persists through major-mode changes
+
+v1.10
+
+Extension
+
+* Ignore textareas marked as read only
+* Don't tag areas that are not visible
+* General clean-up to use jQuery to find elements
+* Explicit CSS for edit button to override page settings
+* Handle editable <div> blocks (e.g. Google+)
+* Optimise the finding of text areas for highly dynamic pages
+* Revamp the settings page with "Fancy Settings"
+
+edit-server.el
+
+* Allow customisation of edit-server-default-major-mode
+* Allow edit mode to be set by matched URL
+* Tweak detection of MacOS X Emacsen
+* Change behaviour of C-x C-s to save to kill-ring
+* Persist the buffer-local variables beyond mode changes
+* Setup keymap within defvar
+* Clean-ups to code to be more idiomatic.
+
+v1.9
+
+Extension
+
+* Support for iterative editing (python server only currently)
+* Add context menu while in text area box
+* Fix reference to Alt-E, it's actually Alt-Enter
+* Trigger a DOM change() event when we update the text area
+
+edit-server.el
+
+* Actively encode responses as UTF-8
+* Make edit-server-edit-mode a minor mode instead of a derived mode
+
+v1.8
+
+Extension
+
+* Added option to enable/disable visual edit boxes
+* Improved feedback as editable elements come in and out of focus
+* Updated text box will now fade from yellow after an update
+
+edit-server.el
+
+* Added edit-server-start-hook for additional customisation when edit starts
+
+v1.7
+
+Extension
+
+* New icon state. Blue=Waiting, Green=In Progress, Red=Error
+* Improved mouse-over text for icon to give more useful feedback
+
+edit-server.el
+
+* Move all frame customisation into edit-server-new-frame-alist
+* Don't ask user before closing emacs and network process
+* Just skip creating new network process if it's already running
+* Make sure edit buffer is selected on new frames
+* Prompt window manager to bring new frames to the top of the stack (X windows only)
+* Enable multi-byte mode on edit buffers for better unicode handling
+* Explicitly fail on XEmacs if make-network-process isn't found (XEmacs patches welcome)
+
+v1.6
+
+Extension
+
+* Send the page URL to the edit server via x-url header
+* Options page: direct people to Emacs Wiki page for gory extras
+* Make Double Click to Edit a selectable option
+* Make Keyboard Shortcut to Edit a selectable option
+* Don't pass edit ID in URL, but in header as x-id (like x-url)
+
+edit-server.el
+
+* Fix edit-server-kill-client (passed process not buffer)
+* Fix unkillable zombie buffers created by a closed browser
+* Name buffer based on x-url if it exists
+* Workaround make-frame-on-display bug on Aquamacs
+
+v1.5
+
+Extension
+
+* Clean-up and streamline the text tagging code
+* Process sub FRAMEs and IFRAMEs looking for text boxes
+* Handle textareas that have been "cloned" by Javascript - fixes Google Groups
+* Generate user feedback if "edit focused area" failed
+* Skip textareas with spell-checking disabled (usually email address boxes)
+* Make Alt-Enter in focused area generate an edit request (patches to make it configurable welcome!)
+* Updates to help text in Options
+
+edit-server.el
+
+* Allow more customisation of the pop-up frame
+* Allow optional binding to a non-local IP address
+* Updates to help text in server code.
+
+v1.4
+
+Extension
+
+* Added proper Emacs icon for extension
+* Added options page with instructions and option to change port
+* Allow a simple status test to be run in the options page
+* Change mouse cursor when hovering over edit button
+* Double click on a text area invokes the editor
+
+edit-server.el
+
+* edit-server.el now distributed in-situ with the extension
+* Renamed edit_server to edit-server to follow conventions
+* Stopped C-x C-c from shutting down session (leaving stale TEXTAREA)
+* Added default size and name to new frames
+* Clear modification indication on new edit buffers
