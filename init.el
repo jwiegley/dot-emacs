@@ -2592,7 +2592,53 @@ In that case, insert the number."
     :config
     (global-magit-file-mode))
 
-  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t))))
+  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+
+  (defvar magit--rev-parse-toplevel-cache (make-hash-table :test #'equal))
+  (defvar magit--rev-parse-cdup-cache (make-hash-table :test #'equal))
+  (defvar magit--rev-parse-git-dir-cache (make-hash-table :test #'equal))
+
+  (defmacro magit--use-rev-parse-cache (cmd args)
+    `(pcase ,args
+       ('("--show-toplevel")
+        (or (gethash default-directory magit--rev-parse-toplevel-cache)
+            (let ((dir ,cmd))
+              (puthash default-directory dir magit--rev-parse-toplevel-cache)
+              dir)))
+       ('("--show-cdup")
+        (or (gethash default-directory magit--rev-parse-cdup-cache)
+            (let ((dir ,cmd))
+              (puthash default-directory dir magit--rev-parse-cdup-cache)
+              dir)))
+       ('("--git-dir")
+        (or (gethash default-directory magit--rev-parse-git-dir-cache)
+            (let ((dir ,cmd))
+              (puthash default-directory dir magit--rev-parse-git-dir-cache)
+              dir)))
+       (_ ,cmd)))
+
+  (defun magit-rev-parse (&rest args)
+    "Execute `git rev-parse ARGS', returning first line of output.
+  If there is no output, return nil."
+    (magit--use-rev-parse-cache
+     (apply #'magit-git-string "rev-parse" args) args))
+
+  (defun magit-rev-parse-safe (&rest args)
+    "Execute `git rev-parse ARGS', returning first line of output.
+  If there is no output, return nil.  Like `magit-rev-parse' but
+  ignore `magit-git-debug'."
+    (magit--use-rev-parse-cache
+     (apply #'magit-git-str "rev-parse" args) args))
+
+  (eval-after-load 'magit-remote
+    '(progn
+       (magit-define-popup-action 'magit-fetch-popup
+         ?f 'magit-get-remote #'magit-fetch-from-upstream ?u t)
+       (magit-define-popup-action 'magit-pull-popup
+         ?F 'magit-get-upstream-branch #'magit-pull-from-upstream ?u t)
+       (magit-define-popup-action 'magit-push-popup
+         ?P 'magit--push-current-to-upstream-desc
+         #'magit-push-current-to-upstream ?u t))))
 
 (use-package magit-popup
   :load-path "site-lisp/magit-popup"
