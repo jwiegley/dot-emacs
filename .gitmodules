@@ -1,9 +1,6 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
 	url = git://github.com/jwiegley/use-package.git
-[submodule "site-lisp/magit"]
-	path = site-lisp/magit
-	url = git://github.com/jwiegley/magit.git
 [submodule "lisp/alert"]
 	path = lisp/alert
 	url = git://github.com/jwiegley/alert.git
@@ -16,25 +13,10 @@
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
 	url = git://github.com/jwiegley/haskell-config.git
-[submodule "site-lisp/haskell-mode"]
-	path = site-lisp/haskell-mode
-	url = git://github.com/jwiegley/haskell-mode.git
 [submodule "lisp/emacs-async"]
 	path = lisp/async
 	url = git://github.com/jwiegley/emacs-async.git
-[submodule "site-lisp/company-coq"]
-	path = site-lisp/company-coq
-	url = git://github.com/cpitclaudel/company-coq.git
-[submodule "site-lisp/yasnippet"]
-	path = site-lisp/yasnippet
-	url = git://github.com/joaotavora/yasnippet.git
-[submodule "site-lisp/ProofGeneral"]
-	path = site-lisp/ProofGeneral
-	url = git://github.com/psteckler/ProofGeneral.git
-[submodule "site-lisp/flycheck"]
-	path = site-lisp/flycheck
-	url = git://github.com/flycheck/flycheck.git
-[submodule "lisp/git-annex-el"]
+[submodule "lisp/git-annex"]
 	path = lisp/git-annex
 	url = git://github.com/jwiegley/git-annex-el.git
 [submodule "lisp/erc-yank"]
@@ -43,12 +25,6 @@
 [submodule "lisp/chess"]
 	path = lisp/chess
 	url = git://github.com/jwiegley/emacs-chess.git
-[submodule "lisp/git-undo-el"]
+[submodule "lisp/git-undo"]
 	path = lisp/git-undo
 	url = git://github.com/jwiegley/git-undo-el.git
-[submodule "site-lisp/auctex"]
-	path = site-lisp/auctex
-	url = git://git.savannah.gnu.org/git/auctex.git
-[submodule "site-lisp/org"]
-	path = site-lisp/org
-	url = git://github.com/eschulte/jump.el.git
