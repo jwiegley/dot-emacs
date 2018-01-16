@@ -1,0 +1,2 @@
+-l test/f-init.el
+--reporter dot
