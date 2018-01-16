@@ -176,7 +176,7 @@ reuse storage as much as possible."
                                                load-paths))))))
             (goto-char local-end)))))
     ;; 5. overrides.nix
-    (dolist (file '("~/src/nix/overrides.nix"))
+    (dolist (file '("~/src/nix/overlays/10-emacs.nix"))
       (with-temp-buffer
         (insert-file-contents file)
         (goto-char (point-min))
@@ -200,7 +200,7 @@ reuse storage as much as possible."
                 (let ((opts (alist-get 'manifest-options value))
                       (type (alist-get 'manifest-type value)))
                   (or (and opts (string-match "mirror-only" opts))
-                      (member type '("part" "internal")))))
+                      (member type '("part" "internal" "personal")))))
                errs)
            (cl-flet ((report (err) (setq errs (cons err errs))))
              (let ((fields (if internal
@@ -290,7 +290,7 @@ reuse storage as much as possible."
                   (let ((opts (alist-get 'manifest-options value))
                         (type (alist-get 'manifest-type value)))
                     (or (and opts (string-match "mirror-only" opts))
-                        (member type '("part" "internal"))))))
+                        (member type '("part" "internal" "personal"))))))
             (unless internal
               (when (member '(missing path) errs)
                 (insert (format ";; %s: need to install\n" key)))
