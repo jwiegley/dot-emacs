@@ -174,7 +174,6 @@
 (use-package parent-mode   :defer t  :load-path "lib/parent-mode")
 (use-package parsebib      :defer t  :load-path "lib/parsebib")
 (use-package parsec        :defer t  :load-path "lib/parsec")
-(use-package pcache        :defer t  :load-path "lib/pcache")
 (use-package peval         :defer t  :load-path "lib/peval")
 (use-package pfuture       :defer t  :load-path "lib/pfuture")
 (use-package pkg-info      :defer t  :load-path "lib/pkg-info")
@@ -397,14 +396,6 @@
   :load-path "site-lisp/avy-zap"
   :bind (("M-z" . avy-zap-to-char-dwim)
          ("M-Z" . avy-zap-up-to-char-dwim)))
-
-(use-package back-button
-  :load-path "site-lisp/back-button"
-  :defer 5
-  :diminish
-  :commands back-button-mode
-  :config
-  (back-button-mode 1))
 
 (use-package backup-each-save
   :commands backup-each-save
