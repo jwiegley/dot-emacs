@@ -319,6 +319,10 @@
         (indent-region beg end-mark nil)
         (align beg end-mark)))))
 
+(use-package anki-editor
+  :load-path "site-lisp/anki-editor"
+  :commands anki-editor-submit)
+
 (use-package aria2
   :load-path "site-lisp/aria2"
   :commands aria2-downloads-list)
