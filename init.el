@@ -51,8 +51,7 @@
                   "~/emacs/lisp"
                   "~/emacs/lisp/use-package")
                 (cl-remove-if
-                 (apply-partially #'string-match
-                                  "\\(emacs-packages-deps/\\|/org\\'\\)")
+                 (apply-partially #'string-match "/org\\'")
                  (delete-dups load-path))))
 
   (defun nix-read-environment (name)
@@ -78,13 +77,14 @@
     (setq use-package-verbose nil
           use-package-expand-minimally t)))
 
-;; (advice-add 'use-package-handler/:load-path :around
-;;             #'(lambda (orig-func name keyword args rest state)
-;;                 (if (or (memq name '(agda-input hyperbole proof-site slime
-;;                                                 flycheck-haskell ghc))
-;;                         (cl-some (apply-partially #'string-match "\\`~") args))
-;;                     (funcall orig-func name keyword arg rest state)
-;;                   (use-package-process-keywords name rest state))))
+(advice-add 'use-package-handler/:load-path :around
+            #'(lambda (orig-func name keyword args rest state)
+                (unless (string= emacs-environment "emacs26full")
+                  (if (or (memq name '(agda-input hyperbole proof-site slime
+                                                  flycheck-haskell ghc))
+                          (cl-some (apply-partially #'string-match "\\`~") args))
+                      (funcall orig-func name keyword arg rest state)
+                    (use-package-process-keywords name rest state)))))
 
 ;;; Settings
 
@@ -1313,10 +1313,10 @@ In that case, insert the number."
   :disabled t
   :load-path "site-lisp/emacs-cl")
 
-(use-package emacs-counsel-gtags
+(use-package counsel-gtags
   ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :load-path "site-lisp/emacs-counsel-gtags"
+  :load-path "site-lisp/counsel-gtags"
   :after counsel)
 
 (use-package emms-setup
@@ -3495,11 +3495,11 @@ append it to ENTRY."
   :commands sort-words)
 
 (use-package sos
-  :load-path "site-lisp/emacs-sos"
+  :load-path "site-lisp/sos"
   :commands sos)
 
 (use-package sql-indent
-  :load-path "site-lisp/emacs-sql-indent"
+  :load-path "site-lisp/sql-indent"
   :commands sqlind-minor-mode)
 
 (use-package stopwatch
@@ -3668,7 +3668,7 @@ append it to ENTRY."
   (global-undo-tree-mode))
 
 (use-package vdiff
-  :load-path "site-lisp/emacs-vdiff"
+  :load-path "site-lisp/vdiff"
   :commands (vdiff-files
              vdiff-files3
              vdiff-buffers
@@ -3707,7 +3707,7 @@ append it to ENTRY."
   :commands vline-mode)
 
 (use-package w3m
-  :load-path "site-lisp/emacs-w3m"
+  :load-path "site-lisp/w3m"
   :commands w3m-browse-url)
 
 (use-package web-mode
