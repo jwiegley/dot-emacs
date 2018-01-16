@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'magithub-issue-view)
+
 (defvar magit-magithub-notification-section-map
   (let ((m (make-sparse-keymap)))
     (set-keymap-parent m magithub-map)
@@ -59,8 +61,9 @@ See also Info node `(elisp)Time of Day'."
     (when before
       (push `(:before ,(format-time-string "%FT%T%z" before)) args))
     (magithub-cache :notification
-      `(ghubp-unpaginate
-        (ghubp-get-notifications ,@(apply #'append args))))))
+      `(magithub-request
+        (ghubp-unpaginate
+         (ghubp-get-notifications ,@(apply #'append args)))))))
 
 (defun magithub-notification-refresh ()
   (interactive)
@@ -83,7 +86,7 @@ See also Info node `(elisp)Time of Day'."
     ("subscribed" . "You're watching the repository.")
     ("team_mention" . "You were on a team that was mentioned."))
   "Human-readable description of possible notification reasons.
-Stripped from the GitHub API Docs:
+Stripped from the Github API Docs:
 
     URL `https://developer.github.com/v3/activity/notifications/#notification-reasons'.")
 
@@ -102,15 +105,15 @@ get a more verbose explanation."
   "Visits the URL pointed to by NOTIFICATION."
   (interactive (list (magithub-thing-at-point 'notification)))
   (if notification
-      (let ((url (let-alist notification (or .subject.latest_comment_url
-                                             .subject.url))))
-        (unless url
-          (user-error "No target URL found"))
-        (let-alist (magithub-cache :notification
-                     `(ghubp-follow-get ,url))
-          (unless .html_url
-            (user-error "No target URL found"))
-          (browse-url .html_url)))
+      (let-alist notification
+        (cond
+         ((or (string= .subject.type "Issue")
+              (string= .subject.type "PullRequest"))
+          (magithub-issue-view (magithub-request (ghubp-follow-get .subject.url))))
+         (t (if-let ((url (or .subject.latest_comment_url .subject.url))
+                     (html-url (alist-get 'html_url (magithub-request (ghubp-follow-get url)))))
+                (browse-url html-url)
+              (user-error "No target URL found")))))
     (user-error "No notification here")))
 
 (defvar magithub-notification-details-hook

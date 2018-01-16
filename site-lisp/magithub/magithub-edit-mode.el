@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Edit generic GitHub (markdown) content.  To be used for comments,
+;; Edit generic Github (markdown) content.  To be used for comments,
 ;; issues, pull requests, etc.
 
 ;;; Code:
@@ -36,7 +36,7 @@
 
 ;;;###autoload
 (define-derived-mode magithub-edit-mode gfm-mode "Magithub-Edit"
-  "Major mode for editing GitHub issues and pull requests.")
+  "Major mode for editing Github issues and pull requests.")
 
 (defvar-local magithub-edit-submit-function nil)
 (defvar-local magithub-edit-cancel-function nil)
@@ -65,11 +65,14 @@
     (when prevbuf
       (let ((switch-to-buffer-preserve-window-point t))
         (switch-to-buffer prevbuf)))))
-(defun magithub-edit-new (buffer-name submit-func cancel-func setup)
-  (declare (indent 3))
+(defun magithub-edit-new (buffer-name submit-func cancel-func local-map setup)
+  (declare (indent 4))
   (let ((prevbuf (current-buffer)))
     (with-current-buffer (get-buffer-create buffer-name)
       (magithub-edit-mode)
+      (use-local-map (let ((m local-map))
+                       (set-keymap-parent m magithub-edit-mode-map)
+                       m))
       (funcall setup)
       (setq magithub-edit-previous-buffer prevbuf
             magithub-edit-submit-function submit-func

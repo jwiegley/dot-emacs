@@ -1,4 +1,4 @@
-;;; magithub.el --- Magit interfaces for GitHub  -*- lexical-binding: t; -*-
+;;; magithub.el --- Magit interfaces for Github  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016-2017  Sean Allred
 
@@ -23,12 +23,12 @@
 
 ;;; Commentary:
 
-;; Magithub is a Magit-based interface to GitHub.
+;; Magithub is a Magit-based interface to Github.
 ;;
-;; Integrated into Magit workflows, Magithub allows easy GitHub
+;; Integrated into Magit workflows, Magithub allows easy Github
 ;; repository management.  Supported actions include:
 ;;
-;;  - pushing brand-new local repositories up to GitHub
+;;  - pushing brand-new local repositories up to Github
 ;;  - creating forks of existing repositories
 ;;  - submitting pull requests upstream
 ;;  - viewing and creating issues
@@ -63,7 +63,7 @@
   'magithub-commands
   :actions '("Actions"
              (?d "Dashboard" magithub-dashboard)
-             (?H "Browse on GitHub" magithub-browse)
+             (?H "Browse on Github" magithub-browse)
              (?c "Create" magithub-create)
              (?f "Fork" magithub-fork)
              (?i "Issues" magithub-issue-new)
@@ -87,24 +87,24 @@
   "Open the repository in your browser."
   (interactive)
   (unless (magithub-github-repository-p)
-    (user-error "Not a GitHub repository"))
+    (user-error "Not a Github repository"))
   (magithub-repo-visit (magithub-repo)))
 
 (defvar magithub-after-create-messages
   '("Don't be shy!"
     "Don't let your dreams be dreams!")
   "One of these messages will be displayed after you create a
-GitHub repository.")
+Github repository.")
 
 (defun magithub-create (repo &optional org)
-  "Create REPO on GitHub.
+  "Create REPO on Github.
 
 If ORG is non-nil, it is an organization object under which to
 create the new repository.  You must be a member of this
 organization."
   (interactive (if (or (not (magit-toplevel)) (magithub-github-repository-p))
                    (list nil nil)
-                 (let* ((ghub-username (ghub--username)) ;performance
+                 (let* ((ghub-username (ghubp-username)) ;performance
                         (account (magithub--read-user-or-org))
                         (priv (yes-or-no-p "Will this be a private repository? "))
                         (reponame (magithub--read-repo-name account))
@@ -116,17 +116,18 @@ organization."
                     (unless (string= ghub-username account)
                       `((login . ,account)))))))
   (when (magithub-github-repository-p)
-    (error "Already in a GitHub repository"))
+    (error "Already in a Github repository"))
   (if (not (magit-toplevel))
       (when (y-or-n-p "Not inside a Git repository; initialize one here? ")
         (magit-init default-directory)
         (call-interactively #'magithub-create))
-    (with-temp-message "Creating repository on GitHub..."
+    (with-temp-message "Creating repository on Github..."
       (setq repo
-            (if org
-                (ghubp-post-orgs-org-repos org repo)
-              (ghubp-post-user-repos repo))))
-    (magithub--random-message "Creating repository on GitHub...done!")
+            (magithub-request
+             (if org
+                 (ghubp-post-orgs-org-repos org repo)
+               (ghubp-post-user-repos repo)))))
+    (magithub--random-message "Creating repository on Github...done!")
     (magit-status-internal default-directory)
     (magit-remote-add "origin" (magithub-repo--clone-url repo))
     (magit-refresh)
@@ -140,7 +141,7 @@ Candidates will include the current user and all organizations,
 public and private, of which they're a part.  If there is only
 one candidate (i.e., no organizations), the single candidate will
 be returned without prompting the user."
-  (let ((user (ghub--username))
+  (let ((user (ghubp-username))
         (orgs (ghubp-get-in-all '(login)
                 (magithub-orgs-list)))
         candidates)
@@ -170,13 +171,14 @@ be returned without prompting the user."
     (if prefix (format "%s  %s" prefix msg) msg)))
 
 (defun magithub-fork ()
-  "Fork 'origin' on GitHub."
+  "Fork 'origin' on Github."
   (interactive)
   (unless (magithub-github-repository-p)
-    (user-error "Not a GitHub repository"))
+    (user-error "Not a Github repository"))
   (let* ((repo (magithub-repo))
-         (fork (with-temp-message "Forking repository on GitHub..."
-                 (ghubp-post-repos-owner-repo-forks repo))))
+         (fork (with-temp-message "Forking repository on Github..."
+                 (magithub-request
+                  (ghubp-post-repos-owner-repo-forks repo)))))
     (when (y-or-n-p "Create a spinoff branch? ")
       (call-interactively #'magit-branch-spinoff))
     (magithub--random-message
@@ -192,14 +194,14 @@ be returned without prompting the user."
 (defun magithub-clone--get-repo ()
   "Prompt for a user and a repository.
 Returns a sparse repository object."
-  (let ((user (ghub--username))
+  (let ((user (ghubp-username))
         (repo-regexp  (rx bos (group (+ (not (any " "))))
                           "/" (group (+ (not (any " ")))) eos))
         repo)
     (while (not (and repo (string-match repo-regexp repo)))
       (setq repo (read-from-minibuffer
                   (concat
-                   "Clone GitHub repository "
+                   "Clone Github repository "
                    (if repo "(format is \"user/repo\"; C-g to quit)" "(user/repo)")
                    ": ")
                   (when user (concat user "/")))))
@@ -214,16 +216,17 @@ When nil, the current directory at invocation is used."
 
 (defun magithub-clone (repo dir)
   "Clone REPO.
-Banned inside existing GitHub repositories if
+Banned inside existing Github repositories if
 `magithub-clone-default-directory' is nil.
 
 See also `magithub-preferred-remote-method'."
   (interactive (if (and (not magithub-clone-default-directory)
                         (magithub-github-repository-p))
-                   (user-error "Already in a GitHub repo")
+                   (user-error "Already in a Github repo")
                  (let ((repo (magithub-clone--get-repo)))
                    (condition-case _
-                       (let* ((repo (ghubp-get-repos-owner-repo repo))
+                       (let* ((repo (magithub-request
+                                     (ghubp-get-repos-owner-repo repo)))
                               (dirname (read-directory-name
                                         "Destination: "
                                         magithub-clone-default-directory
@@ -235,7 +238,8 @@ See also `magithub-preferred-remote-method'."
   ;; Argument validation
   (unless (called-interactively-p 'any)
     (condition-case _
-        (setq repo (ghubp-get-repos-owner-repo repo))
+        (setq repo (magithub-request
+                    (ghubp-get-repos-owner-repo repo)))
       (ghub-404
        (let-alist repo
          (user-error "Repository %s/%s does not exist"

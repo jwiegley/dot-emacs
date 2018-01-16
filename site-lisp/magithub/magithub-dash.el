@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Magithub-Dash is a dashboard for your GitHub activity.
+;; Magithub-Dash is a dashboard for your Github activity.
 
 ;;; Code:
 
@@ -51,7 +51,7 @@
 
 ;;;###autoload
 (defun magithub-dashboard ()
-  "View your GitHub dashboard."
+  "View your Github dashboard."
   (interactive)
   (let ((magit-generate-buffer-name-function
          (lambda (&rest _) "*magithub-dash*")))
@@ -69,7 +69,7 @@
 
 (define-derived-mode magithub-dash-mode
   magit-mode "Magithub-Dash"
-  "Major mode for your GitHub dashboard."
+  "Major mode for your Github dashboard."
   (use-local-map magithub-dash-map))
 
 (defun magithub-dash-refresh-buffer (&rest _args)
@@ -111,25 +111,26 @@ See also `magithub-dash-headers-hook'."
 
 (defun magithub-dash-insert-ratelimit-header ()
   "If API requests are being rate-limited, insert relevant information."
-  (when-let ((ratelimit (ghubp-ratelimit)))
-    (when (time-less-p (alist-get 'reset ratelimit) (current-time))
-      (ghub-get "/rate_limit")))
-  (let-alist (ghubp-ratelimit)
-    (when .limit
-      (magit-insert-section (magithub-ratelimit)
-        (let* ((seconds-until-reset (time-to-seconds
-                                     (time-subtract .reset
-                                                    (current-time))))
-               (ratio (/ (float .remaining) .limit)))
-          (insert
-           (format "%-10s%s - %d/%d requests; %s until reset\n" "Requests:"
-                   (cond
-                    ((< 0.50 ratio) (propertize "OK" 'face 'success))
-                    ((< 0.25 ratio) (propertize "Running low..." 'face 'warning))
-                    (t (propertize "Danger!" 'face 'error)))
-                   .remaining
-                   .limit
-                   (magithub-cache--time-out seconds-until-reset))))))))
+  (magithub-request
+   (when-let ((ratelimit (ghubp-ratelimit)))
+     (when (time-less-p (alist-get 'reset ratelimit) (current-time))
+       (ghub-get "/rate_limit" nil :auth 'magithub)))
+   (let-alist (ghubp-ratelimit)
+     (when .limit
+       (magit-insert-section (magithub-ratelimit)
+         (let* ((seconds-until-reset (time-to-seconds
+                                      (time-subtract .reset
+                                                     (current-time))))
+                (ratio (/ (float .remaining) .limit)))
+           (insert
+            (format "%-10s%s - %d/%d requests; %s until reset\n" "Requests:"
+                    (cond
+                     ((< 0.50 ratio) (propertize "OK" 'face 'success))
+                     ((< 0.25 ratio) (propertize "Running low..." 'face 'warning))
+                     (t (propertize "Danger!" 'face 'error)))
+                    .remaining
+                    .limit
+                    (magithub-cache--time-out seconds-until-reset)))))))))
 
 (defun magithub-dash-insert-notifications (&optional notifications)
   "Insert NOTIFICATIONS into the buffer bucketed by repository."
@@ -171,29 +172,31 @@ See also `magithub-dash-headers-hook'."
 
 If ISSUES is not defined, all issues assigned to the current user
 will be used."
-  (setq issues (or issues (magithub-cache :issues '(ghubp-get-issues)))
-        title (or title "Issues Assigned to Me"))
-  (when-let ((user-repo-issue-buckets
-              ;; bucket by user then by repo
-              (magithub-core-bucket-multi issues
-                #'magithub-issue-repo
-                (lambda (repo) (alist-get 'owner repo)))))
-    (magit-insert-section (magithub-users-repo-issue-buckets)
-      (magit-insert-heading (format "%s (%d)"
-                                    (propertize title 'face 'magit-section-heading)
-                                    (length issues)))
-      (magithub-for-each-bucket user-repo-issue-buckets user repo-issue-buckets
-        (magit-insert-section (magithub-user-repo-issues)
-          (magit-insert-heading
-            (propertize (alist-get 'login user) 'face 'magithub-user)
-            (propertize "/..."                  'face 'magit-dimmed))
-          (magithub-for-each-bucket repo-issue-buckets repo repo-issues
-            (magit-insert-section (magithub-repo-issues repo)
-              (magit-insert-heading
-                (format "%s:" (propertize (alist-get 'name repo) 'face 'magithub-repo)))
-              (magithub-issue-insert-sections repo-issues)
-              (insert "\n")))))
-      (insert "\n"))))
+  (magithub-request
+   (setq issues (or issues (magithub-cache :issues `(magithub-request
+                                                     (ghubp-get-issues))))
+         title (or title "Issues Assigned to Me"))
+   (when-let ((user-repo-issue-buckets
+               ;; bucket by user then by repo
+               (magithub-core-bucket-multi issues
+                 #'magithub-issue-repo
+                 (lambda (repo) (alist-get 'owner repo)))))
+     (magit-insert-section (magithub-users-repo-issue-buckets)
+       (magit-insert-heading (format "%s (%d)"
+                                     (propertize title 'face 'magit-section-heading)
+                                     (length issues)))
+       (magithub-for-each-bucket user-repo-issue-buckets user repo-issue-buckets
+         (magit-insert-section (magithub-user-repo-issues)
+           (magit-insert-heading
+             (propertize (alist-get 'login user) 'face 'magithub-user)
+             (propertize "/..."                  'face 'magit-dimmed))
+           (magithub-for-each-bucket repo-issue-buckets repo repo-issues
+             (magit-insert-section (magithub-repo-issues repo)
+               (magit-insert-heading
+                 (format "%s:" (propertize (alist-get 'name repo) 'face 'magithub-repo)))
+               (magithub-issue-insert-sections repo-issues)
+               (insert "\n")))))
+       (insert "\n")))))
 
 (provide 'magithub-dash)
 ;;; magithub-dash.el ends here

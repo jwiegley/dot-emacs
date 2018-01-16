@@ -38,7 +38,7 @@
     m))
 
 (define-derived-mode magithub-issue-view-mode magit-mode
-  "Issue View" "View GitHub issues with Magithub.")
+  "Issue View" "View Github issues with Magithub.")
 
 (defvar magithub-issue-view-headers-hook
   '(magithub-issue-view-insert-title
@@ -57,9 +57,19 @@
 (defun magithub-issue-view-refresh ()
   "Refresh the current issue."
   (interactive)
-  (magithub-cache-without-cache :issues
-    (magit-refresh))
-  (message "refreshed"))
+  (if (derived-mode-p 'magithub-issue-view-mode)
+      (progn
+        ;; todo: find a better means to separate the keymaps of issues
+        ;; in the status buffer vs issues in their own buffer
+        (when magithub-issue
+          (magithub-cache-without-cache :issues
+            (setq-local magithub-issue
+                        (magithub-issue magithub-repo magithub-issue))
+            (magithub-issue-comments magithub-issue)))
+        (let ((magit-refresh-args (list magithub-issue)))
+          (magit-refresh))
+        (message "refreshed"))
+    (call-interactively #'magit-refresh)))
 
 (defun magithub-issue-view-refresh-buffer (issue &rest _)
   (setq-local magithub-issue issue)
@@ -132,7 +142,7 @@ See also `magithub-issue-view--lock-value'."
 (defun magithub-issue-view-insert-asked ()
   "Insert posted time."
   (let-alist magithub-issue
-    (magithub-issue-view-insert--generic "Posted:" .created_at
+    (magithub-issue-view-insert--generic "Posted:" (magithub--format-time .created_at)
       :face 'magit-dimmed)))
 
 (defun magithub-issue-view-insert-labels ()
@@ -147,8 +157,9 @@ See also `magithub-issue-view--lock-value'."
   (let-alist magithub-issue
     (magit-insert-section (magithub-issue-body magithub-issue)
       (magit-insert-heading "Body")
-      (insert (magithub-fill-gfm (magithub-wash-gfm (s-trim .body))))
-      (insert "\n\n"))))
+      (if (or (null .body) (string= .body ""))
+          (insert (propertize "There's nothing here!\n\n" 'face 'magit-dimmed))
+        (insert (magithub-fill-gfm (magithub-wash-gfm (s-trim .body))) "\n\n")))))
 
 (defun magithub-issue-view-insert-comments ()
   "Insert issue comments."

@@ -32,8 +32,12 @@
 (require 'bug-reference)
 (require 'cl-lib)
 (require 'markdown-mode)
+(require 'parse-time)
 
 (require 'magithub-faces)
+
+(defconst magithub-github-token-scopes '(repo user notifications)
+  "The authentication scopes Magithub requests.")
 
 ;;; Debugging utilities
 (defvar magithub-debug-mode nil
@@ -62,10 +66,7 @@ Respects `magithub-debug-mode' and `debug-on-error'."
 (defun magithub-debug--ghub-request-wrapper (oldfun &rest args)
   "Report ghub requests as they're being made.
 Intended as around-advice for `ghub-requst'."
-  (magithub-debug-message
-   "ghub-request%S" `(,(car args)
-                      ,(concat ghub-base-url (cadr args))
-                      ,@(cddr args)))
+  (magithub-debug-message "ghub-request%S" args)
   (unless (magithub-debug-mode 'dry-api)
     (apply oldfun args)))
 (advice-add #'ghub-request :around #'magithub-debug--ghub-request-wrapper)
@@ -227,7 +228,7 @@ AFTER-UPDATE is a function to run after the cache is updated."
                      (and magithub-cache-ignore-class
                           (or (eq magithub-cache-ignore-class t)
                               (eq magithub-cache-ignore-class class)))))
-         no-value-sym cached-value)
+         no-value-sym cached-value new-value)
 
     (unless recalc
       (setq no-value-sym (cl-gensym)
@@ -237,16 +238,14 @@ AFTER-UPDATE is a function to run after the cache is updated."
             cached-value (if (eq cached-value no-value-sym) nil cached-value)))
 
     (or (and recalc
-             (prog1 (puthash entry
-                             (with-temp-message message
-                               (eval form))
-                             magithub-cache--cache)
+             (prog1 (setq new-value (with-temp-message message (eval form)))
+               (puthash entry new-value magithub-cache--cache)
                (setq magithub-cache--needs-write t)
                (run-with-idle-timer 600 nil #'magithub-cache-write-to-disk)
                (when refreshing
                  (push entry magithub-cache--refreshed-forms))
                (when (functionp after-update)
-                 (funcall after-update))))
+                 (funcall after-update new-value))))
         cached-value)))
 
 (defun magithub-cache-invalidate ()
@@ -266,7 +265,7 @@ the age of the oldest cached information."
              (magithub-offline-p))
     (magit-insert-section (magithub nil t)
       (insert
-       (format "Magithub: %s; use %s to refresh GitHub content or %s to go back online%s\n"
+       (format "Magithub: %s; use %s to refresh Github content or %s to go back online%s\n"
                (propertize "OFFLINE" 'face 'magit-head)
                (propertize
                 (substitute-command-keys "\\[universal-argument] \\[magit-refresh]")
@@ -334,7 +333,7 @@ See also `magithub-cache-ignore-class'."
   ;; (eval-when-compile (date-to-time "1/1/1970"))
   '(14445 17280)
   "The last time the API was available.
-Used to avoid pinging GitHub multiple times a second.")
+Used to avoid pinging Github multiple times a second.")
 
 (defcustom magithub-api-timeout 3
   "Number of seconds we'll wait for the API to respond."
@@ -388,7 +387,7 @@ Pings the API a maximum of once every ten seconds."
                (condition-case _
                    (progn
                      (magithub-debug-message "making sure authinfo is unlocked")
-                     (ghub--token))
+                     (ghubp-token 'magithub))
                  ;; Magithub only works when authenticated.
                  (ghub-auth-error
                   (prog1 nil
@@ -412,21 +411,21 @@ Pings the API a maximum of once every ten seconds."
                              (condition-case _
                                  (with-timeout (magithub-api-timeout
                                                 (signal 'magithub-api-timeout nil))
-                                   (ghub-get "/rate_limit"))
+                                   (ghub-get "/rate_limit" nil :auth 'magithub))
 
                                (ghub-404
                                 ;; Rate-limiting is often disabled on
                                 ;; Enterprise instances.  Try using /meta
                                 ;; which should (hopefully) always work.  See
                                 ;; also issue #107.
-                                (ghub-get "/meta")))
+                                (ghub-get "/meta" nil :auth 'magithub)))
                              api-status (and response t))
 
                        (magithub-debug-message "new value retrieved for api-last-available: %S"
                                                response))
 
                    ;; Sometimes, the API can take a long time to respond
-                   ;; (whether that's GitHub not responding or requests being
+                   ;; (whether that's Github not responding or requests being
                    ;; blocked by some client-side firewal).  Handle this
                    ;; possibility gracefully.
                    (magithub-api-timeout
@@ -463,7 +462,7 @@ See `magithub--api-offline-reason'."
 
 ;;; Repository parsing
 (defun magithub-github-repository-p ()
-  "Non-nil if \"origin\" points to GitHub or a whitelisted domain."
+  "Non-nil if \"origin\" points to Github or a whitelisted domain."
   (when-let ((origin (magit-get "remote" "origin" "url")))
     (-some? (lambda (domain) (s-contains? domain origin))
             (cons "github.com" (magit-get-all "hub" "host")))))
@@ -519,7 +518,7 @@ URL may be of several different formats:
                                (name . ,(match-string 3 url))))))))
 
 (defun magithub--url->repo (url)
-  "Tries to parse a remote url into a GitHub repository object"
+  "Tries to parse a remote url into a Github repository object"
   (cdr (assq 'sparse-repo (magithub--repo-parse-url url))))
 
 (defun magithub-source--remote ()
@@ -548,7 +547,8 @@ If SPARSE-REPO is null, the current context is used."
   (let ((sparse-repo (or sparse-repo (magithub-source--sparse-repo))))
     (or (magithub-cache :repo-demographics
           `(condition-case e
-               (or (ghubp-get-repos-owner-repo ',sparse-repo)
+               (or (magithub-request
+                    (ghubp-get-repos-owner-repo ',sparse-repo))
                    (and (not (magithub--api-available-p))
                         sparse-repo))
              ;; Repo may not exist; ignore 404
@@ -565,14 +565,14 @@ If SPARSE-REPO is null, the current context is used."
     m))
 
 (defun magithub-repo-visit (repo)
-  "Visit REPO on GitHub."
+  "Visit REPO on Github."
   (interactive (list (magithub-thing-at-point 'repo)))
   (if-let ((url (alist-get 'html_url repo)))
       (browse-url url)
     (user-error "No URL for repo")))
 
 (defun magithub-repo-visit-issues (repo)
-  "Visit REPO's issues on GitHub."
+  "Visit REPO's issues on Github."
   (interactive (list (magithub-thing-at-point 'repo)))
   (if-let ((url (alist-get 'html_url repo)))
       (browse-url (format "%s/issues" url))
@@ -607,14 +607,14 @@ REPO defaults to the current repository."
       (name . ,name))))
 
 (defun magithub-repo-remotes ()
-  "Return GitHub repositories in this repository.
+  "Return Github repositories in this repository.
 `magit-list-remotes' is filtered to those remotes that point to
-GitHub repositories."
+Github repositories."
   (delq nil (mapcar (lambda (r) (cons r (magithub-repo-from-remote r)))
                     (magit-list-remotes))))
 
 (defun magithub-read-repo (prompt)
-  "Using PROMPT, read a GitHub repository.
+  "Using PROMPT, read a Github repository.
 See also `magithub-repo-remotes'."
   (let* ((remotes (magithub-repo-remotes))
          (maxlen (->> remotes
@@ -726,6 +726,29 @@ See /.github/ISSUE_TEMPLATE.md in this repository."
 
 ;;; Miscellaneous utilities
 
+(defcustom magithub-datetime-format "%c"
+  "The display format string for date-time values.
+See also `format-time-string'."
+  :group 'magithub
+  :type 'string)
+
+(defun magithub--parse-time-string (iso8601)
+  "Parse ISO8601 into a time value.
+ISO8601 is expected to not have a TZ component."
+  (parse-iso8601-time-string (concat iso8601 "+00:00")))
+
+(defun magithub--format-time (time)
+  "Format TIME according to `magithub-datetime-format'.
+TIME may be a time value or a string.
+
+Eventually, TIME will always be a time value."
+  ;; todo: ghub+ needs to convert time values for defined response fields
+  (format-time-string
+   magithub-datetime-format
+   (or (and (stringp time)
+            (magithub--parse-time-string time))
+       time)))
+
 (defun magithub--completing-read (prompt collection &optional format-function predicate require-match default)
   "Using PROMPT, get a list of elements in COLLECTION.
 This function continues until all candidates have been entered or
@@ -767,18 +790,22 @@ allowed."
 (defmacro magithub--deftoggle (name doc on-by-default hook func)
   "Define a section-toggle command."
   (declare (indent defun))
-  `(prog1 (defun ,name ()
-            ,(concat "Toggle the " doc " section.")
-            (interactive)
-            (if (memq ,func ,hook)
-                (remove-hook ',hook ,func)
-              (add-hook ',hook ,func t))
-            (magit-refresh)
-            (memq ,func ,hook))
-     ,(when on-by-default
-        `(eval-after-load "magit"
-           '(let ((inhibit-magit-refresh t))
-              (add-hook ',hook ,func t))))))
+  (let ((Senabled (cl-gensym)))
+    `(prog1 (defun ,name ()
+              ,(concat "Toggle the " doc " section.")
+              (interactive)
+              (let (,Senabled)
+                (setq ,Senabled (not (memq ,func ,hook)))
+                (if ,Senabled
+                    (remove-hook ',hook ,func)
+                  (add-hook ',hook ,func t))
+                (magit-refresh)
+                (message (concat ,(concat doc " section ") (if ,Senabled "enabled" "disabled")))
+                ,Senabled))
+       ,(when on-by-default
+          `(eval-after-load "magit"
+             '(let ((inhibit-magit-refresh t))
+                (add-hook ',hook ,func t)))))))
 
 (defun magithub--zip-case (p e)
   "Get an appropriate value for element E given property/function P."
@@ -869,7 +896,7 @@ of a signal (e.g., for interactive forms)."
         (signal 'error `(unauthorized manage-labels ,(progn .full_name)))))))
 
 (defun magithub-bug-reference-mode-on ()
-  "In GitHub repositories, configure `bug-reference-mode'."
+  "In Github repositories, configure `bug-reference-mode'."
   (interactive)
   (when (magithub-usable-p)
     (when-let ((repo (magithub-repo)))
@@ -884,13 +911,18 @@ of a signal (e.g., for interactive forms)."
     (setq list (cl-remove-if-not f list)))
   list)
 
-(defvar magithub-preferred-remote-method 'ssh_url
+(defcustom magithub-preferred-remote-method 'ssh_url
   "Preferred method when cloning or adding remotes.
 One of the following:
 
   `clone_url' (https://github.com/octocat/Hello-World.git)
   `git_url'   (git:github.com/octocat/Hello-World.git)
-  `ssh_url'   (git@github.com:octocat/Hello-World.git)")
+  `ssh_url'   (git@github.com:octocat/Hello-World.git)"
+  :group 'magithub
+  :type '(choice
+          (const :tag "https" clone_url)
+          (const :tag "git" git_url)
+          (const :tag "ssh" ssh_url)))
 
 (defun magithub-repo--clone-url (repo)
   "Get the preferred cloning URL from REPO."
@@ -995,15 +1027,15 @@ COMPARE is used on the application of ACCESSOR to each argument."
   (magit-section-show-level -5))
 
 (defun magithub-refresh ()
-  "Refresh GitHub data.
+  "Refresh Github data.
 Use directly at your own peril; this is intended for use with
 `magit-pre-refresh-hook'."
   (interactive (user-error (substitute-command-keys "This is no longer an interactive function; use \\[universal-argument] \\[magit-refresh] instead :-)")))
   (when (and current-prefix-arg
              (magithub-usable-p)
-             (y-or-n-p "Refresh GitHub data? ")
+             (y-or-n-p "Refresh Github data? ")
              (or (magithub--api-available-p)
-                 (y-or-n-p "GitHub doesn't seem to responding, are you sure? ")))
+                 (y-or-n-p "Github doesn't seem to be responding, are you sure? ")))
     (let ((old-cache-value magithub-cache))
       ;; `magithub-refresh' is part of `magit-pre-refresh-hook' and
       ;; our requests are made as part of `magit-refresh'.  There's no
@@ -1032,12 +1064,13 @@ Use directly at your own peril; this is intended for use with
 (defun magithub-fill-gfm (text)
   "Fill TEXT according to GFM rules."
   (with-temp-buffer
-    (gfm-mode)                          ;autoloaded
-    (insert text)
-    ;; re font-lock-ensure: see jrblevin/markdown-mode#251
-    (font-lock-ensure)
-    (fill-region (point-min) (point-max))
-    (buffer-string)))
+    (delay-mode-hooks
+      (gfm-mode)                        ;autoloaded
+      (insert text)
+      ;; re font-lock-ensure: see jrblevin/markdown-mode#251
+      (font-lock-ensure)
+      (fill-region (point-min) (point-max))
+      (buffer-string))))
 
 (defun magithub-indent-text (indent text)
   "Indent TEXT by INDENT spaces."
@@ -1063,6 +1096,16 @@ Use directly at your own peril; this is intended for use with
     (define-key m "e" #'magithub-edit-thing)
     (define-key m "r" #'magithub-reply-thing)
     m))
+
+(defmacro magithub-request (&rest body)
+  "Execute BODY authenticating as Magithub."
+  (declare (debug t))
+  `(ghubp-override-context auth 'magithub
+     ,@body))
+
+(defun magithub-debug-section (section)
+  (interactive (list (magit-current-section)))
+  (pp-eval-expression `(magit-section-value ,section)))
 
 (eval-after-load "magit"
   '(progn
