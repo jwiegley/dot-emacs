@@ -184,7 +184,7 @@ reuse storage as much as possible."
         (re-search-forward "super: with super; \\[")
         (forward-line)
         (while (not (looking-at "^\\s-+\\]"))
-          (when (looking-at "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?:\\s-+#\\s-+\\(.+\\)\\)?$")
+          (when (looking-at "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?: +# +\\(.+?\\)\\)?$")
             (let* ((alias (match-string 2))
                    (name (or alias (match-string 1))))
               (modhash name pkgs
@@ -198,8 +198,10 @@ reuse storage as much as possible."
        (lambda (key value)
          (let ((internal
                 (let ((opts (alist-get 'manifest-options value))
+                      (origin (alist-get 'manifest-origin value))
                       (type (alist-get 'manifest-type value)))
                   (or (and opts (string-match "mirror-only" opts))
+                      (and origin (string-match "unknown" origin))
                       (member type '("part" "internal" "personal")))))
                errs)
            (cl-flet ((report (err) (setq errs (cons err errs))))
