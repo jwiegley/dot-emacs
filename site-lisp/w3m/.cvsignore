@@ -1,0 +1,12 @@
+*.elc
+Makefile
+autom4te.cache
+confdefs.h
+config.cache
+config.log
+config.status*
+configure
+emacs-w3m-*.tar.gz
+patch
+w3m-kwds.el
+w3m-load.el

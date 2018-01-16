@@ -1,0 +1,6 @@
+Makefile
+emacs-w3m*.dvi
+emacs-w3m*.info
+emacs-w3m*.info-[0-9]*
+missfont.log
+version.texi
