@@ -69,22 +69,22 @@ reuse storage as much as possible."
 (defun inventory-alist ()
   (let ((pkgs (make-hash-table :test #'equal)))
     ;; 1. git remotes
-    (with-temp-buffer
-      (shell-command "git remote" (current-buffer))
-      (goto-char (point-min))
-      (while (re-search-forward "^ext/\\(.+\\)" nil t)
-        (let* ((pkg (match-string 1))
-               (name (concat "ext/" pkg))
-               (url (substring
-                     (shell-command-to-string
-                      (format "git remote get-url %s" name)) 0 -1)))
-          (puthash pkg
-                   (alist-put nil
-                              (cons 'remote url)
-                              (cons 'remote-name name)) pkgs))))
+    ;; (with-temp-buffer
+    ;;   (shell-command "git remote" (current-buffer))
+    ;;   (goto-char (point-min))
+    ;;   (while (re-search-forward "^ext/\\(.+\\)" nil t)
+    ;;     (let* ((pkg (match-string 1))
+    ;;            (name (concat "ext/" pkg))
+    ;;            (url (substring
+    ;;                  (shell-command-to-string
+    ;;                   (format "git remote get-url %s" name)) 0 -1)))
+    ;;       (puthash pkg
+    ;;                (alist-put nil
+    ;;                           (cons 'remote url)
+    ;;                           (cons 'remote-name name)) pkgs))))
 
     ;; 2. subdirectories
-    (dolist (topdir '("lisp" "lib" "site-lisp"))
+    (dolist (topdir '("lisp"))
       (let ((path (expand-file-name topdir user-emacs-directory)))
         (dolist (entry (directory-files path t nil t))
           (let ((base (file-name-nondirectory entry)))
@@ -98,35 +98,35 @@ reuse storage as much as possible."
                                   (concat topdir "/" base))))))))))
 
     ;; 3. MANIFEST.csv
-    (with-temp-buffer
-      (insert-file-contents-literally
-       (expand-file-name "MANIFEST.csv" user-emacs-directory))
-      (goto-char (point-min))
-      (while (re-search-forward
-              "^\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\)$" nil t)
-        (let* ((name (match-string 1))
-               (dir (match-string 2))
-               (type (match-string 3))
-               (origin (match-string 4))
-               (options (match-string 5))
-               (path (concat dir "/" name))
-               (update
-                (pcase type
-                  ("subtree" (format "git pulltree %s/%s" dir name))
-                  ("file" (format "curl -s -S -o %s/%s %s" dir name origin))
-                  ("submodule"
-                   (format "git --git-dir=%s/%s fetch --no-tags"
-                           dir name)))))
-          (modhash
-           (replace-regexp-in-string "\\.el\\'" "" name) pkgs
-           (lambda (value)
-             (alist-put value
-                        (cons 'manifest-path path)
-                        (cons 'manifest-type type)
-                        (cons 'manifest-origin origin)
-                        (cons 'manifest-options options)
-                        (and update
-                             (cons 'manifest-update update))))))))
+    ;; (with-temp-buffer
+    ;;   (insert-file-contents-literally
+    ;;    (expand-file-name "MANIFEST.csv" user-emacs-directory))
+    ;;   (goto-char (point-min))
+    ;;   (while (re-search-forward
+    ;;           "^\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\),\\(.*?\\)$" nil t)
+    ;;     (let* ((name (match-string 1))
+    ;;            (dir (match-string 2))
+    ;;            (type (match-string 3))
+    ;;            (origin (match-string 4))
+    ;;            (options (match-string 5))
+    ;;            (path (concat dir "/" name))
+    ;;            (update
+    ;;             (pcase type
+    ;;               ("subtree" (format "git pulltree %s/%s" dir name))
+    ;;               ("file" (format "curl -s -S -o %s/%s %s" dir name origin))
+    ;;               ("submodule"
+    ;;                (format "git --git-dir=%s/%s fetch --no-tags"
+    ;;                        dir name)))))
+    ;;       (modhash
+    ;;        (replace-regexp-in-string "\\.el\\'" "" name) pkgs
+    ;;        (lambda (value)
+    ;;          (alist-put value
+    ;;                     (cons 'manifest-path path)
+    ;;                     (cons 'manifest-type type)
+    ;;                     (cons 'manifest-origin origin)
+    ;;                     (cons 'manifest-options options)
+    ;;                     (and update
+    ;;                          (cons 'manifest-update update))))))))
 
     ;; 4. use-package declarations
     (dolist (file '("init.el" "dot-org.el" "dot-gnus.el"))
@@ -184,11 +184,13 @@ reuse storage as much as possible."
         (while (not (looking-at "^\\s-*\\]"))
           (when (looking-at
                  "^\\s-+\\([a-zA-Z0-9_-]+\\)\\(?: +# +\\(.+?\\)\\)?$")
-            (let* ((alias (match-string 2))
-                   (name (or alias (match-string 1))))
-              (modhash name pkgs
-                       (lambda (value)
-                         (alist-put value (cons 'nixpkgs-name name))))))
+            (let* ((aliases (aif (match-string 2)
+                                (split-string it "\\s-+")))
+                   (names (or aliases (list (match-string 1)))))
+              (dolist (name names)
+                (modhash name pkgs
+                         (lambda (value)
+                           (alist-put value (cons 'nixpkgs-name name)))))))
           (forward-line))))
 
     (with-temp-buffer
@@ -198,26 +200,30 @@ reuse storage as much as possible."
          (let ((internal
                 (let ((opts (alist-get 'manifest-options value))
                       (origin (alist-get 'manifest-origin value))
-                      (type (alist-get 'manifest-type value)))
+                      (type (alist-get 'manifest-type value))
+                      (path (alist-get 'path value)))
                   (or (and opts (string-match "mirror-only" opts))
                       (and origin (string-match "unknown" origin))
-                      (member type '("part" "internal" "personal")))))
+                      (member type '("part" "internal" "personal"))
+                      path)))
                errs)
            (cl-flet ((report (err) (setq errs (cons err errs))))
              (let ((fields (if internal
-                               '(manifest-path
-                                 manifest-type
-                                 manifest-origin
-                                 remote
-                                 remote-name)
+                               '(;; manifest-path
+                                 ;; manifest-type
+                                 ;; manifest-origin
+                                 ;; remote
+                                 ;; remote-name
+                                 )
                              '(use-package-name
                                nixpkgs-name
-                               manifest-path
-                               manifest-type
-                               manifest-origin
-                               path
-                               remote
-                               remote-name))))
+                               ;; manifest-path
+                               ;; manifest-type
+                               ;; manifest-origin
+                               ;; path
+                               ;; remote
+                               ;; remote-name
+                               ))))
                (when (or internal
                          (string= key "use-package")
                          (and (alist-get 'manifest-type value)
