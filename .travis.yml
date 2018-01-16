@@ -1,0 +1,27 @@
+sudo: false
+language: generic
+env:
+  global:
+    - CURL="curl -fsSkL --retry 9 --retry-delay 9"
+    - EMACS_BASE=https://github.com/npostavs/emacs-travis/releases/download/bins
+  matrix:
+    - EMACS_VERSION=24.4
+    - EMACS_VERSION=24.5
+    - EMACS_VERSION=25.1
+    - EMACS_VERSION=25.3
+    - EMACS_VERSION=26
+    - EMACS_VERSION=master
+  allow_failures:
+    - env: EMACS_VERSION=master
+install:
+  - $CURL -o let-alist.el https://elpa.gnu.org/packages/let-alist-1.0.5.el
+  - $CURL -O ${EMACS_BASE}/emacs-bin-${EMACS_VERSION}.tar.gz
+  - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
+  - export EMACS=/tmp/emacs/bin/emacs
+  - $EMACS --version
+script:
+  - make lisp
+notifications:
+  email:
+    on_success: never
+    on_failure: always
