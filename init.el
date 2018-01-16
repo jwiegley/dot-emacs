@@ -132,63 +132,63 @@
 ;;; Libraries
 
 (use-package alert         :defer t  :load-path "lisp/alert")
-(use-package anaphora      :defer t  :load-path "lib/anaphora")
-(use-package apiwrap       :defer t  :load-path "lib/apiwrap")
-(use-package asoc          :defer t  :load-path "lib/asoc")
+(use-package anaphora      :defer t)
+(use-package apiwrap       :defer t)
+(use-package asoc          :defer t)
 (use-package async         :defer t  :load-path "lisp/async")
-(use-package button-lock   :defer t  :load-path "lib/button-lock")
-(use-package ctable        :defer t  :load-path "lib/ctable")
-(use-package dash          :defer t  :load-path "lib/dash")
-(use-package deferred      :defer t  :load-path "lib/deferred")
-(use-package diminish      :demand t :load-path "lib/diminish")
-(use-package el-mock       :defer t  :load-path "lib")
-(use-package elisp-refs    :defer t  :load-path "lib/elisp-refs")
-(use-package emojify       :defer t  :load-path "lib/emojify")
-(use-package epc           :defer t  :load-path "lib/epc")
-(use-package epl           :defer t  :load-path "lib/epl")
-(use-package esxml         :defer t  :load-path "lib/esxml")
-(use-package f             :defer t  :load-path "lib/f")
-(use-package fn            :defer t  :load-path "lib/fn")
-(use-package fringe-helper :defer t  :load-path "lib/fringe-helper")
-(use-package fuzzy         :defer t  :load-path "lib/fuzzy")
-(use-package ghub          :defer t  :load-path "lib/ghub")
-(use-package ghub+         :defer t  :load-path "lib/ghub-plus")
-(use-package ht            :defer t  :load-path "lib/ht")
-(use-package kv            :defer t  :load-path "lib/kv")
-(use-package list-utils    :defer t  :load-path "lib/list-utils")
-(use-package logito        :defer t  :load-path "lib/logito")
-(use-package loop          :defer t  :load-path "lib/loop")
-(use-package m-buffer      :defer t  :load-path "lib/m-buffer")
-(use-package makey         :defer t  :load-path "lib/makey")
-(use-package marshal       :defer t  :load-path "lib/marshal")
-(use-package names         :defer t  :load-path "lib/names")
-(use-package noflet        :defer t  :load-path "lib/noflet")
-(use-package oauth2        :defer t  :load-path "lib/oauth2")
-(use-package ov            :defer t  :load-path "lib/ov")
-(use-package packed        :defer t  :load-path "lib/packed")
-(use-package parent-mode   :defer t  :load-path "lib/parent-mode")
-(use-package parsebib      :defer t  :load-path "lib/parsebib")
-(use-package parsec        :defer t  :load-path "lib/parsec")
-(use-package peval         :defer t  :load-path "lib/peval")
-(use-package pfuture       :defer t  :load-path "lib/pfuture")
-(use-package pkg-info      :defer t  :load-path "lib/pkg-info")
-(use-package popup         :defer t  :load-path "lib/popup")
-(use-package popup-pos-tip :defer t  :load-path "lib")
-(use-package popwin        :defer t  :load-path "site-lisp/popwin")
-(use-package pos-tip       :defer t  :load-path "lib")
-(use-package request       :defer t  :load-path "lib/request")
-(use-package rich-minority :defer t  :load-path "lib/rich-minority")
-(use-package s             :defer t  :load-path "lib/s")
-(use-package simple-httpd  :defer t  :load-path "lib/simple-httpd")
-(use-package spinner       :defer t  :load-path "lib/spinner")
-(use-package tablist       :defer t  :load-path "lib/tablist")
-(use-package uuidgen       :defer t  :load-path "lib/uuidgen")
-(use-package web           :defer t  :load-path "lib/web")
-(use-package web-server    :defer t  :load-path "lib/web-server")
-(use-package websocket     :defer t  :load-path "lib/websocket")
-(use-package with-editor   :defer t  :load-path "lib/with-editor")
-(use-package xml-rpc       :defer t  :load-path "lib")
-(use-package zoutline      :defer t  :load-path "lib/zoutline")
+(use-package button-lock   :defer t)
+(use-package ctable        :defer t)
+(use-package dash          :defer t)
+(use-package deferred      :defer t)
+(use-package diminish      :demand t)
+(use-package el-mock       :defer t)
+(use-package elisp-refs    :defer t)
+(use-package emojify       :defer t)
+(use-package epc           :defer t)
+(use-package epl           :defer t)
+(use-package esxml         :defer t)
+(use-package f             :defer t)
+(use-package fn            :defer t)
+(use-package fringe-helper :defer t)
+(use-package fuzzy         :defer t)
+(use-package ghub          :defer t)
+(use-package ghub+         :defer t)
+(use-package ht            :defer t)
+(use-package kv            :defer t)
+(use-package list-utils    :defer t)
+(use-package logito        :defer t)
+(use-package loop          :defer t)
+(use-package m-buffer      :defer t)
+(use-package makey         :defer t)
+(use-package marshal       :defer t)
+(use-package names         :defer t)
+(use-package noflet        :defer t)
+(use-package oauth2        :defer t)
+(use-package ov            :defer t)
+(use-package packed        :defer t)
+(use-package parent-mode   :defer t)
+(use-package parsebib      :defer t)
+(use-package parsec        :defer t)
+(use-package peval         :defer t)
+(use-package pfuture       :defer t)
+(use-package pkg-info      :defer t)
+(use-package popup         :defer t)
+(use-package popup-pos-tip :defer t)
+(use-package popwin        :defer t)
+(use-package pos-tip       :defer t)
+(use-package request       :defer t)
+(use-package rich-minority :defer t)
+(use-package s             :defer t)
+(use-package simple-httpd  :defer t)
+(use-package spinner       :defer t)
+(use-package tablist       :defer t)
+(use-package uuidgen       :defer t)
+(use-package web           :defer t)
+(use-package web-server    :defer t)
+(use-package websocket     :defer t)
+(use-package with-editor   :defer t)
+(use-package xml-rpc       :defer t)
+(use-package zoutline      :defer t)
 
 ;;; Keymaps
 
@@ -230,11 +230,9 @@
       (quietly-read-abbrev-file)))
 
 (use-package ace-jump-mode
-  :load-path "site-lisp/ace-jump-mode"
   :defer t)
 
 (use-package ace-link
-  :load-path "site-lisp/ace-link"
   :defer 10
   :config
   (ace-link-setup-default)
@@ -251,12 +249,10 @@
   (bind-key "C-c M-o" 'ace-link-addr))
 
 (use-package ace-mc
-  :load-path "site-lisp/ace-mc"
   :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
          ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package ace-window
-  :load-path "site-lisp/ace-window"
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
@@ -296,7 +292,6 @@
           (insert "  where\n    " func-def "    " name " x = ?\n"))))))
 
 (use-package aggressive-indent
-  :load-path "site-lisp/aggressive-indent"
   :diminish
   :hook (emacs-lisp-mode . aggressive-indent-mode))
 
@@ -314,11 +309,9 @@
         (align beg end-mark)))))
 
 (use-package anki-editor
-  :load-path "site-lisp/anki-editor"
   :commands anki-editor-submit)
 
 (use-package aria2
-  :load-path "site-lisp/aria2"
   :commands aria2-downloads-list)
 
 (use-package ascii
@@ -332,7 +325,6 @@
       (ascii-on))))
 
 (use-package auctex
-  :load-path "site-lisp/auctex"
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
@@ -375,20 +367,17 @@
        (directory-files-recursively store-dir "\.gpg$")))))
 
 (use-package auto-yasnippet
-  :load-path "site-lisp/auto-yasnippet"
   :after yasnippet
   :bind (("C-c y a" . aya-create)
          ("C-c y e" . aya-expand)
          ("C-c y o" . aya-open-line)))
 
 (use-package avy
-  :load-path "site-lisp/avy"
   :bind ("M-h" . avy-goto-char-timer)
   :config
   (avy-setup-default))
 
 (use-package avy-zap
-  :load-path "site-lisp/avy-zap"
   :bind (("M-z" . avy-zap-to-char-dwim)
          ("M-Z" . avy-zap-up-to-char-dwim)))
 
@@ -415,17 +404,14 @@
         backup-enable-predicate 'my-dont-backup-files-p))
 
 (use-package beacon
-  :load-path "site-lisp/beacon"
   :diminish
   :commands beacon-mode)
 
 (use-package biblio
-  :load-path "site-lisp/biblio"
   :commands biblio-lookup)
 
 (use-package bm
   :unless running-alternate-emacs
-  :load-path "site-lisp/bm"
   :bind (("C-. b" . bm-toggle)
          ("C-. ." . bm-next)
          ("C-. ," . bm-previous))
@@ -445,17 +431,14 @@
                                  (bm-repository-save))))
 
 (use-package bookmark+
-  :load-path "site-lisp/bookmark-plus"
   :after bookmark
   :bind ("M-B" . bookmark-bmenu-list)
   :commands bmkp-jump-dired)
 
 (use-package browse-at-remote
-  :load-path "site-lisp/browse-at-remote"
   :bind ("C-. g g" . browse-at-remote))
 
 (use-package browse-kill-ring
-  :load-path "site-lisp/browse-kill-ring"
   :defer 5
   :commands browse-kill-ring)
 
@@ -653,7 +636,6 @@
   :commands centered-cursor-mode)
 
 (use-package change-inner
-  :load-path "site-lisp/change-inner"
   :bind (("M-i"     . change-inner)
          ("M-o M-o" . change-outer)))
 
@@ -671,7 +653,6 @@
                (lookup-password "freechess.org" "jwiegley" 80))))
 
 (use-package circe
-  :load-path "site-lisp/circe"
   :if running-alternate-emacs
   :defer t)
 
@@ -684,12 +665,10 @@
   :diminish)
 
 (use-package clipmon
-  :load-path "site-lisp/clipmon"
   :bind ("<f2>" . clipmon-autoinsert-toggle)
   :hook (after-init . clipmon-mode-start))
 
 (use-package cmake-font-lock
-  :load-path "site-lisp/cmake-font-lock"
   :hook (cmake-mode . cmake-font-lock-activate))
 
 (use-package cmake-mode
@@ -699,7 +678,6 @@
   :commands col-highlight-mode)
 
 (use-package color-moccur
-  :load-path "site-lisp/color-moccur"
   :commands (isearch-moccur isearch-all isearch-moccur-all)
   :bind (("M-s O" . moccur)
          :map isearch-mode-map
@@ -707,12 +685,10 @@
          ("M-O" . isearch-moccur-all)))
 
 (use-package command-log-mode
-  :load-path "site-lisp/command-log-mode"
   :bind (("C-c e M" . command-log-mode)
          ("C-c e L" . clm/open-command-log-buffer)))
 
 (use-package company
-  :load-path "site-lisp/company"
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
@@ -786,15 +762,12 @@ In that case, insert the number."
   (global-company-mode 1))
 
 (use-package company-auctex
-  :load-path "site-lisp/company-auctex"
   :after (company latex))
 
 (use-package company-cabal
-  :load-path "site-lisp/company-cabal"
   :after (company haskell-cabal))
 
 (use-package company-coq
-  :load-path "site-lisp/company-coq"
   :after coq
   :commands company-coq-mode
   :bind (:map company-coq-map
@@ -803,23 +776,19 @@ In that case, insert the number."
               ("C-M-h" . company-coq-toggle-definition-overlay)))
 
 (use-package company-ghc
-  :load-path "site-lisp/company-ghc"
   :after (company ghc)
   :config
   (push 'company-ghc company-backends))
 
 (use-package company-math
-  :load-path "site-lisp/company-math"
   :defer t)
 
 (use-package company-quickhelp
-  :load-path "site-lisp/company-quickhelp"
   :after company
   :bind (:map company-active-map
               ("C-c ?" . company-quickhelp-manual-begin)))
 
 (use-package company-restclient
-  :load-path "site-lisp/company-restclient"
   :after (company restclient))
 
 (use-package company-rtags
@@ -853,13 +822,11 @@ In that case, insert the number."
   :hook (compilation-filter . compilation-ansi-color-process-output))
 
 (use-package copy-as-format
-  :load-path "site-lisp/copy-as-format"
   :bind ("C-. M-w" . copy-as-format)
   :init
   (setq copy-as-format-default "github"))
 
 (use-package counsel
-  :load-path "site-lisp/swiper"
   :after ivy
   :demand t
   :diminish
@@ -889,7 +856,6 @@ In that case, insert the number."
                '(counsel-find-file . ivy--sort-files-by-date)))
 
 (use-package counsel-projectile
-  :load-path "site-lisp/counsel-projectile"
   :after (counsel projectile)
   :config
   (counsel-projectile-on)
@@ -900,14 +866,12 @@ In that case, insert the number."
   :bind ("M-o c" . crosshairs-mode))
 
 (use-package crux
-  :load-path "site-lisp/crux"
   :bind ("C-c e i" . crux-find-user-init-file))
 
 (use-package css-mode
   :mode "\\.css\\'")
 
 (use-package csv-mode
-  :load-path "site-lisp/csv-mode"
   :mode "\\.csv\\'")
 
 (use-package cursor-chg
@@ -922,14 +886,12 @@ In that case, insert the number."
          ("C-c F" . customize-face)))
 
 (use-package dash-at-point
-  :load-path "site-lisp/dash-at-point"
   :bind ("C-c D" . dash-at-point)
   :config
   (add-to-list 'dash-at-point-mode-alist
                '(haskell-mode . "haskell")))
 
 (use-package debbugs-gnu
-  :load-path "site-lisp/debbugs"
   :commands (debbugs-gnu debbugs-gnu-search)
   :bind ("C-. #" . gnus-read-ephemeral-emacs-bug-group))
 
@@ -937,23 +899,19 @@ In that case, insert the number."
   :bind ("C-. D" . dedicated-mode))
 
 (use-package deft
-  :load-path "site-lisp/deft"
   :bind ("C-. C-," . deft))
 
 (use-package diff-hl
-  :load-path "site-lisp/diff-hl"
   :commands (diff-hl-mode diff-hl-dired-mode)
   :hook (magit-post-refresh . diff-hl-magit-post-refresh))
 
 (use-package diff-hl-flydiff
-  :load-path "site-lisp/diff-hl"
   :commands diff-hl-flydiff-mode)
 
 (use-package diff-mode
   :commands diff-mode)
 
 (use-package diffview
-  :load-path "site-lisp/diffview"
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
@@ -1109,14 +1067,12 @@ In that case, insert the number."
         (funcall dired-omit-regexp-orig)))))
 
 (use-package dired-ranger
-  :load-path "site-lisp/dired-hacks-utils"
   :bind (:map dired-mode-map
               ("W" . dired-ranger-copy)
               ("X" . dired-ranger-move)
               ("Y" . dired-ranger-paste)))
 
 (use-package dired-toggle
-  :load-path "site-lisp/dired-toggle"
   :bind ("C-. d" . dired-toggle)
   :preface
   (defun my-dired-toggle-mode-hook ()
@@ -1131,7 +1087,6 @@ In that case, insert the number."
 
 (use-package discover
   :disabled t
-  :load-path "site-lisp/discover"
   :defer 5
   :commands global-discover-mode
   :hook (dired-mode-hook . dired-turn-on-discover)
@@ -1139,12 +1094,10 @@ In that case, insert the number."
   (global-discover-mode 1))
 
 (use-package discover-my-major
-  :load-path "site-lisp/discover-my-major"
   :bind (("C-h <C-m>" . discover-my-major)
          ("C-h M-m"   . discover-my-mode)))
 
 (use-package docker
-  :load-path "site-lisp/docker"
   :defer 15
   :diminish
   :config
@@ -1155,16 +1108,13 @@ In that case, insert the number."
   (docker-global-mode))
 
 (use-package docker-compose-mode
-  :load-path "site-lisp/docker-compose-mode"
   :mode "docker-compose.*\.yml\\'")
 
 (use-package docker-tramp
-  :load-path "site-lisp/docker-tramp"
   :after tramp
   :defer 5)
 
 (use-package dockerfile-mode
-  :load-path "site-lisp/dockerfile-mode"
   :mode "Dockerfile")
 
 (use-package dot-gnus
@@ -1181,8 +1131,6 @@ In that case, insert the number."
     (lookup-password "imap.fastmail.com" "johnw" 993)))
 
 (use-package dot-org
-  :load-path ("site-lisp/org/lisp"
-              "site-lisp/org/contrib/lisp")
   :commands my-org-startup
   :bind (("M-C"   . jump-to-org-agenda)
          ("M-m"   . org-smart-capture)
@@ -1198,24 +1146,20 @@ In that case, insert the number."
     (my-org-startup)))
 
 (use-package doxymacs
-  :load-path "site-lisp/doxymacs/lisp"
   :commands (doxymacs-mode doxymacs-font-lock)
   :config
   (doxymacs-mode 1)
   (doxymacs-font-lock))
 
 (use-package dumb-jump
-  :load-path "site-lisp/dumb-jump"
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 
 (use-package easy-kill
   :disabled t
-  :load-path "site-lisp/easy-kill"
   :bind (("C-. w" . easy-kill)
          ("C-. @" . easy-mark)))
 
 (use-package ebdb-com
-  :load-path "site-lisp/ebdb"
   :commands ebdb)
 
 (use-package ediff
@@ -1238,7 +1182,6 @@ In that case, insert the number."
   :commands edit-env)
 
 (use-package edit-indirect
-  :load-path "site-lisp/edit-indirect"
   :bind (("C-c '" . edit-indirect-region)))
 
 (use-package edit-rectangle
@@ -1246,7 +1189,6 @@ In that case, insert the number."
 
 (use-package edit-server
   :if window-system
-  :load-path "site-lisp/edit-server/servers"
   :defer 5
   :config
   (edit-server-start))
@@ -1259,7 +1201,6 @@ In that case, insert the number."
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
 
 (use-package elfeed
-  :load-path "site-lisp/elfeed"
   :bind ("M-F" . elfeed)
   :config
   (add-hook 'elfeed-search-update-hook
@@ -1284,40 +1225,29 @@ In that case, insert the number."
   :commands elisp-depend-print-dependencies)
 
 (use-package elisp-docstring-mode
-  :load-path "site-lisp/elisp-docstring-mode"
   :commands elisp-docstring-mode)
 
 (use-package elisp-slime-nav
-  :load-path "site-lisp/elisp-slime-nav"
   :diminish
   :commands (elisp-slime-nav-mode
              elisp-slime-nav-find-elisp-thing-at-point))
 
 (use-package elmacro
-  :load-path "site-lisp/elmacro"
   :bind (("C-c m e" . elmacro-mode)
          ("C-x C-)" . elmacro-show-last-macro)))
-
-(use-package emacs-cl
-  ;; jww (2017-12-10): This is not building under Emacs 26.
-  :disabled t
-  :load-path "site-lisp/emacs-cl")
 
 (use-package counsel-gtags
   ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :load-path "site-lisp/counsel-gtags"
   :after counsel)
 
 (use-package emms-setup
-  :load-path "site-lisp/emms/lisp"
   :bind ("M-E" . emms-browser)
   :config
   (emms-all)
   (emms-default-players))
 
 (use-package engine-mode
-  :load-path "site-lisp/engine-mode"
   :defer 5
   :config
   (defengine google "https://www.google.com/search?q=%s"
@@ -1414,7 +1344,6 @@ In that case, insert the number."
               ("C-y" . erc-yank )))
 
 (use-package erefactor
-  :load-path "site-lisp/erefactor"
   :bind (:map emacs-lisp-mode-map
               ("C-c C-v" . erefactor-map)))
 
@@ -1422,7 +1351,6 @@ In that case, insert the number."
   :bind ("C-c e t" . ert-run-tests-interactively))
 
 (use-package esh-buf-stack
-  :load-path "site-lisp/esh-buf-stack"
   :after eshell
   :config
   (setup-eshell-buf-stack)
@@ -1432,7 +1360,6 @@ In that case, insert the number."
                            ("M-p" . eshell-push-command)))))
 
 (use-package esh-help
-  :load-path "site-lisp/esh-help"
   :after eshell
   :config
   (setup-esh-help-eldoc))
@@ -1478,26 +1405,21 @@ In that case, insert the number."
 
 (use-package eshell-autojump
   ;; jww (2017-12-10): I'm using eshell-z.
-  :disabled t
-  :load-path "site-lisp/eshell-autojump")
+  :disabled t)
 
 (use-package eshell-bookmark
-  :load-path "site-lisp/eshell-bookmark"
   :hook (eshell-mode . eshell-bookmark-setup))
 
 (use-package eshell-up
-  :load-path "site-lisp/eshell-up"
   :commands eshell-up)
 
 (use-package eshell-z
-  :load-path "site-lisp/eshell-z"
   :after eshell)
 
 (use-package etags
   :bind ("M-T" . tags-search))
 
 (use-package eval-expr
-  :load-path "site-lisp/eval-expr"
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
@@ -1506,19 +1428,15 @@ In that case, insert the number."
 
 (use-package eval-in-repl
   ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/eval-in-repl")
+  :disabled t)
 
 (use-package evil
-  :load-path "site-lisp/evil"
   :commands evil-mode)
 
 (use-package expand-region
-  :load-path "site-lisp/expand-region"
   :bind ("C-=" . er/expand-region))
 
 (use-package eyebrowse
-  :load-path "site-lisp/eyebrowse"
   :bind-keymap ("C-\\" . eyebrowse-mode-map)
   :bind (:map eyebrowse-mode-map
               ("C-\\ C-\\" . eyebrowse-last-window-config))
@@ -1526,19 +1444,16 @@ In that case, insert the number."
   (eyebrowse-mode))
 
 (use-package fancy-narrow
-  :load-path "site-lisp/fancy-narrow"
   :bind (("C-. n" . fancy-narrow-to-region)
          ("C-. N" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen))
 
 (use-package feebleline
-  :load-path "site-lisp/feebleline"
   :commands feebleline-mode
   :config
   (window-divider-mode t))
 
 (use-package fence-edit
-  :load-path "site-lisp/fence-edit"
   :commands fence-edit-code-at-point)
 
 (use-package fetchmail-mode
@@ -1548,7 +1463,6 @@ In that case, insert the number."
   :bind ("C-c v" . ffap))
 
 (use-package flycheck
-  :load-path "site-lisp/flycheck"
   :commands (flycheck-mode
              flycheck-next-error
              flycheck-previous-error)
@@ -1567,7 +1481,6 @@ In that case, insert the number."
     'flycheck-show-error-at-point))
 
 (use-package flycheck-haskell
-  :load-path "site-lisp/flycheck-haskell"
   :after haskell-mode
   :config
   (flycheck-haskell-setup))
@@ -1575,11 +1488,9 @@ In that case, insert the number."
 (use-package flycheck-hdevtools
   ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :load-path "site-lisp/flycheck-hdevtools"
   :after flycheck)
 
 (use-package flycheck-package
-  :load-path "site-lisp/flycheck-package"
   :after flycheck)
 
 (use-package flycheck-rtags
@@ -1600,20 +1511,16 @@ In that case, insert the number."
       (flyspell-maybe-correct-transposition beg end candidates))))
 
 (use-package focus
-  :load-path "site-lisp/focus"
   :commands focus-mode)
 
 (use-package font-lock-studio
-  :load-path "site-lisp/font-lock-studio"
   :commands (font-lock-studio
              font-lock-studio-region))
 
 (use-package free-keys
-  :load-path "site-lisp/free-keys"
   :commands free-keys)
 
 (use-package fullframe
-  :load-path "site-lisp/fullframe"
   :defer t
   :init
   (autoload #'fullframe "fullframe"))
@@ -1621,7 +1528,6 @@ In that case, insert the number."
 (use-package ggtags
   ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :load-path "site-lisp/ggtags"
   :commands ggtags-mode
   :diminish)
 
@@ -1665,12 +1571,10 @@ In that case, insert the number."
   :defer t)
 
 (use-package git-link
-  :load-path "site-lisp/git-link"
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage))
 
 (use-package git-modes
-  :load-path "site-lisp/git-modes"
   :defer 5
   :config
   (require 'gitattributes-mode)
@@ -1678,7 +1582,6 @@ In that case, insert the number."
   (require 'gitignore-mode))
 
 (use-package git-timemachine
-  :load-path "site-lisp/git-timemachine"
   :commands git-timemachine)
 
 (use-package git-undo
@@ -1686,16 +1589,13 @@ In that case, insert the number."
   :bind ("C-. C-/" . git-undo))
 
 (use-package github-pullrequest
-  :load-path "site-lisp/github-pullrequest"
   :commands (github-pullrequest-new
              github-pullrequest-checkout))
 
 (use-package gitpatch
-  :load-path "site-lisp/gitpatch"
   :commands gitpatch-mail)
 
 (use-package google-this
-  :load-path "site-lisp/google-this"
   :bind-keymap ("C-. /" . google-this-mode-submap)
   :bind ("A-M-f" . google-this-search))
 
@@ -1703,7 +1603,6 @@ In that case, insert the number."
   :bind ("C-x C-/" . goto-last-change))
 
 (use-package graphviz-dot-mode
-  :load-path "site-lisp/graphviz-dot-mode"
   :mode "\\.dot\\'")
 
 (use-package grep
@@ -1737,7 +1636,6 @@ In that case, insert the number."
               ("C-c M-q" . haskell-edit-reformat)))
 
 (use-package haskell-mode
-  :load-path "site-lisp/haskell-mode"
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . literate-haskell-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
@@ -1844,7 +1742,6 @@ In that case, insert the number."
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
 (use-package helm
-  :load-path "site-lisp/helm"
   :if (not running-alternate-emacs)
   :bind (:map helm-map
               ("<tab>" . helm-execute-persistent-action)
@@ -1855,37 +1752,30 @@ In that case, insert the number."
   (helm-autoresize-mode 1))
 
 (use-package helm-dash
-  :load-path "site-lisp/helm-dash"
   :commands helm-dash)
 
 (use-package helm-descbinds
-  :load-path "site-lisp/helm-descbinds"
   :bind ("C-h b" . helm-descbinds)
   :init
   (fset 'describe-bindings 'helm-descbinds))
 
 (use-package helm-describe-modes
-  :load-path "site-lisp/helm-describe-modes"
   :after helm
   :bind ("C-h m" . helm-describe-modes))
 
 (use-package helm-firefox
-  :load-path "site-lisp/helm-firefox"
   :commands helm-firefox
   :bind ("A-M-b" . helm-firefox-bookmarks))
 
 (use-package helm-google
-  :load-path "site-lisp/helm-google"
   :commands helm-google
   :bind ("A-M-g" . helm-google))
 
 (use-package helm-navi
-  :load-path "site-lisp/helm-navi"
   :after (helm navi)
   :commands helm-navi)
 
 (use-package helpful
-  :load-path "site-lisp/helpful"
   :bind (("C-h e F" . helpful-function)
          ("C-h e C" . helpful-command)
          ("C-h e M" . helpful-macro)
@@ -1916,11 +1806,9 @@ In that case, insert the number."
   :hook (emacs-lisp-mode . highlight-cl-add-font-lock-keywords))
 
 (use-package highlight-defined
-  :load-path "site-lisp/highlight-defined"
   :commands highlight-defined-mode)
 
 (use-package highlight-numbers
-  :load-path "site-lisp/highlight-numbers"
   :hook (prog-mode . highlight-numbers-mode))
 
 (use-package hilit-chg
@@ -1938,7 +1826,6 @@ In that case, insert the number."
   :after hl-line)
 
 (use-package hydra
-  :load-path "site-lisp/hydra"
   :defer t
   :config
   (defhydra hydra-zoom (global-map "<f2>")
@@ -1947,7 +1834,6 @@ In that case, insert the number."
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
-  :load-path "site-lisp/hyperbole"
   :defer 10
   :bind* (("C-M-." . hkey-either)
           ("A-<return>" . hkey-operate))
@@ -1984,7 +1870,6 @@ In that case, insert the number."
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ibuffer-vc
-  :load-path "site-lisp/ibuffer-vc"
   :commands ibuffer-vc-set-filter-groups-by-vc-root
   :hook (ibuffer . (lambda ()
                      (ibuffer-vc-set-filter-groups-by-vc-root)
@@ -1998,7 +1883,6 @@ In that case, insert the number."
          ("C-x B" . ido-switch-buffer-other-window)))
 
 (use-package iedit
-  :load-path "site-lisp/iedit"
   :defer t)
 
 (use-package ielm
@@ -2020,7 +1904,6 @@ In that case, insert the number."
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
-  :load-path "site-lisp/iflipb"
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
@@ -2073,19 +1956,16 @@ In that case, insert the number."
   (auto-image-file-mode 1))
 
 (use-package imenu-list
-  :load-path "site-lisp/imenu-list"
   :commands imenu-list-minor-mode)
 
 (use-package indent
   :commands indent-according-to-mode)
 
 (use-package indent-shift
-  :load-path "site-lisp/indent-shift"
   :bind (("C-c <" . indent-shift-left)
          ("C-c >" . indent-shift-right)))
 
 (use-package inf-ruby
-  :load-path "site-lisp/enh-ruby-mode"
   :after ruby-mode
   :hook (ruby-mode . inf-ruby-keys))
 
@@ -2098,7 +1978,6 @@ In that case, insert the number."
   (autoload 'info-lookup-add-help "info-look"))
 
 (use-package info-lookmore
-  :load-path "site-lisp/info-lookmore"
   :after info-look
   :config
   (info-lookmore-elisp-cl)
@@ -2112,14 +1991,12 @@ In that case, insert the number."
   :defer 5)
 
 (use-package ialign
-  :load-path "site-lisp/ialign"
   :bind ("C-. [" . ialign-interactive-align))
 
 (use-package inventory
   :commands (inventory sort-package-declarations))
 
 (use-package ipcalc
-  :load-path "site-lisp/ipcalc"
   :commands ipcalc)
 
 (use-package isearch
@@ -2153,7 +2030,6 @@ In that case, insert the number."
          ("C-c i r" . ispell-region)))
 
 (use-package ivy
-  :load-path "site-lisp/swiper"
   :defer 5
   :diminish
 
@@ -2219,7 +2095,6 @@ In that case, insert the number."
   (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
 
 (use-package ivy-bibtex
-  :load-path "site-lisp/helm-bibtex"
   :commands ivy-bibtex)
 
 (use-package ivy-hydra
@@ -2227,11 +2102,9 @@ In that case, insert the number."
   :defer t)
 
 (use-package ivy-pass
-  :load-path "site-lisp/ivy-pass"
   :commands ivy-pass)
 
 (use-package ivy-rich
-  :load-path "site-lisp/ivy-rich"
   :after ivy
   :demand t
   :config
@@ -2247,11 +2120,9 @@ In that case, insert the number."
   :after (ivy rtags))
 
 (use-package jq-mode
-  :load-path "site-lisp/jq-mode"
   :mode "\\.jq\\'")
 
 (use-package js2-mode
-  :load-path "site-lisp/js2-mode"
   :mode "\\.js\\'"
   :config
   (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
@@ -2260,26 +2131,21 @@ In that case, insert the number."
 
 (use-package js3-mode
   ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/js3-mode")
+  :disabled t)
 
 (use-package json-mode
-  :load-path "site-lisp/json-mode"
   :mode "\\.json\\'")
 
 (use-package json-reformat
-  :load-path "site-lisp/json-reformat"
   :after json-mode)
 
 (use-package json-snatcher
-  :load-path "site-lisp/json-snatcher"
   :after json-mode)
 
 (use-package key-chord
   :commands key-chord-mode)
 
 (use-package know-your-http-well
-  :load-path "site-lisp/know-your-http-well/emacs"
   :commands (http-header
              http-method
              http-relation
@@ -2287,11 +2153,9 @@ In that case, insert the number."
              media-type))
 
 (use-package kotl-mode
-  :load-path "site-lisp/hyperbole/kotl"
   :mode "\\.kotl\\'")
 
 (use-package langtool
-  :load-path "site-lisp/langtool"
   :bind ("C-. l" . langtool-check))
 
 (use-package latex
@@ -2353,7 +2217,6 @@ In that case, insert the number."
         (forward-line)))))
 
 (use-package lentic-mode
-  :load-path "site-lisp/lentic"
   :diminish
   :commands global-lentic-mode)
 
@@ -2380,7 +2243,6 @@ In that case, insert the number."
            nil t))))))
 
 (use-package lispy
-  :load-path "site-lisp/lispy"
   :commands lispy-mode
   :bind (:map lispy-mode-map
               ("M-j"))
@@ -2394,22 +2256,18 @@ In that case, insert the number."
 
 (use-package lsp-haskell
   ;; jww (2017-11-26): https://github.com/haskell/haskell-ide-engine/issues/117
-  :disabled t
-  :load-path "site-lisp/lsp-haskell")
+  :disabled t)
 
 (use-package lsp-mode
   ;; jww (2017-11-26): Need to install LSP for Haskell
-  :disabled t
-  :load-path "site-lisp/lsp-mode")
+  :disabled t)
 
 (use-package lua-mode
-  :load-path "site-lisp/lua-mode"
   :mode "\\.lua\\'"
   :interpreter "lua")
 
 (use-package lusty-explorer
   :disabled t
-  :load-path "site-lisp/lusty-explorer"
   :bind (("C-x C-f" . my-lusty-file-explorer))
   :preface
   (defun lusty-read-directory ()
@@ -2520,12 +2378,9 @@ In that case, insert the number."
         (lusty-sort-by-fuzzy-score filtered file-portion)))))
 
 (use-package macrostep
-  :load-path "site-lisp/macrostep"
   :bind ("C-c e m" . macrostep-expand))
 
 (use-package magit
-  :load-path ("site-lisp/magit/lisp"
-              "lib/with-editor")
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :bind (:map magit-mode-map
@@ -2632,17 +2487,14 @@ In that case, insert the number."
          #'magit-push-current-to-upstream ?u t))))
 
 (use-package magit-popup
-  :load-path "site-lisp/magit-popup"
   :defer t)
 
 (use-package magit-imerge
   ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :load-path "site-lisp/magit-imerge"
   :after magit)
 
 (use-package magithub
-  :load-path "site-lisp/magithub"
   :after magit
   :config
   (magithub-feature-autoinject t)
@@ -2657,11 +2509,9 @@ In that case, insert the number."
                  (funcall orig-func host username package nocreate))))))
 
 (use-package makefile-runner
-  :load-path "site-lisp/makefile-runner"
   :bind ("C-c M-C" . makefile-runner))
 
 (use-package malyon
-  :load-path "site-lisp/malyon"
   :commands malyon
   :config
   (defun replace-invisiclues ()
@@ -2674,14 +2524,12 @@ In that case, insert the number."
      (if (use-region-p) (region-end)) nil nil)))
 
 (use-package markdown-mode
-  :load-path "site-lisp/markdown-mode"
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
 
 (use-package markdown-preview-mode
-  :load-path "site-lisp/markdown-preview-mode"
   :after markdown-mode
   :config
   (setq markdown-preview-stylesheets
@@ -2689,11 +2537,9 @@ In that case, insert the number."
                       "blob/master/data/css/github.css"))))
 
 (use-package math-symbol-lists
-  :load-path "site-lisp/math-symbol-lists"
   :defer t)
 
 (use-package mc-extras
-  :load-path "site-lisp/mc-extras"
   :after multiple-cursors
   :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
          ("<C-m> M-C-b" . mc/mark-previous-sexps)
@@ -2706,21 +2552,17 @@ In that case, insert the number."
          ("<C-m> ~"     . mc/compare-chars)))
 
 (use-package mc-freeze
-  :load-path "site-lisp/mc-extras"
   :after multiple-cursors
   :bind ("<C-m> f" . mc/freeze-fake-cursors-dwim))
 
 (use-package mc-rect
-  :load-path "site-lisp/mc-extras"
   :after multiple-cursors
   :bind ("C-\"" . mc/rect-rectangle-to-multiple-cursors))
 
 (use-package mediawiki
-  :load-path "site-lisp/mediawiki"
   :commands mediawiki-open)
 
 (use-package memory-usage
-  :load-path "site-lisp/memory-usage"
   :commands memory-usage)
 
 (use-package mhtml-mode
@@ -2736,25 +2578,20 @@ In that case, insert the number."
   :bind ("C-c z" . clean-buffer-list))
 
 (use-package minimap
-  :load-path "site-lisp/minimap"
   :commands minimap-mode)
 
 (use-package mmm-mode
-  :load-path "site-lisp/mmm-mode"
   :defer t)
 
 (use-package moccur-edit
-  :load-path "site-lisp/moccur-edit"
   :after color-moccur)
 
 (use-package mode-line-bell
-  :load-path "site-lisp/mode-line-bell"
   :defer 5
   :config
   (mode-line-bell-mode))
 
 (use-package monitor
-  :load-path "site-lisp/monitor"
   :defer t
   :init
   (autoload #'define-monitor "monitor"))
@@ -2775,7 +2612,6 @@ In that case, insert the number."
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
 (use-package multi-term
-  :load-path "site-lisp/multi-term"
   :bind (("C-. t" . multi-term-next)
          ("C-. T" . multi-term))
   :init
@@ -2806,11 +2642,9 @@ In that case, insert the number."
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multifiles
-  :load-path "site-lisp/multifiles"
   :bind ("C-c m f" . mf/mirror-region-in-multifile))
 
 (use-package multiple-cursors
-  :load-path "site-lisp/multiple-cursors"
   :after phi-search
   :defer 5
 
@@ -2872,7 +2706,6 @@ In that case, insert the number."
     (activate-mark)))
 
 (use-package navi-mode
-  :load-path "site-lisp/navi-mode"
   :after outshine
   :bind ("M-s s" . navi-search-and-switch))
 
@@ -2880,15 +2713,12 @@ In that case, insert the number."
   :commands nf-procmail-mode)
 
 (use-package nginx-mode
-  :load-path "site-lisp/nginx-mode"
   :commands nginx-mode)
 
 (use-package nix-buffer
-  :load-path "site-lisp/nix-buffer"
   :commands nix-buffer)
 
 (use-package nix-mode
-  :load-path "site-lisp/nix-mode"
   :mode "\\.nix\\'"
   :bind ("C-. u" . nix-update-fetch)
   :preface
@@ -3008,7 +2838,6 @@ In that case, insert the number."
                 (set-field "sha256" (alist-get 'sha256 data))))))))))
 
 (use-package nov
-  :load-path "site-lisp/nov"
   :mode ("\\.epub\\'" . nov-mode))
 
 (use-package nroff-mode
@@ -3052,15 +2881,12 @@ In that case, insert the number."
                  nil)))
 
 (use-package olivetti
-  :load-path "site-lisp/olivetti"
   :commands olivetti-mode)
 
 (use-package operate-on-number
-  :load-path "site-lisp/operate-on-number"
   :bind ("C-. '" . operate-on-number-at-point))
 
 (use-package origami
-  :load-path "site-lisp/origami"
   :commands origami-mode)
 
 (use-package outline
@@ -3068,33 +2894,26 @@ In that case, insert the number."
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
 
 (use-package outorg
-  :load-path "site-lisp/outorg"
   :after outshine)
 
 (use-package outshine
-  :load-path "site-lisp/outshine"
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
 
 (use-package ovpn-mode
-  :load-path "site-lisp/ovpn-mode"
   :commands ovpn)
 
 (use-package package-lint
-  :load-path "site-lisp/package-lint"
   :commands package-lint-current-buffer)
 
 (use-package pandoc-mode
-  :load-path "site-lisp/pandoc-mode"
   :hook (markdown-mode
          (pandoc-mode   . pandoc-load-default-settings)))
 
 (use-package paradox
-  :load-path "site-lisp/paradox"
   :commands paradox-list-packages)
 
 (use-package paredit
-  :load-path "site-lisp/paredit"
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
   :bind (:map paredit-mode-map
@@ -3126,18 +2945,15 @@ In that case, insert the number."
   :after paredit)
 
 (use-package parinfer
-  :load-path "site-lisp/parinfer"
   :bind ("C-. C-(" . parinfer-toggle-mode)
   :config
   (setq parinfer-extensions '(defaults paredit smart-yank)))
 
 (use-package pass
-  :load-path "site-lisp/pass"
   :commands (pass pass-view-mode)
   :mode ("\\.passwords/.*\\.gpg\\'" . pass-view-mode))
 
 (use-package password-store
-  :load-path "site-lisp/password-store/contrib/emacs"
   :defer 5
   :commands (password-store-insert
              password-store-copy
@@ -3149,7 +2965,6 @@ In that case, insert the number."
                        ".gpg"))))
 
 (use-package password-store-otp
-  :load-path "site-lisp/password-store-otp"
   :defer t
   :config
   (defun password-store-otp-append-from-image (entry)
@@ -3173,11 +2988,9 @@ append it to ENTRY."
         (delete-file qr-image-filename)))))
 
 (use-package pcre2el
-  :load-path "site-lisp/pcre2el"
   :commands (rxt-mode rxt-global-mode))
 
 (use-package pdf-tools
-  :load-path "site-lisp/pdf-tools/lisp"
   :magic ("%PDF" . pdf-view-mode)
   :config
   (dolist
@@ -3189,14 +3002,12 @@ append it to ENTRY."
   (pdf-tools-install))
 
 (use-package per-window-point
-  :load-path "site-lisp/per-window-point"
   :defer 5
   :commands pwp-mode
   :config
   (pwp-mode 1))
 
 (use-package persistent-scratch
-  :load-path "site-lisp/persistent-scratch"
   :unless (or (null window-system)
               running-alternate-emacs
               noninteractive)
@@ -3270,11 +3081,9 @@ append it to ENTRY."
              ("C-z"     . delete-other-windows)))
 
 (use-package phi-search
-  :load-path "site-lisp/phi-search"
   :defer 5)
 
 (use-package phi-search-mc
-  :load-path "site-lisp/phi-search-mc"
   :after (phi-search multiple-cursors)
   :config
   (phi-search-mc/setup-keys)
@@ -3290,11 +3099,9 @@ append it to ENTRY."
   :hook (prog-mode . pretty-control-l-mode))
 
 (use-package prodigy
-  :load-path "site-lisp/prodigy"
   :commands prodigy)
 
 (use-package projectile
-  :load-path "site-lisp/projectile"
   :defer 5
   :diminish
   :bind* ("C-c TAB" . projectile-find-other-file)
@@ -3303,9 +3110,6 @@ append it to ENTRY."
   (projectile-global-mode))
 
 (use-package proof-site
-  :load-path ("site-lisp/proof-general/generic"
-              "site-lisp/proof-general/lib"
-              "site-lisp/proof-general/coq")
   :defer 5
   :preface
   (defun my-layout-proof-windows ()
@@ -3369,7 +3173,6 @@ append it to ENTRY."
   (setq ps-print-region-function 'ps-spool-to-pdf))
 
 (use-package python-mode
-  :load-path "site-lisp/python-mode"
   :mode "\\.py\\'"
   :interpreter "python"
   :bind (:map python-mode-map
@@ -3402,11 +3205,9 @@ append it to ENTRY."
   (add-hook 'python-mode-hook 'my-python-mode-hook))
 
 (use-package rainbow-delimiters
-  :load-path "site-lisp/rainbow-delimiters"
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package rainbow-mode
-  :load-path "site-lisp/rainbow-mode"
   :commands rainbow-mode)
 
 (use-package recentf
@@ -3432,7 +3233,6 @@ append it to ENTRY."
   :bind ("C-. r t" . rectangle-mark-mode))
 
 (use-package redshank
-  :load-path "site-lisp/redshank"
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . redshank-mode))
 
@@ -3446,11 +3246,9 @@ append it to ENTRY."
 
 (use-package repl-toggle
   ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/repl-toggle")
+  :disabled t)
 
 (use-package restclient
-  :load-path "site-lisp/restclient"
   :mode ("\\.rest\\'" . restclient-mode))
 
 (use-package reveal-in-osx-finder
@@ -3463,7 +3261,6 @@ append it to ENTRY."
                                    default-directory))))))
 
 (use-package riscv-mode
-  :load-path "site-lisp/riscv-mode"
   :commands riscv-mode)
 
 (use-package rtags
@@ -3491,7 +3288,6 @@ append it to ENTRY."
               ("M-." . rtags-find-symbol-at-point)))
 
 (use-package ruby-mode
-  :load-path "site-lisp/enh-ruby-mode"
   :mode "\\.rb\\'"
   :interpreter "ruby"
   :bind (:map ruby-mode-map
@@ -3516,7 +3312,6 @@ append it to ENTRY."
   (save-place-mode 1))
 
 (use-package sdcv-mode
-  :load-path "site-lisp/sdcv"
   :bind ("C-. w" . my-sdcv-search)
   :config
   (defvar sdcv-index nil)
@@ -3543,7 +3338,6 @@ append it to ENTRY."
       (call-interactively #'sdcv-search))))
 
 (use-package selected
-  :load-path "site-lisp/selected"
   :defer 5
   :diminish selected-minor-mode
   :bind (:map selected-keymap
@@ -3579,19 +3373,16 @@ append it to ENTRY."
   :bind ("C-. C-z" . shell-toggle))
 
 (use-package shackle
-  :load-path "site-lisp/shackle"
   :defer 5
   :commands shackle-mode
   :config
   (shackle-mode 1))
 
 (use-package shift-number
-  :load-path "site-lisp/shift-number"
   :bind (("C-. +" . shift-number-up)
          ("C-. -" . shift-number-down)))
 
 (use-package slime
-  :load-path "site-lisp/slime"
   :commands slime
   :init
   ;; (unless (memq major-mode
@@ -3605,7 +3396,6 @@ append it to ENTRY."
 
 (use-package smart-jump
   :disabled t
-  :load-path "site-lisp/smart-jump"
   :bind ("M-." . smart-jump-go)
   :config
   (smart-jump-register :modes '(emacs-lisp-mode lisp-interaction-mode)
@@ -3616,7 +3406,6 @@ append it to ENTRY."
                        :async nil))
 
 (use-package smart-mode-line
-  :load-path "site-lisp/smart-mode-line"
   :defer 10
   :config
   (sml/setup)
@@ -3624,21 +3413,17 @@ append it to ENTRY."
   (remove-hook 'display-time-hook 'sml/propertize-time-string))
 
 (use-package smart-newline
-  :load-path "site-lisp/smart-newline"
   :diminish
   :commands smart-newline-mode)
 
 (use-package smart-region
   :disabled t
-  :load-path "site-lisp/smart-region"
   :bind ("S-SPC" . smart-region))
 
 (use-package smartparens-config
-  :load-path "site-lisp/smartparens"
   :commands smartparens-mode)
 
 (use-package smartscan
-  :load-path "site-lisp/smartscan"
   :defer 5
   :bind (:map smartscan-map
               ("C->" . smartscan-symbol-go-forward)
@@ -3652,35 +3437,28 @@ append it to ENTRY."
   :commands smerge-mode)
 
 (use-package smex
-  :load-path "site-lisp/smex"
   :defer 5
   :commands smex)
 
 (use-package sort-words
-  :load-path "site-lisp/sort-words"
   :commands sort-words)
 
 (use-package sos
-  :load-path "site-lisp/sos"
   :commands sos)
 
 (use-package sql-indent
-  :load-path "site-lisp/sql-indent"
   :commands sqlind-minor-mode)
 
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
 
 (use-package string-edit
-  :load-path "site-lisp/string-edit"
   :bind ("C-c C-'" . string-edit-at-point))
 
 (use-package string-inflection
-  :load-path "site-lisp/string-inflection"
   :bind ("C-c C-u" . string-inflection-all-cycle))
 
 (use-package sunrise-commander
-  :load-path "site-lisp/sunrise-commander"
   :bind (("C-c j" . my-activate-sunrise)
          ("C-c C-j" . sunrise-cd))
   :bind (:map sr-mode-map
@@ -3734,14 +3512,12 @@ append it to ENTRY."
         (message "Opening \"%s\" ..." fname)))))
 
 (use-package super-save
-  :load-path "site-lisp/super-save"
   :diminish
   :commands super-save-mode
   :config
   (setq super-save-auto-save-when-idle t))
 
 (use-package swiper
-  :load-path "site-lisp/swiper"
   :after ivy
   :bind (("C-. C-s" . swiper)
          ("C-. C-r" . swiper))
@@ -3758,7 +3534,6 @@ append it to ENTRY."
   :mode "\\.td\\'")
 
 (use-package tagedit
-  :load-path "site-lisp/tagedit"
   :commands tagedit-mode)
 
 (use-package texinfo
@@ -3803,22 +3578,18 @@ append it to ENTRY."
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 
 (use-package transpose-mark
-  :load-path "site-lisp/transpose-mark"
   :commands (transpose-mark
              transpose-mark-line
              transpose-mark-region))
 
 (use-package treemacs
-  :load-path "site-lisp/treemacs"
   :commands treemacs)
 
 (use-package tuareg
-  :load-path "site-lisp/tuareg"
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
          ("\\.eliomi?\\'"  . tuareg-mode)))
 
 (use-package typo
-  :load-path "site-lisp/typo"
   :commands typo-mode)
 
 (use-package undo-tree
@@ -3826,31 +3597,26 @@ append it to ENTRY."
   ;; region". Also, its backup files often get corrupted, so this sub-feature
   ;; is disabled in settings.el.
   :disabled t
-  :load-path "site-lisp/undo-tree"
   :demand t
   :bind ("C-M-/" . undo-tree-redo)
   :config
   (global-undo-tree-mode))
 
 (use-package vdiff
-  :load-path "site-lisp/vdiff"
   :commands (vdiff-files
              vdiff-files3
              vdiff-buffers
              vdiff-buffers3))
 
 (use-package vimish-fold
-  :load-path "site-lisp/vimish-fold"
   :bind (("C-. f f" . vimish-fold)
          ("C-. f d" . vimish-fold-delete)
          ("C-. f D" . vimish-fold-delete-all)))
 
 (use-package visual-fill-column
-  :load-path "site-lisp/visual-fill-column"
   :commands visual-fill-column-mode)
 
 (use-package visual-regexp
-  :load-path "site-lisp/visual-regexp"
   :bind (("C-c r"   . vr/replace)
          ("C-c %"   . vr/query-replace)
          ("C-c C->" . vr/mc-mark)))
@@ -3858,12 +3624,10 @@ append it to ENTRY."
 (use-package visual-regexp-steroids
   ;; jww (2017-12-10): I prefer to use Emacs regexps within Emacs.
   :disabled t
-  :load-path "site-lisp/visual-regexp-steroids"
   :after visual-regexp)
 
 (use-package vlf
   :disabled t
-  :load-path "site-lisp/vlf"
   :defer 5
   :init
   (setq-default vlf-tune-max (* 512 1024)))
@@ -3872,22 +3636,18 @@ append it to ENTRY."
   :commands vline-mode)
 
 (use-package w3m
-  :load-path "site-lisp/w3m"
   :commands w3m-browse-url)
 
 (use-package web-mode
-  :load-path "site-lisp/web-mode"
   :commands web-mode)
 
 (use-package wgrep
-  :load-path "site-lisp/wgrep"
   :defer 5)
 
 (use-package which-func
   :hook (c-mode-common . which-function-mode))
 
 (use-package which-key
-  :load-path "site-lisp/which-key"
   :defer 5
   :diminish
   :commands which-key-mode
@@ -3947,7 +3707,6 @@ append it to ENTRY."
         whitespace-style '(face trailing lines space-before-tab empty)))
 
 (use-package whitespace-cleanup-mode
-  :load-path "site-lisp/whitespace-cleanup-mode"
   :defer 5
   :diminish
   :commands whitespace-cleanup-mode
@@ -3957,14 +3716,12 @@ append it to ENTRY."
 (use-package whole-line-or-region
   :unless (or noninteractive
               running-alternate-emacs)
-  :load-path "site-lisp/whole-line-or-region"
   :defer 5
   :diminish whole-line-or-region-local-mode
   :config
   (whole-line-or-region-global-mode 1))
 
 (use-package window-purpose
-  :load-path "site-lisp/purpose"
   :commands purpose-mode)
 
 (use-package winner
@@ -3976,12 +3733,10 @@ append it to ENTRY."
   (winner-mode 1))
 
 (use-package word-count
-  :load-path "site-lisp/word-count-mode"
   :bind ("C-. W" . word-count-mode))
 
 (use-package ws-butler
   :disabled t
-  :load-path "site-lisp/ws-butler"
   :diminish
   :hook (prog-mode . ws-butler-mode))
 
@@ -3999,7 +3754,6 @@ append it to ENTRY."
          ("C-c x w" . xray-window)))
 
 (use-package yaml-mode
-  :load-path "site-lisp/yaml-mode"
   :mode "\\.ya?ml\\'")
 
 (use-package yaoddmuse
@@ -4008,11 +3762,9 @@ append it to ENTRY."
          ("C-c w p" . yaoddmuse-post-library-default)))
 
 (use-package yari
-  :load-path "site-lisp/yari-with-buttons"
   :commands yari)
 
 (use-package yasnippet
-  :load-path "site-lisp/yasnippet"
   :after prog-mode
   :defer 10
   :diminish yas-minor-mode
@@ -4034,11 +3786,9 @@ append it to ENTRY."
   (yas-global-mode 1))
 
 (use-package z3-mode
-  :load-path "site-lisp/z3-mode"
   :mode "\\.rs\\'")
 
 (use-package zencoding-mode
-  :load-path "site-lisp/zencoding-mode"
   :hook (nxml-mode html-mode)
   :bind (:map zencoding-mode-keymap
               ("C-c C-c" . zencoding-expand-line))
@@ -4046,7 +3796,6 @@ append it to ENTRY."
   (defvar zencoding-mode-keymap (make-sparse-keymap)))
 
 (use-package zoom
-  :load-path "site-lisp/zoom"
   :bind ("C-x +" . zoom)
   :preface
   (defun size-callback ()
@@ -4054,7 +3803,6 @@ append it to ENTRY."
           (t '(0.5 . 0.5)))))
 
 (use-package ztree-diff
-  :load-path "site-lisp/ztree"
   :commands ztree-diff)
 
 ;;; Layout
