@@ -1,0 +1,134 @@
+* ialign.el
+  [[https://melpa.org/#/ialign][file:https://melpa.org/packages/ialign-badge.svg]]
+
+  Emacs package that provides visual version of ~align-regexp~ command.
+
+  [[./demo.gif]]
+* Table of contents						   :TOC:
+- [[#ialignel][ialign.el]]
+- [[#installation][Installation]]
+  - [[#from-melpa][From melpa]]
+  - [[#manual][Manual]]
+- [[#usage][Usage]]
+- [[#commands][Commands]]
+- [[#options][Options]]
+- [[#license][License]]
+
+* Installation
+** From melpa
+   This package is available from melpa, just do ~M-x package-install RET ialign RET~.
+   Bind the main function with:
+   #+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x l") #'ialign)
+   #+END_SRC
+
+** Manual
+   Put path to file ~ialign.el~ somewhere in your ~load-path~, then
+   #+BEGIN_SRC emacs-lisp
+(require 'ialign)
+(global-set-key (kbd "C-x l") #'ialign)
+   #+END_SRC
+   You can also bind it to different key (~(kbd "your-key")~).
+* Usage
+  To use it, mark a region and then call ~ialign~.
+  You can enter a regexp in the minibuffer that will be passed to ~align-regexp~ command.
+  As the contents of minibuffer change, the region is realigned.
+  You can also specify other arguments to ~align-regexp~:
+  - Increment/decrement spacing (padding) with ~C-c -~ and ~C-c +~
+  - Increment/decrement the parenthesis group which will be modified with ~C-c [~ and ~C-c ]~
+    Negative parenthesis group means justify (prepend space to each group).
+  - Repeat the alignment throughout the line with ~C-c C-r~.
+
+* Commands							 :noexport_1:
+** ~(ialign BEG END)~
+   Interactively align region /BEG/ /END/ using regexp read from minibuffer.
+
+   As characters are typed in the minibuffer, the region is aligned
+   using ~align-regexp~ and the result is presented to the user.
+
+   In the minibuffer, ~ialign-minibuffer-keymap~ is the active keymap.
+** ~(ialign-toggle-repeat)~
+   Toggle /repeat/ argument passed to ~align-regexp~.
+
+   When the repeat argument is non-nil, the alignment is repeated throughout
+   the line.
+** ~(ialign-toggle-tabs)~
+   Toggle tab usage during alignment.
+** ~(ialign-toggle-case-fold)~
+   Toggle case-fold searching on or off.
+** ~(ialign-set-group GROUP)~
+   Set the parenthesis group argument for the ~align-regexp~ command to /GROUP/.
+
+   This should be called with a numeric prefix argument that is
+   the group number to set.
+** ~(ialign-increment-group)~, ~(ialign-decrement-group)~
+   Increment/decrement the parenthesis group argument passed to ~align-regexp~.
+** ~(ialign-set-spacing SPACING)~
+   Set the spacing parameter passed to ~align-regexp~ command to /SPACING/.
+
+   This should be called with a numeric prefix argument.
+** ~(ialign-increment-spacing)~, ~(ialign-decrement-spacing)~
+   Increment/decrement the amount of spacing passed to ~align-regexp~ command.
+** ~(ialign-commit)~
+   Align the region using the current regexp and commit change in the buffer.
+
+   The region is aligned using the current regexp only if it's valid.
+   Next alignments will use the newly aligned region.
+** ~(ialign-show-help)~
+   Describe available keybindings to the user.
+
+* Options							 :noexport_1:
+** ~ialign-minibuffer-keymap~
+   Keymap used in the minibuffer when ~ialign~ command is executed.
+
+   | Key     | Command                  |
+   |---------+--------------------------|
+   | C-c C-r | ialign-toggle-repeat     |
+   | C-c C-t | ialign-toggle-tabs       |
+   | C-c M-c | ialign-toggle-case-fold  |
+   | C-c +   | ialign-increment-spacing |
+   | C-c -   | ialign-decrement-spacing |
+   | C-c [   | ialign-decrement-group   |
+   | C-c ]   | ialign-increment-group   |
+   | C-c C-f | ialign-set-group         |
+   | C-c C-s | ialign-set-spacing       |
+   | C-c RET | ialign-commit            |
+   | C-c C-c | ialign-update            |
+   | C-c ?   | ialign-show-help         |
+** ~ialign-default-spacing~
+   An integer that represents the default amount of padding to use.
+
+   The default value is the same as ~align-default-spacing~.
+** ~ialign-align-with-tabs~
+   A value that says when the region should be aligned with tabs.
+
+   - If it's ~nil~, never use tabs.
+   - If it's ~t~, always use tabs.
+   - If it's the symbol 'indent-tabs-mode, use value of variable ~indent-tabs-mode~.
+
+   The dafault value is ~nil~.
+** ~ialign-auto-update~
+   A value that says when to align the region as the characters are typed.
+
+   - If it is ~nil~, never update (you can manually update with ~ialign-update~).
+   - If it is ~t~, always update.
+   - If it is an integer, update if the number of lines in the region is less than or equal to this, otherwise do not update.
+
+   The default value is ~t~.
+** ~ialign-initial-regexp~
+   String, initial regexp to use when calling ~ialign~.
+
+   The default value is ~\\(\\s-+\\)~.
+* License
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
