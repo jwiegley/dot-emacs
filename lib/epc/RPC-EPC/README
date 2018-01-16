@@ -1,0 +1,32 @@
+RPC-EPC version 0.0.11
+
+  An asynchronous remote procedure stack for Emacs.
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+Alternatively, to install with Module::Build, you can use the following commands:
+
+	perl Build.PL
+	./Build
+	./Build test
+	./Build install
+
+
+DEPENDENCIES
+
+  AnyEvent
+  Data::SExpression
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2014, Masashi Sakurai
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

@@ -1,0 +1,19 @@
+Revision history for RPC-EPC
+
+0.0.11 2014/05/23
+       excluded some tests.
+
+0.0.9  2014/05/16
+       fixed tests. (thx @SREZIC)
+
+0.0.8  2014/05/07
+       fixed tests and warnings. (thx @syohex)
+
+0.0.3  2011/12/26
+       Corrected perlcritic test.
+
+0.0.2  2011/12/26
+       Corrected the document and Build.PL.
+
+0.0.1  2011/12/24
+       Initial release.
