@@ -292,4 +292,12 @@
   (insert (buffer-substring beg end))
   (comment-region beg end))
 
+(defun profile-hook (hook)
+  (eval
+   (macroexp-progn
+    (mapcan #'(lambda (f)
+                (use-package-with-elapsed-timer (format "%s" f)
+                  `((funcall ',f))))
+            hook))))
+
 (provide 'personal)
