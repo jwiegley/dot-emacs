@@ -920,9 +920,6 @@ end tell" (match-string 1))))
   :disabled t
   :load-path "site-lisp/org-opml")
 
-(use-package org-parser
-  :defer t)
-
 (use-package org-ref
   ;; jww (2017-12-10): Need to configure.
   :disabled t

@@ -280,7 +280,6 @@ org-devonthink.el,lisp,personal,,
 org-mode,site-lisp,submodule,git://orgmode.org/org-mode.git,custom-path
 org-noter,site-lisp,subtree,git://github.com/weirdNox/org-noter,
 org-opml,site-lisp,subtree,git://github.com/edavis/org-opml.git,
-org-parser.el,site-lisp,file,https://bitbucket.org/zck/org-parser.el/raw/105050acee08cbb7159ca2e277a597af023a4e57/org-parser.el,
 org-ref,site-lisp,subtree,git://github.com/jkitchin/org-ref.git,
 org-smart-capture.el,lisp,personal,,
 org-super-agenda,site-lisp,subtree,git://github.com/alphapapa/org-super-agenda.git,
