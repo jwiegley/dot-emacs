@@ -858,7 +858,7 @@ In that case, insert the number."
 (use-package counsel-projectile
   :after (counsel projectile)
   :config
-  (counsel-projectile-on)
+  (counsel-projectile-mode)
   (define-key projectile-mode-map [remap projectile-ag]
     #'counsel-projectile-rg))
 
