@@ -385,7 +385,7 @@
   :commands backup-each-save
   :preface
   (defun my-make-backup-file-name (file)
-    (make-backup-file-name-1 (file-truename file)))
+    (make-backup-file-name-1 (expand-file-name (file-truename file))))
 
   (defun backup-each-save-filter (filename)
     (not (string-match
@@ -402,6 +402,9 @@
   :config
   (setq backup-each-save-filter-function 'backup-each-save-filter
         backup-enable-predicate 'my-dont-backup-files-p))
+
+(use-package backup-walker
+  :commands backup-walker-start)
 
 (use-package beacon
   :diminish
