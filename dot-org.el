@@ -837,11 +837,9 @@ end tell" (match-string 1))))
     (apply #'diary-date greg-date)))
 
 (use-package anki-editor
-  :load-path "site-lisp/anki-editor"
   :commands anki-editor-submit)
 
 (use-package calfw
-  :load-path "site-lisp/calfw"
   :bind (("C-c A" . my-calendar)
          :map cfw:calendar-mode-map
          ("M-n" . cfw:navi-next-month-command)
@@ -879,11 +877,9 @@ end tell" (match-string 1))))
         cfw:fchar-top-right-corner ?┓))
 
 (use-package helm-org-rifle
-  :load-path "site-lisp/helm-org-rifle"
   :bind ("A-M-r" . helm-org-rifle))
 
-(use-package ob-restclient
-  :load-path "site-lisp/ob-restclient")
+(use-package ob-restclient)
 
 (use-package org-babel
   :no-require
@@ -901,35 +897,29 @@ end tell" (match-string 1))))
      (dot        . t)
      (restclient . t))))
 
-(use-package org-bookmark-heading
-  :load-path "site-lisp/org-bookmark-heading")
+(use-package org-bookmark-heading)
 
 (use-package org-crypt)
 
 (use-package org-devonthink)
 
 (use-package orgit
-  :disabled t
-  :load-path "site-lisp/orgit")
+  :disabled t)
 
 (use-package org-noter
-  :load-path "site-lisp/org-noter"
   :commands org-noter)
 
 (use-package org-opml
-  :disabled t
-  :load-path "site-lisp/org-opml")
+  :disabled t)
 
 (use-package org-ref
   ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :load-path "site-lisp/org-ref")
+  :disabled t)
 
 (use-package org-smart-capture)
 
 (use-package org-super-agenda
   :disabled t
-  :load-path "site-lisp/org-super-agenda"
   :preface
   (defun super-jump-to-org-agenda ()
     (interactive)
@@ -960,11 +950,9 @@ end tell" (match-string 1))))
   (org-super-agenda-mode))
 
 (use-package org-velocity
-  :load-path "site-lisp/org/contrib/lisp"
   :bind ("C-. C-." . org-velocity))
 
 (use-package org-web-tools
-  :load-path "site-lisp/org-web-tools"
   :bind (("C-. C-y" . my-org-insert-url)
          ("C-. C-M-y" . org-web-tools-insert-web-page-as-entry))
   :functions (org-web-tools--org-link-for-url
@@ -984,16 +972,13 @@ end tell" (match-string 1))))
         (insert link)))))
 
 (use-package orgtbl-aggregate
-  :load-path "site-lisp/orgaggregate"
   :config
   (load "org-insert-dblock"))
 
 (use-package ox-texinfo-plus
-  :load-path "site-lisp/ox-texinfo-plus"
   :defer t)
 
 (use-package worf
-  :load-path "site-lisp/worf"
   :bind (:map org-mode-map
               ("C-c C-j" . worf-goto)))
 
