@@ -1577,13 +1577,6 @@ In that case, insert the number."
   :bind ("C-. G" . git-link)
   :commands (git-link git-link-commit git-link-homepage))
 
-(use-package git-modes
-  :defer 5
-  :config
-  (require 'gitattributes-mode)
-  (require 'gitconfig-mode)
-  (require 'gitignore-mode))
-
 (use-package git-timemachine
   :commands git-timemachine)
 
@@ -1591,9 +1584,18 @@ In that case, insert the number."
   :load-path "lisp/git-undo"
   :bind ("C-. C-/" . git-undo))
 
+(use-package gitattributes-mode
+  :defer 5)
+
+(use-package gitconfig-mode
+  :defer 5)
+
 (use-package github-pullrequest
   :commands (github-pullrequest-new
              github-pullrequest-checkout))
+
+(use-package gitignore-mode
+  :defer 5)
 
 (use-package gitpatch
   :commands gitpatch-mail)
