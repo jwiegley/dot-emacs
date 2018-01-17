@@ -2385,10 +2385,7 @@ In that case, insert the number."
          ("C-x G" . magit-status-with-prefix))
   :bind (:map magit-mode-map
               ("U" . magit-unstage-all)
-              ("M-h")
-              ("M-s")
-              ("M-m")
-              ("M-w"))
+              ("M-h") ("M-s") ("M-m") ("M-w"))
   :bind (:map magit-file-section-map ("<C-return>"))
   :bind (:map magit-hunk-section-map ("<C-return>"))
   :preface
