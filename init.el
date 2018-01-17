@@ -2411,18 +2411,6 @@ In that case, insert the number."
     (let ((current-prefix-arg '(4)))
       (call-interactively 'magit-status)))
 
-  (defun eshell/git (&rest args)
-    (cond
-     ((or (null args)
-          (and (string= (car args) "status") (null (cdr args))))
-      (magit-status-internal default-directory))
-     ((and (string= (car args) "log") (null (cdr args)))
-      (magit-log "HEAD"))
-     (t (throw 'eshell-replace-command
-               (eshell-parse-command
-                "*git"
-                (eshell-stringify-list (eshell-flatten-list args)))))))
-
   :hook (magit-mode . hl-line-mode)
   :init
   (setenv "GIT_PAGER" "")
@@ -2436,42 +2424,6 @@ In that case, insert the number."
     (global-magit-file-mode))
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
-
-  (defvar magit--rev-parse-toplevel-cache (make-hash-table :test #'equal))
-  (defvar magit--rev-parse-cdup-cache (make-hash-table :test #'equal))
-  (defvar magit--rev-parse-git-dir-cache (make-hash-table :test #'equal))
-
-  (defmacro magit--use-rev-parse-cache (cmd args)
-    `(pcase ,args
-       ('("--show-toplevel")
-        (or (gethash default-directory magit--rev-parse-toplevel-cache)
-            (let ((dir ,cmd))
-              (puthash default-directory dir magit--rev-parse-toplevel-cache)
-              dir)))
-       ('("--show-cdup")
-        (or (gethash default-directory magit--rev-parse-cdup-cache)
-            (let ((dir ,cmd))
-              (puthash default-directory dir magit--rev-parse-cdup-cache)
-              dir)))
-       ('("--git-dir")
-        (or (gethash default-directory magit--rev-parse-git-dir-cache)
-            (let ((dir ,cmd))
-              (puthash default-directory dir magit--rev-parse-git-dir-cache)
-              dir)))
-       (_ ,cmd)))
-
-  (defun magit-rev-parse (&rest args)
-    "Execute `git rev-parse ARGS', returning first line of output.
-  If there is no output, return nil."
-    (magit--use-rev-parse-cache
-     (apply #'magit-git-string "rev-parse" args) args))
-
-  (defun magit-rev-parse-safe (&rest args)
-    "Execute `git rev-parse ARGS', returning first line of output.
-  If there is no output, return nil.  Like `magit-rev-parse' but
-  ignore `magit-git-debug'."
-    (magit--use-rev-parse-cache
-     (apply #'magit-git-str "rev-parse" args) args))
 
   (eval-after-load 'magit-remote
     '(progn
