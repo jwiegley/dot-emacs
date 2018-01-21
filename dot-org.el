@@ -17,6 +17,9 @@
 (require 'org-agenda)
 (require 'ox-md)
 
+(defun org-release () "8.2.11")
+(defun org-git-version () "8.2.11")
+
 (unbind-key "C-," org-mode-map)
 (unbind-key "C-'" org-mode-map)
 
@@ -197,7 +200,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
+  (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -267,7 +270,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
+        (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -648,7 +651,7 @@ end tell" (match-string 1))))
             "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts4/Documents"
             t "[0-9].*\\.txt\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/doc/tasks/todo.txt")
+      (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")

@@ -372,6 +372,7 @@
  '(coq-prefer-top-of-conclusion t)
  '(coq-prog-args (quote ("-emacs")))
  '(counsel-describe-function-preselect (quote ivy-function-called-at-point))
+ '(counsel-find-file-at-point t)
  '(counsel-find-file-ignore-regexp
    "\\(\\`\\.[^.]\\|\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|hg/\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)\\)")
  '(current-language-environment "UTF-8")
@@ -859,7 +860,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_mmd -S" t)
+ '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -927,12 +928,7 @@
  '(projectile-enable-caching t)
  '(projectile-file-exists-local-cache-expire 300)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
- '(projectile-ignored-project-function
-   (lambda
-     (path)
-     (apply-partially
-      (function string-match)
-      "\\`/\\(nix\\|tmp\\)" path)))
+ '(projectile-ignored-project-function (lambda (path) (string-match "\\`/\\(nix\\|tmp\\)" path)))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-other-file-alist
    (quote
