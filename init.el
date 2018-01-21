@@ -37,7 +37,9 @@
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
   (setq load-path
-        (append '("~/emacs") (delete-dups load-path) '("~/emacs/lisp")))
+        (append '("~/.emacs.d")
+                (delete-dups load-path)
+                '("~/.emacs.d/lisp")))
 
   (defun nix-read-environment (name)
     (ignore-errors
@@ -446,7 +448,8 @@
   :commands browse-kill-ring)
 
 (use-package browse-kill-ring+
-  :after browse-kill-ring)
+  :after browse-kill-ring
+  :config (browse-kill-ring-default-keybindings))
 
 (use-package bytecomp-simplify
   :defer 15)
@@ -846,7 +849,7 @@ In that case, insert the number."
          ("C-h f"   . counsel-describe-function)
          ("C-x r b" . counsel-bookmark)
          ("M-x"     . counsel-M-x)
-         ("M-y"     . counsel-yank-pop)
+         ;; ("M-y"     . counsel-yank-pop)
 
          ("M-s f" . counsel-rg)
          ("M-s j" . counsel-dired-jump)
@@ -862,7 +865,7 @@ In that case, insert the number."
   :after (counsel projectile)
   :config
   (counsel-projectile-mode)
-  (define-key projectile-mode-map [remap projectile-ag]
+  (define-key counsel-projectile-mode-map [remap projectile-ag]
     #'counsel-projectile-rg))
 
 (use-package crosshairs
@@ -1118,7 +1121,7 @@ In that case, insert the number."
   :defer 5)
 
 (use-package dockerfile-mode
-  :mode "Dockerfile")
+  :mode "Dockerfile[a-zA-Z.-]*\\'")
 
 (use-package dot-gnus
   :after auth-source-pass
@@ -1727,6 +1730,7 @@ In that case, insert the number."
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
+    (diminish 'interactive-haskell-mode)
     (flycheck-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
@@ -2671,6 +2675,15 @@ In that case, insert the number."
 
 (use-package nix-buffer
   :commands nix-buffer)
+
+(use-package nix-format
+  :commands nix-format-buffer)
+
+(use-package nix-repl
+  :commands nix-repl-show)
+
+(use-package nix-shell
+  :commands nix-shell)
 
 (use-package nix-mode
   :mode "\\.nix\\'"
