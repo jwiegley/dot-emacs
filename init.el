@@ -3349,6 +3349,17 @@ append it to ENTRY."
   :bind (("C-. +" . shift-number-up)
          ("C-. -" . shift-number-down)))
 
+(use-package sky-color-clock
+  :commands sky-color-clock
+  :config
+  (require 'calendar)
+  ;; Previous sexp in `display-time-string-forms':
+  ;;   (format-time-string "%l:%M %p" now)
+  (sky-color-clock-initialize calendar-latitude)
+  ;; 5408211 = West Sacramento, CA, USA
+  (sky-color-clock-initialize-openweathermap-client
+   (lookup-password "api.openweathermap.org" "jwiegley" 80) 5408211))
+
 (use-package slime
   :commands slime
   :init
