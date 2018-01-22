@@ -262,8 +262,8 @@
      (awk-mode . "awk")
      (other . "gnu"))))
  '(calendar-daylight-time-zone-name "PDT")
- '(calendar-latitude 38.547795)
- '(calendar-longitude -121.524102)
+ '(calendar-latitude 38.5474883)
+ '(calendar-longitude -121.5262693)
  '(calendar-mark-holidays-flag t)
  '(calendar-standard-time-zone-name "PST")
  '(calendar-time-zone -480)
@@ -406,12 +406,7 @@
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
  '(display-time-interval 300)
  '(display-time-mode t)
- '(display-time-string-forms
-   (quote
-    ((format-time-string "%l:%M %p" now)
-     "  "
-     (get-jobhours-string)
-     "  ")))
+ '(display-time-string-forms (quote ((sky-color-clock) "  " (get-jobhours-string) "  ")))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(docker-containers-show-all nil)
