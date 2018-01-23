@@ -3352,7 +3352,7 @@ append it to ENTRY."
 (use-package sky-color-clock
   :commands sky-color-clock
   :config
-  (require 'calendar)
+  (require 'solar)
   ;; Previous sexp in `display-time-string-forms':
   ;;   (format-time-string "%l:%M %p" now)
   (sky-color-clock-initialize calendar-latitude)
