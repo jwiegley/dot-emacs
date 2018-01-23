@@ -21,10 +21,48 @@
         (error "No auth entry found for %s@%s:%s" user host port))))
 
   (defun get-jobhours-string ()
-    (with-current-buffer (get-buffer-create "*scratch*")
-      (let ((str (shell-command-to-string "jobhours")))
-        (require 'ansi-color)
-        (ansi-color-apply (substring str 0 (1- (length str))))))))
+    (with-temp-buffer
+      (call-process "jobhours" nil t nil "--emacs")
+      (goto-char (point-min))
+      (let* ((details (read (current-buffer)))
+             (disc (alist-get 'discrep details)))
+        (delete-region (point-min) (point-max))
+        (insert
+         "  "
+         (propertize
+          (if (alist-get 'loggedIn details)
+              (format "⏰%.1fh " (alist-get 'todayHrs details))
+            "")
+          'face 'bold)
+         ;; (format "%.1fh" (abs disc))
+         ;; (format " %.0f％" (alist-get 'paceMark details))
+         (format "%.1fh"
+                 (- (alist-get 'hoursLeft details)
+                    (let ((remaining
+                           (- (time-to-days (alist-get 'end details))
+                              (time-to-days (alist-get 'now details)) 1)))
+                      (* 8.0
+                         (cond ((<= remaining 4)
+                                remaining)
+                               ((<= remaining 5)
+                                (1- remaining))
+                               ((<= remaining 11)
+                                (- remaining 2))
+                               ((<= remaining 12)
+                                (- remaining 3))
+                               (t
+                                (- remaining 4)))))))
+         "  ")
+        (add-face-text-property (point-min) (point-max)
+                                '(:background "grey75"))
+        (add-face-text-property
+         (- (point-max)
+            (floor (* (point-max) (/ (float (alist-get 'paceMark details)) 100))))
+         (point-max)
+         (list :background (if (< disc 0)
+                               "lightcoral"
+                             "chartreuse")))
+        (buffer-string)))))
 
 ;;; Environment
 
