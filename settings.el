@@ -226,7 +226,7 @@
      (".*" . "~/.cache/emacs/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bbdb-default-country "")
- '(bbdb-file "~/doc/tasks/bbdb" t)
+ '(bbdb-file "~/Documents/tasks/bbdb" t)
  '(bbdb-message-caching-enabled nil)
  '(bbdb-no-duplicates t)
  '(bbdb-offer-save (quote savenoprompt))
@@ -249,8 +249,8 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "~/doc/tasks/bookmarks")
- '(bookmark-default-file "~/doc/tasks/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/Documents/tasks/bookmarks")
+ '(bookmark-default-file "~/Documents/tasks/bookmarks")
  '(browse-url-browser-function
    (quote
     (("osx-ghc" . eww-browse-url)
@@ -387,7 +387,7 @@
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
- '(diary-file "~/doc/tasks/diary")
+ '(diary-file "~/Documents/tasks/diary")
  '(diff-mode-hook
    (quote
     (diff-delete-empty-files diff-make-unified smerge-mode)))
@@ -854,7 +854,7 @@
  '(magithub-clone-default-directory "~/oss")
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
- '(malyon-stories-directory "~/doc/games")
+ '(malyon-stories-directory "~/Documents/games")
  '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
