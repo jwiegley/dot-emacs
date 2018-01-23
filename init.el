@@ -11,6 +11,7 @@
 
   (defsubst lookup-password (host user port)
     (require 'auth-source)
+    (require 'auth-source-pass)
     (let ((auth (auth-source-search :host host :user user :port port)))
       (if auth
           (let ((secretf (plist-get (car auth) :secret)))
@@ -18,51 +19,7 @@
                 (funcall secretf)
               (error "Auth entry for %s@%s:%s has no secret!"
                      user host port)))
-        (error "No auth entry found for %s@%s:%s" user host port))))
-
-  (defun get-jobhours-string ()
-    (with-temp-buffer
-      (call-process "jobhours" nil t nil "--emacs")
-      (goto-char (point-min))
-      (let* ((details (read (current-buffer)))
-             (disc (alist-get 'discrep details)))
-        (delete-region (point-min) (point-max))
-        (insert
-         "  "
-         (propertize
-          (if (alist-get 'loggedIn details)
-              (format "⏰%.1fh " (alist-get 'todayHrs details))
-            "")
-          'face 'bold)
-         ;; (format "%.1fh" (abs disc))
-         ;; (format " %.0f％" (alist-get 'paceMark details))
-         (format "%.1fh"
-                 (- (alist-get 'hoursLeft details)
-                    (let ((remaining
-                           (- (time-to-days (alist-get 'end details))
-                              (time-to-days (alist-get 'now details)) 1)))
-                      (* 8.0
-                         (cond ((<= remaining 4)
-                                remaining)
-                               ((<= remaining 5)
-                                (1- remaining))
-                               ((<= remaining 11)
-                                (- remaining 2))
-                               ((<= remaining 12)
-                                (- remaining 3))
-                               (t
-                                (- remaining 4)))))))
-         "  ")
-        (add-face-text-property (point-min) (point-max)
-                                '(:background "grey75"))
-        (add-face-text-property
-         (- (point-max)
-            (floor (* (point-max) (/ (float (alist-get 'paceMark details)) 100))))
-         (point-max)
-         (list :background (if (< disc 0)
-                               "lightcoral"
-                             "chartreuse")))
-        (buffer-string)))))
+        (error "No auth entry found for %s@%s:%s" user host port)))))
 
 ;;; Environment
 
@@ -1293,7 +1250,7 @@ In that case, insert the number."
   :after counsel)
 
 (use-package emojify
-  :defer 10
+  :defer 15
   :config
   (global-emojify-mode)
   (global-emojify-mode-line-mode))
@@ -1318,7 +1275,6 @@ In that case, insert the number."
   :preface
   (defun irc (&optional arg)
     (interactive "P")
-    (require 'auth-source-pass)
     (if arg
         (pcase-dolist (`(,server . ,nick)
                        '(("irc.freenode.net"     . "johnw")
@@ -2179,6 +2135,91 @@ In that case, insert the number."
   :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after (ivy rtags))
+
+(use-package jobhours
+  :no-require t
+  :preface
+  (defun jobhours-dim-color (color cloudiness)
+    (cl-destructuring-bind (h s l)
+        (apply 'color-rgb-to-hsl (color-name-to-rgb color))
+      (apply 'color-rgb-to-hex
+             (color-hsl-to-rgb h (* s (min 1 cloudiness)) l))))
+
+  (defun jobhours-make-text-properties (logged-in disc &optional color)
+    (list :background
+          (or color
+              (jobhours-dim-color (if (< disc 0)
+                                      "#ffff00000000"
+                                    "#0000ffff0000")
+                                  (/ (abs disc) 8.0)))
+          :foreground
+          (if logged-in
+              "yellow"
+            "#000000000000")
+          :weight
+          (if logged-in 'bold 'light)))
+
+  (defun get-jobhours-string ()
+    (with-temp-buffer
+      (call-process "jobhours" nil t nil "--emacs")
+      (goto-char (point-min))
+      (let* ((details (read (current-buffer)))
+             (disc (alist-get 'discrep details))
+             (remaining
+              (- (time-to-days (alist-get 'end details))
+                 (time-to-days (alist-get 'now details)) 1))
+             (days-remaining
+              (cond ((<= remaining 4)
+                     remaining)
+                    ((<= remaining 5)
+                     (1- remaining))
+                    ((<= remaining 11)
+                     (- remaining 2))
+                    ((<= remaining 12)
+                     (- remaining 3))
+                    (t
+                     (- remaining 4)))))
+
+        (delete-region (point-min) (point-max))
+        (insert
+         "  "
+         ;; (propertize
+         ;;  (if (alist-get 'loggedIn details)
+         ;;      (format "⏰%.1fh " (alist-get 'todayHrs details))
+         ;;    "")
+         ;;  'face 'bold)
+         ;; (format "%.1fh" (abs disc))
+         ;; (format " %.0f％" (alist-get 'paceMark details))
+         (format "%.1fh∙%d"
+                 (- (alist-get 'hoursLeft details)
+                    (* 8.0 days-remaining))
+                 days-remaining)
+         "  ")
+        ;; Color the whole "time bar" a neutral, light grey
+        (add-face-text-property
+         (point-min) (point-max)
+         (jobhours-make-text-properties
+          (alist-get 'loggedIn details) disc "grey75"))
+        ;; Now darken a percentage of the bar, starting from the left, to show
+        ;; what percentage of the time period has been worked.
+        (add-face-text-property
+         (- (point-max)
+            (floor (* (point-max)
+                      (/ (float (alist-get 'paceMark details)) 100))))
+         (point-max)
+         ;; If our moving average is above or below nominal, shade the darker
+         ;; area toward green or red. The further from nominal, the more
+         ;; intense the color becomes, reaching full intensity at 1 work day.
+         (jobhours-make-text-properties (alist-get 'loggedIn details) disc))
+        (buffer-string))))
+  :config
+  (defvar my-jobhours-string "")
+  (put 'my-jobhours-string 'risky-local-variable t)
+  (defun update-my-jobhours-string ()
+    (setq my-jobhours-string (get-jobhours-string)))
+  (run-at-time 0 300 #'update-my-jobhours-string)
+  (push " " (default-value 'mode-line-format))
+  (push '(:eval my-jobhours-string) (default-value 'mode-line-format)))
 
 (use-package jq-mode
   :mode "\\.jq\\'")
@@ -3400,15 +3441,24 @@ append it to ENTRY."
          ("C-. -" . shift-number-down)))
 
 (use-package sky-color-clock
+  :defer 15
   :commands sky-color-clock
   :config
   (require 'solar)
-  ;; Previous sexp in `display-time-string-forms':
-  ;;   (format-time-string "%l:%M %p" now)
   (sky-color-clock-initialize calendar-latitude)
-  ;; 5408211 = West Sacramento, CA, USA
   (sky-color-clock-initialize-openweathermap-client
-   (lookup-password "api.openweathermap.org" "jwiegley" 80) 5408211))
+   (with-temp-buffer
+     (insert-file-contents-literally "~/.config/weather/apikey")
+     (buffer-substring (point-min) (1- (point-max))))
+   5408211 ;; West Sacramento, CA, USA
+   )
+
+  (defvar my-sky-color-string "")
+  (put 'my-sky-color-string 'risky-local-variable t)
+  (defun update-my-sky-color-string ()
+    (setq my-sky-color-string (sky-color-clock)))
+  (run-at-time 0 60 #'update-my-sky-color-string)
+  (push '(:eval my-sky-color-string) (default-value 'mode-line-format)))
 
 (use-package slime
   :commands slime
@@ -3434,7 +3484,7 @@ append it to ENTRY."
                        :async nil))
 
 (use-package smart-mode-line
-  :defer 10
+  :defer 15
   :config
   (sml/setup)
   (sml/apply-theme 'light)
