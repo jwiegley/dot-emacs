@@ -375,7 +375,8 @@
          ("C-c y o" . aya-open-line)))
 
 (use-package avy
-  :bind ("M-h" . avy-goto-char-timer)
+  :bind (("C-'" . avy-goto-char-timer)
+         ("M-h" . avy-goto-char-timer))
   :config
   (avy-setup-default))
 
@@ -2613,9 +2614,7 @@ In that case, insert the number."
   ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
   ;;   cursor use yank-rectangle, normally found at C-x r y.
 
-  :bind (("C-'" . set-rectangular-region-anchor)
-
-         ("<C-m> ^"     . mc/edit-beginnings-of-lines)
+  :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
          ("<C-m> `"     . mc/edit-beginnings-of-lines)
          ("<C-m> $"     . mc/edit-ends-of-lines)
          ("<C-m> '"     . mc/edit-ends-of-lines)
@@ -2628,6 +2627,7 @@ In that case, insert the number."
          ("<C-m> l"     . mc/insert-letters)
          ("<C-m> n"     . mc/insert-numbers)
          ("<C-m> r"     . mc/mark-all-in-region)
+         ("<C-m> s"     . set-rectangular-region-anchor)
          ("<C-m> /"     . mc/mark-all-in-region-regexp)
          ("<C-m> t"     . mc/mark-sgml-tag-pair)
          ("<C-m> w"     . mc/mark-next-like-this-word)
@@ -2645,7 +2645,6 @@ In that case, insert the number."
          ("S-<mouse-1>" . mc/add-cursor-on-click))
 
   :bind (:map selected-keymap
-              ("C-'" . mc/edit-lines)
               ("c"   . mc/edit-lines)
               ("."   . mc/mark-next-like-this)
               ("<"   . mc/unmark-next-like-this)
@@ -3502,6 +3501,7 @@ append it to ENTRY."
   :bind (:map swiper-map
               ("M-y" . yank)
               ("M-%" . swiper-query-replace)
+              ("C-'" . swiper-avy)
               ("M-h" . swiper-avy)
               ("M-c" . swiper-mc))
   :commands swiper-from-isearch
