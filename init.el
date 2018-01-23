@@ -145,7 +145,6 @@
 (use-package diminish      :demand t)
 (use-package el-mock       :defer t)
 (use-package elisp-refs    :defer t)
-(use-package emojify       :defer t)
 (use-package epc           :defer t)
 (use-package epl           :defer t)
 (use-package esxml         :defer t)
@@ -1247,6 +1246,12 @@ In that case, insert the number."
   ;; jww (2017-12-10): Need to configure.
   :disabled t
   :after counsel)
+
+(use-package emojify
+  :defer 10
+  :config
+  (global-emojify-mode)
+  (global-emojify-mode-line-mode))
 
 (use-package emms-setup
   :bind ("M-E" . emms-browser)
