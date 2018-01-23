@@ -819,6 +819,13 @@ In that case, insert the number."
   :bind (:map coq-mode-map
               ("C-M-h" . company-coq-toggle-definition-overlay)))
 
+(use-package company-elisp
+  :after company
+  :config
+  (push 'company-elisp company-backends))
+
+(setq-local company-backend '(company-elisp))
+
 (use-package company-ghc
   :after (company ghc)
   :config
@@ -1473,6 +1480,7 @@ In that case, insert the number."
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
+    (local-set-key (kbd "<tab>") #'lisp-complete-symbol)
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (paredit-mode)))
 
