@@ -1253,7 +1253,8 @@ In that case, insert the number."
   :defer 15
   :config
   (global-emojify-mode)
-  (global-emojify-mode-line-mode))
+  ;; (global-emojify-mode-line-mode -1)
+  )
 
 (use-package emms-setup
   :bind ("M-E" . emms-browser)
