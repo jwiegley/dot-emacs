@@ -2138,89 +2138,9 @@ In that case, insert the number."
   :after (ivy rtags))
 
 (use-package jobhours
-  :no-require t
-  :preface
-  (defun jobhours-dim-color (color cloudiness)
-    (cl-destructuring-bind (h s l)
-        (apply 'color-rgb-to-hsl (color-name-to-rgb color))
-      (apply 'color-rgb-to-hex
-             (color-hsl-to-rgb h (* s (min 1 cloudiness)) l))))
-
-  (defun jobhours-make-text-properties (logged-in disc &optional color)
-    (list :background
-          (or color
-              (jobhours-dim-color (if (< disc 0)
-                                      "#ffff00000000"
-                                    "#0000ffff0000")
-                                  (/ (abs disc) 8.0)))
-          :foreground
-          (if logged-in
-              "yellow"
-            "#000000000000")
-          :weight
-          (if logged-in 'bold 'light)))
-
-  (defun get-jobhours-string ()
-    (with-temp-buffer
-      (call-process "jobhours" nil t nil "--emacs")
-      (goto-char (point-min))
-      (let* ((details (read (current-buffer)))
-             (disc (alist-get 'discrep details))
-             (remaining
-              (- (time-to-days (alist-get 'end details))
-                 (time-to-days (alist-get 'now details)) 1))
-             (days-remaining
-              (cond ((<= remaining 4)
-                     remaining)
-                    ((<= remaining 5)
-                     (1- remaining))
-                    ((<= remaining 11)
-                     (- remaining 2))
-                    ((<= remaining 12)
-                     (- remaining 3))
-                    (t
-                     (- remaining 4)))))
-
-        (delete-region (point-min) (point-max))
-        (insert
-         "  "
-         ;; (propertize
-         ;;  (if (alist-get 'loggedIn details)
-         ;;      (format "⏰%.1fh " (alist-get 'todayHrs details))
-         ;;    "")
-         ;;  'face 'bold)
-         ;; (format "%.1fh" (abs disc))
-         ;; (format " %.0f％" (alist-get 'paceMark details))
-         (format "%.1fh∙%d"
-                 (- (alist-get 'hoursLeft details)
-                    (* 8.0 days-remaining))
-                 days-remaining)
-         "  ")
-        ;; Color the whole "time bar" a neutral, light grey
-        (add-face-text-property
-         (point-min) (point-max)
-         (jobhours-make-text-properties
-          (alist-get 'loggedIn details) disc "grey75"))
-        ;; Now darken a percentage of the bar, starting from the left, to show
-        ;; what percentage of the time period has been worked.
-        (add-face-text-property
-         (- (point-max)
-            (floor (* (point-max)
-                      (/ (float (alist-get 'paceMark details)) 100))))
-         (point-max)
-         ;; If our moving average is above or below nominal, shade the darker
-         ;; area toward green or red. The further from nominal, the more
-         ;; intense the color becomes, reaching full intensity at 1 work day.
-         (jobhours-make-text-properties (alist-get 'loggedIn details) disc))
-        (buffer-string))))
+  :load-path "~/src/hours"
   :config
-  (defvar my-jobhours-string "")
-  (put 'my-jobhours-string 'risky-local-variable t)
-  (defun update-my-jobhours-string ()
-    (setq my-jobhours-string (get-jobhours-string)))
-  (run-at-time 0 300 #'update-my-jobhours-string)
-  (push " " (default-value 'mode-line-format))
-  (push '(:eval my-jobhours-string) (default-value 'mode-line-format)))
+  (jobhours-setup-modeline))
 
 (use-package jq-mode
   :mode "\\.jq\\'")
