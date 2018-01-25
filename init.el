@@ -2141,8 +2141,11 @@ In that case, insert the number."
   :load-path "~/src/hours"
   :config
   (jobhours-setup-modeline)
-  (add-hook 'org-clock-in-hook 'jobhours-update-string)
-  (add-hook 'org-clock-out-hook 'jobhours-update-string))
+  (defun my-jobhours-update-after-delay ()
+    (run-at-time 3 nil #'jobhours-update-string))
+
+  (add-hook 'org-clock-in-hook #'my-jobhours-update-after-delay)
+  (add-hook 'org-clock-out-hook #'my-jobhours-update-after-delay))
 
 (use-package jq-mode
   :mode "\\.jq\\'")
