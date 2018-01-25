@@ -406,7 +406,7 @@
  '(diredful-init-file "~/.emacs.d/data/diredful-conf.el")
  '(display-time-interval 60)
  '(display-time-mode t)
- '(display-time-string-forms (quote ("")))
+ '(display-time-string-forms (quote ((sky-color-clock))))
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(docker-containers-show-all nil)
