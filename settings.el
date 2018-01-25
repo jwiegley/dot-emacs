@@ -824,6 +824,7 @@
  '(ivy-wrap t)
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
+ '(jobhours-file "~/Documents/tasks/BAE.txt")
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 500)
  '(kill-whole-line t)
