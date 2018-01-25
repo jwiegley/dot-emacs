@@ -3372,14 +3372,7 @@ append it to ENTRY."
      (insert-file-contents-literally "~/.config/weather/apikey")
      (buffer-substring (point-min) (1- (point-max))))
    5408211 ;; West Sacramento, CA, USA
-   )
-
-  (defvar my-sky-color-string "")
-  (put 'my-sky-color-string 'risky-local-variable t)
-  (defun update-my-sky-color-string ()
-    (setq my-sky-color-string (sky-color-clock)))
-  (run-at-time 0 60 #'update-my-sky-color-string)
-  (push '(:eval my-sky-color-string) (default-value 'mode-line-format)))
+   ))
 
 (use-package slime
   :commands slime
