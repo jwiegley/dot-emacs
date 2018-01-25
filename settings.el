@@ -1180,7 +1180,7 @@
  '(wg-query-for-save-on-workgroups-mode-exit nil)
  '(wgrep-enable-key "")
  '(whitespace-auto-cleanup t t)
- '(whitespace-line-column 110)
+ '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil t)
  '(whitespace-silent t t)
  '(whitespace-style (quote (face trailing lines space-before-tab empty)))
