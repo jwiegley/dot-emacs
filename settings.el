@@ -645,7 +645,6 @@
         (assq
          (quote height)
          (frame-parameters))))))) t)
- '(gc-cons-threshold 3500000)
  '(gdb-find-source-frame t)
  '(gdb-same-frame nil)
  '(ggtags-enable-navigation-keys nil)

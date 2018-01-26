@@ -2553,6 +2553,17 @@ In that case, insert the number."
 (use-package midnight
   :bind ("C-c z" . clean-buffer-list))
 
+(use-package minibuffer
+  :config
+  (defun my-minibuffer-setup-hook ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun my-minibuffer-exit-hook ()
+    (setq gc-cons-threshold 800000))
+
+  (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
+  (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook))
+
 (use-package minimap
   :commands minimap-mode)
 
