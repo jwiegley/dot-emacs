@@ -3072,6 +3072,9 @@ append it to ENTRY."
   (phi-search-mc/setup-keys)
   (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
 
+(use-package plantuml-mode
+  :mode "\\.plantuml\\'")
+
 (use-package po-mode
   :mode "\\.\\(po\\'\\|po\\.\\)")
 
