@@ -978,6 +978,8 @@ end tell" (match-string 1))))
   :config
   (load "org-insert-dblock"))
 
+(use-package orgnav)
+
 (use-package ox-texinfo-plus
   :defer t)
 
