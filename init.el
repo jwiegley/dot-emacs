@@ -2138,7 +2138,6 @@ In that case, insert the number."
   :after (ivy rtags))
 
 (use-package jobhours
-  :load-path "~/src/hours"
   :config
   (jobhours-setup-modeline)
   (defun my-jobhours-update-after-delay ()
@@ -3367,7 +3366,6 @@ append it to ENTRY."
          ("C-. -" . shift-number-down)))
 
 (use-package sky-color-clock
-  :defer 15
   :commands sky-color-clock
   :config
   (require 'solar)
