@@ -2142,7 +2142,7 @@ In that case, insert the number."
   :config
   (jobhours-setup-modeline)
   (defun my-jobhours-update-after-delay ()
-    (run-at-time 3 nil #'jobhours-update-string))
+    (run-at-time 1 nil #'jobhours-update-string))
 
   (add-hook 'org-clock-in-hook #'my-jobhours-update-after-delay)
   (add-hook 'org-clock-out-hook #'my-jobhours-update-after-delay))
