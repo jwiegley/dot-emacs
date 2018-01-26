@@ -918,6 +918,7 @@
  '(persistent-scratch-file-name "~/.emacs.d/data/persistent-scratch")
  '(persistent-scratch-save-file "/Users/johnw/.emacs.d/data/persistent-scratch")
  '(phi-search-limit 100000)
+ '(plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
  '(pp^L-^L-string "                                            ")
  '(projectile-cache-file "~/.emacs.d/data/projectile.cache")
  '(projectile-completion-system (quote ivy))

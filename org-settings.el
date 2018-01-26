@@ -340,6 +340,7 @@ SCHEDULED: %t
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
  '(org-mobile-inbox-for-pull "~/Documents/tasks/from-mobile.org")
  '(org-modules (quote (org-gnus org-habit org-info org-depend)))
+ '(org-plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
  '(org-priority-faces
    (quote
     ((65 :foreground "ForestGreen" :weight bold)
