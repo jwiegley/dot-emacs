@@ -1770,7 +1770,7 @@ In that case, insert the number."
                 (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 
 (use-package helm
-  :if (not running-alternate-emacs)
+  :defer t
   :bind (:map helm-map
               ("<tab>" . helm-execute-persistent-action)
               ("C-i"   . helm-execute-persistent-action)
@@ -2148,6 +2148,7 @@ In that case, insert the number."
   :after (ivy rtags))
 
 (use-package jobhours
+  :unless running-alternate-emacs
   :config
   (jobhours-setup-modeline)
   (defun my-jobhours-update-after-delay ()
@@ -3390,6 +3391,7 @@ append it to ENTRY."
          ("C-. -" . shift-number-down)))
 
 (use-package sky-color-clock
+  :defer 5
   :commands sky-color-clock
   :config
   (require 'solar)
@@ -3399,7 +3401,8 @@ append it to ENTRY."
      (insert-file-contents-literally "~/.config/weather/apikey")
      (buffer-substring (point-min) (1- (point-max))))
    5408211 ;; West Sacramento, CA, USA
-   ))
+   )
+  (setq display-time-string-forms '((sky-color-clock))))
 
 (use-package slime
   :commands slime
