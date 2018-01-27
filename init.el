@@ -3428,11 +3428,18 @@ append it to ENTRY."
                        :async nil))
 
 (use-package smart-mode-line
-  :defer 15
+  :defer 10
   :config
+  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
+  (setq mode-line-format (delq 'mode-line-position mode-line-format))
   (sml/setup)
-  (sml/apply-theme 'light)
+  ;; (sml/apply-theme 'light)
   (remove-hook 'display-time-hook 'sml/propertize-time-string))
+
+(use-package smart-mode-line-powerline-theme
+  :after smart-mode-line
+  :config
+  (sml/apply-theme 'light-powerline))
 
 (use-package smart-newline
   :diminish
