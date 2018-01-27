@@ -262,6 +262,7 @@ SCHEDULED: %t
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/tasks/todo.txt")
  '(org-directory "~/Documents/tasks/")
+ '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
