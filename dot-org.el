@@ -635,7 +635,8 @@ end tell" (match-string 1))))
            ("r"   . org-agenda-refile)
            ("F"   . org-agenda-follow-mode)
            ("q"   . delete-window)
-           ("x"   . org-todo-state-map))
+           ("x"   . org-todo-state-map)
+           ("z"   . delete-window))
 
 (unbind-key "M-m" org-agenda-keymap)
 
