@@ -3433,10 +3433,11 @@ append it to ENTRY."
   ;; See https://github.com/Malabarba/smart-mode-line/issues/217
   (setq mode-line-format (delq 'mode-line-position mode-line-format))
   (sml/setup)
-  ;; (sml/apply-theme 'light)
+  (sml/apply-theme 'light)
   (remove-hook 'display-time-hook 'sml/propertize-time-string))
 
 (use-package smart-mode-line-powerline-theme
+  :disabled t
   :after smart-mode-line
   :config
   (sml/apply-theme 'light-powerline))
