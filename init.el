@@ -353,7 +353,6 @@
             #'TeX-revert-document-buffer))
 
 (use-package auth-source-pass
-  :defer 5
   :config
   (auth-source-pass-enable)
 
@@ -1280,6 +1279,7 @@ In that case, insert the number."
   (engine-mode 1))
 
 (use-package erc
+  :after auth-source-pass
   :commands (erc erc-tls)
   :bind (:map erc-mode-map
               ("C-c r" . reset-erc-track-mode))
@@ -1296,6 +1296,8 @@ In that case, insert the number."
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
       (let ((pass (lookup-password "irc.freenode.net" "johnw" 6697)))
+        (when (> (length pass) 32)
+          (error "Failed to read ZNC password"))
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
              :password (concat "johnw/gitter:" pass))
         (sleep-for 5)
@@ -1335,7 +1337,7 @@ In that case, insert the number."
   :init
   (add-hook 'erc-mode-hook #'setup-irc-environment)
   (when running-alternate-emacs
-    (add-hook 'after-init-hook 'irc))
+    (add-hook 'emacs-startup-hook 'irc))
 
   :config
   (erc-track-minor-mode 1)
@@ -2966,8 +2968,7 @@ In that case, insert the number."
   :config
   (defun password-store--run-edit (entry)
     (require 'pass)
-    (find-file (concat (expand-file-name entry (password-store-dir))
-                       ".gpg"))))
+    (find-file (concat (expand-file-name entry (password-store-dir)) ".gpg"))))
 
 (use-package password-store-otp
   :defer t
@@ -3309,13 +3310,11 @@ append it to ENTRY."
 
 (use-package savehist
   :unless noninteractive
-  :defer 5
   :config
   (savehist-mode 1))
 
 (use-package saveplace
   :unless noninteractive
-  :defer 5
   :config
   (save-place-mode 1))
 
@@ -3921,7 +3920,7 @@ append it to ENTRY."
       (emacs-min)
     (emacs-max)))
 
-(add-hook 'after-init-hook #'emacs-min t)
+(add-hook 'emacs-startup-hook #'emacs-min t)
 
 ;;; Finalization
 
