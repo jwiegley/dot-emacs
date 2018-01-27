@@ -819,6 +819,8 @@ In that case, insert the number."
   :no-require
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
+  :bind (:map compilation-mode-map
+              ("z" . delete-window))
   :preface
   (defun show-compilation ()
     (interactive)
