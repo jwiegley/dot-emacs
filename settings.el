@@ -1140,12 +1140,6 @@
    (quote
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
- '(tramp-auto-save-directory "~/.cache/emacs/backups" nil (tramp))
- '(tramp-default-method-alist
-   (quote
-    (("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))) nil (tramp))
- '(tramp-persistency-file-name "~/.emacs.d/data/tramp" nil (tramp))
- '(tramp-use-ssh-controlmaster-options nil nil (tramp))
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
  '(undo-tree-history-directory-alist (quote ((".*" . "~/.cache/emacs/backups"))))
