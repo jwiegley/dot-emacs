@@ -941,6 +941,7 @@ In that case, insert the number."
 (use-package dired
   :bind ("C-c J" . dired-double-jump)
   :bind (:map dired-mode-map
+              ("z"     . delete-window)
               ("e"     . ora-ediff-files)
               ("l"     . dired-up-directory)
               ("Y"     . ora-dired-rsync)
