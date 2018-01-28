@@ -1,3 +1,5 @@
+;; (require 'emacs-load-time)
+
 (defconst emacs-start-time (current-time))
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
@@ -33,18 +35,20 @@
 
 ;;; Environment
 
-(eval-when-compile
-  (require 'cl))
-
 (eval-and-compile
-  (require 'seq)
-
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
   (setq load-path
         (append '("~/.emacs.d")
                 (delete-dups load-path)
                 '("~/.emacs.d/lisp")))
+
+  (defun filter (f args)
+    (let (result)
+      (dolist (arg args)
+        (when (funcall f arg)
+          (setq result (cons arg result))))
+      (nreverse result)))
 
   (defun nix-read-environment (name)
     (ignore-errors
@@ -276,7 +280,7 @@
               (file-name-directory
                (substring (shell-command-to-string (concat exe " locate"))
                           0 -1)))))
-      (seq-filter
+      (filter
        (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
        (nix-read-environment "ghc80")))))
   :config
@@ -353,6 +357,7 @@
             #'TeX-revert-document-buffer))
 
 (use-package auth-source-pass
+  :defer 2
   :config
   (auth-source-pass-enable)
 
@@ -1568,7 +1573,7 @@ In that case, insert the number."
      #'(lambda (lib) (directory-files lib t "^ghc-"))
      (cl-mapcan
       #'(lambda (lib) (directory-files lib t "^elpa$"))
-      (seq-filter (apply-partially #'string-match "-emacs-ghc-") load-path))))
+      (filter (apply-partially #'string-match "-emacs-ghc-") load-path))))
   :after haskell-mode
   :commands ghc-init
   :hook (haskell-mode . ghc-init)
@@ -2410,9 +2415,9 @@ In that case, insert the number."
            (filtered (lusty-filter-files
                       file-portion
                       (if lusty-only-directories
-                          (loop for f in files
-                                when (= ?/ (aref f (1- (length f))))
-                                collect f)
+                          (cl-loop for f in files
+                                   when (= ?/ (aref f (1- (length f))))
+                                   collect f)
                         files))))
       (if (or (string= file-portion "")
               (string= file-portion "."))
@@ -3511,9 +3516,9 @@ append it to ENTRY."
   (defun my-activate-sunrise ()
     (interactive)
     (let ((sunrise-exists
-           (loop for buf in (buffer-list)
-                 when (string-match " (Sunrise)$" (buffer-name buf))
-                 return buf)))
+           (cl-loop for buf in (buffer-list)
+                    when (string-match " (Sunrise)$" (buffer-name buf))
+                    return buf)))
       (if sunrise-exists
           (call-interactively 'sunrise)
         (sunrise "~/dl/" "~/Archives/"))))
