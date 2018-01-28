@@ -122,16 +122,12 @@
 
 (defvar Info-directory-list
   (mapcar 'expand-file-name
-          (list
-           (emacs-path "info")
-           "~/Library/Info"
-           (if (executable-find "nix-env")
-               (expand-file-name
-                "share/info"
-                (car (nix-read-environment emacs-environment)))
-             "~/share/info")
-           "/run/current-system/sw/share/info"
-           "~/.nix-profile/share/info")))
+          (append
+           (mapcar (apply-partially #'expand-file-name "share/info")
+                   (nix-read-environment emacs-environment))
+           '("~/.local/share/info"
+             "~/.nix-profile/share/info"
+             "/run/current-system/sw/share/info"))))
 
 (setq disabled-command-function nil) ;; enable all commands
 
