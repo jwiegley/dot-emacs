@@ -883,6 +883,8 @@ end tell" (match-string 1))))
 (use-package helm-org-rifle
   :bind ("A-M-r" . helm-org-rifle))
 
+(use-package ob-diagrams)
+
 (use-package ob-restclient)
 
 (use-package org-babel
