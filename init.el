@@ -357,7 +357,6 @@
             #'TeX-revert-document-buffer))
 
 (use-package auth-source-pass
-  :defer 2
   :config
   (auth-source-pass-enable)
 
@@ -3500,7 +3499,8 @@ append it to ENTRY."
          ("C-c C-j" . sunrise-cd))
   :bind (:map sr-mode-map
               ("/"     . sr-sticky-isearch-forward)
-              ("q"     . sr-history-prev)
+              ("l"     . sr-history-prev)
+              ("q"     . sr-quit)
               ("z"     . sr-quit)
               ("C-e")
               ("C-x t" . sr-toggle-truncate-lines)
