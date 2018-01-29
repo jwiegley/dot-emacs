@@ -353,6 +353,7 @@
             #'TeX-revert-document-buffer))
 
 (use-package auth-source-pass
+  :defer t
   :config
   (auth-source-pass-enable)
 
