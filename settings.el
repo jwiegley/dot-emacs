@@ -819,6 +819,7 @@
  '(ivy-initial-inputs-alist nil t)
  '(ivy-magic-tilde nil)
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
+ '(ivy-rich-parse-remote-buffer nil)
  '(ivy-use-virtual-buffers t)
  '(ivy-wrap t)
  '(jist-enable-default-authorized t)
