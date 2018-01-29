@@ -209,7 +209,6 @@
  '(appt-display-interval 30)
  '(appt-message-warning-time 60)
  '(auto-compression-mode t nil (jka-compr))
- '(auto-revert-use-notify nil)
  '(auto-save-file-name-transforms (quote (("\\`/[^/]*:.*" "/tmp" t))))
  '(auto-save-interval 64)
  '(auto-save-list-file-prefix "~/.emacs.d/data/auto-save-list/.saves-")
