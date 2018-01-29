@@ -387,6 +387,7 @@
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
+ '(delete-selection-mode t)
  '(diary-file "~/Documents/tasks/diary")
  '(diff-mode-hook
    (quote
