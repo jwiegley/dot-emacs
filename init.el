@@ -97,7 +97,7 @@
           ((string-match "emacs26\\(.+\\)$" emacs-environment)
            (match-string 1 emacs-environment))))
 
-  (defconst running-alternate-emacs (string= emacs-data-suffix "alt"))
+  (defconst alternate-emacs (string= emacs-data-suffix "alt"))
 
   (defconst user-data-directory
     (emacs-path (if emacs-data-suffix
@@ -421,7 +421,7 @@
   :commands biblio-lookup)
 
 (use-package bm
-  :unless running-alternate-emacs
+  :unless alternate-emacs
   :bind (("C-. b" . bm-toggle)
          ("C-. ." . bm-next)
          ("C-. ," . bm-previous))
@@ -664,7 +664,7 @@
                (lookup-password "freechess.org" "jwiegley" 80))))
 
 (use-package circe
-  :if running-alternate-emacs
+  :if alternate-emacs
   :defer t)
 
 (use-package cl-info
@@ -1162,7 +1162,7 @@ In that case, insert the number."
   :bind (:map org-mode-map
               ("C-'"))
   :config
-  (unless running-alternate-emacs
+  (unless alternate-emacs
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
     (my-org-startup)))
 
@@ -1340,7 +1340,7 @@ In that case, insert the number."
 
   :init
   (add-hook 'erc-mode-hook #'setup-irc-environment)
-  (when running-alternate-emacs
+  (when alternate-emacs
     (add-hook 'emacs-startup-hook 'irc))
 
   :config
@@ -2154,7 +2154,7 @@ In that case, insert the number."
   :after (ivy rtags))
 
 (use-package jobhours
-  :unless running-alternate-emacs
+  :unless alternate-emacs
   :config
   (jobhours-setup-modeline)
   (defun my-jobhours-update-after-delay ()
@@ -3019,7 +3019,7 @@ append it to ENTRY."
 
 (use-package persistent-scratch
   :unless (or (null window-system)
-              running-alternate-emacs
+              alternate-emacs
               noninteractive)
   :defer 5
   :config
@@ -3364,7 +3364,7 @@ append it to ENTRY."
 
 (use-package server
   :unless (or noninteractive
-              running-alternate-emacs)
+              alternate-emacs)
   :no-require
   :hook (after-init . server-start))
 
@@ -3759,7 +3759,7 @@ append it to ENTRY."
 
 (use-package whole-line-or-region
   :unless (or noninteractive
-              running-alternate-emacs)
+              alternate-emacs)
   :defer 5
   :diminish whole-line-or-region-local-mode
   :config
@@ -3852,85 +3852,63 @@ append it to ENTRY."
 ;;; Layout
 
 (defconst display-name
-  (let ((width (display-pixel-width)))
-    (cond ((>= width 2560) 'retina-imac)
-          ((= width 1920) 'macbook-pro-vga)
-          ((= width 1680) 'macbook-pro)
-          ((= width 1440) 'retina-macbook-pro))))
+  (pcase (display-pixel-width)
+    (`2560 'imac)
+    (`1920 'macbook-pro-vga)
+    (`1680 'macbook-pro)
+    (`1440 'retina-macbook-pro)))
 
-(defconst emacs-min-top 23)
+(defconst emacs-min-top        23)
 
 (defconst emacs-min-left
-  (cond (running-alternate-emacs 5)
-        ;; ((eq display-name 'retina-imac) 975)
-        ((eq display-name 'retina-imac) 746)
-        ((eq display-name 'macbook-pro-vga) 837)
-        (t 521)))
+  (pcase display-name
+    ((guard alternate-emacs)    5)
+    (`imac                    306)
+    (`macbook-pro-vga         837)
+    (_                        521)))
 
 (defconst emacs-min-height
-  (cond (running-alternate-emacs 57)
-        ((eq display-name 'retina-imac) 57)
-        ((eq display-name 'macbook-pro-vga) 54)
-        ((eq display-name 'macbook-pro) 47)
-        (t 44)))
+  (pcase display-name
+    (`macbook-pro-vga          54)
+    (`macbook-pro              47)
+    (_                         57)))
 
 (defconst emacs-min-width
-  (cond (running-alternate-emacs 80)
-        ;; ((eq display-name 'retina-imac) 100)
-        ((eq display-name 'retina-imac) 162)
-        (t 100)))
+  (pcase display-name
+    ((guard alternate-emacs)   80)
+    (`imac                    202)
+    (_                        100)))
 
 (defconst emacs-min-font
-  (cond
-   ((eq display-name 'retina-imac)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1"
-      ))
-   ((eq display-name 'macbook-pro)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
-      ))
-   ((eq display-name 'macbook-pro-vga)
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1"
-      ))
-   ((string= (system-name) "ubuntu")
-    ;; "-*-Source Code Pro-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1"
-    "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"
-    )
-   (t
-    (if running-alternate-emacs
-        "-*-Myriad Pro-normal-normal-normal-*-17-*-*-*-p-0-iso10646-1"
-      ;; "-*-Source Code Pro-normal-normal-normal-*-15-*-*-*-m-0-iso10646-1"
-      "-*-Hack-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"))))
+  (pcase display-name
+    ((guard alternate-emacs)
+     "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1")
+    (`imac "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")
+    (_     "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
   (interactive)
-  (set-frame-parameter (selected-frame) 'fullscreen nil)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
-  (set-frame-font emacs-min-font)
-  (set-frame-parameter (selected-frame) 'top emacs-min-top)
-  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
+    (set-param 'fullscreen nil)
+    (set-param 'vertical-scroll-bars nil)
+    (set-param 'horizontal-scroll-bars nil)
+    (set-param 'top emacs-min-top)
+    (set-param 'left emacs-min-left))
   (set-frame-height (selected-frame) emacs-min-height)
-  (set-frame-width (selected-frame) emacs-min-width))
+  (set-frame-width (selected-frame) emacs-min-width)
+  (set-frame-font emacs-min-font))
 
 (defun emacs-max ()
   (interactive)
-  (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
-  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
-  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
+    (set-param 'fullscreen 'fullboth)
+    (set-param 'vertical-scroll-bars nil)
+    (set-param 'horizontal-scroll-bars nil))
   (set-frame-font emacs-min-font))
 
 (defun emacs-toggle-size ()
   (interactive)
-  (if (> (cdr (assq 'width (frame-parameters))) 200)
+  (if (alist-get 'fullscreen (frame-parameters))
       (emacs-min)
     (emacs-max)))
 
