@@ -132,6 +132,7 @@ BAE Systems"))))
  '(gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
  '(gnus-mark-unpicked-articles-as-read t)
  '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
+ '(gnus-message-replysign t)
  '(gnus-novice-user nil)
  '(gnus-parameters
    (quote
