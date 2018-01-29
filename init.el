@@ -3609,12 +3609,12 @@ append it to ENTRY."
 
 (use-package tramp
   :defer 5
-  :custom
-  ((tramp-auto-save-directory "~/.cache/emacs/backups")
-   (tramp-default-method-alist
-    '(("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo")))
-   (tramp-persistency-file-name "~/.emacs.d/data/tramp")
-   (tramp-use-ssh-controlmaster-options nil)))
+  :config
+  (setq tramp-auto-save-directory "~/.cache/emacs/backups"
+        tramp-default-method-alist
+        '(("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))
+        tramp-persistency-file-name "~/.emacs.d/data/tramp"
+        tramp-use-ssh-controlmaster-options nil))
 
 (use-package tramp-sh
   :defer t
