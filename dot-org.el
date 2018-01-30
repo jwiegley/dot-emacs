@@ -911,6 +911,13 @@ end tell" (match-string 1))))
 
 (use-package org-devonthink)
 
+(use-package org-pdfview
+  :config
+  (delete '("\\.pdf\\'" . default) org-file-apps)
+  (add-to-list 'org-file-apps '("\\.pdf\\'" . org-pdfview-open))
+  (add-to-list 'org-file-apps
+               '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open)))
+
 (use-package orgit
   :disabled t)
 
