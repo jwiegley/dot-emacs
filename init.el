@@ -1998,6 +1998,7 @@ In that case, insert the number."
          ("C-c >" . indent-shift-right)))
 
 (use-package inf-ruby
+  :disabled t
   :after ruby-mode
   :hook (ruby-mode . inf-ruby-keys))
 
