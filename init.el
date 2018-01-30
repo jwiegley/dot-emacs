@@ -1139,7 +1139,6 @@ In that case, insert the number."
   :mode "Dockerfile[a-zA-Z.-]*\\'")
 
 (use-package dot-gnus
-  :after auth-source-pass
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
@@ -1283,7 +1282,6 @@ In that case, insert the number."
   (engine-mode 1))
 
 (use-package erc
-  :after auth-source-pass
   :commands (erc erc-tls)
   :bind (:map erc-mode-map
               ("C-c r" . reset-erc-track-mode))
@@ -2492,6 +2490,7 @@ In that case, insert the number."
   :config
   (magithub-feature-autoinject t)
 
+  (require 'auth-source-pass)
   (defvar my-ghub-token-cache nil)
 
   (advice-add
