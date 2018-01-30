@@ -206,12 +206,6 @@
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-method (quote mv))
  '(org-author-transforms (quote (("^Howard Reubenstein$" . "Howard"))))
- '(org-babel-load-languages
-   (quote
-    ((emacs-lisp . t)
-     (ditaa . t)
-     (haskell . t)
-     (calc . t))))
  '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates
    (quote
