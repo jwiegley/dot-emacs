@@ -895,6 +895,7 @@ end tell" (match-string 1))))
    'org-babel-load-languages
    '((python     . t)
      (emacs-lisp . t)
+     (coq        . t)
      (haskell    . t)
      (calc       . t)
      (ledger     . t)
