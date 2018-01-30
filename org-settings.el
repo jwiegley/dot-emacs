@@ -335,6 +335,9 @@ SCHEDULED: %t
      ("fontsize" "\\footnotesize")
      ("linenos" "true")
      ("xleftmargin" "1em"))))
+ '(org-latex-pdf-process
+   (quote
+    ("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
  '(org-mobile-files (quote ("~/Documents/tasks/todo.txt")))
