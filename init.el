@@ -3789,6 +3789,9 @@ append it to ENTRY."
   :diminish
   :hook (prog-mode . ws-butler-mode))
 
+(use-package x86-lookup
+  :bind ("C-h x" . x86-lookup))
+
 (use-package xray
   :bind (("C-c x b" . xray-buffer)
          ("C-c x f" . xray-faces)
