@@ -366,6 +366,12 @@
  '(coq-compile-before-require t)
  '(coq-compile-parallel-in-background t)
  '(coq-holes-minor-mode nil)
+ '(coq-lookup-browse-pdf-function
+   (lambda
+     (pdf page)
+     (org-pdfview-open
+      (concat pdf "::" page))))
+ '(coq-lookup-pdf "~/.local/share/coq/coq-8.7.1-reference-manual.pdf")
  '(coq-maths-menu-enable t)
  '(coq-one-command-per-line nil)
  '(coq-prefer-top-of-conclusion t)
@@ -1185,6 +1191,11 @@
  '(window-divider-default-places (quote bottom-only))
  '(workgroups-mode nil)
  '(x-stretch-cursor t)
+ '(x86-lookup-browse-pdf-function
+   (lambda
+     (pdf page)
+     (org-pdfview-open
+      (concat pdf "::" page))))
  '(x86-lookup-pdf "~/.local/share/x86/325462-sdm-vol-1-2abcd-3abcd.pdf")
  '(yaoddmuse-directory "~/.emacs.d/doc")
  '(yas-installed-snippets-dir "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/" t)
