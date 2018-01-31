@@ -3887,8 +3887,12 @@ append it to ENTRY."
 (defconst emacs-min-font
   (pcase display-name
     ((guard alternate-emacs)
+     "-*-Bookerly-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1")
+    ((guard alternate-emacs)
      "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1")
+    (`imac "-*-Ubuntu Mono-normal-normal-normal-*-21-*-*-*-m-0-iso10646-1")
     (`imac "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")
+    (_     "-*-Ubuntu Mono-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")
     (_     "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
