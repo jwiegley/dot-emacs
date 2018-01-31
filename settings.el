@@ -1185,6 +1185,7 @@
  '(window-divider-default-places (quote bottom-only))
  '(workgroups-mode nil)
  '(x-stretch-cursor t)
+ '(x86-lookup-pdf "~/.local/share/x86/325462-sdm-vol-1-2abcd-3abcd.pdf")
  '(yaoddmuse-directory "~/.emacs.d/doc")
  '(yas-installed-snippets-dir "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/" t)
  '(yas-prompt-functions
