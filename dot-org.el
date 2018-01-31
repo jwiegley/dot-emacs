@@ -15,7 +15,6 @@
 
 (require 'org)
 (require 'org-agenda)
-(require 'ox-md)
 
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
@@ -912,21 +911,18 @@ end tell" (match-string 1))))
 
 (use-package org-devonthink)
 
+(use-package org-noter
+  :commands org-noter)
+
+(use-package org-opml
+  :disabled t)
+
 (use-package org-pdfview
   :config
   (delete '("\\.pdf\\'" . default) org-file-apps)
   (add-to-list 'org-file-apps '("\\.pdf\\'" . org-pdfview-open))
   (add-to-list 'org-file-apps
                '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open)))
-
-(use-package orgit
-  :disabled t)
-
-(use-package org-noter
-  :commands org-noter)
-
-(use-package org-opml
-  :disabled t)
 
 (use-package org-ref
   ;; jww (2017-12-10): Need to configure.
@@ -987,11 +983,18 @@ end tell" (match-string 1))))
             (message "Added pasteboard link to URL property"))
         (insert link)))))
 
-(use-package orgtbl-aggregate
-  :config
-  (load "org-insert-dblock"))
+(use-package orgit
+  :disabled t)
 
 (use-package orgnav)
+
+(use-package orgtbl-aggregate
+  :config
+  (require 'org-insert-dblock))
+
+(use-package ox-md)
+
+(use-package ox-pandoc)
 
 (use-package ox-texinfo-plus
   :defer t)
