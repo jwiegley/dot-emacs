@@ -846,6 +846,9 @@ In that case, insert the number."
   :init
   (setq copy-as-format-default "github"))
 
+(use-package coq-lookup
+  :bind ("C-h u" . coq-lookup))
+
 (use-package counsel
   :after ivy
   :demand t
