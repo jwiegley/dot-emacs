@@ -2154,6 +2154,8 @@ In that case, insert the number."
 
 (use-package jobhours
   :unless alternate-emacs
+  :defer 5
+  :bind ("M-o j" . jobhours-update-string)
   :config
   (jobhours-setup-modeline)
   (defun my-jobhours-update-after-delay ()
