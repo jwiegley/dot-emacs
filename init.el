@@ -1454,7 +1454,7 @@ In that case, insert the number."
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
-    (local-set-key (kbd "<tab>") #'lisp-complete-symbol)
+    (local-set-key (kbd "<tab>") #'completion-at-point)
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (paredit-mode)))
 
