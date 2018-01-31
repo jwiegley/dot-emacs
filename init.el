@@ -3863,29 +3863,30 @@ append it to ENTRY."
   (pcase (display-pixel-width)
     (`2560 'imac)
     (`1920 'macbook-pro-vga)
-    (`1680 'macbook-pro)
-    (`1440 'retina-macbook-pro)))
+    (`1680 'macbook-pro)))
 
 (defconst emacs-min-top        23)
 
 (defconst emacs-min-left
   (pcase display-name
-    ((guard alternate-emacs)    5)
-    (`imac                    306)
+    ((guard alternate-emacs)    0)
+    (`imac                    318)
     (`macbook-pro-vga         837)
-    (_                        521)))
+    (`macbook-pro             521)))
 
 (defconst emacs-min-height
   (pcase display-name
+    ((guard alternate-emacs)   53)
+    (`imac                     66)
     (`macbook-pro-vga          54)
-    (`macbook-pro              47)
-    (_                         57)))
+    (`macbook-pro              47)))
 
 (defconst emacs-min-width
   (pcase display-name
     ((guard alternate-emacs)   80)
     (`imac                    202)
-    (_                        100)))
+    (`macbook-pro-vga         100)
+    (`macbook-pro             100)))
 
 (defconst emacs-min-font
   (pcase display-name
@@ -3903,9 +3904,8 @@ append it to ENTRY."
   (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
     (set-param 'fullscreen nil)
     (set-param 'vertical-scroll-bars nil)
-    (set-param 'horizontal-scroll-bars nil)
-    (set-param 'top emacs-min-top)
-    (set-param 'left emacs-min-left))
+    (set-param 'horizontal-scroll-bars nil))
+  (set-frame-position (selected-frame) emacs-min-left emacs-min-top)
   (set-frame-height (selected-frame) emacs-min-height)
   (set-frame-width (selected-frame) emacs-min-width)
   (set-frame-font emacs-min-font))
