@@ -621,7 +621,12 @@ end tell" (match-string 1))))
 
 ;;;_  . org-agenda-mode
 
+(defun my-org-publish-ical ()
+  (interactive)
+  (async-shell-command "make -C ~/Documents/tasks"))
+
 (bind-keys :map org-agenda-mode-map
+           ("C-c C-x C-p" . my-org-publish-ical)
            ("C-n" . next-line)
            ("C-p" . previous-line)
            ("M-n" . org-agenda-later)
