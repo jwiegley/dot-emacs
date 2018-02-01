@@ -3876,7 +3876,7 @@ append it to ENTRY."
 
 (defconst emacs-min-height
   (pcase display-name
-    ((guard alternate-emacs)   53)
+    ((guard alternate-emacs)   60)
     (`imac                     66)
     (`macbook-pro-vga          54)
     (`macbook-pro              47)))
@@ -3892,12 +3892,8 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)
      "-*-Bookerly-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1")
-    ((guard alternate-emacs)
-     "-*-Myriad Pro-normal-normal-normal-*-20-*-*-*-p-0-iso10646-1")
-    (`imac "-*-Ubuntu Mono-normal-normal-normal-*-21-*-*-*-m-0-iso10646-1")
-    (`imac "-*-Hack-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")
-    (_     "-*-Ubuntu Mono-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")
-    (_     "-*-Hack-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")))
+    (`imac "-*-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")
+    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
   (interactive)
