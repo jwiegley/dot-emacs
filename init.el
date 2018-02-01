@@ -357,13 +357,24 @@
   :config
   (auth-source-pass-enable)
 
+  (defvar auth-source-pass--cache (make-hash-table :test #'equal))
+
+  (defun auth-source-pass--reset-cache ()
+    (setq auth-source-pass--cache (make-hash-table :test #'equal)))
+
   (defun auth-source-pass--read-entry (entry)
     "Return a string with the file content of ENTRY."
-    (with-temp-buffer
-      (insert-file-contents (expand-file-name
-                             (format "%s.gpg" entry)
-                             (getenv "PASSWORD_STORE_DIR")))
-      (buffer-substring-no-properties (point-min) (point-max))))
+    (run-at-time 45 nil #'auth-source-pass--reset-cache)
+    (let ((cached (gethash entry auth-source-pass--cache)))
+      (or cached
+          (puthash
+           entry
+           (with-temp-buffer
+             (insert-file-contents (expand-file-name
+                                    (format "%s.gpg" entry)
+                                    (getenv "PASSWORD_STORE_DIR")))
+             (buffer-substring-no-properties (point-min) (point-max)))
+           auth-source-pass--cache))))
 
   (defun auth-source-pass-entries ()
     "Return a list of all password store entries."
