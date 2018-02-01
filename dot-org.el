@@ -990,7 +990,7 @@ end tell" (match-string 1))))
 
 (use-package orgtbl-aggregate
   :config
-  (require 'org-insert-dblock))
+  (load "org-insert-dblock"))
 
 (use-package ox-md)
 
