@@ -3770,7 +3770,7 @@ append it to ENTRY."
 (defconst emacs-min-left
   (pcase display-name
     ((guard alternate-emacs)    0)
-    (`imac                    318)
+    (`imac                    115)
     (`macbook-pro-vga         837)
     (`macbook-pro             521)))
 
