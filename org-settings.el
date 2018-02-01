@@ -300,6 +300,7 @@ SCHEDULED: %t
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
+ '(org-icalendar-combined-agenda-file "~/Documents/tasks/org.ics")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width (quote (800)))
  '(org-imenu-depth 4)
