@@ -133,8 +133,9 @@
 
 (eval-when-compile
   ;; Disable all warnings about obsolete functions here.
-  (setplist 'flet (use-package-plist-delete (symbol-plist 'flet)
-                                            'byte-obsolete-info)))
+  (dolist (sym '(flet lisp-complete-symbol))
+    (setplist sym (use-package-plist-delete (symbol-plist sym)
+                                            'byte-obsolete-info))))
 
 ;;; Libraries
 
@@ -1465,7 +1466,7 @@ In that case, insert the number."
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
-    (local-set-key (kbd "<tab>") #'completion-at-point)
+    (local-set-key (kbd "<tab>") #'lisp-complete-symbol)
     (set-syntax-table emacs-lisp-mode-syntax-table)
     (paredit-mode)))
 
