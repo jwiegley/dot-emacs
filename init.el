@@ -18,10 +18,10 @@
 ;;; Functions
 
 (eval-and-compile
-  (defsubst emacs-path (path)
+  (define-inline emacs-path (path)
     (expand-file-name path user-emacs-directory))
 
-  (defsubst lookup-password (host user port)
+  (defun lookup-password (host user port)
     (require 'auth-source)
     (require 'auth-source-pass)
     (let ((auth (auth-source-search :host host :user user :port port)))
