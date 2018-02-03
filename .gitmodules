@@ -28,3 +28,6 @@
 [submodule "lisp/git-undo"]
 	path = lisp/git-undo
 	url = git://github.com/jwiegley/git-undo-el.git
+[submodule "lisp/nix-update"]
+	path = lisp/nix-update
+	url = git://github.com/jwiegley/nix-update-el.git
