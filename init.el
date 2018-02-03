@@ -901,7 +901,7 @@ In that case, insert the number."
   :after counsel)
 
 (use-package counsel-osx-app
-  :bind* ("M-SPC" . counsel-osx-app)
+  :bind* ("S-M-SPC" . counsel-osx-app)
   :commands counsel-osx-app
   :config
   (setq counsel-osx-app-location
@@ -1815,9 +1815,8 @@ In that case, insert the number."
 
 (use-package helm-google
   :commands helm-google
-  :bind (("C-. C-/" . helm-google)
-         ("S-M-SPC" . helm-google)
-         ("A-M-g"   . helm-google)))
+  :bind* (("M-SPC" . helm-google)
+          ("A-M-g" . helm-google)))
 
 (use-package helm-navi
   :after (helm navi)
