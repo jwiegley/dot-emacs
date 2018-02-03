@@ -1232,6 +1232,6 @@
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
  '(mode-line-inactive ((t (:background "grey95"))))
  '(proof-script-sticky-error-face ((t (:background "yellow"))))
- '(variable-pitch ((t (:height 1.0 :family "DejaVu Sans"))))
+ '(variable-pitch ((t (:height 1.2 :family "Bookerly"))))
  '(whitespace-line ((t (:background "#fff7d5"))))
  '(yas-field-highlight-face ((t (:background "#e4edfc")))))
