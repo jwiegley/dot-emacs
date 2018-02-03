@@ -11,9 +11,11 @@
       gc-cons-percentage 0.6)
 
 (add-hook 'after-init-hook
-          `(lambda () (setq file-name-handler-alist file-name-handler-alist-old
-                       gc-cons-threshold 800000
-                       gc-cons-percentage 0.1)) t)
+          `(lambda ()
+             (setq file-name-handler-alist file-name-handler-alist-old
+                   gc-cons-threshold 800000
+                   gc-cons-percentage 0.1)
+             (garbage-collect)) t)
 
 ;;; Functions
 
@@ -890,6 +892,25 @@ In that case, insert the number."
   (add-to-list 'ivy-sort-matches-functions-alist
                '(counsel-find-file . ivy--sort-files-by-date)))
 
+(use-package counsel-dash
+  :bind ("C-c C-h" . counsel-dash))
+
+(use-package counsel-gtags
+  ;; jww (2017-12-10): Need to configure.
+  :disabled t
+  :after counsel)
+
+(use-package counsel-osx-app
+  :bind* ("M-SPC" . counsel-osx-app)
+  :commands counsel-osx-app
+  :config
+  (setq counsel-osx-app-location
+        '("/Applications"
+          "/Applications/Misc"
+          "/Applications/Utilities"
+          "~/Applications"
+          "~/.nix-profile/Applications")))
+
 (use-package counsel-projectile
   :after (counsel projectile)
   :config
@@ -950,14 +971,12 @@ In that case, insert the number."
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
-  :bind ("C-c J" . dired-double-jump)
   :bind (:map dired-mode-map
-              ("z"     . delete-window)
-              ("e"     . ora-ediff-files)
-              ("l"     . dired-up-directory)
-              ("Y"     . ora-dired-rsync)
-              ("<tab>" . my-dired-switch-window)
-              ("M-!"   . async-shell-command)
+              ("z"   . delete-window)
+              ("e"   . ora-ediff-files)
+              ("l"   . dired-up-directory)
+              ("Y"   . ora-dired-rsync)
+              ("M-!" . async-shell-command)
               ("M-G"))
   :preface
   (defvar mark-files-cache (make-hash-table :test #'equal))
@@ -973,23 +992,6 @@ In that case, insert the number."
     (interactive)
     (setq mark-files-cache (make-hash-table :test #'equal))
     (dired-mark-sexp '(mark-similar-versions name)))
-
-  (defun dired-double-jump (first-dir second-dir)
-    (interactive
-     (list (read-directory-name "First directory: "
-                                (expand-file-name "~")
-                                nil nil "dl/")
-           (read-directory-name "Second directory: "
-                                (expand-file-name "~")
-                                nil nil "Archives/")))
-    (dired first-dir)
-    (dired-other-window second-dir))
-
-  (defun my-dired-switch-window ()
-    (interactive)
-    (if (eq major-mode 'sr-mode)
-        (call-interactively #'sr-change-window)
-      (call-interactively #'other-window)))
 
   (defun ora-dired-rsync (dest)
     (interactive
@@ -1270,11 +1272,6 @@ In that case, insert the number."
 (use-package elmacro
   :bind (("C-c m e" . elmacro-mode)
          ("C-x C-)" . elmacro-show-last-macro)))
-
-(use-package counsel-gtags
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :after counsel)
 
 (use-package emojify
   :defer 15
@@ -1623,7 +1620,7 @@ In that case, insert the number."
 
 (use-package git-undo
   :load-path "lisp/git-undo"
-  :bind ("C-. C-/" . git-undo))
+  :commands git-undo)
 
 (use-package gitattributes-mode
   :defer 5)
@@ -1811,16 +1808,23 @@ In that case, insert the number."
   :bind ("C-h m" . helm-describe-modes))
 
 (use-package helm-firefox
-  :commands helm-firefox
   :bind ("A-M-b" . helm-firefox-bookmarks))
+
+(use-package helm-font
+  :commands (helm-select-xfont helm-ucs))
 
 (use-package helm-google
   :commands helm-google
-  :bind ("A-M-g" . helm-google))
+  :bind (("C-. C-/" . helm-google)
+         ("S-M-SPC" . helm-google)
+         ("A-M-g"   . helm-google)))
 
 (use-package helm-navi
   :after (helm navi)
   :commands helm-navi)
+
+(use-package helm-sys
+  :commands helm-top)
 
 (use-package helpful
   :bind (("C-h e F" . helpful-function)
@@ -2018,7 +2022,13 @@ In that case, insert the number."
   :hook (ruby-mode . inf-ruby-keys))
 
 (use-package info
-  :bind ("C-h C-i" . info-lookup-symbol))
+  :bind ("C-h C-i" . info-lookup-symbol)
+  :config
+  (add-hook 'Info-mode-hook
+            #'(lambda ()
+                (setq buffer-face-mode-face '(:family "Bookerly"))
+                (buffer-face-mode)
+                (text-scale-adjust 1))))
 
 (use-package info-look
   :defer t
@@ -2956,7 +2966,9 @@ append it to ENTRY."
          ("C-x C-d" . duplicate-line)
          ("C-x C-v" . find-alternate-file-with-sudo)
          ("C-x K"   . delete-current-buffer-file)
-         ("C-x M-q" . refill-paragraph))
+         ("C-x M-q" . refill-paragraph)
+         ("C-x C-n" . next-line)
+         ("C-x C-p" . previous-line))
   :init
   (bind-keys ("<C-M-backspace>" . backward-kill-sexp)
 
@@ -3397,13 +3409,14 @@ append it to ENTRY."
   :bind ("C-c C-u" . string-inflection-all-cycle))
 
 (use-package sunrise-commander
-  :bind (("C-c j" . my-activate-sunrise)
-         ("C-c C-j" . sunrise-cd))
+  :bind (("C-c j" . sunrise-cd)
+         ("C-c J" . my-activate-sunrise))
   :bind (:map sr-mode-map
               ("/"     . sr-sticky-isearch-forward)
-              ("l"     . sr-history-prev)
+              ("l"     . sr-dired-prev-subdir)
               ("q"     . sr-quit)
               ("z"     . sr-quit)
+              ("C-.")
               ("C-e")
               ("C-x t" . sr-toggle-truncate-lines)
               ("<backspace>" . sr-scroll-quick-view-down))
@@ -3412,6 +3425,9 @@ append it to ENTRY."
               ("C-n")
               ("M-[" . sr-tabs-prev)
               ("M-]" . sr-tabs-next))
+  :bind (:map sr-tree-mode-map
+              ("C-p")
+              ("C-n"))
   :bind (:map sr-term-line-minor-mode-map
               ("M-<backspace>"))
   :commands sunrise
@@ -3432,7 +3448,7 @@ append it to ENTRY."
   (require 'sunrise-x-tabs)
 
   (defun sr-browse-file (&optional file)
-    "Display the selected file with the default appication."
+    "Display the selected file with the default application."
     (interactive)
     (setq file (or file (dired-get-filename)))
     (save-selected-window
