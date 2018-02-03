@@ -2322,6 +2322,7 @@ In that case, insert the number."
               ("C-c C-j" . lispy-goto)))
 
 (use-package llvm-mode
+  :disabled t
   :mode "\\.ll\\'")
 
 (use-package lsp-haskell
