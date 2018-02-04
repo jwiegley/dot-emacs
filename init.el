@@ -1606,7 +1606,7 @@ In that case, insert the number."
   :defer t)
 
 (use-package git-link
-  :bind ("C-c @" . git-link)
+  :bind ("C-c Y" . git-link)
   :commands (git-link git-link-commit git-link-homepage))
 
 (use-package git-timemachine
