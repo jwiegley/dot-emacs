@@ -207,21 +207,24 @@
   (mapc #'(lambda (entry)
             (define-prefix-command (cdr entry))
             (bind-key (car entry) (cdr entry)))
-        '(("<C-m>" . my-ctrl-m-map)
+        '(("C-,"   . my-ctrl-comma-map)
+          ("<C-m>" . my-ctrl-m-map)
 
           ("C-h e" . my-ctrl-h-e-map)
+          ("C-h x" . my-ctrl-h-x-map)
 
+          ("C-c b" . my-ctrl-c-b-map)
           ("C-c e" . my-ctrl-c-e-map)
           ("C-c m" . my-ctrl-c-m-map)
+          ("C-c w" . my-ctrl-c-w-map)
           ("C-c y" . my-ctrl-c-y-map)
-
-          ("C-."   . my-ctrl-dot-map)
-          ("C-. =" . my-ctrl-dot-equals-map)
-          ("C-. f" . my-ctrl-dot-f-map)
-          ("C-. g" . my-ctrl-dot-g-map)
-          ("C-. h" . my-ctrl-dot-h-map)
-          ("C-. m" . my-ctrl-dot-m-map)
-          ("C-. r" . my-ctrl-dot-r-map))))
+          ("C-c H" . my-ctrl-c-H-map)
+          ("C-c N" . my-ctrl-c-N-map)
+          ("C-c (" . my-ctrl-c-open-paren-map)
+          ("C-c -" . my-ctrl-c-minus-map)
+          ("C-c =" . my-ctrl-c-equals-map)
+          ("C-c ." . my-ctrl-c-r-map)
+          )))
 
 ;;; Packages
 
@@ -393,8 +396,7 @@
          ("C-c y o" . aya-open-line)))
 
 (use-package avy
-  :bind (("C-'" . avy-goto-char-timer)
-         ("M-h" . avy-goto-char-timer))
+  :bind* ("C-." . avy-goto-char-timer)
   :config
   (avy-setup-default))
 
@@ -436,9 +438,9 @@
 
 (use-package bm
   :unless alternate-emacs
-  :bind (("C-. b" . bm-toggle)
-         ("C-. ." . bm-next)
-         ("C-. ," . bm-previous))
+  :bind (("C-c b b" . bm-toggle)
+         ("C-c b n" . bm-next)
+         ("C-c b p" . bm-previous))
   :commands (bm-repository-load
              bm-buffer-save
              bm-buffer-save-all
@@ -460,7 +462,7 @@
   :commands bmkp-jump-dired)
 
 (use-package browse-at-remote
-  :bind ("C-. g g" . browse-at-remote))
+  :bind ("C-c B" . browse-at-remote))
 
 (use-package browse-kill-ring
   :defer 5
@@ -856,12 +858,12 @@ In that case, insert the number."
   :hook (compilation-filter . compilation-ansi-color-process-output))
 
 (use-package copy-as-format
-  :bind ("C-. M-w" . copy-as-format)
+  :bind ("C-c M-w" . copy-as-format)
   :init
   (setq copy-as-format-default "github"))
 
 (use-package coq-lookup
-  :bind ("C-h u" . coq-lookup))
+  :bind ("C-h q" . coq-lookup))
 
 (use-package counsel
   :after ivy
@@ -949,13 +951,13 @@ In that case, insert the number."
 
 (use-package debbugs-gnu
   :commands (debbugs-gnu debbugs-gnu-search)
-  :bind ("C-. #" . gnus-read-ephemeral-emacs-bug-group))
+  :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
 
 (use-package dedicated
-  :bind ("C-. D" . dedicated-mode))
+  :bind ("C-c W" . dedicated-mode))
 
 (use-package deft
-  :bind ("C-. C-," . deft))
+  :bind ("C-, C-," . deft))
 
 (use-package diff-hl
   :commands (diff-hl-mode diff-hl-dired-mode)
@@ -1111,7 +1113,7 @@ In that case, insert the number."
               ("Y" . dired-ranger-paste)))
 
 (use-package dired-toggle
-  :bind ("C-. d" . dired-toggle)
+  :bind ("C-c ~" . dired-toggle)
   :preface
   (defun my-dired-toggle-mode-hook ()
     (interactive)
@@ -1175,8 +1177,6 @@ In that case, insert the number."
          ("C-c a" . org-agenda)
          ("C-c S" . org-store-link)
          ("C-c l" . org-insert-link))
-  :bind (:map org-mode-map
-              ("C-'"))
   :config
   (unless alternate-emacs
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
@@ -1191,26 +1191,22 @@ In that case, insert the number."
 (use-package dumb-jump
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 
-(use-package easy-kill
-  :disabled t
-  :bind (("C-. w" . easy-kill)
-         ("C-. @" . easy-mark)))
-
 (use-package ebdb-com
   :commands ebdb)
 
 (use-package ediff
-  :bind (("C-. = b" . ediff-buffers)
-         ("C-. = B" . ediff-buffers3)
-         ("C-. = c" . compare-windows)
-         ("C-. = =" . ediff-files)
-         ("C-. = f" . ediff-files)
-         ("C-. = F" . ediff-files3)
-         ("C-. = r" . ediff-revision)
-         ("C-. = p" . ediff-patch-file)
-         ("C-. = P" . ediff-patch-buffer)
-         ("C-. = l" . ediff-regions-linewise)
-         ("C-. = w" . ediff-regions-wordwise)))
+  :bind (("C-c = b" . ediff-buffers)
+         ("C-c = B" . ediff-buffers3)
+         ("C-c = c" . compare-windows)
+         ("C-c = =" . ediff-files)
+         ("C-c = f" . ediff-files)
+         ("C-c = F" . ediff-files3)
+         ("C-c = m" . count-matches)
+         ("C-c = r" . ediff-revision)
+         ("C-c = p" . ediff-patch-file)
+         ("C-c = P" . ediff-patch-buffer)
+         ("C-c = l" . ediff-regions-linewise)
+         ("C-c = w" . ediff-regions-wordwise)))
 
 (use-package ediff-keep
   :after ediff)
@@ -1485,8 +1481,8 @@ In that case, insert the number."
   (eyebrowse-mode))
 
 (use-package fancy-narrow
-  :bind (("C-. n" . fancy-narrow-to-region)
-         ("C-. N" . fancy-widen))
+  :bind (("C-c N N" . fancy-narrow-to-region)
+         ("C-c N W" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen))
 
 (use-package feebleline
@@ -1542,8 +1538,6 @@ In that case, insert the number."
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
-  :bind (:map flyspell-mode-map
-              ("C-."))
   :config
   (defun my-flyspell-maybe-correct-transposition (beg end candidates)
     (unless (let (case-fold-search)
@@ -1612,7 +1606,7 @@ In that case, insert the number."
   :defer t)
 
 (use-package git-link
-  :bind ("C-. G" . git-link)
+  :bind ("C-c @" . git-link)
   :commands (git-link git-link-commit git-link-homepage))
 
 (use-package git-timemachine
@@ -1639,8 +1633,10 @@ In that case, insert the number."
   :commands gitpatch-mail)
 
 (use-package google-this
-  :bind-keymap ("C-. /" . google-this-mode-submap)
-  :bind ("A-M-f" . google-this-search))
+  :bind-keymap ("C-c /" . google-this-mode-submap)
+  :bind (("M-SPC" . google-this-search)
+         :map google-this-mode-map
+         ("/" . google-this-search)))
 
 (use-package goto-last-change
   :bind ("C-x C-/" . goto-last-change))
@@ -1814,9 +1810,7 @@ In that case, insert the number."
   :commands (helm-select-xfont helm-ucs))
 
 (use-package helm-google
-  :commands helm-google
-  :bind* (("M-SPC" . helm-google)
-          ("A-M-g" . helm-google)))
+  :commands helm-google)
 
 (use-package helm-navi
   :after (helm navi)
@@ -1849,8 +1843,8 @@ In that case, insert the number."
               ("C-c h" . hs-toggle-hiding)))
 
 (use-package highlight
-  :bind (("C-. h h" . hlt-highlight-region)
-         ("C-. h u" . hlt-unhighlight-region)))
+  :bind (("C-c H H" . hlt-highlight-region)
+         ("C-c H U" . hlt-unhighlight-region)))
 
 (use-package highlight-cl
   :hook (emacs-lisp-mode . highlight-cl-add-font-lock-keywords))
@@ -2048,7 +2042,7 @@ In that case, insert the number."
   :defer 5)
 
 (use-package ialign
-  :bind ("C-. [" . ialign-interactive-align))
+  :bind ("C-c {" . ialign-interactive-align))
 
 (use-package inventory
   :commands (inventory sort-package-declarations))
@@ -2225,7 +2219,7 @@ In that case, insert the number."
   :mode "\\.kotl\\'")
 
 (use-package langtool
-  :bind ("C-. l" . langtool-check))
+  :bind ("C-c K" . langtool-check))
 
 (use-package latex
   :after auctex
@@ -2529,7 +2523,7 @@ In that case, insert the number."
                  (funcall orig-func host username package nocreate))))))
 
 (use-package makefile-runner
-  :bind ("C-c M-C" . makefile-runner))
+  :bind ("C-c M" . makefile-runner))
 
 (use-package malyon
   :commands malyon
@@ -2577,7 +2571,7 @@ In that case, insert the number."
 
 (use-package mc-rect
   :after multiple-cursors
-  :bind ("C-\"" . mc/rect-rectangle-to-multiple-cursors))
+  :bind ("<C-m> ]" . mc/rect-rectangle-to-multiple-cursors))
 
 (use-package mediawiki
   :commands mediawiki-open)
@@ -2628,6 +2622,7 @@ In that case, insert the number."
   (autoload #'define-monitor "monitor"))
 
 (use-package mudel
+  :disabled t
   :commands mudel
   :bind ("C-c M" . mud)
   :init
@@ -2643,8 +2638,8 @@ In that case, insert the number."
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
 (use-package multi-term
-  :bind (("C-. t" . multi-term-next)
-         ("C-. T" . multi-term))
+  :bind (("C-c t" . multi-term-next)
+         ("C-c T" . multi-term))
   :init
   (defun screen ()
     (interactive)
@@ -2700,7 +2695,7 @@ In that case, insert the number."
          ("<C-m> n"     . mc/insert-numbers)
          ("<C-m> r"     . mc/mark-all-in-region)
          ("<C-m> s"     . set-rectangular-region-anchor)
-         ("<C-m> /"     . mc/mark-all-in-region-regexp)
+         ("<C-m> %"     . mc/mark-all-in-region-regexp)
          ("<C-m> t"     . mc/mark-sgml-tag-pair)
          ("<C-m> w"     . mc/mark-next-like-this-word)
          ("<C-m> x"     . mc/mark-more-like-this-extended)
@@ -2761,7 +2756,7 @@ In that case, insert the number."
 
 (use-package nix-update
   :load-path "lisp/nix-update"
-  :bind ("C-. u" . nix-update-fetch))
+  :bind ("C-c U" . nix-update-fetch))
 
 (use-package nov
   :mode ("\\.epub\\'" . nov-mode))
@@ -2810,7 +2805,7 @@ In that case, insert the number."
   :commands olivetti-mode)
 
 (use-package operate-on-number
-  :bind ("C-. '" . operate-on-number-at-point))
+  :bind ("C-c N" . operate-on-number-at-point))
 
 (use-package origami
   :commands origami-mode)
@@ -2847,15 +2842,10 @@ In that case, insert the number."
               ("M-k"   . paredit-raise-sexp)
               ("M-I"   . paredit-splice-sexp)
               ("C-M-l" . paredit-recentre-on-sexp)
-
-              ("C-. M-f" . paredit-forward-down)
-              ("C-. B" . paredit-splice-sexp-killing-backward)
-              ("C-. C" . paredit-convolute-sexp)
-              ("C-. F" . paredit-splice-sexp-killing-forward)
-              ("C-. a" . paredit-add-to-next-list)
-              ("C-. A" . paredit-add-to-previous-list)
-              ("C-. j" . paredit-join-with-next-list)
-              ("C-. J" . paredit-join-with-previous-list))
+              ("C-c ( n"   . paredit-add-to-next-list)
+              ("C-c ( p"   . paredit-add-to-previous-list)
+              ("C-c ( j"   . paredit-join-with-next-list)
+              ("C-c ( J"   . paredit-join-with-previous-list))
   :bind (:map lisp-mode-map       ("<return>" . paredit-newline))
   :bind (:map emacs-lisp-mode-map ("<return>" . paredit-newline))
   :hook (paredit-mode
@@ -2869,11 +2859,6 @@ In that case, insert the number."
 
 (use-package paredit-ext
   :after paredit)
-
-(use-package parinfer
-  :bind ("C-. C-(" . parinfer-toggle-mode)
-  :config
-  (setq parinfer-extensions '(defaults paredit smart-yank)))
 
 (use-package pass
   :commands (pass pass-view-mode)
@@ -2957,7 +2942,6 @@ append it to ENTRY."
          ("C-c C-0" . copy-current-buffer-name)
          ("C-c C-z" . delete-to-end-of-buffer)
          ("C-c M-q" . unfill-paragraph)
-         ("C-c V"   . view-clipboard)
          ("C-c e P" . check-papers)
          ("C-c e b" . do-eval-buffer)
          ("C-c e r" . do-eval-region)
@@ -2978,10 +2962,9 @@ append it to ENTRY."
              ("M-\""  . insert-pair)
              ("M-`"   . other-frame)
              ("M-g c" . goto-char)
-             ("C-M-;" . comment-and-copy)
 
-             ("C-c ="   . count-matches)
              ("C-c SPC" . just-one-space)
+             ("C-c M-;" . comment-and-copy)
              ("C-c e c" . cancel-debug-on-entry)
              ("C-c e d" . debug-on-entry)
              ("C-c e e" . toggle-debug-on-error)
@@ -3023,7 +3006,7 @@ append it to ENTRY."
   :mode "\\.\\(po\\'\\|po\\.\\)")
 
 (use-package popup-ruler
-  :bind ("C-. C-r" . popup-ruler))
+  :bind ("C-c R" . popup-ruler))
 
 (use-package pp-c-l
   :hook (prog-mode . pretty-control-l-mode))
@@ -3160,7 +3143,7 @@ append it to ENTRY."
   (recentf-mode 1))
 
 (use-package rect
-  :bind ("C-. r t" . rectangle-mark-mode))
+  :bind ("C-c ]" . rectangle-mark-mode))
 
 (use-package redshank
   :diminish
@@ -3198,22 +3181,22 @@ append it to ENTRY."
   :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :commands rtags-mode
-  :bind (("C-. r D" . rtags-dependency-tree)
-         ("C-. r F" . rtags-fixit)
-         ("C-. r R" . rtags-rename-symbol)
-         ("C-. r T" . rtags-tagslist)
-         ("C-. r d" . rtags-create-doxygen-comment)
-         ("C-. r c" . rtags-display-summary)
-         ("C-. r e" . rtags-print-enum-value-at-point)
-         ("C-. r f" . rtags-find-file)
-         ("C-. r i" . rtags-include-file)
-         ("C-. r i" . rtags-symbol-info)
-         ("C-. r m" . rtags-imenu)
-         ("C-. r n" . rtags-next-match)
-         ("C-. r p" . rtags-previous-match)
-         ("C-. r r" . rtags-find-references)
-         ("C-. r s" . rtags-find-symbol)
-         ("C-. r v" . rtags-find-virtuals-at-point))
+  :bind (("C-c . D" . rtags-dependency-tree)
+         ("C-c . F" . rtags-fixit)
+         ("C-c . R" . rtags-rename-symbol)
+         ("C-c . T" . rtags-tagslist)
+         ("C-c . d" . rtags-create-doxygen-comment)
+         ("C-c . c" . rtags-display-summary)
+         ("C-c . e" . rtags-print-enum-value-at-point)
+         ("C-c . f" . rtags-find-file)
+         ("C-c . i" . rtags-include-file)
+         ("C-c . i" . rtags-symbol-info)
+         ("C-c . m" . rtags-imenu)
+         ("C-c . n" . rtags-next-match)
+         ("C-c . p" . rtags-previous-match)
+         ("C-c . r" . rtags-find-references)
+         ("C-c . s" . rtags-find-symbol)
+         ("C-c . v" . rtags-find-virtuals-at-point))
   :bind (:map c-mode-base-map
               ("M-." . rtags-find-symbol-at-point)))
 
@@ -3240,7 +3223,7 @@ append it to ENTRY."
   (save-place-mode 1))
 
 (use-package sdcv-mode
-  :bind ("C-. w" . my-sdcv-search)
+  :bind ("C-c W" . my-sdcv-search)
   :config
   (defvar sdcv-index nil)
 
@@ -3297,9 +3280,6 @@ append it to ENTRY."
                             :doc-spec '(("(bash)Index")))))
   (add-hook 'shell-mode-hook 'initialize-sh-script))
 
-(use-package sh-toggle
-  :bind ("C-. C-z" . shell-toggle))
-
 (use-package shackle
   :defer 5
   :commands shackle-mode
@@ -3307,8 +3287,8 @@ append it to ENTRY."
   (shackle-mode 1))
 
 (use-package shift-number
-  :bind (("C-. +" . shift-number-up)
-         ("C-. -" . shift-number-down)))
+  :bind (("C-c +" . shift-number-up)
+         ("C-c -" . shift-number-down)))
 
 (use-package sky-color-clock
   :defer 5
@@ -3416,7 +3396,6 @@ append it to ENTRY."
               ("l"     . sr-dired-prev-subdir)
               ("q"     . sr-quit)
               ("z"     . sr-quit)
-              ("C-.")
               ("C-e")
               ("C-x t" . sr-toggle-truncate-lines)
               ("<backspace>" . sr-scroll-quick-view-down))
@@ -3474,17 +3453,13 @@ append it to ENTRY."
 
 (use-package swiper
   :after ivy
-  :bind (("C-. C-s" . swiper)
-         ("C-. C-r" . swiper))
   :bind (:map swiper-map
               ("M-y" . yank)
               ("M-%" . swiper-query-replace)
-              ("C-'" . swiper-avy)
-              ("M-h" . swiper-avy)
+              ("C-." . swiper-avy)
               ("M-c" . swiper-mc))
-  :commands swiper-from-isearch
-  :init
-  (bind-keys :map isearch-mode-map ("C-." . swiper-from-isearch)))
+  :bind (:map isearch-mode-map
+              ("C-o" . swiper-from-isearch)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
@@ -3574,9 +3549,9 @@ append it to ENTRY."
              vdiff-buffers3))
 
 (use-package vimish-fold
-  :bind (("C-. f f" . vimish-fold)
-         ("C-. f d" . vimish-fold-delete)
-         ("C-. f D" . vimish-fold-delete-all)))
+  :bind (("C-c V f" . vimish-fold)
+         ("C-c V d" . vimish-fold-delete)
+         ("C-c V D" . vimish-fold-delete-all)))
 
 (use-package visual-fill-column
   :commands visual-fill-column-mode)
@@ -3584,7 +3559,7 @@ append it to ENTRY."
 (use-package visual-regexp
   :bind (("C-c r"   . vr/replace)
          ("C-c %"   . vr/query-replace)
-         ("C-c C->" . vr/mc-mark)))
+         ("<C-m> /" . vr/mc-mark)))
 
 (use-package visual-regexp-steroids
   ;; jww (2017-12-10): I prefer to use Emacs regexps within Emacs.
@@ -3698,7 +3673,7 @@ append it to ENTRY."
   (winner-mode 1))
 
 (use-package word-count
-  :bind ("C-. W" . word-count-mode))
+  :bind ("C-c \"" . word-count-mode))
 
 (use-package ws-butler
   :disabled t
@@ -3706,20 +3681,20 @@ append it to ENTRY."
   :hook (prog-mode . ws-butler-mode))
 
 (use-package x86-lookup
-  :bind ("C-h x" . x86-lookup))
+  :bind ("C-h X" . x86-lookup))
 
 (use-package xray
-  :bind (("C-c x b" . xray-buffer)
-         ("C-c x f" . xray-faces)
-         ("C-c x F" . xray-features)
-         ("C-c x R" . xray-frame)
-         ("C-c x h" . xray-hooks)
-         ("C-c x m" . xray-marker)
-         ("C-c x o" . xray-overlay)
-         ("C-c x p" . xray-position)
-         ("C-c x S" . xray-screen)
-         ("C-c x s" . xray-symbol)
-         ("C-c x w" . xray-window)))
+  :bind (("C-h x b" . xray-buffer)
+         ("C-h x f" . xray-faces)
+         ("C-h x F" . xray-features)
+         ("C-h x R" . xray-frame)
+         ("C-h x h" . xray-hooks)
+         ("C-h x m" . xray-marker)
+         ("C-h x o" . xray-overlay)
+         ("C-h x p" . xray-position)
+         ("C-h x S" . xray-screen)
+         ("C-h x s" . xray-symbol)
+         ("C-h x w" . xray-window)))
 
 (use-package yaml-mode
   :mode "\\.ya?ml\\'")
