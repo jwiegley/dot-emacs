@@ -967,11 +967,11 @@ end tell" (match-string 1))))
   (org-super-agenda-mode))
 
 (use-package org-velocity
-  :bind ("C-. C-." . org-velocity))
+  :bind ("C-, C-." . org-velocity))
 
 (use-package org-web-tools
-  :bind (("C-. C-y" . my-org-insert-url)
-         ("C-. C-M-y" . org-web-tools-insert-web-page-as-entry))
+  :bind (("C-c w C-y" . my-org-insert-url)
+         ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry))
   :functions (org-web-tools--org-link-for-url
               org-web-tools--get-first-url)
   :preface
