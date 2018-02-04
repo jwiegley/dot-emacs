@@ -200,7 +200,7 @@
     ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
  '(alert-default-style (quote fringe))
  '(alert-notifier-command
-   "/Applications/Misc/terminal-notifier.app/Contents/MacOS/terminal-notifier")
+   "~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier")
  '(align-c++-modes (quote (csharp-mode c++-mode c-mode java-mode groovy-mode)))
  '(align-to-tab-stop nil)
  '(allout-command-prefix ".")
@@ -1075,7 +1075,8 @@
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
      ("\\`\\*magit-diff" :regexp t :align bottom :noselect t)
-     ("\\`\\*makey" :regexp t :align bottom :noselect t))))
+     ("\\`\\*makey" :regexp t :align bottom :noselect t)
+     (\(Sunrise\) :regexp t :noselect t))))
  '(shm-auto-insert-bangs nil)
  '(shm-indent-spaces 4)
  '(shm-use-hdevtools t)

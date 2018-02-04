@@ -1171,12 +1171,12 @@ In that case, insert the number."
 
 (use-package dot-org
   :commands my-org-startup
-  :bind (("M-C"   . jump-to-org-agenda)
-         ("M-m"   . org-smart-capture)
-         ("M-M"   . org-inline-note)
-         ("C-c a" . org-agenda)
-         ("C-c S" . org-store-link)
-         ("C-c l" . org-insert-link))
+  :bind* (("M-C" . jump-to-org-agenda)
+          ("M-m"   . org-smart-capture)
+          ("M-M"   . org-inline-note)
+          ("C-c a" . org-agenda)
+          ("C-c S" . org-store-link)
+          ("C-c l" . org-insert-link))
   :config
   (unless alternate-emacs
     (run-with-idle-timer 300 t 'jump-to-org-agenda)
@@ -1634,9 +1634,9 @@ In that case, insert the number."
 
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
-  :bind (("M-SPC" . google-this-search)
-         :map google-this-mode-map
-         ("/" . google-this-search)))
+  :bind* ("M-SPC" . google-this-search)
+  :bind (:map google-this-mode-map
+              ("/" . google-this-search)))
 
 (use-package goto-last-change
   :bind ("C-x C-/" . goto-last-change))
