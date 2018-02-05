@@ -911,7 +911,8 @@ In that case, insert the number."
           "/Applications/Misc"
           "/Applications/Utilities"
           "~/Applications"
-          "~/.nix-profile/Applications")))
+          "~/.nix-profile/Applications"
+          "/Applications/Xcode.app/Contents/Applications")))
 
 (use-package counsel-projectile
   :after (counsel projectile)
