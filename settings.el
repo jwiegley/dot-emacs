@@ -378,7 +378,6 @@
  '(coq-prefer-top-of-conclusion t)
  '(coq-prog-args (quote ("-emacs")))
  '(counsel-describe-function-preselect (quote ivy-function-called-at-point))
- '(counsel-find-file-at-point t)
  '(counsel-find-file-ignore-regexp
    "\\(\\`\\.[^.]\\|\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|hg/\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)\\)")
  '(current-language-environment "UTF-8")
@@ -416,6 +415,7 @@
  '(display-time-use-mail-icon t)
  '(doc-view-resolution 300)
  '(docker-containers-show-all nil)
+ '(dropbox-token-file "~/.config/dropbox/token")
  '(ebib-autogenerate-keys t)
  '(ediff-combination-pattern
    (quote
@@ -862,7 +862,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_mmd -S" t)
+ '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -1076,8 +1076,7 @@
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
      ("\\`\\*magit-diff" :regexp t :align bottom :noselect t)
-     ("\\`\\*makey" :regexp t :align bottom :noselect t)
-     (\(Sunrise\) :regexp t :noselect t))))
+     ("\\`\\*makey" :regexp t :align bottom :noselect t))))
  '(shm-auto-insert-bangs nil)
  '(shm-indent-spaces 4)
  '(shm-use-hdevtools t)
@@ -1099,6 +1098,7 @@
  '(sr-loop-use-popups nil)
  '(sr-popviewer-style (quote single-frame))
  '(sr-show-file-attributes nil)
+ '(sr-traditional-other-window t)
  '(sr-use-commander-keys nil)
  '(ssl-certificate-verification-policy 1)
  '(svn-status-hide-unmodified t)
