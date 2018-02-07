@@ -257,6 +257,8 @@
             #'(lambda () (bind-key "M-o" #'ace-link-gnus gnus-article-mode-map)))
   (add-hook 'ert-results-mode-hook
             #'(lambda () (bind-key "o" #'ace-link-help ert-results-mode-map)))
+  (add-hook 'eww-mode-hook
+            #'(lambda () (bind-key "f" #'ace-link-eww eww-mode-map)))
 
   (bind-key "C-c M-o" 'ace-link-addr))
 
@@ -872,7 +874,7 @@ In that case, insert the number."
   :custom (counsel-find-file-ignore-regexp
            (concat "\\(\\`\\.[^.]\\|"
                    (regexp-opt completion-ignored-extensions)
-                   "\\)"))
+                   "\\'\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
          ("C-x C-f" . counsel-find-file)
          ("C-c e l" . counsel-find-library)
@@ -907,12 +909,12 @@ In that case, insert the number."
   :commands counsel-osx-app
   :config
   (setq counsel-osx-app-location
-        '("/Applications"
-          "/Applications/Misc"
-          "/Applications/Utilities"
-          "~/Applications"
-          "~/.nix-profile/Applications"
-          "/Applications/Xcode.app/Contents/Applications")))
+        (list "/Applications"
+              "/Applications/Misc"
+              "/Applications/Utilities"
+              (expand-file-name "~/Applications")
+              (expand-file-name "~/.nix-profile/Applications")
+              "/Applications/Xcode.app/Contents/Applications")))
 
 (use-package counsel-projectile
   :after (counsel projectile)
@@ -2613,6 +2615,7 @@ In that case, insert the number."
   :after color-moccur)
 
 (use-package mode-line-bell
+  :disabled t
   :defer 5
   :config
   (mode-line-bell-mode))
@@ -3827,5 +3830,12 @@ append it to ENTRY."
                      (time-subtract (current-time) emacs-start-time))))
                (message "Loading %s...done (%.3fs) [after-init]"
                         ,load-file-name elapsed))) t)
+
+(defun startup ()
+  (interactive)
+  (jump-to-org-agenda)
+  (eshell-toggle nil)
+  (switch-to-gnus)
+  (switch-to-fetchmail))
 
 ;;; init.el ends here
