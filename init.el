@@ -980,6 +980,7 @@ In that case, insert the number."
               ("z"   . delete-window)
               ("e"   . ora-ediff-files)
               ("l"   . dired-up-directory)
+              ("q"   . dired-up-directory)
               ("Y"   . ora-dired-rsync)
               ("M-!" . async-shell-command)
               ("M-G"))
@@ -2000,7 +2001,8 @@ In that case, insert the number."
 (use-package image-file
   :defer 5
   :config
-  (auto-image-file-mode 1))
+  (auto-image-file-mode 1)
+  (add-hook 'image-mode-hook #'image-transform-reset))
 
 (use-package imenu-list
   :commands imenu-list-minor-mode)
@@ -3024,7 +3026,18 @@ append it to ENTRY."
   :bind* ("C-c TAB" . projectile-find-other-file)
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
-  (projectile-global-mode))
+  (projectile-global-mode)
+
+  (defun my-projectile-invalidate-cache (&rest _args)
+    ;; We ignore the args to `magit-checkout'.
+    (projectile-invalidate-cache nil))
+
+  (eval-after-load 'magit-branch
+    '(progn
+       (advice-add 'magit-checkout
+                   :after #'my-projectile-invalidate-cache)
+       (advice-add 'magit-branch-and-checkout
+                   :after #'my-projectile-invalidate-cache))))
 
 (use-package proof-site
   :defer 5
@@ -3398,7 +3411,7 @@ append it to ENTRY."
   :bind (:map sr-mode-map
               ("/"     . sr-sticky-isearch-forward)
               ("l"     . sr-dired-prev-subdir)
-              ("q"     . sr-quit)
+              ("q"     . sr-dired-prev-subdir)
               ("z"     . sr-quit)
               ("C-e")
               ("C-x t" . sr-toggle-truncate-lines)

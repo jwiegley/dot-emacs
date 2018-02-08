@@ -277,15 +277,10 @@ BAE Systems"))))
      ("list\\.haskell\\.cafe"
       (to-address . "haskell-cafe@haskell.org")
       (to-list . "haskell-cafe@haskell.org")
-      (total-expire . t)
-      (expiry-wait . 90)
-      (expiry-target . "archive.haskell.cafe")
       (list-identifier . "\\[Haskell\\(-cafe\\)?\\]"))
      ("list\\.haskell\\.libraries"
       (to-address . "libraries@haskell.org")
       (to-list . "libraries@haskell.org")
-      (total-expire . t)
-      (expiry-wait . 90)
       (expiry-target . "archive.haskell.libraries"))
      ("list\\.haskell\\.prime"
       (to-address . "haskell-prime@haskell.org")
