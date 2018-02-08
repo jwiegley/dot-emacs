@@ -1,0 +1,21 @@
+Hi $1,
+
+I was wondering if you'd be willing to check any of these parts for us:
+
+| Ch |  Pt | Title                                       | Page | Len |
+|----+-----+---------------------------------------------+------+-----|
+| 11 |  7a | Chapter Beginning - Font Lock mode          |   72 |   9 |
+| 13 |   9 | Commands for Fixing Typos                   |  119 |   6 |
+| 14 |     | Keyboard Macros                             |  125 |   8 |
+|    | 10b | Reverting a Buffer - Chapter End            |      |  13 |
+| 17 |     | Multiple Windows                            |  167 |   7 |
+| 24 |  17 | Compiling and Testing Programs              |  277 |  20 |
+|    | 18b | Change Logs - Chapter End                   |      |  13 |
+| 28 |  21 | The Calendar and the Diary                  |  351 |  19 |
+| 30 |  23 | Reading Mail with Rmail                     |  379 |  20 |
+|    | 26b | Customizing Key Bindings - Chapter End      |      |  14 |
+|  C |  29 | Command Line Arguments for Emacs Invocation |  507 |  15 |
+|  E |     | Emacs 25 Antinews                           |  529 |   3 |
+|  F |  31 | Emacs and Mac OS / GNUstep                  |  532 |   3 |
+|  G |     | Emacs and Microsoft Windows/MS-DOS          |  535 |  10 |
+| GL |  33 | Glossary                                    |  553 |  23 |
