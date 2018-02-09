@@ -380,6 +380,8 @@
  '(counsel-describe-function-preselect (quote ivy-function-called-at-point))
  '(counsel-find-file-ignore-regexp
    "\\(\\`\\.[^.]\\|\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|hg/\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)\\'\\)")
+ '(counsel-projectile-remove-current-buffer t)
+ '(counsel-projectile-remove-current-project t)
  '(current-language-environment "UTF-8")
  '(custom-buffer-done-function (quote kill-buffer))
  '(custom-file "~/.emacs.d/settings.el")
@@ -934,7 +936,10 @@
  '(projectile-enable-caching t)
  '(projectile-file-exists-local-cache-expire 300)
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
- '(projectile-ignored-project-function (lambda (path) (string-match "\\`/\\(nix\\|tmp\\)" path)))
+ '(projectile-ignored-project-function
+   (lambda
+     (path)
+     (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-other-file-alist
    (quote
@@ -957,7 +962,7 @@
      ("gpg" "")
      ("mli" "ml")
      ("ml" "mli"))))
- '(projectile-require-project-root nil)
+ '(projectile-sort-order (quote recentf))
  '(proof-auto-action-when-deactivating-scripting (quote retract))
  '(proof-autosend-enable nil)
  '(proof-electric-terminator-enable t)
