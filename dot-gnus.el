@@ -33,6 +33,7 @@
 
 (defun switch-to-gnus (&optional arg)
   (interactive "P")
+  (push-window-configuration)
   (let* ((alist '("\\`\\*unsent" "\\`\\*Summary" "\\`\\*Group"))
          (candidate
           (catch 'found

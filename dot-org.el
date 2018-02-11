@@ -47,6 +47,7 @@
 
 (defun jump-to-org-agenda ()
   (interactive)
+  (push-window-configuration)
   (let ((recordings-dir "~/Dropbox/Apps/Dropvox"))
     (ignore-errors
       (if (directory-files recordings-dir nil "\\`[^.]")
@@ -640,7 +641,7 @@ end tell" (match-string 1))))
            ("F"   . org-agenda-follow-mode)
            ("q"   . delete-window)
            ("x"   . org-todo-state-map)
-           ("z"   . delete-window))
+           ("z"   . pop-window-configuration))
 
 (unbind-key "M-m" org-agenda-keymap)
 
