@@ -402,6 +402,8 @@
  '(directory-free-space-args "-kh")
  '(dired-clean-up-buffers-too nil)
  '(dired-dwim-target t)
+ '(dired-hide-details-hide-information-lines nil)
+ '(dired-hide-details-hide-symlink-targets nil)
  '(dired-listing-switches "-lah")
  '(dired-no-confirm
    (quote
