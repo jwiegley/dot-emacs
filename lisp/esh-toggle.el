@@ -99,11 +99,7 @@ Options: `eshell-toggle-goto-eob'"
   ;; 3. If in eshell-buffer and not called twice in a row, return to
   ;;    state before going to the eshell-buffer
   (if (eq major-mode 'eshell-mode)
-      (if (and (or (eq last-command 'eshell-toggle)
-		   (eq last-command 'eshell-toggle-cd))
-	       (not (eq (count-windows) 1)))
-	  (delete-other-windows)
-	(eshell-toggle-buffer-return-from-eshell))
+      (eshell-toggle-buffer-return-from-eshell)
     (eshell-toggle-buffer-goto-eshell make-cd)))
 
 ;;; Internal Functions:

@@ -33,7 +33,22 @@
                 (funcall secretf)
               (error "Auth entry for %s@%s:%s has no secret!"
                      user host port)))
-        (error "No auth entry found for %s@%s:%s" user host port)))))
+        (error "No auth entry found for %s@%s:%s" user host port))))
+
+  (defvar saved-window-configuration nil)
+
+  (defun push-window-configuration ()
+    (interactive)
+    (push (current-window-configuration) saved-window-configuration))
+
+  (defun pop-window-configuration ()
+    (interactive)
+    (let ((config (pop saved-window-configuration)))
+      (if config
+          (set-window-configuration config)
+        (if (> (length (window-list)) 1)
+            (delete-window)
+          (bury-buffer))))))
 
 ;;; Environment
 
