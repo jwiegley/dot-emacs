@@ -756,8 +756,8 @@
   (defun ora-company-number ()
     "Forward to `company-complete-number'.
 
-Unless the number is potentially part of the candidate.
-In that case, insert the number."
+  Unless the number is potentially part of the candidate.
+  In that case, insert the number."
     (interactive)
     (let* ((k (this-command-keys))
            (re (concat "^" company-prefix k)))
@@ -774,8 +774,7 @@ In that case, insert the number."
     (define-key map " " (lambda ()
                           (interactive)
                           (company-abort)
-                          (self-insert-command 1)))
-    (define-key map (kbd "<return>") nil))
+                          (self-insert-command 1))))
 
   (defun check-expansion ()
     (save-excursion
@@ -901,9 +900,9 @@ In that case, insert the number."
          ("M-x"     . counsel-M-x)
          ;; ("M-y"     . counsel-yank-pop)
 
-         ("M-s f" . counsel-rg)
-         ("M-s j" . counsel-dired-jump)
-         ("M-s n" . counsel-file-jump))
+         ("M-s f" . counsel-file-jump)
+         ("M-s g" . counsel-rg)
+         ("M-s j" . counsel-dired-jump))
   :commands counsel-minibuffer-history
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
@@ -991,15 +990,39 @@ In that case, insert the number."
   :commands (diffview-current diffview-region diffview-message))
 
 (use-package dired
+  :bind ("C-c j" . dired-two-pane)
   :bind (:map dired-mode-map
-              ("z"   . delete-window)
-              ("e"   . ora-ediff-files)
-              ("l"   . dired-up-directory)
-              ("q"   . dired-up-directory)
-              ("Y"   . ora-dired-rsync)
-              ("M-!" . async-shell-command)
-              ("M-G"))
+              ("j"     . dired)
+              ("z"     . pop-window-configuration)
+              ("e"     . ora-ediff-files)
+              ("l"     . dired-up-directory)
+              ("q"     . dired-up-directory)
+              ("Y"     . ora-dired-rsync)
+              ("M-!"   . async-shell-command)
+              ("<tab>" . dired-next-window)
+              ("M-G")
+              ("M-s f"))
+  :diminish dired-omit-mode
+  :hook (dired-mode . dired-hide-details-mode)
   :preface
+  (defun dired-two-pane ()
+    (interactive)
+    (push-window-configuration)
+    (let ((here default-directory))
+      (delete-other-windows)
+      (dired "~/dl")
+      (split-window-horizontally)
+      (dired here)))
+
+  (defun dired-next-window ()
+    (interactive)
+    (let ((next (car (cl-remove-if-not #'(lambda (wind)
+                                           (with-current-buffer (window-buffer wind)
+                                             (eq major-mode 'dired-mode)))
+                                       (cdr (window-list))))))
+      (when next
+        (select-window next))))
+
   (defvar mark-files-cache (make-hash-table :test #'equal))
 
   (defun mark-similar-versions (name)
@@ -1021,8 +1044,7 @@ In that case, insert the number."
        (read-file-name "Rsync to: " (dired-dwim-target-directory)))))
     (let ((files (dired-get-marked-files
                   nil current-prefix-arg))
-          (tmtxt/rsync-command
-           "rsync -arvz --progress "))
+          (tmtxt/rsync-command "rsync -aP "))
       (dolist (file files)
         (setq tmtxt/rsync-command
               (concat tmtxt/rsync-command
@@ -1055,32 +1077,6 @@ In that case, insert the number."
         (error "no more than 2 files should be marked"))))
 
   :config
-  (ignore-errors
-    (unbind-key "M-s f" dired-mode-map))
-
-  (defadvice dired-omit-startup (after diminish-dired-omit activate)
-    "Make sure to remove \"Omit\" from the modeline."
-    (diminish 'dired-omit-mode) dired-mode-map)
-
-  (defadvice dired-next-line (around dired-next-line+ activate)
-    "Replace current buffer if file is a directory."
-    ad-do-it
-    (while (and  (not  (eobp)) (not ad-return-value))
-      (forward-line)
-      (setq ad-return-value(dired-move-to-filename)))
-    (when (eobp)
-      (forward-line -1)
-      (setq ad-return-value(dired-move-to-filename))))
-
-  (defadvice dired-previous-line (around dired-previous-line+ activate)
-    "Replace current buffer if file is a directory."
-    ad-do-it
-    (while (and  (not  (bobp)) (not ad-return-value))
-      (forward-line -1)
-      (setq ad-return-value(dired-move-to-filename)))
-    (when (bobp)
-      (call-interactively 'dired-next-line)))
-
   (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
   ;; Omit files that Git would ignore
@@ -1124,12 +1120,6 @@ In that case, insert the number."
                 "\\|")
                "\\)")))
         (funcall dired-omit-regexp-orig)))))
-
-(use-package dired-ranger
-  :bind (:map dired-mode-map
-              ("W" . dired-ranger-copy)
-              ("X" . dired-ranger-move)
-              ("Y" . dired-ranger-paste)))
 
 (use-package dired-toggle
   :bind ("C-c ~" . dired-toggle)
@@ -1666,7 +1656,7 @@ In that case, insert the number."
 (use-package grep
   :bind (("M-s d" . find-name-dired)
          ("M-s F" . find-grep)
-         ("M-s g" . grep)
+         ("M-s G" . grep)
          ("M-s m" . find-grep-dired)))
 
 (use-package gud
@@ -3419,8 +3409,8 @@ append it to ENTRY."
   :bind ("C-c C-u" . string-inflection-all-cycle))
 
 (use-package sunrise-commander
-  :bind (("C-c j" . sunrise-cd)
-         ("C-c J" . my-activate-sunrise))
+  :disabled t
+  :bind ("C-c j" . sunrise)
   :bind (:map sr-mode-map
               ("/"     . sr-sticky-isearch-forward)
               ("l"     . sr-dired-prev-subdir)
@@ -3439,18 +3429,6 @@ append it to ENTRY."
               ("C-n"))
   :bind (:map sr-term-line-minor-mode-map
               ("M-<backspace>"))
-  :commands sunrise
-  :preface
-  (defun my-activate-sunrise ()
-    (interactive)
-    (let ((sunrise-exists
-           (cl-loop for buf in (buffer-list)
-                    when (string-match " (Sunrise)$" (buffer-name buf))
-                    return buf)))
-      (if sunrise-exists
-          (call-interactively 'sunrise)
-        (sunrise "~/dl/" "~/Archives/"))))
-
   :config
   (require 'sunrise-x-modeline)
   (require 'sunrise-x-tree)
