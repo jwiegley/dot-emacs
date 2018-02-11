@@ -2481,8 +2481,6 @@ In that case, insert the number."
       (call-interactively 'magit-status)))
 
   :hook (magit-mode . hl-line-mode)
-  :init
-  (setenv "GIT_PAGER" "")
   :config
   (use-package magit-commit
     :config
@@ -3484,6 +3482,10 @@ append it to ENTRY."
 (use-package tagedit
   :commands tagedit-mode)
 
+(use-package term
+  :bind (:map term-mode-map
+              ("C-c C-y" . term-paste)))
+
 (use-package texinfo
   :mode ("\\.texi\\'" . texinfo-mode)
   :config
@@ -3640,10 +3642,18 @@ append it to ENTRY."
     "depending on the file, maybe clean up whitespace."
     (when (and (not (or (memq major-mode '(markdown-mode))
                         (and buffer-file-name
-                             (string-match "\\(\\.texi\\|commit_editmsg\\)\\'"
+                             (string-match "\\(\\.texi\\|COMMIT_EDITMSG\\)\\'"
                                            buffer-file-name))))
                (locate-dominating-file default-directory ".clean")
                (not (locate-dominating-file default-directory ".noclean")))
+      (whitespace-mode 1)
+      ;; For some reason, having these in settings.el gets ignored if
+      ;; whitespace loads lazily.
+      (setq whitespace-auto-cleanup t
+            whitespace-line-column 80
+            whitespace-rescan-timer-time nil
+            whitespace-silent t
+            whitespace-style '(face trailing lines space-before-tab empty))
       (add-hook 'write-contents-hooks
                 #'(lambda () (ignore (whitespace-cleanup))) nil t)
       (whitespace-cleanup)))
@@ -3653,15 +3663,7 @@ append it to ENTRY."
 
   :config
   (remove-hook 'find-file-hooks 'whitespace-buffer)
-  (remove-hook 'kill-buffer-hook 'whitespace-buffer)
-
-  ;; For some reason, having these in settings.el gets ignored if whitespace
-  ;; loads lazily.
-  (setq whitespace-auto-cleanup t
-        whitespace-line-column 110
-        whitespace-rescan-timer-time nil
-        whitespace-silent t
-        whitespace-style '(face trailing lines space-before-tab empty)))
+  (remove-hook 'kill-buffer-hook 'whitespace-buffer))
 
 (use-package whitespace-cleanup-mode
   :defer 5
