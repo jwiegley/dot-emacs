@@ -1889,6 +1889,7 @@
     ("l" text-scale-decrease "out")))
 
 (use-package hyperbole
+  :disabled t
   :defer 10
   :bind* (("C-M-." . hkey-either)
           ("A-<return>" . hkey-operate))
