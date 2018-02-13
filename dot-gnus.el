@@ -547,14 +547,6 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
                  (browse-url (nth count urls)))))
     (select-window this-window)))
 
-(use-package browse-url
-  :commands browse-url
-  :config
-  (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
-    'gnus-article-browse-urls)
-  (define-key gnus-article-mode-map [(control ?c) (control ?o)]
-    'gnus-article-browse-urls))
-
 (use-package mml
   :defer t
   :preface
