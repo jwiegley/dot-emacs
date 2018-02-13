@@ -275,9 +275,7 @@
   (add-hook 'ert-results-mode-hook
             #'(lambda () (bind-key "o" #'ace-link-help ert-results-mode-map)))
   (add-hook 'eww-mode-hook
-            #'(lambda () (bind-key "f" #'ace-link-eww eww-mode-map)))
-
-  (bind-key "C-c M-o" 'ace-link-addr))
+            #'(lambda () (bind-key "f" #'ace-link-eww eww-mode-map))))
 
 (use-package ace-mc
   :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
