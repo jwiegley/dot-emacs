@@ -3217,12 +3217,12 @@ append it to ENTRY."
   :config
   (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
-  (sky-color-clock-initialize-openweathermap-client
-   (with-temp-buffer
-     (insert-file-contents-literally "~/.config/weather/apikey")
-     (buffer-substring (point-min) (1- (point-max))))
-   5408211 ;; West Sacramento, CA, USA
-   )
+  ;; (sky-color-clock-initialize-openweathermap-client
+  ;;  (with-temp-buffer
+  ;;    (insert-file-contents-literally "~/.config/weather/apikey")
+  ;;    (buffer-substring (point-min) (1- (point-max))))
+  ;;  5408211 ;; West Sacramento, CA, USA
+  ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
 
 (use-package slime
