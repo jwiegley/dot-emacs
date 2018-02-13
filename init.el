@@ -1654,10 +1654,10 @@
   :mode "\\.dot\\'")
 
 (use-package grep
-  :bind (("M-s d" . find-name-dired)
+  :bind (("M-s n" . find-name-dired)
          ("M-s F" . find-grep)
          ("M-s G" . grep)
-         ("M-s m" . find-grep-dired)))
+         ("M-s d" . find-grep-dired)))
 
 (use-package gud
   :commands gud-gdb
