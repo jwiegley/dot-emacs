@@ -3309,51 +3309,6 @@ append it to ENTRY."
 (use-package string-inflection
   :bind ("C-c C-u" . string-inflection-all-cycle))
 
-(use-package sunrise-commander
-  :disabled t
-  :bind ("C-c j" . sunrise)
-  :bind (:map sr-mode-map
-              ("/"     . sr-sticky-isearch-forward)
-              ("l"     . sr-dired-prev-subdir)
-              ("q"     . sr-dired-prev-subdir)
-              ("z"     . sr-quit)
-              ("C-e")
-              ("C-x t" . sr-toggle-truncate-lines)
-              ("<backspace>" . sr-scroll-quick-view-down))
-  :bind (:map sr-tabs-mode-map
-              ("C-p")
-              ("C-n")
-              ("M-[" . sr-tabs-prev)
-              ("M-]" . sr-tabs-next))
-  :bind (:map sr-tree-mode-map
-              ("C-p")
-              ("C-n"))
-  :bind (:map sr-term-line-minor-mode-map
-              ("M-<backspace>"))
-  :config
-  (require 'sunrise-x-modeline)
-  (require 'sunrise-x-tree)
-  (require 'sunrise-x-tabs)
-
-  (defun sr-browse-file (&optional file)
-    "Display the selected file with the default application."
-    (interactive)
-    (setq file (or file (dired-get-filename)))
-    (save-selected-window
-      (sr-select-viewer-window)
-      (let ((buff (current-buffer))
-            (fname (if (file-directory-p file)
-                       file
-                     (file-name-nondirectory file)))
-            (app (cond
-                  ((eq system-type 'darwin)       "open %s")
-                  ((eq system-type 'windows-nt)   "open %s")
-                  (t                              "xdg-open %s"))))
-        (start-process-shell-command "open" nil (format app file))
-        (unless (eq buff (current-buffer))
-          (sr-scrollable-viewer (current-buffer)))
-        (message "Opening \"%s\" ..." fname)))))
-
 (use-package super-save
   :diminish
   :commands super-save-mode
