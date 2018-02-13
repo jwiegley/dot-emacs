@@ -260,7 +260,9 @@
   :defer t)
 
 (use-package ace-link
+  :disabled t
   :defer 10
+  :bind ("C-c M-o" . ace-link-addr)
   :config
   (ace-link-setup-default)
 
@@ -2292,6 +2294,15 @@
 (use-package lentic-mode
   :diminish
   :commands global-lentic-mode)
+
+(use-package link-hint
+  :defer 10
+  :bind ("C-c C-o" . link-hint-open-link)
+  :config
+  (add-hook 'eww-mode-hook
+            #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map)))
+  (add-hook 'w3m-mode-hook
+            #'(lambda () (bind-key "f" #'link-hint-open-link w3m-mode-map))))
 
 (use-package lisp-mode
   :defer t
