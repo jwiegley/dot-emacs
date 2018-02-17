@@ -2478,6 +2478,9 @@
            (setq my-ghub-token-cache
                  (funcall orig-func host username package nocreate))))))
 
+(use-package magithub-completion
+  :commands magithub-completion-enable)
+
 (use-package makefile-runner
   :bind ("C-c M" . makefile-runner))
 
@@ -2911,9 +2914,10 @@ append it to ENTRY."
          ("C-x C-n" . next-line)
          ("C-x C-p" . previous-line))
   :init
+  (bind-keys* ("M-!" . async-shell-command))
+
   (bind-keys ("<C-M-backspace>" . backward-kill-sexp)
 
-             ("M-!"   . async-shell-command)
              ("M-'"   . insert-pair)
              ("M-J"   . delete-indentation)
              ("M-\""  . insert-pair)
@@ -3368,9 +3372,16 @@ append it to ENTRY."
               ("M-y" . yank)
               ("M-%" . swiper-query-replace)
               ("C-." . swiper-avy)
-              ("M-c" . swiper-mc))
+              ;; ("M-c" . swiper-mc)
+              ("M-c" . haba/swiper-mc-fixed)
+              )
   :bind (:map isearch-mode-map
-              ("C-o" . swiper-from-isearch)))
+              ("C-o" . swiper-from-isearch))
+  :config
+  (defun haba/swiper-mc-fixed ()
+    (interactive)
+    (setq swiper--current-window-start nil)
+    (swiper-mc)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
