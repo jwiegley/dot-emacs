@@ -204,7 +204,9 @@
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
+ '(org-attach-file-list-property nil)
  '(org-attach-method (quote mv))
+ '(org-attach-store-link-p (quote attached))
  '(org-author-transforms (quote (("^Howard Reubenstein$" . "Howard"))))
  '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates
