@@ -3436,11 +3436,11 @@ append it to ENTRY."
 (use-package tramp
   :defer 5
   :config
+  ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
+  ;; shell commands to the remote side to ask what the temporary directory is.
+  (put 'temporary-file-directory 'standard-value '("/tmp"))
   (setq tramp-auto-save-directory "~/.cache/emacs/backups"
-        tramp-default-method-alist
-        '(("\\`\\(127\\.0\\.0\\.1\\|::1\\|localhost6?\\)\\'" "\\`root\\'" "sudo"))
-        tramp-persistency-file-name "~/.emacs.d/data/tramp"
-        tramp-use-ssh-controlmaster-options nil))
+        tramp-persistency-file-name "~/.emacs.d/data/tramp"))
 
 (use-package tramp-sh
   :defer t
