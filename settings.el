@@ -1158,6 +1158,7 @@
    (quote
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
+ '(tramp-default-method "ssh" nil (tramp))
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
  '(undo-tree-history-directory-alist (quote ((".*" . "~/.cache/emacs/backups"))))
