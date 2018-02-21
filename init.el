@@ -463,7 +463,7 @@
              bm-buffer-save-all
              bm-buffer-restore)
   :init
-  (add-hook' after-init-hook 'bm-repository-load)
+  (add-hook 'after-init-hook 'bm-repository-load)
   (add-hook 'find-file-hooks 'bm-buffer-restore)
   (add-hook 'after-revert-hook #'bm-buffer-restore)
   (add-hook 'kill-buffer-hook #'bm-buffer-save)
