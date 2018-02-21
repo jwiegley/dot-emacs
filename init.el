@@ -2282,6 +2282,7 @@
   :mode "\\.kotl\\'")
 
 (use-package langtool
+  :disabled t
   :bind ("C-c K" . langtool-check))
 
 (use-package latex
