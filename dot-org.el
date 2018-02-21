@@ -936,6 +936,10 @@ end tell" (match-string 1))))
   ;; jww (2017-12-10): Need to configure.
   :disabled t)
 
+(use-package org-rich-yank
+  :bind (:map org-mode-map
+              ("C-M-y" . org-rich-yank)))
+
 (use-package org-smart-capture)
 
 (use-package org-super-agenda
