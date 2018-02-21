@@ -3362,7 +3362,7 @@ append it to ENTRY."
   :bind ("C-c C-'" . string-edit-at-point))
 
 (use-package string-inflection
-  :bind ("C-c C-u" . string-inflection-all-cycle))
+  :bind ("C-c `" . string-inflection-all-cycle))
 
 (use-package super-save
   :diminish
