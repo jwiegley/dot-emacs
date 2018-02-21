@@ -937,6 +937,9 @@
   (define-key counsel-projectile-mode-map [remap projectile-ag]
     #'counsel-projectile-rg))
 
+(use-package counsel-tramp
+  :commands counsel-tramp)
+
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
 
