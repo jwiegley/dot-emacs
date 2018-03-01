@@ -908,7 +908,36 @@
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
   :config
   (add-to-list 'ivy-sort-matches-functions-alist
-               '(counsel-find-file . ivy--sort-files-by-date)))
+               '(counsel-find-file . ivy--sort-files-by-date))
+
+  (defun counsel-recoll-function (string)
+    "Run recoll for STRING."
+    (if (< (length string) 3)
+        (counsel-more-chars 3)
+      (counsel--async-command
+       (format "recollq -t -b %s"
+               (shell-quote-argument string)))
+      nil))
+
+  (defun counsel-recoll (&optional initial-input)
+    "Search for a string in the recoll database.
+  You'll be given a list of files that match.
+  Selecting a file will launch `swiper' for that file.
+  INITIAL-INPUT can be given as the initial minibuffer input."
+    (interactive)
+    (counsel-require-program "recollq")
+    (ivy-read "recoll: " 'counsel-recoll-function
+              :initial-input initial-input
+              :dynamic-collection t
+              :history 'counsel-git-grep-history
+              :action (lambda (x)
+                        (when (string-match "file://\\(.*\\)\\'" x)
+                          (let ((file-name (match-string 1 x)))
+                            (find-file file-name)
+                            (unless (string-match "pdf$" x)
+                              (swiper ivy-text)))))
+              :unwind #'counsel-delete-process
+              :caller 'counsel-recoll)))
 
 (use-package counsel-dash
   :bind ("C-c C-h" . counsel-dash))
