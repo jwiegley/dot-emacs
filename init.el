@@ -3745,7 +3745,7 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`imac                    115)
-    (`macbook-pro-vga         837)
+    (`macbook-pro-vga         799)
     (`macbook-pro             521)))
 
 (defconst emacs-min-height
