@@ -527,6 +527,18 @@ end tell" (match-string 1))))
           (lambda ()
             (setq fill-column (- fill-column 5))))
 
+(defun my-org-insert-jobhours-string ()
+  (goto-char (point-min))
+  (goto-char (line-end-position))
+  (let* ((width (- (window-width) (current-column)))
+         (jobhours (jobhours-get-string t))
+         (spacer (- width (length jobhours)))
+         (inhibit-read-only t))
+    (when (> spacer 0)
+      (insert (make-string spacer ? ) jobhours))))
+
+(add-hook 'org-agenda-finalize-hook 'my-org-insert-jobhours-string t)
+
 (defun org-message-reply ()
   (interactive)
   (let* ((org-marker (get-text-property (point) 'org-marker))
@@ -708,23 +720,15 @@ end tell" (match-string 1))))
 
 (defun org-inline-note ()
   (interactive)
-  (switch-to-buffer-other-window "todo.txt")
+  (switch-to-buffer-other-window "notes.txt")
   (goto-char (point-min))
-  (re-search-forward "^\\* Inbox$")
-  (re-search-forward "^:END:")
   (forward-line)
   (goto-char (line-beginning-position))
-  (insert "** NOTE ")
+  (insert "* NOTE ")
   (save-excursion
-    (insert (format "
-:PROPERTIES:
-:ID:       %s
-:VISIBILITY: folded
-:CREATED:  %s
-:END:"
+    (insert (format "\n:PROPERTIES:\n:ID:       %s\n:CREATED:  %s\n:END:\n"
                     (substring (shell-command-to-string "uuidgen") 0 -1)
-                    (format-time-string (org-time-stamp-format t t))))
-    (insert ?\n))
+                    (format-time-string (org-time-stamp-format t t)))))
   (save-excursion
     (forward-line)
     (org-cycle)))
@@ -937,6 +941,7 @@ end tell" (match-string 1))))
   :disabled t)
 
 (use-package org-rich-yank
+  :defer 5
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
 
