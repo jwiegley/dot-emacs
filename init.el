@@ -2812,6 +2812,7 @@
   :after outshine)
 
 (use-package outshine
+  :disabled t
   :after (:or outline org-mode)
   :hook (outline-minor-mode . outshine-hook-function))
 
