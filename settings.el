@@ -380,6 +380,7 @@
  '(counsel-describe-function-preselect (quote ivy-function-called-at-point))
  '(counsel-find-file-ignore-regexp
    "\\(\\`\\.[^.]\\|\\(?:\\.\\(?:aux\\|b\\(?:bl\\|in\\|lg\\|zr/\\)\\|c\\(?:lass\\|ps?\\)\\|d\\(?:\\(?:64fs\\|fs\\|x\\(?:\\(?:32\\|64\\)fs\\)?\\)l\\)\\|elc\\|f\\(?:asl?\\|mt\\|ns?\\|\\(?:x\\(?:\\(?:32\\|64\\)f\\)\\)?sl\\)\\|g\\(?:it/\\|lob?\\|mo\\)\\|hg/\\|idx\\|kys?\\|l\\(?:bin\\|ib\\|o[ft]\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\|[ano]\\)\\|m\\(?:em\\|o\\)\\|p\\(?:64fsl\\|fsl\\|gs?\\|y[co]\\)\\|s\\(?:o\\|parcf\\|vn/\\|x\\(?:\\(?:32\\|64\\)fsl\\)\\)\\|t\\(?:fm\\|oc\\|ps?\\)\\|ufsl\\|v\\(?:\\.d\\|rs\\|[or]\\)\\|wx\\(?:\\(?:32\\|64\\)fsl\\)\\|x86f\\|[ao]\\)\\|CVS/\\|_\\(?:\\(?:MTN\\|darcs\\)/\\)\\|~\\)\\'\\)" nil nil "Customized with use-package counsel")
+ '(counsel-locate-cmd (quote counsel-locate-cmd-default))
  '(counsel-projectile-remove-current-buffer t)
  '(counsel-projectile-remove-current-project t)
  '(current-language-environment "UTF-8")
@@ -689,6 +690,7 @@
  '(helm-dash-docsets-path "/Users/johnw/Library/Application Support/Dash/DocSets/")
  '(helm-firefox-default-directory "~/Library/Application Support/Firefox/")
  '(helm-minibuffer-history-key nil)
+ '(helm-recoll-options (quote ("recollq" "-t" "-b")))
  '(hi2-ifte-offset 4)
  '(hi2-layout-offset 4)
  '(hi2-left-offset 4)
@@ -828,7 +830,6 @@
    (quote
     ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'")))
  '(ivy-initial-inputs-alist nil t)
- '(ivy-magic-slash-non-match-action (quote ivy-magic-slash-non-match-create))
  '(ivy-magic-tilde nil nil nil "Customized with use-package ivy")
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
  '(ivy-rich-parse-remote-buffer nil)
