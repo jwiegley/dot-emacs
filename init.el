@@ -2265,14 +2265,15 @@
 (use-package jobhours
   :unless alternate-emacs
   :defer 5
-  :bind ("M-o j" . jobhours-update-string)
-  :config
-  (jobhours-setup-modeline)
-  (defun my-jobhours-update-after-delay ()
-    (run-at-time 1 nil #'(lambda () (jobhours-update-string) (redisplay))))
+  ;; :bind ("M-o j" . jobhours-update-string)
+  ;; :config
+  ;; (jobhours-setup-modeline)
+  ;; (defun my-jobhours-update-after-delay ()
+  ;;   (run-at-time 1 nil #'(lambda () (jobhours-update-string) (redisplay))))
 
-  (add-hook 'org-clock-in-hook #'my-jobhours-update-after-delay)
-  (add-hook 'org-clock-out-hook #'my-jobhours-update-after-delay))
+  ;; (add-hook 'org-clock-in-hook #'my-jobhours-update-after-delay)
+  ;; (add-hook 'org-clock-out-hook #'my-jobhours-update-after-delay)
+  )
 
 (use-package jq-mode
   :mode "\\.jq\\'")
