@@ -2931,6 +2931,10 @@ append it to ENTRY."
          ("M-S"  . mark-sentence)
          ("M-j"  . delete-indentation-forward)
 
+         ("M-D"  . my-open-Messages)
+         ("M-R"  . my-open-PathFinder)
+         ("M-K"  . my-open-KeyboardMaestro)
+
          ("C-c )"   . close-all-parentheses)
          ("C-c 0"   . recursive-edit-preserving-window-config-pop)
          ("C-c 1"   . recursive-edit-preserving-window-config)
@@ -2948,6 +2952,24 @@ append it to ENTRY."
          ("C-x M-q" . refill-paragraph)
          ("C-x C-n" . next-line)
          ("C-x C-p" . previous-line))
+  :preface
+  (defun my-open-Messages ()
+    (interactive)
+    (call-process "/usr/bin/open" nil nil nil
+                  "/Applications/Messages.app"))
+
+  (defun my-open-PathFinder ()
+    (interactive)
+    (call-process "/usr/bin/open" nil nil nil
+                  (expand-file-name
+                   "~/Applications/Path Finder.app")))
+
+  (defun my-open-KeyboardMaestro ()
+    (interactive)
+    (call-process "/usr/bin/open" nil nil nil
+                  (expand-file-name
+                   "~/Applications/Keyboard Maestro.app")))
+
   :init
   (bind-keys* ("M-!" . async-shell-command))
 
