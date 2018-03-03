@@ -527,18 +527,6 @@ end tell" (match-string 1))))
           (lambda ()
             (setq fill-column (- fill-column 5))))
 
-(defun my-org-insert-jobhours-string ()
-  (goto-char (point-min))
-  (goto-char (line-end-position))
-  (let* ((width (- (window-width) (current-column)))
-         (jobhours (jobhours-get-string t))
-         (spacer (- width (length jobhours)))
-         (inhibit-read-only t))
-    (when (> spacer 0)
-      (insert (make-string spacer ? ) jobhours))))
-
-(add-hook 'org-agenda-finalize-hook 'my-org-insert-jobhours-string t)
-
 (defun org-message-reply ()
   (interactive)
   (let* ((org-marker (get-text-property (point) 'org-marker))
@@ -894,6 +882,34 @@ end tell" (match-string 1))))
 (use-package helm-org-rifle
   :bind ("A-M-r" . helm-org-rifle))
 
+(use-package jobhours
+  :unless alternate-emacs
+  :defer 5
+  :bind ("M-o j" . jobhours-update-string)
+  :config
+  (defun my-org-insert-jobhours-string ()
+    (save-excursion
+      (goto-char (point-min))
+      (goto-char (line-end-position))
+      (let* ((width (- (window-width) (current-column)))
+             (jobhours (jobhours-get-string t))
+             (spacer (- width (length jobhours)))
+             (inhibit-read-only t))
+        (when (> spacer 0)
+          (insert (make-string spacer ? ) jobhours)))))
+
+  (defun my-org-delayed-update ()
+    (run-with-idle-timer
+     1 nil
+     `(lambda ()
+        (with-current-buffer ,(current-buffer)
+          (org-save-all-org-buffers)
+          (my-org-insert-jobhours-string)))))
+
+  (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t)
+  (add-hook 'org-clock-in-hook #'my-org-delayed-update t)
+  (add-hook 'org-clock-out-hook #'my-org-delayed-update t))
+
 (use-package ob-diagrams)
 
 (use-package ob-restclient)
@@ -935,6 +951,8 @@ end tell" (match-string 1))))
   (add-to-list 'org-file-apps '("\\.pdf\\'" . org-pdfview-open))
   (add-to-list 'org-file-apps
                '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open)))
+
+(use-package org-protocol)
 
 (use-package org-ref
   ;; jww (2017-12-10): Need to configure.

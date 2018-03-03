@@ -237,7 +237,28 @@ SCHEDULED: %t
 SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t))))
+:END:" :prepend t)
+     ("p" "Protocol" entry
+      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
+      "* NOTE %?
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
+     ("L" "Protocol Link" entry
+      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
+      "* NOTE %?
+[[%:link][%:description]]
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:"))))
  '(org-clock-clocked-in-display nil)
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)

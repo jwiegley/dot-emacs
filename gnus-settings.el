@@ -63,9 +63,6 @@ BAE Systems"))))
  '(gnus-alias-unknown-identity-rule (quote error))
  '(gnus-always-read-dribble-file t)
  '(gnus-article-date-lapsed-new-header t)
- '(gnus-article-sort-functions
-   (quote
-    (gnus-article-sort-by-score gnus-article-sort-by-number)))
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
  '(gnus-check-new-newsgroups nil)
@@ -167,11 +164,14 @@ BAE Systems"))))
       (list-identifier . "\\[Nix-dev\\]"))
      ("\\`gmane\\."
       (spam-process gnus-group-spam-exit-processor-report-gmane))
+     ("list\\.github$"
+      (total-expire . t)
+      (expiry-wait . 14)
+      (expiry-target . delete))
      ("mail\\.spam"
       (total-expire . t)
       (expiry-wait . 28)
       (expiry-target . delete)
-      (gnus-article-sort-functions gnus-article-sort-by-chars)
       (ham-process-destination . "INBOX")
       (spam-contents gnus-group-spam-classification-spam)
       (spam-process
@@ -309,8 +309,6 @@ BAE Systems"))))
       (to-address . "cabal-devel@haskell.org")
       (to-list . "cabal-devel@haskell.org")
       (list-identifier . "\\[Haskell\\]"))
-     ("list\\.misc"
-      (gnus-thread-sort-functions gnus-thread-sort-by-date))
      ("list\\.coq$"
       (to-address . "coq-club@inria.fr")
       (to-list . "coq-club@inria.fr")
@@ -388,7 +386,6 @@ BAE Systems"))))
  '(gnus-sieve-select-method "nnimap:Local")
  '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
  '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
- '(gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
  '(gnus-split-methods
    (quote
     ((gnus-save-site-lisp-file)
@@ -415,9 +412,6 @@ BAE Systems"))))
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-ignore-subject nil)
  '(gnus-thread-score-function (quote max))
- '(gnus-thread-sort-functions
-   (quote
-    (gnus-thread-sort-by-total-score gnus-thread-sort-by-most-recent-number)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
