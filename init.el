@@ -8,7 +8,8 @@
       file-name-handler-alist nil
       message-log-max 16384
       gc-cons-threshold 402653184
-      gc-cons-percentage 0.6)
+      gc-cons-percentage 0.6
+      auto-window-vscroll nil)
 
 (add-hook 'after-init-hook
           `(lambda ()
@@ -3732,8 +3733,8 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`imac                    115)
-    (`macbook-pro-vga         799)
-    (`macbook-pro             521)))
+    (`macbook-pro-vga         790)
+    (`macbook-pro             555)))
 
 (defconst emacs-min-height
   (pcase display-name
