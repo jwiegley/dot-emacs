@@ -639,6 +639,7 @@
  '(flyspell-use-meta-tab nil)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
+ '(frame-resize-pixelwise t)
  '(frame-title-format
    (quote
     (:eval
