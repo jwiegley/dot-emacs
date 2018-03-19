@@ -16,6 +16,12 @@
 (require 'org)
 (require 'org-agenda)
 
+(unless window-system
+  (setq org-agenda-files
+        '("~/Documents/tasks/todo.txt"
+          "~/Documents/tasks/Bahai.txt"
+          "~/Documents/tasks/BAE.txt")))
+
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
 
@@ -855,14 +861,19 @@ end tell" (match-string 1))))
   :preface
   (defun my-calendar ()
     (interactive)
-    (let ((buf (get-buffer "*cfw-calendar*")))
+    (let ((buf (get-buffer "*cfw-calendar*"))
+          (org-agenda-files
+           (cons "~/Documents/tasks/Nasim.org"
+                 (cons "~/Documents/tasks/Sacramento.org"
+                       org-agenda-files))))
       (if buf
           (pop-to-buffer buf nil)
         (cfw:open-calendar-buffer
          :contents-sources
          (list (cfw:org-create-source "Dark Blue")
                (cfw:cal-create-source "Dark Orange"))
-         :view 'two-weeks))))
+         :view 'two-weeks)
+        (setq-local org-agenda-files org-agenda-files))))
 
   :config
   (require 'calfw-cal)
@@ -888,6 +899,7 @@ end tell" (match-string 1))))
   :bind ("M-o j" . jobhours-update-string)
   :config
   (defun my-org-insert-jobhours-string ()
+    (interactive)
     (save-excursion
       (goto-char (point-min))
       (goto-char (line-end-position))
@@ -935,9 +947,45 @@ end tell" (match-string 1))))
 
 (use-package org-bookmark-heading)
 
+(use-package org-caldav
+  :disabled t
+  :config
+  (setq org-caldav-url 'google
+        org-caldav-oauth2-client-id
+        (lookup-password "org-caldav-user.google.com" "jwiegley" 80)
+        org-caldav-oauth2-client-secret
+        (lookup-password "org-caldav.google.com" org-caldav-oauth2-client-id 80)
+        org-caldav-calendar-id
+        (lookup-password "org-caldav-calendar-id.google.com" org-caldav-oauth2-client-id 80)
+        org-caldav-inbox
+        "~/Documents/tasks/todo.txt"
+        org-caldav-files
+        '("~/Documents/tasks/todo.txt"
+          "~/Documents/tasks/Bahai.txt"
+          "~/Documents/tasks/BAE.txt")
+        plstore-cache-passphrase-for-symmetric-encryption t))
+
 (use-package org-crypt)
 
 (use-package org-devonthink)
+
+(use-package org-gcal
+  :config
+  (setq org-gcal-client-id
+        (lookup-password "org-caldav-user.google.com" "jwiegley" 80)
+        org-gcal-client-secret
+        (lookup-password "org-caldav.google.com" org-gcal-client-id 80)
+        org-gcal-file-alist
+        '(("jwiegley@gmail.com" .
+           "~/Documents/tasks/Google.org")
+          ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
+           "~/Documents/tasks/Bahá'í.org")
+          ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
+           "~/Documents/tasks/Family.org")
+          ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
+           "~/Documents/tasks/Nasim.org")
+          ("sacramento.lsa1914@gmail.com" .
+           "~/Documents/tasks/Sacramento.org"))))
 
 (use-package org-noter
   :commands org-noter)

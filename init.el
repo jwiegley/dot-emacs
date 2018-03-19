@@ -1428,20 +1428,6 @@
 (use-package ert
   :bind ("C-c e t" . ert-run-tests-interactively))
 
-(use-package esh-buf-stack
-  :after eshell
-  :config
-  (setup-eshell-buf-stack)
-  (add-hook 'eshell-prepare-command-hook
-            #'(lambda ()
-                (bind-keys :map eshell-command-map
-                           ("M-p" . eshell-push-command)))))
-
-(use-package esh-help
-  :after eshell
-  :config
-  (setup-esh-help-eldoc))
-
 (use-package esh-toggle
   :bind ("C-x C-z" . eshell-toggle))
 
@@ -2495,10 +2481,10 @@
 
   (advice-add
    'ghub--token :around
-   #'(lambda (orig-func host username package &optional nocreate)
+   #'(lambda (orig-func host username package &optional nocreate forge)
        (or my-ghub-token-cache
            (setq my-ghub-token-cache
-                 (funcall orig-func host username package nocreate))))))
+                 (funcall orig-func host username package nocreate forge))))))
 
 (use-package magithub-completion
   :commands magithub-completion-enable)
@@ -2914,6 +2900,7 @@ append it to ENTRY."
 (use-package personal
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
+
   :commands unfill-region
   :bind (("M-L"  . mark-line)
          ("M-S"  . mark-sentence)
@@ -2994,7 +2981,14 @@ append it to ENTRY."
              ("C-x C-e" . pp-eval-last-sexp)
              ("C-x d"   . delete-whitespace-rectangle)
              ("C-x t"   . toggle-truncate-lines)
-             ("C-z"     . delete-other-windows)))
+             ("C-z"     . delete-other-windows))
+  :config
+  (defun my-adjust-created-frame ()
+    (set-frame-font
+     "-*-DejaVu Sans Mono-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
+    (set-frame-size (selected-frame) 75 50)
+    (set-frame-position (selected-frame) 10 35))
+  (advice-add 'make-frame-command :after #'my-adjust-created-frame))
 
 (use-package phi-search
   :defer 5)
@@ -3313,12 +3307,12 @@ append it to ENTRY."
   :config
   (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
-  ;; (sky-color-clock-initialize-openweathermap-client
-  ;;  (with-temp-buffer
-  ;;    (insert-file-contents-literally "~/.config/weather/apikey")
-  ;;    (buffer-substring (point-min) (1- (point-max))))
-  ;;  5408211 ;; West Sacramento, CA, USA
-  ;;  )
+  (sky-color-clock-initialize-openweathermap-client
+   (with-temp-buffer
+     (insert-file-contents-literally "~/.config/weather/apikey")
+     (buffer-substring (point-min) (1- (point-max))))
+   5408211 ;; West Sacramento, CA, USA
+   )
   (setq display-time-string-forms '((sky-color-clock))))
 
 (use-package slime
@@ -3733,7 +3727,7 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`imac                    115)
-    (`macbook-pro-vga         790)
+    (`macbook-pro-vga         800)
     (`macbook-pro             555)))
 
 (defconst emacs-min-height

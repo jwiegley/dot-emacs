@@ -364,6 +364,7 @@
  '(completion-ignored-extensions
    (quote
     (".glob" ".vo" ".v.d" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".svn/" ".hg/" ".git/" ".bzr/" "CVS/" "_darcs/" "_MTN/" ".fmt" ".tfm" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".dfsl" ".pfsl" ".d64fsl" ".p64fsl" ".lx64fsl" ".lx32fsl" ".dx64fsl" ".dx32fsl" ".fx64fsl" ".fx32fsl" ".sx64fsl" ".sx32fsl" ".wx64fsl" ".wx32fsl" ".fasl" ".ufsl" ".fsl" ".dxl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo")))
+ '(coq-compile-auto-save (quote save-coq))
  '(coq-compile-before-require t)
  '(coq-compile-parallel-in-background t)
  '(coq-holes-minor-mode nil)
@@ -639,7 +640,6 @@
  '(flyspell-use-meta-tab nil)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
- '(frame-resize-pixelwise t)
  '(frame-title-format
    (quote
     (:eval
@@ -674,6 +674,7 @@
  '(grep-command "egrep -nH -e ")
  '(grep-find-command
    "find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH ")
+ '(grep-save-buffers t)
  '(guide-key/guide-key-sequence t)
  '(guide-key/idle-delay 1.5)
  '(guide-key/popup-window-position (quote bottom))
@@ -872,7 +873,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_mmd -S" t)
+ '(markdown-command "pandoc -f markdown_mmd -S")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -909,7 +910,7 @@
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(ns-function-modifier (quote hyper))
- '(ns-right-alternate-modifier (quote super))
+ '(ns-right-alternate-modifier (quote alt))
  '(nsm-settings-file "/Users/johnw/.emacs.d/data/network-security.data")
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
@@ -1195,6 +1196,7 @@
  '(wg-prefix-key "")
  '(wg-query-for-save-on-emacs-exit nil)
  '(wg-query-for-save-on-workgroups-mode-exit nil)
+ '(wgrep-auto-save-buffer t)
  '(wgrep-enable-key "")
  '(whitespace-auto-cleanup t t)
  '(whitespace-line-column 80)

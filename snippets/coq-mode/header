@@ -1,0 +1,28 @@
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+
+Set Warnings "-notation-overridden".
+
+Require Import Coq.Bool.Bool.
+Require Import Coq.Lists.List.
+Require Import Coq.PArith.PArith.
+Require Import Coq.omega.Omega.
+
+Require Import Equations.Equations.
+Require Import Equations.EqDec.
+Unset Equations WithK.
+
+Require Import Category.Lib.
+Require Import Category.Lib.Equality.
+
+Generalizable All Variables.
+
+Require Import Solver.Env.
+
+Section $1.
+
+Context `{Env}.
+
+$0
+
+End $1.

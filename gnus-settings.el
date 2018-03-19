@@ -412,6 +412,7 @@ BAE Systems"))))
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-ignore-subject nil)
  '(gnus-thread-score-function (quote max))
+ '(gnus-thread-sort-functions (quote ((not gnus-thread-sort-by-number))))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
