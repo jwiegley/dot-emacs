@@ -108,16 +108,14 @@
        (org-agenda-files
         (quote
          ("~/Documents/tasks/OSS.txt" "~/Documents/tasks/emacs.txt")))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         (quote
          (org-agenda-skip-entry-if
           (quote scheduled)
           (quote deadline)
-          (quote timestamp)
-          (quote regexp)
-          "\\* \\(DEFERRED\\|SOMEDAY\\)")))
+          (quote timestamp))))
        (org-agenda-sorting-strategy
         (quote
          (user-defined-up)))
@@ -171,7 +169,7 @@
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/bae/concerto/solver/NOTES.txt" "~/Documents/tasks/BAE.txt" "~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/emacs.txt" "~/Documents/tasks/OSS.txt")))
+    ("~/Documents/tasks/BAE.txt" "~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/emacs.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/Google.org" "~/Documents/tasks/Bahá'í.org" "~/Documents/tasks/Family.org")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -319,11 +317,13 @@ SCHEDULED: %t
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-fontify-done-headline t)
  '(org-footnote-section nil)
+ '(org-gcal-dir "~/.emacs.d/data/org-gcal/")
  '(org-habit-preceding-days 42)
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
  '(org-icalendar-combined-agenda-file "~/Documents/tasks/org.ics")
+ '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width (quote (800)))
  '(org-imenu-depth 4)

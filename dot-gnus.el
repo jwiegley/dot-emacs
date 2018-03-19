@@ -217,6 +217,16 @@
                       stripped))))
     (error "    ")))
 
+(defun gnus-user-format-function-X (header)
+  (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
+         (cc (or (cdr (assoc 'Cc (mail-header-extra header))) ""))
+         )
+    (message "to-address: %s" to-address)
+    (message "recipients: %s" recipients)
+    (if (and recipients to-address (not (member to-address recipients)))
+        (propertize "X" 'face 'font-lock-warning-face)
+      " ")))
+
 (defvar gnus-count-recipients-threshold 5
   "*Number of recipients to consider as large.")
 
@@ -240,6 +250,7 @@ The second column represents the Cc: field:
     ^    I was the only Cc mentioned
     &    I was among a few Cc recipients
     %    I was among many Cc recipients
+    X    This is a mailing list, but it wasn't on the recipients list
 
 These can combine in some ways to tell you at a glance how visible the message
 is:
@@ -251,23 +262,35 @@ is:
          (cc (or (cdr (assoc 'Cc (mail-header-extra header))) ""))
          (to-len (length (split-string to "\\s-*,\\s-*")))
          (cc-len (length (split-string cc "\\s-*,\\s-*")))
-         (to-char (cond )))
+         (msg-recipients (concat to (and to cc ", ") cc))
+         (recipients
+          (mapcar 'mail-strip-quoted-names
+	          (message-tokenize-header msg-recipients)))
+         (to-address
+          (alist-get 'to-address
+                     (gnus-parameters-get-parameter gnus-newsgroup-name)))
+         (privatized
+          (and recipients to-address (not (member to-address recipients)))))
     (cond ((string-match gnus-ignored-from-addresses to)
            (cond ((= to-len 1)
-                  (cond ((string= cc "") "< ")
+                  (cond (privatized "<X")
+                        ((string= cc "") "< ")
                         ((= cc-len 1) "<.")
                         (t "<:")))
                  ((< to-len gnus-count-recipients-threshold)
-                  (cond ((string= cc "") "+ ")
+                  (cond (privatized "+X")
+                        ((string= cc "") "+ ")
                         ((= cc-len 1) "+.")
                         (t "+:")))
                  (t
-                  (cond ((string= cc "") "* ")
+                  (cond (privatized "*X")
+                        ((string= cc "") "* ")
                         ((= cc-len 1) "*.")
                         (t "*:")))))
 
           ((string-match gnus-ignored-from-addresses cc)
-           (cond ((= cc-len 1)
+           (cond (privatized " X")
+                 ((= cc-len 1)
                   (cond ((= to-len 1) " ^")
                         (t ":^")))
                  ((< cc-len gnus-count-recipients-threshold)
