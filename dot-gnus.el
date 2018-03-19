@@ -258,48 +258,49 @@ is:
    <.    Someone wrote to me and one other
     &    I was copied along with several other people
    *:    Mail to lots of people in both the To and Cc!"
-  (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
-         (cc (or (cdr (assoc 'Cc (mail-header-extra header))) ""))
-         (to-len (length (split-string to "\\s-*,\\s-*")))
-         (cc-len (length (split-string cc "\\s-*,\\s-*")))
-         (msg-recipients (concat to (and to cc ", ") cc))
-         (recipients
-          (mapcar 'mail-strip-quoted-names
-	          (message-tokenize-header msg-recipients)))
-         (to-address
-          (alist-get 'to-address
-                     (gnus-parameters-get-parameter gnus-newsgroup-name)))
-         (privatized
-          (and recipients to-address (not (member to-address recipients)))))
-    (cond ((string-match gnus-ignored-from-addresses to)
-           (cond ((= to-len 1)
-                  (cond (privatized "<X")
-                        ((string= cc "") "< ")
-                        ((= cc-len 1) "<.")
-                        (t "<:")))
-                 ((< to-len gnus-count-recipients-threshold)
-                  (cond (privatized "+X")
-                        ((string= cc "") "+ ")
-                        ((= cc-len 1) "+.")
-                        (t "+:")))
-                 (t
-                  (cond (privatized "*X")
-                        ((string= cc "") "* ")
-                        ((= cc-len 1) "*.")
-                        (t "*:")))))
+  (ignore-errors
+    (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
+           (cc (or (cdr (assoc 'Cc (mail-header-extra header))) ""))
+           (to-len (length (split-string to "\\s-*,\\s-*")))
+           (cc-len (length (split-string cc "\\s-*,\\s-*")))
+           (msg-recipients (concat to (and to cc ", ") cc))
+           (recipients
+            (mapcar 'mail-strip-quoted-names
+	            (message-tokenize-header msg-recipients)))
+           (to-address
+            (alist-get 'to-address
+                       (gnus-parameters-get-parameter gnus-newsgroup-name)))
+           (privatized
+            (and recipients to-address (not (member to-address recipients)))))
+      (cond ((string-match gnus-ignored-from-addresses to)
+             (cond ((= to-len 1)
+                    (cond (privatized "<X")
+                          ((string= cc "") "< ")
+                          ((= cc-len 1) "<.")
+                          (t "<:")))
+                   ((< to-len gnus-count-recipients-threshold)
+                    (cond (privatized "+X")
+                          ((string= cc "") "+ ")
+                          ((= cc-len 1) "+.")
+                          (t "+:")))
+                   (t
+                    (cond (privatized "*X")
+                          ((string= cc "") "* ")
+                          ((= cc-len 1) "*.")
+                          (t "*:")))))
 
-          ((string-match gnus-ignored-from-addresses cc)
-           (cond (privatized " X")
-                 ((= cc-len 1)
-                  (cond ((= to-len 1) " ^")
-                        (t ":^")))
-                 ((< cc-len gnus-count-recipients-threshold)
-                  (cond ((= to-len 1) " &")
-                        (t ":&")))
-                 (t
-                  (cond ((= to-len 1) " %")
-                        (t ":%")))))
-          (t "  "))))
+            ((string-match gnus-ignored-from-addresses cc)
+             (cond (privatized " X")
+                   ((= cc-len 1)
+                    (cond ((= to-len 1) " ^")
+                          (t ":^")))
+                   ((< cc-len gnus-count-recipients-threshold)
+                    (cond ((= to-len 1) " &")
+                          (t ":&")))
+                   (t
+                    (cond ((= to-len 1) " %")
+                          (t ":%")))))
+            (t "  ")))))
 
 (use-package message-x)
 
