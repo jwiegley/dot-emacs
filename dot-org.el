@@ -947,24 +947,6 @@ end tell" (match-string 1))))
 
 (use-package org-bookmark-heading)
 
-(use-package org-caldav
-  :disabled t
-  :config
-  (setq org-caldav-url 'google
-        org-caldav-oauth2-client-id
-        (lookup-password "org-caldav-user.google.com" "jwiegley" 80)
-        org-caldav-oauth2-client-secret
-        (lookup-password "org-caldav.google.com" org-caldav-oauth2-client-id 80)
-        org-caldav-calendar-id
-        (lookup-password "org-caldav-calendar-id.google.com" org-caldav-oauth2-client-id 80)
-        org-caldav-inbox
-        "~/Documents/tasks/todo.txt"
-        org-caldav-files
-        '("~/Documents/tasks/todo.txt"
-          "~/Documents/tasks/Bahai.txt"
-          "~/Documents/tasks/BAE.txt")
-        plstore-cache-passphrase-for-symmetric-encryption t))
-
 (use-package org-crypt)
 
 (use-package org-devonthink)
