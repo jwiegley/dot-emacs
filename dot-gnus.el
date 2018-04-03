@@ -57,6 +57,9 @@
 (defun quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
+(fset 'retrieve-attached-mail
+      [?\C-d ?\C-n ?B ?c ?I ?N ?B ?O ?X return ?q ?\C-p ?B backspace ?\M-g])
+
 (use-package fetchmail-ctl
   :after gnus-group
   :bind (:map gnus-group-mode-map

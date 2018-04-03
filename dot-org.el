@@ -952,6 +952,7 @@ end tell" (match-string 1))))
 (use-package org-devonthink)
 
 (use-package org-gcal
+  :commands org-gcal-sync
   :config
   (setq org-gcal-client-id
         (lookup-password "org-caldav-user.google.com" "jwiegley" 80)
