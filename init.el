@@ -2160,7 +2160,6 @@
          ("C-c i r" . ispell-region)))
 
 (use-package ivy
-  :defer 5
   :diminish
 
   :bind (("C-x b" . ivy-switch-buffer)
@@ -2472,6 +2471,7 @@
   :after magit)
 
 (use-package magithub
+  :disabled t
   :after magit
   :config
   (magithub-feature-autoinject t)
@@ -2982,12 +2982,14 @@ append it to ENTRY."
              ("C-x d"   . delete-whitespace-rectangle)
              ("C-x t"   . toggle-truncate-lines)
              ("C-z"     . delete-other-windows))
-  :config
+
+  :init
   (defun my-adjust-created-frame ()
     (set-frame-font
      "-*-DejaVu Sans Mono-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
     (set-frame-size (selected-frame) 75 50)
     (set-frame-position (selected-frame) 10 35))
+
   (advice-add 'make-frame-command :after #'my-adjust-created-frame))
 
 (use-package phi-search
@@ -3307,12 +3309,12 @@ append it to ENTRY."
   :config
   (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
-  (sky-color-clock-initialize-openweathermap-client
-   (with-temp-buffer
-     (insert-file-contents-literally "~/.config/weather/apikey")
-     (buffer-substring (point-min) (1- (point-max))))
-   5408211 ;; West Sacramento, CA, USA
-   )
+  ;; (sky-color-clock-initialize-openweathermap-client
+  ;;  (with-temp-buffer
+  ;;    (insert-file-contents-literally "~/.config/weather/apikey")
+  ;;    (buffer-substring (point-min) (1- (point-max))))
+  ;;  5408211 ;; West Sacramento, CA, USA
+  ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
 
 (use-package slime
@@ -3339,7 +3341,6 @@ append it to ENTRY."
                        :async nil))
 
 (use-package smart-mode-line
-  :defer 10
   :config
   ;; See https://github.com/Malabarba/smart-mode-line/issues/217
   (setq mode-line-format (delq 'mode-line-position mode-line-format))
@@ -3695,13 +3696,6 @@ append it to ENTRY."
 
 (use-package z3-mode
   :mode "\\.rs\\'")
-
-(use-package zencoding-mode
-  :hook (nxml-mode html-mode)
-  :bind (:map zencoding-mode-keymap
-              ("C-c C-c" . zencoding-expand-line))
-  :preface
-  (defvar zencoding-mode-keymap (make-sparse-keymap)))
 
 (use-package zoom
   :bind ("C-x +" . zoom)
