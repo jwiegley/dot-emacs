@@ -918,9 +918,7 @@ end tell" (match-string 1))))
           (org-save-all-org-buffers)
           (my-org-insert-jobhours-string)))))
 
-  (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t)
-  (add-hook 'org-clock-in-hook #'my-org-delayed-update t)
-  (add-hook 'org-clock-out-hook #'my-org-delayed-update t))
+  (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
 
 (use-package ob-diagrams)
 
