@@ -396,7 +396,6 @@
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
- '(delete-selection-mode t)
  '(diary-file "~/Documents/tasks/diary")
  '(diff-mode-hook
    (quote
@@ -873,7 +872,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -968,7 +967,9 @@
      ("lock" "")
      ("gpg" "")
      ("mli" "ml")
-     ("ml" "mli"))))
+     ("ml" "mli")
+     ("hs-boot" "hs")
+     ("hs" "hs-boot"))))
  '(projectile-sort-order (quote recentf))
  '(proof-auto-action-when-deactivating-scripting (quote retract))
  '(proof-autosend-enable nil)
@@ -1066,7 +1067,6 @@
    (quote
     ("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*")))
  '(save-abbrevs (quote silently))
- '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el")
  '(save-place-file "~/.emacs.d/data/places")
  '(savehist-additional-variables

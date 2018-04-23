@@ -894,8 +894,7 @@ end tell" (match-string 1))))
   :bind ("A-M-r" . helm-org-rifle))
 
 (use-package jobhours
-  :unless alternate-emacs
-  :defer 5
+  :demand t
   :bind ("M-o j" . jobhours-update-string)
   :config
   (defun my-org-insert-jobhours-string ()
