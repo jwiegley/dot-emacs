@@ -539,40 +539,40 @@
   :preface
   (defun my-c-mode-common-hook ()
     (require 'flycheck)
-    (flycheck-define-checker
-     c++-ledger
-     "A C++ syntax checker for the Ledger project specifically."
-     :command ("ninja"
-               "-C"
-               (eval (expand-file-name "~/Products/ledger"))
-               (eval (concat "src/CMakeFiles/libledger.dir/"
-                             (file-name-nondirectory (buffer-file-name))
-                             ".o")))
-     :error-patterns
-     ((error line-start
-             (message "In file included from") " " (or "<stdin>" (file-name))
-             ":" line ":" line-end)
-      (info line-start (or "<stdin>" (file-name)) ":" line ":" column
-            ": note: " (optional (message)) line-end)
-      (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
-               ": warning: " (optional (message)) line-end)
-      (error line-start (or "<stdin>" (file-name)) ":" line ":" column
-             ": " (or "fatal error" "error") ": " (optional (message)) line-end))
-     :error-filter
-     (lambda (errors)
-       (let ((errors (flycheck-sanitize-errors errors)))
-         (dolist (err errors)
-           ;; Clang will output empty messages for #error/#warning pragmas
-           ;; without messages. We fill these empty errors with a dummy message
-           ;; to get them past our error filtering
-           (setf (flycheck-error-message err)
-                 (or (flycheck-error-message err) "no message")))
-         (flycheck-fold-include-levels errors "In file included from")))
-     :modes c++-mode
-     :next-checkers ((warning . c/c++-cppcheck)))
+    ;; (flycheck-define-checker
+    ;;  c++-ledger
+    ;;  "A C++ syntax checker for the Ledger project specifically."
+    ;;  :command ("ninja"
+    ;;            "-C"
+    ;;            (eval (expand-file-name "~/Products/ledger"))
+    ;;            (eval (concat "src/CMakeFiles/libledger.dir/"
+    ;;                          (file-name-nondirectory (buffer-file-name))
+    ;;                          ".o")))
+    ;;  :error-patterns
+    ;;  ((error line-start
+    ;;          (message "In file included from") " " (or "<stdin>" (file-name))
+    ;;          ":" line ":" line-end)
+    ;;   (info line-start (or "<stdin>" (file-name)) ":" line ":" column
+    ;;         ": note: " (optional (message)) line-end)
+    ;;   (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
+    ;;            ": warning: " (optional (message)) line-end)
+    ;;   (error line-start (or "<stdin>" (file-name)) ":" line ":" column
+    ;;          ": " (or "fatal error" "error") ": " (optional (message)) line-end))
+    ;;  :error-filter
+    ;;  (lambda (errors)
+    ;;    (let ((errors (flycheck-sanitize-errors errors)))
+    ;;      (dolist (err errors)
+    ;;        ;; Clang will output empty messages for #error/#warning pragmas
+    ;;        ;; without messages. We fill these empty errors with a dummy message
+    ;;        ;; to get them past our error filtering
+    ;;        (setf (flycheck-error-message err)
+    ;;              (or (flycheck-error-message err) "no message")))
+    ;;      (flycheck-fold-include-levels errors "In file included from")))
+    ;;  :modes c++-mode
+    ;;  :next-checkers ((warning . c/c++-cppcheck)))
 
     (flycheck-mode 1)
-    (flycheck-select-checker 'c++-ledger)
+    ;; (flycheck-select-checker 'c++-ledger)
     (setq-local flycheck-check-syntax-automatically nil)
     (setq-local flycheck-highlighting-mode nil)
 
@@ -739,7 +739,6 @@
   :commands (company-mode company-indent-or-complete-common)
   :init
   (dolist (hook '(emacs-lisp-mode-hook
-                  haskell-mode-hook
                   c-mode-common-hook))
     (add-hook hook
               #'(lambda ()
@@ -2161,6 +2160,7 @@
 
 (use-package ivy
   :diminish
+  :demand t
 
   :bind (("C-x b" . ivy-switch-buffer)
          ("C-x B" . ivy-switch-buffer-other-window)
@@ -2977,6 +2977,7 @@ append it to ENTRY."
              ("C-h e f" . find-function)
              ("C-h e k" . find-function-on-key)
              ("C-h e v" . find-variable)
+             ("C-h h")
              ("C-h v"   . describe-variable)
              ("C-x C-e" . pp-eval-last-sexp)
              ("C-x d"   . delete-whitespace-rectangle)
@@ -3262,7 +3263,7 @@ append it to ENTRY."
       (call-interactively #'sdcv-search))))
 
 (use-package selected
-  :defer 5
+  :demand t
   :diminish selected-minor-mode
   :bind (:map selected-keymap
               ("[" . align-code)
@@ -3620,6 +3621,7 @@ append it to ENTRY."
   (global-whitespace-cleanup-mode 1))
 
 (use-package whole-line-or-region
+  :disabled t
   :unless (or noninteractive
               alternate-emacs)
   :defer 5
