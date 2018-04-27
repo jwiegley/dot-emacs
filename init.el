@@ -2025,6 +2025,7 @@
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
+  :disabled t
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface

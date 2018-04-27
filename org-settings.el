@@ -51,8 +51,12 @@
           "\\=.*\\[#C\\]")))))
      ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
       ((org-agenda-overriding-header "Uncategorized items")))
-     ("W" "Waiting/delegated tasks" tags "TODO=\"WAITING\"|TODO=\"DELEGATED\""
+     ("w" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
       ((org-agenda-overriding-header "Waiting/delegated tasks:")
+       (org-agenda-skip-function
+        (quote
+         (org-agenda-skip-entry-if
+          (quote scheduled))))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))))
@@ -135,7 +139,7 @@
         (quote
          (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("W" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
@@ -198,7 +202,9 @@
      (search category-keep))))
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
+ '(org-agenda-tags-todo-honor-ignore-options t)
  '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.txt")))
+ '(org-agenda-todo-ignore-scheduled (quote past))
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
