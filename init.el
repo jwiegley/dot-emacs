@@ -2832,7 +2832,11 @@
 
 (use-package pass
   :commands (pass pass-view-mode)
-  :mode ("\\.passwords/.*\\.gpg\\'" . pass-view-mode))
+  :mode ("\\.passwords/.*\\.gpg\\'" . pass-view-mode)
+  :preface
+  (defun insert-password ()
+    (interactive)
+    (shell-command "apg -m24 -x24 -a1 -n1" t)))
 
 (use-package password-store
   :defer 5
@@ -3544,7 +3548,7 @@ append it to ENTRY."
   :commands vline-mode)
 
 (use-package w3m
-  :commands w3m-browse-url)
+  :commands (w3m-browse-url w3m-find-file))
 
 (use-package web-mode
   :commands web-mode)
