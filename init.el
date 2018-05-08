@@ -1991,6 +1991,7 @@
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (use-package ibuffer-vc
+  :disabled t
   :commands ibuffer-vc-set-filter-groups-by-vc-root
   :hook (ibuffer . (lambda ()
                      (ibuffer-vc-set-filter-groups-by-vc-root)
