@@ -24,15 +24,16 @@
  '(org-agenda-cmp-user-defined (quote org-compare-todo-age))
  '(org-agenda-custom-commands
    (quote
-    (("e" "Emacs Tasks" tags "TODO<>\"PROJECT\"&LEVEL<>1"
-      ((org-agenda-overriding-header "Emacs Tasks")
-       (org-agenda-files
-        (quote
-         ("~/Documents/tasks/emacs.txt")))))
-     ("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\""
+    (("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\""
       ((org-agenda-overriding-header "Current Hotlist")))
      ("H" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
       ((org-agenda-overriding-header "Non-Hot Projects")))
+     ("n" "Project Next Actions" alltodo ""
+      ((org-agenda-overriding-header "Project Next Actions")
+       (org-agenda-skip-function
+        (function my-org-agenda-skip-all-siblings-but-first))))
+     ("P" "All Projects" todo-tree "PROJECT"
+      ((org-agenda-overriding-header "All Projects")))
      ("A" "Priority #A tasks" agenda ""
       ((org-agenda-ndays 1)
        (org-agenda-overriding-header "Today's priority #A tasks: ")
@@ -94,7 +95,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.txt" "~/Documents/tasks/emacs.txt")))))
+         ("~/Documents/tasks/OSS.txt")))))
      ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
@@ -111,7 +112,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.txt" "~/Documents/tasks/emacs.txt")))))
+         ("~/Documents/tasks/OSS.txt")))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -168,12 +169,12 @@
       ((org-agenda-overriding-header "All TODOs")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/BAE.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/emacs.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/index.txt" "~/Documents/tasks/notes.txt" "~/Documents/tasks/archive/BAE.txt" "~/Documents/tasks/archive/Bahai.txt" "~/Documents/tasks/archive/BoostPro.txt" "~/Documents/tasks/archive/CEG.txt" "~/Documents/tasks/archive/Embarcadero.txt" "~/Documents/tasks/archive/FPComplete.txt" "~/Documents/tasks/archive/IL-05.txt" "~/Documents/tasks/archive/TI.txt" "~/Documents/tasks/archive/archive-2007.txt" "~/Documents/tasks/archive/archive-2008.txt" "~/Documents/tasks/archive/archive-2009.txt" "~/Documents/tasks/archive/archive-2010.txt" "~/Documents/tasks/archive/archive-2011.txt" "~/Documents/tasks/archive/archive-2012.txt" "~/Documents/tasks/archive/archive-2013.txt" "~/Documents/tasks/archive/archive-2014.txt" "~/Documents/tasks/archive/archive-2015.txt" "~/Documents/tasks/archive/archive-2016.txt" "~/Documents/tasks/archive/archive.txt" "~/Documents/tasks/archive/emacs.txt"))))))))
+         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/BAE.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/index.txt" "~/Documents/tasks/notes.txt" "~/Documents/tasks/archive/BAE.txt" "~/Documents/tasks/archive/Bahai.txt" "~/Documents/tasks/archive/BoostPro.txt" "~/Documents/tasks/archive/CEG.txt" "~/Documents/tasks/archive/Embarcadero.txt" "~/Documents/tasks/archive/FPComplete.txt" "~/Documents/tasks/archive/IL-05.txt" "~/Documents/tasks/archive/TI.txt" "~/Documents/tasks/archive/archive-2007.txt" "~/Documents/tasks/archive/archive-2008.txt" "~/Documents/tasks/archive/archive-2009.txt" "~/Documents/tasks/archive/archive-2010.txt" "~/Documents/tasks/archive/archive-2011.txt" "~/Documents/tasks/archive/archive-2012.txt" "~/Documents/tasks/archive/archive-2013.txt" "~/Documents/tasks/archive/archive-2014.txt" "~/Documents/tasks/archive/archive-2015.txt" "~/Documents/tasks/archive/archive-2016.txt" "~/Documents/tasks/archive/archive-2017.txt" "~/Documents/tasks/archive/archive.txt" "~/Documents/tasks/archive/emacs.txt"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/tasks/BAE.txt" "~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/emacs.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/Google.org" "~/Documents/tasks/Bahá'í.org" "~/Documents/tasks/Family.org")))
+    ("~/Documents/tasks/BAE.txt" "~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/Google.org" "~/Documents/tasks/Bahá'í.org" "~/Documents/tasks/Family.org")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -282,6 +283,7 @@ SCHEDULED: %t
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
  '(org-default-notes-file "~/Documents/tasks/todo.txt")
+ '(org-depend-tag-blocked nil)
  '(org-directory "~/Documents/tasks/")
  '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
@@ -378,7 +380,6 @@ SCHEDULED: %t
    (quote
     (("~/Documents/tasks/todo.txt" :level . 1)
      ("~/Documents/tasks/Bahai.txt" :level . 1)
-     ("~/Documents/tasks/emacs.txt" :level . 1)
      ("~/Documents/tasks/OSS.txt" :level . 1)
      ("~/Documents/tasks/BAE.txt" :level . 1)
      (org-agenda-files :todo . "PROJECT"))))
@@ -387,7 +388,7 @@ SCHEDULED: %t
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-src-tab-acts-natively t)
- '(org-stuck-projects (quote ("TODO=\"PROJECT\"" nil nil "SCHEDULED:")))
+ '(org-stuck-projects (quote ("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil "")))
  '(org-subject-transforms
    (quote
     (("\\`\\(Re\\|Fwd\\): " . "")
@@ -400,6 +401,7 @@ SCHEDULED: %t
  '(org-todo-keyword-faces
    (quote
     (("TODO" :foreground "medium blue" :weight bold)
+     ("RECUR" :foreground "cornflowerblue" :weight bold)
      ("APPT" :foreground "medium blue" :weight bold)
      ("NOTE" :foreground "brown" :weight bold)
      ("STARTED" :foreground "dark orange" :weight bold)
