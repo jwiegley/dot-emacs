@@ -830,6 +830,12 @@
   :config
   (push 'company-ghc company-backends))
 
+(use-package company-lsp
+  :disabled t
+  :after lsp-mode
+  :config
+  (push 'company-lsp company-backends))
+
 (use-package company-math
   :defer t)
 
@@ -1311,6 +1317,7 @@
          ("C-x C-)" . elmacro-show-last-macro)))
 
 (use-package emojify
+  :disabled t
   :defer 15
   :config
   (global-emojify-mode)
@@ -1547,12 +1554,61 @@
 (use-package flycheck-haskell
   :after haskell-mode
   :config
-  (flycheck-haskell-setup))
+  (flycheck-haskell-setup)
+
+  ;;   (flycheck-define-checker haskell-hdevtools
+  ;;     "A Haskell syntax and type checker using hdevtools.
+
+  ;; See URL `https://github.com/hdevtools/hdevtools'."
+  ;;     :command
+  ;;     ;; ("hdevtools-nix" "check"
+  ;;     ("/Users/johnw/src/nix/bin/hdevtools-nix" "check"
+  ;;      (eval (when flycheck-ghc-no-user-package-database
+  ;;              (list "-g" "-no-user-package-db")))
+  ;;      (eval (apply #'append (mapcar (lambda (db) (concat "-g-package-db" db))
+  ;;                                    flycheck-ghc-package-databases)))
+  ;;      (eval (concat
+  ;;             "-g-i"
+  ;;             (flycheck-module-root-directory
+  ;;              (flycheck-find-in-buffer flycheck-haskell-module-re))))
+  ;;      (eval (apply #'append (mapcar (lambda (db) (list (concat "-g-i" db)))
+  ;;                                    flycheck-ghc-search-path)))
+  ;;      (eval (apply #'append (mapcar (lambda (arg) (list "-g" arg))
+  ;;                                    flycheck-ghc-args)))
+  ;;      source-inplace)
+  ;;     :error-patterns
+  ;;     ((warning line-start (file-name) ":" line ":" column ":"
+  ;;               (or " " "\n ") "warning:" (optional "\n")
+  ;;               (message
+  ;;                (one-or-more " ") (one-or-more not-newline)
+  ;;                (zero-or-more "\n"
+  ;;                              (one-or-more " ")
+  ;;                              (one-or-more not-newline)))
+  ;;               line-end)
+  ;;      (error line-start (file-name) ":" line ":" column ":"
+  ;;             (or " " "\n ") "error:" (optional "\n")
+  ;;             (message
+  ;;              (one-or-more " ") (one-or-more not-newline)
+  ;;              (zero-or-more "\n"
+  ;;                            (one-or-more " ")
+  ;;                            (one-or-more not-newline)))
+  ;;             line-end)
+  ;;      )
+  ;;     :error-filter
+  ;;     (lambda (errors)
+  ;;       (-> errors
+  ;;           flycheck-dedent-error-messages
+  ;;           flycheck-sanitize-errors))
+  ;;     :modes haskell-mode
+  ;;     :next-checkers ((warning . haskell-hlint)))
+
+  ;;   (add-to-list 'flycheck-checkers 'haskell-hdevtools)
+  )
 
 (use-package flycheck-hdevtools
-  ;; jww (2017-12-10): Need to configure.
   :disabled t
-  :after flycheck)
+  :after flycheck
+  :config)
 
 (use-package flycheck-package
   :after flycheck)
@@ -1563,6 +1619,7 @@
   :after flycheck)
 
 (use-package flyspell
+  :disabled t
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
   :config
@@ -2349,6 +2406,7 @@
         (forward-line)))))
 
 (use-package lentic-mode
+  :disabled t
   :diminish
   :commands global-lentic-mode)
 
@@ -2397,12 +2455,21 @@
   :mode "\\.ll\\'")
 
 (use-package lsp-haskell
-  ;; jww (2017-11-26): https://github.com/haskell/haskell-ide-engine/issues/117
-  :disabled t)
+  :disabled t
+  :hook (haskell-mode . lsp-haskell-enable))
 
 (use-package lsp-mode
-  ;; jww (2017-11-26): Need to install LSP for Haskell
-  :disabled t)
+  :disabled t
+  :defer t)
+
+(use-package lsp-ui
+  :disabled t
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (define-key lsp-ui-mode-map [remap xref-find-definitions]
+    #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references]
+    #'lsp-ui-peek-find-references))
 
 (use-package lua-mode
   :mode "\\.lua\\'"
@@ -2710,7 +2777,8 @@
   :commands nginx-mode)
 
 (use-package nix-buffer
-  :commands nix-buffer)
+  :commands nix-buffer
+  :hook ((haskell-mode coq-mode) . nix-buffer))
 
 (use-package nix-format
   :commands nix-format-buffer)
@@ -3682,8 +3750,7 @@ append it to ENTRY."
   :commands yari)
 
 (use-package yasnippet
-  :after prog-mode
-  :defer 10
+  :demand t
   :diminish yas-minor-mode
   :bind (("C-c y d" . yas-load-directory)
          ("C-c y i" . yas-insert-snippet)
