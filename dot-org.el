@@ -851,6 +851,8 @@ end tell" (match-string 1))))
   (let (should-skip-entry)
     (unless (org-current-is-todo)
       (setq should-skip-entry t))
+    (when (org-get-scheduled-time (point))
+      (setq should-skip-entry t))
     (save-excursion
       (while (and (not should-skip-entry) (org-goto-sibling t))
         (when (org-current-is-todo)

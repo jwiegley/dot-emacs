@@ -348,7 +348,7 @@
  '(company-frontends
    (quote
     (company-pseudo-tooltip-unless-just-one-frontend company-echo-metadata-frontend company-preview-frontend)))
- '(company-global-modes (quote (emacs-lisp-mode haskell-mode c-mode c++-mode)))
+ '(company-global-modes (quote (emacs-lisp-mode c-mode c++-mode)))
  '(company-idle-delay nil)
  '(company-quickhelp-use-propertized-text t)
  '(company-show-numbers t)
@@ -633,6 +633,7 @@
  '(flycheck-coq-executable "ct-coqtop")
  '(flycheck-display-errors-delay 0.0)
  '(flycheck-haskell-ghc-executable "ghc-nix")
+ '(flycheck-haskell-hdevtools-executable "hdevtools-nix")
  '(flycheck-standard-error-navigation nil)
  '(flymake-compilation-prevents-syntax-check nil)
  '(flymake-proc-compilation-prevents-syntax-check nil)
@@ -1086,7 +1087,6 @@
  '(savehist-file "~/.emacs.d/data/history")
  '(savehist-ignored-variables (quote (load-history flyspell-auto-correct-ring kill-ring)))
  '(scroll-bar-mode nil)
- '(select-enable-clipboard t)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb" t)
  '(sendmail-program "msmtp")
  '(sentence-end-double-space nil)
@@ -1178,7 +1178,7 @@
  '(undo-tree-mode-lighter "")
  '(undo-tree-visualizer-timestamps t)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
- '(url-cache-directory "~/.emacs.d/data/url/cache" t)
+ '(url-cache-directory "~/.emacs.d/data/url/cache")
  '(url-configuration-directory "~/.emacs.d/data/url/")
  '(url-irc-function (quote url-irc-erc))
  '(use-package-enable-imenu-support t)
