@@ -1541,8 +1541,7 @@
     (add-hook (car where)
               `(lambda ()
                  (bind-key "M-n" #'flycheck-next-error ,(cdr where))
-                 (bind-key "M-p" #'flycheck-previous-error ,(cdr where)))
-              t))
+                 (bind-key "M-p" #'flycheck-previous-error ,(cdr where)))))
   :config
   (defalias 'show-error-at-point-soon
     'flycheck-show-error-at-point))
@@ -1835,13 +1834,18 @@
   (require 'haskell-doc)
 
   (defun my-haskell-mode-hook ()
-    (haskell-indentation-mode)
-    (interactive-haskell-mode)
-    (diminish 'interactive-haskell-mode)
-    (flycheck-mode 1)
-    (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
-    (prettify-symbols-mode 1)
-    (bug-reference-prog-mode 1))
+    (add-hook
+     'nix-buffer-after-load-hook
+     (lambda ()
+       (haskell-indentation-mode)
+       (interactive-haskell-mode)
+       (diminish 'interactive-haskell-mode)
+       (flycheck-mode 1)
+       (flycheck-haskell-setup)
+       (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+       (prettify-symbols-mode 1)
+       (bug-reference-prog-mode 1))
+     t t))
 
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
@@ -2769,17 +2773,16 @@
   :commands nginx-mode)
 
 (use-package nix-buffer
-  :commands nix-buffer
   :hook ((haskell-mode coq-mode) . nix-buffer))
 
-(use-package nix-format
-  :commands nix-format-buffer)
-
-(use-package nix-repl
-  :commands nix-repl-show)
-
 (use-package nix-shell
-  :commands nix-shell)
+  :no-require t
+  :init
+  (defun nix-shell ()
+    (interactive)
+    (let ((explicit-shell-file-name "shell")
+          (explicit-shell-args nil))
+      (call-interactively 'shell))))
 
 (use-package nix-mode
   :mode "\\.nix\\'")
