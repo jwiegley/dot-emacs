@@ -1348,7 +1348,6 @@
         (pcase-dolist (`(,server . ,nick)
                        '(("irc.freenode.net"     . "johnw")
                          ("irc.gitter.im"        . "jwiegley")
-                         ("plclub.irc.slack.com" . "jwiegley")
                          ;; ("irc.oftc.net"         . "johnw")
                          ))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
@@ -1358,9 +1357,6 @@
           (error "Failed to read ZNC password"))
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
              :password (concat "johnw/gitter:" pass))
-        (sleep-for 5)
-        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/plclub:" pass))
         (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
              :password (concat "johnw/freenode:" pass)))))
