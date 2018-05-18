@@ -202,6 +202,7 @@
      (tags priority-down category-keep)
      (search category-keep))))
  '(org-agenda-start-on-weekday nil)
+ '(org-agenda-sticky t)
  '(org-agenda-tags-column -100)
  '(org-agenda-tags-todo-honor-ignore-options t)
  '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.txt")))
