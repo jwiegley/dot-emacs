@@ -1547,52 +1547,50 @@
     'flycheck-show-error-at-point))
 
 (use-package flycheck-haskell
-  :after haskell-mode
+  :commands flycheck-haskell-setup
   :config
-  (flycheck-haskell-setup)
+  ;; (flycheck-define-checker haskell-hdevtools
+  ;;   "A Haskell syntax and type checker using hdevtools.
 
-  (flycheck-define-checker haskell-hdevtools
-    "A Haskell syntax and type checker using hdevtools.
-
-  See URL `https://github.com/hdevtools/hdevtools'."
-    :command
-    ("hdevtools" "check" "-g" "-Wall"
-     (eval (when flycheck-ghc-no-user-package-database
-             (list "-g" "-no-user-package-db")))
-     (eval (apply #'append (mapcar (lambda (db) (concat "-g-package-db" db))
-                                   flycheck-ghc-package-databases)))
-     (eval (concat
-            "-g-i"
-            (flycheck-module-root-directory
-             (flycheck-find-in-buffer flycheck-haskell-module-re))))
-     (eval (apply #'append (mapcar (lambda (db) (list (concat "-g-i" db)))
-                                   flycheck-ghc-search-path)))
-     (eval (apply #'append (mapcar (lambda (arg) (list "-g" arg))
-                                   flycheck-ghc-args)))
-     source-inplace)
-    :error-patterns
-    ((warning line-start (file-name) ":" line ":" column ":"
-              (or " " "\n ") "warning:" (optional "\n")
-              (message
-               (one-or-more " ") (one-or-more not-newline)
-               (zero-or-more "\n"
-                             (one-or-more " ")
-                             (one-or-more not-newline)))
-              line-end)
-     (error line-start (file-name) ":" line ":" column ":"
-            (or " " "\n ") "error:" (optional "\n")
-            (message
-             (one-or-more " ") (one-or-more not-newline)
-             (zero-or-more "\n"
-                           (one-or-more " ")
-                           (one-or-more not-newline)))
-            line-end)
-     )
-    ;; :error-filter
-    ;; (lambda (errors)
-    ;;   (flycheck-sanitize-errors (flycheck-dedent-error-messages errors)))
-    :modes haskell-mode
-    :next-checkers ((warning . haskell-hlint)))
+  ;; See URL `https://github.com/hdevtools/hdevtools'."
+  ;;   :command
+  ;;   ("hdevtools" "check" "-g" "-Wall"
+  ;;    (eval (when flycheck-ghc-no-user-package-database
+  ;;            (list "-g" "-no-user-package-db")))
+  ;;    (eval (apply #'append (mapcar (lambda (db) (concat "-g-package-db" db))
+  ;;                                  flycheck-ghc-package-databases)))
+  ;;    (eval (concat
+  ;;           "-g-i"
+  ;;           (flycheck-module-root-directory
+  ;;            (flycheck-find-in-buffer flycheck-haskell-module-re))))
+  ;;    (eval (apply #'append (mapcar (lambda (db) (list (concat "-g-i" db)))
+  ;;                                  flycheck-ghc-search-path)))
+  ;;    (eval (apply #'append (mapcar (lambda (arg) (list "-g" arg))
+  ;;                                  flycheck-ghc-args)))
+  ;;    source-inplace)
+  ;;   :error-patterns
+  ;;   ((warning line-start (file-name) ":" line ":" column ":"
+  ;;             (or " " "\n ") "warning:" (optional "\n")
+  ;;             (message
+  ;;              (one-or-more " ") (one-or-more not-newline)
+  ;;              (zero-or-more "\n"
+  ;;                            (one-or-more " ")
+  ;;                            (one-or-more not-newline)))
+  ;;             line-end)
+  ;;    (error line-start (file-name) ":" line ":" column ":"
+  ;;           (or " " "\n ") "error:" (optional "\n")
+  ;;           (message
+  ;;            (one-or-more " ") (one-or-more not-newline)
+  ;;            (zero-or-more "\n"
+  ;;                          (one-or-more " ")
+  ;;                          (one-or-more not-newline)))
+  ;;           line-end)
+  ;;    )
+  ;;   ;; :error-filter
+  ;;   ;; (lambda (errors)
+  ;;   ;;   (flycheck-sanitize-errors (flycheck-dedent-error-messages errors)))
+  ;;   :modes haskell-mode
+  ;;   :next-checkers ((warning . haskell-hlint)))
   )
 
 (use-package flycheck-hdevtools
