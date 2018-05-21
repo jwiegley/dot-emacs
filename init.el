@@ -3440,7 +3440,7 @@ append it to ENTRY."
               ("C-<" . smartscan-symbol-go-backward)))
 
 (use-package smedl-mode
-  :load-path "~/bae/xhtml-deliverable/xhtml/mon/smedl/emacs"
+  :load-path "~/bae/micromht-fiat-deliverable/atif-monitors/smon/smedl/emacs"
   :mode "\\.\\(a4\\)?smedl\\'")
 
 (use-package smerge-mode
