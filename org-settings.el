@@ -220,7 +220,6 @@
     (("a" "Add Task" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
       "* TODO %?
-SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
@@ -233,14 +232,12 @@ SCHEDULED: %t
      ("c" "Calendar" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
       "* APPT %?
-SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("t" "Add Task" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
       "* TODO %?
-SCHEDULED: %t
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
@@ -370,6 +367,9 @@ SCHEDULED: %t
  '(org-mobile-files (quote ("~/Documents/tasks/todo.txt")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
  '(org-mobile-inbox-for-pull "~/Documents/tasks/from-mobile.org")
+ '(org-mode-hook
+   (quote
+    (org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode)))
  '(org-modules (quote (org-gnus org-habit org-info org-depend)))
  '(org-plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
  '(org-priority-faces

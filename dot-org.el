@@ -258,8 +258,9 @@ To use this function, add it to `org-agenda-finalize-hook':
                  (match-string 1)
                (delete-region (match-beginning 0)
                               (match-end 0))))))
-      (insert (format "SCHEDULED: %s\n:PROPERTIES:\n"
-                      (format-time-string (org-time-stamp-format))))
+      ;; (insert (format "SCHEDULED: %s\n:PROPERTIES:\n"
+      ;;                 (format-time-string (org-time-stamp-format))))
+      (insert ":PROPERTIES:\n")
       (insert (format ":ID:       %s\n:CREATED:  " uuid)))
     (forward-line)
     (insert ":END:")))
@@ -680,8 +681,8 @@ end tell" (match-string 1))))
                (forward-line)
                (unless (bolp))
                (insert ?\n)
-               (insert (format "SCHEDULED: %s\n"
-                               (format-time-string (org-time-stamp-format))))
+               ;; (insert (format "SCHEDULED: %s\n"
+               ;;                 (format-time-string (org-time-stamp-format))))
                (goto-char (point-max))
                (unless (bolp)
                  (insert ?\n))
@@ -986,9 +987,6 @@ end tell" (match-string 1))))
            "~/Documents/tasks/Nasim.org")
           ("sacramento.lsa1914@gmail.com" .
            "~/Documents/tasks/Sacramento.org"))))
-
-(use-package org-noter
-  :commands org-noter)
 
 (use-package org-opml
   :disabled t)

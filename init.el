@@ -792,7 +792,7 @@
                           (when (check-expansion)
                             #'company-complete-common))))
 
-  (eval-after-load "yasnippet"
+  (eval-after-load "coq"
     '(progn
        (defun company-mode/backend-with-yas (backend)
          (if (and (listp backend) (member 'company-yasnippet backend))
@@ -1781,16 +1781,20 @@
                             "Hoogle query: ")
                           nil nil def)
              current-prefix-arg)))
-    (unless (and hoogle-server-process
-                 (process-live-p hoogle-server-process))
-      (message "Starting local Hoogle server on port 8687...")
-      (with-current-buffer (get-buffer-create " *hoogle-web*")
-        (cd temporary-file-directory)
-        (setq hoogle-server-process
-              (start-process "hoogle-web" (current-buffer)
-                             "load-env-ghc82" "n" "hoogle"
-                             "server" "--local" "--port=8687")))
-      (message "Starting local Hoogle server on port 8687...done"))
+    (let ((pe process-environment)
+          (ep exec-path))
+      (unless (and hoogle-server-process
+                   (process-live-p hoogle-server-process))
+        (message "Starting local Hoogle server on port 8687...")
+        (with-current-buffer (get-buffer-create " *hoogle-web*")
+          (cd temporary-file-directory)
+          (let ((process-environment pe)
+                (exec-path ep))
+            (setq hoogle-server-process
+                  (start-process "hoogle-web" (current-buffer)
+                                 (executable-find "hoogle")
+                                 "server" "--local" "--port=8687"))))
+        (message "Starting local Hoogle server on port 8687...done")))
     (browse-url
      (format "http://127.0.0.1:8687/?hoogle=%s"
              (replace-regexp-in-string
@@ -2908,7 +2912,22 @@
   :config
   (defun password-store--run-edit (entry)
     (require 'pass)
-    (find-file (concat (expand-file-name entry (password-store-dir)) ".gpg"))))
+    (find-file (concat (expand-file-name entry (password-store-dir)) ".gpg")))
+
+  (defun password-store-insert (entry login password)
+    "Insert a new ENTRY containing PASSWORD."
+    (interactive (list (read-string "Password entry: ")
+                       (read-string "Login: ")
+                       (read-passwd "Password: " t)))
+    (message "%s" (shell-command-to-string
+                   (if (string= "" login)
+                       (format "echo %s | %s insert -m -f %s"
+                               (shell-quote-argument password)
+                               password-store-executable
+                               (shell-quote-argument entry))
+                     (format "echo -e '%s\nlogin: %s' | %s insert -m -f %s"
+                             password login password-store-executable
+                             (shell-quote-argument entry)))))))
 
 (use-package password-store-otp
   :defer t
