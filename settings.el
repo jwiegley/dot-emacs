@@ -865,6 +865,7 @@
  '(magit-auto-revert-mode nil)
  '(magit-completing-read-function (quote my-ivy-completing-read))
  '(magit-diff-options nil)
+ '(magit-diff-refine-hunk t)
  '(magit-fetch-arguments nil)
  '(magit-highlight-trailing-whitespace nil)
  '(magit-highlight-whitespace nil)
