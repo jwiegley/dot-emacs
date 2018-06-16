@@ -93,7 +93,7 @@
         (use-package-concat
          (mapcar #'(lambda (path)
                      `(eval-and-compile (add-to-list 'load-path ,path t)))
-                 arg)
+                 args)
          body))))
 
   (advice-add 'use-package-handler/:load-path
