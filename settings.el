@@ -1078,6 +1078,7 @@
    (quote
     ("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*")))
  '(save-abbrevs (quote silently))
+ '(save-interprogram-paste-before-kill t)
  '(save-kill-file-name "~/.emacs.d/data/kill-ring-saved.el" t)
  '(save-place-file "~/.emacs.d/data/places")
  '(savehist-additional-variables

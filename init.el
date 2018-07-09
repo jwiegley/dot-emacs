@@ -907,7 +907,7 @@
          ;; ("M-y"     . counsel-yank-pop)
 
          ("M-s f" . counsel-file-jump)
-         ("M-s g" . counsel-rg)
+         ;; ("M-s g" . counsel-rg)
          ("M-s j" . counsel-dired-jump))
   :commands counsel-minibuffer-history
   :init
@@ -1007,6 +1007,9 @@
 (use-package debbugs-gnu
   :commands (debbugs-gnu debbugs-gnu-search)
   :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
+
+(use-package deadgrep
+  :bind ("M-s g" . deadgrep))
 
 (use-package dedicated
   :bind ("C-c W" . dedicated-mode))
@@ -1171,6 +1174,11 @@
 
 (use-package dired-x
   :after dired)
+
+(use-package direnv
+  :demand t
+  :config
+  (direnv-mode))
 
 (use-package discover
   :disabled t
@@ -2774,8 +2782,8 @@
 (use-package nginx-mode
   :commands nginx-mode)
 
-(use-package nix-buffer
-  :hook ((haskell-mode coq-mode) . nix-buffer))
+;; (use-package nix-buffer
+;;   :hook ((haskell-mode coq-mode) . nix-buffer))
 
 (use-package nix-shell
   :no-require t
@@ -3322,6 +3330,12 @@ append it to ENTRY."
   :config
   (save-place-mode 1))
 
+(use-package sbt-mode
+  :mode "\\.sbt\\'")
+
+(use-package scala-mode
+  :mode "\\.scala\\'")
+
 (use-package sdcv-mode
   :bind ("C-c W" . my-sdcv-search)
   :config
@@ -3332,20 +3346,21 @@ append it to ENTRY."
     (flet ((read-string
             (prompt &optional initial-input history
                     default-value inherit-input-method)
-            (ivy-read prompt
-                      (or sdcv-index
-                          (with-temp-buffer
-                            (insert-file-contents
-                             "~/.local/share/dictionary/websters.index")
-                            (goto-char (point-max))
-                            (insert ")")
-                            (goto-char (point-min))
-                            (insert "(")
-                            (goto-char (point-min))
-                            (setq sdcv-index (read (current-buffer)))))
-                      :history history
-                      :initial-input initial-input
-                      :def default-value)))
+            (ivy-read
+             prompt
+             (or sdcv-index
+                 (with-temp-buffer
+                   (insert-file-contents
+                    "~/.local/share/dictionary/websters.index")
+                   (goto-char (point-max))
+                   (insert ")")
+                   (goto-char (point-min))
+                   (insert "(")
+                   (goto-char (point-min))
+                   (setq sdcv-index (read (current-buffer)))))
+             :history history
+             :initial-input initial-input
+             :def default-value)))
       (call-interactively #'sdcv-search))))
 
 (use-package selected
