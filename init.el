@@ -21,7 +21,7 @@
 ;;; Functions
 
 (eval-and-compile
-  (define-inline emacs-path (path)
+  (defun emacs-path (path)
     (expand-file-name path user-emacs-directory))
 
   (defun lookup-password (host user port)
@@ -1178,7 +1178,12 @@
 (use-package direnv
   :demand t
   :config
-  (direnv-mode))
+  (direnv-mode)
+  (eval-after-load 'flycheck
+    '(setq flycheck-executable-find
+           (lambda (cmd)
+             (direnv-update-environment default-directory)
+             (executable-find cmd)))))
 
 (use-package discover
   :disabled t
@@ -1193,14 +1198,14 @@
          ("C-h M-m"   . discover-my-mode)))
 
 (use-package docker
-  :defer 15
+  :bind ("C-c d" . docker)
   :diminish
-  :config
-  (require 'docker-images)
-  (require 'docker-containers)
-  (require 'docker-volumes)
-  (require 'docker-networks)
-  (docker-global-mode))
+  :init
+  (use-package docker-image     :commands docker-images)
+  (use-package docker-container :commands docker-containers)
+  (use-package docker-volume    :commands docker-volumes)
+  (use-package docker-network   :commands docker-containers)
+  (use-package docker-machine   :commands docker-machines))
 
 (use-package docker-compose-mode
   :mode "docker-compose.*\.yml\\'")
@@ -1401,6 +1406,28 @@
   (when alternate-emacs
     (add-hook 'emacs-startup-hook 'irc))
 
+  (eval-after-load 'erc-identd
+    '(defun erc-identd-start (&optional port)
+       "Start an identd server listening to port 8113.
+  Port 113 (auth) will need to be redirected to port 8113 on your
+  machine -- using iptables, or a program like redir which can be
+  run from inetd. The idea is to provide a simple identd server
+  when you need one, without having to install one globally on
+  your system."
+       (interactive (list (read-string "Serve identd requests on port: " "8113")))
+       (unless port (setq port erc-identd-port))
+       (when (stringp port)
+         (setq port (string-to-number port)))
+       (when erc-identd-process
+         (delete-process erc-identd-process))
+       (setq erc-identd-process
+	     (make-network-process :name "identd"
+			           :buffer nil
+			           :host 'local :service port
+			           :server t :noquery t
+			           :filter 'erc-identd-filter))
+       (set-process-query-on-exit-flag erc-identd-process nil)))
+
   :config
   (erc-track-minor-mode 1)
   (erc-track-mode 1)
@@ -1552,7 +1579,37 @@
                  (bind-key "M-p" #'flycheck-previous-error ,(cdr where)))))
   :config
   (defalias 'show-error-at-point-soon
-    'flycheck-show-error-at-point))
+    'flycheck-show-error-at-point)
+
+  (defun magnars/adjust-flycheck-automatic-syntax-eagerness ()
+    "Adjust how often we check for errors based on if there are any.
+  This lets us fix any errors as quickly as possible, but in a
+  clean buffer we're an order of magnitude laxer about checking."
+    (setq flycheck-idle-change-delay
+          (if flycheck-current-errors 0.3 3.0)))
+
+  ;; Each buffer gets its own idle-change-delay because of the
+  ;; buffer-sensitive adjustment above.
+  (make-variable-buffer-local 'flycheck-idle-change-delay)
+
+  (add-hook 'flycheck-after-syntax-check-hook
+            'magnars/adjust-flycheck-automatic-syntax-eagerness)
+
+  ;; Remove newline checks, since they would trigger an immediate check
+  ;; when we want the idle-change-delay to be in effect while editing.
+  (setq-default flycheck-check-syntax-automatically '(save
+                                                      idle-change
+                                                      mode-enabled))
+
+  (defun flycheck-handle-idle-change ()
+    "Handle an expired idle time since the last change.
+  This is an overwritten version of the original
+  flycheck-handle-idle-change, which removes the forced deferred.
+  Timers should only trigger inbetween commands in a single
+  threaded system and the forced deferred makes errors never show
+  up before you execute another command."
+    (flycheck-clear-idle-change-timer)
+    (flycheck-buffer-automatically 'idle-change)))
 
 (use-package flycheck-haskell
   :commands flycheck-haskell-setup
@@ -1843,19 +1900,29 @@
   (require 'haskell)
   (require 'haskell-doc)
 
+  ;; (defun my-haskell-mode-hook ()
+  ;;   (add-hook
+  ;;    'nix-buffer-after-load-hook
+  ;;    (lambda ()
+  ;;      (haskell-indentation-mode)
+  ;;      (interactive-haskell-mode)
+  ;;      (diminish 'interactive-haskell-mode)
+  ;;      (flycheck-mode 1)
+  ;;      (flycheck-haskell-setup)
+  ;;      (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+  ;;      (prettify-symbols-mode 1)
+  ;;      (bug-reference-prog-mode 1))
+  ;;    t t))
+
   (defun my-haskell-mode-hook ()
-    (add-hook
-     'nix-buffer-after-load-hook
-     (lambda ()
-       (haskell-indentation-mode)
-       (interactive-haskell-mode)
-       (diminish 'interactive-haskell-mode)
-       (flycheck-mode 1)
-       (flycheck-haskell-setup)
-       (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
-       (prettify-symbols-mode 1)
-       (bug-reference-prog-mode 1))
-     t t))
+    (haskell-indentation-mode)
+    (interactive-haskell-mode)
+    (diminish 'interactive-haskell-mode)
+    (flycheck-mode 1)
+    (flycheck-haskell-setup)
+    (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+    (prettify-symbols-mode 1)
+    (bug-reference-prog-mode 1))
 
   (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
 
@@ -3830,7 +3897,7 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)   51)
     (`imac                     57)
-    (`macbook-pro-vga          54)
+    (`macbook-pro-vga          55)
     (`macbook-pro              47)))
 
 (defconst emacs-min-width
