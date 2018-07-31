@@ -557,6 +557,7 @@ BAE Systems"))))
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(gnus-summary-normal-ticked ((t (:foreground "pink4"))))
  '(message-cited-text ((((class color)) (:foreground "Blue"))))
  '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
  '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))

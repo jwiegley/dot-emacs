@@ -447,7 +447,7 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("0.1" "#hs-to-coq")
+    (("0.1" "#nixos" "#nix-darwin" "#hnix" "#haskell-overflow" "#haskell-ops" "#haskell-infrastructure" "#haskell" "#coq-blah" "#coq" "##categorytheory" "#use-package/Lobby" "#ledger" "#haskell-nix/Lobby" "#coq/coq" "#hs-to-coq")
      ("freenode" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin" "#haskell-infrastructure" "##categorytheory" "#nixos")
      ("gitter" "#use-package/Lobby" "#haskell-nix/Lobby"))))
  '(erc-button-alist
@@ -485,7 +485,7 @@
  '(erc-fill-static-center 12)
  '(erc-foolish-content
    (quote
-    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:")))
+    ("MichaelSnoyman" "BrendanHay" "MichaelSloan" "ChrisDone" "travis-ci.*ekmett" "analystics.*ekmett" "rudybot:" "Ostergaard")))
  '(erc-format-nick-function (quote erc-format-@nick))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
@@ -881,7 +881,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub" t)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_mmd -S")
+ '(markdown-command "pandoc -f markdown_mmd -S" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "open-markdown")
@@ -913,7 +913,7 @@
    (quote
     (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
- '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer")
+ '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer" t)
  '(nov-save-place-file "~/.emacs.d/data/nov-places" t)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
@@ -1213,7 +1213,7 @@
  '(whitespace-line-column 80)
  '(whitespace-rescan-timer-time nil t)
  '(whitespace-silent t t)
- '(whitespace-style (quote (face trailing lines space-before-tab empty)))
+ '(whitespace-style (quote (face trailing lines-tail space-before-tab)))
  '(window-divider-default-bottom-width 1)
  '(window-divider-default-places (quote bottom-only))
  '(workgroups-mode nil)
@@ -1254,12 +1254,16 @@
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) (t (:foreground "DarkBlue"))))
  '(font-lock-comment-face ((t (:foreground "grey50" :slant italic))))
  '(font-lock-doc-face ((t (:foreground "purple4"))))
+ '(highlight ((t (:background "blue4"))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 2.0))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
  '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.4))))
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
+ '(minibuffer-prompt ((t (:foreground "grey80"))))
  '(mode-line-inactive ((t (:background "grey95"))))
- '(proof-script-sticky-error-face ((t (:background "yellow"))))
+ '(proof-locked-face ((t (:background "#180526"))))
+ '(proof-queue-face ((t (:background "#431807"))))
+ '(proof-script-sticky-error-face ((t (:background "#50110e"))))
  '(variable-pitch ((t (:height 1.2 :family "Bookerly"))))
- '(whitespace-line ((t (:background "#fff7d5"))))
+ '(whitespace-line ((t (:background "yellow"))))
  '(yas-field-highlight-face ((t (:background "#e4edfc")))))

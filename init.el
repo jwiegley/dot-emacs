@@ -1183,7 +1183,9 @@
     '(setq flycheck-executable-find
            (lambda (cmd)
              (direnv-update-environment default-directory)
-             (executable-find cmd)))))
+             (executable-find cmd))))
+  :hook
+  (coq-mode . direnv-update-environment))
 
 (use-package discover
   :disabled t
@@ -3198,7 +3200,6 @@ append it to ENTRY."
                    :after #'my-projectile-invalidate-cache))))
 
 (use-package proof-site
-  :defer 5
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
@@ -3912,7 +3913,7 @@ append it to ENTRY."
     ((guard alternate-emacs)
      "-*-Bookerly-normal-normal-normal-*-21-*-*-*-p-0-iso10646-1")
     (`imac "-*-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")
-    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-18-*-*-*-m-0-iso10646-1")))
+    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
   (interactive)
@@ -3940,6 +3941,11 @@ append it to ENTRY."
     (emacs-max)))
 
 (add-hook 'emacs-startup-hook #'emacs-min t)
+
+(use-package color-theme
+  :config
+  (load "color-theme-library")
+  (color-theme-midnight))
 
 ;;; Finalization
 
