@@ -705,13 +705,9 @@
   ;; jww (2017-12-10): Need to configure.
   :disabled t)
 
-(use-package cldoc
-  :commands (cldoc-mode turn-on-cldoc-mode)
-  :diminish)
-
-(use-package clipmon
-  :bind ("<f2>" . clipmon-autoinsert-toggle)
-  :hook (after-init . clipmon-mode-start))
+;; (use-package clipmon
+;;   :bind ("<f2>" . clipmon-autoinsert-toggle)
+;;   :hook (after-init . clipmon-mode-start))
 
 (use-package cmake-font-lock
   :hook (cmake-mode . cmake-font-lock-activate))
@@ -2562,6 +2558,8 @@
   :bind (:map magit-file-section-map ("<C-return>"))
   :bind (:map magit-hunk-section-map ("<C-return>"))
   :preface
+  ;; History can be viewed with:
+  ;; git log refs/snapshots/$(git symbolic-ref HEAD)
   (defun magit-monitor (&optional no-display)
     "Start git-monitor in the current directory."
     (interactive)
@@ -3183,7 +3181,10 @@ append it to ENTRY."
 (use-package projectile
   :defer 5
   :diminish
-  :bind* ("C-c TAB" . projectile-find-other-file)
+  :bind* (("C-c TAB" . projectile-find-other-file)
+          ("C-c P" . (lambda () (interactive)
+                       (projectile-cleanup-known-projects)
+                       (projectile-discover-projects-in-search-path))))
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (projectile-global-mode)
@@ -3492,7 +3493,6 @@ append it to ENTRY."
   :init
   ;; (unless (memq major-mode
   ;;               '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-  ;;   (turn-on-cldoc-mode)
   ;;   ("M-q" . slime-reindent-defun)
   ;;   ("M-l" . slime-selector))
 
@@ -3881,6 +3881,7 @@ append it to ENTRY."
 
 (defconst display-name
   (pcase (display-pixel-width)
+    (`3840 'dell-wide)
     (`2560 'imac)
     (`1920 'macbook-pro-vga)
     (`1680 'macbook-pro)))
@@ -3890,13 +3891,15 @@ append it to ENTRY."
 (defconst emacs-min-left
   (pcase display-name
     ((guard alternate-emacs)    0)
+    (`dell-wide               1000)
     (`imac                    115)
-    (`macbook-pro-vga         800)
-    (`macbook-pro             555)))
+    (`macbook-pro-vga         700)
+    (`macbook-pro             464)))
 
 (defconst emacs-min-height
   (pcase display-name
     ((guard alternate-emacs)   51)
+    (`dell-wide                64)
     (`imac                     57)
     (`macbook-pro-vga          55)
     (`macbook-pro              47)))
@@ -3904,6 +3907,7 @@ append it to ENTRY."
 (defconst emacs-min-width
   (pcase display-name
     ((guard alternate-emacs)   80)
+    (`dell-wide               160)
     (`imac                    202)
     (`macbook-pro-vga         100)
     (`macbook-pro             100)))

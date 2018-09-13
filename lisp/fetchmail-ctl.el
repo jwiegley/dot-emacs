@@ -46,7 +46,7 @@
                (throw 'proc-running proc)
              (throw 'proc-running nil)))))))
 
-(defun start-fetchmail (&optional name once &rest extra-args)
+(defun start-fetchmail (&optional passwd name once &rest extra-args)
   (interactive)
   (let ((procname (or name "*fetchmail*")))
     (unless (process-running-p procname)
@@ -58,7 +58,7 @@
               (apply #'start-process procname buf
                      "fetchmail" "-n" "-N" args))
         (sleep-for 0 250)
-        (process-send-string fetchmail-process (fetchmail-password))
+        (process-send-string fetchmail-process passwd)
         (process-send-string fetchmail-process "\n"))
       (message "Starting Fetchmail...done"))))
 
@@ -78,6 +78,7 @@
 (defun shutdown-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*")
+  ;; (safely-kill-process "*fetchmail-work*")
   (safely-kill-process "*fetchmail-lists*")
   ;; (safely-kill-process "*fetchmail-spam*")
   ;; (safely-kill-process "*fetchnews*")
@@ -86,6 +87,7 @@
 (defun kick-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking")
+  ;; (safely-kill-process "*fetchmail-work*" 'SIGUSR1 "Kicking")
   (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking")
   ;; (safely-kill-process "*fetchmail-spam*" 'SIGUSR1 "Kicking")
   )
@@ -119,9 +121,25 @@
                (unless (file-directory-p cache-dir)
                  (make-directory cache-dir t))
                (start-fetchmail
+                (lookup-password "imap.fastmail.com" "johnw" 993)
                 "*fetchmail*" nil "--idle"
                 "--pidfile" (expand-file-name "pid" cache-dir)
                 "-f" (expand-file-name "config.copy" config-dir)))))))
+        ;; (fetchmail-lists-buf
+        ;;  (get-buffer-or-call-func
+        ;;   "*fetchmail-work*"
+        ;;   (function
+        ;;    (lambda ()
+        ;;      (let ((process-environment (copy-alist process-environment))
+        ;;            (config-dir (expand-file-name "~/.config/fetchmail"))
+        ;;            (cache-dir (expand-file-name "~/.cache/fetchmail")))
+        ;;        (unless (file-directory-p cache-dir)
+        ;;          (make-directory cache-dir t))
+        ;;        (start-fetchmail
+        ;;         (lookup-password "dfinity.imap.gmail.com" "john@dfinity.org" 993)
+        ;;         "*fetchmail-work*" nil "--idle"
+        ;;         "--pidfile" (expand-file-name "work.pid" cache-dir)
+        ;;         "-f" (expand-file-name "config-work.copy" config-dir)))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
@@ -134,6 +152,7 @@
                  (make-directory cache-dir t))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
                (start-fetchmail
+                (lookup-password "imap.fastmail.com" "johnw" 993)
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "lists.pid" cache-dir)
                 "-f" (expand-file-name "config-lists.copy" config-dir)))))))

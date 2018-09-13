@@ -715,6 +715,10 @@ end tell" (match-string 1))))
   ad-do-it
   (org-fit-agenda-window))
 
+(defun org-refile-heading-p ()
+  (let ((heading (org-get-heading)))
+    (not (string-match "Colophon" heading))))
+
 (defun org-inline-note ()
   (interactive)
   (switch-to-buffer-other-window "notes.txt")
@@ -970,6 +974,7 @@ end tell" (match-string 1))))
 (use-package org-devonthink)
 
 (use-package org-gcal
+  :disabled t
   :commands org-gcal-sync
   :config
   (setq org-gcal-client-id
