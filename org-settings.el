@@ -144,7 +144,7 @@
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/BAE.txt")))
+         ("~/Documents/tasks/dfinity.txt")))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))
@@ -169,12 +169,12 @@
       ((org-agenda-overriding-header "All TODOs")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/BAE.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/index.txt" "~/Documents/tasks/notes.txt" "~/Documents/tasks/archive/BAE.txt" "~/Documents/tasks/archive/Bahai.txt" "~/Documents/tasks/archive/BoostPro.txt" "~/Documents/tasks/archive/CEG.txt" "~/Documents/tasks/archive/Embarcadero.txt" "~/Documents/tasks/archive/FPComplete.txt" "~/Documents/tasks/archive/IL-05.txt" "~/Documents/tasks/archive/TI.txt" "~/Documents/tasks/archive/archive-2007.txt" "~/Documents/tasks/archive/archive-2008.txt" "~/Documents/tasks/archive/archive-2009.txt" "~/Documents/tasks/archive/archive-2010.txt" "~/Documents/tasks/archive/archive-2011.txt" "~/Documents/tasks/archive/archive-2012.txt" "~/Documents/tasks/archive/archive-2013.txt" "~/Documents/tasks/archive/archive-2014.txt" "~/Documents/tasks/archive/archive-2015.txt" "~/Documents/tasks/archive/archive-2016.txt" "~/Documents/tasks/archive/archive-2017.txt" "~/Documents/tasks/archive/archive.txt" "~/Documents/tasks/archive/emacs.txt"))))))))
+         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/dfinity.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/index.txt" "~/Documents/tasks/notes.txt" "~/Documents/tasks/archive/dfinity.txt" "~/Documents/tasks/archive/Bahai.txt" "~/Documents/tasks/archive/BoostPro.txt" "~/Documents/tasks/archive/CEG.txt" "~/Documents/tasks/archive/Embarcadero.txt" "~/Documents/tasks/archive/FPComplete.txt" "~/Documents/tasks/archive/IL-05.txt" "~/Documents/tasks/archive/TI.txt" "~/Documents/tasks/archive/archive-2007.txt" "~/Documents/tasks/archive/archive-2008.txt" "~/Documents/tasks/archive/archive-2009.txt" "~/Documents/tasks/archive/archive-2010.txt" "~/Documents/tasks/archive/archive-2011.txt" "~/Documents/tasks/archive/archive-2012.txt" "~/Documents/tasks/archive/archive-2013.txt" "~/Documents/tasks/archive/archive-2014.txt" "~/Documents/tasks/archive/archive-2015.txt" "~/Documents/tasks/archive/archive-2016.txt" "~/Documents/tasks/archive/archive-2017.txt" "~/Documents/tasks/archive/archive.txt" "~/Documents/tasks/archive/emacs.txt"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/tasks/BAE.txt" "~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/Google.org" "~/Documents/tasks/Bahá'í.org" "~/Documents/tasks/Family.org")))
+    ("~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/dfinity.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -355,10 +355,9 @@
  '(org-latex-listings (quote minted))
  '(org-latex-minted-options
    (quote
-    (("fontfamily" "courier")
-     ("fontsize" "\\footnotesize")
+    (("fontsize" "\\footnotesize")
      ("linenos" "true")
-     ("xleftmargin" "1em"))))
+     ("xleftmargin" "0em"))))
  '(org-latex-pdf-process
    (quote
     ("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
@@ -374,15 +373,16 @@
  '(org-plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
  '(org-priority-faces
    (quote
-    ((65 :foreground "ForestGreen" :weight bold)
-     (66 . "DarkGreen")
+    ((65 :foreground "White" :weight bold)
+     (66 . "White")
      (67 :foreground "dark gray" :slant italic))))
+ '(org-refile-target-verify-function (quote org-refile-heading-p))
  '(org-refile-targets
    (quote
     (("~/Documents/tasks/todo.txt" :level . 1)
+     ("~/Documents/tasks/dfinity.txt" :level . 1)
      ("~/Documents/tasks/Bahai.txt" :level . 1)
      ("~/Documents/tasks/OSS.txt" :level . 1)
-     ("~/Documents/tasks/BAE.txt" :level . 1)
      (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
@@ -438,6 +438,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-clocking ((t (:background "red2"))) t)
  '(org-agenda-done ((t (:foreground "ForestGreen"))))
  '(org-done ((t (:foreground "ForestGreen" :weight bold))))
  '(org-habit-alert-face ((((background light)) (:background "#f5f946"))))
@@ -449,6 +450,6 @@
  '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
  '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
  '(org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
- '(org-level-4 ((t (:foreground "darkblue"))))
+ '(org-level-4 ((t (:foreground "green"))))
  '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
  '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown")))))

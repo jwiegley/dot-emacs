@@ -447,8 +447,8 @@
  '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autojoin-channels-alist
    (quote
-    (("0.1" "#nixos" "#nix-darwin" "#hnix" "#haskell-overflow" "#haskell-ops" "#haskell-infrastructure" "#haskell" "#coq-blah" "#coq" "##categorytheory" "#use-package/Lobby" "#ledger" "#haskell-nix/Lobby" "#coq/coq" "#hs-to-coq")
-     ("freenode" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin" "#haskell-infrastructure" "##categorytheory" "#nixos")
+    (("0.1" "#nixos" "#nix-darwin" "#hnix" "#haskell-overflow" "#haskell-ops" "#haskell-infrastructure" "#haskell" "#coq-blah" "#coq" "##categorytheory" "#use-package/Lobby" "#ledger" "#haskell-nix/Lobby" "#coq/coq" "#hs-to-coq" "#org-mode")
+     ("freenode" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin" "#haskell-infrastructure" "##categorytheory" "#nixos" "#org-mode")
      ("gitter" "#use-package/Lobby" "#haskell-nix/Lobby"))))
  '(erc-button-alist
    (quote
@@ -675,7 +675,7 @@
  '(global-undo-tree-mode t)
  '(grep-command "egrep -nH -e ")
  '(grep-find-command
-   "find . -name '*.v' -type f -print0 | xargs -P4 -0 egrep -nH ")
+   "find . -name '*' -type f -print0 | parallel -j8 --null egrep -nH ")
  '(grep-save-buffers t)
  '(guide-key/guide-key-sequence t)
  '(guide-key/idle-delay 1.5)
@@ -843,7 +843,7 @@
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
  '(jobhours-files
    (quote
-    ("~/Documents/tasks/BAE.txt" "~/Documents/tasks/archive/BAE.txt")))
+    ("~/Documents/tasks/dfinity.txt" "~/Documents/tasks/archive/dfinity.txt")))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 500)
  '(kill-whole-line t)
@@ -914,6 +914,7 @@
     (gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score)))
  '(next-line-add-newlines nil)
  '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer" t)
+ '(nix-indent-function (quote nix-indent-line))
  '(nov-save-place-file "~/.emacs.d/data/nov-places" t)
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
@@ -950,11 +951,15 @@
  '(projectile-completion-system (quote ivy))
  '(projectile-enable-caching t)
  '(projectile-file-exists-local-cache-expire 300)
+ '(projectile-globally-ignored-directories
+   (quote
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist")))
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-ignored-project-function
    (lambda
      (path)
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
+ '(projectile-keymap-prefix "p")
  '(projectile-known-projects-file "~/.emacs.d/data/projectile-bookmarks.eld")
  '(projectile-other-file-alist
    (quote
@@ -981,6 +986,7 @@
      ("hs" "hs-boot")
      ("nix" "exp")
      ("exp" "nix"))))
+ '(projectile-project-search-path (quote ("~/src")))
  '(projectile-sort-order (quote recentf))
  '(proof-auto-action-when-deactivating-scripting (quote retract))
  '(proof-autosend-enable nil)
@@ -1264,6 +1270,7 @@
  '(proof-locked-face ((t (:background "#180526"))))
  '(proof-queue-face ((t (:background "#431807"))))
  '(proof-script-sticky-error-face ((t (:background "#50110e"))))
+ '(proof-warning-face ((t (:background "orange4"))))
  '(variable-pitch ((t (:height 1.2 :family "Bookerly"))))
  '(whitespace-line ((t (:background "yellow"))))
  '(yas-field-highlight-face ((t (:background "#e4edfc")))))
