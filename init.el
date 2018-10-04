@@ -1549,7 +1549,7 @@
   :commands (fancy-narrow-to-region fancy-widen))
 
 (use-package feebleline
-  :commands feebleline-mode
+  :bind (("M-o m" . feebleline-mode))
   :config
   (window-divider-mode t))
 
@@ -2367,8 +2367,7 @@
   :after ivy
   :demand t
   :config
-  (ivy-set-display-transformer 'ivy-switch-buffer
-                               'ivy-rich-switch-buffer-transformer)
+  (ivy-rich-mode 1)
   (setq ivy-virtual-abbreviate 'full
         ivy-rich-switch-buffer-align-virtual-buffer t
         ivy-rich-path-style 'abbrev))
@@ -3907,7 +3906,7 @@ append it to ENTRY."
 (defconst emacs-min-width
   (pcase display-name
     ((guard alternate-emacs)   80)
-    (`dell-wide               160)
+    (`dell-wide               202)
     (`imac                    202)
     (`macbook-pro-vga         100)
     (`macbook-pro             100)))
