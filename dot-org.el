@@ -969,7 +969,9 @@ end tell" (match-string 1))))
 
 (use-package org-bookmark-heading)
 
-(use-package org-crypt)
+(use-package org-crypt
+  :bind (:map org-mode-map
+              ("C-c C-x C-/" . org-decrypt-entry)))
 
 (use-package org-devonthink)
 
