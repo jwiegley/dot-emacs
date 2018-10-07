@@ -964,9 +964,7 @@
 (use-package counsel-projectile
   :after (counsel projectile)
   :config
-  (counsel-projectile-mode)
-  (define-key counsel-projectile-mode-map [remap projectile-ag]
-    #'counsel-projectile-rg))
+  (counsel-projectile-mode 1))
 
 (use-package counsel-tramp
   :commands counsel-tramp)
