@@ -1080,6 +1080,9 @@ end tell" (match-string 1))))
   :config
   (load "org-insert-dblock"))
 
+(use-package ox-jira
+  :disabled t)
+
 (use-package ox-md)
 
 (use-package ox-pandoc)
