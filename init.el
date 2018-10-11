@@ -876,7 +876,12 @@
   :hook (compilation-filter . compilation-ansi-color-process-output))
 
 (use-package copy-as-format
-  :bind ("C-c M-w" . copy-as-format)
+  :bind (("C-c w m" . copy-as-format-markdown)
+         ("C-c w g" . copy-as-format-slack)
+         ("C-c w o" . copy-as-format-org-mode)
+         ("C-c w r" . copy-as-format-rst)
+         ("C-c w s" . copy-as-format-github)
+         ("C-c w w" . copy-as-format))
   :init
   (setq copy-as-format-default "github"))
 
