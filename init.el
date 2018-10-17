@@ -1255,6 +1255,9 @@
 (use-package ebdb-com
   :commands ebdb)
 
+(use-package edbi
+  :commands edbi:sql-mode)
+
 (use-package ediff
   :bind (("C-c = b" . ediff-buffers)
          ("C-c = B" . ediff-buffers3)
@@ -3640,6 +3643,9 @@ append it to ENTRY."
              tidy-parse-config-file
              tidy-save-settings
              tidy-describe-options))
+
+(use-package tla-mode
+  :mode "\\.tla\\'")
 
 (use-package tramp
   :defer 5

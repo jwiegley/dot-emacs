@@ -260,7 +260,10 @@
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :URL:      %c
-:END:"))))
+:END:")
+     ("j" "Journal entry" entry
+      (file+datetree "~/Documents/tasks/dfinity.txt")
+      "* %?"))))
  '(org-clock-clocked-in-display nil)
  '(org-clock-idle-time 10)
  '(org-clock-in-resume t)
