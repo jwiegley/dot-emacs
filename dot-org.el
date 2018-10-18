@@ -995,6 +995,24 @@ end tell" (match-string 1))))
           ("sacramento.lsa1914@gmail.com" .
            "~/Documents/tasks/Sacramento.org"))))
 
+(use-package org-mime
+  :config
+  (add-hook 'message-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
+
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
+
+  (add-hook 'org-mime-html-hook
+            (lambda ()
+              (org-mime-change-element-style
+               "blockquote" "border-left: 2px solid gray; padding-left: 4px;")
+              (org-mime-change-element-style
+               "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
+                             "#E6E1DC" "#232323")))))
+
 (use-package org-opml
   :disabled t)
 
