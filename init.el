@@ -1904,20 +1904,6 @@
   (require 'haskell)
   (require 'haskell-doc)
 
-  ;; (defun my-haskell-mode-hook ()
-  ;;   (add-hook
-  ;;    'nix-buffer-after-load-hook
-  ;;    (lambda ()
-  ;;      (haskell-indentation-mode)
-  ;;      (interactive-haskell-mode)
-  ;;      (diminish 'interactive-haskell-mode)
-  ;;      (flycheck-mode 1)
-  ;;      (flycheck-haskell-setup)
-  ;;      (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
-  ;;      (prettify-symbols-mode 1)
-  ;;      (bug-reference-prog-mode 1))
-  ;;    t t))
-
   (defun my-auto-format ()
     (interactive)
     (save-restriction
@@ -2876,9 +2862,6 @@
 
 (use-package nginx-mode
   :commands nginx-mode)
-
-;; (use-package nix-buffer
-;;   :hook ((haskell-mode coq-mode) . nix-buffer))
 
 (use-package nix-shell
   :no-require t
