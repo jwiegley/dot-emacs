@@ -1918,22 +1918,31 @@
   ;;      (bug-reference-prog-mode 1))
   ;;    t t))
 
-  (defun my-brittanize ()
+  (defun my-auto-format ()
     (interactive)
     (save-restriction
       (save-excursion
-        (let ((buf (buffer-string)))
+        (let ((buf (buffer-string))
+              write-contents-hooks)
           (unless (= 0 (call-process-region (point-min) (point-max)
                                             "brittany" t t nil "--indent=2"))
             (delete-region (point-min) (point-max))
             (insert buf)
-            (set-buffer-modified-p nil))))))
+            (set-buffer-modified-p nil)
+            (unless (= 0 (call-process-region (point-min) (point-max)
+                                              "stylish-haskell" t t))
+              (delete-region (point-min) (point-max))
+              (insert buf)
+              (set-buffer-modified-p nil)))))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    (setq-local normalize-hook '(my-brittanize))
+    (setq-local normalize-hook '(my-auto-format))
     (add-hook 'write-contents-hooks
-              #'(lambda () (ignore (whitespace-cleanup))) nil t)
+              #'(lambda ()
+                  (ignore
+                   (whitespace-cleanup)
+                   (my-auto-format))) nil t)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
     (flycheck-mode 1)
