@@ -1918,8 +1918,22 @@
   ;;      (bug-reference-prog-mode 1))
   ;;    t t))
 
+  (defun my-brittanize ()
+    (interactive)
+    (save-restriction
+      (save-excursion
+        (let ((buf (buffer-string)))
+          (unless (= 0 (call-process-region (point-min) (point-max)
+                                            "brittany" t t nil "--indent=2"))
+            (delete-region (point-min) (point-max))
+            (insert buf)
+            (set-buffer-modified-p nil))))))
+
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
+    (setq-local normalize-hook '(my-brittanize))
+    (add-hook 'write-contents-hooks
+              #'(lambda () (ignore (whitespace-cleanup))) nil t)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
     (flycheck-mode 1)
@@ -3747,11 +3761,14 @@ append it to ENTRY."
              whitespace-mode
              whitespace-turn-off)
   :preface
+  (defvar normalize-hook nil)
+
   (defun normalize-file ()
     (interactive)
     (save-excursion
       (goto-char (point-min))
       (whitespace-cleanup)
+      (run-hook-with-args normalize-hook)
       (delete-trailing-whitespace)
       (goto-char (point-max))
       (delete-blank-lines)
