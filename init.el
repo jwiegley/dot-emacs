@@ -1545,9 +1545,13 @@
 (use-package eyebrowse
   :bind-keymap ("C-\\" . eyebrowse-mode-map)
   :bind (:map eyebrowse-mode-map
-              ("C-\\ C-\\" . eyebrowse-last-window-config))
+              ("C-\\ C-\\" . eyebrowse-last-window-config)
+              ("A-1" . eyebrowse-switch-to-window-config-1)
+              ("A-2" . eyebrowse-switch-to-window-config-2)
+              ("A-3" . eyebrowse-switch-to-window-config-3)
+              ("A-4" . eyebrowse-switch-to-window-config-4))
   :config
-  (eyebrowse-mode))
+  (eyebrowse-mode t))
 
 (use-package fancy-narrow
   :bind (("C-c N N" . fancy-narrow-to-region)
@@ -1616,51 +1620,7 @@
     (flycheck-buffer-automatically 'idle-change)))
 
 (use-package flycheck-haskell
-  :commands flycheck-haskell-setup
-  :config
-  ;; (flycheck-define-checker haskell-hdevtools
-  ;;   "A Haskell syntax and type checker using hdevtools.
-
-  ;; See URL `https://github.com/hdevtools/hdevtools'."
-  ;;   :command
-  ;;   ("hdevtools" "check" "-g" "-Wall"
-  ;;    (eval (when flycheck-ghc-no-user-package-database
-  ;;            (list "-g" "-no-user-package-db")))
-  ;;    (eval (apply #'append (mapcar (lambda (db) (concat "-g-package-db" db))
-  ;;                                  flycheck-ghc-package-databases)))
-  ;;    (eval (concat
-  ;;           "-g-i"
-  ;;           (flycheck-module-root-directory
-  ;;            (flycheck-find-in-buffer flycheck-haskell-module-re))))
-  ;;    (eval (apply #'append (mapcar (lambda (db) (list (concat "-g-i" db)))
-  ;;                                  flycheck-ghc-search-path)))
-  ;;    (eval (apply #'append (mapcar (lambda (arg) (list "-g" arg))
-  ;;                                  flycheck-ghc-args)))
-  ;;    source-inplace)
-  ;;   :error-patterns
-  ;;   ((warning line-start (file-name) ":" line ":" column ":"
-  ;;             (or " " "\n ") "warning:" (optional "\n")
-  ;;             (message
-  ;;              (one-or-more " ") (one-or-more not-newline)
-  ;;              (zero-or-more "\n"
-  ;;                            (one-or-more " ")
-  ;;                            (one-or-more not-newline)))
-  ;;             line-end)
-  ;;    (error line-start (file-name) ":" line ":" column ":"
-  ;;           (or " " "\n ") "error:" (optional "\n")
-  ;;           (message
-  ;;            (one-or-more " ") (one-or-more not-newline)
-  ;;            (zero-or-more "\n"
-  ;;                          (one-or-more " ")
-  ;;                          (one-or-more not-newline)))
-  ;;           line-end)
-  ;;    )
-  ;;   ;; :error-filter
-  ;;   ;; (lambda (errors)
-  ;;   ;;   (flycheck-sanitize-errors (flycheck-dedent-error-messages errors)))
-  ;;   :modes haskell-mode
-  ;;   :next-checkers ((warning . haskell-hlint)))
-  )
+  :commands flycheck-haskell-setup)
 
 (use-package flycheck-hdevtools
   :disabled t
@@ -1923,12 +1883,12 @@
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    (setq-local normalize-hook '(my-auto-format))
-    (add-hook 'write-contents-hooks
-              #'(lambda ()
-                  (ignore
-                   (whitespace-cleanup)
-                   (my-auto-format))) nil t)
+    ;; (setq-local normalize-hook '(my-auto-format))
+    ;; (add-hook 'write-contents-hooks
+    ;;           #'(lambda ()
+    ;;               (ignore
+    ;;                (whitespace-cleanup)
+    ;;                (my-auto-format))) nil t)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
     (flycheck-mode 1)
@@ -3498,6 +3458,27 @@ append it to ENTRY."
   ;;  5408211 ;; West Sacramento, CA, USA
   ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
+
+(use-package slack
+  :disabled t
+  :commands (slack-start)
+  :init
+  ;; (setq slack-buffer-emojify t)
+  (setq slack-prefer-current-team t)
+  :config
+  (slack-register-team
+   :name "DFINITY"
+   :default t
+   :client-id "139519969889.466594779095" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
+   :client-secret "42abc8b9b1721e4e95dfa3b3dd34cdd3" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
+   :token "" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
+   :subscribed-channels '(verification)
+   :full-and-display-names t))
+
+(use-package tracking
+  :defer t
+  :config
+  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
 
 (use-package slime
   :commands slime

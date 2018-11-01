@@ -1098,12 +1098,16 @@ end tell" (match-string 1))))
   :config
   (load "org-insert-dblock"))
 
+(use-package ox-confluence
+  :commands org-confluence-export-as-confluence)
+
 (use-package ox-jira
-  :disabled t)
+  :commands ox-jira-export-as-jira)
 
 (use-package ox-md)
 
-(use-package ox-pandoc)
+(use-package ox-pandoc
+  :disabled t)
 
 (use-package ox-texinfo-plus
   :defer t)

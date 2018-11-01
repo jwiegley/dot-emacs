@@ -194,7 +194,9 @@
      ("mer" "▽")
      ("iso" "≅")
      ("miso" "≃")
-     ("diag" "∆"))))
+     ("diag" "∆")
+     ("whl" "⊳")
+     ("whr" "⊲"))))
  '(agda2-include-dirs
    (quote
     ("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda")))
@@ -628,6 +630,8 @@
       "Download with Aria"))))
  '(eww-search-prefix "https://startpage.com/do/m/mobilesearch?query=")
  '(eyebrowse-keymap-prefix "")
+ '(eyebrowse-mode-line-separator " ")
+ '(eyebrowse-new-workspace t)
  '(fill-column 78)
  '(find-ls-option (quote ("-print0 | xargs -P4 -0 ls -ldN" . "-ldN")))
  '(find-ls-subdir-switches "-ldN")
@@ -1113,6 +1117,10 @@
  '(shm-use-presentation-mode t)
  '(show-paren-delay 0)
  '(sky-color-clock-format "%-l:%M %p")
+ '(slack-buffer-create-on-notify t)
+ '(slack-completing-read-function (quote ivy-completing-read))
+ '(slack-prefer-current-team t)
+ '(slack-request-timeout 30)
  '(slime-kill-without-query-p t)
  '(slime-repl-history-file "~/.emacs.d/data/slime-history.eld" t)
  '(slime-startup-animation nil)
