@@ -305,7 +305,7 @@
       (".cxx")))))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
-    ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "&bitlbee")))
+    ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "dfinity.txt" "habits.txt" "Bahai.txt" "OSS.txt" "diary" "notes.txt" "&bitlbee")))
  '(clean-buffer-list-kill-never-regexps
    (quote
     ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
@@ -885,10 +885,10 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub" t)
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart")
+ '(markdown-command "pandoc -f markdown_github+smart" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
- '(markdown-open-command "open-markdown")
+ '(markdown-open-command "marked")
  '(math-additional-units
    (quote
     ((GiB "1024 * MiB" "Giga Byte")
@@ -957,7 +957,7 @@
  '(projectile-file-exists-local-cache-expire 300)
  '(projectile-globally-ignored-directories
    (quote
-    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist")))
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist" "\\`/nix/.+" ".*/\\..*")))
  '(projectile-globally-ignored-files (quote ("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID")))
  '(projectile-ignored-project-function
    (lambda
