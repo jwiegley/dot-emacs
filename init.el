@@ -1863,27 +1863,15 @@
   :config
   (require 'haskell)
   (require 'haskell-doc)
+  (require 'haskell-commands)
 
   (defun my-auto-format ()
     (interactive)
-    (save-restriction
-      (save-excursion
-        (let ((buf (buffer-string))
-              write-contents-hooks)
-          (unless (= 0 (call-process-region (point-min) (point-max)
-                                            "brittany" t t nil "--indent=2"))
-            (delete-region (point-min) (point-max))
-            (insert buf)
-            (set-buffer-modified-p nil)
-            (unless (= 0 (call-process-region (point-min) (point-max)
-                                              "stylish-haskell" t t))
-              (delete-region (point-min) (point-max))
-              (insert buf)
-              (set-buffer-modified-p nil)))))))
+    (when (executable-find "brittany")
+      (haskell-mode-buffer-apply-command "brittany")))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    ;; (setq-local normalize-hook '(my-auto-format))
     ;; (add-hook 'write-contents-hooks
     ;;           #'(lambda ()
     ;;               (ignore
@@ -2587,7 +2575,6 @@
   :after magit)
 
 (use-package magithub
-  :disabled t
   :after magit
   :config
   (magithub-feature-autoinject t)
