@@ -374,6 +374,7 @@
     (org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode)))
  '(org-modules (quote (org-gnus org-habit org-info org-depend)))
  '(org-plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
+ '(org-pretty-entities t)
  '(org-priority-faces
    (quote
     ((65 :foreground "White" :weight bold)
