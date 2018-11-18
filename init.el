@@ -2540,6 +2540,16 @@
     (let ((current-prefix-arg '(4)))
       (call-interactively 'magit-status)))
 
+  (defun endless/visit-pull-request-url ()
+    "Visit the current branch's PR on Github."
+    (interactive)
+    (browse-url
+     (format "https://github.com/%s/pull/new/%s"
+             (replace-regexp-in-string
+              "\\`.+github\\.com:\\(.+?\\)\\(\\.git\\)?\\'" "\\1"
+              (magit-get "remote" (magit-get-remote) "url"))
+             (magit-get-current-branch))))
+
   :hook (magit-mode . hl-line-mode)
   :config
   (use-package magit-commit
@@ -2551,6 +2561,8 @@
     (global-magit-file-mode))
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+
+  (define-key magit-mode-map "G" #'endless/visit-pull-request-url)
 
   (eval-after-load 'magit-remote
     '(progn
