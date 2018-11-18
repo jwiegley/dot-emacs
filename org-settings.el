@@ -325,6 +325,7 @@
  '(org-extend-today-until 8)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-fontify-done-headline t)
+ '(org-fontify-quote-and-verse-blocks t)
  '(org-footnote-section nil)
  '(org-gcal-dir "~/.emacs.d/data/org-gcal/")
  '(org-habit-preceding-days 42)
