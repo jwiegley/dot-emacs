@@ -3627,7 +3627,12 @@ append it to ENTRY."
              tidy-describe-options))
 
 (use-package tla-mode
-  :mode "\\.tla\\'")
+  :mode "\\.tla\\'"
+  :config
+  (add-hook 'tla-mode-hook
+            (lambda ()
+              (setq-local comment-start nil)
+              (setq-local comment-end ""))))
 
 (use-package tramp
   :defer 5
