@@ -1723,10 +1723,6 @@
 (use-package gitconfig-mode
   :defer 5)
 
-(use-package github-pullrequest
-  :commands (github-pullrequest-new
-             github-pullrequest-checkout))
-
 (use-package gitignore-mode
   :defer 5)
 
