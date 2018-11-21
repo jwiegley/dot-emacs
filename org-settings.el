@@ -218,49 +218,22 @@
    (quote
     (("a" "Add Task" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* TODO %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
+      "* TODO %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
      ("n" "Note" entry
       (file "~/Documents/tasks/notes.txt")
-      "* NOTE %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
+      "* NOTE %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
      ("c" "Calendar" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* APPT %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
+      "* APPT %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
      ("t" "Add Task" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* TODO %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
+      "* TODO %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
      ("p" "Protocol" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* NOTE %?
-#+BEGIN_QUOTE
-%i
-#+END_QUOTE
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:URL:      %c
-:END:")
+      "* NOTE %?\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:URL:      %c\n:END:")
      ("L" "Protocol Link" entry
       (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* NOTE %?
-[[%:link][%:description]]
-#+BEGIN_QUOTE
-%i
-#+END_QUOTE
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:URL:      %c
-:END:")
+      "* NOTE %?\n[[%:link][%:description]]\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:URL:      %c\n:END:")
      ("j" "Journal entry" entry
       (file+datetree "~/Documents/tasks/dfinity.txt")
       "* %?"))))
@@ -299,11 +272,7 @@
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
       ("\\paragraph{%s}" . "\\paragraph*{%s}")
       ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-     ("linalg" "\\documentclass{article}
-\\usepackage{linalgjh}
-[DEFAULT-PACKAGES]
-[EXTRA]
-[PACKAGES]"
+     ("linalg" "\\documentclass{article}\n\\usepackage{linalgjh}\n[DEFAULT-PACKAGES]\n[EXTRA]\n[PACKAGES]"
       ("\\section{%s}" . "\\section*{%s}")
       ("\\subsection{%s}" . "\\subsection*{%s}")
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -427,11 +396,7 @@
    (quote
     (("v" "Velocity" entry
       (file "~/Documents/tasks/notes.txt")
-      "* NOTE %:search
-%i%?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t))))
+      "* NOTE %:search\n%i%?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t))))
  '(org-velocity-exit-on-match nil)
  '(org-velocity-force-new t)
  '(org-velocity-search-method (quote regexp))
