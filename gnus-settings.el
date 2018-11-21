@@ -20,8 +20,7 @@
    (quote
     ((#("Gnu" 0 1
         (idx 4))
-      "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+      "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F\nhttp://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      (#("Gmail" 0 1
         (idx 3))
       "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
@@ -29,20 +28,16 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
         (idx 0))
       "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
       (("BCC" . "sarv9mithaq@gmail.com, jwiegley@gmail.com"))
-      "" "John Wiegley
-ATC Secretary")
+      "" "John Wiegley\nATC Secretary")
      (#("NewArtisans" 0 1
         (idx 5))
-      "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+      "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F\nhttp://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      (#("DFINITY" 0 1
         (idx 2))
-      "" "\"John Wiegley\" <john@dfinity.org>" "DFINITY LLC" nil "" "John Wiegley
-Sr. Researcher & Engineer, DFINITY")
+      "" "\"John Wiegley\" <john@dfinity.org>" "DFINITY LLC" nil "" "John Wiegley\nSr. Researcher & Engineer, DFINITY")
      (#("BAE" 0 1
         (idx 1))
-      "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
-BAE Systems"))))
+      "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley\nBAE Systems"))))
  '(gnus-alias-identity-rules
    (quote
     (("Ledger Mailing List"
@@ -119,8 +114,7 @@ BAE Systems"))))
  '(gnus-gcc-mark-as-read t)
  '(gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
  '(gnus-group-default-list-level 2)
- '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
-")
+ '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)\n")
  '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
  '(gnus-group-use-permanent-levels t)
  '(gnus-harvest-sender-alist (quote ((".*@gnu\\.org" . johnw@gnu\.org))))
@@ -204,8 +198,7 @@ BAE Systems"))))
      ("\\(mail\\.\\|INBOX\\)"
       (gnus-use-scoring nil))
      ("mail\\.archive"
-      (gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)
-")
+      (gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
       (gnus-show-threads nil))
      ("list\\.ledger\\.devel"
       (to-address . "ledger-cli@googlegroups.com")
@@ -406,11 +399,9 @@ BAE Systems"))))
  '(gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
  '(gnus-sum-thread-tree-single-indent "  ")
  '(gnus-summary-expunge-below -100)
- '(gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
-")
+ '(gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)\n")
  '(gnus-summary-mark-below -100)
- '(gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)
-")
+ '(gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)\n")
  '(gnus-summary-prepared-hook (quote (gnus-summary-hide-all-threads)))
  '(gnus-summary-save-parts-default-mime ".*")
  '(gnus-suppress-duplicates t)
@@ -421,8 +412,7 @@ BAE Systems"))))
  '(gnus-thread-score-function (quote max))
  '(gnus-thread-sort-functions (quote ((not gnus-thread-sort-by-number))))
  '(gnus-topic-display-empty-topics nil)
- '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
-")
+ '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v\n")
  '(gnus-treat-date-lapsed (quote head))
  '(gnus-treat-hide-citation-maybe t)
  '(gnus-treat-strip-cr t)

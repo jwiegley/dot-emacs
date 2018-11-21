@@ -469,13 +469,12 @@
       2)
      ("EmacsWiki:\\([A-Z][a-z]+\\([A-Z][a-z]+\\)+\\)" 0 t erc-browse-emacswiki 1)
      ("Lisp:\\([a-zA-Z.+-]+\\)" 0 t erc-browse-emacswiki-lisp 1)
-     ("\\bGoogle:\\([^
-]+\\)" 0 t
-(lambda
-  (keywords)
-  (browse-url
-   (format erc-button-google-url keywords)))
-1)
+     ("\\bGoogle:\\([^\n\f]+\\)" 0 t
+      (lambda
+        (keywords)
+        (browse-url
+         (format erc-button-google-url keywords)))
+      1)
      ("\\brfc[#: ]?\\([0-9]+\\)" 0 t
       (lambda
         (num)
@@ -843,6 +842,7 @@
  '(ivy-rich-parse-remote-buffer nil)
  '(ivy-use-virtual-buffers t nil nil "Customized with use-package ivy")
  '(ivy-wrap t nil nil "Customized with use-package ivy")
+ '(jiralib-url "https://dfinity.atlassian.net/")
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
  '(jobhours-files
@@ -885,7 +885,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart" t)
+ '(markdown-command "pandoc -f markdown_github+smart")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
@@ -1186,7 +1186,7 @@
    (quote
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
- '(tramp-default-method "ssh" nil (tramp))
+ '(tramp-default-method "ssh")
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
  '(undo-tree-history-directory-alist (quote ((".*" . "~/.cache/emacs/backups"))))
