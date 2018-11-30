@@ -1146,8 +1146,16 @@ end tell" (match-string 1))))
 (use-package ox-confluence
   :commands org-confluence-export-as-confluence)
 
+(use-package ox-gfm
+  ;; :demand t
+  ;; :commands ox-gfm-export-to-markdown
+  )
+
 (use-package ox-jira
   :commands ox-jira-export-as-jira)
+
+(use-package ox-slack
+  :commands org-slack-export-to-clipboard-as-slack)
 
 (use-package ox-md)
 
