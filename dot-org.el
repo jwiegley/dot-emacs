@@ -1157,6 +1157,19 @@ end tell" (match-string 1))))
 (use-package ox-texinfo-plus
   :defer t)
 
+(use-package yankpad
+  :defer 10
+  :init
+  (setq yankpad-file "~/Documents/tasks/yankpad.org")
+  :config
+  ;; (bind-key "<f7>" 'yankpad-map)
+  ;; (bind-key "<f12>" 'yankpad-expand)
+  ;; If you want to complete snippets using company-mode
+  ;; (add-to-list 'company-backends #'company-yankpad)
+  ;; If you want to expand snippets with hippie-expand
+  ;; (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
+  )
+
 (use-package worf
   :bind (:map org-mode-map
               ("C-c C-j" . worf-goto)))
