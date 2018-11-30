@@ -462,6 +462,14 @@ is:
 
   (add-hook 'message-setup-hook #'my-gnus-alias-determine-identity))
 
+(use-package gnus-recent
+  :after gnus
+  :bind (("M-s a" . gnus-recent-goto-ivy)
+         :map gnus-summary-mode-map
+         ("l" . gnus-recent-goto-previous)
+         :map gnus-group-mode-map
+         ("C-c L" . gnus-recent-goto-previous)))
+
 (eval-when-compile
   (defvar gnus-balloon-face-0)
   (defvar gnus-balloon-face-1))
