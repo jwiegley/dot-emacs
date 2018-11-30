@@ -35,6 +35,48 @@
 (defconst my-org-soft-blue   "#e8eff9")
 (defconst my-org-soft-purple "#f3e8f9")
 
+(when nil
+  (custom-set-faces
+   '(variable-pitch ((t (:family "ETBembo")))))
+  ;; (custom-set-faces
+  ;;  '(org-document-title ((t (:foreground "#171717" :weight bold :height 1.5)))))
+  (custom-set-faces
+   '(org-document-title ((t (:foreground "#f7f7f7" :weight bold :height 1.5)))))
+  ;; (custom-set-faces
+  ;;  '(org-done ((t (:background "#E8E8E8" :foreground "#0E0E0E" :strike-through t :weight bold)))))
+  ;; (custom-set-faces
+  ;;  '(org-headline-done ((t (:foreground "#171717" :strike-through t)))))
+  ;; (custom-set-faces
+  ;;  '(org-level-1 ((t (:foreground "#090909" :weight bold :height 1.3)))))
+  ;; (custom-set-faces
+  ;;  '(org-level-2 ((t (:foreground "#090909" :weight normal :height 1.2)))))
+  ;; (custom-set-faces
+  ;;  '(org-level-3 ((t (:foreground "#090909" :weight normal :height 1.1)))))
+  (custom-set-faces
+   '(org-image-actual-width '(600)))
+  (custom-set-faces
+   '(org-block-begin-line ((t (:background "#fbf8ef")))))
+  (custom-set-faces
+   '(org-block-end-line ((t (:background "#fbf8ef")))))
+
+  (setq default-major-mode 'org-mode)
+
+  (add-hook 'org-mode-hook
+            '(lambda ()
+               (variable-pitch-mode 1) ;; All fonts with variable pitch.
+               (mapc
+                (lambda (face) ;; Other fonts with fixed-pitch.
+                  (set-face-attribute face nil :inherit 'fixed-pitch))
+                (list 'org-code
+                      'org-link
+                      'org-block
+                      'org-table
+                      'org-verbatim
+                      'org-block-begin-line
+                      'org-block-end-line
+                      'org-meta-line
+                      'org-document-info-keyword)))))
+
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
   (and (memq org-agenda-window-setup '(reorganize-frame))
