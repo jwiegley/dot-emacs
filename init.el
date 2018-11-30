@@ -2113,7 +2113,7 @@
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
-  :disabled t
+  ;; :disabled t
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
@@ -2435,7 +2435,6 @@
         (forward-line)))))
 
 (use-package lentic-mode
-  :disabled t
   :diminish
   :commands global-lentic-mode)
 
