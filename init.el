@@ -3853,7 +3853,7 @@ append it to ENTRY."
          ("C-c y l" . yas-describe-tables)
          ("C-c y g" . yas/global-mode)
          ("C-c y m" . yas/minor-mode)
-         ("C-c y a" . yas-reload-all)
+         ("C-c y r" . yas-reload-all)
          ("C-c y x" . yas-expand))
   :bind (:map yas-keymap
               ("C-i" . yas-next-field-or-maybe-expand))
