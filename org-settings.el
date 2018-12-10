@@ -377,6 +377,8 @@
  '(org-todo-keyword-faces
    (quote
     (("TODO" :foreground "medium blue" :weight bold)
+     ("EPIC" :foreground "deep sky blue" :weight bold)
+     ("STORY" :foreground "royal blue" :weight bold)
      ("RECUR" :foreground "cornflowerblue" :weight bold)
      ("APPT" :foreground "medium blue" :weight bold)
      ("NOTE" :foreground "brown" :weight bold)
