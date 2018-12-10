@@ -525,6 +525,9 @@
  '(erc-track-showcount t)
  '(erc-user-full-name (quote user-full-name))
  '(erc-yank-query-before-gisting nil)
+ '(eshell-directory-change-hook
+   (quote
+    (tramp-eshell-directory-change sml/generate-buffer-identification direnv-update-environment)))
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
