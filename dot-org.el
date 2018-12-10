@@ -599,6 +599,8 @@ end tell" (match-string 1))))
     (?r . "DEFERRED")
     (?s . "STARTED")
     (?t . "TODO")
+    (?e . "EPIC")
+    (?o . "STORY")
     (?w . "WAITING")
     (?x . "CANCELED")
     (?y . "SOMEDAY")
@@ -893,7 +895,7 @@ end tell" (match-string 1))))
     (apply #'diary-date greg-date)))
 
 (defun org-current-is-todo ()
-  (member (org-get-todo-state) '("TODO" "STARTED")))
+  (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
 
 (defun my-org-agenda-skip-all-siblings-but-first ()
   "Skip all but the first non-done entry."
