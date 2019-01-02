@@ -176,7 +176,20 @@
 (use-package fn            :defer t)
 (use-package fringe-helper :defer t)
 (use-package fuzzy         :defer t)
-(use-package ghub          :defer t)
+
+(use-package ghub
+  :defer t
+  :config
+  (require 'auth-source-pass)
+  (defvar my-ghub-token-cache nil)
+
+  (advice-add
+   'ghub--token :around
+   #'(lambda (orig-func host username package &optional nocreate forge)
+       (or my-ghub-token-cache
+           (setq my-ghub-token-cache
+                 (funcall orig-func host username package nocreate forge))))))
+
 (use-package ghub+         :defer t)
 (use-package ht            :defer t)
 (use-package kv            :defer t)
@@ -1653,6 +1666,9 @@
   :commands (font-lock-studio
              font-lock-studio-region))
 
+(use-package forge
+  :after magit)
+
 (use-package free-keys
   :commands free-keys)
 
@@ -1861,22 +1877,24 @@
   (require 'haskell-doc)
   (require 'haskell-commands)
 
-  (defun my-auto-format ()
+  (defun brittany ()
     (interactive)
-    (when (executable-find "brittany")
-      (haskell-mode-buffer-apply-command "brittany")))
+    (shell-command
+     (format "brittany --write-mode inplace \"%s\"" (buffer-file-name))))
+
+  (defun my-haskell-save-buffer (&optional arg)
+    (interactive "P")
+    (call-interactively #'save-buffer)
+    (when arg
+      (brittany)))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    ;; (add-hook 'write-contents-hooks
-    ;;           #'(lambda ()
-    ;;               (ignore
-    ;;                (whitespace-cleanup)
-    ;;                (my-auto-format))) nil t)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
+    (local-set-key (kbd "C-x C-s") #'my-haskell-save-buffer)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
@@ -2447,6 +2465,9 @@
   (add-hook 'w3m-mode-hook
             #'(lambda () (bind-key "f" #'link-hint-open-link w3m-mode-map))))
 
+(use-package lively
+  :bind ("C-x C-E" . lively))
+
 (use-package lisp-mode
   :defer t
   :hook ((emacs-lisp-mode lisp-mode)
@@ -2582,21 +2603,13 @@
   :after magit)
 
 (use-package magithub
+  :disabled t
   :after magit
   :config
-  (magithub-feature-autoinject t)
-
-  (require 'auth-source-pass)
-  (defvar my-ghub-token-cache nil)
-
-  (advice-add
-   'ghub--token :around
-   #'(lambda (orig-func host username package &optional nocreate forge)
-       (or my-ghub-token-cache
-           (setq my-ghub-token-cache
-                 (funcall orig-func host username package nocreate forge))))))
+  (magithub-feature-autoinject t))
 
 (use-package magithub-completion
+  :disabled t
   :commands magithub-completion-enable)
 
 (use-package makefile-runner
@@ -3469,10 +3482,20 @@ append it to ENTRY."
    :subscribed-channels '(verification)
    :full-and-display-names t))
 
-(use-package tracking
-  :defer t
+(use-package slidify-pages
+  :commands slidify-pages-mode
+  :bind (:map slidify-pages-mode-map
+              ("M-p" . slidify-pages-previous-page)
+              ("M-n" . slidify-pages-next-page))
   :config
-  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
+  (defun slidify-pages-previous-page ()
+    "Navigate to the previous page."
+    (interactive)
+    (goto-char (point-min))
+    (widen)
+    (backward-page 2)
+    (narrow-to-page)
+    (slidify-pages--update-mode-line)))
 
 (use-package slime
   :commands slime
@@ -3568,16 +3591,9 @@ append it to ENTRY."
               ("M-y" . yank)
               ("M-%" . swiper-query-replace)
               ("C-." . swiper-avy)
-              ;; ("M-c" . swiper-mc)
-              ("M-c" . haba/swiper-mc-fixed)
-              )
+              ("M-c" . swiper-mc))
   :bind (:map isearch-mode-map
-              ("C-o" . swiper-from-isearch))
-  :config
-  (defun haba/swiper-mc-fixed ()
-    (interactive)
-    (setq swiper--current-window-start nil)
-    (swiper-mc)))
+              ("C-o" . swiper-from-isearch)))
 
 (use-package tablegen-mode
   :mode "\\.td\\'")
@@ -3632,6 +3648,11 @@ append it to ENTRY."
             (lambda ()
               (setq-local comment-start nil)
               (setq-local comment-end ""))))
+
+(use-package tracking
+  :defer t
+  :config
+  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
 
 (use-package tramp
   :defer 5
