@@ -527,7 +527,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (tramp-eshell-directory-change sml/generate-buffer-identification direnv-update-environment)))
+    (sml/generate-buffer-identification direnv-update-environment)))
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -648,6 +648,7 @@
  '(flyspell-use-meta-tab nil)
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
+ '(forge-database-file "~/.config/forge/database.sqlite")
  '(frame-title-format
    (quote
     (:eval
@@ -686,6 +687,7 @@
  '(guide-key/guide-key-sequence t)
  '(guide-key/idle-delay 1.5)
  '(guide-key/popup-window-position (quote bottom))
+ '(haskell-compile-cabal-build-command "cd %s && cabal new-build --ghc-option=-ferror-spans")
  '(haskell-hoogle-command nil)
  '(haskell-indent-spaces 4)
  '(haskell-indentation-ifte-offset 4)
@@ -888,7 +890,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart")
+ '(markdown-command "pandoc -f markdown_github+smart" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")

@@ -1167,6 +1167,61 @@ end tell" (match-string 1))))
 (use-package ox-texinfo-plus
   :defer t)
 
+(use-package ejira
+  :disabled t
+  :defer 10
+  :init
+  (setq jiralib2-url             "https://dfinity.atlassian.net"
+        jiralib2-user-login-name "john@dfinity.org"
+        ejira-projects           '("M1" "SDK")
+        ejira-main-project       "M1"
+        ejira-my-org-directory   "/Users/johnw/Documents/tasks"
+        ejira-done-states        '("DONE")
+        ejira-in-progress-states '("IN PROGRESS" "PENDING REVIEW")
+        ejira-high-priorities    '("High" "Highest")
+        ejira-low-priorities     '("Low" "Lowest")
+
+        ;; Customize these based on your JIRA server configuration
+        ejira-sprint-field                     'customfield_10001
+        ejira-epic-field                       'customfield_10002
+        ejira-epic-summary-field               'customfield_10004)
+
+  (defun jiralib2-session-login (&optional username password)
+    "Login to JIRA with USERNAME and PASSWORD. Save cookie in *JIRA-SESSION*."
+    (interactive)
+    (require 'url-parse)
+    (setq *JIRA-SESSION*
+          (let* ((username (or username
+                               jiralib2-user-login-name
+                               (read-string "Username: ")))
+                 (password (or password
+                               (lookup-password
+                                (url-host (url-generic-parse-url jiralib2-url))
+                                username 80)))
+                 (reply-data (request (concat jiralib2-url "/rest/auth/1/session")
+                                      :type "POST"
+                                      :headers `(("Content-Type" . "application/json"))
+                                      :parser 'json-read
+                                      :sync t
+                                      :data (json-encode `((username . ,username)
+                                                           (password . ,password)))))
+                 (status-code (request-response-status-code reply-data))
+                 (auth-info (cdar (jiralib2--verify-status reply-data)))
+                 (session-token (format "%s=%s"
+                                        (cdr (assoc 'name auth-info))
+                                        (cdr (assoc 'value auth-info)))))
+            session-token)))
+
+  (defun ejira-update-header-text (text)
+    "Replace the header text with the given TEXT.
+TODO state, priority and tags will be preserved."
+    (interactive)
+    (goto-char (point-min))
+    (when (search-forward
+           (org-get-heading t t))
+      (replace-match
+       (s-replace "\\" "" (replace-regexp-in-string "\\\\\\(.\\)" "\\1" text))))))
+
 (use-package yankpad
   :defer 10
   :init
