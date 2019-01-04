@@ -1,0 +1,2 @@
+#!/bin/bash
+TERM=emacs exec zsh -d +f -i "$@"

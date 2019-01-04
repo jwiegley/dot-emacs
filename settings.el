@@ -527,7 +527,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (sml/generate-buffer-identification direnv-update-environment)))
+    (sml/generate-buffer-identification direnv-update-environment)) t)
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -631,6 +631,7 @@
          "*Aria*"))
       "Download with Aria"))))
  '(eww-search-prefix "https://startpage.com/do/m/mobilesearch?query=")
+ '(explicit-shell-file-name "~/.emacs.d/runshell")
  '(eyebrowse-keymap-prefix "")
  '(eyebrowse-mode-line-separator " ")
  '(eyebrowse-new-workspace t)
@@ -1116,6 +1117,7 @@
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
      ("\\`\\*?magit-diff" :regexp t :align bottom :noselect t)
      ("\\`\\*makey" :regexp t :align bottom :noselect t))))
+ '(shell-toggle-launch-shell (quote shell))
  '(shm-auto-insert-bangs nil)
  '(shm-indent-spaces 4)
  '(shm-use-hdevtools t)
