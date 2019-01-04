@@ -3448,6 +3448,9 @@ append it to ENTRY."
   :config
   (shackle-mode 1))
 
+(use-package shell-toggle
+  :bind ("C-, C-z" . shell-toggle))
+
 (use-package shift-number
   :bind (("C-c +" . shift-number-up)
          ("C-c -" . shift-number-down)))
