@@ -897,7 +897,7 @@ end tell" (match-string 1))))
 (defun org-current-is-todo ()
   (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
 
-(defun my-org-agenda-skip-all-siblings-but-first ()
+(defun my-org-agenda-should-skip-p ()
   "Skip all but the first non-done entry."
   (let (should-skip-entry)
     (unless (org-current-is-todo)
@@ -916,9 +916,30 @@ end tell" (match-string 1))))
                    (not (org-get-scheduled-time (point)))
                    (not (org-get-deadline-time (point))))
           (setq should-skip-entry t))))
-    (when should-skip-entry
-      (or (outline-next-heading)
-          (goto-char (point-max))))))
+    should-skip-entry))
+
+(defun my-org-agenda-skip-all-siblings-but-first ()
+  "Skip all but the first non-done entry."
+  (when (my-org-agenda-should-skip-p)
+    (or (outline-next-heading)
+        (goto-char (point-max)))))
+
+(defun my-org-current-tags ()
+  (save-excursion
+    (ignore-errors
+      (let (should-skip)
+        (while (and (not should-skip)
+                    (not (org-up-element)))
+          (if (looking-at "^\*+\\s-+")
+              (setq should-skip (org-get-local-tags))))
+        should-skip))))
+
+(defun my-org-agenda-skip-all-siblings-but-first-hot ()
+  "Skip all but the first non-done entry."
+  (when (or (my-org-agenda-should-skip-p)
+            (not (member "HOT" (my-org-current-tags))))
+    (or (outline-next-heading)
+        (goto-char (point-max)))))
 
 (use-package anki-editor
   :commands anki-editor-submit)

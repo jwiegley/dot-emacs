@@ -1877,24 +1877,40 @@
   (require 'haskell-doc)
   (require 'haskell-commands)
 
+  (defun find-brittany (&optional start-dir)
+    (let ((dir (or start-dir default-directory)))
+      (while (and dir (not (string= dir "/"))
+                  (not (file-directory-p (concat dir "/dist"))))
+        (setq dir (expand-file-name ".." dir)))
+      (and dir (not (string= dir "/"))
+           (concat dir "/dist/build/brittany/brittany"))))
+
   (defun brittany ()
     (interactive)
-    (shell-command
-     (format "brittany --write-mode inplace \"%s\"" (buffer-file-name))))
-
-  (defun my-haskell-save-buffer (&optional arg)
-    (interactive "P")
-    (call-interactively #'save-buffer)
-    (when arg
-      (brittany)))
+    (let ((brittany
+           (or (find-brittany)
+               (find-brittany
+                (with-temp-buffer
+                  (insert default-directory)
+                  (goto-char (point-min))
+                  (if (re-search-forward "\\<dfinity\\>" nil t)
+                      (replace-match "Products"))
+                  (buffer-string))))))
+      (when brittany
+        (let ((this-line (line-number-at-pos))
+              (this-col (current-column)))
+          (call-process-region (point-min) (point-max)
+                               brittany t '(t nil) nil "-")
+          (goto-line this-line)
+          (move-to-column this-col)))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
+    (add-hook 'before-save-hook 'brittany nil t)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
-    (local-set-key (kbd "C-x C-s") #'my-haskell-save-buffer)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
@@ -3988,9 +4004,10 @@ append it to ENTRY."
 
 (defun startup ()
   (interactive)
-  (jump-to-org-agenda)
   (eshell-toggle nil)
   (switch-to-gnus)
-  (switch-to-fetchmail))
+  (switch-to-fetchmail)
+  (jump-to-org-agenda)
+  (org-resolve-clocks))
 
 ;;; init.el ends here
