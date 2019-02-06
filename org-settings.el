@@ -24,9 +24,13 @@
  '(org-agenda-cmp-user-defined (quote org-compare-todo-age))
  '(org-agenda-custom-commands
    (quote
-    (("h" "Current Hotlist" tags "HOT&TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "Current Hotlist")))
-     ("H" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
+    (("h" "Current Hotlist" alltodo ""
+      ((org-agenda-overriding-header "Current Hotlist")
+       (org-agenda-skip-function
+        (function my-org-agenda-skip-all-siblings-but-first-hot))))
+     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Hot Projects")))
+     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
       ((org-agenda-overriding-header "Non-Hot Projects")))
      ("n" "Project Next Actions" alltodo ""
       ((org-agenda-overriding-header "Project Next Actions")
