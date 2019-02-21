@@ -1476,6 +1476,7 @@
               ("C-y" . erc-yank )))
 
 (use-package erefactor
+  :disabled t
   :bind (:map emacs-lisp-mode-map
               ("C-c C-v" . erefactor-map)))
 
@@ -1583,7 +1584,7 @@
   :commands fetchmail-mode)
 
 (use-package ffap
-  :bind ("C-c v" . ffap))
+  :bind ("C-c V" . ffap))
 
 (use-package flycheck
   :commands (flycheck-mode
@@ -3719,9 +3720,9 @@ append it to ENTRY."
              vdiff-buffers3))
 
 (use-package vimish-fold
-  :bind (("C-c V f" . vimish-fold)
-         ("C-c V d" . vimish-fold-delete)
-         ("C-c V D" . vimish-fold-delete-all)))
+  :bind (("C-c v f" . vimish-fold)
+         ("C-c v d" . vimish-fold-delete)
+         ("C-c v D" . vimish-fold-delete-all)))
 
 (use-package visual-fill-column
   :commands visual-fill-column-mode)
@@ -3747,6 +3748,9 @@ append it to ENTRY."
 
 (use-package w3m
   :commands (w3m-browse-url w3m-find-file))
+
+(use-package wat-mode
+  :mode "\\.was?t\\'")
 
 (use-package web-mode
   :commands web-mode)
