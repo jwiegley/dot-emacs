@@ -3703,6 +3703,9 @@ append it to ENTRY."
 (use-package typo
   :commands typo-mode)
 
+(use-package undo-propose
+  :commands undo-propose)
+
 (use-package undo-tree
   ;; jww (2017-12-10): This package often breaks the ability to "undo in
   ;; region". Also, its backup files often get corrupted, so this sub-feature
