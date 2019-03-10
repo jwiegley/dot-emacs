@@ -111,7 +111,7 @@
 
 (eval-and-compile
   (defconst emacs-data-suffix
-    (cond ((string= "emacsHEAD" emacs-environment) "alt")
+    (cond ((string= "emacsERC" emacs-environment) "alt")
           ((string-match "emacs26\\(.+\\)$" emacs-environment)
            (match-string 1 emacs-environment))))
 
@@ -1298,7 +1298,8 @@
   :bind ("C-x r e" . edit-rectangle))
 
 (use-package edit-server
-  :if window-system
+  :if (and window-system
+           (not alternate-emacs))
   :defer 5
   :config
   (edit-server-start))
@@ -1455,6 +1456,7 @@
                   (setq erc-insert-this nil)))))
 
 (use-package erc-alert
+  :disabled t
   :after erc)
 
 (use-package erc-highlight-nicknames
@@ -1464,9 +1466,11 @@
   :after erc)
 
 (use-package erc-patch
+  :disabled t
   :after erc)
 
 (use-package erc-question
+  :disabled t
   :after erc)
 
 (use-package erc-yank
@@ -1743,6 +1747,9 @@
 (use-package gitignore-mode
   :defer 5)
 
+(use-package github-review
+  :commands github-review-start)
+
 (use-package gitpatch
   :commands gitpatch-mail)
 
@@ -1754,6 +1761,10 @@
 
 (use-package goto-last-change
   :bind ("C-x C-/" . goto-last-change))
+
+(use-package goto-line-preview
+  :config
+  (global-set-key [remap goto-line] 'goto-line-preview))
 
 (use-package graphviz-dot-mode
   :mode "\\.dot\\'")
@@ -1886,24 +1897,45 @@
       (and dir (not (string= dir "/"))
            (concat dir "/dist/build/brittany/brittany"))))
 
+  (defvar brittany-enabled t)
+
+  (defun brittany-enable ()
+    (interactive)
+    (setq brittany-enabled t))
+
+  (defun brittany-disable ()
+    (interactive)
+    (setq brittany-enabled nil))
+
   (defun brittany ()
     (interactive)
-    (let ((brittany
-           (or (find-brittany)
-               (find-brittany
-                (with-temp-buffer
-                  (insert default-directory)
-                  (goto-char (point-min))
-                  (if (re-search-forward "\\<dfinity\\>" nil t)
-                      (replace-match "Products"))
-                  (buffer-string))))))
-      (when brittany
-        (let ((this-line (line-number-at-pos))
-              (this-col (current-column)))
-          (call-process-region (point-min) (point-max)
-                               brittany t '(t nil) nil "-")
-          (goto-line this-line)
-          (move-to-column this-col)))))
+    (when brittany-enabled
+      (let ((brittany
+             (or (find-brittany)
+                 (with-temp-buffer
+                   (insert default-directory)
+                   (goto-char (point-min))
+                   (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
+                     (replace-match
+                      (concat "/dist-newstyle/build/x86_64-osx/ghc-8.4.4/"
+                              "\\1-0.0.0/t/brittany/build/brittany/brittany")))
+                   (buffer-string))
+                 (find-brittany
+                  (with-temp-buffer
+                    (insert default-directory)
+                    (goto-char (point-min))
+                    (if (re-search-forward "\\<dfinity\\>" nil t)
+                        (replace-match "Products"))
+                    (buffer-string))))))
+        (when (and brittany
+                   (file-regular-p brittany)
+                   (file-executable-p brittany))
+          (let ((this-line (line-number-at-pos))
+                (this-col (current-column)))
+            (call-process-region (point-min) (point-max)
+                                 brittany t '(t nil) nil "-")
+            (goto-line this-line)
+            (move-to-column this-col))))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -3460,6 +3492,7 @@ append it to ENTRY."
   (add-hook 'shell-mode-hook 'initialize-sh-script))
 
 (use-package shackle
+  :unless alternate-emacs
   :defer 5
   :commands shackle-mode
   :config

@@ -31,7 +31,7 @@
 
 | =C-m ^=   | mc/edit-beginnings-of-lines           |
 | =C-m `=   | mc/edit-beginnings-of-lines           |
-| =C-m '= | mc/edit-ends-of-lines                 |
+| =C-m '=  | mc/edit-ends-of-lines                 |
 | =C-m $=   | mc/edit-ends-of-lines                 |
 |         |                                       |
 | =C-m %=   | mc/mark-all-in-region-regexp          |

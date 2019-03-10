@@ -469,12 +469,13 @@
       2)
      ("EmacsWiki:\\([A-Z][a-z]+\\([A-Z][a-z]+\\)+\\)" 0 t erc-browse-emacswiki 1)
      ("Lisp:\\([a-zA-Z.+-]+\\)" 0 t erc-browse-emacswiki-lisp 1)
-     ("\\bGoogle:\\([^\n\f]+\\)" 0 t
-      (lambda
-        (keywords)
-        (browse-url
-         (format erc-button-google-url keywords)))
-      1)
+     ("\\bGoogle:\\([^
+]+\\)" 0 t
+(lambda
+  (keywords)
+  (browse-url
+   (format erc-button-google-url keywords)))
+1)
      ("\\brfc[#: ]?\\([0-9]+\\)" 0 t
       (lambda
         (num)
@@ -508,7 +509,7 @@
  '(erc-replace-alist (quote (("</?FONT>" . ""))))
  '(erc-server "irc.freenode.net")
  '(erc-services-mode t)
- '(erc-text-matched-hook (quote (erc-hide-fools my-erc-hook)))
+ '(erc-text-matched-hook (quote (erc-hide-fools)))
  '(erc-track-enable-keybindings t)
  '(erc-track-exclude (quote ("#idris" "#agda" "#twitter_jwiegley")))
  '(erc-track-exclude-types
@@ -892,7 +893,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart" t)
+ '(markdown-command "pandoc -f markdown_github+smart")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
