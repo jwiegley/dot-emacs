@@ -1190,14 +1190,16 @@
 (use-package direnv
   :demand t
   :config
-  (direnv-mode)
   (eval-after-load 'flycheck
     '(setq flycheck-executable-find
            (lambda (cmd)
+             (add-hook 'post-command-hook #'direnv--maybe-update-environment)
              (direnv-update-environment default-directory)
              (executable-find cmd))))
-  :hook
-  (coq-mode . direnv-update-environment))
+  (add-hook 'coq-mode-hook
+            (lambda ()
+              (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+              (direnv-update-environment default-directory))))
 
 (use-package discover
   :disabled t
@@ -1588,7 +1590,7 @@
   :commands fetchmail-mode)
 
 (use-package ffap
-  :bind ("C-c V" . ffap))
+  :bind ("C-c v" . ffap))
 
 (use-package flycheck
   :commands (flycheck-mode
@@ -1912,21 +1914,27 @@
     (when brittany-enabled
       (let ((brittany
              (or (find-brittany)
-                 (with-temp-buffer
-                   (insert default-directory)
-                   (goto-char (point-min))
-                   (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
-                     (replace-match
-                      (concat "/dist-newstyle/build/x86_64-osx/ghc-8.4.4/"
-                              "\\1-0.0.0/t/brittany/build/brittany/brittany")))
-                   (buffer-string))
+                 (let ((exe
+                        (with-temp-buffer
+                          (insert default-directory)
+                          (goto-char (point-min))
+                          (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
+                            (replace-match
+                             (concat "/dist-newstyle/build/x86_64-osx/ghc-8.4.4/"
+                                     "\\1-0.0.0/t/brittany/build/brittany/brittany")))
+                          (buffer-string))))
+                   (and (file-regular-p exe)
+                        (file-executable-p exe)
+                        exe))
                  (find-brittany
                   (with-temp-buffer
                     (insert default-directory)
                     (goto-char (point-min))
                     (if (re-search-forward "\\<dfinity\\>" nil t)
                         (replace-match "Products"))
-                    (buffer-string))))))
+                    (buffer-string)))
+                 ;; (executable-find "brittany")
+                 )))
         (when (and brittany
                    (file-regular-p brittany)
                    (file-executable-p brittany))
@@ -3756,9 +3764,9 @@ append it to ENTRY."
              vdiff-buffers3))
 
 (use-package vimish-fold
-  :bind (("C-c v f" . vimish-fold)
-         ("C-c v d" . vimish-fold-delete)
-         ("C-c v D" . vimish-fold-delete-all)))
+  :bind (("C-c V f" . vimish-fold)
+         ("C-c V d" . vimish-fold-delete)
+         ("C-c V D" . vimish-fold-delete-all)))
 
 (use-package visual-fill-column
   :commands visual-fill-column-mode)
