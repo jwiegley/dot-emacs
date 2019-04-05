@@ -390,7 +390,6 @@
             #'TeX-revert-document-buffer))
 
 (use-package auth-source-pass
-  :defer t
   :config
   (auth-source-pass-enable)
 
@@ -1755,6 +1754,22 @@
 (use-package gitpatch
   :commands gitpatch-mail)
 
+(use-package go-jira
+  :no-require t
+  :init
+  (defvar jira-token nil)
+  (defun jira-create ()
+    (interactive)
+    (unless jira-token
+      (setq jira-token (lookup-password "go-jira.atlassian.net" "johnw" 6697)))
+    (setenv "JIRA_API_TOKEN" jira-token)
+    (require 'with-editor)
+    (start-process "go-jira" (get-buffer-create " *go-jira*")
+                   "jira" "create" "-b"
+                   "--editor" (concat with-editor-emacsclient-executable
+                                      " -s /tmp/emacs501/server")
+                   "-t" (expand-file-name "~/Documents/tasks/jira.template"))))
+
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
   :bind* ("M-SPC" . google-this-search)
@@ -1952,6 +1967,13 @@
     (add-hook 'before-save-hook 'brittany nil t)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
+    (add-hook 'hack-local-variables-hook
+              #'(lambda ()
+                  (when (and buffer-file-name
+                             (string-match "dfinity" buffer-file-name))
+                    (setq-local flycheck-ghc-search-path nil)
+                    (setq-local flycheck-ghc-args nil)))
+              t)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
