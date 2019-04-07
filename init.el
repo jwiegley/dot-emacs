@@ -1171,7 +1171,10 @@
                 (split-string omitted-files "\n" t)
                 "\\|")
                "\\)")))
-        (funcall dired-omit-regexp-orig)))))
+        (funcall dired-omit-regexp-orig))))
+
+  (add-hook 'dired-mode-hook
+            #'(lambda () (bind-key "M-G" #'switch-to-gnus dired-mode-map))))
 
 (use-package dired-toggle
   :bind ("C-c ~" . dired-toggle)
