@@ -299,23 +299,6 @@
   :bind* ("<C-return>" . ace-window))
 
 (use-package agda-input
-  :defer 5
-  :load-path
-  (lambda ()
-    (delete
-     nil
-     (mapcar
-      #'(lambda (dir)
-          ;; The Emacs files for Agda are installed by Nix as part of the
-          ;; haskellPackages.Agda package.
-          (let ((exe (expand-file-name "bin/agda-mode" dir)))
-            (when (file-executable-p exe)
-              (file-name-directory
-               (substring (shell-command-to-string (concat exe " locate"))
-                          0 -1)))))
-      (filter
-       (apply-partially #'string-match "-\\(Agda-\\|with-packages\\)")
-       (nix-read-environment "ghc80")))))
   :config
   (setq-default default-input-method "Agda"))
 
@@ -1201,7 +1184,20 @@
   (add-hook 'coq-mode-hook
             (lambda ()
               (add-hook 'post-command-hook #'direnv--maybe-update-environment)
-              (direnv-update-environment default-directory))))
+              (direnv-update-environment default-directory)))
+
+  (defun patch-direnv-environment (&rest _args)
+    (let ((emacs-bin (directory-file-name
+                      (file-name-directory
+                       (executable-find "emacsclient")))))
+      (setenv "PATH" (concat emacs-bin ":" (getenv "PATH")))
+      (setq exec-path (cons (file-name-as-directory emacs-bin)
+                            exec-path))))
+
+  (advice-add 'direnv-update-directory-environment
+              :after #'patch-direnv-environment)
+
+  (add-hook 'git-commit-mode-hook #'patch-direnv-environment))
 
 (use-package discover
   :disabled t
@@ -1249,7 +1245,7 @@
 
 (use-package dot-org
   :commands my-org-startup
-  :bind* (("M-C" . jump-to-org-agenda)
+  :bind* (("M-C"   . jump-to-org-agenda)
           ("M-m"   . org-smart-capture)
           ("M-M"   . org-inline-note)
           ("C-c a" . org-agenda)
@@ -1938,7 +1934,7 @@
                           (goto-char (point-min))
                           (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
                             (replace-match
-                             (concat "/dist-newstyle/build/x86_64-osx/ghc-8.4.4/"
+                             (concat "/dist-newstyle/build/x86_64-osx/ghc-8.6.4/"
                                      "\\1-0.0.0/t/brittany/build/brittany/brittany")))
                           (buffer-string))))
                    (and (file-regular-p exe)

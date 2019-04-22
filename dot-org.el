@@ -18,9 +18,9 @@
 
 (unless window-system
   (setq org-agenda-files
-        '("~/Documents/tasks/todo.txt"
-          "~/Documents/tasks/Bahai.txt"
-          "~/Documents/tasks/BAE.txt")))
+        '("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org"
+          "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org"
+          "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/BAE.org")))
 
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
@@ -250,7 +250,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
+  (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -321,7 +321,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
+        (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -677,7 +677,7 @@ end tell" (match-string 1))))
 
 (defun my-org-publish-ical ()
   (interactive)
-  (async-shell-command "make -C ~/Documents/tasks"))
+  (async-shell-command "make -C ~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org"))
 
 (bind-keys :map org-agenda-mode-map
            ("C-c C-x C-p" . my-org-publish-ical)
@@ -707,10 +707,10 @@ end tell" (match-string 1))))
   (let ((notes
          (ignore-errors
            (directory-files
-            "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts4/Documents"
+            "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
             t "[0-9].*\\.txt\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.txt")
+      (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
@@ -765,7 +765,7 @@ end tell" (match-string 1))))
 
 (defun org-inline-note ()
   (interactive)
-  (switch-to-buffer-other-window "notes.txt")
+  (switch-to-buffer-other-window "notes.org")
   (goto-char (point-min))
   (forward-line)
   (goto-char (line-beginning-position))
@@ -961,8 +961,8 @@ end tell" (match-string 1))))
     (interactive)
     (let ((buf (get-buffer "*cfw-calendar*"))
           (org-agenda-files
-           (cons "~/Documents/tasks/Nasim.org"
-                 (cons "~/Documents/tasks/Sacramento.org"
+           (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Nasim.org"
+                 (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Sacramento.org"
                        org-agenda-files))))
       (if buf
           (pop-to-buffer buf nil)
@@ -1058,15 +1058,15 @@ end tell" (match-string 1))))
         (lookup-password "org-caldav.google.com" org-gcal-client-id 80)
         org-gcal-file-alist
         '(("jwiegley@gmail.com" .
-           "~/Documents/tasks/Google.org")
+           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Google.org")
           ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-           "~/Documents/tasks/Bahá'í.org")
+           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahá'í.org")
           ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-           "~/Documents/tasks/Family.org")
+           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Family.org")
           ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-           "~/Documents/tasks/Nasim.org")
+           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Nasim.org")
           ("sacramento.lsa1914@gmail.com" .
-           "~/Documents/tasks/Sacramento.org"))))
+           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Sacramento.org"))))
 
 (use-package org-mime
   :config
@@ -1196,7 +1196,7 @@ end tell" (match-string 1))))
 (use-package yankpad
   :defer 10
   :init
-  (setq yankpad-file "~/Documents/tasks/yankpad.org")
+  (setq yankpad-file "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/yankpad.org")
   :config
   ;; (bind-key "<f7>" 'yankpad-map)
   ;; (bind-key "<f12>" 'yankpad-expand)
