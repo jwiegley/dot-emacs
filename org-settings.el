@@ -18,6 +18,9 @@
  '(deft-directory "~/Documents/notes")
  '(deft-text-mode (quote org-mode))
  '(deft-use-filename-as-title t)
+ '(jobhours-files
+   (quote
+    ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/dfinity.org")))
  '(org-M-RET-may-split-line (quote ((headline) (default . t))))
  '(org-adapt-indentation nil)
  '(org-agenda-auto-exclude-function (quote org-my-auto-exclude-function))
@@ -99,7 +102,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.txt")))))
+         ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org")))))
      ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
@@ -116,7 +119,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.txt")))))
+         ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org")))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -131,7 +134,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/Bahai.txt")))))
+         ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org")))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
@@ -148,7 +151,7 @@
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/dfinity.txt")))
+         ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org")))
        (org-agenda-sorting-strategy
         (quote
          (todo-state-up priority-down category-up)))
@@ -173,12 +176,12 @@
       ((org-agenda-overriding-header "All TODOs")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/todo.txt" "~/Documents/tasks/dfinity.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/index.txt" "~/Documents/tasks/notes.txt" "~/Documents/tasks/archive/dfinity.txt" "~/Documents/tasks/archive/Bahai.txt" "~/Documents/tasks/archive/BoostPro.txt" "~/Documents/tasks/archive/CEG.txt" "~/Documents/tasks/archive/Embarcadero.txt" "~/Documents/tasks/archive/FPComplete.txt" "~/Documents/tasks/archive/IL-05.txt" "~/Documents/tasks/archive/TI.txt" "~/Documents/tasks/archive/archive-2007.txt" "~/Documents/tasks/archive/archive-2008.txt" "~/Documents/tasks/archive/archive-2009.txt" "~/Documents/tasks/archive/archive-2010.txt" "~/Documents/tasks/archive/archive-2011.txt" "~/Documents/tasks/archive/archive-2012.txt" "~/Documents/tasks/archive/archive-2013.txt" "~/Documents/tasks/archive/archive-2014.txt" "~/Documents/tasks/archive/archive-2015.txt" "~/Documents/tasks/archive/archive-2016.txt" "~/Documents/tasks/archive/archive-2017.txt" "~/Documents/tasks/archive/archive.txt" "~/Documents/tasks/archive/emacs.txt"))))))))
+         ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/habits.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/index.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/notes.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/dfinity.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/Bahai.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/BoostPro.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/CEG.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/Embarcadero.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/FPComplete.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/IL-05.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/TI.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2007.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2008.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2009.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2010.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2011.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2012.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2013.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2014.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2015.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2016.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive-2017.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/archive.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/archive/emacs.org"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/tasks/todo.txt" "~/Documents/tasks/habits.txt" "~/Documents/tasks/dfinity.txt" "~/Documents/tasks/Bahai.txt" "~/Documents/tasks/OSS.txt")))
+    ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/habits.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org" "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -208,7 +211,9 @@
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-tags-todo-honor-ignore-options t)
- '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.txt")))
+ '(org-agenda-text-search-extra-files
+   (quote
+    (agenda-archives "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/notes.org")))
  '(org-agenda-todo-ignore-scheduled (quote past))
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
@@ -221,25 +226,52 @@
  '(org-capture-templates
    (quote
     (("a" "Add Task" entry
-      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* TODO %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
+      (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
      ("n" "Note" entry
-      (file "~/Documents/tasks/notes.txt")
-      "* NOTE %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
+      (file "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/notes.org")
+      "* NOTE %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
      ("c" "Calendar" entry
-      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* APPT %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
+      (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "Inbox")
+      "* APPT %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
      ("t" "Add Task" entry
-      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* TODO %?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t)
+      (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
      ("p" "Protocol" entry
-      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* NOTE %?\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:URL:      %c\n:END:")
+      (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "Inbox")
+      "* NOTE %?
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
      ("L" "Protocol Link" entry
-      (file+headline "~/Documents/tasks/todo.txt" "Inbox")
-      "* NOTE %?\n[[%:link][%:description]]\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:URL:      %c\n:END:")
+      (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" "Inbox")
+      "* NOTE %?
+[[%:link][%:description]]
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
      ("j" "Journal entry" entry
-      (file+datetree "~/Documents/tasks/dfinity.txt")
+      (file+datetree "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org")
       "* %?"))))
  '(org-clock-clocked-in-display nil)
  '(org-clock-idle-time 10)
@@ -260,9 +292,11 @@
  '(org-crypt-key "0xAB37611BDDE48EBD")
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/tasks/todo.txt")
+ '(org-default-notes-file
+   "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
  '(org-depend-tag-blocked nil)
- '(org-directory "~/Documents/tasks/")
+ '(org-directory
+   "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/")
  '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
@@ -276,7 +310,11 @@
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
       ("\\paragraph{%s}" . "\\paragraph*{%s}")
       ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
-     ("linalg" "\\documentclass{article}\n\\usepackage{linalgjh}\n[DEFAULT-PACKAGES]\n[EXTRA]\n[PACKAGES]"
+     ("linalg" "\\documentclass{article}
+\\usepackage{linalgjh}
+[DEFAULT-PACKAGES]
+[EXTRA]
+[PACKAGES]"
       ("\\section{%s}" . "\\section*{%s}")
       ("\\subsection{%s}" . "\\subsection*{%s}")
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -306,7 +344,8 @@
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
- '(org-icalendar-combined-agenda-file "~/Documents/tasks/org.ics")
+ '(org-icalendar-combined-agenda-file
+   "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/org.ics")
  '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width (quote (800)))
@@ -341,9 +380,12 @@
     ("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")))
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files (quote ("~/Documents/tasks/todo.txt")))
+ '(org-mobile-files
+   (quote
+    ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull
+   "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/from-mobile.org")
  '(org-mode-hook
    (quote
     (org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode)))
@@ -358,10 +400,10 @@
  '(org-refile-target-verify-function (quote org-refile-heading-p))
  '(org-refile-targets
    (quote
-    (("~/Documents/tasks/todo.txt" :level . 1)
-     ("~/Documents/tasks/dfinity.txt" :level . 1)
-     ("~/Documents/tasks/Bahai.txt" :level . 1)
-     ("~/Documents/tasks/OSS.txt" :level . 1)
+    (("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" :level . 1)
+     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org" :level . 1)
+     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org" :level . 1)
+     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org" :level . 1)
      (org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
@@ -397,12 +439,17 @@
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
  '(org-velocity-always-use-bucket t)
- '(org-velocity-bucket "~/Documents/tasks/notes.txt")
+ '(org-velocity-bucket
+   "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/notes.org")
  '(org-velocity-capture-templates
    (quote
     (("v" "Velocity" entry
-      (file "~/Documents/tasks/notes.txt")
-      "* NOTE %:search\n%i%?\n:PROPERTIES:\n:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U\n:END:" :prepend t))))
+      (file "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/notes.org")
+      "* NOTE %:search
+%i%?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t))))
  '(org-velocity-exit-on-match nil)
  '(org-velocity-force-new t)
  '(org-velocity-search-method (quote regexp))

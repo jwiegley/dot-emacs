@@ -229,7 +229,7 @@
      (".*" . "~/.cache/emacs/backups"))))
  '(backward-delete-char-untabify-method (quote untabify))
  '(bbdb-default-country "")
- '(bbdb-file "~/Documents/tasks/bbdb" t)
+ '(bbdb-file "~/Documents/bbdb" t)
  '(bbdb-message-caching-enabled nil)
  '(bbdb-no-duplicates t)
  '(bbdb-offer-save (quote savenoprompt))
@@ -252,8 +252,8 @@
  '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el" t)
  '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el" t)
  '(bmkp-crosshairs-flag nil)
- '(bmkp-last-as-first-bookmark-file "~/Documents/tasks/bookmarks")
- '(bookmark-default-file "~/Documents/tasks/bookmarks")
+ '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
+ '(bookmark-default-file "~/Documents/bookmarks")
  '(browse-url-browser-function
    (quote
     (("osx-ghc" . eww-browse-url)
@@ -399,7 +399,7 @@
  '(default-major-mode (quote text-mode) t)
  '(delete-by-moving-to-trash t)
  '(delete-old-versions (quote none))
- '(diary-file "~/Documents/tasks/diary")
+ '(diary-file "~/Documents/diary")
  '(diff-mode-hook
    (quote
     (diff-delete-empty-files diff-make-unified smerge-mode)))
@@ -528,7 +528,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (sml/generate-buffer-identification direnv-update-environment)))
+    (sml/generate-buffer-identification direnv-update-environment)) t)
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -833,7 +833,7 @@
  '(initsplit-customizations-alist
    (quote
     (("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil)
-     ("\\`\\(org-\\|deft-\\|cfw:\\)" "~/.emacs.d/org-settings.el" nil nil))))
+     ("\\`\\(jobhours-\\|org-\\|deft-\\|cfw:\\)" "~/.emacs.d/org-settings.el" nil nil))))
  '(ipa-file "~/Documents/ipa")
  '(ipa-overlay-position "above")
  '(irfc-directory "~/Archives/Admin/RFC/")
@@ -853,9 +853,6 @@
  '(jiralib-url "https://dfinity.atlassian.net/")
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
- '(jobhours-files
-   (quote
-    ("~/Documents/tasks/dfinity.txt" "~/Documents/tasks/archive/dfinity.txt")))
  '(kill-do-not-save-duplicates t)
  '(kill-ring-max 500)
  '(kill-whole-line t)
@@ -893,7 +890,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart")
+ '(markdown-command "pandoc -f markdown_github+smart" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
