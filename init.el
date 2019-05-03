@@ -1174,6 +1174,10 @@
 
 (use-package direnv
   :demand t
+  :init
+  (defconst emacs-binary-path (directory-file-name
+                               (file-name-directory
+                                (executable-find "emacsclient"))))
   :config
   (eval-after-load 'flycheck
     '(setq flycheck-executable-find
@@ -1187,25 +1191,15 @@
               (direnv-update-environment default-directory)))
 
   (defun patch-direnv-environment (&rest _args)
-    (let ((emacs-bin (directory-file-name
-                      (file-name-directory
-                       (executable-find "emacsclient")))))
-      (setenv "PATH" (concat emacs-bin ":" (getenv "PATH")))
-      (setq exec-path (cons (file-name-as-directory emacs-bin)
-                            exec-path))))
+    (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
+    (setq exec-path (cons (file-name-as-directory emacs-binary-path)
+                          exec-path)))
 
   (advice-add 'direnv-update-directory-environment
               :after #'patch-direnv-environment)
 
-  (add-hook 'git-commit-mode-hook #'patch-direnv-environment))
-
-(use-package discover
-  :disabled t
-  :defer 5
-  :commands global-discover-mode
-  :hook (dired-mode-hook . dired-turn-on-discover)
-  :config
-  (global-discover-mode 1))
+  (add-hook 'git-commit-mode-hook #'patch-direnv-environment)
+  (add-hook 'magit-status-mode-hook #'patch-direnv-environment))
 
 (use-package discover-my-major
   :bind (("C-h <C-m>" . discover-my-major)
@@ -1348,7 +1342,7 @@
          ("C-x C-)" . elmacro-show-last-macro)))
 
 (use-package emojify
-  :disabled t
+  :after erc
   :defer 15
   :config
   (global-emojify-mode)
@@ -1526,10 +1520,6 @@
   :init
   (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
 
-(use-package eshell-autojump
-  ;; jww (2017-12-10): I'm using eshell-z.
-  :disabled t)
-
 (use-package eshell-bookmark
   :hook (eshell-mode . eshell-bookmark-setup))
 
@@ -1654,7 +1644,6 @@
   :after flycheck)
 
 (use-package flyspell
-  :disabled t
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
   :config
@@ -1672,7 +1661,12 @@
              font-lock-studio-region))
 
 (use-package forge
-  :after magit)
+  :after magit
+  :config
+  (transient-insert-suffix 'forge-dispatch "c p"
+    '("p" "pull-request" forge-create-pullreq))
+  (transient-insert-suffix 'forge-dispatch "c i"
+    '("c" "issues" forge-create-create)))
 
 (use-package free-keys
   :commands free-keys)
@@ -1687,24 +1681,6 @@
   :disabled t
   :commands ggtags-mode
   :diminish)
-
-(use-package ghc
-  :disabled t
-  :load-path
-  (lambda ()
-    (cl-mapcan
-     #'(lambda (lib) (directory-files lib t "^ghc-"))
-     (cl-mapcan
-      #'(lambda (lib) (directory-files lib t "^elpa$"))
-      (filter (apply-partially #'string-match "-emacs-ghc-") load-path))))
-  :after haskell-mode
-  :commands ghc-init
-  :hook (haskell-mode . ghc-init)
-  :config
-  (setenv "cabal_helper_libexecdir"
-          (file-name-directory
-           (substring
-            (shell-command-to-string "which cabal-helper-wrapper") 0 -1))))
 
 (use-package gist
   :no-require t
@@ -2136,56 +2112,12 @@
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out")))
 
-(use-package hyperbole
-  :disabled t
-  :defer 10
-  :bind* (("C-M-." . hkey-either)
-          ("A-<return>" . hkey-operate))
-  :init
-  (setq hbmap:dir-user (expand-file-name "hyperb" user-data-directory))
-  :config
-  (when (eq temp-buffer-show-function #'hkey-help-show)
-    (setq temp-buffer-show-function nil))
-  (remove-hook 'temp-buffer-show-hook #'hkey-help-show)
-
-  (defact visit-haskell-definition ()
-    "Go to the definition of a symbol in Haskell."
-    (interactive)
-    (condition-case err
-        (call-interactively #'haskell-mode-jump-to-def-or-tag)
-      (error
-       (call-interactively #'dumb-jump-go))))
-
-  (defib haskell-definition-link ()
-    "Go to the definition of a symbol in Haskell."
-    (and (eq major-mode 'haskell-mode)
-         (hact #'visit-haskell-definition)))
-
-  (defib gnus-article-urls-link ()
-    "Visit the URLs in a Gnus article."
-    (and (eq major-mode 'gnus-summary-mode)
-         (hact #'gnus-article-browse-urls))))
-
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
   :init
   (add-hook 'ibuffer-mode-hook
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
-
-(use-package ibuffer-vc
-  :disabled t
-  :commands ibuffer-vc-set-filter-groups-by-vc-root
-  :hook (ibuffer . (lambda ()
-                     (ibuffer-vc-set-filter-groups-by-vc-root)
-                     (unless (eq ibuffer-sorting-mode 'alphabetic)
-                       (ibuffer-do-sort-by-alphabetic)))))
-
-(use-package ido
-  ;; jww (2017-12-10): I now use ivy.
-  :disabled t
-  :bind (("C-x b" . ido-switch-buffer)
-         ("C-x B" . ido-switch-buffer-other-window)))
 
 (use-package iedit
   :defer t)
@@ -2209,7 +2141,6 @@
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
-  ;; :disabled t
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
@@ -2271,11 +2202,6 @@
 (use-package indent-shift
   :bind (("C-c <" . indent-shift-left)
          ("C-c >" . indent-shift-right)))
-
-(use-package inf-ruby
-  :disabled t
-  :after ruby-mode
-  :hook (ruby-mode . inf-ruby-keys))
 
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
@@ -2664,13 +2590,12 @@
 
   (eval-after-load 'magit-remote
     '(progn
-       (magit-define-popup-action 'magit-fetch-popup
-         ?f 'magit-get-remote #'magit-fetch-from-upstream ?u t)
-       (magit-define-popup-action 'magit-pull-popup
-         ?F 'magit-get-upstream-branch #'magit-pull-from-upstream ?u t)
-       (magit-define-popup-action 'magit-push-popup
-         ?P 'magit--push-current-to-upstream-desc
-         #'magit-push-current-to-upstream ?u t))))
+       (transient-insert-suffix 'magit-fetch "p"
+         '("f" "default" magit-fetch-from-upstream))
+       (transient-insert-suffix 'magit-pull "p"
+         '("F" "default" magit-fetch-from-upstream))
+       (transient-insert-suffix 'magit-push "p"
+         '("P" "default" magit-push-current-to-upstream)))))
 
 (use-package magit-popup
   :defer t)
@@ -2679,16 +2604,6 @@
   ;; jww (2017-12-10): Need to configure.
   :disabled t
   :after magit)
-
-(use-package magithub
-  :disabled t
-  :after magit
-  :config
-  (magithub-feature-autoinject t))
-
-(use-package magithub-completion
-  :disabled t
-  :commands magithub-completion-enable)
 
 (use-package makefile-runner
   :bind ("C-c M" . makefile-runner))
@@ -2779,25 +2694,10 @@
 (use-package moccur-edit
   :after color-moccur)
 
-(use-package mode-line-bell
-  :disabled t
-  :defer 5
-  :config
-  (mode-line-bell-mode))
-
 (use-package monitor
   :defer t
   :init
   (autoload #'define-monitor "monitor"))
-
-(use-package mudel
-  :disabled t
-  :commands mudel
-  :bind ("C-c M" . mud)
-  :init
-  (defun mud ()
-    (interactive)
-    (mudel "4dimensions" "4dimensions.org" 6000)))
 
 (use-package mule
   :no-require t
@@ -3548,22 +3448,6 @@ append it to ENTRY."
   ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
 
-(use-package slack
-  :disabled t
-  :commands (slack-start)
-  :init
-  ;; (setq slack-buffer-emojify t)
-  (setq slack-prefer-current-team t)
-  :config
-  (slack-register-team
-   :name "DFINITY"
-   :default t
-   :client-id "139519969889.466594779095" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
-   :client-secret "42abc8b9b1721e4e95dfa3b3dd34cdd3" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
-   :token "" ;; (lookup-password "dfinity.slack.com" "john@dfinity.org" 80)
-   :subscribed-channels '(verification)
-   :full-and-display-names t))
-
 (use-package slidify-pages
   :commands slidify-pages-mode
   :bind (:map slidify-pages-mode-map
@@ -3590,17 +3474,6 @@ append it to ENTRY."
   (setq inferior-lisp-program "sbcl"
         slime-contribs '(slime-fancy)))
 
-(use-package smart-jump
-  :disabled t
-  :bind ("M-." . smart-jump-go)
-  :config
-  (smart-jump-register :modes '(emacs-lisp-mode lisp-interaction-mode)
-                       :jump-fn 'elisp-slime-nav-find-elisp-thing-at-point
-                       :pop-fn 'pop-tag-mark
-                       :should-jump t
-                       :heuristic 'error
-                       :async nil))
-
 (use-package smart-mode-line
   :config
   ;; See https://github.com/Malabarba/smart-mode-line/issues/217
@@ -3609,19 +3482,9 @@ append it to ENTRY."
   (sml/apply-theme 'light)
   (remove-hook 'display-time-hook 'sml/propertize-time-string))
 
-(use-package smart-mode-line-powerline-theme
-  :disabled t
-  :after smart-mode-line
-  :config
-  (sml/apply-theme 'light-powerline))
-
 (use-package smart-newline
   :diminish
   :commands smart-newline-mode)
-
-(use-package smart-region
-  :disabled t
-  :bind ("S-SPC" . smart-region))
 
 (use-package smartparens-config
   :commands smartparens-mode)
@@ -3768,16 +3631,6 @@ append it to ENTRY."
 (use-package undo-propose
   :commands undo-propose)
 
-(use-package undo-tree
-  ;; jww (2017-12-10): This package often breaks the ability to "undo in
-  ;; region". Also, its backup files often get corrupted, so this sub-feature
-  ;; is disabled in settings.el.
-  :disabled t
-  :demand t
-  :bind ("C-M-/" . undo-tree-redo)
-  :config
-  (global-undo-tree-mode))
-
 (use-package vdiff
   :commands (vdiff-files
              vdiff-files3
@@ -3796,17 +3649,6 @@ append it to ENTRY."
   :bind (("C-c r"   . vr/replace)
          ("C-c %"   . vr/query-replace)
          ("<C-m> /" . vr/mc-mark)))
-
-(use-package visual-regexp-steroids
-  ;; jww (2017-12-10): I prefer to use Emacs regexps within Emacs.
-  :disabled t
-  :after visual-regexp)
-
-(use-package vlf
-  :disabled t
-  :defer 5
-  :init
-  (setq-default vlf-tune-max (* 512 1024)))
 
 (use-package vline
   :commands vline-mode)
@@ -3895,15 +3737,6 @@ append it to ENTRY."
   :config
   (global-whitespace-cleanup-mode 1))
 
-(use-package whole-line-or-region
-  :disabled t
-  :unless (or noninteractive
-              alternate-emacs)
-  :defer 5
-  :diminish whole-line-or-region-local-mode
-  :config
-  (whole-line-or-region-global-mode 1))
-
 (use-package window-purpose
   :commands purpose-mode)
 
@@ -3917,11 +3750,6 @@ append it to ENTRY."
 
 (use-package word-count
   :bind ("C-c \"" . word-count-mode))
-
-(use-package ws-butler
-  :disabled t
-  :diminish
-  :hook (prog-mode . ws-butler-mode))
 
 (use-package x86-lookup
   :bind ("C-h X" . x86-lookup))
