@@ -2588,14 +2588,13 @@
 
   (define-key magit-mode-map "G" #'endless/visit-pull-request-url)
 
-  (eval-after-load 'magit-remote
-    '(progn
-       (transient-insert-suffix 'magit-fetch "p"
-         '("f" "default" magit-fetch-from-upstream))
-       (transient-insert-suffix 'magit-pull "p"
-         '("F" "default" magit-fetch-from-upstream))
-       (transient-insert-suffix 'magit-push "p"
-         '("P" "default" magit-push-current-to-upstream)))))
+  (eval-after-load 'magit-pull
+    '(transient-insert-suffix 'magit-pull "p"
+       '("F" "default" magit-fetch-from-upstream)))
+
+  (eval-after-load 'magit-push
+    '(transient-insert-suffix 'magit-push "p"
+       '("P" "default" magit-push-current-to-upstream))))
 
 (use-package magit-popup
   :defer t)
