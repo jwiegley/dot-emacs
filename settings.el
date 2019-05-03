@@ -844,7 +844,7 @@
  '(ivy-ignore-buffers
    (quote
     ("\\` " "\\`\\*git-monitor:" "\\`\\*magit-process:" "\\.elc$" "\\.CFUserTextEncoding" "\\`\\*Quail Completions\\*\\'" "\\`\\.newsrc-dribble\\'" "\\`\\.newsrc.eld\\'")))
- '(ivy-initial-inputs-alist nil t)
+ '(ivy-initial-inputs-alist nil)
  '(ivy-magic-tilde nil nil nil "Customized with use-package ivy")
  '(ivy-re-builders-alist (quote ((t . ivy--regex-ignore-order))) t)
  '(ivy-rich-parse-remote-buffer nil)
@@ -890,7 +890,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart" t)
+ '(markdown-command "pandoc -f markdown_github+smart")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
@@ -1193,6 +1193,8 @@
     ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
  '(tramp-default-method "ssh")
+ '(transient-history-file "~/.emacs.d/data/transient/history.el")
+ '(transient-values-file "~/.emacs.d/data/transient/values.el")
  '(trash-directory "~/.Trash")
  '(undo-limit 800000)
  '(undo-tree-history-directory-alist (quote ((".*" . "~/.cache/emacs/backups"))))

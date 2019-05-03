@@ -962,8 +962,7 @@ end tell" (match-string 1))))
     (let ((buf (get-buffer "*cfw-calendar*"))
           (org-agenda-files
            (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Nasim.org"
-                 (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Sacramento.org"
-                       org-agenda-files))))
+                 org-agenda-files)))
       (if buf
           (pop-to-buffer buf nil)
         (cfw:open-calendar-buffer
@@ -979,13 +978,13 @@ end tell" (match-string 1))))
     :config
     (setq cfw:org-agenda-schedule-args '(:deadline :timestamp :sexp)))
 
-  (setq cfw:fchar-junction ?╋
-        cfw:fchar-vertical-line ?┃
-        cfw:fchar-horizontal-line ?━
-        cfw:fchar-left-junction ?┣
-        cfw:fchar-right-junction ?┫
-        cfw:fchar-top-junction ?┯
-        cfw:fchar-top-left-corner ?┏
+  (setq cfw:fchar-junction         ?╋
+        cfw:fchar-vertical-line    ?┃
+        cfw:fchar-horizontal-line  ?━
+        cfw:fchar-left-junction    ?┣
+        cfw:fchar-right-junction   ?┫
+        cfw:fchar-top-junction     ?┯
+        cfw:fchar-top-left-corner  ?┏
         cfw:fchar-top-right-corner ?┓))
 
 (use-package helm-org-rifle
@@ -1110,7 +1109,6 @@ end tell" (match-string 1))))
 (use-package org-smart-capture)
 
 (use-package org-super-agenda
-  :disabled t
   :preface
   (defun super-jump-to-org-agenda ()
     (interactive)
