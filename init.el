@@ -1662,11 +1662,12 @@
 
 (use-package forge
   :after magit
-  :config
-  (transient-insert-suffix 'forge-dispatch "c p"
-    '("p" "pull-request" forge-create-pullreq))
-  (transient-insert-suffix 'forge-dispatch "c i"
-    '("c" "issues" forge-create-create)))
+  ;; :config
+  ;; (transient-insert-suffix 'forge-dispatch "c p"
+  ;;   '("p" "pull-request" forge-create-pullreq))
+  ;; (transient-insert-suffix 'forge-dispatch "c i"
+  ;;   '("c" "issues" forge-create-issue))
+  )
 
 (use-package free-keys
   :commands free-keys)
@@ -2958,29 +2959,6 @@
                      (format "echo -e '%s\nlogin: %s' | %s insert -m -f %s"
                              password login password-store-executable
                              (shell-quote-argument entry)))))))
-
-(use-package password-store-otp
-  :defer t
-  :config
-  (defun password-store-otp-append-from-image (entry)
-    "Check clipboard for an image and scan it to get an OTP URI,
-append it to ENTRY."
-    (interactive (list (read-string "Password entry: ")))
-    (let ((qr-image-filename (password-store-otp--get-qr-image-filename entry)))
-      (when (not (zerop (call-process "screencapture" nil nil nil
-                                      "-T5" qr-image-filename)))
-        (error "Couldn't get image from clipboard"))
-      (with-temp-buffer
-        (condition-case nil
-            (call-process "zbarimg" nil t nil "-q" "--raw"
-                          qr-image-filename)
-          (error
-           (error "It seems you don't have `zbar-tools' installed")))
-        (password-store-otp-append
-         entry
-         (buffer-substring (point-min) (point-max))))
-      (when (not password-store-otp-screenshots-path)
-        (delete-file qr-image-filename)))))
 
 (use-package pcre2el
   :commands (rxt-mode rxt-global-mode))
