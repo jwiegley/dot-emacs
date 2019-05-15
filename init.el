@@ -1882,13 +1882,41 @@
   (require 'haskell-doc)
   (require 'haskell-commands)
 
-  (defun find-brittany (&optional start-dir)
+  (defun find-brittany-work (&optional start-dir)
     (let ((dir (or start-dir default-directory)))
       (while (and dir (not (string= dir "/"))
                   (not (file-directory-p (concat dir "/dist"))))
         (setq dir (expand-file-name ".." dir)))
       (and dir (not (string= dir "/"))
            (concat dir "/dist/build/brittany/brittany"))))
+
+  (defun find-brittany ()
+    (let ((path
+           (or (find-brittany-work)
+               (let ((exe
+                      (with-temp-buffer
+                        (insert default-directory)
+                        (goto-char (point-min))
+                        (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
+                          (replace-match
+                           (concat "/dist-newstyle/build/x86_64-osx/ghc-8.6.4/"
+                                   "\\1-0.0.0/t/brittany/build/brittany/brittany")))
+                        (buffer-string))))
+                 (and (file-regular-p exe)
+                      (file-executable-p exe)
+                      exe))
+               (find-brittany-work
+                (with-temp-buffer
+                  (insert default-directory)
+                  (goto-char (point-min))
+                  (if (re-search-forward "\\<dfinity\\>" nil t)
+                      (replace-match "Products"))
+                  (buffer-string)))
+               ;; (executable-find "brittany")
+               )))
+      (if (and (file-regular-p path)
+               (file-executable-p path))
+          path)))
 
   (defvar brittany-enabled t)
 
@@ -1900,46 +1928,15 @@
     (interactive)
     (setq brittany-enabled nil))
 
-  (defun brittany ()
-    (interactive)
-    (when brittany-enabled
-      (let ((brittany
-             (or (find-brittany)
-                 (let ((exe
-                        (with-temp-buffer
-                          (insert default-directory)
-                          (goto-char (point-min))
-                          (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
-                            (replace-match
-                             (concat "/dist-newstyle/build/x86_64-osx/ghc-8.6.4/"
-                                     "\\1-0.0.0/t/brittany/build/brittany/brittany")))
-                          (buffer-string))))
-                   (and (file-regular-p exe)
-                        (file-executable-p exe)
-                        exe))
-                 (find-brittany
-                  (with-temp-buffer
-                    (insert default-directory)
-                    (goto-char (point-min))
-                    (if (re-search-forward "\\<dfinity\\>" nil t)
-                        (replace-match "Products"))
-                    (buffer-string)))
-                 ;; (executable-find "brittany")
-                 )))
-        (when (and brittany
-                   (file-regular-p brittany)
-                   (file-executable-p brittany))
-          (let ((this-line (line-number-at-pos))
-                (this-col (current-column)))
-            (call-process-region (point-min) (point-max)
-                                 brittany t '(t nil) nil "-")
-            (goto-line this-line)
-            (move-to-column this-col))))))
-
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
+    (when brittany-enabled
+      (let ((brittany (find-brittany)))
+        (when brittany
+          (setq-local haskell-mode-stylish-haskell-path brittany)
+          (setq-local haskell-mode-stylish-args '("-")))))
     (add-hook 'before-save-hook 'brittany nil t)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
