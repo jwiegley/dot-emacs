@@ -298,6 +298,9 @@
 (use-package ace-window
   :bind* ("<C-return>" . ace-window))
 
+(use-package adoc-mode
+  :mode "\\.adoc\\'")
+
 (use-package agda-input
   :config
   (setq-default default-input-method "Agda"))
@@ -509,6 +512,9 @@
      (b "B / 8" "Bit")))
   :config
   (setq math-units-table nil))
+
+(use-package cargo
+  :hook (rust-mode . cargo-minor-mode))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
@@ -822,9 +828,9 @@
   (push 'company-ghc company-backends))
 
 (use-package company-lsp
-  :disabled t
   :after lsp-mode
   :config
+  (require 'lsp-clients)
   (push 'company-lsp company-backends))
 
 (use-package company-math
@@ -1189,6 +1195,10 @@
             (lambda ()
               (add-hook 'post-command-hook #'direnv--maybe-update-environment)
               (direnv-update-environment default-directory)))
+  (add-hook 'rust-mode-hook
+            (lambda ()
+              (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+              (direnv-update-environment default-directory)))
 
   (defun patch-direnv-environment (&rest _args)
     (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
@@ -1373,6 +1383,7 @@
         (pcase-dolist (`(,server . ,nick)
                        '(("irc.freenode.net"     . "johnw")
                          ("irc.gitter.im"        . "jwiegley")
+                         ("irc.mozilla.org"      . "johnw")
                          ;; ("irc.oftc.net"         . "johnw")
                          ))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
@@ -1384,7 +1395,10 @@
              :password (concat "johnw/gitter:" pass))
         (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/freenode:" pass)))))
+             :password (concat "johnw/freenode:" pass))
+        (sleep-for 5)
+        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+             :password (concat "johnw/mozilla:" pass)))))
 
   (defun reset-erc-track-mode ()
     (interactive)
@@ -1642,6 +1656,9 @@
   :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after flycheck)
+
+(use-package flycheck-rust
+  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -1902,7 +1919,8 @@
                            (concat "/dist-newstyle/build/x86_64-osx/ghc-8.6.4/"
                                    "\\1-0.0.0/t/brittany/build/brittany/brittany")))
                         (buffer-string))))
-                 (and (file-regular-p exe)
+                 (and exe
+                      (file-regular-p exe)
                       (file-executable-p exe)
                       exe))
                (find-brittany-work
@@ -1914,9 +1932,10 @@
                   (buffer-string)))
                ;; (executable-find "brittany")
                )))
-      (if (and (file-regular-p path)
-               (file-executable-p path))
-          path)))
+      (and path
+           (file-regular-p path)
+           (file-executable-p path)
+           path)))
 
   (defvar brittany-enabled t)
 
@@ -1935,9 +1954,9 @@
     (when brittany-enabled
       (let ((brittany (find-brittany)))
         (when brittany
+          (setq-local haskell-stylish-on-save t)
           (setq-local haskell-mode-stylish-haskell-path brittany)
-          (setq-local haskell-mode-stylish-args '("-")))))
-    (add-hook 'before-save-hook 'brittany nil t)
+          (setq-local haskell-mode-stylish-haskell-args '("-")))))
     (flycheck-mode 1)
     (flycheck-haskell-setup)
     (add-hook 'hack-local-variables-hook
@@ -2408,6 +2427,7 @@
                                     ("(latex2e)Command Index"))))
 
 (use-package ledger-mode
+  :mode "\\.ledger\\'"
   :load-path "~/src/ledger/lisp"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
@@ -2510,11 +2530,9 @@
   :hook (haskell-mode . lsp-haskell-enable))
 
 (use-package lsp-mode
-  :disabled t
-  :defer t)
+  :commands lsp)
 
 (use-package lsp-ui
-  :disabled t
   :hook (lsp-mode . lsp-ui-mode)
   :config
   (define-key lsp-ui-mode-map [remap xref-find-definitions]
@@ -3319,6 +3337,18 @@
       (forward-char))
     (call-interactively 'newline-and-indent)))
 
+(use-package rust-mode
+  :mode "\\.rs\\'"
+  :hook (rust-mode . lsp)
+  :config
+  (add-hook 'rust-mode-hook
+            #'(lambda ()
+                ;; (aggressive-indent-mode 1)
+                ;; (electric-pair-mode 1)
+                (flycheck-mode 1)
+                (bind-key "M-n" #'flycheck-next-error rust-mode-map)
+                (bind-key "M-p" #'flycheck-previous-error rust-mode-map))))
+
 (use-package savehist
   :unless noninteractive
   :config
@@ -3568,6 +3598,8 @@
               (setq-local comment-start nil)
               (setq-local comment-end ""))))
 
+(use-package toml-mode)
+
 (use-package tracking
   :defer t
   :config
@@ -3773,7 +3805,7 @@
   (yas-global-mode 1))
 
 (use-package z3-mode
-  :mode "\\.rs\\'")
+  :commands z3-mode)
 
 (use-package zoom
   :bind ("C-x +" . zoom)
