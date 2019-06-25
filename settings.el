@@ -249,8 +249,8 @@
  '(bm-highlight-style (quote bm-highlight-only-fringe))
  '(bm-in-lifo-order t)
  '(bm-repository-file "/Users/johnw/.emacs.d/data/bm-repository")
- '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el" t)
- '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el" t)
+ '(bmkp-bmenu-commands-file "~/.emacs.d/data/bmk-bmenu-commands.el")
+ '(bmkp-bmenu-state-file "~/.emacs.d/data/bmk-bmenu-state.el")
  '(bmkp-crosshairs-flag nil)
  '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
  '(bookmark-default-file "~/Documents/bookmarks")
@@ -438,7 +438,7 @@
  '(el-get-dir "~/.emacs.d/site-lisp/")
  '(el-get-generate-autoloads nil)
  '(electric-indent-mode nil)
- '(elfeed-db-directory "~/.emacs.d/data/elfeed" t)
+ '(elfeed-db-directory "~/.emacs.d/data/elfeed")
  '(elfeed-enclosure-default-dir "/Users/johnw/Downloads")
  '(elfeed-feeds
    (quote
@@ -528,7 +528,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (sml/generate-buffer-identification direnv-update-environment)) t)
+    (sml/generate-buffer-identification direnv-update-environment)))
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -890,7 +890,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart" t)
+ '(markdown-command "pandoc -f markdown_github+smart")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
@@ -924,7 +924,7 @@
  '(next-line-add-newlines nil)
  '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer" t)
  '(nix-indent-function (quote nix-indent-line))
- '(nov-save-place-file "~/.emacs.d/data/nov-places" t)
+ '(nov-save-place-file "~/.emacs.d/data/nov-places")
  '(ns-alternate-modifier (quote alt))
  '(ns-command-modifier (quote meta))
  '(ns-function-modifier (quote hyper))

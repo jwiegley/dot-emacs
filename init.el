@@ -1383,7 +1383,6 @@
         (pcase-dolist (`(,server . ,nick)
                        '(("irc.freenode.net"     . "johnw")
                          ("irc.gitter.im"        . "jwiegley")
-                         ("irc.mozilla.org"      . "johnw")
                          ;; ("irc.oftc.net"         . "johnw")
                          ))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
@@ -1395,10 +1394,7 @@
              :password (concat "johnw/gitter:" pass))
         (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/freenode:" pass))
-        (sleep-for 5)
-        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/mozilla:" pass)))))
+             :password (concat "johnw/freenode:" pass)))))
 
   (defun reset-erc-track-mode ()
     (interactive)
