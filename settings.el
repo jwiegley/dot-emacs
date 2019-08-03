@@ -220,7 +220,7 @@
  '(avy-case-fold-search t)
  '(avy-keys (quote (97 111 101 117 105 100 104 116 110 115)))
  '(avy-timeout-seconds 0.3)
- '(aw-dispatch-when-more-than 3)
+ '(aw-dispatch-when-more-than 6)
  '(aw-scope (quote frame))
  '(backup-directory-alist
    (quote
@@ -651,6 +651,7 @@
  '(font-lock-support-mode (quote jit-lock-mode))
  '(font-lock-verbose nil)
  '(forge-database-file "~/.config/forge/database.sqlite")
+ '(forge-pull-notifications nil)
  '(frame-title-format
    (quote
     (:eval
@@ -1283,6 +1284,7 @@
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
  '(markup-meta-face ((t (:stipple nil :foreground "gray60" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :foundry "unknown" :family "Monospace"))))
  '(markup-meta-hide-face ((t (:inherit markup-meta-face :foreground "gray50"))))
+ '(markup-verbatim-face ((t (:foreground "orange"))))
  '(minibuffer-prompt ((t (:foreground "grey80"))))
  '(mode-line-inactive ((t (:background "grey95"))))
  '(proof-locked-face ((t (:background "#180526"))))

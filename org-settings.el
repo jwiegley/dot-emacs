@@ -398,13 +398,7 @@
      (66 . "White")
      (67 :foreground "dark gray" :slant italic))))
  '(org-refile-target-verify-function (quote org-refile-heading-p))
- '(org-refile-targets
-   (quote
-    (("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org" :level . 1)
-     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/dfinity.org" :level . 1)
-     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org" :level . 1)
-     ("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/OSS.org" :level . 1)
-     (org-agenda-files :todo . "PROJECT"))))
+ '(org-refile-targets (quote ((org-agenda-files :todo . "PROJECT"))))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
  '(org-smart-capture-use-lastname t)
