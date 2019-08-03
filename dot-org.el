@@ -924,12 +924,15 @@ end tell" (match-string 1))))
     (or (outline-next-heading)
         (goto-char (point-max)))))
 
-(defun my-org-current-tags ()
+(defun my-org-current-tags (depth)
   (save-excursion
     (ignore-errors
       (let (should-skip)
-        (while (and (not should-skip)
-                    (not (org-up-element)))
+        (while (and (> depth 0)
+                    (not should-skip)
+                    (prog1
+                        (setq depth (1- depth))
+                      (not (org-up-element))))
           (if (looking-at "^\*+\\s-+")
               (setq should-skip (org-get-local-tags))))
         should-skip))))
@@ -937,7 +940,7 @@ end tell" (match-string 1))))
 (defun my-org-agenda-skip-all-siblings-but-first-hot ()
   "Skip all but the first non-done entry."
   (when (or (my-org-agenda-should-skip-p)
-            (not (member "HOT" (my-org-current-tags))))
+            (not (member "HOT" (my-org-current-tags 1))))
     (or (outline-next-heading)
         (goto-char (point-max)))))
 

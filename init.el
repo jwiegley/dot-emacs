@@ -299,7 +299,13 @@
   :bind* ("<C-return>" . ace-window))
 
 (use-package adoc-mode
-  :mode "\\.adoc\\'")
+  :mode "\\.adoc\\'"
+  :config
+  (add-hook 'adoc-mode-hook
+            #'(lambda ()
+                (auto-fill-mode -1)
+                (visual-line-mode 1)
+                (visual-fill-column-mode 1))))
 
 (use-package agda-input
   :config
@@ -1675,12 +1681,25 @@
 
 (use-package forge
   :after magit
-  ;; :config
-  ;; (transient-insert-suffix 'forge-dispatch "c p"
-  ;;   '("p" "pull-request" forge-create-pullreq))
-  ;; (transient-insert-suffix 'forge-dispatch "c i"
-  ;;   '("c" "issues" forge-create-issue))
-  )
+  :preface
+  (defun my-quick-create-pull-request (title branch)
+    (interactive "sTitle: \nsBranch: ")
+    (setq branch (concat "johnw/" branch))
+    ;; Create a commit from whatever is staged.
+    (with-temp-buffer
+      (insert title)
+      (kill-ring-save (point-min) (point-max))
+      (call-process-region (point-min) (point-max) "git" nil nil nil "commit" "-F" "-"))
+    (magit-refresh-all)
+    ;; Split this commit to another branch.
+    (magit-branch-spinoff branch)
+    ;; Push that branch to the remote.
+    (call-interactively #'magit-push-current-to-pushremote)
+    ;; Create a pullreq using the same title.
+    (forge-create-pullreq (concat "origin/" branch) "origin/master"))
+  :config
+  (transient-insert-suffix 'forge-dispatch "c i"
+    '("p" "quick-pr" my-quick-create-pull-request)))
 
 (use-package free-keys
   :commands free-keys)
@@ -2468,7 +2487,11 @@
           (goto-char account-beg)
           (delete-region account-beg account-end)
           (insert account))
-        (forward-line)))))
+        (forward-line))))
+  :config
+  (add-hook 'ledger-mode-hook
+            #'(lambda ()
+                (auto-fill-mode -1))))
 
 (use-package lentic-mode
   :diminish
