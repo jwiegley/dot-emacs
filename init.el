@@ -857,6 +857,9 @@
   :config
   (push 'company-rtags company-backends))
 
+(use-package company-terraform
+  :after (company terraform-mode))
+
 (use-package compile
   :no-require
   :bind (("C-c c" . compile)
@@ -3572,6 +3575,9 @@
 (use-package term
   :bind (:map term-mode-map
               ("C-c C-y" . term-paste)))
+
+(use-package terraform-mode
+  :mode "\.tf\\'")
 
 (use-package texinfo
   :mode ("\\.texi\\'" . texinfo-mode)
