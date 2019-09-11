@@ -333,7 +333,7 @@
       ("\\subsection{%s}" . "\\subsection*{%s}")
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
      ("beamer" "\\documentclass{beamer}" org-beamer-sectioning))))
- '(org-extend-today-until 8)
+ '(org-extend-today-until 4)
  '(org-fast-tag-selection-single-key (quote expert))
  '(org-fontify-done-headline t)
  '(org-fontify-quote-and-verse-blocks t)

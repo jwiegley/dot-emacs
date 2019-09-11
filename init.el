@@ -520,7 +520,9 @@
   (setq math-units-table nil))
 
 (use-package cargo
-  :hook (rust-mode . cargo-minor-mode))
+  :hook (rust-mode . cargo-minor-mode)
+  :bind (:map cargo-minor-mode-map
+              ("C-c C-c C-y" . cargo-process-clippy)))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
@@ -1688,12 +1690,6 @@
   (defun my-quick-create-pull-request (title branch)
     (interactive "sTitle: \nsBranch: ")
     (setq branch (concat "johnw/" branch))
-    ;; Create a commit from whatever is staged.
-    (with-temp-buffer
-      (insert title)
-      (kill-ring-save (point-min) (point-max))
-      (call-process-region (point-min) (point-max) "git" nil nil nil "commit" "-F" "-"))
-    (magit-refresh-all)
     ;; Split this commit to another branch.
     (magit-branch-spinoff branch)
     ;; Push that branch to the remote.
@@ -1760,7 +1756,11 @@
   :defer 5)
 
 (use-package github-review
-  :commands github-review-start)
+  :after forge
+  :commands github-review-start
+  :config
+  (transient-insert-suffix 'forge-dispatch "c p"
+    '("c r" "github-review" github-review-forge-pr-at-point)))
 
 (use-package gitpatch
   :commands gitpatch-mail)
