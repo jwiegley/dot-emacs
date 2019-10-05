@@ -2051,6 +2051,9 @@
           (error (message "%S" e))
           (quit nil))))))
 
+(use-package hcl-mode
+  :mode "\.nomad\\'")
+
 (use-package helm
   :defer t
   :bind (:map helm-map
