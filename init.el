@@ -522,7 +522,13 @@
 (use-package cargo
   :hook (rust-mode . cargo-minor-mode)
   :bind (:map cargo-minor-mode-map
-              ("C-c C-c C-y" . cargo-process-clippy)))
+              ("C-c C-c C-y" . cargo-process-clippy))
+  :config
+  (defadvice cargo-process-clippy
+      (around my-cargo-process-clippy activate)
+    (let ((cargo-process--command-flags (concat cargo-process--command-flags
+                                                " --tests -- -D clippy::all")))
+      ad-do-it)))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)

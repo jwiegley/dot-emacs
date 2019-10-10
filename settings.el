@@ -271,7 +271,7 @@
  '(calendar-standard-time-zone-name "PST")
  '(calendar-time-zone -480)
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
- '(cargo-process--command-flags "-j20")
+ '(cargo-process--command-flags "-j8")
  '(cc-other-file-alist
    (quote
     (("\\.hs\\'"
@@ -875,6 +875,7 @@
  '(lsp-haskell-process-args-hie (quote ("-l" "/tmp/hie.log")))
  '(lsp-highlight-symbol-at-point nil)
  '(lsp-inhibit-message t)
+ '(lsp-rust-clippy-preference "on")
  '(lsp-ui-doc-enable nil)
  '(mac-pass-command-to-system nil)
  '(mac-pass-control-to-system nil)
