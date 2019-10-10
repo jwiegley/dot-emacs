@@ -1587,6 +1587,14 @@
          ("C-c N W" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen))
 
+(use-package fast-scroll
+  :demand t
+  :config
+  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+  (fast-scroll-config)
+  (fast-scroll-mode 1))
+
 (use-package feebleline
   :bind (("M-o m" . feebleline-mode))
   :config
@@ -3939,6 +3947,7 @@
   (switch-to-gnus)
   (switch-to-fetchmail)
   (jump-to-org-agenda)
-  (org-resolve-clocks))
+  (org-resolve-clocks)
+  (magit-status "~/dfinity/master"))
 
 ;;; init.el ends here
