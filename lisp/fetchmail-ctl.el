@@ -35,8 +35,6 @@
   "Simple code for controlling Fetchmail."
   :group 'gnus)
 
-(defvar fetchmail-process nil)
-
 (defun process-running-p (name)
   (catch 'proc-running
     (ignore
@@ -54,12 +52,12 @@
       (let ((buf (get-buffer-create procname))
             (args (copy-list extra-args)))
         (unless once (nconc args '("-d" "900")))
-        (setq fetchmail-process
-              (apply #'start-process procname buf
-                     "fetchmail" "-n" "-N" args))
-        (sleep-for 0 250)
-        (process-send-string fetchmail-process passwd)
-        (process-send-string fetchmail-process "\n"))
+        (let ((fetchmail-process
+               (apply #'start-process procname buf
+                      "fetchmail" "-n" "-N" args)))
+          (sleep-for 1 0)
+          (process-send-string fetchmail-process passwd)
+          (process-send-string fetchmail-process "\n")))
       (message "Starting Fetchmail...done"))))
 
 (defun safely-kill-process (name &optional signal verb)
