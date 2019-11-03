@@ -745,6 +745,7 @@
          ("C-c e L" . clm/open-command-log-buffer)))
 
 (use-package company
+  :disabled t
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
@@ -1594,6 +1595,7 @@
   :commands (fancy-narrow-to-region fancy-widen))
 
 (use-package fast-scroll
+  :disabled t
   :demand t
   :config
   (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
@@ -1834,6 +1836,9 @@
       (if gud-buf
           (switch-to-buffer-other-window gud-buf)
         (call-interactively 'gud-gdb)))))
+
+(use-package gud-lldb
+  :commands gud-lldb)
 
 (use-package haskell-edit
   :load-path "lisp/haskell-config"
@@ -3216,7 +3221,8 @@
               #'(lambda ()
                   (set-input-method "Agda")
                   (holes-mode -1)
-                  (company-coq-mode 1)
+                  (when (featurep 'company)
+                    (company-coq-mode 1))
                   (set (make-local-variable 'fill-nobreak-predicate)
                        #'(lambda ()
                            (pcase (get-text-property (point) 'face)
@@ -3286,6 +3292,14 @@
 
 (use-package rainbow-mode
   :commands rainbow-mode)
+
+(use-package racer
+  :commands racer-mode
+  ;; :hook (rust-mode . racer-mode)
+  :hook (racer-mode . eldoc-mode)
+  :hook (racer-mode . company-mode)
+  :config
+  (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common))
 
 (use-package recentf
   :defer 10
@@ -3379,12 +3393,14 @@
 (use-package rust-mode
   :mode "\\.rs\\'"
   :hook (rust-mode . lsp)
+  :hook (rust-mode . cargo-minor-mode)
   :config
   (add-hook 'rust-mode-hook
             #'(lambda ()
                 ;; (aggressive-indent-mode 1)
                 ;; (electric-pair-mode 1)
                 (flycheck-mode 1)
+                (yas-minor-mode-on)
                 (bind-key "M-n" #'flycheck-next-error rust-mode-map)
                 (bind-key "M-p" #'flycheck-previous-error rust-mode-map))))
 
