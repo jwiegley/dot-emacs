@@ -126,7 +126,7 @@ BAE Systems"))))
  '(gnus-harvest-sender-alist (quote ((".*@gnu\\.org" . johnw@gnu\.org))))
  '(gnus-home-directory "~/Messages/Gnus/")
  '(gnus-ignored-from-addresses
-   "\\(johnw\\|jwiegley\\)\\(-[^@]+\\)?@\\(gnu\\.org\\|\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|public\\.gmane\\.org\\)")
+   "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|\\(gnu\\|public\\.gmane\\|dfinity\\)\\.org\\)")
  '(gnus-ignored-mime-types
    (quote
     ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
