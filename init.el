@@ -3695,6 +3695,18 @@
 (use-package undo-propose
   :commands undo-propose)
 
+(use-package vagrant
+  :commands (vagrant-up
+             vagrant-ssh
+             vagrant-halt
+             vagrant-status)
+  :config
+  (vagrant-tramp-enable))
+
+(use-package vagrant-tramp
+  :after tramp
+  :defer 5)
+
 (use-package vdiff
   :commands (vdiff-files
              vdiff-files3
