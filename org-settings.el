@@ -348,7 +348,7 @@
    "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/org.ics")
  '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
- '(org-image-actual-width (quote (800)))
+ '(org-image-actual-width nil)
  '(org-imenu-depth 4)
  '(org-insert-heading-respect-content t)
  '(org-irc-link-to-logs t t)

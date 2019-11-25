@@ -1680,8 +1680,8 @@
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after flycheck)
 
-(use-package flycheck-rust
-  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+;; (use-package flycheck-rust
+;;   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -3394,15 +3394,58 @@
   :mode "\\.rs\\'"
   :hook (rust-mode . lsp)
   :hook (rust-mode . cargo-minor-mode)
-  :config
-  (add-hook 'rust-mode-hook
-            #'(lambda ()
-                ;; (aggressive-indent-mode 1)
-                ;; (electric-pair-mode 1)
-                (flycheck-mode 1)
-                (yas-minor-mode-on)
-                (bind-key "M-n" #'flycheck-next-error rust-mode-map)
-                (bind-key "M-p" #'flycheck-previous-error rust-mode-map))))
+  :preface
+  (defun my-rls-lsp-path-to-uri (path)
+    (lsp--path-to-uri-1
+     (with-temp-buffer
+       (insert path)
+       (goto-char (point-min))
+       (while (re-search-forward "/Users/johnw/dfinity/master/" nil t)
+         (replace-match "/home/vagrant/dfinity/"))
+       (buffer-string))))
+
+  (defun my-rls-lsp-uri-to-path (uri)
+    (lsp--uri-to-path-1
+     (with-temp-buffer
+       (insert uri)
+       (goto-char (point-min))
+       (while (re-search-forward "/home/vagrant/dfinity/" nil t)
+         (replace-match "/Users/johnw/dfinity/master/"))
+       (buffer-string))))
+
+  (add-hook
+   'rust-mode-hook
+   #'(lambda ()
+       ;; (electric-pair-mode 1)
+       ;; (flycheck-mode 1)
+       (yas-minor-mode-on)
+
+       (bind-key "M-n" #'flycheck-next-error rust-mode-map)
+       (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
+
+       (when nil
+         (setq lsp-rust-target "x86_64-unknown-linux-gnu"
+               lsp-rust-rls-server-command
+               '("~/dfinity/master/run-rls"))
+
+         (eval-after-load 'lsp-mode
+           '(lsp-register-client
+             (make-lsp-client
+              :new-connection (lsp-stdio-connection (lambda () lsp-rust-rls-server-command))
+              :major-modes '(rust-mode rustic-mode)
+              :priority (if (eq lsp-rust-server 'rls) 1 -1)
+              :initialization-options '((omitInitBuild . t)
+                                        (cmdRun . t))
+              :notification-handlers (ht ("window/progress" 'lsp-clients--rust-window-progress))
+              :action-handlers (ht ("rls.run" 'lsp-rust--rls-run))
+              :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
+              :initialized-fn (lambda (workspace)
+                                (with-lsp-workspace workspace
+                                  (lsp--set-configuration
+                                   (lsp-configuration-section "rust"))))
+              :server-id 'rls
+              :path->uri-fn #'my-rls-lsp-path-to-uri
+              :uri->path-fn #'my-rls-lsp-uri-to-path)))))))
 
 (use-package savehist
   :unless noninteractive
@@ -3935,10 +3978,14 @@
     (set-param 'fullscreen nil)
     (set-param 'vertical-scroll-bars nil)
     (set-param 'horizontal-scroll-bars nil))
-  (set-frame-position (selected-frame) emacs-min-left emacs-min-top)
-  (set-frame-height (selected-frame) emacs-min-height)
-  (set-frame-width (selected-frame) emacs-min-width)
-  (set-frame-font emacs-min-font))
+  (and emacs-min-left emacs-min-top
+       (set-frame-position (selected-frame) emacs-min-left emacs-min-top))
+  (and emacs-min-height
+       (set-frame-height (selected-frame) emacs-min-height))
+  (and emacs-min-width
+       (set-frame-width (selected-frame) emacs-min-width))
+  (and emacs-min-font
+       (set-frame-font emacs-min-font)))
 
 (defun emacs-max ()
   (interactive)
@@ -3946,7 +3993,8 @@
     (set-param 'fullscreen 'fullboth)
     (set-param 'vertical-scroll-bars nil)
     (set-param 'horizontal-scroll-bars nil))
-  (set-frame-font emacs-min-font))
+  (and emacs-min-font
+       (set-frame-font emacs-min-font)))
 
 (defun emacs-toggle-size ()
   (interactive)
