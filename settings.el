@@ -873,9 +873,13 @@
  '(line-number-mode t)
  '(load-prefer-newer t)
  '(lsp-enable-eldoc nil)
+ '(lsp-file-watch-ignored
+   (quote
+    ("[/\\\\]\\.git$" "[/\\\\]\\.hg$" "[/\\\\]\\.bzr$" "[/\\\\]_darcs$" "[/\\\\]\\.svn$" "[/\\\\]_FOSSIL_$" "[/\\\\]\\.idea$" "[/\\\\]\\.ensime_cache$" "[/\\\\]\\.eunit$" "[/\\\\]node_modules$" "[/\\\\]\\.fslckout$" "[/\\\\]\\.tox$" "[/\\\\]\\.stack-work$" "[/\\\\]\\.bloop$" "[/\\\\]\\.metals$" "[/\\\\]target$" "[/\\\\]\\.deps$" "[/\\\\]build-aux$" "[/\\\\]autom4te.cache$" "[/\\\\]\\.reference$" "^/nix" "^/System" "[/\\\\]\\.cargo-home$" "[/\\\\]\\.direnv$")))
  '(lsp-haskell-process-args-hie (quote ("-l" "/tmp/hie.log")))
  '(lsp-highlight-symbol-at-point nil)
  '(lsp-inhibit-message t)
+ '(lsp-prefer-flymake nil)
  '(lsp-rust-clippy-preference "on")
  '(lsp-ui-doc-enable nil)
  '(mac-pass-command-to-system nil)
@@ -1043,6 +1047,7 @@
  '(rtags-completions-enabled t)
  '(rtags-display-result-backend (quote ivy))
  '(runner-init-file "~/.emacs.d/data/runner-conf.el" t)
+ '(rust-format-on-save t)
  '(safe-local-eval-forms
    (quote
     ((add-hook
