@@ -76,19 +76,14 @@
 (defun shutdown-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*")
-  ;; (safely-kill-process "*fetchmail-work*")
   (safely-kill-process "*fetchmail-lists*")
-  ;; (safely-kill-process "*fetchmail-spam*")
   ;; (safely-kill-process "*fetchnews*")
   )
 
 (defun kick-fetchmail ()
   (interactive)
   (safely-kill-process "*fetchmail*" 'SIGUSR1 "Kicking")
-  ;; (safely-kill-process "*fetchmail-work*" 'SIGUSR1 "Kicking")
-  (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking")
-  ;; (safely-kill-process "*fetchmail-spam*" 'SIGUSR1 "Kicking")
-  )
+  (safely-kill-process "*fetchmail-lists*" 'SIGUSR1 "Kicking"))
 
 (defun get-buffer-or-call-func (name func)
   (let ((buf (get-buffer name)))
@@ -123,21 +118,6 @@
                 "*fetchmail*" nil "--idle"
                 "--pidfile" (expand-file-name "pid" cache-dir)
                 "-f" (expand-file-name "config.copy" config-dir)))))))
-        ;; (fetchmail-lists-buf
-        ;;  (get-buffer-or-call-func
-        ;;   "*fetchmail-work*"
-        ;;   (function
-        ;;    (lambda ()
-        ;;      (let ((process-environment (copy-alist process-environment))
-        ;;            (config-dir (expand-file-name "~/.config/fetchmail"))
-        ;;            (cache-dir (expand-file-name "~/.cache/fetchmail")))
-        ;;        (unless (file-directory-p cache-dir)
-        ;;          (make-directory cache-dir t))
-        ;;        (start-fetchmail
-        ;;         (lookup-password "dfinity.imap.gmail.com" "john@dfinity.org" 993)
-        ;;         "*fetchmail-work*" nil "--idle"
-        ;;         "--pidfile" (expand-file-name "work.pid" cache-dir)
-        ;;         "-f" (expand-file-name "config-work.copy" config-dir)))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
@@ -154,16 +134,6 @@
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "lists.pid" cache-dir)
                 "-f" (expand-file-name "config-lists.copy" config-dir)))))))
-        ;; (fetchmail-spam-buf
-        ;;  (get-buffer-or-call-func
-        ;;   "*fetchmail-spam*"
-        ;;   (function
-        ;;    (lambda ()
-        ;;      (let ((process-environment (copy-alist process-environment)))
-        ;;        (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Maildir"))
-        ;;        (start-fetchmail "*fetchmail-spam*" t
-        ;;                         "-f" (expand-file-name
-        ;;                               "~/Messages/fetchmailrc.spam")))))))
         ;; (fetchnews-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchnews*"

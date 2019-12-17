@@ -306,7 +306,7 @@
       (".cxx")))))
  '(clean-buffer-list-kill-never-buffer-names
    (quote
-    ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "dfinity.txt" "habits.txt" "Bahai.txt" "OSS.txt" "diary" "notes.txt" "&bitlbee")))
+    ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "habits.txt" "Bahai.txt" "OSS.txt" "diary" "notes.txt" "&bitlbee")))
  '(clean-buffer-list-kill-never-regexps
    (quote
     ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#")))
@@ -859,7 +859,6 @@
  '(ivy-rich-parse-remote-buffer nil)
  '(ivy-use-virtual-buffers t nil nil "Customized with use-package ivy")
  '(ivy-wrap t nil nil "Customized with use-package ivy")
- '(jiralib-url "https://dfinity.atlassian.net/")
  '(jist-enable-default-authorized t)
  '(jist-gist-directory "/Users/johnw/src/notes/gists")
  '(kill-do-not-save-duplicates t)
@@ -897,6 +896,7 @@
  '(magit-process-popup-time 15)
  '(magit-push-always-verify nil)
  '(magit-refresh-status-buffer nil)
+ '(magit-section-initial-visibility-alist (quote ((untracked . hide))))
  '(magit-stage-all-confirm nil)
  '(magit-unstage-all-confirm nil)
  '(magit-use-overlays nil)

@@ -35,10 +35,6 @@ ATC Secretary")
         (idx 5))
       "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     (#("DFINITY" 0 1
-        (idx 2))
-      "" "\"John Wiegley\" <john@dfinity.org>" "DFINITY LLC" nil "" "John Wiegley
-Sr. Researcher & Engineer, DFINITY")
      (#("BAE" 0 1
         (idx 1))
       "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
@@ -62,10 +58,7 @@ BAE Systems"))))
       "NewArtisans")
      ("Haskell Mailing Lists"
       ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans")
-     ("DFINITY"
-      ("To" "\\(dfinity\\)" current)
-      "DFINITY"))))
+      "NewArtisans"))))
  '(gnus-alias-override-user-mail-address t)
  '(gnus-alias-unknown-identity-rule (quote error))
  '(gnus-always-read-dribble-file t)
@@ -126,7 +119,7 @@ BAE Systems"))))
  '(gnus-harvest-sender-alist (quote ((".*@gnu\\.org" . johnw@gnu\.org))))
  '(gnus-home-directory "~/Messages/Gnus/")
  '(gnus-ignored-from-addresses
-   "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|\\(gnu\\|public\\.gmane\\|dfinity\\)\\.org\\)")
+   "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|\\(gnu\\|public\\.gmane\\)\\.org\\)")
  '(gnus-ignored-mime-types
    (quote
     ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))

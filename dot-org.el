@@ -18,9 +18,9 @@
 
 (unless window-system
   (setq org-agenda-files
-        '("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org"
-          "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahai.org"
-          "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/BAE.org")))
+        '("~/Documents/tasks/todo.org"
+          "~/Documents/tasks/Bahai.org"
+          "~/Documents/tasks/BAE.org")))
 
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
@@ -250,7 +250,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
+  (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -321,7 +321,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
+        (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -677,7 +677,7 @@ end tell" (match-string 1))))
 
 (defun my-org-publish-ical ()
   (interactive)
-  (async-shell-command "make -C ~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org"))
+  (async-shell-command "make -C ~/Documents/tasks"))
 
 (bind-keys :map org-agenda-mode-map
            ("C-c C-x C-p" . my-org-publish-ical)
@@ -706,11 +706,9 @@ end tell" (match-string 1))))
   "Fit the Org Agenda to its buffer."
   (let ((notes
          (ignore-errors
-           (directory-files
-            "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
-            t "[0-9].*\\.txt\\'" nil))))
+           (directory-files "~/Documents/tasks" t "[0-9].*\\.org\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/todo.org")
+      (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
@@ -964,7 +962,7 @@ end tell" (match-string 1))))
     (interactive)
     (let ((buf (get-buffer "*cfw-calendar*"))
           (org-agenda-files
-           (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Nasim.org"
+           (cons "~/Documents/tasks/Nasim.org"
                  org-agenda-files)))
       (if buf
           (pop-to-buffer buf nil)
@@ -1060,15 +1058,15 @@ end tell" (match-string 1))))
         (lookup-password "org-caldav.google.com" org-gcal-client-id 80)
         org-gcal-file-alist
         '(("jwiegley@gmail.com" .
-           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Google.org")
+           "~/Documents/tasks/Google.org")
           ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Bahá'í.org")
+           "~/Documents/tasks/Bahá'í.org")
           ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Family.org")
+           "~/Documents/tasks/Family.org")
           ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Nasim.org")
+           "~/Documents/tasks/Nasim.org")
           ("sacramento.lsa1914@gmail.com" .
-           "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/Sacramento.org"))))
+           "~/Documents/tasks/Sacramento.org"))))
 
 (use-package org-mime
   :config
@@ -1197,7 +1195,7 @@ end tell" (match-string 1))))
 (use-package yankpad
   :defer 10
   :init
-  (setq yankpad-file "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/yankpad.org")
+  (setq yankpad-file "~/Documents/tasks/yankpad.org")
   :config
   ;; (bind-key "<f7>" 'yankpad-map)
   ;; (bind-key "<f12>" 'yankpad-expand)
