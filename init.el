@@ -264,8 +264,8 @@
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
   (expand-load
    . (lambda ()
-       (add-hook 'expand-expand-hook 'indent-according-to-mode)
-       (add-hook 'expand-jump-hook 'indent-according-to-mode)))
+       (add-hook 'expand-expand-hook #'indent-according-to-mode)
+       (add-hook 'expand-jump-hook #'indent-according-to-mode)))
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
@@ -468,8 +468,8 @@
              bm-buffer-save-all
              bm-buffer-restore)
   :init
-  (add-hook 'after-init-hook 'bm-repository-load)
-  (add-hook 'find-file-hooks 'bm-buffer-restore)
+  (add-hook 'after-init-hook #'bm-repository-load)
+  (add-hook 'find-file-hooks #'bm-buffer-restore)
   (add-hook 'after-revert-hook #'bm-buffer-restore)
   (add-hook 'kill-buffer-hook #'bm-buffer-save)
   (add-hook 'after-save-hook #'bm-buffer-save)
@@ -520,7 +520,7 @@
   (setq math-units-table nil))
 
 (use-package cargo
-  :hook (rust-mode . cargo-minor-mode)
+  :commands cargo-minor-mode
   :bind (:map cargo-minor-mode-map
               ("C-c C-c C-y" . cargo-process-clippy))
   :config
@@ -1198,6 +1198,11 @@
 
 (use-package direnv
   :demand t
+  :preface
+  (defun patch-direnv-environment (&rest _args)
+    (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
+    (setq exec-path (cons (file-name-as-directory emacs-binary-path)
+                          exec-path)))
   :init
   (defconst emacs-binary-path (directory-file-name
                                (file-name-directory
@@ -1210,18 +1215,9 @@
              (direnv-update-environment default-directory)
              (executable-find cmd))))
   (add-hook 'coq-mode-hook
-            (lambda ()
-              (add-hook 'post-command-hook #'direnv--maybe-update-environment)
-              (direnv-update-environment default-directory)))
-  (add-hook 'rust-mode-hook
-            (lambda ()
-              (add-hook 'post-command-hook #'direnv--maybe-update-environment)
-              (direnv-update-environment default-directory)))
-
-  (defun patch-direnv-environment (&rest _args)
-    (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
-    (setq exec-path (cons (file-name-as-directory emacs-binary-path)
-                          exec-path)))
+            #'(lambda ()
+                (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+                (direnv-update-environment default-directory)))
 
   (advice-add 'direnv-update-directory-environment
               :after #'patch-direnv-environment)
@@ -1378,6 +1374,7 @@
   )
 
 (use-package emms-setup
+  :disabled t
   :bind ("M-E" . emms-browser)
   :config
   (emms-all)
@@ -1444,7 +1441,7 @@
   :init
   (add-hook 'erc-mode-hook #'setup-irc-environment)
   (when alternate-emacs
-    (add-hook 'emacs-startup-hook 'irc))
+    (add-hook 'emacs-startup-hook #'irc))
 
   (eval-after-load 'erc-identd
     '(defun erc-identd-start (&optional port)
@@ -1537,7 +1534,7 @@
           (goto-char beg)
           (insert "spawn "))))
 
-    (add-hook 'eshell-expand-input-functions 'eshell-spawn-external-command)
+    (add-hook 'eshell-expand-input-functions #'eshell-spawn-external-command)
 
     (use-package em-unix
       :defer t
@@ -1546,7 +1543,7 @@
       (unintern 'eshell/sudo nil)))
 
   :init
-  (add-hook 'eshell-first-time-mode-hook 'eshell-initialize))
+  (add-hook 'eshell-first-time-mode-hook #'eshell-initialize))
 
 (use-package eshell-bookmark
   :hook (eshell-mode . eshell-bookmark-setup))
@@ -1598,8 +1595,8 @@
   :disabled t
   :demand t
   :config
-  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
-  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+  (add-hook 'fast-scroll-start-hook #'(lambda () (flycheck-mode -1)))
+  (add-hook 'fast-scroll-end-hook #'(lambda () (flycheck-mode 1)))
   (fast-scroll-config)
   (fast-scroll-mode 1))
 
@@ -1646,7 +1643,7 @@
   (make-variable-buffer-local 'flycheck-idle-change-delay)
 
   (add-hook 'flycheck-after-syntax-check-hook
-            'magnars/adjust-flycheck-automatic-syntax-eagerness)
+            #'magnars/adjust-flycheck-automatic-syntax-eagerness)
 
   ;; Remove newline checks, since they would trigger an immediate check
   ;; when we want the idle-change-delay to be in effect while editing.
@@ -1936,54 +1933,6 @@
   (require 'haskell-doc)
   (require 'haskell-commands)
 
-  (defun find-brittany-work (&optional start-dir)
-    (let ((dir (or start-dir default-directory)))
-      (while (and dir (not (string= dir "/"))
-                  (not (file-directory-p (concat dir "/dist"))))
-        (setq dir (expand-file-name ".." dir)))
-      (and dir (not (string= dir "/"))
-           (concat dir "/dist/build/brittany/brittany"))))
-
-  (defun find-brittany ()
-    (let ((path
-           (or (find-brittany-work)
-               (let ((exe
-                      (with-temp-buffer
-                        (insert default-directory)
-                        (goto-char (point-min))
-                        (when (re-search-forward "/hs-\\(dfinity-.+?\\)/.+" nil t)
-                          (replace-match
-                           (concat "/dist-newstyle/build/x86_64-osx/ghc-8.6.4/"
-                                   "\\1-0.0.0/t/brittany/build/brittany/brittany")))
-                        (buffer-string))))
-                 (and exe
-                      (file-regular-p exe)
-                      (file-executable-p exe)
-                      exe))
-               (find-brittany-work
-                (with-temp-buffer
-                  (insert default-directory)
-                  (goto-char (point-min))
-                  (if (re-search-forward "\\<dfinity\\>" nil t)
-                      (replace-match "Products"))
-                  (buffer-string)))
-               ;; (executable-find "brittany")
-               )))
-      (and path
-           (file-regular-p path)
-           (file-executable-p path)
-           path)))
-
-  (defvar brittany-enabled t)
-
-  (defun brittany-enable ()
-    (interactive)
-    (setq brittany-enabled t))
-
-  (defun brittany-disable ()
-    (interactive)
-    (setq brittany-enabled nil))
-
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
@@ -1998,8 +1947,7 @@
     (flycheck-haskell-setup)
     (add-hook 'hack-local-variables-hook
               #'(lambda ()
-                  (when (and buffer-file-name
-                             (string-match "dfinity" buffer-file-name))
+                  (when nil
                     (setq-local flycheck-ghc-search-path nil)
                     (setq-local flycheck-ghc-args nil)))
               t)
@@ -2007,7 +1955,7 @@
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1))
 
-  (add-hook 'haskell-mode-hook 'my-haskell-mode-hook)
+  (add-hook 'haskell-mode-hook #'my-haskell-mode-hook)
 
   (eval-after-load 'align
     '(nconc
@@ -2537,7 +2485,7 @@
 (use-package lisp-mode
   :defer t
   :hook ((emacs-lisp-mode lisp-mode)
-         . (lambda () (add-hook 'after-save-hook 'check-parens nil t)))
+         . (lambda () (add-hook 'after-save-hook #'check-parens nil t)))
   :init
   (dolist (mode '(ielm-mode
                   inferior-emacs-lisp-mode
@@ -2901,7 +2849,7 @@
               (save-buffer)))))))
 
   (add-hook 'nroff-mode-hook
-            #'(lambda () (add-hook 'after-save-hook 'update-nroff-timestamp nil t))))
+            #'(lambda () (add-hook 'after-save-hook #'update-nroff-timestamp nil t))))
 
 (use-package nxml-mode
   :commands nxml-mode
@@ -3285,7 +3233,7 @@
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indent-tabs-mode nil))
 
-  (add-hook 'python-mode-hook 'my-python-mode-hook))
+  (add-hook 'python-mode-hook #'my-python-mode-hook))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -3295,7 +3243,6 @@
 
 (use-package racer
   :commands racer-mode
-  ;; :hook (rust-mode . racer-mode)
   :hook (racer-mode . eldoc-mode)
   :hook (racer-mode . company-mode)
   :config
@@ -3392,60 +3339,34 @@
 
 (use-package rust-mode
   :mode "\\.rs\\'"
-  :hook (rust-mode . lsp)
-  :hook (rust-mode . cargo-minor-mode)
+  :init
+  (add-hook 'rust-mode-hook #'my-rust-mode-init)
   :preface
-  (defun my-rls-lsp-path-to-uri (path)
-    (lsp--path-to-uri-1
-     (with-temp-buffer
-       (insert path)
-       (goto-char (point-min))
-       (while (re-search-forward "/Users/johnw/dfinity/master/" nil t)
-         (replace-match "/home/vagrant/dfinity/"))
-       (buffer-string))))
+  (defcustom my-rls-develop-on-linux nil
+    "Non-nil if Rust development takes place on a Linux machine."
+    :group 'lsp-rust
+    :type 'boolean)
 
-  (defun my-rls-lsp-uri-to-path (uri)
-    (lsp--uri-to-path-1
-     (with-temp-buffer
-       (insert uri)
-       (goto-char (point-min))
-       (while (re-search-forward "/home/vagrant/dfinity/" nil t)
-         (replace-match "/Users/johnw/dfinity/master/"))
-       (buffer-string))))
+  (defun my-update-cargo-path (&rest _args)
+    (setq cargo-process--custom-path-to-bin
+          (executable-find "cargo")))
 
-  (add-hook
-   'rust-mode-hook
-   #'(lambda ()
-       ;; (electric-pair-mode 1)
-       ;; (flycheck-mode 1)
-       (yas-minor-mode-on)
+  (defun my-rust-mode-init ()
+    (advice-add 'direnv-update-directory-environment
+                :after #'my-update-cargo-path)
 
-       (bind-key "M-n" #'flycheck-next-error rust-mode-map)
-       (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
+    (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+    (direnv-update-environment default-directory)
 
-       (when nil
-         (setq lsp-rust-target "x86_64-unknown-linux-gnu"
-               lsp-rust-rls-server-command
-               '("~/dfinity/master/run-rls"))
+    (cargo-minor-mode 1)
+    ;; (electric-pair-mode 1)
+    ;; (flycheck-mode 1)
+    (yas-minor-mode-on)
 
-         (eval-after-load 'lsp-mode
-           '(lsp-register-client
-             (make-lsp-client
-              :new-connection (lsp-stdio-connection (lambda () lsp-rust-rls-server-command))
-              :major-modes '(rust-mode rustic-mode)
-              :priority (if (eq lsp-rust-server 'rls) 1 -1)
-              :initialization-options '((omitInitBuild . t)
-                                        (cmdRun . t))
-              :notification-handlers (ht ("window/progress" 'lsp-clients--rust-window-progress))
-              :action-handlers (ht ("rls.run" 'lsp-rust--rls-run))
-              :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
-              :initialized-fn (lambda (workspace)
-                                (with-lsp-workspace workspace
-                                  (lsp--set-configuration
-                                   (lsp-configuration-section "rust"))))
-              :server-id 'rls
-              :path->uri-fn #'my-rls-lsp-path-to-uri
-              :uri->path-fn #'my-rls-lsp-uri-to-path)))))))
+    (bind-key "M-n" #'flycheck-next-error rust-mode-map)
+    (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
+
+    (lsp)))
 
 (use-package savehist
   :unless noninteractive
@@ -3520,7 +3441,7 @@
       (info-lookup-add-help :mode 'shell-script-mode
                             :regexp ".*"
                             :doc-spec '(("(bash)Index")))))
-  (add-hook 'shell-mode-hook 'initialize-sh-script))
+  (add-hook 'shell-mode-hook #'initialize-sh-script))
 
 (use-package shackle
   :unless alternate-emacs
@@ -3669,7 +3590,7 @@
                      `(lambda () (interactive)
                         (TeX-insert-macro ,(cdr mapping))))))
 
-  (add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook)
+  (add-hook 'texinfo-mode-hook #'my-texinfo-mode-hook)
 
   (defun texinfo-outline-level ()
     ;; Calculate level of current texinfo outline heading.
@@ -3695,9 +3616,9 @@
   :mode "\\.tla\\'"
   :config
   (add-hook 'tla-mode-hook
-            (lambda ()
-              (setq-local comment-start nil)
-              (setq-local comment-end ""))))
+            #'(lambda ()
+                (setq-local comment-start nil)
+                (setq-local comment-end ""))))
 
 (use-package toml-mode)
 
@@ -3843,7 +3764,7 @@
       (whitespace-cleanup)))
 
   :init
-  (add-hook 'find-file-hooks 'maybe-turn-on-whitespace t)
+  (add-hook 'find-file-hooks #'maybe-turn-on-whitespace t)
 
   :config
   (remove-hook 'find-file-hooks 'whitespace-buffer)
@@ -4029,7 +3950,6 @@
   (switch-to-gnus)
   (switch-to-fetchmail)
   (jump-to-org-agenda)
-  (org-resolve-clocks)
-  (magit-status "~/dfinity/master"))
+  (org-resolve-clocks))
 
 ;;; init.el ends here
