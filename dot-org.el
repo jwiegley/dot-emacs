@@ -706,7 +706,9 @@ end tell" (match-string 1))))
   "Fit the Org Agenda to its buffer."
   (let ((notes
          (ignore-errors
-           (directory-files "~/Documents/tasks" t "[0-9].*\\.org\\'" nil))))
+           (directory-files
+            "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
+            t "[0-9].*\\.txt\\'" nil))))
     (when notes
       (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
         (save-excursion

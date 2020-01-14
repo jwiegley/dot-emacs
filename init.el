@@ -2967,6 +2967,29 @@
                              password login password-store-executable
                              (shell-quote-argument entry)))))))
 
+(use-package password-store-otp
+  :defer t
+  :config
+  (defun password-store-otp-append-from-image (entry)
+    "Check clipboard for an image and scan it to get an OTP URI,
+append it to ENTRY."
+    (interactive (list (read-string "Password entry: ")))
+    (let ((qr-image-filename (password-store-otp--get-qr-image-filename entry)))
+      (when (not (zerop (call-process "screencapture" nil nil nil
+                                      "-T5" qr-image-filename)))
+        (error "Couldn't get image from clipboard"))
+      (with-temp-buffer
+        (condition-case nil
+            (call-process "zbarimg" nil t nil "-q" "--raw"
+                          qr-image-filename)
+          (error
+           (error "It seems you don't have `zbar-tools' installed")))
+        (password-store-otp-append
+         entry
+         (buffer-substring (point-min) (point-max))))
+      (when (not password-store-otp-screenshots-path)
+        (delete-file qr-image-filename)))))
+
 (use-package pcre2el
   :commands (rxt-mode rxt-global-mode))
 
@@ -3858,25 +3881,28 @@
     (`3840 'dell-wide)
     (`2560 'imac)
     (`1920 'macbook-pro-vga)
-    (`1680 'macbook-pro)))
+    (`1680 'macbook-pro-15)
+    (`1680 'macbook-pro-13)))
 
-(defconst emacs-min-top        23)
+(defconst emacs-min-top         0)
 
 (defconst emacs-min-left
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`dell-wide               1000)
-    (`imac                    115)
+    (`imac                    116)
     (`macbook-pro-vga         700)
-    (`macbook-pro             464)))
+    (`macbook-pro-15          464)
+    (`macbook-pro-13          464)))
 
 (defconst emacs-min-height
   (pcase display-name
     ((guard alternate-emacs)   51)
     (`dell-wide                64)
-    (`imac                     57)
+    (`imac                     58)
     (`macbook-pro-vga          55)
-    (`macbook-pro              47)))
+    (`macbook-pro-15           47)
+    (`macbook-pro-13           47)))
 
 (defconst emacs-min-width
   (pcase display-name
@@ -3884,7 +3910,8 @@
     (`dell-wide               202)
     (`imac                    202)
     (`macbook-pro-vga         100)
-    (`macbook-pro             100)))
+    (`macbook-pro-15          100)
+    (`macbook-pro-13          100)))
 
 (defconst emacs-min-font
   (pcase display-name
