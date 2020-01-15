@@ -2940,7 +2940,9 @@
   :preface
   (defun insert-password ()
     (interactive)
-    (shell-command "apg -m24 -x24 -a1 -n1" t)))
+    (shell-command "apg -m24 -x24 -a1 -n1" t))
+
+  (add-hook 'pass-view-mode-hook #'pass-view--prepare-otp))
 
 (use-package password-store
   :defer 5
