@@ -1088,6 +1088,11 @@ end tell" (match-string 1))))
                "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
                              "#E6E1DC" "#232323")))))
 
+(use-package org-noter
+  ;; jww (2020-01-16): This package requires a newer version of Org.
+  :disabled t
+  :commands org-noter)
+
 (use-package org-opml
   :disabled t)
 
