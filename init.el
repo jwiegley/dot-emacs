@@ -2896,7 +2896,16 @@
   :hook (outline-minor-mode . outshine-hook-function))
 
 (use-package ovpn-mode
-  :commands ovpn)
+  :commands ovpn
+  :config
+  (advice-add
+   'ovpn-mode-pull-authinfo :around
+   #'(lambda (ad-do-it config)
+       (if (string= config "OpenVPN_PoC_2019_johnwiegley.ovpn")
+           (list "johnwiegley"
+                 (concat (lookup-password "demonet OpenVPN" "johnwiegley" 80)
+                         (password-store--run "otp" "DFINITY/demonet OpenVPN")))
+         (funcall ad-do-it config)))))
 
 (use-package package-lint
   :commands package-lint-current-buffer)
