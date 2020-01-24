@@ -3892,6 +3892,7 @@ append it to ENTRY."
     (`3840 'dell-wide)
     (`2560 'imac)
     (`1920 'macbook-pro-vga)
+    (`1792 'macbook-pro-16)
     (`1680 'macbook-pro-15)
     (`1680 'macbook-pro-13)))
 
@@ -3900,9 +3901,10 @@ append it to ENTRY."
 (defconst emacs-min-left
   (pcase display-name
     ((guard alternate-emacs)    0)
-    (`dell-wide               1000)
+    (`dell-wide              1000)
     (`imac                    116)
     (`macbook-pro-vga         700)
+    (`macbook-pro-16          564)
     (`macbook-pro-15          464)
     (`macbook-pro-13          464)))
 
@@ -3912,6 +3914,7 @@ append it to ENTRY."
     (`dell-wide                64)
     (`imac                     58)
     (`macbook-pro-vga          55)
+    (`macbook-pro-16           45)
     (`macbook-pro-15           47)
     (`macbook-pro-13           47)))
 
@@ -3921,6 +3924,7 @@ append it to ENTRY."
     (`dell-wide               202)
     (`imac                    202)
     (`macbook-pro-vga         100)
+    (`macbook-pro-16          100)
     (`macbook-pro-15          100)
     (`macbook-pro-13          100)))
 
