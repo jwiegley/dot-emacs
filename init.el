@@ -3212,6 +3212,7 @@ append it to ENTRY."
                   (holes-mode -1)
                   (when (featurep 'company)
                     (company-coq-mode 1))
+                  (abbrev-mode -1)
                   (set (make-local-variable 'fill-nobreak-predicate)
                        #'(lambda ()
                            (pcase (get-text-property (point) 'face)
