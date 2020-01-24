@@ -2461,6 +2461,13 @@
           (delete-region account-beg account-end)
           (insert account))
         (forward-line))))
+
+  (defun my-ledger-add-symbols ()
+    (interactive)
+    (while (re-search-forward " \\(BOT\\|SOLD\\) [+-][0-9,]+ \\(\\S-+\\) " nil t)
+      (forward-line 2)
+      (goto-char (line-beginning-position))
+      (insert "    ; Symbol: " (match-string 2) ?\n)))
   :config
   (add-hook 'ledger-mode-hook
             #'(lambda ()
