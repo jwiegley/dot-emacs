@@ -526,8 +526,9 @@
   :config
   (defadvice cargo-process-clippy
       (around my-cargo-process-clippy activate)
-    (let ((cargo-process--command-flags (concat cargo-process--command-flags
-                                                " --tests -- -D clippy::all")))
+    (let ((cargo-process--command-flags
+           (concat cargo-process--command-flags
+                   " --tests -- -D clippy::all -D clippy::cognitive_complexity")))
       ad-do-it)))
 
 (use-package cc-mode
@@ -1055,7 +1056,7 @@
               ("z"     . pop-window-configuration)
               ("e"     . ora-ediff-files)
               ("l"     . dired-up-directory)
-              ("q"     . dired-up-directory)
+              ("q"     . pop-window-configuration)
               ("Y"     . ora-dired-rsync)
               ("M-!"   . async-shell-command)
               ("<tab>" . dired-next-window)
@@ -1063,6 +1064,7 @@
               ("M-s f"))
   :diminish dired-omit-mode
   :hook (dired-mode . dired-hide-details-mode)
+  :hook (dired-mode . dired-omit-mode)
   :preface
   (defun dired-two-pane ()
     (interactive)
@@ -1136,6 +1138,22 @@
         (error "no more than 2 files should be marked"))))
 
   :config
+  (add-hook 'dired-mode-hook
+            #'(lambda () (bind-key "M-G" #'switch-to-gnus dired-mode-map))))
+
+(use-package dired-toggle
+  :bind ("C-c ~" . dired-toggle)
+  :preface
+  (defun my-dired-toggle-mode-hook ()
+    (interactive)
+    (visual-line-mode 1)
+    (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
+    (setq-local word-wrap nil))
+  :hook (dired-toggle-mode . my-dired-toggle-mode-hook))
+
+(use-package dired-x
+  :after dired
+  :config
   (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
   ;; Omit files that Git would ignore
@@ -1178,23 +1196,10 @@
                 (split-string omitted-files "\n" t)
                 "\\|")
                "\\)")))
-        (funcall dired-omit-regexp-orig))))
+        (funcall dired-omit-regexp-orig)))))
 
-  (add-hook 'dired-mode-hook
-            #'(lambda () (bind-key "M-G" #'switch-to-gnus dired-mode-map))))
-
-(use-package dired-toggle
-  :bind ("C-c ~" . dired-toggle)
-  :preface
-  (defun my-dired-toggle-mode-hook ()
-    (interactive)
-    (visual-line-mode 1)
-    (setq-local visual-line-fringe-indicators '(nil right-curly-arrow))
-    (setq-local word-wrap nil))
-  :hook (dired-toggle-mode . my-dired-toggle-mode-hook))
-
-(use-package dired-x
-  :after dired)
+(use-package dired+
+  :after dired-x)
 
 (use-package direnv
   :demand t
@@ -1237,7 +1242,8 @@
   (use-package docker-container :commands docker-containers)
   (use-package docker-volume    :commands docker-volumes)
   (use-package docker-network   :commands docker-containers)
-  (use-package docker-machine   :commands docker-machines))
+  (use-package docker-machine   :commands docker-machines)
+  (use-package docker-compose   :commands docker-compose))
 
 (use-package docker-compose-mode
   :mode "docker-compose.*\.yml\\'")
@@ -3389,6 +3395,24 @@ append it to ENTRY."
     :group 'lsp-rust
     :type 'boolean)
 
+  (defun my-rls-lsp-path-to-uri (path)
+    (lsp--path-to-uri-1
+     (with-temp-buffer
+       (insert path)
+       (goto-char (point-min))
+       (while (re-search-forward "/Users/johnw/dfinity/master/" nil t)
+         (replace-match "/home/vagrant/dfinity/"))
+       (buffer-string))))
+
+  (defun my-rls-lsp-uri-to-path (uri)
+    (lsp--uri-to-path-1
+     (with-temp-buffer
+       (insert uri)
+       (goto-char (point-min))
+       (while (re-search-forward "/home/vagrant/dfinity/" nil t)
+         (replace-match "/Users/johnw/dfinity/master/"))
+       (buffer-string))))
+
   (defun my-update-cargo-path (&rest _args)
     (setq cargo-process--custom-path-to-bin
           (executable-find "cargo")))
@@ -3407,6 +3431,30 @@ append it to ENTRY."
 
     (bind-key "M-n" #'flycheck-next-error rust-mode-map)
     (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
+
+    (when my-rls-develop-on-linux
+      (setq lsp-rust-target "x86_64-unknown-linux-gnu"
+            lsp-rust-rls-server-command
+            '("~/dfinity/master/run-rls"))
+
+      (eval-after-load 'lsp-mode
+        '(lsp-register-client
+          (make-lsp-client
+           :new-connection (lsp-stdio-connection (lambda () lsp-rust-rls-server-command))
+           :major-modes '(rust-mode rustic-mode)
+           :priority (if (eq lsp-rust-server 'rls) 1 -1)
+           :initialization-options '((omitInitBuild . t)
+                                     (cmdRun . t))
+           :notification-handlers (ht ("window/progress" 'lsp-clients--rust-window-progress))
+           :action-handlers (ht ("rls.run" 'lsp-rust--rls-run))
+           :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
+           :initialized-fn (lambda (workspace)
+                             (with-lsp-workspace workspace
+                               (lsp--set-configuration
+                                (lsp-configuration-section "rust"))))
+           :server-id 'rls
+           :path->uri-fn #'my-rls-lsp-path-to-uri
+           :uri->path-fn #'my-rls-lsp-uri-to-path))))
 
     (lsp)))
 

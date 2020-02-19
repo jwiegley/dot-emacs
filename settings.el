@@ -405,12 +405,16 @@
  '(diff-mode-hook
    (quote
     (diff-delete-empty-files diff-make-unified smerge-mode)))
+ '(directory-abbrev-alist
+   (quote
+    (("\\`/tasks" . "/Users/johnw/Documents/tasks")
+     ("\\`/reader" . "/Users/johnw/Library/Mobile Documents/JFJWWP64QD~com~goodiware~GoodReader/Documents"))))
  '(directory-free-space-args "-kh")
  '(dired-clean-up-buffers-too nil)
  '(dired-dwim-target t)
  '(dired-hide-details-hide-information-lines nil)
  '(dired-hide-details-hide-symlink-targets nil)
- '(dired-listing-switches "-lah")
+ '(dired-listing-switches "--group-directories-first -lah")
  '(dired-no-confirm
    (quote
     (byte-compile chgrp chmod chown copy hardlink symlink touch)))
@@ -530,7 +534,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (sml/generate-buffer-identification direnv-update-environment)))
+    (sml/generate-buffer-identification direnv-update-environment)) t)
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -832,7 +836,7 @@
  '(ido-use-virtual-buffers t)
  '(ido-use-virtual-buffers-automatically t)
  '(idris-interpreter-flags (quote ("-p" "effects")))
- '(image-dired-dir "~/.emacs.d/data/image-dired/" t)
+ '(image-dired-dir "~/.emacs.d/data/image-dired/")
  '(imagemagick-render-type 1)
  '(indent-tabs-mode nil)
  '(inhibit-startup-echo-area-message "johnw")
@@ -1206,7 +1210,7 @@
  '(tls-checktrust t)
  '(tls-program
    (quote
-    ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /etc/postfix/certs -cert ~/Messages/me.pem")))
+    ("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath /run/current-system/sw/etc/ssl/certs -cert ~/Messages/me.pem")))
  '(tool-bar-mode nil)
  '(tramp-default-method "ssh")
  '(transient-history-file "~/.emacs.d/data/transient/history.el")
@@ -1290,6 +1294,9 @@
  '(diff-header ((((background dark)) (:foreground "Cyan")) (t (:foreground "Red"))))
  '(diff-index ((((background dark)) (:foreground "Magenta")) (t (:foreground "Green"))))
  '(diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474")) (t (:foreground "DarkBlue"))))
+ '(diredp-dir-name ((t (:foreground "blue"))))
+ '(diredp-file-name ((t nil)))
+ '(diredp-file-suffix ((t (:foreground "lightgreen"))))
  '(font-lock-comment-face ((t (:foreground "grey50" :slant italic))))
  '(font-lock-doc-face ((t (:foreground "cornflowerblue"))))
  '(highlight ((t (:background "blue4"))))
