@@ -154,7 +154,7 @@
          ("~/dfinity/docs/dfinity.org")))
        (org-agenda-sorting-strategy
         (quote
-         (todo-state-up priority-down category-up)))
+         (category-up user-defined-up)))
        (org-agenda-skip-function
         (quote
          (org-agenda-skip-entry-if
@@ -211,9 +211,7 @@
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-tags-todo-honor-ignore-options t)
- '(org-agenda-text-search-extra-files
-   (quote
-    (agenda-archives "~/Documents/tasks/notes.org")))
+ '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.org")))
  '(org-agenda-todo-ignore-scheduled (quote past))
  '(org-agenda-use-time-grid nil)
  '(org-archive-location "TODO-archive::")
@@ -292,11 +290,9 @@
  '(org-crypt-key "0xAB37611BDDE48EBD")
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file
-   "~/Documents/tasks/todo.org")
+ '(org-default-notes-file "~/Documents/tasks/todo.org")
  '(org-depend-tag-blocked nil)
- '(org-directory
-   "~/Documents/tasks/")
+ '(org-directory "~/Documents/tasks/")
  '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
@@ -344,8 +340,7 @@
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
- '(org-icalendar-combined-agenda-file
-   "~/Documents/tasks/org.ics")
+ '(org-icalendar-combined-agenda-file "~/Documents/tasks/org.ics")
  '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width nil)
@@ -381,12 +376,9 @@
  '(org-mime-preserve-breaks nil)
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files
-   (quote
-    ("~/Documents/tasks/todo.org")))
+ '(org-mobile-files (quote ("~/Documents/tasks/todo.org")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull
-   "~/Documents/tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/Documents/tasks/from-mobile.org")
  '(org-mode-hook
    (quote
     (org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode)))
@@ -434,8 +426,7 @@
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
  '(org-velocity-always-use-bucket t)
- '(org-velocity-bucket
-   "~/Documents/tasks/notes.org")
+ '(org-velocity-bucket "~/Documents/tasks/notes.org")
  '(org-velocity-capture-templates
    (quote
     (("v" "Velocity" entry
