@@ -4048,6 +4048,8 @@ append it to ENTRY."
   (switch-to-gnus)
   (switch-to-fetchmail)
   (jump-to-org-agenda)
-  (org-resolve-clocks))
+  (org-resolve-clocks)
+  (unless (eq display-name 'imac)
+    (display-battery-mode 1)))
 
 ;;; init.el ends here
