@@ -59,7 +59,7 @@
           "\\=.*\\[#C\\]")))))
      ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
       ((org-agenda-overriding-header "Uncategorized items")))
-     ("w" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
+     ("W" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
       ((org-agenda-overriding-header "Waiting/delegated tasks:")
        (org-agenda-skip-function
         (quote
@@ -147,7 +147,7 @@
         (quote
          (user-defined-up)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("W" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         (quote
