@@ -746,7 +746,6 @@
          ("C-c e L" . clm/open-command-log-buffer)))
 
 (use-package company
-  :disabled t
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
@@ -966,9 +965,6 @@
               :unwind #'counsel-delete-process
               :caller 'counsel-recoll)))
 
-(use-package counsel-dash
-  :bind ("C-c C-h" . counsel-dash))
-
 (use-package counsel-gtags
   ;; jww (2017-12-10): Need to configure.
   :disabled t
@@ -1016,12 +1012,6 @@
   :bind (("C-c o" . customize-option)
          ("C-c O" . customize-group)
          ("C-c F" . customize-face)))
-
-(use-package dash-at-point
-  :bind ("C-c D" . dash-at-point)
-  :config
-  (add-to-list 'dash-at-point-mode-alist
-               '(haskell-mode . "haskell")))
 
 (use-package debbugs-gnu
   :commands (debbugs-gnu debbugs-gnu-search)
@@ -1199,7 +1189,50 @@
         (funcall dired-omit-regexp-orig)))))
 
 (use-package dired+
-  :after dired-x)
+  :after dired-x
+  :config
+  (defun dired-do-delete (&optional arg)  ; Bound to `D'
+    "Delete all marked (or next ARG) files.
+NOTE: This deletes marked, not flagged, files.
+`dired-recursive-deletes' controls whether deletion of
+non-empty directories is allowed."
+    (interactive "P")
+    ;; This is more consistent with the file-marking feature than
+    ;; `dired-do-flagged-delete'.  But it can be confusing to the user,
+    ;; especially since this is usually bound to `D', which is also the
+    ;; `dired-del-marker'.  So offer this warning message:
+    (unless arg
+      (message "NOTE: Deletion of files marked `%c' (not those flagged `%c')."
+               dired-marker-char dired-del-marker))
+    (diredp-internal-do-deletions
+     ;; This can move point if ARG is an integer.
+     (dired-map-over-marks (cons (dired-get-filename) (point)) arg)
+     arg
+     'USE-TRASH-CAN))
+
+  (defun dired-do-flagged-delete (&optional no-msg) ; Bound to `x'
+    "In Dired, delete the files flagged for deletion.
+NOTE: This deletes flagged, not marked, files.
+If arg NO-MSG is non-nil, no message is displayed.
+
+User option `dired-recursive-deletes' controls whether deletion of
+non-empty directories is allowed."
+    (interactive)
+    (unless no-msg
+      (message "NOTE: Deletion of files flagged `%c' (not those marked `%c')"
+               dired-del-marker dired-marker-char)
+      ;; Too slow/annoying, but without it the message is never seen: (sit-for 2)
+      )
+    (let* ((dired-marker-char  dired-del-marker)
+           (regexp             (dired-marker-regexp))
+           (case-fold-search   nil))
+      (if (save-excursion (goto-char (point-min)) (re-search-forward regexp nil t))
+          (diredp-internal-do-deletions
+           ;; This cannot move point since last arg is nil.
+           (dired-map-over-marks (cons (dired-get-filename) (point)) nil)
+           nil
+           'USE-TRASH-CAN)                ; This arg is for Emacs 24+ only.
+        (unless no-msg (message "(No deletions requested.)"))))))
 
 (use-package direnv
   :demand t
@@ -1330,6 +1363,9 @@
 
 (use-package edit-var
   :bind ("C-c e v" . edit-variable))
+
+(use-package eglot
+  :commands eglot)
 
 (use-package eldoc
   :diminish
@@ -1943,7 +1979,8 @@
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
-    (when brittany-enabled
+    (when (and (boundp 'brittany-enabled)
+               brittany-enabled)
       (let ((brittany (find-brittany)))
         (when brittany
           (setq-local haskell-stylish-on-save t)
@@ -2036,9 +2073,6 @@
               ("A-v"   . helm-previous-page))
   :config
   (helm-autoresize-mode 1))
-
-(use-package helm-dash
-  :commands helm-dash)
 
 (use-package helm-descbinds
   :bind ("C-h b" . helm-descbinds)
@@ -2532,12 +2566,15 @@
 
 (use-package lsp-haskell
   :disabled t
+  :after lsp-mode
   :hook (haskell-mode . lsp-haskell-enable))
 
 (use-package lsp-mode
+  :disabled t
   :commands lsp)
 
 (use-package lsp-ui
+  :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
   :config
   (define-key lsp-ui-mode-map [remap xref-find-definitions]
@@ -3429,9 +3466,6 @@ append it to ENTRY."
     ;; (flycheck-mode 1)
     (yas-minor-mode-on)
 
-    (bind-key "M-n" #'flycheck-next-error rust-mode-map)
-    (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
-
     (when my-rls-develop-on-linux
       (setq lsp-rust-target "x86_64-unknown-linux-gnu"
             lsp-rust-rls-server-command
@@ -3450,13 +3484,34 @@ append it to ENTRY."
            :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
            :initialized-fn (lambda (workspace)
                              (with-lsp-workspace workspace
-                               (lsp--set-configuration
-                                (lsp-configuration-section "rust"))))
+                                                 (lsp--set-configuration
+                                                  (lsp-configuration-section "rust"))))
            :server-id 'rls
            :path->uri-fn #'my-rls-lsp-path-to-uri
-           :uri->path-fn #'my-rls-lsp-uri-to-path))))
+           :uri->path-fn #'my-rls-lsp-uri-to-path))))
 
-    (lsp)))
+    (when (functionp 'lsp)
+      (bind-key "M-n" #'flycheck-next-error rust-mode-map)
+      (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
+      (lsp))
+
+    (when (functionp 'eglot)
+      (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
+      (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
+      (bind-key "C-c C-h" #'eglot-help-at-point rust-mode-map)
+      (bind-key "C-c C-c v" #'(lambda ()
+                                (interactive)
+                                (shell-command "rustdocs std")) rust-mode-map)
+
+      (defun my-rust-project-find-function (dir)
+        (let ((root (locate-dominating-file dir "Cargo.toml")))
+          (and root (cons 'transient root))))
+
+      (with-eval-after-load 'project
+        (add-to-list 'project-find-functions 'my-rust-project-find-function))
+
+      (call-interactively #'eglot)
+      (company-mode 1))))
 
 (use-package savehist
   :unless noninteractive
@@ -3645,6 +3700,7 @@ append it to ENTRY."
 
 (use-package swiper
   :after ivy
+  :bind ("C-M-s" . swiper)
   :bind (:map swiper-map
               ("M-y" . yank)
               ("M-%" . swiper-query-replace)
@@ -3709,8 +3765,6 @@ append it to ENTRY."
             #'(lambda ()
                 (setq-local comment-start nil)
                 (setq-local comment-end ""))))
-
-(use-package toml-mode)
 
 (use-package tracking
   :defer t
