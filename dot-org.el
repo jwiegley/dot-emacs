@@ -1023,6 +1023,8 @@ end tell" (match-string 1))))
 
 (use-package ob-restclient)
 
+(use-package ob-verb)
+
 (use-package org-babel
   :no-require
   :after ob-restclient
@@ -1040,6 +1042,7 @@ end tell" (match-string 1))))
      (sh         . t)
      (sql        . t)
      (dot        . t)
+     (verb       . t)
      (restclient . t))))
 
 (use-package org-bookmark-heading)
