@@ -933,14 +933,14 @@
   :commands counsel-minibuffer-history
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
-  :config
-  (add-to-list 'ivy-sort-matches-functions-alist
-               '(counsel-find-file . ivy--sort-files-by-date))
+
+  (add-to-list 'ivy-more-chars-alist '(counsel-recoll . 3))
+  :preface
 
   (defun counsel-recoll-function (string)
     "Run recoll for STRING."
     (if (< (length string) 3)
-        (counsel-more-chars 3)
+        (ivy-more-chars)
       (counsel--async-command
        (format "recollq -t -b %s"
                (shell-quote-argument string)))
@@ -964,7 +964,15 @@
                             (unless (string-match "pdf$" x)
                               (swiper ivy-text)))))
               :unwind #'counsel-delete-process
-              :caller 'counsel-recoll)))
+              :caller 'counsel-recoll))
+
+  :config
+  (add-to-list 'ivy-sort-matches-functions-alist
+               '(counsel-find-file . ivy--sort-files-by-date))
+
+  
+
+ )
 
 (use-package counsel-dash
   :bind ("C-c C-h" . counsel-dash))
