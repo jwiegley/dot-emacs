@@ -1877,7 +1877,7 @@ non-empty directories is allowed."
         (call-interactively 'gud-gdb)))))
 
 (use-package gud-lldb
-  :commands gud-lldb)
+  :commands lldb)
 
 (use-package haskell-edit
   :load-path "lisp/haskell-config"
@@ -3765,6 +3765,9 @@ append it to ENTRY."
             #'(lambda ()
                 (setq-local comment-start nil)
                 (setq-local comment-end ""))))
+
+(use-package emamux
+  :commands emamux:send-command)
 
 (use-package tracking
   :defer t
