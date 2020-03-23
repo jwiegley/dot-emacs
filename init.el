@@ -1407,6 +1407,9 @@ non-empty directories is allowed."
   :bind (("C-c m e" . elmacro-mode)
          ("C-x C-)" . elmacro-show-last-macro)))
 
+(use-package emamux
+  :commands emamux:send-command)
+
 (use-package emojify
   :after erc
   :defer 15
@@ -3570,6 +3573,9 @@ append it to ENTRY."
   :config
   (selected-global-mode 1))
 
+(use-package separedit
+  :commands separedit)
+
 (use-package server
   :unless (or noninteractive
               alternate-emacs)
@@ -3765,9 +3771,6 @@ append it to ENTRY."
             #'(lambda ()
                 (setq-local comment-start nil)
                 (setq-local comment-end ""))))
-
-(use-package emamux
-  :commands emamux:send-command)
 
 (use-package tracking
   :defer t
