@@ -55,17 +55,6 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
    (xact-side :initarg :side)           ; open or close
    (xact-postings :initarg :postings)))
 
-(defun tos-prepare-buffer ()
-  (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (while (re-search-forward "^\\s-*\n+" nil t)
-      (delete-region (match-beginning 0) (match-end 0)))
-    (goto-char (point-min))
-    (when (re-search-forward "^Account Order History" nil t)
-      (delete-region (match-beginning 0) (point-max)))
-    (whitespace-cleanup)))
-
 (defconst tos-method 1)
 (defconst tos-action 2)
 (defconst tos-quantity 3)
@@ -86,44 +75,72 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
 (defconst tos-num-re
   '(+ (or numeric ?+ ?- ?, ?.)))
 
+(defmacro separated-by (re sep)
+  `'(and ,re
+         (zero-or-more
+          (and ,sep
+               ,re))))
+
 (defun tos-option-regex (base-n)
   `(and
     ;; contract size
     (group-n ,(+ base-n 0) (+ (or numeric ?/))) blank
+
     ;; special annotation
-    (? (group-n ,(+ base-n 1)
-                (and "(Weeklys)"
-                     blank)))
+    (? (and (group-n ,(+ base-n 1)
+                     (or "(Weeklys)"))
+            blank))
+
     ;; expiration
     (group-n
      ,(+ base-n 2)
-     (and (+ numeric)
-          blank
-          (or
-           "JAN"
-           "FEB"
-           "MAR"
-           "APR"
-           "JUN"
-           "JUL"
-           "AUG"
-           "SEP"
-           "OCT"
-           "NOV"
-           "DEC")
-          blank
-          (+ numeric)
-          (? (and blank
-                  (or "[AM]"
-                      ;; "(Monday)"
-                      )))))
+     ,(separated-by
+       (and (? (and (+ numeric)
+                    blank))
+            (or "JAN"
+                "FEB"
+                "MAR"
+                "APR"
+                "MAY"
+                "JUN"
+                "JUL"
+                "AUG"
+                "SEP"
+                "OCT"
+                "NOV"
+                "DEC")
+            blank
+            (+ numeric)
+            (* (and blank
+                    (or "[AM]"
+                        "(Monday)"
+                        "(Wednesday)"
+                        "(Friday)"
+                        "(Wk1)"
+                        "(Wk2)"
+                        "(Wk3)"
+                        "(Wk4)"
+                        "(Wk5)"
+                        "(EOM)"))))
+       (char ?/)))
     blank
+
+    (? (and ?/ ,tos-symbol-re
+            blank))
+
     (group-n ,(+ base-n 3)
-             ,tos-num-re)
+             ,tos-num-re
+             ,(cadr (macroexpand
+                     `(separated-by
+                       ,tos-num-re
+                       (char ?/)))))
     blank
+
     (group-n ,(+ base-n 4)
-             (or "CALL"
-                 "PUT"))))
+             ,(separated-by
+               (or "CALL"
+                   "PUT")
+               (char ?/)))))
 
 (defconst tos-brokerage-transaction-regex
   (macroexpand
@@ -138,28 +155,42 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
                            "KEY: Ctrl Shift B"
                            "KEY: Ctrl Shift S"))
                       blank))
-              (group-n ,tos-action (or "BOT"
-                                       "SOLD"))
+
+              (group-n ,tos-action (or "BOT" "SOLD"))
               blank
+
               (group-n ,tos-quantity ,tos-num-re)
               blank
+
               (? (and (group-n
                        ,tos-strategy
                        (or "COVERED"
                            "DIAGONAL"
+                           "DBL DIAG"
                            "VERTICAL"
                            "STRADDLE"
                            "STRANGLE"))
                       blank))
-              (group-n ,tos-symbol ,tos-symbol-re)
+
+              ,(cadr
+                (macroexpand
+                 `(separated-by
+                   (and
+                    (group-n ,tos-symbol ,tos-symbol-re)
+
+                    (? (and blank
+                            (group-n
+                             ,tos-detail
+                             ,(tos-option-regex (1+ tos-detail))))))
+                   (char ?/))))
+
               (? (and blank
-                      (group-n ,tos-detail
-                               (or ,(tos-option-regex (1+ tos-detail))
-                                   "UPON OPTION ASSIGNMENT"
-                                   "UPON TRADE CORRECTION"
-                                   "UPON BUY TRADE"
-                                   "UPON SELL TRADE"
-                                   "UPON BONDS - REDEMPTION"))))
+                      (or "UPON OPTION ASSIGNMENT"
+                          "UPON TRADE CORRECTION"
+                          "UPON BUY TRADE"
+                          "UPON SELL TRADE"
+                          "UPON BONDS - REDEMPTION")))
+
               (? (and blank
                       ?@
                       (group-n ,tos-price ,tos-num-re)
@@ -167,37 +198,54 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
                       (? (and blank
                               (group-n
                                ,tos-exchange
-                               (or "AMEX"
-                                   "NASDAQ"
-                                   "CBOE"
-                                   "NYSE"
-                                   "ISE GEMINI"
-                                   "GEMINI"
-                                   "EDGX"
-                                   "PHLX"
-                                   "BATS"
-                                   "BOX"
-                                   "MIAX")))))))
+                               ,(separated-by
+                                 (or "AMEX"
+                                     "ARCA"
+                                     "NASDAQ"
+                                     "CBOE"
+                                     "C2"
+                                     "NYSE"
+                                     "ISE"
+                                     "GEMINI"
+                                     "EDGX"
+                                     "PHLX"
+                                     "BATS"
+                                     "BOX"
+                                     "MIAX")
+                                 blank)))))))
 
          "ACH CREDIT RECEIVED"
          "ACH DEBIT RECEIVED"
          (and "ADR FEE~" ,tos-symbol-re)
+         (and "CASH ALTERNATIVES INTEREST" blank
+              ,tos-num-re blank ,tos-symbol-re)
+         "CASH MOVEMENT OF INCOMING ACCOUNT TRANSFER"
          "CLIENT REQUESTED ELECTRONIC FUNDING DISBURSEMENT (FUNDS NOW)"
          "Courtesy Credit"
          (and "FOREIGN TAX WITHHELD~" ,tos-symbol-re)
          "FREE BALANCE INTEREST ADJUSTMENT~NO DESCRIPTION"
-         ;; "INTEREST INCOME - SECURITIES~FIRST REPUBLIC BANK SAN FRANCI CD 2% 07/31/2019"
+         (and "Index Option Fees" blank
+              "01/14/2020"
+              )
+         (and "INTEREST INCOME - SECURITIES~"
+              "FIRST REPUBLIC BANK SAN FRANCI" blank
+              "CD" blank
+              "2%" blank
+              "07/31/2019"
+              )
          (and "INTERNAL TRANSFER BETWEEN ACCOUNTS OR ACCOUNT TYPES" blank
               ,tos-num-re blank ,tos-symbol-re
               (? (and blank
                       ,(tos-option-regex (1+ tos-exchange)))))
          "MARK TO THE MARKET"
+         "MISCELLANEOUS JOURNAL ENTRY"
          (and ,tos-symbol-re blank "mark to market at" blank
               ,tos-num-re blank "official settlement price")
          (and "OFF-CYCLE INTEREST~" ,tos-symbol-re)
          (and "QUALIFIED DIVIDEND~" ,tos-symbol-re)
          "REBATE"
-         (and "REMOVAL OF OPTION DUE TO ASSIGNMENT" blank
+         (and "REMOVAL OF OPTION DUE TO" blank
+              (or "ASSIGNMENT" "EXPIRATION") blank
               ,tos-num-re blank ,tos-symbol-re blank
               ,(tos-option-regex (+ 5 (1+ tos-exchange))))
          "TRANSFER FROM FOREX ACCOUNT"
@@ -291,27 +339,35 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
 (defun tos-read ()
   (interactive)
   (let ((section 'none) account)
-    (while (not (eobp))
+    (while (not (or (eobp) (eq section 'end)))
       (let ((line (buffer-substring-no-properties (line-beginning-position)
                                                   (line-end-position))))
         (cond
-         ((looking-at "^Account Statement for \\([0-9]+\\).+\n")
+         ((looking-at "\\s-*$"))
+         ((looking-at "Account Statement for \\([0-9]+\\)")
           (setq account (match-string 1)))
-         ((looking-at "^Cash Balance\n")
+         ((looking-at "Cash Balance")
           (setq section 'cash))
          ((and (eq section 'cash)
-               (looking-at "^DATE,.+\n")))
+               (looking-at "DATE,")))
          ((and (eq section 'cash)
-               (looking-at "^,,,,TOTAL,.+\n"))
+               (looking-at ",,,,TOTAL,"))
           (setq section nil))
-         ((looking-at "^Futures Statements\n")
-          (setq section 'cash))
-         ((looking-at "^Forex Statements\n")
-          (setq section 'cash))
-         ((looking-at "^\"Total Cash.+\n")
+         ((looking-at "Futures Statements")
+          (setq section 'futures))
+         ((and (eq section 'futures)
+               (looking-at "Trade Date,")))
+         ((looking-at "Forex Statements")
+          (setq section 'forex))
+         ((and (eq section 'forex)
+               (looking-at ",Date,")))
+         ((looking-at "\"Total Cash")
           (setq section 'end))
          ((eq section 'cash)
           (tos-parse-brokerage-entry account (parse-csv->list line)))
+         ((eq section 'forex)
+          ;; (tos-parse-forex-entry account (parse-csv->list line))
+          )
          (t
           (message "Unexpected line: %s" line))))
 
