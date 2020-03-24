@@ -60,14 +60,34 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
 (defconst tos-quantity 4)
 (defconst tos-strategy 5)
 (defconst tos-symbol 6)
-(defconst tos-detail 7)
-(defconst tos-option-size 8)
-(defconst tos-option-special 9)
-(defconst tos-option-expiration 10)
-(defconst tos-option-strike 11)
-(defconst tos-option-side 12)
-(defconst tos-price 13)
-(defconst tos-exchange 14)
+(defconst tos-addendum 7)
+(defconst tos-detail 8)
+
+(defconst tos-price 15)
+(defconst tos-exchange 16)
+
+(defconst tos-adr-fee-sym 17)
+(defconst tos-cash-alt-amount 18)
+(defconst tos-cash-alt-sym 19)
+(defconst tos-foreign-tax-witheld-sym 20)
+(defconst tos-index-option-fees 21)
+(defconst tos-interest-name 22)
+(defconst tos-interest-instrument 23)
+(defconst tos-interest-amount 24)
+(defconst tos-interest-date 25)
+(defconst tos-internal-transfer-amount 26)
+(defconst tos-internal-transfer-sym 27)
+(defconst tos-internal-transfer-option 28)
+(defconst tos-mark-to-market-sym 29)
+(defconst tos-mark-to-market-amount 30)
+(defconst tos-off-cycle-interest-sym 31)
+(defconst tos-qualified-dividend-sym 32)
+(defconst tos-option-removal-kind 33)
+(defconst tos-option-removal-amount 34)
+(defconst tos-option-removal-symbol 35)
+(defconst tos-option-removal-contract 36)
+(defconst tos-security-transfer-amount 37)
+(defconst tos-security-transfer-sym 38)
 
 (defconst tos-symbol-re
   '(+ (or alnum ?/ ?:)))
@@ -81,19 +101,18 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
           (and ,sep
                ,re))))
 
-(defun tos-option-regex (base-n)
+(defconst tos-option-regex
   `(and
     ;; contract size
-    (group-n ,(+ base-n 0) (+ (or numeric ?/))) blank
+    (group (+ (or numeric ?/)))
+    blank
 
     ;; special annotation
-    (? (and (group-n ,(+ base-n 1)
-                     (or "(Weeklys)"))
+    (? (and (group (or "(Weeklys)"))
             blank))
 
     ;; expiration
-    (group-n
-     ,(+ base-n 2)
+    (group
      ,(separated-by
        (and (? (and (+ numeric)
                     blank))
@@ -125,150 +144,140 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
        (char ?/)))
     blank
 
-    (? (and ?/ ,tos-symbol-re
+    (? (and (group ?/ ,tos-symbol-re)
             blank))
 
-    (group-n ,(+ base-n 3)
-             ,tos-num-re
-             ,(cadr (macroexpand
-                     `(separated-by
-                       ,tos-num-re
-                       (char ?/)))))
+    (group ,tos-num-re
+           ,(cadr (macroexpand
+                   `(separated-by
+                     ,tos-num-re
+                     (char ?/)))))
     blank
 
-    (group-n ,(+ base-n 4)
-             ,(separated-by
-               (or "CALL"
-                   "PUT")
-               (char ?/)))))
+    (group ,(separated-by
+             (or "CALL"
+                 "PUT")
+             (char ?/)))))
 
 (defconst tos-brokerage-transaction-regex
   (macroexpand
    `(rx
-     (group-n
-      1 (or
-         ;; trade
-         (and (? (and (group-n
-                       ,tos-method
-                       (or "tIP"
-                           "tIPAD"
-                           "KEY: Shift B"
-                           "KEY: Shift S"
-                           "KEY: Ctrl Shift B"
-                           "KEY: Ctrl Shift S"))
-                      blank))
+     (group
+      (or
+       ;; trade
+       (and (? (and (group
+                     (or "tIP"
+                         "tIPAD"
+                         "KEY: Shift B"
+                         "KEY: Shift S"
+                         "KEY: Ctrl Shift B"
+                         "KEY: Ctrl Shift S"))
+                    blank))
 
-              (group-n ,tos-action (or "BOT" "SOLD"))
-              blank
+            (group (or "BOT" "SOLD"))
+            blank
 
-              (group-n ,tos-quantity ,tos-num-re)
-              blank
+            (group ,tos-num-re)
+            blank
 
-              (? (and (group-n
-                       ,tos-strategy
-                       (or "COVERED"
-                           "DIAGONAL"
-                           "DBL DIAG"
-                           "VERTICAL"
-                           "STRADDLE"
-                           "STRANGLE"))
-                      blank))
+            (? (and (group
+                     (or "COVERED"
+                         "DIAGONAL"
+                         "DBL DIAG"
+                         "VERTICAL"
+                         "STRADDLE"
+                         "STRANGLE"))
+                    blank))
 
-              ,(cadr
-                (macroexpand
-                 `(separated-by
-                   (and
-                    (group-n ,tos-symbol ,tos-symbol-re)
+            (group
+             ,(cadr
+               (macroexpand
+                `(separated-by
+                  (and
+                   ,tos-symbol-re
 
+                   (? (and blank
+                           ,tos-option-regex)))
+                  (char ?/)))))
+
+            (? (and blank
+                    (group
+                     (or "UPON OPTION ASSIGNMENT"
+                         "UPON TRADE CORRECTION"
+                         "UPON BUY TRADE"
+                         "UPON SELL TRADE"
+                         "UPON BONDS - REDEMPTION"))))
+
+            (? (and blank
+                    ?@
+                    (group ,tos-num-re)
+                    ;; optional exchange info
                     (? (and blank
-                            (group-n
-                             ,tos-detail
-                             ,(tos-option-regex (1+ tos-detail))))))
-                   (char ?/))))
+                            (group
+                             ,(separated-by
+                               (or "AMEX"
+                                   "ARCA"
+                                   "BATS"
+                                   "BOX"
+                                   "C2"
+                                   "CBOE"
+                                   "EDGX"
+                                   "GEMINI"
+                                   "ISE"
+                                   "MIAX"
+                                   "NASDAQ"
+                                   "NYSE"
+                                   "PHLX")
+                               blank)))))))
 
-              (? (and blank
-                      (or "UPON OPTION ASSIGNMENT"
-                          "UPON TRADE CORRECTION"
-                          "UPON BUY TRADE"
-                          "UPON SELL TRADE"
-                          "UPON BONDS - REDEMPTION")))
-
-              (? (and blank
-                      ?@
-                      (group-n ,tos-price ,tos-num-re)
-                      ;; optional exchange info
-                      (? (and blank
-                              (group-n
-                               ,tos-exchange
-                               ,(separated-by
-                                 (or "AMEX"
-                                     "ARCA"
-                                     "NASDAQ"
-                                     "CBOE"
-                                     "C2"
-                                     "NYSE"
-                                     "ISE"
-                                     "GEMINI"
-                                     "EDGX"
-                                     "PHLX"
-                                     "BATS"
-                                     "BOX"
-                                     "MIAX")
-                                 blank)))))))
-
-         "ACH CREDIT RECEIVED"
-         "ACH DEBIT RECEIVED"
-         (and "ADR FEE~" ,tos-symbol-re)
-         (and "CASH ALTERNATIVES INTEREST" blank
-              ,tos-num-re blank ,tos-symbol-re)
-         "CASH MOVEMENT OF INCOMING ACCOUNT TRANSFER"
-         "CLIENT REQUESTED ELECTRONIC FUNDING DISBURSEMENT (FUNDS NOW)"
-         "Courtesy Credit"
-         (and "FOREIGN TAX WITHHELD~" ,tos-symbol-re)
-         "FREE BALANCE INTEREST ADJUSTMENT~NO DESCRIPTION"
-         (and "Index Option Fees" blank
-              (+ (or numeric ?/)))
-         (and "INTEREST INCOME - SECURITIES~"
-              (+? anything) blank
-              (or "CD") blank
-              (and ,tos-num-re "%") blank
-              (+ (or numeric ?/)))
-         (and "INTERNAL TRANSFER BETWEEN ACCOUNTS OR ACCOUNT TYPES" blank
-              ,tos-num-re blank ,tos-symbol-re
-              (? (and blank
-                      ,(tos-option-regex (1+ tos-exchange)))))
-         "MARK TO THE MARKET"
-         "MISCELLANEOUS JOURNAL ENTRY"
-         (and ,tos-symbol-re blank "mark to market at" blank
-              ,tos-num-re blank "official settlement price")
-         (and "OFF-CYCLE INTEREST~" ,tos-symbol-re)
-         (and "QUALIFIED DIVIDEND~" ,tos-symbol-re)
-         "REBATE"
-         (and "REMOVAL OF OPTION DUE TO" blank
-              (or "ASSIGNMENT" "EXPIRATION") blank
-              ,tos-num-re blank ,tos-symbol-re blank
-              ,(tos-option-regex (+ 5 (1+ tos-exchange))))
-         "TRANSFER FROM FOREX ACCOUNT"
-         (and "TRANSFER OF SECURITY OR OPTION IN" blank
-              ,tos-num-re blank ,tos-symbol-re)
-         "TRANSFER TO FOREX ACCOUNT"
-         "WIRE INCOMING"
-         )))))
-
-(defun tos-forward-transaction ()
-  (interactive)
-  (re-search-forward tos-brokerage-transaction-regex)
-  (message "act %s qnt %s sym %s osz %s osp %s oxp %s ost %s osd %s prc %s xch %s"
-           (or (match-string tos-action) "")
-           (or (match-string tos-quantity) "")
-           (or (match-string tos-symbol) "")
-           (or (match-string tos-option-size) "")
-           (or (match-string tos-option-special) "")
-           (or (match-string tos-option-expiration) "")
-           (or (match-string tos-option-strike) "")
-           (or (match-string tos-option-side) "")
-           (or (match-string tos-price) "")
-           (or (match-string tos-exchange) "")))
+       "ACH CREDIT RECEIVED"
+       "ACH DEBIT RECEIVED"
+       (and "ADR FEE~"
+            (group ,tos-symbol-re))
+       (and "CASH ALTERNATIVES INTEREST" blank
+            (group ,tos-num-re) blank
+            (group ,tos-symbol-re))
+       "CASH MOVEMENT OF INCOMING ACCOUNT TRANSFER"
+       "CLIENT REQUESTED ELECTRONIC FUNDING DISBURSEMENT (FUNDS NOW)"
+       "Courtesy Credit"
+       (and "FOREIGN TAX WITHHELD~"
+            (group ,tos-symbol-re))
+       "FREE BALANCE INTEREST ADJUSTMENT~NO DESCRIPTION"
+       (and "Index Option Fees" blank
+            (group (+ (or numeric ?/))))
+       (and "INTEREST INCOME - SECURITIES~"
+            (group (+? anything)) blank
+            (group (or "CD")) blank
+            (group (and ,tos-num-re "%")) blank
+            (group (+ (or numeric ?/))))
+       (and "INTERNAL TRANSFER BETWEEN ACCOUNTS OR ACCOUNT TYPES" blank
+            (group ,tos-num-re) blank
+            (group ,tos-symbol-re)
+            (? (and blank
+                    (group ,tos-option-regex))))
+       "MARK TO THE MARKET"
+       "MISCELLANEOUS JOURNAL ENTRY"
+       (and (group ,tos-symbol-re) blank
+            "mark to market at" blank
+            (group ,tos-num-re) blank
+            "official settlement price")
+       (and "OFF-CYCLE INTEREST~"
+            (group ,tos-symbol-re))
+       (and "QUALIFIED DIVIDEND~"
+            (group ,tos-symbol-re))
+       "REBATE"
+       (and "REMOVAL OF OPTION DUE TO" blank
+            (group (or "ASSIGNMENT" "EXPIRATION")) blank
+            (group ,tos-num-re) blank
+            (group ,tos-symbol-re) blank
+            (group ,tos-option-regex))
+       "TRANSFER FROM FOREX ACCOUNT"
+       (and "TRANSFER OF SECURITY OR OPTION IN" blank
+            (group ,tos-num-re) blank
+            (group ,tos-symbol-re))
+       "TRANSFER TO FOREX ACCOUNT"
+       "WIRE INCOMING"
+       )))))
 
 ;; From https://www.emacswiki.org/emacs/AddCommasToNumbers
 (defun add-number-grouping (number &optional separator)
