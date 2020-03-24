@@ -55,19 +55,19 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
    (xact-side :initarg :side)           ; open or close
    (xact-postings :initarg :postings)))
 
-(defconst tos-method 1)
-(defconst tos-action 2)
-(defconst tos-quantity 3)
-(defconst tos-strategy 4)
-(defconst tos-symbol 5)
-(defconst tos-detail 6)
-(defconst tos-option-size 7)
-(defconst tos-option-special 8)
-(defconst tos-option-expiration 9)
-(defconst tos-option-strike 10)
-(defconst tos-option-side 11)
-(defconst tos-price 12)
-(defconst tos-exchange 13)
+(defconst tos-method 2)
+(defconst tos-action 3)
+(defconst tos-quantity 4)
+(defconst tos-strategy 5)
+(defconst tos-symbol 6)
+(defconst tos-detail 7)
+(defconst tos-option-size 8)
+(defconst tos-option-special 9)
+(defconst tos-option-expiration 10)
+(defconst tos-option-strike 11)
+(defconst tos-option-side 12)
+(defconst tos-price 13)
+(defconst tos-exchange 14)
 
 (defconst tos-symbol-re
   '(+ (or alnum ?/ ?:)))
@@ -144,7 +144,9 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
 
 (defconst tos-brokerage-transaction-regex
   (macroexpand
-   `(rx (or
+   `(rx
+     (group-n
+      1 (or
          ;; trade
          (and (? (and (group-n
                        ,tos-method
@@ -225,14 +227,12 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
          (and "FOREIGN TAX WITHHELD~" ,tos-symbol-re)
          "FREE BALANCE INTEREST ADJUSTMENT~NO DESCRIPTION"
          (and "Index Option Fees" blank
-              "01/14/2020"
-              )
+              (+ (or numeric ?/)))
          (and "INTEREST INCOME - SECURITIES~"
-              "FIRST REPUBLIC BANK SAN FRANCI" blank
-              "CD" blank
-              "2%" blank
-              "07/31/2019"
-              )
+              (+? anything) blank
+              (or "CD") blank
+              (and ,tos-num-re "%") blank
+              (+ (or numeric ?/)))
          (and "INTERNAL TRANSFER BETWEEN ACCOUNTS OR ACCOUNT TYPES" blank
               ,tos-num-re blank ,tos-symbol-re
               (? (and blank
@@ -253,7 +253,7 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
               ,tos-num-re blank ,tos-symbol-re)
          "TRANSFER TO FOREX ACCOUNT"
          "WIRE INCOMING"
-         ))))
+         )))))
 
 (defun tos-forward-transaction ()
   (interactive)
