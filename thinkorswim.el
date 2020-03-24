@@ -1,12 +1,11 @@
 (require 'parse-csv)                    ; mrc/el-csv on GitHub
 (require 'rx)
 (require 'eieio)
-(require 'calc)
 
 (defclass tos-lot ()
   ((lot-cost)
    (lot-date)
-   (lot-note)))
+   (lot-id)))
 
 (defclass tos-stock ()
   ((stk-symbol)
@@ -70,15 +69,61 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
 (defconst tos-method 1)
 (defconst tos-action 2)
 (defconst tos-quantity 3)
-(defconst tos-symbol 4)
-(defconst tos-option-detail 5)
-(defconst tos-option-size 6)
-(defconst tos-option-special 7)
-(defconst tos-option-expiration 8)
-(defconst tos-option-strike 9)
-(defconst tos-option-side 10)
-(defconst tos-price 11)
-(defconst tos-exchange 12)
+(defconst tos-strategy 4)
+(defconst tos-symbol 5)
+(defconst tos-detail 6)
+(defconst tos-option-size 7)
+(defconst tos-option-special 8)
+(defconst tos-option-expiration 9)
+(defconst tos-option-strike 10)
+(defconst tos-option-side 11)
+(defconst tos-price 12)
+(defconst tos-exchange 13)
+
+(defconst tos-symbol-re
+  '(+ (or alnum ?/ ?:)))
+
+(defconst tos-num-re
+  '(+ (or numeric ?+ ?- ?, ?.)))
+
+(defun tos-option-regex (base-n)
+  `(and
+    ;; contract size
+    (group-n ,(+ base-n 0) (+ (or numeric ?/))) blank
+    ;; special annotation
+    (? (group-n ,(+ base-n 1)
+                (and "(Weeklys)"
+                     blank)))
+    ;; expiration
+    (group-n
+     ,(+ base-n 2)
+     (and (+ numeric)
+          blank
+          (or
+           "JAN"
+           "FEB"
+           "MAR"
+           "APR"
+           "JUN"
+           "JUL"
+           "AUG"
+           "SEP"
+           "OCT"
+           "NOV"
+           "DEC")
+          blank
+          (+ numeric)
+          (? (and blank
+                  (or "[AM]"
+                      ;; "(Monday)"
+                      )))))
+    blank
+    (group-n ,(+ base-n 3)
+             ,tos-num-re)
+    blank
+    (group-n ,(+ base-n 4)
+             (or "CALL"
+                 "PUT"))))
 
 (defconst tos-brokerage-transaction-regex
   (macroexpand
@@ -91,68 +136,75 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
                            "KEY: Shift B"
                            "KEY: Shift S"
                            "KEY: Ctrl Shift B"
-                           "KEY: Ctrl Shift S")) blank))
-              (group-n ,tos-action (or "BOT +"
-                                       "SOLD -"))
-              (group-n ,tos-quantity (+ (or numeric ?,))) blank
-              (group-n ,tos-symbol (+ (or alpha ?/))) blank
-              ;; option trade
-              (? (group-n
-                  ,tos-option-detail
-                  (and
-                   ;; contract size
-                   (group-n ,tos-option-size
-                            (+ (or numeric ?,)))
-                   blank
-                   ;; special annotation
-                   (? (group-n ,tos-option-special
-                               (and "(Weeklys)" blank)))
-                   ;; expiration
-                   (group-n
-                    ,tos-option-expiration
-                    (and (+ numeric)
-                         blank
-                         (or
-                          "JAN"
-                          "FEB"
-                          "MAR"
-                          "APR"
-                          "JUN"
-                          "JUL"
-                          "AUG"
-                          "SEP"
-                          "OCT"
-                          "NOV"
-                          "DEC")
-                         blank
-                         (+ numeric)
-                         (? (and blank
-                                 (or "[AM]")))))
-                   blank
-                   (group-n ,tos-option-strike
-                            (+ numeric))
-                   blank
-                   (group-n ,tos-option-side
-                            (or "CALL"
-                                "PUT"))
-                   blank)))
-              ?@
-              (group-n ,tos-price (+ (or numeric ?.)))
-              ;; optional exchange info
+                           "KEY: Ctrl Shift S"))
+                      blank))
+              (group-n ,tos-action (or "BOT"
+                                       "SOLD"))
+              blank
+              (group-n ,tos-quantity ,tos-num-re)
+              blank
+              (? (and (group-n
+                       ,tos-strategy
+                       (or "COVERED"
+                           "DIAGONAL"
+                           "VERTICAL"
+                           "STRADDLE"
+                           "STRANGLE"))
+                      blank))
+              (group-n ,tos-symbol ,tos-symbol-re)
               (? (and blank
-                      (group-n
-                       ,tos-exchange
-                       (or "AMEX"
-                           "NASDAQ"
-                           "CBOE"
-                           "NYSE"
-                           "GEMINI"
-                           "EDGX"
-                           "PHLX"
-                           "BATS")))))
-         ;; balance interest adjustment
-         ;; market to the market
-         ;; courtesy credit
+                      (group-n ,tos-detail
+                               (or ,(tos-option-regex (1+ tos-detail))
+                                   "UPON OPTION ASSIGNMENT"
+                                   "UPON TRADE CORRECTION"
+                                   "UPON BUY TRADE"
+                                   "UPON SELL TRADE"
+                                   "UPON BONDS - REDEMPTION"))))
+              (? (and blank
+                      ?@
+                      (group-n ,tos-price ,tos-num-re)
+                      ;; optional exchange info
+                      (? (and blank
+                              (group-n
+                               ,tos-exchange
+                               (or "AMEX"
+                                   "NASDAQ"
+                                   "CBOE"
+                                   "NYSE"
+                                   "ISE GEMINI"
+                                   "GEMINI"
+                                   "EDGX"
+                                   "PHLX"
+                                   "BATS"
+                                   "BOX"
+                                   "MIAX")))))))
+
+         "ACH CREDIT RECEIVED"
+         "ACH DEBIT RECEIVED"
+         (and "ADR FEE~" ,tos-symbol-re)
+         "CLIENT REQUESTED ELECTRONIC FUNDING DISBURSEMENT (FUNDS NOW)"
+         "Courtesy Credit"
+         (and "FOREIGN TAX WITHHELD~" ,tos-symbol-re)
+         "FREE BALANCE INTEREST ADJUSTMENT~NO DESCRIPTION"
+         ;; "INTEREST INCOME - SECURITIES~FIRST REPUBLIC BANK SAN FRANCI CD 2% 07/31/2019"
+         (and "INTERNAL TRANSFER BETWEEN ACCOUNTS OR ACCOUNT TYPES" blank
+              ,tos-num-re blank ,tos-symbol-re
+              (? (and blank
+                      ,(tos-option-regex (1+ tos-exchange)))))
+         "MARK TO THE MARKET"
+         (and ,tos-symbol-re blank "mark to market at" blank
+              ,tos-num-re blank "official settlement price")
+         (and "OFF-CYCLE INTEREST~" ,tos-symbol-re)
+         (and "QUALIFIED DIVIDEND~" ,tos-symbol-re)
+         "REBATE"
+         (and "REMOVAL OF OPTION DUE TO ASSIGNMENT" blank
+              ,tos-num-re blank ,tos-symbol-re blank
+              ,(tos-option-regex (+ 5 (1+ tos-exchange))))
+         "TRANSFER FROM FOREX ACCOUNT"
+         (and "TRANSFER OF SECURITY OR OPTION IN" blank
+              ,tos-num-re blank ,tos-symbol-re)
+         "TRANSFER TO FOREX ACCOUNT"
+         "WIRE INCOMING"
          ))))
 
 (defun tos-forward-transaction ()
@@ -170,16 +222,37 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
            (or (match-string tos-price) "")
            (or (match-string tos-exchange) "")))
 
+;; From https://www.emacswiki.org/emacs/AddCommasToNumbers
+(defun add-number-grouping (number &optional separator)
+  "Add commas to NUMBER and return it as a string.
+    Optional SEPARATOR is the string to use to separate groups.
+    It defaults to a comma."
+  (let ((num (number-to-string number))
+        (op (or separator ",")))
+    (while (string-match "\\(.*[0-9]\\)\\([0-9][0-9][0-9].*\\)" num)
+      (setq num (concat
+                 (match-string 1 num) op
+                 (match-string 2 num))))
+    num))
+
+(defun tos-normalize-number (str)
+  (with-temp-buffer
+    (insert str)
+    (goto-char (point-min))
+    (while (search-forward "," nil t)
+      (delete-region (match-beginning 0) (match-end 0)))
+    (buffer-string)))
+
 (defun tos-parse-brokerage-entry (account fields)
   (let ((date (nth 0 fields))
         (time (nth 1 fields))
         (type (nth 2 fields))
         (refno (nth 3 fields))
         (desc (nth 4 fields))
-        (fees (nth 5 fields))
-        (commissions (nth 6 fields))
-        (amount (nth 7 fields))
-        (balance (nth 8 fields))
+        (fees (tos-normalize-number (nth 5 fields)))
+        (commissions (tos-normalize-number (nth 6 fields)))
+        (amount (tos-normalize-number (nth 7 fields)))
+        (balance (tos-normalize-number (nth 8 fields)))
         (re (macroexpand
              `(rx (and string-start
                        (regexp ,tos-brokerage-transaction-regex)
@@ -195,6 +268,13 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
                               (nth 2 date-parts))))
     (unless (string-match re desc)
       (error "Failed to parse brokerage desc: %s" desc))
+    (if (match-string tos-detail desc)
+        ;; it has associated details
+        t
+      t)
+    (setq fees (string-to-number fees)
+          commissions (string-to-number commissions)
+          amount (+ (string-to-number amount) fees commissions))
     (make-instance 'tos-xact
                    :account account
                    :id refno
@@ -233,7 +313,8 @@ Example: a BUTTERFLY with positions at multiples of 1/2/1")
          ((eq section 'cash)
           (tos-parse-brokerage-entry account (parse-csv->list line)))
          (t
-          (error "Unexpected line: %s" line))))
+          (message "Unexpected line: %s" line))))
+
       (forward-line 1))))
 
 (provide 'thinkorswim)
