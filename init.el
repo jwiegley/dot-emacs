@@ -3580,6 +3580,8 @@ append it to ENTRY."
   :unless (or noninteractive
               alternate-emacs)
   :no-require
+  :config
+  (setq server-socket-dir "/tmp")
   :hook (after-init . server-start))
 
 (use-package sh-script

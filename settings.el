@@ -254,10 +254,7 @@
  '(bmkp-crosshairs-flag nil)
  '(bmkp-last-as-first-bookmark-file "~/Documents/bookmarks")
  '(bookmark-default-file "~/Documents/bookmarks")
- '(browse-url-browser-function
-   (quote
-    (("osx-ghc" . eww-browse-url)
-     (".*" . browse-url-default-macosx-browser))))
+ '(browse-url-browser-function (quote browse-url-default-macosx-browser))
  '(byte-compile-verbose nil)
  '(c-default-style
    (quote
