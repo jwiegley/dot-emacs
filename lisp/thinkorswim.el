@@ -113,127 +113,127 @@ Access tokens are only valid for 30 minutes.")
   (interactive)
   (ignore
    (request
-     (format "%s/accounts/%s/transactions" tos-base-url account-id)
-     :params `(("startDate" . ,start-date))
-     :headers `(("Authorization" . ,(format "Bearer %s" (tos-get-access-token))))
-     :parser 'json-read
-     :success
-     `(lambda (&rest args)
-        (with-current-buffer (generate-new-buffer "*Transactions*")
-          (dolist (xact (nreverse (mapcar #'identity (plist-get args :data))))
-            ;; (insert (format "%S\n" xact))
-            (insert (format "%s * (%s) %s\n"
-                            (format-time-string
-                             "%Y/%m/%d"
-                             (parse-iso8601-time-string
-                              (tos-field-opt 'transactionDate xact)))
-                            (tos-field-opt 'type xact)
-                            (tos-field-opt 'description xact)))
-            (tos-emit "OrderId" 'orderId xact)
-            (tos-emit "OrderDate" 'orderDate xact)
-            (awhen (tos-field-opt 'settlementDate xact)
-              (insert (format "    ; SettlementDate:: [%s]\n" it)))
-            (tos-emit "TransactionId" 'transactionId xact)
-            (tos-emit "ClearingReferenceNumber" 'clearingReferenceNumber xact)
-            (awhen (tos-field-opt 'transactionItem xact)
-              (tos-emit "AccountId" 'accountId it)
-              (awhen (tos-field-opt 'amount it)
-                (insert (format "    ; Amount:: %s\n"
-                                (tos-add-number-grouping it))))
-              (awhen (tos-field-opt 'price it)
-                (insert (format "    ; Price:: $%s\n"
-                                (tos-add-number-grouping it nil 2))))
-              (awhen (tos-field-opt 'cost it)
-                (insert (format "    ; Cost:: $%s\n"
-                                (tos-add-number-grouping it nil 2))))
-              (tos-emit "Instruction" 'instruction it)
-              (tos-emit "PositionEffect" 'positionEffect it)
-              (awhen (tos-field-opt 'instrument it)
-                (tos-emit "AssetType" 'assetType it)
-                (tos-emit "Symbol" 'symbol it)
-                (tos-emit "CUSIP" 'cusip it)
-                (tos-emit "Underlying" 'underlyingSymbol it)
-                (tos-emit "Description" 'description it)
-                (tos-emit "ContractType" 'putCall it)))
-            (let ((fees 0.0))
-              (awhen (tos-field-opt 'fees xact)
-                (let ((regFee (tos-field-opt 'regFee it))
-                      (commission (tos-field-opt 'commission it)))
-                  (when (and regFee (> regFee 0))
-                    (setq fees (+ fees regFee))
-                    (insert
-                     (format
-                      "    (Expenses:TD:Fees)                         $%0.2f\n"
-                      regFee)))
-                  (when (and commission (> commission 0))
-                    (setq fees (+ fees commission))
-                    (insert
-                     (format
-                      "    (Expenses:TD:Commission)                   $%0.2f\n"
-                      commission)))))
-              (awhen (tos-field-opt 'transactionItem xact)
-                (let ((amount (tos-field-opt 'amount it))
-                      (price (tos-field-opt 'price it)))
-                  (pcase (tos-field-opt 'instruction it)
-                    ("SELL" (setq amount (- amount))))
+    (format "%s/accounts/%s/transactions" tos-base-url account-id)
+    :params `(("startDate" . ,start-date))
+    :headers `(("Authorization" . ,(format "Bearer %s" (tos-get-access-token))))
+    :parser 'json-read
+    :success
+    `(lambda (&rest args)
+       (with-current-buffer (generate-new-buffer "*Transactions*")
+         (dolist (xact (nreverse (mapcar #'identity (plist-get args :data))))
+           ;; (insert (format "%S\n" xact))
+           (insert (format "%s * (%s) %s\n"
+                           (format-time-string
+                            "%Y/%m/%d"
+                            (parse-iso8601-time-string
+                             (tos-field-opt 'transactionDate xact)))
+                           (tos-field-opt 'type xact)
+                           (tos-field-opt 'description xact)))
+           (tos-emit "OrderId" 'orderId xact)
+           (tos-emit "OrderDate" 'orderDate xact)
+           (awhen (tos-field-opt 'settlementDate xact)
+                  (insert (format "    ; SettlementDate:: [%s]\n" it)))
+           (tos-emit "TransactionId" 'transactionId xact)
+           (tos-emit "ClearingReferenceNumber" 'clearingReferenceNumber xact)
+           (awhen (tos-field-opt 'transactionItem xact)
+                  (tos-emit "AccountId" 'accountId it)
+                  (awhen (tos-field-opt 'amount it)
+                         (insert (format "    ; Amount:: %s\n"
+                                         (tos-add-number-grouping it))))
+                  (awhen (tos-field-opt 'price it)
+                         (insert (format "    ; Price:: $%s\n"
+                                         (tos-add-number-grouping it nil 2))))
+                  (awhen (tos-field-opt 'cost it)
+                         (insert (format "    ; Cost:: $%s\n"
+                                         (tos-add-number-grouping it nil 2))))
+                  (tos-emit "Instruction" 'instruction it)
+                  (tos-emit "PositionEffect" 'positionEffect it)
                   (awhen (tos-field-opt 'instrument it)
-                    (let ((symbol (tos-field-opt 'symbol it)))
-                      (pcase (tos-field-opt 'assetType it)
-                        ("EQUITY"
-                         (insert
-                          (format
-                           "    Assets:TD:%s:%-12s       %9s %s {$%s} [%s] (%s) @ $%s\n"
-                           ,account-id
-                           "Equities"
-                           (and amount
-                                (let ((num (tos-add-number-grouping amount)))
-                                  (if (string-match "\\(\\.0+\\)\\'" num)
-                                      (replace-match "" t t num 1)
-                                    num)))
-                           (and symbol
-                                (if (string-match "\\`[A-Z]+\\'" symbol)
-                                    symbol
-                                  (format "\"%s\"" symbol)))
-                           (and price (tos-add-number-grouping price nil 2))
-                           (format-time-string
-                            "%Y/%m/%d"
-                            (parse-iso8601-time-string
-                             (tos-field-opt 'transactionDate xact)))
-                           (tos-field-opt 'orderId xact)
-                           (and price (tos-add-number-grouping price nil 2)))))
-                        ("OPTION"
-                         (insert
-                          (format
-                           "    Assets:TD:%s:%-12s       %9s %s {{$%s}} [%s] (%s) @ $%s\n"
-                           ,account-id
-                           "Options"
-                           (and amount
-                                (let ((num (tos-add-number-grouping amount)))
-                                  (if (string-match "\\(\\.0+\\)\\'" num)
-                                      (replace-match "" t t num 1)
-                                    num)))
-                           (and symbol
-                                (if (string-match "\\`[A-Z]+\\'" symbol)
-                                    symbol
-                                  (format "\"%s\"" symbol)))
-                           (tos-add-number-grouping
-                            (abs (tos-field-opt 'netAmount xact)) nil 2)
-                           (format-time-string
-                            "%Y/%m/%d"
-                            (parse-iso8601-time-string
-                             (tos-field-opt 'transactionDate xact)))
-                           (tos-field-opt 'orderId xact)
-                           (and price (tos-add-number-grouping
-                                       (* 100 price) nil 2))))))))))
-              (awhen (tos-field-opt 'netAmount xact)
-                (insert (format "    Assets:TD:%s:Cash               $%s\n"
-                                ,account-id
-                                (tos-add-number-grouping it nil 2))))
+                         (tos-emit "AssetType" 'assetType it)
+                         (tos-emit "Symbol" 'symbol it)
+                         (tos-emit "CUSIP" 'cusip it)
+                         (tos-emit "Underlying" 'underlyingSymbol it)
+                         (tos-emit "Description" 'description it)
+                         (tos-emit "ContractType" 'putCall it)))
+           (let ((fees 0.0))
+             (awhen (tos-field-opt 'fees xact)
+                    (let ((regFee (tos-field-opt 'regFee it))
+                          (commission (tos-field-opt 'commission it)))
+                      (when (and regFee (> regFee 0))
+                        (setq fees (+ fees regFee))
+                        (insert
+                         (format
+                          "    (Expenses:TD:Fees)                         $%0.2f\n"
+                          regFee)))
+                      (when (and commission (> commission 0))
+                        (setq fees (+ fees commission))
+                        (insert
+                         (format
+                          "    (Expenses:TD:Commission)                   $%0.2f\n"
+                          commission)))))
+             (awhen (tos-field-opt 'transactionItem xact)
+                    (let ((amount (tos-field-opt 'amount it))
+                          (price (tos-field-opt 'price it)))
+                      (pcase (tos-field-opt 'instruction it)
+                        ("SELL" (setq amount (- amount))))
+                      (awhen (tos-field-opt 'instrument it)
+                             (let ((symbol (tos-field-opt 'symbol it)))
+                               (pcase (tos-field-opt 'assetType it)
+                                 ("EQUITY"
+                                  (insert
+                                   (format
+                                    "    Assets:TD:%s:%-12s       %9s %s {$%s} [%s] (%s) @ $%s\n"
+                                    ,account-id
+                                    "Equities"
+                                    (and amount
+                                         (let ((num (tos-add-number-grouping amount)))
+                                           (if (string-match "\\(\\.0+\\)\\'" num)
+                                               (replace-match "" t t num 1)
+                                             num)))
+                                    (and symbol
+                                         (if (string-match "\\`[A-Z]+\\'" symbol)
+                                             symbol
+                                           (format "\"%s\"" symbol)))
+                                    (and price (tos-add-number-grouping price nil 2))
+                                    (format-time-string
+                                     "%Y/%m/%d"
+                                     (parse-iso8601-time-string
+                                      (tos-field-opt 'transactionDate xact)))
+                                    (tos-field-opt 'orderId xact)
+                                    (and price (tos-add-number-grouping price nil 2)))))
+                                 ("OPTION"
+                                  (insert
+                                   (format
+                                    "    Assets:TD:%s:%-12s       %9s %s {{$%s}} [%s] (%s) @ $%s\n"
+                                    ,account-id
+                                    "Options"
+                                    (and amount
+                                         (let ((num (tos-add-number-grouping amount)))
+                                           (if (string-match "\\(\\.0+\\)\\'" num)
+                                               (replace-match "" t t num 1)
+                                             num)))
+                                    (and symbol
+                                         (if (string-match "\\`[A-Z]+\\'" symbol)
+                                             symbol
+                                           (format "\"%s\"" symbol)))
+                                    (tos-add-number-grouping
+                                     (abs (tos-field-opt 'netAmount xact)) nil 2)
+                                    (format-time-string
+                                     "%Y/%m/%d"
+                                     (parse-iso8601-time-string
+                                      (tos-field-opt 'transactionDate xact)))
+                                    (tos-field-opt 'orderId xact)
+                                    (and price (tos-add-number-grouping
+                                                (* 100 price) nil 2))))))))))
+             (awhen (tos-field-opt 'netAmount xact)
+                    (insert (format "    Assets:TD:%s:Cash               $%s\n"
+                                    ,account-id
+                                    (tos-add-number-grouping it nil 2))))
 
-              (insert ?\n)))
-          (ledger-mode)
-          (ledger-post-align-postings (point-min) (point-max))
-          (pop-to-buffer (current-buffer)))))))
+             (insert ?\n)))
+         (ledger-mode)
+         (ledger-post-align-postings (point-min) (point-max))
+         (pop-to-buffer (current-buffer)))))))
 
 ;; (let ((td-base-url "https://api.tdameritrade.com/v1")
 ;;       (symbol "BAC")
