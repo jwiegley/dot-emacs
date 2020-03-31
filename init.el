@@ -3581,7 +3581,10 @@ append it to ENTRY."
               alternate-emacs)
   :no-require
   :config
-  (setq server-socket-dir "/tmp")
+  (unless (file-exists-p "/tmp/johnw-emacs")
+    (make-directory "/tmp/johnw-emacs")
+    (chmod "/tmp/johnw-emacs" 448))
+  (setq server-socket-dir "/tmp/johnw-emacs")
   :hook (after-init . server-start))
 
 (use-package sh-script
