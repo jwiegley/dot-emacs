@@ -3504,7 +3504,8 @@ append it to ENTRY."
       (bind-key "C-c C-h" #'eglot-help-at-point rust-mode-map)
       (bind-key "C-c C-c v" #'(lambda ()
                                 (interactive)
-                                (shell-command "rustdocs std")) rust-mode-map)
+                                (shell-command "rustdocs std"))
+                rust-mode-map)
 
       (defun my-rust-project-find-function (dir)
         (let ((root (locate-dominating-file dir "Cargo.toml")))
