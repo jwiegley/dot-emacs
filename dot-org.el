@@ -1106,6 +1106,20 @@ end tell" (match-string 1))))
   (add-to-list 'org-file-apps
                '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open)))
 
+;; (use-package org-pdftools
+;;   :config (setq org-pdftools-root-dir "~/Downloads"
+;;                 org-pdftools-search-string-separator "??")
+;;   (with-eval-after-load 'org
+;;     (org-link-set-parameters "pdftools"
+;;                              :follow #'org-pdftools-open
+;;                              :complete #'org-pdftools-complete-link
+;;                              :store #'org-pdftools-store-link
+;;                              :export #'org-pdftools-export)
+;;     (add-hook 'org-store-link-functions 'org-pdftools-store-link)))
+
+;; (use-package org-noter-pdftools
+;;   :after (org-noter))
+
 (use-package org-protocol)
 
 (use-package org-ref

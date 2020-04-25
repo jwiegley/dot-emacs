@@ -268,7 +268,6 @@
  '(calendar-standard-time-zone-name "PST")
  '(calendar-time-zone -480)
  '(canlock-password "8d2ee9a7e4658c4ff6d863f91a3dd5340b3918ec")
- '(cargo-process--command-flags "-j8")
  '(cc-other-file-alist
    (quote
     (("\\.hs\\'"

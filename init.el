@@ -2696,6 +2696,13 @@ non-empty directories is allowed."
 (use-package math-symbol-lists
   :defer t)
 
+(use-package mc-calc
+  :after multiple-cursors
+  :bind (("<C-m> = c" . mc-calc)
+         ("<C-m> = =" . mc-calc-eval)
+         ("<C-m> = g" . mc-calc-grab)
+         ("<C-m> = b" . mc-calc-copy-to-buffer)))
+
 (use-package mc-extras
   :after multiple-cursors
   :bind (("<C-m> M-C-f" . mc/mark-next-sexps)
@@ -3457,9 +3464,20 @@ append it to ENTRY."
     (setq cargo-process--custom-path-to-bin
           (executable-find "cargo")))
 
+  (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
+    (let ((cargo-process--command-flags
+           (if (member command '("build" "clippy" "doc" "test"))
+               (format "--target-dir=%s -j8"
+                       (replace-in-string (getenv "CARGO_TARGET_DIR")
+                                          "target" "target--custom"))
+             "")))
+      (funcall ad-do-it name command last-cmd opens-external)))
+
   (defun my-rust-mode-init ()
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cargo-path)
+
+    (advice-add 'cargo-process--start :around #'my-update-cargo-args)
 
     (add-hook 'post-command-hook #'direnv--maybe-update-environment)
     (direnv-update-environment default-directory)
@@ -4024,9 +4042,9 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`dell-wide              1000)
-    (`imac                    116)
+    (`imac                     20)
     (`macbook-pro-vga         700)
-    (`macbook-pro-16          564)
+    (`macbook-pro-16          372)
     (`macbook-pro-15          464)
     (`macbook-pro-13          464)))
 
@@ -4034,9 +4052,9 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)   51)
     (`dell-wide                64)
-    (`imac                     58)
+    (`imac                     50)
     (`macbook-pro-vga          55)
-    (`macbook-pro-16           45)
+    (`macbook-pro-16           39)
     (`macbook-pro-15           47)
     (`macbook-pro-13           47)))
 
@@ -4044,7 +4062,7 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)   80)
     (`dell-wide               202)
-    (`imac                    202)
+    (`imac                    180)
     (`macbook-pro-vga         100)
     (`macbook-pro-16          100)
     (`macbook-pro-15          100)
@@ -4054,8 +4072,8 @@ append it to ENTRY."
   (pcase display-name
     ((guard alternate-emacs)
      "-*-Bookerly-normal-normal-normal-*-21-*-*-*-p-0-iso10646-1")
-    (`imac "-*-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")
-    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-iso10646-1")))
+    (`imac "-*-DejaVu Sans Mono-normal-normal-normal-*-24-*-*-*-m-0-iso10646-1")
+    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-24-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
   (interactive)

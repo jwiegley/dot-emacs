@@ -129,7 +129,6 @@ If any function returns a non-nil value, none else will be called."
 
 (defun stock-quote-MoneyQuickQuotes (ticker)
   "Download a stock price using the Money Quick Quotes web page."
-  (require 'w3)
   (require 'url)
   (with-temp-buffer
     (let (url-show-status)
@@ -147,9 +146,27 @@ If any function returns a non-nil value, none else will be called."
 (custom-add-option 'stock-quote-data-functions
 		   'stock-quote-MoneyQuickQuotes)
 
+(defun stock-quote-MoneyQuickQuotes (ticker)
+  "Download a stock price using the Money Quick Quotes web page."
+  (require 'url)
+  (with-temp-buffer
+    (let (url-show-status)
+      (url-insert-file-contents
+       (concat "http://quote.pathfinder.com/money/quote/qc?symbols="
+               ticker))
+      (set-buffer-modified-p nil))
+    (goto-char (point-min))
+    (if (and (re-search-forward "<b>" nil t)
+             (re-search-forward "<b>" nil t)
+             (re-search-forward "<b>" nil t)
+             (looking-at "-?[0-9.]+"))
+        (string-to-number (match-string 0)))))
+
+(custom-add-option 'stock-quote-data-functions
+		   'stock-quote-MoneyQuickQuotes)
+
 (defun stock-quote-QuickenCom (ticker)
   "Download a stock price using the www.quicken.com web site."
-  (require 'w3)
   (require 'url)
   (with-temp-buffer
     (let (url-show-status)
