@@ -214,6 +214,7 @@
  '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.org")))
  '(org-agenda-todo-ignore-scheduled (quote past))
  '(org-agenda-use-time-grid nil)
+ '(org-agenda-window-frame-fractions (quote (0.5 . 0.75)))
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info (quote (time category itags)))
  '(org-attach-file-list-property nil)
