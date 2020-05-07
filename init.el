@@ -1756,7 +1756,11 @@ non-empty directories is allowed."
     (forge-create-pullreq (concat "origin/" branch) "origin/master"))
   :config
   (transient-insert-suffix 'forge-dispatch "c i"
-    '("p" "quick-pr" my-quick-create-pull-request)))
+                           '("p" "quick-pr" my-quick-create-pull-request)))
+
+(use-package format-all
+  :commands (format-all-buffer
+             format-all-mode))
 
 (use-package free-keys
   :commands free-keys)
@@ -1818,7 +1822,7 @@ non-empty directories is allowed."
   :commands github-review-start
   :config
   (transient-insert-suffix 'forge-dispatch "c p"
-    '("c r" "github-review" github-review-forge-pr-at-point)))
+                           '("c r" "github-review" github-review-forge-pr-at-point)))
 
 (use-package gitpatch
   :commands gitpatch-mail)
@@ -2432,6 +2436,9 @@ non-empty directories is allowed."
 (use-package key-chord
   :commands key-chord-mode)
 
+(use-package keypression
+  :commands key-chord-mode)
+
 (use-package know-your-http-well
   :commands (http-header
              http-method
@@ -2651,11 +2658,11 @@ non-empty directories is allowed."
 
   (eval-after-load 'magit-pull
     '(transient-insert-suffix 'magit-pull "p"
-       '("F" "default" magit-fetch-from-upstream)))
+                              '("F" "default" magit-fetch-from-upstream)))
 
   (eval-after-load 'magit-push
     '(transient-insert-suffix 'magit-push "p"
-       '("P" "default" magit-push-current-to-upstream))))
+                              '("P" "default" magit-push-current-to-upstream))))
 
 (use-package magit-popup
   :defer t)
@@ -3627,6 +3634,9 @@ append it to ENTRY."
 
 (use-package shell-toggle
   :bind ("C-, C-z" . shell-toggle))
+
+(use-package shfmt
+  :hook (sh-mode . shfmt-on-save-mode))
 
 (use-package shift-number
   :bind (("C-c +" . shift-number-up)

@@ -1015,7 +1015,10 @@ end tell" (match-string 1))))
      `(lambda ()
         (with-current-buffer ,(current-buffer)
           (org-save-all-org-buffers)
-          (my-org-insert-jobhours-string)))))
+          (my-org-insert-jobhours-string)
+          (window-resize
+           (get-buffer-window (current-buffer))
+           (- 100 (window-width)) t)))))
 
   (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
 
