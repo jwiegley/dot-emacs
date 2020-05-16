@@ -1760,7 +1760,21 @@ non-empty directories is allowed."
 
 (use-package format-all
   :commands (format-all-buffer
-             format-all-mode))
+             format-all-mode)
+  :config
+  (defun format-all--resolve-system (choices)
+    "Get first choice matching `format-all--system-type' from CHOICES."
+    (cl-dolist (choice choices)
+      (cond ((atom choice)
+             (cl-return choice))
+            ((eql format-all--system-type (car choice))
+             (cl-return (cadr choice))))))
+
+  (define-format-all-formatter ormolu
+    (:executable "ormolu")
+    (:install "stack install ormolu")
+    (:modes haskell-mode literate-haskell-mode)
+    (:format (format-all--buffer-easy executable))))
 
 (use-package free-keys
   :commands free-keys)
@@ -1993,6 +2007,8 @@ non-empty directories is allowed."
           (setq-local haskell-stylish-on-save t)
           (setq-local haskell-mode-stylish-haskell-path brittany)
           (setq-local haskell-mode-stylish-haskell-args '("-")))))
+    (when (executable-find "ormolu")
+      (format-all-mode 1))
     (flycheck-mode 1)
     (flycheck-haskell-setup)
     (add-hook 'hack-local-variables-hook
@@ -2193,6 +2209,7 @@ non-empty directories is allowed."
         (call-interactively #'paredit-newline)))))
 
 (use-package iflipb
+  :disabled t
   :bind* ("<S-return>" . my-iflipb-next-buffer)
   :commands (iflipb-next-buffer iflipb-previous-buffer)
   :preface
@@ -3635,9 +3652,6 @@ append it to ENTRY."
 (use-package shell-toggle
   :bind ("C-, C-z" . shell-toggle))
 
-(use-package shfmt
-  :hook (sh-mode . shfmt-on-save-mode))
-
 (use-package shift-number
   :bind (("C-c +" . shift-number-up)
          ("C-c -" . shift-number-down)))
@@ -3703,10 +3717,6 @@ append it to ENTRY."
               ("C->" . smartscan-symbol-go-forward)
               ("C-<" . smartscan-symbol-go-backward)))
 
-(use-package smedl-mode
-  :load-path "~/bae/micromht-fiat-deliverable/atif-monitors/smon/smedl/emacs"
-  :mode "\\.\\(a4\\)?smedl\\'")
-
 (use-package smerge-mode
   :commands smerge-mode)
 
@@ -3722,6 +3732,13 @@ append it to ENTRY."
 
 (use-package sql-indent
   :commands sqlind-minor-mode)
+
+(use-package stock-quote
+  :commands stock-quote
+  :custom
+  (stock-quote-in-modeline "/ES")
+  :init
+  (load "~/src/thinkorswim/thinkorswim"))
 
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
@@ -4060,7 +4077,7 @@ append it to ENTRY."
 
 (defconst emacs-min-height
   (pcase display-name
-    ((guard alternate-emacs)   51)
+    ((guard alternate-emacs)   52)
     (`dell-wide                64)
     (`imac                     50)
     (`macbook-pro-vga          55)
