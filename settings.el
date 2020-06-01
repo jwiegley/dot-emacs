@@ -436,6 +436,7 @@
  '(ediff-show-clashes-only t)
  '(ediff-window-setup-function (quote ediff-setup-windows-plain))
  '(edit-server-new-frame nil)
+ '(eglot-autoshutdown t)
  '(el-get-auto-update-cached-recipes nil)
  '(el-get-dir "~/.emacs.d/site-lisp/")
  '(el-get-generate-autoloads nil)
@@ -530,7 +531,7 @@
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
    (quote
-    (sml/generate-buffer-identification direnv-update-environment)))
+    (sml/generate-buffer-identification direnv-update-environment)) t)
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -906,7 +907,7 @@
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
  '(make-backup-file-name-function (quote my-make-backup-file-name))
  '(malyon-stories-directory "~/Documents/games")
- '(markdown-command "pandoc -f markdown_github+smart")
+ '(markdown-command "pandoc -f markdown_github+smart" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")

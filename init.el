@@ -20,6 +20,14 @@
 
 ;;; Functions
 
+(defun move-direnv-to-front (list)
+  (let (result new-list)
+    (dolist (path list)
+      (if (string-match "\\.direnv" path)
+          (setq result (cons path result))
+        (setq new-list (cons path new-list))))
+    (nconc (nreverse result) (nreverse new-list))))
+
 (eval-and-compile
   (defun emacs-path (path)
     (expand-file-name path user-emacs-directory))
@@ -3492,8 +3500,9 @@ append it to ENTRY."
     (let ((cargo-process--command-flags
            (if (member command '("build" "clippy" "doc" "test"))
                (format "--target-dir=%s -j8"
-                       (replace-in-string (getenv "CARGO_TARGET_DIR")
-                                          "target" "target--custom"))
+                       (replace-regexp-in-string
+                        (regexp-quote (getenv "CARGO_TARGET_DIR"))
+                        "target" "target--custom"))
              "")))
       (funcall ad-do-it name command last-cmd opens-external)))
 
@@ -3727,9 +3736,6 @@ append it to ENTRY."
 (use-package sort-words
   :commands sort-words)
 
-(use-package sos
-  :commands sos)
-
 (use-package sql-indent
   :commands sqlind-minor-mode)
 
@@ -3738,7 +3744,11 @@ append it to ENTRY."
   :custom
   (stock-quote-in-modeline "/ES")
   :init
-  (load "~/src/thinkorswim/thinkorswim"))
+  (load "~/src/thinkorswim/thinkorswim")
+  :config
+  (setq tos-client-id
+        (lookup-password "developer.tdameritrade.com.client-id"
+                         tos-user-id 80)))
 
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
@@ -3747,7 +3757,7 @@ append it to ENTRY."
   :bind ("C-c C-'" . string-edit-at-point))
 
 (use-package string-inflection
-  :bind ("C-c `" . string-inflection-all-cycle))
+  :bind ("C-c `" . string-inflection-toggle))
 
 (use-package super-save
   :diminish
