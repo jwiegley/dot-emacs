@@ -102,20 +102,24 @@
       (if (directory-files recordings-dir nil "\\`[^.]")
           (find-file recordings-dir))))
 
-  (let ((buf (get-buffer "*Org Agenda(a)*")))
-    (if buf
-        (let ((wind (get-buffer-window buf)))
-          (if wind
-              (when (called-interactively-p 'any)
-                (select-window wind)
-                (org-fit-window-to-buffer))
-            (if (called-interactively-p 'any)
-                (progn
-                  (select-window (display-buffer buf t t))
-                  (org-fit-window-to-buffer))
-              (with-selected-window (display-buffer buf)
-                (org-fit-window-to-buffer)))))
-      (call-interactively 'org-agenda-list))))
+  (cl-flet ((prep-window (wind)
+                         (with-selected-window wind
+                           (org-fit-window-to-buffer wind)
+                           (window-resize
+                            wind
+                            (- 100 (window-width wind)) t))))
+    (let ((buf (or (get-buffer "*Org Agenda*")
+                   (get-buffer "*Org Agenda(a)*"))))
+      (if buf
+          (let ((wind (get-buffer-window buf)))
+            (if wind
+                (when (called-interactively-p 'any)
+                  (funcall #'prep-window wind))
+              (if (called-interactively-p 'any)
+                  (funcall #'prep-window (display-buffer buf t t))
+                (funcall #'prep-window (display-buffer buf)))))
+        (call-interactively 'org-agenda-list)
+        (funcall #'prep-window (selected-window))))))
 
 (defun org-get-global-property (name)
   (save-excursion
@@ -1015,10 +1019,7 @@ end tell" (match-string 1))))
      `(lambda ()
         (with-current-buffer ,(current-buffer)
           (org-save-all-org-buffers)
-          (my-org-insert-jobhours-string)
-          (window-resize
-           (get-buffer-window (current-buffer))
-           (- 100 (window-width)) t)))))
+          (my-org-insert-jobhours-string))))):
 
   (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
 
