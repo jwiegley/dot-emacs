@@ -537,7 +537,13 @@
     (let ((cargo-process--command-flags
            (concat cargo-process--command-flags
                    " --tests -- -D clippy::all -D clippy::cognitive_complexity")))
-      ad-do-it)))
+      ad-do-it))
+
+  (defun cargo-fix ()
+    (interactive)
+    (async-shell-command
+     (concat "cargo fix -Z unstable-options"
+             " --clippy --tests --benches --allow-dirty --allow-staged"))))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
@@ -1254,15 +1260,22 @@ non-empty directories is allowed."
                                (file-name-directory
                                 (executable-find "emacsclient"))))
   :config
+  (defvar flycheck-executable-for-buffer (make-hash-table :test #'equal))
+  (defun locate-flycheck-executable (cmd)
+    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+    (let ((exe (gethash (cons cmd (buffer-name))
+                        flycheck-executable-for-buffer)))
+      (if exe
+          exe
+        (direnv-update-environment default-directory)
+        (let ((exe (executable-find cmd)))
+          (puthash (cons cmd (buffer-name)) exe
+                   flycheck-executable-for-buffer)))))
   (eval-after-load 'flycheck
-    '(setq flycheck-executable-find
-           (lambda (cmd)
-             (add-hook 'post-command-hook #'direnv--maybe-update-environment)
-             (direnv-update-environment default-directory)
-             (executable-find cmd))))
+    '(setq flycheck-executable-find #'locate-flycheck-executable))
   (add-hook 'coq-mode-hook
             #'(lambda ()
-                (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+                ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
                 (direnv-update-environment default-directory)))
 
   (advice-add 'direnv-update-directory-environment
@@ -1348,7 +1361,15 @@ non-empty directories is allowed."
          ("C-c = p" . ediff-patch-file)
          ("C-c = P" . ediff-patch-buffer)
          ("C-c = l" . ediff-regions-linewise)
-         ("C-c = w" . ediff-regions-wordwise)))
+         ("C-c = w" . ediff-regions-wordwise))
+  :config
+  (defun test-compare ()
+    (interactive)
+    (delete-other-windows)
+    (search-forward "expected:")
+    (split-window-below)
+    (search-forward "got:")
+    (call-interactively #'compare-windows)))
 
 (use-package ediff-keep
   :after ediff)
@@ -3512,7 +3533,7 @@ append it to ENTRY."
 
     (advice-add 'cargo-process--start :around #'my-update-cargo-args)
 
-    (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
     (direnv-update-environment default-directory)
 
     (cargo-minor-mode 1)
@@ -3744,7 +3765,7 @@ append it to ENTRY."
   :custom
   (stock-quote-in-modeline "/ES")
   :init
-  (load "~/src/thinkorswim/thinkorswim")
+  (load "~/src/thinkorswim/thinkorswim-el/thinkorswim")
   :config
   (setq tos-client-id
         (lookup-password "developer.tdameritrade.com.client-id"
@@ -4171,6 +4192,7 @@ append it to ENTRY."
   (jump-to-org-agenda)
   (org-resolve-clocks)
   (unless (eq display-name 'imac)
-    (display-battery-mode 1)))
+    (display-battery-mode 1))
+  (stock-quote "/ES"))
 
 ;;; init.el ends here
