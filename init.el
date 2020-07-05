@@ -1362,13 +1362,15 @@ non-empty directories is allowed."
          ("C-c = P" . ediff-patch-buffer)
          ("C-c = l" . ediff-regions-linewise)
          ("C-c = w" . ediff-regions-wordwise))
-  :config
+  :init
   (defun test-compare ()
     (interactive)
     (delete-other-windows)
+    (let ((here (point)))
+      (search-forward "got:")
+      (split-window-below)
+      (goto-char here))
     (search-forward "expected:")
-    (split-window-below)
-    (search-forward "got:")
     (call-interactively #'compare-windows)))
 
 (use-package ediff-keep
@@ -2038,6 +2040,7 @@ non-empty directories is allowed."
           (setq-local haskell-mode-stylish-haskell-args '("-")))))
     (when (executable-find "ormolu")
       (format-all-mode 1))
+    (whitespace-mode 1)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
     (add-hook 'hack-local-variables-hook
@@ -4092,46 +4095,65 @@ append it to ENTRY."
     (`1920 'macbook-pro-vga)
     (`1792 'macbook-pro-16)
     (`1680 'macbook-pro-15)
-    (`1680 'macbook-pro-13)))
+    ;; (`1680 'macbook-pro-13)
+    ))
 
-(defconst emacs-min-top         0)
+(defsubst bookerly-font (height)
+  (format "-*-Bookerly-normal-normal-normal-*-%d-*-*-*-p-0-iso10646-1" height))
 
-(defconst emacs-min-left
+(defsubst dejavu-sans-mono-font (height)
+  (format "-*-DejaVu Sans Mono-normal-normal-normal-*-%d-*-*-*-m-0-iso10646-1" height))
+
+(defun emacs-min-font ()
+  (pcase display-name
+    ((guard alternate-emacs) (bookerly-font 18))
+    (`imac (dejavu-sans-mono-font 18))
+    (_     (dejavu-sans-mono-font 18))))
+
+(defun emacs-min-font-height ()
+  (aref (font-info (emacs-min-font)) 3))
+
+(defun emacs-min-left ()
   (pcase display-name
     ((guard alternate-emacs)    0)
     (`dell-wide              1000)
-    (`imac                     20)
+    (`imac              (pcase (emacs-min-font-height)
+                          (28  20)
+                          (24 116)
+                          (21 318)
+                          (t    0)))
     (`macbook-pro-vga         700)
     (`macbook-pro-16          372)
     (`macbook-pro-15          464)
     (`macbook-pro-13          464)))
 
-(defconst emacs-min-height
+(defun emacs-min-height ()
   (pcase display-name
-    ((guard alternate-emacs)   52)
+    ((guard alternate-emacs)   58)
     (`dell-wide                64)
-    (`imac                     50)
+    (`imac               (pcase (emacs-min-font-height)
+                           (28 50)
+                           (24 58)
+                           (21 67)
+                           (t  40)))
     (`macbook-pro-vga          55)
     (`macbook-pro-16           39)
     (`macbook-pro-15           47)
     (`macbook-pro-13           47)))
 
-(defconst emacs-min-width
+(defun emacs-min-width ()
   (pcase display-name
     ((guard alternate-emacs)   80)
     (`dell-wide               202)
-    (`imac                    180)
+    (`imac              (pcase (emacs-min-font-height)
+                          (28 180)
+                          (24 202)
+                          (21 202)
+                          (t  100)))
     (`macbook-pro-vga         100)
     (`macbook-pro-16          100)
     (`macbook-pro-15          100)
     (`macbook-pro-13          100)))
-
-(defconst emacs-min-font
-  (pcase display-name
-    ((guard alternate-emacs)
-     "-*-Bookerly-normal-normal-normal-*-21-*-*-*-p-0-iso10646-1")
-    (`imac "-*-DejaVu Sans Mono-normal-normal-normal-*-24-*-*-*-m-0-iso10646-1")
-    (_     "-*-DejaVu Sans Mono-normal-normal-normal-*-24-*-*-*-m-0-iso10646-1")))
 
 (defun emacs-min ()
   (interactive)
@@ -4139,14 +4161,21 @@ append it to ENTRY."
     (set-param 'fullscreen nil)
     (set-param 'vertical-scroll-bars nil)
     (set-param 'horizontal-scroll-bars nil))
-  (and emacs-min-left emacs-min-top
-       (set-frame-position (selected-frame) emacs-min-left emacs-min-top))
-  (and emacs-min-height
-       (set-frame-height (selected-frame) emacs-min-height))
-  (and emacs-min-width
-       (set-frame-width (selected-frame) emacs-min-width))
-  (and emacs-min-font
-       (set-frame-font emacs-min-font)))
+  (message "display-name:     %S" display-name)
+  (message "Font name:        %s" (emacs-min-font))
+  (message "Font height:      %s" (aref (font-info (emacs-min-font)) 3))
+  (message "emacs-min-left:   %s" (emacs-min-left))
+  (message "emacs-min-height: %s" (emacs-min-height))
+  (message "emacs-min-width:  %s" (emacs-min-width))
+  (and (emacs-min-left)
+       (set-frame-position (selected-frame) (emacs-min-left) 0))
+  (and (emacs-min-height)
+       (set-frame-height (selected-frame) (emacs-min-height)))
+  (and (emacs-min-width)
+       (set-frame-width (selected-frame) (emacs-min-width)))
+  (and (emacs-min-font)
+       (set-frame-font (emacs-min-font)))
+  (message "Emacs is ready"))
 
 (defun emacs-max ()
   (interactive)
@@ -4154,8 +4183,8 @@ append it to ENTRY."
     (set-param 'fullscreen 'fullboth)
     (set-param 'vertical-scroll-bars nil)
     (set-param 'horizontal-scroll-bars nil))
-  (and emacs-min-font
-       (set-frame-font emacs-min-font)))
+  (and (emacs-min-font)
+       (set-frame-font (emacs-min-font))))
 
 (defun emacs-toggle-size ()
   (interactive)
