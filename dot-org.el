@@ -18,9 +18,9 @@
 
 (unless window-system
   (setq org-agenda-files
-        '("~/Documents/tasks/todo.org"
-          "~/Documents/tasks/Bahai.org"
-          "~/Documents/tasks/BAE.org")))
+        '("~/doc/tasks/todo.org"
+          "~/doc/tasks/Bahai.org"
+          "~/doc/tasks/BAE.org")))
 
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
@@ -96,47 +96,6 @@
 (defun jump-to-org-agenda ()
   (interactive)
   (push-window-configuration)
-
-  (let ((recordings-dir "~/Dropbox/Apps/Dropvox"))
-    (ignore-errors
-      (if (directory-files recordings-dir nil "\\`[^.]")
-          (find-file recordings-dir))))
-
-<<<<<<< HEAD
-  (cl-flet ((prep-window (wind)
-                         (with-selected-window wind
-                           (org-fit-window-to-buffer wind)
-                           (window-resize
-                            wind
-                            (- 100 (window-width wind)) t))))
-    (let ((buf (or (get-buffer "*Org Agenda*")
-                   (get-buffer "*Org Agenda(a)*"))))
-      (if buf
-          (let ((wind (get-buffer-window buf)))
-            (if wind
-                (when (called-interactively-p 'any)
-                  (funcall #'prep-window wind))
-              (if (called-interactively-p 'any)
-                  (funcall #'prep-window (display-buffer buf t t))
-                (funcall #'prep-window (display-buffer buf)))))
-        (call-interactively 'org-agenda-list)
-        (funcall #'prep-window (selected-window))))))
-||||||| parent of 584b1ee1b... changes
-  (let ((buf (get-buffer "*Org Agenda(a)*")))
-    (if buf
-        (let ((wind (get-buffer-window buf)))
-          (if wind
-              (when (called-interactively-p 'any)
-                (select-window wind)
-                (org-fit-window-to-buffer))
-            (if (called-interactively-p 'any)
-                (progn
-                  (select-window (display-buffer buf t t))
-                  (org-fit-window-to-buffer))
-              (with-selected-window (display-buffer buf)
-                (org-fit-window-to-buffer)))))
-      (call-interactively 'org-agenda-list))))
-=======
   (cl-flet ((prep-window (wind)
                          (with-selected-window wind
                            (org-fit-window-to-buffer wind)
@@ -144,19 +103,17 @@
                              (window-resize
                               wind
                               (- 100 (window-width wind)) t)))))
-    (let ((buf (or (get-buffer "*Org Agenda*")
-                   (get-buffer "*Org Agenda(a)*"))))
-      (if buf
-          (let ((wind (get-buffer-window buf)))
-            (if wind
-                (when (called-interactively-p 'any)
-                  (funcall #'prep-window wind))
-              (if (called-interactively-p 'any)
-                  (funcall #'prep-window (display-buffer buf t t))
-                (funcall #'prep-window (display-buffer buf)))))
-        (call-interactively 'org-agenda-list)
-        (funcall #'prep-window (selected-window))))))
->>>>>>> 584b1ee1b... changes
+    (aif (or (get-buffer "*Org Agenda*")
+             (get-buffer "*Org Agenda(a)*"))
+        (let ((buf it))
+          (aif (get-buffer-window it)
+              (when (called-interactively-p 'any)
+                (funcall #'prep-window it))
+            (if (called-interactively-p 'any)
+                (funcall #'prep-window (display-buffer buf t t))
+              (funcall #'prep-window (display-buffer buf)))))
+      (call-interactively 'org-agenda-list)
+      (funcall #'prep-window (selected-window)))))
 
 (defun org-get-global-property (name)
   (save-excursion
@@ -291,7 +248,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
+  (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -362,7 +319,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
+        (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -718,7 +675,7 @@ end tell" (match-string 1))))
 
 (defun my-org-publish-ical ()
   (interactive)
-  (async-shell-command "make -C ~/Documents/tasks"))
+  (async-shell-command "make -C ~/doc/tasks"))
 
 (bind-keys :map org-agenda-mode-map
            ("C-c C-x C-p" . my-org-publish-ical)
@@ -751,7 +708,7 @@ end tell" (match-string 1))))
             "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
             t "[0-9].*\\.txt\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/Documents/tasks/todo.org")
+      (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
@@ -1005,7 +962,7 @@ end tell" (match-string 1))))
     (interactive)
     (let ((buf (get-buffer "*cfw-calendar*"))
           (org-agenda-files
-           (cons "~/Documents/tasks/Nasim.org"
+           (cons "~/doc/tasks/Nasim.org"
                  org-agenda-files)))
       (if buf
           (pop-to-buffer buf nil)
@@ -1035,6 +992,7 @@ end tell" (match-string 1))))
   :bind ("A-M-r" . helm-org-rifle))
 
 (use-package jobhours
+  :disabled t
   :demand t
   :bind ("M-o j" . jobhours-update-string)
   :config
@@ -1104,15 +1062,15 @@ end tell" (match-string 1))))
         (lookup-password "org-caldav.google.com" org-gcal-client-id 80)
         org-gcal-file-alist
         '(("jwiegley@gmail.com" .
-           "~/Documents/tasks/Google.org")
+           "~/doc/tasks/Google.org")
           ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-           "~/Documents/tasks/Bahá'í.org")
+           "~/doc/tasks/Bahá'í.org")
           ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-           "~/Documents/tasks/Family.org")
+           "~/doc/tasks/Family.org")
           ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-           "~/Documents/tasks/Nasim.org")
+           "~/doc/tasks/Nasim.org")
           ("sacramento.lsa1914@gmail.com" .
-           "~/Documents/tasks/Sacramento.org"))))
+           "~/doc/tasks/Sacramento.org"))))
 
 (use-package org-mime
   :config
@@ -1141,6 +1099,7 @@ end tell" (match-string 1))))
   :disabled t)
 
 (use-package org-pdfview
+  :disabled t
   :config
   (delete '("\\.pdf\\'" . default) org-file-apps)
   (add-to-list 'org-file-apps '("\\.pdf\\'" . org-pdfview-open))
@@ -1205,7 +1164,32 @@ end tell" (match-string 1))))
   (org-super-agenda-mode))
 
 (use-package org-velocity
-  :bind ("C-, C-." . org-velocity))
+  :bind ("C-, C-." . org-velocity)
+  :config
+  (defun org-velocity-incremental-read (prompt)
+    "Read string with PROMPT and display results incrementally."
+    (let ((res
+           (unwind-protect
+               (let* ((match-window (display-buffer (org-velocity-match-buffer)))
+                      (org-velocity-index
+                       ;; Truncate the index to the size of the buffer to be
+                       ;; displayed.
+                       (with-selected-window match-window
+                         (if (> (window-height) (length org-velocity-index))
+                             ;; (subseq org-velocity-index 0 (window-height))
+                             org-velocity-index
+                           (let ((hints (copy-sequence org-velocity-index)))
+                             (setcdr (nthcdr (window-height) hints) nil)
+                             hints)))))
+                 (catch 'click
+                   (add-hook 'post-command-hook 'org-velocity-update)
+                   (if (eq org-velocity-search-method 'regexp)
+                       (read-regexp prompt)
+                     (if org-velocity-use-completion
+                         (org-velocity-read-with-completion prompt)
+                       (read-string prompt)))))
+             (remove-hook 'post-command-hook 'org-velocity-update))))
+      (if (bufferp res) (org-pop-to-buffer-same-window res) res))))
 
 (use-package org-web-tools
   :bind (("C-, C-y" . my-org-insert-url)
@@ -1260,7 +1244,7 @@ end tell" (match-string 1))))
 (use-package yankpad
   :defer 10
   :init
-  (setq yankpad-file "~/Documents/tasks/yankpad.org")
+  (setq yankpad-file "~/doc/tasks/yankpad.org")
   :config
   ;; (bind-key "<f7>" 'yankpad-map)
   ;; (bind-key "<f12>" 'yankpad-expand)

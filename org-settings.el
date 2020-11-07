@@ -15,7 +15,7 @@
         (nth 4 xs)
         (nth 3 xs)
         (nth 5 xs)))))
- '(deft-directory "~/Documents/notes")
+ '(deft-directory "~/doc/notes")
  '(deft-text-mode (quote org-mode))
  '(deft-use-filename-as-title t)
  '(jobhours-files
@@ -39,7 +39,7 @@
       ((org-agenda-overriding-header "Project Next Actions")
        (org-agenda-skip-function
         (function my-org-agenda-skip-all-siblings-but-first))))
-     ("P" "All Projects" todo-tree "PROJECT"
+     ("P" "All Projects" tags "TODO=\"PROJECT\""
       ((org-agenda-overriding-header "All Projects")))
      ("A" "Priority #A tasks" agenda ""
       ((org-agenda-ndays 1)
@@ -102,7 +102,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.org")))))
+         ("~/doc/tasks/OSS.org")))))
      ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
@@ -119,7 +119,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/OSS.org")))))
+         ("~/doc/tasks/OSS.org")))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -134,7 +134,7 @@
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         (quote
-         ("~/Documents/tasks/todo.org" "~/Documents/tasks/Bahai.org")))))
+         ("~/doc/tasks/todo.org" "~/doc/tasks/Bahai.org")))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
@@ -171,17 +171,12 @@
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         (quote
-         ("+APPT")))))
-     ("O" "All TODOs" tags "TODO<>\"\""
-      ((org-agenda-overriding-header "All TODOs")
-       (org-agenda-files
-        (quote
-         ("~/Documents/tasks/todo.org" "~/dfinity/docs/dfinity.org" "~/Documents/tasks/Bahai.org" "~/Documents/tasks/OSS.org" "~/Documents/tasks/habits.org" "~/Documents/tasks/index.org" "~/Documents/tasks/notes.org" "~/dfinity/docs/archive/dfinity.org" "~/Documents/tasks/archive/Bahai.org" "~/Documents/tasks/archive/BoostPro.org" "~/Documents/tasks/archive/CEG.org" "~/Documents/tasks/archive/Embarcadero.org" "~/Documents/tasks/archive/FPComplete.org" "~/Documents/tasks/archive/IL-05.org" "~/Documents/tasks/archive/TI.org" "~/Documents/tasks/archive/archive-2007.org" "~/Documents/tasks/archive/archive-2008.org" "~/Documents/tasks/archive/archive-2009.org" "~/Documents/tasks/archive/archive-2010.org" "~/Documents/tasks/archive/archive-2011.org" "~/Documents/tasks/archive/archive-2012.org" "~/Documents/tasks/archive/archive-2013.org" "~/Documents/tasks/archive/archive-2014.org" "~/Documents/tasks/archive/archive-2015.org" "~/Documents/tasks/archive/archive-2016.org" "~/Documents/tasks/archive/archive-2017.org" "~/Documents/tasks/archive/archive.org" "~/Documents/tasks/archive/emacs.org"))))))))
+         ("+APPT"))))))))
  '(org-agenda-deadline-leaders (quote ("!D!: " "D%02d: ")))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
    (quote
-    ("~/Documents/tasks/todo.org" "~/Documents/tasks/habits.org" "~/dfinity/docs/dfinity.org" "~/Documents/tasks/Bahai.org" "~/Documents/tasks/OSS.org")))
+    ("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/dfinity/docs/dfinity.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org")))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -211,7 +206,7 @@
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-tags-todo-honor-ignore-options t)
- '(org-agenda-text-search-extra-files (quote (agenda-archives "~/Documents/tasks/notes.org")))
+ '(org-agenda-text-search-extra-files (quote (agenda-archives "~/doc/tasks/notes.org")))
  '(org-agenda-todo-ignore-scheduled (quote past))
  '(org-agenda-use-time-grid nil)
  '(org-agenda-window-frame-fractions (quote (0.5 . 0.75)))
@@ -225,31 +220,31 @@
  '(org-capture-templates
    (quote
     (("a" "Add Task" entry
-      (file+headline "~/Documents/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
       "* TODO %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("n" "Note" entry
-      (file "~/Documents/tasks/notes.org")
+      (file "~/doc/tasks/notes.org")
       "* NOTE %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("c" "Calendar" entry
-      (file+headline "~/Documents/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
       "* APPT %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("t" "Add Task" entry
-      (file+headline "~/Documents/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
       "* TODO %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("p" "Protocol" entry
-      (file+headline "~/Documents/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
       "* NOTE %?
 #+BEGIN_QUOTE
 %i
@@ -259,7 +254,7 @@
 :URL:      %c
 :END:")
      ("L" "Protocol Link" entry
-      (file+headline "~/Documents/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
       "* NOTE %?
 [[%:link][%:description]]
 #+BEGIN_QUOTE
@@ -291,9 +286,9 @@
  '(org-crypt-key "0xAB37611BDDE48EBD")
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/Documents/tasks/todo.org")
+ '(org-default-notes-file "~/doc/tasks/todo.org")
  '(org-depend-tag-blocked nil)
- '(org-directory "~/Documents/tasks/")
+ '(org-directory "~/doc/tasks/")
  '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
  '(org-drawers (quote ("PROPERTIES" "CLOCK" "LOGBOOK" "OUT")))
  '(org-edit-src-content-indentation 0)
@@ -341,7 +336,7 @@
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
- '(org-icalendar-combined-agenda-file "~/Documents/tasks/org.ics")
+ '(org-icalendar-combined-agenda-file "~/doc/tasks/org.ics")
  '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width nil)
@@ -377,9 +372,9 @@
  '(org-mime-preserve-breaks nil)
  '(org-mobile-agendas (quote ("Z")))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files (quote ("~/Documents/tasks/todo.org")))
+ '(org-mobile-files (quote ("~/doc/tasks/todo.org")))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/Documents/tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
  '(org-mode-hook
    (quote
     (org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode)))
@@ -427,11 +422,11 @@
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
  '(org-velocity-always-use-bucket t)
- '(org-velocity-bucket "~/Documents/tasks/notes.org")
+ '(org-velocity-bucket "~/doc/tasks/notes.org")
  '(org-velocity-capture-templates
    (quote
     (("v" "Velocity" entry
-      (file "~/Documents/tasks/notes.org")
+      (file "~/doc/tasks/notes.org")
       "* NOTE %:search
 %i%?
 :PROPERTIES:
