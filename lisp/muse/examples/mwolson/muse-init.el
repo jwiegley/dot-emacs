@@ -136,10 +136,10 @@
                 :base-url "http://mwolson.org/notes/"
                 :path "~/personal-site/site/notes"))
 
-        ("Private" ("~/Documents"
+        ("Private" ("~/doc"
                     :default "movielist")
-         ,@(muse-project-alist-styles "~/Documents"
-                                      "~/Documents"
+         ,@(muse-project-alist-styles "~/doc"
+                                      "~/doc"
                                       "pdf"))
 
         ("Classes" (,@(muse-project-alist-dirs "~/proj/wiki/classes")

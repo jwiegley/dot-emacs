@@ -52,15 +52,15 @@
 		   :before 'muse-maybe-convert-poem
 		   :after 'muse-my-html-finalize-buffer
 		   :final 'muse-site-html-set-mode
-		   :header "~/Documents/site/header.html"
-		   :footer "~/Documents/site/footer.html")
+		   :header "~/doc/site/header.html"
+		   :footer "~/doc/site/footer.html")
 (muse-derive-style "site-journal-html" "journal-html"
 		   :maintainer "jwiegley@hotmail.com"
 		   :before 'muse-my-journal-find-entries
 		   :after 'muse-my-journal-insert-contents
 		   :final 'muse-site-html-set-mode
-		   :header "~/Documents/site/header.html"
-		   :footer "~/Documents/site/footer.html")
+		   :header "~/doc/site/header.html"
+		   :footer "~/doc/site/footer.html")
 (muse-derive-style "newartisans-html" "html"
 		   :maintainer "johnw@newartisans.com"
 		   :header "~/Sites/newartisans/header.html"
@@ -76,38 +76,38 @@
     (("website"				; my various writings
       (:book-part "Essays"
        :book-funcall muse-insert-reset-chapter
-       "~/Documents/essays"
+       "~/doc/essays"
        :book-part "Stories"
        :book-funcall muse-insert-reset-chapter
-       "~/Documents/stories"
+       "~/doc/stories"
        :book-part "Journal"
        :book-style "journal-book-pdf"
        :book-funcall muse-insert-reset-chapter
-       "~/Documents/journal/early"
-       "~/Documents/journal/summer2003"
-       "~/Documents/journal/j2003"
-       "~/Documents/journal/j2004"
-       "~/Documents/journal/j2005"
-       "~/Documents/journal/journal"
-       "~/Documents/journal/pending"
+       "~/doc/journal/early"
+       "~/doc/journal/summer2003"
+       "~/doc/journal/j2003"
+       "~/doc/journal/j2004"
+       "~/doc/journal/j2005"
+       "~/doc/journal/journal"
+       "~/doc/journal/pending"
        :book-part "Poems"
        :book-style "chapbook-pdf"
        :book-funcall muse-insert-all-poems-header
        :book-funcall muse-insert-reset-chapter
        :nochapters t  ; do automatically add chapters
        :book-chapter "Mystical"
-       "~/Documents/poems/mystical"
+       "~/doc/poems/mystical"
        :book-chapter "Romance"
-       "~/Documents/poems/romantic"
+       "~/doc/poems/romantic"
        :book-chapter "Nature"
-       "~/Documents/poems/natural"
+       "~/doc/poems/natural"
        :book-chapter "Melancholoy"
-       "~/Documents/poems/melancholy"
+       "~/doc/poems/melancholy"
        :book-chapter "Commentary"
-       "~/Documents/poems/commentary"
+       "~/doc/poems/commentary"
        :book-end t
-       "~/Documents/contents"
-       "~/Documents/notes"
+       "~/doc/contents"
+       "~/doc/notes"
        :default "journal")
 
       (:base "site-html" :path "~/Sites/johnw"
@@ -133,12 +133,12 @@
        :base-url "http://johnwiegley.com/"))
      ("thoughts"			; collected writings
       (:book-end t
-       "~/Documents/thoughts/thoughts"
+       "~/doc/thoughts/thoughts"
        :default "thoughts")
       (:base "journal-pdf" :path "~/Sites/johnw/pdf")
       (:base "site-journal-html" :path "~/Sites/johnw"))
      ("newartisans"			; my company
-      ("~/Documents/newartisans"
+      ("~/doc/newartisans"
        :default "index")
       (:base "newartisans-html" :path "~/Sites/newartisans"
        :exclude "/news")
@@ -150,51 +150,51 @@
        :major-mode planner-mode)))))
  '(muse-mode-highlight-p t nil (muse-colors))
  '(muse-mode-auto-p t nil (muse-project))
- '(muse-latex-header "~/Documents/site/header.tex")
- '(muse-latex-footer "~/Documents/site/footer.tex")
- '(muse-book-latex-header "~/Documents/site/book-header.tex")
- '(muse-poem-latex-header "~/Documents/site/poem-header.tex")
- '(muse-poem-latex-footer "~/Documents/site/poem-footer.tex")
- '(muse-chapbook-latex-header "~/Documents/site/chapbook-header.tex")
+ '(muse-latex-header "~/doc/site/header.tex")
+ '(muse-latex-footer "~/doc/site/footer.tex")
+ '(muse-book-latex-header "~/doc/site/book-header.tex")
+ '(muse-poem-latex-header "~/doc/site/poem-header.tex")
+ '(muse-poem-latex-footer "~/doc/site/poem-footer.tex")
+ '(muse-chapbook-latex-header "~/doc/site/chapbook-header.tex")
  ;;'(muse-before-publish-hook (quote (muse-cite-munge-footnotes)))
  '(muse-mode-hook (quote (list footnote-mode turn-on-auto-fill flyspell-mode))))
 
 (defun muse-publish-my-books (&optional force)
   (interactive "P")
   (muse-book-publish-project
-   '("essays" ("~/Documents/essays"))
+   '("essays" ("~/doc/essays"))
    "essays" "Collected Essays" "book-pdf" "~/Sites/johnw/pdf" force)
   (muse-book-publish-project
-   '("stories" ("~/Documents/stories"))
+   '("stories" ("~/doc/stories"))
    "stories" "Collected Stories" "book-pdf" "~/Sites/johnw/pdf" force)
   (muse-book-publish-project
    '("myjournal"
-     ("~/Documents/journal/early"
-      "~/Documents/journal/summer2003"
-      "~/Documents/journal/j2003"
-      "~/Documents/journal/j2004"
-      "~/Documents/journal/j2005"
-      "~/Documents/journal/journal"
+     ("~/doc/journal/early"
+      "~/doc/journal/summer2003"
+      "~/doc/journal/j2003"
+      "~/doc/journal/j2004"
+      "~/doc/journal/j2005"
+      "~/doc/journal/journal"
       :book-end t
-      "~/Documents/poems/mystical"
-      "~/Documents/poems/romantic"
-      "~/Documents/poems/natural"
-      "~/Documents/poems/melancholy"
-      "~/Documents/poems/commentary"))
+      "~/doc/poems/mystical"
+      "~/doc/poems/romantic"
+      "~/doc/poems/natural"
+      "~/doc/poems/melancholy"
+      "~/doc/poems/commentary"))
    "myjournal" "Thought Journal" "journal-book-pdf" "~/Sites/johnw/pdf" force)
   (muse-book-publish-project
    '("poems"
      (:nochapters t  ; do automatically add chapters
       :book-chapter "Mystical"
-      "~/Documents/poems/mystical"
+      "~/doc/poems/mystical"
       :book-chapter "Romance"
-      "~/Documents/poems/romantic"
+      "~/doc/poems/romantic"
       :book-chapter "Nature"
-      "~/Documents/poems/natural"
+      "~/doc/poems/natural"
       :book-chapter "Melancholoy"
-      "~/Documents/poems/melancholy"
+      "~/doc/poems/melancholy"
       :book-chapter "Commentary"
-      "~/Documents/poems/commentary"))
+      "~/doc/poems/commentary"))
    "poems" "Collected Poems" "chapbook-pdf" "~/Sites/johnw/pdf" force)
   (muse-book-publish-project
    "website" "writings" "Collected Writings" "book-pdf"

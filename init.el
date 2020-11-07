@@ -120,7 +120,7 @@
 (eval-and-compile
   (defconst emacs-data-suffix
     (cond ((string= "emacsERC" emacs-environment) "alt")
-          ((string-match "emacs26\\(.+\\)$" emacs-environment)
+          ((string-match "emacs2[67]\\(.+\\)$" emacs-environment)
            (match-string 1 emacs-environment))))
 
   (defconst alternate-emacs (string= emacs-data-suffix "alt"))
@@ -321,7 +321,7 @@
 
 (use-package agda2-mode
   ;; This declaration depends on the load-path established by agda-input.
-  :mode "\\.agda\\'"
+  :mode ("\\.agda\\'" "\\.lagda.md\\'")
   :bind (:map agda2-mode-map
               ("C-c C-i" . agda2-insert-helper-function))
   :preface
@@ -332,7 +332,10 @@
       (save-excursion
         (forward-paragraph)
         (let ((name (car (split-string func-def " "))))
-          (insert "  where\n    " func-def "    " name " x = ?\n"))))))
+          (insert "  where\n    " func-def "    " name " x = ?\n")))))
+  :init
+  (advice-add 'agda2-mode
+              :before #'direnv-update-directory-environment))
 
 (use-package aggressive-indent
   :diminish
@@ -368,6 +371,8 @@
       (ascii-on))))
 
 (use-package auctex
+  :demand t
+  :no-require t
   :mode ("\\.tex\\'" . TeX-latex-mode)
   :config
   (defun latex-help-get-cmd-alist ()    ;corrected version:
@@ -1396,17 +1401,14 @@ non-empty directories is allowed."
   :bind ("C-c e v" . edit-variable))
 
 (use-package eglot
-  :commands eglot)
+  :commands eglot
+  :config
+  ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
+  )
 
 (use-package eldoc
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
-
-(use-package elfeed
-  :bind ("M-F" . elfeed)
-  :config
-  (add-hook 'elfeed-search-update-hook
-            #'(lambda () (selected-minor-mode -1))))
 
 (use-package elint
   :commands (elint-initialize elint-current-buffer)
@@ -1804,7 +1806,7 @@ non-empty directories is allowed."
   (define-format-all-formatter ormolu
     (:executable "ormolu")
     (:install "stack install ormolu")
-    (:modes haskell-mode literate-haskell-mode)
+    (:languages "Haskell" "Literate Haskell")
     (:format (format-all--buffer-easy executable))))
 
 (use-package free-keys
@@ -1886,7 +1888,7 @@ non-empty directories is allowed."
                    "jira" "create" "-b"
                    "--editor" (concat with-editor-emacsclient-executable
                                       " -s /tmp/emacs501/server")
-                   "-t" (expand-file-name "~/Documents/tasks/jira.template"))))
+                   "-t" (expand-file-name "~/doc/tasks/jira.template"))))
 
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
@@ -2019,6 +2021,8 @@ non-empty directories is allowed."
       ("`union`"            . ?∪)
       ("`intersection`"     . ?∩)
       ("`isSubsetOf`"       . ?⊆)
+      ("`isNotSubsetOf`"    . ?⊄)
+      ("`isSubsequenceOf`"  . ?⊆)
       ("`isProperSubsetOf`" . ?⊂)
       ("undefined"          . ?⊥)))
 
@@ -2038,6 +2042,7 @@ non-empty directories is allowed."
           (setq-local haskell-stylish-on-save t)
           (setq-local haskell-mode-stylish-haskell-path brittany)
           (setq-local haskell-mode-stylish-haskell-args '("-")))))
+    (direnv-update-environment default-directory)
     (when (executable-find "ormolu")
       (format-all-mode 1))
     (whitespace-mode 1)
@@ -2503,15 +2508,45 @@ non-empty directories is allowed."
   :bind ("C-c K" . langtool-check))
 
 (use-package latex
-  :after auctex
   :config
   (require 'preview)
-  (load (emacs-path "site-lisp/auctex/style/minted"))
+  ;; (load (emacs-path "site-lisp/auctex/style/minted"))
+
   (info-lookup-add-help :mode 'LaTeX-mode
                         :regexp ".*"
                         :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
                         :doc-spec '(("(latex2e)Concept Index")
-                                    ("(latex2e)Command Index"))))
+                                    ("(latex2e)Command Index")))
+
+  (defvar latex-prettify-symbols-alist
+    '(("\N{THIN SPACE}" . ?\⟷)))
+
+  (bind-key "C-x SPC"
+            #'(lambda ()
+                (interactive)
+                (insert "\N{THIN SPACE}"))
+            LaTeX-mode-map)
+  (bind-key "C-x A"
+            #'(lambda ()
+                (interactive)
+                (insert "ٰ"))
+            LaTeX-mode-map)
+  (bind-key "A-َ"
+            #'(lambda ()
+                (interactive)
+                (insert "ٰ"))
+            LaTeX-mode-map)
+  (bind-key "A-ه"
+            #'(lambda ()
+                (interactive)
+                (insert "ۀ"))
+            LaTeX-mode-map)
+
+  (add-hook 'LaTeX-mode-hook
+            #'(lambda
+                ()
+                (setq-local prettify-symbols-alist latex-prettify-symbols-alist)
+                (prettify-symbols-mode 1))))
 
 (use-package ledger-mode
   :mode "\\.ledger\\'"
@@ -2573,6 +2608,7 @@ non-empty directories is allowed."
                 (auto-fill-mode -1))))
 
 (use-package lentic-mode
+  :disabled t
   :diminish
   :commands global-lentic-mode)
 
@@ -2997,7 +3033,16 @@ non-empty directories is allowed."
   :bind ("C-c N" . operate-on-number-at-point))
 
 (use-package origami
-  :commands origami-mode)
+  :hook (rust-mode . origami-mode)
+  :bind (:map origami-mode-map
+              ("C-, C-h" . origami-toggle-node))
+  :init
+  ;; We need to tell origami how to work under rust mode
+  (with-eval-after-load "origami"
+    (add-to-list 'origami-parser-alist '(rust-mode . origami-c-style-parser)))
+  :custom
+  ;; Highlights the line the fold starts on
+  (origami-show-fold-header t))
 
 (use-package outline
   :diminish outline-minor-mode
@@ -3520,13 +3565,17 @@ append it to ENTRY."
     (setq cargo-process--custom-path-to-bin
           (executable-find "cargo")))
 
+  (defun my-cargo-target-dir (path)
+    (replace-regexp-in-string "dfinity" "Products" path))
+
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
     (let ((cargo-process--command-flags
            (if (member command '("build" "clippy" "doc" "test"))
                (format "--target-dir=%s -j8"
-                       (replace-regexp-in-string
-                        (regexp-quote (getenv "CARGO_TARGET_DIR"))
-                        "target" "target--custom"))
+                       (my-cargo-target-dir
+                        (replace-regexp-in-string
+                         "target" "target--custom"
+                         (regexp-quote (getenv "CARGO_TARGET_DIR")))))
              "")))
       (funcall ad-do-it name command last-cmd opens-external)))
 
@@ -3764,6 +3813,7 @@ append it to ENTRY."
   :commands sqlind-minor-mode)
 
 (use-package stock-quote
+  :disabled t
   :commands stock-quote
   :custom
   (stock-quote-in-modeline "/ES")
@@ -3893,6 +3943,9 @@ append it to ENTRY."
 
 (use-package undo-propose
   :commands undo-propose)
+
+(use-package unicode-fonts
+  :config (unicode-fonts-setup))
 
 (use-package vagrant
   :commands (vagrant-up
@@ -4091,6 +4144,7 @@ append it to ENTRY."
 (defconst display-name
   (pcase (display-pixel-width)
     (`3840 'dell-wide)
+    (`4480 'imac)
     (`2560 'imac)
     (`1920 'macbook-pro-vga)
     (`1792 'macbook-pro-16)
@@ -4123,7 +4177,7 @@ append it to ENTRY."
                           (21 318)
                           (t    0)))
     (`macbook-pro-vga         700)
-    (`macbook-pro-16          372)
+    (`macbook-pro-16          672)
     (`macbook-pro-15          464)
     (`macbook-pro-13          464)))
 
@@ -4137,7 +4191,7 @@ append it to ENTRY."
                            (21 67)
                            (t  40)))
     (`macbook-pro-vga          55)
-    (`macbook-pro-16           39)
+    (`macbook-pro-16           52)
     (`macbook-pro-15           47)
     (`macbook-pro-13           47)))
 
@@ -4222,6 +4276,7 @@ append it to ENTRY."
   (org-resolve-clocks)
   (unless (eq display-name 'imac)
     (display-battery-mode 1))
-  (stock-quote "/ES"))
+  ;; (stock-quote "/ES")
+  )
 
 ;;; init.el ends here

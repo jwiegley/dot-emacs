@@ -3,12 +3,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(check-mail-boxes (quote ("~/Messages/incoming/mail\\..*\\.spool")))
- '(check-mail-summary-function (quote check-mail-box-summary))
+ '(check-mail-boxes '("~/Messages/incoming/mail\\..*\\.spool"))
+ '(check-mail-summary-function 'check-mail-box-summary)
  '(gnus-activate-level 2)
  '(gnus-after-getting-new-news-hook
-   (quote
-    (gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler)))
+   '(gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler))
  '(gnus-agent-expire-all t)
  '(gnus-agent-expire-days 14)
  '(gnus-agent-go-online t)
@@ -17,8 +16,7 @@
  '(gnus-alias-allow-forward-as-reply t)
  '(gnus-alias-default-identity "NewArtisans")
  '(gnus-alias-identity-alist
-   (quote
-    ((#("Gnu" 0 1
+   '((#("Gnu" 0 1
         (idx 4))
       "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
@@ -38,10 +36,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      (#("BAE" 0 1
         (idx 1))
       "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
-BAE Systems"))))
+BAE Systems")))
  '(gnus-alias-identity-rules
-   (quote
-    (("Ledger Mailing List"
+   '(("Ledger Mailing List"
       ("To" "ledger-cli@googlegroups\\.com" current)
       "Gmail")
      ("Emacs Mailing Lists"
@@ -58,18 +55,17 @@ BAE Systems"))))
       "NewArtisans")
      ("Haskell Mailing Lists"
       ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans"))))
+      "NewArtisans")))
  '(gnus-alias-override-user-mail-address t)
- '(gnus-alias-unknown-identity-rule (quote error))
+ '(gnus-alias-unknown-identity-rule 'error)
  '(gnus-always-read-dribble-file t)
  '(gnus-article-date-lapsed-new-header t)
  '(gnus-article-update-date-headers nil)
  '(gnus-asynchronous t)
  '(gnus-check-new-newsgroups nil)
- '(gnus-completing-read-function (quote gnus-ido-completing-read))
+ '(gnus-completing-read-function 'gnus-ido-completing-read)
  '(gnus-default-adaptive-score-alist
-   (quote
-    ((gnus-saved-mark
+   '((gnus-saved-mark
       (subject 250)
       (from 50))
      (gnus-dormant-mark
@@ -107,33 +103,31 @@ BAE Systems"))))
       (from 0))
      (gnus-spam-mark
       (subject -10)
-      (from -150)))))
- '(gnus-default-article-saver (quote gnus-summary-save-in-mail))
+      (from -150))))
+ '(gnus-default-article-saver 'gnus-summary-save-in-mail)
  '(gnus-gcc-mark-as-read t)
- '(gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
+ '(gnus-generate-tree-function 'gnus-generate-horizontal-tree)
  '(gnus-group-default-list-level 2)
  '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
 ")
- '(gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
+ '(gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
  '(gnus-group-use-permanent-levels t)
- '(gnus-harvest-sender-alist (quote ((".*@gnu\\.org" . johnw@gnu\.org))))
+ '(gnus-harvest-sender-alist '((".*@gnu\\.org" . johnw@gnu\.org)))
  '(gnus-home-directory "~/Messages/Gnus/")
  '(gnus-ignored-from-addresses
    "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|\\(gnu\\|public\\.gmane\\)\\.org\\)")
  '(gnus-ignored-mime-types
-   (quote
-    ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
- '(gnus-interactive-exit (quote quiet))
+   '("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard"))
+ '(gnus-interactive-exit 'quiet)
  '(gnus-large-newsgroup 4000)
  '(gnus-local-domain "newartisans.com")
  '(gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
  '(gnus-mark-unpicked-articles-as-read t)
- '(gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
+ '(gnus-message-archive-group '((format-time-string "sent.%Y")))
  '(gnus-message-replysign t)
  '(gnus-novice-user nil)
  '(gnus-parameters
-   (quote
-    (("brass\\.smedl"
+   '(("brass\\.smedl"
       (list-identifier . "\\[brass-rings/smedl\\]"))
      ("^haskell$"
       (display . all))
@@ -353,13 +347,12 @@ BAE Systems"))))
       (list-identifier . "\\[hott-cafe\\]"))
      ("list\\.acl2\\.help"
       (to-address . "acl2-help@utlists.utexas.edu")
-      (to-list . "acl2-help@utlists.utexas.edu")))))
+      (to-list . "acl2-help@utlists.utexas.edu"))))
  '(gnus-permanently-visible-groups "INBOX")
  '(gnus-read-active-file nil)
  '(gnus-read-newsrc-file nil)
  '(gnus-refer-article-method
-   (quote
-    (current
+   '(current
      (nnir "nnimap:Local")
      (nntp "LocalNews"
            (nntp-address "localhost")
@@ -368,35 +361,31 @@ BAE Systems"))))
            (nntp-address "news.gmane.org"))
      (nntp "Eternal September"
            (nntp-address "news.eternal-september.org")
-           (nntp-authinfo-user "jwiegley")))))
- '(gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
+           (nntp-authinfo-user "jwiegley"))))
+ '(gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
  '(gnus-save-killed-list nil)
  '(gnus-save-newsrc-file nil)
- '(gnus-score-default-duration (quote p))
+ '(gnus-score-default-duration 'p)
  '(gnus-score-expiry-days 30)
  '(gnus-score-interactive-default-score 10)
- '(gnus-select-group-hook (quote (gnus-group-set-timestamp)))
+ '(gnus-select-group-hook '(gnus-group-set-timestamp))
  '(gnus-select-method
-   (quote
-    (nnimap "Local"
+   '(nnimap "Local"
             (nnimap-stream plain)
             (nnimap-address "127.0.0.1")
-            (nnimap-server-port 9143))))
+            (nnimap-server-port 9143)))
  '(gnus-sieve-file "~/Messages/dovecot.sieve")
  '(gnus-sieve-select-method "nnimap:Local")
- '(gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
- '(gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
+ '(gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
+ '(gnus-simplify-subject-functions '(gnus-simplify-subject-fuzzy))
  '(gnus-split-methods
-   (quote
-    ((gnus-save-site-lisp-file)
+   '((gnus-save-site-lisp-file)
      (gnus-article-archive-name)
-     (gnus-article-nndoc-name))))
+     (gnus-article-nndoc-name)))
  '(gnus-started-hook
-   (quote
-    ((lambda nil
-       (run-hooks
-        (quote gnus-after-getting-new-news-hook))))))
- '(gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
+   '((lambda nil
+       (run-hooks 'gnus-after-getting-new-news-hook))))
+ '(gnus-subscribe-newsgroup-method 'gnus-subscribe-topics)
  '(gnus-sum-thread-tree-single-indent "  ")
  '(gnus-summary-expunge-below -100)
  '(gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
@@ -404,19 +393,19 @@ BAE Systems"))))
  '(gnus-summary-mark-below -100)
  '(gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)
 ")
- '(gnus-summary-prepared-hook (quote (gnus-summary-hide-all-threads)))
+ '(gnus-summary-prepared-hook '(gnus-summary-hide-all-threads))
  '(gnus-summary-save-parts-default-mime ".*")
  '(gnus-suppress-duplicates t)
- '(gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
+ '(gnus-suspend-gnus-hook '(gnus-group-save-newsrc))
  '(gnus-thread-expunge-below -1000)
  '(gnus-thread-hide-subtree t)
  '(gnus-thread-ignore-subject nil)
- '(gnus-thread-score-function (quote max))
- '(gnus-thread-sort-functions (quote ((not gnus-thread-sort-by-number))))
+ '(gnus-thread-score-function 'max)
+ '(gnus-thread-sort-functions '((not gnus-thread-sort-by-number)))
  '(gnus-topic-display-empty-topics nil)
  '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
- '(gnus-treat-date-lapsed (quote head))
+ '(gnus-treat-date-lapsed 'head)
  '(gnus-treat-hide-citation-maybe t)
  '(gnus-treat-strip-cr t)
  '(gnus-treat-strip-leading-blank-lines t)
@@ -425,20 +414,20 @@ BAE Systems"))))
  '(gnus-treat-unsplit-urls t)
  '(gnus-tree-minimize-window nil)
  '(gnus-uncacheable-groups "^nnml")
- '(gnus-use-adaptive-scoring (quote (line)))
+ '(gnus-use-adaptive-scoring '(line))
  '(gnus-use-cache t)
  '(gnus-verbose 4)
- '(mail-envelope-from (quote header))
+ '(mail-envelope-from 'header)
  '(mail-host-address "newartisans.com")
- '(mail-personal-alias-file "~/Documents/mailrc")
+ '(mail-personal-alias-file "~/doc/mailrc")
  '(mail-self-blind t)
  '(mail-setup-with-from nil)
  '(mail-source-delete-incoming t)
  '(mail-source-delete-old-incoming-confirm nil)
  '(mail-source-report-new-mail-interval 15)
- '(mail-sources (quote ((file :path "/var/mail/johnw"))))
+ '(mail-sources '((file :path "/var/mail/johnw")))
  '(mail-specify-envelope-from t)
- '(mail-user-agent (quote gnus-user-agent))
+ '(mail-user-agent 'gnus-user-agent)
  '(message-alternative-emails
    "\\(johnw?\\|jwiegley\\)@\\(\\(gmail\\|newartisans\\|fpcomplete\\|boostpro\\|yahoo\\|hotmail\\)\\.com\\|gnu\\.org\\)")
  '(message-directory "~/Messages/Gnus/Mail/")
@@ -448,50 +437,44 @@ BAE Systems"))))
  '(message-interactive t)
  '(message-mail-alias-type nil)
  '(message-mode-hook
-   (quote
-    (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
+   '(abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
                  (lambda nil
                    (set-fill-column 78))
-                 turn-on-orgstruct++ turn-on-orgtbl)))
- '(message-send-mail-function (quote message-send-mail-with-sendmail))
+                 turn-on-orgstruct++ turn-on-orgtbl))
+ '(message-send-mail-function 'message-send-mail-with-sendmail)
  '(message-send-mail-partially-limit nil)
- '(message-sendmail-envelope-from (quote header))
+ '(message-sendmail-envelope-from 'header)
  '(message-sendmail-extra-arguments
-   (quote
-    ("--read-envelope-from" "--file=/Users/johnw/.config/msmtp" "--account=fastmail")))
+   '("--read-envelope-from" "--file=/Users/johnw/.config/msmtp" "--account=fastmail"))
  '(message-sendmail-f-is-evil t)
- '(message-sent-hook (quote (my-gnus-score-followup)))
- '(message-setup-hook (quote (gnus-harvest-set-from message-check-recipients)))
+ '(message-sent-hook '(my-gnus-score-followup))
+ '(message-setup-hook '(gnus-harvest-set-from message-check-recipients))
  '(message-signature-separator "^-- *$")
- '(message-subscribed-address-functions (quote (gnus-find-subscribed-addresses)))
+ '(message-subscribed-address-functions '(gnus-find-subscribed-addresses))
  '(message-x-completion-alist
-   (quote
-    (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address)
+   '(("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address)
      ((if
-          (boundp
-           (quote message-newgroups-header-regexp))
+          (boundp 'message-newgroups-header-regexp)
           message-newgroups-header-regexp message-newsgroups-header-regexp)
-      . message-expand-group))))
+      . message-expand-group)))
  '(mm-attachment-override-types
-   (quote
-    ("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*")))
- '(mm-decrypt-option (quote always))
- '(mm-discouraged-alternatives (quote ("application/msword" "text/richtext")))
+   '("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*"))
+ '(mm-decrypt-option 'always)
+ '(mm-discouraged-alternatives '("application/msword" "text/richtext"))
  '(mm-inline-text-html-with-images t)
- '(mm-text-html-renderer (quote gnus-w3m))
- '(mm-verify-option (quote always))
+ '(mm-text-html-renderer 'gnus-w3m)
+ '(mm-verify-option 'always)
  '(mm-w3m-safe-url-regexp nil)
  '(nnir-imap-default-search-key "imap")
  '(nnmail-crosspost nil)
  '(nnmail-expiry-wait 30)
- '(nnmail-extra-headers (quote (To Cc Newsgroups)))
+ '(nnmail-extra-headers '(To Cc Newsgroups))
  '(nnmail-scan-directory-mail-source-once t)
  '(sc-citation-leader "")
  '(sc-confirm-always-p nil)
  '(sc-default-attribution "")
  '(sc-default-cite-frame
-   (quote
-    ((begin
+   '((begin
       (progn
         (sc-fill-if-different)
         (setq sc-tmp-nested-regexp
@@ -518,8 +501,7 @@ BAE Systems"))))
      (sc-reference-tag-string
       (if
           (string= sc-reference-tag-string "")
-          (list
-           (quote continue))
+          (list 'continue)
         nil))
      (sc-tmp-dumb-regexp
       (sc-cite-coerce-dumb-citer))
@@ -532,21 +514,20 @@ BAE Systems"))))
      (t
       (sc-cite-line))
      (end
-      (sc-fill-if-different "")))))
- '(sc-preferred-attribution-list (quote ("initials")))
+      (sc-fill-if-different ""))))
+ '(sc-preferred-attribution-list '("initials"))
  '(sc-use-only-preference-p t)
- '(send-mail-function (quote sendmail-send-it))
+ '(send-mail-function 'sendmail-send-it)
  '(smtpmail-default-smtp-server "smtp.gmail.com")
  '(smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
  '(smtpmail-smtp-server "smtp.fastmail.com")
  '(smtpmail-smtp-service 587)
  '(smtpmail-smtp-user "johnw@newartisans.com")
  '(smtpmail-starttls-credentials
-   (quote
-    (("mail.johnwiegley.com" 587 nil nil)
+   '(("mail.johnwiegley.com" 587 nil nil)
      ("smtp.fastmail.com" 587 nil nil)
-     ("smtp.gmail.com" 587 nil nil))))
- '(smtpmail-stream-type (quote ssl))
+     ("smtp.gmail.com" 587 nil nil)))
+ '(smtpmail-stream-type 'ssl)
  '(spam-assassin-program "/opt/local/bin/spamc-5.12")
  '(spam-report-gmane-use-article-number nil)
  '(spam-sa-learn-program "/opt/local/bin/sa-learn-5.12")
@@ -558,7 +539,8 @@ BAE Systems"))))
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(gnus-summary-normal-ticked ((t (:foreground "pink4"))))
- '(message-cited-text ((((class color)) (:foreground "Blue"))))
+ '(message-cited-text ((((class color)) (:foreground "Blue"))) t)
+ '(message-cited-text-1 ((((class color)) (:foreground "Blue"))))
  '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
  '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
  '(message-header-other ((((class color)) (:foreground "Firebrick"))))
