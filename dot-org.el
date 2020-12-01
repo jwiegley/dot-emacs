@@ -1131,6 +1131,20 @@ end tell" (match-string 1))))
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
 
+(use-package org-roam
+  :disabled t
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/doc/notes/")
+  :bind (:map org-roam-mode-map
+              (("C-, r l" . org-roam)
+               ("C-, r f" . org-roam-find-file)
+               ("C-, r g" . org-roam-graph))
+              :map org-mode-map
+              (("C-, r i" . org-roam-insert))
+              (("C-, r I" . org-roam-insert-immediate))))
+
 (use-package org-smart-capture)
 
 (use-package org-super-agenda
