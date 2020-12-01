@@ -1282,12 +1282,16 @@ non-empty directories is allowed."
             #'(lambda ()
                 ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
                 (direnv-update-environment default-directory)))
-
   (advice-add 'direnv-update-directory-environment
               :after #'patch-direnv-environment)
-
   (add-hook 'git-commit-mode-hook #'patch-direnv-environment)
-  (add-hook 'magit-status-mode-hook #'patch-direnv-environment))
+  (add-hook 'magit-status-mode-hook #'patch-direnv-environment)
+  (defvar my-direnv-last-buffer nil)
+  (defun update-on-buffer-change ()
+    (unless (eq (current-buffer) my-direnv-last-buffer)
+      (setq my-direnv-last-buffer (current-buffer))
+      (direnv-update-environment default-directory)))
+  (add-hook 'post-command-hook #'update-on-buffer-change))
 
 (use-package discover-my-major
   :bind (("C-h <C-m>" . discover-my-major)
@@ -1789,7 +1793,8 @@ non-empty directories is allowed."
     (forge-create-pullreq (concat "origin/" branch) "origin/master"))
   :config
   (transient-insert-suffix 'forge-dispatch "c i"
-                           '("p" "quick-pr" my-quick-create-pull-request)))
+    '("p" "quick-pr" my-quick-create-pull-request))
+  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
 
 (use-package format-all
   :commands (format-all-buffer
@@ -2031,6 +2036,13 @@ non-empty directories is allowed."
   (require 'haskell-doc)
   (require 'haskell-commands)
 
+  (defun my-update-cabal-repl (&rest _args)
+    (aif (getenv "CABAL_REPL")
+        (let ((args (nthcdr 2 (split-string it))))
+          (setq-local haskell-process-args-cabal-repl
+                      (delete-dups
+                       (append haskell-process-args-cabal-repl args))))))
+
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
     (interactive-haskell-mode)
@@ -2042,7 +2054,8 @@ non-empty directories is allowed."
           (setq-local haskell-stylish-on-save t)
           (setq-local haskell-mode-stylish-haskell-path brittany)
           (setq-local haskell-mode-stylish-haskell-args '("-")))))
-    (direnv-update-environment default-directory)
+    (advice-add 'direnv-update-directory-environment
+                :after #'my-update-cabal-repl)
     (when (executable-find "ormolu")
       (format-all-mode 1))
     (whitespace-mode 1)
@@ -2438,7 +2451,26 @@ non-empty directories is allowed."
 
   :config
   (ivy-mode 1)
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur))
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
+
+  (defun ivy--switch-buffer-matcher (regexp candidates)
+    "Return REGEXP matching CANDIDATES.
+Skip buffers that match `ivy-ignore-buffers'."
+    (let ((res (ivy--re-filter regexp candidates)))
+      (if (or (null ivy-use-ignore)
+              (null ivy-ignore-buffers))
+          res
+        (or (cl-remove-if
+             (lambda (buf)
+               (cl-find-if
+                (lambda (f-or-r)
+                  (if (functionp f-or-r)
+                      (funcall f-or-r buf)
+                    (string-match-p f-or-r buf)))
+                ivy-ignore-buffers))
+             res)
+            (and (eq ivy-use-ignore t)
+                 res))))))
 
 (use-package ivy-bibtex
   :commands ivy-bibtex)
@@ -2743,11 +2775,18 @@ non-empty directories is allowed."
 
   (eval-after-load 'magit-pull
     '(transient-insert-suffix 'magit-pull "p"
-                              '("F" "default" magit-fetch-from-upstream)))
+       '("F" "default" magit-fetch-from-upstream)))
 
   (eval-after-load 'magit-push
     '(transient-insert-suffix 'magit-push "p"
-                              '("P" "default" magit-push-current-to-upstream))))
+       '("P" "default" magit-push-current-to-upstream)))
+
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent))
 
 (use-package magit-popup
   :defer t)
@@ -3569,22 +3608,24 @@ append it to ENTRY."
     (replace-regexp-in-string "dfinity" "Products" path))
 
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
-    (let ((cargo-process--command-flags
-           (if (member command '("build" "clippy" "doc" "test"))
-               (format "--target-dir=%s -j8"
-                       (my-cargo-target-dir
-                        (replace-regexp-in-string
-                         "target" "target--custom"
-                         (regexp-quote (getenv "CARGO_TARGET_DIR")))))
-             "")))
+    (let* ((new-args (if (member command '("build" "clippy" "doc" "test"))
+                         (format "--target-dir=%s -j8"
+                                 (my-cargo-target-dir
+                                  (replace-regexp-in-string
+                                   "target" "target--custom"
+                                   (regexp-quote (getenv "CARGO_TARGET_DIR")))))
+                       ""))
+           (cargo-process--command-flags
+            (pcase (split-string cargo-process--command-flags " -- ")
+              (`(,before ,after)
+               (concat before " " new-args " -- " after))
+              (_ (concat cargo-process--command-flags new-args)))))
       (funcall ad-do-it name command last-cmd opens-external)))
 
   (defun my-rust-mode-init ()
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cargo-path)
-
     (advice-add 'cargo-process--start :around #'my-update-cargo-args)
-
     ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
     (direnv-update-environment default-directory)
 
@@ -3625,7 +3666,6 @@ append it to ENTRY."
     (when (functionp 'eglot)
       (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
       (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
-      (bind-key "C-c C-h" #'eglot-help-at-point rust-mode-map)
       (bind-key "C-c C-c v" #'(lambda ()
                                 (interactive)
                                 (shell-command "rustdocs std"))
