@@ -55,7 +55,7 @@
         (let ((fetchmail-process
                (apply #'start-process procname buf
                       "fetchmail" "-n" "-N" args)))
-          (sleep-for 1 0)
+          (sleep-for 3 0)
           (process-send-string fetchmail-process passwd)
           (process-send-string fetchmail-process "\n")))
       (message "Starting Fetchmail...done"))))

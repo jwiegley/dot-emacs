@@ -52,6 +52,7 @@
         ;; (gnus)
         (gnus-unplugged)
         (gnus-group-list-groups gnus-activate-level)
+        (gnus-group-get-all-new-news)
         (setq switch-to-gnus-run t)))))
 
 (defun quickping (host)
