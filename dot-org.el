@@ -19,7 +19,6 @@
 (unless window-system
   (setq org-agenda-files
         '("~/doc/tasks/todo.org"
-          "~/doc/tasks/Bahai.org"
           "~/doc/tasks/BAE.org")))
 
 (defun org-release () "8.2.11")
@@ -92,6 +91,13 @@
 (defadvice org-refile-get-location (before clear-refile-history activate)
   "Fit the Org Agenda to its buffer."
   (setq org-refile-history nil))
+
+(defun org-linkify ()
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward " \\(VER-\\([0-9]+\\)\\) " nil t)
+    (replace-match " [[ver:\\2][VER-\\2]] " t)
+    (goto-char (match-end 0))))
 
 (defun jump-to-org-agenda ()
   (interactive)

@@ -20,14 +20,6 @@
 
 ;;; Functions
 
-(defun move-direnv-to-front (list)
-  (let (result new-list)
-    (dolist (path list)
-      (if (string-match "\\.direnv" path)
-          (setq result (cons path result))
-        (setq new-list (cons path new-list))))
-    (nconc (nreverse result) (nreverse new-list))))
-
 (eval-and-compile
   (defun emacs-path (path)
     (expand-file-name path user-emacs-directory))
@@ -311,13 +303,21 @@
   :config
   (add-hook 'adoc-mode-hook
             #'(lambda ()
-                (auto-fill-mode -1)
-                (visual-line-mode 1)
-                (visual-fill-column-mode 1))))
+                (auto-fill-mode 1)
+                ;; (visual-line-mode 1)
+                ;; (visual-fill-column-mode 1)
+                )))
 
 (use-package agda-input
+  :demand t
   :config
-  (setq-default default-input-method "Agda"))
+  (setq-default default-input-method "Agda")
+  ;; (dolist (hook '(minibuffer-setup-hook
+  ;;                 fundamental-mode-hook
+  ;;                 text-mode-hook
+  ;;                 prog-mode-hook))
+  ;;   (add-hook hook #'(lambda () (set-input-method "Agda"))))
+  )
 
 (use-package agda2-mode
   ;; This declaration depends on the load-path established by agda-input.
@@ -534,7 +534,7 @@
 
 (use-package cargo
   :commands cargo-minor-mode
-  :bind (:map cargo-minor-mode-map
+  :bind (:map cargo-mode-map
               ("C-c C-c C-y" . cargo-process-clippy))
   :config
   (defadvice cargo-process-clippy
@@ -842,6 +842,7 @@
   :after (company haskell-cabal))
 
 (use-package company-coq
+  :disabled t
   :after coq
   :commands company-coq-mode
   :bind (:map company-coq-map
@@ -857,6 +858,7 @@
 (setq-local company-backend '(company-elisp))
 
 (use-package company-ghc
+  :disabled t
   :after (company ghc)
   :config
   (push 'company-ghc company-backends))
@@ -2573,6 +2575,11 @@ Skip buffers that match `ivy-ignore-buffers'."
                 (interactive)
                 (insert "ۀ"))
             LaTeX-mode-map)
+  (bind-key "A-د"
+            #'(lambda ()
+                (interactive)
+                (insert "ذ"))
+            LaTeX-mode-map)
 
   (add-hook 'LaTeX-mode-hook
             #'(lambda
@@ -2767,7 +2774,8 @@ Skip buffers that match `ivy-ignore-buffers'."
 
   (use-package magit-files
     :config
-    (global-magit-file-mode))
+    ;;(global-magit-file-mode)
+    )
 
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
 
@@ -2782,11 +2790,12 @@ Skip buffers that match `ivy-ignore-buffers'."
        '("P" "default" magit-push-current-to-upstream)))
 
   ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent))
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+  )
 
 (use-package magit-popup
   :defer t)
@@ -3081,7 +3090,28 @@ Skip buffers that match `ivy-ignore-buffers'."
     (add-to-list 'origami-parser-alist '(rust-mode . origami-c-style-parser)))
   :custom
   ;; Highlights the line the fold starts on
-  (origami-show-fold-header t))
+  (origami-show-fold-header t)
+  :config
+  (defun origami-header-overlay-range (fold-overlay)
+    "Given a `fold-overlay', return the range that the corresponding
+header overlay should cover. Result is a cons cell of (begin . end)."
+    (with-current-buffer (overlay-buffer fold-overlay)
+      (let ((fold-begin
+             (save-excursion
+               (goto-char (overlay-start fold-overlay))
+               (line-beginning-position)))
+            (fold-end
+             ;; Find the end of the folded region -- include the following
+             ;; newline if possible. The header will span the entire fold.
+             (save-excursion
+               (save-match-data
+                 (goto-char (overlay-end fold-overlay))
+                 (when (looking-at ".")
+                   (forward-char 1)
+                   (when (looking-at "\n")
+                     (forward-char 1)))
+                 (point)))))
+        (cons fold-begin fold-end)))))
 
 (use-package outline
   :diminish outline-minor-mode
@@ -3385,8 +3415,6 @@ append it to ENTRY."
   (use-package coq
     :defer t
     :config
-
-    (defalias 'coq-Search #'coq-SearchConstant)
     (defalias 'coq-SearchPattern #'coq-SearchIsos)
 
     (bind-keys :map coq-mode-map
@@ -3396,15 +3424,15 @@ append it to ENTRY."
                ("C-c C-p"     . my-layout-proof-windows)
                ("C-c C-a C-s" . coq-Search)
                ("C-c C-a C-o" . coq-SearchPattern)
-               ("C-c C-a C-a" . coq-SearchAbout)
+               ("C-c C-a C-a" . coq-Search)
                ("C-c C-a C-r" . coq-SearchRewrite))
 
     (add-hook 'coq-mode-hook
               #'(lambda ()
                   (set-input-method "Agda")
                   (holes-mode -1)
-                  (when (featurep 'company)
-                    (company-coq-mode 1))
+                  ;; (when (featurep 'company)
+                  ;;   (company-coq-mode 1))
                   (abbrev-mode -1)
                   (set (make-local-variable 'fill-nobreak-predicate)
                        #'(lambda ()
@@ -3608,12 +3636,16 @@ append it to ENTRY."
     (replace-regexp-in-string "dfinity" "Products" path))
 
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
-    (let* ((new-args (if (member command '("build" "clippy" "doc" "test"))
-                         (format "--target-dir=%s -j8"
-                                 (my-cargo-target-dir
-                                  (replace-regexp-in-string
-                                   "target" "target--custom"
-                                   (regexp-quote (getenv "CARGO_TARGET_DIR")))))
+    (let* ((new-args (if (member command '("build" "check" "clippy" "doc" "test"))
+                         (let ((args
+                                (format "--target-dir=%s -j8"
+                                        (my-cargo-target-dir
+                                         (replace-regexp-in-string
+                                          "target" "target--custom"
+                                          (regexp-quote (getenv "CARGO_TARGET_DIR")))))))
+                           (if (member command '("build"))
+                               (concat "--message-format=short " args)
+                             args))
                        ""))
            (cargo-process--command-flags
             (pcase (split-string cargo-process--command-flags " -- ")
@@ -4306,6 +4338,22 @@ append it to ENTRY."
                      (time-subtract (current-time) emacs-start-time))))
                (message "Loading %s...done (%.3fs) [after-init]"
                         ,load-file-name elapsed))) t)
+
+(defun add-journal-entry (title)
+  (interactive "sTitle: ")
+  (let* ((moniker (replace-regexp-in-string " " "-" (downcase title)))
+         (date (format-time-string "%Y-%m-%d"))
+         (path (expand-file-name (concat date "-" moniker ".md")
+                                 "~/doc/johnwiegley/posts")))
+    (switch-to-buffer (find-file path))
+    (insert (format "---
+title: %s
+tags: journal
+---
+
+" title))))
+
+(bind-key "C-c J" #'add-journal-entry)
 
 (defun startup ()
   (interactive)
