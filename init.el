@@ -1021,7 +1021,67 @@
   :mode "\\.css\\'")
 
 (use-package csv-mode
-  :mode "\\.csv\\'")
+  :mode "\\.csv\\'"
+  :config
+  (defun csv-remove-commas ()
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward "\"\\([^\"]+\\)\"" nil t)
+      (replace-match (replace-regexp-in-string "," "" (match-string 1)))))
+
+  (defun maybe-add (x y)
+    (if (equal x "")
+        (if (equal y "")
+            ""
+          y)
+      (if (equal y "")
+          x
+        (format "%0.2f" (+ (string-to-number x) (string-to-number y))))))
+
+  (defun parse-desc (desc)
+    (cond
+     ((string-match "\\(BOT \\+\\|SOLD -\\)\\([0-9]+\\) \\(.+\\) @\\([0-9.]+\\)\\( .+\\)?" desc)
+      (list (match-string 1 desc)
+            (match-string 2 desc)
+            (match-string 3 desc)
+            (match-string 4 desc)
+            (match-string 5 desc)))))
+
+  (defun maybe-add-descs (x y)
+    (let ((x-info (parse-desc x))
+          (y-info (parse-desc y)))
+      (and (string= (nth 0 x-info) (nth 0 y-info))
+           (string= (nth 2 x-info) (nth 2 y-info))
+           (string= (nth 3 x-info) (nth 3 y-info))
+           (format "%s%d %s @%s%s"
+                   (nth 0 y-info)
+                   (+ (string-to-number (nth 1 x-info))
+                      (string-to-number (nth 1 y-info)))
+                   (nth 2 y-info)
+                   (nth 3 y-info)
+                   (or (nth 4 y-info) "")))))
+
+  (defun csv-merge-lines ()
+    (interactive)
+    (goto-char (line-beginning-position))
+    (let ((start (point-marker))
+          (fields-a (csv--collect-fields (line-end-position))))
+      (forward-line 1)
+      (let ((fields-b (csv--collect-fields (line-end-position))))
+        (when (string= (nth 3 fields-a) (nth 3 fields-b))
+          (let ((desc (maybe-add-descs (nth 4 fields-a) (nth 4 fields-b))))
+            (when desc
+              (delete-region start (line-end-position))
+              (setcar (nthcdr 4 fields-b) desc)
+              (setcar (nthcdr 5 fields-b)
+                      (maybe-add (nth 5 fields-a) (nth 5 fields-b)))
+              (setcar (nthcdr 6 fields-b)
+                      (maybe-add (nth 6 fields-a) (nth 6 fields-b)))
+              (setcar (nthcdr 7 fields-b)
+                      (maybe-add (nth 7 fields-a) (nth 7 fields-b)))
+              (insert (mapconcat #'identity fields-b ","))
+              (forward-char 1)
+              (forward-line -1))))))))
 
 (use-package cursor-chg
   :commands change-cursor-mode
@@ -1397,6 +1457,7 @@ non-empty directories is allowed."
   :bind ("C-x r e" . edit-rectangle))
 
 (use-package edit-server
+  :disabled t
   :if (and window-system
            (not alternate-emacs))
   :defer 5
@@ -1410,7 +1471,8 @@ non-empty directories is allowed."
   :commands eglot
   :config
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
-  )
+  (defun project-root (project)
+    (car (project-roots project))))
 
 (use-package eldoc
   :diminish
@@ -1511,6 +1573,12 @@ non-empty directories is allowed."
           erc-insert-timestamp-function 'erc-insert-timestamp-left
           ivy-use-virtual-buffers nil))
 
+  (defun accept-certificate ()
+    (interactive)
+    (when (re-search-backward "/znc[\n ]+AddTrustedServerFingerprint[\n ]+\\(.+\\)" nil t)
+      (goto-char (point-max))
+      (erc-send-input (concat "/znc AddTrustedServerFingerprint " (match-string 1)))))
+
   (defcustom erc-foolish-content '()
     "Regular expressions to identify foolish content.
     Usually what happens is that you add the bots to
@@ -1556,7 +1624,9 @@ non-empty directories is allowed."
   (add-hook 'erc-insert-pre-hook
             #'(lambda (s)
                 (when (erc-foolish-content s)
-                  (setq erc-insert-this nil)))))
+                  (setq erc-insert-this nil))))
+
+  (bind-key "<f5>" #'accept-certificate))
 
 (use-package erc-alert
   :disabled t
@@ -1993,7 +2063,8 @@ non-empty directories is allowed."
             (setq hoogle-server-process
                   (start-process "hoogle-web" (current-buffer)
                                  (executable-find "hoogle")
-                                 "server" "--local" "--port=8687"))))
+                                 "server" "--database=default.hoo"
+                                 "--local" "--port=8687"))))
         (message "Starting local Hoogle server on port 8687...done")))
     (browse-url
      (format "http://127.0.0.1:8687/?hoogle=%s"
@@ -3636,17 +3707,19 @@ append it to ENTRY."
     (replace-regexp-in-string "dfinity" "Products" path))
 
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
-    (let* ((new-args (if (member command '("build" "check" "clippy" "doc" "test"))
-                         (let ((args
-                                (format "--target-dir=%s -j8"
-                                        (my-cargo-target-dir
-                                         (replace-regexp-in-string
-                                          "target" "target--custom"
-                                          (regexp-quote (getenv "CARGO_TARGET_DIR")))))))
-                           (if (member command '("build"))
-                               (concat "--message-format=short " args)
-                             args))
-                       ""))
+    (let* ((cmd (car (split-string command)))
+           (new-args
+            (if (member cmd '("build" "check" "clippy" "doc" "test"))
+                (let ((args
+                       (format "--target-dir=%s -j8"
+                               (my-cargo-target-dir
+                                (replace-regexp-in-string
+                                 "target" "target--custom"
+                                 (regexp-quote (getenv "CARGO_TARGET_DIR")))))))
+                  (if (member cmd '("build"))
+                      (concat "--message-format=short " args)
+                    args))
+              ""))
            (cargo-process--command-flags
             (pcase (split-string cargo-process--command-flags " -- ")
               (`(,before ,after)
@@ -4199,7 +4272,9 @@ append it to ENTRY."
   (yas-global-mode 1))
 
 (use-package z3-mode
-  :commands z3-mode)
+  :mode (("\\.smt\\'" . z3-mode))
+  :bind (:map z3-mode-map
+              ("C-c C-c" . z3-execute-region)))
 
 (use-package zoom
   :bind ("C-x +" . zoom)
