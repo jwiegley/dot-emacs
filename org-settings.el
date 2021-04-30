@@ -234,7 +234,7 @@
  '(org-default-notes-file "~/doc/tasks/todo.org")
  '(org-depend-tag-blocked nil)
  '(org-directory "~/doc/tasks/")
- '(org-ditaa-jar-path "/run/current-system/sw/lib/ditaa.jar")
+ '(org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
  '(org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
@@ -319,7 +319,7 @@
  '(org-mode-hook
    '(org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode))
  '(org-modules '(org-gnus org-habit org-info org-depend))
- '(org-plantuml-jar-path "/run/current-system/sw/lib/plantuml.jar")
+ '(org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
  '(org-pretty-entities t)
  '(org-priority-faces
    '((65 :foreground "White" :weight bold)
