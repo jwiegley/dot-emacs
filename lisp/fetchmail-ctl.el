@@ -114,7 +114,7 @@
                (unless (file-directory-p cache-dir)
                  (make-directory cache-dir t))
                (start-fetchmail
-                (lookup-password "imap.fastmail.com" "johnw" 993)
+                (lookup-password "imap.fastmail.com" "johnw@newartisans.com" 993)
                 "*fetchmail*" nil "--idle"
                 "--pidfile" (expand-file-name "pid" cache-dir)
                 "-f" (expand-file-name "config.copy" config-dir)))))))
@@ -130,7 +130,7 @@
                  (make-directory cache-dir t))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
                (start-fetchmail
-                (lookup-password "imap.fastmail.com" "johnw" 993)
+                (lookup-password "imap.fastmail.com" "johnw@newartisans.com" 993)
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "lists.pid" cache-dir)
                 "-f" (expand-file-name "config-lists.copy" config-dir)))))))

@@ -144,8 +144,7 @@
            (mapcar (apply-partially #'expand-file-name "share/info")
                    (nix-read-environment emacs-environment))
            '("~/.local/share/info"
-             "~/.nix-profile/share/info"
-             "/run/current-system/sw/share/info"))))
+             "~/.nix-profile/share/info"))))
 
 (setq disabled-command-function nil) ;; enable all commands
 
@@ -1532,6 +1531,10 @@ non-empty directories is allowed."
   (defengine google "https://www.google.com/search?q=%s"
     :keybinding "/")
   (engine-mode 1))
+
+(use-package epa
+  :config
+  (epa-file-enable))
 
 (use-package erc
   :commands (erc erc-tls)
