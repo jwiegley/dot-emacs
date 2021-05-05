@@ -2421,9 +2421,8 @@ non-empty directories is allowed."
   (info-lookmore-apropos-elisp))
 
 (use-package initsplit
-  :load-path "lisp/initsplit"
-  :after cus-edit
-  :defer 5)
+  :demand t
+  :load-path "lisp/initsplit")
 
 (use-package ialign
   :bind ("C-c {" . ialign-interactive-align))
