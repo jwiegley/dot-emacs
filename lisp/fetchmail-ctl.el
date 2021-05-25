@@ -109,31 +109,39 @@
           "*fetchmail*"
           (function
            (lambda ()
-             (let ((config-dir (expand-file-name "~/.config/fetchmail"))
-                   (cache-dir (expand-file-name "~/.cache/fetchmail")))
+             (let* ((config-dir (expand-file-name "~/.config/fetchmail"))
+                    (cache-dir (expand-file-name "~/.cache/fetchmail"))
+                    (config-file (expand-file-name "config" config-dir))
+                    (config-copy (make-temp-file "fm-config")))
                (unless (file-directory-p cache-dir)
                  (make-directory cache-dir t))
+               (call-process "/bin/cp" nil nil nil "-pL" config-file config-copy)
+               (chmod config-copy #o600)
                (start-fetchmail
                 (lookup-password "imap.fastmail.com" "johnw@newartisans.com" 993)
                 "*fetchmail*" nil "--idle"
                 "--pidfile" (expand-file-name "pid" cache-dir)
-                "-f" (expand-file-name "config.copy" config-dir)))))))
+                "-f" config-copy))))))
         (fetchmail-lists-buf
          (get-buffer-or-call-func
           "*fetchmail-lists*"
           (function
            (lambda ()
-             (let ((process-environment (copy-alist process-environment))
-                   (config-dir (expand-file-name "~/.config/fetchmail"))
-                   (cache-dir (expand-file-name "~/.cache/fetchmail")))
+             (let* ((process-environment (copy-alist process-environment))
+                    (config-dir (expand-file-name "~/.config/fetchmail"))
+                    (cache-dir (expand-file-name "~/.cache/fetchmail"))
+                    (config-file (expand-file-name "config-lists" config-dir))
+                    (config-copy (make-temp-file "fm-config-lists")))
                (unless (file-directory-p cache-dir)
                  (make-directory cache-dir t))
                (setenv "FETCHMAILHOME" (expand-file-name "~/Messages/Newsdir"))
+               (call-process "/bin/cp" nil nil nil "-pL" config-file config-copy)
+               (chmod config-copy #o600)
                (start-fetchmail
                 (lookup-password "imap.fastmail.com" "johnw@newartisans.com" 993)
                 "*fetchmail-lists*" nil
                 "--pidfile" (expand-file-name "lists.pid" cache-dir)
-                "-f" (expand-file-name "config-lists.copy" config-dir)))))))
+                "-f" config-copy))))))
         ;; (fetchnews-buf
         ;;  (get-buffer-or-call-func
         ;;   "*fetchnews*"
