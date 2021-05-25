@@ -1545,20 +1545,26 @@ non-empty directories is allowed."
     (interactive "P")
     (if arg
         (pcase-dolist (`(,server . ,nick)
-                       '(("irc.freenode.net"     . "johnw")
-                         ("irc.gitter.im"        . "jwiegley")
-                         ;; ("irc.oftc.net"         . "johnw")
+                       '(
+                         ;; ("irc.freenode.net" . "johnw")
+                         ("irc.libera.chat"  . "johnw")
+                         ("irc.gitter.im"    . "jwiegley")
+                         ;; ("irc.oftc.net"  . "johnw")
                          ))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
-      (let ((pass (lookup-password "irc.freenode.net" "johnw" 6697)))
+      (let ((pass (lookup-password "irc.libera.chat" "johnw" 6697)))
         (when (> (length pass) 32)
           (error "Failed to read ZNC password"))
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
              :password (concat "johnw/gitter:" pass))
         (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/freenode:" pass)))))
+             :password (concat "johnw/libera:" pass))
+        ;; (sleep-for 5)
+        ;; (erc :server "127.0.0.1" :port 6697 :nick "johnw"
+        ;;      :password (concat "johnw/freenode:" pass))
+        )))
 
   (defun reset-erc-track-mode ()
     (interactive)
@@ -2055,7 +2061,10 @@ non-empty directories is allowed."
                           nil nil def)
              current-prefix-arg)))
     (let ((pe process-environment)
-          (ep exec-path))
+          (ep exec-path)
+          (default-hoo (expand-file-name
+                        "default.hoo"
+                        (locate-dominating-file "." "default.hoo"))))
       (unless (and hoogle-server-process
                    (process-live-p hoogle-server-process))
         (message "Starting local Hoogle server on port 8687...")
@@ -2066,7 +2075,7 @@ non-empty directories is allowed."
             (setq hoogle-server-process
                   (start-process "hoogle-web" (current-buffer)
                                  (executable-find "hoogle")
-                                 "server" "--database=default.hoo"
+                                 "server" (concat "--database=" default-hoo)
                                  "--local" "--port=8687"))))
         (message "Starting local Hoogle server on port 8687...done")))
     (browse-url
@@ -3523,6 +3532,9 @@ append it to ENTRY."
         (around my-proof-retract-buffer activate)
       (condition-case err ad-do-it
         (error (shell-command "killall coqtop"))))))
+
+(use-package protobuf-mode
+  :mode "\\.proto\\'")
 
 (use-package prover
   :after coq)
