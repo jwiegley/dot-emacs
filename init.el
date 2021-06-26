@@ -1545,12 +1545,8 @@ non-empty directories is allowed."
     (interactive "P")
     (if arg
         (pcase-dolist (`(,server . ,nick)
-                       '(
-                         ;; ("irc.freenode.net" . "johnw")
-                         ("irc.libera.chat"  . "johnw")
-                         ("irc.gitter.im"    . "jwiegley")
-                         ;; ("irc.oftc.net"  . "johnw")
-                         ))
+                       '(("irc.libera.chat"  . "johnw")
+                         ("irc.gitter.im"    . "jwiegley")))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
       (let ((pass (lookup-password "irc.libera.chat" "johnw" 6697)))
@@ -1560,11 +1556,7 @@ non-empty directories is allowed."
              :password (concat "johnw/gitter:" pass))
         (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/libera:" pass))
-        ;; (sleep-for 5)
-        ;; (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-        ;;      :password (concat "johnw/freenode:" pass))
-        )))
+             :password (concat "johnw/libera:" pass)))))
 
   (defun reset-erc-track-mode ()
     (interactive)
@@ -1955,7 +1947,7 @@ non-empty directories is allowed."
   :commands github-review-start
   :config
   (transient-insert-suffix 'forge-dispatch "c p"
-                           '("c r" "github-review" github-review-forge-pr-at-point)))
+    '("c r" "github-review" github-review-forge-pr-at-point)))
 
 (use-package gitpatch
   :commands gitpatch-mail)
@@ -2141,8 +2133,6 @@ non-empty directories is allowed."
           (setq-local haskell-mode-stylish-haskell-args '("-")))))
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
-    (when (executable-find "ormolu")
-      (format-all-mode 1))
     (whitespace-mode 1)
     (flycheck-mode 1)
     (flycheck-haskell-setup)
@@ -2154,7 +2144,11 @@ non-empty directories is allowed."
               t)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
-    (bug-reference-prog-mode 1))
+    (bug-reference-prog-mode 1)
+    (when (executable-find "ormolu")
+      (require 'format-all)
+      (format-all--set-chain "Haskell" '(ormolu))
+      (format-all-mode 1)))
 
   (add-hook 'haskell-mode-hook #'my-haskell-mode-hook)
 

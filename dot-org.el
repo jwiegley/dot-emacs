@@ -1048,7 +1048,13 @@ end tell" (match-string 1))))
      (sql        . t)
      (dot        . t)
      (verb       . t)
-     (restclient . t))))
+     (restclient . t)))
+
+  (defun org-babel-sh-strip-weird-long-prompt (string)
+    "Remove prompt cruft from a string of shell output."
+    (while (string-match "^.+?;C;" string)
+      (setq string (substring string (match-end 0))))
+    string))
 
 (use-package org-bookmark-heading)
 
