@@ -2982,6 +2982,9 @@ Skip buffers that match `ivy-ignore-buffers'."
   :init
   (autoload #'define-monitor "monitor"))
 
+(use-package motoko-mode
+  :mode (("\\.mo\\'" . motoko-mode)))
+
 (use-package mule
   :no-require t
   :config
@@ -3966,16 +3969,22 @@ append it to ENTRY."
   :commands sqlind-minor-mode)
 
 (use-package stock-quote
-  :disabled t
+  :demand t
   :commands stock-quote
-  :custom
-  (stock-quote-in-modeline "/ES")
-  :init
-  (load "~/src/thinkorswim/thinkorswim-el/thinkorswim")
   :config
-  (setq tos-client-id
-        (lookup-password "developer.tdameritrade.com.client-id"
-                         tos-user-id 80)))
+  (defun stock-quote-from-file (&rest ticker)
+    (with-temp-buffer
+      (insert-file-contents-literally "/tmp/icp.txt")
+      (string-to-number (buffer-substring (point-min) (1- (point-max))))))
+  (setq stock-quote-data-functions '(stock-quote-from-file))
+  (stock-quote-in-modeline "ICP")
+  ;; :init
+  ;; (load "~/src/thinkorswim/thinkorswim-el/thinkorswim")
+  ;; :config
+  ;; (setq tos-client-id
+  ;;       (lookup-password "developer.tdameritrade.com.client-id"
+  ;;                        tos-user-id 80))
+  )
 
 (use-package stopwatch
   :bind ("<f8>" . stopwatch))
@@ -3991,6 +4000,9 @@ append it to ENTRY."
   :commands super-save-mode
   :config
   (setq super-save-auto-save-when-idle t))
+
+(use-package swift-mode
+  :commands swift-mode)
 
 (use-package swiper
   :after ivy
@@ -4424,9 +4436,26 @@ append it to ENTRY."
 
 (defun add-journal-entry (title)
   (interactive "sTitle: ")
-  (let* ((moniker (replace-regexp-in-string " " "-" (downcase title)))
-         (date (format-time-string "%Y-%m-%d"))
-         (path (expand-file-name (concat date "-" moniker ".md")
+  (let* ((moniker
+          (replace-regexp-in-string
+           "[,!]" ""
+           (replace-regexp-in-string " " "-" (downcase title))))
+         (most-recent
+          (split-string
+           (car (last (directory-files "~/doc/johnwiegley/posts"))) "-"))
+         (year (nth 0 most-recent))
+         (month (nth 1 most-recent))
+         (day (nth 2 most-recent))
+         (date (calendar-gregorian-from-absolute
+                (+ 7 (calendar-absolute-from-gregorian
+                      (list (string-to-number month)
+                            (string-to-number day)
+                            (string-to-number year))))))
+         (path (expand-file-name (format "%02d-%02d-%02d-%s.md"
+                                         (nth 2 date)
+                                         (nth 0 date)
+                                         (nth 1 date)
+                                         moniker)
                                  "~/doc/johnwiegley/posts")))
     (switch-to-buffer (find-file path))
     (insert (format "---
@@ -4434,7 +4463,7 @@ title: %s
 tags: journal
 ---
 
-" title))))
+%s" title (current-kill 0)))))
 
 (bind-key "C-c J" #'add-journal-entry)
 
