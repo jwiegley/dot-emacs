@@ -400,6 +400,8 @@
  '(dired-listing-switches "--group-directories-first -lah")
  '(dired-no-confirm
    '(byte-compile chgrp chmod chown copy hardlink symlink touch))
+ '(dired-omit-extensions
+   '(".glob" ".vio" ".vo" ".vok" ".vos" ".v.d" ".o" "~" ".bin" ".lbin" ".so" ".a" ".ln" ".blg" ".bbl" ".elc" ".lof" ".glo" ".idx" ".lot" ".svn/" ".hg/" ".git/" ".bzr/" "CVS/" "_darcs/" "_MTN/" ".fmt" ".tfm" ".class" ".fas" ".lib" ".mem" ".x86f" ".sparcf" ".fasl" ".ufsl" ".fsl" ".dxl" ".lo" ".la" ".gmo" ".mo" ".toc" ".aux" ".cp" ".fn" ".ky" ".pg" ".tp" ".vr" ".cps" ".fns" ".kys" ".pgs" ".tps" ".vrs" ".pyc" ".pyo" ".idx" ".lof" ".lot" ".glo" ".blg" ".bbl" ".cp" ".cps" ".fn" ".fns" ".ky" ".kys" ".pg" ".pgs" ".tp" ".tps" ".vr" ".vrs"))
  '(dired-omit-files
    "^\\.?#\\|^\\.\\(DS_Store\\|localized\\|AppleDouble\\)$\\|^\\.\\.$")
  '(dired-omit-mode nil t)
@@ -503,7 +505,7 @@
  '(erc-user-full-name 'user-full-name)
  '(erc-yank-query-before-gisting nil)
  '(eshell-directory-change-hook
-   '(sml/generate-buffer-identification direnv-update-environment))
+   '(sml/generate-buffer-identification direnv-update-environment) t)
  '(eshell-directory-name "~/.emacs.d/eshell/")
  '(eshell-hist-ignoredups t)
  '(eshell-history-size 50000)
@@ -1287,7 +1289,7 @@ BAE Systems")))
  '(mail-user-agent 'gnus-user-agent)
  '(make-backup-file-name-function 'my-make-backup-file-name)
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_github+smart")
+ '(markdown-command "pandoc -f markdown_github+smart" t)
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
