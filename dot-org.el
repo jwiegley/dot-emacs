@@ -95,8 +95,8 @@
 (defun org-linkify ()
   (interactive)
   (goto-char (point-min))
-  (while (re-search-forward " \\(VER-\\([0-9]+\\)\\) " nil t)
-    (replace-match " [[ver:\\2][VER-\\2]] " t)
+  (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
+    (replace-match " [[ver:\\3][\\2-\\3]] " t)
     (goto-char (match-end 0))))
 
 (defun jump-to-org-agenda ()

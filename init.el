@@ -269,6 +269,16 @@
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
 
+(use-package ace-isearch
+  :config
+  (global-ace-isearch-mode +1)
+  (define-key isearch-mode-map (kbd "C-'") 'ace-isearch-jump-during-isearch)
+  :custom
+  '((ace-isearch-input-length 7)
+    (ace-isearch-jump-delay 0.25)
+    (ace-isearch-function 'avy-goto-char)
+    (ace-isearch-use-jump 'printing-char)))
+
 (use-package ace-jump-mode
   :defer t)
 
@@ -3972,12 +3982,13 @@ append it to ENTRY."
   :demand t
   :commands stock-quote
   :config
-  (defun stock-quote-from-file (&rest ticker)
-    (with-temp-buffer
-      (insert-file-contents-literally "/tmp/icp.txt")
-      (string-to-number (buffer-substring (point-min) (1- (point-max))))))
-  (setq stock-quote-data-functions '(stock-quote-from-file))
-  (stock-quote-in-modeline "ICP")
+  (when (file-readable-p "/tmp/icp.txt")
+    (defun stock-quote-from-file (&rest ticker)
+      (with-temp-buffer
+        (insert-file-contents-literally "/tmp/icp.txt")
+        (string-to-number (buffer-substring (point-min) (1- (point-max))))))
+    (setq stock-quote-data-functions '(stock-quote-from-file))
+    (stock-quote-in-modeline "ICP"))
   ;; :init
   ;; (load "~/src/thinkorswim/thinkorswim-el/thinkorswim")
   ;; :config
