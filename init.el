@@ -270,6 +270,7 @@
       (quietly-read-abbrev-file)))
 
 (use-package ace-isearch
+  :disabled t
   :config
   (global-ace-isearch-mode +1)
   (define-key isearch-mode-map (kbd "C-'") 'ace-isearch-jump-during-isearch)
@@ -1889,13 +1890,7 @@ non-empty directories is allowed."
       (cond ((atom choice)
              (cl-return choice))
             ((eql format-all--system-type (car choice))
-             (cl-return (cadr choice))))))
-
-  (define-format-all-formatter ormolu
-    (:executable "ormolu")
-    (:install "stack install ormolu")
-    (:languages "Haskell" "Literate Haskell")
-    (:format (format-all--buffer-easy executable))))
+             (cl-return (cadr choice)))))))
 
 (use-package free-keys
   :commands free-keys)
