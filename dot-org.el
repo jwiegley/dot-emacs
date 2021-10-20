@@ -95,7 +95,7 @@
 (defun org-linkify ()
   (interactive)
   (goto-char (point-min))
-  (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
+  (while (re-search-forward " \\(\\(VER\\|SDK\\|IC\\|NNS1\\|IDX\\)-\\([0-9]+\\)\\) " nil t)
     (replace-match " [[ver:\\3][\\2-\\3]] " t)
     (goto-char (match-end 0))))
 
@@ -948,6 +948,14 @@ end tell" (match-string 1))))
     (or (outline-next-heading)
         (goto-char (point-max)))))
 
+(unless (fboundp 'org-link-set-parameters)
+  (defun org-link-set-parameters (type &rest parameters)
+    (with-no-warnings
+      (org-add-link-type type
+                         (plist-get parameters :follow)
+                         (plist-get parameters :export))
+      (add-hook 'org-store-link-functions
+                (plist-get parameters :store)))))
 (use-package anki-editor
   :commands anki-editor-submit)
 
@@ -1241,9 +1249,7 @@ end tell" (match-string 1))))
 
 (use-package orgnav)
 
-(use-package orgtbl-aggregate
-  :config
-  (load "org-insert-dblock"))
+(use-package orgtbl-aggregate)
 
 (use-package ox-confluence
   :commands org-confluence-export-as-confluence)
