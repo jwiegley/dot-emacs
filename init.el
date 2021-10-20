@@ -181,7 +181,6 @@
   :config
   (require 'auth-source-pass)
   (defvar my-ghub-token-cache nil)
-
   (advice-add
    'ghub--token :around
    #'(lambda (orig-func host username package &optional nocreate forge)
@@ -1139,7 +1138,7 @@
               ("l"     . dired-up-directory)
               ("q"     . pop-window-configuration)
               ("Y"     . ora-dired-rsync)
-              ("M-!"   . async-shell-command)
+              ("M-!"   . shell-command)
               ("<tab>" . dired-next-window)
               ("M-G")
               ("M-s f"))
@@ -3395,8 +3394,6 @@ append it to ENTRY."
                    "~/Applications/Keyboard Maestro.app")))
 
   :init
-  (bind-keys* ("M-!" . async-shell-command))
-
   (bind-keys ("<C-M-backspace>" . backward-kill-sexp)
 
              ("M-'"   . insert-pair)
@@ -3784,6 +3781,7 @@ append it to ENTRY."
       (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
       (lsp))
 
+    (require 'eglot)
     (when (functionp 'eglot)
       (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
       (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
@@ -3799,7 +3797,11 @@ append it to ENTRY."
       (with-eval-after-load 'project
         (add-to-list 'project-find-functions 'my-rust-project-find-function))
 
-      (call-interactively #'eglot)
+      (let* ((current-server (eglot-current-server))
+             (live-p (and current-server (jsonrpc-running-p current-server))))
+        (unless live-p
+          (call-interactively #'eglot)))
+
       (company-mode 1))))
 
 (use-package savehist
