@@ -96,7 +96,10 @@
   (interactive)
   (goto-char (point-min))
   (while (re-search-forward " \\(\\(VER\\|SDK\\|IC\\|NNS1\\|IDX\\)-\\([0-9]+\\)\\) " nil t)
-    (replace-match " [[ver:\\3][\\2-\\3]] " t)
+    (replace-match (format " [[%s:\\3][\\2-\\3]] " (downcase (match-string 2))) t)
+    (goto-char (match-end 0)))
+  (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
+    (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
     (goto-char (match-end 0))))
 
 (defun jump-to-org-agenda ()
