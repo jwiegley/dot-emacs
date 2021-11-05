@@ -781,7 +781,11 @@ end tell" (match-string 1))))
   (goto-char (line-beginning-position))
   (insert "* NOTE ")
   (save-excursion
-    (insert (format "\n:PROPERTIES:\n:ID:       %s\n:CREATED:  %s\n:END:\n"
+    (insert (format (concat "\n"
+                            ":PROPERTIES:\n"
+                            ":ID:       %s\n"
+                            ":CREATED:  %s\n"
+                            ":END:\n")
                     (substring (shell-command-to-string "uuidgen") 0 -1)
                     (format-time-string (org-time-stamp-format t t)))))
   (save-excursion
