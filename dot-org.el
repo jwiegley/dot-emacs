@@ -739,8 +739,6 @@ end tell" (match-string 1))))
                  (insert ?\n))
                (let ((uuid (substring (shell-command-to-string "uuidgen") 0 -1))
                      (file (file-name-nondirectory note)))
-                 (insert (format (concat ":PROPERTIES:\n:ID:       %s\n"
-                                         ":CREATED:  ") uuid))
                  (string-match
                   (concat "\\`\\([0-9]\\{4\\}\\)"
                           "-\\([0-9]\\{2\\}\\)"
@@ -754,11 +752,16 @@ end tell" (match-string 1))))
                        (day (string-to-number (match-string 3 file)))
                        (hour (string-to-number (match-string 4 file)))
                        (min (string-to-number (match-string 5 file)))
-                       (sec (string-to-number (match-string 6 file))))
-                   (insert (format "[%04d-%02d-%02d %s %02d:%02d]\n:END:\n"
-                                   year mon day
-                                   (calendar-day-name (list mon day year) t)
-                                   hour min))))
+                       (sec (string-to-number (match-string 6 file)))
+                       (date (format "%04d-%02d-%02d %s"
+                                     year mon day
+                                     (calendar-day-name (list mon day year) t))))
+                   (insert (format (concat "SCHEDULED: <%s>\n"
+                                           ":PROPERTIES:\n"
+                                           ":ID:       %s\n"
+                                           ":CREATED:  ")
+                                   date uuid))
+                   (insert (format "[%s %02d:%02d]\n:END:\n" date hour min))))
                (buffer-string)))
             (delete-file note t)))
         (when (buffer-modified-p)
