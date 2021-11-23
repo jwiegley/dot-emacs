@@ -747,15 +747,15 @@ end tell" (match-string 1))))
                           "-\\([0-9]\\{2\\}\\)"
                           "-\\([0-9]\\{2\\}\\)"
                           "\\.txt\\'") file)
-                 (let ((year (string-to-number (match-string 1 file)))
-                       (mon (string-to-number (match-string 2 file)))
-                       (day (string-to-number (match-string 3 file)))
-                       (hour (string-to-number (match-string 4 file)))
-                       (min (string-to-number (match-string 5 file)))
-                       (sec (string-to-number (match-string 6 file)))
-                       (date (format "%04d-%02d-%02d %s"
-                                     year mon day
-                                     (calendar-day-name (list mon day year) t))))
+                 (let* ((year (string-to-number (match-string 1 file)))
+                        (mon (string-to-number (match-string 2 file)))
+                        (day (string-to-number (match-string 3 file)))
+                        (hour (string-to-number (match-string 4 file)))
+                        (min (string-to-number (match-string 5 file)))
+                        (sec (string-to-number (match-string 6 file)))
+                        (date (format "%04d-%02d-%02d %s"
+                                      year mon day
+                                      (calendar-day-name (list mon day year) t))))
                    (insert (format (concat "SCHEDULED: <%s>\n"
                                            ":PROPERTIES:\n"
                                            ":ID:       %s\n"
