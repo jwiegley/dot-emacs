@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: parser
+# key: parser
+# --
+parser! {
+    fn parse_$1[Input]()(Input) -> $1
+    where [Input: Stream<Token = char>]
+    {
+        parse_$1_()
+    }
+}
