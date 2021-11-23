@@ -550,7 +550,12 @@
       (around my-cargo-process-clippy activate)
     (let ((cargo-process--command-flags
            (concat cargo-process--command-flags
-                   " --tests -- -D clippy::all -D clippy::cognitive_complexity")))
+                   "--tests "
+                   "-- "
+                   "-D warnings "
+                   "-D clippy::all "
+                   "-D clippy::mem_forget "
+                   "-C debug-assertions=off")))
       ad-do-it))
 
   (defun cargo-fix ()
@@ -873,6 +878,7 @@
   (push 'company-ghc company-backends))
 
 (use-package company-lsp
+  :disabled t
   :after lsp-mode
   :config
   (require 'lsp-clients)
@@ -1787,7 +1793,8 @@ non-empty directories is allowed."
   (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
                    (haskell-mode-hook    . haskell-mode-map)
                    (js2-mode-hook        . js2-mode-map)
-                   (c-mode-common-hook   . c-mode-base-map)))
+                   (c-mode-common-hook   . c-mode-base-map)
+                   (rustic-mode-hook     . rustic-mode-map)))
     (add-hook (car where)
               `(lambda ()
                  (bind-key "M-n" #'flycheck-next-error ,(cdr where))
@@ -2785,11 +2792,33 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (use-package lsp-mode
   :disabled t
-  :commands lsp)
+  :commands lsp
+  :custom
+  ;; what to use when checking on-save. "check" is default, I prefer clippy
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-eldoc-render-all t)
+  (lsp-eldoc-enable-hover nil)
+  (lsp-idle-delay 0.6)
+  (lsp-prefer-capf t)
+  (lsp-completion-provider :capf)
+  (lsp-completion-enable t)
+  (lsp-headerline-breadcrumb-enable nil)
+  :config
+  (require 'lsp-lens)
+  (require 'lsp-headerline)
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (setq read-process-output-max 16384)
+  (setq gc-cons-threshold 1600000))
 
 (use-package lsp-ui
   :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-enable nil)
+  (lsp-ui-doc-enable nil)
   :config
   (define-key lsp-ui-mode-map [remap xref-find-definitions]
     #'lsp-ui-peek-find-definitions)
@@ -3589,6 +3618,7 @@ append it to ENTRY."
   :commands rainbow-mode)
 
 (use-package racer
+  :disabled t
   :commands racer-mode
   :hook (racer-mode . eldoc-mode)
   :hook (racer-mode . company-mode)
@@ -3770,8 +3800,8 @@ append it to ENTRY."
            :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
            :initialized-fn (lambda (workspace)
                              (with-lsp-workspace workspace
-                                                 (lsp--set-configuration
-                                                  (lsp-configuration-section "rust"))))
+                               (lsp--set-configuration
+                                (lsp-configuration-section "rust"))))
            :server-id 'rls
            :path->uri-fn #'my-rls-lsp-path-to-uri
            :uri->path-fn #'my-rls-lsp-uri-to-path))))
@@ -3803,6 +3833,126 @@ append it to ENTRY."
           (call-interactively #'eglot)))
 
       (company-mode 1))))
+
+(use-package rustic
+  :disabled t
+  :mode ("\\.rs\\'" . rustic-mode)
+  :preface
+  (defun my-update-cargo-args (ad-do-it command &optional args)
+    (let* ((cmd (car (split-string command)))
+           (new-args
+            (if (member cmd '("build" "check" "clippy" "doc" "test"))
+                (let ((args
+                       (format "--target-dir=%s -j8"
+                               (my-cargo-target-dir
+                                (replace-regexp-in-string
+                                 "target" "target--custom"
+                                 (regexp-quote (getenv "CARGO_TARGET_DIR")))))))
+                  (if (member cmd '("build"))
+                      (concat "--message-format=short " args)
+                    args))
+              ""))
+           (args
+            (pcase (and args (split-string args " -- "))
+              (`(,before ,after)
+               (concat before " " new-args " -- " after))
+              (_ (concat args new-args)))))
+      (funcall ad-do-it command args)))
+
+  (defun my-rustic-mode-hook ()
+    ;; (advice-add 'direnv-update-directory-environment
+    ;;             :after #'my-update-cargo-path)
+    (advice-add 'rustic-run-cargo-command :around #'my-update-cargo-args)
+    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
+    (direnv-update-environment default-directory)
+
+    (setq lsp-rust-analyzer-server-command
+          (list (substring (shell-command-to-string "which rust-analyzer") 0 -1)))
+    (setq rustic-analyzer-command lsp-rust-analyzer-server-command)
+
+    (flycheck-mode 1)
+    (yas-minor-mode-on)
+
+    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+    ;; save rust buffers that are not file visiting. Once
+    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+    ;; no longer be necessary.
+    (when buffer-file-name
+      (setq-local buffer-save-without-query t))
+
+    (when (functionp 'lsp)
+      (bind-key "M-n" #'flycheck-next-error rust-mode-map)
+      (bind-key "M-p" #'flycheck-previous-error rust-mode-map)))
+  :bind (:map rustic-mode-map
+              ("M-j" . lsp-ui-imenu)
+              ("M-?" . lsp-find-references)
+              ("C-c d" . lsp-ui-doc-show)
+              ("C-c h" . lsp-ui-doc-hide)
+              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c a" . lsp-execute-code-action)
+              ("C-c C-c r" . lsp-rename)
+              ("C-c C-c q" . lsp-workspace-restart)
+              ("C-c C-c Q" . lsp-workspace-shutdown)
+              ("C-c C-c s" . lsp-rust-analyzer-status))
+  :config
+  ;; uncomment for less flashiness
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t)
+  (add-hook 'rustic-mode-hook 'my-rustic-mode-hook))
+
+(use-package rustic-flycheck
+  :after rustic
+  :config
+  (defun my-rust-project-find-function (dir)
+    (let ((root (locate-dominating-file dir "Cargo.toml")))
+      (and root (cons 'transient root))))
+
+  (with-eval-after-load 'project
+    (add-to-list 'project-find-functions 'my-rust-project-find-function))
+
+  (defun project-root (project)
+    (car (project-roots project)))
+
+  (defun first-dominating-file (file name)
+    (aif (locate-dominating-file file name)
+        (or (first-dominating-file
+             (file-name-directory (directory-file-name it)) name) it)))
+
+  (defun flycheck-rust-manifest-directory ()
+    (and buffer-file-name
+         (first-dominating-file buffer-file-name "Cargo.toml")))
+
+  (require 'flycheck)
+  (push 'rustic-clippy flycheck-checkers)
+  (setq rustic-clippy-arguments
+        (concat "--tests "
+                "-- "
+                "-D warnings "
+                "-D clippy::all "
+                "-D clippy::mem_forget "
+                "-C debug-assertions=off"))
+
+  (defun rustic-cargo-clippy (&optional arg)
+    (interactive "P")
+    (rustic-cargo-clippy-run
+     (cond (arg
+            (setq rustic-clippy-arguments (read-from-minibuffer "Cargo clippy arguments: " rustic-clippy-arguments)))
+           ((eq major-mode 'rustic-popup-mode)
+            rustic-clippy-arguments)
+           (t rustic-clippy-arguments))))
+
+  (setq rustic-flycheck-clippy-params
+        (concat "--message-format=json "
+                "--tests "
+                "-- "
+                "-D warnings "
+                "-D clippy::all "
+                "-D clippy::mem_forget "
+                "-C debug-assertions=off")))
 
 (use-package savehist
   :unless noninteractive
