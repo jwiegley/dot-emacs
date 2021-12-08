@@ -1,3 +1,7 @@
+(defcustom dot-emacs-use-eglot t
+  "Non-nil if Eglot should be used rather than LSP."
+  :type 'boolean)
+
 ;; (require 'emacs-load-time)
 
 (defconst emacs-start-time (current-time))
@@ -274,10 +278,10 @@
   (global-ace-isearch-mode +1)
   (define-key isearch-mode-map (kbd "C-'") 'ace-isearch-jump-during-isearch)
   :custom
-  '((ace-isearch-input-length 7)
-    (ace-isearch-jump-delay 0.25)
-    (ace-isearch-function 'avy-goto-char)
-    (ace-isearch-use-jump 'printing-char)))
+  (ace-isearch-input-length 7)
+  (ace-isearch-jump-delay 0.25)
+  (ace-isearch-function 'avy-goto-char)
+  (ace-isearch-use-jump 'printing-char))
 
 (use-package ace-jump-mode
   :defer t)
@@ -871,19 +875,6 @@
 
 (setq-local company-backend '(company-elisp))
 
-(use-package company-ghc
-  :disabled t
-  :after (company ghc)
-  :config
-  (push 'company-ghc company-backends))
-
-(use-package company-lsp
-  :disabled t
-  :after lsp-mode
-  :config
-  (require 'lsp-clients)
-  (push 'company-lsp company-backends))
-
 (use-package company-math
   :defer t)
 
@@ -1457,7 +1448,37 @@ non-empty directories is allowed."
       (split-window-below)
       (goto-char here))
     (search-forward "expected:")
-    (call-interactively #'compare-windows)))
+    (call-interactively #'compare-windows))
+
+  (defun test-ediff ()
+    (interactive)
+    (goto-char (point-min))
+    (search-forward "expected:")
+    (forward-line 1)
+    (goto-char (line-beginning-position))
+    (let ((begin (point)))
+      (search-forward "(")
+      (goto-char (match-beginning 0))
+      (forward-sexp)
+      (let ((text (buffer-substring begin (point)))
+            (expected (get-buffer-create "*expected*")))
+        (with-current-buffer expected
+          (erase-buffer)
+          (insert text))
+        (let ((here (point)))
+          (search-forward "got:")
+          (forward-line 1)
+          (goto-char (line-beginning-position))
+          (setq begin (point))
+          (search-forward "(")
+          (goto-char (match-beginning 0))
+          (forward-sexp)
+          (setq text (buffer-substring begin (point)))
+          (let ((got (get-buffer-create "*got*")))
+            (with-current-buffer got
+              (erase-buffer)
+              (insert text))
+            (ediff-buffers expected got)))))))
 
 (use-package ediff-keep
   :after ediff)
@@ -1483,6 +1504,7 @@ non-empty directories is allowed."
   :bind ("C-c e v" . edit-variable))
 
 (use-package eglot
+  :if dot-emacs-use-eglot
   :commands eglot
   :config
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
@@ -1794,6 +1816,7 @@ non-empty directories is allowed."
                    (haskell-mode-hook    . haskell-mode-map)
                    (js2-mode-hook        . js2-mode-map)
                    (c-mode-common-hook   . c-mode-base-map)
+                   ;; (rust-mode-hook       . rust-mode-map)
                    (rustic-mode-hook     . rustic-mode-map)))
     (add-hook (car where)
               `(lambda ()
@@ -2786,39 +2809,47 @@ Skip buffers that match `ivy-ignore-buffers'."
   :mode "\\.ll\\'")
 
 (use-package lsp-haskell
-  :disabled t
   :after lsp-mode
-  :hook (haskell-mode . lsp-haskell-enable))
+  :hook (haskell-mode . lsp-haskell-enable)
+  :config
+  (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
 
 (use-package lsp-mode
-  :disabled t
   :commands lsp
   :custom
+  (lsp-completion-enable t)
+  (lsp-completion-provider :capf)
+  (lsp-eldoc-enable-hover nil)
+  (lsp-eldoc-render-all t)
+  (lsp-enable-eldoc nil)
+  (lsp-haskell-process-args-hie '("-l" "/tmp/hie.log"))
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-highlight-symbol-at-point nil)
+  (lsp-idle-delay 0.6)
+  (lsp-inhibit-message t)
+  (lsp-prefer-capf t)
+  (lsp-prefer-flymake nil)
   ;; what to use when checking on-save. "check" is default, I prefer clippy
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-eldoc-render-all t)
-  (lsp-eldoc-enable-hover nil)
-  (lsp-idle-delay 0.6)
-  (lsp-prefer-capf t)
-  (lsp-completion-provider :capf)
-  (lsp-completion-enable t)
-  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-rust-clippy-preference "on")
   :config
-  (require 'lsp-lens)
-  (require 'lsp-headerline)
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  (setq read-process-output-max 16384)
-  (setq gc-cons-threshold 1600000))
+  (use-package lsp-lens)
+  (use-package lsp-headerline)
+  (setq read-process-output-max 16384
+        gc-cons-threshold 1600000))
 
 (use-package lsp-ui
   :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
   :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-enable nil)
   (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-max-height 60)
+  (lsp-ui-doc-text-scale-level 4)
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-enable nil)
+  (lsp-ui-sideline-show-diagnostics nil)
+  (lsp-ui-sideline-show-hover t)
   :config
   (define-key lsp-ui-mode-map [remap xref-find-definitions]
     #'lsp-ui-peek-find-definitions)
@@ -3719,29 +3750,6 @@ append it to ENTRY."
   :init
   (add-hook 'rust-mode-hook #'my-rust-mode-init)
   :preface
-  (defcustom my-rls-develop-on-linux nil
-    "Non-nil if Rust development takes place on a Linux machine."
-    :group 'lsp-rust
-    :type 'boolean)
-
-  (defun my-rls-lsp-path-to-uri (path)
-    (lsp--path-to-uri-1
-     (with-temp-buffer
-       (insert path)
-       (goto-char (point-min))
-       (while (re-search-forward "/Users/johnw/dfinity/master/" nil t)
-         (replace-match "/home/vagrant/dfinity/"))
-       (buffer-string))))
-
-  (defun my-rls-lsp-uri-to-path (uri)
-    (lsp--uri-to-path-1
-     (with-temp-buffer
-       (insert uri)
-       (goto-char (point-min))
-       (while (re-search-forward "/home/vagrant/dfinity/" nil t)
-         (replace-match "/Users/johnw/dfinity/master/"))
-       (buffer-string))))
-
   (defun my-update-cargo-path (&rest _args)
     (setq cargo-process--custom-path-to-bin
           (executable-find "cargo")))
@@ -3774,68 +3782,41 @@ append it to ENTRY."
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cargo-path)
     (advice-add 'cargo-process--start :around #'my-update-cargo-args)
-    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
     (direnv-update-environment default-directory)
 
     (cargo-minor-mode 1)
-    ;; (electric-pair-mode 1)
-    ;; (flycheck-mode 1)
     (yas-minor-mode-on)
 
-    (when my-rls-develop-on-linux
-      (setq lsp-rust-target "x86_64-unknown-linux-gnu"
-            lsp-rust-rls-server-command
-            '("~/dfinity/master/run-rls"))
+    (if dot-emacs-use-eglot
+        (progn
+          (require 'eglot)
+          (when (functionp 'eglot)
+            (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
+            (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
 
-      (eval-after-load 'lsp-mode
-        '(lsp-register-client
-          (make-lsp-client
-           :new-connection (lsp-stdio-connection (lambda () lsp-rust-rls-server-command))
-           :major-modes '(rust-mode rustic-mode)
-           :priority (if (eq lsp-rust-server 'rls) 1 -1)
-           :initialization-options '((omitInitBuild . t)
-                                     (cmdRun . t))
-           :notification-handlers (ht ("window/progress" 'lsp-clients--rust-window-progress))
-           :action-handlers (ht ("rls.run" 'lsp-rust--rls-run))
-           :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
-           :initialized-fn (lambda (workspace)
-                             (with-lsp-workspace workspace
-                               (lsp--set-configuration
-                                (lsp-configuration-section "rust"))))
-           :server-id 'rls
-           :path->uri-fn #'my-rls-lsp-path-to-uri
-           :uri->path-fn #'my-rls-lsp-uri-to-path))))
+            (bind-key "C-c C-c v" #'(lambda ()
+                                      (interactive)
+                                      (shell-command "rustdocs std"))
+                      rust-mode-map)
 
-    (when (functionp 'lsp)
-      (bind-key "M-n" #'flycheck-next-error rust-mode-map)
-      (bind-key "M-p" #'flycheck-previous-error rust-mode-map)
-      (lsp))
+            (defun my-rust-project-find-function (dir)
+              (let ((root (locate-dominating-file dir "Cargo.toml")))
+                (and root (cons 'transient root))))
 
-    (require 'eglot)
-    (when (functionp 'eglot)
-      (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
-      (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
-      (bind-key "C-c C-c v" #'(lambda ()
-                                (interactive)
-                                (shell-command "rustdocs std"))
-                rust-mode-map)
+            (with-eval-after-load 'project
+              (add-to-list 'project-find-functions 'my-rust-project-find-function))
 
-      (defun my-rust-project-find-function (dir)
-        (let ((root (locate-dominating-file dir "Cargo.toml")))
-          (and root (cons 'transient root))))
+            (let* ((current-server (eglot-current-server))
+                   (live-p (and current-server (jsonrpc-running-p current-server))))
+              (unless live-p
+                (call-interactively #'eglot)))
 
-      (with-eval-after-load 'project
-        (add-to-list 'project-find-functions 'my-rust-project-find-function))
-
-      (let* ((current-server (eglot-current-server))
-             (live-p (and current-server (jsonrpc-running-p current-server))))
-        (unless live-p
-          (call-interactively #'eglot)))
-
-      (company-mode 1))))
+            (company-mode 1)))
+      (when (functionp 'lsp)
+        (lsp)))))
 
 (use-package rustic
-  :disabled t
+  :unless dot-emacs-use-eglot
   :mode ("\\.rs\\'" . rustic-mode)
   :preface
   (defun my-update-cargo-args (ad-do-it command &optional args)
@@ -3860,10 +3841,7 @@ append it to ENTRY."
       (funcall ad-do-it command args)))
 
   (defun my-rustic-mode-hook ()
-    ;; (advice-add 'direnv-update-directory-environment
-    ;;             :after #'my-update-cargo-path)
     (advice-add 'rustic-run-cargo-command :around #'my-update-cargo-args)
-    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
     (direnv-update-environment default-directory)
 
     (setq lsp-rust-analyzer-server-command
@@ -3878,11 +3856,7 @@ append it to ENTRY."
     ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
     ;; no longer be necessary.
     (when buffer-file-name
-      (setq-local buffer-save-without-query t))
-
-    (when (functionp 'lsp)
-      (bind-key "M-n" #'flycheck-next-error rust-mode-map)
-      (bind-key "M-p" #'flycheck-previous-error rust-mode-map)))
+      (setq-local buffer-save-without-query t)))
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
@@ -3895,12 +3869,6 @@ append it to ENTRY."
               ("C-c C-c Q" . lsp-workspace-shutdown)
               ("C-c C-c s" . lsp-rust-analyzer-status))
   :config
-  ;; uncomment for less flashiness
-  ;; (setq lsp-eldoc-hook nil)
-  ;; (setq lsp-enable-symbol-highlighting nil)
-  ;; (setq lsp-signature-auto-activate nil)
-
-  ;; comment to disable rustfmt on save
   (setq rustic-format-on-save t)
   (add-hook 'rustic-mode-hook 'my-rustic-mode-hook))
 
@@ -3928,6 +3896,7 @@ append it to ENTRY."
 
   (require 'flycheck)
   (push 'rustic-clippy flycheck-checkers)
+
   (setq rustic-clippy-arguments
         (concat "--tests "
                 "-- "
@@ -3946,13 +3915,7 @@ append it to ENTRY."
            (t rustic-clippy-arguments))))
 
   (setq rustic-flycheck-clippy-params
-        (concat "--message-format=json "
-                "--tests "
-                "-- "
-                "-D warnings "
-                "-D clippy::all "
-                "-D clippy::mem_forget "
-                "-C debug-assertions=off")))
+        (concat "--message-format=json " rustic-clippy-arguments)))
 
 (use-package savehist
   :unless noninteractive
