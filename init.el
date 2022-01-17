@@ -2,8 +2,6 @@
   "Non-nil if Eglot should be used rather than LSP."
   :type 'boolean)
 
-;; (require 'emacs-load-time)
-
 (defconst emacs-start-time (current-time))
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
@@ -554,7 +552,8 @@
       (around my-cargo-process-clippy activate)
     (let ((cargo-process--command-flags
            (concat cargo-process--command-flags
-                   "--tests "
+                   "--all-targets "
+                   "--all-features "
                    "-- "
                    "-D warnings "
                    "-D clippy::all "
@@ -565,7 +564,7 @@
   (defun cargo-fix ()
     (interactive)
     (async-shell-command
-     (concat "cargo fix -Z unstable-options"
+     (concat "cargo fix"
              " --clippy --tests --benches --allow-dirty --allow-staged"))))
 
 (use-package cc-mode
@@ -757,10 +756,6 @@
 (use-package cl-info
   ;; jww (2017-12-10): Need to configure.
   :disabled t)
-
-;; (use-package clipmon
-;;   :bind ("<f2>" . clipmon-autoinsert-toggle)
-;;   :hook (after-init . clipmon-mode-start))
 
 (use-package cmake-font-lock
   :hook (cmake-mode . cmake-font-lock-activate))
@@ -1509,7 +1504,8 @@ non-empty directories is allowed."
   :config
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
   (defun project-root (project)
-    (car (project-roots project))))
+    (car (project-roots project)))
+  )
 
 (use-package eldoc
   :diminish
@@ -1555,13 +1551,6 @@ non-empty directories is allowed."
   (global-emojify-mode)
   ;; (global-emojify-mode-line-mode -1)
   )
-
-(use-package emms-setup
-  :disabled t
-  :bind ("M-E" . emms-browser)
-  :config
-  (emms-all)
-  (emms-default-players))
 
 (use-package engine-mode
   :defer 5
@@ -1610,7 +1599,8 @@ non-empty directories is allowed."
           erc-fill-prefix "          "
           erc-fill-column 78
           erc-insert-timestamp-function 'erc-insert-timestamp-left
-          ivy-use-virtual-buffers nil))
+          ivy-use-virtual-buffers nil
+          line-spacing 4))
 
   (defun accept-certificate ()
     (interactive)
@@ -1784,15 +1774,6 @@ non-empty directories is allowed."
          ("C-c N W" . fancy-widen))
   :commands (fancy-narrow-to-region fancy-widen))
 
-(use-package fast-scroll
-  :disabled t
-  :demand t
-  :config
-  (add-hook 'fast-scroll-start-hook #'(lambda () (flycheck-mode -1)))
-  (add-hook 'fast-scroll-end-hook #'(lambda () (flycheck-mode 1)))
-  (fast-scroll-config)
-  (fast-scroll-mode 1))
-
 (use-package feebleline
   :bind (("M-o m" . feebleline-mode))
   :config
@@ -1859,21 +1840,8 @@ non-empty directories is allowed."
 (use-package flycheck-haskell
   :commands flycheck-haskell-setup)
 
-(use-package flycheck-hdevtools
-  :disabled t
-  :after flycheck
-  :config)
-
 (use-package flycheck-package
   :after flycheck)
-
-(use-package flycheck-rtags
-  :disabled t
-  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
-  :after flycheck)
-
-;; (use-package flycheck-rust
-;;   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
@@ -2041,9 +2009,6 @@ non-empty directories is allowed."
       (if gud-buf
           (switch-to-buffer-other-window gud-buf)
         (call-interactively 'gud-gdb)))))
-
-(use-package gud-lldb
-  :commands lldb)
 
 (use-package haskell-edit
   :load-path "lisp/haskell-config"
@@ -2647,10 +2612,6 @@ Skip buffers that match `ivy-ignore-buffers'."
 (use-package kotl-mode
   :mode "\\.kotl\\'")
 
-(use-package langtool
-  :disabled t
-  :bind ("C-c K" . langtool-check))
-
 (use-package latex
   :config
   (require 'preview)
@@ -2755,11 +2716,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   (add-hook 'ledger-mode-hook
             #'(lambda ()
                 (auto-fill-mode -1))))
-
-(use-package lentic-mode
-  :disabled t
-  :diminish
-  :commands global-lentic-mode)
 
 (use-package link-hint
   :defer 10
@@ -2944,9 +2900,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   ;; jww (2017-12-10): Need to configure.
   :disabled t
   :after magit)
-
-(use-package makefile-runner
-  :bind ("C-c M" . makefile-runner))
 
 (use-package malyon
   :commands malyon
@@ -3148,13 +3101,6 @@ Skip buffers that match `ivy-ignore-buffers'."
     (interactive)
     (activate-mark)))
 
-(use-package navi-mode
-  :after outshine
-  :bind ("M-s s" . navi-search-and-switch))
-
-(use-package nf-procmail-mode
-  :commands nf-procmail-mode)
-
 (use-package nginx-mode
   :commands nginx-mode)
 
@@ -3259,14 +3205,6 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 (use-package outline
   :diminish outline-minor-mode
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
-
-(use-package outorg
-  :after outshine)
-
-(use-package outshine
-  :disabled t
-  :after (:or outline org-mode)
-  :hook (outline-minor-mode . outshine-hook-function))
 
 (use-package ovpn-mode
   :commands ovpn
@@ -3648,14 +3586,6 @@ append it to ENTRY."
 (use-package rainbow-mode
   :commands rainbow-mode)
 
-(use-package racer
-  :disabled t
-  :commands racer-mode
-  :hook (racer-mode . eldoc-mode)
-  :hook (racer-mode . company-mode)
-  :config
-  (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common))
-
 (use-package recentf
   :defer 10
   :commands (recentf-mode
@@ -3816,6 +3746,7 @@ append it to ENTRY."
         (lsp)))))
 
 (use-package rustic
+  :disabled t
   :unless dot-emacs-use-eglot
   :mode ("\\.rs\\'" . rustic-mode)
   :preface
@@ -3898,7 +3829,8 @@ append it to ENTRY."
   (push 'rustic-clippy flycheck-checkers)
 
   (setq rustic-clippy-arguments
-        (concat "--tests "
+        (concat "--all-targets "
+                "--all-features "
                 "-- "
                 "-D warnings "
                 "-D clippy::all "
@@ -4028,21 +3960,6 @@ append it to ENTRY."
   ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
 
-(use-package slidify-pages
-  :commands slidify-pages-mode
-  :bind (:map slidify-pages-mode-map
-              ("M-p" . slidify-pages-previous-page)
-              ("M-n" . slidify-pages-next-page))
-  :config
-  (defun slidify-pages-previous-page ()
-    "Navigate to the previous page."
-    (interactive)
-    (goto-char (point-min))
-    (widen)
-    (backward-page 2)
-    (narrow-to-page)
-    (slidify-pages--update-mode-line)))
-
 (use-package slime
   :commands slime
   :init
@@ -4107,9 +4024,6 @@ append it to ENTRY."
   ;;                        tos-user-id 80))
   )
 
-(use-package stopwatch
-  :bind ("<f8>" . stopwatch))
-
 (use-package string-edit
   :bind ("C-c C-'" . string-edit-at-point))
 
@@ -4135,9 +4049,6 @@ append it to ENTRY."
               ("M-c" . swiper-mc))
   :bind (:map isearch-mode-map
               ("C-o" . swiper-from-isearch)))
-
-(use-package tablegen-mode
-  :mode "\\.td\\'")
 
 (use-package tagedit
   :commands tagedit-mode)
@@ -4388,9 +4299,6 @@ append it to ENTRY."
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
          ("C-c w e" . yaoddmuse-edit-default)
          ("C-c w p" . yaoddmuse-post-library-default)))
-
-(use-package yari
-  :commands yari)
 
 (use-package yasnippet
   :demand t

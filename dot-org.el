@@ -37,20 +37,8 @@
 (when nil
   (custom-set-faces
    '(variable-pitch ((t (:family "ETBembo")))))
-  ;; (custom-set-faces
-  ;;  '(org-document-title ((t (:foreground "#171717" :weight bold :height 1.5)))))
   (custom-set-faces
    '(org-document-title ((t (:foreground "#f7f7f7" :weight bold :height 1.5)))))
-  ;; (custom-set-faces
-  ;;  '(org-done ((t (:background "#E8E8E8" :foreground "#0E0E0E" :strike-through t :weight bold)))))
-  ;; (custom-set-faces
-  ;;  '(org-headline-done ((t (:foreground "#171717" :strike-through t)))))
-  ;; (custom-set-faces
-  ;;  '(org-level-1 ((t (:foreground "#090909" :weight bold :height 1.3)))))
-  ;; (custom-set-faces
-  ;;  '(org-level-2 ((t (:foreground "#090909" :weight normal :height 1.2)))))
-  ;; (custom-set-faces
-  ;;  '(org-level-3 ((t (:foreground "#090909" :weight normal :height 1.1)))))
   (custom-set-faces
    '(org-image-actual-width '(600)))
   (custom-set-faces
@@ -966,6 +954,7 @@ end tell" (match-string 1))))
                          (plist-get parameters :export))
       (add-hook 'org-store-link-functions
                 (plist-get parameters :store)))))
+
 (use-package anki-editor
   :commands anki-editor-submit)
 
@@ -1082,26 +1071,6 @@ end tell" (match-string 1))))
 
 (use-package org-devonthink)
 
-(use-package org-gcal
-  :disabled t
-  :commands org-gcal-sync
-  :config
-  (setq org-gcal-client-id
-        (lookup-password "org-caldav-user.google.com" "jwiegley" 80)
-        org-gcal-client-secret
-        (lookup-password "org-caldav.google.com" org-gcal-client-id 80)
-        org-gcal-file-alist
-        '(("jwiegley@gmail.com" .
-           "~/doc/tasks/Google.org")
-          ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-           "~/doc/tasks/Bahá'í.org")
-          ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-           "~/doc/tasks/Family.org")
-          ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-           "~/doc/tasks/Nasim.org")
-          ("sacramento.lsa1914@gmail.com" .
-           "~/doc/tasks/Sacramento.org"))))
-
 (use-package org-mime
   :config
   (add-hook 'message-mode-hook
@@ -1120,60 +1089,12 @@ end tell" (match-string 1))))
                "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
                              "#E6E1DC" "#232323")))))
 
-(use-package org-noter
-  ;; jww (2020-01-16): This package requires a newer version of Org.
-  :disabled t
-  :commands org-noter)
-
-(use-package org-opml
-  :disabled t)
-
-(use-package org-pdfview
-  :disabled t
-  :config
-  (delete '("\\.pdf\\'" . default) org-file-apps)
-  (add-to-list 'org-file-apps '("\\.pdf\\'" . org-pdfview-open))
-  (add-to-list 'org-file-apps
-               '("\\.pdf::\\([[:digit:]]+\\)\\'" . org-pdfview-open)))
-
-;; (use-package org-pdftools
-;;   :config (setq org-pdftools-root-dir "~/Downloads"
-;;                 org-pdftools-search-string-separator "??")
-;;   (with-eval-after-load 'org
-;;     (org-link-set-parameters "pdftools"
-;;                              :follow #'org-pdftools-open
-;;                              :complete #'org-pdftools-complete-link
-;;                              :store #'org-pdftools-store-link
-;;                              :export #'org-pdftools-export)
-;;     (add-hook 'org-store-link-functions 'org-pdftools-store-link)))
-
-;; (use-package org-noter-pdftools
-;;   :after (org-noter))
-
 (use-package org-protocol)
-
-(use-package org-ref
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t)
 
 (use-package org-rich-yank
   :defer 5
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
-
-(use-package org-roam
-  :disabled t
-  :hook
-  (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/doc/notes/")
-  :bind (:map org-roam-mode-map
-              (("C-, r l" . org-roam)
-               ("C-, r f" . org-roam-find-file)
-               ("C-, r g" . org-roam-graph))
-              :map org-mode-map
-              (("C-, r i" . org-roam-insert))
-              (("C-, r I" . org-roam-insert-immediate))))
 
 (use-package org-smart-capture)
 
@@ -1254,9 +1175,6 @@ end tell" (match-string 1))))
             (message "Added pasteboard link to URL property"))
         (insert link)))))
 
-(use-package orgit
-  :disabled t)
-
 (use-package orgnav)
 
 (use-package orgtbl-aggregate)
@@ -1264,21 +1182,9 @@ end tell" (match-string 1))))
 (use-package ox-confluence
   :commands org-confluence-export-as-confluence)
 
-(use-package ox-gfm
-  ;; :demand t
-  ;; :commands ox-gfm-export-to-markdown
-  )
-
-(use-package ox-jira
-  :commands ox-jira-export-as-jira)
-
-(use-package ox-slack
-  :commands org-slack-export-to-clipboard-as-slack)
+(use-package ox-gfm)
 
 (use-package ox-md)
-
-(use-package ox-pandoc
-  :disabled t)
 
 (use-package ox-texinfo-plus
   :defer t)
@@ -1286,15 +1192,7 @@ end tell" (match-string 1))))
 (use-package yankpad
   :defer 10
   :init
-  (setq yankpad-file "~/doc/tasks/yankpad.org")
-  :config
-  ;; (bind-key "<f7>" 'yankpad-map)
-  ;; (bind-key "<f12>" 'yankpad-expand)
-  ;; If you want to complete snippets using company-mode
-  ;; (add-to-list 'company-backends #'company-yankpad)
-  ;; If you want to expand snippets with hippie-expand
-  ;; (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
-  )
+  (setq yankpad-file "~/doc/tasks/yankpad.org"))
 
 (use-package worf
   :bind (:map org-mode-map
