@@ -49,20 +49,24 @@
   (setq default-major-mode 'org-mode)
 
   (add-hook 'org-mode-hook
-            '(lambda ()
-               (variable-pitch-mode 1) ;; All fonts with variable pitch.
-               (mapc
-                (lambda (face) ;; Other fonts with fixed-pitch.
-                  (set-face-attribute face nil :inherit 'fixed-pitch))
-                (list 'org-code
-                      'org-link
-                      'org-block
-                      'org-table
-                      'org-verbatim
-                      'org-block-begin-line
-                      'org-block-end-line
-                      'org-meta-line
-                      'org-document-info-keyword)))))
+            #'(lambda ()
+                (variable-pitch-mode 1) ;; All fonts with variable pitch.
+                (mapc
+                 (lambda (face) ;; Other fonts with fixed-pitch.
+                   (set-face-attribute face nil :inherit 'fixed-pitch))
+                 (list 'org-code
+                       'org-link
+                       'org-block
+                       'org-table
+                       'org-verbatim
+                       'org-block-begin-line
+                       'org-block-end-line
+                       'org-meta-line
+                       'org-document-info-keyword)))))
+
+(add-hook 'org-mode-hook
+          #'(lambda ()
+              (abbrev-mode 1)))
 
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -83,7 +87,7 @@
 (defun org-linkify ()
   (interactive)
   (goto-char (point-min))
-  (while (re-search-forward " \\(\\(VER\\|SDK\\|IC\\|NNS1\\|IDX\\)-\\([0-9]+\\)\\) " nil t)
+  (while (re-search-forward " \\(\\(VER\\|SDK\\|IC\\|ICSUP\\|NNS1\\|IDX\\)-\\([0-9]+\\)\\) " nil t)
     (replace-match (format " [[%s:\\3][\\2-\\3]] " (downcase (match-string 2))) t)
     (goto-char (match-end 0)))
   (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)

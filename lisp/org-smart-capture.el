@@ -127,7 +127,7 @@
               (replace-regexp-in-string
                "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
         (save-excursion
-          (forward-line 2)
+          (forward-line 1)
           (insert body))))
 
     (org-set-property "Date"
