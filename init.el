@@ -3789,16 +3789,17 @@ append it to ENTRY."
     (when buffer-file-name
       (setq-local buffer-save-without-query t)))
   :bind (:map rustic-mode-map
-              ("M-j" . lsp-ui-imenu)
-              ("M-?" . lsp-find-references)
-              ("C-c d" . lsp-ui-doc-show)
-              ("C-c h" . lsp-ui-doc-hide)
-              ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status))
+              ("M-j"         . lsp-ui-imenu)
+              ("M-?"         . lsp-find-references)
+              ("C-c d"       . lsp-ui-doc-show)
+              ("C-c h"       . lsp-ui-doc-hide)
+              ("C-c C-c l"   . flycheck-list-errors)
+              ("C-c C-c a"   . lsp-execute-code-action)
+              ("C-c C-c r"   . lsp-rename)
+              ("C-c C-c q"   . lsp-workspace-restart)
+              ("C-c C-c Q"   . lsp-workspace-shutdown)
+              ("C-c C-c s"   . lsp-rust-analyzer-status)
+              ("C-c C-c C-y" . rustic-cargo-clippy))
   :config
   (setq rustic-format-on-save t)
   (add-hook 'rustic-mode-hook 'my-rustic-mode-hook))
@@ -4142,7 +4143,10 @@ append it to ENTRY."
   :commands undo-propose)
 
 (use-package unicode-fonts
-  :config (unicode-fonts-setup))
+  :config
+  (unicode-fonts-setup)
+  ;; (setq face-font-rescale-alist '((".*Scheher.*" . 1.8)))
+  )
 
 (use-package vagrant
   :commands (vagrant-up
