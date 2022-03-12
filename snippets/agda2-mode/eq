@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: eq
+# key: eq
+# --
+begin
+  ?
+≡⟨⟩
+  ?
+≡⟨ ? ⟩
+  ?
+≡⟨⟩
+  ?
+∎

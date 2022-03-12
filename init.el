@@ -1,4 +1,4 @@
-(defcustom dot-emacs-use-eglot t
+(defcustom dot-emacs-use-eglot nil
   "Non-nil if Eglot should be used rather than LSP."
   :type 'boolean)
 
@@ -1503,6 +1503,7 @@ non-empty directories is allowed."
   :commands eglot
   :config
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
+  (defvar flymake-list-only-diagnostics nil)
   (defun project-root (project)
     (car (project-roots project)))
   )
@@ -3782,6 +3783,10 @@ append it to ENTRY."
     (flycheck-mode 1)
     (yas-minor-mode-on)
 
+    (when (executable-find "rustfmt")
+      (require 'format-all)
+      (format-all-mode 1))
+
     ;; so that run C-c C-c C-r works without having to confirm, but don't try to
     ;; save rust buffers that are not file visiting. Once
     ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
@@ -4007,6 +4012,7 @@ append it to ENTRY."
   :commands sqlind-minor-mode)
 
 (use-package stock-quote
+  :disabled t
   :demand t
   :commands stock-quote
   :config
