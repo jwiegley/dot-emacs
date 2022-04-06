@@ -2766,8 +2766,8 @@ Skip buffers that match `ivy-ignore-buffers'."
   :mode "\\.ll\\'")
 
 (use-package lsp-haskell
+  :disabled t
   :after lsp-mode
-  :hook (haskell-mode . lsp-haskell-enable)
   :config
   (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
 
