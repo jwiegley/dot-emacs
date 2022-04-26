@@ -378,6 +378,7 @@ is:
                 "")))))
 
 (use-package nnir
+  :disabled t
   :init
   (defun gnus-goto-article (message-id)
     (activate-gnus)

@@ -1,7 +1,9 @@
 *.elc
 *.tar.xz
 *~
+/.lsp-session-v1
 /aria2-controller.eieio
+/aria2c.session
 /auto-save-list/
 /autoloads.el
 /compile.log
@@ -9,6 +11,7 @@
 /cus-dirs.el
 /data*/
 /ede-projects.el
+/eln-cache/
 /elpa/
 /emms/
 /emojis/
@@ -17,6 +20,7 @@
 /info/
 /logs/
 /network-security.data
+/oauth2.plstore
 /projectile-bookmarks.eld
 /projectile.cache
 /request
@@ -24,6 +28,3 @@
 /smex-items
 /srecode-map.el
 /var/
-/aria2c.session
-/oauth2.plstore
-/.lsp-session-v1

@@ -107,7 +107,7 @@
      ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
-        '("~/dfinity/docs/dfinity.org"))
+        '("~/dfinity/docs/dfinity.org" "~/kadena/docs/kadena.org"))
        (org-agenda-sorting-strategy
         '(category-up user-defined-up))
        (org-agenda-skip-function
@@ -124,7 +124,7 @@
  '(org-agenda-deadline-leaders '("!D!: " "D%02d: "))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
-   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/dfinity/docs/dfinity.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
+   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/dfinity/docs/dfinity.org" "~/kadena/docs/kadena.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -162,6 +162,18 @@
  '(org-attach-method 'mv)
  '(org-attach-store-link-p 'attached)
  '(org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
+ '(org-babel-load-languages
+   '((python . t)
+     (emacs-lisp . t)
+     (haskell . t)
+     (calc . t)
+     (ledger . t)
+     (ditaa . t)
+     (plantuml . t)
+     (sh . t)
+     (sql . t)
+     (dot . t)
+     (restclient . t)))
  '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates
    '(("a" "Add Task" entry
@@ -210,7 +222,7 @@
 :URL:      %c
 :END:")
      ("j" "Journal entry" entry
-      (file+datetree "~/dfinity/docs/dfinity.org")
+      (file+datetree "~/kadena/docs/kadena.org")
       "* %?")))
  '(org-clock-clocked-in-display nil)
  '(org-clock-idle-time 10)
