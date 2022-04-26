@@ -2067,7 +2067,8 @@ non-empty directories is allowed."
             (setq hoogle-server-process
                   (start-process "hoogle-web" (current-buffer)
                                  (executable-find "hoogle")
-                                 "server" (concat "--database=" default-hoo)
+                                 "server"
+                                 ;; (concat "--database=" default-hoo)
                                  "--local" "--port=8687"))))
         (message "Starting local Hoogle server on port 8687...done")))
     (browse-url
@@ -4397,7 +4398,7 @@ append it to ENTRY."
                            (21 67)
                            (t  40)))
     (`macbook-pro-vga          55)
-    (`macbook-pro-16           52)
+    (`macbook-pro-16           51)
     (`macbook-pro-15           47)
     (`macbook-pro-13           47)))
 

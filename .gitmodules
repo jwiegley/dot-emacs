@@ -1,33 +1,33 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
-	url = git://github.com/jwiegley/use-package.git
+	url = git@github.com:jwiegley/use-package.git
 [submodule "lisp/alert"]
 	path = lisp/alert
-	url = git://github.com/jwiegley/alert.git
+	url = git@github.com:jwiegley/alert.git
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
-	url = git://github.com/jwiegley/initsplit.git
+	url = git@github.com:jwiegley/initsplit.git
 [submodule "lisp/emacs-pl"]
 	path = lisp/emacs-pl
-	url = git://github.com/jwiegley/emacs-pl.git
+	url = git@github.com:jwiegley/emacs-pl.git
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
-	url = git://github.com/jwiegley/haskell-config.git
+	url = git@github.com:jwiegley/haskell-config.git
 [submodule "lisp/emacs-async"]
 	path = lisp/async
-	url = git://github.com/jwiegley/emacs-async.git
+	url = git@github.com:jwiegley/emacs-async.git
 [submodule "lisp/git-annex"]
 	path = lisp/git-annex
-	url = git://github.com/jwiegley/git-annex-el.git
+	url = git@github.com:jwiegley/git-annex-el.git
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
-	url = git://github.com/jwiegley/erc-yank.git
+	url = git@github.com:jwiegley/erc-yank.git
 [submodule "lisp/chess"]
 	path = lisp/chess
-	url = git://github.com/jwiegley/emacs-chess.git
+	url = git@github.com:jwiegley/emacs-chess.git
 [submodule "lisp/git-undo"]
 	path = lisp/git-undo
-	url = git://github.com/jwiegley/git-undo-el.git
+	url = git@github.com:jwiegley/git-undo-el.git
 [submodule "lisp/nix-update"]
 	path = lisp/nix-update
-	url = git://github.com/jwiegley/nix-update-el.git
+	url = git@github.com:jwiegley/nix-update-el.git
