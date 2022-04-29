@@ -3784,10 +3784,6 @@ append it to ENTRY."
     (flycheck-mode 1)
     (yas-minor-mode-on)
 
-    (when (executable-find "rustfmt")
-      (require 'format-all)
-      (format-all-mode 1))
-
     ;; so that run C-c C-c C-r works without having to confirm, but don't try to
     ;; save rust buffers that are not file visiting. Once
     ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
