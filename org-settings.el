@@ -251,6 +251,7 @@
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
  '(org-export-babel-evaluate nil)
+ '(org-export-backends '(ascii html icalendar latex md))
  '(org-export-latex-classes
    '(("article" "\\documentclass[11pt]{article}"
       ("\\section{%s}" . "\\section*{%s}")
