@@ -3217,7 +3217,7 @@ header overlay should cover. Result is a cons cell of (begin . end)."
        (if (string= config "OpenVPN_PoC_2019_johnwiegley.ovpn")
            (list "johnwiegley"
                  (concat (lookup-password "demonet OpenVPN" "johnwiegley" 80)
-                         (password-store--run "otp" "DFINITY/demonet OpenVPN")))
+                         (password-store--run "otp" "demonet OpenVPN")))
          (funcall ad-do-it config)))))
 
 (use-package package-lint
@@ -3687,7 +3687,7 @@ append it to ENTRY."
           (executable-find "cargo")))
 
   (defun my-cargo-target-dir (path)
-    (replace-regexp-in-string "dfinity" "Products" path))
+    (replace-regexp-in-string "kadena" "Products" path))
 
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
     (let* ((cmd (car (split-string command)))

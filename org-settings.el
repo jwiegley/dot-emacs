@@ -18,8 +18,6 @@
  '(deft-directory "~/doc/notes")
  '(deft-text-mode 'org-mode)
  '(deft-use-filename-as-title t)
- '(jobhours-files
-   '("~/dfinity/docs/dfinity.org" "~/dfinity/docs/archive/dfinity.org"))
  '(org-M-RET-may-split-line '((headline) (default . t)))
  '(org-adapt-indentation nil)
  '(org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
@@ -107,7 +105,7 @@
      ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
-        '("~/dfinity/docs/dfinity.org" "~/kadena/docs/kadena.org"))
+        '("~/kadena/docs/kadena.org"))
        (org-agenda-sorting-strategy
         '(category-up user-defined-up))
        (org-agenda-skip-function
@@ -124,7 +122,7 @@
  '(org-agenda-deadline-leaders '("!D!: " "D%02d: "))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
-   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/dfinity/docs/dfinity.org" "~/kadena/docs/kadena.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
+   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/kadena/docs/kadena.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
