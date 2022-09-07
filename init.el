@@ -51,7 +51,22 @@
           (set-window-configuration config)
         (if (> (length (window-list)) 1)
             (delete-window)
-          (bury-buffer))))))
+          (bury-buffer)))))
+
+  (defmacro atomic-modify-buffer (&rest body)
+    `(let ((buf (current-buffer)))
+       (save-window-excursion
+         (with-temp-buffer
+           (insert-buffer buf)
+           ,@body
+           (let ((temp-buf (current-buffer))
+                 (inhibit-redisplay t))
+             (with-current-buffer buf
+               (let ((here (point)))
+                 (save-excursion
+                   (delete-region (point-min) (point-max))
+                   (insert-buffer temp-buf))
+                 (goto-char here)))))))))
 
 ;;; Environment
 
@@ -83,6 +98,7 @@
                  (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
              (split-string (match-string 1))))))
 
+  (add-to-list 'load-path "~/.emacs.d/lisp/use-package")
   (require 'use-package)
 
   (defconst load-path-reject-re "/\\.emacs\\.d/\\(lib\\|site-lisp\\)/"
@@ -507,6 +523,8 @@
   :bind ("M-B" . bookmark-bmenu-list)
   :commands bmkp-jump-dired)
 
+(use-package boogie-friends)
+
 (use-package browse-at-remote
   :bind ("C-c B" . browse-at-remote))
 
@@ -855,7 +873,6 @@
   :after (company haskell-cabal))
 
 (use-package company-coq
-  :disabled t
   :after coq
   :commands company-coq-mode
   :bind (:map company-coq-map
@@ -992,6 +1009,9 @@
   :disabled t
   :after counsel)
 
+(use-package counsel-jq
+  :commands counsel-jq)
+
 (use-package counsel-osx-app
   :bind* ("S-M-SPC" . counsel-osx-app)
   :commands counsel-osx-app
@@ -1095,7 +1115,13 @@
          ("C-c O" . customize-group)
          ("C-c F" . customize-face)))
 
+(use-package dafny-mode
+  :bind (:map dafny-mode-map
+              ("M-n" . flycheck-next-error)
+              ("M-p" . flycheck-previous-error)))
+
 (use-package debbugs-gnu
+  :disabled t
   :commands (debbugs-gnu debbugs-gnu-search)
   :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
 
@@ -1136,7 +1162,7 @@
               ("M-s f"))
   :diminish dired-omit-mode
   :hook (dired-mode . dired-hide-details-mode)
-  :hook (dired-mode . dired-omit-mode)
+  ;; :hook (dired-mode . dired-omit-mode)
   :preface
   (defun dired-two-pane ()
     (interactive)
@@ -1226,49 +1252,50 @@
 (use-package dired-x
   :after dired
   :config
-  (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
+  ;; (defvar dired-omit-regexp-orig (symbol-function 'dired-omit-regexp))
 
-  ;; Omit files that Git would ignore
-  (defun dired-omit-regexp ()
-    (let ((file (expand-file-name ".git"))
-          parent-dir)
-      (while (and (not (file-exists-p file))
-                  (progn
-                    (setq parent-dir
-                          (file-name-directory
-                           (directory-file-name
-                            (file-name-directory file))))
-                    ;; Give up if we are already at the root dir.
-                    (not (string= (file-name-directory file)
-                                  parent-dir))))
-        ;; Move up to the parent dir and try again.
-        (setq file (expand-file-name ".git" parent-dir)))
-      ;; If we found a change log in a parent, use that.
-      (if (file-exists-p file)
-          (let ((regexp (funcall dired-omit-regexp-orig))
-                (omitted-files
-                 (shell-command-to-string "git clean -d -x -n")))
-            (if (= 0 (length omitted-files))
-                regexp
-              (concat
-               regexp
-               (if (> (length regexp) 0)
-                   "\\|" "")
-               "\\("
-               (mapconcat
-                #'(lambda (str)
-                    (concat
-                     "^"
-                     (regexp-quote
-                      (substring str 13
-                                 (if (= ?/ (aref str (1- (length str))))
-                                     (1- (length str))
-                                   nil)))
-                     "$"))
-                (split-string omitted-files "\n" t)
-                "\\|")
-               "\\)")))
-        (funcall dired-omit-regexp-orig)))))
+  ;; ;; Omit files that Git would ignore
+  ;; (defun dired-omit-regexp ()
+  ;;   (let ((file (expand-file-name ".git"))
+  ;;         parent-dir)
+  ;;     (while (and (not (file-exists-p file))
+  ;;                 (progn
+  ;;                   (setq parent-dir
+  ;;                         (file-name-directory
+  ;;                          (directory-file-name
+  ;;                           (file-name-directory file))))
+  ;;                   ;; Give up if we are already at the root dir.
+  ;;                   (not (string= (file-name-directory file)
+  ;;                                 parent-dir))))
+  ;;       ;; Move up to the parent dir and try again.
+  ;;       (setq file (expand-file-name ".git" parent-dir)))
+  ;;     ;; If we found a change log in a parent, use that.
+  ;;     (if (file-exists-p file)
+  ;;         (let ((regexp (funcall dired-omit-regexp-orig))
+  ;;               (omitted-files
+  ;;                (shell-command-to-string "git clean -d -x -n")))
+  ;;           (if (= 0 (length omitted-files))
+  ;;               regexp
+  ;;             (concat
+  ;;              regexp
+  ;;              (if (> (length regexp) 0)
+  ;;                  "\\|" "")
+  ;;              "\\("
+  ;;              (mapconcat
+  ;;               #'(lambda (str)
+  ;;                   (concat
+  ;;                    "^"
+  ;;                    (regexp-quote
+  ;;                     (substring str 13
+  ;;                                (if (= ?/ (aref str (1- (length str))))
+  ;;                                    (1- (length str))
+  ;;                                  nil)))
+  ;;                    "$"))
+  ;;               (split-string omitted-files "\n" t)
+  ;;               "\\|")
+  ;;              "\\)")))
+  ;;       (funcall dired-omit-regexp-orig))))
+  )
 
 (use-package dired+
   :after dired-x
@@ -1871,6 +1898,7 @@ non-empty directories is allowed."
     (magit-branch-spinoff branch)
     ;; Push that branch to the remote.
     (call-interactively #'magit-push-current-to-pushremote)
+    (sleep-for 3)
     ;; Create a pullreq using the same title.
     (forge-create-pullreq (concat "origin/" branch) "origin/master"))
   :config
@@ -2148,6 +2176,16 @@ non-empty directories is allowed."
     (bug-reference-prog-mode 1)
     (when (executable-find "ormolu")
       (require 'format-all)
+      (define-format-all-formatter ormolu
+        (:executable "ormolu")
+        (:install "stack install ormolu")
+        (:languages "Haskell" "Literate Haskell")
+        (:features)
+        (:format
+         (format-all--buffer-easy
+          executable
+          (when (buffer-file-name)
+            (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
       (format-all-mode 1)))
 
@@ -2845,9 +2883,25 @@ Skip buffers that match `ivy-ignore-buffers'."
                      (string= path (directory-file-name default-directory))))
         (with-current-buffer (get-buffer-create name)
           (cd path)
-          (ignore-errors
-            (start-process "*git-monitor*" (current-buffer)
-                           "git-monitor" "-d" path))))))
+          (if (file-regular-p ".git")
+              (let ((branch (string-chop-newline
+                             (shell-command-to-string "git branch --show-current")))
+                    (repo
+                     (with-temp-buffer
+                       (insert-file-contents-literally ".git")
+                       (goto-char (point-min))
+                       (and (looking-at "^gitdir: \\(.+?/\\.git/\\)")
+                            (match-string 1)))))
+                (when repo
+                  (ignore-errors
+                    (start-process "*git-monitor*" (current-buffer)
+                                   "git-monitor"
+                                   "--git-dir" repo
+                                   "--work-dir" path
+                                   "-r" (concat "refs/heads/" branch)))))
+            (ignore-errors
+              (start-process "*git-monitor*" (current-buffer)
+                             "git-monitor" "--work-dir" path)))))))
 
   (defun magit-status-with-prefix ()
     (interactive)
@@ -3223,6 +3277,17 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 (use-package package-lint
   :commands package-lint-current-buffer)
 
+(use-package pact-mode
+  :mode "\\.pact\\'"
+  :config
+  (add-hook 'pact-mode-hook
+            #'(lambda ()
+                (bind-key "C-c C-c"
+                          #'(lambda () (interactive)
+                              (save-excursion
+                                (call-interactively 'pact-compile)))
+                          'slime-mode-map))))
+
 (use-package pandoc-mode
   :hook (markdown-mode
          (pandoc-mode   . pandoc-load-default-settings)))
@@ -3512,9 +3577,15 @@ append it to ENTRY."
               #'(lambda ()
                   (set-input-method "Agda")
                   (holes-mode -1)
-                  ;; (when (featurep 'company)
-                  ;;   (company-coq-mode 1))
+                  (when (featurep 'company)
+                    (company-coq-mode 1))
                   (abbrev-mode -1)
+
+                  (bind-key "A-g" #'(lambda () (interactive) (insert "Γ")) 'coq-mode-map)
+                  (bind-key "A-t" #'(lambda () (interactive) (insert "τ")) 'coq-mode-map)
+                  (bind-key "A-r" #'(lambda () (interactive) (insert "ρ")) 'coq-mode-map)
+                  (bind-key "A-k" #'(lambda () (interactive) (insert "κ")) 'coq-mode-map)
+
                   (set (make-local-variable 'fill-nobreak-predicate)
                        #'(lambda ()
                            (pcase (get-text-property (point) 'face)
@@ -3903,9 +3974,8 @@ append it to ENTRY."
               ("f" . fill-region)
               ("U" . unfill-region)
               ("d" . downcase-region)
-              ("u" . upcase-region)
               ("r" . reverse-region)
-              ("s" . sort-lines))
+              ("S" . sort-lines))
   :config
   (selected-global-mode 1))
 

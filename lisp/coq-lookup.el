@@ -114,7 +114,7 @@ This function requires the pdftotext command line program."
       (call-process coq-lookup-pdftotext-program nil t nil
                     (file-truename pdf) "-")
       (goto-char (point-min))
-      (re-search-forward "^Global Index$")
+      (re-search-forward "^COMMAND INDEX$")
       (cl-loop while (< (point) (point-max))
                when (looking-at "^\\(.+?\\), \\([0-9, ]+\\)")
                nconc (coq-lookup--expand (match-string 1) (match-string 2)) into index
