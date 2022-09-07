@@ -2885,7 +2885,8 @@ Skip buffers that match `ivy-ignore-buffers'."
           (cd path)
           (if (file-regular-p ".git")
               (let ((branch (string-chop-newline
-                             (shell-command-to-string "git branch --show-current")))
+                             (shell-command-to-string
+                              "git branch --show-current")))
                     (repo
                      (with-temp-buffer
                        (insert-file-contents-literally ".git")
