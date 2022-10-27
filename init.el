@@ -1343,6 +1343,12 @@ non-empty directories is allowed."
            'USE-TRASH-CAN)                ; This arg is for Emacs 24+ only.
         (unless no-msg (message "(No deletions requested.)"))))))
 
+(use-package dired-rsync
+  :disabled t
+  :after dired
+  :config
+  (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
+
 (use-package direnv
   :demand t
   :preface
@@ -2187,7 +2193,8 @@ non-empty directories is allowed."
           (when (buffer-file-name)
             (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
-      (format-all-mode 1)))
+      ;; (format-all-mode 1)
+      ))
 
   (add-hook 'haskell-mode-hook #'my-haskell-mode-hook)
 
@@ -2691,6 +2698,11 @@ Skip buffers that match `ivy-ignore-buffers'."
                 (interactive)
                 (insert "ذ"))
             LaTeX-mode-map)
+  (bind-key "A-ت"
+            #'(lambda ()
+                (interactive)
+                (insert "ة"))
+            LaTeX-mode-map)
 
   (add-hook 'LaTeX-mode-hook
             #'(lambda
@@ -2805,7 +2817,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   :mode "\\.ll\\'")
 
 (use-package lsp-haskell
-  :disabled t
   :after lsp-mode
   :config
   (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
