@@ -748,11 +748,11 @@ end tell" (match-string 1))))
                         (date (format "%04d-%02d-%02d %s"
                                       year mon day
                                       (calendar-day-name (list mon day year) t))))
-                   (insert (format (concat "SCHEDULED: <%s>\n"
-                                           ":PROPERTIES:\n"
-                                           ":ID:       %s\n"
-                                           ":CREATED:  ")
-                                   date uuid))
+                   (insert (format (concat ;; "SCHEDULED: <%s>\n"
+                                    ":PROPERTIES:\n"
+                                    ":ID:       %s\n"
+                                    ":CREATED:  ")
+                                   uuid))
                    (insert (format "[%s %02d:%02d]\n:END:\n" date hour min))))
                (buffer-string)))
             (delete-file note t)))
