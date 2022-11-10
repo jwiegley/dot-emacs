@@ -122,10 +122,10 @@
             (insert new-subject))))
 
     (when body
-      (flet ((trim-string
-              (str)
-              (replace-regexp-in-string
-               "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
+      (cl-flet ((trim-string
+                 (str)
+                 (replace-regexp-in-string
+                  "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
         (save-excursion
           (forward-line 1)
           (insert body))))

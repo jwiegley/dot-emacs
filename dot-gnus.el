@@ -357,6 +357,23 @@ is:
 (defun activate-gnus ()
   (unless (get-buffer "*Group*") (gnus)))
 
+(defun gnus-goto-article (message-id)
+  (activate-gnus)
+  ;; (gnus-summary-read-group "mail.archive" 15 t)
+  (gnus-group-read-ephemeral-search-group
+   t (list
+      (cons
+       'search-query-spec
+       (list (cons 'query
+                   (concat "HEADER \"Message-ID\" \"<" message-id ">\""))
+             '(raw)))
+      (cons
+       'search-group-spec
+       '(("nnimap:Local" "mail.archive")
+         ("nnimap:Local" "mail.kadena")
+         ("nnimap:Local" "INBOX")))))
+  (gnus-summary-next-page))
+
 (use-package epa
   :defer t
   :config
@@ -376,40 +393,6 @@ is:
                       (epg-user-id-string primary-user-id)
                     (epg-decode-dn (epg-user-id-string primary-user-id)))
                 "")))))
-
-(use-package nnir
-  :disabled t
-  :init
-  (defun gnus-goto-article (message-id)
-    (activate-gnus)
-    (gnus-summary-read-group "INBOX" 15 t)
-    (let ((nnir-imap-default-search-key "imap")
-          (nnir-ignored-newsgroups
-           (concat "\\(\\(list\\.wg21\\|archive\\)\\.\\|"
-                   "mail\\.\\(spam\\|save\\|trash\\|sent\\)\\)")))
-      (gnus-summary-refer-article message-id)))
-
-  (defvar gnus-query-history nil)
-
-  (defun gnus-query (query &optional arg)
-    (interactive
-     (list (read-string (format "IMAP Query %s: "
-                                (if current-prefix-arg "All" "Mail"))
-                        (format-time-string "SENTSINCE %d-%b-%Y "
-                                            (time-subtract (current-time)
-                                                           (days-to-time 90)))
-                        'gnus-query-history)
-           current-prefix-arg))
-    (activate-gnus)
-    (let ((nnir-imap-default-search-key "imap"))
-      (gnus-group-make-nnir-group
-       nil (list (cons 'nnir-query-spec
-                       (list (cons 'query query)
-                             (cons 'criteria "")))
-                 (cons 'nnir-group-spec
-                       (list (list "nnimap:Local")))))))
-
-  (define-key global-map [(alt meta ?f)] 'gnus-query))
 
 (use-package gnus-harvest
   :load-path "lisp/gnus-harvest"

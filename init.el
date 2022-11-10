@@ -1302,22 +1302,32 @@
   :config
   (defun dired-do-delete (&optional arg)  ; Bound to `D'
     "Delete all marked (or next ARG) files.
-NOTE: This deletes marked, not flagged, files.
-`dired-recursive-deletes' controls whether deletion of
-non-empty directories is allowed."
+NOTE: This deletes the marked (`*'), not the flagged (`D'), files.
+
+User option `dired-recursive-deletes' controls whether deletion of
+non-empty directories is allowed.
+
+ARG is the prefix argument.
+
+As an exception, if ARG is zero then delete the marked files, but with
+the behavior specified by option `delete-by-moving-to-trash' flipped."
     (interactive "P")
-    ;; This is more consistent with the file-marking feature than
-    ;; `dired-do-flagged-delete'.  But it can be confusing to the user,
-    ;; especially since this is usually bound to `D', which is also the
-    ;; `dired-del-marker'.  So offer this warning message:
-    (unless arg
-      (message "NOTE: Deletion of files marked `%c' (not those flagged `%c')."
-               dired-marker-char dired-del-marker))
-    (diredp-internal-do-deletions
-     ;; This can move point if ARG is an integer.
-     (dired-map-over-marks (cons (dired-get-filename) (point)) arg)
-     arg
-     'USE-TRASH-CAN))
+    (let* ((flip                       (zerop (prefix-numeric-value arg)))
+           (delete-by-moving-to-trash  (and (boundp 'delete-by-moving-to-trash)  (if flip
+                                                                                     (not delete-by-moving-to-trash)
+                                                                                   delete-by-moving-to-trash)))
+           (markers                    ()))
+      (when flip (setq arg  nil))
+      (diredp-internal-do-deletions
+       (nreverse
+        ;; This can move point if ARG is an integer.
+        (dired-map-over-marks (cons (dired-get-filename) (let ((mk  (point-marker)))
+                                                           (push mk markers)
+                                                           mk))
+                              arg))
+       arg
+       t)          ; Gets ANDed anyway with `delete-by-moving-to-trash'.
+      (dolist (mk  markers) (set-marker mk nil))))
 
   (defun dired-do-flagged-delete (&optional no-msg) ; Bound to `x'
     "In Dired, delete the files flagged for deletion.
@@ -1327,25 +1337,25 @@ If arg NO-MSG is non-nil, no message is displayed.
 User option `dired-recursive-deletes' controls whether deletion of
 non-empty directories is allowed."
     (interactive)
-    (unless no-msg
-      (message "NOTE: Deletion of files flagged `%c' (not those marked `%c')"
-               dired-del-marker dired-marker-char)
-      ;; Too slow/annoying, but without it the message is never seen: (sit-for 2)
-      )
     (let* ((dired-marker-char  dired-del-marker)
            (regexp             (dired-marker-regexp))
-           (case-fold-search   nil))
+           (case-fold-search   nil)
+           (markers            ()))
       (if (save-excursion (goto-char (point-min)) (re-search-forward regexp nil t))
           (diredp-internal-do-deletions
-           ;; This cannot move point since last arg is nil.
-           (dired-map-over-marks (cons (dired-get-filename) (point)) nil)
+           (nreverse
+            ;; This cannot move point since last arg is nil.
+            (dired-map-over-marks (cons (dired-get-filename) (let ((mk  (point-marker)))
+                                                               (push mk markers)
+                                                               mk))
+                                  nil))
            nil
-           'USE-TRASH-CAN)                ; This arg is for Emacs 24+ only.
+           'USE-TRASH-CAN)             ; This arg is for Emacs 24+ only.
+        (dolist (mk  markers) (set-marker mk nil))
         (unless no-msg (message "(No deletions requested.)"))))))
 
 (use-package dired-rsync
-  :disabled t
-  :after dired
+  :after dired+
   :config
   (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
 
@@ -4263,6 +4273,9 @@ append it to ENTRY."
   :bind (("C-c r"   . vr/replace)
          ("C-c %"   . vr/query-replace)
          ("<C-m> /" . vr/mc-mark)))
+
+(use-package virtual-auto-fill
+  :commands virtual-auto-fill-mode)
 
 (use-package vline
   :commands vline-mode)
