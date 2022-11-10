@@ -21,6 +21,7 @@
         '("~/doc/tasks/todo.org"
           "~/doc/tasks/BAE.org")))
 
+(setq org-version "8.2.11")
 (defun org-release () "8.2.11")
 (defun org-git-version () "8.2.11")
 
@@ -193,7 +194,6 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
 
-(autoload 'gnus-goto-article "dot-gnus")
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
 (defun gnus-summary-mark-read-and-unread-as-read (&optional new-mark)

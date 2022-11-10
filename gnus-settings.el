@@ -16,26 +16,17 @@
  '(gnus-alias-allow-forward-as-reply t)
  '(gnus-alias-default-identity "NewArtisans")
  '(gnus-alias-identity-alist
-   '((#("Gnu" 0 1
-        (idx 4))
-      "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+   '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     (#("Gmail" 0 1
-        (idx 3))
-      "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
-     (#("ATC" 0 1
-        (idx 0))
-      "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
+     ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
+     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("ATC" "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
       (("BCC" . "sarv9mithaq@gmail.com, jwiegley@gmail.com"))
       "" "John Wiegley
 ATC Secretary")
-     (#("NewArtisans" 0 1
-        (idx 5))
-      "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     (#("BAE" 0 1
-        (idx 1))
-      "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
+     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
 BAE Systems")))
  '(gnus-alias-identity-rules
    '(("Ledger Mailing List"
