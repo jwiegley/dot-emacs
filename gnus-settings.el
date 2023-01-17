@@ -14,7 +14,7 @@
  '(gnus-agent-mark-unread-after-downloaded nil)
  '(gnus-agent-synchronize-flags t)
  '(gnus-alias-allow-forward-as-reply t)
- '(gnus-alias-default-identity "NewArtisans")
+ '(gnus-alias-default-identity "Gmail")
  '(gnus-alias-identity-alist
    '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")

@@ -1531,7 +1531,6 @@ non-empty directories is allowed."
   :bind ("C-x r e" . edit-rectangle))
 
 (use-package edit-server
-  :disabled t
   :if (and window-system
            (not alternate-emacs))
   :defer 5
@@ -1838,7 +1837,7 @@ non-empty directories is allowed."
              flycheck-previous-error)
   :init
   (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
-                   (haskell-mode-hook    . haskell-mode-map)
+                   ;; (haskell-mode-hook    . haskell-mode-map)
                    (js2-mode-hook        . js2-mode-map)
                    (c-mode-common-hook   . c-mode-base-map)
                    ;; (rust-mode-hook       . rust-mode-map)
@@ -1882,6 +1881,7 @@ non-empty directories is allowed."
     (flycheck-buffer-automatically 'idle-change)))
 
 (use-package flycheck-haskell
+  :disabled t
   :commands flycheck-haskell-setup)
 
 (use-package flycheck-package
@@ -2179,14 +2179,16 @@ non-empty directories is allowed."
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
     (whitespace-mode 1)
-    (flycheck-mode 1)
-    (flycheck-haskell-setup)
-    (add-hook 'hack-local-variables-hook
-              #'(lambda ()
-                  (when nil
-                    (setq-local flycheck-ghc-search-path nil)
-                    (setq-local flycheck-ghc-args nil)))
-              t)
+    ;; (flycheck-mode 1)
+    ;; (flycheck-haskell-setup)
+    ;; (add-hook 'hack-local-variables-hook
+    ;;           #'(lambda ()
+    ;;               (when nil
+    ;;                 (setq-local flycheck-ghc-search-path nil)
+    ;;                 (setq-local flycheck-ghc-args nil)))
+    ;;           t)
+    (bind-key "M-n" #'haskell-goto-next-error haskell-mode-map)
+    (bind-key "M-p" #'haskell-goto-prev-error haskell-mode-map)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
     (prettify-symbols-mode 1)
     (bug-reference-prog-mode 1)
