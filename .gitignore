@@ -1,6 +1,8 @@
 *.elc
 *.tar.xz
 *~
+.DS_Store
+/.cache/
 /.lsp-session-v1
 /aria2-controller.eieio
 /aria2c.session
@@ -18,6 +20,7 @@
 /eshell/
 /image-dired/
 /info/
+/lisp/org-mode/
 /logs/
 /network-security.data
 /oauth2.plstore
