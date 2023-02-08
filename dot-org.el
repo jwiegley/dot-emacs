@@ -1041,6 +1041,38 @@ end tell" (match-string 1))))
 
 (use-package ob-verb)
 
+(use-package org-attach
+  :config
+  (defun org-attach-commit ()
+    "Commit changes to git if `org-attach-directory' is properly initialized.
+This checks for the existence of a \".git\" directory in that directory."
+    (let* ((dir (expand-file-name org-attach-directory))
+	   (git-dir (vc-git-root dir))
+	   (changes 0))
+      (when (and git-dir (executable-find "git"))
+        (with-temp-buffer
+	  (cd dir)
+	  (let ((have-annex
+	         (and org-attach-git-annex-cutoff
+		      (file-exists-p (expand-file-name ".git/annex" git-dir)))))
+	    (dolist (new-or-modified
+		     (split-string
+		      (shell-command-to-string
+		       "git ls-files -zmo --exclude-standard") "\0" t))
+	      (if (and have-annex
+		       (>= (nth 7 (file-attributes new-or-modified))
+			   org-attach-git-annex-cutoff))
+		  (call-process "git" nil nil nil "annex" "add" new-or-modified)
+	        (call-process "git" nil nil nil "add" new-or-modified))
+	      (incf changes)))
+	  (dolist (deleted
+		   (split-string
+		    (shell-command-to-string "git ls-files -z --deleted") "\0" t))
+	    (call-process "git" nil nil nil "rm" deleted)
+	    (incf changes))
+	  (when (> changes 0)
+	    (shell-command "git commit -m 'Synchronized attachments'")))))))
+
 (use-package org-babel
   :no-require
   :after ob-restclient
