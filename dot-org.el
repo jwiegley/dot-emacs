@@ -1042,6 +1042,17 @@ end tell" (match-string 1))))
 (use-package ob-verb)
 
 (use-package org-attach
+  :init
+  (defun my-org-attach-visit-headline-from-dired ()
+    "Go to the headline corresponding to this org-attach directory."
+    (interactive)
+    (let* ((id-parts (last (split-string default-directory "/" t) 2))
+           (id (apply #'concat id-parts)))
+      (let ((m (org-id-find id 'marker)))
+        (unless m (user-error "Cannot find entry with ID \"%s\"" id))
+        (pop-to-buffer (marker-buffer m))
+        (goto-char m)
+        (move-marker m nil))))
   :config
   (defun org-attach-commit ()
     "Commit changes to git if `org-attach-directory' is properly initialized.
