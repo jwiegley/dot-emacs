@@ -156,7 +156,7 @@
  '(org-agenda-window-frame-fractions '(0.5 . 0.75))
  '(org-archive-location "TODO-archive::")
  '(org-archive-save-context-info '(time category itags))
- '(org-attach-file-list-property nil)
+ '(org-attach-file-list-property "ATTACHED")
  '(org-attach-method 'mv)
  '(org-attach-store-link-p 'attached)
  '(org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
