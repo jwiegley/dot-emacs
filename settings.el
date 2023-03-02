@@ -285,8 +285,18 @@
       (".hxx" ".hh" ".h"))
      ("\\.hxx\\'"
       (".cxx"))))
- '(check-mail-boxes '("~/Messages/incoming/mail\\..*\\.spool"))
- '(check-mail-summary-function 'check-mail-box-summary)
+ '(cfw:read-date-command
+   (lambda nil
+     (interactive)
+     (let
+         ((xs
+           (decode-time
+            (org-time-string-to-time
+             (org-read-date)))))
+       (list
+        (nth 4 xs)
+        (nth 3 xs)
+        (nth 5 xs)))))
  '(clean-buffer-list-kill-never-buffer-names
    '("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "habits.txt" "Bahai.txt" "OSS.txt" "diary" "notes.txt" "&bitlbee"))
  '(clean-buffer-list-kill-never-regexps '("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#"))
@@ -374,6 +384,9 @@
    '("/timeLimit:20" "/autoTriggers:1" "/printTooltips" "/vcsCores:4"))
  '(default-input-method "Agda")
  '(default-major-mode 'text-mode t)
+ '(deft-directory "~/doc/notes")
+ '(deft-text-mode 'org-mode)
+ '(deft-use-filename-as-title t)
  '(delete-old-versions t)
  '(diary-file "~/doc/diary")
  '(diff-mode-hook '(diff-delete-empty-files diff-make-unified smerge-mode))
@@ -648,409 +661,6 @@
  '(global-auto-complete-mode t)
  '(global-auto-revert-mode t)
  '(global-font-lock-mode t nil (font-lock))
- '(gnus-activate-level 2)
- '(gnus-after-getting-new-news-hook
-   '(gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler))
- '(gnus-agent-expire-all t)
- '(gnus-agent-expire-days 14)
- '(gnus-agent-go-online t)
- '(gnus-agent-mark-unread-after-downloaded nil)
- '(gnus-agent-synchronize-flags t)
- '(gnus-alias-allow-forward-as-reply t)
- '(gnus-alias-default-identity "Gmail")
- '(gnus-alias-identity-alist
-   '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
-     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
-     ("ATC" "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
-      (("BCC" . "sarv9mithaq@gmail.com, jwiegley@gmail.com"))
-      "" "John Wiegley
-ATC Secretary")
-     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
-BAE Systems")))
- '(gnus-alias-identity-rules
-   '(("Ledger Mailing List"
-      ("To" "ledger-cli@googlegroups\\.com" current)
-      "Gmail")
-     ("Emacs Mailing Lists"
-      ("Cc" "\\(emacs\\|debbugs\\)" current)
-      "Gnu")
-     ("Emacs Mailing Lists"
-      ("To" "\\(emacs\\|debbugs\\)" current)
-      "Gnu")
-     ("Emacs Newsgroups"
-      ("Newsgroups" "emacs" current)
-      "Gnu")
-     ("Haskell Groups"
-      ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans")
-     ("Haskell Mailing Lists"
-      ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
-      "NewArtisans")))
- '(gnus-alias-override-user-mail-address t)
- '(gnus-alias-unknown-identity-rule 'error)
- '(gnus-always-read-dribble-file t)
- '(gnus-article-date-lapsed-new-header t)
- '(gnus-article-update-date-headers nil)
- '(gnus-asynchronous t)
- '(gnus-check-new-newsgroups nil)
- '(gnus-completing-read-function 'gnus-ido-completing-read)
- '(gnus-default-adaptive-score-alist
-   '((gnus-saved-mark
-      (subject 250)
-      (from 50))
-     (gnus-dormant-mark
-      (subject 150)
-      (from 50))
-     (gnus-forwarded-mark
-      (subject 100)
-      (from 25))
-     (gnus-replied-mark
-      (subject 75)
-      (from 15))
-     (gnus-ticked-mark
-      (subject 0)
-      (from 0))
-     (gnus-read-mark
-      (subject 30)
-      (from 5))
-     (gnus-del-mark
-      (subject 5)
-      (from 0))
-     (gnus-recent-mark
-      (subject 0)
-      (from 0))
-     (gnus-killed-mark
-      (subject -5)
-      (from -5))
-     (gnus-catchup-mark
-      (subject -150)
-      (from 0))
-     (gnus-duplicate-mark
-      (subject -150)
-      (from 0))
-     (gnus-expirable-mark
-      (subject -250)
-      (from 0))
-     (gnus-spam-mark
-      (subject -10)
-      (from -150))))
- '(gnus-default-article-saver 'gnus-summary-save-in-mail)
- '(gnus-gcc-mark-as-read t)
- '(gnus-generate-tree-function 'gnus-generate-horizontal-tree)
- '(gnus-group-default-list-level 2)
- '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
-")
- '(gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
- '(gnus-group-use-permanent-levels t)
- '(gnus-harvest-sender-alist '((".*@gnu\\.org" . johnw@gnu\.org)))
- '(gnus-home-directory "~/Messages/Gnus/")
- '(gnus-ignored-from-addresses
-   "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(forumjobs\\|3dex\\|gmail\\|hotmail\\|newartisans\\|fpcomplete\\|boostpro\\)\\.com\\|\\(gnu\\|public\\.gmane\\)\\.org\\)")
- '(gnus-ignored-mime-types
-   '("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard"))
- '(gnus-interactive-exit 'quiet)
- '(gnus-large-newsgroup 4000)
- '(gnus-local-domain "newartisans.com")
- '(gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
- '(gnus-mark-unpicked-articles-as-read t)
- '(gnus-message-archive-group '((format-time-string "sent.%Y")))
- '(gnus-message-replysign t)
- '(gnus-novice-user nil)
- '(gnus-parameters
-   '(("brass\\.smedl"
-      (list-identifier . "\\[brass-rings/smedl\\]"))
-     ("^haskell$"
-      (display . all))
-     ("list\\.gnu\\.prog\\.discuss$"
-      (list-identifier . "\\[gnu-prog-discuss\\]"))
-     ("list\\.riscv\\.devel$"
-      (to-address . "sw-dev@lists.riscv.org")
-      (to-list . "sw-dev@lists.riscv.org")
-      (list-identifier . "\\[\\(riscv-sw\\|sw-dev\\)\\]"))
-     ("list\\.coq\\.fiat"
-      (to-address . "fiat@lists.csail.mit.edu")
-      (to-list . "fiat@lists.csail.mit.edu")
-      (list-identifier . "\\[Fiat\\]"))
-     ("list\\.gsoc\\.mentors$"
-      (to-address . "google-summer-of-code-mentors-list@googlegroups.com")
-      (to-list . "google-summer-of-code-mentors-list@googlegroups.com")
-      (list-identifier . "\\[GSoC Mentors\\]"))
-     ("list\\.haskell\\.ghc$"
-      (to-address . "glasgow-haskell-users@haskell.org")
-      (to-list . "glasgow-haskell-users@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.haskell\\.ghc-linker"
-      (to-address . "ghc-linker@googlegroups.com")
-      (to-list . "ghc-linker@googlegroups.com"))
-     ("list\\.nix\\.devel"
-      (to-address . "nix-dev@lists.science.uu.nl")
-      (to-list . "nix-dev@lists.science.uu.nl")
-      (list-identifier . "\\[Nix-dev\\]"))
-     ("\\`gmane\\."
-      (spam-process gnus-group-spam-exit-processor-report-gmane))
-     ("list\\.github$"
-      (total-expire . t)
-      (expiry-wait . 14)
-      (expiry-target . delete))
-     ("mail\\.spam"
-      (total-expire . t)
-      (expiry-wait . 28)
-      (expiry-target . delete)
-      (ham-process-destination . "INBOX")
-      (spam-contents gnus-group-spam-classification-spam)
-      (spam-process
-       ((spam spam-use-spamassassin)
-        (ham spam-use-spamassassin))))
-     ("list\\."
-      (subscribed . t)
-      (gcc-self . t))
-     ("list\\.wg21\\.\\(.*\\)"
-      (to-address . "c++std-\\1@accu.org")
-      (to-list . "c++std-\\1@accu.org")
-      (gcc-self . t)
-      (gnus-list-identifiers "\\[c\\+\\+std-.+?\\]"))
-     ("INBOX"
-      (total-expire . t)
-      (expiry-wait . 14)
-      (expiry-target . "mail.archive")
-      (spam-process-destination . "mail.spam")
-      (spam-contents gnus-group-spam-classification-ham)
-      (spam-process
-       ((spam spam-use-spamassassin)
-        (ham spam-use-spamassassin))))
-     ("\\(mail\\.\\|INBOX\\)"
-      (gnus-use-scoring nil))
-     ("mail\\.archive"
-      (gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)
-")
-      (gnus-show-threads nil))
-     ("list\\.ledger\\.devel"
-      (to-address . "ledger-cli@googlegroups.com")
-      (to-list . "ledger-cli@googlegroups.com")
-      (gcc-self . t))
-     ("list\\.bahai\\.tarjuman"
-      (to-address . "tarjuman@bahai-library.com")
-      (to-list . "tarjuman@bahai-library.com")
-      (list-identifier . "\\[tj\\]"))
-     ("list\\.emacs\\.devel$"
-      (to-address . "emacs-devel@gnu.org")
-      (to-list . "emacs-devel@gnu.org"))
-     ("list\\.emacs\\.tangents$"
-      (to-address . "emacs-tangents@gnu.org")
-      (to-list . "emacs-tangents@gnu.org"))
-     ("list\\.emacs\\.help$"
-      (to-address . "help-gnu-emacs@gnu.org")
-      (to-list . "help-gnu-emacs@gnu.org"))
-     ("list\\.emacs\\.bugs$"
-      (to-list . "bug-gnu-emacs@gnu.org"))
-     ("list\\.emacs\\.bugs\\.tracker"
-      (list-identifier . "\\[debbugs-tracker\\]"))
-     ("list\\.emacs\\.diffs"
-      (to-address . "emacs-diffs@gnu.org")
-      (to-list . "emacs-diffs@gnu.org")
-      (list-identifier . "\\[Emacs-diffs\\]"))
-     ("list\\.emacs\\.elpa\\.diffs"
-      (to-address . "emacs-elpa-diffs@gnu.org")
-      (to-list . "emacs-elpa-diffs@gnu.org")
-      (list-identifier . "\\[elpa\\]"))
-     ("list\\.emacs\\.buildstatus"
-      (to-address . "emacs-buildstatus@gnu.org")
-      (to-list . "emacs-buildstatus@gnu.org"))
-     ("list\\.emacs\\.sources"
-      (to-address . "gnu-emacs-sources@gnu.org")
-      (to-list . "gnu-emacs-sources@gnu.org"))
-     ("list\\.emacs\\.orgmode"
-      (to-address . "emacs-orgmode@gnu.org")
-      (to-list . "emacs-orgmode@gnu.org")
-      (list-identifier . "\\[O\\]"))
-     ("list\\.boost\\.cppnow"
-      (to-address . "boostcon-plan@googlegroups.com")
-      (to-list . "boostcon-plan@googlegroups.com"))
-     ("list\\.boost\\.ryppl"
-      (list-identifier . "\\[ryppl-dev\\]")
-      (to-address . "ryppl-dev@googlegroups.com")
-      (to-list . "ryppl-dev@googlegroups.com"))
-     ("list\\.boost\\.devel"
-      (to-address . "boost@lists.boost.org")
-      (to-list . "boost@lists.boost.org")
-      (list-identifier . "\\[boost\\]"))
-     ("list\\.boost\\.\\(users\\|announce\\)"
-      (to-address . "boost-\\1@lists.boost.org")
-      (to-list . "boost-\\1@lists.boost.org")
-      (list-identifier . "\\\\[Boost-\\1\\\\]"))
-     ("list\\.isocpp\\.\\(proposals\\|discussion\\)"
-      (to-address . "std-\\1@isocpp.org")
-      (to-list . "std-\\1@isocpp.org")
-      (list-identifier . "\\\\[\\\\(lang\\\\|lib\\\\|std\\\\)-\\1\\\\]"))
-     ("list\\.clang\\.devel"
-      (to-address . "cfe-dev@cs.uiuc.edu")
-      (to-list . "cfe-dev@cs.uiuc.edu")
-      (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)\\]"))
-     ("list\\.llvm\\.devel"
-      (to-address . "llvmdev@cs.uiuc.edu")
-      (to-list . "llvmdev@cs.uiuc.edu")
-      (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)]"))
-     ("list\\.nix\\.devel"
-      (to-address . "nix-dev@lists.science.uu.nl")
-      (to-list . "nix-dev@lists.science.uu.nl")
-      (list-identifier . "\\[Nix-dev\\]"))
-     ("list\\.haskell\\.pipes"
-      (to-address . "haskell-pipes@googlegroups.com")
-      (to-list . "haskell-pipes@googlegroups.com")
-      (list-identifier . "\\[haskell-pipes\\]"))
-     ("list\\.haskell\\.cafe"
-      (to-address . "haskell-cafe@haskell.org")
-      (to-list . "haskell-cafe@haskell.org")
-      (list-identifier . "\\[Haskell\\(-cafe\\)?\\]"))
-     ("list\\.haskell\\.libraries"
-      (to-address . "libraries@haskell.org")
-      (to-list . "libraries@haskell.org")
-      (expiry-target . "archive.haskell.libraries"))
-     ("list\\.haskell\\.prime"
-      (to-address . "haskell-prime@haskell.org")
-      (to-list . "haskell-prime@haskell.org")
-      (list-identifier . "\\[haskell/rfcs\\]"))
-     ("list\\.haskell\\.template-haskell"
-      (to-address . "template-haskell@haskell.org")
-      (to-list . "template-haskell@haskell.org"))
-     ("list\\.haskell\\.beginners"
-      (to-address . "beginners@haskell.org")
-      (to-list . "beginners@haskell.org")
-      (list-identifier . "\\[Haskell-beginners\\]"))
-     ("list\\.haskell\\.infrastructure"
-      (to-address . "haskell-infrastructure@community.galois.com")
-      (to-list . "haskell-infrastructure@community.galois.com")
-      (list-identifier . "\\[Haskell-infrastructure\\]"))
-     ("list\\.haskell\\.community"
-      (to-address . "haskell-community@haskell.org")
-      (to-list . "haskell-community@haskell.org")
-      (list-identifier . "\\[Haskell-\\(community\\|cafe\\)\\]"))
-     ("list\\.haskell\\.announce"
-      (to-address . "haskell@haskell.org")
-      (to-list . "haskell@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.haskell\\.cabal"
-      (to-address . "cabal-devel@haskell.org")
-      (to-list . "cabal-devel@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.coq$"
-      (to-address . "coq-club@inria.fr")
-      (to-list . "coq-club@inria.fr")
-      (list-identifier . "\\[Coq-Club\\]"))
-     ("list\\.coq\\.devel$"
-      (to-address . "coqdev@inria.fr")
-      (to-list . "coqdev@inria.fr")
-      (list-identifier . "\\[coqdev\\]"))
-     ("list\\.agda\\.devel$"
-      (to-address . "agda@lists.chalmers.se")
-      (to-list . "agda@lists.chalmers.se")
-      (list-identifier . "\\[Agda\\]"))
-     ("list\\.idris\\.devel$"
-      (to-address . "idris-lang@googlegroups.com")
-      (to-list . "idris-lang@googlegroups.com")
-      (list-identifier . "\\[Idris\\]"))
-     ("list\\.safe\\.verify$"
-      (to-address . "safe-verif@lists.crash-safe.org")
-      (to-list . "safe-verif@lists.crash-safe.org")
-      (list-identifier . "\\[Safe-verif\\]"))
-     ("list\\.coq\\.ssreflect"
-      (to-address . "ssreflect@msr-inria.inria.fr")
-      (to-list . "ssreflect@msr-inria.inria.fr")
-      (list-identifier . "\\[ssreflect\\]"))
-     ("list\\.brass\\.proposal"
-      (to-address . "brass-proposal@lists.brass-tacks.org")
-      (to-list . "brass-proposal@lists.brass-tacks.org")
-      (list-identifier . "\\[Brass-proposal\\]"))
-     ("list\\.brass\\.commits"
-      (to-address . "bae-brass-commits@googlegroups.com")
-      (to-list . "bae-brass-commits@googlegroups.com")
-      (list-identifier . "\\[bae-brass-commits\\]\\( \\[bae-brass/brass-proposal\\]\\)? [0-9a-f]+?:"))
-     ("list\\.brass\\.rings$"
-      (list-identifier . "\\[rings-all\\]")
-      (to-address . "rings-all@googlegroups.com")
-      (to-list . "rings-all@googlegroups.com"))
-     ("list\\.brass\\.smedl$"
-      (list-identifier . "\\[smedl\\]"))
-     ("list\\.hott"
-      (to-address . "hott-cafe@googlegroups.com")
-      (to-list . "hott-cafe@googlegroups.com")
-      (list-identifier . "\\[hott-cafe\\]"))
-     ("list\\.acl2\\.help"
-      (to-address . "acl2-help@utlists.utexas.edu")
-      (to-list . "acl2-help@utlists.utexas.edu"))))
- '(gnus-permanently-visible-groups "INBOX")
- '(gnus-read-active-file nil)
- '(gnus-read-newsrc-file nil)
- '(gnus-refer-article-method
-   '(current
-     (nnir "nnimap:Local")
-     (nntp "LocalNews"
-           (nntp-address "localhost")
-           (nntp-port-number 9119))
-     (nntp "Gmane"
-           (nntp-address "news.gmane.org"))
-     (nntp "Eternal September"
-           (nntp-address "news.eternal-september.org")
-           (nntp-authinfo-user "jwiegley"))))
- '(gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
- '(gnus-save-killed-list nil)
- '(gnus-save-newsrc-file nil)
- '(gnus-score-default-duration 'p)
- '(gnus-score-expiry-days 30)
- '(gnus-score-interactive-default-score 10)
- '(gnus-select-group-hook '(gnus-group-set-timestamp))
- '(gnus-select-method
-   '(nnimap "Local"
-            (nnimap-stream plain)
-            (nnimap-address "127.0.0.1")
-            (nnimap-server-port 9143)))
- '(gnus-sieve-file "~/Messages/dovecot.sieve")
- '(gnus-sieve-select-method "nnimap:Local")
- '(gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
- '(gnus-simplify-subject-functions '(gnus-simplify-subject-fuzzy))
- '(gnus-split-methods
-   '((gnus-save-site-lisp-file)
-     (gnus-article-archive-name)
-     (gnus-article-nndoc-name)))
- '(gnus-started-hook
-   '((lambda nil
-       (run-hooks 'gnus-after-getting-new-news-hook))))
- '(gnus-subscribe-newsgroup-method 'gnus-subscribe-topics)
- '(gnus-sum-thread-tree-single-indent "  ")
- '(gnus-summary-expunge-below -100)
- '(gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
-")
- '(gnus-summary-mark-below -100)
- '(gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)
-")
- '(gnus-summary-prepared-hook '(gnus-summary-hide-all-threads))
- '(gnus-summary-save-parts-default-mime ".*")
- '(gnus-suppress-duplicates t)
- '(gnus-suspend-gnus-hook '(gnus-group-save-newsrc))
- '(gnus-thread-expunge-below -1000)
- '(gnus-thread-hide-subtree t)
- '(gnus-thread-ignore-subject nil)
- '(gnus-thread-score-function 'max)
- '(gnus-thread-sort-functions '((not gnus-thread-sort-by-number)))
- '(gnus-topic-display-empty-topics nil)
- '(gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
-")
- '(gnus-treat-date-lapsed 'head)
- '(gnus-treat-hide-citation-maybe t)
- '(gnus-treat-strip-cr t)
- '(gnus-treat-strip-leading-blank-lines t)
- '(gnus-treat-strip-multiple-blank-lines t)
- '(gnus-treat-strip-trailing-blank-lines t)
- '(gnus-treat-unsplit-urls t)
- '(gnus-tree-minimize-window nil)
- '(gnus-uncacheable-groups "^nnml")
- '(gnus-use-adaptive-scoring '(line))
- '(gnus-use-cache t)
- '(gnus-verbose 4)
  '(grep-command "egrep -nH -e ")
  '(grep-find-command
    "find . -name '*' -type f -print0 | xargs -0 -P8 egrep -nH ")
@@ -1259,20 +869,9 @@ BAE Systems")))
  '(magit-use-overlays nil)
  '(magithub-clone-default-directory "~/src")
  '(magithub-dir "/Users/johnw/.emacs.d/data/magithub")
- '(mail-envelope-from 'header)
- '(mail-host-address "newartisans.com")
- '(mail-personal-alias-file "~/doc/mailrc")
- '(mail-self-blind t)
- '(mail-setup-with-from nil)
- '(mail-source-delete-incoming t)
- '(mail-source-delete-old-incoming-confirm nil)
- '(mail-source-report-new-mail-interval 15)
- '(mail-sources '((file :path "/var/mail/johnw")))
- '(mail-specify-envelope-from t)
- '(mail-user-agent 'gnus-user-agent)
  '(make-backup-file-name-function 'my-make-backup-file-name)
  '(malyon-stories-directory "~/doc/games")
- '(markdown-command "pandoc -f markdown_github+smart" t)
+ '(markdown-command "pandoc -f markdown_github+smart")
  '(markdown-command-needs-filename t)
  '(markdown-enable-math t)
  '(markdown-open-command "marked")
@@ -1289,45 +888,8 @@ BAE Systems")))
  '(mediawiki-site-alist
    '(("Wikipedia" "https://en.wikipedia.org/w/" "jwiegley" "" nil "Main Page")))
  '(menu-bar-mode nil)
- '(message-alternative-emails
-   "\\(johnw?\\|jwiegley\\)@\\(\\(gmail\\|newartisans\\|fpcomplete\\|boostpro\\|yahoo\\|hotmail\\)\\.com\\|gnu\\.org\\)")
- '(message-directory "~/Messages/Gnus/Mail/")
- '(message-dont-reply-to-names
-   "\\(jwiegley\\|johnw\\|john\\.wiegley\\)@\\(\\(gmail\\|newartisans\\|baesystems\\)\\.com\\|gnu\\.org\\)")
- '(message-fill-column 78)
- '(message-interactive t)
- '(message-mail-alias-type nil)
- '(message-mode-hook
-   '(abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
-                 (lambda nil
-                   (set-fill-column 78))
-                 turn-on-orgstruct++ turn-on-orgtbl))
- '(message-send-mail-function 'message-send-mail-with-sendmail)
- '(message-send-mail-partially-limit nil)
- '(message-sendmail-envelope-from 'header)
- '(message-sendmail-extra-arguments '("--read-envelope-from"))
- '(message-sendmail-f-is-evil t)
- '(message-sent-hook '(my-gnus-score-followup))
- '(message-setup-hook '(gnus-harvest-set-from message-check-recipients))
- '(message-signature-separator "^-- *$")
- '(message-subscribed-address-functions '(gnus-find-subscribed-addresses))
- '(message-x-completion-alist
-   '(("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address)
-     ((if
-          (boundp 'message-newgroups-header-regexp)
-          message-newgroups-header-regexp message-newsgroups-header-regexp)
-      . message-expand-group)))
  '(midnight-delay 18000)
  '(midnight-mode t)
- '(mm-attachment-override-types
-   '("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*"))
- '(mm-decrypt-option 'always)
- '(mm-discouraged-alternatives '("application/msword" "text/richtext"))
- '(mm-enable-external 'ask)
- '(mm-inline-text-html-with-images t)
- '(mm-text-html-renderer 'gnus-w3m)
- '(mm-verify-option 'always)
- '(mm-w3m-safe-url-regexp nil)
  '(moccur-following-mode-toggle nil)
  '(modelinepos-column-limit 80)
  '(mudel-mode-hook '(mudel-add-scroll-to-bottom))
@@ -1340,11 +902,6 @@ BAE Systems")))
  '(next-line-add-newlines nil)
  '(nix-buffer-directory-name "~/.emacs.d/data/nix-buffer" t)
  '(nix-indent-function 'nix-indent-line)
- '(nnir-imap-default-search-key "imap")
- '(nnmail-crosspost nil)
- '(nnmail-expiry-wait 30)
- '(nnmail-extra-headers '(To Cc Newsgroups))
- '(nnmail-scan-directory-mail-source-once t)
  '(nov-save-place-file "~/.emacs.d/data/nov-places")
  '(ns-alternate-modifier 'alt)
  '(ns-command-modifier 'meta)
@@ -1354,6 +911,374 @@ BAE Systems")))
  '(nxml-sexp-element-flag t)
  '(nxml-slash-auto-complete-flag t)
  '(olivetti-hide-mode-line t)
+ '(org-M-RET-may-split-line '((headline) (default . t)))
+ '(org-adapt-indentation nil)
+ '(org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
+ '(org-agenda-cmp-user-defined 'org-compare-todo-age)
+ '(org-agenda-custom-commands
+   '(("h" "Current Hotlist" alltodo ""
+      ((org-agenda-overriding-header "Current Hotlist")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
+     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Hot Projects")))
+     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Non-Hot Projects")))
+     ("n" "Project Next Actions" alltodo ""
+      ((org-agenda-overriding-header "Project Next Actions")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+     ("P" "All Projects" tags "TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "All Projects")))
+     ("A" "Priority #A tasks" agenda ""
+      ((org-agenda-ndays 1)
+       (org-agenda-overriding-header "Today's priority #A tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\=.*\\[#A\\]"))))
+     ("b" "Priority #A and #B tasks" agenda ""
+      ((org-agenda-ndays 1)
+       (org-agenda-overriding-header "Today's priority #A and #B tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
+     ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
+      ((org-agenda-overriding-header "Uncategorized items")))
+     ("W" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
+      ((org-agenda-overriding-header "Waiting/delegated tasks:")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled))
+       (org-agenda-sorting-strategy
+        '(todo-state-up priority-down category-up))))
+     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Deadlined tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notdeadline))
+       (org-agenda-sorting-strategy
+        '(category-up))))
+     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+      ((org-agenda-overriding-header "Scheduled tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notscheduled))
+       (org-agenda-sorting-strategy
+        '(category-up))))
+     ("d" "Unscheduled open source tasks (by date)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by date): ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/tasks/OSS.org"))))
+     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+       (org-agenda-sorting-strategy
+        '(category-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/tasks/OSS.org"))))
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-overriding-header "Unscheduled tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/tasks/todo.org" "~/doc/tasks/Bahai.org"))))
+     ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
+      ((org-agenda-overriding-header "Deferred tasks:")
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
+      ((org-agenda-overriding-header "Someday tasks:")
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled work-related tasks")
+       (org-agenda-files
+        '("~/kadena/docs/kadena.org"))
+       (org-agenda-sorting-strategy
+        '(category-up user-defined-up))
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("c" "Appointment Calendar" agenda ""
+      ((org-agenda-overriding-header "Appointment Calendar")
+       (org-agenda-sorting-strategy
+        '(time-up))
+       (org-agenda-span 14)
+       (org-agenda-ndays 14)
+       (org-agenda-regexp-filter-preset
+        '("+APPT"))))))
+ '(org-agenda-deadline-leaders '("!D!: " "D%02d: "))
+ '(org-agenda-default-appointment-duration 60)
+ '(org-agenda-files
+   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/kadena/docs/kadena.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
+ '(org-agenda-fontify-priorities t)
+ '(org-agenda-include-diary t)
+ '(org-agenda-inhibit-startup t)
+ '(org-agenda-log-mode-items '(closed clock state))
+ '(org-agenda-ndays 1)
+ '(org-agenda-persistent-filter t)
+ '(org-agenda-prefix-format
+   '((agenda . "  %-11c%?-12t% s")
+     (timeline . "  % s")
+     (todo . "  %-11c%5(org-todo-age) ")
+     (tags . "  %-11c")))
+ '(org-agenda-scheduled-leaders '("" "S%d: "))
+ '(org-agenda-scheduled-relative-text "S%d: ")
+ '(org-agenda-scheduled-text "")
+ '(org-agenda-show-all-dates t)
+ '(org-agenda-skip-deadline-if-done t)
+ '(org-agenda-skip-scheduled-if-deadline-is-shown t)
+ '(org-agenda-skip-scheduled-if-done t)
+ '(org-agenda-skip-unavailable-files t)
+ '(org-agenda-sorting-strategy
+   '((agenda habit-down time-up todo-state-up priority-down)
+     (todo priority-down category-keep)
+     (tags priority-down category-keep)
+     (search category-keep)))
+ '(org-agenda-start-on-weekday nil)
+ '(org-agenda-tags-column -100)
+ '(org-agenda-tags-todo-honor-ignore-options t)
+ '(org-agenda-text-search-extra-files '(agenda-archives "~/doc/tasks/notes.org"))
+ '(org-agenda-todo-ignore-scheduled 'past)
+ '(org-agenda-use-time-grid nil)
+ '(org-agenda-window-frame-fractions '(0.5 . 0.75))
+ '(org-archive-location "TODO-archive::")
+ '(org-archive-save-context-info '(time category itags))
+ '(org-attach-file-list-property "ATTACHED")
+ '(org-attach-method 'mv)
+ '(org-attach-store-link-p 'attached)
+ '(org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
+ '(org-babel-load-languages
+   '((python . t)
+     (emacs-lisp . t)
+     (haskell . t)
+     (calc . t)
+     (ledger . t)
+     (ditaa . t)
+     (plantuml . t)
+     (sh . t)
+     (sql . t)
+     (dot . t)
+     (restclient . t)))
+ '(org-beamer-frame-default-options "fragile")
+ '(org-capture-templates
+   '(("a" "Add Task" entry
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("n" "Note" entry
+      (file "~/doc/tasks/notes.org")
+      "* NOTE %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("c" "Calendar" entry
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      "* APPT %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("t" "Add Task" entry
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("p" "Protocol" entry
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      "* NOTE %?
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
+     ("L" "Protocol Link" entry
+      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      "* NOTE %?
+[[%:link][%:description]]
+#+BEGIN_QUOTE
+%i
+#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
+     ("j" "Journal entry" entry
+      (file+datetree "~/kadena/docs/kadena.org")
+      "* %?")))
+ '(org-clock-clocked-in-display nil)
+ '(org-clock-idle-time 10)
+ '(org-clock-in-resume t)
+ '(org-clock-in-switch-to-state "STARTED")
+ '(org-clock-into-drawer "LOGBOOK")
+ '(org-clock-mode-line-total 'current)
+ '(org-clock-out-remove-zero-time-clocks t)
+ '(org-clock-out-switch-to-state nil)
+ '(org-clock-persist t)
+ '(org-clock-persist-file "~/.emacs.d/data/org-clock-save.el")
+ '(org-clock-resolve-expert t)
+ '(org-completion-use-ido t)
+ '(org-confirm-babel-evaluate nil)
+ '(org-confirm-elisp-link-function nil)
+ '(org-confirm-shell-link-function nil)
+ '(org-crypt-disable-auto-save t)
+ '(org-crypt-key "0xAB37611BDDE48EBD")
+ '(org-cycle-global-at-bob t)
+ '(org-deadline-warning-days 14)
+ '(org-default-notes-file "~/doc/tasks/todo.org")
+ '(org-depend-tag-blocked nil)
+ '(org-directory "~/doc/tasks/")
+ '(org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
+ '(org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
+ '(org-edit-src-content-indentation 0)
+ '(org-enforce-todo-dependencies t)
+ '(org-export-babel-evaluate nil)
+ '(org-export-backends '(ascii html icalendar latex md))
+ '(org-export-latex-classes
+   '(("article" "\\documentclass[11pt]{article}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+     ("linalg" "\\documentclass{article}
+\\usepackage{linalgjh}
+[DEFAULT-PACKAGES]
+[EXTRA]
+[PACKAGES]"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+     ("report" "\\documentclass[11pt]{report}"
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("book" "\\documentclass[11pt]{book}"
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("beamer" "\\documentclass{beamer}" org-beamer-sectioning)))
+ '(org-extend-today-until 4)
+ '(org-fast-tag-selection-single-key 'expert)
+ '(org-fontify-done-headline t)
+ '(org-fontify-quote-and-verse-blocks t)
+ '(org-fontify-whole-heading-line t)
+ '(org-footnote-section nil)
+ '(org-gcal-dir "~/.emacs.d/data/org-gcal/")
+ '(org-habit-preceding-days 42)
+ '(org-habit-today-glyph 45)
+ '(org-hide-emphasis-markers t)
+ '(org-hide-leading-stars t)
+ '(org-icalendar-combined-agenda-file "~/doc/tasks/org.ics")
+ '(org-icalendar-timezone "America/Los_Angeles")
+ '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
+ '(org-image-actual-width nil)
+ '(org-imenu-depth 4)
+ '(org-insert-heading-respect-content t)
+ '(org-irc-link-to-logs t t)
+ '(org-latex-default-packages-alist
+   '(("T1" "fontenc" t)
+     ("" "fixltx2e" nil)
+     ("" "graphicx" t)
+     ("" "longtable" nil)
+     ("" "float" nil)
+     ("" "wrapfig" nil)
+     ("" "rotating" nil)
+     ("normalem" "ulem" t)
+     ("" "amsmath" t)
+     ("" "textcomp" t)
+     ("" "marvosym" t)
+     ("" "wasysym" t)
+     ("" "amssymb" t)
+     ("" "hyperref" nil)
+     "\\tolerance=1000"))
+ '(org-latex-listings 'minted)
+ '(org-latex-minted-options
+   '(("fontsize" "\\footnotesize")
+     ("linenos" "true")
+     ("xleftmargin" "0em")))
+ '(org-latex-pdf-process
+   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+ '(org-mime-preserve-breaks nil)
+ '(org-mobile-agendas '("Z"))
+ '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+ '(org-mobile-files '("~/doc/tasks/todo.org"))
+ '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
+ '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
+ '(org-mode-hook
+   '(org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode))
+ '(org-modules '(org-gnus org-habit org-info org-depend))
+ '(org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
+ '(org-pretty-entities t)
+ '(org-priority-faces
+   '((65 :foreground "White" :weight bold)
+     (66 . "White")
+     (67 :foreground "dark gray" :slant italic)))
+ '(org-refile-target-verify-function 'org-refile-heading-p)
+ '(org-refile-targets '((org-agenda-files :todo . "PROJECT")))
+ '(org-return-follows-link t)
+ '(org-reverse-note-order t)
+ '(org-smart-capture-use-lastname t)
+ '(org-src-fontify-natively t)
+ '(org-src-tab-acts-natively t)
+ '(org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
+ '(org-subject-transforms
+   '(("\\`\\(Re\\|Fwd\\): " . "")
+     ("\\`{ledger} " . "")
+     ("([Ww]as: .+)\\'" . "")
+     ("\\`\\[[a-z-]+\\] " . "")
+     ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
+ '(org-tags-column -97)
+ '(org-time-clocksum-use-fractional t)
+ '(org-todo-keyword-faces
+   '(("TODO" :foreground "medium blue" :weight bold)
+     ("EPIC" :foreground "deep sky blue" :weight bold)
+     ("STORY" :foreground "royal blue" :weight bold)
+     ("RECUR" :foreground "cornflowerblue" :weight bold)
+     ("APPT" :foreground "medium blue" :weight bold)
+     ("NOTE" :foreground "brown" :weight bold)
+     ("STARTED" :foreground "dark orange" :weight bold)
+     ("WAITING" :foreground "red" :weight bold)
+     ("DELEGATED" :foreground "dark violet" :weight bold)
+     ("DEFERRED" :foreground "dark blue" :weight bold)
+     ("SOMEDAY" :foreground "dark blue" :weight bold)
+     ("PROJECT" :foreground "#088e8e" :weight bold)))
+ '(org-todo-repeat-to-state "TODO")
+ '(org-use-property-inheritance '("AREA"))
+ '(org-use-speed-commands t)
+ '(org-use-tag-inheritance nil)
+ '(org-velocity-always-use-bucket t)
+ '(org-velocity-bucket "~/doc/tasks/notes.org")
+ '(org-velocity-capture-templates
+   '(("v" "Velocity" entry
+      (file "~/doc/tasks/notes.org")
+      "* NOTE %:search
+%i%?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)))
+ '(org-velocity-exit-on-match nil)
+ '(org-velocity-force-new t)
+ '(org-velocity-search-method 'regexp)
+ '(org-velocity-use-completion t)
+ '(org-x-backends '(ox-org ox-redmine))
+ '(org-x-redmine-title-prefix-function 'org-x-redmine-title-prefix)
+ '(org-x-redmine-title-prefix-match-function 'org-x-redmine-title-prefix-match)
  '(ovpn-mode-base-directory "~/.config/openvpn")
  '(pabbrev-idle-timer-verbose nil)
  '(package-archives
@@ -1505,56 +1430,8 @@ BAE Systems")))
  '(savehist-file "~/.emacs.d/data/history")
  '(savehist-ignored-variables '(load-history flyspell-auto-correct-ring kill-ring))
  '(savehist-mode t)
- '(sc-citation-leader "")
- '(sc-confirm-always-p nil)
- '(sc-default-attribution "")
- '(sc-default-cite-frame
-   '((begin
-      (progn
-        (sc-fill-if-different)
-        (setq sc-tmp-nested-regexp
-              (sc-cite-regexp "")
-              sc-tmp-nonnested-regexp
-              (sc-cite-regexp)
-              sc-tmp-dumb-regexp
-              (concat "\\("
-                      (sc-cite-regexp "")
-                      "\\)"
-                      (sc-cite-regexp sc-citation-nonnested-root-regexp)))))
-     ("^[       ]*$"
-      (if sc-cite-blank-lines-p
-          (sc-cite-line)
-        (sc-fill-if-different "")))
-     ((and
-       (looking-at "^-- ?$")
-       (not
-        (save-excursion
-          (goto-char
-           (match-end 0))
-          (re-search-forward "^-- ?$" nil t))))
-      (sc-fill-if-different ""))
-     (sc-reference-tag-string
-      (if
-          (string= sc-reference-tag-string "")
-          (list 'continue)
-        nil))
-     (sc-tmp-dumb-regexp
-      (sc-cite-coerce-dumb-citer))
-     (sc-tmp-nested-regexp
-      (sc-add-citation-level))
-     (sc-tmp-nonnested-regexp
-      (sc-cite-coerce-cited-line))
-     (sc-nested-citation-p
-      (sc-add-citation-level))
-     (t
-      (sc-cite-line))
-     (end
-      (sc-fill-if-different ""))))
- '(sc-preferred-attribution-list '("initials"))
- '(sc-use-only-preference-p t)
  '(scroll-bar-mode nil)
  '(semanticdb-default-save-directory "~/.emacs.d/data/semanticdb")
- '(send-mail-function 'sendmail-send-it)
  '(sendmail-program "msmtp")
  '(sentence-end-double-space nil)
  '(shackle-default-rule '(:select t))
@@ -1582,22 +1459,7 @@ BAE Systems")))
  '(slime-startup-animation nil)
  '(smex-history-length 20)
  '(smex-save-file "~/.emacs.d/data/smex-items")
- '(smtpmail-default-smtp-server "smtp.gmail.com")
- '(smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
- '(smtpmail-smtp-server "smtp.fastmail.com")
- '(smtpmail-smtp-service 587)
- '(smtpmail-smtp-user "johnw@newartisans.com")
- '(smtpmail-starttls-credentials
-   '(("mail.johnwiegley.com" 587 nil nil)
-     ("smtp.fastmail.com" 587 nil nil)
-     ("smtp.gmail.com" 587 nil nil)))
- '(smtpmail-stream-type 'ssl)
  '(sp-highlight-pair-overlay nil)
- '(spam-assassin-program "/opt/local/bin/spamc-5.12")
- '(spam-report-gmane-use-article-number nil)
- '(spam-sa-learn-program "/opt/local/bin/sa-learn-5.12")
- '(spam-use-regex-headers t)
- '(spam-use-spamassassin t)
  '(sql-sqlite-program "sqlite3")
  '(sr-attributes-display-mask '(nil nil t nil nil nil))
  '(sr-autoload-extensions nil)
@@ -2209,7 +2071,6 @@ BAE Systems")))
  '(flymake-note ((t nil)))
  '(font-lock-comment-face ((t (:foreground "grey50" :slant italic))))
  '(font-lock-doc-face ((t (:foreground "cornflowerblue"))))
- '(gnus-summary-normal-ticked ((t (:foreground "pink4"))))
  '(highlight ((t (:background "blue4"))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 2.0))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
@@ -2218,17 +2079,24 @@ BAE Systems")))
  '(markup-meta-face ((t (:stipple nil :foreground "gray60" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :width normal :foundry "unknown" :family "Monospace"))))
  '(markup-meta-hide-face ((t (:inherit markup-meta-face :foreground "gray50"))))
  '(markup-verbatim-face ((t (:foreground "orange"))))
- '(message-cited-text ((((class color)) (:foreground "Blue"))) t)
- '(message-cited-text-1 ((((class color)) (:foreground "Blue"))))
- '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
- '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
- '(message-header-other ((((class color)) (:foreground "Firebrick"))))
- '(message-header-xheader ((((class color)) (:foreground "Blue"))))
- '(message-mml ((((class color)) (:foreground "DarkGreen"))))
- '(message-separator ((((class color)) (:foreground "Tan"))))
  '(minibuffer-prompt ((t (:foreground "grey80"))))
  '(mode-line-inactive ((t (:background "grey95"))))
  '(nobreak-space ((t nil)))
+ '(org-agenda-clocking ((t (:background "red2"))) t)
+ '(org-agenda-done ((t (:foreground "ForestGreen"))))
+ '(org-done ((t (:foreground "ForestGreen" :weight bold))))
+ '(org-habit-alert-face ((((background light)) (:background "#f5f946"))))
+ '(org-habit-alert-future-face ((((background light)) (:background "#fafca9"))))
+ '(org-habit-clear-face ((((background light)) (:background "#8270f9"))))
+ '(org-habit-clear-future-face ((((background light)) (:background "#d6e4fc"))))
+ '(org-habit-overdue-face ((((background light)) (:background "#f9372d"))))
+ '(org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
+ '(org-habit-ready-face ((((background light)) (:background "#4df946"))))
+ '(org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
+ '(org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
+ '(org-level-4 ((t (:foreground "green"))))
+ '(org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
+ '(org-upcoming-deadline ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
  '(proof-eager-annotation-face ((t nil)))
  '(proof-locked-face ((t (:background "#180526"))))
  '(proof-omitted-proof-face ((t (:extend t :background "#23103c"))))

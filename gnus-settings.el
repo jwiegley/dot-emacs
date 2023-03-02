@@ -29,7 +29,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
 BAE Systems")))
  '(gnus-alias-identity-rules
-   '(("Ledger Mailing List"
+   '(("Kadena Mail"
+      ("To" "kadena" current)
+      "Kadena")
+     ("Ledger Mailing List"
       ("To" "ledger-cli@googlegroups\\.com" current)
       "Gmail")
      ("Emacs Mailing Lists"
