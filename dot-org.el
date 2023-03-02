@@ -533,6 +533,11 @@ end tell"))))
   (interactive)
   (org-set-property "URL" (org-get-safari-link)))
 
+(defun org-set-url-from-clipboard ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD)))
+
 (defun org-get-file-link ()
   (let* ((subject (do-applescript "tell application \"Path Finder\"
      set theItems to the selection
@@ -658,8 +663,8 @@ end tell" (match-string 1))))
            ("C-c x L" . org-set-dtp-link)
            ("C-c x m" . org-insert-message-link)
            ("C-c x M" . org-set-message-link)
-           ("C-c x u" . org-insert-url-link)
-           ("C-c x U" . org-set-url-link)
+           ("C-c x u" . org-set-url-from-clipboard)
+           ("C-c x U" . org-insert-url-link)
            ("C-c x f" . org-insert-file-link)
            ("C-c x F" . org-set-file-link)
 
