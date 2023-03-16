@@ -671,6 +671,8 @@ end tell" (match-string 1))))
            ("C-c C-x @" . visible-mode)
            ("C-c M-m"   . my-org-wrap-region)
 
+           ("C-c ,"     . org-priority)
+
            ([return]                . org-return-indent)
            ([(control return)]      . other-window)
            ([(control meta return)] . org-insert-heading-after-current))
