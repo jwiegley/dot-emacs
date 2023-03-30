@@ -1,4 +1,4 @@
-;;;_ , Org-mode
+;;; -*- lexical-binding: t; -*-
 
 (eval-and-compile
   (require 'cl-lib)
@@ -16,14 +16,15 @@
 (require 'org)
 (require 'org-agenda)
 
+(add-hook 'org-capture-mode-hook #'(lambda () (setq-local fill-column (- 78 2))))
+
 (unless window-system
   (setq org-agenda-files
-        '("~/doc/tasks/todo.org"
-          "~/doc/tasks/BAE.org")))
+        '("~/doc/org/todo.org")))
 
-(setq org-version "8.2.11")
-(defun org-release () "8.2.11")
-(defun org-git-version () "8.2.11")
+;; (setq org-version "8.2.11")
+;; (defun org-release () "8.2.11")
+;; (defun org-git-version () "8.2.11")
 
 (unbind-key "C-," org-mode-map)
 (unbind-key "C-'" org-mode-map)
@@ -192,7 +193,7 @@ To use this function, add it to `org-agenda-finalize-hook':
                     (setq proplist (cddr proplist))))))))
         (forward-line)))))
 
-(add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)
+(add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)
 
 (autoload 'gnus-string-remove-all-properties "gnus-util")
 
@@ -236,7 +237,10 @@ To use this function, add it to `org-agenda-finalize-hook':
        (gnus-string-remove-all-properties (substring message-id 2)))
     (error "Gnus is not running")))
 
-(add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
+;; (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
+(org-link-set-parameters "message"
+			 :follow #'org-my-message-open
+			 :store #'org-gnus-store-link)
 
 (defun save-org-mode-files ()
   (dolist (buf (buffer-list))
@@ -249,7 +253,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 (defun my-org-push-mobile ()
   (interactive)
-  (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
+  (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
     (org-mobile-push)))
 
 (eval-when-compile
@@ -320,7 +324,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       (let ((tasks (buffer-string)))
         (set-buffer-modified-p nil)
         (kill-buffer (current-buffer))
-        (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
+        (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* Inbox$")
@@ -401,6 +405,7 @@ This can be 0 for immediate, or a floating point value.")
   (float-time (org-time-string-to-time
                (or (org-entry-get (point) "TIMESTAMP")
                    (org-entry-get (point) "TIMESTAMP_IA")
+                   (org-entry-get (point) "CREATED")
                    (debug)))))
 
 (defun org-get-completed-time ()
@@ -578,10 +583,6 @@ This will use the command `open' with the message URL."
         open window for record (get beginning of searchResults)
 end tell" (match-string 1))))
 
-(add-hook 'org-log-buffer-setup-hook
-          (lambda ()
-            (setq fill-column (- fill-column 5))))
-
 (defun org-message-reply ()
   (interactive)
   (let* ((org-marker (get-text-property (point) 'org-marker))
@@ -671,6 +672,7 @@ end tell" (match-string 1))))
            ("C-c C-x @" . visible-mode)
            ("C-c M-m"   . my-org-wrap-region)
 
+           ("C-c #"     . org-priority)
            ("C-c ,"     . org-priority)
 
            ([return]                . org-return-indent)
@@ -683,7 +685,7 @@ end tell" (match-string 1))))
 
 (defun my-org-publish-ical ()
   (interactive)
-  (async-shell-command "make -C ~/doc/tasks"))
+  (async-shell-command "make -C ~/doc/org"))
 
 (bind-keys :map org-agenda-mode-map
            ("C-c C-x C-p" . my-org-publish-ical)
@@ -716,7 +718,7 @@ end tell" (match-string 1))))
             "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
             t "[0-9].*\\.txt\\'" nil))))
     (when notes
-      (with-current-buffer (find-file-noselect "~/doc/tasks/todo.org")
+      (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
         (save-excursion
           (goto-char (point-min))
           (re-search-forward "^\\* Inbox$")
@@ -771,25 +773,6 @@ end tell" (match-string 1))))
 (defun org-refile-heading-p ()
   (let ((heading (org-get-heading)))
     (not (string-match "Colophon" heading))))
-
-(defun org-inline-note ()
-  (interactive)
-  (switch-to-buffer-other-window "notes.org")
-  (goto-char (point-min))
-  (forward-line)
-  (goto-char (line-beginning-position))
-  (insert "* NOTE ")
-  (save-excursion
-    (insert (format (concat "\n"
-                            ":PROPERTIES:\n"
-                            ":ID:       %s\n"
-                            ":CREATED:  %s\n"
-                            ":END:\n")
-                    (substring (shell-command-to-string "uuidgen") 0 -1)
-                    (format-time-string (org-time-stamp-format t t)))))
-  (save-excursion
-    (forward-line)
-    (org-cycle)))
 
 (defadvice org-archive-subtree (before set-billcode-before-archiving activate)
   "Before archiving a task, set its BILLCODE and TASKCODE."
@@ -967,9 +950,11 @@ end tell" (match-string 1))))
                 (plist-get parameters :store)))))
 
 (use-package anki-editor
+  :disabled t
   :commands anki-editor-submit)
 
 (use-package calfw
+  :disabled t
   :bind (("C-c A" . my-calendar)
          :map cfw:calendar-mode-map
          ("M-n" . cfw:navi-next-month-command)
@@ -986,7 +971,7 @@ end tell" (match-string 1))))
     (interactive)
     (let ((buf (get-buffer "*cfw-calendar*"))
           (org-agenda-files
-           (cons "~/doc/tasks/Nasim.org"
+           (cons "~/doc/org/Nasim.org"
                  org-agenda-files)))
       (if buf
           (pop-to-buffer buf nil)
@@ -1013,6 +998,7 @@ end tell" (match-string 1))))
         cfw:fchar-top-right-corner ?┓))
 
 (use-package helm-org-rifle
+  :disabled t
   :bind ("A-M-r" . helm-org-rifle))
 
 (use-package jobhours
@@ -1042,9 +1028,11 @@ end tell" (match-string 1))))
 
   (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
 
-(use-package ob-diagrams)
+(use-package ob-diagrams
+  :disabled t)
 
-(use-package ob-restclient)
+(use-package ob-restclient
+  :disabled t)
 
 (use-package ob-verb)
 
@@ -1059,37 +1047,9 @@ end tell" (match-string 1))))
         (unless m (user-error "Cannot find entry with ID \"%s\"" id))
         (pop-to-buffer (marker-buffer m))
         (goto-char m)
-        (move-marker m nil))))
-  :config
-  (defun org-attach-commit ()
-    "Commit changes to git if `org-attach-directory' is properly initialized.
-This checks for the existence of a \".git\" directory in that directory."
-    (let* ((dir (expand-file-name org-attach-directory))
-	   (git-dir (vc-git-root dir))
-	   (changes 0))
-      (when (and git-dir (executable-find "git"))
-        (with-temp-buffer
-	  (cd dir)
-	  (let ((have-annex
-	         (and org-attach-git-annex-cutoff
-		      (file-exists-p (expand-file-name ".git/annex" git-dir)))))
-	    (dolist (new-or-modified
-		     (split-string
-		      (shell-command-to-string
-		       "git ls-files -zmo --exclude-standard") "\0" t))
-	      (if (and have-annex
-		       (>= (nth 7 (file-attributes new-or-modified))
-			   org-attach-git-annex-cutoff))
-		  (call-process "git" nil nil nil "annex" "add" new-or-modified)
-	        (call-process "git" nil nil nil "add" new-or-modified))
-	      (incf changes)))
-	  (dolist (deleted
-		   (split-string
-		    (shell-command-to-string "git ls-files -z --deleted") "\0" t))
-	    (call-process "git" nil nil nil "rm" deleted)
-	    (incf changes))
-	  (when (> changes 0)
-	    (shell-command "git commit -m 'Synchronized attachments'")))))))
+        (move-marker m nil)))))
+
+(use-package org-attach-git)
 
 (use-package org-babel
   :no-require
@@ -1102,10 +1062,10 @@ This checks for the existence of a \".git\" directory in that directory."
      ;; (coq        . t)
      (haskell    . t)
      (calc       . t)
-     (ledger     . t)
+     ;; (ledger     . t)
      (ditaa      . t)
      (plantuml   . t)
-     (sh         . t)
+     ;; (sh         . t)
      (sql        . t)
      (dot        . t)
      ;; (verb       . t)
@@ -1125,25 +1085,36 @@ This checks for the existence of a \".git\" directory in that directory."
 
 (use-package org-devonthink)
 
+(use-package org-download
+  :bind (:map org-mode-map
+              ("C-, i" . org-download-clipboard)
+              ("C-, y" . org-download-yank))
+  :custom
+  (org-download-method 'attach))
+
 (use-package org-mime
+  :defer 5
   :config
   (add-hook 'message-mode-hook
-            (lambda ()
-              (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
+            #'(lambda ()
+                (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
 
   (add-hook 'org-mode-hook
-            (lambda ()
-              (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
+            #'(lambda ()
+                (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
 
   (add-hook 'org-mime-html-hook
-            (lambda ()
-              (org-mime-change-element-style
-               "blockquote" "border-left: 2px solid gray; padding-left: 4px;")
-              (org-mime-change-element-style
-               "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
-                             "#E6E1DC" "#232323")))))
+            #'(lambda ()
+                (org-mime-change-element-style
+                 "blockquote" "border-left: 2px solid gray; padding-left: 4px;")
+                (org-mime-change-element-style
+                 "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
+                               "#E6E1DC" "#232323")))))
 
 (use-package org-protocol)
+
+(use-package org-noter
+  :commands org-noter)
 
 (use-package org-rich-yank
   :defer 5
@@ -1153,6 +1124,7 @@ This checks for the existence of a \".git\" directory in that directory."
 (use-package org-smart-capture)
 
 (use-package org-super-agenda
+  :disabled t
   :preface
   (defun super-jump-to-org-agenda ()
     (interactive)
@@ -1183,6 +1155,7 @@ This checks for the existence of a \".git\" directory in that directory."
   (org-super-agenda-mode))
 
 (use-package org-velocity
+  :disabled t
   :bind ("C-, C-." . org-velocity)
   :config
   (defun org-velocity-incremental-read (prompt)
@@ -1231,26 +1204,269 @@ This checks for the existence of a \".git\" directory in that directory."
 
 (use-package orgnav)
 
-(use-package orgtbl-aggregate)
-
-(use-package ox-confluence
-  :commands org-confluence-export-as-confluence)
+(use-package orgtbl-aggregate
+  :disabled t)
 
 (use-package ox-gfm)
 
 (use-package ox-md)
 
 (use-package ox-texinfo-plus
+  :disabled t
   :defer t)
 
 (use-package yankpad
+  :disabled t
   :defer 10
   :init
-  (setq yankpad-file "~/doc/tasks/yankpad.org"))
+  (setq yankpad-file "~/doc/org/yankpad.org"))
 
 (use-package worf
+  :disabled t
   :bind (:map org-mode-map
               ("C-c C-j" . worf-goto)))
+
+(defun my-org-export-each-headline (&optional scope)
+  "Export each headline to a markdown file with the title as filename.
+If SCOPE is nil headlines in the current buffer are exported.
+For other valid values for SCOPE see `org-map-entries'.
+Already existing files are overwritten."
+  (interactive)
+  (while (not (eobp))
+    (let* ((title (subst-char-in-string ?/ ?: (car (last (org-get-outline-path t))) t))
+           (dir (file-name-directory buffer-file-name))
+           (filename (concat dir title ".org"))
+           (beg (point)))
+      (call-interactively #'org-forward-heading-same-level)
+      (write-region beg (point) filename))))
+
+(defun my-org-current-entry-and-skip ()
+  (let* ((title (subst-char-in-string ?/ ?: (car (last (org-get-outline-path t))) t))
+         (beg (point)))
+    (call-interactively #'org-forward-heading-same-level)
+    (list beg (point) title)))
+
+(defun my-org-created-time (end)
+  (save-excursion
+    (re-search-forward ":CREATED: +\\[\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\) ... \\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\)\\]" end)
+    (list (string-to-number (match-string 1))
+          (string-to-number (match-string 2))
+          (string-to-number (match-string 3))
+          (string-to-number (match-string 4))
+          (string-to-number (match-string 5)))))
+
+(defun my-org-headline ()
+  (looking-at "\\(\\*+ NOTE +\\)\\(.+\\)\n")
+  (list (match-beginning 1) (match-end 1)
+        (match-string 2)))
+
+(defun my-org-property-drawer (end)
+  (save-excursion
+    (re-search-forward org-property-drawer-re end)
+    (list (match-beginning 0) (1+ (match-end 0)))))
+
+(defun my-org-simplify-title (title)
+  (replace-regexp-in-string
+   "[^A-Za-z0-9_:]" "#"
+   (replace-regexp-in-string
+    "[']" ""
+    (replace-regexp-in-string
+     "/" ":"
+     (replace-regexp-in-string
+      " " "_"
+      title)))))
+
+(defun my-org-prepare-note ()
+  (interactive)
+  (save-excursion
+    (cl-destructuring-bind (beg end title) (my-org-current-entry-and-skip)
+      (let ((text (buffer-substring beg end)))
+        (with-temp-buffer
+          (insert text)
+          (goto-char (point-min))
+          (cl-destructuring-bind (beg end title2) (my-org-headline)
+            (unless (string= title title2)
+              (error "TITLE: %s != %s" title title2))
+            (goto-char beg)
+            (delete-region beg end)
+            (insert "#+title: ")
+            (goto-char (line-end-position))
+            (insert ?\n)
+            (cl-destructuring-bind (beg end) (my-org-property-drawer (point-max))
+              (let ((properties (buffer-substring beg end)))
+                (delete-region beg end)
+                (goto-char (point-min))
+                (insert properties)))
+            (goto-char (point-max))
+            (delete-blank-lines)
+            (whitespace-cleanup)
+            (goto-char (point-min))
+            (cl-destructuring-bind (year mon day hour min)
+                (my-org-created-time (point-max))
+              (write-region (point-min) (point-max)
+                            (expand-file-name (format "%04d%02d%02d%02d%02d-%s.org"
+                                                      year mon day hour min
+                                                      (my-org-simplify-title title))
+                                              org-roam-directory)
+                            nil nil nil t))))
+        (delete-region beg end)))))
+
+(use-package org-roam
+  :demand t  ;; Ensure org-roam is loaded by default
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/doc/org/roam/")
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n I" . org-roam-node-insert-immediate)
+         ("C-c n j" . org-roam-dailies-capture-today)
+         ("C-c n p" . my/org-roam-find-project)
+         ("C-c n t" . my/org-roam-capture-task)
+         ("C-c n b" . my/org-roam-capture-inbox)
+         ("C-c n w" . my-org-prepare-note)
+         :map org-mode-map
+         ("C-M-i" . completion-at-point)
+         :map org-roam-dailies-map
+         ("Y" . org-roam-dailies-capture-yesterday)
+         ("T" . org-roam-dailies-capture-tomorrow)
+         )
+  :bind-keymap ("C-c n d" . org-roam-dailies-map)
+  :config
+  (use-package org-roam-dailies
+    :demand t
+    :custom
+    (org-roam-dailies-directory "~/doc/org/roam/journal/"))
+  (org-roam-db-autosync-mode))
+
+(use-package deft
+  :bind ("C-, C-," . deft)
+  :config
+  (setq deft-extensions '("org")
+        deft-directory org-roam-directory
+        deft-recursive t
+        deft-strip-summary-regexp ":PROPERTIES:\n\\(.+\n\\)+:END:\n"
+        deft-use-filename-as-title nil)
+  :config
+  (defun my-deft-parse-title-skip-properties (orig-func title contents)
+    (funcall orig-func title
+             (with-temp-buffer
+               (insert contents)
+               (goto-char (point-min))
+               (when (looking-at org-property-drawer-re)
+                 (goto-char (1+ (match-end 0))))
+               (buffer-substring (point) (point-max)))))
+
+  (advice-add 'deft-parse-title :around #'my-deft-parse-title-skip-properties)
+
+  (defun my-deft-parse-summary-skip-properties (orig-func contents title)
+    (funcall orig-func (with-temp-buffer
+                         (insert contents)
+                         (goto-char (point-min))
+                         (when (looking-at org-property-drawer-re)
+                           (goto-char (1+ (match-end 0))))
+                         (when (looking-at "#\\+title: ")
+                           (forward-line))
+                         (buffer-substring (point) (point-max)))
+             title))
+
+  (advice-add 'deft-parse-summary :around #'my-deft-parse-summary-skip-properties))
+
+(defun org-roam-node-insert-immediate (arg &rest args)
+  (interactive "P")
+  (let ((args (push arg args))
+        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                  '(:immediate-finish t)))))
+    (apply #'org-roam-node-insert args)))
+
+(defun my/org-roam-filter-by-tag (tag-name)
+  (lambda (node)
+    (member tag-name (org-roam-node-tags node))))
+
+(defun my/org-roam-list-notes-by-tag (tag-name)
+  (mapcar #'org-roam-node-file
+          (seq-filter
+           (my/org-roam-filter-by-tag tag-name)
+           (org-roam-node-list))))
+
+;; (defun my/org-roam-refresh-agenda-list ()
+;;   (interactive)
+;;   (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
+
+;; Build the agenda list the first time for the session
+;; (my/org-roam-refresh-agenda-list)
+
+(defun my/org-roam-project-finalize-hook ()
+  "Adds the captured project file to `org-agenda-files' if the
+capture was not aborted."
+  ;; Remove the hook since it was added temporarily
+  (remove-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Add project file to the agenda list if the capture was confirmed
+  (unless org-note-abort
+    (with-current-buffer (org-capture-get :buffer)
+      (add-to-list 'org-agenda-files (buffer-file-name)))))
+
+(defun my/org-roam-find-project ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Select a project file to open, creating it if necessary
+  (org-roam-node-find
+   nil
+   nil
+   (my/org-roam-filter-by-tag "Project")
+   :templates
+   '(("p" "project" plain "* Goals\n\n%?\n\n* Tasks\n\n** TODO Add initial tasks\n\n* Dates\n\n"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+category: ${title}\n#+filetags: Project")
+      :unnarrowed t))))
+
+(defun my/org-roam-capture-inbox ()
+  (interactive)
+  (org-roam-capture- :node (org-roam-node-create)
+                     :templates '(("i" "inbox" plain "* %?"
+                                   :if-new (file+head "Inbox.org" "#+title: Inbox\n")))))
+
+(defun my/org-roam-capture-task ()
+  (interactive)
+  ;; Add the project file to the agenda after capture is finished
+  (add-hook 'org-capture-after-finalize-hook #'my/org-roam-project-finalize-hook)
+
+  ;; Capture the new task, creating the project file if necessary
+  (org-roam-capture- :node (org-roam-node-read
+                            nil
+                            (my/org-roam-filter-by-tag "Project"))
+                     :templates '(("p" "project" plain "** TODO %?"
+                                   :if-new (file+head+olp "%<%Y%m%d%H%M%S>-${slug}.org"
+                                                          "#+title: ${title}\n#+category: ${title}\n#+filetags: Project"
+                                                          ("Tasks"))))))
+
+(defun my/org-roam-copy-todo-to-today ()
+  (interactive)
+  (let ((org-refile-keep t) ;; Set this to nil to delete the original!
+        (org-roam-dailies-capture-templates
+         '(("t" "tasks" entry "%?"
+            :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n" ("Tasks")))))
+        (org-after-refile-insert-hook #'save-buffer)
+        today-file
+        pos)
+    (save-window-excursion
+      (org-roam-dailies--capture (current-time) t)
+      (setq today-file (buffer-file-name))
+      (setq pos (point)))
+
+    ;; Only refile if the target file is different than the current file
+    (unless (equal (file-truename today-file)
+                   (file-truename (buffer-file-name)))
+      (org-refile nil nil (list "Tasks" today-file nil pos)))))
+
+;; (add-to-list 'org-after-todo-state-change-hook
+;;              (lambda ()
+;;                (when (equal org-state "DONE")
+;;                  (my/org-roam-copy-todo-to-today))))
 
 ;; Local Variables:
 ;;   mode: emacs-lisp

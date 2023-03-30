@@ -20,14 +20,8 @@
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
-     ("ATC" "" "\"ATC of Yolo Cluster\" <atcyolocluster@gmail.com>" ""
-      (("BCC" . "sarv9mithaq@gmail.com, jwiegley@gmail.com"))
-      "" "John Wiegley
-ATC Secretary")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
-     ("BAE" "" "\"John Wiegley\" <john.wiegley@baesystems.com>" "BAE Systems" nil "" "John Wiegley
-BAE Systems")))
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
  '(gnus-alias-identity-rules
    '(("Kadena Mail"
       ("To" "kadena" current)
@@ -99,7 +93,6 @@ BAE Systems")))
       (subject -10)
       (from -150))))
  '(gnus-default-article-saver 'gnus-summary-save-in-mail)
- '(gnus-gcc-mark-as-read t)
  '(gnus-generate-tree-function 'gnus-generate-horizontal-tree)
  '(gnus-group-default-list-level 2)
  '(gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
@@ -154,7 +147,7 @@ BAE Systems")))
       (spam-process gnus-group-spam-exit-processor-report-gmane))
      ("list\\.github$"
       (total-expire . t)
-      (expiry-wait . 14)
+      (expiry-wait . 90)
       (expiry-target . delete))
      ("mail\\.spam"
       (total-expire . t)
@@ -166,16 +159,14 @@ BAE Systems")))
        ((spam spam-use-spamassassin)
         (ham spam-use-spamassassin))))
      ("list\\."
-      (subscribed . t)
-      (gcc-self . t))
+      (subscribed . t))
      ("list\\.wg21\\.\\(.*\\)"
       (to-address . "c++std-\\1@accu.org")
       (to-list . "c++std-\\1@accu.org")
-      (gcc-self . t)
       (gnus-list-identifiers "\\[c\\+\\+std-.+?\\]"))
      ("INBOX"
       (total-expire . t)
-      (expiry-wait . 14)
+      (expiry-wait . 90)
       (expiry-target . "mail.archive")
       (spam-process-destination . "mail.spam")
       (spam-contents gnus-group-spam-classification-ham)
@@ -190,8 +181,7 @@ BAE Systems")))
       (gnus-show-threads nil))
      ("list\\.ledger\\.devel"
       (to-address . "ledger-cli@googlegroups.com")
-      (to-list . "ledger-cli@googlegroups.com")
-      (gcc-self . t))
+      (to-list . "ledger-cli@googlegroups.com"))
      ("list\\.bahai\\.tarjuman"
       (to-address . "tarjuman@bahai-library.com")
       (to-list . "tarjuman@bahai-library.com")
@@ -268,8 +258,7 @@ BAE Systems")))
       (list-identifier . "\\[Haskell\\(-cafe\\)?\\]"))
      ("list\\.haskell\\.libraries"
       (to-address . "libraries@haskell.org")
-      (to-list . "libraries@haskell.org")
-      (expiry-target . "archive.haskell.libraries"))
+      (to-list . "libraries@haskell.org"))
      ("list\\.haskell\\.prime"
       (to-address . "haskell-prime@haskell.org")
       (to-list . "haskell-prime@haskell.org")
@@ -433,8 +422,7 @@ BAE Systems")))
  '(message-mode-hook
    '(abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
                  (lambda nil
-                   (set-fill-column 78))
-                 turn-on-orgstruct++ turn-on-orgtbl))
+                   (set-fill-column 78))))
  '(message-send-mail-function 'message-send-mail-with-sendmail)
  '(message-send-mail-partially-limit nil)
  '(message-sendmail-envelope-from 'header)
@@ -533,7 +521,6 @@ BAE Systems")))
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(gnus-summary-normal-ticked ((t (:foreground "pink4"))))
- '(message-cited-text ((((class color)) (:foreground "Blue"))) t)
  '(message-cited-text-1 ((((class color)) (:foreground "Blue"))))
  '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
  '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))

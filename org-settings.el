@@ -15,9 +15,8 @@
         (nth 4 xs)
         (nth 3 xs)
         (nth 5 xs)))))
- '(deft-directory "~/doc/notes")
+ '(deft-directory "~/doc/org/roam")
  '(deft-text-mode 'org-mode)
- '(deft-use-filename-as-title t)
  '(org-M-RET-may-split-line '((headline) (default . t)))
  '(org-adapt-indentation nil)
  '(org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
@@ -73,7 +72,7 @@
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
-        '("~/doc/tasks/OSS.org"))))
+        '("~/doc/org/OSS.org"))))
      ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
@@ -82,7 +81,7 @@
         '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
-        '("~/doc/tasks/OSS.org"))))
+        '("~/doc/org/OSS.org"))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -91,7 +90,7 @@
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
-        '("~/doc/tasks/todo.org" "~/doc/tasks/Bahai.org"))))
+        '("~/doc/org/todo.org"))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
@@ -122,7 +121,7 @@
  '(org-agenda-deadline-leaders '("!D!: " "D%02d: "))
  '(org-agenda-default-appointment-duration 60)
  '(org-agenda-files
-   '("~/doc/tasks/todo.org" "~/doc/tasks/habits.org" "~/kadena/docs/kadena.org" "~/doc/tasks/Bahai.org" "~/doc/tasks/OSS.org"))
+   '("~/doc/org/todo.org" "~/doc/org/habits.org" "~/kadena/docs/kadena.org" "~/doc/org/OSS.org"))
  '(org-agenda-fontify-priorities t)
  '(org-agenda-include-diary t)
  '(org-agenda-inhibit-startup t)
@@ -147,10 +146,10 @@
      (todo priority-down category-keep)
      (tags priority-down category-keep)
      (search category-keep)))
+ '(org-agenda-span 'day)
  '(org-agenda-start-on-weekday nil)
  '(org-agenda-tags-column -100)
  '(org-agenda-tags-todo-honor-ignore-options t)
- '(org-agenda-text-search-extra-files '(agenda-archives "~/doc/tasks/notes.org"))
  '(org-agenda-todo-ignore-scheduled 'past)
  '(org-agenda-use-time-grid nil)
  '(org-agenda-window-frame-fractions '(0.5 . 0.75))
@@ -158,48 +157,46 @@
  '(org-archive-save-context-info '(time category itags))
  '(org-attach-file-list-property "ATTACHED")
  '(org-attach-method 'mv)
- '(org-attach-store-link-p 'attached)
+ '(org-attach-store-link-p 'file)
  '(org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
  '(org-babel-load-languages
    '((python . t)
      (emacs-lisp . t)
      (haskell . t)
      (calc . t)
-     (ledger . t)
      (ditaa . t)
      (plantuml . t)
-     (sh . t)
      (sql . t)
      (dot . t)
      (restclient . t)))
  '(org-beamer-frame-default-options "fragile")
  '(org-capture-templates
    '(("a" "Add Task" entry
-      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* TODO %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("n" "Note" entry
-      (file "~/doc/tasks/notes.org")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* NOTE %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("c" "Calendar" entry
-      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* APPT %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("t" "Add Task" entry
-      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* TODO %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
      ("p" "Protocol" entry
-      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* NOTE %?
 #+BEGIN_QUOTE
 %i
@@ -209,7 +206,7 @@
 :URL:      %c
 :END:")
      ("L" "Protocol Link" entry
-      (file+headline "~/doc/tasks/todo.org" "Inbox")
+      (file+headline "~/doc/org/todo.org" "Inbox")
       "* NOTE %?
 [[%:link][%:description]]
 #+BEGIN_QUOTE
@@ -235,20 +232,18 @@
  '(org-clock-resolve-expert t)
  '(org-completion-use-ido t)
  '(org-confirm-babel-evaluate nil)
- '(org-confirm-elisp-link-function nil)
- '(org-confirm-shell-link-function nil)
  '(org-crypt-disable-auto-save t)
  '(org-crypt-key "0xAB37611BDDE48EBD")
  '(org-cycle-global-at-bob t)
  '(org-deadline-warning-days 14)
- '(org-default-notes-file "~/doc/tasks/todo.org")
+ '(org-default-notes-file "~/doc/org/todo.org")
  '(org-depend-tag-blocked nil)
- '(org-directory "~/doc/tasks/")
+ '(org-directory "~/doc/org/")
  '(org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
+ '(org-download-method 'attach)
  '(org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
  '(org-edit-src-content-indentation 0)
  '(org-enforce-todo-dependencies t)
- '(org-export-babel-evaluate nil)
  '(org-export-backends '(ascii html icalendar latex md))
  '(org-export-latex-classes
    '(("article" "\\documentclass[11pt]{article}"
@@ -280,6 +275,7 @@
       ("\\subsection{%s}" . "\\subsection*{%s}")
       ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
      ("beamer" "\\documentclass{beamer}" org-beamer-sectioning)))
+ '(org-export-use-babel nil)
  '(org-extend-today-until 4)
  '(org-fast-tag-selection-single-key 'expert)
  '(org-fontify-done-headline t)
@@ -291,7 +287,7 @@
  '(org-habit-today-glyph 45)
  '(org-hide-emphasis-markers t)
  '(org-hide-leading-stars t)
- '(org-icalendar-combined-agenda-file "~/doc/tasks/org.ics")
+ '(org-icalendar-combined-agenda-file "~/doc/org/org.ics")
  '(org-icalendar-timezone "America/Los_Angeles")
  '(org-id-locations-file "~/.emacs.d/data/org-id-locations")
  '(org-image-actual-width nil)
@@ -314,22 +310,28 @@
      ("" "amssymb" t)
      ("" "hyperref" nil)
      "\\tolerance=1000"))
- '(org-latex-listings 'minted)
  '(org-latex-minted-options
    '(("fontsize" "\\footnotesize")
      ("linenos" "true")
      ("xleftmargin" "0em")))
  '(org-latex-pdf-process
    '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+ '(org-latex-src-block-backend 'minted)
+ '(org-link-elisp-confirm-function nil)
+ '(org-link-shell-confirm-function nil)
  '(org-mime-preserve-breaks nil)
  '(org-mobile-agendas '("Z"))
  '(org-mobile-directory "~/Dropbox/Apps/MobileOrg")
- '(org-mobile-files '("~/doc/tasks/todo.org"))
+ '(org-mobile-files '("~/doc/org/todo.org"))
  '(org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
- '(org-mobile-inbox-for-pull "~/doc/tasks/from-mobile.org")
+ '(org-mobile-inbox-for-pull "~/doc/org/from-mobile.org")
  '(org-mode-hook
    '(org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode))
  '(org-modules '(org-gnus org-habit org-info org-depend))
+ '(org-msg-default-alternatives
+   '((new text html)
+     (reply-to-html text html)
+     (reply-to-text text)))
  '(org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
  '(org-pretty-entities t)
  '(org-priority-faces
@@ -340,6 +342,12 @@
  '(org-refile-targets '((org-agenda-files :todo . "PROJECT")))
  '(org-return-follows-link t)
  '(org-reverse-note-order t)
+ '(org-roam-capture-templates
+   '(("d" "default" plain "%?" :target
+      (file+head "%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}
+")
+      :unnarrowed t)))
+ '(org-roam-directory "~/doc/org/roam/")
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-src-tab-acts-natively t)
@@ -369,20 +377,6 @@
  '(org-use-property-inheritance '("AREA"))
  '(org-use-speed-commands t)
  '(org-use-tag-inheritance nil)
- '(org-velocity-always-use-bucket t)
- '(org-velocity-bucket "~/doc/tasks/notes.org")
- '(org-velocity-capture-templates
-   '(("v" "Velocity" entry
-      (file "~/doc/tasks/notes.org")
-      "* NOTE %:search
-%i%?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)))
- '(org-velocity-exit-on-match nil)
- '(org-velocity-force-new t)
- '(org-velocity-search-method 'regexp)
- '(org-velocity-use-completion t)
  '(org-x-backends '(ox-org ox-redmine))
  '(org-x-redmine-title-prefix-function 'org-x-redmine-title-prefix)
  '(org-x-redmine-title-prefix-match-function 'org-x-redmine-title-prefix-match))
@@ -391,7 +385,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-clocking ((t (:background "red2"))) t)
+ '(org-agenda-clocking ((t (:background "red2"))))
  '(org-agenda-done ((t (:foreground "ForestGreen"))))
  '(org-done ((t (:foreground "ForestGreen" :weight bold))))
  '(org-habit-alert-face ((((background light)) (:background "#f5f946"))))

@@ -1,3 +1,5 @@
+(add-to-list 'load-path "~/.emacs.d/lisp/org-mode/lisp")
+
 (defcustom dot-emacs-use-eglot nil
   "Non-nil if Eglot should be used rather than LSP."
   :type 'boolean)
@@ -261,6 +263,7 @@
           ("C-c b" . my-ctrl-c-b-map)
           ("C-c e" . my-ctrl-c-e-map)
           ("C-c m" . my-ctrl-c-m-map)
+          ("C-c n" . my-ctrl-c-m-map)
           ("C-c w" . my-ctrl-c-w-map)
           ("C-c y" . my-ctrl-c-y-map)
           ("C-c H" . my-ctrl-c-H-map)
@@ -1131,9 +1134,6 @@
 (use-package dedicated
   :bind ("C-c W" . dedicated-mode))
 
-(use-package deft
-  :bind ("C-, C-," . deft))
-
 (use-package diff-hl
   :commands (diff-hl-mode diff-hl-dired-mode)
   :hook (magit-post-refresh . diff-hl-magit-post-refresh))
@@ -1784,6 +1784,7 @@ non-empty directories is allowed."
   :bind ("M-T" . tags-search))
 
 (use-package eval-expr
+  :disabled t
   :bind ("M-:" . eval-expr)
   :config
   (defun eval-expr-minibuffer-setup ()
@@ -1998,22 +1999,6 @@ non-empty directories is allowed."
 
 (use-package gitpatch
   :commands gitpatch-mail)
-
-(use-package go-jira
-  :no-require t
-  :init
-  (defvar jira-token nil)
-  (defun jira-create ()
-    (interactive)
-    (unless jira-token
-      (setq jira-token (lookup-password "go-jira.atlassian.net" "johnw" 6697)))
-    (setenv "JIRA_API_TOKEN" jira-token)
-    (require 'with-editor)
-    (start-process "go-jira" (get-buffer-create " *go-jira*")
-                   "jira" "create" "-b"
-                   "--editor" (concat with-editor-emacsclient-executable
-                                      " -s /tmp/emacs501/server")
-                   "-t" (expand-file-name "~/doc/tasks/jira.template"))))
 
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
@@ -3457,7 +3442,7 @@ append it to ENTRY."
          ("C-c e b" . do-eval-buffer)
          ("C-c e r" . do-eval-region)
          ("C-c e s" . scratch)
-         ("C-c n"   . insert-user-timestamp)
+         ("C-c n u" . insert-user-timestamp)
          ("C-x C-d" . duplicate-line)
          ("C-x C-v" . find-alternate-file-with-sudo)
          ("C-x K"   . delete-current-buffer-file)
@@ -4604,7 +4589,7 @@ tags: journal
   (interactive)
   (eshell-toggle nil)
   (switch-to-gnus)
-  (switch-to-fetchmail)
+  ;; (switch-to-fetchmail)
   (jump-to-org-agenda)
   (org-resolve-clocks)
   (unless (eq display-name 'imac)
