@@ -62,6 +62,7 @@
       [?\C-d ?\C-n ?B ?c ?I ?N ?B ?O ?X return ?q ?\C-p ?B backspace ?\M-g])
 
 (use-package fetchmail-ctl
+  :disabled t
   :after gnus-group
   :bind (:map gnus-group-mode-map
               ("v b" . switch-to-fetchmail)
@@ -86,15 +87,17 @@
 (defun my-message-header-setup-hook ()
   (message-remove-header "From")
   (let ((gcc (message-field-value "Gcc")))
-   (when (or (null gcc)
-             (string-match "nnfolder\\+archive:" gcc))
-     (message-remove-header "Gcc")
-     (message-add-header (format "Bcc: %s" user-mail-address))
-     (message-add-header
-      (format "Gcc: %s"
-              (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
-                  "mail.sent"
-                "INBOX"))))))
+    (when (or (null gcc)
+              (string-match "nnfolder\\+archive:" gcc))
+      (message-remove-header "Bcc")
+      (message-remove-header "Gcc")
+      ;; (message-add-header (format "Bcc: %s" user-mail-address))
+      ;; (message-add-header
+      ;;  (format "Gcc: %s"
+      ;;          (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
+      ;;              "mail.sent"
+      ;;            "INBOX")))
+      )))
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
 
