@@ -659,15 +659,43 @@ end tell" (match-string 1))))
         (define-key org-todo-state-map [,(upcase key)]
           ',org-agenda-sym-no-logging)))))
 
+(defun org-wrap-quote-block (beg end)
+  (interactive "r")
+  (save-excursion
+    (goto-char end)
+    (insert "#+END_QUOTE\n")
+    (goto-char beg)
+    (insert "#+BEGIN_QUOTE\n")))
+
+(defun org-wrap-verse-block (beg end)
+  (interactive "r")
+  (save-excursion
+    (goto-char end)
+    (insert "#+END_VERSE\n")
+    (goto-char beg)
+    (insert "#+BEGIN_VERSE\n")))
+
+(defun org-wrap-output-block (beg end)
+  (interactive "r")
+  (save-excursion
+    (goto-char end)
+    (insert ":OUTPUT:\n")
+    (goto-char beg)
+    (insert ":END:\n")))
+
 (bind-keys :map org-mode-map
            ("C-c x l" . org-insert-dtp-link)
            ("C-c x L" . org-set-dtp-link)
+           ("C-c x i" . org-id-get-create)
            ("C-c x m" . org-insert-message-link)
            ("C-c x M" . org-set-message-link)
            ("C-c x u" . org-set-url-from-clipboard)
            ("C-c x U" . org-insert-url-link)
            ("C-c x f" . org-insert-file-link)
            ("C-c x F" . org-set-file-link)
+           ("C-c x Q" . org-wrap-quote-block)
+           ("C-c x V" . org-wrap-verse-block)
+           ("C-c x O" . org-wrap-output-block)
 
            ("C-c C-x @" . visible-mode)
            ("C-c M-m"   . my-org-wrap-region)
@@ -1226,6 +1254,9 @@ end tell" (match-string 1))))
   :bind (:map org-mode-map
               ("C-c C-j" . worf-goto)))
 
+(use-package xeft
+  :commands xeft)
+
 (defun my-org-export-each-headline (&optional scope)
   "Export each headline to a markdown file with the title as filename.
 If SCOPE is nil headlines in the current buffer are exported.
@@ -1244,7 +1275,10 @@ Already existing files are overwritten."
   (let* ((title (subst-char-in-string ?/ ?: (car (last (org-get-outline-path t))) t))
          (beg (point)))
     (call-interactively #'org-forward-heading-same-level)
-    (list beg (point) title)))
+    (list beg (if (= beg (point))
+                  (point-max)
+                (point))
+          title)))
 
 (defun my-org-created-time (end)
   (save-excursion
@@ -1256,7 +1290,7 @@ Already existing files are overwritten."
           (string-to-number (match-string 5)))))
 
 (defun my-org-headline ()
-  (looking-at "\\(\\*+ NOTE +\\)\\(.+\\)\n")
+  (looking-at "\\(\\*+\\(:? NOTE\\)? +\\)\\(.+\\)\n")
   (list (match-beginning 1) (match-end 1)
         (match-string 2)))
 
@@ -1276,6 +1310,21 @@ Already existing files are overwritten."
       " " "_"
       title)))))
 
+(defun my-org-prepare-dated-note ()
+  (interactive)
+  (save-excursion
+    (forward-line)
+    (insert "#+filetags: :thoughts:\n"))
+  (delete-blank-lines)
+  (let ((id (org-id-get-create))
+        (title (save-excursion
+                 (cl-destructuring-bind (beg end title)
+                     (my-org-current-entry-and-skip)
+                   title))))
+    (org-entry-put (point) "CREATED" title)
+    (goto-char (line-end-position))
+    (backward-kill-sexp)))
+
 (defun my-org-prepare-note ()
   (interactive)
   (save-excursion
@@ -1285,8 +1334,8 @@ Already existing files are overwritten."
           (insert text)
           (goto-char (point-min))
           (cl-destructuring-bind (beg end title2) (my-org-headline)
-            (unless (string= title title2)
-              (error "TITLE: %s != %s" title title2))
+            ;; (unless (string= title title2)
+            ;;   (error "TITLE: %s != %s" title title2))
             (goto-char beg)
             (delete-region beg end)
             (insert "#+title: ")
@@ -1320,11 +1369,13 @@ Already existing files are overwritten."
   (org-roam-completion-everywhere t)
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
+         ("C-c n h" . helm-org-roam)
          ("C-c n i" . org-roam-node-insert)
          ("C-c n I" . org-roam-node-insert-immediate)
          ("C-c n j" . org-roam-dailies-capture-today)
          ("C-c n p" . my/org-roam-find-project)
-         ("C-c n t" . my/org-roam-capture-task)
+         ("C-c n t" . org-roam-tag-add)
+         ("C-c n T" . org-roam-tag-remove)
          ("C-c n b" . my/org-roam-capture-inbox)
          ("C-c n w" . my-org-prepare-note)
          :map org-mode-map
@@ -1462,6 +1513,86 @@ capture was not aborted."
     (unless (equal (file-truename today-file)
                    (file-truename (buffer-file-name)))
       (org-refile nil nil (list "Tasks" today-file nil pos)))))
+
+(defun my-org-roam-get-all-tags ()
+  "Save all roam tags to a buffer visting the file ~/Test."
+  (interactive)
+  (save-excursion
+    (let ((buf (find-file-noselect "~/Test")))
+      (set-buffer buf)
+      (erase-buffer)
+      (mapcar (lambda (n) (insert (car n) "\n"))
+              (org-roam-db-query
+               [:select :distinct [tag] :from tags ])))))
+
+(defun my-org-roam-find-in-thoughts (node)
+  (interactive)
+  (let ((tags (org-roam-node-tags node)))
+    (member "thoughts" tags)))
+
+(defun helm-org-roam (&optional input candidates)
+  (interactive)
+  (require 'org-roam)
+  (helm
+   :input input
+   :sources (list
+             (helm-build-sync-source "Roam: "
+               :must-match nil
+               :fuzzy-match t
+               :candidates (or candidates (org-roam--get-titles))
+               :action
+               '(("Find File" . (lambda (x)
+                                  (--> x
+                                       org-roam-node-from-title-or-alias
+                                       (org-roam-node-visit it t))))
+                 ("Insert link" . (lambda (x)
+                                    (--> x
+                                         org-roam-node-from-title-or-alias
+                                         (insert
+                                          (format
+                                           "[[id:%s][%s]]"
+                                           (org-roam-node-id it)
+                                           (org-roam-node-title it))))))
+                 ("Follow backlinks" . (lambda (x)
+                                         (let ((candidates
+                                                (--> x
+                                                     org-roam-node-from-title-or-alias
+                                                     org-roam-backlinks-get
+                                                     (--map
+                                                      (org-roam-node-title
+                                                       (org-roam-backlink-source-node it))
+                                                      it))))
+                                           (helm-org-roam nil (or candidates (list x))))))))
+             (helm-build-dummy-source
+                 "Create note"
+               :action '(("Capture note" . (lambda (candidate)
+                                             (org-roam-capture-
+                                              :node (org-roam-node-create :title candidate)
+                                              :props '(:finalize find-file)))))))))
+
+(defun my-xeft-get-title (file)
+  "Return the title of FILE.
+Return the first line as title, recognize Org Mode’s #+TITLE:
+cookie, if the first line is empty, return the file name as the
+title."
+  (re-search-forward (rx "#+title:" (* whitespace)) nil t)
+  (let ((bol (point)))
+    (goto-char (line-end-position))
+    (let ((title (buffer-substring-no-properties bol (point))))
+      (if (string= title "")
+          (file-name-base file)
+        title))))
+
+(defun my-xeft-file-filter (file)
+  "Return nil if FILE should be ignored.
+FILE is an absolute path. This default implementation ignores
+directories, dot files, and files matched by
+‘xeft-ignore-extension’."
+  (and (file-regular-p file)
+       (not (string-prefix-p
+             "." (file-name-base file)))
+       (not (string-suffix-p
+             "~" file))))
 
 ;; (add-to-list 'org-after-todo-state-change-hook
 ;;              (lambda ()
