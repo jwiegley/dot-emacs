@@ -16,6 +16,7 @@
         (nth 3 xs)
         (nth 5 xs)))))
  '(deft-directory "~/doc/org/roam")
+ '(deft-extensions '("org" "md"))
  '(deft-text-mode 'org-mode)
  '(org-M-RET-may-split-line '((headline) (default . t)))
  '(org-adapt-indentation nil)
@@ -347,7 +348,6 @@
       (file+head "%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}
 ")
       :unnarrowed t)))
- '(org-roam-directory "~/doc/org/roam/")
  '(org-smart-capture-use-lastname t)
  '(org-src-fontify-natively t)
  '(org-src-tab-acts-natively t)
