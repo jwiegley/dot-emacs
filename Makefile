@@ -20,7 +20,7 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 .PHONY: test build clean
 
 # Main rule
-all: init.elc
+all: init.el
 
 # Generate lisp and compile it
 init.el: init.org
