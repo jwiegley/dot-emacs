@@ -3,7 +3,7 @@
 EMACS	    = emacs
 EMACS_BATCH = $(EMACS) -Q -batch
 
-TARGET = $(patsubst %.el,%.elc, dot-gnus.el dot-org.el init.el)
+TARGET = $(patsubst %.el,%.elc,init.el)
 
 DIRS    = lisp
 SUBDIRS = $(shell find $(DIRS) -maxdepth 2	\
@@ -17,42 +17,31 @@ SUBDIRS = $(shell find $(DIRS) -maxdepth 2	\
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-all: $(TARGET) compile-packages compile info/dir
+.PHONY: test build clean
 
-info/dir:
-	find info				\
-	     \! -name '*-[0-9]*.gz'		\
-	     \! -name dir			\
-	     -type f				\
-	     -exec install-info {} $@ \;
-	install-info							 \
-	    --entry='* HyperSpec: (gcl).     The Common Lisp HyperSpec.' \
-	    info/gcl.info $@
+# Main rule
+all: init.elc
+
+# Generate lisp and compile it
+init.el: init.org
+	@$(BATCH_LOAD) -L $(HOME)/.emacs.d/lisp/org-mode/lisp \
+		--eval "(require 'org)" \
+		--eval "(org-babel-load-file \"init.org\")"
 
 compile:
 	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
 	@echo All Emacs Lisp files have been compiled.
 
-init.elc: init.el dot-org.elc dot-gnus.elc
-
-dot-org.elc: dot-org.el
-
-dot-gnus.elc: dot-gnus.el
+init.elc: init.el
 
 %.elc: %.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
-pull:
-	for i in release master ; do	\
-	    (cd $$i ; git pull) ;	\
-	done
-
 speed:
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
 clean:
-	rm -f info/dir
-	find . -name '*.elc' -delete
+	rm *.elc
 
 ### Makefile ends here
