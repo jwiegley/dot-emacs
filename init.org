@@ -5,9 +5,9 @@
 #+begin_src emacs-lisp
 ;;; -*- lexical-binding: t; -*-
 
-(defcustom dot-emacs-use-eglot nil
-  "Non-nil if Eglot should be used rather than LSP."
-  :type 'boolean)
+(defvar dot-emacs-use-eglot nil)
+(eval-when-compile
+  (defvar gnus-home-directory))
 
 (defconst emacs-start-time (current-time))
 
@@ -18,7 +18,10 @@
       message-log-max 16384
       gc-cons-threshold 402653184
       gc-cons-percentage 0.6
-      auto-window-vscroll nil)
+      auto-window-vscroll nil
+      gnus-home-directory "~/Messages/Gnus/")
+
+(add-to-list 'load-path "~/.emacs.d/lisp/org-mode/lisp")
 
 (add-hook 'after-init-hook
           #'(lambda ()
@@ -115,7 +118,7 @@
   (defconst load-path-reject-re "/\\.emacs\\.d/\\(lib\\|site-lisp\\)/"
     "Regexp matching `:load-path' values to be rejected.")
 
-  (defun load-path-handler-override (orig-func name keyword args rest state)
+  (defun load-path-handler-override (_ name _ args rest state)
     (if (cl-some (apply-partially #'string-match load-path-reject-re) args)
         (use-package-process-keywords name rest state)
       (let ((body (use-package-process-keywords name rest state)))
@@ -208,7 +211,7 @@
 (use-package fn            :defer t)
 (use-package fringe-helper :defer t)
 (use-package fuzzy         :defer t)
-(use-package ghub+         :defer t)
+(use-package ghub+         :disabled t :defer t)
 (use-package ht            :defer t)
 (use-package kv            :defer t)
 (use-package list-utils    :defer t)
@@ -1783,7 +1786,7 @@ non-empty directories is allowed."
   (use-package docker-container :commands docker-containers)
   (use-package docker-volume    :commands docker-volumes)
   (use-package docker-network   :commands docker-containers)
-  (use-package docker-machine   :commands docker-machines)
+  (use-package docker-machine   :disabled t :commands docker-machines)
   (use-package docker-compose   :commands docker-compose))
 #+end_src
 
@@ -1817,10 +1820,7 @@ non-empty directories is allowed."
   :bind (("M-G"   . switch-to-gnus)
          ("C-x m" . compose-mail))
   :init
-  ;; Have to set these here, because initsplit sends their customization
-  ;; values to gnus-settings.el.
-  (setq gnus-init-file (emacs-path "dot-gnus")
-        gnus-home-directory "~/Messages/Gnus/")
+  (setq gnus-home-directory "~/Messages/Gnus/")
 
   (defun fetchmail-password ()
     (lookup-password "imap.fastmail.com" "johnw" 993)))
@@ -1848,6 +1848,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package doxymacs
+  :disabled t
   :commands (doxymacs-mode doxymacs-font-lock)
   :config
   (doxymacs-mode 1)
@@ -2632,6 +2633,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package gitattributes-mode
+  :disabled t
   :defer 5)
 #+end_src
 
@@ -2639,6 +2641,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package gitconfig-mode
+  :disabled t
   :defer 5)
 #+end_src
 
@@ -2646,6 +2649,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package gitignore-mode
+  :disabled t
   :defer 5)
 #+end_src
 
@@ -2997,6 +3001,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package helm-firefox
+  :disabled t
   :bind ("A-M-b" . helm-firefox-bookmarks))
 #+end_src
 
@@ -3457,6 +3462,7 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package ivy-bibtex
+  :disabled t
   :commands ivy-bibtex)
 #+end_src
 
@@ -3604,6 +3610,7 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package kotl-mode
+  :disabled t
   :mode "\\.kotl\\'")
 #+end_src
 
@@ -4108,6 +4115,7 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package motoko-mode
+  :disabled t
   :mode (("\\.mo\\'" . motoko-mode)))
 #+end_src
 
@@ -4586,6 +4594,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
+  :defer 15
   :magic ("%PDF" . pdf-view-mode)
   :config
   (dolist
@@ -4748,6 +4757,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package po-mode
+  :disabled t
   :mode "\\.\\(po\\'\\|po\\.\\)")
 #+end_src
 
@@ -5535,6 +5545,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package string-edit
+  :disabled t
   :bind ("C-c C-'" . string-edit-at-point))
 #+end_src
 
@@ -6073,7 +6084,7 @@ append it to ENTRY."
                           (28  20)
                           (24 116)
                           (21 318)
-                          (t    0)))
+                          (_    0)))
     (`macbook-pro-vga         700)
     (`macbook-pro-16          672)
     (`macbook-pro-15          464)
@@ -6087,7 +6098,7 @@ append it to ENTRY."
                            (28 50)
                            (24 58)
                            (21 67)
-                           (t  40)))
+                           (_  40)))
     (`macbook-pro-vga          55)
     (`macbook-pro-16           51)
     (`macbook-pro-15           47)
@@ -6101,7 +6112,7 @@ append it to ENTRY."
                           (28 180)
                           (24 202)
                           (21 202)
-                          (t  100)))
+                          (_  100)))
     (`macbook-pro-vga         100)
     (`macbook-pro-16          100)
     (`macbook-pro-15          100)
@@ -6850,6 +6861,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 
 (require 'org)
 (require 'org-agenda)
+(require 'org-habit)
 
 (add-hook 'org-capture-mode-hook #'(lambda () (setq-local fill-column (- 78 2))))
 
@@ -8011,6 +8023,7 @@ end tell" (shell-quote-argument (match-string 1)))))
 
 #+begin_src emacs-lisp
 (use-package org-noter
+  :after pdf-tools
   :commands org-noter)
 #+end_src
 
