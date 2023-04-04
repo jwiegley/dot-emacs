@@ -19,11 +19,11 @@
       auto-window-vscroll nil)
 
 (add-hook 'after-init-hook
-          `(lambda ()
-             (setq file-name-handler-alist file-name-handler-alist-old
-                   gc-cons-threshold 800000
-                   gc-cons-percentage 0.1)
-             (garbage-collect)) t)
+          #'(lambda ()
+              (setq file-name-handler-alist file-name-handler-alist-old
+                    gc-cons-threshold 800000
+                    gc-cons-percentage 0.1)
+              (garbage-collect)) t)
 
 ;;; Functions
 
@@ -1602,7 +1602,7 @@ non-empty directories is allowed."
   :defer 5
   :config
   (defengine google "https://www.google.com/search?q=%s"
-    :keybinding "/")
+             :keybinding "/")
   (engine-mode 1))
 
 (use-package epa
@@ -5747,7 +5747,7 @@ This will use the command `open' with the message URL."
    (format "tell application \"DEVONthink Pro\"
         set searchResults to search \"%%3C%s%%3E\" within URLs
         open window for record (get beginning of searchResults)
-end tell" (match-string 1))))
+end tell" (shell-quote-argument (match-string 1)))))
 
 (defun org-message-reply ()
   (interactive)
