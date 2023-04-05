@@ -78,7 +78,10 @@
                  (save-excursion
                    (delete-region (point-min) (point-max))
                    (insert-buffer temp-buf))
-                 (goto-char here)))))))))
+                 (goto-char here))))))))
+
+  (defun quickping (host)
+    (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host))))
 #+end_src
 
 * Environment
@@ -146,7 +149,7 @@
 (eval-and-compile
   (defconst emacs-data-suffix
     (cond ((string= "emacsERC" emacs-environment) "alt")
-          ((string-match "emacs2[67]\\(.+\\)$" emacs-environment)
+          ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
            (match-string 1 emacs-environment))))
 
   (defconst alternate-emacs (string= emacs-data-suffix "alt"))
@@ -156,21 +159,8 @@
                     (format "data-%s" emacs-data-suffix)
                   "data")))
 
-  (load (emacs-path "settings"))
-
-  ;; Note that deferred loading may override some of these changed values.
-  ;; This can happen with `savehist', for example.
-  (when emacs-data-suffix
-    (let ((settings (with-temp-buffer
-                      (insert-file-contents (emacs-path "settings.el"))
-                      (read (current-buffer)))))
-      (pcase-dolist (`(quote (,var ,value . ,_)) (cdr settings))
-        (when (and (stringp value)
-                   (string-match "/\\.emacs\\.d/data" value))
-          (set var (replace-regexp-in-string
-                    "/\\.emacs\\.d/data"
-                    (format "/.emacs.d/data-%s" emacs-data-suffix)
-                    value)))))))
+  (defun user-data (dir)
+    (expand-file-name dir user-data-directory)))
 
 (defvar Info-directory-list
   (mapcar 'expand-file-name
@@ -189,10 +179,269 @@
                                             'byte-obsolete-info))))
 #+end_src
 
+** emacs
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :custom
+  (user-full-name "John Wiegley")
+  (user-mail-address "johnw@newartisans.com")
+
+  (ad-redefinition-action 'accept)
+  (auto-hscroll-mode 'current-line)
+  (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
+  (auto-save-interval 64)
+  (auto-save-list-file-prefix (user-data "auto-save-list/.saves-"))
+  (auto-save-timeout 2)
+  (backward-delete-char-untabify-method 'untabify)
+  (byte-compile-verbose nil)
+  (column-number-mode t)
+  (current-language-environment "UTF-8")
+  (custom-buffer-done-function 'kill-buffer)
+  (default-major-mode 'text-mode)
+  (delete-old-versions t)
+  (directory-free-space-args "-kh")
+  (enable-recursive-minibuffers t)
+  (fill-column 78)
+  (history-delete-duplicates t)
+  (history-length 200)
+  (indent-tabs-mode nil)
+  (inhibit-startup-echo-area-message "johnw")
+  (inhibit-startup-screen t)
+  (initial-buffer-choice t)
+  (initial-major-mode 'fundamental-mode)
+  (initial-scratch-message "")
+  (kill-do-not-save-duplicates t)
+  (kill-ring-max 500)
+  (kill-whole-line t)
+  (large-file-warning-threshold nil)
+  (line-number-mode t)
+  (load-prefer-newer t)
+  (menu-bar-mode nil)
+  (next-line-add-newlines nil)
+  (prettify-symbols-unprettify-at-point 'right-edge)
+  (read-buffer-function 'ido-read-buffer)
+  (redisplay-dont-pause t)
+  (save-abbrevs 'silently)
+  (save-interprogram-paste-before-kill t)
+  (scroll-bar-mode nil)
+  (sentence-end-double-space nil)
+  (show-paren-delay 0)
+  (switch-to-buffer-preserve-window-point t)
+  (tool-bar-mode nil)
+  (trash-directory "~/.Trash")
+  (undo-limit 800000)
+  (version-control t)
+  (visible-bell t)
+  (warning-minimum-log-level :error)
+  (window-divider-default-bottom-width 1)
+  (window-divider-default-places 'bottom-only)
+  (x-stretch-cursor t)
+
+  (ns-alternate-modifier 'alt)
+  (ns-command-modifier 'meta)
+  (ns-function-modifier 'hyper)
+  (ns-right-alternate-modifier 'alt)
+
+  (nsm-settings-file (user-data "network-security.data"))
+
+  (directory-abbrev-alist
+   '(("\\`/org" . "/Users/johnw/doc/org")))
+
+  (frame-title-format
+   '(:eval
+     (concat
+      (if buffer-file-name default-directory "%b")
+      "    "
+      (number-to-string
+       (cdr
+        (assq 'width
+              (frame-parameters))))
+      "x"
+      (number-to-string
+       (cdr
+        (assq 'height
+              (frame-parameters)))))))
+
+  (cc-other-file-alist
+   '(("\\.hs\\'"
+      (".hs-boot"))
+     ("\\.cc\\'"
+      (".hh" ".h"))
+     ("\\.hh\\'"
+      (".cc" ".C"))
+     ("\\.c\\'"
+      (".h"))
+     ("\\.h\\'"
+      (".c" ".cc" ".C" ".CC" ".cxx" ".cpp"))
+     ("\\.C\\'"
+      (".H" ".hh" ".h"))
+     ("\\.H\\'"
+      (".C" ".CC"))
+     ("\\.CC\\'"
+      (".HH" ".H" ".hh" ".h"))
+     ("\\.HH\\'"
+      (".CC"))
+     ("\\.c\\+\\+\\'"
+      (".h++" ".hh" ".h"))
+     ("\\.h\\+\\+\\'"
+      (".c++"))
+     ("\\.cpp\\'"
+      (".hpp" ".hh" ".h"))
+     ("\\.hpp\\'"
+      (".cpp"))
+     ("\\.cxx\\'"
+      (".hxx" ".hh" ".h"))
+     ("\\.hxx\\'"
+      (".cxx"))))
+
+  (completion-ignored-extensions
+   '(".glob"
+     ".vio"
+     ".vo"
+     ".vok"
+     ".vos"
+     ".v.d"
+     ".o"
+     "~"
+     ".bin"
+     ".lbin"
+     ".so"
+     ".a"
+     ".ln"
+     ".blg"
+     ".bbl"
+     ".elc"
+     ".lof"
+     ".glo"
+     ".idx"
+     ".lot"
+     ".svn/"
+     ".hg/"
+     ".git/"
+     ".bzr/"
+     "CVS/"
+     "_darcs/"
+     "_MTN/"
+     ".fmt"
+     ".tfm"
+     ".class"
+     ".fas"
+     ".lib"
+     ".mem"
+     ".x86f"
+     ".sparcf"
+     ".dfsl"
+     ".pfsl"
+     ".d64fsl"
+     ".p64fsl"
+     ".lx64fsl"
+     ".lx32fsl"
+     ".dx64fsl"
+     ".dx32fsl"
+     ".fx64fsl"
+     ".fx32fsl"
+     ".sx64fsl"
+     ".sx32fsl"
+     ".wx64fsl"
+     ".wx32fsl"
+     ".fasl"
+     ".ufsl"
+     ".fsl"
+     ".dxl"
+     ".lo"
+     ".la"
+     ".gmo"
+     ".mo"
+     ".toc"
+     ".aux"
+     ".cp"
+     ".fn"
+     ".ky"
+     ".pg"
+     ".tp"
+     ".vr"
+     ".cps"
+     ".fns"
+     ".kys"
+     ".pgs"
+     ".tps"
+     ".vrs"
+     ".pyc"
+     ".pyo"))
+
+  (same-window-buffer-names
+   '("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*"))
+
+  (safe-local-variable-values
+   '((haskell-indent-spaces . 4)
+     (haskell-indent-spaces . 2)
+     (haskell-indentation-ifte-offset . 2)
+     (haskell-indentation-layout-offset . 2)
+     (haskell-indentation-left-offset . 2)
+     (haskell-indentation-starter-offset . 2)
+     (haskell-indentation-where-post-offset . 2)
+     (haskell-indentation-where-pre-offset . 2)
+     (after-save-hook check-parens quietly-read-abbrev-file)))
+  (safe-local-eval-forms
+   '((add-hook 'write-file-hooks 'time-stamp)
+     (add-hook 'write-file-functions 'time-stamp)
+     (add-hook 'before-save-hook 'time-stamp nil t)
+     (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
+     (progn
+       (let
+           ((coq-root-directory
+             (when buffer-file-name
+               (locate-dominating-file buffer-file-name ".dir-locals.el")))
+            (coq-project-find-file
+             (and
+              (boundp 'coq-project-find-file)
+              coq-project-find-file)))
+         (set
+          (make-local-variable 'tags-file-name)
+          (concat coq-root-directory "TAGS"))
+         (setq camldebug-command-name
+               (concat coq-root-directory "dev/ocamldebug-coq"))
+         (unless coq-project-find-file
+           (set
+            (make-local-variable 'compile-command)
+            (concat "make -C " coq-root-directory))
+           (set
+            (make-local-variable 'compilation-search-path)
+            (cons coq-root-directory nil)))
+         (when coq-project-find-file
+           (setq default-directory coq-root-directory))))))
+  :custom-face
+  (cursor ((t (:background "hotpink"))))
+  (highlight ((t (:background "blue4"))))
+  (minibuffer-prompt ((t (:foreground "grey80"))))
+  (mode-line-inactive ((t (:background "grey95"))))
+  (nobreak-space ((t nil)))
+  (variable-pitch ((t (:height 1.2 :family "Bookerly"))))
+  :init
+  (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
+
+  ;; ;; TAB cycle if there are only few candidates
+  ;; (setq completion-cycle-threshold 3)
+  ;; ;; Enable indentation+completion using the TAB key. `completion-at-point' is
+  ;; ;; often bound to M-TAB.
+  ;; (setq tab-always-indent 'complete)
+  )
+#+end_src
+
 * Libraries
 
 #+begin_src emacs-lisp
-(use-package alert         :defer t  :load-path "lisp/alert")
+(use-package alert
+  :defer t
+  :load-path "lisp/alert"
+  :custom
+  (alert-default-style 'fringe)
+  (alert-notifier-command
+   "~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package anaphora      :defer t)
 (use-package apiwrap       :defer t)
 (use-package asoc          :defer t)
@@ -310,6 +559,8 @@
    . (lambda ()
        (add-hook 'expand-expand-hook #'indent-according-to-mode)
        (add-hook 'expand-jump-hook #'indent-according-to-mode)))
+  :custom
+  (abbrev-file-name "~/.emacs.d/abbrevs.el")
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
@@ -327,7 +578,8 @@
   (ace-isearch-input-length 7)
   (ace-isearch-jump-delay 0.25)
   (ace-isearch-function 'avy-goto-char)
-  (ace-isearch-use-jump 'printing-char))
+  (ace-isearch-use-jump 'printing-char)
+  (ace-isearch-submode 'ace-jump-char-mode))
 #+end_src
 
 ** ace-jump-mode
@@ -371,7 +623,10 @@
 
 #+begin_src emacs-lisp
 (use-package ace-window
-  :bind* ("<C-return>" . ace-window))
+  :bind* ("<C-return>" . ace-window)
+  :custom
+  (aw-dispatch-when-more-than 6)
+  (aw-scope 'frame))
 #+end_src
 
 ** adoc-mode
@@ -393,13 +648,32 @@
 #+begin_src emacs-lisp
 (use-package agda-input
   :demand t
-  :config
-  (setq-default default-input-method "Agda")
-  ;; (dolist (hook '(minibuffer-setup-hook
-  ;;                 fundamental-mode-hook
-  ;;                 text-mode-hook
-  ;;                 prog-mode-hook))
-  ;;   (add-hook hook #'(lambda () (set-input-method "Agda"))))
+  :custom
+  (default-input-method "Agda")
+  (agda-input-tweak-all
+   '(agda-input-compose (agda-input-prepend "\\") (agda-input-nonempty)))
+  (agda-input-user-translations
+   '(("^" "^")
+     ("nat" "⟹")
+     ("next" "◯")
+     ("always" "□")
+     ("aly" "□")
+     ("even" "◇")
+     ("evn" "◇")
+     ("for" "△")
+     ("mer" "▽")
+     ("iso" "≅")
+     ("miso" "≃")
+     ("diag" "∆")
+     ("whl" "⊳")
+     ("whr" "⊲")))
+  ;; :config
+  ;; (setq-default default-input-method "Agda")
+  ;; ;; (dolist (hook '(minibuffer-setup-hook
+  ;; ;;                 fundamental-mode-hook
+  ;; ;;                 text-mode-hook
+  ;; ;;                 prog-mode-hook))
+  ;; ;;   (add-hook hook #'(lambda () (set-input-method "Agda"))))
   )
 #+end_src
 
@@ -411,6 +685,10 @@
   :mode ("\\.agda\\'" "\\.lagda.md\\'")
   :bind (:map agda2-mode-map
               ("C-c C-i" . agda2-insert-helper-function))
+  :custom
+  (agda2-backend "MAlonzo")
+  (agda2-include-dirs
+   '("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda"))
   :preface
   (defun agda2-insert-helper-function (&optional prefix)
     (interactive "P")
@@ -440,6 +718,9 @@
   :bind (("M-["   . align-code)
          ("C-c [" . align-regexp))
   :commands align
+  :custom
+  (align-c++-modes '(csharp-mode c++-mode c-mode java-mode groovy-mode))
+  (align-to-tab-stop nil)
   :preface
   (defun align-code (beg end &optional arg)
     (interactive "rP")
@@ -455,6 +736,16 @@
 #+begin_src emacs-lisp
 (use-package anki-editor
   :commands anki-editor-submit)
+#+end_src
+
+** ansi-color
+
+#+begin_src emacs-lisp
+(use-package ansi-color
+  :defer t
+  :custom
+  (ansi-color-names-vector
+   ["black" "red" "green" "brown" "blue" "magenta" "blue" "white"]))
 #+end_src
 
 ** aria2
@@ -481,11 +772,75 @@
 ** auctex
 
 #+begin_src emacs-lisp
-(use-package auctex
-  :demand t
-  :no-require t
+(use-package latex
   :mode ("\\.tex\\'" . TeX-latex-mode)
+  :custom
+  (TeX-PDF-mode t)
+  (TeX-auto-save t)
+  (TeX-auto-untabify t)
+  (TeX-electric-escape t)
+  (TeX-engine 'xetex)
+  (TeX-parse-self t)
+  (TeX-view-program-list
+   '(("Skim"
+      ("osascript" " ~/bin/skim-gotopage.script" " %O"
+       (mode-io-correlate " %(outpage)")))))
+  (TeX-view-program-selection
+   '(((output-dvi style-pstricks)
+      "dvips and gv")
+     (output-dvi "xdvi")
+     (output-pdf "Skim")
+     (output-html "xdg-open")))
   :config
+  (require 'preview)
+  ;; (load (emacs-path "site-lisp/auctex/style/minted"))
+
+  (info-lookup-add-help :mode 'LaTeX-mode
+                        :regexp ".*"
+                        :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                        :doc-spec '(("(latex2e)Concept Index")
+                                    ("(latex2e)Command Index")))
+
+  (defvar latex-prettify-symbols-alist
+    '(("\N{THIN SPACE}" . ?\⟷)))
+
+  (bind-key "C-x SPC"
+            #'(lambda ()
+                (interactive)
+                (insert "\N{THIN SPACE}"))
+            LaTeX-mode-map)
+  (bind-key "C-x A"
+            #'(lambda ()
+                (interactive)
+                (insert "ٰ"))
+            LaTeX-mode-map)
+  (bind-key "A-َ"
+            #'(lambda ()
+                (interactive)
+                (insert "ٰ"))
+            LaTeX-mode-map)
+  (bind-key "A-ه"
+            #'(lambda ()
+                (interactive)
+                (insert "ۀ"))
+            LaTeX-mode-map)
+  (bind-key "A-د"
+            #'(lambda ()
+                (interactive)
+                (insert "ذ"))
+            LaTeX-mode-map)
+  (bind-key "A-ت"
+            #'(lambda ()
+                (interactive)
+                (insert "ة"))
+            LaTeX-mode-map)
+
+  (add-hook 'LaTeX-mode-hook
+            #'(lambda
+                ()
+                (setq-local prettify-symbols-alist latex-prettify-symbols-alist)
+                (prettify-symbols-mode 1)))
+
   (defun latex-help-get-cmd-alist ()    ;corrected version:
     "Scoop up the commands in the index of the latex info manual.
    The values are saved in `latex-help-cmd-alist' for speed."
@@ -540,6 +895,16 @@
        (directory-files-recursively store-dir "\.gpg$")))))
 #+end_src
 
+** autorevert
+
+#+begin_src emacs-lisp
+(use-package autorevert
+  :defer 5
+  :custom
+  (global-auto-revert-mode t)
+  (auto-revert-use-notify nil))
+#+end_src
+
 ** auto-yasnippet
 
 #+begin_src emacs-lisp
@@ -555,11 +920,15 @@
 #+begin_src emacs-lisp
 (use-package avy
   :bind* ("C-." . avy-goto-char-timer)
+  :custom
+  (avy-case-fold-search t)
+  (avy-keys '(97 111 101 117 105 100 104 116 110 115))
+  (avy-timeout-seconds 0.3)
   :config
   (avy-setup-default))
 #+end_src
 
-** avy-zap
+*** avy-zap
 
 #+begin_src emacs-lisp
 (use-package avy-zap
@@ -571,7 +940,10 @@
 
 #+begin_src emacs-lisp
 (use-package backup-each-save
+  :disabled t
   :commands backup-each-save
+  :custom
+  (make-backup-file-name-function 'my-make-backup-file-name)
   :preface
   (defun my-make-backup-file-name (file)
     (make-backup-file-name-1 (expand-file-name (file-truename file))))
@@ -587,7 +959,7 @@
     (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
       (normal-backup-enable-predicate filename)))
 
-  :hook after-save
+  :hook (after-save . backup-each-save)
   :config
   (setq backup-each-save-filter-function 'backup-each-save-filter
         backup-enable-predicate 'my-dont-backup-files-p))
@@ -615,6 +987,16 @@
   :commands biblio-lookup)
 #+end_src
 
+** bind-key
+
+#+begin_src emacs-lisp
+(use-package bind-key
+  :defer t
+  :custom
+  (bind-key-segregation-regexp
+   "\\`\\(\\(C-[chx.] \\|M-[gso] \\)\\([CM]-\\)?\\|.+-\\)"))
+#+end_src
+
 ** bm
 
 #+begin_src emacs-lisp
@@ -627,6 +1009,12 @@
              bm-buffer-save
              bm-buffer-save-all
              bm-buffer-restore)
+  :custom
+  (bm-buffer-persistence t)
+  (bm-cycle-all-buffers t)
+  (bm-highlight-style 'bm-highlight-only-fringe)
+  (bm-in-lifo-order t)
+  (bm-repository-file (user-data "bm-repository"))
   :init
   (add-hook 'after-init-hook #'bm-repository-load)
   (add-hook 'find-file-hooks #'bm-buffer-restore)
@@ -639,13 +1027,27 @@
                                  (bm-repository-save))))
 #+end_src
 
+** bookmark
+
+#+begin_src emacs-lisp
+(use-package bookmark
+  :defer 5
+  :custom
+  (bookmark-default-file "~/doc/bookmarks"))
+#+end_src
+
 ** bookmark+
 
 #+begin_src emacs-lisp
 (use-package bookmark+
   :after bookmark
   :bind ("M-B" . bookmark-bmenu-list)
-  :commands bmkp-jump-dired)
+  :commands bmkp-jump-dired
+  :custom
+  (bmkp-bmenu-commands-file (user-data "bmk-bmenu-commands.el"))
+  (bmkp-bmenu-state-file (user-data "bmk-bmenu-state.el"))
+  (bmkp-crosshairs-flag nil)
+  (bmkp-last-as-first-bookmark-file "~/Documents/bookmarks"))
 #+end_src
 
 ** boogie-friends
@@ -675,6 +1077,15 @@
 (use-package browse-kill-ring+
   :after browse-kill-ring
   :config (browse-kill-ring-default-keybindings))
+#+end_src
+
+** browse-url
+
+#+begin_src emacs-lisp
+(use-package browse-url
+  :defer 5
+  :custom
+  (browse-url-browser-function 'browse-url-default-macosx-browser))
 #+end_src
 
 ** bytecomp-simplify
@@ -714,6 +1125,30 @@
   (setq math-units-table nil))
 #+end_src
 
+** calendar
+
+#+begin_src emacs-lisp
+(use-package calendar
+  :defer t
+  :custom
+  (calendar-daylight-time-zone-name "PDT")
+  (calendar-latitude 38.5474883)
+  (calendar-longitude -121.5262693)
+  (calendar-mark-holidays-flag t)
+  (calendar-standard-time-zone-name "PST")
+  (calendar-time-zone -480)
+  (diary-file "~/doc/diary"))
+#+end_src
+
+*** holidays
+
+#+begin_src emacs-lisp
+(use-package holidays
+  :defer t
+  :custom
+  (holiday-bahai-holidays nil))
+#+end_src
+
 ** cargo
 
 #+begin_src emacs-lisp
@@ -721,6 +1156,8 @@
   :commands cargo-minor-mode
   :bind (:map cargo-mode-map
               ("C-c C-c C-y" . cargo-process-clippy))
+  :custom
+  (cargo-process--command-clippy "clippy")
   :config
   (defadvice cargo-process-clippy
       (around my-cargo-process-clippy activate)
@@ -766,6 +1203,8 @@
               ("<return>" . newline-and-indent)
               ("M-q" . c-fill-paragraph)
               ("M-j"))
+  :custom
+  (c-default-style '((java-mode . "gnu") (awk-mode . "awk") (other . "gnu")))
   :preface
   (defun my-c-mode-common-hook ()
     (require 'flycheck)
@@ -989,7 +1428,9 @@
   :bind (("M-s O" . moccur)
          :map isearch-mode-map
          ("M-o" . isearch-moccur)
-         ("M-O" . isearch-moccur-all)))
+         ("M-O" . isearch-moccur-all))
+  :custom
+  (moccur-following-mode-toggle nil))
 #+end_src
 
 ** command-log-mode
@@ -1007,6 +1448,17 @@
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
+  :custom
+  (company-frontends
+   '(company-pseudo-tooltip-unless-just-one-frontend
+     company-echo-metadata-frontend
+     company-preview-frontend))
+  (company-global-modes '(emacs-lisp-mode c-mode c++-mode))
+  (company-idle-delay nil)
+  (company-quickhelp-use-propertized-text t)
+  (company-show-numbers t)
+  (company-show-quick-access t)
+  (company-tooltip-align-annotations t)
   :init
   (dolist (hook '(emacs-lisp-mode-hook
                   c-mode-common-hook))
@@ -1098,7 +1550,45 @@
   :bind (:map company-coq-map
               ("M-<return>"))
   :bind (:map coq-mode-map
-              ("C-M-h" . company-coq-toggle-definition-overlay)))
+              ("C-M-h" . company-coq-toggle-definition-overlay))
+  :custom
+  (company-coq-disabled-features
+   '(hello prettify-symbols smart-subscripts dynamic-symbols-backend))
+  (company-coq-prettify-symbols-alist
+   '(("|-" . 8866)
+     ("True" . 8868)
+     ("False" . 8869)
+     ("->" . 8594)
+     ("-->" . 10230)
+     ("<-" . 8592)
+     ("<--" . 10229)
+     ("<->" . 8596)
+     ("<-->" . 10231)
+     ("==>" . 10233)
+     ("<==" . 10232)
+     ("++>" . 10239)
+     ("<++" . 11059)
+     ("fun" . 955)
+     ("forall" . 8704)
+     ("exists" . 8707)
+     ("/\\" . 8743)
+     ("\\/" . 8744)
+     ("~" . 172)
+     ("+-" . 177)
+     ("<=" . 8804)
+     (">=" . 8805)
+     ("<>" . 8800)
+     ("*" . 215)
+     ("++" . 10746)
+     ("nat" . 120029)
+     ("Z" . 8484)
+     ("N" . 8469)
+     ("Q" . 8474)
+     ("Real" . 8477)
+     ("bool" . 120121)
+     ("Prop" . 120031)))
+  :custom-face
+  (company-coq-features/code-folding-bullet-face ((t (:weight bold)))))
 #+end_src
 
 *** company-elisp
@@ -1162,6 +1652,13 @@
          ("M-O"   . show-compilation))
   :bind (:map compilation-mode-map
               ("z" . delete-window))
+  :custom
+  (compilation-always-kill t)
+  (compilation-ask-about-save nil)
+  (compilation-context-lines 10)
+  (compilation-scroll-output 'first-error)
+  (compilation-skip-threshold 2)
+  (compilation-window-height 100)
   :preface
   (defun show-compilation ()
     (interactive)
@@ -1200,7 +1697,11 @@
 
 #+begin_src emacs-lisp
 (use-package coq-lookup
-  :bind ("C-h q" . coq-lookup))
+  :bind ("C-h q" . coq-lookup)
+  :custom
+  (coq-lookup-browse-pdf-function
+   '(lambda (pdf page) (call-process "open" nil nil nil pdf)))
+  (coq-lookup-pdf "~/.local/share/coq/coq-8.15.2-reference-manual.pdf"))
 #+end_src
 
 ** counsel
@@ -1210,10 +1711,6 @@
   :after ivy
   :demand t
   :diminish
-  :custom (counsel-find-file-ignore-regexp
-           (concat "\\(\\`\\.[^.]\\|"
-                   (regexp-opt completion-ignored-extensions)
-                   "\\'\\)"))
   :bind (("C-*"     . counsel-org-agenda-headlines)
          ("C-x C-f" . counsel-find-file)
          ("C-c e l" . counsel-find-library)
@@ -1231,6 +1728,13 @@
   :commands counsel-minibuffer-history
   :init
   (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
+  :custom
+  (counsel-describe-function-preselect 'ivy-function-called-at-point)
+  (counsel-locate-cmd 'counsel-locate-cmd-default)
+  (counsel-find-file-ignore-regexp
+   (concat "\\(\\`\\.[^.]\\|"
+           (regexp-opt completion-ignored-extensions)
+           "\\'\\)"))
   :config
   (add-to-list 'ivy-sort-matches-functions-alist
                '(counsel-find-file . ivy--sort-files-by-date))
@@ -1302,6 +1806,9 @@
 #+begin_src emacs-lisp
 (use-package counsel-projectile
   :after (counsel projectile)
+  :custom
+  (counsel-projectile-remove-current-buffer t)
+  (counsel-projectile-remove-current-project t)
   :config
   (counsel-projectile-mode 1))
 #+end_src
@@ -1417,7 +1924,18 @@
 (use-package cus-edit
   :bind (("C-c o" . customize-option)
          ("C-c O" . customize-group)
-         ("C-c F" . customize-face)))
+         ("C-c F" . customize-face))
+  :custom
+  (custom-file "~/.emacs.d/settings.el")
+  (custom-raised-buttons nil)
+  (custom-safe-themes
+   '("644e23f289dcd3548c3f054785c72cf1fd81fcee07875ac7fed311985a67a0dc"
+     "c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223"
+     "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa"
+     "b9e9ba5aeedcc5ba8be99f1cc9301f6679912910ff92fdf7980929c2fc83ab4d"
+     "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279"
+     "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e"
+     default)))
 #+end_src
 
 ** dafny-mode
@@ -1426,7 +1944,11 @@
 (use-package dafny-mode
   :bind (:map dafny-mode-map
               ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error)))
+              ("M-p" . flycheck-previous-error))
+  :custom
+  (dafny-prover-args '("/compile:0" "/vcsCores:4"))
+  (dafny-prover-background-args
+   '("/timeLimit:20" "/autoTriggers:1" "/printTooltips" "/vcsCores:4")))
 #+end_src
 
 ** debbugs-gnu
@@ -1481,7 +2003,24 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package diff-mode
-  :commands diff-mode)
+  :commands diff-mode
+  :custom
+  (diff-mode-hook '(diff-delete-empty-files diff-make-unified smerge-mode))
+  :custom-face
+  (diff-added ((((background dark)) (:foreground "#FFFF9B9BFFFF"))
+               (t (:foreground "DarkGreen"))))
+  (diff-changed ((((background dark)) (:foreground "Yellow"))
+                 (t (:foreground "MediumBlue"))))
+  (diff-context ((((background dark)) (:foreground "White"))
+                 (t (:foreground "Black"))))
+  (diff-file-header ((((background dark)) (:foreground "Cyan" :background "Black"))
+                     (t (:foreground "Red" :background "White"))))
+  (diff-header ((((background dark)) (:foreground "Cyan"))
+                (t (:foreground "Red"))))
+  (diff-index ((((background dark)) (:foreground "Magenta"))
+               (t (:foreground "Green"))))
+  (diff-nonexistent ((((background dark)) (:foreground "#FFFFFFFF7474"))
+                     (t (:foreground "DarkBlue")))))
 #+end_src
 
 ** diffview
@@ -1510,6 +2049,18 @@ diff-hl package.
   :diminish dired-omit-mode
   :hook (dired-mode . dired-hide-details-mode)
   ;; :hook (dired-mode . dired-omit-mode)
+  :custom
+  (dired-clean-up-buffers-too nil)
+  (dired-dwim-target t)
+  (dired-hide-details-hide-information-lines nil)
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-listing-switches "--group-directories-first -lah")
+  (dired-no-confirm
+   '(byte-compile chgrp chmod chown copy hardlink symlink touch))
+  (dired-omit-mode nil t)
+  (dired-omit-size-limit 60000)
+  (dired-recursive-copies 'always)
+  (dired-recursive-deletes 'always)
   :preface
   (defun dired-two-pane ()
     (interactive)
@@ -1658,6 +2209,10 @@ diff-hl package.
 #+begin_src emacs-lisp
 (use-package dired+
   :after dired-x
+  :custom-face
+  (diredp-dir-name ((t (:foreground "blue"))))
+  (diredp-file-name ((t nil)))
+  (diredp-file-suffix ((t (:foreground "lightgreen"))))
   :config
   (defun dired-do-delete (&optional arg)  ; Bound to `D'
     "Delete all marked (or next ARG) files.
@@ -1783,11 +2338,16 @@ non-empty directories is allowed."
   :diminish
   :init
   (use-package docker-image     :commands docker-images)
-  (use-package docker-container :commands docker-containers)
   (use-package docker-volume    :commands docker-volumes)
   (use-package docker-network   :commands docker-containers)
   (use-package docker-machine   :disabled t :commands docker-machines)
-  (use-package docker-compose   :commands docker-compose))
+  (use-package docker-compose   :commands docker-compose)
+
+  (use-package docker-container
+    :commands docker-containers
+    :custom
+    (docker-containers-shell-file-name "/bin/bash")
+    (docker-containers-show-all nil)))
 #+end_src
 
 *** docker-compose-mode
@@ -1844,6 +2404,15 @@ non-empty directories is allowed."
     (my-org-startup)))
 #+end_src
 
+** doc-view
+
+#+begin_src emacs-lisp
+(use-package doc-view
+  :defer 5
+  :custom
+  (doc-view-resolution 300))
+#+end_src
+
 ** doxymacs
 
 #+begin_src emacs-lisp
@@ -1892,6 +2461,15 @@ non-empty directories is allowed."
          ("C-c = P" . ediff-patch-buffer)
          ("C-c = l" . ediff-regions-linewise)
          ("C-c = w" . ediff-regions-wordwise))
+  :custom
+  (ediff-combination-pattern
+   '("<<<<<<< A: HEAD" A "||||||| Ancestor" Ancestor "=======" B ">>>>>>> B: Incoming"))
+  (ediff-diff-options "-w")
+  (ediff-highlight-all-diffs nil)
+  (ediff-show-clashes-only t)
+  (ediff-window-setup-function 'ediff-setup-windows-plain)
+  :custom-face
+  (ediff-current-diff-C ((t (:extend t :background "#222200"))))
   :init
   (defun test-compare ()
     (interactive)
@@ -1969,6 +2547,8 @@ non-empty directories is allowed."
   :if (and window-system
            (not alternate-emacs))
   :defer 5
+  :custom
+  (edit-server-new-frame nil)
   :config
   (edit-server-start))
 #+end_src
@@ -1986,12 +2566,13 @@ non-empty directories is allowed."
 (use-package eglot
   :if dot-emacs-use-eglot
   :commands eglot
+  :custom
+  (eglot-autoshutdown t)
   :config
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
   (defvar flymake-list-only-diagnostics nil)
   (defun project-root (project)
-    (car (project-roots project)))
-  )
+    (car (project-roots project))))
 #+end_src
 
 ** eldoc
@@ -1999,7 +2580,18 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package eldoc
   :diminish
-  :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode))
+  :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode)
+  :custom
+  (eldoc-echo-area-use-multiline-p 3))
+#+end_src
+
+** electric
+
+#+begin_src emacs-lisp
+(use-package electric
+  :defer t
+  :custom
+  (electric-indent-mode nil))
 #+end_src
 
 ** elint
@@ -2097,6 +2689,54 @@ non-empty directories is allowed."
   :commands (erc erc-tls)
   :bind (:map erc-mode-map
               ("C-c r" . reset-erc-track-mode))
+  :custom
+  (erc-fill-function 'erc-fill-variable)
+  (erc-fill-static-center 12)
+  (erc-foolish-content
+   '("travis-ci.*ekmett" "analystics.*ekmett" "rudybot:"))
+  (erc-format-nick-function 'erc-format-@nick)
+  (erc-generate-log-file-name-function 'erc-generate-log-file-name-short)
+  (erc-header-line-format nil)
+  (erc-hide-list '("JOIN" "NICK" "PART" "QUIT"))
+  (erc-ignore-list '("lensbot" "rudybot" "johnwilkins"))
+  (erc-ignore-reply-list '("JordiGH"))
+  (erc-keywords '("wiegley" "ledger" "eshell" "use-package"))
+  (erc-log-channels-directory "~/Messages/ERC")
+  (erc-log-write-after-send t)
+  (erc-lurker-hide-list '("JOIN" "NICK" "PART" "QUIT" "MODE"))
+  (erc-modules
+   '(autojoin button completion dcc fill identd irccontrols list match menu move-to-prompt netsplit networks noncommands readonly replace ring services smiley stamp track truncate highlight-nicknames))
+  (erc-nick "johnw")
+  (erc-port 6667)
+  (erc-priority-people-regexp "\\`[^#].+")
+  (erc-prompt-for-nickserv-password nil)
+  (erc-rename-buffers t)
+  (erc-replace-alist '(("</?FONT>" . "")))
+  (erc-server "irc.libera.chat")
+  (erc-services-mode t)
+  (erc-text-matched-hook '(erc-hide-fools))
+  (erc-track-enable-keybindings t)
+  (erc-track-exclude '("#idris" "#agda" "#twitter_jwiegley"))
+  (erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
+  (erc-track-faces-priority-list
+   '(erc-error-face
+     (erc-nick-default-face erc-current-nick-face)
+     erc-current-nick-face erc-keyword-face
+     (erc-nick-default-face erc-pal-face)
+     erc-pal-face erc-nick-msg-face erc-direct-msg-face))
+  (erc-track-score-mode t)
+  (erc-track-showcount t)
+  (erc-user-full-name 'user-full-name)
+  (erc-auto-query 'window-noselect)
+  (erc-autoaway-message "I'm away (after %i seconds of idle-time)")
+  (erc-autojoin-channels-alist
+   '(("#nixos" "#nix-darwin" "#hnix" "#haskell-overflow" "#haskell-ops"
+      "#haskell-infrastructure" "#haskell" "#coq-blah" "#coq"
+      "##categorytheory" "#use-package/Lobby" "#ledger"
+      "#haskell-nix/Lobby" "#coq/coq" "#hs-to-coq" "#org-mode")
+     ("libera" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin"
+      "#haskell-infrastructure" "##categorytheory" "#nixos" "#org-mode")
+     ("gitter" "#use-package/Lobby" "#haskell-nix/Lobby")))
   :preface
   (defun irc (&optional arg)
     (interactive "P")
@@ -2233,7 +2873,9 @@ non-empty directories is allowed."
   :load-path "lisp/erc-yank"
   :after erc
   :bind (:map erc-mode-map
-              ("C-y" . erc-yank )))
+              ("C-y" . erc-yank ))
+  :custom
+  (erc-yank-query-before-gisting nil))
 #+end_src
 
 ** erefactor
@@ -2264,6 +2906,42 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package eshell
   :commands (eshell eshell-command)
+  :custom
+  (eshell-directory-change-hook
+   '(sml/generate-buffer-identification direnv-update-environment) t)
+  (eshell-directory-name "~/.emacs.d/eshell/")
+  (eshell-hist-ignoredups t)
+  (eshell-history-size 50000)
+  (eshell-ls-dired-initial-args '("-h"))
+  (eshell-ls-exclude-regexp "~\\'")
+  (eshell-ls-initial-args "-h")
+  (eshell-modules-list
+   '(eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra))
+  (eshell-prompt-function
+   (lambda nil
+     (concat
+      (abbreviate-file-name
+       (eshell/pwd))
+      (if
+          (=
+           (user-uid)
+           0)
+          " # " " $ "))))
+  (eshell-rebind-keys-alist
+   '(([(control 97)]
+      . eshell-bol)
+     ([home]
+      . eshell-bol)
+     ([(control 100)]
+      . eshell-delchar-or-maybe-eof)
+     ([backspace]
+      . eshell-delete-backward-char)
+     ([delete]
+      . eshell-delete-backward-char)))
+  (eshell-save-history-on-exit t)
+  (eshell-stringify-t nil)
+  (eshell-term-name "ansi")
+  (eshell-visual-commands '("vi" "top" "screen" "less" "lynx" "rlogin" "telnet"))
   :preface
   (defvar eshell-isearch-map
     (let ((map (copy-keymap isearch-mode-map)))
@@ -2324,7 +3002,12 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package etags
-  :bind ("M-T" . tags-search))
+  :bind ("M-T" . tags-search)
+  :custom
+  (tags-add-tables t)
+  (tags-apropos-verbose t)
+  (tags-case-fold-search nil)
+  (tags-revert-without-query t))
 #+end_src
 
 ** eval-expr
@@ -2333,6 +3016,10 @@ non-empty directories is allowed."
 (use-package eval-expr
   :disabled t
   :bind ("M-:" . eval-expr)
+  :custom
+  (eval-expr-print-function 'pp)
+  (eval-expr-print-length 100)
+  (eval-expr-print-level 20)
   :config
   (defun eval-expr-minibuffer-setup ()
     (local-set-key (kbd "<tab>") #'lisp-complete-symbol)
@@ -2373,6 +3060,10 @@ non-empty directories is allowed."
               ("A-2" . eyebrowse-switch-to-window-config-2)
               ("A-3" . eyebrowse-switch-to-window-config-3)
               ("A-4" . eyebrowse-switch-to-window-config-4))
+  :custom
+  (eyebrowse-keymap-prefix "")
+  (eyebrowse-mode-line-separator " ")
+  (eyebrowse-new-workspace t)
   :config
   (eyebrowse-mode t))
 #+end_src
@@ -2416,6 +3107,16 @@ non-empty directories is allowed."
   :bind ("C-c v" . ffap))
 #+end_src
 
+** find-dired
+
+#+begin_src emacs-lisp
+(use-package find-dired
+  :defer t
+  :custom
+  (find-ls-option '("-print0 | xargs -P4 -0 ls -ldN" . "-ldN"))
+  (find-ls-subdir-switches "-ldN"))
+#+end_src
+
 ** flycheck
 
 #+begin_src emacs-lisp
@@ -2423,6 +3124,11 @@ non-empty directories is allowed."
   :commands (flycheck-mode
              flycheck-next-error
              flycheck-previous-error)
+  :custom
+  (flycheck-coq-executable "ct-coqtop")
+  (flycheck-display-errors-delay 0.0)
+  (flycheck-haskell-hpack-preference 'prefer-cabal)
+  (flycheck-standard-error-navigation nil)
   :init
   (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
                    ;; (haskell-mode-hook    . haskell-mode-map)
@@ -2484,12 +3190,24 @@ non-empty directories is allowed."
   :after flycheck)
 #+end_src
 
+** flymake
+
+#+begin_src emacs-lisp
+(use-package flymake
+  :defer t
+  :custom-face
+  (flymake-note ((t nil))))
+#+end_src
+
 ** flyspell
 
 #+begin_src emacs-lisp
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode))
+  :custom
+  (flyspell-abbrev-p nil)
+  (flyspell-use-meta-tab nil)
   :config
   (defun my-flyspell-maybe-correct-transposition (beg end candidates)
     (unless (let (case-fold-search)
@@ -2505,6 +3223,20 @@ non-empty directories is allowed."
   :commands focus-mode)
 #+end_src
 
+** font-lock
+
+#+begin_src emacs-lisp
+(use-package font-lock
+  :defer 5
+  :custom
+  (global-font-lock-mode t)
+  (font-lock-support-mode 'jit-lock-mode)
+  (font-lock-verbose nil)
+  :custom-face
+  (font-lock-comment-face ((t (:foreground "grey50" :slant italic))))
+  (font-lock-doc-face ((t (:foreground "cornflowerblue")))))
+#+end_src
+
 ** font-lock-studio
 
 #+begin_src emacs-lisp
@@ -2518,6 +3250,23 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package forge
   :after magit
+  :custom
+  (forge-alist
+   '(("github.com" "api.github.com" "github.com" forge-github-repository)
+     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
+     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
+     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
+     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
+     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
+     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
+     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
+     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
+     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
+     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
+     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
+     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
+  (forge-database-file "~/.config/forge/database.sqlite")
+  (forge-owned-accounts '(("jwiegley")))
   :preface
   (defun my-quick-create-pull-request (title branch)
     (interactive "sTitle: \nsBranch: ")
@@ -2574,7 +3323,11 @@ non-empty directories is allowed."
   ;; jww (2017-12-10): Need to configure.
   :disabled t
   :commands ggtags-mode
-  :diminish)
+  :diminish
+  :custom
+  (ggtags-enable-navigation-keys nil)
+  (ggtags-oversize-limit 1048576)
+  (ggtags-use-sqlite3 t))
 #+end_src
 
 ** gist
@@ -2659,6 +3412,8 @@ non-empty directories is allowed."
 (use-package github-review
   :after forge
   :commands github-review-start
+  :custom
+  (github-review-fetch-top-level-and-review-comments t)
   :config
   (transient-insert-suffix 'forge-dispatch "c p"
     '("c r" "github-review" github-review-forge-pr-at-point)))
@@ -2710,7 +3465,12 @@ non-empty directories is allowed."
   :bind (("M-s n" . find-name-dired)
          ("M-s F" . find-grep)
          ("M-s G" . grep)
-         ("M-s d" . find-grep-dired)))
+         ("M-s d" . find-grep-dired))
+  :custom
+  (grep-command "egrep -nH -e ")
+  (grep-find-command
+   "find . -name '*' -type f -print0 | xargs -0 -P8 egrep -nH ")
+  (grep-save-buffers t))
 #+end_src
 
 ** gud
@@ -2722,6 +3482,9 @@ non-empty directories is allowed."
          ("<f10>"   . gud-next)
          ("<f11>"   . gud-step)
          ("S-<f11>" . gud-finish))
+  :config
+  (gdb-find-source-frame t)
+  (gdb-same-frame nil)
   :init
   (defun show-debugger ()
     (interactive)
@@ -2759,6 +3522,21 @@ non-empty directories is allowed."
               ("C-c C-u" . my-haskell-insert-undefined)
               ("M-s")
               ("M-t"))
+  :custom
+  (haskell-compile-cabal-build-command "cd %s && cabal new-build --ghc-option=-ferror-spans")
+  (haskell-hasktags-arguments '("-e"))
+  (haskell-hoogle-command nil)
+  (haskell-indent-spaces 4)
+  (haskell-indentation-ifte-offset 4)
+  (haskell-indentation-layout-offset 4)
+  (haskell-indentation-left-offset 2)
+  (haskell-indentation-starter-offset 4)
+  (haskell-indentation-where-post-offset 4)
+  (haskell-indentation-where-pre-offset 4)
+  (haskell-process-args-cabal-repl
+   '("--ghc-option=-ferror-spans" "--repl-options=-Wno-missing-home-modules" "--repl-options=-ferror-spans"))
+  (haskell-process-load-or-reload-prompt t)
+  (haskell-tags-on-save t)
   :preface
   (defun my-haskell-insert-undefined ()
     (interactive) (insert "undefined"))
@@ -2976,6 +3754,12 @@ non-empty directories is allowed."
               ("C-i"   . helm-execute-persistent-action)
               ("C-z"   . helm-select-action)
               ("A-v"   . helm-previous-page))
+  :custom
+  (helm-command-prefix-key nil)
+  (helm-dash-browser-func 'eww)
+  (helm-dash-docsets-path "/Users/johnw/Library/Application Support/Dash/DocSets/")
+  (helm-minibuffer-history-key nil)
+  (helm-recoll-options '("recollq" "-t" "-b"))
   :config
   (helm-autoresize-mode 1))
 #+end_src
@@ -3002,7 +3786,9 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package helm-firefox
   :disabled t
-  :bind ("A-M-b" . helm-firefox-bookmarks))
+  :bind ("A-M-b" . helm-firefox-bookmarks)
+  :custom
+  (helm-firefox-default-directory "~/Library/Application Support/Firefox/"))
 #+end_src
 
 *** helm-font
@@ -3032,6 +3818,15 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package helm-sys
   :commands helm-top)
+#+end_src
+
+** help
+
+#+begin_src emacs-lisp
+(use-package help
+  :defer 5
+  :custom
+  (temp-buffer-resize-mode t))
 #+end_src
 
 ** helpful
@@ -3114,7 +3909,19 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package hippie-exp
   :bind (("M-/"   . hippie-expand)
-         ("C-M-/" . dabbrev-completion)))
+         ("C-M-/" . dabbrev-completion))
+  :custom
+  (hippie-expand-try-functions-list
+   '(try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     try-expand-list
+     try-expand-line
+     try-complete-lisp-symbol-partially
+     try-complete-lisp-symbol)))
 #+end_src
 
 ** hl-line
@@ -3149,6 +3956,90 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer)
+  :custom
+  (ibuffer-default-display-maybe-show-predicates t)
+  (ibuffer-expert t)
+  (ibuffer-formats
+   '((mark modified read-only " "
+           (name 16 -1)
+           " "
+           (size 6 -1 :right)
+           " "
+           (mode 16 16)
+           " " filename)
+     (mark " "
+           (name 16 -1)
+           " " filename)))
+  (ibuffer-maybe-show-regexps nil)
+  (ibuffer-saved-filter-groups
+   '(("default"
+      ("Magit"
+       (or
+        (mode . magit-status-mode)
+        (mode . magit-log-mode)
+        (name . "\\*magit")
+        (name . "magit-")
+        (name . "git-monitor")))
+      ("Coq"
+       (or
+        (mode . coq-mode)
+        (name . "\\<coq\\>")
+        (name . "_CoqProject")))
+      ("Commands"
+       (or
+        (mode . shell-mode)
+        (mode . eshell-mode)
+        (mode . term-mode)
+        (mode . compilation-mode)))
+      ("Haskell"
+       (or
+        (mode . haskell-mode)
+        (mode . haskell-cabal-mode)
+        (mode . literate-haskell-mode)))
+      ("Rust"
+       (or
+        (mode . rust-mode)
+        (mode . cargo-mode)
+        (name . "\\*Cargo")
+        (name . "^\\*rls\\(::stderr\\)?\\*")
+        (name . "eglot")))
+      ("Nix"
+       (mode . nix-mode))
+      ("C++"
+       (or
+        (mode . c-mode)
+        (mode . c++-mode)))
+      ("Lisp"
+       (mode . emacs-lisp-mode))
+      ("Dired"
+       (mode . dired-mode))
+      ("Gnus"
+       (or
+        (mode . message-mode)
+        (mode . mail-mode)
+        (mode . gnus-group-mode)
+        (mode . gnus-summary-mode)
+        (mode . gnus-article-mode)
+        (name . "^\\.newsrc-dribble")
+        (name . "^\\*\\(sent\\|unsent\\|fetch\\)")
+        (name . "^ \\*\\(nnimap\\|nntp\\|nnmail\\|gnus\\|server\\|mm\\*\\)")
+        (name . "\\(Original Article\\|canonical address\\|extract address\\)")))
+      ("Org"
+       (or
+        (name . "^\\*Calendar\\*$")
+        (name . "^\\*Org Agenda")
+        (name . "^ \\*Agenda")
+        (name . "^diary$")
+        (mode . org-mode)))
+      ("Emacs"
+       (or
+        (name . "^\\*scratch\\*$")
+        (name . "^\\*Messages\\*$")
+        (name . "^\\*\\(Customize\\|Help\\)")
+        (name . "\\*\\(Echo\\|Minibuf\\)"))))))
+  (ibuffer-show-empty-filter-groups nil)
+  (ibuffer-shrink-to-minimum-size t t)
+  (ibuffer-use-other-window t)
   :init
   (add-hook 'ibuffer-mode-hook
             #'(lambda ()
@@ -3227,7 +4118,7 @@ non-empty directories is allowed."
 
   :config
   (setq iflipb-always-ignore-buffers
-        "\\`\\( \\|diary\\|ipa\\|\\.newsrc-dribble\\'\\)"
+        "\\`\\( \\|diary\\|\\.newsrc-dribble\\'\\)"
         iflipb-wrap-around t)
 
   (defun iflipb-first-iflipb-buffer-switch-command ()
@@ -3257,7 +4148,9 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package indent
-  :commands indent-according-to-mode)
+  :commands indent-according-to-mode
+  :custom
+  (tab-always-indent 'complete))
 #+end_src
 
 ** indent-shift
@@ -3273,6 +4166,9 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
+  :custom
+  (Info-default-directory-list '("~/.emacs.d/lisp/org-mode/doc"))
+  (Info-fit-frame-flag nil)
   :config
   (add-hook 'Info-mode-hook
             #'(lambda ()
@@ -3308,7 +4204,11 @@ non-empty directories is allowed."
 (use-package initsplit
   :disabled t
   :demand t
-  :load-path "lisp/initsplit")
+  :load-path "lisp/initsplit"
+  :custom
+  (initsplit-customizations-alist
+   '(("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil)
+     ("\\`\\(jobhours-\\|org-\\|deft-\\|cfw:\\)" "~/.emacs.d/org-settings.el" nil nil))))
 #+end_src
 
 ** ialign
@@ -3367,7 +4267,9 @@ non-empty directories is allowed."
          ("C-c i d" . ispell-change-dictionary)
          ("C-c i k" . ispell-kill-ispell)
          ("C-c i m" . ispell-message)
-         ("C-c i r" . ispell-region)))
+         ("C-c i r" . ispell-region))
+  :custom
+  (ispell-extra-args '("--sug-mode=fast" "--keyboard=dvorak")))
 #+end_src
 
 ** ivy
@@ -3395,12 +4297,23 @@ non-empty directories is allowed."
   :custom
   (ivy-dynamic-exhibit-delay-ms 200)
   (ivy-height 10)
-  (ivy-initial-inputs-alist nil t)
+  (ivy-initial-inputs-alist nil)
   (ivy-magic-tilde nil)
   (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
   (ivy-use-virtual-buffers t)
   (ivy-wrap t)
-
+  (ivy-extra-directories '("./"))
+  (ivy-ignore-buffers
+   '("\\` "
+     "\\`\\*git-monitor:"
+     "\\`\\*magit-process:"
+     "\\.elc$"
+     "\\.CFUserTextEncoding"
+     "\\`\\*Quail Completions\\*\\'"
+     "\\`\\.newsrc-dribble\\'"
+     "\\`\\.newsrc.eld\\'"))
+  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-rich-parse-remote-buffer nil)
   :preface
   (defun ivy-done-or-delete-char ()
     (interactive)
@@ -3501,6 +4414,15 @@ Skip buffers that match `ivy-ignore-buffers'."
   :disabled t
   :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
   :after (ivy rtags))
+#+end_src
+
+** jka-compr
+
+#+begin_src emacs-lisp
+(use-package jka-compr
+  :defer 5
+  :custom
+  (auto-compression-mode t))
 #+end_src
 
 ** jobhours
@@ -3614,61 +4536,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   :mode "\\.kotl\\'")
 #+end_src
 
-** latex
-
-#+begin_src emacs-lisp
-(use-package latex
-  :config
-  (require 'preview)
-  ;; (load (emacs-path "site-lisp/auctex/style/minted"))
-
-  (info-lookup-add-help :mode 'LaTeX-mode
-                        :regexp ".*"
-                        :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                        :doc-spec '(("(latex2e)Concept Index")
-                                    ("(latex2e)Command Index")))
-
-  (defvar latex-prettify-symbols-alist
-    '(("\N{THIN SPACE}" . ?\⟷)))
-
-  (bind-key "C-x SPC"
-            #'(lambda ()
-                (interactive)
-                (insert "\N{THIN SPACE}"))
-            LaTeX-mode-map)
-  (bind-key "C-x A"
-            #'(lambda ()
-                (interactive)
-                (insert "ٰ"))
-            LaTeX-mode-map)
-  (bind-key "A-َ"
-            #'(lambda ()
-                (interactive)
-                (insert "ٰ"))
-            LaTeX-mode-map)
-  (bind-key "A-ه"
-            #'(lambda ()
-                (interactive)
-                (insert "ۀ"))
-            LaTeX-mode-map)
-  (bind-key "A-د"
-            #'(lambda ()
-                (interactive)
-                (insert "ذ"))
-            LaTeX-mode-map)
-  (bind-key "A-ت"
-            #'(lambda ()
-                (interactive)
-                (insert "ة"))
-            LaTeX-mode-map)
-
-  (add-hook 'LaTeX-mode-hook
-            #'(lambda
-                ()
-                (setq-local prettify-symbols-alist latex-prettify-symbols-alist)
-                (prettify-symbols-mode 1))))
-#+end_src
-
 ** ledger-mode
 
 #+begin_src emacs-lisp
@@ -3677,6 +4544,10 @@ Skip buffers that match `ivy-ignore-buffers'."
   :load-path "~/src/ledger/lisp"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
+  :custom
+  (ledger-binary-path "ledger")
+  (ledger-file "/Volumes/Files/Accounts/ledger.dat")
+  (ledger-post-use-ido t)
   :preface
   (defun my-ledger-start-entry (&optional arg)
     (interactive "p")
@@ -3759,6 +4630,8 @@ Skip buffers that match `ivy-ignore-buffers'."
   :defer t
   :hook ((emacs-lisp-mode lisp-mode)
          . (lambda () (add-hook 'after-save-hook #'check-parens nil t)))
+  :custom
+  (parens-require-spaces t)
   :init
   (dolist (mode '(ielm-mode
                   inferior-emacs-lisp-mode
@@ -3830,6 +4703,9 @@ Skip buffers that match `ivy-ignore-buffers'."
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-rust-analyzer-server-display-inlay-hints t)
   (lsp-rust-clippy-preference "on")
+  (lsp-rust-features ["test"])
+  (lsp-server-install-dir (user-data ".cache/lsp"))
+  (lsp-session-file (user-data ".lsp-session-v1"))
   :config
   (use-package lsp-lens)
   (use-package lsp-headerline)
@@ -3884,6 +4760,24 @@ Skip buffers that match `ivy-ignore-buffers'."
               ("M-h") ("M-s") ("M-m") ("M-w"))
   :bind (:map magit-file-section-map ("<C-return>"))
   :bind (:map magit-hunk-section-map ("<C-return>"))
+  :custom
+  (magit-auto-revert-mode nil)
+  (magit-completing-read-function 'my-ivy-completing-read)
+  (magit-diff-options nil)
+  (magit-diff-refine-hunk t)
+  (magit-fetch-arguments nil)
+  (magit-git-executable "~/.nix-profile/bin/git")
+  (magit-highlight-trailing-whitespace nil)
+  (magit-highlight-whitespace nil)
+  (magit-log-section-commit-count 10)
+  (magit-pre-refresh-hook nil)
+  (magit-process-popup-time 15)
+  (magit-push-always-verify nil)
+  (magit-refresh-status-buffer nil)
+  (magit-section-initial-visibility-alist '((untracked . hide)))
+  (magit-stage-all-confirm nil)
+  (magit-unstage-all-confirm nil)
+  (magit-use-overlays nil)
   :preface
   ;; History can be viewed with:
   ;; git log refs/snapshots/$(git symbolic-ref HEAD)
@@ -3940,7 +4834,10 @@ Skip buffers that match `ivy-ignore-buffers'."
   :config
   (use-package magit-commit
     :config
-    (use-package git-commit))
+    (use-package git-commit
+      :custom
+      (git-commit-mode-hook
+       '(turn-on-auto-fill flyspell-mode git-commit-save-message))))
 
   (use-package magit-files
     :config
@@ -3989,6 +4886,8 @@ Skip buffers that match `ivy-ignore-buffers'."
 #+begin_src emacs-lisp
 (use-package malyon
   :commands malyon
+  :custom
+  (malyon-stories-directory "~/doc/games")
   :config
   (defun replace-invisiclues ()
     (interactive)
@@ -4007,7 +4906,18 @@ Skip buffers that match `ivy-ignore-buffers'."
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :custom
+  (markdown-command "pandoc -f markdown_github+smart")
+  (markdown-command-needs-filename t)
+  (markdown-enable-math t)
+  (markdown-open-command "marked")
+  :custom-face
+  (markdown-header-face-1 ((t (:inherit markdown-header-face :height 2.0))))
+  (markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
+  (markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.4))))
+  (markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
+  :init
+  (setq markdown-command "multimarkdown"))
 #+end_src
 
 ** markdown-preview-mode
@@ -4032,7 +4942,10 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package mediawiki
-  :commands mediawiki-open)
+  :commands mediawiki-open
+  :custom
+  (mediawiki-site-alist
+   '(("Wikipedia" "https://en.wikipedia.org/w/" "jwiegley" "" nil "Main Page"))))
 #+end_src
 
 ** memory-usage
@@ -4063,7 +4976,29 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package midnight
-  :bind ("C-c z" . clean-buffer-list))
+  :defer 5
+  :bind ("C-c z" . clean-buffer-list)
+  :custom
+  (midnight-delay 18000)
+  (midnight-mode t)
+  (clean-buffer-list-kill-never-buffer-names
+   '("*scratch*"
+     "*Messages*"
+     "*server*"
+     "*Group*"
+     "*Org Agenda*"
+     "todo.txt"
+     "habits.txt"
+     "Bahai.txt"
+     "OSS.txt"
+     "diary"
+     "notes.txt"
+     "&bitlbee"))
+  (clean-buffer-list-kill-never-regexps
+   '("^ \\*Minibuf-.*\\*$"
+     "^\\*Summary"
+     "^\\*Article" "^#"))
+  (clean-buffer-list-kill-regexps '(".*")))
 #+end_src
 
 ** minibuffer
@@ -4136,6 +5071,33 @@ Skip buffers that match `ivy-ignore-buffers'."
 (use-package multi-term
   :bind (("C-c t" . multi-term-next)
          ("C-c T" . multi-term))
+  :custom
+  (multi-term-program "screen")
+  (multi-term-program-switches "-DR")
+  (multi-term-scroll-show-maximum-output t)
+  (term-bind-key-alist
+   '(("C-c C-c" . term-interrupt-subjob)
+     ("C-b" . my-term-send-raw-at-prompt)
+     ("C-f" . my-term-send-raw-at-prompt)
+     ("C-a" . my-term-send-raw-at-prompt)
+     ("C-e" . my-term-send-raw-at-prompt)
+     ("C-p" . previous-line)
+     ("C-n" . next-line)
+     ("C-s" . isearch-forward)
+     ("C-r" . isearch-backward)
+     ("C-m" . term-send-raw)
+     ("M-f" . term-send-forward-word)
+     ("M-b" . term-send-backward-word)
+     ("M->" . my-term-end-of-buffer)
+     ("M-o" . term-send-backspace)
+     ("M-p" . term-send-up)
+     ("M-n" . term-send-down)
+     ("M-d" . term-send-forward-kill-word)
+     ("M-DEL" . term-send-backward-kill-word)
+     ("M-r" . term-send-reverse-search-history)
+     ("M-," . term-send-input)
+     ("M-." . comint-dynamic-complete)
+     ("C-y" . term-paste)))
   :init
   (defun screen ()
     (interactive)
@@ -4227,7 +5189,8 @@ Skip buffers that match `ivy-ignore-buffers'."
               ("Y"   . mc/mark-previous-symbol-like-this)
               ("w"   . mc/mark-next-word-like-this)
               ("W"   . mc/mark-previous-word-like-this))
-
+  :custom
+  (mc/list-file (user-data "mc-lists.el"))
   :preface
   (defun reactivate-mark ()
     (interactive)
@@ -4301,7 +5264,9 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package nix-mode
-  :mode "\\.nix\\'")
+  :mode "\\.nix\\'"
+  :custom
+  (nix-indent-function 'nix-indent-line))
 #+end_src
 
 ** nix-update
@@ -4316,7 +5281,9 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package nov
-  :mode ("\\.epub\\'" . nov-mode))
+  :mode ("\\.epub\\'" . nov-mode)
+  :custom
+  (nov-save-place-file (user-data "nov-places")))
 #+end_src
 
 ** nroff-mode
@@ -4348,6 +5315,9 @@ Skip buffers that match `ivy-ignore-buffers'."
   :bind (:map nxml-mode-map
               ("<return>" . newline-and-indent)
               ("C-c M-h"  . tidy-xml-buffer))
+  :custom
+  (nxml-sexp-element-flag t)
+  (nxml-slash-auto-complete-flag t)
   :preface
   (defun tidy-xml-buffer ()
     (interactive)
@@ -4371,7 +5341,9 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 #+begin_src emacs-lisp
 (use-package olivetti
-  :commands olivetti-mode)
+  :commands olivetti-mode
+  :custom
+  (olivetti-hide-mode-line t))
 #+end_src
 
 ** operate-on-number
@@ -4431,6 +5403,8 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 #+begin_src emacs-lisp
 (use-package ovpn-mode
   :commands ovpn
+  :custom
+  (ovpn-mode-base-directory "~/.config/openvpn")
   :config
   (advice-add
    'ovpn-mode-pull-authinfo :around
@@ -4535,6 +5509,8 @@ header overlay should cover. Result is a cons cell of (begin . end)."
   :commands (password-store-insert
              password-store-copy
              password-store-get)
+  :custom
+  (password-store-password-length 24)
   :config
   (defun password-store--run-edit (entry)
     (require 'pass)
@@ -4583,6 +5559,15 @@ append it to ENTRY."
         (delete-file qr-image-filename)))))
 #+end_src
 
+** pcomplete
+
+#+begin_src emacs-lisp
+(use-package pcomplete
+  :defer t
+  :custom
+  (pcomplete-compare-entry-function 'file-newer-than-file-p))
+#+end_src
+
 ** pcre2el
 
 #+begin_src emacs-lisp
@@ -4596,6 +5581,8 @@ append it to ENTRY."
 (use-package pdf-tools
   :defer 15
   :magic ("%PDF" . pdf-view-mode)
+  :custom
+  (pdf-tools-handle-upgrades nil)
   :config
   (dolist
       (pkg
@@ -4624,6 +5611,10 @@ append it to ENTRY."
               alternate-emacs
               noninteractive)
   :defer 5
+  :custom
+  (persistent-scratch-autosave-interval 30)
+  (persistent-scratch-backup-directory nil)
+  (persistent-scratch-save-file (user-data "persistent-scratch"))
   :config
   (persistent-scratch-autosave-mode)
   (with-demoted-errors "Error: %S"
@@ -4664,6 +5655,8 @@ append it to ENTRY."
          ("C-x M-q" . refill-paragraph)
          ("C-x C-n" . next-line)
          ("C-x C-p" . previous-line))
+  :custom
+  (user-initials "jww")
   :preface
   (defun my-open-Messages ()
     (interactive)
@@ -4733,7 +5726,9 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package phi-search
-  :defer 5)
+  :defer 5
+  :custom
+  (phi-search-limit 100000))
 #+end_src
 
 *** phi-search-mc
@@ -4750,7 +5745,10 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package plantuml-mode
-  :mode "\\.plantuml\\'")
+  :mode "\\.plantuml\\'"
+  :custom
+  (plantuml-default-exec-mode 'executable)
+  (plantuml-jar-path "~/.nix-profile/lib/plantuml.jar"))
 #+end_src
 
 ** po-mode
@@ -4773,7 +5771,9 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package pp-c-l
-  :hook (prog-mode . pretty-control-l-mode))
+  :hook (prog-mode . pretty-control-l-mode)
+  :custom
+  (pp^L-^L-string "                                            "))
 #+end_src
 
 ** prodigy
@@ -4794,6 +5794,46 @@ append it to ENTRY."
                        (projectile-cleanup-known-projects)
                        (projectile-discover-projects-in-search-path))))
   :bind-keymap ("C-c p" . projectile-command-map)
+  :custom
+  (projectile-cache-file (user-data "projectile.cache"))
+  (projectile-completion-system 'ivy)
+  (projectile-enable-caching t)
+  (projectile-file-exists-local-cache-expire 300)
+  (projectile-globally-ignored-directories
+   '(".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist" "\\`/nix/.+" ".*/\\..*"))
+  (projectile-globally-ignored-files '("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID"))
+  (projectile-ignored-project-function
+   (lambda
+     (path)
+     (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
+  (projectile-keymap-prefix "p")
+  (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
+  (projectile-other-file-alist
+   '(("cpp" "h" "hpp" "ipp")
+     ("ipp" "h" "hpp" "cpp")
+     ("hpp" "h" "ipp" "cpp" "cc")
+     ("cxx" "h" "hxx" "ixx")
+     ("ixx" "h" "hxx" "cxx")
+     ("hxx" "h" "ixx" "cxx")
+     ("c" "h")
+     ("m" "h")
+     ("mm" "h")
+     ("h" "c" "cc" "cpp" "ipp" "hpp" "cxx" "ixx" "hxx" "m" "mm")
+     ("cc" "h" "hh" "hpp")
+     ("hh" "cc")
+     ("vert" "frag")
+     ("frag" "vert")
+     (nil "lock" "gpg")
+     ("lock" "")
+     ("gpg" "")
+     ("mli" "ml")
+     ("ml" "mli")
+     ("hs-boot" "hs")
+     ("hs" "hs-boot")
+     ("nix" "exp")
+     ("exp" "nix")))
+  (projectile-project-search-path '("~/src"))
+  (projectile-sort-order 'recentf)
   :config
   (projectile-global-mode)
 
@@ -4813,15 +5853,42 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package proof-site
+  :custom
+  (proof-auto-action-when-deactivating-scripting 'retract)
+  (proof-autosend-enable nil)
+  (proof-electric-terminator-enable t)
+  (proof-fast-process-buffer nil)
+  (proof-script-fly-past-comments t)
+  (proof-shell-fiddle-frames nil)
+  (proof-splash-enable nil)
+  (proof-sticky-errors t)
+  (proof-tidy-response t)
+  :custom-face
+  (proof-eager-annotation-face ((t nil)))
+  (proof-locked-face ((t (:background "#180526"))))
+  (proof-omitted-proof-face ((t (:extend t :background "#23103c"))))
+  (proof-queue-face ((t (:background "#431807"))))
+  (proof-script-sticky-error-face ((t (:background "#50110e"))))
+  (proof-warning-face ((t (:background "orange4"))))
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
     (proof-layout-windows)
     (proof-prf))
-
   :config
   (use-package coq
     :defer t
+    :custom
+    (coq-compile-auto-save 'save-coq)
+    (coq-compile-before-require t)
+    (coq-compile-parallel-in-background t)
+    (coq-holes-minor-mode nil)
+    (coq-maths-menu-enable t)
+    (coq-one-command-per-line nil)
+    (coq-prefer-top-of-conclusion t)
+    (coq-prog-args '("-emacs"))
+    :custom-face
+    (coq-symbol-face ((t (:inherit default-face))))
     :config
     (defalias 'coq-SearchPattern #'coq-SearchIsos)
 
@@ -4885,6 +5952,13 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package ps-print
   :defer t
+  :custom
+  (ps-font-size '(8 . 10))
+  (ps-footer-font-size '(12 . 14))
+  (ps-header-font-size '(12 . 14))
+  (ps-header-title-font-size '(14 . 16))
+  (ps-line-number-font-size 10)
+  (ps-print-color-p nil)
   :preface
   (defun ps-spool-to-pdf (beg end &rest ignore)
     (interactive "r")
@@ -4962,6 +6036,12 @@ append it to ENTRY."
   :commands (recentf-mode
              recentf-add-file
              recentf-apply-filename-handlers)
+  :custom
+  (recentf-auto-cleanup 60)
+  (recentf-exclude
+   '("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'"))
+  (recentf-max-saved-items 2000)
+  (recentf-save-file (user-data "recentf"))
   :preface
   (defun recentf-add-dired-directory ()
     (if (and dired-directory
@@ -4997,7 +6077,10 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package reftex
   :after auctex
-  :hook (LaTeX-mode . reftex-mode))
+  :hook (LaTeX-mode . reftex-mode)
+  :custom
+  (reftex-plug-into-AUCTeX t)
+  (reftex-trust-label-prefix t))
 #+end_src
 
 ** regex-tool
@@ -5005,7 +6088,9 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package regex-tool
   :load-path "lisp/regex-tool"
-  :commands regex-tool)
+  :commands regex-tool
+  :custom
+  (regex-tool-backend 'perl))
 #+end_src
 
 ** repl-toggle
@@ -5068,7 +6153,11 @@ append it to ENTRY."
          ("C-c . s" . rtags-find-symbol)
          ("C-c . v" . rtags-find-virtuals-at-point))
   :bind (:map c-mode-base-map
-              ("M-." . rtags-find-symbol-at-point)))
+              ("M-." . rtags-find-symbol-at-point))
+  :custom
+  (rtags-autostart-diagnostics t)
+  (rtags-completions-enabled t)
+  (rtags-display-result-backend 'ivy))
 #+end_src
 
 ** ruby-mode
@@ -5092,6 +6181,8 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package rust-mode
   :mode "\\.rs\\'"
+  :custom
+  (rust-format-on-save t)
   :init
   (add-hook 'rust-mode-hook #'my-rust-mode-init)
   :preface
@@ -5168,6 +6259,9 @@ append it to ENTRY."
   :disabled t
   :unless dot-emacs-use-eglot
   :mode ("\\.rs\\'" . rustic-mode)
+  :custom
+  (rustic-format-trigger 'on-save)
+  (rustic-rustfmt-args "--edition 2021")
   :preface
   (defun my-update-cargo-args (ad-do-it command &optional args)
     (let* ((cmd (car (split-string command)))
@@ -5279,6 +6373,21 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package savehist
   :unless noninteractive
+  :custom
+  (savehist-additional-variables
+   '(tablist-named-filter
+     file-name-history
+     sr-history-registry
+     kmacro-ring
+     compile-history
+     compile-command))
+  (savehist-autosave-interval 60)
+  (savehist-file (user-data "history"))
+  (savehist-ignored-variables
+   '(load-history
+     flyspell-auto-correct-ring
+     kill-ring))
+  (savehist-mode t)
   :config
   (savehist-mode 1))
 #+end_src
@@ -5288,6 +6397,8 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package saveplace
   :unless noninteractive
+  :custom
+  (save-place-file (user-data "places"))
   :config
   (save-place-mode 1))
 #+end_src
@@ -5399,15 +6510,36 @@ append it to ENTRY."
   :unless alternate-emacs
   :defer 5
   :commands shackle-mode
+  :custom
+  (shackle-default-rule '(:select t))
+  (shackle-rules
+   '((compilation-mode :select nil :size 0.6)
+     ("\\`\\*Messages" :select t :align t :size 0.6)
+     ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
+     ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
+     ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
+     ("\\`\\*?magit-diff" :regexp t :align bottom :noselect t)
+     ("\\`\\*makey" :regexp t :align bottom :noselect t)))
   :config
   (shackle-mode 1))
+#+end_src
+
+** shell
+
+#+begin_src emacs-lisp
+(use-package shell
+  :defer 5
+  :custom
+  (explicit-shell-file-name "~/.emacs.d/runshell"))
 #+end_src
 
 ** shell-toggle
 
 #+begin_src emacs-lisp
 (use-package shell-toggle
-  :bind ("C-, C-z" . shell-toggle))
+  :bind ("C-, C-z" . shell-toggle)
+  :custom
+  (shell-toggle-launch-shell 'shell))
 #+end_src
 
 ** shift-number
@@ -5424,6 +6556,8 @@ append it to ENTRY."
 (use-package sky-color-clock
   :defer 5
   :commands sky-color-clock
+  :custom
+  (sky-color-clock-format "%-l:%M %p")
   :config
   (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
@@ -5441,6 +6575,10 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package slime
   :commands slime
+  :custom
+  (slime-kill-without-query-p t)
+  (slime-repl-history-file (user-data "slime-history.eld"))
+  (slime-startup-animation nil)
   :init
   ;; (unless (memq major-mode
   ;;               '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
@@ -5471,11 +6609,13 @@ append it to ENTRY."
   :commands smart-newline-mode)
 #+end_src
 
-** smartparens-config
+** smartparens
 
 #+begin_src emacs-lisp
 (use-package smartparens-config
-  :commands smartparens-mode)
+  :commands smartparens-mode
+  :custom
+  (sp-highlight-pair-overlay nil))
 #+end_src
 
 ** smartscan
@@ -5500,7 +6640,10 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package smex
   :defer 5
-  :commands smex)
+  :commands smex
+  :custom
+  (smex-history-length 20)
+  (smex-save-file (user-data "smex-items")))
 #+end_src
 
 ** sort-words
@@ -5508,6 +6651,15 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package sort-words
   :commands sort-words)
+#+end_src
+
+** sql
+
+#+begin_src emacs-lisp
+(use-package sql
+  :defer t
+  :custom
+  (sql-sqlite-program "sqlite3"))
 #+end_src
 
 ** sql-indent
@@ -5585,7 +6737,9 @@ append it to ENTRY."
               ("C-." . swiper-avy)
               ("M-c" . swiper-mc))
   :bind (:map isearch-mode-map
-              ("C-o" . swiper-from-isearch)))
+              ("C-o" . swiper-from-isearch))
+  :custom
+  (swiper-stay-on-quit t))
 #+end_src
 
 ** tagedit
@@ -5600,7 +6754,10 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package term
   :bind (:map term-mode-map
-              ("C-c C-y" . term-paste)))
+              ("C-c C-y" . term-paste))
+  :custom
+  (term-buffer-maximum-size 0)
+  (term-scroll-show-maximum-output t))
 #+end_src
 
 ** terraform-mode
@@ -5644,6 +6801,19 @@ append it to ENTRY."
             5))))))
 #+end_src
 
+** text-mode
+
+#+begin_src emacs-lisp
+(use-package text-mode
+  :defer t
+  :init
+  (add-hook 'text-mode-hook #'turn-on-auto-fill)
+  (add-hook 'text-mode-hook
+            #'(lambda ()
+                (ignore-errors
+                  (diminish 'auto-fill-function)))))
+#+end_src
+
 ** tidy
 
 #+begin_src emacs-lisp
@@ -5652,6 +6822,17 @@ append it to ENTRY."
              tidy-parse-config-file
              tidy-save-settings
              tidy-describe-options))
+#+end_src
+
+** time
+
+#+begin_src emacs-lisp
+(use-package time
+  :defer 5
+  :custom
+  (display-time-interval 60)
+  (display-time-mode t)
+  (display-time-use-mail-icon t))
 #+end_src
 
 ** tla-mode
@@ -5680,12 +6861,14 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package tramp
   :defer 5
+  :custom
+  (tramp-default-method "ssh")
   :config
   ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
   ;; shell commands to the remote side to ask what the temporary directory is.
   (put 'temporary-file-directory 'standard-value '("/tmp"))
   (setq tramp-auto-save-directory "~/.cache/emacs/backups"
-        tramp-persistency-file-name "~/.emacs.d/data/tramp"))
+        tramp-persistency-file-name (user-data "tramp")))
 #+end_src
 
 ** tramp-sh
@@ -5695,6 +6878,16 @@ append it to ENTRY."
   :defer t
   :config
   (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
+#+end_src
+
+** transient
+
+#+begin_src emacs-lisp
+(use-package transient
+  :defer t
+  :custom
+  (transient-history-file (user-data "transient/history.el"))
+  (transient-values-file (user-data "transient/values.el")))
 #+end_src
 
 ** transpose-mark
@@ -5739,10 +6932,514 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package unicode-fonts
+  :custom
+  (unicode-fonts-block-font-mapping
+   '(("Aegean Numbers"
+      ("Noto Sans Symbols" "Aegean" "Symbola" "Quivira" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Ahom"
+      ("AhomUnicode"))
+     ("Alchemical Symbols"
+      ("Noto Sans Symbols" "Symbola" "Quivira" "Everson Mono:weight=bold"))
+     ("Alphabetic Presentation Forms"
+      ("DejaVu Sans:width=condensed" "Arial Unicode MS" "Cardo" "Code2000" "Quivira" "Everson Mono:weight=bold" "FreeMono" "ALPHABETUM Unicode"))
+     ("Anatolian Hieroglyphs"
+      ("Anatolian"))
+     ("Ancient Greek Musical Notation"
+      ("Cardo" "Noto Sans Symbols" "Aegean" "New Athena Unicode" "Musica" "Symbola" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Ancient Greek Numbers"
+      ("Noto Sans Symbols" "Apple Symbols" "New Athena Unicode" "Cardo" "Aegean" "Quivira" "Symbola" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Ancient Symbols"
+      ("Noto Sans Symbols" "Analecta" "New Athena Unicode" "Cardo" "Aegean" "Quivira" "Symbola" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Arabic"
+      ("Scheherazade New" "Courier New" "Simplified Arabic Fixed" "Simplified Arabic" "Amiri" "Aldhabi" "Adobe Arabic" "Urdu Typesetting" "Geeza Pro" "Baghdad" "Damascus" "Al Bayan" "Andalus" "Arabic Typesetting" "Traditional Arabic" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Arial Unicode MS" "Nadeem" "Microsoft Uighur" "Tahoma" "Microsoft Sans Serif" "MPH 2B Damase" "KufiStandardGK" "DecoType Naskh" "Koodak" "FreeMono" "Code2000"))
+     ("Arabic Extended-A"
+      ("Scheherazade New" "Amiri"))
+     ("Arabic Mathematical Alphabetic Symbols"
+      ("Scheherazade New" "Amiri"))
+     ("Arabic Presentation Forms-A"
+      ("Scheherazade New" "Geeza Pro" "Amiri" "Arial Unicode MS" "Microsoft Sans Serif" "Tahoma" "KufiStandardGK" "Andalus" "Arabic Typesetting" "Urdu Typesetting" "Adobe Arabic" "DecoType Naskh" "Al Bayan" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "MPH 2B Damase" "Code2000"))
+     ("Arabic Presentation Forms-B"
+      ("Scheherazade New" "DejaVu Sans Mono" "Geeza Pro" "Amiri" "Adobe Arabic" "Traditional Arabic" "Urdu Typesetting" "Arial Unicode MS" "Microsoft Sans Serif" "KufiStandardGK" "DejaVu Sans:width=condensed" "FreeMono" "DecoType Naskh" "Code2000"))
+     ("Arabic Supplement"
+      ("Scheherazade New" "Courier New" "Simplified Arabic Fixed" "Amiri" "Simplified Arabic" "Geeza Pro" "Damascus" "Andalus" "Arabic Typesetting" "Traditional Arabic" "Adobe Arabic" "Microsoft Uighur" "Tahoma" "Microsoft Sans Serif" "MPH 2B Damase"))
+     ("Armenian"
+      ("DejaVu Sans Mono" "Noto Sans Armenian" "Mshtakan" "Sylfaen" "DejaVu Sans:width=condensed" "Quivira" "MPH 2B Damase" "Code2000" "Arial Unicode MS" "Everson Mono:weight=bold" "FreeMono"))
+     ("Arrows"
+      ("DejaVu Sans Mono" "Apple Symbols" "Cambria Math" "Segoe UI Symbol" "DejaVu Sans:width=condensed" "Asana Math" "Arial Unicode MS" "BabelStone Modern" "Symbola" "Quivira" "Code2000" "Noto Sans Symbols" "Everson Mono:weight=bold" "FreeMono"))
+     ("Avestan"
+      ("Noto Sans Avestan" "Ahuramzda:weight=bold" "ALPHABETUM Unicode"))
+     ("Balinese"
+      ("Noto Sans Balinese:weight=bold" "Aksara Bali"))
+     ("Bamum"
+      ("Noto Sans Bamum"))
+     ("Bamum Supplement"
+      ("Noto Sans Bamum"))
+     ("Batak"
+      ("Batak-Unicode" "Noto Sans Batak"))
+     ("Bengali"
+      ("Bangla Sangam MN" "Noto Sans Bengali" "Noto Sans Bengali UI" "Nirmala UI" "Vrinda" "Mukti Narrow" "Akaash" "Arial Unicode MS" "Code2000" "ALPHABETUM Unicode"))
+     ("Block Elements"
+      ("DejaVu Sans Mono" "Noto Sans Symbols" "FreeMono" "DejaVu Sans:width=condensed" "Apple Symbols" "Segoe UI Symbol" "BabelStone Modern" "Symbola" "Quivira" "Code2000" "Everson Mono:weight=bold"))
+     ("Bopomofo"
+      ("Lantinghei TC" "MingLiU" "SimHei" "LiSong Pro" "FangSong" "SimSun" "DFKai-SB" "WenQuanYi Zen Hei Mono" "Microsoft JhengHei" "Microsoft JhengHei UI" "Microsoft YaHei" "Microsoft YaHei UI" "Lantinghei SC" "HAN NOM A" "Arial Unicode MS" "BabelStone Han" "Code2000" "ALPHABETUM Unicode"))
+     ("Bopomofo Extended"
+      ("MingLiU" "SimHei" "FangSong" "SimSun" "DFKai-SB" "Microsoft JhengHei" "Microsoft JhengHei UI" "Microsoft YaHei" "Microsoft YaHei UI" "BabelStone Han" "Code2000"))
+     ("Box Drawing"
+      ("DejaVu Sans Mono" "FreeMono" "DejaVu Sans" "Everson Mono" "Quivira" "Code2000" "Noto Sans Symbols" "Segoe UI Symbol" "Symbola"))
+     ("Brahmi"
+      ("Segoe UI Historic" "Noto Sans Brahmi" "Adinatha Tamil Brahmi" "ALPHABETUM Unicode"))
+     ("Braille Patterns"
+      ("Quivira" "Apple Braille" "DejaVu Sans:width=condensed" "Apple Symbols" "Segoe UI Symbol" "Symbola" "Noto Sans Symbols" "FreeMono" "Code2000" "Everson Mono:weight=bold"))
+     ("Buginese"
+      ("Noto Sans Buginese" "MPH 2B Damase" "Monlam Uni Sans Serif" "Code2000"))
+     ("Buhid"
+      ("Noto Sans Buhid" "Quivira" "Code2000"))
+     ("Byzantine Musical Symbols"
+      ("Noto Sans Symbols" "Musica" "Symbola" "FreeSerif"))
+     ("CJK Compatibility"
+      ("SimHei" "FangSong" "SimSun" "MingLiU" "Meiryo" "Microsoft JhengHei" "Microsoft JhengHei UI" "Lantinghei SC" "Lantinghei TC" "HAN NOM A" "Arial Unicode MS" "WenQuanYi Zen Hei Mono" "HanaMinA" "BabelStone Han" "Code2000"))
+     ("CJK Compatibility Forms"
+      ("WenQuanYi Zen Hei Mono" "Lantinghei SC" "SimHei" "FangSong" "SimSun" "LiSong Pro" "Baoli SC" "Microsoft YaHei" "Microsoft YaHei UI" "Lantinghei TC" "BabelStone Han" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM A" "Symbola" "Xingkai SC" "DFKai-SB" "Code2000"))
+     ("CJK Compatibility Ideographs"
+      ("SimHei" "FangSong" "SimSun" "Microsoft YaHei" "Microsoft YaHei UI" "WenQuanYi Zen Hei Mono" "BabelStone Han" "UnBatang" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM A" "Arial Unicode MS" "Lantinghei SC" "HanaMinA"))
+     ("CJK Compatibility Ideographs Supplement"
+      ("WenQuanYi Zen Hei Mono" "SimHei" "FangSong" "SimSun" "MingLiU" "HanaMinA" "Hiragino Kaku Gothic Pro" "Hiragino Maru Gothic Pro" "Hiragino Mincho Pro" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM B" "LiSong Pro"))
+     ("CJK Radicals Supplement"
+      ("WenQuanYi Zen Hei Mono" "SimHei" "FangSong" "SimSun" "Microsoft YaHei" "Microsoft YaHei UI" "HanaMinA" "BabelStone Han" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM A" "DFKai-SB" "Apple Symbols" "Code2000"))
+     ("CJK Strokes"
+      ("WenQuanYi Zen Hei Mono" "HanaMinA" "BabelStone Han" "Code2000"))
+     ("CJK Symbols and Punctuation"
+      ("Lantinghei SC" "SimHei" "FangSong" "SimSun" "HanaMinA" "WenQuanYi Zen Hei Mono" "LiSong Pro" "STFangsong" "Microsoft YaHei" "Microsoft YaHei UI" "Lantinghei TC" "MingLiU" "HAN NOM A" "Arial Unicode MS" "PCMyungjo" "BabelStone Han" "Osaka:spacing=m" "Code2000"))
+     ("CJK Unified Ideographs"
+      ("WenQuanYi Zen Hei Mono" "Lantinghei SC" "Songti SC" "SimHei" "FangSong" "STFangsong" "SimSun" "LiSong Pro" "Baoli SC" "HanaMinA" "BabelStone Han" "Apple LiGothic" "Lantinghei TC" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM A" "DFKai-SB" "Arial Unicode MS" "Xingkai SC" "GB18030 Bitmap" "UnBatang"))
+     ("CJK Unified Ideographs Extension A"
+      ("SimHei" "FangSong" "STFangsong" "SimSun" "Songti SC" "Microsoft YaHei" "Microsoft YaHei UI" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HanaMinA" "HAN NOM A" "Code2000" "DFKai-SB" "BabelStone Han" "GB18030 Bitmap"))
+     ("CJK Unified Ideographs Extension B"
+      ("SimHei" "FangSong" "SimSun" "LiSong Pro" "Microsoft YaHei" "Microsoft YaHei UI" "HanaMinB" "HAN NOM B" "Code2002" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "BabelStone Han" "DFKai-SB"))
+     ("CJK Unified Ideographs Extension C"
+      ("HanaMinB" "BabelStone Han" "HAN NOM B"))
+     ("CJK Unified Ideographs Extension D"
+      ("HanaMinB" "BabelStone Han"))
+     ("CJK Unified Ideographs Extension E"
+      ("HanaMinB" "BabelStone Han"))
+     ("Carian"
+      ("Segoe UI Historic" "Noto Sans Carian" "Aegean" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Chakma"
+      ("Ribeng"))
+     ("Cham"
+      ("Noto Sans Cham" "Cham OI_Tangin" "Cham OI_Kulbleng" "Cham OI_Kul" "Code2000"))
+     ("Cherokee"
+      ("Aboriginal Sans" "Aboriginal Serif" "Plantagenet Cherokee" "Noto Sans Cherokee" "Gadugi" "MPH 2B Damase" "Quivira" "Everson Mono:weight=bold" "FreeMono" "Code2000"))
+     ("Cherokee Supplement"
+      ("Everson Mono:weight=bold"))
+     ("Combining Diacritical Marks"
+      ("Monaco" "Consolas" "Noto Sans" "Cambria Math" "Charis SIL" "Doulos SIL" "Courier New" "DejaVu Sans:width=condensed" "DejaVu Sans Mono" "Cardo" "Code2000" "Gentium Plus" "Junicode" "Tahoma" "Microsoft Sans Serif" "Arial" "Quivira" "Symbola" "Everson Mono" "FreeMono" "Arial Unicode MS" "ALPHABETUM Unicode"))
+     ("Combining Diacritical Marks Extended"
+      ("Monlam Uni Sans Serif"))
+     ("Combining Diacritical Marks Supplement"
+      ("Cardo" "FreeSerif" "Junicode" "Doulos SIL" "DejaVu Sans:width=condensed" "Noto Sans" "Segoe UI" "Code2000" "Everson Mono" "ALPHABETUM Unicode"))
+     ("Combining Diacritical Marks for Symbols"
+      ("Cambria Math" "Segoe UI Symbol" "Noto Sans Symbols" "Symbola" "Code2000" "Everson Mono" "Arial Unicode MS"))
+     ("Combining Half Marks"
+      ("Consolas" "DejaVu Sans:width=condensed" "Everson Mono:weight=bold" "Symbola"))
+     ("Common Indic Number Forms"
+      ("Noto Sans Kaithi" "Nirmala UI" "Siddhanta"))
+     ("Control Pictures"
+      ("Apple Symbols" "BabelStone Modern" "Noto Sans Symbols" "Segoe UI Symbol" "Arial Unicode MS" "Symbola" "Quivira" "FreeMono" "Code2000" "Everson Mono:weight=bold"))
+     ("Coptic"
+      ("Noto Sans Coptic" "Antinoou" "New Athena Unicode" "Segoe UI Historic" "Segoe UI Symbol" "Quivira" "Analecta" "Nilus" "Code2000" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Coptic Epact Numbers"
+      ("Nilus" "Symbola"))
+     ("Counting Rod Numerals"
+      ("WenQuanYi Zen Hei Mono" "Noto Sans Symbols" "BabelStone Modern" "Symbola" "Quivira" "Apple Symbols" "Code2001"))
+     ("Cuneiform"
+      ("Segoe UI Historic" "Noto Sans Cuneiform" "Noto Sans Sumero-Akkadian Cuneiform" "Akkadian"))
+     ("Cuneiform Numbers and Punctuation"
+      ("Akkadian" "Segoe UI Historic" "Noto Sans Cuneiform" "Noto Sans Sumero-Akkadian Cuneiform"))
+     ("Currency Symbols"
+      ("Monaco" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Consolas" "Noto Sans Symbols" "Noto Sans" "Segoe UI" "Apple Symbols" "Symbola" "Quivira" "Everson Mono:weight=bold" "FreeMono"))
+     ("Cypriot Syllabary"
+      ("Segoe UI Historic" "Noto Sans Cypriot" "Aegean" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Cyrillic"
+      ("Consolas" "Monaco" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Noto Sans" "Courier New" "Calibri" "Microsoft Sans Serif" "Code2000" "Arial Unicode MS" "Charis SIL" "Doulos SIL" "Symbola" "Quivira" "Everson Mono:weight=bold" "FreeMono" "Charcoal CY" "Geneva CY" "ALPHABETUM Unicode"))
+     ("Cyrillic Extended-A"
+      ("Quivira" "Everson Mono:weight=bold" "FreeSerif" "ALPHABETUM Unicode"))
+     ("Cyrillic Extended-B"
+      ("Quivira" "Code2000" "Everson Mono:weight=bold"))
+     ("Cyrillic Supplement"
+      ("Consolas" "Courier New" "Calibri" "Noto Sans" "DejaVu Sans:width=condensed" "Charis SIL" "Doulos SIL" "Symbola" "Quivira" "Code2000" "Everson Mono:weight=bold"))
+     ("Deseret"
+      ("Noto Sans Deseret" "Apple Symbols" "Segoe UI Symbol" "Analecta" "Code2001" "Everson Mono:weight=bold"))
+     ("Devanagari"
+      ("Annapurna SIL" "Noto Sans Devanagari" "Devanagari Sangam MN" "Devanagari MT" "Nirmala UI" "Mangal" "Samyak Devanagari" "Samyak" "Siddhanta" "Aparajita" "Code2000" "Arial Unicode MS" "ALPHABETUM Unicode"))
+     ("Devanagari Extended"
+      ("Annapurna SIL" "Siddhanta" "FreeSerif"))
+     ("Dingbats"
+      ("Apple Color Emoji" "DejaVu Sans Mono" "Segoe UI Symbol" "Zapf Dingbats" "DejaVu Sans:width=condensed" "Arial Unicode MS" "Code2000" "Noto Sans Symbols" "Symbola" "Quivira" "Everson Mono:weight=bold"))
+     ("Domino Tiles"
+      ("DejaVu Sans:width=condensed" "Symbola" "Quivira" "Segoe UI Symbol" "Noto Sans Symbols" "Code2001" "Everson Mono:weight=bold"))
+     ("Early Dynastic Cuneiform"
+      ("Akkadian"))
+     ("Egyptian Hieroglyphs"
+      ("Segoe UI Historic:weight=bold" "Noto Sans Egyptian Hieroglyphs:weight=bold" "Aegyptus:weight=bold" "Gardiner"))
+     ("Elbasan"
+      ("Albanian" "Everson Mono:weight=bold"))
+     ("Emoticons"
+      ("Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Quivira"))
+     ("Enclosed Alphanumeric Supplement"
+      ("Segoe UI Symbol" "Noto Sans Symbols" "Symbola" "Quivira" "BabelStone Han" "BabelStone Modern"))
+     ("Enclosed Alphanumerics"
+      ("Noto Sans Symbols" "Segoe UI Symbol" "Junicode" "Arial Unicode MS" "Symbola" "Quivira" "Code2000" "BabelStone Han" "WenQuanYi Zen Hei Mono" "BabelStone Modern" "HAN NOM A" "Everson Mono:weight=bold"))
+     ("Enclosed CJK Letters and Months"
+      ("WenQuanYi Zen Hei Mono" "SimHei" "FangSong" "MingLiU" "Arial Unicode MS" "HanaMinA" "Meiryo" "BabelStone Han" "Quivira" "Code2000" "UnBatang" "HAN NOM A"))
+     ("Enclosed Ideographic Supplement"
+      ("Segoe UI Symbol" "Noto Sans Symbols" "HanaMinA" "BabelStone Han" "Symbola"))
+     ("Ethiopic"
+      ("Kefa" "Noto Sans Ethiopic" "Nyala" "Abyssinica SIL" "Ethiopia Jiret" "Ethiopic WashRa SemiBold" "Ethiopic Yebse" "Code2000"))
+     ("Ethiopic Extended"
+      ("Kefa" "Noto Sans Ethiopic" "Nyala" "Abyssinica SIL" "Code2000"))
+     ("Ethiopic Extended-A"
+      ("Kefa" "Noto Sans Ethiopic" "Abyssinica SIL"))
+     ("Ethiopic Supplement"
+      ("Kefa" "Noto Sans Ethiopic" "Nyala" "Abyssinica SIL" "Code2000"))
+     ("General Punctuation"
+      ("Monaco" "Apple Symbols" "Segoe UI Symbol" "Cambria Math" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Charis SIL" "Doulos SIL" "Antinoou" "Symbola" "Code2000" "Quivira" "Noto Sans" "Everson Mono:weight=bold" "FreeMono" "BabelStone Modern"))
+     ("Geometric Shapes"
+      ("DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Segoe UI Symbol" "Arial Unicode MS" "Symbola" "Noto Sans Symbols" "Quivira" "BabelStone Modern" "Everson Mono" "FreeMono" "Code2000"))
+     ("Geometric Shapes Extended"
+      ("Symbola" "Quivira"))
+     ("Georgian"
+      ("DejaVu Sans Mono" "Noto Sans Georgian" "Noto Serif Georgian" "DejaVu Sans:width=condensed" "Arial Unicode MS" "Code2000" "Quivira" "Sylfaen" "MPH 2B Damase" "Everson Mono:weight=bold"))
+     ("Georgian Supplement"
+      ("Noto Sans Georgian" "Noto Serif Georgian" "DejaVu Serif:width=condensed" "MPH 2B Damase" "Quivira" "Everson Mono:weight=bold"))
+     ("Glagolitic"
+      ("Noto Sans Glagolitic" "Segoe UI Historic" "Segoe UI Symbol" "MPH 2B Damase" "Quivira" "FreeSerif" "ALPHABETUM Unicode"))
+     ("Gothic"
+      ("Noto Sans Gothic" "Segoe UI Historic" "Segoe UI Symbol" "Analecta" "Junicode" "Sadagolthina" "MPH 2B Damase" "FreeSerif" "Code2001" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Greek Extended"
+      ("Consolas" "DejaVu Sans Mono" "Courier New" "Antinoou" "Noto Sans" "DejaVu Sans:width=condensed" "Cardo" "Junicode" "New Athena Unicode" "Microsoft Sans Serif" "Gentium Plus Compact" "Gentium Plus" "Arial Unicode MS" "Arial" "Tahoma" "Aegean" "Code2000" "Quivira" "Everson Mono:weight=bold" "FreeMono" "ALPHABETUM Unicode"))
+     ("Greek and Coptic"
+      ("Consolas" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Antinoou" "Noto Sans" "Segoe UI Historic" "Segoe UI Symbol" "New Athena Unicode" "Calibri" "Microsoft Sans Serif" "Gentium Plus Compact" "Gentium Plus" "Lucida Console" "Arial Unicode MS" "Cardo" "Aegean" "Code2000" "Symbola" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode" "Noto Sans Coptic"))
+     ("Gujarati"
+      ("Nirmala UI" "Noto Sans Gujarati" "Noto Sans Gujarati UI" "Gujarati MT" "Shruti" "Samyak Gujarati" "Samyak" "Gujarati Sangam MN" "Code2000" "Arial Unicode MS"))
+     ("Gurmukhi"
+      ("Gurmukhi Sangam MN" "Gurmukhi MN" "Nirmala UI" "Noto Sans Gurmukhi" "Noto Sans Gurmukhi UI" "Raavi" "Code2000" "Arial Unicode MS" "AnmolUni"))
+     ("Halfwidth and Fullwidth Forms"
+      ("Meiryo" "Arial Unicode MS" "Microsoft JhengHei" "Microsoft JhengHei UI" "Microsoft YaHei" "Microsoft YaHei UI" "BabelStone Han" "Apple Symbols" "Quivira" "Code2000" "HAN NOM A"))
+     ("Hangul Compatibility Jamo"
+      ("PCMyungjo" "Malgun Gothic" "Gulim" "Dotum" "Batang" "Gungsuh" "AppleMyungjo" "UnBatang" "WenQuanYi Zen Hei Mono" "HAN NOM A" "Arial Unicode MS" "Code2000" "HeadLineA"))
+     ("Hangul Jamo"
+      ("UnBatang" "WenQuanYi Zen Hei Mono" "PCMyungjo" "Malgun Gothic" "Gulim" "Dotum" "Batang" "Gungsuh" "Arial Unicode MS" "Code2000"))
+     ("Hangul Jamo Extended-A"
+      ("Malgun Gothic" "HanaMinA" "UnBatang"))
+     ("Hangul Jamo Extended-B"
+      ("Malgun Gothic" "HanaMinA" "UnBatang"))
+     ("Hangul Syllables"
+      ("AppleGothic" "Malgun Gothic" "Gulim" "Dotum" "Batang" "Gungsuh" "UnBatang" "WenQuanYi Zen Hei Mono" "Arial Unicode MS" "Code2000"))
+     ("Hanunoo"
+      ("Noto Sans Hanunoo" "MPH 2B Damase" "Quivira" "FreeSerif"))
+     ("Hebrew"
+      ("Miriam Fixed" "Ezra SIL" "Ezra SIL SR" "Arial Hebrew" "Raanana" "New Peninim MT" "Aharoni" "David" "FrankRuehl" "Gisha" "Levenim MT" "Narkisim" "Rod" "Cardo" "Courier New" "Adobe Hebrew" "Code2000" "Aramaic Imperial Yeb" "Microsoft Sans Serif" "Tahoma" "Lucida Sans Unicode" "Arial Unicode MS" "Arial" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Hiragana"
+      ("Osaka:spacing=m" "MS Gothic" "MS Mincho" "MingLiU" "Hiragino Kaku Gothic Pro" "Meiryo" "Arial Unicode MS" "HanaMinA" "BabelStone Han" "Microsoft JhengHei" "Microsoft YaHei" "Microsoft YaHei UI" "HAN NOM A" "Code2000" "ALPHABETUM Unicode"))
+     ("IPA Extensions"
+      ("Monaco" "Consolas" "DejaVu Sans Mono" "Courier New" "Noto Sans" "Arial Unicode MS" "Arial" "Tahoma" "Microsoft Sans Serif" "Aboriginal Sans" "Cardo" "Symbola" "Quivira" "Everson Mono:weight=bold" "FreeMono" "Code2000" "ALPHABETUM Unicode"))
+     ("Ideographic Description Characters"
+      ("SimHei" "FangSong" "SimSun" "Microsoft YaHei" "Microsoft YaHei UI" "BabelStone Han" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "AppleMyungjo" "HanaMinA" "HAN NOM A" "Quivira" "DFKai-SB" "Code2000"))
+     ("Imperial Aramaic"
+      ("Aramaic Imperial Yeb" "Quivira" "Segoe UI Historic" "Noto Sans Imperial Aramaic" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Inscriptional Pahlavi"
+      ("ZH Mono" "Segoe UI Historic" "Noto Sans Inscriptional Pahlavi" "ALPHABETUM Unicode" "Ahuramzda:weight=bold"))
+     ("Inscriptional Parthian"
+      ("ZH Mono" "Segoe UI Historic" "Noto Sans Inscriptional Parthian" "ALPHABETUM Unicode"))
+     ("Javanese"
+      ("Noto Sans Javanese" "Tuladha Jejeg"))
+     ("Kaithi"
+      ("Noto Sans Kaithi"))
+     ("Kana Supplement"
+      ("Meiryo UI" "HanaMinA" "BabelStone Han"))
+     ("Kanbun"
+      ("SimHei" "FangSong" "SimSun" "Meiryo" "Arial Unicode MS" "WenQuanYi Zen Hei Mono" "HanaMinA" "BabelStone Han" "MingLiU" "Microsoft JhengHei" "Microsoft YaHei" "Microsoft YaHei UI" "HAN NOM A" "Code2000"))
+     ("Kangxi Radicals"
+      ("WenQuanYi Zen Hei Mono" "SimHei" "FangSong" "Meiryo" "SimSun" "Microsoft YaHei" "Microsoft YaHei UI" "BabelStone Han" "HanaMinA" "MingLiU" "Microsoft JhengHei" "Microsoft JhengHei UI" "HAN NOM A" "DFKai-SB" "AppleMyungjo" "Apple Symbols" "Code2000"))
+     ("Kannada"
+      ("Kannada Sangam MN" "Noto Sans Kannada" "Noto Sans Kannada UI" "Tunga" "Akshar Unicode" "Kedage" "Nirmala UI" "Kannada MN" "Arial Unicode MS" "Code2000"))
+     ("Katakana"
+      ("Osaka:spacing=m" "MS Gothic" "MingLiU" "Meiryo" "HanaMinA" "Arial Unicode MS" "BabelStone Han" "Microsoft JhengHei" "Microsoft YaHei" "Microsoft YaHei UI" "HAN NOM A" "Code2000" "ALPHABETUM Unicode"))
+     ("Katakana Phonetic Extensions"
+      ("MS Gothic" "MingLiU" "Meiryo" "HanaMinA" "Microsoft YaHei" "Microsoft YaHei UI" "BabelStone Han" "HAN NOM A" "Code2000"))
+     ("Kayah Li"
+      ("Noto Sans Kayah Li" "Code2000" "FreeMono"))
+     ("Kharoshthi"
+      ("Segoe UI Historic" "Noto Sans Kharoshthi" "MPH 2B Damase" "ALPHABETUM Unicode"))
+     ("Khmer"
+      ("Noto Sans Khmer" "Noto Sans Khmer UI" "Noto Serif Khmer" "Khmer Sangam MN" "DaunPenh" "Code2000" "MoolBoran" "Khmer Mondulkiri" "Khmer Busra"))
+     ("Khmer Symbols"
+      ("Noto Sans Khmer" "Noto Sans Khmer UI" "Noto Serif Khmer" "Khmer Sangam MN" "MoolBoran" "Khmer Mondulkiri" "Khmer Busra" "Code2000"))
+     ("Khojki"
+      ("KhojkiUnicodeOT"))
+     ("Khudawadi"
+      ("OldSindhi"))
+     ("Lao"
+      ("Noto Sans Lao" "Noto Sans Lao UI" "Noto Serif Lao" "Lao Sangam MN" "DokChampa" "DejaVu Sans Mono" "Arial Unicode MS" "Saysettha MX" "DejaVu Sans:width=condensed" "Code2000"))
+     ("Latin Extended-C"
+      ("DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Noto Sans" "Cambria Math" "Gentium Plus" "Charis SIL" "Doulos SIL" "Code2000" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Latin Extended-D"
+      ("FreeMono" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Charis SIL" "Doulos SIL" "Junicode" "Cardo" "Quivira" "Code2000" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Latin Extended-E"
+      ("Quivira" "Everson Mono:weight=bold" "HanaMinA"))
+     ("Lepcha"
+      ("Mingzat" "Noto Sans Lepcha"))
+     ("Letterlike Symbols"
+      ("Monaco" "Noto Sans Symbols" "Segoe UI Symbol" "Apple Symbols" "Cambria Math" "DejaVu Sans:width=condensed" "Arial Unicode MS" "Code2000" "Symbola" "Quivira" "HAN NOM A" "Everson Mono:weight=bold"))
+     ("Limbu"
+      ("Noto Sans Limbu" "Namdhinggo SIL" "MPH 2B Damase" "Code2000"))
+     ("Linear A"
+      ("Aegean"))
+     ("Linear B Ideograms"
+      ("Noto Sans Linear B" "Aegean" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode" "MPH 2B Damase"))
+     ("Linear B Syllabary"
+      ("Noto Sans Linear B" "Aegean" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode" "MPH 2B Damase" "Penuturesu"))
+     ("Lisu"
+      ("Lisu Unicode" "Miao Unicode" "Noto Sans Lisu" "Lisu Tzimu" "Quivira" "Everson Mono:weight=bold"))
+     ("Lycian"
+      ("Segoe UI Historic" "Noto Sans Lycian" "Aegean" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Lydian"
+      ("Segoe UI Historic" "Noto Sans Lydian" "Aegean" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Mahjong Tiles"
+      ("Segoe UI Symbol" "Symbola" "Noto Sans Symbols" "Quivira" "Everson Mono"))
+     ("Malayalam"
+      ("Malayalam Sangam MN" "Nirmala UI" "Kartika" "Code2000" "Akshar Unicode" "Samyak Malayalam" "Samyak" "Arial Unicode MS"))
+     ("Mandaic"
+      ("Noto Sans Mandaic"))
+     ("Mathematical Alphanumeric Symbols"
+      ("Cambria Math" "Noto Sans Symbols" "Asana Math" "Code2001" "Symbola" "Quivira" "Everson Mono:weight=bold"))
+     ("Mathematical Operators"
+      ("Monaco" "DejaVu Sans Mono" "Segoe UI Symbol" "Cambria Math" "DejaVu Sans:width=condensed" "Noto Sans Symbols" "Apple Symbols" "Asana Math" "Arial Unicode MS" "Code2000" "Symbola" "Quivira" "Everson Mono:weight=bold" "FreeMono"))
+     ("Meetei Mayek"
+      ("Noto Sans Meetei Mayek" "Eeyek Unicode" "Meetei Mayek"))
+     ("Meetei Mayek Extensions"
+      ("Noto Sans Meetei Mayek"))
+     ("Meroitic Cursive"
+      ("Nilus" "Segoe UI Historic" "Segoe UI Symbol"))
+     ("Meroitic Hieroglyphs"
+      ("Nilus"))
+     ("Miao"
+      ("Miao Unicode" "Albanian"))
+     ("Miscellaneous Mathematical Symbols-A"
+      ("Noto Sans Symbols" "Apple Symbols" "Segoe UI Symbol" "Asana Math" "Code2000" "Symbola" "Quivira" "Cambria Math" "Everson Mono:weight=bold"))
+     ("Miscellaneous Mathematical Symbols-B"
+      ("Noto Sans Symbols" "Segoe UI Symbol" "Apple Symbols" "Cambria Math" "Asana Math" "Code2000" "Symbola" "Quivira"))
+     ("Miscellaneous Symbols"
+      ("Noto Sans Symbols" "Segoe UI Symbol" "Apple Symbols" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Arial Unicode MS" "Symbola" "Quivira" "MS Reference Sans Serif" "Cardo" "Code2000" "Everson Mono:weight=bold"))
+     ("Miscellaneous Symbols and Arrows"
+      ("Symbola" "Quivira" "Asana Math" "Code2000" "Segoe UI Symbol" "Noto Sans Symbols"))
+     ("Miscellaneous Symbols and Pictographs"
+      ("Apple Color Emoji" "Segoe UI Symbol" "Symbola" "Quivira"))
+     ("Miscellaneous Technical"
+      ("Segoe UI Symbol" "Noto Sans Symbols" "Apple Symbols" "Cambria Math" "DejaVu Sans Mono" "Code2000" "Symbola" "Quivira" "Everson Mono:weight=bold"))
+     ("Modi"
+      ("MarathiCursiveG"))
+     ("Modifier Tone Letters"
+      ("Apple Symbols" "Noto Sans Symbols" "Gentium Plus" "Code2000" "Quivira" "Charis SIL" "Doulos SIL" "DejaVu Sans Mono"))
+     ("Mongolian"
+      ("STFangsong" "STHeiti" "STKaiti" "STSong" "Noto Sans Mongolian" "Mongolian Baiti" "Daicing Xiaokai" "Code2000"))
+     ("Mro"
+      ("Mro Unicode"))
+     ("Musical Symbols"
+      ("Noto Sans Symbols" "Musica" "FreeSerif" "Symbola" "Quivira"))
+     ("Myanmar"
+      ("Noto Sans Myanmar" "Noto Sans Myanmar UI" "Myanmar Text" "Myanmar Sangam MN" "Myanmar MN" "TharLon" "Yunghkio" "Myanmar3" "Masterpiece Uni Sans" "Padauk" "Code2000" "Tai Le Valentinium"))
+     ("Myanmar Extended-A"
+      ("Noto Sans Myanmar" "Noto Sans Myanmar UI" "Myanmar Text" "Padauk" "TharLon" "Yunghkio"))
+     ("Myanmar Extended-B"
+      ("TharLon" "Yunghkio"))
+     ("NKo"
+      ("Ebrima" "Conakry" "DejaVu Sans:width=condensed" "Noto Sans NKo" "Code2000"))
+     ("Nabataean"
+      ("Everson Mono:weight=bold"))
+     ("New Tai Lue"
+      ("Noto Sans New Tai Lue" "Microsoft New Tai Lue" "Dai Banna SIL Book" "Dai Banna SIL Book:style=Regular"))
+     ("Number Forms"
+      ("DejaVu Sans:width=condensed" "Asana Math" "Arial Unicode MS" "Junicode" "Symbola" "Quivira" "Charis SIL" "Doulos SIL" "Code2000" "Everson Mono:weight=bold" "FreeMono" "ALPHABETUM Unicode"))
+     ("Ogham"
+      ("Segoe UI Historic" "Segoe UI Symbol" "Noto Sans Ogham" "DejaVu Sans:width=condensed" "BabelStone Modern" "Code2000" "Aboriginal Serif" "Quivira" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Ol Chiki"
+      ("Nirmala UI" "Noto Sans Ol Chiki" "Code2000"))
+     ("Old Hungarian"
+      ("OldHungarian"))
+     ("Old Italic"
+      ("Segoe UI Historic" "Segoe UI Symbol" "DejaVu Sans:width=condensed" "Cardo" "New Athena Unicode" "Aegean" "Noto Sans Old Italic" "Albanian" "Code2001" "Quivira" "Everson Mono:weight=bold" "FreeMono" "ALPHABETUM Unicode"))
+     ("Old North Arabian"
+      ("Marib"))
+     ("Old Permic"
+      ("Everson Mono:weight=bold"))
+     ("Old Persian"
+      ("Segoe UI Historic" "Noto Sans Old Persian" "MPH 2B Damase" "Aegean" "Code2001" "FreeSans" "ALPHABETUM Unicode"))
+     ("Old South Arabian"
+      ("Segoe UI Historic" "Noto Sans Old South Arabian" "Quivira" "Qataban" "Everson Mono:weight=bold"))
+     ("Old Turkic"
+      ("Noto Sans Old Turkic" "Segoe UI Historic" "Segoe UI Symbol" "Quivira" "Everson Mono:weight=bold"))
+     ("Optical Character Recognition"
+      ("Apple Symbols" "Segoe UI Symbol" "Noto Sans Symbols" "Arial Unicode MS" "Symbola" "Quivira" "FreeMono" "BabelStone Modern" "Code2000" "Everson Mono"))
+     ("Oriya"
+      ("Noto Sans Oriya" "Oriya Sangam MN" "Nirmala UI" "Kalinga" "Samyak Oriya" "Samyak" "Code2000" "Arial Unicode MS"))
+     ("Ornamental Dingbats"
+      ("Symbola"))
+     ("Osmanya"
+      ("Noto Sans Osmanya" "Ebrima" "Andagii" "MPH 2B Damase" "Code2001" "Everson Mono:weight=bold"))
+     ("Phags-pa"
+      ("BabelStone Phags-pa Book" "BabelStone Phags-pa Book:style=Regular" "Noto Sans Phags-pa" "Microsoft PhagsPa" "Code2000"))
+     ("Phaistos Disc"
+      ("Aegean" "Noto Sans Symbols" "Symbola" "Everson Mono:weight=bold" "Code2001" "ALPHABETUM Unicode"))
+     ("Phoenician"
+      ("Segoe UI Historic" "Noto Sans Phoenician" "Aegean" "Quivira" "Code2001" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Phonetic Extensions"
+      ("Monaco" "Consolas" "Calibri" "Noto Sans" "Aboriginal Sans" "Charis SIL" "Doulos SIL" "Quivira" "Courier New" "DejaVu Sans:width=condensed" "Code2000" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Phonetic Extensions Supplement"
+      ("Consolas" "Calibri" "Courier New" "Noto Sans" "Aboriginal Sans" "Charis SIL" "Doulos SIL" "Quivira" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Code2000" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Playing Cards"
+      ("DejaVu Sans:width=condensed" "Symbola" "Noto Sans Symbols" "Segoe UI Symbol" "Quivira"))
+     ("Rejang"
+      ("Noto Sans Rejang" "Code2000" "Everson Mono:weight=bold"))
+     ("Rumi Numeral Symbols"
+      ("HanaMinA"))
+     ("Runic"
+      ("Noto Sans Runic" "Segoe UI Historic" "Segoe UI Symbol" "Aboriginal Serif" "Junicode" "FreeMono" "Quivira" "Code2000" "Cardo" "Everson Mono:weight=bold" "ALPHABETUM Unicode"))
+     ("Samaritan"
+      ("Noto Sans Samaritan" "Quivira" "Everson Mono:weight=bold"))
+     ("Saurashtra"
+      ("Noto Sans Saurashtra" "Code2000" "Sourashtra"))
+     ("Sharada"
+      ("Albanian"))
+     ("Shavian"
+      ("Segoe UI Historic" "Noto Sans Shavian" "Andagii" "MPH 2B Damase" "Apple Symbols" "Code2001" "Everson Mono:weight=bold"))
+     ("Siddham"
+      ("MuktamsiddhamG"))
+     ("Sinhala"
+      ("Noto Sans Sinhala" "Nirmala UI" "Iskoola Pota" "Akshar Unicode" "Sinhala Sangam MN"))
+     ("Small Form Variants"
+      ("Apple Symbols" "Arial Unicode MS" "WenQuanYi Zen Hei Mono" "Microsoft YaHei" "Microsoft YaHei UI" "Code2000"))
+     ("Sora Sompeng"
+      ("Nirmala UI"))
+     ("Specials"
+      ("BabelStone Modern" "Noto Sans Symbols" "Apple Symbols" "Arial Unicode MS" "Symbola" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Quivira" "FreeMono" "BabelStone Han"))
+     ("Sundanese"
+      ("Noto Sans Sundanese" "Sundanese Unicode"))
+     ("Sundanese Supplement"
+      ("Noto Sans Sundanese"))
+     ("Superscripts and Subscripts"
+      ("Consolas" "Monaco" "Apple Symbols" "Cambria Math" "DejaVu Sans Mono" "DejaVu Sans:width=condensed" "Segoe UI Symbol" "Asana Math" "Charis SIL" "Doulos SIL" "Symbola" "Quivira" "Everson Mono:weight=bold" "FreeMono"))
+     ("Supplemental Arrows-A"
+      ("Segoe UI Symbol" "Cambria Math" "DejaVu Sans:width=condensed" "Asana Math" "Quivira" "Symbola" "Apple Symbols" "Noto Sans Symbols" "Code2000" "Everson Mono:weight=bold" "FreeMono" "BabelStone Modern"))
+     ("Supplemental Arrows-B"
+      ("Cambria Math" "Segoe UI Symbol" "Apple Symbols" "Noto Sans Symbols" "Asana Math" "Quivira" "Symbola" "Code2000" "Everson Mono:weight=bold"))
+     ("Supplemental Arrows-C"
+      ("Symbola"))
+     ("Supplemental Mathematical Operators"
+      ("Cambria Math" "Segoe UI Symbol" "Noto Sans Symbols" "Apple Symbols" "Asana Math" "Code2000" "Symbola" "Quivira" "Everson Mono:weight=bold"))
+     ("Supplemental Punctuation"
+      ("DejaVu Sans Mono" "Segoe UI Symbol" "Noto Sans Symbols" "Antinoou" "New Athena Unicode" "Cardo" "Aegean" "Symbola" "Quivira" "Everson Mono:weight=bold" "Code2000" "ALPHABETUM Unicode"))
+     ("Supplemental Symbols and Pictographs"
+      ("Symbola"))
+     ("Syloti Nagri"
+      ("Noto Sans Syloti Nagri" "MPH 2B Damase"))
+     ("Syriac"
+      ("Segoe UI Historic" "Estrangelo Edessa" "Estrangelo Nisibin" "Code2000"))
+     ("Tagalog"
+      ("Quivira" "Noto Sans Tagalog"))
+     ("Tagbanwa"
+      ("Noto Sans Tagbanwa" "Quivira"))
+     ("Tags"
+      ("BabelStone Modern" "BabelStone Han"))
+     ("Tai Le"
+      ("Microsoft Tai Le" "TharLon" "Noto Sans Tai Le" "Yunghkio" "Tai Le Valentinium" "MPH 2B Damase" "FreeSerif"))
+     ("Tai Tham"
+      ("Noto Sans Tai Tham" "Lanna Alif" "Chiangsaen Alif" "Lanna Unicode UI" "Monlam Uni Sans Serif"))
+     ("Tai Viet"
+      ("Tai Heritage Pro" "Noto Sans Tai Viet"))
+     ("Tai Xuan Jing Symbols"
+      ("WenQuanYi Zen Hei Mono" "Apple Symbols" "Noto Sans Symbols" "Segoe UI Symbol" "BabelStone Han" "DejaVu Sans:width=condensed" "Symbola" "Quivira" "BabelStone Modern" "Code2001" "Everson Mono:weight=bold"))
+     ("Takri"
+      ("Albanian"))
+     ("Tamil"
+      ("Latha" "Noto Sans Tamil" "Noto Sans Tamil UI" "Nirmala UI" "Tamil MN" "Tamil Sangam MN" "InaiMathi" "Vijaya" "Maduram" "Akshar Unicode" "Samyak Tamil" "Samyak" "Code2000" "Arial Unicode MS"))
+     ("Telugu"
+      ("Noto Sans Telugu" "Noto Sans Telugu UI" "Telugu Sangam MN" "Vani" "Nirmala UI" "Gautami" "Akshar Unicode" "Code2000" "Arial Unicode MS"))
+     ("Thaana"
+      ("MV Boli" "Noto Sans Thaana" "MPH 2B Damase" "Code2000" "Everson Mono:weight=bold"))
+     ("Thai"
+      ("Thonburi" "DokChampa" "Noto Sans Thai" "Noto Sans Thai UI" "Noto Serif Thai" "Ayuthaya" "Silom" "Krungthep" "Sathu" "Angsana New" "AngsanaUPC" "Code2000" "Tahoma" "Arial Unicode MS" "Quivira" "Everson Mono:weight=bold"))
+     ("Tibetan"
+      ("Noto Sans Tibetan" "Kailasa" "Kokonor" "Tibetan Machine Uni" "Microsoft Himalaya" "Jomolhari" "Monlam Uni Sans Serif" "Arial Unicode MS"))
+     ("Tifinagh"
+      ("Noto Sans Tifinagh" "Ebrima" "DejaVu Sans:width=condensed" "Code2000" "Quivira" "Everson Mono:weight=bold"))
+     ("Transport and Map Symbols"
+      ("Apple Color Emoji" "Segoe UI Symbol" "Symbola"))
+     ("Ugaritic"
+      ("Segoe UI Historic" "Noto Sans Ugaritic" "Aegean" "Code2001" "Andagii" "Quivira" "Everson Mono:weight=bold" "FreeSans" "ALPHABETUM Unicode"))
+     ("Unified Canadian Aboriginal Syllabics"
+      ("Aboriginal Sans" "Aboriginal Serif" "Noto Sans Canadian Aboriginal" "Gadugi" "Euphemia UCAS" "Euphemia" "Code2000" "Quivira" "Everson Mono:weight=bold"))
+     ("Unified Canadian Aboriginal Syllabics Extended"
+      ("Aboriginal Sans" "Aboriginal Serif" "Noto Sans Canadian Aboriginal" "Gadugi" "Euphemia UCAS" "Euphemia" "Quivira" "Everson Mono:weight=bold"))
+     ("Vai"
+      ("Ebrima" "Noto Sans Vai" "Dukor" "Wakor" "Code2000" "Quivira"))
+     ("Variation Selectors"
+      ("BabelStone Modern" "BabelStone Han" "Code2000"))
+     ("Variation Selectors Supplement"
+      ("BabelStone Modern" "BabelStone Han"))
+     ("Vedic Extensions"
+      ("Siddhanta"))
+     ("Vertical Forms"
+      ("Microsoft YaHei" "Microsoft YaHei UI" "Symbola"))
+     ("Yi Radicals"
+      ("Noto Sans Yi" "Nuosu SIL" "Microsoft Yi Baiti" "STFangsong" "Code2000"))
+     ("Yi Syllables"
+      ("Noto Sans Yi" "Nuosu SIL" "Microsoft Yi Baiti" "STFangsong" "Code2000"))
+     ("Yijing Hexagram Symbols"
+      ("WenQuanYi Zen Hei Mono" "Noto Sans Symbols" "Segoe UI Symbol" "Apple Symbols" "DejaVu Sans:width=condensed" "BabelStone Han" "Symbola" "Quivira" "BabelStone Modern" "Code2000" "Everson Mono:weight=bold"))))
+  (unicode-fonts-skip-font-groups
+   '(chinese-simplified chinese-traditional decorative low-quality-glyphs multicolor))
   :config
   (unicode-fonts-setup)
   ;; (setq face-font-rescale-alist '((".*Scheher.*" . 1.8)))
   )
+#+end_src
+
+** uniquify
+
+#+begin_src emacs-lisp
+(use-package uniquify
+  :defer 5
+  :custom
+  (uniquify-buffer-name-style 'post-forward-angle-brackets))
+#+end_src
+
+** url
+
+#+begin_src emacs-lisp
+(use-package url
+  :defer t
+  :custom
+  (url-configuration-directory (user-data "url/")))
+#+end_src
+
+*** url-cache
+
+#+begin_src emacs-lisp
+(use-package url-cache
+  :defer t
+  :custom
+  (url-cache-directory (user-data "url/cache")))
+#+end_src
+
+*** url-irc
+
+#+begin_src emacs-lisp
+(use-package url-irc
+  :defer t
+  :custom
+  (url-irc-function 'url-irc-erc))
 #+end_src
 
 ** vagrant
@@ -5763,6 +7460,19 @@ append it to ENTRY."
 (use-package vagrant-tramp
   :after tramp
   :defer 5)
+#+end_src
+
+** vc
+
+#+begin_src emacs-lisp
+(use-package vc
+  :defer t
+  :custom
+  (vc-command-messages t)
+  (vc-follow-symlinks t)
+  (vc-git-diff-switches '("-w" "-U3"))
+  (vc-handled-backends '(GIT SVN CVS Bzr Hg))
+  (vc-make-backup-files t))
 #+end_src
 
 ** vdiff
@@ -5818,7 +7528,12 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package w3m
-  :commands (w3m-browse-url w3m-find-file))
+  :commands (w3m-browse-url w3m-find-file)
+  :custom
+  (w3m-cookie-accept-bad-cookies 'ask)
+  (w3m-default-display-inline-images t)
+  (w3m-fill-column 100)
+  (w3m-use-cookies t))
 #+end_src
 
 ** wat-mode
@@ -5839,7 +7554,10 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package wgrep
-  :defer 5)
+  :defer 5
+  :custom
+  (wgrep-auto-save-buffer t)
+  (wgrep-enable-key ""))
 #+end_src
 
 ** which-func
@@ -5871,6 +7589,14 @@ append it to ENTRY."
              whitespace-cleanup
              whitespace-mode
              whitespace-turn-off)
+  :custom
+  (whitespace-auto-cleanup t t)
+  (whitespace-line-column 80)
+  (whitespace-rescan-timer-time nil t)
+  (whitespace-silent t t)
+  (whitespace-style '(face trailing lines-tail space-before-tab))
+  :custom-face
+  (whitespace-line ((t (:background "yellow"))))
   :preface
   (defvar normalize-hook nil)
 
@@ -5960,7 +7686,14 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package x86-lookup
-  :bind ("C-h X" . x86-lookup))
+  :bind ("C-h X" . x86-lookup)
+  :custom
+  (x86-lookup-browse-pdf-function
+   #'(lambda
+       (pdf page)
+       (org-pdfview-open
+        (concat pdf "::" page))))
+  (x86-lookup-pdf "~/.local/share/x86/325462-sdm-vol-1-2abcd-3abcd.pdf"))
 #+end_src
 
 ** xray
@@ -5993,7 +7726,9 @@ append it to ENTRY."
 (use-package yaoddmuse
   :bind (("C-c w f" . yaoddmuse-browse-page-default)
          ("C-c w e" . yaoddmuse-edit-default)
-         ("C-c w p" . yaoddmuse-post-library-default)))
+         ("C-c w p" . yaoddmuse-post-library-default))
+  :custom
+  (yaoddmuse-directory "~/.emacs.d/doc"))
 #+end_src
 
 ** yasnippet
@@ -6015,6 +7750,14 @@ append it to ENTRY."
   :bind (:map yas-keymap
               ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
+  :custom
+  (yas-installed-snippets-dir "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/")
+  (yas-prompt-functions '(yas-ido-prompt yas-completing-prompt yas-no-prompt))
+  (yas-snippet-dirs '("/Users/johnw/.emacs.d/snippets"))
+  (yas-triggers-in-field t)
+  (yas-wrap-around-region t)
+  :custom-face
+  (yas-field-highlight-face ((t (:background "#e4edfc"))))
   :config
   (yas-load-directory (emacs-path "snippets"))
   (yas-global-mode 1))
@@ -6026,7 +7769,9 @@ append it to ENTRY."
 (use-package z3-mode
   :mode (("\\.smt\\'" . z3-mode))
   :bind (:map z3-mode-map
-              ("C-c C-c" . z3-execute-region)))
+              ("C-c C-c" . z3-execute-region))
+  :custom
+  (z3-solver-cmd "z3"))
 #+end_src
 
 ** zoom
@@ -6034,6 +7779,8 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package zoom
   :bind ("C-x +" . zoom)
+  :custom
+  (zoom-size 'size-callback)
   :preface
   (defun size-callback ()
     (cond ((> (frame-pixel-width) 1280) '(90 . 0.75))
@@ -6219,53 +7966,482 @@ tags: journal
 * Gnus
 
 #+begin_src emacs-lisp
-(require 'gnus)
-(require 'starttls)
-(require 'message)
-(eval-and-compile
-  (require 'gnus-start)
-  (require 'gnus-sum)
-  (require 'gnus-art)
-  (require 'mml))
+(use-package gnus
+  :custom
+  (gnus-activate-level 2)
+  (gnus-after-getting-new-news-hook
+   '(gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler))
+  (gnus-agent-expire-all t)
+  (gnus-agent-expire-days 14)
+  (gnus-agent-go-online t)
+  (gnus-agent-mark-unread-after-downloaded nil)
+  (gnus-agent-synchronize-flags t)
+  (gnus-alias-allow-forward-as-reply t)
+  (gnus-alias-default-identity "Gmail")
+  (gnus-alias-identity-alist
+   '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+     ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
+     ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
+  (gnus-alias-identity-rules
+   '(("Kadena Mail"
+      ("To" "kadena" current)
+      "Kadena")
+     ("Ledger Mailing List"
+      ("To" "ledger-cli@googlegroups\\.com" current)
+      "Gmail")
+     ("Emacs Mailing Lists"
+      ("Cc" "\\(emacs\\|debbugs\\)" current)
+      "Gnu")
+     ("Emacs Mailing Lists"
+      ("To" "\\(emacs\\|debbugs\\)" current)
+      "Gnu")
+     ("Emacs Newsgroups"
+      ("Newsgroups" "emacs" current)
+      "Gnu")
+     ("Haskell Groups"
+      ("Newsgroups" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
+      "NewArtisans")
+     ("Haskell Mailing Lists"
+      ("To" "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)" current)
+      "NewArtisans")))
+  (gnus-alias-override-user-mail-address t)
+  (gnus-alias-unknown-identity-rule 'error)
+  (gnus-always-read-dribble-file t)
+  (gnus-article-date-lapsed-new-header t)
+  (gnus-article-update-date-headers nil)
+  (gnus-asynchronous t)
+  (gnus-check-new-newsgroups nil)
+  (gnus-completing-read-function 'gnus-ido-completing-read)
+  (gnus-default-adaptive-score-alist
+   '((gnus-saved-mark
+      (subject 250)
+      (from 50))
+     (gnus-dormant-mark
+      (subject 150)
+      (from 50))
+     (gnus-forwarded-mark
+      (subject 100)
+      (from 25))
+     (gnus-replied-mark
+      (subject 75)
+      (from 15))
+     (gnus-ticked-mark
+      (subject 0)
+      (from 0))
+     (gnus-read-mark
+      (subject 30)
+      (from 5))
+     (gnus-del-mark
+      (subject 5)
+      (from 0))
+     (gnus-recent-mark
+      (subject 0)
+      (from 0))
+     (gnus-killed-mark
+      (subject -5)
+      (from -5))
+     (gnus-catchup-mark
+      (subject -150)
+      (from 0))
+     (gnus-duplicate-mark
+      (subject -150)
+      (from 0))
+     (gnus-expirable-mark
+      (subject -250)
+      (from 0))
+     (gnus-spam-mark
+      (subject -10)
+      (from -150))))
+  (gnus-default-article-saver 'gnus-summary-save-in-mail)
+  (gnus-generate-tree-function 'gnus-generate-horizontal-tree)
+  (gnus-group-default-list-level 2)
+  (gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
+")
+  (gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
+  (gnus-group-use-permanent-levels t)
+  (gnus-harvest-sender-alist '((".*@gnu\\.org" . johnw@gnu\.org)))
+  (gnus-home-directory "~/Messages/Gnus/")
+  (gnus-ignored-from-addresses
+   "\\(johnw?\\|jwiegley\\)\\(-[^@]+\\)?@\\(\\(gmail\\|newartisans\\)\\.com\\|kadena\\.io\\|gnu\\.org\\)")
+  (gnus-ignored-mime-types
+   '("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard"))
+  (gnus-interactive-exit 'quiet)
+  (gnus-large-newsgroup 4000)
+  (gnus-local-domain "newartisans.com")
+  (gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
+  (gnus-mark-unpicked-articles-as-read t)
+  (gnus-message-archive-group '((format-time-string "sent.%Y")))
+  (gnus-message-replysign t)
+  (gnus-novice-user nil)
+  (gnus-parameters
+   '(("brass\\.smedl"
+      (list-identifier . "\\[brass-rings/smedl\\]"))
+     ("^haskell$"
+      (display . all))
+     ("list\\.gnu\\.prog\\.discuss$"
+      (list-identifier . "\\[gnu-prog-discuss\\]"))
+     ("list\\.riscv\\.devel$"
+      (to-address . "sw-dev@lists.riscv.org")
+      (to-list . "sw-dev@lists.riscv.org")
+      (list-identifier . "\\[\\(riscv-sw\\|sw-dev\\)\\]"))
+     ("list\\.coq\\.fiat"
+      (to-address . "fiat@lists.csail.mit.edu")
+      (to-list . "fiat@lists.csail.mit.edu")
+      (list-identifier . "\\[Fiat\\]"))
+     ("list\\.gsoc\\.mentors$"
+      (to-address . "google-summer-of-code-mentors-list@googlegroups.com")
+      (to-list . "google-summer-of-code-mentors-list@googlegroups.com")
+      (list-identifier . "\\[GSoC Mentors\\]"))
+     ("list\\.haskell\\.ghc$"
+      (to-address . "glasgow-haskell-users@haskell.org")
+      (to-list . "glasgow-haskell-users@haskell.org")
+      (list-identifier . "\\[Haskell\\]"))
+     ("list\\.haskell\\.ghc-linker"
+      (to-address . "ghc-linker@googlegroups.com")
+      (to-list . "ghc-linker@googlegroups.com"))
+     ("list\\.nix\\.devel"
+      (to-address . "nix-dev@lists.science.uu.nl")
+      (to-list . "nix-dev@lists.science.uu.nl")
+      (list-identifier . "\\[Nix-dev\\]"))
+     ("\\`gmane\\."
+      (spam-process gnus-group-spam-exit-processor-report-gmane))
+     ("list\\.github$"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . delete))
+     ("mail\\.spam"
+      (total-expire . t)
+      (expiry-wait . 28)
+      (expiry-target . delete)
+      (ham-process-destination . "INBOX")
+      (spam-contents gnus-group-spam-classification-spam)
+      (spam-process
+       ((spam spam-use-spamassassin)
+        (ham spam-use-spamassassin))))
+     ("list\\."
+      (subscribed . t))
+     ("list\\.wg21\\.\\(.*\\)"
+      (to-address . "c++std-\\1@accu.org")
+      (to-list . "c++std-\\1@accu.org")
+      (gnus-list-identifiers "\\[c\\+\\+std-.+?\\]"))
+     ("INBOX"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . "mail.archive")
+      (spam-process-destination . "mail.spam")
+      (spam-contents gnus-group-spam-classification-ham)
+      (spam-process
+       ((spam spam-use-spamassassin)
+        (ham spam-use-spamassassin))))
+     ("\\(mail\\.\\|INBOX\\)"
+      (gnus-use-scoring nil))
+     ("mail\\.archive"
+      (gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
+      (gnus-show-threads nil))
+     ("list\\.ledger\\.devel"
+      (to-address . "ledger-cli@googlegroups.com")
+      (to-list . "ledger-cli@googlegroups.com"))
+     ("list\\.bahai\\.tarjuman"
+      (to-address . "tarjuman@bahai-library.com")
+      (to-list . "tarjuman@bahai-library.com")
+      (list-identifier . "\\[tj\\]"))
+     ("list\\.emacs\\.devel$"
+      (to-address . "emacs-devel@gnu.org")
+      (to-list . "emacs-devel@gnu.org"))
+     ("list\\.emacs\\.tangents$"
+      (to-address . "emacs-tangents@gnu.org")
+      (to-list . "emacs-tangents@gnu.org"))
+     ("list\\.emacs\\.help$"
+      (to-address . "help-gnu-emacs@gnu.org")
+      (to-list . "help-gnu-emacs@gnu.org"))
+     ("list\\.emacs\\.bugs$"
+      (to-list . "bug-gnu-emacs@gnu.org"))
+     ("list\\.emacs\\.bugs\\.tracker"
+      (list-identifier . "\\[debbugs-tracker\\]"))
+     ("list\\.emacs\\.diffs"
+      (to-address . "emacs-diffs@gnu.org")
+      (to-list . "emacs-diffs@gnu.org")
+      (list-identifier . "\\[Emacs-diffs\\]"))
+     ("list\\.emacs\\.elpa\\.diffs"
+      (to-address . "emacs-elpa-diffs@gnu.org")
+      (to-list . "emacs-elpa-diffs@gnu.org")
+      (list-identifier . "\\[elpa\\]"))
+     ("list\\.emacs\\.buildstatus"
+      (to-address . "emacs-buildstatus@gnu.org")
+      (to-list . "emacs-buildstatus@gnu.org"))
+     ("list\\.emacs\\.sources"
+      (to-address . "gnu-emacs-sources@gnu.org")
+      (to-list . "gnu-emacs-sources@gnu.org"))
+     ("list\\.emacs\\.orgmode"
+      (to-address . "emacs-orgmode@gnu.org")
+      (to-list . "emacs-orgmode@gnu.org")
+      (list-identifier . "\\[O\\]"))
+     ("list\\.boost\\.cppnow"
+      (to-address . "boostcon-plan@googlegroups.com")
+      (to-list . "boostcon-plan@googlegroups.com"))
+     ("list\\.boost\\.ryppl"
+      (list-identifier . "\\[ryppl-dev\\]")
+      (to-address . "ryppl-dev@googlegroups.com")
+      (to-list . "ryppl-dev@googlegroups.com"))
+     ("list\\.boost\\.devel"
+      (to-address . "boost@lists.boost.org")
+      (to-list . "boost@lists.boost.org")
+      (list-identifier . "\\[boost\\]"))
+     ("list\\.boost\\.\\(users\\|announce\\)"
+      (to-address . "boost-\\1@lists.boost.org")
+      (to-list . "boost-\\1@lists.boost.org")
+      (list-identifier . "\\\\[Boost-\\1\\\\]"))
+     ("list\\.isocpp\\.\\(proposals\\|discussion\\)"
+      (to-address . "std-\\1@isocpp.org")
+      (to-list . "std-\\1@isocpp.org")
+      (list-identifier . "\\\\[\\\\(lang\\\\|lib\\\\|std\\\\)-\\1\\\\]"))
+     ("list\\.clang\\.devel"
+      (to-address . "cfe-dev@cs.uiuc.edu")
+      (to-list . "cfe-dev@cs.uiuc.edu")
+      (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)\\]"))
+     ("list\\.llvm\\.devel"
+      (to-address . "llvmdev@cs.uiuc.edu")
+      (to-list . "llvmdev@cs.uiuc.edu")
+      (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)]"))
+     ("list\\.nix\\.devel"
+      (to-address . "nix-dev@lists.science.uu.nl")
+      (to-list . "nix-dev@lists.science.uu.nl")
+      (list-identifier . "\\[Nix-dev\\]"))
+     ("list\\.haskell\\.pipes"
+      (to-address . "haskell-pipes@googlegroups.com")
+      (to-list . "haskell-pipes@googlegroups.com")
+      (list-identifier . "\\[haskell-pipes\\]"))
+     ("list\\.haskell\\.cafe"
+      (to-address . "haskell-cafe@haskell.org")
+      (to-list . "haskell-cafe@haskell.org")
+      (list-identifier . "\\[Haskell\\(-cafe\\)?\\]"))
+     ("list\\.haskell\\.libraries"
+      (to-address . "libraries@haskell.org")
+      (to-list . "libraries@haskell.org"))
+     ("list\\.haskell\\.prime"
+      (to-address . "haskell-prime@haskell.org")
+      (to-list . "haskell-prime@haskell.org")
+      (list-identifier . "\\[haskell/rfcs\\]"))
+     ("list\\.haskell\\.template-haskell"
+      (to-address . "template-haskell@haskell.org")
+      (to-list . "template-haskell@haskell.org"))
+     ("list\\.haskell\\.beginners"
+      (to-address . "beginners@haskell.org")
+      (to-list . "beginners@haskell.org")
+      (list-identifier . "\\[Haskell-beginners\\]"))
+     ("list\\.haskell\\.infrastructure"
+      (to-address . "haskell-infrastructure@community.galois.com")
+      (to-list . "haskell-infrastructure@community.galois.com")
+      (list-identifier . "\\[Haskell-infrastructure\\]"))
+     ("list\\.haskell\\.community"
+      (to-address . "haskell-community@haskell.org")
+      (to-list . "haskell-community@haskell.org")
+      (list-identifier . "\\[Haskell-\\(community\\|cafe\\)\\]"))
+     ("list\\.haskell\\.announce"
+      (to-address . "haskell@haskell.org")
+      (to-list . "haskell@haskell.org")
+      (list-identifier . "\\[Haskell\\]"))
+     ("list\\.haskell\\.cabal"
+      (to-address . "cabal-devel@haskell.org")
+      (to-list . "cabal-devel@haskell.org")
+      (list-identifier . "\\[Haskell\\]"))
+     ("list\\.coq$"
+      (to-address . "coq-club@inria.fr")
+      (to-list . "coq-club@inria.fr")
+      (list-identifier . "\\[Coq-Club\\]"))
+     ("list\\.coq\\.devel$"
+      (to-address . "coqdev@inria.fr")
+      (to-list . "coqdev@inria.fr")
+      (list-identifier . "\\[coqdev\\]"))
+     ("list\\.agda\\.devel$"
+      (to-address . "agda@lists.chalmers.se")
+      (to-list . "agda@lists.chalmers.se")
+      (list-identifier . "\\[Agda\\]"))
+     ("list\\.idris\\.devel$"
+      (to-address . "idris-lang@googlegroups.com")
+      (to-list . "idris-lang@googlegroups.com")
+      (list-identifier . "\\[Idris\\]"))
+     ("list\\.safe\\.verify$"
+      (to-address . "safe-verif@lists.crash-safe.org")
+      (to-list . "safe-verif@lists.crash-safe.org")
+      (list-identifier . "\\[Safe-verif\\]"))
+     ("list\\.coq\\.ssreflect"
+      (to-address . "ssreflect@msr-inria.inria.fr")
+      (to-list . "ssreflect@msr-inria.inria.fr")
+      (list-identifier . "\\[ssreflect\\]"))
+     ("list\\.brass\\.proposal"
+      (to-address . "brass-proposal@lists.brass-tacks.org")
+      (to-list . "brass-proposal@lists.brass-tacks.org")
+      (list-identifier . "\\[Brass-proposal\\]"))
+     ("list\\.brass\\.commits"
+      (to-address . "bae-brass-commits@googlegroups.com")
+      (to-list . "bae-brass-commits@googlegroups.com")
+      (list-identifier . "\\[bae-brass-commits\\]\\( \\[bae-brass/brass-proposal\\]\\)? [0-9a-f]+?:"))
+     ("list\\.brass\\.rings$"
+      (list-identifier . "\\[rings-all\\]")
+      (to-address . "rings-all@googlegroups.com")
+      (to-list . "rings-all@googlegroups.com"))
+     ("list\\.brass\\.smedl$"
+      (list-identifier . "\\[smedl\\]"))
+     ("list\\.hott"
+      (to-address . "hott-cafe@googlegroups.com")
+      (to-list . "hott-cafe@googlegroups.com")
+      (list-identifier . "\\[hott-cafe\\]"))
+     ("list\\.acl2\\.help"
+      (to-address . "acl2-help@utlists.utexas.edu")
+      (to-list . "acl2-help@utlists.utexas.edu"))))
+  (gnus-permanently-visible-groups "INBOX")
+  (gnus-read-active-file nil)
+  (gnus-read-newsrc-file nil)
+  (gnus-refer-article-method
+   '(current
+     (nnir "nnimap:Local")
+     (nntp "LocalNews"
+           (nntp-address "localhost")
+           (nntp-port-number 9119))
+     (nntp "Gmane"
+           (nntp-address "news.gmane.org"))
+     (nntp "Eternal September"
+           (nntp-address "news.eternal-september.org")
+           (nntp-authinfo-user "jwiegley"))))
+  (gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
+  (gnus-save-killed-list nil)
+  (gnus-save-newsrc-file nil)
+  (gnus-score-default-duration 'p)
+  (gnus-score-expiry-days 30)
+  (gnus-score-interactive-default-score 10)
+  (gnus-select-group-hook '(gnus-group-set-timestamp))
+  (gnus-select-method
+   '(nnimap "Local"
+            (nnimap-stream plain)
+            (nnimap-address "127.0.0.1")
+            (nnimap-server-port 9143)))
+  (gnus-sieve-file "~/Messages/dovecot.sieve")
+  (gnus-sieve-select-method "nnimap:Local")
+  (gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
+  (gnus-simplify-subject-functions '(gnus-simplify-subject-fuzzy))
+  (gnus-split-methods
+   '((gnus-save-site-lisp-file)
+     (gnus-article-archive-name)
+     (gnus-article-nndoc-name)))
+  (gnus-started-hook
+   '((lambda nil (run-hooks 'gnus-after-getting-new-news-hook))))
+  (gnus-subscribe-newsgroup-method 'gnus-subscribe-topics)
+  (gnus-sum-thread-tree-single-indent "  ")
+  (gnus-summary-expunge-below -100)
+  (gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)\n")
+  (gnus-summary-mark-below -100)
+  (gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)\n")
+  (gnus-summary-prepared-hook '(gnus-summary-hide-all-threads))
+  (gnus-summary-save-parts-default-mime ".*")
+  (gnus-suppress-duplicates t)
+  (gnus-suspend-gnus-hook '(gnus-group-save-newsrc))
+  (gnus-thread-expunge-below -1000)
+  (gnus-thread-hide-subtree t)
+  (gnus-thread-ignore-subject nil)
+  (gnus-thread-score-function 'max)
+  (gnus-thread-sort-functions '((not gnus-thread-sort-by-number)))
+  (gnus-topic-display-empty-topics nil)
+  (gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v\n")
+  (gnus-treat-date-lapsed 'head)
+  (gnus-treat-hide-citation-maybe t)
+  (gnus-treat-strip-cr t)
+  (gnus-treat-strip-leading-blank-lines t)
+  (gnus-treat-strip-multiple-blank-lines t)
+  (gnus-treat-strip-trailing-blank-lines t)
+  (gnus-treat-unsplit-urls t)
+  (gnus-tree-minimize-window nil)
+  (gnus-uncacheable-groups "^nnml")
+  (gnus-use-adaptive-scoring '(line))
+  (gnus-use-cache t)
+  (gnus-verbose 4)
+  (mail-envelope-from 'header)
+  (mail-host-address "newartisans.com")
+  (mail-personal-alias-file "~/doc/mailrc")
+  (mail-self-blind t)
+  (mail-setup-with-from nil)
+  (mail-source-delete-incoming t)
+  (mail-source-delete-old-incoming-confirm nil)
+  (mail-source-report-new-mail-interval 15)
+  (mail-sources '((file :path "/var/mail/johnw")))
+  (mail-specify-envelope-from t)
+  (mail-user-agent 'gnus-user-agent)
+  (mm-attachment-override-types
+   '("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*"))
+  (mm-decrypt-option 'always)
+  (mm-discouraged-alternatives '("application/msword" "text/richtext"))
+  (mm-enable-external 'ask)
+  (mm-inline-text-html-with-images t)
+  (mm-text-html-renderer 'gnus-w3m)
+  (mm-verify-option 'always)
+  (mm-w3m-safe-url-regexp nil)
+  (nnir-imap-default-search-key "imap")
+  (nnmail-crosspost nil)
+  (nnmail-expiry-wait 30)
+  (nnmail-extra-headers '(To Cc Newsgroups))
+  (nnmail-scan-directory-mail-source-once t)
+  (send-mail-function 'sendmail-send-it)
+  (sendmail-program "msmtp")
+  (smtpmail-default-smtp-server "smtp.gmail.com")
+  (smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
+  (smtpmail-smtp-server "smtp.fastmail.com")
+  (smtpmail-smtp-service 587)
+  (smtpmail-smtp-user "johnw@newartisans.com")
+  (smtpmail-starttls-credentials
+   '(("mail.johnwiegley.com" 587 nil nil)
+     ("smtp.fastmail.com" 587 nil nil)
+     ("smtp.gmail.com" 587 nil nil)))
+  (smtpmail-stream-type 'ssl)
+  (ssl-certificate-verification-policy 1)
+  (tls-checktrust t)
+  (tls-program
+   '("openssl s_client -connect %h:%p -no_ssl2 -ign_eof -CApath ~/.nix-profile/etc/ssl/certs -cert ~/Messages/me.pem"))
+  :custom-face
+  (gnus-summary-normal-ticked ((t (:foreground "pink4"))))
+  :config
+  (require 'starttls)
+  (require 'message)
+  (eval-and-compile
+    (require 'gnus-start)
+    (require 'gnus-sum)
+    (require 'gnus-art)
+    (require 'mml))
 
-(gnus-delay-initialize)
+  (gnus-delay-initialize)
 
-(defvar switch-to-gnus-unplugged nil)
-(defvar switch-to-gnus-run nil)
+  (defvar switch-to-gnus-unplugged nil)
+  (defvar switch-to-gnus-run nil)
 
-(eval-when-compile
-  (defvar ido-default-buffer-method)
-  (declare-function ido-visit-buffer "ido"))
+  (eval-when-compile
+    (defvar ido-default-buffer-method)
+    (declare-function ido-visit-buffer "ido"))
 
-(defun switch-to-gnus (&optional arg)
-  (interactive "P")
-  (push-window-configuration)
-  (let* ((alist '("\\`\\*unsent" "\\`\\*Summary" "\\`\\*Group"))
-         (candidate
-          (catch 'found
-            (dolist (regexp alist)
-              (dolist (buf (buffer-list))
-                (if (string-match regexp (buffer-name buf))
-                    (throw 'found buf)))))))
-    (if (and switch-to-gnus-run candidate)
-        (progn
-          (if (featurep 'ido)
-              (ido-visit-buffer candidate ido-default-buffer-method)
-            (switch-to-buffer candidate))
-          (if (string-match "Group" (buffer-name candidate))
-              (gnus-group-get-new-news)))
-      (let ((switch-to-gnus-unplugged arg))
-        ;; (gnus)
-        (gnus-unplugged)
-        (gnus-group-list-groups gnus-activate-level)
-        (gnus-group-get-all-new-news)
-        (setq switch-to-gnus-run t)))))
-
-(defun quickping (host)
-  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
-
-(fset 'retrieve-attached-mail
-      [?\C-d ?\C-n ?B ?c ?I ?N ?B ?O ?X return ?q ?\C-p ?B backspace ?\M-g])
+  (defun switch-to-gnus (&optional arg)
+    (interactive "P")
+    (push-window-configuration)
+    (let* ((alist '("\\`\\*unsent" "\\`\\*Summary" "\\`\\*Group"))
+           (candidate
+            (catch 'found
+              (dolist (regexp alist)
+                (dolist (buf (buffer-list))
+                  (if (string-match regexp (buffer-name buf))
+                      (throw 'found buf)))))))
+      (if (and switch-to-gnus-run candidate)
+          (progn
+            (if (featurep 'ido)
+                (ido-visit-buffer candidate ido-default-buffer-method)
+              (switch-to-buffer candidate))
+            (if (string-match "Group" (buffer-name candidate))
+                (gnus-group-get-new-news)))
+        (let ((switch-to-gnus-unplugged arg))
+          ;; (gnus)
+          (gnus-unplugged)
+          (gnus-group-list-groups gnus-activate-level)
+          (gnus-group-get-all-new-news)
+          (setq switch-to-gnus-run t))))))
 #+end_src
 
 ** fetchmail-ctl
@@ -6533,7 +8709,49 @@ is:
 ** message-x
 
 #+begin_src emacs-lisp
-(use-package message-x)
+(use-package message
+  :defer t
+  :custom
+  (message-alternative-emails
+   "\\(johnw?\\|jwiegley\\)@\\(\\(gmail\\|newartisans\\)\\.com\\|gnu\\.org\\)")
+  (message-directory "~/Messages/Gnus/Mail/")
+  (message-dont-reply-to-names
+   "\\(jwiegley\\|johnw\\|john\\.wiegley\\)@\\(\\(gmail\\|newartisans\\)\\.com\\|gnu\\.org\\)")
+  (message-fill-column 78)
+  (message-interactive t)
+  (message-mail-alias-type nil)
+  (message-mode-hook
+   '(abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell
+                 (lambda nil (set-fill-column 78))))
+  (message-send-mail-function 'message-send-mail-with-sendmail)
+  (message-send-mail-partially-limit nil)
+  (message-sendmail-envelope-from 'header)
+  (message-sendmail-extra-arguments '("--read-envelope-from"))
+  (message-sendmail-f-is-evil t)
+  (message-sent-hook '(my-gnus-score-followup))
+  (message-setup-hook '(gnus-harvest-set-from message-check-recipients))
+  (message-signature-separator "^-- *$")
+  (message-subscribed-address-functions '(gnus-find-subscribed-addresses))
+  (message-x-completion-alist
+   '(("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address)
+     ((if (boundp 'message-newgroups-header-regexp)
+          message-newgroups-header-regexp message-newsgroups-header-regexp)
+      . message-expand-group)))
+  :custom-face
+  (message-cited-text-1 ((((class color)) (:foreground "Blue"))))
+  (message-header-cc ((((class color)) (:bold t :foreground "green2"))))
+  (message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
+  (message-header-other ((((class color)) (:foreground "Firebrick"))))
+  (message-header-xheader ((((class color)) (:foreground "Blue"))))
+  (message-mml ((((class color)) (:foreground "DarkGreen"))))
+  (message-separator ((((class color)) (:foreground "Tan")))))
+#+end_src
+
+** message-x
+
+#+begin_src emacs-lisp
+(use-package message-x
+  :after message)
 #+end_src
 
 ** gnus-dired
@@ -6550,6 +8768,9 @@ is:
 #+begin_src emacs-lisp
 (use-package my-gnus-score
   :commands (my-gnus-score-groups my-gnus-score-followup)
+  :custom
+  (my-gnus-thread-sort-functions
+   '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score))
   :init
   (defun gnus-group-get-all-new-news (&optional arg)
     (interactive "P")
@@ -6732,6 +8953,54 @@ is:
 #+begin_src emacs-lisp
 (use-package supercite
   :commands sc-cite-original
+  :custom
+  (sc-citation-leader "")
+  (sc-confirm-always-p nil)
+  (sc-default-attribution "")
+  (sc-default-cite-frame
+   '((begin
+      (progn
+        (sc-fill-if-different)
+        (setq sc-tmp-nested-regexp
+              (sc-cite-regexp "")
+              sc-tmp-nonnested-regexp
+              (sc-cite-regexp)
+              sc-tmp-dumb-regexp
+              (concat "\\("
+                      (sc-cite-regexp "")
+                      "\\)"
+                      (sc-cite-regexp sc-citation-nonnested-root-regexp)))))
+     ("^[       ]*$"
+      (if sc-cite-blank-lines-p
+          (sc-cite-line)
+        (sc-fill-if-different "")))
+     ((and
+       (looking-at "^-- ?$")
+       (not
+        (save-excursion
+          (goto-char
+           (match-end 0))
+          (re-search-forward "^-- ?$" nil t))))
+      (sc-fill-if-different ""))
+     (sc-reference-tag-string
+      (if
+          (string= sc-reference-tag-string "")
+          (list 'continue)
+        nil))
+     (sc-tmp-dumb-regexp
+      (sc-cite-coerce-dumb-citer))
+     (sc-tmp-nested-regexp
+      (sc-add-citation-level))
+     (sc-tmp-nonnested-regexp
+      (sc-cite-coerce-cited-line))
+     (sc-nested-citation-p
+      (sc-add-citation-level))
+     (t
+      (sc-cite-line))
+     (end
+      (sc-fill-if-different ""))))
+  (sc-preferred-attribution-list '("initials"))
+  (sc-use-only-preference-p t)
   :init
   (add-hook 'mail-citation-hook 'sc-cite-original)
 
@@ -6856,10 +9125,394 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
         (mml-attach-file signature))))
   :config
   (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
+#+end_src
 
-;;;; Org
+* Org
 
-(require 'org)
+#+begin_src emacs-lisp
+(use-package org
+  :custom
+  (org-M-RET-may-split-line '((headline) (default . t)))
+  (org-adapt-indentation nil)
+  (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
+  (org-agenda-cmp-user-defined 'org-compare-todo-age)
+  (org-agenda-custom-commands
+   '(("h" "Current Hotlist" alltodo ""
+      ((org-agenda-overriding-header "Current Hotlist")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
+     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Hot Projects")))
+     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Non-Hot Projects")))
+     ("n" "Project Next Actions" alltodo ""
+      ((org-agenda-overriding-header "Project Next Actions")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+     ("P" "All Projects" tags "TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "All Projects")))
+     ("A" "Priority #A tasks" agenda ""
+      ((org-agenda-ndays 1)
+       (org-agenda-overriding-header "Today's priority #A tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\=.*\\[#A\\]"))))
+     ("b" "Priority #A and #B tasks" agenda ""
+      ((org-agenda-ndays 1)
+       (org-agenda-overriding-header "Today's priority #A and #B tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
+     ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
+      ((org-agenda-overriding-header "Uncategorized items")))
+     ("W" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
+      ((org-agenda-overriding-header "Waiting/delegated tasks:")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled))
+       (org-agenda-sorting-strategy
+        '(todo-state-up priority-down category-up))))
+     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Deadlined tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notdeadline))
+       (org-agenda-sorting-strategy
+        '(category-up))))
+     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+      ((org-agenda-overriding-header "Scheduled tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notscheduled))
+       (org-agenda-sorting-strategy
+        '(category-up))))
+     ("d" "Unscheduled open source tasks (by date)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by date): ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/org/OSS.org"))))
+     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+       (org-agenda-sorting-strategy
+        '(category-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/org/OSS.org"))))
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-overriding-header "Unscheduled tasks: ")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files
+        '("~/doc/org/todo.org"))))
+     ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
+      ((org-agenda-overriding-header "Deferred tasks:")
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
+      ((org-agenda-overriding-header "Someday tasks:")
+       (org-agenda-sorting-strategy
+        '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}"
+      ((org-agenda-overriding-header "Unscheduled work-related tasks")
+       (org-agenda-files
+        '("~/kadena/docs/kadena.org"))
+       (org-agenda-sorting-strategy
+        '(category-up user-defined-up))
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("c" "Appointment Calendar" agenda ""
+      ((org-agenda-overriding-header "Appointment Calendar")
+       (org-agenda-sorting-strategy
+        '(time-up))
+       (org-agenda-span 14)
+       (org-agenda-ndays 14)
+       (org-agenda-regexp-filter-preset
+        '("+APPT"))))))
+  (org-agenda-deadline-leaders '("!D!: " "D%02d: "))
+  (org-agenda-default-appointment-duration 60)
+  (org-agenda-files
+   '("~/doc/org/todo.org" "~/doc/org/habits.org" "~/kadena/docs/kadena.org" "~/doc/org/OSS.org"))
+  (org-agenda-fontify-priorities t)
+  (org-agenda-include-diary t)
+  (org-agenda-inhibit-startup t)
+  (org-agenda-log-mode-items '(closed clock state))
+  (org-agenda-ndays 1)
+  (org-agenda-persistent-filter t)
+  (org-agenda-prefix-format
+   '((agenda . "  %-11c%?-12t% s")
+     (timeline . "  % s")
+     (todo . "  %-11c%5(org-todo-age) ")
+     (tags . "  %-11c")))
+  (org-agenda-scheduled-leaders '("" "S%d: "))
+  (org-agenda-scheduled-relative-text "S%d: ")
+  (org-agenda-scheduled-text "")
+  (org-agenda-show-all-dates t)
+  (org-agenda-skip-deadline-if-done t)
+  (org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (org-agenda-skip-scheduled-if-done t)
+  (org-agenda-skip-unavailable-files t)
+  (org-agenda-sorting-strategy
+   '((agenda habit-down time-up todo-state-up priority-down)
+     (todo priority-down category-keep)
+     (tags priority-down category-keep)
+     (search category-keep)))
+  (org-agenda-span 'day)
+  (org-agenda-start-on-weekday nil)
+  (org-agenda-tags-column -100)
+  (org-agenda-tags-todo-honor-ignore-options t)
+  (org-agenda-todo-ignore-scheduled 'past)
+  (org-agenda-use-time-grid nil)
+  (org-agenda-window-frame-fractions '(0.5 . 0.75))
+  (org-archive-location "TODO-archive::")
+  (org-archive-save-context-info '(time category itags))
+  (org-attach-file-list-property "ATTACHED")
+  (org-attach-method 'mv)
+  (org-attach-store-link-p 'file)
+  (org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
+  (org-babel-load-languages
+   '((python . t)
+     (emacs-lisp . t)
+     (haskell . t)
+     (calc . t)
+     (ditaa . t)
+     (plantuml . t)
+     (sql . t)
+     (dot . t)
+     (restclient . t)))
+  (org-beamer-frame-default-options "fragile")
+  (org-capture-templates
+   '(("a" "Add Task" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("n" "Note" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* NOTE %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("c" "Calendar" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* APPT %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("t" "Add Task" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* TODO %?
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("p" "Protocol" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* NOTE %?
+,#+BEGIN_QUOTE
+%i
+,#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
+     ("L" "Protocol Link" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* NOTE %?
+[[%:link][%:description]]
+,#+BEGIN_QUOTE
+%i
+,#+END_QUOTE
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %c
+:END:")
+     ("j" "Journal entry" entry
+      (file+datetree "~/kadena/docs/kadena.org")
+      "* %?")))
+  (org-clock-clocked-in-display nil)
+  (org-clock-idle-time 10)
+  (org-clock-in-resume t)
+  (org-clock-in-switch-to-state "STARTED")
+  (org-clock-into-drawer "LOGBOOK")
+  (org-clock-mode-line-total 'current)
+  (org-clock-out-remove-zero-time-clocks t)
+  (org-clock-out-switch-to-state nil)
+  (org-clock-persist t)
+  (org-clock-persist-file (user-data "org-clock-save.el"))
+  (org-clock-resolve-expert t)
+  (org-completion-use-ido t)
+  (org-confirm-babel-evaluate nil)
+  (org-crypt-disable-auto-save t)
+  (org-crypt-key "0xAB37611BDDE48EBD")
+  (org-cycle-global-at-bob t)
+  (org-deadline-warning-days 14)
+  (org-default-notes-file "~/doc/org/todo.org")
+  (org-depend-tag-blocked nil)
+  (org-directory "~/doc/org/")
+  (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
+  (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
+  (org-edit-src-content-indentation 0)
+  (org-enforce-todo-dependencies t)
+  (org-export-backends '(ascii html icalendar latex md))
+  (org-export-latex-classes
+   '(("article" "\\documentclass[11pt]{article}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+     ("linalg" "\\documentclass{article}
+\\usepackage{linalgjh}
+[DEFAULT-PACKAGES]
+[EXTRA]
+[PACKAGES]"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+      ("\\paragraph{%s}" . "\\paragraph*{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+     ("report" "\\documentclass[11pt]{report}"
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("book" "\\documentclass[11pt]{book}"
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("beamer" "\\documentclass{beamer}" org-beamer-sectioning)))
+  (org-export-use-babel nil)
+  (org-extend-today-until 4)
+  (org-fast-tag-selection-single-key 'expert)
+  (org-fontify-done-headline t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-fontify-whole-heading-line t)
+  (org-footnote-section nil)
+  (org-gcal-dir (user-data "org-gcal/"))
+  (org-habit-preceding-days 42)
+  (org-habit-today-glyph 45)
+  (org-hide-emphasis-markers t)
+  (org-hide-leading-stars t)
+  (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
+  (org-icalendar-timezone "America/Los_Angeles")
+  (org-id-locations-file (user-data "org-id-locations"))
+  (org-image-actual-width nil)
+  (org-imenu-depth 4)
+  (org-insert-heading-respect-content t)
+  (org-irc-link-to-logs t t)
+  (org-latex-default-packages-alist
+   '(("T1" "fontenc" t)
+     ("" "fixltx2e" nil)
+     ("" "graphicx" t)
+     ("" "longtable" nil)
+     ("" "float" nil)
+     ("" "wrapfig" nil)
+     ("" "rotating" nil)
+     ("normalem" "ulem" t)
+     ("" "amsmath" t)
+     ("" "textcomp" t)
+     ("" "marvosym" t)
+     ("" "wasysym" t)
+     ("" "amssymb" t)
+     ("" "hyperref" nil)
+     "\\tolerance=1000"))
+  (org-latex-minted-options
+   '(("fontsize" "\\footnotesize")
+     ("linenos" "true")
+     ("xleftmargin" "0em")))
+  (org-latex-pdf-process
+   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  (org-latex-src-block-backend 'minted)
+  (org-link-elisp-confirm-function nil)
+  (org-link-shell-confirm-function nil)
+  (org-mime-preserve-breaks nil)
+  (org-mobile-agendas '("Z"))
+  (org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  (org-mobile-files '("~/doc/org/todo.org"))
+  (org-mobile-files-exclude-regexp "\\(TODO\\(-.*\\)?\\)\\'")
+  (org-mobile-inbox-for-pull "~/doc/org/from-mobile.org")
+  (org-mode-hook
+   '(org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode))
+  (org-msg-default-alternatives
+   '((new text html)
+     (reply-to-html text html)
+     (reply-to-text text)))
+  (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
+  (org-pretty-entities t)
+  (org-priority-faces
+   '((65 :foreground "White" :weight bold)
+     (66 . "White")
+     (67 :foreground "dark gray" :slant italic)))
+  (org-refile-target-verify-function 'org-refile-heading-p)
+  (org-refile-targets '((org-agenda-files :todo . "PROJECT")))
+  (org-return-follows-link t)
+  (org-reverse-note-order t)
+  (org-roam-capture-templates
+   '(("d" "default" plain "%?" :target
+      (file+head "%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}
+")
+      :unnarrowed t)))
+  (org-roam-db-location (user-data "org-roam.db"))
+  (org-smart-capture-use-lastname t)
+  (org-src-fontify-natively t)
+  (org-src-tab-acts-natively t)
+  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
+  (org-subject-transforms
+   '(("\\`\\(Re\\|Fwd\\): " . "")
+     ("\\`{ledger} " . "")
+     ("([Ww]as: .+)\\'" . "")
+     ("\\`\\[[a-z-]+\\] " . "")
+     ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
+  (org-tags-column -97)
+  (org-time-clocksum-use-fractional t)
+  (org-todo-keyword-faces
+   '(("TODO" :foreground "medium blue" :weight bold)
+     ("EPIC" :foreground "deep sky blue" :weight bold)
+     ("STORY" :foreground "royal blue" :weight bold)
+     ("RECUR" :foreground "cornflowerblue" :weight bold)
+     ("APPT" :foreground "medium blue" :weight bold)
+     ("NOTE" :foreground "brown" :weight bold)
+     ("STARTED" :foreground "dark orange" :weight bold)
+     ("WAITING" :foreground "red" :weight bold)
+     ("DELEGATED" :foreground "dark violet" :weight bold)
+     ("DEFERRED" :foreground "dark blue" :weight bold)
+     ("SOMEDAY" :foreground "dark blue" :weight bold)
+     ("PROJECT" :foreground "#088e8e" :weight bold)))
+  (org-todo-repeat-to-state "TODO")
+  (org-use-property-inheritance '("AREA"))
+  (org-use-speed-commands t)
+  (org-use-tag-inheritance nil)
+  (org-x-backends '(ox-org ox-redmine))
+  (org-x-redmine-title-prefix-function 'org-x-redmine-title-prefix)
+  (org-x-redmine-title-prefix-match-function 'org-x-redmine-title-prefix-match)
+  :custom-face
+  (org-agenda-clocking ((t (:background "red2"))))
+  (org-agenda-done ((t (:foreground "ForestGreen"))))
+  (org-done ((t (:foreground "ForestGreen" :weight bold))))
+  (org-habit-alert-face ((((background light)) (:background "#f5f946"))))
+  (org-habit-alert-future-face ((((background light)) (:background "#fafca9"))))
+  (org-habit-clear-face ((((background light)) (:background "#8270f9"))))
+  (org-habit-clear-future-face ((((background light)) (:background "#d6e4fc"))))
+  (org-habit-overdue-face ((((background light)) (:background "#f9372d"))))
+  (org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
+  (org-habit-ready-face ((((background light)) (:background "#4df946"))))
+  (org-habit-ready-future-face ((((background light)) (:background "#acfca9"))))
+  (org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
+  (org-level-4 ((t (:foreground "green"))))
+  (org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
+  (org-upcoming-deadline
+   ((((class color) (min-colors 88) (background light)) (:foreground "Brown")))))
+#+end_src
+
+#+begin_src emacs-lisp
 (require 'org-agenda)
 (require 'org-habit)
 
@@ -6883,39 +9536,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 (defconst my-org-soft-blue   "#e8eff9")
 (defconst my-org-soft-purple "#f3e8f9")
 
-(when nil
-  (custom-set-faces
-   '(variable-pitch ((t (:family "ETBembo")))))
-  (custom-set-faces
-   '(org-document-title ((t (:foreground "#f7f7f7" :weight bold :height 1.5)))))
-  (custom-set-faces
-   '(org-image-actual-width '(600)))
-  (custom-set-faces
-   '(org-block-begin-line ((t (:background "#fbf8ef")))))
-  (custom-set-faces
-   '(org-block-end-line ((t (:background "#fbf8ef")))))
-
-  (setq default-major-mode 'org-mode)
-
-  (add-hook 'org-mode-hook
-            #'(lambda ()
-                (variable-pitch-mode 1) ;; All fonts with variable pitch.
-                (mapc
-                 (lambda (face) ;; Other fonts with fixed-pitch.
-                   (set-face-attribute face nil :inherit 'fixed-pitch))
-                 (list 'org-code
-                       'org-link
-                       'org-block
-                       'org-table
-                       'org-verbatim
-                       'org-block-begin-line
-                       'org-block-end-line
-                       'org-meta-line
-                       'org-document-info-keyword)))))
-
-(add-hook 'org-mode-hook
-          #'(lambda ()
-              (abbrev-mode 1)))
+(add-hook 'org-mode-hook #'(lambda () (abbrev-mode 1)))
 
 (defun org-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -6984,24 +9605,24 @@ day.
 
 To achieve this, I have the following in my todo file:
 
-  * Work
+  ,* Work
     :PROPERTIES:
     :CATEGORY: Work
     :OVERLAY:  (face (:background \"#fdfdeb\"))
     :END:
-  ** TODO Task
-  * Family
+  ,** TODO Task
+  ,* Family
     :PROPERTIES:
     :CATEGORY: Personal
     :OVERLAY:  (face (:background \"#e8f9e8\"))
     :END:
-  ** TODO Task
-  * Personal
+  ,** TODO Task
+  ,* Personal
     :PROPERTIES:
     :CATEGORY: Personal
     :OVERLAY:  (face (:background \"#e8eff9\"))
     :END:
-  ** TODO Task
+  ,** TODO Task
 
 The colors (which only work well for white backgrounds) are:
 
@@ -7110,9 +9731,6 @@ To use this function, add it to `org-agenda-finalize-hook':
   (defvar org-clock-current-task)
   (defvar org-mobile-directory)
   (defvar org-mobile-capture-file))
-
-(defun quickping (host)
-  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 (defun org-my-auto-exclude-function (tag)
   (and (cond
@@ -7852,6 +10470,19 @@ end tell" (shell-quote-argument (match-string 1)))))
               cfw:refresh-calendar-buffer
               cfw:org-create-source
               cfw:cal-create-source)
+  :custom
+  (cfw:read-date-command
+   (lambda nil
+     (interactive)
+     (let
+         ((xs
+           (decode-time
+            (org-time-string-to-time
+             (org-read-date)))))
+       (list
+        (nth 4 xs)
+        (nth 3 xs)
+        (nth 5 xs)))))
   :preface
   (defun my-calendar ()
     (interactive)
@@ -8203,7 +10834,18 @@ end tell" (shell-quote-argument (match-string 1)))))
 
 #+begin_src emacs-lisp
 (use-package xeft
-  :commands xeft)
+  :commands xeft
+  :custom
+  (xeft-database (user-daat "xeft.db"))
+  (xeft-default-extension "org")
+  (xeft-directory "~/doc/org/roam")
+  (xeft-file-filter 'my-xeft-file-filter)
+  (xeft-recursive t)
+  (xeft-title-function 'my-xeft-get-title)
+  :custom-face
+  (xeft-excerpt-body ((t (:inherit default :foreground "grey80"))))
+  (xeft-excerpt-title ((t (:inherit (bold underline) :foreground "green"))))
+  (xeft-inline-highlight ((t (:inherit underline :extend t :foreground "orange")))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -8353,6 +10995,16 @@ Already existing files are overwritten."
 #+begin_src emacs-lisp
 (use-package deft
   :bind ("C-, C-," . deft)
+  :custom
+  (deft-directory "~/doc/org/roam/tech")
+  (deft-extensions '("org" "md"))
+  (deft-recursive t)
+  (deft-strip-summary-regexp ":PROPERTIES:
+\\(.+
+\\)+:END:
+")
+  (deft-text-mode 'org-mode)
+
   :config
   (defun my-deft-parse-title-skip-properties (orig-func title contents)
     (funcall orig-func title
@@ -8600,33 +11252,14 @@ directories, dot files, and files matched by
 #+begin_src emacs-lisp
 ;; Use Dabbrev with Corfu!
 (use-package dabbrev
-  :disabled t
   ;; Swap M-/ and C-M-/
-  :bind (("M-/" . dabbrev-completion)
+  :bind (("M-/"   . dabbrev-completion)
          ("C-M-/" . dabbrev-expand))
   ;; Other useful Dabbrev configurations.
   :custom
+  (dabbrev-case-fold-search nil)
+  (dabbrev-case-replace nil)
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-#+end_src
-
-** emacs
-
-#+begin_src emacs-lisp
-;; A few more useful configurations...
-(use-package emacs
-  :disabled t
-  :init
-  ;; TAB cycle if there are only few candidates
-  (setq completion-cycle-threshold 3)
-
-  ;; Emacs 28: Hide commands in M-x which do not apply to the current mode.
-  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
-
-  ;; Enable indentation+completion using the TAB key.
-  ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete))
 #+end_src
 
 ** marginalia

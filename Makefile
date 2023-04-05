@@ -27,6 +27,7 @@ init.el: init.org
 	@$(BATCH_LOAD) -L $(HOME)/.emacs.d/lisp/org-mode/lisp \
 		--eval "(require 'org)" \
 		--eval "(org-babel-load-file \"init.org\")"
+	@chmod ugo-w $@
 
 compile:
 	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
