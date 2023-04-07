@@ -14,21 +14,10 @@
 (defvar file-name-handler-alist-old file-name-handler-alist)
 
 (setq package-enable-at-startup nil
-      file-name-handler-alist nil
-      message-log-max 16384
-      gc-cons-threshold 402653184
-      gc-cons-percentage 0.6
-      auto-window-vscroll nil
       gnus-home-directory "~/Messages/Gnus/")
 
 (add-to-list 'load-path "~/.emacs.d/lisp/org-mode/lisp")
 
-(add-hook 'after-init-hook
-          #'(lambda ()
-              (setq file-name-handler-alist file-name-handler-alist-old
-                    gc-cons-threshold 800000
-                    gc-cons-percentage 0.1)
-              (garbage-collect)) t)
 #+end_src
 
 * Functions
@@ -184,69 +173,32 @@
 #+begin_src emacs-lisp
 (use-package emacs
   :custom
-  (user-full-name "John Wiegley")
-  (user-mail-address "johnw@newartisans.com")
-
-  (ad-redefinition-action 'accept)
+  ;; C source code
   (auto-hscroll-mode 'current-line)
-  (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
   (auto-save-interval 64)
-  (auto-save-list-file-prefix (user-data "auto-save-list/.saves-"))
   (auto-save-timeout 2)
-  (backward-delete-char-untabify-method 'untabify)
-  (byte-compile-verbose nil)
-  (column-number-mode t)
-  (current-language-environment "UTF-8")
-  (custom-buffer-done-function 'kill-buffer)
-  (default-major-mode 'text-mode)
-  (delete-old-versions t)
-  (directory-free-space-args "-kh")
   (enable-recursive-minibuffers t)
+  (file-name-handler-alist nil)
   (fill-column 78)
+  (gc-cons-percentage 0.5)
+  (gc-cons-threshold (* 128 1024 1024))
   (history-delete-duplicates t)
   (history-length 200)
-  (indent-tabs-mode nil)
-  (inhibit-startup-echo-area-message "johnw")
-  (inhibit-startup-screen t)
-  (initial-buffer-choice t)
-  (initial-major-mode 'fundamental-mode)
-  (initial-scratch-message "")
-  (kill-do-not-save-duplicates t)
-  (kill-ring-max 500)
-  (kill-whole-line t)
-  (large-file-warning-threshold nil)
-  (line-number-mode t)
   (load-prefer-newer t)
   (menu-bar-mode nil)
-  (next-line-add-newlines nil)
-  (prettify-symbols-unprettify-at-point 'right-edge)
+  (message-log-max 16384)
   (read-buffer-function 'ido-read-buffer)
   (redisplay-dont-pause t)
-  (save-abbrevs 'silently)
-  (save-interprogram-paste-before-kill t)
-  (scroll-bar-mode nil)
-  (sentence-end-double-space nil)
-  (show-paren-delay 0)
-  (switch-to-buffer-preserve-window-point t)
   (tool-bar-mode nil)
-  (trash-directory "~/.Trash")
   (undo-limit 800000)
-  (version-control t)
+  (user-full-name "John Wiegley")
   (visible-bell t)
-  (warning-minimum-log-level :error)
-  (window-divider-default-bottom-width 1)
-  (window-divider-default-places 'bottom-only)
   (x-stretch-cursor t)
 
   (ns-alternate-modifier 'alt)
   (ns-command-modifier 'meta)
   (ns-function-modifier 'hyper)
   (ns-right-alternate-modifier 'alt)
-
-  (nsm-settings-file (user-data "network-security.data"))
-
-  (directory-abbrev-alist
-   '(("\\`/org" . "/Users/johnw/doc/org")))
 
   (frame-title-format
    '(:eval
@@ -262,38 +214,6 @@
        (cdr
         (assq 'height
               (frame-parameters)))))))
-
-  (cc-other-file-alist
-   '(("\\.hs\\'"
-      (".hs-boot"))
-     ("\\.cc\\'"
-      (".hh" ".h"))
-     ("\\.hh\\'"
-      (".cc" ".C"))
-     ("\\.c\\'"
-      (".h"))
-     ("\\.h\\'"
-      (".c" ".cc" ".C" ".CC" ".cxx" ".cpp"))
-     ("\\.C\\'"
-      (".H" ".hh" ".h"))
-     ("\\.H\\'"
-      (".C" ".CC"))
-     ("\\.CC\\'"
-      (".HH" ".H" ".hh" ".h"))
-     ("\\.HH\\'"
-      (".CC"))
-     ("\\.c\\+\\+\\'"
-      (".h++" ".hh" ".h"))
-     ("\\.h\\+\\+\\'"
-      (".c++"))
-     ("\\.cpp\\'"
-      (".hpp" ".hh" ".h"))
-     ("\\.hpp\\'"
-      (".cpp"))
-     ("\\.cxx\\'"
-      (".hxx" ".hh" ".h"))
-     ("\\.hxx\\'"
-      (".cxx"))))
 
   (completion-ignored-extensions
    '(".glob"
@@ -370,8 +290,28 @@
      ".pyc"
      ".pyo"))
 
-  (same-window-buffer-names
-   '("*eshell*" "*shell*" "*mail*" "*inferior-lisp*" "*ielm*" "*scheme*"))
+  ;; startup.el
+  (auto-save-list-file-prefix (user-data "auto-save-list/.saves-"))
+  (inhibit-startup-echo-area-message "johnw")
+  (inhibit-startup-screen t)
+  (initial-buffer-choice t)
+  (initial-major-mode 'fundamental-mode)
+  (initial-scratch-message "")
+  (user-mail-address "johnw@newartisans.com")
+
+  ;; advice.el
+  (ad-redefinition-action 'accept)
+
+  ;; files.el
+  (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
+  (delete-old-versions t)
+  (directory-abbrev-alist
+   '(("\\`/org" . "/Users/johnw/doc/org")))
+  (directory-free-space-args "-kh")
+  (large-file-warning-threshold nil)
+  (save-abbrevs 'silently)
+  (trash-directory "~/.Trash")
+  (version-control t)
 
   (safe-local-variable-values
    '((haskell-indent-spaces . 4)
@@ -411,41 +351,160 @@
             (cons coq-root-directory nil)))
          (when coq-project-find-file
            (setq default-directory coq-root-directory))))))
+
+  ;; simple.el
+  (backward-delete-char-untabify-method 'untabify)
+  (column-number-mode t)
+  (indent-tabs-mode nil)
+  (kill-do-not-save-duplicates t)
+  (kill-ring-max 500)
+  (kill-whole-line t)
+  (line-number-mode t)
+  (next-line-add-newlines nil)
+  (save-interprogram-paste-before-kill t)
+
+  ;; bytecomp.el
+  (byte-compile-verbose nil)
+
+  ;; mule-cmds.el
+  (current-language-environment "UTF-8")
+
+  ;; (custom-buffer-done-function 'kill-buffer)
+  ;; (default-major-mode 'text-mode)
+
+  ;; prog-mode.el
+  (prettify-symbols-unprettify-at-point 'right-edge)
+
+  ;; scroll-bar.el
+  (scroll-bar-mode nil)
+
+  ;; paragraphs.el
+  (sentence-end-double-space nil)
+
+  ;; paren.el
+  (show-paren-delay 0)
+
+  ;; window.el
+  (same-window-buffer-names
+   '("*eshell*"
+     "*shell*"
+     "*mail*"
+     "*inferior-lisp*"
+     "*ielm*"
+     "*scheme*"))
+  (switch-to-buffer-preserve-window-point t)
+
+  ;; warnings.el
+  (warning-minimum-log-level :error)
+
+  ;; frame.el
+  (window-divider-default-bottom-width 1)
+  (window-divider-default-places 'bottom-only)
+
+  ;; nsm.el
+  (nsm-settings-file (user-data "network-security.data"))
+
+  ;; (cc-other-file-alist
+  ;;  '(("\\.hs\\'"
+  ;;     (".hs-boot"))
+  ;;    ("\\.cc\\'"
+  ;;     (".hh" ".h"))
+  ;;    ("\\.hh\\'"
+  ;;     (".cc" ".C"))
+  ;;    ("\\.c\\'"
+  ;;     (".h"))
+  ;;    ("\\.h\\'"
+  ;;     (".c" ".cc" ".C" ".CC" ".cxx" ".cpp"))
+  ;;    ("\\.C\\'"
+  ;;     (".H" ".hh" ".h"))
+  ;;    ("\\.H\\'"
+  ;;     (".C" ".CC"))
+  ;;    ("\\.CC\\'"
+  ;;     (".HH" ".H" ".hh" ".h"))
+  ;;    ("\\.HH\\'"
+  ;;     (".CC"))
+  ;;    ("\\.c\\+\\+\\'"
+  ;;     (".h++" ".hh" ".h"))
+  ;;    ("\\.h\\+\\+\\'"
+  ;;     (".c++"))
+  ;;    ("\\.cpp\\'"
+  ;;     (".hpp" ".hh" ".h"))
+  ;;    ("\\.hpp\\'"
+  ;;     (".cpp"))
+  ;;    ("\\.cxx\\'"
+  ;;     (".hxx" ".hh" ".h"))
+  ;;    ("\\.hxx\\'"
+  ;;     (".cxx"))))
+
   :custom-face
   (cursor ((t (:background "hotpink"))))
   (highlight ((t (:background "blue4"))))
   (minibuffer-prompt ((t (:foreground "grey80"))))
   (mode-line-inactive ((t (:background "grey95"))))
   (nobreak-space ((t nil)))
-  (variable-pitch ((t (:height 1.2 :family "Bookerly"))))
-  :init
-  (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
+  (variable-pitch ((t (:height 1 :family "Bookerly"))))
 
-  ;; ;; TAB cycle if there are only few candidates
-  ;; (setq completion-cycle-threshold 3)
-  ;; ;; Enable indentation+completion using the TAB key. `completion-at-point' is
-  ;; ;; often bound to M-TAB.
-  ;; (setq tab-always-indent 'complete)
-  )
+  :config
+  (add-hook 'after-save-hook
+            #'executable-make-buffer-file-executable-if-script-p)
+
+  (define-key input-decode-map [?\C-m] [C-m])
+
+  (eval-and-compile
+    (mapc #'(lambda (entry)
+              (define-prefix-command (cdr entry))
+              (bind-key (car entry) (cdr entry)))
+          '(("C-,"   . my-ctrl-comma-map)
+            ("<C-m>" . my-ctrl-m-map)
+
+            ("C-h e" . my-ctrl-h-e-map)
+            ("C-h x" . my-ctrl-h-x-map)
+
+            ("C-c b" . my-ctrl-c-b-map)
+            ("C-c e" . my-ctrl-c-e-map)
+            ("C-c m" . my-ctrl-c-m-map)
+            ("C-c n" . my-ctrl-c-m-map)
+            ("C-c w" . my-ctrl-c-w-map)
+            ("C-c y" . my-ctrl-c-y-map)
+            ("C-c H" . my-ctrl-c-H-map)
+            ("C-c N" . my-ctrl-c-N-map)
+            ("C-c (" . my-ctrl-c-open-paren-map)
+            ("C-c -" . my-ctrl-c-minus-map)
+            ("C-c =" . my-ctrl-c-equals-map)
+            ("C-c ." . my-ctrl-c-r-map)
+            )))
+
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p))
 #+end_src
 
 * Libraries
 
 #+begin_src emacs-lisp
-(use-package alert
-  :defer t
-  :load-path "lisp/alert"
-  :custom
-  (alert-default-style 'fringe)
-  (alert-notifier-command
-   "~/Applications/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package anaphora      :defer t)
 (use-package apiwrap       :defer t)
 (use-package asoc          :defer t)
-(use-package async         :defer t  :load-path "lisp/async")
+(use-package async         :defer t :load-path "lisp/async")
 (use-package button-lock   :defer t)
 (use-package ctable        :defer t)
 (use-package dash          :defer t)
@@ -460,7 +519,6 @@
 (use-package fn            :defer t)
 (use-package fringe-helper :defer t)
 (use-package fuzzy         :defer t)
-(use-package ghub+         :disabled t :defer t)
 (use-package ht            :defer t)
 (use-package kv            :defer t)
 (use-package list-utils    :defer t)
@@ -499,6 +557,18 @@
 (use-package zoutline      :defer t)
 #+end_src
 
+** alert
+
+#+begin_src emacs-lisp
+(use-package alert
+  :defer t
+  :load-path "lisp/alert"
+  :custom
+  (alert-default-style 'fringe)
+  (alert-notifier-command
+   "~/Applications/Home Manager Apps/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
+#+end_src
+
 ** ghub
 
 #+begin_src emacs-lisp
@@ -513,36 +583,6 @@
        (or my-ghub-token-cache
            (setq my-ghub-token-cache
                  (funcall orig-func host username package nocreate forge))))))
-#+end_src
-
-* Keymaps
-
-#+begin_src emacs-lisp
-(define-key input-decode-map [?\C-m] [C-m])
-
-(eval-and-compile
-  (mapc #'(lambda (entry)
-            (define-prefix-command (cdr entry))
-            (bind-key (car entry) (cdr entry)))
-        '(("C-,"   . my-ctrl-comma-map)
-          ("<C-m>" . my-ctrl-m-map)
-
-          ("C-h e" . my-ctrl-h-e-map)
-          ("C-h x" . my-ctrl-h-x-map)
-
-          ("C-c b" . my-ctrl-c-b-map)
-          ("C-c e" . my-ctrl-c-e-map)
-          ("C-c m" . my-ctrl-c-m-map)
-          ("C-c n" . my-ctrl-c-m-map)
-          ("C-c w" . my-ctrl-c-w-map)
-          ("C-c y" . my-ctrl-c-y-map)
-          ("C-c H" . my-ctrl-c-H-map)
-          ("C-c N" . my-ctrl-c-N-map)
-          ("C-c (" . my-ctrl-c-open-paren-map)
-          ("C-c -" . my-ctrl-c-minus-map)
-          ("C-c =" . my-ctrl-c-equals-map)
-          ("C-c ." . my-ctrl-c-r-map)
-          )))
 #+end_src
 
 * Packages
@@ -566,22 +606,6 @@
       (quietly-read-abbrev-file)))
 #+end_src
 
-** ace-isearch
-
-#+begin_src emacs-lisp
-(use-package ace-isearch
-  :disabled t
-  :config
-  (global-ace-isearch-mode +1)
-  (define-key isearch-mode-map (kbd "C-'") 'ace-isearch-jump-during-isearch)
-  :custom
-  (ace-isearch-input-length 7)
-  (ace-isearch-jump-delay 0.25)
-  (ace-isearch-function 'avy-goto-char)
-  (ace-isearch-use-jump 'printing-char)
-  (ace-isearch-submode 'ace-jump-char-mode))
-#+end_src
-
 ** ace-jump-mode
 
 #+begin_src emacs-lisp
@@ -590,6 +614,13 @@
 #+end_src
 
 ** ace-link
+
+Currently, to jump to a link in an =Info-mode= or =help-mode= or =woman-mode= or
+=org-mode= or =eww-mode= or =compilation-mode= or =goto-address-mode= buffer, you can
+tab through the links to select the one you want. This is an O(N) operation,
+where the N is the amount of links. This package turns this into an O(1)
+operation, or at least O(log(N)) if you manage to squeeze thousands of links
+in one screen. It does so by assigning a letter to each link using =avy=.
 
 #+begin_src emacs-lisp
 (use-package ace-link
@@ -609,14 +640,6 @@
             #'(lambda () (bind-key "o" #'ace-link-help ert-results-mode-map)))
   (add-hook 'eww-mode-hook
             #'(lambda () (bind-key "f" #'ace-link-eww eww-mode-map))))
-#+end_src
-
-** ace-mc
-
-#+begin_src emacs-lisp
-(use-package ace-mc
-  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
-         ("<C-m> M-h" . ace-mc-add-single-cursor)))
 #+end_src
 
 ** ace-window
@@ -681,7 +704,6 @@
 
 #+begin_src emacs-lisp
 (use-package agda2-mode
-  ;; This declaration depends on the load-path established by agda-input.
   :mode ("\\.agda\\'" "\\.lagda.md\\'")
   :bind (:map agda2-mode-map
               ("C-c C-i" . agda2-insert-helper-function))
@@ -793,7 +815,6 @@
      (output-html "xdg-open")))
   :config
   (require 'preview)
-  ;; (load (emacs-path "site-lisp/auctex/style/minted"))
 
   (info-lookup-add-help :mode 'LaTeX-mode
                         :regexp ".*"
@@ -919,7 +940,7 @@
 
 #+begin_src emacs-lisp
 (use-package avy
-  :bind* ("C-." . avy-goto-char-timer)
+  :bind* ("C-'" . avy-goto-char-timer)
   :custom
   (avy-case-fold-search t)
   (avy-keys '(97 111 101 117 105 100 104 116 110 115))
@@ -937,6 +958,12 @@
 #+end_src
 
 ** backup-each-save
+
+Ever wish to go back to an older saved version of a file? Then this package is
+for you. This package copies every file you save in Emacs to a backup
+directory tree (which mirrors the tree structure of the filesystem), with a
+timestamp suffix to make multiple saves of the same file unique. Never lose
+old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package backup-each-save
@@ -1036,7 +1063,7 @@
   (bookmark-default-file "~/doc/bookmarks"))
 #+end_src
 
-** bookmark+
+*** bookmark+
 
 #+begin_src emacs-lisp
 (use-package bookmark+
@@ -1071,10 +1098,11 @@
   :commands browse-kill-ring)
 #+end_src
 
-** browse-kill-ring+
+*** browse-kill-ring+
 
 #+begin_src emacs-lisp
 (use-package browse-kill-ring+
+  :disabled t
   :after browse-kill-ring
   :config (browse-kill-ring-default-keybindings))
 #+end_src
@@ -1137,7 +1165,9 @@
   (calendar-mark-holidays-flag t)
   (calendar-standard-time-zone-name "PST")
   (calendar-time-zone -480)
-  (diary-file "~/doc/diary"))
+  (diary-file "~/doc/diary")
+  :init
+  (setenv "TZ" "PST8PDT"))
 #+end_src
 
 *** holidays
@@ -1208,40 +1238,8 @@
   :preface
   (defun my-c-mode-common-hook ()
     (require 'flycheck)
-    ;; (flycheck-define-checker
-    ;;  c++-ledger
-    ;;  "A C++ syntax checker for the Ledger project specifically."
-    ;;  :command ("ninja"
-    ;;            "-C"
-    ;;            (eval (expand-file-name "~/Products/ledger"))
-    ;;            (eval (concat "src/CMakeFiles/libledger.dir/"
-    ;;                          (file-name-nondirectory (buffer-file-name))
-    ;;                          ".o")))
-    ;;  :error-patterns
-    ;;  ((error line-start
-    ;;          (message "In file included from") " " (or "<stdin>" (file-name))
-    ;;          ":" line ":" line-end)
-    ;;   (info line-start (or "<stdin>" (file-name)) ":" line ":" column
-    ;;         ": note: " (optional (message)) line-end)
-    ;;   (warning line-start (or "<stdin>" (file-name)) ":" line ":" column
-    ;;            ": warning: " (optional (message)) line-end)
-    ;;   (error line-start (or "<stdin>" (file-name)) ":" line ":" column
-    ;;          ": " (or "fatal error" "error") ": " (optional (message)) line-end))
-    ;;  :error-filter
-    ;;  (lambda (errors)
-    ;;    (let ((errors (flycheck-sanitize-errors errors)))
-    ;;      (dolist (err errors)
-    ;;        ;; Clang will output empty messages for #error/#warning pragmas
-    ;;        ;; without messages. We fill these empty errors with a dummy message
-    ;;        ;; to get them past our error filtering
-    ;;        (setf (flycheck-error-message err)
-    ;;              (or (flycheck-error-message err) "no message")))
-    ;;      (flycheck-fold-include-levels errors "In file included from")))
-    ;;  :modes c++-mode
-    ;;  :next-checkers ((warning . c/c++-cppcheck)))
-
     (flycheck-mode 1)
-    ;; (flycheck-select-checker 'c++-ledger)
+
     (setq-local flycheck-check-syntax-automatically nil)
     (setq-local flycheck-highlighting-mode nil)
 
@@ -1383,14 +1381,6 @@
                (lookup-password "freechess.org" "jwiegley" 80))))
 #+end_src
 
-** circe
-
-#+begin_src emacs-lisp
-(use-package circe
-  :if alternate-emacs
-  :defer t)
-#+end_src
-
 ** cl-info
 
 #+begin_src emacs-lisp
@@ -1399,18 +1389,18 @@
   :disabled t)
 #+end_src
 
-** cmake-font-lock
-
-#+begin_src emacs-lisp
-(use-package cmake-font-lock
-  :hook (cmake-mode . cmake-font-lock-activate))
-#+end_src
-
 ** cmake-mode
 
 #+begin_src emacs-lisp
 (use-package cmake-mode
   :mode ("CMakeLists.txt" "\\.cmake\\'"))
+#+end_src
+
+*** cmake-font-lock
+
+#+begin_src emacs-lisp
+(use-package cmake-font-lock
+  :hook (cmake-mode . cmake-font-lock-activate))
 #+end_src
 
 ** col-highlight
@@ -1439,208 +1429,6 @@
 (use-package command-log-mode
   :bind (("C-c e M" . command-log-mode)
          ("C-c e L" . clm/open-command-log-buffer)))
-#+end_src
-
-** company
-
-#+begin_src emacs-lisp
-(use-package company
-  :defer 5
-  :diminish
-  :commands (company-mode company-indent-or-complete-common)
-  :custom
-  (company-frontends
-   '(company-pseudo-tooltip-unless-just-one-frontend
-     company-echo-metadata-frontend
-     company-preview-frontend))
-  (company-global-modes '(emacs-lisp-mode c-mode c++-mode))
-  (company-idle-delay nil)
-  (company-quickhelp-use-propertized-text t)
-  (company-show-numbers t)
-  (company-show-quick-access t)
-  (company-tooltip-align-annotations t)
-  :init
-  (dolist (hook '(emacs-lisp-mode-hook
-                  c-mode-common-hook))
-    (add-hook hook
-              #'(lambda ()
-                  (local-set-key (kbd "<tab>")
-                                 #'company-indent-or-complete-common))))
-  :config
-  ;; From https://github.com/company-mode/company-mode/issues/87
-  ;; See also https://github.com/company-mode/company-mode/issues/123
-  (defadvice company-pseudo-tooltip-unless-just-one-frontend
-      (around only-show-tooltip-when-invoked activate)
-    (when (company-explicit-action-p)
-      ad-do-it))
-
-  ;; See http://oremacs.com/2017/12/27/company-numbers/
-  (defun ora-company-number ()
-    "Forward to `company-complete-number'.
-
-  Unless the number is potentially part of the candidate.
-  In that case, insert the number."
-    (interactive)
-    (let* ((k (this-command-keys))
-           (re (concat "^" company-prefix k)))
-      (if (cl-find-if (lambda (s) (string-match re s))
-                      company-candidates)
-          (self-insert-command 1)
-        (company-complete-number (string-to-number k)))))
-
-  (let ((map company-active-map))
-    (mapc
-     (lambda (x)
-       (define-key map (format "%d" x) 'ora-company-number))
-     (number-sequence 0 9))
-    (define-key map " " (lambda ()
-                          (interactive)
-                          (company-abort)
-                          (self-insert-command 1))))
-
-  (defun check-expansion ()
-    (save-excursion
-      (if (outline-on-heading-p t)
-          nil
-        (if (looking-at "\\_>") t
-          (backward-char 1)
-          (if (looking-at "\\.") t
-            (backward-char 1)
-            (if (looking-at "->") t nil))))))
-
-  (define-key company-mode-map [tab]
-    '(menu-item "maybe-company-expand" nil
-                :filter (lambda (&optional _)
-                          (when (check-expansion)
-                            #'company-complete-common))))
-
-  (eval-after-load "coq"
-    '(progn
-       (defun company-mode/backend-with-yas (backend)
-         (if (and (listp backend) (member 'company-yasnippet backend))
-             backend
-           (append (if (consp backend) backend (list backend))
-                   '(:with company-yasnippet))))
-       (setq company-backends
-             (mapcar #'company-mode/backend-with-yas company-backends))))
-
-  (global-company-mode 1))
-#+end_src
-
-*** company-auctex
-
-#+begin_src emacs-lisp
-(use-package company-auctex
-  :after (company latex))
-#+end_src
-
-*** company-cabal
-
-#+begin_src emacs-lisp
-(use-package company-cabal
-  :after (company haskell-cabal))
-#+end_src
-
-*** company-coq
-
-#+begin_src emacs-lisp
-(use-package company-coq
-  :after coq
-  :commands company-coq-mode
-  :bind (:map company-coq-map
-              ("M-<return>"))
-  :bind (:map coq-mode-map
-              ("C-M-h" . company-coq-toggle-definition-overlay))
-  :custom
-  (company-coq-disabled-features
-   '(hello prettify-symbols smart-subscripts dynamic-symbols-backend))
-  (company-coq-prettify-symbols-alist
-   '(("|-" . 8866)
-     ("True" . 8868)
-     ("False" . 8869)
-     ("->" . 8594)
-     ("-->" . 10230)
-     ("<-" . 8592)
-     ("<--" . 10229)
-     ("<->" . 8596)
-     ("<-->" . 10231)
-     ("==>" . 10233)
-     ("<==" . 10232)
-     ("++>" . 10239)
-     ("<++" . 11059)
-     ("fun" . 955)
-     ("forall" . 8704)
-     ("exists" . 8707)
-     ("/\\" . 8743)
-     ("\\/" . 8744)
-     ("~" . 172)
-     ("+-" . 177)
-     ("<=" . 8804)
-     (">=" . 8805)
-     ("<>" . 8800)
-     ("*" . 215)
-     ("++" . 10746)
-     ("nat" . 120029)
-     ("Z" . 8484)
-     ("N" . 8469)
-     ("Q" . 8474)
-     ("Real" . 8477)
-     ("bool" . 120121)
-     ("Prop" . 120031)))
-  :custom-face
-  (company-coq-features/code-folding-bullet-face ((t (:weight bold)))))
-#+end_src
-
-*** company-elisp
-
-#+begin_src emacs-lisp
-(use-package company-elisp
-  :after company
-  :config
-  (push 'company-elisp company-backends))
-
-(setq-local company-backend '(company-elisp))
-#+end_src
-
-*** company-math
-
-#+begin_src emacs-lisp
-(use-package company-math
-  :defer t)
-#+end_src
-
-*** company-quickhelp
-
-#+begin_src emacs-lisp
-(use-package company-quickhelp
-  :after company
-  :bind (:map company-active-map
-              ("C-c ?" . company-quickhelp-manual-begin)))
-#+end_src
-
-*** company-restclient
-
-#+begin_src emacs-lisp
-(use-package company-restclient
-  :after (company restclient))
-#+end_src
-
-*** company-rtags
-
-#+begin_src emacs-lisp
-(use-package company-rtags
-  :disabled t
-  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
-  :after (company rtags)
-  :config
-  (push 'company-rtags company-backends))
-#+end_src
-
-*** company-terraform
-
-#+begin_src emacs-lisp
-(use-package company-terraform
-  :after (company terraform-mode))
 #+end_src
 
 ** compile
@@ -1691,133 +1479,6 @@
          ("C-c w w" . copy-as-format))
   :init
   (setq copy-as-format-default "github"))
-#+end_src
-
-** coq-lookup
-
-#+begin_src emacs-lisp
-(use-package coq-lookup
-  :bind ("C-h q" . coq-lookup)
-  :custom
-  (coq-lookup-browse-pdf-function
-   '(lambda (pdf page) (call-process "open" nil nil nil pdf)))
-  (coq-lookup-pdf "~/.local/share/coq/coq-8.15.2-reference-manual.pdf"))
-#+end_src
-
-** counsel
-
-#+begin_src emacs-lisp
-(use-package counsel
-  :after ivy
-  :demand t
-  :diminish
-  :bind (("C-*"     . counsel-org-agenda-headlines)
-         ("C-x C-f" . counsel-find-file)
-         ("C-c e l" . counsel-find-library)
-         ("C-c e q" . counsel-set-variable)
-         ("C-h e l" . counsel-find-library)
-         ("C-h e u" . counsel-unicode-char)
-         ("C-h f"   . counsel-describe-function)
-         ("C-x r b" . counsel-bookmark)
-         ("M-x"     . counsel-M-x)
-         ;; ("M-y"     . counsel-yank-pop)
-
-         ("M-s f" . counsel-file-jump)
-         ;; ("M-s g" . counsel-rg)
-         ("M-s j" . counsel-dired-jump))
-  :commands counsel-minibuffer-history
-  :init
-  (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
-  :custom
-  (counsel-describe-function-preselect 'ivy-function-called-at-point)
-  (counsel-locate-cmd 'counsel-locate-cmd-default)
-  (counsel-find-file-ignore-regexp
-   (concat "\\(\\`\\.[^.]\\|"
-           (regexp-opt completion-ignored-extensions)
-           "\\'\\)"))
-  :config
-  (add-to-list 'ivy-sort-matches-functions-alist
-               '(counsel-find-file . ivy--sort-files-by-date))
-
-  (defun counsel-recoll-function (string)
-    "Run recoll for STRING."
-    (if (< (length string) 3)
-        (counsel-more-chars 3)
-      (counsel--async-command
-       (format "recollq -t -b %s"
-               (shell-quote-argument string)))
-      nil))
-
-  (defun counsel-recoll (&optional initial-input)
-    "Search for a string in the recoll database.
-  You'll be given a list of files that match.
-  Selecting a file will launch `swiper' for that file.
-  INITIAL-INPUT can be given as the initial minibuffer input."
-    (interactive)
-    (counsel-require-program "recollq")
-    (ivy-read "recoll: " 'counsel-recoll-function
-              :initial-input initial-input
-              :dynamic-collection t
-              :history 'counsel-git-grep-history
-              :action (lambda (x)
-                        (when (string-match "file://\\(.*\\)\\'" x)
-                          (let ((file-name (match-string 1 x)))
-                            (find-file file-name)
-                            (unless (string-match "pdf$" x)
-                              (swiper ivy-text)))))
-              :unwind #'counsel-delete-process
-              :caller 'counsel-recoll)))
-#+end_src
-
-*** counsel-gtags
-
-#+begin_src emacs-lisp
-(use-package counsel-gtags
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :after counsel)
-#+end_src
-
-*** counsel-jq
-
-#+begin_src emacs-lisp
-(use-package counsel-jq
-  :commands counsel-jq)
-#+end_src
-
-*** counsel-osx-app
-
-#+begin_src emacs-lisp
-(use-package counsel-osx-app
-  :bind* ("S-M-SPC" . counsel-osx-app)
-  :commands counsel-osx-app
-  :config
-  (setq counsel-osx-app-location
-        (list "/Applications"
-              "/Applications/Misc"
-              "/Applications/Utilities"
-              (expand-file-name "~/Applications")
-              (expand-file-name "~/.nix-profile/Applications")
-              "/Applications/Xcode.app/Contents/Applications")))
-#+end_src
-
-*** counsel-projectile
-
-#+begin_src emacs-lisp
-(use-package counsel-projectile
-  :after (counsel projectile)
-  :custom
-  (counsel-projectile-remove-current-buffer t)
-  (counsel-projectile-remove-current-project t)
-  :config
-  (counsel-projectile-mode 1))
-#+end_src
-
-*** counsel-tramp
-
-#+begin_src emacs-lisp
-(use-package counsel-tramp
-  :commands counsel-tramp)
 #+end_src
 
 ** crosshairs
@@ -1938,6 +1599,21 @@
      default)))
 #+end_src
 
+** dabbrev
+
+#+begin_src emacs-lisp
+;; Use Dabbrev with Corfu!
+(use-package dabbrev
+  ;; Swap M-/ and C-M-/
+  :bind (("M-/"   . dabbrev-completion)
+         ("C-M-/" . dabbrev-expand))
+  ;; Other useful Dabbrev configurations.
+  :custom
+  (dabbrev-case-fold-search nil)
+  (dabbrev-case-replace nil)
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+#+end_src
+
 ** dafny-mode
 
 #+begin_src emacs-lisp
@@ -1964,7 +1640,7 @@
 
 #+begin_src emacs-lisp
 (use-package deadgrep
-  :bind ("M-s g" . deadgrep))
+  :bind ("M-s R" . deadgrep))
 #+end_src
 
 ** dedicated
@@ -2048,7 +1724,6 @@ diff-hl package.
               ("M-s f"))
   :diminish dired-omit-mode
   :hook (dired-mode . dired-hide-details-mode)
-  ;; :hook (dired-mode . dired-omit-mode)
   :custom
   (dired-clean-up-buffers-too nil)
   (dired-dwim-target t)
@@ -2340,7 +2015,7 @@ non-empty directories is allowed."
   (use-package docker-image     :commands docker-images)
   (use-package docker-volume    :commands docker-volumes)
   (use-package docker-network   :commands docker-containers)
-  (use-package docker-machine   :disabled t :commands docker-machines)
+  (use-package docker-machine   :commands docker-machines)
   (use-package docker-compose   :commands docker-compose)
 
   (use-package docker-container
@@ -2370,38 +2045,6 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package dockerfile-mode
   :mode "Dockerfile[a-zA-Z.-]*\\'")
-#+end_src
-
-** gnus
-
-#+begin_src emacs-lisp
-(use-package dot-gnus
-  :no-require t
-  :bind (("M-G"   . switch-to-gnus)
-         ("C-x m" . compose-mail))
-  :init
-  (setq gnus-home-directory "~/Messages/Gnus/")
-
-  (defun fetchmail-password ()
-    (lookup-password "imap.fastmail.com" "johnw" 993)))
-#+end_src
-
-** org-mode
-
-#+begin_src emacs-lisp
-(use-package dot-org
-  :no-require t
-  :commands my-org-startup
-  :bind* (("M-C"   . jump-to-org-agenda)
-          ("M-m"   . org-smart-capture)
-          ("M-M"   . org-inline-note)
-          ("C-c a" . org-agenda)
-          ("C-c S" . org-store-link)
-          ("C-c l" . org-insert-link))
-  :config
-  (unless alternate-emacs
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)
-    (my-org-startup)))
 #+end_src
 
 ** doc-view
@@ -2658,9 +2301,7 @@ non-empty directories is allowed."
   :after erc
   :defer 15
   :config
-  (global-emojify-mode)
-  ;; (global-emojify-mode-line-mode -1)
-  )
+  (global-emojify-mode))
 #+end_src
 
 ** engine-mode
@@ -2850,22 +2491,6 @@ non-empty directories is allowed."
   :after erc)
 #+end_src
 
-*** erc-patch
-
-#+begin_src emacs-lisp
-(use-package erc-patch
-  :disabled t
-  :after erc)
-#+end_src
-
-*** erc-question
-
-#+begin_src emacs-lisp
-(use-package erc-question
-  :disabled t
-  :after erc)
-#+end_src
-
 *** erc-yank
 
 #+begin_src emacs-lisp
@@ -2876,15 +2501,6 @@ non-empty directories is allowed."
               ("C-y" . erc-yank ))
   :custom
   (erc-yank-query-before-gisting nil))
-#+end_src
-
-** erefactor
-
-#+begin_src emacs-lisp
-(use-package erefactor
-  :disabled t
-  :bind (:map emacs-lisp-mode-map
-              ("C-c C-v" . erefactor-map)))
 #+end_src
 
 ** ert
@@ -3027,14 +2643,6 @@ non-empty directories is allowed."
     (paredit-mode)))
 #+end_src
 
-** eval-in-repl
-
-#+begin_src emacs-lisp
-(use-package eval-in-repl
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t)
-#+end_src
-
 ** evil
 
 #+begin_src emacs-lisp
@@ -3131,10 +2739,9 @@ non-empty directories is allowed."
   (flycheck-standard-error-navigation nil)
   :init
   (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
-                   ;; (haskell-mode-hook    . haskell-mode-map)
+                   (haskell-mode-hook    . haskell-mode-map)
                    (js2-mode-hook        . js2-mode-map)
                    (c-mode-common-hook   . c-mode-base-map)
-                   ;; (rust-mode-hook       . rust-mode-map)
                    (rustic-mode-hook     . rustic-mode-map)))
     (add-hook (car where)
               `(lambda ()
@@ -3179,7 +2786,6 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package flycheck-haskell
-  :disabled t
   :commands flycheck-haskell-setup)
 #+end_src
 
@@ -3316,20 +2922,6 @@ non-empty directories is allowed."
   (autoload #'fullframe "fullframe"))
 #+end_src
 
-** ggtags
-
-#+begin_src emacs-lisp
-(use-package ggtags
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t
-  :commands ggtags-mode
-  :diminish
-  :custom
-  (ggtags-enable-navigation-keys nil)
-  (ggtags-oversize-limit 1048576)
-  (ggtags-use-sqlite3 t))
-#+end_src
-
 ** gist
 
 #+begin_src emacs-lisp
@@ -3380,30 +2972,6 @@ non-empty directories is allowed."
 (use-package git-undo
   :load-path "lisp/git-undo"
   :commands git-undo)
-#+end_src
-
-** gitattributes-mode
-
-#+begin_src emacs-lisp
-(use-package gitattributes-mode
-  :disabled t
-  :defer 5)
-#+end_src
-
-** gitconfig-mode
-
-#+begin_src emacs-lisp
-(use-package gitconfig-mode
-  :disabled t
-  :defer 5)
-#+end_src
-
-** gitignore-mode
-
-#+begin_src emacs-lisp
-(use-package gitignore-mode
-  :disabled t
-  :defer 5)
 #+end_src
 
 ** github-review
@@ -3464,8 +3032,7 @@ non-empty directories is allowed."
 (use-package grep
   :bind (("M-s n" . find-name-dired)
          ("M-s F" . find-grep)
-         ("M-s G" . grep)
-         ("M-s d" . find-grep-dired))
+         ("M-s D" . find-grep-dired))
   :custom
   (grep-command "egrep -nH -e ")
   (grep-find-command
@@ -3644,14 +3211,14 @@ non-empty directories is allowed."
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
     (whitespace-mode 1)
-    ;; (flycheck-mode 1)
-    ;; (flycheck-haskell-setup)
-    ;; (add-hook 'hack-local-variables-hook
-    ;;           #'(lambda ()
-    ;;               (when nil
-    ;;                 (setq-local flycheck-ghc-search-path nil)
-    ;;                 (setq-local flycheck-ghc-args nil)))
-    ;;           t)
+    (flycheck-mode 1)
+    (flycheck-haskell-setup)
+    (add-hook 'hack-local-variables-hook
+              #'(lambda ()
+                  (when nil
+                    (setq-local flycheck-ghc-search-path nil)
+                    (setq-local flycheck-ghc-args nil)))
+              t)
     (bind-key "M-n" #'haskell-goto-next-error haskell-mode-map)
     (bind-key "M-p" #'haskell-goto-prev-error haskell-mode-map)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
@@ -3744,82 +3311,6 @@ non-empty directories is allowed."
   :mode "\.nomad\\'")
 #+end_src
 
-** helm
-
-#+begin_src emacs-lisp
-(use-package helm
-  :defer t
-  :bind (:map helm-map
-              ("<tab>" . helm-execute-persistent-action)
-              ("C-i"   . helm-execute-persistent-action)
-              ("C-z"   . helm-select-action)
-              ("A-v"   . helm-previous-page))
-  :custom
-  (helm-command-prefix-key nil)
-  (helm-dash-browser-func 'eww)
-  (helm-dash-docsets-path "/Users/johnw/Library/Application Support/Dash/DocSets/")
-  (helm-minibuffer-history-key nil)
-  (helm-recoll-options '("recollq" "-t" "-b"))
-  :config
-  (helm-autoresize-mode 1))
-#+end_src
-
-*** helm-descbinds
-
-#+begin_src emacs-lisp
-(use-package helm-descbinds
-  :bind ("C-h b" . helm-descbinds)
-  :init
-  (fset 'describe-bindings 'helm-descbinds))
-#+end_src
-
-*** helm-describe-modes
-
-#+begin_src emacs-lisp
-(use-package helm-describe-modes
-  :after helm
-  :bind ("C-h m" . helm-describe-modes))
-#+end_src
-
-*** helm-firefox
-
-#+begin_src emacs-lisp
-(use-package helm-firefox
-  :disabled t
-  :bind ("A-M-b" . helm-firefox-bookmarks)
-  :custom
-  (helm-firefox-default-directory "~/Library/Application Support/Firefox/"))
-#+end_src
-
-*** helm-font
-
-#+begin_src emacs-lisp
-(use-package helm-font
-  :commands (helm-select-xfont helm-ucs))
-#+end_src
-
-*** helm-google
-
-#+begin_src emacs-lisp
-(use-package helm-google
-  :commands helm-google)
-#+end_src
-
-*** helm-navi
-
-#+begin_src emacs-lisp
-(use-package helm-navi
-  :after (helm navi)
-  :commands helm-navi)
-#+end_src
-
-*** helm-sys
-
-#+begin_src emacs-lisp
-(use-package helm-sys
-  :commands helm-top)
-#+end_src
-
 ** help
 
 #+begin_src emacs-lisp
@@ -3908,6 +3399,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package hippie-exp
+  :disabled t
   :bind (("M-/"   . hippie-expand)
          ("C-M-/" . dabbrev-completion))
   :custom
@@ -4198,19 +3690,6 @@ non-empty directories is allowed."
   (info-lookmore-apropos-elisp))
 #+end_src
 
-** initsplit
-
-#+begin_src emacs-lisp
-(use-package initsplit
-  :disabled t
-  :demand t
-  :load-path "lisp/initsplit"
-  :custom
-  (initsplit-customizations-alist
-   '(("\\`\\(gnus\\|nn\\|message\\|mail\\|mm-\\|smtp\\|send-mail\\|check-mail\\|spam\\|sc-\\)" "~/.emacs.d/gnus-settings.el" nil nil)
-     ("\\`\\(jobhours-\\|org-\\|deft-\\|cfw:\\)" "~/.emacs.d/org-settings.el" nil nil))))
-#+end_src
-
 ** ialign
 
 #+begin_src emacs-lisp
@@ -4270,150 +3749,6 @@ non-empty directories is allowed."
          ("C-c i r" . ispell-region))
   :custom
   (ispell-extra-args '("--sug-mode=fast" "--keyboard=dvorak")))
-#+end_src
-
-** ivy
-
-#+begin_src emacs-lisp
-(use-package ivy
-  :diminish
-  :demand t
-
-  :bind (("C-x b" . ivy-switch-buffer)
-         ("C-x B" . ivy-switch-buffer-other-window)
-         ("M-H"   . ivy-resume))
-
-  :bind (:map ivy-minibuffer-map
-              ("<tab>" . ivy-alt-done)
-              ("SPC"   . ivy-alt-done-or-space)
-              ("C-d"   . ivy-done-or-delete-char)
-              ("C-i"   . ivy-partial-or-done)
-              ("C-r"   . ivy-previous-line-or-history)
-              ("M-r"   . ivy-reverse-i-search))
-
-  :bind (:map ivy-switch-buffer-map
-              ("C-k" . ivy-switch-buffer-kill))
-
-  :custom
-  (ivy-dynamic-exhibit-delay-ms 200)
-  (ivy-height 10)
-  (ivy-initial-inputs-alist nil)
-  (ivy-magic-tilde nil)
-  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  (ivy-use-virtual-buffers t)
-  (ivy-wrap t)
-  (ivy-extra-directories '("./"))
-  (ivy-ignore-buffers
-   '("\\` "
-     "\\`\\*git-monitor:"
-     "\\`\\*magit-process:"
-     "\\.elc$"
-     "\\.CFUserTextEncoding"
-     "\\`\\*Quail Completions\\*\\'"
-     "\\`\\.newsrc-dribble\\'"
-     "\\`\\.newsrc.eld\\'"))
-  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-  (ivy-rich-parse-remote-buffer nil)
-  :preface
-  (defun ivy-done-or-delete-char ()
-    (interactive)
-    (call-interactively
-     (if (eolp)
-         #'ivy-immediate-done
-       #'ivy-delete-char)))
-
-  (defun ivy-alt-done-or-space ()
-    (interactive)
-    (call-interactively
-     (if (= ivy--length 1)
-         #'ivy-alt-done
-       #'self-insert-command)))
-
-  (defun ivy-switch-buffer-kill ()
-    (interactive)
-    (debug)
-    (let ((bn (ivy-state-current ivy-last)))
-      (when (get-buffer bn)
-        (kill-buffer bn))
-      (unless (buffer-live-p (ivy-state-buffer ivy-last))
-        (setf (ivy-state-buffer ivy-last)
-              (with-ivy-window (current-buffer))))
-      (setq ivy--all-candidates (delete bn ivy--all-candidates))
-      (ivy--exhibit)))
-
-  ;; This is the value of `magit-completing-read-function', so that we see
-  ;; Magit's own sorting choices.
-  (defun my-ivy-completing-read (&rest args)
-    (let ((ivy-sort-functions-alist '((t . nil))))
-      (apply 'ivy-completing-read args)))
-
-  :config
-  (ivy-mode 1)
-  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
-
-  (defun ivy--switch-buffer-matcher (regexp candidates)
-    "Return REGEXP matching CANDIDATES.
-Skip buffers that match `ivy-ignore-buffers'."
-    (let ((res (ivy--re-filter regexp candidates)))
-      (if (or (null ivy-use-ignore)
-              (null ivy-ignore-buffers))
-          res
-        (or (cl-remove-if
-             (lambda (buf)
-               (cl-find-if
-                (lambda (f-or-r)
-                  (if (functionp f-or-r)
-                      (funcall f-or-r buf)
-                    (string-match-p f-or-r buf)))
-                ivy-ignore-buffers))
-             res)
-            (and (eq ivy-use-ignore t)
-                 res))))))
-#+end_src
-
-*** ivy-bibtex
-
-#+begin_src emacs-lisp
-(use-package ivy-bibtex
-  :disabled t
-  :commands ivy-bibtex)
-#+end_src
-
-*** ivy-hydra
-
-#+begin_src emacs-lisp
-(use-package ivy-hydra
-  :after (ivy hydra)
-  :defer t)
-#+end_src
-
-*** ivy-pass
-
-#+begin_src emacs-lisp
-(use-package ivy-pass
-  :commands ivy-pass)
-#+end_src
-
-*** ivy-rich
-
-#+begin_src emacs-lisp
-(use-package ivy-rich
-  :after ivy
-  :demand t
-  :config
-  (ivy-rich-mode 1)
-  (setq ivy-virtual-abbreviate 'full
-        ivy-rich-switch-buffer-align-virtual-buffer t
-        ivy-rich-path-style 'abbrev))
-#+end_src
-
-*** ivy-rtags
-
-#+begin_src emacs-lisp
-(use-package ivy-rtags
-  :disabled t
-  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
-  :after (ivy rtags))
 #+end_src
 
 ** jka-compr
@@ -4709,8 +4044,7 @@ Skip buffers that match `ivy-ignore-buffers'."
   :config
   (use-package lsp-lens)
   (use-package lsp-headerline)
-  (setq read-process-output-max 16384
-        gc-cons-threshold 1600000))
+  (setq read-process-output-max 16384))
 #+end_src
 
 ** lsp-ui
@@ -4965,8 +4299,15 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 ** mic-paren
 
+Activate [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]] and Emacs will display highlighting on whatever
+parenthesis (and paired delimiter if you like this) matches the one before or
+after point. This is an extension to the paren.el file distributed with Emacs.
+The default behaviour is similar to =paren.el= but more sophisticated. Normally
+you can try all default settings to enjoy =mic-paren=.
+
 #+begin_src emacs-lisp
 (use-package mic-paren
+  :disabled t
   :defer 5
   :config
   (paren-activate))
@@ -5001,21 +4342,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   (clean-buffer-list-kill-regexps '(".*")))
 #+end_src
 
-** minibuffer
-
-#+begin_src emacs-lisp
-(use-package minibuffer
-  :config
-  (defun my-minibuffer-setup-hook ()
-    (setq gc-cons-threshold most-positive-fixnum))
-
-  (defun my-minibuffer-exit-hook ()
-    (setq gc-cons-threshold 800000))
-
-  (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
-  (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook))
-#+end_src
-
 ** minimap
 
 #+begin_src emacs-lisp
@@ -5044,14 +4370,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   :defer t
   :init
   (autoload #'define-monitor "monitor"))
-#+end_src
-
-** motoko-mode
-
-#+begin_src emacs-lisp
-(use-package motoko-mode
-  :disabled t
-  :mode (("\\.mo\\'" . motoko-mode)))
 #+end_src
 
 ** mule
@@ -5102,7 +4420,6 @@ Skip buffers that match `ivy-ignore-buffers'."
   (defun screen ()
     (interactive)
     (let (term-buffer)
-      ;; Set buffer.
       (setq term-buffer
             (let ((multi-term-program (executable-find "screen"))
                   (multi-term-program-switches "-DR"))
@@ -5238,6 +4555,33 @@ Skip buffers that match `ivy-ignore-buffers'."
 (use-package mc-rect
   :after multiple-cursors
   :bind ("<C-m> ]" . mc/rect-rectangle-to-multiple-cursors))
+#+end_src
+
+*** phi-search
+
+#+begin_src emacs-lisp
+(use-package phi-search
+  :defer 5
+  :custom
+  (phi-search-limit 100000))
+#+end_src
+
+**** phi-search-mc
+
+#+begin_src emacs-lisp
+(use-package phi-search-mc
+  :after (phi-search multiple-cursors)
+  :config
+  (phi-search-mc/setup-keys)
+  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
+#+end_src
+
+*** ace-mc
+
+#+begin_src emacs-lisp
+(use-package ace-mc
+  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
+         ("<C-m> M-h" . ace-mc-add-single-cursor)))
 #+end_src
 
 ** nginx-mode
@@ -5649,7 +4993,7 @@ append it to ENTRY."
          ("C-c e r" . do-eval-region)
          ("C-c e s" . scratch)
          ("C-c n u" . insert-user-timestamp)
-         ("C-x C-d" . duplicate-line)
+         ("C-x D"   . duplicate-line)
          ("C-x C-v" . find-alternate-file-with-sudo)
          ("C-x K"   . delete-current-buffer-file)
          ("C-x M-q" . refill-paragraph)
@@ -5692,6 +5036,9 @@ append it to ENTRY."
              ("C-c e f" . emacs-lisp-byte-compile-and-load)
              ("C-c e j" . emacs-lisp-mode)
              ("C-c e z" . byte-recompile-directory)
+             ("C-c e 0" . profiler-start)
+             ("C-c e 1" . profiler-stop)
+             ("C-c e 2" . profiler-report)
              ("C-c f"   . flush-lines)
              ("C-c g"   . goto-line)
              ("C-c k"   . keep-lines)
@@ -5720,25 +5067,6 @@ append it to ENTRY."
     (set-frame-position (selected-frame) 10 35))
 
   (advice-add 'make-frame-command :after #'my-adjust-created-frame))
-#+end_src
-
-** phi-search
-
-#+begin_src emacs-lisp
-(use-package phi-search
-  :defer 5
-  :custom
-  (phi-search-limit 100000))
-#+end_src
-
-*** phi-search-mc
-
-#+begin_src emacs-lisp
-(use-package phi-search-mc
-  :after (phi-search multiple-cursors)
-  :config
-  (phi-search-mc/setup-keys)
-  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
 #+end_src
 
 ** plantuml-mode
@@ -5801,7 +5129,7 @@ append it to ENTRY."
   (projectile-file-exists-local-cache-expire 300)
   (projectile-globally-ignored-directories
    '(".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist" "\\`/nix/.+" ".*/\\..*"))
-  (projectile-globally-ignored-files '("TAGS" "GPATH" "GRTAGS" "GTAGS" "ID"))
+  (projectile-globally-ignored-files '("TAGS"))
   (projectile-ignored-project-function
    (lambda
      (path)
@@ -5838,7 +5166,6 @@ append it to ENTRY."
   (projectile-global-mode)
 
   (defun my-projectile-invalidate-cache (&rest _args)
-    ;; We ignore the args to `magit-checkout'.
     (projectile-invalidate-cache nil))
 
   (eval-after-load 'magit-branch
@@ -5849,7 +5176,7 @@ append it to ENTRY."
                    :after #'my-projectile-invalidate-cache))))
 #+end_src
 
-** proof-site
+** proof-general
 
 #+begin_src emacs-lisp
 (use-package proof-site
@@ -5931,6 +5258,67 @@ append it to ENTRY."
         (around my-proof-retract-buffer activate)
       (condition-case err ad-do-it
         (error (shell-command "killall coqtop"))))))
+#+end_src
+
+*** company-coq
+
+#+begin_src emacs-lisp
+(use-package company-coq
+  :after coq
+  :commands company-coq-mode
+  :bind (:map company-coq-map
+              ("M-<return>"))
+  :bind (:map coq-mode-map
+              ("C-M-h" . company-coq-toggle-definition-overlay))
+  :custom
+  (company-coq-disabled-features
+   '(hello prettify-symbols smart-subscripts dynamic-symbols-backend))
+  (company-coq-prettify-symbols-alist
+   '(("|-" . 8866)
+     ("True" . 8868)
+     ("False" . 8869)
+     ("->" . 8594)
+     ("-->" . 10230)
+     ("<-" . 8592)
+     ("<--" . 10229)
+     ("<->" . 8596)
+     ("<-->" . 10231)
+     ("==>" . 10233)
+     ("<==" . 10232)
+     ("++>" . 10239)
+     ("<++" . 11059)
+     ("fun" . 955)
+     ("forall" . 8704)
+     ("exists" . 8707)
+     ("/\\" . 8743)
+     ("\\/" . 8744)
+     ("~" . 172)
+     ("+-" . 177)
+     ("<=" . 8804)
+     (">=" . 8805)
+     ("<>" . 8800)
+     ("*" . 215)
+     ("++" . 10746)
+     ("nat" . 120029)
+     ("Z" . 8484)
+     ("N" . 8469)
+     ("Q" . 8474)
+     ("Real" . 8477)
+     ("bool" . 120121)
+     ("Prop" . 120031)))
+  :custom-face
+  (company-coq-features/code-folding-bullet-face ((t (:weight bold)))))
+#+end_src
+
+*** coq-lookup
+
+#+begin_src emacs-lisp
+(use-package coq-lookup
+  :bind ("C-h q" . coq-lookup)
+  :custom
+  (coq-lookup-browse-pdf-function
+   '(lambda (pdf page) (call-process "open" nil nil nil pdf)))
+  (coq-lookup-pdf "~/.local/share/coq/coq-8.15.2-reference-manual.pdf"))
 #+end_src
 
 ** protobuf-mode
@@ -6126,38 +5514,6 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package riscv-mode
   :commands riscv-mode)
-#+end_src
-
-** rtags
-
-#+begin_src emacs-lisp
-(use-package rtags
-  ;; jww (2018-01-09): https://github.com/Andersbakken/rtags/issues/1123
-  :disabled t
-  :load-path "~/.nix-profile/share/emacs/site-lisp/rtags"
-  :commands rtags-mode
-  :bind (("C-c . D" . rtags-dependency-tree)
-         ("C-c . F" . rtags-fixit)
-         ("C-c . R" . rtags-rename-symbol)
-         ("C-c . T" . rtags-tagslist)
-         ("C-c . d" . rtags-create-doxygen-comment)
-         ("C-c . c" . rtags-display-summary)
-         ("C-c . e" . rtags-print-enum-value-at-point)
-         ("C-c . f" . rtags-find-file)
-         ("C-c . i" . rtags-include-file)
-         ("C-c . i" . rtags-symbol-info)
-         ("C-c . m" . rtags-imenu)
-         ("C-c . n" . rtags-next-match)
-         ("C-c . p" . rtags-previous-match)
-         ("C-c . r" . rtags-find-references)
-         ("C-c . s" . rtags-find-symbol)
-         ("C-c . v" . rtags-find-virtuals-at-point))
-  :bind (:map c-mode-base-map
-              ("M-." . rtags-find-symbol-at-point))
-  :custom
-  (rtags-autostart-diagnostics t)
-  (rtags-completions-enabled t)
-  (rtags-display-result-backend 'ivy))
 #+end_src
 
 ** ruby-mode
@@ -6375,9 +5731,7 @@ append it to ENTRY."
   :unless noninteractive
   :custom
   (savehist-additional-variables
-   '(tablist-named-filter
-     file-name-history
-     sr-history-registry
+   '(file-name-history
      kmacro-ring
      compile-history
      compile-command))
@@ -6386,6 +5740,17 @@ append it to ENTRY."
   (savehist-ignored-variables
    '(load-history
      flyspell-auto-correct-ring
+     org-roam-node-history
+     counsel-git-grep-history
+     magit-revision-history
+     counsel-describe-symbol-history
+     org-read-date-history
+     query-replace-history
+     counsel-M-x-history
+     yes-or-no-p-history
+     ido-buffer-history
+     read-expression-history
+     ivy-history
      kill-ring))
   (savehist-mode t)
   :config
@@ -6469,7 +5834,8 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package separedit
-  :commands separedit)
+  :commands separedit
+  :bind ("C-c C-'" . separedit-dwim))
 #+end_src
 
 ** server
@@ -6561,12 +5927,6 @@ append it to ENTRY."
   :config
   (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
-  ;; (sky-color-clock-initialize-openweathermap-client
-  ;;  (with-temp-buffer
-  ;;    (insert-file-contents-literally "~/.config/weather/apikey")
-  ;;    (buffer-substring (point-min) (1- (point-max))))
-  ;;  5408211 ;; West Sacramento, CA, USA
-  ;;  )
   (setq display-time-string-forms '((sky-color-clock))))
 #+end_src
 
@@ -6669,38 +6029,6 @@ append it to ENTRY."
   :commands sqlind-minor-mode)
 #+end_src
 
-** stock-quote
-
-#+begin_src emacs-lisp
-(use-package stock-quote
-  :disabled t
-  :demand t
-  :commands stock-quote
-  :config
-  (when (file-readable-p "/tmp/icp.txt")
-    (defun stock-quote-from-file (&rest ticker)
-      (with-temp-buffer
-        (insert-file-contents-literally "/tmp/icp.txt")
-        (string-to-number (buffer-substring (point-min) (1- (point-max))))))
-    (setq stock-quote-data-functions '(stock-quote-from-file))
-    (stock-quote-in-modeline "ICP"))
-  ;; :init
-  ;; (load "~/src/thinkorswim/thinkorswim-el/thinkorswim")
-  ;; :config
-  ;; (setq tos-client-id
-  ;;       (lookup-password "developer.tdameritrade.com.client-id"
-  ;;                        tos-user-id 80))
-  )
-#+end_src
-
-** string-edit
-
-#+begin_src emacs-lisp
-(use-package string-edit
-  :disabled t
-  :bind ("C-c C-'" . string-edit-at-point))
-#+end_src
-
 ** string-inflection
 
 #+begin_src emacs-lisp
@@ -6723,23 +6051,6 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package swift-mode
   :commands swift-mode)
-#+end_src
-
-** swiper
-
-#+begin_src emacs-lisp
-(use-package swiper
-  :after ivy
-  :bind ("C-M-s" . swiper)
-  :bind (:map swiper-map
-              ("M-y" . yank)
-              ("M-%" . swiper-query-replace)
-              ("C-." . swiper-avy)
-              ("M-c" . swiper-mc))
-  :bind (:map isearch-mode-map
-              ("C-o" . swiper-from-isearch))
-  :custom
-  (swiper-stay-on-quit t))
 #+end_src
 
 ** tagedit
@@ -7524,6 +6835,13 @@ append it to ENTRY."
   :commands vline-mode)
 #+end_src
 
+** vundo
+
+#+begin_src emacs-lisp
+(use-package vundo
+  :bind (("C-c C-/" . vundo)))
+#+end_src
+
 ** w3m
 
 #+begin_src emacs-lisp
@@ -7794,176 +7112,1187 @@ append it to ENTRY."
   :commands ztree-diff)
 #+end_src
 
-* Layout
+** Completions
+
+*** cape
+
+[[https://github.com/minad/cape][cape]] provides Completion At Point Extensions which can be used in combination
+with the [[https://github.com/minad/corfu][Corfu]] completion UI or the default completion UI. The completion
+backends used by =completion-at-point= are so called
+=completion-at-point-functions= (Capfs). In principle, the Capfs provided by
+Cape can also be used by [[https://github.com/company-mode/company-mode][Company]].
+
+Cape has the super power to transform Company backends into Capfs and merge
+multiple Capfs into a Super-Capf! These transformers allow you to still take
+advantage of Company backends even if you are not using Company as frontend.
 
 #+begin_src emacs-lisp
-(defconst display-name
-  (pcase (display-pixel-width)
-    (`3840 'dell-wide)
-    (`4480 'imac)
-    (`2560 'imac)
-    (`1920 'macbook-pro-vga)
-    (`1792 'macbook-pro-16)
-    (`1680 'macbook-pro-15)
-    ;; (`1680 'macbook-pro-13)
-    ))
-
-(defsubst bookerly-font (height)
-  (format "-*-Bookerly-normal-normal-normal-*-%d-*-*-*-p-0-iso10646-1" height))
-
-(defsubst dejavu-sans-mono-font (height)
-  (format "-*-DejaVu Sans Mono-normal-normal-normal-*-%d-*-*-*-m-0-iso10646-1" height))
-
-(defun emacs-min-font ()
-  (pcase display-name
-    ((guard alternate-emacs) (bookerly-font 18))
-    (`imac (dejavu-sans-mono-font 18))
-    (_     (dejavu-sans-mono-font 18))))
-
-(defun emacs-min-font-height ()
-  (aref (font-info (emacs-min-font)) 3))
-
-(defun emacs-min-left ()
-  (pcase display-name
-    ((guard alternate-emacs)    0)
-    (`dell-wide              1000)
-    (`imac              (pcase (emacs-min-font-height)
-                          (28  20)
-                          (24 116)
-                          (21 318)
-                          (_    0)))
-    (`macbook-pro-vga         700)
-    (`macbook-pro-16          672)
-    (`macbook-pro-15          464)
-    (`macbook-pro-13          464)))
-
-(defun emacs-min-height ()
-  (pcase display-name
-    ((guard alternate-emacs)   58)
-    (`dell-wide                64)
-    (`imac               (pcase (emacs-min-font-height)
-                           (28 50)
-                           (24 58)
-                           (21 67)
-                           (_  40)))
-    (`macbook-pro-vga          55)
-    (`macbook-pro-16           51)
-    (`macbook-pro-15           47)
-    (`macbook-pro-13           47)))
-
-(defun emacs-min-width ()
-  (pcase display-name
-    ((guard alternate-emacs)   80)
-    (`dell-wide               202)
-    (`imac              (pcase (emacs-min-font-height)
-                          (28 180)
-                          (24 202)
-                          (21 202)
-                          (_  100)))
-    (`macbook-pro-vga         100)
-    (`macbook-pro-16          100)
-    (`macbook-pro-15          100)
-    (`macbook-pro-13          100)))
-
-(defun emacs-min ()
-  (interactive)
-  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
-    (set-param 'fullscreen nil)
-    (set-param 'vertical-scroll-bars nil)
-    (set-param 'horizontal-scroll-bars nil))
-  (message "display-name:     %S" display-name)
-  (message "Font name:        %s" (emacs-min-font))
-  (message "Font height:      %s" (aref (font-info (emacs-min-font)) 3))
-  (message "emacs-min-left:   %s" (emacs-min-left))
-  (message "emacs-min-height: %s" (emacs-min-height))
-  (message "emacs-min-width:  %s" (emacs-min-width))
-  (and (emacs-min-left)
-       (set-frame-position (selected-frame) (emacs-min-left) 0))
-  (and (emacs-min-height)
-       (set-frame-height (selected-frame) (emacs-min-height)))
-  (and (emacs-min-width)
-       (set-frame-width (selected-frame) (emacs-min-width)))
-  (and (emacs-min-font)
-       (set-frame-font (emacs-min-font)))
-  (message "Emacs is ready"))
-
-(defun emacs-max ()
-  (interactive)
-  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
-    (set-param 'fullscreen 'fullboth)
-    (set-param 'vertical-scroll-bars nil)
-    (set-param 'horizontal-scroll-bars nil))
-  (and (emacs-min-font)
-       (set-frame-font (emacs-min-font))))
-
-(defun emacs-toggle-size ()
-  (interactive)
-  (if (alist-get 'fullscreen (frame-parameters))
-      (emacs-min)
-    (emacs-max)))
-
-(add-hook 'emacs-startup-hook #'emacs-min t)
+;; Add extensions
+(use-package cape
+  :disabled t
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-symbol)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add `completion-at-point-functions', used by `completion-at-point'.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  ;;(add-to-list 'completion-at-point-functions #'cape-history)
+  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;;(add-to-list 'completion-at-point-functions #'cape-symbol)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+  )
 #+end_src
 
-** color-theme
+*** consult
+
+[[https://github.com/minad/consult][consult]] provides search and navigation commands based on the Emacs completion
+function [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Minibuffer-Completion.html][completing-read]]. Completion allows you to quickly select an item from
+a list of candidates. Consult offers asynchronous and interactive =consult-grep=
+and =consult-ripgrep= commands, and the line-based search command =consult-line=.
+Furthermore Consult provides an advanced buffer switching command
+=consult-buffer= to switch between buffers, recently opened files, bookmarks and
+buffer-like candidates from other sources. Some of the Consult commands are
+enhanced versions of built-in Emacs commands. For example the command
+=consult-imenu= presents a flat list of the Imenu with [[#live-previews][live preview]], [[#narrowing-and-grouping][grouping
+and narrowing]]. Please take a look at the [[#available-commands][full list of commands]].
+
+Consult is fully compatible with completion systems centered around the
+standard Emacs =completing-read= API, notably the default completion system,
+[[https://github.com/minad/vertico][Vertico]], [[https://github.com/protesilaos/mct][Mct]], and [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html][Icomplete]].
+
+This package keeps the completion system specifics to a minimum. The ability
+of the Consult commands to work well with arbitrary completion systems is one
+of the main advantages of the package. Consult fits well into existing setups
+and it helps you to create a full completion environment out of small and
+independent components.
 
 #+begin_src emacs-lisp
-(use-package color-theme
+;; Example configuration for Consult
+(use-package consult
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c K" . consult-kmacro)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-org-heading)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+
+  ;; Optionally configure the register formatting. This improves the register
+  ;; preview for `consult-register', `consult-register-load',
+  ;; `consult-register-store' and the Emacs built-ins.
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Configure other variables and modes in the :config section,
+  ;; after lazily loading the package.
   :config
-  (load "color-theme-library")
-  (color-theme-midnight))
+
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key "M-.")
+  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key "M-."
+   :preview-key '(:debounce 0.4 any))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; "C-+"
+
+  ;; Optionally make narrowing help available in the minibuffer.
+  ;; You may want to use `embark-prefix-help-command' or which-key instead.
+  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; By default `consult-project-function' uses `project-root' from project.el.
+  ;; Optionally configure a different project root function.
+  ;;;; 1. project.el (the default)
+  ;; (setq consult-project-function #'consult--default-project--function)
+  ;;;; 2. vc.el (vc-root-dir)
+  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+  ;;;; 3. locate-dominating-file
+  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+  ;;;; 4. projectile.el (projectile-project-root)
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;;;; 5. No project support
+  ;; (setq consult-project-function nil)
+  )
 #+end_src
 
-* Finalization
+**** consult-dir
+
+[[https://github.com/karthink/consult-dir][consult-dir]] allows you to easily insert directory paths into the minibuffer
+prompt in Emacs.
+
+When using the minibuffer, you can switch - with completion and filtering
+provided by your completion setup - to any directory you've visited recently,
+or to a project, a bookmarked directory or even a remote host via tramp. The
+minibuffer prompt will be replaced with the directory you choose.
+
+Why would you want to do this? To avoid “navigating” long distances when
+picking a file or directory in any Emacs command that requires one.
+
+Think of it like the shell tools [[https://github.com/wting/autojump][autojump]], [[https://github.com/clvv/fasd][fasd]] or z but for Emacs. See the
+demos section below for many more examples. =consult-dir= works with all Emacs
+commands that require you to specify file paths, and with [[https://github.com/oantolin/embark][Embark actions]] on
+files.
+
+The directory candidates are collected from user bookmarks, Projectile project
+roots (if available), project.el project roots (if available) and recentf file
+locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
-(let ((elapsed (float-time (time-subtract (current-time)
-                                          emacs-start-time))))
-  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
-
-(add-hook 'after-init-hook
-          `(lambda ()
-             (let ((elapsed
-                    (float-time
-                     (time-subtract (current-time) emacs-start-time))))
-               (message "Loading %s...done (%.3fs) [after-init]"
-                        ,load-file-name elapsed))) t)
-
-(defun add-journal-entry (title)
-  (interactive "sTitle: ")
-  (let* ((moniker
-          (replace-regexp-in-string
-           "[,!]" ""
-           (replace-regexp-in-string " " "-" (downcase title))))
-         (most-recent
-          (split-string
-           (car (last (directory-files "~/doc/johnwiegley/posts"))) "-"))
-         (year (nth 0 most-recent))
-         (month (nth 1 most-recent))
-         (day (nth 2 most-recent))
-         (date (calendar-gregorian-from-absolute
-                (+ 7 (calendar-absolute-from-gregorian
-                      (list (string-to-number month)
-                            (string-to-number day)
-                            (string-to-number year))))))
-         (path (expand-file-name (format "%02d-%02d-%02d-%s.md"
-                                         (nth 2 date)
-                                         (nth 0 date)
-                                         (nth 1 date)
-                                         moniker)
-                                 "~/doc/johnwiegley/posts")))
-    (switch-to-buffer (find-file path))
-    (insert (format "---
-title: %s
-tags: journal
----
-
-%s" title (current-kill 0)))))
-
-(bind-key "C-c J" #'add-journal-entry)
+(use-package consult-dir
+  :bind (("C-x C-d" . consult-dir)
+         :map minibuffer-local-completion-map
+         ("C-x C-d" . consult-dir)
+         ("C-x C-j" . consult-dir-jump-file)))
 #+end_src
 
-* Gnus
+*** corfu
+
+[[https://github.com/minad/corfu][corfu]] enhances completion at point with a small completion popup. The current
+candidates are shown in a popup below or above the point. Corfu is the
+minimalistic =completion-in-region= counterpart of the [[https://github.com/minad/vertico][Vertico]] minibuffer UI.
+
+Corfu is a small package, which relies on the Emacs completion facilities and
+concentrates on providing a polished completion UI. Completions are either
+provided by commands like =dabbrev-completion= or by pluggable backends (
+=completion-at-point-functions=, Capfs). Most programming language major modes
+implement a Capf. The Emacs language server clients use Capfs, which retrieve
+completions from the server via the language server protocol (LSP). Corfu does
+not include its own completion backends. The Emacs built-in Capfs and the
+Capfs provided by other programming language packages are usually sufficient.
+A few additional Capfs and completion utilities are provided by the [[https://github.com/minad/cape][Cape]]
+package.
+
+*NOTE*: Corfu uses child frames to show the popup and falls back to the default
+setting of the =completion-in-region-function= on non-graphical displays. If you
+want to use Corfu in the terminal, install the package [[https://codeberg.org/akib/emacs-corfu-terminal][corfu-terminal]], which
+provides an alternative overlay-based display.
+
+#+begin_src emacs-lisp
+(use-package corfu
+  :disabled t
+  ;; Optional customizations
+  ;; :custom
+  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  ;; (corfu-auto t)                 ;; Enable auto completion
+  ;; (corfu-separator ?\s)          ;; Orderless field separator
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.
+  ;; This is recommended since Dabbrev can be used globally (M-/).
+  ;; See also `corfu-exclude-modes'.
+  :init
+  (global-corfu-mode))
+#+end_src
+
+*** embark
+
+[[https://github.com/oantolin/embark][embark]] makes it easy to choose a command to run based on what is near point,
+both during a minibuffer completion session (in a way familiar to Helm or
+Counsel users) and in normal buffers. Bind the command =embark-act= to a key and
+it acts like prefix-key for a keymap of /actions/ (commands) relevant to the
+/target/ around point. With point on an URL in a buffer you can open the URL in
+a browser or eww or download the file it points to. If while switching buffers
+you spot an old one, you can kill it right there and continue to select
+another. Embark comes preconfigured with over a hundred actions for common
+types of targets such as files, buffers, identifiers, s-expressions,
+sentences; and it is easy to add more actions and more target types. Embark
+can also collect all the candidates in a minibuffer to an occur-like buffer or
+export them to a buffer in a major-mode specific to the type of candidates,
+such as dired for a set of files, ibuffer for a set of buffers, or customize
+for a set of variables.
+
+You can think of =embark-act= as a keyboard-based version of a right-click
+contextual menu. The =embark-act= command (which you should bind to a convenient
+key), acts as a prefix for a keymap offering you relevant /actions/ to use on a
+/target/ determined by the context:
+
+- In the minibuffer, the target is the current top completion candidate.
+- In the =*Completions*= buffer the target is the completion at point.
+- In a regular buffer, the target is the region if active, or else the file,
+  symbol, URL, s-expression or defun at point.
+
+Multiple targets can be present at the same location and you can cycle between
+them by repeating the =embark-act= key binding. The type of actions offered
+depend on the type of the target. Here is a sample of a few of the actions
+offered in the default configuration:
+
+- For files you get offered actions like deleting, copying, renaming, visiting
+  in another window, running a shell command on the file, etc.
+- For buffers the actions include switching to or killing the buffer.
+- For package names the actions include installing, removing or visiting the
+  homepage.
+- For Emacs Lisp symbols the actions include finding the definition, looking
+  up documentation, evaluating (which for a variable immediately shows the
+  value, but for a function lets you pass it some arguments first). There are
+  some actions specific to variables, such as setting the value directly or
+  though the customize system, and some actions specific to commands, such as
+  binding it to a key.
+
+By default when you use =embark-act= if you don't immediately select an action,
+after a short delay Embark will pop up a buffer showing a list of actions and
+their corresponding key bindings. If you are using =embark-act= outside the
+minibuffer, Embark will also highlight the current target. These behaviors are
+configurable via the variable =embark-indicators=. Instead of selecting an
+action via its key binding, you can select it by name with completion by
+typing =C-h= after =embark-act=.
+
+Everything is easily configurable: determining the current target, classifying
+it, and deciding which actions are offered for each type in the
+classification. The above introduction just mentions part of the default
+configuration.
+
+Configuring which actions are offered for a type is particularly easy and
+requires no programming: the variable =embark-keymap-alist= associates target
+types with variables containing keymaps, and those keymaps containing bindings
+for the actions. (To examine the available categories and their associated
+keymaps, you can use =C-h v embark-keymap-alist= or customize that variable.)
+For example, in the default configuration the type =file= is associated with the
+symbol =embark-file-map=. That symbol names a keymap with single-letter key
+bindings for common Emacs file commands, for instance =c= is bound to =copy-file=.
+This means that if you are in the minibuffer after running a command that
+prompts for a file, such as =find-file= or =rename-file=, you can copy a file by
+running =embark-act= and then pressing =c=.
+
+These action keymaps are very convenient but not strictly necessary when using
+=embark-act=: you can use any command that reads from the minibuffer as an
+action and the target of the action will be inserted at the first minibuffer
+prompt. After running =embark-act= all of your key bindings and even
+=execute-extended-command= can be used to run a command. For example, if you
+want to replace all occurrences of the symbol at point, just use =M-%= as the
+action, there is no need to bind =query-replace= in one of Embark's keymaps.
+Also, those action keymaps are normal Emacs keymaps and you should feel free
+to bind in them whatever commands you find useful as actions and want to be
+available through convenient bindings.
+
+The actions in =embark-general-map= are available no matter what type of
+completion you are in the middle of. By default this includes bindings to save
+the current candidate in the kill ring and to insert the current candidate in
+the previously selected buffer (the buffer that was current when you executed
+a command that opened up the minibuffer).
+
+Emacs's minibuffer completion system includes metadata indicating the /category/
+of what is being completed. For example, =find-file='s metadata indicates a
+category of =file= and =switch-to-buffer='s metadata indicates a category of
+=buffer=. Embark has the related notion of the /type/ of a target for actions, and
+by default when category metadata is present it is taken to be the type of
+minibuffer completion candidates when used as targets. Emacs commands often do
+not set useful category metadata so the [[https://github.com/minad/marginalia][Marginalia]] package, which supplies
+this missing metadata, is highly recommended for use with Embark.
+
+Embark's default configuration has actions for the following target types:
+files, buffers, symbols, packages, URLs, bookmarks, and as a somewhat special
+case, actions for when the region is active. You can read about the [[https://github.com/oantolin/embark/wiki/Default-Actions][default
+actions and their key bindings]] on the GitHub project wiki.
+
+Embark has a notion of default action for a target:
+
+- If the target is a minibuffer completion candidate, then the default action
+  is whatever command opened the minibuffer in the first place. For example if
+  you run =kill-buffer=, then the default action will be to kill buffers.
+- If the target comes from a regular buffer (i.e., not a minibuffer), then the
+  default action is whatever is bound to =RET= in the keymap of actions for that
+  type of target. For example, in Embark's default configuration for a URL
+  found at point the default action is =browse-url=, because =RET= is bound to
+  =browse-url= in the =embark-url-map= keymap.
+
+To run the default action you can press =RET= after running =embark-act=. Note
+that if there are several different targets at a given location, each has its
+own default action, so first cycle to the target you want and then press =RET=
+to run the corresponding default action.
+
+There is also =embark-dwim= which runs the default action for the first target
+found. It's pretty handy in non-minibuffer buffers: with Embark's default
+configuration it will:
+
+- Open the file at point.
+- Open the URL at point in a web browser (using the =browse-url= command).
+- Compose a new email to the email address at point.
+- In an Emacs Lisp buffer, if point is on an opening parenthesis or right
+  after a closing one, it will evaluate the corresponding expression.
+- Go to the definition of an Emacs Lisp function, variable or macro at point.
+- Find the file corresponding to an Emacs Lisp library at point.
+
+Besides acting individually on targets, Embark lets you work collectively on a
+set of target /candidates/. For example, while you are in the minibuffer the
+candidates are simply the possible completions of your input. Embark provides
+three main commands to work on candidate sets:
+
+- The =embark-act-all= command runs the same action on each of the current
+  candidates. It is just like using =embark-act= on each candidate in turn.
+  (Because you can easily act on many more candidates than you meant to, by
+  default Embark asks you to confirm uses of =embark-act-all=; you can turn this
+  off by setting the user option =embark-confirm-act-all= to =nil=.)
+
+- The =embark-collect= command produces a buffer listing all the current
+  candidates, for you to peruse and run actions on at your leisure. The
+  candidates are displayed as a list showing additional annotations.
+
+  The Embark Collect buffer is “dired-like”: you can mark and unmark
+  candidates with =m= and =u=, you can unmark all marked candidates with =U= or
+  toggle the marks with =t=. In an Embark Collect buffer =embark-act-all= is bound
+  to =A= and will act on all currently marked candidates if there any, and will
+  act on all candidates if none are marked.
+
+- The =embark-export= command tries to open a buffer in an appropriate major
+  mode for the set of candidates. If the candidates are files export produces
+  a Dired buffer; if they are buffers, you get an Ibuffer buffer; and if they
+  are packages you get a buffer in package menu mode.
+
+  If you use the grepping commands from the [[https://github.com/minad/consult/][Consult]] package, =consult-grep=,
+  =consult-git-grep= or =consult-ripgrep=, then you should install the
+  =embark-consult= package, which adds support for exporting a list of grep
+  results to an honest grep-mode buffer, on which you can even use [[https://github.com/mhayashi1120/Emacs-wgrep][wgrep]] if
+  you wish.
+
+When in doubt choosing between exporting and collecting, a good rule of thumb
+is to always prefer =embark-export= since when an exporter to a special major
+mode is available for a given type of target, it will be more featureful than
+an Embark collect buffer, and if no such exporter is configured the
+=embark-export= command falls back to the generic =embark-collect=.
+
+These commands are always available as “actions” (although they do not act on
+just the current target but on all candidates) for =embark-act= and are bound to
+=A=, =S= (for “snapshot”), and =E=, respectively, in =embark-general-map=. This means
+that you do not have to bind your own key bindings for these (although you
+can, of course!), just a key binding for =embark-act=.
+
+In Embark Collect or Embark Export buffers that were obtained by running
+=embark-collect= or =embark-export= from within a minibuffer completion session, =g=
+is bound to a command that restarts the completion session, that is, the
+command that opened the minibuffer is run again and the minibuffer contents
+restored. You can then interact normally with the command, perhaps editing the
+minibuffer contents, and, if you wish, you can rerun =embark-collect= or
+=embark-export= to get an updated buffer.
+
+Finally, there is also an =embark-live= variant of the =embark-collect= command
+which automatically updates the collection after each change in the source
+buffer. Users of a completion UI that automatically updates and displays the
+candidate list (such as Vertico, Icomplete, Fido-mode, or MCT) will probably
+not want to use =embark-live= from the minibuffer as they will then have two
+live updating displays of the completion candidates!
+
+A more likely use of =embark-live= is to be called from a regular buffer to
+display a sort of live updating “table of contents” for the buffer. This
+depends on having appropriate candidate collectors configured in
+=embark-candidate-collectors=. There are not many in Embark's default
+configuration, but you can try this experiment: open a dired buffer in a
+directory that has very many files, mark a few, and run =embark-live=. You'll
+get an Embark Collect buffer containing only the marked files, which updates
+as you mark or unmark files in dired. To make =embark-live= genuinely useful
+other candidate collectors are required. The =embark-consult= package
+(documented near the end of this manual) contains a few: one for imenu items
+and one for outline headings as used by =outline-minor-mode=. Those collectors
+really do give =embark-live= a table-of-contents feel.
+
+Embark also has the =embark-become= command which is useful for when you run a
+command, start typing at the minibuffer and realize you meant a different
+command. The most common case for me is that I run =switch-to-buffer=, start
+typing a buffer name and realize I haven't opened the file I had in mind yet!
+I'll use this situation as a running example to illustrate =embark-become=. When
+this happens I can, of course, press =C-g= and then run =find-file= and open the
+file, but this requires retyping the portion of the file name you already
+typed. This process can be streamlined with =embark-become=: while still in the
+=switch-to-buffer= you can run =embark-become= and effectively make the
+=switch-to-buffer= command become =find-file= for this run.
+
+You can bind =embark-become= to a key in =minibuffer-local-map=, but it is also
+available as an action under the letter =B= (uppercase), so you don't need a
+binding if you already have one for =embark-act=. So, assuming I have =embark-act=
+bound to, say, =C-.=, once I realize I haven't open the file I can type =C-. B
+C-x C-f= to have =switch-to-buffer= become =find-file= without losing what I have
+already typed in the minibuffer.
+
+But for even more convenience, =embark-become= offers shorter key bindings for
+commands you are likely to want the current command to become. When you use
+=embark-become= it looks for the current command in all keymaps named in the
+list =embark-become-keymaps= and then activates all keymaps that contain it. For
+example, the default value of =embark-become-keymaps= contains a keymap
+=embark-become-file+buffer-map= with bindings for several commands related to
+files and buffers, in particular, it binds =switch-to-buffer= to =b= and =find-file=
+to =f=. So when I accidentally try to switch to a buffer for a file I haven't
+opened yet, =embark-become= finds that the command I ran, =switch-to-buffer=, is
+in the keymap =embark-become-file+buffer-map=, so it activates that keymap (and
+any others that also contain a binding for =switch-to-buffer=). The end result
+is that I can type =C-. B f= to switch to =find-file=.
+
+#+begin_src emacs-lisp
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
+  ;; strategy, if you want to see the documentation from multiple providers.
+  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+#+end_src
+
+**** embark-consult
+
+[[https://github.com/oantolin/embark/blob/master/embark-consult.el][embark-consult]] provides integration between Embark and Consult. The package
+will be loaded automatically by Embark.
+
+Some of the functionality here was previously contained in Embark itself:
+
+- Support for =consult-buffer=, so that you get the correct actions for each
+  type of entry in =consult-buffer='s list.
+
+- Support for =consult-line=, =consult-outline=, =consult-mark= and
+  =consult-global-mark=, so that the insert and save actions don't include a
+  weird unicode character at the start of the line, and so you can export from
+  them to an occur buffer (where =occur-edit-mode= works!).
+
+Just load this package to get the above functionality, no further
+configuration is necessary.
+
+Additionally this package contains some functionality that has never been in
+Embark: access to Consult preview from auto-updating Embark Collect buffer
+that is associated to an active minibuffer for a Consult command. For
+information on Consult preview, see Consult's info manual or its readme on
+GitHub.
+
+#+begin_src emacs-lisp
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+*** marginalia
+
+[[https://github.com/minad/marginalia][marginalia]] provides =marginalia-mode= which adds marginalia to the minibuffer
+completions. [[https://en.wikipedia.org/wiki/Marginalia][Marginalia]] are marks or annotations placed at the margin of the
+page of a book or in this case helpful colorful annotations placed at the
+margin of the minibuffer for your completion candidates. Marginalia can only
+add annotations to the completion candidates. It cannot modify the appearance
+of the candidates themselves, which are shown unaltered as supplied by the
+original command.
+
+The annotations are added based on the completion category. For example
+=find-file= reports the =file= category and =M-x= reports the =command= category. You
+can cycle between more or less detailed annotators or even disable the
+annotator with command =marginalia-cycle=.
+
+It is recommended to use Marginalia together with either the [[https://github.com/minad/vertico][Vertico]], [[https://github.com/protesilaos/mct][Mct]],
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html][Icomplete]] or the default completion UI. Furthermore Marginalia can be combined
+with [[https://github.com/oantolin/embark][Embark]] for action support and [[https://github.com/minad/consult][Consult]], which provides many useful
+commands.
+
+#+begin_src emacs-lisp
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  ;; Either bind `marginalia-cycle' globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+
+  ;; The :init configuration is always executed (Not lazy!)
+  :config
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
+#+end_src
+
+*** orderless
+
+[[https://github.com/oantolin/orderless][orderless]] provides an =orderless= /completion style/ that divides the pattern into
+space-separated components, and matches candidates that match all of the
+components in any order. Each component can match in any one of several ways:
+literally, as a regexp, as an initialism, in the flex style, or as multiple
+word prefixes. By default, regexp and literal matches are enabled.
+
+A completion style is a back-end for completion and is used from a front-end
+that provides a completion UI. Any completion style can be used with the
+default Emacs completion UI (sometimes called minibuffer tab completion), with
+the built-in Icomplete package (which is similar to the more well-known Ido
+Mode), the icomplete-vertical variant from Emacs 28 (see the external
+[[https://github.com/oantolin/icomplete-vertical][icomplete-vertical]] package to get that functionality on earlier versions of
+Emacs), or with some third party minibuffer completion frameworks such as [[https://gitlab.com/protesilaos/mct][Mct]],
+[[https://github.com/minad/vertico][Vertico]], or [[https://github.com/raxod502/selectrum][Selectrum]] (in its default configuration).
+
+All the completion UIs just mentioned are for minibuffer completion, used when
+Emacs commands prompt the user in the minibuffer for some input, but there is
+also completion at point in normal buffers, typically used for identifiers in
+programming languages. Completion styles can also be used for that purpose by
+completion at point UIs such as [[https://github.com/minad/corfu][Corfu]], [[https://company-mode.github.io/][Company]] or the function
+=consult-completion-in-region= from [[https://github.com/minad/consult][Consult]].
+
+To use a completion style with any of the above mentioned completion UIs
+simply add it as an entry in the variables =completion-styles= and
+=completion-category-overrides= (see their documentation). You may also want to
+modify the =completion-category-defaults= variable, which serves as a default
+value for =completion-category-overrides=: if you want to use =orderless=
+exclusively, set both variables to =nil=.
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+*** vertico
+
+[[https://github.com/minad/vertico][vertico]] provides a performant and minimalistic vertical completion UI based on
+the default completion system. The focus of Vertico is to provide a UI which
+behaves /correctly/ under all circumstances. By reusing the built-in facilities
+system, Vertico achieves /full compatibility/ with built-in Emacs completion
+commands and completion tables. Vertico only provides the completion UI but
+aims to be highly flexible, extendable and modular. Additional enhancements
+are available as [[#extensions][extensions]] or [[#complementary-packages][complementary packages]]. The code base is small
+and maintainable. The main =vertico.el= package is only about 600 lines of code
+without white space and comments.
+
+- Vertical display with arrow key navigation. See the [[#extensions][extensions]] for
+  additional display modes.
+- Prompt shows the current candidate index and the total number of candidates.
+- The current candidate is inserted with =TAB= and selected with =RET=.
+- Non-existing candidates can be submitted with =M-RET= or by moving the point
+  to the prompt.
+- Configurable sorting by history position, length and alphabetically.
+- Long candidates with newlines are formatted to take up less space.
+- Deferred completion style highlighting for performance.
+- Annotations are displayed next to the candidates (=annotation-= and
+  =affixation-function=).
+- Support for candidate grouping and group cycling commands (=group-function=).
+
+#+begin_src emacs-lisp
+;; Enable vertico
+(use-package vertico
+  :demand t
+  :config
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
+#+end_src
+
+*** ivy
+
+#+begin_src emacs-lisp
+(use-package ivy
+  :disabled t
+  :diminish
+  :demand t
+
+  :bind (("C-x b" . ivy-switch-buffer)
+         ("C-x B" . ivy-switch-buffer-other-window)
+         ("M-H"   . ivy-resume))
+
+  :bind (:map ivy-minibuffer-map
+              ("<tab>" . ivy-alt-done)
+              ("SPC"   . ivy-alt-done-or-space)
+              ("C-d"   . ivy-done-or-delete-char)
+              ("C-i"   . ivy-partial-or-done)
+              ("C-r"   . ivy-previous-line-or-history)
+              ("M-r"   . ivy-reverse-i-search))
+
+  :bind (:map ivy-switch-buffer-map
+              ("C-k" . ivy-switch-buffer-kill))
+
+  :custom
+  (ivy-dynamic-exhibit-delay-ms 200)
+  (ivy-height 10)
+  (ivy-initial-inputs-alist nil)
+  (ivy-magic-tilde nil)
+  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-use-virtual-buffers t)
+  (ivy-wrap t)
+  (ivy-extra-directories '("./"))
+  (ivy-ignore-buffers
+   '("\\` "
+     "\\`\\*git-monitor:"
+     "\\`\\*magit-process:"
+     "\\.elc$"
+     "\\.CFUserTextEncoding"
+     "\\`\\*Quail Completions\\*\\'"
+     "\\`\\.newsrc-dribble\\'"
+     "\\`\\.newsrc.eld\\'"))
+  (ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  (ivy-rich-parse-remote-buffer nil)
+  :preface
+  (defun ivy-done-or-delete-char ()
+    (interactive)
+    (call-interactively
+     (if (eolp)
+         #'ivy-immediate-done
+       #'ivy-delete-char)))
+
+  (defun ivy-alt-done-or-space ()
+    (interactive)
+    (call-interactively
+     (if (= ivy--length 1)
+         #'ivy-alt-done
+       #'self-insert-command)))
+
+  (defun ivy-switch-buffer-kill ()
+    (interactive)
+    (debug)
+    (let ((bn (ivy-state-current ivy-last)))
+      (when (get-buffer bn)
+        (kill-buffer bn))
+      (unless (buffer-live-p (ivy-state-buffer ivy-last))
+        (setf (ivy-state-buffer ivy-last)
+              (with-ivy-window (current-buffer))))
+      (setq ivy--all-candidates (delete bn ivy--all-candidates))
+      (ivy--exhibit)))
+
+  ;; This is the value of `magit-completing-read-function', so that we see
+  ;; Magit's own sorting choices.
+  (defun my-ivy-completing-read (&rest args)
+    (let ((ivy-sort-functions-alist '((t . nil))))
+      (apply 'ivy-completing-read args)))
+
+  :config
+  (ivy-mode 1)
+  (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
+
+  (defun ivy--switch-buffer-matcher (regexp candidates)
+    "Return REGEXP matching CANDIDATES.
+Skip buffers that match `ivy-ignore-buffers'."
+    (let ((res (ivy--re-filter regexp candidates)))
+      (if (or (null ivy-use-ignore)
+              (null ivy-ignore-buffers))
+          res
+        (or (cl-remove-if
+             (lambda (buf)
+               (cl-find-if
+                (lambda (f-or-r)
+                  (if (functionp f-or-r)
+                      (funcall f-or-r buf)
+                    (string-match-p f-or-r buf)))
+                ivy-ignore-buffers))
+             res)
+            (and (eq ivy-use-ignore t)
+                 res))))))
+#+end_src
+
+**** ivy-bibtex
+
+#+begin_src emacs-lisp
+(use-package ivy-bibtex
+  :disabled t
+  :commands ivy-bibtex)
+#+end_src
+
+**** ivy-hydra
+
+#+begin_src emacs-lisp
+(use-package ivy-hydra
+  :disabled t
+  :after (ivy hydra)
+  :defer t)
+#+end_src
+
+**** ivy-pass
+
+#+begin_src emacs-lisp
+(use-package ivy-pass
+  :disabled t
+  :commands ivy-pass)
+#+end_src
+
+**** ivy-rich
+
+#+begin_src emacs-lisp
+(use-package ivy-rich
+  :disabled t
+  :after ivy
+  :demand t
+  :config
+  (ivy-rich-mode 1)
+  (setq ivy-virtual-abbreviate 'full
+        ivy-rich-switch-buffer-align-virtual-buffer t
+        ivy-rich-path-style 'abbrev))
+#+end_src
+
+*** swiper
+
+#+begin_src emacs-lisp
+(use-package swiper
+  :disabled t
+  :after ivy
+  :bind ("C-M-s" . swiper)
+  :bind (:map swiper-map
+              ("M-y" . yank)
+              ("M-%" . swiper-query-replace)
+              ("C-." . swiper-avy)
+              ("M-c" . swiper-mc))
+  :bind (:map isearch-mode-map
+              ("C-o" . swiper-from-isearch))
+  :custom
+  (swiper-stay-on-quit t))
+#+end_src
+
+*** counsel
+
+#+begin_src emacs-lisp
+(use-package counsel
+  :disabled t
+  :after ivy
+  :demand t
+  :diminish
+  :bind (("C-*"     . counsel-org-agenda-headlines)
+         ("C-x C-f" . counsel-find-file)
+         ("C-c e l" . counsel-find-library)
+         ("C-c e q" . counsel-set-variable)
+         ("C-h e l" . counsel-find-library)
+         ("C-h e u" . counsel-unicode-char)
+         ("C-h f"   . counsel-describe-function)
+         ("C-x r b" . counsel-bookmark)
+         ("M-x"     . counsel-M-x)
+         ;; ("M-y"     . counsel-yank-pop)
+
+         ("M-s f" . counsel-file-jump)
+         ;; ("M-s g" . counsel-rg)
+         ("M-s j" . counsel-dired-jump))
+  :commands counsel-minibuffer-history
+  :init
+  (bind-key "M-r" #'counsel-minibuffer-history minibuffer-local-map)
+  :custom
+  (counsel-describe-function-preselect 'ivy-function-called-at-point)
+  (counsel-locate-cmd 'counsel-locate-cmd-default)
+  (counsel-find-file-ignore-regexp
+   (concat "\\(\\`\\.[^.]\\|"
+           (regexp-opt completion-ignored-extensions)
+           "\\'\\)"))
+  :config
+  (add-to-list 'ivy-sort-matches-functions-alist
+               '(counsel-find-file . ivy--sort-files-by-date))
+
+  (defun counsel-recoll-function (string)
+    "Run recoll for STRING."
+    (if (< (length string) 3)
+        (counsel-more-chars 3)
+      (counsel--async-command
+       (format "recollq -t -b %s"
+               (shell-quote-argument string)))
+      nil))
+
+  (defun counsel-recoll (&optional initial-input)
+    "Search for a string in the recoll database.
+  You'll be given a list of files that match.
+  Selecting a file will launch `swiper' for that file.
+  INITIAL-INPUT can be given as the initial minibuffer input."
+    (interactive)
+    (counsel-require-program "recollq")
+    (ivy-read "recoll: " 'counsel-recoll-function
+              :initial-input initial-input
+              :dynamic-collection t
+              :history 'counsel-git-grep-history
+              :action (lambda (x)
+                        (when (string-match "file://\\(.*\\)\\'" x)
+                          (let ((file-name (match-string 1 x)))
+                            (find-file file-name)
+                            (unless (string-match "pdf$" x)
+                              (swiper ivy-text)))))
+              :unwind #'counsel-delete-process
+              :caller 'counsel-recoll)))
+#+end_src
+
+**** counsel-jq
+
+#+begin_src emacs-lisp
+(use-package counsel-jq
+  :disabled t
+  :commands counsel-jq)
+#+end_src
+
+**** counsel-osx-app
+
+#+begin_src emacs-lisp
+(use-package counsel-osx-app
+  :disabled t
+  :bind* ("S-M-SPC" . counsel-osx-app)
+  :commands counsel-osx-app
+  :config
+  (setq counsel-osx-app-location
+        (list "/Applications"
+              "/Applications/Misc"
+              "/Applications/Utilities"
+              (expand-file-name "~/Applications")
+              (expand-file-name "~/.nix-profile/Applications")
+              "/Applications/Xcode.app/Contents/Applications")))
+#+end_src
+
+**** counsel-projectile
+
+#+begin_src emacs-lisp
+(use-package counsel-projectile
+  :disabled t
+  :after (counsel projectile)
+  :custom
+  (counsel-projectile-remove-current-buffer t)
+  (counsel-projectile-remove-current-project t)
+  :config
+  (counsel-projectile-mode 1))
+#+end_src
+
+**** counsel-tramp
+
+#+begin_src emacs-lisp
+(use-package counsel-tramp
+  :disabled t
+  :commands counsel-tramp)
+#+end_src
+
+*** helm
+
+#+begin_src emacs-lisp
+(use-package helm
+  :disabled t
+  :defer t
+  :bind (:map helm-map
+              ("<tab>" . helm-execute-persistent-action)
+              ("C-i"   . helm-execute-persistent-action)
+              ("C-z"   . helm-select-action)
+              ("A-v"   . helm-previous-page))
+  :custom
+  (helm-command-prefix-key nil)
+  (helm-dash-browser-func 'eww)
+  (helm-dash-docsets-path "/Users/johnw/Library/Application Support/Dash/DocSets/")
+  (helm-minibuffer-history-key nil)
+  (helm-recoll-options '("recollq" "-t" "-b"))
+  :config
+  (helm-autoresize-mode 1))
+#+end_src
+
+**** helm-descbinds
+
+#+begin_src emacs-lisp
+(use-package helm-descbinds
+  :disabled t
+  :bind ("C-h b" . helm-descbinds)
+  :init
+  (fset 'describe-bindings 'helm-descbinds))
+#+end_src
+
+**** helm-describe-modes
+
+#+begin_src emacs-lisp
+(use-package helm-describe-modes
+  :disabled t
+  :after helm
+  :bind ("C-h m" . helm-describe-modes))
+#+end_src
+
+**** helm-font
+
+#+begin_src emacs-lisp
+(use-package helm-font
+  :disabled t
+  :commands (helm-select-xfont helm-ucs))
+#+end_src
+
+**** helm-google
+
+#+begin_src emacs-lisp
+(use-package helm-google
+  :disabled t
+  :commands helm-google)
+#+end_src
+
+**** helm-navi
+
+#+begin_src emacs-lisp
+(use-package helm-navi
+  :disabled t
+  :after (helm navi)
+  :commands helm-navi)
+#+end_src
+
+**** helm-sys
+
+#+begin_src emacs-lisp
+(use-package helm-sys
+  :disabled t
+  :commands helm-top)
+#+end_src
+
+*** company
+
+#+begin_src emacs-lisp
+(use-package company
+  :disabled t
+  :defer 5
+  :diminish
+  :commands (company-mode company-indent-or-complete-common)
+  :custom
+  (company-frontends
+   '(company-pseudo-tooltip-unless-just-one-frontend
+     company-echo-metadata-frontend
+     company-preview-frontend))
+  (company-global-modes '(emacs-lisp-mode c-mode c++-mode))
+  (company-idle-delay nil)
+  (company-quickhelp-use-propertized-text t)
+  (company-show-numbers t)
+  (company-show-quick-access t)
+  (company-tooltip-align-annotations t)
+  :init
+  (dolist (hook '(emacs-lisp-mode-hook
+                  c-mode-common-hook))
+    (add-hook hook
+              #'(lambda ()
+                  (local-set-key (kbd "<tab>")
+                                 #'company-indent-or-complete-common))))
+  :config
+  ;; From https://github.com/company-mode/company-mode/issues/87
+  ;; See also https://github.com/company-mode/company-mode/issues/123
+  (defadvice company-pseudo-tooltip-unless-just-one-frontend
+      (around only-show-tooltip-when-invoked activate)
+    (when (company-explicit-action-p)
+      ad-do-it))
+
+  ;; See http://oremacs.com/2017/12/27/company-numbers/
+  (defun ora-company-number ()
+    "Forward to `company-complete-number'.
+
+  Unless the number is potentially part of the candidate.
+  In that case, insert the number."
+    (interactive)
+    (let* ((k (this-command-keys))
+           (re (concat "^" company-prefix k)))
+      (if (cl-find-if (lambda (s) (string-match re s))
+                      company-candidates)
+          (self-insert-command 1)
+        (company-complete-number (string-to-number k)))))
+
+  (let ((map company-active-map))
+    (mapc
+     (lambda (x)
+       (define-key map (format "%d" x) 'ora-company-number))
+     (number-sequence 0 9))
+    (define-key map " " (lambda ()
+                          (interactive)
+                          (company-abort)
+                          (self-insert-command 1))))
+
+  (defun check-expansion ()
+    (save-excursion
+      (if (outline-on-heading-p t)
+          nil
+        (if (looking-at "\\_>") t
+          (backward-char 1)
+          (if (looking-at "\\.") t
+            (backward-char 1)
+            (if (looking-at "->") t nil))))))
+
+  (define-key company-mode-map [tab]
+    '(menu-item "maybe-company-expand" nil
+                :filter (lambda (&optional _)
+                          (when (check-expansion)
+                            #'company-complete-common))))
+
+  (eval-after-load "coq"
+    '(progn
+       (defun company-mode/backend-with-yas (backend)
+         (if (and (listp backend) (member 'company-yasnippet backend))
+             backend
+           (append (if (consp backend) backend (list backend))
+                   '(:with company-yasnippet))))
+       (setq company-backends
+             (mapcar #'company-mode/backend-with-yas company-backends))))
+
+  (global-company-mode 1))
+#+end_src
+
+**** company-auctex
+
+#+begin_src emacs-lisp
+(use-package company-auctex
+  :disabled t
+  :after (company latex))
+#+end_src
+
+**** company-cabal
+
+#+begin_src emacs-lisp
+(use-package company-cabal
+  :disabled t
+  :after (company haskell-cabal))
+#+end_src
+
+**** company-elisp
+
+#+begin_src emacs-lisp
+(use-package company-elisp
+  :disabled t
+  :after company
+  :config
+  (push 'company-elisp company-backends))
+
+(setq-local company-backend '(company-elisp))
+#+end_src
+
+**** company-math
+
+#+begin_src emacs-lisp
+(use-package company-math
+  :disabled t
+  :defer t)
+#+end_src
+
+**** company-quickhelp
+
+#+begin_src emacs-lisp
+(use-package company-quickhelp
+  :disabled t
+  :after company
+  :bind (:map company-active-map
+              ("C-c ?" . company-quickhelp-manual-begin)))
+#+end_src
+
+**** company-restclient
+
+#+begin_src emacs-lisp
+(use-package company-restclient
+  :disabled t
+  :after (company restclient))
+#+end_src
+
+**** company-terraform
+
+#+begin_src emacs-lisp
+(use-package company-terraform
+  :disabled t
+  :after (company terraform-mode))
+#+end_src
+
+** [Gnus]
+
+#+begin_src emacs-lisp
+(use-package dot-gnus
+  :no-require t
+  :bind (("M-G"   . switch-to-gnus)
+         ("C-x m" . compose-mail))
+  :init
+  (setq gnus-home-directory "~/Messages/Gnus/")
+
+  (defun fetchmail-password ()
+    (lookup-password "imap.fastmail.com" "johnw" 993)))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package gnus
@@ -8444,7 +8773,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (setq switch-to-gnus-run t))))))
 #+end_src
 
-** fetchmail-ctl
+*** fetchmail-ctl
 
 #+begin_src emacs-lisp
 (use-package fetchmail-ctl
@@ -8458,7 +8787,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
               ))
 #+end_src
 
-** gnus-sum
+*** gnus-sum
 
 #+begin_src emacs-lisp
 (use-package gnus-sum
@@ -8466,7 +8795,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
               ("F" . gnus-summary-wide-reply-with-original)))
 #+end_src
 
-** gnus-art
+*** gnus-art
 
 #+begin_src emacs-lisp
 (use-package gnus-art
@@ -8706,7 +9035,7 @@ is:
             (t "  ")))))
 #+end_src
 
-** message-x
+*** message-x
 
 #+begin_src emacs-lisp
 (use-package message
@@ -8747,14 +9076,14 @@ is:
   (message-separator ((((class color)) (:foreground "Tan")))))
 #+end_src
 
-** message-x
+*** message-x
 
 #+begin_src emacs-lisp
 (use-package message-x
   :after message)
 #+end_src
 
-** gnus-dired
+*** gnus-dired
 
 #+begin_src emacs-lisp
 (use-package gnus-dired
@@ -8763,7 +9092,7 @@ is:
   (add-hook 'dired-mode-hook 'gnus-dired-mode))
 #+end_src
 
-** my-gnus-score
+*** my-gnus-score
 
 #+begin_src emacs-lisp
 (use-package my-gnus-score
@@ -8783,7 +9112,7 @@ is:
   (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news))
 #+end_src
 
-** gnus-demon
+*** gnus-demon
 
 #+begin_src emacs-lisp
 (use-package gnus-demon
@@ -8802,8 +9131,6 @@ is:
                   (with-current-buffer gnus-group-buffer
                     (gnus-group-get-new-news gnus-activate-level))))
             (set-window-configuration win)))))
-
-    ;; (gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
 
     (defun save-gnus-newsrc ()
       (if (and (fboundp 'gnus-group-exit)
@@ -8835,7 +9162,7 @@ is:
   (gnus-summary-next-page))
 #+end_src
 
-** epa
+*** epa
 
 #+begin_src emacs-lisp
 (use-package epa
@@ -8859,7 +9186,7 @@ is:
                 "")))))
 #+end_src
 
-** gnus-harvest
+*** gnus-harvest
 
 #+begin_src emacs-lisp
 (use-package gnus-harvest
@@ -8872,7 +9199,7 @@ is:
     (gnus-harvest-install)))
 #+end_src
 
-** gnus-alias
+*** gnus-alias
 
 #+begin_src emacs-lisp
 (use-package gnus-alias
@@ -8920,13 +9247,12 @@ is:
   (add-hook 'message-setup-hook #'my-gnus-alias-determine-identity))
 #+end_src
 
-** gnus-recent
+*** gnus-recent
 
 #+begin_src emacs-lisp
 (use-package gnus-recent
   :after gnus
-  :bind (("M-s a" . gnus-recent-goto-ivy)
-         :map gnus-summary-mode-map
+  :bind (:map gnus-summary-mode-map
          ("l" . gnus-recent-goto-previous)
          :map gnus-group-mode-map
          ("C-c L" . gnus-recent-goto-previous)))
@@ -8936,7 +9262,7 @@ is:
   (defvar gnus-balloon-face-1))
 #+end_src
 
-** rs-gnus-summary
+*** rs-gnus-summary
 
 #+begin_src emacs-lisp
 (use-package rs-gnus-summary
@@ -8948,7 +9274,7 @@ is:
   (setq gnus-balloon-face-1 'rs-gnus-balloon-1))
 #+end_src
 
-** supercite
+*** supercite
 
 #+begin_src emacs-lisp
 (use-package supercite
@@ -9100,7 +9426,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
     (select-window this-window)))
 #+end_src
 
-** mml
+*** mml
 
 #+begin_src emacs-lisp
 (use-package mml
@@ -9127,7 +9453,23 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
   (advice-add 'mml-attach-file :after #'mml-sign-attached-file))
 #+end_src
 
-* Org
+** [Org-mode]
+
+#+begin_src emacs-lisp
+(use-package dot-org
+  :no-require t
+  :commands my-org-startup
+  :bind* (("M-C"   . jump-to-org-agenda)
+          ("M-m"   . org-smart-capture)
+          ("M-M"   . org-inline-note)
+          ("C-c a" . org-agenda)
+          ("C-c S" . org-store-link)
+          ("C-c l" . org-insert-link))
+  :config
+  (unless alternate-emacs
+    (run-with-idle-timer 300 t 'jump-to-org-agenda)
+    (my-org-startup)))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package org
@@ -9462,6 +9804,7 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
   (org-smart-capture-use-lastname t)
+  (org-agenda-show-outline-path nil)
   (org-src-fontify-natively t)
   (org-src-tab-acts-natively t)
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
@@ -9521,10 +9864,6 @@ buffer with the list of URLs found with the `gnus-button-url-regexp'."
 (unless window-system
   (setq org-agenda-files
         '("~/doc/org/todo.org")))
-
-;; (setq org-version "8.2.11")
-;; (defun org-release () "8.2.11")
-;; (defun org-git-version () "8.2.11")
 
 (unbind-key "C-," org-mode-map)
 (unbind-key "C-'" org-mode-map)
@@ -9708,7 +10047,6 @@ To use this function, add it to `org-agenda-finalize-hook':
        (gnus-string-remove-all-properties (substring message-id 2)))
     (error "Gnus is not running")))
 
-;; (add-to-list 'org-link-protocols (list "message" 'org-my-message-open nil))
 (org-link-set-parameters "message"
 			 :follow #'org-my-message-open
 			 :store #'org-gnus-store-link)
@@ -9913,7 +10251,6 @@ This can be 0 for immediate, or a floating point value.")
       (goto-char (match-beginning 0))
       (condition-case err
           (progn
-            ;; (org-sort-entries t ?a)
             (org-sort-entries t ?p)
             (org-sort-entries t ?o))
         (error nil))
@@ -9922,7 +10259,6 @@ This can be 0 for immediate, or a floating point value.")
     (while (re-search-forward "\* PROJECT " nil t)
       (goto-char (line-beginning-position))
       (ignore-errors
-        ;; (org-sort-entries t ?a)
         (org-sort-entries t ?p)
         (org-sort-entries t ?o))
       (forward-line))))
@@ -10446,15 +10782,7 @@ end tell" (shell-quote-argument (match-string 1)))))
                 (plist-get parameters :store)))))
 #+end_src
 
-** anki-editor
-
-#+begin_src emacs-lisp
-(use-package anki-editor
-  :disabled t
-  :commands anki-editor-submit)
-#+end_src
-
-** calfw
+*** calfw
 
 #+begin_src emacs-lisp
 (use-package calfw
@@ -10515,35 +10843,20 @@ end tell" (shell-quote-argument (match-string 1)))))
         cfw:fchar-top-right-corner ?┓))
 #+end_src
 
-** helm-org-rifle
-
-#+begin_src emacs-lisp
-(use-package helm-org-rifle
-  :disabled t
-  :bind ("A-M-r" . helm-org-rifle))
-#+end_src
-
-** ob-diagrams
-
-#+begin_src emacs-lisp
-(use-package ob-diagrams
-  :disabled t)
-#+end_src
-
-** ob-restclient
+*** ob-restclient
 
 #+begin_src emacs-lisp
 (use-package ob-restclient
   :disabled t)
 #+end_src
 
-** ob-verb
+*** ob-verb
 
 #+begin_src emacs-lisp
 (use-package ob-verb)
 #+end_src
 
-** org-attach
+*** org-attach
 
 #+begin_src emacs-lisp
 (use-package org-attach
@@ -10560,13 +10873,13 @@ end tell" (shell-quote-argument (match-string 1)))))
         (move-marker m nil)))))
 #+end_src
 
-** org-attach-git
+*** org-attach-git
 
 #+begin_src emacs-lisp
 (use-package org-attach-git)
 #+end_src
 
-** org-babel
+*** org-babel
 
 #+begin_src emacs-lisp
 (use-package org-babel
@@ -10596,13 +10909,13 @@ end tell" (shell-quote-argument (match-string 1)))))
     string))
 #+end_src
 
-** org-bookmark-heading
+*** org-bookmark-heading
 
 #+begin_src emacs-lisp
 (use-package org-bookmark-heading)
 #+end_src
 
-** org-crypt
+*** org-crypt
 
 #+begin_src emacs-lisp
 (use-package org-crypt
@@ -10610,13 +10923,13 @@ end tell" (shell-quote-argument (match-string 1)))))
               ("C-c C-x C-/" . org-decrypt-entry)))
 #+end_src
 
-** org-devonthink
+*** org-devonthink
 
 #+begin_src emacs-lisp
 (use-package org-devonthink)
 #+end_src
 
-** org-download
+*** org-download
 
 #+begin_src emacs-lisp
 (use-package org-download
@@ -10627,7 +10940,7 @@ end tell" (shell-quote-argument (match-string 1)))))
   (org-download-method 'attach))
 #+end_src
 
-** org-mime
+*** org-mime
 
 #+begin_src emacs-lisp
 (use-package org-mime
@@ -10650,7 +10963,7 @@ end tell" (shell-quote-argument (match-string 1)))))
                                "#E6E1DC" "#232323")))))
 #+end_src
 
-** org-noter
+*** org-noter
 
 #+begin_src emacs-lisp
 (use-package org-noter
@@ -10658,20 +10971,20 @@ end tell" (shell-quote-argument (match-string 1)))))
   :commands org-noter)
 #+end_src
 
-** org-protocol
+*** org-protocol
 
 #+begin_src emacs-lisp
 (use-package org-protocol)
 #+end_src
 
-** org-ql
+*** org-ql
 
 #+begin_src emacs-lisp
 (use-package org-ql
   :commands org-ql-search)
 #+end_src
 
-** org-rich-yank
+*** org-rich-yank
 
 #+begin_src emacs-lisp
 (use-package org-rich-yank
@@ -10680,13 +10993,13 @@ end tell" (shell-quote-argument (match-string 1)))))
               ("C-M-y" . org-rich-yank)))
 #+end_src
 
-** org-smart-capture
+*** org-smart-capture
 
 #+begin_src emacs-lisp
 (use-package org-smart-capture)
 #+end_src
 
-** org-super-agenda
+*** org-super-agenda
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
@@ -10721,40 +11034,7 @@ end tell" (shell-quote-argument (match-string 1)))))
   (org-super-agenda-mode))
 #+end_src
 
-** org-velocity
-
-#+begin_src emacs-lisp
-(use-package org-velocity
-  :disabled t
-  :bind ("C-, C-." . org-velocity)
-  :config
-  (defun org-velocity-incremental-read (prompt)
-    "Read string with PROMPT and display results incrementally."
-    (let ((res
-           (unwind-protect
-               (let* ((match-window (display-buffer (org-velocity-match-buffer)))
-                      (org-velocity-index
-                       ;; Truncate the index to the size of the buffer to be
-                       ;; displayed.
-                       (with-selected-window match-window
-                         (if (> (window-height) (length org-velocity-index))
-                             ;; (subseq org-velocity-index 0 (window-height))
-                             org-velocity-index
-                           (let ((hints (copy-sequence org-velocity-index)))
-                             (setcdr (nthcdr (window-height) hints) nil)
-                             hints)))))
-                 (catch 'click
-                   (add-hook 'post-command-hook 'org-velocity-update)
-                   (if (eq org-velocity-search-method 'regexp)
-                       (read-regexp prompt)
-                     (if org-velocity-use-completion
-                         (org-velocity-read-with-completion prompt)
-                       (read-string prompt)))))
-             (remove-hook 'post-command-hook 'org-velocity-update))))
-      (if (bufferp res) (org-pop-to-buffer-same-window res) res))))
-#+end_src
-
-** org-web-tools
+*** org-web-tools
 
 #+begin_src emacs-lisp
 (use-package org-web-tools
@@ -10778,32 +11058,26 @@ end tell" (shell-quote-argument (match-string 1)))))
         (insert link)))))
 #+end_src
 
-** orgnav
+*** orgnav
 
 #+begin_src emacs-lisp
-(use-package orgnav)
-#+end_src
-
-** orgtbl-aggregate
-
-#+begin_src emacs-lisp
-(use-package orgtbl-aggregate
+(use-package orgnav
   :disabled t)
 #+end_src
 
-** ox-gfm
+*** ox-gfm
 
 #+begin_src emacs-lisp
 (use-package ox-gfm)
 #+end_src
 
-** ox-md
+*** ox-md
 
 #+begin_src emacs-lisp
 (use-package ox-md)
 #+end_src
 
-** ox-texinfo-plus
+*** ox-texinfo-plus
 
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
@@ -10811,26 +11085,44 @@ end tell" (shell-quote-argument (match-string 1)))))
   :defer t)
 #+end_src
 
-** yankpad
+*** org-roam
 
 #+begin_src emacs-lisp
-(use-package yankpad
-  :disabled t
-  :defer 10
+(use-package org-roam
+  :demand t  ;; Ensure org-roam is loaded by default
   :init
-  (setq yankpad-file "~/doc/org/yankpad.org"))
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/doc/org/roam/")
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n h" . helm-org-roam)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n I" . org-roam-node-insert-immediate)
+         ("C-c n j" . org-roam-dailies-capture-today)
+         ("C-c n p" . my/org-roam-find-project)
+         ("C-c n t" . org-roam-tag-add)
+         ("C-c n T" . org-roam-tag-remove)
+         ("C-c n b" . my/org-roam-capture-inbox)
+         ("C-c n w" . my-org-prepare-note)
+         ("C-c n x" . xeft)
+         :map org-mode-map
+         ("C-M-i" . completion-at-point)
+         :map org-roam-dailies-map
+         ("Y" . org-roam-dailies-capture-yesterday)
+         ("T" . org-roam-dailies-capture-tomorrow)
+         )
+  :bind-keymap ("C-c n d" . org-roam-dailies-map)
+  :config
+  (use-package org-roam-dailies
+    :demand t
+    :custom
+    (org-roam-dailies-directory "~/doc/org/roam/journal/"))
+  (org-roam-db-autosync-mode))
 #+end_src
 
-** worf
-
-#+begin_src emacs-lisp
-(use-package worf
-  :disabled t
-  :bind (:map org-mode-map
-              ("C-c C-j" . worf-goto)))
-#+end_src
-
-** xeft
+*** xeft
 
 #+begin_src emacs-lisp
 (use-package xeft
@@ -10926,8 +11218,6 @@ Already existing files are overwritten."
           (insert text)
           (goto-char (point-min))
           (cl-destructuring-bind (beg end title2) (my-org-headline)
-            ;; (unless (string= title title2)
-            ;;   (error "TITLE: %s != %s" title title2))
             (goto-char beg)
             (delete-region beg end)
             (insert "#+title: ")
@@ -10953,44 +11243,7 @@ Already existing files are overwritten."
         (delete-region beg end)))))
 #+end_src
 
-** org-roam
-
-#+begin_src emacs-lisp
-(use-package org-roam
-  :demand t  ;; Ensure org-roam is loaded by default
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory "~/doc/org/roam/")
-  (org-roam-completion-everywhere t)
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n h" . helm-org-roam)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n I" . org-roam-node-insert-immediate)
-         ("C-c n j" . org-roam-dailies-capture-today)
-         ("C-c n p" . my/org-roam-find-project)
-         ("C-c n t" . org-roam-tag-add)
-         ("C-c n T" . org-roam-tag-remove)
-         ("C-c n b" . my/org-roam-capture-inbox)
-         ("C-c n w" . my-org-prepare-note)
-         ("C-c n x" . xeft)
-         :map org-mode-map
-         ("C-M-i" . completion-at-point)
-         :map org-roam-dailies-map
-         ("Y" . org-roam-dailies-capture-yesterday)
-         ("T" . org-roam-dailies-capture-tomorrow)
-         )
-  :bind-keymap ("C-c n d" . org-roam-dailies-map)
-  :config
-  (use-package org-roam-dailies
-    :demand t
-    :custom
-    (org-roam-dailies-directory "~/doc/org/roam/journal/"))
-  (org-roam-db-autosync-mode))
-#+end_src
-
-** deft
+*** deft
 
 #+begin_src emacs-lisp
 (use-package deft
@@ -11048,13 +11301,6 @@ Already existing files are overwritten."
           (seq-filter
            (my/org-roam-filter-by-tag tag-name)
            (org-roam-node-list))))
-
-;; (defun my/org-roam-refresh-agenda-list ()
-;;   (interactive)
-;;   (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
-
-;; Build the agenda list the first time for the session
-;; (my/org-roam-refresh-agenda-list)
 
 (defun my/org-roam-project-finalize-hook ()
   "Adds the captured project file to `org-agenda-files' if the
@@ -11202,6 +11448,178 @@ directories, dot files, and files matched by
              "~" file))))
 #+end_src
 
+** add-journal-entry
+
+#+begin_src emacs-lisp
+(defun add-journal-entry (title)
+  (interactive "sTitle: ")
+  (let* ((moniker
+          (replace-regexp-in-string
+           "[,!]" ""
+           (replace-regexp-in-string " " "-" (downcase title))))
+         (most-recent
+          (split-string
+           (car (last (directory-files "~/doc/johnwiegley/posts"))) "-"))
+         (year (nth 0 most-recent))
+         (month (nth 1 most-recent))
+         (day (nth 2 most-recent))
+         (date (calendar-gregorian-from-absolute
+                (+ 7 (calendar-absolute-from-gregorian
+                      (list (string-to-number month)
+                            (string-to-number day)
+                            (string-to-number year))))))
+         (path (expand-file-name (format "%02d-%02d-%02d-%s.md"
+                                         (nth 2 date)
+                                         (nth 0 date)
+                                         (nth 1 date)
+                                         moniker)
+                                 "~/doc/johnwiegley/posts")))
+    (switch-to-buffer (find-file path))
+    (insert (format "---
+title: %s
+tags: journal
+---
+
+%s" title (current-kill 0)))))
+
+(bind-key "C-c J" #'add-journal-entry)
+#+end_src
+
+* Layout
+
+#+begin_src emacs-lisp
+(defconst display-name
+  (pcase (display-pixel-width)
+    (`3840 'dell-wide)
+    (`4480 'imac)
+    (`2560 'imac)
+    (`1920 'macbook-pro-vga)
+    (`1792 'macbook-pro-16)
+    (`1680 'macbook-pro-15)
+    ))
+
+(defsubst bookerly-font (height)
+  (format "-*-Bookerly-normal-normal-normal-*-%d-*-*-*-p-0-iso10646-1" height))
+
+(defsubst dejavu-sans-mono-font (height)
+  (format "-*-DejaVu Sans Mono-normal-normal-normal-*-%d-*-*-*-m-0-iso10646-1" height))
+
+(defun emacs-min-font ()
+  (pcase display-name
+    ((guard alternate-emacs) (bookerly-font 18))
+    (`imac (dejavu-sans-mono-font 18))
+    (_     (dejavu-sans-mono-font 18))))
+
+(defun emacs-min-font-height ()
+  (aref (font-info (emacs-min-font)) 3))
+
+(defun emacs-min-left ()
+  (pcase display-name
+    ((guard alternate-emacs)    0)
+    (`dell-wide              1000)
+    (`imac              (pcase (emacs-min-font-height)
+                          (28  20)
+                          (24 116)
+                          (21 318)
+                          (_    0)))
+    (`macbook-pro-vga         700)
+    (`macbook-pro-16          672)
+    (`macbook-pro-15          464)
+    (`macbook-pro-13          464)))
+
+(defun emacs-min-height ()
+  (pcase display-name
+    ((guard alternate-emacs)   58)
+    (`dell-wide                64)
+    (`imac               (pcase (emacs-min-font-height)
+                           (28 50)
+                           (24 58)
+                           (21 67)
+                           (_  40)))
+    (`macbook-pro-vga          55)
+    (`macbook-pro-16           51)
+    (`macbook-pro-15           47)
+    (`macbook-pro-13           47)))
+
+(defun emacs-min-width ()
+  (pcase display-name
+    ((guard alternate-emacs)   80)
+    (`dell-wide               202)
+    (`imac              (pcase (emacs-min-font-height)
+                          (28 180)
+                          (24 202)
+                          (21 202)
+                          (_  100)))
+    (`macbook-pro-vga         100)
+    (`macbook-pro-16          100)
+    (`macbook-pro-15          100)
+    (`macbook-pro-13          100)))
+
+(defun emacs-min ()
+  (interactive)
+  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
+    (set-param 'fullscreen nil)
+    (set-param 'vertical-scroll-bars nil)
+    (set-param 'horizontal-scroll-bars nil))
+  (message "display-name:     %S" display-name)
+  (message "Font name:        %s" (emacs-min-font))
+  (message "Font height:      %s" (aref (font-info (emacs-min-font)) 3))
+  (message "emacs-min-left:   %s" (emacs-min-left))
+  (message "emacs-min-height: %s" (emacs-min-height))
+  (message "emacs-min-width:  %s" (emacs-min-width))
+  (and (emacs-min-left)
+       (set-frame-position (selected-frame) (emacs-min-left) 0))
+  (and (emacs-min-height)
+       (set-frame-height (selected-frame) (emacs-min-height)))
+  (and (emacs-min-width)
+       (set-frame-width (selected-frame) (emacs-min-width)))
+  (and (emacs-min-font)
+       (set-frame-font (emacs-min-font)))
+  (message "Emacs is ready"))
+
+(defun emacs-max ()
+  (interactive)
+  (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
+    (set-param 'fullscreen 'fullboth)
+    (set-param 'vertical-scroll-bars nil)
+    (set-param 'horizontal-scroll-bars nil))
+  (and (emacs-min-font)
+       (set-frame-font (emacs-min-font))))
+
+(defun emacs-toggle-size ()
+  (interactive)
+  (if (alist-get 'fullscreen (frame-parameters))
+      (emacs-min)
+    (emacs-max)))
+
+(add-hook 'emacs-startup-hook #'emacs-min t)
+#+end_src
+
+** color-theme
+
+#+begin_src emacs-lisp
+(use-package color-theme
+  :config
+  (load "color-theme-library")
+  (color-theme-midnight))
+#+end_src
+
+* Finalization
+
+#+begin_src emacs-lisp
+(let ((elapsed (float-time (time-subtract (current-time)
+                                          emacs-start-time))))
+  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+(add-hook 'after-init-hook
+          `(lambda ()
+             (let ((elapsed
+                    (float-time
+                     (time-subtract (current-time) emacs-start-time))))
+               (message "Loading %s...done (%.3fs) [after-init]"
+                        ,load-file-name elapsed))) t)
+#+end_src
+
 * Startup
 
 #+begin_src emacs-lisp
@@ -11213,237 +11631,7 @@ directories, dot files, and files matched by
   (jump-to-org-agenda)
   (org-resolve-clocks)
   (unless (eq display-name 'imac)
-    (display-battery-mode 1))
-  ;; (stock-quote "/ES")
-  )
-#+end_src
-
-** corfu
-
-#+begin_src emacs-lisp
-(use-package corfu
-  :disabled t
-  ;; Optional customizations
-  ;; :custom
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  ;; (corfu-auto t)                 ;; Enable auto completion
-  ;; (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
-
-  ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
-  ;; Recommended: Enable Corfu globally.
-  ;; This is recommended since Dabbrev can be used globally (M-/).
-  ;; See also `corfu-exclude-modes'.
-  :init
-  (global-corfu-mode))
-#+end_src
-
-*** dabbrev
-
-#+begin_src emacs-lisp
-;; Use Dabbrev with Corfu!
-(use-package dabbrev
-  ;; Swap M-/ and C-M-/
-  :bind (("M-/"   . dabbrev-completion)
-         ("C-M-/" . dabbrev-expand))
-  ;; Other useful Dabbrev configurations.
-  :custom
-  (dabbrev-case-fold-search nil)
-  (dabbrev-case-replace nil)
-  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-#+end_src
-
-** marginalia
-
-#+begin_src emacs-lisp
-;; Enable rich annotations using the Marginalia package
-(use-package marginalia
-  :disabled t
-  ;; Either bind `marginalia-cycle' globally or only in the minibuffer
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-
-  ;; The :init configuration is always executed (Not lazy!)
-  :init
-
-  ;; Must be in the :init section of use-package such that the mode gets
-  ;; enabled right away. Note that this forces loading the package.
-  (marginalia-mode))
-#+end_src
-
-** orderless
-
-#+begin_src emacs-lisp
-(use-package orderless
-  :disabled t
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-#+end_src
-
-** vertico
-
-#+begin_src emacs-lisp
-;; Enable vertico
-(use-package vertico
-  :disabled t
-  :init
-  (vertico-mode)
-
-  ;; Different scroll margin
-  ;; (setq vertico-scroll-margin 0)
-
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
-
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  ;; (setq vertico-cycle t)
-  )
-#+end_src
-
-** consult
-
-#+begin_src emacs-lisp
-;; Example configuration for Consult
-(use-package consult
-  :disabled t
-  ;; Replace bindings. Lazily loaded due by `use-package'.
-  ;; :bind (;; C-c bindings (mode-specific-map)
-  ;;        ("C-c M-x" . consult-mode-command)
-  ;;        ("C-c h" . consult-history)
-  ;;        ("C-c k" . consult-kmacro)
-  ;;        ("C-c m" . consult-man)
-  ;;        ("C-c i" . consult-info)
-  ;;        ([remap Info-search] . consult-info)
-  ;;        ;; C-x bindings (ctl-x-map)
-  ;;        ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-  ;;        ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-  ;;        ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-  ;;        ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-  ;;        ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-  ;;        ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-  ;;        ;; Custom M-# bindings for fast register access
-  ;;        ("M-#" . consult-register-load)
-  ;;        ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-  ;;        ("C-M-#" . consult-register)
-  ;;        ;; Other custom bindings
-  ;;        ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-  ;;        ;; M-g bindings (goto-map)
-  ;;        ("M-g e" . consult-compile-error)
-  ;;        ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-  ;;        ("M-g g" . consult-goto-line)             ;; orig. goto-line
-  ;;        ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-  ;;        ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-  ;;        ("M-g m" . consult-mark)
-  ;;        ("M-g k" . consult-global-mark)
-  ;;        ("M-g i" . consult-imenu)
-  ;;        ("M-g I" . consult-imenu-multi)
-  ;;        ;; M-s bindings (search-map)
-  ;;        ("M-s d" . consult-find)
-  ;;        ("M-s D" . consult-locate)
-  ;;        ("M-s g" . consult-grep)
-  ;;        ("M-s G" . consult-git-grep)
-  ;;        ("M-s r" . consult-ripgrep)
-  ;;        ("M-s l" . consult-line)
-  ;;        ("M-s L" . consult-line-multi)
-  ;;        ("M-s k" . consult-keep-lines)
-  ;;        ("M-s u" . consult-focus-lines)
-  ;;        ;; Isearch integration
-  ;;        ("M-s e" . consult-isearch-history)
-  ;;        :map isearch-mode-map
-  ;;        ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-  ;;        ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-  ;;        ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-  ;;        ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-  ;;        ;; Minibuffer history
-  ;;        :map minibuffer-local-map
-  ;;        ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-  ;;        ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-
-  ;; The :init configuration is always executed (Not lazy)
-  :init
-
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
-
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
-  :config
-
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
-  (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
-   :preview-key '(:debounce 0.4 any))
-
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; "C-+"
-
-  ;; Optionally make narrowing help available in the minibuffer.
-  ;; You may want to use `embark-prefix-help-command' or which-key instead.
-  ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
-
-  ;; By default `consult-project-function' uses `project-root' from project.el.
-  ;; Optionally configure a different project root function.
-  ;;;; 1. project.el (the default)
-  ;; (setq consult-project-function #'consult--default-project--function)
-  ;;;; 2. vc.el (vc-root-dir)
-  ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
-  ;;;; 3. locate-dominating-file
-  ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
-  ;;;; 4. projectile.el (projectile-project-root)
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
-  ;;;; 5. No project support
-  ;; (setq consult-project-function nil)
-  )
-#+end_src
-
-** vundo
-
-#+begin_src emacs-lisp
-(use-package vundo
-  :bind (("C-c C-/" . vundo)))
+    (display-battery-mode 1)))
 #+end_src
 
 * emacs.org ends here

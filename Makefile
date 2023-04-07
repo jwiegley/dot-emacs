@@ -43,6 +43,6 @@ speed:
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
 clean:
-	rm *.elc
+	rm init.el *.elc *~ settings.el
 
 ### Makefile ends here
