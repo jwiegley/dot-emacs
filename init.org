@@ -7247,12 +7247,11 @@ append it to ENTRY."
          ("C-c y g" . yas/global-mode)
          ("C-c y m" . yas/minor-mode)
          ("C-c y r" . yas-reload-all)
-         ("C-c y x" . yas-expand))
-  :bind (:map yas-keymap
-              ("C-i" . yas-next-field-or-maybe-expand))
+         ("C-c y x" . yas-expand)
+         :map yas-keymap
+         ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :custom
-  (yas-installed-snippets-dir "~/.emacs.d/site-lisp/yasnippet-snippets/snippets/")
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
   (yas-snippet-dirs '("/Users/johnw/.emacs.d/snippets"))
   (yas-triggers-in-field t)
@@ -7268,7 +7267,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package z3-mode
-  :mode (("\\.smt\\'" . z3-mode))
+  :mode "\\.smt\\'"
   :bind (:map z3-mode-map
               ("C-c C-c" . z3-execute-region))
   :custom
