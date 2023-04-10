@@ -9,9 +9,11 @@
 /data*/
 /eln-cache/
 /elpa/
+/emojis/
 /eshell/
 /info/
+/init.el
 /lisp/org-mode/
 /logs/
+/projects
 /var/
-/init.el
