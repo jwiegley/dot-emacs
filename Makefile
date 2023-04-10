@@ -39,8 +39,11 @@ init.elc: init.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
-speed:
+speed: init.el
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+
+slow: init.el
+	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
 clean:
 	rm init.el *.elc *~ settings.el

@@ -300,4 +300,11 @@
                   `((funcall ',f))))
             hook))))
 
+(defun filter (f args)
+  (let (result)
+    (dolist (arg args)
+      (when (funcall f arg)
+        (setq result (cons arg result))))
+    (nreverse result)))
+
 (provide 'personal)
