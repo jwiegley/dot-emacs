@@ -3199,6 +3199,7 @@ non-empty directories is allowed."
               ("C-c C-," . haskell-navigate-imports)
               ("C-c C-." . haskell-mode-format-imports)
               ("C-c C-u" . my-haskell-insert-undefined)
+              ("M-.")
               ("M-s")
               ("M-t"))
   :custom
@@ -4494,7 +4495,7 @@ non-empty directories is allowed."
      ("M-DEL"   . term-send-backward-kill-word)
      ("M-r"     . term-send-reverse-search-history)
      ("M-,"     . term-send-input)
-     ("M-."     . comint-dynamic-complete)
+     ("M-/"     . comint-dynamic-complete)
      ("C-y"     . term-paste)))
   :init
   (defun screen ()
@@ -7695,10 +7696,8 @@ for a set of variables.
 
 #+begin_src emacs-lisp
 (use-package embark
-  :bind
-  (("M-."   . embark-act)       ;; pick some comfortable binding
-   ("C-h b" . embark-bindings)) ;; alternative for `describe-bindings'
-
+  :bind (("M-."   . embark-act)
+         ("C-h b" . embark-bindings)) ;; alternative for `describe-bindings'
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
@@ -7707,7 +7706,6 @@ for a set of variables.
   ;; strategy, if you want to see the documentation from multiple providers.
   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
