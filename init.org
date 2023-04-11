@@ -75,6 +75,13 @@
                                             'byte-obsolete-info))))
 #+end_src
 
+** Disable global eldoc-mode
+
+#+begin_src emacs-lisp
+(remove-hook 'after-change-major-mode-hook 'global-eldoc-mode-enable-in-buffers)
+(global-eldoc-mode -1)
+#+end_src
+
 * Helper functions
 
 ** Quickly test if a host is available
@@ -320,7 +327,7 @@ unto itself.
   (cursor ((t (:background "hotpink"))))
   (highlight ((t (:background "blue4"))))
   (minibuffer-prompt ((t (:foreground "grey80"))))
-  (mode-line-inactive ((t (:background "grey95"))))
+  (mode-line-inactive ((t (:background "grey50"))))
   (nobreak-space ((t nil)))
   (variable-pitch ((t (:height 1.1 :family "Bookerly"))))
 
@@ -1346,14 +1353,6 @@ old saved versions again.
   :commands centered-cursor-mode)
 #+end_src
 
-** change-inner
-
-#+begin_src emacs-lisp
-(use-package change-inner
-  :bind (("M-i"     . change-inner)
-         ("M-o M-o" . change-outer)))
-#+end_src
-
 ** chess
 
 #+begin_src emacs-lisp
@@ -1689,8 +1688,7 @@ In buffers controlled by Git, you can also stage and unstage the changes.
 
 #+begin_src emacs-lisp
 (use-package diff-hl
-  :commands (diff-hl-mode diff-hl-dired-mode)
-  :hook (magit-post-refresh . diff-hl-magit-post-refresh))
+  :commands (diff-hl-mode diff-hl-dired-mode))
 #+end_src
 
 *** diff-hl-flydiff
@@ -2209,10 +2207,12 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package eldoc
+  :disabled t
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode)
   :custom
-  (eldoc-echo-area-use-multiline-p 3))
+  (eldoc-echo-area-use-multiline-p 3)
+  (global-eldoc-mode nil))
 #+end_src
 
 ** electric
@@ -2393,7 +2393,11 @@ non-empty directories is allowed."
    erc-identd-process)
   :functions
   (erc-modified-channels-display
-   erc-modified-channels-update)
+   erc-modified-channels-update
+   erc-track-mode
+   erc-track-minor-mode
+   erc-list-match
+   erc-send-input)
   :preface
   (defun irc (&optional arg)
     (interactive "P")
@@ -2444,7 +2448,6 @@ non-empty directories is allowed."
   (defun erc-foolish-content (msg)
     "Check whether MSG is foolish."
     (erc-list-match erc-foolish-content msg))
-
   :init
   (add-hook 'erc-mode-hook #'setup-irc-environment)
 
@@ -2672,6 +2675,34 @@ non-empty directories is allowed."
   :bind ("C-=" . er/expand-region))
 #+end_src
 
+*** change-inner
+
+[[https://github.com/magnars/change-inner.el][change-inner]] gives you vim's ci command, building on =expand-region=. It is most
+easily explained by example:
+
+#+begin_src bash
+function test() {
+  return "semantic kill";
+}
+#+end_src
+
+With point after the word semantic
+
+- =change-inner= ="= would kill the contents of the string
+- =change-outer= ="= would kill the entire string
+- =change-inner= ={= would kill the return-statement
+- =change-outer= ={= would kill the entire block
+
+I use =M-i= and =M-o= for this.
+
+Giving these commands a prefix argument C-u means copy instead of kill.
+
+#+begin_src emacs-lisp
+(use-package change-inner
+  :bind (("M-i"     . change-inner)
+         ("M-o M-o" . change-outer)))
+#+end_src
+
 ** eyebrowse
 
 #+begin_src emacs-lisp
@@ -2866,45 +2897,6 @@ up before you execute another command."
              font-lock-studio-region))
 #+end_src
 
-** forge
-
-#+begin_src emacs-lisp
-(use-package forge
-  :after magit
-  :custom
-  (forge-alist
-   '(("github.com" "api.github.com" "github.com" forge-github-repository)
-     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
-     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
-     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
-     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
-     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
-     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
-     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
-     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
-     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
-     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
-     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
-     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
-  (forge-database-file "~/.config/forge/database.sqlite")
-  (forge-owned-accounts '(("jwiegley")))
-  :preface
-  (defun my-quick-create-pull-request (_title branch)
-    (interactive "sTitle: \nsBranch: ")
-    (setq branch (concat "johnw/" branch))
-    ;; Split this commit to another branch.
-    (magit-branch-spinoff branch)
-    ;; Push that branch to the remote.
-    (call-interactively #'magit-push-current-to-pushremote)
-    (sleep-for 3)
-    ;; Create a pullreq using the same title.
-    (forge-create-pullreq (concat "origin/" branch) "origin/master"))
-  :config
-  (transient-insert-suffix 'forge-dispatch "c i"
-    '("p" "quick-pr" my-quick-create-pull-request))
-  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
-#+end_src
-
 ** format-all
 
 #+begin_src emacs-lisp
@@ -2978,19 +2970,6 @@ up before you execute another command."
 (use-package git-undo
   :load-path "lisp/git-undo"
   :commands git-undo)
-#+end_src
-
-** github-review
-
-#+begin_src emacs-lisp
-(use-package github-review
-  :after forge
-  :commands github-review-start
-  :custom
-  (github-review-fetch-top-level-and-review-comments t)
-  :config
-  (transient-insert-suffix 'forge-dispatch "c p"
-    '("c r" "github-review" github-review-forge-pr-at-point)))
 #+end_src
 
 ** gitpatch
@@ -4132,20 +4111,27 @@ actual Emacs buffer of the module being loaded."
          ("C-x G" . magit-status-with-prefix))
   :bind (:map magit-mode-map
               ("U" . magit-unstage-all)
-              ("M-h") ("M-s") ("M-m") ("M-w"))
+              ("M-h")
+              ("M-s")
+              ("M-m")
+              ("M-w"))
   :bind (:map magit-file-section-map ("<C-return>"))
   :bind (:map magit-hunk-section-map ("<C-return>"))
   :custom
   (magit-diff-options nil)
   (magit-diff-refine-hunk t)
   (magit-fetch-arguments nil)
-  (magit-git-executable "~/.nix-profile/bin/git")
+  ;; This is done for the sake of performance on macOS
+  (magit-git-executable "/usr/bin/git")
   (magit-highlight-trailing-whitespace nil)
   (magit-highlight-whitespace nil)
   (magit-log-section-commit-count 10)
   (magit-pre-refresh-hook nil)
   (magit-process-popup-time 15)
   (magit-push-always-verify nil)
+  ;; You can tell Magit to only automatically refresh the current Magit
+  ;; buffer, but not the status buffer. If you do that, then the status buffer
+  ;; is only refreshed automatically if it is the current buffer.
   (magit-refresh-status-buffer nil)
   (magit-section-initial-visibility-alist '((untracked . hide)))
   (magit-stage-all-confirm nil)
@@ -4202,46 +4188,78 @@ actual Emacs buffer of the module being loaded."
               "\\`.+github\\.com:\\(.+?\\)\\(\\.git\\)?\\'" "\\1"
               (magit-get "remote" (magit-get-remote) "url"))
              (magit-get-current-branch))))
-
   :hook (magit-mode . hl-line-mode)
   :config
+  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+
+  (define-key magit-mode-map "G" #'endless/visit-pull-request-url)
+
+  ;; Magit also reverts buffers for visited files located inside the current
+  ;; repository when the visited file changes on disk. That is implemented on
+  ;; top of auto-revert-mode from the built-in library autorevert. To figure
+  ;; out whether that impacts performance, check whether performance is
+  ;; significantly worse, when many buffers exist and/or when some buffers
+  ;; visit files using TRAMP. If so, then this should help.
+  (setq auto-revert-buffer-list-filter
+        'magit-auto-revert-repository-buffer-p)
+
+  ;; When refreshing the "references buffer" is slow, then that’s usually
+  ;; because several hundred refs are being displayed. The best way to address
+  ;; that is to display fewer refs, obviously.
+  (remove-hook 'magit-refs-sections-hook 'magit-insert-tags)
+
+  ;; When you initiate a commit, then Magit by default automatically shows a
+  ;; diff of the changes you are about to commit. For large commits this can
+  ;; take a long time, which is especially distracting when you are committing
+  ;; large amounts of generated data which you don’t actually intend to
+  ;; inspect before committing. This behavior can be turned off using:
+  (remove-hook 'server-switch-hook 'magit-commit-diff)
+  (remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
+
   (use-package magit-commit
+    :defer t
     :config
     (use-package git-commit
       :custom
       (git-commit-mode-hook
        '(turn-on-auto-fill flyspell-mode git-commit-save-message))))
 
-  (use-package magit-files
+  (use-package magit-pull
+    :defer t
     :config
-    ;;(global-magit-file-mode)
-    )
+    (transient-insert-suffix 'magit-pull "p"
+      '("F" "default" magit-fetch-from-upstream)))
 
-  (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
+  (use-package magit-push
+    :defer t
+    :config
+    (transient-insert-suffix 'magit-push "p"
+      '("P" "default" magit-push-current-to-upstream)))
 
-  (define-key magit-mode-map "G" #'endless/visit-pull-request-url)
-
-  (eval-after-load 'magit-pull
-    '(transient-insert-suffix 'magit-pull "p"
-       '("F" "default" magit-fetch-from-upstream)))
-
-  (eval-after-load 'magit-push
-    '(transient-insert-suffix 'magit-push "p"
-       '("P" "default" magit-push-current-to-upstream)))
-
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
-  ;; (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-  )
+  (use-package magit-status
+    :defer t
+    :config
+    ;; Speed up the Magit status buffer by not generating all of the available
+    ;; sections.
+    (dolist (func '(
+                    ;; magit-insert-status-headers
+                    magit-insert-untracked-files
+                    ;; magit-insert-unstaged-changes
+                    ;; magit-insert-staged-changes
+                    magit-insert-stashes
+                    ;; magit-insert-unpushed-to-pushremote
+                    magit-insert-unpushed-to-upstream-or-recent
+                    ;; magit-insert-unpulled-from-pushremote
+                    magit-insert-unpulled-from-upstream
+                    ))
+      (remove-hook 'magit-status-sections-hook func))))
 #+end_src
 
 *** magit-autorevert
 
 #+begin_src emacs-lisp
 (use-package magit-autorevert
+  :disabled t
   :after magit
   :custom
   (magit-auto-revert-mode nil))
@@ -4251,6 +4269,7 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package magit-lfs
+  :disabled t
   :after magit)
 #+end_src
 
@@ -4259,6 +4278,60 @@ actual Emacs buffer of the module being loaded."
 #+begin_src emacs-lisp
 (use-package magit-popup
   :after magit)
+#+end_src
+
+*** forge
+
+#+begin_src emacs-lisp
+(use-package forge
+  :disabled t
+  :after magit
+  :custom
+  (forge-alist
+   '(("github.com" "api.github.com" "github.com" forge-github-repository)
+     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
+     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
+     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
+     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
+     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
+     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
+     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
+     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
+     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
+     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
+     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
+     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
+  (forge-database-file "~/.config/forge/database.sqlite")
+  (forge-owned-accounts '(("jwiegley")))
+  :preface
+  (defun my-quick-create-pull-request (_title branch)
+    (interactive "sTitle: \nsBranch: ")
+    (setq branch (concat "johnw/" branch))
+    ;; Split this commit to another branch.
+    (magit-branch-spinoff branch)
+    ;; Push that branch to the remote.
+    (call-interactively #'magit-push-current-to-pushremote)
+    (sleep-for 3)
+    ;; Create a pullreq using the same title.
+    (forge-create-pullreq (concat "origin/" branch) "origin/master"))
+  :config
+  (transient-insert-suffix 'forge-dispatch "c i"
+    '("p" "quick-pr" my-quick-create-pull-request))
+  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
+#+end_src
+
+*** github-review
+
+#+begin_src emacs-lisp
+(use-package github-review
+  :disabled t
+  :after forge
+  :commands github-review-start
+  :custom
+  (github-review-fetch-top-level-and-review-comments t)
+  :config
+  (transient-insert-suffix 'forge-dispatch "c p"
+    '("c r" "github-review" github-review-forge-pr-at-point)))
 #+end_src
 
 ** malyon
@@ -4804,9 +4877,10 @@ header overlay should cover. Result is a cons cell of (begin . end)."
              (unbind-key "M-r" paredit-mode-map)
              (unbind-key "M-s" paredit-mode-map)))
   :config
-  (require 'eldoc)
-  (eldoc-add-command 'paredit-backward-delete
-                     'paredit-close-round))
+  ;; (require 'eldoc)
+  ;; (eldoc-add-command 'paredit-backward-delete
+  ;;                    'paredit-close-round)
+  )
 #+end_src
 
 *** paredit-ext
@@ -6054,6 +6128,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package smart-mode-line
+  :disabled t
   :preface
   (defface mode-line-buffer-id
     '((((class color) (background dark))
@@ -7306,7 +7381,7 @@ independent components.
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
   :custom
-  (consult-preview-key "M-.")
+  ;; (consult-preview-key "M-i")
   (consult-narrow-key "<")
 
   :custom-face
@@ -7354,7 +7429,7 @@ independent components.
    :preview-key '(:debounce 0.4 any))
 
   (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function (lambda (_) (projectile-project-root))))
+  (setq consult-project-function #'(lambda (_) (projectile-project-root))))
 #+end_src
 
 **** consult-dir
@@ -7638,7 +7713,6 @@ for a set of variables.
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
-
   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
   ;; strategy, if you want to see the documentation from multiple providers.
   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
@@ -8423,8 +8497,6 @@ is:
                          (gnus-parameters-get-parameter gnus-newsgroup-name)))
              (privatized
               (and recipients to-address (not (member to-address recipients)))))
-        (message "to: %s" to)
-        (message "cc: %s" cc)
         (cond ((string-match gnus-ignored-from-addresses to)
                (cond ((= to-len 1)
                       (cond (privatized "<X")
