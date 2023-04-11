@@ -2542,8 +2542,9 @@ non-empty directories is allowed."
 (use-package eshell
   :commands (eshell eshell-command)
   :custom
-  (eshell-directory-change-hook
-   '(sml/generate-buffer-identification direnv-update-environment) t)
+  ;; REF: smart-mode-line
+  ;; (eshell-directory-change-hook
+  ;;  '(sml/generate-buffer-identification direnv-update-environment))
   (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
   (eshell-history-size 50000)
@@ -2551,7 +2552,21 @@ non-empty directories is allowed."
   (eshell-ls-exclude-regexp "~\\'")
   (eshell-ls-initial-args "-h")
   (eshell-modules-list
-   '(eshell-alias eshell-basic eshell-cmpl eshell-dirs eshell-glob eshell-hist eshell-ls eshell-pred eshell-prompt eshell-rebind eshell-script eshell-smart eshell-term eshell-unix eshell-xtra))
+   '(eshell-alias
+     eshell-basic
+     eshell-cmpl
+     eshell-dirs
+     eshell-glob
+     eshell-hist
+     eshell-ls
+     eshell-pred
+     eshell-prompt
+     eshell-rebind
+     eshell-script
+     eshell-smart
+     eshell-term
+     eshell-unix
+     eshell-xtra))
   (eshell-prompt-function
    (lambda nil
      (concat
