@@ -38,7 +38,6 @@ init.elc: init.el
 %.elc: %.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
-	@chmod ugo-w $@
 
 speed:
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
