@@ -1,0 +1,229 @@
+Tangled 439 code blocks from init.org
+Loading /Users/johnw/.emacs.d/init.el (source)...
+‘epa-file’ enabled
+Loading grep (native compiled elisp)...
+Loading repeat (native compiled elisp)...
+Repeat mode is enabled for 28 commands and 12 keymaps; see ‘describe-repeat-maps’
+[sml] sml/theme set to light
+Loading time (native compiled elisp)...
+Created x-devonthink-item link.
+Deprecated date/weektree capture templates changed to ‘file+olp+datetree’.
+Loading init...done (3.483s)nil
+Loaded init.el
+Writing bookmarks to: /Users/johnw/.emacs.d/data/bm-repository
+Compiling file init.el
+
+In toplevel form:
+init.el:335:2: Warning: Package cl is deprecated
+lisp/alert/alert.el: Warning: Case 'windows-nt will match ‘quote’.  If that’s intended, write (windows-nt quote) instead.  Otherwise, don’t quote ‘windows-nt’.
+lisp/alert/alert.el: Warning: ‘case’ is an obsolete alias (as of 27.1); use ‘cl-case’ instead.
+lisp/alert/alert.el: Warning: Case 'windows-nt will match ‘quote’.  If that’s intended, write (windows-nt quote) instead.  Otherwise, don’t quote ‘windows-nt’.
+lisp/alert/alert.el: Warning: ‘case’ is an obsolete alias (as of 27.1); use ‘cl-case’ instead.
+lisp/alert/alert.el: Warning: Case 'windows-nt will match ‘quote’.  If that’s intended, write (windows-nt quote) instead.  Otherwise, don’t quote ‘windows-nt’.
+lisp/alert/alert.el: Warning: ‘case’ is an obsolete alias (as of 27.1); use ‘cl-case’ instead.
+Loading quail/latin-ltx (native compiled elisp)...
+
+
+Created bookmark link.
+Created bookmark-other-win link.
+ad-handle-definition: ‘moccur-quit’ got redefined
+ad-handle-definition: ‘moccur-mode’ got redefined
+ad-handle-definition: ‘moccur-grep-mode’ got redefined
+ad-handle-definition: ‘moccur-quit’ got redefined
+ad-handle-definition: ‘moccur-mode’ got redefined
+ad-handle-definition: ‘moccur-grep-mode’ got redefined
+init.el:2201:4: Warning: ‘make-variable-buffer-local’ not called at toplevel
+init.el:2935:23: Warning: assignment to free variable ‘buffer-face-mode-face’
+init.el:3136:62: Warning: reference to free variable ‘w3m-mode-map’
+ad-handle-definition: ‘text-scale-increase’ got redefined
+init.el:3703:2: Warning: Package netrc is deprecated
+ad-handle-definition: ‘ibuffer-do-replace-regexp’ got redefined
+ad-handle-definition: ‘ibuffer-do-occur’ got redefined
+init.el:4758:31: Warning: reference to free variable ‘calendar-latitude’
+init.el:4759:9: Warning: assignment to free variable ‘display-time-string-forms’
+Cannot load smartparens-config: (file-missing "Cannot open load file" "No such file or directory" "smartparens-config")
+init.el:4878:39: Warning: ‘(forward-word 1)’ can be simplified to ‘(forward-word)’, for Emacs 22 and XEmacs 21 up
+init.el:5626:2: Warning: Use ‘with-current-buffer’ rather than save-excursion+set-buffer
+init.el:5626:2: Warning: Use ‘with-current-buffer’ rather than save-excursion+set-buffer
+init.el:5810:15: Warning: reference to free variable ‘vertico-map’
+
+In gnus-user-format-function-X:
+init.el:6464:2: Warning: reference to free variable ‘recipients’
+init.el:6464:2: Warning: reference to free variable ‘to-address’
+
+In sc-remove-if-not-mailing-list:
+init.el:6860:2: Warning: assignment to free variable ‘attribution’
+init.el:6860:2: Warning: assignment to free variable ‘citation’
+init.el:7116:37: Warning: ‘org-return-indent’ is an obsolete function (as of 9.4); use ‘org-return’ with INDENT set to t instead.
+init.el:7116:37: Warning: ‘org-return-indent’ is an obsolete function (as of 9.4); use ‘org-return’ with INDENT set to t instead.
+init.el:7116:37: Warning: ‘org-return-indent’ is an obsolete function (as of 9.4); use ‘org-return’ with INDENT set to t instead.
+init.el:7116:37: Warning: ‘org-return-indent’ is an obsolete function (as of 9.4); use ‘org-return’ with INDENT set to t instead.
+init.el:7116:37: Warning: ‘org-return-indent’ is an obsolete function (as of 9.4); use ‘org-return’ with INDENT set to t instead.
+
+In org-agenda-add-overlays:
+init.el:7693:2: Warning: docstring has wrong usage of unescaped single quotes (use \= or different quoting)
+Created x-devonthink-item link.
+ATTENTION: org-noter-pdf has many featues that depend on the package ‘pdf-tools’.
+ATTENTION: org-noter-nov needs the package ‘nov’.
+ATTENTION: org-noter-dvju needs the package ‘djvu’.
+
+In end of data:
+init.el:8344:17: Warning: the function ‘org-roam-dailies-capture-tomorrow’ might not be defined at runtime.
+init.el:8343:17: Warning: the function ‘org-roam-dailies-capture-yesterday’ might not be defined at runtime.
+init.el:8330:23: Warning: the function ‘org-roam-dailies-capture-today’ might not be defined at runtime.
+init.el: Warning: the function ‘calendar-gregorian-from-absolute’ might not be defined at runtime.
+init.el: Warning: the function ‘org-refile’ might not be defined at runtime.
+init.el: Warning: the function ‘org-capture-get’ might not be defined at runtime.
+init.el: Warning: the function ‘org-entry-put’ might not be defined at runtime.
+init.el: Warning: the function ‘org-forward-heading-same-level’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-outline-path’ might not be defined at runtime.
+init.el: Warning: the function ‘org-web-tools--get-first-url’ might not be defined at runtime.
+init.el: Warning: the function ‘org-web-tools--org-link-for-url’ might not be defined at runtime.
+init.el:8242:18: Warning: the function ‘org-mime-change-element-style’ might not be defined at runtime.
+init.el:8209:35: Warning: the function ‘org-get-dtp-link’ might not be defined at runtime.
+init.el:8159:17: Warning: the function ‘org-id-find’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-tags’ might not be defined at runtime.
+init.el: Warning: the function ‘org-up-element’ might not be defined at runtime.
+init.el: Warning: the function ‘org-goto-sibling’ might not be defined at runtime.
+init.el: Warning: the function ‘org-goto-first-child’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-deadline-time’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-scheduled-time’ might not be defined at runtime.
+init.el: Warning: the function ‘org-fit-window-to-buffer’ might not be defined at runtime.
+init.el:7613:37: Warning: the function ‘org-gnus-store-link’ might not be defined at runtime.
+init.el:7611:4: Warning: the function ‘org-link-set-parameters’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-todo-state’ might not be defined at runtime.
+init.el: Warning: the function ‘org-get-heading’ might not be defined at runtime.
+init.el: Warning: the function ‘org-heading-components’ might not be defined at runtime.
+init.el: Warning: the function ‘org-set-property’ might not be defined at runtime.
+init.el: Warning: the function ‘rfc2047-decode-string’ might not be defined at runtime.
+init.el: Warning: the function ‘org-link-make-string’ might not be defined at runtime.
+init.el: Warning: the function ‘org-overview’ might not be defined at runtime.
+init.el: Warning: the function ‘org-sort-entries’ might not be defined at runtime.
+init.el: Warning: the function ‘org-narrow-to-subtree’ might not be defined at runtime.
+init.el: Warning: the function ‘org-archive-subtree’ might not be defined at runtime.
+init.el: Warning: the function ‘org-parse-time-string’ might not be defined at runtime.
+init.el: Warning: the function ‘outline-next-heading’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-string-remove-all-properties’ might not be defined at runtime.
+init.el: Warning: the function ‘time-to-number-of-days’ might not be defined at runtime.
+init.el: Warning: the function ‘org-time-string-to-time’ might not be defined at runtime.
+init.el: Warning: the function ‘org-entry-get’ might not be defined at runtime.
+init.el:7078:4: Warning: the function ‘gnus-demon-add-handler’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-save-newsrc-file’ might not be defined at runtime.
+init.el:7047:4: Warning: the function ‘gnus-harvest-install’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-fetch-field’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-copy-article-buffer’ might not be defined at runtime.
+init.el: Warning: the function ‘message-field-value’ might not be defined at runtime.
+init.el: Warning: the function ‘message-remove-header’ might not be defined at runtime.
+init.el:6663:12: Warning: the function ‘gnus-summary-mark-article’ might not be defined at runtime.
+init.el:6661:18: Warning: the function ‘gnus-read-mark-p’ might not be defined at runtime.
+init.el:6660:18: Warning: the function ‘gnus-unread-mark-p’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-parameters-get-parameter’ might not be defined at runtime.
+init.el: Warning: the function ‘message-tokenize-header’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-summary-move-article’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-summary-save-parts’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-group-save-newsrc’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-alive-p’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-summary-next-page’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-group-read-ephemeral-search-group’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-group-list-groups’ might not be defined at runtime.
+init.el: Warning: the function ‘gnus-group-get-new-news’ might not be defined at runtime.
+init.el:6012:23: Warning: the function ‘vertico-repeat’ might not be defined at runtime.
+init.el:6019:33: Warning: the function ‘vertico-directory-tidy’ might not be defined at runtime.
+init.el:6018:23: Warning: the function ‘vertico-repeat-save’ might not be defined at runtime.
+init.el:6081:6: Warning: the function ‘vertico-multiform-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘vertico-quick-jump’ might not be defined at runtime.
+init.el:6033:4: Warning: the function ‘vertico-mode’ might not be defined at runtime.
+init.el:6002:4: Warning: the function ‘marginalia-mode’ might not be defined at runtime.
+init.el:5979:46: Warning: the function ‘embark-eldoc-first-target’ might not be defined at runtime.
+init.el:5975:31: Warning: the function ‘embark-prefix-help-command’ might not be defined at runtime.
+init.el:5946:60: Warning: the function ‘corfu-popupinfo-toggle’ might not be defined at runtime.
+init.el:5919:4: Warning: the function ‘global-corfu-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘corfu-mode’ might not be defined at runtime.
+init.el:5850:4: Warning: the function ‘consult-org-roam-mode’ might not be defined at runtime.
+init.el:5841:56: Warning: the function ‘consult-lsp-symbols’ might not be defined at runtime.
+init.el:5828:62: Warning: the function ‘consult-company’ might not be defined at runtime.
+init.el:5806:47: Warning: the function ‘projectile-project-root’ might not be defined at runtime.
+init.el: Warning: the function ‘consult--customize-put’ might not be defined at runtime.
+init.el:5600:4: Warning: the function ‘global-whitespace-cleanup-mode’ might not be defined at runtime.
+init.el:5455:4: Warning: the function ‘vagrant-tramp-enable’ might not be defined at runtime.
+init.el:5425:4: Warning: the function ‘unicode-fonts-setup’ might not be defined at runtime.
+init.el:4789:4: Warning: the function ‘sml/apply-theme’ might not be defined at runtime.
+init.el:4788:4: Warning: the function ‘sml/setup’ might not be defined at runtime.
+init.el:4758:4: Warning: the function ‘sky-color-clock-initialize’ might not be defined at runtime.
+init.el:4667:4: Warning: the function ‘selected-global-mode’ might not be defined at runtime.
+init.el:4654:29: Warning: the function ‘sdcv-search’ might not be defined at runtime.
+init.el: Warning: the function ‘rustic-cargo-clippy-run’ might not be defined at runtime.
+init.el: Warning: the function ‘yas-minor-mode-on’ might not be defined at runtime.
+init.el:4184:11: Warning: the function ‘holes-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘proof-prf’ might not be defined at runtime.
+init.el:4076:27: Warning: the function ‘projectile-discover-projects-in-search-path’ might not be defined at runtime.
+init.el:4075:27: Warning: the function ‘projectile-cleanup-known-projects’ might not be defined at runtime.
+init.el:4121:4: Warning: the function ‘projectile-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘projectile-invalidate-cache’ might not be defined at runtime.
+init.el: Warning: the function ‘org-resolve-clocks’ might not be defined at runtime.
+init.el:3861:4: Warning: the function ‘persistent-scratch-autosave-mode’ might not be defined at runtime.
+init.el:3843:4: Warning: the function ‘pdf-tools-install’ might not be defined at runtime.
+init.el:3818:10: Warning: the function ‘password-store-otp-append’ might not be defined at runtime.
+init.el:3808:31: Warning: the function ‘password-store-otp--get-qr-image-filename’ might not be defined at runtime.
+init.el:3784:49: Warning: the function ‘password-store-dir’ might not be defined at runtime.
+init.el: Warning: the function ‘pass-view--prepare-otp’ might not be defined at runtime.
+init.el:3714:27: Warning: the function ‘password-store--run’ might not be defined at runtime.
+init.el:3591:34: Warning: the function ‘phi-search-from-isearch-mc/setup-keys’ might not be defined at runtime.
+init.el:3590:4: Warning: the function ‘phi-search-mc/setup-keys’ might not be defined at runtime.
+init.el:3488:8: Warning: the function ‘multi-term-internal’ might not be defined at runtime.
+init.el:3486:15: Warning: the function ‘multi-term-get-buffer’ might not be defined at runtime.
+init.el: Warning: the function ‘magit-get-current-branch’ might not be defined at runtime.
+init.el: Warning: the function ‘magit-get-remote’ might not be defined at runtime.
+init.el: Warning: the function ‘magit-get’ might not be defined at runtime.
+init.el: Warning: the function ‘string-chop-newline’ might not be defined at runtime.
+init.el:3227:7: Warning: the function ‘lsp-ui-peek-find-references’ might not be defined at runtime.
+init.el:3225:7: Warning: the function ‘lsp-ui-peek-find-definitions’ might not be defined at runtime.
+init.el:3034:4: Warning: the function ‘flycheck-add-mode’ might not be defined at runtime.
+init.el:2950:4: Warning: the function ‘info-lookmore-apropos-elisp’ might not be defined at runtime.
+init.el:2949:4: Warning: the function ‘info-lookmore-elisp-gnus’ might not be defined at runtime.
+init.el:2948:4: Warning: the function ‘info-lookmore-elisp-userlast’ might not be defined at runtime.
+init.el:2947:4: Warning: the function ‘info-lookmore-elisp-cl’ might not be defined at runtime.
+init.el:2892:32: Warning: the function ‘image-transform-reset-to-initial’ might not be defined at runtime.
+init.el:2838:35: Warning: the function ‘ielm-return’ might not be defined at runtime.
+init.el:2821:18: Warning: the function ‘ibuffer-switch-to-saved-filter-groups’ might not be defined at runtime.
+init.el:2638:12: Warning: the function ‘haskell-mode-message-line’ might not be defined at runtime.
+init.el: Warning: the function ‘format-all--set-chain’ might not be defined at runtime.
+init.el: Warning: the function ‘format-all--buffer-easy’ might not be defined at runtime.
+init.el: Warning: the function ‘format-all--pushhash’ might not be defined at runtime.
+init.el: Warning: the function ‘diminish’ might not be defined at runtime.
+init.el: Warning: the function ‘haskell-indentation-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘haskell-ident-at-point’ might not be defined at runtime.
+init.el: Warning: the function ‘forge-create-pullreq’ might not be defined at runtime.
+init.el: Warning: the function ‘magit-push-current-to-pushremote’ might not be defined at runtime.
+init.el: Warning: the function ‘magit-branch-spinoff’ might not be defined at runtime.
+init.el:2243:8: Warning: the function ‘flyspell-maybe-correct-transposition’ might not be defined at runtime.
+init.el:2219:6: Warning: the function ‘flycheck-buffer-automatically’ might not be defined at runtime.
+init.el:2141:4: Warning: the function ‘eyebrowse-mode’ might not be defined at runtime.
+init.el:1988:4: Warning: the function ‘erc-track-mode’ might not be defined at runtime.
+init.el:1987:4: Warning: the function ‘erc-track-minor-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘erc-list-match’ might not be defined at runtime.
+init.el: Warning: the function ‘erc-send-input’ might not be defined at runtime.
+init.el: Warning: the function ‘epg-decode-dn’ might not be defined at runtime.
+init.el:1819:4: Warning: the function ‘engine-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘engine/execute-search’ might not be defined at runtime.
+init.el: Warning: the function ‘engine/get-query’ might not be defined at runtime.
+init.el:1812:4: Warning: the function ‘global-emojify-mode’ might not be defined at runtime.
+init.el:1749:4: Warning: the function ‘edit-server-start’ might not be defined at runtime.
+init.el:1489:4: Warning: the function ‘dired-hist-mode’ might not be defined at runtime.
+init.el: Warning: the function ‘dired-get-marked-files’ might not be defined at runtime.
+init.el: Warning: the function ‘dired-dwim-target-directory’ might not be defined at runtime.
+init.el: Warning: the function ‘dired-mark-sexp’ might not be defined at runtime.
+init.el:1306:4: Warning: the function ‘toggle-cursor-type-when-idle’ might not be defined at runtime.
+init.el: Warning: the function ‘csv--collect-fields’ might not be defined at runtime.
+init.el: Warning: the function ‘diary-date’ might not be defined at runtime.
+init.el: Warning: the function ‘calendar-julian-from-absolute’ might not be defined at runtime.
+init.el: Warning: the function ‘calendar-julian-to-absolute’ might not be defined at runtime.
+init.el: Warning: the function ‘calendar-current-date’ might not be defined at runtime.
+init.el:763:18: Warning: the function ‘bm-repository-save’ might not be defined at runtime.
+init.el: Warning: the function ‘flyspell-auto-correct-word’ might not be defined at runtime.
+init.el: Warning: the function ‘ring-ref’ might not be defined at runtime.
+init.el:751:1: Warning: the function ‘TeX-revert-document-buffer’ might not be defined at runtime.
+init.el:730:7: Warning: the function ‘info-lookup-add-help’ might not be defined at runtime.
+init.el:713:20: Warning: the function ‘Info-goto-node’ might not be defined at runtime.
+init.el:460:25: Warning: the function ‘direnv-update-directory-environment’ might not be defined at runtime.
+init.el:75:16: Warning: the function ‘auth-source-search’ might not be defined at runtime.
