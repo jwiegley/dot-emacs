@@ -2,148 +2,128 @@
 
 * Startup
 
+** Report time spent loading this module
+
 #+begin_src emacs-lisp
-;;; -*- lexical-binding: t; -*-
+(defconst emacs-start-time (current-time))
+(defun report-time-since-load (&optional suffix)
+  (message "Loading init...done (%.3fs)%s"
+           (float-time (time-subtract (current-time) emacs-start-time))
+           suffix))
+(add-hook 'after-init-hook
+          #'(lambda () (report-time-since-load " [after-init]"))
+          t)
+#+end_src
 
-(eval-and-compile
-  (defvar dot-emacs-use-eglot nil)
+** Load =use-package= for all the declarations below
 
-  (defconst emacs-start-time (current-time))
+#+begin_src emacs-lisp
+(defsubst emacs-path (path)
+  (expand-file-name path user-emacs-directory))
 
-  (defvar file-name-handler-alist-old file-name-handler-alist)
+(setq package-enable-at-startup nil
+      load-path
+      (append (list (emacs-path "")
+                    (emacs-path "use-package"))
+              (delete-dups load-path)
+              (list (emacs-path "lisp"))))
+(require 'use-package)
+(setq use-package-verbose init-file-debug
+      use-package-expand-minimally (not init-file-debug)
+      use-package-compute-statistics nil
+      debug-on-error init-file-debug)
+#+end_src
 
-  (setq package-enable-at-startup nil)
-  (setq load-path
-        (append '("~/.emacs.d"
-                  "~/.emacs.d/lisp/use-package")
-                (delete-dups load-path)
-                '("~/.emacs.d/lisp")))
+** During loading of this module, clear =file-name-handler-alist=
 
-  (require 'use-package)
+#+begin_src emacs-lisp
+(defvar file-name-handler-alist-old file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(add-hook 'after-init-hook
+          #'(lambda ()
+              (setq file-name-handler-alist file-name-handler-alist-old)
+              (garbage-collect)))
+#+end_src
 
-  (defconst load-path-reject-re "/\\.emacs\\.d/\\(lib\\|site-lisp\\)/"
-    "Regexp matching `:load-path' values to be rejected.")
+** Define the "data environment" for this instance of Emacs
 
-  (defun emacs-path (path)
-    (expand-file-name path user-emacs-directory))
+#+begin_src emacs-lisp
+(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
-  (defun lookup-password (host user port)
-    (require 'auth-source)
-    (require 'auth-source-pass)
-    (let ((auth (auth-source-search :host host :user user :port port)))
-      (if auth
-          (let ((secretf (plist-get (car auth) :secret)))
-            (if secretf
-                (funcall secretf)
-              (error "Auth entry for %s@%s:%s has no secret!"
-                     user host port)))
-        (error "No auth entry found for %s@%s:%s" user host port))))
+(defconst emacs-data-suffix
+  (cond ((string= "emacsERC" emacs-environment) "alt")
+        ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
+         (match-string 1 emacs-environment))))
 
-  (defvar saved-window-configuration nil)
+(defconst alternate-emacs (string= emacs-data-suffix "alt"))
 
-  (defun push-window-configuration ()
-    (interactive)
-    (push (current-window-configuration) saved-window-configuration))
+(defconst user-data-directory
+  (emacs-path (if emacs-data-suffix
+                  (format "data-%s" emacs-data-suffix)
+                "data")))
 
-  (defun pop-window-configuration ()
-    (interactive)
-    (let ((config (pop saved-window-configuration)))
-      (if config
-          (set-window-configuration config)
-        (if (> (length (window-list)) 1)
-            (delete-window)
-          (bury-buffer)))))
+(defun user-data (dir)
+  (expand-file-name dir user-data-directory))
+#+end_src
 
-  (defmacro atomic-modify-buffer (&rest body)
-    `(let ((buf (current-buffer)))
-       (save-window-excursion
-         (with-temp-buffer
-           (insert-buffer buf)
-           ,@body
-           (let ((temp-buf (current-buffer))
-                 (inhibit-redisplay t))
-             (with-current-buffer buf
-               (let ((here (point)))
-                 (save-excursion
-                   (delete-region (point-min) (point-max))
-                   (insert-buffer temp-buf))
-                 (goto-char here))))))))
+** Disable all warnings about obsolete functions
 
-  (defun quickping (host)
-    (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
+#+begin_src emacs-lisp
+(eval-when-compile
+  (dolist (sym '(cl-flet lisp-complete-symbol))
+    (setplist sym (use-package-plist-delete (symbol-plist sym)
+                                            'byte-obsolete-info))))
+#+end_src
 
-  (defun load-path-handler-override (_ name _ args rest state)
-    (if (cl-some (apply-partially #'string-match load-path-reject-re) args)
-        (use-package-process-keywords name rest state)
-      (let ((body (use-package-process-keywords name rest state)))
-        (use-package-concat
-         (mapcar #'(lambda (path)
-                     `(eval-and-compile (add-to-list 'load-path ,path t)))
-                 args)
-         body))))
+* Helper functions
 
-  (advice-add 'use-package-handler/:load-path
-              :around #'load-path-handler-override)
+** Quickly test if a host is available
 
-  (setq use-package-verbose init-file-debug
-        use-package-expand-minimally (not init-file-debug)
-        use-package-compute-statistics nil
-        debug-on-error init-file-debug)
+#+begin_src emacs-lisp
+(defun quickping (host)
+  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
+#+end_src
 
-  (defun report-time-since-load (&optional suffix)
-    (message "Loading init...done (%.3fs)%s"
-             (float-time (time-subtract (current-time) emacs-start-time))
-             suffix))
+** Push and pop window configurations
 
-  (add-hook 'after-init-hook
-            #'(lambda () (report-time-since-load " [after-init]")) t)
+#+begin_src emacs-lisp
+(defvar saved-window-configuration nil)
 
-  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+(defun push-window-configuration ()
+  (interactive)
+  (push (current-window-configuration) saved-window-configuration))
 
-  (defconst emacs-data-suffix
-    (cond ((string= "emacsERC" emacs-environment) "alt")
-          ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
-           (match-string 1 emacs-environment))))
+(defun pop-window-configuration ()
+  (interactive)
+  (let ((config (pop saved-window-configuration)))
+    (if config
+        (set-window-configuration config)
+      (if (> (length (window-list)) 1)
+          (delete-window)
+        (bury-buffer)))))
+#+end_src
 
-  (defconst alternate-emacs (string= emacs-data-suffix "alt"))
+** Lookup a password using =auth-source=
 
-  (defconst user-data-directory
-    (emacs-path (if emacs-data-suffix
-                    (format "data-%s" emacs-data-suffix)
-                  "data")))
-
-  (defun user-data (dir)
-    (expand-file-name dir user-data-directory))
-
-  (defun nix-read-environment (name)
-    (ignore-errors
-      (with-temp-buffer
-        (insert-file-contents-literally
-         (with-temp-buffer
-           (insert-file-contents-literally
-            (executable-find (concat "load-env-" name)))
-           (and (re-search-forward "^source \\(.+\\)$" nil t)
-                (match-string 1))))
-        (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
-                 (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
-             (split-string (match-string 1))))))
-
-  (defvar Info-directory-list
-    (mapcar 'expand-file-name
-            (append
-             (mapcar (apply-partially #'expand-file-name "share/info")
-                     (nix-read-environment emacs-environment))
-             '("~/.local/share/info"
-               "~/.nix-profile/share/info"))))
-
-  (eval-when-compile
-    ;; Disable all warnings about obsolete functions here.
-    (dolist (sym '(cl-flet lisp-complete-symbol))
-      (setplist sym (use-package-plist-delete (symbol-plist sym)
-                                              'byte-obsolete-info)))))
+#+begin_src emacs-lisp
+(defun lookup-password (host user port)
+  (require 'auth-source)
+  (require 'auth-source-pass)
+  (let ((auth (auth-source-search :host host :user user :port port)))
+    (if auth
+        (let ((secretf (plist-get (car auth) :secret)))
+          (if secretf
+              (funcall secretf)
+            (error "Auth entry for %s@%s:%s has no secret!"
+                   user host port)))
+      (error "No auth entry found for %s@%s:%s" user host port))))
 #+end_src
 
 ** emacs
+
+This pseudo-package represents Emacs itself, and configures many variables and
+advices that relate to core functionality that isn't considered a "package"
+unto itself.
 
 #+begin_src emacs-lisp
 (use-package emacs
@@ -153,7 +133,6 @@
   (auto-save-interval 64)
   (auto-save-timeout 2)
   (enable-recursive-minibuffers t)
-  (file-name-handler-alist nil)
   (fill-column 78)
   (gc-cons-percentage 0.5)
   (gc-cons-threshold (* 128 1024 1024))
@@ -287,45 +266,6 @@
   (trash-directory "~/.Trash")
   (version-control t)
 
-  (safe-local-variable-values
-   '((haskell-indent-spaces . 4)
-     (haskell-indent-spaces . 2)
-     (haskell-indentation-ifte-offset . 2)
-     (haskell-indentation-layout-offset . 2)
-     (haskell-indentation-left-offset . 2)
-     (haskell-indentation-starter-offset . 2)
-     (haskell-indentation-where-post-offset . 2)
-     (haskell-indentation-where-pre-offset . 2)
-     (after-save-hook check-parens quietly-read-abbrev-file)))
-  (safe-local-eval-forms
-   '((add-hook 'write-file-hooks 'time-stamp)
-     (add-hook 'write-file-functions 'time-stamp)
-     (add-hook 'before-save-hook 'time-stamp nil t)
-     (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
-     (progn
-       (let
-           ((coq-root-directory
-             (when buffer-file-name
-               (locate-dominating-file buffer-file-name ".dir-locals.el")))
-            (coq-project-find-file
-             (and
-              (boundp 'coq-project-find-file)
-              coq-project-find-file)))
-         (set
-          (make-local-variable 'tags-file-name)
-          (concat coq-root-directory "TAGS"))
-         (setq camldebug-command-name
-               (concat coq-root-directory "dev/ocamldebug-coq"))
-         (unless coq-project-find-file
-           (set
-            (make-local-variable 'compile-command)
-            (concat "make -C " coq-root-directory))
-           (set
-            (make-local-variable 'compilation-search-path)
-            (cons coq-root-directory nil)))
-         (when coq-project-find-file
-           (setq default-directory coq-root-directory))))))
-
   ;; simple.el
   (backward-delete-char-untabify-method 'untabify)
   (column-number-mode t)
@@ -376,38 +316,6 @@
   ;; nsm.el
   (nsm-settings-file (user-data "network-security.data"))
 
-  ;; (cc-other-file-alist
-  ;;  '(("\\.hs\\'"
-  ;;     (".hs-boot"))
-  ;;    ("\\.cc\\'"
-  ;;     (".hh" ".h"))
-  ;;    ("\\.hh\\'"
-  ;;     (".cc" ".C"))
-  ;;    ("\\.c\\'"
-  ;;     (".h"))
-  ;;    ("\\.h\\'"
-  ;;     (".c" ".cc" ".C" ".CC" ".cxx" ".cpp"))
-  ;;    ("\\.C\\'"
-  ;;     (".H" ".hh" ".h"))
-  ;;    ("\\.H\\'"
-  ;;     (".C" ".CC"))
-  ;;    ("\\.CC\\'"
-  ;;     (".HH" ".H" ".hh" ".h"))
-  ;;    ("\\.HH\\'"
-  ;;     (".CC"))
-  ;;    ("\\.c\\+\\+\\'"
-  ;;     (".h++" ".hh" ".h"))
-  ;;    ("\\.h\\+\\+\\'"
-  ;;     (".c++"))
-  ;;    ("\\.cpp\\'"
-  ;;     (".hpp" ".hh" ".h"))
-  ;;    ("\\.hpp\\'"
-  ;;     (".cpp"))
-  ;;    ("\\.cxx\\'"
-  ;;     (".hxx" ".hh" ".h"))
-  ;;    ("\\.hxx\\'"
-  ;;     (".cxx"))))
-
   :custom-face
   (cursor ((t (:background "hotpink"))))
   (highlight ((t (:background "blue4"))))
@@ -425,20 +333,21 @@
 
   (define-key input-decode-map [?\C-m] [C-m])
 
+  ;; Setup keymaps that are bound into by many declarations below.
+
   (eval-and-compile
     (mapc #'(lambda (entry)
               (define-prefix-command (cdr entry))
               (bind-key (car entry) (cdr entry)))
           '(("C-,"   . my-ctrl-comma-map)
             ("<C-m>" . my-ctrl-m-map)
-
             ("C-h e" . my-ctrl-h-e-map)
             ("C-h x" . my-ctrl-h-x-map)
-
             ("C-c b" . my-ctrl-c-b-map)
             ("C-c e" . my-ctrl-c-e-map)
             ("C-c m" . my-ctrl-c-m-map)
             ("C-c n" . my-ctrl-c-n-map)
+            ("C-c t" . my-ctrl-c-t-map)
             ("C-c w" . my-ctrl-c-w-map)
             ("C-c y" . my-ctrl-c-y-map)
             ("C-c H" . my-ctrl-c-H-map)
@@ -446,31 +355,7 @@
             ("C-c (" . my-ctrl-c-open-paren-map)
             ("C-c -" . my-ctrl-c-minus-map)
             ("C-c =" . my-ctrl-c-equals-map)
-            ("C-c ." . my-ctrl-c-dot-map)
-            )))
-
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
-                  (car args))
-          (cdr args)))
-
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p))
+            ("C-c ." . my-ctrl-c-dot-map)))))
 #+end_src
 
 * Libraries
@@ -569,11 +454,12 @@
   :diminish
   :hook
   ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
-  (expand-load . (lambda ()
-                   (add-hook 'expand-expand-hook #'indent-according-to-mode)
-                   (add-hook 'expand-jump-hook #'indent-according-to-mode)))
+  (expand-load
+   . (lambda ()
+       (add-hook 'expand-expand-hook #'indent-according-to-mode)
+       (add-hook 'expand-jump-hook #'indent-according-to-mode)))
   :custom
-  (abbrev-file-name "~/.emacs.d/abbrevs.el")
+  (abbrev-file-name (emacs-path "abbrevs.el"))
   :config
   (if (file-exists-p abbrev-file-name)
       (quietly-read-abbrev-file)))
@@ -640,7 +526,7 @@
   (agda2-include-dirs
    '("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda"))
   :preface
-  (defun agda2-insert-helper-function (&optional prefix)
+  (defun agda2-insert-helper-function (&optional _prefix)
     (interactive "P")
     (let ((func-def (with-current-buffer "*Agda information*"
                       (buffer-string))))
@@ -748,6 +634,8 @@
      (output-dvi "xdvi")
      (output-pdf "Skim")
      (output-html "xdg-open")))
+  :defines (latex-help-cmd-alist
+            latex-help-file)
   :preface
   (defvar latex-prettify-symbols-alist
     '(("\N{THIN SPACE}" . ?\⟷)))
@@ -852,9 +740,8 @@
   (avy-case-fold-search t)
   (avy-keys '(97 111 101 117 105 100 104 116 110 115))
   (avy-timeout-seconds 0.3)
-  :config
-  (avy-setup-default)
-
+  :functions (avy-setup-default)
+  :preface
   (defun avy-action-kill-whole-line (pt)
     (save-excursion
       (goto-char pt)
@@ -863,9 +750,6 @@
      (cdr
       (ring-ref avy-ring 0)))
     t)
-
-  (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
-        (alist-get ?K avy-dispatch-alist) 'avy-action-kill-whole-line)
 
   (defun avy-action-copy-whole-line (pt)
     (save-excursion
@@ -883,23 +767,13 @@
     (save-excursion (yank))
     t)
 
-  (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
-        (alist-get ?w avy-dispatch-alist) 'avy-action-copy
-        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
-        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line)
-
   (defun avy-action-teleport-whole-line (pt)
     (avy-action-kill-whole-line pt)
     (save-excursion (yank)) t)
 
-  (setf (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
-        (alist-get ?T avy-dispatch-alist) 'avy-action-teleport-whole-line)
-
   (defun avy-action-mark-to-char (pt)
     (activate-mark)
     (goto-char pt))
-
-  (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char)
 
   (defun avy-action-flyspell (pt)
     (save-excursion
@@ -910,21 +784,34 @@
      (cdr (ring-ref avy-ring 0)))
     t)
 
-  ;; Bind to semicolon (flyspell uses C-;)
+  (defun avy-action-embark (pt)
+    (require 'embark
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t))
+  :config
+  (avy-setup-default)
+
+  (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
+        (alist-get ?K avy-dispatch-alist) 'avy-action-kill-whole-line)
+
+  (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
+        (alist-get ?w avy-dispatch-alist) 'avy-action-copy
+        (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
+        (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line)
+
+  (setf (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
+        (alist-get ?T avy-dispatch-alist) 'avy-action-teleport-whole-line)
+
+  (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char)
+
   (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-flyspell)
 
-  (eval-after-load 'embark
-    '(progn
-       (defun avy-action-embark (pt)
-         (unwind-protect
-             (save-excursion
-               (goto-char pt)
-               (embark-act))
-           (select-window
-            (cdr (ring-ref avy-ring 0))))
-         t)
-
-       (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))))
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
 #+end_src
 
 *** avy-zap
@@ -1022,7 +909,7 @@ old saved versions again.
   (bm-repository-file (user-data "bm-repository"))
   :init
   (add-hook 'after-init-hook #'bm-repository-load)
-  (add-hook 'find-file-hooks #'bm-buffer-restore)
+  (add-hook 'find-file-hook #'bm-buffer-restore)
   (add-hook 'after-revert-hook #'bm-buffer-restore)
   (add-hook 'kill-buffer-hook #'bm-buffer-save)
   (add-hook 'after-save-hook #'bm-buffer-save)
@@ -1129,25 +1016,40 @@ old saved versions again.
      (Mib "1024 * Kib" "Mega Bit")
      (Kib "1024 * b" "Kilo Bit")
      (b "B / 8" "Bit")))
-  :config
-  (setq math-units-table nil))
+  (math-units-table nil))
 #+end_src
 
 ** calendar
 
 #+begin_src emacs-lisp
 (use-package calendar
-  :defer t
+  :demand t
+  :custom
+  (calendar-mark-holidays-flag t)
+  (diary-file "~/doc/diary"))
+#+end_src
+
+*** cal-dst
+
+#+begin_src emacs-lisp
+(use-package cal-dst
+  :demand t
   :custom
   (calendar-daylight-time-zone-name "PDT")
-  (calendar-latitude 38.5474883)
-  (calendar-longitude -121.5262693)
-  (calendar-mark-holidays-flag t)
   (calendar-standard-time-zone-name "PST")
   (calendar-time-zone -480)
-  (diary-file "~/doc/diary")
   :init
   (setenv "TZ" "PST8PDT"))
+#+end_src
+
+*** solar
+
+#+begin_src emacs-lisp
+(use-package solar
+  :demand t
+  :custom
+  (calendar-latitude 38.5474883)
+  (calendar-longitude -121.5262693))
 #+end_src
 
 *** bahai-calendar
@@ -1238,6 +1140,10 @@ old saved versions again.
       "Mulk"      ; 18
       "‘Alá’"     ; 19
       ))
+
+  (eval-when-compile
+    (require 'cal-julian)
+    (require 'diary-lib))
 
   (defun bahai-date (month day &optional bahai-year)
     (require 'cal-julian)
@@ -1515,37 +1421,37 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package color-theme
+  :no-require t
+  :init
+  (deftheme midnight
+    "midnight theme")
+
+  (custom-theme-set-faces
+   'midnight
+
+   '(default ((t (:background "black" :foreground "grey85"))))
+   '(mouse ((t (:foreground "grey85"))))
+   '(cursor ((t (:background "grey85"))))
+
+   '(font-lock-comment-face ((t (:italic t :foreground "grey60"))))
+   '(font-lock-string-face ((t (:foreground "Magenta"))))
+   '(font-lock-keyword-face ((t (:foreground "Cyan"))))
+   '(font-lock-warning-face ((t (:bold t :foreground "Pink"))))
+   '(font-lock-constant-face ((t (:foreground "OliveDrab"))))
+   '(font-lock-type-face ((t (:foreground "DarkCyan"))))
+   '(font-lock-variable-name-face ((t (:foreground "DarkGoldenrod"))))
+   '(font-lock-function-name-face ((t (:foreground "SlateBlue"))))
+   '(font-lock-builtin-face ((t (:foreground "SkyBlue"))))
+   '(highline-face ((t (:background "grey12"))))
+   '(setnu-line-number-face ((t (:background "Grey15" :foreground "White" :bold t))))
+   '(show-paren-match-face ((t (:background "grey30"))))
+   '(region ((t (:background "grey15"))))
+   '(highlight ((t (:background "blue"))))
+   '(secondary-selection ((t (:background "navy"))))
+   '(widget-field-face ((t (:background "navy"))))
+   '(widget-single-line-field-face ((t (:background "royalblue")))))
   :config
-  ;; This is `color-theme-midnight' from `color-theme-library.el'. It's copied
-  ;; here to avoid loading that entire library.
-  (color-theme-install
-   '(((font . "fixed")
-      (width . 130)
-      (height . 50)
-      (background-color . "black")
-      (foreground-color . "grey85")
-      (background-mode . dark)
-      (mouse-color . "grey85")
-      (cursor-color . "grey85"))
-     nil
-     (default ((t (nil))))
-     (font-lock-comment-face ((t (:italic t :foreground "grey60"))))
-     (font-lock-string-face ((t (:foreground "Magenta"))))
-     (font-lock-keyword-face ((t (:foreground "Cyan"))))
-     (font-lock-warning-face ((t (:bold t :foreground "Pink"))))
-     (font-lock-constant-face ((t (:foreground "OliveDrab"))))
-     (font-lock-type-face ((t (:foreground "DarkCyan"))))
-     (font-lock-variable-name-face ((t (:foreground "DarkGoldenrod"))))
-     (font-lock-function-name-face ((t (:foreground "SlateBlue"))))
-     (font-lock-builtin-face ((t (:foreground "SkyBlue"))))
-     (highline-face ((t (:background "grey12"))))
-     (setnu-line-number-face ((t (:background "Grey15" :foreground "White" :bold t))))
-     (show-paren-match-face ((t (:background "grey30"))))
-     (region ((t (:background "grey15"))))
-     (highlight ((t (:background "blue"))))
-     (secondary-selection ((t (:background "navy"))))
-     (widget-field-face ((t (:background "navy"))))
-     (widget-single-line-field-face ((t (:background "royalblue")))))))
+  (enable-theme 'midnight))
 #+end_src
 
 ** command-log-mode
@@ -1632,7 +1538,7 @@ old saved versions again.
 #+begin_src emacs-lisp
 (use-package csv-mode
   :mode "\\.csv\\'"
-  :config
+  :preface
   (defun csv-remove-commas ()
     (interactive)
     (goto-char (point-min))
@@ -1712,7 +1618,7 @@ old saved versions again.
          ("C-c O" . customize-group)
          ("C-c F" . customize-face))
   :custom
-  (custom-file "~/.emacs.d/settings.el")
+  (custom-file (emacs-path "settings.el"))
   (custom-raised-buttons nil)
   (custom-safe-themes
    '("644e23f289dcd3548c3f054785c72cf1fd81fcee07875ac7fed311985a67a0dc"
@@ -1754,6 +1660,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package debbugs-gnu
+  :disabled t
   :commands (debbugs-gnu debbugs-gnu-search)
   :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
 #+end_src
@@ -2118,7 +2025,7 @@ non-empty directories is allowed."
   (use-package docker-image     :commands docker-images)
   (use-package docker-volume    :commands docker-volumes)
   (use-package docker-network   :commands docker-containers)
-  (use-package docker-machine   :commands docker-machines)
+  (use-package docker-machine   :disabled t :commands docker-machines)
   (use-package docker-compose   :commands docker-compose)
 
   (use-package docker-container
@@ -2133,14 +2040,6 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package docker-compose-mode
   :mode "docker-compose.*\.yml\\'")
-#+end_src
-
-*** docker-tramp
-
-#+begin_src emacs-lisp
-(use-package docker-tramp
-  :defer 5
-  :after tramp)
 #+end_src
 
 *** dockerfile-mode
@@ -2168,20 +2067,6 @@ non-empty directories is allowed."
   :config
   (doxymacs-mode 1)
   (doxymacs-font-lock))
-#+end_src
-
-** dumb-jump
-
-#+begin_src emacs-lisp
-(use-package dumb-jump
-  :hook ((coq-mode haskell-mode) . dumb-jump-mode))
-#+end_src
-
-** ebdb-com
-
-#+begin_src emacs-lisp
-(use-package ebdb-com
-  :commands ebdb)
 #+end_src
 
 ** edbi
@@ -2242,20 +2127,19 @@ non-empty directories is allowed."
         (with-current-buffer expected
           (erase-buffer)
           (insert text))
-        (let ((here (point)))
-          (search-forward "got:")
-          (forward-line 1)
-          (goto-char (line-beginning-position))
-          (setq begin (point))
-          (search-forward "(")
-          (goto-char (match-beginning 0))
-          (forward-sexp)
-          (setq text (buffer-substring begin (point)))
-          (let ((got (get-buffer-create "*got*")))
-            (with-current-buffer got
-              (erase-buffer)
-              (insert text))
-            (ediff-buffers expected got)))))))
+        (search-forward "got:")
+        (forward-line 1)
+        (goto-char (line-beginning-position))
+        (setq begin (point))
+        (search-forward "(")
+        (goto-char (match-beginning 0))
+        (forward-sexp)
+        (setq text (buffer-substring begin (point)))
+        (let ((got (get-buffer-create "*got*")))
+          (with-current-buffer got
+            (erase-buffer)
+            (insert text))
+          (ediff-buffers expected got))))))
 #+end_src
 
 *** ediff-keep
@@ -2310,7 +2194,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :if dot-emacs-use-eglot
+  :disabled t
   :commands eglot
   :custom
   (eglot-autoshutdown t)
@@ -2318,7 +2202,7 @@ non-empty directories is allowed."
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
   (defvar flymake-list-only-diagnostics nil)
   (defun project-root (project)
-    (car (project-roots project))))
+    (car (project-root project))))
 #+end_src
 
 ** eldoc
@@ -2498,6 +2382,18 @@ non-empty directories is allowed."
      ("libera" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin"
       "#haskell-infrastructure" "##categorytheory" "#nixos" "#org-mode")
      ("gitter" "#use-package/Lobby" "#haskell-nix/Lobby")))
+  :defines
+  (erc-modified-channels-alist
+   erc-timestamp-only-if-changed-flag
+   erc-timestamp-format
+   erc-fill-prefix
+   erc-fill-column
+   erc-insert-timestamp-function
+   erc-identd-port
+   erc-identd-process)
+  :functions
+  (erc-modified-channels-display
+   erc-modified-channels-update)
   :preface
   (defun irc (&optional arg)
     (interactive "P")
@@ -2645,7 +2541,7 @@ non-empty directories is allowed."
   :custom
   (eshell-directory-change-hook
    '(sml/generate-buffer-identification direnv-update-environment) t)
-  (eshell-directory-name "~/.emacs.d/eshell/")
+  (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
   (eshell-history-size 50000)
   (eshell-ls-dired-initial-args '("-h"))
@@ -2691,16 +2587,16 @@ non-empty directories is allowed."
       map)
     "Keymap used in isearch in Eshell.")
 
-  (defun eshell-initialize ()
-    (defun eshell-spawn-external-command (beg end)
-      "Parse and expand any history references in current input."
-      (save-excursion
-        (goto-char end)
-        (when (looking-back "&!" beg)
-          (delete-region (match-beginning 0) (match-end 0))
-          (goto-char beg)
-          (insert "spawn "))))
+  (defun eshell-spawn-external-command (beg end)
+    "Parse and expand any history references in current input."
+    (save-excursion
+      (goto-char end)
+      (when (looking-back "&!" beg)
+        (delete-region (match-beginning 0) (match-end 0))
+        (goto-char beg)
+        (insert "spawn "))))
 
+  (defun eshell-initialize ()
     (add-hook 'eshell-expand-input-functions #'eshell-spawn-external-command)
 
     (use-package em-unix
@@ -2708,7 +2604,6 @@ non-empty directories is allowed."
       :config
       (unintern 'eshell/su nil)
       (unintern 'eshell/sudo nil)))
-
   :init
   (add-hook 'eshell-first-time-mode-hook #'eshell-initialize))
 #+end_src
@@ -2867,16 +2762,17 @@ non-empty directories is allowed."
               `(lambda ()
                  (bind-key "M-n" #'flycheck-next-error ,(cdr where))
                  (bind-key "M-p" #'flycheck-previous-error ,(cdr where)))))
+  :functions (flycheck-clear-idle-change-timer)
+  :preface
+  (defun magnars/adjust-flycheck-automatic-syntax-eagerness ()
+    "Adjust how often we check for errors based on if there are any.
+This lets us fix any errors as quickly as possible, but in a
+clean buffer we're an order of magnitude laxer about checking."
+    (setq flycheck-idle-change-delay
+          (if flycheck-current-errors 0.3 3.0)))
   :config
   (defalias 'show-error-at-point-soon
     'flycheck-show-error-at-point)
-
-  (defun magnars/adjust-flycheck-automatic-syntax-eagerness ()
-    "Adjust how often we check for errors based on if there are any.
-  This lets us fix any errors as quickly as possible, but in a
-  clean buffer we're an order of magnitude laxer about checking."
-    (setq flycheck-idle-change-delay
-          (if flycheck-current-errors 0.3 3.0)))
 
   ;; Each buffer gets its own idle-change-delay because of the
   ;; buffer-sensitive adjustment above.
@@ -2887,17 +2783,16 @@ non-empty directories is allowed."
 
   ;; Remove newline checks, since they would trigger an immediate check
   ;; when we want the idle-change-delay to be in effect while editing.
-  (setq-default flycheck-check-syntax-automatically '(save
-                                                      idle-change
-                                                      mode-enabled))
+  (setq-default flycheck-check-syntax-automatically
+                '(save idle-change mode-enabled))
 
   (defun flycheck-handle-idle-change ()
     "Handle an expired idle time since the last change.
-  This is an overwritten version of the original
-  flycheck-handle-idle-change, which removes the forced deferred.
-  Timers should only trigger inbetween commands in a single
-  threaded system and the forced deferred makes errors never show
-  up before you execute another command."
+This is an overwritten version of the original
+flycheck-handle-idle-change, which removes the forced deferred.
+Timers should only trigger inbetween commands in a single
+threaded system and the forced deferred makes errors never show
+up before you execute another command."
     (flycheck-clear-idle-change-timer)
     (flycheck-buffer-automatically 'idle-change)))
 #+end_src
@@ -2994,7 +2889,7 @@ non-empty directories is allowed."
   (forge-database-file "~/.config/forge/database.sqlite")
   (forge-owned-accounts '(("jwiegley")))
   :preface
-  (defun my-quick-create-pull-request (title branch)
+  (defun my-quick-create-pull-request (_title branch)
     (interactive "sTitle: \nsBranch: ")
     (setq branch (concat "johnw/" branch))
     ;; Split this commit to another branch.
@@ -3161,7 +3056,7 @@ non-empty directories is allowed."
          ("<f10>"   . gud-next)
          ("<f11>"   . gud-step)
          ("S-<f11>" . gud-finish))
-  :config
+  :custom
   (gdb-find-source-frame t)
   (gdb-same-frame nil)
   :init
@@ -3177,22 +3072,12 @@ non-empty directories is allowed."
         (call-interactively 'gud-gdb)))))
 #+end_src
 
-** haskell-edit
-
-#+begin_src emacs-lisp
-(use-package haskell-edit
-  :load-path "lisp/haskell-config"
-  :after haskell-mode
-  :bind (:map haskell-mode-map
-              ("C-c M-q" . haskell-edit-reformat)))
-#+end_src
-
 ** haskell-mode
 
 #+begin_src emacs-lisp
 (use-package haskell-mode
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
-         ("\\.lhs\\'" . literate-haskell-mode)
+         ("\\.lhs\\'" . haskell-literate-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
   :bind (:map haskell-mode-map
               ("C-c C-h" . my-haskell-hoogle)
@@ -3217,6 +3102,21 @@ non-empty directories is allowed."
    '("--ghc-option=-ferror-spans" "--repl-options=-Wno-missing-home-modules" "--repl-options=-ferror-spans"))
   (haskell-process-load-or-reload-prompt t)
   (haskell-tags-on-save t)
+  :functions
+  (haskell-check-remove-overlays
+   haskell-goto-next-error
+   haskell-goto-prev-error
+   haskell-interactive-mode-compile-error
+   haskell-interactive-mode-splices-buffer
+   haskell-process-consume
+   haskell-process-errors-warnings
+   haskell-process-extract-modules
+   haskell-process-import-modules
+   haskell-process-reload-with-fbytecode
+   haskell-process-response-cursor
+   haskell-process-set-response-cursor
+   haskell-session-name
+   interactive-haskell-mode)
   :preface
   (defun my-haskell-insert-undefined ()
     (interactive) (insert "undefined"))
@@ -3231,7 +3131,7 @@ non-empty directories is allowed."
       (yas-expand)))
 
   (defvar hoogle-server-process nil)
-  (defun my-haskell-hoogle (query &optional arg)
+  (defun my-haskell-hoogle (query &optional _arg)
     "Do a Hoogle search for QUERY."
     (interactive
      (let ((def (haskell-ident-at-point)))
@@ -3243,9 +3143,10 @@ non-empty directories is allowed."
              current-prefix-arg)))
     (let ((pe process-environment)
           (ep exec-path)
-          (default-hoo (expand-file-name
-                        "default.hoo"
-                        (locate-dominating-file "." "default.hoo"))))
+          ;; (default-hoo (expand-file-name
+          ;;               "default.hoo"
+          ;;               (locate-dominating-file "." "default.hoo")))
+          )
       (unless (and hoogle-server-process
                    (process-live-p hoogle-server-process))
         (message "Starting local Hoogle server on port 8687...")
@@ -3298,11 +3199,6 @@ non-empty directories is allowed."
       ("`isProperSubsetOf`" . ?⊂)
       ("undefined"          . ?⊥)))
 
-  :config
-  (require 'haskell)
-  (require 'haskell-doc)
-  (require 'haskell-commands)
-
   (defun my-update-cabal-repl (&rest _args)
     (aif (getenv "CABAL_REPL")
         (let ((args (nthcdr 2 (split-string it))))
@@ -3315,7 +3211,8 @@ non-empty directories is allowed."
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
     (when (and (boundp 'brittany-enabled)
-               brittany-enabled)
+               brittany-enabled
+               (fboundp 'find-brittany))
       (let ((brittany (find-brittany)))
         (when brittany
           (setq-local haskell-stylish-on-save t)
@@ -3340,18 +3237,22 @@ non-empty directories is allowed."
     (when (executable-find "ormolu")
       (require 'format-all)
       (define-format-all-formatter ormolu
-        (:executable "ormolu")
-        (:install "stack install ormolu")
-        (:languages "Haskell" "Literate Haskell")
-        (:features)
-        (:format
-         (format-all--buffer-easy
-          executable
-          (when (buffer-file-name)
-            (list "--stdin-input-file" (buffer-file-name))))))
+                                   (:executable "ormolu")
+                                   (:install "stack install ormolu")
+                                   (:languages "Haskell" "Literate Haskell")
+                                   (:features)
+                                   (:format
+                                    (format-all--buffer-easy
+                                     executable
+                                     (when (buffer-file-name)
+                                       (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
       ;; (format-all-mode 1)
       ))
+  :config
+  (require 'haskell)
+  (require 'haskell-doc)
+  (require 'haskell-commands)
 
   (add-hook 'haskell-mode-hook #'my-haskell-mode-hook)
 
@@ -3361,7 +3262,7 @@ non-empty directories is allowed."
       (mapcar #'(lambda (x)
                   `(,(car x)
                     (regexp . ,(cdr x))
-                    (modes quote (haskell-mode literate-haskell-mode))))
+                    (modes quote (haskell-mode haskell-literate-mode))))
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
@@ -3370,8 +3271,8 @@ non-empty directories is allowed."
   (defun haskell-process-load-complete
       (session process buffer reload module-buffer &optional cont)
     "Handle the complete loading response. BUFFER is the string of
-  text being sent over the process pipe. MODULE-BUFFER is the
-  actual Emacs buffer of the module being loaded."
+text being sent over the process pipe. MODULE-BUFFER is the
+actual Emacs buffer of the module being loaded."
     (when (get-buffer (format "*%s:splices*" (haskell-session-name session)))
       (with-current-buffer (haskell-interactive-mode-splices-buffer session)
         (erase-buffer)))
@@ -3415,6 +3316,16 @@ non-empty directories is allowed."
             (funcall cont ok)
           (error (message "%S" e))
           (quit nil))))))
+#+end_src
+
+*** haskell-edit
+
+#+begin_src emacs-lisp
+(use-package haskell-edit
+  :load-path "lisp/haskell-config"
+  :after haskell-mode
+  :bind (:map haskell-mode-map
+              ("C-c M-q" . haskell-edit-reformat)))
 #+end_src
 
 ** hcl-mode
@@ -3601,7 +3512,7 @@ non-empty directories is allowed."
        (or
         (mode . haskell-mode)
         (mode . haskell-cabal-mode)
-        (mode . literate-haskell-mode)))
+        (mode . haskell-literate-mode)))
       ("Rust"
        (or
         (mode . rust-mode)
@@ -3732,7 +3643,7 @@ non-empty directories is allowed."
   :defer 5
   :config
   (auto-image-file-mode 1)
-  (add-hook 'image-mode-hook #'image-transform-reset))
+  (add-hook 'image-mode-hook #'image-transform-reset-to-initial))
 #+end_src
 
 ** imenu-list
@@ -3765,8 +3676,29 @@ non-empty directories is allowed."
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
   :custom
-  (Info-default-directory-list '("~/.emacs.d/lisp/org-mode/doc"))
+  (Info-default-directory-list (list (emacs-path "lisp/org-mode/doc")))
   (Info-fit-frame-flag nil)
+  :preface
+  (defun nix-read-environment (name)
+    (ignore-errors
+      (with-temp-buffer
+        (insert-file-contents-literally
+         (with-temp-buffer
+           (insert-file-contents-literally
+            (executable-find (concat "load-env-" name)))
+           (and (re-search-forward "^source \\(.+\\)$" nil t)
+                (match-string 1))))
+        (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
+                 (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
+             (split-string (match-string 1))))))
+  :init
+  (defvar Info-directory-list
+    (mapcar 'expand-file-name
+            (append
+             (mapcar (apply-partially #'expand-file-name "share/info")
+                     (nix-read-environment emacs-environment))
+             '("~/.local/share/info"
+               "~/.nix-profile/share/info"))))
   :config
   (add-hook 'Info-mode-hook
             #'(lambda ()
@@ -3800,7 +3732,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package ialign
-  :bind ("C-c {" . ialign-interactive-align))
+  :bind ("C-c {" . ialign))
 #+end_src
 
 ** inventory
@@ -3910,6 +3842,7 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package js2-mode
   :mode "\\.js\\'"
+  :functions (javascript-jshint)
   :config
   (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
   (flycheck-add-mode 'javascript-eslint 'js2-mode)
@@ -3991,7 +3924,7 @@ non-empty directories is allowed."
   (ledger-file "/Volumes/Files/Accounts/ledger.dat")
   (ledger-post-use-ido t)
   :preface
-  (defun my-ledger-start-entry (&optional arg)
+  (defun my-ledger-start-entry (&optional _arg)
     (interactive "p")
     (find-file-other-window "/Volumes/Files/Accounts/ledger.dat")
     (goto-char (point-max))
@@ -4049,7 +3982,6 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package link-hint
-  :defer 10
   :bind ("C-c C-o" . link-hint-open-link)
   :config
   (add-hook 'eww-mode-hook
@@ -4057,9 +3989,6 @@ non-empty directories is allowed."
   (add-hook 'w3m-mode-hook
             #'(lambda () (bind-key "f" #'link-hint-open-link w3m-mode-map))))
 #+end_src
-
-#+RESULTS:
-: link-hint-open-link
 
 ** lively
 
@@ -4225,7 +4154,7 @@ non-empty directories is allowed."
   :preface
   ;; History can be viewed with:
   ;; git log refs/snapshots/$(git symbolic-ref HEAD)
-  (defun magit-monitor (&optional no-display)
+  (defun magit-monitor (&optional _no-display)
     "Start git-monitor in the current directory."
     (interactive)
     (let* ((path (file-truename
@@ -4501,11 +4430,10 @@ non-empty directories is allowed."
   :init
   (defun screen ()
     (interactive)
-    (let (term-buffer)
-      (setq term-buffer
-            (let ((multi-term-program (executable-find "screen"))
-                  (multi-term-program-switches "-DR"))
-              (multi-term-get-buffer)))
+    (let ((term-buffer
+           (let ((multi-term-program (executable-find "screen"))
+                 (multi-term-program-switches "-DR"))
+             (multi-term-get-buffer))))
       (set-buffer term-buffer)
       (multi-term-internal)
       (switch-to-buffer term-buffer)))
@@ -4575,23 +4503,6 @@ non-empty directories is allowed."
 
          ("S-<down-mouse-1>")
          ("S-<mouse-1>" . mc/add-cursor-on-click))
-
-  :bind (:map selected-keymap
-              ("c"   . mc/edit-lines)
-
-              ("."   . mc/mark-next-like-this)
-              (">"   . mc/skip-to-next-like-this)
-              ("<"   . mc/unmark-next-like-this)
-
-              (","   . mc/mark-previous-like-this)
-              ("C-<" . mc/skip-to-previous-like-this)
-              ("C->" . mc/unmark-previous-like-this)
-
-              ("y"   . mc/mark-next-symbol-like-this)
-              ("Y"   . mc/mark-previous-symbol-like-this)
-
-              ("w"   . mc/mark-next-word-like-this)
-              ("W"   . mc/mark-previous-word-like-this))
   :custom
   (mc/list-file (user-data "mc-lists.el"))
   :preface
@@ -4677,19 +4588,6 @@ non-empty directories is allowed."
   :commands nginx-mode)
 #+end_src
 
-** nix-shell
-
-#+begin_src emacs-lisp
-(use-package nix-shell
-  :no-require t
-  :init
-  (defun nix-shell ()
-    (interactive)
-    (let ((explicit-shell-file-name "shell")
-          (explicit-shell-args nil))
-      (call-interactively 'shell))))
-#+end_src
-
 ** nix-mode
 
 #+begin_src emacs-lisp
@@ -4721,7 +4619,7 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package nroff-mode
   :commands nroff-mode
-  :config
+  :preface
   (defun update-nroff-timestamp ()
     (save-excursion
       (goto-char (point-min))
@@ -4732,9 +4630,10 @@ non-empty directories is allowed."
             (insert stamp)
             (let (after-save-hook)
               (save-buffer)))))))
-
+  :config
   (add-hook 'nroff-mode-hook
-            #'(lambda () (add-hook 'after-save-hook #'update-nroff-timestamp nil t))))
+            #'(lambda () (add-hook 'after-save-hook
+                                   #'update-nroff-timestamp nil t))))
 #+end_src
 
 ** nxml-mode
@@ -5329,11 +5228,11 @@ append it to ENTRY."
      ("exp" "nix")))
   (projectile-project-search-path '("~/src"))
   (projectile-sort-order 'recentf)
-  :config
-  (projectile-global-mode)
-
+  :preface
   (defun my-projectile-invalidate-cache (&rest _args)
     (projectile-invalidate-cache nil))
+  :config
+  (projectile-mode)
 
   (eval-after-load 'magit-branch
     '(progn
@@ -5365,14 +5264,23 @@ append it to ENTRY."
   (proof-queue-face ((t (:background "#431807"))))
   (proof-script-sticky-error-face ((t (:background "#50110e"))))
   (proof-warning-face ((t (:background "orange4"))))
+  :functions (proof-layout-windows)
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
     (proof-layout-windows)
     (proof-prf))
   :config
-  (use-package coq
+  (use-package coq-mode
     :defer t
+    :bind (:map coq-mode-map
+                ("M-RET"       . proof-goto-point)
+                ("RET"         . newline-and-indent)
+                ("C-c h")
+                ("C-c C-p"     . my-layout-proof-windows)
+                ("C-c C-a C-s" . coq-Search)
+                ("C-c C-a C-a" . coq-Search)
+                ("C-c C-a C-r" . coq-SearchRewrite))
     :custom
     (coq-compile-auto-save 'save-coq)
     (coq-compile-before-require t)
@@ -5384,19 +5292,9 @@ append it to ENTRY."
     (coq-prog-args '("-emacs"))
     :custom-face
     (coq-symbol-face ((t (:inherit default-face))))
+    :preface
+    (eval-when-compile (defvar proof-assistant nil))
     :config
-    (defalias 'coq-SearchPattern #'coq-SearchIsos)
-
-    (bind-keys :map coq-mode-map
-               ("M-RET"       . proof-goto-point)
-               ("RET"         . newline-and-indent)
-               ("C-c h")
-               ("C-c C-p"     . my-layout-proof-windows)
-               ("C-c C-a C-s" . coq-Search)
-               ("C-c C-a C-o" . coq-SearchPattern)
-               ("C-c C-a C-a" . coq-Search)
-               ("C-c C-a C-r" . coq-SearchRewrite))
-
     (add-hook
      'coq-mode-hook
      #'(lambda ()
@@ -5517,7 +5415,7 @@ append it to ENTRY."
   (ps-line-number-font-size 10)
   (ps-print-color-p nil)
   :preface
-  (defun ps-spool-to-pdf (beg end &rest ignore)
+  (defun ps-spool-to-pdf (beg end &rest _ignore)
     (interactive "r")
     (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
       (call-process-region beg end (executable-find "ps2pdf")
@@ -5536,7 +5434,7 @@ append it to ENTRY."
   :bind (:map python-mode-map
               ("C-c c")
               ("C-c C-z" . python-shell))
-  :config
+  :preface
   (defvar python-mode-initialized nil)
 
   (defun my-python-mode-hook ()
@@ -5559,7 +5457,7 @@ append it to ENTRY."
 
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indent-tabs-mode nil))
-
+  :config
   (add-hook 'python-mode-hook #'my-python-mode-hook))
 #+end_src
 
@@ -5589,7 +5487,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package recentf
-  :defer 10
+  :defer 5
   :commands (recentf-mode
              recentf-add-file
              recentf-apply-filename-handlers)
@@ -5601,6 +5499,7 @@ append it to ENTRY."
   (recentf-save-file (user-data "recentf"))
   :preface
   (defun recentf-add-dired-directory ()
+    "Add directories visit by dired into recentf."
     (if (and dired-directory
              (file-directory-p dired-directory)
              (not (string= "/" dired-directory)))
@@ -5757,7 +5656,7 @@ append it to ENTRY."
     (cargo-minor-mode 1)
     (yas-minor-mode-on)
 
-    (if dot-emacs-use-eglot
+    (if nil
         (progn
           (require 'eglot)
           (when (functionp 'eglot)
@@ -5791,7 +5690,6 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package rustic
   :disabled t
-  :unless dot-emacs-use-eglot
   :mode ("\\.rs\\'" . rustic-mode)
   :custom
   (rustic-format-trigger 'on-save)
@@ -5857,16 +5755,21 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package rustic-flycheck
   :after rustic
-  :config
+  :custom
+  (rustic-clippy-arguments
+   (concat "--all-targets "
+           "--all-features "
+           "-- "
+           "-D warnings "
+           "-D clippy::all "
+           "-D clippy::mem_forget "
+           "-C debug-assertions=off"))
+  (rustic-flycheck-clippy-params
+   (concat "--message-format=json " rustic-clippy-arguments))
+  :preface
   (defun my-rust-project-find-function (dir)
     (let ((root (locate-dominating-file dir "Cargo.toml")))
       (and root (cons 'transient root))))
-
-  (with-eval-after-load 'project
-    (add-to-list 'project-find-functions 'my-rust-project-find-function))
-
-  (defun project-root (project)
-    (car (project-roots project)))
 
   (defun first-dominating-file (file name)
     (aif (locate-dominating-file file name)
@@ -5877,29 +5780,22 @@ append it to ENTRY."
     (and buffer-file-name
          (first-dominating-file buffer-file-name "Cargo.toml")))
 
-  (require 'flycheck)
-  (push 'rustic-clippy flycheck-checkers)
-
-  (setq rustic-clippy-arguments
-        (concat "--all-targets "
-                "--all-features "
-                "-- "
-                "-D warnings "
-                "-D clippy::all "
-                "-D clippy::mem_forget "
-                "-C debug-assertions=off"))
-
   (defun rustic-cargo-clippy (&optional arg)
     (interactive "P")
     (rustic-cargo-clippy-run
      (cond (arg
-            (setq rustic-clippy-arguments (read-from-minibuffer "Cargo clippy arguments: " rustic-clippy-arguments)))
+            (setq rustic-clippy-arguments
+                  (read-from-minibuffer "Cargo clippy arguments: " rustic-clippy-arguments)))
            ((eq major-mode 'rustic-popup-mode)
             rustic-clippy-arguments)
            (t rustic-clippy-arguments))))
+  :config
+  (require 'flycheck)
 
-  (setq rustic-flycheck-clippy-params
-        (concat "--message-format=json " rustic-clippy-arguments)))
+  (push 'rustic-clippy flycheck-checkers)
+
+  (with-eval-after-load 'project
+    (add-to-list 'project-find-functions 'my-rust-project-find-function)))
 #+end_src
 
 ** savehist
@@ -5968,7 +5864,7 @@ append it to ENTRY."
     (cl-flet
         ((read-string
            (prompt &optional initial-input history
-                   default-value inherit-input-method)
+                   default-value _inherit-input-method)
            (completing-read
             prompt
             (or sdcv-index
@@ -6006,6 +5902,30 @@ append it to ENTRY."
   (selected-global-mode 1))
 #+end_src
 
+*** selected-mc
+
+#+begin_src emacs-lisp
+(use-package selected-mc
+  :no-require t
+  :after (selected multiple-cursors)
+  :bind (:map selected-keymap
+              ("c"   . mc/edit-lines)
+
+              ("."   . mc/mark-next-like-this)
+              (">"   . mc/skip-to-next-like-this)
+              ("<"   . mc/unmark-next-like-this)
+
+              (","   . mc/mark-previous-like-this)
+              ("C-<" . mc/skip-to-previous-like-this)
+              ("C->" . mc/unmark-previous-like-this)
+
+              ("y"   . mc/mark-next-symbol-like-this)
+              ("Y"   . mc/mark-previous-symbol-like-this)
+
+              ("w"   . mc/mark-next-word-like-this)
+              ("W"   . mc/mark-previous-word-like-this)))
+#+end_src
+
 ** separedit
 
 #+begin_src emacs-lisp
@@ -6034,14 +5954,16 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package sh-script
   :defer t
-  :init
+  :preface
   (defvar sh-script-initialized nil)
+
   (defun initialize-sh-script ()
     (unless sh-script-initialized
       (setq sh-script-initialized t)
       (info-lookup-add-help :mode 'shell-script-mode
                             :regexp ".*"
                             :doc-spec '(("(bash)Index")))))
+  :init
   (add-hook 'shell-mode-hook #'initialize-sh-script))
 #+end_src
 
@@ -6072,7 +5994,7 @@ append it to ENTRY."
 (use-package shell
   :defer 5
   :custom
-  (explicit-shell-file-name "~/.emacs.d/runshell"))
+  (explicit-shell-file-name (emacs-path "runshell")))
 #+end_src
 
 ** shell-toggle
@@ -6100,8 +6022,11 @@ append it to ENTRY."
   :commands sky-color-clock
   :custom
   (sky-color-clock-format "%-l:%M %p")
+  :preface
+  (eval-when-compile
+    (require 'solar)
+    (require 'time))
   :config
-  (require 'solar)
   (sky-color-clock-initialize calendar-latitude)
   (setq display-time-string-forms '((sky-color-clock))))
 #+end_src
@@ -6268,7 +6193,7 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package texinfo
   :mode ("\\.texi\\'" . texinfo-mode)
-  :config
+  :preface
   (defun my-texinfo-mode-hook ()
     (dolist (mapping '((?b . "emph")
                        (?c . "code")
@@ -6279,7 +6204,7 @@ append it to ENTRY."
       (local-set-key (vector (list 'alt (car mapping)))
                      `(lambda () (interactive)
                         (TeX-insert-macro ,(cdr mapping))))))
-
+  :config
   (add-hook 'texinfo-mode-hook #'my-texinfo-mode-hook)
 
   (defun texinfo-outline-level ()
@@ -6290,7 +6215,7 @@ append it to ENTRY."
           0
         (forward-char 1)
         (let* ((word (buffer-substring-no-properties
-                      (point) (progn (forward-word 1) (point))))
+                      (point) (progn (forward-word) (point))))
                (entry (assoc word texinfo-section-list)))
           (if entry
               (nth 1 entry)
@@ -6341,15 +6266,6 @@ append it to ENTRY."
             #'(lambda ()
                 (setq-local comment-start nil)
                 (setq-local comment-end ""))))
-#+end_src
-
-** tracking
-
-#+begin_src emacs-lisp
-(use-package tracking
-  :defer t
-  :config
-  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
 #+end_src
 
 ** tramp
@@ -7101,6 +7017,10 @@ append it to ENTRY."
   (whitespace-style '(face trailing lines-tail space-before-tab))
   :custom-face
   (whitespace-line ((t (:background "yellow"))))
+  :defines
+  (whitespace-auto-cleanup
+   whitespace-rescan-timer-time
+   whitespace-silent)
   :preface
   (defvar normalize-hook nil)
 
@@ -7137,15 +7057,15 @@ append it to ENTRY."
             whitespace-rescan-timer-time nil
             whitespace-silent t
             whitespace-style '(face trailing lines space-before-tab empty))
-      (add-hook 'write-contents-hooks
+      (add-hook 'write-contents-functions
                 #'(lambda () (ignore (whitespace-cleanup))) nil t)
       (whitespace-cleanup)))
 
   :init
-  (add-hook 'find-file-hooks #'maybe-turn-on-whitespace t)
+  (add-hook 'find-file-hook #'maybe-turn-on-whitespace t)
 
   :config
-  (remove-hook 'find-file-hooks 'whitespace-buffer)
+  (remove-hook 'find-file-hook 'whitespace-buffer)
   (remove-hook 'kill-buffer-hook 'whitespace-buffer))
 #+end_src
 
@@ -7232,7 +7152,7 @@ append it to ENTRY."
          ("C-c w e" . yaoddmuse-edit-default)
          ("C-c w p" . yaoddmuse-post-library-default))
   :custom
-  (yaoddmuse-directory "~/.emacs.d/doc"))
+  (yaoddmuse-directory (emacs-path "doc")))
 #+end_src
 
 ** yasnippet
@@ -7247,8 +7167,8 @@ append it to ENTRY."
          ("C-c y n" . yas-new-snippet)
          ("C-c y t" . yas-tryout-snippet)
          ("C-c y l" . yas-describe-tables)
-         ("C-c y g" . yas/global-mode)
-         ("C-c y m" . yas/minor-mode)
+         ("C-c y g" . yas-global-mode)
+         ("C-c y m" . yas-minor-mode)
          ("C-c y r" . yas-reload-all)
          ("C-c y x" . yas-expand)
          :map yas-keymap
@@ -7256,7 +7176,7 @@ append it to ENTRY."
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
   :custom
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
-  (yas-snippet-dirs '("/Users/johnw/.emacs.d/snippets"))
+  (yas-snippet-dirs (list (emacs-path "snippets")))
   (yas-triggers-in-field t)
   (yas-wrap-around-region t)
   :custom-face
@@ -7392,6 +7312,11 @@ independent components.
   :custom-face
   (consult-file ((t (:inherit font-lock-string-face))))
 
+  :functions
+  (consult-register-format
+   consult-register-window
+   consult-xref)
+
   ;; The :init configuration is always executed (Not lazy)
   :init
 
@@ -7456,10 +7381,19 @@ locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
 (use-package consult-dir
-  :bind (("C-x D" . consult-dir)
-         :map vertico-map
-         ("C-x D" . consult-dir)
-         ("C-x C-j" . consult-dir-jump-file)))
+  :bind ("C-x D" . consult-dir))
+#+end_src
+
+**** consult-dir-vertico
+
+#+begin_src emacs-lisp
+(use-package consult-dir-vertico
+  :no-require t
+  :after (consult-dir vertico)
+  :defines (vertico-map)
+  :bind (:map vertico-map
+              ("C-x D" . consult-dir)
+              ("C-x C-j" . consult-dir-jump-file)))
 #+end_src
 
 **** consult-projectile
@@ -7596,6 +7530,19 @@ provides an alternative overlay-based display.
   ;; Other
   (corfu-echo-documentation nil)        ; Already use corfu-popupinfo
   (lsp-completion-provider :none)       ; Use corfu instead for lsp completions
+  :preface
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active) ; Useful if I ever use MCT
+                (bound-and-true-p vertico--input))
+      (setq-local corfu-auto nil)       ; Ensure auto completion is disabled
+      (corfu-mode 1)))
+
+  ;; Setup lsp to use corfu for lsp completion
+  (defun kb/corfu-setup-lsp ()
+    "Use orderless completion style with lsp-capf instead of default."
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless)))
   :config
   (global-corfu-mode)
 
@@ -7603,19 +7550,7 @@ provides an alternative overlay-based display.
   ;; completion UI is active. If you use Mct or Vertico as your main minibuffer
   ;; completion UI. From
   ;; https://github.com/minad/corfu#completing-with-corfu-in-the-minibuffer
-  (defun corfu-enable-always-in-minibuffer ()
-    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
-    (unless (or (bound-and-true-p mct--active) ; Useful if I ever use MCT
-                (bound-and-true-p vertico--input))
-      (setq-local corfu-auto nil)       ; Ensure auto completion is disabled
-      (corfu-mode 1)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
-
-  ;; Setup lsp to use corfu for lsp completion
-  (defun kb/corfu-setup-lsp ()
-    "Use orderless completion style with lsp-capf instead of the default lsp-passthrough."
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1))
 #+end_src
 
 **** corfu-popupinfo
@@ -7859,14 +7794,39 @@ without white space and comments.
   (vertico-count 10)
   (vertico-resize nil)
   (vertico-cycle t)
+  :preface
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
   :config
   (vertico-mode)
 
   (define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
 
-  (use-package vertico-repeat)
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Hide commands in M-x which do not work in the current mode. Vertico
+  ;; commands are hidden in normal buffers.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
+
+  (use-package vertico-repeat
+    :demand t)
 
   (use-package vertico-directory
+    :demand t
     :bind (:map vertico-map
                 ("<backspace>" .   vertico-directory-delete-char)
                 ("C-w" .           vertico-directory-delete-word)
@@ -7875,6 +7835,7 @@ without white space and comments.
                 ))
 
   (use-package vertico-quick
+    :demand t
     :bind (:map vertico-map
                 ("C-." . vertico-quick-exit)
                 ("C-M-." . vertico-quick-embark))
@@ -7922,16 +7883,15 @@ without white space and comments.
   (company-show-numbers t)
   (company-show-quick-access t)
   (company-tooltip-align-annotations t)
+  :preface
+  (defun company-mode/backend-with-yas (backend)
+    (if (and (listp backend) (member 'company-yasnippet backend))
+        backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
   :config
-  (eval-after-load "coq"
-    '(progn
-       (defun company-mode/backend-with-yas (backend)
-         (if (and (listp backend) (member 'company-yasnippet backend))
-             backend
-           (append (if (consp backend) backend (list backend))
-                   '(:with company-yasnippet))))
-       (setq company-backends
-             (mapcar #'company-mode/backend-with-yas company-backends)))))
+  (setq company-backends
+        (mapcar #'company-mode/backend-with-yas company-backends)))
 #+end_src
 
 **** company-math
@@ -8414,13 +8374,9 @@ without white space and comments.
       (error "    ")))
 
   (defun gnus-user-format-function-X (header)
-    (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
-           (cc (or (cdr (assoc 'Cc (mail-header-extra header))) "")))
-      (message "to-address: %s" to-address)
-      (message "recipients: %s" recipients)
-      (if (and recipients to-address (not (member to-address recipients)))
-          (propertize "X" 'face 'font-lock-warning-face)
-        " ")))
+    (if (and recipients to-address (not (member to-address recipients)))
+        (propertize "X" 'face 'font-lock-warning-face)
+      " "))
 
   (defvar gnus-count-recipients-threshold 5
     "*Number of recipients to consider as large.")
@@ -8728,7 +8684,7 @@ messages.
   :preface
   (defvar mml-signing-attachment nil)
 
-  (defun mml-sign-attached-file (file &optional type description disposition)
+  (defun mml-sign-attached-file (file &optional _type _description _disposition)
     (unless (or mml-signing-attachment
                 (null current-prefix-arg))
       (let ((signature
@@ -8957,6 +8913,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package gnus-sieve
+  :disabled t
   :defer t
   :custom
   (gnus-sieve-file "~/Messages/dovecot.sieve")
@@ -9338,7 +9295,7 @@ This can be 0 for immediate, or a floating point value.")
              (call-process "ifconfig" nil t nil "en1" "inet")
              (call-process "ifconfig" nil t nil "bond0" "inet")
              (goto-char (point-min))
-             (not (re-search-forward "inet 192\\.168\\.1\\." nil t))))
+             (not (search-forward "inet 192\\.168\\.1\\." nil t))))
           ((string= tag "net")
            (not (quickping "imap.fastmail.com")))
           ((string= tag "fun")
@@ -9356,7 +9313,6 @@ This can be 0 for immediate, or a floating point value.")
            (end (save-excursion
                   (outline-next-heading)
                   (point)))
-           begin
            end-time)
       (goto-char (line-beginning-position))
       (while (re-search-forward regexp end t)
@@ -9435,7 +9391,7 @@ This can be 0 for immediate, or a floating point value.")
       (goto-char (point-min))
       (while (re-search-forward "^\* " nil t)
         (goto-char (match-beginning 0))
-        (condition-case err
+        (condition-case _err
             (progn
               (org-sort-entries t ?p)
               (org-sort-entries t ?o))
@@ -9459,7 +9415,7 @@ This can be 0 for immediate, or a floating point value.")
       (with-current-buffer gnus-original-article-buffer
         (setq message-id (substring (message-field-value "message-id") 1 -1)
               subject (or title (message-field-value "subject"))))
-      (org-make-link-string (concat "message://" message-id)
+      (org-link-make-string (concat "message://" message-id)
                             (rfc2047-decode-string subject))))
 
   (defun org-insert-message-link (&optional arg)
@@ -9472,9 +9428,8 @@ This can be 0 for immediate, or a floating point value.")
     (org-set-property "Message" (org-get-message-link)))
 
   (defun org-get-message-sender ()
-    (let (message-id subject)
-      (with-current-buffer gnus-original-article-buffer
-        (message-field-value "from"))))
+    (with-current-buffer gnus-original-article-buffer
+      (message-field-value "from")))
 
   (defun org-set-message-sender ()
     "Set a property for the current headline."
@@ -9550,6 +9505,10 @@ This can be 0 for immediate, or a floating point value.")
   (defalias 'sort-done-tasks 'org-sort-done-tasks)
 
   ;; keybindings
+
+  (eval-and-compile
+    (defvar org-todo-state-map nil)
+    (define-prefix-command 'org-todo-state-map))
 
   (defvar org-mode-completion-keys
     '((?d . "DONE")
@@ -9843,7 +9802,7 @@ This can be 0 for immediate, or a floating point value.")
                           (setq depth (1- depth))
                         (not (org-up-element))))
             (if (looking-at "^\*+\\s-+")
-                (setq should-skip (org-get-local-tags))))
+                (setq should-skip (org-get-tags))))
           should-skip))))
 
   (defun my-org-agenda-skip-all-siblings-but-first-hot ()
@@ -9866,24 +9825,24 @@ day.
 
 To achieve this, I have the following in my todo file:
 
-  ,,* Work
-    :PROPERTIES:
-    :CATEGORY: Work
-    :OVERLAY:  (face (:background \"#fdfdeb\"))
-    :END:
-  ,,** TODO Task
-  ,,* Family
-    :PROPERTIES:
-    :CATEGORY: Personal
-    :OVERLAY:  (face (:background \"#e8f9e8\"))
-    :END:
-  ,,** TODO Task
-  ,,* Personal
-    :PROPERTIES:
-    :CATEGORY: Personal
-    :OVERLAY:  (face (:background \"#e8eff9\"))
-    :END:
-  ,,** TODO Task
+  ,* Work
+  :PROPERTIES:
+  :CATEGORY: Work
+  :OVERLAY:  (face (:background \"#fdfdeb\"))
+  :END:
+  ,** TODO Task
+  ,* Family
+  :PROPERTIES:
+  :CATEGORY: Personal
+  :OVERLAY:  (face (:background \"#e8f9e8\"))
+  :END:
+  ,** TODO Task
+  ,* Personal
+  :PROPERTIES:
+  :CATEGORY: Personal
+  :OVERLAY:  (face (:background \"#e8eff9\"))
+  :END:
+  ,** TODO Task
 
 The colors (which only work well for white backgrounds) are:
 
@@ -9894,10 +9853,10 @@ The colors (which only work well for white backgrounds) are:
 To use this function, add it to `org-agenda-finalize-hook':
 
   (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)"
-    (let ((inhibit-read-only t) l c
+    (let ((inhibit-read-only t)
           (buffer-invisibility-spec '(org-link)))
       (save-excursion
-        (goto-char (if line (point-at-bol) (point-min)))
+        (goto-char (if line (line-beginning-position) (point-min)))
         (while (not (eobp))
           (let ((org-marker (get-text-property (point) 'org-marker)))
             (when (and org-marker
@@ -10350,8 +10309,10 @@ end tell" (shell-quote-argument (match-string 1))))))
          ("C-c n B" . my/org-roam-capture-inbox)
          ("C-c n w" . my-org-prepare-note)
          ("C-c n x" . xeft)
+
          :map org-mode-map
          ("C-M-i" . completion-at-point)
+
          :map org-roam-dailies-map
          ("Y" . org-roam-dailies-capture-yesterday)
          ("T" . org-roam-dailies-capture-tomorrow))
@@ -10364,6 +10325,19 @@ end tell" (shell-quote-argument (match-string 1))))))
       (file+head "%<%Y%m%d%H%M>-${slug}.org" "#+title: ${title}\n")
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
+  :defines
+  (org-roam-v2-ack)
+  :functions
+  (org-roam-db-autosync-mode
+   org-roam-dailies-capture-tomorrow
+   org-roam-dailies-capture-yesterday
+   org-roam-dailies-capture-today
+   org-roam-db-query
+   org-roam-dailies--capture
+   org-roam-node-read
+   org-roam-capture-
+   org-roam-node-list
+   org-roam-node-file)
   :preface
   (defun my-org-current-entry-and-skip ()
     (let* ((title (subst-char-in-string ?/ ?: (car (last (org-get-outline-path t))) t))
@@ -10410,9 +10384,9 @@ end tell" (shell-quote-argument (match-string 1))))))
       (forward-line)
       (insert "#+filetags: :thoughts:\n"))
     (delete-blank-lines)
-    (let ((id (org-id-get-create))
+    (let ((_id (org-id-get-create))
           (title (save-excursion
-                   (cl-destructuring-bind (beg end title)
+                   (cl-destructuring-bind (_beg _end title)
                        (my-org-current-entry-and-skip)
                      title))))
       (org-entry-put (point) "CREATED" title)
@@ -10427,7 +10401,7 @@ end tell" (shell-quote-argument (match-string 1))))))
           (with-temp-buffer
             (insert text)
             (goto-char (point-min))
-            (cl-destructuring-bind (beg end title2) (my-org-headline)
+            (cl-destructuring-bind (beg end _title2) (my-org-headline)
               (goto-char beg)
               (delete-region beg end)
               (insert "#+title: ")
@@ -10444,7 +10418,7 @@ end tell" (shell-quote-argument (match-string 1))))))
               (goto-char (point-min))
               (cl-destructuring-bind (year mon day hour min)
                   (my-org-created-time (point-max))
-                (write-region (point-min) (point-max)
+                (write-region nil nil
                               (expand-file-name (format "%04d%02d%02d%02d%02d-%s.org"
                                                         year mon day hour min
                                                         (my-org-simplify-title title))
@@ -10541,9 +10515,8 @@ capture was not aborted."
   (defun my-org-roam-get-all-tags ()
     "Save all roam tags to a buffer visting the file ~/Test."
     (interactive)
-    (save-excursion
-      (let ((buf (find-file-noselect "~/Test")))
-        (set-buffer buf)
+    (let ((buf (find-file-noselect "~/Test")))
+      (with-current-buffer buf
         (erase-buffer)
         (mapcar (lambda (n) (insert (car n) "\n"))
                 (org-roam-db-query
@@ -10554,8 +10527,13 @@ capture was not aborted."
     (let ((tags (org-roam-node-tags node)))
       (member "thoughts" tags)))
 
+  (eval-when-compile
+    (require 'calendar)
+    (require 'cal-julian))
+
   (defun add-journal-entry (title)
     (interactive "sTitle: ")
+    (require 'cal-julian)
     (let* ((moniker
             (replace-regexp-in-string
              "[,!]" ""

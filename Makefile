@@ -20,7 +20,7 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 .PHONY: test build clean
 
 # Main rule
-all: init.el
+all: init.elc
 
 # Generate lisp and compile it
 init.el: init.org
@@ -38,14 +38,15 @@ init.elc: init.el
 %.elc: %.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
+	@chmod ugo-w $@
 
-speed: init.el
+speed:
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
-slow: init.el
+slow:
 	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
 clean:
-	rm init.el *.elc *~ settings.el
+	rm -f init.el *.elc *~ settings.el
 
 ### Makefile ends here

@@ -307,4 +307,19 @@
         (setq result (cons arg result))))
     (nreverse result)))
 
+(defmacro atomic-modify-buffer (&rest body)
+  `(let ((buf (current-buffer)))
+     (save-window-excursion
+       (with-temp-buffer
+         (insert-buffer buf)
+         ,@body
+         (let ((temp-buf (current-buffer))
+               (inhibit-redisplay t))
+           (with-current-buffer buf
+             (let ((here (point)))
+               (save-excursion
+                 (delete-region (point-min) (point-max))
+                 (insert-buffer temp-buf))
+               (goto-char here))))))))
+
 (provide 'personal)
