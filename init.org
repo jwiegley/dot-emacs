@@ -18,15 +18,15 @@
 ** Load =use-package= for all the declarations below
 
 #+begin_src emacs-lisp
-(defsubst emacs-path (path)
-  (expand-file-name path user-emacs-directory))
+(eval-and-compile
+  (defsubst emacs-path (path)
+    (expand-file-name path user-emacs-directory))
 
-(setq package-enable-at-startup nil
-      load-path
-      (append (list (emacs-path "")
-                    (emacs-path "use-package"))
-              (delete-dups load-path)
-              (list (emacs-path "lisp"))))
+  (setq package-enable-at-startup nil
+        load-path
+        (append (list (emacs-path "use-package"))
+                (delete-dups load-path)
+                (list (emacs-path "lisp")))))
 (require 'use-package)
 (setq use-package-verbose init-file-debug
       use-package-expand-minimally (not init-file-debug)
@@ -156,10 +156,16 @@ unto itself.
   (visible-bell t)
   (x-stretch-cursor t)
 
+  ;; Settings for the Cocoa port
   (ns-alternate-modifier 'alt)
   (ns-command-modifier 'meta)
   (ns-function-modifier 'hyper)
   (ns-right-alternate-modifier 'alt)
+
+  ;; Settings for the Emacs Mac-port
+  (mac-command-modifier 'meta)
+  (mac-option-modifier 'alt)
+  (mac-pass-command-to-system nil)
 
   (frame-title-format
    '(:eval
@@ -330,7 +336,7 @@ unto itself.
   (minibuffer-prompt ((t (:foreground "grey80"))))
   (mode-line-inactive ((t (:background "grey50"))))
   (nobreak-space ((t nil)))
-  (variable-pitch ((t (:height 1.1 :family "Bookerly"))))
+  (variable-pitch ((t (:height 1.2 :family "Bookerly"))))
 
   :init
   (setq disabled-command-function nil) ;; enable all commands
@@ -971,15 +977,6 @@ old saved versions again.
   :commands browse-kill-ring)
 #+end_src
 
-*** browse-kill-ring+
-
-#+begin_src emacs-lisp
-(use-package browse-kill-ring+
-  :disabled t
-  :after browse-kill-ring
-  :config (browse-kill-ring-default-keybindings))
-#+end_src
-
 ** browse-url
 
 #+begin_src emacs-lisp
@@ -1373,6 +1370,21 @@ old saved versions again.
                (lookup-password "freechess.org" "jwiegley" 80))))
 #+end_src
 
+** citre
+
+#+begin_src emacs-lisp
+(use-package citre-config
+  :demand t
+  :bind (("C-x c j" . citre-jump)
+         ("C-x c J" . citre-jump-back)
+         ("C-x c p" . citre-ace-peek)
+         ("C-x c u" . citre-update-this-tags-file))
+  :custom
+  (citre-use-project-root-when-creating-tags t
+   citre-prompt-language-for-ctags-command t
+   citre-auto-enable-citre-mode-modes '(prog-mode)))
+#+end_src
+
 ** cl-info
 
 #+begin_src emacs-lisp
@@ -1652,15 +1664,6 @@ old saved versions again.
   (dafny-prover-args '("/compile:0" "/vcsCores:4"))
   (dafny-prover-background-args
    '("/timeLimit:20" "/autoTriggers:1" "/printTooltips" "/vcsCores:4")))
-#+end_src
-
-** debbugs-gnu
-
-#+begin_src emacs-lisp
-(use-package debbugs-gnu
-  :disabled t
-  :commands (debbugs-gnu debbugs-gnu-search)
-  :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
 #+end_src
 
 ** deadgrep
@@ -1999,11 +2002,10 @@ non-empty directories is allowed."
   :bind ("C-c d" . docker)
   :diminish
   :init
-  (use-package docker-image     :commands docker-images)
-  (use-package docker-volume    :commands docker-volumes)
-  (use-package docker-network   :commands docker-containers)
-  (use-package docker-machine   :disabled t :commands docker-machines)
-  (use-package docker-compose   :commands docker-compose)
+  (use-package docker-image   :commands docker-images)
+  (use-package docker-volume  :commands docker-volumes)
+  (use-package docker-network :commands docker-containers)
+  (use-package docker-compose :commands docker-compose)
 
   (use-package docker-container
     :commands docker-containers
@@ -2033,17 +2035,6 @@ non-empty directories is allowed."
   :defer 5
   :custom
   (doc-view-resolution 300))
-#+end_src
-
-** doxymacs
-
-#+begin_src emacs-lisp
-(use-package doxymacs
-  :disabled t
-  :commands (doxymacs-mode doxymacs-font-lock)
-  :config
-  (doxymacs-mode 1)
-  (doxymacs-font-lock))
 #+end_src
 
 ** edbi
@@ -2171,15 +2162,13 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :disabled t
   :commands eglot
   :custom
   (eglot-autoshutdown t)
   :config
+  (setq read-process-output-max (* 1024 1024))
   ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
-  (defvar flymake-list-only-diagnostics nil)
-  (defun project-root (project)
-    (car (project-root project))))
+)
 #+end_src
 
 ** eldoc
@@ -2232,6 +2221,23 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package elisp-docstring-mode
   :commands elisp-docstring-mode)
+#+end_src
+
+** elisp-mode
+
+#+begin_src emacs-lisp
+(use-package elisp-mode
+  :defer t
+  :hook (emacs-lisp-mode . my/setup-elisp)
+  :preface
+  (defun my/setup-elisp ()
+    ;; REF: cape
+    (setq-local completion-at-point-functions
+                `(,(cape-super-capf
+                    #'elisp-completion-at-point
+                    #'cape-dabbrev)
+                  cape-file)
+                cape-dabbrev-min-length 5)))
 #+end_src
 
 ** elisp-slime-nav
@@ -2752,7 +2758,8 @@ Giving these commands a prefix argument C-u means copy instead of kill.
 
 #+begin_src emacs-lisp
 (use-package ffap
-  :bind ("C-c v" . ffap))
+  :bind (("C-c v"     . ffap)
+         ("C-c <tab>" . ff-find-other-file)))
 #+end_src
 
 ** find-dired
@@ -2782,7 +2789,7 @@ Giving these commands a prefix argument C-u means copy instead of kill.
                    (haskell-mode-hook    . haskell-mode-map)
                    (js2-mode-hook        . js2-mode-map)
                    (c-mode-common-hook   . c-mode-base-map)
-                   (rustic-mode-hook     . rustic-mode-map)))
+                   (rust-mode-hook       . rust-mode-map)))
     (add-hook (car where)
               `(lambda ()
                  (bind-key "M-n" #'flycheck-next-error ,(cdr where))
@@ -3043,17 +3050,24 @@ up before you execute another command."
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . haskell-literate-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
-  :bind (:map haskell-mode-map
-              ("C-c C-h" . my-haskell-hoogle)
-              ("C-c C-," . haskell-navigate-imports)
-              ("C-c C-." . haskell-mode-format-imports)
-              ("C-c C-u" . my-haskell-insert-undefined)
-              ("M-.")
-              ("M-s")
-              ("M-t"))
-  :custom
-  (haskell-compile-cabal-build-command "cd %s && cabal new-build --ghc-option=-ferror-spans")
   (haskell-hasktags-arguments '("-e"))
+  :bind (:map
+         haskell-mode-map
+         ("C-c C-h" . my-haskell-hoogle)
+         ("C-c C-," . haskell-navigate-imports)
+         ("C-c C-." . haskell-mode-format-imports)
+         ("C-c C-u" . my-haskell-insert-undefined)
+         ;; ("M-.")
+         ("M-s")
+         ("M-t")
+         :map
+         interactive-haskell-mode-map
+         ("M-."))
+  :custom
+  (haskell-compile-cabal-build-command
+   "cd %s && cabal new-build --ghc-option=-ferror-spans")
+  (haskell-hasktags-arguments '("-e"))
+  (haskell-tags-on-save t)
   (haskell-hoogle-command nil)
   (haskell-indent-spaces 4)
   (haskell-indentation-ifte-offset 4)
@@ -3063,9 +3077,10 @@ up before you execute another command."
   (haskell-indentation-where-post-offset 4)
   (haskell-indentation-where-pre-offset 4)
   (haskell-process-args-cabal-repl
-   '("--ghc-option=-ferror-spans" "--repl-options=-Wno-missing-home-modules" "--repl-options=-ferror-spans"))
+   '("--ghc-option=-ferror-spans"
+     "--repl-options=-Wno-missing-home-modules"
+     "--repl-options=-ferror-spans"))
   (haskell-process-load-or-reload-prompt t)
-  (haskell-tags-on-save t)
   :functions
   (haskell-check-remove-overlays
    haskell-goto-next-error
@@ -3137,8 +3152,8 @@ up before you execute another command."
       ("->"     . ?→)
       ("<-"     . ?←)
       ("=>"     . ?⇒)
-      ("~>"     . ?⇝)
-      ("<~"     . ?⇜)
+      ("~>"      . ?⇝)
+      ("<~"      . ?⇜)
       ("<>"     . ?⨂)
       ("msum"   . ?⨁)
       ("\\"     . ?λ)
@@ -3198,16 +3213,16 @@ up before you execute another command."
     (when (executable-find "ormolu")
       (require 'format-all)
       (define-format-all-formatter
-       ormolu
-       (:executable "ormolu")
-       (:install "stack install ormolu")
-       (:languages "Haskell" "Literate Haskell")
-       (:features)
-       (:format
-        (format-all--buffer-easy
-         executable
-         (when (buffer-file-name)
-           (list "--stdin-input-file" (buffer-file-name))))))
+        ormolu
+        (:executable "ormolu")
+        (:install "stack install ormolu")
+        (:languages "Haskell" "Literate Haskell")
+        (:features)
+        (:format
+         (format-all--buffer-easy
+          executable
+          (when (buffer-file-name)
+            (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
       ;; (format-all-mode 1)
       ))
@@ -3865,14 +3880,6 @@ actual Emacs buffer of the module being loaded."
              media-type))
 #+end_src
 
-** kotl-mode
-
-#+begin_src emacs-lisp
-(use-package kotl-mode
-  :disabled t
-  :mode "\\.kotl\\'")
-#+end_src
-
 ** ledger-mode
 
 #+begin_src emacs-lisp
@@ -4001,32 +4008,18 @@ actual Emacs buffer of the module being loaded."
               ("C-c C-j" . lispy-goto)))
 #+end_src
 
-** llvm-mode
-
-#+begin_src emacs-lisp
-(use-package llvm-mode
-  :disabled t
-  :mode "\\.ll\\'")
-#+end_src
-
-** lsp-haskell
-
-#+begin_src emacs-lisp
-(use-package lsp-haskell
-  :disabled t
-  :after lsp-mode
-  :config
-  (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
-#+end_src
-
 ** lsp-mode
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
+  :disabled t
   :commands lsp
+  :hook
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
   :custom
   (lsp-completion-enable t)
-  (lsp-completion-provider :capf)
+  ;; REF: corfu
+  (lsp-completion-provider :none)       ;; we use corfu
   (lsp-eldoc-enable-hover nil)
   (lsp-eldoc-render-all t)
   (lsp-enable-eldoc nil)
@@ -4044,16 +4037,32 @@ actual Emacs buffer of the module being loaded."
   (lsp-rust-features ["test"])
   (lsp-server-install-dir (user-data ".cache/lsp"))
   (lsp-session-file (user-data ".lsp-session-v1"))
+  :preface
+  (defun my/lsp-mode-setup-completion ()
+    ;; REF: orderless
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless)))
   :config
   (use-package lsp-lens)
   (use-package lsp-headerline)
   (setq read-process-output-max 16384))
 #+end_src
 
-** lsp-ui
+*** lsp-haskell
+
+#+begin_src emacs-lisp
+(use-package lsp-haskell
+  :disabled t
+  :after lsp-mode
+  :config
+  (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
+#+end_src
+
+*** lsp-ui
 
 #+begin_src emacs-lisp
 (use-package lsp-ui
+  :disabled t
   :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
   :custom
@@ -4216,10 +4225,11 @@ actual Emacs buffer of the module being loaded."
     (use-package git-commit
       :custom
       (git-commit-major-mode 'markdown-mode)
-      (git-commit-mode-hook
-       '(turn-on-auto-fill
+      (git-commit-setup-hook
+       '(git-commit-save-message
+         git-commit-turn-on-auto-fill
          git-commit-turn-on-flyspell
-         git-commit-save-message))))
+         bug-reference-mode))))
 
   (use-package magit-pull
     :defer t
@@ -4240,7 +4250,7 @@ actual Emacs buffer of the module being loaded."
     ;; sections.
     (dolist (func '(
                     ;; magit-insert-status-headers
-                    magit-insert-untracked-files
+                    ;; magit-insert-untracked-files
                     ;; magit-insert-unstaged-changes
                     ;; magit-insert-staged-changes
                     magit-insert-stashes
@@ -4266,7 +4276,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package magit-autorevert
-  :disabled t
   :after magit
   :custom
   (magit-auto-revert-mode nil))
@@ -4325,20 +4334,6 @@ actual Emacs buffer of the module being loaded."
   (transient-insert-suffix 'forge-dispatch "c i"
     '("p" "quick-pr" my-quick-create-pull-request))
   (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
-#+end_src
-
-*** github-review
-
-#+begin_src emacs-lisp
-(use-package github-review
-  :disabled t
-  :after forge
-  :commands github-review-start
-  :custom
-  (github-review-fetch-top-level-and-review-comments t)
-  :config
-  (transient-insert-suffix 'forge-dispatch "c p"
-    '("c r" "github-review" github-review-forge-pr-at-point)))
 #+end_src
 
 ** malyon
@@ -5239,8 +5234,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package popup-ruler
-  :disabled t
-  :bind ("C-c R" . popup-ruler))
+  :commands popup-ruler)
 #+end_src
 
 ** pp-c-l
@@ -5354,8 +5348,6 @@ append it to ENTRY."
      #'(lambda ()
          (set-input-method "Agda")
          (holes-mode -1)
-         (when (featurep 'company)
-           (company-coq-mode 1))
          (abbrev-mode -1)
 
          (bind-key "A-g" #'(lambda () (interactive) (insert "Γ")) 'coq-mode-map)
@@ -5388,47 +5380,58 @@ append it to ENTRY."
   :after coq
   :commands company-coq-mode
   :bind (:map company-coq-map
+              ("<tab>" . company-complete)
               ("M-<return>"))
   :bind (:map coq-mode-map
               ("C-M-h" . company-coq-toggle-definition-overlay))
+  :hook coq-mode
   :custom
   (company-coq-disabled-features
    '(hello prettify-symbols smart-subscripts dynamic-symbols-backend))
   (company-coq-prettify-symbols-alist
-   '(("|-" . 8866)
-     ("True" . 8868)
-     ("False" . 8869)
-     ("->" . 8594)
-     ("-->" . 10230)
-     ("<-" . 8592)
-     ("<--" . 10229)
-     ("<->" . 8596)
-     ("<-->" . 10231)
-     ("==>" . 10233)
-     ("<==" . 10232)
-     ("++>" . 10239)
-     ("<++" . 11059)
-     ("fun" . 955)
+   '(("|-"     . 8866)
+     ("True"   . 8868)
+     ("False"  . 8869)
+     ("->"     . 8594)
+     ("-->"    . 10230)
+     ("<-"     . 8592)
+     ("<--"    . 10229)
+     ("<->"    . 8596)
+     ("<-->"   . 10231)
+     ("==>"    . 10233)
+     ("<=="    . 10232)
+     ("++>"    . 10239)
+     ("<++"    . 11059)
+     ("fun"    . 955)
      ("forall" . 8704)
      ("exists" . 8707)
-     ("/\\" . 8743)
-     ("\\/" . 8744)
-     ("~" . 172)
-     ("+-" . 177)
-     ("<=" . 8804)
-     (">=" . 8805)
-     ("<>" . 8800)
-     ("*" . 215)
-     ("++" . 10746)
-     ("nat" . 120029)
-     ("Z" . 8484)
-     ("N" . 8469)
-     ("Q" . 8474)
-     ("Real" . 8477)
-     ("bool" . 120121)
-     ("Prop" . 120031)))
+     ("/\\"    . 8743)
+     ("\\/"    . 8744)
+     ("~"      . 172)
+     ("+-"     . 177)
+     ("<="     . 8804)
+     (">="     . 8805)
+     ("<>"     . 8800)
+     ("*"      . 215)
+     ("++"     . 10746)
+     ("nat"    . 120029)
+     ("Z"      . 8484)
+     ("N"      . 8469)
+     ("Q"      . 8474)
+     ("Real"   . 8477)
+     ("bool"   . 120121)
+     ("Prop"   . 120031)))
   :custom-face
-  (company-coq-features/code-folding-bullet-face ((t (:weight bold)))))
+  (company-coq-features/code-folding-bullet-face ((t (:weight bold))))
+  :config
+  (add-hook 'company-coq-mode-hook
+            #'(lambda ()
+                ;; (company-mode -1)
+                (require 'cape)
+                (setq-local completion-at-point-functions
+                            (mapcar #'cape-company-to-capf
+                                    company-coq-enabled-backends))))
+  )
 #+end_src
 
 *** coq-lookup
@@ -5709,145 +5712,28 @@ append it to ENTRY."
     (cargo-minor-mode 1)
     (yas-minor-mode-on)
 
-    (if nil
-        (progn
-          (require 'eglot)
-          (when (functionp 'eglot)
-            (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
-            (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
+  ;; (require 'eglot)
 
-            (bind-key "C-c C-c v" #'(lambda ()
-                                      (interactive)
-                                      (shell-command "rustdocs std"))
-                      rust-mode-map)
+  ;; (bind-key "M-n" #'flymake-goto-next-error rust-mode-map)
+  ;; (bind-key "M-p" #'flymake-goto-prev-error rust-mode-map)
 
-            (defun my-rust-project-find-function (dir)
-              (let ((root (locate-dominating-file dir "Cargo.toml")))
-                (and root (cons 'transient root))))
+  ;; (bind-key "C-c C-c v" #'(lambda ()
+  ;;                           (interactive)
+  ;;                           (shell-command "rustdocs std"))
+  ;;           rust-mode-map)
 
-            (with-eval-after-load 'project
-              (add-to-list 'project-find-functions 'my-rust-project-find-function))
+  ;; (defun my-rust-project-find-function (dir)
+  ;;   (let ((root (locate-dominating-file dir "Cargo.toml")))
+  ;;     (and root (cons 'transient root))))
 
-            (let* ((current-server (eglot-current-server))
-                   (live-p (and current-server (jsonrpc-running-p current-server))))
-              (unless live-p
-                (call-interactively #'eglot)))
+  ;; (with-eval-after-load 'project
+  ;;   (add-to-list 'project-find-functions 'my-rust-project-find-function))
 
-            (company-mode 1)))
-      (when (functionp 'lsp)
-        (lsp)))))
-#+end_src
-
-** rustic
-
-#+begin_src emacs-lisp
-(use-package rustic
-  :disabled t
-  :mode ("\\.rs\\'" . rustic-mode)
-  :custom
-  (rustic-format-trigger 'on-save)
-  (rustic-rustfmt-args "--edition 2021")
-  :preface
-  (defun my-update-cargo-args (ad-do-it command &optional args)
-    (let* ((cmd (car (split-string command)))
-           (new-args
-            (if (member cmd '("build" "check" "clippy" "doc" "test"))
-                (let ((args
-                       (format "--target-dir=%s -j8"
-                               (my-cargo-target-dir
-                                (replace-regexp-in-string
-                                 "target" "target--custom"
-                                 (regexp-quote (getenv "CARGO_TARGET_DIR")))))))
-                  (if (member cmd '("build"))
-                      (concat "--message-format=short " args)
-                    args))
-              ""))
-           (args
-            (pcase (and args (split-string args " -- "))
-              (`(,before ,after)
-               (concat before " " new-args " -- " after))
-              (_ (concat args new-args)))))
-      (funcall ad-do-it command args)))
-
-  (defun my-rustic-mode-hook ()
-    (advice-add 'rustic-run-cargo-command :around #'my-update-cargo-args)
-
-    (setq lsp-rust-analyzer-server-command
-          (list (substring (shell-command-to-string "which rust-analyzer") 0 -1)))
-    (setq rustic-analyzer-command lsp-rust-analyzer-server-command)
-
-    (flycheck-mode 1)
-    (yas-minor-mode-on)
-
-    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-    ;; save rust buffers that are not file visiting. Once
-    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-    ;; no longer be necessary.
-    (when buffer-file-name
-      (setq-local buffer-save-without-query t)))
-  :bind (:map rustic-mode-map
-              ("M-j"         . lsp-ui-imenu)
-              ("M-?"         . lsp-find-references)
-              ("C-c d"       . lsp-ui-doc-show)
-              ("C-c h"       . lsp-ui-doc-hide)
-              ("C-c C-c l"   . flycheck-list-errors)
-              ("C-c C-c a"   . lsp-execute-code-action)
-              ("C-c C-c r"   . lsp-rename)
-              ("C-c C-c q"   . lsp-workspace-restart)
-              ("C-c C-c Q"   . lsp-workspace-shutdown)
-              ("C-c C-c s"   . lsp-rust-analyzer-status)
-              ("C-c C-c C-y" . rustic-cargo-clippy))
-  :config
-  (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'my-rustic-mode-hook))
-#+end_src
-
-*** rustic-flycheck
-
-#+begin_src emacs-lisp
-(use-package rustic-flycheck
-  :after rustic
-  :custom
-  (rustic-clippy-arguments
-   (concat "--all-targets "
-           "--all-features "
-           "-- "
-           "-D warnings "
-           "-D clippy::all "
-           "-D clippy::mem_forget "
-           "-C debug-assertions=off"))
-  (rustic-flycheck-clippy-params
-   (concat "--message-format=json " rustic-clippy-arguments))
-  :preface
-  (defun my-rust-project-find-function (dir)
-    (let ((root (locate-dominating-file dir "Cargo.toml")))
-      (and root (cons 'transient root))))
-
-  (defun first-dominating-file (file name)
-    (aif (locate-dominating-file file name)
-        (or (first-dominating-file
-             (file-name-directory (directory-file-name it)) name) it)))
-
-  (defun flycheck-rust-manifest-directory ()
-    (and buffer-file-name
-         (first-dominating-file buffer-file-name "Cargo.toml")))
-
-  (defun rustic-cargo-clippy (&optional arg)
-    (interactive "P")
-    (rustic-cargo-clippy-run
-     (cond (arg
-            (setq rustic-clippy-arguments
-                  (read-from-minibuffer "Cargo clippy arguments: " rustic-clippy-arguments)))
-           ((eq major-mode 'rustic-popup-mode)
-            rustic-clippy-arguments)
-           (t rustic-clippy-arguments))))
-  :config
-  (require 'flycheck)
-
-  (push 'rustic-clippy flycheck-checkers)
-
-  (with-eval-after-load 'project
-    (add-to-list 'project-find-functions 'my-rust-project-find-function)))
+  ;; (let* ((current-server (eglot-current-server))
+  ;;        (live-p (and current-server (jsonrpc-running-p current-server))))
+  ;;   (unless live-p
+  ;;     (call-interactively #'eglot)))
+  ))
 #+end_src
 
 ** savehist
@@ -6031,6 +5917,7 @@ append it to ENTRY."
   (shackle-rules
    '((compilation-mode :select nil :size 0.6)
      ("\\`\\*Messages" :select t :align t :size 0.6)
+     ("\\`\\*company-coq:" :regexp t :noselect t)
      ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
@@ -6102,27 +5989,6 @@ append it to ENTRY."
         slime-contribs '(slime-fancy)))
 #+end_src
 
-** smart-mode-line
-
-#+begin_src emacs-lisp
-(use-package smart-mode-line
-  :disabled t
-  :preface
-  (defface mode-line-buffer-id
-    '((((class color) (background dark))
-       (:foreground "grey50" :italic t :strike-through t))
-      (((class color) (background light))
-       (:foreground "grey55" :italic t :strike-through t)))
-    "Face defined to avoid compiler warnings."
-    :group 'smart-mode)
-  :config
-  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
-  (setq mode-line-format (delq 'mode-line-position mode-line-format))
-  (sml/setup)
-  (sml/apply-theme 'light)
-  (remove-hook 'display-time-hook 'sml/propertize-time-string))
-#+end_src
-
 ** smart-newline
 
 #+begin_src emacs-lisp
@@ -6155,18 +6021,6 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package smerge-mode
   :commands smerge-mode)
-#+end_src
-
-** smex
-
-#+begin_src emacs-lisp
-(use-package smex
-  :disabled t
-  :defer 5
-  :commands smex
-  :custom
-  (smex-history-length 20)
-  (smex-save-file (user-data "smex-items")))
 #+end_src
 
 ** sort-words
@@ -6377,6 +6231,13 @@ append it to ENTRY."
 (use-package tuareg
   :mode (("\\.ml[4ip]?\\'" . tuareg-mode)
          ("\\.eliomi?\\'"  . tuareg-mode)))
+#+end_src
+
+** typescript-mode
+
+#+begin_src emacs-lisp
+(use-package typescript-mode
+  :mode "\.ts\\'")
 #+end_src
 
 ** typo
@@ -7227,6 +7088,7 @@ append it to ENTRY."
          :map yas-keymap
          ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
+  :hook (prog-mode . yas-minor-mode)
   :custom
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
   (yas-snippet-dirs (list (emacs-path "snippets")))
@@ -7235,8 +7097,7 @@ append it to ENTRY."
   :custom-face
   (yas-field-highlight-face ((t (:background "#e4edfc"))))
   :config
-  (yas-load-directory (emacs-path "snippets"))
-  (yas-global-mode 1))
+  (yas-load-directory (emacs-path "snippets")))
 #+end_src
 
 ** z3-mode
@@ -7487,6 +7348,7 @@ locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
 (use-package consult-lsp
+  :disabled t
   :defer 5
   :config
   (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
@@ -7541,16 +7403,15 @@ provides an alternative overlay-based display.
 
 #+begin_src emacs-lisp
 (use-package corfu
-  :defer 5
-  ;; Use corfu for lsp completion
-  :hook (lsp-completion-mode . kb/corfu-setup-lsp)
+  :demand t
   :bind (:map corfu-map
               ("C-n"      . corfu-next)
               ("C-p"      . corfu-previous)
               ("<escape>" . corfu-quit)
               ("<return>" . corfu-insert)
               ("M-d"      . corfu-info-documentation)
-              ("M-l"      . corfu-info-location))
+              ("M-l"      . corfu-info-location)
+              ("M-."      . corfu-move-to-minibuffer))
   :custom
   ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
   ;; want to perform completion
@@ -7584,7 +7445,6 @@ provides an alternative overlay-based display.
 
   ;; Other
   (corfu-echo-documentation nil)        ; Already use corfu-popupinfo
-  (lsp-completion-provider :none)       ; Use corfu instead for lsp completions
   :preface
   (defun corfu-enable-always-in-minibuffer ()
     "Enable Corfu in the minibuffer if Vertico/Mct are not active."
@@ -7593,17 +7453,16 @@ provides an alternative overlay-based display.
       (setq-local corfu-auto nil)       ; Ensure auto completion is disabled
       (corfu-mode 1)))
 
-  ;; Setup lsp to use corfu for lsp completion
-  (defun kb/corfu-setup-lsp ()
-    "Use orderless completion style with lsp-capf instead of default."
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless)))
+  (defun corfu-move-to-minibuffer ()
+    (interactive)
+    (let (completion-cycle-threshold completion-cycling)
+      (apply #'consult-completion-in-region completion-in-region--data)))
   :config
   (global-corfu-mode)
 
   ;; Enable Corfu more generally for every minibuffer, as long as no other
-  ;; completion UI is active. If you use Mct or Vertico as your main minibuffer
-  ;; completion UI. From
+  ;; completion UI is active. If you use Mct or Vertico as your main
+  ;; minibuffer completion UI. From
   ;; https://github.com/minad/corfu#completing-with-corfu-in-the-minibuffer
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1))
 #+end_src
@@ -7633,7 +7492,7 @@ provides an alternative overlay-based display.
   (define-key corfu-map [remap corfu-show-documentation] #'corfu-popupinfo-toggle))
 #+end_src
 
-**** cape
+*** cape
 
 [[https://github.com/minad/cape][cape]] provides Completion At Point Extensions which can be used in combination
 with the [[https://github.com/minad/corfu][Corfu]] completion UI or the default completion UI. The completion
@@ -7647,9 +7506,10 @@ advantage of Company backends even if you are not using Company as frontend.
 
 #+begin_src emacs-lisp
 (use-package cape
-  :bind (("C-c . p" . completion-at-point) ;; capf
-         ("C-c . t" . complete-tag)        ;; etags
-         ("C-c . d" . cape-dabbrev)        ;; or dabbrev-completion
+  :demand t
+  :bind (("C-c . p" . completion-at-point)
+         ("C-c . t" . complete-tag)
+         ("C-c . d" . cape-dabbrev)
          ("C-c . h" . cape-history)
          ("C-c . f" . cape-file)
          ("C-c . k" . cape-keyword)
@@ -7802,10 +7662,12 @@ exclusively, set both variables to =nil=.
 
 #+begin_src emacs-lisp
 (use-package orderless
-  :defer 5
+  :demand t
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  (completion-category-overrides
+   '((file (styles basic partial-completion))
+     (eglot (styles orderless basic)))))
 #+end_src
 
 *** vertico
@@ -7859,7 +7721,7 @@ without white space and comments.
   :config
   (vertico-mode)
 
-  (define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
+  ;(define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
 
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -7910,9 +7772,8 @@ without white space and comments.
      '((consult-imenu buffer)
        (consult-line buffer)
        (consult-grep buffer)
-       (consult-yank-pop vertical)
-       (embark-bindings buffer)
-       (project-find-file vertical)))
+       (consult-yank-pop)
+       (embark-bindings buffer)))
     (vertico-multiform-categories
      '((t unobtrusive)))
     :config
@@ -7923,6 +7784,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package company
+  :disabled t
   :defer 5
   :diminish
   :commands (company-mode company-indent-or-complete-common)
@@ -8678,29 +8540,6 @@ is:
   (mail-specify-envelope-from t)
   (send-mail-function 'sendmail-send-it)
   (sendmail-program "msmtp"))
-#+end_src
-
-**** smtpmail
-
-=smtpmail= allows for directly sending mail via SMTP from Emacs. At the moment,
-I use the program =msmtp= so Emacs isn't blocked during the sending of long
-messages.
-
-#+begin_src emacs-lisp
-(use-package smtpmail
-  :disabled t
-  :after sendmail
-  :custom
-  (smtpmail-default-smtp-server "smtp.gmail.com")
-  (smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
-  (smtpmail-smtp-server "smtp.fastmail.com")
-  (smtpmail-smtp-service 587)
-  (smtpmail-smtp-user "johnw@newartisans.com")
-  (smtpmail-starttls-credentials
-   '(("mail.johnwiegley.com" 587 nil nil)
-     ("smtp.fastmail.com" 587 nil nil)
-     ("smtp.gmail.com" 587 nil nil)))
-  (smtpmail-stream-type 'ssl))
 #+end_src
 
 **** mm-decode
@@ -10022,67 +9861,6 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
 #+end_src
 
-*** calfw
-
-#+begin_src emacs-lisp
-(use-package calfw
-  :disabled t
-  :bind (("C-c A" . my-calendar)
-         :map cfw:calendar-mode-map
-         ("M-n" . cfw:navi-next-month-command)
-         ("M-p" . cfw:navi-previous-month-command)
-         ("j"   . cfw:navi-goto-date-command)
-         ("g"   . cfw:refresh-calendar-buffer))
-  :commands cfw:open-calendar-buffer
-  :functions (cfw:open-calendar-buffer
-              cfw:refresh-calendar-buffer
-              cfw:org-create-source
-              cfw:cal-create-source)
-  :custom
-  (cfw:read-date-command
-   (lambda nil
-     (interactive)
-     (let
-         ((xs
-           (decode-time
-            (org-time-string-to-time
-             (org-read-date)))))
-       (list
-        (nth 4 xs)
-        (nth 3 xs)
-        (nth 5 xs)))))
-  :preface
-  (defun my-calendar ()
-    (interactive)
-    (let ((buf (get-buffer "*cfw-calendar*"))
-          (org-agenda-files
-           (cons "~/doc/org/Nasim.org"
-                 org-agenda-files)))
-      (if buf
-          (pop-to-buffer buf nil)
-        (cfw:open-calendar-buffer
-         :contents-sources
-         (list (cfw:org-create-source "Dark Blue")
-               (cfw:cal-create-source "Dark Orange"))
-         :view 'two-weeks)
-        (setq-local org-agenda-files org-agenda-files))))
-
-  :config
-  (require 'calfw-cal)
-  (use-package calfw-org
-    :config
-    (setq cfw:org-agenda-schedule-args '(:deadline :timestamp :sexp)))
-
-  (setq cfw:fchar-junction         ?╋
-        cfw:fchar-vertical-line    ?┃
-        cfw:fchar-horizontal-line  ?━
-        cfw:fchar-left-junction    ?┣
-        cfw:fchar-right-junction   ?┫
-        cfw:fchar-top-junction     ?┯
-        cfw:fchar-top-left-corner  ?┏
-        cfw:fchar-top-right-corner ?┓))
-#+end_src
-
 *** ob-restclient
 
 #+begin_src emacs-lisp
@@ -10298,6 +10076,15 @@ end tell" (shell-quote-argument (match-string 1))))))
       (org-agenda nil "a")))
   :config
   (org-super-agenda-mode))
+#+end_src
+
+*** org-transclusion
+
+#+begin_src emacs-lisp
+(use-package org-transclusion
+  :after org
+  :commands (org-transclusion-add
+             org-transclusion-mode))
 #+end_src
 
 *** org-web-tools
