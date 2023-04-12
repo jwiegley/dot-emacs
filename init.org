@@ -134,6 +134,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package emacs
+  :bind* ("<C-return>" . other-window)
   :custom
   ;; C source code
   (auto-hscroll-mode 'current-line)
@@ -476,6 +477,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package ace-window
+  :disabled t
   :bind* ("<C-return>" . ace-window)
   :custom
   (aw-dispatch-when-more-than 6)
@@ -540,10 +542,7 @@ unto itself.
       (save-excursion
         (forward-paragraph)
         (let ((name (car (split-string func-def " "))))
-          (insert "  where\n    " func-def "    " name " x = ?\n")))))
-  :init
-  (advice-add 'agda2-mode
-              :before #'direnv-update-directory-environment))
+          (insert "  where\n    " func-def "    " name " x = ?\n"))))))
 #+end_src
 
 ** aggressive-indent
@@ -1958,51 +1957,31 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package direnv
-  :commands direnv-update-environment
+  :commands (direnv--maybe-update-environment)
   :preface
   (defconst emacs-binary-path (directory-file-name
                                (file-name-directory
                                 (executable-find "emacsclient"))))
 
   (defun patch-direnv-environment (&rest _args)
-    (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
-    (setq exec-path
-          (cons (file-name-as-directory emacs-binary-path) exec-path)))
-
-  (defvar flycheck-executable-for-buffer (make-hash-table :test #'equal))
-
-  (defun locate-flycheck-executable (cmd)
-    ;; (add-hook 'post-command-hook #'direnv--maybe-update-environment)
-    (let ((exe (gethash (cons cmd (buffer-name))
-                        flycheck-executable-for-buffer)))
-      (if exe
-          exe
-        (direnv-update-environment default-directory)
-        (let ((exe (executable-find cmd)))
-          (puthash (cons cmd (buffer-name)) exe
-                   flycheck-executable-for-buffer)))))
+    (let ((dir (file-name-as-directory emacs-binary-path)))
+      (unless (member dir exec-path)
+        (setenv "PATH" (concat emacs-binary-path ":" (getenv "PATH")))
+        (setq exec-path (cons dir exec-path)))))
 
   (defvar my-direnv-last-buffer nil)
 
-  (defun update-on-buffer-change ()
+  (defun my-direnv-maybe-update (&rest _ignore)
     (unless (eq (current-buffer) my-direnv-last-buffer)
       (setq my-direnv-last-buffer (current-buffer))
-      (direnv-update-environment default-directory)))
+      (direnv--maybe-update-environment)))
   :init
-  (eval-after-load 'flycheck
-    '(setq flycheck-executable-find #'locate-flycheck-executable))
-
-  (add-hook 'coq-mode-hook
-            #'(lambda ()
-                (direnv-update-environment default-directory)))
-
   (advice-add 'direnv-update-directory-environment
               :after #'patch-direnv-environment)
 
-  (add-hook 'git-commit-mode-hook #'patch-direnv-environment)
-  (add-hook 'magit-status-mode-hook #'patch-direnv-environment)
-
-  (add-hook 'post-command-hook #'update-on-buffer-change))
+  (add-hook 'change-major-mode-hook #'my-direnv-maybe-update)
+  (add-hook 'buffer-list-update-hook #'my-direnv-maybe-update)
+  (add-hook 'window-selection-change-functions #'my-direnv-maybe-update))
 #+end_src
 
 ** discover-my-major
@@ -2207,12 +2186,10 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package eldoc
-  :disabled t
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode)
   :custom
-  (eldoc-echo-area-use-multiline-p 3)
-  (global-eldoc-mode nil))
+  (eldoc-echo-area-use-multiline-p 3))
 #+end_src
 
 ** electric
@@ -2542,9 +2519,11 @@ non-empty directories is allowed."
 (use-package eshell
   :commands (eshell eshell-command)
   :custom
-  ;; REF: smart-mode-line
-  ;; (eshell-directory-change-hook
-  ;;  '(sml/generate-buffer-identification direnv-update-environment))
+  REF: smart-mode-line
+  (eshell-directory-change-hook
+   '(
+     sml/generate-buffer-identification
+     my-direnv-maybe-update))
   (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
   (eshell-history-size 50000)
@@ -3011,15 +2990,6 @@ up before you execute another command."
   :bind ("C-x C-/" . goto-last-change))
 #+end_src
 
-** goto-line-preview
-
-#+begin_src emacs-lisp
-(use-package goto-line-preview
-  :commands goto-line-preview
-  :init
-  (global-set-key [remap goto-line] 'goto-line-preview))
-#+end_src
-
 ** graphviz-dot-mode
 
 #+begin_src emacs-lisp
@@ -3204,42 +3174,40 @@ up before you execute another command."
     (haskell-indentation-mode)
     (interactive-haskell-mode)
     (diminish 'interactive-haskell-mode)
-    (when (and (boundp 'brittany-enabled)
-               brittany-enabled
-               (fboundp 'find-brittany))
-      (let ((brittany (find-brittany)))
-        (when brittany
-          (setq-local haskell-stylish-on-save t)
-          (setq-local haskell-mode-stylish-haskell-path brittany)
-          (setq-local haskell-mode-stylish-haskell-args '("-")))))
-    (advice-add 'direnv-update-directory-environment
-                :after #'my-update-cabal-repl)
     (whitespace-mode 1)
+    (bug-reference-prog-mode 1)
+
     (flycheck-mode 1)
     (flycheck-haskell-setup)
+
+    (prettify-symbols-mode 1)
+    (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+
+    (advice-add 'direnv-update-directory-environment
+                :after #'my-update-cabal-repl)
+
     (add-hook 'hack-local-variables-hook
               #'(lambda ()
                   (when nil
                     (setq-local flycheck-ghc-search-path nil)
-                    (setq-local flycheck-ghc-args nil)))
-              t)
+                    (setq-local flycheck-ghc-args nil))))
+
     (bind-key "M-n" #'haskell-goto-next-error haskell-mode-map)
     (bind-key "M-p" #'haskell-goto-prev-error haskell-mode-map)
-    (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
-    (prettify-symbols-mode 1)
-    (bug-reference-prog-mode 1)
+
     (when (executable-find "ormolu")
       (require 'format-all)
-      (define-format-all-formatter ormolu
-                                   (:executable "ormolu")
-                                   (:install "stack install ormolu")
-                                   (:languages "Haskell" "Literate Haskell")
-                                   (:features)
-                                   (:format
-                                    (format-all--buffer-easy
-                                     executable
-                                     (when (buffer-file-name)
-                                       (list "--stdin-input-file" (buffer-file-name))))))
+      (define-format-all-formatter
+       ormolu
+       (:executable "ormolu")
+       (:install "stack install ormolu")
+       (:languages "Haskell" "Literate Haskell")
+       (:features)
+       (:format
+        (format-all--buffer-easy
+         executable
+         (when (buffer-file-name)
+           (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
       ;; (format-all-mode 1)
       ))
@@ -4231,13 +4199,27 @@ actual Emacs buffer of the module being loaded."
   (remove-hook 'server-switch-hook 'magit-commit-diff)
   (remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
 
+  (defvar magit--call-git-cache (make-hash-table :test #'equal))
+
+  (defun my-magit-cache-config (orig-func &rest args)
+    (or (and (string= (car args) "config")
+             (gethash args magit--call-git-cache))
+        (let ((result (apply orig-func args)))
+          (puthash args result magit--call-git-cache)
+          result)))
+
+  (advice-add 'magit-git-items :around #'my-magit-cache-config)
+
   (use-package magit-commit
     :defer t
     :config
     (use-package git-commit
       :custom
+      (git-commit-major-mode 'markdown-mode)
       (git-commit-mode-hook
-       '(turn-on-auto-fill flyspell-mode git-commit-save-message))))
+       '(turn-on-auto-fill
+         git-commit-turn-on-flyspell
+         git-commit-save-message))))
 
   (use-package magit-pull
     :defer t
@@ -4267,7 +4249,17 @@ actual Emacs buffer of the module being loaded."
                     ;; magit-insert-unpulled-from-pushremote
                     magit-insert-unpulled-from-upstream
                     ))
-      (remove-hook 'magit-status-sections-hook func))))
+      (remove-hook 'magit-status-sections-hook func))
+
+    (dolist (func '(
+                    ;; magit-insert-error-header
+                    magit-insert-diff-filter-header
+                    ;; magit-insert-head-branch-header
+                    magit-insert-upstream-branch-header
+                    magit-insert-push-branch-header
+                    magit-insert-tags-header
+                    ))
+      (remove-hook 'magit-status-headers-hook func))))
 #+end_src
 
 *** magit-autorevert
@@ -5271,6 +5263,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package projectile
+  :disabled t
   :defer 5
   :diminish
   :bind* (("C-c TAB" . projectile-find-other-file)
@@ -5282,8 +5275,6 @@ append it to ENTRY."
   (projectile-cache-file (user-data "projectile.cache"))
   (projectile-enable-caching t)
   (projectile-file-exists-local-cache-expire 300)
-  (projectile-globally-ignored-directories
-   '(".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "dist" "\\`/nix/.+" ".*/\\..*"))
   (projectile-globally-ignored-files '("TAGS"))
   (projectile-ignored-project-function
    (lambda
@@ -5291,31 +5282,7 @@ append it to ENTRY."
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
   (projectile-keymap-prefix "p")
   (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
-  (projectile-other-file-alist
-   '(("cpp" "h" "hpp" "ipp")
-     ("ipp" "h" "hpp" "cpp")
-     ("hpp" "h" "ipp" "cpp" "cc")
-     ("cxx" "h" "hxx" "ixx")
-     ("ixx" "h" "hxx" "cxx")
-     ("hxx" "h" "ixx" "cxx")
-     ("c" "h")
-     ("m" "h")
-     ("mm" "h")
-     ("h" "c" "cc" "cpp" "ipp" "hpp" "cxx" "ixx" "hxx" "m" "mm")
-     ("cc" "h" "hh" "hpp")
-     ("hh" "cc")
-     ("vert" "frag")
-     ("frag" "vert")
-     (nil "lock" "gpg")
-     ("lock" "")
-     ("gpg" "")
-     ("mli" "ml")
-     ("ml" "mli")
-     ("hs-boot" "hs")
-     ("hs" "hs-boot")
-     ("nix" "exp")
-     ("exp" "nix")))
-  (projectile-project-search-path '("~/src"))
+  (projectile-project-search-path '("~/src" "~/kadena"))
   (projectile-sort-order 'recentf)
   :preface
   (defun my-projectile-invalidate-cache (&rest _args)
@@ -5325,10 +5292,8 @@ append it to ENTRY."
 
   (eval-after-load 'magit-branch
     '(progn
-       (advice-add 'magit-checkout
-                   :after #'my-projectile-invalidate-cache)
-       (advice-add 'magit-branch-and-checkout
-                   :after #'my-projectile-invalidate-cache))))
+       (advice-add 'magit-checkout :after #'my-projectile-invalidate-cache)
+       (advice-add 'magit-branch-and-checkout :after #'my-projectile-invalidate-cache))))
 #+end_src
 
 ** proof-general
@@ -5740,7 +5705,6 @@ append it to ENTRY."
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cargo-path)
     (advice-add 'cargo-process--start :around #'my-update-cargo-args)
-    (direnv-update-environment default-directory)
 
     (cargo-minor-mode 1)
     (yas-minor-mode-on)
@@ -5807,7 +5771,6 @@ append it to ENTRY."
 
   (defun my-rustic-mode-hook ()
     (advice-add 'rustic-run-cargo-command :around #'my-update-cargo-args)
-    (direnv-update-environment default-directory)
 
     (setq lsp-rust-analyzer-server-command
           (list (substring (shell-command-to-string "which rust-analyzer") 0 -1)))
@@ -5950,7 +5913,7 @@ append it to ENTRY."
 
   (defun my-sdcv-search ()
     (interactive)
-    (cl-flet
+    (flet
         ((read-string
            (prompt &optional initial-input history
                    default-value _inherit-input-method)
@@ -7337,59 +7300,61 @@ independent components.
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings (mode-specific-map)
          ("C-c M-x" . consult-mode-command)
-         ("C-c h" . consult-history)
-         ("C-c K" . consult-kmacro)
-         ("C-c i" . consult-info)
+         ("C-c h"   . consult-history)
+         ("C-c K"   . consult-kmacro)
+         ("C-c i"   . consult-info)
          ([remap Info-search] . consult-info)
 
          ("C-*"     . consult-org-heading)
          ("C-c e l" . find-library)
          ("C-c e q" . set-variable)
          ("C-h e l" . find-library)
+         ("C-c p f" . project-find-file)
 
-         ("M-s f" . counsel-file-jump)
-         ;; ("M-s g" . counsel-rg)
-         ("M-s j" . counsel-dired-jump)
+         ("M-s f"   . counsel-file-jump)
+         ;; ("M-s g". counsel-rg)
+         ("M-s j"   . counsel-dired-jump)
 
          ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b"   . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("C-x r b" . consult-bookmark)
+         ("C-x p b" . consult-project-buffer)
          ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("M-y"     . consult-yank-pop)
          ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-org-heading)
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
+         ("M-g e"   . consult-compile-error)
+         ("M-g f"   . consult-flycheck)
+         ("M-g g"   . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ([remap goto-line] . consult-goto-line)
+         ("M-g o"   . consult-org-heading)
+         ("M-g m"   . consult-mark)
+         ("M-g k"   . consult-global-mark)
+         ("M-g i"   . consult-imenu)
+         ("M-g I"   . consult-imenu-multi)
          ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
+         ("M-s d"   . consult-find)
          ("M-s M-g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
+         ("M-s G"   . consult-git-grep)
+         ("M-s r"   . consult-ripgrep)
+         ("M-s l"   . consult-line)
+         ("M-s L"   . consult-line-multi)
+         ("M-s k"   . consult-keep-lines)
+         ("M-s u"   . consult-focus-lines)
          ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
+         ("M-s e"   . consult-isearch-history)
          :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ("M-e"     . consult-isearch-history)
+         ("M-s e"   . consult-isearch-history)
+         ("M-s l"   . consult-line)
+         ("M-s L"   . consult-line-multi)
          ;; Minibuffer history
          :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ("M-s"     . consult-history)
+         ("M-r"     . consult-history))
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -7917,8 +7882,8 @@ without white space and comments.
   (use-package vertico-directory
     :demand t
     :bind (:map vertico-map
-                ("<backspace>" .   vertico-directory-delete-char)
-                ("C-w" .           vertico-directory-delete-word)
+                ("<backspace>"   . vertico-directory-delete-char)
+                ("C-w"           . vertico-directory-delete-word)
                 ("C-<backspace>" . vertico-directory-delete-word)
                 ;; ("RET" .           vertico-directory-enter)
                 ))
@@ -7926,7 +7891,7 @@ without white space and comments.
   (use-package vertico-quick
     :demand t
     :bind (:map vertico-map
-                ("C-." . vertico-quick-exit)
+                ("C-."   . vertico-quick-exit)
                 ("C-M-." . vertico-quick-embark))
     :preface
     (defun vertico-quick-embark (&optional arg)
@@ -7938,21 +7903,20 @@ without white space and comments.
   (use-package vertico-multiform
     :demand t
     :bind (:map vertico-map
-                ("C-i" . vertico-multiform-vertical)
+                ("C-i"   . vertico-multiform-vertical)
                 ("<tab>" . vertico-insert))
+    :custom
+    (vertico-multiform-commands
+     '((consult-imenu buffer)
+       (consult-line buffer)
+       (consult-grep buffer)
+       (consult-yank-pop vertical)
+       (embark-bindings buffer)
+       (project-find-file vertical)))
+    (vertico-multiform-categories
+     '((t unobtrusive)))
     :config
-    (vertico-multiform-mode 1)
-
-    (setq vertico-multiform-commands
-          '((consult-imenu buffer)
-            (consult-line buffer)
-            (consult-yank-pop buffer)
-            (embark-bindings buffer)
-            (project-find-file buffer)))
-
-    (setq vertico-multiform-categories
-          '((consult-grep buffer)
-            (t unobtrusive)))))
+    (vertico-multiform-mode 1)))
 #+end_src
 
 *** company
