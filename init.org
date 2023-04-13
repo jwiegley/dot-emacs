@@ -4245,20 +4245,20 @@ actual Emacs buffer of the module being loaded."
                     ;; magit-insert-unstaged-changes
                     ;; magit-insert-staged-changes
                     ;; magit-insert-stashes
-                    ;; magit-insert-unpushed-to-pushremote
-                    ;; magit-insert-unpushed-to-upstream-or-recent
-                    ;; magit-insert-unpulled-from-pushremote
-                    ;; magit-insert-unpulled-from-upstream
+                    magit-insert-unpushed-to-pushremote
+                    magit-insert-unpushed-to-upstream-or-recent
+                    magit-insert-unpulled-from-pushremote
+                    magit-insert-unpulled-from-upstream
                     ))
       (remove-hook 'magit-status-sections-hook func))
 
     (dolist (func '(
                     ;; magit-insert-error-header
-                    ;; magit-insert-diff-filter-header
+                    magit-insert-diff-filter-header
                     ;; magit-insert-head-branch-header
-                    ;; magit-insert-upstream-branch-header
+                    magit-insert-upstream-branch-header
                     ;; magit-insert-push-branch-header
-                    ;; magit-insert-tags-header
+                    magit-insert-tags-header
                     ))
       (remove-hook 'magit-status-headers-hook func))))
 #+end_src
@@ -7905,10 +7905,13 @@ without white space and comments.
       (expiry-wait . 28)
       (expiry-target . delete)
       (ham-process-destination . "INBOX")
-      (spam-contents gnus-group-spam-classification-spam)
-      (spam-process
-       ((spam spam-use-spamassassin)
-        (ham spam-use-spamassassin))))
+      (spam-contents gnus-group-spam-classification-spam))
+     ("mail\\.spam\\.report"
+      (total-expire . t)
+      (expiry-wait . 28)
+      (expiry-target . delete)
+      (ham-process-destination . "INBOX")
+      (spam-contents gnus-group-spam-classification-spam))
      ("list\\."
       (subscribed . t))
      ("list\\.wg21\\.\\(.*\\)"
@@ -7919,11 +7922,8 @@ without white space and comments.
       (total-expire . t)
       (expiry-wait . 90)
       (expiry-target . "mail.archive")
-      (spam-process-destination . "mail.spam")
-      (spam-contents gnus-group-spam-classification-ham)
-      (spam-process
-       ((spam spam-use-spamassassin)
-        (ham spam-use-spamassassin))))
+      (spam-process-destination . "mail.spam.report")
+      (spam-contents gnus-group-spam-classification-ham))
      ("\\(mail\\.\\|INBOX\\)"
       (gnus-use-scoring nil))
      ("mail\\.archive"
