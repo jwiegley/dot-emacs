@@ -1374,6 +1374,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package citre-config
+  :disabled t
   :demand t
   :bind (("C-x c j" . citre-jump)
          ("C-x c J" . citre-jump-back)
@@ -2525,11 +2526,7 @@ non-empty directories is allowed."
 (use-package eshell
   :commands (eshell eshell-command)
   :custom
-  REF: smart-mode-line
-  (eshell-directory-change-hook
-   '(
-     sml/generate-buffer-identification
-     my-direnv-maybe-update))
+  (eshell-directory-change-hook '(my-direnv-maybe-update))
   (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
   (eshell-history-size 50000)
@@ -2554,14 +2551,9 @@ non-empty directories is allowed."
      eshell-xtra))
   (eshell-prompt-function
    (lambda nil
-     (concat
-      (abbreviate-file-name
-       (eshell/pwd))
-      (if
-          (=
-           (user-uid)
-           0)
-          " # " " $ "))))
+     (concat (abbreviate-file-name (eshell/pwd))
+             (if (= (user-uid) 0)
+                 " # " " $ "))))
   (eshell-rebind-keys-alist
    '(([(control 97)]
       . eshell-bol)
@@ -3050,19 +3042,18 @@ up before you execute another command."
   :mode (("\\.hs\\(c\\|-boot\\)?\\'" . haskell-mode)
          ("\\.lhs\\'" . haskell-literate-mode)
          ("\\.cabal\\'" . haskell-cabal-mode))
-  (haskell-hasktags-arguments '("-e"))
   :bind (:map
          haskell-mode-map
          ("C-c C-h" . my-haskell-hoogle)
          ("C-c C-," . haskell-navigate-imports)
          ("C-c C-." . haskell-mode-format-imports)
          ("C-c C-u" . my-haskell-insert-undefined)
-         ;; ("M-.")
          ("M-s")
          ("M-t")
-         :map
-         interactive-haskell-mode-map
-         ("M-."))
+         ;; :map
+         ;; interactive-haskell-mode-map
+         ;; ("M-.")
+         )
   :custom
   (haskell-compile-cabal-build-command
    "cd %s && cabal new-build --ghc-option=-ferror-spans")
@@ -4253,21 +4244,21 @@ actual Emacs buffer of the module being loaded."
                     ;; magit-insert-untracked-files
                     ;; magit-insert-unstaged-changes
                     ;; magit-insert-staged-changes
-                    magit-insert-stashes
+                    ;; magit-insert-stashes
                     ;; magit-insert-unpushed-to-pushremote
-                    magit-insert-unpushed-to-upstream-or-recent
+                    ;; magit-insert-unpushed-to-upstream-or-recent
                     ;; magit-insert-unpulled-from-pushremote
-                    magit-insert-unpulled-from-upstream
+                    ;; magit-insert-unpulled-from-upstream
                     ))
       (remove-hook 'magit-status-sections-hook func))
 
     (dolist (func '(
                     ;; magit-insert-error-header
-                    magit-insert-diff-filter-header
+                    ;; magit-insert-diff-filter-header
                     ;; magit-insert-head-branch-header
-                    magit-insert-upstream-branch-header
-                    magit-insert-push-branch-header
-                    magit-insert-tags-header
+                    ;; magit-insert-upstream-branch-header
+                    ;; magit-insert-push-branch-header
+                    ;; magit-insert-tags-header
                     ))
       (remove-hook 'magit-status-headers-hook func))))
 #+end_src
@@ -4832,14 +4823,19 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 #+begin_src emacs-lisp
 (use-package pact-mode
   :mode "\\.pact\\'"
-  :config
+  :commands (pact-compile)
+  :defines (pact-mode pact-mode-hook)
+  :init
   (add-hook 'pact-mode-hook
             #'(lambda ()
                 (bind-key "C-c C-c"
                           #'(lambda () (interactive)
                               (save-excursion
                                 (call-interactively 'pact-compile)))
-                          'slime-mode-map))))
+                          'slime-mode-map)))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(pact-mode . ("pact-lsp"))))
+  (add-hook 'pact-mode-hook 'eglot-ensure))
 #+end_src
 
 ** pandoc-mode
@@ -7088,7 +7084,7 @@ append it to ENTRY."
          :map yas-keymap
          ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :hook (prog-mode . yas-minor-mode)
+  :hook ((org-mode prog-mode) . yas-minor-mode)
   :custom
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
   (yas-snippet-dirs (list (emacs-path "snippets")))
@@ -7772,6 +7768,7 @@ without white space and comments.
      '((consult-imenu buffer)
        (consult-line buffer)
        (consult-grep buffer)
+       (consult-ripgrep buffer)
        (consult-yank-pop)
        (embark-bindings buffer)))
     (vertico-multiform-categories
@@ -8191,11 +8188,11 @@ without white space and comments.
   (gnus-sum-thread-tree-false-root "")
   (gnus-sum-thread-tree-single-indent "")
   (gnus-sum-thread-tree-root "")
-  (gnus-sum-thread-tree-vertical "|")
-  (gnus-sum-thread-tree-leaf-with-other "+-> ")
-  (gnus-sum-thread-tree-single-leaf "\\-> ")
-  (gnus-sum-thread-tree-indent " ")
-  (gnus-sum-thread-tree-single-indent "  ")
+  (gnus-sum-thread-tree-vertical "│")
+  (gnus-sum-thread-tree-leaf-with-other "├── ")
+  (gnus-sum-thread-tree-single-leaf "└── ")
+  (gnus-sum-thread-tree-indent "  ")
+  (gnus-sum-thread-tree-single-indent " ")
   (gnus-summary-expunge-below -100)
   (gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)\n")
   (gnus-summary-mark-below -100)
@@ -9363,9 +9360,9 @@ This can be 0 for immediate, or a floating point value.")
     (interactive "r")
     (save-excursion
       (goto-char end)
-      (insert ":OUTPUT:\n")
+      (insert ":END:\n")
       (goto-char beg)
-      (insert ":END:\n")))
+      (insert ":OUTPUT:\n")))
 
   (defun org-refile-heading-p ()
     (let ((heading (org-get-heading)))
@@ -9374,7 +9371,8 @@ This can be 0 for immediate, or a floating point value.")
   (defsubst org-current-is-todo ()
     (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
   :config
-  (add-hook 'org-capture-mode-hook #'(lambda () (setq-local fill-column (- 78 2))))
+  (add-hook 'org-log-buffer-setup-hook
+            #'(lambda () (setq-local fill-column (- 78 2))))
 
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open

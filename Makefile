@@ -46,7 +46,7 @@ slow:
 	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
 open:
-	open $$(dirname $$(which emacs))/../Applications/Emacs.app
+	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
 
 # This rule output configured packages compared to installed packages. Note
 # that some must be filtered out (usually because they are builtins) or
