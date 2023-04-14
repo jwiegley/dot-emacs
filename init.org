@@ -6,6 +6,7 @@
 
 #+begin_src emacs-lisp
 (defconst emacs-start-time (current-time))
+
 (defun report-time-since-load (&optional suffix)
   (message "Loading init...done (%.3fs)%s"
            (float-time (time-subtract (current-time) emacs-start-time))
@@ -27,7 +28,9 @@
         (append (list (emacs-path "use-package"))
                 (delete-dups load-path)
                 (list (emacs-path "lisp")))))
+
 (require 'use-package)
+
 (setq use-package-verbose init-file-debug
       use-package-expand-minimally (not init-file-debug)
       use-package-compute-statistics nil
@@ -38,7 +41,9 @@
 
 #+begin_src emacs-lisp
 (defvar file-name-handler-alist-old file-name-handler-alist)
+
 (setq file-name-handler-alist nil)
+
 (add-hook 'after-init-hook
           #'(lambda ()
               (setq file-name-handler-alist file-name-handler-alist-old)
@@ -80,6 +85,12 @@
 #+begin_src emacs-lisp
 (remove-hook 'after-change-major-mode-hook 'global-eldoc-mode-enable-in-buffers)
 (global-eldoc-mode -1)
+#+end_src
+
+** Garbage collect at the end of startup
+
+#+begin_src emacs-lisp
+(add-hook 'after-init-hook #'garbage-collect t)
 #+end_src
 
 * Helper functions
@@ -498,7 +509,29 @@ unto itself.
   :hook (adoc-mode . turn-on-auto-fill))
 #+end_src
 
-** agda-input
+** agda2-mode
+
+#+begin_src emacs-lisp
+(use-package agda2-mode
+  :mode ("\\.agda\\'" "\\.lagda.md\\'")
+  :bind (:map agda2-mode-map
+              ("C-c C-i" . agda2-insert-helper-function))
+  :custom
+  (agda2-backend "MAlonzo")
+  (agda2-include-dirs
+   '("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda"))
+  :preface
+  (defun agda2-insert-helper-function (&optional _prefix)
+    (interactive "P")
+    (let ((func-def (with-current-buffer "*Agda information*"
+                      (buffer-string))))
+      (save-excursion
+        (forward-paragraph)
+        (let ((name (car (split-string func-def " "))))
+          (insert "  where\n    " func-def "    " name " x = ?\n"))))))
+#+end_src
+
+*** agda-input
 
 #+begin_src emacs-lisp
 (use-package agda-input
@@ -521,28 +554,6 @@ unto itself.
      ("diag"   "∆")
      ("whl"    "⊳")
      ("whr"    "⊲"))))
-#+end_src
-
-** agda2-mode
-
-#+begin_src emacs-lisp
-(use-package agda2-mode
-  :mode ("\\.agda\\'" "\\.lagda.md\\'")
-  :bind (:map agda2-mode-map
-              ("C-c C-i" . agda2-insert-helper-function))
-  :custom
-  (agda2-backend "MAlonzo")
-  (agda2-include-dirs
-   '("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda"))
-  :preface
-  (defun agda2-insert-helper-function (&optional _prefix)
-    (interactive "P")
-    (let ((func-def (with-current-buffer "*Agda information*"
-                      (buffer-string))))
-      (save-excursion
-        (forward-paragraph)
-        (let ((name (car (split-string func-def " "))))
-          (insert "  where\n    " func-def "    " name " x = ?\n"))))))
 #+end_src
 
 ** aggressive-indent
@@ -1631,8 +1642,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package dabbrev
-  :bind (("M-/"   . dabbrev-expand)
-         ("C-M-/" . dabbrev-completion))
+  :bind (("C-M-/" . dabbrev-expand))
   :custom
   (dabbrev-case-fold-search nil)
   (dabbrev-case-replace nil)
@@ -2205,23 +2215,6 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package elisp-docstring-mode
   :commands elisp-docstring-mode)
-#+end_src
-
-** elisp-mode
-
-#+begin_src emacs-lisp
-(use-package elisp-mode
-  :defer t
-  :hook (emacs-lisp-mode . my/setup-elisp)
-  :preface
-  (defun my/setup-elisp ()
-    ;; REF: cape
-    (setq-local completion-at-point-functions
-                `(,(cape-super-capf
-                    #'elisp-completion-at-point
-                    #'cape-dabbrev)
-                  cape-file)
-                cape-dabbrev-min-length 5)))
 #+end_src
 
 ** elisp-slime-nav
@@ -3757,8 +3750,18 @@ actual Emacs buffer of the module being loaded."
 #+begin_src emacs-lisp
 (use-package jobhours
   :disabled t
+  ;; Load this immediately so it appears in the mode-line
   :demand t
-  :bind ("M-o j" . jobhours-update-string)
+  :bind ("M-o j" . jobhours-update-string))
+#+end_src
+
+*** jobhours-org
+
+#+begin_src emacs-lisp
+(use-package jobhours-org
+  :disabled t
+  :no-require t
+  :demand t
   :config
   (defun my-org-insert-jobhours-string ()
     (interactive)
@@ -3780,7 +3783,6 @@ actual Emacs buffer of the module being loaded."
           (org-save-all-org-buffers)
           (my-org-insert-jobhours-string)))))
 
-  ;; REF: org-agenda
   (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
 #+end_src
 
@@ -3986,12 +3988,8 @@ actual Emacs buffer of the module being loaded."
 (use-package lsp-mode
   :disabled t
   :commands lsp
-  :hook
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
   :custom
   (lsp-completion-enable t)
-  ;; REF: corfu
-  (lsp-completion-provider :none)       ;; we use corfu
   (lsp-eldoc-enable-hover nil)
   (lsp-eldoc-render-all t)
   (lsp-enable-eldoc nil)
@@ -4009,15 +4007,34 @@ actual Emacs buffer of the module being loaded."
   (lsp-rust-features ["test"])
   (lsp-server-install-dir (user-data ".cache/lsp"))
   (lsp-session-file (user-data ".lsp-session-v1"))
-  :preface
-  (defun my/lsp-mode-setup-completion ()
-    ;; REF: orderless
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless)))
   :config
   (use-package lsp-lens)
   (use-package lsp-headerline)
   (setq read-process-output-max 16384))
+#+end_src
+
+*** lsp-mode-corfu
+
+#+begin_src emacs-lisp
+(use-package lsp-mode-corfu
+  :no-require t
+  :after (corfu lsp-mode)
+  :custom
+  (lsp-completion-provider :none)) ;; we use corfu
+#+end_src
+
+*** lsp-mode-orderless
+
+#+begin_src emacs-lisp
+(use-package lsp-mode-orderless
+  :no-require t
+  :after (orderless lsp-mode)
+  :hook
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
+  :preface
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))))
 #+end_src
 
 *** lsp-haskell
@@ -4537,6 +4554,7 @@ actual Emacs buffer of the module being loaded."
          ("<C-m> w"     . mc/mark-next-like-this-word)
          ("<C-m> x"     . mc/mark-more-like-this-extended)
          ("<C-m> y"     . mc/mark-next-like-this-symbol)
+         ("<C-m> C-y"   . yank-rectangle)
          ("<C-m> C-x"   . reactivate-mark)
          ("<C-m> C-SPC" . mc/mark-pop)
          ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
@@ -4802,17 +4820,22 @@ header overlay should cover. Result is a cons cell of (begin . end)."
   :mode "\\.pact\\'"
   :commands (pact-compile)
   :defines (pact-mode pact-mode-hook)
+  :bind (:map slime-mode-map
+              ("C-c C-c" . (lambda () (interactive)
+                             (save-excursion
+                               (call-interactively 'pact-compile)))))
   :init
-  (add-hook 'pact-mode-hook
-            #'(lambda ()
-                (bind-key "C-c C-c"
-                          #'(lambda () (interactive)
-                              (save-excursion
-                                (call-interactively 'pact-compile)))
-                          'slime-mode-map)))
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '(pact-mode . ("pact-lsp"))))
   (add-hook 'pact-mode-hook 'eglot-ensure))
+#+end_src
+
+** pact-mode-eglot
+
+#+begin_src emacs-lisp
+(use-package pact-mode-eglot
+  :no-require t
+  :after eglot
+  :config
+  (add-to-list 'eglot-server-programs '(pact-mode . ("pact-lsp"))))
 #+end_src
 
 ** pandoc-mode
@@ -5167,20 +5190,26 @@ append it to ENTRY."
     (set-frame-size (selected-frame) 75 50)
     (set-frame-position (selected-frame) 10 35))
 
+  (defcustom my-emacs-startup-hook
+    '((lambda () (eshell-toggle nil))
+      (lambda ()
+        (unless (eq display-name 'imac)
+          (display-battery-mode 1))))
+    "Regular expressions to identify foolish content.
+    Usually what happens is that you add the bots to
+    `erc-ignore-list' and the bot commands to this list."
+    :group 'erc
+    :type 'hook)
+
   (defun startup ()
     (interactive)
-    (eshell-toggle nil)
-    (switch-to-gnus)
-    ;; (switch-to-fetchmail)
-    ;; REF: org-agenda
-    (jump-to-org-agenda)
-    (org-resolve-clocks)
-    (unless (eq display-name 'imac)
-      (display-battery-mode 1)))
+    (run-hooks 'my-emacs-startup-hook))
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
   (add-hook 'emacs-startup-hook #'emacs-min t)
+
+  (run-with-idle-timer 30 nil 'startup)
 
   (advice-add 'make-frame-command :after #'my-adjust-created-frame))
 #+end_src
@@ -5516,7 +5545,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package recentf
-  :defer 5
+  :demand t
   :commands (recentf-mode
              recentf-add-file
              recentf-apply-filename-handlers)
@@ -5718,7 +5747,6 @@ append it to ENTRY."
    '(load-history
      flyspell-auto-correct-ring
      org-roam-node-history
-     counsel-git-grep-history
      magit-revision-history
      org-read-date-history
      query-replace-history
@@ -5764,27 +5792,28 @@ append it to ENTRY."
 
   (defun my-sdcv-search ()
     (interactive)
-    (flet
-        ((read-string
-           (prompt &optional initial-input history
-                   default-value _inherit-input-method)
-           (completing-read
-            prompt
-            (or sdcv-index
-                (with-temp-buffer
-                  (insert-file-contents
-                   "~/.local/share/dictionary/websters.index")
-                  (goto-char (point-max))
-                  (insert ")")
-                  (goto-char (point-min))
-                  (insert "(")
-                  (goto-char (point-min))
-                  (setq sdcv-index (read (current-buffer)))))
-            nil
-            nil
-            initial-input
-            history
-            default-value )))
+    (cl-letf
+        (((symbol-function 'read-string)
+          (lambda
+            (prompt &optional initial-input history
+                    default-value _inherit-input-method)
+            (completing-read
+             prompt
+             (or sdcv-index
+                 (with-temp-buffer
+                   (insert-file-contents
+                    "~/.local/share/dictionary/websters.index")
+                   (goto-char (point-max))
+                   (insert ")")
+                   (goto-char (point-min))
+                   (insert "(")
+                   (goto-char (point-min))
+                   (setq sdcv-index (read (current-buffer)))))
+             nil
+             nil
+             initial-input
+             history
+             default-value ))))
       (call-interactively #'sdcv-search))))
 #+end_src
 
@@ -7132,10 +7161,6 @@ independent components.
          ("C-h e l" . find-library)
          ("C-c p f" . project-find-file)
 
-         ("M-s f"   . counsel-file-jump)
-         ;; ("M-s g". counsel-rg)
-         ("M-s j"   . counsel-dired-jump)
-
          ;; C-x bindings (ctl-x-map)
          ("C-x M-:" . consult-complex-command)
          ("C-x b"   . consult-buffer)
@@ -7157,7 +7182,7 @@ independent components.
          ("M-g i"   . consult-imenu)
          ("M-g I"   . consult-imenu-multi)
          ;; M-s bindings (search-map)
-         ("M-s d"   . consult-find)
+         ("M-s f"   . consult-find)
          ("M-s M-g" . consult-grep)
          ("M-s G"   . consult-git-grep)
          ("M-s r"   . consult-ripgrep)
@@ -7229,8 +7254,9 @@ independent components.
    consult--source-project-recent-file
    :preview-key '(:debounce 0.4 any))
 
-  (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function #'(lambda (_) (projectile-project-root))))
+  ;; (autoload 'projectile-project-root "projectile")
+  ;; (setq consult-project-function #'(lambda (_) (projectile-project-root)))
+  )
 #+end_src
 
 **** consult-dir
@@ -7257,7 +7283,10 @@ locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
 (use-package consult-dir
-  :bind ("C-x D" . consult-dir))
+  :bind (("M-g d"   . consult-dir)
+         :map minibuffer-local-completion-map
+         ("M-s f" . consult-dir-jump-file)
+         ("M-g d" . consult-dir)))
 #+end_src
 
 **** consult-dir-vertico
@@ -7268,14 +7297,16 @@ locations. The =default-directory= variable is not changed in the process.
   :after (consult-dir vertico)
   :defines (vertico-map)
   :bind (:map vertico-map
-              ("C-x D" . consult-dir)
-              ("C-x C-j" . consult-dir-jump-file)))
+              ("C-x C-j" . consult-dir)
+              ("M-g d"   . consult-dir)
+              ("M-s f"   . consult-dir-jump-file)))
 #+end_src
 
 **** consult-projectile
 
 #+begin_src emacs-lisp
 (use-package consult-projectile
+  :disabled t
   :defer 5)
 #+end_src
 
@@ -7364,7 +7395,8 @@ provides an alternative overlay-based display.
 #+begin_src emacs-lisp
 (use-package corfu
   :demand t
-  :bind (:map corfu-map
+  :bind (("M-/" . completion-at-point)
+         :map corfu-map
               ("C-n"      . corfu-next)
               ("C-p"      . corfu-previous)
               ("<escape>" . corfu-quit)
@@ -7489,6 +7521,23 @@ advantage of Company backends even if you are not using Company as frontend.
   (add-to-list 'completion-at-point-functions #'cape-abbrev))
 #+end_src
 
+*** elisp-mode-cape
+
+#+begin_src emacs-lisp
+(use-package elisp-mode-cape
+  :no-require t
+  :after (cape elisp-mode)
+  :hook (emacs-lisp-mode . my/setup-elisp)
+  :preface
+  (defun my/setup-elisp ()
+    (setq-local completion-at-point-functions
+                `(,(cape-super-capf
+                    #'elisp-completion-at-point
+                    #'cape-dabbrev)
+                  cape-file)
+                cape-dabbrev-min-length 5)))
+#+end_src
+
 *** embark
 
 [[https://github.com/oantolin/embark][embark]] makes it easy to choose a command to run based on what is near point,
@@ -7509,7 +7558,10 @@ for a set of variables.
 #+begin_src emacs-lisp
 (use-package embark
   :bind (("M-."   . embark-act)
-         ("C-h b" . embark-bindings)) ;; alternative for `describe-bindings'
+         ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
+
+         :map embark-collect-mode-map
+         ("C-c C-a" . embark-collect-direct-action-minor-mode))
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
@@ -8086,7 +8138,9 @@ without white space and comments.
         '(nnimap "Local"
                  (nnimap-stream plain)
                  (nnimap-address "127.0.0.1")
-                 (nnimap-server-port 9143))))
+                 (nnimap-server-port 9143)))
+
+  (add-hook 'my-emacs-startup-hook #'switch-to-gnus t))
 #+end_src
 
 *** gnus-group
@@ -8804,7 +8858,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package gnus-dired
-  :hook dired-mode)
+  :hook (dired-mode . gnus-dired-mode))
 #+end_src
 
 ** Org-mode
@@ -9334,6 +9388,9 @@ This can be 0 for immediate, or a floating point value.")
 
   (defsubst org-current-is-todo ()
     (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
+  :init
+  (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
+  (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
   :config
   (add-hook 'org-log-buffer-setup-hook
             #'(lambda () (setq-local fill-column (- 78 2))))
