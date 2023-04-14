@@ -495,13 +495,7 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package adoc-mode
   :mode "\\.adoc\\'"
-  :config
-  (add-hook 'adoc-mode-hook
-            #'(lambda ()
-                (auto-fill-mode 1)
-                ;; (visual-line-mode 1)
-                ;; (visual-fill-column-mode 1)
-                )))
+  :hook (adoc-mode . turn-on-auto-fill))
 #+end_src
 
 ** agda-input
@@ -1386,14 +1380,6 @@ old saved versions again.
    citre-auto-enable-citre-mode-modes '(prog-mode)))
 #+end_src
 
-** cl-info
-
-#+begin_src emacs-lisp
-(use-package cl-info
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t)
-#+end_src
-
 ** cmake-mode
 
 #+begin_src emacs-lisp
@@ -1647,7 +1633,6 @@ old saved versions again.
 (use-package dabbrev
   :bind (("M-/"   . dabbrev-expand)
          ("C-M-/" . dabbrev-completion))
-  ;; Other useful Dabbrev configurations.
   :custom
   (dabbrev-case-fold-search nil)
   (dabbrev-case-replace nil)
@@ -2167,9 +2152,7 @@ non-empty directories is allowed."
   :custom
   (eglot-autoshutdown t)
   :config
-  (setq read-process-output-max (* 1024 1024))
-  ;; (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
-)
+  (setq read-process-output-max (* 1024 1024)))
 #+end_src
 
 ** eldoc
@@ -3820,14 +3803,6 @@ actual Emacs buffer of the module being loaded."
   (flycheck-mode 1))
 #+end_src
 
-** js3-mode
-
-#+begin_src emacs-lisp
-(use-package js3-mode
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t)
-#+end_src
-
 ** json-mode
 
 #+begin_src emacs-lisp
@@ -4243,8 +4218,7 @@ actual Emacs buffer of the module being loaded."
   (use-package magit-status
     :defer t
     :config
-    ;; Speed up the Magit status buffer by not generating all of the available
-    ;; sections.
+    ;; Speed up Magit status by not generating all of the available sections.
     (dolist (func '(
                     ;; magit-insert-status-headers
                     ;; magit-insert-untracked-files
@@ -4538,14 +4512,12 @@ actual Emacs buffer of the module being loaded."
 (use-package multiple-cursors
   :after phi-search
   :defer 5
-
-  ;; - Sometimes you end up with cursors outside of your view. You can scroll
-  ;;   the screen to center on each cursor with `C-v` and `M-v`.
+  ;; Sometimes you end up with cursors outside of your view. You can scroll
+  ;; the screen to center on each cursor with `C-v` and `M-v`.
   ;;
-  ;; - If you get out of multiple-cursors-mode and yank - it will yank only
-  ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
-  ;;   cursor use yank-rectangle, normally found at C-x r y.
-
+  ;; If you get out of multiple-cursors-mode and yank - it will yank only from
+  ;; the kill-ring of main cursor. To yank from the kill-rings of every cursor
+  ;; use yank-rectangle, normally found at C-x r y.
   :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
          ("<C-m> `"     . mc/edit-beginnings-of-lines)
          ("<C-m> $"     . mc/edit-ends-of-lines)
@@ -4572,7 +4544,6 @@ actual Emacs buffer of the module being loaded."
          ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
          ("<C-m> ["     . mc/vertical-align-with-space)
          ("<C-m> {"     . mc/vertical-align)
-
          ("S-<down-mouse-1>")
          ("S-<mouse-1>" . mc/add-cursor-on-click))
   :custom
@@ -4881,10 +4852,10 @@ header overlay should cover. Result is a cons cell of (begin . end)."
              (unbind-key "M-r" paredit-mode-map)
              (unbind-key "M-s" paredit-mode-map)))
   :config
-  ;; (require 'eldoc)
-  ;; (eldoc-add-command 'paredit-backward-delete
-  ;;                    'paredit-close-round)
-  )
+  (use-package eldoc
+    :config
+    (eldoc-add-command 'paredit-backward-delete
+                       'paredit-close-round)))
 #+end_src
 
 *** paredit-ext
@@ -5386,7 +5357,7 @@ append it to ENTRY."
               ("M-<return>"))
   :bind (:map coq-mode-map
               ("C-M-h" . company-coq-toggle-definition-overlay))
-  :hook coq-mode
+  :hook (coq-mode . company-coq-mode)
   :custom
   (company-coq-disabled-features
    '(hello prettify-symbols smart-subscripts dynamic-symbols-backend))
@@ -5432,8 +5403,7 @@ append it to ENTRY."
                 (require 'cape)
                 (setq-local completion-at-point-functions
                             (mapcar #'cape-company-to-capf
-                                    company-coq-enabled-backends))))
-  )
+                                    company-coq-enabled-backends)))))
 #+end_src
 
 *** coq-lookup
@@ -5617,14 +5587,6 @@ append it to ENTRY."
   (repeat-mode t))
 #+end_src
 
-** repl-toggle
-
-#+begin_src emacs-lisp
-(use-package repl-toggle
-  ;; jww (2017-12-10): Need to configure.
-  :disabled t)
-#+end_src
-
 ** restclient
 
 #+begin_src emacs-lisp
@@ -5673,10 +5635,9 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package rust-mode
   :mode "\\.rs\\'"
+  :hook (rust-mode . my-rust-mode-init)
   :custom
   (rust-format-on-save t)
-  :init
-  (add-hook 'rust-mode-hook #'my-rust-mode-init)
   :preface
   (defun my-update-cargo-path (&rest _args)
     (setq cargo-process--custom-path-to-bin
@@ -5713,6 +5674,8 @@ append it to ENTRY."
 
     (cargo-minor-mode 1)
     (yas-minor-mode-on)
+  :init
+  (add-to-list 'eglot-server-programs '(rust-mode "rust-analyzer"))
 
   ;; (require 'eglot)
 
@@ -5982,11 +5945,6 @@ append it to ENTRY."
   (slime-repl-history-file (user-data "slime-history.eld"))
   (slime-startup-animation nil)
   :init
-  ;; (unless (memq major-mode
-  ;;               '(emacs-lisp-mode inferior-emacs-lisp-mode ielm-mode))
-  ;;   ("M-q" . slime-reindent-defun)
-  ;;   ("M-l" . slime-selector))
-
   (setq inferior-lisp-program "sbcl"
         slime-contribs '(slime-fancy)))
 #+end_src
@@ -6181,15 +6139,15 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package tramp
-  :defer 5
+  :defer t
   :custom
   (tramp-default-method "ssh")
+  (tramp-auto-save-directory "~/.cache/emacs/backups")
+  (tramp-persistency-file-name (user-data "tramp"))
   :config
   ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
   ;; shell commands to the remote side to ask what the temporary directory is.
-  (put 'temporary-file-directory 'standard-value '("/tmp"))
-  (setq tramp-auto-save-directory "~/.cache/emacs/backups"
-        tramp-persistency-file-name (user-data "tramp")))
+  (put 'temporary-file-directory 'standard-value '("/tmp")))
 #+end_src
 
 ** tramp-sh
