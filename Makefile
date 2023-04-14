@@ -39,13 +39,13 @@ init.elc: init.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
-speed:
+speed: init.elc
 	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
-slow:
+slow: init.elc
 	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
-open:
+open: init.elc
 	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
 
 # This rule output configured packages compared to installed packages. Note
