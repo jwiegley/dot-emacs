@@ -3647,6 +3647,9 @@ actual Emacs buffer of the module being loaded."
   (Info-default-directory-list (list (emacs-path "lisp/org-mode/doc")))
   (Info-fit-frame-flag nil)
   :preface
+  (eval-when-compile
+    (defvar buffer-face-mode-face))
+
   (defun nix-read-environment (name)
     (ignore-errors
       (with-temp-buffer
@@ -3943,6 +3946,9 @@ actual Emacs buffer of the module being loaded."
 #+begin_src emacs-lisp
 (use-package link-hint
   :bind ("C-c C-o" . link-hint-open-link)
+  :preface
+  (eval-when-compile
+    (defvar w3m-mode-map))
   :config
   (add-hook 'eww-mode-hook
             #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map)))
@@ -6979,7 +6985,7 @@ append it to ENTRY."
   (remove-hook 'kill-buffer-hook 'whitespace-buffer))
 #+end_src
 
-** whitespace-cleanup-mode
+*** whitespace-cleanup-mode
 
 #+begin_src emacs-lisp
 (use-package whitespace-cleanup-mode
