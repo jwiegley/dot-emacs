@@ -11,6 +11,7 @@
   (message "Loading init...done (%.3fs)%s"
            (float-time (time-subtract (current-time) emacs-start-time))
            suffix))
+
 (add-hook 'after-init-hook
           #'(lambda () (report-time-since-load " [after-init]"))
           t)
@@ -46,8 +47,7 @@
 
 (add-hook 'after-init-hook
           #'(lambda ()
-              (setq file-name-handler-alist file-name-handler-alist-old)
-              (garbage-collect)))
+              (setq file-name-handler-alist file-name-handler-alist-old)))
 #+end_src
 
 ** Define the "data environment" for this instance of Emacs
@@ -71,19 +71,21 @@
   (expand-file-name dir user-data-directory))
 #+end_src
 
-** Disable all warnings about obsolete functions
+** Disable warnings about obsolete functions when compiling
 
 #+begin_src emacs-lisp
 (eval-when-compile
   (dolist (sym '(cl-flet lisp-complete-symbol))
-    (setplist sym (use-package-plist-delete (symbol-plist sym)
-                                            'byte-obsolete-info))))
+    (setplist sym (use-package-plist-delete
+                   (symbol-plist sym) 'byte-obsolete-info))))
 #+end_src
 
 ** Disable global eldoc-mode
 
 #+begin_src emacs-lisp
-(remove-hook 'after-change-major-mode-hook 'global-eldoc-mode-enable-in-buffers)
+(remove-hook 'after-change-major-mode-hook
+             'global-eldoc-mode-enable-in-buffers)
+
 (global-eldoc-mode -1)
 #+end_src
 
@@ -136,6 +138,8 @@
                    user host port)))
       (error "No auth entry found for %s@%s:%s" user host port))))
 #+end_src
+
+* Packages
 
 ** emacs
 
@@ -194,79 +198,50 @@ unto itself.
               (frame-parameters)))))))
 
   (completion-ignored-extensions
-   '(".glob"
-     ".vio"
-     ".vo"
-     ".vok"
-     ".vos"
-     ".v.d"
-     ".o"
-     "~"
-     ".bin"
-     ".lbin"
-     ".so"
-     ".a"
-     ".ln"
-     ".blg"
-     ".bbl"
-     ".elc"
-     ".lof"
-     ".glo"
-     ".idx"
-     ".lot"
-     ".svn/"
-     ".hg/"
-     ".git/"
-     ".bzr/"
-     "CVS/"
-     "_darcs/"
-     "_MTN/"
-     ".fmt"
-     ".tfm"
-     ".class"
-     ".fas"
-     ".lib"
-     ".mem"
-     ".x86f"
-     ".sparcf"
-     ".dfsl"
-     ".pfsl"
-     ".d64fsl"
-     ".p64fsl"
-     ".lx64fsl"
-     ".lx32fsl"
-     ".dx64fsl"
-     ".dx32fsl"
-     ".fx64fsl"
-     ".fx32fsl"
-     ".sx64fsl"
-     ".sx32fsl"
-     ".wx64fsl"
-     ".wx32fsl"
-     ".fasl"
-     ".ufsl"
-     ".fsl"
-     ".dxl"
-     ".lo"
-     ".la"
-     ".gmo"
-     ".mo"
-     ".toc"
+   '(".a"
      ".aux"
+     ".bbl"
+     ".bin"
+     ".blg"
+     ".class"
      ".cp"
-     ".fn"
-     ".ky"
-     ".pg"
-     ".tp"
-     ".vr"
      ".cps"
+     ".elc"
+     ".fmt"
+     ".fn"
      ".fns"
+     ".git/"
+     ".glo"
+     ".glob"
+     ".gmo"
+     ".hg/"
+     ".idx"
+     ".ky"
      ".kys"
+     ".la"
+     ".lib"
+     ".ln"
+     ".lo"
+     ".lof"
+     ".lot"
+     ".mem"
+     ".mo"
+     ".o"
+     ".pg"
      ".pgs"
-     ".tps"
-     ".vrs"
      ".pyc"
-     ".pyo"))
+     ".pyo"
+     ".so"
+     ".tfm"
+     ".toc"
+     ".tp"
+     ".tps"
+     ".v.d"
+     ".vio"
+     ".vo" ".vok" ".vos"
+     ".vr"
+     ".vrs"
+     "~"))
 
   ;; startup.el
   (auto-save-list-file-prefix (user-data "auto-save-list/.saves-"))
@@ -383,102 +358,13 @@ unto itself.
             ("C-c ." . my-ctrl-c-dot-map)))))
 #+end_src
 
-* Libraries
-
-#+begin_src emacs-lisp
-(use-package anaphora      :defer t)
-(use-package apiwrap       :defer t)
-(use-package asoc          :defer t)
-(use-package async         :defer t :load-path "lisp/async")
-(use-package button-lock   :defer t)
-(use-package ctable        :defer t)
-(use-package dash          :defer t)
-(use-package deferred      :defer t)
-(use-package diminish      :demand t)
-(use-package el-mock       :defer t)
-(use-package elisp-refs    :defer t)
-(use-package epc           :defer t)
-(use-package epl           :defer t)
-(use-package esxml         :defer t)
-(use-package f             :defer t)
-(use-package fn            :defer t)
-(use-package fringe-helper :defer t)
-(use-package fuzzy         :defer t)
-(use-package ht            :defer t)
-(use-package kv            :defer t)
-(use-package list-utils    :defer t)
-(use-package logito        :defer t)
-(use-package loop          :defer t)
-(use-package m-buffer      :defer t)
-(use-package makey         :defer t)
-(use-package marshal       :defer t)
-(use-package names         :defer t)
-(use-package noflet        :defer t)
-(use-package oauth2        :defer t)
-(use-package ov            :defer t)
-(use-package packed        :defer t)
-(use-package parent-mode   :defer t)
-(use-package parsebib      :defer t)
-(use-package parsec        :defer t)
-(use-package peval         :defer t)
-(use-package pfuture       :defer t)
-(use-package pkg-info      :defer t)
-(use-package popup         :defer t)
-(use-package popup-pos-tip :defer t)
-(use-package popwin        :defer t)
-(use-package pos-tip       :defer t)
-(use-package request       :defer t)
-(use-package rich-minority :defer t)
-(use-package s             :defer t)
-(use-package simple-httpd  :defer t)
-(use-package spinner       :defer t)
-(use-package tablist       :defer t)
-(use-package uuidgen       :defer t)
-(use-package web           :defer t)
-(use-package web-server    :defer t)
-(use-package websocket     :defer t)
-(use-package with-editor   :defer t)
-(use-package xml-rpc       :defer t)
-(use-package zoutline      :defer t)
-#+end_src
-
-** alert
-
-#+begin_src emacs-lisp
-(use-package alert
-  :defer t
-  :load-path "lisp/alert"
-  :custom
-  (alert-default-style 'fringe)
-  (alert-notifier-command
-   "~/Applications/Home Manager Apps/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
-#+end_src
-
-** ghub
-
-#+begin_src emacs-lisp
-(use-package ghub
-  :defer t
-  :config
-  (require 'auth-source-pass)
-  (defvar my-ghub-token-cache nil)
-  (advice-add
-   'ghub--token :around
-   #'(lambda (orig-func host username package &optional nocreate forge)
-       (or my-ghub-token-cache
-           (setq my-ghub-token-cache
-                 (funcall orig-func host username package nocreate forge))))))
-#+end_src
-
-* Packages
-
 ** abbrev
 
 #+begin_src emacs-lisp
 (use-package abbrev
   :diminish
   :hook
-  ((text-mode prog-mode erc-mode LaTeX-mode) . abbrev-mode)
+  ((text-mode prog-mode) . abbrev-mode)
   (expand-load
    . (lambda ()
        (add-hook 'expand-expand-hook #'indent-according-to-mode)
@@ -490,11 +376,10 @@ unto itself.
       (quietly-read-abbrev-file)))
 #+end_src
 
-** ace-window
+** COMMENT ace-window
 
 #+begin_src emacs-lisp
 (use-package ace-window
-  :disabled t
   :bind* ("<C-return>" . ace-window)
   :custom
   (aw-dispatch-when-more-than 6)
@@ -535,7 +420,6 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package agda-input
-  :defer 5
   :custom
   (agda-input-tweak-all
    '(agda-input-compose (agda-input-prepend "\\") (agda-input-nonempty)))
@@ -564,15 +448,27 @@ unto itself.
   :hook (emacs-lisp-mode . aggressive-indent-mode))
 #+end_src
 
+** alert
+
+#+begin_src emacs-lisp
+(use-package alert
+  :load-path "lisp/alert"
+  :autoload (alert alert-add-rule)
+  :custom
+  (alert-default-style 'fringe)
+  (alert-notifier-command
+   "~/Applications/Home Manager Apps/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
+#+end_src
+
 ** align
 
 #+begin_src emacs-lisp
 (use-package align
+  :commands align
   :bind (("M-["   . align-code)
          ("C-c [" . align-regexp))
-  :commands align
   :custom
-  (align-c++-modes '(csharp-mode c++-mode c-mode java-mode groovy-mode))
+  (align-c++-modes '(csharp-mode c++-mode c-mode java-mode))
   (align-to-tab-stop nil)
   :preface
   (defun align-code (beg end &optional arg)
@@ -605,7 +501,10 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package aria2
-  :commands aria2-downloads-list)
+  :commands
+  (aria2-downloads-list
+   aria2-add-file
+   aria2-add-uris))
 #+end_src
 
 ** ascii
@@ -627,13 +526,15 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package latex
   :mode ("\\.tex\\'" . TeX-latex-mode)
-  :bind (:map LaTeX-mode-map
-              ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
-              ("C-x A"   . (lambda () (interactive) (insert "ٰ")))
-              ("A-َ"      . (lambda () (interactive) (insert "ٰ")))
-              ("A-ه"     . (lambda () (interactive) (insert "ۀ")))
-              ("A-د"     . (lambda () (interactive) (insert "ذ")))
-              ("A-ت"     . (lambda () (interactive) (insert "ة"))))
+  :bind (:map
+         LaTeX-mode-map
+         ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
+         ("C-x A"   . (lambda () (interactive) (insert "ٰ")))
+         ("A-َ"      . (lambda () (interactive) (insert "ٰ")))
+         ("A-ه"     . (lambda () (interactive) (insert "ۀ")))
+         ("A-د"     . (lambda () (interactive) (insert "ذ")))
+         ("A-ت"     . (lambda () (interactive) (insert "ة"))))
+  :hook (LaTeX-mode . abbrev-mode)
   :custom
   (TeX-PDF-mode t)
   (TeX-auto-save t)
@@ -641,18 +542,14 @@ unto itself.
   (TeX-electric-escape t)
   (TeX-engine 'xetex)
   (TeX-parse-self t)
-  (TeX-view-program-list
-   '(("Skim"
-      ("osascript" " ~/bin/skim-gotopage.script" " %O"
-       (mode-io-correlate " %(outpage)")))))
   (TeX-view-program-selection
    '(((output-dvi style-pstricks)
       "dvips and gv")
      (output-dvi "xdvi")
-     (output-pdf "Skim")
      (output-html "xdg-open")))
-  :defines (latex-help-cmd-alist
-            latex-help-file)
+  :defines
+  (latex-help-cmd-alist
+   latex-help-file)
   :preface
   (defvar latex-prettify-symbols-alist
     '(("\N{THIN SPACE}" . ?\⟷)))
@@ -695,7 +592,6 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package auth-source-pass
-  :defer 5
   :preface
   (defvar auth-source-pass--cache (make-hash-table :test #'equal))
 
@@ -730,7 +626,6 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package autorevert
-  :defer 15
   :custom
   (auto-revert-use-notify nil)
   :config
@@ -751,8 +646,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package avy
-  :bind
-  ("C-." . avy-goto-char-timer)
+  :bind ("C-." . avy-goto-char-timer)
   :custom
   (avy-case-fold-search t)
   (avy-keys '(97 111 101 117 105 100 104 116 110 115))
@@ -835,58 +729,8 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package avy-zap
-  :bind (("M-z" . avy-zap-to-char-dwim)
-         ("M-Z" . avy-zap-up-to-char-dwim)))
-#+end_src
-
-** backup-each-save
-
-Ever wish to go back to an older saved version of a file? Then this package is
-for you. This package copies every file you save in Emacs to a backup
-directory tree (which mirrors the tree structure of the filesystem), with a
-timestamp suffix to make multiple saves of the same file unique. Never lose
-old saved versions again.
-
-#+begin_src emacs-lisp
-(use-package backup-each-save
-  :disabled t
-  :commands backup-each-save
-  :custom
-  (make-backup-file-name-function 'my-make-backup-file-name)
-  :preface
-  (defun my-make-backup-file-name (file)
-    (make-backup-file-name-1 (expand-file-name (file-truename file))))
-
-  (defun backup-each-save-filter (filename)
-    (not (string-match
-          (concat "\\(^/tmp\\|\\.emacs\\.d/data\\(-alt\\)?/"
-                  "\\|\\.newsrc\\(\\.eld\\)?\\|"
-                  "\\(archive/sent/\\|recentf\\`\\)\\)")
-          filename)))
-
-  (defun my-dont-backup-files-p (filename)
-    (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
-      (normal-backup-enable-predicate filename)))
-
-  :hook (after-save . backup-each-save)
-  :config
-  (setq backup-each-save-filter-function 'backup-each-save-filter
-        backup-enable-predicate 'my-dont-backup-files-p))
-#+end_src
-
-** backup-walker
-
-#+begin_src emacs-lisp
-(use-package backup-walker
-  :commands backup-walker-start)
-#+end_src
-
-** beacon
-
-#+begin_src emacs-lisp
-(use-package beacon
-  :diminish
-  :commands beacon-mode)
+  :bind (("M-z" . avy-zap-up-to-char-dwim)
+         ("M-Z" . avy-zap-to-char-dwim)))
 #+end_src
 
 ** biblio
@@ -918,30 +762,29 @@ old saved versions again.
              bm-buffer-save
              bm-buffer-save-all
              bm-buffer-restore)
+  :hook
+  (after-init        . bm-repository-load)
+  (find-file         . bm-buffer-restore)
+  (after-revert      . bm-buffer-restore)
+  (kill-buffer       . bm-buffer-save)
+  (after-save        . bm-buffer-save)
+  (vc-before-checkin . bm-buffer-save)
+  (kill-emacs        . (lambda ()
+                         (bm-buffer-save-all)
+                         (bm-repository-save)))
   :custom
   (bm-buffer-persistence t)
   (bm-cycle-all-buffers t)
   (bm-highlight-style 'bm-highlight-only-fringe)
   (bm-in-lifo-order t)
-  (bm-repository-file (user-data "bm-repository"))
-  :init
-  (add-hook 'after-init-hook #'bm-repository-load)
-  (add-hook 'find-file-hook #'bm-buffer-restore)
-  (add-hook 'after-revert-hook #'bm-buffer-restore)
-  (add-hook 'kill-buffer-hook #'bm-buffer-save)
-  (add-hook 'after-save-hook #'bm-buffer-save)
-  (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
-  (add-hook 'kill-emacs-hook
-            #'(lambda nil
-                (bm-buffer-save-all)
-                (bm-repository-save))))
+  (bm-repository-file (user-data "bm-repository")))
 #+end_src
 
 ** bookmark
 
 #+begin_src emacs-lisp
 (use-package bookmark
-  :defer 5
+  :defer t
   :custom
   (bookmark-default-file "~/doc/bookmarks"))
 #+end_src
@@ -964,7 +807,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package boogie-friends
-  :defer 5)
+  :commands boogie-friends-verify)
 #+end_src
 
 ** browse-at-remote
@@ -978,7 +821,6 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package browse-kill-ring
-  :defer 5
   :commands browse-kill-ring)
 #+end_src
 
@@ -986,7 +828,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package browse-url
-  :defer 5
+  :defer t
   :custom
   (browse-url-browser-function 'browse-url-default-macosx-browser))
 #+end_src
@@ -994,15 +836,13 @@ old saved versions again.
 ** bytecomp-simplify
 
 #+begin_src emacs-lisp
-(use-package bytecomp-simplify
-  :defer 15)
+(use-package bytecomp-simplify)
 #+end_src
 
-** c-includes
+** COMMENT c-includes
 
 #+begin_src emacs-lisp
 (use-package c-includes
-  :disabled t
   :commands c-includes
   :after cc-mode
   :bind (:map c-mode-base-map
@@ -1031,7 +871,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package calendar
-  :demand t
+  :defer t
   :custom
   (calendar-mark-holidays-flag t)
   (diary-file "~/doc/diary"))
@@ -1041,7 +881,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package cal-dst
-  :demand t
+  :defer t
   :custom
   (calendar-daylight-time-zone-name "PDT")
   (calendar-standard-time-zone-name "PST")
@@ -1054,7 +894,7 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package solar
-  :demand t
+  :defer t
   :custom
   (calendar-latitude 38.5474883)
   (calendar-longitude -121.5262693))
@@ -1375,11 +1215,10 @@ old saved versions again.
                (lookup-password "freechess.org" "jwiegley" 80))))
 #+end_src
 
-** citre
+** COMMENT citre
 
 #+begin_src emacs-lisp
 (use-package citre-config
-  :disabled t
   :demand t
   :bind (("C-x c j" . citre-jump)
          ("C-x c J" . citre-jump-back)
@@ -1474,7 +1313,6 @@ old saved versions again.
 
 #+begin_src emacs-lisp
 (use-package compile
-  :no-require
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
   :bind (:map compilation-mode-map
@@ -1735,6 +1573,7 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package dired
+  :diminish dired-omit-mode
   :bind ("C-c j" . dired-two-pane)
   :bind (:map dired-mode-map
               ("j"     . dired)
@@ -1747,7 +1586,6 @@ diff-hl package.
               ("<tab>" . dired-next-window)
               ("M-G")
               ("M-s f"))
-  :diminish dired-omit-mode
   :hook (dired-mode . dired-hide-details-mode)
   :custom
   (dired-clean-up-buffers-too nil)
@@ -1861,19 +1699,17 @@ diff-hl package.
   :hook (dired-toggle-mode . my-dired-toggle-mode-hook))
 #+end_src
 
-*** dired-x
+*** COMMENT dired-x
 
 #+begin_src emacs-lisp
 (use-package dired-x
-  :disabled t
   :after dired)
 #+end_src
 
-*** dired+
+*** COMMENT dired+
 
 #+begin_src emacs-lisp
 (use-package dired+
-  :disabled t
   :after dired-x
   :custom-face
   (diredp-dir-name ((t (:foreground "blue"))))
@@ -2024,11 +1860,11 @@ non-empty directories is allowed."
   :mode "Dockerfile[a-zA-Z.-]*\\'")
 #+end_src
 
-** doc-view
+** COMMENT doc-view
 
 #+begin_src emacs-lisp
 (use-package doc-view
-  :defer 5
+  :defer t
   :custom
   (doc-view-resolution 300))
 #+end_src
@@ -2138,9 +1974,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package edit-server
-  :if (and window-system
-           (not alternate-emacs))
-  :defer 5
+  :if (and window-system (not alternate-emacs))
   :custom
   (edit-server-new-frame nil)
   :config
@@ -2254,7 +2088,6 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package engine-mode
-  :defer 5
   :config
   (defengine google "https://www.google.com/search?q=%s"
              :keybinding "/")
@@ -2265,7 +2098,6 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package epa
-  :defer 5
   :preface
   (defun epa--key-widget-value-create (widget)
     (let* ((key (widget-get widget :value))
@@ -2294,23 +2126,54 @@ non-empty directories is allowed."
   :commands (erc erc-tls)
   :bind (:map erc-mode-map
               ("C-c r" . reset-erc-track-mode))
+  :hook (erc-mode . abbrev-mode)
   :custom
   (erc-fill-function 'erc-fill-variable)
   (erc-fill-static-center 12)
   (erc-foolish-content
-   '("travis-ci.*ekmett" "analystics.*ekmett" "rudybot:"))
+   '("travis-ci.*ekmett"
+     "analystics.*ekmett"
+     "rudybot:"))
   (erc-format-nick-function 'erc-format-@nick)
   (erc-generate-log-file-name-function 'erc-generate-log-file-name-short)
   (erc-header-line-format nil)
   (erc-hide-list '("JOIN" "NICK" "PART" "QUIT"))
-  (erc-ignore-list '("lensbot" "rudybot" "johnwilkins"))
+  (erc-lurker-hide-list '("JOIN" "NICK" "PART" "QUIT" "MODE"))
+  (erc-ignore-list
+   '("lensbot"
+     "rudybot"
+     "johnwilkins"))
   (erc-ignore-reply-list '("JordiGH"))
-  (erc-keywords '("wiegley" "ledger" "eshell" "use-package"))
+  (erc-keywords
+   '("wiegley"
+     "ledger"
+     "eshell"
+     "use-package"))
   (erc-log-channels-directory "~/Messages/ERC")
   (erc-log-write-after-send t)
-  (erc-lurker-hide-list '("JOIN" "NICK" "PART" "QUIT" "MODE"))
   (erc-modules
-   '(autojoin button completion dcc fill identd irccontrols list match menu move-to-prompt netsplit networks noncommands readonly replace ring services smiley stamp track truncate highlight-nicknames))
+   '(autojoin
+     button
+     completion
+     dcc
+     fill
+     identd
+     irccontrols
+     list
+     match
+     menu
+     move-to-prompt
+     netsplit
+     noncommands
+     readonly
+     replace
+     ring
+     services
+     smiley
+     stamp
+     track
+     truncate
+     highlight-nicknames))
   (erc-nick "johnw")
   (erc-port 6667)
   (erc-priority-people-regexp "\\`[^#].+")
@@ -2322,7 +2185,8 @@ non-empty directories is allowed."
   (erc-text-matched-hook '(erc-hide-fools))
   (erc-track-enable-keybindings t)
   (erc-track-exclude '("#idris" "#agda" "#twitter_jwiegley"))
-  (erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
+  (erc-track-exclude-types
+   '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353"))
   (erc-track-faces-priority-list
    '(erc-error-face
      (erc-nick-default-face erc-current-nick-face)
@@ -2335,13 +2199,19 @@ non-empty directories is allowed."
   (erc-auto-query 'window-noselect)
   (erc-autoaway-message "I'm away (after %i seconds of idle-time)")
   (erc-autojoin-channels-alist
-   '(("#nixos" "#nix-darwin" "#hnix" "#haskell-overflow" "#haskell-ops"
-      "#haskell-infrastructure" "#haskell" "#coq-blah" "#coq"
-      "##categorytheory" "#use-package/Lobby" "#ledger"
-      "#haskell-nix/Lobby" "#coq/coq" "#hs-to-coq" "#org-mode")
-     ("libera" "#haskell" "#coq" "#ledger" "#haskell-ops" "#nix-darwin"
-      "#haskell-infrastructure" "##categorytheory" "#nixos" "#org-mode")
-     ("gitter" "#use-package/Lobby" "#haskell-nix/Lobby")))
+   '(("libera"
+      "##categorytheory"
+      "#coq"
+      "#haskell"
+      "#haskell-infrastructure"
+      "#haskell-ops"
+      "#ledger"
+      "#nix-darwin"
+      "#nixos"
+      "#org-mode")
+     ("gitter"
+      "#use-package/Lobby"
+      "#haskell-nix/Lobby")))
   :defines
   (erc-modified-channels-alist
    erc-timestamp-only-if-changed-flag
@@ -2448,11 +2318,10 @@ non-empty directories is allowed."
   (bind-key "<f5>" #'accept-certificate))
 #+end_src
 
-*** erc-alert
+*** COMMENT erc-alert
 
 #+begin_src emacs-lisp
 (use-package erc-alert
-  :disabled t
   :after erc)
 #+end_src
 
@@ -2612,11 +2481,10 @@ non-empty directories is allowed."
   (tags-revert-without-query t))
 #+end_src
 
-** eval-expr
+** COMMENT eval-expr
 
 #+begin_src emacs-lisp
 (use-package eval-expr
-  :disabled t
   :bind ("M-:" . eval-expr)
   :custom
   (eval-expr-print-function 'pp)
@@ -2804,13 +2672,6 @@ up before you execute another command."
   :commands flycheck-haskell-setup)
 #+end_src
 
-*** flycheck-package
-
-#+begin_src emacs-lisp
-(use-package flycheck-package
-  :after flycheck)
-#+end_src
-
 ** flymake
 
 #+begin_src emacs-lisp
@@ -2848,7 +2709,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package font-lock
-  :defer 5
+  :defer t
   :custom
   (global-font-lock-mode t)
   (font-lock-support-mode 'jit-lock-mode)
@@ -2887,6 +2748,22 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package free-keys
   :commands free-keys)
+#+end_src
+
+** ghub
+
+#+begin_src emacs-lisp
+(use-package ghub
+  :defer t
+  :config
+  (require 'auth-source-pass)
+  (defvar my-ghub-token-cache nil)
+  (advice-add
+   'ghub--token :around
+   #'(lambda (orig-func host username package &optional nocreate forge)
+       (or my-ghub-token-cache
+           (setq my-ghub-token-cache
+                 (funcall orig-func host username package nocreate forge))))))
 #+end_src
 
 ** gist
@@ -3146,11 +3023,12 @@ up before you execute another command."
       ("undefined"          . ?⊥)))
 
   (defun my-update-cabal-repl (&rest _args)
-    (aif (getenv "CABAL_REPL")
+    (let ((it (getenv "CABAL_REPL")))
+      (when it
         (let ((args (nthcdr 2 (split-string it))))
           (setq-local haskell-process-args-cabal-repl
                       (delete-dups
-                       (append haskell-process-args-cabal-repl args))))))
+                       (append haskell-process-args-cabal-repl args)))))))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -3283,7 +3161,7 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package help
-  :defer 5
+  :defer t
   :custom
   (temp-buffer-resize-mode t))
 #+end_src
@@ -3363,11 +3241,10 @@ actual Emacs buffer of the module being loaded."
   :bind ("M-o C" . highlight-changes-mode))
 #+end_src
 
-** hippie-exp
+** COMMENT hippie-exp
 
 #+begin_src emacs-lisp
 (use-package hippie-exp
-  :disabled t
   :bind (("M-/"   . hippie-expand)
          ("C-M-/" . dabbrev-completion))
   :custom
@@ -3399,11 +3276,10 @@ actual Emacs buffer of the module being loaded."
   :after hl-line)
 #+end_src
 
-** hydra
+** COMMENT hydra
 
 #+begin_src emacs-lisp
 (use-package hydra
-  :disabled t
   :defer t
   :config
   (defhydra hydra-zoom (global-map "<f2>")
@@ -3584,10 +3460,11 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package image-file
-  :defer 5
+  :demand t
+  :hook
+  (image-mode . image-transform-reset-to-initial)
   :config
-  (auto-image-file-mode 1)
-  (add-hook 'image-mode-hook #'image-transform-reset-to-initial))
+  (auto-image-file-mode 1))
 #+end_src
 
 ** imenu-list
@@ -3726,7 +3603,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package ispell
-  :no-require t
   :bind (("C-c i c" . ispell-comments-and-strings)
          ("C-c i d" . ispell-change-dictionary)
          ("C-c i k" . ispell-kill-ispell)
@@ -3740,16 +3616,15 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package jka-compr
-  :defer 5
+  :defer t
   :custom
   (auto-compression-mode t))
 #+end_src
 
-** jobhours
+** COMMENT jobhours
 
 #+begin_src emacs-lisp
 (use-package jobhours
-  :disabled t
   ;; Load this immediately so it appears in the mode-line
   :demand t
   :bind ("M-o j" . jobhours-update-string))
@@ -3759,7 +3634,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package jobhours-org
-  :disabled t
   :no-require t
   :demand t
   :config
@@ -3855,8 +3729,8 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package ledger-mode
-  :mode "\\.ledger\\'"
   :load-path "~/src/ledger/lisp"
+  :mode "\\.ledger\\'"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
   :custom
@@ -3982,11 +3856,10 @@ actual Emacs buffer of the module being loaded."
               ("C-c C-j" . lispy-goto)))
 #+end_src
 
-** lsp-mode
+** COMMENT lsp-mode
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
-  :disabled t
   :commands lsp
   :custom
   (lsp-completion-enable t)
@@ -4041,7 +3914,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package lsp-haskell
-  :disabled t
   :after lsp-mode
   :config
   (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
@@ -4051,7 +3923,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package lsp-ui
-  :disabled t
   :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
   :custom
@@ -4269,11 +4140,10 @@ actual Emacs buffer of the module being loaded."
   (magit-auto-revert-mode nil))
 #+end_src
 
-*** magit-lfs
+*** COMMENT magit-lfs
 
 #+begin_src emacs-lisp
 (use-package magit-lfs
-  :disabled t
   :after magit)
 #+end_src
 
@@ -4284,11 +4154,10 @@ actual Emacs buffer of the module being loaded."
   :after magit)
 #+end_src
 
-*** forge
+*** COMMENT forge
 
 #+begin_src emacs-lisp
 (use-package forge
-  :disabled t
   :after magit
   :custom
   (forge-alist
@@ -4410,7 +4279,7 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package midnight
-  :defer 5
+  :demand t
   :bind ("C-c z" . clean-buffer-list)
   :custom
   (midnight-delay 18000)
@@ -4447,13 +4316,13 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package mule
-  :no-require t
+  :defer t
   :custom
   ;; mule-cmds.el
   (current-language-environment "UTF-8")
   :config
-  (prefer-coding-system 'utf-8)
   (set-terminal-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 #+end_src
 
@@ -4527,8 +4396,8 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package multiple-cursors
+  :demand t
   :after phi-search
-  :defer 5
   ;; Sometimes you end up with cursors outside of your view. You can scroll
   ;; the screen to center on each cursor with `C-v` and `M-v`.
   ;;
@@ -4619,7 +4488,6 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package phi-search
-  :defer 5
   :custom
   (phi-search-limit 100000))
 #+end_src
@@ -4745,19 +4613,23 @@ actual Emacs buffer of the module being loaded."
 
 ** origami
 
+A text folding minor mode for Emacs. With this minor mode enabled, you can
+collapse and expand regions of text. The actual buffer contents are never
+changed in any way. This works by using overlays to affect how the buffer is
+presented. This also means that all of your usual editing commands should work
+with folded regions. For example killing and yanking folded text works as you
+would expect.
+
 #+begin_src emacs-lisp
 (use-package origami
-  :hook (rust-mode . origami-mode)
+  :commands (origami-mode)
   :bind (:map origami-mode-map
               ("C-, C-h" . origami-toggle-node))
-  :init
-  ;; We need to tell origami how to work under rust mode
-  (with-eval-after-load "origami"
-    (add-to-list 'origami-parser-alist '(rust-mode . origami-c-style-parser)))
+  :hook (rust-mode . origami-mode)
   :custom
   ;; Highlights the line the fold starts on
   (origami-show-fold-header t)
-  :config
+  :preface
   (defun origami-header-overlay-range (fold-overlay)
     "Given a `fold-overlay', return the range that the corresponding
 header overlay should cover. Result is a cons cell of (begin . end)."
@@ -4777,7 +4649,9 @@ header overlay should cover. Result is a cons cell of (begin . end)."
                    (when (looking-at "\n")
                      (forward-char 1)))
                  (point)))))
-        (cons fold-begin fold-end)))))
+        (cons fold-begin fold-end))))
+  :config
+  (add-to-list 'origami-parser-alist '(rust-mode . origami-c-style-parser)))
 #+end_src
 
 ** outline
@@ -4820,6 +4694,9 @@ header overlay should cover. Result is a cons cell of (begin . end)."
   :mode "\\.pact\\'"
   :commands (pact-compile)
   :defines (pact-mode pact-mode-hook)
+  :preface
+  (eval-when-compile
+    (defvar slime-mode-map))
   :bind (:map slime-mode-map
               ("C-c C-c" . (lambda () (interactive)
                              (save-excursion
@@ -4906,7 +4783,6 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 
 #+begin_src emacs-lisp
 (use-package password-store
-  :defer 5
   :commands (password-store-insert
              password-store-copy
              password-store-get)
@@ -4997,7 +4873,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package per-window-point
-  :defer 5
+  :demand t
   :commands pwp-mode
   :config
   (pwp-mode 1))
@@ -5011,6 +4887,7 @@ append it to ENTRY."
               alternate-emacs
               noninteractive)
   :demand t
+  :commands persistent-scratch-setup-default
   :custom
   (persistent-scratch-autosave-interval 30)
   (persistent-scratch-backup-directory nil)
@@ -5018,8 +4895,7 @@ append it to ENTRY."
   :config
   (persistent-scratch-autosave-mode)
   (with-demoted-errors "Error: %S"
-    (persistent-scratch-setup-default))
-  :commands persistent-scratch-setup-default)
+    (persistent-scratch-setup-default)))
 #+end_src
 
 ** personal
@@ -5209,7 +5085,8 @@ append it to ENTRY."
 
   (add-hook 'emacs-startup-hook #'emacs-min t)
 
-  (run-with-idle-timer 30 nil 'startup)
+  (unless alternate-emacs
+    (run-with-idle-timer 30 nil 'startup))
 
   (advice-add 'make-frame-command :after #'my-adjust-created-frame))
 #+end_src
@@ -5224,11 +5101,10 @@ append it to ENTRY."
   (plantuml-jar-path "~/.nix-profile/lib/plantuml.jar"))
 #+end_src
 
-** po-mode
+** COMMENT po-mode
 
 #+begin_src emacs-lisp
 (use-package po-mode
-  :disabled t
   :mode "\\.\\(po\\'\\|po\\.\\)")
 #+end_src
 
@@ -5255,12 +5131,11 @@ append it to ENTRY."
   :commands prodigy)
 #+end_src
 
-** projectile
+** COMMENT projectile
 
 #+begin_src emacs-lisp
 (use-package projectile
-  :disabled t
-  :defer 5
+  :demand t
   :diminish
   :bind* (("C-c TAB" . projectile-find-other-file)
           ("C-c P"   . (lambda () (interactive)
@@ -5296,7 +5171,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package proof-site
-  :defer 5
+  :demand t
   :custom
   (proof-auto-action-when-deactivating-scripting 'retract)
   (proof-autosend-enable nil)
@@ -5322,7 +5197,6 @@ append it to ENTRY."
     (proof-prf))
   :config
   (use-package coq-mode
-    :defer t
     :bind (:map coq-mode-map
                 ("M-RET"       . proof-goto-point)
                 ("RET"         . newline-and-indent)
@@ -5611,7 +5485,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package repeat
-  :defer 5
   :custom
   (repeat-mode t))
 #+end_src
@@ -5837,25 +5710,26 @@ append it to ENTRY."
 *** selected-mc
 
 #+begin_src emacs-lisp
-(use-package selected-mc
-  :no-require t
-  :after (selected multiple-cursors)
-  :bind (:map selected-keymap
-              ("c"   . mc/edit-lines)
+(use-package selected
+  :demand t
+  :after (multiple-cursors)
+  :bind (:map
+         selected-keymap
+         ("c"   . mc/edit-lines)
 
-              ("."   . mc/mark-next-like-this)
-              (">"   . mc/skip-to-next-like-this)
-              ("<"   . mc/unmark-next-like-this)
+         ("."   . mc/mark-next-like-this)
+         (">"   . mc/skip-to-next-like-this)
+         ("<"   . mc/unmark-next-like-this)
 
-              (","   . mc/mark-previous-like-this)
-              ("C-<" . mc/skip-to-previous-like-this)
-              ("C->" . mc/unmark-previous-like-this)
+         (","   . mc/mark-previous-like-this)
+         ("C-<" . mc/skip-to-previous-like-this)
+         ("C->" . mc/unmark-previous-like-this)
 
-              ("y"   . mc/mark-next-symbol-like-this)
-              ("Y"   . mc/mark-previous-symbol-like-this)
+         ("y"   . mc/mark-next-symbol-like-this)
+         ("Y"   . mc/mark-previous-symbol-like-this)
 
-              ("w"   . mc/mark-next-word-like-this)
-              ("W"   . mc/mark-previous-word-like-this)))
+         ("w"   . mc/mark-next-word-like-this)
+         ("W"   . mc/mark-previous-word-like-this)))
 #+end_src
 
 ** separedit
@@ -5904,7 +5778,7 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package shackle
   :unless alternate-emacs
-  :defer 5
+  :demand t
   :commands shackle-mode
   :custom
   (shackle-default-rule '(:select t))
@@ -5925,7 +5799,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package shell
-  :defer 5
+  :defer t
   :custom
   (explicit-shell-file-name (emacs-path "runshell")))
 #+end_src
@@ -5951,17 +5825,16 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package sky-color-clock
-  :defer 5
   :commands sky-color-clock
   :custom
   (sky-color-clock-format "%-l:%M %p")
+  (display-time-string-forms '((sky-color-clock)))
   :preface
   (eval-when-compile
     (require 'solar)
     (require 'time))
   :config
-  (sky-color-clock-initialize calendar-latitude)
-  (setq display-time-string-forms '((sky-color-clock))))
+  (sky-color-clock-initialize calendar-latitude))
 #+end_src
 
 ** slime
@@ -5993,16 +5866,6 @@ append it to ENTRY."
   :commands smartparens-mode
   :custom
   (sp-highlight-pair-overlay nil))
-#+end_src
-
-** smartscan
-
-#+begin_src emacs-lisp
-(use-package smartscan
-  :defer 5
-  :bind (:map smartscan-map
-              ("C->" . smartscan-symbol-go-forward)
-              ("C-<" . smartscan-symbol-go-backward)))
 #+end_src
 
 ** smerge-mode
@@ -6145,7 +6008,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package time
-  :defer 5
+  :defer t
   :custom
   (display-time-interval 60)
   (display-time-mode t)
@@ -6247,7 +6110,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package unicode-fonts
-  :defer 5
   :custom
   (unicode-fonts-block-font-mapping
    '(("Aegean Numbers"
@@ -6715,18 +6577,16 @@ append it to ENTRY."
      ("Yijing Hexagram Symbols"
       ("WenQuanYi Zen Hei Mono" "Noto Sans Symbols" "Segoe UI Symbol" "Apple Symbols" "DejaVu Sans:width=condensed" "BabelStone Han" "Symbola" "Quivira" "BabelStone Modern" "Code2000" "Everson Mono:weight=bold"))))
   (unicode-fonts-skip-font-groups
-   '(chinese-simplified chinese-traditional decorative low-quality-glyphs multicolor))
+   '(arabic-naskh decorative low-quality-glyphs multicolor))
   :config
   (unicode-fonts-setup)
-  ;; (setq face-font-rescale-alist '((".*Scheher.*" . 1.8)))
-  )
+  (setq face-font-rescale-alist '((".*Scheher.*" . 1.3))))
 #+end_src
 
 ** uniquify
 
 #+begin_src emacs-lisp
 (use-package uniquify
-  :defer 5
   :custom
   (uniquify-buffer-name-style 'post-forward-angle-brackets))
 #+end_src
@@ -6774,8 +6634,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package vagrant-tramp
-  :after tramp
-  :defer 5)
+  :after tramp)
 #+end_src
 
 ** vc
@@ -6877,7 +6736,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package wgrep
-  :defer 5
   :custom
   (wgrep-auto-save-buffer t)
   (wgrep-enable-key ""))
@@ -6894,9 +6752,8 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package which-key
-  :defer 5
+  :demand t
   :diminish
-  :commands which-key-mode
   :config
   (which-key-mode))
 #+end_src
@@ -6976,7 +6833,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package whitespace-cleanup-mode
-  :defer 5
+  :demand t
   :diminish
   :commands whitespace-cleanup-mode
   :config
@@ -6995,7 +6852,7 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package winner
   :unless noninteractive
-  :defer 5
+  :demand t
   :bind (("M-N" . winner-redo)
          ("M-P" . winner-undo))
   :config
@@ -7062,7 +6919,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package yasnippet
-  :defer 5
+  :demand t
   :diminish yas-minor-mode
   :bind (("C-c y d" . yas-load-directory)
          ("C-c y i" . yas-insert-snippet)
@@ -7238,6 +7095,7 @@ independent components.
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
   :config
+  (use-package consult-xref)
 
   (consult-customize
    consult-theme
@@ -7302,19 +7160,17 @@ locations. The =default-directory= variable is not changed in the process.
               ("M-s f"   . consult-dir-jump-file)))
 #+end_src
 
-**** consult-projectile
+**** COMMENT consult-projectile
 
 #+begin_src emacs-lisp
-(use-package consult-projectile
-  :disabled t
-  :defer 5)
+(use-package consult-projectile)
 #+end_src
 
 **** consult-company
 
 #+begin_src emacs-lisp
 (use-package consult-company
-  :defer 5
+  :after (company-mode)
   :config
   (define-key company-mode-map [remap completion-at-point] #'consult-company))
 #+end_src
@@ -7322,25 +7178,21 @@ locations. The =default-directory= variable is not changed in the process.
 **** consult-flycheck
 
 #+begin_src emacs-lisp
-(use-package consult-flycheck
-  :defer 5)
+(use-package consult-flycheck)
 #+end_src
 
 **** consult-git-log-grep
 
 #+begin_src emacs-lisp
 (use-package consult-git-log-grep
-  :defer 5
   :custom
   (consult-git-log-grep-open-function #'magit-show-commit))
 #+end_src
 
-**** consult-lsp
+**** COMMENT consult-lsp
 
 #+begin_src emacs-lisp
 (use-package consult-lsp
-  :disabled t
-  :defer 5
   :config
   (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
 #+end_src
@@ -7350,17 +7202,18 @@ locations. The =default-directory= variable is not changed in the process.
 #+begin_src emacs-lisp
 (use-package consult-org-roam
   :after org-roam
+  :demand t
+  :bind
+  ("C-c n e" . consult-org-roam-file-find)
+  ("C-c n b" . consult-org-roam-backlinks)
+  ("C-c n l" . consult-org-roam-forward-links)
+  ("C-c n r" . consult-org-roam-search)
   :custom
   (consult-org-roam-grep-func #'consult-ripgrep)
   (consult-org-roam-buffer-narrow-key ?r)
   (consult-org-roam-buffer-after-buffers t)
   :config
-  (consult-org-roam-mode 1)
-  :bind
-  ("C-c n e" . consult-org-roam-file-find)
-  ("C-c n b" . consult-org-roam-backlinks)
-  ("C-c n l" . consult-org-roam-forward-links)
-  ("C-c n r" . consult-org-roam-search))
+  (consult-org-roam-mode 1))
 #+end_src
 
 **** consult-yasnippet
@@ -7793,12 +7646,11 @@ without white space and comments.
     (vertico-multiform-mode 1)))
 #+end_src
 
-*** company
+*** COMMENT company
 
 #+begin_src emacs-lisp
 (use-package company
-  :disabled t
-  :defer 5
+  :demand t
   :diminish
   :commands (company-mode company-indent-or-complete-common)
   :custom
@@ -8311,6 +8163,12 @@ without white space and comments.
   (defvar gnus-count-recipients-threshold 5
     "*Number of recipients to consider as large.")
 
+  (eval-when-compile
+    (defvar recipients)
+    (defvar to-address)
+    (defvar attribution)
+    (defvar citation))
+
   (defun gnus-user-format-function-r (header)
     "Given a Gnus message header, returns priority mark.
 Here are the meanings:
@@ -8814,11 +8672,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
         message-x-completion-alist))
 #+end_src
 
-*** gnus-sieve
+*** COMMENT gnus-sieve
 
 #+begin_src emacs-lisp
 (use-package gnus-sieve
-  :disabled t
   :defer t
   :custom
   (gnus-sieve-file "~/Messages/dovecot.sieve")
@@ -8866,6 +8723,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+begin_src emacs-lisp
 (use-package org
   :load-path "lisp/org-mode/lisp"
+  :commands org-resolve-clocks
   :bind* (("M-m"   . org-smart-capture)
           ("M-M"   . org-inline-note)
           ("C-c S" . org-store-link)
@@ -8896,7 +8754,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-,")
          ("C-'")
 
-         ([return]                . org-return-indent)
+         ([return]                . (lambda () (interactive) (org-return t)))
          ([(control return)]      . other-window)
          ([(control meta return)] . org-insert-heading-after-current))
   :hook (org-mode . abbrev-mode)
@@ -9399,7 +9257,8 @@ This can be 0 for immediate, or a floating point value.")
 			   :follow #'org-my-message-open
 			   :store #'org-gnus-store-link)
 
-  (run-with-idle-timer 25 t 'save-org-mode-files)
+  (unless alternate-emacs
+    (run-with-idle-timer 25 t 'save-org-mode-files))
 
   (font-lock-add-keywords
    'org-mode
@@ -9655,24 +9514,26 @@ This can be 0 for immediate, or a floating point value.")
   (defun jump-to-org-agenda ()
     (interactive)
     (push-window-configuration)
-    (cl-flet ((prep-window (wind)
-                (with-selected-window wind
-                  (org-fit-window-to-buffer wind)
-                  (ignore-errors
-                    (window-resize
-                     wind
-                     (- 100 (window-width wind)) t)))))
-      (aif (or (get-buffer "*Org Agenda*")
-               (get-buffer "*Org Agenda(a)*"))
-          (let ((buf it))
-            (aif (get-buffer-window it)
-                (when (called-interactively-p 'any)
-                  (funcall #'prep-window it))
-              (if (called-interactively-p 'any)
-                  (funcall #'prep-window (display-buffer buf t t))
-                (funcall #'prep-window (display-buffer buf)))))
-        (call-interactively 'org-agenda-list)
-        (funcall #'prep-window (selected-window)))))
+    (cl-flet ((prep-window
+               (wind)
+               (with-selected-window wind
+                 (org-fit-window-to-buffer wind)
+                 (ignore-errors
+                   (window-resize
+                    wind
+                    (- 100 (window-width wind)) t)))))
+      (let ((buf (or (get-buffer "*Org Agenda*")
+                     (get-buffer "*Org Agenda(a)*"))))
+        (if buf
+            (let ((win (get-buffer-window buf)))
+              (if win
+                  (when (called-interactively-p 'any)
+                    (funcall #'prep-window win))
+                (if (called-interactively-p 'any)
+                    (funcall #'prep-window (display-buffer buf t t))
+                  (funcall #'prep-window (display-buffer buf)))))
+          (call-interactively 'org-agenda-list)
+          (funcall #'prep-window (selected-window))))))
 
   (defun my-org-agenda-should-skip-p ()
     "Skip all but the first non-done entry."
@@ -9880,11 +9741,10 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
 #+end_src
 
-*** ob-restclient
+*** COMMENT ob-restclient
 
 #+begin_src emacs-lisp
 (use-package ob-restclient
-  :disabled t
   :after org)
 #+end_src
 
@@ -10061,11 +9921,10 @@ end tell" (shell-quote-argument (match-string 1))))))
   :after org)
 #+end_src
 
-*** org-super-agenda
+*** COMMENT org-super-agenda
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
-  :disabled t
   :after org
   :preface
   (defun super-jump-to-org-agenda ()
@@ -10141,11 +10000,10 @@ end tell" (shell-quote-argument (match-string 1))))))
   :after org)
 #+end_src
 
-*** ox-texinfo-plus
+*** COMMENT ox-texinfo-plus
 
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
-  :disabled t
   :after org)
 #+end_src
 
@@ -10165,7 +10023,6 @@ end tell" (shell-quote-argument (match-string 1))))))
          ("C-c n T" . org-roam-tag-remove)
          ("C-c n B" . my/org-roam-capture-inbox)
          ("C-c n w" . my-org-prepare-note)
-         ("C-c n x" . xeft)
 
          :map org-mode-map
          ("C-M-i" . completion-at-point)
@@ -10434,7 +10291,7 @@ tags: journal
 
 #+begin_src emacs-lisp
 (use-package xeft
-  :commands xeft
+  :bind ("C-c n x" . xeft)
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
