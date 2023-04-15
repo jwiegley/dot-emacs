@@ -4955,12 +4955,6 @@ append it to ENTRY."
         (emacs-min)
       (emacs-max)))
 
-  (defun my-adjust-created-frame ()
-    (set-frame-font
-     "-*-DejaVu Sans Mono-normal-normal-normal-*-16-*-*-*-m-0-iso10646-1")
-    (set-frame-size (selected-frame) 75 50)
-    (set-frame-position (selected-frame) 10 35))
-
   (defcustom my-emacs-startup-hook
     '((lambda () (eshell-toggle nil))
       (lambda ()
@@ -4978,15 +4972,14 @@ append it to ENTRY."
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
-  (and (emacs-min-font)
-       (set-frame-font (emacs-min-font) nil t))
+  (add-hook 'window-setup-hook #'emacs-min t)
 
-  (add-hook 'emacs-startup-hook #'emacs-min t)
+  (run-with-idle-timer
+   5 nil '(lambda () (and (emacs-min-font)
+                          (set-frame-font (emacs-min-font) nil t))))
 
   (unless alternate-emacs
-    (run-with-idle-timer 30 nil 'startup))
-
-  (advice-add 'make-frame-command :after #'my-adjust-created-frame))
+    (run-with-idle-timer 30 nil 'startup)))
 #+end_src
 
 ** plantuml-mode
@@ -6771,9 +6764,6 @@ provides an alternative overlay-based display.
   :after corfu
   :hook (corfu-mode . corfu-popupinfo-mode)
   :bind (:map corfu-map
-              ;; This is a manual toggle for the documentation popup. Remap the
-              ;; default doc command
-              ;; Scroll in the documentation window
               ("M-n" . corfu-popupinfo-scroll-up)
               ("M-p" . corfu-popupinfo-scroll-down))
   :custom
