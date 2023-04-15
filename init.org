@@ -632,16 +632,6 @@ unto itself.
   (global-auto-revert-mode t))
 #+end_src
 
-** auto-yasnippet
-
-#+begin_src emacs-lisp
-(use-package auto-yasnippet
-  :after yasnippet
-  :bind (("C-c y a" . aya-create)
-         ("C-c y e" . aya-expand)
-         ("C-c y o" . aya-open-line)))
-#+end_src
-
 ** avy
 
 #+begin_src emacs-lisp
@@ -1346,7 +1336,7 @@ to them.
       (replace-match (replace-regexp-in-string "," "" (match-string 1))))))
 #+end_src
 
-** cursor-chg
+** COMMENT cursor-chg
 
 #+begin_src emacs-lisp
 (use-package cursor-chg
@@ -1392,7 +1382,7 @@ to them.
 
 #+begin_src emacs-lisp
 (use-package deadgrep
-  :bind ("M-s g" . deadgrep))
+  :bind ("M-s G" . deadgrep))
 #+end_src
 
 ** dedicated
@@ -2172,28 +2162,29 @@ non-empty directories is allowed."
   (when alternate-emacs
     (add-hook 'emacs-startup-hook #'irc))
 
-  (eval-after-load 'erc-identd
-    '(defun erc-identd-start (&optional port)
-       "Start an identd server listening to port 8113.
-  Port 113 (auth) will need to be redirected to port 8113 on your
-  machine -- using iptables, or a program like redir which can be
-  run from inetd. The idea is to provide a simple identd server
-  when you need one, without having to install one globally on
-  your system."
-       (interactive (list (read-string "Serve identd requests on port: " "8113")))
-       (unless port (setq port erc-identd-port))
-       (when (stringp port)
-         (setq port (string-to-number port)))
-       (when erc-identd-process
-         (delete-process erc-identd-process))
-       (setq erc-identd-process
-	     (make-network-process :name "identd"
-			           :buffer nil
-			           :host 'local :service port
-			           :server t :noquery t
-			           :filter 'erc-identd-filter))
-       (set-process-query-on-exit-flag erc-identd-process nil)))
-
+  (use-package erc-identd
+    :defer t
+    :config
+    (defun erc-identd-start (&optional port)
+      "Start an identd server listening to port 8113.
+Port 113 (auth) will need to be redirected to port 8113 on your
+machine -- using iptables, or a program like redir which can be
+run from inetd. The idea is to provide a simple identd server
+when you need one, without having to install one globally on
+your system."
+      (interactive (list (read-string "Serve identd requests on port: " "8113")))
+      (unless port (setq port erc-identd-port))
+      (when (stringp port)
+        (setq port (string-to-number port)))
+      (when erc-identd-process
+        (delete-process erc-identd-process))
+      (setq erc-identd-process
+	    (make-network-process :name "identd"
+			          :buffer nil
+			          :host 'local :service port
+			          :server t :noquery t
+			          :filter 'erc-identd-filter))
+      (set-process-query-on-exit-flag erc-identd-process nil)))
   :config
   (erc-track-minor-mode 1)
   (erc-track-mode 1)
@@ -3028,6 +3019,16 @@ actual Emacs buffer of the module being loaded."
           (quit nil))))))
 #+end_src
 
+**** TODO Get per-project hoogle support working again
+:PROPERTIES:
+:ID:       6EA2C7EF-8E5F-4F09-B415-5AB8166C4144
+:CREATED:  [2021-12-07 Tue 13:50]
+:END:
+**** TODO Setup LSP for Haskell
+:PROPERTIES:
+:ID:       C82DB205-5B8A-47A9-B760-D8371CD5D959
+:CREATED:  [2021-11-28 Sun 09:34]
+:END:
 *** haskell-edit
 
 #+begin_src emacs-lisp
@@ -4014,6 +4015,11 @@ actual Emacs buffer of the module being loaded."
       (remove-hook 'magit-status-headers-hook func))))
 #+end_src
 
+** TODO Write a version of [[https://github.com/jwiegley/scripts/blob/master/snaplog][snaplog]] that works under 'l' in Magit
+:PROPERTIES:
+:ID:       22947A7F-F16D-4A75-8366-DCEFA5A6D7F8
+:CREATED:  [2018-12-11 Tue 19:48]
+:END:
 *** magit-autorevert
 
 #+begin_src emacs-lisp
@@ -4971,6 +4977,9 @@ append it to ENTRY."
     (run-hooks 'my-emacs-startup-hook))
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
+
+  (and (emacs-min-font)
+       (set-frame-font (emacs-min-font) nil t))
 
   (add-hook 'emacs-startup-hook #'emacs-min t)
 
@@ -6353,6 +6362,7 @@ append it to ENTRY."
 (use-package yasnippet
   :demand t
   :diminish yas-minor-mode
+  :commands yas-minor-mode-on
   :bind (("C-c y d" . yas-load-directory)
          ("C-c y i" . yas-insert-snippet)
          ("C-c y f" . yas-visit-snippet-file)
@@ -6366,7 +6376,7 @@ append it to ENTRY."
          :map yas-keymap
          ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :hook ((org-mode prog-mode) . yas-minor-mode)
+  :hook ((org-mode prog-mode) . yas-minor-mode-on)
   :custom
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
   (yas-snippet-dirs (list (emacs-path "snippets")))
@@ -6376,6 +6386,16 @@ append it to ENTRY."
   (yas-field-highlight-face ((t (:background "#e4edfc"))))
   :config
   (yas-load-directory (emacs-path "snippets")))
+#+end_src
+
+*** auto-yasnippet
+
+#+begin_src emacs-lisp
+(use-package auto-yasnippet
+  :after yasnippet
+  :bind (("C-c y a" . aya-create)
+         ("C-c y e" . aya-expand)
+         ("C-c y o" . aya-open-line)))
 #+end_src
 
 ** z3-mode
@@ -6472,7 +6492,7 @@ independent components.
          ;; M-s bindings (search-map)
          ("M-s f"   . consult-find)
          ("M-s M-g" . consult-grep)
-         ("M-s G"   . consult-git-grep)
+         ("M-s g"   . consult-git-grep)
          ("M-s r"   . consult-ripgrep)
          ("M-s l"   . consult-line)
          ("M-s L"   . consult-line-multi)
@@ -7069,6 +7089,7 @@ without white space and comments.
      '((consult-imenu buffer)
        (consult-line buffer)
        (consult-grep buffer)
+       (consult-git-grep buffer)
        (consult-ripgrep buffer)
        (consult-yank-pop)
        (embark-bindings buffer)))
@@ -8342,7 +8363,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("linenos" "true")
      ("xleftmargin" "0em")))
   (org-latex-pdf-process
-   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f" "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+   '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   (org-latex-src-block-backend 'minted)
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
@@ -8685,6 +8708,10 @@ This can be 0 for immediate, or a floating point value.")
   (add-hook 'org-log-buffer-setup-hook
             #'(lambda () (setq-local fill-column (- 78 2))))
 
+  ;; Replace Gnus link type with Message
+  (setq org-link-parameters
+        (cl-delete-if #'(lambda (x) (string= (car x) "gnus"))
+                      org-link-parameters))
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open
 			   :store #'org-gnus-store-link)
@@ -8766,7 +8793,7 @@ This can be 0 for immediate, or a floating point value.")
             (let ((org-inhibit-logging t))
               (org-agenda-todo ,label)))
           (define-key org-todo-state-map [,(upcase key)]
-                      ',org-agenda-sym-no-logging))))))
+            ',org-agenda-sym-no-logging))))))
 #+end_src
 
 *** org-agenda
@@ -9264,7 +9291,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-devonthink
   :after org
-  :config
+  :preface
   (defun org-set-dtp-link ()
     "Set a property for the current headline."
     (interactive)
@@ -9276,7 +9303,7 @@ This will use the command `open' with the message URL."
     (interactive)
     (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
     (do-applescript
-     (format "tell application \"DEVONthink Pro\"
+     (format "tell application \"DEVONthink 3\"
     set searchResults to search \"%%3C%s%%3E\" within URLs
     open window for record (get beginning of searchResults)
 end tell" (shell-quote-argument (match-string 1))))))
@@ -9451,6 +9478,7 @@ end tell" (shell-quote-argument (match-string 1))))))
          ("C-c n j" . org-roam-dailies-capture-today)
          ("C-c n J" . add-journal-entry)
          ("C-c n p" . my/org-roam-find-project)
+         ("C-c n o" . my-org-todoize)
          ("C-c n t" . org-roam-tag-add)
          ("C-c n T" . org-roam-tag-remove)
          ("C-c n B" . my/org-roam-capture-inbox)
@@ -9523,6 +9551,14 @@ end tell" (shell-quote-argument (match-string 1))))))
        (replace-regexp-in-string
         " " "_"
         title)))))
+
+  (defun my-org-todoize ()
+    "Turn a headline into a TODO entry with any needed metadata."
+    (interactive)
+    (my-org-todo-todo)
+    (org-id-get-create)
+    (org-entry-put (point) "CREATED"
+                   (format-time-string (org-time-stamp-format t t))))
 
   (defun my-org-prepare-dated-note ()
     (interactive)

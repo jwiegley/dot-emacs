@@ -14,15 +14,16 @@
   (interactive)
   (let ((name (or given-name
                   (do-applescript (format "
-	tell application \"DEVONthink Pro\"
+	tell application \"DEVONthink 3\"
 		get name of content record
 	end tell"))))
 	(location (do-applescript (format "
-	tell application \"DEVONthink Pro\"
+	tell application \"DEVONthink 3\"
 		get uuid of content record
 	end tell"))))
     (org-make-link-string
-     (concat "x-devonthink-item://" location) name)))
+     (concat "x-devonthink-item://" (org-remove-double-quotes location))
+     (org-remove-double-quotes name))))
 
 (defun org-insert-dtp-link ()
   (interactive)
