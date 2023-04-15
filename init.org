@@ -694,16 +694,6 @@ unto itself.
     (select-window
      (cdr (ring-ref avy-ring 0)))
     t)
-
-  (defun avy-action-embark (pt)
-    (require 'embark
-    (unwind-protect
-        (save-excursion
-          (goto-char pt)
-          (embark-act))
-      (select-window
-       (cdr (ring-ref avy-ring 0))))
-    t))
   :config
   (avy-setup-default)
 
@@ -720,8 +710,26 @@ unto itself.
 
   (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char)
 
-  (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-flyspell)
+  (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-flyspell))
+#+end_src
 
+*** avy-embark
+
+#+begin_src emacs-lisp
+(use-package avy-embark
+  :no-require t
+  :after (avy embark)
+  :preface
+  (defun avy-action-embark (pt)
+    (require 'embark
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t))
+  :config
   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
 #+end_src
 
@@ -808,6 +816,17 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package boogie-friends
   :commands boogie-friends-verify)
+#+end_src
+
+*** dafny-mode
+
+#+begin_src emacs-lisp
+(use-package dafny-mode
+  :defer t
+  :custom
+  (dafny-prover-args '("/compile:0" "/vcsCores:4"))
+  (dafny-prover-background-args
+   '("/timeLimit:20" "/autoTriggers:1" "/printTooltips" "/vcsCores:4")))
 #+end_src
 
 ** browse-at-remote
@@ -1055,6 +1074,7 @@ unto itself.
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'" . c-mode)
          ("\\.mm\\'" . c++-mode))
+  :hook (c-mode-common . my-c-mode-common-hook)
   :bind (:map c++-mode-map
               ("<" . self-insert-command)
               (">" . self-insert-command))
@@ -1076,12 +1096,6 @@ unto itself.
   (c-default-style '((java-mode . "gnu") (awk-mode . "awk") (other . "gnu")))
   :preface
   (defun my-c-mode-common-hook ()
-    (require 'flycheck)
-    (flycheck-mode 1)
-
-    (setq-local flycheck-check-syntax-automatically nil)
-    (setq-local flycheck-highlighting-mode nil)
-
     (set (make-local-variable 'parens-require-spaces) nil)
 
     (let ((bufname (buffer-file-name)))
@@ -1089,75 +1103,14 @@ unto itself.
         (cond
          ((string-match "/ledger/" bufname)
           (c-set-style "ledger"))
-         ((string-match "/edg/" bufname)
-          (c-set-style "edg"))
-         (t
-          (c-set-style "clang")))))
+         (t))))
 
     (font-lock-add-keywords
      'c++-mode '(("\\<\\(assert\\|DEBUG\\)(" 1 font-lock-warning-face t))))
-
-  :hook (c-mode-common . my-c-mode-common-hook)
   :config
   (add-to-list
    'c-style-alist
-   '("edg"
-     (indent-tabs-mode . nil)
-     (c-basic-offset . 2)
-     (c-comment-only-line-offset . (0 . 0))
-     (c-hanging-braces-alist
-      . ((substatement-open before after)
-         (arglist-cont-nonempty)))
-     (c-offsets-alist
-      . ((statement-block-intro . +)
-         (knr-argdecl-intro . 5)
-         (substatement-open . 0)
-         (substatement-label . 0)
-         (label . 0)
-         (case-label . +)
-         (statement-case-open . 0)
-         (statement-cont . +)
-         (arglist-intro . +)
-         (arglist-close . +)
-         (inline-open . 0)
-         (brace-list-open . 0)
-         (topmost-intro-cont
-          . (first c-lineup-topmost-intro-cont
-                   c-lineup-gnu-DEFUN-intro-cont))))
-     (c-special-indent-hook . c-gnu-impose-minimum)
-     (c-block-comment-prefix . "")))
-
-  (add-to-list
-   'c-style-alist
    '("ledger"
-     (indent-tabs-mode . nil)
-     (c-basic-offset . 2)
-     (c-comment-only-line-offset . (0 . 0))
-     (c-hanging-braces-alist
-      . ((substatement-open before after)
-         (arglist-cont-nonempty)))
-     (c-offsets-alist
-      . ((statement-block-intro . +)
-         (knr-argdecl-intro . 5)
-         (substatement-open . 0)
-         (substatement-label . 0)
-         (label . 0)
-         (case-label . 0)
-         (statement-case-open . 0)
-         (statement-cont . +)
-         (arglist-intro . +)
-         (arglist-close . +)
-         (inline-open . 0)
-         (brace-list-open . 0)
-         (topmost-intro-cont
-          . (first c-lineup-topmost-intro-cont
-                   c-lineup-gnu-DEFUN-intro-cont))))
-     (c-special-indent-hook . c-gnu-impose-minimum)
-     (c-block-comment-prefix . "")))
-
-  (add-to-list
-   'c-style-alist
-   '("clang"
      (indent-tabs-mode . nil)
      (c-basic-offset . 2)
      (c-comment-only-line-offset . (0 . 0))
@@ -1185,6 +1138,14 @@ unto itself.
 #+end_src
 
 ** centered-cursor-mode
+
+Makes the cursor stay vertically in a defined position (usually centered). The
+vertical position can be altered:
+
+| =C-M--= | =ccm-vpos-up=       |
+| =C-M-+= | =ccm-vpos-down=     |
+| =C-M-== | =ccm-vpos-down=     |
+| =C-M-0= | =ccm-vpos-recenter= |
 
 #+begin_src emacs-lisp
 (use-package centered-cursor-mode
@@ -1245,7 +1206,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package col-highlight
-  :commands col-highlight-mode)
+  :commands column-highlight-mode)
 #+end_src
 
 ** color-moccur
@@ -1300,6 +1261,10 @@ unto itself.
 
 ** command-log-mode
 
+This add-on can be used to demo Emacs to an audience. When activated,
+keystrokes get logged into a designated buffer, along with the command bound
+to them.
+
 #+begin_src emacs-lisp
 (use-package command-log-mode
   :bind (("C-c e M" . command-log-mode)
@@ -1314,6 +1279,7 @@ unto itself.
          ("M-O"   . show-compilation))
   :bind (:map compilation-mode-map
               ("z" . delete-window))
+  :hook (compilation-filter . compilation-ansi-color-process-output)
   :custom
   (compilation-always-kill t)
   (compilation-ask-about-save nil)
@@ -1336,9 +1302,7 @@ unto itself.
   (defun compilation-ansi-color-process-output ()
     (ansi-color-process-output nil)
     (set (make-local-variable 'comint-last-output-start)
-         (point-marker)))
-
-  :hook (compilation-filter . compilation-ansi-color-process-output))
+         (point-marker))))
 #+end_src
 
 ** copy-as-format
@@ -1351,8 +1315,8 @@ unto itself.
          ("C-c w r" . copy-as-format-rst)
          ("C-c w s" . copy-as-format-github)
          ("C-c w w" . copy-as-format))
-  :init
-  (setq copy-as-format-default "github"))
+  :custom
+  (copy-as-format-default "github"))
 #+end_src
 
 ** crosshairs
@@ -1360,13 +1324,6 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
-#+end_src
-
-** crux
-
-#+begin_src emacs-lisp
-(use-package crux
-  :bind ("C-c e i" . crux-find-user-init-file))
 #+end_src
 
 ** css-mode
@@ -1386,67 +1343,14 @@ unto itself.
     (interactive)
     (goto-char (point-min))
     (while (re-search-forward "\"\\([^\"]+\\)\"" nil t)
-      (replace-match (replace-regexp-in-string "," "" (match-string 1)))))
-
-  (defun maybe-add (x y)
-    (if (equal x "")
-        (if (equal y "")
-            ""
-          y)
-      (if (equal y "")
-          x
-        (format "%0.2f" (+ (string-to-number x) (string-to-number y))))))
-
-  (defun parse-desc (desc)
-    (cond
-     ((string-match "\\(BOT \\+\\|SOLD -\\)\\([0-9]+\\) \\(.+\\) @\\([0-9.]+\\)\\( .+\\)?" desc)
-      (list (match-string 1 desc)
-            (match-string 2 desc)
-            (match-string 3 desc)
-            (match-string 4 desc)
-            (match-string 5 desc)))))
-
-  (defun maybe-add-descs (x y)
-    (let ((x-info (parse-desc x))
-          (y-info (parse-desc y)))
-      (and (string= (nth 0 x-info) (nth 0 y-info))
-           (string= (nth 2 x-info) (nth 2 y-info))
-           (string= (nth 3 x-info) (nth 3 y-info))
-           (format "%s%d %s @%s%s"
-                   (nth 0 y-info)
-                   (+ (string-to-number (nth 1 x-info))
-                      (string-to-number (nth 1 y-info)))
-                   (nth 2 y-info)
-                   (nth 3 y-info)
-                   (or (nth 4 y-info) "")))))
-
-  (defun csv-merge-lines ()
-    (interactive)
-    (goto-char (line-beginning-position))
-    (let ((start (point-marker))
-          (fields-a (csv--collect-fields (line-end-position))))
-      (forward-line 1)
-      (let ((fields-b (csv--collect-fields (line-end-position))))
-        (when (string= (nth 3 fields-a) (nth 3 fields-b))
-          (let ((desc (maybe-add-descs (nth 4 fields-a) (nth 4 fields-b))))
-            (when desc
-              (delete-region start (line-end-position))
-              (setcar (nthcdr 4 fields-b) desc)
-              (setcar (nthcdr 5 fields-b)
-                      (maybe-add (nth 5 fields-a) (nth 5 fields-b)))
-              (setcar (nthcdr 6 fields-b)
-                      (maybe-add (nth 6 fields-a) (nth 6 fields-b)))
-              (setcar (nthcdr 7 fields-b)
-                      (maybe-add (nth 7 fields-a) (nth 7 fields-b)))
-              (insert (mapconcat #'identity fields-b ","))
-              (forward-char 1)
-              (forward-line -1))))))))
+      (replace-match (replace-regexp-in-string "," "" (match-string 1))))))
 #+end_src
 
 ** cursor-chg
 
 #+begin_src emacs-lisp
 (use-package cursor-chg
+  :demand t
   :commands change-cursor-mode
   :config
   (change-cursor-mode 1)
@@ -1477,24 +1381,11 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package dabbrev
-  :bind (("C-M-/" . dabbrev-expand))
+  :bind ("C-M-/" . dabbrev-expand)
   :custom
   (dabbrev-case-fold-search nil)
   (dabbrev-case-replace nil)
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-#+end_src
-
-** dafny-mode
-
-#+begin_src emacs-lisp
-(use-package dafny-mode
-  :bind (:map dafny-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
-  :custom
-  (dafny-prover-args '("/compile:0" "/vcsCores:4"))
-  (dafny-prover-background-args
-   '("/timeLimit:20" "/autoTriggers:1" "/printTooltips" "/vcsCores:4")))
 #+end_src
 
 ** deadgrep
@@ -3668,12 +3559,7 @@ actual Emacs buffer of the module being loaded."
 
 #+begin_src emacs-lisp
 (use-package js2-mode
-  :mode "\\.js\\'"
-  :functions (javascript-jshint)
-  :config
-  (add-to-list 'flycheck-disabled-checkers #'javascript-jshint)
-  (flycheck-add-mode 'javascript-eslint 'js2-mode)
-  (flycheck-mode 1))
+  :mode "\\.js\\'")
 #+end_src
 
 ** json-mode
@@ -6575,7 +6461,6 @@ independent components.
          ("M-y"     . consult-yank-pop)
          ;; M-g bindings (goto-map)
          ("M-g e"   . consult-compile-error)
-         ("M-g f"   . consult-flycheck)
          ("M-g g"   . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
          ([remap goto-line] . consult-goto-line)
@@ -6724,7 +6609,8 @@ locations. The =default-directory= variable is not changed in the process.
 **** consult-flycheck
 
 #+begin_src emacs-lisp
-(use-package consult-flycheck)
+(use-package consult-flycheck
+  :bind ("M-g f" . consult-flycheck))
 #+end_src
 
 **** consult-git-log-grep
