@@ -25,6 +25,11 @@
      (concat "x-devonthink-item://" (org-remove-double-quotes location))
      (org-remove-double-quotes name))))
 
+(defun org-set-dtp-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Document" (org-get-dtp-link)))
+
 (defun org-insert-dtp-link ()
   (interactive)
   (let (name)
@@ -45,6 +50,17 @@
      :link (cons (concat "x-devonthink-item://" link-name)
 		 (concat "x-devonthink-item://" link-name))
      :description (file-name-nondirectory link-name))))
+
+(defun org-dtp-message-open ()
+  "Visit the message with the given MESSAGE-ID.
+This will use the command `open' with the message URL."
+  (interactive)
+  (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
+  (do-applescript
+   (format "tell application \"DEVONthink 3\"
+    set searchResults to search \"%%3C%s%%3E\" within URLs
+    open window for record (get beginning of searchResults)
+end tell" (shell-quote-argument (match-string 1)))))
 
 (provide 'org-devonthink)
 
