@@ -126,6 +126,10 @@
 ** Lookup a password using =auth-source=
 
 #+begin_src emacs-lisp
+(eval-when-compile
+  (require 'auth-source)
+  (require 'auth-source-pass))
+
 (defun lookup-password (host user port)
   (require 'auth-source)
   (require 'auth-source-pass)
@@ -137,6 +141,13 @@
             (error "Auth entry for %s@%s:%s has no secret!"
                    user host port)))
       (error "No auth entry found for %s@%s:%s" user host port))))
+#+end_src
+
+** info-look
+
+#+begin_src emacs-lisp
+(use-package info :autoload Info-goto-node)
+(use-package info-look :autoload info-lookup-add-help)
 #+end_src
 
 * Packages
@@ -675,15 +686,6 @@ unto itself.
   (defun avy-action-mark-to-char (pt)
     (activate-mark)
     (goto-char pt))
-
-  (defun avy-action-flyspell (pt)
-    (save-excursion
-      (goto-char pt)
-      (when (require 'flyspell nil t)
-        (flyspell-auto-correct-word)))
-    (select-window
-     (cdr (ring-ref avy-ring 0)))
-    t)
   :config
   (avy-setup-default)
 
@@ -698,9 +700,7 @@ unto itself.
   (setf (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
         (alist-get ?T avy-dispatch-alist) 'avy-action-teleport-whole-line)
 
-  (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char)
-
-  (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-flyspell))
+  (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char))
 #+end_src
 
 *** avy-embark
@@ -721,6 +721,26 @@ unto itself.
     t))
   :config
   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+#+end_src
+
+*** avy-flyspell
+
+#+begin_src emacs-lisp
+(use-package avy-flyspell
+  :no-require t
+  :after avy
+  :functions (flyspell-auto-correct-word)
+  :preface
+  (defun avy-action-flyspell (pt)
+    (save-excursion
+      (goto-char pt)
+      (when (require 'flyspell nil t)
+        (flyspell-auto-correct-word)))
+    (select-window
+     (cdr (ring-ref avy-ring 0)))
+    t)
+  :config
+  (setf (alist-get ?\; avy-dispatch-alist) 'avy-action-flyspell))
 #+end_src
 
 *** avy-zap
@@ -1477,6 +1497,7 @@ diff-hl package.
   (dired-omit-size-limit 60000)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
+  :functions (dired-dwim-target-directory)
   :preface
   (defun dired-two-pane ()
     (interactive)
@@ -2833,6 +2854,7 @@ up before you execute another command."
       (yas-expand)))
 
   (defvar hoogle-server-process nil)
+
   (defun my-haskell-hoogle (query &optional _arg)
     "Do a Hoogle search for QUERY."
     (interactive
@@ -2908,6 +2930,9 @@ up before you execute another command."
           (setq-local haskell-process-args-cabal-repl
                       (delete-dups
                        (append haskell-process-args-cabal-repl args)))))))
+
+  (eval-when-compile
+    (require 'diminish))
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
@@ -3019,16 +3044,6 @@ actual Emacs buffer of the module being loaded."
           (quit nil))))))
 #+end_src
 
-**** TODO Get per-project hoogle support working again
-:PROPERTIES:
-:ID:       6EA2C7EF-8E5F-4F09-B415-5AB8166C4144
-:CREATED:  [2021-12-07 Tue 13:50]
-:END:
-**** TODO Setup LSP for Haskell
-:PROPERTIES:
-:ID:       C82DB205-5B8A-47A9-B760-D8371CD5D959
-:CREATED:  [2021-11-28 Sun 09:34]
-:END:
 *** haskell-edit
 
 #+begin_src emacs-lisp
@@ -3420,15 +3435,6 @@ actual Emacs buffer of the module being loaded."
                 (text-scale-adjust 1))))
 #+end_src
 
-*** info-look
-
-#+begin_src emacs-lisp
-(use-package info-look
-  :defer t
-  :init
-  (autoload 'info-lookup-add-help "info-look"))
-#+end_src
-
 *** info-lookmore
 
 #+begin_src emacs-lisp
@@ -3808,6 +3814,10 @@ actual Emacs buffer of the module being loaded."
 #+begin_src emacs-lisp
 (use-package lsp-ui
   :after lsp-mode
+  :bind (:map
+         lsp-ui-mode-map
+         ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+         ([remap xref-find-references]  . lsp-ui-peek-find-references))
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-enable nil)
@@ -3816,12 +3826,7 @@ actual Emacs buffer of the module being loaded."
   (lsp-ui-peek-always-show t)
   (lsp-ui-sideline-enable nil)
   (lsp-ui-sideline-show-diagnostics nil)
-  (lsp-ui-sideline-show-hover t)
-  :config
-  (define-key lsp-ui-mode-map [remap xref-find-definitions]
-    #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map [remap xref-find-references]
-    #'lsp-ui-peek-find-references))
+  (lsp-ui-sideline-show-hover t))
 #+end_src
 
 ** lua-mode
@@ -3924,6 +3929,15 @@ actual Emacs buffer of the module being loaded."
               "\\`.+github\\.com:\\(.+?\\)\\(\\.git\\)?\\'" "\\1"
               (magit-get "remote" (magit-get-remote) "url"))
              (magit-get-current-branch))))
+
+  (defvar magit--call-git-cache (make-hash-table :test #'equal))
+
+  (defun my-magit-cache-config (orig-func &rest args)
+    (or (and (string= (car args) "config")
+             (gethash args magit--call-git-cache))
+        (let ((result (apply orig-func args)))
+          (puthash args result magit--call-git-cache)
+          result)))
   :hook (magit-mode . hl-line-mode)
   :config
   (add-hook 'magit-status-mode-hook #'(lambda () (magit-monitor t)))
@@ -3951,15 +3965,6 @@ actual Emacs buffer of the module being loaded."
   ;; inspect before committing. This behavior can be turned off using:
   (remove-hook 'server-switch-hook 'magit-commit-diff)
   (remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
-
-  (defvar magit--call-git-cache (make-hash-table :test #'equal))
-
-  (defun my-magit-cache-config (orig-func &rest args)
-    (or (and (string= (car args) "config")
-             (gethash args magit--call-git-cache))
-        (let ((result (apply orig-func args)))
-          (puthash args result magit--call-git-cache)
-          result)))
 
   (advice-add 'magit-git-items :around #'my-magit-cache-config)
 
@@ -4013,73 +4018,6 @@ actual Emacs buffer of the module being loaded."
                     magit-insert-tags-header
                     ))
       (remove-hook 'magit-status-headers-hook func))))
-#+end_src
-
-** TODO Write a version of [[https://github.com/jwiegley/scripts/blob/master/snaplog][snaplog]] that works under 'l' in Magit
-:PROPERTIES:
-:ID:       22947A7F-F16D-4A75-8366-DCEFA5A6D7F8
-:CREATED:  [2018-12-11 Tue 19:48]
-:END:
-*** magit-autorevert
-
-#+begin_src emacs-lisp
-(use-package magit-autorevert
-  :after magit
-  :custom
-  (magit-auto-revert-mode nil))
-#+end_src
-
-*** COMMENT magit-lfs
-
-#+begin_src emacs-lisp
-(use-package magit-lfs
-  :after magit)
-#+end_src
-
-*** magit-popup
-
-#+begin_src emacs-lisp
-(use-package magit-popup
-  :after magit)
-#+end_src
-
-*** COMMENT forge
-
-#+begin_src emacs-lisp
-(use-package forge
-  :after magit
-  :custom
-  (forge-alist
-   '(("github.com" "api.github.com" "github.com" forge-github-repository)
-     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
-     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
-     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
-     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
-     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
-     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
-     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
-     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
-     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
-     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
-     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
-     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
-  (forge-database-file "~/.config/forge/database.sqlite")
-  (forge-owned-accounts '(("jwiegley")))
-  :preface
-  (defun my-quick-create-pull-request (_title branch)
-    (interactive "sTitle: \nsBranch: ")
-    (setq branch (concat "johnw/" branch))
-    ;; Split this commit to another branch.
-    (magit-branch-spinoff branch)
-    ;; Push that branch to the remote.
-    (call-interactively #'magit-push-current-to-pushremote)
-    (sleep-for 3)
-    ;; Create a pullreq using the same title.
-    (forge-create-pullreq (concat "origin/" branch) "origin/master"))
-  :config
-  (transient-insert-suffix 'forge-dispatch "c i"
-    '("p" "quick-pr" my-quick-create-pull-request))
-  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
 #+end_src
 
 ** malyon
@@ -4677,6 +4615,7 @@ header overlay should cover. Result is a cons cell of (begin . end)."
              password-store-get)
   :custom
   (password-store-password-length 24)
+  :functions (password-store--run)
   :config
   (defun password-store--run-edit (entry)
     (require 'pass)
@@ -5080,7 +5019,9 @@ append it to ENTRY."
   (proof-queue-face ((t (:background "#431807"))))
   (proof-script-sticky-error-face ((t (:background "#50110e"))))
   (proof-warning-face ((t (:background "orange4"))))
-  :functions (proof-layout-windows)
+  :functions
+  (proof-layout-windows
+   proof-prf)
   :preface
   (defun my-layout-proof-windows ()
     (interactive)
@@ -5190,6 +5131,7 @@ append it to ENTRY."
      ("Prop"   . 120031)))
   :custom-face
   (company-coq-features/code-folding-bullet-face ((t (:weight bold))))
+  :functions (cape-company-to-capf)
   :config
   (add-hook 'company-coq-mode-hook
             #'(lambda ()
@@ -5877,12 +5819,14 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package text-mode
   :defer t
-  :init
-  (add-hook 'text-mode-hook #'turn-on-auto-fill)
-  (add-hook 'text-mode-hook
-            #'(lambda ()
-                (ignore-errors
-                  (diminish 'auto-fill-function)))))
+  :preface
+  (eval-when-compile
+    (require 'diminish))
+  :hook
+  (text-mode-hook . turn-on-auto-fill)
+  (text-mode . (lambda ()
+                 (ignore-errors
+                   (diminish 'auto-fill-function)))))
 #+end_src
 
 ** tidy
@@ -6060,6 +6004,7 @@ append it to ENTRY."
              vagrant-ssh
              vagrant-halt
              vagrant-status)
+  :functions (vagrant-tramp-enable)
   :config
   (vagrant-tramp-enable))
 #+end_src
@@ -6369,7 +6314,7 @@ append it to ENTRY."
          :map yas-keymap
          ("C-i" . yas-next-field-or-maybe-expand))
   :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
-  :hook ((org-mode prog-mode) . yas-minor-mode-on)
+  :hook (prog-mode . yas-minor-mode-on)
   :custom
   (yas-prompt-functions '(yas-completing-prompt yas-no-prompt))
   (yas-snippet-dirs (list (emacs-path "snippets")))
@@ -6381,14 +6326,13 @@ append it to ENTRY."
   (yas-load-directory (emacs-path "snippets")))
 #+end_src
 
-*** auto-yasnippet
+*** yasnippet-org
 
 #+begin_src emacs-lisp
-(use-package auto-yasnippet
-  :after yasnippet
-  :bind (("C-c y a" . aya-create)
-         ("C-c y e" . aya-expand)
-         ("C-c y o" . aya-open-line)))
+(use-package yasnippet-org
+  :no-require t
+  :after org
+  :hook (org-mode . yas-minor-mode-on))
 #+end_src
 
 ** z3-mode
@@ -6615,8 +6559,8 @@ locations. The =default-directory= variable is not changed in the process.
 #+begin_src emacs-lisp
 (use-package consult-company
   :after (company-mode)
-  :config
-  (define-key company-mode-map [remap completion-at-point] #'consult-company))
+  :bind (:map company-mode-map
+              ([remap completion-at-point] . consult-company)))
 #+end_src
 
 **** consult-flycheck
@@ -6638,8 +6582,8 @@ locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
 (use-package consult-lsp
-  :config
-  (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
+  :bind (:map lsp-mode-mode
+              ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
 **** COMMENT consult-org-roam
@@ -6767,18 +6711,16 @@ provides an alternative overlay-based display.
   :hook (corfu-mode . corfu-popupinfo-mode)
   :bind (:map corfu-map
               ("M-n" . corfu-popupinfo-scroll-up)
-              ("M-p" . corfu-popupinfo-scroll-down))
+              ("M-p" . corfu-popupinfo-scroll-down)
+              ([remap corfu-show-documentation] . corfu-popupinfo-toggle))
   :custom
   (corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-max-width 70)
   (corfu-popupinfo-max-height 20)
-
-  ;; This is also set this in the `corfu' use-package to be extra-safe that
-  ;; this is set when `corfu-popupinfo' is loaded. I do not want documentation
-  ;; shown in both the echo area and in the `corfu-popupinfo' popup.
-  (corfu-echo-documentation nil)
-  :config
-  (define-key corfu-map [remap corfu-show-documentation] #'corfu-popupinfo-toggle))
+  ;; Also here to be extra-safe that this is set when `corfu-popupinfo' is
+  ;; loaded. I do not want documentation shown in both the echo area and in
+  ;; the `corfu-popupinfo' popup.
+  (corfu-echo-documentation nil))
 #+end_src
 
 *** cape
@@ -7009,7 +6951,7 @@ without white space and comments.
   :demand t
   :bind (("C-c . ." . vertico-repeat)
          :map vertico-map
-         ("C-d"   . vertico-exit-input)
+         ("C-j"   . vertico-exit-input)
          ("C-M-n" . vertico-next-group)
          ("C-M-p" . vertico-previous-group))
   :hook
@@ -7382,6 +7324,9 @@ without white space and comments.
   (ssl-certificate-verification-policy 1)
   :hook
   (kill-emacs . exit-gnus-on-exit)
+  :functions
+  (gnus-group-read-ephemeral-search-group
+   gnus-summary-next-page)
   :preface
   (setq gnus-home-directory "~/Messages/Gnus/")
 
@@ -7600,6 +7545,10 @@ without white space and comments.
                         stripped))))
       (error "    ")))
 
+  (eval-when-compile
+    (defvar recipients)
+    (defvar to-address))
+
   (defun gnus-user-format-function-X (header)
     (if (and recipients to-address (not (member to-address recipients)))
         (propertize "X" 'face 'font-lock-warning-face)
@@ -7607,12 +7556,6 @@ without white space and comments.
 
   (defvar gnus-count-recipients-threshold 5
     "*Number of recipients to consider as large.")
-
-  (eval-when-compile
-    (defvar recipients)
-    (defvar to-address)
-    (defvar attribution)
-    (defvar citation))
 
   (defun gnus-user-format-function-r (header)
     "Given a Gnus message header, returns priority mark.
@@ -7977,6 +7920,10 @@ is:
       (when (re-search-forward message-signature-separator (region-end) t)
         (delete-region (match-beginning 0) (region-end)))))
 
+  (eval-when-compile
+    (defvar attribution)
+    (defvar citation))
+
   (defun sc-remove-if-not-mailing-list ()
     (unless (assoc "list-id" sc-mail-info)
       (setq attribution sc-default-attribution
@@ -8175,32 +8122,27 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           ("C-c l" . org-insert-link))
   :bind (:map
          org-mode-map
-
-         ("C-c x l"   . org-insert-dtp-link)
-         ("C-c x L"   . org-set-dtp-link)
-         ("C-c x i"   . org-id-get-create)
-         ("C-c x m"   . org-insert-message-link)
-         ("C-c x M"   . org-set-message-link)
-         ("C-c x u"   . org-set-url-from-clipboard)
-         ("C-c x U"   . org-insert-url-link)
-         ("C-c x f"   . org-insert-file-link)
-         ("C-c x F"   . org-set-file-link)
-         ("C-c x Q"   . org-wrap-quote-block)
-         ("C-c x V"   . org-wrap-verse-block)
-         ("C-c x O"   . org-wrap-output-block)
-         ("C-c C-x @" . visible-mode)
-         ("C-c M-m"   . my-org-wrap-region)
-         ("C-c #"     . org-priority)
-         ("C-c ,"     . org-priority)
-         ("C-c <"     . org-time-stamp)
-
-         ("C-c .")
-         ("C-c [")
          ("C-,")
-         ("C-'")
-
+         ("C-c #"     . org-priority)
+         ("C-c .")
+         ("C-c ,"     . org-priority)
+         ("C-c ["     . org-time-stamp-inactive)
+         ("C-c <"     . org-time-stamp)
+         ("C-c x"     . org-todo)
+         ("C-c C-x @" . visible-mode)
+         ("C-c C-x L" . org-set-dtp-link)
+         ("C-c C-x M" . org-set-message-link)
+         ("C-c C-x O" . org-wrap-output-block)
+         ("C-c C-x Q" . org-wrap-quote-block)
+         ("C-c C-x U" . org-insert-url-link)
+         ("C-c C-x V" . org-wrap-verse-block)
+         ("C-c C-x i" . org-id-get-create)
+         ("C-c C-x l" . org-insert-dtp-link)
+         ("C-c C-x m" . org-insert-message-link)
+         ("C-c C-x o" . my-org-todoize)
+         ("C-c C-x u" . org-set-url-from-clipboard)
          ([return]                . (lambda () (interactive) (org-return t)))
-         ([(control return)]      . other-window)
+         ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
   :hook (org-mode . abbrev-mode)
   :custom
@@ -8390,6 +8332,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
+  (org-todo-keywords
+   '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@)"
+               "DELEGATED(g@)" "DEFERRED(r)" "SOMEDAY(y)"
+               "|" "DONE(d@)" "CANCELED(c@)")
+     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(c@)")
+     (sequence "|" "NOTE(n)")
+     (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(c@)")))
   (org-todo-keyword-faces
    '(("TODO" :foreground "medium blue" :weight bold)
      ("EPIC" :foreground "deep sky blue" :weight bold)
@@ -8404,6 +8353,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("SOMEDAY" :foreground "dark blue" :weight bold)
      ("PROJECT" :foreground "#088e8e" :weight bold)))
   (org-todo-repeat-to-state "TODO")
+  (org-treat-S-cursor-todo-selection-as-state-change nil)
+  (org-use-fast-todo-selection 'expert)
   (org-use-property-inheritance '("AREA"))
   (org-use-speed-commands t)
   (org-use-tag-inheritance nil)
@@ -8487,6 +8438,14 @@ This can be 0 for immediate, or a floating point value.")
     (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
       (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
       (goto-char (match-end 0))))
+
+  (defun my-org-todoize ()
+    "Turn a headline into a TODO entry with any needed metadata."
+    (interactive)
+    (org-todo "TODO")
+    (org-id-get-create)
+    (org-entry-put (point) "CREATED"
+                   (format-time-string (org-time-stamp-format t t))))
 
   (eval-when-compile
     (defvar org-clock-current-task))
@@ -8717,75 +8676,7 @@ This can be 0 for immediate, or a floating point value.")
       (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
   (defadvice org-refile-get-location (before clear-refile-history activate)
-    (setq org-refile-history nil))
-
-  (defalias 'archive-expired-tasks 'org-archive-expired-tasks)
-  (defalias 'archive-done-tasks 'org-archive-done-tasks)
-  (defalias 'sort-done-tasks 'org-sort-done-tasks)
-
-  ;; keybindings
-
-  (eval-and-compile
-    (defvar org-todo-state-map nil)
-    (define-prefix-command 'org-todo-state-map))
-
-  (defvar org-mode-completion-keys
-    '((?d . "DONE")
-      (?g . "DELEGATED")
-      (?n . "NOTE")
-      (?r . "DEFERRED")
-      (?s . "STARTED")
-      (?t . "TODO")
-      (?e . "EPIC")
-      (?o . "STORY")
-      (?w . "WAITING")
-      (?x . "CANCELED")
-      (?y . "SOMEDAY")
-      ))
-
-  (dolist (ckey org-mode-completion-keys)
-    (let* ((key (car ckey))
-           (label (cdr ckey))
-           (org-sym (intern (concat "my-org-todo-" (downcase label))))
-           (org-sym-no-logging
-            (intern (concat "my-org-todo-" (downcase label) "-no-logging")))
-           (org-agenda-sym
-            (intern (concat "my-org-agenda-todo-" (downcase label))))
-           (org-agenda-sym-no-logging
-            (intern (concat "my-org-agenda-todo-"
-                            (downcase label) "-no-logging"))))
-      (eval
-       `(progn
-          (defun ,org-sym ()
-            (interactive)
-            (org-todo ,label))
-          (bind-key (concat "C-c x " (char-to-string ,key)) ',org-sym
-                    org-mode-map)
-
-          (defun ,org-sym-no-logging ()
-            (interactive)
-            (let ((org-inhibit-logging t))
-              (org-todo ,label)))
-          (bind-key (concat "C-c x " (char-to-string  ,(upcase key)))
-                    ',org-sym-no-logging org-mode-map)
-
-          (defun ,org-agenda-sym ()
-            (interactive)
-            (let ((org-inhibit-logging
-                   (let ((style (org-entry-get
-                                 (get-text-property (point) 'org-marker)
-                                 "STYLE")))
-                     (and style (stringp style)
-                          (string= style "habit")))))
-              (org-agenda-todo ,label)))
-          (define-key org-todo-state-map [,key] ',org-agenda-sym)
-
-          (defun ,org-agenda-sym-no-logging ()
-            (interactive)
-            (let ((org-inhibit-logging t))
-              (org-agenda-todo ,label)))
-          (define-key org-todo-state-map [,(upcase key)]
-            ',org-agenda-sym-no-logging))))))
+    (setq org-refile-history nil)))
 #+end_src
 
 *** org-agenda
@@ -8797,25 +8688,21 @@ This can be 0 for immediate, or a floating point value.")
           ("C-c a" . org-agenda))
   :bind (:map
          org-agenda-mode-map
-
-         ("C-c C-x C-p" . my-org-publish-ical)
-
-         ("C-n" . next-line)
-         ("C-p" . previous-line)
-         ("M-n" . org-agenda-later)
-         ("M-p" . org-agenda-earlier)
          (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
-         ("g"   . org-agenda-redo)
-         ("f"   . org-agenda-date-later)
-         ("b"   . org-agenda-date-earlier)
-         ("r"   . org-agenda-refile)
+         ("C-n" . next-line)
+         ("C-p" . previous-line)
          ("F"   . org-agenda-follow-mode)
+         ("M-m")
+         ("M-n" . org-agenda-later)
+         ("M-p" . org-agenda-earlier)
+         ("b"   . org-agenda-date-earlier)
+         ("f"   . org-agenda-date-later)
+         ("g"   . org-agenda-redo)
          ("q"   . delete-window)
-         ("x"   . org-todo-state-map)
-         ("z"   . pop-window-configuration)
-
-         ("M-m"))
+         ("r"   . org-agenda-refile)
+         ("x"   . org-agenda-todo)
+         ("z"   . pop-window-configuration))
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
@@ -8919,7 +8806,11 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-deadline-leaders '("!D!: " "D%02d: "))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
-   '("~/doc/org/todo.org" "~/doc/org/habits.org" "~/kadena/docs/kadena.org" "~/doc/org/OSS.org"))
+   '("~/doc/org/todo.org"
+     "~/doc/org/habits.org"
+     "~/kadena/docs/kadena.org"
+     "~/doc/org/OSS.org"
+     "~/.emacs.d/init.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
   (org-agenda-inhibit-startup t)
@@ -9282,23 +9173,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-devonthink
-  :after org
-  :preface
-  (defun org-set-dtp-link ()
-    "Set a property for the current headline."
-    (interactive)
-    (org-set-property "Document" (org-get-dtp-link)))
-
-  (defun org-dtp-message-open ()
-    "Visit the message with the given MESSAGE-ID.
-This will use the command `open' with the message URL."
-    (interactive)
-    (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
-    (do-applescript
-     (format "tell application \"DEVONthink 3\"
-    set searchResults to search \"%%3C%s%%3E\" within URLs
-    open window for record (get beginning of searchResults)
-end tell" (shell-quote-argument (match-string 1))))))
+  :after org)
 #+end_src
 
 *** org-download
@@ -9339,8 +9214,10 @@ end tell" (shell-quote-argument (match-string 1))))))
 
 #+begin_src emacs-lisp
 (use-package org-noter
-  :after (org pdf-tools)
-  :commands org-noter)
+  :after org
+  :commands org-noter
+  :custom
+  (org-noter-supported-modes '(doc-view-mode pdf-view-mode)))
 #+end_src
 
 *** org-protocol
@@ -9470,7 +9347,6 @@ end tell" (shell-quote-argument (match-string 1))))))
          ("C-c n j" . org-roam-dailies-capture-today)
          ("C-c n J" . add-journal-entry)
          ("C-c n p" . my/org-roam-find-project)
-         ("C-c n o" . my-org-todoize)
          ("C-c n t" . org-roam-tag-add)
          ("C-c n T" . org-roam-tag-remove)
          ("C-c n B" . my/org-roam-capture-inbox)
@@ -9543,14 +9419,6 @@ end tell" (shell-quote-argument (match-string 1))))))
        (replace-regexp-in-string
         " " "_"
         title)))))
-
-  (defun my-org-todoize ()
-    "Turn a headline into a TODO entry with any needed metadata."
-    (interactive)
-    (my-org-todo-todo)
-    (org-id-get-create)
-    (org-entry-put (point) "CREATED"
-                   (format-time-string (org-time-stamp-format t t))))
 
   (defun my-org-prepare-dated-note ()
     (interactive)
@@ -9796,4 +9664,8 @@ directories, dot files, and files matched by
 
 #+begin_src emacs-lisp
 (report-time-since-load)
+
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings lexical noruntime)
+;; End:
 #+end_src
