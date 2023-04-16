@@ -48,6 +48,9 @@ slow: init.elc
 open: init.elc
 	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
 
+open-quick: init.el
+	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
+
 # This rule output configured packages compared to installed packages. Note
 # that some must be filtered out (usually because they are builtins) or
 # renamed (often because the package name does not match the installed name)
