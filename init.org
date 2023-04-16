@@ -2269,7 +2269,7 @@ your system."
      eshell-prompt
      eshell-rebind
      eshell-script
-     eshell-smart
+     ;; eshell-smart
      eshell-term
      eshell-unix
      eshell-xtra))
@@ -4925,6 +4925,10 @@ append it to ENTRY."
       (`macbook-pro-15          100)
       (`macbook-pro-13          100)))
 
+  (defun reset-font ()
+    (interactive)
+    (set-frame-font (emacs-min-font) nil t))
+
   (defun emacs-min ()
     (interactive)
     (cl-flet ((set-param (p v) (set-frame-parameter (selected-frame) p v)))
@@ -4973,10 +4977,6 @@ append it to ENTRY."
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
   (add-hook 'window-setup-hook #'emacs-min t)
-
-  (run-with-idle-timer
-   5 nil '(lambda () (and (emacs-min-font)
-                          (set-frame-font (emacs-min-font) nil t))))
 
   (unless alternate-emacs
     (run-with-idle-timer 30 nil 'startup)))
@@ -6695,13 +6695,13 @@ provides an alternative overlay-based display.
   :demand t
   :bind (("M-/" . completion-at-point)
          :map corfu-map
-              ("C-n"      . corfu-next)
-              ("C-p"      . corfu-previous)
-              ("<escape>" . corfu-quit)
-              ("<return>" . corfu-insert)
-              ("M-d"      . corfu-info-documentation)
-              ("M-l"      . corfu-info-location)
-              ("M-."      . corfu-move-to-minibuffer))
+         ("C-n"      . corfu-next)
+         ("C-p"      . corfu-previous)
+         ("<escape>" . corfu-quit)
+         ("<return>" . corfu-insert)
+         ("M-d"      . corfu-info-documentation)
+         ("M-l"      . corfu-info-location)
+         ("M-."      . corfu-move-to-minibuffer))
   :custom
   ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
   ;; want to perform completion
@@ -6749,6 +6749,8 @@ provides an alternative overlay-based display.
       (apply #'consult-completion-in-region completion-in-region--data)))
   :config
   (global-corfu-mode)
+
+  (advice-add #'corfu-complete :before #'reset-font)
 
   ;; Enable Corfu more generally for every minibuffer, as long as no other
   ;; completion UI is active. If you use Mct or Vertico as your main
