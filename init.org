@@ -6642,7 +6642,7 @@ locations. The =default-directory= variable is not changed in the process.
   (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols))
 #+end_src
 
-**** consult-org-roam
+**** COMMENT consult-org-roam
 
 #+begin_src emacs-lisp
 (use-package consult-org-roam
