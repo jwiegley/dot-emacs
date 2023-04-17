@@ -518,6 +518,18 @@ unto itself.
    aria2-add-uris))
 #+end_src
 
+** asana
+
+#+begin_src emacs-lisp
+(use-package asana
+  :load-path "lisp/emacs-asana"
+  :commands asana-org-sync-tasks
+  :defines (asana-token)
+  :config
+  (setq asana-token
+        (lookup-password "pat.asana.com" "john@kadena.io" 80)))
+#+end_src
+
 ** ascii
 
 #+begin_src emacs-lisp
@@ -9253,27 +9265,17 @@ To use this function, add it to `org-agenda-finalize-hook':
   (defun super-jump-to-org-agenda ()
     (interactive)
     (let ((org-super-agenda-groups
-           '((:name "Today"
-                    :time-grid t
-                    :todo "TODAY")
-             (:name "Important"
-                    :tag "bills"
-                    :priority "A")
-             (:order-multi
-              (2 (:name "Shopping in town"
-                        :and (:tag "shopping" :tag "@town"))
-                 (:name "Food-related"
-                        :tag ("food" "dinner"))
-                 (:name "Personal"
-                        :habit t
-                        :tag "personal")
-                 (:name "Space-related (non-moon-or-planet-related)"
-                        :and (:regexp ("space" "NASA")
-                                      :not (:regexp "moon" :tag "planet")))))
-             (:todo "WAITING" :order 8)
-             (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
-                    :order 9)
-             (:priority<= "B" :order 1))))
+           '((:name "Important"
+                    :priority "A"
+                    :order 1)
+             (:todo "WAITING"
+                    :order 2)
+             (:name "Tasks"
+                    :not (:priority "A" :priority "C")
+                    :order 3)
+             (:name "Optional"
+                    :priority "C"
+                    :order 4))))
       (org-agenda nil "a")))
   :config
   (org-super-agenda-mode))
