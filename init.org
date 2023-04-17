@@ -8306,6 +8306,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("([Ww]as: .+)\\'" . "")
      ("\\`\\[[a-z-]+\\] " . "")
      ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
+  (org-tag-faces
+   '(("Call"  . (:foreground "Orange" :weight bold))))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
@@ -8787,7 +8789,7 @@ This can be 0 for immediate, or a floating point value.")
      "~/doc/org/habits.org"
      "~/kadena/docs/kadena.org"
      "~/doc/org/OSS.org"
-     "~/.emacs.d/init.org"))
+     "~/doc/org/asana.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
   (org-agenda-inhibit-startup t)
@@ -9242,7 +9244,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   :after org)
 #+end_src
 
-*** COMMENT org-super-agenda
+*** org-super-agenda
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
@@ -9605,7 +9607,8 @@ tags: journal
   (use-package org-roam-dailies
     :demand t
     :custom
-    (org-roam-dailies-directory (expand-file-name "journal/" org-roam-directory))))
+    (org-roam-dailies-directory
+     (expand-file-name "journal/" org-roam-directory))))
 #+end_src
 
 *** xeft
