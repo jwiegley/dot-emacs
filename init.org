@@ -803,6 +803,9 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package bookmark
   :defer t
+  :bind
+  ("<f4>" . (lambda () (interactive) (bookmark-set "SAVED")))
+  ("<f1>" . (lambda () (interactive) (bookmark-jump "SAVED")))
   :custom
   (bookmark-default-file "~/doc/bookmarks"))
 #+end_src
@@ -3626,7 +3629,6 @@ actual Emacs buffer of the module being loaded."
   :custom
   (ledger-binary-path "ledger")
   (ledger-file "/Volumes/Files/Accounts/ledger.dat")
-  (ledger-post-use-ido t)
   :preface
   (defun my-ledger-start-entry (&optional _arg)
     (interactive "p")
@@ -6694,8 +6696,6 @@ provides an alternative overlay-based display.
   :config
   (global-corfu-mode)
 
-  (advice-add #'corfu-complete :before #'reset-font)
-
   ;; Enable Corfu more generally for every minibuffer, as long as no other
   ;; completion UI is active. If you use Mct or Vertico as your main
   ;; minibuffer completion UI. From
@@ -8173,37 +8173,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       "* APPT %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
-     ("t" "Add Task" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* TODO %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
-     ("p" "Protocol" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* NOTE %?
-,#+BEGIN_QUOTE
-%i
-,#+END_QUOTE
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:URL:      %c
-:END:")
-     ("L" "Protocol Link" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* NOTE %?
-[[%:link][%:description]]
-,#+BEGIN_QUOTE
-%i
-,#+END_QUOTE
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:URL:      %c
-:END:")
-     ("j" "Journal entry" entry
-      (file+datetree "~/kadena/docs/kadena.org")
-      "* %?")))
+:END:" :prepend t)))
+  ;; C-c C-r (org-reveal) will display where the point is if it is buried in
+  ;; invisible text to allow editing again.
+  (org-catch-invisible-edits 'error)
   (org-clock-clocked-in-display nil)
   (org-clock-idle-time 10)
   (org-clock-in-resume t)
@@ -8215,10 +8188,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-persist t)
   (org-clock-persist-file (user-data "org-clock-save.el"))
   (org-clock-resolve-expert t)
-  (org-completion-use-ido t)
+  (org-clone-delete-id t)
   (org-confirm-babel-evaluate nil)
-  (org-crypt-disable-auto-save t)
-  (org-crypt-key "0xAB37611BDDE48EBD")
   (org-cycle-global-at-bob t)
   (org-deadline-warning-days 14)
   (org-default-notes-file "~/doc/org/todo.org")
@@ -8318,11 +8289,16 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (67 :foreground "dark gray" :slant italic)))
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets '((org-agenda-files :todo . "PROJECT")))
-  (org-return-follows-link t)
+  (org-refile-use-outline-path t)
+  (org-outline-path-complete-in-steps nil)
+  (org-return-follows-link nil)
   (org-reverse-note-order t)
   (org-smart-capture-use-lastname t)
-  (org-src-fontify-natively t)
+  (org-special-ctrl-a/e t)
+  (org-special-ctrl-k t)
+  (org-src-fontify-natively nil)
   (org-src-tab-acts-natively t)
+  (org-src-window-setup 'current-window)
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
   (org-subject-transforms
    '(("\\`\\(Re\\|Fwd\\): " . "")
@@ -8333,8 +8309,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@)"
-               "DELEGATED(g@)" "DEFERRED(r)" "SOMEDAY(y)"
+   '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)"
+               "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
                "|" "DONE(d@)" "CANCELED(c@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(c@)")
      (sequence "|" "NOTE(n)")
@@ -8357,10 +8333,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-fast-todo-selection 'expert)
   (org-use-property-inheritance '("AREA"))
   (org-use-speed-commands t)
+  (org-use-sub-superscripts nil)
   (org-use-tag-inheritance nil)
-  (org-x-backends '(ox-org ox-redmine))
-  (org-x-redmine-title-prefix-function 'org-x-redmine-title-prefix)
-  (org-x-redmine-title-prefix-match-function 'org-x-redmine-title-prefix-match)
+  (org-yank-adjusted-subtrees t)
   :custom-face
   (org-done ((t (:foreground "ForestGreen" :weight bold))))
   (org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
@@ -8656,6 +8631,7 @@ This can be 0 for immediate, or a floating point value.")
   (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
   (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
   :config
+
   (add-hook 'org-log-buffer-setup-hook
             #'(lambda () (setq-local fill-column (- 78 2))))
 
@@ -8706,6 +8682,7 @@ This can be 0 for immediate, or a floating point value.")
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
+  (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
    '(("h" "Current Hotlist" alltodo ""
       ((org-agenda-overriding-header "Current Hotlist")
@@ -8840,6 +8817,7 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-start-on-weekday nil)
   (org-agenda-tags-column -100)
   (org-agenda-tags-todo-honor-ignore-options t)
+  (org-agenda-text-search-extra-files '(agenda-archives))
   (org-agenda-todo-ignore-scheduled 'past)
   (org-agenda-use-time-grid nil)
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
@@ -9064,6 +9042,13 @@ To use this function, add it to `org-agenda-finalize-hook':
     (run-with-idle-timer 300 t 'jump-to-org-agenda)))
 #+end_src
 
+*** org-checklist
+
+#+begin_src emacs-lisp
+(use-package org-checklist
+  :after org)
+#+end_src
+
 *** org-habit
 
 #+begin_src emacs-lisp
@@ -9164,9 +9149,17 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-crypt
+  :after org
+  :demand t
   :bind (:map org-mode-map
               ("C-c C-x C-/" . org-decrypt-entry)
-              ("C-c C-x C-e" . org-encrypt-entry)))
+              ("C-c C-x C-e" . org-encrypt-entry))
+  :custom
+  (org-tags-exclude-from-inheritance (quote ("crypt")))
+  (org-crypt-disable-auto-save nil)
+  (org-crypt-key "0xAB37611BDDE48EBD")
+  :config
+  (org-crypt-use-before-save-magic))
 #+end_src
 
 *** org-devonthink
