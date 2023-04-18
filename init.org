@@ -5888,21 +5888,14 @@ append it to ENTRY."
   (tramp-default-method "ssh")
   (tramp-auto-save-directory "~/.cache/emacs/backups")
   :config
+  (add-to-list 'tramp-remote-path (expand-file-name "~/.nix-profile/bin"))
+
   ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
   ;; shell commands to the remote side to ask what the temporary directory is.
   (put 'temporary-file-directory 'standard-value '("/tmp"))
 
   ;; Setting this with `:custom' does not take effect.
   (setq tramp-persistency-file-name (user-data "tramp")))
-#+end_src
-
-** tramp-sh
-
-#+begin_src emacs-lisp
-(use-package tramp-sh
-  :defer t
-  :config
-  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 #+end_src
 
 ** transient
@@ -8183,7 +8176,14 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ([return]                . (lambda () (interactive) (org-return t)))
          ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
-  :hook (org-mode . abbrev-mode)
+  :hook
+  (org-mode . abbrev-mode)
+  (org-mode . org-babel-result-hide-spec)
+  (org-mode . org-babel-hide-all-hashes)
+  (org-mode . setup-insert-code-block)
+  :hook
+  (org-log-buffer-setup . (lambda () (setq-local fill-column (- 78 2))))
+  (org-log-buffer-setup . setup-insert-code-block)
   :custom
   (org-M-RET-may-split-line '((headline) (default . t)))
   (org-adapt-indentation nil)
@@ -8314,8 +8314,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
   (org-mime-preserve-breaks nil)
-  (org-mode-hook
-   '(org-babel-result-hide-spec org-babel-hide-all-hashes abbrev-mode))
   (org-msg-default-alternatives
    '((new text html)
      (reply-to-html text html)
@@ -8671,14 +8669,23 @@ This can be 0 for immediate, or a floating point value.")
 
   (defsubst org-current-is-todo ()
     (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
+
+  (defun insert-code-block ()
+    (when (let* ((keys (recent-keys))
+                 (n (length keys)))
+            (and (eq ?` (aref keys (- n 1)))
+                 (eq ?` (aref keys (- n 2)))
+                 (eq ?` (aref keys (- n 3)))))
+      (backward-delete-char 3)
+      (insert "#+begin_src sh\n\n#+end_src")
+      (forward-line -1)))
+
+  (defsubst setup-insert-code-block ()
+    (add-hook 'post-self-insert-hook #'insert-code-block nil t))
   :init
   (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
   (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
   :config
-
-  (add-hook 'org-log-buffer-setup-hook
-            #'(lambda () (setq-local fill-column (- 78 2))))
-
   ;; Replace Gnus link type with Message
   (setq org-link-parameters
         (cl-delete-if #'(lambda (x) (string= (car x) "gnus"))
