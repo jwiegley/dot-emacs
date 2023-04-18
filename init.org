@@ -1986,7 +1986,11 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package emamux
-  :commands emamux:send-command)
+  :commands emamux:send-command
+  :custom
+  (emamux:show-buffers-with-index nil)
+  (emamux:get-buffers-regexp
+   "^\\(buffer[0-9]+\\): +\\([0-9]+\\) +\\(bytes\\): +[\"]\\(.*\\)[\"]"))
 #+end_src
 
 ** emojify
@@ -4174,8 +4178,8 @@ actual Emacs buffer of the module being loaded."
   :bind (("C-c t" . multi-term-next)
          ("C-c T" . multi-term))
   :custom
-  (multi-term-program "screen")
-  (multi-term-program-switches "-DR")
+  (multi-term-program "tmux")
+  (multi-term-program-switches "-CC")
   (multi-term-scroll-show-maximum-output t)
   (term-bind-key-alist
    '(("C-c C-c" . term-interrupt-subjob)
@@ -6090,6 +6094,27 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package vline
   :commands vline-mode)
+#+end_src
+
+** vterm
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :defer t)
+#+end_src
+
+*** multi-vterm
+
+#+begin_src emacs-lisp
+(use-package multi-vterm
+  :defer t)
+#+end_src
+
+*** vterm-tmux
+
+#+begin_src emacs-lisp
+(use-package vterm-tmux
+  :commands (vterm-tmux vterm-tmux-project))
 #+end_src
 
 ** vundo
@@ -8300,7 +8325,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (66 . "White")
      (67 :foreground "dark gray" :slant italic)))
   (org-refile-target-verify-function 'org-refile-heading-p)
-  (org-refile-targets '((org-agenda-files :todo . "PROJECT")))
+  (org-refile-targets '((org-agenda-files :todo . "PROJECT")
+                        (org-agenda-files :todo . "CATEGORY")))
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -8325,10 +8351,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-todo-keywords
    '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)"
                "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
-               "|" "DONE(d@)" "CANCELED(c@)")
-     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(c@)")
+               "|" "DONE(d@)" "CANCELED(x@)")
+     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(x@)")
+     (sequence "CATEGORY" "|")
      (sequence "|" "NOTE(n)")
-     (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(c@)")))
+     (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
   (org-todo-keyword-faces
    '(("TODO" :foreground "medium blue" :weight bold)
      ("EPIC" :foreground "deep sky blue" :weight bold)
@@ -8341,7 +8368,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("DELEGATED" :foreground "dark violet" :weight bold)
      ("DEFERRED" :foreground "dark blue" :weight bold)
      ("SOMEDAY" :foreground "dark blue" :weight bold)
-     ("PROJECT" :foreground "#088e8e" :weight bold)))
+     ("PROJECT" :foreground "#088e8e" :weight bold)
+     ("CATEGORY" :foreground "orange" :weight bold)))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
@@ -8547,7 +8575,7 @@ This can be 0 for immediate, or a floating point value.")
     (interactive)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "^\* " nil t)
+      (while (re-search-forward "^\\* " nil t)
         (goto-char (match-beginning 0))
         (condition-case _err
             (progn
@@ -8556,7 +8584,7 @@ This can be 0 for immediate, or a floating point value.")
           (error nil))
         (forward-line))
       (goto-char (point-min))
-      (while (re-search-forward "\* PROJECT " nil t)
+      (while (re-search-forward "\\* \\(PROJECT\\|CATEGORY\\) " nil t)
         (goto-char (line-beginning-position))
         (ignore-errors
           (org-sort-entries t ?p)
@@ -8740,16 +8768,7 @@ This can be 0 for immediate, or a floating point value.")
         '(org-agenda-skip-entry-if 'notscheduled))
        (org-agenda-sorting-strategy
         '(category-up))))
-     ("d" "Unscheduled open source tasks (by date)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
-      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by date): ")
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
-       (org-agenda-sorting-strategy
-        '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files
-        '("~/doc/org/OSS.org"))))
-     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
@@ -8758,7 +8777,7 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         '("~/doc/org/OSS.org"))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|DEFERRED\\|SOMEDAY}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
@@ -8777,7 +8796,7 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-sorting-strategy
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         '("~/kadena/docs/kadena.org"))
@@ -9126,21 +9145,20 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-babel
   :no-require t
-  :after org
+  :after (org ob-emamux)
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python     . t)
      (emacs-lisp . t)
-     ;; (coq        . t)
      (haskell    . t)
      (calc       . t)
-     ;; (ledger     . t)
      (ditaa      . t)
      (plantuml   . t)
      (shell      . t)
      (sql        . t)
      (dot        . t)
+     (emamux     . t)
      (verb       . t)))
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
@@ -9150,6 +9168,13 @@ To use this function, add it to `org-agenda-finalize-hook':
     (while (string-match "^.+?;C;" string)
       (setq string (substring string (match-end 0))))
     string))
+#+end_src
+
+**** ob-emamux
+
+#+begin_src emacs-lisp
+(use-package ob-emamux
+  :after org)
 #+end_src
 
 *** org-bookmark-heading
@@ -9199,15 +9224,15 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-mime
   :after org
+  :bind
+  (:map
+   org-mode-map
+   ("C-x M"   . org-mime-org-buffer-htmlize)
+   ("C-c M-o" . org-mime-org-buffer-htmlize)
+   :map
+   message-mode-map
+   ("C-c M-o" . org-mime-htmlize))
   :config
-  (add-hook 'message-mode-hook
-            #'(lambda ()
-                (local-set-key "\C-c\M-o" 'org-mime-htmlize)))
-
-  (add-hook 'org-mode-hook
-            #'(lambda ()
-                (local-set-key "\C-c\M-o" 'org-mime-org-buffer-htmlize)))
-
   (add-hook 'org-mime-html-hook
             #'(lambda ()
                 (org-mime-change-element-style
@@ -9247,89 +9272,6 @@ To use this function, add it to `org-agenda-finalize-hook':
 (use-package org-rich-yank
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
-#+end_src
-
-*** org-smart-capture
-
-#+begin_src emacs-lisp
-(use-package org-smart-capture
-  :after org)
-#+end_src
-
-*** org-super-agenda
-
-#+begin_src emacs-lisp
-(use-package org-super-agenda
-  :after org
-  :preface
-  (defun super-jump-to-org-agenda ()
-    (interactive)
-    (let ((org-super-agenda-groups
-           '((:name "Important"
-                    :priority "A"
-                    :order 1)
-             (:todo "WAITING"
-                    :order 2)
-             (:name "Tasks"
-                    :not (:priority "A" :priority "C")
-                    :order 3)
-             (:name "Optional"
-                    :priority "C"
-                    :order 4))))
-      (org-agenda nil "a")))
-  :config
-  (org-super-agenda-mode))
-#+end_src
-
-*** org-transclusion
-
-#+begin_src emacs-lisp
-(use-package org-transclusion
-  :after org
-  :commands (org-transclusion-add
-             org-transclusion-mode))
-#+end_src
-
-*** org-web-tools
-
-#+begin_src emacs-lisp
-(use-package org-web-tools
-  :bind (("C-c x C-y"   . my-org-insert-url)
-         ("C-c x C-M-y" . org-web-tools-insert-web-page-as-entry))
-  :functions (org-web-tools--org-link-for-url
-              org-web-tools--get-first-url)
-  :preface
-  (defun my-org-insert-url (&optional arg)
-    (interactive "P")
-    (require' org-web-tools)
-    (let ((link (org-web-tools--org-link-for-url
-                 (org-web-tools--get-first-url))))
-      (if arg
-          (progn
-            (org-set-property "URL" link)
-            (message "Added pasteboard link to URL property"))
-        (insert link)))))
-#+end_src
-
-*** ox-gfm
-
-#+begin_src emacs-lisp
-(use-package ox-gfm
-  :after org)
-#+end_src
-
-*** ox-md
-
-#+begin_src emacs-lisp
-(use-package ox-md
-  :after org)
-#+end_src
-
-*** COMMENT ox-texinfo-plus
-
-#+begin_src emacs-lisp
-(use-package ox-texinfo-plus
-  :after org)
 #+end_src
 
 *** org-roam
@@ -9613,7 +9555,7 @@ tags: journal
      (expand-file-name "journal/" org-roam-directory))))
 #+end_src
 
-*** xeft
+**** xeft
 
 #+begin_src emacs-lisp
 (use-package xeft
@@ -9656,6 +9598,83 @@ directories, dot files, and files matched by
                "." (file-name-base file)))
          (not (string-suffix-p
                "~" file)))))
+#+end_src
+
+*** org-smart-capture
+
+#+begin_src emacs-lisp
+(use-package org-smart-capture
+  :after org)
+#+end_src
+
+*** org-super-agenda
+
+#+begin_src emacs-lisp
+(use-package org-super-agenda
+  :after org
+  :custom
+  (org-super-agenda-groups
+   '((:name "Important"
+            :priority "A")
+     (:name "Calls"
+            :tag "Call")
+     (:name "Needs review"
+            :todo "WAITING"
+            :todo "DELEGATED")
+     (:name "Optional"
+            :priority "C"
+            :order 9)
+     (:name "Work"
+            :file-path "kadena")
+     (:name "Tasks"
+            :not (:priority "A" :priority "C"))
+     (:name "Errands"
+            :tag "Errand")))
+  (org-super-agenda-header-separator "")
+  :config
+  (org-super-agenda-mode))
+#+end_src
+
+*** org-web-tools
+
+#+begin_src emacs-lisp
+(use-package org-web-tools
+  :bind (("C-c x C-y"   . my-org-insert-url)
+         ("C-c x C-M-y" . org-web-tools-insert-web-page-as-entry))
+  :functions (org-web-tools--org-link-for-url
+              org-web-tools--get-first-url)
+  :preface
+  (defun my-org-insert-url (&optional arg)
+    (interactive "P")
+    (require' org-web-tools)
+    (let ((link (org-web-tools--org-link-for-url
+                 (org-web-tools--get-first-url))))
+      (if arg
+          (progn
+            (org-set-property "URL" link)
+            (message "Added pasteboard link to URL property"))
+        (insert link)))))
+#+end_src
+
+*** ox-gfm
+
+#+begin_src emacs-lisp
+(use-package ox-gfm
+  :after org)
+#+end_src
+
+*** ox-md
+
+#+begin_src emacs-lisp
+(use-package ox-md
+  :after org)
+#+end_src
+
+*** COMMENT ox-texinfo-plus
+
+#+begin_src emacs-lisp
+(use-package ox-texinfo-plus
+  :after org)
 #+end_src
 
 * Finalization
