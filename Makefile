@@ -46,10 +46,10 @@ slow: init.elc
 	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
 open: init.elc
-	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
+	@open $$(dirname $$(which emacs))/../Applications/*.app
 
 open-quick: init.el
-	@open $$(dirname $$(which emacs))/../Applications/Emacs.app
+	@open $$(dirname $$(which emacs))/../Applications/*.app
 
 # This rule output configured packages compared to installed packages. Note
 # that some must be filtered out (usually because they are builtins) or
