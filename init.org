@@ -5887,11 +5887,13 @@ append it to ENTRY."
   :custom
   (tramp-default-method "ssh")
   (tramp-auto-save-directory "~/.cache/emacs/backups")
-  (tramp-persistency-file-name (user-data "tramp"))
   :config
   ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
   ;; shell commands to the remote side to ask what the temporary directory is.
-  (put 'temporary-file-directory 'standard-value '("/tmp")))
+  (put 'temporary-file-directory 'standard-value '("/tmp"))
+
+  ;; Setting this with `:custom' does not take effect.
+  (setq tramp-persistency-file-name (user-data "tramp")))
 #+end_src
 
 ** tramp-sh
@@ -8708,6 +8710,8 @@ This can be 0 for immediate, or a floating point value.")
          org-agenda-mode-map
          (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
+         ("/"   . org-agenda-filter-by-tag)
+         ("\\"  . org-agenda-filter)
          ("C-n" . next-line)
          ("C-p" . previous-line)
          ("F"   . org-agenda-follow-mode)
