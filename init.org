@@ -9343,6 +9343,26 @@ To use this function, add it to `org-agenda-finalize-hook':
       :target (file+head "kadena/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :contract=kadena:work:\n#+title: ${title}\n")
       :empty-lines-before 1
+      :unnarrowed t)
+     ("J" "johnwiegley.com" plain "%?"
+      :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
+                         ":PROPERTIES:
+:SLUG:     %(replace-regexp-in-string \"_\" \"-\" \"${slug}\")
+:CREATED:  %U
+:PUBLISH:  %^{Publish after date}U
+:END:
+,#+filetags: :publish=johnwiegley:\n#+title: ${title}\n")
+      :empty-lines-before 1
+      :unnarrowed t)
+     ("N" "newartisans.com" plain "%?"
+      :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
+                         ":PROPERTIES:
+:SLUG:     %(replace-regexp-in-string \"_\" \"-\" \"${slug}\")
+:CREATED:  %U
+:PUBLISH:  %^{Publish after date}U
+:END:
+,#+filetags: :publish=newartisans:\n#+title: ${title}\n")
+      :empty-lines-before 1
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
   :defines
