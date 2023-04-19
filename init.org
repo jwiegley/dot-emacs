@@ -4134,13 +4134,11 @@ actual Emacs buffer of the module being loaded."
      "*server*"
      "*Group*"
      "*Org Agenda*"
-     "todo.txt"
-     "habits.txt"
-     "Bahai.txt"
-     "OSS.txt"
-     "diary"
-     "notes.txt"
-     "&bitlbee"))
+     "todo.org"
+     "kadena.org"
+     "habits.org"
+     "OSS.org"
+     "diary"))
   (clean-buffer-list-kill-never-regexps
    '("^ \\*Minibuf-.*\\*$"
      "^\\*Summary"
