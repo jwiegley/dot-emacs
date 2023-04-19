@@ -1586,6 +1586,26 @@ diff-hl package.
         (error "no more than 2 files should be marked")))))
 #+end_src
 
+*** dired-follow
+
+#+begin_src emacs-lisp
+(use-package dired-follow
+  :no-require t
+  :bind (:map dired-mode-map
+              ("F" . dired-follow-mode))
+  :preface
+  (defun do-dired-display-file (_)
+    (dired-display-file))
+
+  (define-minor-mode dired-follow-mode
+    "Diplay file at point in dired after a move."
+    :lighter " dired-f"
+    :global t
+    (if dired-follow-mode
+        (advice-add 'dired-next-line :after #'do-dired-display-file)
+      (advice-remove 'dired-next-line #'do-dired-display-file))))
+#+end_src
+
 *** dired-hist
 
 #+begin_src emacs-lisp
