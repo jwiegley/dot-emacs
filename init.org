@@ -1330,6 +1330,7 @@ diff-hl package.
 #+begin_src emacs-lisp
 (use-package dired-follow
   :no-require t
+  :after dired
   :bind (:map dired-mode-map
               ("F" . dired-follow-mode))
   :preface
@@ -4605,7 +4606,7 @@ append it to ENTRY."
   (vc-command-messages t)
   (vc-follow-symlinks t)
   (vc-git-diff-switches '("-w" "-U3"))
-  (vc-handled-backends '(GIT SVN CVS Bzr Hg))
+  (vc-handled-backends '(Git SVN CVS Bzr Hg))
   (vc-make-backup-files t))
 #+end_src
 
@@ -4941,6 +4942,7 @@ independent components.
          ("M-g e"   . consult-compile-error)
          ("M-g g"   . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
+         ("M-g l"   . consult-goto-line)
          ([remap goto-line] . consult-goto-line)
          ("M-g o"   . consult-org-heading)
          ("M-g m"   . consult-mark)
@@ -6090,13 +6092,13 @@ without white space and comments.
   (haskell-hasktags-arguments '("-e"))
   (haskell-tags-on-save t)
   (haskell-hoogle-command nil)
-  (haskell-indent-spaces 4)
-  (haskell-indentation-ifte-offset 4)
-  (haskell-indentation-layout-offset 4)
+  (haskell-indent-spaces 2)
+  (haskell-indentation-ifte-offset 2)
+  (haskell-indentation-layout-offset 2)
   (haskell-indentation-left-offset 2)
-  (haskell-indentation-starter-offset 4)
-  (haskell-indentation-where-post-offset 4)
-  (haskell-indentation-where-pre-offset 4)
+  (haskell-indentation-starter-offset 2)
+  (haskell-indentation-where-post-offset 2)
+  (haskell-indentation-where-pre-offset 0)
   (haskell-process-args-cabal-repl
    '("--ghc-option=-ferror-spans"
      "--repl-options=-Wno-missing-home-modules"
@@ -6329,6 +6331,15 @@ actual Emacs buffer of the module being loaded."
   :after haskell-mode
   :bind (:map haskell-mode-map
               ("C-c M-q" . haskell-edit-reformat)))
+#+end_src
+
+**** haskell-yas
+
+#+begin_src emacs-lisp
+(use-package haskell-yas
+  :after haskell-mode
+  :custom
+  (haskell-yas-completing-function 'completing-read))
 #+end_src
 
 *** hcl-mode
@@ -7496,16 +7507,16 @@ actual Emacs buffer of the module being loaded."
   :hook
   (gnus-summary-mode . hl-line-mode)
   :custom
-  (gnus-sum-thread-tree-false-root "")
-  (gnus-sum-thread-tree-single-indent "")
-  (gnus-sum-thread-tree-root "")
-  (gnus-sum-thread-tree-vertical "│")
+  (gnus-sum-thread-tree-false-root nil)
+  (gnus-sum-thread-tree-single-indent nil)
+  (gnus-sum-thread-tree-root nil)
+  (gnus-sum-thread-tree-vertical "│ ")
   (gnus-sum-thread-tree-leaf-with-other "├── ")
   (gnus-sum-thread-tree-single-leaf "└── ")
-  (gnus-sum-thread-tree-indent "  ")
-  (gnus-sum-thread-tree-single-indent " ")
+  (gnus-sum-thread-tree-indent " ")
+  (gnus-sum-thread-tree-single-indent nil)
   (gnus-summary-expunge-below -100)
-  (gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)\n")
+  (gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %«%B%»%)\n")
   (gnus-summary-mark-below -100)
   (gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)\n")
   (gnus-summary-prepared-hook '(gnus-summary-hide-all-threads))
@@ -7715,7 +7726,7 @@ is:
 #+begin_src emacs-lisp
 (use-package gnus-art
   :bind (:map gnus-article-mode-map
-              ("F" . gnus-article-wide-reply-with-original)
+              ("F"   . gnus-article-wide-reply-with-original)
               ("M-q" . gnus-article-fill-long-lines))
   :custom
   (gnus-article-date-lapsed-new-header t)
@@ -8707,7 +8718,7 @@ This can be 0 for immediate, or a floating point value.")
   :config
   ;; Replace Gnus link type with Message
   (setq org-link-parameters
-        (cl-delete-if #'(lambda (x) (string= (car x) "gnus"))
+        (cl-delete-if #'(lambda (x) (member (car x) '("mairix" "gnus")))
                       org-link-parameters))
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open
