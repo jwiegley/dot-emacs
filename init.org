@@ -654,6 +654,38 @@ unto itself.
          ("M-Z" . avy-zap-to-char-dwim)))
 #+end_src
 
+** backup-each-save
+
+Ever wish to go back to an older saved version of a file? Then this package is
+for you. This package copies every file you save in Emacs to a backup
+directory tree (which mirrors the tree structure of the filesystem), with a
+timestamp suffix to make multiple saves of the same file unique. Never lose
+old saved versions again.
+
+#+begin_src emacs-lisp
+(use-package backup-each-save
+  :commands backup-each-save
+  :custom
+  (make-backup-file-name-function 'my-make-backup-file-name)
+  (backup-each-save-filter-function 'backup-each-save-filter)
+  (backup-enable-predicate 'my-dont-backup-files-p)
+  :preface
+  (defun my-make-backup-file-name (file)
+    (make-backup-file-name-1 (expand-file-name (file-truename file))))
+
+  (defun backup-each-save-filter (filename)
+    (not (string-match
+          (concat "\\(^/tmp\\|\\.emacs\\.d/data\\(-alt\\)?/"
+                  "\\|\\.newsrc\\(\\.eld\\)?\\|"
+                  "\\(archive/sent/\\|recentf\\`\\)\\)")
+          filename)))
+
+  (defun my-dont-backup-files-p (filename)
+    (unless (string-match filename "\\(archive/sent/\\|recentf\\`\\)")
+      (normal-backup-enable-predicate filename)))
+  :hook (after-save . backup-each-save))
+#+end_src
+
 ** biblio
 
 #+begin_src emacs-lisp
@@ -4401,12 +4433,17 @@ append it to ENTRY."
 
 ** super-save
 
+[[https://github.com/bbatsov/super-save][super-save]] auto-saves your buffers, when certain events happen - e.g. you
+switch between buffers, an Emacs frame loses focus, etc. You can think of it
+as both something that augments and replaces the standard auto-save-mode.
+
 #+begin_src emacs-lisp
 (use-package super-save
   :diminish
-  :commands super-save-mode
+  :custom
+  (super-save-auto-save-when-idle t)
   :config
-  (setq super-save-auto-save-when-idle t))
+  (super-save-mode 1))
 #+end_src
 
 ** tagedit
@@ -4673,7 +4710,7 @@ append it to ENTRY."
   :defer t)
 #+end_src
 
-*** vterm-tmux
+*** COMMENT vterm-tmux
 
 #+begin_src emacs-lisp
 (use-package vterm-tmux
