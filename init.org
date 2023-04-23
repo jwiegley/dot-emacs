@@ -5196,6 +5196,7 @@ provides an alternative overlay-based display.
 
 #+begin_src emacs-lisp
 (use-package corfu
+  :load-path "lisp/corfu"
   :demand t
   :bind (("M-/" . completion-at-point)
          :map corfu-map
