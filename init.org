@@ -654,7 +654,7 @@ unto itself.
          ("M-Z" . avy-zap-to-char-dwim)))
 #+end_src
 
-** backup-each-save
+** COMMENT backup-each-save
 
 Ever wish to go back to an older saved version of a file? Then this package is
 for you. This package copies every file you save in Emacs to a backup
