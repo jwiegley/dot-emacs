@@ -3226,7 +3226,7 @@ up before you execute another command."
                     ;; magit-insert-error-header
                     magit-insert-diff-filter-header
                     ;; magit-insert-head-branch-header
-                    magit-insert-upstream-branch-header
+                    ;; magit-insert-upstream-branch-header
                     ;; magit-insert-push-branch-header
                     magit-insert-tags-header
                     ))
@@ -3800,7 +3800,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package personal
-  :commands unfill-region
   :bind (("<C-M-backspace>" . backward-kill-sexp)
          ("C-c )"   . close-all-parentheses)
          ("C-c 0"   . recursive-edit-preserving-window-config-pop)
@@ -3854,6 +3853,8 @@ append it to ENTRY."
          ("M-J"     . delete-indentation)
          ("M-L"     . mark-line)
          ("M-S"     . mark-sentence)
+         ("M-U"     . unfill-region)
+         ("M-W"     . kill-ring-save-no-newlines)
          ("M-\""    . insert-pair)
          ("M-`"     . other-frame)
          ("M-g c"   . goto-char)
@@ -3968,8 +3969,8 @@ append it to ENTRY."
         (unless (eq display-name 'imac)
           (display-battery-mode 1))))
     "Regular expressions to identify foolish content.
-    Usually what happens is that you add the bots to
-    `erc-ignore-list' and the bot commands to this list."
+Usually what happens is that you add the bots to `erc-ignore-list' and the
+bothered commands to this list."
     :group 'erc
     :type 'hook)
 
@@ -8243,10 +8244,15 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ([(control meta return)] . org-insert-heading-after-current))
   :hook
   (org-mode . abbrev-mode)
-  (org-mode . org-babel-result-hide-spec)
-  (org-mode . org-babel-hide-all-hashes)
+  (org-mode . turn-on-auto-fill)
+  (org-mode . turn-on-flyspell)
+  ;; (org-mode . org-babel-result-hide-spec)
+  ;; (org-mode . org-babel-hide-all-hashes)
   (org-mode . setup-insert-code-block)
   :hook
+  (org-log-buffer-setup . abbrev-mode)
+  (org-log-buffer-setup . turn-on-auto-fill)
+  (org-log-buffer-setup . turn-on-flyspell)
   (org-log-buffer-setup . (lambda () (setq-local fill-column (- 78 2))))
   (org-log-buffer-setup . setup-insert-code-block)
   :custom
@@ -8714,14 +8720,20 @@ This can be 0 for immediate, or a floating point value.")
     (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
 
   (defun insert-code-block ()
+    "Replace ``` with an Org code block."
     (when (let* ((keys (recent-keys))
                  (n (length keys)))
             (and (eq ?` (aref keys (- n 1)))
                  (eq ?` (aref keys (- n 2)))
                  (eq ?` (aref keys (- n 3)))))
       (backward-delete-char 3)
-      (insert "#+begin_src sh\n\n#+end_src")
-      (forward-line -1)))
+      (let ((language
+             (or (save-excursion
+                   (re-search-backward "#\\+begin_src \\([^ \t\n]+\\)" nil t)
+                   (match-string 1))
+                 "sh")))
+        (insert "#+begin_src " language "\n\n#+end_src")
+        (forward-line -1))))
 
   (defsubst setup-insert-code-block ()
     (add-hook 'post-self-insert-hook #'insert-code-block nil t))
@@ -8866,7 +8878,9 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-span 14)
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
-        '("+APPT"))))))
+        '("+APPT"))))
+     ("N" "Notes" tags "TODO=\"NOTE\""
+      ((org-agenda-overriding-header "Notes")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: "))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
@@ -9246,7 +9260,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   :demand t
   :bind (:map org-mode-map
               ("C-c C-x C-/" . org-decrypt-entry)
-              ("C-c C-x C-e" . org-encrypt-entry))
+              ("C-c C-x C-\\" . org-encrypt-entry))
   :custom
   (org-tags-exclude-from-inheritance (quote ("crypt")))
   (org-crypt-disable-auto-save nil)

@@ -275,6 +275,15 @@
               (forward-line))
           (delete-char 1))))))
 
+(defun kill-ring-save-no-newlines (beg end)
+  (interactive "r")
+  (let ((substring (buffer-substring beg end)))
+    (with-temp-buffer
+      (insert substring)
+      (delete-indentation nil (point-min) (point-max))
+      (kill-new (buffer-string)))
+    (deactivate-mark)))
+
 (defun traverse (f x)
   "Visit all nodes within the sexp X, apply F to its leaves."
   (cond ((consp x)
