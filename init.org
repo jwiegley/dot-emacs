@@ -356,6 +356,7 @@ unto itself.
             ("C-h x" . my-ctrl-h-x-map)
             ("C-c b" . my-ctrl-c-b-map)
             ("C-c e" . my-ctrl-c-e-map)
+            ("C-c i" . my-ctrl-c-i-map)
             ("C-c m" . my-ctrl-c-m-map)
             ("C-c n" . my-ctrl-c-n-map)
             ("C-c t" . my-ctrl-c-t-map)
@@ -1766,7 +1767,9 @@ non-empty directories is allowed."
   :commands (erc erc-tls)
   :bind (:map erc-mode-map
               ("C-c r" . reset-erc-track-mode))
-  :hook (erc-mode . abbrev-mode)
+  :hook
+  (erc-mode . abbrev-mode)
+  (erc-mode . erc-spelling-mode)
   :custom
   (erc-fill-function 'erc-fill-variable)
   (erc-fill-static-center 12)
@@ -2242,7 +2245,7 @@ Giving these commands a prefix argument C-u means copy instead of kill.
   (find-ls-subdir-switches "-ldN"))
 #+end_src
 
-** flycheck
+** COMMENT flycheck
 
 #+begin_src emacs-lisp
 (use-package flycheck
@@ -2252,7 +2255,6 @@ Giving these commands a prefix argument C-u means copy instead of kill.
   :custom
   (flycheck-coq-executable "ct-coqtop")
   (flycheck-display-errors-delay 0.0)
-  (flycheck-haskell-hpack-preference 'prefer-cabal)
   (flycheck-standard-error-navigation nil)
   :init
   (dolist (where '((emacs-lisp-mode-hook . emacs-lisp-mode-map)
@@ -2299,11 +2301,16 @@ up before you execute another command."
     (flycheck-buffer-automatically 'idle-change)))
 #+end_src
 
-*** flycheck-haskell
+*** COMMENT flycheck-haskell
 
 #+begin_src emacs-lisp
 (use-package flycheck-haskell
-  :commands flycheck-haskell-setup)
+  :commands flycheck-haskell-setup
+  :hook
+  (haskell-mode . flycheck-mode)
+  (haskell-mode . flycheck-haskell-setup)
+  :config
+  (flycheck-haskell-hpack-preference 'prefer-cabal))
 #+end_src
 
 ** flymake
@@ -2320,7 +2327,9 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package flyspell
   :bind (("C-c i b" . flyspell-buffer)
-         ("C-c i f" . flyspell-mode))
+         ("C-c i f" . flyspell-mode)
+         :map flyspell-mode-map
+         ("C-."))
   :custom
   (flyspell-abbrev-p nil)
   (flyspell-use-meta-tab nil)
@@ -3215,7 +3224,7 @@ up before you execute another command."
                     ;; magit-insert-unstaged-changes
                     ;; magit-insert-staged-changes
                     ;; magit-insert-stashes
-                    magit-insert-unpushed-to-pushremote
+                    ;; magit-insert-unpushed-to-pushremote
                     magit-insert-unpushed-to-upstream-or-recent
                     magit-insert-unpulled-from-pushremote
                     magit-insert-unpulled-from-upstream
@@ -4041,8 +4050,10 @@ bothered commands to this list."
 
   (eval-after-load 'magit-branch
     '(progn
-       (advice-add 'magit-checkout :after #'my-projectile-invalidate-cache)
-       (advice-add 'magit-branch-and-checkout :after #'my-projectile-invalidate-cache))))
+       (advice-add 'magit-checkout
+                   :after #'my-projectile-invalidate-cache)
+       (advice-add 'magit-branch-and-checkout
+                   :after #'my-projectile-invalidate-cache))))
 #+end_src
 
 ** ps-print
@@ -4327,11 +4338,9 @@ bothered commands to this list."
    '((compilation-mode :select nil :size 0.6)
      ("\\`\\*Messages" :select t :align t :size 0.6)
      ("\\`\\*company-coq:" :regexp t :noselect t)
-     ("\\` \\*Lusty-Matches\\*" :regexp t :noselect t)
      ("\\`\\*fetch" :regexp t :size 0.25 :noselect t :align bottom)
      ("\\`\\*Flycheck" :regexp t :size 0.2 :noselect t :align bottom)
-     ("\\`\\*?magit-diff" :regexp t :align bottom :noselect t)
-     ("\\`\\*makey" :regexp t :align bottom :noselect t)))
+     ("\\`\\*?magit-diff" :regexp t :align bottom :noselect t)))
   :config
   (shackle-mode 1))
 #+end_src
@@ -5124,7 +5133,7 @@ locations. The =default-directory= variable is not changed in the process.
               ([remap completion-at-point] . consult-company)))
 #+end_src
 
-**** consult-flycheck
+**** COMMENT consult-flycheck
 
 #+begin_src emacs-lisp
 (use-package consult-flycheck
@@ -5531,7 +5540,7 @@ without white space and comments.
   :config
   (vertico-mode)
 
-  ;(define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
+                                        ;(define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
 
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -5585,7 +5594,8 @@ without white space and comments.
        (consult-git-grep buffer)
        (consult-ripgrep buffer)
        (consult-yank-pop)
-       (embark-bindings buffer)))
+       (embark-bindings buffer)
+       (xref-find-references buffer)))
     (vertico-multiform-categories
      '((t unobtrusive)))
     :config
@@ -5897,7 +5907,15 @@ without white space and comments.
   :custom
   (eglot-autoshutdown t)
   :config
-  (setq read-process-output-max (* 1024 1024)))
+  (setq read-process-output-max (* 1024 1024))
+
+  (add-hook 'eglot-managed-mode-hook
+            #'(lambda ()
+                ;; Show flymake diagnostics first.
+                (setq eldoc-documentation-functions
+                      (cons #'flymake-eldoc-function
+                            (remove #'flymake-eldoc-function
+                                    eldoc-documentation-functions))))))
 #+end_src
 
 **** eglot-orderless
@@ -5907,7 +5925,7 @@ without white space and comments.
   :no-require t
   :after (eglot orderless)
   :config
-  (add-to-list completion-category-overrides
+  (add-to-list 'completion-category-overrides
                '(eglot (styles orderless basic))))
 #+end_src
 
@@ -5947,7 +5965,8 @@ without white space and comments.
   :diminish
   :hook ((c-mode-common emacs-lisp-mode) . eldoc-mode)
   :custom
-  (eldoc-echo-area-use-multiline-p 3))
+  (eldoc-echo-area-use-multiline-p 3)
+  (eldoc-echo-area-display-truncation-message nil))
 #+end_src
 
 **** elint
@@ -6041,26 +6060,35 @@ without white space and comments.
 (use-package paredit
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
-  :bind (:map paredit-mode-map
-              ("[")
-              ("M-k"   . paredit-raise-sexp)
-              ("M-I"   . paredit-splice-sexp)
-              ("C-M-l" . paredit-recentre-on-sexp)
-              ("C-c ( n"   . paredit-add-to-next-list)
-              ("C-c ( p"   . paredit-add-to-previous-list)
-              ("C-c ( j"   . paredit-join-with-next-list)
-              ("C-c ( J"   . paredit-join-with-previous-list))
-  :bind (:map lisp-mode-map       ("<return>" . paredit-newline))
-  :bind (:map emacs-lisp-mode-map ("<return>" . paredit-newline))
-  :hook (paredit-mode
-         . (lambda ()
-             (unbind-key "M-r" paredit-mode-map)
-             (unbind-key "M-s" paredit-mode-map)))
+  :bind (:map
+         paredit-mode-map
+         ("[")
+         ("M-r")
+         ("M-s")
+         ("M-k"   . paredit-raise-sexp)
+         ("M-I"   . paredit-splice-sexp)
+         ("C-M-l" . paredit-recentre-on-sexp)
+         ("C-c ( n"   . paredit-add-to-next-list)
+         ("C-c ( p"   . paredit-add-to-previous-list)
+         ("C-c ( j"   . paredit-join-with-next-list)
+         ("C-c ( J"   . paredit-join-with-previous-list)
+         :map
+         lisp-mode-map
+         ("<return>" . paredit-newline)
+         :map
+         emacs-lisp-mode-map
+         ("<return>" . paredit-newline)))
+#+end_src
+
+***** paredit-eldoc
+
+#+begin_src emacs-lisp
+(use-package paredit-eldoc
+  :no-require t
+  :after (paredit eldoc)
   :config
-  (use-package eldoc
-    :config
-    (eldoc-add-command 'paredit-backward-delete
-                       'paredit-close-round)))
+  (eldoc-add-command 'paredit-backward-delete
+                     'paredit-close-round))
 #+end_src
 
 ***** paredit-ext
@@ -6119,12 +6147,14 @@ without white space and comments.
          ("C-c C-," . haskell-navigate-imports)
          ("C-c C-." . haskell-mode-format-imports)
          ("C-c C-u" . my-haskell-insert-undefined)
+         ;; ("M-n" . haskell-goto-next-error)
+         ;; ("M-p" . haskell-goto-prev-error)
+         ("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error)
          ("M-s")
-         ("M-t")
-         ;; :map
-         ;; interactive-haskell-mode-map
-         ;; ("M-.")
-         )
+         ("M-t"))
+  :hook
+  (haskell-mode-hook . my-haskell-mode-hook)
   :custom
   (haskell-compile-cabal-build-command
    "cd %s && cabal new-build --ghc-option=-ferror-spans")
@@ -6147,8 +6177,6 @@ without white space and comments.
   (haskell-check-remove-overlays
    haskell-goto-next-error
    haskell-goto-prev-error
-   haskell-interactive-mode-compile-error
-   haskell-interactive-mode-splices-buffer
    haskell-process-consume
    haskell-process-errors-warnings
    haskell-process-extract-modules
@@ -6156,8 +6184,7 @@ without white space and comments.
    haskell-process-reload-with-fbytecode
    haskell-process-response-cursor
    haskell-process-set-response-cursor
-   haskell-session-name
-   interactive-haskell-mode)
+   haskell-session-name)
   :preface
   (defun my-haskell-insert-undefined ()
     (interactive) (insert "undefined"))
@@ -6254,28 +6281,14 @@ without white space and comments.
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    (interactive-haskell-mode)
-    (diminish 'interactive-haskell-mode)
     (whitespace-mode 1)
     (bug-reference-prog-mode 1)
-
-    (flycheck-mode 1)
-    (flycheck-haskell-setup)
 
     (prettify-symbols-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
 
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
-
-    (add-hook 'hack-local-variables-hook
-              #'(lambda ()
-                  (when nil
-                    (setq-local flycheck-ghc-search-path nil)
-                    (setq-local flycheck-ghc-args nil))))
-
-    (bind-key "M-n" #'haskell-goto-next-error haskell-mode-map)
-    (bind-key "M-p" #'haskell-goto-prev-error haskell-mode-map)
 
     (when (executable-find "ormolu")
       (require 'format-all)
@@ -6294,12 +6307,6 @@ without white space and comments.
       ;; (format-all-mode 1)
       ))
   :config
-  (require 'haskell)
-  (require 'haskell-doc)
-  (require 'haskell-commands)
-
-  (add-hook 'haskell-mode-hook #'my-haskell-mode-hook)
-
   (eval-after-load 'align
     '(nconc
       align-rules-list
@@ -6310,56 +6317,7 @@ without white space and comments.
               '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
                 (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
                 (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
-                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+")))))
-
-  (defun haskell-process-load-complete
-      (session process buffer reload module-buffer &optional cont)
-    "Handle the complete loading response. BUFFER is the string of
-text being sent over the process pipe. MODULE-BUFFER is the
-actual Emacs buffer of the module being loaded."
-    (when (get-buffer (format "*%s:splices*" (haskell-session-name session)))
-      (with-current-buffer (haskell-interactive-mode-splices-buffer session)
-        (erase-buffer)))
-    (let* ((ok (cond
-                ((haskell-process-consume
-                  process
-                  "Ok, \\(?:\\([0-9]+\\|one\\)\\) modules? loaded\\.$")
-                 t)
-                ((haskell-process-consume
-                  process
-                  "Failed, \\(?:[0-9]+\\) modules? loaded\\.$")
-                 nil)
-                ((haskell-process-consume
-                  process
-                  "Ok, modules loaded: \\(.+\\)\\.$")
-                 t)
-                ((haskell-process-consume
-                  process
-                  "Failed, modules loaded: \\(.+\\)\\.$")
-                 nil)
-                (t
-                 (error (message "Unexpected response from haskell process.")))))
-           (modules (haskell-process-extract-modules buffer))
-           (cursor (haskell-process-response-cursor process))
-           (warning-count 0))
-      (haskell-process-set-response-cursor process 0)
-      (haskell-check-remove-overlays module-buffer)
-      (while
-          (haskell-process-errors-warnings module-buffer session process buffer)
-        (setq warning-count (1+ warning-count)))
-      (haskell-process-set-response-cursor process cursor)
-      (if (and (not reload)
-               haskell-process-reload-with-fbytecode)
-          (haskell-process-reload-with-fbytecode process module-buffer)
-        (haskell-process-import-modules process (car modules)))
-      (if ok
-          (haskell-mode-message-line (if reload "Reloaded OK." "OK."))
-        (haskell-interactive-mode-compile-error session "Compilation failed."))
-      (when cont
-        (condition-case-unless-debug e
-            (funcall cont ok)
-          (error (message "%S" e))
-          (quit nil))))))
+                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 #+end_src
 
 **** haskell-edit
@@ -6370,6 +6328,17 @@ actual Emacs buffer of the module being loaded."
   :after haskell-mode
   :bind (:map haskell-mode-map
               ("C-c M-q" . haskell-edit-reformat)))
+#+end_src
+
+**** haskell-eglot
+
+#+begin_src emacs-lisp
+(use-package haskell-eglot
+  :no-require t
+  :after (haskell-mode eglot)
+  :config
+  (add-to-list 'eglot-server-programs
+               '(haskell-mode . ("haskell-language-server" "--lsp"))))
 #+end_src
 
 **** haskell-yas
@@ -6535,7 +6504,7 @@ actual Emacs buffer of the module being loaded."
 (use-package lsp-haskell
   :after lsp-mode
   :config
-  (setq lsp-haskell-server-path "haskell-language-server-wrapper"))
+  (setq lsp-haskell-server-path "haskell-language-server"))
 #+end_src
 
 **** lsp-ui
@@ -7282,6 +7251,12 @@ actual Emacs buffer of the module being loaded."
       (spam-contents gnus-group-spam-classification-ham))
      ("\\(mail\\.\\|INBOX\\)"
       (gnus-use-scoring nil))
+     ("mail\\.kadena"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . "mail.kadena.archive")
+      (spam-process-destination . "mail.spam.report")
+      (spam-contents gnus-group-spam-classification-ham))
      ("mail\\.archive"
       (gnus-summary-line-format
        "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
@@ -7320,7 +7295,7 @@ actual Emacs buffer of the module being loaded."
      ("list\\.emacs\\.sources"
       (to-address . "gnu-emacs-sources@gnu.org")
       (to-list . "gnu-emacs-sources@gnu.org"))
-     ("list\\.emacs\\.orgmode"
+     ("list\\.emacs\\.org-mode"
       (to-address . "emacs-orgmode@gnu.org")
       (to-list . "emacs-orgmode@gnu.org")
       (list-identifier . "\\[O\\]"))
@@ -8211,6 +8186,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :hook (dired-mode . gnus-dired-mode))
 #+end_src
 
+*** spam
+
+#+begin_src emacs-lisp
+(use-package spam
+  :after gnus)
+#+end_src
+
 ** Org-mode
 
 #+begin_src emacs-lisp
@@ -8737,17 +8719,25 @@ This can be 0 for immediate, or a floating point value.")
 
   (defsubst setup-insert-code-block ()
     (add-hook 'post-self-insert-hook #'insert-code-block nil t))
+
+  (defun my-gnus-drop-link-parameter (param)
+    (setq org-link-parameters
+          (cl-delete-if #'(lambda (x) (string= (car x) param))
+                        org-link-parameters)))
   :init
   (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
   (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
   :config
   ;; Replace Gnus link type with Message
-  (setq org-link-parameters
-        (cl-delete-if #'(lambda (x) (member (car x) '("mairix" "gnus")))
-                      org-link-parameters))
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open
 			   :store #'org-gnus-store-link)
+  (my-gnus-drop-link-parameter "gnus")
+
+  (use-package org-mairix
+    :defer t
+    :config
+    (my-gnus-drop-link-parameter "mairix"))
 
   (unless alternate-emacs
     (run-with-idle-timer 25 t 'save-org-mode-files))
@@ -8772,8 +8762,6 @@ This can be 0 for immediate, or a floating point value.")
          org-agenda-mode-map
          (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
-         ("/"   . org-agenda-filter-by-tag)
-         ("\\"  . org-agenda-filter)
          ("C-n" . next-line)
          ("C-p" . previous-line)
          ("F"   . org-agenda-follow-mode)
@@ -8881,7 +8869,7 @@ This can be 0 for immediate, or a floating point value.")
         '("+APPT"))))
      ("N" "Notes" tags "TODO=\"NOTE\""
       ((org-agenda-overriding-header "Notes")))))
-  (org-agenda-deadline-leaders '("!D!: " "D%02d: "))
+  (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
    '("~/doc/org/todo.org"
@@ -9235,7 +9223,10 @@ To use this function, add it to `org-agenda-finalize-hook':
     "Remove prompt cruft from a string of shell output."
     (while (string-match "^.+?;C;" string)
       (setq string (substring string (match-end 0))))
-    string))
+    string)
+
+  (advice-add 'org-babel-edit-prep:emacs-lisp :after
+              #'(lambda (_info) (run-hooks 'emacs-lisp-mode-hook))))
 #+end_src
 
 **** ob-emamux
