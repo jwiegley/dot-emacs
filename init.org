@@ -1839,6 +1839,7 @@ non-empty directories is allowed."
   (erc-track-score-mode t)
   (erc-track-showcount t)
   (erc-user-full-name 'user-full-name)
+  (erc-use-auth-source-for-nickserv-password t)
   (erc-auto-query 'window-noselect)
   (erc-autoaway-message "I'm away (after %i seconds of idle-time)")
   (erc-autojoin-channels-alist
@@ -1851,10 +1852,7 @@ non-empty directories is allowed."
       "#ledger"
       "#nix-darwin"
       "#nixos"
-      "#org-mode")
-     ("gitter"
-      "#use-package/Lobby"
-      "#haskell-nix/Lobby")))
+      "#org-mode")))
   :defines
   (erc-modified-channels-alist
    erc-timestamp-only-if-changed-flag
@@ -1876,16 +1874,14 @@ non-empty directories is allowed."
     (interactive "P")
     (if arg
         (pcase-dolist (`(,server . ,nick)
-                       '(("irc.libera.chat"  . "johnw")
-                         ("irc.gitter.im"    . "jwiegley")))
+                       '(("irc.libera.chat" . "johnw")))
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
       (let ((pass (lookup-password "irc.libera.chat" "johnw" 6697)))
+        (setq erc-nickserv-passwords
+              (list (cons nil (list (list (cons "johnw" pass))))))
         (when (> (length pass) 32)
           (error "Failed to read ZNC password"))
-        (erc :server "127.0.0.1" :port 6697 :nick "johnw"
-             :password (concat "johnw/gitter:" pass))
-        (sleep-for 5)
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
              :password (concat "johnw/libera:" pass)))))
 
