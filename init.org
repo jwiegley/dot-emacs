@@ -1683,6 +1683,9 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package edit-server
   :if (and window-system (not alternate-emacs))
+  :hook
+  (edit-server-edit-mode . visual-line-mode)
+  (edit-server-edit-mode . visual-fill-column-mode)
   :custom
   (edit-server-new-frame nil)
   :config
