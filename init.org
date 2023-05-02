@@ -1500,7 +1500,7 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package direnv
-  :commands (direnv--maybe-update-environment)
+  :functions (direnv--maybe-update-environment)
   :preface
   (defconst emacs-binary-path (directory-file-name
                                (file-name-directory
@@ -1523,7 +1523,7 @@ non-empty directories is allowed."
               :after #'patch-direnv-environment)
 
   (add-hook 'change-major-mode-hook #'my-direnv-maybe-update)
-  (add-hook 'buffer-list-update-hook #'my-direnv-maybe-update)
+  ;; (add-hook 'buffer-list-update-hook #'my-direnv-maybe-update)
   (add-hook 'window-selection-change-functions #'my-direnv-maybe-update))
 #+end_src
 
@@ -1864,7 +1864,8 @@ non-empty directories is allowed."
    erc-fill-column
    erc-insert-timestamp-function
    erc-identd-port
-   erc-identd-process)
+   erc-identd-process
+   erc-nickserv-passwords)
   :functions
   (erc-modified-channels-display
    erc-modified-channels-update
@@ -2373,6 +2374,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package format-all
+  :load-path "lisp/emacs-format-all-the-code"
   :commands (format-all-buffer
              format-all-mode)
   :config
@@ -6146,14 +6148,11 @@ without white space and comments.
          ("C-c C-," . haskell-navigate-imports)
          ("C-c C-." . haskell-mode-format-imports)
          ("C-c C-u" . my-haskell-insert-undefined)
-         ;; ("M-n" . haskell-goto-next-error)
-         ;; ("M-p" . haskell-goto-prev-error)
-         ("M-n" . flymake-goto-next-error)
-         ("M-p" . flymake-goto-prev-error)
+         ("C-c C-z" . haskell-interactive-switch)
          ("M-s")
          ("M-t"))
   :hook
-  (haskell-mode-hook . my-haskell-mode-hook)
+  (haskell-mode . my-haskell-mode-hook)
   :custom
   (haskell-compile-cabal-build-command
    "cd %s && cabal new-build --ghc-option=-ferror-spans")
@@ -6241,8 +6240,8 @@ without white space and comments.
       ("->"     . ?→)
       ("<-"     . ?←)
       ("=>"     . ?⇒)
-      ("~>"      . ?⇝)
-      ("<~"      . ?⇜)
+      ("~>"     . ?⇝)
+      ("<~"     . ?⇜)
       ("<>"     . ?⨂)
       ("msum"   . ?⨁)
       ("\\"     . ?λ)
@@ -6283,8 +6282,8 @@ without white space and comments.
     (whitespace-mode 1)
     (bug-reference-prog-mode 1)
 
-    (prettify-symbols-mode 1)
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
+    (prettify-symbols-mode 1)
 
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
@@ -6306,17 +6305,19 @@ without white space and comments.
       ;; (format-all-mode 1)
       ))
   :config
-  (eval-after-load 'align
-    '(nconc
-      align-rules-list
-      (mapcar #'(lambda (x)
-                  `(,(car x)
-                    (regexp . ,(cdr x))
-                    (modes quote (haskell-mode haskell-literate-mode))))
-              '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
-                (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
-                (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
-                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
+  (use-package align
+    :defer t
+    :config
+    (add-to-list
+     'align-rules-list
+     (mapcar #'(lambda (x)
+                 `(,(car x)
+                   (regexp . ,(cdr x))
+                   (modes quote (haskell-mode haskell-literate-mode))))
+             '((haskell-types       . "\\(\\s-+\\)\\(::\\|∷\\)\\s-+")
+               (haskell-assignment  . "\\(\\s-+\\)=\\s-+")
+               (haskell-arrows      . "\\(\\s-+\\)\\(->\\|→\\)\\s-+")
+               (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 #+end_src
 
 **** haskell-edit
@@ -6334,10 +6335,21 @@ without white space and comments.
 #+begin_src emacs-lisp
 (use-package haskell-eglot
   :no-require t
+  :demand t
   :after (haskell-mode eglot)
+  :bind (:map haskell-mode-map
+              ("C-c C-." . eglot-code-actions)
+              ("M-n"     . flymake-goto-next-error)
+              ("M-p"     . flymake-goto-prev-error))
   :config
   (add-to-list 'eglot-server-programs
-               '(haskell-mode . ("haskell-language-server" "--lsp"))))
+               '(haskell-mode . ("haskell-language-server" "--lsp")))
+
+  (add-hook 'eglot-managed-mode-hook
+            #'(lambda ()
+                (setq-local eldoc-documentation-strategy
+                            #'eldoc-documentation-default))
+            t))
 #+end_src
 
 **** haskell-yas
@@ -6753,7 +6765,7 @@ without white space and comments.
   :after coq
   :commands company-coq-mode
   :bind (:map company-coq-map
-              ("<tab>" . company-complete)
+              ;; ("<tab>" . company-complete)
               ("M-<return>"))
   :bind (:map coq-mode-map
               ("C-M-h" . company-coq-toggle-definition-overlay))
@@ -8208,7 +8220,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c #"     . org-priority)
          ("C-c .")
          ("C-c ,"     . org-priority)
-         ("C-c ["     . org-time-stamp-inactive)
+         ("C-c !"     . org-time-stamp-inactive)
          ("C-c <"     . org-time-stamp)
          ("C-c x"     . org-todo)
          ("C-c C-x @" . visible-mode)
