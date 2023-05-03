@@ -424,6 +424,14 @@ unto itself.
 
 ** aggressive-indent
 
+=electric-indent-mode= is enough to keep your code nicely aligned when all you
+do is type. However, once you start shifting blocks around, transposing lines,
+or slurping and barfing sexps, indentation is bound to go wrong.
+
+[[https://github.com/Malabarba/aggressive-indent-mode][aggressive-indent-mode]] is a minor mode that keeps your code always indented.
+It reindents after every change, making it more reliable than
+=electric-indent-mode=.
+
 #+begin_src emacs-lisp
 (use-package aggressive-indent
   :diminish
@@ -548,6 +556,9 @@ unto itself.
 #+end_src
 
 ** avy
+
+[[https://github.com/abo-abo/avy][avy]] is a GNU Emacs package for jumping to visible text using a char-based
+decision tree.
 
 #+begin_src emacs-lisp
 (use-package avy
@@ -689,6 +700,10 @@ old saved versions again.
 
 ** biblio
 
+[[https://github.com/cpitclaudel/biblio.el][biblio.el]] makes it easy to browse and gather bibliographic references and
+publications from various sources, by keywords or by DOI. References are
+automatically fetched from well-curated sources, and formatted as BibTeX.
+
 #+begin_src emacs-lisp
 (use-package biblio
   :commands biblio-lookup)
@@ -760,13 +775,6 @@ old saved versions again.
   (bmkp-last-as-first-bookmark-file "~/Documents/bookmarks"))
 #+end_src
 
-** browse-at-remote
-
-#+begin_src emacs-lisp
-(use-package browse-at-remote
-  :bind ("C-c B" . browse-at-remote))
-#+end_src
-
 ** browse-kill-ring
 
 #+begin_src emacs-lisp
@@ -806,13 +814,19 @@ old saved versions again.
   :defer t
   :custom
   (math-additional-units
-   '((GiB "1024 * MiB" "Giga Byte")
-     (MiB "1024 * KiB" "Mega Byte")
-     (KiB "1024 * B" "Kilo Byte")
+   '((GiB "1024 * MiB" "Gibi Byte")
+     (MiB "1024 * KiB" "Mebi Byte")
+     (KiB "1024 * B" "Kibi Byte")
+     (Gib "1024 * Mib" "Gibi Bit")
+     (Mib "1024 * Kib" "Mebi Bit")
+     (Kib "1024 * b" "Kibi Bit")
+     (GB "1000 * MB" "Giga Byte")
+     (MB "1000 * KB" "Mega Byte")
+     (KB "1000 * B" "Kilo Byte")
+     (Gb "1000 * Mb" "Giga Bit")
+     (Mb "1000 * Kb" "Mega Bit")
+     (Kb "1000 * b" "Kilo Bit")
      (B nil "Byte")
-     (Gib "1024 * Mib" "Giga Bit")
-     (Mib "1024 * Kib" "Mega Bit")
-     (Kib "1024 * b" "Kilo Bit")
      (b "B / 8" "Bit")))
   (math-units-table nil))
 #+end_src
@@ -1127,13 +1141,18 @@ to them.
 #+begin_src emacs-lisp
 (use-package copy-as-format
   :bind (("C-c w m" . copy-as-format-markdown)
-         ("C-c w g" . copy-as-format-slack)
+         ("C-c w s" . copy-as-format-slack)
          ("C-c w o" . copy-as-format-org-mode)
          ("C-c w r" . copy-as-format-rst)
-         ("C-c w s" . copy-as-format-github)
+         ("C-c w g" . copy-as-format-github)
          ("C-c w w" . copy-as-format))
   :custom
-  (copy-as-format-default "github"))
+  (copy-as-format-default "slack")
+  :config
+  (defun copy-as-format--org-mode (text _multiline)
+    (format "#+begin_src %s\n%s\n#+end_src\n"
+            (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
+            text)))
 #+end_src
 
 ** crosshairs
@@ -9168,13 +9187,6 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
 #+end_src
 
-*** COMMENT ob-restclient
-
-#+begin_src emacs-lisp
-(use-package ob-restclient
-  :after org)
-#+end_src
-
 *** ob-verb
 
 #+begin_src emacs-lisp
@@ -9244,6 +9256,13 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package ob-emamux
+  :after org)
+#+end_src
+
+**** ob-restclient
+
+#+begin_src emacs-lisp
+(use-package ob-restclient
   :after org)
 #+end_src
 
@@ -9585,6 +9604,8 @@ directories, dot files, and files matched by
 
 *** org-smart-capture
 
+Capture Gnus messages as tasks, with context.
+
 #+begin_src emacs-lisp
 (use-package org-smart-capture
   :after org)
@@ -9597,22 +9618,13 @@ directories, dot files, and files matched by
   :after org
   :custom
   (org-super-agenda-groups
-   '((:name "Important"
-            :priority "A")
-     (:name "Calls"
-            :tag "Call")
-     (:name "Needs review"
-            :todo "WAITING"
-            :todo "DELEGATED")
-     (:name "Optional"
-            :priority "C"
-            :order 9)
-     (:name "Work"
-            :file-path "kadena")
-     (:name "Tasks"
-            :not (:priority "A" :priority "C"))
-     (:name "Errands"
-            :tag "Errand")))
+   '((:name "Important" :priority "A")
+     (:name "Calls" :tag "Call")
+     (:name "Needs review" :todo "WAITING" :todo "DELEGATED")
+     (:name "Optional" :priority "C" :order 9)
+     (:name "Work" :file-path "kadena")
+     (:name "Tasks" :not (:priority "A" :priority "C"))
+     (:name "Errands" :tag "Errand")))
   (org-super-agenda-header-separator "")
   :config
   (org-super-agenda-mode))
@@ -9622,8 +9634,8 @@ directories, dot files, and files matched by
 
 #+begin_src emacs-lisp
 (use-package org-web-tools
-  :bind (("C-c x C-y"   . my-org-insert-url)
-         ("C-c x C-M-y" . org-web-tools-insert-web-page-as-entry))
+  :bind (("C-c w C-y"   . my-org-insert-url)
+         ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry))
   :functions (org-web-tools--org-link-for-url
               org-web-tools--get-first-url)
   :preface
@@ -9651,6 +9663,36 @@ directories, dot files, and files matched by
 #+begin_src emacs-lisp
 (use-package ox-md
   :after org)
+#+end_src
+
+*** ox-slack
+
+This is a simple exporter backend for [[https://orgmode.org/][Emacs org-mode]], derived from the builtin
+markdown exporter & its derived backend [[https://github.com/larstvei/ox-gfm][ox-gfm.el]]. It produces simple text
+output suitable for pasting into a [[https://slack.com/][Slack]] client. It works like most export
+backends, with two main differences:
+
+- At present, *this exporter is not added to the export dispatcher*. It's hard
+  to see when it would be useful to make slack-formatted files. Instead,
+- This package provides the interactive function
+  =org-slack-export-to-clipboard-as-slack=, which copies the region to the
+  kill-ring in slack format. From there it should be easy to paste the
+  resultant text into your slack client.
+- On the slack side, you can quickly apply the formatting by pressing Ctrl
+  Shift F (Linux/Windows) or ⌘ Shift F (Mac).
+
+Since Slack syntax is much poorer than Org's, some arbitrary choices have been
+made about how to degrade it. Headlines are exported as *bolded text* on their
+own lines, for instance.
+
+#+begin_src emacs-lisp
+(use-package ox-slack
+  :after org
+  :bind
+  ("C-c w k" . org-slack-export-to-clipboard-as-slack)
+  :config
+  (advice-add 'org-slack-export-to-clipboard-as-slack
+              :after #'(lambda () (deactivate-mark)))
 #+end_src
 
 *** COMMENT ox-texinfo-plus
