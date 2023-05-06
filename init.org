@@ -3262,6 +3262,68 @@ up before you execute another command."
       (remove-hook 'magit-status-headers-hook func))))
 #+end_src
 
+*** magit-autorevert
+
+#+begin_src emacs-lisp
+(use-package magit-autorevert
+  :after magit
+  :custom
+  (magit-auto-revert-mode nil))
+#+end_src
+
+*** COMMENT magit-lfs
+
+#+begin_src emacs-lisp
+(use-package magit-lfs
+  :after magit)
+#+end_src
+
+*** magit-popup
+
+#+begin_src emacs-lisp
+(use-package magit-popup
+  :after magit)
+#+end_src
+
+*** COMMENT forge
+
+#+begin_src emacs-lisp
+(use-package forge
+  :after magit
+  :custom
+  (forge-alist
+   '(("github.com" "api.github.com" "github.com" forge-github-repository)
+     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
+     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
+     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
+     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
+     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
+     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
+     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
+     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
+     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
+     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
+     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
+     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
+  (forge-database-file "~/.config/forge/database.sqlite")
+  (forge-owned-accounts '(("jwiegley")))
+  :preface
+  (defun my-quick-create-pull-request (_title branch)
+    (interactive "sTitle: \nsBranch: ")
+    (setq branch (concat "johnw/" branch))
+    ;; Split this commit to another branch.
+    (magit-branch-spinoff branch)
+    ;; Push that branch to the remote.
+    (call-interactively #'magit-push-current-to-pushremote)
+    (sleep-for 3)
+    ;; Create a pullreq using the same title.
+    (forge-create-pullreq (concat "origin/" branch) "origin/master"))
+  :config
+  (transient-insert-suffix 'forge-dispatch "c i"
+    '("p" "quick-pr" my-quick-create-pull-request))
+  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
+#+end_src
+
 ** malyon
 
 #+begin_src emacs-lisp
@@ -5176,32 +5238,6 @@ locations. The =default-directory= variable is not changed in the process.
               ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
-**** COMMENT consult-org-roam
-
-#+begin_src emacs-lisp
-(use-package consult-org-roam
-  :after org-roam
-  :demand t
-  :bind
-  ("C-c n e" . consult-org-roam-file-find)
-  ("C-c n b" . consult-org-roam-backlinks)
-  ("C-c n l" . consult-org-roam-forward-links)
-  ("C-c n r" . consult-org-roam-search)
-  :custom
-  (consult-org-roam-grep-func #'consult-ripgrep)
-  (consult-org-roam-buffer-narrow-key ?r)
-  (consult-org-roam-buffer-after-buffers t)
-  :config
-  (consult-org-roam-mode 1))
-#+end_src
-
-**** consult-yasnippet
-
-#+begin_src emacs-lisp
-(use-package consult-yasnippet
-  :after (consult yasnippet))
-#+end_src
-
 *** corfu
 
 [[https://github.com/minad/corfu][corfu]] enhances completion at point with a small completion popup. The current
@@ -5696,6 +5732,23 @@ without white space and comments.
   :no-require t
   :after org
   :hook (org-mode . yas-minor-mode-on))
+#+end_src
+
+**** consult-yasnippet
+
+#+begin_src emacs-lisp
+(use-package consult-yasnippet
+  :after (consult yasnippet))
+#+end_src
+
+**** auto-yasnippet
+
+#+begin_src emacs-lisp
+(use-package auto-yasnippet
+  :after yasnippet
+  :bind (("C-c y a" . aya-create)
+         ("C-c y e" . aya-expand)
+         ("C-c y o" . aya-open-line)))
 #+end_src
 
 ** Languages
@@ -8366,7 +8419,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
   (org-icalendar-timezone "America/Los_Angeles")
   (org-id-locations-file (user-data "org-id-locations"))
-  (org-image-actual-width nil)
+  (org-image-actual-width 1024)
   (org-imenu-depth 4)
   (org-insert-heading-respect-content t)
   (org-irc-link-to-logs t t)
@@ -9537,7 +9590,26 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-roam-db-autosync-enable))
 #+end_src
 
-*** org-roam-dailies
+**** COMMENT consult-org-roam
+
+#+begin_src emacs-lisp
+(use-package consult-org-roam
+  :after org-roam
+  :demand t
+  :bind
+  ("C-c n e" . consult-org-roam-file-find)
+  ("C-c n b" . consult-org-roam-backlinks)
+  ("C-c n l" . consult-org-roam-forward-links)
+  ("C-c n r" . consult-org-roam-search)
+  :custom
+  (consult-org-roam-grep-func #'consult-ripgrep)
+  (consult-org-roam-buffer-narrow-key ?r)
+  (consult-org-roam-buffer-after-buffers t)
+  :config
+  (consult-org-roam-mode 1))
+#+end_src
+
+**** org-roam-dailies
 
 #+begin_src emacs-lisp
 (use-package org-roam-dailies
@@ -9651,21 +9723,35 @@ Capture Gnus messages as tasks, with context.
         (insert link)))))
 #+end_src
 
-*** ox-gfm
+*** ox
+
+**** ox-gfm
 
 #+begin_src emacs-lisp
 (use-package ox-gfm
   :after org)
 #+end_src
 
-*** ox-md
+**** ox-md
 
 #+begin_src emacs-lisp
 (use-package ox-md
   :after org)
 #+end_src
 
-*** ox-slack
+**** ox-pandoc
+
+#+begin_src emacs-lisp
+(use-package ox-pandoc
+  :after org
+  :preface
+  (defun markdown-to-org-region (start end)
+    "Convert region from markdown to org, replacing selection"
+    (interactive "r")
+    (shell-command-on-region start end "pandoc -f markdown -t org" t t)))
+#+end_src
+
+**** ox-slack
 
 This is a simple exporter backend for [[https://orgmode.org/][Emacs org-mode]], derived from the builtin
 markdown exporter & its derived backend [[https://github.com/larstvei/ox-gfm][ox-gfm.el]]. It produces simple text
@@ -9692,10 +9778,10 @@ own lines, for instance.
   ("C-c w k" . org-slack-export-to-clipboard-as-slack)
   :config
   (advice-add 'org-slack-export-to-clipboard-as-slack
-              :after #'(lambda () (deactivate-mark)))
+              :after #'(lambda () (deactivate-mark))))
 #+end_src
 
-*** COMMENT ox-texinfo-plus
+**** COMMENT ox-texinfo-plus
 
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
