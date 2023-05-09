@@ -2,6 +2,13 @@
 
 * Startup
 
+** Set the garbage collector threshold, to avoid collections
+
+#+begin_src emacs-lisp
+(setq gc-cons-percentage 0.5
+      gc-cons-threshold (* 128 1024 1024))
+#+end_src
+
 ** Report time spent loading this module
 
 #+begin_src emacs-lisp
@@ -168,8 +175,6 @@ unto itself.
   (auto-save-timeout 2)
   (enable-recursive-minibuffers t)
   (fill-column 78)
-  (gc-cons-percentage 0.5)
-  (gc-cons-threshold (* 128 1024 1024))
   (history-delete-duplicates t)
   (history-length 200)
   (load-prefer-newer t)
@@ -1208,7 +1213,7 @@ to them.
 
 #+begin_src emacs-lisp
 (use-package deadgrep
-  :bind ("M-s G" . deadgrep))
+  :bind ("M-s d" . deadgrep))
 #+end_src
 
 ** dedicated
@@ -1902,7 +1907,8 @@ non-empty directories is allowed."
                    :password (lookup-password server nick 6697)))
       (let ((pass (lookup-password "irc.libera.chat" "johnw" 6697)))
         (setq erc-nickserv-passwords
-              (list (cons nil (list (list (cons "johnw" pass))))))
+              (list (cons nil (list (list (cons "johnw" pass))))
+                    (cons 'Libera.Chat (list (list (cons "johnw" pass))))))
         (when (> (length pass) 32)
           (error "Failed to read ZNC password"))
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
@@ -3433,6 +3439,26 @@ up before you execute another command."
   :after color-moccur)
 #+end_src
 
+** move-lines
+
+#+begin_src emacs-lisp
+(use-package move-lines
+  :no-require t
+  :demand t
+  :bind (([(meta shift up)]   . my/move-line-up)
+         ([(meta shift down)] . my/move-line-down))
+  :preface
+  (defun my/move-line-up ()
+    (interactive)
+    (transpose-lines 1)
+    (previous-line 2))
+  (defun my/move-line-down ()
+    (interactive)
+    (next-line 1)
+    (transpose-lines 1)
+    (previous-line 1)))
+#+end_src
+
 ** mule
 
 #+begin_src emacs-lisp
@@ -3936,6 +3962,7 @@ append it to ENTRY."
          ("C-x C-p" . previous-line)
          ("C-x C-v" . find-alternate-file-with-sudo)
          ("C-x K"   . delete-current-buffer-file)
+         ("C-x R"   . rename-current-buffer-file)
          ("C-x M-q" . refill-paragraph)
          ("C-x d"   . delete-whitespace-rectangle)
          ("C-x t"   . toggle-truncate-lines)
@@ -5081,7 +5108,8 @@ independent components.
          ;; M-s bindings (search-map)
          ("M-s f"   . consult-find)
          ("M-s M-g" . consult-grep)
-         ("M-s g"   . consult-git-grep)
+         ("M-s g"   . consult-ripgrep)
+         ("M-s G"   . consult-git-grep)
          ("M-s r"   . consult-ripgrep)
          ("M-s l"   . consult-line)
          ("M-s L"   . consult-line-multi)
@@ -8815,7 +8843,8 @@ This can be 0 for immediate, or a floating point value.")
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open
 			   :store #'org-gnus-store-link)
-  (my-gnus-drop-link-parameter "gnus")
+  (add-hook 'gnus-summary-mode-hook
+            #'(lambda () (my-gnus-drop-link-parameter "gnus")))
 
   (use-package org-mairix
     :defer t
@@ -8958,8 +8987,7 @@ This can be 0 for immediate, or a floating point value.")
    '("~/doc/org/todo.org"
      "~/doc/org/habits.org"
      "~/kadena/docs/kadena.org"
-     "~/doc/org/OSS.org"
-     "~/doc/org/asana.org"))
+     "~/doc/org/OSS.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
   (org-agenda-inhibit-startup t)
@@ -9447,8 +9475,8 @@ To use this function, add it to `org-agenda-finalize-hook':
       :target (file+head "quote/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :quote:\n#+title: ${title}\n")
       :empty-lines-before 1)
-     ("t" "thought" plain "%?"
-      :target (file+head "thought/%<%Y%m%d%H%M>-${slug}.org"
+     ("t" "thoughts" plain "%?"
+      :target (file+head "thoughts/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :thoughts:\n#+title: ${title}\n")
       :empty-lines-before 1)
      ("k" "kadena" plain "%?"
@@ -9721,6 +9749,20 @@ Capture Gnus messages as tasks, with context.
             (org-set-property "URL" link)
             (message "Added pasteboard link to URL property"))
         (insert link)))))
+#+end_src
+
+*** orgit
+
+#+begin_src emacs-lisp
+(use-package orgit
+  :after org)
+#+end_src
+
+*** COMMENT orgit-forge
+
+#+begin_src emacs-lisp
+(use-package orgit-forge
+  :after (org orgit))
 #+end_src
 
 *** ox
