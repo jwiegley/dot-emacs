@@ -1,3 +1,15 @@
+;; `org-todo-score' algorithm:
+;;
+;; todo metadata:
+;;
+;; - Number of days since creation
+;; - Number of other tasks in the same project/category
+;; - Number of tasks in that project/category closed since creation date
+;; - Date when last task in that project/category was closed
+;; - Priority of the task
+;; - Number of tasks with same priority or higher in the project/category
+;; - Number of tasks closed in that project/category in the last quarter
+
 (defun org-todo-score (&optional ignore)
   "Compute the score of an Org-mode task.
 Age gradually decreases the value given to a task.  After 28

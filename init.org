@@ -1601,6 +1601,13 @@ non-empty directories is allowed."
   (doc-view-resolution 300))
 #+end_src
 
+** easy-kill
+
+#+begin_src emacs-lisp
+(use-package easy-kill
+  :bind ([remap kill-ring-save] . easy-kill))
+#+end_src
+
 ** edbi
 
 #+begin_src emacs-lisp
@@ -2487,14 +2494,7 @@ up before you execute another command."
   :commands git-undo)
 #+end_src
 
-** gitpatch
-
-#+begin_src emacs-lisp
-(use-package gitpatch
-  :commands gitpatch-mail)
-#+end_src
-
-** google-this
+** COMMENT google-this
 
 #+begin_src emacs-lisp
 (use-package google-this
@@ -3432,6 +3432,13 @@ up before you execute another command."
   (midnight-mode t))
 #+end_src
 
+** minesweeper
+
+#+begin_src emacs-lisp
+(use-package minesweeper
+  :commands minesweeper)
+#+end_src
+
 ** moccur-edit
 
 #+begin_src emacs-lisp
@@ -3858,7 +3865,36 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package pcre2el
-  :commands (rxt-mode rxt-global-mode))
+  :bind
+  (:prefix-map
+   pcre2el-map
+   :prefix "C-c /"
+   ;; a"Do-what-I-mean" commands:
+   ("/" . rxt-explain)
+   ("c" . rxt-convert-syntax)
+   ("x" . rxt-convert-to-rx)
+   (")" . rxt-convert-to-strings)
+   ("%" . pcre-query-replace-regexp)
+   ("t" . rxt-toggle-elisp-rx)
+
+   ;; Commands that work on a PCRE regexp:
+   :prefix-map
+   pcre2el-pcre-map
+   :prefix "C-c / p"
+   ("e" . rxt-pcre-to-elisp)
+   ("x" . rxt-pcre-to-rx)
+   (")" . rxt-pcre-to-strings)
+   ("/" . rxt-explain-pcre)
+
+   ;; Commands that work on an Emacs regexp:
+   :prefix-map
+   pcre2el-elisp-map
+   :prefix "C-c / e"
+   ("/" . rxt-explain-elisp)
+   ("p" . rxt-elisp-to-pcre)
+   ("x" . rxt-elisp-to-rx)
+   (")" . rxt-elisp-to-strings)
+   ("t" . rxt-toggle-elisp-rx)))
 #+end_src
 
 ** pdf-tools
@@ -4558,6 +4594,7 @@ as both something that augments and replaces the standard auto-save-mode.
 
 #+begin_src emacs-lisp
 (use-package super-save
+  :unless alternate-emacs
   :diminish
   :custom
   (super-save-auto-save-when-idle t)
@@ -4566,6 +4603,8 @@ as both something that augments and replaces the standard auto-save-mode.
 #+end_src
 
 ** tagedit
+
+A collection of paredit-like functions for editing in =html-mode=.
 
 #+begin_src emacs-lisp
 (use-package tagedit
@@ -4665,9 +4704,21 @@ as both something that augments and replaces the standard auto-save-mode.
 
 ** typo
 
+[[https://github.com/jorgenschaefer/typoel][typo-mode]] is a buffer-specific minor mode that will change a number of normal
+keys to make them insert typographically useful unicode characters. Some of
+those keys can be used repeatedly to cycle through variations. This includes
+in particular quotation marks and dashes.
+
+=typo-global-mode= introduces a global minor mode which adds the =C-c 8= prefix to
+complement Emacs’ default =C-x 8= prefix map.
+
 #+begin_src emacs-lisp
 (use-package typo
-  :commands typo-mode)
+  :diminish
+  :hook
+  (text-mode . typo-mode)
+  :config
+  (typo-global-mode 1))
 #+end_src
 
 ** undo-propose
@@ -6030,7 +6081,6 @@ without white space and comments.
                '(eglot (styles orderless basic))))
 #+end_src
 
-
 *** lisp-mode
 
 #+begin_src emacs-lisp
@@ -6175,9 +6225,11 @@ without white space and comments.
          ("C-c ( J"   . paredit-join-with-previous-list)
          :map
          lisp-mode-map
+         ("M-r")
          ("<return>" . paredit-newline)
          :map
          emacs-lisp-mode-map
+         ("M-r")
          ("<return>" . paredit-newline)))
 #+end_src
 
@@ -9371,6 +9423,13 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-crypt-use-before-save-magic))
 #+end_src
 
+*** org-drill
+
+#+begin_src emacs-lisp
+(use-package org-drill
+  :commands org-drill)
+#+end_src
+
 *** org-devonthink
 
 #+begin_src emacs-lisp
@@ -9427,6 +9486,13 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-protocol
   :after org)
+#+end_src
+
+*** org-pomodoro
+
+#+begin_src emacs-lisp
+(use-package org-pomodoro
+  :commands org-pomodoro)
 #+end_src
 
 *** org-ql
@@ -9828,6 +9894,19 @@ own lines, for instance.
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
   :after org)
+#+end_src
+
+*** toc-org
+
+#+begin_src emacs-lisp
+(use-package toc-org
+  ;; :bind
+  ;; (:map markdown-mode-map
+  ;;       ("C-c C-o" . toc-org-markdown-follow-thing-at-point))
+  :hook
+  (org-mode . toc-org-mode)
+  ;; (markdown-mode . toc-org-mode)
+  )
 #+end_src
 
 *** asana
