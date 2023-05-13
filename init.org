@@ -1002,27 +1002,6 @@ vertical position can be altered:
   :commands centered-cursor-mode)
 #+end_src
 
-** chess
-
-#+begin_src emacs-lisp
-(use-package chess
-  :load-path "lisp/chess"
-  :commands chess)
-#+end_src
-
-*** chess-ics
-
-#+begin_src emacs-lisp
-(use-package chess-ics
-  :after chess
-  :commands chess-ics
-  :config
-  (defun chess ()
-    (interactive)
-    (chess-ics "freechess.org" 5000 "jwiegley"
-               (lookup-password "freechess.org" "jwiegley" 80))))
-#+end_src
-
 ** COMMENT citre
 
 #+begin_src emacs-lisp
@@ -1301,7 +1280,9 @@ diff-hl package.
   (dired-dwim-target t)
   (dired-hide-details-hide-information-lines nil)
   (dired-hide-details-hide-symlink-targets nil)
-  (dired-listing-switches "--group-directories-first -lah")
+  ;; jww (2023-05-13): This does not work on all Tramp hosts
+  ;; (dired-listing-switches "--group-directories-first -lah")
+  (dired-listing-switches "-lah")
   (dired-no-confirm
    '(byte-compile chgrp chmod chown copy hardlink symlink touch))
   (dired-omit-mode nil t)
@@ -1792,6 +1773,14 @@ non-empty directories is allowed."
                 ""))))
   :config
   (epa-file-enable))
+#+end_src
+
+** epg
+
+#+begin_src emacs-lisp
+(use-package epg
+  :custom
+  (epg-gpg-program "/usr/local/bin/gpg"))
 #+end_src
 
 ** erc
@@ -2394,7 +2383,7 @@ up before you execute another command."
   (font-lock-doc-face ((t (:foreground "cornflowerblue")))))
 #+end_src
 
-** font-lock-studio
+*** font-lock-studio
 
 #+begin_src emacs-lisp
 (use-package font-lock-studio
@@ -3330,24 +3319,6 @@ up before you execute another command."
   (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
 #+end_src
 
-** malyon
-
-#+begin_src emacs-lisp
-(use-package malyon
-  :commands malyon
-  :custom
-  (malyon-stories-directory "~/doc/games")
-  :config
-  (defun replace-invisiclues ()
-    (interactive)
-    (query-replace-regexp
-     "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)"
-     (quote (replace-eval-replacement
-             concat "\\1\\2" (replace-quote (rot13 (match-string 4)))))
-     nil (if (use-region-p) (region-beginning))
-     (if (use-region-p) (region-end)) nil nil)))
-#+end_src
-
 ** markdown-mode
 
 #+begin_src emacs-lisp
@@ -3430,13 +3401,6 @@ up before you execute another command."
   (clean-buffer-list-kill-regexps '(".*"))
   :config
   (midnight-mode t))
-#+end_src
-
-** minesweeper
-
-#+begin_src emacs-lisp
-(use-package minesweeper
-  :commands minesweeper)
 #+end_src
 
 ** moccur-edit
@@ -3825,7 +3789,7 @@ header overlay should cover. Result is a cons cell of (begin . end)."
                              (shell-quote-argument entry)))))))
 #+end_src
 
-** password-store-otp
+*** password-store-otp
 
 #+begin_src emacs-lisp
 (use-package password-store-otp
@@ -4586,7 +4550,7 @@ bothered commands to this list."
   :bind ("C-c `" . string-inflection-toggle))
 #+end_src
 
-** super-save
+** COMMENT super-save
 
 [[https://github.com/bbatsov/super-save][super-save]] auto-saves your buffers, when certain events happen - e.g. you
 switch between buffers, an Emacs frame loses focus, etc. You can think of it
@@ -9418,7 +9382,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   :custom
   (org-tags-exclude-from-inheritance (quote ("crypt")))
   (org-crypt-disable-auto-save nil)
-  (org-crypt-key "0xAB37611BDDE48EBD")
+  (org-crypt-key "0xBA39EA53EFF3C20D")
   :config
   (org-crypt-use-before-save-magic))
 #+end_src
@@ -9441,9 +9405,10 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-download
+  :after org
   :bind (:map org-mode-map
-              ("C-, i" . org-download-clipboard)
-              ("C-, y" . org-download-yank))
+              ("C-c C-x C" . org-download-clipboard)
+              ("C-c C-x Y" . org-download-yank))
   :custom
   (org-download-method 'attach))
 #+end_src
@@ -9622,6 +9587,7 @@ To use this function, add it to `org-agenda-finalize-hook':
 
   (defun my-org-prepare-note ()
     (interactive)
+    (require 'org-roam)
     (save-excursion
       (cl-destructuring-bind (beg end title) (my-org-current-entry-and-skip)
         (let ((text (buffer-substring beg end)))
@@ -9919,6 +9885,54 @@ own lines, for instance.
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
+#+end_src
+
+** Games
+
+*** chess
+
+#+begin_src emacs-lisp
+(use-package chess
+  :load-path "lisp/chess"
+  :commands chess)
+#+end_src
+
+**** chess-ics
+
+#+begin_src emacs-lisp
+(use-package chess-ics
+  :after chess
+  :commands chess-ics
+  :config
+  (defun chess ()
+    (interactive)
+    (chess-ics "freechess.org" 5000 "jwiegley"
+               (lookup-password "freechess.org" "jwiegley" 80))))
+#+end_src
+
+*** malyon
+
+#+begin_src emacs-lisp
+(use-package malyon
+  :commands malyon
+  :custom
+  (malyon-stories-directory "~/doc/games")
+  :config
+  (defun replace-invisiclues ()
+    (interactive)
+    (query-replace-regexp
+     "^\\( +\\)\\(\\([A-Z]\\)\\. \\)?\\(.+\\)"
+     (quote (replace-eval-replacement
+             concat "\\1\\2" (replace-quote (rot13 (match-string 4)))))
+     nil (if (use-region-p) (region-beginning))
+     (if (use-region-p) (region-end)) nil nil)))
+#+end_src
+
+*** minesweeper
+
+#+begin_src emacs-lisp
+(use-package minesweeper
+  :commands minesweeper)
 #+end_src
 
 * Finalization
