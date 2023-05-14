@@ -9377,12 +9377,19 @@ To use this function, add it to `org-agenda-finalize-hook':
   :after org
   :demand t
   :bind (:map org-mode-map
-              ("C-c C-x C-/" . org-decrypt-entry)
+              ("C-c C-x /"    . my-org-set-crypt-tag)
+              ("C-c C-x C-/"  . org-decrypt-entry)
               ("C-c C-x C-\\" . org-encrypt-entry))
   :custom
   (org-tags-exclude-from-inheritance (quote ("crypt")))
   (org-crypt-disable-auto-save nil)
   (org-crypt-key "0xBA39EA53EFF3C20D")
+  :preface
+  (defun my-org-set-crypt-tag ()
+    (interactive)
+    (save-excursion
+      (org-back-to-heading-or-point-min)
+      (org-set-tags '("crypt"))))
   :config
   (org-crypt-use-before-save-magic))
 #+end_src
