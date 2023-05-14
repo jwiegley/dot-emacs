@@ -4680,7 +4680,7 @@ complement Emacs’ default =C-x 8= prefix map.
 (use-package typo
   :diminish
   :hook
-  (text-mode . typo-mode)
+  ((org-mode message-mode) . typo-mode)
   :config
   (typo-global-mode 1))
 #+end_src
