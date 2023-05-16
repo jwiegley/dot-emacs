@@ -8343,7 +8343,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x L" . org-set-dtp-link)
          ("C-c C-x M" . org-set-message-link)
          ("C-c C-x U" . org-insert-url-link)
-         ("C-c C-x i" . org-id-get-create)
          ("C-c C-x l" . org-insert-dtp-link)
          ("C-c C-x m" . org-insert-message-link)
          ("C-c C-x o" . my-org-todoize)
@@ -8462,7 +8461,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-hide-leading-stars t)
   (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
   (org-icalendar-timezone "America/Los_Angeles")
-  (org-id-locations-file (user-data "org-id-locations"))
   (org-image-actual-width 800)
   (org-imenu-depth 4)
   (org-insert-heading-respect-content t)
@@ -9420,6 +9418,17 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-download-method 'attach))
 #+end_src
 
+*** org-id
+
+#+begin_src emacs-lisp
+(use-package org-id
+  :after org
+  :bind (:map org-mode-map
+              ("C-c C-x i" . org-id-get-create))
+  :custom
+  (org-id-locations-file (user-data "org-id-locations")))
+#+end_src
+
 *** org-mime
 
 #+begin_src emacs-lisp
@@ -9748,6 +9757,18 @@ Capture Gnus messages as tasks, with context.
 #+begin_src emacs-lisp
 (use-package org-smart-capture
   :after org)
+#+end_src
+
+*** org-sticky-header
+
+This package displays in the header-line the Org heading for the node that's
+at the top of the window. This way, if the heading for the text at the top of
+the window is beyond the top of the window, you don't forget which heading the
+text belongs to.
+
+#+begin_src emacs-lisp
+(use-package org-sticky-header
+  :commands org-sticky-header-mode)
 #+end_src
 
 *** org-super-agenda
