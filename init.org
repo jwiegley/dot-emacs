@@ -273,6 +273,7 @@ unto itself.
 
   ;; files.el
   (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
+  (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
   (delete-old-versions t)
   (directory-abbrev-alist
    '(("\\`/org" . "/Users/johnw/doc/org")))
