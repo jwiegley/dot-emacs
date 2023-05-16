@@ -8392,6 +8392,14 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       "* APPT %?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:END:" :prepend t)
+     ("w" "Web capture" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* NOTE %:description
+%i
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
+:URL:      %:link
 :END:" :prepend t)))
   ;; C-c C-r (org-reveal) will display where the point is if it is buried in
   ;; invisible text to allow editing again.
