@@ -66,4 +66,55 @@
 ;; extension ".draft" in order to know that the default major-mode and drafts
 ;; minor-mode should be active.
 
+(eval-when-compile
+  (require 'cl))
+
+(defgroup drafts nil
+  "Edit and act on textual drafts"
+  :group 'text)
+
+(defsubst drafts--filter (f args)
+  (let (result)
+    (dolist (arg args)
+      (when (funcall f arg)
+        (setq result (cons arg result))))
+    (nreverse result)))
+
+(defvar drafts-last-visited-time nil)
+(make-variable-buffer-local 'drafts-last-visited-time)
+
+(defun drafts-last-visited-time ()
+  (sort
+   (mapcar
+    #'(lambda (buf)
+        (cons buf
+              (with-current-buffer buf
+                drafts-last-visited-time)))
+    (drafts--filter
+     #'(lambda (buf)
+         (string-match "\\*drafts\\*" (buffer-name buf)))
+     (buffer-list)))
+   #'(lambda (x y)
+       (> (cdr x) (cdr y)))))
+
+(define-minor-mode drafts-mode
+  "Minor mode active in drafts buffers."
+  :lighter " drafts"
+  :global t
+  :group 'drafts
+  (add-hook 'post-command-hook
+            #'(lambda (&rest _ignore)
+                (setq drafts-last-visited-time (current-time)))
+            nil t))
+
+(defun drafts (&optional arg)
+  (interactive "p")
+  (if (or (not drafts-last-visited-time)
+          (> (float-time
+              (time-subtract (current-time)
+                             drafts-last-visited-time))
+             30.0))
+      t
+    t))
+
 (provide 'drafts)
