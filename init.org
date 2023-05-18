@@ -6175,7 +6175,9 @@ without white space and comments.
 #+begin_src emacs-lisp
 (use-package paredit
   :diminish
-  :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
+  :hook
+  ((lisp-mode emacs-lisp-mode) . paredit-mode)
+  (paredit-mode . my-paredit-init)
   :bind (:map
          paredit-mode-map
          ("[")
@@ -6195,7 +6197,11 @@ without white space and comments.
          :map
          emacs-lisp-mode-map
          ("M-r")
-         ("<return>" . paredit-newline)))
+         ("<return>" . paredit-newline))
+  :preface
+  (defun my-paredit-init ()
+    (unbind-key "M-r" 'paredit-mode-map)
+    (unbind-key "M-s" 'paredit-mode-map)))
 #+end_src
 
 ***** paredit-eldoc
