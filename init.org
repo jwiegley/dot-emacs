@@ -4596,7 +4596,7 @@ A collection of paredit-like functions for editing in =html-mode=.
   (eval-when-compile
     (require 'diminish))
   :hook
-  (text-mode-hook . turn-on-auto-fill)
+  (text-mode . turn-on-auto-fill)
   (text-mode . (lambda ()
                  (ignore-errors
                    (diminish 'auto-fill-function)))))
@@ -4681,7 +4681,7 @@ complement Emacs’ default =C-x 8= prefix map.
 (use-package typo
   :diminish
   :hook
-  ((org-mode message-mode) . typo-mode)
+  ((org-mode markdown-mode gnus-message-setup) . typo-mode)
   :config
   (typo-global-mode 1))
 #+end_src
