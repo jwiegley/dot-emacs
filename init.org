@@ -9503,6 +9503,14 @@ To use this function, add it to `org-agenda-finalize-hook':
   :commands org-ql-search)
 #+end_src
 
+*** org-remark
+
+#+begin_src emacs-lisp
+(use-package org-remark
+  :commands (org-remark-global-tracking-mode
+             org-remark-mode))
+#+end_src
+
 *** org-rich-yank
 
 #+begin_src emacs-lisp
