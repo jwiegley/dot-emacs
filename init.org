@@ -9983,6 +9983,199 @@ own lines, for instance.
   :commands minesweeper)
 #+end_src
 
+** No longer used
+*** COMMENT backup-walker
+
+#+begin_src emacs-lisp
+(use-package backup-walker
+  :commands backup-walker-start)
+#+end_src
+
+*** COMMENT beacon
+
+#+begin_src emacs-lisp
+(use-package beacon
+  :diminish
+  :commands beacon-mode)
+#+end_src
+
+*** COMMENT browse-at-remote
+
+#+begin_src emacs-lisp
+(use-package browse-at-remote
+  :bind ("C-c B" . browse-at-remote))
+#+end_src
+
+*** COMMENT cl-info
+
+#+begin_src emacs-lisp
+(use-package cl-info
+  ;; jww (2017-12-10): Need to configure.
+  :disabled t)
+#+end_src
+
+*** COMMENT crux
+
+#+begin_src emacs-lisp
+(use-package crux
+  :bind ("C-c e i" . crux-find-user-init-file))
+#+end_src
+
+*** COMMENT debbugs-gnu
+
+#+begin_src emacs-lisp
+(use-package debbugs-gnu
+  :disabled t
+  :commands (debbugs-gnu debbugs-gnu-search)
+  :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
+#+end_src
+
+*** COMMENT doxymacs
+
+#+begin_src emacs-lisp
+(use-package doxymacs
+  :disabled t
+  :commands (doxymacs-mode doxymacs-font-lock)
+  :config
+  (doxymacs-mode 1)
+  (doxymacs-font-lock))
+#+end_src
+
+*** COMMENT dumb-jump
+
+#+begin_src emacs-lisp
+(use-package dumb-jump
+  :hook ((coq-mode haskell-mode) . dumb-jump-mode))
+#+end_src
+
+*** COMMENT ebdb-com
+
+#+begin_src emacs-lisp
+(use-package ebdb-com
+  :commands ebdb)
+#+end_src
+
+*** COMMENT fullframe
+
+#+begin_src emacs-lisp
+(use-package fullframe
+  :defer t
+  :init
+  (autoload #'fullframe "fullframe"))
+#+end_src
+
+*** COMMENT gitpatch
+
+#+begin_src emacs-lisp
+(use-package gitpatch
+  :commands gitpatch-mail)
+#+end_src
+
+*** COMMENT haskell-edit
+
+#+begin_src emacs-lisp
+(use-package haskell-edit
+  :load-path "lisp/haskell-config"
+  :after haskell-mode
+  :bind (:map haskell-mode-map
+              ("C-c M-q" . haskell-edit-reformat)))
+#+end_src
+
+*** COMMENT iedit
+
+#+begin_src emacs-lisp
+(use-package iedit
+  :defer t)
+#+end_src
+
+*** COMMENT mic-paren
+
+Activate [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]] and Em>
+parenthesis (and paired delimiter if you like this) matches the one before or
+after point. This is an extension to the paren.el file distributed with Emacs.
+The default behaviour is similar to =paren.el= but more sophisticated. Normally
+you can try all default settings to enjoy =mic-paren=.
+
+#+begin_src emacs-lisp
+(use-package mic-paren
+  :disabled t
+  :defer 5
+  :config
+  (paren-activate))
+#+end_src
+
+*** COMMENT minimap
+
+#+begin_src emacs-lisp
+(use-package minimap
+  :commands minimap-mode)
+#+end_src
+
+*** COMMENT monitor
+
+#+begin_src emacs-lisp
+(use-package monitor
+  :defer t
+  :init
+  (autoload #'define-monitor "monitor"))
+#+end_src
+*** COMMENT repl-toggle
+
+#+begin_src emacs-lisp
+(use-package repl-toggle
+  ;; jww (2017-12-10): Need to configure.
+  :disabled t)
+#+end_src
+
+*** COMMENT smart-mode-line
+
+#+begin_src emacs-lisp
+(use-package smart-mode-line
+  :disabled t
+  :preface
+  (defface mode-line-buffer-id
+    '((((class color) (background dark))
+       (:foreground "grey50" :italic t :strike-through t))
+      (((class color) (background light))
+       (:foreground "grey55" :italic t :strike-through t)))
+    "Face defined to avoid compiler warnings."
+    :group 'smart-mode)
+  :config
+  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
+  (setq mode-line-format (delq 'mode-line-position mode-line-format))
+  (sml/setup)
+  (sml/apply-theme 'light)
+  (remove-hook 'display-time-hook 'sml/propertize-time-string))
+#+end_src
+
+*** COMMENT smartscan
+
+#+begin_src emacs-lisp
+(use-package smartscan
+  :defer 5
+  :bind (:map smartscan-map
+              ("C->" . smartscan-symbol-go-forward)
+              ("C-<" . smartscan-symbol-go-backward)))
+#+end_src
+
+*** COMMENT tracking
+
+#+begin_src emacs-lisp
+(use-package tracking
+  :defer t
+  :config
+  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
+#+end_src
+
+*** COMMENT tramp-sh
+
+#+begin_src emacs-lisp
+(use-package tramp-sh
+  :defer t
+  :config
+  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
+#+end_src
+
 * Finalization
 
 #+begin_src emacs-lisp
