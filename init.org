@@ -7280,10 +7280,6 @@ without white space and comments.
   :bind ("M-G" . switch-to-gnus)
   :custom
   (gnus-activate-level 2)
-  (gnus-after-getting-new-news-hook
-   '(gnus-group-list-groups
-     gnus-group-save-newsrc
-     gnus-display-time-event-handler))
   (gnus-always-read-dribble-file t)
   (gnus-asynchronous t)
   (gnus-check-new-newsgroups nil)
@@ -7512,18 +7508,14 @@ without white space and comments.
   (gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
   (gnus-save-killed-list nil)
   (gnus-save-newsrc-file nil)
-  (gnus-select-group-hook '(gnus-group-set-timestamp))
   (gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
   (gnus-simplify-subject-functions '(gnus-simplify-subject-fuzzy))
   (gnus-split-methods
    '((gnus-save-site-lisp-file)
      (gnus-article-archive-name)
      (gnus-article-nndoc-name)))
-  (gnus-started-hook
-   '((lambda nil (run-hooks 'gnus-after-getting-new-news-hook))))
   (gnus-subscribe-newsgroup-method 'gnus-subscribe-topics)
   (gnus-suppress-duplicates t)
-  (gnus-suspend-gnus-hook '(gnus-group-save-newsrc))
   (gnus-topic-display-empty-topics nil)
   (gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v\n")
   (gnus-tree-minimize-window nil)
@@ -7534,6 +7526,12 @@ without white space and comments.
   (ssl-certificate-verification-policy 1)
   :hook
   (kill-emacs . exit-gnus-on-exit)
+  (gnus-after-getting-new-news . gnus-group-list-groups)
+  (gnus-after-getting-new-news . gnus-group-save-newsrc)
+  (gnus-after-getting-new-news . gnus-display-time-event-handler)
+  (gnus-select-group . gnus-group-set-timestamp)
+  (gnus-started . (lambda () (run-hooks 'gnus-after-getting-new-news-hook)))
+  (gnus-suspend-gnus . gnus-group-save-newsrc)
   :functions
   (gnus-group-read-ephemeral-search-group
    gnus-summary-next-page)
@@ -7600,6 +7598,8 @@ without white space and comments.
 #+begin_src emacs-lisp
 (use-package gnus-group
   :after gnus
+  :bind (:map gnus-group-mode-map
+              ("v b" . my-gnus-mbsync))
   :hook
   (gnus-group-mode . gnus-topic-mode)
   (gnus-group-mode . hl-line-mode)
@@ -7607,7 +7607,12 @@ without white space and comments.
   (gnus-group-default-list-level 2)
   (gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)\n")
   (gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
-  (gnus-group-use-permanent-levels t))
+  (gnus-group-use-permanent-levels t)
+  :preface
+  (defun my-gnus-mbsync ()
+    (interactive)
+    (async-shell-command "mbsync personal ; doveadm index '*'"
+                         (get-buffer-create "*mbsync*"))))
 #+end_src
 
 **** gnus-score
@@ -8912,9 +8917,9 @@ This can be 0 for immediate, or a floating point value.")
          ("b"   . org-agenda-date-earlier)
          ("f"   . org-agenda-date-later)
          ("g"   . org-agenda-redo)
-         ("q"   . delete-window)
-         ("r"   . org-agenda-refile)
+         ("q"   . bury-buffer)
          ("x"   . org-agenda-todo)
+         ("w"   . org-agenda-refile)
          ("z"   . pop-window-configuration))
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)

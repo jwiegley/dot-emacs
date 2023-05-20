@@ -7,11 +7,11 @@
   '(("linux" "GNU/Linux")))
 
 (define-abbrev-table 'global-abbrev-table
-  '(("Abdul" "`Abdu'l-Bahá")
-    ("Allahu" "Alláh'u'Abhá")
+  '(("Abdul" "`Abdu’l-Bahá")
+    ("Allahu" "Alláh’u’Abhá")
     ("Aqdas" "Kitáb-i-Aqdas")
-    ("Bahai" "Bahá'í")
-    ("Bahau" "Bahá'u'lláh")
+    ("Bahai" "Bahá’í")
+    ("Bahau" "Bahá’u’lláh")
     ("Iqan" "Kitáb-i-Íqán")
     ("LSA" "Local Spiritual Assembly")
     ("NSA" "National Spiritual Assembly")
