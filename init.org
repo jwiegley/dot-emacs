@@ -9507,8 +9507,12 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-remark
-  :commands (org-remark-global-tracking-mode
-             org-remark-mode))
+  :after org
+  :commands (org-remark-global-tracking-mode)
+  :bind (:map org-mode-map
+              ("C-c C-x R" . org-remark-mode))
+  :config
+  (org-remark-global-tracking-mode t))
 #+end_src
 
 *** org-rich-yank
