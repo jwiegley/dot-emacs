@@ -34,9 +34,8 @@
 ;;     '(progn (require 'gnus-harvest)
 ;;             (gnus-harvest-install)))
 ;;
-;; If you use message-x and ido, you can get TAB completion of harvested
-;; address in your To:, Cc: and From: fields by using this instead of the
-;; above:
+;; If you use message-x, you can get TAB completion of harvested address in
+;; your To:, Cc: and From: fields by using this instead of the above:
 ;;
 ;;   (eval-after-load "gnus"
 ;;     '(progn (require 'gnus-harvest)
@@ -342,7 +341,7 @@ VALUES
                            (delete stub (mapcar #'car addrs)))))
             (cond
              ((> (length aliases) 1)
-              (ido-completing-read "Use address: " aliases nil t stub))
+              (completing-read "Use address: " aliases nil t stub))
              ((= (length aliases) 1)
               (car aliases))
              (t

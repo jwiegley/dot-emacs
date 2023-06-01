@@ -159,6 +159,15 @@
 
 * Packages
 
+** epg
+
+#+begin_src emacs-lisp
+(use-package epg
+  :defer t
+  :custom
+  (epg-gpg-program "/usr/local/bin/gpg"))
+#+end_src
+
 ** emacs
 
 This pseudo-package represents Emacs itself, and configures many variables and
@@ -843,6 +852,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 (use-package calendar
   :custom
   (calendar-mark-holidays-flag t)
+  (calendar-date-style 'iso)
   (diary-file "~/doc/diary"))
 #+end_src
 
@@ -931,8 +941,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
   (defconst days-of-há
     '(4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4 4 4 5 4
-        4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4)
-    "The days when Naw-Rúz begins, for the next fifty years.")
+        4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4))
 
   (defconst bahai-months
     '("Bahá"      ; 1
@@ -985,7 +994,8 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 (use-package holidays
   :defer t
   :custom
-  (holiday-bahai-holidays nil))
+  (holiday-bahai-holidays nil)
+  (holiday-hebrew-holidays nil))
 #+end_src
 
 ** centered-cursor-mode
@@ -1774,14 +1784,6 @@ non-empty directories is allowed."
                 ""))))
   :config
   (epa-file-enable))
-#+end_src
-
-** epg
-
-#+begin_src emacs-lisp
-(use-package epg
-  :custom
-  (epg-gpg-program "/usr/local/bin/gpg"))
 #+end_src
 
 ** erc
@@ -8192,6 +8194,7 @@ variables.  This is useful for a regi `begin' frame-entry."
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("C2G" "" "\"John Wiegley\" <john.wiegley@coppertogold.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
       "New Artisans LLC" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -9948,6 +9951,13 @@ own lines, for instance.
 #+end_src
 
 ** Games
+
+*** 2048-game
+
+#+begin_src emacs-lisp
+(use-package 2048-game
+  :commands 2048-game)
+#+end_src
 
 *** chess
 

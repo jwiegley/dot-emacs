@@ -78,9 +78,9 @@
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
-(defun duplicate-line ()
+(defun duplicate-line (arg)
   "Duplicate the line containing point."
-  (interactive)
+  (interactive "p")
   (save-excursion
     (let (line-text)
       (goto-char (line-beginning-position))
@@ -91,7 +91,12 @@
           (insert ?\n)
         (forward-line))
       (open-line 1)
-      (insert line-text))))
+      (if arg
+          (dotimes (i arg)
+            (unless (= i 0)
+              (insert ?\n))
+            (insert line-text))
+        (insert line-text)))))
 
 (defun find-alternate-file-with-sudo ()
   (interactive)
