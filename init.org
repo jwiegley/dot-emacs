@@ -9956,7 +9956,108 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package 2048-game
-  :commands 2048-game)
+  :commands 2048-game
+  :bind (:map 2048-mode-map
+              ("M-<left>" . my-2048-repeat-down-and-left)
+              ("M-<right>" . my-2048-repeat-down-and-right))
+  :hook
+  (2048-mode . (lambda () (text-scale-adjust 5)))
+  :config
+  (defun 2048-print-board ()
+    "Wipes the entire field, and prints the board."
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (dotimes (row *2048-rows*)
+
+        ;;print the separator line on top of, and between cells
+        (if (= row 0)
+            (insert "┌───────")
+          (insert "├───────"))
+        (dotimes (col (1- *2048-columns*))
+          (if (= row 0)
+              (insert "┬───────")
+            (insert "┼───────")))
+        (if (= row 0)
+            (insert "┐")
+          (insert "┤"))
+        (insert "\n")
+
+        ;;print the empty line above numbers
+        (dotimes (col *2048-columns*)
+          (insert "│")
+          (let ((current-value (2048-get-cell row col)))
+            (insert (2048-empty-tile current-value))))
+        (insert "│")
+        (insert "\n")
+
+        ;; print the number tiles
+        (dotimes (col *2048-columns*)
+          (insert "│")
+          (let ((current-value (2048-get-cell row col)))
+            (insert (2048-tile current-value))))
+        (insert "│")
+        (insert "\n")
+
+        ;;print the empty line below numbers
+        (dotimes (col *2048-columns*)
+          (insert "│")
+          (let ((current-value (2048-get-cell row col)))
+            (insert (2048-empty-tile current-value))))
+        (insert "│")
+        (insert "\n"))
+
+      ;;print the separator line on the bottom of the last row.
+      (insert "└───────")
+      (dotimes (col (1- *2048-columns*))
+        (insert "┴───────"))
+      (insert "┘\n")
+      (insert "\n")
+
+      (let ((score-width (if (= 0 *2048-score*)
+                             1
+                           (ceiling (log *2048-score* 10)))))
+        (insert (format "%10s%s%s\n" "/" (make-string (+ 9
+                                                         score-width)
+                                                      ?\=) "\\"))
+        (insert (format "%10s %s %d %s\n" "│" "Score:" *2048-score* "│"))
+        (insert (format "%10s%s%s\n" "\\" (make-string (+ 9
+                                                          score-width)
+                                                       ?\=) "/")))
+      (insert "\n")
+
+      (2048-print-help)
+
+      (insert "\n")
+
+      ;; print score and history
+      (insert (format "%10s%s%s\n" "/" (make-string 13 ?\=) "\\"))
+      (insert (format "%24s\n" "│ HIGH SCORES │"))
+      (insert (format "%10s%s%s\n" "\\" (make-string 13 ?\=) "/"))
+      (insert "\n")
+      (insert (format "%8s  %7s  %7s     %4s\n" "Score" "Hi-Tile" "Date" "Duration"))
+      (mapc #'(lambda (x)
+                (insert (format "%8d  %7d  %10s  %s\n"
+                                (elt x 0) (elt x 1) (elt x 2)
+                                (format-time-string "%H:%M:%S" (elt x 3) t))))
+            ,*2048-history*)
+
+      (goto-char (point-min))))
+
+  (defun my-2048-repeat-down-and-left ()
+    (interactive)
+    (let (prev-board)
+      (while (not (equal prev-board *2048-board*))
+        (setq prev-board (cl-copy-seq *2048-board*))
+        (2048-down)
+        (2048-left))))
+
+  (defun my-2048-repeat-down-and-right ()
+    (interactive)
+    (let (prev-board)
+      (while (not (equal prev-board *2048-board*))
+        (setq prev-board (cl-copy-seq *2048-board*))
+        (2048-down)
+        (2048-right)))))
 #+end_src
 
 *** chess
