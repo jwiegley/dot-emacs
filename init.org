@@ -1905,9 +1905,8 @@ non-empty directories is allowed."
           (erc-tls :server server :port 6697 :nick (concat nick "_")
                    :password (lookup-password server nick 6697)))
       (let ((pass (lookup-password "irc.libera.chat" "johnw" 6697)))
-        (setq erc-nickserv-passwords
-              (list (cons nil (list (list (cons "johnw" pass))))
-                    (cons 'Libera.Chat (list (list (cons "johnw" pass))))))
+        ;; (setq erc-nickserv-passwords
+        ;;       (list (cons nil (list (list (cons "johnw" pass))))))
         (when (> (length pass) 32)
           (error "Failed to read ZNC password"))
         (erc :server "127.0.0.1" :port 6697 :nick "johnw"
@@ -4089,10 +4088,8 @@ append it to ENTRY."
       (lambda ()
         (unless (eq display-name 'imac)
           (display-battery-mode 1))))
-    "Regular expressions to identify foolish content.
-Usually what happens is that you add the bots to `erc-ignore-list' and the
-bothered commands to this list."
-    :group 'erc
+    "Functions to run on startup."
+    :group 'emacs
     :type 'hook)
 
   (defun startup ()
@@ -7383,13 +7380,13 @@ without white space and comments.
       (spam-contents gnus-group-spam-classification-ham))
      ("\\(mail\\.\\|INBOX\\)"
       (gnus-use-scoring nil))
-     ("mail\\.kadena"
+     ("mail\\.kadena\\'"
       (total-expire . t)
       (expiry-wait . 90)
       (expiry-target . "mail.kadena.archive")
       (spam-process-destination . "mail.spam.report")
       (spam-contents gnus-group-spam-classification-ham))
-     ("mail\\.archive"
+     ("mail\\(\\.kadena\\)?\\.archive"
       (gnus-summary-line-format
        "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
       (gnus-show-threads nil))
@@ -8203,6 +8200,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '(("Kadena Mail"
       ("To" "kadena" current)
       "Kadena")
+     ("Copper to Gold Mail"
+      ("To" "copper\\(to\\|2\\)gold" current)
+      "C2G")
      ("Ledger Mailing List"
       ("To" "ledger-cli@googlegroups\\.com" current)
       "Gmail")
