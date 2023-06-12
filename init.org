@@ -9039,7 +9039,7 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-scheduled-leaders '("" "S%d: "))
   (org-agenda-scheduled-relative-text "S%d: ")
   (org-agenda-scheduled-text "")
-  (org-agenda-show-all-dates nil)
+  (org-agenda-show-all-dates t)
   (org-agenda-show-outline-path nil)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-deadline-is-shown t)
@@ -9587,6 +9587,7 @@ To use this function, add it to `org-agenda-finalize-hook':
       :empty-lines-before 1
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
+  (org-roam-file-exclude-regexp '("data/" "archive/" "\\<todo\\.org" "\\<people\\.org" "\\<index\\.org" "\\<OSS\\.org" "\\<habits\\.org"))
   :defines
   (org-roam-v2-ack)
   :functions
@@ -9780,14 +9781,13 @@ FILE is an absolute path. This default implementation ignores
 directories, dot files, and files matched by
 ‘xeft-ignore-extension’."
     (and (file-regular-p file)
-         (not (string-prefix-p
-               "." (file-name-base file)))
-         (not (string-suffix-p
-               "~" file))))
+         (not (string-prefix-p "." (file-name-base file)))
+         (not (string-suffix-p "~" file))))
 
   (defun my-xeft-directory-filter (dir)
     "Return nil if DIR should be ignored."
-    (member dir '(".git" "data" "site" "_cache"))))
+    (not (member (file-name-nondirectory dir)
+                 '(".git" "data" "site" "_cache")))))
 #+end_src
 
 *** org-smart-capture
