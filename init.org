@@ -998,7 +998,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (holiday-hebrew-holidays nil))
 #+end_src
 
-** centered-cursor-mode
+** COMMENT centered-cursor-mode
 
 Makes the cursor stay vertically in a defined position (usually centered). The
 vertical position can be altered:
@@ -9039,7 +9039,7 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-scheduled-leaders '("" "S%d: "))
   (org-agenda-scheduled-relative-text "S%d: ")
   (org-agenda-scheduled-text "")
-  (org-agenda-show-all-dates t)
+  (org-agenda-show-all-dates nil)
   (org-agenda-show-outline-path nil)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-deadline-is-shown t)
@@ -9545,11 +9545,11 @@ To use this function, add it to `org-agenda-finalize-hook':
          :map org-mode-map
          ("C-M-i" . completion-at-point))
   :custom
-  (org-roam-directory "~/doc/org/roam/")
+  (org-roam-directory "~/doc/org/")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
-      :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
+      :target (file+head "inbox/%<%Y%m%d%H%M>-${slug}.org"
                          "#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)
@@ -9748,8 +9748,9 @@ To use this function, add it to `org-agenda-finalize-hook':
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
-  (xeft-directory "~/doc/org/roam/")
+  (xeft-directory "~/doc/org/")
   (xeft-file-filter 'my-xeft-file-filter)
+  (xeft-directory-filter 'my-xeft-directory-filter)
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
   :custom-face
@@ -9782,7 +9783,11 @@ directories, dot files, and files matched by
          (not (string-prefix-p
                "." (file-name-base file)))
          (not (string-suffix-p
-               "~" file)))))
+               "~" file))))
+
+  (defun my-xeft-directory-filter (dir)
+    "Return nil if DIR should be ignored."
+    (member dir '(".git" "data" "site" "_cache"))))
 #+end_src
 
 *** org-smart-capture
@@ -9821,6 +9826,7 @@ text belongs to.
      (:name "Tasks" :not (:priority "A" :priority "C"))
      (:name "Errands" :tag "Errand")))
   (org-super-agenda-header-separator "")
+  (org-super-agenda-hide-empty-groups t)
   :config
   (org-super-agenda-mode))
 #+end_src
