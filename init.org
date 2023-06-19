@@ -1751,7 +1751,7 @@ non-empty directories is allowed."
   (global-emojify-mode))
 #+end_src
 
-** engine-mode
+** COMMENT engine-mode
 
 #+begin_src emacs-lisp
 (use-package engine-mode
@@ -8245,10 +8245,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
             (match-in-strings "emacs-.*@gnu" addrs)
             (string-match "\\(gnu\\|emacs\\)" gnus-newsgroup-name))
         (gnus-alias-use-identity "Gnu"))
-       ((or (match-in-strings "jwiegley@gmail.com" addrs)
+       ((or (match-in-strings "jwiegley@gmail\\.com" addrs)
             (match-in-strings "@baesystems\\.com" addrs)
             (string-match "\\(brass\\|safe\\|riscv\\)" gnus-newsgroup-name))
         (gnus-alias-use-identity "Gmail"))
+       ((or (match-in-strings "john\\.wiegley@coppertogold\\.com" addrs)
+            (string-match "\\(ctg\\)" gnus-newsgroup-name))
+        (gnus-alias-use-identity "C2G"))
        ((or (match-in-strings "johnw@newartisans\\.com" addrs)
             (string-match "\\(haskell\\|coq\\|agda\\|idris\\|acl2\\)"
                           gnus-newsgroup-name))
@@ -9441,6 +9444,16 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-download-method 'attach))
 #+end_src
 
+*** org-edna
+
+#+begin_src emacs-lisp
+(use-package org-edna
+  :after org
+  :diminish
+  :config
+  (org-edna-mode))
+#+end_src
+
 *** org-id
 
 #+begin_src emacs-lisp
@@ -9545,7 +9558,7 @@ To use this function, add it to `org-agenda-finalize-hook':
          :map org-mode-map
          ("C-M-i" . completion-at-point))
   :custom
-  (org-roam-directory "~/doc/org/")
+  (org-roam-directory "~/doc/org/roam/")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
@@ -9749,7 +9762,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
-  (xeft-directory "~/doc/org/")
+  (xeft-directory "~/doc/org/roam/")
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-directory-filter 'my-xeft-directory-filter)
   (xeft-recursive t)
