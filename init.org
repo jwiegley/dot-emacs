@@ -8360,10 +8360,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x @" . visible-mode)
          ("C-c C-x L" . org-set-dtp-link)
          ("C-c C-x M" . org-set-message-link)
-         ("C-c C-x U" . org-insert-url-link)
+         ("C-c C-x U" . org-set-url-from-clipboard)
          ("C-c C-x l" . org-insert-dtp-link)
          ("C-c C-x m" . org-insert-message-link)
          ("C-c C-x o" . my-org-todoize)
+         ("C-c C-x r" . org-clock-report)
          ("C-c C-x u" . org-set-url-from-clipboard)
          ([return]                . (lambda () (interactive) (org-return t)))
          ([(control return)])
@@ -9019,6 +9020,10 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         '("+APPT"))))
+     ("s" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+      ((org-agenda-overriding-header "Sierra Oaks tasks")
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled))))
      ("N" "Notes" tags "TODO=\"NOTE\""
       ((org-agenda-overriding-header "Notes")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
@@ -9241,8 +9246,8 @@ To use this function, add it to `org-agenda-finalize-hook':
                  (forward-line)
                  (unless (bolp))
                  (insert ?\n)
-                 ;; (insert (format "SCHEDULED: %s\n"
-                 ;;                 (format-time-string (org-time-stamp-format))))
+                 (insert (format "SCHEDULED: %s\n"
+                                 (format-time-string (org-time-stamp-format))))
                  (goto-char (point-max))
                  (unless (bolp)
                    (insert ?\n))
@@ -9828,12 +9833,13 @@ text belongs to.
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
+  :disabled t
   :after org
   :custom
   (org-super-agenda-groups
    '((:name "Important" :priority "A")
      (:name "Calls" :tag "Call")
-     (:name "Needs review" :todo "WAITING" :todo "DELEGATED")
+     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
      (:name "Optional" :priority "C" :order 9)
      (:name "Work" :file-path "kadena")
      (:name "Tasks" :not (:priority "A" :priority "C"))
