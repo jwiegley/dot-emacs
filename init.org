@@ -8413,7 +8413,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 :END:" :prepend t)
      ("w" "Web capture" entry
       (file+headline "~/doc/org/todo.org" "Inbox")
-      "* NOTE %:description
+      "* LINK %:description
 %i
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
@@ -8561,7 +8561,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "CATEGORY" "|")
-     (sequence "|" "NOTE(n)")
+     (sequence "|" "NOTE(n)" "LINK(l)")
      (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
   (org-todo-keyword-faces
    '(("TODO" :foreground "medium blue" :weight bold)
@@ -8570,6 +8570,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("RECUR" :foreground "cornflowerblue" :weight bold)
      ("APPT" :foreground "medium blue" :weight bold)
      ("NOTE" :foreground "brown" :weight bold)
+     ("LINK" :foreground "tomato" :weight bold)
      ("STARTED" :foreground "dark orange" :weight bold)
      ("WAITING" :foreground "red" :weight bold)
      ("DELEGATED" :foreground "dark violet" :weight bold)
@@ -8963,19 +8964,19 @@ This can be 0 for immediate, or a floating point value.")
         '(org-agenda-skip-entry-if 'scheduled))
        (org-agenda-sorting-strategy
         '(todo-state-up priority-down category-up))))
-     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT}"
+     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}"
       ((org-agenda-overriding-header "Deadlined tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notdeadline))
        (org-agenda-sorting-strategy
         '(category-up))))
-     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
       ((org-agenda-overriding-header "Scheduled tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notscheduled))
        (org-agenda-sorting-strategy
         '(category-up))))
-     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY}"
+     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
@@ -8984,7 +8985,7 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         '("~/doc/org/OSS.org"))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
@@ -9003,7 +9004,7 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-sorting-strategy
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT\\|CATEGORY}"
+     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
         '("~/kadena/docs/kadena.org"))
@@ -9020,12 +9021,14 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         '("+APPT"))))
-     ("s" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|PROJECT}&STYLE<>\"habit\""
+     ("s" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
       ((org-agenda-overriding-header "Sierra Oaks tasks")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled))))
      ("N" "Notes" tags "TODO=\"NOTE\""
-      ((org-agenda-overriding-header "Notes")))))
+      ((org-agenda-overriding-header "Notes")))
+     ("L" "Links" tags "TODO=\"LINK\""
+      ((org-agenda-overriding-header "Links")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
