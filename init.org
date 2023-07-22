@@ -8588,7 +8588,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-yank-adjusted-subtrees t)
   :custom-face
   (org-done ((t (:foreground "ForestGreen" :weight bold))))
-  (org-headline-done ((t (:foreground "grey75" :strike-through t :slant italic))))
+  (org-headline-done ((t (:foreground "grey75" :slant italic))))
   (org-level-4 ((t (:foreground "green"))))
   (org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
   (org-upcoming-deadline
