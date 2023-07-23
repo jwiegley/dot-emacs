@@ -9232,7 +9232,8 @@ To use this function, add it to `org-agenda-finalize-hook':
            (ignore-errors
              (directory-files
               "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
-              t "[0-9].*\\.txt\\'" nil))))
+              t "[0-9].*\\.txt\\'" nil)))
+          url)
       (when notes
         (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
           (save-excursion
@@ -9242,15 +9243,24 @@ To use this function, add it to `org-agenda-finalize-hook':
             (forward-line 1)
             (dolist (note notes)
               (insert
-               "** TODO "
+               "** "
                (with-temp-buffer
                  (insert-file-contents note)
                  (goto-char (point-min))
+                 (setq url nil)
+                 (when (re-search-forward ":URL:\\s-*\\(.+?\\)\n" nil t)
+                   (setq url (match-string 1))
+                   (delete-region (match-beginning 0) (match-end 0)))
+                 (goto-char (point-min))
+                 (if url
+                     (insert "LINK ")
+                   (insert "TODO "))
                  (forward-line)
                  (unless (bolp))
-                 (insert ?\n)
-                 (insert (format "SCHEDULED: %s\n"
-                                 (format-time-string (org-time-stamp-format))))
+                 (unless url
+                   (insert ?\n)
+                   (insert (format "SCHEDULED: %s\n"
+                                   (format-time-string (org-time-stamp-format)))))
                  (goto-char (point-max))
                  (unless (bolp)
                    (insert ?\n))
@@ -9273,12 +9283,16 @@ To use this function, add it to `org-agenda-finalize-hook':
                           (date (format "%04d-%02d-%02d %s"
                                         year mon day
                                         (calendar-day-name (list mon day year) t))))
-                     (insert (format (concat ;; "SCHEDULED: <%s>\n"
+                     (insert (format (concat
                                       ":PROPERTIES:\n"
                                       ":ID:       %s\n"
-                                      ":CREATED:  ")
-                                     uuid))
-                     (insert (format "[%s %02d:%02d]\n:END:\n" date hour min))))
+                                      ":CREATED:  [%s %02d:%02d]\n"
+                                      "%s"
+                                      ":END:\n")
+                                     uuid date hour min
+                                     (if url
+                                         (concat ":URL:      " url "\n")
+                                       "")))))
                  (buffer-string)))
               (delete-file note t)))
           (when (buffer-modified-p)
