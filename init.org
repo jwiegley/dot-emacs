@@ -3286,6 +3286,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package forge
+  :disabled t
   :after magit
   :custom
   (forge-alist
