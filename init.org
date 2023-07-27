@@ -8215,6 +8215,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("Emacs Newsgroups"
       ("Newsgroups" "emacs" current)
       "Gnu")
+     ("Tarjuman"
+      ("To" "\\(tarjuman\\)" current)
+      "NewArtisans")
      ("Haskell Groups"
       ("Newsgroups"
        "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)"
