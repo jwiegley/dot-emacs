@@ -3286,7 +3286,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package forge
-  :disabled t
   :after magit
   :custom
   (forge-alist
@@ -9022,7 +9021,7 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         '("+APPT"))))
-     ("s" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
+     ("O" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
       ((org-agenda-overriding-header "Sierra Oaks tasks")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled))))
@@ -9511,6 +9510,19 @@ To use this function, add it to `org-agenda-finalize-hook':
                                "#E6E1DC" "#232323")))))
 #+end_src
 
+*** COMMENT org-modern
+
+#+begin_src emacs-lisp
+(use-package org-modern
+  :after org
+  :custom
+  (org-modern-list '((43 . "◦") (45 . "•") (42 . "⋆")))
+  (org-modern-todo nil)
+  (org-modern-star nil)
+  :config
+  (global-org-modern-mode))
+#+end_src
+
 *** org-noter
 
 #+begin_src emacs-lisp
@@ -9847,11 +9859,10 @@ text belongs to.
   :commands org-sticky-header-mode)
 #+end_src
 
-*** org-super-agenda
+*** COMMENT org-super-agenda
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
-  :disabled t
   :after org
   :custom
   (org-super-agenda-groups
@@ -10177,7 +10188,7 @@ own lines, for instance.
 #+begin_src emacs-lisp
 (use-package cl-info
   ;; jww (2017-12-10): Need to configure.
-  :disabled t)
+  )
 #+end_src
 
 *** COMMENT crux
@@ -10191,7 +10202,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package debbugs-gnu
-  :disabled t
   :commands (debbugs-gnu debbugs-gnu-search)
   :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
 #+end_src
@@ -10200,7 +10210,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package doxymacs
-  :disabled t
   :commands (doxymacs-mode doxymacs-font-lock)
   :config
   (doxymacs-mode 1)
@@ -10264,7 +10273,6 @@ you can try all default settings to enjoy =mic-paren=.
 
 #+begin_src emacs-lisp
 (use-package mic-paren
-  :disabled t
   :defer 5
   :config
   (paren-activate))
@@ -10290,14 +10298,13 @@ you can try all default settings to enjoy =mic-paren=.
 #+begin_src emacs-lisp
 (use-package repl-toggle
   ;; jww (2017-12-10): Need to configure.
-  :disabled t)
+  )
 #+end_src
 
 *** COMMENT smart-mode-line
 
 #+begin_src emacs-lisp
 (use-package smart-mode-line
-  :disabled t
   :preface
   (defface mode-line-buffer-id
     '((((class color) (background dark))
