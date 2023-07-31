@@ -9259,9 +9259,9 @@ To use this function, add it to `org-agenda-finalize-hook':
                      (insert "LINK ")
                    (insert "TODO "))
                  (forward-line)
-                 (unless (bolp))
                  (unless url
-                   (insert ?\n)
+                   (unless (bolp)
+                     (insert ?\n))
                    (insert (format "SCHEDULED: %s\n"
                                    (format-time-string (org-time-stamp-format)))))
                  (goto-char (point-max))
@@ -9477,6 +9477,16 @@ To use this function, add it to `org-agenda-finalize-hook':
   :diminish
   :config
   (org-edna-mode))
+#+end_src
+
+*** org-extra-emphasis
+
+#+begin_src emacs-lisp
+(use-package org-extra-emphasis
+  :after org
+  :custom-face
+  (org-extra-emphasis-01
+   ((t (:inherit org-extra-emphasis :background "yellow" :foreground "black")))))
 #+end_src
 
 *** org-id
