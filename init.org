@@ -165,7 +165,9 @@
 (use-package epg
   :defer t
   :custom
-  (epg-gpg-program "/usr/local/bin/gpg"))
+  (epg-gpg-program "/usr/local/bin/gpg")
+  :config
+  (put 'epg-gpg-program 'customized-value t))
 #+end_src
 
 ** emacs
@@ -7985,18 +7987,6 @@ is:
     (my-message-header-setup-hook)))
 #+end_src
 
-**** message-x
-
-#+begin_src emacs-lisp
-(use-package message-x
-  :after message
-  :custom
-  (message-x-completion-alist
-   '(((if (boundp 'message-newgroups-header-regexp)
-          message-newgroups-header-regexp message-newsgroups-header-regexp)
-      . message-expand-group))))
-#+end_src
-
 **** sendmail
 
 #+begin_src emacs-lisp
@@ -8174,9 +8164,8 @@ variables.  This is useful for a regi `begin' frame-entry."
 
 #+begin_src emacs-lisp
 (use-package gnus-alias
-  :after message-x
+  :after gnus
   :commands (gnus-alias-determine-identity
-             gnus-alias-message-x-completion
              gnus-alias-select-identity
              gnus-alias-use-identity)
   :bind (:map message-mode-map
@@ -8262,10 +8251,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
        ((match-in-strings "john\\.wiegley@baesystems\\.com" addrs)
         (gnus-alias-use-identity "BAE"))
        (t
-        (gnus-alias-determine-identity)))))
-  :init
-  (add-hook 'message-x-after-completion-functions
-            'gnus-alias-message-x-completion))
+        (gnus-alias-determine-identity))))))
 #+end_src
 
 **** gnus-harvest
@@ -8273,19 +8259,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+begin_src emacs-lisp
 (use-package gnus-harvest
   :load-path "lisp/gnus-harvest"
-  :after message-x
+  :after gnus
   :custom
   (gnus-harvest-sender-alist
    '((".*@gnu\\.org\\'"   . "johnw@gnu.org")
      (".*@kadena\\.io\\'" . "john@kadena.io")))
   :hook
-  (message-setup . gnus-harvest-set-from)
-  :config
-  (gnus-harvest-install 'message-x)
-
-  (push '("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:"
-          . gnus-harvest-find-address)
-        message-x-completion-alist))
+  (message-setup . gnus-harvest-set-from))
 #+end_src
 
 *** COMMENT gnus-sieve
@@ -8554,8 +8534,15 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("([Ww]as: .+)\\'" . "")
      ("\\`\\[[a-z-]+\\] " . "")
      ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
+  (org-tag-alist
+   '(("Call" . 99)
+     ("Errand" . 101)
+     ("Home" . 104)
+     ("Impact" . 73)
+     ("HOT" . 72)))
   (org-tag-faces
-   '(("Call"  . (:foreground "Orange" :weight bold))))
+   '(("Call"  . (:foreground "Orange" :weight bold))
+     ("Impact"  . (:foreground "Magenta" :weight bold))))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
@@ -8667,11 +8654,12 @@ This can be 0 for immediate, or a floating point value.")
       (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
       (goto-char (match-end 0))))
 
-  (defun my-org-todoize ()
+  (defun my-org-todoize (&optional arg)
     "Turn a headline into a TODO entry with any needed metadata."
-    (interactive)
-    (org-todo "TODO")
-    (org-id-get-create)
+    (interactive "P")
+    (unless arg
+      (org-todo "TODO"))
+    (org-id-get-create arg)
     (org-entry-put (point) "CREATED"
                    (format-time-string (org-time-stamp-format t t))))
 
@@ -9007,6 +8995,11 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-sorting-strategy
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     ("I" "Impactful tasks" tags "Impact&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-overriding-header "Impactful tasks:")
+       (org-agenda-sorting-strategy
+        '(todo-state-up priority-down user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled work-related tasks")
        (org-agenda-files
@@ -9024,10 +9017,6 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         '("+APPT"))))
-     ("O" "Sierra Oaks tasks" tags "CATEGORY=\"Sierra\"&TODO<>\"\"&TODO<>{APPT\\|DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
-      ((org-agenda-overriding-header "Sierra Oaks tasks")
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled))))
      ("N" "Notes" tags "TODO=\"NOTE\""
       ((org-agenda-overriding-header "Notes")))
      ("L" "Links" tags "TODO=\"LINK\""
@@ -9417,6 +9406,15 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-bookmark-heading
   :after org)
+#+end_src
+
+*** org-contacts
+
+#+begin_src emacs-lisp
+(use-package org-contacts
+  :after org
+  :custom
+  (org-contacts-files '("~/doc/org/people.org")))
 #+end_src
 
 *** org-crypt
