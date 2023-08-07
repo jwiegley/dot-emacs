@@ -8534,7 +8534,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("([Ww]as: .+)\\'" . "")
      ("\\`\\[[a-z-]+\\] " . "")
      ("\\`bug#\\([0-9]+\\):" . "[[x-debbugs-gnu:\\1][#\\1]]")))
-  (org-tag-alist
+  (org-tag-persistent-alist
    '(("Call" . 99)
      ("Errand" . 101)
      ("Home" . 104)

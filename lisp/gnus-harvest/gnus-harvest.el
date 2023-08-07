@@ -356,6 +356,27 @@ VALUES
              (null (message-field-value "subject")))
         (message-goto-subject))))
 
+(defun gnus-harvest-capf ()
+  (pcase-let ((`(,beg . ,end)
+               (or (bounds-of-thing-at-point 'email)
+                   (bounds-of-thing-at-point 'word))))
+    (let* ((stub (buffer-substring-no-properties beg end))
+           (aliases
+            (let ((bbdb (and gnus-harvest-search-in-bbdb
+                             (gnus-harvest-bbdb-complete-stub stub)))
+                  (mailrc (gnus-harvest-mailalias-complete-stub stub)))
+              (cond
+               ((stringp bbdb) bbdb)
+               ((stringp mailrc) mailrc)
+               (t
+                (nconc bbdb mailrc))))))
+      (setq aliases
+            (delete-dups
+             (append aliases
+                     (delete stub (mapcar #'car (gnus-harvest-complete-stub
+                                                 stub gnus-harvest-match-by-prefix))))))
+      `(,beg ,end ,aliases))))
+
 ;;;###autoload
 (defun gnus-harvest-install (&rest features)
   (unless (file-readable-p gnus-harvest-db-path)
