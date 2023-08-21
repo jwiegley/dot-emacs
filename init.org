@@ -5117,7 +5117,7 @@ independent components.
          ("M-g M-g" . consult-goto-line)
          ("M-g l"   . consult-goto-line)
          ([remap goto-line] . consult-goto-line)
-         ("M-g o"   . consult-org-heading)
+         ;; ("M-g o"   . consult-org-heading)
          ("M-g m"   . consult-mark)
          ("M-g k"   . consult-global-mark)
          ("M-g i"   . consult-imenu)
@@ -5291,8 +5291,8 @@ minimalistic =completion-in-region= counterpart of the [[https://github.com/mina
 
 Corfu is a small package, which relies on the Emacs completion facilities and
 concentrates on providing a polished completion UI. Completions are either
-provided by commands like =dabbrev-completion= or by pluggable backends (
-=completion-at-point-functions=, Capfs). Most programming language major modes
+provided by commands like =dabbrev-completion= or by pluggable backends
+(=completion-at-point-functions=, Capfs). Most programming language major modes
 implement a Capf. The Emacs language server clients use Capfs, which retrieve
 completions from the server via the language server protocol (LSP). Corfu does
 not include its own completion backends. The Emacs built-in Capfs and the
@@ -8263,9 +8263,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :custom
   (gnus-harvest-sender-alist
    '((".*@gnu\\.org\\'"   . "johnw@gnu.org")
-     (".*@kadena\\.io\\'" . "john@kadena.io")))
+     (".*@kadena\\.io\\'" . "john@kadena.io")
+     (".*@coppertogold\\.org\\'" . "john.wiegley@coppertogold.org")))
+  (gnus-harvest-query-limit 50000)
   :hook
-  (message-setup . gnus-harvest-set-from))
+  (message-setup . gnus-harvest-set-from)
+  (message-mode  . gnus-harvest-setup-completion-at-point))
+
 #+end_src
 
 *** COMMENT gnus-sieve
@@ -8514,8 +8518,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (66 . "White")
      (67 :foreground "dark gray" :slant italic)))
   (org-refile-target-verify-function 'org-refile-heading-p)
-  (org-refile-targets '((org-agenda-files :todo . "PROJECT")
-                        (org-agenda-files :todo . "CATEGORY")))
+  (org-refile-targets
+   '((org-agenda-files :todo . "PROJECT")
+     (org-agenda-files :todo . "CATEGORY")
+     ("~/doc/org/bookmarks.org" :level . 1)))
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -8925,19 +8931,7 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
-   '(("h" "Current Hotlist" alltodo ""
-      ((org-agenda-overriding-header "Current Hotlist")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
-     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "Hot Projects")))
-     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "Non-Hot Projects")))
-     ("n" "Project Next Actions" alltodo ""
-      ((org-agenda-overriding-header "Project Next Actions")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
-     ("P" "All Projects" tags "TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "All Projects")))
-     ("A" "Priority #A tasks" agenda ""
+   '(("A" "Priority #A tasks" agenda ""
       ((org-agenda-ndays 1)
        (org-agenda-overriding-header "Today's priority #A tasks: ")
        (org-agenda-skip-function
@@ -8947,8 +8941,10 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-overriding-header "Today's priority #A and #B tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
-     ("r" "Uncategorized items" tags "CATEGORY=\"Inbox\"&LEVEL=2"
-      ((org-agenda-overriding-header "Uncategorized items")))
+     ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2"
+      ((org-agenda-overriding-header "Inbox")))
+     ("r" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2"
+      ((org-agenda-overriding-header "Inbox")))
      ("W" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
       ((org-agenda-overriding-header "Waiting/delegated tasks:")
        (org-agenda-skip-function
@@ -9017,6 +9013,18 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset
         '("+APPT"))))
+     ("h" "Current Hotlist" alltodo ""
+      ((org-agenda-overriding-header "Current Hotlist")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
+     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Hot Projects")))
+     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "Non-Hot Projects")))
+     ("n" "Project Next Actions" alltodo ""
+      ((org-agenda-overriding-header "Project Next Actions")
+       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+     ("P" "All Projects" tags "TODO=\"PROJECT\""
+      ((org-agenda-overriding-header "All Projects")))
      ("N" "Notes" tags "TODO=\"NOTE\""
       ((org-agenda-overriding-header "Notes")))
      ("L" "Links" tags "TODO=\"LINK\""
@@ -9027,7 +9035,8 @@ This can be 0 for immediate, or a floating point value.")
    '("~/doc/org/todo.org"
      "~/doc/org/habits.org"
      "~/kadena/docs/kadena.org"
-     "~/doc/org/OSS.org"))
+     "~/doc/org/OSS.org"
+     "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
   (org-agenda-inhibit-startup t)
@@ -9482,9 +9491,11 @@ To use this function, add it to `org-agenda-finalize-hook':
 #+begin_src emacs-lisp
 (use-package org-extra-emphasis
   :after org
+  :diminish org-extra-emphasis-intraword-emphasis-mode
   :custom-face
   (org-extra-emphasis-01
-   ((t (:inherit org-extra-emphasis :background "yellow" :foreground "black")))))
+   ((t (:inherit org-extra-emphasis
+                 :bold t :background "yellow" :foreground "black")))))
 #+end_src
 
 *** org-id
@@ -9562,7 +9573,13 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-ql
-  :commands org-ql-search)
+  :after org
+  :commands org-ql-search
+  :bind
+  ("M-g o" . org-ql-find)
+  :config
+  (add-to-list 'vertico-multiform-commands
+               '(org-ql-find)))
 #+end_src
 
 *** org-remark

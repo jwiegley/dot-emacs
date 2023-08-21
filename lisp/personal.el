@@ -1,3 +1,9 @@
+(defun my-set-custom-variable ()
+  (interactive)
+  (save-excursion
+    (custom-set-variables (read (current-buffer)))
+    (message "Variable has been set")))
+
 (defcustom user-initials nil
   "*Initials of this user."
   :set
