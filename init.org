@@ -8963,8 +8963,8 @@ This can be 0 for immediate, or a floating point value.")
         '(org-agenda-skip-entry-if 'notscheduled))
        (org-agenda-sorting-strategy
         '(category-up))))
-     ("o" "Unscheduled open source tasks (by project)" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
-      ((org-agenda-overriding-header "Unscheduled Open Source tasks (by project): ")
+     ("o" "Unscheduled open source tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+      ((org-agenda-overriding-header "Unscheduled Open Source tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
        (org-agenda-sorting-strategy
@@ -8996,8 +8996,8 @@ This can be 0 for immediate, or a floating point value.")
        (org-agenda-sorting-strategy
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work-related tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
-      ((org-agenda-overriding-header "Unscheduled work-related tasks")
+     ("w" "Unscheduled work tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+      ((org-agenda-overriding-header "Unscheduled work tasks")
        (org-agenda-files
         '("~/kadena/docs/kadena.org"))
        (org-agenda-sorting-strategy
