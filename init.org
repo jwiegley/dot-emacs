@@ -9239,7 +9239,7 @@ To use this function, add it to `org-agenda-finalize-hook':
         (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
           (save-excursion
             (goto-char (point-min))
-            (re-search-forward "^\\* Inbox$")
+            (re-search-forward "^\\* CATEGORY Inbox$")
             (re-search-forward "^:END:")
             (forward-line 1)
             (dolist (note notes)
