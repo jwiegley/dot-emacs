@@ -8398,13 +8398,19 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)
-     ("w" "Web capture" entry
+     ("l" "Link" entry
       (file+headline "~/doc/org/todo.org" "Inbox")
       "* LINK %:description
-%i
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :URL:      %:link
+:END:" :prepend t)
+     ("s" "Slack" entry
+      (file+headline "~/kadena/docs/kadena.org" "Pending")
+      "* TODO %?
+%(my-insert-copied-slack \"%c\")
+:PROPERTIES:
+:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :END:" :prepend t)))
   ;; C-c C-r (org-reveal) will display where the point is if it is buried in
   ;; invisible text to allow editing again.
@@ -8874,6 +8880,21 @@ This can be 0 for immediate, or a floating point value.")
     (setq org-link-parameters
           (cl-delete-if #'(lambda (x) (string= (car x) param))
                         org-link-parameters)))
+
+  (defun my-insert-copied-slack (string)
+    (with-temp-buffer
+      (insert string)
+      (goto-char (point-min))
+      (whitespace-cleanup)
+      (while (re-search-forward "\\[\\[.*\\.png\\]\\] +\\s-*\n+" nil t)
+        (delete-region (match-beginning 0) (match-end 0)))
+      (goto-char (point-min))
+      (while (re-search-forward "^ +\\s-*\n+" nil t)
+        (delete-region (match-beginning 0) (match-end 0)))
+      (goto-char (point-min))
+      (while (re-search-forward "\n\n+" nil t)
+        (replace-match "\n\n"))
+      (buffer-string)))
   :init
   (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
   (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
@@ -9559,7 +9580,9 @@ To use this function, add it to `org-agenda-finalize-hook':
 
 #+begin_src emacs-lisp
 (use-package org-protocol
-  :after org)
+  :after org
+  :custom
+  (org-protocol-default-template-key "l"))
 #+end_src
 
 *** org-pomodoro
