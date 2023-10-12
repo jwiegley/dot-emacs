@@ -865,9 +865,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   :custom
   (calendar-daylight-time-zone-name "PDT")
   (calendar-standard-time-zone-name "PST")
-  (calendar-time-zone -480)
-  :init
-  (setenv "TZ" "PST8PDT"))
+  (calendar-time-zone -480))
 #+end_src
 
 *** solar
@@ -4703,7 +4701,7 @@ complement Emacs’ default =C-x 8= prefix map.
   (unicode-fonts-skip-font-groups
    '(arabic-naskh decorative low-quality-glyphs multicolor))
   :config
-  (setq face-font-rescale-alist '((".*Scheher.*" . 1.3)))
+  (setq face-font-rescale-alist '((".*Scheher.*" . 1.5)))
   (dolist (font '("Arabic"
                   "Arabic Extended-A"
                   "Arabic Mathematical Alphabetic Symbols"
@@ -5838,6 +5836,7 @@ without white space and comments.
          ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
          ("C-x A"   . (lambda () (interactive) (insert "ٰ")))
          ("A-َ"      . (lambda () (interactive) (insert "ٰ")))
+         ("A-ي"     . (lambda () (interactive) (insert "ئ")))
          ("A-ه"     . (lambda () (interactive) (insert "ۀ")))
          ("A-د"     . (lambda () (interactive) (insert "ذ")))
          ("A-ت"     . (lambda () (interactive) (insert "ة"))))
@@ -8266,9 +8265,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (".*@kadena\\.io\\'" . "john@kadena.io")
      (".*@coppertogold\\.org\\'" . "john.wiegley@coppertogold.org")))
   (gnus-harvest-query-limit 50000)
-  :hook
-  (message-setup . gnus-harvest-set-from)
-  (message-mode  . gnus-harvest-setup-completion-at-point))
+  ;; :hook
+  ;; (message-setup . gnus-harvest-set-from)
+  ;; (message-mode  . gnus-harvest-setup-completion-at-point)
+  )
 
 #+end_src
 
@@ -8360,6 +8360,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-mode . abbrev-mode)
   (org-mode . turn-on-auto-fill)
   (org-mode . turn-on-flyspell)
+  (org-mode . (lambda () (modify-syntax-entry ?’ "w")))
   ;; (org-mode . org-babel-result-hide-spec)
   ;; (org-mode . org-babel-hide-all-hashes)
   (org-mode . setup-insert-code-block)
@@ -9352,7 +9353,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
 #+end_src
 
-*** ob-verb
+*** COMMENT ob-verb
 
 #+begin_src emacs-lisp
 (use-package ob-verb
@@ -9403,7 +9404,8 @@ To use this function, add it to `org-agenda-finalize-hook':
      (sql        . t)
      (dot        . t)
      (emamux     . t)
-     (verb       . t)))
+     ;; (verb       . t)
+     ))
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
@@ -9951,7 +9953,7 @@ text belongs to.
         (insert link)))))
 #+end_src
 
-*** orgit
+*** COMMENT orgit
 
 #+begin_src emacs-lisp
 (use-package orgit
