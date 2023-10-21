@@ -8401,7 +8401,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 :END:" :prepend t)
      ("l" "Link" entry
       (file+headline "~/doc/org/todo.org" "Inbox")
-      "* LINK %:description
+      "* LINK %:description%?
 :PROPERTIES:
 :ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
 :URL:      %:link
