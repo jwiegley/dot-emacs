@@ -1185,7 +1185,13 @@ to them.
      "b9e9ba5aeedcc5ba8be99f1cc9301f6679912910ff92fdf7980929c2fc83ab4d"
      "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279"
      "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e"
-     default)))
+     default))
+  :preface
+  (defun my-set-custom-variable ()
+    (interactive)
+    (save-excursion
+      (custom-set-variables (read (current-buffer)))
+      (message "Variable has been set"))))
 #+end_src
 
 ** dabbrev
