@@ -5841,8 +5841,11 @@ without white space and comments.
          LaTeX-mode-map
          ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
          ("C-x A"   . (lambda () (interactive) (insert "ٰ")))
-         ("A-َ"      . (lambda () (interactive) (insert "ٰ")))
+         ("A-َ"      . (lambda () (interactive) (insert "أ")))
+         ("A-."      . (lambda () (interactive) (insert "إ")))
+         ("A-ا"      . (lambda () (interactive) (insert "ٰ")))
          ("A-ي"     . (lambda () (interactive) (insert "ئ")))
+         ("A-س"     . (lambda () (interactive) (insert "ٱ")))
          ("A-ه"     . (lambda () (interactive) (insert "ۀ")))
          ("A-د"     . (lambda () (interactive) (insert "ذ")))
          ("A-ت"     . (lambda () (interactive) (insert "ة"))))
