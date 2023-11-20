@@ -1013,6 +1013,16 @@ vertical position can be altered:
   :commands centered-cursor-mode)
 #+end_src
 
+** chatgpt-shell
+
+#+begin_src emacs-lisp
+(use-package chatgpt-shell
+  :custom
+  (chatgpt-shell-openai-key
+   (lambda ()
+     (auth-source-pass-get 'secret "chat.openai.com"))))
+#+end_src
+
 ** COMMENT citre
 
 #+begin_src emacs-lisp

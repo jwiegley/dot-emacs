@@ -4,6 +4,7 @@
 .DS_Store
 /auto-save-list/
 /autoloads.el
+/chatgpt/
 /compile.log
 /cus-dirs.el
 /data*/
@@ -11,13 +12,13 @@
 /elpa/
 /emojis/
 /eshell/
+/forge-database.sqlite
 /info/
 /init.el
+/lisp/corfu/
+/lisp/emacs-format-all-the-code/
 /lisp/org-mode/
 /logs/
 /projects
-/var/
-/forge-database.sqlite
-/lisp/corfu/
-/lisp/emacs-format-all-the-code/
 /settings.el
+/var/
