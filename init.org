@@ -1017,7 +1017,9 @@ vertical position can be altered:
 
 #+begin_src emacs-lisp
 (use-package chatgpt-shell
+  :bind ("C-x C" . chatgpt-shell)
   :custom
+  (chatgpt-shell-model-version 4)
   (chatgpt-shell-openai-key
    (lambda ()
      (auth-source-pass-get 'secret "chat.openai.com"))))
