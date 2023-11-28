@@ -1017,9 +1017,23 @@ vertical position can be altered:
 
 #+begin_src emacs-lisp
 (use-package chatgpt-shell
-  :bind ("C-x C" . chatgpt-shell)
+  :bind
+  (:prefix-map
+   chatgpt-shell-cmd-map
+   :prefix "C-x C"
+   ("C" . chatgpt-shell)
+   ("u"  . chatgpt-shell-generate-unit-test)
+   ("e"  . chatgpt-shell-explain-code)
+   ("i"  . chatgpt-shell-interrupt)
+   ("p"  . chatgpt-shell-proofread-region)
+   ("S"  . chatgpt-shell-send-region)
+   ("d"  . chatgpt-shell-describe-code)
+   ("r"  . chatgpt-shell-refactor-code)
+   ("g"  . chatgpt-shell-write-git-commit)
+   ("s"  . chatgpt-shell-send-and-review-region)
+   ("R"  . chatgpt-shell-restore-session-from-transcript))
   :custom
-  (chatgpt-shell-model-version 4)
+  (chatgpt-shell-model-version 6)       ; gpt-4-1106-preview
   (chatgpt-shell-openai-key
    (lambda ()
      (auth-source-pass-get 'secret "chat.openai.com"))))
@@ -2518,6 +2532,19 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package goto-last-change
   :bind ("C-x C-/" . goto-last-change))
+#+end_src
+
+** COMMENT gptel
+
+#+begin_src emacs-lisp
+(use-package gptel
+  :commands (gptel gptel-send)
+  :hook (gptel-mode . visual-line-mode)
+  :custom
+  (gptel-default-mode 'org-mode)
+  (gptel-model "gpt-4")
+  :config
+  (setq gptel-api-key (auth-source-pass-get 'secret "chat.openai.com")))
 #+end_src
 
 ** grep
