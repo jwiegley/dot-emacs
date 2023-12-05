@@ -20,7 +20,8 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 .PHONY: test build clean
 
 # Main rule
-all: init.elc
+# all: init.elc
+all: init.el
 
 # Generate lisp and compile it
 init.el: init.org
@@ -45,10 +46,13 @@ speed: init.elc
 slow: init.elc
 	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
 
-open: init.elc
-	@open $$(dirname $$(which emacs))/../Applications/*.app
+# open: init.elc
+#	@open $$(dirname $$(which emacs))/../Applications/*.app
 
-open-quick: init.el
+# open-quick: init.el
+#	@open $$(dirname $$(which emacs))/../Applications/*.app
+
+open: init.el
 	@open $$(dirname $$(which emacs))/../Applications/*.app
 
 clean:

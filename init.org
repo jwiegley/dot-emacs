@@ -2904,7 +2904,7 @@ up before you execute another command."
 (use-package info
   :bind ("C-h C-i" . info-lookup-symbol)
   :custom
-  (Info-default-directory-list (list (emacs-path "lisp/org-mode/doc")))
+  ;; (Info-default-directory-list (list (emacs-path "lisp/org-mode/doc")))
   (Info-fit-frame-flag nil)
   :preface
   (eval-when-compile
@@ -3562,7 +3562,7 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package multiple-cursors
   :demand t
-  :after phi-search
+  ;; :after phi-search
   ;; Sometimes you end up with cursors outside of your view. You can scroll
   ;; the screen to center on each cursor with `C-v` and `M-v`.
   ;;
@@ -3649,7 +3649,7 @@ up before you execute another command."
   :bind ("<C-m> ]" . mc/rect-rectangle-to-multiple-cursors))
 #+end_src
 
-*** phi-search
+*** COMMENT phi-search
 
 #+begin_src emacs-lisp
 (use-package phi-search
@@ -3657,7 +3657,7 @@ up before you execute another command."
   (phi-search-limit 100000))
 #+end_src
 
-**** phi-search-mc
+**** COMMENT phi-search-mc
 
 #+begin_src emacs-lisp
 (use-package phi-search-mc
@@ -5310,7 +5310,7 @@ locations. The =default-directory= variable is not changed in the process.
   :bind ("M-g f" . consult-flycheck))
 #+end_src
 
-**** consult-git-log-grep
+**** COMMENT consult-git-log-grep
 
 #+begin_src emacs-lisp
 (use-package consult-git-log-grep
@@ -8377,11 +8377,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org
-  :load-path "lisp/org-mode/lisp"
+  ;; :load-path "lisp/org-mode/lisp"
   :commands org-resolve-clocks
-  :bind* (("M-m"   . org-smart-capture)
-          ("M-M"   . org-inline-note)
-          ("C-c S" . org-store-link)
+  :bind* (("C-c S" . org-store-link)
           ("C-c l" . org-insert-link))
   :bind (:map
          org-mode-map
@@ -8428,39 +8426,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-attach-store-link-p 'file)
   (org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
   (org-beamer-frame-default-options "fragile")
-  (org-capture-templates
-   '(("a" "Add Task" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* TODO %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
-     ("n" "Note" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* NOTE %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
-     ("c" "Calendar" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* APPT %?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)
-     ("l" "Link" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
-      "* LINK %:description%?
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:URL:      %:link
-:END:" :prepend t)
-     ("s" "Slack" entry
-      (file+headline "~/kadena/docs/kadena.org" "Pending")
-      "* TODO %?
-%(my-insert-copied-slack \"%c\")
-:PROPERTIES:
-:ID:       %(shell-command-to-string \"uuidgen\"):CREATED:  %U
-:END:" :prepend t)))
   ;; C-c C-r (org-reveal) will display where the point is if it is buried in
   ;; invisible text to allow editing again.
   (org-catch-invisible-edits 'error)
@@ -8524,6 +8489,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-fontify-done-headline t)
   (org-fontify-quote-and-verse-blocks t)
   (org-fontify-whole-heading-line t)
+  (org-footnote-define-inline t)
   (org-footnote-section nil)
   (org-gcal-dir (user-data "org-gcal/"))
   (org-hide-emphasis-markers t)
@@ -8581,12 +8547,12 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
   (org-reverse-note-order t)
-  (org-smart-capture-use-lastname t)
   (org-special-ctrl-a/e t)
   (org-special-ctrl-k t)
   (org-src-fontify-natively nil)
   (org-src-tab-acts-natively t)
   (org-src-window-setup 'current-window)
+  (org-startup-folded 'show2levels)
   (org-startup-with-inline-images t)
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
   (org-subject-transforms
@@ -8944,9 +8910,6 @@ This can be 0 for immediate, or a floating point value.")
       (while (re-search-forward "\n\n+" nil t)
         (replace-match "\n\n"))
       (buffer-string)))
-  :init
-  (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
-  (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
   :config
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
@@ -9154,13 +9117,13 @@ This can be 0 for immediate, or a floating point value.")
     (interactive)
     (push-window-configuration)
     (cl-flet ((prep-window
-               (wind)
-               (with-selected-window wind
-                 (org-fit-window-to-buffer wind)
-                 (ignore-errors
-                   (window-resize
-                    wind
-                    (- 100 (window-width wind)) t)))))
+                (wind)
+                (with-selected-window wind
+                  (org-fit-window-to-buffer wind)
+                  (ignore-errors
+                    (window-resize
+                     wind
+                     (- 100 (window-width wind)) t)))))
       (let ((buf (or (get-buffer "*Org Agenda*")
                      (get-buffer "*Org Agenda(a)*"))))
         (if buf
@@ -9171,6 +9134,8 @@ This can be 0 for immediate, or a floating point value.")
                 (if (called-interactively-p 'any)
                     (funcall #'prep-window (display-buffer buf t t))
                   (funcall #'prep-window (display-buffer buf)))))
+          (require 'org-agenda)
+          (mapc #'find-file-noselect org-agenda-files)
           (call-interactively 'org-agenda-list)
           (funcall #'prep-window (selected-window))))))
 
@@ -9332,9 +9297,6 @@ To use this function, add it to `org-agenda-finalize-hook':
                      (insert ?\n))
                    (insert (format "SCHEDULED: %s\n"
                                    (format-time-string (org-time-stamp-format)))))
-                 (goto-char (point-max))
-                 (unless (bolp)
-                   (insert ?\n))
                  (let ((uuid (substring (shell-command-to-string "uuidgen") 0 -1))
                        (file (file-name-nondirectory note)))
                    (string-match
@@ -9364,15 +9326,94 @@ To use this function, add it to `org-agenda-finalize-hook':
                                      (if url
                                          (concat ":URL:      " url "\n")
                                        "")))))
+                 (goto-char (point-max))
+                 (unless (bolp)
+                   (insert ?\n))
                  (buffer-string)))
               (delete-file note t)))
           (when (buffer-modified-p)
             (save-buffer)))))
     ad-do-it
     (org-fit-agenda-window))
+
+  (defun org-agenda-show-and-scroll-up (&optional arg)
+    "Display the Org file which contains the item at point.
+
+When called repeatedly, scroll the window that is displaying the buffer.
+
+With a `\\[universal-argument]' prefix argument, display the item, but \
+fold drawers."
+    (interactive "P")
+    (let ((win (selected-window)))
+      (if (and (window-live-p org-agenda-show-window)
+	       (eq this-command last-command))
+	  (progn
+	    (select-window org-agenda-show-window)
+	    (ignore-errors (scroll-up)))
+        (org-agenda-goto t)
+        (org-fold-show-entry 'hide-drawers)
+        (if arg
+            (org-with-wide-buffer
+	     (narrow-to-region (org-entry-beginning-position)
+			       (org-entry-end-position))
+	     (org-fold-show-all '(drawers)))
+	  (org-cycle-hide-drawers 'children))
+        (setq org-agenda-show-window (selected-window)))
+      (select-window win)))
   :init
   (unless alternate-emacs
+    (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
+    (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
     (run-with-idle-timer 300 t 'jump-to-org-agenda)))
+#+end_src
+
+*** org-capture
+
+#+begin_src emacs-lisp
+(use-package org-capture
+  :after org
+  :custom
+  (org-capture-templates
+   '(("a" "Add Task" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* TODO %?" :prepend t)
+     ("n" "Note" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* NOTE %?" :prepend t)
+     ("c" "Calendar" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* APPT %?" :prepend t)
+     ("l" "Link" entry
+      (file+headline "~/doc/org/todo.org" "Inbox")
+      "* LINK %:description%?
+:PROPERTIES:
+:URL:      %:link
+:END:" :prepend t)
+     ("s" "Slack" entry
+      (file+headline "~/kadena/docs/kadena.org" "Pending")
+      "* TODO %?
+%(my-insert-copied-slack \"%c\")" :prepend t)))
+  :preface
+  (defun my-org-basic-properties ()
+    (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
+    (org-set-property "CREATED" (with-temp-buffer
+                                  (org-insert-time-stamp (current-time) t t))))
+  :config
+  ;; Ensure the ID and CREATED properties are always set for new entries.
+  (add-hook 'org-capture-before-finalize-hook #'my-org-basic-properties))
+#+end_src
+
+**** org-smart-capture
+
+This wrapper around =org-capture= will also capture Gnus messages as tasks, with
+context.
+
+#+begin_src emacs-lisp
+(use-package org-smart-capture
+  :after org
+  :bind* ("M-m" . org-smart-capture)
+  :custom
+  (org-smart-capture-use-lastname t))
 #+end_src
 
 *** org-checklist
@@ -9937,15 +9978,6 @@ directories, dot files, and files matched by
     "Return nil if DIR should be ignored."
     (not (member (file-name-nondirectory dir)
                  '(".git" "data" "site" "_cache")))))
-#+end_src
-
-*** org-smart-capture
-
-Capture Gnus messages as tasks, with context.
-
-#+begin_src emacs-lisp
-(use-package org-smart-capture
-  :after org)
 #+end_src
 
 *** org-sticky-header
