@@ -41,7 +41,7 @@
 
 (setq use-package-verbose init-file-debug
       use-package-expand-minimally (not init-file-debug)
-      use-package-compute-statistics nil
+      use-package-compute-statistics t
       debug-on-error init-file-debug)
 #+end_src
 
@@ -2453,7 +2453,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package ghub
-  :defer t
+  :demand t
   :config
   (require 'auth-source-pass)
   (defvar my-ghub-token-cache nil)
@@ -3132,6 +3132,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package magit
+  :demand t
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :bind (:map magit-mode-map
@@ -3370,6 +3371,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package markdown-mode
+  :demand t
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
@@ -3392,6 +3394,7 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package markdown-preview-mode
   :after markdown-mode
+  :demand t
   :config
   (setq markdown-preview-stylesheets
         (list (concat "https://github.com/dmarcotte/github-markdown-preview/"
@@ -7584,7 +7587,8 @@ without white space and comments.
   (gnus-group-read-ephemeral-search-group
    gnus-summary-next-page)
   :preface
-  (setq gnus-home-directory "~/Messages/Gnus/")
+  (setq gnus-home-directory "~/Messages/Gnus/"
+        gnus-startup-file (expand-file-name ".newsrc" gnus-home-directory))
 
   (defun activate-gnus ()
     (unless (get-buffer "*Group*") (gnus-unplugged)))
@@ -8552,7 +8556,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-src-fontify-natively nil)
   (org-src-tab-acts-natively t)
   (org-src-window-setup 'current-window)
-  (org-startup-folded 'show2levels)
+  (org-startup-folded 'show3levels)
   (org-startup-with-inline-images t)
   (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
   (org-subject-transforms
@@ -8910,6 +8914,49 @@ This can be 0 for immediate, or a floating point value.")
       (while (re-search-forward "\n\n+" nil t)
         (replace-match "\n\n"))
       (buffer-string)))
+
+  (defun my-org-entire-properties-block ()
+    "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
+    (save-excursion
+      (org-back-to-heading)
+      (let ((entry-end (save-excursion
+                         (outline-next-heading)
+                         (point)))
+            beg end)
+        (when (re-search-forward ":PROPERTIES:" end t)
+          (setq beg (match-beginning 0)))
+        (when (re-search-forward ":END:\\s-*\n" end t)
+          (setq end (match-end 0)))
+        (cons beg end))))
+
+  (defun my-org-move-properties-drawer ()
+    (interactive)
+    (save-excursion
+      (org-back-to-heading)
+      (pcase (my-org-entire-properties-block)
+        (`(,beg . ,end)
+         (let ((entries-block (buffer-substring beg end)))
+           (delete-region beg end)
+           ;; Create a new properties block
+           (org-get-property-block nil 'force)
+           (pcase (my-org-entire-properties-block)
+             (`(,new-beg . ,new-end)
+              (goto-char new-beg)
+              (delete-region new-beg new-end)))
+           (insert entries-block)))
+        (_ nil))))
+
+  (defun my-org-fix-all-properties ()
+    (interactive)
+    (goto-char (point-min))
+    (while (re-search-forward ":PROPERTIES:" nil t)
+      (let* ((beg (match-beginning 0))
+             (end (and (re-search-forward ":END:\\s-*\n")
+                       (match-end 0))))
+        (goto-char beg)
+        (ignore-errors
+          (my-org-move-properties-drawer))
+        (goto-char end))))
   :config
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
@@ -9411,6 +9458,7 @@ context.
 #+begin_src emacs-lisp
 (use-package org-smart-capture
   :after org
+  :demand t
   :bind* ("M-m" . org-smart-capture)
   :custom
   (org-smart-capture-use-lastname t))
