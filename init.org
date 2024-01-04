@@ -3995,6 +3995,7 @@ append it to ENTRY."
          ("C-c m k" . kmacro-keymap)
          ("C-c m m" . emacs-toggle-size)
          ("C-c n u" . insert-user-timestamp)
+         ("C-c n n" . insert-user-timestamp)
          ("C-c q"   . fill-region)
          ("C-c s"   . replace-string)
          ("C-c u"   . rename-uniquely)
