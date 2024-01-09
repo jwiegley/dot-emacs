@@ -123,11 +123,15 @@
 
     (when body
       (cl-flet ((trim-string
-                 (str)
-                 (replace-regexp-in-string
-                  "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
+                  (str)
+                  (replace-regexp-in-string
+                   "\\(\\`[[:space:]\n]*\\|[[:space:]\n]*\\'\\)" "" str)))
         (save-excursion
-          (forward-line 1)
+          (goto-char (point-max))
+          (unless (bolp)
+            (forward-line 1))
+          (unless (bolp)
+            (insert ?\n))
           (insert body))))
 
     (org-set-property "Date"
