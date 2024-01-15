@@ -2721,6 +2721,27 @@ up before you execute another command."
   :after hl-line)
 #+end_src
 
+** hl-todo
+
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :demand t
+  :commands hl-todo-mode
+  :bind
+  (:map hl-todo-mode-map
+        ("C-c p" . hl-todo-previous)
+        ("C-c n" . hl-todo-next)
+        ("C-c o" . hl-todo-occur)
+        ("C-c i" . hl-todo-insert))
+  :custom
+  (hl-todo-keyword-faces
+   '(("TODO"   . "#FF0000")
+     ("FIXME"  . "#FF0000")
+     ("DEBUG"  . "#A020F0")))
+  :config
+  (global-hl-todo-mode))
+#+end_src
+
 ** COMMENT hydra
 
 #+begin_src emacs-lisp
@@ -3494,6 +3515,25 @@ up before you execute another command."
     (next-line 1)
     (transpose-lines 1)
     (previous-line 1)))
+#+end_src
+
+** move-text
+
+#+begin_src emacs-lisp
+(use-package move-text
+  :demand t
+  :preface
+  (defun indent-region-advice (&rest ignored)
+    (let ((deactivate deactivate-mark))
+      (if (region-active-p)
+          (indent-region (region-beginning) (region-end))
+        (indent-region (line-beginning-position) (line-end-position)))
+      (setq deactivate-mark deactivate)))
+  :config
+  (move-text-default-bindings)
+
+  (advice-add 'move-text-up :after 'indent-region-advice)
+  (advice-add 'move-text-down :after 'indent-region-advice))
 #+end_src
 
 ** mule
