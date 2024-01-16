@@ -1342,6 +1342,7 @@ diff-hl package.
   ;; jww (2023-05-13): This does not work on all Tramp hosts
   ;; (dired-listing-switches "--group-directories-first -lah")
   (dired-listing-switches "-lah")
+  (dired-mouse-drag-files t)
   (dired-no-confirm
    '(byte-compile chgrp chmod chown copy hardlink symlink touch))
   (dired-omit-mode nil t)
