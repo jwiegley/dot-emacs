@@ -9327,7 +9327,7 @@ The colors (which only work well for white backgrounds) are:
 
 To use this function, add it to `org-agenda-finalize-hook':
 
-  (add-hook 'org-finalize-agenda-hook 'org-agenda-add-overlays)"
+  (add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)"
     (let ((inhibit-read-only t)
           (buffer-invisibility-spec '(org-link)))
       (save-excursion
