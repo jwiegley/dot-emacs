@@ -287,7 +287,7 @@ unto itself.
   (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
   (delete-old-versions t)
   (directory-abbrev-alist
-   '(("\\`/org" . "/Users/johnw/doc/org")))
+   '(("\\`/org" . "~/org")))
   (directory-free-space-args "-kh")
   (large-file-warning-threshold nil)
   (save-abbrevs 'silently)
@@ -8479,9 +8479,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-adapt-indentation nil)
   (org-archive-location "TODO-archive::")
   (org-archive-save-context-info '(time category itags))
-  (org-attach-file-list-property "ATTACHED")
-  (org-attach-method 'mv)
-  (org-attach-store-link-p 'file)
   (org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
   (org-beamer-frame-default-options "fragile")
   ;; C-c C-r (org-reveal) will display where the point is if it is buried in
@@ -8503,9 +8500,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
   (org-deadline-warning-days 14)
-  (org-default-notes-file "~/doc/org/todo.org")
+  (org-default-notes-file "~/org/todo.org")
   (org-depend-tag-blocked nil)
-  (org-directory "~/doc/org/")
+  (org-directory "~/org/")
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
   (org-edit-src-content-indentation 0)
@@ -8552,7 +8549,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-gcal-dir (user-data "org-gcal/"))
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
-  (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
+  (org-icalendar-combined-agenda-file "~/org/org.ics")
   (org-icalendar-timezone "America/Los_Angeles")
   (org-image-actual-width 800)
   (org-imenu-depth 4)
@@ -8600,7 +8597,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-refile-targets
    '((org-agenda-files :todo . "PROJECT")
      (org-agenda-files :todo . "CATEGORY")
-     ("~/doc/org/bookmarks.org" :level . 1)))
+     ("~/org/bookmarks.org" :level . 1)))
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -9105,7 +9102,7 @@ This can be 0 for immediate, or a floating point value.")
         '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
-        '("~/doc/org/OSS.org"))))
+        '("~/org/OSS.org"))))
      ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-overriding-header "Unscheduled tasks: ")
        (org-agenda-skip-function
@@ -9114,7 +9111,7 @@ This can be 0 for immediate, or a floating point value.")
         '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
-        '("~/doc/org/todo.org"))))
+        '("~/org/todo.org"))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-overriding-header "Deferred tasks:")
        (org-agenda-sorting-strategy
@@ -9133,7 +9130,7 @@ This can be 0 for immediate, or a floating point value.")
      ("w" "Unscheduled work tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
       ((org-agenda-overriding-header "Unscheduled work tasks")
        (org-agenda-files
-        '("~/kadena/docs/kadena.org"))
+        '("~/org/areas/kadena/kadena.org"))
        (org-agenda-sorting-strategy
         '(category-up user-defined-up))
        (org-agenda-skip-function
@@ -9166,10 +9163,10 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
-   '("~/doc/org/todo.org"
-     "~/doc/org/habits.org"
-     "~/kadena/docs/kadena.org"
-     "~/doc/org/OSS.org"
+   '("~/org/todo.org"
+     "~/org/habits.org"
+     "~/org/areas/kadena/kadena.org"
+     "~/org/OSS.org"
      "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
@@ -9372,7 +9369,7 @@ To use this function, add it to `org-agenda-finalize-hook':
               t "[0-9].*\\.txt\\'" nil)))
           url)
       (when notes
-        (with-current-buffer (find-file-noselect "~/doc/org/todo.org")
+        (with-current-buffer (find-file-noselect "~/org/todo.org")
           (save-excursion
             (goto-char (point-min))
             (re-search-forward "^\\* CATEGORY Inbox$")
@@ -9476,22 +9473,22 @@ fold drawers."
   :custom
   (org-capture-templates
    '(("a" "Add Task" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
+      (file+headline "~/org/todo.org" "Inbox")
       "* TODO %?" :prepend t)
      ("n" "Note" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
+      (file+headline "~/org/todo.org" "Inbox")
       "* NOTE %?" :prepend t)
      ("c" "Calendar" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
+      (file+headline "~/org/todo.org" "Inbox")
       "* APPT %?" :prepend t)
      ("l" "Link" entry
-      (file+headline "~/doc/org/todo.org" "Inbox")
+      (file+headline "~/org/todo.org" "Inbox")
       "* LINK %:description%?
 :PROPERTIES:
 :URL:      %:link
 :END:" :prepend t)
      ("s" "Slack" entry
-      (file+headline "~/kadena/docs/kadena.org" "Pending")
+      (file+headline "~/org/areas/kadena/kadena.org" "Pending")
       "* TODO %?
 %(my-insert-copied-slack \"%c\")" :prepend t)))
   :preface
@@ -9556,6 +9553,11 @@ context.
 #+begin_src emacs-lisp
 (use-package org-attach
   :after org
+  :custom
+  (org-attach-file-list-property "ATTACHED")
+  (org-attach-id-dir "~/org/data")
+  (org-attach-method 'mv)
+  (org-attach-store-link-p 'file)
   :init
   (defun my-org-attach-visit-headline-from-dired ()
     "Go to the headline corresponding to this org-attach directory."
@@ -9637,7 +9639,7 @@ context.
 (use-package org-contacts
   :after org
   :custom
-  (org-contacts-files '("~/doc/org/people.org")))
+  (org-contacts-files '("~/org/people.org")))
 #+end_src
 
 *** org-crypt
@@ -9822,6 +9824,7 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-roam
+  :demand t
   :after org
   :bind (("C-c n L" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
@@ -9837,7 +9840,7 @@ context.
          :map org-mode-map
          ("C-M-i" . completion-at-point))
   :custom
-  (org-roam-directory "~/doc/org/roam/")
+  (org-roam-directory "~/org")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain "%?"
@@ -9879,7 +9882,18 @@ context.
       :empty-lines-before 1
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
-  (org-roam-file-exclude-regexp '("data/" "archive/" "\\<todo\\.org" "\\<people\\.org" "\\<index\\.org" "\\<OSS\\.org" "\\<habits\\.org"))
+  (org-roam-file-exclude-regexp
+   '("\\`\\.DS_Store"
+     "\\`\\.git"
+     "\\`\\<OSS\\.org"
+     "\\`archive/"
+     "\\`bookmarks\\.org"
+     "\\`data/"
+     "\\`\\<habits\\.org"
+     "\\`\\<index\\.org"
+     "\\`\\<people\\.org"
+     "\\`site/"
+     "\\`\\<todo\\.org"))
   :defines
   (org-roam-v2-ack)
   :functions
@@ -9988,10 +10002,61 @@ context.
       (mapc #'(lambda (n) (insert (car n) "\n"))
             (org-roam-db-query [:select :distinct [tag] :from tags ]))
       (pop-to-buffer (current-buffer))))
+
+  ;; https://magnus.therning.org/2021-03-14-keeping-todo-items-in-org-roam.html
+  (defun roam-extra:todo-p ()
+    "Return non-nil if current buffer has any TODO entry.
+
+TODO entries marked as done are ignored, meaning the this
+function returns nil if current buffer contains only completed
+tasks."
+    (org-element-map
+        (org-element-parse-buffer 'headline)
+        'headline
+      (lambda (h)
+        (eq (org-element-property :todo-type h)
+            'todo))
+      nil 'first-match))
+
+  (defun roam-extra:update-todo-tag ()
+    "Update TODO tag in the current buffer."
+    (when (and (not (active-minibuffer-window))
+               (org-roam--org-file-p buffer-file-name))
+      (let* ((file (buffer-file-name (buffer-base-buffer)))
+             (all-tags (org-roam--extract-tags file))
+             (prop-tags (org-roam--extract-tags-prop file))
+             (tags prop-tags))
+        (if (roam-extra:todo-p)
+            (setq tags (seq-uniq (cons "todo" tags)))
+          (setq tags (remove "todo" tags)))
+        (unless (equal prop-tags tags)
+          (org-roam--set-global-prop
+           "roam_tags"
+           (combine-and-quote-strings tags))))))
+
+  (defun roam-extra:todo-files ()
+    "Return a list of note files containing todo tag."
+    (seq-map
+     #'car
+     (org-roam-db-query
+      [:select [nodes:file]
+               :from tags
+               :left-join nodes
+               :on (= tags:node-id nodes:id)
+               :where (like tag (quote "%\"todo\"%"))])))
+
+  (defun roam-extra:update-todo-files (&rest _)
+    "Update the value of `org-agenda-files'."
+    (setq org-agenda-files (roam-extra:todo-files)))
   :init
   (setq org-roam-v2-ack t)
   :config
-  (org-roam-db-autosync-enable))
+  (run-with-idle-timer 60 t 'org-roam-db-sync)
+
+  (add-hook 'org-roam-file-setup-hook #'roam-extra:update-todo-tag)
+  (add-hook 'before-save-hook #'roam-extra:update-todo-tag)
+
+  (advice-add 'org-agenda :before #'roam-extra:update-todo-files))
 #+end_src
 
 **** COMMENT consult-org-roam
@@ -10041,7 +10106,7 @@ context.
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
-  (xeft-directory "~/doc/org/roam/")
+  (xeft-directory "~/org/roam/")
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-directory-filter 'my-xeft-directory-filter)
   (xeft-recursive t)
@@ -10102,12 +10167,15 @@ text belongs to.
   :custom
   (org-super-agenda-groups
    '((:name "Important" :priority "A")
+     (:name "Overdue" :deadline past)
+     (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Calls" :tag "Call")
-     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
-     (:name "Optional" :priority "C" :order 9)
      (:name "Work" :file-path "kadena")
      (:name "Tasks" :not (:priority "A" :priority "C"))
-     (:name "Errands" :tag "Errand")))
+     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
+     (:name "Optional" :priority "C" :order 9)
+     (:name "Errands" :tag "Errand")
+     (:name "Due Soon" :deadline future)))
   (org-super-agenda-header-separator "")
   (org-super-agenda-hide-empty-groups t)
   :config
