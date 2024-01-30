@@ -1022,31 +1022,31 @@ vertical position can be altered:
    chatgpt-shell-cmd-map
    :prefix "C-x C"
    ("C" . chatgpt-shell)
-   ("u"  . chatgpt-shell-generate-unit-test)
-   ("e"  . chatgpt-shell-explain-code)
-   ("i"  . chatgpt-shell-interrupt)
-   ("p"  . chatgpt-shell-proofread-region)
-   ("S"  . chatgpt-shell-send-region)
-   ("d"  . chatgpt-shell-describe-code)
-   ("r"  . chatgpt-shell-refactor-code)
-   ("g"  . chatgpt-shell-write-git-commit)
-   ("s"  . chatgpt-shell-send-and-review-region)
-   ("R"  . chatgpt-shell-restore-session-from-transcript))
+   ("u" . chatgpt-shell-generate-unit-test)
+   ("e" . chatgpt-shell-explain-code)
+   ("i" . chatgpt-shell-interrupt)
+   ("p" . chatgpt-shell-proofread-region)
+   ("S" . chatgpt-shell-send-region)
+   ("d" . chatgpt-shell-describe-code)
+   ("r" . chatgpt-shell-refactor-code)
+   ("g" . chatgpt-shell-write-git-commit)
+   ("s" . chatgpt-shell-send-and-review-region)
+   ("R" . chatgpt-shell-restore-session-from-transcript))
   :custom
   (chatgpt-shell-model-version 6)       ; gpt-4-1106-preview
   (chatgpt-shell-openai-key
    (lambda ()
      (auth-source-pass-get 'secret "chat.openai.com")))
-  (chatgpt-shell-system-prompt 3)
+  (chatgpt-shell-system-prompt 0)
   (chatgpt-shell-system-prompts
-   '(("English" .
+   '(("General" .
+      "You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels.")
+     ("English" .
       "I want you to act as an English translator, spelling corrector and improver. I will speak to you in any language and you will detect the language, translate it and answer in the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
      ("Spanish" .
       "I want you to act as an Latin-American Spanish translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Latin-American Spanish. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Latin-American  Spanish words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
      ("Persian" .
       "I want you to act as an Farsi translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Farsi. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Farsi words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
-     ("General" .
-      "You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels.")
      ("Programming" .
       "The user is a programmer with very limited time. You treat their time as precious. You do not repeat obvious things, including their query. You are as concise as possible in responses. You never apologize for confusions because it would waste their time. You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels. Don't explain code snippets. Whenever you output updated code for the user, only show diffs, instead of entire snippets.")
      ("Positive Programming" .
@@ -2449,6 +2449,14 @@ up before you execute another command."
   :load-path "lisp/emacs-format-all-the-code"
   :commands (format-all-buffer
              format-all-mode)
+  :hook
+  (prog-mode . enable-format-all-if-indicated)
+  :preface
+  (defun enable-format-all-if-indicated ()
+    (interactive)
+    (when (locate-dominating-file default-directory ".format")
+      (format-all-mode 1)
+      (whitespace-mode 1)))
   :config
   (defun format-all--resolve-system (choices)
     "Get first choice matching `format-all--system-type' from CHOICES."
@@ -3366,26 +3374,12 @@ up before you execute another command."
   :after magit)
 #+end_src
 
-*** COMMENT forge
+*** forge
 
 #+begin_src emacs-lisp
 (use-package forge
   :after magit
   :custom
-  (forge-alist
-   '(("github.com" "api.github.com" "github.com" forge-github-repository)
-     ("gitlab.com" "gitlab.com/api/v4" "gitlab.com" forge-gitlab-repository)
-     ("salsa.debian.org" "salsa.debian.org/api/v4" "salsa.debian.org" forge-gitlab-repository)
-     ("framagit.org" "framagit.org/api/v4" "framagit.org" forge-gitlab-repository)
-     ("gitlab.gnome.org" "gitlab.gnome.org/api/v4" "gitlab.gnome.org" forge-gitlab-repository)
-     ("codeberg.org" "codeberg.org/api/v1" "codeberg.org" forge-gitea-repository)
-     ("code.orgmode.org" "code.orgmode.org/api/v1" "code.orgmode.org" forge-gogs-repository)
-     ("bitbucket.org" "api.bitbucket.org/2.0" "bitbucket.org" forge-bitbucket-repository)
-     ("git.savannah.gnu.org" nil "git.savannah.gnu.org" forge-cgit**-repository)
-     ("git.kernel.org" nil "git.kernel.org" forge-cgit-repository)
-     ("repo.or.cz" nil "repo.or.cz" forge-repoorcz-repository)
-     ("git.suckless.org" nil "git.suckless.org" forge-stagit-repository)
-     ("git.sr.ht" nil "git.sr.ht" forge-srht-repository)))
   (forge-database-file "~/.config/forge/database.sqlite")
   (forge-owned-accounts '(("jwiegley")))
   :preface
@@ -3510,12 +3504,12 @@ up before you execute another command."
   (defun my/move-line-up ()
     (interactive)
     (transpose-lines 1)
-    (previous-line 2))
+    (forward-line -2))
   (defun my/move-line-down ()
     (interactive)
-    (next-line 1)
+    (forward-line 1)
     (transpose-lines 1)
-    (previous-line 1)))
+    (forward-line -1)))
 #+end_src
 
 ** move-text
@@ -6460,6 +6454,7 @@ without white space and comments.
                                  "server"
                                  ;; (concat "--database=" default-hoo)
                                  "--local" "--port=8687"))))
+        (sit-for 1)
         (message "Starting local Hoogle server on port 8687...done")))
     (browse-url
      (format "http://127.0.0.1:8687/?hoogle=%s"
@@ -6524,7 +6519,7 @@ without white space and comments.
     (when (executable-find "ormolu")
       (require 'format-all)
       (define-format-all-formatter
-        ormolu
+          ormolu
         (:executable "ormolu")
         (:install "stack install ormolu")
         (:languages "Haskell" "Literate Haskell")
@@ -9008,7 +9003,7 @@ This can be 0 for immediate, or a floating point value.")
   (defun my-org-fix-all-properties ()
     (interactive)
     (goto-char (point-min))
-    (while (re-search-forward ":PROPERTIES:" nil t)
+    (while (search-forward ":PROPERTIES:" nil t)
       (let* ((beg (match-beginning 0))
              (end (and (re-search-forward ":END:\\s-*\n")
                        (match-end 0))))
@@ -10099,7 +10094,7 @@ text belongs to.
   :commands org-sticky-header-mode)
 #+end_src
 
-*** COMMENT org-super-agenda
+*** org-super-agenda
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
@@ -10140,14 +10135,14 @@ text belongs to.
         (insert link)))))
 #+end_src
 
-*** COMMENT orgit
+*** orgit
 
 #+begin_src emacs-lisp
 (use-package orgit
   :after org)
 #+end_src
 
-*** COMMENT orgit-forge
+*** orgit-forge
 
 #+begin_src emacs-lisp
 (use-package orgit-forge

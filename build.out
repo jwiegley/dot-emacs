@@ -1,4 +1,0 @@
-init.el:1988:4: Warning: the function ‘erc-track-mode’ might not be defined at runtime.
-init.el:1987:4: Warning: the function ‘erc-track-minor-mode’ might not be defined at runtime.
-init.el: Warning: the function ‘erc-list-match’ might not be defined at runtime.
-init.el: Warning: the function ‘erc-send-input’ might not be defined at runtime.
