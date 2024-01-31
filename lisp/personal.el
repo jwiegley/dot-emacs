@@ -359,4 +359,14 @@
                  (insert-buffer temp-buf))
                (goto-char here))))))))
 
+(defun sort-on (seq predicate accessor)
+  "Sort by comparing results of ACCESSOR applied to each element.
+This function has the performance advantage of evaluating
+ACCESSOR only once for each element in the input list. This is
+called the \"decorate-sort-undecorate\" paradigm, or Schwartzian
+transform."
+  (mapcar #'car
+          (sort (mapcar #'(lambda (x) (cons x (funcall accessor x))) seq)
+                #'(lambda (x y) (funcall predicate (cdr x) (cdr y))))))
+
 (provide 'personal)
