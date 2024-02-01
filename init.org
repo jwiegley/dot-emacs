@@ -8592,7 +8592,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-refile-targets
    '((org-agenda-files :todo . "PROJECT")
      (org-agenda-files :todo . "CATEGORY")
-     ("~/org/bookmarks.org" :level . 1)))
+     ("~/org/resource/bookmarks.org" :level . 1)))
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -8626,10 +8626,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)"
                "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
                "|" "DONE(d@)" "CANCELED(x@)")
-     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)" "|" "DONE(d@)" "CANCELED(x@)")
-     (sequence "CATEGORY" "|")
-     (sequence "|" "NOTE(n)" "LINK(l)")
-     (sequence "APPT(a)" "|" "DONE(d@)" "CANCELED(x@)")))
+     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
+               "|" "DONE(d@)" "CANCELED(x@)")
+     (sequence "CATEGORY"
+               "|")
+     (sequence "|" "NOTE(n)" "DECISION" "LINK(l)")
+     (sequence "APPT(a)"
+               "|" "DONE(d@)" "CANCELED(x@)")))
   (org-todo-keyword-faces
    '(("TODO" :foreground "medium blue" :weight bold)
      ("EPIC" :foreground "deep sky blue" :weight bold)
@@ -8637,6 +8640,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("RECUR" :foreground "cornflowerblue" :weight bold)
      ("APPT" :foreground "medium blue" :weight bold)
      ("NOTE" :foreground "brown" :weight bold)
+     ("DECISION" :foreground "brown" :weight bold)
      ("LINK" :foreground "tomato" :weight bold)
      ("STARTED" :foreground "dark orange" :weight bold)
      ("WAITING" :foreground "red" :weight bold)
@@ -8648,7 +8652,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
-  (org-use-property-inheritance '("AREA"))
   (org-use-speed-commands t)
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance nil)
@@ -9059,102 +9062,78 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-custom-commands
    '(("A" "Priority #A tasks" agenda ""
       ((org-agenda-ndays 1)
-       (org-agenda-overriding-header "Today's priority #A tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\=.*\\[#A\\]"))))
      ("b" "Priority #A and #B tasks" agenda ""
       ((org-agenda-ndays 1)
-       (org-agenda-overriding-header "Today's priority #A and #B tasks: ")
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
-     ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2"
-      ((org-agenda-overriding-header "Inbox")))
-     ("r" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2"
-      ((org-agenda-overriding-header "Inbox")))
-     ("W" "Waiting/delegated tasks" tags "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
-      ((org-agenda-overriding-header "Waiting/delegated tasks:")
-       (org-agenda-skip-function
+     ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
+     ("r" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
+     ("W" "Waiting/delegated tasks" tags
+      "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
+      ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled))
        (org-agenda-sorting-strategy
         '(todo-state-up priority-down category-up))))
-     ("D" "Deadlined tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}"
-      ((org-agenda-overriding-header "Deadlined tasks: ")
-       (org-agenda-skip-function
+     ("D" "Deadlined tasks" tags
+      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}"
+      ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notdeadline))
-       (org-agenda-sorting-strategy
-        '(category-up))))
-     ("S" "Scheduled tasks" tags "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
-      ((org-agenda-overriding-header "Scheduled tasks: ")
-       (org-agenda-skip-function
+       (org-agenda-sorting-strategy '(category-up))))
+     ("S" "Scheduled tasks" tags
+      "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notscheduled))
-       (org-agenda-sorting-strategy
-        '(category-up))))
-     ("o" "Unscheduled open source tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
-      ((org-agenda-overriding-header "Unscheduled Open Source tasks: ")
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp "\\* \\(DEFERRED\\|SOMEDAY\\)"))
-       (org-agenda-sorting-strategy
-        '(category-up))
+       (org-agenda-sorting-strategy '(category-up))))
+     ("o" "Unscheduled open source tasks" tags
+      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
+                                   "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+       (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         '("~/org/area/OSS.org"))))
-     ("u" "Unscheduled tasks" tags "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
-      ((org-agenda-overriding-header "Unscheduled tasks: ")
-       (org-agenda-skip-function
+     ("u" "Unscheduled tasks" tags
+      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
-       (org-agenda-sorting-strategy
-        '(user-defined-up))
+       (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files
-        '("~/org/area/todo.org"))))
+       (org-agenda-files '("~/org/area/todo.org"))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
-      ((org-agenda-overriding-header "Deferred tasks:")
-       (org-agenda-sorting-strategy
-        '(user-defined-up))
+      ((org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
-      ((org-agenda-overriding-header "Someday tasks:")
-       (org-agenda-sorting-strategy
-        '(user-defined-up))
+      ((org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("I" "Impactful tasks" tags "Impact&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
-      ((org-agenda-overriding-header "Impactful tasks:")
-       (org-agenda-sorting-strategy
+     ("I" "Impactful tasks" tags
+      "Impact&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-sorting-strategy
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work tasks" tags "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
-      ((org-agenda-overriding-header "Unscheduled work tasks")
-       (org-agenda-files
-        '("~/org/area/kadena/kadena.org"))
-       (org-agenda-sorting-strategy
-        '(category-up user-defined-up))
+     ("w" "Unscheduled work tasks" tags
+      "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+      ((org-agenda-files '("~/org/area/kadena/kadena.org"))
+       (org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("c" "Appointment Calendar" agenda ""
-      ((org-agenda-overriding-header "Appointment Calendar")
-       (org-agenda-sorting-strategy
-        '(time-up))
+      ((org-agenda-sorting-strategy '(time-up))
        (org-agenda-span 14)
        (org-agenda-ndays 14)
-       (org-agenda-regexp-filter-preset
-        '("+APPT"))))
-     ("h" "Current Hotlist" alltodo ""
-      ((org-agenda-overriding-header "Current Hotlist")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
-     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "Hot Projects")))
-     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "Non-Hot Projects")))
+       (org-agenda-regexp-filter-preset '("+APPT"))))
+     ("P" "All Projects" tags "TODO=\"PROJECT\"")
      ("n" "Project Next Actions" alltodo ""
-      ((org-agenda-overriding-header "Project Next Actions")
-       (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
-     ("P" "All Projects" tags "TODO=\"PROJECT\""
-      ((org-agenda-overriding-header "All Projects")))
-     ("N" "Notes" tags "TODO=\"NOTE\""
-      ((org-agenda-overriding-header "Notes")))
-     ("L" "Links" tags "TODO=\"LINK\""
-      ((org-agenda-overriding-header "Links")))))
+      ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
+     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\"")
+     ("h" "Current Hotlist" alltodo ""
+      ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
+     ("N" "Notes" tags "TODO=\"NOTE\"")
+     ("L" "Links" tags "TODO=\"LINK\"")))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
@@ -9896,11 +9875,15 @@ context.
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
   (org-roam-file-exclude-regexp
-   '("\\`\\."
+   '(
+     "\\`\\."
      "/\\."
      "\\`archive/"
      "\\`data/"
-     "\\`site/"))
+     "\\`site/"
+     "\\`area/bahai/assembly/20"
+     "\\`area/bahai/assembly/unit"
+     ))
   (org-roam-revise-locations
    '(("bahai" . "resource/bahai")
      ("quote" . "resource/quote")
@@ -10000,7 +9983,7 @@ context.
                   (my-org-created-time (point-max))
                 (write-region nil nil
                               (expand-file-name
-                               (format "%04d%02d%02d%02d%02d-%s.org"
+                               (format "inbox/%04d%02d%02d%02d%02d-%s.org"
                                        year mon day hour min
                                        (my-org-simplify-title title))
                                org-roam-directory)
@@ -10227,7 +10210,7 @@ tasks."
      "area/OSS.org"
      "area/kadena/kadena.org"
      "area/kadena/archive.org"
-     "area/assembly/assembly.org"))
+     "area/bahai/assembly/assembly.org"))
   :custom-face
   (xeft-excerpt-body
    ((t (:inherit default :foreground "grey80"))))
