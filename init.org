@@ -9834,6 +9834,10 @@ context.
      ("N" "Inline Note" entry "* NOTE %?"
       :target (file+olp "~/org/area/todo.org" ("Inbox"))
       :prepend t)
+     ("i" "Idea" entry "* %?"
+      :target (file "~/org/resource/ideas.org")
+      :empty-lines 1
+      :prepend t)
      ("a" "Task" entry "* TODO %?"
       :target (file+olp "~/org/area/todo.org" ("Inbox"))
       :prepend t)
