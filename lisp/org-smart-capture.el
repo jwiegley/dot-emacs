@@ -152,55 +152,55 @@
       (message "Captured: (%s) %s" fname subject))))
 
 ;;;###autoload
-(defun org-smart-capture (&optional arg)
+(defun org-smart-capture (function &optional arg)
   (interactive "P")
-  (if (not (memq major-mode '(gnus-summary-mode gnus-article-mode)))
-      (call-interactively #'org-capture)
+  (cond ((eq major-mode 'gnus-article-mode)
+         (org-smart-capture-article)
+         (with-current-buffer gnus-summary-buffer
+           (gnus-summary-mark-as-read
+            nil (unless (string= (buffer-name) "*Summary INBOX*")
+                  gnus-dormant-mark))))
 
-    (cond ((eq major-mode 'gnus-article-mode)
-           (org-smart-capture-article)
-           (with-current-buffer gnus-summary-buffer
-             (gnus-summary-mark-as-read
-              nil (unless (string= (buffer-name) "*Summary INBOX*")
-                    gnus-dormant-mark))))
+        ((eq major-mode 'gnus-summary-mode)
+         (save-excursion
+           (let* ((current-article (gnus-summary-article-number))
+                  (articles (gnus-summary-work-articles nil))
+                  (multiple (> (length articles) 1)))
+             (dolist (article articles)
+               (gnus-summary-remove-process-mark article)
+               (gnus-summary-mark-as-read
+                article (unless (string= (buffer-name gnus-summary-buffer)
+                                         "*Summary INBOX*")
+                          gnus-dormant-mark))
+               (unless arg
+                 (save-excursion
+                   (org-smart-capture-article article multiple))))
 
-          ((eq major-mode 'gnus-summary-mode)
-           (save-excursion
-             (let* ((current-article (gnus-summary-article-number))
-                    (articles (gnus-summary-work-articles nil))
-                    (multiple (> (length articles) 1)))
-               (dolist (article articles)
-                 (gnus-summary-remove-process-mark article)
-                 (gnus-summary-mark-as-read
-                  article (unless (string= (buffer-name gnus-summary-buffer)
-                                           "*Summary INBOX*")
-                            gnus-dormant-mark))
-                 (unless arg
-                   (save-excursion
-                     (org-smart-capture-article article multiple))))
+             (when arg
+               (let ((index 1))
+                 (org-smart-capture-article current-article)
 
-               (when arg
-                 (let ((index 1))
-                   (org-smart-capture-article current-article)
+                 (dolist (article articles)
+                   (unless (eq article current-article)
+                     (let* ((ghead (gnus-data-header
+                                    (car (gnus-data-find-list article))))
+                            (message-id (mail-header-message-id ghead))
+                            (raw-subject (mail-header-subject ghead))
+                            (subject (and raw-subject
+                                          (rfc2047-decode-string raw-subject))))
 
-                   (dolist (article articles)
-                     (unless (eq article current-article)
-                       (let* ((ghead (gnus-data-header
-                                      (car (gnus-data-find-list article))))
-                              (message-id (mail-header-message-id ghead))
-                              (raw-subject (mail-header-subject ghead))
-                              (subject (and raw-subject
-                                            (rfc2047-decode-string raw-subject))))
+                       (org-set-property
+                        (format "Message%d" (setq index (1+ index)))
+                        (format "[[message://%s][%s]]"
+                                (substring message-id 1 -1)
+                                (subst-char-in-string
+                                 ?\[ ?\{ (subst-char-in-string
+                                          ?\] ?\} subject)))))))))))
+         (gnus-summary-position-point)
+         (gnus-set-mode-line 'summary))
 
-                         (org-set-property
-                          (format "Message%d" (setq index (1+ index)))
-                          (format "[[message://%s][%s]]"
-                                  (substring message-id 1 -1)
-                                  (subst-char-in-string
-                                   ?\[ ?\{ (subst-char-in-string
-                                            ?\] ?\} subject)))))))))))
-           (gnus-summary-position-point)
-           (gnus-set-mode-line 'summary)))))
+        (t
+         (call-interactively function))))
 
 (provide 'org-smart-capture)
 

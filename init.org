@@ -9190,11 +9190,12 @@ This can be 0 for immediate, or a floating point value.")
      (search category-keep)))
   (org-agenda-span 'day)
   (org-agenda-start-on-weekday nil)
+  (org-agenda-start-with-log-mode t)
   (org-agenda-tags-column -100)
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-text-search-extra-files '(agenda-archives))
   (org-agenda-todo-ignore-scheduled 'past)
-  (org-agenda-use-time-grid nil)
+  (org-agenda-use-time-grid t)
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
   :custom-face
   (org-agenda-clocking ((t (:background "red2"))))
@@ -9505,9 +9506,22 @@ context.
 (use-package org-smart-capture
   :after org
   :demand t
-  :bind* ("M-m" . org-smart-capture)
+  :bind* ("M-m" . (lambda ()
+                    (interactive)
+                    (org-smart-capture #'org-roam-create-new)))
   :custom
-  (org-smart-capture-use-lastname t))
+  (org-smart-capture-use-lastname t)
+  :preface
+  (cl-defun org-roam-create-new
+      (&optional goto keys &key filter-fn templates info)
+    (interactive "P")
+    (org-roam-capture-
+     :goto goto
+     :info info
+     :keys keys
+     :templates templates
+     :node (org-roam-node-create :title "Unknown")
+     :props '(:immediate-finish nil))))
 #+end_src
 
 *** org-checklist
@@ -9826,7 +9840,6 @@ context.
          ("C-c n J" . add-journal-entry)
          ("C-c n L" . org-roam-buffer-toggle)
          ("C-c n T" . org-roam-revise-title)
-         ("C-c n c" . org-roam-create-new)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)
          ("C-c n p" . my/org-roam-find-project)
@@ -9841,25 +9854,33 @@ context.
   (org-roam-directory "~/org")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
-   '(("d" "default" plain "%?"
+   '(("n" "Note" plain "%?"
       :target (file+head "inbox/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+filetags: :roam:\n#+title: ${title}\n")
+                         ":PROPERTIES:
+:CREATED:  %U
+:END:
+,#+filetags: :roam:\n#+title: ${title}\n")
+      :jump-to-captured t
       :empty-lines-before 1
       :unnarrowed t)
-     ("u" "unnamed" plain "%?"
-      :target (file+head "inbox/%<%Y%m%d%H%M%S%N>.org"
-                         "#+filetags: :roam:\n#+title: Unknown\n")
-      :empty-lines-before 1
-      :unnarrowed t)
-     ("q" "quote" plain "%c\n\n─ %?"
+     ("N" "Inline Note" entry "* NOTE %?"
+      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :prepend t)
+     ("a" "Task" entry "* TODO %?"
+      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :prepend t)
+     ("c" "Calendar" entry "* APPT %?"
+      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :prepend t)
+     ("q" "Quote" plain "%c\n\n─ %?"
       :target (file+head "resource/quote/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :quote:\n#+title: ${title}\n")
       :empty-lines-before 1)
-     ("t" "thoughts" plain "%?"
+     ("t" "Thought" plain "%?"
       :target (file+head "resource/thoughts/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :thoughts:\n#+title: ${title}\n")
       :empty-lines-before 1)
-     ("k" "kadena" plain "%?"
+     ("k" "Kadena" plain "%?"
       :target (file+head "area/kadena/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :contract=kadena:work:\n#+title: ${title}\n")
       :empty-lines-before 1
@@ -9908,7 +9929,8 @@ context.
    org-roam-node-file)
   :preface
   (defun my-org-current-entry-and-skip ()
-    (let* ((title (subst-char-in-string ?/ ?: (car (last (org-get-outline-path t))) t))
+    (let* ((title (subst-char-in-string
+                   ?/ ?: (car (last (org-get-outline-path t))) t))
            (beg (point)))
       (call-interactively #'org-forward-heading-same-level)
       (list beg (if (= beg (point))
@@ -9918,7 +9940,10 @@ context.
 
   (defun my-org-created-time (end)
     (save-excursion
-      (re-search-forward ":CREATED: +\\[\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)-\\([0-9]\\{2\\}\\) ... \\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\)\\]" end)
+      (re-search-forward
+       (concat ":CREATED: +\\[\\([0-9]\\{4\\}\\)-\\([0-9]\\{2\\}\\)"
+               "-\\([0-9]\\{2\\}\\)"
+               " ... \\([0-9]\\{2\\}\\):\\([0-9]\\{2\\}\\)\\]") end)
       (list (string-to-number (match-string 1))
             (string-to-number (match-string 2))
             (string-to-number (match-string 3))
@@ -9961,7 +9986,8 @@ context.
               (insert "#+filetags: :org:\n#+title: ")
               (goto-char (line-end-position))
               (insert ?\n)
-              (cl-destructuring-bind (beg end) (my-org-property-drawer (point-max))
+              (cl-destructuring-bind (beg end)
+                  (my-org-property-drawer (point-max))
                 (let ((properties (buffer-substring beg end)))
                   (delete-region beg end)
                   (goto-char (point-min))
@@ -9973,10 +9999,11 @@ context.
               (cl-destructuring-bind (year mon day hour min)
                   (my-org-created-time (point-max))
                 (write-region nil nil
-                              (expand-file-name (format "%04d%02d%02d%02d%02d-%s.org"
-                                                        year mon day hour min
-                                                        (my-org-simplify-title title))
-                                                org-roam-directory)
+                              (expand-file-name
+                               (format "%04d%02d%02d%02d%02d-%s.org"
+                                       year mon day hour min
+                                       (my-org-simplify-title title))
+                               org-roam-directory)
                               nil nil nil t))))
           (delete-region beg end)))))
 
@@ -9987,18 +10014,6 @@ context.
            (list (append (car org-roam-capture-templates)
                          '(:immediate-finish t)))))
       (apply #'org-roam-node-insert args)))
-
-  (cl-defun org-roam-create-new (&optional goto keys &key filter-fn templates info)
-    (interactive "P")
-    (let ((node (org-roam-node-create :title "Unknown")))
-      (org-roam-capture- :goto goto
-                         :info info
-                         :keys keys
-                         :templates templates
-                         :node node
-                         :props '(
-                                  :immediate-finish nil
-                                  :jump-to-captured t))))
 
   (defcustom org-roam-revise-locations nil
     "A mapping of tags to relative folders in org-roam-directory.
