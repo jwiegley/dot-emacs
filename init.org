@@ -9504,24 +9504,13 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-smart-capture
-  :after org
+  :after (org org-roam)
   :demand t
   :bind* ("M-m" . (lambda ()
                     (interactive)
                     (org-smart-capture #'org-roam-create-new)))
   :custom
-  (org-smart-capture-use-lastname t)
-  :preface
-  (cl-defun org-roam-create-new
-      (&optional goto keys &key filter-fn templates info)
-    (interactive "P")
-    (org-roam-capture-
-     :goto goto
-     :info info
-     :keys keys
-     :templates templates
-     :node (org-roam-node-create :title "Unknown")
-     :props '(:immediate-finish nil))))
+  (org-smart-capture-use-lastname t))
 #+end_src
 
 *** org-checklist
@@ -9960,6 +9949,17 @@ context.
       (re-search-forward org-property-drawer-re end)
       (list (match-beginning 0) (1+ (match-end 0)))))
 
+  (cl-defun org-roam-create-new
+      (&optional goto keys &key filter-fn templates info)
+    (interactive "P")
+    (org-roam-capture-
+     :goto goto
+     :info info
+     :keys keys
+     :templates templates
+     :node (org-roam-node-create :title "Unknown")
+     :props '(:immediate-finish nil)))
+
   (defun my-org-simplify-title (title)
     (replace-regexp-in-string
      "[^A-Za-z0-9_:]" "#"
@@ -10043,7 +10043,8 @@ The first tag to match is used."
              (funcall (-flip #'split-string) ":")
              (delete "")))
           (org-roam-capture--node (org-roam-node-at-point)))
-      (let* ((new-name-nondirectory
+      (let* (new-name
+             (new-name-nondirectory
               (thread-first
                 org-roam-extract-new-file-path
                 (org-roam-capture--fill-template)
@@ -10058,13 +10059,11 @@ The first tag to match is used."
                 (new-slug (and (string-match "^[0-9]\\{14\\}-\\(.+\\)"
                                              new-name-nondirectory)
                                (match-string 1 new-name-nondirectory))))
-            (if (and old-stamp new-slug)
-                (setq new-name
-                      (expand-file-name (concat old-stamp "-" new-slug)
-                                        (file-name-directory old-name)))
-              (setq new-name
-                    (expand-file-name new-name-nondirectory
-                                      (file-name-directory old-name)))))
+            (setq new-name
+                  (expand-file-name (if (and old-stamp new-slug)
+                                        (concat old-stamp "-" new-slug)
+                                      new-name-nondirectory)
+                                    (file-name-directory old-name))))
           (setq new-name
                 (expand-file-name
                  (file-name-nondirectory new-name)
