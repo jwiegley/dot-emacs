@@ -10100,6 +10100,15 @@ The first tag to match is used."
             (org-roam-db-query [:select :distinct [tag] :from tags]))
       (pop-to-buffer (current-buffer))))
 
+  (defun org-roam-excluded-file (relative-path)
+    "Return non-nil if RELATIVE-PATH should be excluded from Org-roam."
+    (let (is-match)
+      (dolist (exclude-re org-roam-file-exclude-regexp)
+        (setq is-match
+              (or is-match
+                  (string-match-p exclude-re relative-path))))
+      is-match))
+
   ;; https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5.html
   (defun vulpea-project-p ()
     "Return non-nil if current buffer has any todo entry.
@@ -10212,6 +10221,13 @@ tasks."
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
+  (my-xeft-ignored-files
+   '("area/todo.org"
+     "area/habits.org"
+     "area/OSS.org"
+     "area/kadena/kadena.org"
+     "area/kadena/archive.org"
+     "area/assembly/assembly.org"))
   :custom-face
   (xeft-excerpt-body
    ((t (:inherit default :foreground "grey80"))))
@@ -10233,30 +10249,24 @@ title."
             (file-name-base file)
           title))))
 
+  (defcustom my-xeft-ignored-files nil
+    "Files to be excluded from xeft indexing."
+    :group 'xeft
+    :type '(repeat file))
+
   (defun my-xeft-file-filter (file)
     "Return nil if FILE should be ignored.
 FILE is an absolute path. This default implementation ignores
 directories, dot files, and files matched by
 ‘xeft-ignore-extension’."
-    (let ((relative-path (file-relative-name file org-roam-directory)))
-      (and (file-regular-p file)
-           (not (string-prefix-p "." (file-name-base file)))
-           (not (string-suffix-p "~" file))
-           (not (org-file-image-p file))
-           (not (member relative-path
-                        '("area/todo.org"
-                          "area/habits.org"
-                          "area/OSS.org"
-                          "area/kadena/kadena.org"
-                          "area/kadena/archive.org"
-                          "area/assembly/assembly.org")))
-           (not (let (is-match)
-                  (dolist (exclude-re org-roam-file-exclude-regexp)
-                    (setq is-match
-                          (or is-match
-                              (string-match-p exclude-re
-                                              relative-path))))
-                  is-match)))))
+    (let ((relative-path (file-relative-name file org-roam-directory))
+          (base-name (file-name-base file)))
+      (and (not (string-prefix-p "." base-name))
+           (string= (file-name-extension base-name) "org")
+           (not (string-suffix-p "~" base-name))
+           (file-regular-p file)
+           (not (member relative-path my-xeft-ignored-files))
+           (not (org-roam-excluded-file relative-path)))))
   :config
   (run-with-idle-timer 300 t #'(lambda ()
                                  (xeft-full-reindex)
