@@ -10043,14 +10043,11 @@ The first tag to match is used."
              (funcall (-flip #'split-string) ":")
              (delete "")))
           (org-roam-capture--node (org-roam-node-at-point)))
-      (let* ((new-name
+      (let* ((new-name-nondirectory
               (thread-first
                 org-roam-extract-new-file-path
                 (org-roam-capture--fill-template)
-                (string-trim)
-                (expand-file-name org-roam-directory)))
-             (new-name-nondirectory
-              (and new-name (file-name-nondirectory new-name)))
+                (string-trim)))
              (old-name buffer-file-name)
              (old-name-nondirectory
               (and old-name (file-name-nondirectory old-name))))
@@ -10061,10 +10058,13 @@ The first tag to match is used."
                 (new-slug (and (string-match "^[0-9]\\{14\\}-\\(.+\\)"
                                              new-name-nondirectory)
                                (match-string 1 new-name-nondirectory))))
-            (when (and old-stamp new-slug)
+            (if (and old-stamp new-slug)
+                (setq new-name
+                      (expand-file-name (concat old-stamp "-" new-slug)
+                                        (file-name-directory old-name)))
               (setq new-name
-                    (expand-file-name (concat old-stamp "-" new-slug)
-                                      (file-name-directory new-name)))))
+                    (expand-file-name new-name-nondirectory
+                                      (file-name-directory old-name)))))
           (setq new-name
                 (expand-file-name
                  (file-name-nondirectory new-name)
