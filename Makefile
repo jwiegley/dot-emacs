@@ -23,11 +23,16 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 # all: init.elc
 all: init.el
 
+init.org: ~/org/resource/emacs/init.org
+	if test ~/org/resource/emacs/init.org -nt init.org; then \
+	    cp -p ~/org/resource/emacs/init.org init.org; \
+	fi
+
 # Generate lisp and compile it
-init.el: ~/org/resource/emacs/init.org
+init.el: init.org
 	@$(BATCH_LOAD) -L $(HOME)/.emacs.d/lisp/org-mode/lisp \
 		--eval "(require 'org)" \
-		--eval "(org-babel-load-file \"~/org/resource/emacs/init.org\")"
+		--eval "(org-babel-load-file \"init.org\")"
 	@chmod ugo-w $@
 
 compile:
