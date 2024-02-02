@@ -9773,8 +9773,7 @@ context.
   :bind
   ("M-g o" . org-ql-find)
   :config
-  (add-to-list 'vertico-multiform-commands
-               '(org-ql-find)))
+  (add-to-list 'vertico-multiform-commands '(org-ql-find)))
 #+end_src
 
 *** org-remark
@@ -10174,10 +10173,8 @@ tasks."
   :config
   (consult-org-roam-mode 1)
 
-  (add-to-list 'vertico-multiform-commands
-               '(consult-org-roam-backlinks))
-  (add-to-list 'vertico-multiform-commands
-               '(consult-org-roam-forward-links)))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-backlinks))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links)))
 #+end_src
 
 **** org-roam-dailies
@@ -10414,6 +10411,66 @@ own lines, for instance.
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
   :after org)
+#+end_src
+
+*** citar
+
+#+begin_src emacs-lisp
+(use-package citar
+  :demand t
+  :after oc
+  :hook
+  (LaTeX-mode . citar-capf-setup)
+  (org-mode . citar-capf-setup)
+  :custom
+  (org-cite-global-bibliography '("~/org/resource/kadena.bib"))
+  (citar-bibliography org-cite-global-bibliography)
+  :config
+  (setq citar--multiple-setup '("M-RET" . "RET")))
+#+end_src
+
+**** citar-embark
+
+#+begin_src emacs-lisp
+(use-package citar-embark
+  :demand t
+  :after (citar embark)
+  :custom
+  (citar-at-point-function 'embark-act)
+  :config
+  (citar-embark-mode))
+#+end_src
+
+**** citar-org
+
+#+begin_src emacs-lisp
+(use-package citar-org
+  :demand t
+  :after (oc citar)
+  :bind
+  (:map org-mode-map
+        ("C-c b i" . citar-insert-citation)
+        ("C-c b r" . citar-insert-reference)
+        ("C-c b o" . citar-open-notes))
+  :custom
+  (citar-notes-paths citar-bibliography)
+  (citar-open-note-function 'orb-citar-edit-note)
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  :config
+  (add-to-list 'vertico-multiform-commands '(citar-insert-citation))
+  (add-to-list 'vertico-multiform-commands '(citar-insert-reference))
+  (add-to-list 'vertico-multiform-commands '(citar-open-notes)))
+#+end_src
+
+**** citar-org-roam
+
+#+begin_src emacs-lisp
+(use-package citar-org-roam
+  :demand t
+  :after (citar org-roam)
+  :config (citar-org-roam-mode))
 #+end_src
 
 *** toc-org
