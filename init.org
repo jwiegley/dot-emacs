@@ -9878,6 +9878,7 @@ context.
       :empty-lines-before 1
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
+  (org-roam-extract-new-file-path "%<%Y%m%d%H%M>-${slug}.org")
   (org-roam-file-exclude-regexp
    '(
      "\\`\\."
@@ -10040,10 +10041,10 @@ The first tag to match is used."
              (old-name-nondirectory
               (and old-name (file-name-nondirectory old-name))))
         (when (and old-name-nondirectory new-name-nondirectory)
-          (let ((old-stamp (and (string-match "^\\([0-9]\\{14\\}\\)"
+          (let ((old-stamp (and (string-match "^\\([0-9]\\{12\\}\\)"
                                               old-name-nondirectory)
                                 (match-string 1 old-name-nondirectory)))
-                (new-slug (and (string-match "^[0-9]\\{14\\}-\\(.+\\)"
+                (new-slug (and (string-match "^[0-9]\\{12\\}-\\(.+\\)"
                                              new-name-nondirectory)
                                (match-string 1 new-name-nondirectory))))
             (setq new-name
