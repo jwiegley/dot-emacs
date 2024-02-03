@@ -3142,6 +3142,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package link-hint
+  :demand t
   :bind ("C-c C-o" . link-hint-open-link)
   :preface
   (eval-when-compile
@@ -10419,6 +10420,7 @@ own lines, for instance.
 (use-package citar
   :demand t
   :after oc
+  :bind (("C-c n R" . citar-create-note))
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)
@@ -10470,6 +10472,8 @@ own lines, for instance.
 (use-package citar-org-roam
   :demand t
   :after (citar org-roam)
+  :custom
+  (citar-org-roam-subdir "resource")
   :config (citar-org-roam-mode))
 #+end_src
 
