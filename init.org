@@ -369,22 +369,16 @@ unto itself.
               (bind-key (car entry) (cdr entry)))
           '(("C-,"   . my-ctrl-comma-map)
             ("<C-m>" . my-ctrl-m-map)
-            ("C-h e" . my-ctrl-h-e-map)
-            ("C-h x" . my-ctrl-h-x-map)
-            ("C-c b" . my-ctrl-c-b-map)
-            ("C-c e" . my-ctrl-c-e-map)
-            ("C-c i" . my-ctrl-c-i-map)
+            ("C-h e" . my-emacs-lisp-help-map)
+            ("C-c b" . my-bookmarks-bibliography-map)
+            ("C-c e" . my-emacs-lisp-map)
             ("C-c m" . my-ctrl-c-m-map)
-            ("C-c n" . my-ctrl-c-n-map)
-            ("C-c t" . my-ctrl-c-t-map)
-            ("C-c w" . my-ctrl-c-w-map)
-            ("C-c y" . my-ctrl-c-y-map)
-            ("C-c H" . my-ctrl-c-H-map)
-            ("C-c N" . my-ctrl-c-N-map)
-            ("C-c (" . my-ctrl-c-open-paren-map)
-            ("C-c -" . my-ctrl-c-minus-map)
-            ("C-c =" . my-ctrl-c-equals-map)
-            ("C-c ." . my-ctrl-c-dot-map)))))
+            ("C-c n" . my-org-roam-map)
+            ("C-c t" . my-multi-term-map)
+            ("C-c w" . my-web-map)
+            ("C-c y" . my-yasnippet-map)
+            ("C-c H" . my-highlight-map)
+            ("C-c N" . my-ctrl-c-N-map)))))
 #+end_src
 
 ** abbrev
@@ -1328,7 +1322,6 @@ diff-hl package.
               ("e"     . ora-ediff-files)
               ("^"     . dired-up-directory)
               ("q"     . pop-window-configuration)
-              ("Y"     . ora-dired-rsync)
               ("M-!"   . shell-command)
               ("<tab>" . dired-next-window)
               ("M-G")
@@ -1382,25 +1375,6 @@ diff-hl package.
     (interactive)
     (setq mark-files-cache (make-hash-table :test #'equal))
     (dired-mark-sexp '(mark-similar-versions name)))
-
-  (defun ora-dired-rsync (dest)
-    (interactive
-     (list
-      (expand-file-name
-       (read-file-name "Rsync to: " (dired-dwim-target-directory)))))
-    (let ((files (dired-get-marked-files
-                  nil current-prefix-arg))
-          (tmtxt/rsync-command "rsync -aP "))
-      (dolist (file files)
-        (setq tmtxt/rsync-command
-              (concat tmtxt/rsync-command
-                      (shell-quote-argument file)
-                      " ")))
-      (setq tmtxt/rsync-command
-            (concat tmtxt/rsync-command
-                    (shell-quote-argument dest)))
-      (async-shell-command tmtxt/rsync-command "*rsync*")
-      (other-window 1)))
 
   (defun ora-ediff-files ()
     (interactive)
@@ -1462,9 +1436,9 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package dired-rsync
-  :after dired+
-  :config
-  (bind-key "C-c C-r" 'dired-rsync dired-mode-map))
+  :after dired
+  :bind (:map dired-mode-map
+              ("Y" . dired-rsync)))
 #+end_src
 
 *** dired-toggle
@@ -1660,18 +1634,21 @@ non-empty directories is allowed."
 
 #+begin_src emacs-lisp
 (use-package ediff
-  :bind (("C-c = b" . ediff-buffers)
-         ("C-c = B" . ediff-buffers3)
-         ("C-c = c" . compare-windows)
-         ("C-c = =" . ediff-files)
-         ("C-c = f" . ediff-files)
-         ("C-c = F" . ediff-files3)
-         ("C-c = m" . count-matches)
-         ("C-c = r" . ediff-revision)
-         ("C-c = p" . ediff-patch-file)
-         ("C-c = P" . ediff-patch-buffer)
-         ("C-c = l" . ediff-regions-linewise)
-         ("C-c = w" . ediff-regions-wordwise))
+  :bind (:prefix-map
+         my-ediff-map
+         :prefix "C-c ="
+         ("b" . ediff-buffers)
+         ("B" . ediff-buffers3)
+         ("c" . compare-windows)
+         ("=" . ediff-files)
+         ("f" . ediff-files)
+         ("F" . ediff-files3)
+         ("m" . count-matches)
+         ("r" . ediff-revision)
+         ("p" . ediff-patch-file)
+         ("P" . ediff-patch-buffer)
+         ("l" . ediff-regions-linewise)
+         ("w" . ediff-regions-wordwise))
   :custom
   (ediff-combination-pattern
    '("<<<<<<< A: HEAD" A "||||||| Ancestor" Ancestor "=======" B ">>>>>>> B: Incoming"))
@@ -2398,9 +2375,11 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package flyspell
+  :after ispell
   :bind (("C-c i b" . flyspell-buffer)
          ("C-c i f" . flyspell-mode)
          :map flyspell-mode-map
+         ("C-,")
          ("C-."))
   :custom
   (flyspell-abbrev-p nil)
@@ -2742,8 +2721,15 @@ up before you execute another command."
    '(("TODO"  . "#FF0000")
      ("FIXME" . "#FF0000")
      ("DEBUG" . "#A020F0")))
+  :preface
+  (defun consult-ripgrep-haskell-todo ()
+    (interactive)
+    (consult-ripgrep nil "\\b\\(TODO\\|error\\|undefined\\|NYI\\|jww\\|FIXME\\)\\b"))
   :config
-  (global-hl-todo-mode))
+  (global-hl-todo-mode)
+
+  (add-to-list 'vertico-multiform-commands
+               '(consult-ripgrep-haskell-todo buffer)))
 #+end_src
 
 ** COMMENT hydra
@@ -3042,11 +3028,14 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package ispell
-  :bind (("C-c i c" . ispell-comments-and-strings)
-         ("C-c i d" . ispell-change-dictionary)
-         ("C-c i k" . ispell-kill-ispell)
-         ("C-c i m" . ispell-message)
-         ("C-c i r" . ispell-region))
+  :bind (:prefix-map
+         my-ispell-map
+         :prefix "C-c i"
+         ("c" . ispell-comments-and-strings)
+         ("d" . ispell-change-dictionary)
+         ("k" . ispell-kill-ispell)
+         ("m" . ispell-message)
+         ("r" . ispell-region))
   :custom
   (ispell-extra-args '("--sug-mode=fast" "--keyboard=dvorak")))
 #+end_src
@@ -3602,6 +3591,13 @@ up before you execute another command."
 
 ** multifiles
 
+Bind a key to =mf/mirror-region-in-multifile=, let's say =C-!=. Now mark a part of
+the buffer and press it. A new =*multifile*= buffer pops up. Mark some other
+part of another file, and press =C-!= again. This is added to the =*multifile*=.
+
+You can now edit the =*multifile*= buffer, and watch the original files change.
+Or you can edit the original files and watch the =*multifile*= buffer change.
+
 #+begin_src emacs-lisp
 (use-package multifiles
   :bind ("C-c m f" . mf/mirror-region-in-multifile))
@@ -3747,7 +3743,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package operate-on-number
-  :bind ("C-c N" . operate-on-number-at-point))
+  :bind ("C-c N N" . operate-on-number-at-point))
 #+end_src
 
 ** origami
@@ -4041,8 +4037,7 @@ append it to ENTRY."
          ("C-c k"   . keep-lines)
          ("C-c m k" . kmacro-keymap)
          ("C-c m m" . emacs-toggle-size)
-         ("C-c n u" . insert-user-timestamp)
-         ("C-c n n" . insert-user-timestamp)
+         ("C-c I"   . insert-user-timestamp)
          ("C-c q"   . fill-region)
          ("C-c s"   . replace-string)
          ("C-c u"   . rename-uniquely)
@@ -5111,17 +5106,22 @@ complement Emacs’ default =C-x 8= prefix map.
 
 #+begin_src emacs-lisp
 (use-package xray
-  :bind (("C-h x b" . xray-buffer)
-         ("C-h x f" . xray-faces)
-         ("C-h x F" . xray-features)
-         ("C-h x R" . xray-frame)
-         ("C-h x h" . xray-hooks)
-         ("C-h x m" . xray-marker)
-         ("C-h x o" . xray-overlay)
-         ("C-h x p" . xray-position)
-         ("C-h x S" . xray-screen)
-         ("C-h x s" . xray-symbol)
-         ("C-h x w" . xray-window)))
+  :bind
+  (
+   :prefix-map my-xray-map
+   :prefix "C-h x"
+   ("b" . xray-buffer)
+   ("f" . xray-faces)
+   ("F" . xray-features)
+   ("R" . xray-frame)
+   ("h" . xray-hooks)
+   ("m" . xray-marker)
+   ("o" . xray-overlay)
+   ("p" . xray-position)
+   ("S" . xray-screen)
+   ("s" . xray-symbol)
+   ("w" . xray-window))
+  )
 #+end_src
 
 ** yaoddmuse
@@ -5187,7 +5187,7 @@ independent components.
          ("C-c M-x" . consult-mode-command)
          ("C-c h"   . consult-history)
          ("C-c K"   . consult-kmacro)
-         ("C-c i"   . consult-info)
+         ("C-c e i" . consult-info)
          ([remap Info-search] . consult-info)
 
          ("C-*"     . consult-org-heading)
@@ -5502,21 +5502,24 @@ advantage of Company backends even if you are not using Company as frontend.
 #+begin_src emacs-lisp
 (use-package cape
   :demand t
-  :bind (("C-c . p" . completion-at-point)
-         ("C-c . t" . complete-tag)
-         ("C-c . d" . cape-dabbrev)
-         ("C-c . h" . cape-history)
-         ("C-c . f" . cape-file)
-         ("C-c . k" . cape-keyword)
-         ("C-c . s" . cape-symbol)
-         ("C-c . a" . cape-abbrev)
-         ("C-c . l" . cape-line)
-         ("C-c . w" . cape-dict)
-         ("C-c . \\" . cape-tex)
-         ("C-c . _" . cape-tex)
-         ("C-c . ^" . cape-tex)
-         ("C-c . &" . cape-sgml)
-         ("C-c . r" . cape-rfc1345))
+  :bind (:prefix-map
+         my-cape-map
+         :prefix "C-c ."
+         ("p" . completion-at-point)
+         ("t" . complete-tag)
+         ("d" . cape-dabbrev)
+         ("h" . cape-history)
+         ("f" . cape-file)
+         ("k" . cape-keyword)
+         ("s" . cape-symbol)
+         ("a" . cape-abbrev)
+         ("l" . cape-line)
+         ("w" . cape-dict)
+         ("\\" . cape-tex)
+         ("_" . cape-tex)
+         ("^" . cape-tex)
+         ("&" . cape-sgml)
+         ("r" . cape-rfc1345))
   :init
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
@@ -5711,6 +5714,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package vertico
+  :after cape                           ; because this defines C-c .
   :demand t
   :bind (("C-c . ." . vertico-repeat)
          :map vertico-map
@@ -6283,13 +6287,15 @@ without white space and comments.
          ("[")
          ("M-r")
          ("M-s")
-         ("M-k"   . paredit-raise-sexp)
-         ("M-I"   . paredit-splice-sexp)
-         ("C-M-l" . paredit-recentre-on-sexp)
-         ("C-c ( n"   . paredit-add-to-next-list)
-         ("C-c ( p"   . paredit-add-to-previous-list)
-         ("C-c ( j"   . paredit-join-with-next-list)
-         ("C-c ( J"   . paredit-join-with-previous-list)
+         ("M-k"     . paredit-raise-sexp)
+         ("M-I"     . paredit-splice-sexp)
+         ("C-M-l"   . paredit-recentre-on-sexp)
+         :prefix-map my-paredit-map
+         :prefix "C-c ("
+         ("n" . paredit-add-to-next-list)
+         ("p" . paredit-add-to-previous-list)
+         ("j" . paredit-join-with-next-list)
+         ("J" . paredit-join-with-previous-list)
          :map
          lisp-mode-map
          ("M-r")
@@ -8444,7 +8450,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c !"     . org-time-stamp-inactive)
          ("C-c <"     . org-time-stamp)
          ("C-c x"     . org-todo)
-         ("C-c C-x @" . visible-mode)
+         ("C-c C-x $" . visible-mode)
          ("C-c C-x L" . org-set-dtp-link)
          ("C-c C-x M" . org-set-message-link)
          ("C-c C-x U" . org-set-url-from-clipboard)
@@ -8579,10 +8585,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
   (org-mime-preserve-breaks nil)
-  (org-msg-default-alternatives
-   '((new text html)
-     (reply-to-html text html)
-     (reply-to-text text)))
   (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
   (org-pretty-entities t)
   (org-priority-faces
@@ -9726,6 +9728,35 @@ context.
                                "#E6E1DC" "#232323")))))
 #+end_src
 
+*** COMMENT org-msg
+
+#+begin_src emacs-lisp
+(use-package org-msg
+  :demand t
+  :after (org message)
+  :bind (:map org-msg-edit-mode-map
+              ("C-c C-f C-p" . gnus-alias-select-identity))
+  :custom
+  (org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t")
+  (org-msg-startup "hidestars indent inlineimages")
+  (org-msg-greeting-fmt "\nHi %s,\n\n")
+  (org-msg-recipient-names '(("jwiegley@gmail.com" . "John")))
+  (org-msg-greeting-name-limit 3)
+  (org-msg-default-alternatives '((new html text)
+				  (reply-to-html html text)
+				  (reply-to-text text)))
+  (org-msg-convert-citation t)
+  :config
+  (org-msg-mode)
+
+  (eval-after-load 'gnus-alias
+    '(defun gnus-alias-ensure-message-mode ()
+       "Assert that the current buffer is a message buffer."
+       (when (not (or (derived-mode-p 'message-mode)
+                      (derived-mode-p 'org-msg-edit-mode)))
+         (gnus-alias-error "Must be in `message-mode'.? ")))))
+#+end_src
+
 *** COMMENT org-modern
 
 #+begin_src emacs-lisp
@@ -9803,20 +9834,21 @@ context.
 (use-package org-roam
   :demand t
   :after org
-  :bind (("C-c n B" . my/org-roam-capture-inbox)
-         ("C-c n I" . my/org-roam-node-insert-immediate)
-         ("C-c n J" . add-journal-entry)
-         ("C-c n L" . org-roam-buffer-toggle)
-         ("C-c n T" . my/org-roam-revise-title)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n p" . my/org-roam-find-project)
-         ("C-c n r" . org-roam-tag-remove)
-         ("C-c n t" . org-roam-tag-add)
-         ("C-c n w" . my/org-roam-prepare-note)
+  :bind
+  (("C-c n B" . my/org-roam-capture-inbox)
+   ("C-c n I" . my/org-roam-node-insert-immediate)
+   ("C-c n J" . add-journal-entry)
+   ("C-c n L" . org-roam-buffer-toggle)
+   ("C-c n T" . my/org-roam-revise-title)
+   ("C-c n f" . org-roam-node-find)
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n p" . my/org-roam-find-project)
+   ("C-c n r" . org-roam-tag-remove)
+   ("C-c n t" . org-roam-tag-add)
+   ("C-c n w" . my/org-roam-prepare-note)
 
-         :map org-mode-map
-         ("C-M-i" . completion-at-point))
+   :map org-mode-map
+   ("C-M-i" . completion-at-point))
   :custom
   (org-roam-db-update-on-save nil)
   (org-roam-directory "~/org")
@@ -10162,10 +10194,10 @@ tasks."
   :demand t
   :diminish consult-org-roam-mode
   :bind
-  ("C-c n e" . consult-org-roam-file-find)
-  ("C-c n b" . consult-org-roam-backlinks)
-  ("C-c n l" . consult-org-roam-forward-links)
-  ("C-c n g" . consult-org-roam-search)
+  (("C-c n e" . consult-org-roam-file-find)
+   ("C-c n b" . consult-org-roam-backlinks)
+   ("C-c n l" . consult-org-roam-forward-links)
+   ("C-c n g" . consult-org-roam-search))
   :custom
   (consult-org-roam-grep-func #'consult-ripgrep)
   (consult-org-roam-buffer-enabled nil)
@@ -10183,10 +10215,11 @@ tasks."
 #+begin_src emacs-lisp
 (use-package org-roam-dailies
   :after org-roam
-  :bind (("C-c n j" . org-roam-dailies-capture-today)
-         :map org-roam-dailies-map
-         ("Y" . org-roam-dailies-capture-yesterday)
-         ("T" . org-roam-dailies-capture-tomorrow))
+  :bind
+  (("C-c n j" . org-roam-dailies-capture-today)
+   :map org-roam-dailies-map
+   ("Y" . org-roam-dailies-capture-yesterday)
+   ("T" . org-roam-dailies-capture-tomorrow))
   :bind-keymap ("C-c n d" . org-roam-dailies-map)
   :custom
   (org-roam-dailies-directory
@@ -10420,12 +10453,14 @@ own lines, for instance.
 (use-package citar
   :demand t
   :after oc
-  :bind (("C-c n R" . citar-create-note))
+  :bind ("C-c n R" . citar-create-note)
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)
   :custom
-  (org-cite-global-bibliography '("~/org/resource/kadena.bib"))
+  (org-cite-global-bibliography
+   '("~/org/resource/bibliography.bib"
+     "~/org/resource/kadena.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
