@@ -2368,7 +2368,8 @@ up before you execute another command."
 (use-package flymake
   :defer t
   :custom-face
-  (flymake-note ((t nil))))
+  (flymake-note ((t nil)))
+  (flymake-warning ((t (:underline nil)))))
 #+end_src
 
 ** flyspell
@@ -4076,6 +4077,7 @@ append it to ENTRY."
   (defconst display-name
     (pcase (display-pixel-width)
       (`3840 'dell-wide)
+      (`6400 'imac)
       (`4480 'imac)
       (`2560 'imac)
       (`1920 'macbook-pro-vga)
@@ -9350,7 +9352,7 @@ To use this function, add it to `org-agenda-finalize-hook':
         (with-current-buffer (find-file-noselect "~/org/area/todo.org")
           (save-excursion
             (goto-char (point-min))
-            (re-search-forward "^\\* CATEGORY Inbox$")
+            (re-search-forward "^\\* Inbox$")
             (re-search-forward "^:END:")
             (forward-line 1)
             (dolist (note notes)
@@ -9804,8 +9806,42 @@ context.
   :commands org-ql-search
   :bind
   ("M-g o" . org-ql-find)
+  :preface
+  (defun my/org-agenda-completions-at-point ()
+    "Function to be used as `completion-at-point' in Org mode."
+    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)")
+      (defvar heading-to-id (make-hash-table :test 'equal))
+      (let* ((start (match-beginning 1))
+             (end (point))
+             (input (match-string-no-properties 1))
+             (candidates
+              (org-ql-select
+                (org-agenda-files)
+                (org-ql--query-string-to-sexp input)
+                :action (lambda ()
+                          (let* ((heading (org-get-heading t))
+                                 (id (org-id-get (point))))
+                            ;; Avoid having to look up the ID again since we
+                            ;; are visiting all the locations with org-ql
+                            ;; anyway
+                            (puthash heading id heading-to-id)
+                            heading))))
+             (exit-function
+              (lambda (heading status)
+                (when (eq status 'finished)
+                  ;; The +1 removes the @ symbol
+                  (delete-char (- (+ (length heading) 1)))
+                  (insert
+                   (format "[[id:%s][%s]]" (gethash heading heading-to-id) heading))))))
+        (list start end candidates :exit-function exit-function))))
+
+  (defun my/org-agenda-completion-hook ()
+    "Configure org-mode for completion at point for org-agenda headlines."
+    (add-to-list 'completion-at-point-functions 'my/org-agenda-completions-at-point))
   :config
-  (add-to-list 'vertico-multiform-commands '(org-ql-find)))
+  (add-to-list 'vertico-multiform-commands '(org-ql-find))
+
+  (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
 
 *** org-remark
@@ -9915,11 +9951,9 @@ context.
    '(
      "\\`\\."
      "/\\."
-     "\\`archive/"
+     "archive"
      "\\`data/"
      "\\`site/"
-     "\\`area/bahai/assembly/20"
-     "\\`area/bahai/assembly/unit"
      ))
   (my/org-roam-revise-locations
    '(("bahai" . "resource/bahai")
@@ -9941,7 +9975,7 @@ context.
     (let* ((title (subst-char-in-string
                    ?/ ?: (car (last (org-get-outline-path t))) t))
            (beg (point)))
-      (call-interactively #'org-forward-heading-same-level)
+      (org-next-visible-heading 1)
       (list beg (if (= beg (point))
                     (point-max)
                   (point))
@@ -10102,7 +10136,8 @@ The first tag to match is used."
             (set-buffer-modified-p nil)
             (message "%s => %s"
                      (file-relative-name old-name org-roam-directory)
-                     (file-relative-name new-name org-roam-directory)))))))
+                     (file-relative-name new-name org-roam-directory))
+            (org-roam-db-sync))))))
 
   (defun my/org-roam-filter-by-tag (tag-name)
     (lambda (node)
@@ -10257,6 +10292,8 @@ tasks."
    ((t (:inherit (bold underline) :foreground "green"))))
   (xeft-inline-highlight
    ((t (:inherit underline :extend t :foreground "orange"))))
+  :functions
+  (xeft-full-reindex)
   :preface
   (defun my-xeft-get-title (file)
     "Return the title of FILE.
@@ -10282,7 +10319,7 @@ FILE is an absolute path. This default implementation ignores
 directories, dot files, and files matched by
 ‘xeft-ignore-extension’."
     (let ((relative-path (file-relative-name file org-roam-directory))
-          (base-name (file-name-base file)))
+          (base-name (file-name-nondirectory file)))
       (and (not (string-prefix-p "." base-name))
            (string= (file-name-extension base-name) "org")
            (not (string-suffix-p "~" base-name))
@@ -10506,7 +10543,8 @@ own lines, for instance.
 #+begin_src emacs-lisp
 (use-package citar-org-roam
   :demand t
-  :after (citar org-roam)
+  :after (citar-org org-roam)
+  :diminish citar-org-roam-mode
   :custom
   (citar-org-roam-subdir "resource")
   :config (citar-org-roam-mode))
