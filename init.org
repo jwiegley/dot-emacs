@@ -5513,7 +5513,7 @@ advantage of Company backends even if you are not using Company as frontend.
          ("h" . cape-history)
          ("f" . cape-file)
          ("k" . cape-keyword)
-         ("s" . cape-symbol)
+         ("s" . cape-elisp-symbol)
          ("a" . cape-abbrev)
          ("l" . cape-line)
          ("w" . cape-dict)
@@ -5539,7 +5539,7 @@ advantage of Company backends even if you are not using Company as frontend.
   :preface
   (defun my/setup-elisp ()
     (setq-local completion-at-point-functions
-                `(,(cape-super-capf
+                `(,(cape-capf-super
                     #'elisp-completion-at-point
                     #'cape-dabbrev)
                   cape-file)
@@ -8446,22 +8446,23 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :bind (:map
          org-mode-map
          ("C-,")
-         ("C-c #"     . org-priority)
          ("C-c .")
-         ("C-c ,"     . org-priority)
-         ("C-c !"     . org-time-stamp-inactive)
-         ("C-c <"     . org-time-stamp)
-         ("C-c x"     . org-todo)
-         ("C-c C-x $" . visible-mode)
-         ("C-c C-x L" . org-set-dtp-link)
-         ("C-c C-x M" . org-set-message-link)
-         ("C-c C-x U" . org-set-url-from-clipboard)
-         ("C-c C-x l" . org-insert-dtp-link)
-         ("C-c C-x m" . org-insert-message-link)
-         ("C-c C-x o" . my-org-todoize)
-         ("C-c C-x r" . org-clock-report)
-         ("C-c C-x u" . org-set-url-from-clipboard)
-         ([return]                . (lambda () (interactive) (org-return t)))
+         ("C-c #"       . org-priority)
+         ("C-c ,"       . org-priority)
+         ("C-c !"       . org-time-stamp-inactive)
+         ("C-c <"       . org-time-stamp)
+         ("C-c x"       . org-todo)
+         ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
+         ("C-c C-x $"   . visible-mode)
+         ("C-c C-x L"   . org-set-dtp-link)
+         ("C-c C-x M"   . org-set-message-link)
+         ("C-c C-x U"   . org-set-url-from-clipboard)
+         ("C-c C-x l"   . org-insert-dtp-link)
+         ("C-c C-x m"   . org-insert-message-link)
+         ("C-c C-x o"   . my-org-todoize)
+         ("C-c C-x r"   . org-clock-report)
+         ("C-c C-x u"   . org-set-url-from-clipboard)
+         ([return]      . (lambda () (interactive) (org-return t)))
          ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
   :hook
@@ -9809,7 +9810,7 @@ context.
   :preface
   (defun my/org-agenda-completions-at-point ()
     "Function to be used as `completion-at-point' in Org mode."
-    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)")
+    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)" nil)
       (defvar heading-to-id (make-hash-table :test 'equal))
       (let* ((start (match-beginning 1))
              (end (point))
