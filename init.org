@@ -5371,6 +5371,17 @@ locations. The =default-directory= variable is not changed in the process.
   (consult-git-log-grep-open-function #'magit-show-commit))
 #+end_src
 
+**** consult-hoogle
+
+#+begin_src emacs-lisp
+(use-package consult-hoogle
+  :after (vertico consult)
+  :commands consult-hoogle
+  :config
+  (add-to-list 'vertico-multiform-commands
+               '(consult-hoogle buffer)))
+#+end_src
+
 **** COMMENT consult-lsp
 
 #+begin_src emacs-lisp
@@ -9914,6 +9925,7 @@ context.
       :target (file+olp "~/org/area/todo.org" ("Inbox"))
       :prepend t)
      ("q" "Quote" plain "%c\n\n─ %?"
+      :jump-to-captured t
       :target (file+head "resource/quote/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :quote:\n#+title: ${title}\n")
       :empty-lines-before 1)
@@ -9922,11 +9934,13 @@ context.
                          "#+filetags: :thoughts:\n#+title: ${title}\n")
       :empty-lines-before 1)
      ("k" "Kadena" plain "%?"
+      :jump-to-captured t
       :target (file+head "area/kadena/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :contract=kadena:work:\n#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)
      ("J" "johnwiegley.com" plain "%?"
+      :jump-to-captured t
       :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
                          ":PROPERTIES:
 :SLUG:     %(replace-regexp-in-string \"_\" \"-\" \"${slug}\")
@@ -9937,6 +9951,7 @@ context.
       :empty-lines-before 1
       :unnarrowed t)
      ("N" "newartisans.com" plain "%?"
+      :jump-to-captured t
       :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
                          ":PROPERTIES:
 :SLUG:     %(replace-regexp-in-string \"_\" \"-\" \"${slug}\")
@@ -10208,7 +10223,9 @@ tasks."
 
   (defun my/org-roam-update-todo-files (&rest _)
     "Update the value of `org-agenda-files'."
-    (setq org-agenda-files (my/org-roam-todo-files))
+    (setq org-agenda-files
+          (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
+                (my/org-roam-todo-files)))
     (message "org-agenda-files has been updated"))
   :init
   (setq org-roam-v2-ack t)
@@ -10373,6 +10390,7 @@ text belongs to.
      (:name "Overdue" :deadline past)
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Calls" :tag "Call")
+     (:name "Errands" :tag "Errand")
      (:name "Work" :file-path "kadena")
      (:name "Tasks" :not (:priority "A" :priority "C"))
      (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
@@ -10510,6 +10528,7 @@ own lines, for instance.
 (use-package citar-embark
   :demand t
   :after (citar embark)
+  :diminish citar-embark-mode
   :custom
   (citar-at-point-function 'embark-act)
   :config
