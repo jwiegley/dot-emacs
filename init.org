@@ -8473,6 +8473,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x o"   . my-org-todoize)
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x u"   . org-set-url-from-clipboard)
+         ("C-M-y"       . my-org-yank-link)
          ([return]      . (lambda () (interactive) (org-return t)))
          ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
@@ -9023,6 +9024,10 @@ This can be 0 for immediate, or a floating point value.")
         (ignore-errors
           (my-org-move-properties-drawer))
         (goto-char end))))
+
+  (defun my-org-yank-link ()
+    (interactive)
+    (org-insert-all-links nil "*** " "\n"))
   :config
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
@@ -9057,6 +9062,8 @@ This can be 0 for immediate, or a floating point value.")
           ("C-c a" . org-agenda))
   :bind (:map
          org-agenda-mode-map
+         ("RET" . svbck/agenda-goto)
+         ("SPC" . my-org-agenda-show)
          (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
          ("C-n" . next-line)
@@ -9345,6 +9352,27 @@ To use this function, add it to `org-agenda-finalize-hook':
                       (overlay-put ol (car proplist) (cadr proplist))
                       (setq proplist (cddr proplist))))))))
           (forward-line)))))
+
+  (defun svbck/agenda-goto ()
+    (interactive)
+    (org-agenda-goto)
+    (org-narrow-to-subtree))
+
+  (defun my-org-agenda-show (&optional arg)
+    "Display the Org file which contains the item at point."
+    (interactive "P")
+    (let ((win (selected-window)))
+      (if (and (window-live-p org-agenda-show-window)
+	       (eq this-command last-command))
+	  (progn
+	    (select-window org-agenda-show-window)
+	    (ignore-errors (scroll-up)))
+        (org-agenda-goto)
+        (org-fold-show-entry 'hide-drawers)
+        (narrow-to-region (org-entry-beginning-position)
+			  (org-entry-end-position))
+        (setq org-agenda-show-window (selected-window)))
+      (select-window win)))
   :config
   (add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)
 
@@ -9970,6 +9998,7 @@ context.
      "archive"
      "\\`data/"
      "\\`site/"
+     "\\`area/bahai/assembly"
      ))
   (my/org-roam-revise-locations
    '(("bahai" . "resource/bahai")
@@ -10224,8 +10253,12 @@ tasks."
   (defun my/org-roam-update-todo-files (&rest _)
     "Update the value of `org-agenda-files'."
     (setq org-agenda-files
-          (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
-                (my/org-roam-todo-files)))
+          (cl-delete-if
+           #'(lambda (file)
+               (my/org-roam-excluded-file
+                (file-relative-name file org-roam-directory)))
+           (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
+                 (my/org-roam-todo-files))))
     (message "org-agenda-files has been updated"))
   :init
   (setq org-roam-v2-ack t)
