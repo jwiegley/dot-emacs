@@ -5390,7 +5390,7 @@ locations. The =default-directory= variable is not changed in the process.
               ([remap xref-find-apropos] . consult-lsp-symbols)))
 #+end_src
 
-*** corfu
+*** COMMENT corfu
 
 [[https://github.com/minad/corfu][corfu]] enhances completion at point with a small completion popup. The current
 candidates are shown in a popup below or above the point. Corfu is the
