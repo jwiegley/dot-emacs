@@ -9202,7 +9202,7 @@ This can be 0 for immediate, or a floating point value.")
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
   :custom-face
   (org-agenda-clocking ((t (:background "red2"))))
-  (org-agenda-done ((t (:foreground "ForestGreen"))))
+  (org-agenda-done ((t (:foreground "DarkGreen"))))
   :preface
   (defun org-fit-agenda-window ()
     "Fit the window to the buffer size."
