@@ -9062,8 +9062,8 @@ This can be 0 for immediate, or a floating point value.")
           ("C-c a" . org-agenda))
   :bind (:map
          org-agenda-mode-map
-         ("RET" . svbck/agenda-goto)
-         ("SPC" . my-org-agenda-show)
+         ;; ("RET" . svbck/agenda-goto)
+         ;; ("SPC" . my-org-agenda-show)
          (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
          ("C-n" . next-line)
