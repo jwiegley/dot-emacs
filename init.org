@@ -8922,7 +8922,8 @@ This can be 0 for immediate, or a floating point value.")
   (defun org-set-url-from-clipboard ()
     "Set a property for the current headline."
     (interactive)
-    (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD)))
+    (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
+    (org-set-tags '("URL")))
 
   (defun org-message-reply ()
     (interactive)
@@ -10253,12 +10254,12 @@ tasks."
   (defun my/org-roam-update-todo-files (&rest _)
     "Update the value of `org-agenda-files'."
     (setq org-agenda-files
-          (cl-delete-if
-           #'(lambda (file)
-               (my/org-roam-excluded-file
-                (file-relative-name file org-roam-directory)))
-           (cons "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
-                 (my/org-roam-todo-files))))
+          (append (cl-delete-if
+                   #'(lambda (file)
+                       (my/org-roam-excluded-file
+                        (file-relative-name file org-roam-directory)))
+                   (my/org-roam-todo-files))
+                  '("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org")))
     (message "org-agenda-files has been updated"))
   :init
   (setq org-roam-v2-ack t)
@@ -10453,6 +10454,7 @@ text belongs to.
       (if arg
           (progn
             (org-set-property "URL" link)
+            (org-set-tags '("URL"))
             (message "Added pasteboard link to URL property"))
         (insert link)))))
 #+end_src
