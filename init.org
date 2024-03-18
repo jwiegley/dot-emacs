@@ -224,6 +224,7 @@ unto itself.
         (assq 'height
               (frame-parameters)))))))
 
+  (completion-cycle-threshold 7)
   (completion-ignored-extensions
    '(".a"
      ".aux"
