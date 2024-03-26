@@ -843,6 +843,15 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (math-units-table nil))
 #+end_src
 
+*** casual
+
+#+begin_src emacs-lisp
+(use-package casual
+  :after calc
+  :bind (:map calc-mode-map
+              ("C-o" . casual-main-menu)))
+#+end_src
+
 ** calendar
 
 #+begin_src emacs-lisp
@@ -8690,10 +8699,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defconst my-org-soft-blue   "#e8eff9")
   (defconst my-org-soft-purple "#f3e8f9")
 
-  (defvar org-my-archive-expiry-days 9
-    "The number of days after which a completed task should be auto-archived.
-This can be 0 for immediate, or a floating point value.")
-
   (defconst org-my-ts-regexp
     "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
     "Regular expression for fast inactive time stamp matching.")
@@ -8786,72 +8791,12 @@ This can be 0 for immediate, or a floating point value.")
            org-clock-current-task))
          (concat "-" tag)))
 
-  (defun org-my-state-after-clock-out (state)
-    (if (string= state "STARTED") "TODO" state))
-
-  (defun org-my-closing-time ()
-    (let* ((state-regexp
-            (concat "- State \"\\(?:" (regexp-opt org-done-keywords)
-                    "\\)\"\\s-*\\[\\([^]\n]+\\)\\]"))
-           (regexp (concat "\\(" state-regexp "\\|" org-my-ts-regexp "\\)"))
-           (end (save-excursion
-                  (outline-next-heading)
-                  (point)))
-           end-time)
-      (goto-char (line-beginning-position))
-      (while (re-search-forward regexp end t)
-        (let ((moment (org-parse-time-string (match-string 1))))
-          (if (or (not end-time)
-                  (time-less-p (apply #'encode-time end-time)
-                               (apply #'encode-time moment)))
-              (setq end-time moment))))
-      (goto-char end)
-      end-time))
-
-  (defun org-archive-expired-tasks ()
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((done-regexp
-             (concat "^\\*\\* \\(" (regexp-opt org-done-keywords) "\\) ")))
-        (while (re-search-forward done-regexp nil t)
-          (if (>= (time-to-number-of-days
-                   (time-subtract (current-time)
-                                  (apply #'encode-time (org-my-closing-time))))
-                  org-my-archive-expiry-days)
-              (org-archive-subtree))))
-      (save-buffer)))
-
-  (defun org-archive-done-tasks ()
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "\* \\(DONE\\|CANCELED\\) " nil t)
-        (if (save-restriction
-              (save-excursion
-                (org-narrow-to-subtree)
-                (search-forward ":LOGBOOK:" nil t)))
-            (forward-line)
-          (org-archive-subtree)
-          (goto-char (line-beginning-position))))))
-
   (defun org-get-inactive-time ()
     (float-time (org-time-string-to-time
                  (or (org-entry-get (point) "TIMESTAMP")
                      (org-entry-get (point) "TIMESTAMP_IA")
                      (org-entry-get (point) "CREATED")
                      (debug)))))
-
-  (defun org-get-completed-time ()
-    (let ((begin (point)))
-      (save-excursion
-        (outline-next-heading)
-        (and (re-search-backward
-              (concat "\\(- State \"\\(DONE\\|DEFERRED\\|CANCELED\\)\""
-                      "\\s-+\\[\\(.+?\\)\\]\\|CLOSED: \\[\\(.+?\\)\\]\\)")
-              begin t)
-             (float-time (org-time-string-to-time (or (match-string 3)
-                                                      (match-string 4))))))))
 
   (defun org-sort-done-tasks ()
     (interactive)
@@ -8889,10 +8834,30 @@ This can be 0 for immediate, or a floating point value.")
           (org-sort-entries t ?o))
         (forward-line))))
 
-  (defun org-cleanup ()
+  (defun org-sync ()
     (interactive)
-    (org-archive-expired-tasks)
-    (org-sort-all))
+    (message "Cleaning Org files...")
+    (with-current-buffer (find-file-noselect "~/org/area/todo.org")
+      (goto-char (point-min))
+      (org-sort-all))
+    (with-current-buffer (find-file-noselect "~/org/area/kadena/kadena.org")
+      (goto-char (point-min))
+      (org-sort-all))
+    (save-some-buffers t)
+    (message "Updating todo files...")
+    (my/org-roam-update-todo-files)
+    (save-some-buffers t)
+    (message "Updating id locations...")
+    (org-id-update-id-locations)
+    (message "Updating roam database...")
+    (org-roam-db-sync)
+    (message "Updating xeft database...")
+    (xeft-full-reindex)
+    (message "Syncing and backing up...")
+    (let ((default-directory "~"))
+      (async-shell-command
+       "syncup ; backup --quick ; echo FINISHED"
+       (get-buffer-create "*Org-Sync*"))))
 
   (defun org-get-message-link (&optional title)
     (let (message-id subject)
