@@ -2549,7 +2549,7 @@ up before you execute another command."
   :bind ("C-x C-/" . goto-last-change))
 #+end_src
 
-** COMMENT gptel
+** gptel
 
 #+begin_src emacs-lisp
 (use-package gptel
@@ -2557,9 +2557,25 @@ up before you execute another command."
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model "gpt-4")
+  (gptel-model "gpt-4-1106-preview")
+  (gptel-api-key (auth-source-pass-get 'secret "chat.openai.com"))
   :config
-  (setq gptel-api-key (auth-source-pass-get 'secret "chat.openai.com")))
+  (use-package gptel-ollama
+    :demand t
+    :config
+    (gptel-make-ollama
+     "Ollama"
+     :host "localhost:11434"
+     :stream t
+     :models '("mistral:latest")))
+
+  (use-package gptel-anthropic
+    :demand t
+    :config
+    (gptel-make-anthropic
+     "Claude"
+     :stream t
+     :key (auth-source-pass-get 'secret "claude.anthropic.com"))))
 #+end_src
 
 ** grep
@@ -8836,7 +8852,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
   (defun org-sync ()
     (interactive)
-    (message "Cleaning Org files...")
     (with-current-buffer (find-file-noselect "~/org/area/todo.org")
       (goto-char (point-min))
       (org-sort-all))
@@ -8844,16 +8859,12 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (goto-char (point-min))
       (org-sort-all))
     (save-some-buffers t)
-    (message "Updating todo files...")
     (my/org-roam-update-todo-files)
     (save-some-buffers t)
-    (message "Updating id locations...")
     (org-id-update-id-locations)
-    (message "Updating roam database...")
     (org-roam-db-sync)
-    (message "Updating xeft database...")
+    (require 'xeft)
     (xeft-full-reindex)
-    (message "Syncing and backing up...")
     (let ((default-directory "~"))
       (async-shell-command
        "syncup ; backup --quick ; echo FINISHED"
