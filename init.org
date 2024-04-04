@@ -9597,6 +9597,14 @@ context.
   :after org)
 #+end_src
 
+*** org-anki
+
+#+begin_src emacs-lisp
+(use-package org-anki
+  :after org
+  :commands org-anki-sync-all)
+#+end_src
+
 *** org-attach
 
 #+begin_src emacs-lisp
