@@ -2596,10 +2596,25 @@ up before you execute another command."
     :demand t
     :config
     (gptel-make-ollama
-        "Ollama"
+        "mistral"
       :host "localhost:11434"
       :stream t
-      :models '("mistral:latest")))
+      :models '("mistral:latest"))
+    (gptel-make-ollama
+        "deepseek-coder"
+      :host "localhost:11434"
+      :stream t
+      :models '("deepseek-coder:latest"))
+    (gptel-make-ollama
+        "openhermes"
+      :host "localhost:11434"
+      :stream t
+      :models '("openhermes:latest"))
+    (gptel-make-ollama
+        "openchat"
+      :host "localhost:11434"
+      :stream t
+      :models '("openchat:latest")))
 
   (use-package gptel-anthropic
     :demand t
