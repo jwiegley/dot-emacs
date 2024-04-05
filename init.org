@@ -3230,7 +3230,14 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package macrostep
-  :bind ("C-c e m" . macrostep-expand))
+  :bind (("C-c e m" . macrostep-expand)
+         ("C-c e M" . macrostep-expand-use-package-minimally))
+  :preface
+  (defun macrostep-expand-use-package-minimally ()
+    (interactive)
+    (let ((use-package-expand-minimally t)
+          (use-package-compute-statistics nil))
+      (call-interactively 'macrostep-expand))))
 #+end_src
 
 ** magit
