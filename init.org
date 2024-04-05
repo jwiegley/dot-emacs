@@ -9128,6 +9128,14 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
         '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
      ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
      ("r" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
+     ("R" "Last month's unscheduled" tags
+      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-skip-function
+        '(or (my-org-agenda-skip-if-not-within 30)
+             (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files '("~/org/area/todo.org"))))
      ("W" "Waiting/delegated tasks" tags
       "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
       ((org-agenda-skip-function
@@ -9316,6 +9324,19 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
               (not (member "HOT" (my-org-current-tags 1))))
       (or (outline-next-heading)
           (goto-char (point-max)))))
+
+  (defun my-org-agenda-skip-if-not-within (days)
+    "Skip entry if it wasn't created within the given number of DAYS."
+    (ignore-errors
+      (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+            (day
+             (time-to-days
+              (org-time-string-to-time
+               (org-entry-get nil "CREATED"))))
+            (now (time-to-days (current-time))))
+        (and day
+             (> (- now day) days)
+             subtree-end))))
 
   (defun org-agenda-add-overlays (&optional line)
     "Add overlays found in OVERLAY properties to agenda items.
