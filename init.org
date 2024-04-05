@@ -2554,19 +2554,24 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package gptel
   :commands (gptel gptel-send)
-  :bind (:prefix-map
+  :bind (;; :map gptel-mode-map
+         ;;     ("RET"      . gptel-send)
+         ;;     ("<return>" . gptel-send)
+         :prefix-map
          gptel-cmd-map
          :prefix "C-x C"
-         ("C" . gptel)
-         ("a" . gptel-abort)
-         ("s" . gptel-send))
+         ("C"        . gptel)
+         ("a"        . gptel-abort)
+         ("s"        . gptel-send)
+         ("RET"      . gptel-send)
+         ("<return>" . gptel-send))
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
   (gptel-model "gpt-4-1106-preview")
   ;; (gptel-model "claude-3-opus-20240229")
   (gptel-directives
-   '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
+   '((default . "You are a helpful assistant. Respond concisely.")
      (english . "I want you to act as an English translator, spelling corrector and improver. I will speak to you in any language and you will detect the language, translate it and answer in the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
      (spanish . "I want you to act as an Latin-American Spanish translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Latin-American Spanish. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Latin-American  Spanish words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
      (persian . "I want you to act as an Farsi translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Farsi. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Farsi words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
@@ -8955,6 +8960,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defun org-set-url-from-clipboard ()
     "Set a property for the current headline."
     (interactive)
+    (org-back-to-heading)
     (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
     (org-set-tags '("URL")))
 
