@@ -9982,6 +9982,7 @@ context.
 (use-package org-roam
   :demand t
   :after org
+  :functions (org-roam-db-sync)
   :bind
   (("C-c n B" . my/org-roam-capture-inbox)
    ("C-c n I" . my/org-roam-node-insert-immediate)
