@@ -482,7 +482,7 @@ It reindents after every change, making it more reliable than
         (align beg end-mark)))))
 #+end_src
 
-** anki-editor
+** COMMENT anki-editor
 
 #+begin_src emacs-lisp
 (use-package anki-editor
@@ -2563,6 +2563,7 @@ up before you execute another command."
          ("C"        . gptel)
          ("a"        . gptel-abort)
          ("s"        . gptel-send)
+         ("r"        . gptel-rewrite-menu)
          ("RET"      . gptel-send)
          ("<return>" . gptel-send))
   :hook (gptel-mode . visual-line-mode)
@@ -9133,15 +9134,17 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
      ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
-     ("r" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
+     ("r" "Inbox" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
      ("R" "Last month's unscheduled" tags
       "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-skip-function
-        '(or (my-org-agenda-skip-if-not-within 30)
+        '(or (my-org-agenda-skip-if-not-within 14)
              (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"))))
+       (org-agenda-files '("~/org/area/todo.org"
+                           "~/org/area/OSS.org"
+                           "~/org/area/kadena/kadena.org"))))
      ("W" "Waiting/delegated tasks" tags
       "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
       ((org-agenda-skip-function
