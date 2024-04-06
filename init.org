@@ -9176,7 +9176,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"))))
+       (org-agenda-files '("~/org/area/todo.org"
+                           "~/org/area/kadena/kadena.org"))))
      ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
       ((org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
