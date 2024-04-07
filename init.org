@@ -9797,6 +9797,13 @@ context.
   (org-edna-mode))
 #+end_src
 
+*** org-color
+
+#+begin_src emacs-lisp
+(use-package org-color
+  :after org)
+#+end_src
+
 *** org-extra-emphasis
 
 #+begin_src emacs-lisp
