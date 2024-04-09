@@ -9011,21 +9011,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (cl-delete-if #'(lambda (x) (string= (car x) param))
                         org-link-parameters)))
 
-  (defun my-insert-copied-slack (string)
-    (with-temp-buffer
-      (insert string)
-      (goto-char (point-min))
-      (whitespace-cleanup)
-      (while (re-search-forward "\\[\\[.*\\.png\\]\\] +\\s-*\n+" nil t)
-        (delete-region (match-beginning 0) (match-end 0)))
-      (goto-char (point-min))
-      (while (re-search-forward "^ +\\s-*\n+" nil t)
-        (delete-region (match-beginning 0) (match-end 0)))
-      (goto-char (point-min))
-      (while (re-search-forward "\n\n+" nil t)
-        (replace-match "\n\n"))
-      (buffer-string)))
-
   (defun my-org-entire-properties-block ()
     "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
     (save-excursion
@@ -9102,7 +9087,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+begin_src emacs-lisp
 (use-package org-agenda
   :commands org-agenda-list
-  :bind* (("M-C"   . jump-to-org-agenda)
+  :bind* (("M-C"   . org-extra-jump-to-agenda)
           ("C-c a" . org-agenda))
   :bind (:map
          org-agenda-mode-map
@@ -9141,7 +9126,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("R" "Last month's unscheduled" tags
       "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-skip-function
-        '(or (my-org-agenda-skip-if-not-within 14)
+        '(or (org-extra-agenda-skip-if-not-within 14)
              (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
@@ -9265,32 +9250,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          (fboundp 'fit-window-to-buffer)
          (fit-window-to-buffer)))
 
-  (defun jump-to-org-agenda ()
-    (interactive)
-    (push-window-configuration)
-    (cl-flet ((prep-window
-                (wind)
-                (with-selected-window wind
-                  (org-fit-window-to-buffer wind)
-                  (ignore-errors
-                    (window-resize
-                     wind
-                     (- 100 (window-width wind)) t)))))
-      (let ((buf (or (get-buffer "*Org Agenda*")
-                     (get-buffer "*Org Agenda(a)*"))))
-        (if buf
-            (let ((win (get-buffer-window buf)))
-              (if win
-                  (when (called-interactively-p 'any)
-                    (funcall #'prep-window win))
-                (if (called-interactively-p 'any)
-                    (funcall #'prep-window (display-buffer buf t t))
-                  (funcall #'prep-window (display-buffer buf)))))
-          (require 'org-agenda)
-          (mapc #'find-file-noselect org-agenda-files)
-          (call-interactively 'org-agenda-list)
-          (funcall #'prep-window (selected-window))))))
-
   (defun my-org-agenda-should-skip-p ()
     "Skip all but the first non-done entry."
     (let (should-skip-entry)
@@ -9338,219 +9297,23 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (or (outline-next-heading)
           (goto-char (point-max)))))
 
-  (defun my-org-agenda-skip-if-not-within (days)
-    "Skip entry if it wasn't created within the given number of DAYS."
-    (ignore-errors
-      (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-            (day
-             (time-to-days
-              (org-time-string-to-time
-               (org-entry-get nil "CREATED"))))
-            (now (time-to-days (current-time))))
-        (and day
-             (> (- now day) days)
-             subtree-end))))
-
-  (defun org-agenda-add-overlays (&optional line)
-    "Add overlays found in OVERLAY properties to agenda items.
-Note that habitual items are excluded, as they already
-extensively use text properties to draw the habits graph.
-
-For example, for work tasks I like to use a subtle, yellow
-background color; for tasks involving other people, green; and
-for tasks concerning only myself, blue.  This way I know at a
-glance how different responsibilities are divided for any given
-day.
-
-To achieve this, I have the following in my todo file:
-
-  ,* Work
-  :PROPERTIES:
-  :CATEGORY: Work
-  :OVERLAY:  (face (:background \"#fdfdeb\"))
-  :END:
-  ,** TODO Task
-  ,* Family
-  :PROPERTIES:
-  :CATEGORY: Personal
-  :OVERLAY:  (face (:background \"#e8f9e8\"))
-  :END:
-  ,** TODO Task
-  ,* Personal
-  :PROPERTIES:
-  :CATEGORY: Personal
-  :OVERLAY:  (face (:background \"#e8eff9\"))
-  :END:
-  ,** TODO Task
-
-The colors (which only work well for white backgrounds) are:
-
-  Yellow: #fdfdeb
-  Green:  #e8f9e8
-  Blue:   #e8eff9
-
-To use this function, add it to `org-agenda-finalize-hook':
-
-  (add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)"
-    (let ((inhibit-read-only t)
-          (buffer-invisibility-spec '(org-link)))
-      (save-excursion
-        (goto-char (if line (line-beginning-position) (point-min)))
-        (while (not (eobp))
-          (let ((org-marker (get-text-property (point) 'org-marker)))
-            (when (and org-marker
-                       (null (overlays-at (point)))
-                       (not (get-text-property (point) 'org-habit-p))
-                       (get-text-property (point) 'type)
-                       (string-match "\\(sched\\|dead\\|todo\\)"
-                                     (get-text-property (point) 'type)))
-              (let ((overlays
-                     (or (org-entry-get org-marker "OVERLAY" t)
-                         (with-current-buffer (marker-buffer org-marker)
-                           (org-get-global-property "OVERLAY")))))
-                (when overlays
-                  (goto-char (line-end-position))
-                  (let ((rest (- (window-width) (current-column))))
-                    (if (> rest 0)
-                        (insert (make-string rest ? ))))
-                  (let ((ol (make-overlay (line-beginning-position)
-                                          (line-end-position)))
-                        (proplist (read overlays)))
-                    (while proplist
-                      (overlay-put ol (car proplist) (cadr proplist))
-                      (setq proplist (cddr proplist))))))))
-          (forward-line)))))
-
   (defun svbck/agenda-goto ()
     (interactive)
     (org-agenda-goto)
     (org-narrow-to-subtree))
-
-  (defun my-org-agenda-show (&optional arg)
-    "Display the Org file which contains the item at point."
-    (interactive "P")
-    (let ((win (selected-window)))
-      (if (and (window-live-p org-agenda-show-window)
-	       (eq this-command last-command))
-	  (progn
-	    (select-window org-agenda-show-window)
-	    (ignore-errors (scroll-up)))
-        (org-agenda-goto)
-        (org-fold-show-entry 'hide-drawers)
-        (narrow-to-region (org-entry-beginning-position)
-			  (org-entry-end-position))
-        (setq org-agenda-show-window (selected-window)))
-      (select-window win)))
   :config
-  (add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)
+  (add-hook 'org-agenda-finalize-hook 'org-extra-agenda-add-overlays)
 
   (defadvice org-agenda-redo (after fit-windows-for-agenda-redo activate)
     "Fit the Org Agenda to its buffer."
     (org-fit-agenda-window))
-
-  (defadvice org-agenda (around fit-windows-for-agenda activate)
-    "Fit the Org Agenda to its buffer."
-    (let ((notes
-           (ignore-errors
-             (directory-files
-              "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents"
-              t "[0-9].*\\.txt\\'" nil)))
-          url)
-      (when notes
-        (with-current-buffer (find-file-noselect "~/org/area/todo.org")
-          (save-excursion
-            (goto-char (point-min))
-            (re-search-forward "^\\* Inbox$")
-            (re-search-forward "^:END:")
-            (forward-line 1)
-            (dolist (note notes)
-              (insert
-               "** "
-               (with-temp-buffer
-                 (insert-file-contents note)
-                 (goto-char (point-min))
-                 (setq url nil)
-                 (when (re-search-forward ":URL:\\s-*\\(.+?\\)\n" nil t)
-                   (setq url (match-string 1))
-                   (delete-region (match-beginning 0) (match-end 0)))
-                 (goto-char (point-min))
-                 (if url
-                     (insert "LINK ")
-                   (insert "TODO "))
-                 (forward-line)
-                 (unless url
-                   (unless (bolp)
-                     (insert ?\n))
-                   (insert (format "SCHEDULED: %s\n"
-                                   (format-time-string (org-time-stamp-format)))))
-                 (let ((uuid (substring (shell-command-to-string "uuidgen") 0 -1))
-                       (file (file-name-nondirectory note)))
-                   (string-match
-                    (concat "\\`\\([0-9]\\{4\\}\\)"
-                            "-\\([0-9]\\{2\\}\\)"
-                            "-\\([0-9]\\{2\\}\\)"
-                            "-\\([0-9]\\{2\\}\\)"
-                            "-\\([0-9]\\{2\\}\\)"
-                            "-\\([0-9]\\{2\\}\\)"
-                            "\\.txt\\'") file)
-                   (let* ((year (string-to-number (match-string 1 file)))
-                          (mon (string-to-number (match-string 2 file)))
-                          (day (string-to-number (match-string 3 file)))
-                          (hour (string-to-number (match-string 4 file)))
-                          (min (string-to-number (match-string 5 file)))
-                          (sec (string-to-number (match-string 6 file)))
-                          (date (format "%04d-%02d-%02d %s"
-                                        year mon day
-                                        (calendar-day-name (list mon day year) t))))
-                     (insert (format (concat
-                                      ":PROPERTIES:\n"
-                                      ":ID:       %s\n"
-                                      ":CREATED:  [%s %02d:%02d]\n"
-                                      "%s"
-                                      ":END:\n")
-                                     uuid date hour min
-                                     (if url
-                                         (concat ":URL:      " url "\n")
-                                       "")))))
-                 (goto-char (point-max))
-                 (unless (bolp)
-                   (insert ?\n))
-                 (buffer-string)))
-              (delete-file note t)))
-          (when (buffer-modified-p)
-            (save-buffer)))))
-    ad-do-it
-    (org-fit-agenda-window))
-
-  (defun org-agenda-show-and-scroll-up (&optional arg)
-    "Display the Org file which contains the item at point.
-
-When called repeatedly, scroll the window that is displaying the buffer.
-
-With a `\\[universal-argument]' prefix argument, display the item, but \
-fold drawers."
-    (interactive "P")
-    (let ((win (selected-window)))
-      (if (and (window-live-p org-agenda-show-window)
-	       (eq this-command last-command))
-	  (progn
-	    (select-window org-agenda-show-window)
-	    (ignore-errors (scroll-up)))
-        (org-agenda-goto t)
-        (org-fold-show-entry 'hide-drawers)
-        (if arg
-            (org-with-wide-buffer
-	     (narrow-to-region (org-entry-beginning-position)
-			       (org-entry-end-position))
-	     (org-fold-show-all '(drawers)))
-	  (org-cycle-hide-drawers 'children))
-        (setq org-agenda-show-window (selected-window)))
-      (select-window win)))
   :init
+  (use-package org-extra)
+
   (unless alternate-emacs
-    (add-hook 'my-emacs-startup-hook #'jump-to-org-agenda t)
+    (add-hook 'my-emacs-startup-hook #'org-extra-jump-to-agenda t)
     (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
-    (run-with-idle-timer 300 t 'jump-to-org-agenda)))
+    (run-with-idle-timer 300 t 'org-extra-jump-to-agenda)))
 #+end_src
 
 *** org-capture
@@ -9560,33 +9323,20 @@ fold drawers."
   :after org
   :custom
   (org-capture-templates
-   '(("a" "Add Task" entry
-      (file+headline "~/org/area/todo.org" "Inbox")
+   '(("a" "Add Task" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* TODO %?" :prepend t)
-     ("n" "Note" entry
-      (file+headline "~/org/area/todo.org" "Inbox")
+     ("n" "Note" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* NOTE %?" :prepend t)
-     ("c" "Calendar" entry
-      (file+headline "~/org/area/todo.org" "Inbox")
+     ("c" "Calendar" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* APPT %?" :prepend t)
-     ("l" "Link" entry
-      (file+headline "~/org/area/todo.org" "Inbox")
+     ("l" "Link" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* LINK %:description%?
 :PROPERTIES:
 :URL:      %:link
-:END:" :prepend t)
-     ("s" "Slack" entry
-      (file+headline "~/org/area/kadena/kadena.org" "Pending")
-      "* TODO %?
-%(my-insert-copied-slack \"%c\")" :prepend t)))
-  :preface
-  (defun my-org-basic-properties ()
-    (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
-    (org-set-property "CREATED" (with-temp-buffer
-                                  (org-insert-time-stamp (current-time) t t))))
+:END:" :prepend t)))
   :config
   ;; Ensure the ID and CREATED properties are always set for new entries.
-  (add-hook 'org-capture-before-finalize-hook #'my-org-basic-properties))
+  (add-hook 'org-capture-before-finalize-hook #'org-extra-basic-properties))
 #+end_src
 
 **** org-smart-capture
@@ -10024,17 +9774,17 @@ context.
       :empty-lines-before 1
       :unnarrowed t)
      ("N" "Inline Note" entry "* NOTE %?"
-      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("i" "Idea" entry "* %?"
       :target (file "~/org/resource/ideas.org")
       :empty-lines 1
       :prepend t)
      ("a" "Task" entry "* TODO %?"
-      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("c" "Calendar" entry "* APPT %?"
-      :target (file+olp "~/org/area/todo.org" ("Inbox"))
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("q" "Quote" plain "%c\n\n─ %?"
       :jump-to-captured t
