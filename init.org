@@ -8558,9 +8558,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x U"   . org-set-url-from-clipboard)
          ("C-c C-x l"   . org-insert-dtp-link)
          ("C-c C-x m"   . org-insert-message-link)
-         ("C-c C-x o"   . my-org-todoize)
+         ("C-c C-x o"   . my-org-open-map-link)
          ("C-c C-x r"   . org-clock-report)
-         ("C-c C-x u"   . org-set-url-from-clipboard)
+         ("C-c C-x u"   . my-org-todoize)
          ("C-c C-x S"   . org-sync)
          ("C-M-y"       . my-org-yank-link)
          ([return]      . (lambda () (interactive) (org-return t)))
@@ -8843,6 +8843,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (org-id-get-create arg)
     (org-entry-put (point) "CREATED"
                    (format-time-string (org-time-stamp-format t t))))
+
+  (defun my-org-open-map-link ()
+    (interactive)
+    (let ((location (org-entry-get (point) "LOCATION")))
+      (if location
+          (browse-url (concat "https://maps.apple.com/?q=org&ll=" location))
+        (error "Entry has no location set"))))
 
   (eval-when-compile
     (defvar org-clock-current-task))
