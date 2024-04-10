@@ -9323,13 +9323,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :after org
   :custom
   (org-capture-templates
-   '(("a" "Add Task" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+   '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* TODO %?" :prepend t)
-     ("n" "Note" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+     ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* NOTE %?" :prepend t)
-     ("c" "Calendar" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+     ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* APPT %?" :prepend t)
-     ("l" "Link" entry (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+     ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* LINK %:description%?
 :PROPERTIES:
 :URL:      %:link
