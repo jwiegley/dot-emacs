@@ -1335,8 +1335,10 @@ diff-hl package.
               ("M-!"   . shell-command)
               ("<tab>" . dired-next-window)
               ("M-G")
-              ("M-s f"))
-  :hook (dired-mode . dired-hide-details-mode)
+              ("M-s f")
+              ("C-c C-x a" . org-attach-dired-to-subtree))
+  :hook
+  (dired-mode . dired-hide-details-mode)
   :custom
   (dired-clean-up-buffers-too nil)
   (dired-dwim-target t)
