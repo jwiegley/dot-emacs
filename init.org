@@ -9064,6 +9064,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defun my-org-yank-link ()
     (interactive)
     (org-insert-all-links nil "*** " "\n"))
+
+  (defun endless/follow-tag-link (tag)
+    "Display a list of TODO headlines with tag TAG.
+With prefix argument, also display headlines without a TODO keyword."
+    (org-tags-view (null current-prefix-arg) tag))
   :config
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
@@ -9071,6 +9076,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 			   :store #'org-gnus-store-link)
   (add-hook 'gnus-summary-mode-hook
             #'(lambda () (my-gnus-drop-link-parameter "gnus")))
+
+  (org-add-link-type "tag" 'endless/follow-tag-link)
 
   (use-package org-mairix
     :defer t
@@ -9409,10 +9416,10 @@ context.
 (use-package org-attach
   :after org
   :custom
-  (org-attach-file-list-property "ATTACHED")
+  (org-attach-file-list-property "FILE")
   (org-attach-id-dir "~/org/data")
   (org-attach-method 'mv)
-  (org-attach-store-link-p 'file)
+  (org-attach-store-link-p 'attached)
   :init
   (defun my-org-attach-visit-headline-from-dired ()
     "Go to the headline corresponding to this org-attach directory."
