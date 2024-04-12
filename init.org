@@ -9665,7 +9665,8 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-noter
-  :after org
+  :after (org pdf-view)
+  :demand t
   :commands org-noter
   :custom
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode)))
