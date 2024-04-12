@@ -8711,7 +8711,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-src-window-setup 'current-window)
   (org-startup-folded 'show3levels)
   (org-startup-with-inline-images t)
-  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED") nil ""))
+  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED" "SOMEDAY") nil ""))
   (org-subject-transforms
    '(("\\`\\(Re\\|Fwd\\): " . "")
      ("\\`{ledger} " . "")
@@ -9194,7 +9194,7 @@ With prefix argument, also display headlines without a TODO keyword."
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
      ("w" "Unscheduled work tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+      "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|SOMEDAY\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
       ((org-agenda-files '("~/org/area/kadena/kadena.org"))
        (org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
