@@ -258,6 +258,57 @@ To use this function, add it to `org-agenda-finalize-hook':
   (org-set-property "CREATED" (with-temp-buffer
                                 (org-insert-time-stamp (current-time) t t))))
 
+(defun org-extra-entire-properties-block ()
+  "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
+  (save-excursion
+    (org-back-to-heading)
+    (let ((entry-end (save-excursion
+                       (outline-next-heading)
+                       (point)))
+          beg end)
+      (when (search-forward ":PROPERTIES:" end t)
+        (setq beg (match-beginning 0)))
+      (when (re-search-forward ":END:\\s-*\n" end t)
+        (setq end (match-end 0)))
+      (cons beg end))))
+
+(defun org-extra-move-properties-drawer ()
+  (interactive)
+  (save-excursion
+    (org-back-to-heading)
+    (pcase (org-extra-entire-properties-block)
+      (`(,beg . ,end)
+       (let ((entries-block (buffer-substring beg end)))
+         (delete-region beg end)
+         ;; Create a new properties block
+         (org-get-property-block nil 'force)
+         (pcase (org-extra-entire-properties-block)
+           (`(,new-beg . ,new-end)
+            (goto-char new-beg)
+            (delete-region new-beg new-end)))
+         (insert entries-block)))
+      (_ nil))))
+
+(defun org-extra-fix-all-properties ()
+  (interactive)
+  (goto-char (point-min))
+  (while (search-forward ":PROPERTIES:" nil t)
+    (let* ((beg (match-beginning 0))
+           (end (and (re-search-forward ":END:\\s-*\n")
+                     (match-end 0))))
+      (goto-char beg)
+      (ignore-errors
+        (org-extra-move-properties-drawer))
+      (goto-char end))))
+
+(defun org-extra-update-date-field ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward "^#\\+date:\\s-*\\(.+\\)" nil t)
+      (delete-region (match-beginning 1) (match-end 1))
+      (org-insert-time-stamp (current-time) t t))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

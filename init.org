@@ -8558,6 +8558,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x L"   . org-set-dtp-link)
          ("C-c C-x M"   . org-set-message-link)
          ("C-c C-x U"   . org-set-url-from-clipboard)
+         ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x l"   . org-insert-dtp-link)
          ("C-c C-x m"   . org-insert-message-link)
          ("C-c C-x o"   . my-org-open-map-link)
@@ -8658,6 +8659,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-hide-leading-stars t)
   (org-icalendar-combined-agenda-file "~/org/org.ics")
   (org-icalendar-timezone "America/Los_Angeles")
+  (org-id-link-to-org-use-id t)
   (org-image-actual-width 800)
   (org-imenu-depth 4)
   (org-insert-heading-respect-content t)
@@ -9020,49 +9022,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (setq org-link-parameters
           (cl-delete-if #'(lambda (x) (string= (car x) param))
                         org-link-parameters)))
-
-  (defun my-org-entire-properties-block ()
-    "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
-    (save-excursion
-      (org-back-to-heading)
-      (let ((entry-end (save-excursion
-                         (outline-next-heading)
-                         (point)))
-            beg end)
-        (when (search-forward ":PROPERTIES:" end t)
-          (setq beg (match-beginning 0)))
-        (when (re-search-forward ":END:\\s-*\n" end t)
-          (setq end (match-end 0)))
-        (cons beg end))))
-
-  (defun my-org-move-properties-drawer ()
-    (interactive)
-    (save-excursion
-      (org-back-to-heading)
-      (pcase (my-org-entire-properties-block)
-        (`(,beg . ,end)
-         (let ((entries-block (buffer-substring beg end)))
-           (delete-region beg end)
-           ;; Create a new properties block
-           (org-get-property-block nil 'force)
-           (pcase (my-org-entire-properties-block)
-             (`(,new-beg . ,new-end)
-              (goto-char new-beg)
-              (delete-region new-beg new-end)))
-           (insert entries-block)))
-        (_ nil))))
-
-  (defun my-org-fix-all-properties ()
-    (interactive)
-    (goto-char (point-min))
-    (while (search-forward ":PROPERTIES:" nil t)
-      (let* ((beg (match-beginning 0))
-             (end (and (re-search-forward ":END:\\s-*\n")
-                       (match-end 0))))
-        (goto-char beg)
-        (ignore-errors
-          (my-org-move-properties-drawer))
-        (goto-char end))))
 
   (defun my-org-yank-link ()
     (interactive)
@@ -9787,7 +9746,9 @@ context.
                          ":PROPERTIES:
 :CREATED:  %U
 :END:
-,#+filetags: :roam:\n#+title: ${title}\n")
+,#+filetags: :roam:
+,#+date: %U
+,#+title: ${title}\n")
       :jump-to-captured t
       :empty-lines-before 1
       :unnarrowed t)
@@ -9827,7 +9788,9 @@ context.
 :CREATED:  %U
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish=johnwiegley:\n#+title: ${title}\n")
+,#+filetags: :publish=johnwiegley:
+,#+date: %U
+,#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)
      ("N" "newartisans.com" plain "%?"
@@ -9838,7 +9801,9 @@ context.
 :CREATED:  %U
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish=newartisans:\n#+title: ${title}\n")
+,#+filetags: :publish=newartisans:
+,#+date: %U
+,#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
