@@ -9106,7 +9106,7 @@ With prefix argument, also display headlines without a TODO keyword."
      ("R" "Last month's unscheduled" tags
       "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-skip-function
-        '(or (org-extra-agenda-skip-if-not-within 14)
+        '(or (org-extra-agenda-skip-if-not-within 90)
              (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
