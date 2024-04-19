@@ -9092,15 +9092,20 @@ With prefix argument, also display headlines without a TODO keyword."
    '(("A" "Priority #A tasks" agenda ""
       ((org-agenda-ndays 1)
        (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\=.*\\[#A\\]"))))
+        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
      ("b" "Priority #A and #B tasks" agenda ""
       ((org-agenda-ndays 1)
        (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'regexp "\\=.*\\[#C\\]"))))
-     ("z" "Priority #C tasks" agenda ""
-      ((org-agenda-ndays 1)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\=.*\\[#C\\]"))))
+        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
+     ("z" "Priority #C tasks" tags
+      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files '("~/org/area/todo.org"
+                           "~/org/area/OSS.org"
+                           "~/org/area/kadena/kadena.org"))))
      ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
      ("r" "Inbox" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
      ("R" "Last month's unscheduled" tags
