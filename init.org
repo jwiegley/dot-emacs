@@ -9108,11 +9108,11 @@ With prefix argument, also display headlines without a TODO keyword."
                            "~/org/area/kadena/kadena.org"))))
      ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
      ("r" "Inbox" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
-     ("R" "Last month's unscheduled" tags
+     ("u" "Unscheduled tasks in last 90 days" tags
       "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-skip-function
-        '(or (org-extra-agenda-skip-if-not-within 90)
-             (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)))
+        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+             (org-extra-agenda-skip-if-not-within 90)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/todo.org"
@@ -9143,10 +9143,11 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files
         '("~/org/area/OSS.org"))))
-     ("u" "Unscheduled tasks" tags
+     ("R" "Review old unscheduled tasks" tags
       "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+             (org-extra-agenda-skip-if-within 90)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/todo.org"

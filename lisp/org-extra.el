@@ -227,6 +227,19 @@ To use this function, add it to `org-agenda-finalize-hook':
            (> (- now day) days)
            subtree-end))))
 
+(defun org-extra-agenda-skip-if-within (days)
+  "Skip entry if it wasn't created within the given number of DAYS."
+  (ignore-errors
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (day
+           (time-to-days
+            (org-time-string-to-time
+             (org-entry-get nil "CREATED"))))
+          (now (time-to-days (current-time))))
+      (and day
+           (<= (- now day) days)
+           subtree-end))))
+
 (defun org-extra-jump-to-agenda ()
   (interactive)
   (push-window-configuration)
