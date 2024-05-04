@@ -10255,7 +10255,6 @@ text belongs to.
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Calls" :tag "Call")
      (:name "Errands" :tag "Errand")
-     (:name "Work" :file-path "kadena")
      (:name "Tasks" :not (:priority "A" :priority "C"))
      (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
      (:name "Optional" :priority "C" :order 9)
