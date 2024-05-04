@@ -8817,11 +8817,15 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           1))))
 
   (defun org-my-message-open (message-id)
-    (require 'gnus-util)
-    (if (get-buffer "*Group*")
-        (gnus-goto-article
-         (gnus-string-remove-all-properties (substring message-id 2)))
-      (error "Gnus is not running")))
+    (if t
+        (browse-url (concat "https://app.fastmail.com/mail/search:msgid%3A"
+                            (url-encode-url (substring message-id 2))
+                            "/?u=d30140a0"))
+      (require 'gnus-util)
+      (if (get-buffer "*Group*")
+          (gnus-goto-article
+           (gnus-string-remove-all-properties (substring message-id 2)))
+        (error "Gnus is not running"))))
 
   (defun save-org-mode-files ()
     (dolist (buf (buffer-list))
