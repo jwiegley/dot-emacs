@@ -135,10 +135,9 @@
           (insert body))))
 
     (org-set-property "Date"
-                      (or date-sent
-                          (time-to-org-timestamp
-                           (apply 'encode-time
-                                  (parse-time-string date-sent)) t t)))
+                      (format-time-string
+                       (org-time-stamp-format 'long 'inactive)
+                       (org-encode-time (parse-time-string date-sent))))
     (org-set-property "Message"
                       (format "[[message://%s][%s]]"
                               (substring message-id 1 -1)
