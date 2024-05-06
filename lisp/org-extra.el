@@ -322,6 +322,17 @@ To use this function, add it to `org-agenda-finalize-hook':
       (delete-region (match-beginning 1) (match-end 1))
       (org-insert-time-stamp (current-time) t t))))
 
+(defun org-extra-reformat-time (&optional beg end)
+  (interactive "r")
+  (let ((date-string (buffer-substring beg end)))
+    (save-excursion
+      (goto-char beg)
+      (delete-region beg end)
+      (insert
+       (format-time-string
+        (org-time-stamp-format 'long 'inactive)
+        (org-encode-time (parse-time-string date-string)))))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here
