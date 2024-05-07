@@ -10454,6 +10454,8 @@ own lines, for instance.
   :load-path "lisp/emacs-asana"
   :commands asana-org-sync-tasks
   :defines (asana-token)
+  :custom
+  (asana-tasks-org-file "~/org/area/kadena/asana.org")
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
