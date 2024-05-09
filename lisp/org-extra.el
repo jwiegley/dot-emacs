@@ -286,33 +286,42 @@ To use this function, add it to `org-agenda-finalize-hook':
       (cons beg end))))
 
 (defun org-extra-move-properties-drawer ()
+  "Move the PROPERTIES drawer to its proper location.
+Returns nil if nothing was moved, otherwise it returns point
+after :END:."
   (interactive)
   (save-excursion
-    (org-back-to-heading)
-    (pcase (org-extra-entire-properties-block)
-      (`(,beg . ,end)
-       (let ((entries-block (buffer-substring beg end)))
-         (delete-region beg end)
-         ;; Create a new properties block
-         (org-get-property-block nil 'force)
-         (pcase (org-extra-entire-properties-block)
-           (`(,new-beg . ,new-end)
-            (goto-char new-beg)
-            (delete-region new-beg new-end)))
-         (insert entries-block)))
-      (_ nil))))
+    (org-back-to-heading-or-point-min)
+    (let* ((beg (point))
+           (end (save-excursion
+                  (org-next-visible-heading 1)
+                  (point)))
+           (before-sha (sha1 (buffer-substring-no-properties beg end)))
+           (modified (buffer-modified-p)))
+      (save-restriction
+        (narrow-to-region beg end)
+        (pcase (org-extra-entire-properties-block)
+          (`(,beg . ,end)
+           (let ((entries-block (buffer-substring beg end)))
+             (delete-region beg end)
+             ;; Create a new properties block
+             (org-get-property-block nil 'force)
+             (pcase (org-extra-entire-properties-block)
+               (`(,new-beg . ,new-end)
+                (goto-char new-beg)
+                (delete-region new-beg new-end)
+                (insert entries-block)))))
+          (_ nil))
+        (if (equal before-sha (sha1 (buffer-substring-no-properties beg end)))
+            (set-buffer-modified-p modified))))))
+
 
 (defun org-extra-fix-all-properties ()
   (interactive)
-  (goto-char (point-min))
-  (while (search-forward ":PROPERTIES:" nil t)
-    (let* ((beg (match-beginning 0))
-           (end (and (re-search-forward ":END:\\s-*\n")
-                     (copy-marker (match-end 0) t))))
-      (goto-char beg)
-      (ignore-errors
-        (org-extra-move-properties-drawer))
-      (goto-char end))))
+  (while (re-search-forward "^\\*" nil t)
+    (ignore-errors
+      (org-extra-move-properties-drawer))
+    (forward-line 1)))
 
 (defun org-extra-update-date-field ()
   (interactive)

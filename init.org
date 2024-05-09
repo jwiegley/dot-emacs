@@ -1335,8 +1335,7 @@ diff-hl package.
               ("M-!"   . shell-command)
               ("<tab>" . dired-next-window)
               ("M-G")
-              ("M-s f")
-              ("C-c C-x a" . org-attach-dired-to-subtree))
+              ("M-s f"))
   :hook
   (dired-mode . dired-hide-details-mode)
   :custom
@@ -9390,9 +9389,12 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-attach
-  :after org
+  :after (org dired)
+  :bind (:map dired-mode-map
+              ("C-c C-x a" . org-attach-dired-to-subtree))
   :custom
   (org-attach-file-list-property "FILE")
+  (org-attach-auto-tag "FILE")
   (org-attach-id-dir "~/org/data")
   (org-attach-method 'mv)
   (org-attach-store-link-p 'attached)
