@@ -308,7 +308,7 @@ To use this function, add it to `org-agenda-finalize-hook':
   (while (search-forward ":PROPERTIES:" nil t)
     (let* ((beg (match-beginning 0))
            (end (and (re-search-forward ":END:\\s-*\n")
-                     (match-end 0))))
+                     (copy-marker (match-end 0) t))))
       (goto-char beg)
       (ignore-errors
         (org-extra-move-properties-drawer))
