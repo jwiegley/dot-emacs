@@ -360,6 +360,11 @@ unto itself.
   (add-hook 'after-save-hook
             #'executable-make-buffer-file-executable-if-script-p)
 
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (setq ns-use-proxy-icon nil)
+  ;; (setq frame-title-format nil)
+
   (define-key input-decode-map [?\C-m] [C-m])
 
   ;; Setup keymaps that are bound into by many declarations below.
@@ -4172,6 +4177,9 @@ append it to ENTRY."
       (`1680 'macbook-pro-15)
       ))
 
+  (defsubst iawriter-duo-font (height)
+    (format "-*-iA Writer Duo S-normal-normal-normal-*-%d*-*-*-*-p-0-iso10646-1" height))
+
   (defsubst bookerly-font (height)
     (format "-*-Bookerly-normal-normal-normal-*-%d-*-*-*-p-0-iso10646-1" height))
 
@@ -5189,6 +5197,33 @@ complement Emacs’ default =C-x 8= prefix map.
 #+begin_src emacs-lisp
 (use-package word-count
   :bind ("C-c \"" . word-count-mode))
+#+end_src
+
+** writeroom-mode
+
+#+begin_src emacs-lisp
+(use-package writeroom-mode
+  :commands writeroom-mode
+  :bind ("C-c \\" . writeroom-mode)
+  :hook
+  (writeroom-mode-enable . set-buffer-writing-font)
+  (writeroom-mode-disable . unset-buffer-writing-font)
+  :custom
+  (writeroom-width 100)
+  :preface
+  (defface my-writing-face
+    '((t (:height 1.2 :family "ia Writer Duo S")))
+    "A face used for writing")
+
+  (defun set-buffer-writing-font ()
+    "Sets font in current buffer"
+    (interactive)
+    (buffer-face-set 'my-writing-face))
+
+  (defun unset-buffer-writing-font ()
+    "Sets font in current buffer"
+    (interactive)
+    (buffer-face-set 'default)))
 #+end_src
 
 ** xray
