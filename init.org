@@ -8990,7 +8990,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (xeft-full-reindex)
     (let ((default-directory "~"))
       (async-shell-command
-       "syncup ; backup --quick ; echo FINISHED"
+       "syncup ; echo FINISHED"
        (get-buffer-create "*Org-Sync*"))))
 
   (defun org-get-message-link (&optional title)
