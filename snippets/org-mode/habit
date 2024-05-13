@@ -1,0 +1,8 @@
+#name : HABIT
+# --
+TODO $0
+:PROPERTIES:
+:ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+:STYLE:    habit
+:REPEAT_TO_STATE: TODO
+:END:

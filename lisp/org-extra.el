@@ -263,7 +263,8 @@ To use this function, add it to `org-agenda-finalize-hook':
                 (funcall #'prep-window (display-buffer buf)))))
         (require 'org-agenda)
         (mapc #'find-file-noselect org-agenda-files)
-        (call-interactively 'org-agenda-list)
+        (call-interactively #'org-agenda-list)
+        (org-agenda-filter '(64))
         (funcall #'prep-window (selected-window))))))
 
 (defun org-extra-basic-properties ()
