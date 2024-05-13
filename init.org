@@ -2925,7 +2925,7 @@ up before you execute another command."
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 #+end_src
 
-** iflipb
+** COMMENT iflipb
 
 #+begin_src emacs-lisp
 (use-package iflipb
@@ -8599,7 +8599,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x u"   . my-org-todoize)
          ("C-c C-x C"   . org-update-checkbox-count)
-         ("C-c C-x S"   . org-sync)
          ("C-M-y"       . my-org-yank-link)
          ([return]      . (lambda () (interactive) (org-return t)))
          ([(control return)])
@@ -8969,30 +8968,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (org-sort-entries t ?o))
         (forward-line))))
 
-  (defun org-sync ()
-    (interactive)
-    (with-current-buffer (find-file-noselect "~/org/area/todo.org")
-      (goto-char (point-min))
-      (org-sort-all))
-    (with-current-buffer (find-file-noselect "~/org/area/OSS.org")
-      (goto-char (point-min))
-      (org-sort-all))
-    (with-current-buffer (find-file-noselect "~/org/area/kadena/kadena.org")
-      (goto-char (point-min))
-      (org-sort-all))
-    (save-some-buffers t)
-    (my/org-roam-update-todo-files)
-    (save-some-buffers t)
-    (org-id-update-id-locations)
-    (org-roam-db-sync)
-    (require 'xeft)
-    (require 'xapian-lite)
-    (xeft-full-reindex)
-    (let ((default-directory "~"))
-      (async-shell-command
-       "syncup ; echo FINISHED"
-       (get-buffer-create "*Org-Sync*"))))
-
   (defun org-get-message-link (&optional title)
     (let (message-id subject)
       (with-current-buffer gnus-original-article-buffer
@@ -9091,9 +9066,6 @@ With prefix argument, also display headlines without a TODO keyword."
     :defer t
     :config
     (my-gnus-drop-link-parameter "mairix"))
-
-  (unless alternate-emacs
-    (run-with-idle-timer 25 t 'save-org-mode-files))
 
   (font-lock-add-keywords
    'org-mode
@@ -10140,7 +10112,6 @@ tasks."
   (setq org-roam-v2-ack t)
   :config
   (org-roam-db-autosync-mode)
-  (run-with-idle-timer 60 t 'org-roam-db-sync)
 
   (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
   (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
@@ -10254,9 +10225,6 @@ directories, dot files, and files matched by
            (not (member relative-path my-xeft-ignored-files))
            (not (my/org-roam-excluded-file relative-path)))))
   :config
-  (run-with-idle-timer 300 t #'(lambda ()
-                                 (xeft-full-reindex)
-                                 (xeft--front-page-cache-refresh)))
   (defun xeft ()
     "Start Xeft."
     (interactive)
@@ -10309,6 +10277,53 @@ text belongs to.
   (org-super-agenda-hide-empty-groups t)
   :config
   (org-super-agenda-mode))
+#+end_src
+
+*** org-sync
+
+#+begin_src emacs-lisp
+(use-package org-sync
+  :no-require t
+  :demand t
+  :after org
+  :bind (:map
+         org-mode-map
+         ("C-c C-x S" . org-sync))
+  :custom
+  (org-sync-files '("~/org/area/todo.org"
+                    "~/org/area/OSS.org"
+                    "~/org/area/kadena/kadena.org"))
+  :preface
+  (defcustom org-sync-files nil
+    "Regular expressions to identify foolish content.
+    Usually what happens is that you add the bots to
+    `erc-ignore-list' and the bot commands to this list."
+    :group 'org
+    :type '(repeat file))
+
+  (defun org-sync ()
+    (interactive)
+    (dolist (file org-sync-files)
+      (with-current-buffer (find-file-noselect file)
+        (goto-char (point-min))
+        (org-sort-all)))
+    (save-some-buffers t)
+    (my/org-roam-update-todo-files)
+    (save-some-buffers t)
+    (org-id-update-id-locations)
+    (save-org-mode-files)
+    (org-roam-db-sync)
+    (require 'xeft)
+    (require 'xapian-lite)
+    (xeft-full-reindex)
+    (xeft--front-page-cache-refresh)
+    (let ((default-directory "~"))
+      (shell-command "syncup ; echo FINISHED"
+                     (get-buffer-create "*Org-Sync*")))
+    (call-interactively #'org-extra-jump-to-agenda))
+  :config
+  (unless alternate-emacs
+    (run-with-idle-timer 300 t #'org-sync)))
 #+end_src
 
 *** org-web-tools
