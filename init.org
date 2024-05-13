@@ -10318,8 +10318,9 @@ text belongs to.
     (xeft-full-reindex)
     (xeft--front-page-cache-refresh)
     (let ((default-directory "~"))
-      (shell-command "syncup ; echo FINISHED"
-                     (get-buffer-create "*Org-Sync*")))
+      (save-window-excursion
+        (shell-command "syncup ; echo FINISHED"
+                       (get-buffer-create "*Org-Sync*"))))
     (call-interactively #'org-extra-jump-to-agenda))
   :config
   (unless alternate-emacs
