@@ -8645,7 +8645,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-depend-tag-blocked nil)
   (org-directory "~/org/")
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
-  (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUT"))
+  (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
   (org-edit-src-content-indentation 0)
   (org-enforce-todo-dependencies t)
   (org-export-backends '(ascii html icalendar latex md))
@@ -8766,7 +8766,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)"
+   '((sequence "STARTED(s)" "TODO(t)" "WAITING(w@/!)"
                "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
