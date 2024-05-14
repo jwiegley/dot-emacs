@@ -4051,6 +4051,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
+  :demand t
   :magic ("%PDF" . pdf-view-mode)
   :custom
   (pdf-tools-handle-upgrades nil)
@@ -9660,6 +9661,7 @@ context.
   :demand t
   :commands org-noter
   :custom
+  (org-noter-notes-search-path '("~/org/inbox"))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode)))
 #+end_src
 
