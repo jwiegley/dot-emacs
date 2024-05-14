@@ -2575,7 +2575,7 @@ up before you execute another command."
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model "gpt-4-1106-preview")
+  (gptel-model "gpt-4o")
   ;; (gptel-model "claude-3-opus-20240229")
   (gptel-directives
    '((default . "You are a helpful assistant. Respond concisely.")
@@ -8609,7 +8609,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-mode . turn-on-auto-fill)
   (org-mode . turn-on-flyspell)
   (org-mode . (lambda () (modify-syntax-entry ?’ "w")))
+  (org-mode . (lambda () (set-input-method "Agda")))
   (org-mode . setup-insert-code-block)
+  ;; (org-mode . (lambda ()
+  ;;               (maybe-turn-on-whitespace)
+  ;;               (setq whitespace-line-column 256
+  ;;                     whitespace-style
+  ;;                     '(face trailing space-before-tab empty))))
   :hook
   (org-log-buffer-setup . abbrev-mode)
   (org-log-buffer-setup . turn-on-auto-fill)
