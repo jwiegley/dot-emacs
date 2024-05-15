@@ -9737,7 +9737,7 @@ context.
   :after org
   :commands org-ql-search
   :bind
-  ("M-g o" . org-ql-find)
+  ("M-g o" . my/org-ql-find-with-heading)
   :preface
   (defun my/org-agenda-completions-at-point ()
     "Function to be used as `completion-at-point' in Org mode."
@@ -9770,8 +9770,22 @@ context.
   (defun my/org-agenda-completion-hook ()
     "Configure org-mode for completion at point for org-agenda headlines."
     (add-to-list 'completion-at-point-functions 'my/org-agenda-completions-at-point))
+
+  (defun my/org-ql-find-with-heading ()
+    (interactive)
+    (cond
+     ((eq major-mode 'dired-mode)
+      (let ((org-ql-search-directories-files-recursive t))
+        (org-ql-find (org-ql-search-directories-files
+                      :directories '("~/org/area" "~/org/resource"))
+                     :query-prefix "todo:CATEGORY,PROJECT ")))
+     ((eq major-mode 'org-mode)
+      (org-ql-find (org-ql-find--buffers) :query-prefix "todo:CATEGORY,PROJECT "))
+     (t
+      (org-ql-find (org-agenda-files) :query-prefix "todo:CATEGORY,PROJECT "))))
   :config
   (add-to-list 'vertico-multiform-commands '(org-ql-find))
+  (add-to-list 'vertico-multiform-commands '(my/org-ql-find-with-heading))
 
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
@@ -9837,7 +9851,7 @@ context.
      ("N" "Inline Note" entry "* NOTE %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
-     ("i" "Idea" entry "* %?"
+     ("i" "Idea" entry "* NOTE %?"
       :target (file "~/org/resource/ideas.org")
       :empty-lines 1
       :prepend t)
