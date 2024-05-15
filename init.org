@@ -2556,6 +2556,9 @@ up before you execute another command."
 #+end_src
 
 ** gptel
+:PROPERTIES:
+:ID:       448C11F8-ABEF-4006-8E35-954437EA3DE6
+:END:
 
 #+begin_src emacs-lisp
 (use-package gptel
@@ -2575,7 +2578,7 @@ up before you execute another command."
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model "gpt-4o")
+  (gptel-model "gpt-4-1106-preview")
   ;; (gptel-model "claude-3-opus-20240229")
   (gptel-directives
    '((default . "You are a helpful assistant. Respond concisely.")
