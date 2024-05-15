@@ -5,4 +5,7 @@ TODO $0
 :ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
 :STYLE:    habit
 :REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:END:
+:LOGBOOK:
 :END:

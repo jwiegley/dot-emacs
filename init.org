@@ -8803,7 +8803,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-fast-todo-selection 'expert)
   (org-use-speed-commands t)
   (org-use-sub-superscripts nil)
-  (org-use-tag-inheritance nil)
+  (org-use-tag-inheritance '("Noon" "Night" "Home" "Errand"))
   (org-yank-adjusted-subtrees t)
   :custom-face
   (org-done ((t (:foreground "ForestGreen" :weight bold))))
