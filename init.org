@@ -10391,7 +10391,8 @@ text belongs to.
     (call-interactively #'org-extra-jump-to-agenda))
   :config
   (unless alternate-emacs
-    (run-with-idle-timer 300 t #'org-sync)))
+    ;; (run-with-idle-timer 300 t #'org-sync)
+    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
 #+end_src
 
 *** org-web-tools
