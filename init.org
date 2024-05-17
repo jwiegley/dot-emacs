@@ -10383,7 +10383,8 @@ text belongs to.
   :custom
   (org-sync-files '("~/org/area/todo.org"
                     "~/org/area/OSS.org"
-                    "~/org/area/kadena/kadena.org"))
+                    "~/org/area/kadena/kadena.org"
+                    "~/org/area/bahai/assembly/assembly.org"))
   :preface
   (defcustom org-sync-files nil
     "Regular expressions to identify foolish content.
