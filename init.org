@@ -8631,9 +8631,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :custom
   (org-M-RET-may-split-line '((headline) (default . t)))
   (org-adapt-indentation nil)
-  (org-archive-location "TODO-archive::")
-  (org-archive-save-context-info '(time category itags))
-  (org-author-transforms '(("^Howard Reubenstein$" . "Howard")))
   (org-beamer-frame-default-options "fragile")
   ;; C-c C-r (org-reveal) will display where the point is if it is buried in
   ;; invisible text to allow editing again.
