@@ -9914,7 +9914,7 @@ context.
      "archive"
      "\\`data/"
      "\\`site/"
-     "\\`area/bahai/assembly"
+     "\\`area/bahai/assembly/minutes"
      ))
   (my/org-roam-revise-locations
    '(("bahai" . "resource/bahai")
