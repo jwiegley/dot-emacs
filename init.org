@@ -8592,6 +8592,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c #"       . org-priority)
          ("C-c ,"       . org-priority)
          ("C-c !"       . org-time-stamp-inactive)
+         ("C-c ["       . org-time-stamp-inactive)
          ("C-c <"       . org-time-stamp)
          ("C-c x"       . org-todo)
          ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
@@ -8746,6 +8747,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '((org-agenda-files :todo . "PROJECT")
      (org-agenda-files :todo . "CATEGORY")
      ("~/org/resource/bookmarks.org" :level . 1)))
+  (org-refile-use-cache t)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -9081,7 +9083,7 @@ With prefix argument, also display headlines without a TODO keyword."
 
   (org-link-set-parameters "copy"
                            :follow (lambda (link) (kill-new link))
-                           :export (lambda (_ desc &rest _) desc)))
+                           :export (lambda (_ desc &rest _) desc))
 
   (org-add-link-type "tag" 'endless/follow-tag-link)
 
