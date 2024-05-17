@@ -8575,6 +8575,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+end_src
 
 ** Org-mode
+:PROPERTIES:
+:ID:       AFE90AE3-4AD9-4477-AC38-F45AFB8C4C63
+:END:
 
 #+begin_src emacs-lisp
 (use-package org
@@ -8823,6 +8826,19 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defconst my-org-soft-blue   "#e8eff9")
   (defconst my-org-soft-purple "#f3e8f9")
 
+  (defconst my-org-open-todo-keywords
+    '("STARTED"
+      "TODO"
+      "WAITING"
+      "DELEGATED"
+      "DEFERRED"
+      "SOMEDAY"
+      "PROJECT"
+      "EPIC"
+      "STORY"
+      "APPT")
+    "Keywords that represent a TODO in an open state.")
+
   (defconst org-my-ts-regexp
     "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
     "Regular expression for fast inactive time stamp matching.")
@@ -9065,6 +9081,10 @@ With prefix argument, also display headlines without a TODO keyword."
 			   :store #'org-gnus-store-link)
   (add-hook 'gnus-summary-mode-hook
             #'(lambda () (my-gnus-drop-link-parameter "gnus")))
+
+  (org-link-set-parameters "copy"
+                           :follow (lambda (link) (kill-new link))
+                           :export (lambda (_ desc &rest _) desc)))
 
   (org-add-link-type "tag" 'endless/follow-tag-link)
 
@@ -10142,7 +10162,11 @@ tasks."
          (org-element-parse-buffer 'headline) ; (1)
          'headline
        (lambda (h)
-         (org-element-property :todo-type h)))))
+         (message "%s" (org-element-property :todo-type h))
+         (message "%s" (org-element-property :todo-keyword h))
+         (and (member (org-element-property :todo-keyword h)
+                      my-org-open-todo-keywords)
+              (org-element-property :todo-type h))))))
 
   ;; https://magnus.therning.org/2021-03-14-keeping-todo-items-in-org-roam.html
   (defun my/org-roam-update-todo-tag ()
@@ -10373,7 +10397,8 @@ text belongs to.
     (dolist (file org-sync-files)
       (with-current-buffer (find-file-noselect file)
         (goto-char (point-min))
-        (org-sort-all)))
+        (org-sort-all)
+        (org-cycle-content 5))
     (save-org-mode-files)
     (my/org-roam-update-todo-files)
     (save-org-mode-files)
