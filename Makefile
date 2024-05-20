@@ -1,7 +1,7 @@
 ## -*- mode: makefile-gmake -*-
 
 EMACS	    = emacs
-EMACS_BATCH = $(EMACS) -Q -batch
+EMACS_BATCH = $(EMACS) -batch
 
 TARGET = $(patsubst %.el,%.elc,init.el)
 
@@ -20,21 +20,20 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 .PHONY: test build clean
 
 # Main rule
-# all: init.elc
-all: init.el
+all: init.elc
 
 init.org: ~/org/resource/emacs/init.org
-	@if test ~/org/resource/emacs/init.org -nt $@; then \
-	    rm -f $@; \
-	    cp -p ~/org/resource/emacs/init.org $@; \
-	    chmod 444 $@; \
+	@if test ~/org/resource/emacs/init.org -nt $@; then	\
+	    rm -f $@;						\
+	    cp -p ~/org/resource/emacs/init.org $@;		\
+	    chmod 444 $@;					\
 	fi
 
 # Generate lisp and compile it
 init.el: init.org
 	@rm -f $@
-	@$(BATCH_LOAD) -L $(HOME)/.emacs.d/lisp/org-mode/lisp \
-		--eval "(require 'org)" \
+	@$(BATCH_LOAD)						\
+		--eval "(require 'org)"				\
 		--eval "(org-babel-load-file \"init.org\")"
 	@chmod 444 $@
 
@@ -49,18 +48,17 @@ init.elc: init.el
 	@$(BATCH_LOAD) -f batch-byte-compile $<
 
 speed: init.elc
-	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+	time $(BATCH_LOAD) -Q -L . -l init		\
+	    --eval "(message \"Hello, world\!\")"
 
 slow: init.elc
-	time emacs -L . -l init --debug-init --batch --eval "(message \"Hello, world\!\")"
+	time $(BATCH_LOAD) -Q -L . -l init --debug-init	\
+	    --eval "(message \"Hello, world\!\")"
 
-# open: init.elc
-#	@open $$(dirname $$(which emacs))/../Applications/*.app
+open: init.elc
+	@open $$(dirname $$(which emacs))/../Applications/*.app
 
-# open-quick: init.el
-#	@open $$(dirname $$(which emacs))/../Applications/*.app
-
-open: init.el
+open-quick: init.el
 	@open $$(dirname $$(which emacs))/../Applications/*.app
 
 clean:

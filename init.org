@@ -360,11 +360,6 @@ unto itself.
   (add-hook 'after-save-hook
             #'executable-make-buffer-file-executable-if-script-p)
 
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . dark))
-  (setq ns-use-proxy-icon nil)
-  ;; (setq frame-title-format nil)
-
   (define-key input-decode-map [?\C-m] [C-m])
 
   ;; Setup keymaps that are bound into by many declarations below.
@@ -4973,6 +4968,13 @@ complement Emacs’ default =C-x 8= prefix map.
   (vc-make-backup-files t))
 #+end_src
 
+** vcard-mode
+
+#+begin_src emacs-lisp
+(use-package vcard-mode
+  :mode "\\.vc\\(f\\|ard\\)\\'")
+#+end_src
+
 ** vdiff
 
 #+begin_src emacs-lisp
@@ -8608,6 +8610,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x u"   . my-org-todoize)
          ("C-c C-x C"   . org-update-checkbox-count)
          ("C-M-y"       . my-org-yank-link)
+         ("M-n"         . org-next-link)
+         ("M-p"         . org-previous-link)
          ([return]      . (lambda () (interactive) (org-return t)))
          ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
@@ -8783,8 +8787,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "STARTED(s)" "TODO(t)" "WAITING(w@/!)"
-               "DELEGATED(g@/!)" "DEFERRED(r)" "SOMEDAY(y)"
+   '((sequence "STARTED(s!/!)" "TODO(t)" "WAITING(w@/!)"
+               "DELEGATED(g@/!)" "DEFERRED(r!/!)" "SOMEDAY(y!/!)"
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
                "|" "DONE(d@)" "CANCELED(x@)")
@@ -8912,8 +8916,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (unless arg
       (org-todo "TODO"))
     (org-id-get-create arg)
-    (org-entry-put (point) "CREATED"
-                   (format-time-string (org-time-stamp-format t t))))
+    (unless (org-entry-get (point) "CREATED")
+      (org-entry-put (point) "CREATED"
+                     (format-time-string (org-time-stamp-format t t)))))
 
   (defun my-org-open-map-link ()
     (interactive)
@@ -9087,10 +9092,10 @@ With prefix argument, also display headlines without a TODO keyword."
             #'(lambda () (my-gnus-drop-link-parameter "gnus")))
 
   (org-link-set-parameters "copy"
-                           :follow (lambda (link) (kill-new link))
-                           :export (lambda (_ desc &rest _) desc))
+                           :follow #'kill-new
+                           :export #'(lambda (_ desc &rest _) desc))
 
-  (org-add-link-type "tag" 'endless/follow-tag-link)
+  (org-link-set-parameters "tag" :follow #'endless/follow-tag-link)
 
   (use-package org-mairix
     :defer t
@@ -9763,6 +9768,9 @@ context.
 (use-package org-ql
   :after org
   :commands org-ql-search
+  :functions (org-ql-find--buffers
+              org-ql-search-directories-files
+              org-ql-find)
   :bind
   ("M-g o" . my/org-ql-find-with-heading)
   :preface
@@ -10885,9 +10893,9 @@ own lines, for instance.
 
 *** COMMENT mic-paren
 
-Activate [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]] and Em>
+Load [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]], activate it and Emacs will display highlighting on whatever
 parenthesis (and paired delimiter if you like this) matches the one before or
-after point. This is an extension to the paren.el file distributed with Emacs.
+after point. This is an extension to the =paren.el= file distributed with Emacs.
 The default behaviour is similar to =paren.el= but more sophisticated. Normally
 you can try all default settings to enjoy =mic-paren=.
 
