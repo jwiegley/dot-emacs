@@ -24,7 +24,7 @@
   "Export function for color links."
   (cond
    ((eq backend 'html)
-    (let ((rgb (assoc (downcase path) color-fg-name-rgb-alist))
+    (let ((rgb (assoc (downcase path) color-name-rgb-alist))
           r g b)
       (setq r (* 255 (/ (nth 1 rgb) 65535.0))
             g (* 255 (/ (nth 2 rgb) 65535.0))
