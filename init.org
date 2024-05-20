@@ -2525,7 +2525,7 @@ up before you execute another command."
   :commands git-timemachine)
 #+end_src
 
-** git-undo
+** COMMENT git-undo
 
 #+begin_src emacs-lisp
 (use-package git-undo
@@ -3888,7 +3888,7 @@ header overlay should cover. Result is a cons cell of (begin . end)."
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
 #+end_src
 
-** ovpn-mode
+** COMMENT ovpn-mode
 
 #+begin_src emacs-lisp
 (use-package ovpn-mode
@@ -9767,6 +9767,7 @@ context.
 #+begin_src emacs-lisp
 (use-package org-ql
   :after org
+  :demand t
   :commands org-ql-search
   :functions (org-ql-find--buffers
               org-ql-search-directories-files
