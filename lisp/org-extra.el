@@ -343,6 +343,22 @@ after :END:."
         (org-time-stamp-format 'long 'inactive)
         (org-encode-time (parse-time-string date-string)))))))
 
+(defvar org-extra-fixup-slack-history nil)
+
+(defun org-extra-fixup-slack ()
+  (interactive)
+  (goto-char (point-min))
+  (while (search-forward "\n\n \n\n" nil t)
+    (replace-match ": "))
+  (goto-char (point-min))
+  (while (re-search-forward "\\[\\[\\(https:.+?\\)\\]\\[.+?\\]\\]" nil t)
+    (replace-match
+     (concat "[["
+             (match-string 1)
+             "]["
+             (read-string "Author: " "Me" org-extra-fixup-slack-history)
+             "]]"))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

@@ -1353,6 +1353,7 @@ diff-hl package.
   (dired-omit-size-limit 60000)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
+  (dired-vc-rename-file t)
   :functions (dired-dwim-target-directory)
   :preface
   (defun dired-two-pane ()
@@ -9182,7 +9183,7 @@ With prefix argument, also display headlines without a TODO keyword."
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notdeadline))
        (org-agenda-sorting-strategy '(category-up))))
-     ("S" "Scheduled tasks" tags
+     ("[" "Scheduled tasks" tags
       "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notscheduled))
@@ -9231,7 +9232,7 @@ With prefix argument, also display headlines without a TODO keyword."
      ("P" "All Projects" tags "TODO=\"PROJECT\"")
      ("n" "Project Next Actions" alltodo ""
       ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
-     ("T" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
+     ("O" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
      ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\"")
      ("h" "Current Hotlist" alltodo ""
       ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
@@ -10371,14 +10372,16 @@ text belongs to.
   :after org
   :custom
   (org-super-agenda-groups
-   '((:name "Important" :priority "A")
-     (:name "Overdue" :deadline past)
+   '((:name "Overdue" :deadline past)
+     (:name "Important" :priority "A")
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
+     (:name "Due Soon" :deadline future)
+     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
      (:name "Calls" :tag "Call")
      (:name "Errands" :tag "Errand")
-     (:name "Due Soon" :deadline future)
-     (:name "Tasks" :not (:priority "A" :priority "C"))
-     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
+     ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
+     (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
+     (:name "Habits" :habit t)
      (:name "Optional" :priority "C" :order 9)))
   (org-super-agenda-header-separator "")
   (org-super-agenda-hide-empty-groups t)
