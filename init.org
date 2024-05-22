@@ -8943,7 +8943,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
             ((string= tag "Night")
              (and (> hour 6) (< hour 20)))
             ((string= tag "Nasim")
-             (< hour 16))
+             (< hour 17))
             ((string= tag "Home")
              (with-temp-buffer
                (call-process "ifconfig" nil t nil "en0" "inet")
