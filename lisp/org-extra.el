@@ -359,6 +359,9 @@ after :END:."
              (read-string "Author: " "Me" org-extra-fixup-slack-history)
              "]]"))))
 
+(defalias 'org-extra-unarchive-category
+  (kmacro "C-s : A R C H I V E _ C A T E G O R Y :   A N D F C-a C-c C-w a n d f <return>"))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here
