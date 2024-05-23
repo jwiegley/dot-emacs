@@ -4064,6 +4064,15 @@ append it to ENTRY."
   (pdf-tools-install))
 #+end_src
 
+** pdfgrep
+
+#+begin_src emacs-lisp
+(use-package pdfgrep
+  :commands pdfgrep
+  :config
+  (pdfgrep-mode))
+#+end_src
+
 ** per-window-point
 
 #+begin_src emacs-lisp
@@ -9143,27 +9152,9 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
   (org-agenda-compact-blocks t)
   (org-agenda-custom-commands
-   '(("A" "Priority #A tasks" agenda ""
-      ((org-agenda-ndays 1)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
-     ("b" "Priority #A and #B tasks" agenda ""
-      ((org-agenda-ndays 1)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
-     ("z" "Priority #C tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"
-                           "~/org/area/OSS.org"
-                           "~/org/area/kadena/kadena.org"))))
-     ("i" "Inbox" tags "CATEGORY=\"Inbox\"&LEVEL=2")
-     ("r" "Inbox" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
-     ("u" "Unscheduled tasks in last 90 days" tags
-      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
+   '(("r" . "Review tasks")
+
+     ("ru" "Unscheduled (last 90 days)" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (org-extra-agenda-skip-if-not-within 90)))
@@ -9172,72 +9163,129 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-files '("~/org/area/todo.org"
                            "~/org/area/OSS.org"
                            "~/org/area/kadena/kadena.org"))))
-     ("W" "Waiting/delegated tasks" tags
-      "W-TODO=\"DONE\"|TODO={WAITING\\|DELEGATED}"
+
+     ("rU" "All unscheduled" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled))
-       (org-agenda-sorting-strategy
-        '(todo-state-up priority-down category-up))))
-     ("D" "Deadlined tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}"
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notdeadline))
-       (org-agenda-sorting-strategy '(category-up))))
-     ("[" "Scheduled tasks" tags
-      "TODO<>\"\"&TODO<>{APPT\\|DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT}&STYLE<>\"habit\""
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notscheduled))
-       (org-agenda-sorting-strategy '(category-up))))
-     ("o" "Unscheduled open source tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files '("~/org/area/todo.org"
+                           "~/org/area/OSS.org"
+                           "~/org/area/kadena/kadena.org"))))
+
+     ("ro" "Unscheduled open source" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
                                    "\\* \\(DEFERRED\\|SOMEDAY\\)"))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files
-        '("~/org/area/OSS.org"))))
-     ("R" "Review old unscheduled tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (org-extra-agenda-skip-if-within 90)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"
-                           "~/org/area/kadena/kadena.org"))))
-     ("U" "Deferred tasks" tags "TODO=\"DEFERRED\""
-      ((org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("Y" "Someday tasks" tags "TODO=\"SOMEDAY\""
-      ((org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("I" "Impactful tasks" tags
-      "Impact&TODO<>\"\"&TODO<>{DONE\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY\\|DEFERRED\\|SOMEDAY}"
-      ((org-agenda-sorting-strategy
-        '(todo-state-up priority-down user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-     ("w" "Unscheduled work tasks" tags
-      "TODO<>\"\"&TODO<>{DONE\\|DEFERRED\\|SOMEDAY\\|CANCELED\\|NOTE\\|LINK\\|PROJECT\\|CATEGORY}"
+       (org-agenda-files '("~/org/area/OSS.org"))))
+
+     ("rW" "Unscheduled work" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-files '("~/org/area/kadena/kadena.org"))
        (org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("rw" "Waiting/delegated" tags "TODO={WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'scheduled))
+       (org-agenda-sorting-strategy
+        '(todo-state-up priority-down category-up))))
+
+     ("rd" "Deadlined" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notdeadline))
+       (org-agenda-sorting-strategy '(category-up))))
+
+     ("rs" "Scheduled" tags "TODO={APPT\\|TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notscheduled))
+       (org-agenda-sorting-strategy '(category-up))))
+
+     ("rD" "Deferred" tags "TODO=\"DEFERRED\""
+      ((org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("rY" "Someday" tags "TODO=\"SOMEDAY\""
+      ((org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("rI" "Impactful" tags "Impact&TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-sorting-strategy
+        '(todo-state-up priority-down user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("rp" "With tags"
+      (lambda (arg) (call-interactively #'org-extra-with-tags-search nil)))
+
+     ("rc" "With category"
+      (lambda (arg) (call-interactively #'org-extra-with-category-search nil)))
+
+     ("rt" "With item"
+      (lambda (arg) (call-interactively #'org-extra-with-item-search nil)))
+
      ("c" "Appointment Calendar" agenda ""
       ((org-agenda-sorting-strategy '(time-up))
        (org-agenda-span 14)
        (org-agenda-ndays 14)
        (org-agenda-regexp-filter-preset '("+APPT"))))
-     ("P" "All Projects" tags "TODO=\"PROJECT\"")
-     ("n" "Project Next Actions" alltodo ""
+
+     ("p" . "Projects")
+
+     ("pp" "All Projects" tags "TODO=\"PROJECT\"")
+
+     ("pn" "Project Next Actions" alltodo ""
       ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
-     ("O" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
-     ("H" "Hot Projects" tags "HOT&TODO=\"PROJECT\"")
-     ("h" "Current Hotlist" alltodo ""
+
+     ("po" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
+
+     ("ph" "Hot Projects" tags "HOT&TODO=\"PROJECT\"")
+
+     ("pH" "Current Hotlist" alltodo ""
       ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
-     ("N" "Notes" tags "TODO=\"NOTE\"")
-     ("L" "Links" tags "TODO=\"LINK\"")))
+
+     ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
+
+     ("n" "Notes" tags "TODO=\"NOTE\"")
+
+     ("l" "Links" tags "TODO=\"LINK\"")
+
+     ("P" . "Priority views")
+
+     ("Pa" "Today's priority #A tasks" agenda ""
+      ((org-agenda-ndays 7)
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
+
+     ("Pb" "Today's priority #A and #B tasks" agenda ""
+      ((org-agenda-ndays 7)
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
+
+     ("Pc" "Today's priority #C tasks" agenda ""
+      ((org-agenda-ndays 7)
+       (org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
+
+     ("PA" "All priority #A tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("PB" "All priority #B tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]"))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+
+     ("PC" "All priority #C tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))
+       (org-agenda-sorting-strategy '(user-defined-up))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
@@ -9354,6 +9402,14 @@ With prefix argument, also display headlines without a TODO keyword."
     (add-hook 'my-emacs-startup-hook #'org-extra-jump-to-agenda t)
     (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
     (run-with-idle-timer 300 t 'org-extra-jump-to-agenda)))
+#+end_src
+
+*** org-appear
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :after org
+  :hook (org-mode . org-appear-mode))
 #+end_src
 
 *** org-capture
@@ -9747,6 +9803,55 @@ context.
        dx dy))))
 #+end_src
 
+*** org-noter-pdftools
+
+#+begin_src emacs-lisp
+(use-package org-noter-pdftools
+  :after org-noter
+  :demand t
+  :preface
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions
+            (if toggle-no-questions
+                (not org-noter-insert-note-no-questions)
+              org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freepointer-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+  With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location
+                      (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions
+              #'org-noter-pdftools-jump-to-note)))
+#+end_src
+
+*** org-pdftools
+
+#+begin_src emacs-lisp
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+#+end_src
+
 *** org-protocol
 
 #+begin_src emacs-lisp
@@ -9810,6 +9915,8 @@ context.
 
   (defun my/org-ql-find-with-heading (&optional arg)
     (interactive "P")
+    (require 'org-ql)
+    (require 'org-ql-find)
     (let (current-prefix-arg)
       (cond
        ((eq major-mode 'dired-mode)
@@ -10372,17 +10479,20 @@ text belongs to.
   :after org
   :custom
   (org-super-agenda-groups
-   '((:name "Overdue" :deadline past)
-     (:name "Important" :priority "A")
+   '(
+     (:name "Errands" :tag "Errand")
+     (:name "Calls" :tag "Call")
+     (:name "Overdue" :deadline past)
+     ;; (:name "Important" :priority "A")
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Due Soon" :deadline future)
      (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
-     (:name "Calls" :tag "Call")
-     (:name "Errands" :tag "Errand")
      ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
-     (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
+     ;; (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
+     (:name "Tasks" :and (:not (:habit t)))
      (:name "Habits" :habit t)
-     (:name "Optional" :priority "C" :order 9)))
+     ;; (:name "Optional" :priority "C" :order 9)
+     ))
   (org-super-agenda-header-separator "")
   (org-super-agenda-hide-empty-groups t)
   :config

@@ -359,8 +359,37 @@ after :END:."
              (read-string "Author: " "Me" org-extra-fixup-slack-history)
              "]]"))))
 
-(defalias 'org-extra-unarchive-category
-  (kmacro "C-s : A R C H I V E _ C A T E G O R Y :   A N D F C-a C-c C-w a n d f <return>"))
+(defvar org-extra-property-search-name nil)
+
+(defun org-extra-with-property-search (property value)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive
+   (list (setq org-extra-property-search-name (org-read-property-name))
+         (completing-read "Value: "
+                          (org-property-values org-extra-property-search-name))))
+  (let ((org-use-property-inheritance
+         (append org-use-property-inheritance '("WITH"))))
+    (org-tags-view
+     t (format "%s={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" property value))))
+
+(defun org-extra-with-tags-search (tags)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive "sTags: ")
+  (org-tags-view
+   t (format "%s&TODO={TODO\\|WAITING\\|DELEGATED}" tags)))
+
+(defun org-extra-with-category-search (who)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive
+   (list (completing-read "Category: " (org-property-values "CATEGORY"))))
+  (org-tags-view
+   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
+
+(defun org-extra-with-item-search (who)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive "sItem: ")
+  (org-tags-view
+   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
 
 (provide 'org-extra)
 
