@@ -8619,6 +8619,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x u"   . my-org-todoize)
          ("C-c C-x C"   . org-update-checkbox-count)
+         ("C-c C-x t"   . org-toggle-link-display)
          ("C-M-y"       . my-org-yank-link)
          ("M-n"         . org-next-link)
          ("M-p"         . org-previous-link)
@@ -8760,7 +8761,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-priority-faces
    '((65 :foreground "White" :weight bold)
      (66 . "White")
-     (67 :foreground "dark gray" :slant italic)))
+     (67 :foreground "grey90" :slant italic)))
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets
    '((org-agenda-files :todo . "PROJECT")
@@ -10329,8 +10330,8 @@ tasks."
   :config
   (org-roam-db-autosync-mode)
 
-  (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
-  (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
+  ;; (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
+  ;; (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
 
   (advice-add 'org-agenda :before #'my/org-roam-update-todo-files))
 #+end_src
