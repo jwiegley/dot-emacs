@@ -2574,7 +2574,7 @@ up before you execute another command."
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model "gpt-4-1106-preview")
+  (gptel-model "gpt-4o")
   ;; (gptel-model "claude-3-opus-20240229")
   (gptel-directives
    '((default . "You are a helpful assistant. Respond concisely.")
@@ -2601,7 +2601,15 @@ up before you execute another command."
 
   (use-package gptel-openai
     :custom
-    (gptel-api-key (auth-source-pass-get 'secret "chat.openai.com")))
+    (gptel-api-key (auth-source-pass-get 'secret "chat.openai.com"))
+    :config
+    (gptel-make-openai
+        "ChatGPT"
+      :key 'gptel-api-key
+      :stream t
+      :models '("gpt-3.5-turbo" "gpt-3.5-turbo-16k" "gpt-4"
+                "gpt-4-turbo-preview" "gpt-4-32k" "gpt-4-1106-preview"
+                "gpt-4-0125-preview" "gpt-4o")))
 
   (use-package gptel-ollama
     :demand t
@@ -8766,9 +8774,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (67 :foreground "grey90" :slant italic)))
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets
-   '((org-agenda-files :todo . "PROJECT")
-     (org-agenda-files :todo . "CATEGORY")
-     ("~/org/resource/bookmarks.org" :level . 1)))
+   '((org-agenda-files :maxlevel . 4)
+     ("~/org/resource/bookmarks.org" :maxlevel . 2)))
   (org-refile-use-cache t)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
@@ -8804,8 +8811,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
                "|" "DONE(d@)" "CANCELED(x@)")
-     (sequence "CATEGORY"
-               "|")
      (sequence "|" "NOTE(n)" "DECISION" "LINK(l)")
      (sequence "APPT(a)"
                "|" "DONE(d@)" "CANCELED(x@)")))
@@ -8821,8 +8826,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("WAIT" :foreground "red" :weight bold)
      ("DELEGATED" :foreground "dark violet" :weight bold)
      ("DEFER" :foreground "dark blue" :weight bold)
-     ("PROJECT" :foreground "#088e8e" :weight bold)
-     ("CATEGORY" :foreground "orange" :weight bold)))
+     ("PROJECT" :foreground "#088e8e" :weight bold)))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
@@ -9002,7 +9006,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (error nil))
         (forward-line))
       (goto-char (point-min))
-      (while (re-search-forward "\\* \\(PROJECT\\|CATEGORY\\) " nil t)
+      (while (re-search-forward "\\* PROJECT " nil t)
         (goto-char (line-beginning-position))
         (ignore-errors
           (org-sort-entries t ?p)
@@ -9055,8 +9059,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (compose-mail-other-window author (concat "Re: " subject))))
 
   (defun org-refile-heading-p ()
-    (let ((heading (org-get-heading)))
-      (not (string-match "Colophon" heading))))
+    (let ((todo-state (org-get-todo-state)))
+      (if todo-state
+          (string= todo-state "PROJECT")
+        (org-entry-get (point) "CATEGORY"))))
 
   (defsubst org-current-is-todo ()
     (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "DOING")))
@@ -9873,9 +9879,10 @@ context.
   :commands org-ql-search
   :functions (org-ql-find--buffers
               org-ql-search-directories-files
-              org-ql-find)
+              org-ql-find
+              org-ql-defpred)
   :bind
-  ("M-g o" . my/org-ql-find-with-heading)
+  ("M-g o" . my/org-ql-find-refile-targets)
   :preface
   (defun my/org-agenda-completions-at-point ()
     "Function to be used as `completion-at-point' in Org mode."
@@ -9909,26 +9916,31 @@ context.
     "Configure org-mode for completion at point for org-agenda headlines."
     (add-to-list 'completion-at-point-functions 'my/org-agenda-completions-at-point))
 
-  (defun my/org-ql-find-with-heading (&optional arg)
+  (org-ql-defpred refile-target ()
+    "Return non-nil if entry is a refile target."
+    :body (org-refile-heading-p))
+
+  (defun my/org-ql-find-refile-targets (&optional arg)
     (interactive "P")
     (require 'org-ql)
     (require 'org-ql-find)
-    (let (current-prefix-arg)
+    (let ((query-prefix "refile-target: ")
+          current-prefix-arg)
       (cond
        ((eq major-mode 'dired-mode)
         (let ((org-ql-search-directories-files-recursive t))
           (org-ql-find (org-ql-search-directories-files
                         :directories '("~/org/area" "~/org/resource"))
-                       :query-prefix "todo:CATEGORY,PROJECT ")))
+                       :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
         (org-ql-find (org-ql-find--buffers)
-                     :query-prefix (if arg nil "todo:CATEGORY,PROJECT ")))
+                     :query-prefix (if arg nil query-prefix)))
        (t
         (org-ql-find (org-agenda-files)
-                     :query-prefix (if arg nil "todo:CATEGORY,PROJECT "))))))
+                     :query-prefix (if arg nil query-prefix))))))
   :config
   (add-to-list 'vertico-multiform-commands '(org-ql-find))
-  (add-to-list 'vertico-multiform-commands '(my/org-ql-find-with-heading))
+  (add-to-list 'vertico-multiform-commands '(my/org-ql-find-refile-targets))
 
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
