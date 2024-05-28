@@ -8296,6 +8296,8 @@ is:
 #+begin_src emacs-lisp
 (use-package mml
   :after message
+  :custom
+  (mml-secure-openpgp-sign-with-sender t)
   :preface
   (defvar mml-signing-attachment nil)
 
@@ -8654,7 +8656,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-clocked-in-display nil)
   (org-clock-idle-time 10)
   (org-clock-in-resume t)
-  (org-clock-in-switch-to-state "STARTED")
+  (org-clock-in-switch-to-state "DOING")
   (org-clock-into-drawer "LOGBOOK")
   (org-clock-mode-line-total 'current)
   (org-clock-out-remove-zero-time-clocks t)
@@ -8779,7 +8781,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-src-window-setup 'current-window)
   (org-startup-folded 'show3levels)
   (org-startup-with-inline-images t)
-  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFERRED" "SOMEDAY") nil ""))
+  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFER") nil ""))
   (org-subject-transforms
    '(("\\`\\(Re\\|Fwd\\): " . "")
      ("\\`{ledger} " . "")
@@ -8798,8 +8800,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "STARTED(s!/!)" "TODO(t)" "WAITING(w@/!)"
-               "DELEGATED(g@/!)" "DEFERRED(r!/!)" "SOMEDAY(y!/!)"
+   '((sequence "DOING(s!/!)" "TODO(t)" "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
                "|" "DONE(d@)" "CANCELED(x@)")
@@ -8816,11 +8817,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("NOTE" :foreground "brown" :weight bold)
      ("DECISION" :foreground "brown" :weight bold)
      ("LINK" :foreground "tomato" :weight bold)
-     ("STARTED" :foreground "dark orange" :weight bold)
-     ("WAITING" :foreground "red" :weight bold)
+     ("DOING" :foreground "dark orange" :weight bold)
+     ("WAIT" :foreground "red" :weight bold)
      ("DELEGATED" :foreground "dark violet" :weight bold)
-     ("DEFERRED" :foreground "dark blue" :weight bold)
-     ("SOMEDAY" :foreground "dark blue" :weight bold)
+     ("DEFER" :foreground "dark blue" :weight bold)
      ("PROJECT" :foreground "#088e8e" :weight bold)
      ("CATEGORY" :foreground "orange" :weight bold)))
   (org-todo-repeat-to-state "TODO")
@@ -8846,12 +8846,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defconst my-org-soft-purple "#f3e8f9")
 
   (defconst my-org-open-todo-keywords
-    '("STARTED"
+    '("DOING"
       "TODO"
-      "WAITING"
+      "WAIT"
       "DELEGATED"
-      "DEFERRED"
-      "SOMEDAY"
+      "DEFER"
       "PROJECT"
       "EPIC"
       "STORY"
@@ -9060,7 +9059,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (not (string-match "Colophon" heading))))
 
   (defsubst org-current-is-todo ()
-    (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "STARTED")))
+    (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "DOING")))
 
   (defun insert-code-block ()
     "Replace ``` with an Org code block."
@@ -9155,7 +9154,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-custom-commands
    '(("r" . "Review tasks")
 
-     ("ru" "Unscheduled (last 90 days)" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("ru" "Unscheduled (last 90 days)" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (org-extra-agenda-skip-if-not-within 90)))
@@ -9165,7 +9164,7 @@ With prefix argument, also display headlines without a TODO keyword."
                            "~/org/area/OSS.org"
                            "~/org/area/kadena/kadena.org"))))
 
-     ("rU" "All unscheduled" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rU" "All unscheduled" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-sorting-strategy '(user-defined-up))
@@ -9174,46 +9173,42 @@ With prefix argument, also display headlines without a TODO keyword."
                            "~/org/area/OSS.org"
                            "~/org/area/kadena/kadena.org"))))
 
-     ("ro" "Unscheduled open source" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("ro" "Unscheduled open source" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
-                                   "\\* \\(DEFERRED\\|SOMEDAY\\)"))
+                                   "\\* \\(DEFER\\)"))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/OSS.org"))))
 
-     ("rW" "Unscheduled work" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rW" "Unscheduled work" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-files '("~/org/area/kadena/kadena.org"))
        (org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("rw" "Waiting/delegated" tags "TODO={WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rw" "Waiting/delegated" tags "TODO={WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled))
        (org-agenda-sorting-strategy
         '(todo-state-up priority-down category-up))))
 
-     ("rd" "Deadlined" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rd" "Deadlined" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notdeadline))
        (org-agenda-sorting-strategy '(category-up))))
 
-     ("rs" "Scheduled" tags "TODO={APPT\\|TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rs" "Scheduled" tags "TODO={APPT\\|TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notscheduled))
        (org-agenda-sorting-strategy '(category-up))))
 
-     ("rD" "Deferred" tags "TODO=\"DEFERRED\""
+     ("rD" "Deferred" tags "TODO=\"DEFER\""
       ((org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("rY" "Someday" tags "TODO=\"SOMEDAY\""
-      ((org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("rI" "Impactful" tags "Impact&TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("rI" "Impactful" tags "Impact&TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-sorting-strategy
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
@@ -9270,19 +9265,19 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
 
-     ("PA" "All priority #A tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("PA" "All priority #A tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("PB" "All priority #B tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("PB" "All priority #B tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]"))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("PC" "All priority #C tasks" tags "TODO={TODO\\|WAITING\\|DELEGATED}&STYLE<>\"habit\""
+     ("PC" "All priority #C tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))
        (org-agenda-sorting-strategy '(user-defined-up))
@@ -10487,7 +10482,7 @@ text belongs to.
      ;; (:name "Important" :priority "A")
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Due Soon" :deadline future)
-     (:name "Needs review" :todo "WAITING" :todo "DELEGATED" :todo "STARTED")
+     (:name "Needs review" :todo "WAIT" :todo "DELEGATED" :todo "DOING")
      ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
      ;; (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
      (:name "Tasks" :and (:not (:habit t)))
