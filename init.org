@@ -9006,7 +9006,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (error nil))
         (forward-line))
       (goto-char (point-min))
-      (while (re-search-forward "\\* PROJECT " nil t)
+      (while (search-forward "\\* PROJECT " nil t)
         (goto-char (line-beginning-position))
         (ignore-errors
           (org-sort-entries t ?p)
