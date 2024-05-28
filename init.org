@@ -9916,10 +9916,6 @@ context.
     "Configure org-mode for completion at point for org-agenda headlines."
     (add-to-list 'completion-at-point-functions 'my/org-agenda-completions-at-point))
 
-  (org-ql-defpred refile-target ()
-    "Return non-nil if entry is a refile target."
-    :body (org-refile-heading-p))
-
   (defun my/org-ql-find-refile-targets (&optional arg)
     (interactive "P")
     (require 'org-ql)
@@ -9939,6 +9935,10 @@ context.
         (org-ql-find (org-agenda-files)
                      :query-prefix (if arg nil query-prefix))))))
   :config
+  (org-ql-defpred refile-target ()
+    "Return non-nil if entry is a refile target."
+    :body (org-refile-heading-p))
+
   (add-to-list 'vertico-multiform-commands '(org-ql-find))
   (add-to-list 'vertico-multiform-commands '(my/org-ql-find-refile-targets))
 
