@@ -9740,7 +9740,7 @@ context.
   :after org
   :custom
   (org-modern-list '((43 . "◦") (45 . "•") (42 . "⋆")))
-  (org-modern-todo nil)
+  (org-modern-todo t)
   (org-modern-star nil)
   :config
   (global-org-modern-mode))
@@ -9997,8 +9997,6 @@ context.
                          ":PROPERTIES:
 :CREATED:  %U
 :END:
-,#+filetags: :roam:
-,#+date: %U
 ,#+title: ${title}\n")
       :jump-to-captured t
       :empty-lines-before 1
