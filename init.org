@@ -1,4 +1,8 @@
-#+TITLE: John Wiegley's .emacs file
+:PROPERTIES:
+:ID:       5152F6C3-5A47-45CA-9329-49002C64E282
+:CREATED:  [2024-05-30 Thu 16:51]
+:END:
+#+title: John Wiegley's .emacs file
 
 * Startup
 
@@ -8841,6 +8845,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-scheduled ((((class color) (min-colors 88) (background light)) nil)))
   (org-upcoming-deadline
    ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
+  (org-document-title
+   ((t (:foreground "pale turquoise" :weight bold :height 1.5 :family "DejaVu Sans"))))
   :preface
   (defconst my-org-soft-red    "#fcebeb")
   (defconst my-org-soft-orange "#fcf5eb")
@@ -10320,6 +10326,34 @@ tasks."
                :on (= tags:node-id nodes:id)
                :where (like tag (quote "%\"todo\"%"))])))
 
+  (defun my/org-roam-sort-file-properties ()
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward "^#\\+" nil t)
+        (goto-char (match-beginning 0))
+        (let ((beg (point)))
+          (while (looking-at "^#\\+")
+            (forward-line 1))
+          (save-restriction
+            (narrow-to-region beg (point))
+            (goto-char (point-min))
+            (sort-subr nil
+                       #'(lambda ()
+                           (or (and (re-search-forward "^#\\+" nil t)
+                                    (goto-char (match-beginning 0)))
+                               (goto-char (point-max))))
+                       #'(lambda ()
+                           (goto-char (line-end-position)))
+                       #'(lambda ()
+                           (and (re-search-forward "^#\\+\\([^:]+\\):" nil t)
+                                (match-string 1)))
+                       nil
+                       #'(lambda (x y)
+                           (if (string= (downcase y) "title")
+                               t
+                             (string< x y)))))))))
+
   (defun my/org-roam-update-todo-files (&rest _)
     "Update the value of `org-agenda-files'."
     (setq org-agenda-files
@@ -10337,6 +10371,7 @@ tasks."
 
   ;; (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
   ;; (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
+  (add-hook 'before-save-hook #'my/org-roam-sort-file-properties)
 
   (advice-add 'org-agenda :before #'my/org-roam-update-todo-files))
 #+end_src

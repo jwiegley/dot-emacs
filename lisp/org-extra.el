@@ -391,6 +391,19 @@ after :END:."
   (org-tags-view
    t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
 
+(defun org-extra-created-from-stamp ()
+  (interactive)
+  (let* ((name (file-name-nondirectory (buffer-file-name)))
+         (year (string-to-number (substring name 0 4)))
+         (mon (string-to-number (substring name 4 6)))
+         (day (string-to-number (substring name 6 8))))
+    (org-set-property
+     "CREATED"
+     (with-temp-buffer
+       (org-insert-time-stamp
+        (org-encode-time (list 0 0 0 day mon year)) nil t)
+       (buffer-string)))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

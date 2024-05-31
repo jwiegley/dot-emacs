@@ -1,7 +1,7 @@
-#name : Checklist NOTE
+#name : HEADER
 # --
-*** NOTE $1 [/]
-- [ ] $0
 :PROPERTIES:
 :ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
 :END:
+#+title: $0
+
