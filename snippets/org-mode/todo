@@ -2,5 +2,6 @@
 # --
 TODO $0
 :PROPERTIES:
-:ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+:ID:       `(generate-uuid)`
+:CREATED:  `(created-stamp)`
 :END:

@@ -1,7 +1,8 @@
 #name : HEADER
 # --
 :PROPERTIES:
-:ID:       `(shell-command-to-string "uuidgen")`:CREATED: `(with-temp-buffer (org-insert-time-stamp (current-time) t t))`
+:ID:       `(generate-uuid)`
+:CREATED:  `(created-stamp)`
 :END:
 #+title: $0
 

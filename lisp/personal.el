@@ -50,6 +50,16 @@
   (backward-sentence)
   (mark-end-of-sentence arg))
 
+(defun generate-uuid ()
+  (with-temp-buffer
+    (uuidgen nil)
+    (upcase (buffer-string))))
+
+(defun created-stamp ()
+  (with-temp-buffer
+    (org-insert-time-stamp (current-time) t t)
+    (buffer-string)))
+
 (defun delete-indentation-forward ()
   (interactive)
   (delete-indentation t))
