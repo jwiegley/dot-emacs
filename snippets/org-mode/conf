@@ -1,6 +1,15 @@
 #name : CONF
 # --
-** PROJECT Conference: $1
+** PROJECT $0Conference: $1
+${2:$$(yas-auto-next
+        (unless yas-modified-p
+         (with-temp-buffer
+            (org-time-stamp nil)
+            (buffer-string))))}--${3:$$(yas-auto-next
+                                        (unless yas-modified-p
+                                         (with-temp-buffer
+                                            (org-time-stamp nil)
+                                            (buffer-string))))}
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
@@ -24,6 +33,15 @@
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
+:END:
+*** TODO [#A] Test for Covid                                                                :URL:
+SCHEDULED: $2
+:PROPERTIES:
+:ID:       `(generate-uuid)`
+:CREATED:  `(created-stamp)`
+:REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:URL:      https://docs.google.com/forms/d/e/1FAIpQLSfqBzJzDsTFpFWZHvjjHOnkCI0qrMwYLlTZ7HL9j1mk3ifmdg/viewform
 :END:
 *** TODO Collect contact names from $1
 :PROPERTIES:
