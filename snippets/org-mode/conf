@@ -1,41 +1,41 @@
-#name : PROJECT
+#name : CONF
 # --
-PROJECT Conference: $0
+** PROJECT Conference: $1
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Register for conference
+*** TODO Register for $1
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Book airline flight                                                               :Alex:
+*** TODO Book airline flight for $1                                                        :Alex:
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Book hotel room                                                                   :Alex:
+*** TODO Book hotel room for $1                                                            :Alex:
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Organize conference schedule with BD                                                :BD:
+*** TODO Organize conference schedule with BD for $1                                         :BD:
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Collect contact names
+*** TODO Collect contact names from $1
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Schedule meetings with contacts
+*** TODO Schedule meetings with contacts from $1
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :END:
-*** TODO Write conference report
+*** TODO Write conference report for $1
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`

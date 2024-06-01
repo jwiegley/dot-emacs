@@ -10632,7 +10632,8 @@ text belongs to.
     (message "Running syncup...")
     (redisplay t)
     (let ((default-directory "~"))
-      (async-shell-command "syncup ; echo FINISHED"))
+      (save-excursion
+        (async-shell-command "syncup ; echo FINISHED")))
     (message "Jumping to agenda! Sync complete.")
     (redisplay t)
     (call-interactively #'org-extra-jump-to-agenda))
