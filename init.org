@@ -8804,9 +8804,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("Errand" . 101)
      ("Home" . 104)
      ("Impact" . 73)
-     ("HOT" . 72)))
+     ("HOT" . 72)
+     ("Nasim" . 78)))
   (org-tag-faces
-   '(("Call"  . (:foreground "Orange" :weight bold))
+   '(("HOT"  . (:foreground "Red" :weight bold))
      ("Impact"  . (:foreground "Magenta" :weight bold))))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
@@ -9686,6 +9687,15 @@ context.
   (org-id-locations-file (user-data "org-id-locations")))
 #+end_src
 
+*** org-inlinetask
+
+#+begin_src emacs-lisp
+(use-package org-inlinetask
+  :after org
+  :demand t
+  :functions (org-inlinetask-in-task-p))
+#+end_src
+
 *** org-mime
 
 #+begin_src emacs-lisp
@@ -9960,6 +9970,84 @@ context.
               ("C-c C-x R" . org-remark-mode))
   :config
   (org-remark-global-tracking-mode t))
+#+end_src
+
+*** COMMENT org-return
+
+#+begin_src emacs-lisp
+(use-package org-return
+  :no-require t
+  :after org
+  :bind (:map org-mode-map
+              ("<return>" . scimax/org-return))
+  :preface
+  (eval-when-compile
+    (require 'org-inlinetask))
+
+  (defun scimax/org-return (&optional ignore)
+    "Add new list item, heading or table row with RET.
+A double return on an empty element deletes it.
+Use a prefix arg to get regular RET. "
+    (interactive "P")
+    (if ignore
+        (org-return)
+      (cond
+
+       ((eq 'line-break (car (org-element-context)))
+        (org-return t))
+
+       ;; Open links like usual, unless point is at the end of a line.
+       ;; and if at beginning of line, just press enter.
+       ((or (and (eq 'link (car (org-element-context))) (not (eolp)))
+            (bolp))
+        (org-return))
+
+       ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
+       ;; Johansson!
+       ((org-inlinetask-in-task-p)
+        (org-return))
+
+       ;; checkboxes too
+       ((org-at-item-checkbox-p)
+        (org-insert-todo-heading nil))
+
+       ;; lists end with two blank lines, so we need to make sure we are also not
+       ;; at the beginning of a line to avoid a loop where a new entry gets
+       ;; created with only one blank line.
+       ((org-in-item-p)
+        (if (save-excursion (beginning-of-line) (org-element-property :contents-begin (org-element-context)))
+            (org-insert-heading)
+          (beginning-of-line)
+          (delete-region (line-beginning-position) (line-end-position))
+          (org-return)))
+
+       ;; org-heading
+       ((org-at-heading-p)
+        (if (not (string= "" (org-element-property :title (org-element-context))))
+            (progn (org-end-of-meta-data)
+                   (org-insert-heading-respect-content)
+                   (outline-show-entry))
+          (beginning-of-line)
+          (setf (buffer-substring
+                 (line-beginning-position) (line-end-position)) "")))
+
+       ;; tables
+       ((org-at-table-p)
+        (if (-any?
+             (lambda (x) (not (string= "" x)))
+             (nth
+              (- (org-table-current-dline) 1)
+              (org-table-to-lisp)))
+            (org-return)
+          ;; empty row
+          (beginning-of-line)
+          (setf (buffer-substring
+                 (line-beginning-position) (line-end-position)) "")
+          (org-return)))
+
+       ;; fall-through case
+       (t
+        (org-return))))))
 #+end_src
 
 *** org-rich-yank
@@ -10640,6 +10728,26 @@ text belongs to.
   (unless alternate-emacs
     ;; (run-with-idle-timer 300 t #'org-sync)
     (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
+#+end_src
+
+*** org-transclusion
+
+[[https://github.com/nobiot/org-transclusion][Org-transclusion]] lets you insert a copy of text content via a file link or ID
+link within an Org file. It lets you have the same content present in
+different buffers at the same time without copy-and-pasting it. Edit the
+source of the content, and you can refresh the transcluded copies to the
+up-to-date state. Org-transclusion keeps your files clear of the transcluded
+copies, leaving only the links to the original content.
+
+#+begin_src emacs-lisp
+(use-package org-transclusion
+  :after org
+  :demand t
+  :bind (:map
+         org-mode-map
+         ("C-c n A" . org-transclusion-add)
+         ("C-c n M" . org-transclusion-make-from-link)
+         ("C-c C-x T" . org-transclusion-mode)))
 #+end_src
 
 *** org-web-tools
