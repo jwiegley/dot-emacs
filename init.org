@@ -1,6 +1,7 @@
 :PROPERTIES:
 :ID:       5152F6C3-5A47-45CA-9329-49002C64E282
 :CREATED:  [2024-05-30 Thu 16:51]
+:SLUG:     init
 :END:
 #+title: John Wiegley's .emacs file
 
@@ -8765,9 +8766,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-latex-src-block-backend 'minted)
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
-  (org-log-redeadline 'time)
   (org-log-refile 'time)
-  (org-log-reschedule 'time)
   (org-log-state-notes-insert-after-drawers t)
   (org-mime-preserve-breaks nil)
   (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
@@ -8780,7 +8779,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-refile-targets
    '((org-agenda-files :maxlevel . 4)
      ("~/org/resource/bookmarks.org" :maxlevel . 2)))
-  (org-refile-use-cache t)
+  (org-refile-use-cache nil)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
@@ -8812,8 +8811,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "DOING(s!/!)" "TODO(t)" "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
-               "|" "DONE(d@)" "CANCELED(x@)")
+   '((sequence "DOING(s!/!)" "TODO(t@/!)" "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
+               "|" "DONE(d@/!)" "CANCELED(x@/!)")
      (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
                "|" "DONE(d@)" "CANCELED(x@)")
      (sequence "|" "NOTE(n)" "DECISION" "LINK(l)")
@@ -8997,20 +8996,14 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "^\\* " nil t)
+      (while (re-search-forward "^\\*+ " nil t)
         (goto-char (match-beginning 0))
-        (condition-case _err
-            (progn
-              (org-sort-entries t ?p)
-              (org-sort-entries t ?o))
-          (error nil))
-        (forward-line))
-      (goto-char (point-min))
-      (while (search-forward "\\* PROJECT " nil t)
-        (goto-char (line-beginning-position))
-        (ignore-errors
-          (org-sort-entries t ?p)
-          (org-sort-entries t ?o))
+        (when (org-refile-heading-p)
+          (condition-case _err
+              (progn
+                (org-sort-entries t ?p)
+                (org-sort-entries t ?o))
+            (error nil)))
         (forward-line))))
 
   (defun org-get-message-link (&optional title)
@@ -9397,6 +9390,19 @@ With prefix argument, also display headlines without a TODO keyword."
     (interactive)
     (org-agenda-goto)
     (org-narrow-to-subtree))
+
+  (eval-when-compile
+    (require 'uuidgen))
+
+  (defun generate-uuid ()
+    (with-temp-buffer
+      (uuidgen nil)
+      (upcase (buffer-string))))
+
+  (defun created-stamp ()
+    (with-temp-buffer
+      (org-insert-time-stamp (current-time) t t)
+      (buffer-string)))
   :config
   (add-hook 'org-agenda-finalize-hook 'org-extra-agenda-add-overlays)
 
