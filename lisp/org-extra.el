@@ -351,13 +351,14 @@ after :END:."
   (while (search-forward "\n\n \n\n" nil t)
     (replace-match ": "))
   (goto-char (point-min))
-  (while (re-search-forward "\\[\\[\\(https:.+?\\)\\]\\[.+?\\]\\]" nil t)
+  (while (re-search-forward "^\\[\\[\\(https:.+?\\)\\]\\[.+?\\]\\]: " nil t)
     (replace-match
      (concat "[["
              (match-string 1)
              "]["
-             (read-string "Author: " "Me" org-extra-fixup-slack-history)
-             "]]"))))
+             ;; (read-string "Author: " "Me" org-extra-fixup-slack-history)
+             "Me"
+             "]]: "))))
 
 (defvar org-extra-property-search-name nil)
 

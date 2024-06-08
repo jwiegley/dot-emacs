@@ -9164,19 +9164,13 @@ With prefix argument, also display headlines without a TODO keyword."
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (org-extra-agenda-skip-if-not-within 90)))
        (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"
-                           "~/org/area/OSS.org"
-                           "~/org/area/kadena/kadena.org"))))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("rU" "All unscheduled" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
        (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/todo.org"
-                           "~/org/area/OSS.org"
-                           "~/org/area/kadena/kadena.org"))))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("ro" "Unscheduled open source" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
@@ -9187,11 +9181,11 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-files '("~/org/area/OSS.org"))))
 
      ("rW" "Unscheduled work" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
-      ((org-agenda-files '("~/org/area/kadena/kadena.org"))
-       (org-agenda-sorting-strategy '(category-up user-defined-up))
+      ((org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+       (org-agenda-files '("~/org/area/kadena/kadena.org"))))
 
      ("rw" "Waiting/delegated" tags "TODO={WAIT\\|DELEGATED}&STYLE<>\"habit\""
       ((org-agenda-skip-function
