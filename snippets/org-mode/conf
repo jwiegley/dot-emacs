@@ -1,6 +1,6 @@
 #name : CONF
 # --
-** PROJECT $0Conference: $1
+PROJECT $0Conference: $1
 ${2:$$(yas-auto-next
         (unless yas-modified-p
          (with-temp-buffer

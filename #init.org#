@@ -9425,28 +9425,22 @@ With prefix argument, also display headlines without a TODO keyword."
 #+begin_src emacs-lisp
 (use-package org-capture
   :after org
-  :demand t
-  ;; :custom
-  ;;   (org-capture-templates
-  ;;    '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* TODO %?" :prepend t)
-  ;;      ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* NOTE %?" :prepend t)
-  ;;      ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* APPT %?" :prepend t)
-  ;;      ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* LINK %:description%?
-  ;; :PROPERTIES:
-  ;; :URL:      %:link
-  ;; :END:" :prepend t)))
-  :preface
-  (defun my/org-basic-properties ()
-    (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
-    (org-set-property "CREATED" (with-temp-buffer
-                                  (org-insert-time-stamp (current-time) t t))))
+  :custom
+  (org-capture-templates
+   '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* TODO %?" :prepend t)
+     ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* NOTE %?" :prepend t)
+     ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* APPT %?" :prepend t)
+     ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* LINK %:description%?
+:PROPERTIES:
+:URL:      %:link
+:END:" :prepend t)))
   :config
   ;; Ensure the ID and CREATED properties are always set for new entries.
-  (add-hook 'org-capture-before-finalize-hook #'my/org-basic-properties))
+  (add-hook 'org-capture-before-finalize-hook #'org-extra-basic-properties))
 #+end_src
 
 **** org-smart-capture
@@ -10066,7 +10060,7 @@ Use a prefix arg to get regular RET. "
 
 *** org-roam
 :PROPERTIES:
-:ID:       EE99F4E5-03D3-4712-9FA5-71405C8474D7
+:ID:       814FF061-C698-42E7-AAC1-AE476D6E899C
 :END:
 
 #+begin_src emacs-lisp
@@ -10094,15 +10088,12 @@ Use a prefix arg to get regular RET. "
   (org-roam-directory "~/org")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
-   '(("a" "Task" entry "* TODO %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("c" "Calendar" entry "* APPT %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("n" "Note" plain "%?"
+   '(("n" "Note" plain "%?"
       :target (file+head "inbox/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+title: ${title}\n")
+                         ":PROPERTIES:
+:CREATED:  %U
+:END:
+,#+title: ${title}\n")
       :jump-to-captured t
       :empty-lines-before 1
       :unnarrowed t)
@@ -10113,10 +10104,16 @@ Use a prefix arg to get regular RET. "
       :target (file "~/org/resource/ideas.org")
       :empty-lines 1
       :prepend t)
+     ("a" "Task" entry "* TODO %?"
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      :prepend t)
+     ("c" "Calendar" entry "* APPT %?"
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      :prepend t)
      ("q" "Quote" plain "%c\n\n─ %?"
+      :jump-to-captured t
       :target (file+head "resource/quote/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :quote:\n#+title: ${title}\n")
-      :jump-to-captured t
       :empty-lines-before 1)
      ("t" "Thought" plain "%?"
       :target (file+head "resource/thoughts/%<%Y%m%d%H%M>-${slug}.org"
@@ -10133,6 +10130,7 @@ Use a prefix arg to get regular RET. "
       :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
                          ":PROPERTIES:
 :SLUG:     ${slug}
+:CREATED:  %U
 :PUBLISH:  %^{Publish after date}U
 :END:
 ,#+filetags: :publish=johnwiegley:
@@ -10145,18 +10143,14 @@ Use a prefix arg to get regular RET. "
       :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
                          ":PROPERTIES:
 :SLUG:     ${slug}
+:CREATED:  %U
 :PUBLISH:  %^{Publish after date}U
 :END:
 ,#+filetags: :publish=newartisans:
 ,#+date: %U
 ,#+title: ${title}\n")
       :empty-lines-before 1
-      :unnarrowed t)
-     ("C" "Conference" entry
-      (file "~/doc/template/org/conference.org")
-      :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
-      :jump-to-captured t)
-     ))
+      :unnarrowed t)))
   (org-roam-db-location (user-data "org-roam.db"))
   (org-roam-extract-new-file-path "%<%Y%m%d%H%M>-${slug}.org")
   (org-roam-file-exclude-regexp
@@ -10184,33 +10178,6 @@ Use a prefix arg to get regular RET. "
    org-roam-node-list
    org-roam-node-file)
   :preface
-  (defvar my/org-start-date)
-  (defvar my/org-end-date)
-
-  (defun my/org-read-date ()
-    (with-temp-buffer
-      (org-time-stamp nil)
-      (buffer-string)))
-
-  (defun my/org-date (&optional timestamp offset)
-    (with-temp-buffer
-      (org-insert-time-stamp
-       (org-encode-time (org-parse-time-string timestamp)))
-      (when offset
-        (org-timestamp-change offset 'day))
-      (buffer-string)))
-
-  (defun my/org-covid-days-to-repeat ()
-    (let ((start
-           (time-to-days
-            (org-encode-time
-             (org-parse-time-string my/org-capture-start-date))))
-          (end
-           (time-to-days
-            (org-encode-time
-             (org-parse-time-string my/org-capture-end-date)))))
-      (format "%s" (+ (- end start) 3 3))))
-
   (defun my/org-roam-current-entry-and-skip ()
     (let* ((title (subst-char-in-string
                    ?/ ?: (car (last (org-get-outline-path t))) t))
@@ -10511,7 +10478,6 @@ tasks."
 
   (defun my/org-roam-update-todo-files (&rest _)
     "Update the value of `org-agenda-files'."
-    (interactive)
     (setq org-agenda-files
           (append (cl-delete-if
                    #'(lambda (file)

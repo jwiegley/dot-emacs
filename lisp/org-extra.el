@@ -267,11 +267,6 @@ To use this function, add it to `org-agenda-finalize-hook':
         (org-agenda-filter '(64))
         (funcall #'prep-window (selected-window))))))
 
-(defun org-extra-basic-properties ()
-  (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
-  (org-set-property "CREATED" (with-temp-buffer
-                                (org-insert-time-stamp (current-time) t t))))
-
 (defun org-extra-entire-properties-block ()
   "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
   (save-excursion
