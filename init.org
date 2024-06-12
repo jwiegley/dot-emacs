@@ -9453,19 +9453,19 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 (use-package org-capture
   :after org
   :demand t
-  ;; :custom
-  ;;   (org-capture-templates
-  ;;    '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* TODO %?" :prepend t)
-  ;;      ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* NOTE %?" :prepend t)
-  ;;      ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* APPT %?" :prepend t)
-  ;;      ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-  ;;       "* LINK %:description%?
-  ;; :PROPERTIES:
-  ;; :URL:      %:link
-  ;; :END:" :prepend t)))
+  :custom
+  (org-capture-templates
+   '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* TODO %?" :prepend t)
+     ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* NOTE %?" :prepend t)
+     ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* APPT %?" :prepend t)
+     ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      "* LINK %:description%?
+  :PROPERTIES:
+  :URL:      %:link
+  :END:" :prepend t)))
   :preface
   (defun my/org-basic-properties ()
     (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
@@ -10139,6 +10139,9 @@ Use a prefix arg to get regular RET. "
      ("N" "Inline Note" entry "* NOTE %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
+     ("N" "Inline Note" entry "* LINK %?"
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      :prepend t)
      ("i" "Idea" entry "* NOTE %?"
       :target (file "~/org/resource/ideas.org")
       :empty-lines 1
@@ -10247,12 +10250,16 @@ Use a prefix arg to get regular RET. "
       (org-time-stamp nil)
       (buffer-string)))
 
-  (defun my/org-date (&optional timestamp offset)
+  (defun my/org-date (&optional timestamp offset time)
     (with-temp-buffer
       (org-insert-time-stamp
        (org-encode-time (org-parse-time-string timestamp)))
       (when offset
         (org-timestamp-change offset 'day))
+      (when time
+        (goto-char (point-max))
+        (forward-char -1)
+        (insert " " time))
       (buffer-string)))
 
   (defun my/org-covid-days-to-repeat ()
