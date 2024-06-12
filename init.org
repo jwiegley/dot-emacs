@@ -8837,6 +8837,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-speed-commands t)
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance '("Noon" "Night" "Home" "Errand"))
+  (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
   (org-done ((t (:foreground "ForestGreen" :weight bold))))
@@ -9123,7 +9124,28 @@ With prefix argument, also display headlines without a TODO keyword."
       (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
   (defadvice org-refile-get-location (before clear-refile-history activate)
-    (setq org-refile-history nil)))
+    (setq org-refile-history nil))
+
+  (defun org-refile-check-position (refile-pointer)
+    "Check if the refile pointer matches the headline to which it points."
+    (let* ((file (nth 1 refile-pointer))
+	   (re (nth 2 refile-pointer))
+	   (pos (nth 3 refile-pointer))
+	   buffer)
+      (if (and (not (markerp pos)) (not file))
+	  (user-error "Please indicate a target file in the refile path")
+        (when (org-string-nw-p re)
+	  (setq buffer (if (markerp pos)
+			   (marker-buffer pos)
+		         (or (find-buffer-visiting file)
+			     (find-file-noselect file))))
+	  (with-current-buffer buffer
+	    (org-with-wide-buffer
+	     (goto-char pos)
+	     (beginning-of-line 1)
+	     (unless (looking-at-p re)
+	       (user-error "Invalid refile position: expected %s but looking at %s"
+                           re (buffer-substring (point) (line-end-position)))))))))))
 #+end_src
 
 *** org-agenda
@@ -9304,7 +9326,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-scheduled-relative-text "S%d: ")
   (org-agenda-scheduled-text "")
   (org-agenda-show-all-dates t)
-  (org-agenda-show-outline-path nil)
+  (org-agenda-show-outline-path t)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-deadline-is-shown t)
   (org-agenda-skip-scheduled-if-done t)
@@ -9418,6 +9440,34 @@ With prefix argument, also display headlines without a TODO keyword."
 (use-package org-appear
   :after org
   :hook (org-mode . org-appear-mode))
+#+end_src
+
+*** org-annotate
+
+[[https://github.com/girzel/org-annotate/blob/master/org-annotate.el][org-annotate]] provides a new link type for Org that allows you to create
+annotations on arbitrary chunks of text. The link prefix is “note:”.
+
+Add notes with =org-annotate-add-note=. Following the link will display the text
+of the note in a pop-up buffer. The buffer is in special-mode, hit “q” to
+dismiss it.
+
+Call =org-annotate-display-notes= to see all notes in a buffer. Press “?” in
+this buffer to see more options.
+
+Customize how notes are exported in different backends by setting the
+=org-annotate-[backend]-export-function= options, where “backend” is a valid
+backend identifier. Each option should point to a function that accepts two
+arguments, the path and description strings of the link, and returns a single
+formatted string for insertion in the exported text. Some default functions
+are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
+
+#+begin_src emacs-lisp
+(use-package org-annotate
+  :after org
+  :demand t
+  :bind (:map org-mode-map
+              ("C-c C-x n a"  . org-annotate-add-note)
+              ("C-c C-x n l"  . org-annotate-display-notes)))
 #+end_src
 
 *** org-capture
@@ -10097,6 +10147,9 @@ Use a prefix arg to get regular RET. "
    '(("a" "Task" entry "* TODO %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
+     ("p" "Project" entry "* PROJECT %?"
+      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+      :prepend t)
      ("c" "Calendar" entry "* APPT %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
@@ -10152,9 +10205,34 @@ Use a prefix arg to get regular RET. "
 ,#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)
-     ("C" "Conference" entry
+     ("P" "Project templates")
+     ("Pc" "Conference" entry
       (file "~/doc/template/org/conference.org")
       :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
+      :jump-to-captured t)
+     ("Pa" "Assembly meeting" entry
+      (file "~/doc/template/org/assembly-meeting.org")
+      :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
+      :jump-to-captured t)
+     ("Pe" "Bahá’í event" entry
+      (file "~/doc/template/org/bahai-event.org")
+      :target (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91")
+      :jump-to-captured t)
+     ("Pf" "Bahá’í Feast" entry
+      (file "~/doc/template/org/feast.org")
+      :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
+      :jump-to-captured t)
+     ("Pg" "Flow of guidance" entry
+      (file "~/doc/template/org/flow-of-guidance.org")
+      :target (node "852262E7-17E6-441C-B473-7473485217FE")
+      :jump-to-captured t)
+     ("Pi" "Ruhi Intensive" entry
+      (file "~/doc/template/org/ruhi-intensive.org")
+      :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
+      :jump-to-captured t)
+     ("Pt" "Ruhi Tutor Training" entry
+      (file "~/doc/template/org/ruhi-tutor-training.org")
+      :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
       :jump-to-captured t)
      ))
   (org-roam-db-location (user-data "org-roam.db"))
@@ -10204,11 +10282,11 @@ Use a prefix arg to get regular RET. "
     (let ((start
            (time-to-days
             (org-encode-time
-             (org-parse-time-string my/org-capture-start-date))))
+             (org-parse-time-string my/org-start-date))))
           (end
            (time-to-days
             (org-encode-time
-             (org-parse-time-string my/org-capture-end-date)))))
+             (org-parse-time-string my/org-end-date)))))
       (format "%s" (+ (- end start) 3 3))))
 
   (defun my/org-roam-current-entry-and-skip ()

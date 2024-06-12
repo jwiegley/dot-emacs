@@ -88,16 +88,18 @@
       (org-extra-goto-inbox
        (lambda ()
          (dolist (note notes)
-           (insert
-            (with-temp-buffer
-              (insert-file-contents note)
-              (goto-char (point-min))
-              (org-extra-reformat-draft)
-              (goto-char (point-max))
-              (unless (bolp)
-                (insert ?\n))
-              (buffer-string)))
-           (delete-file note t))
+           (when (ignore-errors
+                   (insert
+                    (with-temp-buffer
+                      (insert-file-contents note)
+                      (goto-char (point-min))
+                      (org-extra-reformat-draft)
+                      (goto-char (point-max))
+                      (unless (bolp)
+                        (insert ?\n))
+                      (buffer-string)))
+                   t)
+             (delete-file note t)))
          (when (buffer-modified-p)
            (save-buffer))))))
   ad-do-it
