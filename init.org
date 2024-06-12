@@ -9053,10 +9053,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (compose-mail-other-window author (concat "Re: " subject))))
 
   (defun my/org-entry-get-immediate (property)
-    (let ((local (org--property-local-values property nil)))
-      (and local (mapconcat #'identity
-                            (delq nil local)
-                            (org--property-get-separator property)))))
+    (save-excursion
+      (let ((local (org--property-local-values property nil)))
+        (and local (mapconcat #'identity
+                              (delq nil local)
+                              (org--property-get-separator property))))))
 
   (defun org-refile-heading-p ()
     (let ((todo-state (org-get-todo-state)))
@@ -9121,31 +9122,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (font-lock-add-keywords
    'org-mode
    '(("^ *\\(-\\) "
-      (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-  (defadvice org-refile-get-location (before clear-refile-history activate)
-    (setq org-refile-history nil))
-
-  (defun org-refile-check-position (refile-pointer)
-    "Check if the refile pointer matches the headline to which it points."
-    (let* ((file (nth 1 refile-pointer))
-	   (re (nth 2 refile-pointer))
-	   (pos (nth 3 refile-pointer))
-	   buffer)
-      (if (and (not (markerp pos)) (not file))
-	  (user-error "Please indicate a target file in the refile path")
-        (when (org-string-nw-p re)
-	  (setq buffer (if (markerp pos)
-			   (marker-buffer pos)
-		         (or (find-buffer-visiting file)
-			     (find-file-noselect file))))
-	  (with-current-buffer buffer
-	    (org-with-wide-buffer
-	     (goto-char pos)
-	     (beginning-of-line 1)
-	     (unless (looking-at-p re)
-	       (user-error "Invalid refile position: expected %s but looking at %s"
-                           re (buffer-substring (point) (line-end-position)))))))))))
+      (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•")))))))
 #+end_src
 
 *** org-agenda
