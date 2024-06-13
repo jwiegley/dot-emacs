@@ -8803,34 +8803,32 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("Errand" . 101)
      ("Home" . 104)
      ("Impact" . 73)
-     ("HOT" . 72)
      ("Nasim" . 78)))
   (org-tag-faces
-   '(("HOT"  . (:foreground "Red" :weight bold))
-     ("Impact"  . (:foreground "Magenta" :weight bold))))
+   '(("Impact" . (:foreground "Magenta" :weight bold))))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "DOING(s!/!)" "TODO(t@/!)" "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
+   '((sequence "TODO(t@/!)" "DOING(s!/!)"
+               "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
-     (sequence "PROJECT(p)" "EPIC(e)" "STORY(s)"
-               "|" "DONE(d@)" "CANCELED(x@)")
+     (sequence "PROJECT(p@/!)" "|" "DONE(d@/!)" "CANCELED(x@/!)")
      (sequence "|" "NOTE(n)" "DECISION" "LINK(l)")
-     (sequence "APPT(a)"
-               "|" "DONE(d@)" "CANCELED(x@)")))
+     (sequence "APPT(a@/!)" "|" "DONE(d@/!)" "CANCELED(x@/!)")))
   (org-todo-keyword-faces
-   '(("TODO" :foreground "medium blue" :weight bold)
-     ("EPIC" :foreground "deep sky blue" :weight bold)
-     ("STORY" :foreground "royal blue" :weight bold)
+   '(
+     ("PROJECT" :foreground "orange" :weight bold)
+     ("TODO" :foreground "medium blue" :weight bold)
      ("APPT" :foreground "medium blue" :weight bold)
-     ("NOTE" :foreground "brown" :weight bold)
-     ("DECISION" :foreground "brown" :weight bold)
-     ("LINK" :foreground "tomato" :weight bold)
      ("DOING" :foreground "dark orange" :weight bold)
      ("WAIT" :foreground "red" :weight bold)
      ("DELEGATED" :foreground "dark violet" :weight bold)
      ("DEFER" :foreground "dark blue" :weight bold)
-     ("PROJECT" :foreground "orange" :weight bold)))
+     ("CANCELED" :foreground "grey50" :strike-through t :weight bold)
+     ("NOTE" :foreground "brown" :weight bold)
+     ("DECISION" :foreground "brown" :weight bold)
+     ("LINK" :foreground "tomato" :weight bold)
+     ))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
@@ -8855,18 +8853,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defconst my-org-soft-green  "#e9f9e8")
   (defconst my-org-soft-blue   "#e8eff9")
   (defconst my-org-soft-purple "#f3e8f9")
-
-  (defconst my-org-open-todo-keywords
-    '("DOING"
-      "TODO"
-      "WAIT"
-      "DELEGATED"
-      "DEFER"
-      "PROJECT"
-      "EPIC"
-      "STORY"
-      "APPT")
-    "Keywords that represent a TODO in an open state.")
 
   (defconst org-my-ts-regexp
     "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
@@ -9065,9 +9051,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (string= todo-state "PROJECT")
         (my/org-entry-get-immediate "CATEGORY"))))
 
-  (defsubst org-current-is-todo ()
-    (member (org-get-todo-state) '("TODO" "EPIC" "STORY" "DOING")))
-
   (defun insert-code-block ()
     "Replace ``` with an Org code block."
     (when (let* ((keys (recent-keys))
@@ -9151,6 +9134,8 @@ With prefix argument, also display headlines without a TODO keyword."
          ("x"   . org-agenda-todo)
          ("w"   . org-agenda-refile)
          ("z"   . pop-window-configuration))
+  :hook
+  (org-agenda-mode . org-fit-agenda-window)
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
@@ -9211,6 +9196,10 @@ With prefix argument, also display headlines without a TODO keyword."
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
+     ("rn" "Next Actions" alltodo ""
+      ((org-agenda-skip-function
+        '(my-org-agenda-skip-all-siblings-but-first t))))
+
      ("rp" "With tags"
       (lambda (arg) (call-interactively #'org-extra-with-tags-search nil)))
 
@@ -9231,14 +9220,16 @@ With prefix argument, also display headlines without a TODO keyword."
      ("pp" "All Projects" tags "TODO=\"PROJECT\"")
 
      ("pn" "Project Next Actions" alltodo ""
-      ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+      ((org-agenda-skip-function
+        #'my-org-agenda-skip-all-siblings-but-first)))
 
-     ("po" "Non-Hot Projects" tags "-HOT&TODO=\"PROJECT\"")
+     ("pa" "High Priority Projects" tags "TODO=\"PROJECT\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
 
-     ("ph" "Hot Projects" tags "HOT&TODO=\"PROJECT\"")
-
-     ("pH" "Current Hotlist" alltodo ""
-      ((org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first-hot)))
+     ("pb" "Lower Priority Projects" tags "TODO=\"PROJECT\""
+      ((org-agenda-skip-function
+        '(org-agenda-skip-entry-if 'regexp "\\[#A\\]"))))
 
      ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
 
@@ -9332,13 +9323,28 @@ With prefix argument, also display headlines without a TODO keyword."
          (fboundp 'fit-window-to-buffer)
          (fit-window-to-buffer)))
 
-  (defun my-org-agenda-should-skip-p ()
+  (defun my-org-ancestor-keywords ()
+    (save-excursion
+      (let ((had-parent (org-up-heading-safe)))
+        (delete nil
+                (cons (org-get-todo-state)
+                      (when had-parent
+                        (my-org-ancestor-keywords)))))))
+
+  (defun my-org-parent-keyword ()
+    (save-excursion
+      (org-up-heading-safe)
+      (org-get-todo-state)))
+
+  (eval-when-compile
+    (require 'org-habit))
+
+  (defun my-org-agenda-should-skip-p
+      (&optional include-non-projects)
     "Skip all but the first non-done entry."
     (let (should-skip-entry)
-      (unless (org-current-is-todo)
-        (setq should-skip-entry t))
-      (when (or (org-get-scheduled-time (point))
-                (org-get-deadline-time (point)))
+      (unless (and (member (org-get-todo-state) '("TODO" "DOING"))
+                   (not (org-is-habit-p)))
         (setq should-skip-entry t))
       (when (/= (point)
                 (save-excursion
@@ -9347,15 +9353,17 @@ With prefix argument, also display headlines without a TODO keyword."
         (setq should-skip-entry t))
       (save-excursion
         (while (and (not should-skip-entry) (org-goto-sibling t))
-          (when (and (org-current-is-todo)
-                     (not (org-get-scheduled-time (point)))
-                     (not (org-get-deadline-time (point))))
+          (when (org-entry-is-todo-p)
             (setq should-skip-entry t))))
+      (unless (or should-skip-entry include-non-projects)
+        (unless (string= "PROJECT" (my-org-parent-keyword))
+          (setq should-skip-entry t)))
       should-skip-entry))
 
-  (defun my-org-agenda-skip-all-siblings-but-first ()
+  (defun my-org-agenda-skip-all-siblings-but-first
+      (&optional include-non-projects)
     "Skip all but the first non-done entry."
-    (when (my-org-agenda-should-skip-p)
+    (when (my-org-agenda-should-skip-p include-non-projects)
       (or (outline-next-heading)
           (goto-char (point-max)))))
 
@@ -9371,13 +9379,6 @@ With prefix argument, also display headlines without a TODO keyword."
             (if (looking-at "^\*+\\s-+")
                 (setq should-skip (org-get-tags))))
           should-skip))))
-
-  (defun my-org-agenda-skip-all-siblings-but-first-hot ()
-    "Skip all but the first non-done entry."
-    (when (or (my-org-agenda-should-skip-p)
-              (not (member "HOT" (my-org-current-tags 1))))
-      (or (outline-next-heading)
-          (goto-char (point-max)))))
 
   (defun svbck/agenda-goto ()
     (interactive)
@@ -9399,9 +9400,9 @@ With prefix argument, also display headlines without a TODO keyword."
   :config
   (add-hook 'org-agenda-finalize-hook 'org-extra-agenda-add-overlays)
 
-  (defadvice org-agenda-redo (after fit-windows-for-agenda-redo activate)
-    "Fit the Org Agenda to its buffer."
-    (org-fit-agenda-window))
+  ;; (defadvice org-agenda-redo (after fit-windows-for-agenda-redo activate)
+  ;;   "Fit the Org Agenda to its buffer."
+  ;;   (org-fit-agenda-window))
   :init
   (use-package org-extra)
 
@@ -9463,9 +9464,9 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       "* APPT %?" :prepend t)
      ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* LINK %:description%?
-  :PROPERTIES:
-  :URL:      %:link
-  :END:" :prepend t)))
+:PROPERTIES:
+:URL:      %:link
+:END:" :prepend t)))
   :preface
   (defun my/org-basic-properties ()
     (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
@@ -10245,15 +10246,16 @@ Use a prefix arg to get regular RET. "
   (defvar my/org-start-date)
   (defvar my/org-end-date)
 
-  (defun my/org-read-date ()
+  (defun my/org-read-date (&optional inactive)
     (with-temp-buffer
-      (org-time-stamp nil)
+      (org-time-stamp nil inactive)
       (buffer-string)))
 
-  (defun my/org-date (&optional timestamp offset time)
+  (defun my/org-date (timestamp &optional offset time inactive)
     (with-temp-buffer
       (org-insert-time-stamp
-       (org-encode-time (org-parse-time-string timestamp)))
+       (org-encode-time (org-parse-time-string timestamp))
+       nil inactive)
       (when offset
         (org-timestamp-change offset 'day))
       (when time
@@ -10518,7 +10520,7 @@ tasks."
          (message "%s" (org-element-property :todo-type h))
          (message "%s" (org-element-property :todo-keyword h))
          (and (member (org-element-property :todo-keyword h)
-                      my-org-open-todo-keywords)
+                      org-not-done-keywords)
               (org-element-property :todo-type h))))))
 
   ;; https://magnus.therning.org/2021-03-14-keeping-todo-items-in-org-roam.html
