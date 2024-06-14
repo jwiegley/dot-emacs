@@ -9143,71 +9143,83 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-custom-commands
    '(("r" . "Review tasks")
 
-     ("ru" "Unscheduled (last 90 days)" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("ru" "Unscheduled (last 90 days)" alltodo ""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (org-extra-agenda-skip-if-not-within 90)))
+             (org-extra-agenda-skip-if-not-within 90)
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("rU" "All unscheduled" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rU" "All unscheduled" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("ro" "Unscheduled open source" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("ro" "Unscheduled open source" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
-                                   "\\* \\(DEFER\\)"))
+        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
+                                       "\\* \\(DEFER\\)")
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/OSS.org"))))
 
-     ("rW" "Unscheduled work" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rW" "Unscheduled work" alltodo ""
       ((org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp))
+        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+             (my-org-agenda-skip-habit)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/kadena/kadena.org"))))
 
-     ("rw" "Waiting/delegated" tags "TODO={WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rw" "Waiting/delegated" todo "WAIT|DELEGATED"
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'scheduled))
+        '(or (org-agenda-skip-entry-if 'scheduled)
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy
         '(todo-state-up priority-down category-up))))
 
-     ("rd" "Deadlined" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rd" "Deadlined" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notdeadline))
+        '(or (org-agenda-skip-entry-if 'notdeadline)
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(category-up))))
 
-     ("rs" "Scheduled" tags "TODO={APPT\\|TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rs" "Scheduled" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notscheduled))
+        '(or (org-agenda-skip-entry-if 'notscheduled)
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(category-up))))
 
-     ("rD" "Deferred" tags "TODO=\"DEFER\""
-      ((org-agenda-sorting-strategy '(user-defined-up))
+     ("rD" "Deferred" todo "DEFER"
+      ((org-agenda-skip-function #'my-org-agenda-skip-habit)
+       (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("rI" "Impactful" tags "Impact&TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("rI" "Impactful" tags "+Impact/TODO|WAIT|DELEGATED"
       ((org-agenda-sorting-strategy
         '(todo-state-up priority-down user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("rn" "Next Actions" alltodo ""
       ((org-agenda-skip-function
-        '(my-org-agenda-skip-all-siblings-but-first t))))
+        '(or (my-org-agenda-skip-all-siblings-but-first t)
+             (my-org-agenda-skip-habit)))))
 
      ("rp" "With tags"
-      (lambda (arg) (call-interactively #'org-extra-with-tags-search nil)))
+      (lambda (arg)
+        (call-interactively #'org-extra-with-tags-search nil)))
 
      ("rc" "With category"
-      (lambda (arg) (call-interactively #'org-extra-with-category-search nil)))
+      (lambda (arg)
+        (call-interactively #'org-extra-with-category-search nil)))
 
      ("rt" "With item"
-      (lambda (arg) (call-interactively #'org-extra-with-item-search nil)))
+      (lambda (arg)
+        (call-interactively #'org-extra-with-item-search nil)))
 
      ("c" "Appointment Calendar" agenda ""
       ((org-agenda-sorting-strategy '(time-up))
@@ -9217,25 +9229,26 @@ With prefix argument, also display headlines without a TODO keyword."
 
      ("p" . "Projects")
 
-     ("pp" "All Projects" tags "TODO=\"PROJECT\"")
+     ("pp" "All Projects" todo "PROJECT")
 
      ("pn" "Project Next Actions" alltodo ""
       ((org-agenda-skip-function
-        #'my-org-agenda-skip-all-siblings-but-first)))
+        '(or (my-org-agenda-skip-all-siblings-but-first)
+             (my-org-agenda-skip-habit)))))
 
-     ("pa" "High Priority Projects" tags "TODO=\"PROJECT\""
+     ("pa" "High Priority Projects" todo "PROJECT"
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
 
-     ("pb" "Lower Priority Projects" tags "TODO=\"PROJECT\""
+     ("pb" "Lower Priority Projects" todo "PROJECT"
       ((org-agenda-skip-function
         '(org-agenda-skip-entry-if 'regexp "\\[#A\\]"))))
 
      ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
 
-     ("n" "Notes" tags "TODO=\"NOTE\"")
+     ("n" "Notes" todo "NOTE")
 
-     ("l" "Links" tags "TODO=\"LINK\"")
+     ("l" "Links" todo "LINK")
 
      ("P" . "Priority views")
 
@@ -9254,21 +9267,24 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-skip-function
         '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
 
-     ("PA" "All priority #A tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("PA" "All priority #A tasks" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))
+        '(or (org-agenda-skip-entry-if 'notregexp "\\[#A\\]")
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("PB" "All priority #B tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("PB" "All priority #B tasks" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]"))
+        '(or (org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]")
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("PC" "All priority #C tasks" tags "TODO={TODO\\|WAIT\\|DELEGATED}&STYLE<>\"habit\""
+     ("PC" "All priority #C tasks" alltodo ""
       ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))
+        '(or (org-agenda-skip-entry-if 'notregexp "\\[#C\\]")
+             (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
@@ -9343,8 +9359,7 @@ With prefix argument, also display headlines without a TODO keyword."
       (&optional include-non-projects)
     "Skip all but the first non-done entry."
     (let (should-skip-entry)
-      (unless (and (member (org-get-todo-state) '("TODO" "DOING"))
-                   (not (org-is-habit-p)))
+      (unless (member (org-get-todo-state) '("TODO" "DOING"))
         (setq should-skip-entry t))
       (when (/= (point)
                 (save-excursion
@@ -9364,6 +9379,11 @@ With prefix argument, also display headlines without a TODO keyword."
       (&optional include-non-projects)
     "Skip all but the first non-done entry."
     (when (my-org-agenda-should-skip-p include-non-projects)
+      (or (outline-next-heading)
+          (goto-char (point-max)))))
+
+  (defun my-org-agenda-skip-habit ()
+    (when (ignore-errors (org-is-habit-p))
       (or (outline-next-heading)
           (goto-char (point-max)))))
 
@@ -10868,7 +10888,7 @@ copies, leaving only the links to the original content.
       (if arg
           (progn
             (org-set-property "URL" link)
-            (org-set-tags '("URL"))
+            (org-set-tags '("LINK"))
             (message "Added pasteboard link to URL property"))
         (insert link)))))
 #+end_src
