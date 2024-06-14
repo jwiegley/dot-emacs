@@ -10841,13 +10841,13 @@ text belongs to.
     (message "Running syncup...")
     (redisplay t)
     (let ((default-directory "~"))
-      (async-shell-command "syncup ; echo FINISHED"))
+      (async-shell-command "syncup ; echo FINISHED")
+      (display-buffer "*Async Shell Command*"))
     (message "Jumping to agenda! Sync complete.")
     (redisplay t)
     (call-interactively #'org-extra-jump-to-agenda))
   :config
   (unless alternate-emacs
-    ;; (run-with-idle-timer 300 t #'org-sync)
     (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
 #+end_src
 
