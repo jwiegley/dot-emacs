@@ -7794,7 +7794,7 @@ without white space and comments.
   (gnus-tree-minimize-window nil)
   (gnus-uncacheable-groups "^nnml")
   (gnus-use-adaptive-scoring '(line))
-  (gnus-use-cache t)
+  (gnus-use-cache nil)
   (gnus-verbose 4)
   (ssl-certificate-verification-policy 1)
   :hook
@@ -9024,7 +9024,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (org-back-to-heading)
     (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
-    (org-set-tags '("URL")))
+    (org-set-tags '("LINK")))
 
   (defun org-message-reply ()
     (interactive)
