@@ -1372,10 +1372,12 @@ diff-hl package.
 
   (defun dired-next-window ()
     (interactive)
-    (let ((next (car (cl-remove-if-not #'(lambda (wind)
-                                           (with-current-buffer (window-buffer wind)
-                                             (eq major-mode 'dired-mode)))
-                                       (cdr (window-list))))))
+    (let ((next
+           (car (cl-remove-if-not
+                 #'(lambda (wind)
+                     (with-current-buffer (window-buffer wind)
+                       (eq major-mode 'dired-mode)))
+                 (cdr (window-list))))))
       (when next
         (select-window next))))
 
@@ -4758,6 +4760,62 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package string-inflection
   :bind ("C-c `" . string-inflection-toggle))
+#+end_src
+
+** COMMENT sunrise-commander
+
+This is currently broken due to undefined functions being called in the code.
+It appears that maintenance has stopped.
+
+#+begin_src emacs-lisp
+(use-package sunrise
+  :bind ("C-c j" . sunrise)
+  :bind (:map sunrise-mode-map
+              ("/"     . sunrise-sticky-isearch-forward)
+              ("l"     . sunrise-dired-prev-subdir)
+              ("^"     . sunrise-dired-prev-subdir)
+              ("q"     . sunrise-quit)
+              ("z"     . sunrise-quit)
+              ("C-e")
+              ("C-x t" . sunrise-toggle-truncate-lines)
+              ("<backspace>" . sunrise-scroll-quick-view-down))
+  :bind (:map sunrise-term-line-minor-mode-map
+              ("M-<backspace>"))
+  :config
+  (use-package sunrise-modeline)
+
+  (use-package sunrise-tree
+    :demand t
+    :bind (:map sunrise-tree-mode-map
+                ("C-p")
+                ("C-n")))
+
+  (use-package sunrise-tabs
+    :disabled t
+    :bind (:map sunrise-tabs-mode-map
+                ("C-p")
+                ("C-n")
+                ("M-[" . sunrise-tabs-prev)
+                ("M-]" . sunrise-tabs-next)))
+
+  (defun sunrise-browse-file (&optional file)
+    "Display the selected file with the default application."
+    (interactive)
+    (setq file (or file (dired-get-filename)))
+    (sunrise-save-selected-window
+     (sunrise-select-viewer-window)
+     (let ((buff (current-buffer))
+           (fname (if (file-directory-p file)
+                      file
+                    (file-name-nondirectory file)))
+           (app (cond
+                 ((eq system-type 'darwin)       "open %s")
+                 ((eq system-type 'windows-nt)   "open %s")
+                 (t                              "xdg-open %s"))))
+       (start-process-shell-command "open" nil (format app file))
+       (unless (eq buff (current-buffer))
+         (sunrise-scrollable-viewer (current-buffer)))
+       (message "Opening \"%s\" ..." fname)))))
 #+end_src
 
 ** COMMENT super-save
@@ -8766,6 +8824,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-latex-src-block-backend 'minted)
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
+  (org-log-done 'note)
   (org-log-refile 'time)
   (org-log-state-notes-insert-after-drawers t)
   (org-mime-preserve-breaks nil)
@@ -9312,7 +9371,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-show-all-dates t)
   (org-agenda-show-outline-path t)
   (org-agenda-skip-deadline-if-done t)
-  (org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (org-agenda-skip-scheduled-if-deadline-is-shown nil)
   (org-agenda-skip-scheduled-if-done t)
   (org-agenda-skip-unavailable-files t)
   (org-agenda-sorting-strategy
@@ -9326,7 +9385,9 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-tags-column -100)
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-text-search-extra-files '(agenda-archives))
-  (org-agenda-todo-ignore-scheduled 'past)
+  (org-agenda-todo-ignore-scheduled 'future)
+  (org-agenda-todo-ignore-time-comparison-use-seconds t)
+  (org-agenda-skip-deadline-prewarning-if-scheduled t)
   (org-agenda-use-time-grid nil)
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
   :custom-face
