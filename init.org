@@ -863,8 +863,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 (use-package calendar
   :custom
   (calendar-mark-holidays-flag t)
-  (calendar-date-style 'iso)
-  (diary-file "~/doc/diary"))
+  (calendar-date-style 'iso))
 #+end_src
 
 *** cal-dst
@@ -2922,7 +2921,6 @@ up before you execute another command."
         (name . "^\\*Calendar\\*$")
         (name . "^\\*Org Agenda")
         (name . "^ \\*Agenda")
-        (name . "^diary$")
         (mode . org-mode)))
       ("Emacs"
        (or
@@ -2981,7 +2979,7 @@ up before you execute another command."
 
   :config
   (setq iflipb-always-ignore-buffers
-        "\\`\\( \\|diary\\|\\.newsrc-dribble\\'\\)"
+        "\\`\\( \\|\\.newsrc-dribble\\'\\)"
         iflipb-wrap-around t)
 
   (defun iflipb-first-iflipb-buffer-switch-command ()
@@ -3566,8 +3564,7 @@ up before you execute another command."
      "todo.org"
      "kadena.org"
      "habits.org"
-     "OSS.org"
-     "diary"))
+     "OSS.org"))
   (clean-buffer-list-kill-never-regexps
    '("^ \\*Minibuf-.*\\*$"
      "^\\*Summary"
@@ -9351,7 +9348,7 @@ With prefix argument, also display headlines without a TODO keyword."
      "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
      "~/org/resource/people.org"))
   (org-agenda-fontify-priorities t)
-  (org-agenda-include-diary t)
+  (org-agenda-include-diary nil)
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
@@ -10939,7 +10936,6 @@ text belongs to.
   :preface
   (defun org-sync ()
     (interactive)
-    (setq org-contacts-last-update nil)
     (message "Sorting Org-mode files...")
     (redisplay t)
     (dolist (file org-agenda-files)
@@ -10959,6 +10955,9 @@ text belongs to.
     (message "Clearing Org-mode refile cache...")
     (redisplay t)
     (org-refile-cache-clear)
+    (message "Clear Org-contacts and diary cache...")
+    (setq org-contacts-last-update nil
+          org--diary-sexp-entry-cache (make-hash-table :test #'equal))
     (message "Syncing Org-roam database...")
     (redisplay t)
     (org-roam-db-sync)
