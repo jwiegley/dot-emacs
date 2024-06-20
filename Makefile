@@ -20,7 +20,7 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 .PHONY: test build clean
 
 # Main rule
-all: init.elc
+all: init.el
 
 init.org: ~/org/resource/emacs/init.org
 	@if test ~/org/resource/emacs/init.org -nt $@; then	\
@@ -55,7 +55,7 @@ slow: init.elc
 	time $(BATCH_LOAD) -Q -L . -l init --debug-init	\
 	    --eval "(message \"Hello, world\!\")"
 
-open: init.elc
+open: init.el
 	@open $$(dirname $$(which emacs))/../Applications/*.app
 
 open-quick: init.el

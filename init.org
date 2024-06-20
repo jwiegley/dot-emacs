@@ -8787,7 +8787,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-footnote-define-inline t)
   (org-footnote-section nil)
   (org-fold-catch-invisible-edits 'smart)
-  (org-gcal-dir (user-data "org-gcal/"))
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
   (org-icalendar-combined-agenda-file "~/org/org.ics")
@@ -8859,11 +8858,13 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tag-persistent-alist
    '(("Call" . 99)
      ("Errand" . 101)
-     ("Home" . 104)
-     ("Impact" . 73)
-     ("Nasim" . 78)))
+     ("Home" . 104)))
   (org-tag-faces
-   '(("Impact" . (:foreground "Magenta" :weight bold))))
+   '(("Call" . (:foreground "grey50"))
+     ("Errand" . (:foreground "grey50"))
+     ("Home" . (:foreground "grey50"))
+     ("FILE" . (:foreground "Magenta" :weight bold))
+     ("LINK" . (:foreground "Magenta" :weight bold))))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
@@ -9257,11 +9258,6 @@ With prefix argument, also display headlines without a TODO keyword."
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
-     ("rI" "Impactful" tags "+Impact/TODO|WAIT|DELEGATED"
-      ((org-agenda-sorting-strategy
-        '(todo-state-up priority-down user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
      ("rn" "Next Actions" alltodo ""
       ((org-agenda-skip-function
         '(or (my-org-agenda-skip-all-siblings-but-first t)
@@ -9352,7 +9348,8 @@ With prefix argument, also display headlines without a TODO keyword."
      "~/org/area/habits.org"
      "~/org/area/kadena/kadena.org"
      "~/org/area/OSS.org"
-     "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"))
+     "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
+     "~/org/resource/people.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary t)
   (org-agenda-inhibit-startup t)
@@ -9540,8 +9537,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       "* TODO %?" :prepend t)
      ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* NOTE %?" :prepend t)
-     ("c" "Calendar" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      "* APPT %?" :prepend t)
      ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       "* LINK %:description%?
 :PROPERTIES:
@@ -9566,9 +9561,11 @@ context.
 (use-package org-smart-capture
   :after (org org-roam)
   :demand t
-  :bind* ("M-m" . (lambda ()
-                    (interactive)
-                    (org-smart-capture #'my/org-roam-create-new)))
+  :bind* ("M-m" . org-roam-smart-capture)
+  :preface
+  (defun org-roam-smart-capture ()
+    (interactive)
+    (org-smart-capture #'my/org-roam-create-new))
   :custom
   (org-smart-capture-use-lastname t))
 #+end_src
@@ -9708,7 +9705,61 @@ context.
 (use-package org-contacts
   :after org
   :custom
-  (org-contacts-files '("~/org/resource/people.org")))
+  (org-contacts-files '("~/org/resource/people.org"))
+  :config
+  (defun org-contacts--candidate (headline)
+    "Return candidate string from Org HEADLINE epom element node."
+    (let* ((org-contacts-icon-size 32)
+           (contact-name (org-element-property :raw-value headline))
+           (tags (org-element-property :tags headline))
+           (begin (org-element-property :begin headline))
+           (properties (org-entry-properties begin 'standard))
+           ;; extra headline properties
+           (avatar-image-path
+            (when-let* ((avatar-value (org-entry-get begin "AVATAR"))
+                        (avatar-link-path (cond
+                                           ;; [[file:contact_dir/avatar.png]]
+                                           ((string-match org-link-plain-re avatar-value)
+                                            (when (string-equal (match-string 1 avatar-value) "file")
+                                              (match-string 2 avatar-value)))
+                                           ;; contact-name.jpg
+                                           ((string-match (concat (regexp-opt image-file-name-extensions) (rx line-end)) avatar-value)
+                                            (match-string 0 avatar-value))))
+                        (avatar-absolute-path (file-name-concat
+                                               (or org-contacts-directory
+                                                   (expand-file-name (file-name-directory (car org-contacts-files))))
+                                               avatar-link-path))
+                        ( (org-file-image-p avatar-absolute-path))
+                        ( (file-exists-p avatar-absolute-path)))
+              avatar-absolute-path))
+           (info (concat "\n"
+                         (concat org-contacts-ahead-space-padding "   ")
+                         (let ((org-property-separators (list (cons org-contacts-nickname-property "[,\ ]"))))
+                           (org-entry-get begin org-contacts-nickname-property))
+                         (let ((org-property-separators (list (cons org-contacts-email-property "[,\ ]"))))
+                           (org-entry-get begin org-contacts-email-property))
+                         "\n"))
+           (middle-line-length (let ((length (- (abs org-tags-column)
+                                                (length (string-join tags ":"))
+                                                (length contact-name))))
+                                 (if (> length 0) length 0))))
+      ;; detect whether headline is an org-contacts entry?
+      (when (seq-intersection org-contacts-identity-properties-list (mapcar 'car properties))
+        (propertize
+         (concat
+          (if avatar-image-path
+              (propertize org-contacts-ahead-space-padding
+                          'display (create-image avatar-image-path nil nil
+                                                 :ascent 30 ; set image baseline to align image top with candidate line.
+                                                 :width org-contacts-icon-size))
+            org-contacts-ahead-space-padding)
+          " "
+          contact-name
+          (format " %s [%s]"
+                  (make-string (or middle-line-length 0) ?―)
+                  (string-join tags ":")))
+         'contact-name contact-name
+         'annotation info)))))
 #+end_src
 
 *** org-crypt
@@ -9788,6 +9839,30 @@ context.
   (org-extra-emphasis-01
    ((t (:inherit org-extra-emphasis
                  :bold t :background "yellow" :foreground "black")))))
+#+end_src
+
+*** COMMENT org-gcal
+
+#+begin_src emacs-lisp
+(use-package org-gcal
+  :commands org-gcal-fetch
+  :custom
+  (org-gcal-dir (user-data "org-gcal/"))
+  (org-gcal-client-id
+   (lookup-password "org-caldav-user.google.com" "jwiegley" 80))
+  (org-gcal-client-secret
+   (lookup-password "org-caldav.google.com" org-gcal-client-id 80))
+  (org-gcal-fetch-file-alist
+   '(("jwiegley@gmail.com" .
+      "~/org/area/calendar/google.org")
+     ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
+      "~/org/area/calendar/bahai.org")
+     ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
+      "~/org/area/calendar/family.org")
+     ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
+      "~/org/area/calendar/nasim.org")
+     ("sacramento.lsa1914@gmail.com" .
+      "~/org/area/calendar/sacramento.org"))))
 #+end_src
 
 *** org-id
@@ -10208,7 +10283,15 @@ Use a prefix arg to get regular RET. "
      ("p" "Project" entry "* PROJECT %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
-     ("c" "Calendar" entry "* APPT %?"
+     ("c" "Contact" entry "* %^{NAME}
+:PROPERTIES:
+:PHONE: %^{PHONE}
+:EMAIL: %(EMAIL)
+:NOTE: %^{NOTE}
+:END:"
+      :target (file "~/org/resource/people.org")
+      :prepend t)
+     ("C" "Calendar" entry "* APPT %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("n" "Note" plain "%?"
@@ -10239,7 +10322,7 @@ Use a prefix arg to get regular RET. "
      ("k" "Kadena" plain "%?"
       :jump-to-captured t
       :target (file+head "area/kadena/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+filetags: :contract=kadena:work:\n#+title: ${title}\n")
+                         "#+filetags: :kadena:work:\n#+title: ${title}\n")
       :empty-lines-before 1
       :unnarrowed t)
      ("J" "johnwiegley.com" plain "%?"
@@ -10852,27 +10935,14 @@ text belongs to.
   :no-require t
   :demand t
   :after org
-  :bind (:map
-         org-mode-map
-         ("C-c C-x S" . org-sync))
-  :custom
-  (org-sync-files '("~/org/area/todo.org"
-                    "~/org/area/OSS.org"
-                    "~/org/area/kadena/kadena.org"
-                    "~/org/area/bahai/assembly/assembly.org"))
+  :bind (:map org-mode-map ("C-c C-x S" . org-sync))
   :preface
-  (defcustom org-sync-files nil
-    "Regular expressions to identify foolish content.
-    Usually what happens is that you add the bots to
-    `erc-ignore-list' and the bot commands to this list."
-    :group 'org
-    :type '(repeat file))
-
   (defun org-sync ()
     (interactive)
+    (setq org-contacts-last-update nil)
     (message "Sorting Org-mode files...")
     (redisplay t)
-    (dolist (file org-sync-files)
+    (dolist (file org-agenda-files)
       (with-current-buffer (find-file-noselect file)
         (goto-char (point-min))
         (org-sort-all)
