@@ -1830,7 +1830,7 @@ non-empty directories is allowed."
   (epa-file-enable))
 #+end_src
 
-** erc
+** COMMENT erc
 
 #+begin_src emacs-lisp
 (use-package erc
@@ -5004,7 +5004,7 @@ complement Emacs’ default =C-x 8= prefix map.
   (url-cache-directory (user-data "url/cache")))
 #+end_src
 
-*** url-irc
+*** COMMENT url-irc
 
 #+begin_src emacs-lisp
 (use-package url-irc
@@ -9704,6 +9704,11 @@ context.
   :custom
   (org-contacts-files '("~/org/resource/people.org"))
   :config
+  (add-hook 'message-mode-hook
+            #'(lambda ()
+                (remove-hook 'completion-at-point-functions
+                             #'message-completion-function t)))
+
   (defun org-contacts--candidate (headline)
     "Return candidate string from Org HEADLINE epom element node."
     (let* ((org-contacts-icon-size 32)
@@ -9756,7 +9761,54 @@ context.
                   (make-string (or middle-line-length 0) ?―)
                   (string-join tags ":")))
          'contact-name contact-name
-         'annotation info)))))
+         'annotation info))))
+
+  (defun org-contacts-complete-group (string)
+    "Complete text at START from a group.
+
+A group FOO is composed of contacts with the tag FOO."
+    (let* ((completion-ignore-case org-contacts-completion-ignore-case)
+           (group-completion-p (string-match-p
+                                (concat "^" org-contacts-group-prefix) string)))
+      (when group-completion-p
+        (let ((completion-list
+               (all-completions
+                string
+                (mapcar (lambda (group)
+                          (propertize (concat org-contacts-group-prefix group)
+                                      'org-contacts-group group))
+                        (org-uniquify
+                         (cl-loop for contact in (org-contacts-filter)
+                                  nconc (org-split-string
+                                         (or (cdr (assoc-string "ALLTAGS" (caddr contact))) "") ":")))))))
+
+          (if (= (length completion-list) 1)
+              ;; We've found the correct group, returns the address
+              (let ((tag (get-text-property 0 'org-contacts-group
+                                            (car completion-list))))
+                (list
+                 (concat
+                  string
+                  (mapconcat #'identity
+                             (cl-loop for contact in (org-contacts-filter
+                                                      nil
+                                                      tag)
+                                      ;; The contact name is always the car of the assoc-list
+                                      ;; returned by `org-contacts-filter'.
+                                      for contact-name = (car contact)
+                                      ;; Grab the first email of the contact
+                                      for email = (org-contacts-strip-link
+                                                   (or (car (org-contacts-split-property
+                                                             (or
+                                                              (cdr (assoc-string org-contacts-email-property
+                                                                                 (cl-caddr contact)))
+                                                              ""))) ""))
+                                      ;; If the user has an email address, append USER <EMAIL>.
+                                      if email collect (org-contacts-format-email contact-name email))
+                             ", "))))
+            ;; We haven't found the correct group
+            (completion-table-case-fold completion-list
+                                        (not org-contacts-completion-ignore-case))))))))
 #+end_src
 
 *** org-crypt
