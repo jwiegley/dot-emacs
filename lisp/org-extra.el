@@ -40,7 +40,7 @@
   (with-current-buffer (funcall (if func
                                     #'find-file-noselect
                                   #'find-file)
-                                "~/org/area/todo.org")
+                                "~/doc/org/area/todo.org")
     (if func
         (save-excursion
           (org-extra-start-of-inbox)

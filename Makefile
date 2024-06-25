@@ -22,10 +22,10 @@ BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 # Main rule
 all: init.el
 
-init.org: ~/org/resource/emacs/init.org
-	@if test ~/org/resource/emacs/init.org -nt $@; then	\
+init.org: ~/doc/org/resource/emacs/init.org
+	@if test ~/doc/org/resource/emacs/init.org -nt $@; then	\
 	    rm -f $@;						\
-	    cp -p ~/org/resource/emacs/init.org $@;		\
+	    cp -p ~/doc/org/resource/emacs/init.org $@;		\
 	    chmod 444 $@;					\
 	fi
 

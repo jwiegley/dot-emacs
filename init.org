@@ -293,7 +293,7 @@ unto itself.
   (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
   (delete-old-versions t)
   (directory-abbrev-alist
-   '(("\\`/org" . "~/org")))
+   '(("\\`/org" . "~/doc/org")))
   (directory-free-space-args "-kh")
   (large-file-warning-threshold nil)
   (save-abbrevs 'silently)
@@ -1342,6 +1342,7 @@ diff-hl package.
               ("M-s f"))
   :hook
   (dired-mode . dired-hide-details-mode)
+  (my-emacs-startup . dired-two-pane)
   :custom
   (dired-clean-up-buffers-too nil)
   (dired-dwim-target t)
@@ -1365,7 +1366,7 @@ diff-hl package.
     (push-window-configuration)
     (let ((here default-directory))
       (delete-other-windows)
-      (dired "~/dl")
+      (dired "~/Desktop")
       (split-window-horizontally)
       (dired here)))
 
@@ -3946,7 +3947,7 @@ header overlay should cover. Result is a cons cell of (begin . end)."
 #+begin_src emacs-lisp
 (use-package pass
   :commands (pass pass-view-mode)
-  :mode ("\\.passwords/.*\\.gpg\\'" . pass-view-mode)
+  :mode ("password-store/.*\\.gpg\\'" . pass-view-mode)
   :preface
   (defun insert-password ()
     (interactive)
@@ -8737,9 +8738,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
   (org-deadline-warning-days 14)
-  (org-default-notes-file "~/org/area/todo.org")
+  (org-default-notes-file "~/doc/org/area/todo.org")
   (org-depend-tag-blocked nil)
-  (org-directory "~/org/")
+  (org-directory "~/doc/org/")
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
   (org-edit-src-content-indentation 0)
@@ -8786,9 +8787,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-fold-catch-invisible-edits 'smart)
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
-  (org-icalendar-combined-agenda-file "~/org/org.ics")
+  (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
   (org-icalendar-timezone "America/Los_Angeles")
-  (org-id-link-to-org-use-id t)
   (org-image-actual-width 800)
   (org-imenu-depth 4)
   (org-insert-heading-respect-content t)
@@ -8832,7 +8832,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets
    '((org-agenda-files :maxlevel . 4)
-     ("~/org/resource/bookmarks.org" :maxlevel . 2)))
+     ("~/doc/org/resource/bookmarks.org" :maxlevel . 2)))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
@@ -9221,7 +9221,7 @@ With prefix argument, also display headlines without a TODO keyword."
              (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/OSS.org"))))
+       (org-agenda-files '("~/doc/org/area/OSS.org"))))
 
      ("rW" "Unscheduled work" alltodo ""
       ((org-agenda-sorting-strategy '(category-up user-defined-up))
@@ -9229,7 +9229,7 @@ With prefix argument, also display headlines without a TODO keyword."
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (my-org-agenda-skip-habit)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/org/area/kadena/kadena.org"))))
+       (org-agenda-files '("~/doc/org/area/kadena/kadena.org"))))
 
      ("rw" "Waiting/delegated" todo "WAIT|DELEGATED"
       ((org-agenda-skip-function
@@ -9341,12 +9341,12 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
-   '("~/org/area/todo.org"
-     "~/org/area/habits.org"
-     "~/org/area/kadena/kadena.org"
-     "~/org/area/OSS.org"
+   '("~/doc/org/area/todo.org"
+     "~/doc/org/area/habits.org"
+     "~/doc/org/area/kadena/kadena.org"
+     "~/doc/org/area/OSS.org"
      "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
-     "~/org/resource/people.org"))
+     "~/doc/org/resource/people.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-inhibit-startup t)
@@ -9618,7 +9618,7 @@ context.
   :custom
   (org-attach-file-list-property "FILE")
   (org-attach-auto-tag "FILE")
-  (org-attach-id-dir "~/org/data")
+  (org-attach-id-dir "~/doc/org/data")
   (org-attach-method 'mv)
   (org-attach-store-link-p 'attached)
   :init
@@ -9702,7 +9702,7 @@ context.
 (use-package org-contacts
   :after org
   :custom
-  (org-contacts-files '("~/org/resource/people.org"))
+  (org-contacts-files '("~/doc/org/resource/people.org"))
   :config
   (add-hook 'message-mode-hook
             #'(lambda ()
@@ -9903,15 +9903,15 @@ A group FOO is composed of contacts with the tag FOO."
    (lookup-password "org-caldav.google.com" org-gcal-client-id 80))
   (org-gcal-fetch-file-alist
    '(("jwiegley@gmail.com" .
-      "~/org/area/calendar/google.org")
+      "~/doc/org/area/calendar/google.org")
      ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-      "~/org/area/calendar/bahai.org")
+      "~/doc/org/area/calendar/bahai.org")
      ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-      "~/org/area/calendar/family.org")
+      "~/doc/org/area/calendar/family.org")
      ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-      "~/org/area/calendar/nasim.org")
+      "~/doc/org/area/calendar/nasim.org")
      ("sacramento.lsa1914@gmail.com" .
-      "~/org/area/calendar/sacramento.org"))))
+      "~/doc/org/area/calendar/sacramento.org"))))
 #+end_src
 
 *** org-id
@@ -9922,6 +9922,7 @@ A group FOO is composed of contacts with the tag FOO."
   :bind (:map org-mode-map
               ("C-c C-x i" . org-id-get-create))
   :custom
+  (org-id-link-to-org-use-id t)
   (org-id-locations-file (user-data "org-id-locations")))
 #+end_src
 
@@ -10007,7 +10008,7 @@ A group FOO is composed of contacts with the tag FOO."
   :demand t
   :commands org-noter
   :custom
-  (org-noter-notes-search-path '("~/org/inbox"))
+  (org-noter-notes-search-path '("~/doc/org/inbox"))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
   :config
   (defun org-noter-pdf--show-arrow ()
@@ -10179,7 +10180,7 @@ A group FOO is composed of contacts with the tag FOO."
        ((eq major-mode 'dired-mode)
         (let ((org-ql-search-directories-files-recursive t))
           (org-ql-find (org-ql-search-directories-files
-                        :directories '("~/org/area" "~/org/resource"))
+                        :directories '("~/doc/org/area" "~/doc/org/resource"))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
         (org-ql-find (org-ql-find--buffers)
@@ -10323,7 +10324,7 @@ Use a prefix arg to get regular RET. "
    ("C-M-i" . completion-at-point))
   :custom
   (org-roam-db-update-on-save nil)
-  (org-roam-directory "~/org")
+  (org-roam-directory "~/doc/org")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("a" "Task" entry "* TODO %?"
@@ -10338,7 +10339,7 @@ Use a prefix arg to get regular RET. "
 :EMAIL: %(EMAIL)
 :NOTE: %^{NOTE}
 :END:"
-      :target (file "~/org/resource/people.org")
+      :target (file "~/doc/org/resource/people.org")
       :prepend t)
      ("C" "Calendar" entry "* APPT %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
@@ -10356,7 +10357,7 @@ Use a prefix arg to get regular RET. "
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("i" "Idea" entry "* NOTE %?"
-      :target (file "~/org/resource/ideas.org")
+      :target (file "~/doc/org/resource/ideas.org")
       :empty-lines 1
       :prepend t)
      ("q" "Quote" plain "%c\n\n─ %?"
@@ -10866,7 +10867,7 @@ tasks."
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
-  (xeft-directory "~/org/")
+  (xeft-directory "~/doc/org/")
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
@@ -11165,8 +11166,8 @@ own lines, for instance.
   (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
-   '("~/org/resource/bibliography.bib"
-     "~/org/resource/kadena.bib"))
+   '("~/doc/org/resource/bibliography.bib"
+     "~/doc/org/resource/kadena.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
@@ -11241,7 +11242,7 @@ own lines, for instance.
   :commands asana-org-sync-tasks
   :defines (asana-token)
   :custom
-  (asana-tasks-org-file "~/org/area/kadena/asana.org")
+  (asana-tasks-org-file "~/doc/org/area/kadena/asana.org")
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
