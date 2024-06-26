@@ -293,7 +293,7 @@ unto itself.
   (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
   (delete-old-versions t)
   (directory-abbrev-alist
-   '(("\\`/org" . "~/doc/org")))
+   '(("\\`/org" . "~/org")))
   (directory-free-space-args "-kh")
   (large-file-warning-threshold nil)
   (save-abbrevs 'silently)
@@ -806,6 +806,20 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   :defer t
   :custom
   (browse-url-browser-function 'browse-url-default-macosx-browser))
+#+end_src
+
+** COMMENT bufler
+
+#+begin_src emacs-lisp
+(use-package bufler
+  :bind ("C-x C-B" . bufler))
+#+end_src
+
+** burly
+
+#+begin_src emacs-lisp
+(use-package burly
+  :commands (burly-bookmark-windows burly-open-bookmark))
 #+end_src
 
 ** bytecomp-simplify
@@ -1348,7 +1362,7 @@ diff-hl package.
   (dired-dwim-target t)
   (dired-hide-details-hide-information-lines nil)
   (dired-hide-details-hide-symlink-targets nil)
-  ;; jww (2023-05-13): This does not work on all Tramp hosts
+  ;; This does not work on all Tramp hosts
   ;; (dired-listing-switches "--group-directories-first -lah")
   (dired-listing-switches "-lah")
   (dired-mouse-drag-files t)
@@ -2690,6 +2704,33 @@ up before you execute another command."
         (call-interactively 'gud-gdb)))))
 #+end_src
 
+** COMMENT hammy
+
+#+begin_src emacs-lisp
+(use-package hammy
+  :config
+  ;; We name the timer with the Unicode TOMATO character, and propertize it
+  ;; with a tomato-colored face.
+  (hammy-define (propertize "🍅" 'face '(:foreground "tomato"))
+    :documentation "The classic pomodoro timer."
+    :intervals
+    (list
+     (interval :name "Work"
+               :duration "25 minutes"
+               :before (announce "Starting work time.")
+               :advance (announce "Break time!"))
+     (interval :name "Break"
+               :duration (if (and (not (zerop cycles))
+                                  (zerop (mod cycles 3)))
+                             ;; If a multiple of three cycles have elapsed,
+                             ;; the fourth work period was just completed, so
+                             ;; take a longer break.
+                             "30 minutes"
+                           "5 minutes")
+               :before (announce "Starting break time.")
+               :advance (announce "Break time is over!")))))
+#+end_src
+
 ** help
 
 #+begin_src emacs-lisp
@@ -3463,6 +3504,19 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package magit-popup
   :after magit)
+#+end_src
+
+*** magit-todos
+
+#+begin_src emacs-lisp
+(use-package magit-todos
+  :after magit
+  :custom
+  (magit-todos-keyword-suffix " ?([^)]+):")
+  (magit-todos-keywords '("jww" "FIXME"))
+  (magit-todos-exclude-globs '(".git/" "/archive/"))
+  :config
+  (magit-todos-mode 1))
 #+end_src
 
 *** forge
@@ -4898,8 +4952,8 @@ A collection of paredit-like functions for editing in =html-mode=.
   :config
   (add-to-list 'tramp-remote-path (expand-file-name "~/.nix-profile/bin"))
 
-  ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
-  ;; shell commands to the remote side to ask what the temporary directory is.
+  ;; Without this change, tramp ends up sending hundreds of shell commands to
+  ;; the remote side to ask what the temporary directory is.
   (put 'temporary-file-directory 'standard-value '("/tmp"))
 
   ;; Setting this with `:custom' does not take effect.
@@ -8738,9 +8792,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
   (org-deadline-warning-days 14)
-  (org-default-notes-file "~/doc/org/area/todo.org")
+  (org-default-notes-file (org-dir "area/todo.org"))
   (org-depend-tag-blocked nil)
-  (org-directory "~/doc/org/")
+  (org-directory "~/org/")
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
   (org-edit-src-content-indentation 0)
@@ -8787,7 +8841,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-fold-catch-invisible-edits 'smart)
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
-  (org-icalendar-combined-agenda-file "~/doc/org/org.ics")
+  (org-icalendar-combined-agenda-file (org-dir "org.ics"))
   (org-icalendar-timezone "America/Los_Angeles")
   (org-image-actual-width 800)
   (org-imenu-depth 4)
@@ -8829,10 +8883,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '((65 :foreground "White" :weight bold)
      (66 . "White")
      (67 :foreground "grey90" :slant italic)))
+  (org-read-date-force-compatible-dates nil)
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets
-   '((org-agenda-files :maxlevel . 4)
-     ("~/doc/org/resource/bookmarks.org" :maxlevel . 2)))
+   `((org-agenda-files :maxlevel . 4)
+     (,(org-dir "area/bookmarks.org") :maxlevel . 2)))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
@@ -8913,6 +8968,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (defconst org-my-ts-regexp
     "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
     "Regular expression for fast inactive time stamp matching.")
+
+  (defun org-dir (path)
+    (expand-file-name path org-directory))
 
   (defun org-get-global-property (name)
     (save-excursion
@@ -9221,7 +9279,7 @@ With prefix argument, also display headlines without a TODO keyword."
              (my-org-agenda-skip-habit)))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/doc/org/area/OSS.org"))))
+       (org-agenda-files '("~/org/area/OSS.org"))))
 
      ("rW" "Unscheduled work" alltodo ""
       ((org-agenda-sorting-strategy '(category-up user-defined-up))
@@ -9229,7 +9287,7 @@ With prefix argument, also display headlines without a TODO keyword."
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (my-org-agenda-skip-habit)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files '("~/doc/org/area/kadena/kadena.org"))))
+       (org-agenda-files '("~/org/area/kadena/kadena.org"))))
 
      ("rw" "Waiting/delegated" todo "WAIT|DELEGATED"
       ((org-agenda-skip-function
@@ -9341,12 +9399,12 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
-   '("~/doc/org/area/todo.org"
-     "~/doc/org/area/habits.org"
-     "~/doc/org/area/kadena/kadena.org"
-     "~/doc/org/area/OSS.org"
+   '("~/org/area/todo.org"
+     "~/org/area/habits.org"
+     "~/org/area/kadena/kadena.org"
+     "~/org/area/OSS.org"
      "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"
-     "~/doc/org/resource/people.org"))
+     "~/org/area/people.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-inhibit-startup t)
@@ -9618,7 +9676,7 @@ context.
   :custom
   (org-attach-file-list-property "FILE")
   (org-attach-auto-tag "FILE")
-  (org-attach-id-dir "~/doc/org/data")
+  (org-attach-id-dir "~/org/data")
   (org-attach-method 'mv)
   (org-attach-store-link-p 'attached)
   :init
@@ -9702,7 +9760,7 @@ context.
 (use-package org-contacts
   :after org
   :custom
-  (org-contacts-files '("~/doc/org/resource/people.org"))
+  (org-contacts-files '("~/org/area/people.org"))
   :config
   (add-hook 'message-mode-hook
             #'(lambda ()
@@ -9903,15 +9961,15 @@ A group FOO is composed of contacts with the tag FOO."
    (lookup-password "org-caldav.google.com" org-gcal-client-id 80))
   (org-gcal-fetch-file-alist
    '(("jwiegley@gmail.com" .
-      "~/doc/org/area/calendar/google.org")
+      "~/org/area/calendar/google.org")
      ("ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com" .
-      "~/doc/org/area/calendar/bahai.org")
+      "~/org/area/calendar/bahai.org")
      ("57jh2om1vl9sv16sor1mudl030@group.calendar.google.com" .
-      "~/doc/org/area/calendar/family.org")
+      "~/org/area/calendar/family.org")
      ("789ust6872bajeo87oqd2jqfog@group.calendar.google.com" .
-      "~/doc/org/area/calendar/nasim.org")
+      "~/org/area/calendar/nasim.org")
      ("sacramento.lsa1914@gmail.com" .
-      "~/doc/org/area/calendar/sacramento.org"))))
+      "~/org/area/calendar/sacramento.org"))))
 #+end_src
 
 *** org-id
@@ -10008,7 +10066,7 @@ A group FOO is composed of contacts with the tag FOO."
   :demand t
   :commands org-noter
   :custom
-  (org-noter-notes-search-path '("~/doc/org/inbox"))
+  (org-noter-notes-search-path '("~/org/inbox"))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
   :config
   (defun org-noter-pdf--show-arrow ()
@@ -10180,7 +10238,8 @@ A group FOO is composed of contacts with the tag FOO."
        ((eq major-mode 'dired-mode)
         (let ((org-ql-search-directories-files-recursive t))
           (org-ql-find (org-ql-search-directories-files
-                        :directories '("~/doc/org/area" "~/doc/org/resource"))
+                        :directories '("~/org/area" "~/org/project"
+                                       "~/org/resource"))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
         (org-ql-find (org-ql-find--buffers)
@@ -10324,7 +10383,7 @@ Use a prefix arg to get regular RET. "
    ("C-M-i" . completion-at-point))
   :custom
   (org-roam-db-update-on-save nil)
-  (org-roam-directory "~/doc/org")
+  (org-roam-directory "~/org")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("a" "Task" entry "* TODO %?"
@@ -10339,7 +10398,7 @@ Use a prefix arg to get regular RET. "
 :EMAIL: %(EMAIL)
 :NOTE: %^{NOTE}
 :END:"
-      :target (file "~/doc/org/resource/people.org")
+      :target (file "~/org/area/people.org")
       :prepend t)
      ("C" "Calendar" entry "* APPT %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
@@ -10357,16 +10416,16 @@ Use a prefix arg to get regular RET. "
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("i" "Idea" entry "* NOTE %?"
-      :target (file "~/doc/org/resource/ideas.org")
+      :target (file "~/org/area/ideas.org")
       :empty-lines 1
       :prepend t)
      ("q" "Quote" plain "%c\n\n─ %?"
-      :target (file+head "resource/quote/%<%Y%m%d%H%M>-${slug}.org"
+      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :quote:\n#+title: ${title}\n")
       :jump-to-captured t
       :empty-lines-before 1)
      ("t" "Thought" plain "%?"
-      :target (file+head "resource/thoughts/%<%Y%m%d%H%M>-${slug}.org"
+      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
                          "#+filetags: :thoughts:\n#+title: ${title}\n")
       :empty-lines-before 1)
      ("k" "Kadena" plain "%?"
@@ -10382,7 +10441,7 @@ Use a prefix arg to get regular RET. "
 :SLUG:     ${slug}
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish=johnwiegley:
+,#+filetags: :publish/johnwiegley:
 ,#+date: %U
 ,#+title: ${title}\n")
       :empty-lines-before 1
@@ -10394,7 +10453,7 @@ Use a prefix arg to get regular RET. "
 :SLUG:     ${slug}
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish=newartisans:
+,#+filetags: :publish/newartisans:
 ,#+date: %U
 ,#+title: ${title}\n")
       :empty-lines-before 1
@@ -10440,12 +10499,9 @@ Use a prefix arg to get regular RET. "
      "\\`site/"
      "\\`area/bahai/assembly/minutes"
      ))
-  (my/org-roam-revise-locations
-   '(("bahai" . "resource/bahai")
-     ("quote" . "resource/quote")
-     ("tech" . "resource/tech")
-     ("contract=kadena" . "resource/kadena")
-     ))
+  ;; (my/org-roam-revise-locations
+  ;;  '(("contract/kadena" . "resource/kadena")
+  ;;    ))
   :defines
   (org-roam-v2-ack)
   :functions
@@ -10621,19 +10677,19 @@ Use a prefix arg to get regular RET. "
                          '(:immediate-finish t)))))
       (apply #'org-roam-node-insert args)))
 
-  (defcustom my/org-roam-revise-locations nil
-    "A mapping of tags to relative folders in org-roam-directory.
-The first tag to match is used."
-    :group 'org-roam
-    :type '(repeat (cons string string)))
+  ;; (defcustom my/org-roam-revise-locations nil
+  ;;   "A mapping of tags to relative folders in org-roam-directory.
+  ;; The first tag to match is used."
+  ;;   :group 'org-roam
+  ;;   :type '(repeat (cons string string)))
 
-  (defun my/org-roam-revise-mapping (tags)
-    (let (found-match)
-      (dolist (tag tags)
-        (unless found-match
-          (setq found-match
-                (cdr (assoc tag my/org-roam-revise-locations)))))
-      found-match))
+  ;; (defun my/org-roam-revise-mapping (tags)
+  ;;   (let (found-match)
+  ;;     (dolist (tag tags)
+  ;;       (unless found-match
+  ;;         (setq found-match
+  ;;               (cdr (assoc tag my/org-roam-revise-locations)))))
+  ;;     found-match))
 
   (defun my/org-roam-revise-title ()
     (interactive)
@@ -10674,7 +10730,7 @@ The first tag to match is used."
                 (expand-file-name
                  (file-name-nondirectory new-name)
                  (expand-file-name
-                  (or (my/org-roam-revise-mapping tags)
+                  (or ;;(my/org-roam-revise-mapping tags)
                       (file-name-directory
                        (file-relative-name new-name org-roam-directory)))
                   org-roam-directory)))
@@ -10867,7 +10923,7 @@ tasks."
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
-  (xeft-directory "~/doc/org/")
+  (xeft-directory "~/org/")
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
@@ -11166,8 +11222,8 @@ own lines, for instance.
   (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
-   '("~/doc/org/resource/bibliography.bib"
-     "~/doc/org/resource/kadena.bib"))
+   '("~/org/area/bibliography.bib"
+     "~/org/area/kadena.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
@@ -11242,7 +11298,7 @@ own lines, for instance.
   :commands asana-org-sync-tasks
   :defines (asana-token)
   :custom
-  (asana-tasks-org-file "~/doc/org/area/kadena/asana.org")
+  (asana-tasks-org-file "~/org/area/kadena/asana.org")
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
@@ -11430,9 +11486,7 @@ own lines, for instance.
 *** COMMENT cl-info
 
 #+begin_src emacs-lisp
-(use-package cl-info
-  ;; jww (2017-12-10): Need to configure.
-  )
+(use-package cl-info)
 #+end_src
 
 *** COMMENT crux
@@ -11541,9 +11595,7 @@ you can try all default settings to enjoy =mic-paren=.
 *** COMMENT repl-toggle
 
 #+begin_src emacs-lisp
-(use-package repl-toggle
-  ;; jww (2017-12-10): Need to configure.
-  )
+(use-package repl-toggle)
 #+end_src
 
 *** COMMENT smart-mode-line

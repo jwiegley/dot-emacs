@@ -1,0 +1,12 @@
+(defun render-html ()
+  (interactive)
+  (shr-render-region (point-min) (point-max)))
+
+(defun clean-html ()
+  (interactive)
+  (whitespace-cleanup)
+  (goto-char (point-max))
+  (when (re-search-backward "^\\* HTML.+\n" nil t)
+    (delete-blank-lines)
+    (forward-line 1)
+    (delete-region (point-min) (point))))
