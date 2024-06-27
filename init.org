@@ -9261,14 +9261,16 @@ With prefix argument, also display headlines without a TODO keyword."
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
              (org-extra-agenda-skip-if-not-within 90)
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("rU" "All unscheduled" alltodo ""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
@@ -9276,7 +9278,8 @@ With prefix argument, also display headlines without a TODO keyword."
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
                                        "\\* \\(DEFER\\)")
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(category-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/OSS.org"))))
@@ -9285,7 +9288,8 @@ With prefix argument, also display headlines without a TODO keyword."
       ((org-agenda-sorting-strategy '(category-up user-defined-up))
        (org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
        (org-agenda-files '("~/org/area/kadena/kadena.org"))))
 
@@ -9316,7 +9320,8 @@ With prefix argument, also display headlines without a TODO keyword."
      ("rn" "Next Actions" alltodo ""
       ((org-agenda-skip-function
         '(or (my-org-agenda-skip-all-siblings-but-first t)
-             (my-org-agenda-skip-habit)))))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))))
 
      ("rp" "With tags"
       (lambda (arg)
@@ -9343,7 +9348,8 @@ With prefix argument, also display headlines without a TODO keyword."
      ("pn" "Project Next Actions" alltodo ""
       ((org-agenda-skip-function
         '(or (my-org-agenda-skip-all-siblings-but-first)
-             (my-org-agenda-skip-habit)))))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))))
 
      ("pa" "High Priority Projects" todo "PROJECT"
       ((org-agenda-skip-function
@@ -9379,21 +9385,24 @@ With prefix argument, also display headlines without a TODO keyword."
      ("PA" "All priority #A tasks" alltodo ""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'notregexp "\\[#A\\]")
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("PB" "All priority #B tasks" alltodo ""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]")
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
      ("PC" "All priority #C tasks" alltodo ""
       ((org-agenda-skip-function
         '(or (org-agenda-skip-entry-if 'notregexp "\\[#C\\]")
-             (my-org-agenda-skip-habit)))
+             (my-org-agenda-skip-habit)
+             (my-org-skip-inactive-todos)))
        (org-agenda-sorting-strategy '(user-defined-up))
        (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
@@ -9496,6 +9505,12 @@ With prefix argument, also display headlines without a TODO keyword."
 
   (defun my-org-agenda-skip-habit ()
     (when (ignore-errors (org-is-habit-p))
+      (or (outline-next-heading)
+          (goto-char (point-max)))))
+
+  (defun my-org-skip-inactive-todos ()
+    (unless (member (org-get-todo-state)
+                    '("TODO" "DOING" "WAIT" "DELEGATED"))
       (or (outline-next-heading)
           (goto-char (point-max)))))
 
@@ -10066,7 +10081,7 @@ A group FOO is composed of contacts with the tag FOO."
   :demand t
   :commands org-noter
   :custom
-  (org-noter-notes-search-path '("~/org/inbox"))
+  (org-noter-notes-search-path '("~/org/resource"))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
   :config
   (defun org-noter-pdf--show-arrow ()
@@ -10404,7 +10419,7 @@ Use a prefix arg to get regular RET. "
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("n" "Note" plain "%?"
-      :target (file+head "inbox/%<%Y%m%d%H%M>-${slug}.org"
+      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
                          "#+title: ${title}\n")
       :jump-to-captured t
       :empty-lines-before 1
@@ -10662,7 +10677,7 @@ Use a prefix arg to get regular RET. "
                 (write-region
                  nil nil
                  (expand-file-name
-                  (format "inbox/%04d%02d%02d%02d%02d-%s.org"
+                  (format "resource/%04d%02d%02d%02d%02d-%s.org"
                           year mon day hour min
                           (my/org-roam-title-slug title))
                   org-roam-directory)
