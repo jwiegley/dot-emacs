@@ -37,10 +37,11 @@
 
 (defun org-extra-goto-inbox (&optional func)
   (interactive)
-  (with-current-buffer (funcall (if func
-                                    #'find-file-noselect
-                                  #'find-file)
-                                "~/org/area/todo.org")
+  (with-current-buffer
+      (funcall (if func
+                   #'find-file-noselect
+                 #'find-file)
+               (expand-file-name "area/todo.org" org-directory))
     (if func
         (save-excursion
           (org-extra-start-of-inbox)
