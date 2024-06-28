@@ -1375,14 +1375,16 @@ diff-hl package.
   (dired-vc-rename-file t)
   :functions (dired-dwim-target-directory)
   :preface
-  (defun dired-two-pane ()
-    (interactive)
+  (defun dired-two-pane (&optional arg)
+    (interactive "P")
     (push-window-configuration)
     (let ((here default-directory))
       (delete-other-windows)
-      (dired "~/Desktop")
+      (dired "~/Downloads")
       (split-window-horizontally)
-      (dired here)))
+      (if arg
+          (dired here)
+        (dired "~/Desktop"))))
 
   (defun dired-next-window ()
     (interactive)
@@ -5465,6 +5467,7 @@ independent components.
          ("C-x 4 b" . consult-buffer-other-window)
          ("C-x 5 b" . consult-buffer-other-frame)
          ("C-x r b" . consult-bookmark)
+         ("C-x 4 j" . consult-bookmark-other-window)
          ("C-x p b" . consult-project-buffer)
          ;; Other custom bindings
          ("M-y"     . consult-yank-pop)
@@ -5516,6 +5519,33 @@ independent components.
   (consult-register-format
    consult-register-window
    consult-xref)
+
+  :preface
+  (defun consult-bookmark-other-window (name)
+    "If bookmark NAME exists, open it, otherwise create a new bookmark with NAME.
+
+  The command supports preview of file bookmarks and narrowing.  See the
+  variable `consult-bookmark-narrow' for the narrowing configuration."
+    (interactive
+     (list
+      (let* ((consult--buffer-display #'switch-to-buffer-other-window)
+             (narrow (cl-loop for (x y . _) in consult-bookmark-narrow collect (cons x y))))
+        (consult--read
+         (consult--bookmark-candidates)
+         :prompt "Bookmark: "
+         :state (consult--bookmark-preview)
+         :category 'bookmark
+         :history 'bookmark-history
+         ;; Add default names to future history.
+         ;; Ignore errors such that `consult-bookmark' can be used in
+         ;; buffers which are not backed by a file.
+         :add-history (ignore-errors (bookmark-prop-get (bookmark-make-record) 'defaults))
+         :group (consult--type-group narrow)
+         :narrow (consult--type-narrow narrow)))))
+    (bookmark-maybe-load-default-file)
+    (if (assoc name bookmark-alist)
+        (bookmark-jump name #'switch-to-buffer-other-window)
+      (bookmark-set name)))
 
   ;; The :init configuration is always executed (Not lazy)
   :init
@@ -9323,7 +9353,7 @@ With prefix argument, also display headlines without a TODO keyword."
              (my-org-agenda-skip-habit)
              (my-org-skip-inactive-todos)))))
 
-     ("rp" "With tags"
+     ("rm" "With tags match"
       (lambda (arg)
         (call-interactively #'org-extra-with-tags-search nil)))
 
