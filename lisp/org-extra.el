@@ -26,7 +26,7 @@
 ;;; Commentary:
 
 (defgroup org-extra nil
-  "Capture Gnus messages as tasks, with context"
+  "Extra functions for use with Org-mode"
   :group 'org)
 
 (defun org-extra-start-of-inbox ()
