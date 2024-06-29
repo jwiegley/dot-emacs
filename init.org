@@ -4948,7 +4948,7 @@ A collection of paredit-like functions for editing in =html-mode=.
   :defer t
   :custom
   (tramp-default-method "ssh")
-  (tramp-auto-save-directory "~/.cache/emacs/backups")
+  (tramp-auto-save-directory "~/.local/share/emacs/backups")
   :config
   (add-to-list 'tramp-remote-path (expand-file-name "~/.nix-profile/bin"))
 
@@ -8902,7 +8902,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-latex-src-block-backend 'minted)
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
-  (org-log-refile 'time)
   (org-log-state-notes-insert-after-drawers t)
   (org-mime-preserve-breaks nil)
   (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
