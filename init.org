@@ -9779,6 +9779,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package org-contacts
   :after org
+  :demand t
   :bind (("M-B" . org-contacts)
          :map org-mode-map
          ("C-x M" . org-contacts-view-send-email))
