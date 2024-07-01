@@ -9775,6 +9775,9 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+end_src
 
 *** org-contacts
+:PROPERTIES:
+:ID:       9BAB6C13-E059-4C1E-83D9-8A32E74F386C
+:END:
 
 #+begin_src emacs-lisp
 (use-package org-contacts
@@ -10453,7 +10456,7 @@ Use a prefix arg to get regular RET. "
      ("N" "Inline Note" entry "* NOTE %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
-     ("N" "Inline Note" entry "* LINK %?"
+     ("l" "Link" entry "* LINK %?"
       :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
       :prepend t)
      ("i" "Idea" entry "* NOTE %?"
@@ -11008,7 +11011,7 @@ own lines, for instance.
   )
 #+end_src
 
-*** asana
+*** COMMENT asana
 
 #+begin_src emacs-lisp
 (use-package asana
