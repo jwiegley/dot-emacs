@@ -346,9 +346,9 @@ tasks."
                      (my/org-roam-excluded-file
                       (file-relative-name file org-roam-directory)))
                  (my/org-roam-todo-files))
-                '("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org")))
+                (list my-beorg-inbox-file)))
   (message "org-agenda-files has been updated"))
 
 (provide 'org-roam-extra)
 
-;;; org-extra.el ends here
+;;; org-roam-extra.el ends here

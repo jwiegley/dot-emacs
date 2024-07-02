@@ -8819,7 +8819,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
   (org-deadline-warning-days 14)
-  (org-default-notes-file (org-file "area/todo.org"))
+  (org-default-notes-file (org-file "todo.org"))
   (org-depend-tag-blocked nil)
   (org-directory "~/org/")
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
@@ -8913,7 +8913,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-refile-target-verify-function 'org-refile-heading-p)
   (org-refile-targets
    `((org-agenda-files :maxlevel . 4)
-     (,(org-file "area/bookmarks.org") :maxlevel . 2)))
+     (,(org-file "bookmarks.org") :maxlevel . 2)))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
@@ -9280,166 +9280,15 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
   (org-agenda-compact-blocks t)
-  (org-agenda-custom-commands
-   '(("r" . "Review tasks")
-
-     ("ru" "Unscheduled (last 90 days)" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (org-extra-agenda-skip-if-not-within 90)
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("rU" "All unscheduled" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("ro" "Unscheduled open source" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
-                                       "\\* \\(DEFER\\)")
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(category-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files (list (org-file "area/OSS.org")))))
-
-     ("rW" "Unscheduled work" alltodo ""
-      ((org-agenda-sorting-strategy '(category-up user-defined-up))
-       (org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-       (org-agenda-files (list (org-file "area/kadena/kadena.org")))))
-
-     ("rw" "Waiting/delegated" todo "WAIT|DELEGATED"
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'scheduled)
-             (my-org-agenda-skip-habit)))
-       (org-agenda-sorting-strategy
-        '(todo-state-up priority-down category-up))))
-
-     ("rd" "Deadlined" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'notdeadline)
-             (my-org-agenda-skip-habit)))
-       (org-agenda-sorting-strategy '(category-up))))
-
-     ("rs" "Scheduled" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'notscheduled)
-             (my-org-agenda-skip-habit)))
-       (org-agenda-sorting-strategy '(category-up))))
-
-     ("rD" "Deferred" todo "DEFER"
-      ((org-agenda-skip-function #'my-org-agenda-skip-habit)
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("rn" "Next Actions" alltodo ""
-      ((org-agenda-skip-function
-        '(or (my-org-agenda-skip-all-siblings-but-first t)
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))))
-
-     ("rm" "With tags match"
-      (lambda (arg)
-        (call-interactively #'org-extra-with-tags-search nil)))
-
-     ("rc" "With category"
-      (lambda (arg)
-        (call-interactively #'org-extra-with-category-search nil)))
-
-     ("rt" "With item"
-      (lambda (arg)
-        (call-interactively #'org-extra-with-item-search nil)))
-
-     ("c" "Appointment Calendar" agenda ""
-      ((org-agenda-sorting-strategy '(time-up))
-       (org-agenda-span 14)
-       (org-agenda-ndays 14)
-       (org-agenda-regexp-filter-preset '("+APPT"))))
-
-     ("p" . "Projects")
-
-     ("pp" "All Projects" todo "PROJECT")
-
-     ("pn" "Project Next Actions" alltodo ""
-      ((org-agenda-skip-function
-        '(or (my-org-agenda-skip-all-siblings-but-first)
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))))
-
-     ("pa" "High Priority Projects" todo "PROJECT"
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
-
-     ("pb" "Lower Priority Projects" todo "PROJECT"
-      ((org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'regexp "\\[#A\\]"))))
-
-     ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
-
-     ("n" "Notes" todo "NOTE")
-
-     ("l" "Links" todo "LINK")
-
-     ("P" . "Priority views")
-
-     ("Pa" "Today's priority #A tasks" agenda ""
-      ((org-agenda-ndays 7)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#A\\]"))))
-
-     ("Pb" "Today's priority #A and #B tasks" agenda ""
-      ((org-agenda-ndays 7)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'regexp "\\[#C\\]"))))
-
-     ("Pc" "Today's priority #C tasks" agenda ""
-      ((org-agenda-ndays 7)
-       (org-agenda-skip-function
-        '(org-agenda-skip-entry-if 'notregexp "\\[#C\\]"))))
-
-     ("PA" "All priority #A tasks" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'notregexp "\\[#A\\]")
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("PB" "All priority #B tasks" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]")
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
-
-     ("PC" "All priority #C tasks" alltodo ""
-      ((org-agenda-skip-function
-        '(or (org-agenda-skip-entry-if 'notregexp "\\[#C\\]")
-             (my-org-agenda-skip-habit)
-             (my-org-skip-inactive-todos)))
-       (org-agenda-sorting-strategy '(user-defined-up))
-       (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))))
   (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
-   (list (org-file "area/todo.org")
-         (org-file "area/habits.org")
-         (org-file "area/kadena/kadena.org")
-         (org-file "area/OSS.org")
-         (org-file "area/people.org")
-         "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org"))
+   (list (org-file "todo.org")
+         (org-file "habits.org")
+         (org-file "kadena/kadena.org")
+         (org-file "OSS.org")
+         (org-file "people.org")
+         my-beorg-inbox-file))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-inhibit-startup t)
@@ -9480,6 +9329,12 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-clocking ((t (:background "red2"))))
   (org-agenda-done ((t (:foreground "DarkGreen"))))
   :preface
+  (defconst my-beorg-inbox-file
+    "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org")
+
+  (defconst my-drafts-directory
+    "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents")
+
   (defun org-fit-agenda-window ()
     "Fit the window to the buffer size."
     (and (memq org-agenda-window-setup '(reorganize-frame))
@@ -9787,7 +9642,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
          :map org-mode-map
          ("C-x M" . org-contacts-view-send-email))
   :custom
-  (org-contacts-files (list (org-file "area/people.org")))
+  (org-contacts-files (list (org-file "people.org")))
   :config
   (add-hook 'message-mode-hook
             #'(lambda ()
@@ -10005,15 +9860,15 @@ A group FOO is composed of contacts with the tag FOO."
   (org-gcal-fetch-file-alist
    (list
     (cons "jwiegley@gmail.com"
-          (org-file "area/calendar/google.org"))
+          (org-file "calendar/google.org"))
     (cons "ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com"
-          (org-file "area/calendar/bahai.org"))
+          (org-file "calendar/bahai.org"))
     (cons "57jh2om1vl9sv16sor1mudl030@group.calendar.google.com"
-          (org-file "area/calendar/family.org"))
+          (org-file "calendar/family.org"))
     (cons "789ust6872bajeo87oqd2jqfog@group.calendar.google.com"
-          (org-file "area/calendar/nasim.org"))
+          (org-file "calendar/nasim.org"))
     (cons "sacramento.lsa1914@gmail.com"
-          (org-file "area/calendar/sacramento.org")))))
+          (org-file "calendar/sacramento.org")))))
 #+end_src
 
 *** org-id
@@ -10109,7 +9964,7 @@ A group FOO is composed of contacts with the tag FOO."
   :demand t
   :commands org-noter
   :custom
-  (org-noter-notes-search-path (list (org-file "resource")))
+  (org-noter-notes-search-path (list org-directory))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
   :config
   (defun org-noter-pdf--show-arrow ()
@@ -10281,9 +10136,7 @@ A group FOO is composed of contacts with the tag FOO."
        ((eq major-mode 'dired-mode)
         (let ((org-ql-search-directories-files-recursive t))
           (org-ql-find (org-ql-search-directories-files
-                        :directories (list (org-file "area")
-                                           (org-file "project")
-                                           (org-file "resource")))
+                        :directories (list org-directory))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
         (org-ql-find (org-ql-find--buffers)
@@ -10429,109 +10282,6 @@ Use a prefix arg to get regular RET. "
   (org-roam-db-update-on-save nil)
   (org-roam-directory org-directory)
   (org-roam-completion-everywhere t)
-  (org-roam-capture-templates
-   `(("a" "Task" entry "* TODO %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("p" "Project" entry "* PROJECT %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("c" "Contact" entry "* %^{NAME}
-:PROPERTIES:
-:PHONE: %^{PHONE}
-:EMAIL: %(EMAIL)
-:NOTE: %^{NOTE}
-:END:"
-      :target (file ,(org-file "area/people.org"))
-      :prepend t)
-     ("C" "Calendar" entry "* APPT %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("n" "Note" plain "%?"
-      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+title: ${title}\n")
-      :jump-to-captured t
-      :empty-lines-before 1
-      :unnarrowed t)
-     ("N" "Inline Note" entry "* NOTE %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("l" "Link" entry "* LINK %?"
-      :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      :prepend t)
-     ("i" "Idea" entry "* NOTE %?"
-      :target (file ,(org-file "area/ideas.org"))
-      :empty-lines 1
-      :prepend t)
-     ("q" "Quote" plain "%c\n\n─ %?"
-      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+filetags: :quote:\n#+title: ${title}\n")
-      :jump-to-captured t
-      :empty-lines-before 1)
-     ("t" "Thought" plain "%?"
-      :target (file+head "resource/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+filetags: :thoughts:\n#+title: ${title}\n")
-      :empty-lines-before 1)
-     ("k" "Kadena" plain "%?"
-      :jump-to-captured t
-      :target (file+head "area/kadena/%<%Y%m%d%H%M>-${slug}.org"
-                         "#+filetags: :kadena:work:\n#+title: ${title}\n")
-      :empty-lines-before 1
-      :unnarrowed t)
-     ("J" "johnwiegley.com" plain "%?"
-      :jump-to-captured t
-      :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
-                         ":PROPERTIES:
-:SLUG:     ${slug}
-:PUBLISH:  %^{Publish after date}U
-:END:
-,#+filetags: :publish/johnwiegley:
-,#+date: %U
-,#+title: ${title}\n")
-      :empty-lines-before 1
-      :unnarrowed t)
-     ("N" "newartisans.com" plain "%?"
-      :jump-to-captured t
-      :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
-                         ":PROPERTIES:
-:SLUG:     ${slug}
-:PUBLISH:  %^{Publish after date}U
-:END:
-,#+filetags: :publish/newartisans:
-,#+date: %U
-,#+title: ${title}\n")
-      :empty-lines-before 1
-      :unnarrowed t)
-     ("P" "Project templates")
-     ("Pc" "Conference" entry
-      (file "~/doc/template/org/conference.org")
-      :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
-      :jump-to-captured t)
-     ("Pa" "Assembly meeting" entry
-      (file "~/doc/template/org/assembly-meeting.org")
-      :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
-      :jump-to-captured t)
-     ("Pe" "Bahá’í event" entry
-      (file "~/doc/template/org/bahai-event.org")
-      :target (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91")
-      :jump-to-captured t)
-     ("Pf" "Bahá’í Feast" entry
-      (file "~/doc/template/org/feast.org")
-      :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
-      :jump-to-captured t)
-     ("Pg" "Flow of guidance" entry
-      (file "~/doc/template/org/flow-of-guidance.org")
-      :target (node "852262E7-17E6-441C-B473-7473485217FE")
-      :jump-to-captured t)
-     ("Pi" "Ruhi Intensive" entry
-      (file "~/doc/template/org/ruhi-intensive.org")
-      :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
-      :jump-to-captured t)
-     ("Pt" "Ruhi Tutor Training" entry
-      (file "~/doc/template/org/ruhi-tutor-training.org")
-      :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
-      :jump-to-captured t)
-     ))
   (org-roam-db-location (user-data "org-roam.db"))
   (org-roam-extract-new-file-path "%<%Y%m%d%H%M>-${slug}.org")
   (org-roam-file-exclude-regexp
@@ -10540,8 +10290,7 @@ Use a prefix arg to get regular RET. "
      "/\\."
      "archive"
      "\\`data/"
-     "\\`site/"
-     "\\`area/bahai/assembly/minutes"
+     "\\`assembly/minutes"
      ))
   :defines
   (org-roam-v2-ack)
@@ -10557,6 +10306,7 @@ Use a prefix arg to get regular RET. "
     (require 'org-roam-extra))
   :init
   (use-package org-roam-extra)
+
   (setq org-roam-v2-ack t)
   :config
   (org-roam-db-autosync-mode)
@@ -10649,12 +10399,12 @@ context.
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
   (my-xeft-ignored-files
-   '("area/todo.org"
-     "area/habits.org"
-     "area/OSS.org"
-     "area/kadena/kadena.org"
-     "area/kadena/archive.org"
-     "area/bahai/assembly/assembly.org"))
+   '("todo.org"
+     "habits.org"
+     "OSS.org"
+     "kadena/kadena.org"
+     "kadena/archive.org"
+     "bahai/assembly/assembly.org"))
   :custom-face
   (xeft-excerpt-body
    ((t (:inherit default :foreground "grey80"))))
@@ -10943,8 +10693,8 @@ own lines, for instance.
   (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
-   (list (org-file "area/bibliography.bib")
-         (org-file "area/kadena.bib")))
+   (list (org-file "bibliography.bib")
+         (org-file "kadena.bib")))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
@@ -10994,7 +10744,7 @@ own lines, for instance.
   :after (citar-org org-roam)
   :diminish citar-org-roam-mode
   :custom
-  (citar-org-roam-subdir "resource")
+  (citar-org-roam-subdir nil)
   :config (citar-org-roam-mode))
 #+end_src
 
@@ -11019,10 +10769,18 @@ own lines, for instance.
   :commands asana-org-sync-tasks
   :defines (asana-token)
   :custom
-  (asana-tasks-org-file (org-file "area/kadena/asana.org"))
+  (asana-tasks-org-file (org-file "kadena/asana.org"))
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
+#+end_src
+
+*** org-config
+
+#+begin_src emacs-lisp
+(use-package org-config
+  :after (org org-roam)
+  :demand t)
 #+end_src
 
 ** Games
