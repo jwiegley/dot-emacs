@@ -1409,10 +1409,10 @@ diff-hl package.
       (or (gethash pat mark-files-cache)
           (ignore (puthash pat t mark-files-cache)))))
 
-  (defun dired-mark-similar-version ()
-    (interactive)
-    (setq mark-files-cache (make-hash-table :test #'equal))
-    (dired-mark-sexp '(mark-similar-versions name)))
+  ;; (defun dired-mark-similar-version ()
+  ;;   (interactive)
+  ;;   (setq mark-files-cache (make-hash-table :test #'equal))
+  ;;   (dired-mark-sexp '(mark-similar-versions name)))
 
   (defun ora-ediff-files ()
     (interactive)
