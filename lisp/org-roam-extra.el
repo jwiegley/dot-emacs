@@ -181,7 +181,7 @@
               (write-region
                nil nil
                (expand-file-name
-                (format "resource/%04d%02d%02d%02d%02d-%s.org"
+                (format "%04d%02d%02d%02d%02d-%s.org"
                         year mon day hour min
                         (my/org-roam-title-slug title))
                 org-roam-directory)

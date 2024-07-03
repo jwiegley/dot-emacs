@@ -776,12 +776,16 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (bookmark-default-file "~/doc/bookmarks"))
 #+end_src
 
-*** bookmark+
+*** COMMENT bookmark+
 
 #+begin_src emacs-lisp
 (use-package bookmark+
   :after bookmark
-  :commands bmkp-jump-dired
+  :demand t
+  :commands (bmkp-jump-dired)
+  :bind (:map bookmark-bmenu-mode-map
+              ("n" . next-line)
+              ("p" . previous-line))
   :custom
   (bmkp-bmenu-commands-file (user-data "bmk-bmenu-commands.el"))
   (bmkp-bmenu-state-file (user-data "bmk-bmenu-state.el"))
@@ -1378,10 +1382,12 @@ diff-hl package.
     (let ((here default-directory))
       (delete-other-windows)
       (dired "~/Downloads")
+      (revert-buffer)
       (split-window-horizontally)
       (if arg
           (dired here)
-        (dired "~/Desktop"))))
+        (dired "~/Desktop"))
+      (revert-buffer)))
 
   (defun dired-next-window ()
     (interactive)

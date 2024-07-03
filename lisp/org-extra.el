@@ -41,7 +41,7 @@
       (funcall (if func
                    #'find-file-noselect
                  #'find-file)
-               (expand-file-name "area/todo.org" org-directory))
+               (expand-file-name "todo.org" org-directory))
     (if func
         (save-excursion
           (org-extra-start-of-inbox)
