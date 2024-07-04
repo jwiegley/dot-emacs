@@ -1882,7 +1882,7 @@ non-empty directories is allowed."
      "ledger"
      "eshell"
      "use-package"))
-  (erc-log-channels-directory "~/Messages/ERC")
+  (erc-log-channels-directory "~/.local/share/ERC")
   (erc-log-write-after-send t)
   (erc-modules
    '(autojoin
@@ -6659,7 +6659,7 @@ without white space and comments.
         slime-contribs '(slime-fancy)))
 #+end_src
 
-*** fetchmail-mode
+*** COMMENT fetchmail-mode
 
 #+begin_src emacs-lisp
 (use-package fetchmail-mode
@@ -7692,7 +7692,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package gnus-start
-  :commands gnus-unplugged
+  :commands (gnus gnus-unplugged)
   :bind ("M-G" . switch-to-gnus)
   :custom
   (gnus-activate-level 2)
@@ -7745,174 +7745,70 @@ without white space and comments.
   (gnus-local-domain "newartisans.com")
   (gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
   (gnus-mark-unpicked-articles-as-read t)
-  (gnus-message-archive-group '((format-time-string "sent.%Y")))
+  (gnus-message-archive-group "Sent")
   (gnus-message-replysign t)
   (gnus-novice-user nil)
   (gnus-parameters
-   '(("^haskell$"
-      (display . all))
-     ("list\\.gnu\\.prog\\.discuss$"
-      (list-identifier . "\\[gnu-prog-discuss\\]"))
-     ("list\\.coq\\.fiat"
-      (to-address . "fiat@lists.csail.mit.edu")
-      (to-list . "fiat@lists.csail.mit.edu")
-      (list-identifier . "\\[Fiat\\]"))
-     ("list\\.haskell\\.ghc$"
-      (to-address . "glasgow-haskell-users@haskell.org")
-      (to-list . "glasgow-haskell-users@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.nix\\.devel"
-      (to-address . "nix-dev@lists.science.uu.nl")
-      (to-list . "nix-dev@lists.science.uu.nl")
-      (list-identifier . "\\[Nix-dev\\]"))
-     ("\\`gmane\\."
-      (spam-process gnus-group-spam-exit-processor-report-gmane))
-     ("list\\.github$"
+   '(
+     ;; Fastmail spam: Spam -> [Not Spam] -> INBOX
+     ;; SpamSieve spam: IsSpam -> TrainGood -> INBOX
+     ;; Fastmail good: INBOX -> TrainSpam -> IsSpam
+     ;; SpamSieve good: INBOX -> TrainSpam -> IsSpam
+     ("\\(Is\\|Train\\)?Spam"
       (total-expire . t)
-      (expiry-wait . 90)
-      (expiry-target . delete))
-     ("mail\\.spam"
-      (total-expire . t)
-      (expiry-wait . 28)
+      (expiry-wait . 31)
       (expiry-target . delete)
-      (ham-process-destination . "INBOX")
+      (ham-process-destination . "TrainGood")
       (spam-contents gnus-group-spam-classification-spam))
-     ("mail\\.spam\\.report"
-      (total-expire . t)
-      (expiry-wait . 28)
-      (expiry-target . delete)
-      (ham-process-destination . "INBOX")
-      (spam-contents gnus-group-spam-classification-spam))
-     ("list\\."
-      (subscribed . t))
-     ("list\\.wg21\\.\\(.*\\)"
-      (to-address . "c++std-\\1@accu.org")
-      (to-list . "c++std-\\1@accu.org")
-      (gnus-list-identifiers "\\[c\\+\\+std-.+?\\]"))
+     ("\\(mail/\\|INBOX\\|\\(Is\\|Train\\)Good\\)"
+      (gcc-self . t)
+      (gnus-use-scoring nil)
+      (spam-process-destination . "TrainSpam")
+      (spam-contents gnus-group-spam-classification-ham))
      ("INBOX"
       (total-expire . t)
       (expiry-wait . 90)
-      (expiry-target . "mail.archive")
-      (spam-process-destination . "mail.spam.report")
-      (spam-contents gnus-group-spam-classification-ham))
-     ("\\(mail\\.\\|INBOX\\)"
-      (gnus-use-scoring nil))
-     ("mail\\.kadena\\'"
+      (expiry-target . "Archive"))
+     ("mail/kadena\\'"
       (total-expire . t)
       (expiry-wait . 90)
-      (expiry-target . "mail.kadena.archive")
-      (spam-process-destination . "mail.spam.report")
-      (spam-contents gnus-group-spam-classification-ham))
-     ("mail\\(\\.kadena\\)?\\.archive"
+      (expiry-target . "mail/kadena/archive"))
+     ("\\(Archive\\|mail/kadena/archive\\)"
       (gnus-summary-line-format
        "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
       (gnus-show-threads nil))
-     ("list\\.ledger\\.devel"
-      (to-address . "ledger-cli@googlegroups.com")
+     ("list/"
+      (subscribed . t)
+      (gcc-self . t))
+     ("list/\\(github\\|misc\\)$"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . delete))
+     ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
-     ("list\\.bahai\\.tarjuman"
-      (to-address . "tarjuman@bahai-library.com")
+     ("list/bahai/tarjuman"
       (to-list . "tarjuman@bahai-library.com")
       (list-identifier . "\\[tj\\]"))
-     ("list\\.emacs\\.devel$"
-      (to-address . "emacs-devel@gnu.org")
+     ("list/emacs/devel$"
       (to-list . "emacs-devel@gnu.org"))
-     ("list\\.emacs\\.tangents$"
-      (to-address . "emacs-tangents@gnu.org")
+     ("list/emacs/tangents$"
       (to-list . "emacs-tangents@gnu.org"))
-     ("list\\.emacs\\.help$"
-      (to-address . "help-gnu-emacs@gnu.org")
-      (to-list . "help-gnu-emacs@gnu.org"))
-     ("list\\.emacs\\.bugs$"
+     ("list/emacs/bugs$"
       (to-list . "bug-gnu-emacs@gnu.org"))
-     ("list\\.emacs\\.bugs\\.tracker"
-      (list-identifier . "\\[debbugs-tracker\\]"))
-     ("list\\.emacs\\.diffs"
-      (to-address . "emacs-diffs@gnu.org")
-      (to-list . "emacs-diffs@gnu.org")
-      (list-identifier . "\\[Emacs-diffs\\]"))
-     ("list\\.emacs\\.elpa\\.diffs"
-      (to-address . "emacs-elpa-diffs@gnu.org")
-      (to-list . "emacs-elpa-diffs@gnu.org")
-      (list-identifier . "\\[elpa\\]"))
-     ("list\\.emacs\\.buildstatus"
-      (to-address . "emacs-buildstatus@gnu.org")
-      (to-list . "emacs-buildstatus@gnu.org"))
-     ("list\\.emacs\\.sources"
-      (to-address . "gnu-emacs-sources@gnu.org")
+     ("list/emacs/sources"
       (to-list . "gnu-emacs-sources@gnu.org"))
-     ("list\\.emacs\\.org-mode"
-      (to-address . "emacs-orgmode@gnu.org")
+     ("list/emacs/org-mode"
       (to-list . "emacs-orgmode@gnu.org")
       (list-identifier . "\\[O\\]"))
-     ("list\\.nix\\.devel"
-      (to-address . "nix-dev@lists.science.uu.nl")
-      (to-list . "nix-dev@lists.science.uu.nl")
-      (list-identifier . "\\[Nix-dev\\]"))
-     ("list\\.haskell\\.pipes"
-      (to-address . "haskell-pipes@googlegroups.com")
-      (to-list . "haskell-pipes@googlegroups.com")
-      (list-identifier . "\\[haskell-pipes\\]"))
-     ("list\\.haskell\\.cafe"
-      (to-address . "haskell-cafe@haskell.org")
-      (to-list . "haskell-cafe@haskell.org")
-      (list-identifier . "\\[Haskell\\(-cafe\\)?\\]"))
-     ("list\\.haskell\\.libraries"
-      (to-address . "libraries@haskell.org")
-      (to-list . "libraries@haskell.org"))
-     ("list\\.haskell\\.prime"
-      (to-address . "haskell-prime@haskell.org")
-      (to-list . "haskell-prime@haskell.org")
-      (list-identifier . "\\[haskell/rfcs\\]"))
-     ("list\\.haskell\\.template-haskell"
-      (to-address . "template-haskell@haskell.org")
-      (to-list . "template-haskell@haskell.org"))
-     ("list\\.haskell\\.beginners"
-      (to-address . "beginners@haskell.org")
-      (to-list . "beginners@haskell.org")
-      (list-identifier . "\\[Haskell-beginners\\]"))
-     ("list\\.haskell\\.infrastructure"
-      (to-address . "haskell-infrastructure@community.galois.com")
+     ("list/haskell/infrastructure"
       (to-list . "haskell-infrastructure@community.galois.com")
-      (list-identifier . "\\[Haskell-infrastructure\\]"))
-     ("list\\.haskell\\.community"
-      (to-address . "haskell-community@haskell.org")
-      (to-list . "haskell-community@haskell.org")
-      (list-identifier . "\\[Haskell-\\(community\\|cafe\\)\\]"))
-     ("list\\.haskell\\.announce"
-      (to-address . "haskell@haskell.org")
-      (to-list . "haskell@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.haskell\\.cabal"
-      (to-address . "cabal-devel@haskell.org")
-      (to-list . "cabal-devel@haskell.org")
-      (list-identifier . "\\[Haskell\\]"))
-     ("list\\.coq$"
-      (to-address . "coq-club@inria.fr")
-      (to-list . "coq-club@inria.fr")
-      (list-identifier . "\\[Coq-Club\\]"))
-     ("list\\.coq\\.devel$"
-      (to-address . "coqdev@inria.fr")
-      (to-list . "coqdev@inria.fr")
-      (list-identifier . "\\[coqdev\\]"))
-     ("list\\.agda\\.devel$"
-      (to-address . "agda@lists.chalmers.se")
-      (to-list . "agda@lists.chalmers.se")
-      (list-identifier . "\\[Agda\\]"))
-     ("list\\.idris\\.devel$"
-      (to-address . "idris-lang@googlegroups.com")
-      (to-list . "idris-lang@googlegroups.com")
-      (list-identifier . "\\[Idris\\]"))
-     ("list\\.coq\\.ssreflect"
-      (to-address . "ssreflect@msr-inria.inria.fr")
-      (to-list . "ssreflect@msr-inria.inria.fr")
-      (list-identifier . "\\[ssreflect\\]"))))
+      (list-identifier . "\\[Haskell-infrastructure\\]"))))
   (gnus-permanently-visible-groups "INBOX")
   (gnus-read-active-file nil)
   (gnus-read-newsrc-file nil)
   (gnus-refer-article-method
    '(current
-     (nnir "nnimap:Local")
+     (nnir "nnimap:imap.fastmail.com")
      (nntp "LocalNews"
            (nntp-address "localhost")
            (nntp-port-number 9119))
@@ -7952,11 +7848,12 @@ without white space and comments.
   (gnus-group-read-ephemeral-search-group
    gnus-summary-next-page)
   :preface
-  (setq gnus-home-directory "~/Messages/Gnus/"
+  (setq gnus-home-directory "~/.local/share/gnus/"
         gnus-startup-file (expand-file-name ".newsrc" gnus-home-directory))
 
   (defun activate-gnus ()
-    (unless (get-buffer "*Group*") (gnus-unplugged)))
+    (unless (get-buffer "*Group*")
+      (gnus-unplugged)))
 
   (defun switch-to-gnus (&optional arg)
     (interactive "P")
@@ -7979,7 +7876,7 @@ without white space and comments.
 
   (defun gnus-goto-article (message-id)
     (activate-gnus)
-    ;; (gnus-summary-read-group "mail.archive" 15 t)
+    ;; (gnus-summary-read-group "Archive" 15 t)
     (gnus-group-read-ephemeral-search-group
      t (list
         (cons
@@ -7989,9 +7886,10 @@ without white space and comments.
                '(raw)))
         (cons
          'search-group-spec
-         '(("nnimap:Local" "mail.archive")
-           ("nnimap:Local" "mail.kadena")
-           ("nnimap:Local" "INBOX")))))
+         '(("nnimap:imap.fastmail.com" "INBOX")
+           ("nnimap:imap.fastmail.com" "Archive")
+           ("nnimap:imap.fastmail.com" "mail/kadena")
+           ("nnimap:imap.fastmail.com" "mail/kadena/archive")))))
     (gnus-summary-next-page))
 
   (defun exit-gnus-on-exit ()
@@ -8002,10 +7900,11 @@ without white space and comments.
             (gnus-group-exit)))))
   :init
   (setq gnus-select-method
-        '(nnimap "Local"
-                 (nnimap-stream plain)
-                 (nnimap-address "127.0.0.1")
-                 (nnimap-server-port 9143)))
+        '(nnimap "imap.fastmail.com"
+                 (nnimap-user "johnw@newartisans.com")
+                 (nnimap-inbox "INBOX")
+                 (nnimap-server-port "imaps")
+                 (nnimap-stream ssl)))
 
   (add-hook 'my-emacs-startup-hook #'switch-to-gnus t))
 #+end_src
@@ -8015,8 +7914,6 @@ without white space and comments.
 #+begin_src emacs-lisp
 (use-package gnus-group
   :after gnus
-  :bind (:map gnus-group-mode-map
-              ("v b" . my-gnus-mbsync))
   :hook
   (gnus-group-mode . gnus-topic-mode)
   (gnus-group-mode . hl-line-mode)
@@ -8024,12 +7921,7 @@ without white space and comments.
   (gnus-group-default-list-level 2)
   (gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)\n")
   (gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
-  (gnus-group-use-permanent-levels t)
-  :preface
-  (defun my-gnus-mbsync ()
-    (interactive)
-    (async-shell-command "mbsync personal ; doveadm index '*'"
-                         (get-buffer-create "*mbsync*"))))
+  (gnus-group-use-permanent-levels t))
 #+end_src
 
 **** gnus-score
@@ -8122,7 +8014,7 @@ without white space and comments.
     (interactive "P")
     (if (string-match "\\(drafts\\|queue\\|delayed\\)" gnus-newsgroup-name)
         (gnus-summary-delete-article arg)
-      (gnus-summary-move-article arg "mail.trash")))
+      (gnus-summary-move-article arg "Trash")))
 
   (defsubst dot-gnus-tos (time)
     "Convert TIME to a floating point number."
@@ -8389,7 +8281,7 @@ is:
         ;; (message-add-header
         ;;  (format "Gcc: %s"
         ;;          (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
-        ;;              "mail.sent"
+        ;;              "Sent"
         ;;            "INBOX")))
         )))
 
@@ -8403,7 +8295,7 @@ is:
     (my-message-header-setup-hook)))
 #+end_src
 
-**** sendmail
+**** COMMENT sendmail
 
 #+begin_src emacs-lisp
 (use-package sendmail
@@ -8411,7 +8303,6 @@ is:
   :custom
   (mail-envelope-from 'header)
   (mail-host-address "newartisans.com")
-  (mail-personal-alias-file "~/doc/mailrc")
   (mail-self-blind t)
   (mail-setup-with-from nil)
   (mail-source-delete-incoming t)
@@ -8421,6 +8312,18 @@ is:
   (mail-specify-envelope-from t)
   (send-mail-function 'sendmail-send-it)
   (sendmail-program "msmtp"))
+#+end_src
+
+**** smtpmail
+
+#+begin_src emacs-lisp
+(use-package smtpmail
+  :after message
+  :custom
+  (smtpmail-smtp-server "smtp.fastmail.com")
+  (smtpmail-smtp-service 587)
+  (smtpmail-stream-type 'starttls)
+  (send-mail-function 'smtpmail-send-it))
 #+end_src
 
 **** mm-decode
@@ -8697,8 +8600,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 (use-package gnus-sieve
   :defer t
   :custom
-  (gnus-sieve-file "~/Messages/dovecot.sieve")
-  (gnus-sieve-select-method "nnimap:Local"))
+  (gnus-sieve-file "~/.config/gnus/dovecot.sieve")
+  (gnus-sieve-select-method "nnimap:imap.fastmail.com"))
 #+end_src
 
 *** gnus-agent
