@@ -8252,7 +8252,8 @@ is:
      turn-on-auto-fill
      turn-on-flyspell
      (lambda nil (set-fill-column 78))))
-  (message-send-mail-function 'message-send-mail-with-sendmail)
+  ;; (message-send-mail-function 'message-send-mail-with-sendmail)
+  (message-send-mail-function 'message-smtpmail-send-it)
   (message-send-mail-partially-limit nil)
   (message-sendmail-envelope-from 'header)
   (message-sendmail-extra-arguments '("--read-envelope-from"))
@@ -8321,9 +8322,10 @@ is:
   :after message
   :custom
   (smtpmail-smtp-server "smtp.fastmail.com")
+  (smtpmail-smtp-user "johnw@newartisans.com")
+  (smtpmail-servers-requiring-authorization "fastmail")
   (smtpmail-smtp-service 587)
-  (smtpmail-stream-type 'starttls)
-  (send-mail-function 'smtpmail-send-it))
+  (smtpmail-stream-type 'starttls))
 #+end_src
 
 **** mm-decode
@@ -8611,7 +8613,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :defer t
   :custom
   (gnus-agent-expire-all t)
-  (gnus-agent-expire-days 14)
+  (gnus-agent-expire-days 31)
   (gnus-agent-go-online t)
   (gnus-agent-mark-unread-after-downloaded nil)
   (gnus-agent-synchronize-flags t))

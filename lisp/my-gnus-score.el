@@ -201,6 +201,7 @@
           (when (and (numberp unread) (> unread 0)
                      (my-gnus-score-group-p group))
             (ignore-errors
+              (gnus-topic-get-new-news-this-topic)
               (gnus-summary-read-group group nil t))
             (when (and gnus-summary-buffer
                        (buffer-live-p gnus-summary-buffer)
