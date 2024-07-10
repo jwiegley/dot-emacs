@@ -1343,7 +1343,6 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package dired
-  :diminish dired-omit-mode
   :bind ("C-c j" . dired-two-pane)
   :bind (:map dired-mode-map
               ("j"     . dired)
@@ -1369,8 +1368,6 @@ diff-hl package.
   (dired-mouse-drag-files t)
   (dired-no-confirm
    '(byte-compile chgrp chmod chown copy hardlink symlink touch))
-  (dired-omit-mode nil t)
-  (dired-omit-size-limit 60000)
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
   (dired-vc-rename-file t)
@@ -1493,11 +1490,19 @@ diff-hl package.
   :hook (dired-toggle-mode . my-dired-toggle-mode-hook))
 #+end_src
 
-*** COMMENT dired-x
+*** dired-x
 
 #+begin_src emacs-lisp
 (use-package dired-x
-  :after dired)
+  :after dired
+  :diminish dired-omit-mode
+  :hook
+  (dired-mode . dired-omit-mode)
+  :custom
+  (dired-omit-mode nil t)
+  (dired-omit-size-limit 60000)
+  (dired-omit-files
+   "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(DS_Store\\|localized\\)\\|Icon\015\\)\\'"))
 #+end_src
 
 *** COMMENT dired+
@@ -7787,19 +7792,6 @@ without white space and comments.
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
-     ("INBOX"
-      (total-expire . t)
-      (expiry-wait . 90)
-      (expiry-target . "Archive"))
-     ("mail/kadena\\'"
-      (total-expire . t)
-      (expiry-wait . 90)
-      (expiry-target . "mail/kadena/archive"))
-     ("\\(Archive\\|mail/kadena/archive\\)"
-      (gnus-summary-line-format
-       "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
-      (gnus-show-threads nil)
-      (spam-process-destination . "TrainSpam"))
      ("list/"
       (subscribed . t)
       (gcc-self . nil)
@@ -7914,9 +7906,7 @@ without white space and comments.
         (cons
          'search-group-spec
          '(("nnimap:imap.fastmail.com" "INBOX")
-           ("nnimap:imap.fastmail.com" "Archive")
-           ("nnimap:imap.fastmail.com" "mail/kadena")
-           ("nnimap:imap.fastmail.com" "mail/kadena/archive")))))
+           ("nnimap:imap.fastmail.com" "mail/kadena")))))
     (gnus-summary-next-page))
 
   (defun exit-gnus-on-exit ()
@@ -9272,11 +9262,8 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-clocking ((t (:background "red2"))))
   (org-agenda-done ((t (:foreground "DarkGreen"))))
   :preface
-  (defconst my-beorg-inbox-file
-    "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/inbox.org")
-
-  (defconst my-drafts-directory
-    "~/Library/Mobile Documents/iCloud~com~agiletortoise~Drafts5/Documents")
+  (defconst my-beorg-inbox-file (bookmark-get-filename "org/inbox.org:Mobile"))
+  (defconst my-drafts-directory (bookmark-get-filename "Drafts"))
 
   (defun org-fit-agenda-window ()
     "Fit the window to the buffer size."
