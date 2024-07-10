@@ -5004,6 +5004,9 @@ complement Emacs’ default =C-x 8= prefix map.
 #+begin_src emacs-lisp
 (use-package typo
   :diminish
+  :bind
+  (:map typo-mode-map
+        ("-" . self-insert-command))
   :hook
   ((org-mode markdown-mode gnus-message-setup) . typo-mode)
   :config
@@ -5362,12 +5365,14 @@ complement Emacs’ default =C-x 8= prefix map.
   (defun set-buffer-writing-font ()
     "Sets font in current buffer"
     (interactive)
-    (buffer-face-set 'my-writing-face))
+    (buffer-face-set 'my-writing-face)
+    (setq line-spacing 4))
 
   (defun unset-buffer-writing-font ()
     "Sets font in current buffer"
     (interactive)
-    (buffer-face-set 'default)))
+    (buffer-face-set 'default)
+    (setq line-spacing nil)))
 #+end_src
 
 ** xray
@@ -7739,6 +7744,7 @@ without white space and comments.
      (gnus-spam-mark
       (subject -10)
       (from -150))))
+  (gnus-gcc-mark-as-read t)
   (gnus-generate-tree-function 'gnus-generate-horizontal-tree)
   (gnus-interactive-exit 'quiet)
   (gnus-large-newsgroup 4000)
@@ -7750,21 +7756,37 @@ without white space and comments.
   (gnus-novice-user nil)
   (gnus-parameters
    '(
-     ;; Fastmail spam: Spam -> [Not Spam] -> INBOX
-     ;; SpamSieve spam: IsSpam -> TrainGood -> INBOX
+     ;; Fastmail spam: Spam -> TrainGood -> IsGood
+     ;; Fastmail spam: Spam -> TrainSpam -> InSpam
+     ;; SpamSieve spam: IsSpam -> TrainGood -> IsGood
      ;; Fastmail good: INBOX -> TrainSpam -> IsSpam
      ;; SpamSieve good: INBOX -> TrainSpam -> IsSpam
-     ("\\(Is\\|Train\\)?Spam"
+     ("\\<Spam"
+      (total-expire . t)
+      (expiry-wait . 31)
+      (expiry-target . delete)
+      (ham-process-destination . "TrainGood")
+      (spam-process-destination . "TrainSpam"))
+     ("TrainSpam"
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
       (ham-process-destination . "TrainGood")
       (spam-contents gnus-group-spam-classification-spam))
-     ("\\(mail/\\|INBOX\\|\\(Is\\|Train\\)Good\\)"
+     ("IsSpam"
+      (total-expire . t)
+      (expiry-wait . 31)
+      (expiry-target . delete)
+      (ham-process-destination . "TrainGood"))
+     ("TrainGood"
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam")
       (spam-contents gnus-group-spam-classification-ham))
+     ("\\(mail/\\|INBOX\\|IsGood\\)"
+      (gcc-self . t)
+      (gnus-use-scoring nil)
+      (spam-process-destination . "TrainSpam"))
      ("INBOX"
       (total-expire . t)
       (expiry-wait . 90)
@@ -7776,11 +7798,13 @@ without white space and comments.
      ("\\(Archive\\|mail/kadena/archive\\)"
       (gnus-summary-line-format
        "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)\n")
-      (gnus-show-threads nil))
+      (gnus-show-threads nil)
+      (spam-process-destination . "TrainSpam"))
      ("list/"
       (subscribed . t)
-      (gcc-self . t))
-     ("list/\\(github\\|misc\\)$"
+      (gcc-self . nil)
+      (spam-process-destination . "TrainSpam"))
+     ("list/\\(github\\|misc\\|haskell\\|emacs\\|bahai/tarjuman\\)$"
       (total-expire . t)
       (expiry-wait . 90)
       (expiry-target . delete))
@@ -7808,15 +7832,18 @@ without white space and comments.
   (gnus-read-newsrc-file nil)
   (gnus-refer-article-method
    '(current
-     (nnir "nnimap:imap.fastmail.com")
-     (nntp "LocalNews"
-           (nntp-address "localhost")
-           (nntp-port-number 9119))
-     (nntp "Gmane"
-           (nntp-address "news.gmane.org"))
-     (nntp "Eternal September"
-           (nntp-address "news.eternal-september.org")
-           (nntp-authinfo-user "jwiegley"))))
+     (nnregistry)
+     ;; (nnir "nnimap:imap.fastmail.com")
+     ;; (nntp "LocalNews"
+     ;;       (nntp-address "localhost")
+     ;;       (nntp-port-number 9119))
+     ;; (nntp "Gmane"
+     ;;       (nntp-address "news.gmane.org"))
+     ;; (nntp "Eternal September"
+     ;;       (nntp-address "news.eternal-september.org")
+     ;;       (nntp-authinfo-user "jwiegley"))
+     ))
+  (gnus-registry-max-entries 9000)
   (gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
   (gnus-save-killed-list nil)
   (gnus-save-newsrc-file nil)
@@ -7906,7 +7933,10 @@ without white space and comments.
                  (nnimap-server-port "imaps")
                  (nnimap-stream ssl)))
 
-  (add-hook 'my-emacs-startup-hook #'switch-to-gnus t))
+  (add-hook 'my-emacs-startup-hook #'switch-to-gnus t)
+
+  :config
+  (gnus-registry-initialize))
 #+end_src
 
 *** gnus-group
@@ -8646,7 +8676,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package spam
-  :after gnus)
+  :after gnus
+  :custom
+  (spam-mark-ham-unread-before-move-from-spam-group t))
 #+end_src
 
 ** Org-mode
