@@ -210,7 +210,7 @@
   (save-buffer)
   (org-roam-db-sync)
   (let* ((title (org-roam-db--file-title))
-         (tags (my/org-roam-file-tags))
+         ;; (tags (my/org-roam-file-tags))
          (org-roam-capture--node (org-roam-node-at-point))
          (old-name buffer-file-name)
          (old-name-nondirectory
@@ -346,7 +346,7 @@ tasks."
                      (my/org-roam-excluded-file
                       (file-relative-name file org-roam-directory)))
                  (my/org-roam-todo-files))
-                (list my-beorg-inbox-file)))
+                (list (bookmark-get-filename "org/inbox.org:Mobile"))))
   (message "org-agenda-files has been updated"))
 
 (provide 'org-roam-extra)
