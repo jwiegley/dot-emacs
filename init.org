@@ -768,7 +768,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package bookmark
-  :defer t
+  :demand t
   :bind
   ("<f4>" . (lambda () (interactive) (bookmark-set "SAVED")))
   ("<f1>" . (lambda () (interactive) (bookmark-jump "SAVED")))
