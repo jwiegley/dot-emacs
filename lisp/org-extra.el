@@ -81,8 +81,7 @@
   "Fit the Org Agenda to its buffer."
   (let ((notes
          (ignore-errors
-           (directory-files (bookmark-get-filename "Drafts")
-                            t "[0-9].*\\.txt\\'" nil)))
+           (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
         url)
     (when notes
       (org-extra-goto-inbox

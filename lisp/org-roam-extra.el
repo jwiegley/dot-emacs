@@ -346,7 +346,7 @@ tasks."
                      (my/org-roam-excluded-file
                       (file-relative-name file org-roam-directory)))
                  (my/org-roam-todo-files))
-                (list (bookmark-get-filename "org/inbox.org:Mobile"))))
+                (list "~/Mobile/inbox.org")))
   (message "org-agenda-files has been updated"))
 
 (provide 'org-roam-extra)

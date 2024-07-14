@@ -773,9 +773,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   ("<f4>" . (lambda () (interactive) (bookmark-set "SAVED")))
   ("<f1>" . (lambda () (interactive) (bookmark-jump "SAVED")))
   :custom
-  (bookmark-default-file "~/doc/bookmarks")
-  :config
-  (bookmark-bmenu-list))
+  (bookmark-default-file "~/doc/bookmarks"))
 #+end_src
 
 *** COMMENT bookmark+
@@ -1388,7 +1386,7 @@ diff-hl package.
         (dired "~/Desktop")
         (revert-buffer)
         (split-window-vertically)
-        (dired (bookmark-get-filename "Inbox")))
+        (dired "~/Inbox"))
       (revert-buffer)))
 
   (defun dired-next-window ()
@@ -9227,7 +9225,8 @@ With prefix argument, also display headlines without a TODO keyword."
          (org-file "habits.org")
          (org-file "kadena/kadena.org")
          (org-file "OSS.org")
-         (org-file "people.org")))
+         (org-file "people.org")
+         "~/Mobile/inbox.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-inhibit-startup t)
