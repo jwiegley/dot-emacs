@@ -773,7 +773,9 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   ("<f4>" . (lambda () (interactive) (bookmark-set "SAVED")))
   ("<f1>" . (lambda () (interactive) (bookmark-jump "SAVED")))
   :custom
-  (bookmark-default-file "~/doc/bookmarks"))
+  (bookmark-default-file "~/doc/bookmarks")
+  :config
+  (bookmark-bmenu-list))
 #+end_src
 
 *** COMMENT bookmark+
@@ -2675,7 +2677,9 @@ up before you execute another command."
     (gptel-make-anthropic
         "Claude"
       :stream t
-      :key (auth-source-pass-get 'secret "claude.anthropic.com"))))
+      :key (auth-source-pass-get 'secret "claude.anthropic.com")))
+
+  (setq gptel-model "gpt-4o"))
 #+end_src
 
 ** grep
