@@ -8969,9 +8969,14 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
   (defun org-my-message-open (message-id)
     (if t
-        (browse-url (concat "https://app.fastmail.com/mail/search:msgid%3A"
-                            (url-encode-url (substring message-id 2))
-                            "/?u=d30140a0"))
+        (browse-url
+         (if nil
+             (concat "https://app.fastmail.com/mail/search:msgid%3A"
+                     (url-encode-url (substring message-id 2))
+                     "/?u=d30140a0")
+           (concat "x-devonthink-item://%3C"
+                   (url-encode-url (substring message-id 2))
+                   "%3E")))
       (require 'gnus-util)
       (if (get-buffer "*Group*")
           (gnus-goto-article
