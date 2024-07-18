@@ -7794,6 +7794,9 @@ without white space and comments.
       (spam-process-destination . "TrainSpam")
       (spam-contents gnus-group-spam-classification-ham))
      ("\\(mail/\\|INBOX\\|IsGood\\)"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . "Archive")
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
