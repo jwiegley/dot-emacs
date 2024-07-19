@@ -7813,6 +7813,9 @@ without white space and comments.
      ("list/bahai/tarjuman"
       (to-list . "tarjuman@bahai-library.com")
       (list-identifier . "\\[tj\\]"))
+     ("list/bahai/assembly"
+      (gcc-self . t)
+      (to-list . "carmichaellsa@gmail.com"))
      ("list/emacs/devel$"
       (to-list . "emacs-devel@gnu.org"))
      ("list/emacs/tangents$"

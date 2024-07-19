@@ -369,25 +369,6 @@ after :END:."
     (org-tags-view
      t (format "%s={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" property value))))
 
-(defun org-extra-with-tags-search (tags)
-  "Search by WITH propery, which is made inheritable for this function."
-  (interactive "sTags: ")
-  (org-tags-view
-   t (format "%s&TODO={TODO\\|WAITING\\|DELEGATED}" tags)))
-
-(defun org-extra-with-category-search (who)
-  "Search by WITH propery, which is made inheritable for this function."
-  (interactive
-   (list (completing-read "Category: " (org-property-values "CATEGORY"))))
-  (org-tags-view
-   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
-
-(defun org-extra-with-item-search (who)
-  "Search by WITH propery, which is made inheritable for this function."
-  (interactive "sItem: ")
-  (org-tags-view
-   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
-
 (defun org-extra-created-from-stamp ()
   (interactive)
   (let* ((name (file-name-nondirectory (buffer-file-name)))

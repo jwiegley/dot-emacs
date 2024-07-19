@@ -35,68 +35,92 @@
       (setq result (delete arg result)))
     result))
 
+(defun org-extra-with-tags-search (tags)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive "sTags: ")
+  (org-tags-view
+   t (format "%s&TODO={TODO\\|WAITING\\|DELEGATED}" tags)))
+
+(defun org-extra-with-tags-search-done (tags)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive "sTags: ")
+  (org-tags-view
+   t (format "%s&TODO={DONE\\|CANCELED}" tags)))
+
+(defun org-extra-with-category-search (who)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive
+   (list (completing-read "Category: " (org-property-values "CATEGORY"))))
+  (org-tags-view
+   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
+
+(defun org-extra-with-item-search (who)
+  "Search by WITH propery, which is made inheritable for this function."
+  (interactive "sItem: ")
+  (org-tags-view
+   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
+
 (setq
  org-roam-capture-templates
- `(("a" "Task" entry "* TODO %?"
+ `(("a" "TODO" entry "* TODO %?"
     :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
     :prepend t)
 
-   ("p" "Project" entry "* PROJECT %?"
+   ("n" "NOTE" entry "* NOTE %?"
     :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
     :prepend t)
 
-   ("c" "Contact" entry "* %^{NAME}
+   ("c" "APPT")
+
+   ("cc" "APPT" entry "* APPT %?"
+    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :prepend t)
+
+   ("cg" "Copper to Gold" entry "* APPT %?\nSCHEDULED: %t"
+    :target (node "FB6F3615-1A44-4FE4-9471-2F673F34ADD8")
+    :prepend t
+    :clock-in t
+    :clock-keep t)
+
+   ("cq" "Quantum Trades" entry "* APPT %?\nSCHEDULED: %t"
+    :target (node "57940F8A-16A0-48C3-8FB7-F87EC2E2E21E")
+    :prepend t
+    :clock-in t
+    :clock-keep t)
+
+   ("B" "Org-contact" entry "* %^{NAME}
 :PROPERTIES:
-:PHONE: %^{PHONE}
-:EMAIL: %(EMAIL)
-:NOTE: %^{NOTE}
+:PHONE:    %^{PHONE}
+:EMAIL:    %^{EMAIL}
 :END:"
     :target (file ,(org-file "people.org"))
     :prepend t)
 
-   ("C" "Calendar" entry "* APPT %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-    :prepend t)
+   ("r" "Org-roam notes")
 
-   ("n" "Note" plain "%?"
+   ("rr" "Note" plain "%?"
     :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
                        "#+title: ${title}\n")
     :jump-to-captured t
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("N" "Inline Note" entry "* NOTE %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-    :prepend t)
-
-   ("l" "Link" entry "* LINK %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-    :prepend t)
-
-   ("i" "Idea" entry "* NOTE %?"
-    :target (file ,(org-file "ideas.org"))
-    :empty-lines 1
-    :prepend t)
-
-   ("q" "Quote" plain "%c\n\n─ %?"
+   ("rq" "Quote" plain "%c\n\n─ %?"
     :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
                        "#+filetags: :quote:\n#+title: ${title}\n")
     :jump-to-captured t
     :empty-lines-before 1)
 
-   ("t" "Thought" plain "%?"
-    :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
-                       "#+filetags: :thoughts:\n#+title: ${title}\n")
-    :empty-lines-before 1)
-
-   ("k" "Kadena" plain "%?"
-    :jump-to-captured t
+   ("rk" "Kadena" plain "%?"
     :target (file+head "kadena/%<%Y%m%d%H%M>-${slug}.org"
-                       "#+filetags: :kadena:work:\n#+title: ${title}\n")
+                       "#+filetags: :kadena:\n#+title: ${title}\n")
+    :jump-to-captured t
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("J" "johnwiegley.com" plain "%?"
+   ("b" "Blog")
+
+   ("bj" "johnwiegley.com" plain "%?"
     :jump-to-captured t
     :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
                        ":PROPERTIES:
@@ -109,7 +133,7 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("N" "newartisans.com" plain "%?"
+   ("bn" "newartisans.com" plain "%?"
     :jump-to-captured t
     :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
                        ":PROPERTIES:
@@ -122,41 +146,41 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("P" "Project templates")
+   ("p" "Project templates")
 
-   ("Pc" "Conference" entry
-    (file "~/doc/template/org/conference.org")
-    :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
-    :jump-to-captured t)
-
-   ("Pa" "Assembly meeting" entry
+   ("pa" "Assembly meeting" entry
     (file "~/doc/template/org/assembly-meeting.org")
     :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
     :jump-to-captured t)
 
-   ("Pe" "Bahá’í event" entry
-    (file "~/doc/template/org/bahai-event.org")
-    :target (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91")
-    :jump-to-captured t)
-
-   ("Pf" "Bahá’í Feast" entry
+   ("pf" "Bahá’í Feast" entry
     (file "~/doc/template/org/feast.org")
     :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
     :jump-to-captured t)
 
-   ("Pg" "Flow of guidance" entry
+   ("pe" "Bahá’í event" entry
+    (file "~/doc/template/org/bahai-event.org")
+    :target (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91")
+    :jump-to-captured t)
+
+   ("pg" "Flow of guidance" entry
     (file "~/doc/template/org/flow-of-guidance.org")
     :target (node "852262E7-17E6-441C-B473-7473485217FE")
     :jump-to-captured t)
 
-   ("Pi" "Ruhi Intensive" entry
+   ("pi" "Ruhi Intensive" entry
     (file "~/doc/template/org/ruhi-intensive.org")
     :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
     :jump-to-captured t)
 
-   ("Pt" "Ruhi Tutor Training" entry
+   ("pt" "Ruhi Tutor Training" entry
     (file "~/doc/template/org/ruhi-tutor-training.org")
     :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
+    :jump-to-captured t)
+
+   ("pc" "Work Conference" entry
+    (file "~/doc/template/org/conference.org")
+    :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
     :jump-to-captured t)
    )
 
@@ -264,6 +288,12 @@
    ("rt" "With item"
     (lambda (arg)
       (call-interactively #'org-extra-with-item-search nil)))
+
+   ;; ("ra" "Archives" alltodo ""
+   ;;  ((org-agenda-sorting-strategy '(category-up user-defined-up))
+   ;;   (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+   ;;   (org-agenda-files
+   ;;    (list (org-file "archive/archive.org")))))
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
