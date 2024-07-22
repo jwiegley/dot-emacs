@@ -9033,7 +9033,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
             ((string= tag "Errand") (< hour 13))
             ((string= tag "Noon")   (< hour 13))
             ((string= tag "Nasim")  (< hour 17))
-            ((string= tag "Night")  (< hour 18))
+            ((string= tag "Night")  (< hour 17))
             ((string= tag "Home")
              (with-temp-buffer
                (call-process "ifconfig" nil t nil "en0" "inet")
@@ -10235,8 +10235,7 @@ Use a prefix arg to get regular RET. "
   :defines
   (org-roam-v2-ack)
   :functions
-  (org-roam-db-autosync-mode
-   org-roam-db-query
+  (org-roam-db-query
    org-roam-node-read
    org-roam-capture-
    org-roam-node-list
@@ -10249,7 +10248,9 @@ Use a prefix arg to get regular RET. "
 
   (setq org-roam-v2-ack t)
   :config
-  (org-roam-db-autosync-mode)
+  (use-package org-roam-gt)
+
+  ;; (org-roam-db-autosync-mode)
 
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."

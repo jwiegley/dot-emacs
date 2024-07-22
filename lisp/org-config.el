@@ -170,12 +170,12 @@
 
    ("pi" "Ruhi Intensive" entry
     (file "~/doc/template/org/ruhi-intensive.org")
-    :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
+    :target (node "387B9E7D-BF81-44B0-B9F1-088E5CC58560")
     :jump-to-captured t)
 
    ("pt" "Ruhi Tutor Training" entry
     (file "~/doc/template/org/ruhi-tutor-training.org")
-    :target (node "888C3848-8A90-4121-8077-B4078DDE7C57")
+    :target (node "4ED0C729-C8CE-4F58-8AB3-FE3C47827D13")
     :jump-to-captured t)
 
    ("pc" "Work Conference" entry
@@ -237,17 +237,29 @@
      (org-agenda-files
       (list (org-file "OSS.org")))))
 
-   ("rW" "Unscheduled work" alltodo ""
+   ("rw" "Unscheduled work (last 90 days)" alltodo ""
     ((org-agenda-sorting-strategy '(category-up user-defined-up))
      (org-agenda-skip-function
       '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+           (org-extra-agenda-skip-if-not-within 90)
            (my-org-agenda-skip-habit)
            (my-org-skip-inactive-todos)))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenda-files
       (list (org-file "kadena/kadena.org")))))
 
-   ("rw" "Waiting/delegated" todo "WAIT|DELEGATED"
+   ("rW" "All unscheduled work" alltodo ""
+    ((org-agenda-sorting-strategy '(category-up user-defined-up))
+     (org-agenda-skip-function
+      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
+           (org-extra-agenda-skip-if-not-within 90)
+           (my-org-agenda-skip-habit)
+           (my-org-skip-inactive-todos)))
+     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
+     (org-agenda-files
+      (list (org-file "kadena/kadena.org")))))
+
+   ("rD" "Waiting/delegated" todo "WAIT|DELEGATED"
     ((org-agenda-skip-function
       '(or (org-agenda-skip-entry-if 'scheduled)
            (my-org-agenda-skip-habit)))
