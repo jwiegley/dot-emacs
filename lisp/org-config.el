@@ -60,6 +60,63 @@
   (org-tags-view
    t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
 
+(defun my-org-parent-keyword ()
+  (save-excursion
+    (org-up-heading-safe)
+    (org-get-todo-state)))
+
+(defun my-org-parent-priority ()
+  (save-excursion
+    (org-up-heading-safe)
+    (save-match-data
+      (beginning-of-line)
+      (and (looking-at org-heading-regexp)
+	   (org-get-priority (match-string 0))))))
+
+(eval-when-compile
+  (require 'org-habit))
+
+(defun my-org-agenda-should-skip-p
+    (&optional include-non-projects include-low-prio-projects)
+  "Skip all but the first non-done entry."
+  (let (should-skip-entry)
+    (unless (member (org-get-todo-state) '("TODO" "DOING"))
+      (setq should-skip-entry t))
+    (when (/= (point)
+              (save-excursion
+                (org-goto-first-child)
+                (point)))
+      (setq should-skip-entry t))
+    (save-excursion
+      (while (and (not should-skip-entry) (org-goto-sibling t))
+        (when (org-entry-is-todo-p)
+          (setq should-skip-entry t))))
+    (unless (or should-skip-entry include-non-projects)
+      (unless (and (string= "PROJECT" (my-org-parent-keyword))
+                   (or include-low-prio-projects
+                       (> (my-org-parent-priority) 0)))
+        (setq should-skip-entry t)))
+    should-skip-entry))
+
+(defun my-org-agenda-skip-all-siblings-but-first
+    (&optional include-non-projects include-low-prio-projects)
+  "Skip all but the first non-done entry."
+  (when (my-org-agenda-should-skip-p
+         include-non-projects include-low-prio-projects)
+    (or (outline-next-heading)
+        (goto-char (point-max)))))
+
+(defun my-org-agenda-skip-habit ()
+  (when (ignore-errors (org-is-habit-p))
+    (or (outline-next-heading)
+        (goto-char (point-max)))))
+
+(defun my-org-skip-inactive-todos ()
+  (unless (member (org-get-todo-state)
+                  '("TODO" "DOING" "WAIT" "DELEGATED"))
+    (or (outline-next-heading)
+        (goto-char (point-max)))))
+
 (setq
  org-roam-capture-templates
  `(("a" "TODO" entry "* TODO %?"
@@ -175,7 +232,7 @@
 
    ("pp" "PROJECT" entry "* PROJECT %?
 :PROPERTIES:
-:CATEGORY: $^{CATEGORY}
+:CATEGORY: %^{CATEGORY}
 :END:"
     :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
     :prepend t)
@@ -348,6 +405,12 @@
    ("pn" "Project Next Actions" alltodo ""
     ((org-agenda-skip-function
       '(or (my-org-agenda-skip-all-siblings-but-first)
+           (my-org-agenda-skip-habit)
+           (my-org-skip-inactive-todos)))))
+
+   ("pN" "Project Next Actions (including low priority)" alltodo ""
+    ((org-agenda-skip-function
+      '(or (my-org-agenda-skip-all-siblings-but-first nil t)
            (my-org-agenda-skip-habit)
            (my-org-skip-inactive-todos)))))
 
