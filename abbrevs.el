@@ -7,7 +7,7 @@
   '(("linux" "GNU/Linux")))
 
 (define-abbrev-table 'global-abbrev-table
-  '(("Abdul" "`Abdu’l-Bahá")
+  '(("Abdul" "‘Abdu’l-Bahá")
     ("Allahu" "Alláh’u’Abhá")
     ("Aqdas" "Kitáb-i-Aqdas")
     ("Bahai" "Bahá’í")

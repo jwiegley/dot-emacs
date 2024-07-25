@@ -2667,7 +2667,12 @@ up before you execute another command."
         "openchat"
       :host "localhost:11434"
       :stream t
-      :models '("openchat:latest")))
+      :models '("openchat:latest"))
+    (gptel-make-ollama
+        "llama3.1"
+      :host "Athena.local:11434"
+      :stream t
+      :models '("llama3.1:405b")))
 
   (use-package gptel-anthropic
     :demand t
@@ -8643,6 +8648,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 (use-package gnus-agent
   :defer t
   :custom
+  (gnus-agent-cache nil)
   (gnus-agent-expire-all t)
   (gnus-agent-expire-days 31)
   (gnus-agent-go-online t)
@@ -8716,6 +8722,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x u"   . my-org-todoize)
          ("C-c C-x C"   . org-update-checkbox-count)
          ("C-c C-x t"   . org-toggle-link-display)
+         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
          ("C-M-y"       . my-org-yank-link)
          ("M-n"         . org-next-link)
          ("M-p"         . org-previous-link)
@@ -9196,7 +9203,6 @@ With prefix argument, also display headlines without a TODO keyword."
    '(("^ *\\(-\\) "
       (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•")))))))
 #+end_src
-
 *** org-agenda
 
 #+begin_src emacs-lisp
@@ -10251,6 +10257,8 @@ Use a prefix arg to get regular RET. "
   (use-package org-roam-gt)
 
   ;; (org-roam-db-autosync-mode)
+  (unless alternate-emacs
+    (run-with-idle-timer 300 t 'org-roam-db-sync))
 
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."
@@ -10264,7 +10272,10 @@ Use a prefix arg to get regular RET. "
   (advice-add 'org-agenda :before #'my/org-roam-update-todo-files))
 #+end_src
 
-**** org-roam-dailies
+**** COMMENT org-roam-dailies
+:PROPERTIES:
+:ID:       546A7601-14CF-4419-9ED3-236667A0A5B1
+:END:
 
 #+begin_src emacs-lisp
 (use-package org-roam-dailies
@@ -10310,6 +10321,9 @@ Use a prefix arg to get regular RET. "
 #+end_src
 
 **** org-smart-capture
+:PROPERTIES:
+:ID:       65BC268A-EA03-481A-99D4-C8815E12734F
+:END:
 
 This wrapper around =org-capture= will also capture Gnus messages as tasks, with
 context.
@@ -10322,7 +10336,7 @@ context.
   :preface
   (defun org-roam-smart-capture ()
     (interactive)
-    (org-smart-capture #'my/org-roam-create-new))
+    (org-smart-capture nil #'my/org-roam-create-new))
   :custom
   (org-smart-capture-use-lastname t))
 #+end_src
@@ -10498,10 +10512,7 @@ text belongs to.
       (display-buffer "*Async Shell Command*"))
     (message "Jumping to agenda! Sync complete.")
     (redisplay t)
-    (call-interactively #'org-extra-jump-to-agenda))
-  :config
-  (unless alternate-emacs
-    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
+    (call-interactively #'org-extra-jump-to-agenda)))
 #+end_src
 
 *** org-transclusion

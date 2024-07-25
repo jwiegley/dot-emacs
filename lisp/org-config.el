@@ -66,8 +66,33 @@
     :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
     :prepend t)
 
+   ("h" "HABIT" entry "* TODO %?
+:PROPERTIES:
+:STYLE:    habit
+:REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:END:"
+    :target (node "DC174F46-A93F-43C4-BDD4-09CEBB244E48")
+    :prepend t)
+
    ("n" "NOTE" entry "* NOTE %?"
     :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :prepend t)
+
+   ("l" "Checklist" entry "* TODO %? [/]
+- [ ] $0
+:PROPERTIES:
+:COOKIE_DATA: recursive
+:RESET_CHECK_BOXES: t
+:END:"
+    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :prepend t)
+
+   ("C" "Category" entry "* %?
+:PROPERTIES:
+:CATEGORY: %^{CATEGORY}
+:END:"
+    :target (node "DC174F46-A93F-43C4-BDD4-09CEBB244E48")
     :prepend t)
 
    ("c" "APPT")
@@ -147,6 +172,13 @@
     :unnarrowed t)
 
    ("p" "Project templates")
+
+   ("pp" "PROJECT" entry "* PROJECT %?
+:PROPERTIES:
+:CATEGORY: $^{CATEGORY}
+:END:"
+    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :prepend t)
 
    ("pa" "Assembly meeting" entry
     (file "~/doc/template/org/assembly-meeting.org")

@@ -382,6 +382,14 @@ after :END:."
         (org-encode-time (list 0 0 0 day mon year)) nil t)
        (buffer-string)))))
 
+(defun org-extra-insert-structure-template-and-yank (type)
+  (interactive
+   (list (pcase (org--insert-structure-template-mks)
+	   (`("\t" . ,_) (read-string "Structure type: "))
+	   (`(,_ ,choice . ,_) choice))))
+  (org-insert-structure-template type)
+  (yank))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

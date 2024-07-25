@@ -1,8 +1,0 @@
-#name : HEADER
-# --
-:PROPERTIES:
-:ID:       `(generate-uuid)`
-:CREATED:  `(created-stamp)`
-:END:
-#+title: $0
-

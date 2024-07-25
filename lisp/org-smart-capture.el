@@ -151,7 +151,7 @@
       (message "Captured: (%s) %s" fname subject))))
 
 ;;;###autoload
-(defun org-smart-capture (function &optional arg)
+(defun org-smart-capture (&optional arg function)
   (interactive "P")
   (cond ((eq major-mode 'gnus-article-mode)
          (org-smart-capture-article)
@@ -171,30 +171,8 @@
                 article (unless (string= (buffer-name gnus-summary-buffer)
                                          "*Summary INBOX*")
                           gnus-dormant-mark))
-               (unless arg
-                 (save-excursion
-                   (org-smart-capture-article article multiple))))
-
-             (when arg
-               (let ((index 1))
-                 (org-smart-capture-article current-article)
-
-                 (dolist (article articles)
-                   (unless (eq article current-article)
-                     (let* ((ghead (gnus-data-header
-                                    (car (gnus-data-find-list article))))
-                            (message-id (mail-header-message-id ghead))
-                            (raw-subject (mail-header-subject ghead))
-                            (subject (and raw-subject
-                                          (rfc2047-decode-string raw-subject))))
-
-                       (org-set-property
-                        (format "Message%d" (setq index (1+ index)))
-                        (format "[[message://%s][%s]]"
-                                (substring message-id 1 -1)
-                                (subst-char-in-string
-                                 ?\[ ?\{ (subst-char-in-string
-                                          ?\] ?\} subject)))))))))))
+               (save-excursion
+                 (org-smart-capture-article article multiple)))))
          (gnus-summary-position-point)
          (gnus-set-mode-line 'summary))
 

@@ -1,7 +1,0 @@
-#name : APPT
-# --
-APPT $0
-:PROPERTIES:
-:ID:       `(generate-uuid)`
-:CREATED:  `(created-stamp)`
-:END:
