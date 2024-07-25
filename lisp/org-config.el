@@ -117,10 +117,31 @@
     (or (outline-next-heading)
         (goto-char (point-max)))))
 
+(defconst my-org-locations
+  '(
+    ;; todo.org
+    ("Inbox"         . (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E"))
+    ("Bahá’í"        . (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91"))
+    ("Bahá’í:Ruhi"   . (node "387B9E7D-BF81-44B0-B9F1-088E5CC58560"))
+    ("Bahá’í:Tutor"  . (node "4ED0C729-C8CE-4F58-8AB3-FE3C47827D13"))
+    ("C2G"           . (node "FB6F3615-1A44-4FE4-9471-2F673F34ADD8"))
+    ("QT"            . (node "57940F8A-16A0-48C3-8FB7-F87EC2E2E21E"))
+    ;; habits.org
+    ("Habits"        . (node "7E048E6F-524E-42E9-BD38-76AD04299DE3"))
+    ;; assembly.org
+    ("Assembly"      . (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4"))
+    ("Assembly:Flow" . (node "852262E7-17E6-441C-B473-7473485217FE"))
+    ;; kadena.org
+    ("Kadena:Conf"   . (node "EF04DCF4-43D5-435E-856D-282431030BEE"))
+    ))
+
+(defsubst my-org-loc (name)
+  (cdr (assoc name my-org-locations)))
+
 (setq
  org-roam-capture-templates
  `(("a" "TODO" entry "* TODO %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("h" "HABIT" entry "* TODO %?
@@ -129,11 +150,11 @@
 :REPEAT_TO_STATE: TODO
 :LOG_INTO_DRAWER: t
 :END:"
-    :target (node "DC174F46-A93F-43C4-BDD4-09CEBB244E48")
+    :target ,(my-org-loc "Habits")
     :prepend t)
 
    ("n" "NOTE" entry "* NOTE %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("l" "Checklist" entry "* TODO %? [/]
@@ -142,30 +163,30 @@
 :COOKIE_DATA: recursive
 :RESET_CHECK_BOXES: t
 :END:"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("C" "Category" entry "* %?
 :PROPERTIES:
 :CATEGORY: %^{CATEGORY}
 :END:"
-    :target (node "DC174F46-A93F-43C4-BDD4-09CEBB244E48")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("c" "APPT")
 
    ("cc" "APPT" entry "* APPT %?"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("cg" "Copper to Gold" entry "* APPT %?\nSCHEDULED: %t"
-    :target (node "FB6F3615-1A44-4FE4-9471-2F673F34ADD8")
+    :target ,(my-org-loc "C2G")
     :prepend t
     :clock-in t
     :clock-keep t)
 
    ("cq" "Quantum Trades" entry "* APPT %?\nSCHEDULED: %t"
-    :target (node "57940F8A-16A0-48C3-8FB7-F87EC2E2E21E")
+    :target ,(my-org-loc "QT")
     :prepend t
     :clock-in t
     :clock-keep t)
@@ -234,43 +255,52 @@
 :PROPERTIES:
 :CATEGORY: %^{CATEGORY}
 :END:"
-    :target (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
+    :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("pa" "Assembly meeting" entry
     (file "~/doc/template/org/assembly-meeting.org")
-    :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
+    :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
    ("pf" "Bahá’í Feast" entry
     (file "~/doc/template/org/feast.org")
-    :target (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4")
+    :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
    ("pe" "Bahá’í event" entry
     (file "~/doc/template/org/bahai-event.org")
-    :target (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91")
+    :target ,(my-org-loc "Bahá’í")
     :jump-to-captured t)
 
    ("pg" "Flow of guidance" entry
     (file "~/doc/template/org/flow-of-guidance.org")
-    :target (node "852262E7-17E6-441C-B473-7473485217FE")
+    :target ,(my-org-loc "Assembly:Flow")
     :jump-to-captured t)
 
    ("pi" "Ruhi Intensive" entry
     (file "~/doc/template/org/ruhi-intensive.org")
-    :target (node "387B9E7D-BF81-44B0-B9F1-088E5CC58560")
+    :target ,(my-org-loc "Bahá’í:Ruhi")
     :jump-to-captured t)
 
    ("pt" "Ruhi Tutor Training" entry
     (file "~/doc/template/org/ruhi-tutor-training.org")
-    :target (node "4ED0C729-C8CE-4F58-8AB3-FE3C47827D13")
+    :target ,(my-org-loc "Bahá’í:Tutor")
     :jump-to-captured t)
 
    ("pc" "Work Conference" entry
     (file "~/doc/template/org/conference.org")
-    :target (node "EF04DCF4-43D5-435E-856D-282431030BEE")
+    :target ,(my-org-loc "Kadena:Conf")
     :jump-to-captured t)
+
+   ("s" "Slide presentations")
+
+   ("ss" "SKIP" entry "* %?
+:PROPERTIES:
+:BEAMER_act: <2->
+:END:"
+    :target ,(my-org-loc "Inbox")
+    :prepend t)
    )
 
  org-agenda-custom-commands
@@ -396,7 +426,7 @@
    ;;   (org-agenda-files
    ;;    (list (org-file "archive/archive.org")))))
 
-   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    ("p" . "Projects")
 
@@ -422,7 +452,7 @@
     ((org-agenda-skip-function
       '(org-agenda-skip-entry-if 'regexp "\\[#A\\]"))))
 
-   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    ("P" . "Priority views")
 
