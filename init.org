@@ -9298,52 +9298,6 @@ With prefix argument, also display headlines without a TODO keyword."
                       (when had-parent
                         (my-org-ancestor-keywords)))))))
 
-  (defun my-org-parent-keyword ()
-    (save-excursion
-      (org-up-heading-safe)
-      (org-get-todo-state)))
-
-  (eval-when-compile
-    (require 'org-habit))
-
-  (defun my-org-agenda-should-skip-p
-      (&optional include-non-projects)
-    "Skip all but the first non-done entry."
-    (let (should-skip-entry)
-      (unless (member (org-get-todo-state) '("TODO" "DOING"))
-        (setq should-skip-entry t))
-      (when (/= (point)
-                (save-excursion
-                  (org-goto-first-child)
-                  (point)))
-        (setq should-skip-entry t))
-      (save-excursion
-        (while (and (not should-skip-entry) (org-goto-sibling t))
-          (when (org-entry-is-todo-p)
-            (setq should-skip-entry t))))
-      (unless (or should-skip-entry include-non-projects)
-        (unless (string= "PROJECT" (my-org-parent-keyword))
-          (setq should-skip-entry t)))
-      should-skip-entry))
-
-  (defun my-org-agenda-skip-all-siblings-but-first
-      (&optional include-non-projects)
-    "Skip all but the first non-done entry."
-    (when (my-org-agenda-should-skip-p include-non-projects)
-      (or (outline-next-heading)
-          (goto-char (point-max)))))
-
-  (defun my-org-agenda-skip-habit ()
-    (when (ignore-errors (org-is-habit-p))
-      (or (outline-next-heading)
-          (goto-char (point-max)))))
-
-  (defun my-org-skip-inactive-todos ()
-    (unless (member (org-get-todo-state)
-                    '("TODO" "DOING" "WAIT" "DELEGATED"))
-      (or (outline-next-heading)
-          (goto-char (point-max)))))
-
   (defun my-org-current-tags (depth)
     (save-excursion
       (ignore-errors
