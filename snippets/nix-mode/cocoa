@@ -1,1 +1,0 @@
-pkgs.darwin.apple_sdk.frameworks.Cocoa pkgs.cabal-install
