@@ -8653,7 +8653,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (gnus-agent-expire-days 31)
   (gnus-agent-go-online t)
   (gnus-agent-mark-unread-after-downloaded nil)
-  (gnus-agent-synchronize-flags t))
+  (gnus-agent-synchronize-flags t)
+  :config
+  (setq gnus-agent-predicate 'true))
 #+end_src
 
 *** gnus-demon
@@ -9203,6 +9205,7 @@ With prefix argument, also display headlines without a TODO keyword."
    '(("^ *\\(-\\) "
       (0 (ignore (compose-region (match-beginning 1) (match-end 1) "•")))))))
 #+end_src
+
 *** org-agenda
 
 #+begin_src emacs-lisp

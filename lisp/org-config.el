@@ -201,7 +201,7 @@
 
    ("r" "Org-roam notes")
 
-   ("rr" "Note" plain "%?"
+   ("rn" "Note" plain "%?"
     :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
                        "#+title: ${title}\n")
     :jump-to-captured t
@@ -380,8 +380,8 @@
 
    ("rD" "Waiting/delegated" todo "WAIT|DELEGATED"
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled)
-           (my-org-agenda-skip-habit)))
+      '(or ;; (org-agenda-skip-entry-if 'scheduled)
+        (my-org-agenda-skip-habit)))
      (org-agenda-sorting-strategy
       '(todo-state-up priority-down category-up))))
 
