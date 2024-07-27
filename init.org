@@ -9216,8 +9216,8 @@ With prefix argument, also display headlines without a TODO keyword."
   :bind (:map
          org-agenda-mode-map
          ;; ("RET" . svbck/agenda-goto)
-         ;; ("SPC" . my-org-agenda-show)
-         (" "   . org-agenda-tree-to-indirect-buffer)
+         ("SPC" . my-org-agenda-show-and-scroll-up)
+         ;; (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
          ("C-n" . next-line)
          ("C-p" . previous-line)
@@ -9331,6 +9331,17 @@ With prefix argument, also display headlines without a TODO keyword."
     (with-temp-buffer
       (org-insert-time-stamp (current-time) t t)
       (buffer-string)))
+
+  ;; I like the behavior of `arg' to be reversed in this function.
+  (defun my-org-agenda-show-and-scroll-up (&optional arg)
+    "Display the Org file which contains the item at point.
+
+When called repeatedly, scroll the window that is displaying the buffer.
+
+With a `\\[universal-argument]' prefix argument, display the item, but \
+unfold drawers."
+    (interactive "P")
+    (org-agenda-show-and-scroll-up (null arg)))
   :init
   (use-package org-extra)
 
