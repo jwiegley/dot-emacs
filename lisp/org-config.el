@@ -133,6 +133,7 @@
     ("Assembly:Flow" . (node "852262E7-17E6-441C-B473-7473485217FE"))
     ;; kadena.org
     ("Kadena:Conf"   . (node "EF04DCF4-43D5-435E-856D-282431030BEE"))
+    ("Kadena:Ops"    . (node "C1DCA4A4-497F-4A50-8218-079A310665A3"))
     ))
 
 (defsubst my-org-loc (name)
@@ -291,6 +292,11 @@
    ("pc" "Work Conference" entry
     (file "~/doc/template/org/conference.org")
     :target ,(my-org-loc "Kadena:Conf")
+    :jump-to-captured t)
+
+   ("pO" "Out of Office" entry
+    (file "~/doc/template/org/out-of-office.org")
+    :target ,(my-org-loc "Kadena:Ops")
     :jump-to-captured t)
 
    ("s" "Slide presentations")
