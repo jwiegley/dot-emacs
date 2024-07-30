@@ -793,6 +793,17 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (bmkp-last-as-first-bookmark-file bookmark-default-file))
 #+end_src
 
+*** casual-bookmarks
+
+#+begin_src emacs-lisp
+(use-package casual-bookmarks
+  :after bookmark
+  :bind (:map bookmark-bmenu-mode-map
+              ("C-o" . casual-bookmarks-tmenu)
+              ("S" . casual-bookmarks-sortby-tmenu)
+              ("J" . bookmark-jump)))
+#+end_src
+
 ** browse-kill-ring
 
 #+begin_src emacs-lisp
@@ -863,13 +874,13 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (math-units-table nil))
 #+end_src
 
-*** casual
+*** casual-calc
 
 #+begin_src emacs-lisp
-(use-package casual
+(use-package casual-calc
   :after calc
   :bind (:map calc-mode-map
-              ("C-o" . casual-main-menu)))
+              ("C-o" . casual-calc-tmenu)))
 #+end_src
 
 ** calendar
@@ -1579,6 +1590,16 @@ non-empty directories is allowed."
            'USE-TRASH-CAN)             ; This arg is for Emacs 24+ only.
         (dolist (mk  markers) (set-marker mk nil))
         (unless no-msg (message "(No deletions requested.)"))))))
+#+end_src
+
+*** casual-dired
+
+#+begin_src emacs-lisp
+(use-package casual-dired
+  :after dired
+  :bind (:map dired-mode-map
+              ("C-o" . #'casual-dired-tmenu)
+              ("s" . #'casual-dired-sort-by-tmenu)))
 #+end_src
 
 ** direnv
@@ -2997,6 +3018,26 @@ up before you execute another command."
   (add-hook 'ibuffer-mode-hook
             #'(lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
+#+end_src
+
+*** COMMENT casual-ibuffer
+
+#+begin_src emacs-lisp
+(use-package casual-ibuffer
+  :after ibuffer
+  :bind (:map
+         ibuffer-mode-map
+         ("C-o" . casual-ibuffer-tmenu)
+         ("F" . casual-ibuffer-filter-tmenu)
+         ("s" . casual-ibuffer-sortby-tmenu)
+         ("<double-mouse-1>" . ibuffer-visit-buffer) ; optional
+         ("M-<double-mouse-1>" . ibuffer-visit-buffer-other-window) ; optional
+         ("{" . ibuffer-backwards-next-marked) ; optional
+         ("}" . ibuffer-forward-next-marked)   ; optional
+         ("[" . ibuffer-backward-filter-group) ; optional
+         ("]" . ibuffer-forward-filter-group)  ; optional
+         ("$" . ibuffer-toggle-filter-group))  ; optional
+  )
 #+end_src
 
 ** COMMENT iflipb
