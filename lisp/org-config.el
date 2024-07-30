@@ -377,7 +377,6 @@
     ((org-agenda-sorting-strategy '(category-up user-defined-up))
      (org-agenda-skip-function
       '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-           (org-extra-agenda-skip-if-not-within 90)
            (my-org-agenda-skip-habit)
            (my-org-skip-inactive-todos)))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
