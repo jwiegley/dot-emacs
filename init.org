@@ -883,6 +883,13 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
               ("C-o" . casual-calc-tmenu)))
 #+end_src
 
+** literate-calc-mode
+
+#+begin_src emacs-lisp
+(use-package literate-calc-mode
+  :commands literate-calc-mode)
+#+end_src
+
 ** calendar
 
 #+begin_src emacs-lisp
