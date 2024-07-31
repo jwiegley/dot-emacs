@@ -856,6 +856,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 (use-package calc
   :defer t
   :custom
+  (calc-ensure-consistent-units t)
   (math-additional-units
    '((GiB "1024 * MiB" "Gibi Byte")
      (MiB "1024 * KiB" "Mebi Byte")
@@ -870,8 +871,17 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
      (Mb "1000 * Kb" "Mega Bit")
      (Kb "1000 * b" "Kilo Bit")
      (B nil "Byte")
-     (b "B / 8" "Bit")))
-  (math-units-table nil))
+     (b "B / 8" "Bit")
+     (gpm "gal / min" "Gallons per minute")
+     (ls "l / s" "Liters per second")
+     (cf "ft^3" "Cubic feet")
+     (cfm "ft^3 / min" "Cubic feet per minute")))
+  (math-units-table nil)
+  :config
+  (require 'calc-units)
+
+  (setf (symbol-function 'calc-convert-units)
+        (symbol-function 'calc-convert-exact-units)))
 #+end_src
 
 *** casual-calc
@@ -887,7 +897,15 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package literate-calc-mode
-  :commands literate-calc-mode)
+  :diminish literate-calc-minor-mode
+  :commands (literate-calc-mode literate-calc-minor-mode)
+  :custom
+  (literate-calc-usimplify-results t)
+  :config
+  (require 'calc)
+  (defalias 'calcFunc-perc 'calc-percent)
+  (defalias 'calcFunc-uconv 'math-convert-units)
+  (defalias 'calcFunc-strip 'math-remove-units))
 #+end_src
 
 ** calendar
