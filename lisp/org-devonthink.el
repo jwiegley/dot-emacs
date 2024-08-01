@@ -3,6 +3,7 @@
 ;; version 1.1, by John Wiegley <johnw@gnu.org>
 
 (require 'org)
+(require 'org-roam)
 
 (org-add-link-type "x-devonthink-item" 'org-dtp-open)
 
@@ -28,7 +29,8 @@
 (defun org-set-dtp-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property "Document" (org-get-dtp-link)))
+  (org-set-property "URL" (org-get-dtp-link))
+  (org-roam-tag-add '("LINK")))
 
 (defun org-insert-dtp-link ()
   (interactive)

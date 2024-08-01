@@ -1420,9 +1420,10 @@ diff-hl package.
       (if arg
           (dired here)
         (dired "~/Desktop")
-        (revert-buffer)
-        (split-window-vertically)
-        (dired "~/Inbox"))
+        ;; (revert-buffer)
+        ;; (split-window-vertically)
+        ;; (dired "~/Inbox")
+        )
       (revert-buffer)))
 
   (defun dired-next-window ()
@@ -9183,12 +9184,15 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (org-set-property "Submitter" (org-get-message-sender)))
 
+  (eval-when-compile
+    (require 'org-roam))
+
   (defun org-set-url-from-clipboard ()
     "Set a property for the current headline."
     (interactive)
     (org-back-to-heading)
     (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
-    (org-set-tags '("LINK")))
+    (org-roam-tag-add '("LINK")))
 
   (defun org-message-reply ()
     (interactive)

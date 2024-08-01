@@ -132,6 +132,7 @@
     ("Assembly"      . (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4"))
     ("Assembly:Flow" . (node "852262E7-17E6-441C-B473-7473485217FE"))
     ;; kadena.org
+    ("Kadena:Leads"  . (node "50E9E856-7F4B-4162-8BCD-12A9118B9857"))
     ("Kadena:Conf"   . (node "EF04DCF4-43D5-435E-856D-282431030BEE"))
     ("Kadena:Ops"    . (node "C1DCA4A4-497F-4A50-8218-079A310665A3"))
     ))
@@ -292,6 +293,11 @@
    ("pc" "Work Conference" entry
     (file "~/doc/template/org/conference.org")
     :target ,(my-org-loc "Kadena:Conf")
+    :jump-to-captured t)
+
+   ("po" "Leads Offsite Meeting" entry
+    (file "~/doc/template/org/offsite-meeting.org")
+    :target ,(my-org-loc "Kadena:Leads")
     :jump-to-captured t)
 
    ("pO" "Out of Office" entry
