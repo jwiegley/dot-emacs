@@ -853,8 +853,15 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 ** calc
 
 #+begin_src emacs-lisp
-(use-package calc
-  :defer t
+(use-package calc)
+#+end_src
+
+*** calc-units
+
+#+begin_src emacs-lisp
+(use-package calc-units
+  :after calc
+  :demand t
   :custom
   (calc-ensure-consistent-units t)
   (math-additional-units
@@ -878,10 +885,11 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
      (cfm "ft^3 / min" "Cubic feet per minute")))
   (math-units-table nil)
   :config
-  (require 'calc-units)
-
   (setf (symbol-function 'calc-convert-units)
-        (symbol-function 'calc-convert-exact-units)))
+        (symbol-function 'calc-convert-exact-units))
+
+  (defalias 'calcFunc-uconv 'math-convert-units)
+  (defalias 'calcFunc-strip 'math-remove-units))
 #+end_src
 
 *** casual-calc
@@ -893,19 +901,15 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
               ("C-o" . casual-calc-tmenu)))
 #+end_src
 
-** literate-calc-mode
+*** literate-calc-mode
 
 #+begin_src emacs-lisp
 (use-package literate-calc-mode
   :diminish literate-calc-minor-mode
-  :commands (literate-calc-mode literate-calc-minor-mode)
+  :bind (:map org-mode-map
+              ("C-c C-x *"  . literate-calc-minor-mode))
   :custom
-  (literate-calc-usimplify-results t)
-  :config
-  (require 'calc)
-  (defalias 'calcFunc-perc 'calc-percent)
-  (defalias 'calcFunc-uconv 'math-convert-units)
-  (defalias 'calcFunc-strip 'math-remove-units))
+  (literate-calc-usimplify-results t))
 #+end_src
 
 ** calendar
@@ -3328,6 +3332,24 @@ up before you execute another command."
 (use-package js2-mode
   :mode "\\.js\\'")
 #+end_src
+
+** jupyter
+
+#+begin_src emacs-lisp
+(use-package jupyter
+  :commands (jupyter-run-server-repl
+             jupyter-run-repl
+             jupyter-server-list-kernels))
+#+end_src
+
+*** COMMENT Using sagemath with Org-babel and Jupyter
+
+#+begin_src jupyter-python :kernel sagemath
+2^4
+#+end_src
+
+#+RESULTS:
+: 16
 
 ** key-chord
 
@@ -9513,13 +9535,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
 #+end_src
 
-*** COMMENT ob-verb
-
-#+begin_src emacs-lisp
-(use-package ob-verb
-  :after org)
-#+end_src
-
 *** org-anki
 
 #+begin_src emacs-lisp
@@ -9564,24 +9579,27 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 *** org-babel
 
 #+begin_src emacs-lisp
-(use-package org-babel
-  :no-require t
+(use-package ob
   :after (org ob-emamux)
   :config
+  ;; load more languages for org-babel
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((python     . t)
      (emacs-lisp . t)
      (haskell    . t)
      (calc       . t)
+     (shell      . t)
+     (latex      . t)
      (ditaa      . t)
      (plantuml   . t)
-     (shell      . t)
+     (C          . t)
      (sql        . t)
      (dot        . t)
+     (plantuml   . t)
+     (makefile   . t)
      (emamux     . t)
-     ;; (verb       . t)
-     ))
+     (jupyter    . t)))                  ; must be last
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
@@ -9592,7 +9610,22 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
     string)
 
   (advice-add 'org-babel-edit-prep:emacs-lisp :after
-              #'(lambda (_info) (run-hooks 'emacs-lisp-mode-hook))))
+              #'(lambda (_info) (run-hooks 'emacs-lisp-mode-hook)))
+
+  (setq org-babel-default-header-args:sh    '((:results . "output replace"))
+        org-babel-default-header-args:bash  '((:results . "output replace"))
+        org-babel-default-header-args:shell '((:results . "output replace"))
+        org-babel-default-header-args:jupyter-python
+        '((:async . "yes")
+          (:session . "py")
+          (:kernel . "sagemath")))
+
+  (setq org-confirm-babel-evaluate nil
+        ;; org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
+        ;; org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar"
+        )
+
+  (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
 #+end_src
 
 **** ob-emamux
@@ -9606,6 +9639,13 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 
 #+begin_src emacs-lisp
 (use-package ob-restclient
+  :after org)
+#+end_src
+
+**** COMMENT ob-verb
+
+#+begin_src emacs-lisp
+(use-package ob-verb
   :after org)
 #+end_src
 
@@ -10062,6 +10102,13 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-pomodoro
   :commands org-pomodoro)
+#+end_src
+
+*** org-real
+
+#+begin_src emacs-lisp
+(use-package org-real
+  :after org)
 #+end_src
 
 *** org-ql

@@ -126,6 +126,7 @@
     ("Bahá’í:Tutor"  . (node "4ED0C729-C8CE-4F58-8AB3-FE3C47827D13"))
     ("C2G"           . (node "FB6F3615-1A44-4FE4-9471-2F673F34ADD8"))
     ("QT"            . (node "57940F8A-16A0-48C3-8FB7-F87EC2E2E21E"))
+    ("ANDF"          . (node "928B0CC7-200A-42B2-A212-3ED6B35E57B0"))
     ;; habits.org
     ("Habits"        . (node "7E048E6F-524E-42E9-BD38-76AD04299DE3"))
     ;; assembly.org
@@ -177,12 +178,18 @@
 
    ("c" "APPT")
 
-   ("cc" "APPT" entry "* APPT %?"
+   ("ca" "APPT" entry "* APPT %?"
     :target ,(my-org-loc "Inbox")
     :prepend t)
 
    ("cg" "Copper to Gold" entry "* APPT %?\nSCHEDULED: %t"
     :target ,(my-org-loc "C2G")
+    :prepend t
+    :clock-in t
+    :clock-keep t)
+
+   ("cA" "Ali Nakhjavani Development Fund" entry "* APPT %?\nSCHEDULED: %t"
+    :target ,(my-org-loc "ANDF")
     :prepend t
     :clock-in t
     :clock-keep t)
@@ -303,6 +310,11 @@
    ("pO" "Out of Office" entry
     (file "~/doc/template/org/out-of-office.org")
     :target ,(my-org-loc "Kadena:Ops")
+    :jump-to-captured t)
+
+   ("pT" "Trip" entry
+    (file "~/doc/template/org/trip.org")
+    :target ,(my-org-loc "Inbox")
     :jump-to-captured t)
 
    ("s" "Slide presentations")
