@@ -8737,7 +8737,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 (use-package gnus-agent
   :defer t
   :custom
-  (gnus-agent-cache nil)
+  (gnus-agent-cache t)
   (gnus-agent-expire-all t)
   (gnus-agent-expire-days 31)
   (gnus-agent-go-online t)
