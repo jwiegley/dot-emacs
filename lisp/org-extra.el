@@ -402,6 +402,24 @@ after :END:."
   (org-insert-structure-template type)
   (yank))
 
+;;; From https://gist.github.com/MenacingMecha/11bd07daaaac790620b5fe0437e96a4c
+(defun org-extra-set-blocker-from-clipboard-id ()
+  "Adds the id in the clipboard (obtained using `org-id-copy') to
+the current headlines BLOCKER property."
+  (interactive)
+  (if (not (derived-mode-p 'org-mode))
+      (message "Not in org buffer.")
+    (let* ((blocker-prop "BLOCKER")
+	   (blocker-prop-existing (org-entry-get nil blocker-prop 'selective))
+	   (blocker-prop-base (or blocker-prop-existing "ids()"))
+	   (blocker-value (with-temp-buffer (insert blocker-prop-base)
+					    (backward-char)
+					    (when blocker-prop-existing
+					      (insert " "))
+					    (insert "id:" (car kill-ring))
+					    (buffer-string))))
+      (org-set-property blocker-prop blocker-value))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here
