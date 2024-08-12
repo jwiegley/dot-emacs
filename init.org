@@ -9319,7 +9319,7 @@ With prefix argument, also display headlines without a TODO keyword."
          ("M-p" . org-agenda-earlier)
          ("b"   . org-agenda-date-earlier)
          ("f"   . org-agenda-date-later)
-         ("g"   . org-agenda-redo)
+         ("g"   . org-extra-agenda-redo)
          ("q"   . bury-buffer)
          ("x"   . org-agenda-todo)
          ("w"   . org-agenda-refile)

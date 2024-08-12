@@ -268,6 +268,18 @@ To use this function, add it to `org-agenda-finalize-hook':
         (org-agenda-filter '(64))
         (funcall #'prep-window (selected-window))))))
 
+(defun org-extra-agenda-redo ()
+  (interactive)
+  (org-agenda-redo)
+  (push-window-configuration)
+  (let ((wind (selected-window)))
+    (with-selected-window wind
+      (org-fit-window-to-buffer wind)
+      (ignore-errors
+        (window-resize
+         wind
+         (- 100 (window-width wind)) t)))))
+
 (defun org-extra-entire-properties-block ()
   "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
   (save-excursion

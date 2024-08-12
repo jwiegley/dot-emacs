@@ -267,54 +267,58 @@
     :target ,(my-org-loc "Inbox")
     :prepend t)
 
-   ("pa" "Assembly meeting" entry
+   ("pT" "Trip" entry
+    (file "~/doc/template/org/trip.org")
+    :target ,(my-org-loc "Inbox")
+    :jump-to-captured t)
+
+   ("pb" "Bahá’í templates")
+
+   ("pba" "Assembly meeting" entry
     (file "~/doc/template/org/assembly-meeting.org")
     :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
-   ("pf" "Bahá’í Feast" entry
+   ("pbf" "Bahá’í Feast" entry
     (file "~/doc/template/org/feast.org")
     :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
-   ("pe" "Bahá’í event" entry
+   ("pbe" "Bahá’í event" entry
     (file "~/doc/template/org/bahai-event.org")
     :target ,(my-org-loc "Bahá’í")
     :jump-to-captured t)
 
-   ("pg" "Flow of guidance" entry
+   ("pbg" "Flow of guidance" entry
     (file "~/doc/template/org/flow-of-guidance.org")
     :target ,(my-org-loc "Assembly:Flow")
     :jump-to-captured t)
 
-   ("pi" "Ruhi Intensive" entry
+   ("pbi" "Ruhi Intensive" entry
     (file "~/doc/template/org/ruhi-intensive.org")
     :target ,(my-org-loc "Bahá’í:Ruhi")
     :jump-to-captured t)
 
-   ("pt" "Ruhi Tutor Training" entry
+   ("pbt" "Ruhi Tutor Training" entry
     (file "~/doc/template/org/ruhi-tutor-training.org")
     :target ,(my-org-loc "Bahá’í:Tutor")
     :jump-to-captured t)
 
-   ("pc" "Work Conference" entry
+   ("pw" "Work templates")
+
+   ("pwc" "Work Conference" entry
     (file "~/doc/template/org/conference.org")
     :target ,(my-org-loc "Kadena:Conf")
     :jump-to-captured t)
 
-   ("po" "Leads Offsite Meeting" entry
+   ("pwo" "Leads Offsite Meeting" entry
     (file "~/doc/template/org/offsite-meeting.org")
     :target ,(my-org-loc "Kadena:Leads")
     :jump-to-captured t)
 
-   ("pO" "Out of Office" entry
+   ("pwO" "Out of Office" entry
     (file "~/doc/template/org/out-of-office.org")
     :target ,(my-org-loc "Kadena:Ops")
-    :jump-to-captured t)
-
-   ("pT" "Trip" entry
-    (file "~/doc/template/org/trip.org")
-    :target ,(my-org-loc "Inbox")
     :jump-to-captured t)
 
    ("s" "Slide presentations")
