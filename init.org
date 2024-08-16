@@ -8098,8 +8098,8 @@ without white space and comments.
   (gnus-sum-thread-tree-single-indent nil)
   (gnus-sum-thread-tree-root nil)
   (gnus-sum-thread-tree-vertical "│ ")
-  (gnus-sum-thread-tree-leaf-with-other "├── ")
-  (gnus-sum-thread-tree-single-leaf "└── ")
+  (gnus-sum-thread-tree-leaf-with-other "├—— ")
+  (gnus-sum-thread-tree-single-leaf "└—— ")
   (gnus-sum-thread-tree-indent " ")
   (gnus-sum-thread-tree-single-indent nil)
   (gnus-summary-expunge-below -100)
@@ -10845,12 +10845,12 @@ own lines, for instance.
 
         ;;print the separator line on top of, and between cells
         (if (= row 0)
-            (insert "┌───────")
-          (insert "├───────"))
+            (insert "┌———————")
+          (insert "├———————"))
         (dotimes (col (1- *2048-columns*))
           (if (= row 0)
-              (insert "┬───────")
-            (insert "┼───────")))
+              (insert "┬———————")
+            (insert "┼———————")))
         (if (= row 0)
             (insert "┐")
           (insert "┤"))
@@ -10881,9 +10881,9 @@ own lines, for instance.
         (insert "\n"))
 
       ;;print the separator line on the bottom of the last row.
-      (insert "└───────")
+      (insert "└———————")
       (dotimes (col (1- *2048-columns*))
-        (insert "┴───────"))
+        (insert "┴———————"))
       (insert "┘\n")
       (insert "\n")
 
