@@ -420,6 +420,22 @@ the current headlines BLOCKER property."
 					    (buffer-string))))
       (org-set-property blocker-prop blocker-value))))
 
+;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
+(defun org-extra-open-all-links-in-subtree ()
+  "Open all the links in the current subtree.
+Note: this uses Org's internal variable `org-link--search-failed'."
+  (interactive)
+  (save-excursion
+    (save-restriction
+      (org-narrow-to-subtree)
+      (goto-char (point-min))
+      (let ((inhibit-message t)
+            (message-log-max nil))
+        (setq org-link--search-failed nil)
+        (while (progn (org-next-link)
+                      (not org-link--search-failed))
+          (org-open-at-point))))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

@@ -45,7 +45,7 @@
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sTags: ")
   (org-tags-view
-   t (format "%s&TODO={DONE\\|CANCELED}" tags)))
+   t (format "%s&TODO={DONE\\|CANCELED\\|COMPLETE\\|ABORTED}" tags)))
 
 (defun org-extra-with-category-search (who)
   "Search by WITH propery, which is made inheritable for this function."
@@ -176,25 +176,21 @@
     :target ,(my-org-loc "Inbox")
     :prepend t)
 
-   ("c" "APPT")
+   ("c" "Meetings")
 
-   ("ca" "APPT" entry "* APPT %?"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
-
-   ("cg" "Copper to Gold" entry "* APPT %?\nSCHEDULED: %t"
+   ("cg" "Copper to Gold" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "C2G")
     :prepend t
     :clock-in t
     :clock-keep t)
 
-   ("cA" "Ali Nakhjavani Development Fund" entry "* APPT %?\nSCHEDULED: %t"
+   ("cA" "Ali Nakhjavani Development Fund" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "ANDF")
     :prepend t
     :clock-in t
     :clock-keep t)
 
-   ("cq" "Quantum Trades" entry "* APPT %?\nSCHEDULED: %t"
+   ("cq" "Quantum Trades" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "QT")
     :prepend t
     :clock-in t
@@ -337,12 +333,6 @@
    ("n" "Notes" todo "NOTE")
 
    ("l" "Links" todo "LINK")
-
-   ("c" "Appointment Calendar" agenda ""
-    ((org-agenda-sorting-strategy '(time-up))
-     (org-agenda-span 14)
-     (org-agenda-ndays 14)
-     (org-agenda-regexp-filter-preset '("+APPT"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
