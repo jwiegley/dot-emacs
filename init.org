@@ -905,9 +905,11 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package literate-calc-mode
+  :demand t
+  :after org
   :diminish literate-calc-minor-mode
   :bind (:map org-mode-map
-              ("C-c C-x *"  . literate-calc-minor-mode))
+              ("C-c C-x *" . literate-calc-minor-mode))
   :custom
   (literate-calc-usimplify-results t))
 #+end_src
