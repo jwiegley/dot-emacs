@@ -9291,6 +9291,9 @@ With prefix argument, also display headlines without a TODO keyword."
 
   (org-link-set-parameters "tag" :follow #'endless/follow-tag-link)
 
+  (advice-add 'org-paste-subtree :before
+              #'(lambda (&rest _) (delete-blank-lines)))
+
   (use-package org-mairix
     :defer t
     :config

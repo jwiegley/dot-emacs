@@ -136,6 +136,7 @@
     ("Kadena:Leads"  . (node "50E9E856-7F4B-4162-8BCD-12A9118B9857"))
     ("Kadena:Conf"   . (node "EF04DCF4-43D5-435E-856D-282431030BEE"))
     ("Kadena:Ops"    . (node "C1DCA4A4-497F-4A50-8218-079A310665A3"))
+    ("Kadena:Core"   . (node "08447A8E-960C-4C19-81C2-BDD0B96661C3"))
     ))
 
 (defsubst my-org-loc (name)
@@ -271,50 +272,55 @@
    ("pb" "Bahá’í templates")
 
    ("pba" "Assembly meeting" entry
-    (file "~/doc/template/org/assembly-meeting.org")
+    (file "~/doc/template/org/bahai/assembly-meeting.org")
     :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
    ("pbf" "Bahá’í Feast" entry
-    (file "~/doc/template/org/feast.org")
+    (file "~/doc/template/org/bahai/feast.org")
     :target ,(my-org-loc "Assembly")
     :jump-to-captured t)
 
    ("pbe" "Bahá’í event" entry
-    (file "~/doc/template/org/bahai-event.org")
+    (file "~/doc/template/org/bahai/bahai-event.org")
     :target ,(my-org-loc "Bahá’í")
     :jump-to-captured t)
 
    ("pbg" "Flow of guidance" entry
-    (file "~/doc/template/org/flow-of-guidance.org")
+    (file "~/doc/template/org/bahai/flow-of-guidance.org")
     :target ,(my-org-loc "Assembly:Flow")
     :jump-to-captured t)
 
    ("pbi" "Ruhi Intensive" entry
-    (file "~/doc/template/org/ruhi-intensive.org")
+    (file "~/doc/template/org/bahai/ruhi-intensive.org")
     :target ,(my-org-loc "Bahá’í:Ruhi")
     :jump-to-captured t)
 
    ("pbt" "Ruhi Tutor Training" entry
-    (file "~/doc/template/org/ruhi-tutor-training.org")
+    (file "~/doc/template/org/bahai/ruhi-tutor-training.org")
     :target ,(my-org-loc "Bahá’í:Tutor")
     :jump-to-captured t)
 
    ("pw" "Work templates")
 
    ("pwc" "Work Conference" entry
-    (file "~/doc/template/org/conference.org")
+    (file "~/doc/template/org/kadena/conference.org")
     :target ,(my-org-loc "Kadena:Conf")
     :jump-to-captured t)
 
-   ("pwo" "Leads Offsite Meeting" entry
-    (file "~/doc/template/org/offsite-meeting.org")
+   ("pwo" "Offsite Meeting" entry
+    (file "~/doc/template/org/kadena/offsite-meeting.org")
     :target ,(my-org-loc "Kadena:Leads")
     :jump-to-captured t)
 
    ("pwO" "Out of Office" entry
-    (file "~/doc/template/org/out-of-office.org")
+    (file "~/doc/template/org/kadena/out-of-office.org")
     :target ,(my-org-loc "Kadena:Ops")
+    :jump-to-captured t)
+
+   ("pwn" "Network Incident" entry
+    (file "~/doc/template/org/kadena/network-incident.org")
+    :target ,(my-org-loc "Kadena:Core")
     :jump-to-captured t)
 
    ("s" "Slide presentations")
