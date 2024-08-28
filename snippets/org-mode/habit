@@ -1,0 +1,12 @@
+#name : HABIT
+# --
+TODO $0
+:PROPERTIES:
+:ID:       `(generate-uuid)`
+:CREATED:  `(created-stamp)`
+:STYLE:    habit
+:REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:END:
+:LOGBOOK:
+:END:

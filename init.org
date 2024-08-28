@@ -938,8 +938,8 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 #+begin_src emacs-lisp
 (use-package solar
   :custom
-  (calendar-latitude 38.5474883)
-  (calendar-longitude -121.5262693))
+  (calendar-latitude 38.559979)
+  (calendar-longitude -121.417465))
 #+end_src
 
 *** bahai-calendar
@@ -2694,9 +2694,9 @@ up before you execute another command."
         "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models '("gpt-3.5-turbo" "gpt-3.5-turbo-16k" "gpt-4"
+      :models '("gpt-4o" "gpt-3.5-turbo" "gpt-3.5-turbo-16k" "gpt-4"
                 "gpt-4-turbo-preview" "gpt-4-32k" "gpt-4-1106-preview"
-                "gpt-4-0125-preview" "gpt-4o")))
+                "gpt-4-0125-preview")))
 
   (use-package gptel-ollama
     :demand t
@@ -4083,6 +4083,22 @@ header overlay should cover. Result is a cons cell of (begin . end)."
                  (concat (lookup-password "demonet OpenVPN" "johnwiegley" 80)
                          (password-store--run "otp" "demonet OpenVPN")))
          (funcall ad-do-it config)))))
+#+end_src
+
+** osm
+
+[[https://github.com/minad/osm][osm.el]] is a tile-based map viewer, with a responsive movable and zoomable
+display. The map can be controlled with the keyboard or with the mouse. The
+viewer fetches the map tiles in parallel from tile servers via the curl
+program. The package comes with a list of multiple preconfigured tile servers.
+You can bookmark your favorite locations using regular Emacs bookmarks or
+create links from Org files to locations. Furthermore the package provides
+commands to search for locations by name and to open and display GPX tracks.
+
+#+begin_src emacs-lisp
+(use-package osm
+  :commands osm-home
+  :bind ("C-c M" . osm-prefix-map))
 #+end_src
 
 ** package-lint
@@ -9122,7 +9138,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (let ((location (org-entry-get (point) "LOCATION")))
       (if location
-          (browse-url (concat "https://maps.apple.com/?q=org&ll=" location))
+          (if (featurep 'osm)
+              (pcase (split-string location ",")
+                (`(,lat ,lon)
+                 (osm-goto (string-to-number lat) (string-to-number lon) nil)))
+            (browse-url (concat "https://maps.apple.com/?q=org&ll=" location)))
         (error "Entry has no location set"))))
 
   (eval-when-compile
@@ -9604,7 +9624,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
      (C          . t)
      (sql        . t)
      (dot        . t)
-     (plantuml   . t)
      (makefile   . t)
      (emamux     . t)
      (jupyter    . t)))                  ; must be last
@@ -9618,7 +9637,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
     string)
 
   (advice-add 'org-babel-edit-prep:emacs-lisp :after
-              #'(lambda (_info) (run-hooks 'emacs-lisp-mode-hook)))
+              #'(lambda (&rest _) (run-hooks 'emacs-lisp-mode-hook)))
 
   (setq org-babel-default-header-args:sh    '((:results . "output replace"))
         org-babel-default-header-args:bash  '((:results . "output replace"))
@@ -9629,9 +9648,8 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
           (:kernel . "sagemath")))
 
   (setq org-confirm-babel-evaluate nil
-        ;; org-plantuml-jar-path "/usr/share/plantuml/plantuml.jar"
-        ;; org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar"
-        )
+        org-plantuml-jar-path "/~/.nix-profile/lib/plantuml.jar"
+        org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
 
   (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
 #+end_src
@@ -9846,7 +9864,9 @@ A group FOO is composed of contacts with the tag FOO."
               ("C-c C-x C" . org-download-clipboard)
               ("C-c C-x Y" . org-download-yank))
   :custom
-  (org-download-method 'attach))
+  (org-download-method 'attach)
+
+  (add-hook 'dired-mode-hook 'org-download-enable))
 #+end_src
 
 *** org-edna
@@ -10194,6 +10214,24 @@ A group FOO is composed of contacts with the tag FOO."
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
 
+*** org-pretty-table
+
+#+begin_src emacs-lisp
+(use-package org-pretty-table
+  :after org
+  :hook ((org-mode . org-pretty-table-mode)))
+#+end_src
+
+*** org-recent-headings
+
+#+begin_src emacs-lisp
+(use-package org-recent-headings
+  :bind
+  ("M-g O" . org-recent-headings)
+  :config
+  (org-recent-headings-mode))
+#+end_src
+
 *** org-remark
 
 #+begin_src emacs-lisp
@@ -10288,6 +10326,7 @@ Use a prefix arg to get regular RET. "
 
 #+begin_src emacs-lisp
 (use-package org-rich-yank
+  :demand t
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
 #+end_src
