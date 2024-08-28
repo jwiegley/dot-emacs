@@ -246,22 +246,25 @@ To use this function, add it to `org-agenda-finalize-hook':
   (push-window-configuration)
   (cl-flet ((prep-window
               (wind)
-              (with-selected-window wind
-                (org-fit-window-to-buffer wind)
-                (ignore-errors
-                  (window-resize
-                   wind
-                   (- 100 (window-width wind)) t)))))
+              (select-window wind)
+              (org-fit-window-to-buffer wind)
+              (ignore-errors
+                (window-resize
+                 wind
+                 (- 100 (window-width wind)) t))))
     (let ((buf (or (get-buffer "*Org Agenda*")
                    (get-buffer "*Org Agenda(a)*"))))
       (if buf
           (let ((win (get-buffer-window buf)))
             (if win
-                (when (called-interactively-p 'any)
-                  (funcall #'prep-window win))
-              (if (called-interactively-p 'any)
-                  (funcall #'prep-window (display-buffer buf t t))
-                (funcall #'prep-window (display-buffer buf)))))
+                (progn
+                  (when (called-interactively-p 'any)
+                    (funcall #'prep-window win))
+                  (select-window win))
+              (funcall #'prep-window
+                       (if (called-interactively-p 'any)
+                           (display-buffer buf t t)
+                         (display-buffer buf)))))
         (require 'org-agenda)
         (mapc #'find-file-noselect org-agenda-files)
         (call-interactively #'org-agenda-list)

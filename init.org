@@ -4502,7 +4502,7 @@ append it to ENTRY."
   :commands prodigy)
 #+end_src
 
-** COMMENT projectile
+** projectile
 
 #+begin_src emacs-lisp
 (use-package projectile
@@ -5573,7 +5573,6 @@ independent components.
          ("C-c e l" . find-library)
          ("C-c e q" . set-variable)
          ("C-h e l" . find-library)
-         ("C-c p f" . project-find-file)
 
          ;; C-x bindings (ctl-x-map)
          ("C-x M-:" . consult-complex-command)
@@ -5582,6 +5581,7 @@ independent components.
          ("C-x 5 b" . consult-buffer-other-frame)
          ("C-x r b" . consult-bookmark)
          ("C-x 4 j" . consult-bookmark-other-window)
+         ("C-x p f" . project-find-file)
          ("C-x p b" . consult-project-buffer)
          ;; Other custom bindings
          ("M-y"     . consult-yank-pop)
@@ -9508,9 +9508,10 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 :END:" :prepend t)))
   :preface
   (defun my/org-basic-properties ()
-    (org-set-property "ID" (substring (shell-command-to-string "uuidgen") 0 -1))
-    (org-set-property "CREATED" (with-temp-buffer
-                                  (org-insert-time-stamp (current-time) t t))))
+    (org-set-property "ID" (org-id-new))
+    (org-set-property "CREATED"
+                      (with-temp-buffer
+                        (org-insert-time-stamp (current-time) t t))))
   :config
   ;; Ensure the ID and CREATED properties are always set for new entries.
   (add-hook 'org-capture-before-finalize-hook #'my/org-basic-properties))
@@ -10307,7 +10308,7 @@ Use a prefix arg to get regular RET. "
    ("C-c n J" . add-journal-entry)
    ("C-c n L" . org-roam-buffer-toggle)
    ("C-c n T" . my/org-roam-revise-title)
-   ("C-c n f" . org-roam-node-find)
+   ("C-c n f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("C-c n i" . org-roam-node-insert)
    ("C-c n p" . my/org-roam-find-project)
    ("C-c n r" . org-roam-tag-remove)
@@ -10396,7 +10397,7 @@ Use a prefix arg to get regular RET. "
   :demand t
   :diminish consult-org-roam-mode
   :bind
-  (("C-c n e" . consult-org-roam-file-find)
+  (("C-c n f" . consult-org-roam-file-find)
    ("C-c n b" . consult-org-roam-backlinks)
    ("C-c n l" . consult-org-roam-forward-links)
    ("C-c n g" . consult-org-roam-search))
@@ -10409,13 +10410,33 @@ Use a prefix arg to get regular RET. "
   (consult-org-roam-mode 1)
 
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-backlinks))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links)))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find)))
+#+end_src
+
+**** org-roam-dblocks
+
+This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-dblocks.el.
+
+#+begin_src emacs-lisp
+(use-package org-roam-dblocks
+  :hook (org-mode . org-roam-dblocks-autoupdate-mode))
+#+end_src
+
+**** COMMENT org-roam-slipbox
+
+This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-slipbox.el.
+
+#+begin_src emacs-lisp
+(use-package org-roam-slipbox
+  :after org-roam
+  :demand t
+  :config
+  (org-roam-slipbox-buffer-identification-mode +1)
+  (org-roam-slipbox-tag-mode +1))
 #+end_src
 
 **** org-smart-capture
-:PROPERTIES:
-:ID:       65BC268A-EA03-481A-99D4-C8815E12734F
-:END:
 
 This wrapper around =org-capture= will also capture Gnus messages as tasks, with
 context.
