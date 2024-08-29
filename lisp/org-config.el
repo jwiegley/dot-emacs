@@ -177,21 +177,32 @@
     :target ,(my-org-loc "Inbox")
     :prepend t)
 
-   ("c" "Meetings")
+   ("m" "Meetings")
 
-   ("cg" "Copper to Gold" entry "* TODO %?\nSCHEDULED: %t"
+   ("mm" "Meeting notes" plain
+    (file "~/doc/template/org/meeting.org")
+    :target
+    (file+head
+     "journal/%<%Y%m%d%H%M>-meeting.org"
+     "#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: Meeting: %^{Purpose of meeting}\n")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mg" "Copper to Gold" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "C2G")
     :prepend t
     :clock-in t
     :clock-keep t)
 
-   ("cA" "Ali Nakhjavani Development Fund" entry "* TODO %?\nSCHEDULED: %t"
+   ("mA" "Ali Nakhjavani Development Fund" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "ANDF")
     :prepend t
     :clock-in t
     :clock-keep t)
 
-   ("cq" "Quantum Trades" entry "* TODO %?\nSCHEDULED: %t"
+   ("mq" "Quantum Trades" entry "* TODO %?\nSCHEDULED: %t"
     :target ,(my-org-loc "QT")
     :prepend t
     :clock-in t
@@ -208,21 +219,23 @@
    ("r" "Org-roam notes")
 
    ("rn" "Note" plain "%?"
-    :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
+    :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+title: ${title}\n")
+    :immediate-finish t
     :jump-to-captured t
     :empty-lines-before 1
     :unnarrowed t)
 
    ("rq" "Quote" plain "%c\n\n─ %?"
-    :target (file+head "%<%Y%m%d%H%M>-${slug}.org"
+    :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+filetags: :quote:\n#+title: ${title}\n")
     :jump-to-captured t
     :empty-lines-before 1)
 
-   ("rk" "Kadena" plain "%?"
-    :target (file+head "kadena/%<%Y%m%d%H%M>-${slug}.org"
+   ("rw" "Work" plain "%?"
+    :target (file+head "kadena/%<%Y%m%d%H%M>.org"
                        "#+filetags: :kadena:\n#+title: ${title}\n")
+    :immediate-finish t
     :jump-to-captured t
     :empty-lines-before 1
     :unnarrowed t)
@@ -231,27 +244,29 @@
 
    ("bj" "johnwiegley.com" plain "%?"
     :jump-to-captured t
-    :target (file+head "johnwiegley/%<%Y%m%d%H%M>-${slug}.org"
+    :target (file+head "johnwiegley/%<%Y%m%d%H%M>.org"
                        ":PROPERTIES:
 :SLUG:     ${slug}
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish/johnwiegley:
-,#+date: %U
-,#+title: ${title}\n")
+#+date: %U
+#+filetags: :publish/johnwiegley:
+#+title: ${title}\n")
+    :immediate-finish t
     :empty-lines-before 1
     :unnarrowed t)
 
    ("bn" "newartisans.com" plain "%?"
     :jump-to-captured t
-    :target (file+head "newartisans/%<%Y%m%d%H%M>-${slug}.org"
+    :target (file+head "newartisans/%<%Y%m%d%H%M>.org"
                        ":PROPERTIES:
 :SLUG:     ${slug}
 :PUBLISH:  %^{Publish after date}U
 :END:
-,#+filetags: :publish/newartisans:
-,#+date: %U
-,#+title: ${title}\n")
+#+filetags: :publish/newartisans:
+#+date: %U
+#+title: ${title}\n")
+    :immediate-finish t
     :empty-lines-before 1
     :unnarrowed t)
 
@@ -267,6 +282,7 @@
    ("pT" "Trip" entry
     (file "~/doc/template/org/trip.org")
     :target ,(my-org-loc "Inbox")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pb" "Bahá’í templates")
@@ -274,28 +290,33 @@
    ("pba" "Assembly meeting" entry
     (file "~/doc/template/org/bahai/assembly-meeting.org")
     :target ,(my-org-loc "Assembly")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pbf" "Bahá’í Feast" entry
     (file "~/doc/template/org/bahai/feast.org")
     :target ,(my-org-loc "Assembly")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pbe" "Bahá’í event" entry
     (file "~/doc/template/org/bahai/bahai-event.org")
     ;; I don't know in advance which section it belongs in.
     :target ,(my-org-loc "Inbox")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pbE" "Recurring Bahá’í event" entry
     (file "~/doc/template/org/bahai/recurring-event.org")
     ;; I don't know in advance which section it belongs in.
     :target ,(my-org-loc "Inbox")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pbg" "Flow of guidance" entry
     (file "~/doc/template/org/bahai/flow-of-guidance.org")
     :target ,(my-org-loc "Assembly:Flow")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pw" "Work templates")
@@ -303,32 +324,32 @@
    ("pwc" "Work Conference" entry
     (file "~/doc/template/org/kadena/conference.org")
     :target ,(my-org-loc "Kadena:Conf")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pwo" "Offsite Meeting" entry
     (file "~/doc/template/org/kadena/offsite-meeting.org")
     :target ,(my-org-loc "Kadena:Leads")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pwO" "Out of Office" entry
     (file "~/doc/template/org/kadena/out-of-office.org")
     :target ,(my-org-loc "Kadena:Ops")
+    :immediate-finish t
     :jump-to-captured t)
 
    ("pwn" "Network Incident" entry
     (file "~/doc/template/org/kadena/network-incident.org")
     :target ,(my-org-loc "Kadena:Core")
-    :jump-to-captured t)
+    :immediate-finish t
+    :jump-to-captured t))
 
-   ("s" "Slide presentations")
-
-   ("ss" "SKIP" entry "* %?
-:PROPERTIES:
-:BEAMER_act: <2->
-:END:"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
-   )
+ org-roam-dailies-capture-templates
+ '(("d" "default" entry
+    "* %?"
+    :target (file+head "%<%Y-%m-%d>.org"
+                       "#+title: %<%Y-%m-%d>\n")))
 
  org-agenda-custom-commands
  '(("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")

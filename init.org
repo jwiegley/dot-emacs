@@ -377,7 +377,6 @@ unto itself.
             ("C-c b" . my-bookmarks-bibliography-map)
             ("C-c e" . my-emacs-lisp-map)
             ("C-c m" . my-ctrl-c-m-map)
-            ("C-c n" . my-org-roam-map)
             ("C-c t" . my-multi-term-map)
             ("C-c w" . my-web-map)
             ("C-c y" . my-yasnippet-map)
@@ -2639,9 +2638,6 @@ up before you execute another command."
 #+end_src
 
 ** gptel
-:PROPERTIES:
-:ID:       448C11F8-ABEF-4006-8E35-954437EA3DE6
-:END:
 
 #+begin_src emacs-lisp
 (use-package gptel
@@ -8800,9 +8796,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+end_src
 
 ** Org-mode
-:PROPERTIES:
-:ID:       AFE90AE3-4AD9-4477-AC38-F45AFB8C4C63
-:END:
 
 #+begin_src emacs-lisp
 (use-package org
@@ -9649,6 +9642,9 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
           (:session . "py")
           (:kernel . "sagemath")))
 
+  (use-package ob-plantuml)
+  (use-package ob-ditaa)
+
   (setq org-confirm-babel-evaluate nil
         org-plantuml-jar-path "/~/.nix-profile/lib/plantuml.jar"
         org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
@@ -10228,10 +10224,9 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-recent-headings
-  :bind
-  ("M-g O" . org-recent-headings)
-  :config
-  (org-recent-headings-mode))
+  :bind ("M-g O" . org-recent-headings)
+  :commands (org-recent-headings-mode)
+  :config (org-recent-headings-mode))
 #+end_src
 
 *** org-remark
@@ -10334,9 +10329,6 @@ Use a prefix arg to get regular RET. "
 #+end_src
 
 *** org-roam
-:PROPERTIES:
-:ID:       EE99F4E5-03D3-4712-9FA5-71405C8474D7
-:END:
 
 #+begin_src emacs-lisp
 (use-package org-roam
@@ -10344,20 +10336,23 @@ Use a prefix arg to get regular RET. "
   :after org
   :functions (org-roam-db-sync)
   :bind
-  (("C-c n B" . my/org-roam-capture-inbox)
-   ("C-c n I" . my/org-roam-node-insert-immediate)
-   ("C-c n J" . add-journal-entry)
-   ("C-c n L" . org-roam-buffer-toggle)
-   ("C-c n T" . my/org-roam-revise-title)
-   ("C-c n f" . org-roam-node-find)     ; overridden by consult-org-roam
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n p" . my/org-roam-find-project)
-   ("C-c n r" . org-roam-tag-remove)
-   ("C-c n t" . org-roam-tag-add)
-   ("C-c n w" . my/org-roam-prepare-note)
-
-   :map org-mode-map
-   ("C-M-i" . completion-at-point))
+  (:map
+   org-mode-map
+   ("C-M-i" . completion-at-point)
+   :prefix-map
+   my-org-roam-map
+   :prefix "C-c n"
+   ("B" . my/org-roam-capture-inbox)
+   ("I" . my/org-roam-node-insert-immediate)
+   ("J" . add-journal-entry)
+   ("L" . org-roam-buffer-toggle)
+   ("T" . my/org-roam-revise-title)
+   ("f" . org-roam-node-find)     ; overridden by consult-org-roam
+   ("i" . org-roam-node-insert)
+   ("p" . my/org-roam-find-project)
+   ("r" . org-roam-tag-remove)
+   ("t" . org-roam-tag-add)
+   ("w" . my/org-roam-prepare-note))
   :custom
   (org-roam-db-update-on-save nil)
   (org-roam-directory org-directory)
@@ -10370,10 +10365,9 @@ Use a prefix arg to get regular RET. "
      "/\\."
      "archive"
      "\\`data/"
-     "\\`assembly/minutes"
      ))
   :defines
-  (org-roam-v2-ack)
+  (org-roam-v2-ack my-org-roam-map)
   :functions
   (org-roam-db-query
    org-roam-node-read
@@ -10406,23 +10400,23 @@ Use a prefix arg to get regular RET. "
   (advice-add 'org-agenda :before #'my/org-roam-update-todo-files))
 #+end_src
 
-**** COMMENT org-roam-dailies
-:PROPERTIES:
-:ID:       546A7601-14CF-4419-9ED3-236667A0A5B1
-:END:
+**** org-roam-dailies
 
 #+begin_src emacs-lisp
 (use-package org-roam-dailies
   :after org-roam
+  :demand t
   :bind
-  (("C-c n j" . org-roam-dailies-capture-today)
-   :map org-roam-dailies-map
+  (:map
+   my-org-roam-map
+   ("j" . org-roam-dailies-capture-today)
+   ("d" . org-roam-dailies-map)         ; this is a keymap
+   :map
+   org-roam-dailies-map
    ("Y" . org-roam-dailies-capture-yesterday)
    ("T" . org-roam-dailies-capture-tomorrow))
-  :bind-keymap ("C-c n d" . org-roam-dailies-map)
   :custom
-  (org-roam-dailies-directory
-   (expand-file-name "journal/" org-roam-directory))
+  (org-roam-dailies-directory "journal/")
   :functions
   (org-roam-dailies-capture-tomorrow
    org-roam-dailies-capture-yesterday
@@ -10438,10 +10432,12 @@ Use a prefix arg to get regular RET. "
   :demand t
   :diminish consult-org-roam-mode
   :bind
-  (("C-c n f" . consult-org-roam-file-find)
-   ("C-c n b" . consult-org-roam-backlinks)
-   ("C-c n l" . consult-org-roam-forward-links)
-   ("C-c n g" . consult-org-roam-search))
+  (:map
+   my-org-roam-map
+   ("f" . consult-org-roam-file-find)
+   ("b" . consult-org-roam-backlinks)
+   ("l" . consult-org-roam-forward-links)
+   ("g" . consult-org-roam-search))
   :custom
   (consult-org-roam-grep-func #'consult-ripgrep)
   (consult-org-roam-buffer-enabled nil)
@@ -10499,7 +10495,10 @@ context.
 
 #+begin_src emacs-lisp
 (use-package xeft
-  :bind ("C-c n x" . xeft)
+  :bind
+  (:map
+   my-org-roam-map
+   ("x" . xeft))
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
@@ -10683,9 +10682,11 @@ copies, leaving only the links to the original content.
   :after org
   :demand t
   :bind (:map
+         my-org-roam-map
+         ("A" . org-transclusion-add)
+         ("M" . org-transclusion-make-from-link)
+         :map
          org-mode-map
-         ("C-c n A" . org-transclusion-add)
-         ("C-c n M" . org-transclusion-make-from-link)
          ("C-c C-x T" . org-transclusion-mode)))
 #+end_src
 
@@ -10796,7 +10797,9 @@ own lines, for instance.
 (use-package citar
   :demand t
   :after oc
-  :bind ("C-c n R" . citar-create-note)
+  :bind (:map
+         my-org-roam-map
+         ("R" . citar-create-note))
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)

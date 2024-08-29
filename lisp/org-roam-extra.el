@@ -105,7 +105,8 @@
    :keys keys
    :templates templates
    :node (org-roam-node-create :title "Unknown")
-   :props '(:immediate-finish nil)))
+   ;; :props '(:immediate-finish nil)
+   ))
 
 (defun my/org-roam-title-slug (title)
   (let ((slug-trim-chars

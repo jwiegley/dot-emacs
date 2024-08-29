@@ -51,6 +51,8 @@
 (defun org-extra-reformat-draft ()
   ;; If there is a URL, this is a LINK.
   (setq url nil)
+  (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
+    (delete-region (match-beginning 0) (match-end 0)))
   (when (re-search-forward ":URL:\\s-*\\(.+?\\)\n" nil t)
     (setq url (match-string 1))
     (delete-region (match-beginning 0) (match-end 0))
