@@ -283,22 +283,19 @@
 
    ("pbe" "Bahá’í event" entry
     (file "~/doc/template/org/bahai/bahai-event.org")
-    :target ,(my-org-loc "Bahá’í")
+    ;; I don't know in advance which section it belongs in.
+    :target ,(my-org-loc "Inbox")
+    :jump-to-captured t)
+
+   ("pbE" "Recurring Bahá’í event" entry
+    (file "~/doc/template/org/bahai/recurring-event.org")
+    ;; I don't know in advance which section it belongs in.
+    :target ,(my-org-loc "Inbox")
     :jump-to-captured t)
 
    ("pbg" "Flow of guidance" entry
     (file "~/doc/template/org/bahai/flow-of-guidance.org")
     :target ,(my-org-loc "Assembly:Flow")
-    :jump-to-captured t)
-
-   ("pbi" "Ruhi Intensive" entry
-    (file "~/doc/template/org/bahai/ruhi-intensive.org")
-    :target ,(my-org-loc "Bahá’í:Ruhi")
-    :jump-to-captured t)
-
-   ("pbt" "Ruhi Tutor Training" entry
-    (file "~/doc/template/org/bahai/ruhi-tutor-training.org")
-    :target ,(my-org-loc "Bahá’í:Tutor")
     :jump-to-captured t)
 
    ("pw" "Work templates")
