@@ -6310,7 +6310,9 @@ without white space and comments.
 (use-package yasnippet-org
   :no-require t
   :after org
-  :hook (org-mode . yas-minor-mode-on))
+  :hook
+  (org-mode . yas-minor-mode-on)
+  (org-tab-after-check-for-cycling . yas-expand))
 #+end_src
 
 **** consult-yasnippet
