@@ -9225,15 +9225,12 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (org-set-property "Submitter" (org-get-message-sender)))
 
-  (eval-when-compile
-    (require 'org-roam))
-
   (defun org-set-url-from-clipboard ()
     "Set a property for the current headline."
     (interactive)
     (org-back-to-heading)
     (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
-    (org-roam-tag-add '("LINK")))
+    (org-set-tags (cons "LINK" (org-get-tags))))
 
   (defun org-message-reply ()
     (interactive)
@@ -10451,8 +10448,23 @@ Use a prefix arg to get regular RET. "
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find)))
 #+end_src
 
-**** org-roam-dblocks
+**** embark-org-roam
 
+Use [[https://github.com/bramadams/embark-org-roam?tab=readme-ov-file][embark-select]] to select all org roam nodes of interest, then use
+embark-export, which will open a special org mode buffer containing links to
+the selected nodes.
+
+You can customize whether the exported buffer is read-only using the
+embark-org-roam-readonly variable. By default, the buffer is not read-only,
+resulting in an org-mode checklist.
+
+#+begin_src emacs-lisp
+(use-package embark-org-roam
+  :demand t
+  :after (org-roam embark))
+#+end_src
+
+**** org-roam-dblocks
 This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-dblocks.el.
 
 #+begin_src emacs-lisp
@@ -10471,6 +10483,19 @@ This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-sli
   :config
   (org-roam-slipbox-buffer-identification-mode +1)
   (org-roam-slipbox-tag-mode +1))
+#+end_src
+
+**** org-roam-ui
+
+#+begin_src emacs-lisp
+(use-package org-roam-ui
+  :after org-roam
+  :commands (org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 #+end_src
 
 **** org-smart-capture
@@ -10652,6 +10677,7 @@ text belongs to.
     (message "Syncing Org-roam database...")
     (redisplay t)
     (org-roam-db-sync)
+    (org-roam-update-org-id-locations)
     (require 'xeft)
     (require 'xapian-lite)
     (message "Rebuilding Xeft database...")
@@ -10682,12 +10708,12 @@ copies, leaving only the links to the original content.
   :after org
   :demand t
   :bind (:map
+         org-mode-map
+         ("C-c C-x T" . org-transclusion-mode)
+         :map
          my-org-roam-map
          ("A" . org-transclusion-add)
-         ("M" . org-transclusion-make-from-link)
-         :map
-         org-mode-map
-         ("C-c C-x T" . org-transclusion-mode)))
+         ("M" . org-transclusion-make-from-link)))
 #+end_src
 
 *** org-web-tools

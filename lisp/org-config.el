@@ -346,8 +346,7 @@
     :jump-to-captured t))
 
  org-roam-dailies-capture-templates
- '(("d" "default" entry
-    "* %?"
+ '(("d" "default" entry "* %U %?"
     :target (file+head "%<%Y-%m-%d>.org"
                        "#+title: %<%Y-%m-%d>\n")))
 
