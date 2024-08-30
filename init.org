@@ -10465,6 +10465,7 @@ resulting in an org-mode checklist.
 #+end_src
 
 **** org-roam-dblocks
+
 This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-dblocks.el.
 
 #+begin_src emacs-lisp
