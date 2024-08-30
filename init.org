@@ -9929,7 +9929,7 @@ A group FOO is composed of contacts with the tag FOO."
   :bind (:map org-mode-map
               ("C-c C-x i" . org-id-get-create))
   :custom
-  (org-id-link-to-org-use-id t)
+  (org-id-link-to-org-use-id 'use-existing)
   (org-id-locations-file (user-data "org-id-locations")))
 #+end_src
 
