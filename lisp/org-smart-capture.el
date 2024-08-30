@@ -151,7 +151,7 @@
       (message "Captured: (%s) %s" fname subject))))
 
 ;;;###autoload
-(defun org-smart-capture (&optional arg function)
+(defun org-smart-capture (&optional arg func)
   (interactive "P")
   (cond ((eq major-mode 'gnus-article-mode)
          (org-smart-capture-article)
@@ -177,7 +177,7 @@
          (gnus-set-mode-line 'summary))
 
         (t
-         (call-interactively function))))
+         (call-interactively (or func #'org-capture)))))
 
 (provide 'org-smart-capture)
 
