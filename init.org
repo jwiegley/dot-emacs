@@ -9520,10 +9520,11 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 :END:" :prepend t)))
   :preface
   (defun my/org-basic-properties ()
-    (org-set-property "ID" (org-id-new))
-    (org-set-property "CREATED"
-                      (with-temp-buffer
-                        (org-insert-time-stamp (current-time) t t))))
+    (save-excursion
+      (org-set-property "ID" (org-id-new))
+      (org-set-property "CREATED"
+                        (with-temp-buffer
+                          (org-insert-time-stamp (current-time) t t)))))
   :config
   ;; Ensure the ID and CREATED properties are always set for new entries.
   (add-hook 'org-capture-before-finalize-hook #'my/org-basic-properties))
@@ -10339,7 +10340,6 @@ Use a prefix arg to get regular RET. "
    :prefix-map
    my-org-roam-map
    :prefix "C-c n"
-   ("B" . my/org-roam-capture-inbox)
    ("I" . my/org-roam-node-insert-immediate)
    ("J" . add-journal-entry)
    ("L" . org-roam-buffer-toggle)
@@ -10492,6 +10492,7 @@ This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-sli
 (use-package org-roam-ui
   :after org-roam
   :commands (org-roam-ui-mode)
+  :diminish org-roam-ui-mode
   :config
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
