@@ -117,69 +117,194 @@
     (or (outline-next-heading)
         (goto-char (point-max)))))
 
-(defconst my-org-locations
-  '(
-    ;; todo.org
-    ("Inbox"         . (node "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E"))
-    ("Bahá’í"        . (node "9D1C6FD3-26C0-4E00-86B6-54ECDC54BF91"))
-    ("Bahá’í:Ruhi"   . (node "387B9E7D-BF81-44B0-B9F1-088E5CC58560"))
-    ("Bahá’í:Tutor"  . (node "4ED0C729-C8CE-4F58-8AB3-FE3C47827D13"))
-    ("C2G"           . (node "FB6F3615-1A44-4FE4-9471-2F673F34ADD8"))
-    ("QT"            . (node "57940F8A-16A0-48C3-8FB7-F87EC2E2E21E"))
-    ("ANDF"          . (node "928B0CC7-200A-42B2-A212-3ED6B35E57B0"))
-    ;; habits.org
-    ("Habits"        . (node "7E048E6F-524E-42E9-BD38-76AD04299DE3"))
-    ;; assembly.org
-    ("Assembly"      . (node "79E1D48F-ACC3-442D-A716-1860BADDB9C4"))
-    ("Assembly:Flow" . (node "852262E7-17E6-441C-B473-7473485217FE"))
-    ;; kadena.org
-    ("Kadena:Leads"  . (node "50E9E856-7F4B-4162-8BCD-12A9118B9857"))
-    ("Kadena:Conf"   . (node "EF04DCF4-43D5-435E-856D-282431030BEE"))
-    ("Kadena:Ops"    . (node "C1DCA4A4-497F-4A50-8218-079A310665A3"))
-    ("Kadena:Core"   . (node "08447A8E-960C-4C19-81C2-BDD0B96661C3"))
-    ))
-
-(defsubst my-org-loc (name)
-  (cdr (assoc name my-org-locations)))
-
 (setq
- org-roam-capture-templates
- `(("a" "TODO" entry "* TODO %?"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
+ org-capture-templates
+ (let ((Inbox '(function org-extra-goto-inbox-heading)))
+   `(("a" "TODO" entry
+      ,Inbox
+      "* TODO %?"
+      :prepend t)
 
-   ("h" "HABIT" entry "* TODO %?
+     ("A" "TODO (here)" entry
+      (function org-extra-up-heading)
+      "* TODO %?"
+      :prepend t)
+
+     ("h" "Habit" entry
+      (file+headline ,(org-file "habits.org") "Personal")
+      "* TODO %?
 :PROPERTIES:
 :STYLE:    habit
 :REPEAT_TO_STATE: TODO
 :LOG_INTO_DRAWER: t
 :END:"
-    :target ,(my-org-loc "Habits")
-    :prepend t)
+      :prepend t)
 
-   ("n" "NOTE" entry "* NOTE %?"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
+     ("n" "NOTE" entry
+      ,Inbox
+      "* NOTE %?"
+      :prepend t)
 
-   ("l" "Checklist" entry "* TODO %? [/]
+     ("N" "NOTE (here)" entry
+      (function org-extra-up-heading)
+      "* NOTE %?"
+      :prepend t)
+
+     ("l" "Link" entry
+      ,Inbox
+      "* LINK %:description%?
+:PROPERTIES:
+:URL:      %:link
+:END:"
+      :prepend t)
+
+     ("c" "Checklist" entry
+      ,Inbox
+      "* TODO %? [/]
 - [ ] $0
 :PROPERTIES:
 :COOKIE_DATA: recursive
 :RESET_CHECK_BOXES: t
 :END:"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
+      :prepend t)
 
-   ("C" "Category" entry "* %?
+     ("C" "Category" entry
+      (function org-extra-up-heading)
+      "* %?
 :PROPERTIES:
 :CATEGORY: %^{CATEGORY}
 :END:"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
+      :prepend t)
 
-   ("m" "Meetings")
+     ("m" "Meetings")
 
-   ("mm" "Meeting notes" plain
+     ("mg" "Copper to Gold" entry
+      (file+headline ,(org-file "todo.org") "Copper to Gold")
+      "* TODO %?\nSCHEDULED: %t"
+      :prepend t
+      :clock-in t
+      :clock-keep t)
+
+     ("mA" "Ali Nakhjavani Development Fund" entry
+      (file+headline ,(org-file "todo.org")
+                     "Ali Nakhjavani Development Fund (ANDF)")
+      "* TODO %?\nSCHEDULED: %t"
+      :prepend t
+      :clock-in t
+      :clock-keep t)
+
+     ("mq" "Quantum Trades" entry
+      (file+headline ,(org-file "todo.org") "Quantum Trades")
+      "* TODO %?\nSCHEDULED: %t"
+      :prepend t
+      :clock-in t
+      :clock-keep t)
+
+     ("B" "Org-contact" entry
+      (file ,(org-file "people.org"))
+      "* %^{NAME}
+:PROPERTIES:
+:PHONE:    %^{PHONE}
+:EMAIL:    %^{EMAIL}
+:END:"
+      :prepend t)
+
+     ("P" "PROJECT (here)" entry
+      (function org-extra-up-heading)
+      "* PROJECT %?
+:PROPERTIES:
+:CATEGORY: %^{CATEGORY}
+:END:"
+      :prepend t)
+
+     ("p" "Project templates")
+
+     ("pp" "PROJECT" entry
+      ,Inbox
+      "* PROJECT %?
+:PROPERTIES:
+:CATEGORY: %^{CATEGORY}
+:END:"
+      :prepend t)
+
+     ("pT" "Trip" entry
+      ,Inbox
+      (file "~/doc/template/org/trip.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pb" "Bahá’í templates")
+
+     ("pba" "Assembly meeting" entry
+      (file+headline ,(org-file "assembly.org")
+                     "Carmichael Local Spiritual Assembly (LSA)")
+      (file "~/doc/template/org/bahai/assembly-meeting.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pbf" "Bahá’í Feast" entry
+      (file+headline ,(org-file "assembly.org")
+                     "Carmichael Local Spiritual Assembly (LSA)")
+      (file "~/doc/template/org/bahai/feast.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pbe" "Bahá’í event" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/doc/template/org/bahai/bahai-event.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pbE" "Recurring Bahá’í event" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/doc/template/org/bahai/recurring-event.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pbg" "Flow of guidance" entry
+      (file+headline ,(org-file "assembly.org")
+                     "Increasing the flow of guidance to the grassroots")
+      (file "~/doc/template/org/bahai/flow-of-guidance.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pbp" "Program (such as community devotional)" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/doc/template/org/bahai/program.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pw" "Work templates")
+
+     ("pwo" "Offsite Meeting" entry
+      (file+headline ,(org-file "kadena.org") "Leadership")
+      (file "~/doc/template/org/kadena/offsite-meeting.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pwc" "Work Conference" entry
+      (file+headline ,(org-file "kadena.org") "Conferences")
+      (file "~/doc/template/org/kadena/conference.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pwO" "Out of Office" entry
+      (file+headline ,(org-file "kadena.org") "Operations (Ops)")
+      (file "~/doc/template/org/kadena/out-of-office.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pwn" "Network Incident" entry
+      (file+headline ,(org-file "kadena.org") "Improve Response Process")
+      (file "~/doc/template/org/kadena/network-incident.org")
+      :immediate-finish t
+      :jump-to-captured t)))
+
+ org-roam-capture-templates
+ `(("m" "Meeting notes" plain
     (file "~/doc/template/org/meeting.org")
     :target
     (file+head
@@ -190,35 +315,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("mg" "Copper to Gold" entry "* TODO %?\nSCHEDULED: %t"
-    :target ,(my-org-loc "C2G")
-    :prepend t
-    :clock-in t
-    :clock-keep t)
-
-   ("mA" "Ali Nakhjavani Development Fund" entry "* TODO %?\nSCHEDULED: %t"
-    :target ,(my-org-loc "ANDF")
-    :prepend t
-    :clock-in t
-    :clock-keep t)
-
-   ("mq" "Quantum Trades" entry "* TODO %?\nSCHEDULED: %t"
-    :target ,(my-org-loc "QT")
-    :prepend t
-    :clock-in t
-    :clock-keep t)
-
-   ("B" "Org-contact" entry "* %^{NAME}
-:PROPERTIES:
-:PHONE:    %^{PHONE}
-:EMAIL:    %^{EMAIL}
-:END:"
-    :target (file ,(org-file "people.org"))
-    :prepend t)
-
-   ("r" "Org-roam notes")
-
-   ("rn" "Note" plain "%?"
+   ("n" "Note" plain "%?"
     :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+title: ${title}\n")
     :immediate-finish t
@@ -226,13 +323,13 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("rq" "Quote" plain "%c\n\n─ %?"
+   ("q" "Quote" plain "%c\n\n─ %?"
     :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+filetags: :quote:\n#+title: ${title}\n")
     :jump-to-captured t
     :empty-lines-before 1)
 
-   ("rw" "Work" plain "%?"
+   ("w" "Work" plain "%?"
     :target (file+head "kadena/%<%Y%m%d%H%M>.org"
                        "#+filetags: :kadena:\n#+title: ${title}\n")
     :immediate-finish t
@@ -268,82 +365,7 @@
 #+title: ${title}\n")
     :immediate-finish t
     :empty-lines-before 1
-    :unnarrowed t)
-
-   ("p" "Project templates")
-
-   ("pp" "PROJECT" entry "* PROJECT %?
-:PROPERTIES:
-:CATEGORY: %^{CATEGORY}
-:END:"
-    :target ,(my-org-loc "Inbox")
-    :prepend t)
-
-   ("pT" "Trip" entry
-    (file "~/doc/template/org/trip.org")
-    :target ,(my-org-loc "Inbox")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pb" "Bahá’í templates")
-
-   ("pba" "Assembly meeting" entry
-    (file "~/doc/template/org/bahai/assembly-meeting.org")
-    :target ,(my-org-loc "Assembly")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pbf" "Bahá’í Feast" entry
-    (file "~/doc/template/org/bahai/feast.org")
-    :target ,(my-org-loc "Assembly")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pbe" "Bahá’í event" entry
-    (file "~/doc/template/org/bahai/bahai-event.org")
-    ;; I don't know in advance which section it belongs in.
-    :target ,(my-org-loc "Inbox")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pbE" "Recurring Bahá’í event" entry
-    (file "~/doc/template/org/bahai/recurring-event.org")
-    ;; I don't know in advance which section it belongs in.
-    :target ,(my-org-loc "Inbox")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pbg" "Flow of guidance" entry
-    (file "~/doc/template/org/bahai/flow-of-guidance.org")
-    :target ,(my-org-loc "Assembly:Flow")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pw" "Work templates")
-
-   ("pwc" "Work Conference" entry
-    (file "~/doc/template/org/kadena/conference.org")
-    :target ,(my-org-loc "Kadena:Conf")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pwo" "Offsite Meeting" entry
-    (file "~/doc/template/org/kadena/offsite-meeting.org")
-    :target ,(my-org-loc "Kadena:Leads")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pwO" "Out of Office" entry
-    (file "~/doc/template/org/kadena/out-of-office.org")
-    :target ,(my-org-loc "Kadena:Ops")
-    :immediate-finish t
-    :jump-to-captured t)
-
-   ("pwn" "Network Incident" entry
-    (file "~/doc/template/org/kadena/network-incident.org")
-    :target ,(my-org-loc "Kadena:Core")
-    :immediate-finish t
-    :jump-to-captured t))
+    :unnarrowed t))
 
  org-roam-dailies-capture-templates
  '(("d" "default" entry "* %U %?"

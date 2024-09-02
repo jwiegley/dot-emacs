@@ -377,6 +377,7 @@ unto itself.
             ("C-c b" . my-bookmarks-bibliography-map)
             ("C-c e" . my-emacs-lisp-map)
             ("C-c m" . my-ctrl-c-m-map)
+            ("C-c n" . my-ctrl-c-n-map)
             ("C-c t" . my-multi-term-map)
             ("C-c w" . my-web-map)
             ("C-c y" . my-yasnippet-map)
@@ -2320,9 +2321,7 @@ With point after the word semantic
 - =change-inner= ={= would kill the return-statement
 - =change-outer= ={= would kill the entire block
 
-I use =M-i= and =M-o= for this.
-
-Giving these commands a prefix argument C-u means copy instead of kill.
+Giving these commands a prefix argument means copy instead of kill.
 
 #+begin_src emacs-lisp
 (use-package change-inner
@@ -3725,6 +3724,7 @@ up before you execute another command."
      "*Org Agenda*"
      "todo.org"
      "kadena.org"
+     "quantum-trades.org"
      "habits.org"
      "OSS.org"))
   (clean-buffer-list-kill-never-regexps
@@ -3996,6 +3996,17 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   (nov-save-place-file (user-data "nov-places")))
 #+end_src
 
+** oauth2-auto
+
+#+begin_src emacs-lisp
+(use-package oauth2-auto
+  :demand t
+  :custom
+  (oauth2-auto-plstore (user-data "oauth2-auto.plist"))
+  :config
+  (defun oauth2-auto--insert-break-on-secret-entries (&rest args)))
+#+end_src
+
 ** olivetti
 
 #+begin_src emacs-lisp
@@ -4261,6 +4272,15 @@ append it to ENTRY."
   :commands pdfgrep
   :config
   (pdfgrep-mode))
+#+end_src
+
+** plstore
+
+#+begin_src emacs-lisp
+(use-package plstore
+  :custom
+  (plstore-cache-passphrase-for-symmetric-encryption t)
+  (plstore-encrypt-to "BA39EA53EFF3C20D"))
 #+end_src
 
 ** per-window-point
@@ -8824,7 +8844,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x m"   . org-insert-message-link)
          ("C-c C-x o"   . my-org-open-map-link)
          ("C-c C-x r"   . org-clock-report)
-         ("C-c C-x u"   . my-org-todoize)
+         ("C-c C-x u"   . org-extra-todoize)
+         ("C-c C-x C-u" . org-extra-todoize-region)
          ("C-c C-x C"   . org-update-checkbox-count)
          ("C-c C-x t"   . org-toggle-link-display)
          ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
@@ -8871,6 +8892,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-persist-file (user-data "org-clock-save.el"))
   (org-clock-resolve-expert t)
   (org-clone-delete-id nil)
+  (org-columns-default-format "%6Effort(Effort){:} %TODO %66ITEM(Task) %TAGS")
   (org-confirm-babel-evaluate nil)
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
@@ -8922,6 +8944,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-footnote-define-inline t)
   (org-footnote-section nil)
   (org-fold-catch-invisible-edits 'smart)
+  (org-global-properties
+   '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 3:00 4:00 6:00 8:00")))
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
   (org-icalendar-combined-agenda-file (org-file "org.ics"))
@@ -9118,16 +9142,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
       (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
       (goto-char (match-end 0))))
-
-  (defun my-org-todoize (&optional arg)
-    "Turn a headline into a TODO entry with any needed metadata."
-    (interactive "P")
-    (when arg
-      (org-todo "TODO"))
-    (org-id-get-create arg)
-    (unless (org-entry-get (point) "CREATED")
-      (org-entry-put (point) "CREATED"
-                     (format-time-string (org-time-stamp-format t t)))))
 
   (defun my-org-open-map-link ()
     (interactive)
@@ -9355,6 +9369,7 @@ With prefix argument, also display headlines without a TODO keyword."
    (list (org-file "todo.org")
          (org-file "habits.org")
          (org-file "kadena/kadena.org")
+         (org-file "quantum-trades/quantum-trades.org")
          (org-file "OSS.org")
          (org-file "people.org")
          "~/Mobile/inbox.org"))
@@ -9365,10 +9380,10 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-ndays 1)
   (org-agenda-persistent-filter t)
   (org-agenda-prefix-format
-   '((agenda . "  %-11c%?-12t% s")
-     (timeline . "  % s")
-     (todo . "  %-11c%5(org-todo-age) ")
-     (tags . "  %-11c")))
+   '((agenda   . "%-10c%-5e%?-12t% s")
+     (timeline . "% s")
+     (todo     . "%-10c%5(org-todo-age) ")
+     (tags     . "%-10c")))
   (org-agenda-scheduled-leaders '("" "S%d: "))
   (org-agenda-scheduled-relative-text "S%d: ")
   (org-agenda-scheduled-text "")
@@ -9392,7 +9407,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-todo-ignore-scheduled 'future)
   (org-agenda-todo-ignore-time-comparison-use-seconds t)
   (org-agenda-skip-deadline-prewarning-if-scheduled t)
-  (org-agenda-use-time-grid nil)
+  (org-agenda-use-time-grid t)
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
   :custom-face
   (org-agenda-clocking ((t (:background "red2"))))
@@ -9507,17 +9522,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 (use-package org-capture
   :after org
   :demand t
-  :custom
-  (org-capture-templates
-   '(("a" "Add Task" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      "* TODO %?" :prepend t)
-     ("n" "Note" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      "* NOTE %?" :prepend t)
-     ("l" "Link" entry (id "DB5226DB-93BD-4FDC-89C6-0DBE5D1A607E")
-      "* LINK %:description%?
-:PROPERTIES:
-:URL:      %:link
-:END:" :prepend t)))
   :preface
   (defun my/org-basic-properties ()
     (save-excursion
@@ -9901,10 +9905,6 @@ A group FOO is composed of contacts with the tag FOO."
   :commands org-gcal-fetch
   :custom
   (org-gcal-dir (user-data "org-gcal/"))
-  (org-gcal-client-id
-   (lookup-password "org-caldav-user.google.com" "jwiegley" 80))
-  (org-gcal-client-secret
-   (lookup-password "org-caldav.google.com" org-gcal-client-id 80))
   (org-gcal-fetch-file-alist
    (list
     (cons "jwiegley@gmail.com"
@@ -9913,10 +9913,19 @@ A group FOO is composed of contacts with the tag FOO."
           (org-file "calendar/bahai.org"))
     (cons "57jh2om1vl9sv16sor1mudl030@group.calendar.google.com"
           (org-file "calendar/family.org"))
+    (cons "pse8nk29dq9ll8g7jpq0mbllf8@group.calendar.google.com"
+          (org-file "calendar/c2g.org"))
+    (cons "54ioufdqn31buq7et3uo1u37tlceqldh@import.calendar.google.com"
+          (org-file "calendar/tripit.org"))
     (cons "789ust6872bajeo87oqd2jqfog@group.calendar.google.com"
           (org-file "calendar/nasim.org"))
     (cons "sacramento.lsa1914@gmail.com"
-          (org-file "calendar/sacramento.org")))))
+          (org-file "calendar/sacramento.org"))))
+  :config
+  (setq org-gcal-client-id
+        (lookup-password "org-caldav-user.google.com" "jwiegley@gmail.com" 80)
+        org-gcal-client-secret
+        (lookup-password "org-caldav.google.com" org-gcal-client-id 80)))
 #+end_src
 
 *** org-id
@@ -10333,19 +10342,20 @@ Use a prefix arg to get regular RET. "
   :demand t
   :after org
   :functions (org-roam-db-sync)
+  :bind* ("C-c M-m" . my/org-roam-create-new)
   :bind
   (:map
    org-mode-map
    ("C-M-i" . completion-at-point)
-   :prefix-map
-   my-org-roam-map
-   :prefix "C-c n"
+   :map
+   my-ctrl-c-n-map
    ("I" . my/org-roam-node-insert-immediate)
    ("J" . add-journal-entry)
    ("L" . org-roam-buffer-toggle)
    ("T" . my/org-roam-revise-title)
    ("f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("i" . org-roam-node-insert)
+   ("n" . my/org-roam-create-new)
    ("p" . my/org-roam-find-project)
    ("r" . org-roam-tag-remove)
    ("t" . org-roam-tag-add)
@@ -10364,7 +10374,7 @@ Use a prefix arg to get regular RET. "
      "\\`data/"
      ))
   :defines
-  (org-roam-v2-ack my-org-roam-map)
+  (org-roam-v2-ack)
   :functions
   (org-roam-db-query
    org-roam-node-read
@@ -10405,7 +10415,7 @@ Use a prefix arg to get regular RET. "
   :demand t
   :bind
   (:map
-   my-org-roam-map
+   my-ctrl-c-n-map
    ("j" . org-roam-dailies-capture-today)
    ("d" . org-roam-dailies-map)         ; this is a keymap
    :map
@@ -10430,7 +10440,7 @@ Use a prefix arg to get regular RET. "
   :diminish consult-org-roam-mode
   :bind
   (:map
-   my-org-roam-map
+   my-ctrl-c-n-map
    ("f" . consult-org-roam-file-find)
    ("b" . consult-org-roam-backlinks)
    ("l" . consult-org-roam-forward-links)
@@ -10509,11 +10519,7 @@ context.
 (use-package org-smart-capture
   :after (org org-roam)
   :demand t
-  :bind* ("M-m" . org-roam-smart-capture)
-  :preface
-  (defun org-roam-smart-capture ()
-    (interactive)
-    (org-smart-capture nil #'my/org-roam-create-new))
+  :bind* ("M-m" . org-smart-capture)
   :custom
   (org-smart-capture-use-lastname t))
 #+end_src
@@ -10524,7 +10530,7 @@ context.
 (use-package xeft
   :bind
   (:map
-   my-org-roam-map
+   my-ctrl-c-n-map
    ("x" . xeft))
   :custom
   (xeft-database (user-data "xeft.db"))
@@ -10538,7 +10544,7 @@ context.
      "habits.org"
      "OSS.org"
      "kadena/kadena.org"
-     "kadena/archive.org"
+     "kadena/quantum-trades.org"
      "bahai/assembly/assembly.org"))
   :custom-face
   (xeft-excerpt-body
@@ -10696,6 +10702,37 @@ text belongs to.
     (call-interactively #'org-extra-jump-to-agenda)))
 #+end_src
 
+*** COMMENT org-timeline
+
+[[https://github.com/Fuco1/org-timeline][org-timeline.el]] adds a graphical view of the agenda after the last agenda
+line. By default the display starts at 5 AM today and goes up to 4 AM next day
+(this covers 24 hours).
+
+Scheduled tasks or tasks with time ranges are rendered in the display with
+=org-timeline-block= face. Clocked entires are displayed in =org-timeline-clocked=
+face. The background of timeslots which are in the past is highlighted with
+=org-timeline-elapsed= face.
+
+You can use custom color for a task by adding the property =TIMELINE_FACE= with
+either a string which is a color name or a list which specifies the face
+properties or a symbol which is taken to be a face name.
+
+#+begin_src emacs-lisp
+(use-package org-timeline
+  :after org
+  :functions (org-timeline-insert-timeline)
+  :preface
+  (defun my-org-timeline-insert-blank (&rest _)
+    (save-excursion
+      (goto-char (point-max))
+      (insert ?\n)))
+  :init
+  (add-hook 'org-agenda-finalize-hook 'org-timeline-insert-timeline :append)
+  :config
+  (advice-add 'org-timeline-insert-timeline
+              :before #'my-org-timeline-insert-blank))
+#+end_src
+
 *** org-transclusion
 
 [[https://github.com/nobiot/org-transclusion][Org-transclusion]] lets you insert a copy of text content via a file link or ID
@@ -10713,7 +10750,7 @@ copies, leaving only the links to the original content.
          org-mode-map
          ("C-c C-x T" . org-transclusion-mode)
          :map
-         my-org-roam-map
+         my-ctrl-c-n-map
          ("A" . org-transclusion-add)
          ("M" . org-transclusion-make-from-link)))
 #+end_src
@@ -10826,7 +10863,7 @@ own lines, for instance.
   :demand t
   :after oc
   :bind (:map
-         my-org-roam-map
+         my-ctrl-c-n-map
          ("R" . citar-create-note))
   :hook
   (LaTeX-mode . citar-capf-setup)

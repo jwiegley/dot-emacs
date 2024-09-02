@@ -29,11 +29,19 @@
   "Extra functions for use with Org-mode"
   :group 'org)
 
-(defun org-extra-start-of-inbox ()
+(defun org-extra-up-heading ()
+  (call-interactively #'outline-up-heading))
+
+(defun org-extra-goto-inbox-heading ()
+  (set-buffer (get-buffer "todo.org"))
   (goto-char (point-min))
-  (re-search-forward "^\\* Inbox$")
-  (re-search-forward "^:END:")
-  (forward-line 1))
+  (while (looking-at "^[:#]")
+    (forward-line 1))
+  (unless (looking-at "^$")
+    (error "Missing blank line after file header in todo.org"))
+  (forward-line 1)
+  (unless (looking-at "^\\* Inbox$")
+    (error "Missing Inbox heading at start of todo.org")))
 
 (defun org-extra-goto-inbox (&optional func)
   (interactive)
@@ -44,9 +52,15 @@
                (expand-file-name "todo.org" org-directory))
     (if func
         (save-excursion
-          (org-extra-start-of-inbox)
+          (org-extra-goto-inbox-heading)
+          (forward-line 1)
+          (while (looking-at "^:")
+            (forward-line 1))
           (funcall func))
-      (org-extra-start-of-inbox))))
+      (org-extra-goto-inbox-heading)
+      (forward-line 1)
+      (while (looking-at "^:")
+        (forward-line 1)))))
 
 (defun org-extra-reformat-draft ()
   ;; If there is a URL, this is a LINK.
@@ -355,6 +369,26 @@ after :END:."
        (format-time-string
         (org-time-stamp-format 'long 'inactive)
         (org-encode-time (parse-time-string date-string)))))))
+
+(defun org-extra-todoize (&optional arg)
+  "Turn a headline into a TODO entry with any needed metadata."
+  (interactive "P")
+  (when arg
+    (org-todo "TODO"))
+  (org-id-get-create arg)
+  (unless (org-entry-get (point) "CREATED")
+    (org-entry-put (point) "CREATED"
+                   (format-time-string (org-time-stamp-format t t))))
+  (org-next-visible-heading 1))
+
+(defun org-extra-todoize-region (&optional beg end)
+  "Turn a headline into a TODO entry with any needed metadata."
+  (interactive "r")
+  (with-restriction beg end
+    (save-excursion
+      (goto-char beg)
+      (while (not (eobp))
+        (org-extra-todoize)))))
 
 (defvar org-extra-fixup-slack-history nil)
 
