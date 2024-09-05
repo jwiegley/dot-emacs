@@ -323,6 +323,17 @@
     :empty-lines-before 1
     :unnarrowed t)
 
+   ("o" "One-on-one notes" plain
+    (file "~/doc/template/org/kadena/one-on-one.org")
+    :target
+    (file+head
+     "journal/%<%Y%m%d%H%M>-1-on-1.org"
+     "#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: 1-on-1: %^{Person meeting with}\n")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("q" "Quote" plain "%c\n\n─ %?"
     :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+filetags: :quote:\n#+title: ${title}\n")

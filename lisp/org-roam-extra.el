@@ -350,6 +350,12 @@ tasks."
                 (list "~/Mobile/inbox.org")))
   (message "org-agenda-files has been updated"))
 
+(defun org-roam-extra-clean-transcript ()
+  (interactive)
+  (replace-regexp "^\\([0-9]+:[0-9]+\\)
+\\(.+\\)
+\\(.+\\)" "- \\1 *\\2* \\3"))
+
 (provide 'org-roam-extra)
 
 ;;; org-roam-extra.el ends here

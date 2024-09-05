@@ -183,6 +183,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package emacs
+  :demand t
   :bind* ("<C-return>" . other-window)
   :custom
   ;; C source code
@@ -1713,6 +1714,15 @@ non-empty directories is allowed."
   :defer t
   :custom
   (doc-view-resolution 300))
+#+end_src
+
+** eager-state
+
+#+begin_src emacs-lisp
+(use-package eager-state
+  :config
+  (eager-state-mode 1)
+  (eager-state-preempt-kill-emacs-hook-mode 1))
 #+end_src
 
 ** easy-kill
@@ -3881,35 +3891,36 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   ;; If you get out of multiple-cursors-mode and yank - it will yank only from
   ;; the kill-ring of main cursor. To yank from the kill-rings of every cursor
   ;; use yank-rectangle, normally found at C-x r y.
-  :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
-         ("<C-m> `"     . mc/edit-beginnings-of-lines)
-         ("<C-m> $"     . mc/edit-ends-of-lines)
-         ("<C-m> '"     . mc/edit-ends-of-lines)
-         ("<C-m> R"     . mc/reverse-regions)
-         ("<C-m> S"     . mc/sort-regions)
-         ("<C-m> W"     . mc/mark-all-words-like-this)
-         ("<C-m> Y"     . mc/mark-all-symbols-like-this)
-         ("<C-m> a"     . mc/mark-all-like-this-dwim)
-         ("<C-m> c"     . mc/mark-all-dwim)
-         ("<C-m> l"     . mc/insert-letters)
-         ("<C-m> n"     . mc/insert-numbers)
-         ("<C-m> r"     . mc/mark-all-in-region)
-         ("<C-m> s"     . set-rectangular-region-anchor)
-         ("<C-m> %"     . mc/mark-all-in-region-regexp)
-         ("<C-m> t"     . mc/mark-sgml-tag-pair)
-         ("<C-m> w"     . mc/mark-next-like-this-word)
-         ("<C-m> x"     . mc/mark-more-like-this-extended)
-         ("<C-m> y"     . mc/mark-next-like-this-symbol)
-         ("<C-m> C-y"   . yank-rectangle)
-         ("<C-m> C-x"   . reactivate-mark)
-         ("<C-m> C-SPC" . mc/mark-pop)
-         ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
-         ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
-         ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
-         ("<C-m> ["     . mc/vertical-align-with-space)
-         ("<C-m> {"     . mc/vertical-align)
-         ("S-<down-mouse-1>")
-         ("S-<mouse-1>" . mc/add-cursor-on-click))
+  :bind
+  ("<C-m> ^"     . mc/edit-beginnings-of-lines)
+  ("<C-m> `"     . mc/edit-beginnings-of-lines)
+  ("<C-m> $"     . mc/edit-ends-of-lines)
+  ("<C-m> '"     . mc/edit-ends-of-lines)
+  ("<C-m> R"     . mc/reverse-regions)
+  ("<C-m> S"     . mc/sort-regions)
+  ("<C-m> W"     . mc/mark-all-words-like-this)
+  ("<C-m> Y"     . mc/mark-all-symbols-like-this)
+  ("<C-m> a"     . mc/mark-all-like-this-dwim)
+  ("<C-m> c"     . mc/mark-all-dwim)
+  ("<C-m> l"     . mc/insert-letters)
+  ("<C-m> n"     . mc/insert-numbers)
+  ("<C-m> r"     . mc/mark-all-in-region)
+  ("<C-m> s"     . set-rectangular-region-anchor)
+  ("<C-m> %"     . mc/mark-all-in-region-regexp)
+  ("<C-m> t"     . mc/mark-sgml-tag-pair)
+  ("<C-m> w"     . mc/mark-next-like-this-word)
+  ("<C-m> x"     . mc/mark-more-like-this-extended)
+  ("<C-m> y"     . mc/mark-next-like-this-symbol)
+  ("<C-m> C-y"   . yank-rectangle)
+  ("<C-m> C-x"   . reactivate-mark)
+  ("<C-m> C-SPC" . mc/mark-pop)
+  ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
+  ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
+  ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
+  ("<C-m> ["     . mc/vertical-align-with-space)
+  ("<C-m> {"     . mc/vertical-align)
+  ("S-<down-mouse-1>")
+  ("S-<mouse-1>" . mc/add-cursor-on-click)
   :custom
   (mc/list-file (user-data "mc-lists.el"))
   :preface
@@ -4281,16 +4292,6 @@ append it to ENTRY."
   :custom
   (plstore-cache-passphrase-for-symmetric-encryption t)
   (plstore-encrypt-to "BA39EA53EFF3C20D"))
-#+end_src
-
-** per-window-point
-
-#+begin_src emacs-lisp
-(use-package per-window-point
-  :demand t
-  :commands pwp-mode
-  :config
-  (pwp-mode 1))
 #+end_src
 
 ** persistent-scratch
@@ -8846,9 +8847,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x u"   . org-extra-todoize)
          ("C-c C-x C-u" . org-extra-todoize-region)
-         ("C-c C-x C"   . org-update-checkbox-count)
+         ("C-c C-x C-x" . org-update-statistics-cookies)
          ("C-c C-x t"   . org-toggle-link-display)
          ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
+         ;; ("C-c C-x Y"   . yank-media)
          ("C-M-y"       . my-org-yank-link)
          ("M-n"         . org-next-link)
          ("M-p"         . org-previous-link)
@@ -9362,7 +9364,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
   (org-agenda-compact-blocks t)
-  (org-agenda-deadline-leaders '("!D!: " "D%02d: " "D-%02d:"))
+  (org-agenda-deadline-leaders '("!D!:" "D%02d:" "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
    (list (org-file "todo.org")
@@ -9391,6 +9393,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-scheduled-if-deadline-is-shown nil)
   (org-agenda-skip-scheduled-if-done t)
+  (org-agenda-skip-timestamp-if-done t)
   (org-agenda-skip-unavailable-files t)
   (org-agenda-sorting-strategy
    '((agenda habit-down time-up todo-state-up priority-down)
@@ -9897,6 +9900,61 @@ A group FOO is composed of contacts with the tag FOO."
                  :bold t :background "yellow" :foreground "black")))))
 #+end_src
 
+*** org-caldav
+
+#+begin_src emacs-lisp
+(use-package org-caldav
+  :commands org-caldav-sync
+  :custom
+  (org-caldav-save-directory user-data-directory)
+  (org-caldav-url "https://caldav.fastmail.com/dav/calendars/user/johnw@newartisans.com/")
+  (org-caldav-debug-level 0)
+  (org-caldav-calendars
+   `(
+     (:calendar-id
+      "86ff68d4-479a-4bdf-aef4-eac0bff178f7"
+      :inbox ,(org-file "calendar/jwiegley.org")
+      :files (,(org-file "archive/calendar/jwiegley.org")))
+     (:calendar-id
+      "c65fd79e-8321-4d6d-a642-0b647b832b75"
+      :inbox ,(org-file "calendar/c2g.org")
+      :files (,(org-file "archive/calendar/c2g.org")))
+     (:calendar-id
+      "91aa56f8-1d1c-437d-a4c0-c9fcc7ab71b6"
+      :inbox ,(org-file "calendar/family.org")
+      :files (,(org-file "archive/calendar/family.org")))
+     (:calendar-id
+      "f75ebabb-9c55-4c2e-b572-b6fd734c5fe2"
+      :inbox ,(org-file "calendar/bahai.org")
+      :files (,(org-file "archive/calendar/bahai.org")))
+
+     (:calendar-id
+      "8b1d0a83-6c8e-46d9-acc7-755819a56a54"
+      :inbox ,(org-file "calendar/tripit.org")
+      :files (,(org-file "archive/calendar/tripit.org")))
+
+     (:calendar-id
+      "eb88c053-4d61-4015-ac11-e6d8f437eb16"
+      :inbox ,(org-file "calendar/kadena.org")
+      :files (,(org-file "archive/calendar/kadena.org")))
+
+     (:calendar-id
+      "b6f9a6f5-7a62-45a3-8b29-b4c7cfe4555f"
+      :inbox ,(org-file "calendar/coppertogold.org")
+      :files (,(org-file "archive/calendar/coppertogold.org")))))
+  (org-caldav-files nil)
+  (org-caldav-sync-direction 'cal->org)
+  (org-caldav-oauth2-client-id "johnw@newartisans.com")
+  (org-icalendar-timezone "America/Los_Angeles")
+  :config
+  (advice-add
+   'org-caldav-insert-org-entry--wrapup :after
+   #'(lambda (&rest _)
+       (org-set-property "CREATED"
+                         (with-temp-buffer
+                           (org-insert-time-stamp (current-time) t t))))))
+#+end_src
+
 *** COMMENT org-gcal
 
 #+begin_src emacs-lisp
@@ -9936,7 +9994,9 @@ A group FOO is composed of contacts with the tag FOO."
               ("C-c C-x i" . org-id-get-create))
   :custom
   (org-id-link-to-org-use-id 'use-existing)
-  (org-id-locations-file (user-data "org-id-locations")))
+  (org-id-locations-file (user-data "org-id-locations"))
+  (org-id-extra-files nil)
+  (org-id-search-archives nil))
 #+end_src
 
 *** org-inlinetask
@@ -10659,6 +10719,8 @@ text belongs to.
     (let ((agenda-buf (get-buffer "*Org Agenda*")))
       (when agenda-buf
         (kill-buffer agenda-buf)))
+    (message "Synchronizing CalDAV...")
+    (org-caldav-sync)
     (message "Sorting Org-mode files...")
     (redisplay t)
     (dolist (file org-agenda-files)
@@ -10719,6 +10781,8 @@ properties or a symbol which is taken to be a face name.
 #+begin_src emacs-lisp
 (use-package org-timeline
   :after org
+  :custom
+  (org-timeline-start-hour 7)
   :functions (org-timeline-insert-timeline)
   :preface
   (defun my-org-timeline-insert-blank (&rest _)
