@@ -236,14 +236,14 @@
      ("pb" "Bahá’í templates")
 
      ("pba" "Assembly meeting" entry
-      (file+headline ,(org-file "assembly.org")
+      (file+headline ,(org-file "assembly/assembly.org")
                      "Carmichael Local Spiritual Assembly (LSA)")
       (file "~/doc/template/org/bahai/assembly-meeting.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pbf" "Bahá’í Feast" entry
-      (file+headline ,(org-file "assembly.org")
+      (file+headline ,(org-file "assembly/assembly.org")
                      "Carmichael Local Spiritual Assembly (LSA)")
       (file "~/doc/template/org/bahai/feast.org")
       :immediate-finish t
@@ -264,7 +264,7 @@
       :jump-to-captured t)
 
      ("pbg" "Flow of guidance" entry
-      (file+headline ,(org-file "assembly.org")
+      (file+headline ,(org-file "assembly/assembly.org")
                      "Increasing the flow of guidance to the grassroots")
       (file "~/doc/template/org/bahai/flow-of-guidance.org")
       :immediate-finish t
@@ -280,25 +280,25 @@
      ("pw" "Work templates")
 
      ("pwo" "Offsite Meeting" entry
-      (file+headline ,(org-file "kadena.org") "Leadership")
+      (file+headline ,(org-file "kadena/kadena.org") "Leadership")
       (file "~/doc/template/org/kadena/offsite-meeting.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwc" "Work Conference" entry
-      (file+headline ,(org-file "kadena.org") "Conferences")
+      (file+headline ,(org-file "kadena/kadena.org") "Conferences")
       (file "~/doc/template/org/kadena/conference.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwO" "Out of Office" entry
-      (file+headline ,(org-file "kadena.org") "Operations (Ops)")
+      (file+headline ,(org-file "kadena/kadena.org") "Operations (Ops)")
       (file "~/doc/template/org/kadena/out-of-office.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwn" "Network Incident" entry
-      (file+headline ,(org-file "kadena.org") "Improve Response Process")
+      (file+headline ,(org-file "kadena/kadena.org") "Improve Response Process")
       (file "~/doc/template/org/kadena/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))

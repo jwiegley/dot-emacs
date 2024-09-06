@@ -1476,7 +1476,9 @@ diff-hl package.
                       `(lambda ()
                          (setq ediff-after-quit-hook-internal nil)
                          (set-window-configuration ,wnd))))
-        (error "no more than 2 files should be marked")))))
+        (error "no more than 2 files should be marked"))))
+  :config
+  (add-hook 'my-emacs-startup-hook #'dired-two-pane t))
 #+end_src
 
 *** dired-follow
@@ -4323,6 +4325,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package personal
+  :demand t
   :bind (("<C-M-backspace>" . backward-kill-sexp)
          ("C-c )"   . close-all-parentheses)
          ("C-c 0"   . recursive-edit-preserving-window-config-pop)
@@ -9028,25 +9031,24 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
-               "WAIT(w@/!)" "DELEGATED(g@/!)" "DEFER(r!/!)"
+               "WAIT(w@/!)" "TASK(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
      (sequence "PROJECT(p@/!)" "|" "COMPLETE(d@/!)" "ABORTED(x@/!)")
      (sequence "|" "NOTE(n)" "LINK(l)")))
   (org-todo-keyword-faces
    '(
-     ("ABORTED"   :foreground "grey40"       :weight bold :strike-through t)
-     ("CANCELED"  :foreground "grey50"       :weight bold :strike-through t)
-     ("COMPLETE"  :foreground "dark cyan"    :weight bold)
-     ("DECISION"  :foreground "brown"        :weight bold)
-     ("DEFER"     :foreground "dark blue"    :weight bold)
-     ("DELEGATED" :foreground "dark violet"  :weight bold)
-     ("DOING"     :foreground "dark orange"  :weight bold)
-     ("DONE"      :foreground "forest green" :weight bold)
-     ("LINK"      :foreground "tomato"       :weight bold)
-     ("NOTE"      :foreground "brown"        :weight bold)
-     ("PROJECT"   :foreground "orange"       :weight bold)
-     ("TODO"      :foreground "medium blue"  :weight bold)
-     ("WAIT"      :foreground "red"          :weight bold)
+     ("TODO"     :foreground "medium blue"  :weight bold)
+     ("WAIT"     :foreground "red"          :weight bold)
+     ("DOING"    :foreground "dark orange"  :weight bold)
+     ("DONE"     :foreground "forest green" :weight bold)
+     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
+     ("DEFER"    :foreground "dark blue"    :weight bold)
+     ("TASK"     :foreground "dark violet"  :weight bold)
+     ("LINK"     :foreground "tomato"       :weight bold)
+     ("NOTE"     :foreground "brown"        :weight bold)
+     ("PROJECT"  :foreground "orange"       :weight bold)
+     ("COMPLETE" :foreground "dark cyan"    :weight bold)
+     ("ABORTED"  :foreground "grey40"       :weight bold :strike-through t)
      ))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
@@ -10692,7 +10694,7 @@ text belongs to.
      ;; (:name "Important" :priority "A")
      (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Due Soon" :deadline future)
-     (:name "Needs review" :todo "WAIT" :todo "DELEGATED" :todo "DOING")
+     (:name "Needs review" :todo "WAIT" :todo "TASK" :todo "DOING")
      ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
      ;; (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
      (:name "Tasks" :and (:not (:habit t)))
