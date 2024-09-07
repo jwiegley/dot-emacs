@@ -309,7 +309,7 @@
     :target
     (file+head
      "journal/%<%Y%m%d%H%M>-meeting.org"
-     "#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: Meeting: %^{Purpose of meeting}\n")
+     "#+category: Meeting\n#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: Meeting: %^{Purpose of meeting}\n")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -317,7 +317,7 @@
 
    ("n" "Note" plain "%?"
     :target (file+head "%<%Y%m%d%H%M>.org"
-                       "#+title: ${title}\n")
+                       "#+category: Note\n#+title: ${title}\n")
     :immediate-finish t
     :jump-to-captured t
     :empty-lines-before 1
@@ -328,7 +328,7 @@
     :target
     (file+head
      "journal/%<%Y%m%d%H%M>-1-on-1.org"
-     "#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: 1-on-1: %^{Person meeting with}\n")
+     "#+category: 1-on-1\n#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: 1-on-1: %^{Person meeting with}\n")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t

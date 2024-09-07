@@ -190,6 +190,7 @@ unto itself.
   (auto-hscroll-mode 'current-line)
   (auto-save-interval 64)
   (auto-save-timeout 2)
+  (create-lockfiles nil)
   (enable-recursive-minibuffers t)
   (fill-column 78)
   (history-delete-duplicates t)
@@ -9261,18 +9262,11 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
       (compose-mail-other-window author (concat "Re: " subject))))
 
-  (defun my/org-entry-get-immediate (property)
-    (save-excursion
-      (let ((local (org--property-local-values property nil)))
-        (and local (mapconcat #'identity
-                              (delq nil local)
-                              (org--property-get-separator property))))))
-
   (defun org-refile-heading-p ()
     (let ((todo-state (org-get-todo-state)))
       (if todo-state
           (string= todo-state "PROJECT")
-        (my/org-entry-get-immediate "CATEGORY"))))
+        (org-entry-get (point) "CATEGORY"))))
 
   (defun insert-code-block ()
     "Replace ``` with an Org code block."
@@ -9656,6 +9650,13 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
         org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
 
   (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
+#+end_src
+
+**** ob-async
+
+#+begin_src emacs-lisp
+(use-package ob-async
+  :after org)
 #+end_src
 
 **** ob-emamux
