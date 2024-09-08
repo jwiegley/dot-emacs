@@ -5156,6 +5156,27 @@ complement Emacs’ default =C-x 8= prefix map.
   (typo-global-mode 1))
 #+end_src
 
+** ultra-scroll-mac
+
+[[https://github.com/jdtsmith/ultra-scroll-mac][ultra-scroll-mac]] is a smooth-scrolling package for [[https://bitbucket.org/mituharu/emacs-mac][emacs-mac]]. It provides
+highly optimized, pixel-precise smooth scrolling which can readily keep up
+with the /very/ high event rates of modern trackpads and high-precision wheel
+mice. You move your fingers, the page responds, instantly.
+
+Importantly, it can cleanly /scroll right across/ tall images and other jumbo
+lines – a perennial problem with scrolling packages to date. As a bonus, it
+enables relatively smooth scrolling even with dumb third party mice.
+
+#+begin_src emacs-lisp
+(use-package ultra-scroll-mac
+  :demand t
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mac-mode 1))
+#+end_src
+
 ** undo-propose
 
 #+begin_src emacs-lisp
@@ -10708,6 +10729,47 @@ text belongs to.
   (org-super-agenda-mode))
 #+end_src
 
+*** COMMENT org-superstar
+
+Prettify headings and plain lists in Org mode. [[https://github.com/integral-dw/org-superstar-mode?tab=readme-ov-file][org-superstar]] is a direct
+descendant of ‘[[https://github.com/sabof/org-bullets][org-bullets]]’, with most of the code base completely rewritten.
+Currently, this package supports:
+
+- Prettifying Org heading lines by:
+  - replacing trailing bullets by UTF-8 bullets^{a)}
+  - hiding leading stars^{b)}, customizing their look^{(new!)} or removing them from
+    vision^{(new!)}
+  - applying a custom face to the header bullet^{d)}
+  - applying a custom face to the leading bullets^{(new!)}
+  - making inline tasks (see =org-inlinetask.el= ) more fancy by:
+    - using double-bullets for inline tasks
+    - applying a custom face to the marker star of inline tasks^{(new!)}
+    - using a special bullet for the marker star^{(new!)}
+    - introducing an independent face for marker stars^{(new!)}
+  - (optional) using special bullets for =TODO=  keywords^{(new!)}
+- Prettifying Org plain list bullets^{(new!)} by:
+  - replacing each bullet type ( =*=, =+= and =-= ) with UTF-8 bullets^{c)}
+  - applying a custom face to item bullets
+- Gracefully degrading features when viewed from terminal
+
+1. These features are mostly the same as in =org-bullets-mode=.
+
+2. Plain hiding is now left to Org mode and the associated variable
+   =org-hide-leading-stars= as well as =org-hide=, as suggested by [[https://github.com/Kaligule][Kaligule]].
+
+3. =org-superstar-mode= tries to prettify in a context-sensitive fashion: It
+   strives to only recognize item bullets which are really *meant* to be item
+   bullets. Your =SRC= blocks are safe!
+
+4. Instead of providing the symbol of an existing face in a variable to
+   replace Org’s usual title face(s) for the UTF-8 character, superstar merges
+   a custom face with the face that would have been used, allowing the user to
+   inherit the level-dependent default look.
+
+#+begin_src emacs-lisp
+(use-package org-superstar)
+#+end_src
+
 *** org-sync
 
 #+begin_src emacs-lisp
@@ -10807,6 +10869,11 @@ different buffers at the same time without copy-and-pasting it. Edit the
 source of the content, and you can refresh the transcluded copies to the
 up-to-date state. Org-transclusion keeps your files clear of the transcluded
 copies, leaving only the links to the original content.
+
+Usage scenario:
+
+1. Press =C-c C-x T= in an Org-mode buffer.
+2. Use =C-c n A= to add transclusions.
 
 #+begin_src emacs-lisp
 (use-package org-transclusion
@@ -11024,6 +11091,61 @@ own lines, for instance.
 (use-package org-config
   :after (org org-roam)
   :demand t)
+#+end_src
+
+*** calfw
+
+#+begin_src emacs-lisp
+(use-package calfw
+  :bind (("C-c A" . my-calendar)
+         :map cfw:calendar-mode-map
+         ("M-n" . cfw:navi-next-month-command)
+         ("M-p" . cfw:navi-previous-month-command)
+         ("j"   . cfw:navi-goto-date-command)
+         ("g"   . cfw:refresh-calendar-buffer))
+  :commands cfw:open-calendar-buffer
+  :functions (cfw:open-calendar-buffer
+              cfw:refresh-calendar-buffer
+              cfw:org-create-source
+              cfw:cal-create-source)
+  :custom
+  (cfw:read-date-command
+   (lambda nil
+     (interactive)
+     (let
+         ((xs
+           (decode-time
+            (org-time-string-to-time
+             (org-read-date)))))
+       (list
+        (nth 4 xs)
+        (nth 3 xs)
+        (nth 5 xs)))))
+  :preface
+  (defun my-calendar ()
+    (interactive)
+    (let ((buf (get-buffer "*cfw-calendar*")))
+      (if buf
+          (pop-to-buffer buf nil)
+        (cfw:open-calendar-buffer
+         :contents-sources
+         (list (cfw:org-create-source "Dark Blue")
+               (cfw:cal-create-source "Dark Orange"))
+         :view 'two-weeks))))
+
+  :config
+  (use-package calfw-org
+    :config
+    (setq cfw:org-agenda-schedule-args '(:deadline :timestamp :sexp)))
+
+  (setq cfw:fchar-junction         ?╋
+        cfw:fchar-vertical-line    ?┃
+        cfw:fchar-horizontal-line  ?━
+        cfw:fchar-left-junction    ?┣
+        cfw:fchar-right-junction   ?┫
+        cfw:fchar-top-junction     ?┯
+        cfw:fchar-top-left-corner  ?┏
+        cfw:fchar-top-right-corner ?┓))
 #+end_src
 
 ** Games
