@@ -2674,7 +2674,7 @@ up before you execute another command."
          :prefix-map
          gptel-cmd-map
          :prefix "C-x C"
-         ("C"        . gptel)
+         ("C"        . my-gptel)
          ("a"        . gptel-abort)
          ("s"        . gptel-send)
          ("r"        . gptel-rewrite-menu)
@@ -2695,6 +2695,10 @@ up before you execute another command."
      (travel-guide . "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location.")
      (seminar-organizer . "You are a seminar organizer, you plan and put together meetings where people can come together and share ideas, plan, and learn about how to facilitate larger groups. You present your information in a kindly yet efficient manner,and use precise language to make details very clear for those who read your letters.")
      (persian-translator . "You are a translator from English into the Persian language for the Bahá’í World Centre. You take great care to be accurate and meaningful in your translations, while using the commonly accepted terms found in letters from Shoghi Effendi and the Universal House of Justice. You prize clarity but also value beauty and elegant in what you write. However, the goal is to communicate meaning, and not to attempt to sound lofty or poetic. You are concise yet expressive, profound yet not heavy-handed.")))
+  :preface
+  (defun my-gptel ()
+    (interactive)
+    (pop-to-buffer (gptel "*ChatGPT*")))
   :config
   (use-package gptel-transient
     :config
@@ -3299,7 +3303,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package jinx
-  :hook (emacs-startup . global-jinx-mode)
   :bind
   ("M-$" . jinx-correct)
   ("C-M-$" . jinx-languages)
@@ -5526,15 +5529,15 @@ enables relatively smooth scrolling even with dumb third party mice.
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :commands writeroom-mode
-  :bind ("C-c \\" . writeroom-mode)
+  :bind ("C-c C-\\" . writeroom-mode)
   :hook
   (writeroom-mode-enable . set-buffer-writing-font)
   (writeroom-mode-disable . unset-buffer-writing-font)
   :custom
-  (writeroom-width 100)
+  (writeroom-width 80)
   :preface
   (defface my-writing-face
-    '((t (:height 1.2 :family "ia Writer Duo S")))
+    '((t (:height 1.5 :family "ia Writer Duo S")))
     "A face used for writing")
 
   (defun set-buffer-writing-font ()
@@ -8047,7 +8050,7 @@ without white space and comments.
 
   (defun activate-gnus ()
     (unless (get-buffer "*Group*")
-      (gnus-unplugged)))
+      (gnus)))
 
   (defun switch-to-gnus (&optional arg)
     (interactive "P")
@@ -8064,7 +8067,7 @@ without white space and comments.
             (switch-to-buffer candidate)
             (if (string-match "Group" (buffer-name candidate))
                 (gnus-group-get-new-news)))
-        (gnus-unplugged)
+        (gnus)
         (gnus-group-list-groups gnus-activate-level)
         (gnus-group-get-all-new-news))))
 
@@ -8431,11 +8434,11 @@ is:
   :hook
   (message-header-setup . my-message-header-setup-hook)
   (message-setup . message-check-recipients)
-  (message-mode-hook . (lambda () (set-fill-column 78)))
-  (message-mode-hook . abbrev-mode)
-  (message-mode-hook . footnote-mode)
-  (message-mode-hook . jinx-mode)
-  (message-mode-hook . turn-on-auto-fill)
+  (message-mode . (lambda () (set-fill-column 78)))
+  (message-mode . abbrev-mode)
+  (message-mode . footnote-mode)
+  (message-mode . jinx-mode)
+  (message-mode . turn-on-auto-fill)
   (message-send . queue-message-if-not-connected)
   (message-send . (lambda () (ignore-errors (call-interactively #'jinx-correct))))
   (message-sent . gnus-score-followup-thread)
