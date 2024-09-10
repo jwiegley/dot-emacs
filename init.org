@@ -44,9 +44,9 @@
 
 (require 'use-package)
 
-(setq use-package-verbose t ; init-file-debug
-      use-package-expand-minimally nil ; (not init-file-debug)
-      use-package-compute-statistics t
+(setq use-package-verbose init-file-debug
+      use-package-expand-minimally (not init-file-debug)
+      use-package-compute-statistics init-file-debug
       debug-on-error init-file-debug)
 #+end_src
 
@@ -5852,8 +5852,6 @@ locations. The =default-directory= variable is not changed in the process.
   :after (consult vertico-multiform)
   :commands consult-hoogle
   :config
-  (eval-when-compile
-    (defvar vertico-multiform-commands))
   (add-to-list 'vertico-multiform-commands
                '(consult-hoogle buffer)))
 #+end_src
@@ -11003,14 +11001,14 @@ middle-click to temporarily hide it.
          ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry)))
 #+end_src
 
-*** orgit
+*** COMMENT orgit
 
 #+begin_src emacs-lisp
 (use-package orgit
   :after org)
 #+end_src
 
-*** orgit-forge
+*** COMMENT orgit-forge
 
 #+begin_src emacs-lisp
 (use-package orgit-forge
