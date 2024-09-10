@@ -287,9 +287,9 @@ To use this function, add it to `org-agenda-finalize-hook':
         (org-agenda-filter '(64))
         (funcall #'prep-window (selected-window))))))
 
-(defun org-extra-agenda-redo ()
+(defun org-extra-agenda-redo (&optional all)
   (interactive)
-  (org-agenda-redo)
+  (org-agenda-redo all)
   (push-window-configuration)
   (let ((wind (selected-window)))
     (with-selected-window wind

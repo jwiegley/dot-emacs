@@ -51,7 +51,7 @@ speed: init.elc
 	time $(BATCH_LOAD) -Q -L . -l init		\
 	    --eval "(message \"Hello, world\!\")"
 
-slow: init.elc
+slow: init.el
 	time $(BATCH_LOAD) -Q -L . -l init --debug-init	\
 	    --eval "(message \"Hello, world\!\")"
 

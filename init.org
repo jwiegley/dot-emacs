@@ -44,8 +44,8 @@
 
 (require 'use-package)
 
-(setq use-package-verbose init-file-debug
-      use-package-expand-minimally (not init-file-debug)
+(setq use-package-verbose t ; init-file-debug
+      use-package-expand-minimally nil ; (not init-file-debug)
       use-package-compute-statistics t
       debug-on-error init-file-debug)
 #+end_src
@@ -621,6 +621,8 @@ decision tree.
   :config
   (avy-setup-default)
 
+  (define-key isearch-mode-map (kbd "C-.") 'avy-isearch)
+
   (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
         (alist-get ?K avy-dispatch-alist) 'avy-action-kill-whole-line)
 
@@ -640,17 +642,17 @@ decision tree.
 #+begin_src emacs-lisp
 (use-package avy-embark
   :no-require t
-  :after (avy embark)
+  :after (avy)
   :preface
   (defun avy-action-embark (pt)
-    (require 'embark
+    (require 'embark)
     (unwind-protect
         (save-excursion
           (goto-char pt)
           (embark-act))
       (select-window
        (cdr (ring-ref avy-ring 0))))
-    t))
+    t)
   :config
   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
 #+end_src
@@ -681,6 +683,23 @@ decision tree.
 (use-package avy-zap
   :bind (("M-z" . avy-zap-up-to-char-dwim)
          ("M-Z" . avy-zap-to-char-dwim)))
+#+end_src
+
+*** COMMENT lasgun
+
+[[https://github.com/aatmunbaxi/lasgun.el][lasgun.el]] (lays-gun) provides avy-backed, actionable placement of multiple
+inactive marks in the current buffer. Once these marks have been collected,
+you can act on the marks in bulk, without disturbing your point (with some
+obvious exceptions). If this sounds familiar to how avy works, it is! lasgun
+simply generalizes the =Filter -> Select -> Act= from avy to one that works on
+multiple selected candidates.
+
+#+begin_src emacs-lisp
+(use-package lasgun
+  :commands (lasgun-make-multiple-cursors)
+  :init
+  (setf (alist-get ?c avy-dispatch-alist)
+        'lasgun-make-multiple-cursors))
 #+end_src
 
 ** COMMENT backup-each-save
@@ -770,7 +789,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package bookmark
-  :demand t
+  ;; :demand t
   :bind
   ("<f4>" . (lambda () (interactive) (bookmark-set "SAVED")))
   ("<f1>" . (lambda () (interactive) (bookmark-jump "SAVED")))
@@ -863,7 +882,6 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 #+begin_src emacs-lisp
 (use-package calc-units
   :after calc
-  :demand t
   :custom
   (calc-ensure-consistent-units t)
   (math-additional-units
@@ -907,7 +925,6 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package literate-calc-mode
-  :demand t
   :after org
   :diminish literate-calc-minor-mode
   :bind (:map org-mode-map
@@ -1126,7 +1143,6 @@ vertical position can be altered:
 
 #+begin_src emacs-lisp
 (use-package citre-config
-  :demand t
   :bind (("C-x c j" . citre-jump)
          ("C-x c J" . citre-jump-back)
          ("C-x c p" . citre-ace-peek)
@@ -1400,7 +1416,7 @@ diff-hl package.
               ("M-s f"))
   :hook
   (dired-mode . dired-hide-details-mode)
-  (my-emacs-startup . dired-two-pane)
+  (emacs-startup . dired-two-pane)
   :custom
   (dired-clean-up-buffers-too nil)
   (dired-dwim-target t)
@@ -1477,9 +1493,7 @@ diff-hl package.
                       `(lambda ()
                          (setq ediff-after-quit-hook-internal nil)
                          (set-window-configuration ,wnd))))
-        (error "no more than 2 files should be marked"))))
-  :config
-  (add-hook 'my-emacs-startup-hook #'dired-two-pane t))
+        (error "no more than 2 files should be marked")))))
 #+end_src
 
 *** dired-follow
@@ -2568,7 +2582,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package ghub
-  :demand t
+  :defer t
   :config
   (require 'auth-source-pass)
   (defvar my-ghub-token-cache nil)
@@ -3281,6 +3295,19 @@ up before you execute another command."
   (ispell-extra-args '("--sug-mode=fast" "--keyboard=dvorak")))
 #+end_src
 
+** jinx
+
+#+begin_src emacs-lisp
+(use-package jinx
+  :hook (emacs-startup . global-jinx-mode)
+  :bind
+  ("M-$" . jinx-correct)
+  ("C-M-$" . jinx-languages)
+  :config
+  (add-to-list 'vertico-multiform-categories
+               '(jinx grid (vertico-grid-annotate . 20))))
+#+end_src
+
 ** jka-compr
 
 #+begin_src emacs-lisp
@@ -3390,7 +3417,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package link-hint
-  :demand t
   :bind ("C-c C-o" . link-hint-open-link)
   :preface
   (eval-when-compile
@@ -3429,7 +3455,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package magit
-  :demand t
   :bind (("C-x g" . magit-status)
          ("C-x G" . magit-status-with-prefix))
   :bind (:map magit-mode-map
@@ -3667,7 +3692,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package markdown-mode
-  :demand t
   :mode (("\\`README\\.md\\'" . gfm-mode)
          ("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
@@ -3690,7 +3714,6 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package markdown-preview-mode
   :after markdown-mode
-  :demand t
   :config
   (setq markdown-preview-stylesheets
         (list (concat "https://github.com/dmarcotte/github-markdown-preview/"
@@ -4014,7 +4037,6 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
 
 #+begin_src emacs-lisp
 (use-package oauth2-auto
-  :demand t
   :custom
   (oauth2-auto-plstore (user-data "oauth2-auto.plist"))
   :config
@@ -4265,7 +4287,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
-  :demand t
   :magic ("%PDF" . pdf-view-mode)
   :custom
   (pdf-tools-handle-upgrades nil)
@@ -4327,66 +4348,72 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package personal
   :demand t
-  :bind (("<C-M-backspace>" . backward-kill-sexp)
-         ("C-c )"   . close-all-parentheses)
-         ("C-c 0"   . recursive-edit-preserving-window-config-pop)
-         ("C-c 1"   . recursive-edit-preserving-window-config)
-         ("C-c C-0" . copy-current-buffer-name)
-         ("C-c C-z" . delete-to-end-of-buffer)
-         ("C-c M-;" . comment-and-copy)
-         ("C-c M-q" . unfill-paragraph)
-         ("C-c SPC" . just-one-space)
-         ("C-c e 0" . profiler-start)
-         ("C-c e 1" . profiler-stop)
-         ("C-c e 2" . profiler-report)
-         ("C-c e P" . check-papers)
-         ("C-c e b" . do-eval-buffer)
-         ("C-c e c" . cancel-debug-on-entry)
-         ("C-c e d" . debug-on-entry)
-         ("C-c e e" . toggle-debug-on-error)
-         ("C-c e f" . emacs-lisp-byte-compile-and-load)
-         ("C-c e j" . emacs-lisp-mode)
-         ("C-c e r" . do-eval-region)
-         ("C-c e s" . scratch)
-         ("C-c e z" . byte-recompile-directory)
-         ("C-c f"   . flush-lines)
-         ("C-c g"   . goto-line)
-         ("C-c k"   . keep-lines)
-         ("C-c m k" . kmacro-keymap)
-         ("C-c m m" . emacs-toggle-size)
-         ("C-c I"   . insert-user-timestamp)
-         ("C-c q"   . fill-region)
-         ("C-c s"   . replace-string)
-         ("C-c u"   . rename-uniquely)
-         ("C-h K"   . describe-keymap)
-         ("C-h e a" . apropos-value)
-         ("C-h e e" . view-echo-area-messages)
-         ("C-h e f" . find-function)
-         ("C-h e k" . find-function-on-key)
-         ("C-h e v" . find-variable)
-         ("C-h h")
-         ("C-h v"   . describe-variable)
-         ("C-x C-d" . duplicate-line)
-         ("C-x C-e" . pp-eval-last-sexp)
-         ("C-x C-n" . next-line)
-         ("C-x C-p" . previous-line)
-         ("C-x C-v" . find-alternate-file-with-sudo)
-         ("C-x K"   . delete-current-buffer-file)
-         ("C-x R"   . rename-current-buffer-file)
-         ("C-x M-q" . refill-paragraph)
-         ("C-x d"   . delete-whitespace-rectangle)
-         ("C-x t"   . toggle-truncate-lines)
-         ("C-z"     . delete-other-windows)
-         ("M-'"     . insert-pair)
-         ("M-J"     . delete-indentation)
-         ("M-L"     . mark-line)
-         ("M-S"     . mark-sentence)
-         ("M-U"     . unfill-region)
-         ("M-W"     . kill-ring-save-no-newlines)
-         ("M-\""    . insert-pair)
-         ("M-`"     . other-frame)
-         ("M-g c"   . goto-char)
-         ("M-j"     . delete-indentation-forward))
+  :bind
+  (("<C-M-backspace>" . backward-kill-sexp)
+   ("C-c )"   . close-all-parentheses)
+   ("C-c 0"   . recursive-edit-preserving-window-config-pop)
+   ("C-c 1"   . recursive-edit-preserving-window-config)
+   ("C-c C-0" . copy-current-buffer-name)
+   ("C-c C-z" . delete-to-end-of-buffer)
+   ("C-c M-;" . comment-and-copy)
+   ("C-c M-q" . unfill-paragraph)
+   ("C-c SPC" . just-one-space)
+   ("C-c e 0" . profiler-start)
+   ("C-c e 1" . profiler-stop)
+   ("C-c e 2" . profiler-report)
+   ("C-c e P" . check-papers)
+   ("C-c e b" . do-eval-buffer)
+   ("C-c e c" . cancel-debug-on-entry)
+   ("C-c e d" . debug-on-entry)
+   ("C-c e e" . toggle-debug-on-error)
+   ("C-c e f" . emacs-lisp-byte-compile-and-load)
+   ("C-c e j" . emacs-lisp-mode)
+   ("C-c e r" . do-eval-region)
+   ("C-c e s" . scratch)
+   ("C-c e z" . byte-recompile-directory)
+   ("C-c f"   . flush-lines)
+   ("C-c g"   . goto-line)
+   ("C-c k"   . keep-lines)
+   ("C-c m k" . kmacro-keymap)
+   ("C-c m m" . emacs-toggle-size)
+   ("C-c I"   . insert-user-timestamp)
+   ("C-c q"   . fill-region)
+   ("C-c s"   . replace-string)
+   ("C-c u"   . rename-uniquely)
+   ("C-h K"   . describe-keymap)
+   ("C-h e a" . apropos-value)
+   ("C-h e e" . view-echo-area-messages)
+   ("C-h e f" . find-function)
+   ("C-h e k" . find-function-on-key)
+   ("C-h e v" . find-variable)
+   ("C-h h")
+   ("C-h v"   . describe-variable)
+   ("C-x C-d" . duplicate-line)
+   ("C-x C-e" . pp-eval-last-sexp)
+   ("C-x C-n" . next-line)
+   ("C-x C-p" . previous-line)
+   ("C-x C-v" . find-alternate-file-with-sudo)
+   ("C-x K"   . delete-current-buffer-file)
+   ("C-x R"   . rename-current-buffer-file)
+   ("C-x M-q" . refill-paragraph)
+   ("C-x d"   . delete-whitespace-rectangle)
+   ("C-x t"   . toggle-truncate-lines)
+   ("C-z"     . delete-other-windows)
+   ("M-'"     . insert-pair)
+   ("M-J"     . delete-indentation)
+   ("M-L"     . mark-line)
+   ("M-S"     . mark-sentence)
+   ("M-U"     . unfill-region)
+   ("M-W"     . kill-ring-save-no-newlines)
+   ("M-\""    . insert-pair)
+   ("M-`"     . other-frame)
+   ("M-g c"   . goto-char)
+   ("M-j"     . delete-indentation-forward))
+  :hook
+  (emacs-startup . (lambda () (eshell-toggle nil)))
+  (emacs-startup . (lambda ()
+                     (unless (eq display-name 'imac)
+                       (display-battery-mode 1))))
   :custom
   (user-initials "jww")
   :preface
@@ -4494,26 +4521,10 @@ append it to ENTRY."
     (if (alist-get 'fullscreen (frame-parameters))
         (emacs-min)
       (emacs-max)))
-
-  (defcustom my-emacs-startup-hook
-    '((lambda () (eshell-toggle nil))
-      (lambda ()
-        (unless (eq display-name 'imac)
-          (display-battery-mode 1))))
-    "Functions to run on startup."
-    :group 'emacs
-    :type 'hook)
-
-  (defun startup ()
-    (interactive)
-    (run-hooks 'my-emacs-startup-hook))
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
-  (add-hook 'window-setup-hook #'emacs-min t)
-
-  (unless alternate-emacs
-    (run-with-idle-timer 30 nil 'startup)))
+  (add-hook 'window-setup-hook #'emacs-min t))
 #+end_src
 
 ** popup-ruler
@@ -4543,7 +4554,6 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package projectile
-  :demand t
   :diminish
   :bind* (("C-c TAB" . projectile-find-other-file)
           ("C-c P"   . (lambda () (interactive)
@@ -4801,7 +4811,8 @@ append it to ENTRY."
 *** selected-mc
 
 #+begin_src emacs-lisp
-(use-package selected
+(use-package selected-mc
+  :no-require t
   :demand t
   :after (multiple-cursors)
   :bind (:map
@@ -5156,7 +5167,7 @@ complement Emacs’ default =C-x 8= prefix map.
   (typo-global-mode 1))
 #+end_src
 
-** ultra-scroll-mac
+** COMMENT ultra-scroll-mac
 
 [[https://github.com/jdtsmith/ultra-scroll-mac][ultra-scroll-mac]] is a smooth-scrolling package for [[https://bitbucket.org/mituharu/emacs-mac][emacs-mac]]. It provides
 highly optimized, pixel-precise smooth scrolling which can readily keep up
@@ -7388,7 +7399,6 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package proof-site
-  :demand t
   :custom
   (proof-auto-action-when-deactivating-scripting 'retract)
   (proof-autosend-enable nil)
@@ -8090,8 +8100,6 @@ without white space and comments.
                  (nnimap-server-port "imaps")
                  (nnimap-stream ssl)))
 
-  (add-hook 'my-emacs-startup-hook #'switch-to-gnus t)
-
   :config
   (gnus-registry-initialize))
 #+end_src
@@ -8423,9 +8431,17 @@ is:
 (use-package message
   :bind ("C-x m" . compose-mail)        ; defined in `simple.el'
   :hook
-  (message-send . queue-message-if-not-connected)
-  (message-sent . gnus-score-followup-thread)
   (message-header-setup . my-message-header-setup-hook)
+  (message-setup . message-check-recipients)
+  (message-mode-hook . (lambda () (set-fill-column 78)))
+  (message-mode-hook . abbrev-mode)
+  (message-mode-hook . footnote-mode)
+  (message-mode-hook . jinx-mode)
+  (message-mode-hook . turn-on-auto-fill)
+  (message-send . queue-message-if-not-connected)
+  (message-send . (lambda () (ignore-errors (call-interactively #'jinx-correct))))
+  (message-sent . gnus-score-followup-thread)
+  (message-sent . my-gnus-score-followup)
   :custom
   (message-alternative-emails my-mail-address-regexp)
   (message-directory (expand-file-name "Mail/" gnus-home-directory))
@@ -8433,20 +8449,12 @@ is:
   (message-fill-column 78)
   (message-interactive t)
   (message-mail-alias-type nil)
-  (message-mode-hook
-   '(abbrev-mode
-     footnote-mode
-     turn-on-auto-fill
-     turn-on-flyspell
-     (lambda nil (set-fill-column 78))))
   ;; (message-send-mail-function 'message-send-mail-with-sendmail)
   (message-send-mail-function 'message-smtpmail-send-it)
   (message-send-mail-partially-limit nil)
   (message-sendmail-envelope-from 'header)
   (message-sendmail-extra-arguments '("--read-envelope-from"))
   (message-sendmail-f-is-evil t)
-  (message-sent-hook '(my-gnus-score-followup))
-  (message-setup-hook '(message-check-recipients))
   (message-signature-separator "^-- *$")
   (message-subscribed-address-functions '(gnus-find-subscribed-addresses))
   :custom-face
@@ -8822,7 +8830,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           (gnus-save-newsrc-file))))
   :config
   (gnus-demon-add-handler 'save-gnus-newsrc nil 1)
-  (gnus-demon-add-handler 'gnus-demon-close-connections nil 3))
+  ;; (gnus-demon-add-handler 'gnus-demon-close-connections nil 3)
+  )
 #+end_src
 
 *** gnus-dired
@@ -8885,7 +8894,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :hook
   (org-mode . abbrev-mode)
   (org-mode . turn-on-auto-fill)
-  (org-mode . turn-on-flyspell)
+  ;; (org-mode . turn-on-flyspell)
   (org-mode . (lambda () (modify-syntax-entry ?’ "w")))
   (org-mode . (lambda () (set-input-method "Agda")))
   (org-mode . setup-insert-code-block)
@@ -8894,10 +8903,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   ;;               (setq whitespace-line-column 256
   ;;                     whitespace-style
   ;;                     '(face trailing space-before-tab empty))))
-  :hook
   (org-log-buffer-setup . abbrev-mode)
   (org-log-buffer-setup . turn-on-auto-fill)
-  (org-log-buffer-setup . turn-on-flyspell)
+  ;; (org-log-buffer-setup . turn-on-flyspell)
   (org-log-buffer-setup . (lambda () (setq-local fill-column (- 78 2))))
   (org-log-buffer-setup . setup-insert-code-block)
   :custom
@@ -8930,6 +8938,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
   (org-edit-src-content-indentation 0)
+  (org-ellipsis "…")
   (org-enforce-todo-dependencies t)
   (org-export-backends '(ascii html icalendar latex md))
   (org-export-latex-classes
@@ -9075,7 +9084,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
-  (org-use-speed-commands t)
+  (org-use-speed-commands
+   #'(lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance '("Noon" "Night" "Home" "Errand"))
   (org-use-property-inheritance '("OVERLAY"))
@@ -9283,11 +9293,18 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
       (compose-mail-other-window author (concat "Re: " subject))))
 
+  (defun my/org-entry-get-immediate (property)
+    (save-excursion
+      (let ((local (org--property-local-values property nil)))
+        (and local (mapconcat #'identity
+                              (delq nil local)
+                              (org--property-get-separator property))))))
+
   (defun org-refile-heading-p ()
     (let ((todo-state (org-get-todo-state)))
       (if todo-state
           (string= todo-state "PROJECT")
-        (org-entry-get (point) "CATEGORY"))))
+        (my/org-entry-get-immediate "CATEGORY"))))
 
   (defun insert-code-block ()
     "Replace ``` with an Org code block."
@@ -9377,6 +9394,7 @@ With prefix argument, also display headlines without a TODO keyword."
          ("z"   . pop-window-configuration))
   :hook
   (org-agenda-mode . org-fit-agenda-window)
+  (org-agenda-finalize . org-extra-agenda-add-overlays)
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
@@ -9491,12 +9509,9 @@ unfold drawers."
   (use-package org-extra)
 
   (unless alternate-emacs
-    (add-hook 'my-emacs-startup-hook #'org-extra-jump-to-agenda t)
-    (add-hook 'my-emacs-startup-hook #'org-resolve-clocks t)
-    (run-with-idle-timer 300 t 'org-extra-jump-to-agenda))
-
-  :config
-  (add-hook 'org-agenda-finalize-hook 'org-extra-agenda-add-overlays))
+    (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
+    (add-hook 'emacs-startup-hook #'org-resolve-clocks t)
+    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
 #+end_src
 
 *** org-appear
@@ -9529,7 +9544,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package org-annotate
   :after org
-  :demand t
   :bind (:map org-mode-map
               ("C-c C-x n a"  . org-annotate-add-note)
               ("C-c C-x n l"  . org-annotate-display-notes)))
@@ -9625,6 +9639,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package ob
   :after (org ob-emamux)
+  :defer t
   :config
   ;; load more languages for org-babel
   (org-babel-do-load-languages
@@ -9677,14 +9692,16 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 
 #+begin_src emacs-lisp
 (use-package ob-async
-  :after org)
+  :after org
+  :commands (org-babel-execute-src-block:async))
 #+end_src
 
 **** ob-emamux
 
 #+begin_src emacs-lisp
 (use-package ob-emamux
-  :after org)
+  :after org
+  :commands (org-babel-execute:emamux))
 #+end_src
 
 **** ob-restclient
@@ -9713,7 +9730,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package org-contacts
   :after org
-  :demand t
+  :commands (org-contacts)
   :bind (("M-B" . org-contacts)
          :map org-mode-map
          ("C-x M" . org-contacts-view-send-email))
@@ -10101,7 +10118,6 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-noter
   :after (org pdf-view)
-  :demand t
   :commands org-noter
   :custom
   (org-noter-notes-search-path (list org-directory))
@@ -10160,7 +10176,6 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-noter-pdftools
   :after org-noter
-  :demand t
   :preface
   ;; Add a function to ensure precise note is inserted
   (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
@@ -10310,13 +10325,17 @@ A group FOO is composed of contacts with the tag FOO."
   :hook ((org-mode . org-pretty-table-mode)))
 #+end_src
 
-*** org-recent-headings
+*** COMMENT org-recent-headings
 
 #+begin_src emacs-lisp
 (use-package org-recent-headings
   :bind ("M-g O" . org-recent-headings)
   :commands (org-recent-headings-mode)
-  :config (org-recent-headings-mode))
+  :config
+  (org-recent-headings-mode)
+
+  (add-to-list 'vertico-multiform-commands
+               '(org-recent-headings)))
 #+end_src
 
 *** org-remark
@@ -10409,11 +10428,69 @@ Use a prefix arg to get regular RET. "
         (org-return))))))
 #+end_src
 
+*** org-review
+
+Track when you have done a review in org mode.
+
+Tasks typically have Scheduled and Deadline time stamps, which define when the
+task has to be done. [[https://github.com/brabalan/org-review][Org-review]] lets you attach an additional review time
+stamp to a task, which can be used to schedule a review of the task.
+
+#+begin_src emacs-lisp
+(use-package org-review
+  :after org
+  :bind
+  (:map
+   org-agenda-mode-map
+   :prefix-map
+   my-org-review-map
+   :prefix "r"
+   ("d" . my-org-review-next-day)
+   ("w" . my-org-review-next-week)
+   ("1" . my-org-review-next-week)
+   ("2" . my-org-review-next-two-weeks)
+   ("3" . my-org-review-next-three-weeks)
+   ("4" . my-org-review-next-fuor-weeks)
+   ("m" . my-org-review-next-month)
+   ("t" . my-org-review-next-two-months)
+   ("q" . my-org-review-next-quarter)
+   ("h" . my-org-review-next-half-year)
+   ("y" . my-org-review-next-year)
+   ("Y" . my-org-review-next-two-years)
+   )
+  :preface
+  (defun my-org-review-next (delay)
+    (let ((org-review-delay delay))
+      (org-review-insert-last-review nil)))
+
+  (defun my-org-review-next-day ()
+    (interactive) (my-org-review-next "+1d"))
+  (defun my-org-review-next-week ()
+    (interactive) (my-org-review-next "+1w"))
+  (defun my-org-review-next-two-weeks ()
+    (interactive) (my-org-review-next "+2w"))
+  (defun my-org-review-next-three-weeks ()
+    (interactive) (my-org-review-next "+3w"))
+  (defun my-org-review-next-four-weeks ()
+    (interactive) (my-org-review-next "+4w"))
+  (defun my-org-review-next-month ()
+    (interactive) (my-org-review-next "+1m"))
+  (defun my-org-review-next-two-months ()
+    (interactive) (my-org-review-next "+2m"))
+  (defun my-org-review-next-quarter ()
+    (interactive) (my-org-review-next "+3m"))
+  (defun my-org-review-next-half-year ()
+    (interactive) (my-org-review-next "+6m"))
+  (defun my-org-review-next-year ()
+    (interactive) (my-org-review-next "+1y"))
+  (defun my-org-review-next-two-years ()
+    (interactive) (my-org-review-next "+2y")))
+#+end_src
+
 *** org-rich-yank
 
 #+begin_src emacs-lisp
 (use-package org-rich-yank
-  :demand t
   :bind (:map org-mode-map
               ("C-M-y" . org-rich-yank)))
 #+end_src
@@ -10601,7 +10678,6 @@ context.
 #+begin_src emacs-lisp
 (use-package org-smart-capture
   :after (org org-roam)
-  :demand t
   :bind* ("M-m" . org-smart-capture)
   :custom
   (org-smart-capture-use-lastname t))
@@ -10690,6 +10766,22 @@ directories, dot files, and files matched by
         (xeft-mode)))))
 #+end_src
 
+*** org-sidebar
+
+[[https://github.com/alphapapa/org-sidebar][org-sidebar]] presents helpful sidebars for Org buffers. Sidebars are
+customizable using [[https://github.com/alphapapa/org-ql][org-ql]] queries and [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] grouping.
+
+The default sidebar includes a chronological list of scheduled and deadlined
+items in the current buffer (similar to the Org agenda, but without all its
+features) at the top, and a list of all other non-done to-do items below. If
+the buffer is narrowed, the sidebar only shows items in the narrowed portion;
+this allows seeing an overview of tasks in a subtree.
+
+#+begin_src emacs-lisp
+(use-package org-sticky-header
+  :commands org-sticky-header-mode)
+#+end_src
+
 *** org-sticky-header
 
 This package displays in the header-line the Org heading for the node that's
@@ -10729,7 +10821,7 @@ text belongs to.
   (org-super-agenda-mode))
 #+end_src
 
-*** COMMENT org-superstar
+*** org-superstar
 
 Prettify headings and plain lists in Org mode. [[https://github.com/integral-dw/org-superstar-mode?tab=readme-ov-file][org-superstar]] is a direct
 descendant of ‘[[https://github.com/sabof/org-bullets][org-bullets]]’, with most of the code base completely rewritten.
@@ -10767,7 +10859,8 @@ Currently, this package supports:
    inherit the level-dependent default look.
 
 #+begin_src emacs-lisp
-(use-package org-superstar)
+(use-package org-superstar
+  :commands (org-superstar-mode))
 #+end_src
 
 *** org-sync
@@ -10878,7 +10971,6 @@ Usage scenario:
 #+begin_src emacs-lisp
 (use-package org-transclusion
   :after org
-  :demand t
   :bind (:map
          org-mode-map
          ("C-c C-x T" . org-transclusion-mode)
@@ -10888,26 +10980,27 @@ Usage scenario:
          ("M" . org-transclusion-make-from-link)))
 #+end_src
 
+*** COMMENT org-upcoming-modeline
+
+[[https://github.com/unhammer/org-upcoming-modeline][org-upcoming-modeline]] shows you the next upcoming org appointment in your
+modeline.
+
+You can left-click on it to go to it, right-click for a menu of actions,
+middle-click to temporarily hide it.
+
+#+begin_src emacs-lisp
+(use-package org-upcoming-modeline
+  :after org
+  :config
+  (org-upcoming-modeline-mode))
+#+end_src
+
 *** org-web-tools
 
 #+begin_src emacs-lisp
 (use-package org-web-tools
-  :bind (("C-c w C-y"   . my-org-insert-url)
-         ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry))
-  :functions (org-web-tools--org-link-for-url
-              org-web-tools--get-first-url)
-  :preface
-  (defun my-org-insert-url (&optional arg)
-    (interactive "P")
-    (require' org-web-tools)
-    (let ((link (org-web-tools--org-link-for-url
-                 (org-web-tools--get-first-url))))
-      (if arg
-          (progn
-            (org-set-property "URL" link)
-            (org-set-tags '("LINK"))
-            (message "Added pasteboard link to URL property"))
-        (insert link)))))
+  :bind (("C-c w C-y"   . org-web-tools-insert-link-for-url)
+         ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry)))
 #+end_src
 
 *** orgit
@@ -10993,7 +11086,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package citar
-  :demand t
   :after oc
   :bind (:map
          my-ctrl-c-n-map
@@ -11003,8 +11095,8 @@ own lines, for instance.
   (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
-   (list (org-file "bibliography.bib")
-         (org-file "kadena.bib")))
+   (list (org-file "resource/bibliography.bib")
+         (org-file "resource/kadena.bib")))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
@@ -11014,7 +11106,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package citar-embark
-  :demand t
   :after (citar embark)
   :diminish citar-embark-mode
   :custom
@@ -11027,7 +11118,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package citar-org
-  :demand t
   :after (oc citar)
   :bind
   (:map org-mode-map
@@ -11050,7 +11140,6 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package citar-org-roam
-  :demand t
   :after (citar-org org-roam)
   :diminish citar-org-roam-mode
   :custom
@@ -11089,8 +11178,7 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package org-config
-  :after (org org-roam)
-  :demand t)
+  :after (org org-roam))
 #+end_src
 
 *** calfw

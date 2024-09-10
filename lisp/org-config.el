@@ -111,6 +111,11 @@
     (or (outline-next-heading)
         (goto-char (point-max)))))
 
+(defun org-extra-skip-if-review-not-needed ()
+  (and (and (org-review-last-review-prop nil))
+       (not (org-review-toreview-p))
+       (org-with-wide-buffer (or (outline-next-heading) (point-max)))))
+
 (defun my-org-skip-inactive-todos ()
   (unless (member (org-get-todo-state)
                   '("TODO" "DOING" "WAIT" "DELEGATED"))
@@ -393,6 +398,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
    ("r" . "Review tasks")
+
+   ("rr" "Review items" tags-todo "-CANCELED/"
+    ((org-agenda-overriding-header "Tasks needing review")
+     (org-agenda-skip-function 'org-extra-skip-if-review-not-needed)
+     (org-agenda-cmp-user-defined 'org-review-compare)
+     (org-agenda-sorting-strategy '(user-defined-down))))
 
    ("ru" "Unscheduled (last 90 days)" alltodo ""
     ((org-agenda-skip-function
