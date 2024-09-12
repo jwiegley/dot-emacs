@@ -399,7 +399,7 @@
 
    ("r" . "Review tasks")
 
-   ("rr" "Review items" tags-todo "-CANCELED/"
+   ("rr" "Review items" alltodo ""
     ((org-agenda-overriding-header "Tasks needing review")
      (org-agenda-skip-function 'org-extra-skip-if-review-not-needed)
      (org-agenda-cmp-user-defined 'org-review-compare)

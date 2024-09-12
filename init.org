@@ -5170,7 +5170,7 @@ complement Emacs’ default =C-x 8= prefix map.
   (typo-global-mode 1))
 #+end_src
 
-** COMMENT ultra-scroll-mac
+** ultra-scroll-mac
 
 [[https://github.com/jdtsmith/ultra-scroll-mac][ultra-scroll-mac]] is a smooth-scrolling package for [[https://bitbucket.org/mituharu/emacs-mac][emacs-mac]]. It provides
 highly optimized, pixel-precise smooth scrolling which can readily keep up
@@ -5529,7 +5529,7 @@ enables relatively smooth scrolling even with dumb third party mice.
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :commands writeroom-mode
-  :bind ("C-c C-\\" . writeroom-mode)
+  :bind* ("C-c C-\\" . writeroom-mode)
   :hook
   (writeroom-mode-enable . set-buffer-writing-font)
   (writeroom-mode-disable . unset-buffer-writing-font)
@@ -8875,16 +8875,12 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x L"   . org-set-dtp-link)
          ("C-c C-x M"   . org-set-message-link)
          ("C-c C-x U"   . org-set-url-from-clipboard)
-         ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x l"   . org-insert-dtp-link)
          ("C-c C-x m"   . org-insert-message-link)
          ("C-c C-x o"   . my-org-open-map-link)
          ("C-c C-x r"   . org-clock-report)
-         ("C-c C-x u"   . org-extra-todoize)
-         ("C-c C-x C-u" . org-extra-todoize-region)
          ("C-c C-x C-x" . org-update-statistics-cookies)
          ("C-c C-x t"   . org-toggle-link-display)
-         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
          ;; ("C-c C-x Y"   . yank-media)
          ("C-M-y"       . my-org-yank-link)
          ("M-n"         . org-next-link)
@@ -9372,8 +9368,7 @@ With prefix argument, also display headlines without a TODO keyword."
 #+begin_src emacs-lisp
 (use-package org-agenda
   :commands org-agenda-list
-  :bind* (("M-C"   . org-extra-jump-to-agenda)
-          ("C-c a" . org-agenda))
+  :bind* ("C-c a" . org-agenda)
   :bind (:map
          org-agenda-mode-map
          ;; ("RET" . svbck/agenda-goto)
@@ -9388,14 +9383,12 @@ With prefix argument, also display headlines without a TODO keyword."
          ("M-p" . org-agenda-earlier)
          ("b"   . org-agenda-date-earlier)
          ("f"   . org-agenda-date-later)
-         ("g"   . org-extra-agenda-redo)
          ("q"   . bury-buffer)
          ("x"   . org-agenda-todo)
          ("w"   . org-agenda-refile)
          ("z"   . pop-window-configuration))
   :hook
   (org-agenda-mode . org-fit-agenda-window)
-  (org-agenda-finalize . org-extra-agenda-add-overlays)
   :custom
   (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
   (org-agenda-cmp-user-defined 'org-compare-todo-age)
@@ -9491,9 +9484,10 @@ With prefix argument, also display headlines without a TODO keyword."
       (uuidgen nil)
       (upcase (buffer-string))))
 
-  (defun created-stamp ()
+  (defun created-stamp (&optional for-scheduled)
     (with-temp-buffer
-      (org-insert-time-stamp (current-time) t t)
+      (org-insert-time-stamp (current-time)
+                             (not for-scheduled) (not for-scheduled))
       (buffer-string)))
 
   ;; I like the behavior of `arg' to be reversed in this function.
@@ -9507,12 +9501,8 @@ unfold drawers."
     (interactive "P")
     (org-agenda-show-and-scroll-up (null arg)))
   :init
-  (use-package org-extra)
-
   (unless alternate-emacs
-    (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
-    (add-hook 'emacs-startup-hook #'org-resolve-clocks t)
-    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
+    (add-hook 'emacs-startup-hook #'org-resolve-clocks t)))
 #+end_src
 
 *** org-appear
@@ -10447,14 +10437,18 @@ stamp to a task, which can be used to schedule a review of the task.
    my-org-review-map
    :prefix "r"
    ("d" . my-org-review-next-day)
+   ("D" . my-org-review-next-three-days)
    ("w" . my-org-review-next-week)
    ("1" . my-org-review-next-week)
    ("2" . my-org-review-next-two-weeks)
    ("3" . my-org-review-next-three-weeks)
-   ("4" . my-org-review-next-fuor-weeks)
+   ("4" . my-org-review-next-four-weeks)
+   ("6" . my-org-review-next-six-weeks)
    ("m" . my-org-review-next-month)
+   ("M" . my-org-review-next-two-months)
    ("t" . my-org-review-next-two-months)
    ("q" . my-org-review-next-quarter)
+   ("q" . my-org-review-next-half-year)
    ("h" . my-org-review-next-half-year)
    ("y" . my-org-review-next-year)
    ("Y" . my-org-review-next-two-years)
@@ -10466,6 +10460,8 @@ stamp to a task, which can be used to schedule a review of the task.
 
   (defun my-org-review-next-day ()
     (interactive) (my-org-review-next "+1d"))
+  (defun my-org-review-next-three-days ()
+    (interactive) (my-org-review-next "+3d"))
   (defun my-org-review-next-week ()
     (interactive) (my-org-review-next "+1w"))
   (defun my-org-review-next-two-weeks ()
@@ -10474,6 +10470,8 @@ stamp to a task, which can be used to schedule a review of the task.
     (interactive) (my-org-review-next "+3w"))
   (defun my-org-review-next-four-weeks ()
     (interactive) (my-org-review-next "+4w"))
+  (defun my-org-review-next-six-weeks ()
+    (interactive) (my-org-review-next "+6w"))
   (defun my-org-review-next-month ()
     (interactive) (my-org-review-next "+1m"))
   (defun my-org-review-next-two-months ()
@@ -10864,62 +10862,30 @@ Currently, this package supports:
   :commands (org-superstar-mode))
 #+end_src
 
-*** org-sync
+*** org-extra
 
 #+begin_src emacs-lisp
-(use-package org-sync
-  :no-require t
+(use-package org-extra
+  :after (org)
   :demand t
-  :after org
-  :bind (:map org-mode-map ("C-c C-x S" . org-sync))
-  :preface
-  (defun org-sync ()
-    (interactive)
-    (let ((agenda-buf (get-buffer "*Org Agenda*")))
-      (when agenda-buf
-        (kill-buffer agenda-buf)))
-    (message "Synchronizing CalDAV...")
-    (org-caldav-sync)
-    (message "Sorting Org-mode files...")
-    (redisplay t)
-    (dolist (file org-agenda-files)
-      (with-current-buffer (find-file-noselect file)
-        (goto-char (point-min))
-        (org-sort-all)
-        (org-cycle-content 5)))
-    (save-org-mode-files)
-    (message "Updating Org-roam todo cookies...")
-    (redisplay t)
-    (my/org-roam-update-todo-files)
-    (save-org-mode-files)
-    (message "Updating Org-mode ID locations...")
-    (redisplay t)
-    (org-id-update-id-locations)
-    (save-org-mode-files)
-    (message "Clearing Org-mode refile cache...")
-    (redisplay t)
-    (org-refile-cache-clear)
-    (message "Clear Org-contacts and diary cache...")
-    (setq org-contacts-last-update nil
-          org--diary-sexp-entry-cache (make-hash-table :test #'equal))
-    (message "Syncing Org-roam database...")
-    (redisplay t)
-    (org-roam-db-sync)
-    (org-roam-update-org-id-locations)
-    (require 'xeft)
-    (require 'xapian-lite)
-    (message "Rebuilding Xeft database...")
-    (redisplay t)
-    (xeft-full-reindex)
-    (xeft--front-page-cache-refresh)
-    (message "Running syncup...")
-    (redisplay t)
-    (let ((default-directory "~"))
-      (async-shell-command "syncup ; echo FINISHED")
-      (display-buffer "*Async Shell Command*"))
-    (message "Jumping to agenda! Sync complete.")
-    (redisplay t)
-    (call-interactively #'org-extra-jump-to-agenda)))
+  :bind* ("M-C" . org-extra-jump-to-agenda)
+  :commands (org-extra-jump-to-agenda)
+  :bind (:map
+         org-mode-map
+         ("C-c C-x S"   . org-extra-sync)
+         ("C-c C-x D"   . org-extra-update-date-field)
+         ("C-c C-x u"   . org-extra-todoize)
+         ("C-c C-x C-u" . org-extra-todoize-region)
+         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
+         :map
+         org-agenda-mode-map
+         ("g" . org-extra-agenda-redo))
+  :hook
+  (org-agenda-finalize . org-extra-agenda-add-overlays)
+  :init
+  (unless alternate-emacs
+    (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
+    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
 #+end_src
 
 *** COMMENT org-timeline
@@ -11096,8 +11062,8 @@ own lines, for instance.
   (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
-   (list (org-file "resource/bibliography.bib")
-         (org-file "resource/kadena.bib")))
+   (list "~/org/resource/bibliography.bib"
+         "~/org/resource/kadena.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET")))
@@ -11223,6 +11189,8 @@ own lines, for instance.
          :view 'two-weeks))))
 
   :config
+  (use-package calfw-cal)
+
   (use-package calfw-org
     :config
     (setq cfw:org-agenda-schedule-args '(:deadline :timestamp :sexp)))
