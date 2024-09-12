@@ -501,7 +501,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
     (save-org-mode-files)
     (message "Clearing Org-mode refile cache...")
     (redisplay t)
-    (org-refile-cache-clear)
+    (ignore-errors (org-refile-cache-clear))
     (message "Clear Org-contacts and diary cache...")
     (setq org-contacts-last-update nil
           org--diary-sexp-entry-cache (make-hash-table :test #'equal))
