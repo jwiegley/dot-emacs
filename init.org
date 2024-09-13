@@ -1141,6 +1141,22 @@ vertical position can be altered:
 
 ** COMMENT citre
 
+[[https://github.com/universal-ctags/citre][Citre]] started out as a tool utilizing tags files (in the ctags format). Now it
+is a superior code reading and auto-completion tool with pluggable backend
+design. The built-in backends include:
+
+- A tags file (in ctags format) backend.
+- A GNU global backend.
+- An xref adapter that transforms any xref backend into Citre backend.
+- Eglot backend, based on the xref adapter.
+
+The tools offered by Citre are:
+
+- =completion-at-point= , xref and imenu integration.
+- =citre-jump=: A =completing-read= UI for jumping to definition/references.
+- =citre-peek= : A powerful code reading tool that lets you go down the rabbit
+  hole without leaving current buffer.
+
 #+begin_src emacs-lisp
 (use-package citre-config
   :bind (("C-x c j" . citre-jump)
