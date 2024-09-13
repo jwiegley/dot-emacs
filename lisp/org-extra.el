@@ -498,7 +498,6 @@ Note: this uses Org's internal variable `org-link--search-failed'."
     (message "Updating Org-mode ID locations...")
     (redisplay t)
     (org-id-update-id-locations)
-    (save-org-mode-files)
     (message "Clearing Org-mode refile cache...")
     (redisplay t)
     (ignore-errors (org-refile-cache-clear))
@@ -521,8 +520,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
       (async-shell-command "syncup ; echo FINISHED")
       (display-buffer "*Async Shell Command*"))
     (message "Jumping to agenda! Sync complete.")
-    (redisplay t)
-    (call-interactively #'org-extra-jump-to-agenda)))
+    (redisplay t)))
 
 (provide 'org-extra)
 
