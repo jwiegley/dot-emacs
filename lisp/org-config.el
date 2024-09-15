@@ -39,7 +39,7 @@
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sTags: ")
   (org-tags-view
-   t (format "%s&TODO={TODO\\|WAITING\\|DELEGATED}" tags)))
+   t (format "%s&TODO={TODO\\|WAITING\\|TASK}" tags)))
 
 (defun org-extra-with-tags-search-done (tags)
   "Search by WITH propery, which is made inheritable for this function."
@@ -52,13 +52,13 @@
   (interactive
    (list (completing-read "Category: " (org-property-values "CATEGORY"))))
   (org-tags-view
-   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
+   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|TASK}" who)))
 
 (defun org-extra-with-item-search (who)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sItem: ")
   (org-tags-view
-   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" who)))
+   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|TASK}" who)))
 
 (defun my-org-parent-keyword ()
   (save-excursion
@@ -115,12 +115,6 @@
   (and (and (org-review-last-review-prop nil))
        (not (org-review-toreview-p))
        (org-with-wide-buffer (or (outline-next-heading) (point-max)))))
-
-(defun my-org-skip-inactive-todos ()
-  (unless (member (org-get-todo-state)
-                  '("TODO" "DOING" "WAIT" "DELEGATED"))
-    (or (outline-next-heading)
-        (goto-char (point-max)))))
 
 (setq
  org-capture-templates
@@ -401,16 +395,22 @@
 
    ("rr" "Review items" alltodo ""
     ((org-agenda-overriding-header "Tasks needing review")
-     (org-agenda-skip-function 'org-extra-skip-if-review-not-needed)
+     (org-agenda-skip-function
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER"))
+           (org-extra-skip-if-review-not-needed)))
      (org-agenda-cmp-user-defined 'org-review-compare)
      (org-agenda-sorting-strategy '(user-defined-down))))
 
    ("ru" "Unscheduled (last 90 days)" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-           (org-extra-agenda-skip-if-not-within 90)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
+           (org-extra-agenda-skip-if-not-within 90)))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenad-files
@@ -420,9 +420,10 @@
 
    ("rU" "All unscheduled" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenda-files
@@ -432,10 +433,10 @@
 
    ("ro" "Unscheduled open source" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp 'regexp
-                                     "\\* \\(DEFER\\)")
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(category-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenda-files
@@ -444,10 +445,11 @@
    ("rw" "Unscheduled work (last 90 days)" alltodo ""
     ((org-agenda-sorting-strategy '(category-up user-defined-up))
      (org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-           (org-extra-agenda-skip-if-not-within 90)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
+           (org-extra-agenda-skip-if-not-within 90)))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenda-files
       (list (org-file "kadena/kadena.org")))))
@@ -455,42 +457,39 @@
    ("rW" "All unscheduled work" alltodo ""
     ((org-agenda-sorting-strategy '(category-up user-defined-up))
      (org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'scheduled 'deadline 'timestamp)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT"))))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
      (org-agenda-files
       (list (org-file "kadena/kadena.org")))))
 
-   ("rD" "Waiting/delegated" todo "WAIT|DELEGATED"
-    ((org-agenda-skip-function
-      '(or ;; (org-agenda-skip-entry-if 'scheduled)
-        (my-org-agenda-skip-habit)))
-     (org-agenda-sorting-strategy
+   ("rD" "Waiting/delegated" todo "WAIT|TASK"
+    ((org-agenda-sorting-strategy
       '(todo-state-up priority-down category-up))))
 
    ("rd" "Deadlined" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'notdeadline)
-           (my-org-agenda-skip-habit)))
+      '(org-agenda-skip-entry-if 'notdeadline))
      (org-agenda-sorting-strategy '(category-up))))
 
    ("rs" "Scheduled" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'notscheduled)
-           (my-org-agenda-skip-habit)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if 'notscheduled)))
      (org-agenda-sorting-strategy '(category-up))))
 
-   ("rD" "Deferred" todo "DEFER"
-    ((org-agenda-skip-function #'my-org-agenda-skip-habit)
-     (org-agenda-sorting-strategy '(user-defined-up))
+   ("rR" "Deferred" todo "DEFER"
+    ((org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
    ("rn" "Next Actions" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-all-siblings-but-first t)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))))
+      '(or (my-org-agenda-skip-habit)
+           (my-org-agenda-skip-all-siblings-but-first t)
+           (org-agenda-skip-entry-if
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))))
 
    ("rm" "With tags match"
     (lambda (arg)
@@ -518,15 +517,17 @@
 
    ("pn" "Project Next Actions" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-all-siblings-but-first)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
+           (my-org-agenda-skip-all-siblings-but-first)))))
 
    ("pN" "Project Next Actions (including low priority)" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-all-siblings-but-first nil t)
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
+           (my-org-agenda-skip-all-siblings-but-first nil t)))))
 
    ("pa" "High Priority Projects" todo "PROJECT"
     ((org-agenda-skip-function
@@ -557,25 +558,28 @@
 
    ("PA" "All priority #A tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'notregexp "\\[#A\\]")
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'notregexp "\\[#A\\]"
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
    ("PB" "All priority #B tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'regexp "\\[#[AC]\\]")
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'regexp "\\[#[AC]\\]"
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
 
    ("PC" "All priority #C tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if 'notregexp "\\[#C\\]")
-           (my-org-agenda-skip-habit)
-           (my-org-skip-inactive-todos)))
+      '(or (my-org-agenda-skip-habit)
+           (org-agenda-skip-entry-if
+            'notregexp "\\[#C\\]"
+            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-11c%5(org-todo-age) "))))
  )

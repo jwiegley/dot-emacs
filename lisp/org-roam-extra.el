@@ -40,17 +40,18 @@
     (org-time-stamp nil inactive)
     (buffer-string)))
 
-(defun my/org-date (timestamp &optional offset time inactive)
+(defun my/org-date (timestamp &optional offset time inactive no-brackets)
   (with-temp-buffer
-    (org-insert-time-stamp
-     (org-encode-time (org-parse-time-string timestamp))
-     nil inactive)
-    (when offset
-      (org-timestamp-change offset 'day))
-    (when time
-      (goto-char (point-max))
-      (forward-char -1)
-      (insert " " time))
+    (let ((tm (org-encode-time (org-parse-time-string timestamp))))
+      (if no-brackets
+          (insert (format-time-string "%Y-%m-%d %a" tm))
+        (org-insert-time-stamp tm nil inactive)
+        (when offset
+          (org-timestamp-change offset 'day))
+        (when time
+          (goto-char (point-max))
+          (forward-char -1)
+          (insert " " time))))
     (buffer-string)))
 
 (defun my/org-covid-days-to-repeat ()
