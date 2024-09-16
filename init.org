@@ -10061,6 +10061,7 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-mime
   :after org
+  :demand t
   :bind
   (:map
    org-mode-map
