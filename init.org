@@ -685,7 +685,7 @@ decision tree.
          ("M-Z" . avy-zap-to-char-dwim)))
 #+end_src
 
-*** COMMENT lasgun
+*** lasgun
 
 [[https://github.com/aatmunbaxi/lasgun.el][lasgun.el]] (lays-gun) provides avy-backed, actionable placement of multiple
 inactive marks in the current buffer. Once these marks have been collected,
@@ -696,10 +696,16 @@ multiple selected candidates.
 
 #+begin_src emacs-lisp
 (use-package lasgun
+  :after (avy)
   :commands (lasgun-make-multiple-cursors)
+  :preface
+  (defun ab/lasgun-goto-primary-make-cursors (pt)
+    (goto-char pt)
+    (lasgun-make-multiple-cursors
+     (xor lasgun-pop-before-make-multiple-cursors nil)))
   :init
   (setf (alist-get ?c avy-dispatch-alist)
-        'lasgun-make-multiple-cursors))
+	'ab/lasgun-goto-primary-make-cursors))
 #+end_src
 
 ** COMMENT backup-each-save
@@ -7890,7 +7896,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package gnus-start
-  :commands (gnus gnus-unplugged)
+  :commands (gnus)
   :bind ("M-G" . switch-to-gnus)
   :custom
   (gnus-activate-level 2)
@@ -8132,7 +8138,7 @@ without white space and comments.
   :custom
   (gnus-group-default-list-level 2)
   (gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)\n")
-  (gnus-group-mode-hook '(gnus-topic-mode gnus-agent-mode hl-line-mode))
+  (gnus-group-mode-hook '(gnus-topic-mode hl-line-mode))
   (gnus-group-use-permanent-levels t))
 #+end_src
 
@@ -9436,7 +9442,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-show-all-dates t)
   (org-agenda-show-outline-path t)
   (org-agenda-skip-deadline-if-done t)
-  (org-agenda-skip-scheduled-if-deadline-is-shown nil)
+  (org-agenda-skip-scheduled-if-deadline-is-shown t)
   (org-agenda-skip-scheduled-if-done t)
   (org-agenda-skip-timestamp-if-done t)
   (org-agenda-skip-unavailable-files t)
