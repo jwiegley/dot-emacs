@@ -10000,6 +10000,9 @@ A group FOO is composed of contacts with the tag FOO."
   (org-caldav-sync-direction 'cal->org)
   (org-caldav-oauth2-client-id "johnw@newartisans.com")
   (org-icalendar-timezone "America/Los_Angeles")
+  (org-caldav-description-blank-line-after nil)
+  (org-caldav-description-blank-line-before nil)
+  (org-caldav-sync-changes-to-org 'title-only)
   :config
   (advice-add
    'org-caldav-insert-org-entry--wrapup :after
