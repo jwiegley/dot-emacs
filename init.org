@@ -5551,7 +5551,7 @@ enables relatively smooth scrolling even with dumb third party mice.
 #+begin_src emacs-lisp
 (use-package writeroom-mode
   :commands writeroom-mode
-  :bind* ("C-c C-\\" . writeroom-mode)
+  :bind* ("C-c C-M-\\" . writeroom-mode)
   :hook
   (writeroom-mode-enable . set-buffer-writing-font)
   (writeroom-mode-disable . unset-buffer-writing-font)
@@ -6639,6 +6639,10 @@ without white space and comments.
 #+begin_src emacs-lisp
 (use-package eglot
   :commands eglot
+  :bind
+  (:map eglot-mode-map
+        ("M-^"     . eglot-find-implementation)
+        ("C-c C-." . eglot-code-actions))
   :custom
   (eglot-autoshutdown t)
   :config
@@ -7082,9 +7086,8 @@ without white space and comments.
   :demand t
   :after (haskell-mode eglot)
   :bind (:map haskell-mode-map
-              ("C-c C-." . eglot-code-actions)
-              ("M-n"     . flymake-goto-next-error)
-              ("M-p"     . flymake-goto-prev-error))
+              ("M-n" . flymake-goto-next-error)
+              ("M-p" . flymake-goto-prev-error))
   :config
   (add-to-list 'eglot-server-programs
                '(haskell-mode . ("haskell-language-server" "--lsp")))
@@ -8164,6 +8167,8 @@ without white space and comments.
   :custom
   (my-gnus-thread-sort-functions
    '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score))
+  (my-gnus-score-groups-regex
+   "\\`\\(list\\.\\|\\(Is\\)?Spam\\)")
   :preface
   (defun gnus-group-get-all-new-news (&optional arg)
     (interactive "P")
@@ -9088,12 +9093,12 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-todo-keyword-faces
    '(
      ("TODO"     :foreground "medium blue"  :weight bold)
-     ("WAIT"     :foreground "red"          :weight bold)
      ("DOING"    :foreground "dark orange"  :weight bold)
-     ("DONE"     :foreground "forest green" :weight bold)
-     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
-     ("DEFER"    :foreground "dark blue"    :weight bold)
+     ("WAIT"     :foreground "red"          :weight bold)
      ("TASK"     :foreground "dark violet"  :weight bold)
+     ("DEFER"    :foreground "dark blue"    :weight bold)
+     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
+     ("DONE"     :foreground "forest green" :weight bold)
      ("LINK"     :foreground "tomato"       :weight bold)
      ("NOTE"     :foreground "brown"        :weight bold)
      ("PROJECT"  :foreground "orange"       :weight bold)
@@ -10852,19 +10857,16 @@ text belongs to.
   :after org
   :custom
   (org-super-agenda-groups
-   '(
-     (:name "Errands" :tag "Errand")
-     (:name "Calls" :tag "Call")
+   '((:name "Important" :and (:priority "A" :not (:habit t)))
      (:name "Overdue" :deadline past)
-     ;; (:name "Important" :priority "A")
-     (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Due Soon" :deadline future)
+     (:name "Reschedule" :and (:scheduled past :not (:habit t)))
      (:name "Needs review" :todo "WAIT" :todo "TASK" :todo "DOING")
+     (:name "Calls" :tag "Call")
+     (:name "Errands" :tag "Errand")
      ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
-     ;; (:name "Tasks" :and (:not (:habit t) :not (:priority "A" :priority "C")))
      (:name "Tasks" :and (:not (:habit t)))
      (:name "Habits" :habit t)
-     ;; (:name "Optional" :priority "C" :order 9)
      ))
   (org-super-agenda-header-separator "")
   (org-super-agenda-hide-empty-groups t)
@@ -10924,6 +10926,8 @@ Currently, this package supports:
   :commands (org-extra-jump-to-agenda)
   :bind (:map
          org-mode-map
+         ("C-c M-w"     . org-extra-id-copy)
+         ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
          ("C-c C-x S"   . org-extra-sync)
          ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x u"   . org-extra-todoize)

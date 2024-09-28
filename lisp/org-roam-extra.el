@@ -54,6 +54,27 @@
           (insert " " time))))
     (buffer-string)))
 
+(defun my/format-date (timestring)
+  (format-time-string "%Y-%m-%d %a"
+                      (org-encode-time
+                       (org-parse-time-string timestring))))
+
+(defun my/format-within-year (timestring)
+  (format-time-string "%Y-%m-%d %a"
+                      (org-encode-time
+                       (org-parse-time-string
+                        (format "%s-%s"
+                                (nth 5 (decode-time (current-time)))
+                                timestring)))))
+
+(defun my/format-in-next-year (timestring)
+  (format-time-string "%Y-%m-%d %a"
+                      (org-encode-time
+                       (org-parse-time-string
+                        (format "%s-%s"
+                                (1+ (nth 5 (decode-time (current-time))))
+                                timestring)))))
+
 (defun my/org-covid-days-to-repeat ()
   (let ((start
          (time-to-days
@@ -343,11 +364,13 @@ tasks."
   "Update the value of `org-agenda-files'."
   (interactive)
   (setq org-agenda-files
-        (append (cl-delete-if
-                 #'(lambda (file)
-                     (my/org-roam-excluded-file
-                      (file-relative-name file org-roam-directory)))
-                 (my/org-roam-todo-files))
+        (append (cl-delete-duplicates
+                 (cl-delete-if
+                  #'(lambda (file)
+                      (my/org-roam-excluded-file
+                       (file-relative-name file org-roam-directory)))
+                  (my/org-roam-todo-files))
+                 :test #'string=)
                 (list "~/Mobile/inbox.org")))
   (message "org-agenda-files has been updated"))
 

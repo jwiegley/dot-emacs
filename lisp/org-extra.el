@@ -64,19 +64,18 @@
 
 (defun org-extra-reformat-draft ()
   ;; If there is a URL, this is a LINK.
-  (setq url nil)
   (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0)))
-  (when (re-search-forward ":URL:\\s-*\\(.+?\\)\n" nil t)
-    (setq url (match-string 1))
-    (delete-region (match-beginning 0) (match-end 0))
-    (org-set-property "URL" url)
-    (goto-char (point-min))
-    (when (re-search-forward "SCHEDULED: .+\n")
-      (delete-region (match-beginning 0) (match-end 0)))
-    (goto-char (point-min))
-    (when (re-search-forward " TODO ")
-      (replace-match " LINK " nil nil nil 0)))
+  (when (re-search-forward "^\\(:URL:\\s-*\\)?\\(http.+?\\)\n?" nil t)
+    (let ((url (match-string 2)))
+      (delete-region (match-beginning 0) (match-end 0))
+      (org-set-property "URL" url)
+      (goto-char (point-min))
+      (when (re-search-forward "SCHEDULED: .+\n")
+        (delete-region (match-beginning 0) (match-end 0)))
+      (goto-char (point-min))
+      (when (re-search-forward " TODO ")
+        (replace-match " LINK " nil nil nil 0))))
   ;; If there is a note tag, this is a NOTE.
   (goto-char (point-min))
   (when (re-search-forward
@@ -230,32 +229,6 @@ To use this function, add it to `org-agenda-finalize-hook':
                     (overlay-put ol (car proplist) (cadr proplist))
                     (setq proplist (cddr proplist))))))))
         (forward-line)))))
-
-(defun org-extra-agenda-skip-if-not-within (days)
-  "Skip entry if it wasn't created within the given number of DAYS."
-  (ignore-errors
-    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-          (day
-           (time-to-days
-            (org-time-string-to-time
-             (org-entry-get nil "CREATED"))))
-          (now (time-to-days (current-time))))
-      (and day
-           (> (- now day) days)
-           subtree-end))))
-
-(defun org-extra-agenda-skip-if-within (days)
-  "Skip entry if it wasn't created within the given number of DAYS."
-  (ignore-errors
-    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
-          (day
-           (time-to-days
-            (org-time-string-to-time
-             (org-entry-get nil "CREATED"))))
-          (now (time-to-days (current-time))))
-      (and day
-           (<= (- now day) days)
-           subtree-end))))
 
 (defun org-extra-jump-to-agenda ()
   (interactive)
@@ -441,6 +414,43 @@ after :END:."
   (org-insert-structure-template type)
   (yank))
 
+(defun org-extra-id-copy ()
+  (interactive)
+  (org-id-copy)
+  (message "Copied id:%s to the kill ring" (car kill-ring)))
+
+(defun org-extra-parent-keyword ()
+  (save-excursion
+    (org-up-heading-safe)
+    (org-get-todo-state)))
+
+(defun org-extra-parent-priority ()
+  (save-excursion
+    (org-up-heading-safe)
+    (save-match-data
+      (beginning-of-line)
+      (and (looking-at org-heading-regexp)
+	   (org-get-priority (match-string 0))))))
+
+(defun org-extra-agenda-files-except (&rest args)
+  (let ((result org-agenda-files))
+    (dolist (arg args)
+      (setq result (delete arg result)))
+    result))
+
+(defun org-extra-task-p (&optional keyword)
+  (member (or keyword (org-get-todo-state))
+          '("TODO" "DOING" "WAIT" "TASK" "DEFER" "CANCELED" "DONE")))
+
+(defun org-extra-subtask-p ()
+  (and (org-extra-task-p)
+       (let ((keyword (org-extra-parent-keyword)))
+         (and keyword (org-extra-task-p keyword)))))
+
+(defun org-extra-project-task-p ()
+  (and (org-extra-task-p)
+       (member (org-extra-parent-keyword) '("PROJECT"))))
+
 ;;; From https://gist.github.com/MenacingMecha/11bd07daaaac790620b5fe0437e96a4c
 (defun org-extra-set-blocker-from-clipboard-id ()
   "Adds the id in the clipboard (obtained using `org-id-copy') to
@@ -458,6 +468,8 @@ the current headlines BLOCKER property."
 					    (insert "id:" (car kill-ring))
 					    (buffer-string))))
       (org-set-property blocker-prop blocker-value))))
+
+
 
 ;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
 (defun org-extra-open-all-links-in-subtree ()

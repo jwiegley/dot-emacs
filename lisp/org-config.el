@@ -29,92 +29,101 @@
   "Configurations for Org-mode and related packages"
   :group 'org)
 
-(defun org-agenda-files-except (&rest args)
-  (let ((result org-agenda-files))
-    (dolist (arg args)
-      (setq result (delete arg result)))
-    result))
+(defconst org-config-open-re "TODO={TODO\\|DOING\\|WAIT\\|TASK}")
+(defconst org-config-closed-re "TODO={DONE\\|CANCELED\\|COMPLETE\\|ABORTED}")
 
-(defun org-extra-with-tags-search (tags)
+(defun org-config-with-tags-search (tags)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sTags: ")
-  (org-tags-view
-   t (format "%s&TODO={TODO\\|WAITING\\|TASK}" tags)))
+  (org-tags-view t (format "%s&%s" tags org-config-open-re)))
 
-(defun org-extra-with-tags-search-done (tags)
+(defun org-config-with-tags-search-done (tags)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sTags: ")
-  (org-tags-view
-   t (format "%s&TODO={DONE\\|CANCELED\\|COMPLETE\\|ABORTED}" tags)))
+  (org-tags-view t (format "%s&%s" tags org-config-closed-re)))
 
-(defun org-extra-with-category-search (who)
+(defun org-config-with-category-search (who)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive
    (list (completing-read "Category: " (org-property-values "CATEGORY"))))
-  (org-tags-view
-   t (format "CATEGORY=\"%s\"&TODO={TODO\\|WAITING\\|TASK}" who)))
+  (org-tags-view t (format "CATEGORY=\"%s\"&%s" who org-config-open-re)))
 
-(defun org-extra-with-item-search (who)
+(defun org-config-with-item-search (who)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive "sItem: ")
-  (org-tags-view
-   t (format "ITEM={%s}&TODO={TODO\\|WAITING\\|TASK}" who)))
-
-(defun my-org-parent-keyword ()
-  (save-excursion
-    (org-up-heading-safe)
-    (org-get-todo-state)))
-
-(defun my-org-parent-priority ()
-  (save-excursion
-    (org-up-heading-safe)
-    (save-match-data
-      (beginning-of-line)
-      (and (looking-at org-heading-regexp)
-	   (org-get-priority (match-string 0))))))
+  (org-tags-view t (format "ITEM={%s}&%s" who org-config-open-re)))
 
 (eval-when-compile
   (require 'org-habit))
 
-(defun my-org-agenda-should-skip-p
+(defmacro org-config-agenda-skip-entry-if (body)
+  "Skip all but the first non-done entry."
+  `(when ,body
+     (org-with-wide-buffer
+      (or (outline-next-heading)
+          (goto-char (point-max))))))
+
+(defsubst org-config-agenda-skip-habit ()
+  (org-config-agenda-skip-entry-if
+   (org-is-habit-p)))
+
+(defsubst org-config-skip-if-review-not-needed ()
+  (org-config-agenda-skip-entry-if
+   (and (org-review-last-review-prop nil)
+        (not (org-review-toreview-p)))))
+
+(defsubst org-config-skip-if-reviewed ()
+  (org-config-agenda-skip-entry-if
+   (org-review-last-review-prop nil)))
+
+(defun org-config-agenda-skip-all-siblings-but-first
     (&optional include-non-projects include-low-prio-projects)
   "Skip all but the first non-done entry."
-  (let (should-skip-entry)
-    (unless (member (org-get-todo-state) '("TODO" "DOING"))
-      (setq should-skip-entry t))
-    (when (/= (point)
-              (save-excursion
-                (org-goto-first-child)
-                (point)))
-      (setq should-skip-entry t))
-    (save-excursion
-      (while (and (not should-skip-entry) (org-goto-sibling t))
-        (when (org-entry-is-todo-p)
-          (setq should-skip-entry t))))
-    (unless (or should-skip-entry include-non-projects)
-      (unless (and (string= "PROJECT" (my-org-parent-keyword))
-                   (or include-low-prio-projects
-                       (> (my-org-parent-priority) 0)))
-        (setq should-skip-entry t)))
-    should-skip-entry))
+  (org-config-agenda-skip-entry-if
+   (let (should-skip-entry)
+     (unless (member (org-get-todo-state) '("TODO" "DOING"))
+       (setq should-skip-entry t))
+     (when (/= (point)
+               (save-excursion
+                 (org-goto-first-child)
+                 (point)))
+       (setq should-skip-entry t))
+     (save-excursion
+       (while (and (not should-skip-entry) (org-goto-sibling t))
+         (when (org-entry-is-todo-p)
+           (setq should-skip-entry t))))
+     (unless (or should-skip-entry include-non-projects)
+       (unless (and (string= "PROJECT" (org-extra-parent-keyword))
+                    (or include-low-prio-projects
+                        (> (org-extra-parent-priority) 0)))
+         (setq should-skip-entry t)))
+     should-skip-entry)))
 
-(defun my-org-agenda-skip-all-siblings-but-first
-    (&optional include-non-projects include-low-prio-projects)
-  "Skip all but the first non-done entry."
-  (when (my-org-agenda-should-skip-p
-         include-non-projects include-low-prio-projects)
-    (or (outline-next-heading)
-        (goto-char (point-max)))))
+(defun org-config-agenda-skip-entry-if-not-within (days)
+  "Skip entry if it wasn't created within the given number of DAYS."
+  (ignore-errors
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (day
+           (time-to-days
+            (org-time-string-to-time
+             (org-entry-get nil "CREATED"))))
+          (now (time-to-days (current-time))))
+      (and day
+           (> (- now day) days)
+           subtree-end))))
 
-(defun my-org-agenda-skip-habit ()
-  (when (ignore-errors (org-is-habit-p))
-    (or (outline-next-heading)
-        (goto-char (point-max)))))
-
-(defun org-extra-skip-if-review-not-needed ()
-  (and (and (org-review-last-review-prop nil))
-       (not (org-review-toreview-p))
-       (org-with-wide-buffer (or (outline-next-heading) (point-max)))))
+(defun org-config-agenda-skip-entry-if-within (days)
+  "Skip entry if it wasn't created within the given number of DAYS."
+  (ignore-errors
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+          (day
+           (time-to-days
+            (org-time-string-to-time
+             (org-entry-get nil "CREATED"))))
+          (now (time-to-days (current-time))))
+      (and day
+           (<= (- now day) days)
+           subtree-end))))
 
 (setq
  org-capture-templates
@@ -226,9 +235,15 @@
 :END:"
       :prepend t)
 
-     ("pT" "Trip" entry
+     ("pt" "Trip" entry
       ,Inbox
       (file "~/doc/template/org/trip.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("pT" "Taxes" entry
+      (file+headline ,(org-file "todo.org") "Taxes")
+      (file "~/doc/template/org/taxes.org")
       :immediate-finish t
       :jump-to-captured t)
 
@@ -393,77 +408,28 @@
 
    ("r" . "Review tasks")
 
-   ("rr" "Review items" alltodo ""
-    ((org-agenda-overriding-header "Tasks needing review")
-     (org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+   ("rr" "Tasks needing review" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-config-agenda-skip-habit)
+           (org-config-agenda-skip-entry-if
+            (org-extra-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER"))
-           (org-extra-skip-if-review-not-needed)))
+           (org-config-skip-if-review-not-needed)))
      (org-agenda-cmp-user-defined 'org-review-compare)
+     (org-agenda-prefix-format
+      "%-10c%2(or (and (org-entry-get nil \"LAST_REVIEW\") \"→\") \"\") ")
      (org-agenda-sorting-strategy '(user-defined-down))))
 
-   ("ru" "Unscheduled (last 90 days)" alltodo ""
+   ("ru" "Unscheduled tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
-           (org-extra-agenda-skip-if-not-within 90)))
-     (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-     (org-agenad-files
-      (org-agenda-files-except
-       (org-file "kadena/kadena.org")
-       (org-file "OSS.org")))))
-
-   ("rU" "All unscheduled" alltodo ""
-    ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-     (org-agenda-files
-      (org-agenda-files-except
-       (org-file "kadena/kadena.org")
-       (org-file "OSS.org")))))
-
-   ("ro" "Unscheduled open source" alltodo ""
-    ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
-     (org-agenda-sorting-strategy '(category-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-     (org-agenda-files
-      (list (org-file "OSS.org")))))
-
-   ("rw" "Unscheduled work (last 90 days)" alltodo ""
-    ((org-agenda-sorting-strategy '(category-up user-defined-up))
-     (org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK"))
-           (org-extra-agenda-skip-if-not-within 90)))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-     (org-agenda-files
-      (list (org-file "kadena/kadena.org")))))
-
-   ("rW" "All unscheduled work" alltodo ""
-    ((org-agenda-sorting-strategy '(category-up user-defined-up))
-     (org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT"))))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-     (org-agenda-files
-      (list (org-file "kadena/kadena.org")))))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("rD" "Waiting/delegated" todo "WAIT|TASK"
     ((org-agenda-sorting-strategy
@@ -476,38 +442,37 @@
 
    ("rs" "Scheduled" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if 'notscheduled)))
      (org-agenda-sorting-strategy '(category-up))))
 
    ("rR" "Deferred" todo "DEFER"
     ((org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("rn" "Next Actions" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
-           (my-org-agenda-skip-all-siblings-but-first t)
+      '(or (org-config-agenda-skip-habit)
+           (org-config-agenda-skip-all-siblings-but-first t)
            (org-agenda-skip-entry-if
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))))))
 
+   ("rS" "Subtasks" alltodo ""
+    ((org-agenda-skip-function
+      '(org-config-agenda-skip-entry-if
+        (not (org-extra-subtask-p))))))
+
    ("rm" "With tags match"
     (lambda (arg)
-      (call-interactively #'org-extra-with-tags-search nil)))
+      (call-interactively #'org-config-with-tags-search nil)))
 
    ("rc" "With category"
     (lambda (arg)
-      (call-interactively #'org-extra-with-category-search nil)))
+      (call-interactively #'org-config-with-category-search nil)))
 
    ("rt" "With item"
     (lambda (arg)
-      (call-interactively #'org-extra-with-item-search nil)))
-
-   ;; ("ra" "Archives" alltodo ""
-   ;;  ((org-agenda-sorting-strategy '(category-up user-defined-up))
-   ;;   (org-agenda-prefix-format "%-11c%5(org-todo-age) ")
-   ;;   (org-agenda-files
-   ;;    (list (org-file "archive/archive.org")))))
+      (call-interactively #'org-config-with-item-search nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -517,17 +482,17 @@
 
    ("pn" "Project Next Actions" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))
-           (my-org-agenda-skip-all-siblings-but-first)))))
+           (org-config-agenda-skip-all-siblings-but-first)))))
 
    ("pN" "Project Next Actions (including low priority)" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))
-           (my-org-agenda-skip-all-siblings-but-first nil t)))))
+           (org-config-agenda-skip-all-siblings-but-first nil t)))))
 
    ("pa" "High Priority Projects" todo "PROJECT"
     ((org-agenda-skip-function
@@ -558,30 +523,30 @@
 
    ("PA" "All priority #A tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'notregexp "\\[#A\\]"
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("PB" "All priority #B tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'regexp "\\[#[AC]\\]"
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) ")))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("PC" "All priority #C tasks" alltodo ""
     ((org-agenda-skip-function
-      '(or (my-org-agenda-skip-habit)
+      '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'notregexp "\\[#C\\]"
             'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-11c%5(org-todo-age) "))))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) "))))
  )
 
 (provide 'org-config)
