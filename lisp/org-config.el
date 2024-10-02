@@ -125,6 +125,25 @@
            (<= (- now day) days)
            subtree-end))))
 
+(defun org-config-review-compare (a b)
+  (let* ((ma (or (get-text-property 0 'org-marker a)
+                 (get-text-property 0 'org-hd-marker a)))
+         (mb (or (get-text-property 0 'org-marker b)
+                 (get-text-property 0 'org-hd-marker b)))
+         (a-prop (org-review-last-review-prop ma))
+         (b-prop (org-review-last-review-prop mb))
+	 (ra (org-review-toreview-p ma))
+	 (rb (org-review-toreview-p mb)))
+    (if (and a-prop b-prop)
+        (if (time-less-p ra rb)
+            1
+          -1)
+      (if (and (null a-prop) (null b-prop))
+          (org-compare-todo-age a b)
+        (if a-prop
+            -1
+          1)))))
+
 (setq
  org-capture-templates
  (let ((Inbox '(function org-extra-goto-inbox-heading)))
@@ -417,9 +436,9 @@
             'scheduled 'deadline 'timestamp
             'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER"))
            (org-config-skip-if-review-not-needed)))
-     (org-agenda-cmp-user-defined 'org-review-compare)
+     (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%2(or (and (org-entry-get nil \"LAST_REVIEW\") \"→\") \"\") ")
+      "%-10c%-5e%1(or (and (org-entry-get nil \"LAST_REVIEW\") \"→\") \"\") ")
      (org-agenda-sorting-strategy '(user-defined-down))))
 
    ("ru" "Unscheduled tasks" alltodo ""

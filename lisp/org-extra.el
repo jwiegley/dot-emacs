@@ -534,6 +534,131 @@ Note: this uses Org's internal variable `org-link--search-failed'."
   (message "Jumping to agenda! Sync complete.")
   (redisplay t))
 
+(defun org-extra-columns--capture-view
+    (maxlevel match skip-empty exclude-tags format local)
+  (org-columns (not local) format)
+  (goto-char org-columns-top-level-marker)
+  (let ((columns (length org-columns-current-fmt-compiled))
+	(has-item (assoc "ITEM" org-columns-current-fmt-compiled))
+	table)
+    (org-map-entries
+     (lambda ()
+       (when (get-char-property (point) 'org-columns-key)
+	 (let (row)
+	   (dotimes (i columns)
+	     (let* ((col (+ (line-beginning-position) i))
+		    (p (get-char-property col 'org-columns-key)))
+	       (push (org-quote-vert
+		      (get-char-property col
+					 (if (string= p "ITEM")
+					     'org-columns-value
+					   'org-columns-value-modified)))
+		     row)))
+	   (unless (or
+		    (and skip-empty
+			 (let ((r (delete-dups (remove "" row))))
+			   (or (null r) (and has-item (= (length r) 1)))))
+		    (and exclude-tags
+			 (cl-some (lambda (tag) (member tag exclude-tags))
+				  (org-get-tags))))
+	     (push (cons (org-reduced-level (org-current-level)) (nreverse row))
+		   table)))))
+     (if match
+         (concat match (and maxlevel (format "+LEVEL<=%d" maxlevel)))
+       (and maxlevel (format "LEVEL<=%d" maxlevel)))
+     (and local 'tree)
+     'archive 'comment)
+    (org-columns-quit)
+    table))
+
+(defun org-dblock-write:agenda-columnview (params)
+  "See documentation for `org-dblock-write:agenda-columnview`.
+This dynamic block does not accept an `:id` parameter, however,
+and simply iterates over all files in `org-agenda-files`."
+  (let ((table
+         (apply #'nconc
+                (delete
+                 nil
+                 (mapcar
+                  #'(lambda (view-file)
+                      (with-current-buffer
+                          (org-get-agenda-file-buffer view-file)
+	                (org-with-wide-buffer
+                         (org-extra-columns--capture-view
+                          (plist-get params :maxlevel)
+		          (plist-get params :match)
+		          (plist-get params :skip-empty-rows)
+		          (plist-get params :exclude-tags)
+		          (plist-get params :format)
+		          nil))))
+                  org-agenda-files)))))
+    ;; Add column titles and a horizontal rule in front of the table.
+    (setq table
+          (cons (mapcar #'cadr org-columns-current-fmt-compiled)
+	        (cons 'hline (nreverse table))))
+    (when table
+      ;; Prune level information from the table.  Also normalize
+      ;; headings: remove stars, add indentation entities, if
+      ;; required, and possibly precede some of them with a horizontal
+      ;; rule.
+      (let ((item-index
+	     (let ((p (assoc "ITEM" org-columns-current-fmt-compiled)))
+	       (and p (cl-position p
+				   org-columns-current-fmt-compiled
+				   :test #'equal))))
+	    (hlines (plist-get params :hlines))
+	    (indent (plist-get params :indent))
+	    new-table)
+	;; Copy header and first rule.
+	(push (pop table) new-table)
+	(push (pop table) new-table)
+	(dolist (row table (setq table (nreverse new-table)))
+          (setq row
+                (list (nth 0 row)
+                      (nth 1 row)
+                      (format "[[id:%s][%s]]" (nth 1 row) (nth 2 row))
+                      (nth 3 row)))
+          (let ((level (car row)))
+	    (when (and (not (eq (car new-table) 'hline))
+		       (or (eq hlines t)
+			   (and (numberp hlines) (<= level hlines))))
+	      (push 'hline new-table))
+	    (when item-index
+	      (let ((item (org-columns--clean-item (nth item-index (cdr row)))))
+		(setf (nth item-index (cdr row))
+		      (if (and indent (> level 1))
+			  (concat "\\_" (make-string (* 2 (1- level)) ?\s) item)
+			item))))
+	    (push (cdr row) new-table))))
+      (when (plist-get params :vlines)
+	(setq table
+	      (let ((size (length org-columns-current-fmt-compiled)))
+		(append (mapcar (lambda (x) (if (eq 'hline x) x (cons "" x)))
+				table)
+			(list (cons "/" (make-list size "<>")))))))
+      (let ((content-lines (org-split-string (plist-get params :content) "\n"))
+	    recalc)
+	;; Insert affiliated keywords before the table.
+	(when content-lines
+	  (while (string-match-p "\\`[ \t]*#\\+" (car content-lines))
+	    (insert (pop content-lines) "\n")))
+	(save-excursion
+	  ;; Insert table at point.
+	  (insert
+	   (mapconcat (lambda (row)
+			(if (eq row 'hline) "|-|"
+			  (format "|%s|" (mapconcat #'identity row "|"))))
+		      table
+		      "\n"))
+	  ;; Insert TBLFM lines following table.
+	  (let ((case-fold-search t))
+	    (dolist (line content-lines)
+	      (when (string-match-p "\\`[ \t]*#\\+TBLFM:" line)
+		(insert "\n" line)
+		(unless recalc (setq recalc t))))))
+	(when recalc (org-table-recalculate 'all t))
+	(org-table-align)))))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here
