@@ -59,6 +59,11 @@
                       (org-encode-time
                        (org-parse-time-string timestring))))
 
+(defun my/format-short-date (timestring)
+  (format-time-string "%Y-%m-%d"
+                      (org-encode-time
+                       (org-parse-time-string timestring))))
+
 (defun my/format-within-year (timestring)
   (format-time-string "%Y-%m-%d %a"
                       (org-encode-time
@@ -186,7 +191,7 @@
               (my/org-roam-headline)
             (goto-char beg)
             (delete-region beg end)
-            (insert "#+filetags: :org:\n#+title: ")
+            (insert "#+category: Note\n#+title: ")
             (goto-char (line-end-position))
             (insert ?\n)
             (cl-destructuring-bind (beg end)
@@ -219,21 +224,12 @@
                        '(:immediate-finish t)))))
     (apply #'org-roam-node-insert args)))
 
-(defun my/org-roam-file-tags ()
-  (thread-last
-    '("filetags")
-    org-collect-keywords
-    (assoc "FILETAGS")
-    cadr
-    (funcall (-flip #'split-string) ":")
-    (delete "")))
-
 (defun my/org-roam-revise-title ()
   (interactive)
   (save-buffer)
   (org-roam-db-sync)
   (let* ((title (org-roam-db--file-title))
-         ;; (tags (my/org-roam-file-tags))
+         ;; (tags (org-extra-filetags))
          (org-roam-capture--node (org-roam-node-at-point))
          (old-name buffer-file-name)
          (old-name-nondirectory

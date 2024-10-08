@@ -31,6 +31,10 @@ embedded properties)."
   scheduled deadline title properties olp ;5
   tags aliases refs)
 
+;; (cl-defmethod org-roam-node-file-title ((node org-roam-node))
+;;   "Return the file TITLE for the node."
+;;   (org-roam-get-keyword "TITLE" (org-roam-node-file node))
+;;   )
 
 ;; This is a rewrite of org-roam-node-list. It returns the same values
 ;;

@@ -342,7 +342,11 @@
     :target
     (file+head
      "journal/%<%Y%m%d%H%M>-meeting.org"
-     "#+category: Meeting\n#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: Meeting: %^{Purpose of meeting}\n")
+     ,(concat
+       "#+category: Meeting\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :kadena:\n"
+       "#+title: Meeting: %^{Purpose of meeting}\n"))
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -361,7 +365,11 @@
     :target
     (file+head
      "journal/%<%Y%m%d%H%M>-1-on-1.org"
-     "#+category: 1-on-1\n#+date: %(setq my/org-start-date (my/org-read-date t))\n#+title: 1-on-1: %^{Person meeting with}\n")
+     ,(concat
+       "#+category: 1-on-1\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :kadena:\n"
+       "#+title: 1-on-1: %^{Person meeting with}\n"))
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -381,9 +389,26 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("b" "Blog")
+   ("b" "Bahá’í templates")
 
-   ("bj" "johnwiegley.com" plain "%?"
+   ("ba" "Assembly meeting" plain
+    (file "~/doc/template/org/bahai/assembly-meeting.org")
+    :target
+    (file+head
+     "journal/%<%Y%m%d%H%M>-meeting-local-spiritual-assembly.org"
+     ,(concat
+       "#+category: Assembly\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :todo:assembly:\n"
+       "#+title: Meeting: Local Spiritual Assembly\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("B" "Blog")
+
+   ("Bj" "johnwiegley.com" plain "%?"
     :jump-to-captured t
     :target (file+head "johnwiegley/%<%Y%m%d%H%M>.org"
                        ":PROPERTIES:
@@ -397,7 +422,7 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("bn" "newartisans.com" plain "%?"
+   ("Bn" "newartisans.com" plain "%?"
     :jump-to-captured t
     :target (file+head "newartisans/%<%Y%m%d%H%M>.org"
                        ":PROPERTIES:
@@ -422,6 +447,10 @@
    ("n" "Notes" todo "NOTE")
 
    ("l" "Links" todo "LINK")
+
+   ("c" "Colors" todo "TODO"
+    ((org-agenda-files
+      (list (org-file "colors.org")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -567,6 +596,12 @@
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-10c%5(org-todo-age) "))))
  )
+
+(defun org-config-show-habits ()
+  (interactive)
+  (org-ql-search (org-agenda-files)
+    '(habit)
+    :sort '(scheduled)))
 
 (provide 'org-config)
 

@@ -25,6 +25,11 @@
 
 ;;; Commentary:
 
+(require 'cl-lib)
+(require 'org)
+
+(declare-function org-with-wide-buffer "org-macs")
+
 (defgroup org-extra nil
   "Extra functions for use with Org-mode"
   :group 'org)
@@ -160,76 +165,6 @@ fold drawers."
       (setq org-agenda-show-window (selected-window)))
     (select-window win)))
 
-(defun org-extra-agenda-add-overlays (&optional line)
-  "Add overlays found in OVERLAY properties to agenda items.
-Note that habitual items are excluded, as they already
-extensively use text properties to draw the habits graph.
-
-For example, for work tasks I like to use a subtle, yellow
-background color; for tasks involving other people, green; and
-for tasks concerning only myself, blue.  This way I know at a
-glance how different responsibilities are divided for any given
-day.
-
-To achieve this, I have the following in my todo file:
-
-  * Work
-  :PROPERTIES:
-  :CATEGORY: Work
-  :OVERLAY:  (face (:background \"#fdfdeb\"))
-  :END:
-  ** TODO Task
-  * Family
-  :PROPERTIES:
-  :CATEGORY: Personal
-  :OVERLAY:  (face (:background \"#e8f9e8\"))
-  :END:
-  ** TODO Task
-  * Personal
-  :PROPERTIES:
-  :CATEGORY: Personal
-  :OVERLAY:  (face (:background \"#e8eff9\"))
-  :END:
-  ** TODO Task
-
-The colors (which only work well for white backgrounds) are:
-
-  Yellow: #fdfdeb
-  Green:  #e8f9e8
-  Blue:   #e8eff9
-
-To use this function, add it to `org-agenda-finalize-hook':
-
-  (add-hook 'org-agenda-finalize-hook 'org-agenda-add-overlays)"
-  (let ((inhibit-read-only t)
-        (buffer-invisibility-spec '(org-link)))
-    (save-excursion
-      (goto-char (if line (line-beginning-position) (point-min)))
-      (while (not (eobp))
-        (let ((org-marker (get-text-property (point) 'org-marker)))
-          (when (and org-marker
-                     (null (overlays-at (point)))
-                     (not (get-text-property (point) 'org-habit-p))
-                     (get-text-property (point) 'type)
-                     (string-match "\\(sched\\|dead\\|todo\\)"
-                                   (get-text-property (point) 'type)))
-            (let ((overlays
-                   (or (org-entry-get org-marker "OVERLAY" t)
-                       (with-current-buffer (marker-buffer org-marker)
-                         (org-get-global-property "OVERLAY")))))
-              (when overlays
-                (goto-char (line-end-position))
-                (let ((rest (- (window-width) (current-column))))
-                  (if (> rest 0)
-                      (insert (make-string rest ? ))))
-                (let ((ol (make-overlay (line-beginning-position)
-                                        (line-end-position)))
-                      (proplist (read overlays)))
-                  (while proplist
-                    (overlay-put ol (car proplist) (cadr proplist))
-                    (setq proplist (cddr proplist))))))))
-        (forward-line)))))
-
 (defun org-extra-jump-to-agenda ()
   (interactive)
   (push-window-configuration)
@@ -344,24 +279,38 @@ after :END:."
         (org-encode-time (parse-time-string date-string)))))))
 
 (defun org-extra-todoize (&optional arg)
-  "Turn a headline into a TODO entry with any needed metadata."
+  "Add standard metadata to a headline.
+With `C-u', regenerate ID even if one already exists.
+With `C-u C-u', set the keyword to TODO, without logging.
+If the headline title end with a (HH:MM) style time offset, this
+text will be moved into an OFFSET property."
   (interactive "P")
-  (when arg
-    (org-todo "TODO"))
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (when (re-search-forward " (\\([0-9:]+\\))" (line-end-position) t)
+      (let ((offset (match-string 1)))
+        (delete-region (match-beginning 0) (match-end 0))
+        (org-entry-put (point) "OFFSET" offset))))
+  (when (equal arg '(16))
+    (let ((org-inhibit-logging t))
+      (org-todo "TODO")))
   (org-id-get-create arg)
   (unless (org-entry-get (point) "CREATED")
     (org-entry-put (point) "CREATED"
-                   (format-time-string (org-time-stamp-format t t))))
-  (org-next-visible-heading 1))
+                   (format-time-string (org-time-stamp-format t t)))))
 
-(defun org-extra-todoize-region (&optional beg end)
-  "Turn a headline into a TODO entry with any needed metadata."
-  (interactive "r")
+(defun org-extra-todoize-region (&optional beg end arg)
+  "Add standard metadata to headlines in region.
+See `org-extra-todoize'."
+  (interactive "r\nP")
   (with-restriction beg end
     (save-excursion
       (goto-char beg)
       (while (not (eobp))
-        (org-extra-todoize)))))
+        (goto-char (line-end-position))
+        (org-extra-todoize arg)
+        (ignore-errors
+          (org-next-visible-heading 1))))))
 
 (defvar org-extra-fixup-slack-history nil)
 

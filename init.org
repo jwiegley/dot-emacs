@@ -47,7 +47,8 @@
 (setq use-package-verbose init-file-debug
       use-package-expand-minimally (not init-file-debug)
       use-package-compute-statistics init-file-debug
-      debug-on-error init-file-debug)
+      debug-on-error init-file-debug
+      debug-on-quit init-file-debug)
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=
@@ -349,6 +350,9 @@ unto itself.
 
   ;; nsm.el
   (nsm-settings-file (user-data "network-security.data"))
+
+  ;; facemenu.el
+  (list-colors-sort 'hsv)
 
   :custom-face
   (cursor ((t (:background "hotpink"))))
@@ -2397,15 +2401,6 @@ Giving these commands a prefix argument means copy instead of kill.
   (eyebrowse-mode t))
 #+end_src
 
-** fancy-narrow
-
-#+begin_src emacs-lisp
-(use-package fancy-narrow
-  :bind (("C-c N N" . fancy-narrow-to-region)
-         ("C-c N W" . fancy-widen))
-  :commands (fancy-narrow-to-region fancy-widen))
-#+end_src
-
 ** feebleline
 
 #+begin_src emacs-lisp
@@ -2990,6 +2985,8 @@ up before you execute another command."
   :config
   (global-hl-todo-mode)
 
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
                '(consult-ripgrep-haskell-todo buffer)))
 #+end_src
@@ -3329,6 +3326,8 @@ up before you execute another command."
   ("M-$" . jinx-correct)
   ("C-M-$" . jinx-languages)
   :config
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-categories
                '(jinx grid (vertico-grid-annotate . 20))))
 #+end_src
@@ -3786,7 +3785,6 @@ up before you execute another command."
      "todo.org"
      "kadena.org"
      "quantum-trades.org"
-     "habits.org"
      "OSS.org"))
   (clean-buffer-list-kill-never-regexps
    '("^ \\*Minibuf-.*\\*$"
@@ -4552,6 +4550,45 @@ append it to ENTRY."
   (add-hook 'window-setup-hook #'emacs-min t))
 #+end_src
 
+** popper
+
+[[https://github.com/karthink/popper][Popper]] is a minor-mode to tame the flood of ephemeral windows Emacs produces,
+while still keeping them within arm’s reach.
+
+Designate any buffer to “popup” status, and it will stay out of your way.
+Disimss or summon it easily with one key. Cycle through all your “popups” or
+just the ones relevant to your current buffer. Group popups automatically so
+you’re presented with the most relevant ones. Useful for many things,
+including toggling display of REPLs, documentation, compilation or shell
+output: any buffer you need instant access to but want kept out of your way!
+
+You can pre-designate any buffer (by name or major-mode) as a popup, and the
+status will be automatically applied when Emacs creates it.
+
+By default, your popups are displayed in a non-obtrusive way, but Popper
+respects window rules for buffers that you might have in =display-buffer-alist=
+or created using a window management package like =shackle.el=. Popper summons
+windows defined by the user as “popups” by simply calling =display-buffer=.
+
+#+begin_src emacs-lisp
+(use-package popper
+  :demand t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :custom
+  (popper-reference-buffers
+   '("\\*Messages\\*"
+     "Output\\*$"
+     "\\*Async Shell Command\\*"
+     help-mode
+     compilation-mode))
+  :config
+  (popper-mode +1)
+  ;; (popper-echo-mode +1)
+)
+#+end_src
+
 ** popup-ruler
 
 #+begin_src emacs-lisp
@@ -4610,6 +4647,23 @@ append it to ENTRY."
                    :after #'my-projectile-invalidate-cache)
        (advice-add 'magit-branch-and-checkout
                    :after #'my-projectile-invalidate-cache))))
+#+end_src
+
+*** projectile-magit
+
+#+begin_src emacs-lisp
+(use-package projectile-magit
+  :after (projectile)
+  :no-require t
+  :demand t
+  :config
+  (defun my-projectile-switch-project-action ()
+    (interactive)
+    (if (vc-git-responsible-p default-directory)
+        (magit-status)))
+
+  (setq projectile-switch-project-action
+        #'my-projectile-switch-project-action))
 #+end_src
 
 ** ps-print
@@ -4770,7 +4824,7 @@ append it to ENTRY."
   (savehist-mode 1))
 #+end_src
 
-** saveplace
+** COMMENT saveplace
 
 #+begin_src emacs-lisp
 (use-package saveplace
@@ -5877,6 +5931,8 @@ locations. The =default-directory= variable is not changed in the process.
   :after (consult vertico-multiform)
   :commands consult-hoogle
   :config
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
                '(consult-hoogle buffer)))
 #+end_src
@@ -9077,33 +9133,39 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("Errand" . 101)
      ("Home" . 104)))
   (org-tag-faces
-   '(("Call" . (:foreground "grey50"))
-     ("Errand" . (:foreground "grey50"))
-     ("Home" . (:foreground "grey50"))
-     ("FILE" . (:foreground "Magenta" :weight bold))
-     ("LINK" . (:foreground "Magenta" :weight bold))))
+   '(("Call"   :foreground "grey50")
+     ("Errand" :foreground "grey50")
+     ("Home"   :foreground "grey50")
+     ("FILE"   :foreground "magenta" :weight bold)
+     ("LINK"   :foreground "magenta" :weight bold)))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
                "WAIT(w@/!)" "TASK(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
+     (sequence "HABIT(h@/!)" "|" "DONE(d@/!)" "CANCELED(x@/!)")
      (sequence "PROJECT(p@/!)" "|" "COMPLETE(d@/!)" "ABORTED(x@/!)")
-     (sequence "|" "NOTE(n)" "LINK(l)")))
+     (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
    '(
-     ("TODO"     :foreground "medium blue"  :weight bold)
+     ("TODO"     :foreground "blue"         :weight bold)
      ("DOING"    :foreground "dark orange"  :weight bold)
      ("WAIT"     :foreground "red"          :weight bold)
-     ("TASK"     :foreground "dark violet"  :weight bold)
+     ("TASK"     :foreground "magenta"      :weight bold)
      ("DEFER"    :foreground "dark blue"    :weight bold)
-     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
      ("DONE"     :foreground "forest green" :weight bold)
-     ("LINK"     :foreground "tomato"       :weight bold)
-     ("NOTE"     :foreground "brown"        :weight bold)
+     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
+
      ("PROJECT"  :foreground "orange"       :weight bold)
      ("COMPLETE" :foreground "dark cyan"    :weight bold)
      ("ABORTED"  :foreground "grey40"       :weight bold :strike-through t)
+
+     ("HABIT"    :foreground "salmon"       :weight bold)
+
+     ("LINK"     :foreground "tomato"       :weight bold)
+     ("NOTE"     :foreground "brown"        :weight bold)
+     ("FEEDBACK" :foreground "dark violet"  :weight bold)
      ))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
@@ -9111,7 +9173,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-speed-commands
    #'(lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
   (org-use-sub-superscripts nil)
-  (org-use-tag-inheritance '("Noon" "Night" "Home" "Errand"))
+  (org-use-tag-inheritance '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
@@ -9124,13 +9186,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-document-title
    ((t (:foreground "pale turquoise" :weight bold :height 1.5 :family "DejaVu Sans"))))
   :preface
-  (defconst my-org-soft-red    "#fcebeb")
-  (defconst my-org-soft-orange "#fcf5eb")
-  (defconst my-org-soft-yellow "#fcfceb")
-  (defconst my-org-soft-green  "#e9f9e8")
-  (defconst my-org-soft-blue   "#e8eff9")
-  (defconst my-org-soft-purple "#f3e8f9")
-
   (defconst org-my-ts-regexp
     "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
     "Regular expression for fast inactive time stamp matching.")
@@ -9405,7 +9460,6 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-default-appointment-duration 60)
   (org-agenda-files
    (list (org-file "todo.org")
-         (org-file "habits.org")
          (org-file "kadena/kadena.org")
          (org-file "quantum-trades/quantum-trades.org")
          (org-file "OSS.org")
@@ -9446,7 +9500,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-todo-ignore-scheduled 'future)
   (org-agenda-todo-ignore-time-comparison-use-seconds t)
   (org-agenda-skip-deadline-prewarning-if-scheduled t)
-  (org-agenda-use-time-grid t)
+  (org-agenda-use-time-grid nil)
   (org-agenda-window-frame-fractions '(0.5 . 0.75))
   :custom-face
   (org-agenda-clocking ((t (:background "red2"))))
@@ -9462,10 +9516,12 @@ With prefix argument, also display headlines without a TODO keyword."
     (let ((hour (nth 2 (decode-time))))
       (and (cond
             ((string= tag "Call")   (< hour 9))
-            ((string= tag "Errand") (< hour 13))
-            ((string= tag "Noon")   (< hour 13))
+            ((string= tag "Errand") (< hour 12))
+            ((string= tag "Noon")   (< hour 12))
+            ((string= tag "Day")    (< hour 15))
             ((string= tag "Nasim")  (< hour 17))
-            ((string= tag "Night")  (< hour 17))
+            ((string= tag "Eve")    (< hour 18))
+            ((string= tag "Night")  (< hour 21))
             ((string= tag "Home")
              (with-temp-buffer
                (call-process "ifconfig" nil t nil "en0" "inet")
@@ -9530,6 +9586,39 @@ unfold drawers."
   :init
   (unless alternate-emacs
     (add-hook 'emacs-startup-hook #'org-resolve-clocks t)))
+#+end_src
+
+**** org-agenda-overlay
+
+#+begin_src emacs-lisp
+(use-package org-agenda-overlay
+  :after (org-agenda)
+  :demand t
+  :hook
+  (org-agenda-finalize . org-agenda-overlay-add)
+  :custom
+  (org-agenda-overlay-by-filetag
+   '(("assembly" face (:background "#5f925f" :foreground "#eeeeee"))
+     ("bahai" face (:background "#1a631a" :foreground "#eeeeee"))
+     ("c2g" face (:background "#542f19" :foreground "#eeeeee"))
+     ("quantumtrades" face (:background "#6c175f" :foreground "#eeeeee"))
+     ("family" face (:background "#717111" :foreground "#eeeeee"))
+     ("kadena" face (:background "#6c175f" :foreground "#eeeeee"))
+     ("tech" face (:background "#1a3863" :foreground "#eeeeee"))))
+  (org-agenda-overlay-by-olp
+   '(;; Headings in todo.org
+     (("Inbox") face (:background "#e444cc" :foreground "#ffffff"))
+     (("Finances") face (:background "#711111" :foreground "#eeeeee"))
+     (("Health") face (:background "#717111" :foreground "#eeeeee"))
+     (("Auto") face (:background "#717111" :foreground "#eeeeee"))
+     (("Home") face (:background "#717111" :foreground "#eeeeee"))
+     (("Nasim") face (:background "#717111" :foreground "#eeeeee"))
+     (("Bahá’í") face (:background "#1a631a" :foreground "#eeeeee"))
+     (("Family") face (:background "#4b0076" :foreground "#eeeeee"))
+     (("Friends") face (:background "#3b4076" :foreground "#eeeeee"))
+     (("Computer") face (:background "#491a63" :foreground "#eeeeee"))
+     (("Blog") face (:background "#491a63" :foreground "#eeeeee"))
+     (("Personal") face (:background "#491a63" :foreground "#eeeeee")))))
 #+end_src
 
 *** org-appear
@@ -10145,55 +10234,58 @@ A group FOO is composed of contacts with the tag FOO."
   (org-noter-notes-search-path (list org-directory))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
   :config
-  (defun org-noter-pdf--show-arrow ()
-    ;; From `pdf-util-tooltip-arrow'.
-    (pdf-util-assert-pdf-window)
-    (let* (x-gtk-use-system-tooltips
-           (arrow-top  (aref org-noter--arrow-location 2)) ; % of page
-           (arrow-left (aref org-noter--arrow-location 3))
-           (image-top  (if (floatp arrow-top)
-                           (round (* arrow-top  (cdr (pdf-view-image-size)))))) ; pixel location on page (magnification-dependent)
-           (image-left (if (floatp arrow-left)
-                           (floor (* arrow-left (car (pdf-view-image-size))))))
-           (dx (or image-left
-                   (+ (or (car (window-margins)) 0)
-                      (car (window-fringes)))))
-           (dy (or image-top 0))
-           (pos (list dx dy dx (+ dy (* 2 (frame-char-height)))))
-           (vscroll (pdf-util-required-vscroll pos))
-           (tooltip-frame-parameters
-            `((border-width . 0)
-              (internal-border-width . 0)
-              ,@tooltip-frame-parameters))
-           (tooltip-hide-delay 3))
+  (use-package org-noter-pdf)
+  (use-package org-noter-dynamic-block)
+  ;; (defun org-noter-pdf--show-arrow ()
+  ;;   ;; From `pdf-util-tooltip-arrow'.
+  ;;   (pdf-util-assert-pdf-window)
+  ;;   (let* (x-gtk-use-system-tooltips
+  ;;          (arrow-top  (aref org-noter--arrow-location 2)) ; % of page
+  ;;          (arrow-left (aref org-noter--arrow-location 3))
+  ;;          (image-top  (if (floatp arrow-top)
+  ;;                          (round (* arrow-top  (cdr (pdf-view-image-size)))))) ; pixel location on page (magnification-dependent)
+  ;;          (image-left (if (floatp arrow-left)
+  ;;                          (floor (* arrow-left (car (pdf-view-image-size))))))
+  ;;          (dx (or image-left
+  ;;                  (+ (or (car (window-margins)) 0)
+  ;;                     (car (window-fringes)))))
+  ;;          (dy (or image-top 0))
+  ;;          (pos (list dx dy dx (+ dy (* 2 (frame-char-height)))))
+  ;;          (vscroll (pdf-util-required-vscroll pos))
+  ;;          (tooltip-frame-parameters
+  ;;           `((border-width . 0)
+  ;;             (internal-border-width . 0)
+  ;;             ,@tooltip-frame-parameters))
+  ;;          (tooltip-hide-delay 3))
 
-      (when vscroll
-        (image-set-window-vscroll vscroll))
-      (setq dy (max 0 (- dy
-                         (cdr (pdf-view-image-offset))
-                         (window-vscroll nil t)
-                         (frame-char-height))))
-      (when (overlay-get (pdf-view-current-overlay) 'before-string)
-        (let* ((e (window-inside-pixel-edges))
-               (xw (pdf-util-with-edges (e) e-width))
-               (display-left-margin (/ (- xw (car (pdf-view-image-size t))) 2)))
-          (cl-incf dx display-left-margin)))
-      (setq dx (max 0 (+ dx org-noter-arrow-horizontal-offset)))
-      (pdf-util-tooltip-in-window
-       (propertize
-        " " 'display (propertize
-                      "\u2192" ;; right arrow
-                      'display '(height 2)
-                      'face `(:foreground
-                              ,org-noter-arrow-foreground-color
-                              :background
-                              ,(if (bound-and-true-p pdf-view-midnight-minor-mode)
-                                   (cdr pdf-view-midnight-colors)
-                                 org-noter-arrow-background-color))))
-       dx dy))))
+  ;;     (when vscroll
+  ;;       (image-set-window-vscroll vscroll))
+  ;;     (setq dy (max 0 (- dy
+  ;;                        (cdr (pdf-view-image-offset))
+  ;;                        (window-vscroll nil t)
+  ;;                        (frame-char-height))))
+  ;;     (when (overlay-get (pdf-view-current-overlay) 'before-string)
+  ;;       (let* ((e (window-inside-pixel-edges))
+  ;;              (xw (pdf-util-with-edges (e) e-width))
+  ;;              (display-left-margin (/ (- xw (car (pdf-view-image-size t))) 2)))
+  ;;         (cl-incf dx display-left-margin)))
+  ;;     (setq dx (max 0 (+ dx org-noter-arrow-horizontal-offset)))
+  ;;     (pdf-util-tooltip-in-window
+  ;;      (propertize
+  ;;       " " 'display (propertize
+  ;;                     "\u2192" ;; right arrow
+  ;;                     'display '(height 2)
+  ;;                     'face `(:foreground
+  ;;                             ,org-noter-arrow-foreground-color
+  ;;                             :background
+  ;;                             ,(if (bound-and-true-p pdf-view-midnight-minor-mode)
+  ;;                                  (cdr pdf-view-midnight-colors)
+  ;;                                org-noter-arrow-background-color))))
+  ;;      dx dy)))
+  )
 #+end_src
 
-*** org-noter-pdftools
+*** COMMENT org-noter-pdftools
 
 #+begin_src emacs-lisp
 (use-package org-noter-pdftools
@@ -10333,6 +10425,8 @@ A group FOO is composed of contacts with the tag FOO."
     "Return non-nil if entry is a refile target."
     :body (org-refile-heading-p))
 
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands '(org-ql-find))
   (add-to-list 'vertico-multiform-commands '(my/org-ql-find-refile-targets))
 
@@ -10347,6 +10441,29 @@ A group FOO is composed of contacts with the tag FOO."
   :hook ((org-mode . org-pretty-table-mode)))
 #+end_src
 
+*** org-project-capture
+
+#+begin_src emacs-lisp
+(use-package org-project-capture
+  :after (org-projectile)
+  :bind (:map
+         my-ctrl-c-n-map
+         ("p" . org-project-capture-capture-for-current-project))
+  :custom
+  (org-project-capture-default-backend
+   (make-instance 'org-project-capture-projectile-backend))
+  (org-project-capture-projects-file "~/org/OSS.org")
+  :config
+  (org-project-capture-single-file))
+#+end_src
+
+*** org-projectile
+
+#+begin_src emacs-lisp
+(use-package org-projectile
+  :after (org))
+#+end_src
+
 *** COMMENT org-recent-headings
 
 #+begin_src emacs-lisp
@@ -10356,6 +10473,8 @@ A group FOO is composed of contacts with the tag FOO."
   :config
   (org-recent-headings-mode)
 
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
                '(org-recent-headings)))
 #+end_src
@@ -10572,7 +10691,6 @@ stamp to a task, which can be used to schedule a review of the task.
    ("f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("i" . org-roam-node-insert)
    ("n" . my/org-roam-create-new)
-   ("p" . my/org-roam-find-project)
    ("r" . org-roam-tag-remove)
    ("t" . org-roam-tag-add)
    ("w" . my/org-roam-prepare-note))
@@ -10616,6 +10734,36 @@ stamp to a task, which can be used to schedule a review of the task.
     "Return the slug of NODE."
     (let ((title (org-roam-node-title node)))
       (my/org-roam-title-slug title)))
+
+  (cl-defun org-roam-node-insert-section (&key source-node point properties)
+    (magit-insert-section
+        section
+      (org-roam-node-section)
+      (let ((outline
+             (if-let ((outline (plist-get properties :outline)))
+                 (mapconcat #'org-link-display-format outline " > ")
+               "Top")))
+        (insert
+         (concat
+          (propertize (org-roam-node-title source-node)
+                      'font-lock-face 'org-roam-title)
+          " "
+          (propertize (cdr (assoc "CREATED" (org-roam-node-properties source-node)))
+                      'font-lock-face 'org-roam-dailies-calendar-note)
+          (format " (%s)"
+                  (propertize outline 'font-lock-face 'org-roam-olp)))))
+      (magit-insert-heading)
+      (oset section node source-node)
+      (magit-insert-section
+          section
+        (org-roam-preview-section)
+        (insert (org-roam-fontify-like-in-org-mode
+                 (org-roam-preview-get-contents
+                  (org-roam-node-file source-node) point))
+                "\n")
+        (oset section file (org-roam-node-file source-node))
+        (oset section point point)
+        (insert ?\n))))
 
   ;; (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
   ;; (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
@@ -10671,6 +10819,8 @@ stamp to a task, which can be used to schedule a review of the task.
   :config
   (consult-org-roam-mode 1)
 
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-backlinks))
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links))
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find)))
@@ -10758,7 +10908,6 @@ context.
   (xeft-title-function 'my-xeft-get-title)
   (my-xeft-ignored-files
    '("todo.org"
-     "habits.org"
      "OSS.org"
      "kadena/kadena.org"
      "kadena/quantum-trades.org"
@@ -10938,8 +11087,6 @@ Currently, this package supports:
          :map
          org-agenda-mode-map
          ("g" . org-extra-agenda-redo))
-  :hook
-  (org-agenda-finalize . org-extra-agenda-add-overlays)
   :init
   (unless alternate-emacs
     (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
@@ -11156,6 +11303,8 @@ own lines, for instance.
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
   :config
+  (eval-when-compile
+    (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands '(citar-insert-citation))
   (add-to-list 'vertico-multiform-commands '(citar-insert-reference))
   (add-to-list 'vertico-multiform-commands '(citar-open-notes)))

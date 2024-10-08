@@ -1,12 +1,13 @@
 #name : HABIT
 # --
-TODO $0
+HABIT $0
 :PROPERTIES:
 :ID:       `(generate-uuid)`
 :CREATED:  `(created-stamp)`
 :STYLE:    habit
-:REPEAT_TO_STATE: TODO
+:REPEAT_TO_STATE: HABIT
 :LOG_INTO_DRAWER: t
+:LOGGING:  DEFER(!) DONE(!) CANCELED(!)
 :END:
 :LOGBOOK:
 :END:
