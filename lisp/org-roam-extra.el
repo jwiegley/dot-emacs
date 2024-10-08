@@ -231,6 +231,7 @@
   (let* ((title (org-roam-db--file-title))
          ;; (tags (org-extra-filetags))
          (org-roam-capture--node (org-roam-node-at-point))
+         (properties (org-roam-node-properties org-roam-capture--node))
          (old-name buffer-file-name)
          (old-name-nondirectory
           (and old-name (file-name-nondirectory old-name)))
@@ -240,15 +241,19 @@
             (org-roam-capture--fill-template)
             (string-trim))))
     (when (and old-name-nondirectory new-name-nondirectory)
-      (let* ((old-stamp (and (string-match "^\\([0-9]\\{12\\}\\)"
-                                           old-name-nondirectory)
-                             (match-string 1 old-name-nondirectory)))
+      (let* (
+             ;; (old-stamp (and (string-match "^\\([0-9]\\{12\\}\\)"
+             ;;                               old-name-nondirectory)
+             ;;                 (match-string 1 old-name-nondirectory)))
+             (created (cdr (assoc "CREATED" properties)))
+             (created-tm (org-encode-time (parse-time-string created)))
+             (new-stamp (format-time-string "%Y%m%d%H%M" created-tm))
              (new-slug (and (string-match "^[0-9]\\{12\\}-\\(.+\\)"
                                           new-name-nondirectory)
                             (match-string 1 new-name-nondirectory)))
              (new-name
-              (expand-file-name (if (and old-stamp new-slug)
-                                    (concat old-stamp "-" new-slug)
+              (expand-file-name (if (and new-stamp new-slug)
+                                    (concat new-stamp "-" new-slug)
                                   new-name-nondirectory)
                                 (file-name-directory old-name))))
         (unless (string= new-name old-name)
@@ -372,7 +377,7 @@ tasks."
 
 (defun org-roam-extra-clean-transcript ()
   (interactive)
-  (replace-regexp "^\\([0-9]+:[0-9]+\\)
+  (replace-regexp "^\\(\\([0-9]+:\\)?[0-9]+:[0-9]+\\)
 \\(.+\\)
 \\(.+\\)" "- \\1 *\\2* \\3"))
 
