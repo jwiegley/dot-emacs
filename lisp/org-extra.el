@@ -565,8 +565,9 @@ and simply iterates over all files in `org-agenda-files`."
           (setq row
                 (list (nth 0 row)
                       (nth 1 row)
-                      (format "[[id:%s][%s]]" (nth 1 row) (nth 2 row))
-                      (nth 3 row)))
+                      (nth 2 row)
+                      (format "[[id:%s][%s]]" (nth 2 row) (nth 3 row))
+                      (nth 4 row)))
           (let ((level (car row)))
 	    (when (and (not (eq (car new-table) 'hline))
 		       (or (eq hlines t)
