@@ -312,23 +312,6 @@ See `org-extra-todoize'."
         (ignore-errors
           (org-next-visible-heading 1))))))
 
-(defvar org-extra-fixup-slack-history nil)
-
-(defun org-extra-fixup-slack ()
-  (interactive)
-  (goto-char (point-min))
-  (while (search-forward "\n\n \n\n" nil t)
-    (replace-match ": "))
-  (goto-char (point-min))
-  (while (re-search-forward "^\\[\\[\\(https:.+?\\)\\]\\[.+?\\]\\]: " nil t)
-    (replace-match
-     (concat "[["
-             (match-string 1)
-             "]["
-             ;; (read-string "Author: " "Me" org-extra-fixup-slack-history)
-             "Me"
-             "]]: "))))
-
 (defvar org-extra-property-search-name nil)
 
 (defun org-extra-with-property-search (property value)
@@ -435,53 +418,6 @@ Note: this uses Org's internal variable `org-link--search-failed'."
         (while (progn (org-next-link)
                       (not org-link--search-failed))
           (org-open-at-point))))))
-
-(defun org-extra-sync ()
-  (interactive)
-  (let ((agenda-buf (get-buffer "*Org Agenda*")))
-    (when agenda-buf
-      (kill-buffer agenda-buf)))
-  (message "Synchronizing CalDAV...")
-  (org-caldav-sync)
-  (message "Sorting Org-mode files...")
-  (redisplay t)
-  (dolist (file org-agenda-files)
-    (with-current-buffer (find-file-noselect file)
-      (goto-char (point-min))
-      (org-sort-all)
-      (org-cycle-content 5)
-      (org-align-tags t)))
-  (save-org-mode-files)
-  (message "Updating Org-roam todo cookies...")
-  (redisplay t)
-  (my/org-roam-update-todo-files)
-  (save-org-mode-files)
-  (message "Updating Org-mode ID locations...")
-  (redisplay t)
-  (org-id-update-id-locations)
-  (message "Clearing Org-mode refile cache...")
-  (redisplay t)
-  (ignore-errors (org-refile-cache-clear))
-  (message "Clear Org-contacts and diary cache...")
-  (setq org-contacts-last-update nil
-        org--diary-sexp-entry-cache (make-hash-table :test #'equal))
-  (message "Syncing Org-roam database...")
-  (redisplay t)
-  (org-roam-db-sync)
-  (org-roam-update-org-id-locations)
-  (require 'xeft)
-  (require 'xapian-lite)
-  (message "Rebuilding Xeft database...")
-  (redisplay t)
-  (xeft-full-reindex)
-  (xeft--front-page-cache-refresh)
-  (message "Running syncup...")
-  (redisplay t)
-  (let ((default-directory "~"))
-    (async-shell-command "syncup ; echo FINISHED")
-    (display-buffer "*Async Shell Command*"))
-  (message "Jumping to agenda! Sync complete.")
-  (redisplay t))
 
 (defun org-extra-columns--capture-view
     (maxlevel match skip-empty exclude-tags format local)
@@ -608,6 +544,47 @@ and simply iterates over all files in `org-agenda-files`."
 		(unless recalc (setq recalc t))))))
 	(when recalc (org-table-recalculate 'all t))
 	(org-table-align)))))
+
+(defcustom org-extra-link-names nil
+  "A list of ids and their associated names used by `org-extra-edit-link-name'."
+  :group 'org-extra
+  :type '(repeat (cons string string)))
+
+(defun org-extra-edit-link-name (name)
+  (interactive
+   (list (completing-read "Name: " (mapcar #'car org-extra-link-names))))
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (when (re-search-forward "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]" nil t)
+      (replace-match name t t nil 2))))
+
+(defun org-extra-fixup-slack (&optional arg)
+  (interactive "P")
+  (whitespace-cleanup)
+  (goto-char (point-min))
+  (while (search-forward "\n\n \n\n" nil t)
+    (replace-match ": "))
+  (goto-char (point-min))
+  (while (search-forward " " nil t)
+    (replace-match " "))
+  (goto-char (point-min))
+  (while (search-forward " (edited)" nil t)
+    (delete-region (match-beginning 0) (match-end 0)))
+  (goto-char (point-min))
+  (while (re-search-forward "\\[\\[https://.*emoji-assets[^]]+?\\.png\\]\\]" nil t)
+    (delete-region (match-beginning 0) (match-end 0)))
+  (goto-char (point-min))
+  (while (re-search-forward
+          "^\\( *\\)\\[\\[https://kadena-io\\.slack\\.com[^]]+?\\]\\[\\(\\(Today at \\)?[0-9:]+ [AP]M\\)\\]\\]\\(\n+\\)" nil t)
+    (replace-match ": " t t nil 4)
+    (replace-match "Me" t t nil 2)
+    (delete-region (match-beginning 1) (match-end 1)))
+  (whitespace-cleanup)
+  (unless arg
+    (goto-char (point-min))
+    (while (looking-at "^#")
+      (forward-line 1))
+    (fill-region (point) (point-max))))
 
 (provide 'org-extra)
 

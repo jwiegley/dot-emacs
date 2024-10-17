@@ -37,12 +37,6 @@ init.el: init.org
 		--eval "(org-babel-load-file \"init.org\")"
 	@chmod 444 $@
 
-compile:
-	@BATCH_LOAD="$(BATCH_LOAD)" ./compile-all $(DIRS)
-	@echo All Emacs Lisp files have been compiled.
-
-init.elc: init.el
-
 %.elc: %.el
 	@echo Compiling file $<
 	@$(BATCH_LOAD) -f batch-byte-compile $<

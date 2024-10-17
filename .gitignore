@@ -24,12 +24,14 @@ info/
 init.el
 lisp/corfu/
 lisp/emacs-format-all-the-code/
+lisp/org-extra-private.el
 lisp/org-mode/
 logs/
 multisession
 oauth2-auto.plist
 org-caldav-backup.org
 org-recent-headings
+org-roam.db
 persist
 projects
 request
