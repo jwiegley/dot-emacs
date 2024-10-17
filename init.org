@@ -108,6 +108,52 @@
 (add-hook 'after-init-hook #'garbage-collect t)
 #+end_src
 
+** Define standard colors
+
+#+begin_src emacs-lisp
+;; Luminosity 50
+(defconst palette-red               "#FF0000")
+(defconst palette-orange            "#FF8000")
+(defconst palette-yellow            "#FFFF00")
+(defconst palette-yellow-green      "#80FF00")
+(defconst palette-green             "#00FF00")
+(defconst palette-teal              "#00FF80")
+(defconst palette-cyan              "#00FFFF")
+(defconst palette-slate-blue        "#007FFF")
+(defconst palette-blue              "#0000FF")
+(defconst palette-indigo            "#7F00FF")
+(defconst palette-purple            "#FF00FF")
+(defconst palette-fuschia           "#FF0080")
+
+;; Luminosity 20
+(defconst palette-red-dark          "#660000")
+(defconst palette-orange-dark       "#663300")
+(defconst palette-yellow-dark       "#666600")
+(defconst palette-yellow-green-dark "#336600")
+(defconst palette-green-dark        "#006600")
+(defconst palette-teal-dark         "#006633")
+(defconst palette-cyan-dark         "#006666")
+(defconst palette-slate-blue-dark   "#003366")
+(defconst palette-blue-dark         "#000066")
+(defconst palette-indigo-dark       "#330066")
+(defconst palette-purple-dark       "#660066")
+(defconst palette-fuschia-dark      "#660033")
+
+;; Luminosity 15
+(defconst palette-red-darker          "#5C0000")
+(defconst palette-orange-darker       "#5C2E00")
+(defconst palette-yellow-darker       "#5C5C00")
+(defconst palette-yellow-green-darker "#2E5C00")
+(defconst palette-green-darker        "#005C00")
+(defconst palette-teal-darker         "#005C2E")
+(defconst palette-cyan-darker         "#005C5C")
+(defconst palette-slate-blue-darker   "#002E5C")
+(defconst palette-blue-darker         "#00005C")
+(defconst palette-indigo-darker       "#2E005C")
+(defconst palette-purple-darker       "#5C005C")
+(defconst palette-fuschia-darker      "#5C002E")
+#+end_src
+
 * Helper functions
 
 ** Quickly test if a host is available
@@ -214,6 +260,7 @@ unto itself.
 
   ;; Settings for the Emacs Mac-port
   (mac-command-modifier 'meta)
+  (mac-right-command-modifier 'super)
   (mac-option-modifier 'alt)
   (mac-pass-command-to-system nil)
 
@@ -466,7 +513,8 @@ It reindents after every change, making it more reliable than
   :load-path "lisp/alert"
   :autoload (alert alert-add-rule)
   :custom
-  (alert-default-style 'fringe)
+  ;; (alert-default-style 'fringe)
+  (alert-default-style 'osx-notifier)
   (alert-notifier-command
    "~/Applications/Home Manager Apps/terminal-notifier.app/Contents/MacOS/terminal-notifier"))
 #+end_src
@@ -710,6 +758,14 @@ multiple selected candidates.
   :init
   (setf (alist-get ?c avy-dispatch-alist)
 	'ab/lasgun-goto-primary-make-cursors))
+#+end_src
+
+** COMMENT awesome-tray
+
+#+begin_src emacs-lisp
+(use-package awesome-tray
+  :config
+  (awesome-tray-mode 1))
 #+end_src
 
 ** COMMENT backup-each-save
@@ -1092,6 +1148,18 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (holiday-hebrew-holidays nil))
 #+end_src
 
+** COMMENT centaur-tabs
+
+#+begin_src emacs-lisp
+(use-package centaur-tabs
+  :demand t
+  :config
+  (centaur-tabs-mode t)
+  :bind
+  ("C-<prior>" . centaur-tabs-backward)
+  ("C-<next>" . centaur-tabs-forward))
+#+end_src
+
 ** COMMENT centered-cursor-mode
 
 Makes the cursor stay vertically in a defined position (usually centered). The
@@ -1469,7 +1537,8 @@ diff-hl package.
       (split-window-horizontally)
       (if arg
           (dired here)
-        (dired "~/Desktop")
+        (dired "~/Inbox")
+        ;; (dired "~/Desktop")
         ;; (revert-buffer)
         ;; (split-window-vertically)
         ;; (dired "~/Inbox")
@@ -1773,6 +1842,29 @@ non-empty directories is allowed."
 #+begin_src emacs-lisp
 (use-package easy-kill
   :bind ([remap kill-ring-save] . easy-kill))
+#+end_src
+
+** eat
+
+[[https://codeberg.org/akib/emacs-eat][Eat]]'s name self-explanatory, it stands for "Emulate A Terminal". Eat is a
+terminal emulator. It can run most (if not all) full-screen terminal programs,
+including Emacs.
+
+It is pretty fast, more than three times faster than Term, despite being
+implemented entirely in Emacs Lisp. So fast that you can comfortably run Emacs
+inside Eat, or even use your Emacs as a terminal multiplexer.
+
+It has many features that other Emacs terminal emulator still don't have, for
+example Sixel support, complete mouse support, shell integration, etc.
+
+It flickers less than other Emacs terminal emulator, so you get more
+performance and a smoother experience.
+
+To get the most out of Eat, you should also setup shell integration.
+
+#+begin_src emacs-lisp
+(use-package eat
+  :commands (eat))
 #+end_src
 
 ** edbi
@@ -3257,6 +3349,10 @@ up before you execute another command."
 
 ** ialign
 
+To use [[https://github.com/mkcms/interactive-align][ialign]], mark a region and then call =ialign=. You can enter a regexp in
+the minibuffer that will be passed to =align-regexp= command. As the contents of
+minibuffer change, the region is realigned.
+
 #+begin_src emacs-lisp
 (use-package ialign
   :bind ("C-c {" . ialign))
@@ -3453,6 +3549,16 @@ up before you execute another command."
             #'(lambda () (bind-key "f" #'link-hint-open-link w3m-mode-map))))
 #+end_src
 
+** listen
+
+#+begin_src emacs-lisp
+(use-package listen
+  :commands (listen-play)
+  :bind
+  ("C-c E p" . listen-pause)
+  ("C-c E q" . listen-quit))
+#+end_src
+
 ** lively
 
 #+begin_src emacs-lisp
@@ -3549,7 +3655,7 @@ up before you execute another command."
   (defun magit-status-with-prefix ()
     (interactive)
     (let ((current-prefix-arg '(4)))
-      (call-interactively 'magit-status)))
+      (call-interactively #'magit-status)))
 
   (defun endless/visit-pull-request-url ()
     "Visit the current branch's PR on Github."
@@ -4574,7 +4680,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 (use-package popper
   :demand t
   :bind (("C-`"   . popper-toggle)
-         ("M-`"   . popper-cycle)
+         ("M-~"   . popper-cycle)
          ("C-M-`" . popper-toggle-type))
   :custom
   (popper-reference-buffers
@@ -4582,6 +4688,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
      "Output\\*$"
      "\\*Async Shell Command\\*"
      help-mode
+     special-mode
      compilation-mode))
   :config
   (popper-mode +1)
@@ -4606,6 +4713,8 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 #+end_src
 
 ** prodigy
+
+[[https://github.com/rejeep/prodigy.el][Prodigy]] manages external services from within Emacs.
 
 #+begin_src emacs-lisp
 (use-package prodigy
@@ -4656,14 +4765,13 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :after (projectile)
   :no-require t
   :demand t
-  :config
+  :preface
   (defun my-projectile-switch-project-action ()
     (interactive)
     (if (vc-git-responsible-p default-directory)
-        (magit-status)))
-
-  (setq projectile-switch-project-action
-        #'my-projectile-switch-project-action))
+        (call-interactively #'magit-status)))
+  :custom
+  (projectile-switch-project-action #'my-projectile-switch-project-action))
 #+end_src
 
 ** ps-print
@@ -4998,6 +5106,35 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (sky-color-clock-initialize calendar-latitude))
 #+end_src
 
+** slack
+
+#+begin_src emacs-lisp
+(use-package slack
+  :commands (slack-start)
+  :bind (:map slack-mode-map
+              (("@" . slack-message-embed-mention)
+               ("#" . slack-message-embed-channel)))
+  :custom
+  (slack-buffer-emojify t)
+  (slack-prefer-current-team t)
+  (slack-thread-also-send-to-room nil)
+  :config
+  (use-package lui
+    :after (slack)
+    :custom
+    (lui-fill-type 0))
+
+  (slack-register-team
+   :name "emacs-slack"
+   :default t
+   :token
+   (lookup-password "kadena-io.slack.com" "john@kadena.io" 443)
+   :cookie
+   (lookup-password "kadena-io.slack.com^cookie" "john@kadena.io" 443)
+   :subscribed-channels '(dev)
+   :full-and-display-names t))
+#+end_src
+
 ** smart-newline
 
 #+begin_src emacs-lisp
@@ -5267,6 +5404,32 @@ enables relatively smooth scrolling even with dumb third party mice.
   (ultra-scroll-mac-mode 1))
 #+end_src
 
+** COMMENT undo-fu
+
+Simple, stable linear undo with redo for Emacs.
+
+[[https://codeberg.org/ideasman42/emacs-undo-fu][undo-fu]] is a light weight wrapper for Emacs built-in undo system, adding
+convenient undo/redo without losing access to the full undo history, allowing
+you to visit all previous states of the document if you need.
+
+The changes compared Emacs undo are as follows:
+
+- Redo will not pass the initial undo action.
+- Redo will not undo /(unlike Emacs redo which traverses previous undo/redo
+  steps)/ .
+- These constraints can be temporarily disabled by pressing C-g before undo or
+  redo.
+
+Note that this doesn't interfere with Emacs internal undo data, which can be
+error prone.
+
+#+begin_src emacs-lisp
+(use-package undo-fu
+  :bind
+  ("C-/"   . undo-fu-only-undo)
+  ("C-S-/" . undo-fu-only-redo))
+#+end_src
+
 ** undo-propose
 
 #+begin_src emacs-lisp
@@ -5441,6 +5604,10 @@ enables relatively smooth scrolling even with dumb third party mice.
 #+end_src
 
 ** vundo
+
+[[https://github.com/casouri/vundo][Vundo]] (visual undo) displays the undo history as a tree and lets you move in
+the tree to go back to previous buffer states. To use vundo, type M-x vundo
+RET in the buffer you want to undo.
 
 #+begin_src emacs-lisp
 (use-package vundo
@@ -5846,9 +6013,8 @@ independent components.
    consult--source-project-recent-file
    :preview-key '(:debounce 0.4 any))
 
-  ;; (autoload 'projectile-project-root "projectile")
-  ;; (setq consult-project-function #'(lambda (_) (projectile-project-root)))
-  )
+  (autoload 'projectile-project-root "projectile")
+  (setq consult-project-function #'(lambda (_) (projectile-project-root))))
 #+end_src
 
 **** consult-dir
@@ -5894,7 +6060,7 @@ locations. The =default-directory= variable is not changed in the process.
               ("M-s f"   . consult-dir-jump-file)))
 #+end_src
 
-**** COMMENT consult-projectile
+**** consult-projectile
 
 #+begin_src emacs-lisp
 (use-package consult-projectile)
@@ -6713,6 +6879,19 @@ without white space and comments.
                                     eldoc-documentation-functions))))))
 #+end_src
 
+**** eglot-booster
+
+The [[https://github.com/blahgeek/emacs-lsp-booster][emacs-lsp-booster]] project provides a rust-based wrapper program which
+substantially speeds up emacs' interactions with lsp servers. [[This small package][eglot-booster]]
+enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
+
+#+begin_src emacs-lisp
+(use-package eglot-booster
+  :after (eglot)
+  :config
+  (eglot-booster-mode))
+#+end_src
+
 **** eglot-orderless
 
 #+begin_src emacs-lisp
@@ -7256,6 +7435,15 @@ without white space and comments.
   (add-hook 'ledger-mode-hook
             #'(lambda ()
                 (auto-fill-mode -1))))
+#+end_src
+
+*** COMMENT lsp-bridge
+
+#+begin_src emacs-lisp
+(use-package lsp-bridge
+  :commands (global-lsp-bridge-mode)
+  :custom
+  (lsp-bridge-enable-log nil))
 #+end_src
 
 *** COMMENT lsp-mode
@@ -8939,6 +9127,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+begin_src emacs-lisp
 (use-package org
   ;; :load-path "lisp/org-mode/lisp"
+  :demand t
   :commands org-resolve-clocks
   :bind* (("C-c S" . org-store-link)
           ("C-c l" . org-insert-link))
@@ -9132,41 +9321,39 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '(("Call" . 99)
      ("Errand" . 101)
      ("Home" . 104)))
-  (org-tag-faces
-   '(("Call"   :foreground "grey50")
-     ("Errand" :foreground "grey50")
-     ("Home"   :foreground "grey50")
-     ("FILE"   :foreground "magenta" :weight bold)
-     ("LINK"   :foreground "magenta" :weight bold)))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
                "WAIT(w@/!)" "TASK(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
-     (sequence "HABIT(h@/!)" "|" "DONE(d@/!)" "CANCELED(x@/!)")
+     (sequence "HABIT(h@/!)" "|" "FINISHED(@/!)")
      (sequence "PROJECT(p@/!)" "|" "COMPLETE(d@/!)" "ABORTED(x@/!)")
      (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
-   '(
-     ("TODO"     :foreground "blue"         :weight bold)
-     ("DOING"    :foreground "dark orange"  :weight bold)
-     ("WAIT"     :foreground "red"          :weight bold)
-     ("TASK"     :foreground "magenta"      :weight bold)
-     ("DEFER"    :foreground "dark blue"    :weight bold)
-     ("DONE"     :foreground "forest green" :weight bold)
-     ("CANCELED" :foreground "grey50"       :weight bold :strike-through t)
-
-     ("PROJECT"  :foreground "orange"       :weight bold)
-     ("COMPLETE" :foreground "dark cyan"    :weight bold)
-     ("ABORTED"  :foreground "grey40"       :weight bold :strike-through t)
-
-     ("HABIT"    :foreground "salmon"       :weight bold)
-
-     ("LINK"     :foreground "tomato"       :weight bold)
-     ("NOTE"     :foreground "brown"        :weight bold)
-     ("FEEDBACK" :foreground "dark violet"  :weight bold)
+   `(
+     ("TODO"     :foreground ,palette-slate-blue      :weight bold)
+     ("DOING"    :foreground ,palette-yellow          :weight bold)
+     ("WAIT"     :foreground ,palette-red             :weight bold)
+     ("TASK"     :foreground ,palette-blue            :weight bold)
+     ("DEFER"    :foreground ,palette-slate-blue-dark :weight bold)
+     ("DONE"     :foreground ,palette-green-dark      :weight bold)
+     ("FINISHED" :foreground ,palette-green-dark      :weight bold)
+     ("CANCELED" :foreground "grey50"                 :weight bold :strike-through t)
+     ("PROJECT"  :foreground ,palette-indigo          :weight bold)
+     ("COMPLETE" :foreground ,palette-cyan-dark       :weight bold)
+     ("ABORTED"  :foreground "grey40"                 :weight bold :strike-through t)
+     ("HABIT"    :foreground ,palette-orange          :weight bold)
+     ("LINK"     :foreground ,palette-orange-dark     :weight bold)
+     ("NOTE"     :foreground ,palette-red-dark        :weight bold)
+     ("FEEDBACK" :foreground ,palette-purple-dark     :weight bold)
      ))
+  (org-tag-faces
+   `(("Call"     :foreground "grey50")
+     ("Errand"   :foreground "grey50")
+     ("Home"     :foreground "grey50")
+     ("FILE"     :foreground ,palette-purple          :weight bold)
+     ("LINK"     :foreground ,palette-purple          :weight bold)))
   (org-todo-repeat-to-state "TODO")
   (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-use-fast-todo-selection 'expert)
@@ -9598,30 +9785,62 @@ unfold drawers."
   (org-agenda-finalize . org-agenda-overlay-add)
   :custom
   (org-agenda-overlay-by-filetag
-   '(("assembly" face (:background "#5f925f" :foreground "#eeeeee"))
-     ("bahai" face (:background "#1a631a" :foreground "#eeeeee"))
-     ("c2g" face (:background "#542f19" :foreground "#eeeeee"))
-     ("quantumtrades" face (:background "#6c175f" :foreground "#eeeeee"))
-     ("family" face (:background "#717111" :foreground "#eeeeee"))
-     ("kadena" face (:background "#6c175f" :foreground "#eeeeee"))
-     ("tech" face (:background "#1a3863" :foreground "#eeeeee"))))
+   `(("c2g"           face (:background ,palette-orange-darker     :foreground "#eeeeee"))
+     ("bahai"         face (:background ,palette-green-darker      :foreground "#eeeeee"))
+     ("family"        face (:background ,palette-green-darker      :foreground "#eeeeee"))
+     ("assembly"      face (:background ,palette-teal-darker       :foreground "#eeeeee"))
+     ("tech"          face (:background ,palette-indigo-darker     :foreground "#eeeeee"))
+     ("quantumtrades" face (:background ,palette-fuschia-darker    :foreground "#eeeeee"))
+     ("kadena"        face (:background ,palette-fuschia-darker    :foreground "#eeeeee"))
+     ))
   (org-agenda-overlay-by-olp
-   '(;; Headings in todo.org
-     (("Inbox") face (:background "#e444cc" :foreground "#ffffff"))
-     (("Finances") face (:background "#711111" :foreground "#eeeeee"))
-     (("Health") face (:background "#717111" :foreground "#eeeeee"))
-     (("Auto") face (:background "#717111" :foreground "#eeeeee"))
-     (("Home") face (:background "#717111" :foreground "#eeeeee"))
-     (("Nasim") face (:background "#717111" :foreground "#eeeeee"))
-     (("Bahá’í") face (:background "#1a631a" :foreground "#eeeeee"))
-     (("Family") face (:background "#4b0076" :foreground "#eeeeee"))
-     (("Friends") face (:background "#3b4076" :foreground "#eeeeee"))
-     (("Computer") face (:background "#491a63" :foreground "#eeeeee"))
-     (("Blog") face (:background "#491a63" :foreground "#eeeeee"))
-     (("Personal") face (:background "#491a63" :foreground "#eeeeee")))))
+   `(;; Headings in todo.org
+     (("Inbox")       face (:background ,palette-fuschia           :foreground "#ffffff"))
+     ;; red
+     (("Finances")    face (:background ,palette-red-darker        :foreground "#eeeeee"))
+     ;; orange
+     ;; yellow
+     (("Health")      face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
+     (("Auto")        face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
+     (("Home")        face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
+     (("Nasim")       face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
+     ;; green
+     (("Bahá’í")      face (:background ,palette-green-darker      :foreground "#eeeeee"))
+     ;; cyan
+     ;; slate blue
+     (("Friends")     face (:background ,palette-cyan-darker       :foreground "#eeeeee"))
+     ;; blue
+     (("Blog")        face (:background ,palette-blue-darker       :foreground "#eeeeee"))
+     (("Personal")    face (:background ,palette-blue-darker       :foreground "#eeeeee"))
+     ;; indigo
+     (("Computer")    face (:background ,palette-indigo-darker     :foreground "#eeeeee"))
+     ;; purple
+     (("Family")      face (:background ,palette-purple-darker     :foreground "#eeeeee")))))
+#+end_src
+
+*** org-alert
+
+#+begin_src emacs-lisp
+(use-package org-alert
+  :after org
+  :custom
+  (org-alert-time-match-string
+   "\\(?:SCHEDULED\\|DEADLINE\\):\\s-+<[^>]+?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
+  :config
+  (org-alert-enable))
 #+end_src
 
 *** org-appear
+
+[[https://github.com/awth13/org-appear][org-appears]] makes invisible parts of Org elements appear visible.
+
+[[https://orgmode.org/][Org mode]] provides a way to toggle visibility of hidden elements such as
+emphasis markers, links, etc. by customising specific variables, e.g.,
+=org-hide-emphasis-markers=. However, it is currently not possible to do this
+interactively and on an element-by-element basis. This package, inspired by
+[[https://github.com/io12/org-fragtog][org-fragtog]], enables automatic visibility toggling depending on cursor
+position. Hidden element parts appear when the cursor enters an element and
+disappear when it leaves.
 
 #+begin_src emacs-lisp
 (use-package org-appear
@@ -9654,6 +9873,15 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   :bind (:map org-mode-map
               ("C-c C-x n a"  . org-annotate-add-note)
               ("C-c C-x n l"  . org-annotate-display-notes)))
+#+end_src
+
+*** org-auto-expand
+
+#+begin_src emacs-lisp
+(use-package org-auto-expand
+  :after org
+  :config
+  (org-auto-expand-mode))
 #+end_src
 
 *** org-capture
@@ -9964,7 +10192,31 @@ A group FOO is composed of contacts with the tag FOO."
                    ", "))))
             ;; We haven't found the correct group
             (completion-table-case-fold completion-list
-                                        (not org-contacts-completion-ignore-case))))))))
+                                        (not org-contacts-completion-ignore-case)))))))
+
+  (defun org-contacts-anniversaries (&optional field format)
+    (let ((calendar-date-style 'american))
+      (unless format (setq format org-contacts-birthday-format))
+      (cl-loop
+       for contact in (org-contacts-filter)
+       for anniv = (let ((anniv (cdr (assoc-string
+                                      (or field org-contacts-birthday-property)
+                                      (nth 2 contact)))))
+                     (when anniv
+                       (calendar-gregorian-from-absolute
+                        (org-time-string-to-absolute anniv))))
+       ;; Use `diary-anniversary' to compute anniversary.
+       ;; FIXME: should we require `diary-lib' somewhere to be sure
+       ;; `diary-anniversary' is defined when we get here?
+       if (and anniv (apply #'diary-anniversary anniv))
+       collect (format-spec format
+                            `((?l . ,(car contact))
+                              (?h . ,(car contact))
+                              (?y . ,(- (calendar-extract-year date)
+                                        (calendar-extract-year anniv)))
+                              (?Y . ,(let ((years (- (calendar-extract-year date)
+                                                     (calendar-extract-year anniv))))
+                                       (format "%d%s" years (diary-ordinal-suffix years))))))))))
 #+end_src
 
 *** org-crypt
@@ -10048,7 +10300,7 @@ A group FOO is composed of contacts with the tag FOO."
                  :bold t :background "yellow" :foreground "black")))))
 #+end_src
 
-*** org-caldav
+*** COMMENT org-caldav
 
 #+begin_src emacs-lisp
 (use-package org-caldav
@@ -10438,7 +10690,8 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-pretty-table
   :after org
-  :hook ((org-mode . org-pretty-table-mode)))
+  :diminish org-pretty-table-mode
+  :hook (org-mode . org-pretty-table-mode))
 #+end_src
 
 *** org-project-capture
@@ -10481,12 +10734,22 @@ A group FOO is composed of contacts with the tag FOO."
 
 *** org-remark
 
+[[https://github.com/nobiot/org-remark][Org-remark]] lets you highlight and annotate text files, websites, EPUB books
+and Info documentation with using Org mode.
+
 #+begin_src emacs-lisp
 (use-package org-remark
   :after org
+  :diminish org-remark-global-tracking-mode
   :commands (org-remark-global-tracking-mode)
-  :bind (:map org-mode-map
-              ("C-c C-x R" . org-remark-mode))
+  :bind (("C-c n m" . org-remark-mark)
+         ("C-c n M" . org-remark-mark-line) ; new in v1.3
+         :map org-remark-mode-map
+         ("C-c n o" . org-remark-open)
+         ("C-c n ]" . org-remark-view-next)
+         ("C-c n [" . org-remark-view-prev)
+         ("C-c n r" . org-remark-remove)
+         ("C-c n d" . org-remark-delete))
   :config
   (org-remark-global-tracking-mode t))
 #+end_src
@@ -10582,6 +10845,9 @@ stamp to a task, which can be used to schedule a review of the task.
   :after org
   :bind
   (:map
+   my-ctrl-c-n-map
+   ("r" . org-review-insert-next-review)
+   :map
    org-agenda-mode-map
    :prefix-map
    my-org-review-map
@@ -10677,23 +10943,18 @@ stamp to a task, which can be used to schedule a review of the task.
   :demand t
   :after org
   :functions (org-roam-db-sync)
-  :bind* ("C-c M-m" . my/org-roam-create-new)
   :bind
   (:map
    org-mode-map
    ("C-M-i" . completion-at-point)
    :map
    my-ctrl-c-n-map
-   ("I" . my/org-roam-node-insert-immediate)
    ("J" . add-journal-entry)
    ("L" . org-roam-buffer-toggle)
-   ("T" . my/org-roam-revise-title)
    ("f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("i" . org-roam-node-insert)
-   ("n" . my/org-roam-create-new)
-   ("r" . org-roam-tag-remove)
-   ("t" . org-roam-tag-add)
-   ("w" . my/org-roam-prepare-note))
+   ;; ("r" . org-roam-tag-remove)
+   ("t" . org-roam-tag-add))
   :custom
   (org-roam-db-update-on-save nil)
   (org-roam-directory org-directory)
@@ -10717,23 +10978,22 @@ stamp to a task, which can be used to schedule a review of the task.
    org-roam-node-list
    org-roam-node-file)
   :preface
-  (eval-when-compile
-    (require 'org-roam-extra))
+  (defun org-roam-excluded-file (relative-path)
+    "Return non-nil if RELATIVE-PATH should be excluded from Org-roam."
+    (let (is-match)
+      (dolist (exclude-re org-roam-file-exclude-regexp)
+        (setq is-match
+              (or is-match
+                  (string-match-p exclude-re relative-path))))
+      is-match))
   :init
-  (use-package org-roam-extra)
-
   (setq org-roam-v2-ack t)
   :config
   (use-package org-roam-gt)
 
   ;; (org-roam-db-autosync-mode)
-  (unless alternate-emacs
-    (run-with-idle-timer 300 t 'org-roam-db-sync))
-
-  (cl-defmethod org-roam-node-slug ((node org-roam-node))
-    "Return the slug of NODE."
-    (let ((title (org-roam-node-title node)))
-      (my/org-roam-title-slug title)))
+  ;; (unless alternate-emacs
+  ;;   (run-with-idle-timer 300 t 'org-roam-db-sync))
 
   (cl-defun org-roam-node-insert-section (&key source-node point properties)
     (magit-insert-section
@@ -10763,14 +11023,7 @@ stamp to a task, which can be used to schedule a review of the task.
                 "\n")
         (oset section file (org-roam-node-file source-node))
         (oset section point point)
-        (insert ?\n))))
-
-  ;; (add-hook 'org-roam-file-setup-hook #'my/org-roam-update-todo-tag)
-  ;; (add-hook 'before-save-hook #'my/org-roam-update-todo-tag)
-  (add-hook 'before-save-hook #'my/org-roam-sort-file-properties)
-
-  (advice-add 'org-agenda :before #'my/org-roam-update-todo-files)
-  (my/org-roam-update-todo-files))
+        (insert ?\n)))))
 #+end_src
 
 **** org-roam-dailies
@@ -10842,28 +11095,6 @@ resulting in an org-mode checklist.
   :after (org-roam embark))
 #+end_src
 
-**** org-roam-dblocks
-
-This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-dblocks.el.
-
-#+begin_src emacs-lisp
-(use-package org-roam-dblocks
-  :hook (org-mode . org-roam-dblocks-autoupdate-mode))
-#+end_src
-
-**** COMMENT org-roam-slipbox
-
-This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-slipbox.el.
-
-#+begin_src emacs-lisp
-(use-package org-roam-slipbox
-  :after org-roam
-  :demand t
-  :config
-  (org-roam-slipbox-buffer-identification-mode +1)
-  (org-roam-slipbox-tag-mode +1))
-#+end_src
-
 **** org-roam-ui
 
 #+begin_src emacs-lisp
@@ -10876,6 +11107,36 @@ This is from https://github.com/chrisbarrett/nursery/blob/main/lisp/org-roam-sli
         org-roam-ui-follow t
         org-roam-ui-update-on-save t
         org-roam-ui-open-on-start t))
+#+end_src
+
+**** org-roam-extra
+
+#+begin_src emacs-lisp
+(use-package org-roam-extra
+  :after (org-roam)
+  :demand t
+  :bind* ("C-c M-m" . org-roam-extra-create-new)
+  :bind
+  (:map
+   my-ctrl-c-n-map
+   ("S" . org-roam-extra-insert-minutes)
+   ("X" . org-roam-extra-insert-transcript)
+   ("I" . org-roam-extra-node-insert-immediate)
+   ("T" . org-roam-extra-revise-title)
+   ("n" . org-roam-extra-create-new)
+   ("w" . org-roam-extra-prepare-note)
+   ("P" . org-roam-extra-meeting-audio))
+  :hook
+  (before-save . org-roam-extra-sort-file-properties)
+  ;; (org-roam-file-setup . org-roam-extra-update-todo-tag)
+  ;; (before-save . org-roam-extra-update-todo-tag)
+  :config
+  (cl-defmethod org-roam-node-slug ((node org-roam-node))
+    "Return the slug of NODE."
+    (org-roam-extra-title-slug (org-roam-node-title node)))
+
+  (advice-add 'org-agenda :before #'org-roam-extra-update-todo-files)
+  (org-roam-extra-update-todo-files))
 #+end_src
 
 **** org-smart-capture
@@ -10952,7 +11213,7 @@ directories, dot files, and files matched by
            (not (string-suffix-p "~" base-name))
            (file-regular-p file)
            (not (member relative-path my-xeft-ignored-files))
-           (not (my/org-roam-excluded-file relative-path)))))
+           (not (org-roam-excluded-file relative-path)))))
   :config
   (defun xeft ()
     "Start Xeft."
@@ -11087,10 +11348,30 @@ Currently, this package supports:
          :map
          org-agenda-mode-map
          ("g" . org-extra-agenda-redo))
-  :init
-  (unless alternate-emacs
-    (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
-    (run-with-idle-timer 300 t #'org-extra-jump-to-agenda)))
+  :custom
+  (org-extra-link-names
+   (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
+  :preface
+  (defun org-extra-read-names (file)
+    (with-temp-buffer
+      (insert-file-contents-literally file)
+      (goto-char (point-min))
+      (let (result)
+        (while (re-search-forward
+                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)\\s-+|"
+                nil t)
+          (setq result
+                (cons (cons (match-string 2)
+                            (list (match-string 1)
+                                  (match-string 3)))
+                      result)))
+        (nreverse result))))
+  ;; :init
+  ;; (unless alternate-emacs
+  ;;   (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
+  ;;   (run-with-idle-timer 300 t #'org-extra-jump-to-agenda))
+  :config
+  (use-package org-extra-private))
 #+end_src
 
 *** COMMENT org-timeline
@@ -11148,8 +11429,14 @@ Usage scenario:
          ("C-c C-x T" . org-transclusion-mode)
          :map
          my-ctrl-c-n-map
-         ("A" . org-transclusion-add)
-         ("M" . org-transclusion-make-from-link)))
+         ("A" . my-org-transclusion-insert)
+         ("M" . org-transclusion-make-from-link))
+  :preface
+  (defun my-org-transclusion-insert ()
+    (interactive)
+    (save-excursion
+      (call-interactively #'org-roam-node-insert))
+    (insert "#+transclude: ")))
 #+end_src
 
 *** COMMENT org-upcoming-modeline
@@ -11241,7 +11528,8 @@ own lines, for instance.
 (use-package ox-slack
   :after org
   :bind
-  ("C-c w k" . org-slack-export-to-clipboard-as-slack)
+  ("C-c w k"   . org-slack-export-to-clipboard-as-slack)
+  ("C-c w M-w" . org-slack-export-to-clipboard-as-slack)
   :config
   (advice-add 'org-slack-export-to-clipboard-as-slack
               :after #'(lambda () (deactivate-mark))))

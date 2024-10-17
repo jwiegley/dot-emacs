@@ -346,6 +346,7 @@
        "#+category: Meeting\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :kadena:\n"
+       "#+startup: showeverything\n"
        "#+title: Meeting: %^{Purpose of meeting}\n"))
     :immediate-finish t
     :jump-to-captured t
@@ -369,6 +370,7 @@
        "#+category: 1-on-1\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :kadena:\n"
+       "#+startup: showeverything\n"
        "#+title: 1-on-1: %^{Person meeting with}\n"))
     :immediate-finish t
     :jump-to-captured t
@@ -400,6 +402,7 @@
        "#+category: Assembly\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :todo:assembly:\n"
+       "#+startup: showeverything\n"
        "#+title: Meeting: Local Spiritual Assembly\n"))
     :immediate-finish t
     :jump-to-captured t
