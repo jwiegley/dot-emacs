@@ -3,6 +3,4 @@
 TODO $0
 SCHEDULED: `(created-stamp t)`
 :PROPERTIES:
-:ID:       `(generate-uuid)`
-:CREATED:  `(created-stamp)`
 :END:

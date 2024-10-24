@@ -294,10 +294,7 @@ text will be moved into an OFFSET property."
   (when (equal arg '(16))
     (let ((org-inhibit-logging t))
       (org-todo "TODO")))
-  (org-id-get-create arg)
-  (unless (org-entry-get (point) "CREATED")
-    (org-entry-put (point) "CREATED"
-                   (format-time-string (org-time-stamp-format t t)))))
+  (run-hooks 'org-capture-before-finalize-hook))
 
 (defun org-extra-todoize-region (&optional beg end arg)
   "Add standard metadata to headlines in region.
@@ -462,21 +459,19 @@ This dynamic block does not accept an `:id` parameter, however,
 and simply iterates over all files in `org-agenda-files`."
   (let ((table
          (apply #'nconc
-                (delete
-                 nil
-                 (mapcar
-                  #'(lambda (view-file)
-                      (with-current-buffer
-                          (org-get-agenda-file-buffer view-file)
-	                (org-with-wide-buffer
-                         (org-extra-columns--capture-view
-                          (plist-get params :maxlevel)
-		          (plist-get params :match)
-		          (plist-get params :skip-empty-rows)
-		          (plist-get params :exclude-tags)
-		          (plist-get params :format)
-		          nil))))
-                  org-agenda-files)))))
+                (mapcar
+                 #'(lambda (view-file)
+                     (with-current-buffer
+                         (org-get-agenda-file-buffer view-file)
+	               (org-with-wide-buffer
+                        (org-extra-columns--capture-view
+                         (plist-get params :maxlevel)
+		         (plist-get params :match)
+		         (plist-get params :skip-empty-rows)
+		         (plist-get params :exclude-tags)
+		         (plist-get params :format)
+		         nil))))
+                 org-agenda-files))))
     ;; Add column titles and a horizontal rule in front of the table.
     (setq table
           (cons (mapcar #'cadr org-columns-current-fmt-compiled)
@@ -499,11 +494,12 @@ and simply iterates over all files in `org-agenda-files`."
 	(push (pop table) new-table)
 	(dolist (row table (setq table (nreverse new-table)))
           (setq row
-                (list (nth 0 row)
-                      (nth 1 row)
-                      (nth 2 row)
-                      (format "[[id:%s][%s]]" (nth 2 row) (nth 3 row))
-                      (nth 4 row)))
+                (append
+                 (list (nth 0 row)
+                       (nth 1 row)
+                       (nth 2 row)
+                       (format "[[id:%s][%s]]" (nth 2 row) (nth 3 row)))
+                 (nthcdr 4 row)))
           (let ((level (car row)))
 	    (when (and (not (eq (car new-table) 'hline))
 		       (or (eq hlines t)
@@ -585,6 +581,17 @@ and simply iterates over all files in `org-agenda-files`."
     (while (looking-at "^#")
       (forward-line 1))
     (fill-region (point) (point-max))))
+
+(defun org-extra-set-current-refile-context ()
+  (interactive)
+  (org-entry-put (point) "REFILE_TIME"
+                 (format-time-string
+                  (org-time-stamp-format 'with-time 'no-brackets)))
+  (org-entry-put (point) "REFILE_FILE" (buffer-file-name))
+  (org-entry-put (point) "REFILE_OLPATH"
+                 (mapconcat #'identity
+			    (org-get-outline-path)
+			    "/")))
 
 (provide 'org-extra)
 

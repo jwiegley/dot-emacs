@@ -337,7 +337,9 @@
       :jump-to-captured t)))
 
  org-roam-capture-templates
- `(("m" "Meeting notes" plain
+ `(("m" "Meetings")
+
+   ("mm" "Meeting" plain
     (file "~/doc/template/org/meeting.org")
     :target
     (file+head
@@ -353,6 +355,104 @@
     :unnarrowed t
     :no-save t)
 
+   ("ma" "All Hands" plain
+    (file "~/doc/template/org/kadena/meetings/all-hands.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-all-hands.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mb" "BD <> Engineering" plain
+    (file "~/doc/template/org/kadena/meetings/bd-engineering.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-bd-engineering.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mt" "CTO Meeting" plain
+    (file "~/doc/template/org/kadena/meetings/cto.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-cto.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mx" "CXO Meeting" plain
+    (file "~/doc/template/org/kadena/meetings/cxo.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-cxo.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("md" "DX <> Core" plain
+    (file "~/doc/template/org/kadena/meetings/dx-and-core.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-dx-and-core.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("ms" "Core Eng Standup" plain
+    (file "~/doc/template/org/kadena/meetings/eng-standup.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-eng-standup.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("me" "EVM Standup" plain
+    (file "~/doc/template/org/kadena/meetings/evm-standup.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-evm-standup.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mh" "Hack-a-chain")
+
+   ("mhr" "Hack-a-chain Indexer Review" plain
+    (file "~/doc/template/org/kadena/meetings/hackachain-indexer-review.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-indexer-review.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mhs" "Hack-a-chain Internal Standup" plain
+    (file "~/doc/template/org/kadena/meetings/hackachain-internal-standup.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-internal-standup.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mP" "John <> PM Team" plain
+    (file "~/doc/template/org/kadena/meetings/john-pm-team.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-john-pm-team.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("ml" "Leads Strategy" plain
+    (file "~/doc/template/org/kadena/meetings/leads-strategy.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-leads-strategy.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("mp" "Pact Posse" plain
+    (file "~/doc/template/org/kadena/meetings/pact-posse.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-pact-posse.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("n" "Note" plain "%?"
     :target (file+head "%<%Y%m%d%H%M>.org"
                        "#+category: Note\n#+title: ${title}\n")
@@ -361,7 +461,9 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("o" "One-on-one notes" plain
+   ("o" "1-on-1s")
+
+   ("o." "1-on-1 meeting" plain
     (file "~/doc/template/org/kadena/one-on-one.org")
     :target
     (file+head
@@ -372,6 +474,101 @@
        "#+filetags: :kadena:\n"
        "#+startup: showeverything\n"
        "#+title: 1-on-1: %^{Person meeting with}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("oa" "Names beginning with A")
+
+   ("oag" "1-on-1 Albert Groothedde" plain
+    (file "~/doc/template/org/kadena/one-on-one/albert-groothedde.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("oao" "1-on-1 Annelise Osborne" plain
+    (file "~/doc/template/org/kadena/one-on-one/annelise-osborne.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-annelise-osborne.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("oe" "Names beginning with E")
+
+   ("oen" "1-on-1 Edmund Noble" plain
+    (file "~/doc/template/org/kadena/one-on-one/edmund-noble.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-edmund-noble.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("oep" "1-on-1 Emily Pillmore" plain
+    (file "~/doc/template/org/kadena/one-on-one/emily-pillmore.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-emily-pillmore.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("oj" "Names beginning with J")
+
+   ("ojm" "1-on-1 Jesse Marquez" plain
+    (file "~/doc/template/org/kadena/one-on-one/jesse-marquez.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-jesse-marquez.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("ojb" "1-on-1 June Boston" plain
+    (file "~/doc/template/org/kadena/one-on-one/june-boston.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-june-boston.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("ol" "Names beginning with L")
+
+   ("olk" "1-on-1 Lars Kuhtz" plain
+    (file "~/doc/template/org/kadena/one-on-one/lars-kuhtz.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-lars-kuhtz.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("olb" "1-on-1 Leah Bingham" plain
+    (file "~/doc/template/org/kadena/one-on-one/leah-bingham.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-leah-bingham.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("or" "Names beginning with R")
+
+   ("ord" "1-on-1 Randy Daal" plain
+    (file "~/doc/template/org/kadena/one-on-one/randy-daal.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-randy-daal.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("ors" "1-on-1 Robert Soeldner" plain
+    (file "~/doc/template/org/kadena/one-on-one/robert-soeldner.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("os" "Names beginning with S")
+
+   ("osp" "1-on-1 Stuart Popejoy" plain
+    (file "~/doc/template/org/kadena/one-on-one/stuart-popejoy.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-stuart-popejoy.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -404,6 +601,78 @@
        "#+filetags: :todo:assembly:\n"
        "#+startup: showeverything\n"
        "#+title: Meeting: Local Spiritual Assembly\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bA" "Ali Nakhjavani Development Fund" plain
+    (file "~/doc/template/org/bahai/ali-nakhjavani-development-fund.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-ali-nakhjavani-development-fund.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bc" "C2G Admin" plain
+    (file "~/doc/template/org/bahai/meetings/c2g-admin.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-c2g-admin.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bD" "National Convention Delegate Report" plain
+    (file "~/doc/template/org/bahai/meetings/national-convention-delegate-report.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-national-convention-delegate-report.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bn" "National Treasurer's Office" plain
+    (file "~/doc/template/org/bahai/meetings/national-treasurers-office.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-national-treasurers-office.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bf" "Regional Council and the Flow of Guidance" plain
+    (file "~/doc/template/org/bahai/meetings/regional-council-and-flow-of-guidance.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-council-and-flow-of-guidance.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("br" "Regional Treasurer's Office" plain
+    (file "~/doc/template/org/bahai/meetings/regional-treasurers-office.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-treasurers-office.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bI" "Ruhi Intensive Reflection" plain
+    (file "~/doc/template/org/bahai/meetings/ruhi-intensive-reflection.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive-reflection.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bi" "Ruhi Intensive" plain
+    (file "~/doc/template/org/bahai/meetings/ruhi-intensive.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bu" "Unit Convention" plain
+    (file "~/doc/template/org/bahai/meetings/unit-convention.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-unit-convention.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -459,28 +728,62 @@
 
    ("r" . "Review tasks")
 
+   ("rA" "All tasks" alltodo ""
+    ((org-agenda-prefix-format
+      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(category-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
+   ("rH" "All habits" todo "HABIT"
+    ((org-agenda-prefix-format
+      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(category-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
    ("rr" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-config-agenda-skip-habit)
-           (org-config-agenda-skip-entry-if
+      '(or (org-config-agenda-skip-entry-if
             (org-extra-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER"))
+            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER" "HABIT"))
            (org-config-skip-if-review-not-needed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%-5e%1(or (and (org-entry-get nil \"LAST_REVIEW\") \"→\") \"\") ")
-     (org-agenda-sorting-strategy '(user-defined-down))))
+      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(user-defined-down))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
+   ("rU" "All tasks never reviewed" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-agenda-skip-entry-if
+            'nottodo '("TODO" "DOING" "WAIT" "TASK" "PROJECT" "DEFER" "HABIT"))
+           (org-config-agenda-skip-entry-if
+            (org-review-last-review-prop nil))))
+     (org-agenda-cmp-user-defined 'org-config-review-compare)
+     (org-agenda-prefix-format
+      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(user-defined-down))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
    ("ru" "Unscheduled tasks" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-habit)
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
-            'nottodo '("TODO" "DOING" "WAIT" "TASK"))))
+            'nottodo '("TODO" "DOING" "WAIT" "TASK" "HABIT"))))
      (org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
+
+   ("rs" "Scheduled" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-config-agenda-skip-habit)
+           (org-agenda-skip-entry-if 'notscheduled)))
+     (org-agenda-sorting-strategy '(category-up))))
 
    ("rD" "Waiting/delegated" todo "WAIT|TASK"
     ((org-agenda-sorting-strategy
@@ -489,12 +792,6 @@
    ("rd" "Deadlined" alltodo ""
     ((org-agenda-skip-function
       '(org-agenda-skip-entry-if 'notdeadline))
-     (org-agenda-sorting-strategy '(category-up))))
-
-   ("rs" "Scheduled" alltodo ""
-    ((org-agenda-skip-function
-      '(or (org-config-agenda-skip-habit)
-           (org-agenda-skip-entry-if 'notscheduled)))
      (org-agenda-sorting-strategy '(category-up))))
 
    ("rR" "Deferred" todo "DEFER"
@@ -604,6 +901,12 @@
   (interactive)
   (org-ql-search (org-agenda-files)
     '(habit)
+    :sort '(scheduled)))
+
+(defun org-config-show-todos ()
+  (interactive)
+  (org-ql-search (org-agenda-files)
+    '(todo)
     :sort '(scheduled)))
 
 (provide 'org-config)
