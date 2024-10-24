@@ -505,7 +505,7 @@ tasks."
   ;;   (goto-char (point-min))
   ;;   (when (re-search-forward "\\* \\(TASK\\|TODO\\) " nil t)
   ;;     (org-roam-tag-add "todo")))
-  (move-file-to-trash summary))
+  (delete-file summary t))
 
 (require 'parse-csv)
 
@@ -543,7 +543,7 @@ tasks."
           (fill-region beg (point-max)))
         (goto-char (point-max))
         (delete-blank-lines))))
-  (move-file-to-trash transcript)
+  (delete-file transcript t)
   (unless (file-readable-p (org-roam-extra-current-audio-file))
     (error "Transcript audio file missing: %s"
            (org-roam-extra-current-audio-file))))

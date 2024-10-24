@@ -2,7 +2,5 @@
 # --
 LINK $0
 :PROPERTIES:
-:ID:       `(generate-uuid)`
-:CREATED:  `(created-stamp)`
 :URL:      `(gui--selection-value-internal 'CLIPBOARD)`
 :END:

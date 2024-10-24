@@ -216,8 +216,8 @@
 #+begin_src emacs-lisp
 (use-package epg
   :defer t
-  :custom
-  (epg-gpg-program "/usr/local/bin/gpg")
+  ;; :custom
+  ;; (epg-gpg-program "/usr/local/bin/gpg")
   :config
   (put 'epg-gpg-program 'customized-value t))
 #+end_src
@@ -1980,9 +1980,20 @@ To get the most out of Eat, you should also setup shell integration.
   (edit-server-edit-mode . visual-line-mode)
   (edit-server-edit-mode . visual-fill-column-mode)
   :custom
-  (edit-server-new-frame nil)
-  :config
-  (edit-server-start))
+  (edit-server-new-frame
+   '((name . "Edit with Emacs FRAME")
+     (top . 200)
+     (left . 200)
+     (width . 80)
+     (height . 25)
+     (minibuffer . t)
+     (menu-bar-lines . t)
+     (window-system . x)))
+  :init
+  (if after-init-time
+      (edit-server-start)
+    (add-hook 'after-init-hook
+              #'(lambda() (edit-server-start)))))
 #+end_src
 
 ** edit-var
@@ -2783,7 +2794,6 @@ up before you execute another command."
          :prefix-map
          gptel-cmd-map
          :prefix "C-x C"
-         ("C"        . my-gptel)
          ("a"        . gptel-abort)
          ("s"        . gptel-send)
          ("r"        . gptel-rewrite-menu)
@@ -2804,10 +2814,6 @@ up before you execute another command."
      (travel-guide . "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location.")
      (seminar-organizer . "You are a seminar organizer, you plan and put together meetings where people can come together and share ideas, plan, and learn about how to facilitate larger groups. You present your information in a kindly yet efficient manner,and use precise language to make details very clear for those who read your letters.")
      (persian-translator . "You are a translator from English into the Persian language for the Bahá’í World Centre. You take great care to be accurate and meaningful in your translations, while using the commonly accepted terms found in letters from Shoghi Effendi and the Universal House of Justice. You prize clarity but also value beauty and elegant in what you write. However, the goal is to communicate meaning, and not to attempt to sound lofty or poetic. You are concise yet expressive, profound yet not heavy-handed.")))
-  :preface
-  (defun my-gptel ()
-    (interactive)
-    (pop-to-buffer (gptel "*ChatGPT*")))
   :config
   (use-package gptel-transient
     :config
@@ -2871,6 +2877,17 @@ up before you execute another command."
       :key (auth-source-pass-get 'secret "claude.anthropic.com")))
 
   (setq gptel-model "gpt-4o"))
+#+end_src
+
+*** corsair
+
+#+begin_src emacs-lisp
+(use-package corsair                    ;
+  :bind (:prefix-map
+         gptel-cmd-map
+         :prefix "C-x C"
+         ("C" . corsair-open-chat-buffer)
+         ("w" . corsair-accumulate-selected-text)))
 #+end_src
 
 ** grep
@@ -4742,7 +4759,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
   (projectile-keymap-prefix "p")
   (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
-  (projectile-project-search-path '("~/src" "~/kadena"))
+  (projectile-project-search-path '("~/src" "~/kadena" "~/doc"))
   (projectile-sort-order 'recentf)
   :preface
   (defun my-projectile-invalidate-cache (&rest _args)
@@ -6666,7 +6683,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package latex
-  :mode ("\\.tex\\'" . TeX-latex-mode)
+  :mode ("\\.tex\\'" . LaTeX-mode)
   :bind (:map
          LaTeX-mode-map
          ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
@@ -9032,7 +9049,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
             (string-match "\\(brass\\|safe\\|riscv\\)" gnus-newsgroup-name))
         (gnus-alias-use-identity "Gmail"))
        ((or (match-in-strings "john\\.wiegley@coppertogold\\.com" addrs)
-            (string-match "\\(ctg\\)" gnus-newsgroup-name))
+            (string-match "\\(c2g\\)" gnus-newsgroup-name))
         (gnus-alias-use-identity "C2G"))
        ((or (match-in-strings "johnw@newartisans\\.com" addrs)
             (string-match "\\(haskell\\|coq\\|agda\\|idris\\|acl2\\)"
@@ -9144,10 +9161,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c SPC"     . org-table-blank-field)
          ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
          ("C-c C-x $"   . visible-mode)
-         ("C-c C-x L"   . org-set-dtp-link)
          ("C-c C-x M"   . org-set-message-link)
          ("C-c C-x U"   . org-set-url-from-clipboard)
-         ("C-c C-x l"   . org-insert-dtp-link)
          ("C-c C-x m"   . org-insert-message-link)
          ("C-c C-x o"   . my-org-open-map-link)
          ("C-c C-x r"   . org-clock-report)
@@ -9196,7 +9211,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-persist-file (user-data "org-clock-save.el"))
   (org-clock-resolve-expert t)
   (org-clone-delete-id nil)
-  (org-columns-default-format "%6Effort(Effort){:} %TODO %66ITEM(Task) %TAGS")
+  (org-columns-default-format "%6Effort(Effort){:} %TODO %64ITEM(Task) %NEXT_REVIEW")
   (org-confirm-babel-evaluate nil)
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
@@ -9411,21 +9426,24 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
             0
           1))))
 
+  (eval-when-compile
+    (require 'org-devonthink))
+
   (defun org-my-message-open (message-id)
-    (if t
-        (browse-url
-         (if nil
-             (concat "https://app.fastmail.com/mail/search:msgid%3A"
-                     (url-encode-url (substring message-id 2))
-                     "/?u=d30140a0")
-           (concat "x-devonthink-item://%3C"
-                   (url-encode-url (substring message-id 2))
-                   "%3E")))
-      (require 'gnus-util)
-      (if (get-buffer "*Group*")
-          (gnus-goto-article
-           (gnus-string-remove-all-properties (substring message-id 2)))
-        (error "Gnus is not running"))))
+    (org-devonthink-open
+     (concat "%3C" (url-encode-url (substring message-id 2)) "%3E"))
+
+    ;; (browse-url
+    ;;  (concat "https://app.fastmail.com/mail/search:msgid%3A"
+    ;;          (url-encode-url (substring message-id 2))
+    ;;          "/?u=d30140a0"))
+
+    ;; (require 'gnus-util)
+    ;; (if (get-buffer "*Group*")
+    ;;     (gnus-goto-article
+    ;;      (gnus-string-remove-all-properties (substring message-id 2)))
+    ;;   (error "Gnus is not running"))
+    )
 
   (defun save-org-mode-files ()
     (dolist (buf (buffer-list))
@@ -9581,6 +9599,20 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (org-insert-all-links nil "*** " "\n"))
 
+  (eval-when-compile
+    (require 'uuidgen))
+
+  (defun generate-uuid ()
+    (with-temp-buffer
+      (uuidgen nil)
+      (upcase (buffer-string))))
+
+  (defun created-stamp (&optional for-scheduled)
+    (with-temp-buffer
+      (org-insert-time-stamp (current-time)
+                             (not for-scheduled) (not for-scheduled))
+      (buffer-string)))
+
   (defun endless/follow-tag-link (tag)
     "Display a list of TODO headlines with tag TAG.
 With prefix argument, also display headlines without a TODO keyword."
@@ -9684,7 +9716,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-tags-column -100)
   (org-agenda-tags-todo-honor-ignore-options t)
   (org-agenda-text-search-extra-files '(agenda-archives))
-  (org-agenda-todo-ignore-scheduled 'future)
+  ;; (org-agenda-todo-ignore-scheduled 'future)
   (org-agenda-todo-ignore-time-comparison-use-seconds t)
   (org-agenda-skip-deadline-prewarning-if-scheduled t)
   (org-agenda-use-time-grid nil)
@@ -9746,20 +9778,6 @@ With prefix argument, also display headlines without a TODO keyword."
     (org-agenda-goto)
     (org-narrow-to-subtree))
 
-  (eval-when-compile
-    (require 'uuidgen))
-
-  (defun generate-uuid ()
-    (with-temp-buffer
-      (uuidgen nil)
-      (upcase (buffer-string))))
-
-  (defun created-stamp (&optional for-scheduled)
-    (with-temp-buffer
-      (org-insert-time-stamp (current-time)
-                             (not for-scheduled) (not for-scheduled))
-      (buffer-string)))
-
   ;; I like the behavior of `arg' to be reversed in this function.
   (defun my-org-agenda-show-and-scroll-up (&optional arg)
     "Display the Org file which contains the item at point.
@@ -9818,12 +9836,13 @@ unfold drawers."
      (("Family")      face (:background ,palette-purple-darker     :foreground "#eeeeee")))))
 #+end_src
 
-*** org-alert
+*** COMMENT org-alert
 
 #+begin_src emacs-lisp
 (use-package org-alert
   :after org
   :custom
+  (org-alert-notify-after-event-cutoff 60)
   (org-alert-time-match-string
    "\\(?:SCHEDULED\\|DEADLINE\\):\\s-+<[^>]+?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
   :config
@@ -9891,12 +9910,13 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   :after org
   :demand t
   :preface
-  (defun my/org-basic-properties ()
+  (defun my/org-basic-properties (&optional arg)
+    (interactive "P")
     (save-excursion
-      (org-set-property "ID" (org-id-new))
-      (org-set-property "CREATED"
-                        (with-temp-buffer
-                          (org-insert-time-stamp (current-time) t t)))))
+      (org-id-get-create arg)
+      (unless (org-entry-get (point) "CREATED")
+        (org-entry-put (point) "CREATED"
+                       (format-time-string (org-time-stamp-format t t))))))
   :config
   ;; Ensure the ID and CREATED properties are always set for new entries.
   (add-hook 'org-capture-before-finalize-hook #'my/org-basic-properties))
@@ -10219,7 +10239,7 @@ A group FOO is composed of contacts with the tag FOO."
                                        (format "%d%s" years (diary-ordinal-suffix years))))))))))
 #+end_src
 
-*** org-crypt
+*** COMMENT org-crypt
 
 #+begin_src emacs-lisp
 (use-package org-crypt
@@ -10254,7 +10274,13 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-devonthink
-  :after org)
+  :after org
+  :functions (org-devonthink-open)
+  :bind
+  (:map
+   org-mode-map
+   ("C-c C-x L" . org-devonthink-set-link)
+   ("C-c C-x l" . org-devonthink-insert-link)))
 #+end_src
 
 *** org-download
@@ -10279,6 +10305,28 @@ A group FOO is composed of contacts with the tag FOO."
   :diminish
   :config
   (org-edna-mode))
+#+end_src
+
+*** org-element
+
+#+begin_src emacs-lisp
+(use-package org-element
+  :after org
+  :preface
+  (defun my-org-element-check-buffer (element)
+    (unless (org-element-property :buffer element)
+      (org-element--cache-warn
+       "Got element without buffer (cache active?: %S)\n%S"
+       (org-element--cache-active-p)
+       element)))
+  :init
+  (setq org-element-cache-persistent nil
+        org-element--cache-self-verify nil
+        ;; org-element--cache-self-verify 'backtrace
+        )
+  :config
+  (advice-add 'org-element--cache-verify-element
+              :before #'my-org-element-check-buffer))
 #+end_src
 
 *** org-color
@@ -10843,15 +10891,19 @@ stamp to a task, which can be used to schedule a review of the task.
 #+begin_src emacs-lisp
 (use-package org-review
   :after org
+  :demand t
   :bind
   (:map
    my-ctrl-c-n-map
-   ("r" . org-review-insert-next-review)
+   ("R" . org-review-insert-next-review)
+   ("r" . my-org-insert-last-and-set-next-review)
    :map
    org-agenda-mode-map
    :prefix-map
    my-org-review-map
    :prefix "r"
+   ("R" . org-review-insert-next-review)
+   ("r" . my-org-insert-last-and-set-next-review)
    ("d" . review-next-day)
    ("D" . review-next-three-days)
    ("w" . review-next-week)
@@ -10869,7 +10921,26 @@ stamp to a task, which can be used to schedule a review of the task.
    ("y" . review-next-year)
    ("Y" . review-next-two-years)
    )
+  :custom
+  (org-review-last-timestamp-format 'inactive)
+  (org-review-next-timestamp-format 'inactive)
   :preface
+  (defun my-org-reviewed-today ()
+    (interactive)
+    (when (ignore-errors (org-entry-is-todo-p))
+      (save-excursion
+        (org-review-insert-last-review)
+        (let ((ts (format-time-string (car org-time-stamp-formats)
+                                      (current-time))))
+          (org-review-insert-date org-review-next-property-name
+			          org-review-next-timestamp-format
+			          ts)))))
+
+  (defun my-org-insert-last-and-set-next-review ()
+    (interactive)
+    (org-review-insert-last-review)
+    (call-interactively #'org-review-insert-next-review))
+
   (defun my-org-review-next (delay)
     (let ((org-review-delay delay))
       (org-review-insert-last-review nil)))
@@ -10925,7 +10996,9 @@ stamp to a task, which can be used to schedule a review of the task.
   (defun review-next-two-years ()
     (interactive)
     (my-org-review-next "+2y")
-    (message "Next review in 2 years")))
+    (message "Next review in 2 years"))
+  :config
+  (add-hook 'org-capture-before-finalize-hook #'my-org-reviewed-today))
 #+end_src
 
 *** org-rich-yank
@@ -10950,7 +11023,7 @@ stamp to a task, which can be used to schedule a review of the task.
    :map
    my-ctrl-c-n-map
    ("J" . add-journal-entry)
-   ("L" . org-roam-buffer-toggle)
+   ("B" . org-roam-buffer-toggle)
    ("f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("i" . org-roam-node-insert)
    ;; ("r" . org-roam-tag-remove)
@@ -11061,8 +11134,8 @@ stamp to a task, which can be used to schedule a review of the task.
   (:map
    my-ctrl-c-n-map
    ("f" . consult-org-roam-file-find)
+   ("F" . consult-org-roam-forward-links)
    ("b" . consult-org-roam-backlinks)
-   ("l" . consult-org-roam-forward-links)
    ("g" . consult-org-roam-search))
   :custom
   (consult-org-roam-grep-func #'consult-ripgrep)
@@ -11119,8 +11192,7 @@ resulting in an org-mode checklist.
   :bind
   (:map
    my-ctrl-c-n-map
-   ("S" . org-roam-extra-insert-minutes)
-   ("X" . org-roam-extra-insert-transcript)
+   ("S" . org-roam-extra-import-fireflies)
    ("I" . org-roam-extra-node-insert-immediate)
    ("T" . org-roam-extra-revise-title)
    ("n" . org-roam-extra-create-new)
@@ -11358,7 +11430,7 @@ Currently, this package supports:
       (goto-char (point-min))
       (let (result)
         (while (re-search-forward
-                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)\\s-+|"
+                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)?\\s-+|"
                 nil t)
           (setq result
                 (cons (cons (match-string 2)
@@ -11462,6 +11534,25 @@ middle-click to temporarily hide it.
          ("C-c w C-M-y" . org-web-tools-insert-web-page-as-entry)))
 #+end_src
 
+*** org-yasnippet
+
+#+begin_src emacs-lisp
+(use-package org-yasnippet
+  :no-require t
+  :after (org yasnippet)
+  :preface
+  (defun my/run-capture-finalize-for-org-items ()
+    (save-excursion
+      (save-restriction
+        (narrow-to-region yas-snippet-beg yas-snippet-end)
+        (goto-char (point-min))
+        (when (search-forward ":PROPERTIES:" nil t)
+          (run-hooks 'org-capture-before-finalize-hook)))))
+  :config
+  (add-hook 'yas-after-exit-snippet-hook
+            #'my/run-capture-finalize-for-org-items))
+#+end_src
+
 *** COMMENT orgit
 
 #+begin_src emacs-lisp
@@ -11549,7 +11640,7 @@ own lines, for instance.
   :after oc
   :bind (:map
          my-ctrl-c-n-map
-         ("R" . citar-create-note))
+         ("N" . citar-create-note))
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)
