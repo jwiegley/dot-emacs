@@ -140,18 +140,32 @@
 (defconst palette-fuschia-dark      "#660033")
 
 ;; Luminosity 15
-(defconst palette-red-darker          "#5C0000")
-(defconst palette-orange-darker       "#5C2E00")
-(defconst palette-yellow-darker       "#5C5C00")
-(defconst palette-yellow-green-darker "#2E5C00")
-(defconst palette-green-darker        "#005C00")
-(defconst palette-teal-darker         "#005C2E")
-(defconst palette-cyan-darker         "#005C5C")
-(defconst palette-slate-blue-darker   "#002E5C")
-(defconst palette-blue-darker         "#00005C")
-(defconst palette-indigo-darker       "#2E005C")
-(defconst palette-purple-darker       "#5C005C")
-(defconst palette-fuschia-darker      "#5C002E")
+(defconst palette-red-darker          "#4D0000")
+(defconst palette-orange-darker       "#4D2600")
+(defconst palette-yellow-darker       "#4D4D00")
+(defconst palette-yellow-green-darker "#264D00")
+(defconst palette-green-darker        "#004D00")
+(defconst palette-teal-darker         "#004D26")
+(defconst palette-cyan-darker         "#004D4D")
+(defconst palette-slate-blue-darker   "#00264D")
+(defconst palette-blue-darker         "#00004D")
+(defconst palette-indigo-darker       "#26004D")
+(defconst palette-purple-darker       "#4D004D")
+(defconst palette-fuschia-darker      "#4D0026")
+
+;; Luminosity 10
+(defconst palette-red-darkest          "#330000")
+(defconst palette-orange-darkest       "#331A00")
+(defconst palette-yellow-darkest       "#333300")
+(defconst palette-yellow-green-darkest "#1A3300")
+(defconst palette-green-darkest        "#003300")
+(defconst palette-teal-darkest         "#00331A")
+(defconst palette-cyan-darkest         "#003333")
+(defconst palette-slate-blue-darkest   "#001A33")
+(defconst palette-blue-darkest         "#000033")
+(defconst palette-indigo-darkest       "#1A0033")
+(defconst palette-purple-darkest       "#330033")
+(defconst palette-fuschia-darkest      "#33001A")
 #+end_src
 
 * Helper functions
@@ -4616,7 +4630,7 @@ append it to ENTRY."
                (21 67)
                (_  40)))
       (`macbook-pro-vga          55)
-      (`macbook-pro-16           51)
+      (`macbook-pro-16           52)
       (`macbook-pro-15           47)
       (`macbook-pro-13           47)))
 
@@ -9257,6 +9271,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("beamer" "\\documentclass{beamer}" org-beamer-sectioning)))
   (org-export-use-babel nil)
   (org-extend-today-until 4)
+  (org-use-effective-time t)
   (org-fast-tag-selection-single-key 'expert)
   (org-fontify-done-headline t)
   (org-fontify-quote-and-verse-blocks t)
@@ -9310,11 +9325,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (66 . "White")
      (67 :foreground "grey90" :slant italic)))
   (org-read-date-force-compatible-dates nil)
-  (org-refile-target-verify-function 'org-refile-heading-p)
-  (org-refile-targets
-   '((org-agenda-files :maxlevel . 4)))
-  (org-refile-use-cache nil)
-  (org-refile-use-outline-path t)
   (org-outline-path-complete-in-steps nil)
   (org-return-follows-link nil)
   (org-reverse-note-order t)
@@ -9342,7 +9352,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
                "WAIT(w@/!)" "TASK(g@/!)" "DEFER(r!/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
-     (sequence "HABIT(h@/!)" "|" "FINISHED(@/!)")
+     (sequence "HABIT(h@/!)" "VISIT(v@/!)" "|" "FINISHED(@/!)")
      (sequence "PROJECT(p@/!)" "|" "COMPLETE(d@/!)" "ABORTED(x@/!)")
      (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
@@ -9359,6 +9369,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("COMPLETE" :foreground ,palette-cyan-dark       :weight bold)
      ("ABORTED"  :foreground "grey40"                 :weight bold :strike-through t)
      ("HABIT"    :foreground ,palette-orange          :weight bold)
+     ("VISIT"    :foreground ,palette-purple          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
      ("FEEDBACK" :foreground ,palette-purple-dark     :weight bold)
@@ -9803,37 +9814,63 @@ unfold drawers."
   (org-agenda-finalize . org-agenda-overlay-add)
   :custom
   (org-agenda-overlay-by-filetag
-   `(("c2g"           face (:background ,palette-orange-darker     :foreground "#eeeeee"))
-     ("bahai"         face (:background ,palette-green-darker      :foreground "#eeeeee"))
-     ("family"        face (:background ,palette-green-darker      :foreground "#eeeeee"))
-     ("assembly"      face (:background ,palette-teal-darker       :foreground "#eeeeee"))
-     ("tech"          face (:background ,palette-indigo-darker     :foreground "#eeeeee"))
-     ("quantumtrades" face (:background ,palette-fuschia-darker    :foreground "#eeeeee"))
-     ("kadena"        face (:background ,palette-fuschia-darker    :foreground "#eeeeee"))
+   `(("c2g"           face (:background ,palette-orange-darker  :foreground "#eeeeee"))
+     ("bahai"         face (:background ,palette-green-darker   :foreground "#eeeeee"))
+     ("family"        face (:background ,palette-green-darker   :foreground "#eeeeee"))
+     ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
+     ("tech"          face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("kadena"        face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ))
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org
-     (("Inbox")       face (:background ,palette-fuschia           :foreground "#ffffff"))
+     (("Inbox")       face (:background ,palette-fuschia        :foreground "#ffffff"))
      ;; red
-     (("Finances")    face (:background ,palette-red-darker        :foreground "#eeeeee"))
+     (("Finances")    face (:background ,palette-red-dark       :foreground "#eeeeee"))
      ;; orange
      ;; yellow
-     (("Health")      face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
-     (("Auto")        face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
-     (("Home")        face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
-     (("Nasim")       face (:background ,palette-yellow-darker     :foreground "#eeeeee"))
+     (("Health")      face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     (("Auto")        face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     (("Home")        face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     (("Nasim")       face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ;; green
-     (("Bahá’í")      face (:background ,palette-green-darker      :foreground "#eeeeee"))
+     (("Bahá’í")      face (:background ,palette-green-darker   :foreground "#eeeeee"))
      ;; cyan
      ;; slate blue
-     (("Friends")     face (:background ,palette-cyan-darker       :foreground "#eeeeee"))
+     (("Friends")     face (:background ,palette-cyan-darker    :foreground "#eeeeee"))
      ;; blue
-     (("Blog")        face (:background ,palette-blue-darker       :foreground "#eeeeee"))
-     (("Personal")    face (:background ,palette-blue-darker       :foreground "#eeeeee"))
+     (("Blog")        face (:background ,palette-blue-dark      :foreground "#eeeeee"))
+     (("Personal")    face (:background ,palette-blue-dark      :foreground "#eeeeee"))
      ;; indigo
-     (("Computer")    face (:background ,palette-indigo-darker     :foreground "#eeeeee"))
+     (("Computer")    face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; purple
-     (("Family")      face (:background ,palette-purple-darker     :foreground "#eeeeee")))))
+     (("Family")      face (:background ,palette-purple-darker  :foreground "#eeeeee")))))
+#+end_src
+
+*** COMMENT appt
+
+#+begin_src emacs-lisp
+(use-package appt
+  :after (org)
+  :hook
+  ;; when agenda is opened and showed, refresh appt
+  (org-agenda-after-show . (lambda () (org-agenda-to-appt t)))
+
+  ;; when any org file changed, refresh appt
+  ;; (after-save . (lambda () (when (eq major-mode 'org-mode)
+  ;;                       (org-agenda-to-appt t))))
+  :custom
+  ;; start warning 60 minutes before the appointment
+  (appt-message-warning-time 10)
+  ;; warn me every 5 minutes
+  (appt-display-interval 5)
+  (appt-disp-window-function
+   #'(lambda (remaining new-time msg)
+       (alert msg
+              :title (format "In %s minutes" remaining)
+              :severity 'high)))
+  :config
+  (appt-activate t))
 #+end_src
 
 *** COMMENT org-alert
@@ -10348,7 +10385,7 @@ A group FOO is composed of contacts with the tag FOO."
                  :bold t :background "yellow" :foreground "black")))))
 #+end_src
 
-*** COMMENT org-caldav
+*** org-caldav
 
 #+begin_src emacs-lisp
 (use-package org-caldav
@@ -10733,6 +10770,36 @@ A group FOO is composed of contacts with the tag FOO."
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
 
+*** org-quick-peek
+
+#+begin_src emacs-lisp
+(use-package org-quick-peek
+  :after org
+  :bind (:map org-agenda-mode-map
+              ("E" . org-quick-peek-agenda-current-item))
+  :custom
+  (org-quick-peek-show-lines 20)
+  :config
+  ;;; jww (2024-10-27): Fixing org-quick-peek creating invisible overlay when
+  ;;; agenda filter is in place and the next item is hidden by the filter Bug
+  ;;; report: yantar92 [Github] issue#9 The overlay is not always visible when
+  ;;; org-agenda-filter is in place
+  (defun quick-peek-overlay-ensure-at (pos)
+    "Find or create a quick-peek overlay for the line at POS.
+
+Typical code should not need this method; use `quick-peek-show'
+instead."
+    (or (quick-peek-overlay-at pos)
+	(let* ((ov (save-excursion
+                     (goto-char pos)
+                     (make-overlay (point-at-bol) (1+ (point-at-eol))))))
+          (overlay-put ov 'quick-peek t)
+          ;; Add impossible invisible property
+          (overlay-put ov 'invisible 'nope)
+          (push ov quick-peek--overlays)
+          ov))))
+#+end_src
+
 *** org-pretty-table
 
 #+begin_src emacs-lisp
@@ -10778,6 +10845,28 @@ A group FOO is composed of contacts with the tag FOO."
     (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
                '(org-recent-headings)))
+#+end_src
+
+*** org-refile
+
+#+begin_src emacs-lisp
+(use-package org-refile
+  :after org
+  :custom
+  (org-refile-target-verify-function 'org-refile-heading-p)
+  (org-refile-targets '((org-agenda-files :maxlevel . 4)))
+  (org-refile-use-cache nil)
+  (org-refile-use-outline-path t))
+#+end_src
+
+**** org-refile-context
+
+#+begin_src emacs-lisp
+(use-package org-refile-context
+  :after org
+  :bind (:map org-mode-map ("C-c C-x R" . org-refile-context-reverse))
+  :config
+  (org-refile-context-install))
 #+end_src
 
 *** org-remark
@@ -10927,7 +11016,10 @@ stamp to a task, which can be used to schedule a review of the task.
   :preface
   (defun my-org-reviewed-today ()
     (interactive)
-    (when (ignore-errors (org-entry-is-todo-p))
+    (when (or (ignore-errors (org-entry-is-todo-p))
+              (save-excursion
+                (goto-char (point-min))
+                (looking-at "^\\(TODO\\|TASK\\|HABIT\\|PROJECT\\|VISIT\\) ")))
       (save-excursion
         (org-review-insert-last-review)
         (let ((ts (format-time-string (car org-time-stamp-formats)
@@ -11207,8 +11299,7 @@ resulting in an org-mode checklist.
     "Return the slug of NODE."
     (org-roam-extra-title-slug (org-roam-node-title node)))
 
-  (advice-add 'org-agenda :before #'org-roam-extra-update-todo-files)
-  (org-roam-extra-update-todo-files))
+  (advice-add 'org-agenda :before #'org-roam-extra-update-todo-files))
 #+end_src
 
 **** org-smart-capture
@@ -11243,8 +11334,8 @@ context.
    '("todo.org"
      "OSS.org"
      "kadena/kadena.org"
-     "kadena/quantum-trades.org"
-     "bahai/assembly/assembly.org"))
+     "quantum-trades/quantum-trades.org"
+     "assembly/assembly.org"))
   :custom-face
   (xeft-excerpt-body
    ((t (:inherit default :foreground "grey80"))))
@@ -11340,19 +11431,8 @@ text belongs to.
 (use-package org-super-agenda
   :after org
   :custom
-  (org-super-agenda-groups
-   '((:name "Important" :and (:priority "A" :not (:habit t)))
-     (:name "Overdue" :deadline past)
-     (:name "Due Soon" :deadline future)
-     (:name "Reschedule" :and (:scheduled past :not (:habit t)))
-     (:name "Needs review" :todo "WAIT" :todo "TASK" :todo "DOING")
-     (:name "Calls" :tag "Call")
-     (:name "Errands" :tag "Errand")
-     ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
-     (:name "Tasks" :and (:not (:habit t)))
-     (:name "Habits" :habit t)
-     ))
-  (org-super-agenda-header-separator "")
+  (org-super-agenda-header-separator "————————————————————————————————————————————————————————————————————————————————————————————————————\n")
+  ;; (org-super-agenda-header-separator "")
   (org-super-agenda-hide-empty-groups t)
   :config
   (org-super-agenda-mode))

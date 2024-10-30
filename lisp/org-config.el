@@ -429,6 +429,14 @@
     :unnarrowed t
     :no-save t)
 
+   ("mj" "JS Team" plain
+    (file "~/doc/template/org/kadena/meetings/js-team.org")
+    :target (file "journal/%<%Y%m%d%H%M>-meeting-js-team.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("mP" "John <> PM Team" plain
     (file "~/doc/template/org/kadena/meetings/john-pm-team.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-john-pm-team.org")
@@ -714,7 +722,31 @@
                        "#+title: %<%Y-%m-%d>\n")))
 
  org-agenda-custom-commands
- '(("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
+ '(("a" "Agenda" agenda ""
+    ((org-super-agenda-groups
+      '((:name "Important"
+               :and (:priority "A" :not (:habit t)))
+        (:name "Overdue"
+               :deadline past)
+        (:name "Due Soon"
+               :deadline future)
+        (:name "Reschedule"
+               :and (:scheduled past :not (:habit t)))
+        (:name "Needs review"
+               :and (:todo ("WAIT" "TASK" "DOING")
+                           :not (:priority "C")))
+        (:name "Calls"
+               :tag "Call")
+        (:name "Errands"
+               :tag "Errand")
+        ;; (:ancestor-with-todo ("PROJECT" :nearestp t))
+        (:name "Tasks"
+               :not (:habit t))
+        (:name "Habits"
+               :habit t)
+        ))))
+
+   ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
 
    ("n" "Notes" todo "NOTE")
 
