@@ -10276,6 +10276,16 @@ A group FOO is composed of contacts with the tag FOO."
                                        (format "%d%s" years (diary-ordinal-suffix years))))))))))
 #+end_src
 
+*** org-context
+
+#+begin_src emacs-lisp
+(use-package org-context
+  :after org
+  :bind (:map org-mode-map ("C-c C-x R" . org-context-undo))
+  :config
+  (org-context-install))
+#+end_src
+
 *** COMMENT org-crypt
 
 #+begin_src emacs-lisp
@@ -10857,16 +10867,6 @@ instead."
   (org-refile-targets '((org-agenda-files :maxlevel . 4)))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path t))
-#+end_src
-
-**** org-refile-context
-
-#+begin_src emacs-lisp
-(use-package org-refile-context
-  :after org
-  :bind (:map org-mode-map ("C-c C-x R" . org-refile-context-reverse))
-  :config
-  (org-refile-context-install))
 #+end_src
 
 *** org-remark
