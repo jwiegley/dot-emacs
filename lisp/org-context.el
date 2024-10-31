@@ -29,6 +29,7 @@
 ;;
 ;;   (use-package org-context
 ;;     :after org
+;;     :demand t
 ;;     :bind (:map org-mode-map ("C-c C-x R" . org-context-undo))
 ;;     :config
 ;;     (org-context-install))
@@ -44,6 +45,7 @@
 
 (require 'org)
 (require 'org-refile)
+(require 'org-archive)
 (require 'cl-lib)
 
 (defgroup org-context nil
@@ -66,7 +68,7 @@
 
 (defcustom org-context-record-predicate
   (lambda (context)
-    (not (or (string= "Inbox" (cdr (assq context 'olpath)))
+    (not (or (string= "Inbox" (cdr (assq 'olpath context)))
              (org-entry-get (point) "ARCHIVE_FILE"))))
   "With point at entry, return non-nil if refile context should be save.
 This function receives the context to be stored as an argument."
@@ -126,7 +128,7 @@ WHERE can be any of the following:
 (defun org-context--save-before-refile (&rest _)
   "Helper function used to save context before `org-refile'."
   (setq org-context-last-saved
-        (let ((context (org-context-get 'refile)))
+        (let ((context (org-context-get)))
           (when (funcall org-context-record-predicate context)
             context))))
 
@@ -164,15 +166,16 @@ See `org-context-get' for information on the WHERE parameter."
 See `org-context-get' for information on the WHERE parameter."
   (interactive)
   (let ((context (org-context-get where)))
-    (when context
-      (org-context-delete where)
-      ;; Refile the entry back to its original location.
-      (let ((file (cdr (assq 'file context)))
-            (olpath (cdr (assq 'olpath context))))
-        (org-refile nil nil
-                    (list olpath file nil
-                          (org-find-olp (cons file (split-string olpath "/"))))))
-      t)))
+    ;; Refile the entry back to its original location.
+    (let ((file (cdr (assq 'file context)))
+          (olpath (cdr (assq 'olpath context))))
+      (when olpath
+        (org-context-delete where)
+        (org-refile
+         nil nil
+         (list olpath file nil
+               (org-find-olp (cons file (split-string olpath "/")))))
+        t))))
 
 (defun org-context-undo-refile ()
   "Restore a refiled item to where it was refiled from."
