@@ -468,6 +468,13 @@
 
    ("oa" "Names beginning with A")
 
+   ("oab" "1-on-1 Anastasia Bez" plain
+    (file "~/doc/template/org/kadena/one-on-one/anastasia-bez.org")
+    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-anastasia-bez.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
    ("oag" "1-on-1 Albert Groothedde" plain
     (file "~/doc/template/org/kadena/one-on-one/albert-groothedde.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
@@ -905,6 +912,16 @@
   (org-ql-search (org-agenda-files)
     '(todo)
     :sort '(scheduled)))
+
+(defun org-config-show-filetagged-tasks (tag)
+  "Report items pending review after one second."
+  (interactive "sTag: ")
+  (org-ql-search (org-agenda-files)
+    '(and (todo)
+          (save-excursion
+            (goto-char (point-min))
+            (re-search-forward (concat "#\\+filetags:.*:" tag ":") 4096 t)))
+    :sort '(scheduled todo)))
 
 (provide 'org-config)
 
