@@ -26,7 +26,11 @@
 ;;; Commentary:
 
 (require 'cl-lib)
+(eval-when-compile
+  (require 'cl))
+
 (require 'org)
+(require 'dash)
 
 (declare-function org-with-wide-buffer "org-macs")
 
@@ -34,8 +38,7 @@
   "Extra functions for use with Org-mode"
   :group 'org)
 
-(defun org-extra-up-heading ()
-  (call-interactively #'outline-up-heading))
+(defalias 'org-extra-up-heading #'outline-up-heading)
 
 (defun org-extra-goto-inbox-heading ()
   (set-buffer (get-buffer "todo.org"))
@@ -98,7 +101,7 @@
     (delete-region (match-beginning 0) (match-end 0)))) 
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
-  "Fit the Org Agenda to its buffer."
+  "Fit the Org Agenda to its buffer and import any pending Drafts."
   (let ((notes
          (ignore-errors
            (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
@@ -203,22 +206,19 @@ fold drawers."
     (with-selected-window wind
       (org-fit-window-to-buffer wind)
       (ignore-errors
-        (window-resize
-         wind
-         (- 100 (window-width wind)) t)))))
+        (window-resize wind (- 100 (window-width wind)) t)))))
 
 (defun org-extra-entire-properties-block ()
   "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
   (save-excursion
     (org-back-to-heading)
-    (let ((entry-end (save-excursion
-                       (outline-next-heading)
-                       (point)))
-          beg end)
-      (when (search-forward ":PROPERTIES:" end t)
-        (setq beg (match-beginning 0)))
-      (when (re-search-forward ":END:\\s-*\n" end t)
-        (setq end (match-end 0)))
+    (let* ((entry-end (save-excursion
+                        (outline-next-heading)
+                        (point)))
+           (beg (and (search-forward ":PROPERTIES:" end t)
+                     (match-beginning 0)))
+           (end (and (re-search-forward ":END:\\s-*\n" end t)
+                     (match-end 0))))
       (cons beg end))))
 
 (defun org-extra-move-properties-drawer ()
@@ -250,7 +250,6 @@ after :END:."
           (_ nil))
         (if (equal before-sha (sha1 (buffer-substring-no-properties beg end)))
             (set-buffer-modified-p modified))))))
-
 
 (defun org-extra-fix-all-properties ()
   (interactive)
@@ -320,7 +319,7 @@ See `org-extra-todoize'."
   (let ((org-use-property-inheritance
          (append org-use-property-inheritance '("WITH"))))
     (org-tags-view
-     t (format "%s={%s}&TODO={TODO\\|WAITING\\|DELEGATED}" property value))))
+     t (format "%s={%s}&TODO={TODO\\|WAIT\\|TASK}" property value))))
 
 (defun org-extra-created-from-stamp ()
   (interactive)
@@ -343,16 +342,6 @@ See `org-extra-todoize'."
   (org-insert-structure-template type)
   (yank))
 
-(defun org-extra-id-copy ()
-  (interactive)
-  (org-id-copy)
-  (message "Copied id:%s to the kill ring" (car kill-ring)))
-
-(defun org-extra-parent-keyword ()
-  (save-excursion
-    (org-up-heading-safe)
-    (org-get-todo-state)))
-
 (defun org-extra-parent-priority ()
   (save-excursion
     (org-up-heading-safe)
@@ -361,24 +350,81 @@ See `org-extra-todoize'."
       (and (looking-at org-heading-regexp)
 	   (org-get-priority (match-string 0))))))
 
-(defun org-extra-agenda-files-except (&rest args)
-  (let ((result org-agenda-files))
-    (dolist (arg args)
-      (setq result (delete arg result)))
-    result))
+(defsubst org-extra-agenda-files-except (&rest args)
+  (cl-set-difference org-agenda-files args))
 
-(defun org-extra-task-p (&optional keyword)
-  (member (or keyword (org-get-todo-state))
-          '("TODO" "DOING" "WAIT" "TASK" "DEFER" "CANCELED" "DONE")))
+(defsubst org-extra-category-p ()
+  "A category is any heading that has a CATEGORY property."
+  (not (null (my/org-entry-get-immediate "CATEGORY"))))
+
+(defun org-extra--first-child-todo (&optional pred)
+  (save-excursion
+    (when (org-goto-first-child)
+      (cl-loop for loc = (or (and (org-entry-is-todo-p)
+                                  (or (null pred) (funcall pred))
+                                  (point))
+                             (org-extra--first-child-todo))
+               if loc
+               do (throw 'has-child-todo loc)
+               while (org-get-next-sibling)))))
+
+(defsubst org-extra-first-child-todo (&optional pred)
+  (catch 'has-child-todo (org-extra--first-child-todo pred)))
+
+(defsubst org-extra-project-p ()
+  "A project is any open todo that has child tasks at any level."
+  (and (org-entry-is-todo-p)
+       (not (null (org-extra-first-child-todo)))))
+
+(defsubst org-extra-top-level-project-p ()
+  "A top-level project is not the child of another project."
+  (and (org-extra-project-p)
+       (not (org-extra-subtask-p))))
 
 (defun org-extra-subtask-p ()
-  (and (org-extra-task-p)
-       (let ((keyword (org-extra-parent-keyword)))
-         (and keyword (org-extra-task-p keyword)))))
+  "A subtask is any open todo that is a child of another open todo.
+This is true even if there are intervening categories or other headings."
+  (and (org-entry-is-todo-p)
+       (save-excursion
+         (cl-loop while (org-up-heading-safe)
+                  if (org-entry-is-todo-p) return t))))
 
-(defun org-extra-project-task-p ()
-  (and (org-extra-task-p)
-       (member (org-extra-parent-keyword) '("PROJECT"))))
+(defalias 'org-extra-task-p #'org-entry-is-todo-p)
+
+(defalias 'org-extra-habit-p #'org-is-habit-p)
+
+(defun org-extra-has-preceding-todo-p ()
+  (let ((here (point)))
+    (save-excursion
+      (when (org-up-heading-safe)
+        (let ((first-child (and (org-extra-task-p)
+                                (org-extra-first-child-todo))))
+          (and first-child
+               (or (/= first-child here)
+                   (org-extra-has-preceding-todo-p))))))))
+
+(defun org-extra-refile-heading-p ()
+  (or (org-extra-category-p)
+      (org-extra-project-p)))
+
+(defun org-extra-sort-all ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\\*+ " nil t)
+      (goto-char (match-beginning 0))
+      (when (org-extra-refile-heading-p)
+        (condition-case _err
+            (progn
+              (org-sort-entries t ?p)
+              (org-sort-entries t ?o))
+          (error nil)))
+      (forward-line))))
+
+(defun org-extra-id-copy ()
+  (interactive)
+  (org-id-copy)
+  (message "Copied id:%s to the kill ring" (car kill-ring)))
 
 ;;; From https://gist.github.com/MenacingMecha/11bd07daaaac790620b5fe0437e96a4c
 (defun org-extra-set-blocker-from-clipboard-id ()
@@ -541,6 +587,66 @@ and simply iterates over all files in `org-agenda-files`."
 	(when recalc (org-table-recalculate 'all t))
 	(org-table-align)))))
 
+(defun org-extra-get-properties (&rest props)
+  (cons (org-current-level)
+        (mapcar #'(lambda (prop)
+                    (if (string= "ITEM_BY_ID" prop)
+                        (format "[[id:%s][%s]]"
+                                (org-entry-get (point) "ID")
+                                (org-entry-get (point) "ITEM"))
+                      (org-entry-get (point) prop)))
+                props)))
+
+(defun org-dblock-write:ql-columnview (params)
+  "Create a table view of an org-ql query.
+
+Example:
+
+#+begin: ql-columnview :query \"(and (tags \\\"John\\\") (todo))\" :properties \"TODO ITEM_BY_ID LAST_REVIEW NEXT_REVIEW TAGS\" :sort-idx 4
+#+end:
+
+The :sort-idx takes the 1-indexed column mentioned in
+:properties, interprets it as an Org-time, and sorts the
+resulting table on that column, ascending."
+  (let* ((columns (split-string (plist-get params :properties) " "))
+         (sort-index (plist-get params :sort-idx))
+         (table
+          (org-ql-select
+            'org-agenda-files
+            (read (plist-get params :query))
+            :action `(org-extra-get-properties ,@columns)
+            :sort
+            #'(lambda (x y)
+                (when sort-index
+                  (time-less-p
+                   (org-encode-time
+                    (org-parse-time-string (nth sort-index x)))
+                   (org-encode-time
+                    (org-parse-time-string (nth sort-index y)))))))))
+    ;; Add column titles and a horizontal rule in front of the table.
+    (setq table (cons columns (cons 'hline table)))
+    (let ((hlines nil)
+          new-table)
+      ;; Copy header and first rule.
+      (push (pop table) new-table)
+      (push (pop table) new-table)
+      (dolist (row table (setq table (nreverse new-table)))
+        (let ((level (car row)))
+	  (when (and (not (eq (car new-table) 'hline))
+		     (or (eq hlines t)
+			 (and (numberp hlines) (<= level hlines))))
+	    (push 'hline new-table))
+	  (push (cdr row) new-table))))
+    (save-excursion
+      ;; Insert table at point.
+      (insert
+       (mapconcat (lambda (row)
+		    (if (eq row 'hline) "|-|"
+		      (format "|%s|" (mapconcat #'identity row "|"))))
+		  table
+		  "\n")))
+    (org-table-align)))
+
 (defcustom org-extra-link-names nil
   "A list of ids and their associated names used by `org-extra-edit-link-name'."
   :group 'org-extra
@@ -582,16 +688,71 @@ and simply iterates over all files in `org-agenda-files`."
       (forward-line 1))
     (fill-region (point) (point-max))))
 
-(defun org-extra-set-current-refile-context ()
+;;; This function was provided by Sacha Chua at:
+;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
+(defun org-extra-refile-to-point (refloc)
+  "Prompt for a heading and refile it to point."
+  (interactive (list (org-refile-get-location "Heading: ")))
+  (let* ((file (nth 1 refloc))
+         (pos (nth 3 refloc)))
+    (save-excursion
+      (with-current-buffer (find-file-noselect file 'noward)
+        (save-excursion
+          (save-restriction
+            (widen)
+            (goto-char pos)
+            (org-copy-subtree 1 t))))
+      (org-paste-subtree nil nil nil t))))
+
+(defun org-extra-update-entry-hash (&optional algorithm)
+  "Update the HASH_<algorithm> property of the current Org entry.
+Algorithm defaults to `sha512_256', which computes the `sha512'
+but only uses the first 64 bits."
   (interactive)
-  (org-entry-put (point) "REFILE_TIME"
-                 (format-time-string
-                  (org-time-stamp-format 'with-time 'no-brackets)))
-  (org-entry-put (point) "REFILE_FILE" (buffer-file-name))
-  (org-entry-put (point) "REFILE_OLPATH"
-                 (mapconcat #'identity
-			    (org-get-outline-path)
-			    "/")))
+  (save-excursion
+    (org-back-to-heading)
+    (let ((beg (point))
+          (property (format "HASH_%s" (or algorithm 'sha512))))
+      (org-entry-delete (point) property)
+      (let* ((end (save-excursion
+                    (outline-next-heading)
+                    (point)))
+             (hash (secure-hash (or algorithm 'sha512)
+                                (buffer-substring-no-properties beg end))))
+        (org-entry-put (point)
+                       property
+                       (if algorithm
+                           hash
+                         (substring hash 0 64)))))))
+
+(defun org-extra-update-check-hash (&optional algorithm)
+  "Update the HASH_<algorithm> property of the current Org entry.
+Algorithm defaults to `sha512_256', which computes the `sha512'
+but only uses the first 64 bits."
+  (interactive)
+  (save-excursion
+    (org-back-to-heading)
+    (let* ((property (format "HASH_%s" (or algorithm 'sha512)))
+           (current (org-entry-get (point) property)))
+      (when current
+        (let* ((beg (point))
+               (end (save-excursion
+                      (outline-next-heading)
+                      (point)))
+               (body (buffer-substring-no-properties beg end))
+               (hash (with-temp-buffer
+                       (insert body)
+                       (org-mode)
+                       (goto-char (point-min))
+                       (org-entry-delete (point) property)
+                       (secure-hash (or algorithm 'sha512)
+                                    (buffer-string))))
+               (subhash (if algorithm
+                            hash
+                          (substring hash 0 64))))
+          (if (string= current subhash)
+              (message "Hashes MATCH")
+            (error "Hashes DO NOT match!")))))))
 
 (provide 'org-extra)
 
