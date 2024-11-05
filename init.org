@@ -11512,6 +11512,8 @@ Currently, this package supports:
          :map
          org-agenda-mode-map
          ("g" . org-extra-agenda-redo))
+  :hook
+  (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
   :custom
   (org-extra-link-names
    (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
