@@ -376,7 +376,7 @@ tasks."
                 (list "~/Mobile/inbox.org")))
   (message "org-agenda-files has been updated"))
 
-(defun org-extra-sync ()
+(defun org-roam-extra-sync ()
   (interactive)
   (let ((agenda-buf (get-buffer "*Org Agenda*")))
     (when agenda-buf
@@ -390,7 +390,7 @@ tasks."
     (redisplay t)
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
-      (org-sort-all)
+      (org-extra-sort-all)
       (org-cycle-content 5)
       (org-align-tags t))
     (message "Sorting: %s...done" file)

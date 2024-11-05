@@ -125,6 +125,11 @@ WHERE can be any of the following:
                         (org-time-stamp-format 'with-time 'no-brackets)))
 	  (todo     . ,(org-entry-get (point) "TODO")))))))
 
+(defun org-context-show-olpath (&optional where)
+  (interactive)
+  (let ((context (org-context-get where)))
+    (message "%s :: %s" (cdr (assq 'file context)) (cdr (assq 'olpath context)))))
+
 (defun org-context--save-before-refile (&rest _)
   "Helper function used to save context before `org-refile'."
   (setq org-context-last-saved

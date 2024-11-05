@@ -6493,6 +6493,13 @@ without white space and comments.
   (vertico-count 10)
   (vertico-resize nil)
   (vertico-cycle t)
+  ;; (vertico-sort-function #'my/sort-by-mtime)
+  ;; (vertico-sort-override-function
+  ;;  #'(lambda (files)
+  ;;      (if (and (eq minibuffer-history-variable 'file-name-history)
+  ;;               (not (eq (car-safe minibuffer-completion-table) 'boundaries)))
+  ;;          (my/sort-by-mtime files)
+  ;;        (vertico-sort-history-length-alpha files))))
   :preface
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
@@ -6501,10 +6508,19 @@ without white space and comments.
                    crm-separator)
                   (car args))
           (cdr args)))
+
+  (defsubst time-greater-p (a b)
+    (time-less-p b a))
+
+  (defun my/sort-by-mtime (files)
+    "Sort FILES by modification time (newest first)."
+    (sort-on files
+             #'time-greater-p
+             #'(lambda (a) (file-attribute-modification-time (file-attributes a)))))
   :config
   (vertico-mode)
 
-                                        ;(define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
+  ;;(define-key vertico-map (kbd "C-k") (kmacro "M-. k"))
 
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -9335,7 +9351,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-src-window-setup 'current-window)
   (org-startup-folded 'show3levels)
   (org-startup-with-inline-images t)
-  (org-stuck-projects '("TODO=\"PROJECT\"" ("TODO" "DEFER") nil ""))
   (org-subject-transforms
    '(("\\`\\(Re\\|Fwd\\): " . "")
      ("\\`{ledger} " . "")
@@ -9350,10 +9365,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
-               "WAIT(w@/!)" "TASK(g@/!)" "DEFER(r!/!)"
+               "WAIT(w@/!)" "DEFER(r!/!)"
+               "TASK(g@/!)" "HABIT(h@/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)")
-     (sequence "HABIT(h@/!)" "VISIT(v@/!)" "|" "FINISHED(@/!)")
-     (sequence "PROJECT(p@/!)" "|" "COMPLETE(d@/!)" "ABORTED(x@/!)")
      (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
    `(
@@ -9363,13 +9377,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("TASK"     :foreground ,palette-blue            :weight bold)
      ("DEFER"    :foreground ,palette-slate-blue-dark :weight bold)
      ("DONE"     :foreground ,palette-green-dark      :weight bold)
-     ("FINISHED" :foreground ,palette-green-dark      :weight bold)
      ("CANCELED" :foreground "grey50"                 :weight bold :strike-through t)
-     ("PROJECT"  :foreground ,palette-indigo          :weight bold)
-     ("COMPLETE" :foreground ,palette-cyan-dark       :weight bold)
-     ("ABORTED"  :foreground "grey40"                 :weight bold :strike-through t)
      ("HABIT"    :foreground ,palette-orange          :weight bold)
-     ("VISIT"    :foreground ,palette-purple          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
      ("FEEDBACK" :foreground ,palette-purple-dark     :weight bold)
@@ -9510,20 +9519,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (save-buffer))
     (org-overview))
 
-  (defun org-sort-all ()
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "^\\*+ " nil t)
-        (goto-char (match-beginning 0))
-        (when (org-refile-heading-p)
-          (condition-case _err
-              (progn
-                (org-sort-entries t ?p)
-                (org-sort-entries t ?o))
-            (error nil)))
-        (forward-line))))
-
   (defun org-get-message-link (&optional title)
     (let (message-id subject)
       (with-current-buffer gnus-original-article-buffer
@@ -9575,12 +9570,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
         (and local (mapconcat #'identity
                               (delq nil local)
                               (org--property-get-separator property))))))
-
-  (defun org-refile-heading-p ()
-    (let ((todo-state (org-get-todo-state)))
-      (if todo-state
-          (string= todo-state "PROJECT")
-        (my/org-entry-get-immediate "CATEGORY"))))
 
   (defun insert-code-block ()
     "Replace ``` with an Org code block."
@@ -9946,6 +9935,10 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 (use-package org-capture
   :after org
   :demand t
+  :hook
+  ;; Ensure the ID and CREATED properties are always set for new entries.
+  (org-capture-before-finalize . my/org-basic-properties)
+  (org-capture-prepare-finalize . my/org-cleanup-whitespace)
   :preface
   (defun my/org-basic-properties (&optional arg)
     (interactive "P")
@@ -9954,9 +9947,17 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       (unless (org-entry-get (point) "CREATED")
         (org-entry-put (point) "CREATED"
                        (format-time-string (org-time-stamp-format t t))))))
-  :config
-  ;; Ensure the ID and CREATED properties are always set for new entries.
-  (add-hook 'org-capture-before-finalize-hook #'my/org-basic-properties))
+
+  (defun my/org-cleanup-whitespace (&optional arg)
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (replace-string " " " ")
+      (whitespace-cleanup)
+      (goto-char (point-max))
+      (delete-blank-lines)
+      (if (looking-at "^$")
+          (delete-char -1)))))
 #+end_src
 
 *** org-checklist
@@ -10281,7 +10282,11 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-context
   :after org
-  :bind (:map org-mode-map ("C-c C-x R" . org-context-undo))
+  :demand t
+  :bind (:map
+         org-mode-map
+         ("C-c C-x R" . org-context-undo)
+         ("C-c C-x W" . org-context-show-olpath))
   :config
   (org-context-install))
 #+end_src
@@ -10768,9 +10773,12 @@ A group FOO is composed of contacts with the tag FOO."
         (org-ql-find (org-agenda-files)
                      :query-prefix (if arg nil query-prefix))))))
   :config
+  (use-package org-extra
+    :functions (org-extra-refile-heading-p))
+
   (org-ql-defpred refile-target ()
     "Return non-nil if entry is a refile target."
-    :body (org-refile-heading-p))
+    :body (org-extra-refile-heading-p))
 
   (eval-when-compile
     (require 'vertico-multiform))
@@ -10863,7 +10871,9 @@ instead."
 (use-package org-refile
   :after org
   :custom
-  (org-refile-target-verify-function 'org-refile-heading-p)
+  (use-package org-extra
+    :functions (org-extra-refile-heading-p))
+  (org-refile-target-verify-function #'org-extra-refile-heading-p)
   (org-refile-targets '((org-agenda-files :maxlevel . 4)))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path t))
@@ -11019,7 +11029,7 @@ stamp to a task, which can be used to schedule a review of the task.
     (when (or (ignore-errors (org-entry-is-todo-p))
               (save-excursion
                 (goto-char (point-min))
-                (looking-at "^\\(TODO\\|TASK\\|HABIT\\|PROJECT\\|VISIT\\) ")))
+                (looking-at "^\\(TODO\\|TASK\\|HABIT\\) ")))
       (save-excursion
         (org-review-insert-last-review)
         (let ((ts (format-time-string (car org-time-stamp-formats)
@@ -11283,6 +11293,9 @@ resulting in an org-mode checklist.
   :bind* ("C-c M-m" . org-roam-extra-create-new)
   :bind
   (:map
+   org-mode-map
+   ("C-c C-x S"   . org-roam-extra-sync)
+   :map
    my-ctrl-c-n-map
    ("S" . org-roam-extra-import-fireflies)
    ("I" . org-roam-extra-node-insert-immediate)
@@ -11492,7 +11505,6 @@ Currently, this package supports:
          org-mode-map
          ("C-c M-w"     . org-extra-id-copy)
          ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
-         ("C-c C-x S"   . org-extra-sync)
          ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x u"   . org-extra-todoize)
          ("C-c C-x C-u" . org-extra-todoize-region)
