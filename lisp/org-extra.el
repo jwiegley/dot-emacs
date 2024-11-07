@@ -30,6 +30,7 @@
   (require 'cl))
 
 (require 'org)
+(require 'org-ql)
 (require 'dash)
 
 (declare-function org-with-wide-buffer "org-macs")
@@ -495,11 +496,12 @@ Note: this uses Org's internal variable `org-link--search-failed'."
         "There are %s items pending review"
         (length
          (org-ql-query
-           :select '(point)
+           :select '(point-marker)
            :from (org-agenda-files)
            :where
            '(and (todo)
-                 (not (or (ancestors (todo))
+                 (not (or (tags "ARCHIVE")
+                          (ancestors (or (todo) (tags "ARCHIVE")))
                           (scheduled)
                           (deadline)
                           (ts-active)))
@@ -615,7 +617,7 @@ resulting table on that column, ascending."
             (org-copy-subtree 1 t))))
       (org-paste-subtree nil nil nil t))))
 
-(defun org-extra-update-entry-hash (&optional algorithm)
+(defun org-extra-update-hash (&optional algorithm)
   "Update the HASH_<algorithm> property of the current Org entry.
 Algorithm defaults to `sha512_256', which computes the `sha512'
 but only uses the first 64 bits."
@@ -637,7 +639,7 @@ but only uses the first 64 bits."
                            hash
                          (substring hash 0 64)))))))
 
-(defun org-extra-update-check-hash (&optional algorithm)
+(defun org-extra-check-hash (&optional algorithm)
   "Update the HASH_<algorithm> property of the current Org entry.
 Algorithm defaults to `sha512_256', which computes the `sha512'
 but only uses the first 64 bits."

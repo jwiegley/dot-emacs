@@ -901,6 +901,14 @@
      (org-agenda-prefix-format "%-10c%5(org-todo-age) "))))
  )
 
+(defun org-config-find (query)
+  (interactive "sQuery: ")
+  (org-ql-search (org-agenda-files)
+    `(and (or (todo)
+              (todo "NOTE"))
+          (not (habit))
+          (rifle ,query))))
+
 (defun org-config-show-habits ()
   (interactive)
   (org-ql-search (org-agenda-files)
@@ -913,14 +921,15 @@
     '(todo)
     :sort '(scheduled)))
 
-(defun org-config-show-filetagged-tasks (tag)
+(defun org-config-show-tasks-with-filetags (tag)
   "Report items pending review after one second."
   (interactive "sTag: ")
   (org-ql-search (org-agenda-files)
-    '(and (todo)
+    `(and (todo)
+          (not (tags))
           (save-excursion
             (goto-char (point-min))
-            (re-search-forward (concat "#\\+filetags:.*:" tag ":") 4096 t)))
+            (re-search-forward (concat "#\\+filetags:.*:" ,tag ":") 4096 t)))
     :sort '(scheduled todo)))
 
 (provide 'org-config)
