@@ -9192,9 +9192,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
          ("C-c C-x $"   . visible-mode)
          ("C-c C-x M"   . org-set-message-link)
+         ("C-c C-x O"   . my-org-open-map-link)
          ("C-c C-x U"   . org-set-url-from-clipboard)
          ("C-c C-x m"   . org-insert-message-link)
-         ("C-c C-x o"   . my-org-open-map-link)
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x C-x" . org-update-statistics-cookies)
          ("C-c C-x t"   . org-toggle-link-display)
@@ -9299,6 +9299,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 3:00 4:00 6:00 8:00")))
   (org-hide-emphasis-markers t)
   (org-hide-leading-stars t)
+  (org-highlight-sparse-tree-matches nil)
   (org-icalendar-combined-agenda-file (org-file "org.ics"))
   (org-icalendar-timezone "America/Los_Angeles")
   (org-image-actual-width 800)
@@ -10694,13 +10695,6 @@ A group FOO is composed of contacts with the tag FOO."
   (org-protocol-default-template-key "l"))
 #+end_src
 
-*** org-pomodoro
-
-#+begin_src emacs-lisp
-(use-package org-pomodoro
-  :commands org-pomodoro)
-#+end_src
-
 *** org-real
 
 #+begin_src emacs-lisp
@@ -10720,7 +10714,17 @@ A group FOO is composed of contacts with the tag FOO."
               org-ql-find
               org-ql-defpred)
   :bind
-  ("M-g o" . my/org-ql-find-refile-targets)
+  (("M-g o" . my/org-ql-find-refile-targets)
+   :map
+   org-mode-map
+   ("C-c C-x o" . org-ql-open-link)
+   :map
+   my-ctrl-c-n-map
+   ("/" . org-ql-sparse-tree)
+   ("a" . org-ql-view)
+   ("j" . org-ql-find-in-agenda)
+   ("w" . org-ql-refile-path)
+   ("W" . org-ql-refile))
   :preface
   (defun my/org-agenda-completions-at-point ()
     "Function to be used as `completion-at-point' in Org mode."
@@ -10772,6 +10776,11 @@ A group FOO is composed of contacts with the tag FOO."
        (t
         (org-ql-find (org-agenda-files)
                      :query-prefix (if arg nil query-prefix))))))
+
+  (defun org-ql-refile-path ()
+    (interactive)
+    (let ((org-ql-default-predicate 'outline-path))
+      (call-interactively #'org-ql-refile)))
   :config
   (use-package org-extra
     :functions (org-extra-refile-heading-p))
@@ -10863,6 +10872,16 @@ instead."
     (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
                '(org-recent-headings)))
+#+end_src
+
+*** COMMENT org-recoll
+
+#+begin_src emacs-lisp
+(use-package org-recoll
+  :after org
+  :custom
+  (org-recoll-command-invocation "/Applications/recoll.app/Contents/MacOS/recoll -t -A")
+  (org-recoll-index-invocation "/Applications/recoll.app/Contents/MacOS/recollindex"))
 #+end_src
 
 *** org-refile
@@ -11124,7 +11143,6 @@ stamp to a task, which can be used to schedule a review of the task.
    ("C-M-i" . completion-at-point)
    :map
    my-ctrl-c-n-map
-   ("J" . add-journal-entry)
    ("B" . org-roam-buffer-toggle)
    ("f" . org-roam-node-find)     ; overridden by consult-org-roam
    ("i" . org-roam-node-insert)
@@ -11210,7 +11228,7 @@ stamp to a task, which can be used to schedule a review of the task.
   :bind
   (:map
    my-ctrl-c-n-map
-   ("j" . org-roam-dailies-capture-today)
+   ("J" . org-roam-dailies-capture-today)
    ("d" . org-roam-dailies-map)         ; this is a keymap
    :map
    org-roam-dailies-map
@@ -11251,7 +11269,8 @@ stamp to a task, which can be used to schedule a review of the task.
     (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-backlinks))
   (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find)))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find))
+  (add-to-list 'vertico-multiform-commands '(consult-org-roam-search)))
 #+end_src
 
 **** embark-org-roam
@@ -11301,7 +11320,7 @@ resulting in an org-mode checklist.
    ("I" . org-roam-extra-node-insert-immediate)
    ("T" . org-roam-extra-revise-title)
    ("n" . org-roam-extra-create-new)
-   ("w" . org-roam-extra-prepare-note)
+   ("W" . org-roam-extra-prepare-note)
    ("P" . org-roam-extra-meeting-audio))
   :hook
   (before-save . org-roam-extra-sort-file-properties)
@@ -11825,7 +11844,11 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package org-config
-  :after (org org-roam))
+  :after (org org-roam)
+  :bind
+  (:map
+   my-ctrl-c-n-map
+   ("s" . org-config-find)))
 #+end_src
 
 *** calfw

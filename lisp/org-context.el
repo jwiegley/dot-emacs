@@ -166,7 +166,7 @@ See `org-context-get' for information on the WHERE parameter."
 	 (point)
 	 (concat tag "_" (upcase (symbol-name item))))))))
 
-(defun org-context-restore (where)
+(defun org-context-restore (&optional where)
   "Restore item to its original context, clearing that saved context.
 See `org-context-get' for information on the WHERE parameter."
   (interactive)
