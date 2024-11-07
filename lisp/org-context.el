@@ -53,7 +53,8 @@
   :tag "Org-context"
   :group 'org)
 
-(defcustom org-context-save-info '(time file olpath category todo itags)
+(defcustom org-context-save-info
+  '(time file olpath olid category todo itags)
   "See `org-archive-save-context-info'."
   :group 'org-context
   :type '(set :greedy t
@@ -64,6 +65,7 @@
 	      (const :tag "Priority" priority)
 	      (const :tag "Inherited tags" itags)
 	      (const :tag "Outline path" olpath)
+	      (const :tag "Outline ID" olid)
 	      (const :tag "Local tags" ltags)))
 
 (defcustom org-context-record-predicate
@@ -105,6 +107,7 @@ WHERE can be any of the following:
 	  (itags    . ,(org-entry-get (point) (concat tag "_ITAGS")))
 	  (ltags    . ,(org-entry-get (point) (concat tag "_LTAGS")))
 	  (olpath   . ,(org-entry-get (point) (concat tag "_OLPATH")))
+	  (olid     . ,(org-entry-get (point) (concat tag "_OLID")))
 	  (time     . ,(org-entry-get (point) (concat tag "_TIME")))
 	  (todo     . ,(org-entry-get (point) (concat tag "_TODO"))))
       (let* ((all-tags (org-get-tags))
@@ -121,6 +124,9 @@ WHERE can be any of the following:
 	  (itags    . ,(mapconcat #'identity inherited-tags " "))
 	  (ltags    . ,(mapconcat #'identity local-tags " "))
 	  (olpath   . ,(org-format-outline-path (org-get-outline-path)))
+	  (olid     . ,(org-with-wide-buffer
+                        (and (org-up-heading-safe)
+	                     (org-entry-get (point) "ID"))))
 	  (time     . ,(format-time-string
                         (org-time-stamp-format 'with-time 'no-brackets)))
 	  (todo     . ,(org-entry-get (point) "TODO")))))))
@@ -173,14 +179,21 @@ See `org-context-get' for information on the WHERE parameter."
   (let ((context (org-context-get where)))
     ;; Refile the entry back to its original location.
     (let ((file (cdr (assq 'file context)))
-          (olpath (cdr (assq 'olpath context))))
-      (when olpath
-        (org-context-delete where)
-        (org-refile
-         nil nil
-         (list olpath file nil
-               (org-find-olp (cons file (split-string olpath "/")))))
-        t))))
+          olpath olid)
+      (if (setq olid (cdr (assq 'olid context)))
+          (progn
+            (org-context-delete where)
+            (org-refile
+             nil nil
+             (list olpath file nil (org-find-entry-with-id olid)))
+            t)
+        (when (setq olpath (cdr (assq 'olpath context)))
+          (org-context-delete where)
+          (org-refile
+           nil nil
+           (list olpath file nil
+                 (org-find-olp (cons file (split-string olpath "/")))))
+          t)))))
 
 (defun org-context-undo-refile ()
   "Restore a refiled item to where it was refiled from."
