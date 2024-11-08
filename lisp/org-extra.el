@@ -487,6 +487,25 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                 (from (ts<= from ts))
                 (to (ts<= ts to)))))
 
+(defun org-extra-needs-review-p ()
+  "Return non-nil if a review is needed for task at point.
+
+A review may be needed if:
+
+1. There is no LAST_REVIEW property, meaning this task has never
+   been reviewed.
+
+2. The NEXT_REVIEW property indicates a date in the past, AND
+   this is not a work task with a tag, which means it will show
+   up during the normal review cycle."
+  (or (not (org-review-last-review-prop nil))
+      (and (org-review-toreview-p)
+           (not (and (delete "LINK" (org-get-tags))
+                     (save-excursion
+                       (goto-char (point-min))
+                       (re-search-forward
+                        (concat "#\\+filetags:.*:kadena:") 4096 t)))))))
+
 (defun org-extra-report-items-to-be-reviewed ()
   "Report items pending review after one second."
   (run-with-timer
@@ -505,7 +524,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                           (scheduled)
                           (deadline)
                           (ts-active)))
-                 (property-ts "NEXT_REVIEW" :to 0))))))))
+                 (org-extra-needs-review-p))))))))
 
 (defun org-dblock-write:ql-columnview (params)
   "Create a table view of an org-ql query.
