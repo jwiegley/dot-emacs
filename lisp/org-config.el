@@ -71,8 +71,7 @@
 
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
-   (and (org-review-last-review-prop nil)
-        (not (org-review-toreview-p)))))
+   (not (org-extra-needs-review-p))))
 
 (defsubst org-config-skip-if-reviewed ()
   (org-config-agenda-skip-entry-if

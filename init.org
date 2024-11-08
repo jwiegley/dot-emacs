@@ -223,6 +223,14 @@
 (use-package info-look :autoload info-lookup-add-help)
 #+end_src
 
+** add-all-to-list
+
+#+begin_src emacs-lisp
+(defun add-all-to-list (var &rest elems)
+  (dolist (elem (reverse elems))
+    (add-to-list var elem)))
+#+end_src
+
 * Packages
 
 ** epg
@@ -245,7 +253,9 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package emacs
   :demand t
-  :bind* ("<C-return>" . other-window)
+  :bind*
+  ("<C-return>" . other-window)
+  ("<C-tab>"    . ignore)
   :custom
   ;; C source code
   (auto-hscroll-mode 'current-line)
@@ -708,7 +718,7 @@ decision tree.
 #+begin_src emacs-lisp
 (use-package avy-embark
   :no-require t
-  :after (avy)
+  :after avy
   :preface
   (defun avy-action-embark (pt)
     (require 'embark)
@@ -762,7 +772,7 @@ multiple selected candidates.
 
 #+begin_src emacs-lisp
 (use-package lasgun
-  :after (avy)
+  :after avy
   :commands (lasgun-make-multiple-cursors)
   :preface
   (defun ab/lasgun-goto-primary-make-cursors (pt)
@@ -4793,7 +4803,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package projectile-magit
-  :after (projectile)
+  :after projectile
   :no-require t
   :demand t
   :preface
@@ -5032,7 +5042,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 (use-package selected-mc
   :no-require t
   :demand t
-  :after (multiple-cursors)
+  :after multiple-cursors
   :bind (:map
          selected-keymap
          ("c"   . mc/edit-lines)
@@ -5151,7 +5161,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (slack-thread-also-send-to-room nil)
   :config
   (use-package lui
-    :after (slack)
+    :after slack
     :custom
     (lui-fill-type 0))
 
@@ -6101,7 +6111,7 @@ locations. The =default-directory= variable is not changed in the process.
 
 #+begin_src emacs-lisp
 (use-package consult-company
-  :after (company-mode)
+  :after company-mode
   :bind (:map company-mode-map
               ([remap completion-at-point] . consult-company)))
 #+end_src
@@ -6130,8 +6140,7 @@ locations. The =default-directory= variable is not changed in the process.
   :config
   (eval-when-compile
     (require 'vertico-multiform))
-  (add-to-list 'vertico-multiform-commands
-               '(consult-hoogle buffer)))
+  (add-to-list 'vertico-multiform-commands '(consult-hoogle buffer)))
 #+end_src
 
 **** COMMENT consult-lsp
@@ -6287,9 +6296,10 @@ advantage of Company backends even if you are not using Company as frontend.
          ("r" . cape-rfc1345))
   :init
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev))
+  (add-all-to-list 'completion-at-point-functions
+                   #'cape-dabbrev
+                   #'cape-file
+                   #'cape-abbrev))
 #+end_src
 
 *** elisp-mode-cape
@@ -6934,7 +6944,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package eglot-booster
-  :after (eglot)
+  :after eglot
   :config
   (eglot-booster-mode))
 #+end_src
@@ -7001,11 +7011,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (elint-initialize)
     (elint-current-buffer))
   :config
-  (add-to-list 'elint-standard-variables 'current-prefix-arg)
-  (add-to-list 'elint-standard-variables 'command-line-args-left)
-  (add-to-list 'elint-standard-variables 'buffer-file-coding-system)
-  (add-to-list 'elint-standard-variables 'emacs-major-version)
-  (add-to-list 'elint-standard-variables 'window-system))
+  (add-all-to-list 'elint-standard-variables
+                   'current-prefix-arg
+                   'command-line-args-left
+                   'buffer-file-coding-system
+                   'emacs-major-version
+                   'window-system))
 #+end_src
 
 **** elisp-depend
@@ -9798,7 +9809,7 @@ unfold drawers."
 
 #+begin_src emacs-lisp
 (use-package org-agenda-overlay
-  :after (org-agenda)
+  :after org-agenda
   :demand t
   :hook
   (org-agenda-finalize . org-agenda-overlay-add)
@@ -9837,11 +9848,171 @@ unfold drawers."
      (("Family")      face (:background ,palette-purple-darker  :foreground "#eeeeee")))))
 #+end_src
 
+*** org-ql
+
+#+begin_src emacs-lisp
+(use-package org-ql
+  :after org
+  :demand t
+  :commands org-ql-search
+  :functions (org-ql-find--buffers
+              org-ql-search-directories-files
+              org-ql-find
+              org-ql-defpred)
+  :bind
+  (("M-g o" . my/org-ql-find-refile-targets)
+   :map
+   org-mode-map
+   ("C-c C-x o" . org-ql-open-link)
+   :map
+   my-ctrl-c-n-map
+   ("/" . org-ql-sparse-tree)
+   ("a" . org-ql-view)
+   ("j" . org-ql-find-in-agenda)
+   ("w" . org-ql-refile-path)
+   ("W" . org-ql-refile))
+  :preface
+  (defun my/org-agenda-completions-at-point ()
+    "Function to be used as `completion-at-point' in Org mode."
+    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)" nil)
+      (defvar heading-to-id (make-hash-table :test 'equal))
+      (let* ((start (match-beginning 1))
+             (end (point))
+             (input (match-string-no-properties 1))
+             (candidates
+              (org-ql-select
+                (org-agenda-files)
+                (org-ql--query-string-to-sexp input)
+                :action (lambda ()
+                          (let* ((heading (org-get-heading t))
+                                 (id (org-id-get (point))))
+                            ;; Avoid having to look up the ID again since we
+                            ;; are visiting all the locations with org-ql
+                            ;; anyway
+                            (puthash heading id heading-to-id)
+                            heading))))
+             (exit-function
+              (lambda (heading status)
+                (when (eq status 'finished)
+                  ;; The +1 removes the @ symbol
+                  (delete-char (- (+ (length heading) 1)))
+                  (insert
+                   (format "[[id:%s][%s]]" (gethash heading heading-to-id) heading))))))
+        (list start end candidates :exit-function exit-function))))
+
+  (defun my/org-agenda-completion-hook ()
+    "Configure org-mode for completion at point for org-agenda headlines."
+    (add-to-list 'completion-at-point-functions
+                 'my/org-agenda-completions-at-point))
+
+  (defun my/org-ql-find-refile-targets (&optional arg)
+    (interactive "P")
+    (require 'org-ql)
+    (require 'org-ql-find)
+    (let ((query-prefix "refile-target: ")
+          current-prefix-arg)
+      (cond
+       ((eq major-mode 'dired-mode)
+        (let ((org-ql-search-directories-files-recursive t))
+          (org-ql-find (org-ql-search-directories-files
+                        :directories (list org-directory))
+                       :query-prefix query-prefix)))
+       ((eq major-mode 'org-mode)
+        (org-ql-find (org-ql-find--buffers)
+                     :query-prefix (if arg nil query-prefix)))
+       (t
+        (org-ql-find (org-agenda-files)
+                     :query-prefix (if arg nil query-prefix))))))
+
+  (defun org-ql-refile-path ()
+    (interactive)
+    (let ((org-ql-default-predicate 'outline-path))
+      (call-interactively #'org-ql-refile)))
+  :config
+  (use-package org-extra
+    :functions (org-extra-refile-heading-p))
+
+  (org-ql-defpred refile-target ()
+    "Return non-nil if entry is a refile target."
+    :body (org-extra-refile-heading-p))
+
+  (eval-when-compile
+    (require 'vertico-multiform))
+  (add-all-to-list 'vertico-multiform-commands
+                   '(org-ql-find)
+                   '(my/org-ql-find-refile-targets))
+
+  (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
+#+end_src
+
+*** org-extra
+
+#+begin_src emacs-lisp
+(use-package org-extra
+  :after org
+  :demand t
+  :bind* ("M-C" . org-extra-jump-to-agenda)
+  :commands (org-extra-jump-to-agenda)
+  :bind (:map
+         org-mode-map
+         ("C-c M-w"     . org-extra-id-copy)
+         ("C-c C-x #"   . org-extra-update-hash)
+         ("C-c C-x C-#" . org-extra-check-hash)
+         ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
+         ("C-c C-x D"   . org-extra-update-date-field)
+         ("C-c C-x u"   . org-extra-todoize)
+         ("C-c C-x C-u" . org-extra-todoize-region)
+         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
+         :map
+         org-agenda-mode-map
+         ("g" . org-extra-agenda-redo))
+  :hook
+  (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
+  :custom
+  (org-extra-link-names
+   (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
+  :preface
+  (defun org-extra-read-names (file)
+    (with-temp-buffer
+      (insert-file-contents-literally file)
+      (goto-char (point-min))
+      (let (result)
+        (while (re-search-forward
+                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)?\\s-+|"
+                nil t)
+          (setq result
+                (cons (cons (match-string 2)
+                            (list (match-string 1)
+                                  (match-string 3)))
+                      result)))
+        (nreverse result))))
+  ;; :init
+  ;; (unless alternate-emacs
+  ;;   (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
+  ;;   (run-with-idle-timer 300 t #'org-extra-jump-to-agenda))
+  :config
+  (use-package org-extra-private))
+#+end_src
+
+*** org-config
+
+#+begin_src emacs-lisp
+(use-package org-config
+  :after org
+  :demand t
+  :bind
+  (:map
+   my-ctrl-c-n-map
+   ("s" . org-config-find))
+  :hook
+  (after-init . (lambda () (org-agenda nil "a"))))
+#+end_src
+
 *** COMMENT appt
 
 #+begin_src emacs-lisp
 (use-package appt
-  :after (org)
+  :after org
   :hook
   ;; when agenda is opened and showed, refresh appt
   (org-agenda-after-show . (lambda () (org-agenda-to-appt t)))
@@ -10702,101 +10873,6 @@ A group FOO is composed of contacts with the tag FOO."
   :after org)
 #+end_src
 
-*** org-ql
-
-#+begin_src emacs-lisp
-(use-package org-ql
-  :after org
-  :demand t
-  :commands org-ql-search
-  :functions (org-ql-find--buffers
-              org-ql-search-directories-files
-              org-ql-find
-              org-ql-defpred)
-  :bind
-  (("M-g o" . my/org-ql-find-refile-targets)
-   :map
-   org-mode-map
-   ("C-c C-x o" . org-ql-open-link)
-   :map
-   my-ctrl-c-n-map
-   ("/" . org-ql-sparse-tree)
-   ("a" . org-ql-view)
-   ("j" . org-ql-find-in-agenda)
-   ("w" . org-ql-refile-path)
-   ("W" . org-ql-refile))
-  :preface
-  (defun my/org-agenda-completions-at-point ()
-    "Function to be used as `completion-at-point' in Org mode."
-    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)" nil)
-      (defvar heading-to-id (make-hash-table :test 'equal))
-      (let* ((start (match-beginning 1))
-             (end (point))
-             (input (match-string-no-properties 1))
-             (candidates
-              (org-ql-select
-                (org-agenda-files)
-                (org-ql--query-string-to-sexp input)
-                :action (lambda ()
-                          (let* ((heading (org-get-heading t))
-                                 (id (org-id-get (point))))
-                            ;; Avoid having to look up the ID again since we
-                            ;; are visiting all the locations with org-ql
-                            ;; anyway
-                            (puthash heading id heading-to-id)
-                            heading))))
-             (exit-function
-              (lambda (heading status)
-                (when (eq status 'finished)
-                  ;; The +1 removes the @ symbol
-                  (delete-char (- (+ (length heading) 1)))
-                  (insert
-                   (format "[[id:%s][%s]]" (gethash heading heading-to-id) heading))))))
-        (list start end candidates :exit-function exit-function))))
-
-  (defun my/org-agenda-completion-hook ()
-    "Configure org-mode for completion at point for org-agenda headlines."
-    (add-to-list 'completion-at-point-functions 'my/org-agenda-completions-at-point))
-
-  (defun my/org-ql-find-refile-targets (&optional arg)
-    (interactive "P")
-    (require 'org-ql)
-    (require 'org-ql-find)
-    (let ((query-prefix "refile-target: ")
-          current-prefix-arg)
-      (cond
-       ((eq major-mode 'dired-mode)
-        (let ((org-ql-search-directories-files-recursive t))
-          (org-ql-find (org-ql-search-directories-files
-                        :directories (list org-directory))
-                       :query-prefix query-prefix)))
-       ((eq major-mode 'org-mode)
-        (org-ql-find (org-ql-find--buffers)
-                     :query-prefix (if arg nil query-prefix)))
-       (t
-        (org-ql-find (org-agenda-files)
-                     :query-prefix (if arg nil query-prefix))))))
-
-  (defun org-ql-refile-path ()
-    (interactive)
-    (let ((org-ql-default-predicate 'outline-path))
-      (call-interactively #'org-ql-refile)))
-  :config
-  (use-package org-extra
-    :functions (org-extra-refile-heading-p))
-
-  (org-ql-defpred refile-target ()
-    "Return non-nil if entry is a refile target."
-    :body (org-extra-refile-heading-p))
-
-  (eval-when-compile
-    (require 'vertico-multiform))
-  (add-to-list 'vertico-multiform-commands '(org-ql-find))
-  (add-to-list 'vertico-multiform-commands '(my/org-ql-find-refile-targets))
-
-  (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
-#+end_src
-
 *** org-quick-peek
 
 #+begin_src emacs-lisp
@@ -10808,9 +10884,7 @@ A group FOO is composed of contacts with the tag FOO."
   (org-quick-peek-show-lines 20)
   :config
   ;;; jww (2024-10-27): Fixing org-quick-peek creating invisible overlay when
-  ;;; agenda filter is in place and the next item is hidden by the filter Bug
-  ;;; report: yantar92 [Github] issue#9 The overlay is not always visible when
-  ;;; org-agenda-filter is in place
+  ;;; agenda filter is in place and the next item is hidden by the filter
   (defun quick-peek-overlay-ensure-at (pos)
     "Find or create a quick-peek overlay for the line at POS.
 
@@ -10840,7 +10914,7 @@ instead."
 
 #+begin_src emacs-lisp
 (use-package org-project-capture
-  :after (org-projectile)
+  :after org-projectile
   :bind (:map
          my-ctrl-c-n-map
          ("p" . org-project-capture-capture-for-current-project))
@@ -10856,7 +10930,7 @@ instead."
 
 #+begin_src emacs-lisp
 (use-package org-projectile
-  :after (org))
+  :after org)
 #+end_src
 
 *** COMMENT org-recent-headings
@@ -11267,10 +11341,11 @@ stamp to a task, which can be used to schedule a review of the task.
 
   (eval-when-compile
     (require 'vertico-multiform))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-backlinks))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-forward-links))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-file-find))
-  (add-to-list 'vertico-multiform-commands '(consult-org-roam-search)))
+  (add-all-to-list 'vertico-multiform-commands
+                   '(consult-org-roam-backlinks)
+                   '(consult-org-roam-forward-links)
+                   '(consult-org-roam-file-find)
+                   '(consult-org-roam-search)))
 #+end_src
 
 **** embark-org-roam
@@ -11307,7 +11382,7 @@ resulting in an org-mode checklist.
 
 #+begin_src emacs-lisp
 (use-package org-roam-extra
-  :after (org-roam)
+  :after org-roam
   :demand t
   :bind* ("C-c M-m" . org-roam-extra-create-new)
   :bind
@@ -11510,53 +11585,6 @@ Currently, this package supports:
 #+begin_src emacs-lisp
 (use-package org-superstar
   :commands (org-superstar-mode))
-#+end_src
-
-*** org-extra
-
-#+begin_src emacs-lisp
-(use-package org-extra
-  :after (org)
-  :demand t
-  :bind* ("M-C" . org-extra-jump-to-agenda)
-  :commands (org-extra-jump-to-agenda)
-  :bind (:map
-         org-mode-map
-         ("C-c M-w"     . org-extra-id-copy)
-         ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
-         ("C-c C-x D"   . org-extra-update-date-field)
-         ("C-c C-x u"   . org-extra-todoize)
-         ("C-c C-x C-u" . org-extra-todoize-region)
-         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
-         :map
-         org-agenda-mode-map
-         ("g" . org-extra-agenda-redo))
-  :hook
-  (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
-  :custom
-  (org-extra-link-names
-   (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
-  :preface
-  (defun org-extra-read-names (file)
-    (with-temp-buffer
-      (insert-file-contents-literally file)
-      (goto-char (point-min))
-      (let (result)
-        (while (re-search-forward
-                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)?\\s-+|"
-                nil t)
-          (setq result
-                (cons (cons (match-string 2)
-                            (list (match-string 1)
-                                  (match-string 3)))
-                      result)))
-        (nreverse result))))
-  ;; :init
-  ;; (unless alternate-emacs
-  ;;   (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
-  ;;   (run-with-idle-timer 300 t #'org-extra-jump-to-agenda))
-  :config
-  (use-package org-extra-private))
 #+end_src
 
 *** COMMENT org-timeline
@@ -11797,9 +11825,10 @@ own lines, for instance.
   :config
   (eval-when-compile
     (require 'vertico-multiform))
-  (add-to-list 'vertico-multiform-commands '(citar-insert-citation))
-  (add-to-list 'vertico-multiform-commands '(citar-insert-reference))
-  (add-to-list 'vertico-multiform-commands '(citar-open-notes)))
+  (add-all-to-list 'vertico-multiform-commands
+                   '(citar-insert-citation)
+                   '(citar-insert-reference)
+                   '(citar-open-notes)))
 #+end_src
 
 **** citar-org-roam
@@ -11838,17 +11867,6 @@ own lines, for instance.
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
-#+end_src
-
-*** org-config
-
-#+begin_src emacs-lisp
-(use-package org-config
-  :after (org org-roam)
-  :bind
-  (:map
-   my-ctrl-c-n-map
-   ("s" . org-config-find)))
 #+end_src
 
 *** calfw
