@@ -328,12 +328,11 @@ See `org-extra-todoize'."
          (year (string-to-number (substring name 0 4)))
          (mon (string-to-number (substring name 4 6)))
          (day (string-to-number (substring name 6 8))))
-    (org-set-property
-     "CREATED"
-     (with-temp-buffer
-       (org-insert-time-stamp
-        (org-encode-time (list 0 0 0 day mon year)) nil t)
-       (buffer-string)))))
+    (org-entry-put (point) "CREATED"
+                   (with-temp-buffer
+                     (org-insert-time-stamp
+                      (org-encode-time (list 0 0 0 day mon year)) nil t)
+                     (buffer-string)))))
 
 (defun org-extra-insert-structure-template-and-yank (type)
   (interactive
@@ -473,19 +472,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                       (org-entry-get (point) prop)))
                 props)))
 
-(org-ql-defpred property-ts (property &key from to _on regexp _with-time args)
-  "Match timestamps in property value."
-  :normalizers ((`(,predicate-names ,property . ,rest)
-                 `(property-ts ,property
-                               ,@(org-ql--normalize-from-to-on
-                                   `(:from ,from :to ,to)))))
-  :body (when-let ((value (org-entry-get (point) property))
-                   (ts (ignore-errors
-                         (ts-parse-org value))))
-          (cond ((not (or from to)) ts)
-                ((and from to) (ts-in from to ts))
-                (from (ts<= from ts))
-                (to (ts<= ts to)))))
+(defvar org-extra-meta-tags '("LINK"))
 
 (defun org-extra-needs-review-p ()
   "Return non-nil if a review is needed for task at point.
@@ -500,7 +487,8 @@ A review may be needed if:
    up during the normal review cycle."
   (or (not (org-review-last-review-prop nil))
       (and (org-review-toreview-p)
-           (not (and (delete "LINK" (org-get-tags))
+           (not (and (cl-set-difference (org-get-tags) org-extra-meta-tags
+                                        :test #'string=)
                      (save-excursion
                        (goto-char (point-min))
                        (re-search-forward

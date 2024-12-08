@@ -38,8 +38,12 @@
 
 (defun my/org-read-date (&optional inactive)
   (with-temp-buffer
+    (org-mode)
     (org-time-stamp nil inactive)
-    (buffer-string)))
+    (goto-char (point-min))
+    (if (search-forward ":END:\n" nil t)
+        (buffer-substring-no-properties (point) (point-max))
+      (buffer-string))))
 
 (defun my/org-date (timestamp &optional offset time inactive no-brackets)
   (with-temp-buffer
@@ -387,13 +391,18 @@ tasks."
   ;; (org-caldav-sync)
   (message "Sorting Org-mode files...")
   (redisplay t)
-  (dolist (file org-agenda-files)
+  (dolist (file (list (org-file "todo.org")
+                      (org-file "kadena/kadena.org")
+                      (org-file "quantum-trades/quantum-trades.org")
+                      (org-file "OSS.org")
+                      (org-file "people.org")
+                      "~/Mobile/inbox.org"))
     (message "Sorting: %s" file)
     (redisplay t)
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
       (org-extra-sort-all)
-      (org-cycle-content 5)
+      ;; (org-cycle-content 5)
       ;; (org-align-tags t)
       )
     (message "Sorting: %s...done" file)
@@ -435,68 +444,73 @@ tasks."
   (save-excursion
     (replace-regexp "^\\(\\(?:[0-9]+:\\)?[0-9]+:[0-9]+\\)
 \\(.+\\)
-\\(.+\\)" "- \\1 *\\2* \\3"))
-  (let ((fill-column 78))
-    (fill-region (point) (point-max))))
+\\(.+\\)" "- \\1 *\\2* \\3")))
 
-(defun org-roam-extra-clean-fireflies ()
+(defun org-roam-extra-clean-fireflies (json)
+  (let ((overview
+         (with-temp-buffer
+           (insert (aref (gethash "Overview" json) 0))
+           (buffer-string)))
+        ;; Notes starts with a blank line and has no final return.
+        (notes
+         (with-temp-buffer
+           (insert (aref (gethash "Notes" json) 0))
+           (goto-char (point-min))
+           (while (re-search-forward "^- " nil t)
+             (replace-match "  - "))
+           (goto-char (point-min))
+           (while (re-search-forward "^##### " nil t)
+             (replace-match "\n- "))
+           (buffer-string)))
+        (action-items
+         (with-temp-buffer
+           (insert (aref (gethash "Action items" json) 0))
+           (goto-char (point-min))
+           (while (re-search-forward "^##### \\*\\*\\(.+?\\)\\*\\*\n" nil t)
+             (let ((name (match-string 1)))
+               (delete-region (match-beginning 0) (match-end 0))
+               (while (looking-at "^- ")
+                 (if (or (string= name "John")
+                         (string= name "John Wiegley"))
+                     (replace-match "*** TODO ")
+                   (replace-match "*** TASK ")
+                   (goto-char (line-end-position))
+                   (let ((names (mapconcat
+                                 #'identity
+                                 (mapcar #'(lambda (str)
+                                             (car (split-string str)))
+                                         (split-string name " and "))
+                                 ":")))
+                     (insert "  :" names ":")))
+                 (forward-line 1))))
+           (buffer-string))))
+    (insert
+     "** AI meeting summary"
+     ?\n ?\n
+     overview
+     ?\n
+     notes
+     ?\n ?\n
+     "** Action items"
+     ?\n
+     action-items
+     ?\n)))
+
+(defun org-roam-extra-process-minutes ()
   (interactive)
-  (whitespace-cleanup)
   (goto-char (point-min))
-  (while (re-search-forward "^#\\+.+\n" nil t)
-    (delete-region (match-beginning 0) (match-end 0)))
-  (goto-char (point-min))
-  (while (re-search-forward "\n\n\n" nil t)
-    (replace-match "\n\n"))
-  (goto-char (point-min))
-  (while (re-search-forward "^Overview" nil t)
-    (replace-match "** AI meeting summary")
-    (forward-line 2)
-    (while (looking-at "^[- ] ")
-      (delete-char 2)
-      (forward-line 1)))
-  (goto-char (point-min))
-  (while (re-search-forward "^Notes\n\n" nil t)
-    (delete-region (match-beginning 0) (match-end 0)))
-  (goto-char (point-min))
-  (while (re-search-forward "^keywords\n\n" nil t)
-    (delete-region (match-beginning 0) (point-max)))
-  (goto-char (point-min))
-  (when (re-search-forward "^Action items\n\n" nil t)
-    (replace-match "** Action items\n")
-    (let ((beg (point)))
-      (while (re-search-forward "^\n" nil t)
-        (delete-region (match-beginning 0) (match-end 0)))
-      (goto-char beg)
-      (while (re-search-forward "\n  " nil t)
-        (replace-match " "))
-      (goto-char beg)
-      (while (re-search-forward "^\\*\\(.+?\\)\\*\n" nil t)
-        (let ((name (match-string 1)))
-          (delete-region (match-beginning 0) (match-end 0))
-          (while (looking-at "^- ")
-            (replace-match "*** TASK ")
-            (goto-char (line-end-position))
-            (insert "  :" name ":")
-            (forward-line 1))))
-      (org-extra-todoize-region beg (point) t)
-      (org-set-tags-command '(4))
-      (save-restriction
-        (narrow-to-region (point-min) beg)
-        (goto-char (point-min))
-        (while (re-search-forward "^\\(\n- \\)[A-Z]" nil t)
-          (replace-match "  - " nil t nil 1))
-        (goto-char (point-min))
-        (while (re-search-forward "^\\(  \\)[^-]" nil t)
-          (replace-match "    " nil t nil 1))
-        (let ((fill-column 78))
-          (fill-region (point-min) (point-max)))))))
+  (let ((json (json-parse-buffer)))
+    (delete-region (point-min) (point-max))
+    (org-roam-extra-clean-fireflies json)))
+
+(defvar org-roam-extra-do-not-delete nil)
 
 (defun org-roam-extra-insert-minutes (summary)
   (interactive
    (list
-    (let* ((regexp "\\.summary\\.docx\\.org\\'")
-           (candidates (directory-files "~/dl/" t regexp t)))
+    (let* ((regexp "\\.json\\'")
+           (candidates
+            (directory-files (expand-file-name "~/dl/") t regexp t)))
       (if (= (length candidates) 1)
           (car candidates)
         (read-file-name "Summary file: " "~/dl/" nil t nil
@@ -506,24 +520,32 @@ tasks."
     (when (re-search-forward "^\\* Minutes\n\n")
       (insert
        (with-current-buffer (find-file summary)
-         (org-roam-extra-clean-fireflies)
+         (org-roam-extra-process-minutes)
          (prog1
              (buffer-string)
            (set-buffer-modified-p nil)
-           (kill-buffer (current-buffer)))))))
-  ;; (save-excursion
-  ;;   (goto-char (point-min))
-  ;;   (when (re-search-forward "\\* \\(TASK\\|TODO\\) " nil t)
-  ;;     (org-roam-tag-add "todo")))
-  (delete-file summary t))
+           (kill-buffer (current-buffer)))))
+      (goto-char (point-max))
+      (search-backward "** Action items\n")
+      (save-restriction
+        (narrow-to-region (match-end 0)
+                          (save-excursion
+                            (re-search-forward "^\\* ")
+                            (match-beginning 0)))
+        (goto-char (point-min))
+        (org-extra-todoize-region (point-min) (point-max) t)
+        (org-set-tags-command '(4)))))
+  (unless org-roam-extra-do-not-delete
+    (delete-file summary t)))
 
 (require 'parse-csv)
 
 (defun org-roam-extra-insert-transcript (transcript)
   (interactive
    (list
-    (let* ((regexp "-st\\.csv\\'")
-           (candidates (directory-files "~/dl/" t regexp t)))
+    (let* ((regexp "\\.csv\\'")
+           (candidates
+            (directory-files (expand-file-name "~/dl/") t regexp t)))
       (if (= (length candidates) 1)
           (car candidates)
         (read-file-name "Transcript file: " "~/dl/" nil t nil
@@ -548,15 +570,13 @@ tasks."
                         " *" (nth 4 fields) "* "
                         (nth 0 fields) "\n\n")))
             (forward-line 1)))
-        (whitespace-cleanup)
-        (let ((fill-column 78))
-          (fill-region beg (point-max)))
         (goto-char (point-max))
         (delete-blank-lines))))
-  (delete-file transcript t)
-  (unless (file-readable-p (org-roam-extra-current-audio-file))
-    (error "Transcript audio file missing: %s"
-           (org-roam-extra-current-audio-file))))
+  (unless org-roam-extra-do-not-delete
+    (delete-file transcript t))
+  (let ((audio-file (cdr (org-roam-extra-current-audio-file))))
+    (unless (file-readable-p audio-file)
+      (message "Transcript audio file missing: %s" audio-file))))
 
 (defun org-roam-extra--replace-if-found (name)
   (let ((found (assoc name org-extra-link-names)))
@@ -592,11 +612,25 @@ tasks."
                              (nth 0 (split-string who " ")))
                            t t nil 1)))))))
 
-(defun org-roam-extra-import-fireflies ()
-  (interactive)
+(defun org-roam-extra-import-fireflies (&optional no-delete)
+  (interactive "P")
   (org-roam-extra-linkify-attending)
-  (call-interactively #'org-roam-extra-insert-minutes)
-  (call-interactively #'org-roam-extra-insert-transcript))
+  (let ((org-roam-extra-do-not-delete no-delete))
+    (call-interactively #'org-roam-extra-insert-minutes)
+    (call-interactively #'org-roam-extra-insert-transcript))
+  (save-excursion
+    (goto-char (point-min))
+    (whitespace-cleanup)
+    (when (re-search-forward "\\* \\(TASK\\|TODO\\) " nil t)
+      (goto-char (point-min))
+      (org-roam-tag-add '("todo")))
+    (save-excursion
+      (goto-char (point-min))
+      (search-forward "* Minutes\n\n")
+      (set-mark (point))
+      (goto-char (point-max))
+      (let ((fill-column 78))
+        (org-fill-paragraph nil t)))))
 
 (require 'listen)
 
@@ -609,10 +643,19 @@ tasks."
          (seconds (if (= (length parts) 3) (nth 2 parts) (nth 1 parts))))
     (+ (* hours 3600) (* minutes 60) seconds)))
 
-(defsubst org-roam-extra-current-audio-file ()
+(defsubst org-roam-extra-audio-file-name (ext)
   (expand-file-name
-   (concat (file-name-base (buffer-file-name)) ".mp3")
+   (concat (file-name-base (buffer-file-name)) ext)
    "~/Audio/Kadena/Meetings"))
+
+(defsubst org-roam-extra-current-audio-file ()
+  (let ((mp3-file (org-roam-extra-audio-file-name ".mp3")))
+    (if (file-readable-p mp3-file)
+        (cons 2 mp3-file)
+      (let ((mp4-file (org-roam-extra-audio-file-name ".mp4")))
+        (if (file-readable-p mp4-file)
+            (cons 1 mp4-file)
+          (error "Could not find audio file %s" mp3-file))))))
 
 (defun org-roam-extra-meeting-audio (&optional arg)
   (interactive "P")
@@ -620,15 +663,15 @@ tasks."
     (delete-process (listen-player-process org-roam-extra-listen-player)))
   (setf org-roam-extra-listen-player (make-listen-player-vlc))
   (setq listen-player org-roam-extra-listen-player)
-  (save-excursion
-    (when (re-search-backward "^- \\([0-9:]+\\) \\*" nil t)
-      (let* ((tm (match-string 1))
-             (secs (number-to-string (* 2 (hms-to-seconds tm)))))
-        (cl-callf append
-            (listen-player-args org-roam-extra-listen-player)
-          (list "--start-time" secs)))))
-  (listen-play org-roam-extra-listen-player
-               (org-roam-extra-current-audio-file)))
+  (let ((audio (org-roam-extra-current-audio-file)))
+    (save-excursion
+      (when (re-search-backward "^- \\([0-9:]+\\) \\*" nil t)
+        (let* ((tm (match-string 1))
+               (secs (number-to-string (* (car audio) (hms-to-seconds tm)))))
+          (cl-callf append
+              (listen-player-args org-roam-extra-listen-player)
+            (list "--start-time" secs)))))
+    (listen-play org-roam-extra-listen-player (cdr audio))))
 
 (provide 'org-roam-extra)
 
