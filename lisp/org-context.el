@@ -172,28 +172,40 @@ See `org-context-get' for information on the WHERE parameter."
 	 (point)
 	 (concat tag "_" (upcase (symbol-name item))))))))
 
+(defmacro org-context-aif (cond then &rest else)
+  (declare (debug t) (indent 2))
+  `(let ((it ,cond))
+     (if it ,then ,@else)))
+
 (defun org-context-restore (&optional where)
   "Restore item to its original context, clearing that saved context.
 See `org-context-get' for information on the WHERE parameter."
   (interactive)
-  (let ((context (org-context-get where)))
-    ;; Refile the entry back to its original location.
-    (let ((file (cdr (assq 'file context)))
-          olpath olid)
-      (if (setq olid (cdr (assq 'olid context)))
-          (progn
-            (org-context-delete where)
-            (org-refile
-             nil nil
-             (list olpath file nil (org-find-entry-with-id olid)))
-            t)
-        (when (setq olpath (cdr (assq 'olpath context)))
-          (org-context-delete where)
-          (org-refile
-           nil nil
-           (list olpath file nil
-                 (org-find-olp (cons file (split-string olpath "/")))))
-          t)))))
+  (let* ((context (org-context-get where))
+         (file (cdr (assq 'file context)))
+         (olpath (cdr (assq 'olpath context)))
+         (olid (cdr (assq 'olid context)))
+         (args
+          (cond
+           (olid
+            (org-context-aif (org-id-find olid)
+                (cl-destructuring-bind (path . pos)
+                    it
+                  (list olpath path nil pos))
+              (error "No Org-mode entry with ID %s" olid)))
+           ((and file olpath)
+            (org-context-aif
+                (with-current-buffer
+                    (find-file-noselect file)
+                  (org-find-olp
+                   (cons file (split-string olpath "/"))))
+                (list olpath file nil it)
+              (error "No Org-mode entry at path %s in file %s"
+                     olpath file))))))
+    (when args
+      (org-context-delete where)
+      (org-refile nil nil args)
+      t)))
 
 (defun org-context-undo-refile ()
   "Restore a refiled item to where it was refiled from."

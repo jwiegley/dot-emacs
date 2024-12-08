@@ -44,9 +44,9 @@
 
 (require 'use-package)
 
-(setq use-package-verbose init-file-debug
-      use-package-expand-minimally (not init-file-debug)
-      use-package-compute-statistics init-file-debug
+(setq use-package-verbose t ;; init-file-debug
+      use-package-expand-minimally nil ;; (not init-file-debug)
+      use-package-compute-statistics t ;; init-file-debug
       debug-on-error init-file-debug
       debug-on-quit init-file-debug)
 #+end_src
@@ -1018,7 +1018,8 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   :after org
   :diminish literate-calc-minor-mode
   :bind (:map org-mode-map
-              ("C-c C-x *" . literate-calc-minor-mode))
+              ("C-c C-x *" . literate-calc-minor-mode)
+              ("C-c C-x C-*" . literate-calc-kill-result))
   :custom
   (literate-calc-usimplify-results t))
 #+end_src
@@ -1460,6 +1461,13 @@ to them.
 #+begin_src emacs-lisp
 (use-package dedicated
   :bind ("C-c W" . dedicated-mode))
+#+end_src
+
+** delsel
+
+#+begin_src emacs-lisp
+(use-package delsel
+  :custom (delete-selection-mode 1))
 #+end_src
 
 ** diff-hl
@@ -2480,7 +2488,9 @@ your system."
 
 #+begin_src emacs-lisp
 (use-package expand-region
-  :bind ("C-=" . er/expand-region))
+  :bind
+  ("C-=" . er/expand-region)
+  ("M-@" . er/expand-region))
 #+end_src
 
 *** change-inner
@@ -4100,7 +4110,8 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   ("<C-m> c"     . mc/mark-all-dwim)
   ("<C-m> l"     . mc/insert-letters)
   ("<C-m> n"     . mc/insert-numbers)
-  ("<C-m> r"     . mc/mark-all-in-region)
+  ;; ("<C-m> r"     . mc/mark-all-in-region)
+  ("<C-m> r"     . mc/mark-all-regexp)
   ("<C-m> s"     . set-rectangular-region-anchor)
   ("<C-m> %"     . mc/mark-all-in-region-regexp)
   ("<C-m> t"     . mc/mark-sgml-tag-pair)
@@ -4122,7 +4133,31 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   :preface
   (defun reactivate-mark ()
     (interactive)
-    (activate-mark)))
+    (activate-mark))
+
+  (defun mc/mark-all-regexp ()
+    (interactive)
+    (let ((search (read-regexp "Mark regexp in region: "))
+          (case-fold-search nil))
+      (if (string= search "")
+          (message "Mark aborted")
+        (progn
+          (mc/remove-fake-cursors)
+          (goto-char (point-min))
+          (let ((lastmatch))
+            (while (search-forward-regexp search nil t)
+              (push-mark (match-beginning 0))
+              (mc/create-fake-cursor-at-point)
+              (setq lastmatch (point))
+              (when (= (point) (match-beginning 0))
+                (forward-char)))
+            (unless lastmatch
+              (error "Search failed for %S" search)))
+          (goto-char (match-end 0))
+          (if (< (mc/num-cursors) 3)
+              (mc/disable-multiple-cursors-mode)
+            (mc/pop-state-from-overlay (mc/furthest-cursor-before-point))
+            (multiple-cursors-mode 1)))))))
 #+end_src
 
 *** mc-calc
@@ -4595,7 +4630,7 @@ append it to ENTRY."
       (`2560 'imac)
       (`1920 'macbook-pro-vga)
       (`1792 'macbook-pro-16)
-      (`1680 'macbook-pro-15)
+      (`1512 'macbook-pro-14)
       ))
 
   (defsubst iawriter-duo-font (height)
@@ -4623,12 +4658,11 @@ append it to ENTRY."
       (`imac (pcase (emacs-min-font-height)
                (28  20)
                (24 116)
-               (21 318)
+               (21 318)                 ; <--
                (_    0)))
       (`macbook-pro-vga         700)
       (`macbook-pro-16          672)
-      (`macbook-pro-15          464)
-      (`macbook-pro-13          464)))
+      (`macbook-pro-14          396)))
 
   (defun emacs-min-height ()
     (pcase display-name
@@ -4637,12 +4671,11 @@ append it to ENTRY."
       (`imac (pcase (emacs-min-font-height)
                (28 50)
                (24 58)
-               (21 67)
+               (21 67)                  ; <--
                (_  40)))
       (`macbook-pro-vga          55)
       (`macbook-pro-16           52)
-      (`macbook-pro-15           47)
-      (`macbook-pro-13           47)))
+      (`macbook-pro-14           43)))
 
   (defun emacs-min-width ()
     (pcase display-name
@@ -4651,12 +4684,11 @@ append it to ENTRY."
       (`imac (pcase (emacs-min-font-height)
                (28 180)
                (24 202)
-               (21 202)
+               (21 202)                 ; <--
                (_  100)))
       (`macbook-pro-vga         100)
       (`macbook-pro-16          100)
-      (`macbook-pro-15          100)
-      (`macbook-pro-13          100)))
+      (`macbook-pro-14          100)))
 
   (defun reset-font ()
     (interactive)
@@ -8287,10 +8319,17 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam")
       (spam-contents gnus-group-spam-classification-ham))
-     ("\\(mail/\\|INBOX\\|IsGood\\)"
+     ("\\(mail/\\|INBOX\\)"
       (total-expire . t)
       (expiry-wait . 90)
       (expiry-target . "Archive")
+      (gcc-self . t)
+      (gnus-use-scoring nil)
+      (spam-process-destination . "TrainSpam"))
+     ("IsGood"
+      (total-expire . t)
+      (expiry-wait . 1.1)
+      (expiry-target . "INBOX")
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
@@ -9184,7 +9223,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org
-  ;; :load-path "lisp/org-mode/lisp"
+  :load-path "lisp/org-mode/lisp"
   :demand t
   :commands org-resolve-clocks
   :bind* (("C-c S" . org-store-link)
@@ -9200,6 +9239,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c <"       . org-time-stamp)
          ("C-c x"       . org-todo)
          ("C-c SPC"     . org-table-blank-field)
+         ("C-c <tab>"   . org-table-toggle-column-width)
          ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
          ("C-c C-x $"   . visible-mode)
          ("C-c C-x M"   . org-set-message-link)
@@ -9209,7 +9249,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x r"   . org-clock-report)
          ("C-c C-x C-x" . org-update-statistics-cookies)
          ("C-c C-x t"   . org-toggle-link-display)
-         ;; ("C-c C-x Y"   . yank-media)
+         ("C-c C-x Y"   . yank-media)
          ("C-M-y"       . my-org-yank-link)
          ("M-n"         . org-next-link)
          ("M-p"         . org-previous-link)
@@ -9245,6 +9285,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-in-resume t)
   (org-clock-in-switch-to-state "DOING")
   (org-clock-into-drawer "LOGBOOK")
+
   (org-clock-mode-line-total 'current)
   (org-clock-out-remove-zero-time-clocks t)
   (org-clock-out-switch-to-state nil)
@@ -9344,6 +9385,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-latex-src-block-backend 'minted)
   (org-link-elisp-confirm-function nil)
   (org-link-shell-confirm-function nil)
+  (org-list-allow-alphabetical t)
   (org-log-state-notes-insert-after-drawers t)
   (org-mime-preserve-breaks nil)
   (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
@@ -9562,7 +9604,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (interactive)
     (org-back-to-heading)
     (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
-    (org-set-tags (cons "LINK" (org-get-tags))))
+    (org-toggle-tag "LINK" 'on))
 
   (defun org-message-reply ()
     (interactive)
@@ -9619,17 +9661,21 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
       (uuidgen nil)
       (upcase (buffer-string))))
 
-  (defun created-stamp (&optional for-scheduled)
-    (with-temp-buffer
-      (org-insert-time-stamp (current-time)
-                             (not for-scheduled) (not for-scheduled))
-      (buffer-string)))
+  (defun created-stamp (&optional for-scheduled inactive)
+    (format-time-string
+     (org-time-stamp-format (not for-scheduled)
+                            (or inactive (not for-scheduled)))))
 
   (defun endless/follow-tag-link (tag)
     "Display a list of TODO headlines with tag TAG.
 With prefix argument, also display headlines without a TODO keyword."
     (org-tags-view (null current-prefix-arg) tag))
   :config
+  (setq org-archive-save-context-info '(time file olpath olid category itags))
+
+  (add-to-list 'Info-directory-list
+               (expand-file-name "~/.emacs.d/lisp/org-mode/doc"))
+
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
 			   :follow #'org-my-message-open
@@ -9646,10 +9692,10 @@ With prefix argument, also display headlines without a TODO keyword."
   (advice-add 'org-paste-subtree :before
               #'(lambda (&rest _) (delete-blank-lines)))
 
-  (use-package org-mairix
-    :defer t
-    :config
-    (my-gnus-drop-link-parameter "mairix"))
+  ;;(use-package org-mairix
+  ;;  :defer t
+  ;;  :config
+  ;;  (my-gnus-drop-link-parameter "mairix"))
 
   (font-lock-add-keywords
    'org-mode
@@ -9680,7 +9726,14 @@ With prefix argument, also display headlines without a TODO keyword."
          ("q"   . bury-buffer)
          ("x"   . org-agenda-todo)
          ("w"   . org-agenda-refile)
-         ("z"   . pop-window-configuration))
+         ("z"   . pop-window-configuration)
+         :prefix-map
+         my-org-review-map
+         :prefix "t"
+         ("N"   . my/org-toggle-time-noon)
+         ("d"   . my/org-toggle-time-day)
+         ("e"   . my/org-toggle-time-eve)
+         ("n"   . my/org-toggle-time-night))
   :hook
   (org-agenda-mode . org-fit-agenda-window)
   :custom
@@ -9698,6 +9751,8 @@ With prefix argument, also display headlines without a TODO keyword."
          "~/Mobile/inbox.org"))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
+  (org-agenda-hide-tags-regexp
+   "\\`\\(Noon\\|Day\\|Eve\\|Night\\)\\'")
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
@@ -9764,6 +9819,26 @@ With prefix argument, also display headlines without a TODO keyword."
              (not (quickping "imap.fastmail.com"))))
            (concat "-" tag))))
 
+  (defun my/org-toggle-time-noon ()
+    (interactive)
+    (org-agenda-with-point-at-orig-entry nil
+      (org-toggle-tag "Noon")))
+
+  (defun my/org-toggle-time-day ()
+    (interactive)
+    (org-agenda-with-point-at-orig-entry nil
+      (org-toggle-tag "Day")))
+
+  (defun my/org-toggle-time-eve ()
+    (interactive)
+    (org-agenda-with-point-at-orig-entry nil
+      (org-toggle-tag "Eve")))
+
+  (defun my/org-toggle-time-night ()
+    (interactive)
+    (org-agenda-with-point-at-orig-entry nil
+      (org-toggle-tag "Night")))
+
   (defun my-org-ancestor-keywords ()
     (save-excursion
       (let ((had-parent (org-up-heading-safe)))
@@ -9817,7 +9892,8 @@ unfold drawers."
   (org-agenda-overlay-by-filetag
    `(("c2g"           face (:background ,palette-orange-darker  :foreground "#eeeeee"))
      ("bahai"         face (:background ,palette-green-darker   :foreground "#eeeeee"))
-     ("family"        face (:background ,palette-green-darker   :foreground "#eeeeee"))
+     ("family"        face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("home"          face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
      ("tech"          face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
@@ -9905,8 +9981,8 @@ unfold drawers."
     (add-to-list 'completion-at-point-functions
                  'my/org-agenda-completions-at-point))
 
-  (defun my/org-ql-find-refile-targets (&optional arg)
-    (interactive "P")
+  (defun my/org-ql-find-refile-targets ()
+    (interactive)
     (require 'org-ql)
     (require 'org-ql-find)
     (let ((query-prefix "refile-target: ")
@@ -9918,20 +9994,40 @@ unfold drawers."
                         :directories (list org-directory))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
-        (org-ql-find (org-ql-find--buffers)
-                     :query-prefix (if arg nil query-prefix)))
+        (org-ql-find (org-ql-find--buffers)))
        (t
         (org-ql-find (org-agenda-files)
-                     :query-prefix (if arg nil query-prefix))))))
+                     :query-prefix query-prefix)))))
 
   (defun org-ql-refile-path ()
     (interactive)
     (let ((org-ql-default-predicate 'outline-path))
       (call-interactively #'org-ql-refile)))
+
   :config
   (use-package org-extra
     :functions (org-extra-refile-heading-p))
 
+  (org-ql-defpred property-ts (property &key from to _on regexp _with-time args)
+    "Match timestamps in property value."
+    :normalizers ((`(,predicate-names ,property . ,rest)
+                   `(property-ts ,property
+                                 ,@(org-ql--normalize-from-to-on
+                                     `(:from ,from :to ,to)))))
+    :body (when-let ((value (org-entry-get (point) property))
+                     (ts (ignore-errors
+                           (ts-parse-org value))))
+            (cond ((not (or from to)) ts)
+                  ((and from to) (ts-in from to ts))
+                  (from (ts<= from ts))
+                  (to (ts<= ts to)))))
+
+  (org-ql-defpred keyword (&rest keywords)
+    "Search for entries about any of NAMES."
+    :body (cl-loop
+           for kw in keywords
+           thereis (member kw (split-string
+                               (or (org-entry-get (point) "KEYWORDS") "")))))
   (org-ql-defpred refile-target ()
     "Return non-nil if entry is a refile target."
     :body (org-extra-refile-heading-p))
@@ -10003,7 +10099,8 @@ unfold drawers."
   :bind
   (:map
    my-ctrl-c-n-map
-   ("s" . org-config-find))
+   ("s"   . org-config-find)
+   ("C-s" . org-config-find-any))
   :hook
   (after-init . (lambda () (org-agenda nil "a"))))
 #+end_src
@@ -10132,7 +10229,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
           (delete-char -1)))))
 #+end_src
 
-*** org-checklist
+*** COMMENT org-checklist
 
 #+begin_src emacs-lisp
 (use-package org-checklist
@@ -10204,7 +10301,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package ob
   :after (org ob-emamux)
-  :defer t
+  :demand t
   :config
   ;; load more languages for org-babel
   (org-babel-do-load-languages
@@ -10247,7 +10344,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (use-package ob-ditaa)
 
   (setq org-confirm-babel-evaluate nil
-        org-plantuml-jar-path "/~/.nix-profile/lib/plantuml.jar"
+        org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar"
         org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
 
   (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
@@ -10266,6 +10363,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 #+begin_src emacs-lisp
 (use-package ob-emamux
   :after org
+  :demand t
   :commands (org-babel-execute:emamux))
 #+end_src
 
@@ -10319,7 +10417,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
             (when-let* ((avatar-value (org-entry-get begin "AVATAR"))
                         (avatar-link-path
                          (cond
-                          ;; [[file:contact_dir/avatar.png]]
+                          ;; contact_dir/avatar.png
                           ((string-match org-link-plain-re avatar-value)
                            (when (string-equal (match-string 1 avatar-value) "file")
                              (match-string 2 avatar-value)))
@@ -10507,20 +10605,6 @@ A group FOO is composed of contacts with the tag FOO."
    ("C-c C-x l" . org-devonthink-insert-link)))
 #+end_src
 
-*** org-download
-
-#+begin_src emacs-lisp
-(use-package org-download
-  :after org
-  :bind (:map org-mode-map
-              ("C-c C-x C" . org-download-clipboard)
-              ("C-c C-x Y" . org-download-yank))
-  :custom
-  (org-download-method 'attach)
-
-  (add-hook 'dired-mode-hook 'org-download-enable))
-#+end_src
-
 *** org-edna
 
 #+begin_src emacs-lisp
@@ -10625,9 +10709,8 @@ A group FOO is composed of contacts with the tag FOO."
   (advice-add
    'org-caldav-insert-org-entry--wrapup :after
    #'(lambda (&rest _)
-       (org-set-property "CREATED"
-                         (with-temp-buffer
-                           (org-insert-time-stamp (current-time) t t))))))
+       (org-entry-put (point) "CREATED"
+                      (format-time-string (org-time-stamp-format t t))))))
 #+end_src
 
 *** COMMENT org-gcal
@@ -11117,6 +11200,19 @@ stamp to a task, which can be used to schedule a review of the task.
   (org-review-last-timestamp-format 'inactive)
   (org-review-next-timestamp-format 'inactive)
   :preface
+  (defun my-org-review-increment-count (&rest _)
+    (interactive)
+    (let* ((where (if (equal major-mode 'org-agenda-mode)
+                      (or (org-get-at-bol 'org-marker)
+	                  (org-agenda-error))
+                    (point)))
+           (reviews (org-entry-get where "REVIEWS")))
+      (if reviews
+          (org-entry-put where "REVIEWS"
+                         (number-to-string
+                          (1+ (string-to-number reviews))))
+        (org-entry-put where "REVIEWS" "1"))))
+
   (defun my-org-reviewed-today ()
     (interactive)
     (when (or (ignore-errors (org-entry-is-todo-p))
@@ -11193,7 +11289,10 @@ stamp to a task, which can be used to schedule a review of the task.
     (my-org-review-next "+2y")
     (message "Next review in 2 years"))
   :config
-  (add-hook 'org-capture-before-finalize-hook #'my-org-reviewed-today))
+  (add-hook 'org-capture-before-finalize-hook #'my-org-reviewed-today)
+
+  (advice-add 'org-review-insert-last-review
+              :after #'my-org-review-increment-count))
 #+end_src
 
 *** org-rich-yank
@@ -11230,11 +11329,14 @@ stamp to a task, which can be used to schedule a review of the task.
   (org-roam-extract-new-file-path "%<%Y%m%d%H%M>-${slug}.org")
   (org-roam-file-exclude-regexp
    '(
-     "\\`\\."
-     "/\\."
+     "\\`[._]"
+     "/[._]"
      "archive"
      "\\`data/"
      "\\`calendar/"
+     "\\`template/"
+     "\\`snippet/"
+     "\\.\\(css\\|html\\|xml\\|txt\\|jpe?g\\|png\\|tiff\\|css\\|yaml\\)\\'"
      ))
   :defines
   (org-roam-v2-ack)
@@ -11426,10 +11528,7 @@ context.
 
 #+begin_src emacs-lisp
 (use-package xeft
-  :bind
-  (:map
-   my-ctrl-c-n-map
-   ("x" . xeft))
+  :bind (:map my-ctrl-c-n-map ("x" . xeft))
   :custom
   (xeft-database (user-data "xeft.db"))
   (xeft-default-extension "org")
