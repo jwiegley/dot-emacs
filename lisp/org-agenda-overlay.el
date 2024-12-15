@@ -31,8 +31,9 @@
 (defun org-agenda-overlay-filetags ()
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward "^#\\+filetags: :\\(.+\\):" 4096 t)
-      (split-string (match-string-no-properties 1) ":"))))
+    (ignore-errors
+      (when (re-search-forward "^#\\+filetags: :\\(.+\\):" 4096 t)
+        (split-string (match-string-no-properties 1) ":")))))
 
 (defun compare-lists-up-to-shortest (list1 list2)
   "Compare LIST1 and LIST2 up to the length of the shortest list."

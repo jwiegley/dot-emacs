@@ -5641,6 +5641,14 @@ error prone.
          ("<C-m> /" . vr/mc-mark)))
 #+end_src
 
+*** COMMENT visual-regexp-steroids
+
+#+begin_src emacs-lisp
+(use-package visual-regexp-steroids
+  :bind (("C-r" . vr/isearch-backward)
+         ("C-s" . vr/isearch-forward)))
+#+end_src
+
 ** virtual-auto-fill
 
 #+begin_src emacs-lisp
@@ -9725,6 +9733,7 @@ With prefix argument, also display headlines without a TODO keyword."
          ("f"   . org-agenda-date-later)
          ("q"   . bury-buffer)
          ("x"   . org-agenda-todo)
+         ("X"   . org-agenda-todo-yesterday)
          ("w"   . org-agenda-refile)
          ("z"   . pop-window-configuration)
          :prefix-map
