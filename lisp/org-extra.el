@@ -487,12 +487,13 @@ A review may be needed if:
    up during the normal review cycle."
   (or (not (org-review-last-review-prop nil))
       (and (org-review-toreview-p)
-           (not (and (cl-set-difference (org-get-tags) org-extra-meta-tags
-                                        :test #'string=)
-                     (save-excursion
-                       (goto-char (point-min))
-                       (re-search-forward
-                        (concat "#\\+filetags:.*:kadena:") 4096 t)))))))
+           ;; (not (and (cl-set-difference (org-get-tags) org-extra-meta-tags
+           ;;                              :test #'string=)
+           ;;           (save-excursion
+           ;;             (goto-char (point-min))
+           ;;             (re-search-forward
+           ;;              (concat "#\\+filetags:.*:kadena:") 4096 t))))
+           )))
 
 (defun org-extra-report-items-to-be-reviewed ()
   "Report items pending review after one second."
