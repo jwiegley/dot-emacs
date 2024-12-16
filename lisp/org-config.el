@@ -913,10 +913,11 @@
   (interactive "sTag: ")
   (org-ql-search (org-agenda-files)
     `(and (todo)
-          (not (tags))
-          (save-excursion
-            (goto-char (point-min))
-            (re-search-forward (concat "#\\+filetags:.*:" ,tag ":") 4096 t)))
+          ;; (not (tags))
+          ;; (save-excursion
+          ;;   (goto-char (point-min))
+          ;;   (re-search-forward (concat "#\\+filetags:.*:" ,tag ":") 4096 t))
+          )
     :sort '(scheduled todo)))
 
 (provide 'org-config)
