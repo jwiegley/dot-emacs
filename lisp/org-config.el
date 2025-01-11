@@ -403,7 +403,7 @@
     :no-save t)
 
    ("pbf" "Ali Nakhjavani Development Fund" plain
-    (file "~/org/template/bahai/ali-nakhjavani-development-fund.org")
+    (file "~/org/template/bahai/meetings/ali-nakhjavani-development-fund.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-ali-nakhjavani-development-fund.org")
     :immediate-finish t
     :jump-to-captured t

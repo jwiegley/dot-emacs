@@ -2910,7 +2910,7 @@ up before you execute another command."
       :stream t
       :key (auth-source-pass-get 'secret "claude.anthropic.com")))
 
-  (setq gptel-model "gpt-4o"))
+  (setq gptel-model 'gpt-4o))
 #+end_src
 
 *** corsair
@@ -9902,6 +9902,7 @@ unfold drawers."
    `(("c2g"           face (:background ,palette-orange-darker  :foreground "#eeeeee"))
      ("bahai"         face (:background ,palette-green-darker   :foreground "#eeeeee"))
      ("family"        face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("finances"      face (:background ,palette-red-dark       :foreground "#eeeeee"))
      ("home"          face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
      ("tech"          face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
@@ -11626,6 +11627,30 @@ this allows seeing an overview of tasks in a subtree.
 #+begin_src emacs-lisp
 (use-package org-sticky-header
   :commands org-sticky-header-mode)
+#+end_src
+
+*** org-srs
+
+#+begin_src emacs-lisp
+(use-package org-srs
+  :after org
+  :bind (:map org-mode-map
+              ("<f5>" . org-srs-review-rate-easy)
+              ("<f6>" . org-srs-review-rate-good)
+              ("<f7>" . org-srs-review-rate-hard)
+              ("<f8>" . org-srs-review-rate-again))
+  :config
+  (use-package org-srs-embed
+    :demand t
+    :hook (org-mode . org-srs-embed-overlay-mode))
+
+  (use-package org-srs-log
+    :demand t
+    :config
+    (require 'org-extra)
+    (advice-add 'org-srs-log-hide-drawer
+                :after #'(lambda (&rest _ignore)
+                           (org-extra-cycle-hide-drawers 'all)))))
 #+end_src
 
 *** org-sticky-header
