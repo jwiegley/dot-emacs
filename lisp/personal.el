@@ -369,4 +369,26 @@ transform."
           (sort (mapcar #'(lambda (x) (cons x (funcall accessor x))) seq)
                 #'(lambda (x y) (funcall predicate (cdr x) (cdr y))))))
 
+(defmacro save-bound-variable (var &rest body)
+  `(let ((,var ,var))
+     ,@body))
+
+(defmacro save-bound-list (var &rest body)
+  `(let ((,var (cl-copy-list ,var)))
+     ,@body))
+
+(defmacro save-lexical-variable (var &rest body)
+  (let ((save-var (intern (concat "--save-" (symbol-name var)))))
+    `(let ((,save-var ,var))
+       (unwind-protect
+           (progn ,@body)
+         (setq ,var ,save-var)))))
+
+(defmacro save-lexical-list (var &rest body)
+  (let ((save-var (intern (concat "--save-" (symbol-name var)))))
+    `(let ((,save-var (cl-copy-list ,var)))
+       (unwind-protect
+           (progn ,@body)
+         (setq ,var ,save-var)))))
+
 (provide 'personal)
