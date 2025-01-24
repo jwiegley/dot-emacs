@@ -53,6 +53,18 @@
 		 (concat "x-devonthink-item://" link-name))
      :description (file-name-nondirectory link-name))))
 
+(defun org-devonthink-uuid-to-path (uuid)
+  "Visit the message with the given MESSAGE-ID.
+This will use the command `open' with the message URL."
+  (interactive)
+  (when (string-match "\\`\\(x-devonthink-item://\\)?\\(.+\\)\\'" uuid)
+    (let ((base-uuid (match-string 2 uuid)))
+      (read (do-applescript
+             (format "tell application \"DEVONthink 3\"
+    set searchResult to get record with uuid \"%s\"
+    path of searchResult
+end tell" base-uuid))))))
+
 (defun org-devonthink-message-open ()
   "Visit the message with the given MESSAGE-ID.
 This will use the command `open' with the message URL."

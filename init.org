@@ -5262,6 +5262,18 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :bind ("C-c `" . string-inflection-toggle))
 #+end_src
 
+** sudo-edit
+
+#+begin_src emacs-lisp
+(use-package sudo-edit
+  :after embark
+  :bind
+  (:map embark-file-map
+        ("s" . sudo-edit-find-file))
+  (:map embark-become-file+buffer-map
+        ("s" . sudo-edit-find-file)))
+#+end_src
+
 ** COMMENT sunrise-commander
 
 This is currently broken due to undefined functions being called in the code.
@@ -10051,6 +10063,16 @@ unfold drawers."
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
 
+*** org-update
+
+#+begin_src emacs-lisp
+(use-package org-update
+  :after org
+  :demand t
+  :config
+  (org-update-install))
+#+end_src
+
 *** org-extra
 
 #+begin_src emacs-lisp
@@ -10414,6 +10436,8 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
             #'(lambda ()
                 (remove-hook 'completion-at-point-functions
                              #'message-completion-function t)))
+
+  (remove-hook 'org-mode-hook #'org-contacts-org-complete-setup)
 
   (defun org-contacts--candidate (headline)
     "Return candidate string from Org HEADLINE epom element node."
@@ -10847,100 +10871,63 @@ A group FOO is composed of contacts with the tag FOO."
 (use-package org-noter
   :after (org pdf-view)
   :commands org-noter
+  :bind (:map org-noter-notes-mode-map
+              ("C-M-i" . org-noter-insert-dynamic-block))
   :custom
   (org-noter-notes-search-path (list org-directory))
   (org-noter-supported-modes '(doc-view-mode pdf-view-mode))
+  (org-noter-max-short-selected-text-length 10)
+  (org-noter-separate-notes-from-heading t)
   :config
   (use-package org-noter-pdf)
-  (use-package org-noter-dynamic-block)
-  ;; (defun org-noter-pdf--show-arrow ()
-  ;;   ;; From `pdf-util-tooltip-arrow'.
-  ;;   (pdf-util-assert-pdf-window)
-  ;;   (let* (x-gtk-use-system-tooltips
-  ;;          (arrow-top  (aref org-noter--arrow-location 2)) ; % of page
-  ;;          (arrow-left (aref org-noter--arrow-location 3))
-  ;;          (image-top  (if (floatp arrow-top)
-  ;;                          (round (* arrow-top  (cdr (pdf-view-image-size)))))) ; pixel location on page (magnification-dependent)
-  ;;          (image-left (if (floatp arrow-left)
-  ;;                          (floor (* arrow-left (car (pdf-view-image-size))))))
-  ;;          (dx (or image-left
-  ;;                  (+ (or (car (window-margins)) 0)
-  ;;                     (car (window-fringes)))))
-  ;;          (dy (or image-top 0))
-  ;;          (pos (list dx dy dx (+ dy (* 2 (frame-char-height)))))
-  ;;          (vscroll (pdf-util-required-vscroll pos))
-  ;;          (tooltip-frame-parameters
-  ;;           `((border-width . 0)
-  ;;             (internal-border-width . 0)
-  ;;             ,@tooltip-frame-parameters))
-  ;;          (tooltip-hide-delay 3))
 
-  ;;     (when vscroll
-  ;;       (image-set-window-vscroll vscroll))
-  ;;     (setq dy (max 0 (- dy
-  ;;                        (cdr (pdf-view-image-offset))
-  ;;                        (window-vscroll nil t)
-  ;;                        (frame-char-height))))
-  ;;     (when (overlay-get (pdf-view-current-overlay) 'before-string)
-  ;;       (let* ((e (window-inside-pixel-edges))
-  ;;              (xw (pdf-util-with-edges (e) e-width))
-  ;;              (display-left-margin (/ (- xw (car (pdf-view-image-size t))) 2)))
-  ;;         (cl-incf dx display-left-margin)))
-  ;;     (setq dx (max 0 (+ dx org-noter-arrow-horizontal-offset)))
-  ;;     (pdf-util-tooltip-in-window
-  ;;      (propertize
-  ;;       " " 'display (propertize
-  ;;                     "\u2192" ;; right arrow
-  ;;                     'display '(height 2)
-  ;;                     'face `(:foreground
-  ;;                             ,org-noter-arrow-foreground-color
-  ;;                             :background
-  ;;                             ,(if (bound-and-true-p pdf-view-midnight-minor-mode)
-  ;;                                  (cdr pdf-view-midnight-colors)
-  ;;                                org-noter-arrow-background-color))))
-  ;;      dx dy)))
-  )
-#+end_src
+  (require 'pdf-macs)
+  (defun org-noter-pdf--show-arrow ()
+    ;; From `pdf-util-tooltip-arrow'.
+    (pdf-util-assert-pdf-window)
+    (let* (x-gtk-use-system-tooltips
+           (arrow-top  (aref org-noter--arrow-location 2)) ; % of page
+           (arrow-left (aref org-noter--arrow-location 3))
+           (image-top  (if (floatp arrow-top)
+                           (round (* arrow-top  (cdr (pdf-view-image-size)))))) ; pixel location on page (magnification-dependent)
+           (image-left (if (floatp arrow-left)
+                           (floor (* arrow-left (car (pdf-view-image-size))))))
+           (dx (or image-left
+                   (+ (or (car (window-margins)) 0)
+                      (car (window-fringes)))))
+           (dy (or image-top 0))
+           (pos (list dx dy dx (+ dy (* 2 (frame-char-height)))))
+           (vscroll (pdf-util-required-vscroll pos))
+           (tooltip-frame-parameters
+            `((border-width . 0)
+              (internal-border-width . 0)
+              ,@tooltip-frame-parameters))
+           (tooltip-hide-delay 3))
 
-*** COMMENT org-noter-pdftools
-
-#+begin_src emacs-lisp
-(use-package org-noter-pdftools
-  :after org-noter
-  :preface
-  ;; Add a function to ensure precise note is inserted
-  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((org-noter-insert-note-no-questions
-            (if toggle-no-questions
-                (not org-noter-insert-note-no-questions)
-              org-noter-insert-note-no-questions))
-           (org-pdftools-use-isearch-link t)
-           (org-pdftools-use-freepointer-annot t))
-       (org-noter-insert-note (org-noter--get-precise-info)))))
-
-  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
-  (defun org-noter-set-start-location (&optional arg)
-    "When opening a session with this document, go to the current location.
-  With a prefix ARG, remove start location."
-    (interactive "P")
-    (org-noter--with-valid-session
-     (let ((inhibit-read-only t)
-           (ast (org-noter--parse-root))
-           (location (org-noter--doc-approx-location
-                      (when (called-interactively-p 'any) 'interactive))))
-       (with-current-buffer (org-noter--session-notes-buffer session)
-         (org-with-wide-buffer
-          (goto-char (org-element-property :begin ast))
-          (if arg
-              (org-entry-delete nil org-noter-property-note-location)
-            (org-entry-put nil org-noter-property-note-location
-                           (org-noter--pretty-print-location location))))))))
-  :config
-  (with-eval-after-load 'pdf-annot
-    (add-hook 'pdf-annot-activate-handler-functions
-              #'org-noter-pdftools-jump-to-note)))
+      (when vscroll
+        (image-set-window-vscroll vscroll))
+      (setq dy (max 0 (- dy
+                         (cdr (pdf-view-image-offset))
+                         (window-vscroll nil t)
+                         (frame-char-height))))
+      (when (overlay-get (pdf-view-current-overlay) 'before-string)
+        (let* ((e (window-inside-pixel-edges))
+               (xw (pdf-util-with-edges (e) e-width))
+               (display-left-margin (/ (- xw (car (pdf-view-image-size t))) 2)))
+          (cl-incf dx display-left-margin)))
+      (setq dx (max 0 (+ dx org-noter-arrow-horizontal-offset)))
+      (pdf-util-tooltip-in-window
+       (propertize
+        " " 'display (propertize
+                      "\u2192" ;; right arrow
+                      'display '(height 2)
+                      'face `(:foreground
+                              ,org-noter-arrow-foreground-color
+                              :background
+                              ,(if (bound-and-true-p pdf-view-midnight-minor-mode)
+                                   (cdr pdf-view-midnight-colors)
+                                 org-noter-arrow-background-color))))
+       dx dy))))
 #+end_src
 
 *** org-pdftools
@@ -11075,8 +11062,10 @@ and Info documentation with using Org mode.
   :after org
   :diminish org-remark-global-tracking-mode
   :commands (org-remark-global-tracking-mode)
-  :bind (("C-c n m" . org-remark-mark)
-         ("C-c n M" . org-remark-mark-line) ; new in v1.3
+  :bind (:map
+         my-ctrl-c-n-map
+         ("m" . org-remark-mark)
+         ("M" . org-remark-mark-line) ; new in v1.3
          :map org-remark-mode-map
          ("C-c n o" . org-remark-open)
          ("C-c n ]" . org-remark-view-next)
@@ -11429,6 +11418,77 @@ stamp to a task, which can be used to schedule a review of the task.
    org-roam-dailies--capture))
 #+end_src
 
+**** vulpea
+
+A collection of functions for note taking based on =org= and =org-roam=. This
+repository primary goal is to be a tested library for other applications and
+utilities around note taking.
+
+*Reasons to use [[https://github.com/d12frosted/vulpea][vulpea]]*
+
+- If you are automating things around Org mode files and you want to have a
+  tested library to build upon.
+
+- While =org-roam= was greatly simplified and has adopted some ideas from =vulpea=
+  starting from =v2=, it still lacks certain pieces for programmatic usage. Just
+  to name few of them:
+
+  1. =vulpea-db-query= is a great interface for quick database search without
+     knowing its scheme. In many cases you just want to have a fully
+     materialized note instead of a structure that lacks, say tags or aliases.
+     So you don’t need to write any extra SQL. See Performance for more
+     information.
+  2. =vulpea-select= is a configurable interface for selecting a note with an
+     optional filter. See vulpea-select for more information.
+  3. =vulpea-create= is a wrapper around =org-roam-capture-= allowing to easily
+     provide extra properties, tags and context when creating a new note. And
+     most importantly - it returns a newly created note. See vulpea-create for
+     more information.
+
+- Several interactive functions:
+
+  1. =vulpea-find= that acts like =org-roam-node-find=, but (a) uses =vulpea-select=
+     for consistent experience and (b) allows to configure default and on-use
+     filtering and candidates source. See vulpea-find for more information.
+  2. =vulpea-find-backlink= is just a convenient function to find a note linking
+     currently opened one. For those who don’t want to use =org-roam= buffer.
+  3. =vulpea-insert= that acts like =org-roam-node-insert=, but (a) uses
+     =vulpea-select= for consistent experience, (b) allows to set
+     =vulpea-insert-default-filter= (see =vulpea-find= for examples) and (c)
+     allows to provide an insertion handler via =vulpea-insert-handle-functions=
+     , which is called with inserted note. See vulpea-insert for more
+     information.
+
+- =vulpea= is more than just a wrapper around =org-roam= , it contains more stuff:
+
+  1. Utilities for dealing with buffer properties (e.g. =#+KEY: VALUE=).
+  2. Utilities for dealing with metadata (e.g. first description list in the
+     buffer).
+
+#+begin_src emacs-lisp
+(use-package vulpea
+  :after org-roam
+  :demand t
+  :bind
+  (:map
+   my-ctrl-c-n-map
+   ("f" . vulpea-find)
+   ("b" . vulpea-find-backlink))
+  ;; hook into org-roam-db-autosync-mode if you wish to enable persistence of
+  ;; meta values (see respective section in README to find out what meta
+  ;; means)
+  :hook ((org-roam-db-autosync-mode . vulpea-db-autosync-enable))
+  :config
+  (vulpea-db-autosync-enable)
+  (add-all-to-list 'vertico-multiform-commands
+                   '(vulpea-find)
+                   '(vulpea-find-backlink))
+
+  (defsubst vulpea-buffer-meta-get (prop)
+    "Get all values of metadata PROP from buffer."
+    (vulpea-buffer-meta-get! (vulpea-buffer-meta) name)))
+#+end_src
+
 **** consult-org-roam
 
 #+begin_src emacs-lisp
@@ -11500,7 +11560,7 @@ resulting in an org-mode checklist.
   :bind
   (:map
    org-mode-map
-   ("C-c C-x S"   . org-roam-extra-sync)
+   ("C-c C-x S" . org-roam-extra-sync)
    :map
    my-ctrl-c-n-map
    ("S" . org-roam-extra-import-fireflies)
@@ -11516,9 +11576,7 @@ resulting in an org-mode checklist.
   :config
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."
-    (org-roam-extra-title-slug (org-roam-node-title node)))
-
-  (advice-add 'org-agenda :before #'org-roam-extra-update-todo-files))
+    (org-roam-extra-title-slug (org-roam-node-title node))))
 #+end_src
 
 **** org-smart-capture
