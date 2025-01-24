@@ -134,9 +134,15 @@ tasks. The only exception is headings tagged as REFILE."
   "Update the value of `org-agenda-files'."
   (setq org-agenda-files (vulpea-project-list)))
 
+;;;###autoload
+(defun vulpea-pre-save-hook ()
+  "Do all the dirty stuff when file is being saved."
+  (when (and (not (active-minibuffer-window))
+             (vulpea-buffer-p))
+    (vulpea-ensure-filetag)))
+
 (defun vulpea-auto-update-install ()
-  (add-hook 'find-file-hook #'vulpea-ensure-filetag)
-  (add-hook 'before-save-hook #'vulpea-ensure-filetag)
+  (add-hook 'before-save-hook #'vulpea-pre-save-hook)
 
   (advice-add 'org-agenda :before #'vulpea-agenda-files)
   (advice-add 'org-todo-list :before #'vulpea-agenda-files))
@@ -181,5 +187,31 @@ tasks. The only exception is headings tagged as REFILE."
          ;; aliases
          (and (= (vulpea-note-level note) 0)
               (string-match "/journal/" (vulpea-note-path note)))))))
+
+;;;###autoload
+(defun vulpea-tags-add ()
+  "Add a tag to current note."
+  (interactive)
+  (org-with-point-at 1
+    (when (call-interactively #'org-roam-tag-add)
+      (vulpea-ensure-filetag))))
+
+;;;###autoload
+(defun vulpea-tags-delete ()
+  "Delete a tag from current note."
+  (interactive)
+  (call-interactively #'org-roam-tag-remove))
+
+;;;###autoload
+(defun vulpea-alias-add ()
+  "Add an alias to current note."
+  (interactive)
+  (call-interactively #'org-roam-alias-add))
+
+;;;###autoload
+(defun vulpea-alias-delete ()
+  "Delete an alias from current note."
+  (interactive)
+  (call-interactively #'org-roam-alias-remove))
 
 (provide 'vulpea-extra)
