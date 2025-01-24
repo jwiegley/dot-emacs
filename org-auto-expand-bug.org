@@ -1,0 +1,71 @@
+:PROPERTIES:
+:ID:       271A6B80-BEC5-485E-A5CA-F514EB4857D0
+:CREATED:  [2024-07-18 Thu 13:35]
+:SLUG:     todo
+:TAGS_ALL: LINK FILE ARCHIVE
+:VERB_ALL: Reply Blog
+:END:
+#+archive: archive/archive.org::
+#+filetags: :todo:
+#+tags: Foo Bar Baz
+#+title: Example
+
+* Headline1
+:PROPERTIES:
+:ID:       D9041A65-12D8-4638-ABA6-2CEACC82E8B9
+:CREATED:  [2023-03-27 Mon 17:07]
+:CATEGORY: Foo
+:auto-expand: headline
+:END:
+** TODO Headline2                                                                    :Home:Foo:
+:PROPERTIES:
+:ID:       8B3041D5-6B7A-43FB-95B6-74E08AA0DD9C
+:CREATED:  [2020-06-09 Tue 09:40]
+:LAST_REVIEW: 2024-09-13 Fri
+:NEXT_REVIEW: 2024-09-16 Mon
+:END:
+- Note taken on [2020-11-06 Fri 15:31] \\
+  I need to authorize access with Foo by calling Fidelity.
+** TODO Headline3                                                                    :LINK:Foo:
+SCHEDULED: <2024-11-06 Wed .+3m>
+:PROPERTIES:
+:ID:       AB1E8711-E840-4443-988B-450E9331F291
+:CREATED:  [2020-11-07 Sat 16:23]
+:LAST_REPEAT: [2024-08-06 Tue 14:33]
+:REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:END:
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2024-08-06 Tue 14:33]
+- State "DONE"       from "TODO"       [2023-03-21 Tue 23:16]
+- State "DONE"       from "TODO"       [2022-05-07 Sat 12:51]
+- State "DONE"       from "TODO"       [2021-10-10 Sun 11:11]
+- State "DONE"       from "TODO"       [2021-05-24 Mon 16:51]
+- State "DONE"       from "TODO"       [2021-02-09 Tue 10:48]
+:END:
+** TODO [#C] Headline4                                                                    :Foo:
+SCHEDULED: <2024-11-03 Sun .+3m>
+:PROPERTIES:
+:ID:       E12A84E3-1B6A-4C97-B990-2556567FEC96
+:CREATED:  [2022-04-13 Wed 08:21]
+:REPEAT_TO_STATE: TODO
+:LOG_INTO_DRAWER: t
+:LAST_REPEAT: [2024-08-03 Sat 10:28]
+:END:
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2024-08-03 Sat 10:28] \\
+  Blah
+- State "DONE"       from "WAIT"       [2024-04-21 Sun 02:46] \\
+  Blah
+- State "WAIT"       from "DOING"      [2024-04-19 Fri 17:08] \\
+  Blah
+- State "DONE"       from "TODO"       [2023-12-27 Wed 14:53]
+- State "DONE"       from "TODO"       [2022-05-03 Tue 18:22]
+:END:
+** TODO [#C] Headline5
+:PROPERTIES:
+:ID:       F134E541-2375-44ED-A29C-BB85FB9A3F92
+:CREATED:  [2024-06-30 Sun 17:24]
+:LAST_REVIEW: 2024-09-13 Fri
+:NEXT_REVIEW: 2024-09-16 Mon
+:END:
