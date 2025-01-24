@@ -234,45 +234,26 @@
 (defun org-roam-extra-revise-title ()
   (interactive)
   (save-buffer)
-  (org-roam-db-sync)
-  (let* ((title (org-roam-db--file-title))
-         ;; (tags (org-extra-filetags))
-         (org-roam-capture--node (org-roam-node-at-point))
-         (properties (org-roam-node-properties org-roam-capture--node))
-         (old-name buffer-file-name)
-         (old-name-nondirectory
-          (and old-name (file-name-nondirectory old-name)))
-         (new-name-nondirectory
-          (thread-first
-            org-roam-extract-new-file-path
-            (org-roam-capture--fill-template)
-            (string-trim))))
-    (when (and old-name-nondirectory new-name-nondirectory)
-      (let* (
-             ;; (old-stamp (and (string-match "^\\([0-9]\\{12\\}\\)"
-             ;;                               old-name-nondirectory)
-             ;;                 (match-string 1 old-name-nondirectory)))
-             (created (cdr (assoc "CREATED" properties)))
-             (created-tm (org-encode-time (parse-time-string created)))
-             (new-stamp (format-time-string "%Y%m%d%H%M" created-tm))
-             (new-slug (and (string-match "^[0-9]\\{12\\}-\\(.+\\)"
-                                          new-name-nondirectory)
-                            (match-string 1 new-name-nondirectory)))
-             (new-name
-              (expand-file-name (if (and new-stamp new-slug)
-                                    (concat new-stamp "-" new-slug)
-                                  new-name-nondirectory)
-                                (file-name-directory old-name))))
-        (unless (string= new-name old-name)
-          (rename-file old-name new-name 1)
-          (rename-buffer new-name)
-          (set-visited-file-name new-name)
-          (set-buffer-modified-p nil)
-          (org-roam-db-sync))))))
+  (let* ((old-name buffer-file-name)
+         (title (vulpea-buffer-title-get))
+         (new-slug (org-roam-extra-title-slug title))
+         (created (or (vulpea-buffer-prop-get "date")
+                      (org-entry-get (point-min) "CREATED")
+                      (with-temp-buffer
+                        (org-insert-time-stamp (current-time) t t))))
+         (created-tm (org-encode-time (org-parse-time-string created)))
+         (new-stamp (format-time-string "%Y%m%d%H%M" created-tm))
+         (new-name (expand-file-name (concat new-stamp "-" new-slug ".org")
+                                     (file-name-directory old-name))))
+    (unless (string= new-name old-name)
+      (rename-file old-name new-name 1)
+      (rename-buffer new-name)
+      (set-visited-file-name new-name)
+      (set-buffer-modified-p nil))))
 
 (defun org-roam-extra-filter-by-tag (tag-name)
-  (lambda (node)
-    (member tag-name (org-roam-node-tags node))))
+  #'(lambda (node)
+      (member tag-name (org-roam-node-tags node))))
 
 (defun org-roam-extra-list-notes-by-tag (tag-name)
   (mapcar #'org-roam-node-file
@@ -368,20 +349,6 @@ tasks."
                 (string-match-p exclude-re relative-path))))
     is-match))
 
-(defun org-roam-extra-update-todo-files (&rest _)
-  "Update the value of `org-agenda-files'."
-  (interactive)
-  (setq org-agenda-files
-        (append (cl-delete-duplicates
-                 (cl-delete-if
-                  #'(lambda (file)
-                      (org-roam-extra-excluded-file
-                       (file-relative-name file org-roam-directory)))
-                  (org-roam-extra-todo-files))
-                 :test #'string=)
-                (list "~/Mobile/inbox.org")))
-  (message "org-agenda-files has been updated"))
-
 (defun org-roam-extra-sync ()
   (interactive)
   (let ((agenda-buf (get-buffer "*Org Agenda*")))
@@ -393,7 +360,9 @@ tasks."
   (redisplay t)
   (dolist (file (list (org-file "todo.org")
                       (org-file "kadena/kadena.org")
+                      (org-file "assembly/assembly.org")
                       (org-file "quantum-trades/quantum-trades.org")
+                      (org-file "c2g/c2g.org")
                       (org-file "OSS.org")
                       (org-file "people.org")
                       "~/Mobile/inbox.org"))
@@ -401,16 +370,13 @@ tasks."
     (redisplay t)
     (with-current-buffer (find-file-noselect file)
       (goto-char (point-min))
-      (org-extra-sort-all)
-      ;; (org-cycle-content 5)
-      ;; (org-align-tags t)
-      )
+      (org-extra-sort-all))
     (message "Sorting: %s...done" file)
     (redisplay t))
   (save-org-mode-files)
   (message "Updating Org-roam todo cookies...")
   (redisplay t)
-  (org-roam-extra-update-todo-files)
+  (org-update-agenda-files)
   (save-org-mode-files)
   (message "Updating Org-mode ID locations...")
   (redisplay t)

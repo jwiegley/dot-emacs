@@ -128,16 +128,18 @@
  (let ((Inbox '(function org-extra-goto-inbox-heading)))
    `(("a" "TODO" entry
       ,Inbox
-      "* TODO %?"
+      "* TODO %?\nSCHEDULED: %t"
       :prepend t)
 
      ("h" "HABIT" entry
       (file+headline ,(org-file "habits.org") "Personal")
-      "* TODO %?
+      "* TODO ↓△✶✓↑ %?
+SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 :PROPERTIES:
 :STYLE:    habit
-:REPEAT_TO_STATE: TODO
+:REPEAT_TO_STATE: HABIT
 :LOG_INTO_DRAWER: t
+:LOGGING:  DEFER(!) DONE(!) CANCELED(!)
 :END:"
       :prepend t)
 
@@ -157,6 +159,7 @@
      ("c" "Checklist" entry
       ,Inbox
       "* TODO %? [/]
+SCHEDULED: %t
 - [ ] $0
 :PROPERTIES:
 :COOKIE_DATA: recursive
@@ -228,13 +231,6 @@
       :jump-to-captured t)
 
      ("pb" "Bahá’í templates")
-
-     ("pba" "Assembly meeting" entry
-      (file+headline ,(org-file "assembly/assembly.org")
-                     "Carmichael Local Spiritual Assembly (LSA)")
-      (file "~/org/template/bahai/assembly-meeting.org")
-      :immediate-finish t
-      :jump-to-captured t)
 
      ("pbf" "Bahá’í Feast" entry
       (file+headline ,(org-file "assembly/assembly.org")
@@ -366,12 +362,10 @@
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("p" "Project templates")
+   ("b" "Bahá’í templates")
 
-   ("pb" "Bahá’í templates")
-
-   ("pba" "Assembly meeting" plain
-    (file "~/org/template/bahai/assembly-meeting.org")
+   ("ba" "Assembly meeting" plain
+    (file "~/org/template/bahai/meetings/assembly-meeting.org")
     :target
     (file+head
      "journal/%<%Y%m%d%H%M>-meeting-local-spiritual-assembly.org"
@@ -386,7 +380,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbc" "C2G Admin" plain
+   ("bc" "C2G Admin" plain
     (file "~/org/template/bahai/meetings/c2g-admin.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-c2g-admin.org")
     :immediate-finish t
@@ -394,7 +388,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbD" "National Convention Delegate Report" plain
+   ("bD" "National Convention Delegate Report" plain
     (file "~/org/template/bahai/meetings/national-convention-delegate-report.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-national-convention-delegate-report.org")
     :immediate-finish t
@@ -402,7 +396,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbf" "Ali Nakhjavani Development Fund" plain
+   ("bf" "Ali Nakhjavani Development Fund" plain
     (file "~/org/template/bahai/meetings/ali-nakhjavani-development-fund.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-ali-nakhjavani-development-fund.org")
     :immediate-finish t
@@ -410,7 +404,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbF" "Regional Council and the Flow of Guidance" plain
+   ("bF" "Regional Council and the Flow of Guidance" plain
     (file "~/org/template/bahai/meetings/regional-council-and-flow-of-guidance.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-council-and-flow-of-guidance.org")
     :immediate-finish t
@@ -418,7 +412,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbn" "National Treasurer's Office" plain
+   ("bn" "National Treasurer's Office" plain
     (file "~/org/template/bahai/meetings/national-treasurers-office.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-national-treasurers-office.org")
     :immediate-finish t
@@ -426,7 +420,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbr" "Regional Treasurer's Office" plain
+   ("br" "Regional Treasurer's Office" plain
     (file "~/org/template/bahai/meetings/regional-treasurers-office.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-treasurers-office.org")
     :immediate-finish t
@@ -434,7 +428,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbi" "Ruhi Intensive" plain
+   ("bi" "Ruhi Intensive" plain
     (file "~/org/template/bahai/meetings/ruhi-intensive.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive.org")
     :immediate-finish t
@@ -442,7 +436,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbI" "Ruhi Intensive Reflection" plain
+   ("bI" "Ruhi Intensive Reflection" plain
     (file "~/org/template/bahai/meetings/ruhi-intensive-reflection.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive-reflection.org")
     :immediate-finish t
@@ -450,7 +444,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pbu" "Unit Convention" plain
+   ("bu" "Unit Convention" plain
     (file "~/org/template/bahai/meetings/unit-convention.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-unit-convention.org")
     :immediate-finish t
@@ -458,9 +452,9 @@
     :unnarrowed t
     :no-save t)
 
-   ("pw" "Work templates")
+   ("w" "Work templates")
 
-   ("pwa" "All Hands" plain
+   ("wa" "All Hands" plain
     (file "~/org/template/kadena/meetings/all-hands.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-all-hands.org")
     :immediate-finish t
@@ -468,7 +462,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwb" "BD <> Engineering" plain
+   ("wb" "BD <> Engineering" plain
     (file "~/org/template/kadena/meetings/bd-engineering.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-bd-engineering.org")
     :immediate-finish t
@@ -476,7 +470,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwt" "CTO Meeting" plain
+   ("wt" "CTO Meeting" plain
     (file "~/org/template/kadena/meetings/cto.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-cto.org")
     :immediate-finish t
@@ -484,7 +478,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwx" "CXO Meeting" plain
+   ("wx" "CXO Meeting" plain
     (file "~/org/template/kadena/meetings/cxo.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-cxo.org")
     :immediate-finish t
@@ -492,7 +486,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwd" "DX <> Core" plain
+   ("wd" "DX <> Core" plain
     (file "~/org/template/kadena/meetings/dx-and-core.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-dx-and-core.org")
     :immediate-finish t
@@ -500,7 +494,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pws" "Core Eng Standup" plain
+   ("ws" "Core Eng Standup" plain
     (file "~/org/template/kadena/meetings/eng-standup.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-eng-standup.org")
     :immediate-finish t
@@ -508,7 +502,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwe" "EVM Huddle" plain
+   ("we" "EVM Huddle" plain
     (file "~/org/template/kadena/meetings/evm-huddle.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-evm-huddle.org")
     :immediate-finish t
@@ -516,9 +510,9 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwh" "Hack-a-chain")
+   ("wh" "Hack-a-chain")
 
-   ("pwhr" "Hack-a-chain Indexer Review" plain
+   ("whr" "Hack-a-chain Indexer Review" plain
     (file "~/org/template/kadena/meetings/hackachain-indexer-review.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-indexer-review.org")
     :immediate-finish t
@@ -526,7 +520,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwhs" "Hack-a-chain Internal Standup" plain
+   ("whs" "Hack-a-chain Internal Standup" plain
     (file "~/org/template/kadena/meetings/hackachain-internal-standup.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-internal-standup.org")
     :immediate-finish t
@@ -534,7 +528,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwj" "JS Team" plain
+   ("wj" "JS Team" plain
     (file "~/org/template/kadena/meetings/js-team.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-js-team.org")
     :immediate-finish t
@@ -542,7 +536,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwP" "John <> PM Team" plain
+   ("wP" "John <> PM Team" plain
     (file "~/org/template/kadena/meetings/john-pm-team.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-john-pm-team.org")
     :immediate-finish t
@@ -550,7 +544,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwl" "Leads Strategy" plain
+   ("wl" "Leads Strategy" plain
     (file "~/org/template/kadena/meetings/leads-strategy.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-leads-strategy.org")
     :immediate-finish t
@@ -558,7 +552,7 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwp" "Pact Posse" plain
+   ("wp" "Pact Posse" plain
     (file "~/org/template/kadena/meetings/pact-posse.org")
     :target (file "journal/%<%Y%m%d%H%M>-meeting-pact-posse.org")
     :immediate-finish t
@@ -566,9 +560,9 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwo" "1-on-1s")
+   ("wo" "1-on-1s")
 
-   ("pwoo" "1-on-1 meeting" plain
+   ("woo" "1-on-1 meeting" plain
     (file "~/org/template/kadena/one-on-one.org")
     :target
     (file+head
@@ -584,23 +578,23 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwoa" "Names beginning with A")
+   ("woa" "Names beginning with A")
 
-   ("pwoab" "1-on-1 Anastasia Bez" plain
+   ("woab" "1-on-1 Anastasia Bez" plain
     (file "~/org/template/kadena/one-on-one/anastasia-bez.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-anastasia-bez.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwoag" "1-on-1 Albert Groothedde" plain
+   ("woag" "1-on-1 Albert Groothedde" plain
     (file "~/org/template/kadena/one-on-one/albert-groothedde.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwoao" "1-on-1 Annelise Osborne" plain
+   ("woao" "1-on-1 Annelise Osborne" plain
     (file "~/org/template/kadena/one-on-one/annelise-osborne.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-annelise-osborne.org")
     :immediate-finish t
@@ -608,16 +602,16 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwoe" "Names beginning with E")
+   ("woe" "Names beginning with E")
 
-   ("pwoen" "1-on-1 Edmund Noble" plain
+   ("woen" "1-on-1 Edmund Noble" plain
     (file "~/org/template/kadena/one-on-one/edmund-noble.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-edmund-noble.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwoep" "1-on-1 Emily Pillmore" plain
+   ("woep" "1-on-1 Emily Pillmore" plain
     (file "~/org/template/kadena/one-on-one/emily-pillmore.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-emily-pillmore.org")
     :immediate-finish t
@@ -625,23 +619,23 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwoj" "Names beginning with J")
+   ("woj" "Names beginning with J")
 
-   ("pwojb" "1-on-1 June Boston" plain
+   ("wojb" "1-on-1 June Boston" plain
     (file "~/org/template/kadena/one-on-one/june-boston.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-june-boston.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwojc" "1-on-1 Jose Cardona" plain
+   ("wojc" "1-on-1 Jose Cardona" plain
     (file "~/org/template/kadena/one-on-one/jose-cardona.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-jose-cardona.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwojm" "1-on-1 Jesse Marquez" plain
+   ("wojm" "1-on-1 Jesse Marquez" plain
     (file "~/org/template/kadena/one-on-one/jesse-marquez.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-jesse-marquez.org")
     :immediate-finish t
@@ -649,16 +643,16 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwol" "Names beginning with L")
+   ("wol" "Names beginning with L")
 
-   ("pwolb" "1-on-1 Leah Bingham" plain
+   ("wolb" "1-on-1 Leah Bingham" plain
     (file "~/org/template/kadena/one-on-one/leah-bingham.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-leah-bingham.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwolk" "1-on-1 Lars Kuhtz" plain
+   ("wolk" "1-on-1 Lars Kuhtz" plain
     (file "~/org/template/kadena/one-on-one/lars-kuhtz.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-lars-kuhtz.org")
     :immediate-finish t
@@ -666,16 +660,16 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwor" "Names beginning with R")
+   ("wor" "Names beginning with R")
 
-   ("pword" "1-on-1 Randy Daal" plain
+   ("word" "1-on-1 Randy Daal" plain
     (file "~/org/template/kadena/one-on-one/randy-daal.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-randy-daal.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("pwors" "1-on-1 Robert Soeldner" plain
+   ("wors" "1-on-1 Robert Soeldner" plain
     (file "~/org/template/kadena/one-on-one/robert-soeldner.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")
     :immediate-finish t
@@ -683,9 +677,9 @@
     :unnarrowed t
     :no-save t)
 
-   ("pwos" "Names beginning with S")
+   ("wos" "Names beginning with S")
 
-   ("pwosp" "1-on-1 Stuart Popejoy" plain
+   ("wosp" "1-on-1 Stuart Popejoy" plain
     (file "~/org/template/kadena/one-on-one/stuart-popejoy.org")
     :target (file "journal/%<%Y%m%d%H%M>-1-on-1-stuart-popejoy.org")
     :immediate-finish t
