@@ -57,7 +57,8 @@
   "Visit the message with the given MESSAGE-ID.
 This will use the command `open' with the message URL."
   (interactive)
-  (when (string-match "\\`\\(x-devonthink-item://\\)?\\(.+\\)\\'" uuid)
+  (when (and uuid
+             (string-match "\\`\\(x-devonthink-item://\\)?\\(.+\\)\\'" uuid))
     (let ((base-uuid (match-string 2 uuid)))
       (read (do-applescript
              (format "tell application \"DEVONthink 3\"
