@@ -298,13 +298,13 @@ SCHEDULED: %t
     (file "~/org/template/meeting.org")
     :target
     (file+head
-     "journal/%<%Y%m%d%H%M>-meeting.org"
+     "meeting/%<%Y%m%d%H%M>.org"
      ,(concat
        "#+category: Meeting\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :kadena:\n"
        "#+startup: showeverything\n"
-       "#+title: Meeting: %^{Purpose of meeting}\n"))
+       "#+title: %^{Purpose of meeting}\n"))
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -368,13 +368,13 @@ SCHEDULED: %t
     (file "~/org/template/bahai/meetings/assembly-meeting.org")
     :target
     (file+head
-     "journal/%<%Y%m%d%H%M>-meeting-local-spiritual-assembly.org"
+     "meeting/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
      ,(concat
        "#+category: Assembly\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :todo:assembly:\n"
        "#+startup: showeverything\n"
-       "#+title: Meeting: Local Spiritual Assembly\n"))
+       "#+title: Local Spiritual Assembly\n"))
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -382,7 +382,7 @@ SCHEDULED: %t
 
    ("bc" "C2G Admin" plain
     (file "~/org/template/bahai/meetings/c2g-admin.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-c2g-admin.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-c2g-admin.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -390,7 +390,7 @@ SCHEDULED: %t
 
    ("bD" "National Convention Delegate Report" plain
     (file "~/org/template/bahai/meetings/national-convention-delegate-report.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-national-convention-delegate-report.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-national-convention-delegate-report.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -398,7 +398,7 @@ SCHEDULED: %t
 
    ("bf" "Ali Nakhjavani Development Fund" plain
     (file "~/org/template/bahai/meetings/ali-nakhjavani-development-fund.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-ali-nakhjavani-development-fund.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-ali-nakhjavani-development-fund.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -406,7 +406,7 @@ SCHEDULED: %t
 
    ("bF" "Regional Council and the Flow of Guidance" plain
     (file "~/org/template/bahai/meetings/regional-council-and-flow-of-guidance.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-council-and-flow-of-guidance.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-regional-council-and-flow-of-guidance.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -414,7 +414,7 @@ SCHEDULED: %t
 
    ("bn" "National Treasurer's Office" plain
     (file "~/org/template/bahai/meetings/national-treasurers-office.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-national-treasurers-office.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-national-treasurers-office.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -422,7 +422,7 @@ SCHEDULED: %t
 
    ("br" "Regional Treasurer's Office" plain
     (file "~/org/template/bahai/meetings/regional-treasurers-office.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-regional-treasurers-office.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-regional-treasurers-office.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -430,7 +430,7 @@ SCHEDULED: %t
 
    ("bi" "Ruhi Intensive" plain
     (file "~/org/template/bahai/meetings/ruhi-intensive.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-ruhi-intensive.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -438,7 +438,7 @@ SCHEDULED: %t
 
    ("bI" "Ruhi Intensive Reflection" plain
     (file "~/org/template/bahai/meetings/ruhi-intensive-reflection.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-ruhi-intensive-reflection.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-ruhi-intensive-reflection.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -446,7 +446,7 @@ SCHEDULED: %t
 
    ("bu" "Unit Convention" plain
     (file "~/org/template/bahai/meetings/unit-convention.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-unit-convention.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-unit-convention.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -456,7 +456,7 @@ SCHEDULED: %t
 
    ("wa" "All Hands" plain
     (file "~/org/template/kadena/meetings/all-hands.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-all-hands.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-all-hands.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -464,7 +464,7 @@ SCHEDULED: %t
 
    ("wb" "BD <> Engineering" plain
     (file "~/org/template/kadena/meetings/bd-engineering.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-bd-engineering.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-bd-engineering.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -472,7 +472,7 @@ SCHEDULED: %t
 
    ("wt" "CTO Meeting" plain
     (file "~/org/template/kadena/meetings/cto.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-cto.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-cto.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -480,7 +480,7 @@ SCHEDULED: %t
 
    ("wx" "CXO Meeting" plain
     (file "~/org/template/kadena/meetings/cxo.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-cxo.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-cxo.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -488,7 +488,7 @@ SCHEDULED: %t
 
    ("wd" "DX <> Core" plain
     (file "~/org/template/kadena/meetings/dx-and-core.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-dx-and-core.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-dx-and-core.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -496,7 +496,7 @@ SCHEDULED: %t
 
    ("ws" "Core Eng Standup" plain
     (file "~/org/template/kadena/meetings/eng-standup.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-eng-standup.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-eng-standup.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -504,7 +504,7 @@ SCHEDULED: %t
 
    ("we" "EVM Huddle" plain
     (file "~/org/template/kadena/meetings/evm-huddle.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-evm-huddle.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-evm-huddle.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -514,7 +514,7 @@ SCHEDULED: %t
 
    ("whr" "Hack-a-chain Indexer Review" plain
     (file "~/org/template/kadena/meetings/hackachain-indexer-review.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-indexer-review.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-hackachain-indexer-review.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -522,7 +522,7 @@ SCHEDULED: %t
 
    ("whs" "Hack-a-chain Internal Standup" plain
     (file "~/org/template/kadena/meetings/hackachain-internal-standup.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-hackachain-internal-standup.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-hackachain-internal-standup.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -530,7 +530,7 @@ SCHEDULED: %t
 
    ("wj" "JS Team" plain
     (file "~/org/template/kadena/meetings/js-team.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-js-team.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-js-team.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -538,7 +538,7 @@ SCHEDULED: %t
 
    ("wP" "John <> PM Team" plain
     (file "~/org/template/kadena/meetings/john-pm-team.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-john-pm-team.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-john-pm-team.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -546,7 +546,7 @@ SCHEDULED: %t
 
    ("wl" "Leads Strategy" plain
     (file "~/org/template/kadena/meetings/leads-strategy.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-leads-strategy.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-leads-strategy.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -554,7 +554,7 @@ SCHEDULED: %t
 
    ("wp" "Pact Posse" plain
     (file "~/org/template/kadena/meetings/pact-posse.org")
-    :target (file "journal/%<%Y%m%d%H%M>-meeting-pact-posse.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-pact-posse.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -566,7 +566,7 @@ SCHEDULED: %t
     (file "~/org/template/kadena/one-on-one.org")
     :target
     (file+head
-     "journal/%<%Y%m%d%H%M>-1-on-1.org"
+     "meeting/%<%Y%m%d%H%M>-1-on-1.org"
      ,(concat
        "#+category: 1-on-1\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -582,21 +582,21 @@ SCHEDULED: %t
 
    ("woab" "1-on-1 Anastasia Bez" plain
     (file "~/org/template/kadena/one-on-one/anastasia-bez.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-anastasia-bez.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-anastasia-bez.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("woag" "1-on-1 Albert Groothedde" plain
     (file "~/org/template/kadena/one-on-one/albert-groothedde.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("woao" "1-on-1 Annelise Osborne" plain
     (file "~/org/template/kadena/one-on-one/annelise-osborne.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-annelise-osborne.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-annelise-osborne.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -606,14 +606,14 @@ SCHEDULED: %t
 
    ("woen" "1-on-1 Edmund Noble" plain
     (file "~/org/template/kadena/one-on-one/edmund-noble.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-edmund-noble.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-edmund-noble.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("woep" "1-on-1 Emily Pillmore" plain
     (file "~/org/template/kadena/one-on-one/emily-pillmore.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-emily-pillmore.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-emily-pillmore.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -623,21 +623,21 @@ SCHEDULED: %t
 
    ("wojb" "1-on-1 June Boston" plain
     (file "~/org/template/kadena/one-on-one/june-boston.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-june-boston.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-june-boston.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("wojc" "1-on-1 Jose Cardona" plain
     (file "~/org/template/kadena/one-on-one/jose-cardona.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-jose-cardona.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-jose-cardona.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("wojm" "1-on-1 Jesse Marquez" plain
     (file "~/org/template/kadena/one-on-one/jesse-marquez.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-jesse-marquez.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-jesse-marquez.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -647,14 +647,14 @@ SCHEDULED: %t
 
    ("wolb" "1-on-1 Leah Bingham" plain
     (file "~/org/template/kadena/one-on-one/leah-bingham.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-leah-bingham.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-leah-bingham.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("wolk" "1-on-1 Lars Kuhtz" plain
     (file "~/org/template/kadena/one-on-one/lars-kuhtz.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-lars-kuhtz.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-lars-kuhtz.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -664,14 +664,14 @@ SCHEDULED: %t
 
    ("word" "1-on-1 Randy Daal" plain
     (file "~/org/template/kadena/one-on-one/randy-daal.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-randy-daal.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-randy-daal.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
    ("wors" "1-on-1 Robert Soeldner" plain
     (file "~/org/template/kadena/one-on-one/robert-soeldner.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -681,7 +681,7 @@ SCHEDULED: %t
 
    ("wosp" "1-on-1 Stuart Popejoy" plain
     (file "~/org/template/kadena/one-on-one/stuart-popejoy.org")
-    :target (file "journal/%<%Y%m%d%H%M>-1-on-1-stuart-popejoy.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-stuart-popejoy.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t

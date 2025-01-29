@@ -28,6 +28,8 @@
 (require 'org)
 (require 'org-roam)
 (require 'org-extra)
+(require 'vulpea)
+(require 'vulpea-extra)
 
 (defgroup org-roam-extra nil
   "Extra functions for use with Org-roam"
@@ -376,7 +378,7 @@ tasks."
   (save-org-mode-files)
   (message "Updating Org-roam todo cookies...")
   (redisplay t)
-  (org-update-agenda-files)
+  (vulpea-update-agenda-files)
   (save-org-mode-files)
   (message "Updating Org-mode ID locations...")
   (redisplay t)

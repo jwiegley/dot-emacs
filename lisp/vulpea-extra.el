@@ -38,6 +38,7 @@
 (require 'vulpea)
 
 (declare-function org-with-wide-buffer "org-macs")
+(declare-function org-delete-all "org-macs")
 
 (defun vulpea-buffer-p ()
   "Return non-nil if the currently visited buffer is a note."
@@ -45,7 +46,7 @@
        (eq major-mode 'org-mode)
        (string-suffix-p "org" buffer-file-name)
        (string-prefix-p
-        (expand-file-name (file-name-as-directory vulpea-directory))
+        (expand-file-name (file-name-as-directory org-roam-directory))
         (file-name-directory buffer-file-name))))
 
 (defun vulpea-buffer-project-p ()
@@ -55,30 +56,30 @@ TODO entries marked as done are ignored, meaning the this
 function returns nil if current buffer contains only completed
 tasks. The only exception is headings tagged as REFILE."
   (org-element-map
-      (org-element-parse-buffer 'headline)
-      'headline
+      (org-element-parse-buffer 'element)
+      '(headline inlinetask)
     (lambda (h)
       (let ((todo-type (org-element-property :todo-type h)))
         (or
-         ;; any headline with some todo keyword
          (eq 'todo todo-type)
          ;; any non-todo headline with an active timestamp
-         (and
-          (not (eq 'done todo-type))
-          (org-element-property :contents-begin h)
-          (save-excursion
-            (goto-char (org-element-property :contents-begin h))
-            (let ((end (save-excursion
-                         ;; we must look for active timestamps only
-                         ;; before then next heading, even if it's
-                         ;; child, but org-element-property
-                         ;; :contents-end includes all children
-                         (or
-                          (re-search-forward org-element-headline-re
-                                             (org-element-property :contents-end h)
-                                             ':noerror)
-                          (org-element-property :contents-end h)))))
-              (re-search-forward org-ts-regexp end 'noerror)))))))
+         ;; (and
+         ;;  (not (eq 'done todo-type))
+         ;;  (org-element-property :contents-begin h)
+         ;;  (save-excursion
+         ;;    (goto-char (org-element-property :contents-begin h))
+         ;;    (let ((end (save-excursion
+         ;;                 ;; we must look for active timestamps only
+         ;;                 ;; before then next heading, even if it's
+         ;;                 ;; child, but org-element-property
+         ;;                 ;; :contents-end includes all children
+         ;;                 (or
+         ;;                  (re-search-forward org-element-headline-re
+         ;;                                     (org-element-property :contents-end h)
+         ;;                                     ':noerror)
+         ;;                  (org-element-property :contents-end h)))))
+         ;;      (re-search-forward org-ts-regexp end 'noerror))))
+         )))
     nil 'first-match))
 
 (defun vulpea-project-list ()
@@ -102,8 +103,10 @@ tasks. The only exception is headings tagged as REFILE."
              (lambda (x) (not (string-empty-p x)))
              (split-string
               (string-remove-prefix
-               vulpea-directory
-               (file-name-directory file))
+               (file-truename
+                (expand-file-name org-roam-directory))
+               (file-truename
+                (expand-file-name (file-name-directory file))))
               "/"))))
          (original-tags (vulpea-buffer-tags-get))
          (tags (append original-tags path-tags)))
@@ -132,6 +135,7 @@ tasks. The only exception is headings tagged as REFILE."
 
 (defun vulpea-update-agenda-files (&rest _)
   "Update the value of `org-agenda-files'."
+  (interactive)
   (setq org-agenda-files (vulpea-project-list)))
 
 ;;;###autoload
@@ -144,10 +148,10 @@ tasks. The only exception is headings tagged as REFILE."
 (defun vulpea-auto-update-install ()
   (add-hook 'before-save-hook #'vulpea-pre-save-hook)
 
-  (advice-add 'org-agenda :before #'vulpea-agenda-files)
-  (advice-add 'org-todo-list :before #'vulpea-agenda-files))
+  (advice-add 'org-agenda :before #'vulpea-update-agenda-files)
+  (advice-add 'org-todo-list :before #'vulpea-update-agenda-files))
 
-(defun vulpea-find-journal ()
+(defun vulpea-find-journal-by-directory ()
   (interactive)
   (let ((vulpea-select-describe-fn
          #'(lambda (note)
@@ -187,6 +191,46 @@ tasks. The only exception is headings tagged as REFILE."
          ;; aliases
          (and (= (vulpea-note-level note) 0)
               (string-match "/journal/" (vulpea-note-path note)))))))
+
+(defun vulpea-note-created-time (note)
+  (org-encode-time
+   (org-parse-time-string
+    (cdr (assoc "CREATED" (vulpea-note-properties note))))))
+
+(defun vulpea-find-journal ()
+  (interactive)
+  (let ((vulpea-select-describe-fn
+         #'(lambda (note)
+             (concat (vulpea-note-title note)
+                     " on "
+                     (format-time-string
+                      "%Y-%m-%d"
+                      (vulpea-note-created-time note)))))
+        (vulpea-select-annotate-fn
+         #'(lambda (note)
+             (let* ((tags-str
+                     (mapconcat
+                      (lambda (x) (concat "#" x))
+                      (org-delete-all '("todo" "meeting")
+                                      (vulpea-note-tags note))
+                      " ")))
+               (if (string-empty-p tags-str)
+                   ""
+                 (concat " " tags-str)))))
+        vertico-sort-function)
+    (vulpea-find
+     :require-match t
+     :candidates-fn
+     #'(lambda (filter)
+         (seq-filter filter
+                     (seq-sort-by
+                      #'vulpea-note-created-time
+                      #'time-greater-p
+                      (vulpea-db-query-by-tags-some '("meeting")))))
+     :filter-fn
+     #'(lambda (note)
+         (and (= (vulpea-note-level note) 0)
+              (string-match "/meeting/" (vulpea-note-path note)))))))
 
 ;;;###autoload
 (defun vulpea-tags-add ()
