@@ -472,28 +472,14 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                       (org-entry-get (point) prop)))
                 props)))
 
-(defvar org-extra-meta-tags '("LINK"))
-
 (defun org-extra-needs-review-p ()
   "Return non-nil if a review is needed for task at point.
-
 A review may be needed if:
-
 1. There is no LAST_REVIEW property, meaning this task has never
    been reviewed.
-
-2. The NEXT_REVIEW property indicates a date in the past, AND
-   this is not a work task with a tag, which means it will show
-   up during the normal review cycle."
+2. The NEXT_REVIEW property indicates a date in the past."
   (or (not (org-review-last-review-prop nil))
-      (and (org-review-toreview-p)
-           ;; (not (and (cl-set-difference (org-get-tags) org-extra-meta-tags
-           ;;                              :test #'string=)
-           ;;           (save-excursion
-           ;;             (goto-char (point-min))
-           ;;             (re-search-forward
-           ;;              (concat "#\\+filetags:.*:kadena:") 4096 t))))
-           )))
+      (org-review-toreview-p)))
 
 (defun org-extra-report-items-to-be-reviewed ()
   "Report items pending review after one second."
@@ -609,15 +595,16 @@ resulting table on that column, ascending."
       (forward-line 1))
     (fill-region (point) (point-max))))
 
-;;; This function was provided by Sacha Chua at:
+;;; This function was inspired by Sacha Chua at:
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
-(defun org-extra-refile-to-point (refloc)
+(defun org-extra-move-subtree-to-point (uuid)
   "Prompt for a heading and refile it to point."
-  (interactive (list (org-refile-get-location "Heading: ")))
-  (let* ((file (nth 1 refloc))
-         (pos (nth 3 refloc)))
+  (interactive (list (vulpea-note-id (vulpea-select "Heading"))))
+  (cl-destructuring-bind (file . pos)
+      (org-id-find uuid)
     (save-excursion
-      (with-current-buffer (find-file-noselect file 'noward)
+      (with-current-buffer
+          (find-file-noselect file 'noward)
         (save-excursion
           (save-restriction
             (widen)
@@ -625,93 +612,28 @@ resulting table on that column, ascending."
             (org-copy-subtree 1 t))))
       (org-paste-subtree nil nil nil t))))
 
-(defun org-extra-update-hash (&optional algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
-  (interactive)
+(defun org-extra-prune-log-entries (days)
+  (interactive "Number of days to keep: ")
   (save-excursion
     (org-back-to-heading)
-    (let ((beg (point))
-          (property (format "HASH_%s" (or algorithm 'sha512))))
-      (org-entry-delete (point) property)
-      (let* ((end (save-excursion
-                    (outline-next-heading)
-                    (point)))
-             (hash (secure-hash
-                    (or algorithm 'sha512)
-                    (buffer-substring-no-properties beg end))))
-        (org-entry-put (point)
-                       property
-                       (if algorithm
-                           hash
-                         (substring hash 0 64)))))))
+    (re-search-forward "^:LOGBOOK:\n")
+    (let ((beg (point)) end)
+      (re-search-forward "^:END:\n")
+      (setq end (match-beginning 0))
+      (save-restriction
+        (narrow-to-region beg end)
+        (goto-char (point-min))
+        (while (re-search-forward "- State.*\\(\\[[-:0-9A-Z ]+\\]\\)" nil t)
+          (let* ((start (match-beginning 0)) (date (match-string 1))
+                 (age (- (time-to-days (current-time))
+                         (time-to-days (org-encode-time
+                                        (org-parse-time-string date))))))
+            (if (> age days)
+                (delete-region start (point-max)))))))))
 
-(defun org-extra-check-hash (&optional algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+(defun org-extra-prune-ninety-days-of-logs ()
   (interactive)
-  (save-excursion
-    (org-back-to-heading)
-    (let* ((property (format "HASH_%s" (or algorithm 'sha512)))
-           (current (org-entry-get (point) property)))
-      (when current
-        (let* ((beg (point))
-               (end (save-excursion
-                      (outline-next-heading)
-                      (point)))
-               (body (buffer-substring-no-properties beg end))
-               (hash (with-temp-buffer
-                       (insert body)
-                       (org-mode)
-                       (goto-char (point-min))
-                       (org-entry-delete (point) property)
-                       (secure-hash (or algorithm 'sha512)
-                                    (buffer-string))))
-               (subhash (if algorithm
-                            hash
-                          (substring hash 0 64))))
-          (if (string= current subhash)
-              (message "Hashes MATCH")
-            (error "Hashes DO NOT match!")))))))
-
-;;; From https://stackoverflow.com/questions/17478260/completely-hide-the-properties-drawer-in-org-mode
-(defun org-extra-cycle-hide-drawers (state)
-  "Re-hide all drawers after a visibility state change."
-  (when (and (derived-mode-p 'org-mode)
-             (not (memq state '(overview folded contents))))
-    (save-excursion
-      (let* ((globalp (memq state '(contents all)))
-             (beg (if globalp
-                      (point-min)
-                    (point)))
-             (end (if globalp
-                      (point-max)
-                    (if (eq state 'children)
-                        (save-excursion
-                          (outline-next-heading)
-                          (point))
-                      (org-end-of-subtree t)))))
-        (goto-char beg)
-        (while (re-search-forward org-drawer-regexp end t)
-          (save-excursion
-            (beginning-of-line 1)
-            (when (looking-at org-drawer-regexp)
-              (let* ((start (1- (match-beginning 0)))
-                     (limit
-                      (save-excursion
-                        (outline-next-heading)
-                        (point)))
-                     (msg (format
-                           (concat
-                            "org-cycle-hide-drawers:  "
-                            "`:END:`"
-                            " line missing at position %s")
-                           (1+ start))))
-                (if (re-search-forward "^[ \t]*:END:" limit t)
-                    (outline-flag-region start (point-at-eol) t)
-                  (user-error msg))))))))))
+  (org-extra-prune-log-entries 90))
 
 (provide 'org-extra)
 

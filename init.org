@@ -1401,7 +1401,7 @@ to them.
   :bind ("M-o c" . crosshairs-mode))
 #+end_src
 
-** ctrlf
+** COMMENT ctrlf
 
 #+begin_src emacs-lisp
 (use-package ctrlf
@@ -9491,7 +9491,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-speed-commands
    #'(lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
   (org-use-sub-superscripts nil)
-  (org-use-tag-inheritance '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"))
+  (org-use-tag-inheritance
+   '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"
+     "kadena"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
@@ -9795,7 +9797,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
-   "\\`\\(Noon\\|Day\\|Eve\\|Night\\)\\'")
+   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|kadena\\)\\'")
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
@@ -10097,6 +10099,7 @@ unfold drawers."
   :bind (:map
          org-mode-map
          ("C-c M-w"     . org-extra-id-copy)
+         ("C-c C-M-o"   . org-extra-open-all-links-in-subtree)
          ("C-c C-x #"   . org-extra-update-hash)
          ("C-c C-x C-#" . org-extra-check-hash)
          ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
@@ -10644,6 +10647,7 @@ A group FOO is composed of contacts with the tag FOO."
 #+begin_src emacs-lisp
 (use-package org-devonthink
   :after org
+  :demand t
   :functions (org-devonthink-open)
   :bind
   (:map
@@ -11745,11 +11749,47 @@ this allows seeing an overview of tasks in a subtree.
 
   (use-package org-srs-log
     :demand t
+    :preface
+    ;;; From https://stackoverflow.com/questions/17478260/completely-hide-the-properties-drawer-in-org-mode
+    (defun my-org-srs-cycle-hide-drawers (state)
+      "Re-hide all drawers after a visibility state change."
+      (when (and (derived-mode-p 'org-mode)
+                 (not (memq state '(overview folded contents))))
+        (save-excursion
+          (let* ((globalp (memq state '(contents all)))
+                 (beg (if globalp
+                          (point-min)
+                        (point)))
+                 (end (if globalp
+                          (point-max)
+                        (if (eq state 'children)
+                            (save-excursion
+                              (outline-next-heading)
+                              (point))
+                          (org-end-of-subtree t)))))
+            (goto-char beg)
+            (while (re-search-forward org-drawer-regexp end t)
+              (save-excursion
+                (beginning-of-line 1)
+                (when (looking-at org-drawer-regexp)
+                  (let* ((start (1- (match-beginning 0)))
+                         (limit
+                          (save-excursion
+                            (outline-next-heading)
+                            (point)))
+                         (msg (format
+                               (concat
+                                "org-cycle-hide-drawers:  "
+                                "`:END:`"
+                                " line missing at position %s")
+                               (1+ start))))
+                    (if (re-search-forward "^[ \t]*:END:" limit t)
+                        (outline-flag-region start (point-at-eol) t)
+                      (user-error msg))))))))))
     :config
-    (require 'org-extra)
     (advice-add 'org-srs-log-hide-drawer
                 :after #'(lambda (&rest _ignore)
-                           (org-extra-cycle-hide-drawers 'all)))))
+                           (my-org-srs-cycle-hide-drawers 'all)))))
 #+end_src
 
 *** org-sticky-header
