@@ -58,7 +58,8 @@
 This will use the command `open' with the message URL."
   (interactive)
   (when (and uuid
-             (string-match "\\`\\(x-devonthink-item://\\)?\\(.+\\)\\'" uuid))
+             (string-match "\\`\\(\\[*x-devonthink-item://\\)?\\([-A-Fa-z0-9]+\\)"
+                           uuid))
     (let ((base-uuid (match-string 2 uuid)))
       (read (do-applescript
              (format "tell application \"DEVONthink 3\"

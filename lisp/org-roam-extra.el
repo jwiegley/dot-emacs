@@ -233,29 +233,46 @@
                        '(:immediate-finish t)))))
     (apply #'org-roam-node-insert args)))
 
+(defun org-roam-extra-buffer-date ()
+  "Get the date associated with an Org-roam buffer.
+This can come from four possible sources:
+1. The #+date: field, if it exists
+2. The CREATED property, if it exists
+3. The file modification time, if there is a file
+4. The current time"
+  (or (vulpea-buffer-prop-get "date")
+      (org-entry-get (point-min) "CREATED")
+      (with-temp-buffer
+        (org-insert-time-stamp
+         (or (and (buffer-file-name)
+                  (file-attribute-modification-time
+                   (file-attributes (buffer-file-name))))
+             (current-time))
+         t t))))
+
 (defun org-roam-extra-revise-title ()
   (interactive)
-  (save-buffer)
   (let* ((old-name buffer-file-name)
-         (title (vulpea-buffer-title-get))
-         (new-slug (org-roam-extra-title-slug title))
-         (created (or (vulpea-buffer-prop-get "date")
-                      (org-entry-get (point-min) "CREATED")
-                      (with-temp-buffer
-                        (org-insert-time-stamp (current-time) t t))))
-         (created-tm (org-encode-time (org-parse-time-string created)))
-         (new-stamp (format-time-string "%Y%m%d%H%M" created-tm))
-         (new-name (expand-file-name (concat new-stamp "-" new-slug ".org")
-                                     (file-name-directory old-name))))
+         (new-name
+          (expand-file-name
+           (concat
+            (format-time-string
+             "%Y%m%d%H%M"
+             (org-encode-time
+              (org-parse-time-string (org-roam-extra-buffer-date))))
+            "-"
+            (org-roam-extra-title-slug (vulpea-buffer-title-get))
+            ".org")
+           (file-name-directory old-name))))
     (unless (string= new-name old-name)
+      (save-buffer)
       (rename-file old-name new-name 1)
       (rename-buffer new-name)
       (set-visited-file-name new-name)
       (set-buffer-modified-p nil))))
 
 (defun org-roam-extra-filter-by-tag (tag-name)
-  #'(lambda (node)
-      (member tag-name (org-roam-node-tags node))))
+  #'(lambda (node) (member tag-name (org-roam-node-tags node))))
 
 (defun org-roam-extra-list-notes-by-tag (tag-name)
   (mapcar #'org-roam-node-file

@@ -364,6 +364,22 @@ SCHEDULED: %t
 
    ("b" "Bahá’í templates")
 
+   ("bm" "Bahá’í Meeting" plain
+    (file "~/org/template/meeting.org")
+    :target
+    (file+head
+     "meeting/%<%Y%m%d%H%M>.org"
+     ,(concat
+       "#+category: Bahá’í\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :bahai:\n"
+       "#+startup: showeverything\n"
+       "#+title: %^{Purpose of meeting}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("ba" "Assembly meeting" plain
     (file "~/org/template/bahai/meetings/assembly-meeting.org")
     :target
