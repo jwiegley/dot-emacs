@@ -675,6 +675,20 @@ SCHEDULED: %t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
+   ("wolg" "1-on-1 Lisa Gunn" plain
+    (file "~/org/template/kadena/one-on-one/lisa-gunn.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-lisa-gunn.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+   ("wolo" "1-on-1 Linda Ortega Cordoves" plain
+    (file "~/org/template/kadena/one-on-one/linda-ortega-cordoves.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-linda-ortega-cordoves.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
 
    ("wor" "Names beginning with R")
 
