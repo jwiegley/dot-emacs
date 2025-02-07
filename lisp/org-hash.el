@@ -35,13 +35,23 @@
   "Support for hashing entries in Org-mode"
   :group 'org)
 
+(defcustom org-hash-algorithm 'sha512_256
+  "Default algorithm to use when hashing Org-mode entries."
+  :type '(choice
+          (const :tag "MD5, produces a 32-character signature" 'md5)
+          (const :tag "SHA-1, produces a 40-character signature" 'sha1)
+          (const :tag "SHA-2 (SHA-224), produces a 56-character signature" 'sha224)
+          (const :tag "SHA-2 (SHA-256), produces a 64-character signature" 'sha256)
+          (const :tag "SHA-2 (SHA-384), produces a 96-character signature" 'sha384)
+          (const :tag "SHA-2 (SHA-512), produces a 128-character signature" 'sha512)
+          (const :tag "SHA-2 (SHA512-256), produces a 64-character signature" 'sha512_256))
+  :group 'org-smart-capture)
+
 (defsubst org-hash-property (&optional algorithm)
-  (format "HASH_%s" (or algorithm 'sha512)))
+  (format "HASH_%s" (or algorithm org-hash-algorithm)))
 
 (defun org-hash--entry (&optional pos algorithm)
-  "Compute hash of current Org entry at POS (or current if nil).
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+  "Compute hash of current Org entry at POS (or current if nil)."
   (save-excursion
     (when pos (goto-char pos))
     (org-back-to-heading)
@@ -50,42 +60,36 @@ but only uses the first 64 bits."
                   (outline-next-heading)
                   (point)))
            (body (buffer-substring-no-properties beg end))
+           (algo (or algorithm org-hash-algorithm))
            (hash
             (with-temp-buffer
               (insert body)
               (org-mode)
               (goto-char (point-min))
-              (org-entry-delete (point)
-                                (org-hash-property algorithm))
-              (secure-hash (or algorithm 'sha512)
+              (org-entry-delete (point) (org-hash-property algorithm))
+              (secure-hash (if (eq algo 'sha512_256) 'sha512 algo)
                            (buffer-string)))))
-      (if algorithm
-          hash
-        (substring hash 0 64)))))
+      (if (eq algo 'sha512_256)
+          (substring hash 0 64)
+        hash))))
 
 (defun org-hash-value (&optional pos algorithm)
   "Return value of hash ALGORITHM for the entry at POS."
   (org-entry-get pos (org-hash-property algorithm)))
 
 (defun org-hash-update (&optional pos algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+  "Update the HASH_<algorithm> property of the current Org entry."
   (interactive)
   (org-entry-put pos (org-hash-property algorithm)
                  (org-hash--entry pos algorithm)))
 
 (defun org-hash-remove (&optional pos algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+  "Update the HASH_<algorithm> property of the current Org entry."
   (interactive)
   (org-entry-delete pos (org-hash-property algorithm)))
 
 (defun org-hash-confirm (&optional pos algorithm raise-error)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+  "Update the HASH_<algorithm> property of the current Org entry."
   (interactive)
   (let ((hash (org-hash-value pos algorithm)))
     (when hash
@@ -98,17 +102,13 @@ but only uses the first 64 bits."
           nil)))))
 
 (defun org-hash-update-or-confirm (&optional pos algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
+  "Update the HASH_<algorithm> property of the current Org entry."
   (interactive)
   (unless (org-hash-confirm pos algorithm)
     (org-hash-update pos algorithm)))
 
 (defun org-hash-update-or-confirm-all (&optional algorithm)
   "Update the HASH_<algorithm> property for all Org entries.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits.
 If an entry with an earlier hash failes to validated, an error is
 produced at that point."
   (interactive)
