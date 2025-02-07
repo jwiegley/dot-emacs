@@ -35,10 +35,10 @@
   "Support for hashing entries in Org-mode"
   :group 'org)
 
-(defsubst org-extra-hash-property (&optional algorithm)
+(defsubst org-hash-property (&optional algorithm)
   (format "HASH_%s" (or algorithm 'sha512)))
 
-(defun org-extra-note-hash (&optional pos algorithm)
+(defun org-hash--entry (&optional pos algorithm)
   "Compute hash of current Org entry at POS (or current if nil).
 Algorithm defaults to `sha512_256', which computes the `sha512'
 but only uses the first 64 bits."
@@ -56,37 +56,67 @@ but only uses the first 64 bits."
               (org-mode)
               (goto-char (point-min))
               (org-entry-delete (point)
-                                (org-extra-hash-property algorithm))
+                                (org-hash-property algorithm))
               (secure-hash (or algorithm 'sha512)
                            (buffer-string)))))
       (if algorithm
           hash
         (substring hash 0 64)))))
 
-(defun org-extra-update-hash (&optional pos algorithm)
-  "Update the HASH_<algorithm> property of the current Org entry.
-Algorithm defaults to `sha512_256', which computes the `sha512'
-but only uses the first 64 bits."
-  (interactive)
-  (org-entry-put pos (org-extra-hash-property algorithm)
-                 (org-extra-note-hash pos algorithm)))
+(defun org-hash-value (&optional pos algorithm)
+  "Return value of hash ALGORITHM for the entry at POS."
+  (org-entry-get pos (org-hash-property algorithm)))
 
-(defun org-extra-remove-hash (&optional pos algorithm)
+(defun org-hash-update (&optional pos algorithm)
   "Update the HASH_<algorithm> property of the current Org entry.
 Algorithm defaults to `sha512_256', which computes the `sha512'
 but only uses the first 64 bits."
   (interactive)
-  (org-entry-delete pos (org-extra-hash-property algorithm)))
+  (org-entry-put pos (org-hash-property algorithm)
+                 (org-hash--entry pos algorithm)))
 
-(defun org-extra-check-hash (&optional pos algorithm)
+(defun org-hash-remove (&optional pos algorithm)
   "Update the HASH_<algorithm> property of the current Org entry.
 Algorithm defaults to `sha512_256', which computes the `sha512'
 but only uses the first 64 bits."
   (interactive)
-  (if (string= (org-entry-get pos (org-extra-hash-property algorithm))
-               (org-extra-note-hash pos algorithm))
-      (message "Hashes MATCH")
-    (error "Hashes DO NOT match!")))
+  (org-entry-delete pos (org-hash-property algorithm)))
+
+(defun org-hash-confirm (&optional pos algorithm raise-error)
+  "Update the HASH_<algorithm> property of the current Org entry.
+Algorithm defaults to `sha512_256', which computes the `sha512'
+but only uses the first 64 bits."
+  (interactive)
+  (let ((hash (org-hash-value pos algorithm)))
+    (when hash
+      (if (string= hash (org-hash--entry pos algorithm))
+          (if (called-interactively-p 'interactive)
+              (message "Hashes MATCH")
+            t)
+        (if (or raise-error (called-interactively-p 'interactive))
+            (error "Hashes DO NOT match at position %s!" pos)
+          nil)))))
+
+(defun org-hash-update-or-confirm (&optional pos algorithm)
+  "Update the HASH_<algorithm> property of the current Org entry.
+Algorithm defaults to `sha512_256', which computes the `sha512'
+but only uses the first 64 bits."
+  (interactive)
+  (unless (org-hash-confirm pos algorithm)
+    (org-hash-update pos algorithm)))
+
+(defun org-hash-update-or-confirm-all (&optional algorithm)
+  "Update the HASH_<algorithm> property for all Org entries.
+Algorithm defaults to `sha512_256', which computes the `sha512'
+but only uses the first 64 bits.
+If an entry with an earlier hash failes to validated, an error is
+produced at that point."
+  (interactive)
+  (org-map-entries
+   #'(lambda ()
+       (if (org-hash-value (point) algorithm)
+           (org-hash-confirm (point) algorithm t)
+         (org-hash-update (point) algorithm)))))
 
 (provide 'org-hash)
 
