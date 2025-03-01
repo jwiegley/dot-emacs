@@ -179,12 +179,14 @@
                                        (string-glyph-decompose s)))))
                  (cl-replace (title pair)
                    (replace-regexp-in-string (car pair) (cdr pair) title)))
-        (let* ((pairs `(("[^[:alnum:][:digit:]]" . "-")
+        (let* ((pairs `(("’" . "")
+                        ("[^[:alnum:][:digit:]]" . "-")
                         ("--*" . "-")
                         ("^-" . "")
                         ("-$" . "")))
                (slug (-reduce-from #'cl-replace
-                                   (strip-nonspacing-marks title) pairs)))
+                                   (strip-nonspacing-marks title)
+                                   pairs)))
           (downcase slug))))))
 
 (defun org-roam-extra-prepare-note ()

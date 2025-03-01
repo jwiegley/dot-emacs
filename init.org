@@ -2830,25 +2830,21 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel
-  :commands (gptel gptel-send)
-  :bind (;; :map gptel-mode-map
-         ;;     ("RET"      . gptel-send)
-         ;;     ("<return>" . gptel-send)
-         :prefix-map
-         gptel-cmd-map
-         :prefix "C-x C"
-         ("a"        . gptel-abort)
-         ("s"        . gptel-send)
-         ("r"        . gptel-rewrite-menu)
-         ("RET"      . gptel-send)
-         ("<return>" . gptel-send))
+  :demand t
+  :bind
+  (:prefix-map
+   gptel-cmd-map
+   :prefix "C-x C"
+   ("a"        . gptel-abort)
+   ("s"        . gptel-send)
+   ("r"        . gptel-rewrite)
+   ("RET"      . gptel-send)
+   ("<return>" . gptel-send))
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model "gpt-4o")
-  (gptel-temperature 0.6)
-  (gptel-org-branching-context t)
-  (gptel-model "deepseek-r1:deepseek-r1:14b")
+  (gptel-model 'qwen2.5:32b)
+  (gptel-track-media t)
   :preface
   (defun my-gptel-read-prompts (dir)
     (cl-loop
@@ -2861,8 +2857,12 @@ up before you execute another command."
 
   (defun my-gptel-update-prompts ()
     (interactive)
-    (setq gptel-directives (my-gptel-read-prompts "~/.emacs.d/prompts")))
+    (setq gptel-directives
+          (my-gptel-read-prompts "~/.emacs.d/prompts")))
   :config
+  (use-package gptel-rewrite
+    :demand t)
+
   (use-package gptel-transient
     :config
     (when (ignore-errors (transient-get-suffix 'gptel-menu "RET"))
@@ -2871,65 +2871,123 @@ up before you execute another command."
   (use-package gptel-curl
     :config
     (defconst gptel-curl--common-args
-      '("--location" "--silent" "--compressed"
-        "-XPOST" "-y300" "-Y1" "-D-")
+      '("--location"
+        "--silent"
+        "--compressed"
+        "-XPOST"
+        "-y300"
+        "-Y1"
+        "-D-")
       "Arguments always passed to Curl for gptel queries."))
 
   (use-package gptel-openai
     :custom
     (gptel-api-key (auth-source-pass-get 'secret "chat.openai.com"))
     :config
-    (gptel-make-openai
-        "ChatGPT"
+    (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models '("gpt-4o" "gpt-3.5-turbo" "gpt-3.5-turbo-16k" "gpt-4"
-                "gpt-4-turbo-preview" "gpt-4-32k" "gpt-4-1106-preview"
-                "gpt-4-0125-preview")))
+      :models
+      '(
+        gpt-4o
+        ;; gpt-4o-2024-11-20
+        ;; gpt-4o-2024-08-06
+        ;; gpt-4o-2024-05-13
+        ;; gpt-4o-mini
+        ;; gpt-4o-mini-2024-07-18
+
+        ;; gpt-4
+        ;; gpt-4-32k
+        ;; gpt-4-turbo
+
+        ;; gpt-3.5-turbo
+        ;; gpt-3.5-turbo-16k-0613
+
+        o1-mini
+        )))
 
   (use-package gptel-ollama
     :demand t
     :config
-    (gptel-make-ollama
-        "mistral"
+    (gptel-make-ollama "Ollama"
       :host "localhost:11434"
+      :protocol "http"
       :stream t
-      :models '("mistral:latest"))
-    (gptel-make-ollama
-        "deepseek-coder"
-      :host "localhost:11434"
-      :stream t
-      :models '("deepseek-coder:latest"))
-    (gptel-make-ollama
-        "deepseek-r1"
-      :host "localhost:11434"
-      :stream t
-      :models '("deepseek-r1:14b"))
-    (gptel-make-ollama
-        "openhermes"
-      :host "localhost:11434"
-      :stream t
-      :models '("openhermes:latest"))
-    (gptel-make-ollama
-        "openchat"
-      :host "localhost:11434"
-      :stream t
-      :models '("openchat:latest"))
-    (gptel-make-ollama
-        "llama3.1"
-      :host "Athena.local:11434"
-      :stream t
-      :models '("llama3.1:405b")))
+      :request-params '(:options (:num_ctx 8192))
+      :models
+      '(
+        (HammerAI/midnight-miqu-70b-v1.5:latest
+         :description "Model designed for roleplaying and storytelling"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (codellama:70b
+         :description "LLM that can use text prompts to generate and discuss code"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-coder:33b
+         :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-coder-v2:16b
+         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:32b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:70b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (dolphin3:latest
+         :description "General purpose LM for coding, math, function calling, and general use"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (falcon3:10b
+         :description "Efficient AI models under 10B performant in science, math, and coding"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (gemma2:27b
+         :description "Google Gemma 2 is a high-performing and efficient model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (llama3.3:70b
+         :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (mistral-small:latest
+         :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (phi4:latest
+         :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5-coder:32b
+         :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5:14b
+         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5:32b
+         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (wizardcoder:33b
+         :description "State-of-the-art code generation model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        )))
 
-  (use-package gptel-anthropic
-    :demand t
-    :config
-    (gptel-make-anthropic
-        "Claude"
-      :stream t
-      :key (auth-source-pass-get 'secret "claude.anthropic.com")))
-
-  (setq gptel-model 'gpt-4o)
+  ;; (use-package gptel-anthropic
+  ;;   :demand t
+  ;;   :config
+  ;;   (gptel-make-anthropic "Claude"
+  ;;     :stream t
+  ;;     :key (auth-source-pass-get 'secret "claude.anthropic.com")))
 
   (my-gptel-update-prompts))
 #+end_src
@@ -2937,12 +2995,64 @@ up before you execute another command."
 *** corsair
 
 #+begin_src emacs-lisp
-(use-package corsair                    ;
-  :bind (:prefix-map
-         gptel-cmd-map
-         :prefix "C-x C"
-         ("C" . corsair-open-chat-buffer)
-         ("w" . corsair-accumulate-selected-text)))
+(use-package corsair
+  :demand t
+  :bind
+  ("C-x C C" . corsair-open-chat-buffer)
+  ("C-x C w" . corsair-accumulate-selected-text)
+  :preface
+  (defun gptel-add-asterixes ()
+    (let (inserted)
+      (save-excursion
+        (goto-char (point-min))
+        (when (eolp)
+          (insert "*** ")
+          (setq inserted t)
+          ))
+      (when inserted
+        (goto-char (point-max)))))
+  :config
+  (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes))
+#+end_src
+
+*** inline-diff
+
+#+begin_src emacs-lisp
+(use-package inline-diff
+  :after gptel-rewrite)
+
+(use-package gptel-rewrite
+  :after gptel
+  :bind (:map gptel-rewrite-actions-map
+         ("C-c C-i" . gptel--rewrite-inline-diff))
+  :preface
+  (defun gptel--rewrite-inline-diff (&optional ovs)
+    "Start an inline-diff session on OVS."
+    (interactive (list (gptel--rewrite-overlay-at)))
+    (unless (require 'inline-diff nil t)
+      (user-error "Inline diffs require the inline-diff package."))
+    (when-let* ((ov-buf (overlay-buffer (or (car-safe ovs) ovs)))
+                ((buffer-live-p ov-buf)))
+      (with-current-buffer ov-buf
+        (cl-loop for ov in (ensure-list ovs)
+                 for ov-beg = (overlay-start ov)
+                 for ov-end = (overlay-end ov)
+                 for response = (overlay-get ov 'gptel-rewrite)
+                 do (delete-overlay ov)
+                 (inline-diff-words
+                  ov-beg ov-end response)))))
+  :config
+  (when (boundp 'gptel--rewrite-dispatch-actions)
+    (add-to-list
+     'gptel--rewrite-dispatch-actions '(?i "inline-diff")
+     'append)))
+#+end_src
+
+*** gptel-proof
+
+#+begin_src emacs-lisp
+(use-package gptel-proof
+  :commands gptel-proof)
 #+end_src
 
 ** grep
@@ -5138,7 +5248,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :hook (after-init . server-start))
 #+end_src
 
-** shackle
+** COMMENT shackle
 
 #+begin_src emacs-lisp
 (use-package shackle
@@ -7766,7 +7876,9 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :bind (:map slime-mode-map
               ("C-c C-c" . (lambda () (interactive)
                              (save-excursion
-                               (call-interactively 'pact-compile))))))
+                               (call-interactively 'pact-compile)))))
+  :config
+  (use-package slime))
 #+end_src
 
 **** pact-mode-eglot
@@ -10100,8 +10212,6 @@ unfold drawers."
          org-mode-map
          ("C-c M-w"     . org-extra-id-copy)
          ("C-c C-M-o"   . org-extra-open-all-links-in-subtree)
-         ("C-c C-x #"   . org-extra-update-hash)
-         ("C-c C-x C-#" . org-extra-check-hash)
          ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
          ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x u"   . org-extra-todoize)
@@ -10110,8 +10220,8 @@ unfold drawers."
          :map
          org-agenda-mode-map
          ("g" . org-extra-agenda-redo))
-  :hook
-  (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
+  ;; :hook
+  ;; (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
   :custom
   (org-extra-link-names
    (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
@@ -10601,6 +10711,7 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-context
+  :load-path "lisp/org-context"
   :after org
   :demand t
   :bind (:map
@@ -10796,6 +10907,18 @@ A group FOO is composed of contacts with the tag FOO."
         (lookup-password "org-caldav-user.google.com" "jwiegley@gmail.com" 80)
         org-gcal-client-secret
         (lookup-password "org-caldav.google.com" org-gcal-client-id 80)))
+#+end_src
+
+*** org-hash
+
+#+begin_src emacs-lisp
+(use-package org-hash
+  :load-path "lisp/org-hash"
+  :after org
+  :bind (:map
+         org-mode-map
+         ("C-c C-x #"   . org-hash-update-or-confirm)
+         ("C-c C-x C-#" . org-hash-update-or-confirm-all)))
 #+end_src
 
 *** org-id
