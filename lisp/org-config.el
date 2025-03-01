@@ -70,6 +70,38 @@
   (org-config-agenda-skip-entry-if
    (org-extra-habit-p)))
 
+(defconst org-config-names-regularly-reviewed
+  '(
+    "Albert"
+    "Annelise"
+    "Bez"
+    "Brittaney"
+    "Emily"
+    "Javad"
+    "Jesse"
+    "June"
+    "Lars"
+    "Leah"
+    "Randy"
+    "Stuart"
+    "Travis"
+    ))
+
+(defconst org-config-categories-regularly-reviewed
+  (append org-config-names-regularly-reviewed
+          '("EVM"
+            "PM"
+            "JS"
+            "Core")))
+
+(defsubst org-config-skip-if-regularly-reviewed ()
+  (org-config-agenda-skip-entry-if
+   (let ((tags (org-get-tags))
+         (category (org-get-category)))
+     (or (cl-intersection org-config-names-regularly-reviewed tags
+                          :test #'string=)
+         (member category org-config-categories-regularly-reviewed)))))
+
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
    (not (org-extra-needs-review-p))))
@@ -324,14 +356,6 @@ SCHEDULED: %t
     :jump-to-captured t
     :empty-lines-before 1)
 
-   ("w" "Work" plain "%?"
-    :target (file+head "kadena/%<%Y%m%d%H%M>.org"
-                       "#+filetags: :kadena:\n#+title: ${title}\n")
-    :immediate-finish t
-    :jump-to-captured t
-    :empty-lines-before 1
-    :unnarrowed t)
-
    ("B" "Blog")
 
    ("Bj" "johnwiegley.com" plain "%?"
@@ -363,6 +387,18 @@ SCHEDULED: %t
     :unnarrowed t)
 
    ("b" "Bahá’í templates")
+
+   ("bn" "Bahá’í Note" plain "%?"
+    :target
+    (file+head
+     "bahai/%<%Y%m%d%H%M>.org"
+     ,(concat "#+category: Bahá’í\n"
+              "#+filetags: :bahai:\n"
+              "#+title: ${title}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :empty-lines-before 1
+    :unnarrowed t)
 
    ("bm" "Bahá’í Meeting" plain
     (file "~/org/template/meeting.org")
@@ -469,6 +505,18 @@ SCHEDULED: %t
     :no-save t)
 
    ("w" "Work templates")
+
+   ("wn" "Work Note" plain "%?"
+    :target
+    (file+head
+     "kadena/%<%Y%m%d%H%M>.org"
+     ,(concat "#+category: Kadena\n"
+              "#+filetags: :kadena:\n"
+              "#+title: ${title}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :empty-lines-before 1
+    :unnarrowed t)
 
    ("wa" "All Hands" plain
     (file "~/org/template/kadena/meetings/all-hands.org")
@@ -807,10 +855,11 @@ SCHEDULED: %t
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
-           (org-config-skip-if-review-not-needed)))
+           (org-config-skip-if-review-not-needed)
+           (org-config-skip-if-regularly-reviewed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+      "%-10c%-5e%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))

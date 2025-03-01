@@ -46,8 +46,12 @@
        (eq major-mode 'org-mode)
        (string-suffix-p "org" buffer-file-name)
        (string-prefix-p
-        (expand-file-name (file-name-as-directory org-roam-directory))
-        (file-name-directory buffer-file-name))))
+        (file-truename
+         (expand-file-name
+          (file-name-as-directory org-roam-directory)))
+        (file-truename
+         (expand-file-name
+          (file-name-directory buffer-file-name))))))
 
 (defun vulpea-buffer-project-p ()
   "Return non-nil if current buffer has any todo entry.

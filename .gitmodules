@@ -31,3 +31,9 @@
 [submodule "lisp/nix-update"]
 	path = lisp/nix-update
 	url = git@github.com:jwiegley/nix-update-el.git
+[submodule "lisp/org-context"]
+	path = lisp/org-context
+	url = git@github.com:jwiegley/org-context.git
+[submodule "lisp/org-hash"]
+	path = lisp/org-hash
+	url = git@github.com:jwiegley/org-hash.git
