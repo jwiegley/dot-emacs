@@ -35,7 +35,7 @@
   :group 'org)
 
 (defconst org-config-open-re "/TODO|DOING|WAIT|TASK|HABIT")
-(defconst org-config-closed-re "/TODO/DONE|CANCELED")
+(defconst org-config-closed-re "/TODO/DONE|CANCELED|PASS")
 
 (defun org-config-with-tags-search (tags)
   (interactive "sTags: ")
@@ -420,7 +420,7 @@ SCHEDULED: %t
     (file "~/org/template/bahai/meetings/assembly-meeting.org")
     :target
     (file+head
-     "meeting/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
+     "assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
      ,(concat
        "#+category: Assembly\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -517,6 +517,22 @@ SCHEDULED: %t
     :jump-to-captured t
     :empty-lines-before 1
     :unnarrowed t)
+
+   ("wm" "Work Meeting" plain
+    (file "~/org/template/meeting.org")
+    :target
+    (file+head
+     "meeting/%<%Y%m%d%H%M>.org"
+     ,(concat
+       "#+category: Kadena\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :kadena:\n"
+       "#+startup: showeverything\n"
+       "#+title: %^{Purpose of meeting}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
 
    ("wa" "All Hands" plain
     (file "~/org/template/kadena/meetings/all-hands.org")
@@ -813,7 +829,7 @@ SCHEDULED: %t
      ;;         (org-config-skip-if-review-not-needed)))
      ;;   (org-agenda-cmp-user-defined 'org-config-review-compare)
      ;;   (org-agenda-prefix-format
-     ;;    "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     ;;    "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      ;;   (org-agenda-sorting-strategy '(user-defined-down))
      ;;   (org-overriding-columns-format
      ;;    "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
@@ -843,7 +859,7 @@ SCHEDULED: %t
                  (not (org-review-toreview-p))))))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
@@ -859,7 +875,7 @@ SCHEDULED: %t
            (org-config-skip-if-regularly-reviewed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%-5e%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
+      "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
@@ -892,14 +908,14 @@ SCHEDULED: %t
 
    ("rA" "All tasks" alltodo ""
     ((org-agenda-prefix-format
-      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      (org-agenda-sorting-strategy '(category-up))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
    ("rH" "Habits" todo "HABIT"
     ((org-agenda-prefix-format
-      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      (org-agenda-sorting-strategy '(category-up))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
@@ -910,7 +926,7 @@ SCHEDULED: %t
            (org-config-skip-if-reviewed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
      (org-agenda-prefix-format
-      "%-10c%-5e%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
@@ -938,6 +954,11 @@ SCHEDULED: %t
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
         (not (org-extra-subtask-p))))))
+
+   ("rL" "Tasks with long headlines" alltodo ""
+    ((org-agenda-skip-function
+      '(org-config-agenda-skip-entry-if
+        (<= (length (org-get-heading t)) 72)))))
 
    ("rm" "With tags match"
     (lambda (arg)

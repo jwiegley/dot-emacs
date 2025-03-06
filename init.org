@@ -715,6 +715,26 @@ decision tree.
 
 *** avy-embark
 
+Prompt the user for an action and perform it.
+
+The targets of the action are chosen by =embark-target-finders=. By default, if
+called from a minibuffer the target is the top completion candidate. When
+called from a non-minibuffer buffer there can multiple targets and you can
+cycle among them by using =embark-cycle= (which is bound by default to the same
+key binding =embark-act= is, but see =embark-cycle-key=).
+
+This command uses =embark-prompter= to ask the user to specify an action, and
+calls it injecting the target at the first minibuffer prompt.
+
+If you call this from the minibuffer, it can optionally quit the minibuffer.
+The variable =embark-quit-after-action= controls whether calling =embark-act= with
+nil ARG quits the minibuffer, and if ARG is non-nil it will do the opposite.
+Interactively, ARG is the prefix argument.
+
+If instead you call this from outside the minibuffer, the first ARG targets
+are skipped over (if ARG is negative the skipping is done by cycling
+backwards) and cycling starts from the following target.
+
 #+begin_src emacs-lisp
 (use-package avy-embark
   :no-require t
@@ -929,6 +949,16 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   :defer t
   :custom
   (browse-url-browser-function 'browse-url-default-macosx-browser))
+#+end_src
+
+** COMMENT buffer-terminator
+
+#+begin_src emacs-lisp
+(use-package buffer-terminator
+  :custom
+  (buffer-terminator-verbose nil)
+  :config
+  (buffer-terminator-mode 1))
 #+end_src
 
 ** COMMENT bufler
@@ -1373,6 +1403,18 @@ to them.
     (ansi-color-process-output nil)
     (set (make-local-variable 'comint-last-output-start)
          (point-marker))))
+#+end_src
+
+** COMMENT compile-angel
+
+#+begin_src emacs-lisp
+(use-package compile-angel
+  :custom
+  (compile-angel-verbose nil)
+  :config
+  (compile-angel-on-load-mode)
+  (add-hook 'emacs-lisp-mode-hook
+            #'compile-angel-on-save-local-mode))
 #+end_src
 
 ** copy-as-format
@@ -1885,9 +1927,57 @@ non-empty directories is allowed."
   :bind ([remap kill-ring-save] . easy-kill))
 #+end_src
 
+** easydraw
+
+#+begin_src emacs-lisp
+(use-package edraw-org
+  :after org
+  :config
+  (edraw-org-setup-default)
+  (with-eval-after-load "ox"
+    (edraw-org-setup-exporter)))
+#+end_src
+
+** COMMENT easysession
+
+The [[https://github.com/jamescherti/easysession.el][easysession.el]] Emacs package is a lightweight session manager for Emacs
+that can persist and restore file editing buffers, indirect buffers (clones),
+Dired buffers, the tab-bar, and Emacs frames (including or excluding the frame
+size, width, and height). It offers a convenient and effortless way to manage
+Emacs editing sessions and utilizes built-in Emacs functions to persist and
+restore frames.
+
+Key features include:
+
+- Minimalistic design focused on performance and simplicity, avoiding
+  unnecessary complexity.
+
+- Persist and restore file editing buffers, indirect buffers/clones, dired
+  buffers, tab-bar, the Emacs frame.
+
+- Automatically save sessions by activating the mode with
+  =easysession-save-mode= to ensure that the current session is automatically
+  saved every =easysession-save-interval= seconds and when emacs quits.
+
+- Helper functions: Switch to a session (i.e., load and change the current
+  session) with =easysession-switch-to=, load the Emacs editing session with
+  =easysession-load=, save the Emacs editing session with =easysession-save= and
+  =easysession-save-as=, delete the current Emacs session with
+  =easysession-delete=, and rename the current Emacs session with
+  =easysession-rename=.
+
+#+begin_src emacs-lisp
+(use-package easysession
+  :custom
+  (easysession-save-interval (* 10 60))
+  :init
+  (add-hook 'emacs-startup-hook #'easysession-load-including-geometry 98)
+  (add-hook 'emacs-startup-hook #'easysession-save-mode 99))
+#+end_src
+
 ** eat
 
-[[https://codeberg.org/akib/emacs-eat][Eat]]'s name self-explanatory, it stands for "Emulate A Terminal". Eat is a
+[[https://codeberg.org/akib/emacs-eat][Eat]]’s name self-explanatory, it stands for "Emulate A Terminal". Eat is a
 terminal emulator. It can run most (if not all) full-screen terminal programs,
 including Emacs.
 
@@ -2835,9 +2925,11 @@ up before you execute another command."
   (:prefix-map
    gptel-cmd-map
    :prefix "C-x C"
-   ("a"        . gptel-abort)
+   ("a"        . gptel-context-add)
    ("s"        . gptel-send)
    ("r"        . gptel-rewrite)
+   ("q"        . gptel-quick)
+   ("x"        . gptel-abort)
    ("RET"      . gptel-send)
    ("<return>" . gptel-send))
   :hook (gptel-mode . visual-line-mode)
@@ -2860,6 +2952,12 @@ up before you execute another command."
     (setq gptel-directives
           (my-gptel-read-prompts "~/.emacs.d/prompts")))
   :config
+  (use-package gptel-context
+    :demand t)
+
+  (use-package gptel-quick
+    :demand t)
+
   (use-package gptel-rewrite
     :demand t)
 
@@ -2903,7 +3001,9 @@ up before you execute another command."
         ;; gpt-3.5-turbo
         ;; gpt-3.5-turbo-16k-0613
 
+        o1
         o1-mini
+        o3-mini
         )))
 
   (use-package gptel-ollama
@@ -2956,6 +3056,10 @@ up before you execute another command."
          :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
          :capabilities (media)
          :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (llama3.2:1b
+         :description "Llama 3.2 1B"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
         (mistral-small:latest
          :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
          :capabilities (media)
@@ -2982,12 +3086,12 @@ up before you execute another command."
          :mime-types ("image/jpeg" "image/png" "text/plain"))
         )))
 
-  ;; (use-package gptel-anthropic
-  ;;   :demand t
-  ;;   :config
-  ;;   (gptel-make-anthropic "Claude"
-  ;;     :stream t
-  ;;     :key (auth-source-pass-get 'secret "claude.anthropic.com")))
+  (use-package gptel-anthropic
+    :demand t
+    :config
+    (gptel-make-anthropic "Claude"
+      :stream t
+      :key (auth-source-pass-get 'secret "claude.anthropic.com")))
 
   (my-gptel-update-prompts))
 #+end_src
@@ -3015,7 +3119,7 @@ up before you execute another command."
   (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes))
 #+end_src
 
-*** inline-diff
+*** COMMENT inline-diff
 
 #+begin_src emacs-lisp
 (use-package inline-diff
@@ -3277,6 +3381,17 @@ up before you execute another command."
     ("l" text-scale-decrease "out")))
 #+end_src
 
+** ialign
+
+To use [[https://github.com/mkcms/interactive-align][ialign]], mark a region and then call =ialign=. You can enter a regexp in
+the minibuffer that will be passed to =align-regexp= command. As the contents of
+minibuffer change, the region is realigned.
+
+#+begin_src emacs-lisp
+(use-package ialign
+  :bind ("C-c {" . ialign))
+#+end_src
+
 ** ibuffer
 
 #+begin_src emacs-lisp
@@ -3529,15 +3644,32 @@ up before you execute another command."
   (info-lookmore-apropos-elisp))
 #+end_src
 
-** ialign
-
-To use [[https://github.com/mkcms/interactive-align][ialign]], mark a region and then call =ialign=. You can enter a regexp in
-the minibuffer that will be passed to =align-regexp= command. As the contents of
-minibuffer change, the region is realigned.
+** inhibit-mouse
 
 #+begin_src emacs-lisp
-(use-package ialign
-  :bind ("C-c {" . ialign))
+(use-package inhibit-mouse
+  :diminish
+  :config
+  (inhibit-mouse-mode)
+
+  (add-hook 'inhibit-mouse-mode-hook
+            #'(lambda()
+                ;; Enable or disable highlighting of clickable text based on
+                ;; whether `inhibit-mouse-mode` is active
+                (setq mouse-highlight (not (bound-and-true-p inhibit-mouse-mode)))))
+
+  ;; Disable help display when hovering over items
+  (setq show-help-function nil)
+
+  (add-hook 'inhibit-mouse-mode-hook
+            #'(lambda()
+                ;; Enable or disable the context menu based on the state of
+                ;; `inhibit-mouse-mode', the following code dynamically
+                ;; toggles `context-menu-mode' accordingly.
+                (when (fboundp 'context-menu-mode)
+                  (if (bound-and-true-p inhibit-mouse-mode)
+                      (context-menu-mode -1)
+                    (context-menu-mode 1))))))
 #+end_src
 
 ** inventory
@@ -4446,6 +4578,27 @@ header overlay should cover. Result is a cons cell of (begin . end)."
   :hook ((emacs-lisp-mode LaTeX-mode) . outline-minor-mode))
 #+end_src
 
+** outline-indent
+
+The [[https://github.com/jamescherti/outline-indent.el][outline-indent]] Emacs package provides a minor mode that enables code
+folding and outlining based on indentation levels for various
+indentation-based text files, such as YAML, Python, and other indented text
+files.
+
+In addition to code folding, =outline-indent= allows moving indented sub-trees
+up and down, promoting and demoting sections to adjust indentation levels,
+customizing the ellipsis, and inserting a new line with the same indentation
+level as the current line, among other features.
+
+The =outline-indent= package leverages the built-in /outline-minor-mode/, which is
+maintained by the Emacs developers and has less chance of being abandoned like
+/origami.el/.
+
+#+begin_src emacs-lisp
+(use-package outline-indent
+  :commands outline-indent-minor-mode)
+#+end_src
+
 ** COMMENT ovpn-mode
 
 #+begin_src emacs-lisp
@@ -4860,7 +5013,7 @@ append it to ENTRY."
   (add-hook 'window-setup-hook #'emacs-min t))
 #+end_src
 
-** popper
+** COMMENT popper
 
 [[https://github.com/karthink/popper][Popper]] is a minor-mode to tame the flood of ephemeral windows Emacs produces,
 while still keeping them within arm’s reach.
@@ -4914,6 +5067,21 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :hook (prog-mode . pretty-control-l-mode)
   :custom
   (pp^L-^L-string "                                            "))
+#+end_src
+
+** prescient
+
+[[https://github.com/radian-software/prescient.el][prescient.el]] is a library which sorts and filters lists of candidates.
+
+#+begin_src emacs-lisp
+(use-package prescient
+  :demand (vertico orderless)
+  :config
+  (add-to-list 'completion-styles 'prescient)
+  (use-package vertico-prescient
+    :demand t
+    :config
+    (vertico-prescient-mode 1)))
 #+end_src
 
 ** prodigy
@@ -5310,7 +5478,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (sky-color-clock-initialize calendar-latitude))
 #+end_src
 
-** slack
+** COMMENT slack
 
 #+begin_src emacs-lisp
 (use-package slack
@@ -6640,7 +6808,7 @@ exclusively, set both variables to =nil=.
 (use-package orderless
   :demand t
   :custom
-  (completion-styles '(orderless basic))
+  (add-to-list 'completion-styles 'orderless)
   (completion-category-overrides
    '((file (styles basic partial-completion)))))
 #+end_src
@@ -9447,7 +9615,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-clock-persist-file (user-data "org-clock-save.el"))
   (org-clock-resolve-expert t)
   (org-clone-delete-id nil)
-  (org-columns-default-format "%6Effort(Effort){:} %TODO %64ITEM(Task) %NEXT_REVIEW")
+  (org-columns-default-format "%TODO %64ITEM(Task) %NEXT_REVIEW")
   (org-confirm-babel-evaluate nil)
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
@@ -9575,7 +9743,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    '((sequence "TODO(t@/!)" "DOING(s!/!)"
                "WAIT(w@/!)" "DEFER(r!/!)"
                "TASK(g@/!)" "HABIT(h@/!)"
-               "|" "DONE(d@/!)" "CANCELED(x@/!)")
+               "|" "DONE(d@/!)" "CANCELED(x@/!)" "PASS(p@/!)")
      (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
    `(
@@ -9586,6 +9754,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("DEFER"    :foreground ,palette-slate-blue-dark :weight bold)
      ("DONE"     :foreground ,palette-green-dark      :weight bold)
      ("CANCELED" :foreground "grey50"                 :weight bold :strike-through t)
+     ("PASS"     :foreground "grey50"                 :weight bold :strike-through t)
      ("HABIT"    :foreground ,palette-orange          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
@@ -9605,6 +9774,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance
    '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"
+     "assembly"
      "kadena"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
@@ -9902,6 +10072,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-files
    (list (org-file "todo.org")
          (org-file "kadena/kadena.org")
+         (org-file "assembly/assembly.org")
          (org-file "quantum-trades/quantum-trades.org")
          (org-file "OSS.org")
          (org-file "people.org")
@@ -9909,13 +10080,13 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
-   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|kadena\\)\\'")
+   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|assembly\\|kadena\\)\\'")
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
   (org-agenda-persistent-filter t)
   (org-agenda-prefix-format
-   '((agenda   . "%-10c%-5e%?-12t% s")
+   '((agenda   . "%-10c%?-12t% s")
      (timeline . "% s")
      (todo     . "%-10c%5(org-todo-age) ")
      (tags     . "%-10c")))
