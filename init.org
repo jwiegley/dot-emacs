@@ -1927,17 +1927,6 @@ non-empty directories is allowed."
   :bind ([remap kill-ring-save] . easy-kill))
 #+end_src
 
-** easydraw
-
-#+begin_src emacs-lisp
-(use-package edraw-org
-  :after org
-  :config
-  (edraw-org-setup-default)
-  (with-eval-after-load "ox"
-    (edraw-org-setup-exporter)))
-#+end_src
-
 ** COMMENT easysession
 
 The [[https://github.com/jamescherti/easysession.el][easysession.el]] Emacs package is a lightweight session manager for Emacs
@@ -2935,8 +2924,6 @@ up before you execute another command."
   :hook (gptel-mode . visual-line-mode)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model 'qwen2.5:32b)
-  (gptel-track-media t)
   :preface
   (defun my-gptel-read-prompts (dir)
     (cl-loop
@@ -2952,14 +2939,9 @@ up before you execute another command."
     (setq gptel-directives
           (my-gptel-read-prompts "~/.emacs.d/prompts")))
   :config
-  (use-package gptel-context
-    :demand t)
-
-  (use-package gptel-quick
-    :demand t)
-
-  (use-package gptel-rewrite
-    :demand t)
+  (use-package gptel-context)
+  (use-package gptel-quick)
+  (use-package gptel-rewrite)
 
   (use-package gptel-transient
     :config
@@ -2976,122 +2958,119 @@ up before you execute another command."
         "-y300"
         "-Y1"
         "-D-")
-      "Arguments always passed to Curl for gptel queries."))
+      "Arguments always passed to Curl for gptel queries.")
+    )
 
   (use-package gptel-openai
-    :custom
-    (gptel-api-key (auth-source-pass-get 'secret "chat.openai.com"))
     :config
     (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models
-      '(
-        gpt-4o
-        ;; gpt-4o-2024-11-20
-        ;; gpt-4o-2024-08-06
-        ;; gpt-4o-2024-05-13
-        ;; gpt-4o-mini
-        ;; gpt-4o-mini-2024-07-18
-
-        ;; gpt-4
-        ;; gpt-4-32k
-        ;; gpt-4-turbo
-
-        ;; gpt-3.5-turbo
-        ;; gpt-3.5-turbo-16k-0613
-
-        o1
-        o1-mini
-        o3-mini
-        )))
+      :models '(gpt-4o o1)))
 
   (use-package gptel-ollama
-    :demand t
-    :config
-    (gptel-make-ollama "Ollama"
-      :host "localhost:11434"
-      :protocol "http"
-      :stream t
-      :request-params '(:options (:num_ctx 8192))
-      :models
-      '(
-        (HammerAI/midnight-miqu-70b-v1.5:latest
-         :description "Model designed for roleplaying and storytelling"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (codellama:70b
-         :description "LLM that can use text prompts to generate and discuss code"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-coder:33b
-         :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-coder-v2:16b
-         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:32b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:70b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (dolphin3:latest
-         :description "General purpose LM for coding, math, function calling, and general use"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (falcon3:10b
-         :description "Efficient AI models under 10B performant in science, math, and coding"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (gemma2:27b
-         :description "Google Gemma 2 is a high-performing and efficient model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (llama3.3:70b
-         :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (llama3.2:1b
-         :description "Llama 3.2 1B"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (mistral-small:latest
-         :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (phi4:latest
-         :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5-coder:32b
-         :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5:14b
-         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5:32b
-         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (wizardcoder:33b
-         :description "State-of-the-art code generation model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        )))
+    :custom
+    (gptel-model 'falcon3:10b)
+    (gptel-backend
+     (gptel-make-ollama "Ollama"
+       :host "localhost:11434"
+       :protocol "http"
+       :stream t
+       :request-params '(:options (:num_ctx 32768))
+       :models
+       '((HammerAI/midnight-miqu-70b-v1.5:latest
+          :description "Model designed for roleplaying and storytelling"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (codellama:70b
+          :description "LLM that can use text prompts to generate and discuss code"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (deepseek-coder:33b
+          :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (deepseek-coder-v2:16b
+          :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (deepseek-r1:32b
+          :description "DeepSeek's first-generation of reasoning models"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (deepseek-r1:70b
+          :description "DeepSeek's first-generation of reasoning models"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (dolphin3:latest
+          :description "General purpose LM for coding, math, function calling, and general use"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (falcon3:10b
+          :description "Efficient AI models under 10B performant in science, math, and coding"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (gemma2:27b
+          :description "Google Gemma 2 is a high-performing and efficient model"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (llama3.3:70b
+          :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (llama3.2:1b
+          :description "Llama 3.2 1B"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (mistral-small:latest
+          :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (phi4:latest
+          :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (qwen2.5-coder:32b
+          :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (qwen2.5:14b
+          :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (qwen2.5:32b
+          :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))
+         (wizardcoder:33b
+          :description "State-of-the-art code generation model"
+          :capabilities (media)
+          :mime-types ("image/jpeg" "image/png" "text/plain"))))))
 
   (use-package gptel-anthropic
-    :demand t
     :config
     (gptel-make-anthropic "Claude"
+      :key 'gptel-api-key
+      :stream t)
+
+    (gptel-make-anthropic "Claude-thinking" ;Any name you want
+      :key 'gptel-api-key
       :stream t
-      :key (auth-source-pass-get 'secret "claude.anthropic.com")))
+      :models '(claude-3-7-sonnet-20250219)
+      :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                      `(("x-api-key" . ,key)
+                        ("anthropic-version" . "2023-06-01")
+                        ("anthropic-beta" . "pdfs-2024-09-25")
+                        ("anthropic-beta" . "output-128k-2025-02-19")
+                        ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+      :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
+                                  :max_tokens 4096)))
+
+  (use-package gptel-gemini
+    :config
+    (gptel-make-gemini "Gemini"
+      :key 'gptel-api-key
+      :stream t))
 
   (my-gptel-update-prompts))
 #+end_src
@@ -3644,7 +3623,7 @@ minibuffer change, the region is realigned.
   (info-lookmore-apropos-elisp))
 #+end_src
 
-** inhibit-mouse
+** COMMENT inhibit-mouse
 
 #+begin_src emacs-lisp
 (use-package inhibit-mouse
@@ -5069,7 +5048,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (pp^L-^L-string "                                            "))
 #+end_src
 
-** prescient
+** COMMENT prescient
 
 [[https://github.com/radian-software/prescient.el][prescient.el]] is a library which sorts and filters lists of candidates.
 
@@ -6808,9 +6787,10 @@ exclusively, set both variables to =nil=.
 (use-package orderless
   :demand t
   :custom
-  (add-to-list 'completion-styles 'orderless)
   (completion-category-overrides
-   '((file (styles basic partial-completion)))))
+   '((file (styles basic partial-completion))))
+  :config
+  (add-to-list 'completion-styles 'orderless))
 #+end_src
 
 *** vertico
@@ -9744,7 +9724,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
                "WAIT(w@/!)" "DEFER(r!/!)"
                "TASK(g@/!)" "HABIT(h@/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)" "PASS(p@/!)")
-     (sequence "|" "NOTE(n)" "LINK(l)" "FEEDBACK(f)")))
+     (sequence "|" "NOTE(n)" "LINK(l)" "DECISION(D)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
    `(
      ("TODO"     :foreground ,palette-slate-blue      :weight bold)
@@ -9758,6 +9738,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("HABIT"    :foreground ,palette-orange          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
+     ("DECISION" :foreground ,palette-cyan-dark       :weight bold)
      ("FEEDBACK" :foreground ,palette-purple-dark     :weight bold)
      ))
   (org-tag-faces
