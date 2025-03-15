@@ -8,8 +8,7 @@
 (defvar gptel-proof-gentle-prompt
   (concat "Please fix spelling, punctuation and grammar in the follow text. "
           "Where possible, keep the word choice and tone unchanged. "
-          "Output only the corrected text.\n"
-          "\n"
+          "Output only the corrected text. "
           "The outputed text should use a line length line breaks "
           "that are similar to the input text. Visually, the old "
           "and new text should look similar. They should also have "
@@ -21,8 +20,7 @@
   (concat "Please fix spelling, punctuation and grammar in the follow text. "
           "Where possible, rewrite the text to use  active voice and to use fewer words."
           "Use a tone that's appropriate to publish in a social media post, so that it's casual "
-          "but still something that my Mom would understand.\n\n"
-          "\n"
+          "but still something that my Mom would understand. "
           "The outputed text should use a line length line breaks "
           "that are similar to the input text. Visually, the old "
           "and new text should look similar. They should also have "
@@ -41,7 +39,7 @@
         (insert correction)))))
 
 (defun gptel-proof (start end &optional aggressive)
-  "Proofread either the region using ChatGPT magic."
+  "Proofread either the region using AI."
   (interactive "r\nP")
   (when (not (use-region-p))
     (error "No region selected"))

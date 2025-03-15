@@ -301,18 +301,6 @@ SCHEDULED: %t
 
      ("pw" "Work templates")
 
-     ("pwm" "Offsite Meeting" entry
-      (file+headline ,(org-file "kadena/kadena.org") "Leadership")
-      (file "~/org/template/kadena/offsite-meeting.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pwc" "Work Conference" entry
-      (file+headline ,(org-file "kadena/kadena.org") "Conferences")
-      (file "~/org/template/kadena/conference.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
      ("pwO" "Out of Office" entry
       (file+headline ,(org-file "kadena/kadena.org") "Operations (Ops)")
       (file "~/org/template/kadena/out-of-office.org")
@@ -545,6 +533,22 @@ SCHEDULED: %t
    ("wb" "BD <> Engineering" plain
     (file "~/org/template/kadena/meetings/bd-engineering.org")
     :target (file "meeting/%<%Y%m%d%H%M>-bd-engineering.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("wC" "Work Conference" plain
+    (file "~/org/template/kadena/conference.org")
+    :target (file "conference/%<%Y%m%d%H%M>-conference.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("wO" "Offsite Meeting" plain
+    (file "~/org/template/kadena/offsite-meeting.org")
+    :target (file "conference/%<%Y%m%d%H%M>-offsite.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -880,6 +884,62 @@ SCHEDULED: %t
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
+   ("rz" "Tasks needing review (random sampling)" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-config-agenda-skip-entry-if
+            (org-extra-subtask-p))
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'todo org-done-keywords)
+           (org-config-skip-if-review-not-needed)
+           (org-config-skip-if-regularly-reviewed)))
+     (org-agenda-max-entries 20)
+     (org-agenda-cmp-user-defined (org-compare-randomly))
+     (org-agenda-prefix-format
+      "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
+     (org-compare-random-refresh t)
+     (org-agenda-sorting-strategy '(user-defined-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
+   ("rR" "All tasks needing review" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-config-agenda-skip-entry-if
+            (org-extra-subtask-p))
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'todo org-done-keywords)
+           (org-config-skip-if-review-not-needed)))
+     (org-agenda-prefix-format
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(category-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
+   ("rZ" "All tasks needing review (random sampling)" alltodo ""
+    ((org-agenda-skip-function
+      '(or (org-config-agenda-skip-entry-if
+            (org-extra-subtask-p))
+           (org-agenda-skip-entry-if
+            'scheduled 'deadline 'timestamp
+            'todo org-done-keywords)
+           (org-config-skip-if-review-not-needed)))
+     (org-agenda-prefix-format
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-max-entries 20)
+     (org-agenda-cmp-user-defined (org-compare-randomly))
+     (org-compare-random-refresh t)
+     (org-agenda-sorting-strategy '(user-defined-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
+   ("r*" "All tasks (for confirmation)" alltodo ""
+    ((org-agenda-prefix-format
+      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-sorting-strategy '(category-up))
+     (org-overriding-columns-format
+      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+
    ("rn" "Next Actions" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
@@ -891,34 +951,35 @@ SCHEDULED: %t
       '(org-config-agenda-skip-entry-if
         (not (org-extra-top-level-project-p))))))
 
-   ("rP" "Stuck projects" alltodo ""
+   ("r!" "Stuck projects" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
         (or (not (org-extra-top-level-project-p))
             (org-extra-first-child-todo
              #'(lambda () (org-get-scheduled-time (point)))))))))
 
-   ("rD" "Waiting/delegated" todo "WAIT|TASK"
+   ("r@" "Waiting/delegated" todo "WAIT|TASK"
     ((org-agenda-sorting-strategy
       '(todo-state-up priority-down category-up))))
 
-   ("rR" "Deferred" todo "DEFER"
+   ("r>" "Deferred" todo "DEFER"
     ((org-agenda-sorting-strategy '(user-defined-up))
      (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
-   ("rA" "All tasks" alltodo ""
+   ("r#" "Habits" todo "HABIT"
     ((org-agenda-prefix-format
       "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
      (org-agenda-sorting-strategy '(category-up))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
-   ("rH" "Habits" todo "HABIT"
-    ((org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
-     (org-agenda-sorting-strategy '(category-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+   ("ru" "Unscheduled tasks" alltodo ""
+    ((org-agenda-skip-function
+      '(org-agenda-skip-entry-if
+        'scheduled 'deadline 'timestamp
+        'todo org-done-keywords))
+     (org-agenda-sorting-strategy '(user-defined-up))
+     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("rU" "Tasks never reviewed" alltodo ""
     ((org-agenda-skip-function
@@ -930,14 +991,6 @@ SCHEDULED: %t
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
-
-   ("ru" "Unscheduled tasks" alltodo ""
-    ((org-agenda-skip-function
-      '(org-agenda-skip-entry-if
-        'scheduled 'deadline 'timestamp
-        'todo org-done-keywords))
-     (org-agenda-sorting-strategy '(user-defined-up))
-     (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("rs" "Scheduled" alltodo ""
     ((org-agenda-skip-function
