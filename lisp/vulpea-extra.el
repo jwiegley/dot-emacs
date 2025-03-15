@@ -59,32 +59,36 @@
 TODO entries marked as done are ignored, meaning the this
 function returns nil if current buffer contains only completed
 tasks. The only exception is headings tagged as REFILE."
-  (org-element-map
-      (org-element-parse-buffer 'element)
-      '(headline inlinetask)
-    (lambda (h)
-      (let ((todo-type (org-element-property :todo-type h)))
-        (or
-         (eq 'todo todo-type)
-         ;; any non-todo headline with an active timestamp
-         ;; (and
-         ;;  (not (eq 'done todo-type))
-         ;;  (org-element-property :contents-begin h)
-         ;;  (save-excursion
-         ;;    (goto-char (org-element-property :contents-begin h))
-         ;;    (let ((end (save-excursion
-         ;;                 ;; we must look for active timestamps only
-         ;;                 ;; before then next heading, even if it's
-         ;;                 ;; child, but org-element-property
-         ;;                 ;; :contents-end includes all children
-         ;;                 (or
-         ;;                  (re-search-forward org-element-headline-re
-         ;;                                     (org-element-property :contents-end h)
-         ;;                                     ':noerror)
-         ;;                  (org-element-property :contents-end h)))))
-         ;;      (re-search-forward org-ts-regexp end 'noerror))))
-         )))
-    nil 'first-match))
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward "\\* \\(TODO\\|DOING\\|WAIT\\|DEFER\\|TASK\\|HABIT\\)" nil t))
+  ;; (org-element-map
+  ;;     (org-element-parse-buffer 'element)
+  ;;     '(headline inlinetask)
+  ;;   (lambda (h)
+  ;;     (let ((todo-type (org-element-property :todo-type h)))
+  ;;       (or
+  ;;        (eq 'todo todo-type)
+  ;;        ;; any non-todo headline with an active timestamp
+  ;;        ;; (and
+  ;;        ;;  (not (eq 'done todo-type))
+  ;;        ;;  (org-element-property :contents-begin h)
+  ;;        ;;  (save-excursion
+  ;;        ;;    (goto-char (org-element-property :contents-begin h))
+  ;;        ;;    (let ((end (save-excursion
+  ;;        ;;                 ;; we must look for active timestamps only
+  ;;        ;;                 ;; before then next heading, even if it's
+  ;;        ;;                 ;; child, but org-element-property
+  ;;        ;;                 ;; :contents-end includes all children
+  ;;        ;;                 (or
+  ;;        ;;                  (re-search-forward org-element-headline-re
+  ;;        ;;                                     (org-element-property :contents-end h)
+  ;;        ;;                                     ':noerror)
+  ;;        ;;                  (org-element-property :contents-end h)))))
+  ;;        ;;      (re-search-forward org-ts-regexp end 'noerror))))
+  ;;        )))
+  ;;   nil 'first-match)
+  )
 
 (defun vulpea-project-list ()
   "Return a list of note files containing 'todo' tag." ;
@@ -100,32 +104,35 @@ tasks. The only exception is headings tagged as REFILE."
 
 (defun vulpea-ensure-filetag ()
   "Add missing FILETAGS to the current note."
-  (let* ((file (buffer-file-name))
-         (path-tags
-          (when file
-            (seq-filter
-             (lambda (x) (not (string-empty-p x)))
-             (split-string
-              (string-remove-prefix
-               (file-truename
-                (expand-file-name org-roam-directory))
-               (file-truename
-                (expand-file-name (file-name-directory file))))
-              "/"))))
-         (original-tags (vulpea-buffer-tags-get))
-         (tags (append original-tags path-tags)))
+  (when (save-excursion
+          (goto-char (point-min))
+          (looking-at ":"))
+    (let* ((file (buffer-file-name))
+           (path-tags
+            (when file
+              (seq-filter
+               (lambda (x) (not (string-empty-p x)))
+               (split-string
+                (string-remove-prefix
+                 (file-truename
+                  (expand-file-name org-roam-directory))
+                 (file-truename
+                  (expand-file-name (file-name-directory file))))
+                "/"))))
+           (original-tags (vulpea-buffer-tags-get))
+           (tags (append original-tags path-tags)))
 
-    ;; process projects
-    (if (vulpea-buffer-project-p)
-        (setq tags (cons "todo" tags))
-      (setq tags (remove "todo" tags)))
+      ;; process projects
+      (if (vulpea-buffer-project-p)
+          (setq tags (cons "todo" tags))
+        (setq tags (remove "todo" tags)))
 
-    (setq tags (seq-uniq tags))
+      (setq tags (seq-uniq tags))
 
-    ;; update tags if changed
-    (when (or (seq-difference tags original-tags)
-              (seq-difference original-tags tags))
-      (apply #'vulpea-buffer-tags-set (seq-uniq tags)))))
+      ;; update tags if changed
+      (when (or (seq-difference tags original-tags)
+                (seq-difference original-tags tags))
+        (apply #'vulpea-buffer-tags-set (seq-uniq tags))))))
 
 (defun vulpea-ensure-all-filetags ()
   (interactive)

@@ -44,10 +44,11 @@
 
 (require 'use-package)
 
-(setq use-package-verbose t ;; init-file-debug
-      use-package-expand-minimally nil ;; (not init-file-debug)
-      use-package-compute-statistics t ;; init-file-debug
+(setq use-package-verbose init-file-debug
+      use-package-expand-minimally (not init-file-debug)
+      use-package-compute-statistics init-file-debug
       debug-on-error init-file-debug
+      ;; debug-on-message "Unable to activate"
       debug-on-quit init-file-debug)
 #+end_src
 
@@ -2921,9 +2922,14 @@ up before you execute another command."
    ("x"        . gptel-abort)
    ("RET"      . gptel-send)
    ("<return>" . gptel-send))
-  :hook (gptel-mode . visual-line-mode)
+  :hook
+  (gptel-mode . visual-line-mode)
+  (gptel-post-stream . gptel-auto-scroll)
+  (gptel-post-response . gptel-end-of-response)
   :custom
   (gptel-default-mode 'org-mode)
+  (gptel-model 'gpt-4o)
+  (gptel-include-reasoning "*Reasoning*")
   :preface
   (defun my-gptel-read-prompts (dir)
     (cl-loop
@@ -2939,14 +2945,20 @@ up before you execute another command."
     (setq gptel-directives
           (my-gptel-read-prompts "~/.emacs.d/prompts")))
   :config
+  (setq gptel-expert-commands t)
+
   (use-package gptel-context)
   (use-package gptel-quick)
-  (use-package gptel-rewrite)
+  (use-package gptel-rewrite
+    :bind (:map gptel-rewrite-actions-map
+                ("<return>" . gptel--rewrite-dispatch)))
 
   (use-package gptel-transient
     :config
     (when (ignore-errors (transient-get-suffix 'gptel-menu "RET"))
-      (transient-suffix-put 'gptel-menu "RET" :key "<return>")))
+      (transient-suffix-put 'gptel-menu "RET" :key "<return>"))
+    (when (ignore-errors (transient-get-suffix 'gptel-tools "RET"))
+      (transient-suffix-put 'gptel-tools "RET" :key "<return>")))
 
   (use-package gptel-curl
     :config
@@ -2969,83 +2981,163 @@ up before you execute another command."
       :models '(gpt-4o o1)))
 
   (use-package gptel-ollama
-    :custom
-    (gptel-model 'falcon3:10b)
-    (gptel-backend
-     (gptel-make-ollama "Ollama"
-       :host "localhost:11434"
-       :protocol "http"
-       :stream t
-       :request-params '(:options (:num_ctx 32768))
-       :models
-       '((HammerAI/midnight-miqu-70b-v1.5:latest
-          :description "Model designed for roleplaying and storytelling"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (codellama:70b
-          :description "LLM that can use text prompts to generate and discuss code"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (deepseek-coder:33b
-          :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (deepseek-coder-v2:16b
-          :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (deepseek-r1:32b
-          :description "DeepSeek's first-generation of reasoning models"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (deepseek-r1:70b
-          :description "DeepSeek's first-generation of reasoning models"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (dolphin3:latest
-          :description "General purpose LM for coding, math, function calling, and general use"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (falcon3:10b
-          :description "Efficient AI models under 10B performant in science, math, and coding"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (gemma2:27b
-          :description "Google Gemma 2 is a high-performing and efficient model"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (llama3.3:70b
-          :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (llama3.2:1b
-          :description "Llama 3.2 1B"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (mistral-small:latest
-          :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (phi4:latest
-          :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (qwen2.5-coder:32b
-          :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (qwen2.5:14b
-          :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (qwen2.5:32b
-          :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))
-         (wizardcoder:33b
-          :description "State-of-the-art code generation model"
-          :capabilities (media)
-          :mime-types ("image/jpeg" "image/png" "text/plain"))))))
+    :config
+    (gptel-make-ollama "Ollama"
+      :host "localhost:11434"
+      :protocol "http"
+      :stream t
+      :request-params '(:options (:num_ctx 32768))
+      :models
+      '(
+        (HammerAI/midnight-miqu-70b-v1.5:latest
+         :description "Model designed for roleplaying and storytelling"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (athene-v2:72b
+         :description "Athene-V2 excels at code completion, math and log extraction"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (command-r:35b
+         :description "Command-R is a 35B model with 128k context length from Cohere"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-coder:33b
+         :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-coder-v2:16b
+         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-coder-v2:236b
+         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:1.5b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:32b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:70b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-r1:671b
+         :description "DeepSeek's first-generation of reasoning models"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (deepseek-v3:671b
+         :description "Strong MoE model with 37B activated for each token"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (dolphin3:latest
+         :description "General purpose LM for coding, math, function calling, and general use"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (falcon3:10b
+         :description "Efficient AI models under 10B performant in science, math, and coding"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (gemma2:27b
+         :description "Google Gemma 2 is a high-performing and efficient model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (hermes3:405b
+         :description "Generalist model with advanced agentic capabilities"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (llama3.1:405b
+         :description "Llama 3.1 is a new state-of-the-art model from Meta"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (llama3.2-vision:90b
+         :description "Llama 3.2 Vision instruction-tuned image reasoning generative model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (llama3.3:70b
+         :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (mistral-large:123b
+         :description "Large version of Mistral model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (mistral-nemo:12b
+         :description "LLM with 128k context, by Mistral AI in collaboration with NVIDIA"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (mistral-small:latest
+         :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (mistral:7b
+         :description "The 7B model released by Mistral AI, updated to version 0.3"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (nemotron:70b
+         :description "LLM customized by NVIDIA to improve the helpfulness of responses"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (olmo2:13b
+         :description "Competitive with open-weight models on English academic benchmarks"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (openthinker:32b
+         :description "Fine-tuned version of Qwen2.5-32B-Instruct on OpenThoughts-114k dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (orca-mini:70b
+         :description "General-purpose model suitable for entry-level hardware."
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (phi4:latest
+         :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2-math:72b
+         :description "Qwen2-Math specialized math language models built upon the Qwen2 LLMs"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5-coder:32b
+         :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5:14b
+         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5:32b
+         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwen2.5:72b
+         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
+         :description "Qwen2.5 model supporting up to 1M token context"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (qwq:32b
+         :description "QwQ is a research model focused on advancing AI reasoning capabilities"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (starcoder2:15b
+         :description "StarCoder2 is the next generation of transparently trained open code LLMs"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (tulu3:70b
+         :description "Fine-tuned LLM llama-3.3, optimized for tool usage and multi-turn dialogue"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        (wizardcoder:33b
+         :description "State-of-the-art code generation model"
+         :capabilities (media)
+         :mime-types ("image/jpeg" "image/png" "text/plain"))
+        )))
 
   (use-package gptel-anthropic
     :config
@@ -3057,12 +3149,13 @@ up before you execute another command."
       :key 'gptel-api-key
       :stream t
       :models '(claude-3-7-sonnet-20250219)
-      :header (lambda () (when-let* ((key (gptel--get-api-key)))
-                      `(("x-api-key" . ,key)
-                        ("anthropic-version" . "2023-06-01")
-                        ("anthropic-beta" . "pdfs-2024-09-25")
-                        ("anthropic-beta" . "output-128k-2025-02-19")
-                        ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+      :header
+      (lambda () (when-let* ((key (gptel--get-api-key)))
+                   `(("x-api-key" . ,key)
+                     ("anthropic-version" . "2023-06-01")
+                     ("anthropic-beta" . "pdfs-2024-09-25")
+                     ("anthropic-beta" . "output-128k-2025-02-19")
+                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
@@ -3131,7 +3224,52 @@ up before you execute another command."
      'append)))
 #+end_src
 
+*** gptel-aibo
+
+[[https://github.com/dolmens/gptel-aibo][gptel-aibo]] is an AI writing assistant system built on top of [[https://github.com/karthink/gptel][gptel]]. It helps
+you create and manage content in Emacs, including code, documents, and even
+fiction, along with many other possibilities. As you talk to the LLM, it
+automatically sends the content (or a portion of it) that you're currently
+working on, allowing you to refer to elements like "this function," "this
+class," or "this file," etc. It also defines an action set and its format with
+the LLM, so once a response is received, you can easily apply the suggestions
+with a single command (=gptel-aibo-apply-last-suggestions=, bound to =C-c !=).
+
+While you can chat with the LLM for complex tasks, when your context is clear
+enough, you can use the quick command =gptel-aibo-summon= to invoke the LLM to
+generate appropriate content right at your cursor position. If the newly
+inserted content has direct implications for the next few lines, the LLM will
+adjust them accordingly. All these changes will be displayed using an in-place
+diff format. If you accept these inputs, the LLM can even predict what comes
+next. At any point, you can press Enter to accept suggestions or Esc to
+dismiss them.
+
+The term /aibo/, meaning partner, is currently ambiguous — it could refer to
+gptel’s partner, or the user’s.
+
+#+begin_src emacs-lisp
+(use-package gptel-aibo
+  :commands gptel-aibo)
+#+end_src
+
+*** gptel-fn-complete
+
+#+begin_src emacs-lisp
+(use-package gptel-fn-complete
+  :bind
+  ("C-c . c" . gptel-fn-complete))
+#+end_src
+
 *** gptel-proof
+
+[[https://github.com/benjisimon/elisp/blob/main/gptel-proof.el][gptel-proof]] is an early attempt at coding a proofreading tool within Emacs.
+The package works by taking an arbitrary region of text and asking ChatGPT to
+fix the spelling and grammar. The result is embedded back in the original
+document, surrounded by the familiar version control conflict markers. For
+example, here's what I see when I proofread this paragraph.
+
+By using the conflict markers, I can use =M-x vc-resolve-conflicts=, to
+interactively compare and adopt the improved text.
 
 #+begin_src emacs-lisp
 (use-package gptel-proof
@@ -4086,7 +4224,7 @@ minibuffer change, the region is realigned.
   (magit-todos-mode 1))
 #+end_src
 
-*** forge
+*** COMMENT forge
 
 #+begin_src emacs-lisp
 (use-package forge
@@ -6028,6 +6166,31 @@ RET in the buffer you want to undo.
   :diminish
   :config
   (which-key-mode))
+#+end_src
+
+** whisper
+
+[[https://github.com/natrys/whisper.el?tab=readme-ov-file][whisper.el]] is a speech-to-Text interface for Emacs using OpenAI’s [[https://github.com/openai/whisper][whisper
+speech recognition model]]. For the inference engine it uses the awesome C/C++
+port [[https://github.com/ggerganov/whisper.cpp][whisper.cpp]] that can run on consumer grade CPU (without requiring a high
+end GPU).
+
+You can capture audio with your local input device (microphone) or choose a
+media file on disk in your local language, and have the transcribed text
+pasted to your Emacs buffer (optionally after translating to English). This
+runs offline without having to use non-free cloud service for decent result
+(though result quality of whisper varies widely depending on language, see
+below).
+
+#+begin_src emacs-lisp
+(use-package whisper
+  :bind ("C-c C-x w" . whisper-run)
+  :config
+  (setq whisper-install-directory "/tmp/"
+        whisper-model "large"
+        whisper-language "en"
+        whisper-translate nil
+        whisper-use-threads (/ (num-processors) 2)))
 #+end_src
 
 ** whitespace
@@ -11286,7 +11449,23 @@ instead."
   :hook (org-mode . org-pretty-table-mode))
 #+end_src
 
-*** org-project-capture
+*** org-projectile
+
+This package provides an easy interface to creating per project =org-mode= =TODO=
+headings, whether in a single file, or in a file stored in each project
+directory.
+
+jww (2025-03-10): This is currently fails to load.
+
+#+begin_src emacs-lisp
+(use-package org-projectile
+  :after org)
+#+end_src
+
+**** org-project-capture
+
+[[https://github.com/colonelpanic8/org-project-capture][org-project-capture]] integrates =org-mode= TODOs with both =projectile= and
+=project.el=. This permits the maintenance of TODO lists for specific projects.
 
 #+begin_src emacs-lisp
 (use-package org-project-capture
@@ -11300,13 +11479,6 @@ instead."
   (org-project-capture-projects-file "~/org/OSS.org")
   :config
   (org-project-capture-single-file))
-#+end_src
-
-*** org-projectile
-
-#+begin_src emacs-lisp
-(use-package org-projectile
-  :after org)
 #+end_src
 
 *** COMMENT org-recent-headings
@@ -12329,16 +12501,18 @@ own lines, for instance.
   :bind (:map
          my-ctrl-c-n-map
          ("N" . citar-create-note))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup)
   :custom
   (org-cite-global-bibliography
    (list "~/org/resource/bibliography.bib"
          "~/org/resource/kadena.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
-  (setq citar--multiple-setup '("M-RET" . "RET")))
+  (setq citar--multiple-setup '("M-RET" . "RET"))
+
+  (use-package citar-capf
+    :hook
+    (LaTeX-mode . citar-capf-setup)
+    (org-mode . citar-capf-setup)))
 #+end_src
 
 **** citar-embark
@@ -12393,13 +12567,20 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package toc-org
-  ;; :bind
-  ;; (:map markdown-mode-map
-  ;;       ("C-c C-o" . toc-org-markdown-follow-thing-at-point))
   :hook
   (org-mode . toc-org-mode)
-  ;; (markdown-mode . toc-org-mode)
-  )
+  :preface
+  (defun my-equalize-newlines-advice (orig-fun &rest args)
+    "Leave equal amount of newlines in the result of ORIG-FUN."
+    (let* ((result (apply orig-fun args))
+           (trimmed (string-trim result))
+           (newline-count 1))           ; can be an external variable
+      (concat
+       (make-string newline-count ?\n)
+       trimmed
+       (make-string newline-count ?\n))))
+  :config
+  (advice-add 'toc-org-hrefify-toc :around #'my-equalize-newlines-advice))
 #+end_src
 
 *** COMMENT asana
