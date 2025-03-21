@@ -27,6 +27,7 @@
 
 (require 'org)
 (require 'org-extra)
+(require 'org-agenda-random)
 (eval-when-compile
   (require 'org-habit))
 
@@ -413,7 +414,6 @@ SCHEDULED: %t
        "#+category: Assembly\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
        "#+filetags: :todo:assembly:\n"
-       "#+startup: showeverything\n"
        "#+title: Local Spiritual Assembly\n"))
     :immediate-finish t
     :jump-to-captured t
@@ -586,9 +586,9 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ("we" "EVM Huddle" plain
-    (file "~/org/template/kadena/meetings/evm-huddle.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-evm-huddle.org")
+   ("we" "EVM Posse" plain
+    (file "~/org/template/kadena/meetings/evm-posse.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-evm-posse.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -868,7 +868,7 @@ SCHEDULED: %t
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
-   ("rr" "Tasks needing review" alltodo ""
+   ("rR" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-extra-subtask-p))
@@ -884,7 +884,7 @@ SCHEDULED: %t
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
-   ("rz" "Tasks needing review (random sampling)" alltodo ""
+   ("rr" "Tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-extra-subtask-p))
@@ -902,7 +902,7 @@ SCHEDULED: %t
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
-   ("rR" "All tasks needing review" alltodo ""
+   ("rZ" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-extra-subtask-p))
@@ -916,7 +916,7 @@ SCHEDULED: %t
      (org-overriding-columns-format
       "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
 
-   ("rZ" "All tasks needing review (random sampling)" alltodo ""
+   ("rz" "All tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-extra-subtask-p))
