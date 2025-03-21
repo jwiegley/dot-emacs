@@ -976,12 +976,6 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   :commands (burly-bookmark-windows burly-open-bookmark))
 #+end_src
 
-** bytecomp-simplify
-
-#+begin_src emacs-lisp
-(use-package bytecomp-simplify)
-#+end_src
-
 ** COMMENT c-includes
 
 #+begin_src emacs-lisp
@@ -3749,18 +3743,6 @@ minibuffer change, the region is realigned.
                 (setq buffer-face-mode-face '(:family "Bookerly"))
                 (buffer-face-mode)
                 (text-scale-adjust 1))))
-#+end_src
-
-*** info-lookmore
-
-#+begin_src emacs-lisp
-(use-package info-lookmore
-  :after info-look
-  :config
-  (info-lookmore-elisp-cl)
-  (info-lookmore-elisp-userlast)
-  (info-lookmore-elisp-gnus)
-  (info-lookmore-apropos-elisp))
 #+end_src
 
 ** COMMENT inhibit-mouse

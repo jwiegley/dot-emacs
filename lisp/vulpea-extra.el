@@ -223,7 +223,9 @@ tasks. The only exception is headings tagged as REFILE."
              (let* ((tags-str
                      (mapconcat
                       (lambda (x) (concat "#" x))
-                      (org-delete-all '("todo" "meeting")
+                      (org-delete-all '("todo"
+                                        "meeting"
+                                        "assembly")
                                       (vulpea-note-tags note))
                       " ")))
                (if (string-empty-p tags-str)
@@ -238,11 +240,13 @@ tasks. The only exception is headings tagged as REFILE."
                      (seq-sort-by
                       #'vulpea-note-created-time
                       #'time-greater-p
-                      (vulpea-db-query-by-tags-some '("meeting")))))
+                      (vulpea-db-query-by-tags-some '("meeting"
+                                                      "assembly")))))
      :filter-fn
      #'(lambda (note)
          (and (= (vulpea-note-level note) 0)
-              (string-match "/meeting/" (vulpea-note-path note)))))))
+              (string-match "/\\(meeting\\|assembly\\)/"
+                            (vulpea-note-path note)))))))
 
 ;;;###autoload
 (defun vulpea-tags-add ()
