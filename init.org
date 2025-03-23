@@ -268,6 +268,7 @@ unto itself.
   (history-delete-duplicates t)
   (history-length 200)
   (load-prefer-newer t)
+  (line-spacing 1)
   (menu-bar-mode nil)
   (message-log-max 16384)
   (redisplay-dont-pause t)
@@ -2917,7 +2918,7 @@ up before you execute another command."
    ("RET"      . gptel-send)
    ("<return>" . gptel-send))
   :hook
-  (gptel-mode . visual-line-mode)
+  (gptel-mode . visual-line-fill-column-mode)
   (gptel-post-stream . gptel-auto-scroll)
   (gptel-post-response . gptel-end-of-response)
   :custom
@@ -2982,158 +2983,51 @@ up before you execute another command."
       :host "localhost:11434"
       :protocol "http"
       :stream t
-      :request-params '(:options (:num_ctx 32768))
+      :request-params '(:options (:num_ctx 8192))
       :models
-      '(
-        (HammerAI/midnight-miqu-70b-v1.5:latest
-         :description "Model designed for roleplaying and storytelling"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (athene-v2:72b
-         :description "Athene-V2 excels at code completion, math and log extraction"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (command-r:35b
-         :description "Command-R is a 35B model with 128k context length from Cohere"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-coder:33b
-         :description "Mixture-of-Experts code language model, trained on 2 trillion tokens"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-coder-v2:16b
-         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-coder-v2:236b
-         :description "Mixture-of-Experts code language model, trained on 6+ trillion tokens"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:1.5b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:32b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:70b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-r1:671b
-         :description "DeepSeek's first-generation of reasoning models"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (deepseek-v3:671b
-         :description "Strong MoE model with 37B activated for each token"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (dolphin3:latest
-         :description "General purpose LM for coding, math, function calling, and general use"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (falcon3:10b
-         :description "Efficient AI models under 10B performant in science, math, and coding"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (gemma2:27b
-         :description "Google Gemma 2 is a high-performing and efficient model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (hermes3:405b
-         :description "Generalist model with advanced agentic capabilities"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (llama3.1:405b
-         :description "Llama 3.1 is a new state-of-the-art model from Meta"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (llama3.2-vision:90b
-         :description "Llama 3.2 Vision instruction-tuned image reasoning generative model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (llama3.3:70b
-         :description "Llama 3.3 70B offers performance comparable to Llama 3.1 405B"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (mistral-large:123b
-         :description "Large version of Mistral model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (mistral-nemo:12b
-         :description "LLM with 128k context, by Mistral AI in collaboration with NVIDIA"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (mistral-small:latest
-         :description "Mistral Small 3 sets new benchmark in “small” LLMs category below 70B"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (mistral:7b
-         :description "The 7B model released by Mistral AI, updated to version 0.3"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (nemotron:70b
-         :description "LLM customized by NVIDIA to improve the helpfulness of responses"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (olmo2:13b
-         :description "Competitive with open-weight models on English academic benchmarks"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (openthinker:32b
-         :description "Fine-tuned version of Qwen2.5-32B-Instruct on OpenThoughts-114k dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (orca-mini:70b
-         :description "General-purpose model suitable for entry-level hardware."
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (phi4:latest
-         :description "Phi-4 is a 14B parameter, state-of-the-art open model from Microsoft"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2-math:72b
-         :description "Qwen2-Math specialized math language models built upon the Qwen2 LLMs"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5-coder:32b
-         :description "Code-Specific Qwen, for code generation, reasoning, and fixing"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5:14b
-         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5:32b
-         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwen2.5:72b
-         :description "Qwen2.5 models pretrained on Alibaba's latest large-scale dataset"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
-         :description "Qwen2.5 model supporting up to 1M token context"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (qwq:32b
-         :description "QwQ is a research model focused on advancing AI reasoning capabilities"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (starcoder2:15b
-         :description "StarCoder2 is the next generation of transparently trained open code LLMs"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (tulu3:70b
-         :description "Fine-tuned LLM llama-3.3, optimized for tool usage and multi-turn dialogue"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        (wizardcoder:33b
-         :description "State-of-the-art code generation model"
-         :capabilities (media)
-         :mime-types ("image/jpeg" "image/png" "text/plain"))
-        )))
+      '(HammerAI/midnight-miqu-70b-v1.5:latest
+        athene-v2:72b
+        beezu/Midnight-Miqu-103B-v1.5:latest
+        command-r:35b
+        datacrystals/midnight-rose103b-v2:latest
+        datacrystals/midnight-rose70b-v2:latest
+        datacrystals/miqulitz120b-v2:latest
+        deepseek-coder-v2:16b
+        deepseek-coder-v2:236b
+        deepseek-coder:33b
+        deepseek-r1:1.5b
+        deepseek-r1:32b
+        deepseek-r1:671b
+        deepseek-r1:70b
+        deepseek-v3:671b
+        dolphin3:latest
+        falcon3:10b
+        gemma2:27b
+        gemma3:27b
+        hermes3:405b
+        hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
+        llama3.1:405b
+        llama3.2-vision:90b
+        llama3.3:70b
+        mistral-large:123b
+        mistral-nemo:12b
+        mistral-small:latest
+        mistral:7b
+        mixtral:8x22b
+        nemotron:70b
+        olmo2:13b
+        openthinker:32b
+        orca-mini:70b
+        phi4:latest
+        qwen2-math:72b
+        qwen2.5-coder:32b
+        qwen2.5:14b
+        qwen2.5:32b
+        qwen2.5:72b
+        qwq:32b
+        starcoder2:15b
+        tulu3:70b
+        wizardcoder:33b)))
 
   (use-package gptel-anthropic
     :config
@@ -3147,11 +3041,11 @@ up before you execute another command."
       :models '(claude-3-7-sonnet-20250219)
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
-                   `(("x-api-key" . ,key)
-                     ("anthropic-version" . "2023-06-01")
-                     ("anthropic-beta" . "pdfs-2024-09-25")
-                     ("anthropic-beta" . "output-128k-2025-02-19")
-                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+              `(("x-api-key" . ,key)
+                ("anthropic-version" . "2023-06-01")
+                ("anthropic-beta" . "pdfs-2024-09-25")
+                ("anthropic-beta" . "output-128k-2025-02-19")
+                ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
