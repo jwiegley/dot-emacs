@@ -796,8 +796,7 @@ SCHEDULED: %t
       ""
       ((org-agenda-skip-function
         '(org-config-agenda-skip-entry-if
-          (and (org-extra-habit-p)
-               (org-review-last-review-prop nil)
+          (and (org-review-last-review-prop nil)
                (not (org-extra-needs-review-p)))))
        (org-super-agenda-groups
         '((:name "Important"
