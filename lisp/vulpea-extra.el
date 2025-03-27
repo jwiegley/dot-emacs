@@ -204,10 +204,79 @@ tasks. The only exception is headings tagged as REFILE."
          (and (= (vulpea-note-level note) 0)
               (string-match "/journal/" (vulpea-note-path note)))))))
 
-(defun vulpea-note-created-time (note)
+(defsubst vulpea-note-created-time (note)
   (org-encode-time
    (org-parse-time-string
     (cdr (assoc "CREATED" (vulpea-note-properties note))))))
+
+(defsubst vulpea-note-date-time (note)
+  (org-encode-time
+   (org-parse-time-string
+    (or (caar (vulpea-note-file-date note))
+        (cdr (assoc "CREATED" (vulpea-note-properties note)))))))
+
+(defsubst vulpea-note-file-date (note)
+  (org-roam-db-query
+   [:select [note-date] :from file-dates
+            :where (= note-id $s1)]
+   (vulpea-note-id note)))
+
+;;;###autoload
+(defun vulpea-extra-db-setup-dates ()
+  "Setup dates table in Vulpea DB."
+  (vulpea-db-define-table
+   ;; name
+   'file-dates
+   ;; version
+   1
+   ;; schema
+   '([(note-id :unique :primary-key)
+      note-date]
+     ;; useful to automatically cleanup your table whenever a note/node/file is removed
+     (:foreign-key [note-id] :references nodes [id] :on-delete :cascade))
+   ;; index
+   '((note-date-id-index [note-id])))
+
+  ;; (add-hook 'vulpea-db-insert-note-functions #'vulpea-extra-db-insert-date)
+  (advice-add 'org-roam-db-insert-file-node :after #'vulpea-extra-db-insert-date))
+
+(defun vulpea-extra-db-insert-date ()
+  (let ((path (buffer-file-name (buffer-base-buffer)))
+        (id (org-id-get)))
+    (message "Determing date info for: %s" path)
+    (org-roam-db-query
+     [:delete :from file-dates :where (= note-id $s1)] id)
+    (when-let ((str (vulpea-buffer-prop-get "date")))
+      (org-roam-db-query!
+       (lambda (err)
+         (lwarn 'org-roam :warning "%s for date '%s' in %s (%s)"
+                (error-message-string err)
+                str
+                path
+                id))
+       [:insert :into file-dates :values $v1]
+       (vector id (org-read-date nil nil str))))))
+
+(defun vulpea-extra-db-insert-date-every (note)
+  ;; (message "Determing date info for: %s" (vulpea-note-path note))
+  (org-roam-db-query
+   [:delete :from file-dates
+            :where (= note-id $s1)]
+   (vulpea-note-id note))
+  (vulpea-utils-with-note note
+    (when-let ((str (vulpea-buffer-prop-get "date")))
+      (org-roam-db-query!
+       (lambda (err)
+         (lwarn 'org-roam :warning "%s for date '%s' in %s (%s) %s"
+                (error-message-string err)
+                str
+                (vulpea-note-title note)
+                (vulpea-note-id note)
+                (vulpea-note-path note)))
+       [:insert :into file-dates
+                :values $v1]
+       (vector (vulpea-note-id note)
+               (org-read-date nil nil str))))))
 
 (defun vulpea-find-journal ()
   (interactive)
@@ -217,7 +286,7 @@ tasks. The only exception is headings tagged as REFILE."
                      " on "
                      (format-time-string
                       "%Y-%m-%d"
-                      (vulpea-note-created-time note)))))
+                      (vulpea-note-date-time note)))))
         (vulpea-select-annotate-fn
          #'(lambda (note)
              (let* ((tags-str
@@ -238,10 +307,10 @@ tasks. The only exception is headings tagged as REFILE."
      #'(lambda (filter)
          (seq-filter filter
                      (seq-sort-by
-                      #'vulpea-note-created-time
+                      #'vulpea-note-date-time
                       #'time-greater-p
-                      (vulpea-db-query-by-tags-some '("meeting"
-                                                      "assembly")))))
+                      (vulpea-db-query-by-tags-some
+                       '("meeting" "assembly")))))
      :filter-fn
      #'(lambda (note)
          (and (= (vulpea-note-level note) 0)

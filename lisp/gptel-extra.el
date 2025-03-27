@@ -37,14 +37,44 @@
                                          location unit))
  :name "get_weather"
  :description "Get the current weather in a given location"
- :args (list '(:name "location"
-                     :type string
-                     :description "The city and state, e.g. San Francisco, CA")
-             '(:name "unit"
-                     :type string
-                     :enum ["celsius" "farenheit"]
-                     :description
-                     "The unit of temperature, either 'celsius' or 'fahrenheit'"
-                     :optional t)))
+ :args
+ (list
+  '(:name "location"
+          :type string
+          :description "The city and state, e.g. San Francisco, CA")
+  '(:name "unit"
+          :type string
+          :enum ["celsius" "farenheit"]
+          :description
+          "The unit of temperature, either 'celsius' or 'fahrenheit'"
+          :optional t)))
+
+(defun gptel-extra-code-infill ()
+  "Fill in code at point based on buffer context.  Note: Sends the whole buffer."
+  (let ((lang (gptel--strip-mode-suffix major-mode)))
+    `(,(format "You are a %s programmer and assistant in a code buffer in a text editor.
+
+Follow my instructions and generate %s code to be inserted at the cursor.
+For context, I will provide you with the code BEFORE and AFTER the cursor.
+
+
+Generate %s code and only code without any explanations or markdown code fences.  NO markdown.
+You may include code comments.
+
+Do not repeat any of the BEFORE or AFTER code." lang lang lang)
+      nil
+      "What is the code AFTER the cursor?"
+      ,(format "AFTER\n```\n%s\n```\n"
+               (buffer-substring-no-properties
+                (if (use-region-p) (max (point) (region-end)) (point))
+                (point-max)))
+      "And what is the code BEFORE the cursor?"
+      ,(format "BEFORE\n```%s\n%s\n```\n" lang
+               (buffer-substring-no-properties
+                (point-min)
+                (if (use-region-p) (min (point) (region-beginning)) (point))))
+      ,@(when (use-region-p) "What should I insert at the cursor?"))))
+
+(push '(code-infill . gptel-extra-code-infill) gptel-directives)
 
 (provide 'gptel-extra)
