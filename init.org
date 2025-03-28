@@ -11855,21 +11855,6 @@ utilities around note taking.
   :hook
   (org-roam-db-autosync-mode . vulpea-db-autosync-enable)
   :config
-  (use-package vulpea-extra
-    :demand t
-    :bind
-    (:map
-     my-ctrl-c-n-map
-     ("j" . vulpea-find-journal))
-    :config
-    (advice-add 'vulpea-update-agenda-files
-                :after #'(lambda (&rest _ignore)
-                           (nconc org-agenda-files
-                                  (list (org-file "people.org")
-                                        "~/Mobile/inbox.org")))))
-
-  (vulpea-db-autosync-enable)
-
   (add-all-to-list 'vertico-multiform-commands
                    '(vulpea-find)
                    '(vulpea-find-backlink)
@@ -11893,7 +11878,14 @@ utilities around note taking.
   (org-roam-db-autosync-mode . vulpea-extra-db-setup-dates)
   :config
   (vulpea-auto-update-install)
-  (vulpea-extra-db-setup-dates))
+  (vulpea-extra-db-setup-dates)
+  (vulpea-db-autosync-enable)
+
+  (advice-add 'vulpea-update-agenda-files
+              :after #'(lambda (&rest _ignore)
+                         (nconc org-agenda-files
+                                (list (org-file "people.org")
+                                      "~/Mobile/inbox.org")))))
 #+end_src
 
 **** COMMENT consult-org-roam

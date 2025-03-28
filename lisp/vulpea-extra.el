@@ -237,25 +237,28 @@ tasks. The only exception is headings tagged as REFILE."
    ;; index
    '((note-date-id-index [note-id])))
 
-  ;; (add-hook 'vulpea-db-insert-note-functions #'vulpea-extra-db-insert-date)
-  (advice-add 'org-roam-db-insert-file-node :after #'vulpea-extra-db-insert-date))
+  (add-hook 'vulpea-db-insert-note-functions #'vulpea-extra-db-insert-date))
 
-(defun vulpea-extra-db-insert-date ()
-  (let ((path (buffer-file-name (buffer-base-buffer)))
-        (id (org-id-get)))
-    (message "Determing date info for: %s" path)
+(defun vulpea-extra-db-insert-date (note)
+  (when (= 0 (vulpea-note-level note))
     (org-roam-db-query
-     [:delete :from file-dates :where (= note-id $s1)] id)
-    (when-let ((str (vulpea-buffer-prop-get "date")))
-      (org-roam-db-query!
-       (lambda (err)
-         (lwarn 'org-roam :warning "%s for date '%s' in %s (%s)"
-                (error-message-string err)
-                str
-                path
-                id))
-       [:insert :into file-dates :values $v1]
-       (vector id (org-read-date nil nil str))))))
+     [:delete :from file-dates
+              :where (= note-id $s1)]
+     (vulpea-note-id note))
+    (vulpea-utils-with-note note
+      (when-let ((str (vulpea-buffer-prop-get "date")))
+        (org-roam-db-query!
+         (lambda (err)
+           (lwarn 'org-roam :warning "%s for date '%s' in %s (%s) %s"
+                  (error-message-string err)
+                  str
+                  (vulpea-note-title note)
+                  (vulpea-note-id note)
+                  (vulpea-note-path note)))
+         [:insert :into file-dates
+                  :values $v1]
+         (vector (vulpea-note-id note)
+                 (org-read-date nil nil str)))))))
 
 (defun vulpea-extra-db-insert-date-every (note)
   ;; (message "Determing date info for: %s" (vulpea-note-path note))
