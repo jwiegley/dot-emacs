@@ -36,6 +36,7 @@
 (require 'org-roam-dailies)
 (require 'dash)
 (require 'vulpea)
+(require 'vulpea-field)
 
 (declare-function org-with-wide-buffer "org-macs")
 (declare-function org-delete-all "org-macs")
@@ -216,70 +217,16 @@ tasks. The only exception is headings tagged as REFILE."
         (cdr (assoc "CREATED" (vulpea-note-properties note)))))))
 
 (defsubst vulpea-note-file-date (note)
-  (org-roam-db-query
-   [:select [note-date] :from file-dates
-            :where (= note-id $s1)]
-   (vulpea-note-id note)))
+  (vulpea-field-query 'file-dates note))
 
 ;;;###autoload
 (defun vulpea-extra-db-setup-dates ()
   "Setup dates table in Vulpea DB."
-  (vulpea-db-define-table
-   ;; name
+  (vulpea-field-setup
    'file-dates
-   ;; version
-   1
-   ;; schema
-   '([(note-id :unique :primary-key)
-      note-date]
-     ;; useful to automatically cleanup your table whenever a note/node/file is removed
-     (:foreign-key [note-id] :references nodes [id] :on-delete :cascade))
-   ;; index
-   '((note-date-id-index [note-id])))
-
-  (add-hook 'vulpea-db-insert-note-functions #'vulpea-extra-db-insert-date))
-
-(defun vulpea-extra-db-insert-date (note)
-  (when (= 0 (vulpea-note-level note))
-    (org-roam-db-query
-     [:delete :from file-dates
-              :where (= note-id $s1)]
-     (vulpea-note-id note))
-    (vulpea-utils-with-note note
-      (when-let ((str (vulpea-buffer-prop-get "date")))
-        (org-roam-db-query!
-         (lambda (err)
-           (lwarn 'org-roam :warning "%s for date '%s' in %s (%s) %s"
-                  (error-message-string err)
-                  str
-                  (vulpea-note-title note)
-                  (vulpea-note-id note)
-                  (vulpea-note-path note)))
-         [:insert :into file-dates
-                  :values $v1]
-         (vector (vulpea-note-id note)
-                 (org-read-date nil nil str)))))))
-
-(defun vulpea-extra-db-insert-date-every (note)
-  ;; (message "Determing date info for: %s" (vulpea-note-path note))
-  (org-roam-db-query
-   [:delete :from file-dates
-            :where (= note-id $s1)]
-   (vulpea-note-id note))
-  (vulpea-utils-with-note note
-    (when-let ((str (vulpea-buffer-prop-get "date")))
-      (org-roam-db-query!
-       (lambda (err)
-         (lwarn 'org-roam :warning "%s for date '%s' in %s (%s) %s"
-                (error-message-string err)
-                str
-                (vulpea-note-title note)
-                (vulpea-note-id note)
-                (vulpea-note-path note)))
-       [:insert :into file-dates
-                :values $v1]
-       (vector (vulpea-note-id note)
-               (org-read-date nil nil str))))))
+   #'(lambda (note) (= 0 (vulpea-note-level note)))
+   #'(lambda (_note) (vulpea-buffer-prop-get "date"))
+   #'(lambda (_note str) (org-read-date nil nil str))))
 
 (defun vulpea-find-journal ()
   (interactive)
