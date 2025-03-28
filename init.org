@@ -2968,67 +2968,92 @@ up before you execute another command."
         "-y300"
         "-Y1"
         "-D-")
-      "Arguments always passed to Curl for gptel queries.")
-    )
+      "Arguments always passed to Curl for gptel queries."))
 
   (use-package gptel-openai
     :config
     (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models '(gpt-4o o1)))
+      :models '(gpt-4o o1 gpt-4.5-preview)))
 
   (use-package gptel-ollama
     :config
-    (gptel-make-ollama "Ollama"
-      :host "localhost:11434"
-      :protocol "http"
-      :stream t
-      :request-params '(:options (:num_ctx 8192))
-      :models
-      '(HammerAI/midnight-miqu-70b-v1.5:latest
-        athene-v2:72b
-        beezu/Midnight-Miqu-103B-v1.5:latest
-        command-r:35b
-        datacrystals/midnight-rose103b-v2:latest
-        datacrystals/midnight-rose70b-v2:latest
-        datacrystals/miqulitz120b-v2:latest
-        deepseek-coder-v2:16b
-        deepseek-coder-v2:236b
-        deepseek-coder:33b
-        deepseek-r1:1.5b
-        deepseek-r1:32b
-        deepseek-r1:671b
-        deepseek-r1:70b
-        deepseek-v3:671b
-        dolphin3:latest
-        falcon3:10b
-        gemma2:27b
-        gemma3:27b
-        hermes3:405b
-        hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
-        llama3.1:405b
-        llama3.2-vision:90b
-        llama3.3:70b
-        mistral-large:123b
-        mistral-nemo:12b
-        mistral-small:latest
-        mistral:7b
-        mixtral:8x22b
-        nemotron:70b
-        olmo2:13b
-        openthinker:32b
-        orca-mini:70b
-        phi4:latest
-        qwen2-math:72b
-        qwen2.5-coder:32b
-        qwen2.5:14b
-        qwen2.5:32b
-        qwen2.5:72b
-        qwq:32b
-        starcoder2:15b
-        tulu3:70b
-        wizardcoder:33b)))
+    (if t
+        (gptel-make-ollama "Ollama"
+          :host "localhost:11434"
+          :protocol "http"
+          :stream t
+          :request-params '(:options (:num_ctx 8192))
+          :models
+          '(
+            HammerAI/midnight-miqu-70b-v1.5:latest
+            beezu/Midnight-Miqu-103B-v1.5:latest
+            datacrystals/midnight-rose103b-v2:latest
+            datacrystals/miqulitz120b-v2:latest
+
+            hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
+
+            athene-v2:72b
+            command-r:35b
+            deepseek-coder-v2:236b
+            deepseek-r1:671b
+            deepseek-r1:70b
+            dolphin3:latest
+            falcon3:10b
+            gemma3:27b
+            hermes3:405b
+            llama3.1:405b
+            llama3.2-vision:90b
+            llama3.3:70b
+            mistral-large:123b
+            mistral-nemo:12b
+            mistral-small:latest
+            mistral:7b
+            mixtral:8x22b
+            nemotron:70b
+            olmo2:13b
+            openthinker:32b
+            orca-mini:70b
+            phi4:latest
+            qwen2-math:72b
+            qwen2.5-coder:32b
+            qwen2.5:72b
+            qwq:32b
+            starcoder2:15b
+            tulu3:70b
+            wizardcoder:33b
+            ))
+      (gptel-make-ollama "Ollama"
+        :host "localhost:11434"
+        :protocol "http"
+        :stream t
+        :request-params '(:options (:num_ctx 8192))
+        :models
+        '(
+          hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
+
+          command-r:35b
+          deepseek-coder-v2:16b
+          deepseek-coder:33b
+          deepseek-r1:32b
+          dolphin3:latest
+          falcon3:10b
+          gemma2:27b
+          gemma3:27b
+          mistral-nemo:12b
+          mistral-small:latest
+          mistral:7b
+          olmo2:13b
+          openthinker:32b
+          phi4:latest
+          qwen2.5-coder:32b
+          qwen2.5:14b
+          qwen2.5:32b
+          qwq:32b
+          starcoder2:15b
+          wizardcoder:33b
+          ))))
 
   (use-package gptel-anthropic
     :config
