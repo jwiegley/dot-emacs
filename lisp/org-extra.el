@@ -635,6 +635,39 @@ resulting table on that column, ascending."
   (interactive)
   (org-extra-prune-log-entries 90))
 
+(defun org-extra-read-names (file)
+  (with-temp-buffer
+    (insert-file-contents-literally file)
+    (goto-char (point-min))
+    (let (result)
+      (while (re-search-forward
+              "^| \\[\\[\\(id:.+?\\)\\]\\[\\(.+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)?\\s-+|"
+              nil t)
+        (let ((link (match-string-no-properties 1))
+              (name (match-string-no-properties 2))
+              (one-on-one-page (match-string-no-properties 3)))
+          (push (cons name (list link one-on-one-page)) result)))
+      result)))
+
+(defun org-extra-update-team ()
+  (interactive)
+  (let ((file (org-file "kadena/team/202409042228-team.org")))
+    (setq org-extra-link-names (org-extra-read-names file))
+    (with-current-buffer (find-file-noselect file)
+      (save-excursion
+        (while (re-search-forward
+                "^| \\[\\[id:.+?\\]\\[\\(.+?\\)\\]\\].+|\\s-+\\([A-Za-z0-9_]\\)\\s-+|$" nil t)
+          (let ((name (match-string-no-properties 1))
+                (key (match-string-no-properties 2)))
+            (define-key org-mode-map (kbd (concat "s-" key))
+                        `(lambda () (interactive) (org-extra-edit-link-name ,name)))))))
+    (message "Team names and quick keys updated")))
+
+(defun org-extra-update-team-after-save ()
+  (when (and (eq major-mode 'org-mode)
+             (string-match "kadena/team/202409042228-team.org" (buffer-file-name)))
+    (org-extra-update-team)))
+
 (provide 'org-extra)
 
 ;;; org-extra.el ends here

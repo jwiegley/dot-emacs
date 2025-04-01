@@ -2905,6 +2905,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel
+  :load-path "lisp/gptel"
   :demand t
   :bind
   (:prefix-map
@@ -3663,8 +3664,8 @@ minibuffer change, the region is realigned.
             (append
              (mapcar (apply-partially #'expand-file-name "share/info")
                      (nix-read-environment emacs-environment))
-             '("~/.local/share/info"
-               "~/.nix-profile/share/info"))))
+             (list "~/.local/share/info"
+                   (expand-file-name "share/info" (getenv "PROFILE_DIR"))))))
   :config
   (add-hook 'Info-mode-hook
             #'(lambda ()
@@ -5140,7 +5141,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (projectile-ignored-project-function
    (lambda
      (path)
-     (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/\\.nix-profile\\)" path)))
+     (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/profiles\\|/\\.nix-profile\\)" path)))
   (projectile-keymap-prefix "p")
   (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
   (projectile-project-search-path '("~/src" "~/kadena" "~/doc"))
@@ -5738,7 +5739,8 @@ A collection of paredit-like functions for editing in =html-mode=.
   (tramp-default-method "ssh")
   (tramp-auto-save-directory "~/.local/share/emacs/backups")
   :config
-  (add-to-list 'tramp-remote-path (expand-file-name "~/.nix-profile/bin"))
+  (add-to-list 'tramp-remote-path
+               (expand-file-name "bin" (getenv "PROFILE_DIR")))
 
   ;; Without this change, tramp ends up sending hundreds of shell commands to
   ;; the remote side to ask what the temporary directory is.
@@ -7113,7 +7115,9 @@ without white space and comments.
   :custom
   (agda2-backend "MAlonzo")
   (agda2-include-dirs
-   '("." "~/.nix-profile/share/agda-prelude" "~/.nix-profile/share/agda"))
+   (list "."
+         (expand-file-name "share/agda-prelude" (getenv "PROFILE_DIR"))
+         (expand-file-name "share/agda" (getenv "PROFILE_DIR"))))
   :preface
   (defun agda2-insert-helper-function (&optional _prefix)
     (interactive "P")
@@ -8122,7 +8126,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :mode "\\.plantuml\\'"
   :custom
   (plantuml-default-exec-mode 'executable)
-  (plantuml-jar-path "~/.nix-profile/lib/plantuml.jar"))
+  (plantuml-jar-path (expand-file-name "lib/plantuml.jar" (getenv "PROFILE_DIR"))))
 #+end_src
 
 *** COMMENT po-mode
@@ -9678,7 +9682,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-default-notes-file (org-file "todo.org"))
   (org-depend-tag-blocked nil)
   (org-directory "~/org/")
-  (org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
+  (org-ditaa-jar-path
+   (expand-file-name "lib/ditaa.jar" (getenv "PROFILE_DIR")))
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
   (org-edit-src-content-indentation 0)
   ;; (org-ellipsis "…")
@@ -9765,7 +9770,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-list-allow-alphabetical t)
   (org-log-state-notes-insert-after-drawers t)
   (org-mime-preserve-breaks nil)
-  (org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar")
+  (org-plantuml-jar-path
+   (expand-file-name "lib/plantuml.jar" (getenv "PROFILE_DIR")))
   (org-pretty-entities t)
   (org-priority-faces
    '((65 :foreground "White" :weight bold)
@@ -10731,8 +10737,10 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (use-package ob-ditaa)
 
   (setq org-confirm-babel-evaluate nil
-        org-plantuml-jar-path "~/.nix-profile/lib/plantuml.jar"
-        org-ditaa-jar-path "~/.nix-profile/lib/ditaa.jar")
+        org-plantuml-jar-path
+        (expand-file-name "lib/plantuml.jar" (getenv "PROFILE_DIR"))
+        org-ditaa-jar-path
+        (expand-file-name "lib/ditaa.jar" (getenv "PROFILE_DIR")))
 
   (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
 #+end_src
