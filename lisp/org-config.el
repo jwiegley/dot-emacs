@@ -562,23 +562,7 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ("wx" "CXO Meeting" plain
-    (file "~/org/template/kadena/meetings/cxo.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-cxo.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wd" "DX <> Core" plain
-    (file "~/org/template/kadena/meetings/dx-and-core.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-dx-and-core.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("ws" "Core Eng Standup" plain
+   ("ws" "Eng Standup" plain
     (file "~/org/template/kadena/meetings/eng-standup.org")
     :target (file "meeting/%<%Y%m%d%H%M>-eng-standup.org")
     :immediate-finish t
@@ -760,13 +744,6 @@ SCHEDULED: %t
 
    ("wor" "Names beginning with R")
 
-   ("word" "1-on-1 Randy Daal" plain
-    (file "~/org/template/kadena/one-on-one/randy-daal.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-randy-daal.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
    ("wors" "1-on-1 Robert Soeldner" plain
     (file "~/org/template/kadena/one-on-one/robert-soeldner.org")
     :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")

@@ -37,3 +37,6 @@
 [submodule "lisp/org-hash"]
 	path = lisp/org-hash
 	url = git@github.com:jwiegley/org-hash.git
+[submodule "lisp/gptel"]
+	path = lisp/gptel
+	url = git@github.com:karthink/gptel
