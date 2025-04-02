@@ -687,6 +687,16 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
+   ("woh" "Names beginning with H")
+
+   ("woha" "1-on-1 Hafsah Asmat" plain
+    (file "~/org/template/kadena/one-on-one/hafsah-asmat.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-hafsah-asmat.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("woj" "Names beginning with J")
 
    ("wojb" "1-on-1 June Boston" plain

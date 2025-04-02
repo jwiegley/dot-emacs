@@ -10451,35 +10451,19 @@ unfold drawers."
          ("C-c C-x u"   . org-extra-todoize)
          ("C-c C-x C-u" . org-extra-todoize-region)
          ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
+         ("s-n"         . org-extra-edit-link-name)
          :map
          org-agenda-mode-map
          ("g" . org-extra-agenda-redo))
-  ;; :hook
+  :hook
+  (after-save . org-extra-update-team-after-save)
   ;; (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
-  :custom
-  (org-extra-link-names
-   (org-extra-read-names (org-file "kadena/team/202409042228-team.org")))
-  :preface
-  (defun org-extra-read-names (file)
-    (with-temp-buffer
-      (insert-file-contents-literally file)
-      (goto-char (point-min))
-      (let (result)
-        (while (re-search-forward
-                "^| \\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]\\s-+|\\s-+\\(\\[.+\\]\\)?\\s-+|"
-                nil t)
-          (setq result
-                (cons (cons (match-string 2)
-                            (list (match-string 1)
-                                  (match-string 3)))
-                      result)))
-        (nreverse result))))
   ;; :init
   ;; (unless alternate-emacs
   ;;   (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
   ;;   (run-with-idle-timer 300 t #'org-extra-jump-to-agenda))
   :config
-  (use-package org-extra-private))
+  (org-extra-update-team))
 #+end_src
 
 *** org-config
@@ -11399,8 +11383,6 @@ instead."
 This package provides an easy interface to creating per project =org-mode= =TODO=
 headings, whether in a single file, or in a file stored in each project
 directory.
-
-jww (2025-03-10): This is currently fails to load.
 
 #+begin_src emacs-lisp
 (use-package org-projectile
