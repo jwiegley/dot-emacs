@@ -11113,6 +11113,7 @@ displays the priority part of a heading as your preferred string value.
 #+begin_src emacs-lisp
 (use-package org-fancy-priorities
   :after org
+  :diminish org-fancy-priorities-mode
   :hook
   (org-agenda-mode . org-fancy-priorities-mode)
   :custom
