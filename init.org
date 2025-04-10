@@ -2921,7 +2921,6 @@ up before you execute another command."
   :hook
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-post-stream . gptel-auto-scroll)
-  (gptel-post-response-functions . gptel-end-of-response)
   :custom
   (gptel-default-mode 'org-mode)
   (gptel-model 'gpt-4o)
@@ -2943,6 +2942,8 @@ up before you execute another command."
   :config
   (setq gptel-expert-commands t)
 
+  (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
+
   (use-package gptel-context)
   (use-package gptel-quick)
   (use-package gptel-rewrite
@@ -2962,12 +2963,12 @@ up before you execute another command."
     (defconst gptel-curl--common-args
       '("--location"
         "--silent"
-        "--compressed"
-        "--max-time"
-        "3600"
+        ;; "--compressed"
+        ;; "--max-time"
+        ;; "3600"
         "-XPOST"
-        "-y300"
-        "-Y1"
+        ;; "-y300"
+        ;; "-Y1"
         "-D-")
       "Arguments always passed to Curl for gptel queries."))
 
@@ -2976,85 +2977,17 @@ up before you execute another command."
     (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models '(gpt-4o o1 gpt-4.5-preview)))
+      :models '(gpt-4o o1 gpt-4.5-preview))
 
-  (use-package gptel-ollama
-    :config
-    (if t
-        (gptel-make-ollama "Ollama"
-          :host "localhost:11434"
-          :protocol "http"
-          :stream t
-          :request-params '(:options (:num_ctx 8192))
-          :models
-          '(
-            HammerAI/midnight-miqu-70b-v1.5:latest
-            beezu/Midnight-Miqu-103B-v1.5:latest
-            datacrystals/midnight-rose103b-v2:latest
-            datacrystals/miqulitz120b-v2:latest
-
-            hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
-
-            athene-v2:72b
-            command-r:35b
-            deepseek-coder-v2:236b
-            deepseek-r1:671b
-            deepseek-r1:70b
-            dolphin3:latest
-            falcon3:10b
-            gemma3:27b
-            hermes3:405b
-            llama3.1:405b
-            llama3.2-vision:90b
-            llama3.3:70b
-            mistral-large:123b
-            mistral-nemo:12b
-            mistral-small:latest
-            mistral:7b
-            mixtral:8x22b
-            nemotron:70b
-            olmo2:13b
-            openthinker:32b
-            orca-mini:70b
-            phi4:latest
-            qwen2-math:72b
-            qwen2.5-coder:32b
-            qwen2.5:72b
-            qwq:32b
-            starcoder2:15b
-            tulu3:70b
-            wizardcoder:33b
-            ))
-      (gptel-make-ollama "Ollama"
-        :host "localhost:11434"
-        :protocol "http"
-        :stream t
-        :request-params '(:options (:num_ctx 8192))
-        :models
-        '(
-          hf.co/lmstudio-community/Qwen2.5-14B-Instruct-1M-GGUF:Q8_0
-
-          command-r:35b
-          deepseek-coder-v2:16b
-          deepseek-coder:33b
-          deepseek-r1:32b
-          dolphin3:latest
-          falcon3:10b
-          gemma2:27b
-          gemma3:27b
-          mistral-nemo:12b
-          mistral-small:latest
-          mistral:7b
-          olmo2:13b
-          openthinker:32b
-          phi4:latest
-          qwen2.5-coder:32b
-          qwen2.5:14b
-          qwen2.5:32b
-          qwq:32b
-          starcoder2:15b
-          wizardcoder:33b
-          ))))
+    (gptel-make-openai "lmstudio"
+      :host "192.168.50.5:12345"
+      :protocol "http"
+      :stream t
+      ;; :request-params '(:options (:num_ctx 32767))
+      :models '(
+                mistral-nemo-instruct-2407
+                deepseek-v3-0324
+                )))
 
   (use-package gptel-anthropic
     :config
@@ -3081,6 +3014,52 @@ up before you execute another command."
     (gptel-make-gemini "Gemini"
       :key 'gptel-api-key
       :stream t))
+
+  (use-package gptel-ollama
+    :config
+    (gptel-make-ollama "Ollama"
+      :host "localhost:11434"
+      :protocol "http"
+      :stream t
+      :request-params '(:options (:num_ctx 8192))
+      :models
+      '(
+        HammerAI/midnight-miqu-70b-v1.5:latest
+        beezu/Midnight-Miqu-103B-v1.5:latest
+        datacrystals/midnight-rose103b-v2:latest
+        datacrystals/miqulitz120b-v2:latest
+
+        athene-v2:72b
+        command-r:35b
+        deepseek-coder-v2:236b
+        deepseek-r1:671b
+        deepseek-r1:70b
+        dolphin3:latest
+        falcon3:10b
+        gemma3:27b
+        hermes3:405b
+        llama3-chatqa:70b
+        llama3.1:405b
+        llama3.2-vision:90b
+        llama3.3:70b
+        mistral-large:123b
+        mistral-nemo:12b
+        mistral-small:latest
+        mistral:7b
+        mixtral:8x22b
+        nemotron:70b
+        olmo2:13b
+        openthinker:32b
+        orca-mini:70b
+        phi4:latest
+        qwen2-math:72b
+        qwen2.5-coder:32b
+        qwen2.5:72b
+        qwq:32b
+        starcoder2:15b
+        tulu3:70b
+        wizardcoder:33b
+        )))
 
   (my-gptel-update-prompts))
 #+end_src
