@@ -2924,7 +2924,7 @@ up before you execute another command."
   :custom
   (gptel-default-mode 'org-mode)
   (gptel-model 'gpt-4o)
-  (gptel-log-level 'debug)
+  (gptel-log-level nil)
   (gptel-include-reasoning "*Reasoning*")
   (gptel-use-tools nil)
   :preface
@@ -2944,7 +2944,7 @@ up before you execute another command."
   :config
   (setq gptel-expert-commands t)
 
-  (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
+  ;; (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
 
   (use-package gptel-context)
   (use-package gptel-quick)
@@ -3257,7 +3257,24 @@ gptel’s partner, or the user’s.
 
 #+begin_src emacs-lisp
 (use-package gptel-aibo
-  :commands gptel-aibo)
+  :commands (gptel-aibo gptel-aibo-summon)
+  :bind
+  ("C-c !" . gptel-aibo-summon)
+  :preface
+  (defun my-gptel-aibo-filter-response (orig-func response info)
+    (let ((fixed-response
+           (with-temp-buffer
+             (insert response)
+             (goto-char (point-min))
+             (while (re-search-forward
+                     "\\*\\(\\*\\(SEARCH\\|REPLACE\\)\\*\\)\\*" nil t)
+               (replace-match (match-string 1)))
+             (buffer-string))))
+      (funcall orig-func fixed-response info)))
+  :config
+  (require 'aibo-hack)
+  (advice-add 'gptel-aibo--summon-callback
+              :around #'my-gptel-aibo-filter-response))
 #+end_src
 
 *** gptel-fn-complete
@@ -9698,7 +9715,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c .")
          ("C-c #"       . org-priority)
          ("C-c ,"       . org-priority)
-         ("C-c !"       . org-time-stamp-inactive)
          ("C-c ["       . org-time-stamp-inactive)
          ("C-c <"       . org-time-stamp)
          ("C-c x"       . org-todo)
