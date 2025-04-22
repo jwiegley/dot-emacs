@@ -3035,7 +3035,6 @@ up before you execute another command."
       :host "192.168.50.5:8080"
       :protocol "http"
       :stream t
-      ;; :request-params '(:options (:num_ctx 32767))
       :models '(
                 3-Nemotron-Super-49B-v1
                 Athene-V2-Chat
@@ -3058,7 +3057,6 @@ up before you execute another command."
                 Hermes-3-Llama-3.1-8B
                 Llama-4-Maverick-17B-128E-Instruct
                 Midnight-Miqu-103B-v1.5
-                Midnight-Miqu-70B-v1.5
                 miqu-1-120b
                 miquliz-120b-v2.0
                 MiquMaid-v2-2x70B
