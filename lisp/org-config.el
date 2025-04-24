@@ -181,6 +181,21 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       "* NOTE %?"
       :prepend t)
 
+     ;;      ("i" "Inbox" entry ,Inbox
+     ;;       "* TODO %?\n%i\n%U"
+     ;;       :kill-buffer t)
+     ;;      ("l" "Inbox with link" entry ,Inbox
+     ;;       "* TODO %?
+     ;; :PROPERTIES:
+     ;; :URL:      %a
+     ;; :DATE:     %U
+     ;; :END:
+     ;; %(with-temp-buffer
+     ;;   (insert \"%i\")
+     ;;   (fill-region (point-min) (point-max))
+     ;;   (buffer-string))"
+     ;;       :kill-buffer t)
+
      ("l" "LINK" entry
       ,Inbox
       "* LINK %:description%?
