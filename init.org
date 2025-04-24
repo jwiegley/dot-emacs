@@ -4330,6 +4330,7 @@ minibuffer change, the region is realigned.
      "*server*"
      "*Group*"
      "*Org Agenda*"
+     "*GPTel Chat*"
      "todo.org"
      "kadena.org"
      "quantum-trades.org"
@@ -4337,6 +4338,7 @@ minibuffer change, the region is realigned.
   (clean-buffer-list-kill-never-regexps
    '("^ \\*Minibuf-.*\\*$"
      "^\\*Summary"
+     "^\\*gptel-aibo:"
      "^\\*Article" "^#"))
   (clean-buffer-list-kill-regexps '(".*"))
   :config
