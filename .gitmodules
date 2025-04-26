@@ -40,3 +40,6 @@
 [submodule "lisp/gptel"]
 	path = lisp/gptel
 	url = git@github.com:karthink/gptel
+[submodule "lisp/llm-tool-collection"]
+	path = lisp/llm-tool-collection
+	url = git@github.com:skissue/llm-tool-collection
