@@ -46,3 +46,6 @@
 [submodule "lisp/emacs-asana"]
 	path = lisp/emacs-asana
 	url = git@github.com:lmartel/emacs-asana
+[submodule "lisp/org-mode"]
+	path = lisp/org-mode
+	url = git://git.savannah.gnu.org/emacs/org-mode.git
