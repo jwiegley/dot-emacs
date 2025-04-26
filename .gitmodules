@@ -49,3 +49,6 @@
 [submodule "lisp/org-mode"]
 	path = lisp/org-mode
 	url = git://git.savannah.gnu.org/emacs/org-mode.git
+[submodule "lisp/emacs-format-all-the-code"]
+	path = lisp/emacs-format-all-the-code
+	url = git@github.com:lassik/emacs-format-all-the-code
