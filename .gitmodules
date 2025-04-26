@@ -43,3 +43,6 @@
 [submodule "lisp/llm-tool-collection"]
 	path = lisp/llm-tool-collection
 	url = git@github.com:skissue/llm-tool-collection
+[submodule "lisp/emacs-asana"]
+	path = lisp/emacs-asana
+	url = git@github.com:lmartel/emacs-asana
