@@ -8797,34 +8797,21 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
      ;; Training script used with SpamSieve only consider read messages in
      ;; Spam, but both read and unread messages in TrainSpam. Otherwise, all
      ;; other details are the same.
-     ("\\<Spam"
+     ("Spam"
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
-      (ham-process-destination . "TrainGood")
+      (ham-process-destination . "TrainGood"))
+     ("\\`Spam"
       (spam-contents gnus-group-spam-classification-spam))
-     ("TrainSpam"
-      (total-expire . t)
-      (expiry-wait . 31)
-      (expiry-target . delete)
-      (ham-process-destination . "TrainGood"))
-     ("IsSpam"
-      (total-expire . t)
-      (expiry-wait . 31)
-      (expiry-target . delete)
-      (ham-process-destination . "TrainGood"))
-     ("TrainGood"
-      (gcc-self . t)
-      (gnus-use-scoring nil)
-      (spam-process-destination . "TrainSpam")
-      (ham-contents gnus-group-spam-classification-ham))
-     ("IsGood"
-      (total-expire . t)
-      (expiry-wait . 1.1)
-      (expiry-target . "INBOX")
+     ("Good"
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
+     ("IsGood"
+      (total-expire . t)
+      (expiry-wait . 1.1)
+      (expiry-target . "INBOX"))
      ("\\(mail/\\|INBOX\\)"
       (total-expire . t)
       (expiry-wait . 90)
@@ -11563,7 +11550,7 @@ directory.
   (org-refile-target-verify-function #'org-extra-refile-heading-p)
   (org-refile-targets '((org-agenda-files :maxlevel . 4)))
   (org-refile-use-cache nil)
-  (org-refile-use-outline-path t))
+  (org-refile-use-outline-path 'file))
 #+end_src
 
 *** org-remark
