@@ -59,7 +59,7 @@ This runs (possibly) before any request is submitted."
   (gptel--fsm-transition fsm)
   (run-hooks 'gptel-dynamic-post-extend-hook)
   (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
-    (gptel--update-status " Extending context..." 'warning)))
+    (gptel--update-status " Augmenting..." 'warning)))
 
 (defun gptel-dynamic-install ()
   (setq gptel-request--transitions
