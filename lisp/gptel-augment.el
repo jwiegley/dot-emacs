@@ -78,19 +78,32 @@ of using a certain agent."
   (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
     (gptel--update-status " Augmenting..." 'warning)))
 
+(cl-defgeneric gptel-augment--get-user-messages (_backend messages)
+  "Return a list of strings representing all user messages in INFO."
+  (cl-loop for msg across messages
+           if (string= (plist-get msg :role) "user")
+           collect (plist-get msg :content)))
+
 (defun gptel-augment-last-user-message (info)
   "Return the last user message found in a set of query messages."
   (car
    (last
-    (cl-loop for msg across (plist-get (plist-get info :data) :messages)
-             if (string= (plist-get msg :role) "user")
-             collect (plist-get msg :content)))))
+    (gptel-augment--get-user-messages
+     (plist-get info :backend)
+     (plist-get (plist-get info :data) :messages)))))
+
+(cl-defgeneric gptel-augment--append-system-message (_backend data message)
+  "Format a string message as a system message.
+The exact representation may different depending on the backend."
+  (gptel--inject-prompt _backend data
+                        (gptel-augment--create-system-message _backend message)))
 
 (defun gptel-augment-add-system-message (info message)
   "Add MESSAGE to the set of query messages."
-  (gptel--inject-prompt (plist-get info :backend)
-                        (plist-get info :data)
-                        `[(:role "system" :content ,message)]))
+  (gptel-augment--append-system-message
+   (plist-get info :backend)
+   (plist-get info :data)
+   message))
 
 (defun gptel-augment-install ()
   (setq gptel-request--transitions
