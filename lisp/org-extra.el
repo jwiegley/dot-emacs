@@ -436,15 +436,16 @@ the current headlines BLOCKER property."
     (let* ((blocker-prop "BLOCKER")
 	   (blocker-prop-existing (org-entry-get nil blocker-prop 'selective))
 	   (blocker-prop-base (or blocker-prop-existing "ids()"))
-	   (blocker-value (with-temp-buffer (insert blocker-prop-base)
-					    (backward-char)
-					    (when blocker-prop-existing
-					      (insert " "))
-					    (insert "id:" (car kill-ring))
-					    (buffer-string))))
-      (org-set-property blocker-prop blocker-value))))
-
-
+	   (blocker-value
+            (with-temp-buffer
+              (insert blocker-prop-base)
+	      (backward-char)
+	      (when blocker-prop-existing
+		(insert " "))
+	      (insert "id:" (car kill-ring))
+	      (buffer-string))))
+      (org-set-property blocker-prop blocker-value)
+      (message "Task is now blocked on %s" blocker-value))))
 
 ;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
 (defun org-extra-open-all-links-in-subtree ()

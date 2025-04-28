@@ -3299,6 +3299,18 @@ interactively compare and adopt the improved text.
   :commands gptel-proof)
 #+end_src
 
+*** llm-tool-collection
+
+#+begin_src emacs-lisp
+(use-package llm-tool-collection
+  :load-path "lisp/llm-tool-collection"
+  :config
+  (mapcar (apply-partially #'apply #'gptel-make-tool)
+          (llm-tool-collection-get-tag 'filesystem))
+  (mapcar (apply-partially #'apply #'gptel-make-tool)
+          (llm-tool-collection-get-tag 'editing)))
+#+end_src
+
 ** grep
 
 #+begin_src emacs-lisp
@@ -6682,7 +6694,6 @@ provides an alternative overlay-based display.
 
 #+begin_src emacs-lisp
 (use-package corfu
-  :load-path "lisp/corfu"
   :demand t
   :bind (("M-/" . completion-at-point)
          :map corfu-map
@@ -8773,23 +8784,30 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-novice-user nil)
   (gnus-parameters
    '(
-     ;; Fastmail spam: Spam -> TrainGood -> IsGood
-     ;; Fastmail spam: Spam -> TrainSpam -> InSpam
-     ;; SpamSieve spam: IsSpam -> TrainGood -> IsGood
-     ;; Fastmail good: INBOX -> TrainSpam -> IsSpam
-     ;; SpamSieve good: INBOX -> TrainSpam -> IsSpam
+     ;; Emacs     spam pos: Spam[unread] -> Spam[read] -> IsSpam
+     ;; Emacs     spam fls: Spam[unread] -> TrainGood -> IsGood
+     ;; Emacs     good fls: INBOX -> TrainSpam -> IsSpam
+     ;; Fastmail  spam pos: Spam[unread] -> Spam[read] -> IsSpam
+     ;; Fastmail  spam fls: Spam[unread] -> TrainGood -> IsGood
+     ;; SpamSieve spam fls: Spam[unread] -> INBOX
+     ;; Fastmail  good fls: INBOX -> TrainSpam -> IsSpam
+     ;; SpamSieve good fls: INBOX -> IsSpam
+     ;;
+     ;; The only reason to have both Spam and TrainSpam, is that the Remote
+     ;; Training script used with SpamSieve only consider read messages in
+     ;; Spam, but both read and unread messages in TrainSpam. Otherwise, all
+     ;; other details are the same.
      ("\\<Spam"
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
       (ham-process-destination . "TrainGood")
-      (spam-process-destination . "TrainSpam"))
+      (spam-contents gnus-group-spam-classification-spam))
      ("TrainSpam"
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
-      (ham-process-destination . "TrainGood")
-      (spam-contents gnus-group-spam-classification-spam))
+      (ham-process-destination . "TrainGood"))
      ("IsSpam"
       (total-expire . t)
       (expiry-wait . 31)
@@ -8799,18 +8817,18 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam")
-      (spam-contents gnus-group-spam-classification-ham))
-     ("\\(mail/\\|INBOX\\)"
-      (total-expire . t)
-      (expiry-wait . 90)
-      (expiry-target . "Archive")
-      (gcc-self . t)
-      (gnus-use-scoring nil)
-      (spam-process-destination . "TrainSpam"))
+      (ham-contents gnus-group-spam-classification-ham))
      ("IsGood"
       (total-expire . t)
       (expiry-wait . 1.1)
       (expiry-target . "INBOX")
+      (gcc-self . t)
+      (gnus-use-scoring nil)
+      (spam-process-destination . "TrainSpam"))
+     ("\\(mail/\\|INBOX\\)"
+      (total-expire . t)
+      (expiry-wait . 90)
+      (expiry-target . "Archive")
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
@@ -10486,7 +10504,8 @@ unfold drawers."
                         :directories (list org-directory))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
-        (org-ql-find (org-ql-find--buffers)))
+        (org-ql-find (org-ql-find--buffers)
+                     :query-prefix query-prefix))
        (t
         (org-ql-find (org-agenda-files)
                      :query-prefix query-prefix)))))
