@@ -40,7 +40,7 @@
 (defcustom gptel-dynamic-pre-augment-hook nil
   "Hook run before dynamically extending the context of a gptel request.
 
-This runs (possibly) before any request is submitted."
+This runs before any request is submitted."
   :type 'hook)
 
 (defcustom gptel-dynamic-post-augment-hook nil
