@@ -49,15 +49,15 @@ This runs before any request is submitted."
 This runs (possibly) before any request is submitted."
   :type 'hook)
 
-(defcustom gptel-augment-message-functions
+(defcustom gptel-augment-info-functions
   (list
-   #'(lambda (messages)
+   #'(lambda (info)
        (message "Being asked to augment last user message: %s"
-                (gptel-augment-last-user-message messages))
-       messages)
+                (gptel-augment-last-user-message info))
+       info)
    #'my-gptel-augment-with-current-temperature
-   #'(lambda (messages)
-       (ignore (message "Messages are now: %s" (pp-to-string messages)))))
+   #'(lambda (info)
+       (ignore (message "Messages are now: %s" (pp-to-string info)))))
   "List of handlers used to augment a query before sending it.
 
 Note that while this can certainly be set with a global value to
@@ -68,29 +68,29 @@ of using a certain agent."
 
 (defun gptel-augment--handle-augment (fsm)
   "Augment the request contained in state machine FSM's info."
-  (let* ((info (gptel-fsm-info fsm))
-         (data (plist-get info :data))
-         (messages (plist-get data :messages))
-         (modified
-          (cl-loop for fn in gptel-augment-message-functions
-                   for result = messages then (or (funcall fn result) result)
-                   finally (return result))))
-    (plist-put info :data (plist-put data :messages modified)))
+  (let* ((info (gptel-fsm-info fsm)))
+    (cl-loop for fn in gptel-augment-info-functions
+             for result = info then (or (funcall fn result) result)
+             finally (return result)))
   (run-hooks 'gptel-augment-pre-modify-hook)
   (gptel--fsm-transition fsm)
   (run-hooks 'gptel-augment-post-modify-hook)
   (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
     (gptel--update-status " Augmenting..." 'warning)))
 
-(defun gptel-augment-last-user-message (messages)
+(defun gptel-augment-last-user-message (info)
   "Return the last user message found in a set of query messages."
-  (car (last (cl-loop for msg across messages
-                      if (string= (plist-get msg :role) "user")
-                      collect (plist-get msg :content)))))
+  (car
+   (last
+    (cl-loop for msg across (plist-get (plist-get info :data) :messages)
+             if (string= (plist-get msg :role) "user")
+             collect (plist-get msg :content)))))
 
-(defun gptel-augment-add-system-message (messages message)
+(defun gptel-augment-add-system-message (info message)
   "Add MESSAGE to the set of query messages."
-  (vconcat messages `[(:role "system" :content ,message)]))
+  (gptel--inject-prompt (plist-get info :backend)
+                        (plist-get info :data)
+                        `[(:role "system" :content ,message)]))
 
 (defun gptel-augment-install ()
   (setq gptel-request--transitions
@@ -137,6 +137,6 @@ of using a certain agent."
        messages
        (let ((place (match-string 1 last-user)))
          (format "The current temperature in %s is %s"
-                 place (my-get-current-temperature place)))))))
+                 place (my-current-temperature place)))))))
 
 (provide 'gptel-augment)
