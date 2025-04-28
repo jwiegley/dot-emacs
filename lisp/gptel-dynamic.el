@@ -37,16 +37,25 @@
 
 (require 'gptel)
 
-(defcustom gptel-dynamic-post-extend-hook nil
+(defcustom gptel-dynamic-pre-augment-hook nil
+  "Hook run before dynamically extending the context of a gptel request.
+
+This runs (possibly) before any request is submitted."
+  :type 'hook)
+
+(defcustom gptel-dynamic-post-augment-hook nil
   "Hook run after dynamically extending the context of a gptel request.
 
 This runs (possibly) before any request is submitted."
   :type 'hook)
 
-(defun gptel-dynamic--handle-prep (fsm)
+(defun gptel-dynamic--handle-augment (fsm)
   "Augment the request contained in state machine FSM's info."
-  (let ((info (gptel-fsm-info fsm)))
-    (message "info: %s" info))
+  (let* ((info (gptel-fsm-info fsm))
+         (data (plist-get info :data))
+         (messages (plist-get data :messages)))
+    (message "messages = %s" messages))
+  (run-hooks 'gptel-dynamic-pre-extend-hook)
   (gptel--fsm-transition fsm)
   (run-hooks 'gptel-dynamic-post-extend-hook)
   (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
@@ -54,8 +63,8 @@ This runs (possibly) before any request is submitted."
 
 (defun gptel-dynamic-install ()
   (setq gptel-request--transitions
-        `((INIT . ((t                       . PREP)))
-          (PREP . ((t                       . WAIT)))
+        `((INIT . ((t                       . AUGMENT)))
+          (AUGMENT . ((t                       . WAIT)))
           (WAIT . ((t                       . TYPE)))
           (TYPE . ((,#'gptel--error-p       . ERRS)
                    (,#'gptel--tool-use-p    . TOOL)
@@ -64,8 +73,15 @@ This runs (possibly) before any request is submitted."
                    (,#'gptel--tool-result-p . WAIT)
                    (t                       . DONE))))
         gptel-request--handlers
-        `((PREP ,#'gptel-dynamic--handle-prep)
+        `((AUGMENT ,#'gptel-dynamic--handle-augment)
           (WAIT ,#'gptel--handle-wait)
-          (TOOL ,#'gptel--handle-tool-use))))
+          (TOOL ,#'gptel--handle-tool-use))
+        gptel-send--handlers
+        `((AUGMENT ,#'gptel-dynamic--handle-augment)
+          (WAIT ,#'gptel--handle-wait)
+          (TYPE ,#'gptel--handle-pre-insert)
+          (ERRS ,#'gptel--handle-error ,#'gptel--fsm-last)
+          (TOOL ,#'gptel--handle-tool-use)
+          (DONE ,#'gptel--handle-post-insert ,#'gptel--fsm-last))))
 
 (provide 'gptel-dynamic)
