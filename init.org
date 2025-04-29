@@ -8801,8 +8801,9 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
-      (ham-process-destination . "TrainGood"))
-     ("\\`Spam"
+      (ham-process-destination . "TrainGood")
+      (spam-process-destination . "TrainSpam"))
+     ("TrainSpam"
       (spam-contents gnus-group-spam-classification-spam))
      ("Good"
       (gcc-self . t)
