@@ -37,18 +37,6 @@
 
 (require 'gptel)
 
-(defcustom gptel-augment-pre-modify-hook nil
-  "Hook run before augmentally extending the context of a gptel request.
-
-This runs before any request is submitted."
-  :type 'hook)
-
-(defcustom gptel-augment-post-modify-hook nil
-  "Hook run after augmentally extending the context of a gptel request.
-
-This runs (possibly) before any request is submitted."
-  :type 'hook)
-
 (defcustom gptel-augment-info-functions
   (list
    #'(lambda (info)
@@ -65,18 +53,6 @@ be applied to all queries in all buffers, it meant to be set
 locally for a specific buffer, or chat topic, or only the context
 of using a certain agent."
   :type 'hook)
-
-(defun gptel-augment--handle-augment (fsm)
-  "Augment the request contained in state machine FSM's info."
-  (let* ((info (gptel-fsm-info fsm)))
-    (cl-loop for fn in gptel-augment-info-functions
-             for result = info then (or (funcall fn result) result)
-             finally (return result)))
-  (run-hooks 'gptel-augment-pre-modify-hook)
-  (gptel--fsm-transition fsm)
-  (run-hooks 'gptel-augment-post-modify-hook)
-  (with-current-buffer (plist-get (gptel-fsm-info fsm) :buffer)
-    (gptel--update-status " Augmenting..." 'warning)))
 
 (cl-defgeneric gptel-augment--get-user-messages (_backend messages)
   "Return a list of strings representing all user messages in INFO."
@@ -104,29 +80,6 @@ The exact representation may different depending on the backend."
    (plist-get info :backend)
    (plist-get info :data)
    message))
-
-(defun gptel-augment-install ()
-  (setq gptel-request--transitions
-        `((INIT    . ((t                       . AUGMENT)))
-          (AUGMENT . ((t                       . WAIT)))
-          (WAIT    . ((t                       . TYPE)))
-          (TYPE    . ((,#'gptel--error-p       . ERRS)
-                      (,#'gptel--tool-use-p    . TOOL)
-                      (t                       . DONE)))
-          (TOOL    . ((,#'gptel--error-p       . ERRS)
-                      (,#'gptel--tool-result-p . WAIT)
-                      (t                       . DONE))))
-        gptel-request--handlers
-        `((AUGMENT ,#'gptel-augment--handle-augment)
-          (WAIT    ,#'gptel--handle-wait)
-          (TOOL    ,#'gptel--handle-tool-use))
-        gptel-send--handlers
-        `((AUGMENT ,#'gptel-augment--handle-augment)
-          (WAIT    ,#'gptel--handle-wait)
-          (TYPE    ,#'gptel--handle-pre-insert)
-          (ERRS    ,#'gptel--handle-error ,#'gptel--fsm-last)
-          (TOOL    ,#'gptel--handle-tool-use)
-          (DONE    ,#'gptel--handle-post-insert ,#'gptel--fsm-last))))
 
 (defun my-current-temperature (place)
   (interactive "sLocation: ")
