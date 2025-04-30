@@ -45,16 +45,20 @@ This argument is accepted in one of two forms:
 2. It is a cons cell of the form (buffer . (overlay1 overlay2 ...))"
   (car entry))
 
-(defvar gptel-rag-content-limit 1 ;; 32768
+(defvar gptel-rag-content-limit 32768
   "Maximum size in bytes that can be used for file content.")
-
-(defvar gptel-rag-top-k 10)
 
 (defvar gptel-rag-client-exe "~/src/rag-client/result/bin/rag-client")
 
 (defvar gptel-rag-embed-model "BAAI/bge-large-en-v1.5")
 
-(defvar gptel-rag-cache-dir "~/.cache/rag-client")
+(defvar gptel-rag-embed-dim 1024)
+
+(defvar gptel-rag-chunk-size 512)
+
+(defvar gptel-rag-chunk-overlap 16)
+
+(defvar gptel-rag-top-k 10)
 
 (defun gptel-rag--collection-size (collection)
   (if (listp collection)
@@ -62,15 +66,6 @@ This argument is accepted in one of two forms:
                              (file-attribute-size (file-attributes entry)))
                          collection))
     0))
-
-(defun gptel-rag--collection-hash (collection)
-  (with-temp-buffer
-    (dolist (entry collection)
-      (insert (with-temp-buffer
-                (insert-file-contents-literally entry)
-                (secure-hash 'sha512 (current-buffer))))
-      (insert ?\n))
-    (secure-hash 'sha512 (current-buffer))))
 
 (defun gptel-rag--call-rag-client (callback fsm collection query)
   (with-temp-buffer
@@ -83,9 +78,9 @@ This argument is accepted in one of two forms:
             :command
             (list gptel-rag-client-exe
                   "--embed-model" gptel-rag-embed-model
-                  "--cache-dir" (expand-file-name
-                                 (gptel-rag--collection-hash collection)
-                                 gptel-rag-cache-dir)
+                  "--embed-dim" gptel-rag-embed-dim
+                  "--chunk-size" gptel-rag-chunk-size
+                  "--chunk-overlap" gptel-rag-chunk-overlap
                   "--top-k" (number-to-string gptel-rag-top-k)
                   "--query" query)
             :connection-type 'pipe
