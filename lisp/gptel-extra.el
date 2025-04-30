@@ -77,4 +77,9 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
 
 (push '(code-infill . gptel-extra-code-infill) gptel-directives)
 
+(defun gptel-extra-clear-buffer ()
+  (interactive)
+  (erase-buffer)
+  (insert "*** "))
+
 (provide 'gptel-extra)
