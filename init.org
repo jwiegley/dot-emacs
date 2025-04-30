@@ -2965,12 +2965,12 @@ up before you execute another command."
     (defconst gptel-curl--common-args
       '("--location"
         "--silent"
-        ;; "--compressed"
-        ;; "--max-time"
-        ;; "3600"
+        "--insecure"
+        "--compressed"
+        "--max-time" "3600"
         "-XPOST"
-        ;; "-y300"
-        ;; "-Y1"
+        "-y300"
+        "-Y1"
         "-D-")
       "Arguments always passed to Curl for gptel queries."))
 
@@ -3032,13 +3032,14 @@ up before you execute another command."
                 ))
 
     (gptel-make-openai "llama-swap"
-      :host "192.168.50.5:8080"
-      :protocol "http"
+      :host "192.168.50.5:8443"
+      :protocol "https"
       :stream t
       :models '(
                 3-Nemotron-Super-49B-v1
                 Athene-V2-Chat
                 Behemoth-123B-v2.2
+                bge-m3
                 c4ai-command-a-03-2025
                 c4ai-command-r-08-2024
                 Codestral-22B-v0.1
@@ -3057,16 +3058,10 @@ up before you execute another command."
                 Hermes-3-Llama-3.1-8B
                 Llama-4-Maverick-17B-128E-Instruct
                 Midnight-Miqu-103B-v1.5
-                miqu-1-120b
-                miquliz-120b-v2.0
-                MiquMaid-v2-2x70B
-                MiquMaid-v3-70B
                 Mistral-7B-Instruct-v0.3
                 Mistral-Large-Instruct-2407
                 Mistral-Nemo-Instruct-2407
                 Mixtral-8x22B-v0.1
-                Moist-Miqu-70B-v1.1
-                New-Dawn-Llama-3.1-70B-v1.1
                 OLMo-2-0325-32B-Instruct
                 OpenThinker2-32B
                 Orca-2-13B
@@ -3077,6 +3072,13 @@ up before you execute another command."
                 Qwen2.5-32B-Instruct
                 Qwen2.5-Coder-32B-Instruct
                 Qwen2.5.1-Coder-7B-Instruct
+                Qwen3-0.6B
+                Qwen3-1.7B
+                Qwen3-235B-A22B
+                Qwen3-30B-A3B
+                Qwen3-32B
+                Qwen3-4B
+                Qwen3-8B
                 Tess-3-Mistral-Large-2-123B
                 Tulu-3.1-8B-SuperNova
                 WizardCoder-Python-13B-V1.0

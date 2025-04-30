@@ -759,9 +759,9 @@ SCHEDULED: %t
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
-   ("wolo" "1-on-1 Linda Ortega Cordoves" plain
-    (file "~/org/template/kadena/one-on-one/linda-ortega-cordoves.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-linda-ortega-cordoves.org")
+   ("wolo" "1-on-1 Linda Ortega" plain
+    (file "~/org/template/kadena/one-on-one/linda-ortega.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-linda-ortega.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
