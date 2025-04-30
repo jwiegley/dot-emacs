@@ -1,4 +1,4 @@
-;;; gptel-rag --- Augment Contexts for GPTel
+;;; gptel-rag --- Augment Contexts for GPTel     -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 John Wiegley
 
@@ -72,25 +72,45 @@ This argument is accepted in one of two forms:
       (insert ?\n))
     (secure-hash 'sha512 (current-buffer))))
 
-(defun gptel-rag--call-rag-client (collection query)
+(defun gptel-rag--call-rag-client (callback fsm collection query)
   (with-temp-buffer
     (dolist (entry collection)
       (insert (expand-file-name entry) ?\n))
-    (call-process-region
-     (point-min) (point-max)
-     gptel-rag-client-exe
-     t t nil
-     "--embed-model" gptel-rag-embed-model
-     "--cache-dir" (expand-file-name
-                    (gptel-rag--collection-hash collection)
-                    gptel-rag-cache-dir)
-     "--top-k" (number-to-string gptel-rag-top-k)
-     "--query" query)
-    (goto-char (point-min))
-    (mapcar #'(lambda (result)
-                (cons (alist-get 'file_name (alist-get 'metadata result))
-                      (alist-get 'text result)))
-            (json-read))))
+    (let ((proc
+           (make-process
+            :name "*rag-client*"
+            :buffer "*rag-client-output*"
+            :command
+            (list gptel-rag-client-exe
+                  "--embed-model" gptel-rag-embed-model
+                  "--cache-dir" (expand-file-name
+                                 (gptel-rag--collection-hash collection)
+                                 gptel-rag-cache-dir)
+                  "--top-k" (number-to-string gptel-rag-top-k)
+                  "--query" query)
+            :connection-type 'pipe
+            :sentinel
+            #'(lambda (proc event)
+                (unless (process-live-p proc)
+                  (with-current-buffer (process-buffer proc)
+                    (goto-char (point-min))
+                    (funcall
+                     callback
+                     (mapcar
+                      #'(lambda (result)
+                          (cons (alist-get 'file_name
+                                           (alist-get 'metadata result))
+                                (alist-get 'text result)))
+                      (json-read)))))))))
+      (process-send-string proc (buffer-string))
+      (process-send-eof proc)
+      (setf (alist-get proc gptel--request-alist)
+            (cons fsm
+                  #'(lambda ()
+                      (set-process-sentinel proc #'ignore)
+                      (delete-process proc)
+                      (sleep-for 0 100)
+                      (kill-buffer (process-buffer proc))))))))
 
 (defun gptel-rag--get-user-messages (messages)
   "Return a list of strings representing all user messages in INFO."
@@ -110,31 +130,32 @@ This argument is accepted in one of two forms:
 The exact representation may different depending on the backend."
   (plist-put data :full-prompt
              (append (plist-get data :full-prompt)
-                     `((:role "system" :content ,message))))
-  (message "data is now: %s" (pp-to-string data)))
+                     `((:role "system" :content ,message)))))
 
 (defsubst gptel-rag-add-system-message (info message)
   "Add MESSAGE to the set of query messages."
   (gptel-rag--append-system-message (plist-get info :data) message))
 
-(defun gptel-rag (info)
-  (let ((paths (mapcar #'gptel-rag-to-file
-                       (plist-get (plist-get info :data) :collection))))
-    (when (> (gptel-rag--collection-size paths) gptel-rag-content-limit)
-      (plist-put (plist-get info :data) :collection nil)
-      (message "Indexing and querying document collection...")
-      (let ((nodes (gptel-rag--call-rag-client
-                    paths (gptel-rag-last-user-message info))))
-        (message "nodes = %s" nodes)
-        (dolist (node nodes)
-          (gptel-rag-add-system-message
-           info
-           (with-temp-buffer
-             (insert "In file `" (car node) "` (citation):\n\n```"
-                     (cdr node)
-                     "\n```\n")
-             (buffer-string)))))
-      info)))
+(defun gptel-rag (callback fsm)
+  (let* ((info (gptel-fsm-info fsm))
+         (paths (mapcar #'gptel-rag-to-file
+                        (plist-get (plist-get info :data) :collection))))
+    (if (> (gptel-rag--collection-size paths) gptel-rag-content-limit)
+        (progn
+          (plist-put (plist-get info :data) :collection nil)
+          (gptel-rag--call-rag-client
+           #'(lambda (nodes)
+               (dolist (node nodes)
+                 (gptel-rag-add-system-message
+                  info
+                  (with-temp-buffer
+                    (insert "In file `" (car node) "` (citation):\n\n```"
+                            (cdr node)
+                            "\n```\n")
+                    (buffer-string))))
+               (funcall callback info))
+           fsm paths (gptel-rag-last-user-message info)))
+      (funcall callback fsm))))
 
 (defun gptel-rag-install ()
   (add-hook 'gptel-rag-handler-functions #'gptel-rag))
