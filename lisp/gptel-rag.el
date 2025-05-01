@@ -71,6 +71,7 @@ This argument is accepted in one of two forms:
   (with-temp-buffer
     (dolist (entry collection)
       (insert (expand-file-name entry) ?\n))
+    (message "Indexing and querying document collection...")
     (let ((proc
            (make-process
             :name "*rag-client*"
