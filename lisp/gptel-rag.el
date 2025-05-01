@@ -37,18 +37,18 @@
 
 (require 'gptel)
 
-(defcustom gptel-rag-content-limit 32768
-  "Maximum size in bytes that can be used for file content."
-  :type 'integer)
-
 (defcustom gptel-rag-client-exe "rag-client"
   "Name or path of the rag-client executable."
   :type 'file)
 
-(defcustom gptel-rag-embed-model "BAAI/bge-large-en-v1.5"
+(defcustom gptel-rag-embed-model "HuggingFace:BAAI/bge-large-en-v1.5"
   "HuggingFace model to use for text embeddings.
 TODO: In future, allow models from different providers, such as OpenAI."
   :type 'string)
+
+(defcustom gptel-rag-content-limit 32768
+  "Maximum size in bytes that can be used for file content."
+  :type 'integer)
 
 (defcustom gptel-rag-embed-dim 1024
   "Vector dimensions used by `gptel-rag-embed-model'. Must match!"
