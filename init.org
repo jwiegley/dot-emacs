@@ -3229,7 +3229,19 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-extra
-  :after (gptel))
+  :after (gptel)
+  :bind
+  (:map gptel-mode-map
+        ("C-c C-t" . gptel-extra-clear-buffer)))
+#+end_src
+
+*** gptel-rag
+
+#+begin_src emacs-lisp
+(use-package gptel-rag
+  :after (gptel)
+  :config
+  (gptel-rag-install))
 #+end_src
 
 *** gptel-aibo
@@ -3263,13 +3275,14 @@ gptel’s partner, or the user’s.
   :preface
   (defun my-gptel-aibo-filter-response (orig-func response info)
     (let ((fixed-response
-           (with-temp-buffer
-             (insert response)
-             (goto-char (point-min))
-             (while (re-search-forward
-                     "\\*\\(\\*\\(SEARCH\\|REPLACE\\)\\*\\)\\*" nil t)
-               (replace-match (match-string 1)))
-             (buffer-string))))
+           (and response
+                (with-temp-buffer
+                  (insert response)
+                  (goto-char (point-min))
+                  (while (re-search-forward
+                          "\\*\\(\\*\\(SEARCH\\|REPLACE\\)\\*\\)\\*" nil t)
+                    (replace-match (match-string 1)))
+                  (buffer-string)))))
       (funcall orig-func fixed-response info)))
   :config
   (require 'aibo-hack)
@@ -9297,7 +9310,7 @@ is:
   (message-mode . jinx-mode)
   (message-mode . turn-on-auto-fill)
   (message-send . queue-message-if-not-connected)
-  (message-send . (lambda () (ignore-errors (call-interactively #'jinx-correct))))
+  (message-send . (lambda () (ignore-errors (jinx-correct 4))))
   (message-sent . gnus-score-followup-thread)
   (message-sent . my-gnus-score-followup)
   :custom
