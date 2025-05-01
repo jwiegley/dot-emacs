@@ -37,14 +37,6 @@
 
 (require 'gptel)
 
-(defun gptel-rag-to-file (entry)
-  "Convert ENTRY to a file pathname.
-This argument is accepted in one of two forms:
-
-1. It is a singleton list of the form (filename)
-2. It is a cons cell of the form (buffer . (overlay1 overlay2 ...))"
-  (car entry))
-
 (defcustom gptel-rag-content-limit 32768
   "Maximum size in bytes that can be used for file content."
   :type 'integer)
@@ -73,6 +65,14 @@ TODO: In future, allow models from different providers, such as OpenAI."
 (defcustom gptel-rag-top-k 10
   "Return the top K document nodes when querying a collection."
   :type 'integer)
+
+(defun gptel-rag-to-file (entry)
+  "Convert ENTRY to a file pathname.
+This argument is accepted in one of two forms:
+
+1. It is a singleton list of the form (filename)
+2. It is a cons cell of the form (buffer . (overlay1 overlay2 ...))"
+  (car entry))
 
 (defun gptel-rag--collection-size (collection)
   (if (listp collection)
