@@ -97,6 +97,7 @@ This argument is accepted in one of two forms:
                   "--chunk-size" gptel-rag-chunk-size
                   "--chunk-overlap" gptel-rag-chunk-overlap
                   "--top-k" (number-to-string gptel-rag-top-k)
+                  "--read-files"
                   "--query" query)
             :connection-type 'pipe
             :sentinel
