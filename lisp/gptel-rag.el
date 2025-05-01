@@ -45,20 +45,34 @@ This argument is accepted in one of two forms:
 2. It is a cons cell of the form (buffer . (overlay1 overlay2 ...))"
   (car entry))
 
-(defvar gptel-rag-content-limit 32768
-  "Maximum size in bytes that can be used for file content.")
+(defcustom gptel-rag-content-limit 32768
+  "Maximum size in bytes that can be used for file content."
+  :type 'integer)
 
-(defvar gptel-rag-client-exe "~/src/rag-client/result/bin/rag-client")
+(defcustom gptel-rag-client-exe "rag-client"
+  "Name or path of the rag-client executable."
+  :type 'file)
 
-(defvar gptel-rag-embed-model "BAAI/bge-large-en-v1.5")
+(defcustom gptel-rag-embed-model "BAAI/bge-large-en-v1.5"
+  "HuggingFace model to use for text embeddings.
+TODO: In future, allow models from different providers, such as OpenAI."
+  :type 'string)
 
-(defvar gptel-rag-embed-dim 1024)
+(defcustom gptel-rag-embed-dim 1024
+  "Vector dimensions used by `gptel-rag-embed-model'. Must match!"
+  :type 'integer)
 
-(defvar gptel-rag-chunk-size 512)
+(defcustom gptel-rag-chunk-size 512
+  "Size of textual chunks when splitting documents."
+  :type 'integer)
 
-(defvar gptel-rag-chunk-overlap 16)
+(defcustom gptel-rag-chunk-overlap 16
+  "Amount of overlap between chunks when splitting documents."
+  :type 'integer)
 
-(defvar gptel-rag-top-k 10)
+(defcustom gptel-rag-top-k 10
+  "Return the top K document nodes when querying a collection."
+  :type 'integer)
 
 (defun gptel-rag--collection-size (collection)
   (if (listp collection)
@@ -77,7 +91,7 @@ This argument is accepted in one of two forms:
             :name "*rag-client*"
             :buffer "*rag-client-output*"
             :command
-            (list gptel-rag-client-exe
+            (list (executable-find gptel-rag-client-exe)
                   "--embed-model" gptel-rag-embed-model
                   "--embed-dim" gptel-rag-embed-dim
                   "--chunk-size" gptel-rag-chunk-size
