@@ -98,7 +98,7 @@ This argument is accepted in one of two forms:
                   "--chunk-overlap" gptel-rag-chunk-overlap
                   "--top-k" (number-to-string gptel-rag-top-k)
                   "--read-files"
-                  "--query" query)
+                  "--search" query)
             :connection-type 'pipe
             :sentinel
             #'(lambda (proc event)
