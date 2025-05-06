@@ -2793,6 +2793,8 @@ up before you execute another command."
              format-all-mode)
   :hook
   (prog-mode . enable-format-all-if-indicated)
+  :custom
+  (format-all-formatters '(("Python" black)))
   :preface
   (defun enable-format-all-if-indicated ()
     (interactive)
@@ -3032,8 +3034,8 @@ up before you execute another command."
                 ))
 
     (gptel-make-openai "llama-swap"
-      :host "192.168.50.5:8443"
-      :protocol "https"
+      :host "192.168.50.5:8080"
+      :protocol "http"
       :stream t
       :models '(
                 3-Nemotron-Super-49B-v1
@@ -7463,6 +7465,10 @@ without white space and comments.
   :config
   (setq read-process-output-max (* 1024 1024))
 
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode) .
+                 ("basedpyright-langserver" "--stdio")))
+
   (add-hook 'eglot-managed-mode-hook
             #'(lambda ()
                 ;; Show flymake diagnostics first.
@@ -8437,9 +8443,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package python-mode
   :mode "\\.py\\'"
   :interpreter "python"
-  :bind (:map python-mode-map
-              ("C-c c")
-              ("C-c C-z" . python-shell))
+  :bind (:map
+         python-mode-map
+         ("C-c c")
+         ("C-c C-z" . run-python)
+
+         ("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error))
   :preface
   (defvar python-mode-initialized nil)
 
@@ -8464,7 +8474,10 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indent-tabs-mode nil))
   :config
-  (add-hook 'python-mode-hook #'my-python-mode-hook))
+  (add-hook 'python-mode-hook #'my-python-mode-hook)
+
+  (bind-key "M-n" #'flymake-goto-next-error 'python-mode-map)
+  (bind-key "M-p" #'flymake-goto-prev-error 'python-mode-map))
 #+end_src
 
 *** riscv-mode

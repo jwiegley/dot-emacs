@@ -553,6 +553,14 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
+   ("wS" "Ops <> Engineering" plain
+    (file "~/org/template/kadena/meetings/ops-engineering.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-ops-engineering.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("wC" "Work Conference" plain
     (file "~/org/template/kadena/conference.org")
     :target (file "conference/%<%Y%m%d%H%M>-conference.org")
