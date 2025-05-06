@@ -41,8 +41,13 @@
   "Name or path of the rag-client executable."
   :type 'file)
 
-(defcustom gptel-rag-embed-model "HuggingFace:BAAI/bge-large-en-v1.5"
-  "HuggingFace model to use for text embeddings.
+(defcustom gptel-rag-embed-provider "HuggingFace"
+  "Provider to use for text embeddings.
+TODO: In future, allow models from different providers, such as OpenAI."
+  :type 'string)
+
+(defcustom gptel-rag-embed-model "BAAI/bge-large-en-v1.5"
+  "Model to use for text embeddings.
 TODO: In future, allow models from different providers, such as OpenAI."
   :type 'string)
 
@@ -97,8 +102,8 @@ This argument is accepted in one of two forms:
                   "--chunk-size" gptel-rag-chunk-size
                   "--chunk-overlap" gptel-rag-chunk-overlap
                   "--top-k" (number-to-string gptel-rag-top-k)
-                  "--read-files"
-                  "--search" query)
+                  "--from" "-"
+                  "search" query)
             :connection-type 'pipe
             :sentinel
             #'(lambda (proc event)
