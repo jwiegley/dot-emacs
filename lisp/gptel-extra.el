@@ -80,6 +80,6 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
 (defun gptel-extra-clear-buffer ()
   (interactive)
   (erase-buffer)
-  (insert "*** "))
+  (insert "* "))
 
 (provide 'gptel-extra)

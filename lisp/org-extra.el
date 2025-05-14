@@ -296,6 +296,17 @@ text will be moved into an OFFSET property."
       (org-todo "TODO")))
   (run-hooks 'org-capture-before-finalize-hook))
 
+(defun org-extra-switch-todo-link (&optional arg)
+  "Switch a LINK to a TODO with a LINK tag, and vice-versa."
+  (interactive "P")
+  (let ((org-inhibit-logging t))
+    (if (member "LINK" (org-get-tags))
+        (progn
+          (org-set-tags (delete "LINK" (org-get-tags)))
+          (org-todo "LINK"))
+      (org-todo "TODO")
+      (org-set-tags (delete-dups (cons "LINK" (org-get-tags)))))))
+
 (defun org-extra-todoize-region (&optional beg end arg)
   "Add standard metadata to headlines in region.
 See `org-extra-todoize'."
@@ -518,7 +529,9 @@ resulting table on that column, ascending."
          (table
           (org-ql-select
             'org-agenda-files
-            (read (plist-get params :query))
+            `(and ,(read (plist-get params :query))
+                  (not (or (org-extra-project-p)
+                           (org-extra-category-p))))
             :action `(org-extra-get-properties ,@columns)
             :sort
             #'(lambda (x y)

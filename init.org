@@ -1616,12 +1616,9 @@ diff-hl package.
       (split-window-horizontally)
       (if arg
           (dired here)
-        (dired "~/Inbox")
-        ;; (dired "~/Desktop")
-        ;; (revert-buffer)
-        ;; (split-window-vertically)
-        ;; (dired "~/Inbox")
-        )
+        (dired "~/Desktop")
+        (split-window-vertically)
+        (dired "~/Inbox"))
       (revert-buffer)))
 
   (defun dired-next-window ()
@@ -2794,7 +2791,7 @@ up before you execute another command."
   :hook
   (prog-mode . enable-format-all-if-indicated)
   :custom
-  (format-all-formatters '(("Python" black)))
+  (format-all-formatters '(("Python" (black "--line-length" "79"))))
   :preface
   (defun enable-format-all-if-indicated ()
     (interactive)
@@ -2925,15 +2922,21 @@ up before you execute another command."
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model 'gpt-4o)
+  (gptel-model 'gpt-4.1)
   (gptel-log-level nil)
   (gptel-include-reasoning "*Reasoning*")
   (gptel-use-tools nil)
+  (gptel-stream nil)
+  (gptel-use-header-line t)
+  (gptel-prompt-prefix-alist
+   '((markdown-mode . "# ")
+     (org-mode . "* ")
+     (text-mode . "# ")))
   :preface
   (defun my-gptel-read-prompts (dir)
     (cl-loop
-     for file in (directory-files dir t "\\.txt\\'")
-     if (string-match "/\\([^/]+?\\)\\.txt\\'" file)
+     for file in (directory-files dir t "\\.\\(txt\\|md\\|org\\)\\'")
+     if (string-match "/\\([^/]+?\\)\\.\\(txt\\|md\\|org\\)\\'" file)
      collect (cons (intern (match-string 1 file))
                    (with-temp-buffer
                      (insert-file-contents file)
@@ -2943,8 +2946,34 @@ up before you execute another command."
     (interactive)
     (setq gptel-directives
           (my-gptel-read-prompts "~/.emacs.d/prompts")))
+
+  (defun my/apply-gptel-preset (_fsm)
+    (if (= (point)
+           (progn (gptel-beginning-of-response) (point)))
+        (goto-char (point-min))
+      (gptel-end-of-response))
+    (when-let* (((looking-at "[[:blank:]\n]*@\\([[:word:]]+\\)[[:punct:]]*\\s-+"))
+                (name (match-string 1))
+                (preset (or (gptel-get-preset (intern name))
+                            (gptel-get-preset name))))
+      (delete-region (match-beginning 0) (match-end 0))
+      (gptel--apply-preset (cons name preset)
+                           (lambda (sym val)
+                             (set (make-local-variable sym) val)))
+      (message "Request sent with preset %s applied!"
+               (propertize name 'face 'highlight))))
   :config
   (setq gptel-expert-commands t)
+
+  (gptel-make-preset 'gpt4coding
+    :description "A preset optimized for coding tasks"
+    :backend "ChatGPT"                    ;backend or backend name
+    :model 'gpt-4.1
+    :system "You are an expert coding assistant. Your role is to provide high-quality code solutions, refactorings, and explanations."
+    ;; :tools '("read_buffer" "modify_buffer")
+    )
+
+  (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
 
   ;; (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
 
@@ -2969,10 +2998,10 @@ up before you execute another command."
         "--silent"
         "--insecure"
         "--compressed"
-        "--max-time" "3600"
+        "--speed-limit" "1"
+        "--speed-time" "7200"
+        "--max-time" "7200"
         "-XPOST"
-        "-y300"
-        "-Y1"
         "-D-")
       "Arguments always passed to Curl for gptel queries."))
 
@@ -2985,7 +3014,7 @@ up before you execute another command."
     (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
       :stream t
-      :models '(gpt-4o o1 gpt-4.5-preview))
+      :models '(gpt-4.1 gpt-4o o1 gpt-4.5-preview))
 
     (gptel-make-openai "Groq"               ;Any name you want
       :host "api.groq.com"
@@ -3023,6 +3052,14 @@ up before you execute another command."
     ;;             qwq-32b
     ;;             ))
 
+    (gptel-make-openai "rag-client"
+      :host "127.0.0.1:8000"
+      :protocol "http"
+      :stream t
+      :models '(
+                your-custom-model
+                ))
+
     (gptel-make-openai "llama-cpp"
       :host "127.0.0.1:8080"
       :protocol "http"
@@ -3041,7 +3078,6 @@ up before you execute another command."
                 3-Nemotron-Super-49B-v1
                 Athene-V2-Chat
                 Behemoth-123B-v2.2
-                bge-m3
                 c4ai-command-a-03-2025
                 c4ai-command-r-08-2024
                 Codestral-22B-v0.1
@@ -3050,15 +3086,17 @@ up before you execute another command."
                 DeepSeek-Coder-V2-Instruct
                 DeepSeek-R1
                 DeepSeek-R1-Distill-Llama-70B
-                DeepSeek-R1-Distill-Qwen-32B-Uncensored
                 DeepSeek-V3-0324
                 Dolphin3.0-R1-Mistral-24B
                 dolphincoder-starcoder2-15b
+                Falcon3-10B-Instruct
                 gemma-3-27b-it
                 Hermes-3-Llama-3.1-405B
                 Hermes-3-Llama-3.1-70B
                 Hermes-3-Llama-3.1-8B
-                Llama-4-Maverick-17B-128E-Instruct
+                (Llama-4-Maverick-17B-128E-Instruct
+                 :context-window 128)
+                Llama-4-Scout-17B-16E-Instruct
                 Midnight-Miqu-103B-v1.5
                 Mistral-7B-Instruct-v0.3
                 Mistral-Large-Instruct-2407
@@ -3068,12 +3106,8 @@ up before you execute another command."
                 OpenThinker2-32B
                 Orca-2-13B
                 phi-4
-                Qwen2-Math-72B-Instruct
-                Qwen2-Math-7B-Instruct
+                Phi-4-reasoning-plus
                 Qwen2.5-14B-DeepSeek-R1-1M
-                Qwen2.5-32B-Instruct
-                Qwen2.5-Coder-32B-Instruct
-                Qwen2.5.1-Coder-7B-Instruct
                 Qwen3-0.6B
                 Qwen3-1.7B
                 Qwen3-235B-A22B
@@ -3081,6 +3115,7 @@ up before you execute another command."
                 Qwen3-32B
                 Qwen3-4B
                 Qwen3-8B
+                QwQ-32B
                 Tess-3-Mistral-Large-2-123B
                 Tulu-3.1-8B-SuperNova
                 WizardCoder-Python-13B-V1.0
@@ -3184,7 +3219,7 @@ up before you execute another command."
       (save-excursion
         (goto-char (point-min))
         (when (eolp)
-          (insert "*** ")
+          (insert "* ")
           (setq inserted t)
           ))
       (when inserted
@@ -7920,11 +7955,16 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package haskell-eglot
   :no-require t
   :demand t
-  :after (haskell-mode eglot)
-  :bind (:map haskell-mode-map
-              ("M-n" . flymake-goto-next-error)
-              ("M-p" . flymake-goto-prev-error))
+  :after (eglot)
   :config
+  (dolist (where '((python-mode-hook   . python-mode-map)
+                   (elpy-mode-hook     . elpy-mode-map)
+                   (haskell-mode-hook  . haskel-mode-map)))
+    (add-hook (car where)
+              `(lambda ()
+                 (bind-key "M-n" #'flymake-goto-next-error ,(cdr where))
+                 (bind-key "M-p" #'flymake-goto-prev-error ,(cdr where)))))
+
   (add-to-list 'eglot-server-programs
                '(haskell-mode . ("haskell-language-server" "--lsp")))
 
@@ -8446,14 +8486,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :bind (:map
          python-mode-map
          ("C-c c")
-         ("C-c C-z" . run-python)
-
-         ("M-n" . flymake-goto-next-error)
-         ("M-p" . flymake-goto-prev-error))
+         ("C-c C-z" . run-python))
   :preface
   (defvar python-mode-initialized nil)
 
   (defun my-python-mode-hook ()
+    (interactive)
     (unless python-mode-initialized
       (setq python-mode-initialized t)
 
@@ -8474,10 +8512,19 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (set (make-local-variable 'parens-require-spaces) nil)
     (setq indent-tabs-mode nil))
   :config
-  (add-hook 'python-mode-hook #'my-python-mode-hook)
+  (add-hook 'python-mode-hook #'my-python-mode-hook))
+#+end_src
 
-  (bind-key "M-n" #'flymake-goto-next-error 'python-mode-map)
-  (bind-key "M-p" #'flymake-goto-prev-error 'python-mode-map))
+*** elpy
+
+#+begin_src emacs-lisp
+(use-package elpy
+  :after (python-mode)
+  :demand t
+  :custom
+  (elpy-test-runner 'elpy-test-pytest-runner)
+  :config
+  (elpy-enable))
 #+end_src
 
 *** riscv-mode
@@ -10520,8 +10567,7 @@ unfold drawers."
                         :directories (list org-directory))
                        :query-prefix query-prefix)))
        ((eq major-mode 'org-mode)
-        (org-ql-find (org-ql-find--buffers)
-                     :query-prefix query-prefix))
+        (org-ql-find (org-ql-find--buffers)))
        (t
         (org-ql-find (org-agenda-files)
                      :query-prefix query-prefix)))))
@@ -10563,7 +10609,8 @@ unfold drawers."
     (require 'vertico-multiform))
   (add-all-to-list 'vertico-multiform-commands
                    '(org-ql-find)
-                   '(my/org-ql-find-refile-targets))
+                   '(my/org-ql-find-refile-targets)
+                   '(org-refile))
 
   (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
 #+end_src
@@ -10583,6 +10630,7 @@ unfold drawers."
          ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
          ("C-c C-x D"   . org-extra-update-date-field)
          ("C-c C-x u"   . org-extra-todoize)
+         ("C-c C-x C-t" . org-extra-switch-todo-link)
          ("C-c C-x C-u" . org-extra-todoize-region)
          ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
          ("s-n"         . org-extra-edit-link-name)
