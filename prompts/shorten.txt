@@ -1,0 +1,39 @@
+Given a list of tasks, shorten the title so that it is no longer than 67 characters long. You can move the overflow into the body of the task. Here is an example input task:
+
+*** TASK Schedule a meeting with Issa, Linda, and John to discuss Issa's team placement and frame the conversation positively, focusing on what excites Issa within engineering  :Linda:
+:PROPERTIES:
+:OFFSET:   01:59
+:LAST_REVIEW: [2025-05-05 Mon]
+:NEXT_REVIEW: [2025-05-05 Mon]
+:REVIEWS:  1
+:ID:       68753CB1-B20F-4D9E-953D-647EADD4E06D
+:CREATED:  [2025-05-05 Mon 20:39]
+:END:
+
+And here is what the contraction would look like:
+
+*** TASK Schedule meeting to discuss Issa's team placement                                :Linda:
+:PROPERTIES:
+:OFFSET:   01:59
+:LAST_REVIEW: [2025-05-05 Mon]
+:NEXT_REVIEW: [2025-05-05 Mon]
+:REVIEWS:  1
+:ID:       68753CB1-B20F-4D9E-953D-647EADD4E06D
+:CREATED:  [2025-05-05 Mon 20:39]
+:END:
+Schedule a meeting with Issa, Linda, and John to discuss Issa's team placement
+and frame the conversation positively, focusing on what excites Issa within
+engineering.
+
+Here are some rules you MUST follow:
+- Copy the original title into the body of the task
+- Replace the title with a summary that reflects the task well enough that it remains actionable
+- Remove all filler words, like “the”, “a”, “an”, etc.
+- Retain metadata and any other content already in the body of the task.
+- Do not include a final newline at the end of the task body, after inserting
+the original title.
+- Maintain the same list of tags to the right of the title, that look like
+":Linda:". Do not add or remove these tags.
+- Never place the word :PROPERTIES: on the same line as the title.
+
+The user will provide the list of tasks to modify.

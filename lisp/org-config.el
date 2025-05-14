@@ -593,6 +593,14 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
+   ("wM" "Eng Managers" plain
+    (file "~/org/template/kadena/meetings/eng-managers.org")
+    :target (file "meeting/%<%Y%m%d%H%M>-eng-managers.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ("we" "EVM Posse" plain
     (file "~/org/template/kadena/meetings/evm-posse.org")
     :target (file "meeting/%<%Y%m%d%H%M>-evm-posse.org")
@@ -855,9 +863,21 @@ SCHEDULED: %t
 
    ("l" "Links" todo "LINK")
 
-   ("c" "Colors" todo "TODO"
-    ((org-agenda-files
-      (list (org-file "colors.org")))))
+   (":" "With tags match"
+    (lambda (arg)
+      (call-interactively #'org-config-with-tags-search nil)))
+
+   ("c" "With category"
+    (lambda (arg)
+      (call-interactively #'org-config-with-category-search nil)))
+
+   ("k" "With keyword"
+    (lambda (arg)
+      (call-interactively #'org-config-with-keyword-search nil)))
+
+   ("i" "With item"
+    (lambda (arg)
+      (call-interactively #'org-config-with-item-search nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1018,27 +1038,11 @@ SCHEDULED: %t
       '(org-config-agenda-skip-entry-if
         (not (org-extra-subtask-p))))))
 
-   ("rL" "Tasks with long headlines" alltodo ""
+   ("rl" "Tasks with long headlines" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
-        (<= (length (org-get-heading t)) 72)))))
-
-   ("rm" "With tags match"
-    (lambda (arg)
-      (call-interactively #'org-config-with-tags-search nil)))
-
-   ("rc" "With category"
-    (lambda (arg)
-      (call-interactively #'org-config-with-category-search nil)))
-
-   ("rk" "With keyword"
-    (lambda (arg)
-      (call-interactively #'org-config-with-keyword-search nil)))
-
-   ("rt" "With item"
-    (lambda (arg)
-      (call-interactively #'org-config-with-item-search nil)))
-   ))
+        (<= (length (replace-regexp-in-string "\\[\\[.+?\\]\\[\\(.+?\\)\\]\\]"
+                                              "\\1" (org-get-heading t))) 72)))))))
 
 (defun org-config-find (query)
   (interactive "sQuery: ")
