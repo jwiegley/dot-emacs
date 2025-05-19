@@ -156,6 +156,8 @@ The exact representation may different depending on the backend."
   (let* ((info (gptel-fsm-info fsm))
          (paths (mapcar #'gptel-rag-to-file
                         (plist-get (plist-get info :data) :collection))))
+    ;; jww (2025-05-16): Instead of passing a :collection keyword in the info
+    ;; plist, I could just call `gptel-context--collect' here.
     (if (> (gptel-rag--collection-size paths) gptel-rag-content-limit)
         (progn
           (plist-put (plist-get info :data) :collection nil)

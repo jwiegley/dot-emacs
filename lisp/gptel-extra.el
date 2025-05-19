@@ -73,13 +73,17 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
                (buffer-substring-no-properties
                 (point-min)
                 (if (use-region-p) (min (point) (region-beginning)) (point))))
-      ,@(when (use-region-p) "What should I insert at the cursor?"))))
-
-(push '(code-infill . gptel-extra-code-infill) gptel-directives)
+      ,(if (use-region-p) "What should I insert at the cursor?"))))
 
 (defun gptel-extra-clear-buffer ()
   (interactive)
-  (erase-buffer)
-  (insert "* "))
+  (if nil
+      (progn
+        (erase-buffer)
+        (insert "*Prompt*: "))
+    (org-shifttab 0)
+    (goto-char (point-max))
+    (org-insert-heading)
+    (insert "Next topic\n\n*Prompt*: ")))
 
 (provide 'gptel-extra)
