@@ -71,30 +71,34 @@ to be represented as directives differently:
 
 (defun gptel-prompts-process-file (file)
   (cond ((string-match "\\.el\\'" file)
-         (goto-char (point-min))
-         (read (current-buffer)))
+         (with-temp-buffer
+           (insert-file-contents file)
+           (goto-char (point-min))
+           (let ((lst (read (current-buffer))))
+             (if (listp lst)
+                 lst
+               (error "Emacs Lisp prompts must evaluate to a list")))))
         ((string-match "\\.j\\(inja\\)?2?\\'" file)
-         (require 'templatel)
-         (let ((str (buffer-string)))
-           (delete-region (point-min) (point-max))
-           (insert (templatel-render-string
-                    str gptel-prompts-template-variables))
-           (string-trim (buffer-string))))
-        (t 
-         (string-trim (buffer-string)))))
+         `(lambda ()
+            (require 'templatel)
+            (with-temp-buffer
+              (insert-file-contents ,file)
+              (let ((str (buffer-string)))
+                (delete-region (point-min) (point-max))
+                (insert (templatel-render-string
+                         str gptel-prompts-template-variables))
+                (string-trim (buffer-string))))))
+        (t
+         (with-temp-buffer
+           (insert-file-contents file)
+           (string-trim (buffer-string))))))
 
 (defun gptel-prompts-read-directory (dir)
   "Read prompts from directory DIR and establish them in `gptel-directives'."
   (cl-loop for file in (directory-files dir t gptel-prompts-file-regexp)
            collect (cons (intern (file-name-sans-extension
                                   (file-name-nondirectory file)))
-                         (with-temp-buffer
-                           (insert-file-contents file)
-                           (if (string-match "\\.el\\'" file)
-                               (progn
-                                 (goto-char (point-min))
-                                 (read (current-buffer)))
-                             (string-trim (buffer-string)))))))
+                         (gptel-prompts-process-file file))))
 
 (defun gptel-prompts-update ()
   "Update `gptel-directives' from files in `gptel-prompts-directory'."
