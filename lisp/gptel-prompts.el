@@ -81,13 +81,22 @@ to be represented as directives differently:
         ((string-match "\\.j\\(inja\\)?2?\\'" file)
          `(lambda ()
             (require 'templatel)
+            (require 'yaml)
             (with-temp-buffer
               (insert-file-contents ,file)
               (let ((str (buffer-string)))
                 (delete-region (point-min) (point-max))
-                (insert (templatel-render-string
-                         str gptel-prompts-template-variables))
-                (string-trim (buffer-string))))))
+                (insert (mapcar #'yaml--hash-table-to-alist
+                                (yaml-parse-string
+                                 (templatel-render-string
+                                  str gptel-prompts-template-variables))))
+                (goto-char (point-min))
+                ;; jww (2025-05-19): Need to rewrite list to gptel's expected
+                ;; format
+                (let ((lst (read (current-buffer))))
+                  (if (listp lst)
+                      lst
+                    (error "Emacs Lisp prompts must evaluate to a list")))))))
         (t
          (with-temp-buffer
            (insert-file-contents file)
