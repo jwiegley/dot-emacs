@@ -50,7 +50,7 @@ to be represented as directives differently:
   :group 'gptel-prompts)
 
 (defcustom gptel-prompts-file-regexp
-  "\\.\\(txt\\|md\\|org\\|el\\|j\\(inja\\)?2?\\)\\'"
+  "\\.\\(txt\\|md\\|org\\|el\\|j\\(inja\\)?2?\\|poet\\)\\'"
   "*Directory where GPTel prompts are defined, one per file.
 
 Note that files can be of different types, which will cause them
@@ -59,8 +59,7 @@ to be represented as directives differently:
   .txt, .md, .org    Purely textual prompts that are used as-is
   .el                Must be a Lisp list represent a conversation:
                        SYSTEM, USER, ASSISTANT, [USER, ASSISTANT, ...]
-  .jinja, .jinja2    A Jinja template supporting Emacs Lisp sexps
-                       (note this requires templatel be installed)"
+  .poet              See https://github.com/character-ai/prompt-poet"
   :type 'regexp
   :group 'gptel-prompts)
 
@@ -68,6 +67,53 @@ to be represented as directives differently:
   "*A list of names to strings used during template expansion."
   :type '(alist :key-type symbol :value-type string)
   :group 'gptel-prompts)
+
+(defun gptel-prompts-process-poet (prompts)
+  "Convert from a list of PROMPTS in Poet format, to GPTel.
+
+For example:
+
+  (((role . \"system\")
+    (content . \"Sample\")
+    (name . \"system instructions\"))
+   ((role . \"system\")
+    (content . \"Sample\")
+    (name . \"further system instructions\"))
+   ((role . \"user\")
+    (content . \"Sample\")
+    (name . \"User message\"))
+   ((role . \"assistant\")
+    (content . \"Sample\")
+    (name . \"Model response\"))
+   ((role . \"user\")
+    (content . \"Sample\")
+    (name . \"Second user message\")))
+
+Becomes:
+
+   (\"system instructions\nfurther system instructions\"
+    (prompt \"User message\")
+    (response \"Model response\")
+    (prompt \"Second user message\"))"
+  (let ((system "") result)
+    (dolist (prompt prompts)
+      (let ((content (alist-get 'content prompt))
+            (role (alist-get 'role prompt)))
+        (cond
+         ((string= role "system")
+          (setq system (if (string-empty-p system)
+                           content
+                         (concat "\n" content))))
+         ((string= role "user")
+          (setq result (cons (list 'prompt content) result)))
+         ((string= role "assistant")
+          (setq result (cons (list 'response content) result)))
+         ((string= role "tool")
+          (error "Tools not yet supported in Poet prompts"))
+         (otherwise
+          (error "Role not recognized in prompt: %s"
+                 (pp-to-string prompt))))))
+    (cons system (nreverse result))))
 
 (defun gptel-prompts-process-file (file)
   (cond ((string-match "\\.el\\'" file)
@@ -78,7 +124,8 @@ to be represented as directives differently:
              (if (listp lst)
                  lst
                (error "Emacs Lisp prompts must evaluate to a list")))))
-        ((string-match "\\.j\\(inja\\)?2?\\'" file)
+        ;; jww (2025-05-19): Support .json files directly
+        ((string-match "\\.\\(j\\(inja\\)?2?\\|poet\\)\\'" file)
          `(lambda ()
             (require 'templatel)
             (require 'yaml)
@@ -91,12 +138,10 @@ to be represented as directives differently:
                                  (templatel-render-string
                                   str gptel-prompts-template-variables))))
                 (goto-char (point-min))
-                ;; jww (2025-05-19): Need to rewrite list to gptel's expected
-                ;; format
                 (let ((lst (read (current-buffer))))
                   (if (listp lst)
-                      lst
-                    (error "Emacs Lisp prompts must evaluate to a list")))))))
+                      (gptel-prompts-process-file lst)
+                    (error "Poet prompts must evaluate to a list")))))))
         (t
          (with-temp-buffer
            (insert-file-contents file)
