@@ -58,3 +58,6 @@
 [submodule "lisp/vulpea"]
 	path = lisp/vulpea
 	url = git@github.com:jwiegley/vulpea.git
+[submodule "lisp/gptel-prompts"]
+	path = lisp/gptel-prompts
+	url = git@github.com:jwiegley/gptel-prompts.git
