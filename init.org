@@ -1737,7 +1737,7 @@ diff-hl package.
   (dired-omit-mode nil t)
   (dired-omit-size-limit 60000)
   (dired-omit-files
-   "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(DS_Store\\|localized\\)\\|Icon\015\\)\\'"))
+   "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(DS_Store\\|localized\\|com-apple-bird.*\\)\\|Icon\015\\)\\'"))
 #+end_src
 
 *** COMMENT dired+
@@ -2919,6 +2919,7 @@ up before you execute another command."
    ("<return>" . gptel-send))
   :hook
   (gptel-mode . visual-line-fill-column-mode)
+  (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-default-mode 'org-mode)
@@ -2928,57 +2929,55 @@ up before you execute another command."
   (gptel-use-tools nil)
   (gptel-stream nil)
   (gptel-use-header-line t)
+  (gptel-org-branching-context t)
   (gptel-prompt-prefix-alist
    '((markdown-mode . "# ")
-     (org-mode . "* ")
+     (org-mode . "*Prompt*: ")
+     (text-mode . "# ")))
+  (gptel-response-prefix-alist
+   '((markdown-mode . "# ")
+     (org-mode . "*Response*:\n")
      (text-mode . "# ")))
   :preface
   (defun my-gptel-read-prompts (dir)
     (cl-loop
-     for file in (directory-files dir t "\\.\\(txt\\|md\\|org\\)\\'")
-     if (string-match "/\\([^/]+?\\)\\.\\(txt\\|md\\|org\\)\\'" file)
-     collect (cons (intern (match-string 1 file))
+     for file in (directory-files dir t "\\.\\(txt\\|md\\|org\\|el\\)\\'")
+     collect (cons (intern (file-name-sans-extension
+                            (file-name-nondirectory file)))
                    (with-temp-buffer
                      (insert-file-contents file)
-                     (string-trim (buffer-string))))))
+                     (if (string-match "\\.el\\'" file)
+                         (progn
+                           (goto-char (point-min))
+                           (read (current-buffer)))
+                       (string-trim (buffer-string)))))))
 
   (defun my-gptel-update-prompts ()
     (interactive)
     (setq gptel-directives
           (my-gptel-read-prompts "~/.emacs.d/prompts")))
-
-  (defun my/apply-gptel-preset (_fsm)
-    (if (= (point)
-           (progn (gptel-beginning-of-response) (point)))
-        (goto-char (point-min))
-      (gptel-end-of-response))
-    (when-let* (((looking-at "[[:blank:]\n]*@\\([[:word:]]+\\)[[:punct:]]*\\s-+"))
-                (name (match-string 1))
-                (preset (or (gptel-get-preset (intern name))
-                            (gptel-get-preset name))))
-      (delete-region (match-beginning 0) (match-end 0))
-      (gptel--apply-preset (cons name preset)
-                           (lambda (sym val)
-                             (set (make-local-variable sym) val)))
-      (message "Request sent with preset %s applied!"
-               (propertize name 'face 'highlight))))
   :config
   (setq gptel-expert-commands t)
 
-  (gptel-make-preset 'gpt4coding
-    :description "A preset optimized for coding tasks"
-    :backend "ChatGPT"                    ;backend or backend name
+  (gptel-make-preset 'coding
+    :description "Karthik's coding example"
+    :backend "ChatGPT"
     :model 'gpt-4.1
-    :system "You are an expert coding assistant. Your role is to provide high-quality code solutions, refactorings, and explanations."
-    ;; :tools '("read_buffer" "modify_buffer")
-    )
+    :system 'code-infill
+    :tools nil
+    :stream nil
+    :temperature 1.0
+    :max-tokens nil
+    :use-context 'system
+    :include-reasoning "*Reasoning*")
 
   (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
-
-  ;; (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
+  (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
 
   (use-package gptel-context)
   (use-package gptel-quick)
+  (use-package gptel-integrations)
+  (use-package gptel-org)
   (use-package gptel-rewrite
     :demand t
     :bind (:map gptel-rewrite-actions-map
@@ -3016,7 +3015,7 @@ up before you execute another command."
       :stream t
       :models '(gpt-4.1 gpt-4o o1 gpt-4.5-preview))
 
-    (gptel-make-openai "Groq"               ;Any name you want
+    (gptel-make-openai "Groq"
       :host "api.groq.com"
       :endpoint "/openai/v1/chat/completions"
       :stream t
@@ -3028,7 +3027,7 @@ up before you execute another command."
                 mixtral-8x7b-32768
                 gemma-7b-it))
 
-    (gptel-make-openai "OpenRouter"               ;Any name you want
+    (gptel-make-openai "OpenRouter"
       :host "openrouter.ai"
       :endpoint "/api/v1/chat/completions"
       :stream t
@@ -3040,34 +3039,40 @@ up before you execute another command."
                 google/palm-2-codechat-bison-32k
                 google/gemini-pro))
 
-    ;; (gptel-make-openai "lmstudio"
-    ;;   :host "192.168.50.5:12345"
-    ;;   :protocol "http"
-    ;;   :stream t
-    ;;   ;; :endpoint "/api/v0/chat/completions"
-    ;;   ;; :request-params '(:options (:num_ctx 32767))
-    ;;   :models '(
-    ;;             mistral-nemo-instruct-2407
-    ;;             deepseek-v3-0324
-    ;;             qwq-32b
-    ;;             ))
+    (gptel-make-openai "lmstudio"
+      :host "127.0.0.1:1234"
+      :protocol "http"
+      :stream t
+      :models '(
+                llama-4-scout-17b-16e-mlx-text
+                llama-4-maverick-17b-128e-instruct@4bit
+                ))
 
     (gptel-make-openai "rag-client"
       :host "127.0.0.1:8000"
       :protocol "http"
       :stream t
       :models '(
-                your-custom-model
+                Guidance-RAG
                 ))
 
-    (gptel-make-openai "llama-cpp"
-      :host "127.0.0.1:8080"
+    ;; (gptel-make-openai "llama-cpp"
+    ;;   :host "127.0.0.1:8080"
+    ;;   :protocol "http"
+    ;;   :stream t
+    ;;   :request-params '(:options (:num_ctx 65536))
+    ;;   :models '(
+    ;;             (Mistral-Nemo-Instruct-2407
+    ;;              :context-window 64)
+    ;;             ))
+
+    (gptel-make-openai "mlx-lm"
+      :host "192.168.50.5:8081"
       :protocol "http"
       :stream t
-      :request-params '(:options (:num_ctx 65536))
       :models '(
-                (Mistral-Nemo-Instruct-2407
-                 :context-window 64)
+                FluffyKaeloky/Midnight-Miqu-103B-v1.5
+                mlx-community/Llama-4-Maverick-17B-16E-Instruct-6bit
                 ))
 
     (gptel-make-openai "llama-swap"
@@ -3075,39 +3080,53 @@ up before you execute another command."
       :protocol "http"
       :stream t
       :models '(
-                3-Nemotron-Super-49B-v1
                 Athene-V2-Chat
-                Behemoth-123B-v2.2
                 c4ai-command-a-03-2025
                 c4ai-command-r-08-2024
+                CodeLlama-13B-Python
+                CodeLlama-70B-Python
+                CodeLlama-7B-Python
                 Codestral-22B-v0.1
                 DeepCoder-1.5B-Preview
                 DeepCoder-14B-Preview
                 DeepSeek-Coder-V2-Instruct
-                DeepSeek-R1
-                DeepSeek-R1-Distill-Llama-70B
+                DeepSeek-R1-Distill-Qwen-1.5B
+                DeepSeek-R1-Distill-Qwen-14B
+                DeepSeek-R1-Distill-Qwen-32B
+                DeepSeek-R1-Distill-Qwen-7B
                 DeepSeek-V3-0324
-                Dolphin3.0-R1-Mistral-24B
                 dolphincoder-starcoder2-15b
+                Falcon-180B-Chat
                 Falcon3-10B-Instruct
+                FluffyKaeloky/Luminum-v0.1-123B
+                FluffyKaeloky/Midnight-Miqu-103B-v1.5
                 gemma-3-27b-it
-                Hermes-3-Llama-3.1-405B
-                Hermes-3-Llama-3.1-70B
                 Hermes-3-Llama-3.1-8B
-                (Llama-4-Maverick-17B-128E-Instruct
-                 :context-window 128)
+                Llama-3.1-Nemotron-70B-Instruct-HF
+                Llama-3.3-70B-Instruct
+                Llama-3.3-Nemotron-Super-49B-v1
+                Llama-4-Maverick-17B-128E-Instruct
                 Llama-4-Scout-17B-16E-Instruct
+                magnum-v4-123b
+                magnum-v4-12b
+                Meta-Llama-3.1-70B-Instruct
+                Meta-Llama-3.1-8B-Instruct
                 Midnight-Miqu-103B-v1.5
+                Midnight-Miqu-103B-v1.5-Q8
                 Mistral-7B-Instruct-v0.3
-                Mistral-Large-Instruct-2407
+                Mistral-Large-Instruct-2411
                 Mistral-Nemo-Instruct-2407
+                Mistral-Small-Instruct-2409
                 Mixtral-8x22B-v0.1
+                mlx-community/Llama-4-Maverick-17B-16E-Instruct-6bit
                 OLMo-2-0325-32B-Instruct
                 OpenThinker2-32B
                 Orca-2-13B
                 phi-4
                 Phi-4-reasoning-plus
                 Qwen2.5-14B-DeepSeek-R1-1M
+                Qwen2.5-Coder-32B-Instruct
+                Qwen2.5.1-Coder-7B-Instruct
                 Qwen3-0.6B
                 Qwen3-1.7B
                 Qwen3-235B-A22B
@@ -3116,8 +3135,12 @@ up before you execute another command."
                 Qwen3-4B
                 Qwen3-8B
                 QwQ-32B
-                Tess-3-Mistral-Large-2-123B
+                r1-1776
+                r1-1776-distill-llama-70b
+                sophosympatheia/Evathene-v1.3
+                Tess-R1-Limerick-Llama-3.1-70B
                 Tulu-3.1-8B-SuperNova
+                wavecoder-ultra-1.1-6.7b
                 WizardCoder-Python-13B-V1.0
                 WizardCoder-Python-34B-V1.0
                 WizardCoder-Python-7B-V1.0
@@ -3142,11 +3165,11 @@ up before you execute another command."
       :models '(claude-3-7-sonnet-20250219)
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
-              `(("x-api-key" . ,key)
-                ("anthropic-version" . "2023-06-01")
-                ("anthropic-beta" . "pdfs-2024-09-25")
-                ("anthropic-beta" . "output-128k-2025-02-19")
-                ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+                   `(("x-api-key" . ,key)
+                     ("anthropic-version" . "2023-06-01")
+                     ("anthropic-beta" . "pdfs-2024-09-25")
+                     ("anthropic-beta" . "output-128k-2025-02-19")
+                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
@@ -3219,7 +3242,7 @@ up before you execute another command."
       (save-excursion
         (goto-char (point-min))
         (when (eolp)
-          (insert "* ")
+          (insert "* New chat\n\n*Prompt*: ")
           (setq inserted t)
           ))
       (when inserted
@@ -3267,9 +3290,12 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package gptel-extra
   :after (gptel)
+  :demand t
   :bind
   (:map gptel-mode-map
-        ("C-c C-t" . gptel-extra-clear-buffer)))
+        ("C-c C-t" . gptel-extra-clear-buffer))
+  :config
+  (push '(code-infill . gptel-extra-code-infill) gptel-directives))
 #+end_src
 
 *** gptel-rag
@@ -3361,6 +3387,22 @@ interactively compare and adopt the improved text.
           (llm-tool-collection-get-tag 'filesystem))
   (mapcar (apply-partially #'apply #'gptel-make-tool)
           (llm-tool-collection-get-tag 'editing)))
+#+end_src
+
+*** mcp
+
+#+begin_src emacs-lisp
+(use-package mcp
+  :load-path "lisp/mcp.el"
+  :after (gptel)
+  :custom
+  (mcp-hub-servers
+   '(("github"
+      :command "github-mcp-server"
+      :args ("stdio"))))
+  :config
+  (setenv "GITHUB_PERSONAL_ACCESS_TOKEN"
+          (lookup-password "api.github.com" "johnw" 80)))
 #+end_src
 
 ** grep
@@ -4299,7 +4341,7 @@ minibuffer change, the region is realigned.
   (magit-todos-mode 1))
 #+end_src
 
-*** COMMENT forge
+*** forge
 
 #+begin_src emacs-lisp
 (use-package forge
@@ -6037,6 +6079,13 @@ error prone.
   (unicode-fonts-setup))
 #+end_src
 
+** uniline
+
+#+begin_src emacs-lisp
+(use-package uniline
+  :bind ("C-<insert>" . uniline-mode))
+#+end_src
+
 ** uniquify
 
 #+begin_src emacs-lisp
@@ -7146,6 +7195,7 @@ without white space and comments.
     :demand t
     :bind (:map vertico-map
                 ("C-i"   . vertico-multiform-vertical)
+                ("M-B"   . vertico-multiform-buffer)
                 ("<tab>" . vertico-insert))
     :custom
     (vertico-multiform-commands

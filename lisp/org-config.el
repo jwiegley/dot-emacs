@@ -923,7 +923,7 @@ SCHEDULED: %t
             'todo org-done-keywords)
            (org-config-skip-if-review-not-needed)
            (org-config-skip-if-regularly-reviewed)))
-     (org-agenda-max-entries 20)
+     (org-agenda-max-entries 38)
      (org-agenda-cmp-user-defined (org-compare-randomly))
      (org-agenda-prefix-format
       "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
