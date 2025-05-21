@@ -562,7 +562,10 @@ tasks."
   (unless org-roam-extra-do-not-delete
     (delete-file transcript t))
   (let ((audio-file (cdr (org-roam-extra-current-audio-file))))
-    (unless (file-readable-p audio-file)
+    (if (file-readable-p audio-file)
+        (save-excursion
+          (goto-char (point-min))
+          (org-set-property "AUDIO" audio-file))
       (message "Transcript audio file missing: %s" audio-file))))
 
 (defun org-roam-extra--replace-if-found (name)
