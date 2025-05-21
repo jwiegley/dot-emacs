@@ -2907,7 +2907,11 @@ up before you execute another command."
   :load-path "lisp/gptel"
   :demand t
   :bind
-  (:prefix-map
+  (:map
+   gptel-mode-map
+   ("C-c C-n"  . my/gptel-next-prompt)
+   ("C-c C-p"  . my/gptel-previous-prompt)
+   :prefix-map
    gptel-cmd-map
    :prefix "C-x C"
    ("a"        . gptel-context-add)
@@ -2920,13 +2924,12 @@ up before you execute another command."
   :hook
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
-  (gptel-mode . (lambda () (setq-local gptel-stream t)))
+  ;; (gptel-mode . (lambda () (setq-local gptel-stream t)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-default-mode 'org-mode)
-  (gptel-model 'gpt-4.1)
-  (gptel-log-level nil)
-  (gptel-include-reasoning t)
+  (gptel-log-level 'info)
+  (gptel-include-reasoning 'ignore)
   (gptel-use-tools nil)
   (gptel-stream nil)
   (gptel-use-header-line t)
@@ -2939,8 +2942,40 @@ up before you execute another command."
    '((markdown-mode . "# ")
      (org-mode . "*Response*:\n")
      (text-mode . "# ")))
+  :preface
+  (defun my/gptel-remove-extra-whitespace (beg end)
+    (save-excursion
+      (goto-char beg)
+      (while (re-search-forward "\n\n\n+" end t)
+        (replace-match "\n\n"))))
+
+  (defun my/gptel-previous-prompt ()
+    (interactive)
+    (goto-char (line-beginning-position))
+    (when (re-search-backward
+           (regexp-quote (gptel-prompt-prefix-string)) nil t)
+      (goto-char (line-end-position))))
+
+  (defun my/gptel-next-prompt (&rest _ignore)
+    (interactive)
+    (goto-char (line-end-position))
+    (when (re-search-forward
+           (regexp-quote (gptel-prompt-prefix-string)) nil t)
+      (goto-char (line-end-position))))
   :config
   (setq gptel-expert-commands t)
+
+  (gptel-make-preset 'gpt
+    :description "OpenAI's ChatGPT"
+    :backend "ChatGPT"
+    :model 'gpt-4.1
+    :temperature 1.0)
+
+  (gptel-make-preset 'claude
+    :description "Anthropic's Claude, thinking"
+    :backend "Claude-thinking"
+    :model 'claude-3-7-sonnet-20250219
+    :temperature 0.7)
 
   (gptel-make-preset 'coding
     :description "Karthik's coding example"
@@ -2948,14 +2983,16 @@ up before you execute another command."
     :model 'gpt-4.1
     :system 'code-infill
     :tools nil
-    :stream t
+    ;; :stream t
     :temperature 1.0
     :max-tokens nil
     :use-context 'system
-    :include-reasoning "*Reasoning*")
+    :include-reasoning 'ignore)
 
-  (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
-  (add-hook 'gptel-post-response-functions #'gptel-end-of-response)
+  ;; (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
+
+  (add-hook 'gptel-post-response-functions #'my/gptel-next-prompt)
+  (add-hook 'gptel-post-response-functions #'my/gptel-remove-extra-whitespace)
 
   (use-package gptel-context)
   (use-package gptel-quick)
@@ -2995,13 +3032,13 @@ up before you execute another command."
     :config
     (gptel-make-openai "ChatGPT"
       :key 'gptel-api-key
-      :stream t
+      ;; :stream t
       :models '(gpt-4.1 gpt-4o o1 gpt-4.5-preview))
 
     (gptel-make-openai "Groq"
       :host "api.groq.com"
       :endpoint "/openai/v1/chat/completions"
-      :stream t
+      ;; :stream t
       :key 'gptel-api-key
       :models '(llama-3.1-70b-versatile
                 llama-3.1-8b-instant
@@ -3013,7 +3050,7 @@ up before you execute another command."
     (gptel-make-openai "OpenRouter"
       :host "openrouter.ai"
       :endpoint "/api/v1/chat/completions"
-      :stream t
+      ;; :stream t
       :key 'gptel-api-key
       :models '(openai/gpt-3.5-turbo
                 mistralai/mixtral-8x7b-instruct
@@ -3025,7 +3062,7 @@ up before you execute another command."
     (gptel-make-openai "lmstudio"
       :host "127.0.0.1:1234"
       :protocol "http"
-      :stream t
+      ;; :stream t
       :models '(
                 llama-4-scout-17b-16e-mlx-text
                 llama-4-maverick-17b-128e-instruct@4bit
@@ -3034,7 +3071,7 @@ up before you execute another command."
     (gptel-make-openai "rag-client"
       :host "127.0.0.1:8000"
       :protocol "http"
-      :stream t
+      ;; :stream t
       :models '(
                 Guidance-RAG
                 ))
@@ -3042,7 +3079,7 @@ up before you execute another command."
     ;; (gptel-make-openai "llama-cpp"
     ;;   :host "127.0.0.1:8080"
     ;;   :protocol "http"
-    ;;   :stream t
+    ;;   ;; :stream t
     ;;   :request-params '(:options (:num_ctx 65536))
     ;;   :models '(
     ;;             (Mistral-Nemo-Instruct-2407
@@ -3057,86 +3094,119 @@ up before you execute another command."
                 koboldcpp
                 ))
 
-    (gptel-make-openai "llama-swap"
-      :host "192.168.50.5:8080"
-      :protocol "http"
-      :stream t
-      :models '(
-                agentica-org/DeepCoder-1.5B-Preview
-                agentica-org/DeepCoder-14B-Preview
-                allenai/OLMo-2-0325-32B-Instruct
-                anthracite-org/magnum-v4-123b
-                anthracite-org/magnum-v4-12b
-                BAAI/bge-m3
-                bunnycore/Tulu-3.1-8B-SuperNova
-                deepseek-ai/DeepSeek-Coder-V2-Instruct
-                deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
-                deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
-                deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
-                FluffyKaeloky/Luminum-v0.1-123B
-                FluffyKaeloky/Midnight-Miqu-103B-v1.5
-                google/gemma-3-27b-it
-                meta-llama/Llama-3.3-70B-Instruct
-                meta-llama/Llama-4-Scout-17B-16E-Instruct
-                microsoft/phi-4
-                microsoft/Phi-4-reasoning-plus
-                mistralai/Codestral-22B-v0.1
-                mistralai/Mistral-7B-Instruct-v0.3
-                mistralai/Mistral-Large-Instruct-2411
-                mistralai/Mistral-Nemo-Instruct-2407
-                mistralai/Mistral-Small-Instruct-2409
-                mistralai/Mixtral-8x22B-Instruct-v0.1
-                mkurman/Qwen2.5-14B-DeepSeek-R1-1M
-                mlx-community/DeepSeek-R1-3bit
-                mlx-community/DeepSeek-V3-0324-4bit
-                mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
-                Nexusflow/Athene-V2-Chat
-                NousResearch/Hermes-3-Llama-3.1-8B
-                nvidia/Llama-3_3-Nemotron-Super-49B-v1
-                nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
-                nvidia/OpenCodeReasoning-Nemotron-32B
-                open-thoughts/OpenThinker2-32B
-                perplexity-ai/r1-1776-distill-llama-70b
-                Qwen/Qwen2.5-Coder-32B-Instruct
-                Qwen/Qwen2.5-Coder-7B-Instruct
-                Qwen/Qwen3-0.6B
-                Qwen/Qwen3-1.7B
-                Qwen/Qwen3-235B-A22B
-                Qwen/Qwen3-30B-A3B
-                Qwen/Qwen3-32B
-                Qwen/Qwen3-4B
-                Qwen/Qwen3-8B
-                Qwen/QwQ-32B
-                r1-1776
-                sentence-transformers/all-MiniLM-L6-v2
-                sophosympatheia/Evathene-v1.3
-                ))
-
-    )
+    (setq
+     gptel-model 'r1-1776
+     gptel-backend
+     (gptel-make-openai "llama-swap"
+       :host "192.168.50.5:8080"
+       :protocol "http"
+       ;; :stream t
+       :models '(
+                 agentica-org/DeepCoder-1.5B-Preview
+                 agentica-org/DeepCoder-14B-Preview
+                 allenai/OLMo-2-0325-32B-Instruct
+                 anthracite-org/magnum-v4-123b
+                 anthracite-org/magnum-v4-12b
+                 BAAI/bge-m3
+                 bunnycore/Tulu-3.1-8B-SuperNova
+                 deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+                 deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+                 deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+                 DeepSeek-R1-Distill-Qwen-1.5B
+                 DeepSeek-R1-Distill-Qwen-14B
+                 DeepSeek-R1-Distill-Qwen-32B
+                 DeepSeek-R1-Distill-Qwen-32B-Uncensored
+                 DeepSeek-R1-Distill-Qwen-7B
+                 FluffyKaeloky/Luminum-v0.1-123B
+                 FluffyKaeloky/Midnight-Miqu-103B-v1.5
+                 google/gemma-3-27b-it
+                 meta-llama/Llama-3.3-70B-Instruct
+                 meta-llama/Llama-4-Scout-17B-16E-Instruct
+                 microsoft/phi-4
+                 microsoft/Phi-4-reasoning-plus
+                 mistralai/Codestral-22B-v0.1
+                 mistralai/Mistral-7B-Instruct-v0.3
+                 mistralai/Mistral-Nemo-Instruct-2407
+                 mistralai/Mistral-Small-Instruct-2409
+                 mistralai/Mixtral-8x22B-Instruct-v0.1
+                 mkurman/Qwen2.5-14B-DeepSeek-R1-1M
+                 mlx-community/DeepSeek-V3-0324-4bit
+                 mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
+                 Nexusflow/Athene-V2-Chat
+                 NousResearch/Hermes-3-Llama-3.1-8B
+                 nvidia/Llama-3_3-Nemotron-Super-49B-v1
+                 nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
+                 nvidia/OpenCodeReasoning-Nemotron-32B
+                 open-thoughts/OpenThinker2-32B
+                 perplexity-ai/r1-1776-distill-llama-70b
+                 Qwen/Qwen2.5-Coder-32B-Instruct
+                 Qwen/Qwen2.5-Coder-7B-Instruct
+                 Qwen/Qwen3-0.6B
+                 Qwen/Qwen3-1.7B
+                 Qwen/Qwen3-30B-A3B
+                 Qwen/Qwen3-32B
+                 Qwen/Qwen3-4B
+                 Qwen/Qwen3-8B
+                 Qwen/QwQ-32B
+                 Qwen2-Math-72B-Instruct
+                 Qwen2-Math-7B-Instruct
+                 Qwen2.5-1.5B-Instruct
+                 Qwen2.5-14B-DeepSeek-R1-1M
+                 Qwen2.5-32B-Instruct
+                 Qwen2.5-72B-Instruct
+                 Qwen2.5-Coder-32B-Instruct
+                 Qwen2.5.1-Coder-7B-Instruct
+                 Qwen3-0.6B
+                 Qwen3-1.7B
+                 Qwen3-235B-A22B
+                 Qwen3-30B-A3B
+                 Qwen3-32B
+                 Qwen3-4B
+                 Qwen3-8B
+                 QwQ-32B
+                 r1-1776
+                 sentence-transformers/all-MiniLM-L6-v2
+                 sophosympatheia/Evathene-v1.3
+                 ))
+     ))
 
   (use-package gptel-openai-extras
     :config
     (gptel-make-perplexity "Perplexity"
       :key 'gptel-api-key
-      :stream t))
+      ;; :stream t
+      :models '(sonar-pro
+                sonar-reasoning-pro
+                sonar-deep-research
+                r1-1776)
+      :request-params `(:web_search_options
+                        (:search_context_size
+                         "high"
+                         :user_location
+                         (:latitude
+                          ,calendar-latitude
+                          :longitude
+                          ,calendar-longitude
+                          :country "US")))))
 
   (use-package gptel-anthropic
     :config
     (gptel-make-anthropic "Claude"
       :key 'gptel-api-key
-      :stream t)
+      ;; :stream t
+      )
 
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
       :key 'gptel-api-key
-      :stream t
+      ;; :stream t
       :models '(claude-3-7-sonnet-20250219)
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
-              `(("x-api-key" . ,key)
-                ("anthropic-version" . "2023-06-01")
-                ("anthropic-beta" . "pdfs-2024-09-25")
-                ("anthropic-beta" . "output-128k-2025-02-19")
-                ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+                   `(("x-api-key" . ,key)
+                     ("anthropic-version" . "2023-06-01")
+                     ("anthropic-beta" . "pdfs-2024-09-25")
+                     ("anthropic-beta" . "output-128k-2025-02-19")
+                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
@@ -3144,14 +3214,15 @@ up before you execute another command."
   ;;   :config
   ;;   (gptel-make-gemini "Gemini"
   ;;     :key 'gptel-api-key
-  ;;     :stream t))
+  ;;     ;; :stream t
+  ;;     ))
 
   ;; (use-package gptel-ollama
   ;;   :config
   ;;   (gptel-make-ollama "Ollama"
   ;;     :host "localhost:11434"
   ;;     :protocol "http"
-  ;;     :stream t
+  ;;     ;; :stream t
   ;;     :request-params '(:options (:num_ctx 8192))
   ;;     :models
   ;;     '(
@@ -3283,7 +3354,7 @@ up before you execute another command."
   (gptel-rag-install))
 #+end_src
 
-*** gptel-aibo
+*** COMMENT gptel-aibo
 
 [[https://github.com/dolmens/gptel-aibo][gptel-aibo]] is an AI writing assistant system built on top of [[https://github.com/karthink/gptel][gptel]]. It helps
 you create and manage content in Emacs, including code, documents, and even
@@ -3375,15 +3446,14 @@ interactively compare and adopt the improved text.
   (mcp-hub-servers
    `(("github"
       :command "github-mcp-server"
-      :args ("stdio"))
+      :args ("stdio")
+      :env (:GITHUB_PERSONAL_ACCESS_TOKEN
+            ,(lookup-password "api.github.com" "johnw" 80)))
      ("filesystem"
       :command "mcp-server-filesystem"
       :args (,(expand-file-name "~/Products/")))
      ("fetch"
-      :command "mcp-server-fetch")))
-  :config
-  (setenv "GITHUB_PERSONAL_ACCESS_TOKEN"
-          (lookup-password "api.github.com" "johnw" 80)))
+      :command "mcp-server-fetch"))))
 #+end_src
 
 ** grep
@@ -3490,7 +3560,7 @@ interactively compare and adopt the improved text.
   :hook (c-mode-common . hide-ifdef-mode))
 #+end_src
 
-** hideshow
+** hideshow                                                                              :Errand:
 
 #+begin_src emacs-lisp
 (use-package hideshow
@@ -6282,6 +6352,67 @@ RET in the buffer you want to undo.
   :diminish
   :config
   (which-key-mode))
+#+end_src
+
+** COMMENT whisper
+
+#+begin_src emacs-lisp
+(use-package whisper
+  :no-require t
+  :preface
+  (defun whisper-transcribe-file (filepath)
+    "Transcribe audio FILEPATH using MLX Whisper and insert results"
+    (interactive "fSelect audio file: ")
+    (let ((output-buffer (get-buffer-create "*Whisper Output*"))
+          (model "mlx-community/whisper-large-v3-mlx"))
+      (async-shell-command
+       (format "mlx_whisper '%s' --model '%s' -f txt" filepath model)
+       output-buffer)
+      (display-buffer output-buffer)))
+
+  (defvar whisper-recording-process nil
+    "Process handle for active audio recording")
+
+  (defvar whisper-temp-file (format "/tmp/emacs-whisper-%s.wav" (user-uid))
+    "Temporary storage for audio recordings")
+
+  (defun whisper-toggle-recording ()
+    "Start/stop voice recording using FFmpeg"
+    (interactive)
+    (if (process-live-p whisper-recording-process)
+        (whisper-stop-recording)
+      (whisper-start-recording)))
+
+  (defun whisper-start-recording ()
+    "Initialize audio capture via AVFoundation"
+    (setq whisper-recording-process
+          (start-process "whisper-rec" nil "ffmpeg"
+                         "-f" "avfoundation"
+                         "-i" ":1"
+                         "-t" "300"  ;; Max 5-minute recordings
+                         "-y" whisper-temp-file))
+    (message "Recording started..."))
+
+  (defun whisper-stop-recording ()
+    "Terminate recording and initiate transcription"
+    (when (process-live-p whisper-recording-process)
+      (delete-process whisper-recording-process))
+    (whisper-transcribe-and-insert))
+
+  (defun whisper-transcribe-and-insert ()
+    "Process recorded audio and insert transcription"
+    (if (file-exists-p whisper-temp-file)
+        (progn
+          (message "Transcribing...")
+          (shell-command-to-string
+           (format "mlx_whisper '%s' --model 'mlx-community/whisper-medium-mlx' -f txt -o -"
+                   whisper-temp-file))
+          (insert (with-current-buffer "*Shell Command Output*"
+                    (buffer-string)))
+          (delete-file whisper-temp-file))
+      (error "No audio data captured")))
+  :config
+  (global-set-key (kbd "C-c w r") 'whisper-toggle-recording))
 #+end_src
 
 ** COMMENT whisper
@@ -10068,6 +10199,8 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
    ((((class color) (min-colors 88) (background light)) (:foreground "Brown"))))
   (org-document-title
    ((t (:foreground "pale turquoise" :weight bold :height 1.5 :family "DejaVu Sans"))))
+  (org-block ((t (:inherit shadow :extend t :background "#090011"))))
+  (org-block-begin-line ((t (:inherit org-meta-line :extend t :background "#120022"))))
   :defines
   (org-archive-save-context-info)
   :preface
