@@ -61,3 +61,6 @@
 [submodule "lisp/gptel-prompts"]
 	path = lisp/gptel-prompts
 	url = git@github.com:jwiegley/gptel-prompts.git
+[submodule "lisp/elisp-mcp-dev"]
+	path = lisp/elisp-mcp-dev
+	url = git@github.com:laurynas-biveinis/elisp-mcp-dev.git

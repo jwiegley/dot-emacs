@@ -84,6 +84,6 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (org-shifttab 0)
     (goto-char (point-max))
     (org-insert-heading)
-    (insert "Next topic\n\n*Prompt*: ")))
+    (insert "New chat\n\n*Prompt*: ")))
 
 (provide 'gptel-extra)

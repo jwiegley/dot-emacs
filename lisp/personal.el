@@ -391,4 +391,7 @@ transform."
            (progn ,@body)
          (setq ,var ,save-var)))))
 
+(defmacro with (alist &rest body)
+  `(cl-progv (mapcar #'car ,alist) (mapcar #'cdr ,alist) ,@body))
+
 (provide 'personal)
