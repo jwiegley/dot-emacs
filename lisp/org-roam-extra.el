@@ -660,6 +660,37 @@ tasks."
             (list "--start-time" secs)))))
     (listen-play org-roam-extra-listen-player (cdr audio))))
 
+(defun org-roam-extra-toggle-audio ()
+  (interactive)
+  (let* ((o (car (overlays-at (point))))
+         (player (overlay-get o 'player)))
+    (if player
+        (progn
+          (listen-quit player)
+          (overlay-put o 'player nil))
+      (setq player (make-listen-player-vlc))
+      (overlay-put o 'player player)
+      (let ((audio (org-roam-extra-current-audio-file)))
+        (save-excursion
+          (when (re-search-backward "^- \\([0-9:]+\\) \\*" nil t)
+            (let* ((tm (match-string 1))
+                   (secs (number-to-string (* (car audio) (hms-to-seconds tm)))))
+              (cl-callf append
+                  (listen-player-args player)
+                (list "--start-time" secs)))))
+        (listen-play player (cdr audio))))))
+
+(defun org-roam-extra-paint-transcript ()
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward "^\\* Transcript$" nil t)
+      (let ((o (make-overlay (match-end 0) (point-max)))
+            (map (make-sparse-keymap)))
+        (define-key map (kbd "RET") #'org-roam-extra-toggle-audio)
+        (define-key map (kbd "<return>") #'org-roam-extra-toggle-audio)
+        (overlay-put o 'keymap map)
+        (overlay-put o 'player nil)))))
+
 (provide 'org-roam-extra)
 
 ;;; org-roam-extra.el ends here

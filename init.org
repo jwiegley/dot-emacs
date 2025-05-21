@@ -2920,12 +2920,13 @@ up before you execute another command."
   :hook
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
+  (gptel-mode . (lambda () (setq-local gptel-stream t)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-default-mode 'org-mode)
   (gptel-model 'gpt-4.1)
   (gptel-log-level nil)
-  (gptel-include-reasoning "*Reasoning*")
+  (gptel-include-reasoning t)
   (gptel-use-tools nil)
   (gptel-stream nil)
   (gptel-use-header-line t)
@@ -2938,24 +2939,6 @@ up before you execute another command."
    '((markdown-mode . "# ")
      (org-mode . "*Response*:\n")
      (text-mode . "# ")))
-  :preface
-  (defun my-gptel-read-prompts (dir)
-    (cl-loop
-     for file in (directory-files dir t "\\.\\(txt\\|md\\|org\\|el\\)\\'")
-     collect (cons (intern (file-name-sans-extension
-                            (file-name-nondirectory file)))
-                   (with-temp-buffer
-                     (insert-file-contents file)
-                     (if (string-match "\\.el\\'" file)
-                         (progn
-                           (goto-char (point-min))
-                           (read (current-buffer)))
-                       (string-trim (buffer-string)))))))
-
-  (defun my-gptel-update-prompts ()
-    (interactive)
-    (setq gptel-directives
-          (my-gptel-read-prompts "~/.emacs.d/prompts")))
   :config
   (setq gptel-expert-commands t)
 
@@ -2965,7 +2948,7 @@ up before you execute another command."
     :model 'gpt-4.1
     :system 'code-infill
     :tools nil
-    :stream nil
+    :stream t
     :temperature 1.0
     :max-tokens nil
     :use-context 'system
@@ -3067,12 +3050,11 @@ up before you execute another command."
     ;;             ))
 
     (gptel-make-openai "mlx-lm"
-      :host "192.168.50.5:8081"
+      :host "192.168.50.5:9090"
       :protocol "http"
-      :stream t
+      ;; :stream t
       :models '(
-                FluffyKaeloky/Midnight-Miqu-103B-v1.5
-                mlx-community/Llama-4-Maverick-17B-16E-Instruct-6bit
+                koboldcpp
                 ))
 
     (gptel-make-openai "llama-swap"
@@ -3080,71 +3062,56 @@ up before you execute another command."
       :protocol "http"
       :stream t
       :models '(
-                Athene-V2-Chat
-                c4ai-command-a-03-2025
-                c4ai-command-r-08-2024
-                CodeLlama-13B-Python
-                CodeLlama-70B-Python
-                CodeLlama-7B-Python
-                Codestral-22B-v0.1
-                DeepCoder-1.5B-Preview
-                DeepCoder-14B-Preview
-                DeepSeek-Coder-V2-Instruct
-                DeepSeek-R1-Distill-Qwen-1.5B
-                DeepSeek-R1-Distill-Qwen-14B
-                DeepSeek-R1-Distill-Qwen-32B
-                DeepSeek-R1-Distill-Qwen-7B
-                DeepSeek-V3-0324
-                dolphincoder-starcoder2-15b
-                Falcon-180B-Chat
-                Falcon3-10B-Instruct
+                agentica-org/DeepCoder-1.5B-Preview
+                agentica-org/DeepCoder-14B-Preview
+                allenai/OLMo-2-0325-32B-Instruct
+                anthracite-org/magnum-v4-123b
+                anthracite-org/magnum-v4-12b
+                BAAI/bge-m3
+                bunnycore/Tulu-3.1-8B-SuperNova
+                deepseek-ai/DeepSeek-Coder-V2-Instruct
+                deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+                deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+                deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
                 FluffyKaeloky/Luminum-v0.1-123B
                 FluffyKaeloky/Midnight-Miqu-103B-v1.5
-                gemma-3-27b-it
-                Hermes-3-Llama-3.1-8B
-                Llama-3.1-Nemotron-70B-Instruct-HF
-                Llama-3.3-70B-Instruct
-                Llama-3.3-Nemotron-Super-49B-v1
-                Llama-4-Maverick-17B-128E-Instruct
-                Llama-4-Scout-17B-16E-Instruct
-                magnum-v4-123b
-                magnum-v4-12b
-                Meta-Llama-3.1-70B-Instruct
-                Meta-Llama-3.1-8B-Instruct
-                Midnight-Miqu-103B-v1.5
-                Midnight-Miqu-103B-v1.5-Q8
-                Mistral-7B-Instruct-v0.3
-                Mistral-Large-Instruct-2411
-                Mistral-Nemo-Instruct-2407
-                Mistral-Small-Instruct-2409
-                Mixtral-8x22B-v0.1
-                mlx-community/Llama-4-Maverick-17B-16E-Instruct-6bit
-                OLMo-2-0325-32B-Instruct
-                OpenThinker2-32B
-                Orca-2-13B
-                phi-4
-                Phi-4-reasoning-plus
-                Qwen2.5-14B-DeepSeek-R1-1M
-                Qwen2.5-Coder-32B-Instruct
-                Qwen2.5.1-Coder-7B-Instruct
-                Qwen3-0.6B
-                Qwen3-1.7B
-                Qwen3-235B-A22B
-                Qwen3-30B-A3B
-                Qwen3-32B
-                Qwen3-4B
-                Qwen3-8B
-                QwQ-32B
+                google/gemma-3-27b-it
+                meta-llama/Llama-3.3-70B-Instruct
+                meta-llama/Llama-4-Scout-17B-16E-Instruct
+                microsoft/phi-4
+                microsoft/Phi-4-reasoning-plus
+                mistralai/Codestral-22B-v0.1
+                mistralai/Mistral-7B-Instruct-v0.3
+                mistralai/Mistral-Large-Instruct-2411
+                mistralai/Mistral-Nemo-Instruct-2407
+                mistralai/Mistral-Small-Instruct-2409
+                mistralai/Mixtral-8x22B-Instruct-v0.1
+                mkurman/Qwen2.5-14B-DeepSeek-R1-1M
+                mlx-community/DeepSeek-R1-3bit
+                mlx-community/DeepSeek-V3-0324-4bit
+                mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
+                Nexusflow/Athene-V2-Chat
+                NousResearch/Hermes-3-Llama-3.1-8B
+                nvidia/Llama-3_3-Nemotron-Super-49B-v1
+                nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
+                nvidia/OpenCodeReasoning-Nemotron-32B
+                open-thoughts/OpenThinker2-32B
+                perplexity-ai/r1-1776-distill-llama-70b
+                Qwen/Qwen2.5-Coder-32B-Instruct
+                Qwen/Qwen2.5-Coder-7B-Instruct
+                Qwen/Qwen3-0.6B
+                Qwen/Qwen3-1.7B
+                Qwen/Qwen3-235B-A22B
+                Qwen/Qwen3-30B-A3B
+                Qwen/Qwen3-32B
+                Qwen/Qwen3-4B
+                Qwen/Qwen3-8B
+                Qwen/QwQ-32B
                 r1-1776
-                r1-1776-distill-llama-70b
+                sentence-transformers/all-MiniLM-L6-v2
                 sophosympatheia/Evathene-v1.3
-                Tess-R1-Limerick-Llama-3.1-70B
-                Tulu-3.1-8B-SuperNova
-                wavecoder-ultra-1.1-6.7b
-                WizardCoder-Python-13B-V1.0
-                WizardCoder-Python-34B-V1.0
-                WizardCoder-Python-7B-V1.0
                 ))
+
     )
 
   (use-package gptel-openai-extras
@@ -3165,11 +3132,11 @@ up before you execute another command."
       :models '(claude-3-7-sonnet-20250219)
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
-                   `(("x-api-key" . ,key)
-                     ("anthropic-version" . "2023-06-01")
-                     ("anthropic-beta" . "pdfs-2024-09-25")
-                     ("anthropic-beta" . "output-128k-2025-02-19")
-                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+              `(("x-api-key" . ,key)
+                ("anthropic-version" . "2023-06-01")
+                ("anthropic-beta" . "pdfs-2024-09-25")
+                ("anthropic-beta" . "output-128k-2025-02-19")
+                ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
@@ -3224,8 +3191,7 @@ up before you execute another command."
   ;;       tulu3:70b
   ;;       wizardcoder:33b
   ;;       )))
-
-  (my-gptel-update-prompts))
+  )
 #+end_src
 
 *** corsair
@@ -3296,6 +3262,16 @@ up before you execute another command."
         ("C-c C-t" . gptel-extra-clear-buffer))
   :config
   (push '(code-infill . gptel-extra-code-infill) gptel-directives))
+#+end_src
+
+*** gptel-prompts
+
+#+begin_src emacs-lisp
+(use-package gptel-prompts
+  :after (gptel)
+  :demand t
+  :config
+  (gptel-prompts-update))
 #+end_src
 
 *** gptel-rag
@@ -3397,9 +3373,14 @@ interactively compare and adopt the improved text.
   :after (gptel)
   :custom
   (mcp-hub-servers
-   '(("github"
+   `(("github"
       :command "github-mcp-server"
-      :args ("stdio"))))
+      :args ("stdio"))
+     ("filesystem"
+      :command "mcp-server-filesystem"
+      :args (,(expand-file-name "~/Products/")))
+     ("fetch"
+      :command "mcp-server-fetch")))
   :config
   (setenv "GITHUB_PERSONAL_ACCESS_TOKEN"
           (lookup-password "api.github.com" "johnw" 80)))
@@ -5890,6 +5871,14 @@ A collection of paredit-like functions for editing in =html-mode=.
   :commands tagedit-mode)
 #+end_src
 
+** templatel
+
+#+begin_src emacs-lisp
+(use-package templatel
+  :functions (templatel-render-file
+              templatel-render-string))
+#+end_src
+
 ** term
 
 #+begin_src emacs-lisp
@@ -6083,7 +6072,7 @@ error prone.
 
 #+begin_src emacs-lisp
 (use-package uniline
-  :bind ("C-<insert>" . uniline-mode))
+  :bind ("C-c M-u" . uniline-mode))
 #+end_src
 
 ** uniquify
@@ -8832,7 +8821,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package yaml-mode
-  :mode "\\.ya?ml\\'")
+  :mode "\\.\\(ya?ml\\|poet\\)\\'")
 #+end_src
 
 *** z3-mode
@@ -10902,7 +10891,9 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 
 #+begin_src emacs-lisp
 (use-package org-attach-git
-  :after org)
+  :after org
+  :custom
+  (org-attach-git-annex-cutoff 256))
 #+end_src
 
 *** org-babel
@@ -12220,6 +12211,7 @@ resulting in an org-mode checklist.
   (before-save . org-roam-extra-sort-file-properties)
   ;; (org-roam-file-setup . org-roam-extra-update-todo-tag)
   ;; (before-save . org-roam-extra-update-todo-tag)
+  (org-roam-mode . org-roam-extra-paint-transcript)
   :config
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."

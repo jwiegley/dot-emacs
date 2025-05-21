@@ -156,6 +156,21 @@
             -1
           1)))))
 
+(defun org-config-meeting-template (keys title file dir)
+  `(,keys ,title plain
+          (file ,(expand-file-name file dir))
+          :target (file ,(concat "meeting/%<%Y%m%d%H%M>-" file))
+          :immediate-finish t
+          :jump-to-captured t
+          :unnarrowed t
+          :no-save t))
+
+(defun org-config-kadena-meeting (keys title file)
+  (org-config-meeting-template keys title file "~/org/template/kadena/meetings"))
+
+(defun org-config-bahai-meeting (keys title file)
+  (org-config-meeting-template keys title file "~/org/template/bahai/meetings"))
+
 (setq
  org-capture-templates
  (let ((Inbox '(function org-extra-goto-inbox-heading)))
@@ -537,127 +552,24 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ("wa" "All Hands" plain
-    (file "~/org/template/kadena/meetings/all-hands.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-all-hands.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wb" "BD <> Engineering" plain
-    (file "~/org/template/kadena/meetings/bd-engineering.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-bd-engineering.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wS" "Ops <> Engineering" plain
-    (file "~/org/template/kadena/meetings/ops-engineering.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-ops-engineering.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wC" "Work Conference" plain
-    (file "~/org/template/kadena/conference.org")
-    :target (file "conference/%<%Y%m%d%H%M>-conference.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wO" "Offsite Meeting" plain
-    (file "~/org/template/kadena/offsite-meeting.org")
-    :target (file "conference/%<%Y%m%d%H%M>-offsite.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wt" "CTO Meeting" plain
-    (file "~/org/template/kadena/meetings/cto.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-cto.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("ws" "Eng Standup" plain
-    (file "~/org/template/kadena/meetings/eng-standup.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-eng-standup.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wM" "Eng Managers" plain
-    (file "~/org/template/kadena/meetings/eng-managers.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-eng-managers.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("we" "EVM Posse" plain
-    (file "~/org/template/kadena/meetings/evm-posse.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-evm-posse.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-meeting "wa"  "All Hands"            "all-hands.org")
+   ,(org-config-kadena-meeting "wb"  "BD <> Engineering"    "bd-engineering.org")
+   ,(org-config-kadena-meeting "wS"  "Ops <> Engineering"   "ops-engineering.org")
+   ,(org-config-kadena-meeting "wC"  "Work Conference"      "conference.org")
+   ,(org-config-kadena-meeting "wO"  "Offsite Meeting"      "offsite.org")
+   ,(org-config-kadena-meeting "wt"  "CTO Meeting"          "cto.org")
+   ,(org-config-kadena-meeting "ws"  "Eng Standup"          "eng-standup.org")
+   ,(org-config-kadena-meeting "wM"  "Eng Managers"         "eng-managers.org")
+   ,(org-config-kadena-meeting "we"  "EVM Posse"            "evm-posse.org")
 
    ("wh" "Hack-a-chain")
 
-   ("whr" "Hack-a-chain Indexer Review" plain
-    (file "~/org/template/kadena/meetings/hackachain-indexer-review.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-hackachain-indexer-review.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("whs" "Hack-a-chain Internal Standup" plain
-    (file "~/org/template/kadena/meetings/hackachain-internal-standup.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-hackachain-internal-standup.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wj" "JS Team" plain
-    (file "~/org/template/kadena/meetings/js-team.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-js-team.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wP" "John <> PM Team" plain
-    (file "~/org/template/kadena/meetings/john-pm-team.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-john-pm-team.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wl" "Leads Strategy" plain
-    (file "~/org/template/kadena/meetings/leads-strategy.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-leads-strategy.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("wp" "Pact Posse" plain
-    (file "~/org/template/kadena/meetings/pact-posse.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-pact-posse.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-meeting "whr" "Hack-a-chain Indexer" "hackachain-indexer-review.org")
+   ,(org-config-kadena-meeting "whs" "Hack-a-chain Standup" "hackachain-internal-standup.org")
+   ,(org-config-kadena-meeting "wj" "JS Team"               "js-team.org")
+   ,(org-config-kadena-meeting "wP" "John <> PM Team"       "john-pm-team.org")
+   ,(org-config-kadena-meeting "wl" "Leads Strategy"        "leads-strategy.org")
+   ,(org-config-kadena-meeting "wp" "Pact Posse"            "pact-posse.org")
 
    ("wo" "1-on-1s")
 
@@ -1044,11 +956,13 @@ SCHEDULED: %t
         (<= (length (replace-regexp-in-string "\\[\\[.+?\\]\\[\\(.+?\\)\\]\\]"
                                               "\\1" (org-get-heading t))) 72)))))))
 
-(defun org-config-find (query)
-  (interactive "sQuery: ")
+(defun org-config-find (query &optional arg)
+  (interactive "sQuery: \nP")
   (org-ql-search (org-agenda-files)
-    `(and (or (todo)
-              (todo "NOTE"))
+    `(and ,(if arg
+               '(todo)
+             '(or (todo)
+                  (todo "NOTE")))
           (not (habit))
           (rifle ,query))))
 

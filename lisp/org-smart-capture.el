@@ -150,10 +150,25 @@
       (org-capture-finalize)
       (message "Captured: (%s) %s" fname subject))))
 
+(defun org-smart-capture-create-file-task ()
+  "Create Org task with attached file from Dired entry at point."
+  (interactive)
+  (require 'org-attach)
+  (unless (derived-mode-p 'dired-mode)
+    (user-error "Not in Dired buffer"))
+  (let* ((target-file (dired-get-filename nil t))
+         (heading (file-name-nondirectory target-file)))
+    (call-interactively #'org-capture)
+    (org-attach-attach target-file nil 'mv)))
+
 ;;;###autoload
 (defun org-smart-capture (&optional arg func)
   (interactive "P")
-  (cond ((eq major-mode 'gnus-article-mode)
+  (cond ((and (eq major-mode 'dired-mode)
+              (y-or-n-p "Create task from file/directory as attachment?"))
+         (org-smart-capture-create-file-task))
+
+        ((eq major-mode 'gnus-article-mode)
          (org-smart-capture-article)
          (with-current-buffer gnus-summary-buffer
            (gnus-summary-mark-as-read
