@@ -44,8 +44,7 @@ work out.
 
 Example:
   (loeb (list (lambda (xs) (length xs))
-              (lambda (xs)
-                (+ (thunk-force (nth 0 xs)) (length xs)))))
+              (lambda (xs) (+ (thunk-force (nth 0 xs)) (length xs)))))
     ==> (2 4)"
   (letrec ((go (seq-map (lambda (f) (thunk-delay (funcall f go))) fs)))
     (seq-map #'thunk-force go)))
