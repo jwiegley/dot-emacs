@@ -396,38 +396,4 @@ transform."
 (defmacro with (alist &rest body)
   `(cl-progv (mapcar #'car ,alist) (mapcar #'cdr ,alist) ,@body))
 
-(defun loeb (fs)
-  "The loeb function, implemented in Emacs Lisp.
-Basically, you take a sequence of functions from a sequence to a
-value, and calculate a sequence of values by passing the
-\"final\" sequence to every one of those functions. But it's a
-fixed point, so as long as it forms a DAG, the references all
-work out.
-
-Example:
-
-  (loeb (list (lambda (xs) (length xs))
-              (lambda (xs)
-                (+ (thunk-force (nth 0 xs)) (length xs)))))
-    ==> (2 4)"
-  (letrec ((go (seq-map (lambda (f) (thunk-delay (funcall f go))) fs)))
-    (seq-map #'thunk-force go)))
-
-(defun loeb-alist (fs)
-  "The loeb function, specialized to alists. See `loeb'.
-Example:
-
-  (loeb-alist '((foo . (lambda (alist)
-                          (thunk-force (alist-get 'bar alist))))
-                (bar . (lambda (alist) 2))))"
-  (letrec ((go (seq-map
-                (lambda (cell)
-                  (cons (car cell)
-                        (thunk-delay (funcall (cdr cell) go))))
-                fs)))
-    (seq-map (lambda (cell)
-               (cons (car cell)
-                     (thunk-force (cdr cell))))
-             go)))
-
 (provide 'personal)

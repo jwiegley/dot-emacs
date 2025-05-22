@@ -2975,7 +2975,7 @@ up before you execute another command."
     :description "Anthropic's Claude, thinking"
     :backend "Claude-thinking"
     :model 'claude-3-7-sonnet-20250219
-    :temperature 0.7)
+    :temperature 1.0)
 
   (gptel-make-preset 'coding
     :description "Karthik's coding example"
@@ -3271,8 +3271,10 @@ up before you execute another command."
 (use-package corsair
   :demand t
   :bind
-  ("C-x C C" . corsair-open-chat-buffer)
-  ("C-x C w" . corsair-accumulate-selected-text)
+  (:map
+   gptel-cmd-map
+   ("C" . corsair-open-chat-buffer)
+   ("w" . corsair-accumulate-selected-text))
   :preface
   (defun gptel-add-asterixes ()
     (let (inserted)
@@ -3332,7 +3334,9 @@ up before you execute another command."
   (:map gptel-mode-map
         ("C-c C-t" . gptel-extra-clear-buffer))
   :config
-  (push '(code-infill . gptel-extra-code-infill) gptel-directives))
+  (push '(code-infill . gptel-extra-code-infill) gptel-directives)
+
+  (gptel-extra-write-to-org-roam-install))
 #+end_src
 
 *** gptel-prompts
@@ -5155,7 +5159,7 @@ append it to ENTRY."
    ("C-c I"   . insert-user-timestamp)
    ("C-c q"   . fill-region)
    ("C-c s"   . replace-string)
-   ("C-c u"   . rename-uniquely)
+   ;; ("C-c u"   . rename-uniquely) ; this is available at C-x x u
    ("C-h K"   . describe-keymap)
    ("C-h e a" . apropos-value)
    ("C-h e e" . view-echo-area-messages)
@@ -10200,7 +10204,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-document-title
    ((t (:foreground "pale turquoise" :weight bold :height 1.5 :family "DejaVu Sans"))))
   (org-block ((t (:inherit shadow :extend t :background "#090011"))))
-  (org-block-begin-line ((t (:inherit org-meta-line :extend t :background "#120022"))))
+  (org-block-begin-line ((t (:inherit org-meta-line :extend t :background "grey10"))))
   :defines
   (org-archive-save-context-info)
   :preface
