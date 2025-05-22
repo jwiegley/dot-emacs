@@ -86,4 +86,25 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (org-insert-heading)
     (insert "New chat\n\n*Prompt*: ")))
 
+(defun gptel-extra-write-to-org-roam ()
+  (remove-hook 'write-contents-functions
+               #'gptel-extra-write-to-org-roam)
+
+  (set-visited-file-name
+   (expand-file-name (format-time-string "%Y%m%d%H%M-chat.org")
+                     "~/org/agent"))
+
+  (save-excursion
+    (goto-char (point-min))
+    (run-hooks 'org-capture-before-finalize-hook)
+    (vulpea-buffer-prop-set "title" "Chat")
+    (org-roam-extra-sort-file-properties)))
+
+(defun gptel-extra-write-to-org-roam-install ()
+  (add-hook 'gptel-mode-hook
+            #'(lambda ()
+                (unless (buffer-file-name)
+                  (add-hook 'write-contents-functions
+                            #'gptel-extra-write-to-org-roam)))))
+
 (provide 'gptel-extra)
