@@ -396,4 +396,10 @@ transform."
 (defmacro with (alist &rest body)
   `(cl-progv (mapcar #'car ,alist) (mapcar #'cdr ,alist) ,@body))
 
+(defun buffer-locals ()
+  (interactive)
+  (let ((vars (buffer-local-variables)))
+    (with-current-buffer (get-buffer "*scratch*")
+      (insert (pp-to-string vars)))))
+
 (provide 'personal)

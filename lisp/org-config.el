@@ -156,10 +156,11 @@
             -1
           1)))))
 
-(defun org-config-meeting-template (keys title file dir)
+(defun org-config-meeting-template (keys title file dir &optional slug)
   `(,keys ,title plain
           (file ,(expand-file-name file dir))
-          :target (file ,(concat "meeting/%<%Y%m%d%H%M>-" file))
+          :target (file ,(concat "meeting/%<%Y%m%d%H%M>-"
+                                 (or slug "") file))
           :immediate-finish t
           :jump-to-captured t
           :unnarrowed t
@@ -167,6 +168,10 @@
 
 (defun org-config-kadena-meeting (keys title file)
   (org-config-meeting-template keys title file "~/org/template/kadena/meetings"))
+
+(defun org-config-kadena-1-on-1 (keys title file)
+  (org-config-meeting-template keys title file "~/org/template/kadena/one-on-one"
+                               "1-on-1-"))
 
 (defun org-config-bahai-meeting (keys title file)
   (org-config-meeting-template keys title file "~/org/template/bahai/meetings"))
@@ -450,77 +455,21 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ("bc" "C2G Admin" plain
-    (file "~/org/template/bahai/meetings/c2g-admin.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-c2g-admin.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bD" "National Convention Delegate Report" plain
-    (file "~/org/template/bahai/meetings/national-convention-delegate-report.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-national-convention-delegate-report.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bf" "Ali Nakhjavani Development Fund" plain
-    (file "~/org/template/bahai/meetings/ali-nakhjavani-development-fund.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-ali-nakhjavani-development-fund.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bF" "Regional Council and the Flow of Guidance" plain
-    (file "~/org/template/bahai/meetings/regional-council-and-flow-of-guidance.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-regional-council-and-flow-of-guidance.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bn" "National Treasurer's Office" plain
-    (file "~/org/template/bahai/meetings/national-treasurers-office.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-national-treasurers-office.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("br" "Regional Treasurer's Office" plain
-    (file "~/org/template/bahai/meetings/regional-treasurers-office.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-regional-treasurers-office.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bi" "Ruhi Intensive" plain
-    (file "~/org/template/bahai/meetings/ruhi-intensive.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-ruhi-intensive.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bI" "Ruhi Intensive Reflection" plain
-    (file "~/org/template/bahai/meetings/ruhi-intensive-reflection.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-ruhi-intensive-reflection.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("bu" "Unit Convention" plain
-    (file "~/org/template/bahai/meetings/unit-convention.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-unit-convention.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-bahai-meeting "bc" "C2G Admin" "c2g-admin.org")
+   ,(org-config-bahai-meeting "bD" "National Convention Delegate Report"
+                              "national-convention-delegate-report.org")
+   ,(org-config-bahai-meeting "bf" "Ali Nakhjavani Development Fund"
+                              "ali-nakhjavani-development-fund.org")
+   ,(org-config-bahai-meeting "bF" "Regional Council and the Flow of Guidance"
+                              "regional-council-and-flow-of-guidance.org")
+   ,(org-config-bahai-meeting "bn" "National Treasurer's Office"
+                              "national-treasurers-office.org")
+   ,(org-config-bahai-meeting "br" "Regional Treasurer's Office"
+                              "regional-treasurers-office.org")
+   ,(org-config-bahai-meeting "bi" "Ruhi Intensive" "ruhi-intensive.org")
+   ,(org-config-bahai-meeting "bI" "Ruhi Intensive Reflection"
+                              "ruhi-intensive-reflection.org")
+   ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
 
    ("w" "Work templates")
 
@@ -591,129 +540,44 @@ SCHEDULED: %t
 
    ("woa" "Names beginning with A")
 
-   ("woab" "1-on-1 Anastasia Bez" plain
-    (file "~/org/template/kadena/one-on-one/anastasia-bez.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-anastasia-bez.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("woag" "1-on-1 Albert Groothedde" plain
-    (file "~/org/template/kadena/one-on-one/albert-groothedde.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-albert-groothedde.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("woao" "1-on-1 Annelise Osborne" plain
-    (file "~/org/template/kadena/one-on-one/annelise-osborne.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-annelise-osborne.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "woab" "1-on-1 Anastasia Bez" "anastasia-bez.org")
+   ,(org-config-kadena-1-on-1 "woag" "1-on-1 Albert Groothedde" "albert-groothedde.org")
+   ,(org-config-kadena-1-on-1 "woao" "1-on-1 Annelise Osborne" "annelise-osborne.org")
 
    ("woe" "Names beginning with E")
 
-   ("woen" "1-on-1 Edmund Noble" plain
-    (file "~/org/template/kadena/one-on-one/edmund-noble.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-edmund-noble.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("woep" "1-on-1 Emily Pillmore" plain
-    (file "~/org/template/kadena/one-on-one/emily-pillmore.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-emily-pillmore.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "woen" "1-on-1 Edmund Noble" "edmund-noble.org")
+   ,(org-config-kadena-1-on-1 "woep" "1-on-1 Emily Pillmore" "emily-pillmore.org")
 
    ("woh" "Names beginning with H")
 
-   ("woha" "1-on-1 Hafsah Asmat" plain
-    (file "~/org/template/kadena/one-on-one/hafsah-asmat.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-hafsah-asmat.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "woha" "1-on-1 Hafsah Asmat" "hafsah-asmat.org")
 
    ("woj" "Names beginning with J")
 
-   ("wojb" "1-on-1 June Boston" plain
-    (file "~/org/template/kadena/one-on-one/june-boston.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-june-boston.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("wojc" "1-on-1 Jose Cardona" plain
-    (file "~/org/template/kadena/one-on-one/jose-cardona.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-jose-cardona.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("wojm" "1-on-1 Jesse Marquez" plain
-    (file "~/org/template/kadena/one-on-one/jesse-marquez.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-jesse-marquez.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "wojb" "1-on-1 June Boston" "june-boston.org")
+   ,(org-config-kadena-1-on-1 "wojc" "1-on-1 Jose Cardona" "jose-cardona.org")
+   ,(org-config-kadena-1-on-1 "wojm" "1-on-1 Jesse Marquez" "jesse-marquez.org")
 
    ("wol" "Names beginning with L")
 
-   ("wolb" "1-on-1 Leah Bingham" plain
-    (file "~/org/template/kadena/one-on-one/leah-bingham.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-leah-bingham.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("wolk" "1-on-1 Lars Kuhtz" plain
-    (file "~/org/template/kadena/one-on-one/lars-kuhtz.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-lars-kuhtz.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("wolg" "1-on-1 Lisa Gunn" plain
-    (file "~/org/template/kadena/one-on-one/lisa-gunn.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-lisa-gunn.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-   ("wolo" "1-on-1 Linda Ortega" plain
-    (file "~/org/template/kadena/one-on-one/linda-ortega.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-linda-ortega.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "wolb" "1-on-1 Leah Bingham" "leah-bingham.org")
+   ,(org-config-kadena-1-on-1 "wolk" "1-on-1 Lars Kuhtz" "lars-kuhtz.org")
+   ,(org-config-kadena-1-on-1 "wolg" "1-on-1 Lisa Gunn" "lisa-gunn.org")
+   ,(org-config-kadena-1-on-1 "wolo" "1-on-1 Linda Ortega" "linda-ortega.org")
 
    ("wor" "Names beginning with R")
 
-   ("wors" "1-on-1 Robert Soeldner" plain
-    (file "~/org/template/kadena/one-on-one/robert-soeldner.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-robert-soeldner.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-1-on-1 "wors" "1-on-1 Robert Soeldner" "robert-soeldner.org")
 
    ("wos" "Names beginning with S")
 
-   ("wosp" "1-on-1 Stuart Popejoy" plain
-    (file "~/org/template/kadena/one-on-one/stuart-popejoy.org")
-    :target (file "meeting/%<%Y%m%d%H%M>-1-on-1-stuart-popejoy.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t))
+   ,(org-config-kadena-1-on-1 "wosp" "1-on-1 Stuart Popejoy" "stuart-popejoy.org")
+
+   ("wow" "Names beginning with W")
+
+   ,(org-config-kadena-1-on-1 "wowm" "1-on-1 Will Martino" "will-martino.org")
+   )
 
  org-roam-dailies-capture-templates
  '(("d" "default" entry "* %U %?"
