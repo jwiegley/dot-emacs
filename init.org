@@ -2530,7 +2530,7 @@ your system."
   :after eshell)
 #+end_src
 
-** etags
+** COMMENT etags
 
 #+begin_src emacs-lisp
 (use-package etags
@@ -2907,10 +2907,7 @@ up before you execute another command."
   :load-path "lisp/gptel"
   :demand t
   :bind
-  (:map
-   gptel-mode-map
-   ("C-c C-n"  . my/gptel-next-prompt)
-   ("C-c C-p"  . my/gptel-previous-prompt)
+  (("M-R" . gptel-rewrite)
    :prefix-map
    gptel-cmd-map
    :prefix "C-x C"
@@ -2920,7 +2917,11 @@ up before you execute another command."
    ("q"        . gptel-quick)
    ("x"        . gptel-abort)
    ("RET"      . gptel-send)
-   ("<return>" . gptel-send))
+   ("<return>" . gptel-send)
+   :map
+   gptel-mode-map
+   ("C-c C-n"  . my/gptel-next-prompt)
+   ("C-c C-p"  . my/gptel-previous-prompt))
   :hook
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
@@ -2932,6 +2933,7 @@ up before you execute another command."
   (gptel-include-reasoning 'ignore)
   (gptel-use-tools nil)
   (gptel-stream nil)
+  (gptel-track-media t)
   (gptel-use-header-line t)
   (gptel-org-branching-context t)
   (gptel-prompt-prefix-alist
@@ -2989,6 +2991,23 @@ up before you execute another command."
     :use-context 'system
     :include-reasoning 'ignore)
 
+  (gptel-make-preset 'translate
+    :description "Persian translator"
+    :backend "Claude"
+    :model 'claude-opus-4-20250514
+    :system 'persian
+    :max-tokens 8192
+    :use-context 'system)
+
+  (gptel-make-preset 'shorten
+    :description "Short Org-mode titles"
+    :backend "llama-swap"
+    ;; :model 'shared:Qwen/Qwen3-30B-A3B
+    :model 'Qwen/Qwen3-30B-A3B
+    :system 'shorten
+    :max-tokens 8192
+    :use-context 'system)
+
   ;; (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
 
   (add-hook 'gptel-post-response-functions #'my/gptel-next-prompt)
@@ -3026,32 +3045,32 @@ up before you execute another command."
 
   (use-package gptel-kagi
     :config
-    (gptel-make-kagi "Kagi" :key 'gptel-api-key))
+    (gptel-make-kagi "Kagi" :key gptel-api-key))
 
   (use-package gptel-openai
     :config
     (gptel-make-openai "ChatGPT"
-      :key 'gptel-api-key
-      ;; :stream t
+      :key gptel-api-key
       :models '(gpt-4.1 gpt-4o o1 gpt-4.5-preview))
 
     (gptel-make-openai "Groq"
       :host "api.groq.com"
       :endpoint "/openai/v1/chat/completions"
-      ;; :stream t
-      :key 'gptel-api-key
-      :models '(llama-3.1-70b-versatile
-                llama-3.1-8b-instant
-                llama3-70b-8192
-                llama3-8b-8192
-                mixtral-8x7b-32768
-                gemma-7b-it))
+      :key gptel-api-key
+      :models '(
+                meta-llama/Llama-Guard-4-12B
+                llama-3.3-70b-versatile
+                deepseek-r1-distill-llama-70b
+                meta-llama/llama-4-maverick-17b-128e-instruct
+                meta-llama/llama-4-scout-17b-16e-instruct
+                qwen-qwq-32b
+                compound-beta
+                ))
 
     (gptel-make-openai "OpenRouter"
       :host "openrouter.ai"
       :endpoint "/api/v1/chat/completions"
-      ;; :stream t
-      :key 'gptel-api-key
+      :key gptel-api-key
       :models '(openai/gpt-3.5-turbo
                 mistralai/mixtral-8x7b-instruct
                 meta-llama/codellama-34b-instruct
@@ -3062,7 +3081,6 @@ up before you execute another command."
     (gptel-make-openai "lmstudio"
       :host "127.0.0.1:1234"
       :protocol "http"
-      ;; :stream t
       :models '(
                 llama-4-scout-17b-16e-mlx-text
                 llama-4-maverick-17b-128e-instruct@4bit
@@ -3071,31 +3089,29 @@ up before you execute another command."
     (gptel-make-openai "rag-client"
       :host "127.0.0.1:8000"
       :protocol "http"
-      ;; :stream t
       :models '(
                 Guidance-RAG
                 ))
 
-    ;; (gptel-make-openai "llama-cpp"
-    ;;   :host "127.0.0.1:8080"
-    ;;   :protocol "http"
-    ;;   ;; :stream t
-    ;;   :request-params '(:options (:num_ctx 65536))
-    ;;   :models '(
-    ;;             (Mistral-Nemo-Instruct-2407
-    ;;              :context-window 64)
-    ;;             ))
+    (gptel-make-openai "llama-cpp"
+      :host "127.0.0.1:8080"
+      :protocol "http"
+      :request-params '(:options (:num_ctx 65536))
+      :models '(
+                (Mistral-Nemo-Instruct-2407
+                 :context-window 64)
+                ))
 
     (gptel-make-openai "mlx-lm"
       :host "192.168.50.5:9090"
       :protocol "http"
-      ;; :stream t
       :models '(
                 koboldcpp
                 ))
 
     (setq
-     gptel-model 'r1-1776
+     ;; gptel-model 'shared:Qwen3-235B-A22B
+     gptel-model 'Qwen3-235B-A22B
      gptel-backend
      (gptel-make-openai "llama-swap"
        :host "192.168.50.5:8080"
@@ -3132,6 +3148,7 @@ up before you execute another command."
                  mkurman/Qwen2.5-14B-DeepSeek-R1-1M
                  mlx-community/DeepSeek-V3-0324-4bit
                  mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
+                 mlx-community/whisper-large-v3-mlx
                  Nexusflow/Athene-V2-Chat
                  NousResearch/Hermes-3-Llama-3.1-8B
                  nvidia/Llama-3_3-Nemotron-Super-49B-v1
@@ -3165,6 +3182,7 @@ up before you execute another command."
                  Qwen3-8B
                  QwQ-32B
                  r1-1776
+                 r1-1776-distill-llama-70b
                  sentence-transformers/all-MiniLM-L6-v2
                  sophosympatheia/Evathene-v1.3
                  ))
@@ -3173,8 +3191,7 @@ up before you execute another command."
   (use-package gptel-openai-extras
     :config
     (gptel-make-perplexity "Perplexity"
-      :key 'gptel-api-key
-      ;; :stream t
+      :key gptel-api-key
       :models '(sonar-pro
                 sonar-reasoning-pro
                 sonar-deep-research
@@ -3192,30 +3209,27 @@ up before you execute another command."
   (use-package gptel-anthropic
     :config
     (gptel-make-anthropic "Claude"
-      :key 'gptel-api-key
-      ;; :stream t
+      :key gptel-api-key
       )
 
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
-      :key 'gptel-api-key
-      ;; :stream t
+      :key gptel-api-key
       :models '(claude-3-7-sonnet-20250219)
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
-                   `(("x-api-key" . ,key)
-                     ("anthropic-version" . "2023-06-01")
-                     ("anthropic-beta" . "pdfs-2024-09-25")
-                     ("anthropic-beta" . "output-128k-2025-02-19")
-                     ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+              `(("x-api-key" . ,key)
+                ("anthropic-version" . "2023-06-01")
+                ("anthropic-beta" . "pdfs-2024-09-25")
+                ("anthropic-beta" . "output-128k-2025-02-19")
+                ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
 
-  ;; (use-package gptel-gemini
-  ;;   :config
-  ;;   (gptel-make-gemini "Gemini"
-  ;;     :key 'gptel-api-key
-  ;;     ;; :stream t
-  ;;     ))
+  (use-package gptel-gemini
+    :config
+    (gptel-make-gemini "Gemini"
+      :key gptel-api-key
+      ))
 
   ;; (use-package gptel-ollama
   ;;   :config
@@ -3271,7 +3285,8 @@ up before you execute another command."
 (use-package corsair
   :demand t
   :bind
-  (:map
+  (("M-T" . corsair-open-chat-buffer)
+   :map
    gptel-cmd-map
    ("C" . corsair-open-chat-buffer)
    ("w" . corsair-accumulate-selected-text))
@@ -4332,32 +4347,33 @@ minibuffer change, the region is realigned.
     (transient-insert-suffix 'magit-push "p"
       '("P" "default" magit-push-current-to-upstream)))
 
-  (use-package magit-status
-    :defer t
-    :config
-    ;; Speed up Magit status by not generating all of the available sections.
-    (dolist (func '(
-                    ;; magit-insert-status-headers
-                    ;; magit-insert-untracked-files
-                    ;; magit-insert-unstaged-changes
-                    ;; magit-insert-staged-changes
-                    ;; magit-insert-stashes
-                    ;; magit-insert-unpushed-to-pushremote
-                    magit-insert-unpushed-to-upstream-or-recent
-                    magit-insert-unpulled-from-pushremote
-                    magit-insert-unpulled-from-upstream
-                    ))
-      (remove-hook 'magit-status-sections-hook func))
+  ;; (use-package magit-status
+  ;;   :defer t
+  ;;   :config
+  ;;   ;; Speed up Magit status by not generating all of the available sections.
+  ;;   (dolist (func '(
+  ;;                   ;; magit-insert-status-headers
+  ;;                   ;; magit-insert-untracked-files
+  ;;                   ;; magit-insert-unstaged-changes
+  ;;                   ;; magit-insert-staged-changes
+  ;;                   ;; magit-insert-stashes
+  ;;                   ;; magit-insert-unpushed-to-pushremote
+  ;;                   magit-insert-unpushed-to-upstream-or-recent
+  ;;                   magit-insert-unpulled-from-pushremote
+  ;;                   magit-insert-unpulled-from-upstream
+  ;;                   ))
+  ;;     (remove-hook 'magit-status-sections-hook func))
 
-    (dolist (func '(
-                    ;; magit-insert-error-header
-                    magit-insert-diff-filter-header
-                    ;; magit-insert-head-branch-header
-                    ;; magit-insert-upstream-branch-header
-                    ;; magit-insert-push-branch-header
-                    magit-insert-tags-header
-                    ))
-      (remove-hook 'magit-status-headers-hook func))))
+  ;;   (dolist (func '(
+  ;;                   ;; magit-insert-error-header
+  ;;                   magit-insert-diff-filter-header
+  ;;                   ;; magit-insert-head-branch-header
+  ;;                   ;; magit-insert-upstream-branch-header
+  ;;                   ;; magit-insert-push-branch-header
+  ;;                   magit-insert-tags-header
+  ;;                   ))
+  ;;     (remove-hook 'magit-status-headers-hook func)))
+  )
 #+end_src
 
 *** magit-autorevert
@@ -4401,6 +4417,10 @@ minibuffer change, the region is realigned.
 #+begin_src emacs-lisp
 (use-package forge
   :after magit
+  :bind
+  (:map
+   forge-common-map
+   ("C-<return>"))
   :custom
   (forge-database-file "~/.config/forge/database.sqlite")
   (forge-owned-accounts '(("jwiegley")))
@@ -6893,6 +6913,255 @@ locations. The =default-directory= variable is not changed in the process.
 (use-package consult-lsp
   :bind (:map lsp-mode-mode
               ([remap xref-find-apropos] . consult-lsp-symbols)))
+#+end_src
+
+**** COMMENT consult-omni
+
+[[https://github.com/armindarvish/consult-omni][consult-omni]] is a package for getting search results from one or several
+custom sources (web search engines, AI assistants, elfeed database, org notes,
+local files, desktop applications, mail servers, …) directly in Emacs
+minibuffer. It is a successor of [[https://github.com/armindarvish/consult-web][consult-web]], with expanded features and
+functionalities.
+
+consult-omni provides wrappers and macros around [[https://github.com/minad/consult][consult]], to make it easier
+for users to get results from different sources and combine local and web
+sources in an omni-style search. In other words, consult-omni enables getting
+consult-style multi-source or dynamically completed results in minibuffer for
+a wide range of sources including Emacs functions/packages (e.g. Emacs
+buffers, org files, elfeed,…), command-line programs (grep, find, gh, …), or
+web search engines (Google, Brave, Bing, …).
+
+consult-omni can be an open-source free alternative to other omni-search tools
+such as Alfred or MacOS spotlight. It provides a range of default sources as
+examples, but the main idea here is to remain agnostic of the source and
+provide the toolset for the users to define their own sources/workflows (a.k.a
+plugins).
+
+#+begin_src emacs-lisp
+(use-package consult-omni
+  :after consult
+  :commands
+  (consult-omni)
+  :custom
+  ;;; General settings that apply to all sources
+  (consult-omni-show-preview t) ;;; show previews
+  (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
+  (consult-omni-highlight-matches-in-minibuffer t) ;;; highlight matches in minibuffer
+  (consult-omni-highlight-matches-in-file t) ;;; highlight matches in files
+  (consult-omni-default-count 5) ;;; set default count
+  (consult-omni-default-page 0) ;;; set the default page (default is 0 for the first page)
+  ;; optionally change the consult-omni debounce, throttle and delay.
+  ;; Adjust these (e.g. increase to avoid hiting a source (e.g. an API) too frequently)
+  (consult-omni-dynamic-input-debounce 0.8)
+  (consult-omni-dynamic-input-throttle 1.6)
+  (consult-omni-dynamic-refresh-delay 0.8)
+  ;; Optionally set backend for http request (either 'url, 'request, or 'plz)
+  ;; (consult-omni-http-retrieve-backend 'plz)
+  :preface
+  (defvar consult-omni-web-sources
+    (list "gptel"
+          "Brave"
+          "elfeed"
+          "mu4e"
+          "Wikipedia"
+          "GitHub"
+          "Invidious"
+          ))
+
+  (defun consult-omni-web (&optional initial prompt sources no-callback &rest args)
+    "Interactive web search”
+
+This is similar to `consult-omni-multi', but runs the search on
+web sources defined in `consult-omni-web-sources'.
+See `consult-omni-multi' for more details.
+"
+    (interactive "P")
+    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-web" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
+          (sources (or sources consult-omni-web-sources)))
+      (consult-omni-multi initial prompt sources no-callback args)))
+
+  ;; consult-omni-local
+  (defvar consult-omni-local-sources (list "ripgrep"
+                                           "mdfind"
+                                           "Notes Search"
+                                           "Apps"
+                                           "Org Agenda"))
+  (defun consult-omni-local (&optional initial prompt sources no-callback &rest args)
+    "Interactive local search”
+
+This is similar to `consult-omni-multi', but runs the search on
+local sources defined in `consult-omni-local-sources'.
+See `consult-omni-multi' for more details.
+"
+    (interactive "P")
+    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-local" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
+          (sources (or sources consult-omni-local-sources)))
+      (consult-omni-multi initial prompt sources no-callback args)))
+
+  ;; consult-omni-scholar
+  (setq consult-omni-scholar-sources (list "PubMed" "Scopus" "Notes Search" "gptel"))
+
+  (defun consult-omni-scholar (&optional initial prompt sources no-callback &rest args)
+    "Interactive “multi-source acadmic literature” search
+
+This is similar to `consult-omni-multi', but runs the search on
+academic literature sources defined in `consult-omni-scholar-sources'.
+See `consult-omni-multi' for more details.
+"
+    (interactive "P")
+    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-multi" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
+          (sources (or sources consult-omni-scholar-sources)))
+      (consult-omni-multi initial prompt sources no-callback args)))
+
+  ;; AutoSuggest at point
+  (defun consult-omni-autosuggest-at-point ()
+    (interactive)
+    (let ((input (or (thing-at-point 'url) (thing-at-point 'filename) (thing-at-point 'symbol) (thing-at-point 'sexp) (thing-at-point 'word))))
+      (when (and (minibuffer-window-active-p (selected-window))
+                 (equal (substring input 0 1) (consult--async-split-initial nil)))
+        (setq input (substring input 1)))
+      (consult-omni-brave-autosuggest input)))
+  :config
+  (require 'consult-omni-sources)
+  (require 'consult-omni-embark)
+
+  (consult-omni-sources-load-modules)
+
+  (setq consult-omni-multi-sources
+        '("calc"
+          "File"
+          "Buffer"
+          "Bookmark"
+          "Apps"
+          "gptel"
+          "Brave"
+          "Dictionary"
+          ;; "Google"
+          "Wikipedia"
+          "elfeed"
+          ;; "mu4e"
+          "buffers text search"
+          "Notes Search"
+          "Org Agenda"
+          "GitHub"
+          "YouTube"
+          "Invidious"))
+
+  (setq consult-omni-google-customsearch-key "YOUR-GOOGLE-API-KEY-OR-FUNCTION")
+  (setq consult-omni-google-customsearch-cx "YOUR-GOOGLE-CX-NUMBER-OR-FUNCTION")
+  (setq consult-omni-brave-api-key "YOUR-BRAVE-API-KEY-OR-FUNCTION")
+  (setq consult-omni-stackexchange-api-key "YOUR-STACKEXCHANGE-API-KEY-OR-FUNCTION")
+  (setq consult-omni-pubmed-api-key "YOUR-PUBMED-API-KEY-OR-FUNCTION")
+  (setq consult-omni-openai-api-key "YOUR-OPENAI-API-KEY-OR-FUNCTION")
+
+  (setq consult-omni-gptel-cand-title #'consult-omni--gptel-make-title-short-answer)
+  (setq consult-omni-embark-default-term #'vterm)
+  (setq consult-omni-embark-video-default-player  #'mpv-play-url)
+  (setq consult-omni-open-with-prompt "  ")
+  (setq consult-omni-default-autosuggest-command #'consult-omni-dynamic-brave-autosuggest) ;;or any other autosuggest source you define
+  (setq consult-omni-default-interactive-command #'consult-omni-multi)
+  ;; (setq consult-omni-notes-backend-command "rga")
+  )
+#+end_src
+
+**** consult-gh
+
+#+begin_src emacs-lisp
+(use-package consult-gh
+  :after consult
+  :commands
+  (consult-gh
+   consult-gh-auth-switch
+   consult-gh-repo-list
+   consult-gh-issue-list
+   consult-gh-pr-list
+   consult-gh-search-repos
+   consult-gh-search-issues
+   consult-gh-search-prs
+   consult-gh-search-code
+   consult-gh-find-file
+   consult-gh-favorite-repos
+   consult-gh-user-repos
+   consult-gh-repo-clone
+   consult-gh-repo-fork
+   consult-gh-repo-create
+   consult-gh-issue-create
+   consult-gh-pr-create
+   consult-gh-dashboard
+   consult-gh-notifications)
+  :custom
+  (consult-gh-default-clone-directory "~/projects")
+  (consult-gh-show-preview t)
+  (consult-gh-preview-key "C-o")
+  (consult-gh-repo-action #'consult-gh--repo-browse-files-action)
+  (consult-gh-issue-action #'consult-gh--issue-view-action)
+  (consult-gh-pr-action #'consult-gh--pr-view-action)
+  (consult-gh-code-action #'consult-gh--code-view-action)
+  (consult-gh-file-action #'consult-gh--files-view-action)
+  (consult-gh-notifications-action #'consult-gh--notifications-action)
+  (consult-gh-dashboard-action #'consult-gh--dashboard-action)
+  (consult-gh-large-file-warning-threshold 2500000)
+  (consult-gh-prioritize-local-folder 'suggest)
+  (consult-gh-favorite-orgs-list '("kadena-io" "ekmett" "karthink" "jwiegley" "ledger"))
+  :config
+  (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
+  (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
+
+  (consult-gh-enable-default-keybindings)
+
+  (use-package consult-gh-transient
+    :after consult-gh
+    :bind
+    ("M-H" . consult-gh-transient)
+    :commands (consult-gh-transient))
+
+  (add-all-to-list 'vertico-multiform-commands
+                   '(consult-gh)
+                   '(consult-gh-auth-switch)
+                   '(consult-gh-repo-list)
+                   '(consult-gh-issue-list)
+                   '(consult-gh-pr-list)
+                   '(consult-gh-search-repos)
+                   '(consult-gh-search-issues)
+                   '(consult-gh-search-prs)
+                   '(consult-gh-search-code)
+                   '(consult-gh-find-file)
+                   '(consult-gh-favorite-repos)
+                   '(consult-gh-user-repos)
+                   '(consult-gh-repo-clone)
+                   '(consult-gh-repo-fork)
+                   '(consult-gh-repo-create)
+                   '(consult-gh-issue-create)
+                   '(consult-gh-pr-create)
+                   '(consult-gh-dashboard)
+                   '(consult-gh-notifications)))
+#+end_src
+
+***** consult-gh-embark
+
+#+begin_src emacs-lisp
+(use-package consult-gh-embark
+  :after consult-gh
+  :config
+  (consult-gh-embark-mode +1))
+#+end_src
+
+***** consult-gh-forge
+
+#+begin_src emacs-lisp
+(use-package consult-gh-forge
+  :after consult-gh
+  :custom
+  (consult-gh-forge-timeout-seconds 20)
+  :config
+  (consult-gh-forge-mode +1))
+#+end_src
+
+***** consult-gh-with-pr-review
+
+#+begin_src emacs-lisp
+(use-package consult-gh-with-pr-review
+  :after consult-gh)
 #+end_src
 
 *** COMMENT corfu
@@ -10777,6 +11046,25 @@ unfold drawers."
            for kw in keywords
            thereis (member kw (split-string
                                (or (org-entry-get (point) "KEYWORDS") "")))))
+
+  (org-ql-defpred shown ()
+    "Whether this entry is not marked as HIDE."
+    :body (not (org-entry-get (point) "HIDE")))
+
+  (org-ql-defpred about (&rest keywords)
+    "Whether this entry is \"about\" the given keyword.
+   This means checking if it's in the tags or CATEGORY."
+    :body (cl-loop
+           for kw in keywords
+           thereis (or (member kw (org-get-tags (point)))
+                       (string= kw (org-get-category (point))))))
+
+  (org-ql-defpred tasks-for (&rest who)
+    "True if this task is assigned to, or related to, anyone in WHO."
+    :body (and (apply #'org-ql--predicate-about who)
+               (org-ql--predicate-todo)
+               (org-ql--predicate-shown)))
+
   (org-ql-defpred refile-target ()
     "Return non-nil if entry is a refile target."
     :body (org-extra-refile-heading-p))

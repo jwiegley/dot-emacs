@@ -524,12 +524,20 @@ Example:
 The :sort-idx takes the 1-indexed column mentioned in
 :properties, interprets it as an Org-time, and sorts the
 resulting table on that column, ascending."
-  (let* ((columns (split-string (plist-get params :properties) " "))
+  (let* ((columns (split-string (or (plist-get params :properties)
+                                    "TODO ITEM_BY_ID TAGS")
+                                " "))
          (sort-index (plist-get params :sort-idx))
          (table
           (org-ql-select
             'org-agenda-files
-            `(and ,(read (plist-get params :query))
+            `(and ,(let ((query (plist-get params :query))
+                         (who (plist-get params :who)))
+                     (when who
+                       (setq who (format "(tasks-for \"%s\")" who)))
+                     (read (if (and query who)
+                               (format "(or %s %s)" who query)
+                             (or query who))))
                   (not (or (org-extra-project-p)
                            (org-extra-category-p))))
             :action `(org-extra-get-properties ,@columns)
@@ -681,6 +689,14 @@ resulting table on that column, ascending."
   (when (and (eq major-mode 'org-mode)
              (string-match "kadena/team/202409042228-team.org" (buffer-file-name)))
     (org-extra-update-team)))
+
+(defun org-extra-unlink-region (&optional beg end)
+  (interactive)
+  (save-restriction
+    (narrow-to-region (or beg (point-min)) (or end (point-max)))
+    (goto-char (point-min))
+    (while (re-search-forward org-link-bracket-re nil t)
+      (replace-match (match-string 2)))))
 
 (provide 'org-extra)
 
