@@ -16,11 +16,19 @@
   (let ((name (or given-name
                   (do-applescript (format "
 	tell application \"DEVONthink 3\"
+	    try
 		get name of content record
+	    on error errMsg
+		get name of current group
+	    end try
 	end tell"))))
 	(location (do-applescript (format "
 	tell application \"DEVONthink 3\"
+	    try
 		get uuid of content record
+	    on error errMsg
+		get uuid of current group
+	    end try
 	end tell"))))
     (org-make-link-string
      (concat "x-devonthink-item://" (org-remove-double-quotes location))
