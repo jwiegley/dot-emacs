@@ -34,7 +34,7 @@
 (require 'seq)
 (require 'thunk)
 
-(defun loeb (fs)
+(defun loeb-seq (fs)
   "The loeb function, implemented in Emacs Lisp.
 Basically, you take a sequence of functions from a sequence to a
 value, and calculate a sequence of values by passing the
@@ -65,7 +65,7 @@ Example:
                      (thunk-force (cdr cell))))
              go)))
 
-(defun plist-map! (fn plist)
+(defun loeb-plist-map! (fn plist)
   "Map FN over PLIST, modifying it in-place and returning it.
 FN must take two arguments: the key and the value."
   (let ((plist-index plist))
@@ -81,10 +81,12 @@ Example:
   (loeb-plist '(:foo (lambda (plist)
                         (thunk-force (plist-get plist :bar)))
                 :bar (lambda (plist) 2)))"
-  (letrec ((go (plist-map!
+  (letrec ((go (loeb-plist-map!
                 (lambda (_key value)
                   (thunk-delay (funcall value go)))
                 fs)))
-    (plist-map! (lambda (_key value) (thunk-force value)) go)))
+    (loeb-plist-map! (lambda (_key value) (thunk-force value)) go)))
+
+(defalias 'loeb-resolve 'thunk-delay)
 
 (provide 'loeb)
