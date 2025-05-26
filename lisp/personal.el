@@ -393,8 +393,26 @@ transform."
            (progn ,@body)
          (setq ,var ,save-var)))))
 
-(defmacro with (alist &rest body)
-  `(cl-progv (mapcar #'car ,alist) (mapcar #'cdr ,alist) ,@body))
+;;; These are obviated by the `let-alist' package.
+
+;; (defmacro with (alist &rest body)
+;;   "Use an alist as a set of scoped symbol definitions.
+;; This can be used alone, or in conjunction with `capture'. Example:
+
+;;   (defun bar (scope)
+;;     (with scope
+;;       (message \"x = %s, y = %s, z = %s\" x y z)))
+
+;;   (defun foo ()
+;;     (let ((x 100)
+;;           (y 200)
+;;           (z 300))
+;;       (bar (capture x y z))))"
+;;   (declare (indent defun))
+;;   `(cl-progv (mapcar #'car ,alist) (mapcar #'cdr ,alist) ,@body))
+
+;; (defmacro capture (&rest syms)
+;;   `(mapcar #'(lambda (sym) (cons (quote sym) sym)) (quote ,syms)))
 
 (defun buffer-locals ()
   (interactive)

@@ -31,6 +31,53 @@
 
 (require 'gptel)
 
+(gptel-make-preset 'gpt
+  :description "OpenAI's ChatGPT"
+  :backend "ChatGPT"
+  :model 'gpt-4.1
+  :temperature 1.0)
+
+(gptel-make-preset 'claude
+  :description "Anthropic's Claude, thinking"
+  :backend "Claude-thinking"
+  :model 'claude-3-7-sonnet-20250219
+  :temperature 1.0)
+
+(gptel-make-preset 'coding
+  :description "Karthik's coding example"
+  :backend "ChatGPT"
+  :model 'gpt-4.1
+  :system 'code-infill
+  :tools nil
+  :temperature 1.0
+  :max-tokens nil
+  :use-context 'system
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'translate
+  :description "Persian translator"
+  :backend "Claude"
+  :model 'claude-opus-4-20250514
+  :system 'persian
+  :max-tokens 2048
+  :use-context 'system)
+
+(gptel-make-preset 'code
+  :description "Expert coder"
+  :backend "Claude"
+  :model 'claude-opus-4-20250514
+  :system 'haskell
+  :max-tokens 1024
+  :use-context 'system)
+
+(gptel-make-preset 'default
+  :description "Default setup"
+  :backend "llama-swap"
+  :model 'Qwen3-235B-A22B
+  :system 'default
+  :max-tokens 8192
+  :use-context 'user)
+
 (gptel-make-tool
  :function (lambda (location unit)
              (url-retrieve-synchronously "api.weather.com/..."

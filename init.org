@@ -2432,6 +2432,7 @@ your system."
 (use-package eshell
   :commands (eshell eshell-command)
   :custom
+  (eshell-password-prompt-regexp "")
   (eshell-directory-change-hook '(my-direnv-maybe-update))
   (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
@@ -2907,8 +2908,7 @@ up before you execute another command."
   :load-path "lisp/gptel"
   :demand t
   :bind
-  (("M-R" . gptel-rewrite)
-   :prefix-map
+  (:prefix-map
    gptel-cmd-map
    :prefix "C-x C"
    ("a"        . gptel-context-add)
@@ -2965,65 +2965,21 @@ up before you execute another command."
            (regexp-quote (gptel-prompt-prefix-string)) nil t)
       (goto-char (line-end-position))))
   :config
-  (setq gptel-expert-commands t)
+  (setq gptel-expert-commands t)        ; this is a defvar
 
-  (gptel-make-preset 'gpt
-    :description "OpenAI's ChatGPT"
-    :backend "ChatGPT"
-    :model 'gpt-4.1
-    :temperature 1.0)
-
-  (gptel-make-preset 'claude
-    :description "Anthropic's Claude, thinking"
-    :backend "Claude-thinking"
-    :model 'claude-3-7-sonnet-20250219
-    :temperature 1.0)
-
-  (gptel-make-preset 'coding
-    :description "Karthik's coding example"
-    :backend "ChatGPT"
-    :model 'gpt-4.1
-    :system 'code-infill
-    :tools nil
-    ;; :stream t
-    :temperature 1.0
-    :max-tokens nil
-    :use-context 'system
-    :include-reasoning 'ignore)
-
-  (gptel-make-preset 'translate
-    :description "Persian translator"
-    :backend "Claude"
-    :model 'claude-opus-4-20250514
-    :system 'persian
-    :max-tokens 8192
-    :use-context 'system)
-
-  (gptel-make-preset 'shorten
-    :description "Short Org-mode titles"
-    :backend "llama-swap"
-    ;; :model 'shared:Qwen/Qwen3-30B-A3B
-    :model 'Qwen/Qwen3-30B-A3B
-    :system 'shorten
-    :max-tokens 8192
-    :use-context 'system)
-
-  ;; (add-hook 'gptel-augment-handler-functions #'my/apply-gptel-preset)
-
-  (add-hook 'gptel-post-response-functions #'my/gptel-next-prompt)
-  (add-hook 'gptel-post-response-functions #'my/gptel-remove-extra-whitespace)
+  (add-all-to-list 'gptel-post-response-functions
+                   #'my/gptel-next-prompt
+                   #'my/gptel-remove-extra-whitespace)
 
   (use-package gptel-context)
   (use-package gptel-quick)
   (use-package gptel-integrations)
   (use-package gptel-org)
-  (use-package gptel-rewrite
-    :demand t
-    :bind (:map gptel-rewrite-actions-map
-                ("<return>" . gptel--rewrite-dispatch)))
 
   (use-package gptel-transient
     :config
+    ;; Patch the transient menu so it accept <return> instead of RET.
+    ;; I use keyboard return in Emacs, but C-m is bound to a command.
     (when (ignore-errors (transient-get-suffix 'gptel-menu "RET"))
       (transient-suffix-put 'gptel-menu "RET" :key "<return>"))
     (when (ignore-errors (transient-get-suffix 'gptel-tools "RET"))
@@ -3043,80 +2999,109 @@ up before you execute another command."
         "-D-")
       "Arguments always passed to Curl for gptel queries."))
 
-  (use-package gptel-kagi
-    :config
-    (gptel-make-kagi "Kagi" :key gptel-api-key))
+  ;; (use-package gptel-kagi
+  ;;   :config
+  ;;   (gptel-make-kagi "Kagi"
+  ;;     :key gptel-api-key
+  ;;     :models '(
+  ;;               fastgpt
+  ;;               )))
+
+  ;; (use-package gptel-ollama
+  ;;   :config
+  ;;   (gptel-make-ollama "Ollama"
+  ;;     :host "localhost:11434"
+  ;;     :protocol "http"
+  ;;     :request-params '(:options (:num_ctx 8192))
+  ;;     :models
+  ;;     '(
+  ;;       HammerAI/midnight-miqu-70b-v1.5:latest
+  ;;       beezu/Midnight-Miqu-103B-v1.5:latest
+  ;;       datacrystals/midnight-rose103b-v2:latest
+  ;;       datacrystals/miqulitz120b-v2:latest
+
+  ;; (use-package gptel-gemini
+  ;;   :config
+  ;;   (gptel-make-gemini "Gemini"
+  ;;     :key gptel-api-key
+  ;;     ))
 
   (use-package gptel-openai
     :config
     (gptel-make-openai "ChatGPT"
       :key gptel-api-key
-      :models '(gpt-4.1 gpt-4o o1 gpt-4.5-preview))
+      :models '(
+                gpt-4.1
+                gpt-4.5-preview
+                gpt-4o
+                o1
+                ))
 
     (gptel-make-openai "Groq"
       :host "api.groq.com"
       :endpoint "/openai/v1/chat/completions"
       :key gptel-api-key
       :models '(
-                meta-llama/Llama-Guard-4-12B
-                llama-3.3-70b-versatile
+                compound-beta
                 deepseek-r1-distill-llama-70b
+                llama-3.3-70b-versatile
+                meta-llama/Llama-Guard-4-12B
                 meta-llama/llama-4-maverick-17b-128e-instruct
                 meta-llama/llama-4-scout-17b-16e-instruct
                 qwen-qwq-32b
-                compound-beta
                 ))
 
-    (gptel-make-openai "OpenRouter"
-      :host "openrouter.ai"
-      :endpoint "/api/v1/chat/completions"
-      :key gptel-api-key
-      :models '(openai/gpt-3.5-turbo
-                mistralai/mixtral-8x7b-instruct
-                meta-llama/codellama-34b-instruct
-                codellama/codellama-70b-instruct
-                google/palm-2-codechat-bison-32k
-                google/gemini-pro))
+    ;; (gptel-make-openai "OpenRouter"
+    ;;   :host "openrouter.ai"
+    ;;   :endpoint "/api/v1/chat/completions"
+    ;;   :key gptel-api-key
+    ;;   :models '(
+    ;;             codellama/codellama-70b-instruct
+    ;;             google/gemini-pro
+    ;;             google/palm-2-codechat-bison-32k
+    ;;             meta-llama/codellama-34b-instruct
+    ;;             mistralai/mixtral-8x7b-instruct
+    ;;             openai/gpt-3.5-turbo
+    ;;             ))
 
-    (gptel-make-openai "lmstudio"
-      :host "127.0.0.1:1234"
-      :protocol "http"
-      :models '(
-                llama-4-scout-17b-16e-mlx-text
-                llama-4-maverick-17b-128e-instruct@4bit
-                ))
+    ;; (gptel-make-openai "lmstudio"
+    ;;   :host "127.0.0.1:1234"
+    ;;   :protocol "http"
+    ;;   :models '(
+    ;;             ))
 
-    (gptel-make-openai "rag-client"
-      :host "127.0.0.1:8000"
-      :protocol "http"
-      :models '(
-                Guidance-RAG
-                ))
+    ;; (gptel-make-openai "rag-client"
+    ;;   :host "127.0.0.1:8000"
+    ;;   :protocol "http"
+    ;;   :models '(
+    ;;             Guidance-RAG
+    ;;             ))
 
-    (gptel-make-openai "llama-cpp"
-      :host "127.0.0.1:8080"
-      :protocol "http"
-      :request-params '(:options (:num_ctx 65536))
-      :models '(
-                (Mistral-Nemo-Instruct-2407
-                 :context-window 64)
-                ))
+    ;; (gptel-make-openai "llama-cpp"
+    ;;   :host "127.0.0.1:8080"
+    ;;   :protocol "http"
+    ;;   :request-params '(:options (:num_ctx 65536))
+    ;;   :models '(
+    ;;             ))
 
-    (gptel-make-openai "mlx-lm"
-      :host "192.168.50.5:9090"
-      :protocol "http"
-      :models '(
-                koboldcpp
-                ))
+    ;; (gptel-make-openai "mlx-lm"
+    ;;   :host "192.168.50.5:9090"
+    ;;   :protocol "http"
+    ;;   :models '(
+    ;;             ))
 
     (setq
-     ;; gptel-model 'shared:Qwen3-235B-A22B
      gptel-model 'Qwen3-235B-A22B
      gptel-backend
      (gptel-make-openai "llama-swap"
-       :host "192.168.50.5:8080"
-       :protocol "http"
-       ;; :stream t
+       :host
+       (if (string-match-p "\\<[Hh]era\\>" system-name)
+           "127.0.0.1:8080"
+         "192.168.50.5:8443")
+       :protocol
+       (if (string-match-p "\\<[Hh]era\\>" system-name)
+           "http"
+         "https")
        :models '(
                  agentica-org/DeepCoder-1.5B-Preview
                  agentica-org/DeepCoder-14B-Preview
@@ -3214,7 +3199,9 @@ up before you execute another command."
 
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
       :key gptel-api-key
-      :models '(claude-3-7-sonnet-20250219)
+      :models '(
+                claude-3-7-sonnet-20250219
+                )
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
               `(("x-api-key" . ,key)
@@ -3224,59 +3211,29 @@ up before you execute another command."
                 ("anthropic-beta" . "prompt-caching-2024-07-31"))))
       :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                                   :max_tokens 4096)))
-
-  (use-package gptel-gemini
-    :config
-    (gptel-make-gemini "Gemini"
-      :key gptel-api-key
-      ))
-
-  ;; (use-package gptel-ollama
-  ;;   :config
-  ;;   (gptel-make-ollama "Ollama"
-  ;;     :host "localhost:11434"
-  ;;     :protocol "http"
-  ;;     ;; :stream t
-  ;;     :request-params '(:options (:num_ctx 8192))
-  ;;     :models
-  ;;     '(
-  ;;       HammerAI/midnight-miqu-70b-v1.5:latest
-  ;;       beezu/Midnight-Miqu-103B-v1.5:latest
-  ;;       datacrystals/midnight-rose103b-v2:latest
-  ;;       datacrystals/miqulitz120b-v2:latest
-
-  ;;       athene-v2:72b
-  ;;       command-r:35b
-  ;;       deepseek-coder-v2:236b
-  ;;       deepseek-r1:671b
-  ;;       deepseek-r1:70b
-  ;;       dolphin3:latest
-  ;;       falcon3:10b
-  ;;       gemma3:27b
-  ;;       hermes3:405b
-  ;;       llama3-chatqa:70b
-  ;;       llama3.1:405b
-  ;;       llama3.2-vision:90b
-  ;;       llama3.3:70b
-  ;;       mistral-large:123b
-  ;;       mistral-nemo:12b
-  ;;       mistral-small:latest
-  ;;       mistral:7b
-  ;;       mixtral:8x22b
-  ;;       nemotron:70b
-  ;;       olmo2:13b
-  ;;       openthinker:32b
-  ;;       orca-mini:70b
-  ;;       phi4:latest
-  ;;       qwen2-math:72b
-  ;;       qwen2.5-coder:32b
-  ;;       qwen2.5:72b
-  ;;       qwq:32b
-  ;;       starcoder2:15b
-  ;;       tulu3:70b
-  ;;       wizardcoder:33b
-  ;;       )))
   )
+#+end_src
+
+*** gptel-rewrite
+
+#+begin_src emacs-lisp
+(use-package gptel-rewrite
+  :demand t
+  :bind (("M-R" . gptel-rewrite)
+         :map gptel-rewrite-actions-map
+         ("<return>" . gptel--rewrite-dispatch))
+  :preface
+  (defun gptel-shorten ()
+    (interactive)
+    (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
+  :config
+  (gptel-make-preset 'shorten
+    :description "Shorten Org-mode titles"
+    :backend "llama-swap"
+    :model 'Qwen/Qwen3-30B-A3B
+    :rewrite-directive 'shorten
+    :rewrite-message "Shorten it as described. /no_think"
+    :max-tokens 8192))
 #+end_src
 
 *** corsair
@@ -3303,40 +3260,6 @@ up before you execute another command."
         (goto-char (point-max)))))
   :config
   (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes))
-#+end_src
-
-*** COMMENT inline-diff
-
-#+begin_src emacs-lisp
-(use-package inline-diff
-  :after gptel-rewrite)
-
-(use-package gptel-rewrite
-  :after gptel
-  :demand t
-  :bind (:map gptel-rewrite-actions-map
-         ("C-c C-i" . gptel--rewrite-inline-diff))
-  :preface
-  (defun gptel--rewrite-inline-diff (&optional ovs)
-    "Start an inline-diff session on OVS."
-    (interactive (list (gptel--rewrite-overlay-at)))
-    (unless (require 'inline-diff nil t)
-      (user-error "Inline diffs require the inline-diff package."))
-    (when-let* ((ov-buf (overlay-buffer (or (car-safe ovs) ovs)))
-                ((buffer-live-p ov-buf)))
-      (with-current-buffer ov-buf
-        (cl-loop for ov in (ensure-list ovs)
-                 for ov-beg = (overlay-start ov)
-                 for ov-end = (overlay-end ov)
-                 for response = (overlay-get ov 'gptel-rewrite)
-                 do (delete-overlay ov)
-                 (inline-diff-words
-                  ov-beg ov-end response)))))
-  :config
-  (when (boundp 'gptel--rewrite-dispatch-actions)
-    (add-to-list
-     'gptel--rewrite-dispatch-actions '(?i "inline-diff")
-     'append)))
 #+end_src
 
 *** gptel-extra
