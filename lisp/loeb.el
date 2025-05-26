@@ -89,7 +89,7 @@ Example:
 
 (defalias 'loeb-resolve 'thunk-force)
 
-(defun loeb-alist-with-overlays (&rest overlays)
+(defun loeb-alist-overlays (&rest overlays)
   "Resolve alist of possibly overlaid functions to alist of values.
 Each overlay in the set of OVERLAYS has the following general
 type:
@@ -112,7 +112,7 @@ in nixpkgs."
     nil)))
 
 (when nil
-  (loeb-alist-with-overlays
+  (loeb-alist-overlays
    '((foo . (lambda (final _parent)
               (1+ (loeb-resolve (alist-get 'bar final)))))
      (bar . (lambda (_final _parent)

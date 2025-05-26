@@ -4344,10 +4344,8 @@ minibuffer change, the region is realigned.
 #+begin_src emacs-lisp
 (use-package forge
   :after magit
-  :bind
-  (:map
-   forge-common-map
-   ("C-<return>"))
+  :bind (:map forge-common-map
+              ("C-<return>"))
   :custom
   (forge-database-file "~/.config/forge/database.sqlite")
   (forge-owned-accounts '(("jwiegley")))
@@ -4364,18 +4362,17 @@ minibuffer change, the region is realigned.
     (forge-create-pullreq (concat "origin/" branch) "origin/master"))
   :config
   (transient-insert-suffix 'forge-dispatch "c i"
-    '("p" "quick-pr" my-quick-create-pull-request))
-  (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
+    '("p" "quick-pr" my-quick-create-pull-request)))
 #+end_src
 
-*** magit-annex
+*** COMMENT magit-annex
 
 #+begin_src emacs-lisp
 (use-package magit-annex
   :after magit)
 #+end_src
 
-*** magit-imerge
+*** COMMENT magit-imerge
 
 #+begin_src emacs-lisp
 (use-package magit-imerge
