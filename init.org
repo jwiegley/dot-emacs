@@ -3195,12 +3195,16 @@ up before you execute another command."
     :config
     (gptel-make-anthropic "Claude"
       :key gptel-api-key
+      :models '(
+                claude-opus-4-20250514
+                claude-3-5-haiku-20241022
+                )
       )
 
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
       :key gptel-api-key
       :models '(
-                claude-3-7-sonnet-20250219
+                claude-sonnet-4-20250514
                 )
       :header
       (lambda () (when-let* ((key (gptel--get-api-key)))
@@ -4362,6 +4366,27 @@ minibuffer change, the region is realigned.
   (transient-insert-suffix 'forge-dispatch "c i"
     '("p" "quick-pr" my-quick-create-pull-request))
   (remove-hook 'magit-status-sections-hook 'forge-insert-issues))
+#+end_src
+
+*** magit-annex
+
+#+begin_src emacs-lisp
+(use-package magit-annex
+  :after magit)
+#+end_src
+
+*** magit-imerge
+
+#+begin_src emacs-lisp
+(use-package magit-imerge
+  :after magit)
+#+end_src
+
+*** magit-tbdiff
+
+#+begin_src emacs-lisp
+(use-package magit-tbdiff
+  :after magit)
 #+end_src
 
 ** markdown-mode
@@ -6301,92 +6326,6 @@ RET in the buffer you want to undo.
   (which-key-mode))
 #+end_src
 
-** COMMENT whisper
-
-#+begin_src emacs-lisp
-(use-package whisper
-  :no-require t
-  :preface
-  (defun whisper-transcribe-file (filepath)
-    "Transcribe audio FILEPATH using MLX Whisper and insert results"
-    (interactive "fSelect audio file: ")
-    (let ((output-buffer (get-buffer-create "*Whisper Output*"))
-          (model "mlx-community/whisper-large-v3-mlx"))
-      (async-shell-command
-       (format "mlx_whisper '%s' --model '%s' -f txt" filepath model)
-       output-buffer)
-      (display-buffer output-buffer)))
-
-  (defvar whisper-recording-process nil
-    "Process handle for active audio recording")
-
-  (defvar whisper-temp-file (format "/tmp/emacs-whisper-%s.wav" (user-uid))
-    "Temporary storage for audio recordings")
-
-  (defun whisper-toggle-recording ()
-    "Start/stop voice recording using FFmpeg"
-    (interactive)
-    (if (process-live-p whisper-recording-process)
-        (whisper-stop-recording)
-      (whisper-start-recording)))
-
-  (defun whisper-start-recording ()
-    "Initialize audio capture via AVFoundation"
-    (setq whisper-recording-process
-          (start-process "whisper-rec" nil "ffmpeg"
-                         "-f" "avfoundation"
-                         "-i" ":1"
-                         "-t" "300"  ;; Max 5-minute recordings
-                         "-y" whisper-temp-file))
-    (message "Recording started..."))
-
-  (defun whisper-stop-recording ()
-    "Terminate recording and initiate transcription"
-    (when (process-live-p whisper-recording-process)
-      (delete-process whisper-recording-process))
-    (whisper-transcribe-and-insert))
-
-  (defun whisper-transcribe-and-insert ()
-    "Process recorded audio and insert transcription"
-    (if (file-exists-p whisper-temp-file)
-        (progn
-          (message "Transcribing...")
-          (shell-command-to-string
-           (format "mlx_whisper '%s' --model 'mlx-community/whisper-medium-mlx' -f txt -o -"
-                   whisper-temp-file))
-          (insert (with-current-buffer "*Shell Command Output*"
-                    (buffer-string)))
-          (delete-file whisper-temp-file))
-      (error "No audio data captured")))
-  :config
-  (global-set-key (kbd "C-c w r") 'whisper-toggle-recording))
-#+end_src
-
-** COMMENT whisper
-
-[[https://github.com/natrys/whisper.el?tab=readme-ov-file][whisper.el]] is a speech-to-Text interface for Emacs using OpenAI’s [[https://github.com/openai/whisper][whisper
-speech recognition model]]. For the inference engine it uses the awesome C/C++
-port [[https://github.com/ggerganov/whisper.cpp][whisper.cpp]] that can run on consumer grade CPU (without requiring a high
-end GPU).
-
-You can capture audio with your local input device (microphone) or choose a
-media file on disk in your local language, and have the transcribed text
-pasted to your Emacs buffer (optionally after translating to English). This
-runs offline without having to use non-free cloud service for decent result
-(though result quality of whisper varies widely depending on language, see
-below).
-
-#+begin_src emacs-lisp
-(use-package whisper
-  :bind ("C-c C-x w" . whisper-run)
-  :config
-  (setq whisper-install-directory "/tmp/"
-        whisper-model "large"
-        whisper-language "en"
-        whisper-translate nil
-        whisper-use-threads (/ (num-processors) 2)))
-#+end_src
-
 ** whitespace
 
 #+begin_src emacs-lisp
@@ -7013,7 +6952,8 @@ See `consult-omni-multi' for more details.
    consult-gh-dashboard
    consult-gh-notifications)
   :custom
-  (consult-gh-default-clone-directory "~/projects")
+  (consult-gh-default-clone-directory "~/src")
+  (consult-gh-confirm-before-clone nil)
   (consult-gh-show-preview t)
   (consult-gh-preview-key "C-o")
   (consult-gh-repo-action #'consult-gh--repo-browse-files-action)
@@ -7065,6 +7005,7 @@ See `consult-omni-multi' for more details.
 #+begin_src emacs-lisp
 (use-package consult-gh-embark
   :after consult-gh
+  :diminish
   :config
   (consult-gh-embark-mode +1))
 #+end_src
@@ -7074,6 +7015,7 @@ See `consult-omni-multi' for more details.
 #+begin_src emacs-lisp
 (use-package consult-gh-forge
   :after consult-gh
+  :diminish
   :custom
   (consult-gh-forge-timeout-seconds 20)
   :config
@@ -8103,6 +8045,27 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (setq inferior-lisp-program "sbcl"
         slime-contribs '(slime-fancy)))
 #+end_src
+
+**** inspector
+
+#+begin_src emacs-lisp
+(use-package inspector
+  :commands
+  (inspector-inspect
+   inspector-inspect-expression
+   inspector-inspect-expression))
+#+end_src
+
+***** tree-inspector
+
+#+begin_src emacs-lisp
+(use-package tree-inspector
+  :after inspector
+  :commands
+  (tree-inspector-inspect-expression
+   tree-inspector-inspect-expression))
+#+end_src
+
 
 *** COMMENT fetchmail-mode
 
@@ -10872,13 +10835,8 @@ unfold drawers."
   :after org
   :demand t
   :commands org-ql-search
-  :functions (org-ql-find--buffers
-              org-ql-search-directories-files
-              org-ql-find
-              org-ql-defpred)
   :bind
-  (("M-g o" . my/org-ql-find-refile-targets)
-   :map
+  (:map
    org-mode-map
    ("C-c C-x o" . org-ql-open-link)
    :map
@@ -10889,117 +10847,31 @@ unfold drawers."
    ("w" . org-ql-refile-path)
    ("W" . org-ql-refile))
   :preface
-  (defun my/org-agenda-completions-at-point ()
-    "Function to be used as `completion-at-point' in Org mode."
-    (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)" nil)
-      (defvar heading-to-id (make-hash-table :test 'equal))
-      (let* ((start (match-beginning 1))
-             (end (point))
-             (input (match-string-no-properties 1))
-             (candidates
-              (org-ql-select
-                (org-agenda-files)
-                (org-ql--query-string-to-sexp input)
-                :action (lambda ()
-                          (let* ((heading (org-get-heading t))
-                                 (id (org-id-get (point))))
-                            ;; Avoid having to look up the ID again since we
-                            ;; are visiting all the locations with org-ql
-                            ;; anyway
-                            (puthash heading id heading-to-id)
-                            heading))))
-             (exit-function
-              (lambda (heading status)
-                (when (eq status 'finished)
-                  ;; The +1 removes the @ symbol
-                  (delete-char (- (+ (length heading) 1)))
-                  (insert
-                   (format "[[id:%s][%s]]" (gethash heading heading-to-id) heading))))))
-        (list start end candidates :exit-function exit-function))))
-
-  (defun my/org-agenda-completion-hook ()
-    "Configure org-mode for completion at point for org-agenda headlines."
-    (add-to-list 'completion-at-point-functions
-                 'my/org-agenda-completions-at-point))
-
-  (defun my/org-ql-find-refile-targets ()
-    (interactive)
-    (require 'org-ql)
-    (require 'org-ql-find)
-    (let ((query-prefix "refile-target: ")
-          current-prefix-arg)
-      (cond
-       ((eq major-mode 'dired-mode)
-        (let ((org-ql-search-directories-files-recursive t))
-          (org-ql-find (org-ql-search-directories-files
-                        :directories (list org-directory))
-                       :query-prefix query-prefix)))
-       ((eq major-mode 'org-mode)
-        (org-ql-find (org-ql-find--buffers)))
-       (t
-        (org-ql-find (org-agenda-files)
-                     :query-prefix query-prefix)))))
-
   (defun org-ql-refile-path ()
     (interactive)
     (let ((org-ql-default-predicate 'outline-path))
       (call-interactively #'org-ql-refile)))
-
   :config
-  (use-package org-extra
-    :functions (org-extra-refile-heading-p))
-
-  (org-ql-defpred property-ts (property &key from to _on regexp _with-time args)
-    "Match timestamps in property value."
-    :normalizers ((`(,predicate-names ,property . ,rest)
-                   `(property-ts ,property
-                                 ,@(org-ql--normalize-from-to-on
-                                     `(:from ,from :to ,to)))))
-    :body (when-let ((value (org-entry-get (point) property))
-                     (ts (ignore-errors
-                           (ts-parse-org value))))
-            (cond ((not (or from to)) ts)
-                  ((and from to) (ts-in from to ts))
-                  (from (ts<= from ts))
-                  (to (ts<= ts to)))))
-
-  (org-ql-defpred keyword (&rest keywords)
-    "Search for entries about any of NAMES."
-    :body (cl-loop
-           for kw in keywords
-           thereis (member kw (split-string
-                               (or (org-entry-get (point) "KEYWORDS") "")))))
-
-  (org-ql-defpred shown ()
-    "Whether this entry is not marked as HIDE."
-    :body (not (org-entry-get (point) "HIDE")))
-
-  (org-ql-defpred about (&rest keywords)
-    "Whether this entry is \"about\" the given keyword.
-   This means checking if it's in the tags or CATEGORY."
-    :body (cl-loop
-           for kw in keywords
-           thereis (or (member kw (org-get-tags (point)))
-                       (string= kw (org-get-category (point))))))
-
-  (org-ql-defpred tasks-for (&rest who)
-    "True if this task is assigned to, or related to, anyone in WHO."
-    :body (and (apply #'org-ql--predicate-about who)
-               (org-ql--predicate-todo)
-               (org-ql--predicate-shown)))
-
-  (org-ql-defpred refile-target ()
-    "Return non-nil if entry is a refile target."
-    :body (org-extra-refile-heading-p))
-
   (eval-when-compile
     (require 'vertico-multiform))
   (add-all-to-list 'vertico-multiform-commands
                    '(org-ql-find)
-                   '(my/org-ql-find-refile-targets)
                    '(org-refile))
 
-  (add-hook 'org-mode-hook 'my/org-agenda-completion-hook))
+  (add-hook 'org-mode-hook 'org-ql-extra-completion-hook))
+
+(use-package org-ql-extra
+  :after org-ql
+  :demand t
+  :bind
+  ("M-g o" . org-ql-extra-find-refile-targets)
+  :config
+  (eval-when-compile
+    (require 'vertico-multiform))
+  (add-to-list 'vertico-multiform-commands
+               '(org-ql-extra-find-refile-targets))
+
+  (add-hook 'org-mode-hook 'org-ql-extra-completion-hook))
 #+end_src
 
 *** org-extra
@@ -11514,7 +11386,7 @@ A group FOO is composed of contacts with the tag FOO."
   (org-context-install))
 #+end_src
 
-*** COMMENT org-crypt
+*** org-crypt
 
 #+begin_src emacs-lisp
 (use-package org-crypt
@@ -12908,14 +12780,14 @@ middle-click to temporarily hide it.
             #'my/run-capture-finalize-for-org-items))
 #+end_src
 
-*** COMMENT orgit
+*** orgit
 
 #+begin_src emacs-lisp
 (use-package orgit
   :after org)
 #+end_src
 
-*** COMMENT orgit-forge
+*** orgit-forge
 
 #+begin_src emacs-lisp
 (use-package orgit-forge
