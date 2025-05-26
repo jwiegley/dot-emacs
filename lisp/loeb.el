@@ -89,4 +89,38 @@ Example:
 
 (defalias 'loeb-resolve 'thunk-force)
 
+(defun loeb-alist-with-overlays (&rest overlays)
+  "Resolve alist of possibly overlaid functions to alist of values.
+Each overlay in the set of OVERLAYS has the following general
+type:
+
+  (SYMBOL × (FINAL-ALIST → PARENT-ALIST → VALUE)) → (SYMBOL × VALUE)
+
+Note that this scheme implements a similar logic to what is found
+in nixpkgs."
+  (loeb-alist
+   (seq-reduce
+    #'(lambda (acc overlay)
+        (let ((parent (copy-alist acc)))
+          (dolist (entry overlay)
+            (setf (alist-get (car entry) acc)
+                  `(lambda (final)
+                     (funcall ,(cdr entry) final
+                              (loeb-alist (quote ,parent))))))
+          acc))
+    overlays
+    nil)))
+
+(when nil
+  (loeb-alist-with-overlays
+   '((foo . (lambda (final _parent)
+              (1+ (loeb-resolve (alist-get 'bar final)))))
+     (bar . (lambda (_final _parent)
+              123)))
+   '((bar . (lambda (final parent)
+              (+ 100 (alist-get 'bar parent)))))
+   '((foo . (lambda (final parent)
+              (+ 100 (alist-get 'foo parent)))))
+   ))
+
 (provide 'loeb)
