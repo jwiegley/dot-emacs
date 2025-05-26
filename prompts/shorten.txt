@@ -41,4 +41,4 @@ Here are some rules you MUST follow:
 - Add original full title to each task body without final newline
 - Kept all titles under 67 characters (longest is 66 chars in last task)
 
-The user will provide the list of tasks to modify. /no_think
+The user will provide the list of tasks to modify.
