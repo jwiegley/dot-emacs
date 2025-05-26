@@ -44,7 +44,7 @@ work out.
 
 Example:
   (loeb (list (lambda (xs) (length xs))
-              (lambda (xs) (+ (thunk-force (nth 0 xs)) (length xs)))))
+              (lambda (xs) (+ (loeb-resolve (nth 0 xs)) (length xs)))))
     ==> (2 4)"
   (letrec ((go (seq-map (lambda (f) (thunk-delay (funcall f go))) fs)))
     (seq-map #'thunk-force go)))
@@ -53,7 +53,7 @@ Example:
   "The loeb function, specialized to alists. See `loeb'.
 Example:
   (loeb-alist '((foo . (lambda (alist)
-                          (thunk-force (alist-get 'bar alist))))
+                          (loeb-resolve (alist-get 'bar alist))))
                 (bar . (lambda (alist) 2))))"
   (letrec ((go (seq-map
                 (lambda (cell)
@@ -79,7 +79,7 @@ FN must take two arguments: the key and the value."
   "The loeb function, specialized to plists. See `loeb'.
 Example:
   (loeb-plist '(:foo (lambda (plist)
-                        (thunk-force (plist-get plist :bar)))
+                        (loeb-resolve (plist-get plist :bar)))
                 :bar (lambda (plist) 2)))"
   (letrec ((go (loeb-plist-map!
                 (lambda (_key value)
@@ -87,6 +87,6 @@ Example:
                 fs)))
     (loeb-plist-map! (lambda (_key value) (thunk-force value)) go)))
 
-(defalias 'loeb-resolve 'thunk-delay)
+(defalias 'loeb-resolve 'thunk-force)
 
 (provide 'loeb)
