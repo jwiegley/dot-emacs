@@ -26,6 +26,9 @@
 ;;; Commentary:
 
 (require 'org)
+(require 'org-capture)
+(require 'org-roam-capture)
+(require 'org-roam-dailies)
 (require 'org-extra)
 (require 'org-agenda-random)
 (eval-when-compile
@@ -35,28 +38,30 @@
   "Configurations for Org-mode and related packages"
   :group 'org)
 
-(defconst org-config-open-re "/TODO|DOING|WAIT|TASK|HABIT")
-(defconst org-config-closed-re "/TODO/DONE|CANCELED|PASS")
+(defconst org-config-open-re "/TODO|DOING|WAIT|TASK|HABIT"
+  "Tasks that are open and actionable. Excludes DEFER tasks.")
+(defconst org-config-closed-re "/TODO/DONE|CANCELED|PASS"
+  "Tasks that are closed.")
 
-(defun org-config-with-tags-search (tags)
+(defun org-config-tags-search (tags)
   (interactive "sTags: ")
   (org-tags-view t (format "%s%s" tags org-config-open-re)))
 
-(defun org-config-with-tags-search-done (tags)
+(defun org-config-tags-search-done (tags)
   (interactive "sTags: ")
   (org-tags-view t (format "%s%s" tags org-config-closed-re)))
 
-(defun org-config-with-category-search (who)
+(defun org-config-category-search (who)
   (interactive
    (list (completing-read "Category: " (org-property-values "CATEGORY"))))
   (org-tags-view t (format "CATEGORY=\"%s\"%s" who org-config-open-re)))
 
-(defun org-config-with-keyword-search (who)
+(defun org-config-keyword-search (who)
   (interactive
    (list (completing-read "Keyword: " (org-property-values "KEYWORDS"))))
   (org-tags-view t (format "KEYWORDS={%s}%s" who org-config-open-re)))
 
-(defun org-config-with-item-search (who)
+(defun org-config-item-search (who)
   (interactive "sItem: ")
   (org-tags-view t (format "ITEM={%s}%s" who org-config-open-re)))
 
@@ -71,31 +76,34 @@
   (org-config-agenda-skip-entry-if
    (org-extra-habit-p)))
 
-(defconst org-config-names-regularly-reviewed
+(defcustom org-config-names-regularly-reviewed
   '(
-    "Albert"
     "Annelise"
     "Bez"
     "Brittaney"
     "Emily"
-    "Javad"
     "Jesse"
     "June"
     "Lars"
     "Leah"
-    "Randy"
     "Stuart"
     "Travis"
-    ))
+    )
+  "Tags \"regularly reviewed\" that don't need separate review."
+  :type '(repeat string)
+  :group 'org-config)
 
-(defconst org-config-categories-regularly-reviewed
+(defcustom org-config-categories-regularly-reviewed
   (append org-config-names-regularly-reviewed
           '("EVM"
             "PM"
             "JS"
-            "Core")))
+            "Core"))
+  "Categories \"regularly reviewed\" that don't need separate review."
+  :type '(repeat string)
+  :group 'org-config)
 
-(defsubst org-config-skip-if-regularly-reviewed ()
+(defun org-config-skip-if-regularly-reviewed ()
   (org-config-agenda-skip-entry-if
    (let ((tags (org-get-tags))
          (category (org-get-category)))
@@ -156,7 +164,7 @@
             -1
           1)))))
 
-(defun org-config-meeting-template (keys title file dir &optional slug)
+(defsubst org-config-meeting-template (keys title file dir &optional slug)
   `(,keys ,title plain
           (file ,(expand-file-name file dir))
           :target (file ,(concat "meeting/%<%Y%m%d%H%M>-"
@@ -166,15 +174,36 @@
           :unnarrowed t
           :no-save t))
 
-(defun org-config-kadena-meeting (keys title file)
+(defsubst org-config-kadena-meeting (keys title file)
   (org-config-meeting-template keys title file "~/org/template/kadena/meetings"))
 
-(defun org-config-kadena-1-on-1 (keys title file)
+(defsubst org-config-kadena-1-on-1 (keys title file)
   (org-config-meeting-template keys title file "~/org/template/kadena/one-on-one"
                                "1-on-1-"))
 
-(defun org-config-bahai-meeting (keys title file)
+(defsubst org-config-bahai-meeting (keys title file)
   (org-config-meeting-template keys title file "~/org/template/bahai/meetings"))
+
+(defsubst org-config-call-only (f)
+  `(lambda (_arg) (call-interactively ,f nil)))
+
+(defsubst org-config-1-on-1-from-name (name)
+  (let ((down (downcase name)))
+    (org-config-kadena-1-on-1
+     (apply #'concat "wo"
+            (mapcar #'(lambda (word) (char-to-string (aref word 0)))
+                    (split-string down)))
+     (concat "1-on-1 " name)
+     (concat (replace-regexp-in-string " " "-" down) ".org"))))
+
+(defconst org-config-check-if-scheduled
+  "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+
+(defconst org-config-columns-for-reviewed
+  "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
+
+(defconst org-config-standard-columns
+  "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")
 
 (setq
  org-capture-templates
@@ -200,21 +229,6 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       ,Inbox
       "* NOTE %?"
       :prepend t)
-
-     ;;      ("i" "Inbox" entry ,Inbox
-     ;;       "* TODO %?\n%i\n%U"
-     ;;       :kill-buffer t)
-     ;;      ("l" "Inbox with link" entry ,Inbox
-     ;;       "* TODO %?
-     ;; :PROPERTIES:
-     ;; :URL:      %a
-     ;; :DATE:     %U
-     ;; :END:
-     ;; %(with-temp-buffer
-     ;;   (insert \"%i\")
-     ;;   (fill-region (point-min) (point-max))
-     ;;   (buffer-string))"
-     ;;       :kill-buffer t)
 
      ("l" "LINK" entry
       ,Inbox
@@ -348,6 +362,8 @@ SCHEDULED: %t
       (file "~/org/template/kadena/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  org-roam-capture-templates
  `(("m" "Meeting" plain
@@ -501,24 +517,28 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ,(org-config-kadena-meeting "wa"  "All Hands"            "all-hands.org")
-   ,(org-config-kadena-meeting "wb"  "BD <> Engineering"    "bd-engineering.org")
-   ,(org-config-kadena-meeting "wS"  "Ops <> Engineering"   "ops-engineering.org")
-   ,(org-config-kadena-meeting "wC"  "Work Conference"      "conference.org")
-   ,(org-config-kadena-meeting "wO"  "Offsite Meeting"      "offsite.org")
-   ,(org-config-kadena-meeting "wt"  "CTO Meeting"          "cto.org")
-   ,(org-config-kadena-meeting "ws"  "Eng Standup"          "eng-standup.org")
-   ,(org-config-kadena-meeting "wM"  "Eng Managers"         "eng-managers.org")
-   ,(org-config-kadena-meeting "we"  "EVM Posse"            "evm-posse.org")
+   ,(org-config-kadena-meeting "wM" "Marketing <> Eng" "marketing-eng.org")
+   ,(org-config-kadena-meeting "wO" "Ops <> Eng"       "ops-eng.org")
+   ,(org-config-kadena-meeting "wP" "Product <> Eng"   "product-eng.org")
+   ,(org-config-kadena-meeting "wb" "BD <> Eng"        "bd-eng.org")
+   ,(org-config-kadena-meeting "wp" "PM <> Eng"        "pm-eng.org")
+
+   ,(org-config-kadena-meeting "wC" "Work Conference"  "conference.org")
+   ,(org-config-kadena-meeting "wF" "Offsite Meeting"  "offsite.org")
+   ,(org-config-kadena-meeting "wa" "All Hands"        "all-hands.org")
+   ,(org-config-kadena-meeting "we" "EVM Posse"        "evm-posse.org")
+   ,(org-config-kadena-meeting "wj" "JS Team"          "js-team.org")
+   ,(org-config-kadena-meeting "wl" "Leads Strategy"   "leads-strategy.org")
+   ,(org-config-kadena-meeting "wm" "Eng Managers"     "eng-managers.org")
+   ,(org-config-kadena-meeting "ws" "Eng Standup"      "eng-standup.org")
+   ,(org-config-kadena-meeting "wt" "CTO Meeting"      "cto.org")
 
    ("wh" "Hack-a-chain")
 
-   ,(org-config-kadena-meeting "whr" "Hack-a-chain Indexer" "hackachain-indexer-review.org")
-   ,(org-config-kadena-meeting "whs" "Hack-a-chain Standup" "hackachain-internal-standup.org")
-   ,(org-config-kadena-meeting "wj" "JS Team"               "js-team.org")
-   ,(org-config-kadena-meeting "wP" "John <> PM Team"       "john-pm-team.org")
-   ,(org-config-kadena-meeting "wl" "Leads Strategy"        "leads-strategy.org")
-   ,(org-config-kadena-meeting "wp" "Pact Posse"            "pact-posse.org")
+   ,(org-config-kadena-meeting "whr" "Hack-a-chain Indexer"
+                               "hackachain-indexer-review.org")
+   ,(org-config-kadena-meeting "whs" "Hack-a-chain Standup"
+                               "hackachain-internal-standup.org")
 
    ("wo" "1-on-1s")
 
@@ -539,53 +559,49 @@ SCHEDULED: %t
     :no-save t)
 
    ("woa" "Names beginning with A")
-
-   ,(org-config-kadena-1-on-1 "woab" "1-on-1 Anastasia Bez" "anastasia-bez.org")
-   ,(org-config-kadena-1-on-1 "woag" "1-on-1 Albert Groothedde" "albert-groothedde.org")
-   ,(org-config-kadena-1-on-1 "woao" "1-on-1 Annelise Osborne" "annelise-osborne.org")
+   ,(org-config-1-on-1-from-name "Anastasia Bez")
+   ,(org-config-1-on-1-from-name "Albert Groothedde")
+   ,(org-config-1-on-1-from-name "Annelise Osborne")
 
    ("woe" "Names beginning with E")
-
-   ,(org-config-kadena-1-on-1 "woen" "1-on-1 Edmund Noble" "edmund-noble.org")
-   ,(org-config-kadena-1-on-1 "woep" "1-on-1 Emily Pillmore" "emily-pillmore.org")
+   ,(org-config-1-on-1-from-name "Edmund Noble")
+   ,(org-config-1-on-1-from-name "Emily Pillmore")
 
    ("woh" "Names beginning with H")
-
-   ,(org-config-kadena-1-on-1 "woha" "1-on-1 Hafsah Asmat" "hafsah-asmat.org")
+   ,(org-config-1-on-1-from-name "Hafsah Asmat")
 
    ("woj" "Names beginning with J")
-
-   ,(org-config-kadena-1-on-1 "wojb" "1-on-1 June Boston" "june-boston.org")
-   ,(org-config-kadena-1-on-1 "wojc" "1-on-1 Jose Cardona" "jose-cardona.org")
-   ,(org-config-kadena-1-on-1 "wojm" "1-on-1 Jesse Marquez" "jesse-marquez.org")
+   ,(org-config-1-on-1-from-name "June Boston")
+   ,(org-config-1-on-1-from-name "Jose Cardona")
+   ,(org-config-1-on-1-from-name "Jesse Marquez")
 
    ("wol" "Names beginning with L")
-
-   ,(org-config-kadena-1-on-1 "wolb" "1-on-1 Leah Bingham" "leah-bingham.org")
-   ,(org-config-kadena-1-on-1 "wolk" "1-on-1 Lars Kuhtz" "lars-kuhtz.org")
-   ,(org-config-kadena-1-on-1 "wolg" "1-on-1 Lisa Gunn" "lisa-gunn.org")
-   ,(org-config-kadena-1-on-1 "wolo" "1-on-1 Linda Ortega" "linda-ortega.org")
+   ,(org-config-1-on-1-from-name "Leah Bingham")
+   ,(org-config-1-on-1-from-name "Lars Kuhtz")
+   ,(org-config-1-on-1-from-name "Lisa Gunn")
+   ,(org-config-1-on-1-from-name "Linda Ortega")
 
    ("wor" "Names beginning with R")
-
-   ,(org-config-kadena-1-on-1 "wors" "1-on-1 Robert Soeldner" "robert-soeldner.org")
+   ,(org-config-1-on-1-from-name "Robert Soeldner")
 
    ("wos" "Names beginning with S")
-
-   ,(org-config-kadena-1-on-1 "wosp" "1-on-1 Stuart Popejoy" "stuart-popejoy.org")
+   ,(org-config-1-on-1-from-name "Stuart Popejoy")
 
    ("wow" "Names beginning with W")
-
-   ,(org-config-kadena-1-on-1 "wowm" "1-on-1 Will Martino" "will-martino.org")
+   ,(org-config-1-on-1-from-name "Will Martino")
    )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  org-roam-dailies-capture-templates
  '(("d" "default" entry "* %U %?"
     :target (file+head "%<%Y-%m-%d>.org"
                        "#+title: %<%Y-%m-%d>\n")))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
  org-agenda-custom-commands
- '(("a" "Agenda"
+ `(("a" "Agenda"
     ((agenda
       ""
       ((org-agenda-skip-function
@@ -594,68 +610,44 @@ SCHEDULED: %t
                (org-review-last-review-prop nil)
                (not (org-extra-needs-review-p)))))
        (org-super-agenda-groups
-        '((:name "Important"
-                 :and (:priority "A" :not (:habit t)))
-          (:name "Overdue"
-                 :deadline past)
-          (:name "Due Soon"
-                 :deadline future)
-          (:name "Reschedule"
-                 :and (:scheduled past :not (:habit t)))
-          (:name "Needs review"
-                 :and (:todo ("WAIT" "TASK" "DOING")
-                             :not (:priority "C")))
-          (:name "Calls"
-                 :tag "Call")
-          (:name "Errands"
-                 :tag "Errand")
-          (:name "Tasks"
-                 :not (:habit t))
-          (:name "Habits"
-                 :habit t)
+        '((:name "Important"    :and (:priority "A" :not (:habit t)))
+          (:name "Overdue"      :deadline past)
+          (:name "Due Soon"     :deadline future)
+          (:name "Reschedule"   :and (:scheduled past :not (:habit t)))
+          (:name "Needs review" :and (:todo ("WAIT" "TASK" "DOING")
+                                            :not (:priority "C")))
+          (:name "Calls"        :tag "Call")
+          (:name "Errands"      :tag "Errand")
+          (:name "Tasks"        :not (:habit t))
+          (:name "Habits"       :habit t)
           ))))
-     ;; (alltodo
-     ;;  ""
-     ;;  ((org-agenda-overriding-header
-     ;;    "Items needing review")
-     ;;   (org-agenda-skip-function
-     ;;    '(or (org-config-agenda-skip-entry-if
-     ;;          (org-extra-subtask-p))
-     ;;         (org-agenda-skip-entry-if
-     ;;          'scheduled 'deadline 'timestamp
-     ;;          'todo org-done-keywords)
-     ;;         (org-config-skip-if-review-not-needed)))
-     ;;   (org-agenda-cmp-user-defined 'org-config-review-compare)
-     ;;   (org-agenda-prefix-format
-     ;;    "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
-     ;;   (org-agenda-sorting-strategy '(user-defined-down))
-     ;;   (org-overriding-columns-format
-     ;;    "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (alltodo
+      ""
+      ((org-agenda-overriding-header "\nItems needing review")
+       (org-agenda-skip-function
+        '(or (org-config-agenda-skip-entry-if
+              (org-extra-subtask-p))
+             (org-agenda-skip-entry-if
+              'scheduled 'deadline 'timestamp
+              'todo org-done-keywords)
+             (org-config-skip-if-review-not-needed)))
+       ;; (org-agenda-cmp-user-defined 'org-config-review-compare)
+       (org-agenda-max-entries 38)
+       (org-agenda-cmp-user-defined (org-compare-randomly))
+       (org-compare-random-refresh t)
+       (org-agenda-prefix-format ,org-config-check-if-scheduled)
+       (org-agenda-sorting-strategy '(user-defined-down))
+       (org-overriding-columns-format ,org-config-standard-columns)))
      ))
 
    ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
+   ("n" "Notes"   todo "NOTE")
+   ("l" "Links"   todo "LINK")
 
-   ("n" "Notes" todo "NOTE")
-
-   ("l" "Links" todo "LINK")
-
-   (":" "With tags match"
-    (lambda (arg)
-      (call-interactively #'org-config-with-tags-search nil)))
-
-   ("c" "With category"
-    (lambda (arg)
-      (call-interactively #'org-config-with-category-search nil)))
-
-   ("k" "With keyword"
-    (lambda (arg)
-      (call-interactively #'org-config-with-keyword-search nil)))
-
-   ("i" "With item"
-    (lambda (arg)
-      (call-interactively #'org-config-with-item-search nil)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+   (":" "With tags match" ,(org-config-call-only #'org-config-tags-search))
+   ("c" "With category"   ,(org-config-call-only #'org-config-category-search))
+   ("k" "With keyword"    ,(org-config-call-only #'org-config-keyword-search))
+   ("i" "With item"       ,(org-config-call-only #'org-config-item-search))
 
    ("r" . "Review tasks")
 
@@ -668,11 +660,9 @@ SCHEDULED: %t
             (and (org-review-last-review-prop nil)
                  (not (org-review-toreview-p))))))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
-     (org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(user-defined-down))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rR" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
@@ -684,11 +674,9 @@ SCHEDULED: %t
            (org-config-skip-if-review-not-needed)
            (org-config-skip-if-regularly-reviewed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
-     (org-agenda-prefix-format
-      "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
+     (org-agenda-prefix-format ,org-config-columns-for-reviewed)
      (org-agenda-sorting-strategy '(user-defined-down))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rr" "Tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
@@ -701,12 +689,10 @@ SCHEDULED: %t
            (org-config-skip-if-regularly-reviewed)))
      (org-agenda-max-entries 38)
      (org-agenda-cmp-user-defined (org-compare-randomly))
-     (org-agenda-prefix-format
-      "%-10c%-2(or (org-entry-get nil \"REVIEWS\") \" \")")
      (org-compare-random-refresh t)
+     (org-agenda-prefix-format ,org-config-columns-for-reviewed)
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rZ" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
@@ -716,11 +702,9 @@ SCHEDULED: %t
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
            (org-config-skip-if-review-not-needed)))
-     (org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(category-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rz" "All tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
@@ -730,21 +714,17 @@ SCHEDULED: %t
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
            (org-config-skip-if-review-not-needed)))
-     (org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-max-entries 20)
      (org-agenda-cmp-user-defined (org-compare-randomly))
      (org-compare-random-refresh t)
      (org-agenda-sorting-strategy '(user-defined-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("r*" "All tasks (for confirmation)" alltodo ""
-    ((org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+    ((org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(category-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rn" "Next Actions" alltodo ""
     ((org-agenda-skip-function
@@ -773,11 +753,9 @@ SCHEDULED: %t
      (org-agenda-prefix-format "%-10c%5(org-todo-age) ")))
 
    ("r#" "Habits" todo "HABIT"
-    ((org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+    ((org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(category-up))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("ru" "Unscheduled tasks" alltodo ""
     ((org-agenda-skip-function
@@ -792,11 +770,9 @@ SCHEDULED: %t
       '(or (org-agenda-skip-entry-if 'todo org-done-keywords)
            (org-config-skip-if-reviewed)))
      (org-agenda-cmp-user-defined 'org-config-review-compare)
-     (org-agenda-prefix-format
-      "%-10c%-2(or (and (org-entry-get nil \"SCHEDULED\") \"✓\") \"\")")
+     (org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(user-defined-down))
-     (org-overriding-columns-format
-      "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")))
+     (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("rs" "Scheduled" alltodo ""
     ((org-agenda-skip-function
@@ -818,7 +794,28 @@ SCHEDULED: %t
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
         (<= (length (replace-regexp-in-string "\\[\\[.+?\\]\\[\\(.+?\\)\\]\\]"
-                                              "\\1" (org-get-heading t))) 72)))))))
+                                              "\\1" (org-get-heading t)))
+            72)))))
+
+   ("q" . "Org-ql queries")
+
+   ("qo" "Open source tasks"
+    ((org-ql-block
+      '(and (about "Computer" "Emacs" "Org-mode"
+                   "org-jw" "Nix" "AI" "gptel")
+            (todo "TODO" "DOING")
+            (shown)
+            (not (scheduled)))
+      ((org-ql-block-header "Open source tasks")))))
+
+   ("qw" "Work tasks"
+    ((org-ql-block
+      '(and (about "kadena")
+            (todo "TODO" "DOING" "WAIT" "TASK")
+            (not (tags "ARCHIVE"))
+            (not (scheduled)))
+      ((org-ql-block-header "Work tasks")))))
+   ))
 
 (defun org-config-find (query &optional arg)
   (interactive "sQuery: \nP")

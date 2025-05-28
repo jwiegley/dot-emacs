@@ -67,3 +67,6 @@
 [submodule "lisp/gptel-eshell"]
 	path = lisp/gptel-eshell
 	url = git@github.com:karthink/gptel-eshell
+[submodule "lisp/DSel"]
+	path = lisp/DSel
+	url = git@github.com:cosmicz/DSel
