@@ -1,4 +1,4 @@
-;;; gptel-extra --- Extra functions for use with gptel
+;;; gptel-extra --- Extra functions for use with gptel -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2025 John Wiegley
 
@@ -51,6 +51,57 @@
   :tools nil
   :temperature 1.0
   :max-tokens nil
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'web
+  :description "Perplexity.ai sonar-pro"
+  :backend "Perplexity"
+  :model 'sonar-pro
+  :request-params
+  `(:web_search_options
+    (:search_context_size
+     "medium"
+     :user_location
+     (:latitude
+      ,calendar-latitude
+      :longitude
+      ,calendar-longitude
+      :country "US")))
+  :system 'default
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'think
+  :description "Perplexity.ai sonar-reasoning-pro"
+  :backend "Perplexity"
+  :model 'sonar-reasoning-pro
+  :request-params
+  `(:web_search_options
+    (:search_context_size
+     "high"
+     :user_location
+     (:latitude
+      ,calendar-latitude
+      :longitude
+      ,calendar-longitude
+      :country "US")))
+  :system 'default
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'deep
+  :description "Perplexity.ai deep reasoning"
+  :backend "Perplexity"
+  :model 'sonar-deep-research
+  :request-params
+  `(:web_search_options
+    (:search_context_size
+     "high"
+     :user_location
+     (:latitude
+      ,calendar-latitude
+      :longitude
+      ,calendar-longitude
+      :country "US")))
+  :system 'default
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'translate
@@ -202,5 +253,81 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
                 (unless (buffer-file-name)
                   (add-hook 'write-contents-functions
                             #'gptel-extra-write-to-org-roam)))))
+
+(defun synchronous-bugged (func)
+  "Make any asynchronous function into a synchronous one.
+FUNC is called with a callback to be called when the asynchronous
+function is finished. For example, in the case where make-thread
+is used to run a function asynchronously, which when complete,
+finishes the synchronous call.
+
+  (synchronous
+     #'(lambda (k)
+         (make-thread #'(lambda ()
+                          (sleep-for 3)
+                          (funcall k 123)))))"
+  (let* ((mut (make-mutex))
+         (var (make-condition-variable mut))
+         (result (cons nil nil)))
+    (funcall func
+             #'(lambda (x)
+                 (with-mutex mut
+                   (setf (car result) t)
+                   (setf (cdr result) x)
+                   (condition-notify var))))
+    (with-mutex mut
+      (while (null (car result))
+        (sleep-for 0 1)
+        (condition-wait var)))
+    (cdr result)))
+
+(defun synchronous (func)
+  (let ((result (cons nil nil)))
+    (funcall func
+             #'(lambda (res)
+                 (setf (cdr result) res)
+                 (setf (car result) t)))
+    (while (null (car result))
+      (accept-process-output nil 0.1))
+    (cdr result)))
+
+(cl-defun gptel-request-synchronous
+    (&optional prompt &key callback
+               (buffer (current-buffer))
+               position context dry-run
+               (stream nil) (in-place nil)
+               (system gptel--system-message)
+               transforms (fsm (gptel-make-fsm)))
+  (synchronous
+   #'(lambda (komplete)
+       (gptel-request
+           prompt
+         :callback
+         #'(lambda (response info)
+             (funcall callback response info)
+             (unless (stringp response)
+               (funcall komplete response)))
+         :buffer buffer
+         :position position
+         :context context
+         :dry-run dry-run
+         :stream stream
+         :in-place in-place
+         :system system
+         :transforms transforms
+         :fsm fsm))))
+
+(defun llm (prompt)
+  "Invoke the current LLM with a PROMPT, returning the response.
+For example:
+  (llm \"What is your name? /no_think\")"
+  (with-temp-buffer
+    (gptel-request-synchronous
+     prompt
+     :callback `(lambda (response _info)
+                  (when (stringp response)
+                    (with-current-buffer ,(current-buffer)
+                      (insert response)))))
+    (buffer-string)))
 
 (provide 'gptel-extra)

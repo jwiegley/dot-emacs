@@ -5,6 +5,10 @@
 :END:
 #+title: John Wiegley's .emacs file
 
+#+begin_src emacs-lisp
+;;; -*- lexical-binding: t -*-
+#+end_src
+
 * Startup
 
 ** Set the garbage collector threshold, to avoid collections
@@ -17,12 +21,13 @@
 ** Report time spent loading this module
 
 #+begin_src emacs-lisp
-(defconst emacs-start-time (current-time))
+(eval-and-compile
+  (defconst emacs-start-time (current-time))
 
-(defun report-time-since-load (&optional suffix)
-  (message "Loading init...done (%.3fs)%s"
-           (float-time (time-subtract (current-time) emacs-start-time))
-           suffix))
+  (defun report-time-since-load (&optional suffix)
+    (message "Loading init...done (%.3fs)%s"
+             (float-time (time-subtract (current-time) emacs-start-time))
+             suffix)))
 
 (add-hook 'after-init-hook
           #'(lambda () (report-time-since-load " [after-init]"))
@@ -67,22 +72,23 @@
 ** Define the "data environment" for this instance of Emacs
 
 #+begin_src emacs-lisp
-(defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+(eval-and-compile
+  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
-(defconst emacs-data-suffix
-  (cond ((string= "emacsERC" emacs-environment) "alt")
-        ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
-         (match-string 1 emacs-environment))))
+  (defconst emacs-data-suffix
+    (cond ((string= "emacsERC" emacs-environment) "alt")
+          ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
+           (match-string 1 emacs-environment))))
 
-(defconst alternate-emacs (string= emacs-data-suffix "alt"))
+  (defconst alternate-emacs (string= emacs-data-suffix "alt"))
 
-(defconst user-data-directory
-  (emacs-path (if emacs-data-suffix
-                  (format "data-%s" emacs-data-suffix)
-                "data")))
+  (defconst user-data-directory
+    (emacs-path (if emacs-data-suffix
+                    (format "data-%s" emacs-data-suffix)
+                  "data")))
 
-(defun user-data (dir)
-  (expand-file-name dir user-data-directory))
+  (defun user-data (dir)
+    (expand-file-name dir user-data-directory)))
 #+end_src
 
 ** Disable warnings about obsolete functions when compiling
@@ -181,20 +187,21 @@
 ** Push and pop window configurations
 
 #+begin_src emacs-lisp
-(defvar saved-window-configuration nil)
+(eval-and-compile
+  (defvar saved-window-configuration nil)
 
-(defun push-window-configuration ()
-  (interactive)
-  (push (current-window-configuration) saved-window-configuration))
+  (defun push-window-configuration ()
+    (interactive)
+    (push (current-window-configuration) saved-window-configuration))
 
-(defun pop-window-configuration ()
-  (interactive)
-  (let ((config (pop saved-window-configuration)))
-    (if config
-        (set-window-configuration config)
-      (if (> (length (window-list)) 1)
-          (delete-window)
-        (bury-buffer)))))
+  (defun pop-window-configuration ()
+    (interactive)
+    (let ((config (pop saved-window-configuration)))
+      (if config
+          (set-window-configuration config)
+        (if (> (length (window-list)) 1)
+            (delete-window)
+          (bury-buffer)))))
 #+end_src
 
 ** Lookup a password using =auth-source=
@@ -227,9 +234,10 @@
 ** add-all-to-list
 
 #+begin_src emacs-lisp
-(defun add-all-to-list (var &rest elems)
-  (dolist (elem (reverse elems))
-    (add-to-list var elem)))
+(eval-and-compile
+  (defun add-all-to-list (var &rest elems)
+    (dolist (elem (reverse elems))
+      (add-to-list var elem))))
 #+end_src
 
 * Packages
@@ -367,6 +375,7 @@ unto itself.
   ;; files.el
   (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
   (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
+  (confirm-kill-emacs 'yes-or-no-p)
   (delete-old-versions t)
   (directory-free-space-args "-kh")
   (large-file-warning-threshold nil)
@@ -2531,6 +2540,22 @@ your system."
   :after eshell)
 #+end_src
 
+*** COMMENT eshell-async
+
+These hacks should not be necessary once asynchronous handling of Lisp
+commands makes its way into Eshell itself.
+
+#+begin_src emacs-lisp
+(use-package eshell-async
+  :no-require t
+  :config
+  (static-if (version= emacs-version "30.1")
+      (load "eshell-extra-30.1")
+    (static-if (version= emacs-version "29.4")
+        (load "eshell-extra-29.4")
+      (load "eshell-extra-HEAD"))))
+#+end_src
+
 ** COMMENT etags
 
 #+begin_src emacs-lisp
@@ -3837,13 +3862,13 @@ minibuffer change, the region is realigned.
                  (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
              (split-string (match-string 1))))))
   :init
-  (defvar Info-directory-list
-    (mapcar 'expand-file-name
-            (append
-             (mapcar (apply-partially #'expand-file-name "share/info")
-                     (nix-read-environment emacs-environment))
-             (list "~/.local/share/info"
-                   (expand-file-name "share/info" (getenv "PROFILE_DIR"))))))
+  (setq Info-default-directory-list
+        (mapcar 'expand-file-name
+                (append
+                 (mapcar (apply-partially #'expand-file-name "share/info")
+                         (nix-read-environment emacs-environment))
+                 (list "~/.local/share/info"
+                       (expand-file-name "share/info" (getenv "PROFILE_DIR"))))))
   :config
   (add-hook 'Info-mode-hook
             #'(lambda ()
@@ -4563,8 +4588,9 @@ minibuffer change, the region is realigned.
     (if (and (eobp) (bolp))
         (delete-char -1)))
 
-  (defadvice term-process-pager (after term-process-rebind-keys activate)
-    (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
+  (advice-add 'term-process-pager :after
+              #'(lambda () (define-key term-pager-break-map "\177"
+                                       #'term-pager-back-page))))
 #+end_src
 
 ** multifiles
@@ -4760,7 +4786,7 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   :bind ("C-c N N" . operate-on-number-at-point))
 #+end_src
 
-** origami
+** COMMENT origami
 
 A text folding minor mode for Emacs. With this minor mode enabled, you can
 collapse and expand regions of text. The actual buffer contents are never
@@ -6133,17 +6159,17 @@ error prone.
   :commands (vagrant-up
              vagrant-ssh
              vagrant-halt
-             vagrant-status)
-  :functions (vagrant-tramp-enable)
-  :config
-  (vagrant-tramp-enable))
+             vagrant-status))
 #+end_src
 
 *** vagrant-tramp
 
 #+begin_src emacs-lisp
 (use-package vagrant-tramp
-  :after tramp)
+  :after tramp
+  :functions (vagrant-tramp-add-method)
+  :config
+  (vagrant-tramp-add-method))
 #+end_src
 
 ** vc
@@ -6422,7 +6448,8 @@ RET in the buffer you want to undo.
   :preface
   (defface my-writing-face
     '((t (:height 1.5 :family "ia Writer Duo S")))
-    "A face used for writing")
+    "A face used for writing"
+    :group 'emacs)
 
   (defun set-buffer-writing-font ()
     "Sets font in current buffer"
@@ -6491,6 +6518,16 @@ RET in the buffer you want to undo.
 #+end_src
 
 ** Completions
+
+*** completion-preview
+
+#+begin_src emacs-lisp
+(use-package completion-preview
+  :demand t
+  :if (version<= "30.1" emacs-version)
+  :config
+  (global-completion-preview-mode 1))
+#+end_src
 
 *** consult
 
@@ -8687,10 +8724,11 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (use-package pg-user
     :defer t
     :config
-    (defadvice proof-retract-buffer
-        (around my-proof-retract-buffer activate)
-      (condition-case err ad-do-it
-        (error (shell-command "killall coqtop"))))))
+    (advice-add 'proof-retract-buffer :around
+            (lambda (oldfun &rest args)
+              (condition-case err
+                  (apply oldfun args)
+                (error (shell-command "killall coqtop")))))))
 #+end_src
 
 **** company-coq
@@ -8929,11 +8967,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (defun my-rust-mode-cargo-init ()
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cargo-path)
-    (advice-add 'cargo-process--start :around #'my-update-cargo-args)
+    (advice-add 'cargo-process--start
+                :around #'my-update-cargo-args)
+    (advice-add 'cargo-process-clippy
+                :around #'my-cargo-process-clippy-advice)
     (cargo-minor-mode 1))
-  :config
-  (defadvice cargo-process-clippy
-      (around my-cargo-process-clippy activate)
+
+  (defun my-cargo-process-clippy-advice (orig-fun &rest args)
     (let ((cargo-process--command-flags
            (concat cargo-process--command-flags
                    "--all-targets "
@@ -8943,7 +8983,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                    "-D clippy::all "
                    "-D clippy::mem_forget "
                    "-C debug-assertions=off")))
-      ad-do-it))
+      (apply orig-fun args)))
 
   (defun cargo-fix ()
     (interactive)
@@ -9720,8 +9760,8 @@ is:
     (set (make-local-variable 'gnus-agent-queue-mail)
          (if (quickping "smtp.gmail.com") t 'always)))
   :config
-  (defadvice gnus-summary-resend-message-edit (after call-my-mhs-hook activate)
-    (my-message-header-setup-hook)))
+  (advice-add 'gnus-summary-resend-message-edit
+              :after 'my-message-header-setup-hook)))
 #+end_src
 
 **** COMMENT sendmail
@@ -10550,7 +10590,8 @@ With prefix argument, also display headlines without a TODO keyword."
   :config
   (setq org-archive-save-context-info '(time file olpath olid category itags))
 
-  (add-to-list 'Info-directory-list
+  (eval-when-compile (require 'info))
+  (add-to-list 'Info-additional-directory-list
                (expand-file-name "~/.emacs.d/lisp/org-mode/doc"))
 
   ;; Replace Gnus link type with Message

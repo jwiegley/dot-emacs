@@ -694,6 +694,22 @@ tasks."
         (overlay-put o 'keymap map)
         (overlay-put o 'player nil)))))
 
+(defun org-roam-extra-insert-person ()
+  "Insert a link to a person node tagged with :people:."
+  (interactive)
+  (let* ((people (org-ql-select (list "~/org/people.org")
+                   '(and (level 1)
+                         (not (heading "Events")))
+                   :action #'(lambda ()
+                               (cons (org-get-heading t t t t)
+                                     (org-id-get)))))
+         (names (mapcar #'car people))
+         (name (completing-read "Person: " names)))
+    (when name
+      (insert (format "[[id:%s][%s]]"
+                      (cdr (assoc name people #'string=))
+                      name)))))
+
 (provide 'org-roam-extra)
 
 ;;; org-roam-extra.el ends here
