@@ -153,13 +153,15 @@ closure created for each value of that generation."
   (loeb-alist
    (seq-reduce
     #'(lambda (acc overlay)
+        ;; `acc' must be copied eagerly here, because the loop below is likely
+        ;; to modify it in place. The loebed version, however, can wait until
+        ;; it is first needed by `loeb-get'.
         (let* ((parent (copy-alist acc))
                (loebed (thunk-delay (loeb-alist* parent))))
           (dolist (entry overlay)
             (setf (alist-get (car entry) acc)
                   #'(lambda (final)
-                      (funcall (cdr entry) final
-                               (thunk-force loebed)))))
+                      (funcall (cdr entry) final (thunk-force loebed)))))
           acc))
     overlays
     nil)))
