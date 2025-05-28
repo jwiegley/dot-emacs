@@ -34,6 +34,13 @@
 (require 'seq)
 (require 'thunk)
 
+(defun loeb-seq* (fs)
+  "The loeb function, implemented in Emacs Lisp.
+This version does not force all values before returning.
+See `loeb-seq' for more information."
+  (letrec ((go (seq-map (lambda (f) (thunk-delay (funcall f go))) fs)))
+    go))
+
 (defun loeb-seq (fs)
   "The loeb function, implemented in Emacs Lisp.
 Basically, you take a sequence of functions from a sequence to a
@@ -43,27 +50,34 @@ fixed point, so as long as it forms a DAG, the references all
 work out.
 
 Example:
-  (loeb (list (lambda (xs) (length xs))
-              (lambda (xs) (+ (loeb-resolve (nth 0 xs)) (length xs)))))
+  (loeb-seq (list (lambda (xs) (length xs))
+                  (lambda (xs) (+ (loeb-resolve (nth 0 xs)) (length xs)))))
     ==> (2 4)"
-  (letrec ((go (seq-map (lambda (f) (thunk-delay (funcall f go))) fs)))
-    (seq-map #'thunk-force go)))
+  (seq-map #'thunk-force (loeb-seq* fs)))
+
+(defun loeb-alist* (fs)
+  "The loeb function, specialized to alists. See `loeb'.
+This version does not force all values before returning.
+See `loeb-alist' for more information."
+  (letrec ((go (seq-map
+                (lambda (cell)
+                  (cons (car cell)
+                        (thunk-delay (funcall (cdr cell) go))))
+                fs)))
+    go))
 
 (defun loeb-alist (fs)
   "The loeb function, specialized to alists. See `loeb'.
 Example:
   (loeb-alist '((foo . (lambda (alist)
                           (loeb-resolve (alist-get 'bar alist))))
-                (bar . (lambda (alist) 2))))"
-  (letrec ((go (seq-map
-                (lambda (cell)
-                  (cons (car cell)
-                        (thunk-delay (funcall (cdr cell) go))))
-                fs)))
-    (seq-map (lambda (cell)
-               (cons (car cell)
-                     (thunk-force (cdr cell))))
-             go)))
+                (bar . (lambda (alist) 2))))
+    ==> ((foo . 2)
+         (bar . 2))"
+  (seq-map (lambda (cell)
+             (cons (car cell)
+                   (thunk-force (cdr cell))))
+           (loeb-alist* fs)))
 
 (defun loeb-plist-map! (fn plist)
   "Map FN over PLIST, modifying it in-place and returning it.
@@ -75,52 +89,79 @@ FN must take two arguments: the key and the value."
               plist-index (cdr plist-index)))))
   plist)
 
+(defun loeb-plist* (fs)
+  "The loeb function, specialized to plists. See `loeb'.
+This version does not force all values before returning.
+See `loeb-plist' for more information."
+  (letrec ((go (loeb-plist-map!
+                (lambda (_key value)
+                  (thunk-delay (funcall value go)))
+                fs)))
+    go))
+
 (defun loeb-plist (fs)
   "The loeb function, specialized to plists. See `loeb'.
 Example:
   (loeb-plist '(:foo (lambda (plist)
                         (loeb-resolve (plist-get plist :bar)))
-                :bar (lambda (plist) 2)))"
-  (letrec ((go (loeb-plist-map!
-                (lambda (_key value)
-                  (thunk-delay (funcall value go)))
-                fs)))
-    (loeb-plist-map! (lambda (_key value) (thunk-force value)) go)))
+                :bar (lambda (plist) 2)))
+    ==> (:foo 2 :bar 2)"
+  (loeb-plist-map! (lambda (_key value) (thunk-force value))
+                   (loeb-plist* fs)))
 
 (defalias 'loeb-resolve 'thunk-force)
 
+(defsubst loeb-get (key alist)
+  "Version of `alist-get' to be used with `loeb' and friends."
+  (loeb-resolve (alist-get key alist)))
+
 (defun loeb-alist-overlays (&rest overlays)
-  "Resolve alist of possibly overlaid functions to alist of values.
-Each overlay in the set of OVERLAYS has the following general
-type:
+  "Resolve all of the given alist OVERLAYS.
+Each overlay in OVERLAYS has the following general type:
 
-  (SYMBOL × (FINAL-ALIST → PARENT-ALIST → VALUE)) → (SYMBOL × VALUE)
+  [(SYMBOL × (FINAL-ALIST → PARENT-ALIST → VALUE))]
 
-Note that this scheme implements a similar logic to what is found
-in nixpkgs."
+The function used for the \"value\" within each overlay receives
+two alists: the \"final\" closure after all overlays are
+performed, and the state of the closure just prior to that
+overlay.
+
+Note: this scheme implements a similar logic to what is found in
+nixpkgs. Here is a semi-realistic example:
+
+  (loeb-alist-overlays
+     '((foo . (lambda (final _parent)
+                (1+ (loeb-get 'bar final))))
+       (bar . (lambda (_final _parent)
+                123)))
+     '((bar . (lambda (final parent)
+                (+ 100 (loeb-get 'bar parent)))))
+     '((foo . (lambda (final parent)
+                (+ 100 (loeb-get 'foo parent))))
+       (baz . (lambda (final parent)
+                (+ 100 (loeb-get 'foo final))))))
+    ==>
+      ((baz . 424)
+       (bar . 223)
+       (foo . 324))
+
+Unfortunately, because Emacs Lisp does not have efficient
+immutable data structures, each generation of the alist between
+overlays must be copied \"in the spine\", which wastes as many
+cons cells as there are keys in each generation, plus the thunk
+closure created for each value of that generation."
   (loeb-alist
    (seq-reduce
     #'(lambda (acc overlay)
-        (let ((parent (copy-alist acc)))
+        (let* ((parent (copy-alist acc))
+               (loebed (thunk-delay (loeb-alist* parent))))
           (dolist (entry overlay)
             (setf (alist-get (car entry) acc)
-                  `(lambda (final)
-                     (funcall ,(cdr entry) final
-                              (loeb-alist (quote ,parent))))))
+                  #'(lambda (final)
+                      (funcall (cdr entry) final
+                               (thunk-force loebed)))))
           acc))
     overlays
     nil)))
-
-(when nil
-  (loeb-alist-overlays
-   '((foo . (lambda (final _parent)
-              (1+ (loeb-resolve (alist-get 'bar final)))))
-     (bar . (lambda (_final _parent)
-              123)))
-   '((bar . (lambda (final parent)
-              (+ 100 (alist-get 'bar parent)))))
-   '((foo . (lambda (final parent)
-              (+ 100 (alist-get 'foo parent)))))
-   ))
 
 (provide 'loeb)

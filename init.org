@@ -1233,7 +1233,7 @@ vertical position can be altered:
   :bind
   (:prefix-map
    chatgpt-shell-cmd-map
-   :prefix "C-x C"
+   :prefix "C-x c"
    ("C" . chatgpt-shell)
    ("u" . chatgpt-shell-generate-unit-test)
    ("e" . chatgpt-shell-explain-code)
@@ -2908,11 +2908,11 @@ up before you execute another command."
   :load-path "lisp/gptel"
   :demand t
   :bind
-  (:prefix-map
+  (("C-c u"    . gptel-menu)
+   :prefix-map
    gptel-cmd-map
-   :prefix "C-x C"
+   :prefix "C-x c"
    ("a"        . gptel-context-add)
-   ("s"        . gptel-send)
    ("r"        . gptel-rewrite)
    ("q"        . gptel-quick)
    ("x"        . gptel-abort)
@@ -2964,12 +2964,22 @@ up before you execute another command."
     (when (re-search-forward
            (regexp-quote (gptel-prompt-prefix-string)) nil t)
       (goto-char (line-end-position))))
+
+  (defun gptel-prepare-new-chat-buffer ()
+    (gptel--apply-preset
+     'default
+     #'(lambda (sym val) (set (make-local-variable sym) val)))
+    (setq-local gptel--set-buffer-locally t))
   :config
-  (setq gptel-expert-commands t)        ; this is a defvar
+  ;; These are defvars
+  (setq gptel-expert-commands t
+        gptel--set-buffer-locally nil)
 
   (add-all-to-list 'gptel-post-response-functions
                    #'my/gptel-next-prompt
                    #'my/gptel-remove-extra-whitespace)
+
+  (add-hook 'gptel-mode-hook #'gptel-prepare-new-chat-buffer)
 
   (use-package gptel-context)
   (use-package gptel-quick)
@@ -3105,71 +3115,35 @@ up before you execute another command."
        :models '(
                  agentica-org/DeepCoder-1.5B-Preview
                  agentica-org/DeepCoder-14B-Preview
-                 allenai/OLMo-2-0325-32B-Instruct
-                 anthracite-org/magnum-v4-123b
-                 anthracite-org/magnum-v4-12b
-                 BAAI/bge-m3
-                 bunnycore/Tulu-3.1-8B-SuperNova
-                 deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
-                 deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
-                 deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
-                 DeepSeek-R1-Distill-Qwen-1.5B
-                 DeepSeek-R1-Distill-Qwen-14B
-                 DeepSeek-R1-Distill-Qwen-32B
-                 DeepSeek-R1-Distill-Qwen-32B-Uncensored
-                 DeepSeek-R1-Distill-Qwen-7B
-                 FluffyKaeloky/Luminum-v0.1-123B
-                 FluffyKaeloky/Midnight-Miqu-103B-v1.5
-                 google/gemma-3-27b-it
-                 meta-llama/Llama-3.3-70B-Instruct
+                 CodeLlama-7B-Python
+                 CodeLlama-13B-Python
+                 CodeLlama-70B-Python
+                 Llama-3.3-Nemotron-Super-49B-v1
                  meta-llama/Llama-4-Scout-17B-16E-Instruct
                  microsoft/phi-4
                  microsoft/Phi-4-reasoning-plus
+                 Mistral-Nemo-Instruct-2407
                  mistralai/Codestral-22B-v0.1
-                 mistralai/Mistral-7B-Instruct-v0.3
                  mistralai/Mistral-Nemo-Instruct-2407
                  mistralai/Mistral-Small-Instruct-2409
-                 mistralai/Mixtral-8x22B-Instruct-v0.1
-                 mkurman/Qwen2.5-14B-DeepSeek-R1-1M
                  mlx-community/DeepSeek-V3-0324-4bit
                  mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
                  mlx-community/whisper-large-v3-mlx
-                 Nexusflow/Athene-V2-Chat
-                 NousResearch/Hermes-3-Llama-3.1-8B
-                 nvidia/Llama-3_3-Nemotron-Super-49B-v1
-                 nvidia/Llama-3.1-Nemotron-70B-Instruct-HF
                  nvidia/OpenCodeReasoning-Nemotron-32B
                  open-thoughts/OpenThinker2-32B
-                 perplexity-ai/r1-1776-distill-llama-70b
-                 Qwen/Qwen2.5-Coder-32B-Instruct
-                 Qwen/Qwen2.5-Coder-7B-Instruct
-                 Qwen/Qwen3-0.6B
-                 Qwen/Qwen3-1.7B
-                 Qwen/Qwen3-30B-A3B
-                 Qwen/Qwen3-32B
-                 Qwen/Qwen3-4B
-                 Qwen/Qwen3-8B
-                 Qwen/QwQ-32B
-                 Qwen2-Math-72B-Instruct
-                 Qwen2-Math-7B-Instruct
-                 Qwen2.5-1.5B-Instruct
-                 Qwen2.5-14B-DeepSeek-R1-1M
-                 Qwen2.5-32B-Instruct
-                 Qwen2.5-72B-Instruct
-                 Qwen2.5-Coder-32B-Instruct
-                 Qwen2.5.1-Coder-7B-Instruct
                  Qwen3-0.6B
                  Qwen3-1.7B
-                 Qwen3-235B-A22B
-                 Qwen3-30B-A3B
-                 Qwen3-32B
                  Qwen3-4B
                  Qwen3-8B
+                 Qwen3-32B
+                 Qwen3-30B-A3B
+                 Qwen3-235B-A22B
                  QwQ-32B
                  r1-1776
                  r1-1776-distill-llama-70b
-                 sentence-transformers/all-MiniLM-L6-v2
-                 sophosympatheia/Evathene-v1.3
+                 WizardCoder-Python-7B-V1.0
+                 WizardCoder-Python-13B-V1.0
+                 WizardCoder-Python-34B-V1.0
                  ))
      ))
 
@@ -3181,15 +3155,16 @@ up before you execute another command."
                 sonar-reasoning-pro
                 sonar-deep-research
                 r1-1776)
-      :request-params `(:web_search_options
-                        (:search_context_size
-                         "high"
-                         :user_location
-                         (:latitude
-                          ,calendar-latitude
-                          :longitude
-                          ,calendar-longitude
-                          :country "US")))))
+      :request-params
+      `(:web_search_options
+        (:search_context_size
+         "high"
+         :user_location
+         (:latitude
+          ,calendar-latitude
+          :longitude
+          ,calendar-longitude
+          :country "US")))))
 
   (use-package gptel-anthropic
     :config
@@ -3204,6 +3179,7 @@ up before you execute another command."
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
       :key gptel-api-key
       :models '(
+                claude-opus-4-20250514
                 claude-sonnet-4-20250514
                 )
       :header
@@ -3213,8 +3189,10 @@ up before you execute another command."
                 ("anthropic-beta" . "pdfs-2024-09-25")
                 ("anthropic-beta" . "output-128k-2025-02-19")
                 ("anthropic-beta" . "prompt-caching-2024-07-31"))))
-      :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
-                                  :max_tokens 4096)))
+      :request-params '(:thinking
+                        (:type "enabled"
+                               :budget_tokens 8192)
+                        :max_tokens 16384)))
   )
 #+end_src
 
@@ -3224,20 +3202,15 @@ up before you execute another command."
 (use-package gptel-rewrite
   :demand t
   :bind (("M-R" . gptel-rewrite)
+         :map
+         gptel-cmd-map
+         ("s" . gptel-shorten)
          :map gptel-rewrite-actions-map
          ("<return>" . gptel--rewrite-dispatch))
   :preface
   (defun gptel-shorten ()
     (interactive)
-    (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
-  :config
-  (gptel-make-preset 'shorten
-    :description "Shorten Org-mode titles"
-    :backend "llama-swap"
-    :model 'Qwen/Qwen3-30B-A3B
-    :rewrite-directive 'shorten
-    :rewrite-message "Shorten it as described. /no_think"
-    :max-tokens 8192))
+    (gptel-with-preset 'shorten (gptel--suffix-rewrite))))
 #+end_src
 
 *** corsair
@@ -3273,8 +3246,12 @@ up before you execute another command."
   :after (gptel)
   :demand t
   :bind
-  (:map gptel-mode-map
-        ("C-c C-t" . gptel-extra-clear-buffer))
+  (:map
+   gptel-cmd-map
+   ("t" . gptel-title)
+   :map
+   gptel-mode-map
+   ("C-c C-t" . gptel-extra-clear-buffer))
   :config
   (push '(code-infill . gptel-extra-code-infill) gptel-directives)
 
@@ -8063,7 +8040,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
    tree-inspector-inspect-expression))
 #+end_src
 
-
 *** COMMENT fetchmail-mode
 
 #+begin_src emacs-lisp
@@ -10501,7 +10477,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     "Set a property for the current headline."
     (interactive)
     (org-back-to-heading)
-    (org-set-property "URL" (gui--selection-value-internal 'CLIPBOARD))
+    (org-set-property (if (org-entry-get (point-marker) "URL")
+                          "URL"
+                        "URL2")
+                      (gui--selection-value-internal 'CLIPBOARD))
     (org-toggle-tag "LINK" 'on))
 
   (defun org-message-reply ()

@@ -40,18 +40,17 @@
 (gptel-make-preset 'claude
   :description "Anthropic's Claude, thinking"
   :backend "Claude-thinking"
-  :model 'claude-3-7-sonnet-20250219
+  :model 'claude-sonnet-4-20250514
   :temperature 1.0)
 
 (gptel-make-preset 'coding
   :description "Karthik's coding example"
-  :backend "ChatGPT"
-  :model 'gpt-4.1
+  :backend "Claude-thinking"
+  :model 'claude-opus-4-20250514
   :system 'code-infill
   :tools nil
   :temperature 1.0
   :max-tokens nil
-  :use-context 'system
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'translate
@@ -59,24 +58,74 @@
   :backend "Claude"
   :model 'claude-opus-4-20250514
   :system 'persian
-  :max-tokens 2048
-  :use-context 'system)
+  :max-tokens 2048)
 
 (gptel-make-preset 'code
   :description "Expert coder"
   :backend "Claude"
   :model 'claude-opus-4-20250514
   :system 'haskell
-  :max-tokens 1024
-  :use-context 'system)
+  :max-tokens 1024)
 
 (gptel-make-preset 'default
   :description "Default setup"
   :backend "llama-swap"
   :model 'Qwen3-235B-A22B
   :system 'default
+  :confirm-tool-calls 'auto
+  :temperature 0.7
   :max-tokens 8192
   :use-context 'user)
+
+(gptel-make-preset 'shorten
+  :description "Shorten Org-mode titles"
+  :backend "llama-swap"
+  :model 'Qwen3-30B-A3B
+  :rewrite-directive 'shorten
+  :rewrite-message "Shorten it as described."
+  :temperature 0.4
+  :max-tokens 8192
+  :include-reasoning nil)
+
+(gptel-make-preset 'title
+  :description "Create Org-mode title"
+  :backend "llama-swap"
+  :model 'Qwen3-30B-A3B
+  :system 'title
+  :temperature 0.4
+  :max-tokens 4096
+  :include-reasoning nil)
+
+(defun gptel-title ()
+  (interactive)
+  (gptel-with-preset 'title
+    (gptel-request
+        (if (region-active-p)
+            (buffer-substring-no-properties
+             (region-beginning) (region-end))
+          (buffer-string))
+      :transforms gptel-prompt-transform-functions
+      :callback (lambda (resp info)
+                  (when (stringp resp)
+                    (with-current-buffer (plist-get info :buffer)
+                      (goto-char (plist-get info :position))
+                      (org-back-to-heading)
+                      (goto-char (line-end-position))
+                      (unless (looking-back " ")
+                        (insert " "))
+                      (insert resp)))))))
+
+(defsubst gptel-preset-with-added-transform (f)
+  (remove 'gptel--transform-apply-preset
+          (cons f gptel-prompt-transform-functions)))
+
+(gptel-make-preset 'quick
+  :prompt-transform-functions
+  (gptel-preset-with-added-transform
+   #'(lambda (_fsm)
+       (save-excursion
+         (goto-char (point-max))
+         (insert " /no_think")))))
 
 (gptel-make-tool
  :function (lambda (location unit)
