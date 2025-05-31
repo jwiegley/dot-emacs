@@ -7,11 +7,11 @@
 
 (org-add-link-type "x-devonthink-item" 'org-devonthink-open)
 
-(defun org-devonthink-open (record-location)
+(defsubst org-devonthink-open (record-location)
   "Visit the DEVONthink message with the given Message-ID."
   (browse-url (concat "x-devonthink-item://" record-location)))
 
-(defun org-devonthink-message-open (message-id)
+(defsubst org-devonthink-message-open (message-id)
   (org-devonthink-open
    (concat "%3C" (url-encode-url (substring message-id 2)) "%3E"))
 
@@ -26,6 +26,9 @@
   ;;      (gnus-string-remove-all-properties (substring message-id 2)))
   ;;   (error "Gnus is not running"))
   )
+
+(when nil
+  (org-devonthink-message-open "//ledger/ledger/pull/2419/review/2876546626@github.com"))
 
 (defun org-devonthink-get-link (&optional given-name)
   (interactive)
@@ -93,17 +96,6 @@ This will use the command `open' with the message URL."
     set searchResult to get record with uuid \"%s\"
     path of searchResult
 end tell" base-uuid))))))
-
-(defun org-devonthink-message-open ()
-  "Visit the message with the given MESSAGE-ID.
-This will use the command `open' with the message URL."
-  (interactive)
-  (re-search-backward "\\[\\[message://\\(.+?\\)\\]\\[")
-  (do-applescript
-   (format "tell application \"DEVONthink 3\"
-    set searchResults to search \"%%3C%s%%3E\" within URLs
-    open window for record (get beginning of searchResults)
-end tell" (shell-quote-argument (match-string 1)))))
 
 (provide 'org-devonthink)
 
