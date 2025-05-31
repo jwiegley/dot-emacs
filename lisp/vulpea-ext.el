@@ -1,4 +1,4 @@
-;;; vulpea-extra --- Extra functions for use with vulpea
+;;; vulpea-ext --- Extra functions for use with vulpea
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -220,7 +220,7 @@ tasks. The only exception is headings tagged as REFILE."
   (vulpea-field-query 'file-dates note))
 
 ;;;###autoload
-(defun vulpea-extra-db-setup-dates ()
+(defun vulpea-ext-db-setup-dates ()
   "Setup dates table in Vulpea DB."
   (vulpea-field-setup
    'file-dates
@@ -293,4 +293,4 @@ tasks. The only exception is headings tagged as REFILE."
   (interactive)
   (call-interactively #'org-roam-alias-remove))
 
-(provide 'vulpea-extra)
+(provide 'vulpea-ext)

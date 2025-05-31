@@ -114,6 +114,7 @@
 
 (require 'gnus-sum)
 (require 'gnus-score)
+(require 'gnus-topic)
 
 (defgroup my-gnus-score nil
   "Helper functions and variables to setup Gnus scoring"

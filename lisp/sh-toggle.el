@@ -58,6 +58,8 @@
 
 ;;; User Variables:
 
+(require 'menu-bar)
+
 (defvar shell-toggle-goto-eob t
   "*If non-nil `shell-toggle' moves point to end of Shell buffer.
 When `shell-toggle-cd' is called the point is always moved to the

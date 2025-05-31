@@ -1,6 +1,6 @@
+(require 'erc)
 (eval-when-compile
   (require 'cl)
-
   (defvar erc-fools))
 
 (defun erc-cmd-FOOL (term &rest ignore)

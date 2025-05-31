@@ -122,6 +122,8 @@
 
 ;;; Code:
 
+(require 'outline)
+
 (defconst c-includes-version "1.4a"
   "This version of c-includes.")
 

@@ -2550,10 +2550,10 @@ commands makes its way into Eshell itself.
   :no-require t
   :config
   (static-if (version= emacs-version "30.1")
-      (load "eshell-extra-30.1")
+      (load "eshell-ext-30.1")
     (static-if (version= emacs-version "29.4")
-        (load "eshell-extra-29.4")
-      (load "eshell-extra-HEAD"))))
+        (load "eshell-ext-29.4")
+      (load "eshell-ext-HEAD"))))
 #+end_src
 
 ** COMMENT etags
@@ -2956,7 +2956,7 @@ up before you execute another command."
   (gptel-default-mode 'org-mode)
   (gptel-log-level 'info)
   (gptel-include-reasoning 'ignore)
-  (gptel-use-tools nil)
+  (gptel-use-tools t)
   (gptel-stream nil)
   (gptel-track-media t)
   (gptel-use-header-line t)
@@ -3140,9 +3140,12 @@ up before you execute another command."
        :models '(
                  agentica-org/DeepCoder-1.5B-Preview
                  agentica-org/DeepCoder-14B-Preview
-                 CodeLlama-7B-Python
+                 BAAI/bge-m3
                  CodeLlama-13B-Python
                  CodeLlama-70B-Python
+                 CodeLlama-7B-Python
+                 DeepSeek-R1-0528
+                 DeepSeek-R1-0528-Qwen3-8B
                  Llama-3.3-Nemotron-Super-49B-v1
                  meta-llama/Llama-4-Scout-17B-16E-Instruct
                  microsoft/phi-4
@@ -3158,17 +3161,18 @@ up before you execute another command."
                  open-thoughts/OpenThinker2-32B
                  Qwen3-0.6B
                  Qwen3-1.7B
+                 Qwen3-235B-A22B
+                 Qwen3-30B-A3B
+                 Qwen3-32B
                  Qwen3-4B
                  Qwen3-8B
-                 Qwen3-32B
-                 Qwen3-30B-A3B
-                 Qwen3-235B-A22B
                  QwQ-32B
                  r1-1776
                  r1-1776-distill-llama-70b
-                 WizardCoder-Python-7B-V1.0
+                 sentence-transformers/all-MiniLM-L6-v2
                  WizardCoder-Python-13B-V1.0
                  WizardCoder-Python-34B-V1.0
+                 WizardCoder-Python-7B-V1.0
                  ))
      ))
 
@@ -3264,10 +3268,10 @@ up before you execute another command."
   (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes))
 #+end_src
 
-*** gptel-extra
+*** gptel-ext
 
 #+begin_src emacs-lisp
-(use-package gptel-extra
+(use-package gptel-ext
   :after (gptel)
   :demand t
   :bind
@@ -3276,11 +3280,11 @@ up before you execute another command."
    ("t" . gptel-title)
    :map
    gptel-mode-map
-   ("C-c C-t" . gptel-extra-clear-buffer))
+   ("C-c C-t" . gptel-ext-clear-buffer))
   :config
-  (push '(code-infill . gptel-extra-code-infill) gptel-directives)
+  (push '(code-infill . gptel-ext-code-infill) gptel-directives)
 
-  (gptel-extra-write-to-org-roam-install))
+  (gptel-ext-write-to-org-roam-install))
 #+end_src
 
 *** gptel-prompts
@@ -4000,7 +4004,7 @@ minibuffer change, the region is realigned.
   :no-require t
   :demand t
   :config
-  (defun my-org-insert-jobhours-string ()
+  (defun my/org-insert-jobhours-string ()
     (interactive)
     (save-excursion
       (goto-char (point-min))
@@ -4012,15 +4016,15 @@ minibuffer change, the region is realigned.
         (when (> spacer 0)
           (insert (make-string spacer ? ) jobhours)))))
 
-  (defun my-org-delayed-update ()
+  (defun my/org-delayed-update ()
     (run-with-idle-timer
      1 nil
      `(lambda ()
         (with-current-buffer ,(current-buffer)
           (org-save-all-org-buffers)
-          (my-org-insert-jobhours-string)))))
+          (my/org-insert-jobhours-string)))))
 
-  (add-hook 'org-agenda-finalize-hook #'my-org-delayed-update t))
+  (add-hook 'org-agenda-finalize-hook #'my/org-delayed-update t))
 #+end_src
 
 ** jq-mode
@@ -6028,7 +6032,8 @@ complement Emacs’ default =C-x 8= prefix map.
   :diminish
   :bind
   (:map typo-mode-map
-        ("-" . self-insert-command))
+        ("-" . self-insert-command)
+        ("`" . self-insert-command))
   :hook
   ((org-mode markdown-mode gnus-message-setup) . typo-mode)
   :config
@@ -6525,6 +6530,7 @@ RET in the buffer you want to undo.
 (use-package completion-preview
   :demand t
   :if (version<= "30.1" emacs-version)
+  :diminish completion-preview-mode
   :config
   (global-completion-preview-mode 1))
 #+end_src
@@ -10138,25 +10144,20 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c .")
          ("C-c #"       . org-priority)
          ("C-c ,"       . org-priority)
-         ("C-c ["       . org-time-stamp-inactive)
          ("C-c <"       . org-time-stamp)
-         ("C-c x"       . org-todo)
-         ("C-c SPC"     . org-table-blank-field)
          ("C-c <tab>"   . org-table-toggle-column-width)
-         ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
+         ("C-c SPC"     . org-table-blank-field)
+         ("C-c ["       . org-time-stamp-inactive)
+         ("C-c x"       . org-todo)
          ("C-c C-x $"   . visible-mode)
-         ("C-c C-x M"   . org-set-message-link)
-         ("C-c C-x O"   . my-org-open-map-link)
-         ("C-c C-x U"   . org-set-url-from-clipboard)
-         ("C-c C-x m"   . org-insert-message-link)
-         ("C-c C-x r"   . org-clock-report)
          ("C-c C-x C-x" . org-update-statistics-cookies)
-         ("C-c C-x t"   . org-toggle-link-display)
+         ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
          ("C-c C-x Y"   . yank-media)
-         ("C-M-y"       . my-org-yank-link)
+         ("C-c C-x r"   . org-clock-report)
+         ("C-c C-x t"   . org-toggle-link-display)
          ("M-n"         . org-next-link)
          ("M-p"         . org-previous-link)
-         ([return]      . (lambda () (interactive) (org-return t)))
+         ([return]        . (lambda () (interactive) (org-return t)))
          ([(control return)])
          ([(control meta return)] . org-insert-heading-after-current))
   :hook
@@ -10165,7 +10166,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   ;; (org-mode . turn-on-flyspell)
   (org-mode . (lambda () (modify-syntax-entry ?’ "w")))
   (org-mode . (lambda () (set-input-method "Agda")))
-  (org-mode . setup-insert-code-block)
   ;; (org-mode . (lambda ()
   ;;               (maybe-turn-on-whitespace)
   ;;               (setq whitespace-line-column 256
@@ -10175,7 +10175,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-log-buffer-setup . turn-on-auto-fill)
   ;; (org-log-buffer-setup . turn-on-flyspell)
   (org-log-buffer-setup . (lambda () (setq-local fill-column (- 78 2))))
-  (org-log-buffer-setup . setup-insert-code-block)
   :custom
   (org-M-RET-may-split-line '((headline) (default . t)))
   (org-adapt-indentation nil)
@@ -10376,217 +10375,31 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :defines
   (org-archive-save-context-info)
   :preface
-  (defconst org-my-ts-regexp
-    "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
-    "Regular expression for fast inactive time stamp matching.")
+  (defconst my/org-journelly
+    "~/Library/Mobile Documents/iCloud~com~xenodium~Journelly/Documents/Journelly.org")
+
+  (defconst my/org-flat-habits
+    "~/Library/Mobile Documents/com~apple~CloudDocs/Flat Habits/MyHabits.org")
+
+  (defconst my/org-plain-org
+    "~/Library/Mobile Documents/com~apple~CloudDocs/Plain Org/Mobile.org")
 
   (defsubst org-file (path)
     (expand-file-name path org-directory))
 
-  (defun org-get-global-property (name)
-    (save-excursion
-      (goto-char (point-min))
-      (and (re-search-forward (concat "#\\+PROPERTY: " name " \\(.*\\)") nil t)
-           (match-string 1))))
-
-  (defun org-todo-age-time (&optional pos)
-    (let ((stamp (org-entry-get (or pos (point)) "CREATED" t)))
-      (when stamp
-        (time-subtract (current-time)
-                       (org-time-string-to-time
-                        (org-entry-get (or pos (point)) "CREATED" t))))))
-
-  (defun org-todo-age (&optional pos)
-    (let ((days (time-to-number-of-days (org-todo-age-time pos))))
-      (cond
-       ((< days 1)   "today")
-       ((< days 7)   (format "%dd" days))
-       ((< days 30)  (format "%.1fw" (/ days 7.0)))
-       ((< days 365) (format "%.1fM" (/ days 30.0)))
-       (t            (format "%.1fY" (/ days 365.0))))))
-
-  (defun org-compare-todo-age (a b)
-    (let ((time-a (org-todo-age-time (get-text-property 0 'org-hd-marker a)))
-          (time-b (org-todo-age-time (get-text-property 0 'org-hd-marker b))))
-      (if (time-less-p time-a time-b)
-          -1
-        (if (equal time-a time-b)
-            0
-          1))))
-
-  (eval-when-compile
-    (require 'org-devonthink))
-
-  (defun org-my-message-open (message-id)
-    (org-devonthink-open
-     (concat "%3C" (url-encode-url (substring message-id 2)) "%3E"))
-
-    ;; (browse-url
-    ;;  (concat "https://app.fastmail.com/mail/search:msgid%3A"
-    ;;          (url-encode-url (substring message-id 2))
-    ;;          "/?u=d30140a0"))
-
-    ;; (require 'gnus-util)
-    ;; (if (get-buffer "*Group*")
-    ;;     (gnus-goto-article
-    ;;      (gnus-string-remove-all-properties (substring message-id 2)))
-    ;;   (error "Gnus is not running"))
-    )
-
-  (defun save-org-mode-files ()
-    (dolist (buf (buffer-list))
-      (with-current-buffer buf
-        (when (eq major-mode 'org-mode)
-          (if (and (buffer-modified-p) (buffer-file-name))
-              (save-buffer))))))
-
-  (defun org-linkify ()
-    (interactive)
-    (goto-char (point-min))
-    (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
-      (replace-match (format " [[%s:\\3][\\2-\\3]] " (downcase (match-string 2))) t)
-      (goto-char (match-end 0)))
-    (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
-      (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
-      (goto-char (match-end 0))))
-
-  (defun my-org-open-map-link ()
-    (interactive)
-    (let ((location (org-entry-get (point) "LOCATION")))
-      (if location
-          (if (featurep 'osm)
-              (pcase (split-string location ",")
-                (`(,lat ,lon)
-                 (osm-goto (string-to-number lat) (string-to-number lon) nil)))
-            (browse-url (concat "https://maps.apple.com/?q=org&ll=" location)))
-        (error "Entry has no location set"))))
-
-  (eval-when-compile
-    (defvar org-clock-current-task))
-
-  (defun org-get-inactive-time ()
-    (float-time (org-time-string-to-time
-                 (or (org-entry-get (point) "TIMESTAMP")
-                     (org-entry-get (point) "TIMESTAMP_IA")
-                     (org-entry-get (point) "CREATED")
-                     (debug)))))
-
-  (defun org-sort-done-tasks ()
-    (interactive)
-    (goto-char (point-min))
-    (org-sort-entries t ?F #'org-get-inactive-time #'<)
-    (goto-char (point-min))
-    (while (re-search-forward "
-
-
-+" nil t)
-      (delete-region (match-beginning 0) (match-end 0))
-      (insert "
-"))
-    (let (after-save-hook)
-      (save-buffer))
-    (org-overview))
-
-  (defun org-get-message-link (&optional title)
-    (let (message-id subject)
-      (with-current-buffer gnus-original-article-buffer
-        (setq message-id (substring (message-field-value "message-id") 1 -1)
-              subject (or title (message-field-value "subject"))))
-      (org-link-make-string (concat "message://" message-id)
-                            (rfc2047-decode-string subject))))
-
-  (defun org-insert-message-link (&optional arg)
-    (interactive "P")
-    (insert (org-get-message-link (if arg "writes"))))
-
-  (defun org-set-message-link ()
-    "Set a property for the current headline."
-    (interactive)
-    (org-set-property "Message" (org-get-message-link)))
-
-  (defun org-get-message-sender ()
-    (with-current-buffer gnus-original-article-buffer
-      (message-field-value "from")))
-
-  (defun org-set-message-sender ()
-    "Set a property for the current headline."
-    (interactive)
-    (org-set-property "Submitter" (org-get-message-sender)))
-
-  (defun org-set-url-from-clipboard ()
-    "Set a property for the current headline."
-    (interactive)
-    (org-back-to-heading)
-    (org-set-property (if (org-entry-get (point-marker) "URL")
-                          "URL"
-                        "URL2")
-                      (gui--selection-value-internal 'CLIPBOARD))
-    (org-toggle-tag "LINK" 'on))
-
-  (defun org-message-reply ()
-    (interactive)
-    (let* ((org-marker (get-text-property (point) 'org-marker))
-           (author (org-entry-get (or org-marker (point)) "Author"))
-           (subject (if org-marker
-                        (with-current-buffer (marker-buffer org-marker)
-                          (goto-char org-marker)
-                          (nth 4 (org-heading-components)))
-                      (nth 4 (org-heading-components)))))
-      (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
-      (compose-mail-other-window author (concat "Re: " subject))))
-
-  (defun my/org-entry-get-immediate (property)
-    (save-excursion
-      (let ((local (org--property-local-values property nil)))
-        (and local (mapconcat #'identity
-                              (delq nil local)
-                              (org--property-get-separator property))))))
-
-  (defun insert-code-block ()
-    "Replace ``` with an Org code block."
-    (when (let* ((keys (recent-keys))
-                 (n (length keys)))
-            (and (eq ?` (aref keys (- n 1)))
-                 (eq ?` (aref keys (- n 2)))
-                 (eq ?` (aref keys (- n 3)))))
-      (backward-delete-char 3)
-      (let ((language
-             (or (save-excursion
-                   (re-search-backward "#\\+begin_src \\([^ \t\n]+\\)" nil t)
-                   (match-string 1))
-                 "sh")))
-        (insert "#+begin_src " language "\n\n#+end_src")
-        (forward-line -1))))
-
-  (defsubst setup-insert-code-block ()
-    (add-hook 'post-self-insert-hook #'insert-code-block nil t))
-
-  (defun my-gnus-drop-link-parameter (param)
-    (setq org-link-parameters
-          (cl-delete-if #'(lambda (x) (string= (car x) param))
-                        org-link-parameters)))
-
-  (defun my-org-yank-link ()
-    (interactive)
-    (org-insert-all-links nil "*** " "\n"))
-
+  ;; Used by Org-mode and Org-roam templates
   (eval-when-compile
     (require 'uuidgen))
-
   (defun generate-uuid ()
     (with-temp-buffer
       (uuidgen nil)
       (upcase (buffer-string))))
 
+  ;; Used by Org-mode and Org-roam templates
   (defun created-stamp (&optional for-scheduled inactive)
     (format-time-string
      (org-time-stamp-format (not for-scheduled)
                             (or inactive (not for-scheduled)))))
-
-  (defun endless/follow-tag-link (tag)
-    "Display a list of TODO headlines with tag TAG.
-With prefix argument, also display headlines without a TODO keyword."
-    (org-tags-view (null current-prefix-arg) tag))
   :config
   (setq org-archive-save-context-info '(time file olpath olid category itags))
 
@@ -10594,26 +10407,12 @@ With prefix argument, also display headlines without a TODO keyword."
   (add-to-list 'Info-additional-directory-list
                (expand-file-name "~/.emacs.d/lisp/org-mode/doc"))
 
-  ;; Replace Gnus link type with Message
-  (org-link-set-parameters "message"
-			   :follow #'org-my-message-open
-			   :store #'org-gnus-store-link)
-  (add-hook 'gnus-summary-mode-hook
-            #'(lambda () (my-gnus-drop-link-parameter "gnus")))
-
   (org-link-set-parameters "copy"
                            :follow #'kill-new
                            :export #'(lambda (_ desc &rest _) desc))
 
-  (org-link-set-parameters "tag" :follow #'endless/follow-tag-link)
-
   (advice-add 'org-paste-subtree :before
               #'(lambda (&rest _) (delete-blank-lines)))
-
-  ;;(use-package org-mairix
-  ;;  :defer t
-  ;;  :config
-  ;;  (my-gnus-drop-link-parameter "mairix"))
 
   (font-lock-add-keywords
    'org-mode
@@ -10629,8 +10428,7 @@ With prefix argument, also display headlines without a TODO keyword."
   :bind* ("C-c a" . org-agenda)
   :bind (:map
          org-agenda-mode-map
-         ;; ("RET" . svbck/agenda-goto)
-         ("SPC" . my-org-agenda-show-and-scroll-up)
+         ("SPC" . my/org-agenda-show-and-scroll-up)
          ;; (" "   . org-agenda-tree-to-indirect-buffer)
          (">"   . org-agenda-filter-by-top-headline)
          ("C-n" . next-line)
@@ -10647,17 +10445,15 @@ With prefix argument, also display headlines without a TODO keyword."
          ("w"   . org-agenda-refile)
          ("z"   . pop-window-configuration)
          :prefix-map
-         my-org-review-map
+         my/org-review-map
          :prefix "t"
          ("N"   . my/org-toggle-time-noon)
          ("d"   . my/org-toggle-time-day)
          ("e"   . my/org-toggle-time-eve)
          ("n"   . my/org-toggle-time-night))
-  :hook
-  (org-agenda-mode . org-fit-agenda-window)
   :custom
-  (org-agenda-auto-exclude-function 'org-my-auto-exclude-function)
-  (org-agenda-cmp-user-defined 'org-compare-todo-age)
+  (org-agenda-auto-exclude-function 'my/org-auto-exclude-function)
+  (org-agenda-cmp-user-defined 'my/org-compare-todo-age)
   (org-agenda-compact-blocks t)
   (org-agenda-deadline-leaders '("!D!:" "D%02d:" "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
@@ -10668,7 +10464,9 @@ With prefix argument, also display headlines without a TODO keyword."
          (org-file "quantum-trades/quantum-trades.org")
          (org-file "OSS.org")
          (org-file "people.org")
-         "~/Mobile/inbox.org"))
+         my/org-plain-org
+         ;; my/org-flat-habits
+         ))
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
@@ -10679,8 +10477,7 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-persistent-filter t)
   (org-agenda-prefix-format
    '((agenda   . "%-10c%?-12t% s")
-     (timeline . "% s")
-     (todo     . "%-10c%5(org-todo-age) ")
+     (todo     . "%-10c%5(my/org-todo-age) ")
      (tags     . "%-10c")))
   (org-agenda-scheduled-leaders '("" "S%d: "))
   (org-agenda-scheduled-relative-text "S%d: ")
@@ -10712,13 +10509,32 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-agenda-clocking ((t (:background "red2"))))
   (org-agenda-done ((t (:foreground "DarkGreen"))))
   :preface
-  (defun org-fit-agenda-window ()
-    "Fit the window to the buffer size."
-    (and (memq org-agenda-window-setup '(reorganize-frame))
-         (fboundp 'fit-window-to-buffer)
-         (fit-window-to-buffer)))
+  (defun my/org-todo-age-time (&optional pos)
+    (let ((stamp (org-entry-get (or pos (point)) "CREATED" t)))
+      (when stamp
+        (time-subtract (current-time)
+                       (org-time-string-to-time
+                        (org-entry-get (or pos (point)) "CREATED" t))))))
 
-  (defun org-my-auto-exclude-function (tag)
+  (defun my/org-todo-age (&optional pos)
+    (let ((days (time-to-number-of-days (my/org-todo-age-time pos))))
+      (cond
+       ((< days 1)   "today")
+       ((< days 7)   (format "%dd" days))
+       ((< days 30)  (format "%.1fw" (/ days 7.0)))
+       ((< days 365) (format "%.1fM" (/ days 30.0)))
+       (t            (format "%.1fY" (/ days 365.0))))))
+
+  (defun my/org-compare-todo-age (a b)
+    (let ((time-a (my/org-todo-age-time (get-text-property 0 'org-hd-marker a)))
+          (time-b (my/org-todo-age-time (get-text-property 0 'org-hd-marker b))))
+      (if (time-less-p time-a time-b)
+          -1
+        (if (equal time-a time-b)
+            0
+          1))))
+
+  (defun my/org-auto-exclude-function (tag)
     (let ((hour (nth 2 (decode-time))))
       (and (cond
             ((string= tag "Call")   (< hour 9))
@@ -10740,58 +10556,19 @@ With prefix argument, also display headlines without a TODO keyword."
 
   (defun my/org-toggle-time-noon ()
     (interactive)
-    (org-agenda-with-point-at-orig-entry nil
-      (org-toggle-tag "Noon")))
-
+    (org-agenda-with-point-at-orig-entry nil (org-toggle-tag "Noon")))
   (defun my/org-toggle-time-day ()
     (interactive)
-    (org-agenda-with-point-at-orig-entry nil
-      (org-toggle-tag "Day")))
-
+    (org-agenda-with-point-at-orig-entry nil (org-toggle-tag "Day")))
   (defun my/org-toggle-time-eve ()
     (interactive)
-    (org-agenda-with-point-at-orig-entry nil
-      (org-toggle-tag "Eve")))
-
+    (org-agenda-with-point-at-orig-entry nil (org-toggle-tag "Eve")))
   (defun my/org-toggle-time-night ()
     (interactive)
-    (org-agenda-with-point-at-orig-entry nil
-      (org-toggle-tag "Night")))
-
-  (defun my-org-ancestor-keywords ()
-    (save-excursion
-      (let ((had-parent (org-up-heading-safe)))
-        (delete nil
-                (cons (org-get-todo-state)
-                      (when had-parent
-                        (my-org-ancestor-keywords)))))))
-
-  (defun my-org-current-tags (depth)
-    (save-excursion
-      (ignore-errors
-        (let (should-skip)
-          (while (and (> depth 0)
-                      (not should-skip)
-                      (prog1
-                          (setq depth (1- depth))
-                        (not (org-up-element))))
-            (if (looking-at "^\*+\\s-+")
-                (setq should-skip (org-get-tags))))
-          should-skip))))
-
-  (defun svbck/agenda-goto ()
-    (interactive)
-    (org-agenda-goto)
-    (org-narrow-to-subtree))
+    (org-agenda-with-point-at-orig-entry nil (org-toggle-tag "Night")))
 
   ;; I like the behavior of `arg' to be reversed in this function.
-  (defun my-org-agenda-show-and-scroll-up (&optional arg)
-    "Display the Org file which contains the item at point.
-
-When called repeatedly, scroll the window that is displaying the buffer.
-
-With a `\\[universal-argument]' prefix argument, display the item, but \
-unfold drawers."
+  (defun my/org-agenda-show-and-scroll-up (&optional arg)
     (interactive "P")
     (org-agenda-show-and-scroll-up (null arg)))
   :init
@@ -10873,55 +10650,71 @@ unfold drawers."
     (require 'vertico-multiform))
   (add-all-to-list 'vertico-multiform-commands
                    '(org-ql-find)
-                   '(org-refile))
+                   '(org-refile)))
 
-  (add-hook 'org-mode-hook 'org-ql-extra-completion-hook))
-
-(use-package org-ql-extra
+(use-package org-ql-ext
   :after org-ql
   :demand t
   :bind
-  ("M-g o" . org-ql-extra-find-refile-targets)
+  ("M-g o" . org-ql-ext-find-refile-targets)
   :config
   (eval-when-compile
     (require 'vertico-multiform))
   (add-to-list 'vertico-multiform-commands
-               '(org-ql-extra-find-refile-targets))
+               '(org-ql-ext-find-refile-targets))
 
-  (add-hook 'org-mode-hook 'org-ql-extra-completion-hook))
+  (add-hook 'org-mode-hook 'org-ql-ext-completion-hook))
 #+end_src
 
-*** org-extra
+*** org-ext
 
 #+begin_src emacs-lisp
-(use-package org-extra
-  :after org
+(use-package org-ext
+  :after (org)
   :demand t
-  :bind* ("M-C" . org-extra-jump-to-agenda)
-  :commands (org-extra-jump-to-agenda)
+  :bind* ("M-C" . org-ext-jump-to-agenda)
+  :commands (org-ext-jump-to-agenda)
   :bind (:map
          org-mode-map
-         ("C-c M-w"     . org-extra-id-copy)
-         ("C-c C-M-o"   . org-extra-open-all-links-in-subtree)
-         ("C-c C-x B"   . org-extra-set-blocker-from-clipboard-id)
-         ("C-c C-x D"   . org-extra-update-date-field)
-         ("C-c C-x u"   . org-extra-todoize)
-         ("C-c C-x C-t" . org-extra-switch-todo-link)
-         ("C-c C-x C-u" . org-extra-todoize-region)
-         ("C-c C-x C-," . org-extra-insert-structure-template-and-yank)
-         ("s-n"         . org-extra-edit-link-name)
+         ("C-c M-w"       . org-ext-id-copy)
+         ("C-c C-M-o"     . org-ext-open-all-links-in-subtree)
+         ("C-c C-x B"     . org-ext-set-blocker-from-clipboard-id)
+         ("C-c C-x D"     . org-ext-update-date-field)
+         ("C-c C-x M"     . org-ext-set-message-link)
+         ("C-c C-x O"     . org-ext-open-map-link)
+         ("C-c C-x U"     . org-ext-set-url-from-clipboard)
+         ("C-c C-x m"     . org-ext-insert-message-link)
+         ("C-c C-x u"     . org-ext-todoize)
+         ("C-c C-x C-,"   . org-ext-insert-structure-template-and-yank)
+         ("C-c C-x C-M-y" . org-ext-yank-link)
+         ("C-c C-x C-t"   . org-ext-switch-todo-link)
+         ("C-c C-x C-u"   . org-ext-todoize-region)
+         ("s-n"           . org-ext-edit-link-name)
          :map
          org-agenda-mode-map
-         ("g" . org-extra-agenda-redo))
+         ("g" . org-ext-agenda-redo))
   :hook
-  (after-save . org-extra-update-team-after-save)
-  ;; (org-agenda-finalize . org-extra-report-items-to-be-reviewed)
+  (after-save . org-ext-update-team-after-save)
+  (org-mode . org-ext-setup-insert-code-block)
+  (org-log-buffer-setup . org-ext-setup-insert-code-block)
+  ;; (org-agenda-finalize . org-ext-report-items-to-be-reviewed)
   ;; :init
   ;; (unless alternate-emacs
-  ;;   (add-hook 'emacs-startup-hook #'org-extra-jump-to-agenda t)
-  ;;   (run-with-idle-timer 300 t #'org-extra-jump-to-agenda))
+  ;;   (add-hook 'emacs-startup-hook #'org-ext-jump-to-agenda t)
+  ;;   (run-with-idle-timer 300 t #'org-ext-jump-to-agenda))
+  (org-agenda-mode . org-ext-fit-agenda-window)
   :config
-  (org-extra-update-team))
+  (org-link-set-parameters "tag" :follow #'org-ext-follow-tag-link)
+
+  (add-hook 'gnus-summary-mode-hook
+            #'(lambda () (org-ext-gnus-drop-link-parameter "gnus")))
+
+  ;; (use-package org-mairix
+  ;;   :defer t
+  ;;   :config
+  ;;   (org-ext-gnus-drop-link-parameter "mairix"))
+
+  (org-ext-update-team))
 #+end_src
 
 *** org-config
@@ -10933,6 +10726,7 @@ unfold drawers."
   :bind
   (:map
    my-ctrl-c-n-map
+   ("H"   . org-config-hide)
    ("s"   . org-config-find)
    ("C-s" . org-config-find-any))
   :hook
@@ -11077,7 +10871,8 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
 (use-package org-habit
   :after org-agenda
   :custom
-  (org-habit-preceding-days 42)
+  (org-habit-graph-column 32)
+  (org-habit-preceding-days 53)
   (org-habit-today-glyph 45)
   :custom-face
   (org-habit-alert-face ((((background light)) (:background "#f5f946"))))
@@ -11112,7 +10907,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (org-attach-method 'mv)
   (org-attach-store-link-p 'attached)
   :init
-  (defun my-org-attach-visit-headline-from-dired ()
+  (defun my/org-attach-visit-headline-from-dired ()
     "Go to the headline corresponding to this org-attach directory."
     (interactive)
     (let* ((id-parts (last (split-string default-directory "/" t) 2))
@@ -11410,7 +11205,7 @@ A group FOO is composed of contacts with the tag FOO."
   :after org
   :demand t
   :bind (:map org-mode-map
-              ("C-c C-x /"    . my-org-set-crypt-tag)
+              ("C-c C-x /"    . my/org-set-crypt-tag)
               ("C-c C-x C-/"  . org-decrypt-entry)
               ("C-c C-x C-\\" . org-encrypt-entry))
   :custom
@@ -11418,7 +11213,7 @@ A group FOO is composed of contacts with the tag FOO."
   (org-crypt-disable-auto-save nil)
   (org-crypt-key "0xBA39EA53EFF3C20D")
   :preface
-  (defun my-org-set-crypt-tag ()
+  (defun my/org-set-crypt-tag ()
     (interactive)
     (save-excursion
       (org-back-to-heading-or-point-min)
@@ -11449,7 +11244,12 @@ A group FOO is composed of contacts with the tag FOO."
   :config
   (eval-after-load 'org-noter
     '(add-hook 'org-noter-parse-document-property-hook
-               #'org-devonthink-uuid-to-path)))
+               #'org-devonthink-uuid-to-path))
+
+    ;; Replace Gnus link type with Message
+  (org-link-set-parameters "message"
+			   :follow #'org-devonthink-message-open
+			   :store #'org-gnus-store-link))
 #+end_src
 
 *** org-edna
@@ -11468,7 +11268,7 @@ A group FOO is composed of contacts with the tag FOO."
 (use-package org-element
   :after org
   :preface
-  (defun my-org-element-check-buffer (element)
+  (defun my/org-element-check-buffer (element)
     (unless (org-element-property :buffer element)
       (org-element--cache-warn
        "Got element without buffer (cache active?: %S)\n%S"
@@ -11481,7 +11281,7 @@ A group FOO is composed of contacts with the tag FOO."
         )
   :config
   (advice-add 'org-element--cache-verify-element
-              :before #'my-org-element-check-buffer))
+              :before #'my/org-element-check-buffer))
 #+end_src
 
 *** org-color
@@ -11560,7 +11360,7 @@ A group FOO is composed of contacts with the tag FOO."
                       (format-time-string (org-time-stamp-format t t))))))
 #+end_src
 
-*** org-fancy-priorities
+*** COMMENT org-fancy-priorities
 
 Org mode is great. It is powerful, versatile and customizable. Unfortunately,
 I always found the task priorities functionality a bit underwhelming, not in
@@ -11578,9 +11378,14 @@ displays the priority part of a heading as your preferred string value.
   (org-agenda-mode . org-fancy-priorities-mode)
   :custom
   (org-fancy-priorities-list
-   `((?A . ,(propertize "🅰" 'face 'org-extra-emphasis-02))
-     (?B . ,(propertize "🄱" 'face 'org-level-8))
-     (?C . ,(propertize "Ⓒ" 'face 'org-level-1)))))
+   `(
+     ;; (?A . ,(propertize "🅰" 'face 'org-extra-emphasis-02))
+     ;; (?B . ,(propertize "🄱" 'face 'org-level-8))
+     ;; (?C . ,(propertize "Ⓒ" 'face 'org-level-1))
+     (?A . ,(propertize "[#A]" 'face 'org-extra-emphasis-02))
+     (?B . ,(propertize "[#B]" 'face 'org-level-8))
+     (?C . ,(propertize "[#C]" 'face 'org-level-1))
+     )))
 #+end_src
 
 *** COMMENT org-gcal
@@ -11899,13 +11704,25 @@ directory.
 #+begin_src emacs-lisp
 (use-package org-refile
   :after org
+  :init
+  (use-package org-ext
+    :functions (org-ext-refile-heading-p
+                org-ext-agenda-files-but-not-meetings
+                org-ext-team-files
+                org-ext-refine-refile-targets))
   :custom
-  (use-package org-extra
-    :functions (org-extra-refile-heading-p))
-  (org-refile-target-verify-function #'org-extra-refile-heading-p)
-  (org-refile-targets '((org-agenda-files :maxlevel . 4)))
+  (org-refile-targets
+   `((org-ext-agenda-files-but-not-meetings . (:maxlevel . 4))
+     ;; (org-ext-team-files . (:regexp . "Notes"))
+     ((,(org-file "people.org")
+       ,my/org-plain-org)
+      . (:level . 1))))
+  (org-refile-target-verify-function #'org-ext-refile-heading-p)
   (org-refile-use-cache nil)
-  (org-refile-use-outline-path 'file))
+  (org-refile-use-outline-path 'file)
+  :config
+  (advice-add 'org-refile-get-targets :around
+              #'org-ext-refine-refile-targets))
 #+end_src
 
 *** org-remark
@@ -12026,14 +11843,14 @@ stamp to a task, which can be used to schedule a review of the task.
   (:map
    my-ctrl-c-n-map
    ("R" . org-review-insert-next-review)
-   ("r" . my-org-insert-last-and-set-next-review)
+   ("r" . my/org-insert-last-and-set-next-review)
    :map
    org-agenda-mode-map
    :prefix-map
-   my-org-review-map
+   my/org-review-map
    :prefix "r"
    ("R" . org-review-insert-next-review)
-   ("r" . my-org-insert-last-and-set-next-review)
+   ("r" . my/org-insert-last-and-set-next-review)
    ("d" . review-next-day)
    ("D" . review-next-three-days)
    ("w" . review-next-week)
@@ -12055,7 +11872,7 @@ stamp to a task, which can be used to schedule a review of the task.
   (org-review-last-timestamp-format 'inactive)
   (org-review-next-timestamp-format 'inactive)
   :preface
-  (defun my-org-review-increment-count (&rest _)
+  (defun my/org-review-increment-count (&rest _)
     (interactive)
     (let* ((where (if (equal major-mode 'org-agenda-mode)
                       (or (org-get-at-bol 'org-marker)
@@ -12068,7 +11885,7 @@ stamp to a task, which can be used to schedule a review of the task.
                           (1+ (string-to-number reviews))))
         (org-entry-put where "REVIEWS" "1"))))
 
-  (defun my-org-reviewed-today ()
+  (defun my/org-reviewed-today ()
     (interactive)
     (when (or (ignore-errors (org-entry-is-todo-p))
               (save-excursion
@@ -12082,72 +11899,72 @@ stamp to a task, which can be used to schedule a review of the task.
 			          org-review-next-timestamp-format
 			          ts)))))
 
-  (defun my-org-insert-last-and-set-next-review ()
+  (defun my/org-insert-last-and-set-next-review ()
     (interactive)
     (org-review-insert-last-review)
     (call-interactively #'org-review-insert-next-review))
 
-  (defun my-org-review-next (delay)
+  (defun my/org-review-next (delay)
     (let ((org-review-delay delay))
       (org-review-insert-last-review nil)))
 
   (defun review-next-day ()
     (interactive)
-    (my-org-review-next "+1d")
+    (my/org-review-next "+1d")
     (message "Next review in 1 day"))
   (defun review-next-three-days ()
     (interactive)
-    (my-org-review-next "+3d")
+    (my/org-review-next "+3d")
     (message "Next review in 3 days"))
   (defun review-next-week ()
     (interactive)
-    (my-org-review-next "+1w")
+    (my/org-review-next "+1w")
     (message "Next review in 1 week"))
   (defun review-next-two-weeks ()
     (interactive)
-    (my-org-review-next "+2w")
+    (my/org-review-next "+2w")
     (message "Next review in 2 weeks"))
   (defun review-next-three-weeks ()
     (interactive)
-    (my-org-review-next "+3w")
+    (my/org-review-next "+3w")
     (message "Next review in 3 weeks"))
   (defun review-next-four-weeks ()
     (interactive)
-    (my-org-review-next "+4w")
+    (my/org-review-next "+4w")
     (message "Next review in 4 weeks"))
   (defun review-next-six-weeks ()
     (interactive)
-    (my-org-review-next "+6w")
+    (my/org-review-next "+6w")
     (message "Next review in 6 weeks"))
   (defun review-next-month ()
     (interactive)
-    (my-org-review-next "+1m")
+    (my/org-review-next "+1m")
     (message "Next review in 1 month"))
   (defun review-next-two-months ()
     (interactive)
-    (my-org-review-next "+2m")
+    (my/org-review-next "+2m")
     (message "Next review in 2 months"))
   (defun review-next-quarter ()
     (interactive)
-    (my-org-review-next "+3m")
+    (my/org-review-next "+3m")
     (message "Next review in 3 months"))
   (defun review-next-half-year ()
     (interactive)
-    (my-org-review-next "+6m")
+    (my/org-review-next "+6m")
     (message "Next review in 6 months"))
   (defun review-next-year ()
     (interactive)
-    (my-org-review-next "+1y")
+    (my/org-review-next "+1y")
     (message "Next review in 1 year"))
   (defun review-next-two-years ()
     (interactive)
-    (my-org-review-next "+2y")
+    (my/org-review-next "+2y")
     (message "Next review in 2 years"))
   :config
-  (add-hook 'org-capture-before-finalize-hook #'my-org-reviewed-today)
+  (add-hook 'org-capture-before-finalize-hook #'my/org-reviewed-today)
 
   (advice-add 'org-review-insert-last-review
-              :after #'my-org-review-increment-count))
+              :after #'my/org-review-increment-count))
 #+end_src
 
 *** org-rich-yank
@@ -12341,30 +12158,32 @@ utilities around note taking.
     (vulpea-buffer-meta-get! (vulpea-buffer-meta) name)))
 #+end_src
 
-***** vulpea-extra
+***** vulpea-ext
 
 #+begin_src emacs-lisp
-(use-package vulpea-extra
+(use-package vulpea-ext
   :demand t
   :bind
   (:map
    my-ctrl-c-n-map
    ("j" . vulpea-find-journal))
   :hook
-  (org-roam-db-autosync-mode . vulpea-extra-db-setup-dates)
+  (org-roam-db-autosync-mode . vulpea-ext-db-setup-dates)
   :config
   (vulpea-auto-update-install)
-  (vulpea-extra-db-setup-dates)
+  (vulpea-ext-db-setup-dates)
   (vulpea-db-autosync-enable)
 
   (advice-add 'vulpea-update-agenda-files
               :after #'(lambda (&rest _ignore)
                          (nconc org-agenda-files
                                 (list (org-file "people.org")
-                                      "~/Mobile/inbox.org")))))
+                                      my/org-plain-org
+                                      ;; my/org-flat-habits
+                                      )))))
 #+end_src
 
-**** COMMENT consult-org-roam
+**** consult-org-roam
 
 #+begin_src emacs-lisp
 (use-package consult-org-roam
@@ -12374,7 +12193,7 @@ utilities around note taking.
   :bind
   (:map
    my-ctrl-c-n-map
-   ("f" . consult-org-roam-file-find)
+   ;; ("f" . consult-org-roam-file-find)
    ("F" . consult-org-roam-forward-links)
    ("b" . consult-org-roam-backlinks)
    ("g" . consult-org-roam-search))
@@ -12425,34 +12244,35 @@ resulting in an org-mode checklist.
         org-roam-ui-open-on-start t))
 #+end_src
 
-**** org-roam-extra
+**** org-roam-ext
 
 #+begin_src emacs-lisp
-(use-package org-roam-extra
+(use-package org-roam-ext
   :after org-roam
   :demand t
-  :bind* ("C-c M-m" . org-roam-extra-create-new)
+  :bind* ("C-c M-m" . org-roam-ext-create-new)
   :bind
   (:map
    org-mode-map
-   ("C-c C-x S" . org-roam-extra-sync)
+   ("M-@" . org-roam-ext-insert-person)
+   ("C-c C-x S" . org-roam-ext-sync)
    :map
    my-ctrl-c-n-map
-   ("S" . org-roam-extra-import-fireflies)
-   ("I" . org-roam-extra-node-insert-immediate)
-   ("T" . org-roam-extra-revise-title)
-   ("n" . org-roam-extra-create-new)
-   ("W" . org-roam-extra-prepare-note)
-   ("P" . org-roam-extra-meeting-audio))
+   ("S" . org-roam-ext-import-fireflies)
+   ("I" . org-roam-ext-node-insert-immediate)
+   ("T" . org-roam-ext-revise-title)
+   ("n" . org-roam-ext-create-new)
+   ("W" . org-roam-ext-prepare-note)
+   ("P" . org-roam-ext-meeting-audio))
   :hook
-  (before-save . org-roam-extra-sort-file-properties)
-  ;; (org-roam-file-setup . org-roam-extra-update-todo-tag)
-  ;; (before-save . org-roam-extra-update-todo-tag)
-  (org-roam-mode . org-roam-extra-paint-transcript)
+  (before-save . org-roam-ext-sort-file-properties)
+  ;; (org-roam-file-setup . org-roam-ext-update-todo-tag)
+  ;; (before-save . org-roam-ext-update-todo-tag)
+  (org-roam-mode . org-roam-ext-paint-transcript)
   :config
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."
-    (org-roam-extra-title-slug (org-roam-node-title node))))
+    (org-roam-ext-title-slug (org-roam-node-title node))))
 #+end_src
 
 **** org-smart-capture
@@ -12582,7 +12402,7 @@ this allows seeing an overview of tasks in a subtree.
     :demand t
     :preface
     ;;; From https://stackoverflow.com/questions/17478260/completely-hide-the-properties-drawer-in-org-mode
-    (defun my-org-srs-cycle-hide-drawers (state)
+    (defun my/org-srs-cycle-hide-drawers (state)
       "Re-hide all drawers after a visibility state change."
       (when (and (derived-mode-p 'org-mode)
                  (not (memq state '(overview folded contents))))
@@ -12620,7 +12440,7 @@ this allows seeing an overview of tasks in a subtree.
     :config
     (advice-add 'org-srs-log-hide-drawer
                 :after #'(lambda (&rest _ignore)
-                           (my-org-srs-cycle-hide-drawers 'all)))))
+                           (my/org-srs-cycle-hide-drawers 'all)))))
 #+end_src
 
 *** org-sticky-header
@@ -12712,7 +12532,7 @@ properties or a symbol which is taken to be a face name.
   (org-timeline-start-hour 7)
   :functions (org-timeline-insert-timeline)
   :preface
-  (defun my-org-timeline-insert-blank (&rest _)
+  (defun my/org-timeline-insert-blank (&rest _)
     (save-excursion
       (goto-char (point-max))
       (insert ?\n)))
@@ -12720,7 +12540,7 @@ properties or a symbol which is taken to be a face name.
   (add-hook 'org-agenda-finalize-hook 'org-timeline-insert-timeline :append)
   :config
   (advice-add 'org-timeline-insert-timeline
-              :before #'my-org-timeline-insert-blank))
+              :before #'my/org-timeline-insert-blank))
 #+end_src
 
 *** org-transclusion
@@ -12745,10 +12565,10 @@ Usage scenario:
          ("C-c C-x T" . org-transclusion-mode)
          :map
          my-ctrl-c-n-map
-         ("A" . my-org-transclusion-insert)
+         ("A" . my/org-transclusion-insert)
          ("M" . org-transclusion-make-from-link))
   :preface
-  (defun my-org-transclusion-insert ()
+  (defun my/org-transclusion-insert ()
     (interactive)
     (save-excursion
       (call-interactively #'org-roam-node-insert))

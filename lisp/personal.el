@@ -369,7 +369,7 @@ called the \"decorate-sort-undecorate\" paradigm, or Schwartzian
 transform."
   (mapcar #'car
           (sort (mapcar #'(lambda (x) (cons x (funcall accessor x))) seq)
-                #'(lambda (x y) (funcall predicate (cdr x) (cdr y))))))
+                :lessp #'(lambda (x y) (funcall predicate (cdr x) (cdr y))))))
 
 (defmacro save-bound-variable (var &rest body)
   `(let ((,var ,var))

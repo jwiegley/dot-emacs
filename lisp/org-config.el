@@ -29,7 +29,7 @@
 (require 'org-capture)
 (require 'org-roam-capture)
 (require 'org-roam-dailies)
-(require 'org-extra)
+(require 'org-ext)
 (require 'org-agenda-random)
 (eval-when-compile
   (require 'org-habit))
@@ -37,6 +37,10 @@
 (defgroup org-config nil
   "Configurations for Org-mode and related packages"
   :group 'org)
+
+(defun org-config-hide ()
+  (interactive)
+  (org-set-property "HIDE" "t"))
 
 (defconst org-config-open-re "/TODO|DOING|WAIT|TASK|HABIT"
   "Tasks that are open and actionable. Excludes DEFER tasks.")
@@ -65,6 +69,14 @@
   (interactive "sItem: ")
   (org-tags-view t (format "ITEM={%s}%s" who org-config-open-re)))
 
+(defun org-config-text-search (regexp &optional include-closed)
+  (interactive "sRegexp: \nP")
+  (org-ql-search (org-ql-search-directories-files)
+    (if include-closed
+        `(regexp ,regexp)
+      `(and (regexp ,regexp)
+            (not (todo "CANCELED" "DONE"))))))
+
 (defmacro org-config-agenda-skip-entry-if (body)
   "Skip all but the first non-done entry."
   `(when ,body
@@ -74,7 +86,7 @@
 
 (defsubst org-config-agenda-skip-habit ()
   (org-config-agenda-skip-entry-if
-   (org-extra-habit-p)))
+   (org-ext-habit-p)))
 
 (defcustom org-config-names-regularly-reviewed
   '(
@@ -113,7 +125,7 @@
 
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
-   (not (org-extra-needs-review-p))))
+   (not (org-ext-needs-review-p))))
 
 (defsubst org-config-skip-if-reviewed ()
   (org-config-agenda-skip-entry-if
@@ -159,33 +171,35 @@
             1
           -1)
       (if (and (null a-prop) (null b-prop))
-          (org-compare-todo-age a b)
+          (my/org-compare-todo-age a b)
         (if a-prop
             -1
           1)))))
 
-(defsubst org-config-meeting-template (keys title file dir &optional slug)
+(defsubst org-config-meeting-template (keys title file dir &optional prefix)
   `(,keys ,title plain
           (file ,(expand-file-name file dir))
           :target (file ,(concat "meeting/%<%Y%m%d%H%M>-"
-                                 (or slug "") file))
+                                 (or prefix "") file))
           :immediate-finish t
           :jump-to-captured t
           :unnarrowed t
           :no-save t))
 
 (defsubst org-config-kadena-meeting (keys title file)
-  (org-config-meeting-template keys title file "~/org/template/kadena/meetings"))
+  (org-config-meeting-template
+   keys title file "~/org/template/kadena/meetings"))
 
 (defsubst org-config-kadena-1-on-1 (keys title file)
-  (org-config-meeting-template keys title file "~/org/template/kadena/one-on-one"
-                               "1-on-1-"))
+  (org-config-meeting-template
+   keys title file "~/org/template/kadena/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
-  (org-config-meeting-template keys title file "~/org/template/bahai/meetings"))
+  (org-config-meeting-template
+   keys title file "~/org/template/bahai/meetings"))
 
 (defsubst org-config-call-only (f)
-  `(lambda (_arg) (call-interactively ,f nil)))
+  `(lambda (_arg) (call-interactively (function ,f) nil)))
 
 (defsubst org-config-1-on-1-from-name (name)
   (let ((down (downcase name)))
@@ -207,10 +221,15 @@
 
 (setq
  org-capture-templates
- (let ((Inbox '(function org-extra-goto-inbox-heading)))
+ (let ((Inbox '(function org-ext-goto-inbox-heading)))
    `(("a" "TODO" entry
       ,Inbox
       "* TODO %?\nSCHEDULED: %t"
+      :prepend t)
+
+     ("j" "Journal" entry
+      (file ,(expand-file-name my/org-journelly))
+      "* %U\n%?"
       :prepend t)
 
      ("h" "HABIT" entry
@@ -250,7 +269,7 @@ SCHEDULED: %t
       :prepend t)
 
      ("C" "Category" entry
-      (function org-extra-up-heading)
+      (function org-ext-up-heading)
       "* %?
 :PROPERTIES:
 :CATEGORY: %^{CATEGORY}
@@ -601,14 +620,14 @@ SCHEDULED: %t
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  org-agenda-custom-commands
- `(("a" "Agenda"
+ `(("a" "Agenda\n"
     ((agenda
       ""
       ((org-agenda-skip-function
         '(org-config-agenda-skip-entry-if
-          (and (org-extra-habit-p)
+          (and (org-ext-habit-p)
                (org-review-last-review-prop nil)
-               (not (org-extra-needs-review-p)))))
+               (not (org-ext-needs-review-p)))))
        (org-super-agenda-groups
         '((:name "Important"    :and (:priority "A" :not (:habit t)))
           (:name "Overdue"      :deadline past)
@@ -626,7 +645,7 @@ SCHEDULED: %t
       ((org-agenda-overriding-header "\nItems needing review")
        (org-agenda-skip-function
         '(or (org-config-agenda-skip-entry-if
-              (org-extra-subtask-p))
+              (org-ext-subtask-p))
              (org-agenda-skip-entry-if
               'scheduled 'deadline 'timestamp
               'todo org-done-keywords)
@@ -644,12 +663,34 @@ SCHEDULED: %t
    ("n" "Notes"   todo "NOTE")
    ("l" "Links"   todo "LINK")
 
-   (":" "With tags match" ,(org-config-call-only #'org-config-tags-search))
-   ("c" "With category"   ,(org-config-call-only #'org-config-category-search))
-   ("k" "With keyword"    ,(org-config-call-only #'org-config-keyword-search))
-   ("i" "With item"       ,(org-config-call-only #'org-config-item-search))
+   (":" "With TAGS"     ,(org-config-call-only #'org-config-tags-search))
+   ("c" "With CATEGORY" ,(org-config-call-only #'org-config-category-search))
+   ("k" "With KEYWORD"  ,(org-config-call-only #'org-config-keyword-search))
+   ("i" "With ITEM"     ,(org-config-call-only #'org-config-item-search))
 
-   ("r" . "Review tasks")
+   ("g" . "Org-ql queries")
+
+   ("gg" "Regexp all tasks, all files (SLOW)"
+    ,(org-config-call-only #'org-config-text-search))
+
+   ("go" "Open source tasks"
+    ((org-ql-block
+      '(and (about "Computer" "Emacs" "Org-mode"
+                   "org-jw" "Nix" "AI" "gptel")
+            (todo "TODO" "DOING")
+            (shown)
+            (not (scheduled)))
+      ((org-ql-block-header "Open source tasks")))))
+
+   ("gw" "Work tasks"
+    ((org-ql-block
+      '(and (about "kadena")
+            (todo "TODO" "DOING" "WAIT" "TASK")
+            (not (tags "ARCHIVE"))
+            (not (scheduled)))
+      ((org-ql-block-header "Work tasks")))))
+
+   ("r" . "Review tasks\n")
 
    ("ra" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
@@ -667,7 +708,7 @@ SCHEDULED: %t
    ("rR" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
-            (org-extra-subtask-p))
+            (org-ext-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
@@ -681,7 +722,7 @@ SCHEDULED: %t
    ("rr" "Tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
-            (org-extra-subtask-p))
+            (org-ext-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
@@ -697,7 +738,7 @@ SCHEDULED: %t
    ("rZ" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
-            (org-extra-subtask-p))
+            (org-ext-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
@@ -709,7 +750,7 @@ SCHEDULED: %t
    ("rz" "All tasks needing review (random sampling)" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
-            (org-extra-subtask-p))
+            (org-ext-subtask-p))
            (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
@@ -729,19 +770,19 @@ SCHEDULED: %t
    ("rn" "Next Actions" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
-        (or (not (org-extra-subtask-p))
-            (org-extra-has-preceding-todo-p))))))
+        (or (not (org-ext-subtask-p))
+            (org-ext-has-preceding-todo-p))))))
 
    ("rp" "Projects" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
-        (not (org-extra-top-level-project-p))))))
+        (not (org-ext-top-level-project-p))))))
 
    ("r!" "Stuck projects" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
-        (or (not (org-extra-top-level-project-p))
-            (org-extra-first-child-todo
+        (or (not (org-ext-top-level-project-p))
+            (org-ext-first-child-todo
              #'(lambda () (org-get-scheduled-time (point)))))))))
 
    ("r@" "Waiting/delegated" todo "WAIT|TASK"
@@ -788,7 +829,7 @@ SCHEDULED: %t
    ("rS" "Subtasks" alltodo ""
     ((org-agenda-skip-function
       '(org-config-agenda-skip-entry-if
-        (not (org-extra-subtask-p))))))
+        (not (org-ext-subtask-p))))))
 
    ("rl" "Tasks with long headlines" alltodo ""
     ((org-agenda-skip-function
@@ -796,25 +837,6 @@ SCHEDULED: %t
         (<= (length (replace-regexp-in-string "\\[\\[.+?\\]\\[\\(.+?\\)\\]\\]"
                                               "\\1" (org-get-heading t)))
             72)))))
-
-   ("q" . "Org-ql queries")
-
-   ("qo" "Open source tasks"
-    ((org-ql-block
-      '(and (about "Computer" "Emacs" "Org-mode"
-                   "org-jw" "Nix" "AI" "gptel")
-            (todo "TODO" "DOING")
-            (shown)
-            (not (scheduled)))
-      ((org-ql-block-header "Open source tasks")))))
-
-   ("qw" "Work tasks"
-    ((org-ql-block
-      '(and (about "kadena")
-            (todo "TODO" "DOING" "WAIT" "TASK")
-            (not (tags "ARCHIVE"))
-            (not (scheduled)))
-      ((org-ql-block-header "Work tasks")))))
    ))
 
 (defun org-config-find (query &optional arg)

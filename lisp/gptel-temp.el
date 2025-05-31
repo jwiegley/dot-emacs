@@ -1,3 +1,5 @@
+(require 'url-http)
+
 (defun my-current-temperature (place)
   (interactive "sLocation: ")
   (with-current-buffer
@@ -7,7 +9,6 @@
          "http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=yes"
          (lookup-password "api.weatherapi.com" "jwiegley@gmail.com" 80)
          place)))
-    (goto-char (point-min))
     (goto-char url-http-end-of-headers)
     (let ((json (json-parse-buffer :object-type 'alist)))
       (kill-buffer (current-buffer))

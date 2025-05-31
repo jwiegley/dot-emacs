@@ -21,6 +21,9 @@
 ;; it won't convert the resulting links.
 ;;
 
+(require 'org-roam)
+(require 'emacsql)
+
 ;; Your logseq directory should be inside your org-roam directory,
 ;; put the directory you use here
 (defvar bill/logseq-folder (f-expand (f-join org-roam-directory "zettel")))
@@ -108,13 +111,14 @@
       (goto-char 1)
       (while (search-forward "[[" nil t)
         (setq link (org-element-context))
-        (setq newlink (bill/reformat-link link))
-        (when newlink
-          (setq changed t)
-          (goto-char (org-element-property :begin link))
-          (delete-region (org-element-property :begin link) (org-element-property :end link))
-          ;; note, this format string is reall =[[%s][%s]]= but =%= is a markup char so one's hidden
-          (insert newlink)))
+        (let ((newlink (bill/reformat-link link)))
+          (when newlink
+            (setq changed t)
+            (goto-char (org-element-property :begin link))
+            (delete-region (org-element-property :begin link) (org-element-property :end link))
+            ;; note, this format string is reall =[[%s][%s]]= but =%= is a
+            ;; markup char so one's hidden
+            (insert newlink))))
       ;; ensure org-roam knows about the changed links
       (when changed (save-buffer)))))
 

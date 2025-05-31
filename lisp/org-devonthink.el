@@ -11,6 +11,22 @@
   "Visit the DEVONthink message with the given Message-ID."
   (browse-url (concat "x-devonthink-item://" record-location)))
 
+(defun org-devonthink-message-open (message-id)
+  (org-devonthink-open
+   (concat "%3C" (url-encode-url (substring message-id 2)) "%3E"))
+
+  ;; (browse-url
+  ;;  (concat "https://app.fastmail.com/mail/search:msgid%3A"
+  ;;          (url-encode-url (substring message-id 2))
+  ;;          "/?u=d30140a0"))
+
+  ;; (require 'gnus-util)
+  ;; (if (get-buffer "*Group*")
+  ;;     (gnus-goto-article
+  ;;      (gnus-string-remove-all-properties (substring message-id 2)))
+  ;;   (error "Gnus is not running"))
+  )
+
 (defun org-devonthink-get-link (&optional given-name)
   (interactive)
   (let ((name (or given-name

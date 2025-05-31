@@ -1,5 +1,5 @@
 (require 'org)
-(require 'org-extra)
+(require 'org-ext)
 (require 'org-ql)
 (require 'org-ql-find)
 
@@ -30,7 +30,7 @@
 
 (org-ql-defpred refile-target ()
   "Return non-nil if entry is a refile target."
-  :body (org-extra-refile-heading-p))
+  :body (org-ext-refile-heading-p))
 
 (org-ql-defpred property-ts (property &key from to _on regexp _with-time args)
   "Match timestamps in property value."
@@ -46,9 +46,9 @@
                 (from (ts<= from ts))
                 (to (ts<= ts to)))))
 
-(defvar org-ql-extra-heading-to-id (make-hash-table :test 'equal))
+(defvar org-ql-ext-heading-to-id (make-hash-table :test 'equal))
 
-(defun org-ql-extra-completions-at-point ()
+(defun org-ql-ext-completions-at-point ()
   "Function to be used as `completion-at-point' in Org mode."
   (when (looking-back "@\\(\\(?:\\sw\\|\\s_\\|\\s-\\|\\s-:\\)+\\)" nil)
     (let* ((start (match-beginning 1))
@@ -64,7 +64,7 @@
                           ;; Avoid having to look up the ID again since we
                           ;; are visiting all the locations with org-ql
                           ;; anyway
-                          (puthash heading id org-ql-extra-heading-to-id)
+                          (puthash heading id org-ql-ext-heading-to-id)
                           heading))))
            (exit-function
             (lambda (heading status)
@@ -73,16 +73,16 @@
                 (delete-char (- (+ (length heading) 1)))
                 (insert
                  (format "[[id:%s][%s]]"
-                         (gethash heading org-ql-extra-heading-to-id)
+                         (gethash heading org-ql-ext-heading-to-id)
                          heading))))))
       (list start end candidates :exit-function exit-function))))
 
-(defun org-ql-extra-completion-hook ()
+(defun org-ql-ext-completion-hook ()
   "Configure org-mode for completion at point for org-agenda headlines."
   (add-to-list 'completion-at-point-functions
-               'org-ql-extra-completions-at-point))
+               'org-ql-ext-completions-at-point))
 
-(defun org-ql-extra-find-refile-targets ()
+(defun org-ql-ext-find-refile-targets ()
   (interactive)
   (let ((query-prefix "refile-target: ")
         current-prefix-arg)
@@ -98,4 +98,4 @@
       (org-ql-find (org-agenda-files)
                    :query-prefix query-prefix)))))
 
-(provide 'org-ql-extra)
+(provide 'org-ql-ext)
