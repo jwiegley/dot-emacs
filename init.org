@@ -473,6 +473,12 @@ unto itself.
             ("C-c N" . my-ctrl-c-N-map)))))
 #+end_src
 
+** org-constants
+
+#+begin_src emacs-lisp
+(use-package org-constants)
+#+end_src
+
 ** abbrev
 
 #+begin_src emacs-lisp
@@ -2937,9 +2943,6 @@ up before you execute another command."
    :prefix-map
    gptel-cmd-map
    :prefix "C-x c"
-   ("a"        . gptel-context-add)
-   ("r"        . gptel-rewrite)
-   ("q"        . gptel-quick)
    ("x"        . gptel-abort)
    ("RET"      . gptel-send)
    ("<return>" . gptel-send)
@@ -3006,8 +3009,6 @@ up before you execute another command."
 
   (add-hook 'gptel-mode-hook #'gptel-prepare-new-chat-buffer)
 
-  (use-package gptel-context)
-  (use-package gptel-quick)
   (use-package gptel-integrations)
   (use-package gptel-org)
 
@@ -3229,17 +3230,43 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-rewrite
+  :after (gptel)
   :demand t
   :bind (("M-R" . gptel-rewrite)
          :map
          gptel-cmd-map
+         ("r" . gptel-rewrite)
          ("s" . gptel-shorten)
          :map gptel-rewrite-actions-map
          ("<return>" . gptel--rewrite-dispatch))
+  :custom
+  (gptel-rewrite-default-action 'accept)
   :preface
   (defun gptel-shorten ()
     (interactive)
     (gptel-with-preset 'shorten (gptel--suffix-rewrite))))
+#+end_src
+
+*** gptel-context
+
+#+begin_src emacs-lisp
+(use-package gptel-context
+  :after (gptel)
+  :demand t
+  :bind (:map
+         gptel-cmd-map
+         ("a" . gptel-context-add)))
+#+end_src
+
+*** gptel-quick
+
+#+begin_src emacs-lisp
+(use-package gptel-quick
+  :after (gptel)
+  :demand t
+  :bind (:map
+         gptel-cmd-map
+         ("q" . gptel-quick)))
 #+end_src
 
 *** corsair
@@ -4457,16 +4484,13 @@ minibuffer change, the region is realigned.
   :custom
   (midnight-delay 18000)
   (clean-buffer-list-kill-never-buffer-names
-   '("*scratch*"
-     "*Messages*"
-     "*server*"
-     "*Group*"
-     "*Org Agenda*"
-     "*GPTel Chat*"
-     "todo.org"
-     "kadena.org"
-     "quantum-trades.org"
-     "OSS.org"))
+   (append '("*scratch*"
+             "*Messages*"
+             "*server*"
+             "*Group*"
+             "*Org Agenda*"
+             "*GPTel Chat*")
+           org-constants-protected-basenames-list))
   (clean-buffer-list-kill-never-regexps
    '("^ \\*Minibuf-.*\\*$"
      "^\\*Summary"
@@ -4497,6 +4521,7 @@ minibuffer change, the region is realigned.
     (interactive)
     (transpose-lines 1)
     (forward-line -2))
+
   (defun my/move-line-down ()
     (interactive)
     (forward-line 1)
@@ -4781,6 +4806,29 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   :commands olivetti-mode
   :custom
   (olivetti-hide-mode-line t))
+#+end_src
+
+** COMMENT 1password
+
+[[https://github.com/justinbarclay/1password.el][1password.el]] integrates 1Password with auth-source. It enables lookups in your
+1Password vault:
+
+#+begin_example
+(auth-source-search :host "GitHub")
+#+end_example
+
+to search only 1Password, include the type:
+
+#+begin_example
+(auth-source-search :type '1password :host "GitHub")
+#+end_example
+
+#+begin_src emacs-lisp
+(use-package 1password
+  :custom
+  (1password-results-formatter '1password-colour-formatter)
+  :config
+  (1password-enable-auth-source))
 #+end_src
 
 ** operate-on-number
@@ -10200,9 +10248,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-cycle-global-at-bob t)
   (org-cycle-inline-images-display t)
   (org-deadline-warning-days 14)
-  (org-default-notes-file (org-file "todo.org"))
+  (org-default-notes-file org-constants-todo-path)
   (org-depend-tag-blocked nil)
-  (org-directory "~/org/")
+  (org-directory org-constants-directory)
   (org-ditaa-jar-path
    (expand-file-name "lib/ditaa.jar" (getenv "PROFILE_DIR")))
   (org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "OUTPUT"))
@@ -10375,15 +10423,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :defines
   (org-archive-save-context-info)
   :preface
-  (defconst my/org-journelly
-    "~/Library/Mobile Documents/iCloud~com~xenodium~Journelly/Documents/Journelly.org")
-
-  (defconst my/org-flat-habits
-    "~/Library/Mobile Documents/com~apple~CloudDocs/Flat Habits/MyHabits.org")
-
-  (defconst my/org-plain-org
-    "~/Library/Mobile Documents/com~apple~CloudDocs/Plain Org/Mobile.org")
-
   (defsubst org-file (path)
     (expand-file-name path org-directory))
 
@@ -10457,16 +10496,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-agenda-compact-blocks t)
   (org-agenda-deadline-leaders '("!D!:" "D%02d:" "D-%02d:"))
   (org-agenda-default-appointment-duration 60)
-  (org-agenda-files
-   (list (org-file "todo.org")
-         (org-file "kadena/kadena.org")
-         (org-file "assembly/assembly.org")
-         (org-file "quantum-trades/quantum-trades.org")
-         (org-file "OSS.org")
-         (org-file "people.org")
-         my/org-plain-org
-         ;; my/org-flat-habits
-         ))
+  (org-agenda-files org-constants-agenda-base-files)
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
@@ -11669,7 +11699,7 @@ directory.
   :custom
   (org-project-capture-default-backend
    (make-instance 'org-project-capture-projectile-backend))
-  (org-project-capture-projects-file "~/org/OSS.org")
+  (org-project-capture-projects-file org-constants-open-source-path)
   :config
   (org-project-capture-single-file))
 #+end_src
@@ -11714,8 +11744,8 @@ directory.
   (org-refile-targets
    `((org-ext-agenda-files-but-not-meetings . (:maxlevel . 4))
      ;; (org-ext-team-files . (:regexp . "Notes"))
-     ((,(org-file "people.org")
-       ,my/org-plain-org)
+     ((,org-constants-people-path
+       ,org-constants-plain-org-path)
       . (:level . 1))))
   (org-refile-target-verify-function #'org-ext-refile-heading-p)
   (org-refile-use-cache nil)
@@ -12174,13 +12204,14 @@ utilities around note taking.
   (vulpea-ext-db-setup-dates)
   (vulpea-db-autosync-enable)
 
-  (advice-add 'vulpea-update-agenda-files
-              :after #'(lambda (&rest _ignore)
-                         (nconc org-agenda-files
-                                (list (org-file "people.org")
-                                      my/org-plain-org
-                                      ;; my/org-flat-habits
-                                      )))))
+  (advice-add
+   'vulpea-update-agenda-files
+   :after #'(lambda (&rest _ignore)
+              (nconc org-agenda-files
+                     (list org-constants-people-path
+                           org-constants-plain-org-path
+                           ;; org-constants-flat-habits-path
+                           )))))
 #+end_src
 
 **** consult-org-roam
@@ -12300,12 +12331,7 @@ context.
   (xeft-file-filter 'my-xeft-file-filter)
   (xeft-recursive t)
   (xeft-title-function 'my-xeft-get-title)
-  (my-xeft-ignored-files
-   '("todo.org"
-     "OSS.org"
-     "kadena/kadena.org"
-     "quantum-trades/quantum-trades.org"
-     "assembly/assembly.org"))
+  (my-xeft-ignored-files org-constants-protected-filenames-list)
   :custom-face
   (xeft-excerpt-body
    ((t (:inherit default :foreground "grey80"))))
@@ -12795,7 +12821,7 @@ own lines, for instance.
   :commands asana-org-sync-tasks
   :defines (asana-token)
   :custom
-  (asana-tasks-org-file (org-file "kadena/asana.org"))
+  (asana-tasks-org-file org-constants-work-asana-path)
   :config
   (setq asana-token
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
