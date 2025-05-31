@@ -1,4 +1,4 @@
-;;; org-extra --- Extra functions for use with Org-mode
+;;; org-ext --- Extra functions for use with Org-mode
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -27,21 +27,32 @@
 
 (require 'cl-lib)
 (eval-when-compile
-  (require 'cl))
+  (require 'cl)
+  (require 'cl-macs))
 
+(require 'rx)
 (require 'org)
+(require 'org-agenda)
 (require 'org-ql)
 (require 'dash)
+(require 'simple)
+
+(defconst org-ext-ts-regexp
+  "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
+  "Regular expression for fast inactive time stamp matching.")
+
+(defconst org-ext-kadena-team-file "kadena/team/202409042228-team.org"
+  "File containing names of team members and links to their files.")
 
 (declare-function org-with-wide-buffer "org-macs")
 
-(defgroup org-extra nil
+(defgroup org-ext nil
   "Extra functions for use with Org-mode"
   :group 'org)
 
-(defalias 'org-extra-up-heading #'outline-up-heading)
+(defalias 'org-ext-up-heading #'outline-up-heading)
 
-(defun org-extra-goto-inbox-heading ()
+(defun org-ext-goto-inbox-heading ()
   (set-buffer (get-buffer "todo.org"))
   (goto-char (point-min))
   (while (looking-at "^[:#]")
@@ -52,7 +63,7 @@
   (unless (looking-at "^\\* Inbox$")
     (error "Missing Inbox heading at start of todo.org")))
 
-(defun org-extra-goto-inbox (&optional func)
+(defun org-ext-goto-inbox (&optional func)
   (interactive)
   (with-current-buffer
       (funcall (if func
@@ -61,17 +72,17 @@
                (expand-file-name "todo.org" org-directory))
     (if func
         (save-excursion
-          (org-extra-goto-inbox-heading)
+          (org-ext-goto-inbox-heading)
           (forward-line 1)
           (while (looking-at "^:")
             (forward-line 1))
           (funcall func))
-      (org-extra-goto-inbox-heading)
+      (org-ext-goto-inbox-heading)
       (forward-line 1)
       (while (looking-at "^:")
         (forward-line 1)))))
 
-(defun org-extra-reformat-draft ()
+(defun org-ext-reformat-draft ()
   ;; If there is a URL, this is a LINK.
   (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0)))
@@ -101,6 +112,12 @@
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0)))) 
 
+(defun org-ext-fit-agenda-window ()
+  "Fit the window to the buffer size."
+  (and (memq org-agenda-window-setup '(reorganize-frame))
+       (fboundp 'fit-window-to-buffer)
+       (fit-window-to-buffer)))
+
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer and import any pending Drafts."
   (let ((notes
@@ -108,7 +125,7 @@
            (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
         url)
     (when notes
-      (org-extra-goto-inbox
+      (org-ext-goto-inbox
        (lambda ()
          (dolist (note notes)
            (when (ignore-errors
@@ -116,7 +133,7 @@
                     (with-temp-buffer
                       (insert-file-contents note)
                       (goto-char (point-min))
-                      (org-extra-reformat-draft)
+                      (org-ext-reformat-draft)
                       (goto-char (point-max))
                       (unless (bolp)
                         (insert ?\n))
@@ -126,9 +143,9 @@
          (when (buffer-modified-p)
            (save-buffer))))))
   ad-do-it
-  (org-fit-agenda-window))
+  (org-ext-fit-agenda-window))
 
-(defun org-extra-agenda-show (&optional arg)
+(defun org-ext-agenda-show (&optional arg)
   "Display the Org file which contains the item at point."
   (interactive "P")
   (let ((win (selected-window)))
@@ -144,7 +161,7 @@
       (setq org-agenda-show-window (selected-window)))
     (select-window win)))
 
-(defun org-extra-agenda-show-and-scroll-up (&optional arg)
+(defun org-ext-agenda-show-and-scroll-up (&optional arg)
   "Display the Org file which contains the item at point.
 
 When called repeatedly, scroll the window that is displaying the buffer.
@@ -169,37 +186,37 @@ fold drawers."
       (setq org-agenda-show-window (selected-window)))
     (select-window win)))
 
-(defun org-extra-jump-to-agenda ()
+(defun org-ext-prep-window (wind)
+  (select-window wind)
+  (org-fit-window-to-buffer wind)
+  (ignore-errors
+    (window-resize
+     wind
+     (- 100 (window-width wind)) t)))
+
+(defun org-ext-jump-to-agenda ()
   (interactive)
   (push-window-configuration)
-  (cl-flet ((prep-window
-              (wind)
-              (select-window wind)
-              (org-fit-window-to-buffer wind)
-              (ignore-errors
-                (window-resize
-                 wind
-                 (- 100 (window-width wind)) t))))
-    (let ((buf (or (get-buffer "*Org Agenda*")
-                   (get-buffer "*Org Agenda(a)*"))))
-      (if buf
-          (let ((win (get-buffer-window buf)))
-            (if win
-                (progn
-                  (when (called-interactively-p 'any)
-                    (funcall #'prep-window win))
-                  (select-window win))
-              (funcall #'prep-window
-                       (if (called-interactively-p 'any)
-                           (display-buffer buf t t)
-                         (display-buffer buf)))))
-        (require 'org-agenda)
-        (mapc #'find-file-noselect org-agenda-files)
-        (call-interactively #'org-agenda-list)
-        (org-agenda-filter '(64))
-        (funcall #'prep-window (selected-window))))))
+  (let ((buf (or (get-buffer "*Org Agenda*")
+                 (get-buffer "*Org Agenda(a)*"))))
+    (if buf
+        (let ((win (get-buffer-window buf)))
+          (if win
+              (progn
+                (when (called-interactively-p 'any)
+                  (funcall #'org-ext-prep-window win))
+                (select-window win))
+            (funcall #'org-ext-prep-window
+                     (if (called-interactively-p 'any)
+                         (display-buffer buf t t)
+                       (display-buffer buf)))))
+      (require 'org-agenda)
+      (mapc #'find-file-noselect org-agenda-files)
+      (call-interactively #'org-agenda-list)
+      (org-agenda-filter '(64))
+      (funcall #'org-ext-prep-window (selected-window)))))
 
-(defun org-extra-agenda-redo (&optional all)
+(defun org-ext-agenda-redo (&optional all)
   (interactive)
   (org-agenda-redo all)
   (push-window-configuration)
@@ -209,20 +226,20 @@ fold drawers."
       (ignore-errors
         (window-resize wind (- 100 (window-width wind)) t)))))
 
-(defun org-extra-entire-properties-block ()
+(defun org-ext-entire-properties-block ()
   "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
   (save-excursion
     (org-back-to-heading)
     (let* ((entry-end (save-excursion
                         (outline-next-heading)
                         (point)))
-           (beg (and (search-forward ":PROPERTIES:" end t)
+           (beg (and (search-forward ":PROPERTIES:" entry-end t)
                      (match-beginning 0)))
-           (end (and (re-search-forward ":END:\\s-*\n" end t)
+           (end (and (re-search-forward ":END:\\s-*\n" entry-end t)
                      (match-end 0))))
       (cons beg end))))
 
-(defun org-extra-move-properties-drawer ()
+(defun org-ext-move-properties-drawer ()
   "Move the PROPERTIES drawer to its proper location.
 Returns nil if nothing was moved, otherwise it returns point
 after :END:."
@@ -237,13 +254,13 @@ after :END:."
            (modified (buffer-modified-p)))
       (save-restriction
         (narrow-to-region beg end)
-        (pcase (org-extra-entire-properties-block)
+        (pcase (org-ext-entire-properties-block)
           (`(,beg . ,end)
            (let ((entries-block (buffer-substring beg end)))
              (delete-region beg end)
              ;; Create a new properties block
              (org-get-property-block nil 'force)
-             (pcase (org-extra-entire-properties-block)
+             (pcase (org-ext-entire-properties-block)
                (`(,new-beg . ,new-end)
                 (goto-char new-beg)
                 (delete-region new-beg new-end)
@@ -252,14 +269,14 @@ after :END:."
         (if (equal before-sha (sha1 (buffer-substring-no-properties beg end)))
             (set-buffer-modified-p modified))))))
 
-(defun org-extra-fix-all-properties ()
+(defun org-ext-fix-all-properties ()
   (interactive)
   (while (re-search-forward "^\\*" nil t)
     (ignore-errors
-      (org-extra-move-properties-drawer))
+      (org-ext-move-properties-drawer))
     (forward-line 1)))
 
-(defun org-extra-update-date-field ()
+(defun org-ext-update-date-field ()
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -267,7 +284,7 @@ after :END:."
       (delete-region (match-beginning 1) (match-end 1))
       (org-insert-time-stamp (current-time) t t))))
 
-(defun org-extra-reformat-time (&optional beg end)
+(defun org-ext-reformat-time (&optional beg end)
   (interactive "r")
   (let ((date-string (buffer-substring beg end)))
     (save-excursion
@@ -278,7 +295,7 @@ after :END:."
         (org-time-stamp-format 'long 'inactive)
         (org-encode-time (parse-time-string date-string)))))))
 
-(defun org-extra-todoize (&optional arg)
+(defun org-ext-todoize (&optional arg)
   "Add standard metadata to a headline.
 With `C-u', regenerate ID even if one already exists.
 With `C-u C-u', set the keyword to TODO, without logging.
@@ -296,7 +313,7 @@ text will be moved into an OFFSET property."
       (org-todo "TODO")))
   (run-hooks 'org-capture-before-finalize-hook))
 
-(defun org-extra-switch-todo-link (&optional arg)
+(defun org-ext-switch-todo-link (&optional arg)
   "Switch a LINK to a TODO with a LINK tag, and vice-versa."
   (interactive "P")
   (let ((org-inhibit-logging t))
@@ -307,33 +324,33 @@ text will be moved into an OFFSET property."
       (org-todo "TODO")
       (org-set-tags (delete-dups (cons "LINK" (org-get-tags)))))))
 
-(defun org-extra-todoize-region (&optional beg end arg)
+(defun org-ext-todoize-region (&optional beg end arg)
   "Add standard metadata to headlines in region.
-See `org-extra-todoize'."
+See `org-ext-todoize'."
   (interactive "r\nP")
-  (with-restriction beg end
-    (save-excursion
-      (goto-char beg)
-      (while (not (eobp))
+  (save-excursion
+    (goto-char beg)
+    (let ((end-marker (copy-marker end)))
+      (while (< (point) end-marker)
         (goto-char (line-end-position))
-        (org-extra-todoize arg)
+        (org-ext-todoize arg)
         (ignore-errors
           (org-next-visible-heading 1))))))
 
-(defvar org-extra-property-search-name nil)
+(defvar org-ext-property-search-name nil)
 
-(defun org-extra-with-property-search (property value)
+(defun org-ext-with-property-search (property value)
   "Search by WITH propery, which is made inheritable for this function."
   (interactive
-   (list (setq org-extra-property-search-name (org-read-property-name))
+   (list (setq org-ext-property-search-name (org-read-property-name))
          (completing-read "Value: "
-                          (org-property-values org-extra-property-search-name))))
+                          (org-property-values org-ext-property-search-name))))
   (let ((org-use-property-inheritance
          (append org-use-property-inheritance '("WITH"))))
     (org-tags-view
      t (format "%s={%s}&TODO={TODO\\|WAIT\\|TASK}" property value))))
 
-(defun org-extra-created-from-stamp ()
+(defun org-ext-created-from-stamp ()
   (interactive)
   (let* ((name (file-name-nondirectory (buffer-file-name)))
          (year (string-to-number (substring name 0 4)))
@@ -345,7 +362,7 @@ See `org-extra-todoize'."
                       (org-encode-time (list 0 0 0 day mon year)) nil t)
                      (buffer-string)))))
 
-(defun org-extra-insert-structure-template-and-yank (type)
+(defun org-ext-insert-structure-template-and-yank (type)
   (interactive
    (list (pcase (org--insert-structure-template-mks)
 	   (`("\t" . ,_) (read-string "Structure type: "))
@@ -353,7 +370,7 @@ See `org-extra-todoize'."
   (org-insert-structure-template type)
   (yank))
 
-(defun org-extra-parent-priority ()
+(defun org-ext-parent-priority ()
   (save-excursion
     (org-up-heading-safe)
     (save-match-data
@@ -361,38 +378,45 @@ See `org-extra-todoize'."
       (and (looking-at org-heading-regexp)
 	   (org-get-priority (match-string 0))))))
 
-(defsubst org-extra-agenda-files-except (&rest args)
+(defsubst org-ext-agenda-files-except (&rest args)
   (cl-set-difference org-agenda-files args))
 
-(defsubst org-extra-category-p ()
-  "A category is any heading that has a CATEGORY property."
-  (not (null (my/org-entry-get-immediate "CATEGORY"))))
+(defun org-ext-entry-get-immediate (property)
+  (save-excursion
+    (let ((local (org--property-local-values property nil)))
+      (and local (mapconcat #'identity
+                            (delq nil local)
+                            (org--property-get-separator property))))))
 
-(defun org-extra--first-child-todo (&optional pred)
+(defsubst org-ext-category-p ()
+  "A category is any heading that has a CATEGORY property."
+  (not (null (org-ext-entry-get-immediate "CATEGORY"))))
+
+(defun org-ext--first-child-todo (&optional pred)
   (save-excursion
     (when (org-goto-first-child)
       (cl-loop for loc = (or (and (org-entry-is-todo-p)
                                   (or (null pred) (funcall pred))
                                   (point))
-                             (org-extra--first-child-todo))
+                             (org-ext--first-child-todo))
                if loc
                do (throw 'has-child-todo loc)
                while (org-get-next-sibling)))))
 
-(defsubst org-extra-first-child-todo (&optional pred)
-  (catch 'has-child-todo (org-extra--first-child-todo pred)))
+(defsubst org-ext-first-child-todo (&optional pred)
+  (catch 'has-child-todo (org-ext--first-child-todo pred)))
 
-(defsubst org-extra-project-p ()
+(defsubst org-ext-project-p ()
   "A project is any open todo that has child tasks at any level."
   (and (org-entry-is-todo-p)
-       (not (null (org-extra-first-child-todo)))))
+       (not (null (org-ext-first-child-todo)))))
 
-(defsubst org-extra-top-level-project-p ()
+(defsubst org-ext-top-level-project-p ()
   "A top-level project is not the child of another project."
-  (and (org-extra-project-p)
-       (not (org-extra-subtask-p))))
+  (and (org-ext-project-p)
+       (not (org-ext-subtask-p))))
 
-(defun org-extra-subtask-p ()
+(defun org-ext-subtask-p ()
   "A subtask is any open todo that is a child of another open todo.
 This is true even if there are intervening categories or other headings."
   (and (org-entry-is-todo-p)
@@ -400,31 +424,52 @@ This is true even if there are intervening categories or other headings."
          (cl-loop while (org-up-heading-safe)
                   if (org-entry-is-todo-p) return t))))
 
-(defalias 'org-extra-task-p #'org-entry-is-todo-p)
+(defalias 'org-ext-task-p #'org-entry-is-todo-p)
 
-(defalias 'org-extra-habit-p #'org-is-habit-p)
+(defalias 'org-ext-habit-p #'org-is-habit-p)
 
-(defun org-extra-has-preceding-todo-p ()
+(defun org-ext-has-preceding-todo-p ()
   (let ((here (point)))
     (save-excursion
       (when (org-up-heading-safe)
-        (let ((first-child (and (org-extra-task-p)
-                                (org-extra-first-child-todo))))
+        (let ((first-child (and (org-ext-task-p)
+                                (org-ext-first-child-todo))))
           (and first-child
                (or (/= first-child here)
-                   (org-extra-has-preceding-todo-p))))))))
+                   (org-ext-has-preceding-todo-p))))))))
 
-(defun org-extra-refile-heading-p ()
-  (or (org-extra-category-p)
-      (org-extra-project-p)))
+(defun org-ext-agenda-files-but-not-meetings ()
+  (cl-delete-if
+   (apply-partially #'string-match-p
+                    "/\\(meeting\\|local-spiritual-assembly\\)/")
+   (org-agenda-files)))
 
-(defun org-extra-sort-all ()
+(defun org-ext-team-files ()
+  (directory-files (expand-file-name "kadena/team" org-directory)
+                   t "\\.org\\'"))
+
+(defun org-ext-refine-refile-targets (orig-func &optional default-buffer)
+  (let ((targets (funcall orig-func default-buffer)))
+    (cl-delete-if #'(lambda (target)
+                      (not (string-match-p
+                            (rx (group (or "/" (seq bos "Mobile.org" eos))))
+                            (car target))))
+                  targets)))
+
+(defun org-ext-refile-heading-p ()
+  (let ((refile (org-ext-entry-get-immediate "REFILE")))
+    (if refile
+        (not (string= refile "no"))
+      (or (org-ext-category-p)
+          (org-ext-project-p)))))
+
+(defun org-ext-sort-all ()
   (interactive)
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward "^\\*+ " nil t)
       (goto-char (match-beginning 0))
-      (when (org-extra-refile-heading-p)
+      (when (org-ext-refile-heading-p)
         (condition-case _err
             (progn
               (org-sort-entries t ?p)
@@ -432,13 +477,13 @@ This is true even if there are intervening categories or other headings."
           (error nil)))
       (forward-line))))
 
-(defun org-extra-id-copy ()
+(defun org-ext-id-copy ()
   (interactive)
   (org-id-copy)
   (message "Copied id:%s to the kill ring" (car kill-ring)))
 
 ;;; From https://gist.github.com/MenacingMecha/11bd07daaaac790620b5fe0437e96a4c
-(defun org-extra-set-blocker-from-clipboard-id ()
+(defun org-ext-set-blocker-from-clipboard-id ()
   "Adds the id in the clipboard (obtained using `org-id-copy') to
 the current headlines BLOCKER property."
   (interactive)
@@ -459,7 +504,7 @@ the current headlines BLOCKER property."
       (message "Task is now blocked on %s" blocker-value))))
 
 ;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
-(defun org-extra-open-all-links-in-subtree ()
+(defun org-ext-open-all-links-in-subtree ()
   "Open all the links in the current subtree.
 Note: this uses Org's internal variable `org-link--search-failed'."
   (interactive)
@@ -474,7 +519,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                       (not org-link--search-failed))
           (org-open-at-point))))))
 
-(defun org-extra-get-properties (&rest props)
+(defun org-ext-get-properties (&rest props)
   (cons (org-current-level)
         (mapcar #'(lambda (prop)
                     (if (string= "ITEM_BY_ID" prop)
@@ -484,7 +529,7 @@ Note: this uses Org's internal variable `org-link--search-failed'."
                       (org-entry-get (point) prop)))
                 props)))
 
-(defun org-extra-needs-review-p ()
+(defun org-ext-needs-review-p ()
   "Return non-nil if a review is needed for task at point.
 A review may be needed if:
 1. There is no LAST_REVIEW property, meaning this task has never
@@ -493,7 +538,7 @@ A review may be needed if:
   (or (not (org-review-last-review-prop nil))
       (org-review-toreview-p)))
 
-(defun org-extra-report-items-to-be-reviewed ()
+(defun org-ext-report-items-to-be-reviewed ()
   "Report items pending review after one second."
   (run-with-timer
    1 nil
@@ -511,7 +556,7 @@ A review may be needed if:
                           (scheduled)
                           (deadline)
                           (ts-active)))
-                 (org-extra-needs-review-p))))))))
+                 (org-ext-needs-review-p))))))))
 
 (defun org-dblock-write:ql-columnview (params)
   "Create a table view of an org-ql query.
@@ -538,9 +583,9 @@ resulting table on that column, ascending."
                      (read (if (and query who)
                                (format "(or %s %s)" who query)
                              (or query who))))
-                  (not (or (org-extra-project-p)
-                           (org-extra-category-p))))
-            :action `(org-extra-get-properties ,@columns)
+                  (not (or (org-ext-project-p)
+                           (org-ext-category-p))))
+            :action `(org-ext-get-properties ,@columns)
             :sort
             #'(lambda (x y)
                 (when sort-index
@@ -576,20 +621,20 @@ resulting table on that column, ascending."
 		  "\n")))
     (org-table-align)))
 
-(defcustom org-extra-link-names nil
-  "A list of ids and their associated names used by `org-extra-edit-link-name'."
-  :group 'org-extra
+(defcustom org-ext-link-names nil
+  "A list of ids and their associated names used by `org-ext-edit-link-name'."
+  :group 'org-ext
   :type '(repeat (cons string string)))
 
-(defun org-extra-edit-link-name (name)
+(defun org-ext-edit-link-name (name)
   (interactive
-   (list (completing-read "Name: " (mapcar #'car org-extra-link-names))))
+   (list (completing-read "Name: " (mapcar #'car org-ext-link-names))))
   (save-excursion
     (goto-char (line-beginning-position))
     (when (re-search-forward "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]" nil t)
       (replace-match name t t nil 2))))
 
-(defun org-extra-fixup-slack (&optional arg)
+(defun org-ext-fixup-slack (&optional arg)
   (interactive "P")
   (whitespace-cleanup)
   (goto-char (point-min))
@@ -619,7 +664,7 @@ resulting table on that column, ascending."
 
 ;;; This function was inspired by Sacha Chua at:
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
-(defun org-extra-move-subtree-to-point (uuid)
+(defun org-ext-move-subtree-to-point (uuid)
   "Prompt for a heading and refile it to point."
   (interactive (list (vulpea-note-id (vulpea-select "Heading"))))
   (cl-destructuring-bind (file . pos)
@@ -634,7 +679,7 @@ resulting table on that column, ascending."
             (org-copy-subtree 1 t))))
       (org-paste-subtree nil nil nil t))))
 
-(defun org-extra-prune-log-entries (days)
+(defun org-ext-prune-log-entries (days)
   (interactive "Number of days to keep: ")
   (save-excursion
     (org-back-to-heading)
@@ -653,11 +698,11 @@ resulting table on that column, ascending."
             (if (> age days)
                 (delete-region start (point-max)))))))))
 
-(defun org-extra-prune-ninety-days-of-logs ()
+(defun org-ext-prune-ninety-days-of-logs ()
   (interactive)
-  (org-extra-prune-log-entries 90))
+  (org-ext-prune-log-entries 90))
 
-(defun org-extra-read-names (file)
+(defun org-ext-read-names (file)
   (with-temp-buffer
     (insert-file-contents-literally file)
     (goto-char (point-min))
@@ -671,10 +716,10 @@ resulting table on that column, ascending."
           (push (cons name (list link one-on-one-page)) result)))
       result)))
 
-(defun org-extra-update-team ()
+(defun org-ext-update-team ()
   (interactive)
-  (let ((file (org-file "kadena/team/202409042228-team.org")))
-    (setq org-extra-link-names (org-extra-read-names file))
+  (let ((file (org-file org-ext-kadena-team-file)))
+    (setq org-ext-link-names (org-ext-read-names file))
     (with-current-buffer (find-file-noselect file)
       (save-excursion
         (while (re-search-forward
@@ -682,15 +727,15 @@ resulting table on that column, ascending."
           (let ((name (match-string-no-properties 1))
                 (key (match-string-no-properties 2)))
             (define-key org-mode-map (kbd (concat "s-" key))
-                        `(lambda () (interactive) (org-extra-edit-link-name ,name)))))))
+                        `(lambda () (interactive) (org-ext-edit-link-name ,name)))))))
     (message "Team names and quick keys updated")))
 
-(defun org-extra-update-team-after-save ()
+(defun org-ext-update-team-after-save ()
   (when (and (eq major-mode 'org-mode)
-             (string-match "kadena/team/202409042228-team.org" (buffer-file-name)))
-    (org-extra-update-team)))
+             (string-match org-ext-kadena-team-file (buffer-file-name)))
+    (org-ext-update-team)))
 
-(defun org-extra-unlink-region (&optional beg end)
+(defun org-ext-unlink-region (&optional beg end)
   (interactive)
   (save-restriction
     (narrow-to-region (or beg (point-min)) (or end (point-max)))
@@ -698,6 +743,157 @@ resulting table on that column, ascending."
     (while (re-search-forward org-link-bracket-re nil t)
       (replace-match (match-string 2)))))
 
-(provide 'org-extra)
+(defun org-ext-follow-tag-link (tag)
+  "Display a list of TODO headlines with tag TAG.
+With prefix argument, also display headlines without a TODO keyword."
+  (org-tags-view (null current-prefix-arg) tag))
 
-;;; org-extra.el ends here
+(defun org-ext-yank-link ()
+  (interactive)
+  (org-insert-all-links nil "*** " "\n"))
+
+(defun org-ext-gnus-drop-link-parameter (param)
+  (setq org-link-parameters
+        (cl-delete-if #'(lambda (x) (string= (car x) param))
+                      org-link-parameters)))
+
+(defun org-ext-message-reply ()
+  (interactive)
+  (let* ((org-marker (get-text-property (point) 'org-marker))
+         (author (org-entry-get (or org-marker (point)) "Author"))
+         (subject (if org-marker
+                      (with-current-buffer (marker-buffer org-marker)
+                        (goto-char org-marker)
+                        (nth 4 (org-heading-components)))
+                    (nth 4 (org-heading-components)))))
+    (setq subject (replace-regexp-in-string "\\`(.*?) " "" subject))
+    (compose-mail-other-window author (concat "Re: " subject))))
+
+(defun org-ext-sort-done-tasks ()
+  (interactive)
+  (goto-char (point-min))
+  (org-sort-entries t ?F #'org-get-inactive-time #'<)
+  (goto-char (point-min))
+  (while (re-search-forward "
+
+
++" nil t)
+    (delete-region (match-beginning 0) (match-end 0))
+    (insert "
+"))
+  (let (after-save-hook)
+    (save-buffer))
+  (org-overview))
+
+(defun org-ext-get-message-link (&optional title)
+  (let (message-id subject)
+    (with-current-buffer gnus-original-article-buffer
+      (setq message-id (substring (message-field-value "message-id") 1 -1)
+            subject (or title (message-field-value "subject"))))
+    (org-link-make-string (concat "message://" message-id)
+                          (rfc2047-decode-string subject))))
+
+(defun org-ext-insert-message-link (&optional arg)
+  (interactive "P")
+  (insert (org-ext-get-message-link (if arg "writes"))))
+
+(defun org-ext-set-message-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Message" (org-ext-get-message-link)))
+
+(defun org-ext-get-message-sender ()
+  (with-current-buffer gnus-original-article-buffer
+    (message-field-value "from")))
+
+(defun org-ext-set-message-sender ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-set-property "Submitter" (org-ext-get-message-sender)))
+
+(defun org-ext-set-url-from-clipboard ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-back-to-heading)
+  (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
+                    (gui--selection-value-internal 'CLIPBOARD))
+  (org-toggle-tag "LINK" 'on))
+
+(defun org-ext-get-inactive-time ()
+  (float-time (org-time-string-to-time
+               (or (org-entry-get (point) "TIMESTAMP")
+                   (org-entry-get (point) "TIMESTAMP_IA")
+                   (org-entry-get (point) "CREATED")
+                   (debug)))))
+
+(defun org-ext-open-map-link ()
+  (interactive)
+  (let ((location (org-entry-get (point) "LOCATION")))
+    (if location
+        (if (featurep 'osm)
+            (pcase (split-string location ",")
+              (`(,lat ,lon)
+               (osm-goto (string-to-number lat) (string-to-number lon) nil)))
+          (browse-url (concat "https://maps.apple.com/?q=org&ll=" location)))
+      (error "Entry has no location set"))))
+
+(defun org-ext-linkify ()
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
+    (replace-match (format " [[%s:\\3][\\2-\\3]] " (downcase (match-string 2))) t)
+    (goto-char (match-end 0)))
+  (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
+    (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
+    (goto-char (match-end 0))))
+
+(defun org-ext-save-org-mode-files ()
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (eq major-mode 'org-mode)
+        (if (and (buffer-modified-p) (buffer-file-name))
+            (save-buffer))))))
+
+(defun org-ext-current-tags (depth)
+  (save-excursion
+    (ignore-errors
+      (let (should-skip)
+        (while (and (> depth 0)
+                    (not should-skip)
+                    (prog1
+                        (setq depth (1- depth))
+                      (not (org-up-element))))
+          (if (looking-at "^\*+\\s-+")
+              (setq should-skip (org-get-tags))))
+        should-skip))))
+
+(defun org-ext-ancestor-keywords ()
+  (save-excursion
+    (let ((had-parent (org-up-heading-safe)))
+      (delete nil
+              (cons (org-get-todo-state)
+                    (when had-parent
+                      (org-ext-ancestor-keywords)))))))
+
+(defun org-ext-insert-code-block ()
+  "Replace ``` with an Org code block."
+  (when (let* ((keys (recent-keys))
+               (n (length keys)))
+          (and (eq ?` (aref keys (- n 1)))
+               (eq ?` (aref keys (- n 2)))
+               (eq ?` (aref keys (- n 3)))))
+    (backward-delete-char 3)
+    (let ((language
+           (or (save-excursion
+                 (re-search-backward "#\\+begin_src \\([^ \t\n]+\\)" nil t)
+                 (match-string 1))
+               "sh")))
+      (insert "#+begin_src " language "\n\n#+end_src")
+      (forward-line -1))))
+
+(defsubst org-ext-setup-insert-code-block ()
+  (add-hook 'post-self-insert-hook #'org-ext-insert-code-block nil t))
+
+(provide 'org-ext)
+
+;;; org-ext.el ends here

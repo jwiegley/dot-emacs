@@ -1,4 +1,4 @@
-;;; gptel-extra --- Extra functions for use with gptel -*- lexical-binding: t -*-
+;;; gptel-ext --- Extra functions for use with gptel -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2025 John Wiegley
 
@@ -29,7 +29,13 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'solar)
 (require 'gptel)
+
+(defconst gptel-ext-rewrite-model
+  ;; 'Qwen3-30B-A3B
+  'DeepSeek-R1-0528-Qwen3-8B
+  "Model used for doing simple rewrites.")
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
@@ -111,6 +117,20 @@
   :system 'persian
   :max-tokens 2048)
 
+(gptel-make-preset 'persian
+  :description "Persian translator"
+  :backend "Claude"
+  :model 'claude-opus-4-20250514
+  :system 'persian
+  :max-tokens 2048)
+
+(gptel-make-preset 'spanish
+  :description "Spanish translator"
+  :backend "Claude"
+  :model 'claude-opus-4-20250514
+  :system 'spanish
+  :max-tokens 2048)
+
 (gptel-make-preset 'code
   :description "Expert coder"
   :backend "Claude"
@@ -131,7 +151,7 @@
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
   :backend "llama-swap"
-  :model 'Qwen3-30B-A3B
+  :model gptel-ext-rewrite-model
   :rewrite-directive 'shorten
   :rewrite-message "Shorten it as described."
   :temperature 0.4
@@ -141,10 +161,20 @@
 (gptel-make-preset 'title
   :description "Create Org-mode title"
   :backend "llama-swap"
-  :model 'Qwen3-30B-A3B
+  :model gptel-ext-rewrite-model
   :system 'title
   :temperature 0.4
   :max-tokens 4096
+  :include-reasoning nil)
+
+(gptel-make-preset 'proof
+  :description "Proofread and spell-checking"
+  :backend "llama-swap"
+  :model gptel-ext-rewrite-model
+  :rewrite-directive 'proofread
+  :rewrite-message "Proofread as instructed."
+  :temperature 0.4
+  :max-tokens 8192
   :include-reasoning nil)
 
 (defun gptel-title ()
@@ -196,7 +226,7 @@
           "The unit of temperature, either 'celsius' or 'fahrenheit'"
           :optional t)))
 
-(defun gptel-extra-code-infill ()
+(defun gptel-ext-code-infill ()
   "Fill in code at point based on buffer context.  Note: Sends the whole buffer."
   (let ((lang (gptel--strip-mode-suffix major-mode)))
     `(,(format "You are a %s programmer and assistant in a code buffer in a text editor.
@@ -222,7 +252,7 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
                 (if (use-region-p) (min (point) (region-beginning)) (point))))
       ,(if (use-region-p) "What should I insert at the cursor?"))))
 
-(defun gptel-extra-clear-buffer ()
+(defun gptel-ext-clear-buffer ()
   (interactive)
   (if nil
       (progn
@@ -233,9 +263,9 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (org-insert-heading)
     (insert "New chat\n\n*Prompt*: ")))
 
-(defun gptel-extra-write-to-org-roam ()
+(defun gptel-ext-write-to-org-roam ()
   (remove-hook 'write-contents-functions
-               #'gptel-extra-write-to-org-roam)
+               #'gptel-ext-write-to-org-roam)
 
   (set-visited-file-name
    (expand-file-name (format-time-string "%Y%m%d%H%M-chat.org")
@@ -245,14 +275,14 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (goto-char (point-min))
     (run-hooks 'org-capture-before-finalize-hook)
     (vulpea-buffer-prop-set "title" "Chat")
-    (org-roam-extra-sort-file-properties)))
+    (org-roam-ext-sort-file-properties)))
 
-(defun gptel-extra-write-to-org-roam-install ()
+(defun gptel-ext-write-to-org-roam-install ()
   (add-hook 'gptel-mode-hook
             #'(lambda ()
                 (unless (buffer-file-name)
                   (add-hook 'write-contents-functions
-                            #'gptel-extra-write-to-org-roam)))))
+                            #'gptel-ext-write-to-org-roam)))))
 
 (defun synchronous-bugged (func)
   "Make any asynchronous function into a synchronous one.
@@ -330,4 +360,4 @@ For example:
                       (insert response)))))
     (buffer-string)))
 
-(provide 'gptel-extra)
+(provide 'gptel-ext)

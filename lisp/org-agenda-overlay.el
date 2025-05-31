@@ -59,6 +59,12 @@ This is nil by default because it can be very slow."
   :group 'org-agenda-overlay
   :type 'boolean)
 
+(defun org-agenda-overlay-get-global-property (name)
+  (save-excursion
+    (goto-char (point-min))
+    (and (re-search-forward (concat "#\\+PROPERTY: " name " \\(.*\\)") nil t)
+         (match-string 1))))
+
 (defun org-agenda-overlay-add (&optional line)
   "Add overlays found in OVERLAY properties to agenda items.
 Note that habitual items are excluded, as they already
@@ -111,7 +117,7 @@ To use this function, add it to `org-agenda-finalize-hook':
                             (org-entry-get org-marker "OVERLAY" t))
                        (with-current-buffer (marker-buffer org-marker)
                          (or (and org-agenda-overlay-use-properties
-                                  (org-get-global-property "OVERLAY"))
+                                  (org-agenda-overlay-get-global-property "OVERLAY"))
                              (catch 'found
                                (dolist (mapping org-agenda-overlay-by-filetag)
                                  (dolist (tag (org-agenda-overlay-filetags))

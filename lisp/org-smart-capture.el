@@ -28,6 +28,7 @@
 ;; I use: (define-key global-map [(meta ?m)] 'org-smart-capture)
 
 (require 'gnus-sum)
+(require 'org-macs)
 (require 'org-capture)
 
 (defgroup org-smart-capture nil
@@ -49,16 +50,15 @@
   :type '(alist :key-type regexp :value-type regexp)
   :group 'org-smart-capture)
 
-(defun convert-dates ()
-  (interactive)
-  (while (re-search-forward ":Date:\\s-*\\(.+\\)" nil t)
-    (let ((date-sent (match-string 1)))
-      (goto-char (match-beginning 1))
-      (delete-region (match-beginning 1) (match-end 1))
-      (insert ?\[ (time-to-org-timestamp
-                   (apply 'encode-time
-                          (parse-time-string date-sent)) t t)
-              ?\]))))
+;; (defun convert-dates ()
+;;   (interactive)
+;;   (while (re-search-forward ":Date:\\s-*\\(.+?\\)$" nil t)
+;;     (let ((date-sent (match-string 1)))
+;;       (goto-char (match-beginning 1))
+;;       (delete-region (match-beginning 1) (match-end 1))
+;;       (insert ?\[ (org-encode-time
+;;                    (parse-time-string date-sent))
+;;               ?\]))))
 
 (defun org-smart-capture-article (&optional article multiple)
   (let* ((body (and (eq major-mode 'gnus-article-mode)

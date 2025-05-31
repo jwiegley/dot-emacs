@@ -307,7 +307,7 @@ If TICKER is nil, disable modeline display."
     (setq global-mode-string
 	  (delq 'stock-quote-mode-string global-mode-string))
     (when stock-quote-timer
-      (stock-quote-cancel-timer stock-qoute-timer)
+      (stock-quote-cancel-timer stock-quote-timer)
       (setq stock-quote-timer nil)))
   ticker)
 

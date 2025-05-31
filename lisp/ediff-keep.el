@@ -47,6 +47,8 @@
 ;;         '("<<<<<<< A: HEAD" A "||||||| Ancestor" Ancestor
 ;;           "=======" B ">>>>>>> B: Incoming"))
 
+(require 'ediff)
+(require 'ediff-init)
 (require 'bind-key)
 
 (defgroup ediff-keep nil

@@ -104,7 +104,7 @@ This function accepts two arguments: filename and page number."
                              name)
                            page))))
 
-(cl-defun coq-lookup-create-index (&optional (pdf coq-lookup-pdf))
+(defun coq-lookup-create-index (&optional pdf)
   "Create an index alist from PDF mapping mnemonics to page numbers.
 This function requires the pdftotext command line program."
   (let ((coding-system-for-read 'utf-8)
@@ -112,7 +112,7 @@ This function requires the pdftotext command line program."
         (case-fold-search nil))
     (with-temp-buffer
       (call-process coq-lookup-pdftotext-program nil t nil
-                    (file-truename pdf) "-")
+                    (file-truename (or pdf coq-lookup-pdf)) "-")
       (goto-char (point-min))
       (re-search-forward "^COMMAND INDEX$")
       (cl-loop while (< (point) (point-max))

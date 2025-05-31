@@ -17,7 +17,8 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
+(require 'heap)
 
 (cl-defstruct
     (graph-vertex

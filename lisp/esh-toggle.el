@@ -58,6 +58,8 @@
 
 ;;; User Variables:
 
+(require 'menu-bar)
+
 (defvar eshell-toggle-goto-eob t
   "*If non-nil `eshell-toggle' moves point to end of Eshell buffer.
 When `eshell-toggle-cd' is called the point is always moved to the

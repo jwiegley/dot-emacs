@@ -60,6 +60,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (eval-when-compile (require 'cl))
 
 (defmacro heap--when-generators (then)

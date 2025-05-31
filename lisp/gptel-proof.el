@@ -3,6 +3,7 @@
 ;;
 
 (require 'gptel)
+(require 'gptel-ollama)
 (require 'uuidgen)
 
 (defvar gptel-proof-gentle-prompt

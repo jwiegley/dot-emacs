@@ -1,3 +1,5 @@
+(require 'erc)
+
 ;; This file make erc-scrolltobottom work again in Emacs 24.
 
 (defun erc-display-line-1 (string buffer)
