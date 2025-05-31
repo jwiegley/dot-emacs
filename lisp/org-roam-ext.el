@@ -25,6 +25,7 @@
 
 ;;; Commentary:
 
+(require 'org-constants)
 (require 'org)
 (require 'org-roam)
 (require 'org-roam-capture)
@@ -383,14 +384,9 @@ tasks."
   ;; (org-caldav-sync)
   (message "Sorting Org-mode files...")
   (redisplay t)
-  (dolist (file (list (org-file "todo.org")
-                      (org-file "kadena/kadena.org")
-                      (org-file "assembly/assembly.org")
-                      (org-file "quantum-trades/quantum-trades.org")
-                      (org-file "c2g/c2g.org")
-                      (org-file "OSS.org")
-                      (org-file "people.org")
-                      "~/Mobile/inbox.org"))
+  (dolist (file (append org-constants-agenda-base-files
+                        (list org-constants-people-path
+                              org-constants-plain-org-path)))
     (message "Sorting: %s" file)
     (redisplay t)
     (with-current-buffer (find-file-noselect file)
@@ -701,7 +697,7 @@ tasks."
 (defun org-roam-ext-insert-person ()
   "Insert a link to a person node tagged with :people:."
   (interactive)
-  (let* ((people (org-ql-select (list "~/org/people.org")
+  (let* ((people (org-ql-select (list org-constants-people-path)
                    '(and (level 1)
                          (not (heading "Events")))
                    :action #'(lambda ()

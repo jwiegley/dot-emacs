@@ -25,6 +25,7 @@
 
 ;;; Commentary:
 
+(require 'org-constants)
 (require 'org)
 (require 'org-capture)
 (require 'org-roam-capture)
@@ -228,12 +229,12 @@
       :prepend t)
 
      ("j" "Journal" entry
-      (file ,(expand-file-name my/org-journelly))
+      (file ,(expand-file-name org-constants-journelly-path))
       "* %U\n%?"
       :prepend t)
 
      ("h" "HABIT" entry
-      (file+headline ,(org-file "habits.org") "Personal")
+      (file+headline ,org-constants-flat-habits-path "Personal")
       "* TODO ↓△✶✓↑ %?
 SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 :PROPERTIES:
@@ -277,7 +278,7 @@ SCHEDULED: %t
       :prepend t)
 
      ("B" "Org-contact" entry
-      (file ,(org-file "people.org"))
+      (file ,org-constants-people-path)
       "* %^{NAME}
 :PROPERTIES:
 :PHONE:    %^{PHONE}
@@ -288,14 +289,14 @@ SCHEDULED: %t
      ("m" "Meetings")
 
      ("mg" "Copper to Gold" entry
-      (file+headline ,(org-file "todo.org") "Copper to Gold")
+      (file+headline ,org-constants-todo-path "Copper to Gold")
       "* TODO %?\nSCHEDULED: %t"
       :prepend t
       :clock-in t
       :clock-keep t)
 
      ("mA" "Ali Nakhjavani Development Fund" entry
-      (file+headline ,(org-file "todo.org")
+      (file+headline ,org-constants-todo-path
                      "Ali Nakhjavani Development Fund (ANDF)")
       "* TODO %?\nSCHEDULED: %t"
       :prepend t
@@ -303,7 +304,7 @@ SCHEDULED: %t
       :clock-keep t)
 
      ("mq" "Quantum Trades" entry
-      (file+headline ,(org-file "todo.org") "Quantum Trades")
+      (file+headline ,org-constants-todo-path "Quantum Trades")
       "* TODO %?\nSCHEDULED: %t"
       :prepend t
       :clock-in t
@@ -326,7 +327,7 @@ SCHEDULED: %t
       :jump-to-captured t)
 
      ("pT" "Taxes" entry
-      (file+headline ,(org-file "todo.org") "Taxes")
+      (file+headline ,org-constants-todo-path "Taxes")
       (file "~/org/template/taxes.org")
       :immediate-finish t
       :jump-to-captured t)
@@ -334,7 +335,7 @@ SCHEDULED: %t
      ("pb" "Bahá’í templates")
 
      ("pbf" "Bahá’í Feast" entry
-      (file+headline ,(org-file "assembly/assembly.org")
+      (file+headline ,org-constants-assembly-path
                      "Carmichael Local Spiritual Assembly (LSA)")
       (file "~/org/template/bahai/feast.org")
       :immediate-finish t
@@ -355,7 +356,7 @@ SCHEDULED: %t
       :jump-to-captured t)
 
      ("pbg" "Flow of guidance" entry
-      (file+headline ,(org-file "assembly/assembly.org")
+      (file+headline ,org-constants-assembly-path
                      "Increasing the flow of guidance to the grassroots")
       (file "~/org/template/bahai/flow-of-guidance.org")
       :immediate-finish t
@@ -371,13 +372,13 @@ SCHEDULED: %t
      ("pw" "Work templates")
 
      ("pwO" "Out of Office" entry
-      (file+headline ,(org-file "kadena/kadena.org") "Operations (Ops)")
+      (file+headline ,org-constants-work-todo-path "Operations (Ops)")
       (file "~/org/template/kadena/out-of-office.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwn" "Network Incident" entry
-      (file+headline ,(org-file "kadena/kadena.org") "Improve Response Process")
+      (file+headline ,org-constants-work-todo-path "Improve Response Process")
       (file "~/org/template/kadena/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))

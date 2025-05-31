@@ -31,6 +31,7 @@
   (require 'cl-macs))
 
 (require 'rx)
+(require 'org-constants)
 (require 'org)
 (require 'org-agenda)
 (require 'org-ql)
@@ -41,9 +42,6 @@
   "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
   "Regular expression for fast inactive time stamp matching.")
 
-(defconst org-ext-kadena-team-file "kadena/team/202409042228-team.org"
-  "File containing names of team members and links to their files.")
-
 (declare-function org-with-wide-buffer "org-macs")
 
 (defgroup org-ext nil
@@ -53,15 +51,17 @@
 (defalias 'org-ext-up-heading #'outline-up-heading)
 
 (defun org-ext-goto-inbox-heading ()
-  (set-buffer (get-buffer "todo.org"))
+  (set-buffer (get-buffer (file-name-nondirectory org-constants-todo-path)))
   (goto-char (point-min))
   (while (looking-at "^[:#]")
     (forward-line 1))
   (unless (looking-at "^$")
-    (error "Missing blank line after file header in todo.org"))
+    (error "Missing blank line after file header in %s"
+           (file-name-nondirectory org-constants-todo-path)))
   (forward-line 1)
   (unless (looking-at "^\\* Inbox$")
-    (error "Missing Inbox heading at start of todo.org")))
+    (error "Missing Inbox heading at start of %s"
+           (file-name-nondirectory org-constants-todo-path))))
 
 (defun org-ext-goto-inbox (&optional func)
   (interactive)
@@ -69,7 +69,7 @@
       (funcall (if func
                    #'find-file-noselect
                  #'find-file)
-               (expand-file-name "todo.org" org-directory))
+               org-constants-todo-path)
     (if func
         (save-excursion
           (org-ext-goto-inbox-heading)
@@ -450,11 +450,18 @@ This is true even if there are intervening categories or other headings."
 
 (defun org-ext-refine-refile-targets (orig-func &optional default-buffer)
   (let ((targets (funcall orig-func default-buffer)))
-    (cl-delete-if #'(lambda (target)
-                      (not (string-match-p
-                            (rx (group (or "/" (seq bos "Mobile.org" eos))))
-                            (car target))))
-                  targets)))
+    (cl-delete-if
+     #'(lambda (target)
+         (not (string-match-p
+               `(rx
+                 (group
+                  (or "/"
+                      (seq bos
+                           ,(file-name-nondirectory
+                             org-constants-plain-org-path)
+                           eos))))
+               (car target))))
+     targets)))
 
 (defun org-ext-refile-heading-p ()
   (let ((refile (org-ext-entry-get-immediate "REFILE")))
@@ -718,7 +725,7 @@ resulting table on that column, ascending."
 
 (defun org-ext-update-team ()
   (interactive)
-  (let ((file (org-file org-ext-kadena-team-file)))
+  (let ((file (org-file org-constants-kadena-team-file)))
     (setq org-ext-link-names (org-ext-read-names file))
     (with-current-buffer (find-file-noselect file)
       (save-excursion
@@ -732,7 +739,7 @@ resulting table on that column, ascending."
 
 (defun org-ext-update-team-after-save ()
   (when (and (eq major-mode 'org-mode)
-             (string-match org-ext-kadena-team-file (buffer-file-name)))
+             (string-match org-constants-kadena-team-file (buffer-file-name)))
     (org-ext-update-team)))
 
 (defun org-ext-unlink-region (&optional beg end)
