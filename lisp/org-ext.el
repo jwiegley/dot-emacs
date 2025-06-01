@@ -453,13 +453,13 @@ This is true even if there are intervening categories or other headings."
     (cl-delete-if
      #'(lambda (target)
          (not (string-match-p
-               `(rx
-                 (group
-                  (or "/"
-                      (seq bos
-                           ,(file-name-nondirectory
-                             org-constants-plain-org-path)
-                           eos))))
+               (eval `(rx
+                       (group
+                        (or "/"
+                            (seq bos
+                                 ,(file-name-nondirectory
+                                   org-constants-plain-org-path)
+                                 eos)))))
                (car target))))
      targets)))
 
