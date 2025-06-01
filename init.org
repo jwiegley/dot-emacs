@@ -2447,7 +2447,7 @@ your system."
 (use-package eshell
   :commands (eshell eshell-command)
   :custom
-  (eshell-password-prompt-regexp "")
+  ;; (eshell-password-prompt-regexp "")
   (eshell-directory-change-hook '(my-direnv-maybe-update))
   (eshell-directory-name (emacs-path "eshell"))
   (eshell-hist-ignoredups t)
@@ -3141,11 +3141,9 @@ up before you execute another command."
        :models '(
                  agentica-org/DeepCoder-1.5B-Preview
                  agentica-org/DeepCoder-14B-Preview
-                 BAAI/bge-m3
                  CodeLlama-13B-Python
                  CodeLlama-70B-Python
                  CodeLlama-7B-Python
-                 DeepSeek-R1-0528
                  DeepSeek-R1-0528-Qwen3-8B
                  Llama-3.3-Nemotron-Super-49B-v1
                  meta-llama/Llama-4-Scout-17B-16E-Instruct
@@ -3170,7 +3168,6 @@ up before you execute another command."
                  QwQ-32B
                  r1-1776
                  r1-1776-distill-llama-70b
-                 sentence-transformers/all-MiniLM-L6-v2
                  WizardCoder-Python-13B-V1.0
                  WizardCoder-Python-34B-V1.0
                  WizardCoder-Python-7B-V1.0
