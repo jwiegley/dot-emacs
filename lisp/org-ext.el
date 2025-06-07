@@ -818,12 +818,14 @@ With prefix argument, also display headlines without a TODO keyword."
   (interactive)
   (org-set-property "Submitter" (org-ext-get-message-sender)))
 
-(defun org-ext-set-url-from-clipboard ()
+(defun org-ext-set-url-from-clipboard (&optional arg)
   "Set a property for the current headline."
-  (interactive)
+  (interactive "P")
   (org-back-to-heading)
   (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
-                    (gui--selection-value-internal 'CLIPBOARD))
+                    (if (and arg org-stored-links)
+                        (concat "[[" (caar org-stored-links) "]]")
+                      (gui--selection-value-internal 'CLIPBOARD)))
   (org-toggle-tag "LINK" 'on))
 
 (defun org-ext-get-inactive-time ()

@@ -150,8 +150,8 @@
 
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
-  :backend "llama-swap"
-  :model gptel-ext-rewrite-model
+  :backend "Claude"
+  :model 'claude-sonnet-4-20250514
   :rewrite-directive 'shorten
   :rewrite-message "Shorten it as described."
   :temperature 0.4
