@@ -101,6 +101,9 @@
     "Leah"
     "Stuart"
     "Travis"
+    "Linda"
+    "Hafsah"
+    "Robert"
     )
   "Tags \"regularly reviewed\" that don't need separate review."
   :type '(repeat string)
@@ -645,12 +648,14 @@ SCHEDULED: %t
       ""
       ((org-agenda-overriding-header "\nItems needing review")
        (org-agenda-skip-function
-        '(or (org-config-agenda-skip-entry-if
-              (org-ext-subtask-p))
-             (org-agenda-skip-entry-if
-              'scheduled 'deadline 'timestamp
-              'todo org-done-keywords)
-             (org-config-skip-if-review-not-needed)))
+        '(org-config-agenda-skip-entry-if
+          (or (org-ext-habit-p)
+              (org-agenda-skip-entry-if
+               'scheduled 'deadline 'timestamp
+               'todo org-done-keywords)
+              (org-agenda-skip-entry-if 'todo '("DEFER"))
+              (org-config-skip-if-review-not-needed)
+              (org-config-skip-if-regularly-reviewed))))
        ;; (org-agenda-cmp-user-defined 'org-config-review-compare)
        (org-agenda-max-entries 38)
        (org-agenda-cmp-user-defined (org-compare-randomly))

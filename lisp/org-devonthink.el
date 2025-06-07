@@ -56,9 +56,7 @@
 (defun org-devonthink-set-link ()
   "Set a property for the current headline."
   (interactive)
-  (org-set-property (if (org-entry-get (point-marker) "URL")
-                        "URL"
-                      "URL2")
+  (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
                     (org-devonthink-get-link))
   (org-toggle-tag "LINK" 'on))
 

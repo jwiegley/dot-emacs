@@ -1838,6 +1838,34 @@ non-empty directories is allowed."
               ("s" . #'casual-dired-sort-by-tmenu)))
 #+end_src
 
+*** diredfl
+
+Extra font-lock rules for dired.
+
+#+begin_src emacs-lisp
+(use-package diredfl
+  :after dired
+  :custom-face
+  (diredfl-file-name ((t (:foreground "grey80"))))
+  :config
+  (diredfl-global-mode 1))
+#+end_src
+
+*** dired-subtree
+
+[[https://github.com/Fuco1/dired-hacks/blob/master/dired-subtree.el][dired-subtree]] defines function =dired-subtree-insert= which instead inserts the
+subdirectory directly below its line in the original listing, and indent the
+listing of subdirectory to resemble a tree-like structure (somewhat similar to
+tree(1) except the pretty graphics). The tree display is somewhat more
+intuitive than the default "flat" subdirectory manipulation provided by `i'.
+
+#+begin_src emacs-lisp
+(use-package dired-subtree
+  :after dired
+  :bind (:map dired-mode-map
+              ("i" . dired-subtree-insert)))
+#+end_src
+
 ** direnv
 
 #+begin_src emacs-lisp
@@ -2951,6 +2979,7 @@ up before you execute another command."
    ("C-c C-n"  . my/gptel-next-prompt)
    ("C-c C-p"  . my/gptel-previous-prompt))
   :hook
+  (gptel-mode . turn-off-auto-fill)
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   ;; (gptel-mode . (lambda () (setq-local gptel-stream t)))
@@ -3113,12 +3142,12 @@ up before you execute another command."
     ;;             Guidance-RAG
     ;;             ))
 
-    ;; (gptel-make-openai "llama-cpp"
-    ;;   :host "127.0.0.1:8080"
-    ;;   :protocol "http"
-    ;;   :request-params '(:options (:num_ctx 65536))
-    ;;   :models '(
-    ;;             ))
+    (gptel-make-openai "llama-cpp"
+      :host "127.0.0.1:8081"
+      :protocol "http"
+      :models '(
+                DeepSeek-R1-0528
+                ))
 
     ;; (gptel-make-openai "mlx-lm"
     ;;   :host "192.168.50.5:9090"
@@ -3141,11 +3170,15 @@ up before you execute another command."
        :models '(
                  agentica-org/DeepCoder-1.5B-Preview
                  agentica-org/DeepCoder-14B-Preview
+                 BAAI/bge-m3
                  CodeLlama-13B-Python
                  CodeLlama-70B-Python
                  CodeLlama-7B-Python
+                 DeepSeek-R1-0528
                  DeepSeek-R1-0528-Qwen3-8B
                  Llama-3.3-Nemotron-Super-49B-v1
+                 Llama-4-Maverick-17B-128E-Instruct
+                 Llama-4-Scout-17B-16E-Instruct
                  meta-llama/Llama-4-Scout-17B-16E-Instruct
                  microsoft/phi-4
                  microsoft/Phi-4-reasoning-plus
@@ -3168,6 +3201,7 @@ up before you execute another command."
                  QwQ-32B
                  r1-1776
                  r1-1776-distill-llama-70b
+                 sentence-transformers/all-MiniLM-L6-v2
                  WizardCoder-Python-13B-V1.0
                  WizardCoder-Python-34B-V1.0
                  WizardCoder-Python-7B-V1.0
@@ -3315,6 +3349,7 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-prompts
+  :load-path "lisp/gptel-prompts"
   :after (gptel)
   :demand t
   :config
@@ -5085,8 +5120,16 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package pdf-tools
   :magic ("%PDF" . pdf-view-mode)
+  :bind
+  (:map
+   pdf-view-mode-map
+   ("O" . my/pdf-view-open-file))
   :custom
   (pdf-tools-handle-upgrades nil)
+  :preface
+  (defun my/pdf-view-open-file ()
+    (interactive)
+    (shell-command (format "open \"%s\"" (buffer-file-name))))
   :config
   (dolist
       (pkg
@@ -10178,7 +10221,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org
-  :load-path "lisp/org-mode/lisp"
+  ;; :load-path "lisp/org-mode/lisp"
   :demand t
   :commands org-resolve-clocks
   :bind* (("C-c S" . org-store-link)
@@ -11428,21 +11471,24 @@ displays the priority part of a heading as your preferred string value.
           (org-file "calendar/google.org"))
     (cons "ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com"
           (org-file "calendar/bahai.org"))
-    (cons "57jh2om1vl9sv16sor1mudl030@group.calendar.google.com"
-          (org-file "calendar/family.org"))
     (cons "pse8nk29dq9ll8g7jpq0mbllf8@group.calendar.google.com"
           (org-file "calendar/c2g.org"))
-    (cons "54ioufdqn31buq7et3uo1u37tlceqldh@import.calendar.google.com"
-          (org-file "calendar/tripit.org"))
+    (cons "57jh2om1vl9sv16sor1mudl030@group.calendar.google.com"
+          (org-file "calendar/family.org"))
+    ;; (cons "54ioufdqn31buq7et3uo1u37tlceqldh@import.calendar.google.com"
+    ;;       (org-file "calendar/tripit.org"))
     (cons "789ust6872bajeo87oqd2jqfog@group.calendar.google.com"
           (org-file "calendar/nasim.org"))
-    (cons "sacramento.lsa1914@gmail.com"
-          (org-file "calendar/sacramento.org"))))
+    ;; (cons "sacramento.lsa1914@gmail.com"
+    ;;       (org-file "calendar/sacramento.org"))
+    ))
   :config
   (setq org-gcal-client-id
         (lookup-password "org-caldav-user.google.com" "jwiegley@gmail.com" 80)
         org-gcal-client-secret
-        (lookup-password "org-caldav.google.com" org-gcal-client-id 80)))
+        (lookup-password "org-caldav.google.com" org-gcal-client-id 80))
+
+  (org-gcal-reload-client-id-secret))
 #+end_src
 
 *** org-hash
@@ -11643,8 +11689,8 @@ displays the priority part of a heading as your preferred string value.
   :custom
   (org-quick-peek-show-lines 20)
   :config
-  ;;; jww (2024-10-27): Fixing org-quick-peek creating invisible overlay when
-  ;;; agenda filter is in place and the next item is hidden by the filter
+  ;;; Fix org-quick-peek creating invisible overlay when agenda filter is in
+  ;;; place and the next item is hidden by the filter
   (defun quick-peek-overlay-ensure-at (pos)
     "Find or create a quick-peek overlay for the line at POS.
 

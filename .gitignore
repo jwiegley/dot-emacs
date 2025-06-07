@@ -1,5 +1,8 @@
 *.elc
+/.org-generic-id-locations
 /data*/
+/eln-cache/
+/elpy/
 /emojis/
 /eshell/
 /init.el
@@ -9,4 +12,3 @@
 /settings.el
 /transient/
 /var/
-/elpy/
