@@ -160,8 +160,8 @@
 
 (gptel-make-preset 'title
   :description "Create Org-mode title"
-  :backend "llama-swap"
-  :model gptel-ext-rewrite-model
+  :backend "Claude"
+  :model 'claude-sonnet-4-20250514
   :system 'title
   :temperature 0.4
   :max-tokens 4096

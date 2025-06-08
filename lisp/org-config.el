@@ -540,6 +540,15 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
+   ("wp" "Work Person" plain
+    (file "~/org/template/person.org")
+    :target
+    (file "kadena/team/%<%Y%m%d%H%M>.org")
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ,(org-config-kadena-meeting "wM" "Marketing <> Eng" "marketing-eng.org")
    ,(org-config-kadena-meeting "wO" "Ops <> Eng"       "ops-eng.org")
    ,(org-config-kadena-meeting "wP" "Product <> Eng"   "product-eng.org")
