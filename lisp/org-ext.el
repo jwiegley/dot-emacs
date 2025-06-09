@@ -25,6 +25,8 @@
 
 ;;; Commentary:
 
+;;; Code:
+
 (require 'cl-lib)
 (eval-when-compile
   (require 'cl)
@@ -45,7 +47,7 @@
 (declare-function org-with-wide-buffer "org-macs")
 
 (defgroup org-ext nil
-  "Extra functions for use with Org-mode"
+  "Extra functions for use with Org-mode."
   :group 'org)
 
 (defalias 'org-ext-up-heading #'outline-up-heading)
@@ -145,8 +147,8 @@
   ad-do-it
   (org-ext-fit-agenda-window))
 
-(defun org-ext-agenda-show (&optional arg)
-  "Display the Org file which contains the item at point."
+(defun org-ext-agenda-show (&optional _arg)
+  "Display Org file containing item at point."
   (interactive "P")
   (let ((win (selected-window)))
     (if (and (window-live-p org-agenda-show-window)
@@ -162,12 +164,10 @@
     (select-window win)))
 
 (defun org-ext-agenda-show-and-scroll-up (&optional arg)
-  "Display the Org file which contains the item at point.
-
+  "Display Org file containing item at point.
 When called repeatedly, scroll the window that is displaying the buffer.
-
-With a `\\[universal-argument]' prefix argument, display the item, but \
-fold drawers."
+With a `\\[universal-argument]' prefix argument ARG, display the item,
+but fold drawers."
   (interactive "P")
   (let ((win (selected-window)))
     (if (and (window-live-p org-agenda-show-window)
@@ -297,7 +297,7 @@ after :END:."
 
 (defun org-ext-todoize (&optional arg)
   "Add standard metadata to a headline.
-With `C-u', regenerate ID even if one already exists.
+With `C-u' ARG, regenerate ID even if one already exists.
 With `C-u C-u', set the keyword to TODO, without logging.
 If the headline title end with a (HH:MM) style time offset, this
 text will be moved into an OFFSET property."
@@ -564,69 +564,6 @@ A review may be needed if:
                           (deadline)
                           (ts-active)))
                  (org-ext-needs-review-p))))))))
-
-(defun org-dblock-write:ql-columnview (params)
-  "Create a table view of an org-ql query.
-
-Example:
-
-#+begin: ql-columnview :query \"(and (tags \\\"John\\\") (todo))\" :properties \"TODO ITEM_BY_ID LAST_REVIEW NEXT_REVIEW TAGS\" :sort-idx 4
-#+end:
-
-The :sort-idx takes the 1-indexed column mentioned in
-:properties, interprets it as an Org-time, and sorts the
-resulting table on that column, ascending."
-  (let* ((columns (split-string (or (plist-get params :properties)
-                                    "TODO ITEM_BY_ID TAGS")
-                                " "))
-         (sort-index (plist-get params :sort-idx))
-         (table
-          (org-ql-select
-            'org-agenda-files
-            `(and ,(let ((query (plist-get params :query))
-                         (who (plist-get params :who)))
-                     (when who
-                       (setq who (format "(tasks-for \"%s\")" who)))
-                     (read (if (and query who)
-                               (format "(or %s %s)" who query)
-                             (or query who))))
-                  (not (or (org-ext-project-p)
-                           (org-ext-category-p))))
-            :action `(org-ext-get-properties ,@columns)
-            :sort
-            #'(lambda (x y)
-                (when sort-index
-                  (let ((x-value (nth sort-index x))
-                        (y-value (nth sort-index y)))
-                    (when (and x-value y-value)
-                      (time-less-p
-                       (org-encode-time
-                        (org-parse-time-string x-value))
-                       (org-encode-time
-                        (org-parse-time-string y-value))))))))))
-    ;; Add column titles and a horizontal rule in front of the table.
-    (setq table (cons columns (cons 'hline table)))
-    (let ((hlines nil)
-          new-table)
-      ;; Copy header and first rule.
-      (push (pop table) new-table)
-      (push (pop table) new-table)
-      (dolist (row table (setq table (nreverse new-table)))
-        (let ((level (car row)))
-	  (when (and (not (eq (car new-table) 'hline))
-		     (or (eq hlines t)
-			 (and (numberp hlines) (<= level hlines))))
-	    (push 'hline new-table))
-	  (push (cdr row) new-table))))
-    (save-excursion
-      ;; Insert table at point.
-      (insert
-       (mapconcat (lambda (row)
-		    (if (eq row 'hline) "|-|"
-		      (format "|%s|" (mapconcat #'identity row "|"))))
-		  table
-		  "\n")))
-    (org-table-align)))
 
 (defcustom org-ext-link-names nil
   "A list of ids and their associated names used by `org-ext-edit-link-name'."

@@ -87,7 +87,10 @@ Returns the hash of the stored file."
       (hash-store-ensure-directory hash)
       (if move
           (rename-file file dest-path)
-        (copy-file file dest-path)))
+        (copy-file file dest-path))
+      ;; Make the file read-only in the filesystem
+      (set-file-modes dest-path (logand (file-modes dest-path)
+                                        (lognot #o222))))
     hash))
 
 (defun hash-store-get (hash &optional verify)
