@@ -25,6 +25,8 @@
 
 ;;; Commentary:
 
+;;; Code:
+
 (require 'cl-lib)
 (eval-when-compile
   (require 'cl))
@@ -32,10 +34,36 @@
 (require 'solar)
 (require 'gptel)
 
-(defconst gptel-ext-rewrite-model
-  ;; 'Qwen3-30B-A3B
-  'DeepSeek-R1-0528-Qwen3-8B
-  "Model used for doing simple rewrites.")
+(defconst gptel-ext-rewrite-use-remote nil
+  "Non-nil if we should use remote models (local is unavailable?).")
+
+(defsubst gptel-ext-insert-no-think ()
+  "Insert the text /no_think at the end of the user prompt."
+  (insert " /no_think"))
+
+(gptel-make-preset 'quick
+  :post #'(lambda ()
+            (add-hook 'gptel-prompt-transform-functions
+                      #'gptel-ext-insert-no-think nil 'local)))
+
+(gptel-make-preset 'rewrite
+  :description "Model used for basic rewrites"
+  :backend
+  (if gptel-ext-rewrite-use-remote
+      "Claude"
+    "llama-swap")
+  :model
+  (if gptel-ext-rewrite-use-remote
+      'claude-sonnet-4-20250514
+    'Qwen3-235B-A22B
+    ;; 'Qwen3-30B-A3B
+    ;; 'DeepSeek-R1-0528-Qwen3-8B
+    )
+  :temperature 0.4
+  :max-tokens 8192
+  :include-reasoning nil
+  :tools nil
+  :parents 'quick)
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
@@ -150,34 +178,28 @@
 
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
-  :backend "Claude"
-  :model 'claude-sonnet-4-20250514
   :rewrite-directive 'shorten
   :rewrite-message "Shorten it as described."
-  :temperature 0.4
-  :max-tokens 8192
-  :include-reasoning nil)
+  :parents 'rewrite)
 
 (gptel-make-preset 'title
   :description "Create Org-mode title"
-  :backend "Claude"
-  :model 'claude-sonnet-4-20250514
   :system 'title
-  :temperature 0.4
-  :max-tokens 4096
-  :include-reasoning nil)
+  :parents 'rewrite)
 
 (gptel-make-preset 'proof
   :description "Proofread and spell-checking"
-  :backend "llama-swap"
-  :model gptel-ext-rewrite-model
   :rewrite-directive 'proofread
   :rewrite-message "Proofread as instructed."
-  :temperature 0.4
-  :max-tokens 8192
-  :include-reasoning nil)
+  :parents 'rewrite)
 
-(defun gptel-title ()
+(defun gptel-ext-shorten ()
+  "Given a selected set of Org-mode headings, shorten them."
+  (interactive)
+  (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
+
+(defun gptel-ext-title ()
+  "Given a region of text, generate a title to describe it."
   (interactive)
   (gptel-with-preset 'title
     (gptel-request
@@ -195,18 +217,6 @@
                       (unless (looking-back " ")
                         (insert " "))
                       (insert resp)))))))
-
-(defsubst gptel-preset-with-added-transform (f)
-  (remove 'gptel--transform-apply-preset
-          (cons f gptel-prompt-transform-functions)))
-
-(gptel-make-preset 'quick
-  :prompt-transform-functions
-  (gptel-preset-with-added-transform
-   #'(lambda (_fsm)
-       (save-excursion
-         (goto-char (point-max))
-         (insert " /no_think")))))
 
 (gptel-make-tool
  :function (lambda (location unit)
@@ -253,6 +263,7 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
       ,(if (use-region-p) "What should I insert at the cursor?"))))
 
 (defun gptel-ext-clear-buffer ()
+  "Create a new chat session in the current GPTel buffer."
   (interactive)
   (if nil
       (progn
@@ -264,13 +275,12 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (insert "New chat\n\n*Prompt*: ")))
 
 (defun gptel-ext-write-to-org-roam ()
+  "If a chat buffer is saved with \\[save-buffer], create an Org-roam file."
   (remove-hook 'write-contents-functions
                #'gptel-ext-write-to-org-roam)
-
   (set-visited-file-name
    (expand-file-name (format-time-string "%Y%m%d%H%M-chat.org")
                      "~/org/agent"))
-
   (save-excursion
     (goto-char (point-min))
     (run-hooks 'org-capture-before-finalize-hook)
@@ -278,6 +288,7 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
     (org-roam-ext-sort-file-properties)))
 
 (defun gptel-ext-write-to-org-roam-install ()
+  "Use `gptel-ext-write-to-org-roam' if a GPTel buffer is saved."
   (add-hook 'gptel-mode-hook
             #'(lambda ()
                 (unless (buffer-file-name)
@@ -287,9 +298,9 @@ Do not repeat any of the BEFORE or AFTER code." lang lang lang)
 (defun synchronous-bugged (func)
   "Make any asynchronous function into a synchronous one.
 FUNC is called with a callback to be called when the asynchronous
-function is finished. For example, in the case where make-thread
-is used to run a function asynchronously, which when complete,
-finishes the synchronous call.
+function is finished. For example, in the case where `make-thread' is
+used to run a function asynchronously, which when complete, finishes the
+synchronous call.
 
   (synchronous
      #'(lambda (k)
@@ -312,6 +323,7 @@ finishes the synchronous call.
     (cdr result)))
 
 (defun synchronous (func)
+  "Run the given asynchronous function FUNC synchronously."
   (let ((result (cons nil nil)))
     (funcall func
              #'(lambda (res)
@@ -328,6 +340,7 @@ finishes the synchronous call.
                (stream nil) (in-place nil)
                (system gptel--system-message)
                transforms (fsm (gptel-make-fsm)))
+  "Synchronous version of `gptel-request'."
   (synchronous
    #'(lambda (komplete)
        (gptel-request
@@ -361,3 +374,5 @@ For example:
     (buffer-string)))
 
 (provide 'gptel-ext)
+
+;;; gptel-ext.el ends here

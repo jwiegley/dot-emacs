@@ -70,6 +70,10 @@
   (interactive "sItem: ")
   (org-tags-view t (format "ITEM={%s}%s" who org-config-open-re)))
 
+(defun org-config-tasks-for-query (who)
+  (interactive "sTasks for: ")
+  (org-ql-block `(tasks-for ,who)))
+
 (defun org-config-text-search (regexp &optional include-closed)
   (interactive "sRegexp: \nP")
   (org-ql-search (org-ql-search-directories-files)
@@ -235,6 +239,18 @@
       (file ,(expand-file-name org-constants-journelly-path))
       "* %U\n%?"
       :prepend t)
+
+     ("P" "Person" entry
+      (file ,org-constants-people-path)
+      "* %?
+:PROPERTIES:
+:ORG:      ?
+:EMAIL:    ?
+:PHONE:    ?
+:NOTE:     ?
+:ADDRESS:  ?
+:END:"
+      :prepend nil)
 
      ("h" "HABIT" entry
       (file+headline ,org-constants-flat-habits-path "Personal")
@@ -540,8 +556,8 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ("wp" "Work Person" plain
-    (file "~/org/template/person.org")
+   ("wT" "Work Team Member" plain
+    (file "~/org/template/team-member.org")
     :target
     (file "kadena/team/%<%Y%m%d%H%M>.org")
     :immediate-finish t
@@ -704,6 +720,14 @@ SCHEDULED: %t
             (not (tags "ARCHIVE"))
             (not (scheduled)))
       ((org-ql-block-header "Work tasks")))))
+
+   ("gU" "Unnecessary wording"
+    ((org-ql-block
+      '(and (heading-regexp "[^\"#-]\\<\\(the\\|an?\\)\\>")
+            (todo))
+      ((org-ql-block-header "Tasks with unnecessary wording")))))
+
+   ("gf" "Tasks for..." ,(org-config-call-only #'org-config-tasks-for-query))
 
    ("r" . "Review tasks\n")
 
