@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2011-2012 John Wiegley
 
-;; Author: John Wiegley <jwiegley@gmail.com>
+;; Author: John Wiegley <johnw@gnu.org>
 ;; Created: 6 Aug 2011
 ;; Version: 1.0
 ;; Keywords: compression data lzw

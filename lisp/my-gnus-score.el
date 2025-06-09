@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2012 John Wiegley
 
-;; Author: John Wiegley <jwiegley@gmail.com>
+;; Author: John Wiegley <johnw@gnu.org>
 ;; Created: 06 Jun 2012
 ;; Version: 1.0
 ;; Keywords: gnus scoring adaptive

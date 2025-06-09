@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2011 John Wiegley
 
-;; Author: John Wiegley <jwiegley@gmail.com>
+;; Author: John Wiegley <johnw@gnu.org>
 ;; Created: 16 Sep 2011
 ;; Version: 1.0
 ;; Keywords: gnus message org capture task todo context
