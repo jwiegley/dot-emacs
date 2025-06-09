@@ -118,61 +118,7 @@
 ** Define standard colors
 
 #+begin_src emacs-lisp
-;; Luminosity 50
-(defconst palette-red               "#FF0000")
-(defconst palette-orange            "#FF8000")
-(defconst palette-yellow            "#FFFF00")
-(defconst palette-yellow-green      "#80FF00")
-(defconst palette-green             "#00FF00")
-(defconst palette-teal              "#00FF80")
-(defconst palette-cyan              "#00FFFF")
-(defconst palette-slate-blue        "#007FFF")
-(defconst palette-blue              "#0000FF")
-(defconst palette-indigo            "#7F00FF")
-(defconst palette-purple            "#FF00FF")
-(defconst palette-fuschia           "#FF0080")
-
-;; Luminosity 20
-(defconst palette-red-dark          "#660000")
-(defconst palette-orange-dark       "#663300")
-(defconst palette-yellow-dark       "#666600")
-(defconst palette-yellow-green-dark "#336600")
-(defconst palette-green-dark        "#006600")
-(defconst palette-teal-dark         "#006633")
-(defconst palette-cyan-dark         "#006666")
-(defconst palette-slate-blue-dark   "#003366")
-(defconst palette-blue-dark         "#000066")
-(defconst palette-indigo-dark       "#330066")
-(defconst palette-purple-dark       "#660066")
-(defconst palette-fuschia-dark      "#660033")
-
-;; Luminosity 15
-(defconst palette-red-darker          "#4D0000")
-(defconst palette-orange-darker       "#4D2600")
-(defconst palette-yellow-darker       "#4D4D00")
-(defconst palette-yellow-green-darker "#264D00")
-(defconst palette-green-darker        "#004D00")
-(defconst palette-teal-darker         "#004D26")
-(defconst palette-cyan-darker         "#004D4D")
-(defconst palette-slate-blue-darker   "#00264D")
-(defconst palette-blue-darker         "#00004D")
-(defconst palette-indigo-darker       "#26004D")
-(defconst palette-purple-darker       "#4D004D")
-(defconst palette-fuschia-darker      "#4D0026")
-
-;; Luminosity 10
-(defconst palette-red-darkest          "#330000")
-(defconst palette-orange-darkest       "#331A00")
-(defconst palette-yellow-darkest       "#333300")
-(defconst palette-yellow-green-darkest "#1A3300")
-(defconst palette-green-darkest        "#003300")
-(defconst palette-teal-darkest         "#00331A")
-(defconst palette-cyan-darkest         "#003333")
-(defconst palette-slate-blue-darkest   "#001A33")
-(defconst palette-blue-darkest         "#000033")
-(defconst palette-indigo-darkest       "#1A0033")
-(defconst palette-purple-darkest       "#330033")
-(defconst palette-fuschia-darkest      "#33001A")
+(use-package john-wiegley-theme)
 #+end_src
 
 * Helper functions
@@ -2785,7 +2731,21 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package flymake
-  :defer t
+  :commands (flymake-mode)
+  :bind (:map
+         flymake-mode-map
+         ("M-n" . flymake-goto-next-error)
+         ("M-p" . flymake-goto-prev-error))
+  :hook
+  (emacs-lisp-mode . flymake-mode)
+  :custom
+  (flymake-fringe-indicator-position 'left-fringe)
+  (flymake-suppress-zero-counters t)
+  (flymake-start-on-flymake-mode t)
+  (flymake-no-changes-timeout nil)
+  (flymake-start-on-save-buffer t)
+  (flymake-proc-compilation-prevents-syntax-check t)
+  (flymake-wrap-around nil)
   :custom-face
   (flymake-note ((t nil)))
   (flymake-warning ((t (:underline nil)))))
@@ -3267,15 +3227,55 @@ up before you execute another command."
          :map
          gptel-cmd-map
          ("r" . gptel-rewrite)
-         ("s" . gptel-shorten)
          :map gptel-rewrite-actions-map
          ("<return>" . gptel--rewrite-dispatch))
   :custom
-  (gptel-rewrite-default-action 'accept)
+  (gptel-rewrite-default-action 'accept))
+#+end_src
+
+**** gptel-commit
+
+#+begin_src emacs-lisp
+(use-package gptel-commit
+  :no-require t
+  :after (gptel git-commit)
   :preface
-  (defun gptel-shorten ()
-    (interactive)
-    (gptel-with-preset 'shorten (gptel--suffix-rewrite))))
+  (defun my/gptel-commit-summary ()
+    "Insert a commit message header line in the format I use, followed by a
+standard magit (GNU style) changelog.
+
+Don't get the LLM to write the commit message itself, because it's bad
+at inferring my intent.
+
+Intended to be placed in `git-commit-setup-hook'."
+    (gptel-with-preset 'commit-summary
+      (let ((commit-buffer (current-buffer))) ;commit message buffer
+
+        (with-temp-buffer
+          (vc-git-command               ;insert diff
+           (current-buffer) 1 nil
+           "diff-index" "--exit-code" "--patch"
+           (and (magit-anything-staged-p) "--cached")
+           "HEAD" "--")
+
+          (gptel-request nil            ;Run request on diff buffer contents
+            :context commit-buffer
+            :callback
+            (lambda (resp info)
+              (if (not (stringp resp))
+                  (message "Git commit summary generation failed")
+                (with-current-buffer (plist-get info :context)
+                  (save-excursion
+                    (goto-char (point-min))
+                    (insert resp "\n\n")
+                    (magit-generate-changelog))))))))))
+  :config
+  (gptel-make-preset 'commit-summary
+    :system 'commit-summary
+    :parents 'rewrite
+    :tools nil)
+
+  (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50))
 #+end_src
 
 *** gptel-context
@@ -3335,7 +3335,8 @@ up before you execute another command."
   :bind
   (:map
    gptel-cmd-map
-   ("t" . gptel-title)
+   ("s" . gptel-ext-shorten)
+   ("t" . gptel-ext-title)
    :map
    gptel-mode-map
    ("C-c C-t" . gptel-ext-clear-buffer))
@@ -8390,17 +8391,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :demand t
   :after (eglot)
   :config
-  (dolist (where '((python-mode-hook   . python-mode-map)
-                   (elpy-mode-hook     . elpy-mode-map)
-                   (haskell-mode-hook  . haskel-mode-map)))
-    (add-hook (car where)
-              `(lambda ()
-                 (bind-key "M-n" #'flymake-goto-next-error ,(cdr where))
-                 (bind-key "M-p" #'flymake-goto-prev-error ,(cdr where)))))
-
   (add-to-list 'eglot-server-programs
                '(haskell-mode . ("haskell-language-server" "--lsp")))
-
   (add-hook 'eglot-managed-mode-hook
             #'(lambda ()
                 (setq-local eldoc-documentation-strategy
@@ -8990,9 +8982,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package rust-mode
   :mode "\\.rs\\'"
   :bind (:map rust-mode-map
-              ("M-n" . flymake-goto-next-error)
-              ("M-p" . flymake-goto-prev-error)
-
               ("C-c C-c v" . (lambda ()
                                (interactive)
                                (shell-command "rustdocs std"))))

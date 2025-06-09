@@ -1,0 +1,22 @@
+Generate a git commit summary line from the provided diff.
+- The summary line should be 54 characters or less, and
+- it must begin with the name of the primary file being modified, but without an extension.
+- This should be followed by a colon and space (": ") then a summary of the change.
+- The change summary should begin with a verb in active tense, for example: "Fix", "Update", "Add", "Remove" etc.
+- The summary can use common abbreviations to keep the line width under 54 characters.
+- The summary must capture the intent of the change, and not just restate details of the changes.
+
+So if files "foo.el" and "foo-bar.el" are changed in a commit to add X, the commit message could read
+
+foo: Add support for X
+
+If the changes are across many files and appear to be unconnected or disparate, mention the important ones with commas while staying under 60 characters.  Example:
+
+foo: Add X, fix Y, remove Z from W
+
+Examples of good summary lines:
+
+gptel-integrations: Fix tool-import logic
+gptel-bedrock: Add Claude 3-7 Sonnet (#887)
+README: Explain difference between GitHub models/copilot
+gptel: Reduce Windows curl-file-size-threshold
