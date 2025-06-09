@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2024 John Wiegley
 
-;; Author: John Wiegley <jwiegley@gmail.com>
+;; Author: John Wiegley <johnw@gnu.org>
 ;; Created: 9 Apr 2023
 ;; Version: 1.0
 ;; Keywords: org capture task todo context

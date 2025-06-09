@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2024 John Wiegley
 
-;; Author: John Wiegley <jwiegley@gmail.com>
+;; Author: John Wiegley <johnw@gnu.org>
 ;; Created: 9 Apr 2023
 ;; Version: 1.0
 ;; Keywords: org capture task todo context
@@ -320,8 +320,8 @@ Operates on region when called interactively."
 
 (defun org-ext-todoize (&optional arg)
   "Add standard metadata to a headline.
-With `C-u' ARG, regenerate ID even if one already exists.
-With `C-u C-u', set the keyword to TODO, without logging.
+With \\[universal-argument] ARG, regenerate ID — even if one already exists.
+If ARG is repeated twice, set keyword to TODO, without logging.
 If the headline title end with a (HH:MM) style time offset, this
 text will be moved into an OFFSET property."
   (interactive "P")
@@ -467,6 +467,9 @@ This is true even if there are intervening categories or other headings."
 (defalias 'org-ext-habit-p #'org-is-habit-p)
 
 (defun org-ext-has-preceding-todo-p ()
+  "Return non-nil if current heading has a preceding TODO in parent.
+Checks ancestors for todo entries while avoiding infinite recursion loops.
+Uses `org-up-heading-safe' and `org-ext-task-p' for heading validation."
   (let ((here (point)))
     (save-excursion
       (when (org-up-heading-safe)
@@ -477,16 +480,28 @@ This is true even if there are intervening categories or other headings."
                    (org-ext-has-preceding-todo-p))))))))
 
 (defun org-ext-agenda-files-but-not-meetings ()
+  "Return agenda files excluding meeting and Assembly directories.
+Filters out files matching regex patterns from the function
+`org-agenda-files'. Uses `cl-delete-if' and `string-match-p' for path
+filtering."
   (cl-delete-if
    (apply-partially #'string-match-p
                     "/\\(meeting\\|local-spiritual-assembly\\)/")
    (org-agenda-files)))
 
 (defun org-ext-team-files ()
+  "Get all .org files in kadena/team directory as agenda files.
+Expands path from `org-directory' variable and returns file names.
+Uses `directory-files' with full path and .org extension filter."
   (directory-files (expand-file-name "kadena/team" org-directory)
                    t "\\.org\\'"))
 
 (defun org-ext-refine-refile-targets (orig-func &optional default-buffer)
+  "Refine refile targets to include only files matching the pattern.
+Uses rx syntax to match either '/' or specific org directory name.
+Removes invalid targets via `cl-delete-if'.
+This is intended to be used by `advice-add', so that ORIG-FUNC is called
+with the passed argument DEFAULT-BUFFER."
   (let ((targets (funcall orig-func default-buffer)))
     (cl-delete-if
      #'(lambda (target)
@@ -502,6 +517,9 @@ This is true even if there are intervening categories or other headings."
      targets)))
 
 (defun org-ext-refile-heading-p ()
+  "Check if current heading is a valid refile target heading.
+Returns t when either has explicit REFILE property with value
+other than \"no\", or is a category or project heading."
   (let ((refile (org-ext-entry-get-immediate "REFILE")))
     (if refile
         (not (string= refile "no"))
@@ -509,6 +527,9 @@ This is true even if there are intervening categories or other headings."
           (org-ext-project-p)))))
 
 (defun org-ext-sort-all ()
+  "Sort all valid headings in the buffer by priority and order.
+Iterates through headlines and sorts TODO entries by property values.
+Silently handles errors during sorting operations."
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -523,14 +544,15 @@ This is true even if there are intervening categories or other headings."
       (forward-line))))
 
 (defun org-ext-id-copy ()
+  "Copy current entry's ID to kill ring and display notification.
+If no ID exists, creates one before copying. Shows message with the copied ID."
   (interactive)
   (org-id-copy)
   (message "Copied id:%s to the kill ring" (car kill-ring)))
 
 ;;; From https://gist.github.com/MenacingMecha/11bd07daaaac790620b5fe0437e96a4c
 (defun org-ext-set-blocker-from-clipboard-id ()
-  "Adds the id in the clipboard (obtained using `org-id-copy') to
-the current headlines BLOCKER property."
+  "Add id in clipboard (obtained using `org-id-copy') to BLOCKER property."
   (interactive)
   (if (not (derived-mode-p 'org-mode))
       (message "Not in org buffer.")
@@ -550,8 +572,9 @@ the current headlines BLOCKER property."
 
 ;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
 (defun org-ext-open-all-links-in-subtree ()
-  "Open all the links in the current subtree.
-Note: this uses Org's internal variable `org-link--search-failed'."
+  "Open all links in current subtree.
+Uses internal `org-link--search-failed' variable.
+Silently opens all links until no more can be opened. For link navigation."
   (interactive)
   (save-excursion
     (save-restriction
@@ -565,6 +588,9 @@ Note: this uses Org's internal variable `org-link--search-failed'."
           (org-open-at-point))))))
 
 (defun org-ext-get-properties (&rest props)
+  "Get current entry's level and specified PROPS as list.
+Converts \"ITEM_BY_ID\" prop to a link using ID and ITEM properties.
+Returns cons cell: (level . property-values)"
   (cons (org-current-level)
         (mapcar #'(lambda (prop)
                     (if (string= "ITEM_BY_ID" prop)
@@ -577,14 +603,17 @@ Note: this uses Org's internal variable `org-link--search-failed'."
 (defun org-ext-needs-review-p ()
   "Return non-nil if a review is needed for task at point.
 A review may be needed if:
-1. There is no LAST_REVIEW property, meaning this task has never
-   been reviewed.
-2. The NEXT_REVIEW property indicates a date in the past."
+1. There is no LAST_REVIEW property
+2. The NEXT_REVIEW property has passed"
   (or (not (org-review-last-review-prop nil))
       (org-review-toreview-p)))
 
 (defun org-ext-report-items-to-be-reviewed ()
-  "Report items pending review after one second."
+  "Report items pending review after one second.
+Uses `org-ql-query' to find tasks that need review based on:
+- Active todo status
+- Missing ARCHIVE tag
+- Presence of SCHEDULED/DEADLINE or active timestamp"
   (run-with-timer
    1 nil
    #'(lambda ()
@@ -609,6 +638,9 @@ A review may be needed if:
   :type '(repeat (cons string string)))
 
 (defun org-ext-edit-link-name (name)
+  "Replace current Org link description with NAME while preserving ID.
+NAME is selected via completion from `org-ext-link-names' list.
+Interactive: selects from available link names."
   (interactive
    (list (completing-read "Name: " (mapcar #'car org-ext-link-names))))
   (save-excursion
@@ -617,6 +649,9 @@ A review may be needed if:
       (replace-match name t t nil 2))))
 
 (defun org-ext-fixup-slack (&optional arg)
+  "Clean up Slack export formatting in current buffer.
+Removes extra spacing, emojis, time markers and formats conversation
+history. When ARG is non-nil, skips final `fill-region' call."
   (interactive "P")
   (whitespace-cleanup)
   (goto-char (point-min))
@@ -647,7 +682,8 @@ A review may be needed if:
 ;;; This function was inspired by Sacha Chua at:
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
 (defun org-ext-move-subtree-to-point (uuid)
-  "Prompt for a heading and refile it to point."
+  "Prompt for a heading and refile it to point using UUID.
+Narrows to heading with `org-id-find', copies subtree, and pastes at current location."
   (interactive (list (vulpea-note-id (vulpea-select "Heading"))))
   (cl-destructuring-bind (file . pos)
       (org-id-find uuid)
@@ -662,6 +698,9 @@ A review may be needed if:
       (org-paste-subtree nil nil nil t))))
 
 (defun org-ext-prune-log-entries (days)
+  "Remove LOGBOOK entries older than DAYS days.
+Narrow to LOGBOOK section and delete entries beyond age threshold.
+DAYS is the number of days to retain history."
   (interactive "Number of days to keep: ")
   (save-excursion
     (org-back-to-heading)
@@ -681,10 +720,15 @@ A review may be needed if:
                 (delete-region start (point-max)))))))))
 
 (defun org-ext-prune-ninety-days-of-logs ()
+  "Prune log entries older than 90 days.
+Calls `org-ext-prune-log-entries' with fixed 90-day parameter."
   (interactive)
   (org-ext-prune-log-entries 90))
 
 (defun org-ext-read-names (file)
+  "Read link names from FILE's table and return as list.
+Parses table entries in format [[id:...][NAME]] with optional page links.
+Used to populate `org-ext-link-names' list."
   (with-temp-buffer
     (insert-file-contents-literally file)
     (goto-char (point-min))
@@ -699,6 +743,9 @@ A review may be needed if:
       result)))
 
 (defun org-ext-update-team ()
+  "Update `org-ext-link-names' and keybindings from team.org file.
+Reads names from file and defines s-KEY shortcuts to call
+`org-ext-edit-link-name' with the appropriate name."
   (interactive)
   (let ((file (org-file org-constants-kadena-team-file)))
     (setq org-ext-link-names (org-ext-read-names file))
@@ -713,11 +760,17 @@ A review may be needed if:
     (message "Team names and quick keys updated")))
 
 (defun org-ext-update-team-after-save ()
+  "Hook function to update team when team.org is saved.
+Checks buffer filename against `org-constants-kadena-team-file' to avoid
+processing unrelated buffers."
   (when (and (eq major-mode 'org-mode)
              (string-match org-constants-kadena-team-file (buffer-file-name)))
     (org-ext-update-team)))
 
 (defun org-ext-unlink-region (&optional beg end)
+  "Remove Org link markup in region from BEG to END.
+If BEG and END not specified, operates on entire buffer.
+Replaces [[link][description]] with plain description."
   (interactive)
   (save-restriction
     (narrow-to-region (or beg (point-min)) (or end (point-max)))
@@ -726,20 +779,28 @@ A review may be needed if:
       (replace-match (match-string 2)))))
 
 (defun org-ext-follow-tag-link (tag)
-  "Display a list of TODO headlines with tag TAG.
-With prefix argument, also display headlines without a TODO keyword."
+  "Display a list of TODO headlines with TAG.
+With prefix argument, also display headlines without TODO keyword.
+Uses `org-tags-view' for filtering."
   (org-tags-view (null current-prefix-arg) tag))
 
 (defun org-ext-yank-link ()
+  "Insert all clipboard links as plain text with custom formatting.
+Uses `org-insert-all-links' with headline prefix *** and line break."
   (interactive)
   (org-insert-all-links nil "*** " "\n"))
 
 (defun org-ext-gnus-drop-link-parameter (param)
+  "Remove PARAM from `org-link-parameters'.
+Prevents org-link from interpreting specific link types.
+Useful for cleaning up custom link handlers."
   (setq org-link-parameters
         (cl-delete-if #'(lambda (x) (string= (car x) param))
                       org-link-parameters)))
 
 (defun org-ext-message-reply ()
+  "Compose email reply to message linked in current Org entry.
+Extracts Author and Subject properties from the entry for email header."
   (interactive)
   (let* ((org-marker (get-text-property (point) 'org-marker))
          (author (org-entry-get (or org-marker (point)) "Author"))
@@ -752,6 +813,9 @@ With prefix argument, also display headlines without a TODO keyword."
     (compose-mail-other-window author (concat "Re: " subject))))
 
 (defun org-ext-sort-done-tasks ()
+  "Sort DONE tasks by inactive timestamp and clean empty lines.
+Groups completed tasks together and removes extra newlines.
+Intended for task management workflow optimization."
   (interactive)
   (goto-char (point-min))
   (org-sort-entries t ?F #'org-get-inactive-time #'<)
@@ -768,6 +832,8 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-overview))
 
 (defun org-ext-get-message-link (&optional title)
+  "Create message:// link for current Gnus article.
+TITLE optionally specifies the link description text."
   (let (message-id subject)
     (with-current-buffer gnus-original-article-buffer
       (setq message-id (substring (message-field-value "message-id") 1 -1)
@@ -776,25 +842,33 @@ With prefix argument, also display headlines without a TODO keyword."
                           (rfc2047-decode-string subject))))
 
 (defun org-ext-insert-message-link (&optional arg)
+  "Insert message link at point with optional label.
+With prefix ARG, uses \"writes\" as link label instead of subject."
   (interactive "P")
   (insert (org-ext-get-message-link (if arg "writes"))))
 
 (defun org-ext-set-message-link ()
-  "Set a property for the current headline."
+  "Set Message property to message:// link of current article.
+Associates Org entry with Gnus email for reference tracking."
   (interactive)
   (org-set-property "Message" (org-ext-get-message-link)))
 
 (defun org-ext-get-message-sender ()
+  "Get sender of current Gnus article.
+Returns raw From: header for use in Org property storage."
   (with-current-buffer gnus-original-article-buffer
     (message-field-value "from")))
 
 (defun org-ext-set-message-sender ()
-  "Set a property for the current headline."
+  "Set Submitter property to current article's sender.
+Stores the Gnus From: header as Org property."
   (interactive)
   (org-set-property "Submitter" (org-ext-get-message-sender)))
 
 (defun org-ext-set-url-from-clipboard (&optional arg)
-  "Set a property for the current headline."
+  "Set URL property from clipboard content.
+If ARG is non-nil, uses stored links instead of clipboard. Toggles LINK tag.
+Preserves existing URL2 property when URL exists."
   (interactive "P")
   (org-back-to-heading)
   (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
@@ -804,6 +878,9 @@ With prefix argument, also display headlines without a TODO keyword."
   (org-toggle-tag "LINK" 'on))
 
 (defun org-ext-get-inactive-time ()
+  "Get time of last state change or creation as float.
+Uses `org-encode-time' and `org-time-string-to-time' for conversion.
+Falls back to current time when no valid timestamp found."
   (float-time (org-time-string-to-time
                (or (org-entry-get (point) "TIMESTAMP")
                    (org-entry-get (point) "TIMESTAMP_IA")
@@ -811,6 +888,9 @@ With prefix argument, also display headlines without a TODO keyword."
                    (debug)))))
 
 (defun org-ext-open-map-link ()
+  "Open Apple Maps with location coordinates from LOCATION property.
+Requires Apple Maps on macOS and osm package for alternative view.
+Error when no LOCATION property exists."
   (interactive)
   (let ((location (org-entry-get (point) "LOCATION")))
     (if location
@@ -822,6 +902,10 @@ With prefix argument, also display headlines without a TODO keyword."
       (error "Entry has no location set"))))
 
 (defun org-ext-linkify ()
+  "Convert plain text references to Org links.
+Handles:
+- VER/SDK references (e.g., \"VER-123\")
+- Quill issue references (e.g., \"quill#123\")"
   (interactive)
   (goto-char (point-min))
   (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
@@ -832,6 +916,8 @@ With prefix argument, also display headlines without a TODO keyword."
     (goto-char (match-end 0))))
 
 (defun org-ext-save-org-mode-files ()
+  "Save all modified Org-mode buffers with associated files.
+Intended for use in buffer management hooks to auto-save changes."
   (dolist (buf (buffer-list))
     (with-current-buffer buf
       (when (eq major-mode 'org-mode)
@@ -839,6 +925,9 @@ With prefix argument, also display headlines without a TODO keyword."
             (save-buffer))))))
 
 (defun org-ext-current-tags (depth)
+  "Get tags at DEPTH levels up in heading hierarchy.
+Returns nil if current heading lacks tags at specified depth.
+Used for contextual tag inheritance."
   (save-excursion
     (ignore-errors
       (let (should-skip)
@@ -852,6 +941,9 @@ With prefix argument, also display headlines without a TODO keyword."
         should-skip))))
 
 (defun org-ext-ancestor-keywords ()
+  "Collect todo keywords from ancestor headings in hierarchy.
+Returns list of todo states from parent headings above current entry.
+Uses recursive ascent with `org-up-heading-safe'."
   (save-excursion
     (let ((had-parent (org-up-heading-safe)))
       (delete nil
@@ -860,7 +952,8 @@ With prefix argument, also display headlines without a TODO keyword."
                       (org-ext-ancestor-keywords)))))))
 
 (defun org-ext-insert-code-block ()
-  "Replace ``` with an Org code block."
+  "Convert triple-backtick to Org code block.
+Triggers when three backticks are typed in sequence. Sets appropriate language."
   (when (let* ((keys (recent-keys))
                (n (length keys)))
           (and (eq ?` (aref keys (- n 1)))
@@ -876,6 +969,8 @@ With prefix argument, also display headlines without a TODO keyword."
       (forward-line -1))))
 
 (defsubst org-ext-setup-insert-code-block ()
+  "Setup hook to auto-create code blocks after triple-backtick.
+Adds `org-ext-insert-code-block' to `post-self-insert-hook'."
   (add-hook 'post-self-insert-hook #'org-ext-insert-code-block nil t))
 
 (provide 'org-ext)

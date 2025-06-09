@@ -193,6 +193,18 @@
   :rewrite-message "Proofread as instructed."
   :parents 'rewrite)
 
+(gptel-make-preset 'docstring
+  :description "Add missing Emacs Lisp docstrings"
+  :rewrite-directive 'emacs
+  :rewrite-message
+  (concat "Rewrite: Add informative docstrings for all functions that are"
+          " missing documentation. Only add the documentation, do not"
+          " remove any code. Preserve all existing code as is, simply edit"
+          " the text to insert the missing docstring. Do not provide any"
+          " rationale or explanation, and do not enclose any of the existing"
+          " code within progn blocks.")
+  :parents 'rewrite)
+
 (defun gptel-ext-shorten ()
   "Given a selected set of Org-mode headings, shorten them."
   (interactive)
