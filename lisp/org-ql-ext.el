@@ -1,3 +1,37 @@
+;;; org-ql-ext --- Extra functions for use with Org-ql
+
+;; Copyright (C) 2024 John Wiegley
+
+;; Author: John Wiegley <jwiegley@gmail.com>
+;; Created: 9 Apr 2023
+;; Version: 1.0
+;; Keywords: org capture task todo context
+;; X-URL: https://github.com/jwiegley/dot-emacs
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
+;;; Commentary:
+
+;;; Code:
+
+(require 'cl-lib)
+(eval-when-compile
+  (require 'cl)
+  (require 'cl-macs))
+
 (require 'org)
 (require 'org-ext)
 (require 'org-ql)
@@ -98,4 +132,79 @@
       (org-ql-find (org-agenda-files)
                    :query-prefix query-prefix)))))
 
+(defun org-dblock-write:ql-columnview (params)
+  "Create a table view of an org-ql query.
+
+Example:
+
+#+begin: ql-columnview :query \"(and (tags \\\"John\\\") (todo))\" :properties \"TODO ITEM_BY_ID LAST_REVIEW NEXT_REVIEW TAGS\" :sort-idx 4
+#+end:
+
+The :sort-idx takes the 1-indexed column mentioned in
+:properties, interprets it as an Org-time, and sorts the
+resulting table on that column, ascending."
+  (let* ((columns (split-string (or (plist-get params :properties)
+                                    "TODO ITEM_BY_ID TAGS")
+                                " "))
+         (sort-index (plist-get params :sort-idx))
+         (query
+          `(and (not (or (org-ext-project-p)
+                         (org-ext-category-p)))
+
+                ;; Handle :query and :who keywords
+                ,(let ((query (plist-get params :query))
+                       (who (plist-get params :who)))
+                   (when who
+                     (setq who (format "(tasks-for \"%s\")" who)))
+                   (read (if (and query who)
+                             (format "(or %s %s)" who query)
+                           (or query who))))
+
+                ;; Handle :review-by keyword
+                ,(let ((review-by (plist-get params :review-by)))
+                   (if review-by
+                       (read (format
+                              "(property-ts \"NEXT_REVIEW\" :to \"%s\")"
+                              review-by))
+                     t))))
+         (table
+          (org-ql-select 'org-agenda-files query
+            :action `(org-ext-get-properties ,@columns)
+            :sort
+            #'(lambda (x y)
+                (when sort-index
+                  (let ((x-value (nth sort-index x))
+                        (y-value (nth sort-index y)))
+                    (when (and x-value y-value)
+                      (time-less-p
+                       (org-encode-time
+                        (org-parse-time-string x-value))
+                       (org-encode-time
+                        (org-parse-time-string y-value))))))))))
+    ;; Add column titles and a horizontal rule in front of the table.
+    (setq table (cons columns (cons 'hline table)))
+    (let ((hlines nil)
+          new-table)
+      ;; Copy header and first rule.
+      (push (pop table) new-table)
+      (push (pop table) new-table)
+      (dolist (row table (setq table (nreverse new-table)))
+        (let ((level (car row)))
+	  (when (and (not (eq (car new-table) 'hline))
+		     (or (eq hlines t)
+			 (and (numberp hlines) (<= level hlines))))
+	    (push 'hline new-table))
+	  (push (cdr row) new-table))))
+    (save-excursion
+      ;; Insert table at point.
+      (insert
+       (mapconcat (lambda (row)
+		    (if (eq row 'hline) "|-|"
+		      (format "|%s|" (mapconcat #'identity row "|"))))
+		  table
+		  "\n")))
+    (org-table-align)))
+
 (provide 'org-ql-ext)
+
+;;; org-ql-ext.el ends here
