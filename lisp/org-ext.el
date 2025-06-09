@@ -53,6 +53,9 @@
 (defalias 'org-ext-up-heading #'outline-up-heading)
 
 (defun org-ext-goto-inbox-heading ()
+  "Move to Inbox heading in file specified by `org-constants-todo-path'.
+Checks for proper file structure: blank line after header, Inbox heading
+at top level. Signals error if formatting is incorrect."
   (set-buffer (get-buffer (file-name-nondirectory org-constants-todo-path)))
   (goto-char (point-min))
   (while (looking-at "^[:#]")
@@ -66,6 +69,9 @@
            (file-name-nondirectory org-constants-todo-path))))
 
 (defun org-ext-goto-inbox (&optional func)
+  "Navigate to the Inbox section in todo file.
+When optional FUNC is provided, execute it within the Inbox context.
+Interactively opens the file and positions cursor at first todo item."
   (interactive)
   (with-current-buffer
       (funcall (if func
@@ -85,6 +91,9 @@
         (forward-line 1)))))
 
 (defun org-ext-reformat-draft ()
+  "Convert Drafts.app content into org link/note format.
+Handles URL conversion, note tagging, and removes empty TAGS lines.
+Intended for use with `org-capture' templates."
   ;; If there is a URL, this is a LINK.
   (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0)))
@@ -112,7 +121,7 @@
   ;; If there are no tags, delete that property.
   (goto-char (point-min))
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
-    (delete-region (match-beginning 0) (match-end 0)))) 
+    (delete-region (match-beginning 0) (match-end 0))))
 
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -187,6 +196,8 @@ but fold drawers."
     (select-window win)))
 
 (defun org-ext-prep-window (wind)
+  "Adjust window size and layout of WIND for optimal agenda viewing.
+Resizes specified window to 100 columns and fits buffer content."
   (select-window wind)
   (org-fit-window-to-buffer wind)
   (ignore-errors
@@ -195,6 +206,9 @@ but fold drawers."
      (- 100 (window-width wind)) t)))
 
 (defun org-ext-jump-to-agenda ()
+  "Navigate to org agenda window, creating one if needed.
+Preserves window configuration and ensures proper display setup. Uses
+variable `org-agenda-files' for content sourcing."
   (interactive)
   (push-window-configuration)
   (let ((buf (or (get-buffer "*Org Agenda*")
@@ -217,6 +231,8 @@ but fold drawers."
       (funcall #'org-ext-prep-window (selected-window)))))
 
 (defun org-ext-agenda-redo (&optional all)
+  "Refresh agenda view and optimize window layout.
+When ALL is non-nil, forces full refresh of all agenda buffers."
   (interactive)
   (org-agenda-redo all)
   (push-window-configuration)
@@ -270,6 +286,8 @@ after :END:."
             (set-buffer-modified-p modified))))))
 
 (defun org-ext-fix-all-properties ()
+  "Reposition properties blocks throughout current buffer.
+Scans all headlines and fixes misplaced property drawers."
   (interactive)
   (while (re-search-forward "^\\*" nil t)
     (ignore-errors
@@ -277,6 +295,8 @@ after :END:."
     (forward-line 1)))
 
 (defun org-ext-update-date-field ()
+  "Set #+date property based on file's name timestamp.
+Extracts date from filename pattern YYYYMMDD and formats as inactive timestamp."
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -285,6 +305,9 @@ after :END:."
       (org-insert-time-stamp (current-time) t t))))
 
 (defun org-ext-reformat-time (&optional beg end)
+  "Reformat time string in selected region (BEG to END) to org standard.
+Converts arbitrary time formats into canonical inactive timestamps.
+Operates on region when called interactively."
   (interactive "r")
   (let ((date-string (buffer-substring beg end)))
     (save-excursion
@@ -313,8 +336,8 @@ text will be moved into an OFFSET property."
       (org-todo "TODO")))
   (run-hooks 'org-capture-before-finalize-hook))
 
-(defun org-ext-switch-todo-link (&optional arg)
-  "Switch a LINK to a TODO with a LINK tag, and vice-versa."
+(defun org-ext-switch-todo-link (&optional _arg)
+  "Switch LINK to TODO with LINK tag, and vice-versa."
   (interactive "P")
   (let ((org-inhibit-logging t))
     (if (member "LINK" (org-get-tags))
@@ -325,8 +348,8 @@ text will be moved into an OFFSET property."
       (org-set-tags (delete-dups (cons "LINK" (org-get-tags)))))))
 
 (defun org-ext-todoize-region (&optional beg end arg)
-  "Add standard metadata to headlines in region.
-See `org-ext-todoize'."
+  "Add standard metadata to headlines in region BEG to END.
+See `org-ext-todoize', which uses argument ARG."
   (interactive "r\nP")
   (save-excursion
     (goto-char beg)
@@ -340,7 +363,7 @@ See `org-ext-todoize'."
 (defvar org-ext-property-search-name nil)
 
 (defun org-ext-with-property-search (property value)
-  "Search by WITH propery, which is made inheritable for this function."
+  "Search for PROPERTY, having VALUE."
   (interactive
    (list (setq org-ext-property-search-name (org-read-property-name))
          (completing-read "Value: "
@@ -351,6 +374,8 @@ See `org-ext-todoize'."
      t (format "%s={%s}&TODO={TODO\\|WAIT\\|TASK}" property value))))
 
 (defun org-ext-created-from-stamp ()
+  "Set CREATED property using filename-based timestamp.
+Derives date from YYYYMMDD filename pattern for journal entries."
   (interactive)
   (let* ((name (file-name-nondirectory (buffer-file-name)))
          (year (string-to-number (substring name 0 4)))
@@ -363,6 +388,8 @@ See `org-ext-todoize'."
                      (buffer-string)))))
 
 (defun org-ext-insert-structure-template-and-yank (type)
+  "Insert org structure template having TYPE and paste content.
+Intended for use with yasnippet or similar expansion systems."
   (interactive
    (list (pcase (org--insert-structure-template-mks)
 	   (`("\t" . ,_) (read-string "Structure type: "))
@@ -371,6 +398,8 @@ See `org-ext-todoize'."
   (yank))
 
 (defun org-ext-parent-priority ()
+  "Get priority from closest parent heading.
+Returns priority letter (A-C) or nil if none found."
   (save-excursion
     (org-up-heading-safe)
     (save-match-data
@@ -379,9 +408,13 @@ See `org-ext-todoize'."
 	   (org-get-priority (match-string 0))))))
 
 (defsubst org-ext-agenda-files-except (&rest args)
+  "Return agenda files excluding those matching ARGS.
+Used to filter out special directories from agenda views."
   (cl-set-difference org-agenda-files args))
 
 (defun org-ext-entry-get-immediate (property)
+  "Get PROPERTY value without inheritance.
+Returns first matching property in current entry."
   (save-excursion
     (let ((local (org--property-local-values property nil)))
       (and local (mapconcat #'identity
@@ -393,6 +426,8 @@ See `org-ext-todoize'."
   (not (null (org-ext-entry-get-immediate "CATEGORY"))))
 
 (defun org-ext--first-child-todo (&optional pred)
+  "Internal function to find child todo entries.
+Optionally accepts PRED to filter child entries."
   (save-excursion
     (when (org-goto-first-child)
       (cl-loop for loc = (or (and (org-entry-is-todo-p)
@@ -404,6 +439,9 @@ See `org-ext-todoize'."
                while (org-get-next-sibling)))))
 
 (defsubst org-ext-first-child-todo (&optional pred)
+  "Return point of first child todo entry.
+Useful for determining project status in org hierarchy.
+Optionally accepts PRED to filter child entries."
   (catch 'has-child-todo (org-ext--first-child-todo pred)))
 
 (defsubst org-ext-project-p ()
