@@ -33,29 +33,50 @@
 
 (require 'cl-lib)
 (require 'cl-macs)
-(eval-when-compile
-  (require 'cl))
 
 (defgroup hash-store nil
   "Content-addressable file storage using SHA512 hashes."
   :group 'files)
 
+(defcustom hash-store-algorithm 'sha512_256
+  "Default algorithm to use when hashing store entries."
+  :type
+  '(choice
+    (const :tag "MD5, produces a 32-character signature" md5)
+    (const :tag "SHA-1, produces a 40-character signature" sha1)
+    (const :tag "SHA-2 (SHA-224), produces a 56-character signature" sha224)
+    (const :tag "SHA-2 (SHA-256), produces a 64-character signature" sha256)
+    (const :tag "SHA-2 (SHA-384), produces a 96-character signature" sha384)
+    (const :tag "SHA-2 (SHA-512), produces a 128-character signature" sha512)
+    (const :tag "SHA-2 (SHA512-256), produces a 64-character signature"
+           sha512_256))
+  :group 'hash-store)
+
 (defcustom hash-store-directory "~/.emacs.d/hash-store"
   "*Directory where hash-store files are stored.
-
 Files are organized in subdirectories based on their hash values.
-For example, a file with hash 08b8c2c0593d64e1fcd0da2e3d1ce380db4b86b339a260c4e05a47b2558bf2e1
+For example, a file with hash
+ 08b8c2c0593d64e1fcd0da2e3d1ce380db4b86b339a260c4e05a47b2558bf2e1
 would be stored at:
 08/b8/c2c0593d64e1fcd0da2e3d1ce380db4b86b339a260c4e05a47b2558bf2e1"
   :type 'directory
   :group 'hash-store)
 
-(defun hash-store-compute-hash (file)
-  "Compute SHA512 hash of FILE and return first 256 bits as hex string."
+(defun hash-store-compute-hash (string &optional algorithm)
+  "Compute ALGORITHM hash of STRING and return hash as hex string.
+If algorithm is nil, use the value of `hash-store-algorithm'."
+  (let* ((algo (or algorithm hash-store-algorithm))
+         (hash (secure-hash (if (eq algo 'sha512_256) 'sha512 algo)
+                            string)))
+    (if (eq algo 'sha512_256) (substring hash 0 64) hash)))
+
+(defun hash-store-compute-file-hash (file &optional algorithm)
+  "Compute ALGORITHM hash of FILE and return hash as hex string.
+If algorithm is nil, use the value of `hash-store-algorithm'."
   (with-temp-buffer
     (set-buffer-multibyte nil)
     (insert-file-contents-literally file)
-    (substring (secure-hash 'sha512 (buffer-string)) 0 64)))
+    (hash-store-compute-hash (buffer-string) algorithm)))
 
 (defun hash-store-hash-to-path (hash)
   "Convert HASH to the full path in the hash store."
@@ -81,13 +102,29 @@ If MOVE is non-nil, move the file instead of copying it.
 Returns the hash of the stored file."
   (unless (file-exists-p file)
     (error "File does not exist: %s" file))
-  (let* ((hash (hash-store-compute-hash file))
+  (let* ((hash (hash-store-compute-file-hash file))
          (dest-path (hash-store-hash-to-path hash)))
     (unless (file-exists-p dest-path)
       (hash-store-ensure-directory hash)
       (if move
           (rename-file file dest-path)
         (copy-file file dest-path))
+      ;; Make the file read-only in the filesystem
+      (set-file-modes dest-path (logand (file-modes dest-path)
+                                        (lognot #o222))))
+    hash))
+
+(defun hash-store-save (contents)
+  "Add CONTENTS to the hash store.
+Returns the hash of the stored file."
+  (let* ((hash (hash-store-compute-hash contents))
+         (dest-path (hash-store-hash-to-path hash)))
+    (unless (file-exists-p dest-path)
+      (hash-store-ensure-directory hash)
+      (with-temp-buffer
+        (set-buffer-multibyte nil)
+        (insert contents)
+        (write-file dest-path))
       ;; Make the file read-only in the filesystem
       (set-file-modes dest-path (logand (file-modes dest-path)
                                         (lognot #o222))))
@@ -100,7 +137,7 @@ Returns nil if the file doesn't exist or verification fails."
   (let ((path (hash-store-hash-to-path hash)))
     (when (file-exists-p path)
       (if verify
-          (when (string= hash (hash-store-compute-hash path))
+          (when (string= hash (hash-store-compute-file-hash path))
             path)
         path))))
 
@@ -110,7 +147,7 @@ Returns t if valid, nil otherwise."
   (let* ((relative-path (file-relative-name file hash-store-directory))
          (parts (split-string relative-path "/"))
          (expected-hash (concat (nth 0 parts) (nth 1 parts) (nth 2 parts)))
-         (actual-hash (hash-store-compute-hash file)))
+         (actual-hash (hash-store-compute-file-hash file)))
     (string= expected-hash actual-hash)))
 
 (defun hash-store-verify ()

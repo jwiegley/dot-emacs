@@ -34,36 +34,12 @@
 (require 'solar)
 (require 'gptel)
 
-(defconst gptel-ext-rewrite-use-remote nil
+(defconst gptel-ext-rewrite-use-remote t
   "Non-nil if we should use remote models (local is unavailable?).")
 
 (defsubst gptel-ext-insert-no-think ()
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
-
-(gptel-make-preset 'quick
-  :post #'(lambda ()
-            (add-hook 'gptel-prompt-transform-functions
-                      #'gptel-ext-insert-no-think nil 'local)))
-
-(gptel-make-preset 'rewrite
-  :description "Model used for basic rewrites"
-  :backend
-  (if gptel-ext-rewrite-use-remote
-      "Claude"
-    "llama-swap")
-  :model
-  (if gptel-ext-rewrite-use-remote
-      'claude-sonnet-4-20250514
-    'Qwen3-235B-A22B
-    ;; 'Qwen3-30B-A3B
-    ;; 'DeepSeek-R1-0528-Qwen3-8B
-    )
-  :temperature 0.4
-  :max-tokens 8192
-  :include-reasoning nil
-  :tools nil
-  :parents 'quick)
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
@@ -71,21 +47,35 @@
   :model 'gpt-4.1
   :temperature 1.0)
 
-(gptel-make-preset 'claude
-  :description "Anthropic's Claude, thinking"
+(gptel-make-preset 'sonnet
+  :description "Anthropic's Claude Sonnet, thinking"
   :backend "Claude-thinking"
   :model 'claude-sonnet-4-20250514
   :temperature 1.0)
 
-(gptel-make-preset 'coding
-  :description "Karthik's coding example"
+(gptel-make-preset 'opus
+  :description "Anthropic's Claude Opus, thinking"
   :backend "Claude-thinking"
   :model 'claude-opus-4-20250514
-  :system 'code-infill
-  :tools nil
-  :temperature 1.0
-  :max-tokens nil
-  :include-reasoning 'ignore)
+  :temperature 1.0)
+
+(gptel-make-preset 'qwen
+  :description "Ali Baba's Qwen, thinking"
+  :backend "llama-swap"
+  :model 'Qwen3-235B-A22B
+  :temperature 1.0)
+
+(gptel-make-preset 'r1
+  :description "DeepSeek R1"
+  :backend "llama-swap"
+  :model 'DeepSeek-R1-0528
+  :temperature 0.6)
+
+(gptel-make-preset 'r1q
+  :description "DeepSeek R1, quick"
+  :backend "llama-swap"
+  :model 'DeepSeek-R1-0528-Qwen3-8B
+  :temperature 0.6)
 
 (gptel-make-preset 'web
   :description "Perplexity.ai sonar-pro"
@@ -138,43 +128,58 @@
   :system 'default
   :include-reasoning 'ignore)
 
-(gptel-make-preset 'translate
-  :description "Persian translator"
-  :backend "Claude"
-  :model 'claude-opus-4-20250514
-  :system 'persian
-  :max-tokens 2048)
+(gptel-make-preset 'quick
+  :post #'(lambda ()
+            (add-hook 'gptel-prompt-transform-functions
+                      #'gptel-ext-insert-no-think nil 'local)))
+
+(gptel-make-preset 'rewrite
+  :description "Model used for basic rewrites"
+  :temperature 0.4
+  :max-tokens 8192
+  :include-reasoning nil
+  :tools nil
+  :parents `(quick
+             ,(if gptel-ext-rewrite-use-remote
+                  'sonnet
+                'qwen)))
+
+(gptel-make-preset 'default
+  :description "Default setup"
+  :parents 'qwen
+  :system 'default
+  :confirm-tool-calls 'auto
+  :temperature 0.7
+  :max-tokens 8192
+  :use-context 'user
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'prompt
+  :description "AI prompt refiner"
+  :parents 'opus
+  :system 'prompt
+  :tools nil
+  :temperature 1.0
+  :max-tokens nil
+  :include-reasoning 'ignore)
 
 (gptel-make-preset 'persian
   :description "Persian translator"
-  :backend "Claude"
-  :model 'claude-opus-4-20250514
+  :parents 'opus
   :system 'persian
   :max-tokens 2048)
 
 (gptel-make-preset 'spanish
   :description "Spanish translator"
-  :backend "Claude"
-  :model 'claude-opus-4-20250514
+  :parents 'opus
   :system 'spanish
   :max-tokens 2048)
 
-(gptel-make-preset 'code
-  :description "Expert coder"
-  :backend "Claude"
-  :model 'claude-opus-4-20250514
+(gptel-make-preset 'haskell
+  :description "Expert Haskell coder"
+  :parents 'opus
   :system 'haskell
   :max-tokens 1024)
-
-(gptel-make-preset 'default
-  :description "Default setup"
-  :backend "llama-swap"
-  :model 'Qwen3-235B-A22B
-  :system 'default
-  :confirm-tool-calls 'auto
-  :temperature 0.7
-  :max-tokens 8192
-  :use-context 'user)
 
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
