@@ -132,49 +132,63 @@
       (org-ql-find (org-agenda-files)
                    :query-prefix query-prefix)))))
 
-(defun org-dblock-write:ql-columnview (params)
+(cl-defun org-ext-ql-columnview (&key (properties "TODO ITEM_BY_ID TAGS")
+                                      sort-idx query who review-by
+                                      &allow-other-keys)
   "Create a table view of an org-ql query.
+For example:
 
-Example:
-
-#+begin: ql-columnview :query \"(and (tags \\\"John\\\") (todo))\" :properties \"TODO ITEM_BY_ID LAST_REVIEW NEXT_REVIEW TAGS\" :sort-idx 4
+#+begin: ql-columnview :query \"(todo)\" :properties \"TODO ITEM_BY_ID\"
 #+end:
 
-The :sort-idx takes the 1-indexed column mentioned in
-:properties, interprets it as an Org-time, and sorts the
-resulting table on that column, ascending."
-  (let* ((columns (split-string (or (plist-get params :properties)
-                                    "TODO ITEM_BY_ID TAGS")
-                                " "))
-         (sort-index (plist-get params :sort-idx))
+PROPERTIES, if provided, is a space-separated list of Org
+properties (whether special or explicit) to be included, each as a
+column, in the report. ITEM_BY_ID is accepted as a special case, which
+is morally the same as [[id:ID][ITEM]].
+
+SORT-IDX takes the 1-indexed column mentioned in PROPERTIES, interprets
+it as an Org-time, and sorts the resulting table on that column,
+ascending.
+
+QUERY is any Org-ql query expression.
+
+WHO is a |-separated string of names that will expand to a `tasks-for'
+Org-ql query, which must be defined.
+
+REVIEW-BY takes a date, and only includes those entries whose
+NEXT_REVIEW date is <= that date."
+  (let* ((columns (split-string properties " "))
          (query
           `(and (not (or (org-ext-project-p)
                          (org-ext-category-p)))
 
                 ;; Handle :query and :who keywords
-                ,(let ((query (plist-get params :query))
-                       (who (plist-get params :who)))
-                   (when who
-                     (setq who (format "(tasks-for \"%s\")" who)))
+                ,(let ((topics (split-string who "|")))
+                   (when topics
+                     (setq who
+                           (concat "(tasks-for"
+                                   (mapconcat
+                                    (apply-partially #'format " \"%s\"")
+                                    topics)
+                                   ")")))
                    (read (if (and query who)
                              (format "(or %s %s)" who query)
                            (or query who))))
 
                 ;; Handle :review-by keyword
-                ,(let ((review-by (plist-get params :review-by)))
-                   (if review-by
-                       (read (format
-                              "(property-ts \"NEXT_REVIEW\" :to \"%s\")"
-                              review-by))
-                     t))))
+                ,(if review-by
+                     (read (format
+                            "(property-ts \"NEXT_REVIEW\" :to \"%s\")"
+                            review-by))
+                   t)))
          (table
           (org-ql-select 'org-agenda-files query
             :action `(org-ext-get-properties ,@columns)
             :sort
             #'(lambda (x y)
-                (when sort-index
-                  (let ((x-value (nth sort-index x))
-                        (y-value (nth sort-index y)))
+                (when sort-idx
+                  (let ((x-value (nth sort-idx x))
+                        (y-value (nth sort-idx y)))
                     (when (and x-value y-value)
                       (time-less-p
                        (org-encode-time
@@ -204,6 +218,11 @@ resulting table on that column, ascending."
 		  table
 		  "\n")))
     (org-table-align)))
+
+(defsubst org-dblock-write:ql-columnview (params)
+  "Create a table view of an org-ql query using PARAMS.
+See `org-ext-ql-columnview'."
+  (apply #'org-ext-ql-columnview params))
 
 (provide 'org-ql-ext)
 

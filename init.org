@@ -1634,6 +1634,7 @@ diff-hl package.
 (use-package dired-follow
   :no-require t
   :after dired
+  :demand t
   :bind (:map dired-mode-map
               ("F" . dired-follow-mode))
   :preface
@@ -3601,7 +3602,12 @@ interactively compare and adopt the improved text.
 
 #+begin_src emacs-lisp
 (use-package highlight-defined
-  :commands highlight-defined-mode)
+  :commands highlight-defined-mode
+  :custom
+  (highlight-defined-face-use-itself t)
+  :hook
+  (help-mode . highlight-defined-mode)
+  (emacs-lisp-mode . highlight-defined-mode))
 #+end_src
 
 ** highlight-numbers
@@ -3609,6 +3615,24 @@ interactively compare and adopt the improved text.
 #+begin_src emacs-lisp
 (use-package highlight-numbers
   :hook (prog-mode . highlight-numbers-mode))
+#+end_src
+
+** highlight-quoted
+
+#+begin_src emacs-lisp
+(use-package highlight-quoted
+  :ensure t
+  :hook
+  (emacs-lisp-mode . highlight-quoted-mode))
+#+end_src
+
+** COMMENT highlight-sexp
+
+#+begin_src emacs-lisp
+(use-package highlight-sexp
+  :hook
+  (emacs-lisp-mode . highlight-sexp-mode)
+  (lisp-mode . highlight-sexp-mode))
 #+end_src
 
 ** hilit-chg
@@ -8170,6 +8194,21 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :commands
   (tree-inspector-inspect-expression
    tree-inspector-inspect-expression))
+#+end_src
+
+**** easky
+
+#+begin_src emacs-lisp
+(use-package easky
+  :commands (easky))
+#+end_src
+
+**** flymake-eask
+
+#+begin_src emacs-lisp
+(use-package flymake-eask
+  :hook
+  (eask-mode . flymake-eask-load))
 #+end_src
 
 *** COMMENT fetchmail-mode

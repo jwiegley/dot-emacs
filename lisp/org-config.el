@@ -184,10 +184,12 @@
             -1
           1)))))
 
-(defsubst org-config-meeting-template (keys title file dir &optional prefix)
+(defsubst org-config-meeting-template
+    (keys title file dir &optional prefix location)
   `(,keys ,title plain
           (file ,(expand-file-name file dir))
-          :target (file ,(concat "meeting/%<%Y%m%d%H%M>-"
+          :target (file ,(concat (or location "meeting")
+                                 "/%<%Y%m%d%H%M>-"
                                  (or prefix "") file))
           :immediate-finish t
           :jump-to-captured t
@@ -204,7 +206,7 @@
 
 (defsubst org-config-bahai-meeting (keys title file)
   (org-config-meeting-template
-   keys title file "~/org/template/bahai/meetings"))
+   keys title file "~/org/template/bahai/meetings" nil "bahai"))
 
 (defsubst org-config-call-only (f)
   `(lambda (_arg) (call-interactively (function ,f) nil)))
@@ -483,7 +485,7 @@ SCHEDULED: %t
     (file "~/org/template/meeting.org")
     :target
     (file+head
-     "meeting/%<%Y%m%d%H%M>.org"
+     "bahai/%<%Y%m%d%H%M>.org"
      ,(concat
        "#+category: Bahá’í\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -557,7 +559,7 @@ SCHEDULED: %t
     :no-save t)
 
    ("wT" "Work Team Member" plain
-    (file "~/org/template/team-member.org")
+    (file "~/org/template/kadena/team-member.org")
     :target
     (file "kadena/team/%<%Y%m%d%H%M>.org")
     :immediate-finish t
@@ -706,19 +708,31 @@ SCHEDULED: %t
 
    ("go" "Open source tasks"
     ((org-ql-block
-      '(and (about "Computer" "Emacs" "Org-mode"
+      `(and (about "Computer" "Emacs" "Org-mode" "Ledger"
                    "org-jw" "Nix" "AI" "gptel")
             (todo "TODO" "DOING")
-            (shown)
-            (not (scheduled)))
+            (not (tags "ARCHIVE"))
+            (not (scheduled))
+            (property-ts "NEXT_REVIEW" :to ,(format-time-string "%Y-%m-%d")))
       ((org-ql-block-header "Open source tasks")))))
 
-   ("gw" "Work tasks"
+   ("gw" "Work tasks (needing to be seen)"
     ((org-ql-block
-      '(and (about "kadena")
+      `(and (about "kadena")
+            (not (about ,@org-config-categories-regularly-reviewed))
             (todo "TODO" "DOING" "WAIT" "TASK")
             (not (tags "ARCHIVE"))
-            (not (scheduled)))
+            (not (scheduled))
+            (property-ts "NEXT_REVIEW" :to ,(format-time-string "%Y-%m-%d")))
+      ((org-ql-block-header "Work tasks")))))
+
+   ("gW" "Work tasks (all)"
+    ((org-ql-block
+      `(and (about "kadena")
+            (todo "TODO" "DOING" "WAIT" "TASK")
+            (not (tags "ARCHIVE"))
+            (not (scheduled))
+            (property-ts "NEXT_REVIEW" :to ,(format-time-string "%Y-%m-%d")))
       ((org-ql-block-header "Work tasks")))))
 
    ("gU" "Unnecessary wording"

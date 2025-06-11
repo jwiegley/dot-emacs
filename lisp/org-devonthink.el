@@ -89,11 +89,11 @@ This will use the command `open' with the message URL."
              (string-match "\\`\\(\\[*x-devonthink-item://\\)?\\([-A-Fa-z0-9]+\\)"
                            uuid))
     (let ((base-uuid (match-string 2 uuid)))
-      (read (do-applescript
-             (format "tell application \"DEVONthink 3\"
+      (do-applescript
+       (format "tell application \"DEVONthink 3\"
     set searchResult to get record with uuid \"%s\"
     path of searchResult
-end tell" base-uuid))))))
+end tell" base-uuid)))))
 
 (provide 'org-devonthink)
 
