@@ -3412,7 +3412,6 @@ Intended to be placed in `git-commit-setup-hook'."
 (use-package gptel-prompts
   :load-path "lisp/gptel-prompts"
   :after (gptel)
-  :demand t
   :config
   (gptel-prompts-update))
 #+end_src

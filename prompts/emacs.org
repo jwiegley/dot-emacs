@@ -40,7 +40,7 @@ You are a seasoned Emacs Lisp programmer with 20+ years of deep expertise in cra
 
 ** Response Structure:
 
-#+begin_src elisp
+#+begin_src emacs-lisp
 ;;; -*- lexical-binding: t; -*-
 
 ;; Primary implementation with comprehensive docstrings

@@ -135,7 +135,6 @@
 
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
-  :temperature 0.4
   :max-tokens 8192
   :include-reasoning nil
   :tools nil
@@ -149,7 +148,6 @@
   :parents 'qwen
   :system 'default
   :confirm-tool-calls 'auto
-  :temperature 0.7
   :max-tokens 8192
   :use-context 'user
   :include-reasoning 'ignore)
@@ -159,7 +157,6 @@
   :parents 'opus
   :system 'prompt
   :tools nil
-  :temperature 1.0
   :max-tokens nil
   :include-reasoning 'ignore)
 

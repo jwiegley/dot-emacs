@@ -255,17 +255,16 @@
   ;; From https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html
   (find-file-other-window "/fencepost.gnu.org:/gd/gnuorg/copyright.list"))
 
-(defun scratch ()
+(defun scratch (&optional name)
   (interactive)
-  (let ((current-mode major-mode))
-    (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-    (goto-char (point-min))
-    (when (looking-at ";")
-      (forward-line 4)
-      (delete-region (point-min) (point)))
-    (goto-char (point-max))
-    (when (memq current-mode '(emacs-lisp-mode))
-      (funcall current-mode))))
+  (switch-to-buffer-other-window
+   (get-buffer-create (or name "*scratch*")))
+  (goto-char (point-min))
+  (when (looking-at ";")
+    (forward-line 4)
+    (delete-region (point-min) (point)))
+  (goto-char (point-max))
+  (text-mode))
 
 (defun find-all-macros ()
   (interactive)

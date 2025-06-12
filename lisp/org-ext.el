@@ -973,6 +973,10 @@ Triggers when three backticks are typed in sequence. Sets appropriate language."
 Adds `org-ext-insert-code-block' to `post-self-insert-hook'."
   (add-hook 'post-self-insert-hook #'org-ext-insert-code-block nil t))
 
+(defun org-ext-set-category ()
+  (interactive)
+  (call-interactively #'org-set-property PROPERTY VALUE))
+
 (provide 'org-ext)
 
 ;;; org-ext.el ends here
