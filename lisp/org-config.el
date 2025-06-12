@@ -279,7 +279,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       "* LINK %:description%?
 :PROPERTIES:
 :URL:      %:link
-:END:"
+:END:
+%:initial"
       :prepend t)
 
      ("c" "Checklist" entry
