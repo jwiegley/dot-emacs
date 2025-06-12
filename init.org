@@ -1635,12 +1635,13 @@ diff-hl package.
   :no-require t
   :after dired
   :demand t
-  :bind (:map dired-mode-map
-              ("F" . dired-follow-mode))
+  :hook
+  (dired-mode
+   . (lambda () (bind-key "F" #'dired-follow-mode dired-mode-map)))
   :preface
   (defun do-dired-display-file (_)
     (dired-display-file))
-
+  :config
   (define-minor-mode dired-follow-mode
     "Diplay file at point in dired after a move."
     :lighter " dired-f"
@@ -2988,6 +2989,22 @@ up before you execute another command."
      'default
      #'(lambda (sym val) (set (make-local-variable sym) val)))
     (setq-local gptel--set-buffer-locally t))
+
+  (defun my/gptel-hf-models (server)
+    "Return a list of Lisp symbols representing every HF model installed."
+    (with-temp-buffer
+      (shell-command (format "hf --server %s models" server)
+                     (current-buffer))
+      (goto-char (point-min))
+      (while (re-search-forward "\\(BAAI/\\|sentence-transformers/\\|Warning:\\)" nil t)
+        (delete-region (line-beginning-position) (1+ (line-end-position))))
+      (sort-lines nil (point-min) (point-max))
+      (goto-char (point-max))
+      (insert ")")
+      (goto-char (point-min))
+      (insert "(")
+      (forward-char -1)
+      (read (current-buffer))))
   :config
   ;; These are defvars
   (setq gptel-expert-commands t
@@ -3058,9 +3075,9 @@ up before you execute another command."
       :key gptel-api-key
       :models '(
                 gpt-4.1
-                gpt-4.5-preview
                 gpt-4o
-                o1
+                o3
+                o3-pro-2025-06-10
                 ))
 
     (gptel-make-openai "Groq"
@@ -3077,18 +3094,15 @@ up before you execute another command."
                 qwen-qwq-32b
                 ))
 
-    ;; (gptel-make-openai "OpenRouter"
-    ;;   :host "openrouter.ai"
-    ;;   :endpoint "/api/v1/chat/completions"
-    ;;   :key gptel-api-key
-    ;;   :models '(
-    ;;             codellama/codellama-70b-instruct
-    ;;             google/gemini-pro
-    ;;             google/palm-2-codechat-bison-32k
-    ;;             meta-llama/codellama-34b-instruct
-    ;;             mistralai/mixtral-8x7b-instruct
-    ;;             openai/gpt-3.5-turbo
-    ;;             ))
+    (gptel-make-openai "OpenRouter"
+      :host "openrouter.ai"
+      :endpoint "/api/v1/chat/completions"
+      :key gptel-api-key
+      :models '(
+                deepseek/deepseek-r1-0528:free
+                meta-llama/llama-4-maverick:free
+                qwen/qwen3-235b-a22b:free
+                ))
 
     ;; (gptel-make-openai "lmstudio"
     ;;   :host "127.0.0.1:1234"
@@ -3107,7 +3121,7 @@ up before you execute another command."
       :host "127.0.0.1:8081"
       :protocol "http"
       :models '(
-                DeepSeek-R1-0528
+                Qwen3-30B-A3B
                 ))
 
     ;; (gptel-make-openai "mlx-lm"
@@ -3116,10 +3130,28 @@ up before you execute another command."
     ;;   :models '(
     ;;             ))
 
+    (gptel-make-openai "llama-swap-clio"
+      :host
+      (if (string-match-p "\\<[Cc]lio\\>" system-name)
+          "127.0.0.1:8080"
+        (if (string-match-p "\\<[Hh]era\\>" system-name)
+            "192.168.2.2:8080"
+          "192.168.50.112:8080"))
+      :protocol "http"
+      :models (my/gptel-hf-models "192.168.50.112"))
+
+    (gptel-make-openai "llama-swap-athena"
+      :host
+      (if (string-match-p "\\<[Aa]thena\\>" system-name)
+          "127.0.0.1:8080"
+        "192.168.50.235:8080")
+      :protocol "http"
+      :models (my/gptel-hf-models "192.168.50.235"))
+
     (setq
      gptel-model 'Qwen3-235B-A22B
      gptel-backend
-     (gptel-make-openai "llama-swap"
+     (gptel-make-openai "llama-swap-hera"
        :host
        (if (string-match-p "\\<[Hh]era\\>" system-name)
            "127.0.0.1:8080"
@@ -3128,46 +3160,7 @@ up before you execute another command."
        (if (string-match-p "\\<[Hh]era\\>" system-name)
            "http"
          "https")
-       :models '(
-                 agentica-org/DeepCoder-1.5B-Preview
-                 agentica-org/DeepCoder-14B-Preview
-                 BAAI/bge-m3
-                 CodeLlama-13B-Python
-                 CodeLlama-70B-Python
-                 CodeLlama-7B-Python
-                 DeepSeek-R1-0528
-                 DeepSeek-R1-0528-Qwen3-8B
-                 Llama-3.3-Nemotron-Super-49B-v1
-                 Llama-4-Maverick-17B-128E-Instruct
-                 Llama-4-Scout-17B-16E-Instruct
-                 meta-llama/Llama-4-Scout-17B-16E-Instruct
-                 microsoft/phi-4
-                 microsoft/Phi-4-reasoning-plus
-                 Mistral-Nemo-Instruct-2407
-                 mistralai/Codestral-22B-v0.1
-                 mistralai/Mistral-Nemo-Instruct-2407
-                 mistralai/Mistral-Small-Instruct-2409
-                 mlx-community/DeepSeek-V3-0324-4bit
-                 mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
-                 mlx-community/whisper-large-v3-mlx
-                 nvidia/OpenCodeReasoning-Nemotron-32B
-                 open-thoughts/OpenThinker2-32B
-                 Qwen3-0.6B
-                 Qwen3-1.7B
-                 Qwen3-235B-A22B
-                 Qwen3-30B-A3B
-                 Qwen3-32B
-                 Qwen3-4B
-                 Qwen3-8B
-                 QwQ-32B
-                 r1-1776
-                 r1-1776-distill-llama-70b
-                 sentence-transformers/all-MiniLM-L6-v2
-                 WizardCoder-Python-13B-V1.0
-                 WizardCoder-Python-34B-V1.0
-                 WizardCoder-Python-7B-V1.0
-                 ))
-     ))
+       :models (my/gptel-hf-models "192.168.50.5"))))
 
   (use-package gptel-openai-extras
     :config
@@ -3324,7 +3317,19 @@ Intended to be placed in `git-commit-setup-hook'."
       (when inserted
         (goto-char (point-max)))))
   :config
-  (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes))
+  (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes)
+
+  (defun corsair-open-chat-buffer ()
+    "Open or switch to the GPTel chat buffer and set it up for GPTel."
+    (interactive)
+    (let ((buffer (get-buffer corsair-chat-buffer-name)))
+      (unless buffer
+        (setq buffer (get-buffer-create corsair-chat-buffer-name))
+        (with-current-buffer buffer
+          (unless (derived-mode-p 'org-mode)
+            (org-mode))
+          (gptel-mode)))
+      (switch-to-buffer buffer))))
 #+end_src
 
 *** gptel-ext
@@ -3457,16 +3462,26 @@ interactively compare and adopt the improved text.
   :after (gptel)
   :custom
   (mcp-hub-servers
-   `(("github"
-      :command "github-mcp-server"
+   `(
+     ("brave-search" :command "mcp-server-brave-search")
+     ("fetch" :command "mcp-server-fetch")
+     ("fetch" :command "mcp-server-fetch")
+     ("filesystem" :command "mcp-server-filesystem"
+      :args (,(expand-file-name "~/Products/")))
+     ("gdrive" :command "mcp-server-gdrive")
+     ("git" :command "mcp-server-git")
+     ("github" :command "github-mcp-server"
       :args ("stdio")
       :env (:GITHUB_PERSONAL_ACCESS_TOKEN
             ,(lookup-password "api.github.com" "johnw" 80)))
-     ("filesystem"
-      :command "mcp-server-filesystem"
-      :args (,(expand-file-name "~/Products/")))
-     ("fetch"
-      :command "mcp-server-fetch"))))
+     ("google-maps" :command "mcp-server-google-maps")
+     ("memory" :command "mcp-server-memory")
+     ("postgres" :command "mcp-server-postgres")
+     ("sequential-thinking" :command "mcp-server-sequential-thinking")
+     ("slack" :command "mcp-server-slack")
+     ("sqlite" :command "mcp-server-sqlite")
+     ("time" :command "mcp-server-time")
+     )))
 #+end_src
 
 ** grep
@@ -3993,7 +4008,7 @@ minibuffer change, the region is realigned.
                     (context-menu-mode 1))))))
 #+end_src
 
-** inventory
+** COMMENT inventory
 
 #+begin_src emacs-lisp
 (use-package inventory
@@ -8986,10 +9001,10 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package elpy
   :after (python-mode)
   :demand t
+  :hook
+  (python-mode . elpy-enable)
   :custom
-  (elpy-test-runner 'elpy-test-pytest-runner)
-  :config
-  (elpy-enable))
+  (elpy-test-runner 'elpy-test-pytest-runner))
 #+end_src
 
 *** riscv-mode

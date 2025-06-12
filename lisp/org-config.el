@@ -118,7 +118,10 @@
           '("EVM"
             "PM"
             "JS"
-            "Core"))
+            "Core"
+            "Assembly"
+            "Crmichael"
+            "Feast"))
   "Categories \"regularly reviewed\" that don't need separate review."
   :type '(repeat string)
   :group 'org-config)
@@ -512,7 +515,7 @@ SCHEDULED: %t
     :unnarrowed t
     :no-save t)
 
-   ,(org-config-bahai-meeting "bc" "C2G Admin" "c2g-admin.org")
+   ;; ,(org-config-bahai-meeting "bc" "C2G Admin" "c2g-admin.org")
    ,(org-config-bahai-meeting "bD" "National Convention Delegate Report"
                               "national-convention-delegate-report.org")
    ,(org-config-bahai-meeting "bf" "Ali Nakhjavani Development Fund"
@@ -758,7 +761,7 @@ SCHEDULED: %t
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format ,org-config-standard-columns)))
 
-   ("rR" "Tasks needing review" alltodo ""
+   ("rr" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-ext-subtask-p))
@@ -772,23 +775,7 @@ SCHEDULED: %t
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format ,org-config-standard-columns)))
 
-   ("rr" "Tasks needing review (random sampling)" alltodo ""
-    ((org-agenda-skip-function
-      '(or (org-config-agenda-skip-entry-if
-            (org-ext-subtask-p))
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'todo org-done-keywords)
-           (org-config-skip-if-review-not-needed)
-           (org-config-skip-if-regularly-reviewed)))
-     (org-agenda-max-entries 38)
-     (org-agenda-cmp-user-defined (org-compare-randomly))
-     (org-compare-random-refresh t)
-     (org-agenda-prefix-format ,org-config-columns-for-reviewed)
-     (org-agenda-sorting-strategy '(user-defined-up))
-     (org-overriding-columns-format ,org-config-standard-columns)))
-
-   ("rZ" "All tasks needing review" alltodo ""
+   ("rz" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-ext-subtask-p))
@@ -798,21 +785,6 @@ SCHEDULED: %t
            (org-config-skip-if-review-not-needed)))
      (org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(category-up))
-     (org-overriding-columns-format ,org-config-standard-columns)))
-
-   ("rz" "All tasks needing review (random sampling)" alltodo ""
-    ((org-agenda-skip-function
-      '(or (org-config-agenda-skip-entry-if
-            (org-ext-subtask-p))
-           (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'todo org-done-keywords)
-           (org-config-skip-if-review-not-needed)))
-     (org-agenda-prefix-format ,org-config-check-if-scheduled)
-     (org-agenda-max-entries 20)
-     (org-agenda-cmp-user-defined (org-compare-randomly))
-     (org-compare-random-refresh t)
-     (org-agenda-sorting-strategy '(user-defined-up))
      (org-overriding-columns-format ,org-config-standard-columns)))
 
    ("r*" "All tasks (for confirmation)" alltodo ""
