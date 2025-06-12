@@ -61,19 +61,19 @@
 
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
-  :backend "llama-swap"
+  :backend "llama-swap-hera"
   :model 'Qwen3-235B-A22B
   :temperature 1.0)
 
 (gptel-make-preset 'r1
   :description "DeepSeek R1"
-  :backend "llama-swap"
+  :backend "llama-swap-hera"
   :model 'DeepSeek-R1-0528
   :temperature 0.6)
 
 (gptel-make-preset 'r1q
   :description "DeepSeek R1, quick"
-  :backend "llama-swap"
+  :backend "llama-swap-hera"
   :model 'DeepSeek-R1-0528-Qwen3-8B
   :temperature 0.6)
 
@@ -389,6 +389,26 @@ For example:
                     (with-current-buffer ,(current-buffer)
                       (insert response)))))
     (buffer-string)))
+
+(defun gptel-ext-multi-send ()
+  "Send a GPTel query to multiple models at once."
+  (interactive)
+  (let ((gptel-prompt-prefix-alist nil)
+        (gptel-response-prefix-alist nil)
+        (gptel-response-separator "")
+        (gptel-stream nil))
+    (let ((gptel-backend (gptel-get-backend "Claude"))
+          (gptel-model 'claude-3-7-sonnet-20250219))
+      (insert (propertize "** Response (Claude):\n" 'gptel 'ignore))
+      (gptel-send))
+    (insert "\n\n" (propertize "** Response (Gemini):\n" 'gptel 'ignore))
+    (let ((gptel-backend (gptel-get-backend "Gemini"))
+          (gptel-model 'gemini-2.0-flash))
+      (gptel-send))
+    (insert "\n\n" (propertize "** Response (ChatGPT):\n" 'gptel 'ignore))
+    (let ((gptel-backend (gptel-get-backend "ChatGPT"))
+          (gptel-model 'gpt-4o-mini))
+      (gptel-send))))
 
 (provide 'gptel-ext)
 
