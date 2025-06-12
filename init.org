@@ -3138,7 +3138,20 @@ up before you execute another command."
             "192.168.2.2:8080"
           "192.168.50.112:8080"))
       :protocol "http"
-      :models (my/gptel-hf-models "192.168.50.112"))
+      :models
+      ;; (my/gptel-hf-models "192.168.50.112")
+      '(DeepSeek-R1-0528-Qwen3-8B
+        Mistral-Nemo-Instruct-2407
+        Phi-4-reasoning-plus
+        Qwen3-0.6B
+        Qwen3-1.7B
+        Qwen3-14B
+        Qwen3-30B-A3B
+        Qwen3-32B
+        Qwen3-4B
+        Qwen3-8B
+        WizardCoder-Python-7B-V1.0
+        gemma-3-27b-it))
 
     (gptel-make-openai "llama-swap-athena"
       :host
@@ -3146,7 +3159,13 @@ up before you execute another command."
           "127.0.0.1:8080"
         "192.168.50.235:8080")
       :protocol "http"
-      :models (my/gptel-hf-models "192.168.50.235"))
+      :models
+      ;; (my/gptel-hf-models "192.168.50.235")
+      '(Llama-3.3-Nemotron-Super-49B-v1
+        Qwen/QwQ-32B
+        Qwen3-30B-A3B
+        Qwen3-32B
+        WizardCoder-Python-34B-V1.0))
 
     (setq
      gptel-model 'Qwen3-235B-A22B
@@ -3160,16 +3179,53 @@ up before you execute another command."
        (if (string-match-p "\\<[Hh]era\\>" system-name)
            "http"
          "https")
-       :models (my/gptel-hf-models "192.168.50.5"))))
+       :models
+       ;; (my/gptel-hf-models "192.168.50.5")
+       '(CodeLlama-70B-Python
+         CodeLlama-7B-Python
+         DeepSeek-R1-0528
+         DeepSeek-R1-0528-Qwen3-8B
+         DeepSeek-V3-0324
+         Llama-3.3-Nemotron-Super-49B-v1
+         Llama-4-Maverick-17B-128E-Instruct
+         Llama-4-Scout-17B-16E-Instruct
+         Mistral-Nemo-Instruct-2407
+         Phi-4-reasoning-plus
+         QwQ-32B
+         Qwen3-0.6B
+         Qwen3-1.7B
+         Qwen3-14B
+         Qwen3-235B-A22B
+         Qwen3-30B-A3B
+         Qwen3-32B
+         Qwen3-4B
+         Qwen3-8B
+         WizardCoder-Python-34B-V1.0
+         WizardCoder-Python-7B-V1.0
+         agentica-org/DeepCoder-1.5B-Preview
+         agentica-org/DeepCoder-14B-Preview
+         gemma-3-27b-it
+         meta-llama/Llama-4-Scout-17B-16E-Instruct
+         microsoft/phi-4
+         mistralai/Codestral-22B-v0.1
+         mistralai/Mistral-Small-Instruct-2409
+         mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
+         mlx-community/MiMo-7B-RL-4bit
+         mlx-community/whisper-large-v3-mlx
+         nvidia/OpenCodeReasoning-Nemotron-32B
+         open-thoughts/OpenThinker2-32B
+         r1-1776-distill-llama-70b))))
 
   (use-package gptel-openai-extras
     :config
     (gptel-make-perplexity "Perplexity"
       :key gptel-api-key
-      :models '(sonar-pro
+      :models '(
+                sonar-pro
                 sonar-reasoning-pro
                 sonar-deep-research
-                r1-1776)
+                r1-1776
+                )
       :request-params
       `(:web_search_options
         (:search_context_size
@@ -3188,8 +3244,7 @@ up before you execute another command."
       :models '(
                 claude-opus-4-20250514
                 claude-3-5-haiku-20241022
-                )
-      )
+                ))
 
     (gptel-make-anthropic "Claude-thinking" ;Any name you want
       :key gptel-api-key
@@ -3207,8 +3262,7 @@ up before you execute another command."
       :request-params '(:thinking
                         (:type "enabled"
                                :budget_tokens 8192)
-                        :max_tokens 16384)))
-  )
+                        :max_tokens 16384))))
 #+end_src
 
 *** gptel-rewrite
