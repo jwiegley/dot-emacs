@@ -1,4 +1,4 @@
-;;; org-config --- Configurations for Org-mode and related packages
+;;; org-config --- Configurations for Org-mode and related packages -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -31,6 +31,7 @@
 (require 'org-roam-capture)
 (require 'org-roam-dailies)
 (require 'org-ext)
+(require 'org-ql)
 (require 'org-agenda-random)
 (eval-when-compile
   (require 'org-habit))
@@ -121,7 +122,8 @@
             "Core"
             "Assembly"
             "Crmichael"
-            "Feast"))
+            "Feast"
+            "Fund"))
   "Categories \"regularly reviewed\" that don't need separate review."
   :type '(repeat string)
   :group 'org-config)
