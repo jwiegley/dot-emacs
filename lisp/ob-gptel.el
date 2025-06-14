@@ -21,7 +21,6 @@
 
 (require 'ob)
 (require 'gptel)
-(require 'gptel-ext)
 
 (defvar org-babel-default-header-args:gptel
   '((:results . "replace")
@@ -33,6 +32,17 @@
     (:stream . nil)
     (:backend . nil))
   "Default header arguments for gptel source blocks.")
+
+(defun synchronous (func)
+  "Run the given asynchronous function FUNC synchronously."
+  (let ((result (cons nil nil)))
+    (funcall func
+             #'(lambda (res)
+                 (setf (cdr result) res)
+                 (setf (car result) t)))
+    (while (null (car result))
+      (accept-process-output nil 0.1))
+    (cdr result)))
 
 (cl-defun ob-gptel-request-synchronous
     (&optional prompt &key callback
