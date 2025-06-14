@@ -1,8 +1,8 @@
 ;;; ob-gptel.el --- Org-babel backend for GPTel AI interactions -*- lexical-binding: t -*-
 
-;; Copyright (C) 2025 Your Name
+;; Copyright (C) 2025 John Wiegley
 
-;; Author: Your Name
+;; Author: John Wiegley
 ;; Keywords: org, babel, ai, gptel
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "25.1") (org "9.0") (gptel "0.5"))
