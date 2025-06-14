@@ -361,9 +361,10 @@ synchronous call.
            prompt
          :callback
          #'(lambda (response info)
-             (funcall callback response info)
-             (unless (stringp response)
-               (funcall komplete response)))
+             (if callback
+                 (funcall callback response info))
+             (if (stringp response)
+                 (funcall komplete response)))
          :buffer buffer
          :position position
          :context context
