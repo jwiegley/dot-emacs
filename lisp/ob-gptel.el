@@ -33,7 +33,7 @@
     (:backend . nil))
   "Default header arguments for gptel source blocks.")
 
-(defun synchronous (func)
+(defun ob-gptel--synchronous (func)
   "Run the given asynchronous function FUNC synchronously."
   (let ((result (cons nil nil)))
     (funcall func
@@ -52,7 +52,7 @@
                (system gptel--system-message)
                transforms (fsm (gptel-make-fsm)))
   "Synchronous version of `gptel-request'."
-  (synchronous
+  (ob-gptel--synchronous
    #'(lambda (komplete)
        (gptel-request
            prompt

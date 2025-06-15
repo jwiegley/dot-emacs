@@ -1,5 +1,16 @@
 ;; -*- lexical-binding: t -*-
 
+;;; (reset a b c)
+;;; (progn
+;;;   (lambda (p) a) (lambda (hole) (reset b c))
+;;; )
+
+;; (defmacro reset (&rest args)
+;;   (let ((bound (make-symbol "reset--bound")))
+;;     (catch bound
+;;       (funcall thunk (list 'outer bound thunk))))
+;;   )
+
 (defun shift (k entry)
   (if (eq (nth 0 k) 'outer)
       (throw (nth 1 k)
