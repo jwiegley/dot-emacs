@@ -1,4 +1,4 @@
-;;; coq-lookup.el --- jump to x86 instruction documentation -*- lexical-binding: t; -*-
+;;; coq-lookup.el --- jump to Coq documentation -*- lexical-binding: t; -*-
 
 ;; This is free and unencumbered software released into the public domain.
 

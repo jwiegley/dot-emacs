@@ -1811,6 +1811,9 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
 (use-package dired-subtree
   :after dired
   :bind (:map dired-mode-map
+              ("<tab>" . dired-subtree-cycle)
+              ("TAB" . dired-subtree-cycle)
+              ("C-i" . dired-subtree-cycle)
               ("i" . dired-subtree-insert)))
 #+end_src
 
@@ -3462,6 +3465,7 @@ Intended to be placed in `git-commit-setup-hook'."
 
 #+begin_src emacs-lisp
 (use-package gptel-rag
+  :load-path "lisp/gptel-rag"
   :after (gptel)
   :config
   (gptel-rag-install))
@@ -9378,6 +9382,14 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (z3-solver-cmd "z3"))
 #+end_src
 
+*** z3
+
+#+begin_src emacs-lisp
+(use-package z3
+  :load-path "lisp/emacs-z3"
+  :commands (z3-get-model))
+#+end_src
+
 ** Gnus
 
 #+begin_src emacs-lisp
@@ -10796,6 +10808,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org-agenda-overlay
+  :load-path "lisp/org-agenda-overlay"
   :after org-agenda
   :demand t
   :hook
@@ -11453,6 +11466,7 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-devonthink
+  :load-path "lisp/org-devonthink"
   :after org
   :demand t
   :functions (org-devonthink-open)
@@ -11651,6 +11665,14 @@ displays the priority part of a heading as your preferred string value.
          org-mode-map
          ("C-c C-x #"   . org-hash-update-or-confirm)
          ("C-c C-x C-#" . org-hash-update-or-confirm-all)))
+#+end_src
+
+**** hash-store
+
+#+begin_src emacs-lisp
+(use-package hash-store
+  :load-path "lisp/hash-store"
+  :after (org-hash))
 #+end_src
 
 *** org-id
@@ -12405,6 +12427,15 @@ utilities around note taking.
                            org-constants-plain-org-path
                            ;; org-constants-flat-habits-path
                            )))))
+#+end_src
+
+***** vulpea-field
+
+#+begin_src emacs-lisp
+(use-package vulpea-field
+  :load-path "lisp/vulpea-field"
+  :after (vulpea)
+  :functions (vulpea-field-setup vulpea-field-query))
 #+end_src
 
 **** consult-org-roam
