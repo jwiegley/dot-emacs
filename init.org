@@ -3013,8 +3013,6 @@ up before you execute another command."
   (setq gptel-expert-commands t
         gptel--set-buffer-locally nil)
 
-  ;; (add-to-list 'gptel-org-ignore-elements 'comment-block)
-
   (add-all-to-list 'gptel-post-response-functions
                    #'my/gptel-next-prompt
                    #'my/gptel-remove-extra-whitespace)
@@ -3022,7 +3020,9 @@ up before you execute another command."
   (add-hook 'gptel-mode-hook #'gptel-prepare-new-chat-buffer)
 
   (use-package gptel-integrations)
-  (use-package gptel-org)
+  (use-package gptel-org
+    :config
+    (add-to-list 'gptel-org-ignore-elements 'comment-block))
 
   (use-package gptel-transient
     :config
@@ -3523,22 +3523,6 @@ gptel’s partner, or the user’s.
 (use-package gptel-fn-complete
   :bind
   ("C-c . c" . gptel-fn-complete))
-#+end_src
-
-*** gptel-proof
-
-[[https://github.com/benjisimon/elisp/blob/main/gptel-proof.el][gptel-proof]] is an early attempt at coding a proofreading tool within Emacs.
-The package works by taking an arbitrary region of text and asking ChatGPT to
-fix the spelling and grammar. The result is embedded back in the original
-document, surrounded by the familiar version control conflict markers. For
-example, here's what I see when I proofread this paragraph.
-
-By using the conflict markers, I can use =M-x vc-resolve-conflicts=, to
-interactively compare and adopt the improved text.
-
-#+begin_src emacs-lisp
-(use-package gptel-proof
-  :commands gptel-proof)
 #+end_src
 
 *** llm-tool-collection
@@ -8561,15 +8545,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
             t))
 #+end_src
 
-**** haskell-yas
-
-#+begin_src emacs-lisp
-(use-package haskell-yas
-  :after haskell-mode
-  :custom
-  (haskell-yas-completing-function 'completing-read))
-#+end_src
-
 *** hcl-mode
 
 #+begin_src emacs-lisp
@@ -11183,7 +11158,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
      (dot        . t)
      (makefile   . t)
      (emamux     . t)
-     (gptel      . t)
+     ;; (gptel      . t)
      (jupyter    . t)))                  ; must be last
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
@@ -12403,10 +12378,20 @@ utilities around note taking.
     (vulpea-buffer-meta-get! (vulpea-buffer-meta) name)))
 #+end_src
 
+***** vulpea-field
+
+#+begin_src emacs-lisp
+(use-package vulpea-field
+  :load-path "lisp/vulpea-field"
+  :after (vulpea)
+  :functions (vulpea-field-setup vulpea-field-query))
+#+end_src
+
 ***** vulpea-ext
 
 #+begin_src emacs-lisp
 (use-package vulpea-ext
+  :after (vulpea-field)
   :demand t
   :bind
   (:map
@@ -12427,15 +12412,6 @@ utilities around note taking.
                            org-constants-plain-org-path
                            ;; org-constants-flat-habits-path
                            )))))
-#+end_src
-
-***** vulpea-field
-
-#+begin_src emacs-lisp
-(use-package vulpea-field
-  :load-path "lisp/vulpea-field"
-  :after (vulpea)
-  :functions (vulpea-field-setup vulpea-field-query))
 #+end_src
 
 **** consult-org-roam
