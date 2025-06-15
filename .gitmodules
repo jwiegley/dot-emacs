@@ -70,3 +70,36 @@
 [submodule "lisp/DSel"]
 	path = lisp/DSel
 	url = git@github.com:cosmicz/DSel
+[submodule "lisp/emacs-copy-code"]
+	path = lisp/emacs-copy-code
+	url = git@github.com:jwiegley/emacs-copy-code
+[submodule "lisp/emacs-loeb"]
+	path = lisp/emacs-loeb
+	url = git@github.com:jwiegley/emacs-loeb
+[submodule "lisp/emacs-z3"]
+	path = lisp/emacs-z3
+	url = git@github.com:jwiegley/emacs-z3
+[submodule "lisp/gptel-rag"]
+	path = lisp/gptel-rag
+	url = git@github.com:jwiegley/gptel-rag
+[submodule "lisp/hash-store"]
+	path = lisp/hash-store
+	url = git@github.com:jwiegley/hash-store
+[submodule "lisp/ob-gptel"]
+	path = lisp/ob-gptel
+	url = git@github.com:jwiegley/ob-gptel
+[submodule "lisp/org-agenda-overlay"]
+	path = lisp/org-agenda-overlay
+	url = git@github.com:jwiegley/org-agenda-overlay
+[submodule "lisp/org-devonthink"]
+	path = lisp/org-devonthink
+	url = git@github.com:jwiegley/org-devonthink
+[submodule "lisp/stock-quote"]
+	path = lisp/stock-quote
+	url = git@github.com:jwiegley/stock-quote
+[submodule "lisp/vulpea-field"]
+	path = lisp/vulpea-field
+	url = git@github.com:jwiegley/vulpea-field
+[submodule "lisp/emacs-lzw"]
+	path = lisp/emacs-lzw
+	url = git@github.com:jwiegley/emacs-lzw
