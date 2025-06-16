@@ -225,6 +225,7 @@ unto itself.
   (line-spacing 1)
   (menu-bar-mode nil)
   (message-log-max 16384)
+  (native-comp-jit-compilation nil)
   (redisplay-dont-pause t)
   (tool-bar-mode nil)
   (undo-limit 800000)
@@ -240,7 +241,7 @@ unto itself.
 
   ;; Settings for the Emacs Mac-port
   (mac-command-modifier 'meta)
-  (mac-right-command-modifier 'super)
+  (mac-right-command-modifier 'meta)
   (mac-option-modifier 'alt)
   (mac-pass-command-to-system nil)
 
@@ -10893,7 +10894,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
          ("C-c C-x C-M-y" . org-ext-yank-link)
          ("C-c C-x C-t"   . org-ext-switch-todo-link)
          ("C-c C-x C-u"   . org-ext-todoize-region)
-         ("s-n"           . org-ext-edit-link-name)
+         ("A-n"           . org-ext-edit-link-name)
          :map
          org-agenda-mode-map
          ("g" . org-ext-agenda-redo)
