@@ -186,10 +186,7 @@ NEXT_REVIEW date is <= that date."
                             review-by))
                    t)))
          (table
-          (org-ql-select 'org-agenda-files
-            (prog1
-                query
-              (message "The query is %s" (pp-to-string query)))
+          (org-ql-select 'org-agenda-files query
             :action `(org-ext-get-properties ,@columns)
             :sort
             #'(lambda (x y)
