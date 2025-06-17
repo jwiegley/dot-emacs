@@ -417,11 +417,11 @@ SCHEDULED: %t
     (file "~/org/template/meeting.org")
     :target
     (file+head
-     "meeting/%<%Y%m%d%H%M>.org"
+     "%<%Y%m%d%H%M>.org"
      ,(concat
        "#+category: Meeting\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
-       "#+filetags: :kadena:\n"
+       "#+filetags: :meeting:\n"
        "#+startup: showeverything\n"
        "#+title: %^{Purpose of meeting}\n"))
     :immediate-finish t
@@ -629,12 +629,13 @@ SCHEDULED: %t
    ("woj" "Names beginning with J")
    ,(org-config-1-on-1-from-name "June Boston")
    ,(org-config-1-on-1-from-name "Jose Cardona")
+   ,(org-config-1-on-1-from-name "John Frost")
    ,(org-config-1-on-1-from-name "Jesse Marquez")
 
    ("wol" "Names beginning with L")
    ,(org-config-1-on-1-from-name "Leah Bingham")
-   ,(org-config-1-on-1-from-name "Lars Kuhtz")
    ,(org-config-1-on-1-from-name "Lisa Gunn")
+   ,(org-config-1-on-1-from-name "Lars Kuhtz")
    ,(org-config-1-on-1-from-name "Linda Ortega")
 
    ("wor" "Names beginning with R")
@@ -666,16 +667,16 @@ SCHEDULED: %t
                (org-review-last-review-prop nil)
                (not (org-ext-needs-review-p)))))
        (org-super-agenda-groups
-        '((:name "Important"    :and (:priority "A" :not (:habit t)))
-          (:name "Overdue"      :deadline past)
-          (:name "Due Soon"     :deadline future)
-          (:name "Reschedule"   :and (:scheduled past :not (:habit t)))
-          (:name "Needs review" :and (:todo ("WAIT" "TASK" "DOING")
-                                            :not (:priority "C")))
-          (:name "Calls"        :tag "Call")
-          (:name "Errands"      :tag "Errand")
-          (:name "Tasks"        :not (:habit t))
-          (:name "Habits"       :habit t)
+        '((:name "Important"  :and (:priority "A" :not (:habit t)))
+          (:name "Overdue"    :deadline past)
+          (:name "Due Soon"   :deadline future)
+          (:name "Reschedule" :and (:scheduled past :not (:habit t)))
+          (:name "Review"     :and (:todo ("WAIT" "TASK" "DOING")
+                                          :not (:priority "C")))
+          (:name "Calls"      :tag "Call")
+          (:name "Errands"    :tag "Errand")
+          (:name "Tasks"      :not (:habit t))
+          (:name "Habits"     :habit t)
           ))))
      (alltodo
       ""
