@@ -57,8 +57,7 @@
 
 (org-ql-defpred tasks-for (&rest who)
   "True if this task is assigned to, or related to, anyone in WHO."
-  :body (and (message "Hello")
-             (apply #'org-ql--predicate-about who)
+  :body (and (apply #'org-ql--predicate-about who)
              (org-ql--predicate-todo)
              (org-ql--predicate-shown)
              ))
