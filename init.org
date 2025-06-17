@@ -2931,7 +2931,41 @@ up before you execute another command."
 
 ** gptel
 
-#+begin_src emacs-lisp
+#+name: gptel-define
+#+begin_src emacs-lisp :tangle no
+(defun my/gptel-hf-models (server)
+    "Return a list of Lisp symbols representing every HF model installed."
+    (with-temp-buffer
+      (shell-command (format "hf --server %s models" server)
+                     (current-buffer))
+      (goto-char (point-min))
+      (while (re-search-forward "\\(BAAI/\\|sentence-transformers/\\|Warning:\\)" nil t)
+        (delete-region (line-beginning-position) (1+ (line-end-position))))
+      (sort-lines nil (point-min) (point-max))
+      (goto-char (point-max))
+      (insert ")")
+      (goto-char (point-min))
+      (insert "(")
+      (forward-char -1)
+      (read (current-buffer))))
+#+end_src
+
+#+name: models-clio
+#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.112")
+#+end_src
+
+#+name: models-hera
+#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.5")
+#+end_src
+
+#+name: models-athena
+#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.235")
+#+end_src
+
+#+begin_src emacs-lisp :var CLIO=models-clio :var HERA=models-hera :var ATHENA=models-athena
 (use-package gptel
   :load-path "lisp/gptel"
   :demand t
@@ -3187,20 +3221,7 @@ up before you execute another command."
             "192.168.2.2:8080"
           "192.168.50.112:8080"))
       :protocol "http"
-      :models
-      ;; (my/gptel-hf-models "192.168.50.112")
-      '(DeepSeek-R1-0528-Qwen3-8B
-        Mistral-Nemo-Instruct-2407
-        Phi-4-reasoning-plus
-        Qwen3-0.6B
-        Qwen3-1.7B
-        Qwen3-14B
-        Qwen3-30B-A3B
-        Qwen3-32B
-        Qwen3-4B
-        Qwen3-8B
-        WizardCoder-Python-7B-V1.0
-        gemma-3-27b-it))
+      :models `(,@CLIO))
 
     (gptel-make-openai "llama-swap-athena"
       :host
@@ -3208,13 +3229,7 @@ up before you execute another command."
           "127.0.0.1:8080"
         "192.168.50.235:8080")
       :protocol "http"
-      :models
-      ;; (my/gptel-hf-models "192.168.50.235")
-      '(Llama-3.3-Nemotron-Super-49B-v1
-        Qwen/QwQ-32B
-        Qwen3-30B-A3B
-        Qwen3-32B
-        WizardCoder-Python-34B-V1.0))
+      :models `(,@ATHENA))
 
     (setq
      gptel-model 'Qwen3-235B-A22B
@@ -3228,42 +3243,7 @@ up before you execute another command."
        (if (string-match-p "\\<[Hh]era\\>" system-name)
            "http"
          "https")
-       :models
-       ;; (my/gptel-hf-models "192.168.50.5")
-       '(CodeLlama-70B-Python
-         CodeLlama-7B-Python
-         DeepSeek-R1-0528
-         DeepSeek-R1-0528-Qwen3-8B
-         DeepSeek-V3-0324
-         Llama-3.3-Nemotron-Super-49B-v1
-         Llama-4-Maverick-17B-128E-Instruct
-         Llama-4-Scout-17B-16E-Instruct
-         Mistral-Nemo-Instruct-2407
-         Phi-4-reasoning-plus
-         QwQ-32B
-         Qwen3-0.6B
-         Qwen3-1.7B
-         Qwen3-14B
-         Qwen3-235B-A22B
-         Qwen3-30B-A3B
-         Qwen3-32B
-         Qwen3-4B
-         Qwen3-8B
-         WizardCoder-Python-34B-V1.0
-         WizardCoder-Python-7B-V1.0
-         agentica-org/DeepCoder-1.5B-Preview
-         agentica-org/DeepCoder-14B-Preview
-         gemma-3-27b-it
-         meta-llama/Llama-4-Scout-17B-16E-Instruct
-         microsoft/phi-4
-         mistralai/Codestral-22B-v0.1
-         mistralai/Mistral-Small-Instruct-2409
-         mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
-         mlx-community/MiMo-7B-RL-4bit
-         mlx-community/whisper-large-v3-mlx
-         nvidia/OpenCodeReasoning-Nemotron-32B
-         open-thoughts/OpenThinker2-32B
-         r1-1776-distill-llama-70b))))
+       :models `(,@HERA))))
 
   (use-package gptel-openai-extras
     :config
@@ -7267,7 +7247,7 @@ See `consult-omni-multi' for more details.
   :after consult-gh)
 #+end_src
 
-*** COMMENT corfu
+*** corfu
 
 [[https://github.com/minad/corfu][corfu]] enhances completion at point with a small completion popup. The current
 candidates are shown in a popup below or above the point. Corfu is the
@@ -7346,6 +7326,10 @@ provides an alternative overlay-based display.
     (interactive)
     (let (completion-cycle-threshold completion-cycling)
       (apply #'consult-completion-in-region completion-in-region--data)))
+
+  (defun corfu-hide-popup ()
+    (interactive)
+    (corfu--hide-frame corfu--frame))
   :config
   (global-corfu-mode)
 

@@ -34,6 +34,10 @@ init.el: init.org
 	@rm -f $@
 	@$(BATCH_LOAD)						\
 		--eval "(require 'org)"				\
+		--eval "(org-babel-do-load-languages		\
+                          'org-babel-load-languages		\
+	                  '((emacs-lisp . t) (shell . t)))"	\
+		--eval "(setq org-confirm-babel-evaluate nil)"	\
 		--eval "(org-babel-load-file \"init.org\")"
 	@chmod 444 $@
 
