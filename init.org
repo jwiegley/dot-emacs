@@ -2932,7 +2932,7 @@ up before you execute another command."
 ** gptel
 
 #+name: gptel-define
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no :exports none
 (defun my/gptel-hf-models (server)
     "Return a list of Lisp symbols representing every HF model installed."
     (with-temp-buffer
@@ -2951,17 +2951,17 @@ up before you execute another command."
 #+end_src
 
 #+name: models-clio
-#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
 (my/gptel-hf-models "192.168.50.112")
 #+end_src
 
 #+name: models-hera
-#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
 (my/gptel-hf-models "192.168.50.5")
 #+end_src
 
 #+name: models-athena
-#+begin_src emacs-lisp :tangle no :var DEFUN=gptel-define
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
 (my/gptel-hf-models "192.168.50.235")
 #+end_src
 
@@ -3433,6 +3433,17 @@ Intended to be placed in `git-commit-setup-hook'."
   (push '(code-infill . gptel-ext-code-infill) gptel-directives)
 
   (gptel-ext-write-to-org-roam-install))
+#+end_src
+
+*** ob-gptel
+
+#+begin_src emacs-lisp
+(use-package ob-gptel
+  :load-path "lisp/ob-gptel"
+  :config
+  (add-to-list 'org-babel-load-languages '(gptel . t))
+
+  (add-hook 'completion-at-point-functions 'ob-gptel-capf nil t))
 #+end_src
 
 *** gptel-prompts
@@ -8297,14 +8308,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (easky-show-tip nil))
 #+end_src
 
-**** flymake-eask
-
-#+begin_src emacs-lisp
-(use-package flymake-eask
-  :hook
-  (eask-mode . flymake-eask-load))
-#+end_src
-
 *** COMMENT fetchmail-mode
 
 #+begin_src emacs-lisp
@@ -11146,7 +11149,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
      (dot        . t)
      (makefile   . t)
      (emamux     . t)
-     ;; (gptel      . t)
      (jupyter    . t)))                  ; must be last
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
@@ -12594,12 +12596,25 @@ this allows seeing an overview of tasks in a subtree.
 #+begin_src emacs-lisp
 (use-package org-srs
   :after org
+  :commands (org-srs-review-start)
   :bind (:map org-mode-map
-              ("<f5>" . org-srs-review-rate-easy)
-              ("<f6>" . org-srs-review-rate-good)
-              ("<f7>" . org-srs-review-rate-hard)
-              ("<f8>" . org-srs-review-rate-again))
+              ("<f4>"    . org-srs-review-start)
+              ("C-<f4>"  . org-srs-review-quit)
+              ("<right>" . org-srs-review-rate-easy)
+              ("<up>"    . org-srs-review-rate-good)
+              ("<down>"  . org-srs-review-rate-hard)
+              ("<left>"  . org-srs-review-rate-again))
   :config
+  (use-package org-srs-query
+    :config
+    ;; jww (2025-06-17): Here to fix
+    ;; https://github.com/bohonghuang/org-srs/issues/35
+    (defun org-srs-query-predicate (desc)
+      (if (and (functionp desc)
+               (not (memq desc '(new))))
+          desc
+        (apply #'org-srs-query-ensure-predicate (ensure-list desc)))))
+
   (use-package org-srs-embed
     :demand t
     :hook (org-mode . org-srs-embed-overlay-mode))
@@ -12607,7 +12622,7 @@ this allows seeing an overview of tasks in a subtree.
   (use-package org-srs-log
     :demand t
     :preface
-    ;;; From https://stackoverflow.com/questions/17478260/completely-hide-the-properties-drawer-in-org-mode
+;;; From https://stackoverflow.com/questions/17478260/completely-hide-the-properties-drawer-in-org-mode
     (defun my/org-srs-cycle-hide-drawers (state)
       "Re-hide all drawers after a visibility state change."
       (when (and (derived-mode-p 'org-mode)
