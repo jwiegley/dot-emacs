@@ -59,6 +59,10 @@
   :model 'claude-opus-4-20250514
   :temperature 1.0)
 
+(gptel-make-preset 'code
+  :description "Best model for generating or interpreting code"
+  :parents 'opus)
+
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "llama-swap-hera"
@@ -91,7 +95,6 @@
       :longitude
       ,calendar-longitude
       :country "US")))
-  :system 'default
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'think
@@ -108,7 +111,6 @@
       :longitude
       ,calendar-longitude
       :country "US")))
-  :system 'default
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'deep
@@ -125,7 +127,6 @@
       :longitude
       ,calendar-longitude
       :country "US")))
-  :system 'default
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'quick

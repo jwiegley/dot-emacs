@@ -234,10 +234,13 @@ unto itself.
   (x-stretch-cursor t)
 
   ;; Settings for the Cocoa port
-  (ns-alternate-modifier 'alt)
   (ns-command-modifier 'meta)
-  (ns-function-modifier 'hyper)
+  (ns-right-command-modifier 'meta)
+  (ns-option-modifier 'alt)
+  (ns-right-option-modifier 'alt)
+  (ns-alternate-modifier 'alt)
   (ns-right-alternate-modifier 'alt)
+  (ns-function-modifier 'hyper)
 
   ;; Settings for the Emacs Mac-port
   (mac-command-modifier 'meta)
@@ -11193,14 +11196,6 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (add-to-list 'org-src-lang-modes (quote ("plantuml" . plantuml))))
 #+end_src
 
-**** ob-async
-
-#+begin_src emacs-lisp
-(use-package ob-async
-  :after org
-  :commands (org-babel-execute-src-block:async))
-#+end_src
-
 **** ob-emamux
 
 #+begin_src emacs-lisp
@@ -12500,7 +12495,7 @@ resulting in an org-mode checklist.
   (before-save . org-roam-ext-sort-file-properties)
   ;; (org-roam-file-setup . org-roam-ext-update-todo-tag)
   ;; (before-save . org-roam-ext-update-todo-tag)
-  (org-roam-mode . org-roam-ext-paint-transcript)
+  (org-mode . org-roam-ext-paint-transcript)
   :config
   (cl-defmethod org-roam-node-slug ((node org-roam-node))
     "Return the slug of NODE."

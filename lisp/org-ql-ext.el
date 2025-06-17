@@ -51,16 +51,17 @@
 (org-ql-defpred about (&rest keywords)
   "Whether this entry is \"about\" the given keyword.
    This means checking if it's in the tags or CATEGORY."
-  :body (cl-loop
-         for kw in keywords
-         thereis (or (member kw (org-get-tags (point)))
-                     (string= kw (org-get-category (point))))))
+  :body (cl-loop for kw in keywords
+                 thereis (or (member kw (org-get-tags (point)))
+                             (string= kw (org-get-category (point))))))
 
 (org-ql-defpred tasks-for (&rest who)
   "True if this task is assigned to, or related to, anyone in WHO."
-  :body (and (apply #'org-ql--predicate-about who)
+  :body (and (message "Hello")
+             (apply #'org-ql--predicate-about who)
              (org-ql--predicate-todo)
-             (org-ql--predicate-shown)))
+             (org-ql--predicate-shown)
+             ))
 
 (org-ql-defpred refile-target ()
   "Return non-nil if entry is a refile target."
@@ -146,7 +147,10 @@ properties (whether special or explicit) to be included, each as a
 column, in the report. ITEM_BY_ID is accepted as a special case, which
 is morally the same as [[id:ID][ITEM]].
 
-SORT-IDX takes the 1-indexed column mentioned in PROPERTIES, interprets
+SORT takes the 1-indexed column mentioned in PROPERTIES, and sorts that
+column, ascending.
+
+SORT-TS takes the 1-indexed column mentioned in PROPERTIES, interprets
 it as an Org-time, and sorts the resulting table on that column,
 ascending.
 
@@ -163,7 +167,8 @@ NEXT_REVIEW date is <= that date."
                          (org-ext-category-p)))
 
                 ;; Handle :query and :who keywords
-                ,(let ((topics (split-string who "|")))
+                ,(let ((topics (and (stringp who)
+                                    (split-string who "|"))))
                    (when topics
                      (setq who
                            (concat "(tasks-for"
@@ -182,7 +187,10 @@ NEXT_REVIEW date is <= that date."
                             review-by))
                    t)))
          (table
-          (org-ql-select 'org-agenda-files query
+          (org-ql-select 'org-agenda-files
+            (prog1
+                query
+              (message "The query is %s" (pp-to-string query)))
             :action `(org-ext-get-properties ,@columns)
             :sort
             #'(lambda (x y)
