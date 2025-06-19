@@ -173,7 +173,7 @@
   (defun gptel-backends-make-litellm ()
     (gptel-make-openai "LiteLLM"
       :host "vulcan"
-      :protocol "https"
+      :protocol "http"
       :endpoint "/litellm/v1/chat/completions"
       :key gptel-api-key
       :models '(
