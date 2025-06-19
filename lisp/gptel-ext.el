@@ -28,9 +28,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(eval-when-compile
-  (require 'cl))
-
 (require 'solar)
 (require 'gptel)
 
@@ -43,20 +40,26 @@
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
-  :backend "ChatGPT"
-  :model 'gpt-4.1
+  ;; :backend "ChatGPT"
+  ;; :model 'gpt-4.1
+  :backend "LiteLLM"
+  :model 'openai/gpt-4.1-2025-04-14
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
-  :backend "Claude-thinking"
-  :model 'claude-sonnet-4-20250514
+  ;; :backend "Claude-thinking"
+  ;; :model 'claude-sonnet-4-20250514
+  :backend "LiteLLM"
+  :model 'anthropic/claude-sonnet-4-20250514
   :temperature 1.0)
 
 (gptel-make-preset 'opus
   :description "Anthropic's Claude Opus, thinking"
-  :backend "Claude-thinking"
-  :model 'claude-opus-4-20250514
+  ;; :backend "Claude-thinking"
+  ;; :model 'claude-opus-4-20250514
+  :backend "LiteLLM"
+  :model 'anthropic/claude-opus-4-20250514
   :temperature 1.0)
 
 (gptel-make-preset 'code
@@ -65,26 +68,34 @@
 
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
-  :backend "llama-swap-hera"
-  :model 'Qwen3-235B-A22B
+  ;; :backend "llama-swap-hera"
+  ;; :model 'Qwen3-235B-A22B
+  :backend "LiteLLM"
+  :model 'hera/Qwen3-235B-A22B
   :temperature 1.0)
 
 (gptel-make-preset 'r1
   :description "DeepSeek R1"
-  :backend "llama-swap-hera"
-  :model 'DeepSeek-R1-0528
+  ;; :backend "llama-swap-hera"
+  ;; :model 'DeepSeek-R1-0528
+  :backend "LiteLLM"
+  :model 'hera/DeepSeek-R1-0528
   :temperature 0.6)
 
 (gptel-make-preset 'r1q
   :description "DeepSeek R1, quick"
-  :backend "llama-swap-hera"
-  :model 'DeepSeek-R1-0528-Qwen3-8B
+  ;; :backend "llama-swap-hera"
+  ;; :model 'DeepSeek-R1-0528-Qwen3-8B
+  :backend "LiteLLM"
+  :model 'hera/DeepSeek-R1-0528-Qwen3-8B
   :temperature 0.6)
 
 (gptel-make-preset 'web
   :description "Perplexity.ai sonar-pro"
-  :backend "Perplexity"
-  :model 'sonar-pro
+  ;; :backend "Perplexity"
+  ;; :model 'sonar-pro
+  :backend "LiteLLM"
+  :model 'perplexity/sonar-pro
   :request-params
   `(:web_search_options
     (:search_context_size
@@ -99,8 +110,10 @@
 
 (gptel-make-preset 'think
   :description "Perplexity.ai sonar-reasoning-pro"
-  :backend "Perplexity"
-  :model 'sonar-reasoning-pro
+  ;; :backend "Perplexity"
+  ;; :model 'sonar-reasoning-pro
+  :backend "LiteLLM"
+  :model 'perplexity/sonar-reasoning-pro
   :request-params
   `(:web_search_options
     (:search_context_size
@@ -115,8 +128,10 @@
 
 (gptel-make-preset 'deep
   :description "Perplexity.ai deep reasoning"
-  :backend "Perplexity"
-  :model 'sonar-deep-research
+  ;; :backend "Perplexity"
+  ;; :model 'sonar-deep-research
+  :backend "LiteLLM"
+  :model 'perplexity/sonar-deep-research
   :request-params
   `(:web_search_options
     (:search_context_size
