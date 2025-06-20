@@ -3039,6 +3039,14 @@ up before you execute another command."
     (require 'uuidgen)
     (setq-local my/gptel-session-id (uuidgen-1)))
 
+  (defun my/gptel-add-litellm-session ()
+    (when (and my/gptel-session-id
+               (string= (gptel-backend-name gptel-backend) "LiteLLM"))
+      (setq-local gptel--request-params
+                  (gptel--merge-plists gptel--request-params
+                                       (list :litellm_session
+                                             my/gptel-session-id)))))
+
   (defun my/gptel-add-session-header (old-func fsm)
     (let* ((info (gptel-fsm-info fsm))
            (session-id
@@ -3063,7 +3071,10 @@ up before you execute another command."
                    #'my/gptel-remove-extra-whitespace)
 
   (add-hook 'gptel-mode-hook #'my/gptel-set-session-id)
-  (advice-add 'gptel--realize-query :around #'my/gptel-add-session-header))
+  ;; (add-hook 'gptel-prompt-transform-functions
+  ;;           #'my/gptel-add-litellm-session)
+  (advice-add 'gptel--realize-query :around #'my/gptel-add-session-header)
+  )
 #+end_src
 
 *** gptel-backends

@@ -38,6 +38,44 @@
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
 
+(defun gptel-presets-add-params (&rest params)
+  "Add the given request PARAMS to whatever is the current set of parameters.
+Meant to be used with :post on a preset definition."
+  (lambda ()
+    (let ((params (cl-copy-list params))
+          (new-params (cl-copy-list gptel--request-params)))
+      (while params
+        (setq new-params
+              (plist-put new-params (car params) (cadr params)))
+        (setq params (cddr params)))
+      (setq-local gptel--request-params new-params))))
+
+(defmacro my/gptel-make-preset (name &rest keys)
+  "A `gptel-make-preset', with NAME and KEYS, that auto-merges `:request-params'.
+See `gptel-make-preset' for a description of options.
+
+NOTE: This is dangerous to use — except in the case where you only ever
+have one single backend-provider that offers a common on normalizing
+API, such as exclusively using LiteLLM.
+
+As an example of the danger, if you set `:request-params' via a preset
+and then later change to another preset that moves to a different
+backend without changing those request parameters, or if the users
+directly changes the backend, then the `:request-params' set by the
+preset could become invalid, since different backends interpret them
+differently or may not accept what another backend consider legitimate."
+  (declare (indent 1))
+  (let ((params (plist-get keys :request-params)))
+    (when params
+      (plist-put keys :post
+                 (apply #'gptel-presets-add-params (eval params)))
+      (cl-remf keys :request-params))
+    `(gptel-make-preset ,name ,@keys)))
+
+;;; MODELS ===============================================================
+
+;;; OpenAI
+
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
   ;; :backend "ChatGPT"
@@ -45,6 +83,8 @@
   :backend "LiteLLM"
   :model 'openai/gpt-4.1-2025-04-14
   :temperature 1.0)
+
+;;; Anthropic
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
@@ -62,14 +102,7 @@
   :model 'anthropic/claude-opus-4-20250514
   :temperature 1.0)
 
-(gptel-make-preset 'code
-  :description "Best model for generating or interpreting code"
-  :parents 'opus)
-
-(gptel-make-preset 'cli
-  :description "Generate command-line commands"
-  :system 'cli
-  :parents 'opus)
+;;; Ali Baba
 
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
@@ -79,11 +112,7 @@
   :model 'hera/Qwen3-235B-A22B
   :temperature 1.0)
 
-(gptel-make-preset 'emacs
-  :description "Best model for generating or interpreting code"
-  :system 'emacs-aid
-  :parents 'qwen
-  :tools '("find_functions" "get_function_docstring"))
+;;; DeepSeek
 
 (gptel-make-preset 'r1
   :description "DeepSeek R1"
@@ -102,82 +131,40 @@
   :model 'hera/DeepSeek-R1-0528-Qwen3-8B
   :temperature 0.6)
 
-(gptel-make-preset 'web
+;;; Perplexity
+
+(my/gptel-make-preset 'sonar
   :description "Perplexity.ai sonar-pro"
-  ;; :backend "Perplexity"
-  ;; :model 'sonar-pro
   :backend "LiteLLM"
   :model 'perplexity/sonar-pro
-  :request-params
-  `(:web_search_options
-    (:search_context_size
-     "medium"
-     :user_location
-     (:latitude
-      ,calendar-latitude
-      :longitude
-      ,calendar-longitude
-      :country "US")))
   :include-reasoning 'ignore)
 
-(gptel-make-preset 'deep
-  :description "Perplexity.ai sonar-pro"
-  ;; :backend "Perplexity"
-  ;; :model 'sonar-pro
-  :backend "LiteLLM"
-  :model 'perplexity/sonar-pro
-  :request-params
-  `(:web_search_options
-    (:search_context_size
-     "high"
-     :user_location
-     (:latitude
-      ,calendar-latitude
-      :longitude
-      ,calendar-longitude
-      :country "US")))
-  :include-reasoning 'ignore)
-
-(gptel-make-preset 'think
+(my/gptel-make-preset 'pro
   :description "Perplexity.ai sonar-reasoning-pro"
-  ;; :backend "Perplexity"
-  ;; :model 'sonar-reasoning-pro
   :backend "LiteLLM"
   :model 'perplexity/sonar-reasoning-pro
-  :request-params
-  `(:web_search_options
-    (:search_context_size
-     "high"
-     :user_location
-     (:latitude
-      ,calendar-latitude
-      :longitude
-      ,calendar-longitude
-      :country "US")))
   :include-reasoning 'ignore)
 
-(gptel-make-preset 'research
-  :description "Perplexity.ai deep reasoning"
-  ;; :backend "Perplexity"
-  ;; :model 'sonar-deep-research
+(my/gptel-make-preset 'deep-research
+  :description "Perplexity.ai sonar-deep-research"
   :backend "LiteLLM"
   :model 'perplexity/sonar-deep-research
-  :request-params
-  `(:web_search_options
-    (:search_context_size
-     "high"
-     :user_location
-     (:latitude
-      ,calendar-latitude
-      :longitude
-      ,calendar-longitude
-      :country "US")))
   :include-reasoning 'ignore)
 
-(gptel-make-preset 'quick
-  :post #'(lambda ()
-            (add-hook 'gptel-prompt-transform-functions
-                      #'gptel-presets-insert-no-think nil 'local)))
+;;; ALIASES ==============================================================
+
+(gptel-make-preset 'default
+  :description "Default setup"
+  :parents 'qwen
+  :system 'default
+  :confirm-tool-calls 'auto
+  :max-tokens 8192
+  :use-context 'user
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'code
+  :description "Best model for generating or interpreting code"
+  :parents 'opus)
 
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
@@ -189,50 +176,98 @@
                   'sonnet
                 'qwen)))
 
-(gptel-make-preset 'default
-  :description "Default setup"
+;;; DIRECTIVES (w/ MODELS) ===============================================
+
+(gptel-make-preset 'cli
+  :description "Generate command-line commands"
+  :system 'cli
+  :parents 'opus)
+
+(gptel-make-preset 'emacs
+  :description "Best model for generating or interpreting code"
+  :system 'emacs-aid
   :parents 'qwen
-  :system 'default
-  :confirm-tool-calls 'auto
-  :max-tokens 8192
-  :use-context 'user
-  :include-reasoning 'ignore)
+  :tools '("find_functions" "get_function_docstring"))
 
 (gptel-make-preset 'prompt
   :description "AI prompt refiner"
-  :parents 'opus
   :system 'prompt
+  :parents 'opus
   :tools nil
   :max-tokens nil
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'persian
   :description "Persian translator"
-  :parents 'opus
   :system 'persian
+  :parents 'opus
   :max-tokens 2048)
 
 (gptel-make-preset 'spanish
   :description "Spanish translator"
-  :parents 'opus
   :system 'spanish
+  :parents 'opus
   :max-tokens 2048)
 
 (gptel-make-preset 'haskell
   :description "Expert Haskell coder"
-  :parents 'opus
   :system 'haskell
+  :parents 'opus
   :max-tokens 1024)
+
+(gptel-make-preset 'title
+  :description "Create Org-mode title"
+  :system 'title
+  :parents 'rewrite)
+
+;;; REQUEST-PARAMS =======================================================
+
+(my/gptel-make-preset 'here
+  :description "Add user location to query"
+  :request-params `(:user_location
+                    (:latitude
+                     ,calendar-latitude
+                     :longitude
+                     ,calendar-longitude
+                     :country "US")))
+
+(my/gptel-make-preset 'web
+  :description "Search the Web using Perplexity.ai"
+  :parents 'sonar
+  :request-params '(:web_search_options '(:search_context_size "medium"))
+  :include-reasoning 'ignore)
+
+(my/gptel-make-preset 'deep
+  :description "Search the Web (deeply) using Perplexity.ai"
+  :parents 'sonar
+  :request-params '(:web_search_options '(:search_context_size "high"))
+  :include-reasoning 'ignore)
+
+(my/gptel-make-preset 'think
+  :description "Search the Web (deeply) using Perplexity.ai"
+  :parents 'pro
+  :request-params '(:web_search_options '(:search_context_size "high"))
+  :include-reasoning 'ignore)
+
+(my/gptel-make-preset 'research
+  :description "Perplexity.ai deep reasoning"
+  :parents 'deep-research
+  :request-params '(:web_search_options '(:search_context_size "high"))
+  :include-reasoning 'ignore)
+
+;;; PROMPT-TRANSFORMS ====================================================
+
+(gptel-make-preset 'quick
+  :post #'(lambda ()
+            (add-hook 'gptel-prompt-transform-functions
+                      #'gptel-presets-insert-no-think nil 'local)))
+
+;;; REWRITES =============================================================
 
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
   :rewrite-directive 'shorten
   :rewrite-message "Shorten it as described."
-  :parents 'rewrite)
-
-(gptel-make-preset 'title
-  :description "Create Org-mode title"
-  :system 'title
   :parents 'rewrite)
 
 (gptel-make-preset 'proof
