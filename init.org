@@ -49,12 +49,13 @@
 
 (require 'use-package)
 
-(setq use-package-verbose init-file-debug
-      use-package-expand-minimally (not init-file-debug)
-      use-package-compute-statistics init-file-debug
-      debug-on-error init-file-debug
-      ;; debug-on-message "Unable to activate"
-      debug-on-quit init-file-debug)
+(let ((verbose (or nil init-file-debug)))
+  (setq use-package-verbose verbose
+        use-package-expand-minimally (not verbose)
+        use-package-compute-statistics verbose
+        debug-on-error verbose
+        debug-on-message "finalizer failed"
+        debug-on-quit verbose))
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=
@@ -2104,8 +2105,7 @@ To get the most out of Eat, you should also setup shell integration.
   :init
   (if after-init-time
       (edit-server-start)
-    (add-hook 'after-init-hook
-              #'(lambda() (edit-server-start)))))
+    (add-hook 'after-init-hook #'edit-server-start)))
 #+end_src
 
 ** edit-var
@@ -2986,7 +2986,8 @@ up before you execute another command."
   (gptel-mode . turn-off-auto-fill)
   (gptel-mode . visual-line-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
-  ;; (gptel-mode . (lambda () (setq-local gptel-stream t)))
+  (gptel-mode . my/gptel-prepare-new-chat-buffer)
+  (gptel-mode . (lambda () (setq-local gptel-stream t)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-default-mode 'org-mode)
@@ -3031,6 +3032,28 @@ up before you execute another command."
      'default
      #'(lambda (sym val) (set (make-local-variable sym) val)))
     (setq-local gptel--set-buffer-locally t))
+
+  (defvar my/gptel-session-id nil)
+
+  (defun my/gptel-set-session-id ()
+    (require 'uuidgen)
+    (setq-local my/gptel-session-id (uuidgen-1)))
+
+  (defun my/gptel-add-session-header (old-func fsm)
+    (let* ((info (gptel-fsm-info fsm))
+           (session-id
+            (with-current-buffer (plist-get info :buffer)
+              my/gptel-session-id)))
+      (if session-id
+          (let ((params (get gptel-model :request-params)))
+            (unwind-protect
+                (progn
+                  (put gptel-model :request-params
+                       (append (list :litellm_session_id session-id)
+                               params))
+                  (funcall old-func fsm))
+              (put gptel-model :request-params params)))
+        (funcall old-func fsm))))
   :config
   ;; These are defvars
   (setq gptel-expert-commands t)
@@ -3039,30 +3062,67 @@ up before you execute another command."
                    #'my/gptel-next-prompt
                    #'my/gptel-remove-extra-whitespace)
 
-  (add-hook 'gptel-mode-hook #'my/gptel-prepare-new-chat-buffer)
+  (add-hook 'gptel-mode-hook #'my/gptel-set-session-id)
+  (advice-add 'gptel--realize-query :around #'my/gptel-add-session-header))
+#+end_src
 
-  (use-package gptel-integrations)
+*** gptel-backends
 
-  (use-package gptel-org
-    :config
-    (add-to-list 'gptel-org-ignore-elements 'comment-block))
+#+begin_src emacs-lisp
+(use-package gptel-backends
+  :after (gptel)
+  :config
+  ;; (gptel-backends-make-clio `(,@CLIO))
+  ;; (gptel-backends-make-athena `(,@ATHENA))
+  (setq gptel-model 'hera/Qwen3-235B-A22B
+        ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
+        gptel-backend (gptel-backends-make-litellm)
+        ))
+#+end_src
 
-  (use-package gptel-transient
-    :config
-    ;; Patch the transient menu so it accept <return> instead of RET.
-    ;; I use keyboard return in Emacs, but C-m is bound to a command.
-    (when (ignore-errors (transient-get-suffix 'gptel-menu "RET"))
-      (transient-suffix-put 'gptel-menu "RET" :key "<return>"))
-    (when (ignore-errors (transient-get-suffix 'gptel-tools "RET"))
-      (transient-suffix-put 'gptel-tools "RET" :key "<return>")))
+*** gptel-presets
 
-  (use-package gptel-backends
-    :config
-    (gptel-backends-make-clio `(,@CLIO))
-    (gptel-backends-make-athena `(,@ATHENA))
-    (setq gptel-model 'Qwen3-235B-A22B
-          gptel-backend (gptel-backends-make-hera `(,@HERA)))
-    (add-to-list 'gptel-org-ignore-elements 'comment-block)))
+#+begin_src emacs-lisp
+(use-package gptel-presets
+  :after (gptel))
+#+end_src
+
+*** gptel-tools
+
+#+begin_src emacs-lisp
+(use-package gptel-tools
+  :after (gptel)
+  :custom
+  (gptel-include-tool-results t))
+#+end_src
+
+*** gptel-org
+
+#+begin_src emacs-lisp
+(use-package gptel-org
+  :config
+  (add-to-list 'gptel-org-ignore-elements 'comment-block))
+#+end_src
+
+*** gptel-integrations
+
+#+begin_src emacs-lisp
+(use-package gptel-integrations
+  :after (org))
+#+end_src
+
+*** gptel-transient
+
+#+begin_src emacs-lisp
+(use-package gptel-transient
+  :after (org)
+  :config
+  ;; Patch the transient menu so it accept <return> instead of RET.
+  ;; I use keyboard return in Emacs, but C-m is bound to a command.
+  (when (ignore-errors (transient-get-suffix 'gptel-menu "RET"))
+    (transient-suffix-put 'gptel-menu "RET" :key "<return>"))
+  (when (ignore-errors (transient-get-suffix 'gptel-tools "RET"))
+    (transient-suffix-put 'gptel-tools "RET" :key "<return>")))
 #+end_src
 
 *** gptel-rewrite
@@ -3160,7 +3220,7 @@ Intended to be placed in `git-commit-setup-hook'."
    ("C" . corsair-open-chat-buffer)
    ("w" . corsair-accumulate-selected-text))
   :preface
-  (defun gptel-add-asterixes ()
+  (defun gptel-add-asterixes (&rest _ignore)
     (let (inserted)
       (save-excursion
         (goto-char (point-min))
@@ -3173,12 +3233,16 @@ Intended to be placed in `git-commit-setup-hook'."
   :config
   (advice-add #'corsair-open-chat-buffer :after #'gptel-add-asterixes)
 
-  (defun corsair-open-chat-buffer ()
+  (defun corsair-open-chat-buffer (&optional arg)
     "Open or switch to the GPTel chat buffer and set it up for GPTel."
-    (interactive)
-    (let ((buffer (get-buffer corsair-chat-buffer-name)))
-      (unless buffer
-        (setq buffer (get-buffer-create corsair-chat-buffer-name))
+    (interactive "P")
+    (let ((buffer (funcall (if arg
+                               #'generate-new-buffer
+                             #'get-buffer)
+                           corsair-chat-buffer-name)))
+      (when (or (null buffer) arg)
+        (when (null buffer)
+          (setq buffer (get-buffer-create corsair-chat-buffer-name)))
         (with-current-buffer buffer
           (unless (derived-mode-p 'org-mode)
             (org-mode))
@@ -3203,6 +3267,8 @@ Intended to be placed in `git-commit-setup-hook'."
   :config
   (push '(code-infill . gptel-ext-code-infill) gptel-directives)
 
+  ;; When chat buffers are saved with C-x C-s, automatically name them into
+  ;; the Org-roam directory.
   (gptel-ext-write-to-org-roam-install))
 #+end_src
 
@@ -3314,7 +3380,6 @@ gptel’s partner, or the user’s.
    `(
      ("brave-search" :command "mcp-server-brave-search")
      ("fetch" :command "mcp-server-fetch")
-     ("fetch" :command "mcp-server-fetch")
      ("filesystem" :command "mcp-server-filesystem"
       :args (,(expand-file-name "~/Products/")))
      ("gdrive" :command "mcp-server-gdrive")
@@ -3330,6 +3395,14 @@ gptel’s partner, or the user’s.
      ("slack" :command "mcp-server-slack")
      ("sqlite" :command "mcp-server-sqlite")
      ("time" :command "mcp-server-time")
+     ;; ("nixos" :command "nix" :args ("run" "github:utensils/mcp-nixos" "--"))
+     ("nixos"
+      :command "uvx"
+      :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
+     ("org-mcp"
+      :command "uvx"
+      :args ("--isolated" "--from" "org-mcp" "org-mcp"
+             "--org-dir" ,org-directory))
      )))
 #+end_src
 
@@ -5256,7 +5329,14 @@ append it to ENTRY."
   :init
   (define-key key-translation-map (kbd "A-TAB") (kbd "C-TAB"))
 
-  (add-hook 'window-setup-hook #'emacs-min t))
+  (add-hook 'window-setup-hook #'emacs-min t)
+
+  ;; Make sure this runs last
+  (add-hook 'emacs-startup-hook
+            #'(lambda ()
+                (delete-other-windows)
+                (find-file "~/org/home.org"))
+            100))
 #+end_src
 
 ** COMMENT popper
@@ -11948,6 +12028,60 @@ stamp to a task, which can be used to schedule a review of the task.
               ("C-M-y" . org-rich-yank)))
 #+end_src
 
+*** COMMENT org-mem
+
+#+begin_src emacs-lisp
+(use-package org-mem
+  :custom
+  (org-mem-do-sync-with-org-id t)
+  (org-mem-watch-dirs (list org-directory))
+  (org-mem-roamy-do-overwrite-real-db t)
+  :config
+  (push "/template" org-mem-exclude)
+  (push "archive" org-mem-exclude)
+
+  (use-package org-mem-updater
+    :config
+    (org-mem-updater-mode))
+
+  (use-package org-mem-roamy
+    :config
+    (org-mem-roamy-db-mode)))
+#+end_src
+
+*** COMMENT org-node
+
+#+begin_src emacs-lisp
+(use-package org-node
+  :demand t
+  ;; :bind
+  ;; (:prefix-map org-node-global-prefix-map :prefix "M-o n")
+  :config
+  (keymap-set global-map "M-o n" org-node-global-prefix-map)
+  (with-eval-after-load 'org-keys
+    (keymap-set org-mode-map "M-o n" org-node-org-prefix-map))
+
+  ;; (use-package org-keys
+  ;;   :demand t
+  ;;   :bind
+  ;;   (:map
+  ;;    org-mode-map
+  ;;    :prefix-map org-node-org-prefix-map :prefix "M-o n"))
+
+  (setq org-node-alter-candidates t)
+
+  (setq org-node-filter-fn
+        #'(lambda (node)
+            (not (member "ARCHIVE" (org-mem-entry-tags node)))))
+
+  (org-node-cache-mode)
+  (org-node-roam-accelerator-mode)
+
+  (setq org-node-creation-fn #'org-node-new-via-roam-capture)
+  (setq org-node-file-slug-fn #'org-node-slugify-like-roam-default)
+  (setq org-node-file-timestamp-format "%Y%m%d%H%M%S-"))
+#+end_src
+
 *** org-roam
 
 #+begin_src emacs-lisp
@@ -12369,12 +12503,12 @@ this allows seeing an overview of tasks in a subtree.
   :after org
   :commands (org-srs-review-start)
   :bind (:map org-mode-map
-              ("<f4>"    . org-srs-review-start)
-              ("C-<f4>"  . org-srs-review-quit)
-              ("<right>" . org-srs-review-rate-easy)
-              ("<up>"    . org-srs-review-rate-good)
-              ("<down>"  . org-srs-review-rate-hard)
-              ("<left>"  . org-srs-review-rate-again))
+              ("<f4>"      . org-srs-review-start)
+              ("C-<f4>"    . org-srs-review-quit)
+              ("S-<right>" . org-srs-review-rate-easy)
+              ("S-<up>"    . org-srs-review-rate-good)
+              ("S-<down>"  . org-srs-review-rate-hard)
+              ("S-<left>"  . org-srs-review-rate-again))
   :config
   (use-package org-srs-query
     :config
