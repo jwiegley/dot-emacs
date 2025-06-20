@@ -38,17 +38,24 @@
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
 
+(unless t
+  (defun gptel-presets-add-params (&rest params)
+    "Add the given request PARAMS to whatever is the current set of parameters.
+Meant to be used with :post on a preset definition."
+    (lambda ()
+      (let ((params (cl-copy-list params))
+            (new-params (cl-copy-list gptel--request-params)))
+        (while params
+          (setq new-params
+                (plist-put new-params (car params) (cadr params)))
+          (setq params (cddr params)))
+        (setq-local gptel--request-params new-params)))))
+
 (defun gptel-presets-add-params (&rest params)
   "Add the given request PARAMS to whatever is the current set of parameters.
 Meant to be used with :post on a preset definition."
-  (lambda ()
-    (let ((params (cl-copy-list params))
-          (new-params (cl-copy-list gptel--request-params)))
-      (while params
-        (setq new-params
-              (plist-put new-params (car params) (cadr params)))
-        (setq params (cddr params)))
-      (setq-local gptel--request-params new-params))))
+  (lambda () (setq-local gptel--request-params
+                    (gptel--merge-plists gptel--request-params params))))
 
 (defmacro my/gptel-make-preset (name &rest keys)
   "A `gptel-make-preset', with NAME and KEYS, that auto-merges `:request-params'.
@@ -234,25 +241,25 @@ differently or may not accept what another backend consider legitimate."
 (my/gptel-make-preset 'web
   :description "Search the Web using Perplexity.ai"
   :parents 'sonar
-  :request-params '(:web_search_options '(:search_context_size "medium"))
+  :request-params '(:web_search_options (:search_context_size "medium"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'deep
   :description "Search the Web (deeply) using Perplexity.ai"
   :parents 'sonar
-  :request-params '(:web_search_options '(:search_context_size "high"))
+  :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'think
   :description "Search the Web (deeply) using Perplexity.ai"
   :parents 'pro
-  :request-params '(:web_search_options '(:search_context_size "high"))
+  :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'research
   :description "Perplexity.ai deep reasoning"
   :parents 'deep-research
-  :request-params '(:web_search_options '(:search_context_size "high"))
+  :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 ;;; PROMPT-TRANSFORMS ====================================================

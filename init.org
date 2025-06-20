@@ -3032,49 +3032,13 @@ up before you execute another command."
      'default
      #'(lambda (sym val) (set (make-local-variable sym) val)))
     (setq-local gptel--set-buffer-locally t))
-
-  (defvar my/gptel-session-id nil)
-
-  (defun my/gptel-set-session-id ()
-    (require 'uuidgen)
-    (setq-local my/gptel-session-id (uuidgen-1)))
-
-  (defun my/gptel-add-litellm-session ()
-    (when (and my/gptel-session-id
-               (string= (gptel-backend-name gptel-backend) "LiteLLM"))
-      (setq-local gptel--request-params
-                  (gptel--merge-plists gptel--request-params
-                                       (list :litellm_session
-                                             my/gptel-session-id)))))
-
-  (defun my/gptel-add-session-header (old-func fsm)
-    (let* ((info (gptel-fsm-info fsm))
-           (session-id
-            (with-current-buffer (plist-get info :buffer)
-              my/gptel-session-id)))
-      (if session-id
-          (let ((params (get gptel-model :request-params)))
-            (unwind-protect
-                (progn
-                  (put gptel-model :request-params
-                       (append (list :litellm_session_id session-id)
-                               params))
-                  (funcall old-func fsm))
-              (put gptel-model :request-params params)))
-        (funcall old-func fsm))))
   :config
   ;; These are defvars
   (setq gptel-expert-commands t)
 
   (add-all-to-list 'gptel-post-response-functions
                    #'my/gptel-next-prompt
-                   #'my/gptel-remove-extra-whitespace)
-
-  (add-hook 'gptel-mode-hook #'my/gptel-set-session-id)
-  ;; (add-hook 'gptel-prompt-transform-functions
-  ;;           #'my/gptel-add-litellm-session)
-  (advice-add 'gptel--realize-query :around #'my/gptel-add-session-header)
-  )
+                   #'my/gptel-remove-extra-whitespace))
 #+end_src
 
 *** gptel-backends
@@ -3105,6 +3069,16 @@ up before you execute another command."
   :after (gptel)
   :custom
   (gptel-include-tool-results t))
+#+end_src
+
+*** gptel-litellm
+
+#+begin_src emacs-lisp
+(use-package gptel-litellm
+  :load-path "lisp/gptel-litellm"
+  :after (gptel)
+  :config
+  (gptel-litellm-install-sessions))
 #+end_src
 
 *** gptel-org
@@ -12516,10 +12490,10 @@ this allows seeing an overview of tasks in a subtree.
   :bind (:map org-mode-map
               ("<f4>"      . org-srs-review-start)
               ("C-<f4>"    . org-srs-review-quit)
-              ("S-<right>" . org-srs-review-rate-easy)
-              ("S-<up>"    . org-srs-review-rate-good)
-              ("S-<down>"  . org-srs-review-rate-hard)
-              ("S-<left>"  . org-srs-review-rate-again))
+              ("A-<right>" . org-srs-review-rate-easy)
+              ("A-<up>"    . org-srs-review-rate-good)
+              ("A-<down>"  . org-srs-review-rate-hard)
+              ("A-<left>"  . org-srs-review-rate-again))
   :config
   (use-package org-srs-query
     :config

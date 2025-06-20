@@ -103,3 +103,6 @@
 [submodule "lisp/emacs-lzw"]
 	path = lisp/emacs-lzw
 	url = git@github.com:jwiegley/emacs-lzw
+[submodule "lisp/gptel-litellm"]
+	path = lisp/gptel-litellm
+	url = git@github.com:karthink/gptel-litellm
