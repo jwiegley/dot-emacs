@@ -461,59 +461,19 @@
                 (perplexity/sonar-pro
                  :description ""
                  :capabilities (media tool json url)
-                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp")
-                 :request-params
-                 `(:web_search_options
-                   (:search_context_size
-                    "high"
-                    :user_location
-                    (:latitude
-                     ,calendar-latitude
-                     :longitude
-                     ,calendar-longitude
-                     :country "US"))))
+                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
                 (perplexity/sonar-reasoning-pro
                  :description ""
                  :capabilities (media tool json url)
-                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp")
-                 :request-params
-                 `(:web_search_options
-                   (:search_context_size
-                    "high"
-                    :user_location
-                    (:latitude
-                     ,calendar-latitude
-                     :longitude
-                     ,calendar-longitude
-                     :country "US"))))
+                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
                 (perplexity/sonar-deep-research
                  :description ""
                  :capabilities (media tool json url)
-                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp")
-                 :request-params
-                 `(:web_search_options
-                   (:search_context_size
-                    "high"
-                    :user_location
-                    (:latitude
-                     ,calendar-latitude
-                     :longitude
-                     ,calendar-longitude
-                     :country "US"))))
+                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
                 (perplexity/r1-1776
                  :description ""
                  :capabilities (media tool json url)
-                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp")
-                 :request-params
-                 `(:web_search_options
-                   (:search_context_size
-                    "high"
-                    :user_location
-                    (:latitude
-                     ,calendar-latitude
-                     :longitude
-                     ,calendar-longitude
-                     :country "US"))))
+                 :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
                 (groq/compound-beta
                  :description ""
@@ -556,7 +516,16 @@
                  :description ""
                  :capabilities (media tool json url)
                  :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-                )))
+                )
+      :header
+      (lambda () (when-let* ((key (gptel--get-api-key)))
+              `(("x-api-key"         . ,key)
+                ("x-litellm-timeout" . "7200")
+                ("x-litellm-tags"    . "gptel")
+                ("anthropic-version" . "2023-06-01")
+                ("anthropic-beta"    . "pdfs-2024-09-25")
+                ("anthropic-beta"    . "output-128k-2025-02-19")
+                ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
   ;; (gptel-make-openai "mlx-lm"
   ;;   :host "192.168.50.5:9090"

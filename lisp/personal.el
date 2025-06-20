@@ -419,4 +419,7 @@ transform."
     (with-current-buffer (get-buffer "*scratch*")
       (insert (pp-to-string vars)))))
 
+(defmacro compose (&rest args)
+  `(lambda (x) (thread-last x ,@args)))
+
 (provide 'personal)
