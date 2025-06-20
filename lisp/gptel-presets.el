@@ -66,6 +66,11 @@
   :description "Best model for generating or interpreting code"
   :parents 'opus)
 
+(gptel-make-preset 'cli
+  :description "Generate command-line commands"
+  :system 'cli
+  :parents 'opus)
+
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   ;; :backend "llama-swap-hera"
@@ -74,15 +79,22 @@
   :model 'hera/Qwen3-235B-A22B
   :temperature 1.0)
 
+(gptel-make-preset 'emacs
+  :description "Best model for generating or interpreting code"
+  :system 'emacs-aid
+  :parents 'qwen
+  :tools '("find_functions" "get_function_docstring"))
+
 (gptel-make-preset 'r1
   :description "DeepSeek R1"
   ;; :backend "llama-swap-hera"
   ;; :model 'DeepSeek-R1-0528
   :backend "LiteLLM"
-  :model 'hera/DeepSeek-R1-0528
+  ;; :model 'hera/DeepSeek-R1-0528
+  :model 'openrouter/deepseek/deepseek-r1-0528:free
   :temperature 0.6)
 
-(gptel-make-preset 'r1q
+(gptel-make-preset 'fast
   :description "DeepSeek R1, quick"
   ;; :backend "llama-swap-hera"
   ;; :model 'DeepSeek-R1-0528-Qwen3-8B
