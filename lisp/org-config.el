@@ -130,11 +130,12 @@
 
 (defun org-config-skip-if-regularly-reviewed ()
   (org-config-agenda-skip-entry-if
-   (let ((tags (org-get-tags))
-         (category (org-get-category)))
-     (or (cl-intersection org-config-names-regularly-reviewed tags
-                          :test #'string=)
-         (member category org-config-categories-regularly-reviewed)))))
+   (and (null (org-entry-get nil "HIDE"))
+        (or (cl-intersection org-config-names-regularly-reviewed
+                             (org-get-tags)
+                             :test #'string=)
+            (member (org-get-category)
+                    org-config-categories-regularly-reviewed)))))
 
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
@@ -203,7 +204,7 @@
 
 (defsubst org-config-kadena-meeting (keys title file)
   (org-config-meeting-template
-   keys title file "~/org/template/kadena/meetings"))
+   keys title file "~/org/template/kadena/meeting"))
 
 (defsubst org-config-kadena-1-on-1 (keys title file)
   (org-config-meeting-template
@@ -211,7 +212,7 @@
 
 (defsubst org-config-bahai-meeting (keys title file)
   (org-config-meeting-template
-   keys title file "~/org/template/bahai/meetings" nil "bahai"))
+   keys title file "~/org/template/bahai/meeting" nil "bahai"))
 
 (defsubst org-config-call-only (f)
   `(lambda (_arg) (call-interactively (function ,f) nil)))
@@ -504,7 +505,7 @@ SCHEDULED: %t
     :no-save t)
 
    ("ba" "Assembly meeting" plain
-    (file "~/org/template/bahai/meetings/assembly-meeting.org")
+    (file "~/org/template/bahai/meeting/assembly-meeting.org")
     :target
     (file+head
      "assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
@@ -716,7 +717,7 @@ SCHEDULED: %t
    ("go" "Open source tasks"
     ((org-ql-block
       `(and (about "Computer" "Emacs" "Org-mode" "Ledger"
-                   "org-jw" "Nix" "AI" "gptel")
+                   "org-jw" "Nix" "AI" "gptel" "rag-clnt")
             (todo "TODO" "DOING")
             (not (tags "ARCHIVE"))
             (not (scheduled))
