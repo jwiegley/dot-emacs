@@ -180,10 +180,41 @@ differently or may not accept what another backend consider legitimate."
   :tools nil
   :parents `(quick
              ,(if gptel-presets-rewrite-use-remote
-                  'sonnet
+                  'gpt
                 'qwen)))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
+
+;;; Refinement
+
+(gptel-make-preset 'prompt
+  :description "AI prompt refiner"
+  :system 'prompt
+  :parents 'gpt
+  :tools nil
+  :max-tokens nil
+  :include-reasoning 'ignore)
+
+(gptel-make-preset 'title
+  :description "Create Org-mode title"
+  :system 'title
+  :parents 'rewrite)
+
+;;; Languages
+
+(gptel-make-preset 'persian
+  :description "Persian translator"
+  :system 'persian
+  :parents 'gpt
+  :max-tokens 2048)
+
+(gptel-make-preset 'spanish
+  :description "Spanish translator"
+  :system 'spanish
+  :parents 'gpt
+  :max-tokens 2048)
+
+;;; Computing
 
 (gptel-make-preset 'cli
   :description "Generate command-line commands"
@@ -194,38 +225,13 @@ differently or may not accept what another backend consider legitimate."
   :description "Best model for generating or interpreting code"
   :system 'emacs-aid
   :parents 'qwen
-  :tools '("find_functions" "get_function_docstring"))
-
-(gptel-make-preset 'prompt
-  :description "AI prompt refiner"
-  :system 'prompt
-  :parents 'opus
-  :tools nil
-  :max-tokens nil
-  :include-reasoning 'ignore)
-
-(gptel-make-preset 'persian
-  :description "Persian translator"
-  :system 'persian
-  :parents 'opus
-  :max-tokens 2048)
-
-(gptel-make-preset 'spanish
-  :description "Spanish translator"
-  :system 'spanish
-  :parents 'opus
-  :max-tokens 2048)
+  :tools '("emacs"))
 
 (gptel-make-preset 'haskell
   :description "Expert Haskell coder"
   :system 'haskell
   :parents 'opus
   :max-tokens 1024)
-
-(gptel-make-preset 'title
-  :description "Create Org-mode title"
-  :system 'title
-  :parents 'rewrite)
 
 ;;; REQUEST-PARAMS =======================================================
 

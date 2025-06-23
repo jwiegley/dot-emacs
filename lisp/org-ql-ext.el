@@ -93,7 +93,7 @@
               (org-agenda-files)
               (org-ql--query-string-to-sexp input)
               :action (lambda ()
-                        (let* ((heading (org-get-heading t))
+                        (let* ((heading (org-get-heading t t))
                                (id (org-id-get (point))))
                           ;; Avoid having to look up the ID again since we
                           ;; are visiting all the locations with org-ql

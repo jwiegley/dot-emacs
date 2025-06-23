@@ -194,8 +194,6 @@
 #+begin_src emacs-lisp
 (use-package epg
   :defer t
-  ;; :custom
-  ;; (epg-gpg-program "/usr/local/bin/gpg")
   :config
   (put 'epg-gpg-program 'customized-value t))
 #+end_src
@@ -210,7 +208,7 @@ unto itself.
 (use-package emacs
   :demand t
   :bind*
-  ("<C-return>" . other-window)
+  ;; ("<C-return>" . other-window)   ; use avy
   ("<C-tab>"    . ignore)
   :custom
   ;; C source code
@@ -350,9 +348,6 @@ unto itself.
   ;; bytecomp.el
   (byte-compile-verbose nil)
 
-  ;; (custom-buffer-done-function 'kill-buffer)
-  ;; (default-major-mode 'text-mode)
-
   ;; prog-mode.el
   (prettify-symbols-unprettify-at-point 'right-edge)
 
@@ -411,7 +406,7 @@ unto itself.
     (mapc #'(lambda (entry)
               (define-prefix-command (cdr entry))
               (bind-key (car entry) (cdr entry)))
-          '(("C-,"   . my-ctrl-comma-map)
+          '(("C-'"   . my-ctrl-quote-map)
             ("<C-m>" . my-ctrl-m-map)
             ("C-h e" . my-emacs-lisp-help-map)
             ("C-c b" . my-bookmarks-bibliography-map)
@@ -449,13 +444,13 @@ unto itself.
       (quietly-read-abbrev-file)))
 #+end_src
 
-** COMMENT ace-window
+** ace-window
 
 #+begin_src emacs-lisp
 (use-package ace-window
   :bind* ("<C-return>" . ace-window)
   :custom
-  (aw-dispatch-when-more-than 6)
+  (aw-dispatch-when-more-than 3)
   (aw-scope 'frame))
 #+end_src
 
@@ -624,10 +619,12 @@ decision tree.
 
 #+begin_src emacs-lisp
 (use-package avy
-  :bind ("C-." . avy-goto-char-timer)
+  ;; :bind ("C-." . avy-goto-char-timer)
+  :bind* (("<S-return>" . avy-goto-char-timer)
+          ("C-," . avy-goto-char-timer))
   :custom
   (avy-case-fold-search t)
-  (avy-keys '(97 111 101 117 105 100 104 116 110 115))
+  (avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
   (avy-timeout-seconds 0.3)
   :functions (avy-setup-default)
   :preface
@@ -666,7 +663,9 @@ decision tree.
   :config
   (avy-setup-default)
 
-  (define-key isearch-mode-map (kbd "C-.") 'avy-isearch)
+  ;; (define-key isearch-mode-map (kbd "C-.") 'avy-isearch)
+  (define-key isearch-mode-map (kbd "C-,") 'avy-isearch)
+  (define-key isearch-mode-map (kbd "<S-return>") 'avy-isearch)
 
   (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
         (alist-get ?K avy-dispatch-alist) 'avy-action-kill-whole-line)
@@ -1586,7 +1585,8 @@ diff-hl package.
         (dired "~/Desktop")
         (split-window-vertically)
         (dired "~/Inbox"))
-      (revert-buffer)))
+      (revert-buffer)
+      (pop-to-buffer "Downloads")))
 
   (defun dired-next-window ()
     (interactive)
@@ -2655,7 +2655,8 @@ Giving these commands a prefix argument means copy instead of kill.
 
 #+begin_src emacs-lisp
 (use-package ffap
-  :bind (("C-c v"     . ffap)
+  :bind (
+         ;; ("C-c v"     . ffap)
          ("C-c <tab>" . ff-find-other-file)))
 #+end_src
 
@@ -2932,41 +2933,7 @@ up before you execute another command."
 
 ** gptel
 
-#+name: gptel-define
-#+begin_src emacs-lisp :tangle no :exports none
-(defun my/gptel-hf-models (server)
-    "Return a list of Lisp symbols representing every HF model installed."
-    (with-temp-buffer
-      (shell-command (format "hf --server %s models" server)
-                     (current-buffer))
-      (goto-char (point-min))
-      (while (re-search-forward "\\(BAAI/\\|sentence-transformers/\\|Warning:\\)" nil t)
-        (delete-region (line-beginning-position) (1+ (line-end-position))))
-      (sort-lines nil (point-min) (point-max))
-      (goto-char (point-max))
-      (insert ")")
-      (goto-char (point-min))
-      (insert "(")
-      (forward-char -1)
-      (read (current-buffer))))
-#+end_src
-
-#+name: models-clio
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.112")
-#+end_src
-
-#+name: models-hera
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.5")
-#+end_src
-
-#+name: models-athena
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.235")
-#+end_src
-
-#+begin_src emacs-lisp :var CLIO=models-clio :var HERA=models-hera :var ATHENA=models-athena
+#+begin_src emacs-lisp
 (use-package gptel
   :load-path "lisp/gptel"
   :demand t
@@ -3042,6 +3009,44 @@ up before you execute another command."
 #+end_src
 
 *** gptel-backends
+
+#+name: gptel-define
+#+begin_src emacs-lisp :tangle no :exports none
+(defun my/gptel-hf-models (server)
+    "Return a list of Lisp symbols representing every HF model installed."
+    (with-temp-buffer
+      (shell-command (format "hf --server %s models" server)
+                     (current-buffer))
+      (goto-char (point-min))
+      (while (re-search-forward "\\(BAAI/\\|sentence-transformers/\\|Warning:\\)" nil t)
+        (delete-region (line-beginning-position) (1+ (line-end-position))))
+      (sort-lines nil (point-min) (point-max))
+      (goto-char (point-max))
+      (insert ")")
+      (goto-char (point-min))
+      (insert "(")
+      (forward-char -1)
+      (read (current-buffer))))
+#+end_src
+
+#+name: models-clio
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.112")
+#+end_src
+
+#+name: models-hera
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.5")
+#+end_src
+
+#+name: models-athena
+#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
+(my/gptel-hf-models "192.168.50.235")
+#+end_src
+
+#+begin_comment
+,#+begin_src emacs-lisp :var CLIO=models-clio :var HERA=models-hera :var ATHENA=models-athena
+#+end_comment
 
 #+begin_src emacs-lisp
 (use-package gptel-backends
@@ -3288,6 +3293,16 @@ Intended to be placed in `git-commit-setup-hook'."
   (gptel-rag-install))
 #+end_src
 
+*** gptel-got
+
+#+begin_src emacs-lisp
+(use-package gptel-got
+  :after (gptel)
+  ;; :config
+  ;; (mapcar #'(lambda (tool) (cl-pushnew tool gptel-tools)) gptel-got)
+  )
+#+end_src
+
 *** COMMENT gptel-aibo
 
 [[https://github.com/dolmens/gptel-aibo][gptel-aibo]] is an AI writing assistant system built on top of [[https://github.com/karthink/gptel][gptel]]. It helps
@@ -3363,32 +3378,30 @@ gptel’s partner, or the user’s.
   :custom
   (mcp-hub-servers
    `(
-     ("brave-search" :command "mcp-server-brave-search")
-     ("fetch" :command "mcp-server-fetch")
-     ("filesystem" :command "mcp-server-filesystem"
-      :args (,(expand-file-name "~/Products/")))
-     ("gdrive" :command "mcp-server-gdrive")
-     ("git" :command "mcp-server-git")
+     ;; ("brave-search" :command "mcp-server-brave-search")
+     ;; ("fetch" :command "mcp-server-fetch")
+     ;; ("filesystem" :command "mcp-server-filesystem"
+     ;;  :args (,(expand-file-name "~/Products/")))
+     ;; ("gdrive" :command "mcp-server-gdrive")
+     ;; ("git" :command "mcp-server-git")
+     ;; ("google-maps" :command "mcp-server-google-maps")
+     ;; ("memory" :command "mcp-server-memory")
+     ;; ("postgres" :command "mcp-server-postgres")
+     ;; ("sequential-thinking" :command "mcp-server-sequential-thinking")
+     ;; ("slack" :command "mcp-server-slack")
+     ;; ("sqlite" :command "mcp-server-sqlite")
+     ;; ("time" :command "mcp-server-time")
      ("github" :command "github-mcp-server"
       :args ("stdio")
       :env (:GITHUB_PERSONAL_ACCESS_TOKEN
             ,(lookup-password "api.github.com" "johnw" 80)))
-     ("google-maps" :command "mcp-server-google-maps")
-     ("memory" :command "mcp-server-memory")
-     ("postgres" :command "mcp-server-postgres")
-     ("sequential-thinking" :command "mcp-server-sequential-thinking")
-     ("slack" :command "mcp-server-slack")
-     ("sqlite" :command "mcp-server-sqlite")
-     ("time" :command "mcp-server-time")
-     ;; ("nixos" :command "nix" :args ("run" "github:utensils/mcp-nixos" "--"))
      ("nixos"
       :command "uvx"
       :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
      ("org-mcp"
       :command "uvx"
       :args ("--isolated" "--from" "org-mcp" "org-mcp"
-             "--org-dir" ,org-directory))
-     )))
+             "--org-dir" ,org-directory)))))
 #+end_src
 
 ** grep
@@ -3975,6 +3988,7 @@ minibuffer change, the region is realigned.
 
 #+begin_src emacs-lisp
 (use-package jinx
+  :diminish jinx-mode
   :bind
   ("M-$" . jinx-correct)
   ("C-M-$" . jinx-languages)
@@ -4047,7 +4061,7 @@ minibuffer change, the region is realigned.
   :mode "\\.js\\'")
 #+end_src
 
-** jupyter
+** COMMENT jupyter
 
 #+begin_src emacs-lisp
 (use-package jupyter
@@ -4830,7 +4844,7 @@ would expect.
 (use-package origami
   :commands (origami-mode)
   :bind (:map origami-mode-map
-              ("C-, C-h" . origami-toggle-node))
+              ("C-' C-h" . origami-toggle-node))
   :hook (rust-mode . origami-mode)
   :custom
   ;; Highlights the line the fold starts on
@@ -5401,7 +5415,9 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package prodigy
-  :commands prodigy)
+  :commands prodigy
+  :config
+  (use-package prodigy-services))
 #+end_src
 
 ** projectile
@@ -5520,6 +5536,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (defun recentf-add-dired-directory ()
     "Add directories visit by dired into recentf."
     (if (and dired-directory
+             (stringp dired-directory)
              (file-directory-p dired-directory)
              (not (string= "/" dired-directory)))
         (let ((last-idx (1- (length dired-directory))))
@@ -5760,7 +5777,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package shell-toggle
-  :bind ("C-, C-z" . shell-toggle)
+  :bind ("C-' C-z" . shell-toggle)
   :custom
   (shell-toggle-launch-shell 'shell))
 #+end_src
@@ -6627,6 +6644,7 @@ independent components.
          ("C-x 4 b" . consult-buffer-other-window)
          ("C-x 5 b" . consult-buffer-other-frame)
          ("C-x r b" . consult-bookmark)
+         ("C-x r j" . consult-register)
          ("C-x 4 j" . consult-bookmark-other-window)
          ("C-x p f" . project-find-file)
          ("C-x p b" . consult-project-buffer)
@@ -6638,16 +6656,18 @@ independent components.
          ("M-g M-g" . consult-goto-line)
          ("M-g l"   . consult-goto-line)
          ([remap goto-line] . consult-goto-line)
-         ;; ("M-g o"   . consult-org-heading)
+         ("M-g O"   . consult-org-heading)
          ("M-g m"   . consult-mark)
          ("M-g k"   . consult-global-mark)
          ("M-g i"   . consult-imenu)
          ("M-g I"   . consult-imenu-multi)
          ;; M-s bindings (search-map)
-         ("M-s f"   . consult-find)
+         ;; ("M-s f"   . consult-find)
+         ("M-s f"   . consult-fd)
          ("M-s M-g" . consult-grep)
          ("M-s g"   . consult-ripgrep)
          ("M-s G"   . consult-git-grep)
+         ("M-s H"   . consult-history)
          ("M-s r"   . consult-ripgrep)
          ("M-s l"   . consult-line)
          ("M-s L"   . consult-line-multi)
@@ -6658,11 +6678,12 @@ independent components.
          :map isearch-mode-map
          ("M-e"     . consult-isearch-history)
          ("M-s e"   . consult-isearch-history)
+         ("M-s o"   . consult-line)
          ("M-s l"   . consult-line)
          ("M-s L"   . consult-line-multi)
          ;; Minibuffer history
          :map minibuffer-local-map
-         ("M-s"     . consult-history)
+         ;; ("M-s"     . consult-history)
          ("M-r"     . consult-history))
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
@@ -7127,7 +7148,8 @@ provides an alternative overlay-based display.
          ("<return>" . corfu-insert)
          ("M-d"      . corfu-info-documentation)
          ("M-l"      . corfu-info-location)
-         ("M-."      . corfu-move-to-minibuffer))
+         ;; ("M-."      . corfu-move-to-minibuffer)
+         ("C-."      . corfu-move-to-minibuffer))
   :custom
   ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
   ;; want to perform completion
@@ -7171,14 +7193,19 @@ provides an alternative overlay-based display.
 
   (defun corfu-move-to-minibuffer ()
     (interactive)
-    (let (completion-cycle-threshold completion-cycling)
-      (apply #'consult-completion-in-region completion-in-region--data)))
+    (pcase completion-in-region--data
+      (`(,beg ,end ,table ,pred ,extras)
+       (let ((completion-extra-properties extras)
+             completion-cycle-threshold completion-cycling)
+         (consult-completion-in-region beg end table pred)))))
 
   (defun corfu-hide-popup ()
     (interactive)
     (corfu--hide-frame corfu--frame))
   :config
   (global-corfu-mode)
+
+  (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
 
   ;; Enable Corfu more generally for every minibuffer, as long as no other
   ;; completion UI is active. If you use Mct or Vertico as your main
@@ -7284,7 +7311,22 @@ for a set of variables.
 
 #+begin_src emacs-lisp
 (use-package embark
-  :bind (("M-."   . embark-act)
+  :bind (
+         ;; jww (2025-06-22): Maybe this should be:
+         ;;
+         ;; C-.   embark-act
+         ;; C-M-. embark-act-all
+         ;; M-.   embark-dwim
+         ;; S-SPC avy-goto-char-timer
+
+         ;; ("M-."   . embark-act)
+         ;; ("C-M-." . embark-act-all)
+         ;; ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
+         ;; ("C-c v" . embark-dwim)
+
+         ("C-."   . embark-act)
+         ("C-M-." . embark-act-all)
+         ("M-."   . embark-dwim)
          ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
 
          :map embark-collect-mode-map
@@ -7360,7 +7402,34 @@ commands.
   :bind (("M-A" . marginalia-cycle)
          :map minibuffer-local-map
          ("M-A" . marginalia-cycle))
-
+  :custom
+  (marginalia-annotators
+   '(
+     (bookmark marginalia-annotate-bookmark builtin none)
+     (buffer marginalia-annotate-buffer builtin none)
+     (charset marginalia-annotate-charset builtin none)
+     (coding-system marginalia-annotate-coding-system builtin none)
+     (color marginalia-annotate-color builtin none)
+     (command marginalia-annotate-command marginalia-annotate-binding builtin none)
+     (customize-group marginalia-annotate-customize-group builtin none)
+     (embark-keybinding marginalia-annotate-embark-keybinding builtin none)
+     (environment-variable marginalia-annotate-environment-variable builtin none)
+     (face marginalia-annotate-face builtin none)
+     (file marginalia-annotate-file builtin none)
+     (function marginalia-annotate-function builtin none)
+     (imenu marginalia-annotate-imenu builtin none)
+     (input-method marginalia-annotate-input-method builtin none)
+     (library marginalia-annotate-library builtin none)
+     (minor-mode marginalia-annotate-minor-mode builtin none)
+     (multi-category marginalia-annotate-multi-category builtin none)
+     (package marginalia-annotate-package builtin none)
+     (project-file marginalia-annotate-project-file builtin none)
+     (symbol marginalia-annotate-symbol builtin none)
+     (tab marginalia-annotate-tab builtin none)
+     (theme marginalia-annotate-theme builtin none)
+     (unicode-name marginalia-annotate-char builtin none)
+     (variable marginalia-annotate-variable builtin none)
+     ))
   ;; The :init configuration is always executed (Not lazy!)
   :config
   ;; Must be in the :init section of use-package such that the mode gets
@@ -7438,13 +7507,11 @@ without white space and comments.
 (use-package vertico
   :after cape                           ; because this defines C-c .
   :demand t
-  :bind (("C-c . ." . vertico-repeat)
-         :map vertico-map
-         ("C-j"   . vertico-exit-input)
-         ("C-M-n" . vertico-next-group)
-         ("C-M-p" . vertico-previous-group))
+  :bind (:map vertico-map
+              ("C-j"   . vertico-exit-input)
+              ("C-M-n" . vertico-next-group)
+              ("C-M-p" . vertico-previous-group))
   :hook
-  (minibuffer-setup . vertico-repeat-save)
   (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :custom
   (vertico-count 10)
@@ -7495,7 +7562,14 @@ without white space and comments.
         #'command-completion-default-include-p)
 
   (use-package vertico-repeat
-    :demand t)
+    :demand t
+    :bind
+    (("C-c . ." . vertico-repeat)
+     :map vertico-map
+     ("M-P" . vertico-repeat-previous)
+     ("M-N" . vertico-repeat-next))
+    :hook
+    (minibuffer-setup . vertico-repeat-save))
 
   (use-package vertico-directory
     :demand t
@@ -7509,8 +7583,10 @@ without white space and comments.
   (use-package vertico-quick
     :demand t
     :bind (:map vertico-map
-                ("C-."   . vertico-quick-exit)
-                ("C-M-." . vertico-quick-embark))
+                ;; ("C-." . vertico-quick-exit)
+                ("<S-return>" . vertico-quick-exit)
+                ("M->" . vertico-quick-embark)
+                )
     :preface
     (defun vertico-quick-embark (&optional arg)
       "Embark on candidate using quick keys."
@@ -7522,6 +7598,7 @@ without white space and comments.
     :demand t
     :bind (:map vertico-map
                 ("C-i"   . vertico-multiform-vertical)
+                ("M-G"   . vertico-multiform-grid)
                 ("M-B"   . vertico-multiform-buffer)
                 ("<tab>" . vertico-insert))
     :custom
@@ -10188,7 +10265,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
           ("C-c l" . org-insert-link))
   :bind (:map
          org-mode-map
-         ("C-,")
          ("C-c .")
          ("C-c #"       . org-priority)
          ("C-c ,"       . org-priority)
@@ -10985,7 +11061,8 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
      (dot        . t)
      (makefile   . t)
      (emamux     . t)
-     (jupyter    . t)))                  ; must be last
+     ;; (jupyter    . t)
+     ))                  ; must be last
 
   (remove-hook 'kill-emacs-hook 'org-babel-remove-temporary-directory)
 
@@ -11001,10 +11078,11 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (setq org-babel-default-header-args:sh    '((:results . "output replace"))
         org-babel-default-header-args:bash  '((:results . "output replace"))
         org-babel-default-header-args:shell '((:results . "output replace"))
-        org-babel-default-header-args:jupyter-python
-        '((:async . "yes")
-          (:session . "py")
-          (:kernel . "sagemath")))
+        ;; org-babel-default-header-args:jupyter-python
+        ;; '((:async . "yes")
+        ;;   (:session . "py")
+        ;;   (:kernel . "sagemath"))
+        )
 
   (use-package ob-plantuml)
   (use-package ob-ditaa)
@@ -11058,7 +11136,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
          :map org-mode-map
          ("C-x M" . org-contacts-view-send-email))
   :custom
-  (org-contacts-files (list (org-file "people.org")))
+  (org-contacts-files (list (org-file "contacts.org")))
   :config
   (add-hook 'message-mode-hook
             #'(lambda ()
@@ -11752,7 +11830,7 @@ directory.
   (org-refile-targets
    `((org-ext-agenda-files-but-not-meetings . (:maxlevel . 4))
      ;; (org-ext-team-files . (:regexp . "Notes"))
-     ((,org-constants-people-path
+     ((,org-constants-contacts-path
        ,org-constants-plain-org-path)
       . (:level . 1))))
   (org-refile-target-verify-function #'org-ext-refile-heading-p)
@@ -12280,7 +12358,7 @@ utilities around note taking.
    'vulpea-update-agenda-files
    :after #'(lambda (&rest _ignore)
               (nconc org-agenda-files
-                     (list org-constants-people-path
+                     (list org-constants-contacts-path
                            org-constants-plain-org-path
                            ;; org-constants-flat-habits-path
                            )))))
@@ -12315,6 +12393,13 @@ utilities around note taking.
                    '(consult-org-roam-forward-links)
                    '(consult-org-roam-file-find)
                    '(consult-org-roam-search)))
+#+end_src
+
+**** embark-org
+
+#+begin_src emacs-lisp
+(use-package embark-org
+  :after (embark))
 #+end_src
 
 **** embark-org-roam
@@ -12486,8 +12571,10 @@ this allows seeing an overview of tasks in a subtree.
 #+begin_src emacs-lisp
 (use-package org-srs
   :after org
-  :commands (org-srs-review-start)
+  :commands (org-srs-review-start
+             org-srs-item-create)
   :bind (:map org-mode-map
+              ("C-c n c"   . org-srs-item-create)
               ("<f4>"      . org-srs-review-start)
               ("C-<f4>"    . org-srs-review-quit)
               ("A-<right>" . org-srs-review-rate-easy)
