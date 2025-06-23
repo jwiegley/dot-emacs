@@ -385,7 +385,7 @@ tasks."
   (message "Sorting Org-mode files...")
   (redisplay t)
   (dolist (file (append org-constants-agenda-base-files
-                        (list org-constants-people-path
+                        (list org-constants-contacts-path
                               org-constants-plain-org-path)))
     (message "Sorting: %s" file)
     (redisplay t)
@@ -697,7 +697,7 @@ tasks."
 (defun org-roam-ext-insert-person ()
   "Insert a link to a person node tagged with :people:."
   (interactive)
-  (let* ((people (org-ql-select (list org-constants-people-path)
+  (let* ((people (org-ql-select (list org-constants-contacts-path)
                    '(and (level 1)
                          (not (heading "Events")))
                    :action #'(lambda ()

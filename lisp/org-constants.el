@@ -30,7 +30,7 @@
 
 (defconst org-constants-open-source-path (org-file "OSS.org"))
 
-(defconst org-constants-people-path (org-file "people.org"))
+(defconst org-constants-contacts-path (org-file "contents.org"))
 
 (defconst org-constants-agenda-base-files
   (list org-constants-todo-path
@@ -45,7 +45,7 @@
         "assembly/assembly.org"
         "quantum-trades/quantum-trades.org"
         (file-name-nondirectory org-constants-open-source-path)
-        (file-name-nondirectory org-constants-people-path)
+        (file-name-nondirectory org-constants-contacts-path)
         (file-name-nondirectory org-constants-journelly-path)
         (file-name-nondirectory org-constants-flat-habits-path)
         (file-name-nondirectory org-constants-plain-org-path)))

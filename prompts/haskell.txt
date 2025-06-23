@@ -25,5 +25,3 @@ For complex tasks, break down your solution process into:
 2. Designing appropriate data structures and type signatures
 3. Implementing core functionality with clear, documented code
 4. Testing considerations, including edge cases and property-based tests
-
-Always provide explanations alongside your code to help me learn and understand the functional programming concepts involved.

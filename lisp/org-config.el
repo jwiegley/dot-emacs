@@ -128,6 +128,20 @@
   :type '(repeat string)
   :group 'org-config)
 
+(defcustom org-config-open-source-categories
+  '("AI"
+    "Computer"
+    "Emacs"
+    "Ledger"
+    "Nix"
+    "Org-mode"
+    "gptel"
+    "org-jw"
+    "rag-clnt")
+  "Categories that cover open source work that I regularly do"
+  :type '(repeat string)
+  :group 'org-config)
+
 (defun org-config-skip-if-regularly-reviewed ()
   (org-config-agenda-skip-entry-if
    (and (null (org-entry-get nil "HIDE"))
@@ -135,7 +149,9 @@
                              (org-get-tags)
                              :test #'string=)
             (member (org-get-category)
-                    org-config-categories-regularly-reviewed)))))
+                    org-config-categories-regularly-reviewed)
+            (member (org-get-category)
+                    org-config-open-source-categories)))))
 
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
@@ -249,7 +265,7 @@
       :prepend t)
 
      ("P" "Person" entry
-      (file ,org-constants-people-path)
+      (file ,org-constants-contacts-path)
       "* %?
 :PROPERTIES:
 :ORG:      ?
@@ -306,7 +322,7 @@ SCHEDULED: %t
       :prepend t)
 
      ("B" "Org-contact" entry
-      (file ,org-constants-people-path)
+      (file ,org-constants-contacts-path)
       "* %^{NAME}
 :PROPERTIES:
 :PHONE:    %^{PHONE}
@@ -716,8 +732,7 @@ SCHEDULED: %t
 
    ("go" "Open source tasks"
     ((org-ql-block
-      `(and (about "Computer" "Emacs" "Org-mode" "Ledger"
-                   "org-jw" "Nix" "AI" "gptel" "rag-clnt")
+      `(and (about ,@org-config-open-source-categories)
             (todo "TODO" "DOING")
             (not (tags "ARCHIVE"))
             (not (scheduled))
