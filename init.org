@@ -56,6 +56,14 @@
         debug-on-error verbose
         debug-on-message "finalizer failed"
         debug-on-quit verbose))
+
+(defun use-package-normalize/:nix (_name-symbol _keyword args)
+  args)
+
+(defun use-package-handler/:nix (name-symbol _keyword _arg rest state)
+  (use-package-process-keywords name-symbol rest state))
+
+(add-to-list 'use-package-keywords :nix)
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=
@@ -2965,6 +2973,7 @@ up before you execute another command."
    gptel-cmd-map
    :prefix "C-x c"
    ("x"        . gptel-abort)
+   ("i"        . (lambda () (interactive) (gptel--inspect-fsm)))
    ("RET"      . gptel-send)
    ("<return>" . gptel-send)
    :map
@@ -3027,7 +3036,18 @@ up before you execute another command."
 
   (add-all-to-list 'gptel-post-response-functions
                    #'my/gptel-next-prompt
-                   #'my/gptel-remove-extra-whitespace))
+                   #'my/gptel-remove-extra-whitespace)
+
+  (cl-defmethod gptel--parse-response :after
+    ((_backend gptel-openai) response info)
+    "Capture request details in RESPONSE into INFO for introspection."
+    (when-let* ((usage (plist-get response :timings)))
+      (plist-put info :timings
+                 (--mapcat (list it (plist-get usage it))
+                           '(:predicted_n
+                             :predicted_per_second
+                             :prompt_n
+                             :prompt_per_second))))))
 #+end_src
 
 *** gptel-backends
@@ -3530,7 +3550,7 @@ gptel’s partner, or the user’s.
   :hook (c-mode-common . hide-ifdef-mode))
 #+end_src
 
-** hideshow                                                                              :Errand:
+** hideshow
 
 #+begin_src emacs-lisp
 (use-package hideshow
@@ -5229,6 +5249,7 @@ append it to ENTRY."
   (emacs-startup . (lambda ()
                      (unless (eq display-name 'imac)
                        (display-battery-mode 1))))
+  (before-save . sort-emacs-nix-file)
   :custom
   (user-initials "jww")
   :preface
@@ -6175,6 +6196,7 @@ enables relatively smooth scrolling even with dumb third party mice.
 
 #+begin_src emacs-lisp
 (use-package ultra-scroll
+  :nix ultra-scroll-mac
   :demand t
   :init
   (setq scroll-conservatively 101 ; important!
@@ -6654,6 +6676,7 @@ ratio between the selected window and frame size or even a custom callback.
 
 #+begin_src emacs-lisp
 (use-package ztree-diff
+  :nix ztree
   :commands ztree-diff)
 #+end_src
 
@@ -7812,6 +7835,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package latex
+  :nix auctex
   :mode ("\\.tex\\'" . LaTeX-mode)
   :bind (:map
          LaTeX-mode-map
@@ -10601,6 +10625,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org-agenda
+  :nix nil
   :commands org-agenda-list
   :bind* ("C-c a" . org-agenda)
   :bind (:map
@@ -10748,6 +10773,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org-agenda-overlay
+  :nix nil
   :load-path "lisp/org-agenda-overlay"
   :after org-agenda
   :demand t
