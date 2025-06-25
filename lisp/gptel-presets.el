@@ -225,6 +225,7 @@ differently or may not accept what another backend consider legitimate."
   :description "Best model for generating or interpreting code"
   :system 'emacs-aid
   :parents 'qwen
+  :max-tokens 32767
   :tools '("emacs"))
 
 (gptel-make-preset 'haskell
