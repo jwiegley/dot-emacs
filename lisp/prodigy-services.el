@@ -32,7 +32,7 @@
 (defun prodigy-service--build-tunnel-args (args)
   "Assemble the ssh tunnel argument list from ARGS."
   `("-v" ;; allows us to parse for the ready message
-    "-N" ;; don't start an interactive shell remotely
+    ;; "-N" ;; don't start an interactive shell remotely
     "-L" ,(concat (plist-get args :local-port) ":"
                   (plist-get args :remote-ip) ":"
                   (plist-get args :remote-port))

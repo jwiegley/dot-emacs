@@ -422,4 +422,122 @@ transform."
 (defmacro compose (&rest args)
   `(lambda (x) (thread-last x ,@args)))
 
+(defvar emacs-nix-name-re
+  (rx
+   (seq bol "  "
+        (opt (group "# "))
+        (or (seq "epkgs.\"" (group (+? nonl)) "\"")
+            (group (one-or-more (any "-" alnum)))))))
+
+(defun sort-emacs-nix-names ()
+  (interactive)
+  (let ((re emacs-nix-name-re)
+        (counter 10000))
+    (cl-flet ((nextrecfun ()
+                (if (< (setq counter (1- counter)) 0)
+                    (error "Counter tripped"))
+                (if (looking-at re)
+                    (point)
+                  (if (re-search-forward re nil t)
+                      (goto-char (match-beginning 0))
+                    (goto-char (point-max)))))
+              (endrecfun ()
+                (goto-char (line-end-position))
+                (if (re-search-forward re nil t)
+                    (goto-char (match-beginning 0))
+                  (goto-char (point-max))))
+              (startkeyfun ()
+                (and (looking-at re)
+                     (or (match-string 2)
+                         (match-string 3)))))
+      (sort-subr nil #'nextrecfun #'endrecfun #'startkeyfun))))
+
+(defun sort-emacs-nix-file ()
+  (interactive)
+  (when (string= (buffer-file-name)
+                 "/Users/johnw/src/nix/config/emacs.nix")
+    (save-excursion
+      (goto-char 28)
+      (sort-emacs-nix-names))))
+
+(defun comm (buffer1 buffer2)
+  (let* ((list1 (with-current-buffer buffer1
+                  (split-string (buffer-string) "\n" t)))
+         (list2 (with-current-buffer buffer2
+                  (split-string (buffer-string) "\n" t)))
+         (i 0)
+         (j 0)
+         (only1 '())
+         (only2 '())
+         (both '()))
+    (while (and (< i (length list1)) (< j (length list2)))
+      (cond
+       ((string< (nth i list1) (nth j list2))
+        (push (nth i list1) only1)
+        (setq i (1+ i)))
+       ((string> (nth i list1) (nth j list2))
+        (push (nth j list2) only2)
+        (setq j (1+ j)))
+       (t (push (nth i list1) both)
+          (setq i (1+ i))
+          (setq j (1+ j)))))
+    (when (< i (length list1))
+      (setq only1 (append only1 (subseq list1 i))))
+    (when (< j (length list2))
+      (setq only2 (append only2 (subseq list2 j))))
+    (list (nreverse only1) (nreverse only2) (nreverse both))))
+
+(defun review-emacs-nix-file ()
+  (interactive)
+  (let ((emacs-nix-buffer (get-buffer-create "*emacs.nix names*"))
+        (init-org-buffer (get-buffer-create "*init.org names*")))
+    (with-current-buffer emacs-nix-buffer (erase-buffer))
+    (with-current-buffer init-org-buffer (erase-buffer))
+    (with-current-buffer (find-file-noselect "~/src/nix/config/emacs.nix")
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward emacs-nix-name-re nil t)
+          (let ((commented (match-string 1))
+                (name (or (match-string 2)
+                          (match-string 3))))
+            (with-current-buffer emacs-nix-buffer
+              (insert (format "%s%s\n" (if commented "COMMENT " "")
+                              name)))))))
+    (with-current-buffer (find-file-noselect "~/org/init.org")
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward
+                "^\\*\\*+ \\(\\(COMMENT \\)?\\([[:alnum:]-]+\\)\\)$" nil t)
+          (let ((heading (match-string 1))
+                (commented (match-string 2)))
+            (let ((elem (org-element-at-point)))
+              (when (and (re-search-forward "use-package \\([[:alnum:]-]+\\)"
+                                            (org-element-end elem) t)
+                         (not
+                          (search-forward ":no-require t"
+                                          (org-element-end elem) t)))
+                (let ((name (match-string 1))
+                      nix-name)
+                  (if (re-search-forward ":nix \\(.+\\)$" nil t)
+                      (setq nix-name (match-string 1)))
+                  (with-current-buffer init-org-buffer
+                    (insert (format "%s%s\n" (if commented "COMMENT " "")
+                                    (or nix-name name)))))))))))
+    (with-current-buffer emacs-nix-buffer
+      (sort-lines nil (point-min) (point-max)))
+    (with-current-buffer init-org-buffer
+      (sort-lines nil (point-min) (point-max)))
+    (with-current-buffer (get-buffer-create "*packages*")
+      (erase-buffer)
+      (destructuring-bind (only1 only2 both)
+          (comm init-org-buffer emacs-nix-buffer)
+        (insert "== Only in init.org ===\n")
+        (dolist (pkg (sort only1 :lessp #'string<)) (insert pkg ?\n))
+        (insert "\n=== Only in emacs.nix ===\n")
+        (dolist (pkg (sort only2 :lessp #'string<)) (insert pkg ?\n))
+        (insert "\n=== Common to both emacs.nix and init.org ===\n")
+        (dolist (pkg (sort both :lessp #'string<)) (insert pkg ?\n)))
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
 (provide 'personal)

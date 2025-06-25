@@ -619,9 +619,8 @@ decision tree.
 
 #+begin_src emacs-lisp
 (use-package avy
-  ;; :bind ("C-." . avy-goto-char-timer)
   :bind* (("<S-return>" . avy-goto-char-timer)
-          ("C-," . avy-goto-char-timer))
+          ("C-." . avy-goto-char-timer))
   :custom
   (avy-case-fold-search t)
   (avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
@@ -663,8 +662,7 @@ decision tree.
   :config
   (avy-setup-default)
 
-  ;; (define-key isearch-mode-map (kbd "C-.") 'avy-isearch)
-  (define-key isearch-mode-map (kbd "C-,") 'avy-isearch)
+  (define-key isearch-mode-map (kbd "C-.") 'avy-isearch)
   (define-key isearch-mode-map (kbd "<S-return>") 'avy-isearch)
 
   (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
@@ -921,11 +919,35 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 ** COMMENT buffer-terminator
 
+The buffer-terminator package automatically kills buffers to help maintain a
+clean and efficient workspace, while also improving Emacs' performance by
+reducing the number of open buffers, thereby decreasing the number of active
+modes, timers, and other processes associated with those buffers.
+
+Activating =(buffer-terminator-mode)= terminates all buffers that have been
+inactive for longer than the duration specified by
+=buffer-terminator-inactivity-timeout= (default: 30 minutes). It checks every
+=buffer-terminator-interval= (default: 10 minutes) to determine if a buffer
+should be terminated.
+
 #+begin_src emacs-lisp
 (use-package buffer-terminator
   :custom
-  (buffer-terminator-verbose nil)
+  (buffer-terminator-verbose t)
   :config
+  (add-to-list 'buffer-terminator-rules-alist
+               (cons 'keep-buffer-name-regexp
+                     (rx (or "*scratch*"
+                             "*Messages*"
+                             "*server*"
+                             "*Group*"
+                             "*Org Agenda*"
+                             "*GPTel Chat*"
+                             (seq bol " *Minibuf-" (zero-or-more nonl) "*" eol)
+                             (seq bol "*Summary")
+                             (seq bol "*gptel-aibo:")
+                             (seq bol "*Article")
+                             (seq bol "#")))))
   (buffer-terminator-mode 1))
 #+end_src
 
@@ -1359,7 +1381,7 @@ to them.
                  (throw 'found buf))))))
       (if it
           (display-buffer it)
-        (call-interactively 'compile))))
+        (call-interactively #'compile))))
 
   (defun compilation-ansi-color-process-output ()
     (ansi-color-process-output nil)
@@ -3440,7 +3462,7 @@ gptel’s partner, or the user’s.
                    (throw 'found buf))))))
       (if gud-buf
           (switch-to-buffer-other-window gud-buf)
-        (call-interactively 'gud-gdb)))))
+        (call-interactively #'gud-gdb)))))
 #+end_src
 
 ** COMMENT hammy
@@ -3959,13 +3981,13 @@ minibuffer change, the region is realigned.
     (interactive)
     (split-window-vertically)
     (other-window 1)
-    (call-interactively 'isearch-backward))
+    (call-interactively #'isearch-backward))
 
   (defun isearch-forward-other-window ()
     (interactive)
     (split-window-vertically)
     (other-window 1)
-    (call-interactively 'isearch-forward)))
+    (call-interactively #'isearch-forward)))
 #+end_src
 
 ** ispell
@@ -4149,7 +4171,7 @@ minibuffer change, the region is realigned.
     (interactive)
     (let ((use-package-expand-minimally t)
           (use-package-compute-statistics nil))
-      (call-interactively 'macrostep-expand))))
+      (call-interactively #'macrostep-expand))))
 #+end_src
 
 ** magit
@@ -4921,7 +4943,7 @@ maintained by the Emacs developers and has less chance of being abandoned like
          (funcall ad-do-it config)))))
 #+end_src
 
-** osm
+** COMMENT osm
 
 [[https://github.com/minad/osm][osm.el]] is a tile-based map viewer, with a responsive movable and zoomable
 display. The map can be controlled with the keyboard or with the mouse. The
@@ -5108,15 +5130,6 @@ append it to ENTRY."
   :commands pdfgrep
   :config
   (pdfgrep-mode))
-#+end_src
-
-** plstore
-
-#+begin_src emacs-lisp
-(use-package plstore
-  :custom
-  (plstore-cache-passphrase-for-symmetric-encryption t)
-  (plstore-encrypt-to "BA39EA53EFF3C20D"))
 #+end_src
 
 ** persistent-scratch
@@ -5331,11 +5344,31 @@ append it to ENTRY."
   (add-hook 'window-setup-hook #'emacs-min t)
 
   ;; Make sure this runs last
-  (add-hook 'emacs-startup-hook
+  (add-hook 'window-setup-hook
             #'(lambda ()
                 (delete-other-windows)
-                (find-file "~/org/home.org"))
+                (find-file "~/org/home.org")
+                (when (quickping "imap.fastmail.com")
+                  (delete-other-windows)
+                  (call-interactively #'switch-to-gnus))
+                (call-interactively #'org-ext-jump-to-agenda))
             100))
+#+end_src
+
+** pgmacs
+
+#+begin_src emacs-lisp
+(use-package pgmacs
+  :commands (pgmacs))
+#+end_src
+
+** plstore
+
+#+begin_src emacs-lisp
+(use-package plstore
+  :custom
+  (plstore-cache-passphrase-for-symmetric-encryption t)
+  (plstore-encrypt-to "BA39EA53EFF3C20D"))
 #+end_src
 
 ** COMMENT popper
@@ -5394,19 +5427,43 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (pp^L-^L-string "                                            "))
 #+end_src
 
-** COMMENT prescient
+** prescient
 
 [[https://github.com/radian-software/prescient.el][prescient.el]] is a library which sorts and filters lists of candidates.
 
 #+begin_src emacs-lisp
 (use-package prescient
-  :demand (vertico orderless)
+  :after (vertico orderless)
+  :demand t
+  :custom
+  (prescient-persist-mode t)
+  (prescient-save-file (user-data "prescient-save.el"))
   :config
+  (face-spec-set
+   'prescient-primary-highlight '((t (:foreground "magenta"))))
+
   (add-to-list 'completion-styles 'prescient)
-  (use-package vertico-prescient
-    :demand t
-    :config
-    (vertico-prescient-mode 1)))
+  (add-to-list 'savehist-additional-variables 'prescient--history))
+#+end_src
+
+*** vertico-prescient
+
+#+begin_src emacs-lisp
+(use-package vertico-prescient
+  :after (prescient)
+  :demand t
+  :config
+  (vertico-prescient-mode 1))
+#+end_src
+
+*** corfu-prescient
+
+#+begin_src emacs-lisp
+(use-package corfu-prescient
+  :after (prescient)
+  :demand t
+  :config
+  (corfu-prescient-mode 1))
 #+end_src
 
 ** prodigy
@@ -5439,7 +5496,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
    (lambda
      (path)
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/profiles\\|/\\.nix-profile\\)" path)))
-  (projectile-keymap-prefix "p")
+  (projectile-keymap-prefix (kbd "C-c p"))
   (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
   (projectile-project-search-path '("~/src" "~/kadena" "~/doc"))
   (projectile-sort-order 'recentf)
@@ -6386,7 +6443,7 @@ RET in the buffer you want to undo.
   :hook (c-mode-common . which-function-mode))
 #+end_src
 
-** which-key
+** COMMENT which-key
 
 #+begin_src emacs-lisp
 (use-package which-key
@@ -6534,6 +6591,14 @@ RET in the buffer you want to undo.
     (setq line-spacing nil)))
 #+end_src
 
+** xr
+
+#+begin_src emacs-lisp
+(use-package xr
+  :defer t
+  :commands (xr))
+#+end_src
+
 ** xray
 
 #+begin_src emacs-lisp
@@ -6556,7 +6621,7 @@ RET in the buffer you want to undo.
   )
 #+end_src
 
-** yaoddmuse
+** COMMENT yaoddmuse
 
 #+begin_src emacs-lisp
 (use-package yaoddmuse
@@ -6568,6 +6633,11 @@ RET in the buffer you want to undo.
 #+end_src
 
 ** zoom
+
+[[https://github.com/cyrus-and/zoom][zoom]] takes care of managing the window sizes by enforcing a fixed and
+automatic balanced layout where the currently selected window is resized
+according to =zoom-size= which can be an absolute value in lines/columns, a
+ratio between the selected window and frame size or even a custom callback.
 
 #+begin_src emacs-lisp
 (use-package zoom
@@ -7148,8 +7218,7 @@ provides an alternative overlay-based display.
          ("<return>" . corfu-insert)
          ("M-d"      . corfu-info-documentation)
          ("M-l"      . corfu-info-location)
-         ;; ("M-."      . corfu-move-to-minibuffer)
-         ("C-."      . corfu-move-to-minibuffer))
+         ("M-."      . corfu-move-to-minibuffer))
   :custom
   ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
   ;; want to perform completion
@@ -7311,32 +7380,25 @@ for a set of variables.
 
 #+begin_src emacs-lisp
 (use-package embark
-  :bind (
-         ;; jww (2025-06-22): Maybe this should be:
-         ;;
-         ;; C-.   embark-act
-         ;; C-M-. embark-act-all
-         ;; M-.   embark-dwim
-         ;; S-SPC avy-goto-char-timer
-
-         ;; ("M-."   . embark-act)
-         ;; ("C-M-." . embark-act-all)
-         ;; ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
-         ;; ("C-c v" . embark-dwim)
-
-         ("C-."   . embark-act)
+  :bind (("M-."   . embark-act)
          ("C-M-." . embark-act-all)
-         ("M-."   . embark-dwim)
          ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
-
+         ("C-c v" . embark-dwim)
          :map embark-collect-mode-map
          ("C-c C-a" . embark-collect-direct-action-minor-mode))
+  :custom
+  (embark-indicators
+   '(embark-minimal-indicator
+     embark-highlight-indicator
+     embark-isearch-highlight-indicator))
   :init
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
+
   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
   ;; strategy, if you want to see the documentation from multiple providers.
   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+
   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
   :config
   ;; Hide the mode line of the Embark live/completions buffers
@@ -7406,7 +7468,7 @@ commands.
   (marginalia-annotators
    '(
      (bookmark marginalia-annotate-bookmark builtin none)
-     (buffer marginalia-annotate-buffer builtin none)
+     (buffer marginalia-annotate-buffer marginalia-annotate-multi-category builtin none)
      (charset marginalia-annotate-charset builtin none)
      (coding-system marginalia-annotate-coding-system builtin none)
      (color marginalia-annotate-color builtin none)
@@ -7583,10 +7645,9 @@ without white space and comments.
   (use-package vertico-quick
     :demand t
     :bind (:map vertico-map
-                ;; ("C-." . vertico-quick-exit)
+                ("C-." . vertico-quick-exit)
                 ("<S-return>" . vertico-quick-exit)
-                ("M->" . vertico-quick-embark)
-                )
+                ("M->" . vertico-quick-embark))
     :preface
     (defun vertico-quick-embark (&optional arg)
       "Embark on candidate using quick keys."
@@ -7609,10 +7670,11 @@ without white space and comments.
        (consult-git-grep buffer)
        (consult-ripgrep buffer)
        (consult-yank-pop)
-       (embark-bindings buffer)
+       (embark-bindings grid)
        (xref-find-references buffer)))
     (vertico-multiform-categories
-     '((t unobtrusive)))
+     '((embark-keybinding grid)
+       (t unobtrusive)))
     :config
     (vertico-multiform-mode 1)))
 #+end_src
@@ -8740,7 +8802,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :bind (:map slime-mode-map
               ("C-c C-c" . (lambda () (interactive)
                              (save-excursion
-                               (call-interactively 'pact-compile)))))
+                               (call-interactively #'pact-compile)))))
   :config
   (use-package slime))
 #+end_src
@@ -9013,7 +9075,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (interactive)
     (when (memq (char-after) '(?\| ?\" ?\'))
       (forward-char))
-    (call-interactively 'newline-and-indent)))
+    (call-interactively #'newline-and-indent)))
 #+end_src
 
 *** rust-mode
@@ -9229,7 +9291,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :mode "\\.was?t\\'")
 #+end_src
 
-*** x86-lookup
+*** COMMENT x86-lookup
 
 #+begin_src emacs-lisp
 (use-package x86-lookup
@@ -11970,11 +12032,16 @@ stamp to a task, which can be used to schedule a review of the task.
    ("d" . review-next-day)
    ("D" . review-next-three-days)
    ("w" . review-next-week)
-   ("1" . review-next-week)
-   ("2" . review-next-two-weeks)
-   ("3" . review-next-three-weeks)
-   ("4" . review-next-four-weeks)
-   ("6" . review-next-six-weeks)
+   ("2" . review-next-two-days)
+   ("@" . review-next-two-weeks)
+   ("3" . review-next-three-days)
+   ("#" . review-next-three-weeks)
+   ("4" . review-next-four-days)
+   ("$" . review-next-four-weeks)
+   ("5" . review-next-five-days)
+   ("%" . review-next-five-weeks)
+   ("6" . review-next-six-days)
+   ("^" . review-next-six-weeks)
    ("m" . review-next-month)
    ("M" . review-next-two-months)
    ("t" . review-next-two-months)
@@ -12028,10 +12095,22 @@ stamp to a task, which can be used to schedule a review of the task.
     (interactive)
     (my/org-review-next "+1d")
     (message "Next review in 1 day"))
+  (defun review-next-two-days ()
+    (interactive)
+    (my/org-review-next "+2d")
+    (message "Next review in 2 days"))
   (defun review-next-three-days ()
     (interactive)
     (my/org-review-next "+3d")
     (message "Next review in 3 days"))
+  (defun review-next-four-days ()
+    (interactive)
+    (my/org-review-next "+4d")
+    (message "Next review in 4 days"))
+  (defun review-next-six-days ()
+    (interactive)
+    (my/org-review-next "+6d")
+    (message "Next review in 6 days"))
   (defun review-next-week ()
     (interactive)
     (my/org-review-next "+1w")
@@ -12048,6 +12127,10 @@ stamp to a task, which can be used to schedule a review of the task.
     (interactive)
     (my/org-review-next "+4w")
     (message "Next review in 4 weeks"))
+  (defun review-next-five-weeks ()
+    (interactive)
+    (my/org-review-next "+5w")
+    (message "Next review in 5 weeks"))
   (defun review-next-six-weeks ()
     (interactive)
     (my/org-review-next "+6w")
@@ -12476,7 +12559,7 @@ context.
   (org-smart-capture-use-lastname t))
 #+end_src
 
-**** xeft
+**** COMMENT xeft
 
 #+begin_src emacs-lisp
 (use-package xeft
@@ -12739,6 +12822,43 @@ properties or a symbol which is taken to be a face name.
   :config
   (advice-add 'org-timeline-insert-timeline
               :before #'my/org-timeline-insert-blank))
+#+end_src
+
+*** org-table-color
+
+#+begin_src emacs-lisp
+(use-package org-table-color
+  :commands (org-table-color))
+#+end_src
+
+*** org-table-highlight
+
+[[https://github.com/llcc/org-table-highlight][org-table-highlight]] provides utilities to highlight columns and rows in
+Org-mode tables. It supports cycling through color palettes, clearing
+highlights, and working with both column and row overlays.
+
+#+begin_src emacs-lisp
+(use-package org-table-highlight
+  :bind
+  (:map
+   org-mode-map
+   :prefix-map
+   my/org-table-highlight-map
+   :prefix "C-x T"
+   ("c" . org-table-highlight-column)
+   ("r" . org-table-highlight-row)
+   ("x" . org-table-highlight-restore)
+   ("C" . org-table-highlight-clear-column-highlights)
+   ("R" . org-table-highlight-clear-row-highlights)
+   ("X" . org-table-highlight-clear-all-highlights)
+   ("s" . org-table-highlight-save-metadata)
+   ("a" . org-table-highlight-apply-buffer-metadata))
+  :custom
+  (org-table-highlight-color-palette
+   (list palette-fuschia-dark
+         palette-cyan-dark
+         palette-yellow-dark
+         palette-orange-dark)))
 #+end_src
 
 *** org-transclusion

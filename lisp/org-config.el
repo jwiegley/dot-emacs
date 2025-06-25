@@ -550,6 +550,7 @@ SCHEDULED: %t
    ,(org-config-bahai-meeting "bI" "Ruhi Intensive Reflection"
                               "ruhi-intensive-reflection.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
+   ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
 
    ("w" "Work templates")
 
@@ -768,19 +769,6 @@ SCHEDULED: %t
 
    ("r" . "Review tasks\n")
 
-   ("ra" "All tasks needing review" alltodo ""
-    ((org-agenda-skip-function
-      '(or (org-agenda-skip-entry-if
-            'scheduled 'deadline 'timestamp
-            'todo org-done-keywords)
-           (org-config-agenda-skip-entry-if
-            (and (org-review-last-review-prop nil)
-                 (not (org-review-toreview-p))))))
-     (org-agenda-cmp-user-defined 'org-config-review-compare)
-     (org-agenda-prefix-format ,org-config-check-if-scheduled)
-     (org-agenda-sorting-strategy '(user-defined-down))
-     (org-overriding-columns-format ,org-config-standard-columns)))
-
    ("rr" "Tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
@@ -795,7 +783,7 @@ SCHEDULED: %t
      (org-agenda-sorting-strategy '(user-defined-down))
      (org-overriding-columns-format ,org-config-standard-columns)))
 
-   ("rz" "All tasks needing review" alltodo ""
+   ("rR" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
       '(or (org-config-agenda-skip-entry-if
             (org-ext-subtask-p))
@@ -807,7 +795,7 @@ SCHEDULED: %t
      (org-agenda-sorting-strategy '(category-up))
      (org-overriding-columns-format ,org-config-standard-columns)))
 
-   ("r*" "All tasks (for confirmation)" alltodo ""
+   ("r*" "All tasks" alltodo ""
     ((org-agenda-prefix-format ,org-config-check-if-scheduled)
      (org-agenda-sorting-strategy '(category-up))
      (org-overriding-columns-format ,org-config-standard-columns)))
