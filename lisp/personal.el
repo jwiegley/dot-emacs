@@ -425,9 +425,9 @@ transform."
 (defvar emacs-nix-name-re
   (rx
    (seq bol "  "
-        (opt (group "# "))
+        (opt (zero-or-more " ") (group "# "))
         (or (seq "epkgs.\"" (group (+? nonl)) "\"")
-            (group (one-or-more (any "-" alnum)))))))
+            (group (one-or-more (any "-" "+" alnum)))))))
 
 (defun sort-emacs-nix-names ()
   (interactive)
@@ -487,57 +487,89 @@ transform."
       (setq only2 (append only2 (subseq list2 j))))
     (list (nreverse only1) (nreverse only2) (nreverse both))))
 
-(defun review-emacs-nix-file ()
-  (interactive)
+(defun org-within-commented-block ()
+  (save-excursion
+    (catch 'found
+      (while (ignore-errors (prog1 t (org-up-element)))
+        (if (string-match-p "COMMENT" (org-get-heading))
+            (throw 'found t))))))
+
+(defun emacs-nix-packages ()
+  (let (results)
+    (while (re-search-forward emacs-nix-name-re nil t)
+      (let ((commented (match-string 1))
+            (name (or (match-string 2)
+                      (match-string 3))))
+        (setq results (cons (cons name (if commented t nil))
+                            results))))
+    results))
+
+(defun init-org-packages ()
+  (let (results)
+    (while (re-search-forward
+            (rx (seq bol
+                     "*" (one-or-more "*") " "
+                     (group (opt (group "COMMENT "))
+                            (group (one-or-more (any "+-" alnum))))
+                     eol))
+            nil t)
+      (let* ((heading (match-string 1))
+             (name (match-string-no-properties 3))
+             (commented (or (match-string 2)
+                            (org-within-commented-block)))
+             (end (save-excursion
+                    (org-next-visible-heading 1)
+                    (point))))
+        (when (save-excursion
+                (and (re-search-forward "use-package \\([[:alnum:]+-]+\\)" end t)
+                     (not (search-forward ":no-require t" end t))
+                     (not (re-search-forward "^  :load-path" end t))))
+          (let ((nix-name (save-excursion
+                            (and (re-search-forward ":nix \\(.+\\)$" end t)
+                                 (match-string 1)))))
+            (unless (and nix-name (string= nix-name "nil"))
+              (setq results (cons (cons (or nix-name name)
+                                        (if commented t nil))
+                                  results)))))))
+    results))
+
+(defun review-emacs-nix-file (&optional arg)
+  (interactive "P")
   (let ((emacs-nix-buffer (get-buffer-create "*emacs.nix names*"))
         (init-org-buffer (get-buffer-create "*init.org names*")))
-    (with-current-buffer emacs-nix-buffer (erase-buffer))
-    (with-current-buffer init-org-buffer (erase-buffer))
-    (with-current-buffer (find-file-noselect "~/src/nix/config/emacs.nix")
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward emacs-nix-name-re nil t)
-          (let ((commented (match-string 1))
-                (name (or (match-string 2)
-                          (match-string 3))))
-            (with-current-buffer emacs-nix-buffer
-              (insert (format "%s%s\n" (if commented "COMMENT " "")
-                              name)))))))
-    (with-current-buffer (find-file-noselect "~/org/init.org")
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward
-                "^\\*\\*+ \\(\\(COMMENT \\)?\\([[:alnum:]-]+\\)\\)$" nil t)
-          (let ((heading (match-string 1))
-                (commented (match-string 2)))
-            (let ((elem (org-element-at-point)))
-              (when (and (re-search-forward "use-package \\([[:alnum:]-]+\\)"
-                                            (org-element-end elem) t)
-                         (not
-                          (search-forward ":no-require t"
-                                          (org-element-end elem) t)))
-                (let ((name (match-string 1))
-                      nix-name)
-                  (if (re-search-forward ":nix \\(.+\\)$" nil t)
-                      (setq nix-name (match-string 1)))
-                  (with-current-buffer init-org-buffer
+    (dolist (entry `(("~/src/nix/config/emacs.nix"
+                      ,#'emacs-nix-packages ,emacs-nix-buffer)
+                     ("~/org/init.org"
+                      ,#'init-org-packages ,init-org-buffer)))
+      (cl-destructuring-bind (path func buffer)
+          entry
+        (with-current-buffer buffer (erase-buffer))
+        (with-current-buffer (find-file-noselect path)
+          (save-excursion
+            (goto-char (point-min))
+            (let ((packages (funcall func)))
+              (dolist (package packages)
+                (cl-destructuring-bind (name . commented)
+                    package
+                  (with-current-buffer buffer
                     (insert (format "%s%s\n" (if commented "COMMENT " "")
-                                    (or nix-name name)))))))))))
-    (with-current-buffer emacs-nix-buffer
-      (sort-lines nil (point-min) (point-max)))
-    (with-current-buffer init-org-buffer
-      (sort-lines nil (point-min) (point-max)))
+                                    name))))))))
+        (with-current-buffer buffer
+          (sort-lines nil (point-min) (point-max)))))
     (with-current-buffer (get-buffer-create "*packages*")
       (erase-buffer)
-      (destructuring-bind (only1 only2 both)
+      (cl-destructuring-bind (only1 only2 both)
           (comm init-org-buffer emacs-nix-buffer)
         (insert "== Only in init.org ===\n")
         (dolist (pkg (sort only1 :lessp #'string<)) (insert pkg ?\n))
         (insert "\n=== Only in emacs.nix ===\n")
         (dolist (pkg (sort only2 :lessp #'string<)) (insert pkg ?\n))
-        (insert "\n=== Common to both emacs.nix and init.org ===\n")
-        (dolist (pkg (sort both :lessp #'string<)) (insert pkg ?\n)))
+        (when arg
+          (insert "\n=== Common to both emacs.nix and init.org ===\n")
+          (dolist (pkg (sort both :lessp #'string<)) (insert pkg ?\n))))
       (goto-char (point-min))
       (pop-to-buffer (current-buffer)))))
 
 (provide 'personal)
+
+;;; personal.el ends here
