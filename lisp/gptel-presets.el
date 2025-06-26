@@ -38,25 +38,6 @@
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
 
-(unless t
-  (defun gptel-presets-add-params (&rest params)
-    "Add the given request PARAMS to whatever is the current set of parameters.
-Meant to be used with :post on a preset definition."
-    (lambda ()
-      (let ((params (cl-copy-list params))
-            (new-params (cl-copy-list gptel--request-params)))
-        (while params
-          (setq new-params
-                (plist-put new-params (car params) (cadr params)))
-          (setq params (cddr params)))
-        (setq-local gptel--request-params new-params)))))
-
-(defun gptel-presets-add-params (&rest params)
-  "Add the given request PARAMS to whatever is the current set of parameters.
-Meant to be used with :post on a preset definition."
-  (lambda () (setq-local gptel--request-params
-                    (gptel--merge-plists gptel--request-params params))))
-
 (defmacro my/gptel-make-preset (name &rest keys)
   "A `gptel-make-preset', with NAME and KEYS, that auto-merges `:request-params'.
 See `gptel-make-preset' for a description of options.
@@ -72,11 +53,23 @@ directly changes the backend, then the `:request-params' set by the
 preset could become invalid, since different backends interpret them
 differently or may not accept what another backend consider legitimate."
   (declare (indent 1))
-  (let ((params (plist-get keys :request-params)))
-    (when params
-      (plist-put keys :post
-                 (apply #'gptel-presets-add-params (eval params)))
-      (cl-remf keys :request-params))
+  (let ((params (plist-get keys :request-params))
+        (transforms (plist-get keys :prompt-transforms)))
+    (when (or params transforms)
+      (plist-put
+       keys :post
+       `(lambda ()
+          ,(if params
+               `(setq-local gptel--request-params
+                            (gptel--merge-plists gptel--request-params
+                                                 ,params)))
+          ,@(if transforms
+                (mapcar #'(lambda (transform)
+                            `(add-hook 'gptel-prompt-transform-functions
+                                       #',transform nil 'local))
+                        (eval transforms)))))
+      (if params (cl-remf keys :request-params))
+      (if transforms (cl-remf keys :prompt-transforms)))
     `(gptel-make-preset ,name ,@keys)))
 
 ;;; MODELS ===============================================================
@@ -271,10 +264,14 @@ differently or may not accept what another backend consider legitimate."
 
 ;;; PROMPT-TRANSFORMS ====================================================
 
-(gptel-make-preset 'quick
-  :post #'(lambda ()
-            (add-hook 'gptel-prompt-transform-functions
-                      #'gptel-presets-insert-no-think nil 'local)))
+(my/gptel-make-preset 'quick
+  :prompt-transforms '(gptel-presets-insert-no-think))
+
+(my/gptel-make-preset 'rag
+  :rag-config-file "~/src/rag-client/chat.yaml"
+  :rag-files-and-directories '("~/dl/world.txt")
+  :rag-top-k 3
+  :prompt-transforms '(gptel-rag-transform))
 
 ;;; REWRITES =============================================================
 
