@@ -39,7 +39,13 @@
   (insert " /no_think"))
 
 (defmacro my/gptel-make-preset (name &rest keys)
-  "A `gptel-make-preset', with NAME and KEYS, that auto-merges `:request-params'.
+  "Porcelain around `gptel-make-preset' of NAME, to help manage `:post'.
+The KEYS argument is the same as `gptel-make-preset', except that two
+new keys are specially supported:
+
+  :request-params (PARAMETERS...)
+  :prompt-transforms (FUNCTIONS...)
+
 See `gptel-make-preset' for a description of options.
 
 NOTE: This is dangerous to use — except in the case where you only ever

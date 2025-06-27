@@ -57,13 +57,14 @@
         debug-on-message "finalizer failed"
         debug-on-quit verbose))
 
-(defun use-package-normalize/:nix (_name-symbol _keyword args)
-  args)
+(eval-and-compile
+  (defun use-package-normalize/:nix (_name-symbol _keyword args)
+    args)
 
-(defun use-package-handler/:nix (name-symbol _keyword _arg rest state)
-  (use-package-process-keywords name-symbol rest state))
+  (defun use-package-handler/:nix (name-symbol _keyword _arg rest state)
+    (use-package-process-keywords name-symbol rest state))
 
-(add-to-list 'use-package-keywords :nix)
+  (add-to-list 'use-package-keywords :nix))
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=
@@ -195,6 +196,45 @@
       (add-to-list var elem))))
 #+end_src
 
+* Libraries
+
+** uuidgen
+
+#+begin_src emacs-lisp
+(use-package uuidgen
+  :functions (uuidgen-1))
+#+end_src
+
+** dash
+
+#+begin_src emacs-lisp
+(use-package dash :defer t)
+#+end_src
+
+** s
+
+#+begin_src emacs-lisp
+(use-package s :defer t)
+#+end_src
+
+** f
+
+#+begin_src emacs-lisp
+(use-package f :defer t)
+#+end_src
+
+** pg
+
+#+begin_src emacs-lisp
+(use-package pg :defer t)
+#+end_src
+
+** language-id
+
+#+begin_src emacs-lisp
+(use-package language-id :defer t)
+#+end_src
+
 * Packages
 
 ** epg
@@ -214,6 +254,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package emacs
+  :nix nil
   :demand t
   :bind*
   ;; ("<C-return>" . other-window)   ; use avy
@@ -438,6 +479,7 @@ unto itself.
 
 #+begin_src emacs-lisp
 (use-package abbrev
+  :nix nil
   :diminish
   :hook
   ((text-mode prog-mode) . abbrev-mode)
@@ -519,6 +561,7 @@ It reindents after every change, making it more reliable than
 
 #+begin_src emacs-lisp
 (use-package align
+  :nix nil
   :commands align
   :bind (("M-["   . align-code)
          ("C-c [" . align-regexp))
@@ -535,6 +578,12 @@ It reindents after every change, making it more reliable than
         (align beg end-mark)))))
 #+end_src
 
+** COMMENT all-the-icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons)
+#+end_src
+
 ** COMMENT anki-editor
 
 #+begin_src emacs-lisp
@@ -546,6 +595,7 @@ It reindents after every change, making it more reliable than
 
 #+begin_src emacs-lisp
 (use-package ansi-color
+  :nix nil
   :defer t
   :custom
   (ansi-color-names-vector
@@ -885,6 +935,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 
 #+begin_src emacs-lisp
 (use-package bookmark+
+  :nix bookmark-plus
   :after bookmark
   :demand t
   :commands (bmkp-jump-dired)
@@ -896,17 +947,6 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (bmkp-bmenu-state-file (user-data "bmk-bmenu-state.el"))
   (bmkp-crosshairs-flag nil)
   (bmkp-last-as-first-bookmark-file bookmark-default-file))
-#+end_src
-
-*** COMMENT casual-bookmarks
-
-#+begin_src emacs-lisp
-(use-package casual-bookmarks
-  :after bookmark
-  :bind (:map bookmark-bmenu-mode-map
-              ("C-o" . casual-bookmarks-tmenu)
-              ("S" . casual-bookmarks-sortby-tmenu)
-              ("J" . bookmark-jump)))
 #+end_src
 
 ** browse-kill-ring
@@ -986,13 +1026,15 @@ should be terminated.
 ** calc
 
 #+begin_src emacs-lisp
-(use-package calc)
+(use-package calc
+  :nix nil)
 #+end_src
 
 *** calc-units
 
 #+begin_src emacs-lisp
 (use-package calc-units
+  :nix nil
   :after calc
   :custom
   (calc-ensure-consistent-units t)
@@ -1024,15 +1066,6 @@ should be terminated.
   (defalias 'calcFunc-strip 'math-remove-units))
 #+end_src
 
-*** COMMENT casual-calc
-
-#+begin_src emacs-lisp
-(use-package casual-calc
-  :after calc
-  :bind (:map calc-mode-map
-              ("C-o" . casual-calc-tmenu)))
-#+end_src
-
 *** literate-calc-mode
 
 #+begin_src emacs-lisp
@@ -1050,6 +1083,7 @@ should be terminated.
 
 #+begin_src emacs-lisp
 (use-package calendar
+  :nix nil
   :custom
   (calendar-mark-holidays-flag t)
   (calendar-date-style 'iso))
@@ -1284,6 +1318,7 @@ The tools offered by Citre are:
 
 #+begin_src emacs-lisp
 (use-package citre-config
+  :nix citre
   :bind (("C-x c j" . citre-jump)
          ("C-x c J" . citre-jump-back)
          ("C-x c p" . citre-ace-peek)
@@ -1367,6 +1402,7 @@ to them.
 
 #+begin_src emacs-lisp
 (use-package compile
+  :nix nil
   :bind (("C-c c" . compile)
          ("M-O"   . show-compilation))
   :bind (:map compilation-mode-map
@@ -1743,6 +1779,7 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package dired+
+  :nix dired-plus
   :after dired-x
   :custom-face
   (diredp-dir-name ((t (:foreground "blue"))))
@@ -1810,16 +1847,6 @@ non-empty directories is allowed."
            'USE-TRASH-CAN)             ; This arg is for Emacs 24+ only.
         (dolist (mk  markers) (set-marker mk nil))
         (unless no-msg (message "(No deletions requested.)"))))))
-#+end_src
-
-*** COMMENT casual-dired
-
-#+begin_src emacs-lisp
-(use-package casual-dired
-  :after dired
-  :bind (:map dired-mode-map
-              ("C-o" . #'casual-dired-tmenu)
-              ("s" . #'casual-dired-sort-by-tmenu)))
 #+end_src
 
 *** diredfl
@@ -2021,6 +2048,7 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ediff
+  :nix nil
   :bind (:prefix-map
          my-ediff-map
          :prefix "C-c ="
@@ -2090,6 +2118,7 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ediff-keep
+  :nix nil
   :after ediff)
 #+end_src
 
@@ -3330,9 +3359,7 @@ Intended to be placed in `git-commit-setup-hook'."
 #+begin_src emacs-lisp
 (use-package gptel-rag
   :load-path "lisp/gptel-rag"
-  :after (gptel)
-  :config
-  (gptel-rag-install))
+  :after (gptel))
 #+end_src
 
 *** gptel-got
@@ -3389,6 +3416,28 @@ gptel’s partner, or the user’s.
   (require 'aibo-hack)
   (advice-add 'gptel-aibo--summon-callback
               :around #'my-gptel-aibo-filter-response))
+#+end_src
+
+*** macher
+
+[[https://github.com/kmontag/macher][macher]] provides multi-file, project-aware LLM editing capabilities within
+Emacs. It allows you to send complex implementation requests and receive
+proposed changes as reviewable patches, which can include changes to multiple
+files. You can then apply the changes and/or send them back to the LLM for
+revision.
+
+The LLM receives contextual information about the current project and file, as
+well as tools to read additional project context.
+
+macher is a lightweight Emacs-native take on the editing workflows of more
+full-featured tools like [[https://aider.chat/][Aider]] or [[https://plandex.ai/][Plandex]]. It works with any gptel backend
+that supports tool use, and aims for a nonintrusive and easily-customizable
+UX. Your existing gptel configuration gets extended when making macher
+requests, so you can use it alongside other tools.
+
+#+begin_src sh
+(use-package macher
+ :commands (macher-implement))
 #+end_src
 
 *** gptel-fn-complete
@@ -3651,6 +3700,7 @@ gptel’s partner, or the user’s.
 
 #+begin_src emacs-lisp
 (use-package hl-line+
+  :nix hl-line-plus
   :after hl-line)
 #+end_src
 
@@ -3796,26 +3846,6 @@ minibuffer change, the region is realigned.
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 #+end_src
 
-*** COMMENT casual-ibuffer
-
-#+begin_src emacs-lisp
-(use-package casual-ibuffer
-  :after ibuffer
-  :bind (:map
-         ibuffer-mode-map
-         ("C-o" . casual-ibuffer-tmenu)
-         ("F" . casual-ibuffer-filter-tmenu)
-         ("s" . casual-ibuffer-sortby-tmenu)
-         ("<double-mouse-1>" . ibuffer-visit-buffer) ; optional
-         ("M-<double-mouse-1>" . ibuffer-visit-buffer-other-window) ; optional
-         ("{" . ibuffer-backwards-next-marked) ; optional
-         ("}" . ibuffer-forward-next-marked)   ; optional
-         ("[" . ibuffer-backward-filter-group) ; optional
-         ("]" . ibuffer-forward-filter-group)  ; optional
-         ("$" . ibuffer-toggle-filter-group))  ; optional
-  )
-#+end_src
-
 ** COMMENT iflipb
 
 #+begin_src emacs-lisp
@@ -3940,6 +3970,12 @@ minibuffer change, the region is realigned.
                 (setq buffer-face-mode-face '(:family "Bookerly"))
                 (buffer-face-mode)
                 (text-scale-adjust 1))))
+#+end_src
+
+** info
+
+#+begin_src emacs-lisp
+(use-package inheritenv)
 #+end_src
 
 ** COMMENT inhibit-mouse
@@ -4815,6 +4851,15 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
          ("<C-m> M-." . ace-mc-add-single-cursor)))
 #+end_src
 
+** COMMENT names
+
+[[https://github.com/Malabarba/names][names]] is designed as a practical, complete, robust, and debuggable tool which
+writes your namespaces for you.
+
+#+begin_src emacs-lisp
+(use-package names)
+#+end_src
+
 ** nov
 
 #+begin_src emacs-lisp
@@ -4824,10 +4869,11 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   (nov-save-place-file (user-data "nov-places")))
 #+end_src
 
-** oauth2-auto
+** COMMENT oauth2-auto
 
 #+begin_src emacs-lisp
 (use-package oauth2-auto
+  :nix oauth2
   :custom
   (oauth2-auto-plstore (user-data "oauth2-auto.plist"))
   :config
@@ -4860,6 +4906,7 @@ to search only 1Password, include the type:
 
 #+begin_src emacs-lisp
 (use-package 1password
+  :nix onepassword-el
   :custom
   (1password-results-formatter '1password-colour-formatter)
   :config
@@ -5181,6 +5228,7 @@ append it to ENTRY."
 
 #+begin_src emacs-lisp
 (use-package personal
+  :nix nil
   :demand t
   :bind
   (("<C-M-backspace>" . backward-kill-sexp)
@@ -5471,6 +5519,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package vertico-prescient
+  :nix nil
   :after (prescient)
   :demand t
   :config
@@ -5481,6 +5530,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package corfu-prescient
+  :nix nil
   :after (prescient)
   :demand t
   :config
@@ -6568,6 +6618,7 @@ RET in the buffer you want to undo.
 
 #+begin_src emacs-lisp
 (use-package winner
+  :nix nil
   :unless noninteractive
   :demand t
   :bind (("M-N" . winner-redo)
@@ -6580,6 +6631,7 @@ RET in the buffer you want to undo.
 
 #+begin_src emacs-lisp
 (use-package word-count
+  :nix word-count-mode
   :bind ("C-c \"" . word-count-mode))
 #+end_src
 
@@ -7310,6 +7362,7 @@ provides an alternative overlay-based display.
 
 #+begin_src emacs-lisp
 (use-package corfu-popupinfo
+  :nix nil
   :after corfu
   :hook (corfu-mode . corfu-popupinfo-mode)
   :bind (:map corfu-map
@@ -7926,6 +7979,7 @@ without white space and comments.
 
 #+begin_src emacs-lisp
 (use-package cc-mode
+  :nix nil
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'" . c-mode)
          ("\\.mm\\'" . c++-mode))
@@ -9359,6 +9413,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package gnus-start
+  :nix nil
   :commands (gnus)
   :bind ("M-G" . switch-to-gnus)
   :custom
@@ -10344,6 +10399,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 #+begin_src emacs-lisp
 (use-package org
+  :nix nil
   ;; :load-path "lisp/org-mode/lisp"
   :demand t
   :commands org-resolve-clocks
@@ -10589,8 +10645,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (expand-file-name path org-directory))
 
   ;; Used by Org-mode and Org-roam templates
-  (eval-when-compile
-    (require 'uuidgen))
   (defun generate-uuid ()
     (with-temp-buffer
       (uuidgen nil)
@@ -13111,6 +13165,18 @@ own lines, for instance.
   :config (citar-org-roam-mode))
 #+end_src
 
+**** COMMENT citar-org-node
+
+#+begin_src emacs-lisp
+(use-package citar-org-node
+  :after (:any citar org-node)
+  :bind (:map org-mode-map
+              ("C-c b a" . citar-org-node-add-refs)
+              ("C-c b o" . citar-org-node-open-resource))
+  :config
+  (citar-org-node-mode 1))
+#+end_src
+
 *** toc-org
 
 #+begin_src emacs-lisp
@@ -13419,10 +13485,11 @@ own lines, for instance.
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 #+end_src
 
-*** COMMENT ebdb-com
+*** COMMENT ebdb
 
 #+begin_src emacs-lisp
 (use-package ebdb-com
+  :nix ebdb
   :commands ebdb)
 #+end_src
 
