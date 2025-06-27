@@ -48,9 +48,7 @@
 (require 'message)
 (require 'bbdb nil t)
 (require 'bbdb-com nil t)
-
-(eval-when-compile
-  (require 'cl))
+(require 'cl-lib)
 
 (defgroup gnus-harvest nil
   "Harvest addresses from Gnus articles and messages"
@@ -243,10 +241,10 @@ FROM
                       mail-aliases)))))
 
 (defun gnus-harvest-bbdb-complete-stub (stub)
-  (loop for record in (bbdb-search (bbdb-records) stub nil stub)
-        for nets = (bbdb-record-mail record)
-        when nets
-        collect (format "%s <%s>" (bbdb-record-name record) (car nets))))
+  (cl-loop for record in (bbdb-search (bbdb-records) stub nil stub)
+           for nets = (bbdb-record-mail record)
+           when nets
+           collect (format "%s <%s>" (bbdb-record-name record) (car nets))))
 
 (defun gnus-harvest-insert-address (email respond-email fullname moment weight)
   (insert
