@@ -106,3 +106,9 @@
 [submodule "lisp/gptel-litellm"]
 	path = lisp/gptel-litellm
 	url = git@github.com:karthink/gptel-litellm
+[submodule "lisp/machines"]
+	path = lisp/machines
+	url = git@github.com:jwiegley/machines
+[submodule "lisp/gptel-emacs-tools"]
+	path = lisp/gptel-emacs-tools
+	url = git@github.com:jwiegley/gptel-emacs-tools

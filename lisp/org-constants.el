@@ -30,7 +30,7 @@
 
 (defconst org-constants-open-source-path (org-file "OSS.org"))
 
-(defconst org-constants-contacts-path (org-file "contents.org"))
+(defconst org-constants-contacts-path (org-file "contacts.org"))
 
 (defconst org-constants-agenda-base-files
   (list org-constants-todo-path

@@ -62,6 +62,10 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/DeepSeek-R1-Distill-Qwen-32B
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
               (hera/DeepSeek-V3-0324
                :description ""
                :capabilities (media tool json url)
