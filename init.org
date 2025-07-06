@@ -87,7 +87,7 @@
 
   (defconst emacs-data-suffix
     (cond ((string= "emacsERC" emacs-environment) "alt")
-          ((string-match "emacs2[6789]\\(.+\\)$" emacs-environment)
+          ((string-match "emacs[1-9][0-9]\\(.+\\)$" emacs-environment)
            (match-string 1 emacs-environment))))
 
   (defconst alternate-emacs (string= emacs-data-suffix "alt"))
@@ -233,6 +233,13 @@
 
 #+begin_src emacs-lisp
 (use-package language-id :defer t)
+#+end_src
+
+** timeout
+
+#+begin_src emacs-lisp
+(use-package timeout
+  :commands (timeout-throttle! timeout-debounce!))
 #+end_src
 
 * Packages
@@ -425,6 +432,7 @@ unto itself.
   ;; frame.el
   (window-divider-default-bottom-width 1)
   (window-divider-default-places 'bottom-only)
+  (blink-cursor-mode nil)
 
   ;; nsm.el
   (nsm-settings-file (user-data "network-security.data"))
@@ -542,6 +550,26 @@ It reindents after every change, making it more reliable than
 (use-package aggressive-indent
   :diminish
   :hook (emacs-lisp-mode . aggressive-indent-mode))
+#+end_src
+
+** aider
+
+#+begin_src emacs-lisp
+(use-package aider
+  :bind
+  ("C-c A" . aider-transient-menu)
+  :custom
+  (aider-args `("--model-settings-file" "~/.config/aider/config.yaml"
+                "--model" "openai/hera/Qwen3-235B-A22B"
+                "--openai-api-base" "http://vulcan/litellm/v1"
+                "--api-key" ,(concat "openai="
+                                     (auth-source-pass-get 'secret "vulcan"))
+                "--no-show-model-warnings"
+                "--no-auto-accept-architect"
+                "--no-auto-commits"))
+  :config
+  ;; (aider-magit-setup-transients)
+  )
 #+end_src
 
 ** alert
@@ -3321,6 +3349,7 @@ Intended to be placed in `git-commit-setup-hook'."
   (:map
    gptel-cmd-map
    ("s" . gptel-ext-shorten)
+   ("p" . gptel-ext-proofread)
    ("t" . gptel-ext-title)
    :map
    gptel-mode-map
@@ -4214,6 +4243,14 @@ minibuffer change, the region is realigned.
 (use-package lively
   :commands lively-stop
   :bind ("C-x C-E" . lively))
+#+end_src
+
+** machines
+
+#+begin_src emacs-lisp
+(use-package m
+  :load-path "lisp/machines"
+  :defer t)
 #+end_src
 
 ** macrostep
@@ -5496,7 +5533,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (pp^L-^L-string "                                            "))
 #+end_src
 
-** prescient
+** COMMENT prescient
 
 [[https://github.com/radian-software/prescient.el][prescient.el]] is a library which sorts and filters lists of candidates.
 
@@ -6801,7 +6838,7 @@ independent components.
          ("M-g M-g" . consult-goto-line)
          ("M-g l"   . consult-goto-line)
          ([remap goto-line] . consult-goto-line)
-         ("M-g O"   . consult-org-heading)
+         ("M-g o"   . consult-org-heading)
          ("M-g m"   . consult-mark)
          ("M-g k"   . consult-global-mark)
          ("M-g i"   . consult-imenu)
@@ -6912,7 +6949,11 @@ independent components.
    :preview-key '(:debounce 0.4 any))
 
   (autoload 'projectile-project-root "projectile")
-  (setq consult-project-function #'(lambda (_) (projectile-project-root))))
+  (setq consult-project-function #'(lambda (_) (projectile-project-root)))
+
+  (eval-when-compile
+    (require 'vertico-multiform))
+  (add-to-list 'vertico-multiform-commands '(consult-org-heading)))
 #+end_src
 
 **** consult-dir
@@ -8251,8 +8292,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :bind (:map lispy-mode-map
               ("M-j"))
   :bind (:map emacs-lisp-mode-map
-              ("C-1"     . lispy-describe-inline)
-              ("C-2"     . lispy-arglist-inline)
+              ("C-!"     . lispy-describe-inline)
+              ("C-@"     . lispy-arglist-inline)
               ("C-c C-j" . lispy-goto)))
 #+end_src
 
@@ -8339,7 +8380,9 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :commands
   (inspector-inspect
    inspector-inspect-expression
-   inspector-inspect-expression))
+   inspector-inspect-expression)
+  :init
+  (defalias 'inspect #'inspector-inspect))
 #+end_src
 
 ***** tree-inspector
@@ -9984,7 +10027,7 @@ is:
   (message-mode . jinx-mode)
   (message-mode . turn-on-auto-fill)
   (message-send . queue-message-if-not-connected)
-  (message-send . (lambda () (ignore-errors (jinx-correct 4))))
+  ;; (message-send . (lambda () (ignore-errors (jinx-correct 4))))
   (message-sent . gnus-score-followup-thread)
   (message-sent . my-gnus-score-followup)
   :custom
@@ -10820,7 +10863,9 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
     (org-agenda-show-and-scroll-up (null arg)))
   :init
   (unless alternate-emacs
-    (add-hook 'emacs-startup-hook #'org-resolve-clocks t)))
+    (add-hook 'emacs-startup-hook #'org-resolve-clocks t))
+  :config
+  (timeout-debounce! 'org-agenda-do-context-action 0.3))
 #+end_src
 
 **** org-agenda-overlay
@@ -10905,7 +10950,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   :after org-ql
   :demand t
   :bind
-  ("M-g o" . org-ql-ext-find-refile-targets)
+  ("M-g O" . org-ql-ext-find-refile-targets)
   :config
   (eval-when-compile
     (require 'vertico-multiform))
@@ -11125,16 +11170,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   :custom
   (org-habit-graph-column 32)
   (org-habit-preceding-days 53)
-  (org-habit-today-glyph 45)
-  :custom-face
-  (org-habit-alert-face ((((background light)) (:background "#f5f946"))))
-  (org-habit-alert-future-face ((((background light)) (:background "#fafca9"))))
-  (org-habit-clear-face ((((background light)) (:background "#8270f9"))))
-  (org-habit-clear-future-face ((((background light)) (:background "#d6e4fc"))))
-  (org-habit-overdue-face ((((background light)) (:background "#f9372d"))))
-  (org-habit-overdue-future-face ((((background light)) (:background "#fc9590"))))
-  (org-habit-ready-face ((((background light)) (:background "#4df946"))))
-  (org-habit-ready-future-face ((((background light)) (:background "#acfca9")))))
+  (org-habit-today-glyph 45))
 #+end_src
 
 *** org-anki
@@ -13211,7 +13247,7 @@ own lines, for instance.
         (lookup-password "pat.asana.com" "john@kadena.io" 80)))
 #+end_src
 
-*** calfw
+*** COMMENT calfw
 
 #+begin_src emacs-lisp
 (use-package calfw

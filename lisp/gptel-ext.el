@@ -36,6 +36,11 @@
   (interactive)
   (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
 
+(defun gptel-ext-proofread ()
+  "Given selected text, proofread it."
+  (interactive)
+  (gptel-with-preset 'proof (gptel--suffix-rewrite)))
+
 (defun gptel-ext-title ()
   "Given a region of text, generate a title to describe it."
   (interactive)
