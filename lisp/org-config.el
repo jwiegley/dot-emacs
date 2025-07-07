@@ -137,7 +137,8 @@
     "Org-mode"
     "gptel"
     "org-jw"
-    "rag-clnt")
+    "rag-clnt"
+    "machines")
   "Categories that cover open source work that I regularly do"
   :type '(repeat string)
   :group 'org-config)
@@ -603,7 +604,7 @@ SCHEDULED: %t
    ,(org-config-kadena-meeting "we" "EVM Posse"        "evm-posse.org")
    ,(org-config-kadena-meeting "wj" "JS Team"          "js-team.org")
    ,(org-config-kadena-meeting "wl" "Leads Strategy"   "leads-strategy.org")
-   ,(org-config-kadena-meeting "wm" "Eng Managers"     "eng-managers.org")
+   ,(org-config-kadena-meeting "wE" "Eng Managers"     "eng-managers.org")
    ,(org-config-kadena-meeting "ws" "Eng Standup"      "eng-standup.org")
    ,(org-config-kadena-meeting "wt" "CTO Meeting"      "cto.org")
 
