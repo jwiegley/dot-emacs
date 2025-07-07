@@ -85,17 +85,15 @@
 (eval-and-compile
   (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
 
-  (defconst emacs-data-suffix
-    (cond ((string= "emacsERC" emacs-environment) "alt")
-          ((string-match "emacs[1-9][0-9]\\(.+\\)$" emacs-environment)
-           (match-string 1 emacs-environment))))
+  (let ((emacs-data-suffix
+         (and (string= "emacsERC" emacs-environment) "alt")))
 
-  (defconst alternate-emacs (string= emacs-data-suffix "alt"))
+    (defconst alternate-emacs (string= emacs-data-suffix "alt"))
 
-  (defconst user-data-directory
-    (emacs-path (if emacs-data-suffix
-                    (format "data-%s" emacs-data-suffix)
-                  "data")))
+    (defconst user-data-directory
+      (emacs-path (if emacs-data-suffix
+                      (format "data-%s" emacs-data-suffix)
+                    "data"))))
 
   (defun user-data (dir)
     (expand-file-name dir user-data-directory)))
@@ -3175,6 +3173,14 @@ up before you execute another command."
   (gptel-include-tool-results t))
 #+end_src
 
+**** gptel-emacs-tools
+
+#+begin_src emacs-lisp
+(use-package gptel-emacs-tools
+  :load-path "lisp/gptel-emacs-tools"
+  :after (gptel-tools))
+#+end_src
+
 *** gptel-litellm
 
 #+begin_src emacs-lisp
@@ -3987,12 +3993,15 @@ minibuffer change, the region is realigned.
              (split-string (match-string 1))))))
   :init
   (setq Info-default-directory-list
-        (mapcar 'expand-file-name
-                (append
-                 (mapcar (apply-partially #'expand-file-name "share/info")
-                         (nix-read-environment emacs-environment))
-                 (list "~/.local/share/info"
-                       (expand-file-name "share/info" (getenv "PROFILE_DIR"))))))
+        (mapcar
+         'expand-file-name
+         (append
+          (and emacs-environment
+               (mapcar (apply-partially #'expand-file-name "share/info")
+                       (nix-read-environment emacs-environment)))
+          (list "~/.local/share/info"
+                (and (getenv "PROFILE_DIR")
+                     (expand-file-name "share/info" (getenv "PROFILE_DIR")))))))
   :config
   (add-hook 'Info-mode-hook
             #'(lambda ()
@@ -12186,17 +12195,19 @@ stamp to a task, which can be used to schedule a review of the task.
 
   (defun my/org-reviewed-today ()
     (interactive)
-    (when (or (ignore-errors (org-entry-is-todo-p))
+    (when (or (ignore-errors
+                (not (member (org-get-todo-state)
+                             '("NOTE" "LINK" "DECISION" "FEEDBACK"))))
               (save-excursion
                 (goto-char (point-min))
                 (looking-at "^\\(TODO\\|TASK\\|HABIT\\) ")))
       (save-excursion
         (org-review-insert-last-review)
-        (let ((ts (format-time-string (car org-time-stamp-formats)
-                                      (current-time))))
-          (org-review-insert-date org-review-next-property-name
-			          org-review-next-timestamp-format
-			          ts)))))
+        (org-review-insert-date
+         org-review-next-property-name
+	 org-review-next-timestamp-format
+	 (format-time-string (car org-time-stamp-formats)
+                             (current-time))))))
 
   (defun my/org-insert-last-and-set-next-review ()
     (interactive)
@@ -12277,6 +12288,7 @@ stamp to a task, which can be used to schedule a review of the task.
     (message "Next review in 2 years"))
   :config
   (add-hook 'org-capture-before-finalize-hook #'my/org-reviewed-today)
+  (add-hook 'org-after-todo-state-change-hook #'my/org-reviewed-today)
 
   (advice-add 'org-review-insert-last-review
               :after #'my/org-review-increment-count))
