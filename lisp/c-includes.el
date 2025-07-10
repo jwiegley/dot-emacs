@@ -1,4 +1,4 @@
-;;; c-includes --- find all header files included by a source file
+;;; c-includes --- find all header files included by a source file -*- lexical-binding: t -*-
 
 ;; Copyright (C) 1999, 2000 John Wiegley
 

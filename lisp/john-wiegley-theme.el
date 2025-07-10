@@ -1,3 +1,5 @@
+;;;  -*- lexical-binding: t -*-
+
 (deftheme john-wiegley
   "Dark theme used by John Wiegley.")
 
@@ -67,3 +69,7 @@
 (provide-theme 'john-wiegley)
 
 (provide 'john-wiegley-theme)
+
+;;; john-wiegley-theme.el ends here
+
+

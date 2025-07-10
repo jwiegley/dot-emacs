@@ -1,4 +1,4 @@
-;;; org-roam-ext --- Extra functions for use with Org-roam
+;;; org-roam-ext --- Extra functions for use with Org-roam -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -272,11 +272,23 @@ This can come from four possible sources:
             ".org")
            (file-name-directory old-name))))
     (unless (string= new-name old-name)
-      (save-buffer)
-      (rename-file old-name new-name 1)
+      (if (file-exists-p old-name)
+          (rename-file old-name new-name 1))
       (rename-buffer new-name)
-      (set-visited-file-name new-name)
-      (set-buffer-modified-p nil))))
+      (set-visited-file-name new-name))))
+
+;;;###autoload
+(defun org-roam-ext-pre-save-hook ()
+  "Do all the dirty stuff when file is being saved."
+  (when (and (not (active-minibuffer-window))
+             (vulpea-buffer-p))
+    (vulpea-ensure-filetag)
+    (when (and (string-match-p "org/\\(meeting\\|assembly\\|bahai\\)"
+                               (file-name-directory (buffer-file-name)))
+               (not (member
+                     (file-name-nondirectory (buffer-file-name))
+                     org-constants-protected-basenames-list)))
+      (org-roam-ext-revise-title))))
 
 (defun org-roam-ext-filter-by-tag (tag-name)
   #'(lambda (node) (member tag-name (org-roam-node-tags node))))
@@ -317,6 +329,7 @@ tasks."
             (org-element-property :todo-type h))))))
 
 ;; https://magnus.therning.org/2021-03-14-keeping-todo-items-in-org-roam.html
+;; jww (2025-07-08): Not currently being used
 (defun org-roam-ext-update-todo-tag ()
   "Update TODO tag in the current buffer."
   (when (and (not (active-minibuffer-window))
@@ -633,16 +646,11 @@ tasks."
          (seconds (if (= (length parts) 3) (nth 2 parts) (nth 1 parts))))
     (+ (* hours 3600) (* minutes 60) seconds)))
 
-(defsubst org-roam-ext-audio-file-name (ext)
-  (expand-file-name
-   (concat (file-name-base (buffer-file-name)) ext)
-   "~/Audio/Kadena/Meetings"))
-
 (defsubst org-roam-ext-current-audio-file ()
-  (let ((mp3-file (org-roam-ext-audio-file-name ".mp3")))
+  (let ((mp3-file (vulpea-ext-audio-file-name ".mp3")))
     (if (file-readable-p mp3-file)
         (cons 2 mp3-file)
-      (let ((mp4-file (org-roam-ext-audio-file-name ".mp4")))
+      (let ((mp4-file (vulpea-ext-audio-file-name ".mp4")))
         (if (file-readable-p mp4-file)
             (cons 1 mp4-file)
           (error "Could not find audio file %s" mp3-file))))))

@@ -1,4 +1,4 @@
-;;; erc-alert --- Alert me using alert.el for important ERC messages
+;;; erc-alert --- Alert me using alert.el for important ERC messages -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011 John Wiegley
 

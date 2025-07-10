@@ -1,4 +1,4 @@
-;;; org-ql-ext --- Extra functions for use with Org-ql
+;;; org-ql-ext --- Extra functions for use with Org-ql -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024 John Wiegley
 

@@ -1,4 +1,4 @@
-;;; vulpea-ext --- Extra functions for use with vulpea
+;;; vulpea-ext --- Extra functions for use with vulpea -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -151,16 +151,7 @@ tasks. The only exception is headings tagged as REFILE."
   (interactive)
   (setq org-agenda-files (vulpea-project-list)))
 
-;;;###autoload
-(defun vulpea-pre-save-hook ()
-  "Do all the dirty stuff when file is being saved."
-  (when (and (not (active-minibuffer-window))
-             (vulpea-buffer-p))
-    (vulpea-ensure-filetag)))
-
 (defun vulpea-auto-update-install ()
-  (add-hook 'before-save-hook #'vulpea-pre-save-hook)
-
   (advice-add 'org-agenda :before #'vulpea-update-agenda-files)
   (advice-add 'org-todo-list :before #'vulpea-update-agenda-files))
 
@@ -218,6 +209,14 @@ tasks. The only exception is headings tagged as REFILE."
 
 (defsubst vulpea-note-file-date (note)
   (vulpea-field-query 'file-dates note))
+
+(defsubst vulpea-ext-audio-file-name (ext)
+  (or (save-excursion
+        (goto-char (point-min))
+        (org-entry-get (point) "AUDIO"))
+      (expand-file-name
+       (concat (file-name-base (buffer-file-name)) ext)
+       "~/Audio/Kadena/Meetings")))
 
 ;;;###autoload
 (defun vulpea-ext-db-setup-dates ()

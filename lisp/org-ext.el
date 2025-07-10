@@ -1,4 +1,4 @@
-;;; org-ext --- Extra functions for use with Org-mode
+;;; org-ext --- Extra functions for use with Org-mode -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024 John Wiegley
 
@@ -755,8 +755,10 @@ Reads names from file and defines s-KEY shortcuts to call
                 "^| \\[\\[id:.+?\\]\\[\\(.+?\\)\\]\\].+|\\s-+\\([A-Za-z0-9_]\\)\\s-+|$" nil t)
           (let ((name (match-string-no-properties 1))
                 (key (match-string-no-properties 2)))
-            (define-key org-mode-map (kbd (concat "A-" key))
-                        `(lambda () (interactive) (org-ext-edit-link-name ,name)))))))
+            (org-defkey org-mode-map (kbd (concat "s-" key))
+                        `(lambda ()
+                           (interactive)
+                           (org-ext-edit-link-name ,name)))))))
     (message "Team names and quick keys updated")))
 
 (defun org-ext-update-team-after-save ()

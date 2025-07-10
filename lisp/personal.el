@@ -422,12 +422,14 @@ transform."
 (defmacro compose (&rest args)
   `(lambda (x) (thread-last x ,@args)))
 
-(defvar emacs-nix-name-re
+(defconst emacs-nix-name-re
   (rx
    (seq bol "  "
-        (opt (zero-or-more " ") (group "# "))
+        (opt (zero-or-more " "))
+        (opt (group "(exclude "))
         (or (seq "epkgs.\"" (group (+? nonl)) "\"")
-            (group (one-or-more (any "-" "+" alnum)))))))
+            (group (one-or-more (any "-" "+" alnum))))
+        (opt ")"))))
 
 (defun sort-emacs-nix-names ()
   (interactive)
@@ -442,10 +444,7 @@ transform."
                       (goto-char (match-beginning 0))
                     (goto-char (point-max)))))
               (endrecfun ()
-                (goto-char (line-end-position))
-                (if (re-search-forward re nil t)
-                    (goto-char (match-beginning 0))
-                  (goto-char (point-max))))
+                (goto-char (line-end-position)))
               (startkeyfun ()
                 (and (looking-at re)
                      (or (match-string 2)
@@ -457,35 +456,34 @@ transform."
   (when (string= (buffer-file-name)
                  "/Users/johnw/src/nix/config/emacs.nix")
     (save-excursion
-      (goto-char 28)
+      (goto-char 75)
       (sort-emacs-nix-names))))
 
-(defun comm (buffer1 buffer2)
-  (let* ((list1 (with-current-buffer buffer1
-                  (split-string (buffer-string) "\n" t)))
-         (list2 (with-current-buffer buffer2
-                  (split-string (buffer-string) "\n" t)))
-         (i 0)
-         (j 0)
-         (only1 '())
-         (only2 '())
-         (both '()))
-    (while (and (< i (length list1)) (< j (length list2)))
-      (cond
-       ((string< (nth i list1) (nth j list2))
-        (push (nth i list1) only1)
-        (setq i (1+ i)))
-       ((string> (nth i list1) (nth j list2))
-        (push (nth j list2) only2)
-        (setq j (1+ j)))
-       (t (push (nth i list1) both)
-          (setq i (1+ i))
-          (setq j (1+ j)))))
-    (when (< i (length list1))
-      (setq only1 (append only1 (subseq list1 i))))
-    (when (< j (length list2))
-      (setq only2 (append only2 (subseq list2 j))))
-    (list (nreverse only1) (nreverse only2) (nreverse both))))
+(cl-defun comm (list1 list2 &key
+                      (key #'identity)
+                      (compare #'string<)
+                      (test #'string=)
+                      (merge #'vector))
+  (sort-on
+   (nconc
+    (mapcar (lambda (x)
+              (if-let* ((y (cl-member (funcall key x) list2
+                                      :test test :key key)))
+                  (if (equal x (car y))
+                      (cons x :both)
+                    (let ((merged (funcall merge (cdr x) (cdar y))))
+                      (if merged
+                          (cons (cons (car x) merged) :both)
+                        (cons x :both))))
+                (cons x :left)))
+            list1)
+    (seq-keep (lambda (x)
+                (unless (cl-member (funcall key x) list1
+                                   :test test :key key)
+                  (cons x :right)))
+              list2))
+   compare
+   (lambda (x) (funcall key (car x)))))
 
 (defun org-within-commented-block ()
   (save-excursion
@@ -497,11 +495,12 @@ transform."
 (defun emacs-nix-packages ()
   (let (results)
     (while (re-search-forward emacs-nix-name-re nil t)
-      (let ((commented (match-string 1))
-            (name (or (match-string 2)
-                      (match-string 3))))
-        (setq results (cons (cons name (if commented t nil))
-                            results))))
+      (let ((commented (match-string-no-properties 1))
+            (name (or (match-string-no-properties 2)
+                      (match-string-no-properties 3))))
+        (setq results
+              (cons (cons name (and commented (list :commented)))
+                    results))))
     results))
 
 (defun init-org-packages ()
@@ -513,62 +512,105 @@ transform."
                             (group (one-or-more (any "+-" alnum))))
                      eol))
             nil t)
-      (let* ((heading (match-string 1))
+      (let* ((heading (match-string-no-properties 1))
              (name (match-string-no-properties 3))
-             (commented (or (match-string 2)
+             (commented (or (match-string-no-properties 2)
                             (org-within-commented-block)))
              (end (save-excursion
                     (org-next-visible-heading 1)
                     (point))))
         (when (save-excursion
-                (and (re-search-forward "use-package \\([[:alnum:]+-]+\\)" end t)
-                     (not (search-forward ":no-require t" end t))
-                     (not (re-search-forward "^  :load-path" end t))))
-          (let ((nix-name (save-excursion
-                            (and (re-search-forward ":nix \\(.+\\)$" end t)
-                                 (match-string 1)))))
-            (unless (and nix-name (string= nix-name "nil"))
-              (setq results (cons (cons (or nix-name name)
-                                        (if commented t nil))
-                                  results)))))))
-    results))
+                (re-search-forward "use-package [[:alnum:]+-]+" end t))
+          (let* ((no-require
+                  (save-excursion (search-forward ":no-require t" end t)))
+                 (from-load-path
+                  (save-excursion (re-search-forward "^  :load-path" end t)))
+                 (nix-name
+                  (save-excursion
+                    (and (re-search-forward ":nix \\([[:alnum:]+-]+\\))?$" end t)
+                         (match-string-no-properties 1))))
+                 (no-nix (and nix-name (string= nix-name "nil"))))
+            (setq results
+                  (cons (cons (if no-nix name (or nix-name name))
+                              (append
+                               (and commented (list :commented))
+                               (and no-require (list :no-require))
+                               (and from-load-path (list :from-load-path))
+                               (and no-nix (list :no-nix))))
+                        results))))))
+    (nreverse results)))
+
+(defun parse-packages (path func)
+  (with-current-buffer (find-file-noselect path)
+    (save-excursion
+      (goto-char (point-min))
+      (funcall func))))
+
+(defconst excluded-keywords '(:no-require :from-load-path :no-nix))
+
+(defun active-init-org-attrs (attrs)
+  (or (equal attrs '(:commented))
+      (not (seq-every-p
+            (lambda (x)
+              (or (null x)
+                  (memq x excluded-keywords)))
+            (seq-remove (lambda (x) (eq x :commented)) attrs)))))
 
 (defun review-emacs-nix-file (&optional arg)
   (interactive "P")
-  (let ((emacs-nix-buffer (get-buffer-create "*emacs.nix names*"))
-        (init-org-buffer (get-buffer-create "*init.org names*")))
-    (dolist (entry `(("~/src/nix/config/emacs.nix"
-                      ,#'emacs-nix-packages ,emacs-nix-buffer)
-                     ("~/org/init.org"
-                      ,#'init-org-packages ,init-org-buffer)))
-      (cl-destructuring-bind (path func buffer)
-          entry
-        (with-current-buffer buffer (erase-buffer))
-        (with-current-buffer (find-file-noselect path)
-          (save-excursion
-            (goto-char (point-min))
-            (let ((packages (funcall func)))
-              (dolist (package packages)
-                (cl-destructuring-bind (name . commented)
-                    package
-                  (with-current-buffer buffer
-                    (insert (format "%s%s\n" (if commented "COMMENT " "")
-                                    name))))))))
-        (with-current-buffer buffer
-          (sort-lines nil (point-min) (point-max)))))
-    (with-current-buffer (get-buffer-create "*packages*")
-      (erase-buffer)
-      (cl-destructuring-bind (only1 only2 both)
-          (comm init-org-buffer emacs-nix-buffer)
-        (insert "== Only in init.org ===\n")
-        (dolist (pkg (sort only1 :lessp #'string<)) (insert pkg ?\n))
-        (insert "\n=== Only in emacs.nix ===\n")
-        (dolist (pkg (sort only2 :lessp #'string<)) (insert pkg ?\n))
-        (when arg
-          (insert "\n=== Common to both emacs.nix and init.org ===\n")
-          (dolist (pkg (sort both :lessp #'string<)) (insert pkg ?\n))))
-      (goto-char (point-min))
-      (pop-to-buffer (current-buffer)))))
+  (with-current-buffer (get-buffer-create "*packages*")
+    (erase-buffer)
+    (let ((combined
+           (comm
+            (parse-packages "~/org/init.org" #'init-org-packages)
+            (parse-packages "~/src/nix/config/emacs.nix" #'emacs-nix-packages)
+            :key #'car
+            :compare #'string<
+            :test #'string=
+            :merge (lambda (x y)
+                     (let ((x-prime (seq-remove (lambda (i) (memq i excluded-keywords)) x))
+                           (y-prime (seq-remove (lambda (i) (memq i excluded-keywords)) y)))
+                       (unless (equal x-prime y-prime)
+                         (vector x-prime y-prime)))))))
+      (dolist (item combined)
+        (when (or arg
+                  (cl-case (cdr item)
+                    (:both (and (vectorp (cdar item))
+                                (active-init-org-attrs (cdar item))))
+                    (:left (active-init-org-attrs (cdar item)))
+                    (t t)))
+          (let ((both-mismatch (and (eq (cdr item) :both)
+                                    (vectorp (cdar item)))))
+            (cond ((eq (cdr item) :left)
+                   (insert "<< "))
+                  ((eq (cdr item) :right)
+                   (insert ">> "))
+                  (both-mismatch
+                   (insert "!! "))
+                  (t
+                   (insert "== ")))
+            (if both-mismatch
+                (insert "     ")
+              (insert
+               (format "%-5s"
+                       (with-temp-buffer
+                         (dolist (item (cdar item))
+                           (cl-case item
+                             (:commented
+                              (insert ";"))
+                             (:no-require
+                              (insert "r"))
+                             (:from-load-path
+                              (insert "l"))
+                             (:no-nix
+                              (insert "n"))))
+                         (buffer-string)))))
+            (insert (caar item))
+            (when both-mismatch
+              (insert (format " %S" (cdar item)))))
+          (insert ?\n))))
+    (goto-char (point-min))
+    (pop-to-buffer (current-buffer))))
 
 (provide 'personal)
 

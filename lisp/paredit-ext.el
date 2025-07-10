@@ -1,4 +1,4 @@
-;;; paredit-ext --- Extra functions for paredit
+;;; paredit-ext --- Extra functions for paredit -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 John Wiegley
 

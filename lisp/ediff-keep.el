@@ -1,4 +1,4 @@
-;;; ediff-keep --- Commands to help manipulate diff3 regions
+;;; ediff-keep --- Commands to help manipulate diff3 regions -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 John Wiegley
 

@@ -112,3 +112,6 @@
 [submodule "lisp/gptel-emacs-tools"]
 	path = lisp/gptel-emacs-tools
 	url = git@github.com:jwiegley/gptel-emacs-tools
+[submodule "lisp/flymake-gptel"]
+	path = lisp/flymake-gptel
+	url = git@github.com:karthink/flymake-gptel

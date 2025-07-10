@@ -1,4 +1,4 @@
-;;; org-smart-capture --- Capture Gnus messages as tasks, with context
+;;; org-smart-capture --- Capture Gnus messages as tasks, with context -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011 John Wiegley
 
