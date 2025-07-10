@@ -1,3 +1,5 @@
+;;;  -*- lexical-binding: t -*-
+
 ;;; This file should be loaded before Org-mode, or any other modules that
 ;;; loads Org.
 
@@ -51,6 +53,20 @@
         (file-name-nondirectory org-constants-plain-org-path)))
 
 (defconst org-constants-protected-basenames-list
-  (mapcar #'file-name-nondirectory org-constants-protected-filenames-list))
+  (cl-delete-duplicates
+   (append (mapcar #'file-name-nondirectory
+                   org-constants-protected-filenames-list)
+           '("archive.org"
+             "assembly.org"
+             "assembly-archive.org"
+             "GLSA.org"
+             "badi-calendar.org"
+             "bookmarks.org"
+             "colors.org"
+             "document-index.org"
+             "drafts.org"
+             "home.org"
+             "init.org"
+             "writings.org"))))
 
 (provide 'org-constants)

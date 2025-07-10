@@ -12,6 +12,23 @@
                (condition-notify cond-var)
                (message "b2"))
              (message "b3"))))
+       ;; (thread-a-wait
+       ;;  (make-thread
+       ;;   #'(lambda ()
+       ;;       (message "a0")
+       ;;       (with-mutex mutex
+       ;;         (message "a1")
+       ;;         (setq waiting t)
+       ;;         (let ((countdown 10))
+       ;;           (while (and (not (condition-wait cond-var 0.1))
+       ;;                       (> (setq countdown (1- countdown)) 0))
+       ;;             (message "waiting..."))
+       ;;           (if (<= countdown 0)
+       ;;               (error "Failed to wait on condition variable")
+       ;;             (message "countdown %S" countdown)))
+       ;;         (setq waiting nil)
+       ;;         (message "a2"))
+       ;;       (message "a3"))))
        (thread-a
         (make-thread
          #'(lambda ()
@@ -19,13 +36,7 @@
              (with-mutex mutex
                (message "a1")
                (setq waiting t)
-               (let ((countdown 10))
-                 (while (and (not (condition-wait cond-var 0.1))
-                             (> (setq countdown (1- countdown)) 0))
-                   (message "waiting..."))
-                 (if (<= countdown 0)
-                     (error "Failed to wait on condition variable")
-                   (message "countdown %S" countdown)))
+               (condition-wait cond-var)
                (setq waiting nil)
                (message "a2"))
              (message "a3")))))

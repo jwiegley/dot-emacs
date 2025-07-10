@@ -1,4 +1,4 @@
-;;; my-gnus-score --- Helper functions and variables to setup Gnus scoring
+;;; my-gnus-score.el --- Functions to setup Gnus scoring -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2012 John Wiegley
 

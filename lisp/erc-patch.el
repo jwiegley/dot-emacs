@@ -1,3 +1,5 @@
+;;;  -*- lexical-binding: t -*-
+
 (require 'erc)
 
 ;; This file make erc-scrolltobottom work again in Emacs 24.

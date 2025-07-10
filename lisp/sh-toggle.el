@@ -1,4 +1,4 @@
-;;; sh-toggle --- toggle to and from the *shell* buffer
+;;; sh-toggle --- toggle to and from the *shell* buffer -*- lexical-binding: t -*-
 
 ;; Copyright (C) 1997, 1998, 2000, 2001 Mikael Sjödin (mic@docs.uu.se)
 

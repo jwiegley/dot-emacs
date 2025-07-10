@@ -1,3 +1,5 @@
+;;;  -*- lexical-binding: t -*-
+
 (defvar edit-rectangle-origin)
 (defvar edit-rectangle-saved-window-config)
 

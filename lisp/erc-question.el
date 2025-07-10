@@ -1,4 +1,4 @@
-;;; erc-question --- Ask Google before asking on IRC
+;;; erc-question --- Ask Google before asking on IRC -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2017 John Wiegley
 

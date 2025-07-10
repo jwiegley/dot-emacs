@@ -1,4 +1,4 @@
-;;; cl-info.el --- Do quick HyperSpec lookup in Emacs using the Info pages
+;;; cl-info.el --- Do quick HyperSpec lookup in Emacs using the Info pages -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2007 John Wiegley <johnw@newartisans.com>
 
