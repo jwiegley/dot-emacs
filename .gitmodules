@@ -115,3 +115,6 @@
 [submodule "lisp/flymake-gptel"]
 	path = lisp/flymake-gptel
 	url = git@github.com:karthink/flymake-gptel
+[submodule "lisp/org-autolist"]
+	path = lisp/org-autolist
+	url = git@github.com:calvinwyoung/org-autolist.git

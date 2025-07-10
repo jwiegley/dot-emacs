@@ -267,6 +267,12 @@
 (use-package pg :defer t)
 #+end_src
 
+** quick-peek
+
+#+begin_src emacs-lisp
+(use-package quick-peek :defer t)
+#+end_src
+
 ** language-id
 
 #+begin_src emacs-lisp
@@ -286,7 +292,7 @@
 (use-package web :defer t)
 #+end_src
 
-* Packages
+* Packages (pre-requisities)
 
 ** epg
 
@@ -527,6 +533,45 @@ unto itself.
 #+begin_src emacs-lisp
 (use-package org-constants)
 #+end_src
+
+** hydra
+
+#+begin_src emacs-lisp
+(use-package hydra
+  :bind
+  ("C-h e a" . my/hydra-apropos/body)
+  :config
+  (defhydra my/hydra-apropos (:color blue :hint nil)
+  "
+_a_propos        _c_ommand
+_d_ocumentation  _l_ibrary
+_v_ariable       _u_ser-option
+^ ^          valu_e_"
+  ("a" apropos)
+  ("d" apropos-documentation)
+  ("v" apropos-variable)
+  ("c" apropos-command)
+  ("l" apropos-library)
+  ("u" apropos-user-option)
+  ("e" apropos-value)))
+#+end_src
+
+*** pretty-hydra
+
+#+begin_src emacs-lisp
+(use-package pretty-hydra
+  :functions (pretty-hydra-define))
+#+end_src
+
+*** major-mode-hydra
+
+#+begin_src emacs-lisp
+(use-package major-mode-hydra
+  :bind ("M-SPC" . major-mode-hydra)
+  :functions (major-mode-hydra-define))
+#+end_src
+
+* Packages
 
 ** abbrev
 
@@ -1341,48 +1386,6 @@ vertical position can be altered:
   :commands centered-cursor-mode)
 #+end_src
 
-** COMMENT chatgpt-shell
-
-#+begin_src emacs-lisp
-(use-package chatgpt-shell
-  :bind
-  (:prefix-map
-   chatgpt-shell-cmd-map
-   :prefix "C-x c"
-   ("C" . chatgpt-shell)
-   ("u" . chatgpt-shell-generate-unit-test)
-   ("e" . chatgpt-shell-explain-code)
-   ("i" . chatgpt-shell-interrupt)
-   ("p" . chatgpt-shell-proofread-region)
-   ("S" . chatgpt-shell-send-region)
-   ("d" . chatgpt-shell-describe-code)
-   ("r" . chatgpt-shell-refactor-code)
-   ("g" . chatgpt-shell-write-git-commit)
-   ("s" . chatgpt-shell-send-and-review-region)
-   ("R" . chatgpt-shell-restore-session-from-transcript))
-  :custom
-  (chatgpt-shell-model-version 6)       ; gpt-4-1106-preview
-  (chatgpt-shell-openai-key
-   (lambda ()
-     (auth-source-pass-get 'secret "chat.openai.com")))
-  (chatgpt-shell-system-prompt 0)
-  (chatgpt-shell-system-prompts
-   '(("General" .
-      "You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels.")
-     ("English" .
-      "I want you to act as an English translator, spelling corrector and improver. I will speak to you in any language and you will detect the language, translate it and answer in the corrected and improved version of my text, in English. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level English words and sentences. Keep the meaning same, but make them more literary. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
-     ("Spanish" .
-      "I want you to act as an Latin-American Spanish translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Latin-American Spanish. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Latin-American  Spanish words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
-     ("Persian" .
-      "I want you to act as an Farsi translator, spelling corrector and improver. I will speak to you in English, and you will translate it and answer in the corrected and improved version of my text, in Farsi. I want you to replace my simplified A0-level words and sentences with more beautiful and elegant, upper level Farsi words and sentences. Keep the meaning same, but make them more literary and clear. I want you to only reply the correction, the improvements and nothing else, do not write explanations.")
-     ("Programming" .
-      "The user is a programmer with very limited time. You treat their time as precious. You do not repeat obvious things, including their query. You are as concise as possible in responses. You never apologize for confusions because it would waste their time. You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels. Don't explain code snippets. Whenever you output updated code for the user, only show diffs, instead of entire snippets.")
-     ("Positive Programming" .
-      "Your goal is to help the user become an amazing computer programmer. You are positive and encouraging. You love see them learn. You do not repeat obvious things, including their query. You are as concise in responses. You always guide the user go one level deeper and help them see patterns. You never apologize for confusions because it would waste their time. You use markdown liberally to structure responses. Always show code snippets in markdown blocks with language labels. Don't explain code snippets. Whenever you output updated code for the user, only show diffs, instead of entire snippets.")
-     ("Travel Guide" .
-      "I want you to act as a travel guide. I will write you my location and you will suggest a place to visit near my location. In some cases, I will also give you the type of places I will visit. You will also suggest me places of similar type that are close to my first location."))))
-#+end_src
-
 ** COMMENT citre
 
 [[https://github.com/universal-ctags/citre][Citre]] started out as a tool utilizing tags files (in the ctags format). Now it
@@ -1860,80 +1863,6 @@ diff-hl package.
    "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(DS_Store\\|localized\\|com-apple-bird.*\\)\\|Icon\015\\)\\'"))
 #+end_src
 
-*** COMMENT dired+
-
-#+begin_src emacs-lisp
-(use-package dired+
-  :nix dired-plus
-  :after dired-x
-  :custom-face
-  (diredp-dir-name ((t (:foreground "blue"))))
-  (diredp-file-name ((t nil)))
-  (diredp-file-suffix ((t (:foreground "lightgreen"))))
-  :config
-  (defun dired-do-delete (&optional arg)  ; Bound to `D'
-    "Delete all marked (or next ARG) files.
-NOTE: This deletes the marked (`*'), not the flagged (`D'), files.
-
-User option `dired-recursive-deletes' controls whether deletion of
-non-empty directories is allowed.
-
-ARG is the prefix argument.
-
-As an exception, if ARG is zero then delete the marked files, but with
-the behavior specified by option `delete-by-moving-to-trash' flipped."
-    (interactive "P")
-    (let* ((flip (zerop (prefix-numeric-value arg)))
-           (delete-by-moving-to-trash
-            (and (boundp 'delete-by-moving-to-trash)
-                 (if flip
-                     (not delete-by-moving-to-trash)
-                   delete-by-moving-to-trash)))
-           (markers ()))
-      (when flip (setq arg  nil))
-      (diredp-internal-do-deletions
-       (nreverse
-        ;; This can move point if ARG is an integer.
-        (dired-map-over-marks
-         (cons (dired-get-filename)
-               (let ((mk  (point-marker)))
-                 (push mk markers)
-                 mk))
-         arg))
-       arg
-       t)          ; Gets ANDed anyway with `delete-by-moving-to-trash'.
-      (dolist (mk  markers) (set-marker mk nil))))
-
-  (defun dired-do-flagged-delete (&optional no-msg) ; Bound to `x'
-    "In Dired, delete the files flagged for deletion.
-NOTE: This deletes flagged, not marked, files.
-If arg NO-MSG is non-nil, no message is displayed.
-
-User option `dired-recursive-deletes' controls whether deletion of
-non-empty directories is allowed."
-    (interactive)
-    (let* ((dired-marker-char dired-del-marker)
-           (regexp (dired-marker-regexp))
-           (case-fold-search nil)
-           (markers ()))
-      (if (save-excursion
-            (goto-char (point-min))
-            (re-search-forward regexp nil t))
-          (diredp-internal-do-deletions
-           (nreverse
-            ;; This cannot move point since last arg is nil.
-            (dired-map-over-marks
-             (cons (dired-get-filename)
-                   (let ((mk  (point-marker)))
-                     (push mk markers)
-                     mk))
-             nil))
-           nil
-           'USE-TRASH-CAN)             ; This arg is for Emacs 24+ only.
-        (dolist (mk  markers) (set-marker mk nil))
-        (unless no-msg (message "(No deletions requested.)"))))))
-#+end_src
-
 *** diredfl
 
 Extra font-lock rules for dired.
@@ -2047,7 +1976,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   (doc-view-resolution 300))
 #+end_src
 
-** COMMENT doxymacs
+** doxymacs
 
 #+begin_src emacs-lisp
 (use-package doxymacs
@@ -3825,18 +3754,6 @@ requests, so you can use it alongside other tools.
                '(consult-ripgrep-haskell-todo buffer)))
 #+end_src
 
-** COMMENT hydra
-
-#+begin_src emacs-lisp
-(use-package hydra
-  :defer t
-  :config
-  (defhydra hydra-zoom (global-map "<f2>")
-    "zoom"
-    ("g" text-scale-increase "in")
-    ("l" text-scale-decrease "out")))
-#+end_src
-
 ** ialign
 
 To use [[https://github.com/mkcms/interactive-align][ialign]], mark a region and then call =ialign=. You can enter a regexp in
@@ -5365,7 +5282,7 @@ append it to ENTRY."
    ("C-c C-z" . delete-to-end-of-buffer)
    ("C-c M-;" . comment-and-copy)
    ("C-c M-q" . unfill-paragraph)
-   ("C-c SPC" . just-one-space)
+   ("C-c SPC" . cycle-spacing)
    ("C-c e 0" . profiler-start)
    ("C-c e 1" . profiler-stop)
    ("C-c e 2" . profiler-report)
@@ -5390,7 +5307,7 @@ append it to ENTRY."
    ("C-c s"   . replace-string)
    ;; ("C-c u"   . rename-uniquely) ; this is available at C-x x u
    ("C-h K"   . describe-keymap)
-   ("C-h e a" . apropos-value)
+   ;; ("C-h e a" . apropos-value)
    ("C-h e e" . view-echo-area-messages)
    ("C-h e f" . find-function)
    ("C-h e k" . find-function-on-key)
@@ -7394,7 +7311,6 @@ independent components.
   :demand t
   :bind (;; C-c bindings (mode-specific-map)
          ("C-c M-x" . consult-mode-command)
-         ("C-c h"   . consult-history)
          ("C-c K"   . consult-kmacro)
          ("C-c e i" . consult-info)
          ([remap Info-search] . consult-info)
@@ -7536,10 +7452,10 @@ independent components.
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root)))
 
-  (eval-after-load 'eshell
-    '(define-key eshell-mode-map (kbd "C-r") 'consult-history))
-  (eval-after-load 'eshell-rebind
-    '(define-key eshell-rebind-mode-map (kbd "C-r") 'consult-history))
+  (with-eval-after-load 'eshell
+    (define-key eshell-mode-map (kbd "C-r") 'consult-history))
+  (with-eval-after-load 'eshell-rebind
+    (define-key eshell-rebind-mode-map (kbd "C-r") 'consult-history))
 
   (eval-when-compile
     (require 'vertico-multiform))
@@ -7637,155 +7553,6 @@ locations. The =default-directory= variable is not changed in the process.
 (use-package consult-lsp
   :bind (:map lsp-mode-mode
               ([remap xref-find-apropos] . consult-lsp-symbols)))
-#+end_src
-
-**** COMMENT consult-omni
-
-[[https://github.com/armindarvish/consult-omni][consult-omni]] is a package for getting search results from one or several
-custom sources (web search engines, AI assistants, elfeed database, org notes,
-local files, desktop applications, mail servers, …) directly in Emacs
-minibuffer. It is a successor of [[https://github.com/armindarvish/consult-web][consult-web]], with expanded features and
-functionalities.
-
-consult-omni provides wrappers and macros around [[https://github.com/minad/consult][consult]], to make it easier
-for users to get results from different sources and combine local and web
-sources in an omni-style search. In other words, consult-omni enables getting
-consult-style multi-source or dynamically completed results in minibuffer for
-a wide range of sources including Emacs functions/packages (e.g. Emacs
-buffers, org files, elfeed,…), command-line programs (grep, find, gh, …), or
-web search engines (Google, Brave, Bing, …).
-
-consult-omni can be an open-source free alternative to other omni-search tools
-such as Alfred or MacOS spotlight. It provides a range of default sources as
-examples, but the main idea here is to remain agnostic of the source and
-provide the toolset for the users to define their own sources/workflows (a.k.a
-plugins).
-
-#+begin_src emacs-lisp
-(use-package consult-omni
-  :after consult
-  :commands
-  (consult-omni)
-  :custom
-  ;;; General settings that apply to all sources
-  (consult-omni-show-preview t) ;;; show previews
-  (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
-  (consult-omni-highlight-matches-in-minibuffer t) ;;; highlight matches in minibuffer
-  (consult-omni-highlight-matches-in-file t) ;;; highlight matches in files
-  (consult-omni-default-count 5) ;;; set default count
-  (consult-omni-default-page 0) ;;; set the default page (default is 0 for the first page)
-  ;; optionally change the consult-omni debounce, throttle and delay.
-  ;; Adjust these (e.g. increase to avoid hiting a source (e.g. an API) too frequently)
-  (consult-omni-dynamic-input-debounce 0.8)
-  (consult-omni-dynamic-input-throttle 1.6)
-  (consult-omni-dynamic-refresh-delay 0.8)
-  ;; Optionally set backend for http request (either 'url, 'request, or 'plz)
-  ;; (consult-omni-http-retrieve-backend 'plz)
-  :preface
-  (defvar consult-omni-web-sources
-    (list "gptel"
-          "Brave"
-          "elfeed"
-          "mu4e"
-          "Wikipedia"
-          "GitHub"
-          "Invidious"
-          ))
-
-  (defun consult-omni-web (&optional initial prompt sources no-callback &rest args)
-    "Interactive web search”
-
-This is similar to `consult-omni-multi', but runs the search on
-web sources defined in `consult-omni-web-sources'.
-See `consult-omni-multi' for more details.
-"
-    (interactive "P")
-    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-web" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
-          (sources (or sources consult-omni-web-sources)))
-      (consult-omni-multi initial prompt sources no-callback args)))
-
-  ;; consult-omni-local
-  (defvar consult-omni-local-sources (list "ripgrep"
-                                           "mdfind"
-                                           "Notes Search"
-                                           "Apps"
-                                           "Org Agenda"))
-  (defun consult-omni-local (&optional initial prompt sources no-callback &rest args)
-    "Interactive local search”
-
-This is similar to `consult-omni-multi', but runs the search on
-local sources defined in `consult-omni-local-sources'.
-See `consult-omni-multi' for more details.
-"
-    (interactive "P")
-    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-local" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
-          (sources (or sources consult-omni-local-sources)))
-      (consult-omni-multi initial prompt sources no-callback args)))
-
-  ;; consult-omni-scholar
-  (setq consult-omni-scholar-sources (list "PubMed" "Scopus" "Notes Search" "gptel"))
-
-  (defun consult-omni-scholar (&optional initial prompt sources no-callback &rest args)
-    "Interactive “multi-source acadmic literature” search
-
-This is similar to `consult-omni-multi', but runs the search on
-academic literature sources defined in `consult-omni-scholar-sources'.
-See `consult-omni-multi' for more details.
-"
-    (interactive "P")
-    (let ((prompt (or prompt (concat "[" (propertize "consult-omni-multi" 'face 'consult-omni-prompt-face) "]" " Search:  ")))
-          (sources (or sources consult-omni-scholar-sources)))
-      (consult-omni-multi initial prompt sources no-callback args)))
-
-  ;; AutoSuggest at point
-  (defun consult-omni-autosuggest-at-point ()
-    (interactive)
-    (let ((input (or (thing-at-point 'url) (thing-at-point 'filename) (thing-at-point 'symbol) (thing-at-point 'sexp) (thing-at-point 'word))))
-      (when (and (minibuffer-window-active-p (selected-window))
-                 (equal (substring input 0 1) (consult--async-split-initial nil)))
-        (setq input (substring input 1)))
-      (consult-omni-brave-autosuggest input)))
-  :config
-  (require 'consult-omni-sources)
-  (require 'consult-omni-embark)
-
-  (consult-omni-sources-load-modules)
-
-  (setq consult-omni-multi-sources
-        '("calc"
-          "File"
-          "Buffer"
-          "Bookmark"
-          "Apps"
-          "gptel"
-          "Brave"
-          "Dictionary"
-          ;; "Google"
-          "Wikipedia"
-          "elfeed"
-          ;; "mu4e"
-          "buffers text search"
-          "Notes Search"
-          "Org Agenda"
-          "GitHub"
-          "YouTube"
-          "Invidious"))
-
-  (setq consult-omni-google-customsearch-key "YOUR-GOOGLE-API-KEY-OR-FUNCTION")
-  (setq consult-omni-google-customsearch-cx "YOUR-GOOGLE-CX-NUMBER-OR-FUNCTION")
-  (setq consult-omni-brave-api-key "YOUR-BRAVE-API-KEY-OR-FUNCTION")
-  (setq consult-omni-stackexchange-api-key "YOUR-STACKEXCHANGE-API-KEY-OR-FUNCTION")
-  (setq consult-omni-pubmed-api-key "YOUR-PUBMED-API-KEY-OR-FUNCTION")
-  (setq consult-omni-openai-api-key "YOUR-OPENAI-API-KEY-OR-FUNCTION")
-
-  (setq consult-omni-gptel-cand-title #'consult-omni--gptel-make-title-short-answer)
-  (setq consult-omni-embark-default-term #'vterm)
-  (setq consult-omni-embark-video-default-player  #'mpv-play-url)
-  (setq consult-omni-open-with-prompt "  ")
-  (setq consult-omni-default-autosuggest-command #'consult-omni-dynamic-brave-autosuggest) ;;or any other autosuggest source you define
-  (setq consult-omni-default-interactive-command #'consult-omni-multi)
-  ;; (setq consult-omni-notes-backend-command "rga")
-  )
 #+end_src
 
 **** consult-gh
@@ -12010,7 +11777,7 @@ displays the priority part of a heading as your preferred string value.
   :after org)
 #+end_src
 
-*** COMMENT org-quick-peek
+*** org-quick-peek
 
 #+begin_src emacs-lisp
 (use-package org-quick-peek
@@ -13476,18 +13243,6 @@ checkbox, and moves the cursor to the end of the previous line.
           ("C-c C-x C-j" . org-mru-clock-select-recent-task))
   :custom
   (org-mru-clock-how-many 100))
-#+end_src
-
-*** org-sql
-
-[[https://github.com/ndwarshuis/org-sql][org-sql]] code stores org buffers in a variety of SQL databases for use in
-processing org-mode data outside of Emacs where SQL operations might be more
-appropriate. Org files are stored according to the perspective of unique org
-outline; any outline might reside in multiple identical files.
-
-#+begin_src emacs-lisp
-(use-package org-sql
-  :defer t)
 #+end_src
 
 ** Games
