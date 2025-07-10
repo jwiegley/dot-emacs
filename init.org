@@ -213,6 +213,7 @@
 #+end_src
 
 ** uuidgen
+
 #+begin_src emacs-lisp
 (use-package uuidgen
   :functions (uuidgen-1))
@@ -231,6 +232,7 @@
 #+end_src
 
 ** s
+
 #+begin_src emacs-lisp
 (use-package s :defer t)
 #+end_src
@@ -239,6 +241,24 @@
 
 #+begin_src emacs-lisp
 (use-package f :defer t)
+#+end_src
+
+** fsrs
+
+#+begin_src emacs-lisp
+(use-package fsrs :defer t)
+#+end_src
+
+** parse-csv
+
+#+begin_src emacs-lisp
+(use-package parse-csv :defer t)
+#+end_src
+
+** llama
+
+#+begin_src emacs-lisp
+(use-package llama :defer t)
 #+end_src
 
 ** pg
@@ -258,6 +278,12 @@
 #+begin_src emacs-lisp
 (use-package timeout
   :commands (timeout-throttle! timeout-debounce!))
+#+end_src
+
+** web
+
+#+begin_src emacs-lisp
+(use-package web :defer t)
 #+end_src
 
 * Packages
@@ -822,6 +848,17 @@ backwards) and cycling starts from the following target.
     t)
   :config
   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+#+end_src
+
+**** avy-embark-collect
+
+This packages provides two commands, =avy-embark-collect-choose= and
+=avy-embark-collect-act=, that use avy to jump to an Embark Collect entry and
+choose it or act on it, respectively.
+
+#+begin_src emacs-lisp
+(use-package avy-embark-collect
+  :after (avy embark))
 #+end_src
 
 *** avy-flyspell
@@ -2010,7 +2047,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   (doc-view-resolution 300))
 #+end_src
 
-** doxymacs
+** COMMENT doxymacs
 
 #+begin_src emacs-lisp
 (use-package doxymacs
@@ -2021,6 +2058,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
 #+end_src
 
 ** eager-state
+
 #+begin_src emacs-lisp
 (use-package eager-state
   :config
@@ -8228,6 +8266,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                '(eglot (styles orderless basic))))
 #+end_src
 
+**** consult-eglot-embark
+
+#+begin_src emacs-lisp
+(use-package consult-eglot-embark
+  :after (consult eglot embark))
+#+end_src
+
 *** lisp-mode
 
 #+begin_src emacs-lisp
@@ -11702,6 +11747,14 @@ A group FOO is composed of contacts with the tag FOO."
                     (format-time-string (org-time-stamp-format t t))))))
 #+end_src
 
+*** org-vcard
+
+#+begin_src emacs-lisp
+(use-package org-vcard
+  :after (org)
+  :commands (org-vcard-import org-vcard-export))
+#+end_src
+
 *** COMMENT org-fancy-priorities
 
 Org mode is great. It is powerful, versatile and customizable. Unfortunately,
@@ -11788,8 +11841,6 @@ displays the priority part of a heading as your preferred string value.
 #+begin_src emacs-lisp
 (use-package org-id
   :after org
-  :bind (:map org-mode-map
-              ("C-c C-x i" . org-id-get-create))
   :custom
   (org-id-link-to-org-use-id 'use-existing)
   (org-id-locations-file (user-data "org-id-locations"))
@@ -11959,7 +12010,7 @@ displays the priority part of a heading as your preferred string value.
   :after org)
 #+end_src
 
-*** org-quick-peek
+*** COMMENT org-quick-peek
 
 #+begin_src emacs-lisp
 (use-package org-quick-peek
@@ -13396,6 +13447,47 @@ own lines, for instance.
   :after (calfw)
   :config
   (setq cfw:org-agenda-schedule-args '(:deadline :timestamp :sexp)))
+#+end_src
+
+*** org-autolist
+
+[[https://github.com/calvinwyoung/org-autolist][org-autolist]] makes org-mode lists behave more like lists in non-programming
+editors such as Google Docs, MS Word, and OS X Notes.
+
+When editing a list item, pressing "Return" will insert a new list item
+automatically. This works for both bullet points and checkboxes, so there's no
+need to think about whether to use =M-<return>= or =M-S-<return>=. Similarly,
+pressing "Backspace" at the beginning of a list item deletes the bullet /
+checkbox, and moves the cursor to the end of the previous line.
+
+#+begin_src emacs-lisp
+(use-package org-autolist
+  :after (org)
+  :diminish org-autolist-mode
+  :hook (org-mode . org-autolist-mode))
+#+end_src
+
+*** org-mru-clock
+
+#+begin_src emacs-lisp
+(use-package org-mru-clock
+  :after (org)
+  :bind* (("C-c C-x i" . org-mru-clock-in)
+          ("C-c C-x C-j" . org-mru-clock-select-recent-task))
+  :custom
+  (org-mru-clock-how-many 100))
+#+end_src
+
+*** org-sql
+
+[[https://github.com/ndwarshuis/org-sql][org-sql]] code stores org buffers in a variety of SQL databases for use in
+processing org-mode data outside of Emacs where SQL operations might be more
+appropriate. Org files are stored according to the perspective of unique org
+outline; any outline might reside in multiple identical files.
+
+#+begin_src emacs-lisp
+(use-package org-sql
+  :defer t)
 #+end_src
 
 ** Games

@@ -503,15 +503,14 @@ transform."
                     results))))
     results))
 
-(defun init-org-packages ()
-  (let (results)
-    (while (re-search-forward
-            (rx (seq bol
-                     "*" (one-or-more "*") " "
-                     (group (opt (group "COMMENT "))
-                            (group (one-or-more (any "+-" alnum))))
-                     eol))
-            nil t)
+(defun init-org-next-package ()
+  (if (re-search-forward
+       (rx (seq bol
+                "*" (one-or-more "*") " "
+                (group (opt (group "COMMENT "))
+                       (group (one-or-more (any "+-" alnum))))
+                eol))
+       nil t)
       (let* ((heading (match-string-no-properties 1))
              (name (match-string-no-properties 3))
              (commented (or (match-string-no-properties 2)
@@ -530,14 +529,18 @@ transform."
                     (and (re-search-forward ":nix \\([[:alnum:]+-]+\\))?$" end t)
                          (match-string-no-properties 1))))
                  (no-nix (and nix-name (string= nix-name "nil"))))
-            (setq results
-                  (cons (cons (if no-nix name (or nix-name name))
-                              (append
-                               (and commented (list :commented))
-                               (and no-require (list :no-require))
-                               (and from-load-path (list :from-load-path))
-                               (and no-nix (list :no-nix))))
-                        results))))))
+            (cons (if no-nix name (or nix-name name))
+                  (append (and commented (list :commented))
+                          (and no-require (list :no-require))
+                          (and from-load-path (list :from-load-path))
+                          (and no-nix (list :no-nix)))))))
+    (ignore (goto-char (point-max)))))
+
+(defun init-org-packages ()
+  (let (results)
+    (while (not (eobp))
+      (when-let ((pkg (init-org-next-package)))
+        (setq results (cons pkg results))))
     (nreverse results)))
 
 (defun parse-packages (path func)
