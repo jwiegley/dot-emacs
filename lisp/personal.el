@@ -503,21 +503,22 @@ transform."
                     results))))
     results))
 
+(defconst init-org-name-re
+  (rx (seq bol
+           "*" (one-or-more "*") " "
+           (group (opt (group "COMMENT "))
+                  (group (one-or-more (any "+-" alnum))))
+           eol)))
+
 (defun init-org-next-package ()
-  (if (re-search-forward
-       (rx (seq bol
-                "*" (one-or-more "*") " "
-                (group (opt (group "COMMENT "))
-                       (group (one-or-more (any "+-" alnum))))
-                eol))
-       nil t)
+  (if (re-search-forward init-org-name-re nil t)
       (let* ((heading (match-string-no-properties 1))
              (name (match-string-no-properties 3))
              (commented (or (match-string-no-properties 2)
                             (org-within-commented-block)))
              (end (save-excursion
-                    (org-next-visible-heading 1)
-                    (point))))
+                    (and (re-search-forward "^\\*+ " nil t)
+                         (point)))))
         (when (save-excursion
                 (re-search-forward "use-package [[:alnum:]+-]+" end t))
           (let* ((no-require
@@ -613,7 +614,8 @@ transform."
               (insert (format " %S" (cdar item)))))
           (insert ?\n))))
     (goto-char (point-min))
-    (pop-to-buffer (current-buffer))))
+    (unless (eobp)
+      (pop-to-buffer (current-buffer)))))
 
 (provide 'personal)
 

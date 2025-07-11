@@ -13229,7 +13229,7 @@ checkbox, and moves the cursor to the end of the previous line.
 
 #+begin_src emacs-lisp
 (use-package org-autolist
-  :after (org)
+  :load-path "lisp/org-autolist"
   :diminish org-autolist-mode
   :hook (org-mode . org-autolist-mode))
 #+end_src
