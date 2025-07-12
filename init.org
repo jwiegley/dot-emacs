@@ -4775,7 +4775,7 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
   ("<C-m> c"     . mc/mark-all-dwim)
   ("<C-m> l"     . mc/insert-letters)
   ("<C-m> n"     . mc/insert-numbers)
-  ;; ("<C-m> r"     . mc/mark-all-in-region)
+  ("<C-m> A"     . mc/mark-all-in-region)
   ("<C-m> r"     . mc/mark-all-regexp)
   ("<C-m> s"     . set-rectangular-region-anchor)
   ("<C-m> %"     . mc/mark-all-in-region-regexp)
@@ -4892,6 +4892,65 @@ Or you can edit the original files and watch the =*multifile*= buffer change.
 (use-package ace-mc
   :bind (("<C-m> ."   . ace-mc-add-multiple-cursors)
          ("<C-m> M-." . ace-mc-add-single-cursor)))
+#+end_src
+
+*** mc-pretty-hydra
+
+#+begin_src emacs-lisp
+(use-package mc-pretty-hydra
+  :no-require t
+  :config
+  (pretty-hydra-define
+    multiple-cursors
+    (:color teal :quit-key "q")
+    ("Mark/Unmark"
+     (("c"     mc/mark-all-dwim "DWIM")
+      ("A"     mc/mark-all-in-region "in region")
+      ("r"     mc/mark-all-regexp "regexp")
+      ("%"     mc/mark-all-in-region-regexp "re in region")
+      ("."     ace-mc-add-multiple-cursors "ace add")
+      ("M-."   ace-mc-add-single-cursor "ace add sing")
+      ("C-d"   mc/remove-current-cursor "remove current")
+      ("C-k"   mc/remove-cursors-at-eol "remove at eol")
+      ("M-d"   mc/remove-duplicated-cursors "remove dups")
+      ("^"     mc/edit-beginnings-of-lines "line begin")
+      ("`"     mc/edit-beginnings-of-lines "line begin")
+      ("$"     mc/edit-ends-of-lines "line end")
+      ("'"     mc/edit-ends-of-lines "line end")
+      ("<"     mc/mark-all-above "longer above")
+      (">"     mc/mark-all-below "longer below"))
+     "Like This"
+     (("a"     mc/mark-all-like-this-dwim "all DWIM")
+      ("w"     mc/mark-next-like-this-word "next word")
+      ("W"     mc/mark-all-words-like-this "all words")
+      ("y"     mc/mark-next-like-this-symbol "next symbol")
+      ("Y"     mc/mark-all-symbols-like-this "all symbols")
+      ("x"     mc/mark-more-like-this-extended "extended")
+      ("("     mc/mark-all-symbols-like-this-in-defun "syms in defun")
+      ("C-("   mc/mark-all-words-like-this-in-defun "words in defun")
+      ("M-("   mc/mark-all-like-this-in-defun "all in defun")
+      ("M-C-f" mc/mark-next-sexps "next sexps")
+      ("M-C-b" mc/mark-previous-sexps "prev sexps")
+      ("= c"   mc-calc "calc")
+      ("= ="   mc-calc-eval "eval")
+      ("= g"   mc-calc-grab "grab")
+      ("= b"   mc-calc-copy-to-buffer "copy"))
+     "Utils"
+     (("l"     mc/insert-letters "letters")
+      ("n"     mc/insert-numbers "numbers")
+      ("R"     mc/reverse-regions "reverse")
+      ("S"     mc/sort-regions "sort")
+      ("["     mc/vertical-align-with-space "align with space")
+      ("{"     mc/vertical-align "align")
+      ("|"     mc/move-to-column "-> col")
+      ("~"     mc/compare-chars "cmp chr")
+      ("s"     set-rectangular-region-anchor "rect anchor")
+      ("C-y"   yank-rectangle "yank rect")
+      ("]"     mc/rect-rectangle-to-multiple-cursors "rect to mult")
+      ("t"     mc/mark-sgml-tag-pair "tag pair")
+      ("C-x"   reactivate-mark "activate mark")
+      ("C-SPC" mc/mark-pop "mark pop")
+      ("f"     mc/freeze-fake-cursors-dwim "freeze fake")))))
 #+end_src
 
 ** COMMENT names
@@ -5341,6 +5400,7 @@ append it to ENTRY."
                      (unless (eq display-name 'imac)
                        (display-battery-mode 1))))
   (before-save . sort-emacs-nix-file)
+  (after-save . my/check-emacs-nix)
   :custom
   (user-initials "jww")
   :preface
@@ -5348,6 +5408,11 @@ append it to ENTRY."
     (interactive)
     (scratch "*scratch/elisp*")
     (emacs-lisp-mode))
+
+  (defun my/check-emacs-nix ()
+    (when (member (file-name-nondirectory (buffer-file-name))
+                  '("init.org" "emacs.nix"))
+      (review-emacs-nix-file)))
 
   (defconst display-name
     (pcase (display-pixel-width)
@@ -13232,6 +13297,15 @@ checkbox, and moves the cursor to the end of the previous line.
   :load-path "lisp/org-autolist"
   :diminish org-autolist-mode
   :hook (org-mode . org-autolist-mode))
+#+end_src
+
+*** COMMENT org-margin
+
+#+begin_src emacs-lisp
+(use-package org-margin
+  :after (org)
+  :config
+  (org-margin-mode 1))
 #+end_src
 
 *** org-mru-clock

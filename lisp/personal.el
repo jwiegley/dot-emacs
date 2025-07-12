@@ -571,11 +571,14 @@ transform."
             :key #'car
             :compare #'string<
             :test #'string=
-            :merge (lambda (x y)
-                     (let ((x-prime (seq-remove (lambda (i) (memq i excluded-keywords)) x))
-                           (y-prime (seq-remove (lambda (i) (memq i excluded-keywords)) y)))
-                       (unless (equal x-prime y-prime)
-                         (vector x-prime y-prime)))))))
+            :merge
+            (lambda (x y)
+              (let ((x-prime
+                     (seq-remove (lambda (i) (memq i excluded-keywords)) x))
+                    (y-prime
+                     (seq-remove (lambda (i) (memq i excluded-keywords)) y)))
+                (unless (equal x-prime y-prime)
+                  (vector x-prime y-prime)))))))
       (dolist (item combined)
         (when (or arg
                   (cl-case (cdr item)
@@ -585,14 +588,12 @@ transform."
                     (t t)))
           (let ((both-mismatch (and (eq (cdr item) :both)
                                     (vectorp (cdar item)))))
-            (cond ((eq (cdr item) :left)
-                   (insert "<< "))
-                  ((eq (cdr item) :right)
-                   (insert ">> "))
-                  (both-mismatch
-                   (insert "!! "))
-                  (t
-                   (insert "== ")))
+            (cl-case (cdr item)
+              (:left  (insert "<< "))
+              (:right (insert ">> "))
+              (:both  (if (vectorp (cdar item))
+                          (insert "!! ")
+                        (insert "== "))))
             (if both-mismatch
                 (insert "     ")
               (insert
@@ -600,14 +601,10 @@ transform."
                        (with-temp-buffer
                          (dolist (item (cdar item))
                            (cl-case item
-                             (:commented
-                              (insert ";"))
-                             (:no-require
-                              (insert "r"))
-                             (:from-load-path
-                              (insert "l"))
-                             (:no-nix
-                              (insert "n"))))
+                             (:commented      (insert ";"))
+                             (:no-require     (insert "r"))
+                             (:from-load-path (insert "l"))
+                             (:no-nix         (insert "n"))))
                          (buffer-string)))))
             (insert (caar item))
             (when both-mismatch
