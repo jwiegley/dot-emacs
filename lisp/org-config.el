@@ -260,6 +260,11 @@
       "* TODO %?\nSCHEDULED: %t"
       :prepend t)
 
+     ("d" "DRAFT" entry
+      ,Inbox
+      "* DRAFT %U\n%?"
+      :prepend t)
+
      ("j" "Journal" entry
       (file ,(expand-file-name org-constants-journelly-path))
       "* %U\n%?"
